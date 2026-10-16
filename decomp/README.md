@@ -5256,3 +5256,10 @@ Mixed-raid target availability versus member-order refresh: see
 [the static evidence and live-caller regression](research/mixed-raid-target-exhaustion/README.md).
 
 - [Ordinary selector globe texture, rings, UV and vertex light](research/world-selector-globes.md)
+
+## Original frontend Quit submenu
+
+[Menu1 source evidence](research/frontend-quit-menu/README.md) records the hash-locked
+Quit?/Yes/No/Back descriptors, font flags, native positions, shadows and navigation.
+The browser preserves that presentation with an explicitly unavailable Yes and
+conditional checkpoint guidance; this is not native exit-behavior parity.

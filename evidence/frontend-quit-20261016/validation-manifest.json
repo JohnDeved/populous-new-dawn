@@ -1,0 +1,1087 @@
+{
+  "head": "927fd7cbaa757c45a2f629700757e5d72e3c96f4",
+  "createdAt": "2026-10-16T04:00:37.053452+00:00",
+  "qualification": "Original absolute receipt paths remain unchanged. Archive names below map original retained files to portable members. Source and explicit input hashes, raw stdout/stderr, invalidated attempt, both runner variants and fresh recovery are preserved without rewriting receipts.",
+  "members": {
+    "baseline-quality/dupes.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/dupes.json",
+      "sha256": "54e81205b9d2d3ca9ff308cb20d546083f2e83fdae34f83438c68e6adf90ad78",
+      "bytes": 9755
+    },
+    "baseline-quality/dupes.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/dupes.json.artifacts/stderr.log",
+      "sha256": "e9fc6a4ce5235dbeca1fd1d048af5448b765f63e432160a5deadc562af487cc9",
+      "bytes": 407
+    },
+    "baseline-quality/dupes.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/dupes.json.artifacts/stdout.log",
+      "sha256": "3b899bb0b8f235c3c66e20ff228922006592ff17c6e961f442de3b007d16adde",
+      "bytes": 7153
+    },
+    "baseline-quality/eslint.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/eslint.json",
+      "sha256": "bd37b64966926e2f4533ec47e7cea6bd8c0b5b5080c656d36d30ef793fb1fe7e",
+      "bytes": 52336
+    },
+    "baseline-quality/eslint.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/eslint.json.artifacts/stderr.log",
+      "sha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65",
+      "bytes": 307
+    },
+    "baseline-quality/eslint.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/eslint.json.artifacts/stdout.log",
+      "sha256": "a3c77a477ad4896def2e0a26a13eeca7ffd49d280787c307882d9dd6a83413f4",
+      "bytes": 49399
+    },
+    "baseline-quality/format.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/format.json",
+      "sha256": "3a5228d6078096aaea5194fac3a180ee555a4ac5a8d229b361b8d3cd80f639a8",
+      "bytes": 2432
+    },
+    "baseline-quality/format.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/format.json.artifacts/stderr.log",
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "bytes": 99
+    },
+    "baseline-quality/format.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/format.json.artifacts/stdout.log",
+      "sha256": "fce496c59b48c90618f03f700a715633b6a4ebbc64f6d82cec9d48ae55465f37",
+      "bytes": 248
+    },
+    "baseline-quality/health.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/health.json",
+      "sha256": "f7ddc6b50a617384ace01a2a73edcd42f1626cc6d367dd57cebc0c035383b5c7",
+      "bytes": 8956
+    },
+    "baseline-quality/health.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/health.json.artifacts/stderr.log",
+      "sha256": "b980b54f9648a4a6ec82817a2aec46a40eb23fe989067852fe976630fef97c8a",
+      "bytes": 537
+    },
+    "baseline-quality/health.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/health.json.artifacts/stdout.log",
+      "sha256": "75ac3b870c74e298da1cfaafef416289bc6dded8bbaf9b2677bd569a1e178362",
+      "bytes": 6264
+    },
+    "baseline-quality/oxlint.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/oxlint.json",
+      "sha256": "aaa71b25acd081017634f4eb066f002831bb736b5255dfecf99aea624b287f3e",
+      "bytes": 286565
+    },
+    "baseline-quality/oxlint.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/oxlint.json.artifacts/stderr.log",
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "bytes": 99
+    },
+    "baseline-quality/oxlint.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/oxlint.json.artifacts/stdout.log",
+      "sha256": "371d91d55268628c9c35b39008f6f58b613e6cbae941472df4a8d399a5399270",
+      "bytes": 282950
+    },
+    "baseline-quality/unused.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/unused.json",
+      "sha256": "4b5872abe906a66c4306c1b0896c2bb6e3371473ed77960675deeaeda904c193",
+      "bytes": 9933
+    },
+    "baseline-quality/unused.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/unused.json.artifacts/stderr.log",
+      "sha256": "e93db07f69a436ab2efa42ffe7a86e287e51f52afb3da2e94d70e3e4fb49df06",
+      "bytes": 601
+    },
+    "baseline-quality/unused.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/loading-recovery457/adb0f10a/unused.json.artifacts/stdout.log",
+      "sha256": "0c76977c065c823c88a53956179d355aee202669b5bdaa3a8e2414ebe80198d1",
+      "bytes": 7094
+    },
+    "candidate/dupes.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/dupes.json",
+      "sha256": "ef21fd1e583d0e3ed43945dd28293d18cd8e86d0df96eaba9e57a7ab9a64d496",
+      "bytes": 9721
+    },
+    "candidate/dupes.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/dupes.json.artifacts/stderr.log",
+      "sha256": "a428764f248074a8fe74ca5cbabc9bc9f1b3e619503d9c84a514f8d2a66d5062",
+      "bytes": 407
+    },
+    "candidate/dupes.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/dupes.json.artifacts/stdout.log",
+      "sha256": "be2024a2ef3102cfdae001d11c06724de855635d5f6704bdb8976ac30c31fa90",
+      "bytes": 7153
+    },
+    "candidate/eslint.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/eslint.json",
+      "sha256": "097f3bf2c93401589491fe6c60fdda79492fb72d3012dc0d3c5b5ea1f2d1b958",
+      "bytes": 52302
+    },
+    "candidate/eslint.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/eslint.json.artifacts/stderr.log",
+      "sha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65",
+      "bytes": 307
+    },
+    "candidate/eslint.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/eslint.json.artifacts/stdout.log",
+      "sha256": "a3c77a477ad4896def2e0a26a13eeca7ffd49d280787c307882d9dd6a83413f4",
+      "bytes": 49399
+    },
+    "candidate/eslintChanged.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/eslintChanged.json",
+      "sha256": "d5b6ced5c06818cf13d0b970d2a7f564211be33e8d1504e6c2d89d9ed7bf5eba",
+      "bytes": 2130
+    },
+    "candidate/eslintChanged.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/eslintChanged.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/eslintChanged.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/eslintChanged.json.artifacts/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/focused.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/focused.json",
+      "sha256": "f7d33adec620a595fdc469881026ae4eb30093cf6c86eb3d3d84b41dd19c0ca3",
+      "bytes": 3648
+    },
+    "candidate/focused.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/focused.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/focused.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/focused.json.artifacts/stdout.log",
+      "sha256": "4c17c74e87d71bf4d66cc48bf1184c4561f6d80b9a8b1db4a6a12989a941b45f",
+      "bytes": 1478
+    },
+    "candidate/format.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/format.json",
+      "sha256": "ea13066156690db63e0b2f696d6cc73d862e894af9503ac2bbdd765893fd3b99",
+      "bytes": 2398
+    },
+    "candidate/format.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/format.json.artifacts/stderr.log",
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "bytes": 99
+    },
+    "candidate/format.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/format.json.artifacts/stdout.log",
+      "sha256": "a812628f6957acd1b1681a50573fda47251d7a830633e67f76202d68ae5de7a6",
+      "bytes": 248
+    },
+    "candidate/formatChanged.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/formatChanged.json",
+      "sha256": "3332cb9a73602d629ba429bae620218b8bdc1614d2c1afd353c1ba8d954b1640",
+      "bytes": 2254
+    },
+    "candidate/formatChanged.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/formatChanged.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/formatChanged.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/formatChanged.json.artifacts/stdout.log",
+      "sha256": "a19c6b993d548f6964caf1fd932b4e3cea844b5bd3966753605551843e3da40b",
+      "bytes": 110
+    },
+    "candidate/health.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/health.json",
+      "sha256": "ada9154ffb41fd2cfec1bf219ecc7572068a0b5c9b870c0f4536f428a3f43ab8",
+      "bytes": 9037
+    },
+    "candidate/health.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/health.json.artifacts/stderr.log",
+      "sha256": "0088c71d70918832251a4004cedb8b78918c13e46e76ebf76112b631726855cd",
+      "bytes": 537
+    },
+    "candidate/health.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/health.json.artifacts/stdout.log",
+      "sha256": "666ac6f2b80d892b5d61e02e4bcc63ca62f4965bdb6bea432b54efc3597b34ac",
+      "bytes": 6376
+    },
+    "candidate/inventory-01-recovery1.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-01-recovery1.json",
+      "sha256": "51d362877fda12820e23a43924529c3ad8ac580046d4cd6b9d99ad1c59d18d5c",
+      "bytes": 11801
+    },
+    "candidate/inventory-01-recovery1.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-01-recovery1.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-01-recovery1.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-01-recovery1.json.artifacts/stdout.log",
+      "sha256": "00b8eb452244cbec7a6d2650a56a5707e94321861fe73f8ccef91ef7c13e4b50",
+      "bytes": 7943
+    },
+    "candidate/inventory-01.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-01.json",
+      "sha256": "e2c1700e8cbaedadacd574069d3024dba0544a9575ec747f49020931ce5d230d",
+      "bytes": 11015
+    },
+    "candidate/inventory-01.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-01.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-01.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-01.json.artifacts/stdout.log",
+      "sha256": "9159a92231af8763c7fc2d6f3610ddbcbabdf861836a59d8b21b240ef046f320",
+      "bytes": 7938
+    },
+    "candidate/inventory-02.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-02.json",
+      "sha256": "506208da313121e6cc76861fed784a49c948989b604df6601aa6a64cce32cf79",
+      "bytes": 8972
+    },
+    "candidate/inventory-02.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-02.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-02.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-02.json.artifacts/stdout.log",
+      "sha256": "ca59267dd2488248260fcd802b17812ddd3f78f3f892ee93d1fc995a1d6e252b",
+      "bytes": 6117
+    },
+    "candidate/inventory-03.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-03.json",
+      "sha256": "58403ef1c06144a83e6612b7e30226074fb32c234c991b6e69fdd6e05cf3d64b",
+      "bytes": 6709
+    },
+    "candidate/inventory-03.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-03.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-03.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-03.json.artifacts/stdout.log",
+      "sha256": "a953cdb9e7cd18d7e530b7cf9f05668f5679dff71e2187c443b7d92314ea4ee4",
+      "bytes": 3845
+    },
+    "candidate/inventory-04.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-04.json",
+      "sha256": "f143ae4588b354551f310b096d2c1b95074e20c2dc0891c1e3e1a9b0ab18aa9a",
+      "bytes": 11531
+    },
+    "candidate/inventory-04.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-04.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-04.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-04.json.artifacts/stdout.log",
+      "sha256": "f148928f17f7c568980de58a9890f87ce5221f0985c7edbe319aa7f7581aed15",
+      "bytes": 8535
+    },
+    "candidate/inventory-05.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-05.json",
+      "sha256": "dafc289b2993c97c546e997bc8c65f165c60a5bb9617384ab2b87a297ce6b48c",
+      "bytes": 8855
+    },
+    "candidate/inventory-05.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-05.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-05.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-05.json.artifacts/stdout.log",
+      "sha256": "09767e5345fe262a7b850e249707eb558bcb865e46e2d082f851c3c54b53dcd2",
+      "bytes": 5972
+    },
+    "candidate/inventory-06.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-06.json",
+      "sha256": "bc81efebf797f3665d4666bf92d46bc546838b3ab6fd56bfa14478072b5f5d32",
+      "bytes": 9414
+    },
+    "candidate/inventory-06.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-06.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-06.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-06.json.artifacts/stdout.log",
+      "sha256": "aa855424a077cdbf2b7b014410b56b5550f94e48551b1b452e8a9520fce4e785",
+      "bytes": 6502
+    },
+    "candidate/inventory-07.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-07.json",
+      "sha256": "025f7d6129212c6f600d79c8ba50b6453276a952e435a9e6fbbff5f85a8778c7",
+      "bytes": 8575
+    },
+    "candidate/inventory-07.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-07.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-07.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-07.json.artifacts/stdout.log",
+      "sha256": "98951e9beebf89598169bcedc44b17d2d03f30896988b235899c4f5c836f85c3",
+      "bytes": 5571
+    },
+    "candidate/inventory-08.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-08.json",
+      "sha256": "bd109f49807563478fccb781bf65073d7cf336e556be94c8ba457fe601a9aea3",
+      "bytes": 10055
+    },
+    "candidate/inventory-08.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-08.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-08.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-08.json.artifacts/stdout.log",
+      "sha256": "923b338060a4a9ccdc9e5b4d02c4bb3ec76c544ae06d71ddddf27f9f2a1aef83",
+      "bytes": 7196
+    },
+    "candidate/inventory-09.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-09.json",
+      "sha256": "cc969b62de1b4ca5563c4f4fe5783fd0a6af906ab983d17ec39a2d12c67a0f8c",
+      "bytes": 6861
+    },
+    "candidate/inventory-09.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-09.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-09.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-09.json.artifacts/stdout.log",
+      "sha256": "5539c413655bd76e20b33264a3d7026fbf78e2c3ea776c109de67b791b1cdd3f",
+      "bytes": 4042
+    },
+    "candidate/inventory-10.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-10.json",
+      "sha256": "30d01481eb124c6784e2c1563d0f6d032f79249dbf25404b7ee3698633a76aa6",
+      "bytes": 9540
+    },
+    "candidate/inventory-10.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-10.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-10.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-10.json.artifacts/stdout.log",
+      "sha256": "f775009fa5158787a4a782d8550db24420568ec118f8eec41039c7d0606abd09",
+      "bytes": 6608
+    },
+    "candidate/inventory-11.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-11.json",
+      "sha256": "35a05eeb396a26e1698450a9ddae32ed9f451546e06a7939abfb732729c6ee6d",
+      "bytes": 7703
+    },
+    "candidate/inventory-11.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-11.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-11.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-11.json.artifacts/stdout.log",
+      "sha256": "cce7d48db9e90866ef4947d11d948dc59440800693d836ff6d20b05de8556b0f",
+      "bytes": 4840
+    },
+    "candidate/inventory-12.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-12.json",
+      "sha256": "09fa859e561d8150d9311536dc8d0394c63e817de70b1acf635087c041934826",
+      "bytes": 8131
+    },
+    "candidate/inventory-12.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-12.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-12.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-12.json.artifacts/stdout.log",
+      "sha256": "2f24426186a27e3032034bfcace00b97718121604e9f7d3d9de2a9da135024ee",
+      "bytes": 5267
+    },
+    "candidate/inventory-13.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-13.json",
+      "sha256": "522213db658c27c6d9fb53dc4f1afd0002be1c41bd320caaabbae2218e2b3137",
+      "bytes": 8662
+    },
+    "candidate/inventory-13.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-13.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-13.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-13.json.artifacts/stdout.log",
+      "sha256": "4af01ff6d978e6a3fef82b3074b4f63bb8c940bcae7522b3bc25c5e97ad9ecb9",
+      "bytes": 5793
+    },
+    "candidate/inventory-14.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-14.json",
+      "sha256": "d4044981b28f015fab1faf4cfda71178cf9f994ab4a28330d58853056ba312fc",
+      "bytes": 21908
+    },
+    "candidate/inventory-14.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-14.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-14.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-14.json.artifacts/stdout.log",
+      "sha256": "8055890f81ea8a2fe90a28390116fbb46420c8fb1216da3f4e31937f49a4a6d2",
+      "bytes": 18716
+    },
+    "candidate/inventory-15.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-15.json",
+      "sha256": "efd33dca70541668cf4d09e0002ff7eea7da5df8f805c74db2295d8aff28b063",
+      "bytes": 12005
+    },
+    "candidate/inventory-15.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-15.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-15.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-15.json.artifacts/stdout.log",
+      "sha256": "b9ff4bf5f98ac7945a2f5fec04d6561c77bc1f7d620116e01bb8c26a2086d051",
+      "bytes": 9047
+    },
+    "candidate/inventory-16.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-16.json",
+      "sha256": "2386ed8cb7ddd0ad223223518841ec0ea73e8923b939f97c4ab3b888312036e8",
+      "bytes": 8532
+    },
+    "candidate/inventory-16.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-16.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-16.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-16.json.artifacts/stdout.log",
+      "sha256": "8bf0c8bda838f50e75ac5809ca6f7f6703d60936360449008c6a179f66d49e1b",
+      "bytes": 5663
+    },
+    "candidate/inventory-17.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-17.json",
+      "sha256": "a62e3727662349f19bf1fbed5265d5366f14e7397fcbae0448a7e7066ba876f6",
+      "bytes": 9503
+    },
+    "candidate/inventory-17.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-17.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-17.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-17.json.artifacts/stdout.log",
+      "sha256": "85d353e5c472d94f79af26eca7581a8185c73af2c1b1da8f483f064d375fac7d",
+      "bytes": 6643
+    },
+    "candidate/inventory-18.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-18.json",
+      "sha256": "a4a6381d3d524138d6bafb253776cfebf64a486019c381056d3601ce480e1e77",
+      "bytes": 12004
+    },
+    "candidate/inventory-18.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-18.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-18.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-18.json.artifacts/stdout.log",
+      "sha256": "5feb1495ecabec96c6fbab263a2e18bf7c8a96b0c85c4c15fc48199834716726",
+      "bytes": 9137
+    },
+    "candidate/inventory-19.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-19.json",
+      "sha256": "708306385b238dcc1cfeedcf498afbb5a23ba22a9fd78683aaf4653ad7b1389b",
+      "bytes": 10871
+    },
+    "candidate/inventory-19.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-19.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-19.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-19.json.artifacts/stdout.log",
+      "sha256": "29b8f2e15172c052ce05e3b79ea0a1dd529f3c019ad28f36587643c2244ccd00",
+      "bytes": 7902
+    },
+    "candidate/inventory-20.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-20.json",
+      "sha256": "43bfd220ad9aeef8a7f265622c5ac6dc8271ac85567320137167fa078b2bde92",
+      "bytes": 7874
+    },
+    "candidate/inventory-20.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-20.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-20.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-20.json.artifacts/stdout.log",
+      "sha256": "cedf012948d0e29c0b9aa9c2bf8683cfa001e55db1345f0cc173615208e7654d",
+      "bytes": 4984
+    },
+    "candidate/inventory-21.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-21.json",
+      "sha256": "6647981b2a20ce529067142b83a8b278c5136d63f0669eebc5d110cb4a14dd9b",
+      "bytes": 6951
+    },
+    "candidate/inventory-21.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-21.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-21.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-21.json.artifacts/stdout.log",
+      "sha256": "9d022b8534e9938ccb2cac028616f041c30cef66fabc1ba673f8052e1ae05ebe",
+      "bytes": 4120
+    },
+    "candidate/inventory-22.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-22.json",
+      "sha256": "899cfcf6de61d77c3129e30405ee5094b8231eab1101f6738991c94c45fcd39e",
+      "bytes": 11884
+    },
+    "candidate/inventory-22.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-22.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-22.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-22.json.artifacts/stdout.log",
+      "sha256": "6e5cdf83747e05226be76c173e04313f19fcb5b6e48f64e5fce10e92c65707cb",
+      "bytes": 8934
+    },
+    "candidate/inventory-23.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-23.json",
+      "sha256": "0975414ecbdbd7705484437e4bab51146736899e2aedf668c2053c13ebab5622",
+      "bytes": 6402
+    },
+    "candidate/inventory-23.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-23.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-23.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-23.json.artifacts/stdout.log",
+      "sha256": "a72831b8425866fe5cec5b261af8a8056a2075b3ce2d17a36a2e85c8f6e3a143",
+      "bytes": 3531
+    },
+    "candidate/inventory-24.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-24.json",
+      "sha256": "3ffc36ea948c797d03a434d1d21143f7988aec802c8711a11abfae90d27c69b7",
+      "bytes": 6120
+    },
+    "candidate/inventory-24.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-24.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-24.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-24.json.artifacts/stdout.log",
+      "sha256": "011644fd77dd2d1a185868606b360ad70e8db12ac46e4a2324a3bf9675663070",
+      "bytes": 3226
+    },
+    "candidate/inventory-25.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-25.json",
+      "sha256": "2baa7bbdc4521437aa4312d229073dc8b46eec301209d4d3fcbb8c815bed37a8",
+      "bytes": 7254
+    },
+    "candidate/inventory-25.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-25.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-25.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-25.json.artifacts/stdout.log",
+      "sha256": "7b6ac194e6228497fc92b51e1d7aaf2c08fd4f3b067ed80644135e1f43d894d9",
+      "bytes": 4423
+    },
+    "candidate/inventory-26.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-26.json",
+      "sha256": "4a12be7d95e192c699c32c30e656398addbcb3921d9f65fbf623b206da19fd7c",
+      "bytes": 12340
+    },
+    "candidate/inventory-26.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-26.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-26.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-26.json.artifacts/stdout.log",
+      "sha256": "6dc3d6e1ec42876b11c4a46a6ad0c0a9dd24dcc0711853b86786902d7b263ca6",
+      "bytes": 9365
+    },
+    "candidate/inventory-27.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-27.json",
+      "sha256": "ae43914ca4f92b569e119199bc221bd3ab863066d79ea42ea06b2d805498115c",
+      "bytes": 15148
+    },
+    "candidate/inventory-27.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-27.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-27.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-27.json.artifacts/stdout.log",
+      "sha256": "c58ec1d34f11ff9ff818743788ba1d5af1a5d4399174175d7940a27f06d75a00",
+      "bytes": 11937
+    },
+    "candidate/inventory-28.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-28.json",
+      "sha256": "93b82b140dd7a79902dd76eea0d7a77e1932f5a62349b45423ba8a4cfa31c2d7",
+      "bytes": 8276
+    },
+    "candidate/inventory-28.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-28.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-28.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-28.json.artifacts/stdout.log",
+      "sha256": "c2396b75752dc8f7f576946b9a0e6f2e95dd617f67ed8fe857f40c17595c1fba",
+      "bytes": 5421
+    },
+    "candidate/inventory-29.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-29.json",
+      "sha256": "71816c29e8867b5ac093d17866b4331b0a55e3d68b96a049a49895594a4615f3",
+      "bytes": 15213
+    },
+    "candidate/inventory-29.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-29.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-29.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-29.json.artifacts/stdout.log",
+      "sha256": "2f2fe892f01e33b55f37d5f0cdeef7b19066bd4888a858aa73f7fd9b4dcd79dd",
+      "bytes": 12251
+    },
+    "candidate/inventory-30.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-30.json",
+      "sha256": "5185497138967dae271423897858a50ddb34b7e75d4f4cce5ed8194fd60c741f",
+      "bytes": 13986
+    },
+    "candidate/inventory-30.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-30.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-30.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-30.json.artifacts/stdout.log",
+      "sha256": "652cade78f750b650c08626fac628ed151499e4ef914e99e7534da8885caf8e5",
+      "bytes": 10984
+    },
+    "candidate/inventory-31.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-31.json",
+      "sha256": "f74207f39682389f5ccb09006eab4ee71665e9a72c9932e10a4898db1c26cc22",
+      "bytes": 10648
+    },
+    "candidate/inventory-31.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-31.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-31.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-31.json.artifacts/stdout.log",
+      "sha256": "6c99e444ac6f8045d9613b7b9b8a8eebd8cbebb29d69ea2e20e680d7f0b64459",
+      "bytes": 7523
+    },
+    "candidate/inventory-32.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-32.json",
+      "sha256": "d72779e176159eff87e00f08b4fb38796a36be1844ade56aa607ff53e9f05ad2",
+      "bytes": 8704
+    },
+    "candidate/inventory-32.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-32.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-32.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-32.json.artifacts/stdout.log",
+      "sha256": "74948a0c23e24420f58169b07389850fc4e1bfdcca7e30ef27222c9f545d405d",
+      "bytes": 5812
+    },
+    "candidate/inventory-33.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-33.json",
+      "sha256": "99843b1a875f19937ec81e311cf8b1c8336187d920ad58b4052a2a13805fc8c0",
+      "bytes": 20018
+    },
+    "candidate/inventory-33.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-33.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-33.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-33.json.artifacts/stdout.log",
+      "sha256": "a31a7d8d819c828f79a40a8ac2898c0242312936e2cf6ede7ef76059e9fea3cb",
+      "bytes": 16817
+    },
+    "candidate/inventory-34.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-34.json",
+      "sha256": "7d940f6d5803c1efffbda762958474b16468b092a4cefe9b0217439b56a49407",
+      "bytes": 7079
+    },
+    "candidate/inventory-34.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-34.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-34.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-34.json.artifacts/stdout.log",
+      "sha256": "3714a55d1f6fa475652546f33b107e2bfb9e14b0c5dd9250bccd67218bd910e5",
+      "bytes": 4265
+    },
+    "candidate/inventory-35.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-35.json",
+      "sha256": "763f434770bb03b8a034dc8e24ee29d51ea4f770b2960221a206f304d74f2ac8",
+      "bytes": 10142
+    },
+    "candidate/inventory-35.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-35.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-35.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-35.json.artifacts/stdout.log",
+      "sha256": "d55252ca578cf1a4423ccf817550959088624845a85fbf1844bb20fd343c1fe0",
+      "bytes": 7224
+    },
+    "candidate/inventory-36.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-36.json",
+      "sha256": "1def63006ea12a7a2e5a64ed51261155d26074c8ae118c7180c2e8e77c73c795",
+      "bytes": 10183
+    },
+    "candidate/inventory-36.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-36.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-36.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-36.json.artifacts/stdout.log",
+      "sha256": "e621914dc20f8d48b79342d211d6dc21d8dd47b7a1cf292b6ea57ba7b31e62e5",
+      "bytes": 7226
+    },
+    "candidate/inventory-37.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-37.json",
+      "sha256": "edb0d9736227b1be192acb8e6f1e6d71974b4979afa59e57dedfc2ca799db5ae",
+      "bytes": 9985
+    },
+    "candidate/inventory-37.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-37.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-37.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-37.json.artifacts/stdout.log",
+      "sha256": "06e95e158b039454cfccd9e67c0fea464ea320e8dbed5688a91c5a43ce5cbbce",
+      "bytes": 7095
+    },
+    "candidate/inventory-38.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-38.json",
+      "sha256": "78524ce9ca9a60a80fa5a5cb17a9a52542f7b2b8204d772008cf6d1b92e7cc99",
+      "bytes": 8167
+    },
+    "candidate/inventory-38.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-38.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-38.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-38.json.artifacts/stdout.log",
+      "sha256": "23d2ff8211a76eb1a3b42f4f205c705160853224e479a23a1e7478c8dbf574cf",
+      "bytes": 5331
+    },
+    "candidate/inventory-39.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-39.json",
+      "sha256": "06eccd59ba49c11b6fec0f5c2b68531f18efbadab7f0cfe73907cb5b06833bb6",
+      "bytes": 6748
+    },
+    "candidate/inventory-39.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-39.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-39.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-39.json.artifacts/stdout.log",
+      "sha256": "f3e95d1931298ece3e789411927934c811ea36f766b5d4712681fd48b7951410",
+      "bytes": 3913
+    },
+    "candidate/inventory-40.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-40.json",
+      "sha256": "2f297fc4c7b3ee403cf040aebb9f9db6d06c374f0a7a1096329cfd37dcb81562",
+      "bytes": 9635
+    },
+    "candidate/inventory-40.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-40.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-40.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-40.json.artifacts/stdout.log",
+      "sha256": "7f86d490ffd8fc283045d6c733ea7a17d9a60702a19e45b76e542ebf3d78a89f",
+      "bytes": 6612
+    },
+    "candidate/inventory-41.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-41.json",
+      "sha256": "8186d6cbdcb3ea353f2a6f7dc76bc0707a0e9f13ebe38ec30ce5c90e356fb37a",
+      "bytes": 9597
+    },
+    "candidate/inventory-41.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-41.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-41.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-41.json.artifacts/stdout.log",
+      "sha256": "049d14392defc7cd745cb81cc2afa85a54c31543a7f9f739e2f1887998764706",
+      "bytes": 6658
+    },
+    "candidate/inventory-42.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-42.json",
+      "sha256": "9a70b8dbe8e5c875fe087c134e2be11536828e9d9d9c74914336c0c5f0c0500e",
+      "bytes": 9974
+    },
+    "candidate/inventory-42.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-42.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-42.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-42.json.artifacts/stdout.log",
+      "sha256": "d7add7f9a44163292a784786d29c0a21620977e55c7b42513bad0aede0c0b159",
+      "bytes": 7099
+    },
+    "candidate/inventory-43.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-43.json",
+      "sha256": "6beeb89227802f323b125fe5d8a6e8e8576ea25ee300cf4c21ac70bede718f53",
+      "bytes": 8863
+    },
+    "candidate/inventory-43.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-43.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-43.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-43.json.artifacts/stdout.log",
+      "sha256": "20f849335c3f060403a6ed17290ad87cc830ac8ea3b6716efd726f40c249b248",
+      "bytes": 5969
+    },
+    "candidate/inventory-44.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-44.json",
+      "sha256": "f4288ff56ba1a15a4ce4beea17e43ceec459bf58f476cbbe9360c15aa611f06b",
+      "bytes": 4024
+    },
+    "candidate/inventory-44.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-44.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/inventory-44.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/inventory-44.json.artifacts/stdout.log",
+      "sha256": "fe29a387e9e3e89c545e6e25600e003c1d100d5d025eb993c59d372e4ee218c6",
+      "bytes": 1453
+    },
+    "candidate/orchestration.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/orchestration.json",
+      "sha256": "9775793d588319851d6481d27f04babb26643d7ef016472ce1bcd89200bcdf28",
+      "bytes": 8984
+    },
+    "candidate/orchestration.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/orchestration.json.artifacts/stderr.log",
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "bytes": 99
+    },
+    "candidate/orchestration.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/orchestration.json.artifacts/stdout.log",
+      "sha256": "376a4a729bb83c23353c6e4dee3ffe17201798d80f8038b31ad852e1fd5a3231",
+      "bytes": 6207
+    },
+    "candidate/oxlint.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/oxlint.json",
+      "sha256": "d999460af00efc0ad41a738b28d6bbd31cb6df25aef76731a0008fddc2400ca6",
+      "bytes": 286531
+    },
+    "candidate/oxlint.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/oxlint.json.artifacts/stderr.log",
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "bytes": 99
+    },
+    "candidate/oxlint.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/oxlint.json.artifacts/stdout.log",
+      "sha256": "142c5eeedf50fa60d69f38a1a5c3b1c089a68ac2c26e7f20d35326a20ae4f1d8",
+      "bytes": 282950
+    },
+    "candidate/parity.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/parity.json",
+      "sha256": "8cb9dbd681aa8da920025452f42a035249bc2c6c42f806264c8e2e119db3a807",
+      "bytes": 2295
+    },
+    "candidate/parity.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/parity.json.artifacts/stderr.log",
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "bytes": 99
+    },
+    "candidate/parity.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/parity.json.artifacts/stdout.log",
+      "sha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9",
+      "bytes": 152
+    },
+    "candidate/typecheck.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/typecheck.json",
+      "sha256": "7c1c4e91afdad5967984ce09874eb55154af3275b5461adf32fd0e4892c964ff",
+      "bytes": 2101
+    },
+    "candidate/typecheck.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/typecheck.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/typecheck.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/typecheck.json.artifacts/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate/unused.json": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/unused.json",
+      "sha256": "91eaf8ebbc348718789c90cf6d249972c61681c0879e769735a3d63459d4b837",
+      "bytes": 9899
+    },
+    "candidate/unused.json.artifacts/stderr.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/unused.json.artifacts/stderr.log",
+      "sha256": "83fc169f4570975f11c8f79e0965219a4f88426aaa19548e3471eca87f969b99",
+      "bytes": 601
+    },
+    "candidate/unused.json.artifacts/stdout.log": {
+      "source": "/tmp/populous-selector-scene-457/work/orchestration/quit-menu457/927fd7cb/unused.json.artifacts/stdout.log",
+      "sha256": "0c76977c065c823c88a53956179d355aee202669b5bdaa3a8e2414ebe80198d1",
+      "bytes": 7094
+    },
+    "independent-inventory/audit-inventory.py": {
+      "source": "/tmp/quit-ui-scope/inventory-audit/audit-inventory.py",
+      "sha256": "bb275496e0dca75c9d75136a832fdcc531abefa87aea8adf9a2adbe0748bc017",
+      "bytes": 6351
+    },
+    "independent-inventory/canonical-crosscheck.json": {
+      "source": "/tmp/quit-ui-scope/inventory-audit/canonical-crosscheck.json",
+      "sha256": "2466a325ad140f9faa55da6e43bd23a4dd4986c25a1d9eaffd9a23e7a5fd9b5b",
+      "bytes": 753
+    },
+    "independent-inventory/final-inventory-audit-927fd7cb.json": {
+      "source": "/tmp/quit-ui-scope/inventory-audit/final-inventory-audit-927fd7cb.json",
+      "sha256": "8de4d4af8a0bd5ec825b5c4f3204960ffb438c00ed04400dd936d8c809ed2749",
+      "bytes": 94175
+    },
+    "independent-inventory/final-inventory-summary.md": {
+      "source": "/tmp/quit-ui-scope/inventory-audit/final-inventory-summary.md",
+      "sha256": "1b8d297d65e15a0853b75d8ee8240ed637cf3151b448c1188ef1a0e748842160",
+      "bytes": 4406
+    },
+    "independent-inventory/runner-diff.patch": {
+      "source": "/tmp/quit-ui-scope/inventory-audit/runner-diff.patch",
+      "sha256": "9eb98e2d1d5fc7c5e054ab1577e60c228460ba6b03d931da93f93b6ba90e1dc6",
+      "bytes": 762
+    },
+    "independent-inventory/runner-provenance-audit.json": {
+      "source": "/tmp/quit-ui-scope/inventory-audit/runner-provenance-audit.json",
+      "sha256": "1cef80d2994070161bb788c3a9b6f3e01457262f57b845f4b8d4df41c55811ac",
+      "bytes": 1870
+    },
+    "independent-review/terminal-inventory-audit-927fd7cb.json": {
+      "source": "/tmp/review-original-quit-menu/terminal-inventory-audit-927fd7cb.json",
+      "sha256": "5a8152e48bfe8f1e3f04aa80b3340f3e688ac5c9d3fa24a0fdff4702c3bb7e00",
+      "bytes": 9466
+    },
+    "inputs/git-wrapper.py": {
+      "source": "/tmp/selector-scene457/git-bin/git",
+      "sha256": "16d3a2b8c1951a66be347e996139515f25d311c464b011ad446c2bfb1c5b2c7c",
+      "bytes": 1133
+    },
+    "inputs/installed-package-lock.json": {
+      "source": "/tmp/populous-selector-scene-457/node_modules/.package-lock.json",
+      "sha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "bytes": 252881
+    },
+    "validation/batch1-recovery-summary.json": {
+      "source": "/tmp/quit-menu457/batch1-recovery-summary.json",
+      "sha256": "486a524994f8ec1bb2d5f8da5b0ceba44b438aa69fe7691bb348e3175fb26e1f",
+      "bytes": 1006
+    },
+    "validation/browser-input-equivalence-927fd7cb.json": {
+      "source": "/tmp/quit-menu457/browser-input-equivalence-927fd7cb.json",
+      "sha256": "a9419e07680806cad6a5989232a8377b847193c31edfa81eb33b90288290233d",
+      "bytes": 637
+    },
+    "validation/check-selection.md": {
+      "source": "/tmp/quit-menu457/check-selection.md",
+      "sha256": "bab423c0e7226de1909f53da525b2cc4ac2585bff2741594f7c5f75630f28fd9",
+      "bytes": 2510
+    },
+    "validation/checkrollup-927fd7cb-0319.json": {
+      "source": "/tmp/quit-menu457/checkrollup-927fd7cb-0319.json",
+      "sha256": "ef994eadc85ba47322a0d50f359ab57d8527d3d1bcbbdce60d659a0dd7546c9d",
+      "bytes": 454
+    },
+    "validation/compare-quality.py": {
+      "source": "/tmp/quit-menu457/compare-quality.py",
+      "sha256": "31f24ee0db25d8029928c795e4a94d63854ada757429df91177ebff2e228b5a5",
+      "bytes": 8992
+    },
+    "validation/inventory-terminal-927fd7cbaa757c45a2f629700757e5d72e3c96f4.json": {
+      "source": "/tmp/quit-menu457/inventory-terminal-927fd7cbaa757c45a2f629700757e5d72e3c96f4.json",
+      "sha256": "37f43cfedbc783f7b96ece535ac512ac1fbf382830350aeb2babd2ee01fb62e4",
+      "bytes": 33746
+    },
+    "validation/plan-initial.txt": {
+      "source": "/tmp/quit-menu457/plan-initial.txt",
+      "sha256": "457022469030fc3aeb16184fce45051bc3d9940c7e75081d1cd07bd2e61d23be",
+      "bytes": 9636
+    },
+    "validation/quality-attribution-927fd7cb.json": {
+      "source": "/tmp/quit-menu457/quality-attribution-927fd7cb.json",
+      "sha256": "444258cba1e6ec3fdd4c1a0bee15cd566d3ede9266b043dbf9e4690cb550d5ce",
+      "bytes": 2123081
+    },
+    "validation/quality-attribution-summary.json": {
+      "source": "/tmp/quit-menu457/quality-attribution-summary.json",
+      "sha256": "828ec9570d636e348d1a2f5511332a3b3b0f505b83762efa684b130af25c1edb",
+      "bytes": 3823
+    },
+    "validation/replay-first-batch.mjs": {
+      "source": "/tmp/quit-menu457/replay-first-batch.mjs",
+      "sha256": "a7979f8684a544ead3d4578c3d8962b3b0f5320508210a8d233fd618f9d7125a",
+      "bytes": 2769
+    },
+    "validation/reproduced-data.json": {
+      "source": "/tmp/quit-menu457/reproduced-data.json",
+      "sha256": "23612ffa5663dc1f9b733e904ab04b96a8be530fcc9895cb25389d4d6a2841bb",
+      "bytes": 20026
+    },
+    "validation/run-final-gates.mjs": {
+      "source": "/tmp/quit-menu457/run-final-gates.mjs",
+      "sha256": "d5d28e0861bd65eb1d1d05d606fcddbefa0deb431a269b733fd156cd10d5f046",
+      "bytes": 2179
+    },
+    "validation/run-final-inventory-loaded.mjs": {
+      "source": "/tmp/quit-menu457/run-final-inventory-loaded.mjs",
+      "sha256": "2275eb0e27109a0bd12d039a69c6f83ab09b6be334fea6c70bca44483b992af8",
+      "bytes": 3593
+    },
+    "validation/run-final-inventory-on-disk.mjs": {
+      "source": "/tmp/quit-menu457/run-final-inventory-on-disk.mjs",
+      "sha256": "06837d92680c8a0898284367d8c88af727274202ab9be44153634948443d5fe9",
+      "bytes": 3736
+    },
+    "validation/run-final-inventory.mjs": {
+      "source": "/tmp/quit-menu457/run-final-inventory.mjs",
+      "sha256": "06837d92680c8a0898284367d8c88af727274202ab9be44153634948443d5fe9",
+      "bytes": 3736
+    },
+    "validation/runner-modification-provenance.json": {
+      "source": "/tmp/quit-menu457/runner-modification-provenance.json",
+      "sha256": "227ef152130c937dc5f3256dbcd9785a13869450e6f1dc84bdb94fb79838ee27",
+      "bytes": 1439
+    },
+    "validation/static-reproduction.log": {
+      "source": "/tmp/quit-menu457/static-reproduction.log",
+      "sha256": "514a1b206148fd93bf61a24adfd37978b08988856026dc833e563b1d7ca357c5",
+      "bytes": 116
+    },
+    "validation/test-inventory-927fd7cbaa757c45a2f629700757e5d72e3c96f4.json": {
+      "source": "/tmp/quit-menu457/test-inventory-927fd7cbaa757c45a2f629700757e5d72e3c96f4.json",
+      "sha256": "db6331992799fa0342b7907d41c25cc2755bd67731f61205a26353360e963406",
+      "bytes": 67381
+    }
+  }
+}

@@ -45,7 +45,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await page.keyboard.press('Escape')
  assert.equal(await button('Options').evaluate(b=>b===document.activeElement),true)
  await button('Options').click();await button('Sound').click();assert.equal(await page.getByRole('slider',{name:'Master volume'}).inputValue(),'0.2');await button('Back').click()
- await button('Quit').click();await page.getByText('You can close this browser tab to quit.',{exact:false}).waitFor();await button('Back').click();assert.equal(await button('Quit').evaluate(b=>b===document.activeElement),true);await noScene()
+ await button('Quit').click();await page.getByText('Close this browser tab to quit.',{exact:false}).waitFor();await button('Back').click();assert.equal(await button('Quit').evaluate(b=>b===document.activeElement),true);await noScene()
  for(const exit of ['Back','Escape']) {
   await button('New Game').click();await page.getByRole('dialog',{name:'Start game',exact:true}).waitFor()
   if(exit==='Back')await button('Back').click();else await page.keyboard.press('Escape')

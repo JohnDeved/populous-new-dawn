@@ -3,6 +3,7 @@ import assets from './original-frontend.json'
 import styles from './original-main-menu.module.css'
 import {
   frontendBackground,
+  frontendQuitRows,
   frontendRowY,
   frontendScale,
   frontendTextWidth,
@@ -24,13 +25,18 @@ function MenuText({
   text,
   highlighted,
   ready,
+  low = false,
 }: {
   text: string
   highlighted: boolean
   ready: boolean
+  low?: boolean
 }) {
   if (!ready) return <span className={styles.fallback}>{text}</span>
-  const bank = highlighted ? assets.banks.fehi33we : assets.banks.feft33we
+  let name: 'feft33we' | 'fehi33we' | 'felo33we' = 'feft33we'
+  if (low) name = 'felo33we'
+  else if (highlighted) name = 'fehi33we'
+  const bank = assets.banks[name]
   return (
     <span
       className={styles.text}
@@ -46,7 +52,7 @@ function MenuText({
               width: glyph.w,
               height: glyph.h,
               backgroundPosition: `-${glyph.x}px -${glyph.y}px`,
-              backgroundImage: `url('/original/frontend/${highlighted ? 'fehi33we' : 'feft33we'}.png')`,
+              backgroundImage: `url('/original/frontend/${name}.png')`,
             }}
           />
         )
@@ -77,6 +83,7 @@ export function OriginalMainMenu({
   const [optionRows, setOptionRows] = useState<FrontendTextRow[]>([])
   const [scale, setScale] = useState(1)
   const [artReady, setArtReady] = useState(false)
+  const [questionReady, setQuestionReady] = useState(false)
   const [sourceReady, setSourceReady] = useState(false)
   useEffect(() => {
     const resize = () => setScale(frontendScale(window.innerWidth, window.innerHeight))
@@ -120,6 +127,17 @@ export function OriginalMainMenu({
       .catch(() => {
         /* Keep visible HTML labels. */
       })
+    // The low-font question can fall back without hiding the other menu artwork.
+    const questionImage = new Image()
+    questionImage.src = '/original/frontend/felo33we.png'
+    void questionImage.decode().then(
+      () => {
+        if (active) setQuestionReady(true)
+      },
+      () => {
+        /* Keep a visible HTML question if the low font is unavailable. */
+      }
+    )
     return () => {
       active = false
       controller.abort()
@@ -136,7 +154,7 @@ export function OriginalMainMenu({
             pointer.current,
             panel === 'main',
             pointerMode.current ? glowFrame.current : null,
-            panel === 'options' ? optionRows : []
+            panel === 'options' ? optionRows : frontendQuitRows
           ),
           640,
           480
@@ -196,6 +214,12 @@ export function OriginalMainMenu({
       onKeyDown={event => {
         pointerMode.current = false
         draw()
+        // Keep the fullscreen frontend open across repeated native close requests.
+        if (event.key === 'Escape') {
+          event.preventDefault()
+          back()
+          return
+        }
         if (panel !== 'main' || !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
         event.preventDefault()
         const buttons = [
@@ -282,15 +306,54 @@ export function OriginalMainMenu({
         )}
         {panel === 'options' && renderOptions(back, setOptionRows)}
         {panel === 'quit' && (
-          <section className={styles.panel} aria-label="Quit game">
-            <h2>Quit Game</h2>
-            <p>
-              You can close this browser tab to quit. Your saved checkpoint will remain available in
-              this browser.
+          <section
+            className={styles.quit}
+            aria-labelledby="frontend-quit-question"
+            data-original-quit-menu
+          >
+            <h2
+              id="frontend-quit-question"
+              aria-label={frontendQuitRows[0].text}
+              className={styles.question}
+              style={{ top: frontendQuitRows[0].y }}
+            >
+              <MenuText
+                text={frontendQuitRows[0].text}
+                highlighted={false}
+                low
+                ready={questionReady}
+              />
+            </h2>
+            <nav aria-label="Quit choices" className={styles.rows}>
+              {frontendQuitRows.slice(1).map(row => (
+                <button
+                  key={row.text}
+                  aria-label={row.text}
+                  disabled={row.text === 'Yes'}
+                  aria-disabled={row.text === 'Yes'}
+                  aria-describedby={row.text === 'Yes' ? 'frontend-quit-guidance' : undefined}
+                  data-panel-back={row.text === 'Back' ? '' : undefined}
+                  style={{ top: row.y }}
+                  onPointerEnter={() => setHovered(row.text)}
+                  onPointerLeave={() => setHovered(null)}
+                  onFocus={() => setFocused(row.text)}
+                  onBlur={() => setFocused(null)}
+                  onClick={row.text === 'Yes' ? undefined : back}
+                >
+                  <MenuText
+                    text={row.text}
+                    ready={artReady}
+                    highlighted={
+                      row.text !== 'Yes' && (hovered === row.text || focused === row.text)
+                    }
+                  />
+                </button>
+              ))}
+            </nav>
+            <p id="frontend-quit-guidance" className={styles.quitGuidance}>
+              Yes is unavailable in this browser. Close this browser tab to quit. Only checkpoints
+              successfully saved to browser storage will remain after closing it.
             </p>
-            <button data-panel-back onClick={back}>
-              Back
-            </button>
           </section>
         )}
       </div>
