@@ -9,13 +9,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: ready-pr-check-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}-${{ github.event.pull_request.base.sha }}-${{ github.sha }}-${{ toJSON(github.event.pull_request.draft) == 'false' && 'ready' || 'draft' }}
   cancel-in-progress: true
 
 jobs:
   full-check:
-    # Keep this exact check name stable; make it required only after a pilot passes.
-    name: Full check
+    # Only an explicitly ready candidate may publish the required check name.
+    name: ${{ toJSON(github.event.pull_request.draft) == 'false' && 'Full check' || 'Draft PR (not validated)' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
@@ -27,11 +27,10 @@ jobs:
       PND_TEST_CONCURRENCY: '2'
       WRANGLER_SEND_METRICS: 'false'
     steps:
-      # A skipped required job can satisfy protection. Fail cheaply instead.
-      # GitHub also prevents merging draft PRs independently of this check.
+      # Draft admission fails under its own non-required name; never skip a gate.
       - name: Require a ready pull request
         env:
-          IS_DRAFT: ${{ github.event.pull_request.draft }}
+          IS_DRAFT: ${{ toJSON(github.event.pull_request.draft) }}
         run: |
           if [ "$IS_DRAFT" != false ]; then
             echo '::notice::Draft PR: full checks have not run. Mark ready to start them.'

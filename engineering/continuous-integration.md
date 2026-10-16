@@ -27,16 +27,27 @@ PRs targeting main trigger on `opened`, `reopened`, `synchronize`,
 `ready_for_review` and `converted_to_draft`. There is no push trigger or path filter.
 This avoids a second full run for the same push and a redundant post-merge run.
 
-Drafts fail the first, inexpensive readiness step. Checkout, installs and full
-checks do not run. The red draft check is intentional: GitHub independently blocks
-merging drafts, but a conditionally skipped required job can count as successful.
-Marking ready launches the real gate instead of preserving an untested green check.
+Only an event whose draft value is the boolean `false` names its job `Full check`.
+Other events use `Draft PR (not validated)` and fail the first, inexpensive
+readiness step. Checkout, installs and full checks do not run. Both admission and
+the shell guard serialize the value with `toJSON`, so a missing/malformed value or
+the string `"false"` cannot pass as ready. There is still one unconditional job;
+no skipped/neutral required job or manufactured success replaces validation.
 
-The concurrency group is specific to this workflow and PR. A newly admitted run
-cancels its predecessor. Admission is not a chronological comparison of commit
-SHAs: a manual rerun of an old event can cancel a newer run. Do not rerun obsolete
-attempts; verify the current head/base rather than simply trusting the latest run
-in a list. Converting back to draft cancels unnecessary work.
+Concurrency is partitioned by workflow, PR number, event head, event base, proposed
+merge SHA and draft/ready lane. Draft admission cannot cancel or replace pending
+ready work, and old head/base/merge events have separate groups. Duplicate ready
+events for the same candidate can still supersede each other. Converting to draft
+deliberately does not cancel an existing ready validation. This trades occasional
+obsolete compute for protection against out-of-order admission; the reviewed queue
+driver should avoid unnecessary transitions and obsolete reruns.
+
+These source contracts do not prove GitHub's required-check selection across
+differently named jobs in newer suites. Adoption requires the
+[bounded hosted lifecycle pilot](ci-event-race-pilot.md), including a real current
+full pass followed by later draft admission while the PR is ready. Until that
+evidence passes, keep the drained-draft → ready queue workaround. No claim of
+hosted race resolution follows from local policy tests alone.
 
 Retargeting a ready PR to main emits `edited`, which this workflow does not handle.
 After retargeting, start a fresh supported event by returning it to draft and
@@ -87,12 +98,11 @@ configuration is a separate owner-authorized administration action, not performe
 by this workflow. Do not claim enforcement until the actual settings are verified.
 Until then, the parent must explicitly wait for the matching successful gate.
 
-After a successful pilot, the owner can use repository Settings → Branches to
-add/edit a main branch protection rule: require pull requests; require the observed
-`Full check` status from GitHub Actions; require branches to be up to date; and
-apply the rule to administrators without an owner bypass. An equivalent active
-main ruleset is also suitable. Preserve unrelated existing settings. The required
-job name must stay stable; no other workflow should reuse it.
+Read-only verification on 2026-10-16 confirmed strict main protection requiring
+`Full check` from GitHub Actions app `15368`, with administrator enforcement and
+no force pushes/deletions. This event-race change does not alter those settings or
+token permissions. Keep that required name stable for real candidate validation;
+draft admission and other workflows must not reuse it.
 
 Verify the settings against the PR's mergeability before claiming enforcement.
 A denied administration endpoint is not permission to retry with another identity.
