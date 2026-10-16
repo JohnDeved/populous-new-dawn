@@ -55,6 +55,12 @@ Deliberate adaptations and remaining limits:
   unmodulated pal0-c source RGB. Native inherited panel tint, live mission palette,
   GPU blending/filtering/quantization and hardware-frame pixel equality are unproved.
 - Text and a simple panel fallback stay usable if the imported images fail.
+- Fallback headings use their rendered text width for centering. The retained
+  [40-case before probe](https://github.com/JohnDeved/populous-new-dawn/tree/16ee3983c4d9fa501a1a8bb99dc41377008b8fbc/review-evidence/result-heading-before/213b9342)
+  showed Arial headings displaced left by bitmap-based coordinates when font
+  decode failed or was pending. This is a browser compatibility correction;
+  ready bitmap geometry and original artwork remain unchanged. The matched
+  component probe/comparator is in `scripts/result-heading-probe/`.
 - Static fixtures establish presentation only. They do not certify native runtime,
   naturally earned outcomes, full-game lifecycle or hardware performance.
 
