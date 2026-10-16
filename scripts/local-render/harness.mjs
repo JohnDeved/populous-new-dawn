@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import { spawn } from 'node:child_process'
 import { mkdirSync, writeFileSync, createWriteStream, existsSync, readFileSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
@@ -369,7 +370,7 @@ export async function runLocalBrowser(options, scenario) {
     const { bindGame, showAllMissions } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
     const openMission = async mission => {
       const mainMenu = page.getByRole('dialog', { name: 'Main menu', exact: true })
-      if (await mainMenu.isVisible()) await mainMenu.getByRole('button', { name: 'New Game', exact: true }).click()
+      if (await mainMenu.isVisible()) await openCampaignFromMainMenu(page)
       const button = page.getByRole('button', { name: `Mission ${mission}`, exact: true })
       if (!(await button.isVisible())) await showAllMissions(page)
       await button.focus()

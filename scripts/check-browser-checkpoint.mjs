@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -420,7 +421,7 @@ try {
   const startup = page.getByRole('dialog', { name: 'Main menu' })
   await startup.waitFor()
   assert.equal(await page.getByRole('button', { name: 'Load Game', exact: true }).evaluate(button => button === document.activeElement), true)
-  await page.getByRole('button', { name: 'New Game', exact: true }).click()
+  await openCampaignFromMainMenu(page)
   await page.getByRole('button', { name: 'Start Mission 2', exact: true }).waitFor()
   assert.match(
     await page.getByRole('button', { name: 'Select Mission 1', exact: true }).textContent(),
@@ -491,7 +492,7 @@ try {
   await assertMissionTwoMessage(page)
 
   await page.reload({ waitUntil: 'networkidle' })
-  await startup.getByRole('button', { name: 'New Game', exact: true }).click()
+  await openCampaignFromMainMenu(page)
   await page.getByRole('dialog', { name: 'Start game' }).waitFor()
   await page.getByRole('button', { name: 'Select Mission 1', exact: true }).click()
   await page.getByRole('button', { name: 'Replay Mission 1', exact: true }).click()

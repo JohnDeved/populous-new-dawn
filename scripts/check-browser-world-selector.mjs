@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
@@ -9,7 +10,7 @@ export default async function checkWorldSelector({ page, context, url, root, out
   const select=mission=>page.getByRole('button',{name:new RegExp(`^Panel Mission ${mission}(, completed)?$`)})
   const showControls=async()=>{const b=page.getByRole('button',{name:'Browser controls',exact:true});if(await b.count() && await b.getAttribute('aria-expanded')==='false')await b.click()}
   const dialog = page.getByRole('dialog', { name: 'Start game', exact: true })
-  await page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'New Game', exact: true }).click()
+  await openCampaignFromMainMenu(page)
   await dialog.waitFor({ state: 'visible' })
   await page.setViewportSize({width:640,height:480})
   const panel=page.getByLabel('Campaign status panel', {exact:true})
@@ -33,7 +34,7 @@ export default async function checkWorldSelector({ page, context, url, root, out
   for(let i=0;i<3;i++) {
     await page.keyboard.press('Escape')
     await page.getByRole('dialog',{name:'Main menu',exact:true}).waitFor()
-    await page.getByRole('button',{name:'New Game',exact:true}).click()
+    await openCampaignFromMainMenu(page)
   }
   await select(2).click()
   assert.equal(await page.getByRole('button', { name: 'Start Mission 2', exact: true }).isDisabled(), true)
@@ -66,7 +67,7 @@ export default async function checkWorldSelector({ page, context, url, root, out
     database.close()
   })
   await page.goto(url,{waitUntil:'networkidle'})
-  await page.getByRole('button', { name: 'New Game', exact: true }).click()
+  await openCampaignFromMainMenu(page)
   await page.getByRole('button',{name:'Start Mission 3',exact:true}).waitFor({state:'visible'})
   assert.equal(await page.getByRole('button',{name:'Start Mission 3',exact:true}).isEnabled(),true)
   await select(3).focus()

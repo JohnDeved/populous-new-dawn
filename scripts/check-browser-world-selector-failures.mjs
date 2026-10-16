@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {pathToFileURL} from 'node:url'
@@ -10,7 +11,7 @@ export default async function({page,url,root,output,receipt}) {
   await page.setViewportSize({width:800,height:600})
   let artFailures=0,atlasFailures=0
   await page.route('**/original/world-selector/panel/*.png',route=>{artFailures++;return route.abort('failed')})
-  await button('New Game').click()
+  await openCampaignFromMainMenu(page)
   await page.getByRole('button',{name:'Start Mission 1',exact:true}).getByText('Start',{exact:true}).waitFor()
   assert.ok(artFailures>0)
   await button('Panel Mission 2').click()
@@ -43,7 +44,7 @@ export default async function({page,url,root,output,receipt}) {
   await page.unroute('**/original/world-selector/panel/*.png')
   await page.goto(url,{waitUntil:'networkidle'})
   // Startup restores the saved world's ownership; load and tutorial remain separate actions.
-  await button('New Game').click();await showControls();await button('Tutorial').click();await bindGame(page)
+  await openCampaignFromMainMenu(page);await showControls();await button('Tutorial').click();await bindGame(page)
   assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),79)
   assert.deepEqual(receipt.errors.filter(error=>!error.includes('Failed to load resource: net::ERR_FAILED')&&!error.includes('Texture load failed: atlas')),[])
   return {artFailures,atlasFailures,saved,restored,checks:['visible art fallback and locked launch','keyboard Mission1 launch through required-texture failure and explicit retry','real saved checkpoint accessible and loadable from selector','Tutorial remains launchable'],limits:['Explicit resource failures; no natural campaign outcome evidence','Headless software rendering']}

@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {pathToFileURL} from 'node:url'
@@ -11,7 +12,7 @@ export default async function({page,root,output}) {
  const modal=page.getByRole('dialog',{name:'Game menu',exact:true})
  await page.setViewportSize({width:800,height:600})
  if(mode==='tutorial')await button('Tutorial').click()
- else{await button('New Game').click();await button('Start Mission 1').click()}
+ else{await openCampaignFromMainMenu(page);await button('Start Mission 1').click()}
  await bindGame(page)
  await page.getByRole('button',{name:'Continue anyway',exact:false}).click()
  if(mode!=='tutorial'){

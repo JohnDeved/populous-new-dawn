@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
@@ -285,7 +286,7 @@ export default async function followerTasks({ browser, page, url, output, openMi
   dprPage.on('console', message => { if(message.type()==='error')receipt.errors.push(message.text()) })
   await dprPage.goto(url, { waitUntil: 'domcontentloaded' })
   await dprPage.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor({ state: 'visible' })
-  await dprPage.getByRole('button', { name: 'New Game', exact: true }).click()
+  await openCampaignFromMainMenu(dprPage)
   await dprPage.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
   await bindGame(dprPage)
   await dprPage.waitForFunction(() => window.testSceneRef.current && (window.testSceneRef.current.world.flyby.flags & 1 || !window.testSceneRef.current.world.inputMask))

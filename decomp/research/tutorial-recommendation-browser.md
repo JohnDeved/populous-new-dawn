@@ -33,7 +33,8 @@ performed for this change.
   startup. Direct Tutorial remains unchanged. Yes uses its existing loader;
   No opens the existing campaign selector. Neither bypasses asset readiness.
 - A separate key `populous-tutorial-recommendation-v1` stores `answered` only
-  after explicit Yes or No. Back/Escape does not write it. This is independent
+  after explicit Yes or No, even if the subsequent load fails. It records the
+  recommendation choice, not Tutorial completion. Back/Escape does not write it. This is independent
   from checkpoints and campaign progress and does not claim native flag parity.
 - Blocked storage safely retains an in-memory answer for this page lifetime.
   Reload without a successful storage write may show the recommendation again.

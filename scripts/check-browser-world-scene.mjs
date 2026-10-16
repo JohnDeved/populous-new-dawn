@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {writeFileSync} from 'node:fs'
@@ -17,7 +18,7 @@ const scene = page => page.locator(sceneSelector)
 const ready = page => page.locator(`${sceneSelector}[data-ready="true"]`).waitFor()
 const open = async page => {
   await page.getByRole('dialog', {name:'Main menu', exact:true}).waitFor()
-  await button(page, 'New Game').click()
+  await openCampaignFromMainMenu(page)
   await page.getByRole('dialog', {name:'Start game', exact:true}).waitFor()
 }
 const save = (output, name, data) => writeFileSync(resolve(output, name), JSON.stringify(data,null,2)+'\n')

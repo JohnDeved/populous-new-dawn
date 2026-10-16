@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
@@ -119,7 +120,7 @@ export default async function ({
     }
     try {
       await check('Public mission entry', async () => {
-        await page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'New Game', exact: true }).click()
+        await openCampaignFromMainMenu(page)
         const dialog = page.getByRole('dialog', { name: 'Start game', exact: true })
         await dialog.waitFor()
         if (level === 1) {
