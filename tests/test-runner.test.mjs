@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { spawn } from 'node:child_process'
 import { EventEmitter } from 'node:events'
 import { createHash } from 'node:crypto'
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
@@ -127,4 +128,50 @@ test('native zero exit passes an executed focus without claiming a full gate', a
   assert.equal(result.status, 'passed')
   assert.equal(result.fullSuite, false)
   assert.equal(result.complete, true)
+})
+
+test('empty, duplicate and incomplete execution plans cannot become a pass', async t => {
+  const { repo } = fixture(t)
+  for (const plan of [
+    { files: [], groups: [] },
+    { files: ['tests/a.test.mjs', 'tests/a.test.mjs'], groups: [{ concurrency: 1, files: ['tests/a.test.mjs'] }] },
+    { files: ['tests/a.test.mjs', 'tests/b.test.mjs'], groups: [{ concurrency: 1, files: ['tests/a.test.mjs'] }] },
+  ]) await assert.rejects(runTestPlan(repo, plan, quiet), /must not be empty|Duplicate|cover every/)
+})
+
+test('environment selection and both isolation aliases are rejected, including quoted flags', async t => {
+  const { repo } = fixture(t), plan = planTestRun(repo, 'all')
+  const previous = process.env.NODE_OPTIONS
+  try {
+    for (const option of ['--test-only', '--test-name-pattern=one', '--test-shard=1/2',
+      '--test-isolation=none', '--experimental-test-isolation=none', '"--test-only"', '"--test-isolation=none"']) {
+      process.env.NODE_OPTIONS = option
+      await assert.rejects(runTestPlan(repo, plan, quiet), /must not change test selection or isolation/)
+    }
+  } finally {
+    if (previous === undefined) delete process.env.NODE_OPTIONS
+    else process.env.NODE_OPTIONS = previous
+  }
+})
+
+test('real Node skip, TODO and unfiltered only-marker semantics stay intact', async t => {
+  const { repo, put } = fixture(t)
+  put('tests/semantics.test.mjs', `import test from 'node:test';
+    test('ordinary', () => {}); test.only('only marker without filtering', () => {});
+    test.skip('skip', () => { throw Error('must stay skipped') }); test.todo('todo');
+  `)
+  let stdout = ''
+  const launch = (command, args, options) => {
+    const child = spawn(command, args, { ...options, stdio: ['ignore', 'pipe', 'pipe'] })
+    child.stdout.on('data', bytes => { stdout += bytes })
+    child.stderr.resume()
+    return child
+  }
+  const result = await runTestPlan(repo, planTestRun(repo, 'focus', ['tests/semantics.test.mjs']), { ...quiet, launch })
+  assert.equal(result.status, 'passed')
+  assert.match(stdout, /^# tests 4$/m)
+  assert.match(stdout, /^# pass 2$/m)
+  assert.match(stdout, /^# fail 0$/m)
+  assert.match(stdout, /^# skipped 1$/m)
+  assert.match(stdout, /^# todo 1$/m)
 })

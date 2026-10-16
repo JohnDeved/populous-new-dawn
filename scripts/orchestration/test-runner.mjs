@@ -70,12 +70,13 @@ export function planTestRun(repo, mode, requested = [], { concurrency = '2' } = 
 }
 
 export async function runTestPlan(repo, plan, { launch = spawn, signals = process, log = value => console.error(JSON.stringify(value)) } = {}) {
+  const startedAt = performance.now()
   assert(plan.files?.length && plan.groups?.length, 'Test plan must not be empty')
   assert(new Set(plan.files).size === plan.files.length, 'Duplicate planned test file')
   assert(plan.groups.every(group => [1, 2].includes(group.concurrency) && group.files.length), 'Invalid test group')
   assert.deepEqual(plan.groups.flatMap(group => group.files).sort(), [...plan.files].sort(), 'Groups must cover every selected file exactly once')
   const env = { ...process.env }
-  assert(!/--(?:experimental-)?test(?:[=\s-]|$)/.test(env.NODE_OPTIONS ?? ''), 'NODE_OPTIONS must not change test selection or isolation')
+  assert(!/--(?:experimental-)?test/.test(env.NODE_OPTIONS ?? ''), 'NODE_OPTIONS must not change test selection or isolation')
   delete env.NODE_TEST_CONTEXT
   let interrupted = null, child
   const results = []
@@ -113,8 +114,8 @@ export async function runTestPlan(repo, plan, { launch = spawn, signals = proces
   } finally {
     signals.off('SIGINT', onInt); signals.off('SIGTERM', onTerm)
   }
-  const complete = results.length === plan.groups.length && results.every(result => !result.signal && !result.error)
-  const result = { mode: plan.mode, fullSuite: plan.fullSuite, complete, interrupted, results,
+  const complete = !interrupted && results.length === plan.groups.length && results.every(result => !result.signal && !result.error)
+  const result = { mode: plan.mode, fullSuite: plan.fullSuite, complete, interrupted, results, wallMs: performance.now() - startedAt,
     status: complete && !interrupted && results.every(result => result.status === 'passed') ? 'passed' : 'failed' }
   log({ kind: 'pnd-test-result', ...result })
   return result

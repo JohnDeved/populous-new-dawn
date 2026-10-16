@@ -198,13 +198,16 @@ test('focused suggestions are advisory and broad or unknown changes fall back to
   const make = (path, status = 'M', unknown = false) => focusedTestFeedback({
     changes: [{ path, status, endpoint: 'path' }], unknownPaths: unknown ? [path] : [],
     checks: [{ command: ['node', '--test', 'tests/a.test.mjs'] }],
-  })
+  }, [
+    ...JSON.parse(read('engineering/project-map.json')).crossCutting.map(entry => entry.path),
+    ...JSON.parse(read('engineering/project-map.json')).subsystems.flatMap(subsystem => subsystem.sharedPaths),
+  ])
   const focused = make('app/narrow.ts')
   assert.deepEqual(focused.command, ['npm', 'run', 'test:focus', '--', 'tests/a.test.mjs'])
   assert.equal(focused.finalGate, false)
   assert.equal(focused.fullVerificationRequired, true)
   assert.deepEqual(make('tests/new.test.mjs', 'A', true).command, ['npm', 'run', 'test:focus', '--', 'tests/a.test.mjs', 'tests/new.test.mjs'])
-  for (const path of ['app/model.ts', 'app/scene.ts', 'package-lock.json', 'tests/support/helper.mjs', 'scripts/new.mjs'])
+  for (const path of ['app/model.ts', 'app/scene.ts', 'app/world-state.ts', 'app/world-types.ts', 'package-lock.json', 'tests/support/helper.mjs', 'scripts/new.mjs'])
     assert.deepEqual(make(path).command, ['npm', 'test'])
   assert.deepEqual(make('app/unmapped.ts', 'M', true).command, ['npm', 'test'])
   assert.deepEqual(make('tests/deleted.test.mjs', 'D').command, ['npm', 'test'])

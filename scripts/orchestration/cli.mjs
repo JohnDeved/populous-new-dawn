@@ -1323,15 +1323,18 @@ export function planChanges(repo = ROOT, { base = 'HEAD' } = {}) {
       }),
     executesChecks: false,
   }
-  result.feedback = focusedTestFeedback(result)
+  result.feedback = focusedTestFeedback(result, [
+    ...project.crossCutting.map(entry => entry.path),
+    ...project.subsystems.flatMap(subsystem => subsystem.sharedPaths),
+  ])
   return result
 }
 
 // Reviewed mappings suggest a cheap editing loop only. They do not establish
 // dependency completeness, reuse evidence, or replace any selected final gate.
-export function focusedTestFeedback(plan) {
+export function focusedTestFeedback(plan, sharedPaths = []) {
   const isTest = path => /^tests\/[^/]+\.test\.mjs$/.test(path)
-  const broad = path => ['package.json', 'package-lock.json', 'tsconfig.json', 'app/model.ts', 'app/scene.ts'].includes(path) ||
+  const broad = path => sharedPaths.some(shared => pathMatches(path, shared)) || ['package.json', 'package-lock.json', 'tsconfig.json', 'app/model.ts', 'app/scene.ts'].includes(path) ||
     ['scripts/', 'engineering/', 'tests/support/', 'tests/helpers/'].some(prefix => path.startsWith(prefix)) ||
     (path.startsWith('tests/') && !isTest(path))
   const fallback = plan.changes.filter(change => broad(change.path) || change.status.startsWith('D') || change.endpoint === 'from').map(change => change.path)
