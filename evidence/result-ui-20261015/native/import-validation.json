@@ -1,0 +1,47 @@
+{
+  "independentGlyphsCompared": 224,
+  "independentPanelSourceFramesCompared": 13,
+  "independentPanelTilePositionsCompared": 552,
+  "panelMatchesResearchReference": true,
+  "sourceRgbaPolicy": "Literal source RGB alpha255 and skipped zero RGBA checked byte for byte",
+  "deterministicFreshOutput": true,
+  "deterministicInPlaceOutput": true,
+  "sourceHashRejections": [
+    {
+      "source": "d3dpoptb.exe",
+      "exitCode": 1,
+      "error": "ValueError: Source hash mismatch: d3dpoptb.exe",
+      "existingOutputUntouched": true
+    },
+    {
+      "source": "data/pal0-c.dat",
+      "exitCode": 1,
+      "error": "ValueError: Source hash mismatch: data/pal0-c.dat",
+      "existingOutputUntouched": true
+    },
+    {
+      "source": "data/hfx0-0.dat",
+      "exitCode": 1,
+      "error": "ValueError: Source hash mismatch: data/hfx0-0.dat",
+      "existingOutputUntouched": true
+    },
+    {
+      "source": "data/f00t3-0.dat",
+      "exitCode": 1,
+      "error": "ValueError: Source hash mismatch: data/f00t3-0.dat",
+      "existingOutputUntouched": true
+    },
+    {
+      "source": "language/lang00.dat",
+      "exitCode": 1,
+      "error": "ValueError: Source hash mismatch: language/lang00.dat",
+      "existingOutputUntouched": true
+    }
+  ],
+  "outputSha256": {
+    "app/original-result-ui.json": "96daa41ef7a9cf0640dd7394d91d55545c00d36d64599852100041c3c61315c3",
+    "public/original/result-panel.png": "60785ad734dd4c7c62abd5f52d3d195fc74dc3a7e2cd6cc815ea54caa4fa23ed",
+    "public/original/result-font.png": "46d35c177850244ed211c0556af98694bb428835e7708a79f3acee16828e0676"
+  },
+  "command": "python3 /tmp/result-ui-research/verify-result-import.py"
+}

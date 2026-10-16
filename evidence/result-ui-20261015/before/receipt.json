@@ -1,0 +1,115 @@
+{
+  "startedAt": "2026-10-15T23:05:19.319Z",
+  "source": {
+    "sourceCommit": "aaa3202a4c8fa2f309886ae38e5ab9b349f3047e",
+    "sourceTree": "e376b14b07b58f2c3d75ad5d95ccc65df7168bf6",
+    "pageSha256": "c750c495ee58b13d0ae90d1c2ad6573ff24b76070ce32a19149b0de352c555d4",
+    "stylesSha256": "f79041ca9126b8548276bcc6278c71cd5cb95a31a01452376b92c777a11ceb70",
+    "extractedJsxSha256": "6b0503f6069374b3f51ad3b1c1a7073ea4e72ffd28a8e24ad1b89077471473d1",
+    "sourceStartLine": 1520,
+    "sourceEndLine": 1557,
+    "fixtureInputs": {
+      "mission": 1,
+      "enemyName": "Dakini",
+      "time": 125,
+      "cast": 12,
+      "built": 5,
+      "nextMission": 2,
+      "cameraPlaying": false
+    },
+    "limits": [
+      "Presentation-only fixture, no game world/renderer/lifecycle mounted.",
+      "Original JSX and full globals.css snapshot are copied byte-for-byte from canonical source; runtime source inputs preserved by hashes.",
+      "Both outcome labels are supplied explicitly. Buttons are inert fixture callbacks.",
+      "Battlefield is an empty source-styled viewport; no native-runtime or real-game screenshot claim."
+    ],
+    "hudScaleSource": {
+      "path": "app/hud-layout.ts",
+      "sha256": "013169e0feab4f2c71659b1fb22781c78755fd9ccca1542095224135eb08b6d6",
+      "preference": "auto",
+      "integration": "Exact production helper imported by fixture; applied at mount and resize as in Home.resize."
+    }
+  },
+  "scenarioSha256": "bdedc8c17a5ecfaf0af51670c1dab738fea5178b9e2fe817c8300705397242a4",
+  "fixtureFiles": {
+    "BaselineResult.tsx": "4e3ac9ae4ece87c71fbd7f1a1578f8944d89cc484e06959317e754f6d975341b",
+    "baseline.css": "f79041ca9126b8548276bcc6278c71cd5cb95a31a01452376b92c777a11ceb70",
+    "main.tsx": "d5e1269366d02bc6a4f02158b70b87a4a00c9785b1a53957fecf744a16e4cdc9"
+  },
+  "status": "passed",
+  "errors": [],
+  "captures": [
+    {
+      "status": "won",
+      "width": 640,
+      "height": 480,
+      "screenshot": "baseline-won-640x480.png",
+      "layout": {
+        "hudScale": "0.96",
+        "side": "calc(100px * 0.96)",
+        "viewportX": 96
+      }
+    },
+    {
+      "status": "won",
+      "width": 1280,
+      "height": 960,
+      "screenshot": "baseline-won-1280x960.png",
+      "layout": {
+        "hudScale": "1.92",
+        "side": "calc(100px * 1.92)",
+        "viewportX": 192
+      }
+    },
+    {
+      "status": "won",
+      "width": 1920,
+      "height": 1080,
+      "screenshot": "baseline-won-1920x1080.png",
+      "layout": {
+        "hudScale": "2",
+        "side": "calc(100px * 2)",
+        "viewportX": 200
+      }
+    },
+    {
+      "status": "lost",
+      "width": 640,
+      "height": 480,
+      "screenshot": "baseline-lost-640x480.png",
+      "layout": {
+        "hudScale": "0.96",
+        "side": "calc(100px * 0.96)",
+        "viewportX": 96
+      }
+    },
+    {
+      "status": "lost",
+      "width": 1280,
+      "height": 960,
+      "screenshot": "baseline-lost-1280x960.png",
+      "layout": {
+        "hudScale": "1.92",
+        "side": "calc(100px * 1.92)",
+        "viewportX": 192
+      }
+    },
+    {
+      "status": "lost",
+      "width": 1920,
+      "height": 1080,
+      "screenshot": "baseline-lost-1920x1080.png",
+      "layout": {
+        "hudScale": "2",
+        "side": "calc(100px * 2)",
+        "viewportX": 200
+      }
+    }
+  ],
+  "limits": [
+    "Static React presentation fixture; integrated full-game startup failed separately with SIGKILL.",
+    "Headless browser, no gameplay, native runtime or performance equivalence claim."
+  ],
+  "browser": "154.0.8037.92",
+  "finishedAt": "2026-10-15T23:05:26.583Z"
+}

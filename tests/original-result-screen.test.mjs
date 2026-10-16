@@ -1,0 +1,81 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import ts from 'typescript'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { createElement } from 'react'
+import * as layout from '../app/original-result-layout.ts'
+
+const require = createRequire(import.meta.url)
+const native = JSON.parse(readFileSync(new URL('../app/original-result-ui.json', import.meta.url)))
+const source = readFileSync(new URL('../app/original-result-screen.tsx', import.meta.url), 'utf8')
+const emitted = ts.transpileModule(source, {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
+}).outputText
+const component = { exports: {} }
+new Function('require', 'module', 'exports', emitted)(name => {
+  if (name === './original-result-ui.json') return { default: native }
+  if (name === './original-result-layout') return layout
+  if (name === './original-result-screen.module.css') return { default: new Proxy({}, { get: (_, key) => key }) }
+  if (name === 'react' || name === 'react/jsx-runtime') return require(name)
+  throw Error(`Unexpected component dependency: ${name}`)
+}, component, component.exports)
+const render = props => renderToStaticMarkup(createElement(component.exports.OriginalResultScreen, {
+  status: 'won', level: 1, player: 1, time: 125, primaryLabel: 'Continue to Mission 2',
+  onPrimary() {}, onSelectLevel() {}, ...props,
+}))
+
+test('result time is a pure live-clock formatter with hours and no wrapping or mutation', () => {
+  assert.equal(layout.resultTime(125.9), '00:02:05')
+  assert.equal(layout.resultTime(3600), '01:00:00')
+  assert.equal(layout.resultTime(360000), '100:00:00')
+  assert.equal(layout.resultTime(-1), '00:00:00')
+  assert.equal(layout.resultTime(NaN), '--:--:--')
+})
+
+test('result composition fits the battlefield and reserves room for browser controls', () => {
+  for (const [width, height, preferred, controls] of [[544,480,.96,40],[1088,960,1.92,40],[1720,1080,2,40],[828,360,.72,40],[329,844,.61,64]]) {
+    const scale = layout.resultScale(width, height, preferred, controls)
+    assert.ok(scale > 0 && scale <= preferred)
+    assert.ok(384 * scale <= width - 24)
+    assert.ok(368 * scale <= height - 2 * (controls + 16))
+  }
+})
+
+test('actual result component renders source headings and ten explicitly unavailable counters', () => {
+  const html = render()
+  assert.ok(html.includes('01 : The Journey Begins'))
+  assert.ok(html.includes('Player 1.'))
+  assert.ok(html.includes('Level Status: Completed'))
+  assert.ok(html.includes('Level Won'))
+  assert.ok(html.includes('00:02:05'))
+  assert.equal((html.match(/role="group" aria-label="[^"]+: unavailable"/g) ?? []).length, 10)
+  for (const row of native.nativeRows) assert.ok(html.includes(`${row.label}: unavailable`))
+  assert.ok(html.includes('statistics not yet recorded'))
+  assert.ok(html.includes('Continue to Mission 2'))
+  assert.ok(html.includes('Select Level'))
+  assert.ok(!html.includes('SPELLS CAST') && !html.includes('BUILDINGS RAISED'))
+  assert.ok(!html.includes('Press Space Bar') && !html.includes('Level Complete'))
+})
+
+test('loss and terminal/tutorial actions retain the explicit parent-decided consequence', () => {
+  const lost = render({ status: 'lost', primaryLabel: 'Restart Level' })
+  assert.ok(lost.includes('Level Status: Failed') && lost.includes('Level Lost'))
+  assert.ok(lost.includes('Restart Level') && !lost.includes('Continue to Mission'))
+  const terminal = render({ level: 23, primaryLabel: 'Restart Level' })
+  assert.ok(terminal.includes('23 : Inferno') && !terminal.includes('Mission 24'))
+  const tutorial = render({ level: 79, primaryLabel: 'Restart Level' })
+  assert.ok(tutorial.includes('Tutorial') && !tutorial.includes('79 :'))
+})
+
+test('source panel metadata retains independently checked native geometry and glyph bounds', () => {
+  assert.equal(native.layout640.panelWidth,384)
+  assert.equal(native.layout640.panelHeight,368)
+  assert.deepEqual(native.nativeRows.map(row => row.y),[101,119,144,162,180,198,223,241,259,284])
+  assert.deepEqual(native.nativeRows.map(row => row.labelId),[741,742,743,744,745,746,747,748,749,750])
+  for (const glyph of native.font.rects) {
+    assert.ok(glyph.x >= 0 && glyph.y >= 0 && glyph.x + glyph.w <= native.font.width && glyph.y + glyph.h <= native.font.height)
+    assert.equal(glyph.advance,glyph.w)
+  }
+})
