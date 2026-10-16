@@ -44,11 +44,25 @@ mission-specific loading art, persistence repair, or parity credit is introduced
 
 ## Verification
 
-The draft implementation has focused component/asset checks and a TypeScript pass.
-Final source-bound browser, full inventory, quality attribution, and canonical
-build evidence are still required before acceptance. Browser scripts retain their
-readiness/freeze/cache/stale-owner assertions and use the current shipped failure
-heading and Restart Level confirmation. Physical HUD clicks hit the full-screen
-overlay; a separately labeled injected DOM event also checks its existing handler
-guard. Any injected resource failure or outcome/checkpoint test setup is bounded
-test evidence, not a naturally occurring gameplay result.
+The [portable evidence and screenshots](../evidence/loading-recovery-20261016/README.md)
+retain exact source identities and independent qualified acceptance. The original
+implementation `42e9e2bc` passed the complete 433-file inventory (2,789 tests).
+Final application `adb0f10a` only extracts the pending-phase scalar to avoid two
+new lint warnings; an independent exact-delta/18-case proof, fresh focused tests,
+TypeScript, parity, orchestration and short actual-Home browser episode cover that
+repair. Full inventory results remain attributed to their original source.
+
+Cold restore, held mission loading, failure/repeated keyboard recovery, missing
+art, native even/odd placement, short viewport controls and DPR2 have source-bound
+browser evidence. A fresh single retry reached actual GameScene readiness on the
+original implementation. The cumulative two-retry activation crashed Chrome, and
+all three broader browser wrappers failed; later lifecycle branches were not
+reached. Those failures remain visible rather than being replaced by narrower
+passes. No assertions or timeouts were weakened.
+
+Canonical exact-head Workers builds passed. Global ESLint/Oxlint/format/unused
+checks still report baseline debt; only the intentional intrinsic-image warnings
+increase by one. Raw quality attribution and limits are retained. The final
+publication changes documentation/evidence only; runtime trees remain bound to the
+reviewed application. No complete native frame or hardware-performance claim is
+made.

@@ -1,0 +1,97 @@
+{
+  "base": "4687490198313ccf0f55d85c1cbcbd680d720cea",
+  "applicationHead": "adb0f10a1142cb9135192da63af756b43dbc035e",
+  "fullInventoryHead": "42e9e2bc6b3300685fb3133aebe0e932bb5a9b7a",
+  "carryForward": "Only a scalar phase-expression extraction differs. Exact finite-equivalence review and affected tests/browser/gates bind to applicationHead; full inventory remains bound to fullInventoryHead.",
+  "trees": {
+    "app": "7f4fec204f94456eae6f9481de3c6ae715182c44",
+    "public": "c0b45f1a8225ad397fa303898d71aedde76560c5",
+    "tests": "efe3c0adce65c6b36a829fce42ef16d133f318c4",
+    "scripts": "e4ac31bbda8aa3a3a6aa28b90adc10dd0d7033af",
+    "engineering": "e9206ad85b595c66a8a25b9099ca8e0e6716e30a"
+  },
+  "installedDependencyLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "reviewSource": {
+    "status": "passed",
+    "count": 1108,
+    "mismatches": []
+  },
+  "artifacts": {
+    "independent-validation-audit.md": {
+      "sha256": "31ee78243ce3cbaef8c00c85e4c222cb1572fa9705f3488e21ed4b8c7a5d9efb",
+      "bytes": 4139
+    },
+    "independent-final-review.json": {
+      "sha256": "500f6ab4637cccedbdda2270f37e78337651bba55522de8f52eeb6f2d6e1c94d",
+      "bytes": 14321
+    },
+    "README.md": {
+      "sha256": "96ccb77b58248c9d08b7c959e39cb54470fef6757ed8867595ee7c430e4f82d2",
+      "bytes": 8296
+    },
+    "canonical-build-adb0f10a.json": {
+      "sha256": "f13e6e5486c831bcdbf49a21bd3b02052c6cc046bcb146155d2b69bf993aff53",
+      "bytes": 561
+    },
+    "canonical-build-42e9e2bc.json": {
+      "sha256": "4d0916b5091b1271fff3fc88e27be64cac430384ba18aa90da8c707e63e32cc1",
+      "bytes": 546
+    },
+    "error-expanded-640x300.png": {
+      "sha256": "102799f3be2fd4059a308b3e0ca2fa4b5bc4f49f6b08a2dceed43f84e16ac9b9",
+      "bytes": 13160
+    },
+    "error-640x480.png": {
+      "sha256": "061d33dce1e8d0e63e5bfe550ddc049494217b9ee61ecc7461a2246dbacb32d7",
+      "bytes": 14085
+    },
+    "loading-641x481.png": {
+      "sha256": "7363ccf5f37b88ee132c4d790314bd6428c4b57409980eee4add0ea6d46e5a54",
+      "bytes": 4089
+    },
+    "loading-640x480.png": {
+      "sha256": "9d6c80cbcafad8b8e56633054d5ea313b8b6ed0a861b36c6fa7b87d864085611",
+      "bytes": 4090
+    },
+    "restore-640x480.png": {
+      "sha256": "a7a15161efcd31a8bb6a4c8289b7f8c34bf4e3cd46fb2f07eadfa8c6e1057485",
+      "bytes": 7534
+    },
+    "before-error-640x480.png": {
+      "sha256": "7d12e0258190e6c0a387a7befaea7baee3246b53a89cb277d10e64fdb229321e",
+      "bytes": 43640
+    },
+    "before-restore-640x480.png": {
+      "sha256": "c14c73af19a24d629082d8e8efc26dcacc0fe8d57f52ec977aa32e609c276d1e",
+      "bytes": 36703
+    },
+    "phase-repair-review.md": {
+      "sha256": "fdd2532315aca1bb126d793dc8219459df894915f7bb79e96cc703de5b639ada",
+      "bytes": 3443
+    },
+    "phase-repair-adb0f10a.tar.gz": {
+      "sha256": "5b92bf2087cba297d3d6cf52d336acbd6dfd1d847cee14b409ffd0129cf8bcac",
+      "bytes": 141889
+    },
+    "broad-wrapper-qualification-42e9e2bc.json": {
+      "sha256": "fb82e05be519ec7508e83438a247501f3f9714b35dac22f9f896b55d97cea57a",
+      "bytes": 6422
+    },
+    "independent-browser-review.md": {
+      "sha256": "8a6611fd849ff6f358d2c7b40758a9e4ce657eb87008cdbccc09883e75dc0076",
+      "bytes": 5653
+    },
+    "actual-home-browser-42e9e2bc.tar.gz": {
+      "sha256": "8dc3723b89e2818f77dc44d5be0b2e9456b1a4b6fb670a9ad14d83f084bfc830",
+      "bytes": 2348127
+    },
+    "validation-42e9e2bc-adb0f10a.tar.gz": {
+      "sha256": "4be9de7516c84a5b46bef42037b452e965d3f1bae35197b6705626e481255499",
+      "bytes": 978976
+    },
+    "native-presentation.tar.gz": {
+      "sha256": "9b105111b70527bceae7d51b2422a2ceb112997b4fce20797a2ac6b0479725c0",
+      "bytes": 31993
+    }
+  }
+}

@@ -66,7 +66,8 @@ The consumer also reads the localized loading-label pointer at `009733b4`; the
 supplied English table's entry 515 is `Loading...`. Text measurement/drawing is
 performed by the existing font helpers. When the logo exists, the code moves the
 label above it and makes two text passes involving FE/FF and an offset. Exact
-shadow/palette meaning and glyph metrics remain unvalidated. A 512×384 compatibility
+shadow/palette meaning and glyph metrics were unvalidated in that baseline. The
+Western slot-1 software path is resolved in the 2026-10-16 follow-up below. A 512×384 compatibility
 branch adjusts buffer placement, and an alternate one-byte destination mode still
 contains the word store. Do not generalize either detail into a faithful browser
 scaling, shadow or eight-bit raster claim.
