@@ -8,14 +8,20 @@ const sha = value => /^[0-9a-f]{40}$/.test(value ?? '')
 const ensure = (condition, message) => {
   if (!condition) throw new Error(message)
 }
-const run = (file, args, cwd) =>
-  execFileSync(file, args, {
-    cwd,
-    encoding: 'utf8',
-    timeout: 30_000,
-    maxBuffer: 16 * 1024 * 1024,
-    env: { ...process.env, GH_PROMPT_DISABLED: '1', GH_PAGER: 'cat' },
-  })
+const run = (file, args, cwd) => {
+  try {
+    return execFileSync(file, args, {
+      cwd,
+      encoding: 'utf8',
+      stdio: 'pipe',
+      timeout: 30_000,
+      maxBuffer: 16 * 1024 * 1024,
+      env: { ...process.env, GH_PROMPT_DISABLED: '1', GH_PAGER: 'cat' },
+    })
+  } catch (error) {
+    throw new Error(stripVTControlCharacters(error.message))
+  }
+}
 
 // This reader only issues GET requests. The separately armed writer owns mutations.
 export class GitHubReader {
@@ -28,11 +34,15 @@ export class GitHubReader {
       endpoint.startsWith(`repos/${REPO}/`) && !endpoint.includes('..'),
       'Unexpected GitHub endpoint'
     )
-    const raw = this.execute(
-      'gh',
-      ['api', '--hostname', 'github.com', '--method', 'GET', endpoint],
-      this.cwd
-    )
+    const args = ['api', '--hostname', 'github.com', '--method', 'GET', endpoint]
+    if (text) {
+      ensure(
+        new RegExp(`^repos/${REPO}/actions/jobs/[1-9][0-9]*/logs$`).test(endpoint),
+        'Raw text capture is restricted to numeric Actions job logs'
+      )
+      args.push('--allow-escape-sequences')
+    }
+    const raw = this.execute('gh', args, this.cwd)
     return text ? raw : JSON.parse(raw)
   }
   pages(endpoint, key = null) {
@@ -225,12 +235,13 @@ export class GitHubReader {
               check.app?.slug === 'github-actions',
             'Check suite/run/app mismatch'
           )
-          const log = this.get(`repos/${REPO}/actions/jobs/${job.id}/logs`, true)
+          const rawLog = this.get(`repos/${REPO}/actions/jobs/${job.id}/logs`, true)
+          const log = stripVTControlCharacters(rawLog)
           const identity = logIdentity(log)
           row.head = identity.head ?? row.head
           row.base = identity.base ?? row.base
           row.merge = identity.merge
-          row.logSha256 = sha256(log)
+          row.logSha256 = sha256(rawLog)
           row.app = check.app.slug
           row.appId = check.app.id
           row.checkId = check.id
@@ -304,6 +315,7 @@ export class GitHubReader {
       Object.assign(result, {
         head: pr.head.sha,
         base: main,
+        advertisedBase: { sha: pr.base.sha, ref: pr.base.ref, repo: pr.base.repo.full_name },
         draft: pr.draft,
         state: pr.state,
         merged: pr.merged,
@@ -355,7 +367,6 @@ export class GitHubReader {
           }
         }
       } else {
-        ensure(pr.base.sha === main, 'PR base view differs from main; obtain a fresh observation')
         result.upToDate = this.git('merge-base', main, pr.head.sha) === main
         result.changedPaths = this.git(
           'diff',
@@ -371,7 +382,31 @@ export class GitHubReader {
           .filter(Boolean)
         if (!result.upToDate && pr.head.sha === entry.sourceHead)
           result.refresh = this.refresh(entry, pr.head.sha, main)
-        if (pr.mergeable === true && sha(pr.merge_commit_sha)) {
+        if (pr.base.sha !== main) {
+          ensure(
+            pr.state === 'open' &&
+              pr.draft === true &&
+              pr.mergeable === true &&
+              pr.mergeable_state === 'behind' &&
+              pr.base.sha === entry.reviewBase &&
+              pr.head.sha === entry.sourceHead &&
+              result.headCommit.tree === entry.sourceTree &&
+              entry.allowMechanicalRefresh === true &&
+              result.upToDate === false &&
+              result.refresh?.clean === true &&
+              result.refresh.disjoint === true,
+            'Stale PR base lacks exact reviewed draft refresh proof'
+          )
+          const stale = this.commit(pr.merge_commit_sha)
+          ensure(
+            stale.parents.length === 2 &&
+              stale.parents[0] === entry.reviewBase &&
+              stale.parents[1] === entry.sourceHead,
+            'Stale synthetic does not match the reviewed base and source'
+          )
+          result.refreshOnly = true
+          result.staleSynthetic = stale
+        } else if (pr.mergeable === true && sha(pr.merge_commit_sha)) {
           result.synthetic = this.commit(pr.merge_commit_sha)
           result.workflows.push(...GATES.map(g => this.workflow(g.workflow, result.synthetic.sha)))
         }
@@ -395,6 +430,13 @@ export class GitHubReader {
       const endMain = this.get(`${root}/git/ref/heads/main`).object.sha
       result.consistent =
         endPr.head.sha === result.head &&
+        endPr.base.sha === pr.base.sha &&
+        endPr.base.ref === pr.base.ref &&
+        endPr.base.repo.full_name === pr.base.repo.full_name &&
+        endPr.head.repo.full_name === pr.head.repo.full_name &&
+        endPr.state === pr.state &&
+        endPr.mergeable === pr.mergeable &&
+        endPr.mergeable_state === pr.mergeable_state &&
         endMain === main &&
         endPr.draft === pr.draft &&
         endPr.merged === pr.merged &&
@@ -404,7 +446,7 @@ export class GitHubReader {
       result.observedAt = Date.now()
     } catch (error) {
       // GH errors may include request details; retain a concise diagnostic, never env/auth output.
-      result.error = String(error.message).split('\n')[0]
+      result.error = stripVTControlCharacters(String(error.message)).split('\n')[0]
     }
     return result
   }

@@ -12,6 +12,7 @@ import {
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import test from 'node:test'
+import { stripVTControlCharacters } from 'node:util'
 import {
   REPO,
   CLOUDFLARE,
@@ -528,6 +529,197 @@ test('real Git merge-tree proof preserves contents and modes; path overlap stops
   }
 })
 
+test('stale advertised base admits only the original reviewed draft refresh', () => {
+  const { dir, git, put, execute } = repoFixture()
+  try {
+    put('review.md', 'accepted source review\n')
+    git('add', '.')
+    git('commit', '-qm', 'review base')
+    const base = git('rev-parse', 'HEAD')
+    put('source.txt', 'reviewed source\n')
+    git('add', '.')
+    git('commit', '-qm', 'source')
+    const source = git('rev-parse', 'HEAD'),
+      tree = git('rev-parse', 'HEAD^{tree}')
+    const stale = git('commit-tree', tree, '-p', base, '-p', source, '-m', 'old synthetic')
+    git('checkout', '-q', '--detach', base)
+    put('main.txt', 'new main\n')
+    git('add', '.')
+    git('commit', '-qm', 'main advancement')
+    const main = git('rev-parse', 'HEAD')
+    const refreshed = git('commit-tree', tree, '-p', source, '-p', main, '-m', 'refreshed head')
+    const unrelated = git('commit-tree', tree, '-m', 'unrelated root')
+    git('checkout', '-q', '--detach', source)
+    const e = entry()
+    Object.assign(e, { sourceHead: source, sourceTree: tree, reviewBase: base })
+    Object.assign(e.review, {
+      head: source,
+      base,
+      file: join(dir, 'review.md'),
+      sha256: sha256(readFileSync(join(dir, 'review.md'))),
+    })
+    const original = {
+      head: { sha: source, ref: 'reviewed', repo: { full_name: REPO } },
+      base: { sha: base, ref: 'main', repo: { full_name: REPO } },
+      draft: true,
+      state: 'open',
+      merged: false,
+      mergeable: true,
+      mergeable_state: 'behind',
+      merge_commit_sha: stale,
+      updated_at: 'unchanged',
+    }
+    function inspect({
+      change = () => {},
+      end = () => {},
+      liveMain = main,
+      endMain = liveMain,
+      runs = [],
+      allowed = e,
+    } = {}) {
+      const pr = structuredClone(original)
+      change(pr)
+      let prReads = 0,
+        mainReads = 0
+      const reader = new GitHubReader({ cwd: dir, execute })
+      reader.get = endpoint => {
+        if (endpoint.endsWith(`/pulls/${e.pr}`)) {
+          const value = structuredClone(pr)
+          if (prReads++) end(value)
+          return value
+        }
+        if (endpoint.endsWith('/git/ref/heads/main'))
+          return { object: { sha: mainReads++ ? endMain : liveMain } }
+        throw new Error(`Unexpected fixture endpoint: ${endpoint}`)
+      }
+      reader.commit = sha => ({
+        sha,
+        tree: reader.git('rev-parse', `${sha}^{tree}`),
+        parents: reader.git('show', '-s', '--format=%P', sha).split(' ').filter(Boolean),
+      })
+      reader.protection = () => observation().protection
+      reader.workflow = (path, ref) => ({ path, ref, sha256: h })
+      reader.runs = (_entry, _pr, synthetic) => {
+        assert.equal(synthetic, undefined, 'old synthetic must never enter gate verification')
+        return runs
+      }
+      reader.pages = () => []
+      const result = reader.inspect(allowed, dir)
+      result.resource = observation().resource
+      result.observedAt = now
+      return result
+    }
+    const o = inspect()
+    assert.equal(o.complete, true, o.error)
+    assert.equal(o.consistent, true)
+    assert.deepEqual(o.advertisedBase, { sha: base, ref: 'main', repo: REPO })
+    assert.equal(o.base, main)
+    assert.equal(o.refreshOnly, true)
+    assert.equal(o.synthetic, undefined)
+    assert.deepEqual(o.staleSynthetic.parents, [base, source])
+    const first = decide(e, o, null, now)
+    assert.equal(first.status, 'wait')
+    const decision = settled(e, o)
+    assert.deepEqual(decision.action, {
+      kind: 'refresh',
+      head: source,
+      base: main,
+      tree: o.refresh.tree,
+    })
+    assert.equal(git('show', `${o.refresh.tree}:source.txt`), 'reviewed source')
+    assert.equal(git('show', `${o.refresh.tree}:main.txt`), 'new main')
+    const historical = green(observation(), GATES[0], 0)
+    Object.assign(historical, { head: source, base, merge: stale, identityVerified: false })
+    assert.equal(settled(e, inspect({ runs: [historical] })).action.kind, 'refresh')
+    const changedStale = structuredClone(o)
+    changedStale.staleSynthetic.sha = id(77)
+    changedStale.observedAt = now + 60_000
+    assert.equal(decide(e, changedStale, first.checkpoint, now + 60_000).status, 'wait')
+    const active = inspect({ runs: [{ id: 1, attempt: 1, status: 'in_progress' }] })
+    assert.match(settled(e, active).reason, /Drain all current and stale/)
+    for (const mutate of [
+      o => {
+        o.draft = false
+      },
+      o => {
+        o.upToDate = true
+      },
+      o => {
+        o.synthetic = o.staleSynthetic
+      },
+    ]) {
+      const forged = structuredClone(o)
+      mutate(forged)
+      assert.equal(settled(e, forged).status, 'stop', 'refresh-only cannot authorize ready/merge')
+    }
+    for (const options of [
+      {
+        change: p => {
+          p.draft = false
+        },
+      },
+      {
+        change: p => {
+          p.head.sha = main
+        },
+      },
+      {
+        change: p => {
+          p.head.sha = refreshed
+        },
+      },
+      {
+        change: p => {
+          p.base.sha = unrelated
+        },
+      },
+      {
+        change: p => {
+          p.merge_commit_sha = source
+        },
+      },
+      {
+        change: p => {
+          p.mergeable = null
+        },
+      },
+      { liveMain: unrelated },
+      { allowed: { ...e, sourceTree: id(99) } },
+      { allowed: { ...e, allowMechanicalRefresh: false } },
+      { endMain: source },
+      {
+        end: p => {
+          p.base.sha = main
+        },
+      },
+      {
+        end: p => {
+          p.base.ref = 'other'
+        },
+      },
+      {
+        end: p => {
+          p.base.repo.full_name = 'elsewhere/repo'
+        },
+      },
+      {
+        end: p => {
+          p.head.sha = main
+        },
+      },
+    ])
+      assert.equal(settled(options.allowed ?? e, inspect(options)).status, 'stop')
+    git('checkout', '-q', '--detach', main)
+    put('source.txt', 'overlap\n')
+    git('add', '.')
+    git('commit', '-qm', 'overlapping main')
+    const overlapping = git('rev-parse', 'HEAD')
+    assert.equal(settled(e, inspect({ liveMain: overlapping })).status, 'stop')
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
 test('GitHub adapter uses only hostname-pinned GET argv and rejects incomplete pages', () => {
   const calls = []
   const reader = new GitHubReader({
@@ -550,6 +742,99 @@ test('GitHub adapter uses only hostname-pinned GET argv and rejects incomplete p
     execute: () => JSON.stringify({ total_count: 1000, items: [] }),
   })
   assert.throws(() => capped.pages(`repos/${REPO}/fake`, 'items'), /cap reached/)
+})
+
+test('escape opt-in is restricted to captured numeric job logs, never other GETs', () => {
+  const calls = []
+  const reader = new GitHubReader({
+    execute: (_command, args) => {
+      calls.push(args)
+      return '{}'
+    },
+  })
+  const endpoint = `repos/${REPO}/actions/jobs/117178077076/logs`
+  reader.get(endpoint, true)
+  assert.deepEqual(calls[0], [
+    'api',
+    '--hostname',
+    'github.com',
+    '--method',
+    'GET',
+    endpoint,
+    '--allow-escape-sequences',
+  ])
+  reader.get(endpoint)
+  assert.equal(calls[1].includes('--allow-escape-sequences'), false)
+  for (const path of [
+    `repos/${REPO}/pulls/505`,
+    `${endpoint}?other=1`,
+    `repos/${REPO}/actions/jobs/not-a-number/logs`,
+    `repos/other/repo/actions/jobs/1/logs`,
+  ])
+    assert.throws(() => reader.get(path, true))
+  assert.equal(calls.length, 2)
+})
+
+test('production log transport captures escape bytes without rendering child output', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pnd-queue-gh-'))
+  const payload = '\x1b[31mraw-log\x1b[0m\x1b]52;c;Y2xpcGJvYXJk\x07\n'
+  try {
+    const gh = join(dir, 'gh')
+    writeFileSync(
+      gh,
+      `#!${process.execPath}\n` +
+        `
+      const args = process.argv.slice(2)
+      if (!args.includes('--allow-escape-sequences')) {
+        process.stderr.write('the response contains terminal escape sequences')
+        process.exit(1)
+      }
+      if (process.stdout.isTTY || process.stderr.isTTY || process.env.GH_PAGER !== 'cat')
+        process.exit(9)
+      process.stdout.write(${JSON.stringify(payload)})
+      process.stderr.write(${JSON.stringify(payload)})
+      process.exit(args[5].includes('/jobs/2/') ? 1 : 0)
+    `
+    )
+    chmodSync(gh, 0o755)
+    const readerModule = JSON.stringify(resolve('scripts/integration-queue/github.mjs'))
+    const invoke = id =>
+      spawnSync(
+        process.execPath,
+        [
+          '--input-type=module',
+          '-e',
+          `
+      import { GitHubReader } from ${readerModule}
+      import { createHash } from 'node:crypto'
+      try {
+        const raw = new GitHubReader().get('repos/${REPO}/actions/jobs/${id}/logs', true)
+        console.log(createHash('sha256').update(raw).digest('hex'))
+      } catch (error) {
+        console.error(error.message)
+        process.exitCode = 7
+      }
+    `,
+        ],
+        {
+          encoding: 'utf8',
+          env: { ...process.env, PATH: `${dir}:${process.env.PATH}`, GH_PAGER: 'must-not-run' },
+        }
+      )
+    const success = invoke(1)
+    assert.equal(success.status, 0, success.stderr)
+    assert.equal(success.stdout.trim(), sha256(payload))
+    assert.equal(success.stderr, '')
+    const failed = invoke(2)
+    assert.equal(failed.status, 7)
+    assert.equal(failed.stdout, '')
+    assert.match(failed.stderr, /raw-log/)
+    assert.equal(failed.stderr, stripVTControlCharacters(failed.stderr))
+    assert.ok(!failed.stderr.includes('Y2xpcGJvYXJk'))
+    assert.notEqual(sha256(payload), sha256(stripVTControlCharacters(payload)))
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
 })
 
 test('apply is disabled before any GitHub call; candidate approval files are rejected', () => {
@@ -630,9 +915,11 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
     draft = false,
     draftFlag = true,
     draftValidationRan = false,
-    workflowText = 'reviewed workflow'
+    workflowText = 'reviewed workflow',
+    logSuffix = ''
   e.workflowHashes = Object.fromEntries(GATES.map(g => [g.workflow, sha256('reviewed workflow')]))
   const calls = []
+  const capturedLogs = []
   const execute = (command, args) => {
     assert.equal(command, 'gh')
     assert.deepEqual(args.slice(0, 5), ['api', '--hostname', 'github.com', '--method', 'GET'])
@@ -693,9 +980,17 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
         conclusion: draft ? 'failure' : 'success',
         app: { slug: 'github-actions', id: appId },
       })
-    if (endpoint.endsWith('/logs') && draft) return `IS_DRAFT: ${draftFlag}\n`
-    if (endpoint.endsWith('/logs'))
-      return `PR_HEAD_SHA: ${o.head}\nPR_BASE_SHA: ${logBase}\n[command]/usr/bin/git log -1 --format=%H\n${o.synthetic.sha}\n`
+    if (endpoint.endsWith('/logs')) {
+      if (!args.includes('--allow-escape-sequences'))
+        throw new Error('the response contains terminal escape sequences')
+      const plain = draft
+        ? `IS_DRAFT: ${draftFlag}\n`
+        : `PR_HEAD_SHA: ${o.head}\nPR_BASE_SHA: ${logBase}\n[command]/usr/bin/git log -1 --format=%H\n${o.synthetic.sha}\n`
+      const raw =
+        plain.replaceAll('\n', '\x1b[0m\n\x1b[32m') + '\x1b]52;c;Y2xpcGJvYXJk\x07' + logSuffix
+      capturedLogs.push(raw)
+      return raw
+    }
     if (endpoint.includes('/contents/'))
       return JSON.stringify({
         encoding: 'base64',
@@ -709,6 +1004,22 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
   let runs = reader.runs(e, pr, o.synthetic)
   assert.equal(runs.length, 2)
   assert.ok(runs.every(r => r.identityVerified && r.validationVerified))
+  assert.deepEqual(
+    runs.map(r => r.logSha256),
+    capturedLogs.map(raw => sha256(raw))
+  )
+  assert.ok(capturedLogs.every(raw => sha256(raw) !== sha256(stripVTControlCharacters(raw))))
+  assert.ok(!JSON.stringify(runs).includes('Y2xpcGJvYXJk'))
+  logSuffix = `PR_BASE_SHA: ${id(98)}\n`
+  assert.ok(
+    reader.runs(e, pr, o.synthetic).every(r => !r.identityVerified && !r.validationVerified)
+  )
+  logSuffix = `[command]/usr/bin/git log -1 --format=%H\n${o.synthetic.sha}\n`
+  assert.ok(
+    reader.runs(e, pr, o.synthetic).every(r => !r.identityVerified && !r.validationVerified)
+  )
+  logSuffix = ''
+  assert.ok(reader.runs(e, pr, undefined).every(r => !r.identityVerified))
   assert.ok(calls.some(c => c.endsWith('/check-runs/300')))
   logBase = id(99)
   runs = reader.runs(e, pr, o.synthetic)

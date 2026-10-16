@@ -1,0 +1,96 @@
+[
+  {
+    "pr": 505,
+    "mode": "github-read-only",
+    "status": "stop",
+    "reason": "PR base view differs from main; obtain a fresh observation",
+    "action": null,
+    "checkpoint": {
+      "version": 1,
+      "authorization": "e2544ab0e86ddb88d0c4fbfd0341c7618cab8be53cea36a20f35c405f98f9b0d",
+      "head": "7a2fcb7f1a5cb95653a432392d36375320bf3dd5",
+      "refreshed": false,
+      "quiet": null,
+      "pending": null,
+      "merged": null
+    },
+    "plan": null,
+    "observation": {
+      "repo": "JohnDeved/populous-new-dawn",
+      "pr": 505,
+      "baseRef": "main",
+      "observedAt": 1792184494422,
+      "complete": false,
+      "consistent": false,
+      "reviewDigest": "7efae704059888ad87e36660aba559d6ccf88d9d30695e4a12ed0af57f41909c",
+      "head": "7a2fcb7f1a5cb95653a432392d36375320bf3dd5",
+      "base": "e3d3659793b70f6ec82cf09f9704041e2b662ff5",
+      "draft": true,
+      "state": "open",
+      "merged": false,
+      "mergeable": true,
+      "mergeState": "behind",
+      "headCommit": {
+        "sha": "7a2fcb7f1a5cb95653a432392d36375320bf3dd5",
+        "tree": "d3183d2f6dddd80ec28c628c5bb2308a427ee363",
+        "parents": [
+          "df57e6eb70afb93dd43a3eea7c98fc5b263a49de"
+        ]
+      },
+      "protection": {
+        "strict": true,
+        "admins": true,
+        "pullRequests": true,
+        "noBypass": true,
+        "fullCheck": true,
+        "supported": true
+      },
+      "workflows": [
+        {
+          "path": ".github/workflows/ready-pr-check.yml",
+          "ref": "7a2fcb7f1a5cb95653a432392d36375320bf3dd5",
+          "sha256": "b9523f3a17133c51e485195592a2620c983f8944127c3754e749c64090470219"
+        },
+        {
+          "path": ".github/workflows/ready-pr-check.yml",
+          "ref": "e3d3659793b70f6ec82cf09f9704041e2b662ff5",
+          "sha256": "b9523f3a17133c51e485195592a2620c983f8944127c3754e749c64090470219"
+        },
+        {
+          "path": ".github/workflows/tutorial-browser.yml",
+          "ref": "7a2fcb7f1a5cb95653a432392d36375320bf3dd5",
+          "sha256": "56f24edbea19a26cde6949ea1fc362013c31d385977f6ed633b208d6affd7b68"
+        },
+        {
+          "path": ".github/workflows/tutorial-browser.yml",
+          "ref": "e3d3659793b70f6ec82cf09f9704041e2b662ff5",
+          "sha256": "56f24edbea19a26cde6949ea1fc362013c31d385977f6ed633b208d6affd7b68"
+        }
+      ],
+      "error": "PR base view differs from main; obtain a fresh observation",
+      "resource": {
+        "status": "observed",
+        "proposal": null,
+        "candidate": "7fc16d5558e5a358161a2fec6f820d6211476c0f",
+        "tree": "d3183d2f6dddd80ec28c628c5bb2308a427ee363",
+        "fullSuite": true,
+        "parallelEligibility": "production-config-runtime-drift",
+        "files": 453,
+        "groups": [
+          {
+            "concurrency": 1,
+            "files": 453
+          }
+        ],
+        "runtime": {
+          "node": "24.18.0",
+          "platform": "darwin",
+          "arch": "arm64"
+        },
+        "installedLockSha256": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9",
+        "reason": "Conservative serial fallback: production-config-runtime-drift"
+      }
+    },
+    "execution": null
+  }
+]
