@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "7baa04fd-8310-4547-b8b1-ee00b92082bd",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "0d167db3c3388bf02fe1ad43b852ed35a0fb9a41",
+    "branch": "feat/web-performance-overlay",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "test:focus",
+    "--",
+    "tests/frame-performance.test.mjs",
+    "tests/game-clock.test.mjs"
+  ],
+  "cwd": "/tmp/populous-selector-scene-457",
+  "startedAt": "2026-10-16T08:42:29.434Z",
+  "artifacts": {
+    "stdout": "/tmp/populous-selector-scene-457/work/orchestration/performance-overlay479/focused.json.artifacts/stdout.log",
+    "stderr": "/tmp/populous-selector-scene-457/work/orchestration/performance-overlay479/focused.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T08:42:45.003Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 test:focus\n> node scripts/orchestration/test-runner.mjs focus tests/frame-performance.test.mjs tests/game-clock.test.mjs\n\nTAP version 13\n# Subtest: frame telemetry computes time-weighted cadence and per-frame CPU/call means at four Hz\nok 1 - frame telemetry computes time-weighted cadence and per-frame CPU/call means at four Hz\n  ---\n  duration_ms: 1.166314\n  type: 'test'\n  ...\n# Subtest: a slow frame remains visible and affects cadence rather than being clamped away\nok 2 - a slow frame remains visible and affects cadence rather than being clamped away\n  ---\n  duration_ms: 0.27169\n  type: 'test'\n  ...\n# Subtest: history is one fixed 240-frame chronological ring and reset exposes no old window\nok 3 - history is one fixed 240-frame chronological ring and reset exposes no old window\n  ---\n  duration_ms: 0.584556\n  type: 'test'\n  ...\n# Subtest: invalid or nonpositive frame intervals cannot poison telemetry\nok 4 - invalid or nonpositive frame intervals cannot poison telemetry\n  ---\n  duration_ms: 0.298814\n  type: 'test'\n  ...\n# Subtest: hardware hints use the supplied live context and explicit approximate units\nok 5 - hardware hints use the supplied live context and explicit approximate units\n  ---\n  duration_ms: 1.117326\n  type: 'test'\n  ...\n# Subtest: unsupported or privacy-restricted telemetry never fabricates hardware numbers\nok 6 - unsupported or privacy-restricted telemetry never fabricates hardware numbers\n  ---\n  duration_ms: 0.368241\n  type: 'test'\n  ...\n# Subtest: render cadence and idle production worship hooks cannot change gameplay, RNG or owned animation state\nok 7 - render cadence and idle production worship hooks cannot change gameplay, RNG or owned animation state\n  ---\n  duration_ms: 13603.193929\n  type: 'test'\n  ...\n# Subtest: paused time stays paused; long active frames retain elapsed time\nok 8 - paused time stays paused; long active frames retain elapsed time\n  ---\n  duration_ms: 151.790952\n  type: 'test'\n  ...\n# Subtest: campaign messages use the presentation clock and freeze while paused\nok 9 - campaign messages use the presentation clock and freeze while paused\n  ---\n  duration_ms: 291.246654\n  type: 'test'\n  ...\n# Subtest: campaign pending auto-open waits for settled motion and consumes one oldest record per presentation visit\nok 10 - campaign pending auto-open waits for settled motion and consumes one oldest record per presentation visit\n  ---\n  duration_ms: 62.408849\n  type: 'test'\n  ...\n1..10\n# tests 10\n# suites 0\n# pass 10\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 15187.720763\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n{\"kind\":\"pnd-test-plan\",\"mode\":\"focus\",\"fullSuite\":false,\"parallelEligibility\":\"focused-serial\",\"files\":[\"tests/frame-performance.test.mjs\",\"tests/game-clock.test.mjs\"],\"groups\":[{\"concurrency\":1,\"files\":[\"tests/frame-performance.test.mjs\",\"tests/game-clock.test.mjs\"]}]}\n{\"kind\":\"pnd-test-group\",\"command\":[\"/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/frame-performance.test.mjs\",\"tests/game-clock.test.mjs\"],\"files\":[\"tests/frame-performance.test.mjs\",\"tests/game-clock.test.mjs\"],\"concurrency\":1,\"exitCode\":0,\"signal\":null,\"error\":null,\"status\":\"passed\",\"wallMs\":15273.910776}\n{\"kind\":\"pnd-test-result\",\"mode\":\"focus\",\"fullSuite\":false,\"complete\":true,\"interrupted\":null,\"results\":[{\"command\":[\"/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/frame-performance.test.mjs\",\"tests/game-clock.test.mjs\"],\"files\":[\"tests/frame-performance.test.mjs\",\"tests/game-clock.test.mjs\"],\"concurrency\":1,\"exitCode\":0,\"signal\":null,\"error\":null,\"status\":\"passed\",\"wallMs\":15273.910776}],\"wallMs\":15276.502645,\"status\":\"passed\"}\n",
+  "stdoutSha256": "b77bb1a7bfefe760e091d6ac048c3acb927b793c7e59dfd71242064716b6fe8a",
+  "stderrSha256": "aebf79b4cdd10c417878f11f844501e029e779989ccddf371f7dae584c806153",
+  "sourceAfter": {
+    "headOid": "0d167db3c3388bf02fe1ad43b852ed35a0fb9a41",
+    "branch": "feat/web-performance-overlay",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
