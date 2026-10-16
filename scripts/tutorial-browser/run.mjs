@@ -10,6 +10,7 @@ const root = resolve(dirname(import.meta.filename), '../..')
 const fixture = resolve(dirname(import.meta.filename), 'fixture')
 const out = resolve(process.argv[2] || resolve(root, 'outputs/tutorial-browser'))
 const scenario = resolve(root, 'scripts/local-render/tutorial-recommendation.mjs')
+const selectorScenario = resolve(root, 'scripts/tutorial-browser/selector-inspection.mjs')
 const port = 5198
 if (existsSync(out)) throw Error('Output must be fresh')
 mkdirSync(out, { recursive: true })
@@ -50,6 +51,7 @@ function outputManifest(path, prefix = '') {
 const receipt = { status: 'running', startedAt: new Date().toISOString(), source, command: process.argv,
   runnerSha256: hash(import.meta.filename), builderSha256: hash(resolve(dirname(import.meta.filename), 'build-home.mjs')),
   scenarioSha256: hash(scenario), fixtureSha256: hash(resolve(fixture, 'main.tsx')),
+  selectorScenarioSha256: hash(selectorScenario),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),
   browserPath, browserChannel: 'chrome', browserBinaryVersion, browserSha256: hash(browserPath), node: process.version,
@@ -94,6 +96,7 @@ try {
   const url = `http://127.0.0.1:${port}`
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
   receipt.result = await (await import(pathToFileURL(scenario).href)).default({ page, context, browser, url, root, output: out, receipt })
+  receipt.selectorInspection = await (await import(pathToFileURL(selectorScenario).href)).default({ browser, url, output: out })
   assert.equal(receipt.browserTimedOut, undefined)
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
   receipt.status = 'passed'

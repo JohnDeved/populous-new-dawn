@@ -30,3 +30,16 @@ browser executable hash/version, dependencies, output bundle hashes, and cleanup
 The workflow retains only receipts, logs and screenshots for seven days, even
 on failure; it does not upload dependencies, the bundle, or original game assets.
 Local typechecking/full builds should not be repeated just to run this check.
+
+After the existing Tutorial groups, one Mission 1 scene checks live-world selector
+inspection. A fresh context follows New Game → recommendation No → Start Mission 1
+→ Skip introduction, then Game settings → Options → Browser compatibility and help
+→ Select Level. Browser controls' Inspect campaign world selects Mission 2 without
+starting it. Both initially paused and initially running episodes exercise Back,
+Escape, Continue Game, and a second Escape from the returned pause menu.
+Read-only observers retain world/scene/canvas and captured menu-session identity,
+check frozen level/turn/time and modal suspension, and reject disposal, terrain
+abort, canvas removal, or a loading replacement. Continue and repeated Escape must
+restore the captured pause policy. This differs from Quit Level → Yes, which
+abandons the world. `selector-inspection.json` and two screenshots retain the
+episode results; the runner's source manifest includes the added scenario.
