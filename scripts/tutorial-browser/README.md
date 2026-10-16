@@ -14,11 +14,13 @@ on the final candidate before merging. A skipped/path-filtered browser run is
 not acceptance for a change affecting this scenario. No auto-merge or repository
 settings are changed here.
 
-The lockfile-installed Playwright CLI downloads its pinned Chromium revision.
-Ubuntu's system dependencies come from the hosted image/package repositories;
-they are not claimed to be immutable. Chromium keeps its sandbox enabled; a
-sandbox failure is a failed check, not a reason to disable security. No external
-browser executable or developer-machine path is used.
+The Playwright client is lockfile-installed; the browser is the official Chrome
+channel preinstalled on the Ubuntu runner. Ubuntu provides an existing AppArmor
+profile for this supported channel. Its exact version and executable hash are
+recorded, but its version is runner-managed rather than pinned by Playwright.
+The runner image and system packages are not claimed to be immutable. A missing
+Chrome channel or sandbox failure fails the check. No downloaded-browser fallback,
+AppArmor/sysctl changes, or sandbox-disabling arguments are permitted.
 
 Build time is capped at 120 seconds, browser time at 180 seconds, and the job at
 15 minutes. The output directory must be fresh (default

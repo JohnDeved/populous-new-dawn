@@ -21,7 +21,11 @@ if (process.env.GITHUB_SHA) assert.equal(commit, process.env.GITHUB_SHA, 'Exact 
 const files = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' }).split('\0').filter(Boolean)
 const source = { commit, files: Object.fromEntries(files.map(name => [name, hash(resolve(root, name))])),
   limits: ['Actual production Home component, store and scene through plain Vite hosting; excludes Vinext/Cloudflare/RSC hosting.'] }
-const browserPath = chromium.executablePath()
+// The official Chrome channel has the hosted Ubuntu AppArmor profile.
+// Never fall back to an unsandboxed downloaded browser.
+const browserPath = '/opt/google/chrome/chrome'
+assert.ok(existsSync(browserPath), 'Supported preinstalled official Chrome channel is required')
+const browserBinaryVersion = execFileSync(browserPath, ['--version'], { encoding: 'utf8' }).trim()
 const dependencies = resolve(root, 'node_modules')
 function metadata(path, prefix = '') {
   const result = {}
@@ -48,7 +52,7 @@ const receipt = { status: 'running', startedAt: new Date().toISOString(), source
   scenarioSha256: hash(scenario), fixtureSha256: hash(resolve(fixture, 'main.tsx')),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),
-  browserPath, browserSha256: hash(browserPath), node: process.version,
+  browserPath, browserChannel: 'chrome', browserBinaryVersion, browserSha256: hash(browserPath), node: process.version,
   environment: { TMPDIR: process.env.TMPDIR, XDG_CACHE_HOME: process.env.XDG_CACHE_HOME },
   limits: [...source.limits, 'Production Vite bundle of actual Home; excludes Vinext/Cloudflare/RSC hosting. No causal claim about prior development-server crashes.'], errors: [], warnings: [] }
 const save = () => writeFileSync(resolve(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
@@ -79,7 +83,7 @@ try {
   }
   verifySource(); save()
   server = await preview({ configFile: false, root: fixture, build: { outDir: dist }, preview: { host: '127.0.0.1', port, strictPort: true } })
-  browser = await chromium.launch({ executablePath: browserPath, headless: true, chromiumSandbox: true, ignoreDefaultArgs: true, args: ['--headless', '--remote-debugging-pipe'], timeout: 30000 })
+  browser = await chromium.launch({ channel: 'chrome', headless: true, chromiumSandbox: true, ignoreDefaultArgs: true, args: ['--headless', '--remote-debugging-pipe'], timeout: 30000 })
   receipt.browserVersion = browser.version(); save()
   timer = setTimeout(() => { receipt.browserTimedOut = true; void browser.close() }, 180000)
   context = await browser.newContext({ viewport: { width: 640, height: 480 }, deviceScaleFactor: 1 })
