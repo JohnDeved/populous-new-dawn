@@ -340,6 +340,7 @@ test('refresh needs disjoint clean Git tree proof, exact parents and one-refresh
   assert.equal(d.action.kind, 'refresh')
   const intent = recordIntent(d)
   assert.match(decide(e, o, intent, now).reason, /uncertain/)
+  o.acceptedRefresh = structuredClone(o.refresh)
   o.head = id(10)
   o.headCommit = { sha: id(10), parents: [e.sourceHead, o.base], tree: id(9) }
   o.upToDate = true

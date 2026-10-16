@@ -164,7 +164,12 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
     )
     if (state.refreshed) {
       requireThat(
-        state.refresh?.head === entry.sourceHead &&
+        o.acceptedRefresh?.clean === true &&
+          o.acceptedRefresh.disjoint === true &&
+          o.acceptedRefresh.sourceHead === entry.sourceHead &&
+          o.acceptedRefresh.base === state.refresh?.base &&
+          o.acceptedRefresh.tree === state.refresh?.tree &&
+          state.refresh?.head === entry.sourceHead &&
           same(o.headCommit?.parents, [entry.sourceHead, state.refresh.base]) &&
           o.headCommit?.tree === state.refresh.tree,
         'Refreshed checkpoint lost its source/parents/tree proof'

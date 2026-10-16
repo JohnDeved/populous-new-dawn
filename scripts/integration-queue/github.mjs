@@ -269,6 +269,16 @@ export class GitHubReader {
         mergeState: pr.mergeable_state,
         headCommit: this.commit(pr.head.sha),
       })
+      if (pr.head.sha !== entry.sourceHead) {
+        ensure(
+          result.headCommit.parents.length === 2 &&
+            result.headCommit.parents[0] === entry.sourceHead,
+          'Changed head is not a single merge of the reviewed source'
+        )
+        const source = this.commit(entry.sourceHead)
+        ensure(source.tree === entry.sourceTree, 'Reviewed source tree mismatch')
+        result.acceptedRefresh = this.refresh(entry, entry.sourceHead, result.headCommit.parents[1])
+      }
       result.protection = this.protection()
       result.workflows = GATES.flatMap(g => [
         this.workflow(g.workflow, pr.head.sha),
