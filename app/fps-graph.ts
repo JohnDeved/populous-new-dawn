@@ -20,10 +20,11 @@ export class FpsGraph {
       <div class="fps-reading"><strong data-metric="fps">--</strong><span>FPS</span><small data-metric="state">Warming up</small></div>
       <div class="fps-caption"><span>Frame time</span><span data-metric="scale">ms</span></div>
       <svg viewBox="0 0 240 60" aria-hidden="true"><path class="fps-grid" d="M0 1H240M0 30H240M0 59H240"/><path class="fps-budget"/><polyline fill="none"/></svg>
-      <div class="fps-caption"><span>Last 240 frames</span><span>Dashed: 16.7 ms</span></div>
+      <div class="fps-caption"><span>Last 240 frames</span><span>120 FPS: 8.33 ms</span></div>
       <dl>
         <div><dt>Frame average</dt><dd data-metric="frame">--</dd></div>
         <div><dt>Peak · recent frames</dt><dd data-metric="peak">--</dd></div>
+        <div title="Synchronous game callback including terrain, entities, camera, HUD and scheduling. Excludes this overlay update, deferred browser work and GPU execution. Simulation and scene render are included, not additional costs."><dt>Game callback CPU</dt><dd data-metric="callback">--</dd></div>
         <div><dt>Simulation CPU</dt><dd data-metric="simulation">--</dd></div>
         <div><dt>Scene render CPU</dt><dd data-metric="render">--</dd></div>
         <div><dt>Scene draw calls / frame</dt><dd data-metric="calls">--</dd></div>
@@ -36,7 +37,7 @@ export class FpsGraph {
           <div><dt>JS heap · estimate</dt><dd data-metric="heap">Unavailable</dd></div>
         </dl>
       </div>
-      <p>FPS: browser callback cadence<br>Render CPU: prep + submission, not GPU</p>`
+      <p>FPS: callback cadence · CPU sub-times included<br>CPU: synchronous; excludes overlay + GPU</p>`
     for (const field of this.element.querySelectorAll<HTMLElement>('[data-metric]'))
       this.fields[field.dataset.metric!] = field
     const hardware = readHardwareInfo(gl, navigator)
@@ -60,7 +61,7 @@ export class FpsGraph {
   reset(state = 'Warming up') {
     this.previous = null
     this.samples.reset()
-    for (const name of ['fps', 'frame', 'peak', 'simulation', 'render', 'calls'])
+    for (const name of ['fps', 'frame', 'peak', 'simulation', 'render', 'calls', 'callback'])
       this.text(name, '--')
     this.text('state', state)
     this.text('scale', 'ms')
@@ -68,14 +69,21 @@ export class FpsGraph {
     this.budget.setAttribute('d', '')
   }
 
-  update(now: number, simulation: number, render: number, calls: number, state: string) {
+  update(
+    now: number,
+    simulation: number,
+    render: number,
+    calls: number,
+    state: string,
+    callback: number
+  ) {
     const { previous } = this
     this.previous = now
     if (previous === null) {
       this.text('state', `${state} · warming up`)
       return
     }
-    if (!this.samples.sample(now - previous, simulation, render, calls)) return
+    if (!this.samples.sample(now - previous, simulation, render, calls, callback)) return
     this.text('state', state)
     const { samples } = this
     let peak = 0
@@ -84,6 +92,7 @@ export class FpsGraph {
     this.text('fps', samples.fps.toFixed(0))
     this.text('frame', `${samples.frameMs.toFixed(1)} ms`)
     this.text('peak', `${peak.toFixed(1)} ms`)
+    this.text('callback', `${samples.callbackMs.toFixed(2)} ms`)
     this.text('simulation', `${samples.simulationMs.toFixed(2)} ms`)
     this.text('render', `${samples.renderMs.toFixed(2)} ms`)
     this.text('calls', samples.drawCalls.toFixed(0))
@@ -96,6 +105,6 @@ export class FpsGraph {
     for (let i = 0; i < samples.count; i++)
       points += `${240 - samples.count + i},${(59 - (samples.frame(i) / ceiling) * 58).toFixed(1)} `
     this.line.setAttribute('points', points)
-    this.budget.setAttribute('d', `M0 ${59 - (1000 / 60 / ceiling) * 58}H240`)
+    this.budget.setAttribute('d', `M0 ${59 - (1000 / 120 / ceiling) * 58}H240`)
   }
 }
