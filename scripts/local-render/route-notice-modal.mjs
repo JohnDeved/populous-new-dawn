@@ -7,11 +7,13 @@ import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 // Presentation fixture only: seed one route notice after real Home/scene startup.
 // This does not establish that a public gameplay command produces route failure.
 export default async function ({ page, output }) {
+  const expected = process.env.PND_ROUTE_NOTICE_EXPECT ?? 'preserved'
+  assert.ok(['preserved', 'expired'].includes(expected))
   const observations = [], button = name => page.getByRole('button', { name, exact: true })
   const record = value => {
     observations.push(value)
     writeFileSync(resolve(output, 'route-notice.json'), JSON.stringify({
-      scope: 'actual Home CSS/handlers with a controlled route-notice fixture', observations,
+      scope: 'actual Home CSS/handlers with a controlled route-notice fixture', expected, observations,
     }, null, 2))
   }
   await page.setViewportSize({ width: 960, height: 720 })
@@ -46,11 +48,21 @@ export default async function ({ page, output }) {
     await page.waitForTimeout(3400)
     const after = await observe()
     record({ initiallyPaused, stage: 'hidden-longer-than-original-lifetime', before, after })
+    for (const key of ['sameWorld', 'sameScene', 'sceneWorld', 'sameCanvas', 'paused', 'suspended']) assert.equal(after[key], true)
+    assert.equal(after.turn, before.turn); assert.equal(after.time, before.time)
+    if (expected === 'expired') {
+      assert.equal(before.animationState, 'running')
+      assert.equal(after.sameNotice, false, 'baseline must reproduce hidden notice expiry')
+      assert.equal(after.animationState, null)
+      await page.screenshot({ path: resolve(output, `route-notice-baseline-menu-${initiallyPaused}.png`) })
+      await button('Continue Game').click()
+      assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), initiallyPaused)
+      record({ initiallyPaused, stage: 'baseline-return-expired', final: await observe() })
+      continue
+    }
     assert.equal(after.sameNotice, true, 'menu must retain the notice beyond its wall-clock lifetime')
     assert.equal(after.animationState, 'paused')
     assert.ok(Math.abs(after.animationTime - before.animationTime) < 60)
-    for (const key of ['sameWorld', 'sameScene', 'sceneWorld', 'sameCanvas', 'paused', 'suspended']) assert.equal(after[key], true)
-    assert.equal(after.turn, before.turn); assert.equal(after.time, before.time)
     await button('Quit Level').click(); await button('No').click()
     await button('Options').click(); await button('Browser compatibility and help').click()
     await button('Select Level').click()
@@ -65,6 +77,7 @@ export default async function ({ page, output }) {
     await page.screenshot({ path: resolve(output, `route-notice-menu-${initiallyPaused}.png`) })
     await page.keyboard.press('Escape')
     assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), initiallyPaused)
+    await page.screenshot({ path: resolve(output, `route-notice-return-${initiallyPaused}.png`) })
     await page.waitForFunction(() => window.testStore.getWorld().routeNotice === null, null, { timeout: 5000 })
     record({ initiallyPaused, stage: 'resumed-presentation-expired', final: await observe() })
   }
