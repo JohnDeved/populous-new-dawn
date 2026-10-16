@@ -1,0 +1,86 @@
+{
+  "base": "d5768f9dd957a65c76c12a568a92d32ff164cac5",
+  "candidate": "96868869d694523b97ae06009e3ac6874a567d95",
+  "geometry": [
+    {
+      "viewport": [
+        640,
+        480
+      ],
+      "unchanged": true,
+      "differences": {},
+      "backingWidth": 640,
+      "backingHeight": 480
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "unchanged": true,
+      "differences": {},
+      "backingWidth": 854,
+      "backingHeight": 480
+    },
+    {
+      "viewport": [
+        3440,
+        1440
+      ],
+      "unchanged": true,
+      "differences": {},
+      "backingWidth": 1148,
+      "backingHeight": 480
+    },
+    {
+      "viewport": [
+        3840,
+        1080
+      ],
+      "unchanged": true,
+      "differences": {},
+      "backingWidth": 1708,
+      "backingHeight": 480
+    },
+    {
+      "viewport": [
+        768,
+        1024
+      ],
+      "unchanged": true,
+      "differences": {},
+      "backingWidth": 640,
+      "backingHeight": 480
+    },
+    {
+      "viewport": [
+        641,
+        480
+      ],
+      "unchanged": true,
+      "differences": {},
+      "backingWidth": 642,
+      "backingHeight": 480
+    }
+  ],
+  "pixelComparisons": [
+    {
+      "image": "main-focused-640x480.png",
+      "identical": true,
+      "beforeSha256": "9aab8ec23e243a164f717509fa2f8589fbbe6826b59f2db2948caded0d1ff79a",
+      "afterSha256": "9aab8ec23e243a164f717509fa2f8589fbbe6826b59f2db2948caded0d1ff79a"
+    },
+    {
+      "image": "main-unfocused-640x480.png",
+      "identical": true,
+      "beforeSha256": "fb4d7c51a701b06e17eb7e452035a90a67663fa625e6e9a5cef08b737cda81d1",
+      "afterSha256": "fb4d7c51a701b06e17eb7e452035a90a67663fa625e6e9a5cef08b737cda81d1"
+    },
+    {
+      "image": "main-unfocused-768x1024.png",
+      "identical": true,
+      "beforeSha256": "206ac842f1776611930a42e1bc53b3c67f92d09a6b967066e39db51ef7c0d409",
+      "afterSha256": "206ac842f1776611930a42e1bc53b3c67f92d09a6b967066e39db51ef7c0d409"
+    }
+  ]
+}

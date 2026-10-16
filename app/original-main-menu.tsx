@@ -81,12 +81,17 @@ export function OriginalMainMenu({
   const returnFocus = useRef<string | null>(null)
   const [panel, setPanel] = useState<'main' | 'options' | 'quit'>('main')
   const [optionRows, setOptionRows] = useState<FrontendTextRow[]>([])
-  const [scale, setScale] = useState(1)
+  const [{ scale, canvasWidth }, setViewport] = useState({ scale: 1, canvasWidth: 640 })
   const [artReady, setArtReady] = useState(false)
   const [questionReady, setQuestionReady] = useState(false)
   const [sourceReady, setSourceReady] = useState(false)
   useEffect(() => {
-    const resize = () => setScale(frontendScale(window.innerWidth, window.innerHeight))
+    const resize = () => {
+      const scale = frontendScale(window.innerWidth, window.innerHeight)
+      // Even logical pixels keep native masks aligned with the centered menu frame.
+      const canvasWidth = Math.max(640, 2 * Math.ceil(window.innerWidth / (2 * scale)))
+      setViewport({ scale, canvasWidth })
+    }
     resize()
     window.addEventListener('resize', resize)
     const modal = dialog.current
@@ -154,15 +159,16 @@ export function OriginalMainMenu({
             pointer.current,
             panel === 'main',
             pointerMode.current ? glowFrame.current : null,
-            panel === 'options' ? optionRows : frontendQuitRows
+            panel === 'options' ? optionRows : frontendQuitRows,
+            canvasWidth
           ),
-          640,
+          canvasWidth,
           480
         ),
         0,
         0
       )
-  }, [panel, optionRows])
+  }, [panel, optionRows, canvasWidth])
   useEffect(() => {
     draw()
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -260,8 +266,9 @@ export function OriginalMainMenu({
         <canvas
           ref={canvas}
           className={styles.background}
-          width={640}
+          width={canvasWidth}
           height={480}
+          style={{ width: canvasWidth, left: (640 - canvasWidth) / 2 }}
           aria-hidden="true"
         />
         <h1 className={styles.title} aria-label="Populous: The Beginning">

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "helpersSha256": "cb03ae84c74495d811f704d140c33aa40a14376a99cf60558c42e1807fb72cbd",
-  "productionSha256": "9f0bce09c82d931414cf5cdb8f444ae3db8325adbb6210761bb15be6b663346f",
+  "productionSha256": "f828fbeabb2dc2110a30f79675033ce1f1a3a37f0a5d8ef6e1a06e37b9d7d0c1",
   "parallel": {
     "tests/ai-producer-schedule.test.mjs": "e9c41f775b53064b5d27f26c5aee66a62afdb1cfee0f5fe1a02f5002d67a1489",
     "tests/ai-response-task.test.mjs": "a616ec84ec3f7ce1a681d608b66972b702c4af5b727ca6ceb4d176b568014809",
@@ -109,6 +109,7 @@
     "tests/footprints.test.mjs": "a0cc9a47a5218b5f402f75d71c470d117fa311b59c77d4847160c897f4264b98",
     "tests/formation-phase.test.mjs": "e984ffbd668a1c7f6c9f52b96dc6042acb245bd972bfa06a6b036533c0921c6a",
     "tests/frontend-composition.test.mjs": "483079e964d4adfecead81dcfa6e88da721bbfed6ec633f9fe32121d72be6661",
+    "tests/frontend-wide-background.test.mjs": "4b63fd3b97de4b974d14b8e159ee7ed47d3bf110249bf5f662b14704aeeac91e",
     "tests/game-clock.test.mjs": "d1aa5d9da0b2903fc3e53d78dee4374eff558098a6cae80bfb3313bc9070c7bb",
     "tests/game-preferences.test.mjs": "5a1698b45c3abdb452c64f89b263585c01c67f21a905118d8409ee31278b8f63",
     "tests/game.test.mjs": "3ece84b6b900f524bda8ad031271505a2e9dc2756b02fc97fa4e75bcec6dd1b2",
