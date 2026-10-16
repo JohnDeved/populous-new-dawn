@@ -1,0 +1,13 @@
+✔ comparison view preserves exact shrine defaults without mutating either world (3.712958ms)
+✔ absent, undefined, null, zero and present rewards keep the previous comparison result (9.975852ms)
+✔ unrelated nested mismatches retain full deep equality diagnostics (9.814605ms)
+✔ each view observes current values after later ticks and shrine replacement (0.438648ms)
+✔ one-time domain check accepts replay data and rejects aliased shrines or non-data shapes (2.745386ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 170.996537

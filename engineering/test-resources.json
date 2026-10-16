@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "helpersSha256": "cb03ae84c74495d811f704d140c33aa40a14376a99cf60558c42e1807fb72cbd",
+  "helpersSha256": "d375d7f4b0f86226b987e169711b8a1ee7861cb3d44639447c041215eca07742",
   "productionSha256": "d83e8c85997b27ca3230a050d19cd6b28db62ce8b96f725b6c7a6abe5dbbbe11",
   "parallel": {
     "tests/ai-producer-schedule.test.mjs": "e9c41f775b53064b5d27f26c5aee66a62afdb1cfee0f5fe1a02f5002d67a1489",
@@ -20,7 +20,7 @@
     "tests/automatic-boat-crossing.test.mjs": "6aa52e360204c295d8951cfefbfa8ec4ac9d11f95da85d179138391bbd1ee35c",
     "tests/background-audio.test.mjs": "60d68a5f2bd07212a2799784d25dd799fab8c5466114dfaf2ae443799baf9c92",
     "tests/balloon-attack-replacement.test.mjs": "8551ab352fde75a42e5816c07b503161533076aa47866e364bb7ef75d1dfbaeb",
-    "tests/balloon-attack.test.mjs": "cef2af6fe509d14612430a666635ce753dc0d199a729fb1338dd8d7355cabfd0",
+    "tests/balloon-attack.test.mjs": "02b333c612a4b2b6b629ac060218cdd4ea0d1924f1303f38ecd71122ba44014f",
     "tests/balloon-driver-selection.test.mjs": "4e4da69dcb2f2593e7df83829be42987fb29c6f7a96908804c1b7fbdcba8bfd7",
     "tests/balloon-hut-models.test.mjs": "3ab56627860754f9beac859591eec85f3988824c1f607f8e6df8a5dbe2d31fb8",
     "tests/balloon-lagging-passenger.test.mjs": "4c2ffe6827de4c841a103d640c87b7a33b1ebad07769ed66d6852d869b7fd95e",
@@ -59,6 +59,7 @@
     "tests/camp-inspection.test.mjs": "cc9be37f2525c7f8625a59f294e6f8dec90923b3a39a491120555d5d0f42ce91",
     "tests/campaign-profile-recovery.test.mjs": "cb57e835e0939a68578e79521a8d1b8b3791069e0cffab15631e2e41877ee883",
     "tests/campaign-profile-union.test.mjs": "0316ffdf6b8a4ccf1a982de444b26735376fac3297ff98c33b0a036abe52937a",
+    "tests/checkpoint-comparison-view.test.mjs": "797a3488a0866048e81659df94cdbf344f6bd97e1c90c9a772a1b6b4d99613e2",
     "tests/checkpoint-database-open-retry.test.mjs": "c13d28c07cfd97f984390bcc8fa6cdbfed7efa407417ae9d2a344b9959525c9c",
     "tests/combat-approach-point.test.mjs": "7b9fd0e0392e51754c0ec5042f92936665aa12eb98cd6407875931af1e3183f9",
     "tests/combat-approach.test.mjs": "9830e19ecba08ef2f42e5b3b2638eaf55730b4f2424e78f21818567f102bfb88",

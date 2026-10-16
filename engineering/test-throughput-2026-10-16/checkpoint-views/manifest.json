@@ -1,0 +1,8 @@
+{
+  "baseHead": "b91ea778a36c5a566dc5283038f74e2cf7fa13d7",
+  "originalAttackSha256": "cef2af6fe509d14612430a666635ce753dc0d199a729fb1338dd8d7355cabfd0",
+  "candidatePatchSha256": "08d5d0014ff41f9ade3786ce77de1bf14012926ea38bb6139e86a8edab915d5e",
+  "executed": true,
+  "helperTests": "5/5 passed; first prototype-test expectation failure retained separately",
+  "replayStatus": "4/4 passed, exit 0, source stable; no matched performance claim"
+}

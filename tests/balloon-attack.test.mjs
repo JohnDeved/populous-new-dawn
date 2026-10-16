@@ -1,3 +1,4 @@
+import { checkpointComparisonView, assertCheckpointComparisonDomain } from './helpers/checkpoint-comparison-view.mjs'
 import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { supportsFollower } from '../app/model.ts'
@@ -118,13 +119,8 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
   const restored = store.getWorld()
-  const comparable = world => {
-    const copy = structuredClone(world)
-    // Existing checkpoint schema defaults only, never repair actual gameplay.
-    for (const head of copy.shrines)
-      if (head.reward === undefined && head.rewardMana) head.reward = 'mana'
-    return copy
-  }
+  assertCheckpointComparisonDomain(world)
+  assertCheckpointComparisonDomain(restored)
   let death = 0,
     targetDeath = 0,
     retired = 0,
@@ -134,7 +130,7 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
   while (world.turn < 6429) {
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
-    assert.deepEqual(comparable(restored), comparable(world))
+    assert.deepEqual(checkpointComparisonView(restored), checkpointComparisonView(world))
     if (world.turn === expected.cancel) {
       timedAssertions++
       const cancelled = structuredClone(world),
