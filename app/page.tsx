@@ -1053,7 +1053,7 @@ export default function Home() {
           role="status"
           onAnimationEnd={() =>
             store.change(w => {
-              if (w === world && w.routeNotice?.serial === routeNotice.serial) w.routeNotice = null
+              if (w === world && w.routeNotice === routeNotice) w.routeNotice = null
             })
           }
         >
