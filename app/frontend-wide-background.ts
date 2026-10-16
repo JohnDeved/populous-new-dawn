@@ -77,7 +77,7 @@ export function frontendWideIndexedBackground(source: Uint8Array, width: number)
   if (cached?.width === width) return cached.indexed.slice()
   const indexed = new Uint8Array(width * 480)
   const offset = (width - 640) / 2
-  const strength = smooth(Math.min(1, (width - 640) / 214))
+  const feather = Math.min(120, (width - 640) / 2)
   const edges = edgeColors(source)
   const palette = Array.from({ length: 256 }, (_, index) =>
     Array.from({ length: 3 }, (_, channel) => source[640 * 480 + index * 4 + channel])
@@ -103,6 +103,10 @@ export function frontendWideIndexedBackground(source: Uint8Array, width: number)
     quantized.set(key, closest)
     return closest
   }
+  // Serpentine error diffusion keeps the source palette without large flat
+  // quantization contours. Unchanged source pixels never receive diffusion.
+  let currentErrors = new Float32Array((width + 2) * 3)
+  let nextErrors = new Float32Array((width + 2) * 3)
   for (let y = 0; y < 480; y++) {
     const band = Math.min(1, Math.floor(y / 240))
     const vertical = (y - band * 240) / 240
@@ -111,25 +115,41 @@ export function frontendWideIndexedBackground(source: Uint8Array, width: number)
         (value, channel) => value * (1 - vertical) + side[band + 1][channel] * vertical
       )
     )
-    for (let x = 0; x < width; x++) {
+    const direction = y % 2 === 0 ? 1 : -1
+    for (let step = 0; step < width; step++) {
+      const x = direction === 1 ? step : width - 1 - step
       const sourceX = x - offset
       const withinArt = sourceX >= 0 && sourceX < 640
-      const edge = withinArt ? smooth(Math.min(1, Math.min(sourceX, 639 - sourceX) / 120)) : 0
-      // Quantized opacity gives an exact zero-change center at the one-pixel
-      // breakpoint rather than perturbing source colors through a color lookup.
-      const amount = withinArt ? Math.round((1 - edge) * strength * 255) / 255 : 1
+      const edge = withinArt ? smooth(Math.min(1, Math.min(sourceX, 639 - sourceX) / feather)) : 0
+      // Grow the feather's width rather than leaving an opaque vertical boundary
+      // during partial adaptation. At the first wide step only edge columns change.
+      const amount = 1 - edge
       const original = withinArt ? source[y * 640 + sourceX] : 0
       if (amount === 0) {
         indexed[y * width + x] = original
         continue
       }
       const horizontal = x / (width - 1)
+      const at = (x + 1) * 3
       const color = sides[0].map((value, channel) => {
         const field = value * (1 - horizontal) + sides[1][channel] * horizontal
-        return palette[original][channel] * (1 - amount) + field * amount
+        const mixed = palette[original][channel] * (1 - amount) + field * amount
+        return Math.max(0, Math.min(255, mixed + currentErrors[at + channel]))
       })
-      indexed[y * width + x] = nearest(color[0], color[1], color[2])
+      const chosen = nearest(color[0], color[1], color[2])
+      indexed[y * width + x] = chosen
+      for (let channel = 0; channel < 3; channel++) {
+        const error = color[channel] - palette[chosen][channel]
+        currentErrors[at + direction * 3 + channel] += error * (7 / 16)
+        nextErrors[at - direction * 3 + channel] += error * (3 / 16)
+        nextErrors[at + channel] += error * (5 / 16)
+        nextErrors[at + direction * 3 + channel] += error * (1 / 16)
+      }
     }
+    const previous = currentErrors
+    currentErrors = nextErrors
+    nextErrors = previous
+    nextErrors.fill(0)
   }
   // Keep the original badge positions and pixels over the feathered stone. Moving
   // them would require removing baked marks and can create duplicates mid-resize.

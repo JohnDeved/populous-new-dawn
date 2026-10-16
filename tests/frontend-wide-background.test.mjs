@@ -102,9 +102,9 @@ test('wide field keeps the original face and crown at native logical scale',()=>
   for(let y=0;y<480;y++)assert.deepEqual(pixels.subarray(y*width+offset+120,y*width+offset+520),source.subarray(y*640+120,y*640+520))
  }
 })
-test('the first wide logical pixels preserve every original art pixel without a crop or zoom jump',()=>{
+test('the first wide step preserves 638 interior columns without a crop or zoom jump',()=>{
  const pixels=frontendWideIndexedBackground(source,642)
- for(let y=0;y<480;y++)assert.deepEqual(pixels.subarray(y*642+1,y*642+641),source.subarray(y*640,(y+1)*640))
+ for(let y=0;y<480;y++)assert.deepEqual(pixels.subarray(y*642+2,y*642+640),source.subarray(y*640+1,y*640+639))
 })
 test('both badge panels retain exact source pixels and original centered-frame positions',()=>{
  for(const width of [642,854,1148,1708]){
