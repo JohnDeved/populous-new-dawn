@@ -234,3 +234,48 @@ CSS comparison that did not retain the actual serialized position. Source and
 rectangle availability do not replace that rendering obligation. No new browser,
 native-raster or hardware evidence is claimed; no further artwork replacement or
 building-icon decision is justified by this reconciliation. Issue #76 stays open.
+
+## October 16, 2026: rendered state regression matrix
+
+The isolated Mac worker starts from main
+`c9e3cbc8003be7c9b3fc489d794297679476d2b9` (including PR #490).
+[The independent fixture](../../tests/fixtures/spell-icon-states.json) transcribes
+the retained 20-model descriptor table above. It pins all 60 icon identities rather
+than deriving expected icon IDs from the runtime descriptors under test.
+[Focused source tests](../../tests/spell-icon-states.test.mjs) cover each model's
+normal, inactive, selected, selected-inactive, charging, hover, disabled and
+disabled-inactive presentation, plus the dedicated undiscovered branch.
+
+[The rendered checker](../../scripts/check-browser-spell-icon-states.mjs) runs
+the shipped page after public Mission 1/16 startup, observes four authored
+undiscovered controls, then injects a bounded presentation matrix for all 20 spells.
+It checks actual selected/click-disabled behavior, icon geometry, border image,
+stock-marker count and charge-fill presence/half-charge width. Every observed icon
+is screenshot-compared byte-for-byte with an independently drawn canvas crop at
+the same location and scale. The served atlas SHA-256 must match the checkout.
+The independent crop does not reuse CSS background positioning. Each screenshot,
+its hash, observed geometry and the browser/renderer identity are retained in a
+fresh output directory. Invoke against a task-owned local server:
+
+```sh
+POPULOUS_URL=http://localhost:4356 node scripts/check-browser-spell-icon-states.mjs \
+  --output-dir work/orchestration/spell-icon-states/new-attempt
+```
+
+The first completed Mac rendering run passed 164 observations (160 matrix cases
+and four authored placeholders), with no browser errors. It used Chromium
+153.0.8010.12 and ANGLE SwiftShader; the checker enables Chromium's sandbox.
+The first connection attempt failed before any state observation because the
+server bound IPv6 localhost while the checker requested IPv4 127.0.0.1. That failed
+attempt is retained separately and earns no rendering credit. Final source-bound
+command receipts and exact candidate identities belong in the linked PR handoff.
+
+No artwork or runtime discrepancy was demonstrated, so this change adds coverage
+without modifying the game. The matrix uses synthetic availability, stock,
+charging progress and permission flags; it proves rendered presentation, not
+earned-stock acquisition, normal campaign mode-2 charging or full native disabled
+semantics. Flag-32 cases preserve the existing alternate-mode UI policy. Original
+pixel identity relies on the retained audit, not a new original-game extraction.
+No original executable, blocked popup/building mapping, parity record, full local
+suite or build was run. Full check/build remain the ready-PR GitHub gates. Issue
+#76 remains open for its broader original-game acceptance.
