@@ -838,11 +838,12 @@ export class GameScene {
       this.nearbyFollowers?.reset()
       return
     }
+    const diagnostic = document.hidden ? null : this.fpsGraph
+    const callbackStart = diagnostic ? performance.now() : 0
     if (this.renderer.getPixelRatio() !== Math.min(devicePixelRatio, 1.8)) this.setSize()
     const previous = this.previous ?? now,
       skyTicks = Math.imul(Math.max(0, Math.floor(now) - Math.floor(previous)), 64) >>> 0,
       dt = Math.max(0, now - previous) / 1000
-    const diagnostic = document.hidden ? null : this.fpsGraph
     if (document.hidden) this.fpsGraph?.reset('Hidden tab · sampling stopped')
     this.previous = now
     // Pause menus freeze the entire presentation, not ordinary Space pause.
@@ -850,14 +851,16 @@ export class GameScene {
     if (this.modalSuspended) {
       const renderStart = diagnostic ? performance.now() : 0
       this.renderer.render(this.scene, this.camera)
+      const renderMs = diagnostic ? performance.now() - renderStart : 0
+      this.frame = requestAnimationFrame(this.animate)
       diagnostic?.update(
         now,
         0,
-        performance.now() - renderStart,
+        renderMs,
         this.renderer.info.render.calls,
-        'Menu · rendering'
+        'Menu · rendering',
+        performance.now() - callbackStart
       )
-      this.frame = requestAnimationFrame(this.animate)
       return
     }
     syncSecondaryReservations(this)
@@ -906,15 +909,19 @@ export class GameScene {
     this.updateEnvironmentFrame(skyTicks)
     const renderStart = diagnostic ? performance.now() : 0
     this.renderSceneFrame(hovered, hoveredBuilding)
+    const renderMs = diagnostic ? performance.now() - renderStart : 0
+    this.updateHudFrame(now, dt)
+    this.frame = requestAnimationFrame(this.animate)
+    // Synchronous game callback work, including HUD and scheduling; excludes
+    // this diagnostic's own update and deferred browser/GPU work.
     diagnostic?.update(
       now,
       simulationMs,
-      performance.now() - renderStart,
+      renderMs,
       this.renderer.info.render.calls,
-      this.world.paused ? 'Paused · rendering' : 'Live'
+      this.world.paused ? 'Paused · rendering' : 'Live',
+      performance.now() - callbackStart
     )
-    this.updateHudFrame(now, dt)
-    this.frame = requestAnimationFrame(this.animate)
   }
   private updateTerrainFrame() {
     updateTerrainFrame(this)
