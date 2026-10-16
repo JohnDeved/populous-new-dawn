@@ -109,7 +109,8 @@ parallel file, all non-test `.mjs` helpers under `tests/`, the whole `app/` tree
 package/installed-lock/TypeScript configuration, and Node version/platform/architecture
 to a reviewed resource inventory. New/changed/unclassified tests run serially;
 shared-helper, production/config/runtime drift makes the whole suite serial until
-reviewed. Any nonempty `NODE_OPTIONS` or `NODE_PATH` also forces serial execution;
+reviewed. Any nonempty `NODE_OPTIONS`, `NODE_PATH`, `NODE_COMPILE_CACHE`, or
+`NODE_V8_COVERAGE` also forces serial execution;
 test-selection/isolation options in `NODE_OPTIONS` are rejected. The inventory never excludes a discovered test. Review
 transitive production/runtime resource changes too: this classification is not a
 sandbox or a general proof that imported code has no side effects. Installed
@@ -136,8 +137,9 @@ parallel group reduced to one worker. Only values `1` and `2` are accepted.
 `npm run test:serial` provides the same serial test phase directly.
 On an executor with an inherited global module path, the conservative default is
 serial. After verifying that this checkout resolves its installed dependencies
-without a custom loader/path, use `NODE_PATH= NODE_OPTIONS= npm run check` for
-that one invocation; use the same empty environment for both measurement profiles.
+without a custom loader/path, use `NODE_PATH= NODE_OPTIONS= NODE_COMPILE_CACHE= NODE_V8_COVERAGE= npm run check` for
+that one invocation; use the same empty environment for both measurement profiles. This also prevents
+shared cache/coverage writes from qualifying for the parallel inventory.
 Do not change persistent settings or discard an intentional custom loader silently.
 `pnd-test-plan.parallelEligibility` explains any shared/runtime fallback. Focus always
 uses one worker. No new transform/result cache or runtime migration is involved.

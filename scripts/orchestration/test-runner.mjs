@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
+const customRuntime = () => ['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE'].some(key => process.env[key])
 const testPath = path => typeof path === 'string' && /^tests\/[^./\0\r\n][^/\0\r\n]*\.test\.mjs$/.test(path)
 
 export function discoverTests(repo) {
@@ -72,7 +73,7 @@ export function planTestRun(repo, mode, requested = [], { concurrency = '2' } = 
     assert(policy.parallel && typeof policy.parallel === 'object' && !Array.isArray(policy.parallel), 'Invalid parallel inventory')
     for (const [file, digest] of Object.entries(policy.parallel))
       assert(testPath(file) && /^[a-f0-9]{64}$/.test(digest), `Invalid parallel classification: ${file}`)
-    parallelEligibility = process.env.NODE_OPTIONS || process.env.NODE_PATH ? 'runtime-customization'
+    parallelEligibility = customRuntime() ? 'runtime-customization'
       : helperFingerprint(repo) !== policy.helpersSha256 ? 'shared-helper-drift'
         : productionFingerprint(repo) !== policy.productionSha256 ? 'production-config-runtime-drift' : 'reviewed'
     if (parallelEligibility === 'reviewed')

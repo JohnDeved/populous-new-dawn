@@ -10,7 +10,7 @@ import { discoverTests, helperFingerprint, productionFingerprint, planTestRun, r
 
 // These synthetic inventories explicitly model an uncustomized Node runtime.
 // The environment-fallback regression below supplies customizations separately.
-const inheritedRuntime = Object.fromEntries(['NODE_OPTIONS', 'NODE_PATH'].map(key => [key, process.env[key]]))
+const inheritedRuntime = Object.fromEntries(['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE'].map(key => [key, process.env[key]]))
 for (const key of Object.keys(inheritedRuntime)) process.env[key] = ''
 after(() => {
   for (const [key, value] of Object.entries(inheritedRuntime)) {
@@ -207,7 +207,7 @@ test('production-only source/data and dependency changes require renewed resourc
 
 test('runtime preloads/customization and application symlinks conservatively use serial execution', t => {
   const { repo } = fixture(t)
-  for (const key of ['NODE_OPTIONS', 'NODE_PATH']) {
+  for (const key of ['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE']) {
     const previous = process.env[key]
     try {
       process.env[key] = key === 'NODE_OPTIONS' ? '--max-old-space-size=1024' : '/custom-modules'
