@@ -115,6 +115,10 @@ this tool verifies CI coverage, not the meaning of external browser/native claim
    transition waits at most five minutes for missing Full admission, then stops
    without another toggle. The checkpoint permits only one draft/ready cycle and
    one mechanical refresh per entry. Each effect still requires its own pilot.
+   Before ready, even a preexisting draft with a fresh checkpoint must have no
+   failed, canceled, ambiguous or unverified real Full validation. Truly missing
+   admission and verified cheap Full draft guards remain eligible; ordinary
+   Tutorial draft-guard failures do not block this transition.
 5. Wait for terminal Full check and required Tutorial browser on the exact head,
    base and synthetic commit. Bind workflow/run/attempt/check suite/Actions app and
    actual checkout log plus logged `PR_HEAD_SHA`/`PR_BASE_SHA`. Require mandatory

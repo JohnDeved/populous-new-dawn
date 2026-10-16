@@ -384,6 +384,7 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
     )
     if (o.draft === true) {
       requireThat(!state.readyAdmission, 'Ready transition already used; obtain new review')
+      validateBeforeDraft(entry, o, [GATES[0]])
       return propose({ kind: 'ready', head: o.head, base: o.base })
     }
     requireThat(o.draft === false && o.mergeable === true, 'PR readiness/mergeability is unknown')

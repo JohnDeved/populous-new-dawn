@@ -1524,3 +1524,60 @@ test('draft transport persists before effect, rejects changed plan/state, and de
   assert.equal(calls, 1)
   assert.match(settled(e, o, intent).reason, /outcome uncertain/)
 })
+
+for (const conclusion of ['failure', 'cancelled']) {
+  test(`preexisting draft cannot retry real Full ${conclusion} from a fresh checkpoint`, () => {
+    const { e, o } = ready()
+    o.draft = true
+    o.runs[0].conclusion = conclusion
+    o.runs[0].jobConclusion = conclusion
+    o.runs[0].identityVerified = false
+    o.currentChecks = checksFor(o.runs)
+    const d = settled(e, o)
+    assert.equal(d.status, 'stop')
+    assert.equal(d.action, null)
+    assert.match(d.reason, /Failed, canceled, skipped or unverified current gate: Full check/)
+  })
+}
+
+test('preexisting draft rejects ambiguous Full history and orphaned failed current check', () => {
+  const { e, o } = ready()
+  o.draft = true
+  o.runs.push({ ...o.runs[0], id: 999, checkId: 999 })
+  o.currentChecks = checksFor(o.runs)
+  assert.match(settled(e, o).reason, /Ambiguous attempt chronology: Full check/)
+  o.runs = []
+  o.currentChecks = [{ ...o.currentChecks[0], conclusion: 'failure' }]
+  assert.match(settled(e, o).reason, /Required check lacks matching run evidence: Full check/)
+})
+
+test('pre-ready Full guard allows missing admission and verified cheap draft history, including Tutorial draft failures', () => {
+  const e = entry(),
+    o = observation(e)
+  const full = {
+    ...green(o, GATES[0], 0),
+    job: GATES[0].draftJob,
+    conclusion: 'failure',
+    jobConclusion: 'failure',
+    identityVerified: false,
+    merge: null,
+    draftAdmission: true,
+    workflowSha256: e.workflowHashes[GATES[0].workflow],
+    steps: GATES[0].steps.map((name, i) => ({ name, conclusion: i === 0 ? 'failure' : 'skipped' })),
+  }
+  const browser = {
+    ...green(o, GATES[1], 1),
+    conclusion: 'failure',
+    jobConclusion: 'failure',
+    identityVerified: false,
+    merge: null,
+    steps: GATES[1].steps.map((name, i) => ({ name, conclusion: i === 0 ? 'failure' : 'skipped' })),
+  }
+  o.runs = [browser]
+  o.currentChecks = checksFor(o.runs)
+  assert.equal(settled(e, o).action.kind, 'ready')
+  o.runs.push(full)
+  assert.equal(settled(e, o).action.kind, 'ready')
+  full.draftAdmission = false
+  assert.equal(settled(e, o).status, 'stop')
+})
