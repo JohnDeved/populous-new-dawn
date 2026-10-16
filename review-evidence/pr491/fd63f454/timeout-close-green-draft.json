@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "938cc967-c404-474a-ba02-7ed5a782004c",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "a3986f05fa94fd30733bd995d28faee226d05489",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "cef8809190bffaac372c5952762c40c7a15ff717be6479a99278c85318ea58fc",
+    "inputs": {
+      "tests/spell-icon-state-evidence.test.mjs": "dad87724fba1efa31de1628f5eb138924e0524b0a52f3b5e49eb28e5611c5b18",
+      "scripts/spell-icon-state-evidence.mjs": "a69e353c1fd2ee579c27a504cd7d4746cb4399fbaaf913070c08552b88f45d76"
+    }
+  },
+  "command": [
+    "npm",
+    "run",
+    "test:focus",
+    "--",
+    "tests/spell-icon-state-evidence.test.mjs"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76",
+  "startedAt": "2026-10-16T16:28:13.123Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/timeout-close-green-draft.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/timeout-close-green-draft.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:28:13.298Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 test:focus\n> node scripts/orchestration/test-runner.mjs focus tests/spell-icon-state-evidence.test.mjs\n\nTAP version 13\n# Subtest: browser launch failures retain terminal evidence without claiming cleanup\nok 1 - browser launch failures retain terminal evidence without claiming cleanup\n  ---\n  duration_ms: 1.456583\n  type: 'test'\n  ...\n# Subtest: errors from both contexts survive failed Mission 16 startup before it returns\nok 2 - errors from both contexts survive failed Mission 16 startup before it returns\n  ---\n  duration_ms: 0.692334\n  type: 'test'\n  ...\n# Subtest: a completed run with browser errors cannot pass\nok 3 - a completed run with browser errors cannot pass\n  ---\n  duration_ms: 0.147959\n  type: 'test'\n  ...\n# Subtest: a close-time console error cannot leave passed terminal evidence\nok 4 - a close-time console error cannot leave passed terminal evidence\n  ---\n  duration_ms: 0.14475\n  type: 'test'\n  ...\n# Subtest: source or dependency drift invalidates a successful browser run\nok 5 - source or dependency drift invalidates a successful browser run\n  ---\n  duration_ms: 0.091625\n  type: 'test'\n  ...\n# Subtest: cleanup failures are retained as failed evidence\nok 6 - cleanup failures are retained as failed evidence\n  ---\n  duration_ms: 0.09525\n  type: 'test'\n  ...\n# Subtest: timeout close rejection saves terminal failed evidence without an unhandled rejection\nok 7 - timeout close rejection saves terminal failed evidence without an unhandled rejection\n  ---\n  duration_ms: 30.870625\n  type: 'test'\n  ...\n# Subtest: exact inventory rejects omitted, duplicate, renamed and extra rendered states\nok 8 - exact inventory rejects omitted, duplicate, renamed and extra rendered states\n  ---\n  duration_ms: 0.640333\n  type: 'test'\n  ...\n1..8\n# tests 8\n# suites 0\n# pass 8\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 67.133875\n",
+  "stderr": "{\"kind\":\"pnd-test-plan\",\"mode\":\"focus\",\"fullSuite\":false,\"parallelEligibility\":\"focused-serial\",\"files\":[\"tests/spell-icon-state-evidence.test.mjs\"],\"groups\":[{\"concurrency\":1,\"files\":[\"tests/spell-icon-state-evidence.test.mjs\"]}]}\n{\"kind\":\"pnd-test-group\",\"command\":[\"/Users/johann/.nvm/versions/node/v24.18.0/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/spell-icon-state-evidence.test.mjs\"],\"files\":[\"tests/spell-icon-state-evidence.test.mjs\"],\"concurrency\":1,\"exitCode\":0,\"signal\":null,\"error\":null,\"status\":\"passed\",\"wallMs\":90.942916}\n{\"kind\":\"pnd-test-result\",\"mode\":\"focus\",\"fullSuite\":false,\"complete\":true,\"interrupted\":null,\"results\":[{\"command\":[\"/Users/johann/.nvm/versions/node/v24.18.0/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/spell-icon-state-evidence.test.mjs\"],\"files\":[\"tests/spell-icon-state-evidence.test.mjs\"],\"concurrency\":1,\"exitCode\":0,\"signal\":null,\"error\":null,\"status\":\"passed\",\"wallMs\":90.942916}],\"wallMs\":91.570583,\"status\":\"passed\"}\n",
+  "stdoutSha256": "1c21d042cb8d94b9053f9f24755de49b998359b9ab63e5f016430af8b941ee83",
+  "stderrSha256": "4b472ac9ed79d9caa4b3b0c9c6f52f413cf735c2742dd019d0c6822cc358133f",
+  "sourceAfter": {
+    "headOid": "a3986f05fa94fd30733bd995d28faee226d05489",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "cef8809190bffaac372c5952762c40c7a15ff717be6479a99278c85318ea58fc",
+    "inputs": {
+      "tests/spell-icon-state-evidence.test.mjs": "dad87724fba1efa31de1628f5eb138924e0524b0a52f3b5e49eb28e5611c5b18",
+      "scripts/spell-icon-state-evidence.mjs": "a69e353c1fd2ee579c27a504cd7d4746cb4399fbaaf913070c08552b88f45d76"
+    }
+  }
+}

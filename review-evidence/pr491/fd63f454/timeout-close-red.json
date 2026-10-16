@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "36bec829-693a-447b-84e2-03ebc6832191",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "a3986f05fa94fd30733bd995d28faee226d05489",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "6e38093b6d270291ea02fe6770ddb2d5ace12f37bbe9cefcb2abe59bffef8cfb",
+    "inputs": {
+      "tests/spell-icon-state-evidence.test.mjs": "dad87724fba1efa31de1628f5eb138924e0524b0a52f3b5e49eb28e5611c5b18"
+    }
+  },
+  "command": [
+    "npm",
+    "run",
+    "test:focus",
+    "--",
+    "tests/spell-icon-state-evidence.test.mjs"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76",
+  "startedAt": "2026-10-16T16:27:59.514Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/timeout-close-red.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/timeout-close-red.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:27:59.714Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 test:focus\n> node scripts/orchestration/test-runner.mjs focus tests/spell-icon-state-evidence.test.mjs\n\nTAP version 13\n# Subtest: browser launch failures retain terminal evidence without claiming cleanup\nok 1 - browser launch failures retain terminal evidence without claiming cleanup\n  ---\n  duration_ms: 1.412\n  type: 'test'\n  ...\n# Subtest: errors from both contexts survive failed Mission 16 startup before it returns\nok 2 - errors from both contexts survive failed Mission 16 startup before it returns\n  ---\n  duration_ms: 0.674125\n  type: 'test'\n  ...\n# Subtest: a completed run with browser errors cannot pass\nok 3 - a completed run with browser errors cannot pass\n  ---\n  duration_ms: 0.146875\n  type: 'test'\n  ...\n# Subtest: a close-time console error cannot leave passed terminal evidence\nok 4 - a close-time console error cannot leave passed terminal evidence\n  ---\n  duration_ms: 0.1475\n  type: 'test'\n  ...\n# Subtest: source or dependency drift invalidates a successful browser run\nok 5 - source or dependency drift invalidates a successful browser run\n  ---\n  duration_ms: 0.08225\n  type: 'test'\n  ...\n# Subtest: cleanup failures are retained as failed evidence\nok 6 - cleanup failures are retained as failed evidence\n  ---\n  duration_ms: 0.093917\n  type: 'test'\n  ...\n# Subtest: timeout close rejection saves terminal failed evidence without an unhandled rejection\nnot ok 7 - timeout close rejection saves terminal failed evidence without an unhandled rejection\n  ---\n  duration_ms: 30.081916\n  type: 'test'\n  location: '/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/tests/spell-icon-state-evidence.test.mjs:98:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    No unhandled rejection\n    + actual - expected\n    \n    + 'file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/[eval1]:8\\n' +\n    +   \"          if (++closeCalls === 1) throw Error('timeout close rejected')\\n\" +\n    +   '                                        ^\\n' +\n    +   '\\n' +\n    +   'Error: timeout close rejected\\n' +\n    +   '    at Object.close (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/[eval1]:8:41)\\n' +\n    +   '    at Timeout._onTimeout (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/scripts/spell-icon-state-evidence.mjs:44:68)\\n' +\n    +   '    at listOnTimeout (node:internal/timers:605:17)\\n' +\n    +   '    at process.processTimers (node:internal/timers:541:7)\\n' +\n    +   '\\n' +\n    +   'Node.js v24.18.0\\n'\n    - ''\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: ''\n  actual: |-\n    file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/[eval1]:8\n              if (++closeCalls === 1) throw Error('timeout close rejected')\n                                            ^\n    \n    Error: timeout close rejected\n        at Object.close (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/[eval1]:8:41)\n        at Timeout._onTimeout (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/scripts/spell-icon-state-evidence.mjs:44:68)\n        at listOnTimeout (node:internal/timers:605:17)\n        at process.processTimers (node:internal/timers:541:7)\n    \n    Node.js v24.18.0\n    \n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/tests/spell-icon-state-evidence.test.mjs:120:12)\n    Test.runInAsyncScope (node:async_hooks:227:14)\n    Test.run (node:internal/test_runner/test:1325:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:911:18)\n    Test.postRun (node:internal/test_runner/test:1465:19)\n    Test.run (node:internal/test_runner/test:1390:12)\n    async Test.processPendingSubtests (node:internal/test_runner/test:911:7)\n  ...\n# Subtest: exact inventory rejects omitted, duplicate, renamed and extra rendered states\nok 8 - exact inventory rejects omitted, duplicate, renamed and extra rendered states\n  ---\n  duration_ms: 0.52625\n  type: 'test'\n  ...\n1..8\n# tests 8\n# suites 0\n# pass 7\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 66.090958\n",
+  "stderr": "{\"kind\":\"pnd-test-plan\",\"mode\":\"focus\",\"fullSuite\":false,\"parallelEligibility\":\"focused-serial\",\"files\":[\"tests/spell-icon-state-evidence.test.mjs\"],\"groups\":[{\"concurrency\":1,\"files\":[\"tests/spell-icon-state-evidence.test.mjs\"]}]}\n{\"kind\":\"pnd-test-group\",\"command\":[\"/Users/johann/.nvm/versions/node/v24.18.0/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/spell-icon-state-evidence.test.mjs\"],\"files\":[\"tests/spell-icon-state-evidence.test.mjs\"],\"concurrency\":1,\"exitCode\":1,\"signal\":null,\"error\":null,\"status\":\"failed\",\"wallMs\":88.975708}\n{\"kind\":\"pnd-test-result\",\"mode\":\"focus\",\"fullSuite\":false,\"complete\":true,\"interrupted\":null,\"results\":[{\"command\":[\"/Users/johann/.nvm/versions/node/v24.18.0/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/spell-icon-state-evidence.test.mjs\"],\"files\":[\"tests/spell-icon-state-evidence.test.mjs\"],\"concurrency\":1,\"exitCode\":1,\"signal\":null,\"error\":null,\"status\":\"failed\",\"wallMs\":88.975708}],\"wallMs\":89.551708,\"status\":\"failed\"}\n",
+  "stdoutSha256": "b0c01185d3d136ab7ce517fc5c7e859bb21bd66d2b62cbcf639cbc9d02269383",
+  "stderrSha256": "4f1acc709cfe70a1ed33db4839011fc4ace7b99d5579abde70b400fdca864df6",
+  "sourceAfter": {
+    "headOid": "a3986f05fa94fd30733bd995d28faee226d05489",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "6e38093b6d270291ea02fe6770ddb2d5ace12f37bbe9cefcb2abe59bffef8cfb",
+    "inputs": {
+      "tests/spell-icon-state-evidence.test.mjs": "dad87724fba1efa31de1628f5eb138924e0524b0a52f3b5e49eb28e5611c5b18"
+    }
+  }
+}

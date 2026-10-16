@@ -1,0 +1,106 @@
+
+> populous-first-dawn@0.1.0 test:focus
+> node scripts/orchestration/test-runner.mjs focus tests/spell-icon-state-evidence.test.mjs
+
+TAP version 13
+# Subtest: browser launch failures retain terminal evidence without claiming cleanup
+ok 1 - browser launch failures retain terminal evidence without claiming cleanup
+  ---
+  duration_ms: 1.412
+  type: 'test'
+  ...
+# Subtest: errors from both contexts survive failed Mission 16 startup before it returns
+ok 2 - errors from both contexts survive failed Mission 16 startup before it returns
+  ---
+  duration_ms: 0.674125
+  type: 'test'
+  ...
+# Subtest: a completed run with browser errors cannot pass
+ok 3 - a completed run with browser errors cannot pass
+  ---
+  duration_ms: 0.146875
+  type: 'test'
+  ...
+# Subtest: a close-time console error cannot leave passed terminal evidence
+ok 4 - a close-time console error cannot leave passed terminal evidence
+  ---
+  duration_ms: 0.1475
+  type: 'test'
+  ...
+# Subtest: source or dependency drift invalidates a successful browser run
+ok 5 - source or dependency drift invalidates a successful browser run
+  ---
+  duration_ms: 0.08225
+  type: 'test'
+  ...
+# Subtest: cleanup failures are retained as failed evidence
+ok 6 - cleanup failures are retained as failed evidence
+  ---
+  duration_ms: 0.093917
+  type: 'test'
+  ...
+# Subtest: timeout close rejection saves terminal failed evidence without an unhandled rejection
+not ok 7 - timeout close rejection saves terminal failed evidence without an unhandled rejection
+  ---
+  duration_ms: 30.081916
+  type: 'test'
+  location: '/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/tests/spell-icon-state-evidence.test.mjs:98:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    No unhandled rejection
+    + actual - expected
+    
+    + 'file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/[eval1]:8\n' +
+    +   "          if (++closeCalls === 1) throw Error('timeout close rejected')\n" +
+    +   '                                        ^\n' +
+    +   '\n' +
+    +   'Error: timeout close rejected\n' +
+    +   '    at Object.close (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/[eval1]:8:41)\n' +
+    +   '    at Timeout._onTimeout (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/scripts/spell-icon-state-evidence.mjs:44:68)\n' +
+    +   '    at listOnTimeout (node:internal/timers:605:17)\n' +
+    +   '    at process.processTimers (node:internal/timers:541:7)\n' +
+    +   '\n' +
+    +   'Node.js v24.18.0\n'
+    - ''
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ''
+  actual: |-
+    file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/[eval1]:8
+              if (++closeCalls === 1) throw Error('timeout close rejected')
+                                            ^
+    
+    Error: timeout close rejected
+        at Object.close (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/[eval1]:8:41)
+        at Timeout._onTimeout (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/scripts/spell-icon-state-evidence.mjs:44:68)
+        at listOnTimeout (node:internal/timers:605:17)
+        at process.processTimers (node:internal/timers:541:7)
+    
+    Node.js v24.18.0
+    
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/tests/spell-icon-state-evidence.test.mjs:120:12)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1325:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+    Test.postRun (node:internal/test_runner/test:1465:19)
+    Test.run (node:internal/test_runner/test:1390:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+  ...
+# Subtest: exact inventory rejects omitted, duplicate, renamed and extra rendered states
+ok 8 - exact inventory rejects omitted, duplicate, renamed and extra rendered states
+  ---
+  duration_ms: 0.52625
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 7
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 66.090958

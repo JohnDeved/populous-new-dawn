@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "9d615b63-710a-4718-a3a2-604c87f48945",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "fd63f4542e1465d326bd918f4b244df6e202946e",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/spell-icon-state-evidence.mjs": "a69e353c1fd2ee579c27a504cd7d4746cb4399fbaaf913070c08552b88f45d76",
+      "work/orchestration/mac-spell-icons/timeout-close-witness.mjs": "2c491cbb0d512a6085f493dfaf8d4e002500dfbf071983dc8e9dd81e54e5d5a0"
+    }
+  },
+  "command": [
+    "node",
+    "--unhandled-rejections=strict",
+    "work/orchestration/mac-spell-icons/timeout-close-witness.mjs"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76",
+  "startedAt": "2026-10-16T16:29:28.655Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/timeout-close-witness.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/timeout-close-witness.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:29:28.701Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "{\"status\":\"failed\",\"expired\":true,\"closeCalls\":2,\"browserClosed\":true,\"finishedAt\":\"2026-10-16T16:29:28.699Z\"}\n",
+  "stderr": "",
+  "stdoutSha256": "c8d18091de7ccdfbabebc13aa8990fef5a0ccbdf4df93b77b4027aec173dd049",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "fd63f4542e1465d326bd918f4b244df6e202946e",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/spell-icon-state-evidence.mjs": "a69e353c1fd2ee579c27a504cd7d4746cb4399fbaaf913070c08552b88f45d76",
+      "work/orchestration/mac-spell-icons/timeout-close-witness.mjs": "2c491cbb0d512a6085f493dfaf8d4e002500dfbf071983dc8e9dd81e54e5d5a0"
+    }
+  }
+}

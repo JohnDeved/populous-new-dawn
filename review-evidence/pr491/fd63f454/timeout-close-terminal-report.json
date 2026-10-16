@@ -1,0 +1,22 @@
+{
+  "status": "failed",
+  "contexts": [],
+  "errors": [],
+  "browserClosed": true,
+  "sourceBefore": {
+    "head": "fd63f4542e1465d326bd918f4b244df6e202946e",
+    "helperSha256": "a69e353c1fd2ee579c27a504cd7d4746cb4399fbaaf913070c08552b88f45d76",
+    "node": "v24.18.0"
+  },
+  "expired": true,
+  "error": "Error: Spell icon evidence timed out\n    at Timeout._onTimeout (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/scripts/spell-icon-state-evidence.mjs:50:16)\n    at listOnTimeout (node:internal/timers:605:17)\n    at process.processTimers (node:internal/timers:541:7)",
+  "timeoutCleanupError": "Error: timeout close rejected\n    at Object.close (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/timeout-close-witness.mjs:9:35)\n    at file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/scripts/spell-icon-state-evidence.mjs:47:61",
+  "sourceAfter": {
+    "head": "fd63f4542e1465d326bd918f4b244df6e202946e",
+    "helperSha256": "a69e353c1fd2ee579c27a504cd7d4746cb4399fbaaf913070c08552b88f45d76",
+    "node": "v24.18.0"
+  },
+  "sourceUnchanged": true,
+  "finishedAt": "2026-10-16T16:29:28.699Z",
+  "closeCalls": 2
+}

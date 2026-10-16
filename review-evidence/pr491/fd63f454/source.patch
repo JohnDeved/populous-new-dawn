@@ -1,0 +1,102 @@
+diff --git a/scripts/spell-icon-state-evidence.mjs b/scripts/spell-icon-state-evidence.mjs
+index b24bf29e..f6e42aa3 100644
+--- a/scripts/spell-icon-state-evidence.mjs
++++ b/scripts/spell-icon-state-evidence.mjs
+@@ -33,7 +33,7 @@ export function spellIconSourceSnapshot(root) {
+ 
+ // Observe pages before navigation, including contexts whose startup never returns.
+ export async function runSpellIconEvidence({ report, launch, run, save, snapshot, timeout = 240000 }) {
+-  let browser, timer
++  let browser, timer, timeoutClose
+   report.contexts = []
+   report.errors = []
+   report.browserClosed = false
+@@ -41,7 +41,15 @@ export async function runSpellIconEvidence({ report, launch, run, save, snapshot
+     report.sourceBefore = snapshot()
+     save()
+     browser = await launch()
+-    timer = setTimeout(() => { report.expired = true; void browser.close() }, timeout)
++    const deadline = new Promise((_, reject) => {
++      timer = setTimeout(() => {
++        report.expired = true
++        timeoutClose = Promise.resolve().then(() => browser.close()).catch(error => {
++          report.timeoutCleanupError = error.stack ?? String(error)
++        })
++        reject(Error('Spell icon evidence timed out'))
++      }, timeout)
++    })
+     const observedBrowser = {
+       async newContext(options) {
+         const record = { index: report.contexts.length, errors: [], closed: false }
+@@ -60,13 +68,14 @@ export async function runSpellIconEvidence({ report, launch, run, save, snapshot
+         return context
+       },
+     }
+-    await run(browser, observedBrowser)
++    await Promise.race([run(browser, observedBrowser), deadline])
+     report.status = 'passed'
+   } catch (error) {
+     report.status = 'failed'
+     report.error = error.stack ?? String(error)
+   } finally {
+     clearTimeout(timer)
++    await timeoutClose
+     if (browser) {
+       try { await browser.close(); report.browserClosed = true }
+       catch (error) { report.status = 'failed'; report.cleanupError = error.stack ?? String(error) }
+diff --git a/tests/spell-icon-state-evidence.test.mjs b/tests/spell-icon-state-evidence.test.mjs
+index 3b330a25..49f6a394 100644
+--- a/tests/spell-icon-state-evidence.test.mjs
++++ b/tests/spell-icon-state-evidence.test.mjs
+@@ -1,5 +1,9 @@
+ import assert from 'node:assert/strict'
+ import { EventEmitter } from 'node:events'
++import { spawnSync } from 'node:child_process'
++import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
++import { tmpdir } from 'node:os'
++import { join } from 'node:path'
+ import test from 'node:test'
+ import { assertSpellIconInventory, runSpellIconEvidence, spellIconStateNames } from '../scripts/spell-icon-state-evidence.mjs'
+ 
+@@ -91,6 +95,41 @@ test('cleanup failures are retained as failed evidence', async () => {
+   assert.deepEqual(h.saved.at(-1), result)
+ })
+ 
++test('timeout close rejection saves terminal failed evidence without an unhandled rejection', () => {
++  const directory = mkdtempSync(join(tmpdir(), 'spell-timeout-evidence-'))
++  const file = join(directory, 'report.json')
++  try {
++    const child = spawnSync(process.execPath, ['--unhandled-rejections=strict', '--input-type=module', '-e', `
++      import { writeFileSync } from 'node:fs'
++      import { runSpellIconEvidence } from ${JSON.stringify(new URL('../scripts/spell-icon-state-evidence.mjs', import.meta.url).href)}
++      const report = { status: 'running' }
++      let closeCalls = 0
++      await runSpellIconEvidence({ report, timeout: 5,
++        launch: async () => ({ async close() {
++          if (++closeCalls === 1) throw Error('timeout close rejected')
++        } }),
++        run: () => new Promise(() => {}),
++        snapshot: () => ({ head: 'unchanged' }),
++        save: () => writeFileSync(${JSON.stringify(file)}, JSON.stringify({ ...report, closeCalls })),
++      })
++      if (report.status !== 'passed') process.exitCode = 1
++    `], { encoding: 'utf8', timeout: 5000 })
++    assert.equal(child.error, undefined)
++    assert.equal(child.signal, null)
++    assert.equal(child.status, 1, 'Failure exits through the caller, not a crash')
++    assert.equal(child.stderr, '', 'No unhandled rejection')
++    const saved = JSON.parse(readFileSync(file, 'utf8'))
++    assert.equal(saved.status, 'failed')
++    assert.equal(saved.expired, true)
++    assert.match(saved.timeoutCleanupError, /timeout close rejected/)
++    assert.match(saved.error, /timed out/)
++    assert.equal(saved.browserClosed, true, 'Final cleanup retries the rejected close')
++    assert.equal(saved.closeCalls, 2)
++    assert.equal(saved.sourceUnchanged, true)
++    assert.ok(Number.isFinite(Date.parse(saved.finishedAt)))
++  } finally { rmSync(directory, { recursive: true, force: true }) }
++})
++
+ test('exact inventory rejects omitted, duplicate, renamed and extra rendered states', () => {
+   const spells = [{ id: 'blast' }, { id: 'bloodlust' }]
+   const states = spells.flatMap(spell => spellIconStateNames.map(state => ({ spell: spell.id, state })))

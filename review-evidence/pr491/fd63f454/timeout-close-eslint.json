@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "0b871e96-2202-43bc-9806-8142fa446c88",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "fd63f4542e1465d326bd918f4b244df6e202946e",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "./node_modules/.bin/eslint",
+    "scripts/spell-icon-state-evidence.mjs",
+    "tests/spell-icon-state-evidence.test.mjs"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76",
+  "startedAt": "2026-10-16T16:28:44.684Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/timeout-close-eslint.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/timeout-close-eslint.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:28:45.479Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "fd63f4542e1465d326bd918f4b244df6e202946e",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
