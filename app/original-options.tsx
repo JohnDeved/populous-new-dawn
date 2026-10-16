@@ -262,7 +262,7 @@ export function OriginalOptions({
         </section>
       ) : (
         <>
-          {category === 'Game' ? (
+          {category === 'Game' && (
             <>
               {gameRows.map(row =>
                 row.id === 'rotation' || row.id === 'flipRotation' ? (
@@ -305,7 +305,8 @@ export function OriginalOptions({
                 </p>
               )}
             </>
-          ) : category === 'Sound' ? (
+          )}
+          {category === 'Sound' && (
             <>
               <label
                 className={styles.soundLabel}
@@ -364,7 +365,8 @@ export function OriginalOptions({
                 </p>
               )}
             </>
-          ) : (
+          )}
+          {category !== 'Game' && category !== 'Sound' && (
             <p className={styles.unavailable}>
               Original {category} settings are not yet available.
             </p>
