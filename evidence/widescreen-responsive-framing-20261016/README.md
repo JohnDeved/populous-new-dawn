@@ -6,7 +6,7 @@ Refs #460 and draft #470. This revision replaces the held cropped-cover experime
 
 - Before screenshots: `d5768f9dd957a65c76c12a568a92d32ff164cac5`.
 - Visually accepted screenshots: `69d450d7184c003ec1f6729e08eedea12796d190`.
-- Allocation-only optimization and behavior checks: `20274ec4eb65db21e9e2abb4e6d444637b8ff8b6`. All 45 complete RGBA comparisons against the accepted revision passed: nine widths, each with five main/Options/Quit/pointer/glow states. The eight wide indexed outputs are also pinned in regression tests.
+- Allocation-only optimization and behavior checks: `20274ec4eb65db21e9e2abb4e6d444637b8ff8b6`. The later equivalent typed-array-copy repair is `b7be6c6b76a24afd41c161f68f5f4435feb4c154`. All 45 complete RGBA comparisons against the accepted revision passed: nine widths, each with five main/Options/Quit/pointer/glow states. The eight wide indexed outputs are also pinned in regression tests.
 - Actual production Home, CSS, store and assets through the plain React/Vite fixture, Chrome Headless Shell 154.0.8037.92. This excludes Vinext/Cloudflare/RSC serving/hydration, deployed-runtime testing, original-game screenshot parity and hardware performance claims.
 - The image manifest binds each original PNG to its lossless WebP copy. Decoded RGBA bytes were compared exactly; no pixels were edited. Original PNGs and full local matrices remain retained.
 
@@ -61,8 +61,10 @@ The backing canvas stays 480 logical pixels high with an even width; DPR does no
 - Failure mode: when composition.bin fails, the usable original static 4:3 background and plain side margins remain. Wide-field rendering depends on that data; it is not failure-mode-wide support.
 - Cold resize still creates a visible one-off cost. The optimized software-browser samples reported 147/168/207 ms main-thread long tasks at 16:9/21:9/32:9, versus 148/219/233 ms before allocation reduction. These are individual observations, not a hardware threshold or repeatable speedup claim. Cached draws are measured separately.
 - Resize-burst PASS: five requests coalesced into two events and settled to 1537×480 viewport / 1538×480 backing. One physical Options click opened exactly one panel; Escape restored focus with no late duplicate after 250 ms. Burst-to-Options was 413 ms, click-to-open 109 ms, and observed click queue 13.6 ms. Six cached pointer updates had median renderer script 7.24 ms / task 10.05 ms, including input dispatch, React and observation overhead. No paired baseline timing claim: the old actual-Home fixture could not be verified against its source manifest.
-- Independent visual/behavior/resource review accepted this bounded menu-only revision with the cold-resize and fallback limits above. Canonical full check/build gates are still required and are not claimed by these focused/browser receipts.
+- Independent visual/behavior/resource review accepted this bounded menu-only revision with the cold-resize and fallback limits above. Final verification is recorded in [gate-report.md](gate-report.md): the full attempt had one disk-capacity failure, recovered by an unchanged-file retry and the skipped downstream stages. It is not relabeled as a clean aggregate pass.
 
 The first crop candidate and first smooth-field candidate were held on actual pixels before broad tests. The latter's nearest-palette bands were corrected with error diffusion. Two scratch browser attempts failed on harness selectors (a disabled-row locator and an implicit-region selector), then passed after scenario-only corrections; their original receipts are retained. No assertions or product behavior were weakened.
 
 `raw-evidence.tar.gz` and its artifact manifest preserve source-bound receipts, scenarios, comparisons, timing, and failed attempts without rewriting them. `SHA256SUMS` covers the portable deliverables. No parity credit was changed.
+
+The final [gate report](gate-report.md) and `gate-evidence.tar.gz` preserve the failed aggregate, successful scoped recovery, equivalent-copy repair checks and canonical build evidence. The original receipts are unchanged.
