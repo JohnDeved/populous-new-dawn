@@ -1,0 +1,110 @@
+[
+  {
+    "file": "focused.json",
+    "originalSha256": "d43541ccae491aa1e525cddd26a9366c73652deda8bffa1dfb8ace210a53d262",
+    "publishedSha256": "37f32555323f184ebd4ee971d10c6ba6c2131a9003c33aee55d230ac32f783bc",
+    "redacted": true
+  },
+  {
+    "file": "focused.stdout.log",
+    "originalSha256": "1f23943a44b9d78e549af092ccae374baf73e68f0250954c19bb41bda09597c1",
+    "publishedSha256": "2f35d5913aa6d79a85ee6e90c8edeb884a3c512ee6ae932036da349e858c9188",
+    "redacted": true
+  },
+  {
+    "file": "focused.stderr.log",
+    "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "redacted": false
+  },
+  {
+    "file": "lint.json",
+    "originalSha256": "12f679b836fc23ebb0192646d1053a3b91b491f99ed7656c94480928c84a0738",
+    "publishedSha256": "fa5de1cd91264496b03131fd17ec2d8691aa0172bf40818b13896c6c84fd97f1",
+    "redacted": true
+  },
+  {
+    "file": "lint.stdout.log",
+    "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "redacted": false
+  },
+  {
+    "file": "lint.stderr.log",
+    "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "redacted": false
+  },
+  {
+    "file": "format.json",
+    "originalSha256": "31d7c84b572b690676cc2d87efa16e1290dcb88d7ba8cffbb8dcf0c980b91613",
+    "publishedSha256": "3459ecb03c6c259652002731d81a4d95e9ce68f938084715d0190fb36a0f6160",
+    "redacted": true
+  },
+  {
+    "file": "format.stdout.log",
+    "originalSha256": "54113a74db4b601744fee03c6a98cb02aa9ba6e2ce6c552364b4bd2d74fef111",
+    "publishedSha256": "54113a74db4b601744fee03c6a98cb02aa9ba6e2ce6c552364b4bd2d74fef111",
+    "redacted": false
+  },
+  {
+    "file": "format.stderr.log",
+    "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "redacted": false
+  },
+  {
+    "file": "structural.json",
+    "originalSha256": "fc82b20dbfc9a44bac08d559946e5a2243d8dd202944650b9c001f658dc8c746",
+    "publishedSha256": "661f5b0de53ee67ff09ecf6e5fe1d40316fa058dcd4424291fd75c18930c24b2",
+    "redacted": true
+  },
+  {
+    "file": "structural.stdout.log",
+    "originalSha256": "96b8864ecb939af307936cec20a8e777d86f8a60a47378e90c9f42fe4fc8dbfb",
+    "publishedSha256": "96b8864ecb939af307936cec20a8e777d86f8a60a47378e90c9f42fe4fc8dbfb",
+    "redacted": false
+  },
+  {
+    "file": "structural.stderr.log",
+    "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "redacted": false
+  },
+  {
+    "file": "diff.json",
+    "originalSha256": "d1dbf9097c5a28b47ad862fa32c1183290d5aeb26b40e44a1b82322ed80f3ba9",
+    "publishedSha256": "d1832508fb747d5000885c2bf1a3783d512422ea6126278fdab3acf5724330c7",
+    "redacted": true
+  },
+  {
+    "file": "diff.stdout.log",
+    "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "redacted": false
+  },
+  {
+    "file": "diff.stderr.log",
+    "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "redacted": false
+  },
+  {
+    "file": "resource-preflight.json",
+    "originalSha256": "0daa5c0ddd8de05755dc816b8a8a64c9658062a7971eb6c7c36f3bf5385849bf",
+    "publishedSha256": "378f8277844a198cfc63a22f7c58c03385c2587c93fd73c71e91ef604fe0c338",
+    "redacted": true
+  },
+  {
+    "file": "resource-preflight.stdout.log",
+    "originalSha256": "8252de438179a3bb4eaeeddf3f1607ff3b97f7773d3be03a7629aeffb6a11f18",
+    "publishedSha256": "8252de438179a3bb4eaeeddf3f1607ff3b97f7773d3be03a7629aeffb6a11f18",
+    "redacted": false
+  },
+  {
+    "file": "resource-preflight.stderr.log",
+    "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "redacted": false
+  }
+]
