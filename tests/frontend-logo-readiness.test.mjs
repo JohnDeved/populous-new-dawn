@@ -59,6 +59,7 @@ test('every frontend panel passes foreground artwork readiness to its logo shado
       )
       draw()
       assert.equal(args[6], artReady, `${panel}: logo readiness follows foreground title`)
+      assert.equal(args[7], artReady, `${panel}: main glyph readiness follows foreground labels`)
       assert.equal(args[2], panel === 'main')
     }
   }
