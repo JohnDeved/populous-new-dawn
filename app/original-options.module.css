@@ -1,5 +1,6 @@
 .options { position: absolute; inset: 0; color: #fff1bb; }
 .choice { position: absolute; transform: translateX(-50%); width: 142px; height: 26px; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: inherit; }
+.gameChoice { width: 540px; }
 .text { position: absolute; left: 50%; top: 0; display: flex; align-items: flex-start; pointer-events: none; }
 .text i { display: block; flex-shrink: 0; }
 .fallback { font: 20px/26px Georgia,serif; color: #fff1bb; text-shadow: 1px 2px #000; white-space: nowrap; }
@@ -25,4 +26,4 @@
 .options[data-art-ready='true'] .slider::-moz-range-track { height: 22px; border: 0; background: transparent; }
 .options[data-art-ready='true'] .slider::-moz-range-thumb { width: 23px; height: 22px; border: 0; border-radius: 0; background: var(--slider-thumb) no-repeat; }
 .options[data-art-ready='true'] .slider:hover::-moz-range-thumb, .options[data-art-ready='true'] .slider:focus-visible::-moz-range-thumb { background-image: var(--slider-selected); transform: translate(1px,1px); }
-.options[data-category='Sound'] .browserLink { top: 385px; }
+.options[data-category='Sound'] .browserLink, .options[data-category='Game'] .browserLink { top: 385px; }

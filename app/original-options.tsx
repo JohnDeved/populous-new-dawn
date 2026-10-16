@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import frontend from './original-frontend.json'
 import ingame from './original-pause-font.json'
 import type { FrontendTextRow } from './frontend-composition'
+import type { GamePreferences } from './game-preferences'
 import styles from './original-options.module.css'
 
 interface OriginalOptionsProps {
@@ -12,6 +13,9 @@ interface OriginalOptionsProps {
   onVolume: (value: number) => void
   onMusicVolume: (value: number) => void
   storageNotice: string
+  gamePreferences: GamePreferences
+  onGamePreferences: (preferences: GamePreferences) => void
+  gameStorageNotice: string
   compatibility?: ReactNode
   onTextRowsChange?: (rows: FrontendTextRow[]) => void
 }
@@ -73,6 +77,9 @@ export function OriginalOptions({
   onVolume,
   onMusicVolume,
   storageNotice,
+  gamePreferences,
+  onGamePreferences,
+  gameStorageNotice,
   compatibility,
   onTextRowsChange,
 }: OriginalOptionsProps) {
@@ -83,6 +90,26 @@ export function OriginalOptions({
   const root = useRef<HTMLElement>(null)
   const masterText = `Master volume : <${Math.round(volume * 100)}%>`
   const musicText = `Music volume : <${Math.round(musicVolume * 100)}%>`
+  const gameRows = useMemo(
+    () => [
+      { id: 'tooltips', text: 'Tooltips : <Unavailable>', x: 320, y: 139 },
+      {
+        id: 'rotation',
+        text: `Rotation : <${gamePreferences.rotation === 'cursor' ? 'Cursor' : 'Control Cursor'}>`,
+        x: 320,
+        y: 169,
+      },
+      {
+        id: 'flipRotation',
+        text: `Flip Rotation : <${gamePreferences.flipRotation ? 'Yes' : 'No'}>`,
+        x: 320,
+        y: 199,
+      },
+      { id: 'staySelected', text: 'Stay Selected : <Unavailable>', x: 320, y: 229 },
+      { id: 'autocastSpell', text: 'Autocast Spell : <Unavailable>', x: 320, y: 259 },
+    ],
+    [gamePreferences.rotation, gamePreferences.flipRotation]
+  )
   const rows = useMemo<FrontendTextRow[]>(
     () =>
       browser
@@ -93,6 +120,7 @@ export function OriginalOptions({
             ...(category === 'Graphics' || category === 'Direct3D'
               ? [{ text: 'Direct3D', x: 320, y: 390 }]
               : []),
+            ...(category === 'Game' ? gameRows : []),
             ...(category === 'Sound'
               ? [
                   { text: masterText, x: 320, y: 139 },
@@ -101,7 +129,7 @@ export function OriginalOptions({
                 ]
               : []),
           ],
-    [browser, category, masterText, musicText]
+    [browser, category, masterText, musicText, gameRows]
   )
   useEffect(() => {
     onTextRowsChange?.(rows)
@@ -164,17 +192,25 @@ export function OriginalOptions({
     setCategory(next)
     setHighlight(null)
   }
-  function label(text: string, low = false) {
+  function label(text: string, low = false, id = text) {
     let state: TextState = 'normal'
     if (low) state = 'low'
-    else if (highlight === text) state = 'highlight'
+    else if (highlight === id) state = 'highlight'
     return <Text text={text} skin={skin} state={state} ready={ready} />
   }
-  function choice(text: string, x: number, y: number, action: () => void, selected = false) {
+  function choice(
+    text: string,
+    x: number,
+    y: number,
+    action: () => void,
+    selected = false,
+    options: { id?: string; wide?: boolean } = {}
+  ) {
     const position = { left: x, top: y }
+    const id = options.id ?? text
     return selected ? (
       <span
-        key={text}
+        key={id}
         className={styles.choice}
         aria-label={text}
         role="heading"
@@ -187,18 +223,18 @@ export function OriginalOptions({
       </span>
     ) : (
       <button
-        key={text}
-        className={styles.choice}
+        key={id}
+        className={`${styles.choice}${options.wide ? ` ${styles.gameChoice}` : ''}`}
         style={position}
         aria-label={text}
         data-panel-back={text === 'Back' || undefined}
-        onPointerEnter={() => setHighlight(text)}
+        onPointerEnter={() => setHighlight(id)}
         onPointerLeave={() => setHighlight(null)}
-        onFocus={() => setHighlight(text)}
+        onFocus={() => setHighlight(id)}
         onBlur={() => setHighlight(null)}
         onClick={action}
       >
-        {label(text)}
+        {label(text, false, id)}
       </button>
     )
   }
@@ -226,7 +262,50 @@ export function OriginalOptions({
         </section>
       ) : (
         <>
-          {category === 'Sound' ? (
+          {category === 'Game' ? (
+            <>
+              {gameRows.map(row =>
+                row.id === 'rotation' || row.id === 'flipRotation' ? (
+                  choice(
+                    row.text,
+                    row.x,
+                    row.y,
+                    () =>
+                      onGamePreferences(
+                        row.id === 'rotation'
+                          ? {
+                              ...gamePreferences,
+                              rotation:
+                                gamePreferences.rotation === 'cursor' ? 'control-cursor' : 'cursor',
+                            }
+                          : { ...gamePreferences, flipRotation: !gamePreferences.flipRotation }
+                      ),
+                    false,
+                    { id: row.id, wide: true }
+                  )
+                ) : (
+                  <div
+                    key={row.id}
+                    className={styles.soundLabel}
+                    style={{ top: row.y }}
+                    role="note"
+                    aria-label={row.text}
+                  >
+                    {label(row.text)}
+                  </div>
+                )
+              )}
+              <p className={styles.notice}>
+                Rotation and Flip Rotation change keyboard controls. Tooltips, Stay Selected and
+                Autocast Spell settings are not yet available.
+              </p>
+              {gameStorageNotice && (
+                <p className={styles.storage} role="status">
+                  {gameStorageNotice}
+                </p>
+              )}
+            </>
+          ) : category === 'Sound' ? (
             <>
               <label
                 className={styles.soundLabel}

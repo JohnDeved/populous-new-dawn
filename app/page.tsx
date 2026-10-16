@@ -50,6 +50,12 @@ import {
   saveAudioPreferences,
   type AudioPreferences,
 } from './audio-preferences'
+import {
+  DEFAULT_GAME_PREFERENCES,
+  readGamePreferences,
+  saveGamePreferences,
+  type GamePreferences,
+} from './game-preferences'
 import { messageIcon, messageText, messageViewPoint, removeMessage } from './messages'
 import {
   HudSprite,
@@ -115,6 +121,9 @@ export default function Home() {
   const [audioStorageNotice, setAudioStorageNotice] = useState('')
   const [audioStartNotice, setAudioStartNotice] = useState('')
   const { volume, musicVolume } = audioPreferences
+  const [gamePreferences, setGamePreferences] = useState<GamePreferences>(DEFAULT_GAME_PREFERENCES)
+  const gamePreferencesRef = useRef(gamePreferences)
+  const [gameStorageNotice, setGameStorageNotice] = useState('')
   const [soundPending, setSoundPending] = useState(false)
   const [hudSize, setHudSize] = useState('auto')
   const [hudCamera, setHudCamera] = useState({ x: 0, y: 0 })
@@ -376,6 +385,16 @@ export default function Home() {
         : 'Volume changes apply for this session; browser storage is unavailable.'
     )
   }
+  function changeGamePreferences(next: GamePreferences) {
+    gamePreferencesRef.current = next
+    setGamePreferences(next)
+    if (engine.current) engine.current.gamePreferences = next
+    setGameStorageNotice(
+      saveGamePreferences(next)
+        ? ''
+        : 'Game settings apply for this session; browser storage is unavailable.'
+    )
+  }
   useEffect(() => {
     audio.current = new Soundscape()
     return () => {
@@ -391,6 +410,9 @@ export default function Home() {
       setAudioPreferences(preferences)
       audio.current?.setVolume(preferences.volume)
       audio.current?.setMusicVolume(preferences.musicVolume)
+      const game = readGamePreferences()
+      gamePreferencesRef.current = game
+      setGamePreferences(game)
       setStartup('choice')
     })
     return () => {
@@ -444,6 +466,9 @@ export default function Home() {
           store.bindPresentation(world),
           tooltipSession.current
         )
+        // Import and terrain startup can outlive a setting change. Use the
+        // latest page-owned choices without recreating the scene on each toggle.
+        created.gamePreferences = gamePreferencesRef.current
         scene = created
         engine.current = created
         setHudCamera({ x: created.cameraPosition.x, y: created.cameraPosition.y })
@@ -1439,6 +1464,9 @@ export default function Home() {
               volume={volume}
               musicVolume={musicVolume}
               storageNotice={audioStorageNotice}
+              gamePreferences={gamePreferences}
+              onGamePreferences={changeGamePreferences}
+              gameStorageNotice={gameStorageNotice}
               onVolume={nextVolume =>
                 changeAudioPreferences({ ...audioPreferences, volume: nextVolume })
               }
@@ -1549,6 +1577,9 @@ export default function Home() {
               volume={volume}
               musicVolume={musicVolume}
               storageNotice={audioStorageNotice}
+              gamePreferences={gamePreferences}
+              onGamePreferences={changeGamePreferences}
+              gameStorageNotice={gameStorageNotice}
               onVolume={nextVolume =>
                 changeAudioPreferences({ ...audioPreferences, volume: nextVolume })
               }
@@ -1704,9 +1735,26 @@ export default function Home() {
                     <span>Scroll · = / −</span>
                     <strong>Switch view · WASD to move · Q / E to turn</strong>
                     <span>↑ / ↓ · ← / →</span>
-                    <strong>Move forward / back · Rotate left / right</strong>
+                    <strong>
+                      Move forward / back ·{' '}
+                      {gamePreferences.rotation === 'cursor' ? 'Rotate' : 'Pan'} left / right
+                    </strong>
                     <span>Ctrl + ← / → · Shift</span>
-                    <strong>Pan sideways · Hold Shift for fast panning</strong>
+                    <strong>
+                      {gamePreferences.rotation === 'cursor' ? 'Pan sideways' : 'Rotate'} · Hold
+                      Shift for fast panning
+                    </strong>
+                    <span>Delete / Page Down</span>
+                    <strong>
+                      {gamePreferences.rotation === 'cursor' ? 'Pan sideways' : 'Rotate'} · Ctrl
+                      swaps pan and turn
+                    </strong>
+                    <span>Flip Rotation</span>
+                    <strong>
+                      Keyboard turn direction is{' '}
+                      {gamePreferences.flipRotation ? 'reversed' : 'normal'} · Mouse drag and
+                      sideways pan are unchanged
+                    </strong>
                     <span>Screen edges</span>
                     <strong>Move the pointer to an outer edge to scroll</strong>
                     <span>1–3 / B</span>

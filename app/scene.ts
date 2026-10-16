@@ -1,4 +1,5 @@
 import { worldEnvironment, type WorldEnvironment } from './world-environment.ts'
+import { DEFAULT_GAME_PREFERENCES, type GamePreferences } from './game-preferences.ts'
 import type { PresentationBinding, SharedAniblSnapshot } from './shared-anibl.ts'
 import { templeArt } from './temple-art.ts'
 import type { TransportKind } from './hud-transports.ts'
@@ -139,6 +140,7 @@ import {
 
 export class GameScene {
   world: World
+  gamePreferences: GamePreferences = { ...DEFAULT_GAME_PREFERENCES }
   waveFrames = new WeakMap<object, number>()
   view = new RenderView()
   skyBackdrop = new THREE.Mesh(
