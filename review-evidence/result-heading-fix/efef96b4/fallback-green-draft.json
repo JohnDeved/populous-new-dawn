@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "a69e74ec-0505-41e6-b8c4-bd8a2ee0b5d0",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "34bccadc618307da33518f2f74fe7007011b0c05",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "607ddc0872605582c761cb03a0e640bb737ca5dea509670bec144d85fadf3bcb",
+    "inputs": {
+      "tests/original-result-screen.test.mjs": "3e701cb0a362ee298cd547d5750df76cd25fb2dcebb74cc485b601b6f854740a",
+      "app/original-result-screen.tsx": "4cda0f5ca63685988cfdb1c18e1d66700af265c07f6f44f0e156b07ca1baf0c0"
+    }
+  },
+  "command": [
+    "npm",
+    "run",
+    "test:focus",
+    "--",
+    "tests/original-result-screen.test.mjs"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe",
+  "startedAt": "2026-10-16T16:34:14.903Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/fallback-green-draft.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/fallback-green-draft.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:34:15.224Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 test:focus\n> node scripts/orchestration/test-runner.mjs focus tests/original-result-screen.test.mjs\n\nTAP version 13\n# Subtest: result time is a pure live-clock formatter with hours and no wrapping or mutation\nok 1 - result time is a pure live-clock formatter with hours and no wrapping or mutation\n  ---\n  duration_ms: 0.271125\n  type: 'test'\n  ...\n# Subtest: result composition fits the battlefield and reserves room for browser controls\nok 2 - result composition fits the battlefield and reserves room for browser controls\n  ---\n  duration_ms: 0.076417\n  type: 'test'\n  ...\n# Subtest: actual result component renders source headings and ten explicitly unavailable counters\nok 3 - actual result component renders source headings and ten explicitly unavailable counters\n  ---\n  duration_ms: 3.52875\n  type: 'test'\n  ...\n# Subtest: loss and terminal/tutorial actions retain the explicit parent-decided consequence\nok 4 - loss and terminal/tutorial actions retain the explicit parent-decided consequence\n  ---\n  duration_ms: 3.338708\n  type: 'test'\n  ...\n# Subtest: pending-font headings center their actual text while statistic columns keep their anchors\nok 5 - pending-font headings center their actual text while statistic columns keep their anchors\n  ---\n  duration_ms: 4.042666\n  type: 'test'\n  ...\n# Subtest: source panel metadata retains independently checked native geometry and glyph bounds\nok 6 - source panel metadata retains independently checked native geometry and glyph bounds\n  ---\n  duration_ms: 0.093416\n  type: 'test'\n  ...\n1..6\n# tests 6\n# suites 0\n# pass 6\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 192.403833\n",
+  "stderr": "{\"kind\":\"pnd-test-plan\",\"mode\":\"focus\",\"fullSuite\":false,\"parallelEligibility\":\"focused-serial\",\"files\":[\"tests/original-result-screen.test.mjs\"],\"groups\":[{\"concurrency\":1,\"files\":[\"tests/original-result-screen.test.mjs\"]}]}\n{\"kind\":\"pnd-test-group\",\"command\":[\"/Users/johann/.nvm/versions/node/v24.18.0/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/original-result-screen.test.mjs\"],\"files\":[\"tests/original-result-screen.test.mjs\"],\"concurrency\":1,\"exitCode\":0,\"signal\":null,\"error\":null,\"status\":\"passed\",\"wallMs\":215.86295800000002}\n{\"kind\":\"pnd-test-result\",\"mode\":\"focus\",\"fullSuite\":false,\"complete\":true,\"interrupted\":null,\"results\":[{\"command\":[\"/Users/johann/.nvm/versions/node/v24.18.0/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/original-result-screen.test.mjs\"],\"files\":[\"tests/original-result-screen.test.mjs\"],\"concurrency\":1,\"exitCode\":0,\"signal\":null,\"error\":null,\"status\":\"passed\",\"wallMs\":215.86295800000002}],\"wallMs\":216.498458,\"status\":\"passed\"}\n",
+  "stdoutSha256": "e67e0f779c31c44d74c0d2f74d3694053782c96a40c7db5ebde56b726924acad",
+  "stderrSha256": "4d017d13238aae4aa0a22c406fc0b574c1c25259fe1c862d74f2ca0ad58e1dbd",
+  "sourceAfter": {
+    "headOid": "34bccadc618307da33518f2f74fe7007011b0c05",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "607ddc0872605582c761cb03a0e640bb737ca5dea509670bec144d85fadf3bcb",
+    "inputs": {
+      "tests/original-result-screen.test.mjs": "3e701cb0a362ee298cd547d5750df76cd25fb2dcebb74cc485b601b6f854740a",
+      "app/original-result-screen.tsx": "4cda0f5ca63685988cfdb1c18e1d66700af265c07f6f44f0e156b07ca1baf0c0"
+    }
+  }
+}

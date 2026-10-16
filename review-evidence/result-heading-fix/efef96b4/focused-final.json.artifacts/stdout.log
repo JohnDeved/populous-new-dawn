@@ -1,0 +1,50 @@
+
+> populous-first-dawn@0.1.0 test:focus
+> node scripts/orchestration/test-runner.mjs focus tests/original-result-screen.test.mjs
+
+TAP version 13
+# Subtest: result time is a pure live-clock formatter with hours and no wrapping or mutation
+ok 1 - result time is a pure live-clock formatter with hours and no wrapping or mutation
+  ---
+  duration_ms: 0.2885
+  type: 'test'
+  ...
+# Subtest: result composition fits the battlefield and reserves room for browser controls
+ok 2 - result composition fits the battlefield and reserves room for browser controls
+  ---
+  duration_ms: 0.076834
+  type: 'test'
+  ...
+# Subtest: actual result component renders source headings and ten explicitly unavailable counters
+ok 3 - actual result component renders source headings and ten explicitly unavailable counters
+  ---
+  duration_ms: 3.532417
+  type: 'test'
+  ...
+# Subtest: loss and terminal/tutorial actions retain the explicit parent-decided consequence
+ok 4 - loss and terminal/tutorial actions retain the explicit parent-decided consequence
+  ---
+  duration_ms: 3.644417
+  type: 'test'
+  ...
+# Subtest: pending-font headings center their actual text while statistic columns keep their anchors
+ok 5 - pending-font headings center their actual text while statistic columns keep their anchors
+  ---
+  duration_ms: 3.979208
+  type: 'test'
+  ...
+# Subtest: source panel metadata retains independently checked native geometry and glyph bounds
+ok 6 - source panel metadata retains independently checked native geometry and glyph bounds
+  ---
+  duration_ms: 0.089583
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 181.544209

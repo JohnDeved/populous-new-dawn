@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "32ca41ad-e9c7-457a-86a9-5fb4386fe86e",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "efef96b45bc62907a3eaa3d62c14001e6cff1afa",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/result-heading-probe/compare.mjs": "b02a8d7b4df6c12224a43345cbaaff8d9ebeaab8288daf15fad751bd3106baab",
+      "work/result-heading-before-01/receipt.json": "8c40c782008e63bd7f6cd745283625447da2c46e98b6c14aa8a387a8a7c7f210",
+      "work/result-heading-after-final/receipt.json": "69222bbac73713095105c47239553dd63e870f0f645659093577ba7ee201682f"
+    }
+  },
+  "command": [
+    "node",
+    "scripts/result-heading-probe/compare.mjs",
+    "work/result-heading-before-01",
+    "work/result-heading-after-final",
+    "work/result-heading-after-final/comparison.json"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe",
+  "startedAt": "2026-10-16T16:38:23.839Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/comparison-final.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/comparison-final.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:38:24.025Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"observations\":40,\"maximumFallbackOffsetPx\":0.0000152587890625,\"outputFile\":\"work/result-heading-after-final/comparison.json\"}\n",
+  "stderr": "",
+  "stdoutSha256": "089cfb356a4ff54942fe3dec37528d864ccc0ee023fdef7d0ced1db9bd78d6f8",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "efef96b45bc62907a3eaa3d62c14001e6cff1afa",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/result-heading-probe/compare.mjs": "b02a8d7b4df6c12224a43345cbaaff8d9ebeaab8288daf15fad751bd3106baab",
+      "work/result-heading-before-01/receipt.json": "8c40c782008e63bd7f6cd745283625447da2c46e98b6c14aa8a387a8a7c7f210",
+      "work/result-heading-after-final/receipt.json": "69222bbac73713095105c47239553dd63e870f0f645659093577ba7ee201682f"
+    }
+  }
+}

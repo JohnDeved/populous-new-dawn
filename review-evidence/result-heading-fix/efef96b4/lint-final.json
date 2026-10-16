@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "d922c689-5c7d-4bfb-bb4a-6ef9d6cb9920",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "efef96b45bc62907a3eaa3d62c14001e6cff1afa",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "./node_modules/.bin/eslint",
+    "app/original-result-screen.tsx",
+    "tests/original-result-screen.test.mjs",
+    "scripts/result-heading-probe/run.mjs",
+    "scripts/result-heading-probe/compare.mjs",
+    "scripts/result-heading-probe/fixture/main.tsx"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe",
+  "startedAt": "2026-10-16T16:37:39.806Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/lint-final.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/lint-final.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:37:40.362Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/app/original-result-screen.tsx\n  149:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element\n\n✖ 1 problem (0 errors, 1 warning)\n\n",
+  "stderr": "",
+  "stdoutSha256": "265d0cad12fce913756dd555bdd046d0d4fe894cf40ebbd326ce343cf2d240fa",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "efef96b45bc62907a3eaa3d62c14001e6cff1afa",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

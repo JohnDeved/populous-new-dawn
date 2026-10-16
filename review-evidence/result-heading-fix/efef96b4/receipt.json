@@ -1,0 +1,4834 @@
+{
+  "status": "completed-after-observation",
+  "phase": "after",
+  "command": [
+    "/Users/johann/.nvm/versions/node/v24.18.0/bin/node",
+    "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/scripts/result-heading-probe/run.mjs",
+    "work/result-heading-after-final"
+  ],
+  "startedAt": "2026-10-16T16:38:06.675Z",
+  "node": {
+    "version": "v24.18.0",
+    "binary": "/Users/johann/.nvm/versions/node/v24.18.0/bin/node",
+    "sha256": "ee6fb0e015284d83a91e8ec5213f43a157f8a392b58555301682892ba928c04a"
+  },
+  "host": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "release": "27.0.0"
+  },
+  "browserPath": "/Users/johann/Library/Caches/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+  "browserSha256": "8319963f6625accf51c0dd4f55091ceaf9f09ed39e7a52fed4fae12b2a6b668a",
+  "cases": [
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480
+      },
+      "status": "won",
+      "level": 1
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480
+      },
+      "status": "won",
+      "level": 14
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480
+      },
+      "status": "lost",
+      "level": 1
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480
+      },
+      "status": "lost",
+      "level": 14
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "status": "won",
+      "level": 1
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "status": "won",
+      "level": 14
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "status": "lost",
+      "level": 1
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "status": "lost",
+      "level": 14
+    }
+  ],
+  "longestRetainedTitle": [
+    "14",
+    "14 : Attacked From All Sides"
+  ],
+  "observations": [
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 1,
+      "stage": "ready",
+      "screenshot": "won-level1-640x480-ready.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 272,
+            "y": 75.83999633789062,
+            "width": 192,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 272,
+            "y": 75.83999633789062,
+            "width": 192,
+            "height": 18.240005493164062
+          },
+          "localLeft": 91.99998807907151,
+          "localTop": 12.999995032946465,
+          "localWidth": 199.99999205271433,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "localLeft": 154.99999701976787,
+          "localTop": 31.00000099341071,
+          "localWidth": 72.99998311201799,
+          "offsetPx": -0.480010986328125,
+          "offsetLocal": -0.5000114242231279,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 264.32000732421875,
+            "y": 110.39999389648438,
+            "width": 207.3599853515625,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 264.32000732421875,
+            "y": 110.39999389648438,
+            "width": 207.3599853515625,
+            "height": 18.240005493164062
+          },
+          "localLeft": 83.99999602635717,
+          "localTop": 48.99999105930364,
+          "localWidth": 215.99997615814303,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 1,
+      "stage": "failed",
+      "screenshot": "won-level1-640x480-failed.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 295.27252197265625,
+            "y": 75.83999633789062,
+            "width": 145.4549560546875,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 295.27252197265625,
+            "y": 75.83999633789062,
+            "width": 145.4549560546875,
+            "height": 18.240005493164062
+          },
+          "localLeft": 116.24219750395626,
+          "localTop": 12.999995032946465,
+          "localWidth": 151.51557320294486,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "localLeft": 164.37499664723887,
+          "localTop": 31.00000099341071,
+          "localWidth": 55.250006705522274,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 294.7850036621094,
+            "y": 110.39999389648438,
+            "width": 146.43002319335938,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 294.7850036621094,
+            "y": 110.39999389648438,
+            "width": 146.43002319335938,
+            "height": 18.240005493164062
+          },
+          "localLeft": 115.73436595064935,
+          "localTop": 48.99999105930364,
+          "localWidth": 152.5312680987013,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 1,
+      "stage": "failed-reload-recovered",
+      "screenshot": "won-level1-640x480-failed-reload-recovered.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 272,
+            "y": 75.83999633789062,
+            "width": 192,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 272,
+            "y": 75.83999633789062,
+            "width": 192,
+            "height": 18.240005493164062
+          },
+          "localLeft": 91.99998807907151,
+          "localTop": 12.999995032946465,
+          "localWidth": 199.99999205271433,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "localLeft": 154.99999701976787,
+          "localTop": 31.00000099341071,
+          "localWidth": 72.99998311201799,
+          "offsetPx": -0.480010986328125,
+          "offsetLocal": -0.5000114242231279,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 264.32000732421875,
+            "y": 110.39999389648438,
+            "width": 207.3599853515625,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 264.32000732421875,
+            "y": 110.39999389648438,
+            "width": 207.3599853515625,
+            "height": 18.240005493164062
+          },
+          "localLeft": 83.99999602635717,
+          "localTop": 48.99999105930364,
+          "localWidth": 215.99997615814303,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 1,
+      "stage": "delayed",
+      "screenshot": "won-level1-640x480-delayed.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 295.27252197265625,
+            "y": 75.83999633789062,
+            "width": 145.4549560546875,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 295.27252197265625,
+            "y": 75.83999633789062,
+            "width": 145.4549560546875,
+            "height": 18.240005493164062
+          },
+          "localLeft": 116.24219750395626,
+          "localTop": 12.999995032946465,
+          "localWidth": 151.51557320294486,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "localLeft": 164.37499664723887,
+          "localTop": 31.00000099341071,
+          "localWidth": 55.250006705522274,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 294.7850036621094,
+            "y": 110.39999389648438,
+            "width": 146.43002319335938,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 294.7850036621094,
+            "y": 110.39999389648438,
+            "width": 146.43002319335938,
+            "height": 18.240005493164062
+          },
+          "localLeft": 115.73436595064935,
+          "localTop": 48.99999105930364,
+          "localWidth": 152.5312680987013,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 1,
+      "stage": "delay-recovered",
+      "screenshot": "won-level1-640x480-delay-recovered.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 272,
+            "y": 75.83999633789062,
+            "width": 192,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 272,
+            "y": 75.83999633789062,
+            "width": 192,
+            "height": 18.240005493164062
+          },
+          "localLeft": 91.99998807907151,
+          "localTop": 12.999995032946465,
+          "localWidth": 199.99999205271433,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "localLeft": 154.99999701976787,
+          "localTop": 31.00000099341071,
+          "localWidth": 72.99998311201799,
+          "offsetPx": -0.480010986328125,
+          "offsetLocal": -0.5000114242231279,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 264.32000732421875,
+            "y": 110.39999389648438,
+            "width": 207.3599853515625,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 264.32000732421875,
+            "y": 110.39999389648438,
+            "width": 207.3599853515625,
+            "height": 18.240005493164062
+          },
+          "localLeft": 83.99999602635717,
+          "localTop": 48.99999105930364,
+          "localWidth": 215.99997615814303,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 14,
+      "stage": "ready",
+      "screenshot": "won-level14-640x480-ready.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 246.0800018310547,
+            "y": 75.83999633789062,
+            "width": 242.88002014160156,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 246.0800018310547,
+            "y": 75.83999633789062,
+            "width": 242.88002014160156,
+            "height": 18.240005493164062
+          },
+          "localLeft": 64.99999105930364,
+          "localTop": 12.999995032946465,
+          "localWidth": 253.00001092751776,
+          "offsetPx": -0.48000335693359375,
+          "offsetLocal": -0.5000034769374737,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 28,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "localLeft": 154.99999701976787,
+          "localTop": 31.00000099341071,
+          "localWidth": 72.99998311201799,
+          "offsetPx": -0.480010986328125,
+          "offsetLocal": -0.5000114242231279,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 264.32000732421875,
+            "y": 110.39999389648438,
+            "width": 207.3599853515625,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 264.32000732421875,
+            "y": 110.39999389648438,
+            "width": 207.3599853515625,
+            "height": 18.240005493164062
+          },
+          "localLeft": 83.99999602635717,
+          "localTop": 48.99999105930364,
+          "localWidth": 215.99997615814303,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 14,
+      "stage": "failed",
+      "screenshot": "won-level14-640x480-failed.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 283.95501708984375,
+            "y": 75.83999633789062,
+            "width": 168.0899658203125,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 283.95501708984375,
+            "y": 75.83999633789062,
+            "width": 168.0899658203125,
+            "height": 18.240005493164062
+          },
+          "localLeft": 104.45313038614867,
+          "localTop": 12.999995032946465,
+          "localWidth": 175.09370743856005,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "localLeft": 164.37499664723887,
+          "localTop": 31.00000099341071,
+          "localWidth": 55.250006705522274,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 294.7850036621094,
+            "y": 110.39999389648438,
+            "width": 146.43002319335938,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 294.7850036621094,
+            "y": 110.39999389648438,
+            "width": 146.43002319335938,
+            "height": 18.240005493164062
+          },
+          "localLeft": 115.73436595064935,
+          "localTop": 48.99999105930364,
+          "localWidth": 152.5312680987013,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 14,
+      "stage": "failed-reload-recovered",
+      "screenshot": "won-level14-640x480-failed-reload-recovered.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 246.0800018310547,
+            "y": 75.83999633789062,
+            "width": 242.88002014160156,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 246.0800018310547,
+            "y": 75.83999633789062,
+            "width": 242.88002014160156,
+            "height": 18.240005493164062
+          },
+          "localLeft": 64.99999105930364,
+          "localTop": 12.999995032946465,
+          "localWidth": 253.00001092751776,
+          "offsetPx": -0.48000335693359375,
+          "offsetLocal": -0.5000034769374737,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 28,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "localLeft": 154.99999701976787,
+          "localTop": 31.00000099341071,
+          "localWidth": 72.99998311201799,
+          "offsetPx": -0.480010986328125,
+          "offsetLocal": -0.5000114242231279,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 264.32000732421875,
+            "y": 110.39999389648438,
+            "width": 207.3599853515625,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 264.32000732421875,
+            "y": 110.39999389648438,
+            "width": 207.3599853515625,
+            "height": 18.240005493164062
+          },
+          "localLeft": 83.99999602635717,
+          "localTop": 48.99999105930364,
+          "localWidth": 215.99997615814303,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 14,
+      "stage": "delayed",
+      "screenshot": "won-level14-640x480-delayed.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 283.95501708984375,
+            "y": 75.83999633789062,
+            "width": 168.0899658203125,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 283.95501708984375,
+            "y": 75.83999633789062,
+            "width": 168.0899658203125,
+            "height": 18.240005493164062
+          },
+          "localLeft": 104.45313038614867,
+          "localTop": 12.999995032946465,
+          "localWidth": 175.09370743856005,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "localLeft": 164.37499664723887,
+          "localTop": 31.00000099341071,
+          "localWidth": 55.250006705522274,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 294.7850036621094,
+            "y": 110.39999389648438,
+            "width": 146.43002319335938,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 294.7850036621094,
+            "y": 110.39999389648438,
+            "width": 146.43002319335938,
+            "height": 18.240005493164062
+          },
+          "localLeft": 115.73436595064935,
+          "localTop": 48.99999105930364,
+          "localWidth": 152.5312680987013,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 14,
+      "stage": "delay-recovered",
+      "screenshot": "won-level14-640x480-delay-recovered.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 246.0800018310547,
+            "y": 75.83999633789062,
+            "width": 242.88002014160156,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 246.0800018310547,
+            "y": 75.83999633789062,
+            "width": 242.88002014160156,
+            "height": 18.240005493164062
+          },
+          "localLeft": 64.99999105930364,
+          "localTop": 12.999995032946465,
+          "localWidth": 253.00001092751776,
+          "offsetPx": -0.48000335693359375,
+          "offsetLocal": -0.5000034769374737,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 28,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "localLeft": 154.99999701976787,
+          "localTop": 31.00000099341071,
+          "localWidth": 72.99998311201799,
+          "offsetPx": -0.480010986328125,
+          "offsetLocal": -0.5000114242231279,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 264.32000732421875,
+            "y": 110.39999389648438,
+            "width": 207.3599853515625,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 264.32000732421875,
+            "y": 110.39999389648438,
+            "width": 207.3599853515625,
+            "height": 18.240005493164062
+          },
+          "localLeft": 83.99999602635717,
+          "localTop": 48.99999105930364,
+          "localWidth": 215.99997615814303,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 1,
+      "stage": "ready",
+      "screenshot": "lost-level1-640x480-ready.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 272,
+            "y": 75.83999633789062,
+            "width": 192,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 272,
+            "y": 75.83999633789062,
+            "width": 192,
+            "height": 18.240005493164062
+          },
+          "localLeft": 91.99998807907151,
+          "localTop": 12.999995032946465,
+          "localWidth": 199.99999205271433,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "localLeft": 154.99999701976787,
+          "localTop": 31.00000099341071,
+          "localWidth": 72.99998311201799,
+          "offsetPx": -0.480010986328125,
+          "offsetLocal": -0.5000114242231279,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 285.44000244140625,
+            "y": 110.39999389648438,
+            "width": 164.15997314453125,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 285.44000244140625,
+            "y": 110.39999389648438,
+            "width": 164.15997314453125,
+            "height": 18.240005493164062
+          },
+          "localLeft": 105.99999006589293,
+          "localTop": 48.99999105930364,
+          "localWidth": 170.99996523062526,
+          "offsetPx": -0.4800262451171875,
+          "offsetLocal": -0.5000273187944365,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 20,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 1,
+      "stage": "failed",
+      "screenshot": "lost-level1-640x480-failed.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 295.27252197265625,
+            "y": 75.83999633789062,
+            "width": 145.4549560546875,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 295.27252197265625,
+            "y": 75.83999633789062,
+            "width": 145.4549560546875,
+            "height": 18.240005493164062
+          },
+          "localLeft": 116.24219750395626,
+          "localTop": 12.999995032946465,
+          "localWidth": 151.51557320294486,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "localLeft": 164.37499664723887,
+          "localTop": 31.00000099341071,
+          "localWidth": 55.250006705522274,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 308.9750061035156,
+            "y": 110.39999389648438,
+            "width": 118.05001831054688,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 308.9750061035156,
+            "y": 110.39999389648438,
+            "width": 118.05001831054688,
+            "height": 18.240005493164062
+          },
+          "localLeft": 130.51561790642668,
+          "localTop": 48.99999105930364,
+          "localWidth": 122.96876418714666,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 1,
+      "stage": "failed-reload-recovered",
+      "screenshot": "lost-level1-640x480-failed-reload-recovered.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 272,
+            "y": 75.83999633789062,
+            "width": 192,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 272,
+            "y": 75.83999633789062,
+            "width": 192,
+            "height": 18.240005493164062
+          },
+          "localLeft": 91.99998807907151,
+          "localTop": 12.999995032946465,
+          "localWidth": 199.99999205271433,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "localLeft": 154.99999701976787,
+          "localTop": 31.00000099341071,
+          "localWidth": 72.99998311201799,
+          "offsetPx": -0.480010986328125,
+          "offsetLocal": -0.5000114242231279,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 285.44000244140625,
+            "y": 110.39999389648438,
+            "width": 164.15997314453125,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 285.44000244140625,
+            "y": 110.39999389648438,
+            "width": 164.15997314453125,
+            "height": 18.240005493164062
+          },
+          "localLeft": 105.99999006589293,
+          "localTop": 48.99999105930364,
+          "localWidth": 170.99996523062526,
+          "offsetPx": -0.4800262451171875,
+          "offsetLocal": -0.5000273187944365,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 20,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 1,
+      "stage": "delayed",
+      "screenshot": "lost-level1-640x480-delayed.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 295.27252197265625,
+            "y": 75.83999633789062,
+            "width": 145.4549560546875,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 295.27252197265625,
+            "y": 75.83999633789062,
+            "width": 145.4549560546875,
+            "height": 18.240005493164062
+          },
+          "localLeft": 116.24219750395626,
+          "localTop": 12.999995032946465,
+          "localWidth": 151.51557320294486,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "localLeft": 164.37499664723887,
+          "localTop": 31.00000099341071,
+          "localWidth": 55.250006705522274,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 308.9750061035156,
+            "y": 110.39999389648438,
+            "width": 118.05001831054688,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 308.9750061035156,
+            "y": 110.39999389648438,
+            "width": 118.05001831054688,
+            "height": 18.240005493164062
+          },
+          "localLeft": 130.51561790642668,
+          "localTop": 48.99999105930364,
+          "localWidth": 122.96876418714666,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 1,
+      "stage": "delay-recovered",
+      "screenshot": "lost-level1-640x480-delay-recovered.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 272,
+            "y": 75.83999633789062,
+            "width": 192,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 272,
+            "y": 75.83999633789062,
+            "width": 192,
+            "height": 18.240005493164062
+          },
+          "localLeft": 91.99998807907151,
+          "localTop": 12.999995032946465,
+          "localWidth": 199.99999205271433,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "localLeft": 154.99999701976787,
+          "localTop": 31.00000099341071,
+          "localWidth": 72.99998311201799,
+          "offsetPx": -0.480010986328125,
+          "offsetLocal": -0.5000114242231279,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 285.44000244140625,
+            "y": 110.39999389648438,
+            "width": 164.15997314453125,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 285.44000244140625,
+            "y": 110.39999389648438,
+            "width": 164.15997314453125,
+            "height": 18.240005493164062
+          },
+          "localLeft": 105.99999006589293,
+          "localTop": 48.99999105930364,
+          "localWidth": 170.99996523062526,
+          "offsetPx": -0.4800262451171875,
+          "offsetLocal": -0.5000273187944365,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 20,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 14,
+      "stage": "ready",
+      "screenshot": "lost-level14-640x480-ready.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 246.0800018310547,
+            "y": 75.83999633789062,
+            "width": 242.88002014160156,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 246.0800018310547,
+            "y": 75.83999633789062,
+            "width": 242.88002014160156,
+            "height": 18.240005493164062
+          },
+          "localLeft": 64.99999105930364,
+          "localTop": 12.999995032946465,
+          "localWidth": 253.00001092751776,
+          "offsetPx": -0.48000335693359375,
+          "offsetLocal": -0.5000034769374737,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 28,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "localLeft": 154.99999701976787,
+          "localTop": 31.00000099341071,
+          "localWidth": 72.99998311201799,
+          "offsetPx": -0.480010986328125,
+          "offsetLocal": -0.5000114242231279,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 285.44000244140625,
+            "y": 110.39999389648438,
+            "width": 164.15997314453125,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 285.44000244140625,
+            "y": 110.39999389648438,
+            "width": 164.15997314453125,
+            "height": 18.240005493164062
+          },
+          "localLeft": 105.99999006589293,
+          "localTop": 48.99999105930364,
+          "localWidth": 170.99996523062526,
+          "offsetPx": -0.4800262451171875,
+          "offsetLocal": -0.5000273187944365,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 20,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 14,
+      "stage": "failed",
+      "screenshot": "lost-level14-640x480-failed.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 283.95501708984375,
+            "y": 75.83999633789062,
+            "width": 168.0899658203125,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 283.95501708984375,
+            "y": 75.83999633789062,
+            "width": 168.0899658203125,
+            "height": 18.240005493164062
+          },
+          "localLeft": 104.45313038614867,
+          "localTop": 12.999995032946465,
+          "localWidth": 175.09370743856005,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "localLeft": 164.37499664723887,
+          "localTop": 31.00000099341071,
+          "localWidth": 55.250006705522274,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 308.9750061035156,
+            "y": 110.39999389648438,
+            "width": 118.05001831054688,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 308.9750061035156,
+            "y": 110.39999389648438,
+            "width": 118.05001831054688,
+            "height": 18.240005493164062
+          },
+          "localLeft": 130.51561790642668,
+          "localTop": 48.99999105930364,
+          "localWidth": 122.96876418714666,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 14,
+      "stage": "failed-reload-recovered",
+      "screenshot": "lost-level14-640x480-failed-reload-recovered.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 246.0800018310547,
+            "y": 75.83999633789062,
+            "width": 242.88002014160156,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 246.0800018310547,
+            "y": 75.83999633789062,
+            "width": 242.88002014160156,
+            "height": 18.240005493164062
+          },
+          "localLeft": 64.99999105930364,
+          "localTop": 12.999995032946465,
+          "localWidth": 253.00001092751776,
+          "offsetPx": -0.48000335693359375,
+          "offsetLocal": -0.5000034769374737,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 28,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "localLeft": 154.99999701976787,
+          "localTop": 31.00000099341071,
+          "localWidth": 72.99998311201799,
+          "offsetPx": -0.480010986328125,
+          "offsetLocal": -0.5000114242231279,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 285.44000244140625,
+            "y": 110.39999389648438,
+            "width": 164.15997314453125,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 285.44000244140625,
+            "y": 110.39999389648438,
+            "width": 164.15997314453125,
+            "height": 18.240005493164062
+          },
+          "localLeft": 105.99999006589293,
+          "localTop": 48.99999105930364,
+          "localWidth": 170.99996523062526,
+          "offsetPx": -0.4800262451171875,
+          "offsetLocal": -0.5000273187944365,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 20,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 14,
+      "stage": "delayed",
+      "screenshot": "lost-level14-640x480-delayed.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 283.95501708984375,
+            "y": 75.83999633789062,
+            "width": 168.0899658203125,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 283.95501708984375,
+            "y": 75.83999633789062,
+            "width": 168.0899658203125,
+            "height": 18.240005493164062
+          },
+          "localLeft": 104.45313038614867,
+          "localTop": 12.999995032946465,
+          "localWidth": 175.09370743856005,
+          "offsetPx": -0.0000152587890625,
+          "offsetLocal": -0.00001589457130851065,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 341.4800109863281,
+            "y": 93.12000274658203,
+            "width": 53.040008544921875,
+            "height": 18.23999786376953
+          },
+          "localLeft": 164.37499664723887,
+          "localTop": 31.00000099341071,
+          "localWidth": 55.250006705522274,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 308.9750061035156,
+            "y": 110.39999389648438,
+            "width": 118.05001831054688,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 308.9750061035156,
+            "y": 110.39999389648438,
+            "width": 118.05001831054688,
+            "height": 18.240005493164062
+          },
+          "localLeft": 130.51561790642668,
+          "localTop": 48.99999105930364,
+          "localWidth": 122.96876418714666,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 640,
+        "height": 480,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 14,
+      "stage": "delay-recovered",
+      "screenshot": "lost-level14-640x480-delay-recovered.png",
+      "panel": {
+        "x": 183.6800079345703,
+        "y": 63.36000061035156,
+        "width": 368.6400146484375,
+        "height": 353.280029296875
+      },
+      "screen": {
+        "x": 96,
+        "y": 0,
+        "width": 544,
+        "height": 480
+      },
+      "scale": 0.9600000381469727,
+      "targetCenterPx": 368.00001525878906,
+      "hudScale": "0.96",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 246.0800018310547,
+            "y": 75.83999633789062,
+            "width": 242.88002014160156,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 246.0800018310547,
+            "y": 75.83999633789062,
+            "width": 242.88002014160156,
+            "height": 18.240005493164062
+          },
+          "localLeft": 64.99999105930364,
+          "localTop": 12.999995032946465,
+          "localWidth": 253.00001092751776,
+          "offsetPx": -0.48000335693359375,
+          "offsetLocal": -0.5000034769374737,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 28,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "content": {
+            "x": 332.4800109863281,
+            "y": 93.12000274658203,
+            "width": 70.07998657226562,
+            "height": 18.23999786376953
+          },
+          "localLeft": 154.99999701976787,
+          "localTop": 31.00000099341071,
+          "localWidth": 72.99998311201799,
+          "offsetPx": -0.480010986328125,
+          "offsetLocal": -0.5000114242231279,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 285.44000244140625,
+            "y": 110.39999389648438,
+            "width": 164.15997314453125,
+            "height": 18.240005493164062
+          },
+          "content": {
+            "x": 285.44000244140625,
+            "y": 110.39999389648438,
+            "width": 164.15997314453125,
+            "height": 18.240005493164062
+          },
+          "localLeft": 105.99999006589293,
+          "localTop": 48.99999105930364,
+          "localWidth": 170.99996523062526,
+          "offsetPx": -0.4800262451171875,
+          "offsetLocal": -0.5000273187944365,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 20,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 1,
+      "stage": "ready",
+      "screenshot": "won-level1-1920x1080-ready.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 860,
+            "y": 198,
+            "width": 400,
+            "height": 38
+          },
+          "content": {
+            "x": 860,
+            "y": 198,
+            "width": 400,
+            "height": 38
+          },
+          "localLeft": 92,
+          "localTop": 13,
+          "localWidth": 200,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "content": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "localLeft": 155,
+          "localTop": 31,
+          "localWidth": 73,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 844,
+            "y": 270,
+            "width": 432,
+            "height": 38
+          },
+          "content": {
+            "x": 844,
+            "y": 270,
+            "width": 432,
+            "height": 38
+          },
+          "localLeft": 84,
+          "localTop": 49,
+          "localWidth": 216,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 1,
+      "stage": "failed",
+      "screenshot": "won-level1-1920x1080-failed.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 908.484375,
+            "y": 198,
+            "width": 303.03125,
+            "height": 38
+          },
+          "content": {
+            "x": 908.484375,
+            "y": 198,
+            "width": 303.03125,
+            "height": 38
+          },
+          "localLeft": 116.2421875,
+          "localTop": 13,
+          "localWidth": 151.515625,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "content": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "localLeft": 164.375,
+          "localTop": 31,
+          "localWidth": 55.25,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 907.46875,
+            "y": 270,
+            "width": 305.0625,
+            "height": 38
+          },
+          "content": {
+            "x": 907.46875,
+            "y": 270,
+            "width": 305.0625,
+            "height": 38
+          },
+          "localLeft": 115.734375,
+          "localTop": 49,
+          "localWidth": 152.53125,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 1,
+      "stage": "failed-reload-recovered",
+      "screenshot": "won-level1-1920x1080-failed-reload-recovered.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 860,
+            "y": 198,
+            "width": 400,
+            "height": 38
+          },
+          "content": {
+            "x": 860,
+            "y": 198,
+            "width": 400,
+            "height": 38
+          },
+          "localLeft": 92,
+          "localTop": 13,
+          "localWidth": 200,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "content": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "localLeft": 155,
+          "localTop": 31,
+          "localWidth": 73,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 844,
+            "y": 270,
+            "width": 432,
+            "height": 38
+          },
+          "content": {
+            "x": 844,
+            "y": 270,
+            "width": 432,
+            "height": 38
+          },
+          "localLeft": 84,
+          "localTop": 49,
+          "localWidth": 216,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 1,
+      "stage": "delayed",
+      "screenshot": "won-level1-1920x1080-delayed.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 908.484375,
+            "y": 198,
+            "width": 303.03125,
+            "height": 38
+          },
+          "content": {
+            "x": 908.484375,
+            "y": 198,
+            "width": 303.03125,
+            "height": 38
+          },
+          "localLeft": 116.2421875,
+          "localTop": 13,
+          "localWidth": 151.515625,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "content": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "localLeft": 164.375,
+          "localTop": 31,
+          "localWidth": 55.25,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 907.46875,
+            "y": 270,
+            "width": 305.0625,
+            "height": 38
+          },
+          "content": {
+            "x": 907.46875,
+            "y": 270,
+            "width": 305.0625,
+            "height": 38
+          },
+          "localLeft": 115.734375,
+          "localTop": 49,
+          "localWidth": 152.53125,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 1,
+      "stage": "delay-recovered",
+      "screenshot": "won-level1-1920x1080-delay-recovered.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 860,
+            "y": 198,
+            "width": 400,
+            "height": 38
+          },
+          "content": {
+            "x": 860,
+            "y": 198,
+            "width": 400,
+            "height": 38
+          },
+          "localLeft": 92,
+          "localTop": 13,
+          "localWidth": 200,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "content": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "localLeft": 155,
+          "localTop": 31,
+          "localWidth": 73,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 844,
+            "y": 270,
+            "width": 432,
+            "height": 38
+          },
+          "content": {
+            "x": 844,
+            "y": 270,
+            "width": 432,
+            "height": 38
+          },
+          "localLeft": 84,
+          "localTop": 49,
+          "localWidth": 216,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 14,
+      "stage": "ready",
+      "screenshot": "won-level14-1920x1080-ready.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 806,
+            "y": 198,
+            "width": 506,
+            "height": 38
+          },
+          "content": {
+            "x": 806,
+            "y": 198,
+            "width": 506,
+            "height": 38
+          },
+          "localLeft": 65,
+          "localTop": 13,
+          "localWidth": 253,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 28,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "content": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "localLeft": 155,
+          "localTop": 31,
+          "localWidth": 73,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 844,
+            "y": 270,
+            "width": 432,
+            "height": 38
+          },
+          "content": {
+            "x": 844,
+            "y": 270,
+            "width": 432,
+            "height": 38
+          },
+          "localLeft": 84,
+          "localTop": 49,
+          "localWidth": 216,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 14,
+      "stage": "failed",
+      "screenshot": "won-level14-1920x1080-failed.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 884.90625,
+            "y": 198,
+            "width": 350.1875,
+            "height": 38
+          },
+          "content": {
+            "x": 884.90625,
+            "y": 198,
+            "width": 350.1875,
+            "height": 38
+          },
+          "localLeft": 104.453125,
+          "localTop": 13,
+          "localWidth": 175.09375,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "content": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "localLeft": 164.375,
+          "localTop": 31,
+          "localWidth": 55.25,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 907.46875,
+            "y": 270,
+            "width": 305.0625,
+            "height": 38
+          },
+          "content": {
+            "x": 907.46875,
+            "y": 270,
+            "width": 305.0625,
+            "height": 38
+          },
+          "localLeft": 115.734375,
+          "localTop": 49,
+          "localWidth": 152.53125,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 14,
+      "stage": "failed-reload-recovered",
+      "screenshot": "won-level14-1920x1080-failed-reload-recovered.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 806,
+            "y": 198,
+            "width": 506,
+            "height": 38
+          },
+          "content": {
+            "x": 806,
+            "y": 198,
+            "width": 506,
+            "height": 38
+          },
+          "localLeft": 65,
+          "localTop": 13,
+          "localWidth": 253,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 28,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "content": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "localLeft": 155,
+          "localTop": 31,
+          "localWidth": 73,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 844,
+            "y": 270,
+            "width": 432,
+            "height": 38
+          },
+          "content": {
+            "x": 844,
+            "y": 270,
+            "width": 432,
+            "height": 38
+          },
+          "localLeft": 84,
+          "localTop": 49,
+          "localWidth": 216,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 14,
+      "stage": "delayed",
+      "screenshot": "won-level14-1920x1080-delayed.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 884.90625,
+            "y": 198,
+            "width": 350.1875,
+            "height": 38
+          },
+          "content": {
+            "x": 884.90625,
+            "y": 198,
+            "width": 350.1875,
+            "height": 38
+          },
+          "localLeft": 104.453125,
+          "localTop": 13,
+          "localWidth": 175.09375,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "content": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "localLeft": 164.375,
+          "localTop": 31,
+          "localWidth": 55.25,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 907.46875,
+            "y": 270,
+            "width": 305.0625,
+            "height": 38
+          },
+          "content": {
+            "x": 907.46875,
+            "y": 270,
+            "width": 305.0625,
+            "height": 38
+          },
+          "localLeft": 115.734375,
+          "localTop": 49,
+          "localWidth": 152.53125,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "won",
+      "level": 14,
+      "stage": "delay-recovered",
+      "screenshot": "won-level14-1920x1080-delay-recovered.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 806,
+            "y": 198,
+            "width": 506,
+            "height": 38
+          },
+          "content": {
+            "x": 806,
+            "y": 198,
+            "width": 506,
+            "height": 38
+          },
+          "localLeft": 65,
+          "localTop": 13,
+          "localWidth": 253,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 28,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "content": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "localLeft": 155,
+          "localTop": 31,
+          "localWidth": 73,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Completed",
+          "line": {
+            "x": 844,
+            "y": 270,
+            "width": 432,
+            "height": 38
+          },
+          "content": {
+            "x": 844,
+            "y": 270,
+            "width": 432,
+            "height": 38
+          },
+          "localLeft": 84,
+          "localTop": 49,
+          "localWidth": 216,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 84,
+            "top": 49,
+            "width": 216
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 1,
+      "stage": "ready",
+      "screenshot": "lost-level1-1920x1080-ready.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 860,
+            "y": 198,
+            "width": 400,
+            "height": 38
+          },
+          "content": {
+            "x": 860,
+            "y": 198,
+            "width": 400,
+            "height": 38
+          },
+          "localLeft": 92,
+          "localTop": 13,
+          "localWidth": 200,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "content": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "localLeft": 155,
+          "localTop": 31,
+          "localWidth": 73,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 888,
+            "y": 270,
+            "width": 342,
+            "height": 38
+          },
+          "content": {
+            "x": 888,
+            "y": 270,
+            "width": 342,
+            "height": 38
+          },
+          "localLeft": 106,
+          "localTop": 49,
+          "localWidth": 171,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 20,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 1,
+      "stage": "failed",
+      "screenshot": "lost-level1-1920x1080-failed.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 908.484375,
+            "y": 198,
+            "width": 303.03125,
+            "height": 38
+          },
+          "content": {
+            "x": 908.484375,
+            "y": 198,
+            "width": 303.03125,
+            "height": 38
+          },
+          "localLeft": 116.2421875,
+          "localTop": 13,
+          "localWidth": 151.515625,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "content": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "localLeft": 164.375,
+          "localTop": 31,
+          "localWidth": 55.25,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 937.03125,
+            "y": 270,
+            "width": 245.9375,
+            "height": 38
+          },
+          "content": {
+            "x": 937.03125,
+            "y": 270,
+            "width": 245.9375,
+            "height": 38
+          },
+          "localLeft": 130.515625,
+          "localTop": 49,
+          "localWidth": 122.96875,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 1,
+      "stage": "failed-reload-recovered",
+      "screenshot": "lost-level1-1920x1080-failed-reload-recovered.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 860,
+            "y": 198,
+            "width": 400,
+            "height": 38
+          },
+          "content": {
+            "x": 860,
+            "y": 198,
+            "width": 400,
+            "height": 38
+          },
+          "localLeft": 92,
+          "localTop": 13,
+          "localWidth": 200,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "content": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "localLeft": 155,
+          "localTop": 31,
+          "localWidth": 73,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 888,
+            "y": 270,
+            "width": 342,
+            "height": 38
+          },
+          "content": {
+            "x": 888,
+            "y": 270,
+            "width": 342,
+            "height": 38
+          },
+          "localLeft": 106,
+          "localTop": 49,
+          "localWidth": 171,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 20,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 1,
+      "stage": "delayed",
+      "screenshot": "lost-level1-1920x1080-delayed.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 908.484375,
+            "y": 198,
+            "width": 303.03125,
+            "height": 38
+          },
+          "content": {
+            "x": 908.484375,
+            "y": 198,
+            "width": 303.03125,
+            "height": 38
+          },
+          "localLeft": 116.2421875,
+          "localTop": 13,
+          "localWidth": 151.515625,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "content": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "localLeft": 164.375,
+          "localTop": 31,
+          "localWidth": 55.25,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 937.03125,
+            "y": 270,
+            "width": 245.9375,
+            "height": 38
+          },
+          "content": {
+            "x": 937.03125,
+            "y": 270,
+            "width": 245.9375,
+            "height": 38
+          },
+          "localLeft": 130.515625,
+          "localTop": 49,
+          "localWidth": 122.96875,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 1,
+      "stage": "delay-recovered",
+      "screenshot": "lost-level1-1920x1080-delay-recovered.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "01 : The Journey Begins",
+          "line": {
+            "x": 860,
+            "y": 198,
+            "width": 400,
+            "height": 38
+          },
+          "content": {
+            "x": 860,
+            "y": 198,
+            "width": 400,
+            "height": 38
+          },
+          "localLeft": 92,
+          "localTop": 13,
+          "localWidth": 200,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 23,
+          "nativeExpected": {
+            "left": 92,
+            "top": 13,
+            "width": 200
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "content": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "localLeft": 155,
+          "localTop": 31,
+          "localWidth": 73,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 888,
+            "y": 270,
+            "width": 342,
+            "height": 38
+          },
+          "content": {
+            "x": 888,
+            "y": 270,
+            "width": 342,
+            "height": 38
+          },
+          "localLeft": 106,
+          "localTop": 49,
+          "localWidth": 171,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 20,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 14,
+      "stage": "ready",
+      "screenshot": "lost-level14-1920x1080-ready.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 806,
+            "y": 198,
+            "width": 506,
+            "height": 38
+          },
+          "content": {
+            "x": 806,
+            "y": 198,
+            "width": 506,
+            "height": 38
+          },
+          "localLeft": 65,
+          "localTop": 13,
+          "localWidth": 253,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 28,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "content": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "localLeft": 155,
+          "localTop": 31,
+          "localWidth": 73,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 888,
+            "y": 270,
+            "width": 342,
+            "height": 38
+          },
+          "content": {
+            "x": 888,
+            "y": 270,
+            "width": 342,
+            "height": 38
+          },
+          "localLeft": 106,
+          "localTop": 49,
+          "localWidth": 171,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 20,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 14,
+      "stage": "failed",
+      "screenshot": "lost-level14-1920x1080-failed.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 884.90625,
+            "y": 198,
+            "width": 350.1875,
+            "height": 38
+          },
+          "content": {
+            "x": 884.90625,
+            "y": 198,
+            "width": 350.1875,
+            "height": 38
+          },
+          "localLeft": 104.453125,
+          "localTop": 13,
+          "localWidth": 175.09375,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "content": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "localLeft": 164.375,
+          "localTop": 31,
+          "localWidth": 55.25,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 937.03125,
+            "y": 270,
+            "width": 245.9375,
+            "height": 38
+          },
+          "content": {
+            "x": 937.03125,
+            "y": 270,
+            "width": 245.9375,
+            "height": 38
+          },
+          "localLeft": 130.515625,
+          "localTop": 49,
+          "localWidth": 122.96875,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 14,
+      "stage": "failed-reload-recovered",
+      "screenshot": "lost-level14-1920x1080-failed-reload-recovered.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 806,
+            "y": 198,
+            "width": 506,
+            "height": 38
+          },
+          "content": {
+            "x": 806,
+            "y": 198,
+            "width": 506,
+            "height": 38
+          },
+          "localLeft": 65,
+          "localTop": 13,
+          "localWidth": 253,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 28,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "content": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "localLeft": 155,
+          "localTop": 31,
+          "localWidth": 73,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 888,
+            "y": 270,
+            "width": 342,
+            "height": 38
+          },
+          "content": {
+            "x": 888,
+            "y": 270,
+            "width": 342,
+            "height": 38
+          },
+          "localLeft": 106,
+          "localTop": 49,
+          "localWidth": 171,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 20,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 14,
+      "stage": "delayed",
+      "screenshot": "lost-level14-1920x1080-delayed.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 884.90625,
+            "y": 198,
+            "width": 350.1875,
+            "height": 38
+          },
+          "content": {
+            "x": 884.90625,
+            "y": 198,
+            "width": 350.1875,
+            "height": 38
+          },
+          "localLeft": 104.453125,
+          "localTop": 13,
+          "localWidth": 175.09375,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "content": {
+            "x": 1004.75,
+            "y": 234,
+            "width": 110.5,
+            "height": 38
+          },
+          "localLeft": 164.375,
+          "localTop": 31,
+          "localWidth": 55.25,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 937.03125,
+            "y": 270,
+            "width": 245.9375,
+            "height": 38
+          },
+          "content": {
+            "x": 937.03125,
+            "y": 270,
+            "width": 245.9375,
+            "height": 38
+          },
+          "localLeft": 130.515625,
+          "localTop": 49,
+          "localWidth": 122.96875,
+          "offsetPx": 0,
+          "offsetLocal": 0,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 0,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "false",
+      "panelFailed": "false",
+      "panelDecoded": true
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "status": "lost",
+      "level": 14,
+      "stage": "delay-recovered",
+      "screenshot": "lost-level14-1920x1080-delay-recovered.png",
+      "panel": {
+        "x": 676,
+        "y": 172,
+        "width": 768,
+        "height": 736
+      },
+      "screen": {
+        "x": 200,
+        "y": 0,
+        "width": 1720,
+        "height": 1080
+      },
+      "scale": 2,
+      "targetCenterPx": 1060,
+      "hudScale": "2",
+      "headings": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "line": {
+            "x": 806,
+            "y": 198,
+            "width": 506,
+            "height": 38
+          },
+          "content": {
+            "x": 806,
+            "y": 198,
+            "width": 506,
+            "height": 38
+          },
+          "localLeft": 65,
+          "localTop": 13,
+          "localWidth": 253,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 28,
+          "nativeExpected": {
+            "left": 65,
+            "top": 13,
+            "width": 253
+          }
+        },
+        {
+          "label": "Player 1.",
+          "line": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "content": {
+            "x": 986,
+            "y": 234,
+            "width": 146,
+            "height": 38
+          },
+          "localLeft": 155,
+          "localTop": 31,
+          "localWidth": 73,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 9,
+          "nativeExpected": {
+            "left": 155,
+            "top": 31,
+            "width": 73
+          }
+        },
+        {
+          "label": "Level Status: Failed",
+          "line": {
+            "x": 888,
+            "y": 270,
+            "width": 342,
+            "height": 38
+          },
+          "content": {
+            "x": 888,
+            "y": 270,
+            "width": 342,
+            "height": 38
+          },
+          "localLeft": 106,
+          "localTop": 49,
+          "localWidth": 171,
+          "offsetPx": -1,
+          "offsetLocal": -0.5,
+          "font": "14px / 19px Arial, sans-serif",
+          "glyphs": 20,
+          "nativeExpected": {
+            "left": 106,
+            "top": 49,
+            "width": 171
+          }
+        }
+      ],
+      "fontReady": "true",
+      "panelFailed": "false",
+      "panelDecoded": true
+    }
+  ],
+  "errors": [],
+  "expectedFontFailures": [
+    {
+      "scenario": {
+        "viewport": {
+          "width": 640,
+          "height": 480
+        },
+        "status": "won",
+        "level": 1
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 640,
+          "height": 480
+        },
+        "status": "won",
+        "level": 1
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 640,
+          "height": 480
+        },
+        "status": "won",
+        "level": 14
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 640,
+          "height": 480
+        },
+        "status": "won",
+        "level": 14
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 640,
+          "height": 480
+        },
+        "status": "lost",
+        "level": 1
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 640,
+          "height": 480
+        },
+        "status": "lost",
+        "level": 1
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 640,
+          "height": 480
+        },
+        "status": "lost",
+        "level": 14
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 640,
+          "height": 480
+        },
+        "status": "lost",
+        "level": 14
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "status": "won",
+        "level": 1
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "status": "won",
+        "level": 1
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "status": "won",
+        "level": 14
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "status": "won",
+        "level": 14
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "status": "lost",
+        "level": 1
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "status": "lost",
+        "level": 1
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "status": "lost",
+        "level": 14
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    },
+    {
+      "scenario": {
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "status": "lost",
+        "level": 14
+      },
+      "url": "http://127.0.0.1:4362/original/result-font.png",
+      "response": "200 invalid PNG bytes"
+    }
+  ],
+  "screenshots": {
+    "won-level1-640x480-ready.png": "c5008b71f0a5d99bd37a3c5c471cc8d0192304e1ee668246384f0f2fa3585cf2",
+    "won-level1-640x480-failed.png": "aaa80ed6d62bd9e5d4439d0429c9f6528dba78f3231ed099ef03fa866bad37fd",
+    "won-level1-640x480-failed-reload-recovered.png": "c5008b71f0a5d99bd37a3c5c471cc8d0192304e1ee668246384f0f2fa3585cf2",
+    "won-level1-640x480-delayed.png": "aaa80ed6d62bd9e5d4439d0429c9f6528dba78f3231ed099ef03fa866bad37fd",
+    "won-level1-640x480-delay-recovered.png": "c5008b71f0a5d99bd37a3c5c471cc8d0192304e1ee668246384f0f2fa3585cf2",
+    "won-level14-640x480-ready.png": "0d5c46d9ff21a6e9cfba6ffe972b27810ddf611adcb2be6bb13345da342cb6c6",
+    "won-level14-640x480-failed.png": "b56549053b619fa450e6715ecf214325b930122da4604b037c33e915e9c50e26",
+    "won-level14-640x480-failed-reload-recovered.png": "0d5c46d9ff21a6e9cfba6ffe972b27810ddf611adcb2be6bb13345da342cb6c6",
+    "won-level14-640x480-delayed.png": "b56549053b619fa450e6715ecf214325b930122da4604b037c33e915e9c50e26",
+    "won-level14-640x480-delay-recovered.png": "0d5c46d9ff21a6e9cfba6ffe972b27810ddf611adcb2be6bb13345da342cb6c6",
+    "lost-level1-640x480-ready.png": "6010a003b1f0e84cecd7a451a1d750b553171e2f9ca1b1384b18a47c9c7c8a6e",
+    "lost-level1-640x480-failed.png": "3f7cd1cfeeb0a893badbda24c5db37a36e8f0bc5b552e7cf4569737cb27f07df",
+    "lost-level1-640x480-failed-reload-recovered.png": "6010a003b1f0e84cecd7a451a1d750b553171e2f9ca1b1384b18a47c9c7c8a6e",
+    "lost-level1-640x480-delayed.png": "3f7cd1cfeeb0a893badbda24c5db37a36e8f0bc5b552e7cf4569737cb27f07df",
+    "lost-level1-640x480-delay-recovered.png": "6010a003b1f0e84cecd7a451a1d750b553171e2f9ca1b1384b18a47c9c7c8a6e",
+    "lost-level14-640x480-ready.png": "ec2153f5575237fd9e1d9548b8900f3e2bd11b3c0b9f06bf1eb5a87ec5724bcb",
+    "lost-level14-640x480-failed.png": "f412d1d3816245ef5cf13d4e30e1d05e98aad27ebd8084bde4c584f4064757ce",
+    "lost-level14-640x480-failed-reload-recovered.png": "ec2153f5575237fd9e1d9548b8900f3e2bd11b3c0b9f06bf1eb5a87ec5724bcb",
+    "lost-level14-640x480-delayed.png": "f412d1d3816245ef5cf13d4e30e1d05e98aad27ebd8084bde4c584f4064757ce",
+    "lost-level14-640x480-delay-recovered.png": "ec2153f5575237fd9e1d9548b8900f3e2bd11b3c0b9f06bf1eb5a87ec5724bcb",
+    "won-level1-1920x1080-ready.png": "a094a6156d7a96bfed77e586c3a696410a2ba5d65aa6dc75d74336db5a33242b",
+    "won-level1-1920x1080-failed.png": "ff223fa6e7b8e34c7071c19091260ebd676a5c644724473deed720a6c70b201f",
+    "won-level1-1920x1080-failed-reload-recovered.png": "a094a6156d7a96bfed77e586c3a696410a2ba5d65aa6dc75d74336db5a33242b",
+    "won-level1-1920x1080-delayed.png": "ff223fa6e7b8e34c7071c19091260ebd676a5c644724473deed720a6c70b201f",
+    "won-level1-1920x1080-delay-recovered.png": "a094a6156d7a96bfed77e586c3a696410a2ba5d65aa6dc75d74336db5a33242b",
+    "won-level14-1920x1080-ready.png": "b58ec9e942fbcca5444c8318f45b3bb2ca6748424bc67d6d1abca90416139f10",
+    "won-level14-1920x1080-failed.png": "709ea8d151477bbb5c133abe134e0d097957ddf5edbf9d40d4c0e5a445e418c4",
+    "won-level14-1920x1080-failed-reload-recovered.png": "b58ec9e942fbcca5444c8318f45b3bb2ca6748424bc67d6d1abca90416139f10",
+    "won-level14-1920x1080-delayed.png": "709ea8d151477bbb5c133abe134e0d097957ddf5edbf9d40d4c0e5a445e418c4",
+    "won-level14-1920x1080-delay-recovered.png": "b58ec9e942fbcca5444c8318f45b3bb2ca6748424bc67d6d1abca90416139f10",
+    "lost-level1-1920x1080-ready.png": "cf8d6917ffeb12dbb27acc4773fd696cdb1018c702fd9223df1bb557036d1706",
+    "lost-level1-1920x1080-failed.png": "e37594c5a2bdab0e97b74a62a0dbe7a5b53a0fc28edb20973fd309efb6af2b2b",
+    "lost-level1-1920x1080-failed-reload-recovered.png": "cf8d6917ffeb12dbb27acc4773fd696cdb1018c702fd9223df1bb557036d1706",
+    "lost-level1-1920x1080-delayed.png": "e37594c5a2bdab0e97b74a62a0dbe7a5b53a0fc28edb20973fd309efb6af2b2b",
+    "lost-level1-1920x1080-delay-recovered.png": "cf8d6917ffeb12dbb27acc4773fd696cdb1018c702fd9223df1bb557036d1706",
+    "lost-level14-1920x1080-ready.png": "00fa71973c0089fa688ebf141078e9ff48f608a318d128f1099594749688951a",
+    "lost-level14-1920x1080-failed.png": "586909dea7d39cc1402b1a0db19452593d0ec6e66d31d77cc0418edbdd406870",
+    "lost-level14-1920x1080-failed-reload-recovered.png": "00fa71973c0089fa688ebf141078e9ff48f608a318d128f1099594749688951a",
+    "lost-level14-1920x1080-delayed.png": "586909dea7d39cc1402b1a0db19452593d0ec6e66d31d77cc0418edbdd406870",
+    "lost-level14-1920x1080-delay-recovered.png": "00fa71973c0089fa688ebf141078e9ff48f608a318d128f1099594749688951a"
+  },
+  "limits": [
+    "Observation only: use compare.mjs for matched fallback-centering acceptance.",
+    "Real OriginalResultScreen, globals.css and hudScale; neutral battlefield and inert callbacks.",
+    "No Home lifecycle, natural game outcome, native execution or hardware performance claim.",
+    "Delay recovery uses the same component mount; failed decode recovery reloads a fresh mount.",
+    "DOM advance-box offsets require inspection of retained screenshots before calling a visual defect."
+  ],
+  "inputsBeforeSha256": "be2953520869e633c287e41fd26aa6f4d0ca6ece48131a9e6d7a25e0e6249be6",
+  "serverAddress": {
+    "address": "127.0.0.1",
+    "family": "IPv4",
+    "port": 4362
+  },
+  "browserVersion": "153.0.8010.12",
+  "renderer": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M5, Unspecified Version)",
+    "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)"
+  },
+  "browserClosed": true,
+  "serverClosed": true,
+  "inputsAfterSha256": "be2953520869e633c287e41fd26aa6f4d0ca6ece48131a9e6d7a25e0e6249be6",
+  "inputsUnchanged": true,
+  "endedAt": "2026-10-16T16:38:15.501Z"
+}

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "8efe7ca3-000f-40dd-ace9-8adec3c4e941",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "efef96b45bc62907a3eaa3d62c14001e6cff1afa",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "typecheck"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe",
+  "startedAt": "2026-10-16T16:37:41.271Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/typecheck-final.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/typecheck-final.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:37:45.240Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 typecheck\n> tsc --noEmit\n\n",
+  "stderr": "",
+  "stdoutSha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "efef96b45bc62907a3eaa3d62c14001e6cff1afa",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

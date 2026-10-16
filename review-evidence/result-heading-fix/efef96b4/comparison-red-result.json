@@ -1,0 +1,18 @@
+{
+  "status": "failed",
+  "beforeReceiptSha256": "8c40c782008e63bd7f6cd745283625447da2c46e98b6c14aa8a387a8a7c7f210",
+  "afterReceiptSha256": "8c40c782008e63bd7f6cd745283625447da2c46e98b6c14aa8a387a8a7c7f210",
+  "comparatorSha256": "b02a8d7b4df6c12224a43345cbaaff8d9ebeaab8288daf15fad751bd3106baab",
+  "observations": [
+    {
+      "case": "won/1/640x480/ready",
+      "beforePngSha256": "c5008b71f0a5d99bd37a3c5c471cc8d0192304e1ee668246384f0f2fa3585cf2",
+      "afterPngSha256": "c5008b71f0a5d99bd37a3c5c471cc8d0192304e1ee668246384f0f2fa3585cf2",
+      "readyPngIdentical": true
+    }
+  ],
+  "beforeHead": "213b93426002877f37552ee1faa1c885351734b3",
+  "afterHead": "213b93426002877f37552ee1faa1c885351734b3",
+  "error": "AssertionError [ERR_ASSERTION]: Fallback heading must be centered\n    at file:///Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/scripts/result-heading-probe/compare.mjs:69:16\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)",
+  "finishedAt": "2026-10-16T16:37:18.860Z"
+}

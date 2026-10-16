@@ -1,0 +1,73 @@
+
+> populous-first-dawn@0.1.0 test:focus
+> node scripts/orchestration/test-runner.mjs focus tests/original-result-screen.test.mjs
+
+TAP version 13
+# Subtest: result time is a pure live-clock formatter with hours and no wrapping or mutation
+ok 1 - result time is a pure live-clock formatter with hours and no wrapping or mutation
+  ---
+  duration_ms: 0.274666
+  type: 'test'
+  ...
+# Subtest: result composition fits the battlefield and reserves room for browser controls
+ok 2 - result composition fits the battlefield and reserves room for browser controls
+  ---
+  duration_ms: 0.074083
+  type: 'test'
+  ...
+# Subtest: actual result component renders source headings and ten explicitly unavailable counters
+ok 3 - actual result component renders source headings and ten explicitly unavailable counters
+  ---
+  duration_ms: 3.801334
+  type: 'test'
+  ...
+# Subtest: loss and terminal/tutorial actions retain the explicit parent-decided consequence
+ok 4 - loss and terminal/tutorial actions retain the explicit parent-decided consequence
+  ---
+  duration_ms: 3.283667
+  type: 'test'
+  ...
+# Subtest: pending-font headings center their actual text while statistic columns keep their anchors
+not ok 5 - pending-font headings center their actual text while statistic columns keep their anchors
+  ---
+  duration_ms: 1.712625
+  type: 'test'
+  location: '/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/tests/original-result-screen.test.mjs:72:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'left:92px;top:13px'
+    - 'left:192px;top:13px;transform:translateX(-50%)'
+            ^
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'left:192px;top:13px;transform:translateX(-50%)'
+  actual: 'left:92px;top:13px'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/tests/original-result-screen.test.mjs:80:14)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1325:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+    Test.postRun (node:internal/test_runner/test:1465:19)
+    Test.run (node:internal/test_runner/test:1390:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:911:7)
+  ...
+# Subtest: source panel metadata retains independently checked native geometry and glyph bounds
+ok 6 - source panel metadata retains independently checked native geometry and glyph bounds
+  ---
+  duration_ms: 0.092458
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 5
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 206.096875

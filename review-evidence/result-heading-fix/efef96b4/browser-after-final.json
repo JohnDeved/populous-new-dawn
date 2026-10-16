@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ae7169bd-f600-4039-8f0f-dd9612e6fbc0",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "efef96b45bc62907a3eaa3d62c14001e6cff1afa",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "scripts/result-heading-probe/run.mjs",
+    "work/result-heading-after-final"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe",
+  "startedAt": "2026-10-16T16:38:06.447Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/browser-after-final.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/browser-after-final.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:38:15.514Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"completed-after-observation\",\"observations\":40,\"output\":\"work/result-heading-after-final\",\"errors\":[]}\n",
+  "stderr": "",
+  "stdoutSha256": "6c800def35ae34334932ff8849850e8c0ce1b97b935329cf39bb7b27818b6b09",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "efef96b45bc62907a3eaa3d62c14001e6cff1afa",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

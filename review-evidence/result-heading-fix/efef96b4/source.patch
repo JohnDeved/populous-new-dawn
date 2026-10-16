@@ -1,0 +1,562 @@
+diff --git a/app/original-result-screen.tsx b/app/original-result-screen.tsx
+index 8000fbe3..4e6bd1f4 100644
+--- a/app/original-result-screen.tsx
++++ b/app/original-result-screen.tsx
+@@ -9,9 +9,11 @@ const textWidth = (text: string) =>
+     return width + (glyph?.advance ?? 8)
+   }, 0)
+ 
++const bitmapAvailable = (text: string, ready: boolean) =>
++  ready && [...text].every(character => art.font.rects[character.charCodeAt(0) - 32])
++
+ function ResultText({ text, ready }: { text: string; ready: boolean }) {
+-  if (!ready || [...text].some(character => !art.font.rects[character.charCodeAt(0) - 32]))
+-    return <span className={styles.fallback}>{text}</span>
++  if (!bitmapAvailable(text, ready)) return <span className={styles.fallback}>{text}</span>
+   return (
+     <span className={styles.text} aria-hidden="true">
+       {[...text].map((character, index) => {
+@@ -104,10 +106,24 @@ export function OriginalResultScreen({
+     )
+   }
+   function centered(text: string, y: number) {
+-    return line(
+-      text,
+-      layout.contentInset[0] + Math.floor((layout.contentWidth - textWidth(text)) / 2),
+-      y
++    const bitmap = bitmapAvailable(text, fontReady)
++    return (
++      <span
++        className={styles.line}
++        style={{
++          left:
++            layout.contentInset[0] +
++            (bitmap
++              ? Math.floor((layout.contentWidth - textWidth(text)) / 2)
++              : layout.contentWidth / 2),
++          top: y,
++          transform: bitmap ? undefined : 'translateX(-50%)',
++        }}
++        role="img"
++        aria-label={text}
++      >
++        <ResultText text={text} ready={fontReady} />
++      </span>
+     )
+   }
+   function primary() {
+diff --git a/decomp/research/original-result-ui.md b/decomp/research/original-result-ui.md
+index d47d852a..a03ebdd9 100644
+--- a/decomp/research/original-result-ui.md
++++ b/decomp/research/original-result-ui.md
+@@ -55,6 +55,12 @@ Deliberate adaptations and remaining limits:
+   unmodulated pal0-c source RGB. Native inherited panel tint, live mission palette,
+   GPU blending/filtering/quantization and hardware-frame pixel equality are unproved.
+ - Text and a simple panel fallback stay usable if the imported images fail.
++- Fallback headings use their rendered text width for centering. The retained
++  [40-case before probe](https://github.com/JohnDeved/populous-new-dawn/tree/16ee3983c4d9fa501a1a8bb99dc41377008b8fbc/review-evidence/result-heading-before/213b9342)
++  showed Arial headings displaced left by bitmap-based coordinates when font
++  decode failed or was pending. This is a browser compatibility correction;
++  ready bitmap geometry and original artwork remain unchanged. The matched
++  component probe/comparator is in `scripts/result-heading-probe/`.
+ - Static fixtures establish presentation only. They do not certify native runtime,
+   naturally earned outcomes, full-game lifecycle or hardware performance.
+ 
+diff --git a/scripts/result-heading-probe/README.md b/scripts/result-heading-probe/README.md
+new file mode 100644
+index 00000000..3e582010
+--- /dev/null
++++ b/scripts/result-heading-probe/README.md
+@@ -0,0 +1,80 @@
++# Result heading probe
++
++This probe observes the real `OriginalResultScreen` with production `globals.css`
++and `hudScale`, following the isolated fixture convention in
++`scripts/result-ui-fixture`. Running it changes no application code or imported assets.
++The neutral battlefield and inert callbacks do not establish Home lifecycle,
++campaign progression, natural outcomes, or original executable behavior.
++
++The [retained before run](https://github.com/JohnDeved/populous-new-dawn/tree/16ee3983c4d9fa501a1a8bb99dc41377008b8fbc/review-evidence/result-heading-before/213b9342)
++confirmed visible leftward drift when bitmap-derived coordinates positioned Arial.
++The observer captures evidence without asserting fallback centering. The separate
++`compare.mjs` checks the matched after run, including unchanged ready screenshots.
++
++## Matrix and measurements
++
++The eight scenarios are won/lost × Mission 1/the widest retained mission title
++(currently Mission 14, `14 : Attacked From All Sides`) × 640×480/1920×1080 at DPR1.
++Each captures five states, for 40 unmodified full-page screenshots:
++
++1. Ready font.
++2. Failed decode, using a successful HTTP response containing invalid PNG bytes.
++3. Valid font after a fresh page load, because this component does not retry a
++   rejected decode on its own.
++4. Pending font, with the actual image request held by the browser route.
++5. Recovery after releasing that same request, without remounting the component.
++
++Every observation records all three heading advance boxes, their signed offsets
++from the retained content midpoint, panel/viewport/scale, and bitmap glyph count.
++Ready states assert native left/top/width with a 0.02 local-pixel DOM rounding
++tolerance, and recovered heading geometry must exactly equal the initial ready
++measurement. Native floor rounding remains part of the reference. DOM boxes
++measure typographic advances, not painted ink; inspect the corresponding PNGs
++before accepting a visible discrepancy. Original layout context remains in
++`decomp/research/original-result-ui.md` and `app/original-result-ui.json`.
++
++## Execution
++
++Do not execute while another worker owns the browser lane. Coordinate the lane
++with the parent; do not overlap browser or build workloads.
++
++From the checkout, set `POPULOUS_BROWSER` to the existing official Chrome/Headless
++Shell executable and run after the lane is granted. Set
++`POPULOUS_RESULT_PHASE=after` for an after capture (default: before):
++
++```sh
++node scripts/orchestration/command-receipt.mjs \
++  --output work/orchestration/result-heading-before/browser-01.json -- \
++  node scripts/result-heading-probe/run.mjs work/result-heading-before-01
++```
++
++The loopback port defaults to 4362; `POPULOUS_RESULT_PORT` can select another free
++unprivileged port. The script requires a fresh output path and starts its own small
++Vite component server with caches under that output. It does not build the game,
++alter browser sandbox settings, or install anything. It owns and closes its
++contexts, browser and server, and evaluates terminal errors after cleanup.
++
++`receipt.json` binds raw PNGs by SHA-256 and records execution identity, browser
++version/binary hash, renderer, geometry, injected failures, errors, and cleanup.
++`inputs-before.json`/`inputs-after.json` include source HEAD/diff, all relevant
++component/fixture/assets/configuration hashes and the actual bytes of installed
++dependency files (including file-symlink targets). Unsupported directory symlinks
++fail closed. Any input drift, launch/capture/cleanup error or 180-second browser
++deadline makes the run fail. `completed-before-observation` or
++`completed-after-observation` means the matrix finished; neither asserts
++fallback-centering acceptance.
++
++Compare against the immutable before bundle, keeping both directories intact:
++
++```sh
++node scripts/result-heading-probe/compare.mjs BEFORE_DIRECTORY AFTER_DIRECTORY COMPARISON.json
++```
++
++The comparator verifies receipt/input/screenshot hashes and the exact 40-case
++inventory. All ready PNGs and heading geometry must match before exactly; every
++fallback heading must lie within 0.02 screen pixels of the content center and fit
++the panel. Pixels above/below the heading band (including statistic rows and
++controls) must match before exactly. Same-mount delay recovery and reload recovery
++must reproduce ready PNG bytes in every scenario. It preserves failed comparisons
++and refuses an existing output path. These are isolated-component, DPR1 results,
++not a natural Home outcome or general pixel-parity certification.
+diff --git a/scripts/result-heading-probe/compare.mjs b/scripts/result-heading-probe/compare.mjs
+new file mode 100644
+index 00000000..006a9cae
+--- /dev/null
++++ b/scripts/result-heading-probe/compare.mjs
+@@ -0,0 +1,107 @@
++import assert from 'node:assert/strict'
++import { createHash } from 'node:crypto'
++import { readFileSync, writeFileSync } from 'node:fs'
++import { resolve } from 'node:path'
++import sharp from 'sharp'
++
++const [beforeDirectory, afterDirectory, outputFile] = process.argv.slice(2)
++assert.ok(beforeDirectory && afterDirectory && outputFile, 'Usage: compare.mjs BEFORE AFTER OUTPUT.json')
++const hash = path => createHash('sha256').update(readFileSync(path)).digest('hex')
++const read = path => JSON.parse(readFileSync(path, 'utf8'))
++const before = read(resolve(beforeDirectory, 'receipt.json'))
++const after = read(resolve(afterDirectory, 'receipt.json'))
++const result = {
++  status: 'running', beforeReceiptSha256: hash(resolve(beforeDirectory, 'receipt.json')),
++  afterReceiptSha256: hash(resolve(afterDirectory, 'receipt.json')),
++  comparatorSha256: hash(import.meta.filename), observations: [],
++}
++// Never overwrite a prior acceptance result, including a failed comparison.
++writeFileSync(outputFile, JSON.stringify(result, null, 2) + '\n', { flag: 'wx' })
++try {
++  for (const [directory, report] of [[beforeDirectory, before], [afterDirectory, after]]) {
++    assert.match(report.status, /^completed-(before|after)-observation$/)
++    assert.equal(report.inputsUnchanged, true)
++    assert.equal(report.browserClosed, true)
++    assert.equal(report.serverClosed, true)
++    assert.deepEqual(report.errors, [])
++    assert.equal(hash(resolve(directory, 'inputs-before.json')), report.inputsBeforeSha256)
++    assert.equal(hash(resolve(directory, 'inputs-after.json')), report.inputsAfterSha256)
++    assert.equal(report.inputsBeforeSha256, report.inputsAfterSha256)
++  }
++  result.beforeHead = read(resolve(beforeDirectory, 'inputs-before.json')).head
++  result.afterHead = read(resolve(afterDirectory, 'inputs-before.json')).head
++  assert.deepEqual(after.cases, before.cases)
++  assert.equal(after.browserVersion, before.browserVersion)
++  assert.deepEqual(after.renderer, before.renderer)
++  const key = o => `${o.status}/${o.level}/${o.viewport.width}x${o.viewport.height}/${o.stage}`
++  const expected = []
++  for (const status of ['won', 'lost']) for (const level of [1, 14]) {
++    for (const size of ['640x480', '1920x1080']) {
++      for (const stage of ['ready', 'failed', 'failed-reload-recovered', 'delayed', 'delay-recovered']) {
++        expected.push(`${status}/${level}/${size}/${stage}`)
++      }
++    }
++  }
++  for (const report of [before, after]) assert.deepEqual(report.observations.map(key).sort(), expected.toSorted())
++  const baseline = new Map(before.observations.map(o => [key(o), o]))
++  let maximumFallbackOffset = 0
++  for (const observation of after.observations) {
++    const original = baseline.get(key(observation))
++    assert.deepEqual(observation.viewport, original.viewport)
++    assert.equal(observation.viewport.dpr, 1)
++    assert.deepEqual(observation.panel, original.panel)
++    assert.deepEqual(observation.screen, original.screen)
++    assert.equal(observation.scale, original.scale)
++    assert.equal(observation.fontReady, original.fontReady)
++    assert.deepEqual(observation.headings.map(h => h.label), original.headings.map(h => h.label))
++    const beforePath = resolve(beforeDirectory, original.screenshot)
++    const afterPath = resolve(afterDirectory, observation.screenshot)
++    const beforeHash = hash(beforePath), afterHash = hash(afterPath)
++    assert.equal(beforeHash, before.screenshots[original.screenshot])
++    assert.equal(afterHash, after.screenshots[observation.screenshot])
++    const paired = { case: key(observation), beforePngSha256: beforeHash, afterPngSha256: afterHash }
++    if (observation.fontReady === 'true') {
++      assert.equal(afterHash, beforeHash, 'Ready image must remain byte-identical')
++      assert.deepEqual(observation.headings, original.headings, 'Ready geometry must remain exact')
++      paired.readyPngIdentical = true
++    } else {
++      for (const [i, heading] of observation.headings.entries()) {
++        assert.ok(Math.abs(heading.offsetPx) < 0.02, 'Fallback heading must be centered')
++        assert.ok(Math.abs(heading.content.y - original.headings[i].content.y) < 0.02)
++        assert.ok(Math.abs(heading.content.width - original.headings[i].content.width) < 0.02)
++        assert.ok(heading.content.x >= observation.panel.x)
++        assert.ok(heading.content.x + heading.content.width <= observation.panel.x + observation.panel.width)
++        assert.equal(heading.glyphs, 0)
++        maximumFallbackOffset = Math.max(maximumFallbackOffset, Math.abs(heading.offsetPx))
++      }
++      const a = await sharp(beforePath).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
++      const b = await sharp(afterPath).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
++      assert.deepEqual(a.info, b.info)
++      // Only heading bands may change. Compare all row/control/background pixels exactly.
++      const top = Math.floor(Math.min(...original.headings.map(h => h.content.y))) - 2
++      const bottom = Math.ceil(Math.max(...original.headings.map(h => h.content.y + h.content.height))) + 2
++      const rowBytes = a.info.width * a.info.channels
++      assert.deepEqual(b.data.subarray(0, top * rowBytes), a.data.subarray(0, top * rowBytes))
++      assert.deepEqual(b.data.subarray(bottom * rowBytes), a.data.subarray(bottom * rowBytes))
++      paired.pixelsOutsideHeadingBandIdentical = true
++      paired.headingBand = { top, bottom }
++      paired.offsets = observation.headings.map((h, i) => ({ label: h.label, before: original.headings[i].offsetPx, after: h.offsetPx }))
++    }
++    result.observations.push(paired)
++  }
++  for (const scenario of after.cases) {
++    const group = after.observations.filter(o => o.status === scenario.status && o.level === scenario.level && o.viewport.width === scenario.viewport.width)
++    const image = stage => after.screenshots[group.find(o => o.stage === stage).screenshot]
++    assert.equal(image('failed'), image('delayed'))
++    assert.equal(image('ready'), image('delay-recovered'))
++    assert.equal(image('ready'), image('failed-reload-recovered'))
++  }
++  result.maximumFallbackOffsetPx = maximumFallbackOffset
++  result.status = 'passed'
++} catch (error) {
++  result.status = 'failed'; result.error = error.stack ?? String(error); process.exitCode = 1
++} finally {
++  result.finishedAt = new Date().toISOString()
++  writeFileSync(outputFile, JSON.stringify(result, null, 2) + '\n')
++  console.log(JSON.stringify({ status: result.status, observations: result.observations.length, maximumFallbackOffsetPx: result.maximumFallbackOffsetPx, outputFile }))
++}
+diff --git a/scripts/result-heading-probe/fixture/index.html b/scripts/result-heading-probe/fixture/index.html
+new file mode 100644
+index 00000000..43688dcd
+--- /dev/null
++++ b/scripts/result-heading-probe/fixture/index.html
+@@ -0,0 +1,2 @@
++<!doctype html>
++<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Result heading before probe</title></head><body><div id="root"></div><script type="module" src="/main.tsx"></script></body></html>
+diff --git a/scripts/result-heading-probe/fixture/main.tsx b/scripts/result-heading-probe/fixture/main.tsx
+new file mode 100644
+index 00000000..6e31bff9
+--- /dev/null
++++ b/scripts/result-heading-probe/fixture/main.tsx
+@@ -0,0 +1,31 @@
++import { createRoot } from 'react-dom/client'
++import { useLayoutEffect, useRef } from 'react'
++import { OriginalResultScreen } from '../../../app/original-result-screen'
++import { hudScale } from '../../../app/hud-layout'
++import '../../../app/globals.css'
++
++const params = new URLSearchParams(location.search)
++const status = params.get('status') === 'lost' ? 'lost' : 'won'
++const level = Number(params.get('level') ?? 1)
++
++function Fixture() {
++  const shell = useRef<HTMLElement>(null)
++  useLayoutEffect(() => {
++    const resize = () => shell.current?.style.setProperty(
++      '--hud-scale', String(hudScale(innerWidth, innerHeight, 'auto'))
++    )
++    resize()
++    addEventListener('resize', resize)
++    return () => removeEventListener('resize', resize)
++  }, [])
++  return (
++    <main ref={shell} className="game-shell">
++      <div className="world-viewport" />
++      <OriginalResultScreen status={status} level={level} player={1} time={125}
++        primaryLabel={status === 'won' ? `Continue to Mission ${level + 1}` : 'Restart Level'}
++        onPrimary={() => {}} onSelectLevel={() => {}} />
++    </main>
++  )
++}
++
++createRoot(document.getElementById('root')!).render(<Fixture />)
+diff --git a/scripts/result-heading-probe/run.mjs b/scripts/result-heading-probe/run.mjs
+new file mode 100644
+index 00000000..81f8192d
+--- /dev/null
++++ b/scripts/result-heading-probe/run.mjs
+@@ -0,0 +1,220 @@
++import assert from 'node:assert/strict'
++import { createHash } from 'node:crypto'
++import { execFileSync } from 'node:child_process'
++import { existsSync, mkdirSync, readFileSync, readdirSync, readlinkSync, writeFileSync } from 'node:fs'
++import { resolve, relative } from 'node:path'
++import { platform, arch, release } from 'node:os'
++import { createServer } from 'vite'
++import react from '@vitejs/plugin-react'
++import tailwindcss from '@tailwindcss/postcss'
++import { chromium } from '@playwright/test'
++
++const root = resolve(import.meta.dirname, '../..')
++const fixture = resolve(import.meta.dirname, 'fixture')
++const output = resolve(process.argv[2] ?? 'work/result-heading-before')
++const browserPath = process.env.POPULOUS_BROWSER
++const port = Number(process.env.POPULOUS_RESULT_PORT ?? 4362)
++const phase = process.env.POPULOUS_RESULT_PHASE ?? 'before'
++assert.ok(['before', 'after'].includes(phase), 'Phase must be before or after')
++assert.ok(browserPath && existsSync(browserPath), 'Set POPULOUS_BROWSER to the installed Chrome executable')
++assert.ok(Number.isInteger(port) && port >= 1024 && port <= 65535)
++assert.equal(existsSync(output), false, 'Use a fresh output directory')
++mkdirSync(output, { recursive: true })
++
++const sha = bytes => createHash('sha256').update(bytes).digest('hex')
++const hash = file => sha(readFileSync(file))
++const git = (...args) => execFileSync('git', args, { cwd: root, maxBuffer: 32 * 1024 * 1024 }).toString().trim()
++const inputs = [
++  'app/original-result-screen.tsx', 'app/original-result-screen.module.css',
++  'app/original-result-layout.ts', 'app/original-result-ui.json', 'app/hud-layout.ts',
++  'app/globals.css', 'app/page.tsx', 'public/original/result-panel.png',
++  'public/original/result-font.png', 'package.json', 'package-lock.json', 'tsconfig.json',
++  'scripts/result-heading-probe/run.mjs', 'scripts/result-heading-probe/fixture/main.tsx',
++  'scripts/result-heading-probe/fixture/index.html',
++]
++function treeHashes(directory, prefix = '') {
++  const result = {}
++  for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
++    const file = resolve(directory, entry.name), key = prefix + entry.name
++    if (entry.isDirectory()) Object.assign(result, treeHashes(file, key + '/'))
++    else if (entry.isSymbolicLink()) result[key] = { link: readlinkSync(file), targetSha256: hash(file) }
++    else if (entry.isFile()) result[key] = hash(file)
++  }
++  return result
++}
++const snapshot = () => ({
++  head: git('rev-parse', 'HEAD'), diffSha256: sha(git('diff', 'HEAD', '--binary')),
++  files: Object.fromEntries(inputs.map(file => [file, hash(resolve(root, file))])),
++  dependencies: treeHashes(resolve(root, 'node_modules')),
++})
++const art = JSON.parse(readFileSync(resolve(root, 'app/original-result-ui.json')))
++const width = text => [...text].reduce((sum, c) => sum + (art.font.rects[c.charCodeAt(0) - 32]?.advance ?? 8), 0)
++const longest = Object.entries(art.titles).sort((a, b) => width(b[1]) - width(a[1]))[0]
++const cases = []
++for (const viewport of [{ width: 640, height: 480 }, { width: 1920, height: 1080 }]) {
++  for (const status of ['won', 'lost']) for (const level of [1, Number(longest[0])]) {
++    cases.push({ viewport, status, level })
++  }
++}
++const receipt = {
++  status: 'running', phase, command: process.argv, startedAt: new Date().toISOString(),
++  node: { version: process.version, binary: process.execPath, sha256: hash(process.execPath) },
++  host: { platform: platform(), arch: arch(), release: release() },
++  browserPath, browserSha256: hash(browserPath), cases, longestRetainedTitle: longest,
++  observations: [], errors: [], expectedFontFailures: [], screenshots: {},
++  limits: [
++    'Observation only: use compare.mjs for matched fallback-centering acceptance.',
++    'Real OriginalResultScreen, globals.css and hudScale; neutral battlefield and inert callbacks.',
++    'No Home lifecycle, natural game outcome, native execution or hardware performance claim.',
++    'Delay recovery uses the same component mount; failed decode recovery reloads a fresh mount.',
++    'DOM advance-box offsets require inspection of retained screenshots before calling a visual defect.',
++  ],
++}
++const save = () => writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
++const fontBytes = readFileSync(resolve(root, 'public/original/result-font.png'))
++let before, browser, server, timer, timeoutClose
++save()
++
++async function capture(page, scenario, stage, fontReady) {
++  await page.waitForFunction(ready => document.querySelector('[data-original-result]')?.dataset.fontReady === String(ready), fontReady)
++  await page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))))
++  const details = await page.locator('[data-original-result]').evaluate((screen, layout) => {
++    const box = node => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height } }
++    const panel = screen.querySelector('section'), panelBox = box(panel)
++    const scale = panelBox.width / layout.panelWidth
++    const center = panelBox.x + (layout.contentInset[0] + layout.contentWidth / 2) * scale
++    const headings = Array.from(panel.children).filter(node => node.getAttribute('role') === 'img').slice(0, 3).map(node => {
++      const child = node.firstElementChild, b = box(child), line = box(node)
++      return { label: node.getAttribute('aria-label'), line, content: b,
++        localLeft: (line.x - panelBox.x) / scale, localTop: (line.y - panelBox.y) / scale,
++        localWidth: b.width / scale, offsetPx: b.x + b.width / 2 - center,
++        offsetLocal: (b.x + b.width / 2 - center) / scale,
++        font: getComputedStyle(child).font, glyphs: child.querySelectorAll('i').length }
++    })
++    return { viewport: { width: innerWidth, height: innerHeight, dpr: devicePixelRatio },
++      panel: panelBox, screen: box(screen), scale, targetCenterPx: center,
++      hudScale: getComputedStyle(screen).getPropertyValue('--hud-scale'), headings,
++      fontReady: screen.dataset.fontReady, panelFailed: screen.dataset.panelFailed,
++      panelDecoded: Boolean(panel.querySelector('img')?.naturalWidth) }
++  }, art.layout640)
++  assert.deepEqual(details.viewport, { ...scenario.viewport, dpr: 1 })
++  assert.equal(details.panelFailed, 'false')
++  assert.equal(details.panelDecoded, true)
++  const texts = [art.titles[String(scenario.level)], `${art.labels.player} 1.`,
++    `${art.labels.status}: ${scenario.status === 'won' ? art.labels.completed : art.labels.failed}`]
++  assert.deepEqual(details.headings.map(h => h.label), texts)
++  const ys = [art.layout640.headingY, art.layout640.playerY, art.layout640.statusY]
++  for (const [i, heading] of details.headings.entries()) {
++    heading.nativeExpected = { left: art.layout640.contentInset[0] + Math.floor((art.layout640.contentWidth - width(texts[i])) / 2), top: ys[i], width: width(texts[i]) }
++    if (fontReady) {
++      assert.ok(Math.abs(heading.localLeft - heading.nativeExpected.left) < 0.02, 'Ready native left changed')
++      assert.ok(Math.abs(heading.localTop - ys[i]) < 0.02, 'Ready native top changed')
++      assert.ok(Math.abs(heading.localWidth - width(texts[i])) < 0.02, 'Ready native width changed')
++      assert.equal(heading.glyphs, texts[i].length)
++    } else assert.equal(heading.glyphs, 0, 'Fallback must actually render')
++  }
++  const name = `${scenario.status}-level${scenario.level}-${scenario.viewport.width}x${scenario.viewport.height}-${stage}.png`
++  await page.screenshot({ path: resolve(output, name), animations: 'disabled' })
++  receipt.screenshots[name] = hash(resolve(output, name))
++  receipt.observations.push({ ...scenario, stage, screenshot: name, ...details })
++  save()
++  return details
++}
++
++try {
++  before = snapshot()
++  writeFileSync(resolve(output, 'inputs-before.json'), JSON.stringify(before, null, 2) + '\n')
++  receipt.inputsBeforeSha256 = hash(resolve(output, 'inputs-before.json')); save()
++  server = await createServer({
++    configFile: false, root: fixture, publicDir: resolve(root, 'public'),
++    cacheDir: resolve(output, 'vite-cache'), plugins: [react()],
++    css: { postcss: { plugins: [tailwindcss({ base: fixture })] } },
++    server: { host: '127.0.0.1', port, strictPort: true, fs: { allow: [root] } }, logLevel: 'warn',
++  })
++  await server.listen()
++  receipt.serverAddress = server.httpServer.address(); save()
++  browser = await chromium.launch({ executablePath: browserPath, headless: true, chromiumSandbox: true, timeout: 30000 })
++  receipt.browserVersion = browser.version()
++  timer = setTimeout(() => {
++    receipt.timedOut = true
++    timeoutClose = browser.close().catch(error => receipt.errors.push(`Timeout cleanup: ${error}`))
++  }, 180000)
++  for (const scenario of cases) {
++    const context = await browser.newContext({ viewport: scenario.viewport, deviceScaleFactor: 1 })
++    let releaseFont
++    try {
++      const page = await context.newPage()
++      page.setDefaultTimeout(15000)
++      page.on('pageerror', error => receipt.errors.push(String(error)))
++      page.on('crash', () => receipt.errors.push('Page crashed'))
++      page.on('console', message => { if (message.type() === 'error') receipt.errors.push(message.text()) })
++      page.on('requestfailed', request => receipt.errors.push(`${request.url()}: ${request.failure()?.errorText}`))
++      let mode = 'ready', notifyDelayed
++      const delayedRequest = new Promise(done => { notifyDelayed = done })
++      const gate = new Promise(done => { releaseFont = done })
++      await page.route('**/original/result-font.png', async route => {
++        if (mode === 'delayed') { notifyDelayed(); await gate }
++        if (mode === 'failed') {
++          receipt.expectedFontFailures.push({ scenario, url: route.request().url(), response: '200 invalid PNG bytes' })
++          await route.fulfill({ status: 200, contentType: 'image/png', body: 'deliberately invalid PNG' })
++        } else await route.fulfill({ status: 200, contentType: 'image/png', body: fontBytes })
++      })
++      const url = `http://127.0.0.1:${port}/?status=${scenario.status}&level=${scenario.level}`
++      const open = async () => {
++        await page.goto(url, { waitUntil: 'domcontentloaded' })
++        await page.locator('[data-original-result] section img').evaluate(img => img.decode())
++      }
++      await open()
++      if (!receipt.renderer) receipt.renderer = await page.evaluate(() => {
++        const gl = document.createElement('canvas').getContext('webgl2')
++        if (!gl) return { available: false }
++        const debug = gl.getExtension('WEBGL_debug_renderer_info')
++        return { renderer: gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER), version: gl.getParameter(gl.VERSION) }
++      })
++      const ready = await capture(page, scenario, 'ready', true)
++      mode = 'failed'
++      await open()
++      // A separate decode confirms the intercepted response is invalid, without replacing Image or component state.
++      assert.equal(await page.evaluate(async () => { const img = new Image(); img.src = '/original/result-font.png'; try { await img.decode(); return true } catch { return false } }), false)
++      await capture(page, scenario, 'failed', false)
++      mode = 'ready'
++      await open()
++      const failedRecovery = await capture(page, scenario, 'failed-reload-recovered', true)
++      assert.deepEqual(failedRecovery.headings, ready.headings, 'Ready geometry changed after failed reload')
++      mode = 'delayed'
++      await open()
++      await Promise.race([delayedRequest, new Promise((_, reject) => {
++        const timeout = setTimeout(() => reject(Error('Delayed font request was not intercepted')), 15000)
++        delayedRequest.then(() => clearTimeout(timeout))
++      })])
++      await capture(page, scenario, 'delayed', false)
++      releaseFont()
++      const recovery = await capture(page, scenario, 'delay-recovered', true)
++      assert.deepEqual(recovery.headings, ready.headings, 'Ready geometry changed after delayed decode')
++    } finally {
++      releaseFont?.()
++      await context.close()
++    }
++  }
++  assert.equal(receipt.observations.length, 40)
++  receipt.status = `completed-${phase}-observation`
++} catch (error) {
++  receipt.status = 'failed'; receipt.failure = String(error); receipt.stack = error.stack; process.exitCode = 1
++} finally {
++  clearTimeout(timer)
++  await timeoutClose
++  for (const [name, close] of [['browser', () => browser?.close()], ['server', () => server?.close()]]) {
++    try { await close(); receipt[`${name}Closed`] = true }
++    catch (error) { receipt.errors.push(`${name} cleanup: ${error}`) }
++  }
++  try {
++    const after = snapshot()
++    writeFileSync(resolve(output, 'inputs-after.json'), JSON.stringify(after, null, 2) + '\n')
++    receipt.inputsAfterSha256 = hash(resolve(output, 'inputs-after.json'))
++    assert.deepEqual(after, before, 'Source or dependencies changed during observation')
++    receipt.inputsUnchanged = true
++  } catch (error) { receipt.errors.push(String(error)) }
++  if (receipt.errors.length || receipt.timedOut) { receipt.status = 'failed'; process.exitCode = 1 }
++  receipt.endedAt = new Date().toISOString(); save()
++  console.log(JSON.stringify({ status: receipt.status, observations: receipt.observations.length, output: relative(root, output), errors: receipt.errors }))
++}
+diff --git a/tests/original-result-screen.test.mjs b/tests/original-result-screen.test.mjs
+index 996f425f..95ccb3cd 100644
+--- a/tests/original-result-screen.test.mjs
++++ b/tests/original-result-screen.test.mjs
+@@ -69,6 +69,23 @@ test('loss and terminal/tutorial actions retain the explicit parent-decided cons
+   assert.ok(tutorial.includes('Tutorial') && !tutorial.includes('79 :'))
+ })
+ 
++test('pending-font headings center their actual text while statistic columns keep their anchors', () => {
++  for (const status of ['won', 'lost']) for (const level of [1, 14]) {
++    const html = render({ status, level })
++    const lines = [...html.matchAll(/<span class="line" style="([^"]+)" role="img" aria-label="([^"]+)">/g)]
++    const headings = lines.slice(0, 3)
++    assert.deepEqual(headings.map(line => line[2]), [native.titles[level], 'Player 1.',
++      status === 'won' ? 'Level Status: Completed' : 'Level Status: Failed'])
++    for (const [i, line] of headings.entries()) {
++      assert.equal(line[1], `left:192px;top:${[13, 31, 49][i]}px;transform:translateX(-50%)`)
++    }
++    assert.ok(html.includes('data-font-ready="false"'))
++    assert.equal(lines[3][2], 'Time Taken')
++    assert.equal(lines[3][1], 'left:17px;top:76px')
++    assert.ok(lines.slice(3).every(line => !line[1].includes('transform')))
++  }
++})
++
+ test('source panel metadata retains independently checked native geometry and glyph bounds', () => {
+   assert.equal(native.layout640.panelWidth,384)
+   assert.equal(native.layout640.panelHeight,368)

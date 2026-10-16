@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "63accc19-752a-4ed9-8349-9a1a46b41fd7",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "34bccadc618307da33518f2f74fe7007011b0c05",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "d4b8ad4921b3d88d1e44d89f74d00665446f1a98916839bacbf19549fb057450",
+    "inputs": {
+      "tests/original-result-screen.test.mjs": "3e701cb0a362ee298cd547d5750df76cd25fb2dcebb74cc485b601b6f854740a"
+    }
+  },
+  "command": [
+    "npm",
+    "run",
+    "test:focus",
+    "--",
+    "tests/original-result-screen.test.mjs"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe",
+  "startedAt": "2026-10-16T16:33:53.585Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/fallback-red.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/fallback-red.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:33:53.945Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 test:focus\n> node scripts/orchestration/test-runner.mjs focus tests/original-result-screen.test.mjs\n\nTAP version 13\n# Subtest: result time is a pure live-clock formatter with hours and no wrapping or mutation\nok 1 - result time is a pure live-clock formatter with hours and no wrapping or mutation\n  ---\n  duration_ms: 0.274666\n  type: 'test'\n  ...\n# Subtest: result composition fits the battlefield and reserves room for browser controls\nok 2 - result composition fits the battlefield and reserves room for browser controls\n  ---\n  duration_ms: 0.074083\n  type: 'test'\n  ...\n# Subtest: actual result component renders source headings and ten explicitly unavailable counters\nok 3 - actual result component renders source headings and ten explicitly unavailable counters\n  ---\n  duration_ms: 3.801334\n  type: 'test'\n  ...\n# Subtest: loss and terminal/tutorial actions retain the explicit parent-decided consequence\nok 4 - loss and terminal/tutorial actions retain the explicit parent-decided consequence\n  ---\n  duration_ms: 3.283667\n  type: 'test'\n  ...\n# Subtest: pending-font headings center their actual text while statistic columns keep their anchors\nnot ok 5 - pending-font headings center their actual text while statistic columns keep their anchors\n  ---\n  duration_ms: 1.712625\n  type: 'test'\n  location: '/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/tests/original-result-screen.test.mjs:72:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    + actual - expected\n    \n    + 'left:92px;top:13px'\n    - 'left:192px;top:13px;transform:translateX(-50%)'\n            ^\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 'left:192px;top:13px;transform:translateX(-50%)'\n  actual: 'left:92px;top:13px'\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/tests/original-result-screen.test.mjs:80:14)\n    Test.runInAsyncScope (node:async_hooks:227:14)\n    Test.run (node:internal/test_runner/test:1325:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:911:18)\n    Test.postRun (node:internal/test_runner/test:1465:19)\n    Test.run (node:internal/test_runner/test:1390:12)\n    async Test.processPendingSubtests (node:internal/test_runner/test:911:7)\n  ...\n# Subtest: source panel metadata retains independently checked native geometry and glyph bounds\nok 6 - source panel metadata retains independently checked native geometry and glyph bounds\n  ---\n  duration_ms: 0.092458\n  type: 'test'\n  ...\n1..6\n# tests 6\n# suites 0\n# pass 5\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 206.096875\n",
+  "stderr": "{\"kind\":\"pnd-test-plan\",\"mode\":\"focus\",\"fullSuite\":false,\"parallelEligibility\":\"focused-serial\",\"files\":[\"tests/original-result-screen.test.mjs\"],\"groups\":[{\"concurrency\":1,\"files\":[\"tests/original-result-screen.test.mjs\"]}]}\n{\"kind\":\"pnd-test-group\",\"command\":[\"/Users/johann/.nvm/versions/node/v24.18.0/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/original-result-screen.test.mjs\"],\"files\":[\"tests/original-result-screen.test.mjs\"],\"concurrency\":1,\"exitCode\":1,\"signal\":null,\"error\":null,\"status\":\"failed\",\"wallMs\":232.692833}\n{\"kind\":\"pnd-test-result\",\"mode\":\"focus\",\"fullSuite\":false,\"complete\":true,\"interrupted\":null,\"results\":[{\"command\":[\"/Users/johann/.nvm/versions/node/v24.18.0/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/original-result-screen.test.mjs\"],\"files\":[\"tests/original-result-screen.test.mjs\"],\"concurrency\":1,\"exitCode\":1,\"signal\":null,\"error\":null,\"status\":\"failed\",\"wallMs\":232.692833}],\"wallMs\":233.67345799999998,\"status\":\"failed\"}\n",
+  "stdoutSha256": "ba6f210909c152ff28adb53b2df55f2f04a697c3700cf3ea2815e2b3b8261eac",
+  "stderrSha256": "fc9e71ab3039754c7f4f7c0158f7723c94f90eda0ecaa0c2c4860df4676b485d",
+  "sourceAfter": {
+    "headOid": "34bccadc618307da33518f2f74fe7007011b0c05",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "d4b8ad4921b3d88d1e44d89f74d00665446f1a98916839bacbf19549fb057450",
+    "inputs": {
+      "tests/original-result-screen.test.mjs": "3e701cb0a362ee298cd547d5750df76cd25fb2dcebb74cc485b601b6f854740a"
+    }
+  }
+}

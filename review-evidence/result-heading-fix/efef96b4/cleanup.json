@@ -1,0 +1,16 @@
+{
+  "browserClosed": true,
+  "serverClosed": true,
+  "listenerCheck": {
+    "command": [
+      "lsof",
+      "-nP",
+      "-iTCP:4362",
+      "-sTCP:LISTEN"
+    ],
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "lane": "released"
+}

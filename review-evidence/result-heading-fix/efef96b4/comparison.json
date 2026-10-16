@@ -1,0 +1,588 @@
+{
+  "status": "passed",
+  "beforeReceiptSha256": "8c40c782008e63bd7f6cd745283625447da2c46e98b6c14aa8a387a8a7c7f210",
+  "afterReceiptSha256": "69222bbac73713095105c47239553dd63e870f0f645659093577ba7ee201682f",
+  "comparatorSha256": "b02a8d7b4df6c12224a43345cbaaff8d9ebeaab8288daf15fad751bd3106baab",
+  "observations": [
+    {
+      "case": "won/1/640x480/ready",
+      "beforePngSha256": "c5008b71f0a5d99bd37a3c5c471cc8d0192304e1ee668246384f0f2fa3585cf2",
+      "afterPngSha256": "c5008b71f0a5d99bd37a3c5c471cc8d0192304e1ee668246384f0f2fa3585cf2",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "won/1/640x480/failed",
+      "beforePngSha256": "8a0adee15b85a98d46884a09d5079fba6a36cc9af02c7e1f0686742d086cec1f",
+      "afterPngSha256": "aaa80ed6d62bd9e5d4439d0429c9f6528dba78f3231ed099ef03fa866bad37fd",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 73,
+        "bottom": 131
+      },
+      "offsets": [
+        {
+          "label": "01 : The Journey Begins",
+          "before": -23.272506713867188,
+          "after": -0.0000152587890625
+        },
+        {
+          "label": "Player 1.",
+          "before": -9,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Completed",
+          "before": -30.465011596679688,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "won/1/640x480/failed-reload-recovered",
+      "beforePngSha256": "c5008b71f0a5d99bd37a3c5c471cc8d0192304e1ee668246384f0f2fa3585cf2",
+      "afterPngSha256": "c5008b71f0a5d99bd37a3c5c471cc8d0192304e1ee668246384f0f2fa3585cf2",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "won/1/640x480/delayed",
+      "beforePngSha256": "8a0adee15b85a98d46884a09d5079fba6a36cc9af02c7e1f0686742d086cec1f",
+      "afterPngSha256": "aaa80ed6d62bd9e5d4439d0429c9f6528dba78f3231ed099ef03fa866bad37fd",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 73,
+        "bottom": 131
+      },
+      "offsets": [
+        {
+          "label": "01 : The Journey Begins",
+          "before": -23.272506713867188,
+          "after": -0.0000152587890625
+        },
+        {
+          "label": "Player 1.",
+          "before": -9,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Completed",
+          "before": -30.465011596679688,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "won/1/640x480/delay-recovered",
+      "beforePngSha256": "c5008b71f0a5d99bd37a3c5c471cc8d0192304e1ee668246384f0f2fa3585cf2",
+      "afterPngSha256": "c5008b71f0a5d99bd37a3c5c471cc8d0192304e1ee668246384f0f2fa3585cf2",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "won/14/640x480/ready",
+      "beforePngSha256": "0d5c46d9ff21a6e9cfba6ffe972b27810ddf611adcb2be6bb13345da342cb6c6",
+      "afterPngSha256": "0d5c46d9ff21a6e9cfba6ffe972b27810ddf611adcb2be6bb13345da342cb6c6",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "won/14/640x480/failed",
+      "beforePngSha256": "8ad7a8ce95e5f2f56ace3ebbf194378cb824e5326ac1d2a8527dcbc0843d2c8a",
+      "afterPngSha256": "b56549053b619fa450e6715ecf214325b930122da4604b037c33e915e9c50e26",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 73,
+        "bottom": 131
+      },
+      "offsets": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "before": -37.875022888183594,
+          "after": -0.0000152587890625
+        },
+        {
+          "label": "Player 1.",
+          "before": -9,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Completed",
+          "before": -30.465011596679688,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "won/14/640x480/failed-reload-recovered",
+      "beforePngSha256": "0d5c46d9ff21a6e9cfba6ffe972b27810ddf611adcb2be6bb13345da342cb6c6",
+      "afterPngSha256": "0d5c46d9ff21a6e9cfba6ffe972b27810ddf611adcb2be6bb13345da342cb6c6",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "won/14/640x480/delayed",
+      "beforePngSha256": "8ad7a8ce95e5f2f56ace3ebbf194378cb824e5326ac1d2a8527dcbc0843d2c8a",
+      "afterPngSha256": "b56549053b619fa450e6715ecf214325b930122da4604b037c33e915e9c50e26",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 73,
+        "bottom": 131
+      },
+      "offsets": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "before": -37.875022888183594,
+          "after": -0.0000152587890625
+        },
+        {
+          "label": "Player 1.",
+          "before": -9,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Completed",
+          "before": -30.465011596679688,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "won/14/640x480/delay-recovered",
+      "beforePngSha256": "0d5c46d9ff21a6e9cfba6ffe972b27810ddf611adcb2be6bb13345da342cb6c6",
+      "afterPngSha256": "0d5c46d9ff21a6e9cfba6ffe972b27810ddf611adcb2be6bb13345da342cb6c6",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "lost/1/640x480/ready",
+      "beforePngSha256": "6010a003b1f0e84cecd7a451a1d750b553171e2f9ca1b1384b18a47c9c7c8a6e",
+      "afterPngSha256": "6010a003b1f0e84cecd7a451a1d750b553171e2f9ca1b1384b18a47c9c7c8a6e",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "lost/1/640x480/failed",
+      "beforePngSha256": "80b06245433e9bb7ba274324bfe23b42cd21ca12b3db06ea4f1d86843b1050e2",
+      "afterPngSha256": "3f7cd1cfeeb0a893badbda24c5db37a36e8f0bc5b552e7cf4569737cb27f07df",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 73,
+        "bottom": 131
+      },
+      "offsets": [
+        {
+          "label": "01 : The Journey Begins",
+          "before": -23.272506713867188,
+          "after": -0.0000152587890625
+        },
+        {
+          "label": "Player 1.",
+          "before": -9,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Failed",
+          "before": -23.535018920898438,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "lost/1/640x480/failed-reload-recovered",
+      "beforePngSha256": "6010a003b1f0e84cecd7a451a1d750b553171e2f9ca1b1384b18a47c9c7c8a6e",
+      "afterPngSha256": "6010a003b1f0e84cecd7a451a1d750b553171e2f9ca1b1384b18a47c9c7c8a6e",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "lost/1/640x480/delayed",
+      "beforePngSha256": "80b06245433e9bb7ba274324bfe23b42cd21ca12b3db06ea4f1d86843b1050e2",
+      "afterPngSha256": "3f7cd1cfeeb0a893badbda24c5db37a36e8f0bc5b552e7cf4569737cb27f07df",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 73,
+        "bottom": 131
+      },
+      "offsets": [
+        {
+          "label": "01 : The Journey Begins",
+          "before": -23.272506713867188,
+          "after": -0.0000152587890625
+        },
+        {
+          "label": "Player 1.",
+          "before": -9,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Failed",
+          "before": -23.535018920898438,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "lost/1/640x480/delay-recovered",
+      "beforePngSha256": "6010a003b1f0e84cecd7a451a1d750b553171e2f9ca1b1384b18a47c9c7c8a6e",
+      "afterPngSha256": "6010a003b1f0e84cecd7a451a1d750b553171e2f9ca1b1384b18a47c9c7c8a6e",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "lost/14/640x480/ready",
+      "beforePngSha256": "ec2153f5575237fd9e1d9548b8900f3e2bd11b3c0b9f06bf1eb5a87ec5724bcb",
+      "afterPngSha256": "ec2153f5575237fd9e1d9548b8900f3e2bd11b3c0b9f06bf1eb5a87ec5724bcb",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "lost/14/640x480/failed",
+      "beforePngSha256": "483611f8cfd7e19c5cb3612a3908ec1fd56d55120e47ab8267536c507ced24e8",
+      "afterPngSha256": "f412d1d3816245ef5cf13d4e30e1d05e98aad27ebd8084bde4c584f4064757ce",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 73,
+        "bottom": 131
+      },
+      "offsets": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "before": -37.875022888183594,
+          "after": -0.0000152587890625
+        },
+        {
+          "label": "Player 1.",
+          "before": -9,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Failed",
+          "before": -23.535018920898438,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "lost/14/640x480/failed-reload-recovered",
+      "beforePngSha256": "ec2153f5575237fd9e1d9548b8900f3e2bd11b3c0b9f06bf1eb5a87ec5724bcb",
+      "afterPngSha256": "ec2153f5575237fd9e1d9548b8900f3e2bd11b3c0b9f06bf1eb5a87ec5724bcb",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "lost/14/640x480/delayed",
+      "beforePngSha256": "483611f8cfd7e19c5cb3612a3908ec1fd56d55120e47ab8267536c507ced24e8",
+      "afterPngSha256": "f412d1d3816245ef5cf13d4e30e1d05e98aad27ebd8084bde4c584f4064757ce",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 73,
+        "bottom": 131
+      },
+      "offsets": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "before": -37.875022888183594,
+          "after": -0.0000152587890625
+        },
+        {
+          "label": "Player 1.",
+          "before": -9,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Failed",
+          "before": -23.535018920898438,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "lost/14/640x480/delay-recovered",
+      "beforePngSha256": "ec2153f5575237fd9e1d9548b8900f3e2bd11b3c0b9f06bf1eb5a87ec5724bcb",
+      "afterPngSha256": "ec2153f5575237fd9e1d9548b8900f3e2bd11b3c0b9f06bf1eb5a87ec5724bcb",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "won/1/1920x1080/ready",
+      "beforePngSha256": "a094a6156d7a96bfed77e586c3a696410a2ba5d65aa6dc75d74336db5a33242b",
+      "afterPngSha256": "a094a6156d7a96bfed77e586c3a696410a2ba5d65aa6dc75d74336db5a33242b",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "won/1/1920x1080/failed",
+      "beforePngSha256": "d6ff0a248949c4684f09d792a425a5de55d1d38c2de12c3859942b90627a7154",
+      "afterPngSha256": "ff223fa6e7b8e34c7071c19091260ebd676a5c644724473deed720a6c70b201f",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 196,
+        "bottom": 310
+      },
+      "offsets": [
+        {
+          "label": "01 : The Journey Begins",
+          "before": -48.484375,
+          "after": 0
+        },
+        {
+          "label": "Player 1.",
+          "before": -18.75,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Completed",
+          "before": -63.46875,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "won/1/1920x1080/failed-reload-recovered",
+      "beforePngSha256": "a094a6156d7a96bfed77e586c3a696410a2ba5d65aa6dc75d74336db5a33242b",
+      "afterPngSha256": "a094a6156d7a96bfed77e586c3a696410a2ba5d65aa6dc75d74336db5a33242b",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "won/1/1920x1080/delayed",
+      "beforePngSha256": "d6ff0a248949c4684f09d792a425a5de55d1d38c2de12c3859942b90627a7154",
+      "afterPngSha256": "ff223fa6e7b8e34c7071c19091260ebd676a5c644724473deed720a6c70b201f",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 196,
+        "bottom": 310
+      },
+      "offsets": [
+        {
+          "label": "01 : The Journey Begins",
+          "before": -48.484375,
+          "after": 0
+        },
+        {
+          "label": "Player 1.",
+          "before": -18.75,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Completed",
+          "before": -63.46875,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "won/1/1920x1080/delay-recovered",
+      "beforePngSha256": "a094a6156d7a96bfed77e586c3a696410a2ba5d65aa6dc75d74336db5a33242b",
+      "afterPngSha256": "a094a6156d7a96bfed77e586c3a696410a2ba5d65aa6dc75d74336db5a33242b",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "won/14/1920x1080/ready",
+      "beforePngSha256": "b58ec9e942fbcca5444c8318f45b3bb2ca6748424bc67d6d1abca90416139f10",
+      "afterPngSha256": "b58ec9e942fbcca5444c8318f45b3bb2ca6748424bc67d6d1abca90416139f10",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "won/14/1920x1080/failed",
+      "beforePngSha256": "bcc9d2bff87fc33084041b43f2642d09e21218e78e8b247444dd431c12a9656d",
+      "afterPngSha256": "709ea8d151477bbb5c133abe134e0d097957ddf5edbf9d40d4c0e5a445e418c4",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 196,
+        "bottom": 310
+      },
+      "offsets": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "before": -78.90625,
+          "after": 0
+        },
+        {
+          "label": "Player 1.",
+          "before": -18.75,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Completed",
+          "before": -63.46875,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "won/14/1920x1080/failed-reload-recovered",
+      "beforePngSha256": "b58ec9e942fbcca5444c8318f45b3bb2ca6748424bc67d6d1abca90416139f10",
+      "afterPngSha256": "b58ec9e942fbcca5444c8318f45b3bb2ca6748424bc67d6d1abca90416139f10",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "won/14/1920x1080/delayed",
+      "beforePngSha256": "bcc9d2bff87fc33084041b43f2642d09e21218e78e8b247444dd431c12a9656d",
+      "afterPngSha256": "709ea8d151477bbb5c133abe134e0d097957ddf5edbf9d40d4c0e5a445e418c4",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 196,
+        "bottom": 310
+      },
+      "offsets": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "before": -78.90625,
+          "after": 0
+        },
+        {
+          "label": "Player 1.",
+          "before": -18.75,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Completed",
+          "before": -63.46875,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "won/14/1920x1080/delay-recovered",
+      "beforePngSha256": "b58ec9e942fbcca5444c8318f45b3bb2ca6748424bc67d6d1abca90416139f10",
+      "afterPngSha256": "b58ec9e942fbcca5444c8318f45b3bb2ca6748424bc67d6d1abca90416139f10",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "lost/1/1920x1080/ready",
+      "beforePngSha256": "cf8d6917ffeb12dbb27acc4773fd696cdb1018c702fd9223df1bb557036d1706",
+      "afterPngSha256": "cf8d6917ffeb12dbb27acc4773fd696cdb1018c702fd9223df1bb557036d1706",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "lost/1/1920x1080/failed",
+      "beforePngSha256": "8e725b0b0f073f6299fded28e3851208d38fabba9c0f24ecdfe6aa5c3e47dd08",
+      "afterPngSha256": "e37594c5a2bdab0e97b74a62a0dbe7a5b53a0fc28edb20973fd309efb6af2b2b",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 196,
+        "bottom": 310
+      },
+      "offsets": [
+        {
+          "label": "01 : The Journey Begins",
+          "before": -48.484375,
+          "after": 0
+        },
+        {
+          "label": "Player 1.",
+          "before": -18.75,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Failed",
+          "before": -49.03125,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "lost/1/1920x1080/failed-reload-recovered",
+      "beforePngSha256": "cf8d6917ffeb12dbb27acc4773fd696cdb1018c702fd9223df1bb557036d1706",
+      "afterPngSha256": "cf8d6917ffeb12dbb27acc4773fd696cdb1018c702fd9223df1bb557036d1706",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "lost/1/1920x1080/delayed",
+      "beforePngSha256": "8e725b0b0f073f6299fded28e3851208d38fabba9c0f24ecdfe6aa5c3e47dd08",
+      "afterPngSha256": "e37594c5a2bdab0e97b74a62a0dbe7a5b53a0fc28edb20973fd309efb6af2b2b",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 196,
+        "bottom": 310
+      },
+      "offsets": [
+        {
+          "label": "01 : The Journey Begins",
+          "before": -48.484375,
+          "after": 0
+        },
+        {
+          "label": "Player 1.",
+          "before": -18.75,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Failed",
+          "before": -49.03125,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "lost/1/1920x1080/delay-recovered",
+      "beforePngSha256": "cf8d6917ffeb12dbb27acc4773fd696cdb1018c702fd9223df1bb557036d1706",
+      "afterPngSha256": "cf8d6917ffeb12dbb27acc4773fd696cdb1018c702fd9223df1bb557036d1706",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "lost/14/1920x1080/ready",
+      "beforePngSha256": "00fa71973c0089fa688ebf141078e9ff48f608a318d128f1099594749688951a",
+      "afterPngSha256": "00fa71973c0089fa688ebf141078e9ff48f608a318d128f1099594749688951a",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "lost/14/1920x1080/failed",
+      "beforePngSha256": "e0cffec052755149064b67e82ae6b90f9b89d76ec94f73bd048e337e9937e7fc",
+      "afterPngSha256": "586909dea7d39cc1402b1a0db19452593d0ec6e66d31d77cc0418edbdd406870",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 196,
+        "bottom": 310
+      },
+      "offsets": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "before": -78.90625,
+          "after": 0
+        },
+        {
+          "label": "Player 1.",
+          "before": -18.75,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Failed",
+          "before": -49.03125,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "lost/14/1920x1080/failed-reload-recovered",
+      "beforePngSha256": "00fa71973c0089fa688ebf141078e9ff48f608a318d128f1099594749688951a",
+      "afterPngSha256": "00fa71973c0089fa688ebf141078e9ff48f608a318d128f1099594749688951a",
+      "readyPngIdentical": true
+    },
+    {
+      "case": "lost/14/1920x1080/delayed",
+      "beforePngSha256": "e0cffec052755149064b67e82ae6b90f9b89d76ec94f73bd048e337e9937e7fc",
+      "afterPngSha256": "586909dea7d39cc1402b1a0db19452593d0ec6e66d31d77cc0418edbdd406870",
+      "pixelsOutsideHeadingBandIdentical": true,
+      "headingBand": {
+        "top": 196,
+        "bottom": 310
+      },
+      "offsets": [
+        {
+          "label": "14 : Attacked From All Sides",
+          "before": -78.90625,
+          "after": 0
+        },
+        {
+          "label": "Player 1.",
+          "before": -18.75,
+          "after": 0
+        },
+        {
+          "label": "Level Status: Failed",
+          "before": -49.03125,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "case": "lost/14/1920x1080/delay-recovered",
+      "beforePngSha256": "00fa71973c0089fa688ebf141078e9ff48f608a318d128f1099594749688951a",
+      "afterPngSha256": "00fa71973c0089fa688ebf141078e9ff48f608a318d128f1099594749688951a",
+      "readyPngIdentical": true
+    }
+  ],
+  "beforeHead": "213b93426002877f37552ee1faa1c885351734b3",
+  "afterHead": "efef96b45bc62907a3eaa3d62c14001e6cff1afa",
+  "maximumFallbackOffsetPx": 0.0000152587890625,
+  "finishedAt": "2026-10-16T16:38:24.019Z"
+}

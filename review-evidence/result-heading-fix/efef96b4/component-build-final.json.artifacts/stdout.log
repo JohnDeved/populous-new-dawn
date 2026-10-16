@@ -1,0 +1,8 @@
+vite v8.0.13 building client environment for production...
+[2Ktransforming...✓ 20 modules transformed.
+rendering chunks...
+work/result-heading-build-final/index.html                   0.35 kB
+work/result-heading-build-final/assets/index-RzoPQ8hs.css   21.53 kB
+work/result-heading-build-final/assets/index-Cx8j2ymR.js   235.98 kB
+
+✓ built in 207ms

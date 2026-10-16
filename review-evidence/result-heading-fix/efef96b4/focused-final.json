@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "3715e3a7-d978-4fdd-bd26-9afbcf2734e1",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "efef96b45bc62907a3eaa3d62c14001e6cff1afa",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "test:focus",
+    "--",
+    "tests/original-result-screen.test.mjs"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe",
+  "startedAt": "2026-10-16T16:37:38.605Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/focused-final.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-result-probe/work/orchestration/result-heading-fix/focused-final.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:37:38.912Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 test:focus\n> node scripts/orchestration/test-runner.mjs focus tests/original-result-screen.test.mjs\n\nTAP version 13\n# Subtest: result time is a pure live-clock formatter with hours and no wrapping or mutation\nok 1 - result time is a pure live-clock formatter with hours and no wrapping or mutation\n  ---\n  duration_ms: 0.2885\n  type: 'test'\n  ...\n# Subtest: result composition fits the battlefield and reserves room for browser controls\nok 2 - result composition fits the battlefield and reserves room for browser controls\n  ---\n  duration_ms: 0.076834\n  type: 'test'\n  ...\n# Subtest: actual result component renders source headings and ten explicitly unavailable counters\nok 3 - actual result component renders source headings and ten explicitly unavailable counters\n  ---\n  duration_ms: 3.532417\n  type: 'test'\n  ...\n# Subtest: loss and terminal/tutorial actions retain the explicit parent-decided consequence\nok 4 - loss and terminal/tutorial actions retain the explicit parent-decided consequence\n  ---\n  duration_ms: 3.644417\n  type: 'test'\n  ...\n# Subtest: pending-font headings center their actual text while statistic columns keep their anchors\nok 5 - pending-font headings center their actual text while statistic columns keep their anchors\n  ---\n  duration_ms: 3.979208\n  type: 'test'\n  ...\n# Subtest: source panel metadata retains independently checked native geometry and glyph bounds\nok 6 - source panel metadata retains independently checked native geometry and glyph bounds\n  ---\n  duration_ms: 0.089583\n  type: 'test'\n  ...\n1..6\n# tests 6\n# suites 0\n# pass 6\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 181.544209\n",
+  "stderr": "{\"kind\":\"pnd-test-plan\",\"mode\":\"focus\",\"fullSuite\":false,\"parallelEligibility\":\"focused-serial\",\"files\":[\"tests/original-result-screen.test.mjs\"],\"groups\":[{\"concurrency\":1,\"files\":[\"tests/original-result-screen.test.mjs\"]}]}\n{\"kind\":\"pnd-test-group\",\"command\":[\"/Users/johann/.nvm/versions/node/v24.18.0/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/original-result-screen.test.mjs\"],\"files\":[\"tests/original-result-screen.test.mjs\"],\"concurrency\":1,\"exitCode\":0,\"signal\":null,\"error\":null,\"status\":\"passed\",\"wallMs\":203.42483299999998}\n{\"kind\":\"pnd-test-result\",\"mode\":\"focus\",\"fullSuite\":false,\"complete\":true,\"interrupted\":null,\"results\":[{\"command\":[\"/Users/johann/.nvm/versions/node/v24.18.0/bin/node\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/original-result-screen.test.mjs\"],\"files\":[\"tests/original-result-screen.test.mjs\"],\"concurrency\":1,\"exitCode\":0,\"signal\":null,\"error\":null,\"status\":\"passed\",\"wallMs\":203.42483299999998}],\"wallMs\":204.049458,\"status\":\"passed\"}\n",
+  "stdoutSha256": "7baff68294cbf5c0346f6608268dfa02e163e9bb813cc609e8a150d1a40e92b3",
+  "stderrSha256": "c0abc74ca881bb2222faac9b09e88d70010b2aa1c8f999a379fdcfe2d3e6f69d",
+  "sourceAfter": {
+    "headOid": "efef96b45bc62907a3eaa3d62c14001e6cff1afa",
+    "branch": "codex/result-heading-fallback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
