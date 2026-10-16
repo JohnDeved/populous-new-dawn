@@ -578,6 +578,8 @@ export function navigationButtons(scene: GameScene) {
       cameraCommand(cameraKeys[key] ?? 0, {
         control: scene.keys.has('control'),
         fast: scene.keys.has('shift'),
+        swap: scene.gamePreferences.rotation === 'control-cursor',
+        reverse: scene.gamePreferences.flipRotation,
         overview: scene.overviewActive,
       })
     )

@@ -1,0 +1,34 @@
+{
+  "base": "04a84dab17c809d1888e5a734e99d34addfc5a1d",
+  "applicationHead": "774af5cd968935603f61bfed3ab5ec750e25eac6",
+  "appTree": "c052f443775b501dea1c2650939083e515be8d79",
+  "publicTree": "a6a841be299dd9537369348bcdcd53b870dc7ab4",
+  "testsTree": "9ce8a6e45551697161e1a4db4775c119f9b41c75",
+  "unchangedCheckSuiteTestsFromD81": true,
+  "onlyAppRepairSinceD81": [
+    "app/original-options.tsx"
+  ],
+  "installedDependencyLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "changedPaths": {
+    "app/game-preferences.ts": "66dd1967af233b1fb707b7c1bdb89be69dbcc065d94f86a2eef93367bf3bda29",
+    "app/original-options.module.css": "36537bacd27352aa767bcf95ff3083945501b06c4ff2cc1d28a9b21d60c0920d",
+    "app/original-options.tsx": "3d2f99fdbb0f64ef10db88788a653cf196df99b00a579f21d99eace9540ad287",
+    "app/page.tsx": "57ec5db9fb2d19615f53accc1401e45b4df27883bb46aa2822c2245b788312d5",
+    "app/scene-input-runtime.ts": "cca0f7db9b71d11000cc09433e03f4ce42b60eccc7c7d5b7e25ce32375af1023",
+    "app/scene.ts": "4634911ea800eb36818ab8e982d84748101a2029e6ca91ac63c8d95ff9968bd0",
+    "decomp/README.md": "59037146a30039db21e06928bbde88be64ada6b8a4d4ccdb99e5d0cbc290aa32",
+    "decomp/research/game-options-static/findings.md": "6544d00d7f5b715ea8bc75b55224c842ba5030c5f00a0866362ffa98f1595a2c",
+    "decomp/research/game-options-static/game-bit-getters-setters.txt": "5c2a28eafaa18a9f9d0c085466532903f1ee3e8359a6a0ce2bc32f17089745cc",
+    "decomp/research/game-options-static/game-descriptor-getters-setters.txt": "46b767a4a2cb36032639cf1dd5774a0a9432c5cda2a3529087c916454bc9f4c6",
+    "decomp/research/game-options-static/input-hashes.txt": "ed8e2c0b70e1fc41a72f5e5b25d697e76533e8a892934a4e4396732de4a90089",
+    "decomp/research/game-options-static/source-hashes.txt": "130c5be32fc955b45afe0927ec5ce2cbe7b72f3c479f4552de9e7496d412e05e",
+    "decomp/research/game-options-static/source-head.txt": "f85e7b1c2435c76f0507e3c7b744739b3ed71e8afd2d91c003b9b6b40876a2e4",
+    "decomp/research/game-options-static/source-status.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "decomp/research/game-options-static/tool-version.txt": "daf42e21a8469c763f295ffca68da3d6ab84d62a03ebc76663fab26dc8cfc5f9",
+    "docs/game-preferences.md": "c07bfb9c29db8af8184014be05c6e0563e21b5b2d6232efd2f2ae7d2858fa1ab",
+    "engineering/project-map.json": "08baf559b8969d21795f1e0217c2f6c29b3102c7c1a8ec3f70581b226df11dc2",
+    "tests/game-preferences-navigation.test.mjs": "acd191ebb4b858848300b4d314a60a8600030ee4814935e3ce79959ccff61a1c",
+    "tests/game-preferences.test.mjs": "5a1698b45c3abdb452c64f89b263585c01c67f21a905118d8409ee31278b8f63",
+    "tests/original-options.test.mjs": "d0a75a8d7e0e0fe7fb34e9f5d7b0572a6ddd7c66236379adbd87a7a34984d918"
+  }
+}
