@@ -73,7 +73,8 @@ export function frontendBackground(
   glowFrame: number | null = null,
   textRows: readonly FrontendTextRow[] = [],
   width = 640,
-  showLogoShadow = true
+  showLogoShadow = true,
+  showMenuTextShadows = true
 ) {
   if (source.length !== assets.binaryBytes) throw new Error('Invalid frontend composition data')
   if (!Number.isInteger(width) || width < 640 || width % 2 !== 0)
@@ -82,7 +83,9 @@ export function frontendBackground(
     width === 640 ? source.slice(0, 640 * 480) : frontendWideIndexedBackground(source, width)
   const offset = (width - 640) / 2
   const rows = menu
-    ? frontendRows.map((text, index) => ({ text, x: 320, y: frontendRowY(index) }))
+    ? showMenuTextShadows
+      ? frontendRows.map((text, index) => ({ text, x: 320, y: frontendRowY(index) }))
+      : []
     : textRows
   {
     for (const { text, x: center, y } of rows) {

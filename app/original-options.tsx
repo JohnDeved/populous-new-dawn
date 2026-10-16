@@ -147,8 +147,8 @@ export function OriginalOptions({
     [browser, category, masterText, musicText, gameRows]
   )
   useEffect(() => {
-    onTextRowsChange?.(rows)
-  }, [rows, onTextRowsChange])
+    onTextRowsChange?.(ready ? rows : [])
+  }, [rows, onTextRowsChange, ready])
   useEffect(() => {
     let active = true
     const paths = [

@@ -176,6 +176,7 @@ export function OriginalMainMenu({
                   )
                 : frontendQuitRows.filter((_, index) => index === 0 ? questionReady : artReady),
             canvasWidth,
+            artReady,
             artReady
           ),
           canvasWidth,
@@ -230,7 +231,13 @@ export function OriginalMainMenu({
       label: 'Multiplayer',
       unavailable: 'Multiplayer is not available in this single-player remake',
     },
-    { label: 'Options', action: () => setPanel('options') },
+    {
+      label: 'Options',
+      action: () => {
+        setOptionRows([])
+        setPanel('options')
+      },
+    },
     { label: 'Rolling Demo', unavailable: 'Original demo playback is not yet available' },
     { label: 'Credits', unavailable: 'Original credits are not yet restored' },
     { label: 'Coming Soon', unavailable: 'Original preview is not yet restored' },
