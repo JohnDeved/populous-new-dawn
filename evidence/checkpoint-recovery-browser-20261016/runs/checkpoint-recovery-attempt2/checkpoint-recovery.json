@@ -1,0 +1,26 @@
+{
+  "status": "failed",
+  "fixture": "Public Save seeds a real IndexedDB checkpoint; labeled faults only at the storage boundary. No simulation state mutation.",
+  "episodes": [],
+  "errors": [],
+  "warnings": [
+    {
+      "episode": "seed",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    },
+    {
+      "episode": "seed",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    }
+  ],
+  "cleanup": [
+    {
+      "name": "seed",
+      "closed": true
+    }
+  ],
+  "failure": {
+    "message": "TimeoutError: page.waitForFunction: Timeout 25000ms exceeded.",
+    "stack": "page.waitForFunction: Timeout 25000ms exceeded.\n    at startMission (<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/browser-scenario.mjs:139:14)\n    at async Module.default (<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/browser-scenario.mjs:180:5)\n    at async file://<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/run-browser.mjs:101:20"
+  }
+}

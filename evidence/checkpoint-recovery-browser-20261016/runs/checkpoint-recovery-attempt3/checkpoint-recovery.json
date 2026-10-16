@@ -1,0 +1,137 @@
+{
+  "status": "failed",
+  "fixture": "Public Save seeds a real IndexedDB checkpoint; labeled faults only at the storage boundary. No simulation state mutation.",
+  "episodes": [],
+  "errors": [],
+  "warnings": [
+    {
+      "episode": "seed",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    },
+    {
+      "episode": "seed",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    }
+  ],
+  "cleanup": [
+    {
+      "name": "open-recovery",
+      "closed": true
+    }
+  ],
+  "seed": {
+    "keys": [
+      "latest"
+    ],
+    "sha256": "09dac9af52e2dcae9fba030f4e0ab41eb37b9a437355e21f18a92d8c4588d779",
+    "checkpoint": {
+      "level": 1,
+      "turn": 75,
+      "time": 6.25,
+      "paused": true,
+      "randomState": 1190084180,
+      "units": [
+        [
+          13,
+          "brave",
+          "blue",
+          50,
+          7,
+          33
+        ],
+        [
+          14,
+          "brave",
+          "blue",
+          50,
+          11,
+          33
+        ],
+        [
+          15,
+          "brave",
+          "blue",
+          50,
+          7,
+          35
+        ],
+        [
+          16,
+          "brave",
+          "blue",
+          50,
+          11,
+          31
+        ],
+        [
+          17,
+          "brave",
+          "blue",
+          50,
+          11,
+          35
+        ],
+        [
+          18,
+          "brave",
+          "blue",
+          50,
+          7,
+          31
+        ],
+        [
+          30,
+          "shaman",
+          "blue",
+          100,
+          9,
+          33
+        ],
+        [
+          32,
+          "shaman",
+          "red",
+          100,
+          1,
+          -37
+        ],
+        [
+          33,
+          "warrior",
+          "red",
+          90,
+          1,
+          -27
+        ],
+        [
+          34,
+          "warrior",
+          "red",
+          90,
+          -3,
+          -29
+        ],
+        [
+          35,
+          "brave",
+          "red",
+          50,
+          7,
+          -29
+        ],
+        [
+          38,
+          "brave",
+          "red",
+          50,
+          -9,
+          -3
+        ]
+      ]
+    }
+  },
+  "failure": {
+    "message": "TimeoutError: page.waitForFunction: Timeout 25000ms exceeded.",
+    "stack": "page.waitForFunction: Timeout 25000ms exceeded.\n    at Module.default (<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/browser-scenario.mjs:223:18)\n    at async file://<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/run-browser.mjs:101:20"
+  }
+}

@@ -1,0 +1,913 @@
+{
+  "status": "completed-diagnostic",
+  "errors": [],
+  "warnings": [
+    {
+      "label": "seed",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    },
+    {
+      "label": "seed",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    },
+    {
+      "label": "seed",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    }
+  ],
+  "comparisons": [
+    {
+      "label": "original-public-save",
+      "owner": {
+        "sameStore": true,
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "loadedState": null,
+        "sameCanvas": true,
+        "loadingSeen": false,
+        "canvasRemoved": false,
+        "disposed": false,
+        "terrainAborted": false,
+        "level": 1,
+        "turn": 75,
+        "time": 6.25,
+        "paused": true,
+        "status": "read",
+        "hasCheckpoint": true,
+        "canvasPresent": true
+      },
+      "storage": {
+        "keys": [
+          "latest"
+        ],
+        "sha256": "8a0d5a97d6132ee59a1608b1a29b72e7ac7c8cabc62edf7bb6e2ee5cc04b61c1",
+        "checkpoint": {
+          "level": 1,
+          "turn": 75,
+          "time": 6.25,
+          "paused": true,
+          "randomState": 1190084180,
+          "units": [
+            [
+              13,
+              "brave",
+              "blue",
+              50,
+              7,
+              33
+            ],
+            [
+              14,
+              "brave",
+              "blue",
+              50,
+              11,
+              33
+            ],
+            [
+              15,
+              "brave",
+              "blue",
+              50,
+              7,
+              35
+            ],
+            [
+              16,
+              "brave",
+              "blue",
+              50,
+              11,
+              31
+            ],
+            [
+              17,
+              "brave",
+              "blue",
+              50,
+              11,
+              35
+            ],
+            [
+              18,
+              "brave",
+              "blue",
+              50,
+              7,
+              31
+            ],
+            [
+              30,
+              "shaman",
+              "blue",
+              100,
+              9,
+              33
+            ],
+            [
+              32,
+              "shaman",
+              "red",
+              100,
+              1,
+              -37
+            ],
+            [
+              33,
+              "warrior",
+              "red",
+              90,
+              1,
+              -27
+            ],
+            [
+              34,
+              "warrior",
+              "red",
+              90,
+              -3,
+              -29
+            ],
+            [
+              35,
+              "brave",
+              "red",
+              50,
+              7,
+              -29
+            ],
+            [
+              38,
+              "brave",
+              "red",
+              50,
+              -9,
+              -3
+            ]
+          ]
+        }
+      },
+      "types": {
+        "types": {
+          "Object": 1429,
+          "Array": 498,
+          "Float64Array": 1,
+          "Map": 5,
+          "Uint8Array": 17,
+          "Int16Array": 1,
+          "Uint32Array": 2,
+          "Uint16Array": 2,
+          "Int32Array": 3,
+          "Set": 1
+        },
+        "examples": [
+          {
+            "path": "latest.world.objectCells.heads",
+            "type": "Float64Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.objectCells.objects",
+            "type": "Map",
+            "size": 12
+          },
+          {
+            "path": "latest.world.motionRoutes.records",
+            "type": "Uint8Array",
+            "size": 43709
+          },
+          {
+            "path": "latest.world.motionRoutes.failedSearches",
+            "type": "Uint8Array",
+            "size": 80
+          },
+          {
+            "path": "latest.world.motionRoutes.pathResult",
+            "type": "Uint8Array",
+            "size": 1033
+          },
+          {
+            "path": "latest.world.pathfinding.people",
+            "type": "Map",
+            "size": 0
+          },
+          {
+            "path": "latest.world.pathfinding.path.data",
+            "type": "Uint8Array",
+            "size": 2580
+          },
+          {
+            "path": "latest.world.pathfinding.geometry.candidates",
+            "type": "Uint8Array",
+            "size": 120
+          },
+          {
+            "path": "latest.world.pathfinding.solver.obstacles.0.path.data",
+            "type": "Uint8Array",
+            "size": 2580
+          },
+          {
+            "path": "latest.world.pathfinding.solver.obstacles.1.path.data",
+            "type": "Uint8Array",
+            "size": 2580
+          },
+          {
+            "path": "latest.world.land.heights",
+            "type": "Int16Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.flags",
+            "type": "Uint32Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.cliffs",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.categories",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.shadows",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.buildingIds",
+            "type": "Uint16Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.owners",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.walkMasks.0",
+            "type": "Uint8Array",
+            "size": 8192
+          },
+          {
+            "path": "latest.world.land.walkMasks.1",
+            "type": "Uint8Array",
+            "size": 8192
+          },
+          {
+            "path": "latest.world.land.dirty",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.regions",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.searchMarks",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.buildingFootprints",
+            "type": "Map",
+            "size": 4
+          },
+          {
+            "path": "latest.world.sceneryShadows",
+            "type": "Map",
+            "size": 19
+          },
+          {
+            "path": "latest.world.indexedSearch",
+            "type": "Uint8Array",
+            "size": 192
+          },
+          {
+            "path": "latest.world.footprints.positions",
+            "type": "Uint32Array",
+            "size": 65536
+          },
+          {
+            "path": "latest.world.footprints.next",
+            "type": "Int32Array",
+            "size": 65536
+          },
+          {
+            "path": "latest.world.footprints.heads",
+            "type": "Int32Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.footprints.tails",
+            "type": "Int32Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.footprints.totals",
+            "type": "Uint16Array",
+            "size": 16384
+          }
+        ]
+      }
+    },
+    {
+      "label": "same-context-new-page",
+      "owner": {
+        "sameStore": true,
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "loadedState": null,
+        "sameCanvas": true,
+        "loadingSeen": false,
+        "canvasRemoved": false,
+        "disposed": false,
+        "terrainAborted": false,
+        "level": 1,
+        "turn": 0,
+        "time": 0,
+        "paused": false,
+        "status": "read",
+        "hasCheckpoint": true,
+        "canvasPresent": false
+      },
+      "storage": {
+        "keys": [
+          "latest"
+        ],
+        "sha256": "8a0d5a97d6132ee59a1608b1a29b72e7ac7c8cabc62edf7bb6e2ee5cc04b61c1",
+        "checkpoint": {
+          "level": 1,
+          "turn": 75,
+          "time": 6.25,
+          "paused": true,
+          "randomState": 1190084180,
+          "units": [
+            [
+              13,
+              "brave",
+              "blue",
+              50,
+              7,
+              33
+            ],
+            [
+              14,
+              "brave",
+              "blue",
+              50,
+              11,
+              33
+            ],
+            [
+              15,
+              "brave",
+              "blue",
+              50,
+              7,
+              35
+            ],
+            [
+              16,
+              "brave",
+              "blue",
+              50,
+              11,
+              31
+            ],
+            [
+              17,
+              "brave",
+              "blue",
+              50,
+              11,
+              35
+            ],
+            [
+              18,
+              "brave",
+              "blue",
+              50,
+              7,
+              31
+            ],
+            [
+              30,
+              "shaman",
+              "blue",
+              100,
+              9,
+              33
+            ],
+            [
+              32,
+              "shaman",
+              "red",
+              100,
+              1,
+              -37
+            ],
+            [
+              33,
+              "warrior",
+              "red",
+              90,
+              1,
+              -27
+            ],
+            [
+              34,
+              "warrior",
+              "red",
+              90,
+              -3,
+              -29
+            ],
+            [
+              35,
+              "brave",
+              "red",
+              50,
+              7,
+              -29
+            ],
+            [
+              38,
+              "brave",
+              "red",
+              50,
+              -9,
+              -3
+            ]
+          ]
+        }
+      },
+      "types": {
+        "types": {
+          "Object": 1429,
+          "Array": 498,
+          "Float64Array": 1,
+          "Map": 5,
+          "Uint8Array": 17,
+          "Int16Array": 1,
+          "Uint32Array": 2,
+          "Uint16Array": 2,
+          "Int32Array": 3,
+          "Set": 1
+        },
+        "examples": [
+          {
+            "path": "latest.world.objectCells.heads",
+            "type": "Float64Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.objectCells.objects",
+            "type": "Map",
+            "size": 12
+          },
+          {
+            "path": "latest.world.motionRoutes.records",
+            "type": "Uint8Array",
+            "size": 43709
+          },
+          {
+            "path": "latest.world.motionRoutes.failedSearches",
+            "type": "Uint8Array",
+            "size": 80
+          },
+          {
+            "path": "latest.world.motionRoutes.pathResult",
+            "type": "Uint8Array",
+            "size": 1033
+          },
+          {
+            "path": "latest.world.pathfinding.people",
+            "type": "Map",
+            "size": 0
+          },
+          {
+            "path": "latest.world.pathfinding.path.data",
+            "type": "Uint8Array",
+            "size": 2580
+          },
+          {
+            "path": "latest.world.pathfinding.geometry.candidates",
+            "type": "Uint8Array",
+            "size": 120
+          },
+          {
+            "path": "latest.world.pathfinding.solver.obstacles.0.path.data",
+            "type": "Uint8Array",
+            "size": 2580
+          },
+          {
+            "path": "latest.world.pathfinding.solver.obstacles.1.path.data",
+            "type": "Uint8Array",
+            "size": 2580
+          },
+          {
+            "path": "latest.world.land.heights",
+            "type": "Int16Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.flags",
+            "type": "Uint32Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.cliffs",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.categories",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.shadows",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.buildingIds",
+            "type": "Uint16Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.owners",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.walkMasks.0",
+            "type": "Uint8Array",
+            "size": 8192
+          },
+          {
+            "path": "latest.world.land.walkMasks.1",
+            "type": "Uint8Array",
+            "size": 8192
+          },
+          {
+            "path": "latest.world.land.dirty",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.regions",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.searchMarks",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.buildingFootprints",
+            "type": "Map",
+            "size": 4
+          },
+          {
+            "path": "latest.world.sceneryShadows",
+            "type": "Map",
+            "size": 19
+          },
+          {
+            "path": "latest.world.indexedSearch",
+            "type": "Uint8Array",
+            "size": 192
+          },
+          {
+            "path": "latest.world.footprints.positions",
+            "type": "Uint32Array",
+            "size": 65536
+          },
+          {
+            "path": "latest.world.footprints.next",
+            "type": "Int32Array",
+            "size": 65536
+          },
+          {
+            "path": "latest.world.footprints.heads",
+            "type": "Int32Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.footprints.tails",
+            "type": "Int32Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.footprints.totals",
+            "type": "Uint16Array",
+            "size": 16384
+          }
+        ]
+      }
+    },
+    {
+      "label": "storage-state-copy",
+      "owner": {
+        "sameStore": true,
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "loadedState": null,
+        "sameCanvas": true,
+        "loadingSeen": false,
+        "canvasRemoved": false,
+        "disposed": false,
+        "terrainAborted": false,
+        "level": 1,
+        "turn": 0,
+        "time": 0,
+        "paused": false,
+        "status": "read",
+        "hasCheckpoint": false,
+        "canvasPresent": false
+      },
+      "storage": {
+        "keys": [
+          "latest"
+        ],
+        "sha256": "984fe23192fe20b91c5a24921c90212ee36386e1eafe0ed4a5010dbfc6098ff3",
+        "checkpoint": {
+          "level": 1,
+          "turn": 75,
+          "time": 6.25,
+          "paused": true,
+          "randomState": 1190084180,
+          "units": [
+            [
+              13,
+              "brave",
+              "blue",
+              50,
+              7,
+              33
+            ],
+            [
+              14,
+              "brave",
+              "blue",
+              50,
+              11,
+              33
+            ],
+            [
+              15,
+              "brave",
+              "blue",
+              50,
+              7,
+              35
+            ],
+            [
+              16,
+              "brave",
+              "blue",
+              50,
+              11,
+              31
+            ],
+            [
+              17,
+              "brave",
+              "blue",
+              50,
+              11,
+              35
+            ],
+            [
+              18,
+              "brave",
+              "blue",
+              50,
+              7,
+              31
+            ],
+            [
+              30,
+              "shaman",
+              "blue",
+              100,
+              9,
+              33
+            ],
+            [
+              32,
+              "shaman",
+              "red",
+              100,
+              1,
+              -37
+            ],
+            [
+              33,
+              "warrior",
+              "red",
+              90,
+              1,
+              -27
+            ],
+            [
+              34,
+              "warrior",
+              "red",
+              90,
+              -3,
+              -29
+            ],
+            [
+              35,
+              "brave",
+              "red",
+              50,
+              7,
+              -29
+            ],
+            [
+              38,
+              "brave",
+              "red",
+              50,
+              -9,
+              -3
+            ]
+          ]
+        }
+      },
+      "types": {
+        "types": {
+          "Object": 1435,
+          "Array": 498,
+          "Float64Array": 1,
+          "Uint8Array": 17,
+          "Int16Array": 1,
+          "Uint32Array": 2,
+          "Uint16Array": 2,
+          "Int32Array": 3
+        },
+        "examples": [
+          {
+            "path": "latest.world.objectCells.heads",
+            "type": "Float64Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.motionRoutes.records",
+            "type": "Uint8Array",
+            "size": 43709
+          },
+          {
+            "path": "latest.world.motionRoutes.failedSearches",
+            "type": "Uint8Array",
+            "size": 80
+          },
+          {
+            "path": "latest.world.motionRoutes.pathResult",
+            "type": "Uint8Array",
+            "size": 1033
+          },
+          {
+            "path": "latest.world.pathfinding.path.data",
+            "type": "Uint8Array",
+            "size": 2580
+          },
+          {
+            "path": "latest.world.pathfinding.geometry.candidates",
+            "type": "Uint8Array",
+            "size": 120
+          },
+          {
+            "path": "latest.world.pathfinding.solver.obstacles.0.path.data",
+            "type": "Uint8Array",
+            "size": 2580
+          },
+          {
+            "path": "latest.world.pathfinding.solver.obstacles.1.path.data",
+            "type": "Uint8Array",
+            "size": 2580
+          },
+          {
+            "path": "latest.world.land.heights",
+            "type": "Int16Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.flags",
+            "type": "Uint32Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.cliffs",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.categories",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.shadows",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.buildingIds",
+            "type": "Uint16Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.owners",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.walkMasks.0",
+            "type": "Uint8Array",
+            "size": 8192
+          },
+          {
+            "path": "latest.world.land.walkMasks.1",
+            "type": "Uint8Array",
+            "size": 8192
+          },
+          {
+            "path": "latest.world.land.dirty",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.regions",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.land.searchMarks",
+            "type": "Uint8Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.indexedSearch",
+            "type": "Uint8Array",
+            "size": 192
+          },
+          {
+            "path": "latest.world.footprints.positions",
+            "type": "Uint32Array",
+            "size": 65536
+          },
+          {
+            "path": "latest.world.footprints.next",
+            "type": "Int32Array",
+            "size": 65536
+          },
+          {
+            "path": "latest.world.footprints.heads",
+            "type": "Int32Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.footprints.tails",
+            "type": "Int32Array",
+            "size": 16384
+          },
+          {
+            "path": "latest.world.footprints.totals",
+            "type": "Uint16Array",
+            "size": 16384
+          }
+        ]
+      }
+    }
+  ],
+  "browser": "155.0.8059.80",
+  "stateShape": [
+    {
+      "origin": "http://127.0.0.1:5198",
+      "databases": [
+        {
+          "name": "populous-new-dawn",
+          "stores": [
+            {
+              "name": "checkpoints",
+              "records": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "cleanupVerified": true
+}

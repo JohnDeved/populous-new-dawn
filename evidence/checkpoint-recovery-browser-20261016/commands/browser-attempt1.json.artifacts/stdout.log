@@ -1,0 +1,1 @@
+{"status":"failed","failure":"TimeoutError: locator.click: Timeout 25000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /^Skip introduction/ })\u001b[22m\n","cleanupVerified":true,"output":"<CANDIDATE_ROOT>/outputs/checkpoint-recovery-attempt1"}

@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "21e03493-04bb-48cf-9267-484a4aa1deea",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/checkpoint-recovery/probe-storage-copy.mjs": "3fff16648c28a88efecfafbb52ba41ac6aea39d950d7263f54c754d84ed3d523",
+      "work/orchestration/checkpoint-recovery/browser-scenario.mjs": "6c9f1e98fcbe61431bce930b42d769602fbbe12a0c8796b06345fe7afcf65a2a"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/checkpoint-recovery/probe-storage-copy.mjs"
+  ],
+  "cwd": "<CANDIDATE_ROOT>",
+  "startedAt": "2026-10-16T17:33:53.995Z",
+  "artifacts": {
+    "stdout": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/storage-copy-probe.json.artifacts/stdout.log",
+    "stderr": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/storage-copy-probe.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:34:02.903Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"completed-diagnostic\",\"comparisons\":[{\"label\":\"original-public-save\",\"status\":\"read\",\"hasCheckpoint\":true,\"types\":{\"Object\":1429,\"Array\":498,\"Float64Array\":1,\"Map\":5,\"Uint8Array\":17,\"Int16Array\":1,\"Uint32Array\":2,\"Uint16Array\":2,\"Int32Array\":3,\"Set\":1}},{\"label\":\"same-context-new-page\",\"status\":\"read\",\"hasCheckpoint\":true,\"types\":{\"Object\":1429,\"Array\":498,\"Float64Array\":1,\"Map\":5,\"Uint8Array\":17,\"Int16Array\":1,\"Uint32Array\":2,\"Uint16Array\":2,\"Int32Array\":3,\"Set\":1}},{\"label\":\"storage-state-copy\",\"status\":\"read\",\"hasCheckpoint\":false,\"types\":{\"Object\":1435,\"Array\":498,\"Float64Array\":1,\"Uint8Array\":17,\"Int16Array\":1,\"Uint32Array\":2,\"Uint16Array\":2,\"Int32Array\":3}}],\"stateShape\":[{\"origin\":\"http://127.0.0.1:5198\",\"databases\":[{\"name\":\"populous-new-dawn\",\"stores\":[{\"name\":\"checkpoints\",\"records\":1}]}]}],\"cleanupVerified\":true}\n",
+  "stderr": "",
+  "stdoutSha256": "a36ded139e2bc6b8b51e37109d90f25ffa92767b33df65e6227d7504b8c9d4e9",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/checkpoint-recovery/probe-storage-copy.mjs": "3fff16648c28a88efecfafbb52ba41ac6aea39d950d7263f54c754d84ed3d523",
+      "work/orchestration/checkpoint-recovery/browser-scenario.mjs": "6c9f1e98fcbe61431bce930b42d769602fbbe12a0c8796b06345fe7afcf65a2a"
+    }
+  }
+}

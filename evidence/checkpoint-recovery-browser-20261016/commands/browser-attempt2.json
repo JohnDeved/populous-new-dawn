@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b01b063e-2876-4cd8-b40d-7af44fe511c2",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/checkpoint-recovery/browser-scenario.mjs": "8c1f8f37d07cb677978582efc1dcfa98ea9e12f998a43e16ed9d9454d8c54e52",
+      "work/orchestration/checkpoint-recovery/run-browser.mjs": "639730c560ade088412a9d8d829cc546dd32904d23cc5b16506be6da4616ef0e"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/checkpoint-recovery/run-browser.mjs",
+    "outputs/checkpoint-recovery-attempt2"
+  ],
+  "cwd": "<CANDIDATE_ROOT>",
+  "startedAt": "2026-10-16T17:30:15.350Z",
+  "artifacts": {
+    "stdout": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/browser-attempt2.json.artifacts/stdout.log",
+    "stderr": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/browser-attempt2.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:30:51.445Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "{\"status\":\"failed\",\"failure\":\"TimeoutError: page.waitForFunction: Timeout 25000ms exceeded.\",\"cleanupVerified\":true,\"output\":\"<CANDIDATE_ROOT>/outputs/checkpoint-recovery-attempt2\"}\n",
+  "stderr": "",
+  "stdoutSha256": "859a05f6b1fc074958bc7e20da11d66f942f48866521de377c64e32a9dce3a8a",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/checkpoint-recovery/browser-scenario.mjs": "8c1f8f37d07cb677978582efc1dcfa98ea9e12f998a43e16ed9d9454d8c54e52",
+      "work/orchestration/checkpoint-recovery/run-browser.mjs": "639730c560ade088412a9d8d829cc546dd32904d23cc5b16506be6da4616ef0e"
+    }
+  }
+}

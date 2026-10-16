@@ -1,0 +1,786 @@
+{
+  "status": "passed",
+  "fixture": "Public Save seeds a real IndexedDB checkpoint; labeled faults only at the storage boundary. No simulation state mutation.",
+  "episodes": [
+    {
+      "name": "open-recovery",
+      "tabs": 9,
+      "loadTabs": 3,
+      "small": {
+        "bounds": {
+          "x": 32,
+          "y": 414.21875,
+          "width": 576,
+          "height": 59.78125,
+          "bottom": 474,
+          "right": 608
+        },
+        "viewport": {
+          "width": 640,
+          "height": 480
+        },
+        "overlaps": [],
+        "textOverflow": false,
+        "buttonText": "Retry checkpoint lookup",
+        "fontSize": "13px"
+      },
+      "wide": {
+        "bounds": {
+          "x": 432,
+          "y": 624.21875,
+          "width": 576,
+          "height": 59.78125,
+          "bottom": 684,
+          "right": 1008
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "overlaps": [],
+        "textOverflow": false,
+        "buttonText": "Retry checkpoint lookup",
+        "fontSize": "13px"
+      },
+      "focusAfterRemoval": {
+        "tag": "DIALOG",
+        "label": "Main menu"
+      },
+      "initial": {
+        "sameStore": true,
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "loadedState": null,
+        "sameCanvas": true,
+        "loadingSeen": false,
+        "canvasRemoved": false,
+        "disposed": false,
+        "terrainAborted": false,
+        "level": 1,
+        "turn": 0,
+        "time": 0,
+        "paused": false,
+        "status": "failed",
+        "hasCheckpoint": false,
+        "canvasPresent": false
+      },
+      "before": {
+        "keys": [
+          "latest"
+        ],
+        "sha256": "f4a3c66a089a561b6970c75dd22fd86e33ba0208e88176e36bf7f107f8b33a43",
+        "checkpoint": {
+          "level": 1,
+          "turn": 75,
+          "time": 6.25,
+          "paused": true,
+          "randomState": 1190084180,
+          "units": [
+            [
+              13,
+              "brave",
+              "blue",
+              50,
+              7,
+              33
+            ],
+            [
+              14,
+              "brave",
+              "blue",
+              50,
+              11,
+              33
+            ],
+            [
+              15,
+              "brave",
+              "blue",
+              50,
+              7,
+              35
+            ],
+            [
+              16,
+              "brave",
+              "blue",
+              50,
+              11,
+              31
+            ],
+            [
+              17,
+              "brave",
+              "blue",
+              50,
+              11,
+              35
+            ],
+            [
+              18,
+              "brave",
+              "blue",
+              50,
+              7,
+              31
+            ],
+            [
+              30,
+              "shaman",
+              "blue",
+              100,
+              9,
+              33
+            ],
+            [
+              32,
+              "shaman",
+              "red",
+              100,
+              1,
+              -37
+            ],
+            [
+              33,
+              "warrior",
+              "red",
+              90,
+              1,
+              -27
+            ],
+            [
+              34,
+              "warrior",
+              "red",
+              90,
+              -3,
+              -29
+            ],
+            [
+              35,
+              "brave",
+              "red",
+              50,
+              7,
+              -29
+            ],
+            [
+              38,
+              "brave",
+              "red",
+              50,
+              -9,
+              -3
+            ]
+          ]
+        }
+      },
+      "recovered": {
+        "sameStore": true,
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "loadedState": null,
+        "sameCanvas": true,
+        "loadingSeen": false,
+        "canvasRemoved": false,
+        "disposed": false,
+        "terrainAborted": false,
+        "level": 1,
+        "turn": 0,
+        "time": 0,
+        "paused": false,
+        "status": "read",
+        "hasCheckpoint": true,
+        "canvasPresent": false
+      },
+      "loaded": {
+        "level": 1,
+        "turn": 75,
+        "paused": true
+      },
+      "fixture": {
+        "label": "checkpoint recovery storage-boundary fixture",
+        "next": null,
+        "opens": 2,
+        "reads": 2,
+        "writes": [],
+        "faults": [
+          "injected synchronous open failure",
+          "real read transaction aborted by fixture"
+        ],
+        "held": false,
+        "holdExpired": false
+      }
+    },
+    {
+      "name": "abort-recovery",
+      "tabs": 9,
+      "loadTabs": 3,
+      "small": {
+        "bounds": {
+          "x": 32,
+          "y": 414.21875,
+          "width": 576,
+          "height": 59.78125,
+          "bottom": 474,
+          "right": 608
+        },
+        "viewport": {
+          "width": 640,
+          "height": 480
+        },
+        "overlaps": [],
+        "textOverflow": false,
+        "buttonText": "Retry checkpoint lookup",
+        "fontSize": "13px"
+      },
+      "wide": {
+        "bounds": {
+          "x": 432,
+          "y": 624.21875,
+          "width": 576,
+          "height": 59.78125,
+          "bottom": 684,
+          "right": 1008
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "overlaps": [],
+        "textOverflow": false,
+        "buttonText": "Retry checkpoint lookup",
+        "fontSize": "13px"
+      },
+      "focusAfterRemoval": {
+        "tag": "DIALOG",
+        "label": "Main menu"
+      },
+      "initial": {
+        "sameStore": true,
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "loadedState": null,
+        "sameCanvas": true,
+        "loadingSeen": false,
+        "canvasRemoved": false,
+        "disposed": false,
+        "terrainAborted": false,
+        "level": 1,
+        "turn": 0,
+        "time": 0,
+        "paused": false,
+        "status": "failed",
+        "hasCheckpoint": false,
+        "canvasPresent": false
+      },
+      "before": {
+        "keys": [
+          "latest"
+        ],
+        "sha256": "f4a3c66a089a561b6970c75dd22fd86e33ba0208e88176e36bf7f107f8b33a43",
+        "checkpoint": {
+          "level": 1,
+          "turn": 75,
+          "time": 6.25,
+          "paused": true,
+          "randomState": 1190084180,
+          "units": [
+            [
+              13,
+              "brave",
+              "blue",
+              50,
+              7,
+              33
+            ],
+            [
+              14,
+              "brave",
+              "blue",
+              50,
+              11,
+              33
+            ],
+            [
+              15,
+              "brave",
+              "blue",
+              50,
+              7,
+              35
+            ],
+            [
+              16,
+              "brave",
+              "blue",
+              50,
+              11,
+              31
+            ],
+            [
+              17,
+              "brave",
+              "blue",
+              50,
+              11,
+              35
+            ],
+            [
+              18,
+              "brave",
+              "blue",
+              50,
+              7,
+              31
+            ],
+            [
+              30,
+              "shaman",
+              "blue",
+              100,
+              9,
+              33
+            ],
+            [
+              32,
+              "shaman",
+              "red",
+              100,
+              1,
+              -37
+            ],
+            [
+              33,
+              "warrior",
+              "red",
+              90,
+              1,
+              -27
+            ],
+            [
+              34,
+              "warrior",
+              "red",
+              90,
+              -3,
+              -29
+            ],
+            [
+              35,
+              "brave",
+              "red",
+              50,
+              7,
+              -29
+            ],
+            [
+              38,
+              "brave",
+              "red",
+              50,
+              -9,
+              -3
+            ]
+          ]
+        }
+      },
+      "recovered": {
+        "sameStore": true,
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "loadedState": null,
+        "sameCanvas": true,
+        "loadingSeen": false,
+        "canvasRemoved": false,
+        "disposed": false,
+        "terrainAborted": false,
+        "level": 1,
+        "turn": 0,
+        "time": 0,
+        "paused": false,
+        "status": "read",
+        "hasCheckpoint": true,
+        "canvasPresent": false
+      },
+      "loaded": {
+        "level": 1,
+        "turn": 75,
+        "paused": true
+      },
+      "fixture": {
+        "label": "checkpoint recovery storage-boundary fixture",
+        "next": null,
+        "opens": 1,
+        "reads": 3,
+        "writes": [],
+        "faults": [
+          "real read transaction aborted by fixture",
+          "real read transaction aborted by fixture"
+        ],
+        "held": false,
+        "holdExpired": false
+      }
+    },
+    {
+      "name": "empty",
+      "storage": {
+        "keys": [],
+        "sha256": "ac342238de5ded6cb750fea136c0b684712dc419829a277f7e4d2248f591fd50",
+        "checkpoint": null
+      },
+      "fixture": {
+        "label": "checkpoint recovery storage-boundary fixture",
+        "next": null,
+        "opens": 1,
+        "reads": 1,
+        "writes": [],
+        "faults": [],
+        "held": false,
+        "holdExpired": false
+      }
+    },
+    {
+      "name": "navigate-during-retry",
+      "frozen": {
+        "sameStore": true,
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "loadedState": null,
+        "sameCanvas": true,
+        "loadingSeen": false,
+        "canvasRemoved": false,
+        "disposed": false,
+        "terrainAborted": false,
+        "level": 1,
+        "turn": 81,
+        "time": 6.75,
+        "paused": true,
+        "status": "pending",
+        "hasCheckpoint": false,
+        "canvasPresent": true
+      },
+      "after": {
+        "sameStore": true,
+        "sameWorld": true,
+        "sameScene": true,
+        "sameSceneWorld": true,
+        "loadedState": null,
+        "sameCanvas": true,
+        "loadingSeen": false,
+        "canvasRemoved": false,
+        "disposed": false,
+        "terrainAborted": false,
+        "level": 1,
+        "turn": 81,
+        "time": 6.75,
+        "paused": true,
+        "status": "read",
+        "hasCheckpoint": true,
+        "canvasPresent": true
+      },
+      "newerSaved": {
+        "keys": [
+          "latest"
+        ],
+        "sha256": "9af52d43d03389b8e19166d69ef41a81c7841c1cd6a88a38c0dd64183949c5f3",
+        "checkpoint": {
+          "level": 1,
+          "turn": 81,
+          "time": 6.75,
+          "paused": true,
+          "randomState": 1190084180,
+          "units": [
+            [
+              13,
+              "brave",
+              "blue",
+              50,
+              7,
+              33
+            ],
+            [
+              14,
+              "brave",
+              "blue",
+              50,
+              11,
+              33
+            ],
+            [
+              15,
+              "brave",
+              "blue",
+              50,
+              7,
+              35
+            ],
+            [
+              16,
+              "brave",
+              "blue",
+              50,
+              11,
+              31
+            ],
+            [
+              17,
+              "brave",
+              "blue",
+              50,
+              11,
+              35
+            ],
+            [
+              18,
+              "brave",
+              "blue",
+              50,
+              7,
+              31
+            ],
+            [
+              30,
+              "shaman",
+              "blue",
+              100,
+              9,
+              33
+            ],
+            [
+              32,
+              "shaman",
+              "red",
+              100,
+              1,
+              -37
+            ],
+            [
+              33,
+              "warrior",
+              "red",
+              90,
+              1,
+              -27
+            ],
+            [
+              34,
+              "warrior",
+              "red",
+              90,
+              -3,
+              -29
+            ],
+            [
+              35,
+              "brave",
+              "red",
+              50,
+              7,
+              -29
+            ],
+            [
+              38,
+              "brave",
+              "red",
+              50,
+              -9,
+              -3
+            ]
+          ]
+        }
+      },
+      "loadedNewer": {
+        "turn": 81,
+        "level": 1
+      },
+      "fixture": {
+        "label": "checkpoint recovery storage-boundary fixture",
+        "next": null,
+        "opens": 2,
+        "reads": 1,
+        "writes": [
+          {
+            "method": "put",
+            "store": "checkpoints",
+            "key": "latest"
+          }
+        ],
+        "faults": [
+          "injected synchronous open failure"
+        ],
+        "held": false,
+        "holdExpired": false
+      }
+    }
+  ],
+  "errors": [],
+  "warnings": [
+    {
+      "episode": "seed",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    },
+    {
+      "episode": "seed",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    },
+    {
+      "episode": "open-recovery",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    },
+    {
+      "episode": "open-recovery",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    },
+    {
+      "episode": "abort-recovery",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    },
+    {
+      "episode": "abort-recovery",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    },
+    {
+      "episode": "navigate-during-retry",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    },
+    {
+      "episode": "navigate-during-retry",
+      "message": "THREE.WebGLRenderer: Texture marked for update but no image data found."
+    }
+  ],
+  "cleanup": [
+    {
+      "name": "open-recovery",
+      "pageClosed": true
+    },
+    {
+      "name": "abort-recovery",
+      "pageClosed": true
+    },
+    {
+      "name": "seed",
+      "closed": true
+    },
+    {
+      "name": "empty",
+      "closed": true
+    }
+  ],
+  "seed": {
+    "keys": [
+      "latest"
+    ],
+    "sha256": "f4a3c66a089a561b6970c75dd22fd86e33ba0208e88176e36bf7f107f8b33a43",
+    "checkpoint": {
+      "level": 1,
+      "turn": 75,
+      "time": 6.25,
+      "paused": true,
+      "randomState": 1190084180,
+      "units": [
+        [
+          13,
+          "brave",
+          "blue",
+          50,
+          7,
+          33
+        ],
+        [
+          14,
+          "brave",
+          "blue",
+          50,
+          11,
+          33
+        ],
+        [
+          15,
+          "brave",
+          "blue",
+          50,
+          7,
+          35
+        ],
+        [
+          16,
+          "brave",
+          "blue",
+          50,
+          11,
+          31
+        ],
+        [
+          17,
+          "brave",
+          "blue",
+          50,
+          11,
+          35
+        ],
+        [
+          18,
+          "brave",
+          "blue",
+          50,
+          7,
+          31
+        ],
+        [
+          30,
+          "shaman",
+          "blue",
+          100,
+          9,
+          33
+        ],
+        [
+          32,
+          "shaman",
+          "red",
+          100,
+          1,
+          -37
+        ],
+        [
+          33,
+          "warrior",
+          "red",
+          90,
+          1,
+          -27
+        ],
+        [
+          34,
+          "warrior",
+          "red",
+          90,
+          -3,
+          -29
+        ],
+        [
+          35,
+          "brave",
+          "red",
+          50,
+          7,
+          -29
+        ],
+        [
+          38,
+          "brave",
+          "red",
+          50,
+          -9,
+          -3
+        ]
+      ]
+    }
+  }
+}

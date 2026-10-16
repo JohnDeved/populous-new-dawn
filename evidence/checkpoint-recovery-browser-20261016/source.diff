@@ -1,0 +1,473 @@
+diff --git a/app/game-store.ts b/app/game-store.ts
+index e8ad6fe6..fbddf220 100644
+--- a/app/game-store.ts
++++ b/app/game-store.ts
+@@ -31,6 +31,8 @@ const CHECKPOINT_DATABASE = 'populous-new-dawn',
+   PROFILE_VERSION = 1
+ let checkpointDatabase: Promise<IDBDatabase | null> | null = null
+ 
++export type CheckpointReadStatus = 'idle' | 'pending' | 'read' | 'unavailable' | 'failed'
++
+ type LegacyGift = {
+   x: number
+   z: number
+@@ -333,7 +335,7 @@ function openCheckpointDatabase() {
+ 
+ async function readStoredState() {
+   const database = await openCheckpointDatabase()
+-  if (!database) return { checkpoint: null, completed: [] }
++  if (!database) return null
+   return new Promise<{ checkpoint: World | null; completed: number[] }>((resolve, reject) => {
+     const transaction = database.transaction(CHECKPOINT_STORE),
+       store = transaction.objectStore(CHECKPOINT_STORE),
+@@ -421,6 +423,8 @@ async function writeCompletedMissions(completed: number[]) {
+ // The simulation owns its mutable world. React subscribes to published revisions
+ // instead of treating that world as immutable component state.
+ export function createGameStore() {
++  let checkpointReadStatus: CheckpointReadStatus = 'idle'
++  let checkpointRestore: Promise<boolean> | null = null
+   let world = createWorld(),
+     checkpoint: World | null = null,
+     observedCompletion = world.outcome.completedLevel,
+@@ -488,23 +492,36 @@ export function createGameStore() {
+       update()
+     },
+     hasCheckpoint: () => !!checkpoint,
++    getCheckpointReadStatus: () => checkpointReadStatus,
+     getCompletedMissions: () => [...completedMissions].sort((a, b) => a - b),
+-    restoreCheckpoint: async () => {
+-      try {
+-        const saved = await readStoredState()
+-        if (!checkpoint && saved.checkpoint) {
+-          try {
+-            checkpoint = migrateCheckpoint(structuredClone(saved.checkpoint))
+-          } catch {
+-            // A malformed checkpoint must not suppress the independent campaign profile.
++    restoreCheckpoint: () => {
++      if (checkpointRestore) return checkpointRestore
++      checkpointReadStatus = 'pending'
++      checkpointRestore = (async () => {
++        try {
++          const saved = await readStoredState()
++          if (saved) {
++            if (!checkpoint && saved.checkpoint) {
++              try {
++                checkpoint = migrateCheckpoint(structuredClone(saved.checkpoint))
++              } catch {
++                // A malformed checkpoint must not suppress the independent campaign profile.
++              }
++            }
++            for (const mission of saved.completed) completedMissions.add(mission)
+           }
++          checkpointReadStatus = saved ? 'read' : 'unavailable'
++        } catch {
++          // Browser storage is optional; retain any in-session checkpoint.
++          checkpointReadStatus = 'failed'
++        } finally {
++          checkpointRestore = null
++          update()
+         }
+-        for (const mission of saved.completed) completedMissions.add(mission)
+-        update()
+-      } catch {
+-        // Browser storage is optional; retain any in-session checkpoint.
+-      }
+-      return !!checkpoint
++        return !!checkpoint
++      })()
++      update()
++      return checkpointRestore
+     },
+     saveCheckpoint: async (paused = world.paused) => {
+       rebuildSecondaryLists(world.secondaryEffects)
+diff --git a/app/original-main-menu.module.css b/app/original-main-menu.module.css
+index 01cf6a30..aee626e2 100644
+--- a/app/original-main-menu.module.css
++++ b/app/original-main-menu.module.css
+@@ -44,6 +44,11 @@
+ .quit .rows button:focus-visible { outline-offset: -1px; }
+ .quit .rows button[aria-disabled='true'] .fallback { opacity: .5; }
+ .quitGuidance { position: absolute; left: 100px; top: 278px; width: 440px; margin: 0; color: #fff1bb; font: 16px/1.5 sans-serif; text-align: center; text-shadow: 1px 1px #000; }
++.checkpointRecovery { position: absolute; bottom: 6px; left: 32px; width: 576px; padding: 6px; background: #201a08ee; color: #fff1bb; font: 13px/1.3 sans-serif; text-align: center; }
++.checkpointRecovery p { margin: 0 0 4px; }
++.checkpointRecovery button { padding: 4px 10px; border: 1px solid #fff1bb; background: #30270f; color: inherit; font: inherit; }
++.checkpointRecovery button:focus-visible { outline: 2px solid #fff1bb; outline-offset: 2px; }
++.checkpointRecovery button:disabled { opacity: .65; }
+ 
+ .fallback { color: #fff1bb; font: 22px/28px Georgia, serif; text-shadow: 1px 2px #000; }
+ .fallbackTitle { position: absolute; top: 30px; width: 100%; text-align: center; font: 32px Georgia, serif; color: #fff1bb; }
+diff --git a/app/original-main-menu.tsx b/app/original-main-menu.tsx
+index bb3095b9..9fe3a0cd 100644
+--- a/app/original-main-menu.tsx
++++ b/app/original-main-menu.tsx
+@@ -1,6 +1,7 @@
+ import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+ import assets from './original-frontend.json'
+ import styles from './original-main-menu.module.css'
++import type { CheckpointReadStatus } from './game-store.ts'
+ import {
+   answerTutorialRecommendation,
+   hasAnsweredTutorialRecommendation,
+@@ -20,6 +21,8 @@ import {
+ 
+ interface Props {
+   hasCheckpoint: boolean
++  checkpointReadStatus: CheckpointReadStatus
++  onRetryCheckpoint: () => void
+   onNewGame: () => void
+   onTutorial: () => void
+   onLoad: () => void
+@@ -71,6 +74,8 @@ function MenuText({
+ 
+ export function OriginalMainMenu({
+   hasCheckpoint,
++  checkpointReadStatus,
++  onRetryCheckpoint,
+   onNewGame,
+   onTutorial,
+   onLoad,
+@@ -88,7 +93,9 @@ export function OriginalMainMenu({
+   const [focused, setFocused] = useState<string | null>(null)
+   const returnFocus = useRef<string | null>(null)
+   const recommendationCommitted = useRef(false)
+-  const [panel, setPanel] = useState<'main' | 'options' | 'quit' | 'tutorial-recommendation'>('main')
++  const [panel, setPanel] = useState<'main' | 'options' | 'quit' | 'tutorial-recommendation'>(
++    'main'
++  )
+   const [optionRows, setOptionRows] = useState<FrontendTextRow[]>([])
+   const [{ scale, canvasWidth }, setViewport] = useState({ scale: 1, canvasWidth: 640 })
+   const [artReady, setArtReady] = useState(false)
+@@ -174,7 +181,7 @@ export function OriginalMainMenu({
+                 ? tutorialRecommendationRows.filter(row =>
+                     tutorialParagraphRows.includes(row) ? questionReady : artReady
+                   )
+-                : frontendQuitRows.filter((_, index) => index === 0 ? questionReady : artReady),
++                : frontendQuitRows.filter((_, index) => (index === 0 ? questionReady : artReady)),
+             canvasWidth,
+             artReady,
+             artReady
+@@ -225,7 +232,15 @@ export function OriginalMainMenu({
+     {
+       label: 'Load Game',
+       action: onLoad,
+-      unavailable: !hasCheckpoint ? 'No saved checkpoint' : undefined,
++      unavailable: hasCheckpoint
++        ? undefined
++        : checkpointReadStatus === 'failed'
++          ? 'Saved checkpoint could not be read'
++          : checkpointReadStatus === 'unavailable'
++            ? 'Browser storage is unavailable'
++            : checkpointReadStatus === 'pending' || checkpointReadStatus === 'idle'
++              ? 'Checking browser storage'
++              : 'No usable saved checkpoint',
+     },
+     {
+       label: 'Multiplayer',
+@@ -261,7 +276,8 @@ export function OriginalMainMenu({
+         if (
+           (panel !== 'main' && panel !== 'tutorial-recommendation') ||
+           !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)
+-        ) return
++        )
++          return
+         event.preventDefault()
+         const buttons = [
+           ...(dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []),
+@@ -347,6 +363,26 @@ export function OriginalMainMenu({
+           </nav>
+         )}
+         {panel === 'options' && renderOptions(back, setOptionRows)}
++        {panel === 'main' && checkpointReadStatus !== 'read' && checkpointReadStatus !== 'idle' && (
++          <section className={styles.checkpointRecovery} aria-label="Browser checkpoint recovery">
++            <p role="status">
++              {checkpointReadStatus === 'failed'
++                ? 'Could not read browser storage. Your saved checkpoint may still be available.'
++                : checkpointReadStatus === 'pending'
++                  ? 'Checking browser storage…'
++                  : 'Browser storage is unavailable. You can still play and save for this session.'}
++            </p>
++            {checkpointReadStatus !== 'unavailable' && (
++              <button
++                type="button"
++                disabled={checkpointReadStatus === 'pending'}
++                onClick={onRetryCheckpoint}
++              >
++                Retry checkpoint lookup
++              </button>
++            )}
++          </section>
++        )}
+         {panel === 'tutorial-recommendation' && (
+           <section
+             className={styles.quit}
+diff --git a/app/page.tsx b/app/page.tsx
+index b912900b..bb4429d4 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -405,8 +405,9 @@ export default function Home() {
+   }, [])
+   useEffect(() => {
+     let active = true
++    const initialWorld = store.getWorld()
+     void store.restoreCheckpoint().then(() => {
+-      if (!active) return
++      if (!active || store.getWorld() !== initialWorld) return
+       const preferences = readAudioPreferences()
+       setAudioPreferences(preferences)
+       audio.current?.setVolume(preferences.volume)
+@@ -1455,6 +1456,10 @@ export default function Home() {
+       {startup === 'choice' && !startupCampaign && (
+         <OriginalMainMenu
+           hasCheckpoint={store.hasCheckpoint()}
++          checkpointReadStatus={store.getCheckpointReadStatus()}
++          onRetryCheckpoint={() => {
++            void store.restoreCheckpoint()
++          }}
+           onNewGame={() => setStartupCampaign(true)}
+           onTutorial={() => startMission(tutorialLevel)}
+           onLoad={loadCheckpoint}
+diff --git a/tests/campaign-profile-recovery.test.mjs b/tests/campaign-profile-recovery.test.mjs
+index 992237bf..945be07a 100644
+--- a/tests/campaign-profile-recovery.test.mjs
++++ b/tests/campaign-profile-recovery.test.mjs
+@@ -83,7 +83,7 @@ for (const [name, latest] of [
+         assert.deepEqual(store.getCompletedMissions(), [1, 2])
+         assert.deepEqual(records, before, 'stored records remain recoverable and unchanged')
+       }
+-      assert.equal(updates, 2, 'publish restored progress to subscribers')
++      assert.equal(updates, 4, 'publish pending status and restored progress to subscribers')
+       assert.deepEqual(writes, [])
+     })
+   })
+diff --git a/tests/checkpoint-restore-ui.test.mjs b/tests/checkpoint-restore-ui.test.mjs
+new file mode 100644
+index 00000000..d3220125
+--- /dev/null
++++ b/tests/checkpoint-restore-ui.test.mjs
+@@ -0,0 +1,226 @@
++import assert from 'node:assert/strict'
++import test from 'node:test'
++import { readFileSync } from 'node:fs'
++import ts from 'typescript'
++import { createWorld } from '../app/world-initialization.ts'
++import { frontendRowY, frontendTextWidth } from '../app/frontend-composition.ts'
++import { evaluatePage, pageEffect, pageNode, pageSource } from './support/follower-nearby-page.mjs'
++
++// Actual Home effect/JSX and menu component, with synthetic hooks and IndexedDB.
++// Rendering, browser storage, and native dialog focus remain separate browser gates.
++const menuSource = ts.createSourceFile('menu.tsx', readFileSync(new URL('../app/original-main-menu.tsx', import.meta.url), 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
++const menuFunction = menuSource.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'OriginalMainMenu')
++const renderMenu = evaluatePage(menuFunction.getText(menuSource).replace(/^export /, ''), {
++  useRef: current => ({ current }), useState: value => [value, () => {}],
++  useEffect: () => {}, useCallback: callback => callback,
++  styles: new Proxy({}, { get: (_, name) => name }), MenuText: 'MenuText',
++  frontendRowY, frontendTextWidth,
++})
++const homeMenu = pageNode(node => ts.isJsxSelfClosingElement(node) && node.tagName.getText(pageSource) === 'OriginalMainMenu')
++function menu(store, overrides = {}) {
++  const home = evaluatePage(homeMenu.getText(pageSource), {
++    OriginalMainMenu: 'OriginalMainMenu', store,
++    setStartupCampaign: () => assert.fail('lookup must not navigate to campaign selection'),
++    startMission: () => assert.fail('lookup must not start a mission'), tutorialLevel: 79,
++    loadCheckpoint: () => assert.fail('lookup must not load a checkpoint'), ...overrides,
++  })
++  return renderMenu(home.props)
++}
++function nodes(tree) {
++  if (!tree || typeof tree !== 'object') return []
++  if (Array.isArray(tree)) return tree.flatMap(nodes)
++  return [tree, ...tree.children.flatMap(nodes)]
++}
++const button = (tree, name) => nodes(tree).find(node => node.type === 'button' && (node.props['aria-label'] === name || node.children.includes(name)))
++const text = tree => nodes(tree).flatMap(node => node.children.filter(child => typeof child === 'string')).join(' ')
++function startup(store) {
++  const states = []
++  const names = ['beginLoad', 'startMission', 'loadCheckpoint']
++  const declarations = names.map(name => pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === name).getText(pageSource)).join('\n')
++  const navigation = evaluatePage(`function(){${declarations}; return {${names.join(',')}}}`, {
++    store, setStartup: state => states.push(state),
++    menuSession: { current: null }, pendingMenuCamera: { current: [] },
++    engine: { current: null }, audio: { current: null }, loadRequest: { current: null },
++    cancelNearbyInput: () => {}, setSelectorOpen: () => {}, setMenu: () => {},
++    setReady: () => {}, setError: () => {}, setTab: () => {},
++  })()
++  const cleanup = pageEffect('store.restoreCheckpoint()', {
++    store, readAudioPreferences: () => ({ volume: 1, musicVolume: 1 }),
++    readGamePreferences: () => ({}), setAudioPreferences: () => {}, audio: { current: null },
++    gamePreferencesRef: { current: null }, setGamePreferences: () => {},
++    setStartup: state => states.push(state),
++  })()
++  return { states, cleanup, navigation }
++}
++const settle = () => new Promise(resolve => setImmediate(resolve))
++let session = 0
++async function withStorage(run, initial = {}) {
++  const previous = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB')
++  const records = new Map(Object.entries(initial)), opens = [], reads = [], writes = []
++  let transactions = 0
++  const database = {
++    transaction(name, mode = 'readonly') {
++      assert.equal(name, 'checkpoints')
++      transactions++
++      const transaction = new EventTarget()
++      transaction.objectStore = () => ({
++        get: key => ({ result: structuredClone(records.get(key)) }),
++        put: (value, key) => { writes.push(key); records.set(key, structuredClone(value)) },
++      })
++      if (mode === 'readonly') reads.push(transaction)
++      else queueMicrotask(() => transaction.dispatchEvent(new Event('complete')))
++      return transaction
++    },
++  }
++  Object.defineProperty(globalThis, 'indexedDB', { configurable: true, value: {
++    open: () => { const request = new EventTarget(); opens.push(request); return request },
++  } })
++  const open = async (fail = false) => {
++    const request = opens.shift()
++    assert.ok(request)
++    request.result = database
++    request.error = fail ? new Error('Synthetic open failure') : null
++    request.dispatchEvent(new Event(fail ? 'error' : 'success'))
++    await settle()
++  }
++  const read = async (fail = false) => {
++    const transaction = reads.shift()
++    assert.ok(transaction)
++    transaction.error = fail ? new Error('Synthetic transaction abort') : null
++    transaction.dispatchEvent(new Event(fail ? 'abort' : 'complete'))
++    await settle()
++  }
++  try {
++    const { createGameStore } = await import(`../app/game-store.ts?restore-ui=${++session}`)
++    await run({ store: createGameStore(), open, read, records, writes, opens, reads, transactions: () => transactions })
++  } finally {
++    if (previous) Object.defineProperty(globalThis, 'indexedDB', previous)
++    else delete globalThis.indexedDB
++  }
++}
++
++for (const failure of ['open', 'abort']) test(`actual Home ${failure} failure exposes retry and enables Load after a recovered read`, async () => {
++  const saved = createWorld(); saved.turn = 217
++  await withStorage(async ({ store, open, read, writes, records, transactions }) => {
++    const active = store.getWorld(), before = structuredClone(records), home = startup(store)
++    await open(failure === 'open')
++    if (failure === 'abort') await read(true)
++    assert.deepEqual(home.states, ['choice'])
++    assert.equal(store.getCheckpointReadStatus(), 'failed')
++    const failed = menu(store), load = button(failed, 'Load Game'), retry = button(failed, 'Retry checkpoint lookup')
++    assert.equal(load.props['aria-disabled'], true)
++    assert.equal(load.props.title, 'Saved checkpoint could not be read')
++    assert.match(text(failed), /may still be available/)
++    assert.ok(retry && !retry.props.disabled)
++    retry.props.onClick()
++    const pending = store.restoreCheckpoint()
++    assert.equal(pending, store.restoreCheckpoint(), 'same pending promise for repeated attempts')
++    retry.props.onClick()
++    assert.equal(button(menu(store), 'Retry checkpoint lookup').props.disabled, true)
++    if (failure === 'open') await open()
++    else await settle()
++    await read()
++    assert.equal(await pending, true)
++    assert.equal(transactions(), failure === 'open' ? 1 : 2, 'one transaction per attempt')
++    assert.equal(store.getWorld(), active, 'retry refreshes availability only')
++    assert.deepEqual(home.states, ['choice'], 'retry never navigates')
++    assert.deepEqual(records, before)
++    assert.deepEqual(writes, [])
++    assert.deepEqual(store.getCompletedMissions(), [1, 2])
++    const recovered = button(menu(store, home.navigation), 'Load Game')
++    assert.equal(recovered.props['aria-disabled'], false)
++    recovered.props.onClick()
++    assert.equal(store.getWorld().turn, 217)
++    assert.notEqual(store.getWorld(), active)
++    assert.deepEqual(home.states, ['choice', 'playing'], 'only deliberate Load invokes actual Home beginLoad')
++    home.cleanup()
++  }, { latest: { version: 1, world: saved }, profile: { version: 1, completed: [1, 2] } })
++})
++
++test('genuine empty and unusable records are read results, not a failed lookup or proof of empty disk', async () => {
++  for (const latest of [undefined, { version: 999, world: {} }, { version: 1, world: {} }]) {
++    await withStorage(async ({ store, open, read, writes }) => {
++      const home = startup(store)
++      await open(); await read()
++      assert.equal(store.getCheckpointReadStatus(), 'read')
++      assert.equal(store.hasCheckpoint(), false)
++      assert.equal(button(menu(store), 'Load Game').props.title, 'No usable saved checkpoint')
++      assert.equal(button(menu(store), 'Retry checkpoint lookup'), undefined)
++      assert.deepEqual(writes, [])
++      home.cleanup()
++    }, { latest })
++  }
++})
++
++test('repeated failed retries preserve the world and remain retryable', async () => {
++  await withStorage(async ({ store, open, writes }) => {
++    const active = store.getWorld(), home = startup(store)
++    for (let attempt = 0; attempt < 3; attempt++) {
++      if (attempt) button(menu(store), 'Retry checkpoint lookup').props.onClick()
++      await open(true)
++      assert.equal(store.getCheckpointReadStatus(), 'failed')
++      assert.equal(store.getWorld(), active)
++      assert.equal(button(menu(store), 'Retry checkpoint lookup').props.disabled, false)
++    }
++    assert.deepEqual(home.states, ['choice'])
++    assert.deepEqual(writes, [])
++    home.cleanup()
++  })
++})
++
++test('late read keeps a newer memory save and current world after navigation', async () => {
++  const saved = createWorld(); saved.turn = 217
++  await withStorage(async ({ store, open, read }) => {
++    const home = startup(store)
++    await open(true)
++    button(menu(store), 'Retry checkpoint lookup').props.onClick()
++    await open()
++    home.navigation.startMission(2)
++    const newer = store.getWorld()
++    newer.turn = 999
++    assert.equal(await store.saveCheckpoint(), true)
++    await read()
++    assert.equal(store.getWorld(), newer)
++    assert.deepEqual(home.states, ['choice', 'playing'], 'Home stays mounted while retry completes after mission launch')
++    home.navigation.loadCheckpoint()
++    assert.equal(store.getWorld().turn, 999, 'post-await memory checkpoint wins over old read')
++    home.cleanup()
++  }, { latest: { version: 1, world: saved } })
++})
++
++for (const interruption of ['unmount', 'world replacement']) test(`initial restore completion cannot navigate after ${interruption}`, async () => {
++  await withStorage(async ({ store, open, read }) => {
++    const home = startup(store)
++    await open()
++    if (interruption === 'unmount') home.cleanup()
++    else store.startMission(2)
++    const active = store.getWorld()
++    await read()
++    assert.deepEqual(home.states, [])
++    assert.equal(store.getWorld(), active)
++    home.cleanup()
++  })
++})
++
++test('unsupported storage ends startup, explains session saves, and permits memory Load', async () => {
++  const previous = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB')
++  delete globalThis.indexedDB
++  try {
++    const { createGameStore } = await import('../app/game-store.ts?restore-ui=unsupported')
++    const store = createGameStore(), home = startup(store)
++    await settle()
++    assert.deepEqual(home.states, ['choice'])
++    assert.equal(store.getCheckpointReadStatus(), 'unavailable')
++    assert.equal(button(menu(store), 'Load Game').props.title, 'Browser storage is unavailable')
++    assert.equal(button(menu(store), 'Retry checkpoint lookup'), undefined)
++    store.getWorld().turn = 313
++    assert.equal(await store.saveCheckpoint(), false)
++    const load = button(menu(store, home.navigation), 'Load Game')
++    assert.equal(load.props['aria-disabled'], false)
++    load.props.onClick()
++    assert.equal(store.getWorld().turn, 313)
++    home.cleanup()
++  } finally {
++    if (previous) Object.defineProperty(globalThis, 'indexedDB', previous)
++  }
++})

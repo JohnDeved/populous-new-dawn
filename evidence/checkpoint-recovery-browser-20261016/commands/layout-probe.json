@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "dee85739-55fe-4042-9f3f-98ed1ce20bd4",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/checkpoint-recovery/probe-layout.mjs": "17bf48267b2c3429b6e1ee01b68dc6b944cd5ba56c102bffc05e10a3c78f0c81",
+      "work/orchestration/checkpoint-recovery/browser-scenario.mjs": "9b0660793c3b84e452cb13e0e8ea56e2ee2da77d15d1f3e917d7fcd516f86a13"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/checkpoint-recovery/probe-layout.mjs"
+  ],
+  "cwd": "<CANDIDATE_ROOT>",
+  "startedAt": "2026-10-16T17:37:22.420Z",
+  "artifacts": {
+    "stdout": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/layout-probe.json.artifacts/stdout.log",
+    "stderr": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/layout-probe.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:37:24.377Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"errors\":[],\"warnings\":[],\"views\":[{\"width\":640,\"height\":480,\"rect\":{\"x\":32,\"y\":414.21875,\"width\":576,\"height\":59.78125,\"top\":414.21875,\"right\":608,\"bottom\":474,\"left\":32},\"overlaps\":[],\"textOverflow\":false,\"button\":{\"x\":239.625,\"y\":441.109375,\"width\":160.75,\"height\":26.890625,\"top\":441.109375,\"right\":400.375,\"bottom\":468,\"left\":239.625},\"screenshot\":\"layout-0-640x480.png\"},{\"width\":1440,\"height\":900,\"rect\":{\"x\":180,\"y\":776.66015625,\"width\":1080,\"height\":112.08984375,\"top\":776.66015625,\"right\":1260,\"bottom\":888.75,\"left\":180},\"overlaps\":[],\"textOverflow\":false,\"button\":{\"x\":569.296875,\"y\":827.080078125,\"width\":301.40625,\"height\":50.419921875,\"top\":827.080078125,\"right\":870.703125,\"bottom\":877.5,\"left\":569.296875},\"screenshot\":\"layout-1-1440x900.png\"},{\"width\":640,\"height\":480,\"rect\":{\"x\":32,\"y\":414.21875,\"width\":576,\"height\":59.78125,\"top\":414.21875,\"right\":608,\"bottom\":474,\"left\":32},\"overlaps\":[],\"textOverflow\":false,\"button\":{\"x\":239.625,\"y\":441.109375,\"width\":160.75,\"height\":26.890625,\"top\":441.109375,\"right\":400.375,\"bottom\":468,\"left\":239.625},\"screenshot\":\"layout-2-640x480.png\"}],\"cleanupVerified\":true}\n",
+  "stderr": "",
+  "stdoutSha256": "7040843f356dcd06f411adbc53610897fc4d5fdcef6fce763689a4fbecb684d6",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/checkpoint-recovery/probe-layout.mjs": "17bf48267b2c3429b6e1ee01b68dc6b944cd5ba56c102bffc05e10a3c78f0c81",
+      "work/orchestration/checkpoint-recovery/browser-scenario.mjs": "9b0660793c3b84e452cb13e0e8ea56e2ee2da77d15d1f3e917d7fcd516f86a13"
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b2a33677-c00f-481b-b027-aa834c1d2d98",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/checkpoint-recovery/browser-scenario.mjs": "9b0660793c3b84e452cb13e0e8ea56e2ee2da77d15d1f3e917d7fcd516f86a13",
+      "work/orchestration/checkpoint-recovery/run-browser.mjs": "639730c560ade088412a9d8d829cc546dd32904d23cc5b16506be6da4616ef0e"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/checkpoint-recovery/run-browser.mjs",
+    "outputs/checkpoint-recovery-attempt4"
+  ],
+  "cwd": "<CANDIDATE_ROOT>",
+  "startedAt": "2026-10-16T17:35:01.726Z",
+  "artifacts": {
+    "stdout": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/browser-attempt4.json.artifacts/stdout.log",
+    "stderr": "<CANDIDATE_ROOT>/work/orchestration/checkpoint-recovery/browser-attempt4.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T17:35:24.405Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"cleanupVerified\":true,\"output\":\"<CANDIDATE_ROOT>/outputs/checkpoint-recovery-attempt4\"}\n",
+  "stderr": "",
+  "stdoutSha256": "c5de2e31a316b0a504b8687526ba609fa5fff9dc881017cd23e2ef63ebd3183e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9b959fa09fd86ac4cc2d72bbb95b92caefe09c93",
+    "branch": "fix/checkpoint-restore-recovery",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/checkpoint-recovery/browser-scenario.mjs": "9b0660793c3b84e452cb13e0e8ea56e2ee2da77d15d1f3e917d7fcd516f86a13",
+      "work/orchestration/checkpoint-recovery/run-browser.mjs": "639730c560ade088412a9d8d829cc546dd32904d23cc5b16506be6da4616ef0e"
+    }
+  }
+}
