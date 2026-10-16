@@ -31,8 +31,9 @@ that this game or software-rendering host achieves 120 FPS.
   Component fixture and must not be presented as gameplay/performance evidence.
 - FAILED: one fresh actual-Home Mission 1 software-rendered browser attempt crashed
   in page.waitForFunction before telemetry/fit completion. Page crashed was the
-  only captured page error. No passing live-game integration is claimed; no cause
-  or pre-existing status is established. No repeated heavy run was made.
+  only captured page error. That initial attempt established no passing live-game
+  integration; no cause or pre-existing status is established. It was not simply
+  repeated. See the separately authorized matched follow-up below.
 - Both browser routes verified unchanged source/dependency metadata and cleanup.
   Browser is Chrome154 with ANGLE/SwiftShader software rendering, not hardware GPU.
 - The first component receipt inherited Home-fixture descriptive limits from its
