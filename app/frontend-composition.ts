@@ -72,7 +72,8 @@ export function frontendBackground(
   menu: boolean,
   glowFrame: number | null = null,
   textRows: readonly FrontendTextRow[] = [],
-  width = 640
+  width = 640,
+  showLogoShadow = true
 ) {
   if (source.length !== assets.binaryBytes) throw new Error('Invalid frontend composition data')
   if (!Number.isInteger(width) || width < 640 || width % 2 !== 0)
@@ -100,15 +101,18 @@ export function frontendBackground(
       }
     }
   }
-  const logo = assets.masks.felgsden[0]
-  fadeMask(
-    indexed,
-    source,
-    logo,
-    offset + 173 - ((pointer.x - 320) >> 5),
-    5 - ((pointer.y - 60) >> 5),
-    width
-  )
+  // Browser HTML titles have no matching native logo silhouette.
+  if (showLogoShadow) {
+    const logo = assets.masks.felgsden[0]
+    fadeMask(
+      indexed,
+      source,
+      logo,
+      offset + 173 - ((pointer.x - 320) >> 5),
+      5 - ((pointer.y - 60) >> 5),
+      width
+    )
+  }
   if (glowFrame !== null) {
     const glow = assets.masks.fecursor[glowFrame % assets.masks.fecursor.length]
     fadeMask(indexed, source, glow, offset + pointer.x - 64, pointer.y - 64, width)

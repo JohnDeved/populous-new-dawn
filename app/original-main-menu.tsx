@@ -175,7 +175,8 @@ export function OriginalMainMenu({
                     tutorialParagraphRows.includes(row) ? questionReady : artReady
                   )
                 : frontendQuitRows.filter((_, index) => index === 0 ? questionReady : artReady),
-            canvasWidth
+            canvasWidth,
+            artReady
           ),
           canvasWidth,
           480
