@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "helpersSha256": "d375d7f4b0f86226b987e169711b8a1ee7861cb3d44639447c041215eca07742",
+  "helpersSha256": "328d601adb754ea941a61562057020b930c2fbd3fab8bdde2fb93e50a3e8f177",
   "productionSha256": "250fa33db72f4c97ccd3dee59a20e9e7077a4e5de494ed875c8a2e9dc7c25f4a",
   "parallel": {
     "tests/ai-producer-schedule.test.mjs": "e9c41f775b53064b5d27f26c5aee66a62afdb1cfee0f5fe1a02f5002d67a1489",
@@ -26,7 +26,7 @@
     "tests/balloon-lagging-passenger.test.mjs": "4c2ffe6827de4c841a103d640c87b7a33b1ebad07769ed66d6852d869b7fd95e",
     "tests/balloon-person-attack.test.mjs": "bd9727b3b53eaa659a7b5173f7ecc50437162e844a6212d90207a5c72a9452df",
     "tests/balloon-plain-person-attack.test.mjs": "7d38a789bae9c69951e9564c6458a9b5e59cfce17349c3edf9e9789573f9b139",
-    "tests/balloon-staged-movement.test.mjs": "1b2187206c82c99e40858a3161b8e411727f389bf6135a50b9eb7b48c6a16c41",
+    "tests/balloon-staged-movement.test.mjs": "9da75dd0fc7f78f0da7dba4baa40a3b28850e58625be0f66b2e1754e9e2fa858",
     "tests/balloon-target-startup.test.mjs": "40c10f9a6b315044936bf7e360eff314cae41fb0bb6b46800e3d4f374b078779",
     "tests/balloon-worship.test.mjs": "f498c8f59a8e0ab5f736a228c9a33aa754d3f40f3f3620b1d788aae2f213a179",
     "tests/blast-cell-order.test.mjs": "a2524f991044d087bd39c4db8240eba53d111ebc418f25e3d430b862bf5d5648",
@@ -109,7 +109,7 @@
     "tests/follower-transports.test.mjs": "7dec7717522c9b5601eae79bf63458c07d608ed7fb6dc62d439f1db4f038c057",
     "tests/footprints.test.mjs": "a0cc9a47a5218b5f402f75d71c470d117fa311b59c77d4847160c897f4264b98",
     "tests/formation-phase.test.mjs": "e984ffbd668a1c7f6c9f52b96dc6042acb245bd972bfa06a6b036533c0921c6a",
-    "tests/frame-performance.test.mjs": "0d8294e7fa5ab39ddc120d71448b71572bdcce41b248c1083e0cea773f27806e",
+    "tests/frame-performance.test.mjs": "79fb1e1c50e31017b80fff36337e3b5894fc3a3e43d6426b1ff327786051e0b8",
     "tests/frontend-composition.test.mjs": "483079e964d4adfecead81dcfa6e88da721bbfed6ec633f9fe32121d72be6661",
     "tests/frontend-logo-readiness.test.mjs": "2bf941cf218ea534747f3ff7fb31f925b1686ab920e48de5adc0be6e0456ad7b",
     "tests/frontend-text-readiness.test.mjs": "37fc8e9cdb9490e58aac4289558e2ede11285b62e8d0cd63df1355f22e81e482",
@@ -286,6 +286,7 @@
     "tests/spy-aftermath.test.mjs": "ab4da6ab90f6fa126d1e41928979fdfd38e6314306952095c093794927051301",
     "tests/spy-combat-lifecycle.test.mjs": "5c4b346a2c8542638f124f72402a0867b300605d455ed2aa836704fbe2d424d8",
     "tests/spy-sabotage-approach.test.mjs": "f2f488bbbe8a3d96cf238369d504205f8a20761c88605c641485bf50c8391af9",
+    "tests/staged-checkpoint-comparison-view.test.mjs": "a642f755717fec5a54d2de536fac0df217dbeb8a143c372019b2e12ff63fb15c",
     "tests/startup-burst-angles.test.mjs": "5b8a2786c486a3c724de6536ccbc848e0d2e401a5565d68c4c432fc00b6adc48",
     "tests/startup-burst-height.test.mjs": "3462423c68022d9d6809c567ca93fa8b29d289f2c7e6007e4e83c63dd91d3aba",
     "tests/stone-head-149.test.mjs": "2d2ace85d6037613a4912781b8cd3433cf72ef4261bc13fe6ea35643ece4d546",
