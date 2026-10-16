@@ -7,15 +7,22 @@ import {chromium} from '@playwright/test'
 import {bindGame} from './browser-game.mjs'
 import native from '../app/original-hud.json' with {type:'json'}
 import {SPELLS} from '../app/model.ts'
+import {sha256, reviewedSpellHudFrames, checkServedSpellHud, readSpellHudSprite} from './spell-hud-checker-contract.mjs'
 
 const option=name=>{const i=process.argv.indexOf(name);assert.ok(i>=0&&process.argv[i+1],`Required ${name}`);return resolve(process.argv[i+1])}
-const output=option('--output-dir'),assetReport=JSON.parse(readFileSync(option('--asset-report'),'utf8'))
-assert.equal(assetReport.status,'PASS_SIX_FRAME_ORIGINALS_AND_PRESERVATION')
+const output=option('--output-dir'),assetReportBytes=readFileSync(option('--asset-report')),assetReport=JSON.parse(assetReportBytes)
+const frames=reviewedSpellHudFrames(assetReport,native)
+const currentAtlas={width:native.width,height:native.height,
+  pngSHA:sha256(readFileSync(new URL('../public/original/hud.png',import.meta.url))),
+  metadataSHA:sha256(readFileSync(new URL('../app/original-hud.json',import.meta.url)))}
 assert.ok(process.env.PND_QUEUE_JOB_ID&&process.env.PND_QUEUE_DEADLINE,'Use the canonical queue')
 const url=process.env.POPULOUS_URL;assert.equal(new URL(url).port,'4318')
 mkdirSync(output,{recursive:false})
 const report={startedAt:new Date().toISOString(),job:process.env.PND_QUEUE_JOB_ID,mission:16,states:[],errors:[],
-  limits:['Six served asset frames are verified; rendered controls cover Shield states and fresh Bloodlust discovery, not earned Bloodlust casting.',
+  assets:{historicalAppend:{reportSHA:sha256(assetReportBytes),status:assetReport.status,base:assetReport.base,outputs:assetReport.outputs,
+    oldDimensions:assetReport.oldDimensions,newDimensions:assetReport.newDimensions},currentAtlas},
+  limits:['Seven served asset crops and the current PNG identity are verified; rendered controls cover Shield states and fresh Bloodlust discovery, not earned Bloodlust casting.',
+    'Historical append output hashes are provenance, not a reproduction or whole-atlas preservation proof for later appends.',
     'Simulation is frozen after entering the real mission; no availability, stock, gifts or unlock flags are injected.',
     'Shield inactive artwork uses real pause-charging; mode-2 Bloodlust is an undiscovered reward and cannot charge in normal campaign.',
     'No gameplay/renderer/native-cadence or hardware FPS acceptance is implied.']}
@@ -48,41 +55,31 @@ try{
   assert.ok(report.initial.available&(1<<19),'Shield remains permanently available')
   assert.equal(report.initial.available&(1<<20),0,'Normal startup clears mode-2 Bloodlust availability')
   assert.equal(report.initial.shield,0);assert.equal(report.initial.bloodlust,0)
-  // Verify the served image's six crops, separately from DOM placement/art state.
-  report.servedFrames=await page.evaluate(async frames=>{
-    const image=new Image();image.src='/original/hud.png';await image.decode()
-    const result=[]
-    for(const {id,rect}of frames){
-      const canvas=document.createElement('canvas');canvas.width=rect.w;canvas.height=rect.h
-      const c=canvas.getContext('2d');c.drawImage(image,rect.x,rect.y,rect.w,rect.h,0,0,rect.w,rect.h)
-      const rgba=c.getImageData(0,0,rect.w,rect.h).data
-      const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',rgba))).map(n=>n.toString(16).padStart(2,'0')).join('')
-      result.push({id,rgbaSHA:digest,width:image.naturalWidth,height:image.naturalHeight})
-    }
-    return result
-  },assetReport.newFrames)
-  for(const actual of report.servedFrames){
-    const original=assetReport.newFrames.find(f=>f.id===actual.id)
-    assert.equal(actual.rgbaSHA,original.rgbaSHA,`Served original RGBA ${actual.id}`)
-    assert.deepEqual([actual.width,actual.height],assetReport.newDimensions)
-  }
+  // Historical append crops remain the references; the served atlas may have
+  // later appends. Bind all crops to the same bytes as the current checked-out PNG.
+  report.servedAtlas=await page.evaluate(async frames=>{
+    const response=await fetch('/original/hud.png');if(!response.ok)throw Error('HUD fetch failed: '+response.status)
+    const bytes=await response.arrayBuffer(),digest=async data=>
+      Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data))).map(n=>n.toString(16).padStart(2,'0')).join('')
+    const image=new Image(),objectURL=URL.createObjectURL(new Blob([bytes],{type:'image/png'}))
+    try{
+      image.src=objectURL;await image.decode()
+      const result=[]
+      for(const {id,rect}of frames){
+        const canvas=document.createElement('canvas');canvas.width=rect.w;canvas.height=rect.h
+        const c=canvas.getContext('2d');c.drawImage(image,rect.x,rect.y,rect.w,rect.h,0,0,rect.w,rect.h)
+        result.push({id,rgbaSHA:await digest(c.getImageData(0,0,rect.w,rect.h).data)})
+      }
+      return{pngSHA:await digest(bytes),width:image.naturalWidth,height:image.naturalHeight,frames:result}
+    }finally{URL.revokeObjectURL(objectURL)}
+  },frames)
+  checkServedSpellHud(report.servedAtlas,currentAtlas,frames)
   const blank=async()=>{await page.mouse.move(5,5);await page.evaluate(()=>document.activeElement?.blur())}
   async function capture(card,id,state,spell){
-    const rect=native.rects[id],position=`${-rect.x}px ${-rect.y}px`
-    await card.evaluate((button,position)=>{
-      if(![...button.querySelectorAll('i.hud-sprite')].some(n=>n.style.backgroundPosition===position))
-        throw Error('Expected original icon position absent: '+position)
-    },position)
-    const data=await card.evaluate((button,{position,id})=>{
-      const sprite=[...button.querySelectorAll('i.hud-sprite')].find(n=>n.style.backgroundPosition===position)
-      const css=getComputedStyle(sprite),r=sprite.getBoundingClientRect(),b=button.getBoundingClientRect()
-      return{id,position:sprite.style.backgroundPosition,image:css.backgroundImage,text:sprite.textContent,
-        logicalWidth:sprite.style.width,logicalHeight:sprite.style.height,box:{x:r.x,y:r.y,width:r.width,height:r.height},
-        buttonBox:{x:b.x,y:b.y,width:b.width,height:b.height},border:button.style.borderImageSource,
-        selected:button.getAttribute('aria-pressed'),buttonDisabled:button.disabled,label:button.getAttribute('aria-label')}
-    },{position,id})
+    const rect=native.rects[id]
+    const data=await card.evaluate(readSpellHudSprite,{id,rect})
     assert.equal(data.text,'');assert.ok(data.image.includes('/original/hud.png'))
-    assert.equal(data.logicalWidth,`${rect.w}px`);assert.equal(data.logicalHeight,`${rect.h}px`)
+    assert.equal(data.logicalWidth,rect.w);assert.equal(data.logicalHeight,rect.h)
     assert.ok(data.box.width>0&&data.box.height>0)
     assert.equal(data.buttonDisabled,false)
     if(state==='selected')assert.equal(data.selected,'true')
@@ -135,6 +132,6 @@ try{
   assert.equal(report.final.mode,null)
   assert.deepEqual(new Set(report.states.map(s=>s.id)),new Set([408,409,410,1056]))
   assert.deepEqual(report.errors,[]);assert.equal(report.expired,undefined)
-  report.status='PASS_SIX_ASSETS_SHIELD_CONTROLS_BLOODLUST_DISCOVERY'
-}catch(error){report.status='FAILED_SIX_FRAME_HUD_ACCEPTANCE';report.error=error.stack??String(error);process.exitCode=1}
+  report.status='PASS_SEVEN_ASSETS_SHIELD_CONTROLS_BLOODLUST_DISCOVERY'
+}catch(error){report.status='FAILED_SPELL_HUD_ACCEPTANCE';report.error=error.stack??String(error);process.exitCode=1}
 finally{clearTimeout(timer);await browser.close();report.browserClosed=true;report.finishedAt=new Date().toISOString();save();console.log(JSON.stringify({status:report.status,error:report.error,states:report.states.length,output,initial:report.initial,final:report.final,browserClosed:true},null,2))}
