@@ -828,6 +828,7 @@
       "env": [],
       "inputs": [
         ".codex/config.toml",
+        ".github/workflows/ready-pr-check.yml",
         ".agents/skills/populous-engineering/SKILL.md",
         "AGENTS.md",
         "GOAL.md",
@@ -903,6 +904,7 @@
       "env": [],
       "inputs": [
         ".codex/config.toml",
+        ".github/workflows/ready-pr-check.yml",
         "package.json",
         "app",
         "engineering",

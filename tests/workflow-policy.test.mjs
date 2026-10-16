@@ -213,3 +213,46 @@ test('focused suggestions are advisory and broad or unknown changes fall back to
   assert.deepEqual(make('tests/deleted.test.mjs', 'D').command, ['npm', 'test'])
   assert.equal(focusedTestFeedback({ changes: [], unknownPaths: [], checks: [] }).command, null)
 })
+
+// This is a deliberately simple one-job workflow. Keep its merge-critical
+// structure reviewable; hosted lifecycle evidence remains separate from these
+// source/shell contract checks (this is not a YAML or Actions implementation).
+test('ready-PR full gate keeps explicit triggers, stable status and least privilege', () => {
+  const workflow = read('.github/workflows/ready-pr-check.yml')
+  assert.match(workflow, /^name: Ready PR checks$/m)
+  assert.match(workflow, /^on:\n {2}pull_request:\n {4}branches: \[main\]\n {4}types: \[opened, reopened, synchronize, ready_for_review, converted_to_draft\]$/m)
+  assert.match(workflow, /^permissions:\n {2}contents: read\n/m)
+  assert.match(workflow, /^concurrency:\n {2}group: ready-pr-check-\$\{\{ github.event.pull_request.number \}\}\n {2}cancel-in-progress: true$/m)
+  assert.match(workflow, /^jobs:\n {2}full-check:\n(?: {4}#.*\n)* {4}name: Full check\n {4}runs-on: ubuntu-24.04\n {4}timeout-minutes: 120$/m)
+  assert.doesNotMatch(workflow, /^\s*(?:if|continue-on-error|paths|paths-ignore|push|pull_request_target|workflow_run|environment|secrets):/m)
+  assert.doesNotMatch(workflow, /\$\{\{\s*secrets\.|actions\/(?:cache|upload-artifact)@|--if-present|npm run (?:deploy|parity:record)/)
+  assert.deepEqual([...workflow.matchAll(/uses: ([\w/-]+)@([a-f0-9]{40})/g)].map(m => m[1]), [
+    'actions/checkout', 'actions/setup-node', 'actions/setup-python',
+  ])
+  assert.match(workflow, /ref: \$\{\{ github.sha \}\}\n[\s\S]*fetch-depth: 0\n {10}persist-credentials: false/)
+  assert.match(workflow, /node-version: '24\.19\.0'/)
+  assert.match(workflow, /package-manager-cache: false/)
+  assert.match(workflow, /npm ci --no-audit --no-fund/)
+  assert.match(workflow, /--require-hashes -r engineering\/ci-python-requirements\.txt/)
+  assert.match(workflow, /- name: Full typecheck, tests, parity and orchestration\n {8}run: npm run check\n\n {6}- name: Production build\n {8}run: npm run build/)
+  assert.match(workflow, /run: git diff --exit-code HEAD --/)
+  assert.match(read('engineering/ci-python-requirements.txt'), /^Pillow==12\.3\.0 --hash=sha256:[a-f0-9]{64}$/m)
+  const { checks } = JSON.parse(read('engineering/checks.json'))
+  for (const id of ['orchestration-tests', 'repository-check'])
+    assert.ok(checks.find(check => check.id === id).inputs.includes('.github/workflows/ready-pr-check.yml'))
+})
+
+test('draft readiness guard fails closed before checkout, installation or full tests', () => {
+  const workflow = read('.github/workflows/ready-pr-check.yml')
+  const guard = workflow.match(/ {4}steps:\n(?: {6}#.*\n)* {6}- name: Require a ready pull request\n {8}env:\n {10}IS_DRAFT: \$\{\{ github.event.pull_request.draft \}\}\n {8}run: \|\n((?: {10}[^\n]*\n)+)/)?.[1]
+  assert.ok(guard, 'readiness guard must be the first step')
+  const script = guard.replace(/^ {10}/gm, '')
+  for (const [value, status] of [['false', 0], ['true', 1], ['', 1], ['unexpected', 1]]) {
+    const result = spawnSync('bash', ['-e', '-c', script], {
+      env: { ...process.env, IS_DRAFT: value }, encoding: 'utf8',
+    })
+    assert.equal(result.error, undefined)
+    assert.equal(result.status, status, result.stderr)
+    if (status) assert.match(result.stdout, /Draft PR: full checks have not run/)
+  }
+})
