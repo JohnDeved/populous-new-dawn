@@ -1,0 +1,21 @@
+(node:13) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ frame telemetry computes time-weighted cadence and per-frame CPU/call means at four Hz (1.321689ms)
+✔ a slow frame remains visible and affects cadence rather than being clamped away (0.271548ms)
+✔ history is one fixed 240-frame chronological ring and reset exposes no old window (0.688764ms)
+✔ invalid or nonpositive frame intervals cannot poison telemetry (0.165825ms)
+✔ hardware hints use the supplied live context and explicit approximate units (1.041447ms)
+✔ unsupported or privacy-restricted telemetry never fabricates hardware numbers (0.397662ms)
+✔ live callback CPU includes preparation, HUD and scheduling, excluding overlay work (7.416432ms)
+✔ modal callback measures rendering and scheduling without simulation or HUD (1.96223ms)
+✔ disabled and hidden diagnostics add no clock reads and preserve game callback order (7.461678ms)
+✔ 120 FPS cadence and total CPU remain separate measurements across reset (0.489571ms)
+✔ actual graph keeps a startup spike, auto scale and 120 FPS guide consistent until expiry (1.915221ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 215.089351

@@ -160,3 +160,59 @@ test('120 FPS cadence and total CPU remain separate measurements across reset', 
   assert.ok(graph.includes('120 FPS: 8.33 ms'))
   assert.ok(graph.includes('1000 / 120 / ceiling'))
 })
+
+import { FpsGraph } from '../app/fps-graph.ts'
+
+test('actual graph keeps a startup spike, auto scale and 120 FPS guide consistent until expiry', () => {
+  // Exercise production update without constructing browser UI or replacing globals.
+  const sink = () => ({
+    textContent: '',
+    attributes: new Map(),
+    setAttribute(name, value) { this.attributes.set(name, value) },
+    getAttribute(name) { return this.attributes.get(name) },
+  })
+  const graph = Object.create(FpsGraph.prototype)
+  Object.assign(graph, {
+    previous: null,
+    samples: new FramePerformance(),
+    fields: Object.fromEntries(['state', 'fps', 'frame', 'peak', 'callback', 'simulation',
+      'render', 'calls', 'heap', 'scale'].map(name => [name, sink()])),
+    line: sink(),
+    budget: sink(),
+  })
+  const metric = name => graph.fields[name].textContent
+  const guideY = () => {
+    const match = /^M0 ([\d.]+)H240$/.exec(graph.budget.getAttribute('d'))
+    assert.ok(match, 'actual SVG guide path is present')
+    return Number(match[1])
+  }
+  graph.update(0, 1, 2, 3, 'Live', 4)
+  graph.update(1020, 1, 2, 3, 'Live', 4)
+  assert.equal(graph.samples.frame(0), 1020)
+  assert.equal(graph.samples.frameMs, 1020)
+  assert.equal(graph.samples.fps, 1000 / 1020)
+  assert.equal(metric('peak'), '1020.0 ms')
+  assert.equal(metric('scale'), '0–1020 ms')
+  assert.equal(graph.line.getAttribute('points').trim(), '239,1.0')
+  assert.ok(Math.abs(guideY() - (59 - 58 * (1000 / 120) / 1020)) < 1e-12)
+
+  // Averages recover before the spike leaves recent history.
+  for (let i = 1; i <= 225; i++) graph.update(1020 + i * 10, 1, 2, 3, 'Live', 4)
+  assert.equal(metric('fps'), '100')
+  assert.equal(metric('frame'), '10.0 ms')
+  assert.equal(metric('peak'), '1020.0 ms')
+  assert.equal(metric('scale'), '0–1020 ms')
+  assert.equal(graph.samples.frame(0), 1020)
+  assert.ok(Math.abs(guideY() - (59 - 58 * (1000 / 120) / 1020)) < 1e-12)
+
+  // Cross the 240-frame ring boundary and the next 250 ms publication.
+  for (let i = 226; i <= 250; i++) graph.update(1020 + i * 10, 1, 2, 3, 'Live', 4)
+  assert.equal(graph.samples.count, 240)
+  for (let i = 0; i < graph.samples.count; i++) assert.equal(graph.samples.frame(i), 10)
+  assert.equal(metric('peak'), '10.0 ms')
+  assert.equal(metric('scale'), '0–40 ms')
+  assert.ok(Math.abs(guideY() - (59 - 58 * (1000 / 120) / 40)) < 1e-12)
+  const points = graph.line.getAttribute('points').trim().split(/\s+/)
+  assert.equal(points.length, 240)
+  for (const [index, point] of points.entries()) assert.equal(point, `${index},44.5`)
+})

@@ -109,7 +109,7 @@
     "tests/follower-transports.test.mjs": "7dec7717522c9b5601eae79bf63458c07d608ed7fb6dc62d439f1db4f038c057",
     "tests/footprints.test.mjs": "a0cc9a47a5218b5f402f75d71c470d117fa311b59c77d4847160c897f4264b98",
     "tests/formation-phase.test.mjs": "e984ffbd668a1c7f6c9f52b96dc6042acb245bd972bfa06a6b036533c0921c6a",
-    "tests/frame-performance.test.mjs": "0d8294e7fa5ab39ddc120d71448b71572bdcce41b248c1083e0cea773f27806e",
+    "tests/frame-performance.test.mjs": "79fb1e1c50e31017b80fff36337e3b5894fc3a3e43d6426b1ff327786051e0b8",
     "tests/frontend-composition.test.mjs": "483079e964d4adfecead81dcfa6e88da721bbfed6ec633f9fe32121d72be6661",
     "tests/frontend-logo-readiness.test.mjs": "2bf941cf218ea534747f3ff7fb31f925b1686ab920e48de5adc0be6e0456ad7b",
     "tests/frontend-text-readiness.test.mjs": "37fc8e9cdb9490e58aac4289558e2ede11285b62e8d0cd63df1355f22e81e482",
