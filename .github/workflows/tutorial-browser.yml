@@ -1,0 +1,88 @@
+name: Tutorial browser validation
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
+    paths:
+      - 'app/**'
+      - 'public/**'
+      - 'scripts/browser-*.mjs'
+      - 'scripts/local-render/tutorial-recommendation.mjs'
+      - 'scripts/tutorial-browser/**'
+      - '.github/workflows/tutorial-browser.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tutorial-browser-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  tutorial-browser:
+    name: Tutorial browser
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Require a ready pull request
+        env:
+          IS_DRAFT: ${{ github.event.pull_request.draft }}
+        run: |
+          if [ "$IS_DRAFT" != false ]; then
+            echo '::notice::Draft PR: browser validation has not run.'
+            exit 1
+          fi
+      - name: Check out exact proposed merge
+        id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Install locked dependencies and their Chromium revision
+        run: |
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+          npm ci --no-audit --no-fund
+          ./node_modules/.bin/playwright install --with-deps chromium
+      - name: Record exact tested source
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          printf 'PR head: %s\nBase: %s\nTested merge: %s\n' "$PR_HEAD_SHA" "$PR_BASE_SHA" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          node --version
+          npm --version
+          sha256sum package-lock.json node_modules/playwright-core/browsers.json
+      - name: Build plain production Home and validate Tutorial interactions
+        run: node scripts/tutorial-browser/run.mjs
+      - name: Reject tracked input mutation
+        if: ${{ always() && steps.checkout.outcome == 'success' }}
+        run: git diff --exit-code HEAD --
+      - name: Retain bounded validation receipts and screenshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: tutorial-browser-${{ github.sha }}
+          path: |
+            outputs/tutorial-browser/*.json
+            outputs/tutorial-browser/*.log
+            outputs/tutorial-browser/*.png
+          if-no-files-found: warn
+          retention-days: 7
