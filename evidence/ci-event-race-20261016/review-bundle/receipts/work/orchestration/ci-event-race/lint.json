@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e692c0e5-3ed4-467d-880e-b6072443fd30",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "7c86021d208780659bb91ef55e7b948e37fd0b08",
+    "branch": "codex/ci-draft-ready-race-473",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "tests/workflow-policy.test.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-16T18:51:56.932Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/ci-event-race/lint.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/ci-event-race/lint.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T18:51:57.881Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "7c86021d208780659bb91ef55e7b948e37fd0b08",
+    "branch": "codex/ci-draft-ready-race-473",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

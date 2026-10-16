@@ -217,17 +217,20 @@ test('focused suggestions are advisory and broad or unknown changes fall back to
 // This is a deliberately simple one-job workflow. Keep its merge-critical
 // structure reviewable; hosted lifecycle evidence remains separate from these
 // source/shell contract checks (this is not a YAML or Actions implementation).
-test('ready-PR full gate keeps explicit triggers, stable status and least privilege', () => {
+test('ready-PR full gate admits only ready_for_review with candidate isolation and least privilege', () => {
   const workflow = read('.github/workflows/ready-pr-check.yml')
   assert.match(workflow, /^name: Ready PR checks$/m)
-  assert.match(workflow, /^on:\n {2}pull_request:\n {4}branches: \[main\]\n {4}types: \[opened, reopened, synchronize, ready_for_review, converted_to_draft\]$/m)
+  assert.equal(workflow.match(/^on:\n([\s\S]*?)\n\n/m)?.[1],
+    '  pull_request:\n    branches: [main]\n    types: [ready_for_review]')
   assert.match(workflow, /^permissions:\n {2}contents: read\n/m)
-  assert.match(workflow, /^concurrency:\n {2}group: ready-pr-check-\$\{\{ github.event.pull_request.number \}\}\n {2}cancel-in-progress: true$/m)
-  assert.match(workflow, /^jobs:\n {2}full-check:\n(?: {4}#.*\n)* {4}name: Full check\n {4}runs-on: ubuntu-24.04\n {4}timeout-minutes: 120$/m)
+  assert.match(workflow, /^concurrency:\n {2}group: .+\n {2}cancel-in-progress: true$/m)
+  assert.match(workflow, /^jobs:\n {2}full-check:\n(?: {4}#.*\n)* {4}name: \$\{\{ toJSON\(github.event.pull_request.draft\) == 'false' && 'Full check' \|\| 'Draft PR \(not validated\)' \}\}\n {4}runs-on: ubuntu-24.04\n {4}timeout-minutes: 120$/m)
   assert.doesNotMatch(workflow, /^\s*(?:if|continue-on-error|paths|paths-ignore|push|pull_request_target|workflow_run|environment|secrets):/m)
   assert.doesNotMatch(workflow, /\$\{\{\s*secrets\.|actions\/(?:cache|upload-artifact)@|--if-present|npm run (?:deploy|parity:record)/)
-  assert.deepEqual([...workflow.matchAll(/uses: ([\w/-]+)@([a-f0-9]{40})/g)].map(m => m[1]), [
-    'actions/checkout', 'actions/setup-node', 'actions/setup-python',
+  assert.deepEqual([...workflow.matchAll(/uses: ([\w/-]+)@([a-f0-9]{40})/g)].map(m => [m[1], m[2]]), [
+    ['actions/checkout', '3d3c42e5aac5ba805825da76410c181273ba90b1'],
+    ['actions/setup-node', '949feb2413d6458794dcd2491c4babbbce0c15c1'],
+    ['actions/setup-python', '5fda3b95a4ea91299a34e894583c3862153e4b97'],
   ])
   assert.match(workflow, /ref: \$\{\{ github.sha \}\}\n[\s\S]*fetch-depth: 0\n {10}persist-credentials: false/)
   assert.match(workflow, /node-version: '24\.19\.0'/)
@@ -244,15 +247,105 @@ test('ready-PR full gate keeps explicit triggers, stable status and least privil
 
 test('draft readiness guard fails closed before checkout, installation or full tests', () => {
   const workflow = read('.github/workflows/ready-pr-check.yml')
-  const guard = workflow.match(/ {4}steps:\n(?: {6}#.*\n)* {6}- name: Require a ready pull request\n {8}env:\n {10}IS_DRAFT: \$\{\{ github.event.pull_request.draft \}\}\n {8}run: \|\n((?: {10}[^\n]*\n)+)/)?.[1]
+  const guard = workflow.match(/ {4}steps:\n(?: {6}#.*\n)* {6}- name: Require a ready pull request\n {8}env:\n {10}IS_DRAFT: \$\{\{ toJSON\(github.event.pull_request.draft\) \}\}\n {8}run: \|\n((?: {10}[^\n]*\n)+)/)?.[1]
   assert.ok(guard, 'readiness guard must be the first step')
   const script = guard.replace(/^ {10}/gm, '')
-  for (const [value, status] of [['false', 0], ['true', 1], ['', 1], ['unexpected', 1]]) {
+  for (const value of [false, true, undefined, null, '', 'false', 'False', 'true', 0, [], {}]) {
+    const status = value === false ? 0 : 1
     const result = spawnSync('bash', ['-e', '-c', script], {
-      env: { ...process.env, IS_DRAFT: value }, encoding: 'utf8',
+      env: { ...process.env, IS_DRAFT: JSON.stringify(value) ?? '' }, encoding: 'utf8',
     })
     assert.equal(result.error, undefined)
     assert.equal(result.status, status, result.stderr)
     if (status) assert.match(result.stdout, /Draft PR: full checks have not run/)
+  }
+})
+
+// Evaluate only this workflow's small expression subset against event fixtures.
+// These contracts cannot establish GitHub scheduling or required-check selection.
+function admission(draft, overrides = {}) {
+  const workflow = read('.github/workflows/ready-pr-check.yml')
+  const context = {
+    'github.workflow': 'Ready PR checks', 'github.event.pull_request.number': 123,
+    'github.event.pull_request.head.sha': '1'.repeat(40),
+    'github.event.pull_request.base.sha': '2'.repeat(40), 'github.sha': '3'.repeat(40),
+    ...overrides,
+  }
+  const render = template => template.replace(/\$\{\{ (.*?) \}\}/g, (_, expression) => {
+    const choice = expression.match(/^toJSON\(github.event.pull_request.draft\) == 'false' && '([^']+)' \|\| '([^']+)'$/)
+    if (choice) return JSON.stringify(draft) === 'false' ? choice[1] : choice[2]
+    assert.ok(Object.hasOwn(context, expression), `unreviewed expression: ${expression}`)
+    return context[expression]
+  })
+  return {
+    name: render(workflow.match(/^ {4}name: (.+)$/m)[1]),
+    group: render(workflow.match(/^ {2}group: (.+)$/m)[1]),
+  }
+}
+
+test('only boolean-ready events publish Full check; stale or malformed draft admission is separate', () => {
+  const ready = admission(false)
+  assert.equal(ready.name, 'Full check')
+  assert.equal(ready.group, `Ready PR checks-123-${'1'.repeat(40)}-${'2'.repeat(40)}-${'3'.repeat(40)}-ready`)
+  for (const value of [true, undefined, null, '', 'false', 'False', 0, [], {}]) {
+    const draft = admission(value)
+    assert.equal(draft.name, 'Draft PR (not validated)')
+    assert.notEqual(draft.group, ready.group)
+    assert.ok(draft.group.endsWith('-draft'))
+  }
+})
+
+test('old heads, bases and merge SHAs cannot share current-candidate cancellation or pending replacement', () => {
+  for (const draft of [false, true]) {
+    const current = admission(draft)
+    for (const key of ['github.event.pull_request.head.sha', 'github.event.pull_request.base.sha', 'github.sha']) {
+      assert.notEqual(admission(draft, { [key]: '4'.repeat(40) }).group, current.group, key)
+    }
+    assert.notEqual(admission(draft, { 'github.event.pull_request.number': 124 }).group, current.group)
+    assert.notEqual(admission(draft, { 'github.workflow': 'Another workflow' }).group, current.group)
+  }
+})
+
+test('repeated transitions and three overlapping admissions retain separate candidate and draft groups', () => {
+  const ready = admission(false), staleDraft = admission(true)
+  const oldReady = admission(false, { 'github.event.pull_request.base.sha': '4'.repeat(40) })
+  assert.equal(new Set([ready.group, staleDraft.group, oldReady.group]).size, 3)
+  for (const sequence of [[false, true, false], [true, false, true], [false, false, true, false]]) {
+    for (const draft of sequence) assert.deepEqual(admission(draft), draft ? staleDraft : ready)
+  }
+  // Same-candidate ready duplicates may supersede each other; each still runs the full gate.
+  assert.equal(admission(false).group, ready.group)
+})
+
+test('full/build/mutation shell commands propagate stubbed failures and cancellation', () => {
+  const workflow = read('.github/workflows/ready-pr-check.yml')
+  const tail = workflow.slice(workflow.indexOf('      - name: Full typecheck, tests, parity and orchestration'))
+  const commands = [...tail.matchAll(/^ {8}run: (.+)$/gm)].map(match => match[1])
+  assert.deepEqual(commands, ['npm run check', 'npm run build', 'git diff --exit-code HEAD --'])
+  const script = `
+    npm() {
+      printf '%s\\n' "$*"
+      if [ "$2" = check ]; then
+        if [ "$FAILURE" = cancel ]; then kill -TERM "$$"; fi
+        if [ "$FAILURE" = check ]; then return 17; fi
+      elif [ "$FAILURE" = build ]; then return 23; fi
+    }
+    git() { printf '%s\\n' "$*"; if [ "$FAILURE" = mutation ]; then return 1; fi; }
+    ${commands.join('\n')}
+  `
+  for (const [failure, status, signal, output] of [
+    ['none', 0, null, ['run check', 'run build', 'diff --exit-code HEAD --']],
+    ['check', 17, null, ['run check']],
+    ['build', 23, null, ['run check', 'run build']],
+    ['mutation', 1, null, ['run check', 'run build', 'diff --exit-code HEAD --']],
+    ['cancel', null, 'SIGTERM', ['run check']],
+  ]) {
+    const result = spawnSync('bash', ['-e', '-c', script], {
+      env: { ...process.env, FAILURE: failure }, encoding: 'utf8',
+    })
+    assert.equal(result.error, undefined)
+    assert.equal(result.status, status, result.stderr)
+    assert.equal(result.signal, signal)
+    assert.deepEqual(result.stdout.trim().split('\n'), output)
   }
 })
