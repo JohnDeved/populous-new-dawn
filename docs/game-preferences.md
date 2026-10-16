@@ -47,7 +47,7 @@ summarized in [static findings](../decomp/research/game-options-static/findings.
 Portable preference and caller tests cover storage validation/failure, all keyboard
 mapping combinations, current-setting reads, edge and modal gates. The Options test
 evaluates production row declarations and checks their actual indexed-shadow inputs.
-Rendered evidence and source-bound final checks are tracked with PR #467 and the
-retained acceptance packet. Unit/caller results alone are not a rendered or native
-runtime witness. No native persistence/defaults, full original-settings parity,
+Rendered evidence and source-bound final checks are retained in the
+[bounded acceptance packet](../evidence/game-options-20261016/README.md) and PR #467.
+Unit/caller results alone are not a rendered or native runtime witness. No native persistence/defaults, full original-settings parity,
 selection rules, spell rules, or hardware performance claim follows from this slice.
