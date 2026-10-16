@@ -122,3 +122,25 @@ without that preceding high-resolution stress sequence. This does not establish
 
 No original-game native binary ran, no parity recording or deployment occurred,
 and no source assertions were weakened to obtain the accepted bounded run.
+
+## Latest-main integration after the performance overlay
+
+The separately accepted opt-in performance overlay (#479) was merged as main
+`7dc1ecda9a4b1901ffcfbb1dc1339185e649de55`. Graphics integration head
+`3b03e7f66bb73e434a19e4a5e6eb8179cbd48dce` carries that exact base. The Graphics
+component, scoped CSS and focused test remain byte-identical to `07674e89`.
+Home, scene, global CSS and telemetry inputs changed through the reviewed overlay;
+the earlier 1109-input equality claim ends at `07674e89`, not this new integration.
+
+Only the resource-policy production fingerprint conflicted. It was recomputed
+for the combined tree while retaining both original-options and frame-performance
+reviewed test hashes; helper fingerprints and other classifications remain intact.
+Local NODE_PATH customization still conservatively selects serial execution.
+
+All 44 focused tests passed at the integrated head, together with the no-emit
+TypeScript check and orchestration structural check. Raw source-bound receipts
+and logs are in `latest-base-validation-3b03e7f6.tar.gz`; `latest-base-carry.json`
+records exact hashes and changed-input boundaries. No whole browser matrix or
+full local check/build was repeated. The earlier hosted pass (2822 tests/436 files,
+run 38873479354) covered the old base only; a fresh exact-merge hosted gate is
+required on the latest base before merge.
