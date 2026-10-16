@@ -90,6 +90,8 @@ export default async function ({ page, browser, url, root, output }) {
     let blockedFonts = 0
     await fallback.route('**/original/frontend/felo33we.png', route => { blockedFonts++; return route.abort('failed') })
     const p = await fallback.newPage()
+    const errors = []
+    p.on('pageerror', error => errors.push(String(error)))
     await p.goto(url, { waitUntil: 'domcontentloaded' })
     await open(p)
     await prompt(p).locator('h2').getByText('As this is your first time playing', { exact: true }).waitFor()
@@ -97,6 +99,7 @@ export default async function ({ page, browser, url, root, output }) {
     await p.screenshot({ path: resolve(output, 'recommendation-font-fallback.png') })
     await button(p, 'Back').click()
     assert.equal(await stored(p), null)
+    assert.deepEqual(errors, [], 'Font fallback must not raise uncaught exceptions')
     passed('low-font-network-fallback-visible-and-cancelable')
   } finally { await fallback.close() }
 

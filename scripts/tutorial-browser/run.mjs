@@ -91,6 +91,7 @@ try {
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
   receipt.result = await (await import(pathToFileURL(scenario).href)).default({ page, context, browser, url, root, output: out, receipt })
   assert.equal(receipt.browserTimedOut, undefined)
+  assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
   receipt.status = 'passed'
 } catch (error) {
   receipt.status = 'failed'; receipt.failure = String(error); receipt.stack = error.stack; process.exitCode = 1
