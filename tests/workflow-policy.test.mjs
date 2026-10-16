@@ -217,10 +217,11 @@ test('focused suggestions are advisory and broad or unknown changes fall back to
 // This is a deliberately simple one-job workflow. Keep its merge-critical
 // structure reviewable; hosted lifecycle evidence remains separate from these
 // source/shell contract checks (this is not a YAML or Actions implementation).
-test('ready-PR full gate keeps explicit triggers, candidate admission and least privilege', () => {
+test('ready-PR full gate admits only ready_for_review with candidate isolation and least privilege', () => {
   const workflow = read('.github/workflows/ready-pr-check.yml')
   assert.match(workflow, /^name: Ready PR checks$/m)
-  assert.match(workflow, /^on:\n {2}pull_request:\n {4}branches: \[main\]\n {4}types: \[opened, reopened, synchronize, ready_for_review, converted_to_draft\]$/m)
+  assert.equal(workflow.match(/^on:\n([\s\S]*?)\n\n/m)?.[1],
+    '  pull_request:\n    branches: [main]\n    types: [ready_for_review]')
   assert.match(workflow, /^permissions:\n {2}contents: read\n/m)
   assert.match(workflow, /^concurrency:\n {2}group: .+\n {2}cancel-in-progress: true$/m)
   assert.match(workflow, /^jobs:\n {2}full-check:\n(?: {4}#.*\n)* {4}name: \$\{\{ toJSON\(github.event.pull_request.draft\) == 'false' && 'Full check' \|\| 'Draft PR \(not validated\)' \}\}\n {4}runs-on: ubuntu-24.04\n {4}timeout-minutes: 120$/m)

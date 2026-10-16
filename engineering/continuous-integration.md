@@ -13,9 +13,10 @@ native, rendered-browser or hardware-performance acceptance.
    runs typecheck, every discovered top-level test, parity and orchestration checks,
    then a production build. Do not launch a duplicate local full gate while this
    one is pending; continue independent work in another branch or review/research.
-3. Repair failures with focused feedback and push. A synchronize event starts the
-   updated gate. Never weaken assertions, omit test files or regenerate reference
-   evidence to obtain a pass.
+3. Repair failures with focused feedback and push. After review of the exact new
+   head, return an already-ready PR to draft and mark it ready once. A synchronize
+   event does not start this workflow. Never weaken assertions, omit test files or
+   regenerate reference evidence to obtain a pass.
 4. Before merging, verify the current reviewed PR head, current main base and exact
    tested merge match the successful check. Keep the run URL/attempt, source SHAs,
    command results and raw job logs with the PR's evidence. Source changes invalidate
@@ -23,36 +24,41 @@ native, rendered-browser or hardware-performance acceptance.
 
 ## Events and draft behavior
 
-PRs targeting main trigger on `opened`, `reopened`, `synchronize`,
-`ready_for_review` and `converted_to_draft`. There is no push trigger or path filter.
-This avoids a second full run for the same push and a redundant post-merge run.
+PRs targeting main trigger only on `ready_for_review`. Opening, reopening,
+synchronizing, converting to draft or retargeting a PR does not admit this
+workflow. There is no push trigger, path filter, dispatch path or conditional job.
+The reviewed-candidate coordinator must issue one draft-to-ready transition after
+reviewing each exact candidate that lacks a matching full pass. This includes
+repairs, main refreshes and PRs opened or reopened already ready. Reuse an existing
+genuine pass when it exactly matches the reviewed head/base/merge; opening or
+reopening alone is not a reason to rerun it. New heads without a successful gate
+remain blocked by required checks; a missing run is not success.
 
-Only an event whose draft value is the boolean `false` names its job `Full check`.
-Other events use `Draft PR (not validated)` and fail the first, inexpensive
-readiness step. Checkout, installs and full checks do not run. Both admission and
-the shell guard serialize the value with `toJSON`, so a missing/malformed value or
-the string `"false"` cannot pass as ready. There is still one unconditional job;
-no skipped/neutral required job or manufactured success replaces validation.
+The strict readiness guard remains defense in depth. Only the boolean `false`
+permits the required `Full check` name and passes the guard. A missing/malformed
+value or the string `"false"` fails before checkout under `Draft PR (not validated)`.
+Normal draft activity now creates no Full-workflow run; the guard is not a separate
+draft-admission service. There is still one unconditional job and no skipped or
+neutral required job or manufactured success.
 
-Concurrency is partitioned by workflow, PR number, event head, event base, proposed
-merge SHA and draft/ready lane. Draft admission cannot cancel or replace pending
-ready work, and old head/base/merge events have separate groups. Duplicate ready
-events for the same candidate can still supersede each other. Converting to draft
-deliberately does not cancel an existing ready validation. This trades occasional
-obsolete compute for protection against out-of-order admission; the reviewed queue
-driver should avoid unnecessary transitions and obsolete reruns.
+Concurrency remains partitioned by workflow, PR number, event head, event base,
+proposed merge SHA and draft/ready lane. Duplicate ready events for the same
+candidate may supersede each other. Converting to draft does not cancel existing
+ready validation. Separate candidates can consume obsolete compute; the coordinator
+must avoid unnecessary transitions and never cancel current work during cleanup.
 
-These source contracts do not prove GitHub's required-check selection across
-differently named jobs in newer suites. Adoption requires the
-[bounded hosted lifecycle pilot](ci-event-race-pilot.md), including a real current
-full pass followed by later draft admission while the PR is ready. Until that
-evidence passes, keep the drained-draft → ready queue workaround. No claim of
-hosted race resolution follows from local policy tests alone.
+The earlier split-name pilot proved draft/ready cancellation isolation but failed
+newer-suite eligibility: a companion's non-required draft failure appeared in
+#502's rollup and the primary remained blocked despite a successful required Full
+check. Closing the companion did not restore eligibility. The precise internal
+blocking rule was not exposed. See the retained results and revised bounded pilot
+in [ci-event-race-pilot.md](ci-event-race-pilot.md). The trigger correction prevents
+new draft admissions; it does not retroactively repair that tested SHA or establish
+hosted success before its own pilot passes.
 
-Retargeting a ready PR to main emits `edited`, which this workflow does not handle.
-After retargeting, start a fresh supported event by returning it to draft and
-marking ready, reopening it, or updating its head. Main moving independently also
-does not start a run: update/rebase the PR before accepting the new combined tree.
+Main moving independently does not start a run. Update/rebase the PR, review its
+new candidate, and transition it from draft to ready before accepting the new
+combined tree. Retargeting to main follows the same reviewed transition contract.
 A future merge queue needs a separately reviewed `merge_group` trigger.
 
 ## Reproducible inputs
@@ -121,5 +127,5 @@ On 2026-10-16, the [first draft run](https://github.com/JohnDeved/populous-new-d
 for PR #475 at head `737b84399c62a25cc2d3f809aef38f719ddd3045` failed only the
 readiness guard. Checkout, runtime setup, dependency installs, full checks and
 build were all skipped. This verifies the cheap draft boundary, not a full pass.
-Current ready/synchronize runs and the final reviewed candidate's full results are
+Historical ready/synchronize runs and that reviewed candidate's full results are
 recorded on [PR #475](https://github.com/JohnDeved/populous-new-dawn/pull/475).

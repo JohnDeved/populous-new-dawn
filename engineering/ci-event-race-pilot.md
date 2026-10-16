@@ -1,95 +1,85 @@
-# Draft/ready event race: bounded hosted pilot proposal
+# Ready-only admission: retained evidence and bounded pilot
 
-Source review and parent coordination must precede the pilot. This plan does not
-authorize execution, a merge, protection changes, extra token scopes, status
-writes or a new workflow. Root coordinates the normal reviewed-PR queue and the
-reviewed primary PR #502 with its one draft companion. Local policy tests are not
-hosted lifecycle evidence.
+The original split-name pilot proved cancellation isolation but failed newer-suite
+eligibility. Preserve its results; do not relabel its passing Full run as coverage
+for the follow-up trigger change. Root coordinates any further live transitions
+after final source review. This document does not authorize execution or a merge.
 
-## Candidate and evidence
+## Retained split-name pilot
 
-Base reviewed for this change: `cf38a755a3a00255184c63c175a00076cff6b025`.
-[Issue #473 diagnosis](https://github.com/JohnDeved/populous-new-dawn/issues/473#issuecomment-6221240164)
-records a newer draft suite cancelling a real ready run, then blocking its genuine
-successful rerun under the same required `Full check` name.
+Primary #502 used head `870d3012f6d7800414b3a06efa106e9518bd38ff`, main base
+`be840400c5c86da43ac49bcbcba38f292cbc02e8`, and synthetic merge
+`5836a7f56aafef80e7f8b052b3ebd90406314007`.
 
-The proposed change keeps every full validation step and pinned dependency/runtime
-unchanged. Only ready boolean events use the required name. Drafts fail under a
-different name; concurrency includes workflow/PR/head/base/merge/readiness. Missing
-or malformed draft values fail closed. The event snapshot is not a live-state API
-or a freshness oracle: the merge coordinator still verifies current head/base/merge.
+- [Full run 38953672368](https://github.com/JohnDeved/populous-new-dawn/actions/runs/38953672368)
+  passed 2,959 tests and the build in 17m8s. Its suite was `105570534959`, check
+  `117151050552`. A recorded draft replay did not cancel it.
+- Same-head companion [#504](https://github.com/JohnDeved/populous-new-dawn/pull/504)
+  created [draft run 38956103241](https://github.com/JohnDeved/populous-new-dawn/actions/runs/38956103241),
+  suite `105577381949`, check `117159244756`, which failed before checkout. Its own
+  association named #504, but #502's rollup included it. Both draft checks were
+  non-required; the original successful Full check remained required.
+- #502 changed from CLEAN to BLOCKED with unchanged head/base/merge. Cloudflare
+  subsequently succeeded. At 19:39:06 UTC on 2026-10-16, after closing #504, #502
+  was still BLOCKED/MERGEABLE with original Full and Workers success and the
+  companion draft failure in its rollup. No new runs/events followed closure.
 
-Use normal pull-request transitions, updates and explicit reruns of recorded pilot
-events. Do not fabricate payloads, checks or statuses. Record every event action,
-run/attempt/suite/job/check ID, creation/start/end time, event draft value, head,
-base, merge SHA, step outcomes and raw logs. At each checkpoint capture
-`gh pr checks --required`, the PR's current identity/draft/mergeability state, and
-the required check's Actions app identity. Retain failed/cancelled attempts.
+These observations establish the eligibility failure, not GitHub's precise
+internal blocking rule. The original raw pilot evidence is retained by the gate
+reviewer; existing local receipts under `evidence/ci-event-race-20261016` remain
+historical and are not rewritten. [Issue #473's earlier diagnosis](https://github.com/JohnDeved/populous-new-dawn/issues/473#issuecomment-6221240164)
+records the preceding cancellation/same-name failure.
 
-## Preconditions and bounded budget
+## Correction and queue contract
 
-Use #502 itself as the genuine reviewed primary candidate. Wait for #500 to merge,
-refresh #502 against current main, and complete final source review. Before the
-full gate, the native Linux resource worker supplies a separately reviewed
-`productionSha256`-only refresh for the new main application tree. Preserve current
-main's policy classifications and all other resource metadata. A Mac-derived
-fingerprint is not acceptable. This document does not authorize that refresh or
-any transition; root coordinates them.
+Admit the Full workflow only on `pull_request: ready_for_review` targeting main.
+Keep every validation step, strict boolean guard, pinned dependency/runtime,
+resource-policy classification, permission and concurrency field unchanged.
+Opening/reopening, synchronize, draft conversion and edits no longer admit it.
+Draft activity must create no run or suite attributable to this Full workflow;
+other integrations are outside that claim.
 
-Budget one genuine current-candidate Full gate, at most two recorded draft-event
-reruns, and one same-head companion draft PR. Do not clone another full-validation
-PR, introduce failing test/build commits, repeatedly toggle draft/ready, or run
-additional full suites to retest unchanged machinery. Verify unchanged validation
-steps against the reviewed source; use the retained focused regression tests for
-failure propagation. Their npm/git failures are stubs, not hosted failure evidence.
+For a reviewed new/changed candidate missing a valid full pass, including repairs
+and main refreshes, the coordinator makes one draft-to-ready transition. If that
+PR is already ready, return it to draft first. Reuse a genuine pass exactly matching
+the reviewed head/base/merge; opening or reopening alone does not require a rerun.
+A new head without a genuine matching Full pass remains
+blocked; never treat absent checks, a skipped job or an older-head pass as success.
+#503 owns the queue-driver adaptation. Main protection remains strict and unchanged.
 
-## Ordered pilot, after final review and root authorization
+The approved Linux production hash and all other resource-policy fields stay
+intact. Verify the hosted installed-lock hash and actual parallel eligibility on
+the next genuine run; do not regenerate the policy from a Mac installation.
 
-1. Freeze #502's reviewed head/base/merge identities and protection snapshot. Retain
-   its cheap draft admission. Root marks #502 ready exactly once and starts the
-   genuine complete Full gate. Every required step must actually pass.
-2. Replay one recorded current-candidate draft event during that validation and,
-   if available, one owned old-head/base draft event after it. Each must fail
-   before checkout under the non-required name and must not cancel current work.
-   Record the actual group identities. An old draft replay proves the combined
-   candidate/lane partition, not old-ready isolation independently; focused source
-   contracts cover old-ready head/base/merge separation without another full run.
-3. After the genuine current-candidate pass, root may create a separate branch
-   pointing to #502's identical head commit and open exactly one companion PR as
-   draft against unchanged main. Do not mark the companion ready. Its newly created
-   suite must contain only cheap `Draft PR (not validated)` admission, later than
-   the primary's passing suite, while #502 stays ready. No event is suppressed and
-   no success is manufactured. Record both PRs' head/base/merge identities and all
-   suite/run/check associations rather than assuming shared commits imply shared
-   required-check selection.
-4. Inspect #502's actual required-check resolution and current mergeability,
-   including the Actions app identity and unchanged strict protection. Establish
-   whether GitHub includes the companion's newer suite in #502's selection context.
-   A shared head SHA, a REST `filter=latest` response, or a still-green primary
-   alone does not prove that association. If the newer suite participates and the
-   genuine Full pass remains selected, record that bounded selection result.
+## Revised pilot, after final source review and root authorization
 
-## Stop conditions and limits
+Budget one genuine full validation and one root-coordinated same-head draft
+companion observation. Do not rerun the old Full, inject test/build failures,
+replay legacy draft workflows, repeatedly toggle readiness or chase delivery timing.
+No extra pilot PR or transition is authorized by this proposal alone.
 
-Stop on cross-group cancellation, any draft job named `Full check`, a hidden or
-poisoned required result, candidate/protection drift, or missing evidence. Do not
-repeat the experiment to chase delivery ordering. If the companion suite is scoped
-only to its own PR, or its participation cannot be established, leave the decisive
-selection claim pending. The companion probe is not a same-PR delayed-event
-reproduction; keep that distinction explicit even if the shared-head probe passes.
+1. Freeze the reviewed corrected #502 head/base/merge, strict protection and source
+   hashes. Root coordinates draft state and the same-head draft companion. Observe
+   the companion's ordinary draft event and verify that it admits no Full-workflow
+   run or suite. Capture PR events, run listings and suite associations, including
+   creation times; a single immediate empty response is not sufficient evidence of
+   absence. Use a bounded observation window and leave delayed/ambiguous evidence
+   pending rather than repeatedly provoking events.
+2. Root marks the primary ready once. Verify one genuine unconditional Full job on
+   the exact reviewed merge, with all validation/build/immutability steps passing.
+   Record installed lock, resource eligibility/counts, run/attempt/suite/check IDs,
+   timestamps and raw logs. A failed gate remains a failure.
+3. Confirm required-only checks, each check's `isRequired` flag, actual PR
+   mergeability and unchanged head/base/merge/protection. The Full pass must remain
+   selected while the companion stays draft, with no draft admission suite from
+   this workflow. Missing associations or an unexplained BLOCKED result prevent
+   acceptance; REST `filter=latest` or a green Full result alone is insufficient.
 
-With the current triggers, returning the same PR from draft to ready necessarily
-creates another ready event. No deterministic same-PR newer-draft-suite reproduction
-is established here without delivery timing or additional machinery. Moving the
-probe post-merge alone does not remove that limit. A separately reviewed, carefully
-staged post-merge probe may be proposed if necessary, but this plan does not
-promise it can establish the missing case. Keep “fully proven” pending and retain
-the drained-draft → ready workaround for unproven cases.
-
-No pilot merges or settings/protection/permission changes are authorized. Separate
-candidate groups can leave obsolete runs consuming minutes. Any cleanup must name
-only owned obsolete runs, recheck their identity and never cancel current work.
-Root coordinates companion cleanup after retaining terminal evidence.
+Stop on an unexpected draft admission, candidate drift, cancelled current work,
+missing terminal evidence or blocked eligibility. Do not fabricate statuses, alter
+protection/permissions or merge either pilot PR. Root handles bounded companion
+cleanup after retaining evidence. The previous passing Full remains intact; the
+corrected trigger is not hosted-proven until this revised pilot passes.
 
 ## Setup/build duplication: separate recommendation
 
@@ -106,8 +96,8 @@ each phase. Measure setup savings and added serial critical-path time before
 adoption; two jobs cannot share an install merely by calling a reusable workflow.
 Do not add dependency caches/artifact transfers or replace `npm ci` in this fix.
 Tutorial's own PR-wide admission/cancellation policy is unchanged and needs its
-own reviewed treatment if the workflows remain separate. This PR fixes the
-required Full-check race only, not all Actions scheduling or setup cost.
+own reviewed treatment if the workflows remain separate. This PR addresses the
+required Full-check race; hosted acceptance remains pending for the trigger correction.
 
 Primary semantics: [concurrency and pending replacement](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency),
 [expression context availability](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability),
