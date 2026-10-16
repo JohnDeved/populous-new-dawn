@@ -690,11 +690,13 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
   const pr = { head: { sha: o.head, ref: 'reviewed' }, base: { sha: o.base } }
   let runs = reader.runs(e, pr, o.synthetic)
   assert.equal(runs.length, 2)
-  assert.ok(runs.every(r => r.identityVerified))
+  assert.ok(runs.every(r => r.identityVerified && r.validationVerified))
   assert.ok(calls.some(c => c.endsWith('/check-runs/300')))
   logBase = id(99)
   runs = reader.runs(e, pr, o.synthetic)
-  assert.ok(runs.every(r => !r.identityVerified && r.base === id(99)))
+  assert.ok(runs.every(r => !r.identityVerified && r.validationVerified && r.base === id(99)))
+  logBase = 'unverified'
+  assert.ok(reader.runs(e, pr, o.synthetic).every(r => !r.validationVerified))
   logBase = o.base
   appId = 9
   assert.throws(() => reader.runs(e, pr, o.synthetic), /Check suite\/run\/app mismatch/)
@@ -1089,6 +1091,7 @@ test('armed fake transport sequences refresh, drain, ready, exact checks and mer
   const e = entry(),
     o = observation(e)
   e.deployment = { kind: 'unverified', reason: 'fake transport fixture only' }
+  o.draft = false
   o.upToDate = false
   o.base = id(8)
   o.refresh = {
@@ -1134,6 +1137,13 @@ test('armed fake transport sequences refresh, drain, ready, exact checks and mer
     })
   assert.equal(
     send(settle(), () => {
+      o.draft = true
+      return 'Draft'
+    }).status,
+    'submitted'
+  )
+  assert.equal(
+    send(settle(), () => {
       o.acceptedRefresh = structuredClone(o.refresh)
       o.head = id(10)
       o.headCommit = { sha: o.head, parents: [e.sourceHead, o.base], tree: id(9) }
@@ -1146,7 +1156,7 @@ test('armed fake transport sequences refresh, drain, ready, exact checks and mer
   )
   o.runs = [{ id: 5, attempt: 1, status: 'queued' }]
   assert.equal(poll().status, 'wait')
-  assert.equal(commands.length, 1)
+  assert.equal(commands.length, 2)
   o.runs[0].status = 'completed'
   o.runs[0].conclusion = 'failure'
   assert.equal(
@@ -1158,7 +1168,7 @@ test('armed fake transport sequences refresh, drain, ready, exact checks and mer
     'submitted'
   )
   assert.equal(poll().status, 'wait')
-  assert.equal(commands.length, 2)
+  assert.equal(commands.length, 3)
   o.runs = GATES.map((g, i) => green(o, g, i))
   o.currentChecks = checksFor(o.runs)
   assert.equal(
@@ -1173,10 +1183,11 @@ test('armed fake transport sequences refresh, drain, ready, exact checks and mer
   const final = poll()
   assert.equal(final.status, 'done')
   assert.equal(final.outcome.deployment, 'unverified')
-  assert.equal(commands.length, 3)
-  assert.ok(commands[0].includes(`expected_head_sha=${e.sourceHead}`))
-  assert.deepEqual(commands[1], ['pr', 'ready', '123', '--repo', `github.com/${REPO}`])
-  assert.ok(commands[2].includes(`sha=${id(10)}`))
+  assert.equal(commands.length, 4)
+  assert.deepEqual(commands[0], ['pr', 'ready', '123', '--undo', '--repo', `github.com/${REPO}`])
+  assert.ok(commands[1].includes(`expected_head_sha=${e.sourceHead}`))
+  assert.deepEqual(commands[2], ['pr', 'ready', '123', '--repo', `github.com/${REPO}`])
+  assert.ok(commands[3].includes(`sha=${id(10)}`))
 })
 
 function cloudflareFixture(commit, overrides = {}) {
@@ -1330,4 +1341,186 @@ test('custom clean filter is rejected before resource preflight or any Git statu
   } finally {
     rmSync(dir, { recursive: true })
   }
+})
+
+test('ready-only initial admission proposes one reviewed draft conversion; matching pass is reused', () => {
+  const e = entry(),
+    o = observation(e)
+  o.draft = false
+  const d = settled(e, o)
+  assert.equal(d.action.kind, 'draft')
+  assert.equal(d.action.reason, 'missing-full-admission')
+  const r = ready()
+  assert.equal(settled(r.e, r.o).action.kind, 'merge')
+  r.o.mergeState = 'blocked'
+  assert.match(settled(r.e, r.o).reason, /clean protected mergeability/)
+})
+
+test('draft conversion cannot retry failed, canceled, ambiguous or orphaned validation', () => {
+  for (const mutate of [
+    o => {
+      o.runs = [green(o, GATES[1], 1)]
+      o.runs[0].conclusion = 'failure'
+      o.currentChecks = checksFor(o.runs)
+    },
+    o => {
+      o.runs = [green(o, GATES[0], 0)]
+      o.runs[0].conclusion = 'cancelled'
+      o.currentChecks = checksFor(o.runs)
+    },
+    o => {
+      o.runs = [green(o, GATES[1], 1), { ...green(o, GATES[1], 1), id: 999 }]
+      o.currentChecks = checksFor(o.runs)
+    },
+    o => {
+      o.currentChecks = checksFor([green(o, GATES[0], 0)])
+    },
+    o => {
+      o.head = id(99)
+    },
+    o => {
+      o.runs = [green(o, GATES[0], 0)]
+      o.runs[0].merge = id(99)
+      o.currentChecks = checksFor(o.runs)
+    },
+  ]) {
+    for (const stale of [false, true]) {
+      const e = entry(),
+        o = observation(e)
+      o.draft = false
+      if (stale) {
+        o.upToDate = false
+        o.refresh = {
+          sourceHead: o.head,
+          base: o.base,
+          reviewBase: e.reviewBase,
+          clean: true,
+          disjoint: true,
+          tree: id(9),
+        }
+      }
+      mutate(o)
+      if (stale && o.runs[0]?.merge === id(99)) o.runs[0].identityVerified = false
+      assert.equal(settled(e, o).status, 'stop')
+    }
+  }
+})
+
+test('stale ready candidate requires refresh proof and verified earlier validation before draft', () => {
+  const { e, o } = ready()
+  for (const r of o.runs) {
+    r.validationVerified = true
+    r.identityVerified = false
+  }
+  o.base = id(8)
+  o.upToDate = false
+  o.refresh = {
+    sourceHead: o.head,
+    base: o.base,
+    reviewBase: e.reviewBase,
+    clean: true,
+    disjoint: true,
+    tree: id(9),
+  }
+  assert.equal(settled(e, o).action.reason, 'base-refresh')
+  o.runs[0].validationVerified = false
+  assert.equal(settled(e, o).status, 'stop')
+  o.runs[0].validationVerified = true
+  o.refresh.disjoint = false
+  assert.match(settled(e, o).reason, /disjoint-path/)
+})
+
+test('draft intent reconciles exact head/base and never retries uncertain conversion', () => {
+  const e = entry(),
+    o = observation(e)
+  o.draft = false
+  const state = recordIntent(settled(e, o))
+  assert.match(settled(e, o, state).reason, /Draft conversion outcome uncertain/)
+  o.draft = true
+  o.base = id(99)
+  assert.match(settled(e, o, state).reason, /Base changed during draft/)
+  o.base = e.reviewBase
+  const d = settled(e, o, JSON.parse(JSON.stringify(state)))
+  assert.equal(d.action.kind, 'ready')
+  assert.equal(d.checkpoint.draftConversion.kind, 'draft')
+})
+
+test('submitted ready admission waits boundedly without another toggle, then accepts exact pass', () => {
+  const e = entry(),
+    o = observation(e)
+  const state = recordIntent(settled(e, o))
+  o.draft = false
+  let d = settled(e, o, state)
+  assert.equal(d.status, 'wait')
+  assert.match(d.reason, /five minutes/)
+  const saved = JSON.parse(JSON.stringify(d.checkpoint))
+  d = decide(e, { ...o, observedAt: now + 300_000 }, saved, now + 300_000)
+  assert.equal(d.status, 'stop')
+  assert.match(d.reason, /without retrying/)
+  o.runs = GATES.map((g, i) => green(o, g, i))
+  o.currentChecks = checksFor(o.runs)
+  assert.equal(settled(e, o, saved).action.kind, 'merge')
+  o.draft = true
+  assert.match(settled(e, o, saved).reason, /Ready transition already used/)
+  o.upToDate = false
+  assert.match(settled(e, o, saved).reason, /Base changed after ready admission/)
+})
+
+test('draft transport persists before effect, rejects changed plan/state, and defaults to dry-run', () => {
+  const e = entry(),
+    o = observation(e)
+  o.draft = false
+  const decision = settled(e, o),
+    p = armed(e, decision)
+  let intent,
+    calls = 0
+  const forbidden = () => {
+    throw new Error('unexpected effect')
+  }
+  assert.equal(
+    submitPilot({ ...p, observe: forbidden, persist: forbidden, transport: forbidden }).status,
+    'dry-run'
+  )
+  assert.throws(
+    () =>
+      submitPilot({
+        ...p,
+        apply: true,
+        observe: () => ({ ...o, draft: true, observedAt: now + 60_000 }),
+        persist: forbidden,
+        transport: forbidden,
+      }),
+    /No fresh effect|no longer matches/
+  )
+  const altered = structuredClone(p.plan)
+  altered.action.reason = 'base-refresh'
+  assert.throws(
+    () =>
+      submitPilot({
+        ...p,
+        plan: altered,
+        apply: true,
+        observe: forbidden,
+        persist: forbidden,
+        transport: forbidden,
+      }),
+    /no longer matches/
+  )
+  const result = submitPilot({
+    ...p,
+    apply: true,
+    observe: () => ({ ...o, observedAt: now + 60_000 }),
+    persist: checkpoint => {
+      intent = JSON.parse(JSON.stringify(checkpoint))
+    },
+    transport: args => {
+      assert.equal(intent.pending.kind, 'draft')
+      assert.deepEqual(args, ['pr', 'ready', '123', '--undo', '--repo', `github.com/${REPO}`])
+      calls++
+      throw new Error('timeout')
+    },
+  })
+  assert.equal(result.status, 'uncertain')
+  assert.equal(calls, 1)
+  assert.match(settled(e, o, intent).reason, /outcome uncertain/)
 })

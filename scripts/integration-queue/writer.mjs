@@ -86,6 +86,8 @@ export function mutationArguments(pr, action) {
     ensure(oid(action.tree), 'Refresh requires its reviewed deterministic tree')
     return [...api, `${target}/update-branch`, '-f', `expected_head_sha=${action.head}`]
   }
+  if (action.kind === 'draft')
+    return ['pr', 'ready', String(pr), '--undo', '--repo', `github.com/${REPO}`]
   if (action.kind === 'ready') return ['pr', 'ready', String(pr), '--repo', `github.com/${REPO}`]
   ensure(
     action.kind === 'merge' && oid(action.tree) && oid(action.merge),

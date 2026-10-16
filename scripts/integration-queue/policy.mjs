@@ -197,9 +197,25 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
         state.head === entry.sourceHead && o.headCommit?.tree === entry.sourceTree,
         'Reviewed source content differs'
       )
+    if (state.pending?.kind === 'draft') {
+      requireThat(
+        o.base === state.pending.base,
+        'Base changed during draft conversion; reconcile manually'
+      )
+      if (o.draft !== true)
+        return stop('Draft conversion outcome uncertain; inspect PR before any retry')
+      state.draftConversion = state.pending
+      state.pending = null
+      state.quiet = null
+    }
     if (state.pending?.kind === 'ready') {
       if (o.draft !== false)
         return stop('Ready transition outcome uncertain; inspect PR before any retry')
+      requireThat(
+        o.base === state.pending.base,
+        'Base changed during ready transition; reconcile manually'
+      )
+      state.readyAdmission = { ...state.pending, since: now }
       state.pending = null
       state.quiet = null
     }
@@ -329,13 +345,10 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
         'Require unchanged identity and drained runs across a 60-second observation window'
       )
     if (o.upToDate !== true) {
+      requireThat(!state.readyAdmission, 'Base changed after ready admission; obtain new review')
       requireThat(
         entry.allowMechanicalRefresh && !state.refreshed,
         'Refresh not authorized or one-refresh bound reached; obtain new review'
-      )
-      requireThat(
-        o.draft === true,
-        'Refresh requires a draft; parent must review the ready PR state before refresh'
       )
       const proof = o.refresh
       requireThat(
@@ -347,6 +360,15 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
           sha(proof.tree),
         'No clean disjoint-path merge proof; overlapping edits/conflicts require review'
       )
+      if (o.draft === false) {
+        requireThat(
+          !state.draftConversion && !state.readyAdmission,
+          'Draft/ready cycle already used; obtain new review'
+        )
+        validateBeforeDraft(entry, o, required)
+        return propose({ kind: 'draft', head: o.head, base: o.base, reason: 'base-refresh' })
+      }
+      requireThat(o.draft === true, 'PR draft state is unknown')
       return propose({ kind: 'refresh', head: o.head, base: o.base, tree: proof.tree })
     }
     requireThat(
@@ -360,53 +382,47 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
         o.resource.tree === o.synthetic.tree,
       'Resource preflight needs a clean exact synthetic candidate checkout and installed dependencies'
     )
-    if (o.draft === true) return propose({ kind: 'ready', head: o.head, base: o.base })
+    if (o.draft === true) {
+      requireThat(!state.readyAdmission, 'Ready transition already used; obtain new review')
+      return propose({ kind: 'ready', head: o.head, base: o.base })
+    }
     requireThat(o.draft === false && o.mergeable === true, 'PR readiness/mergeability is unknown')
+    const fullRuns = gateRuns(entry, o, GATES[0]).filter(r => r.base === o.base)
+    if (fullRuns.length === 0) {
+      validateBeforeDraft(entry, o, required)
+      if (state.readyAdmission) {
+        requireThat(
+          state.readyAdmission.head === o.head && state.readyAdmission.base === o.base,
+          'Ready admission identity changed; obtain new review'
+        )
+        requireThat(now >= state.readyAdmission.since, 'Ready admission clock moved backwards')
+        if (now - state.readyAdmission.since < 300_000)
+          return wait(
+            'Waiting up to five minutes for the submitted ready event to admit Full check'
+          )
+        return stop(
+          'Submitted ready event has no matching Full admission; inspect without retrying'
+        )
+      }
+      requireThat(!state.draftConversion, 'Draft conversion already used; obtain new review')
+      return propose({
+        kind: 'draft',
+        head: o.head,
+        base: o.base,
+        reason: 'missing-full-admission',
+      })
+    }
     const checks = []
     for (const gate of required) {
-      const runs = o.runs.filter(
-        r =>
-          r.workflow === gate.workflow &&
-          r.head === o.head &&
-          r.base === o.base &&
-          !(
-            r.draftAdmission === true &&
-            gate.draftJob &&
-            r.job === gate.draftJob &&
-            r.appId === 15368 &&
-            r.workflowSha256 === entry.workflowHashes[gate.workflow]
-          )
-      )
+      const runs = gateRuns(entry, o, gate).filter(r => r.base === o.base)
       requireThat(runs.length > 0, `Missing exact head/base/synthetic run: ${gate.job}`)
       // Do not cherry-pick an older green attempt after a newer red/canceled one.
       const latest = latestChronological(runs, `${gate.job} attempts`)
       requireThat(
-        latest.merge === o.synthetic.sha &&
-          latest.conclusion === 'success' &&
-          latest.event === 'pull_request' &&
-          latest.identityVerified === true &&
-          latest.job === gate.job &&
-          latest.jobConclusion === 'success' &&
-          latest.app === 'github-actions' &&
-          latest.appId === 15368 &&
-          gate.steps.every(
-            name =>
-              latest.steps?.filter(s => s.name === name).length === 1 &&
-              latest.steps.find(s => s.name === name).conclusion === 'success'
-          ),
+        latest.merge === o.synthetic.sha && latest.identityVerified === true,
         `Failed, canceled, skipped or unverified current gate: ${gate.job} run ${latest.id}/${latest.attempt}`
       )
-      requireThat(Array.isArray(o.currentChecks), 'Missing current required-check selection')
-      const current = latestChronological(
-        o.currentChecks.filter(c => c.name === gate.job && c.appId === 15368 && c.head === o.head),
-        `${gate.job} current checks`
-      )
-      requireThat(
-        current.id === latest.checkId &&
-          current.status === 'completed' &&
-          current.conclusion === 'success',
-        `Current required check disagrees with exact tested attempt: ${gate.job}`
-      )
+      validatePassedGate(o, gate, latest)
       checks.push({ id: latest.id, attempt: latest.attempt, url: latest.url })
     }
     requireThat(o.mergeState === 'clean', 'GitHub does not report clean protected mergeability')
@@ -446,4 +462,65 @@ function latestChronological(items, label) {
     `Ambiguous attempt chronology: ${label}`
   )
   return ordered[0]
+}
+
+function gateRuns(entry, o, gate) {
+  return o.runs.filter(
+    r =>
+      r.workflow === gate.workflow &&
+      r.head === o.head &&
+      !(
+        r.draftAdmission === true &&
+        gate.draftJob &&
+        r.job === gate.draftJob &&
+        r.appId === 15368 &&
+        r.workflowSha256 === entry.workflowHashes[gate.workflow]
+      )
+  )
+}
+
+function validatePassedGate(o, gate, latest) {
+  requireThat(
+    !latest.identityVerified || (latest.base === o.base && latest.merge === o.synthetic?.sha),
+    'Verified candidate identity contradicts run evidence'
+  )
+  requireThat(
+    latest.conclusion === 'success' &&
+      latest.event === 'pull_request' &&
+      (latest.validationVerified === true || latest.identityVerified === true) &&
+      latest.job === gate.job &&
+      latest.jobConclusion === 'success' &&
+      latest.app === 'github-actions' &&
+      latest.appId === 15368 &&
+      gate.steps.every(
+        name =>
+          latest.steps?.filter(s => s.name === name).length === 1 &&
+          latest.steps.find(s => s.name === name).conclusion === 'success'
+      ),
+    `Failed, canceled, skipped or unverified current gate: ${gate.job} run ${latest.id}/${latest.attempt}`
+  )
+  requireThat(Array.isArray(o.currentChecks), 'Missing current required-check selection')
+  const current = latestChronological(
+    o.currentChecks.filter(c => c.name === gate.job && c.appId === 15368 && c.head === o.head),
+    `${gate.job} current checks`
+  )
+  requireThat(
+    current.id === latest.checkId &&
+      current.status === 'completed' &&
+      current.conclusion === 'success',
+    `Current required check disagrees with exact tested attempt: ${gate.job}`
+  )
+}
+
+function validateBeforeDraft(entry, o, required) {
+  requireThat(Array.isArray(o.currentChecks), 'Missing current required-check selection')
+  for (const gate of required) {
+    const runs = gateRuns(entry, o, gate)
+    if (runs.length) validatePassedGate(o, gate, latestChronological(runs, `${gate.job} attempts`))
+    else
+      requireThat(
+        !o.currentChecks.some(c => c.name === gate.job && c.head === o.head),
+        `Required check lacks matching run evidence: ${gate.job}`
+      )
+  }
 }

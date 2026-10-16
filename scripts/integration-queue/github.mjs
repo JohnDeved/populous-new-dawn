@@ -252,6 +252,13 @@ export class GitHubReader {
             /(?:^|\n)[^\n]*?\bIS_DRAFT: true\s*(?=\n|$)/.test(log) &&
             stage('Require a ready pull request', 'failure') &&
             gate.steps.slice(1).every(name => stage(name, 'skipped'))
+          row.validationVerified =
+            identity.head === pr.head.sha &&
+            exact.head_sha === identity.head &&
+            sha(identity.base) &&
+            sha(identity.merge) &&
+            check.conclusion === 'success' &&
+            row.workflowSha256 === entry.workflowHashes[gate.workflow]
           row.identityVerified =
             identity.head === pr.head.sha &&
             identity.base === pr.base.sha &&

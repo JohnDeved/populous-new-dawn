@@ -6,7 +6,7 @@ preserved merge ancestry. It does not declare the integration PR's constituent P
 tested. GitHub remains the task/status surface; the local checkpoint only records
 observation continuity and uncertain effects.
 
-**Dry-run is the default.** The writer can submit one refresh, ready transition or
+**Dry-run is the default.** The writer can submit one draft conversion, refresh, ready transition or
 exact-head merge only with an explicit parent-approved, independently reviewed
 plan and short-lived pilot. It has no background polling, workflow rerun, new
 credential, protection change, deploy, squash, rebase or automatic approval.
@@ -99,12 +99,22 @@ this tool verifies CI coverage, not the meaning of external browser/native claim
    Require Git's clean deterministic merge tree, not patch-id equivalence. After the
    effect, accept only parents `[reviewedHead, observedMain]` and that exact tree,
    including blobs and modes. Overlap, conflict, extra commits or a second refresh
-   needs renewed review. A ready PR needing refresh stops for parent reconciliation.
+   needs renewed review. An exact reviewed ready head may propose conversion to draft
+   before this refresh, with its own exact reviewed plan/pilot. Existing validation
+   must be genuine and successful, or absent; failed, canceled, ambiguous or
+   unverified validation stops. The adapter never adopts an unreviewed head.
 4. Surface the exported `planTestRun(candidate, 'all')` preflight before ready.
    It reads inputs without running tests. The exact synthetic candidate is required;
    serial fallback is valid and visible, never silently reclassified. Propose ready
    only after the stale runs drain. The writer persists `recordIntent()` durably
    before every effect and re-reads identities immediately before applying it.
+   With the pinned ready-only Full workflow, an already-ready candidate lacking
+   initial Full admission may propose one reviewed draft conversion then one ready
+   transition. An existing genuine matching pass on the identical head/base/merge
+   is reused, including after reopen; BLOCKED still stops. A reconciled ready
+   transition waits at most five minutes for missing Full admission, then stops
+   without another toggle. The checkpoint permits only one draft/ready cycle and
+   one mechanical refresh per entry. Each effect still requires its own pilot.
 5. Wait for terminal Full check and required Tutorial browser on the exact head,
    base and synthetic commit. Bind workflow/run/attempt/check suite/Actions app and
    actual checkout log plus logged `PR_HEAD_SHA`/`PR_BASE_SHA`. Require mandatory
@@ -125,13 +135,16 @@ this tool verifies CI coverage, not the meaning of external browser/native claim
    fixed github.com, PUT `/pulls/N/merge`, `sha=<expected head>` and
    `merge_method=merge`. Refresh uses PUT `/pulls/N/update-branch` with
    `expected_head_sha=<expected head>`. Ready uses `gh pr ready N` with the fixed
-   repository. There is no admin/auto-merge/squash/rebase path. GitHub ready has no
+   repository; draft conversion uses the same command with `--undo`. There is no
+   admin/auto-merge/squash/rebase path. GitHub draft/ready has no
    head CAS, so fresh checks and subsequent reconciliation guard that transition.
    Head CAS cannot atomically guard base movement; root must serialize the
    integration lane, and strict protection plus final identity recheck remain
    required. Any unexpected post-effect parents/tree stop for reconciliation.
 7. After an uncertain effect, reconcile before considering another effect. Same-head
-   refresh, still-draft ready or apparently-unmerged merge stops instead of retrying.
+   refresh, still-ready draft conversion, still-draft ready or apparently-unmerged
+   merge stops instead of retrying. Draft/ready reconciliation also checks the
+   exact submitted head/base; base movement stops for review.
    A confirmed merge must have `[testedBase, testedHead]` parents, the tested tree,
    and be main's current tip. Deployment observation follows the explicitly
    approved mode below. No deployment is triggered and no serving-production claim
