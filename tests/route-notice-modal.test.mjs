@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import ts from 'typescript'
+import { requestTutorial } from '../app/model.ts'
 import { pageNode, pageSource, evaluatePage, pageNearby } from './support/follower-nearby-page.mjs'
 
 const notice = pageNode(node => ts.isJsxElement(node) &&
@@ -72,4 +73,20 @@ test('a canceled notice callback cannot consume a newly issued notice', () => {
   ui.world().routeNotice = { serial: 2 }
   expired()
   assert.equal(ui.world().routeNotice.serial, 2)
+})
+
+test('actual producer serial reuse does not give an old callback ownership of a new notice', () => {
+  const ui = fixture()
+  ui.world().routeNotice = null
+  requestTutorial(ui.world(), 0x200000, 603)
+  const first = ui.world().routeNotice, complete = ui.render().props.onAnimationEnd
+  assert.equal(first.serial, 1)
+  complete()
+  assert.equal(ui.world().routeNotice, null)
+  requestTutorial(ui.world(), 0x200000, 603)
+  const next = ui.world().routeNotice
+  assert.equal(next.serial, first.serial)
+  assert.notEqual(next, first)
+  complete()
+  assert.equal(ui.world().routeNotice, next)
 })

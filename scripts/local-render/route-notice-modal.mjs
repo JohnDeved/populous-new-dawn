@@ -32,7 +32,12 @@ export default async function ({ page, output }) {
         canvas: document.querySelector('.world-viewport canvas') }
     })
     await page.locator('.route-notice').waitFor({ state: 'visible' })
-    await page.waitForTimeout(150)
+    await page.evaluate(() => {
+      const fixture = window.routeNoticeFixture
+      fixture.animation = document.querySelector('.route-notice').getAnimations()[0]
+      fixture.animation.addEventListener('finish', () => { fixture.finishedAt = performance.now() }, { once: true })
+    })
+    await page.waitForFunction(() => window.routeNoticeFixture.animation.currentTime >= 1200)
     await button('Game settings').click()
     await page.getByRole('dialog', { name: 'Game menu', exact: true }).waitFor()
     const observe = () => page.evaluate(() => {
@@ -42,6 +47,7 @@ export default async function ({ page, output }) {
         sameScene: window.testSceneRef.current === fixture.scene, sceneWorld: fixture.scene.world === world,
         sameCanvas: document.querySelector('.world-viewport canvas') === fixture.canvas,
         paused: world.paused, suspended: fixture.scene.modalSuspended, turn: world.turn, time: world.time,
+        sameAnimation: animation === fixture.animation,
         animationState: animation?.playState ?? null, animationTime: animation?.currentTime ?? null }
     })
     const before = await observe()
@@ -61,6 +67,7 @@ export default async function ({ page, output }) {
       continue
     }
     assert.equal(after.sameNotice, true, 'menu must retain the notice beyond its wall-clock lifetime')
+    assert.equal(after.sameAnimation, true)
     assert.equal(after.animationState, 'paused')
     assert.ok(Math.abs(after.animationTime - before.animationTime) < 60)
     await button('Quit Level').click(); await button('No').click()
@@ -68,18 +75,35 @@ export default async function ({ page, output }) {
     await button('Select Level').click()
     const selector = await observe()
     assert.equal(selector.animationState, 'paused')
+    assert.equal(selector.sameAnimation, true)
     await page.keyboard.press('Escape')
     await button('Continue Game').click()
     await page.locator('.route-notice').waitFor({ state: 'visible' })
     await button('Game settings').click()
     await page.waitForTimeout(500)
-    assert.equal((await observe()).sameNotice, true)
+    const reopened = await observe()
+    assert.equal(reopened.sameNotice, true)
+    assert.equal(reopened.sameAnimation, true)
+    assert.ok(reopened.animationTime >= after.animationTime)
     await page.screenshot({ path: resolve(output, `route-notice-menu-${initiallyPaused}.png`) })
     await page.keyboard.press('Escape')
     assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), initiallyPaused)
+    const resumed = await page.evaluate(() => {
+      const fixture = window.routeNoticeFixture
+      const animation = document.querySelector('.route-notice').getAnimations()[0]
+      fixture.resumedAt = performance.now()
+      return { sameAnimation: animation === fixture.animation, currentTime: animation.currentTime,
+        remaining: animation.effect.getTiming().duration - animation.currentTime }
+    })
+    assert.equal(resumed.sameAnimation, true)
+    assert.ok(resumed.currentTime >= 1200)
+    assert.ok(resumed.remaining > 0 && resumed.remaining <= 1800)
     await page.screenshot({ path: resolve(output, `route-notice-return-${initiallyPaused}.png`) })
     await page.waitForFunction(() => window.testStore.getWorld().routeNotice === null, null, { timeout: 5000 })
-    record({ initiallyPaused, stage: 'resumed-presentation-expired', final: await observe() })
+    const elapsed = await page.evaluate(() => window.routeNoticeFixture.finishedAt - window.routeNoticeFixture.resumedAt)
+    record({ initiallyPaused, stage: 'resumed-presentation-expired', resumed, elapsed, final: await observe() })
+    assert.ok(Number.isFinite(elapsed) && Math.abs(elapsed - resumed.remaining) < 250,
+      `expiry ${elapsed}ms must match remaining ${resumed.remaining}ms, not restart at three seconds`)
   }
   return { status: 'passed', episodes: observations.length / 2, observations }
 }
