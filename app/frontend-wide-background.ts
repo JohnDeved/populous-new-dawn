@@ -74,7 +74,7 @@ function edgeColors(source: Uint8Array) {
 
 export function frontendWideIndexedBackground(source: Uint8Array, width: number) {
   const cached = backgrounds.get(source)
-  if (cached?.width === width) return cached.indexed.slice()
+  if (cached?.width === width) return new Uint8Array(cached.indexed)
   const indexed = new Uint8Array(width * 480)
   const offset = (width - 640) / 2
   const feather = Math.min(120, (width - 640) / 2)
@@ -205,5 +205,5 @@ export function frontendWideIndexedBackground(source: Uint8Array, width: number)
     }
   }
   backgrounds.set(source, { width, indexed })
-  return indexed.slice()
+  return new Uint8Array(indexed)
 }
