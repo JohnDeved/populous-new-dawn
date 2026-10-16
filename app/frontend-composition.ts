@@ -11,6 +11,14 @@ export const frontendRows = [
   'Coming Soon',
   'Quit',
 ] as const
+// Native frontend menu1 descriptors; see decomp/research/frontend-quit-menu/.
+export const frontendQuitRows = [
+  { text: 'Quit?', x: 320, y: 159 },
+  { text: 'Yes', x: 320, y: 189 },
+  { text: 'No', x: 320, y: 219 },
+  { text: 'Back', x: 320, y: 454 },
+] as const
+
 export const frontendRowY = (index: number) => ((0x4aaa + index * 0x1000) * 480) >> 16
 export const frontendScale = (width: number, height: number) => Math.min(width / 640, height / 480)
 export const frontendTextWidth = (text: string) =>
