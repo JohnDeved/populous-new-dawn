@@ -95,22 +95,21 @@ const nativeCases=[
 test('native 4:3 composition is byte-identical across main, Quit, options, pointer and glow cases',()=>{
  for(const c of nativeCases)assert.equal(sha(frontendBackground(source,c.pointer,c.menu,c.glowFrame,c.rows)),c.sha256)
 })
-test('wide field uniformly covers from the original safe artwork, without stretching or repeated tiles',()=>{
- for(const width of [642,854,1148,1280,1708]){
-  const pixels=frontendWideIndexedBackground(source,width)
+test('wide field keeps the original face and crown at native logical scale',()=>{
+ for(const width of [642,660,720,800,854,1148,1708]){
+  const pixels=frontendWideIndexedBackground(source,width),offset=(width-640)/2
   assert.equal(pixels.length,width*480)
-  const scale=Math.max(width/640,1.25),left=(640-width/scale)/2,top=384-480/scale
-  for(const y of [0,30,200,300,383])for(const x of [0,1,100,width>>1,width-2,width-1]){
-   const sx=Math.floor(left+x/scale),sy=Math.floor(top+y/scale)
-   assert.ok(sx>=0&&sx<640&&sy>=0&&sy<384)
-   assert.equal(pixels[y*width+x],source[sy*640+sx])
-  }
+  for(let y=0;y<480;y++)assert.deepEqual(pixels.subarray(y*width+offset+120,y*width+offset+520),source.subarray(y*640+120,y*640+520))
  }
 })
-test('both exact badge panels retain source pixels at native frame scale and viewport bottom corners',()=>{
+test('the first wide logical pixels preserve every original art pixel without a crop or zoom jump',()=>{
+ const pixels=frontendWideIndexedBackground(source,642)
+ for(let y=0;y<480;y++)assert.deepEqual(pixels.subarray(y*642+1,y*642+641),source.subarray(y*640,(y+1)*640))
+})
+test('both badge panels retain exact source pixels and original centered-frame positions',()=>{
  for(const width of [642,854,1148,1708]){
-  const pixels=frontendWideIndexedBackground(source,width)
-  for(const [x,y,w,h,offset]of [[5,387,54,89,0],[569,416,48,60,width-640]])
+  const pixels=frontendWideIndexedBackground(source,width),offset=(width-640)/2
+  for(const [x,y,w,h]of [[5,387,54,89],[569,416,48,60]])
    for(let row=0;row<h;row++)assert.deepEqual(pixels.subarray((y+row)*width+x+offset,(y+row)*width+x+offset+w),source.subarray((y+row)*640+x,(y+row)*640+x+w))
  }
 })
