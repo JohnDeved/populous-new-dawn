@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "kind": "pnd-review-bundle",
+  "taskId": "issue17-selector-inspection",
+  "repository": {
+    "branch": "test/issue17-selector-inspection-live-world",
+    "baseCommit": "c9e3cbc8003be7c9b3fc489d794297679476d2b9",
+    "headOid": "e8e2dea065155cd509fe6cf17339214caabe292f"
+  },
+  "diff": {
+    "path": "changes.patch",
+    "sha256": "938cc9734efbbab48e80299202febbde7c5597ded04a4764d8793c074d63521f",
+    "bytes": 24284
+  },
+  "sources": [
+    {
+      "status": "M",
+      "path": "scripts/tutorial-browser/README.md",
+      "state": "present",
+      "sha256": "4d0dff0efd395aa78a91682aba7dde226ccb0e68b5abf76ca9988e56a380aeb4",
+      "blobOid": "55fd3f55dd7be2287640cf15a710f89a53a5b934",
+      "bytes": 3791
+    },
+    {
+      "status": "A",
+      "path": "scripts/tutorial-browser/browser-config.mjs",
+      "state": "present",
+      "sha256": "e8ace43300cc6de093abb412187c8a121c8de3b221b138e678af79ae5ba12f38",
+      "blobOid": "0a16227a85b8869f0dcd285ed01ee0a7e6b087c5",
+      "bytes": 774
+    },
+    {
+      "status": "M",
+      "path": "scripts/tutorial-browser/run.mjs",
+      "state": "present",
+      "sha256": "618ec2b7a26af5e6b4b9db0a87be0d98d92e76c01c8c1657b1473ab36c208b12",
+      "blobOid": "07f23a9d52b30b8f735b0c48dac4b6a9b1f293ad",
+      "bytes": 9129
+    },
+    {
+      "status": "A",
+      "path": "scripts/tutorial-browser/selector-inspection.mjs",
+      "state": "present",
+      "sha256": "413de0481fcc3511d79b1a0664a54a6f996010603c80c6423db9a289af6a32b3",
+      "blobOid": "6588be3da2d679240cb1a983bde28788bb4438eb",
+      "bytes": 9457
+    },
+    {
+      "status": "A",
+      "path": "tests/selector-inspection-cleanup.test.mjs",
+      "state": "present",
+      "sha256": "e38f492ce317d6bf47d03acfbd8de181b9af618e43187604e08e23c0883118c3",
+      "blobOid": "b4568c41442e4f6dd4997570356801d0fe543f6c",
+      "bytes": 3614
+    },
+    {
+      "status": "A",
+      "path": "tests/tutorial-browser-config.test.mjs",
+      "state": "present",
+      "sha256": "305ecd06e1a4d997a7caedc405e9a6d78d37ab05a953abf779d820d379c509b8",
+      "blobOid": "d1ef7a3ef3b6fd2533fa1bf67991bb10a949c812",
+      "bytes": 1437
+    }
+  ],
+  "receipts": [
+    {
+      "sourcePath": "work/orchestration/selector-inspection/browser-e8e2dea0.json",
+      "sourceSha256": "2563ad648236583dcc029031b460a662f9b52e822db3ea23843f39f49089b481",
+      "sourceBytes": 1755,
+      "bundlePath": "receipts/work/orchestration/selector-inspection/browser-e8e2dea0.json",
+      "bundleSha256": "73e6a349c8971baf82818a414f0e873b804570e6c3aee62c8199fa7aeb2463d6",
+      "bundleBytes": 1503,
+      "redactions": 4
+    },
+    {
+      "sourcePath": "outputs/tutorial-browser-e8e2dea0/receipt.json",
+      "sourceSha256": "d4deb79026b86bab1ccee3fa9571946abbddf4ab00123ae1ed2456c01f79ec7b",
+      "sourceBytes": 688496,
+      "bundlePath": "receipts/outputs/tutorial-browser-e8e2dea0/receipt.json",
+      "bundleSha256": "05690c63fb2aeca994c5b30f4c9f5e17c0f30371e335c544468878106fc3b398",
+      "bundleBytes": 688174,
+      "redactions": 6
+    },
+    {
+      "sourcePath": "outputs/tutorial-browser-e8e2dea0/selector-inspection.json",
+      "sourceSha256": "be5b1f9456b22a9b1b11860e58ecd008f0d6efec80ff0abfef2d029d6c587fd2",
+      "sourceBytes": 3433,
+      "bundlePath": "receipts/outputs/tutorial-browser-e8e2dea0/selector-inspection.json",
+      "bundleSha256": "be5b1f9456b22a9b1b11860e58ecd008f0d6efec80ff0abfef2d029d6c587fd2",
+      "bundleBytes": 3433,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "outputs/tutorial-browser-e8e2dea0/progress.json",
+      "sourceSha256": "053695ece69ad1d9525e7fc341fe39e6514f1c6117d7fd7ca091ed5dc5bda56d",
+      "sourceBytes": 278,
+      "bundlePath": "receipts/outputs/tutorial-browser-e8e2dea0/progress.json",
+      "bundleSha256": "053695ece69ad1d9525e7fc341fe39e6514f1c6117d7fd7ca091ed5dc5bda56d",
+      "bundleBytes": 278,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "outputs/tutorial-browser-e8e2dea0/build.log",
+      "sourceSha256": "d0a33362f03808be5c05236415c37ba99b7983a52b2157e5cdc1a7a6242576e7",
+      "sourceBytes": 5626,
+      "bundlePath": "receipts/outputs/tutorial-browser-e8e2dea0/build.log",
+      "bundleSha256": "d0a33362f03808be5c05236415c37ba99b7983a52b2157e5cdc1a7a6242576e7",
+      "bundleBytes": 5626,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/selector-inspection/portability-focused.json",
+      "sourceSha256": "b0cb99e2a36a6593beebe2ebcd428560f6074b4f82730efab862f12d0798c249",
+      "sourceBytes": 8140,
+      "bundlePath": "receipts/work/orchestration/selector-inspection/portability-focused.json",
+      "bundleSha256": "f600301487898a75bb7aa91b02afe829a5ea4421ecf9b5a55eda4e1b10b60917",
+      "bundleBytes": 7937,
+      "redactions": 5
+    },
+    {
+      "sourcePath": "work/orchestration/selector-inspection/portability-lint.json",
+      "sourceSha256": "c9fa9ea6659c8cafdf97e0233cccec67ecb33f2ea8bfdf25833e5fd174d7704b",
+      "sourceBytes": 1676,
+      "bundlePath": "receipts/work/orchestration/selector-inspection/portability-lint.json",
+      "bundleSha256": "33378aaeefef3366004c46b73424396b92a914d0568dc695e6cce4a8cf2959f8",
+      "bundleBytes": 1487,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/selector-inspection/mac-chrome-signature-unsandboxed.json",
+      "sourceSha256": "10a3100847eac3858ba21aeb7437ad2638313c51f0fee6b656ac5f4648eb148f",
+      "sourceBytes": 1732,
+      "bundlePath": "receipts/work/orchestration/selector-inspection/mac-chrome-signature-unsandboxed.json",
+      "bundleSha256": "c79fcb68a8e48b65e6034d65ca09101b10844402c496d14da714bcc7262dec59",
+      "bundleBytes": 1543,
+      "redactions": 3
+    }
+  ],
+  "reviewerPreflight": {
+    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
+    "verify": [
+      "node",
+      "verify.mjs"
+    ]
+  }
+}
