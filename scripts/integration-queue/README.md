@@ -103,6 +103,14 @@ this tool verifies CI coverage, not the meaning of external browser/native claim
    before this refresh, with its own exact reviewed plan/pilot. Existing validation
    must be genuine and successful, or absent; failed, canceled, ambiguous or
    unverified validation stops. The adapter never adopts an unreviewed head.
+   If GitHub still advertises the reviewed old base and synthetic, only the original
+   allowlisted draft head/tree can enter a refresh-only observation. Both advertised
+   and live base identities must stay unchanged across the observation; live main
+   must descend from the reviewed base and pass the same disjoint merge-tree proof.
+   Retain the old commit as `staleSynthetic`, never as the current `synthetic` or as
+   current-main test evidence. Its run inventory still participates in draining.
+   This exception cannot propose ready or merge. After refresh, require advertised
+   base to equal live main, exact current synthetic parents and fresh preflight/gates.
 4. Surface the exported `planTestRun(candidate, 'all')` preflight before ready.
    It reads inputs without running tests. The exact synthetic candidate is required;
    serial fallback is valid and visible, never silently reclassified. Propose ready

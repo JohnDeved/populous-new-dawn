@@ -304,6 +304,7 @@ export class GitHubReader {
       Object.assign(result, {
         head: pr.head.sha,
         base: main,
+        advertisedBase: { sha: pr.base.sha, ref: pr.base.ref, repo: pr.base.repo.full_name },
         draft: pr.draft,
         state: pr.state,
         merged: pr.merged,
@@ -355,7 +356,6 @@ export class GitHubReader {
           }
         }
       } else {
-        ensure(pr.base.sha === main, 'PR base view differs from main; obtain a fresh observation')
         result.upToDate = this.git('merge-base', main, pr.head.sha) === main
         result.changedPaths = this.git(
           'diff',
@@ -371,7 +371,31 @@ export class GitHubReader {
           .filter(Boolean)
         if (!result.upToDate && pr.head.sha === entry.sourceHead)
           result.refresh = this.refresh(entry, pr.head.sha, main)
-        if (pr.mergeable === true && sha(pr.merge_commit_sha)) {
+        if (pr.base.sha !== main) {
+          ensure(
+            pr.state === 'open' &&
+              pr.draft === true &&
+              pr.mergeable === true &&
+              pr.mergeable_state === 'behind' &&
+              pr.base.sha === entry.reviewBase &&
+              pr.head.sha === entry.sourceHead &&
+              result.headCommit.tree === entry.sourceTree &&
+              entry.allowMechanicalRefresh === true &&
+              result.upToDate === false &&
+              result.refresh?.clean === true &&
+              result.refresh.disjoint === true,
+            'Stale PR base lacks exact reviewed draft refresh proof'
+          )
+          const stale = this.commit(pr.merge_commit_sha)
+          ensure(
+            stale.parents.length === 2 &&
+              stale.parents[0] === entry.reviewBase &&
+              stale.parents[1] === entry.sourceHead,
+            'Stale synthetic does not match the reviewed base and source'
+          )
+          result.refreshOnly = true
+          result.staleSynthetic = stale
+        } else if (pr.mergeable === true && sha(pr.merge_commit_sha)) {
           result.synthetic = this.commit(pr.merge_commit_sha)
           result.workflows.push(...GATES.map(g => this.workflow(g.workflow, result.synthetic.sha)))
         }
@@ -395,6 +419,13 @@ export class GitHubReader {
       const endMain = this.get(`${root}/git/ref/heads/main`).object.sha
       result.consistent =
         endPr.head.sha === result.head &&
+        endPr.base.sha === pr.base.sha &&
+        endPr.base.ref === pr.base.ref &&
+        endPr.base.repo.full_name === pr.base.repo.full_name &&
+        endPr.head.repo.full_name === pr.head.repo.full_name &&
+        endPr.state === pr.state &&
+        endPr.mergeable === pr.mergeable &&
+        endPr.mergeable_state === pr.mergeable_state &&
         endMain === main &&
         endPr.draft === pr.draft &&
         endPr.merged === pr.merged &&

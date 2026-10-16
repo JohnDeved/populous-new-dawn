@@ -528,6 +528,197 @@ test('real Git merge-tree proof preserves contents and modes; path overlap stops
   }
 })
 
+test('stale advertised base admits only the original reviewed draft refresh', () => {
+  const { dir, git, put, execute } = repoFixture()
+  try {
+    put('review.md', 'accepted source review\n')
+    git('add', '.')
+    git('commit', '-qm', 'review base')
+    const base = git('rev-parse', 'HEAD')
+    put('source.txt', 'reviewed source\n')
+    git('add', '.')
+    git('commit', '-qm', 'source')
+    const source = git('rev-parse', 'HEAD'),
+      tree = git('rev-parse', 'HEAD^{tree}')
+    const stale = git('commit-tree', tree, '-p', base, '-p', source, '-m', 'old synthetic')
+    git('checkout', '-q', '--detach', base)
+    put('main.txt', 'new main\n')
+    git('add', '.')
+    git('commit', '-qm', 'main advancement')
+    const main = git('rev-parse', 'HEAD')
+    const refreshed = git('commit-tree', tree, '-p', source, '-p', main, '-m', 'refreshed head')
+    const unrelated = git('commit-tree', tree, '-m', 'unrelated root')
+    git('checkout', '-q', '--detach', source)
+    const e = entry()
+    Object.assign(e, { sourceHead: source, sourceTree: tree, reviewBase: base })
+    Object.assign(e.review, {
+      head: source,
+      base,
+      file: join(dir, 'review.md'),
+      sha256: sha256(readFileSync(join(dir, 'review.md'))),
+    })
+    const original = {
+      head: { sha: source, ref: 'reviewed', repo: { full_name: REPO } },
+      base: { sha: base, ref: 'main', repo: { full_name: REPO } },
+      draft: true,
+      state: 'open',
+      merged: false,
+      mergeable: true,
+      mergeable_state: 'behind',
+      merge_commit_sha: stale,
+      updated_at: 'unchanged',
+    }
+    function inspect({
+      change = () => {},
+      end = () => {},
+      liveMain = main,
+      endMain = liveMain,
+      runs = [],
+      allowed = e,
+    } = {}) {
+      const pr = structuredClone(original)
+      change(pr)
+      let prReads = 0,
+        mainReads = 0
+      const reader = new GitHubReader({ cwd: dir, execute })
+      reader.get = endpoint => {
+        if (endpoint.endsWith(`/pulls/${e.pr}`)) {
+          const value = structuredClone(pr)
+          if (prReads++) end(value)
+          return value
+        }
+        if (endpoint.endsWith('/git/ref/heads/main'))
+          return { object: { sha: mainReads++ ? endMain : liveMain } }
+        throw new Error(`Unexpected fixture endpoint: ${endpoint}`)
+      }
+      reader.commit = sha => ({
+        sha,
+        tree: reader.git('rev-parse', `${sha}^{tree}`),
+        parents: reader.git('show', '-s', '--format=%P', sha).split(' ').filter(Boolean),
+      })
+      reader.protection = () => observation().protection
+      reader.workflow = (path, ref) => ({ path, ref, sha256: h })
+      reader.runs = (_entry, _pr, synthetic) => {
+        assert.equal(synthetic, undefined, 'old synthetic must never enter gate verification')
+        return runs
+      }
+      reader.pages = () => []
+      const result = reader.inspect(allowed, dir)
+      result.resource = observation().resource
+      result.observedAt = now
+      return result
+    }
+    const o = inspect()
+    assert.equal(o.complete, true, o.error)
+    assert.equal(o.consistent, true)
+    assert.deepEqual(o.advertisedBase, { sha: base, ref: 'main', repo: REPO })
+    assert.equal(o.base, main)
+    assert.equal(o.refreshOnly, true)
+    assert.equal(o.synthetic, undefined)
+    assert.deepEqual(o.staleSynthetic.parents, [base, source])
+    const first = decide(e, o, null, now)
+    assert.equal(first.status, 'wait')
+    const decision = settled(e, o)
+    assert.deepEqual(decision.action, {
+      kind: 'refresh',
+      head: source,
+      base: main,
+      tree: o.refresh.tree,
+    })
+    assert.equal(git('show', `${o.refresh.tree}:source.txt`), 'reviewed source')
+    assert.equal(git('show', `${o.refresh.tree}:main.txt`), 'new main')
+    const historical = green(observation(), GATES[0], 0)
+    Object.assign(historical, { head: source, base, merge: stale, identityVerified: false })
+    assert.equal(settled(e, inspect({ runs: [historical] })).action.kind, 'refresh')
+    const changedStale = structuredClone(o)
+    changedStale.staleSynthetic.sha = id(77)
+    changedStale.observedAt = now + 60_000
+    assert.equal(decide(e, changedStale, first.checkpoint, now + 60_000).status, 'wait')
+    const active = inspect({ runs: [{ id: 1, attempt: 1, status: 'in_progress' }] })
+    assert.match(settled(e, active).reason, /Drain all current and stale/)
+    for (const mutate of [
+      o => {
+        o.draft = false
+      },
+      o => {
+        o.upToDate = true
+      },
+      o => {
+        o.synthetic = o.staleSynthetic
+      },
+    ]) {
+      const forged = structuredClone(o)
+      mutate(forged)
+      assert.equal(settled(e, forged).status, 'stop', 'refresh-only cannot authorize ready/merge')
+    }
+    for (const options of [
+      {
+        change: p => {
+          p.draft = false
+        },
+      },
+      {
+        change: p => {
+          p.head.sha = main
+        },
+      },
+      {
+        change: p => {
+          p.head.sha = refreshed
+        },
+      },
+      {
+        change: p => {
+          p.base.sha = unrelated
+        },
+      },
+      {
+        change: p => {
+          p.merge_commit_sha = source
+        },
+      },
+      {
+        change: p => {
+          p.mergeable = null
+        },
+      },
+      { liveMain: unrelated },
+      { allowed: { ...e, sourceTree: id(99) } },
+      { allowed: { ...e, allowMechanicalRefresh: false } },
+      { endMain: source },
+      {
+        end: p => {
+          p.base.sha = main
+        },
+      },
+      {
+        end: p => {
+          p.base.ref = 'other'
+        },
+      },
+      {
+        end: p => {
+          p.base.repo.full_name = 'elsewhere/repo'
+        },
+      },
+      {
+        end: p => {
+          p.head.sha = main
+        },
+      },
+    ])
+      assert.equal(settled(options.allowed ?? e, inspect(options)).status, 'stop')
+    git('checkout', '-q', '--detach', main)
+    put('source.txt', 'overlap\n')
+    git('add', '.')
+    git('commit', '-qm', 'overlapping main')
+    const overlapping = git('rev-parse', 'HEAD')
+    assert.equal(settled(e, inspect({ liveMain: overlapping })).status, 'stop')
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
 test('GitHub adapter uses only hostname-pinned GET argv and rejects incomplete pages', () => {
   const calls = []
   const reader = new GitHubReader({
@@ -709,6 +900,7 @@ test('fake Actions adapter binds workflow/run/attempt/check/app and actual check
   let runs = reader.runs(e, pr, o.synthetic)
   assert.equal(runs.length, 2)
   assert.ok(runs.every(r => r.identityVerified && r.validationVerified))
+  assert.ok(reader.runs(e, pr, undefined).every(r => !r.identityVerified))
   assert.ok(calls.some(c => c.endsWith('/check-runs/300')))
   logBase = id(99)
   runs = reader.runs(e, pr, o.synthetic)

@@ -290,6 +290,11 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
       )
       return result('done', 'Exact merged parents/tree and deployment verified')
     }
+    if (o.refreshOnly)
+      requireThat(
+        o.draft === true && o.upToDate === false && !o.synthetic,
+        'Stale-base observation admits refresh only; obtain a current synthetic before ready or merge'
+      )
     requireThat(o.state === 'open', 'PR is closed without a verified merge')
     requireThat(o.mergeable !== false, 'Conflicting PR; manual resolution and review required')
     requireThat(
@@ -322,6 +327,9 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
       base: o.base,
       draft: o.draft,
       merge: o.synthetic,
+      refreshOnly: o.refreshOnly,
+      staleSynthetic: o.staleSynthetic,
+      advertisedBase: o.advertisedBase,
       currentChecks: o.currentChecks
         ?.map(c => [c.id, c.name, c.head, c.appId, c.startedAt, c.status, c.conclusion])
         .sort((a, b) => a[0] - b[0]),
