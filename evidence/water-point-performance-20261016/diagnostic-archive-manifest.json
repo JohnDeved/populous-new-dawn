@@ -1,0 +1,18 @@
+{
+  "archive": "water-point-tail-diagnostics.tar.gz",
+  "bytes": 164661,
+  "sha256": "927e645230b06479a233e40e40ef9552167a8cdb333da99fe35e51426238152c",
+  "files": {
+    "diagnostic-benchmark.mjs": "65353783c63503a8fb0040eded0ba006b0b4b4c7507f3e6ea953da93a0c4201b",
+    "prepare-diagnostic.py": "55de06f8654a0b71af5513bca187d74389e9be1cce87d95f3e2b08402a332c43",
+    "summarize-diagnostic.py": "747f137f9d07fe38e6e01522187a82a7c8d44e590ddf18dd168bd770539d9e65",
+    "DIAGNOSTIC-PLAN.md": "2e1f0f6a0146699c3f107bd3453a9af8dd953fcc652435afc988fa8b68e31312",
+    "DIAGNOSTIC-RESULT.md": "3bbdb541bf3f31c1133bfe06ed66b0b88496ac42643b6d8531a6e7b0191eac3a",
+    "diagnostic-summary.json": "df608a396038101e4ba2aa30e5daeff73c2d432e4c8027cc1356838a81b92eb1",
+    "diagnostic-execution-receipt.json": "389e6d54b7bce2859a86da0d0e79194d2695d0d460e93cf80fdcdee4aa0f291e",
+    "diagnostic-1-candidate.jsonl": "6cb4a385788c3f310057cfaa329bfbacea1f72f596775a9ca07cf9f1339d8703",
+    "diagnostic-1-candidate.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diagnostic-2-baseline.jsonl": "6ada6071d0e45e0db3b8a26952e105566d99388332a93fffd82d8d9b212693ba",
+    "diagnostic-2-baseline.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

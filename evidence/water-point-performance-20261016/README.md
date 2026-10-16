@@ -19,13 +19,20 @@ A WeakMap keyed by scene retains two Float64 arrays: 256 KiB of typed element st
 
 The normal 98,304-vertex mesh can reuse six vertex occurrences per wrapped terrain index on average. This is an operation-count observation, not a predicted time saving. Tiny/subset geometry may do more work because the eager buffer refresh covers the full grid.
 
-## Verification status at WIP publication
+## Measured second-candidate outcome: keep experimental
 
-- Source review of the second candidate: accepted for execution; unchanged-key test strengthened to inspect all three output attributes.
-- Second-candidate focused tests: not run.
-- Second-candidate typecheck: not run.
-- Second-candidate paired measurement: not run.
-- Browser validation: not run.
-- Hosted full check/build: not run; draft remains work in progress.
+Candidate source commit 813b60dc5571cec369731928354ed0d947beebbf was measured against the byte-verified main 673b89ad baseline in isolated wrappers. Original lighting stayed unchanged. Every archived 256-phase output, immutable input and source fingerprint check passed. Independent review recomputed all raw results.
 
-Planned checks include exhaustive point comparisons, input immutability, storage/owner isolation, all existing invalidation gates, mixed triangle tints, geometry replacement and same-identity coordinate rewrites. Benchmark acceptance requires exact archived 256-phase outputs and immutable inputs, stable source/dependency fingerprints, serialized fresh-process ABBA runs and candid timing variance. Full required gates and integration review remain mandatory before any merge.
+Adjacent ABBA pairs showed 20.03% and 9.44% lower medians, but p95 worsened by 5.53% and 43.59%; second-pair p99 worsened by 29.39%, with a 60.70 ms maximum. Total timed duration was only 2.77% lower overall, and the second candidate run took 10.28% longer than its paired baseline. These mixed, tail-negative results do not establish improved smoothness. See WATER-POINT-RESULT.md and water-point-reuse-experiment.tar.gz; the matching manifest binds raw evidence and archive hashes.
+
+Separate instrumented diagnostics observed no GC entries for the candidate despite ten calls over 10 ms, including a 48.025 ms maximum. Process CPU tracked wall time at 64-call granularity. Process CPU includes helper threads and GC observation is incomplete evidence; the cause remains unresolved. Diagnostics have their own controls and are not pooled with primary ABBA. See DIAGNOSTIC-RESULT.md and water-point-tail-diagnostics.tar.gz.
+
+## Verification status
+
+- Source and raw-evidence reviews: accepted for experimental investigation only.
+- Initial default-concurrency focused invocation: exit 1, undiagnosed file-level failure in the new test; existing Mission 1–3 tests passed. Raw failure retained.
+- Unchanged conservative serial rerun: 7 passed, 0 failed. Qualified recovery, not a clean initial aggregate. New fixture-heavy test is not promoted to a parallel whitelist.
+- Typecheck has NOT passed: default and 1536 MiB-cap runs were killed with exit 137 and no TypeScript diagnostics; 768 MiB cap explicitly exhausted the JavaScript heap, exit 134. A /usr/bin/time attempt failed before running typecheck, exit 127. All receipts retained; exit 137 cause is not established.
+- Browser validation and hosted full checks remain outstanding. Required full checks including typecheck must pass before any merge.
+
+PR #483 stays draft. No FPS, engine-wide gain, stable tail improvement or merge readiness is claimed. The small diagnostic report is informational; no further run is justified without a targeted hypothesis and controlled execution lane.
