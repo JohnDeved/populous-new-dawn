@@ -59,6 +59,8 @@
       },
       "callers": [
         "scripts/import-original.py",
+        "scripts/import-loading-art.py",
+        "scripts/import-loading-label.py",
         "scripts/import-frontend.py",
         "scripts/import-options.py",
         "scripts/import-world-selector-panel.py",
@@ -80,6 +82,9 @@
       ],
       "inputs": ["references/native-assets.md", "decomp/sections.tsv"],
       "outputs": [
+        { "path": "public/original/loading-mask.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-art.py" },
+        { "path": "public/original/loading-label.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-label.py" },
+        { "path": "public/original/loading-label.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-label.py" },
         { "path": "app/original-result-ui.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-result-ui.py" },
         { "path": "public/original/result-panel.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-result-ui.py" },
         { "path": "public/original/result-font.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-result-ui.py" },

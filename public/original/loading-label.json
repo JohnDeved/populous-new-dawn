@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "text": "Loading...",
+  "languageId": 515,
+  "font": {
+    "slot": 1,
+    "source": "data/fenew/feft20we.spr",
+    "glyphs": [
+      {
+        "character": "L",
+        "frame": 44,
+        "width": 8,
+        "height": 19,
+        "advance": 8
+      },
+      {
+        "character": "o",
+        "frame": 79,
+        "width": 14,
+        "height": 19,
+        "advance": 14
+      },
+      {
+        "character": "a",
+        "frame": 65,
+        "width": 10,
+        "height": 19,
+        "advance": 10
+      },
+      {
+        "character": "d",
+        "frame": 68,
+        "width": 11,
+        "height": 19,
+        "advance": 11
+      },
+      {
+        "character": "i",
+        "frame": 73,
+        "width": 4,
+        "height": 19,
+        "advance": 4
+      },
+      {
+        "character": "n",
+        "frame": 78,
+        "width": 10,
+        "height": 19,
+        "advance": 10
+      },
+      {
+        "character": "g",
+        "frame": 71,
+        "width": 12,
+        "height": 19,
+        "advance": 12
+      },
+      {
+        "character": ".",
+        "frame": 14,
+        "width": 4,
+        "height": 19,
+        "advance": 4
+      },
+      {
+        "character": ".",
+        "frame": 14,
+        "width": 4,
+        "height": 19,
+        "advance": 4
+      },
+      {
+        "character": ".",
+        "frame": 14,
+        "width": 4,
+        "height": 19,
+        "advance": 4
+      }
+    ],
+    "frameCount": 224,
+    "referenceGlyphA": {
+      "width": 10,
+      "height": 19
+    }
+  },
+  "file": "loading-label.png",
+  "width": 82,
+  "height": 20,
+  "measureWidth": 81,
+  "measureHeight": 19,
+  "nativeLayout": {
+    "maskWidth": 130,
+    "maskHeight": 161,
+    "labelX": "trunc((screenWidth-81)/2)",
+    "maskX": "trunc((screenWidth-130)/2)",
+    "maskY": "trunc((screenHeight-161)/2)",
+    "labelYRelativeToMask": -26,
+    "passes": [
+      {
+        "offsetX": 0,
+        "offsetY": 0,
+        "paletteIndex": 254,
+        "rgb": [
+          131,
+          131,
+          131
+        ]
+      },
+      {
+        "offsetX": 1,
+        "offsetY": 1,
+        "paletteIndex": 255,
+        "rgb": [
+          255,
+          255,
+          255
+        ]
+      }
+    ]
+  },
+  "inputs": {
+    "d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "data/fenew/feft20we.spr": "fc705fe271d131d7bec0023fc07ebf1f7fe91596e260b5d23e6004a380d4ea4b",
+    "language/lang00.dat": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d"
+  },
+  "decoderFunctionsSha256": {
+    "png": "109f4d27182a34ec7f2c4d5b2e0686787b748a02656b6e3719a57e78889eecef",
+    "sprites": "d1c1ec8830fbf0e4339288d6514350b852e73c67c2361e580bae699766bf6892"
+  },
+  "maskSha256": "54bec866a3e2c08a23166775596533314761878480150ee31ab83e62e767a9ed",
+  "rgbaSha256": "3022d6d77a73c6178be532eb2697ac7b77df25bc61b3980b69a4dc0b7a742f55",
+  "evidence": {
+    "loading": "00522c00",
+    "fontSelection": "00522d20/005d5b38/004fd7c0",
+    "fontMetrics": "00527a30/00516b80",
+    "palette": "004a32d0/004b1850/00415f70",
+    "solidGlyphs": "00527a60/0052c300/005919f0+3c/00546190",
+    "positiveRunMask": "00546359-005463ee"
+  },
+  "limits": [
+    "Static original-byte/source-data reconstruction; no original execution or native screenshot.",
+    "RGB values precede original 16-bit device packing; no exact hardware colour quantization is claimed.",
+    "Scoped to the Western software-surface glyph path; alternate language engines and GPU text paths are not certified.",
+    "Loading clears to current system-palette index 0; black is a browser adaptation unless the active palette is independently proved black.",
+    "Normal placement only; original 512x384 compatibility offsets are not reproduced.",
+    "Browser checkpoint boot/error/retry presentation and responsive layout are explicit compatibility adaptations."
+  ],
+  "outputSha256": "9b5344c17384895329eea031ab56c0243600022970bdfb814ed7ce25feb625c9"
+}
