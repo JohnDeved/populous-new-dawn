@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ba47fd1e-1d8d-4d26-8fef-ed7592dec513",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "c2ecbee22d7d407ae7e9f0958e172a6f79cd245d",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "3ba77130f953c95513afc4c22c7dcc6e28ef81c242d7236e0a430c353e9ed06e",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern=close-time",
+    "tests/spell-icon-state-evidence.test.mjs"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76",
+  "startedAt": "2026-10-16T16:06:33.704Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/late-close-red.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/late-close-red.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:06:33.775Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ a close-time console error cannot leave passed terminal evidence (2.5535ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 38.186625\n\n✖ failing tests:\n\ntest at tests/spell-icon-state-evidence.test.mjs:57:1\n✖ a close-time console error cannot leave passed terminal evidence (2.5535ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  'passed' !== 'failed'\n  \n      at TestContext.<anonymous> (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/tests/spell-icon-state-evidence.test.mjs:68:10)\n      at async Test.run (node:internal/test_runner/test:1332:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'passed',\n    expected: 'failed',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "dce1f3dc49ba44432d8d942795cc9fe2bac85fe965b3dd8d8896b1e95b11525e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "c2ecbee22d7d407ae7e9f0958e172a6f79cd245d",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "3ba77130f953c95513afc4c22c7dcc6e28ef81c242d7236e0a430c353e9ed06e",
+    "inputs": {}
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "72f54903-ba25-43b7-ad36-cbfc44d70445",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "a3986f05fa94fd30733bd995d28faee226d05489",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9",
+      "scripts/check-browser-spell-icon-states.mjs": "de69a0d94e6a5a0d86de79d211c178c5f06868c913ac2f6e0570b0059aec3250",
+      "scripts/spell-icon-state-evidence.mjs": "a28ba4944df5b8d473f308c26e566f2d599f9097b347e0b4d26db0e502f7334e",
+      "scripts/spell-hud-checker-contract.mjs": "4a0d8fb3a6bdf0794261993ba86457944b67ce10706efdda492c6525ea12e445",
+      "scripts/browser-game.mjs": "e284b818e6d3184dd5afd898be05d2fefee64a213ab778334f6b53308f845db0",
+      "scripts/browser-new-game.mjs": "ea279470fd5f84b8ab44e59c503e4c6289572c905cc21ca51efb7d77bfe679f2",
+      "tests/fixtures/spell-icon-states.json": "3cc62382e37b8de5c06894c3c924ca1147e7a7c39242a6311cc389c72acad78c",
+      "app/original-hud.json": "48497414995d90ae0e7de3bb4b667e83d8121a024d24d4b7a620412520c98931",
+      "public/original/hud.png": "28ac4447747ebddd500e00d590ab497ff87bb9c9b5d8bf2a9079a8a2ad71f493"
+    }
+  },
+  "command": [
+    "node",
+    "scripts/check-browser-spell-icon-states.mjs",
+    "--output-dir",
+    "work/orchestration/mac-spell-icons/browser-close-final"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76",
+  "startedAt": "2026-10-16T16:07:36.459Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/final-close-browser.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/final-close-browser.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T16:08:46.204Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"states\":164,\"sourceUnchanged\":true,\"output\":\"/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/browser-close-final\"}\n",
+  "stderr": "",
+  "stdoutSha256": "e095bf63e4b358391ac6b286c90afc8349561f1abf663e7c64f7037a528648af",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "a3986f05fa94fd30733bd995d28faee226d05489",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9",
+      "scripts/check-browser-spell-icon-states.mjs": "de69a0d94e6a5a0d86de79d211c178c5f06868c913ac2f6e0570b0059aec3250",
+      "scripts/spell-icon-state-evidence.mjs": "a28ba4944df5b8d473f308c26e566f2d599f9097b347e0b4d26db0e502f7334e",
+      "scripts/spell-hud-checker-contract.mjs": "4a0d8fb3a6bdf0794261993ba86457944b67ce10706efdda492c6525ea12e445",
+      "scripts/browser-game.mjs": "e284b818e6d3184dd5afd898be05d2fefee64a213ab778334f6b53308f845db0",
+      "scripts/browser-new-game.mjs": "ea279470fd5f84b8ab44e59c503e4c6289572c905cc21ca51efb7d77bfe679f2",
+      "tests/fixtures/spell-icon-states.json": "3cc62382e37b8de5c06894c3c924ca1147e7a7c39242a6311cc389c72acad78c",
+      "app/original-hud.json": "48497414995d90ae0e7de3bb4b667e83d8121a024d24d4b7a620412520c98931",
+      "public/original/hud.png": "28ac4447747ebddd500e00d590ab497ff87bb9c9b5d8bf2a9079a8a2ad71f493"
+    }
+  }
+}

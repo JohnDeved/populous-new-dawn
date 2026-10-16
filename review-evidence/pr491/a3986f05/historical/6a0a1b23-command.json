@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "7ae4b7a1-eaa6-41b8-a5fe-92275db2691b",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6a0a1b23f4b65ee5a764acbe09244934914b137b",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "scripts/check-browser-spell-icon-states.mjs",
+    "--output-dir",
+    "work/orchestration/mac-spell-icons/browser-final"
+  ],
+  "cwd": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76",
+  "startedAt": "2026-10-16T14:41:21.619Z",
+  "artifacts": {
+    "stdout": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/final-browser.json.artifacts/stdout.log",
+    "stderr": "/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/final-browser.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-16T14:56:55.926Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "{\"status\":\"failed\",\"states\":2,\"output\":\"/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/work/orchestration/mac-spell-icons/browser-final\",\"error\":\"page.goto: Timeout 30000ms exceeded.\\nCall log:\\n\\u001b[2m  - navigating to \\\"http://localhost:4356/\\\", waiting until \\\"networkidle\\\"\\u001b[22m\\n\\n    at openGame (/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/scripts/browser-game.mjs:95:14)\\n    at async file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/scripts/check-browser-spell-icon-states.mjs:90:21\"}\n",
+  "stderr": "",
+  "stdoutSha256": "1aed4e4329deae7fe3296593213992ad8829f0d40348da6ce10b02bd3427a6f8",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "6a0a1b23f4b65ee5a764acbe09244934914b137b",
+    "branch": "codex/mac-spell-icon-states-76",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

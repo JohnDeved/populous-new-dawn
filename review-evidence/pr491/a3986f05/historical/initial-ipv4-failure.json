@@ -1,0 +1,15 @@
+{
+  "status": "failed",
+  "states": [],
+  "errors": [],
+  "limits": [
+    "Injected presentation matrix through the shipped page; no campaign acquisition or native execution proof.",
+    "Rendered sprite pixels compared with independent canvas crops of the checked-out atlas; no fresh original-game pixel audit.",
+    "Disabled cases preserve existing alternate-mode flag-32 policy, whose complete native behavior remains unresolved.",
+    "Mode-2 charging uses synthetic permission bit 256; normal campaign mode-2 charging is not claimed.",
+    "Authored Mission 1 and 16 discovery are checked separately; no hardware performance claim."
+  ],
+  "browser": "153.0.8010.12",
+  "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4356/\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4356/\", waiting until \"networkidle\"\u001b[22m\n\n    at openGame (/Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/scripts/browser-game.mjs:95:14)\n    at async file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/scripts/check-browser-spell-icon-states.mjs:30:17",
+  "browserClosed": true
+}

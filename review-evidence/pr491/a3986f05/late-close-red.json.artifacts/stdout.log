@@ -1,0 +1,28 @@
+✖ a close-time console error cannot leave passed terminal evidence (2.5535ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38.186625
+
+✖ failing tests:
+
+test at tests/spell-icon-state-evidence.test.mjs:57:1
+✖ a close-time console error cannot leave passed terminal evidence (2.5535ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'passed' !== 'failed'
+  
+      at TestContext.<anonymous> (file:///Users/johann/Documents/Codex/2026-10-16/task/populous-worker76/tests/spell-icon-state-evidence.test.mjs:68:10)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'passed',
+    expected: 'failed',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

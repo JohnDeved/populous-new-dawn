@@ -1,0 +1,18 @@
+{
+  "sourceHead": "a3986f05fa94fd30733bd995d28faee226d05489",
+  "checkedAt": "2026-10-16T16:10:34.060Z",
+  "browserClosed": true,
+  "contextsClosed": 2,
+  "ownedServer": {
+    "pid": 89844,
+    "session": 18750,
+    "port": 4356,
+    "signal": "SIGTERM",
+    "sessionExitCode": 0,
+    "processCheckExitCode": 1,
+    "portCheckExitCode": 1,
+    "listenerPresent": false
+  },
+  "browserLane": "released",
+  "weeklyCodexUsedPercent": 1
+}

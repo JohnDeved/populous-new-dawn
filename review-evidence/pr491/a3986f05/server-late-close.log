@@ -1,0 +1,23 @@
+
+> populous-first-dawn@0.1.0 dev
+> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev --host 127.0.0.1 --port 4356 --strictPort
+
+
+  vinext dev  (Vite 8.0.13)
+
+  ➜  Local:   http://localhost:4356/
+  ➜  Debug:   http://localhost:4356/__debug
+ HEAD / 200 in 3.4s (compile: 1792166831.0s, render: 3.3s)
+ GET / 200 in 42ms (compile: 1792166830.8s, render: 34ms)
+Assets in public directory cannot be imported from JavaScript.
+If you intend to import that asset, put the file in the src directory, and use /src/original/world-selector/text/runtime.json instead of /public/original/world-selector/text/runtime.json.
+If you intend to use the URL of that asset, use /original/world-selector/text/runtime.json?url.
+6:07:41 PM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.
+6:07:42 PM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.
+ GET / 200 in 45ms (compile: 1792166830.8s, render: 32ms)
+Assets in public directory cannot be imported from JavaScript.
+If you intend to import that asset, put the file in the src directory, and use /src/original/world-selector/text/runtime.json instead of /public/original/world-selector/text/runtime.json.
+If you intend to use the URL of that asset, use /original/world-selector/text/runtime.json?url.
+6:08:15 PM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.
+6:08:16 PM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.
+  ➜  Tunnel closed

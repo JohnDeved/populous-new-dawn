@@ -1,0 +1,524 @@
+
+> populous-first-dawn@0.1.0 test:focus
+> node scripts/orchestration/test-runner.mjs focus tests/spell-icon-states.test.mjs tests/spell-icon-state-evidence.test.mjs tests/spell-hud-icons.test.mjs tests/spell-visibility.test.mjs tests/spell-button.test.mjs tests/spell-hud-checker-contract.test.mjs
+
+TAP version 13
+# Subtest: spell button artwork, positions and charging fills match native draws
+ok 1 - spell button artwork, positions and charging fills match native draws
+  ---
+  duration_ms: 2.770792
+  type: 'test'
+  ...
+# Subtest: the consumer accepts the actual append producer status and both reviewed partitions
+ok 2 - the consumer accepts the actual append producer status and both reviewed partitions
+  ---
+  duration_ms: 1.098166
+  type: 'test'
+  ...
+# Subtest: append contract rejects obsolete status
+ok 3 - append contract rejects obsolete status
+  ---
+  duration_ms: 0.396917
+  type: 'test'
+  ...
+# Subtest: append contract rejects arbitrary pass status
+ok 4 - append contract rejects arbitrary pass status
+  ---
+  duration_ms: 0.085
+  type: 'test'
+  ...
+# Subtest: append contract rejects installed-check status
+ok 5 - append contract rejects installed-check status
+  ---
+  duration_ms: 0.080917
+  type: 'test'
+  ...
+# Subtest: append contract rejects missing preserved frame
+ok 6 - append contract rejects missing preserved frame
+  ---
+  duration_ms: 0.220416
+  type: 'test'
+  ...
+# Subtest: append contract rejects duplicate preserved frame
+ok 7 - append contract rejects duplicate preserved frame
+  ---
+  duration_ms: 0.091333
+  type: 'test'
+  ...
+# Subtest: append contract rejects unknown frame
+ok 8 - append contract rejects unknown frame
+  ---
+  duration_ms: 0.096125
+  type: 'test'
+  ...
+# Subtest: append contract rejects missing question mark
+ok 9 - append contract rejects missing question mark
+  ---
+  duration_ms: 0.077042
+  type: 'test'
+  ...
+# Subtest: append contract rejects invalid partition
+ok 10 - append contract rejects invalid partition
+  ---
+  duration_ms: 0.086334
+  type: 'test'
+  ...
+# Subtest: append contract rejects string ID
+ok 11 - append contract rejects string ID
+  ---
+  duration_ms: 0.122166
+  type: 'test'
+  ...
+# Subtest: append contract rejects changed original input
+ok 12 - append contract rejects changed original input
+  ---
+  duration_ms: 0.083417
+  type: 'test'
+  ...
+# Subtest: append contract rejects missing input
+ok 13 - append contract rejects missing input
+  ---
+  duration_ms: 0.080166
+  type: 'test'
+  ...
+# Subtest: append contract rejects unknown input
+ok 14 - append contract rejects unknown input
+  ---
+  duration_ms: 0.076416
+  type: 'test'
+  ...
+# Subtest: append contract rejects changed preserved prefix
+ok 15 - append contract rejects changed preserved prefix
+  ---
+  duration_ms: 0.05475
+  type: 'test'
+  ...
+# Subtest: append contract rejects malformed output hash
+ok 16 - append contract rejects malformed output hash
+  ---
+  duration_ms: 0.049166
+  type: 'test'
+  ...
+# Subtest: append contract rejects malformed crop hash
+ok 17 - append contract rejects malformed crop hash
+  ---
+  duration_ms: 0.08075
+  type: 'test'
+  ...
+# Subtest: append contract rejects metadata preservation failed
+ok 18 - append contract rejects metadata preservation failed
+  ---
+  duration_ms: 0.056167
+  type: 'test'
+  ...
+# Subtest: append contract rejects input mutation
+ok 19 - append contract rejects input mutation
+  ---
+  duration_ms: 0.046541
+  type: 'test'
+  ...
+# Subtest: append contract rejects output mutation
+ok 20 - append contract rejects output mutation
+  ---
+  duration_ms: 0.041792
+  type: 'test'
+  ...
+# Subtest: append contract rejects invalid rectangle count
+ok 21 - append contract rejects invalid rectangle count
+  ---
+  duration_ms: 2.805958
+  type: 'test'
+  ...
+# Subtest: append contract rejects changed atlas width
+ok 22 - append contract rejects changed atlas width
+  ---
+  duration_ms: 0.081833
+  type: 'test'
+  ...
+# Subtest: append contract rejects fractional dimensions
+ok 23 - append contract rejects fractional dimensions
+  ---
+  duration_ms: 0.062833
+  type: 'test'
+  ...
+# Subtest: append contract rejects string dimension
+ok 24 - append contract rejects string dimension
+  ---
+  duration_ms: 0.049875
+  type: 'test'
+  ...
+# Subtest: append contract rejects missing dimension
+ok 25 - append contract rejects missing dimension
+  ---
+  duration_ms: 0.044417
+  type: 'test'
+  ...
+# Subtest: append contract rejects historical atlas larger than current
+ok 26 - append contract rejects historical atlas larger than current
+  ---
+  duration_ms: 0.044042
+  type: 'test'
+  ...
+# Subtest: append contract rejects append did not grow
+ok 27 - append contract rejects append did not grow
+  ---
+  duration_ms: 0.040041
+  type: 'test'
+  ...
+# Subtest: append contract rejects new frame overlaps historical atlas
+ok 28 - append contract rejects new frame overlaps historical atlas
+  ---
+  duration_ms: 0.059208
+  type: 'test'
+  ...
+# Subtest: append contract rejects preserved frame outside historical atlas
+ok 29 - append contract rejects preserved frame outside historical atlas
+  ---
+  duration_ms: 0.04675
+  type: 'test'
+  ...
+# Subtest: append contract rejects frame outside historical result
+ok 30 - append contract rejects frame outside historical result
+  ---
+  duration_ms: 0.04925
+  type: 'test'
+  ...
+# Subtest: append contract rejects rectangle drift
+ok 31 - append contract rejects rectangle drift
+  ---
+  duration_ms: 0.111792
+  type: 'test'
+  ...
+# Subtest: append contract rejects fractional rectangle
+ok 32 - append contract rejects fractional rectangle
+  ---
+  duration_ms: 0.068709
+  type: 'test'
+  ...
+# Subtest: a historical append report is separate from current served PNG identity
+ok 33 - a historical append report is separate from current served PNG identity
+  ---
+  duration_ms: 0.351125
+  type: 'test'
+  ...
+# Subtest: sprite geometry accepts equivalent numeric pixel serialization including negative zero
+ok 34 - sprite geometry accepts equivalent numeric pixel serialization including negative zero
+  ---
+  duration_ms: 1.313
+  type: 'test'
+  ...
+# Subtest: sprite geometry rejects mismatched pixel position "1px"
+ok 35 - sprite geometry rejects mismatched pixel position "1px"
+  ---
+  duration_ms: 0.589542
+  type: 'test'
+  ...
+# Subtest: sprite geometry rejects mismatched pixel position "-1px"
+ok 36 - sprite geometry rejects mismatched pixel position "-1px"
+  ---
+  duration_ms: 0.217417
+  type: 'test'
+  ...
+# Subtest: sprite geometry rejects mismatched pixel position "0%"
+ok 37 - sprite geometry rejects mismatched pixel position "0%"
+  ---
+  duration_ms: 0.192583
+  type: 'test'
+  ...
+# Subtest: sprite geometry rejects mismatched pixel position "0"
+ok 38 - sprite geometry rejects mismatched pixel position "0"
+  ---
+  duration_ms: 0.169459
+  type: 'test'
+  ...
+# Subtest: sprite geometry rejects mismatched pixel position "0pxjunk"
+ok 39 - sprite geometry rejects mismatched pixel position "0pxjunk"
+  ---
+  duration_ms: 0.198292
+  type: 'test'
+  ...
+# Subtest: sprite geometry rejects mismatched pixel position "NaNpx"
+ok 40 - sprite geometry rejects mismatched pixel position "NaNpx"
+  ---
+  duration_ms: 0.177125
+  type: 'test'
+  ...
+# Subtest: sprite geometry rejects mismatched pixel position "Infinitypx"
+ok 41 - sprite geometry rejects mismatched pixel position "Infinitypx"
+  ---
+  duration_ms: 0.172084
+  type: 'test'
+  ...
+# Subtest: sprite geometry rejects mismatched pixel position ""
+ok 42 - sprite geometry rejects mismatched pixel position ""
+  ---
+  duration_ms: 0.157042
+  type: 'test'
+  ...
+# Subtest: sprite geometry does not round wrong coordinates or forgive non-pixel dimensions
+ok 43 - sprite geometry does not round wrong coordinates or forgive non-pixel dimensions
+  ---
+  duration_ms: 0.640583
+  type: 'test'
+  ...
+# Subtest: the rendered checker uses both contracts and preserves fresh Bloodlust discovery scope
+ok 44 - the rendered checker uses both contracts and preserves fresh Bloodlust discovery scope
+  ---
+  duration_ms: 0.227625
+  type: 'test'
+  ...
+# Subtest: all six original Shield/Bloodlust descriptor frames have real atlas rectangles
+ok 45 - all six original Shield/Bloodlust descriptor frames have real atlas rectangles
+  ---
+  duration_ms: 0.513458
+  type: 'test'
+  ...
+# Subtest: ready, inactive, hover and selected states use the original descriptors, not Unicode or guessed frames
+ok 46 - ready, inactive, hover and selected states use the original descriptors, not Unicode or guessed frames
+  ---
+  duration_ms: 0.192291
+  type: 'test'
+  ...
+# Subtest: authored Mission16 exposes Shield while Bloodlust remains an undiscovered earned reward
+ok 47 - authored Mission16 exposes Shield while Bloodlust remains an undiscovered earned reward
+  ---
+  duration_ms: 30.66
+  type: 'test'
+  ...
+# Subtest: the original undiscovered spell question mark follows the accepted six-frame append
+ok 48 - the original undiscovered spell question mark follows the accepted six-frame append
+  ---
+  duration_ms: 0.061625
+  type: 'test'
+  ...
+# Subtest: all shipped spell descriptor icons remain available after the append
+ok 49 - all shipped spell descriptor icons remain available after the append
+  ---
+  duration_ms: 0.054292
+  type: 'test'
+  ...
+# Subtest: HudSprite no longer substitutes a text glyph and still rejects unknown resources
+ok 50 - HudSprite no longer substitutes a text glyph and still rejects unknown resources
+  ---
+  duration_ms: 2.619792
+  type: 'test'
+  ...
+# Subtest: browser launch failures retain terminal evidence without claiming cleanup
+ok 51 - browser launch failures retain terminal evidence without claiming cleanup
+  ---
+  duration_ms: 1.167666
+  type: 'test'
+  ...
+# Subtest: errors from both contexts survive failed Mission 16 startup before it returns
+ok 52 - errors from both contexts survive failed Mission 16 startup before it returns
+  ---
+  duration_ms: 0.977083
+  type: 'test'
+  ...
+# Subtest: a completed run with browser errors cannot pass
+ok 53 - a completed run with browser errors cannot pass
+  ---
+  duration_ms: 0.149375
+  type: 'test'
+  ...
+# Subtest: a close-time console error cannot leave passed terminal evidence
+ok 54 - a close-time console error cannot leave passed terminal evidence
+  ---
+  duration_ms: 0.156
+  type: 'test'
+  ...
+# Subtest: source or dependency drift invalidates a successful browser run
+ok 55 - source or dependency drift invalidates a successful browser run
+  ---
+  duration_ms: 0.089417
+  type: 'test'
+  ...
+# Subtest: cleanup failures are retained as failed evidence
+ok 56 - cleanup failures are retained as failed evidence
+  ---
+  duration_ms: 0.091292
+  type: 'test'
+  ...
+# Subtest: exact inventory rejects omitted, duplicate, renamed and extra rendered states
+ok 57 - exact inventory rejects omitted, duplicate, renamed and extra rendered states
+  ---
+  duration_ms: 0.439875
+  type: 'test'
+  ...
+# Subtest: retained original descriptor table covers exactly the shipped spell models
+ok 58 - retained original descriptor table covers exactly the shipped spell models
+  ---
+  duration_ms: 0.610667
+  type: 'test'
+  ...
+# Subtest: blast: original artwork, border, stock and charge state matrix
+ok 59 - blast: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.29325
+  type: 'test'
+  ...
+# Subtest: convertWild: original artwork, border, stock and charge state matrix
+ok 60 - convertWild: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.124958
+  type: 'test'
+  ...
+# Subtest: hypnotise: original artwork, border, stock and charge state matrix
+ok 61 - hypnotise: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.063834
+  type: 'test'
+  ...
+# Subtest: ghostArmy: original artwork, border, stock and charge state matrix
+ok 62 - ghostArmy: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.0675
+  type: 'test'
+  ...
+# Subtest: bridge: original artwork, border, stock and charge state matrix
+ok 63 - bridge: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.065417
+  type: 'test'
+  ...
+# Subtest: lightning: original artwork, border, stock and charge state matrix
+ok 64 - lightning: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.066
+  type: 'test'
+  ...
+# Subtest: flatten: original artwork, border, stock and charge state matrix
+ok 65 - flatten: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.053375
+  type: 'test'
+  ...
+# Subtest: erosion: original artwork, border, stock and charge state matrix
+ok 66 - erosion: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.064958
+  type: 'test'
+  ...
+# Subtest: swamp: original artwork, border, stock and charge state matrix
+ok 67 - swamp: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.082291
+  type: 'test'
+  ...
+# Subtest: firestorm: original artwork, border, stock and charge state matrix
+ok 68 - firestorm: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.067125
+  type: 'test'
+  ...
+# Subtest: earthquake: original artwork, border, stock and charge state matrix
+ok 69 - earthquake: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.046709
+  type: 'test'
+  ...
+# Subtest: angel: original artwork, border, stock and charge state matrix
+ok 70 - angel: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.048208
+  type: 'test'
+  ...
+# Subtest: volcano: original artwork, border, stock and charge state matrix
+ok 71 - volcano: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.058291
+  type: 'test'
+  ...
+# Subtest: tornado: original artwork, border, stock and charge state matrix
+ok 72 - tornado: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.049875
+  type: 'test'
+  ...
+# Subtest: shield: original artwork, border, stock and charge state matrix
+ok 73 - shield: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.044792
+  type: 'test'
+  ...
+# Subtest: invisibility: original artwork, border, stock and charge state matrix
+ok 74 - invisibility: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.042375
+  type: 'test'
+  ...
+# Subtest: armageddon: original artwork, border, stock and charge state matrix
+ok 75 - armageddon: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.039542
+  type: 'test'
+  ...
+# Subtest: bloodlust: original artwork, border, stock and charge state matrix
+ok 76 - bloodlust: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.047084
+  type: 'test'
+  ...
+# Subtest: teleport: original artwork, border, stock and charge state matrix
+ok 77 - teleport: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.0365
+  type: 'test'
+  ...
+# Subtest: swarm: original artwork, border, stock and charge state matrix
+ok 78 - swarm: original artwork, border, stock and charge state matrix
+  ---
+  duration_ms: 0.029875
+  type: 'test'
+  ...
+# Subtest: fresh and later missions use the native owned/reward-source/cast-permission precedence
+ok 79 - fresh and later missions use the native owned/reward-source/cast-permission precedence
+  ---
+  duration_ms: 53.652542
+  type: 'test'
+  ...
+# Subtest: restart and checkpoint restore reproduce fresh Mission 1 HUD visibility
+ok 80 - restart and checkpoint restore reproduce fresh Mission 1 HUD visibility
+  ---
+  duration_ms: 41.500375
+  type: 'test'
+  ...
+# Subtest: owned stock wins over the mission-load discovery mask
+ok 81 - owned stock wins over the mission-load discovery mask
+  ---
+  duration_ms: 10.545833
+  type: 'test'
+  ...
+# Subtest: undiscovered art is the native HFX1056 branch and visible-disabled keeps normal art
+ok 82 - undiscovered art is the native HFX1056 branch and visible-disabled keeps normal art
+  ---
+  duration_ms: 0.188709
+  type: 'test'
+  ...
+# Subtest: normal campaign initialization removes mode-2 HDR availability before HUD discovery
+ok 83 - normal campaign initialization removes mode-2 HDR availability before HUD discovery
+  ---
+  duration_ms: 78.459917
+  type: 'test'
+  ...
+# Subtest: earned mode-2 stock permits selection without enabling charging, including legacy masks
+ok 84 - earned mode-2 stock permits selection without enabling charging, including legacy masks
+  ---
+  duration_ms: 154.555291
+  type: 'test'
+  ...
+# Subtest: earned mode-2 stock and legacy ownership survive save/load unchanged; restart uses new startup
+ok 85 - earned mode-2 stock and legacy ownership survive save/load unchanged; restart uses new startup
+  ---
+  duration_ms: 78.583
+  type: 'test'
+  ...
+1..85
+# tests 85
+# suites 0
+# pass 85
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1327.006542
