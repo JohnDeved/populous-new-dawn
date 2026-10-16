@@ -46,3 +46,36 @@ The modified test reads source and runs isolated VM stubs, without browser launc
 filesystem writes, network or shared mutable resources. No inventory entry removed.
 
 `validation-5667b356.tar.gz` retains raw receipts, checks, runners and scenarios.
+
+## Follow-up matched live integration
+
+Frozen candidate `ae785e80022ad61f353512b2aeefd7206c880585` integrates main
+`167d88081ade0a63f09d2e849eb574edfdf1de1c`. The three telemetry product files and
+focused test file are byte-identical to accepted product5667b356.
+
+A first matched baseline attempt timed out waiting for inputMask=0. It did not
+crash: live telemetry and turn124 were observed. Stages proved that a conditional
+immediate Skip visibility check at turn2 missed the later introduction button.
+The setup was repaired, independently reviewed, and accepted: wait up to10s for
+the real Skip introduction button, then click it. No game state was injected.
+
+The corrected baseline and candidate both PASS the same bounded scenario:
+- Fresh640×480/DPR1 browser process, direct ?fps navigation, real Home/Mission1.
+- Real desktop notice dismissal and introduction skip; no frozen RAF or world edits.
+- Live telemetry, one JPEG, and F8 off/on. Candidate total contains simulation/render.
+- Zero page errors, no observed context loss, unchanged source/dependencies, cleanup.
+- Candidate panel bottom475.15625 fits480; baseline bottom456.359375.
+- Hard90-second process caps; disk remained above40MiB. No parallel local tests.
+
+Before/after images show the same mission/viewport but are not frame-aligned pixel
+parity or controlled performance benchmarks. Existing campaign-message overlap
+covers some lower telemetry at native size, as with the previous optional overlay.
+Live readings update between receipt sampling and screenshot, so their numbers
+need not match. Incidental SwiftShader values do not establish an overhead delta,
+120 FPS gameplay, or hardware performance.
+
+The original candidate crash remains retained and unexplained. This fresh pass
+establishes bounded live integration; it does not retroactively resolve that crash.
+`matched-validation-ae785e80.tar.gz` retains the failed baseline setup and corrected
+baseline/candidate receipts, stages, stderr and scenarios. The original failed
+candidate and component-only evidence remain in the first validation archive.
