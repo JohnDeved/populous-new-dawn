@@ -214,6 +214,12 @@ export function OriginalMainMenu({
       onKeyDown={event => {
         pointerMode.current = false
         draw()
+        // Keep the fullscreen frontend open across repeated native close requests.
+        if (event.key === 'Escape') {
+          event.preventDefault()
+          back()
+          return
+        }
         if (panel !== 'main' || !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
         event.preventDefault()
         const buttons = [
