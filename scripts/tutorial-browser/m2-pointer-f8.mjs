@@ -524,7 +524,9 @@ export default async function ({ browser, url, output, fixture }) {
     }
     try {
       await page.screenshot({ path: resolve(output, 'm2-pointer-failure.png'), timeout: 3000 })
-    } catch {}
+    } catch {
+      // A closed deadline context may prevent capture; preserve the original failure.
+    }
   } finally {
     clearTimeout(timer)
   }
