@@ -322,3 +322,34 @@ test('bounded M2 avoids duplicate initial-wide PNG while retaining all viewport 
   assert.match(source, /assert\.deepEqual\(\s*readback,\s*fixture\.transfer/)
   assert.equal(m2FunctionalLimitMs, 45000)
 })
+
+test('open campaign panel regression rejects the captured short-wide collision without hiding either panel', async () => {
+  const { m2RectanglesOverlap } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  const message = { left: 72, top: 241, right: 412, bottom: 341 }
+  assert.equal(m2RectanglesOverlap({ left: 332, top: 8, right: 892, bottom: 350 }, message), true)
+  assert.equal(m2RectanglesOverlap({ left: 428, top: 8, right: 892, bottom: 350 }, message), false)
+  assert.equal(
+    m2RectanglesOverlap(
+      { left: 104, top: 8, right: 632, bottom: 350 },
+      { left: 96, top: 355, right: 436, bottom: 455 }
+    ),
+    false
+  )
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(source, /layout\.campaignPanels\.length > 0/)
+  assert.match(source, /m2RectanglesOverlap\(layout, panel\)/)
+  assert.match(source, /panel\.contentFits, true/)
+  assert.match(source, /panel\.closeActionable, true/)
+  const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
+  assert.match(css, /--campaign-message-width:340px/)
+  assert.match(css, /@media \(min-width:900px\) and \(max-height:700px\)/)
+  assert.match(
+    css,
+    /max-width:calc\(100% - var\(--side\) - var\(--campaign-message-width\) - 24px\)/
+  )
+  assert.match(css, /\.campaign-messages details\[open\]\{width:var\(--campaign-message-width\)\}/)
+  assert.match(css, /\.fps-renderer\{max-height:none;overflow:visible\}/)
+})

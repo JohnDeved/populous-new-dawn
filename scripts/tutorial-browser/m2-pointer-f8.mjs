@@ -388,6 +388,30 @@ export default async function ({ browser, url, output, fixture }) {
               .elementFromPoint((b.left + b.right) / 2, (b.top + b.bottom) / 2)
               ?.closest('.paused-badge') === badge,
           pauseText: badge?.textContent,
+          campaignPanels: [...document.querySelectorAll('.campaign-messages details[open]>div')]
+            .filter(
+              node => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
+            )
+            .map(node => {
+              const r = node.getBoundingClientRect()
+              const close = node.querySelector('button[aria-label="Dismiss campaign message"]')
+              const c = close?.getBoundingClientRect()
+              return {
+                left: r.left,
+                top: r.top,
+                right: r.right,
+                bottom: r.bottom,
+                text: node.querySelector('p')?.textContent,
+                contentFits:
+                  node.scrollWidth <= node.clientWidth && node.scrollHeight <= node.clientHeight,
+                closeActionable:
+                  !!close &&
+                  !close.disabled &&
+                  !!c &&
+                  document.elementFromPoint((c.left + c.right) / 2, (c.top + c.bottom) / 2) ===
+                    close,
+              }
+            }),
           interactiveUi: [
             ...document.querySelectorAll(
               '.native-hud,.top-actions,.campaign-messages summary,.campaign-messages details[open]>div'
@@ -432,6 +456,24 @@ export default async function ({ browser, url, output, fixture }) {
       assert.equal(layout.rowsFit, true, 'Metric rows must fit without horizontal clipping')
       assert.equal(layout.overflow, false)
       assert.equal(layout.events, 'none')
+      assert.ok(layout.campaignPanels.length > 0, 'Authored open campaign message must be observed')
+      for (const panel of layout.campaignPanels) {
+        assert.equal(
+          m2RectanglesOverlap(layout, panel),
+          false,
+          'Campaign text must not obscure F8 diagnostics'
+        )
+        assert.ok(
+          panel.left >= 0 && panel.top >= 0 && panel.right <= width && panel.bottom <= height
+        )
+        assert.ok(panel.text?.trim(), 'Campaign text must remain present')
+        assert.equal(panel.contentFits, true, 'Campaign text must not be clipped')
+        assert.equal(
+          panel.closeActionable,
+          true,
+          'Public campaign message control must remain hit-testable'
+        )
+      }
       assert.ok(layout.pause, 'Public pause indicator must remain present')
       assert.equal(layout.pauseActionable, true, 'Public resume control must remain hit-testable')
       assert.match(layout.pauseText, /WORLD PAUSED/)
