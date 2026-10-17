@@ -13,7 +13,8 @@
   color: #fff1bb;
   overflow: hidden;
 }
-.dialog, .dialog button, .dialog input { cursor: url('/original/frontend/pointer.png') 0 0, auto; }
+.dialog, .dialog button, .dialog input { cursor: auto; }
+.dialog[data-cursor-ready='true'], .dialog[data-cursor-ready='true'] button, .dialog[data-cursor-ready='true'] input { cursor: url('/original/frontend/pointer.png') 0 0, auto; }
 .dialog::backdrop { background: #171309; }
 .frame {
   position: absolute;
@@ -22,8 +23,8 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%) scale(var(--frontend-scale));
-  background: url('/original/frontend/background.png') center / 640px 480px no-repeat;
 }
+.dialog[data-background-ready='true'] .frame { background: url('/original/frontend/background.png') center / 640px 480px no-repeat; }
 .title { margin: 0; }
 .logo { position: absolute; display: block; background-repeat: no-repeat; pointer-events: none; }
 .logo { left: 181px; top: 10px; width: 290px; height: 101px; background-image: url('/original/frontend/felgspen.png'); }

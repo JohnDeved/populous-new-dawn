@@ -143,7 +143,7 @@ const render = new Function('React', 'useEffect', 'useMemo', 'useRef', 'useState
     ...['categories', 'fontBanks', 'unavailableRows'].map(declaration),
     textFunction.getText(optionsSource),
     optionsFunction.getText(optionsSource).replace(/^export /, ''),
-    'return OriginalOptions(props);',
+    'const useLayoutEffect = useEffect; return OriginalOptions(props);',
   ].join('\n'), {compilerOptions: {target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React}}).outputText
 )
 function renderOptions(skin, category, highlight = null) {

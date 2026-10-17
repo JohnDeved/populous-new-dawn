@@ -1,5 +1,14 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react'
 import assets from './original-frontend.json'
+import type { FrontendAssets } from './frontend-assets'
 import styles from './original-main-menu.module.css'
 import type { CheckpointReadStatus } from './game-store.ts'
 import {
@@ -20,6 +29,7 @@ import {
 } from './frontend-composition.ts'
 
 interface Props {
+  prepared: FrontendAssets
   hasCheckpoint: boolean
   checkpointReadStatus: CheckpointReadStatus
   onRetryCheckpoint: () => void
@@ -73,6 +83,7 @@ function MenuText({
 }
 
 export function OriginalMainMenu({
+  prepared,
   hasCheckpoint,
   checkpointReadStatus,
   onRetryCheckpoint,
@@ -84,7 +95,6 @@ export function OriginalMainMenu({
   const dialog = useRef<HTMLDialogElement>(null)
   const first = useRef<HTMLButtonElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
-  const pixels = useRef<Uint8Array | null>(null)
   const pointer = useRef({ x: 320, y: 240 })
   const animation = useRef(0)
   const pointerMode = useRef(true)
@@ -98,10 +108,10 @@ export function OriginalMainMenu({
   )
   const [optionRows, setOptionRows] = useState<FrontendTextRow[]>([])
   const [{ scale, canvasWidth }, setViewport] = useState({ scale: 1, canvasWidth: 640 })
-  const [artReady, setArtReady] = useState(false)
-  const [questionReady, setQuestionReady] = useState(false)
-  const [sourceReady, setSourceReady] = useState(false)
-  useEffect(() => {
+  const artReady = prepared.fonts
+  const questionReady = prepared.lowFont
+  const logoReady = prepared.logo
+  useLayoutEffect(() => {
     const resize = () => {
       const scale = frontendScale(window.innerWidth, window.innerHeight)
       // Even logical pixels keep native masks aligned with the centered menu frame.
@@ -117,61 +127,13 @@ export function OriginalMainMenu({
       modal?.close()
     }
   }, [])
-  useEffect(() => {
-    let active = true
-    const controller = new AbortController()
-    void fetch('/original/frontend/composition.bin', { signal: controller.signal })
-      .then(response => {
-        if (!response.ok) throw new Error('Frontend artwork unavailable')
-        return response.arrayBuffer()
-      })
-      .then(data => {
-        if (data.byteLength !== assets.binaryBytes) throw new Error('Invalid frontend artwork')
-        if (active) {
-          pixels.current = new Uint8Array(data)
-          setSourceReady(true)
-        }
-      })
-      .catch(() => {
-        /* Static background remains available if the effect data fails. */
-      })
-    void Promise.all(
-      ['feft33we', 'fehi33we', 'felgspen'].map(name => {
-        const image = new Image()
-        image.src = `/original/frontend/${name}.png`
-        return image.decode()
-      })
-    )
-      .then(() => {
-        if (active) setArtReady(true)
-      })
-      .catch(() => {
-        /* Keep visible HTML labels. */
-      })
-    // The low-font question can fall back without hiding the other menu artwork.
-    const questionImage = new Image()
-    questionImage.src = '/original/frontend/felo33we.png'
-    void questionImage.decode().then(
-      () => {
-        if (active) setQuestionReady(true)
-      },
-      () => {
-        /* Keep a visible HTML question if the low font is unavailable. */
-      }
-    )
-    return () => {
-      active = false
-      controller.abort()
-      cancelAnimationFrame(animation.current)
-    }
-  }, [])
   const draw = useCallback(() => {
     const context = canvas.current?.getContext('2d')
-    if (context && pixels.current)
+    if (context && prepared.composition)
       context.putImageData(
         new ImageData(
           frontendBackground(
-            pixels.current,
+            prepared.composition,
             pointer.current,
             panel === 'main',
             pointerMode.current ? glowFrame.current : null,
@@ -183,7 +145,7 @@ export function OriginalMainMenu({
                   )
                 : frontendQuitRows.filter((_, index) => (index === 0 ? questionReady : artReady)),
             canvasWidth,
-            artReady,
+            logoReady,
             artReady
           ),
           canvasWidth,
@@ -192,9 +154,11 @@ export function OriginalMainMenu({
         0,
         0
       )
-  }, [panel, optionRows, canvasWidth, questionReady, artReady])
-  useEffect(() => {
+  }, [panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared])
+  useLayoutEffect(() => {
     draw()
+  }, [draw])
+  useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const timer = window.setInterval(() => {
       if (!pointerMode.current || document.hidden) return
@@ -205,7 +169,7 @@ export function OriginalMainMenu({
       window.clearInterval(timer)
       cancelAnimationFrame(animation.current)
     }
-  }, [draw, sourceReady])
+  }, [draw])
   useEffect(() => {
     if (panel === 'main') {
       const previous = [
@@ -264,6 +228,8 @@ export function OriginalMainMenu({
       className={styles.dialog}
       aria-label="Main menu"
       data-original-main-menu
+      data-background-ready={prepared.background}
+      data-cursor-ready={prepared.cursor}
       onKeyDown={event => {
         pointerMode.current = false
         draw()
@@ -323,7 +289,7 @@ export function OriginalMainMenu({
           aria-hidden="true"
         />
         <h1 className={styles.title} aria-label="Populous: The Beginning">
-          {artReady ? (
+          {logoReady ? (
             <span className={styles.logo} />
           ) : (
             <span className={styles.fallbackTitle}>Populous: The Beginning</span>
