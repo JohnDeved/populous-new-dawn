@@ -2,7 +2,7 @@
 
 F8 frame exports keep outer schema version 1. New recordings may include `pointerBreakdown.nativeOcclusion`, a versioned extension (`version: 1`). Old recordings omit it; absence means unavailable, not measured zero. The offline analyzer accepts both and copies only validated known fields into worst-frame/context evidence.
 
-All counters are per callback. Timers are milliseconds. The entire extension is nested inside `objectOcclusionMs`, itself inside object/pointer CPU. Do not add these values to their enclosing timers.
+All counters are per callback. Timers are milliseconds. The entire extension is nested inside `objectOcclusionMs`, itself inside object/pointer CPU. Do not add these values to their enclosing timers. The subphases do not exhaust `objectOcclusionMs`: projection timing begins after native cache-key construction; transforms, that key construction, cache lookup/clearing and live painter resolution can remain in the residual.
 
 - `submissionKeyMs`: validating/building the terrain submission key, including the existing submitted-cell comparison.
 - `pixelCacheHits`, `pixelCacheMisses`: ScenePicking's geometric terrain-candidate pixel cache, not the same-frame whole-object pick cache.
