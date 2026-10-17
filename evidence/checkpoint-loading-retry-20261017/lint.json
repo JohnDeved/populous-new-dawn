@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "8bbd1a83-ecef-4906-a164-24bbdec8858b",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6063c036a44d8a919b9c5084cc4053043e138e5c",
+    "branch": "codex/checkpoint-repeated-loading-retry",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "./node_modules/.bin/eslint",
+    "scripts/local-render/checkpoint-loading-retry.mjs",
+    "tests/home-checkpoint-retry.test.mjs",
+    "evidence/checkpoint-loading-retry-20261017/run-probe.mjs"
+  ],
+  "cwd": "<REPO>",
+  "startedAt": "2026-10-17T01:32:21.765Z",
+  "artifacts": {
+    "stdout": "<REPO>/work/orchestration/checkpoint-loading-retry/lint.json.artifacts/stdout.log",
+    "stderr": "<REPO>/work/orchestration/checkpoint-loading-retry/lint.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T01:32:22.213Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "6063c036a44d8a919b9c5084cc4053043e138e5c",
+    "branch": "codex/checkpoint-repeated-loading-retry",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}
