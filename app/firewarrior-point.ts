@@ -70,7 +70,13 @@ export function stepFirewarriorPoint(
   position.h = Math.round((fx.height ?? position.h / 45) * 45)
   destination.h = Math.max(destination.h, terrainPointHeight(w.land, destination))
   const distance = nativeDistance(position, destination),
-    arrived = distance < 0x200,
+    // 0x4bc059–0x4bc09a: subtract sign-extended coordinates, not wrapped deltas.
+    // A short toroidal distance alone must not retire a shot across the seam.
+    arrived =
+      Math.abs(short(destination.x) - short(position.x)) < 0x408 &&
+      Math.abs(short(destination.y) - short(position.y)) < 0x408 &&
+      Math.abs(short(destination.h) - short(position.h)) < 0x408 &&
+      distance < 0x200,
     length = arrived ? Math.trunc((distance * 15) / 16) : 0x200,
     trail = hooks.effect(w, 'trail', browserPosition(position))
   trail.sprite = { sequence: 'blastTrail', frame: 0 }

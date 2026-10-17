@@ -1,5 +1,5 @@
 import { tribeForTeam, type Building, type Point, type Unit, type World } from './world-types.ts'
-import { BUILDINGS, buildingHp, unitSpeed } from './world-rules.ts'
+import { buildingHp, unitSpeed } from './world-rules.ts'
 import { breedingWork } from './world-state.ts'
 import { short, positionDistance } from './native-math.ts'
 import rules from './original-rules.json' with { type: 'json' }
@@ -20,7 +20,7 @@ import { turnPerson } from './person-motion.ts'
 import { clearLivePath, probeLivePathCost } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import { browserPosition, distance } from './world-coordinates.ts'
-import { buildingDoor, entrance, findPath, route, tell } from './live-command.ts'
+import { buildingDoor, entrance, findPath, route } from './live-command.ts'
 import { BuilderTask } from './building-workers.ts'
 import { stepBuildingFetch } from './building-fetch.ts'
 import {
@@ -62,7 +62,6 @@ export function completeBuildingConstruction(w: World, b: Building) {
   if (!b.upgrading && !b.damageState) w.stats.built++
   b.upgrading = false
   if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
-  tell(w, `${BUILDINGS.find(s => s.id === b.kind)!.name} completed.`)
 }
 
 export function processBuilderWork(w: World, u: Unit, b: Building) {

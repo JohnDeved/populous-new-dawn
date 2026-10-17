@@ -33,6 +33,7 @@ export const GATES = [
     ],
   },
 ]
+export const RECOVERY_BROWSER_GATE = { ...GATES[1], recoveryRequired: true, recoveryJob: 'Pause checkpoint recovery browser' }
 export const SHARDED_FULL_GATE = {
   ...GATES[0],
   steps: [
@@ -50,7 +51,7 @@ export const SHARDED_FULL_GATE = {
 }
 export const gatesFor = entry => [
   entry.fullCheckPolicy === 'sharded-v1' ? SHARDED_FULL_GATE : GATES[0],
-  GATES[1],
+  entry.browserPolicy === 'pause-recovery-v1' ? RECOVERY_BROWSER_GATE : GATES[1],
 ]
 export const sha256 = value => createHash('sha256').update(value).digest('hex')
 export const digest = value => sha256(JSON.stringify(value))
@@ -115,6 +116,17 @@ export function validateEntry(entry) {
       Object.keys(d).length === 1 && Number.isSafeInteger(d.activationPr) && d.activationPr > 0,
       'Diagnostic policy must pin one literal activation PR under sharded-v1')
   }
+  requireThat(entry.browserPolicy === undefined || entry.browserPolicy === 'pause-recovery-v1',
+    'Unsupported browser evidence policy')
+  if (entry.browserWorkflowTransition !== undefined) {
+    const t = entry.browserWorkflowTransition
+    requireThat(t?.version === 1 && t.workflow === GATES[1].workflow &&
+      t.sourceHead === entry.sourceHead && t.base === entry.reviewBase &&
+      hash(t.baseSha256) && t.candidateSha256 === entry.workflowHashes[t.workflow] &&
+      t.baseSha256 !== t.candidateSha256 && entry.browserPolicy === 'pause-recovery-v1' &&
+      entry.allowMechanicalRefresh === false,
+    'Browser workflow transition must pin reviewed base/head and both digests without refresh')
+  }
   if (entry.workflowTransition !== undefined) {
     const t = entry.workflowTransition
     requireThat(
@@ -130,24 +142,23 @@ export function validateEntry(entry) {
 }
 
 export function reviewedWorkflows(entry, observation) {
-  const o = observation, t = entry.workflowTransition
+  const o = observation
+  const transitions = [entry.workflowTransition, entry.browserWorkflowTransition].filter(Boolean)
   if (!Array.isArray(o.workflows)) return false
-  if (t && !o.merged && (o.base !== t.base || o.head !== t.sourceHead)) return false
+  if (!o.merged && transitions.some(t => o.base !== t.base || o.head !== t.sourceHead)) return false
   return o.workflows.every(w => {
-    if (!t || w.path !== t.workflow || o.merged)
-      return entry.workflowHashes[w.path] === w.sha256
-    // Main may retain the reviewed old workflow only for this exact transition.
+    const t = transitions.find(t => t.workflow === w.path)
+    if (!t || o.merged) return entry.workflowHashes[w.path] === w.sha256
     if (w.ref === t.base) return w.sha256 === t.baseSha256
-    return (w.ref === t.sourceHead || w.ref === o.synthetic?.sha) &&
-      w.sha256 === t.candidateSha256
+    return (w.ref === t.sourceHead || w.ref === o.synthetic?.sha) && w.sha256 === t.candidateSha256
   }) && gatesFor(entry).every(g => o.workflows.some(w => w.path === g.workflow)) &&
-    (!t || o.merged || [t.base, t.sourceHead, ...(o.synthetic ? [o.synthetic.sha] : [])]
-      .every(ref => o.workflows.some(w => w.path === t.workflow && w.ref === ref)))
+    (o.merged || transitions.every(t => [t.base, t.sourceHead, ...(o.synthetic ? [o.synthetic.sha] : [])]
+      .every(ref => o.workflows.some(w => w.path === t.workflow && w.ref === ref))))
 }
 
 export function browserRequired(paths) {
   return paths.some(path =>
-    /^(app\/|public\/|scripts\/browser-[^/]*\.mjs$|scripts\/local-render\/tutorial-recommendation\.mjs$|scripts\/tutorial-browser\/|\.github\/workflows\/tutorial-browser\.yml$|package(?:-lock)?\.json$|tsconfig\.json$)/.test(
+    /^(app\/|public\/|scripts\/browser-[^/]*\.mjs$|scripts\/local-render\/(?:tutorial-recommendation|original-pause-checkpoint-recovery|checkpoint-observer)\.mjs$|scripts\/tutorial-browser\/|\.github\/workflows\/tutorial-browser\.yml$|package(?:-lock)?\.json$|tsconfig\.json$)/.test(
       path
     )
   )
@@ -516,7 +527,7 @@ export function recordIntent(decision) {
   }
 }
 
-function latestChronological(items, label) {
+export function latestChronological(items, label) {
   requireThat(
     items.length > 0 && items.every(item => Number.isFinite(Date.parse(item.startedAt))),
     `Missing attempt chronology: ${label}`
@@ -529,7 +540,7 @@ function latestChronological(items, label) {
   return ordered[0]
 }
 
-function gateRuns(entry, o, gate) {
+export function gateRuns(entry, o, gate) {
   return o.runs.filter(
     r =>
       r.workflow === gate.workflow &&
@@ -544,7 +555,7 @@ function gateRuns(entry, o, gate) {
   )
 }
 
-function validatePassedGate(o, gate, latest) {
+export function validatePassedGate(o, gate, latest) {
   requireThat(
     !latest.identityVerified || (latest.base === o.base && latest.merge === o.synthetic?.sha),
     'Verified candidate identity contradicts run evidence'
@@ -558,6 +569,7 @@ function validatePassedGate(o, gate, latest) {
       latest.app === 'github-actions' &&
       latest.appId === 15368 &&
       (gate !== SHARDED_FULL_GATE || latest.shardedVerified === true) &&
+      (!gate.recoveryRequired || latest.pauseRecoveryVerified === true) &&
       gate.steps.every(
         name =>
           latest.steps?.filter(s => s.name === name).length === 1 &&
@@ -566,6 +578,12 @@ function validatePassedGate(o, gate, latest) {
     `Failed, canceled, skipped or unverified current gate: ${gate.job} run ${latest.id}/${latest.attempt}`
   )
   requireThat(Array.isArray(o.currentChecks), 'Missing current required-check selection')
+  if (gate.recoveryRequired) {
+    const recovery = latestChronological(o.currentChecks.filter(c =>
+      c.name === gate.recoveryJob && c.appId === 15368 && c.head === o.head), 'Recovery current checks')
+    requireThat(recovery.id === latest.pauseRecoveryCheckId && recovery.status === 'completed' &&
+      recovery.conclusion === 'success', 'Current recovery check disagrees with exact tested attempt')
+  }
   const current = latestChronological(
     o.currentChecks.filter(c => c.name === gate.job && c.appId === 15368 && c.head === o.head),
     `${gate.job} current checks`
@@ -578,7 +596,7 @@ function validatePassedGate(o, gate, latest) {
   )
 }
 
-function validateBeforeDraft(entry, o, required, allowTutorialDraftGuard = false) {
+export function validateBeforeDraft(entry, o, required, allowTutorialDraftGuard = false) {
   requireThat(Array.isArray(o.currentChecks), 'Missing current required-check selection')
   for (const gate of required) {
     const guards =

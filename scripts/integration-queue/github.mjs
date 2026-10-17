@@ -4,6 +4,8 @@ import { resolve } from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
 import { CLOUDFLARE, GATES, REPO, sha256, validateEntry, gatesFor, SHARDED_FULL_GATE } from './policy.mjs'
 
+import { RECOVERY_JOB, RECOVERY_STEPS, RECOVERY_INPUTS, pauseRecoveryLog, validatePauseRecovery } from './pause-recovery.mjs'
+
 import { BASELINE_DIAGNOSTIC, SHARDED_JOBS, shardedLogReceipt, validateShardedReceipt, validateBaselineLog } from './sharded.mjs'
 
 const sha = value => /^[0-9a-f]{40}$/.test(value ?? '')
@@ -275,6 +277,8 @@ export class GitHubReader {
           if (gate === SHARDED_FULL_GATE && job.name === gate.job && exact.conclusion === 'success') {
             this.verifyShardedRun(entry, pr, synthetic, exact, jobs, row, log)
           }
+          if (gate.recoveryRequired && exact.conclusion === 'success')
+            this.verifyPauseRecoveryRun(entry, pr, synthetic, exact, jobs, row)
           row.identityVerified =
             identity.head === pr.head.sha &&
             identity.base === pr.base.sha &&
@@ -287,6 +291,47 @@ export class GitHubReader {
       }
     }
     return runs
+  }
+  verifyPauseRecoveryRun(entry, pr, synthetic, exact, jobs, row) {
+    ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
+      exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
+      'Recovery workflow is not the successful current PR run')
+    ensure(entry.browserPolicy === 'pause-recovery-v1' && synthetic && row.merge === synthetic.sha,
+      'Pause recovery requires explicit trusted policy and current synthetic source')
+    ensure(jobs.length === 2 && new Set(jobs.map(j => j.id)).size === 2 &&
+      jobs.filter(j => j.name === 'Tutorial browser').length === 1,
+      'Missing, duplicate or extra browser jobs')
+    const matches = jobs.filter(j => j.name === RECOVERY_JOB)
+    ensure(matches.length === 1, 'Missing or duplicate recovery job')
+    const job = matches[0]
+    ensure(job.run_id === exact.id && job.run_attempt === exact.run_attempt &&
+      job.status === 'completed' && job.conclusion === 'success' &&
+      RECOVERY_STEPS.every(name => job.steps?.filter(s => s.name === name).length === 1 &&
+        job.steps.find(s => s.name === name).conclusion === 'success'), 'Recovery job did not genuinely succeed')
+    ensure(new RegExp(`^https://api\\.github\\.com/repos/${REPO}/check-runs/[1-9][0-9]*$`).test(job.check_run_url),
+      'Unexpected recovery check URL')
+    const check = this.get(job.check_run_url.slice('https://api.github.com/'.length))
+    ensure(check.id === Number(job.check_run_url.split('/').at(-1)) &&
+      check.check_suite?.id === exact.check_suite_id && check.head_sha === pr.head.sha &&
+      check.name === RECOVERY_JOB && check.app?.id === 15368 && check.app?.slug === 'github-actions' &&
+      check.status === 'completed' && check.conclusion === 'success', 'Recovery check identity/result mismatch')
+    const log = stripVTControlCharacters(this.get(`repos/${REPO}/actions/jobs/${job.id}/logs`, true))
+    const identity = logIdentity(log)
+    ensure(identity.head === pr.head.sha && identity.base === pr.base.sha && identity.merge === synthetic.sha,
+      'Recovery worker tested a different candidate')
+    ensure(this.workflow(GATES[1].workflow, synthetic.sha).sha256 === entry.workflowHashes[GATES[1].workflow],
+      'Recovery workflow source differs')
+    const receipt = pauseRecoveryLog(log)
+    validatePauseRecovery(receipt, {
+      identity: { repository: REPO, runId: String(exact.id), runAttempt: String(exact.run_attempt),
+        workflowRef: `${REPO}/${GATES[1].workflow}@refs/pull/${entry.pr}/merge`,
+        mergeSha: synthetic.sha, headSha: pr.head.sha, baseSha: pr.base.sha },
+      inputs: Object.fromEntries(RECOVERY_INPUTS.map(path =>
+        [path, sha256(this.gitOutput('show', `${synthetic.sha}:${path}`))])),
+    })
+    row.pauseRecoveryVerified = true
+    row.pauseRecoveryReceiptSha256 = receipt.receiptSha256
+    row.pauseRecoveryCheckId = check.id
   }
   verifyShardedRun(entry, pr, synthetic, exact, jobs, row, log) {
     ensure(synthetic && row.merge === synthetic.sha, 'Sharded run lacks current synthetic source')
@@ -335,12 +380,18 @@ export class GitHubReader {
       .filter(file => /^tests\/[^./\0\r\n][^/\0\r\n]*\.test\.mjs$/.test(file)).sort()
     const inventory = files.map(file => ({ file, sha256: sha256(this.gitOutput('show', `${synthetic.sha}:${file}`)) }))
     validateShardedReceipt(receipt, { identity, inventory,
-      lockSha256: sha256(this.gitOutput('show', `${synthetic.sha}:package-lock.json`)) })
+      lockSha256: sha256(this.gitOutput('show', `${synthetic.sha}:package-lock.json`)),
+      ...(receipt.runtime?.timingReporterSha256 !== undefined ? {
+        timingReporterSha256: sha256(this.gitOutput('show', `${synthetic.sha}:scripts/orchestration/test-timing-reporter.mjs`)),
+      } : {}) })
     if (baselineLog !== undefined) validateBaselineLog(baselineLog, inventory)
     row.shardedVerified = true
     row.shardedReceiptSha256 = sha256(JSON.stringify(receipt))
   }
-  inspect(entry, allowlistDirectory) {
+  inspect(entry, allowlistDirectory) { return this.inspectMode(entry, allowlistDirectory, false) }
+  // Explicit narrower observation surface: never an integration-policy fallback.
+  inspectAdmission(entry, allowlistDirectory) { return this.inspectMode(entry, allowlistDirectory, true) }
+  inspectMode(entry, allowlistDirectory, admissionOnly) {
     validateEntry(entry)
     const start = Date.now()
     const root = `repos/${REPO}`
@@ -391,7 +442,7 @@ export class GitHubReader {
         ensure(source.tree === entry.sourceTree, 'Reviewed source tree mismatch')
         result.acceptedRefresh = this.refresh(entry, entry.sourceHead, result.headCommit.parents[1])
       }
-      result.protection = this.protection()
+      result.protection = admissionOnly ? { unverified: 'admission-only; no merge authority' } : this.protection()
       result.workflows = GATES.flatMap(g => [
         this.workflow(g.workflow, pr.head.sha),
         this.workflow(g.workflow, main),

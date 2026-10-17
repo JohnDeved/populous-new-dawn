@@ -1,3 +1,4 @@
+import type { NativeOcclusionMetrics } from './native-occlusion-metrics.ts'
 import { inHitTriangle } from './world-picking.ts'
 import * as THREE from 'three'
 import { Painter } from './painter.ts'
@@ -411,8 +412,10 @@ export class RenderView {
     mouse: THREE.Vector2,
     objects: THREE.Object3D[],
     camera: THREE.Camera,
-    nativeEdges = false
+    nativeEdges = false,
+    metrics?: NativeOcclusionMetrics
   ): ViewPickCandidate[] {
+    const nativeMetrics = nativeEdges ? metrics : undefined
     if (this.overview) {
       const p = globePick(
         this.globe,
@@ -475,6 +478,13 @@ export class RenderView {
             : ''
           const cache = this.groundPickCache.get(object)?.get(instance)
           const reuse = nativeEdges && cache?.key === cacheKey && cache.position === position
+          let projectionStart = nativeMetrics ? performance.now() : 0
+          if (nativeMetrics) {
+            if (reuse) nativeMetrics.cacheHits++
+            else if (!cache) nativeMetrics.cacheCold++
+            else if (cache.position !== position) nativeMetrics.cachePositionChanged++
+            else nativeMetrics.cacheKeyChanged++
+          }
           const world: THREE.Vector3[] = reuse ? cache.world : [],
             screen: THREE.Vector4[] = reuse ? cache.screen : [],
             scale = object.userData.nativeScale
@@ -516,9 +526,17 @@ export class RenderView {
             count % 6 === 0
               ? new Uint32Array(129 * 129)
               : null
+          // Original vertex IDs are sparse and duplicate corners need only an
+          // alias, not another sparse world/screen array entry. Keep projected
+          // entries packed for this query; candidate triangle IDs stay original.
+          const terrainSlots =
+            terrainCorners &&
+            index!.array.subarray(0, count).every((id: number) => id < position.count)
+              ? new Uint32Array(position.count)
+              : null
           for (let vertex = 0; vertex < count; vertex++) {
             const i = index ? index.getX(vertex) : vertex
-            if (screen[i]) continue
+            if (terrainSlots ? terrainSlots[i] : screen[i]) continue
             let firstCorner = -1
             if (terrainCorners) {
               const x = position.getX(i),
@@ -545,8 +563,11 @@ export class RenderView {
                   Object.is(y, position.getY(source)) &&
                   Object.is(z, position.getZ(source))
                 ) {
-                  world[i] = world[source]
-                  screen[i] = screen[source]
+                  if (terrainSlots) terrainSlots[i] = terrainSlots[source]
+                  else {
+                    world[i] = world[source]
+                    screen[i] = screen[source]
+                  }
                   continue
                 }
               }
@@ -565,8 +586,11 @@ export class RenderView {
               })
               p = new THREE.Vector3(q.x, q.y, -q.z).multiplyScalar(1 / 128).add(origin)
             } else p.applyMatrix4(transform)
-            world[i] = p
-            screen[i] = this.screen(p, camera, unwrapped)
+            const slot = terrainSlots ? world.length : i
+            world[slot] = p
+            screen[slot] = this.screen(p, camera, unwrapped)
+            if (nativeMetrics) nativeMetrics.projectedVertices++
+            if (terrainSlots) terrainSlots[i] = slot + 1
             // Keep the first source when later corners disagree in height or sign.
             if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
           }
@@ -575,11 +599,17 @@ export class RenderView {
             if (!entries) this.groundPickCache.set(object, (entries = new Map()))
             entries.set(instance, { key: cacheKey, position, world, screen })
           }
+          if (nativeMetrics) {
+            const now = performance.now()
+            nativeMetrics.projectionMs += now - projectionStart
+            nativeMetrics.submittedTriangles += Math.ceil(count / 3)
+            projectionStart = now
+          }
           for (let i = 0; i < count; i += 3) {
             const ids = index
               ? [index.getX(i), index.getX(i + 1), index.getX(i + 2)]
               : [i, i + 1, i + 2]
-            const [a, b, c] = ids.map(id => screen[id])
+            const [a, b, c] = ids.map(id => screen[terrainSlots ? terrainSlots[id] - 1 : id])
             // Reject distant triangles before allocating pixel-edge test inputs.
             // One pixel of padding preserves native nearest-even rounding.
             if (
@@ -621,7 +651,9 @@ export class RenderView {
             const weights = [u / a.w, v / b.w, t / c.w],
               sum = weights.reduce((total, weight) => total + weight),
               p = new THREE.Vector3()
-            ids.forEach((id, j) => p.addScaledVector(world[id], weights[j] / sum))
+            ids.forEach((id, j) =>
+              p.addScaledVector(world[terrainSlots ? terrainSlots[id] - 1 : id], weights[j] / sum)
+            )
             if (!this.overview && !this.visible(p, unwrapped)) continue
             const wrap = (n: number) => ((((n + 128) % 256) + 256) % 256) - 128
             candidates.push({
@@ -632,6 +664,7 @@ export class RenderView {
               instance,
             })
           }
+          if (nativeMetrics) nativeMetrics.triangleScanMs += performance.now() - projectionStart
         }
       })
     return candidates

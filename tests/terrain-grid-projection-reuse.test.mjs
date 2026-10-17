@@ -6,6 +6,7 @@ import { registerHooks } from 'node:module'
 import { readFileSync } from 'node:fs'
 import * as THREE from 'three'
 import { RenderView } from '../app/render-view.ts'
+import { createNativeOcclusionMetrics, resetNativeOcclusionMetrics } from '../app/native-occlusion-metrics.ts'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 
 let ReferenceView
@@ -87,6 +88,7 @@ async function fixture(diagonal) {
     world,
     scene,
     sample,
+    projectionCount: () => projections,
     water: () => updateWater(scene),
     close() {
       reference?.dispose()
@@ -330,6 +332,141 @@ test('cross-cell exact equality, boundary IDs, fallback corners and instance iso
     assert.equal(f.sample().actualCalls, 12)
     assert.equal(f.sample().actualCalls, 12, 'second query recomputes every unique corner')
   } finally {
+    f.close()
+  }
+})
+
+test('packed terrain slots preserve sparse original triangle IDs and retained query results', async () => {
+  const f = await fixture(0)
+  try {
+    const p = f.mesh.geometry.attributes.position,
+      high = p.count - 6,
+      corners = [
+        [0, 0, 0],
+        [0, 0, 2],
+        [2, 0, 0],
+        [2, 0, 0],
+        [0, 0, 2],
+        [2, 0, 2],
+      ]
+    for (const base of [high, 0]) corners.forEach((point, i) => p.setXYZ(base + i, ...point))
+    let ids = [...Array.from({ length: 6 }, (_, i) => high + i), 0, 1, 2, 3, 4, 5]
+    const submit = () => {
+      f.mesh.geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(ids), 1))
+      f.mesh.geometry.setDrawRange(0, ids.length)
+    }
+    f.view.updateTerrainVisibility = submit
+    if (f.reference) f.reference.updateTerrainVisibility = submit
+    f.mesh.count = 1
+    f.mesh.setMatrixAt(0, new THREE.Matrix4())
+    const projected = f.view.screen(new THREE.Vector3(2 / 3, 0, 2 / 3), new THREE.Camera(), true),
+      mouse = new THREE.Vector2(projected.x, projected.y),
+      first = f.sample(false, mouse)
+    assert.equal(first.actualCalls, 4, 'high first source and low aliases project four corners')
+    assert.deepEqual(
+      first.candidates.map(hit => hit.triangle),
+      [high / 3, 0]
+    )
+    const retained = first.candidates.map(({ point, depth, triangle, instance }) => ({
+      point: { ...point },
+      depth,
+      triangle,
+      instance,
+    }))
+    ids = [...ids.slice(6), ...ids.slice(0, 6)]
+    const second = f.sample(false, mouse)
+    assert.deepEqual(
+      second.candidates.map(hit => hit.triangle),
+      [0, high / 3]
+    )
+    for (const base of [high, 0]) for (let i = 0; i < 6; i++) p.setY(base + i, 1)
+    f.sample(false, mouse)
+    assert.deepEqual(
+      first.candidates.map(({ point, depth, triangle, instance }) => ({
+        point,
+        depth,
+        triangle,
+        instance,
+      })),
+      retained
+    )
+    assert.notStrictEqual(first.candidates[0].point, second.candidates[1].point)
+    // Malformed Uint32 indices remain on the original sparse storage route.
+    // The default-edge projection leaf accepts them; a bounded slot table must
+    // not turn that existing behavior into an undefined-screen access.
+    ids[0] = p.count + 3
+    f.sample(false, mouse)
+  } finally {
+    f.close()
+  }
+})
+
+
+test('native instrumentation preserves exact picks, cache lifecycle and diagnostic-off clocks', async () => {
+  const f = await fixture(0)
+  const originalNow = Object.getOwnPropertyDescriptor(performance, 'now')
+  try {
+    f.view.updateTerrainVisibility(f.mesh)
+    const mouse = new THREE.Vector2(0.1, 0.1), camera = new THREE.Camera()
+    Object.defineProperty(performance, 'now', { configurable: true, value: () => { throw Error('disabled clock') } })
+    const plain = f.view.pickCandidates(mouse, [f.mesh], camera, true)
+    assert.ok(plain.length > 0)
+    f.view.groundPickCache.delete(f.mesh)
+    const metrics = createNativeOcclusionMetrics()
+    let clock = 0
+    Object.defineProperty(performance, 'now', { configurable: true, value: () => ++clock })
+    const query = () => {
+      const before = f.projectionCount()
+      const result = f.view.pickCandidates(mouse, [f.mesh], camera, true, metrics)
+      assert.equal(metrics.projectedVertices, f.projectionCount() - before)
+      return result
+    }
+    assert.deepEqual(query(), plain)
+    assert.ok(metrics.cacheCold > 0)
+    assert.equal(metrics.cacheHits + metrics.cachePositionChanged + metrics.cacheKeyChanged, 0)
+    assert.ok(metrics.projectedVertices > 0 && metrics.submittedTriangles > 0)
+    assert.ok(metrics.projectionMs > 0 && metrics.triangleScanMs > 0)
+    resetNativeOcclusionMetrics(metrics)
+    assert.deepEqual(query(), plain)
+    assert.ok(metrics.cacheHits > 0)
+    assert.equal(metrics.projectedVertices, 0)
+    assert.equal(metrics.cacheCold + metrics.cachePositionChanged + metrics.cacheKeyChanged, 0)
+    const pos = f.mesh.geometry.getAttribute('position')
+    pos.needsUpdate = true
+    resetNativeOcclusionMetrics(metrics)
+    assert.deepEqual(query(), plain)
+    assert.ok(metrics.cacheKeyChanged > 0)
+    assert.equal(metrics.cacheCold + metrics.cachePositionChanged, 0)
+    f.mesh.geometry.setAttribute('position', pos.clone())
+    resetNativeOcclusionMetrics(metrics)
+    assert.deepEqual(query(), plain)
+    assert.ok(metrics.cachePositionChanged > 0)
+    assert.equal(metrics.cacheCold + metrics.cacheKeyChanged, 0)
+    const entry = f.view.groundPickCache.get(f.mesh).get(0)
+    let extra = -1
+    for (let i = 0; i < pos.count; i += 6)
+      if (!entry.screen[i]) { extra = i; break }
+    assert.ok(extra >= 0)
+    f.mesh.geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(
+      Array.from({ length: 6 }, (_, i) => extra + i)), 1))
+    f.mesh.geometry.setDrawRange(0, 6)
+    resetNativeOcclusionMetrics(metrics)
+    const added = query()
+    assert.ok(metrics.cacheHits > 0 && metrics.projectedVertices > 0,
+      'retained caches can fill previously unsubmitted original IDs')
+    assert.deepEqual(added, f.view.pickCandidates(mouse, [f.mesh], camera, true))
+    // A direct default-edge call ignores this native-only extension entirely.
+    resetNativeOcclusionMetrics(metrics)
+    Object.defineProperty(performance, 'now', { configurable: true, value: () => { throw Error('default clock') } })
+    f.view.pickCandidates(mouse, [f.mesh], camera, false, metrics)
+    assert.deepEqual(metrics, createNativeOcclusionMetrics())
+    assert.deepEqual(f.view.pickCandidates(mouse, [], camera, true, metrics), [])
+    f.view.overview = true
+    assert.deepEqual(f.view.pickCandidates(mouse, [], camera, true, metrics), [])
+    assert.deepEqual(metrics, createNativeOcclusionMetrics(), 'no native instance work means zero detail')
+  } finally {
+    if (originalNow) Object.defineProperty(performance, 'now', originalNow)
+    else delete performance.now
     f.close()
   }
 })

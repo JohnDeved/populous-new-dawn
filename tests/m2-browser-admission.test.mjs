@@ -1,3 +1,4 @@
+import { assertNativeFrameExport, m2NativePointerTarget } from '../scripts/tutorial-browser/frame-export.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -59,7 +60,7 @@ test('M2 functional acceptance rejects level, selection, order, clock and Scene 
 test('M2 has isolated selection and default append; legacy scenarios and bounds retained', () => {
   const run = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   assert.match(run, /POPULOUS_BROWSER_SCENARIO \|\| 'tutorial'/)
-  assert.match(run, /\['tutorial', 'm2-pointer-f8'\]/)
+  assert.match(run, /\['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery'\]/)
   assert.match(run, /180000/)
   assert.match(run, /120000/)
   assert.ok(run.indexOf('receipt.result =') < run.indexOf('receipt.selectorInspection ='))
@@ -290,4 +291,184 @@ test('public zoom readiness follows settled preset/configuration, not flyby zoom
   scene.view.projection.width = 544
   scene.overviewActive = true
   assert.equal(ready(2), false)
+})
+
+test('pause-overlay regression detects occlusion while permitting edge-touching rectangles', async () => {
+  const { m2RectanglesOverlap } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  const graph = { left: 104, top: 8, right: 632, bottom: 350 }
+  assert.equal(m2RectanglesOverlap(graph, { left: 272, top: 177, right: 464, bottom: 254 }), true)
+  assert.equal(m2RectanglesOverlap(graph, { left: 490, top: 410, right: 632, bottom: 464 }), false)
+  assert.equal(m2RectanglesOverlap(graph, { left: 8, top: 20, right: 104, bottom: 80 }), false)
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(source, /\[900, 360\]/)
+  assert.match(source, /m2RectanglesOverlap\(layout, layout.pause\)/)
+  assert.match(source, /m2RectanglesOverlap\(layout.pause, ui\)/)
+  assert.match(source, /pauseActionable/)
+})
+
+test('bounded M2 avoids duplicate initial-wide PNG while retaining all viewport captures and stage evidence', () => {
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.doesNotMatch(source, /m2-pointer-wide\.png/)
+  assert.match(source, /m2-pointer-\$\{width\}\.png/)
+  assert.match(source, /\[1440, 1000\]/)
+  assert.match(source, /stage\('deadline'\)/)
+  assert.match(source, /stage\('load-boundary-matched'\)/)
+  assert.match(source, /stage\('menu-returned'\)/)
+  assert.match(source, /assert\.deepEqual\(\s*readback,\s*fixture\.transfer/)
+  assert.equal(m2FunctionalLimitMs, 45000)
+})
+
+test('open campaign panel regression rejects the captured short-wide collision without hiding either panel', async () => {
+  const { m2RectanglesOverlap } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  const message = { left: 72, top: 241, right: 412, bottom: 341 }
+  assert.equal(m2RectanglesOverlap({ left: 332, top: 8, right: 892, bottom: 350 }, message), true)
+  assert.equal(m2RectanglesOverlap({ left: 428, top: 8, right: 892, bottom: 350 }, message), false)
+  assert.equal(
+    m2RectanglesOverlap(
+      { left: 104, top: 8, right: 632, bottom: 350 },
+      { left: 96, top: 355, right: 436, bottom: 455 }
+    ),
+    false
+  )
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(source, /layout\.campaignPanels\.length > 0/)
+  assert.match(source, /m2RectanglesOverlap\(layout, panel\)/)
+  assert.match(source, /panel\.contentFits, true/)
+  assert.match(source, /layout\.exportFits, true/)
+  assert.match(source, /layout\.exportActionable,\s*true/)
+  assert.match(source, /panel\.closeActionable,\s*true/)
+  const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
+  assert.match(css, /--campaign-message-width:340px/)
+  assert.match(css, /\.world-viewport\{position:absolute;inset:0 0 0 var\(--side\)/)
+  assert.match(css, /@media \(min-width:900px\) and \(max-height:700px\)/)
+  assert.match(css, /max-width:calc\(100% - var\(--campaign-message-width\) - 24px\)/)
+  assert.match(css, /\.campaign-messages details\[open\]\{width:var\(--campaign-message-width\)\}/)
+  assert.match(css, /\.fps-renderer\{max-height:none;overflow:visible\}/)
+  for (const side of [72, 100, 140]) {
+    const worldWidth = 900 - side
+    const graphWidth = Math.min(560, worldWidth - 340 - 24)
+    const graphLeft = 900 - 8 - graphWidth
+    assert.equal(graphLeft - (side + 340), 16, 'HUD is excluded once by the containing viewport')
+  }
+})
+
+test('hosted M2 route awaits actual pointer and keyboard export checks inside existing scene deadline', () => {
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(source, /import \{ checkFrameExport, m2NativePointerTarget \} from '\.\/frame-export\.mjs'/)
+  assert.match(source, /await checkFrameExport\(\{ page, output, keyboard: width === 1280 \}\)/)
+  assert.match(source, /\[1280, 720\]/)
+  const helper = readFileSync(
+    new URL('../scripts/tutorial-browser/frame-export.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(helper, /waitForEvent\('download'\)/)
+  assert.match(helper, /readFileSync\(await download\.path\(\), 'utf8'\)/)
+  assert.match(helper, /keyboard\.press\('Space'\)/)
+  assert.doesNotMatch(helper, /newContext|page\.goto|setTimeout/)
+  assert.equal(m2FunctionalLimitMs, 45000)
+})
+
+test('full checkpoint protocol transport uses JSON text without weakening structured equality', () => {
+  const buffer = new ArrayBuffer(16)
+  const view = new Float64Array(buffer)
+  view.set([NaN, -0])
+  const world = { buffer, view, map: new Map([[1n, Infinity]]), absent: undefined }
+  world.self = world
+  const encoded = checkpointCodec(world)
+  const transported = JSON.parse(JSON.stringify(encoded))
+  assert.deepEqual(transported, encoded)
+  const decoded = checkpointCodec(transported, true)
+  assert.equal(decoded.self, decoded)
+  assert.equal(decoded.view.buffer, decoded.buffer)
+  assert.ok(Number.isNaN(decoded.view[0]))
+  assert.ok(Object.is(decoded.view[1], -0))
+  assert.equal(decoded.map.get(1n), Infinity)
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(source, /const transfer = JSON\.parse\(transferJson\)/)
+  assert.match(source, /JSON\.stringify\(fixture\.transfer\)/)
+  assert.match(source, /const readback = JSON\.parse\(readbackJson\)/)
+  assert.match(source, /assert\.deepEqual\(\s*readback,\s*fixture\.transfer/)
+  assert.match(
+    source,
+    /JSON\.parse\(await page\.evaluate\(\(\) => window\.m2LoadBoundary\)\),\s*fixture\.expected/
+  )
+  assert.match(source, /JSON\.stringify\(window\.m2CheckpointCodec\(store\.getWorld\(\)\)\)/)
+  assert.equal(m2FunctionalLimitMs, 45000)
+})
+
+
+test('actual downloaded M2 frames require versioned finite native counters without duration thresholds', () => {
+  const native = { version: 1, submissionKeyMs: 0, projectionMs: 0, triangleScanMs: 0,
+    pixelCacheHits: 0, pixelCacheMisses: 1, cacheCold: 1, cachePositionChanged: 0,
+    cacheKeyChanged: 0, cacheHits: 0, projectedVertices: 6, submittedTriangles: 2 }
+  const frames = [{ pointerBreakdown: null }, { pointerBreakdown: { nativeOcclusion: native } }]
+  const result = assertNativeFrameExport(frames)
+  assert.equal(result.measuredFrames, 1)
+  assert.equal(result.nativeWorkFrames, 1)
+  assert.equal(result.counters.projectedVertices, 6)
+  for (const mutate of [
+    value => { value.version = 2 }, value => { delete value.projectionMs },
+    value => { value.triangleScanMs = Infinity }, value => { value.submissionKeyMs = -1 },
+    value => { value.pixelCacheMisses = 0.5 }, value => { value.cacheHits = NaN },
+    value => { value.submittedTriangles = Number.MAX_SAFE_INTEGER + 1 },
+  ]) {
+    const invalid = structuredClone(frames)
+    mutate(invalid[1].pointerBreakdown.nativeOcclusion)
+    assert.throws(() => assertNativeFrameExport(invalid))
+  }
+  assert.throws(() => assertNativeFrameExport([{ pointerBreakdown: {} }]))
+  assert.throws(() => assertNativeFrameExport([{ pointerBreakdown: null }]))
+  const helper = readFileSync(new URL('../scripts/tutorial-browser/frame-export.mjs', import.meta.url), 'utf8')
+  assert.match(helper, /const nativeDiagnostics = assertNativeFrameExport\(report.frames\)/)
+  assert.match(helper, /bounds, nativeDiagnostics/)
+  assert.match(helper, /assert.ok\(nativeDiagnostics.nativeWorkFrames > 0/)
+  assert.doesNotMatch(helper, /newContext|page\.goto|setTimeout|waitForTimeout/)
+  assert.equal(m2FunctionalLimitMs, 45000)
+})
+
+
+test('native export target uses rendered bounds and real input without invoking the picker', () => {
+  const canvas = { getBoundingClientRect: () => ({ left: 200, top: 0, right: 1000, bottom: 600 }) }
+  const layer = { visible: true }
+  const group = { visible: true, userData: { layers: [layer] } }
+  const scene = { renderer: { domElement: canvas }, unitMeshes: new Map([[54, group]]),
+    view: { painter: { source: value => value === layer ? {} : null } },
+    picking: { personBounds: () => ({ x: 100, y: 100, width: 20, height: 30 }),
+      pick: () => assert.fail('must not invoke picker') } }
+  const context = { window: { testSceneRef: { current: scene } },
+    document: { elementFromPoint: () => canvas } }
+  const choose = () => runInNewContext(`(${m2NativePointerTarget.toString()})()`, context)
+  assert.equal(choose().x, 310)
+  assert.equal(choose().y, 115)
+  context.document.elementFromPoint = () => ({})
+  assert.equal(choose(), null, 'HUD-obstructed points are rejected')
+  context.document.elementFromPoint = () => canvas
+  group.userData.pickable = false
+  assert.equal(choose(), null)
+  delete group.userData.pickable
+  scene.view.painter.source = () => null
+  assert.equal(choose(), null, 'unsubmitted sprites cannot establish native hit route')
+  const route = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
+  assert.match(route, /page.evaluate\(m2NativePointerTarget\)/)
+  assert.match(route, /\[nativeTarget.x, nativeTarget.y, true\]/)
+  const helper = readFileSync(new URL('../scripts/tutorial-browser/frame-export.mjs', import.meta.url), 'utf8')
+  assert.ok(helper.indexOf('await download.saveAs') < helper.indexOf('const report = JSON.parse'))
+  assert.ok(helper.indexOf("filename.replace('.json', '-native-summary.json')") < helper.indexOf('assert.ok(nativeDiagnostics.nativeWorkFrames'))
+  assert.match(helper, /examined > 128/)
+  assert.equal(m2FunctionalLimitMs, 45000)
 })

@@ -1,3 +1,4 @@
+import { measurePointerQuery, type PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import type { GameScene } from './scene.ts'
 import { buildingInsidePoint, buildingPose } from './building-shapes.ts'
 import { browserPosition, effect, nativePosition } from './model.ts'
@@ -109,7 +110,11 @@ function hudOwner(scene: GameScene, element: Element) {
   return owner
 }
 
-export function publishTooltipInput(scene: GameScene, geometryChanged = true) {
+export function publishTooltipInput(
+  scene: GameScene,
+  geometryChanged = true,
+  metrics?: PointerFrameMetrics
+) {
   const pointer = scene.navigationPointer
       ? { clientX: scene.navigationPointer.x, clientY: scene.navigationPointer.y }
       : scene.pointerScreen,
@@ -155,14 +160,22 @@ export function publishTooltipInput(scene: GameScene, geometryChanged = true) {
         !geometryChanged &&
         previous &&
         ['world', 'unmapped-cell', 'unmapped-object'].includes(previous.route),
-      id = reuse ? previous.picked : scene.picking.pick(scene.pointerScreen)
+      id = reuse
+        ? previous.picked
+        : metrics
+          ? measurePointerQuery(metrics, 'object', () =>
+              scene.picking.pick(scene.pointerScreen!, metrics)
+            )
+          : scene.picking.pick(scene.pointerScreen)
     sample.picked = id
     sample.object = id === null ? null : tooltipObject(scene, id)
     if (reuse) sample.cell = previous.cell
     else if (id !== null) sample.cell = hutCell(scene, id)
     if (id !== null && !sample.object) sample.route = 'unmapped-object'
     if (!reuse && sample.cell === null) {
-      const ground = scene.pick(scene.pointerScreen)
+      const ground = metrics
+        ? measurePointerQuery(metrics, 'terrain', () => scene.pick(scene.pointerScreen!))
+        : scene.pick(scene.pointerScreen)
       if (ground) sample.cell = packedCell(nativePosition(scene.world, ground))
     }
     sample.inspectionTarget = inspectionTarget(scene, id, sample.cell)

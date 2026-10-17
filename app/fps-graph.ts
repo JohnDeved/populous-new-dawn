@@ -1,17 +1,28 @@
-import { FramePerformance } from './frame-performance.ts'
+import { FramePerformance, RECENT_FRAME_CAPACITY } from './frame-performance.ts'
+import type { PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import { readHardwareInfo, readHeapEstimate } from './performance-hardware.ts'
+
+declare const __PND_BUILD_REVISION__: string
 
 // FPS is requestAnimationFrame cadence. CPU wall times are not GPU execution time.
 export class FpsGraph {
   readonly element = document.createElement('aside')
   readonly samples = new FramePerformance()
+  private readonly level: number | null
+  private readonly enabledAt = new Date().toISOString()
+  private readonly gl: WebGLRenderingContext | WebGL2RenderingContext
+  private readonly hardware: ReturnType<typeof readHardwareInfo>
+  private exportButton: HTMLButtonElement
   private cleared = false
   private previous: number | null = null
   private fields: Record<string, HTMLElement> = {}
   private line: SVGPolylineElement
   private budget: SVGPathElement
 
-  constructor(gl: WebGLRenderingContext | WebGL2RenderingContext) {
+  constructor(gl: WebGLRenderingContext | WebGL2RenderingContext, level?: number) {
+    this.gl = gl
+    this.level = level !== undefined && Number.isInteger(level) ? level : null
+    this.hardware = readHardwareInfo(gl, navigator)
     this.element.className = 'fps-graph'
     this.element.setAttribute(
       'aria-label',
@@ -29,6 +40,7 @@ export class FpsGraph {
         <div><dt>Simulation CPU</dt><dd data-metric="simulation">--</dd></div>
         <div><dt>Scene render CPU</dt><dd data-metric="render">--</dd></div>
         <div title="updatePointerFrame only: pointer targeting, spell halo and tooltip publishing, including their nested picks. Other HUD and event-handler picking is not included."><dt>Pointer + tooltip CPU</dt><dd data-metric="pointer">--</dd></div>
+        <div title="Nearest-rank p95 and maximum pointer/tooltip CPU over the last up to 240 accepted frames, published with the other readouts. Not the short-window mean."><dt>Pointer p95 / peak · ≤240f</dt><dd data-metric="pointer-tail">--</dd></div>
         <div title="Callback minus simulation, scene render and pointer/tooltip stages. Other callback work, not idle time. A negative value signals inconsistent measurement ownership."><dt>Other callback CPU</dt><dd data-metric="other">--</dd></div>
         <div><dt>Scene draw calls / frame</dt><dd data-metric="calls">--</dd></div>
       </dl>
@@ -48,10 +60,35 @@ export class FpsGraph {
           <div><dt>JS heap · estimate</dt><dd data-metric="heap">Unavailable</dd></div>
         </dl>
       </div>
-      <p>RAF cadence, not presented FPS. Means: ≥250 ms windows.<br>CPU stages sum to inclusive callback.<br>Synchronous CPU excludes overlay; GPU not measured.</p></div>`
+      <p>RAF cadence, not presented FPS. Means: ≥250 ms windows.<br>CPU stages sum to inclusive callback.<br>Synchronous CPU excludes overlay; GPU not measured.</p>
+      <button type="button" class="fps-export">Export recent frames</button>
+      <div class="fps-caption">Up to 1,200 frames · local JSON only</div>
+      <div class="fps-caption" data-metric="export-status" role="status"></div></div>`
     for (const field of this.element.querySelectorAll<HTMLElement>('[data-metric]'))
       this.fields[field.dataset.metric!] = field
-    const hardware = readHardwareInfo(gl, navigator)
+    this.exportButton = this.element.querySelector<HTMLButtonElement>('.fps-export')!
+    // Only the button intercepts input; the graph remains click-through. Keep
+    // Enter/Space activation native, but never let input bubble into gameplay.
+    for (const type of [
+      'pointerdown',
+      'pointerup',
+      'pointermove',
+      'mousedown',
+      'mouseup',
+      'dblclick',
+      'contextmenu',
+      'wheel',
+      'keydown',
+      'keyup',
+    ])
+      this.exportButton.addEventListener(type, event => {
+        if (!(event instanceof KeyboardEvent && event.key === 'F8')) event.stopPropagation()
+      })
+    this.exportButton.addEventListener('click', event => {
+      event.stopPropagation()
+      this.exportRecentFrames()
+    })
+    const hardware = this.hardware
     this.text('renderer', `GPU / renderer: ${hardware.renderer}`)
     this.fields.renderer.title = `Browser-reported renderer: ${hardware.renderer}`
     this.text('cores', hardware.cores)
@@ -63,6 +100,78 @@ export class FpsGraph {
       'Optional Chromium JS-heap estimate; may include shared heaps and exclude workers. Not total memory usage.'
     this.line = this.element.querySelector('polyline')!
     this.budget = this.element.querySelector('.fps-budget')!
+  }
+
+  exportRecentFrames() {
+    const frames = this.samples.recentFrames()
+    if (!frames.length) {
+      this.text('export-status', 'No frames yet. Keep F8 open during play, then export.')
+      return
+    }
+    const first = frames[0],
+      last = frames[frames.length - 1]
+    const report = {
+      schema: 'populous-new-dawn/frame-performance',
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      buildRevision:
+        typeof __PND_BUILD_REVISION__ === 'string' ? __PND_BUILD_REVISION__ : 'unknown',
+      units: {
+        durations: 'milliseconds',
+        timestamps: 'milliseconds since performance.timeOrigin',
+        counters: 'per frame',
+      },
+      timing: {
+        timeOriginUnixMs: performance.timeOrigin,
+        enabledAt: this.enabledAt,
+        capacityFrames: RECENT_FRAME_CAPACITY,
+        count: frames.length,
+        startTimestampMs: first.timestampMs - first.rafIntervalMs,
+        endTimestampMs: last.timestampMs,
+        capturedSpanMs: last.timestampMs - first.timestampMs + first.rafIntervalMs,
+      },
+      session: { level: this.level },
+      environment: {
+        userAgent: navigator.userAgent,
+        hardware: this.hardware,
+        viewportCssPixels: { width: innerWidth, height: innerHeight },
+        devicePixelRatio,
+        drawingBufferPixels: {
+          width: this.gl.drawingBufferWidth,
+          height: this.gl.drawingBufferHeight,
+        },
+        visibility: document.visibilityState,
+      },
+      notes: [
+        'RAF cadence is not presented FPS. CPU wall times are not GPU timings.',
+        'Callback includes all CPU stages; other is a signed remainder. Overlay and export work are excluded.',
+        'Pointer breakdown phases overlap: tooltipInput includes nested picks; objectPick includes units/models/occlusion; tooltipRender is outside pointerTooltip CPU. Do not sum them.',
+        'Browser layout flushes execute in the phase that reads layout, which may differ from the phase that dirtied it.',
+        'Capture resets on focus loss, hidden tab or F8 disable. No account, URL, save or world contents are included.',
+      ],
+      frames,
+    }
+    let url: string | undefined
+    try {
+      url = URL.createObjectURL(
+        new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' })
+      )
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `populous-frames-${report.exportedAt.replace(/[:.]/g, '-')}.json`
+      link.click()
+      this.text(
+        'export-status',
+        `Exported ${frames.length} frames · ${(report.timing.capturedSpanMs / 1000).toFixed(1)} s`
+      )
+    } catch {
+      this.text('export-status', 'Export failed. Please try again.')
+    } finally {
+      if (url) {
+        const downloadUrl = url
+        setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000)
+      }
+    }
   }
 
   private text(name: string, value: string) {
@@ -86,6 +195,7 @@ export class FpsGraph {
       'calls',
       'callback',
       'pointer',
+      'pointer-tail',
       'other',
       'raf-tail',
       'cpu-tail',
@@ -106,7 +216,8 @@ export class FpsGraph {
     calls: number,
     state: string,
     callback: number,
-    pointer = 0
+    pointer = 0,
+    metrics?: PointerFrameMetrics
   ) {
     this.cleared = false
     const { previous } = this
@@ -115,7 +226,26 @@ export class FpsGraph {
       this.text('state', `${state} · warming up`)
       return
     }
-    if (!this.samples.sample(now - previous, simulation, render, calls, callback, pointer)) return
+    if (
+      !this.samples.sample(
+        now - previous,
+        simulation,
+        render,
+        calls,
+        callback,
+        pointer,
+        now,
+        state === 'Live'
+          ? 'live'
+          : state.startsWith('Paused')
+            ? 'paused'
+            : state.startsWith('Menu')
+              ? 'menu'
+              : 'unknown',
+        metrics
+      )
+    )
+      return
     this.text('state', state)
     const { samples } = this
     let peak = 0
@@ -129,6 +259,10 @@ export class FpsGraph {
     this.text('render', `${samples.renderMs.toFixed(2)} ms`)
     this.text('calls', samples.drawCalls.toFixed(0))
     this.text('pointer', `${samples.pointerMs.toFixed(2)} ms`)
+    this.text(
+      'pointer-tail',
+      `${samples.pointerPercentiles.p95.toFixed(1)} / ${samples.pointerPercentiles.max.toFixed(1)} ms`
+    )
     const other = Number(samples.otherMs.toFixed(2))
     this.text('other', `${other.toFixed(2)} ms${other < 0 ? ' !' : ''}`)
     this.text('window', `${samples.count} / 240 samples`)

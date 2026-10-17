@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { createPointerFrameMetrics, resetPointerFrameMetrics } from '../app/pointer-frame-metrics.ts'
 import { FramePerformance } from '../app/frame-performance.ts'
 
 test('frame telemetry computes time-weighted cadence and per-frame CPU/call means at four Hz', () => {
@@ -90,6 +91,7 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
   const events = [], updates = []
   const step = name => () => { events.push(name); clock += 1 }
   const context = {
+    resetPointerFrameMetrics,
     performance: { now() { reads++; return clock } },
     document: { hidden, querySelector() { return null } }, devicePixelRatio: 1,
     requestAnimationFrame() { events.push('schedule'); clock += 1; return 42 },
@@ -98,6 +100,7 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
   }
   const scene = vm.runInNewContext(stripTypeScriptTypes(`new (class { ${body} })()`), context)
   Object.assign(scene, {
+    pointerFrameMetrics: createPointerFrameMetrics(),
     isCurrent: () => current, previous: 0, modalSuspended: modal,
     hoveredObject: null, world: { selected: [], buildings: [], trees: [] },
     renderer: { getPixelRatio: () => 1, render: step('render'), info: { render: { calls: 7 } } },
@@ -135,7 +138,7 @@ test('modal callback measures rendering and scheduling without simulation or HUD
   const { events, updates, reads } = runCallback({ modal: true })
   assert.deepEqual(events, ['render', 'schedule', 'telemetry'])
   assert.equal(reads, 4)
-  assert.deepEqual(Array.from(updates[0]), [10, 0, 1, 7, 'Menu · rendering', 2])
+  assert.deepEqual(Array.from(updates[0]), [10, 0, 1, 7, 'Menu · rendering', 2, 0, createPointerFrameMetrics()])
 })
 
 test('disabled and hidden diagnostics add no clock reads and preserve game callback order', () => {
@@ -181,7 +184,7 @@ test('actual graph keeps a startup spike, auto scale and 120 FPS guide consisten
     previous: null,
     samples: new FramePerformance(),
     fields: Object.fromEntries(['state', 'fps', 'frame', 'peak', 'callback', 'simulation',
-      'render', 'calls', 'heap', 'scale', 'pointer', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak'].map(name => [name, sink()])),
+      'render', 'calls', 'heap', 'scale', 'pointer', 'pointer-tail', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak'].map(name => [name, sink()])),
     line: sink(),
     budget: sink(),
   })
@@ -300,4 +303,211 @@ test('live to modal publication includes both samples, then replaces the pointer
   assert.equal(samples.sample(250, 0, 1, 5, 2, 0), true)
   assert.equal(samples.pointerMs, 0)
   assert.equal(samples.otherMs, 1)
+})
+
+test('export capture is bounded, chronological and independent of graph summary publication', () => {
+  const samples = new FramePerformance()
+  for (let i = 1; i <= 1301; i++) samples.sample(10, i, 2, 30, i + 9, 4, i * 10, i % 2 ? 'live' : 'menu')
+  const frames = samples.recentFrames()
+  assert.equal(samples.count, 240)
+  assert.equal(frames.length, 1200)
+  assert.deepEqual(frames[0], { timestampMs: 1020, rafIntervalMs: 10, simulationCpuMs: 102,
+    sceneRenderCpuMs: 2, sceneDrawCalls: 30, callbackCpuMs: 111, pointerTooltipCpuMs: 4,
+    otherCallbackCpuMs: 3, state: 'menu', pointerBreakdown: null })
+  assert.equal(frames.at(-1).timestampMs, 13010)
+  frames[0].simulationCpuMs = -999
+  assert.equal(samples.recentFrames()[0].simulationCpuMs, 102, 'export is detached from mutable storage')
+  samples.sample(10, 0, 0, 0, 1, 3, 13020, 'paused')
+  assert.equal(samples.recentFrames().at(-1).otherCallbackCpuMs, -2)
+  samples.reset()
+  assert.deepEqual(samples.recentFrames(), [])
+  samples.sample(8, 1, 2, 3, 6, 1, 20000, 'live')
+  assert.equal(samples.recentFrames().length, 1)
+  assert.equal(samples.recentFrames()[0].timestampMs, 20000)
+})
+
+test('invalid sample rejects raw export without partially writing any fields', () => {
+  const samples = new FramePerformance()
+  samples.sample(10, 1, 2, 3, 6, 1, 10, 'live')
+  const before = samples.recentFrames()
+  for (const index of [0, 1, 2, 3, 4, 5, 6]) {
+    const args = [10, 1, 2, 3, 6, 1, 20, 'live']
+    args[index] = NaN
+    samples.sample(...args)
+    assert.deepEqual(samples.recentFrames(), before)
+  }
+})
+
+test('explicit export produces versioned local JSON with actual span and no game/account contents', async () => {
+  const originals = new Map(), urls = [], links = [], revoked = [], timers = []
+  const replace = (name, value) => {
+    originals.set(name, Object.getOwnPropertyDescriptor(globalThis, name))
+    Object.defineProperty(globalThis, name, { configurable: true, value })
+  }
+  let blob
+  replace('navigator', { userAgent: 'Test browser', account: 'DO NOT EXPORT' })
+  replace('document', { visibilityState: 'visible', createElement(tag) {
+    assert.equal(tag, 'a')
+    const link = { click() { links.push({ href: this.href, download: this.download }) } }
+    return link
+  } })
+  replace('innerWidth', 1280); replace('innerHeight', 720); replace('devicePixelRatio', 2)
+  replace('URL', { createObjectURL(value) { blob = value; urls.push('blob:local'); return 'blob:local' }, revokeObjectURL(url) { revoked.push(url) } })
+  replace('setTimeout', fn => { timers.push(fn) })
+  const graph = Object.create(FpsGraph.prototype)
+  Object.assign(graph, { samples: new FramePerformance(), enabledAt: '2026-10-17T00:00:00.000Z',
+    hardware: { renderer: 'Test renderer', cores: '8', memory: '~8 GiB' },
+    gl: { drawingBufferWidth: 2560, drawingBufferHeight: 1440 },
+    fields: { 'export-status': { textContent: '' } }, world: { save: 'DO NOT EXPORT' } })
+  try {
+    graph.exportRecentFrames()
+    assert.equal(urls.length, 0)
+    assert.match(graph.fields['export-status'].textContent, /No frames/)
+    graph.samples.sample(10, 1, 2, 3, 6, 1, 100, 'live')
+    graph.samples.sample(30, 2, 3, 4, 9, 2, 130, 'paused')
+    graph.exportRecentFrames()
+    const report = JSON.parse(await blob.text())
+    assert.equal(report.schema, 'populous-new-dawn/frame-performance')
+    assert.equal(report.schemaVersion, 1)
+    assert.equal(report.buildRevision, 'unknown')
+    assert.equal(report.timing.capturedSpanMs, 40)
+    assert.equal(report.timing.count, 2)
+    assert.equal(report.timing.startTimestampMs, 90)
+    assert.equal(report.timing.endTimestampMs, 130)
+    assert.equal(report.frames[1].state, 'paused')
+    assert.equal(report.environment.userAgent, 'Test browser')
+    assert.deepEqual(report.environment.viewportCssPixels, { width: 1280, height: 720 })
+    assert.ok(!JSON.stringify(report).includes('DO NOT EXPORT'))
+    assert.equal(links.length, 1)
+    assert.match(links[0].download, /^populous-frames-.*\.json$/)
+    assert.equal(links[0].href, 'blob:local')
+    assert.deepEqual(revoked, [])
+    timers[0]()
+    assert.deepEqual(revoked, ['blob:local'])
+    assert.equal(graph.samples.recentFrames().length, 2, 'export neither clears nor modifies capture')
+    graph.exportRecentFrames()
+    assert.equal(links.length, 2, 'repeated explicit export is supported')
+  } finally {
+    for (const [name, descriptor] of originals) {
+      if (descriptor) Object.defineProperty(globalThis, name, descriptor)
+      else delete globalThis[name]
+    }
+  }
+})
+
+test('download failures are surfaced without clearing capture and still revoke the URL', () => {
+  const originals = new Map(), timers = [], revoked = []
+  const replace = (name, value) => {
+    originals.set(name, Object.getOwnPropertyDescriptor(globalThis, name))
+    Object.defineProperty(globalThis, name, { configurable: true, value })
+  }
+  replace('navigator', { userAgent: 'Test browser' })
+  replace('document', { visibilityState: 'visible', createElement() { throw Error('download unavailable') } })
+  replace('innerWidth', 1280); replace('innerHeight', 720); replace('devicePixelRatio', 1)
+  replace('URL', { createObjectURL() { return 'blob:failed' }, revokeObjectURL(url) { revoked.push(url) } })
+  replace('setTimeout', fn => timers.push(fn))
+  const graph = Object.create(FpsGraph.prototype)
+  Object.assign(graph, { samples: new FramePerformance(), hardware: {}, gl: {}, fields: { 'export-status': { textContent: '' } } })
+  try {
+    graph.samples.sample(10, 1, 2, 3, 6, 1, 10)
+    assert.doesNotThrow(() => graph.exportRecentFrames())
+    assert.match(graph.fields['export-status'].textContent, /Export failed/)
+    assert.equal(graph.samples.recentFrames().length, 1)
+    timers[0]()
+    assert.deepEqual(revoked, ['blob:failed'])
+  } finally {
+    for (const [name, descriptor] of originals) {
+      if (descriptor) Object.defineProperty(globalThis, name, descriptor)
+      else delete globalThis[name]
+    }
+  }
+})
+
+test('raw pointer phase export snapshots all counters, marks unavailable and clears modal/reset state', () => {
+  const samples = new FramePerformance(), metrics = createPointerFrameMetrics()
+  for (const [index, key] of Object.keys(metrics).entries()) metrics[key] = index + 1
+  const expected = { ...metrics }
+  samples.sample(10, 1, 2, 3, 6, 1, 10, 'live', metrics)
+  resetPointerFrameMetrics(metrics)
+  assert.deepEqual(samples.recentFrames()[0].pointerBreakdown, expected)
+  samples.sample(10, 0, 1, 3, 2, 0, 20, 'menu', metrics)
+  assert.deepEqual(samples.recentFrames()[1].pointerBreakdown, createPointerFrameMetrics())
+  metrics.objectModelsMs = NaN
+  samples.sample(10, 1, 2, 3, 6, 1, 30, 'live', metrics)
+  assert.equal(samples.recentFrames().length, 2)
+  samples.reset()
+  samples.sample(10, 1, 2, 3, 6, 1, 40, 'live')
+  assert.equal(samples.recentFrames()[0].pointerBreakdown, null)
+})
+
+test('export control focus releases held gameplay keys and stale edge navigation without changing game state', () => {
+  const source = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
+  const body = source.slice(source.indexOf('  togglePerformance()'), source.indexOf('  previous: number'))
+  const listeners = new Map()
+  class FakeGraph {
+    constructor(gl, level) { this.level = level }
+    element = { addEventListener(type, fn) { listeners.set(type, fn) }, remove() {} }
+  }
+  const scene = vm.runInNewContext(stripTypeScriptTypes(`new (class { ${body} })()`), { FpsGraph: FakeGraph })
+  Object.assign(scene, { fpsGraph: null, renderer: { getContext: () => ({}) },
+    world: { outcome: { level: 2 }, paused: false, selected: [7] },
+    container: { appendChild() {} }, keys: new Set(['arrowright']), navigationPointer: { x: 1279, y: 100, buttons: 0 } })
+  const worldBefore = JSON.stringify(scene.world)
+  scene.togglePerformance()
+  assert.equal(scene.fpsGraph.level, 2)
+  listeners.get('pointerenter')()
+  assert.equal(scene.navigationPointer, null)
+  assert.ok(scene.keys.has('arrowright'), 'entering button without focus does not consume held keys')
+  listeners.get('focusin')()
+  assert.equal(scene.keys.size, 0, 'release cannot be stranded by stopped keyup on focused button')
+  assert.equal(JSON.stringify(scene.world), worldBefore)
+})
+
+
+test('pointer percentiles use fixed bounded storage, nearest rank and reset partial windows', () => {
+  const sample = new FramePerformance()
+  const history = sample.pointerHistory
+  const summary = sample.pointerPercentiles
+  for (let i = 1; i <= 240; i++) sample.sample(250, 0, 0, 0, i, i)
+  assert.equal(summary.p95, 228)
+  assert.equal(summary.max, 240)
+  for (let i = 0; i < 240; i++) sample.sample(250, 0, 0, 0, 3, 3)
+  assert.equal(summary.p95, 3)
+  assert.equal(summary.max, 3, 'Old spikes leave the 240-frame ring')
+  assert.equal(sample.pointerHistory, history)
+  assert.equal(sample.pointerPercentiles, summary)
+  assert.equal(history.length, 240)
+  sample.sample(250, 0, 0, 0, 100, NaN)
+  assert.equal(summary.max, 3, 'Rejected pointer samples do not poison tails')
+  sample.reset()
+  assert.equal(summary.max, 0)
+  sample.sample(250, 0, 0, 0, 8, 8)
+  assert.equal(summary.p95, 8)
+  assert.equal(summary.max, 8, 'Partial window cannot expose stale ring values')
+  assert.equal(sample.pointerHistory, history)
+})
+
+test('optional native occlusion extension snapshots independently and never fabricates old data', () => {
+  const samples = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+  metrics.nativeOcclusion.cacheCold = 1
+  metrics.nativeOcclusion.projectedVertices = 42
+  metrics.nativeOcclusion.triangleScanMs = 3.5
+  const expected = structuredClone(metrics)
+  samples.sample(10, 1, 2, 3, 6, 1, 10, 'live', metrics)
+  assert.equal(samples.recentFrames().length, 1)
+  resetPointerFrameMetrics(metrics)
+  assert.deepEqual(samples.recentFrames()[0].pointerBreakdown, expected)
+  const first = samples.recentFrames()
+  first[0].pointerBreakdown.nativeOcclusion.cacheCold = 999
+  assert.deepEqual(samples.recentFrames()[0].pointerBreakdown, expected)
+  samples.sample(10, 0, 1, 3, 2, 0, 20, 'live', createPointerFrameMetrics())
+  assert.equal(samples.recentFrames()[1].pointerBreakdown.nativeOcclusion, undefined)
+  for (const value of [-1, NaN, 0.5, Number.MAX_SAFE_INTEGER + 1]) {
+    metrics.nativeOcclusion.projectedVertices = value
+    assert.equal(samples.sample(10, 0, 1, 3, 2, 0, 30, 'live', metrics), false)
+  }
+  resetPointerFrameMetrics(metrics)
+  metrics.nativeOcclusion.version = 2
+  assert.equal(samples.sample(10, 0, 1, 3, 2, 0, 30, 'live', metrics), false)
+  assert.equal(samples.recentFrames().length, 2)
 })

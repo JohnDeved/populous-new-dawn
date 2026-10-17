@@ -14,6 +14,23 @@ on the final candidate before merging. A skipped/path-filtered browser run is
 not acceptance for a change affecting this scenario. No auto-merge or repository
 settings are changed here.
 
+Admission is only `pull_request: ready_for_review`, with the existing main-branch
+and path filters. Ordinary draft opening, synchronization and conversion create no
+browser-workflow run, rather than a failing draft precheck or a skipped validation
+job. The runtime ready guard remains fail-closed defense in depth. Full already
+uses the same ready-event-only policy and is unchanged; no skipped duplicate
+`Full check` is introduced (see the #526/#528 eligibility observations).
+
+After source changes or a main refresh, review the exact new candidate and issue
+one draft-to-ready transition when fresh validation is needed, including a PR
+opened already ready. An old-head green check, missing/path-filtered run or skipped
+job is not acceptance. Preserve the existing source-bound head/base/merge check
+before merge; readiness is an admission signal, not permission to reuse stale
+results. Historical runs and their failures are not rewritten by this trigger fix.
+
+GitHub documents activity-type filtering under
+[events that trigger workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request).
+
 The Playwright client is lockfile-installed; the browser is the official Chrome
 channel preinstalled on the Ubuntu runner. Ubuntu provides an existing AppArmor
 profile for this supported channel. Its exact version and executable hash are
@@ -111,3 +128,25 @@ observed browser upper bound, not an exact browser duration. Adding the M2 total
 45-second cap leaves about 49.8 seconds within the unchanged aggregate 180-second
 cap on that observed workload. This is feasibility planning, not a performance
 guarantee; the composed hosted run must actually pass without excluding episodes.
+
+The bounded spell-projection episode uses a fresh public Mission 1 start, then
+public Pause/Resume/Pause around at least eight naturally advancing turns. It
+records scene/store/world identity, computer-tribe eligibility, living outside
+people, renderer details and comparable-view before/after screenshots. Test-only
+Chrome precise function coverage is reset while paused immediately before Resume.
+The browser script must match the emitted bundle byte for byte; the emitted source
+map must embed the exact app/computer-runtime.ts source. Each of the three own
+function declarations (stepComputerSpells, computerSpellWorld, computerSpellPerson)
+must map unambiguously to a positive call count. A nested callback, script root,
+stale source or missing map cannot substitute for that evidence. The existing
+production-mode fixture builder emits source maps without changing minification.
+Node's built-in SourceMap reader adds no dependency.
+
+The episode has a 35-second body bound inside the unchanged 180-second aggregate
+browser bound. Coverage and context cleanup are independently attempted. Retained
+spell-projection.json, spell-projection-coverage.json and screenshots bind this
+functional witness to the runner's source manifest and hashed built artifacts.
+Precise coverage changes optimized execution: these observations are not timing,
+FPS, GC, natural spell-firing, terrain-refresh rendering or native-equivalence
+acceptance. Paired baseline/candidate screenshots must retain exact source and turn
+identities; unequal final turns are not deterministic pixel-comparison evidence.
