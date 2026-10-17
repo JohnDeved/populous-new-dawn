@@ -83,7 +83,7 @@ function completeCollection(collection, key) {
   assert(collection.items.every(item => typeof item[key] === 'string' && item[key]))
 }
 
-function validateObservation(observation, grant, intendedAt, now) {
+export function validateObservation(observation, grant, intendedAt, now) {
   assert.equal(observation.repo, REPO)
   assert.equal(observation.pr, grant.pr)
   equal(observation.tuple, grant.tuple)
@@ -92,11 +92,18 @@ function validateObservation(observation, grant, intendedAt, now) {
   assert.equal(observation.state, 'open')
   assert.equal(observation.mergeable, true)
   assert.equal(typeof observation.draft, 'boolean')
-  assert(Number.isFinite(observation.startedAt) && Number.isFinite(observation.observedAt))
   assert(
-    grant.terminatedAt <= observation.startedAt && observation.startedAt <= observation.observedAt
+    Number.isFinite(observation.startedAt) && Number.isFinite(observation.observedAt),
+    'Observation timestamps must be finite'
   )
-  assert(observation.observedAt <= now && now - observation.observedAt <= 60_000)
+  assert(
+    grant.terminatedAt <= observation.startedAt && observation.startedAt <= observation.observedAt,
+    'Observation must follow local termination and have ordered timestamps'
+  )
+  assert(
+    observation.observedAt <= now && now - observation.observedAt <= 60_000,
+    `Recovery state observation is stale or future: ageMs=${now - observation.observedAt}`
+  )
   completeCollection(observation.timeline, 'id')
   completeCollection(observation.runs, 'id')
   for (const run of observation.runs.items) {
@@ -104,7 +111,10 @@ function validateObservation(observation, grant, intendedAt, now) {
     assert.equal(run.status, 'completed', 'Active attempt blocks recovery')
   }
   const events = observation.timeline.items
-  assert(events.every(event => validTimelineItem(event, observation)))
+  assert(
+    events.every(event => validTimelineItem(event, observation)),
+    'Timeline item has invalid time or commit provenance'
+  )
   const after = events.filter(
     event => event.kind !== 'committed' && event.at >= Math.floor(intendedAt / 1000) * 1000
   )
@@ -128,7 +138,8 @@ function validateObservation(observation, grant, intendedAt, now) {
     assert.equal(admission.full?.state, 'missing', 'Do not repeat already admitted or failed Full')
     assert(
       admission.observedAt <= observation.observedAt &&
-        observation.observedAt - admission.observedAt <= 60_000
+        observation.observedAt - admission.observedAt <= 60_000,
+      `Source admission observation is stale or future relative to state: ageMs=${observation.observedAt - admission.observedAt}`
     )
   }
   return changes
@@ -426,7 +437,10 @@ export function observeOriginalReady(saved, observation, original, now) {
   assert.equal(observation.consistent, true)
   assert.equal(observation.state, 'open')
   assert.equal(observation.mergeable, true)
-  assert(observation.observedAt <= now && now - observation.observedAt <= 60_000)
+  assert(
+    observation.observedAt <= now && now - observation.observedAt <= 60_000,
+    `Recovery state observation is stale or future: ageMs=${now - observation.observedAt}`
+  )
   completeCollection(observation.timeline, 'id')
   completeCollection(observation.runs, 'id')
   assert(observation.timeline.items.every(event => validTimelineItem(event, observation)))

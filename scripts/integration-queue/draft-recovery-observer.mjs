@@ -52,7 +52,11 @@ export function collectDraftRecoveryObservation(reader, grant, clock = Date.now)
   assert.equal(first.base.sha, main)
   for (const [path, expected] of Object.entries(grant.workflowHashes))
     for (const ref of [tuple.head, tuple.base, tuple.merge])
-      assert.equal(reader.workflow(path, ref).sha256, expected)
+      assert.equal(
+        sha256(reader.gitOutput('show', `${ref}:${path}`)),
+        expected,
+        'Pinned immutable workflow bytes differ'
+      )
   const timeline = collection(reader, `${root}/issues/${grant.pr}/timeline`)
   const runs = collection(reader, `${root}/actions/runs?head_sha=${tuple.head}`, 'workflow_runs')
   const timelineAgain = collection(reader, `${root}/issues/${grant.pr}/timeline`)

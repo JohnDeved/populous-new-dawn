@@ -511,6 +511,10 @@ test('production observer binds both complete timeline/run passes and immutable 
   const f = fixture(),
     calls = [],
     tuple = f.grant.tuple
+  for (const path of Object.keys(f.grant.workflowHashes))
+    f.grant.workflowHashes[path] = sha256('pinned workflow bytes')
+  f.original.records[0].registrationDigest = digest(f.original.records[0].grant)
+  f.grant.registrationDigest = f.original.records[0].registrationDigest
   const pr = {
     state: 'open',
     merged: false,
@@ -547,8 +551,10 @@ test('production observer binds both complete timeline/run passes and immutable 
         ? { sha, tree: tuple.tree }
         : { sha, tree: tuple.mergeTree, parents: [tuple.base, tuple.head] }
     },
-    workflow(path) {
-      return { sha256: f.grant.workflowHashes[path] }
+    gitOutput(command, object) {
+      assert.equal(command, 'show')
+      assert(Object.keys(f.grant.workflowHashes).some(path => object.endsWith(`:${path}`)))
+      return 'pinned workflow bytes'
     },
   }
   // Representative REST committed row has no created_at/actor/id. Its author
@@ -680,4 +686,34 @@ test('ready quiet fingerprint cannot ignore completed new runs or timeline chang
   const failed = f.observation(126000, true, [event])
   failed.admission.otherValidation = 'failed'
   assert.throws(() => prepareOriginalReady(observed, authorization, failed, f.original, 126000))
+})
+
+test('pre-dispatch freshness failure retains exact observation and named predicate without descriptor', async t => {
+  const f = adapterFixture(t),
+    before = readFileSync(f.journal, 'utf8')
+  await f.call('prepare', { observations: f.pair })
+  f.setNow(126000)
+  const extra = { admissionObserve: () => ({ ...f.observation(65000).admission }) }
+  await assert.rejects(
+    f.call('dispatch-draft', {}, extra),
+    /Source admission observation is stale.*ageMs=61000/
+  )
+  const record = JSON.parse(readFileSync(f.sidecar)).records[0]
+  assert.equal(record.phase, 'stopped')
+  assert.equal(record.spent, true)
+  assert.equal(
+    record.receipts.some(r => r.stage === 'dispatch-intended'),
+    false
+  )
+  const evidence = record.receipts.find(r => r.stage === 'pre-dispatch-observation')
+  assert.equal(evidence.observation.admission.observedAt, 65000)
+  assert.equal(evidence.observationDigest, digest(evidence.observation))
+  assert.match(record.receipts.at(-1).reason, /ageMs=61000/)
+  assert.match(record.receipts.at(-1).stack, /validateObservation/)
+  assert.equal(readFileSync(f.journal, 'utf8'), before)
+  const stopped = readFileSync(f.sidecar, 'utf8')
+  const result = await f.call('observe', {}, extra)
+  assert.equal(result.validation.valid, false)
+  assert.match(result.validation.message, /ageMs=61000/)
+  assert.equal(readFileSync(f.sidecar, 'utf8'), stopped)
 })

@@ -29,6 +29,7 @@ import {
   recordOriginalReadyReceipt,
   observeOriginalReady,
   validateOriginalReadyCompletion,
+  validateObservation,
 } from './draft-recovery.mjs'
 
 function trusted(path, expected) {
@@ -100,7 +101,29 @@ export async function recoveryMain(
     )
     return { ...observe(reader, grant, clock), admission }
   }
-  if (mode === 'observe') return observeWithAdmission()
+  if (mode === 'observe') {
+    const observation = observeWithAdmission()
+    // Read-only diagnostics use the same predicates as dispatch; never reserve
+    // authority, mutate a journal, or turn a failed observation into acceptance.
+    try {
+      validateObservation(
+        observation,
+        grant,
+        originalInput.records.at(-1).pending.intendedAt,
+        clock()
+      )
+      return { ...observation, validation: { valid: true } }
+    } catch (error) {
+      return {
+        ...observation,
+        validation: {
+          valid: false,
+          message: String(error.message),
+          stack: String(error.stack).slice(0, 4000),
+        },
+      }
+    }
+  }
   // Same canonical lock as admission. No automatic stale lock reclamation.
   const lock = `${journal}.lock`,
     fd = openSync(lock, 'wx', 0o600)
@@ -159,6 +182,13 @@ export async function recoveryMain(
           mode === 'dispatch-draft' || mode === 'prepare-ready'
             ? observeWithAdmission()
             : observe(reader, grant, clock)
+        saved.records.at(-1).receipts.push({
+          stage: 'pre-dispatch-observation',
+          at: clock(),
+          observation: fresh,
+          observationDigest: digest(fresh),
+        })
+        persist(sidecar, saved) // Retain source evidence even if validation fails or process stops.
         next = dispatchDraftRecovery(saved, digest(grant), fresh, original, clock())
         descriptor = recoveryDescriptor(next.records.at(-1))
       } else if (mode === 'record-draft' || mode === 'record-ready') {
@@ -205,7 +235,9 @@ export async function recoveryMain(
       saved.records.at(-1).receipts.push({
         stage: 'stopped',
         at: clock(),
-        reason: String(error.message).slice(0, 300),
+        reason: String(error.message).slice(0, 2000),
+        stack: String(error.stack).slice(0, 4000),
+        mode,
       })
       persist(sidecar, saved)
       throw error
