@@ -213,8 +213,8 @@ test('hosted runner preserves old episodes, aggregate cap and source-bound new s
   assert.match(source, /spellProjectionCoverageSha256:/)
   assert.match(source, /180000\)/)
   assert.match(builder, /sourcemap: true/)
-  assert.match(scenario, /callCount: true, detailed: false/)
-  assert.match(scenario, /assert\.equal\(observed\.scriptSource, code/)
+  assert.match(scenario, /callCount:\s*true,\s*detailed:\s*false/)
+  assert.match(scenario, /assert\.equal\(\s*observed\.scriptSource,\s*code/)
   assert.ok(
     scenario.indexOf("await cdp.send('Profiler.takePreciseCoverage')") <
       scenario.indexOf("await button('Resume game').click()")

@@ -32,6 +32,8 @@ export function projectionCoverage({ code, map, original, functions }) {
     return { name, ...matches[0] }
   })
   const matches = new Map(declarations.map(({ name }) => [name, []]))
+  const lineStarts = [0]
+  for (let i = 0; i < code.length; i++) if (code[i] === '\n') lineStarts.push(i + 1)
   for (const fn of functions) {
     const range = fn.ranges?.[0]
     if (!range || !fn.functionName) continue
@@ -43,13 +45,19 @@ export function projectionCoverage({ code, map, original, functions }) {
         range.endOffset > range.startOffset
     )
     const header = /^(?:async\s+)?function\s+([\w$]+)\s*\(/.exec(
-      code.slice(range.startOffset, range.endOffset)
+      code.slice(range.startOffset, Math.min(range.endOffset, range.startOffset + 256))
     )
     if (!header) continue // Script roots, arrows and callbacks cannot stand in for a declaration.
     const at = range.startOffset + header[0].indexOf(header[1], header[0].indexOf('function') + 8)
-    const prefix = code.slice(0, at)
-    const line = prefix.split('\n').length - 1
-    const column = at - (prefix.lastIndexOf('\n') + 1)
+    let low = 0,
+      high = lineStarts.length
+    while (low + 1 < high) {
+      const middle = (low + high) >>> 1
+      if (lineStarts[middle] <= at) low = middle
+      else high = middle
+    }
+    const line = low,
+      column = at - lineStarts[low]
     const mapped = sourceMap.findEntry(line, column)
     if (mapped.originalSource !== sources[0].source) continue
     const declaration = declarations.find(
