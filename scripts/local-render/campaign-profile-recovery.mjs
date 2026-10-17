@@ -214,7 +214,7 @@ export default async function ({ browser, context: initialContext, page: initial
       }
     })
     assert.equal(renderer.contextLost, false)
-    return { loaded, fields, renderer, canvasVisible: await page.locator('.world-viewport canvas').isVisible() }
+    return { loaded, fields, renderer, canvasVisible: await page.locator('.world-viewport canvas.battlefield').isVisible() }
   }
   save()
   try {
