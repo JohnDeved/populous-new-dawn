@@ -116,6 +116,64 @@ for (const diagonal of [0, 1])
     }
   })
 
+// Exact camera differential coverage. Missing untouched-main input is an explicit
+// skip, never a claimed oracle pass. Existing fallback/ownership tests remain below.
+const cameraCases = [
+  ['origin', 0, 0, 0, 0, false],
+  ['fractional-quarter', 0.25, -0.375, Math.PI / 2, 0, false],
+  ['fractional-half-near', 0.25, -0.375, Math.PI, -8192, false],
+  ['fractional-three-quarter-far', 0.25, -0.375, (3 * Math.PI) / 2, 8192, false],
+  ['x-seam-before-near', -8 - 1 / 256, -8, 0, -16384, false],
+  ['x-seam-after-far', -8 + 1 / 256, -8, 0, 16384, false],
+  ['z-seam-before-near', -8, -8 - 1 / 256, Math.PI / 2, -16384, false],
+  ['z-seam-after-far', -8, -8 + 1 / 256, Math.PI / 2, 16384, false],
+  ['wrapped-seam-before', 248 - 1 / 256, -8, 2 * Math.PI - Math.PI / 2048, 0, false],
+  ['wrapped-seam-after', 248 + 1 / 256, -8, 2 * Math.PI + Math.PI / 2048, 0, false],
+  ['fractional-overview', 0.25, -0.375, Math.PI / 4, 0, true],
+  ['seam-overview', -8 + 1 / 256, -8 - 1 / 256, (3 * Math.PI) / 4, 0, true],
+]
+
+for (const diagonal of [0, 1])
+  test(
+    `camera matrix diagonal ${diagonal} matches untouched main ordered candidates and winner`,
+    { skip: !ReferenceView && 'Set PND_TERRAIN_BASELINE to the untouched baseline module' },
+    async t => {
+      const f = await fixture(diagonal)
+      let queries = 0,
+        hits = 0
+      try {
+        for (const [name, x, z, heading, zoom, overview] of cameraCases) {
+          f.view.update(800, 600, { x, z }, heading, zoom, overview)
+          f.reference.update(800, 600, { x, z }, heading, zoom, overview)
+          let caseHits = 0
+          for (const turn of [0, 23, 256]) {
+            f.world.turn = turn
+            f.water()
+            for (const mouseX of [-0.9, 0, 0.9])
+              for (const mouseY of [-0.9, 0, 0.9])
+                for (const nativeEdges of [false, true]) {
+                  // Same scene objects deliberately preserve identity comparisons;
+                  // independent RenderViews do not share projection cache state.
+                  const result = f.sample(nativeEdges, new THREE.Vector2(mouseX, mouseY))
+                  queries++
+                  caseHits += Number(result.candidates.length > 0)
+                }
+          }
+          hits += caseHits
+          t.diagnostic(`${name}: ${caseHits}/54 queries with ordered hits`)
+        }
+        assert.equal(queries, 648)
+        assert.ok(
+          hits > 0,
+          'camera differential must witness real terrain hits, not empty equality'
+        )
+        t.diagnostic(`${queries} queries; ${hits} nonempty; untouched-main plus fallback oracle`)
+      } finally {
+        f.close()
+      }
+    }
+  )
+
 test('interleaved and normalized layouts retain the original projection route', async () => {
   const f = await fixture(0)
   try {
