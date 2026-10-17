@@ -12,22 +12,23 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}-${{ github.event.pull_request.base.sha }}-${{ github.sha }}-${{ toJSON(github.event.pull_request.draft) == 'false' && 'ready' || 'draft' }}
   cancel-in-progress: true
 
+env:
+  CI: 'true'
+  NODE_OPTIONS: ''
+  NODE_PATH: ''
+  NODE_COMPILE_CACHE: ''
+  NODE_V8_COVERAGE: ''
+  PND_TEST_CONCURRENCY: '2'
+  WRANGLER_SEND_METRICS: 'false'
+  PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+  PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+
 jobs:
-  full-check:
-    # Only an explicitly ready candidate may publish the required check name.
-    name: ${{ toJSON(github.event.pull_request.draft) == 'false' && 'Full check' || 'Draft PR (not validated)' }}
+  quality:
+    name: Quality and build
     runs-on: ubuntu-24.04
     timeout-minutes: 120
-    env:
-      CI: 'true'
-      NODE_OPTIONS: ''
-      NODE_PATH: ''
-      NODE_COMPILE_CACHE: ''
-      NODE_V8_COVERAGE: ''
-      PND_TEST_CONCURRENCY: '2'
-      WRANGLER_SEND_METRICS: 'false'
     steps:
-      # Draft admission fails under its own non-required name; never skip a gate.
       - name: Require a ready pull request
         env:
           IS_DRAFT: ${{ toJSON(github.event.pull_request.draft) }}
@@ -65,31 +66,232 @@ jobs:
           python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
 
       - name: Verify and record candidate identity
-        env:
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           git cat-file -e 3b899125cc8cedef938823718ad5d44f49957b66:app/erosion.ts
-          node --version
-          npm --version
-          python --version
-          python -c 'import PIL; print("Pillow", PIL.__version__)'
-          sha256sum package-lock.json node_modules/.package-lock.json
-          printf 'PR head: %s\nBase: %s\nTested merge: %s\n' "$PR_HEAD_SHA" "$PR_BASE_SHA" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
-          node --input-type=module <<'NODE'
-          import { planTestRun } from './scripts/orchestration/test-runner.mjs'
-          const plan = planTestRun(process.cwd(), 'all')
-          console.log(JSON.stringify({ fullSuite: plan.fullSuite, files: plan.files.length,
-            parallelEligibility: plan.parallelEligibility,
-            groups: plan.groups.map(g => ({ concurrency: g.concurrency, files: g.files.length })) }))
-          NODE
+          node scripts/orchestration/ci-gate.mjs snapshot work/ci/before.json
 
-      - name: Full typecheck, tests, parity and orchestration
-        run: npm run check
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Parity check
+        run: npm run parity:check
+
+      - name: Orchestration check
+        run: npm run orchestration:check
 
       - name: Production build
         run: npm run build
 
       - name: Reject tracked input mutation
+        run: |
+          git diff --exit-code HEAD --
+          node scripts/orchestration/ci-gate.mjs quality work/ci/before.json work/ci/receipt.json
+
+      - name: Upload quality receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: full-check-${{ github.run_id }}-${{ github.run_attempt }}-quality
+          path: work/ci/receipt.json
+          if-no-files-found: error
+          retention-days: 7
+
+  test-shards:
+    name: Test shard ${{ matrix.label }}/4
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - { index: 0, label: 1 }
+          - { index: 1, label: 2 }
+          - { index: 2, label: 3 }
+          - { index: 3, label: 4 }
+    steps:
+      - name: Require a ready pull request
+        env:
+          IS_DRAFT: ${{ toJSON(github.event.pull_request.draft) }}
+        run: |
+          if [ "$IS_DRAFT" != false ]; then
+            echo '::notice::Draft PR: full checks have not run. Mark ready to start them.'
+            exit 1
+          fi
+
+      - name: Check out the exact proposed merge
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          # erosion-observation.test.mjs reads a pinned historical Git blob.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+
+      - name: Set up Python for portable fixture tests
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.14'
+          architecture: x64
+
+      - name: Install locked dependencies
+        run: |
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+          npm ci --no-audit --no-fund
+          python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
+
+      - name: Verify and record candidate identity
+        run: |
+          git cat-file -e 3b899125cc8cedef938823718ad5d44f49957b66:app/erosion.ts
+          node scripts/orchestration/ci-gate.mjs snapshot work/ci/before.json
+
+      - name: Run test shard
+        run: node scripts/orchestration/test-runner.mjs shard --shard-index=${{ matrix.index }} --shard-count=4 --receipt=work/ci/shard.json
+
+      - name: Reject tracked input mutation
+        run: |
+          git diff --exit-code HEAD --
+          node scripts/orchestration/ci-gate.mjs shard work/ci/before.json work/ci/receipt.json work/ci/shard.json
+
+      - name: Upload shard receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: full-check-${{ github.run_id }}-${{ github.run_attempt }}-shard-${{ matrix.label }}
+          path: work/ci/receipt.json
+          if-no-files-found: error
+          retention-days: 7
+
+  full-check:
+    # A failed, skipped or cancelled dependency must still reach this gate.
+    name: ${{ toJSON(github.event.pull_request.draft) == 'false' && 'Full check' || 'Draft PR (not validated)' }}
+    needs: [quality, test-shards]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Require a ready pull request
+        env:
+          IS_DRAFT: ${{ toJSON(github.event.pull_request.draft) }}
+        run: |
+          if [ "$IS_DRAFT" != false ]; then
+            echo '::notice::Draft PR: full checks have not run. Mark ready to start them.'
+            exit 1
+          fi
+
+      - name: Check out the exact proposed merge
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          # erosion-observation.test.mjs reads a pinned historical Git blob.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+
+      - name: Set up Python for portable fixture tests
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.14'
+          architecture: x64
+
+      - name: Install locked dependencies
+        run: |
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+          npm ci --no-audit --no-fund
+          python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
+
+      - name: Verify and record candidate identity
+        run: |
+          git cat-file -e 3b899125cc8cedef938823718ad5d44f49957b66:app/erosion.ts
+          node scripts/orchestration/ci-gate.mjs snapshot work/ci/before.json
+
+      - name: Require successful dependencies
+        env:
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          SHARDS_RESULT: ${{ needs.test-shards.result }}
+        run: test "$QUALITY_RESULT" = success && test "$SHARDS_RESULT" = success
+
+      - name: Download current attempt receipts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: full-check-${{ github.run_id }}-${{ github.run_attempt }}-*
+          path: work/ci/receipts
+          merge-multiple: false
+
+      - name: Validate complete sharded gate
+        env:
+          CI_NEEDS: '{"quality":"${{ needs.quality.result }}","test-shards":"${{ needs.test-shards.result }}"}'
+        run: node scripts/orchestration/ci-gate.mjs aggregate work/ci/receipts work/ci/full-check.json
+
+      - name: Reject tracked input mutation
         run: git diff --exit-code HEAD --
+
+  benchmark-baseline:
+    # This diagnostic runs only for the reviewed activation PR, never as coverage.
+    name: Legacy test baseline (diagnostic)
+    needs: full-check
+    if: ${{ github.event.pull_request.number == 516 && needs.full-check.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      # Match the effective child environment used by the shard runner.
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Require a ready pull request
+        env:
+          IS_DRAFT: ${{ toJSON(github.event.pull_request.draft) }}
+        run: |
+          if [ "$IS_DRAFT" != false ]; then
+            echo '::notice::Draft PR: full checks have not run. Mark ready to start them.'
+            exit 1
+          fi
+
+      - name: Check out the exact proposed merge
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          # erosion-observation.test.mjs reads a pinned historical Git blob.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+
+      - name: Set up Python for portable fixture tests
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.14'
+          architecture: x64
+
+      - name: Install locked dependencies
+        run: |
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+          npm ci --no-audit --no-fund
+          python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
+
+      - name: Verify and record candidate identity
+        run: |
+          git cat-file -e 3b899125cc8cedef938823718ad5d44f49957b66:app/erosion.ts
+          node scripts/orchestration/ci-gate.mjs snapshot work/ci/before.json
+
+      - name: Legacy full test suite
+        run: npm test
+
+      - name: Reject tracked input mutation
+        run: |
+          git diff --exit-code HEAD --
+          node scripts/orchestration/ci-gate.mjs baseline work/ci/before.json work/ci/baseline.json
