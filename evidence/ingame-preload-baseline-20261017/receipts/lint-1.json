@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "2114b897-4d18-4df5-b613-5ce5a8fd8c1b",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9894e683f1d66af475e0456e6a673753ec21021f",
+    "branch": "codex/ingame-preload-baseline",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "./node_modules/.bin/eslint",
+    "scripts/local-render/ingame-preload-baseline.mjs",
+    "evidence/ingame-preload-baseline-20261017/run-probe.mjs"
+  ],
+  "cwd": "<repo>",
+  "startedAt": "2026-10-17T02:37:53.435Z",
+  "artifacts": {
+    "stdout": "<repo>/work/orchestration/ingame-preload-baseline/lint-1.json.artifacts/stdout.log",
+    "stderr": "<repo>/work/orchestration/ingame-preload-baseline/lint-1.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T02:37:54.431Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n<repo>/scripts/local-render/ingame-preload-baseline.mjs\n  80:65  error  'options' is assigned a value but never used  @typescript-eslint/no-unused-vars\n\n✖ 1 problem (1 error, 0 warnings)\n\n",
+  "stderr": "",
+  "stdoutSha256": "2c48129a733cd8b8fffe7d2d1b070ad65a3cca4010c45cc23f5cf0eaf30e23f5",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9894e683f1d66af475e0456e6a673753ec21021f",
+    "branch": "codex/ingame-preload-baseline",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

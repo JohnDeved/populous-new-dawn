@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "dbcb791d-c719-4f97-8456-9fd94006415f",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "add5dc0405ccc49e933779e0b628fb6339358f71",
+    "branch": "codex/ingame-preload-baseline",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "evidence/ingame-preload-baseline-20261017/run-probe.mjs"
+  ],
+  "cwd": "<repo>",
+  "startedAt": "2026-10-17T02:38:48.110Z",
+  "artifacts": {
+    "stdout": "<repo>/work/orchestration/ingame-preload-baseline/browser-2.json.artifacts/stdout.log",
+    "stderr": "<repo>/work/orchestration/ingame-preload-baseline/browser-2.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T02:39:06.390Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed-baseline-observations\",\"phases\":8,\"freezeChecks\":5}\nProduction and probe inputs unchanged after run\n",
+  "stderr": "4:38:51 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.\n4:38:52 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.\n",
+  "stdoutSha256": "e30a1e104de84c3bfd7dbbc0a21248c4f6c6ec6d6f4b12befa8c0fe8fe561357",
+  "stderrSha256": "f3a58b959d1435f57025b865e3ce56764fe2aca757e337c4d11acef52dda195d",
+  "sourceAfter": {
+    "headOid": "add5dc0405ccc49e933779e0b628fb6339358f71",
+    "branch": "codex/ingame-preload-baseline",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

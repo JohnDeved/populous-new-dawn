@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "f9c74a62-f8db-4a67-89e3-277e7f694b64",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9894e683f1d66af475e0456e6a673753ec21021f",
+    "branch": "codex/ingame-preload-baseline",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "evidence/ingame-preload-baseline-20261017/run-probe.mjs"
+  ],
+  "cwd": "<repo>",
+  "startedAt": "2026-10-17T02:37:45.961Z",
+  "artifacts": {
+    "stdout": "<repo>/work/orchestration/ingame-preload-baseline/browser-1.json.artifacts/stdout.log",
+    "stderr": "<repo>/work/orchestration/ingame-preload-baseline/browser-1.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T02:38:04.731Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed-baseline-observations\",\"phases\":8,\"freezeChecks\":5}\nProduction and probe inputs unchanged after run\n",
+  "stderr": "4:37:49 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.\n4:37:50 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.\n4:37:50 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.\n",
+  "stdoutSha256": "e30a1e104de84c3bfd7dbbc0a21248c4f6c6ec6d6f4b12befa8c0fe8fe561357",
+  "stderrSha256": "f686b9b1b295d8b5571d4c938aa012b4dd7f665d5ed1c301f3a6b0a3df1dfe46",
+  "sourceAfter": {
+    "headOid": "9894e683f1d66af475e0456e6a673753ec21021f",
+    "branch": "codex/ingame-preload-baseline",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

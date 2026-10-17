@@ -1,0 +1,128 @@
+{
+  "productionBaseline": "14a985b3f11c6efde862d9837596fe2e9ed0588b",
+  "initialTestedSource": "9894e683f1d66af475e0456e6a673753ec21021f",
+  "testedSource": "add5dc0405ccc49e933779e0b628fb6339358f71",
+  "redaction": "Absolute repository/home/owned-profile paths replaced. Receipt stdout/stderr hashes describe original raw bytes; this ledger binds raw and published files. Actual launch includes the owned profile argument. Earlier passing screenshots remain local; final eight screenshots are published.",
+  "files": [
+    {
+      "path": "receipts/browser-1.json",
+      "originalSha256": "ad8afef8c103dceb31ed836a7e25fcfa36fe8e085562f5137fd853f63b252a0d",
+      "publishedSha256": "c06d7a59a2a0ac24372c3f2d55024a55927ec653f005a91c9cc0b1209e6c550b"
+    },
+    {
+      "path": "receipts/browser-1.json.artifacts/stderr.log",
+      "originalSha256": "f686b9b1b295d8b5571d4c938aa012b4dd7f665d5ed1c301f3a6b0a3df1dfe46",
+      "publishedSha256": "f686b9b1b295d8b5571d4c938aa012b4dd7f665d5ed1c301f3a6b0a3df1dfe46"
+    },
+    {
+      "path": "receipts/browser-1.json.artifacts/stdout.log",
+      "originalSha256": "e30a1e104de84c3bfd7dbbc0a21248c4f6c6ec6d6f4b12befa8c0fe8fe561357",
+      "publishedSha256": "e30a1e104de84c3bfd7dbbc0a21248c4f6c6ec6d6f4b12befa8c0fe8fe561357"
+    },
+    {
+      "path": "receipts/browser-2.json",
+      "originalSha256": "9634168583926c1d4bb068f4694ead7a0cbf7694ffa95c49c4ac25491cf3ac62",
+      "publishedSha256": "5e511c8e15f6ec2df562d33af9dba3ccc0ce5b1c3332bd1826bbeff037c3cc15"
+    },
+    {
+      "path": "receipts/browser-2.json.artifacts/stderr.log",
+      "originalSha256": "f3a58b959d1435f57025b865e3ce56764fe2aca757e337c4d11acef52dda195d",
+      "publishedSha256": "f3a58b959d1435f57025b865e3ce56764fe2aca757e337c4d11acef52dda195d"
+    },
+    {
+      "path": "receipts/browser-2.json.artifacts/stdout.log",
+      "originalSha256": "e30a1e104de84c3bfd7dbbc0a21248c4f6c6ec6d6f4b12befa8c0fe8fe561357",
+      "publishedSha256": "e30a1e104de84c3bfd7dbbc0a21248c4f6c6ec6d6f4b12befa8c0fe8fe561357"
+    },
+    {
+      "path": "receipts/lint-1.json",
+      "originalSha256": "45ef1681205f8939ceebbbde93411cd5934c4eff1cdf00be79e6ee2a5f51232c",
+      "publishedSha256": "085a32a062152670edb4716b890e1d1f8aaf7562b5aab9e93877c20ee35e8981"
+    },
+    {
+      "path": "receipts/lint-1.json.artifacts/stderr.log",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts/lint-1.json.artifacts/stdout.log",
+      "originalSha256": "2c48129a733cd8b8fffe7d2d1b070ad65a3cca4010c45cc23f5cf0eaf30e23f5",
+      "publishedSha256": "09fcac684e84f4929ca3be597c95d50435dc8707afdd150b64b917e6d850b80c"
+    },
+    {
+      "path": "receipts/lint-2.json",
+      "originalSha256": "313910049e55aab5afad72ce1f02015c528eea510e307c0900fe65e82251718c",
+      "publishedSha256": "7dde74864f772ea9f384b5d6ae70f2f226757e2a2cb14c971afe1f6a89521d73"
+    },
+    {
+      "path": "receipts/lint-2.json.artifacts/stderr.log",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts/lint-2.json.artifacts/stdout.log",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "publishedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "attempt-1/baseline.json",
+      "originalSha256": "be1ce77c5d31733956292e231decf5c390f9babca732003604f0786dc00f1b2c",
+      "publishedSha256": "be1ce77c5d31733956292e231decf5c390f9babca732003604f0786dc00f1b2c"
+    },
+    {
+      "path": "attempt-1/source.json",
+      "originalSha256": "6521ebeb6b5ded1531458a562edcd76b8f715e610087c96bae8a70cebfcb893b",
+      "publishedSha256": "0155a0660e3babf4d86cecf89c0aea6fd248bab9535536a03c9e45c9242883b6"
+    },
+    {
+      "path": "attempt-2/01-cold-pause-font-held.png",
+      "originalSha256": "f5b6e226b72227f39230f24cbea3a67189a14c0b82a69dc72b265994bbec8bea",
+      "publishedSha256": "f5b6e226b72227f39230f24cbea3a67189a14c0b82a69dc72b265994bbec8bea"
+    },
+    {
+      "path": "attempt-2/02-cold-options-held.png",
+      "originalSha256": "96ee88fff4514fea338116e2b2b2b14d8fe342f81bb308d26e950199142785f7",
+      "publishedSha256": "96ee88fff4514fea338116e2b2b2b14d8fe342f81bb308d26e950199142785f7"
+    },
+    {
+      "path": "attempt-2/03-sound-held.png",
+      "originalSha256": "73b4d64d94e13ae124d3423fe7f1f596afca18db68f1bbd3b64c269d54e64429",
+      "publishedSha256": "73b4d64d94e13ae124d3423fe7f1f596afca18db68f1bbd3b64c269d54e64429"
+    },
+    {
+      "path": "attempt-2/04-font-ready-sliders-held.png",
+      "originalSha256": "a5f71ee89b1def2ed619c62403a8ccf17b0762542bd3471b6b700f2056918589",
+      "publishedSha256": "a5f71ee89b1def2ed619c62403a8ccf17b0762542bd3471b6b700f2056918589"
+    },
+    {
+      "path": "attempt-2/05-options-ready.png",
+      "originalSha256": "10cdfa5494e97884af1d5bd64515860404891969a7c202e3a50d08c86b3748c6",
+      "publishedSha256": "10cdfa5494e97884af1d5bd64515860404891969a7c202e3a50d08c86b3748c6"
+    },
+    {
+      "path": "attempt-2/06-pause-ready.png",
+      "originalSha256": "a07dd1e5367c34be53cdee24c0f359c439836c3a3d169ffc7f9bf495cbbd1e8e",
+      "publishedSha256": "a07dd1e5367c34be53cdee24c0f359c439836c3a3d169ffc7f9bf495cbbd1e8e"
+    },
+    {
+      "path": "attempt-2/07-warm-options-ready.png",
+      "originalSha256": "80ff0c2b9f725b26eb57e34a4284d1edfbb93400aec8c93d5ed07b662f407ef2",
+      "publishedSha256": "80ff0c2b9f725b26eb57e34a4284d1edfbb93400aec8c93d5ed07b662f407ef2"
+    },
+    {
+      "path": "attempt-2/08-warm-pause-ready.png",
+      "originalSha256": "ae31f8c23b941a4dd414af7b894bfe10caa93c2c4423afa926a2183f26367035",
+      "publishedSha256": "ae31f8c23b941a4dd414af7b894bfe10caa93c2c4423afa926a2183f26367035"
+    },
+    {
+      "path": "attempt-2/baseline.json",
+      "originalSha256": "22fc8101c7e86bee6307a9cf81fe9414753248f864eef6c8911d0dbc971d0a0b",
+      "publishedSha256": "22fc8101c7e86bee6307a9cf81fe9414753248f864eef6c8911d0dbc971d0a0b"
+    },
+    {
+      "path": "attempt-2/source.json",
+      "originalSha256": "6d2ed365e94bfde1822de533a94af0aa70afb1d82d33824376881be2fa26e976",
+      "publishedSha256": "69d066eb9e2d9eafabeba80bcd75723bf016f7665cce8ae5f233c357156eaf64"
+    }
+  ]
+}
