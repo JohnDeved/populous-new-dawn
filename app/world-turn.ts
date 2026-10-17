@@ -579,7 +579,9 @@ function stepTurn(w: World) {
         w.shots[gift.reward]++
       // 0x4c2aa0: the separate gift counter increases even at full stock.
       w.giftCounts[gift.reward] = Math.min(15, w.giftCounts[gift.reward] + 1)
-      tell(w, `${spell.name} received. ${w.shots[gift.reward]} shots ready.`)
+      // Proven M1/M2 ordinary rewards already use the native acquisition presentation.
+      if (!gift.ordinaryWorship)
+        tell(w, `${spell.name} received. ${w.shots[gift.reward]} shots ready.`)
     }
   }
   w.gifts = w.gifts.filter(g => g.remaining > 0)
