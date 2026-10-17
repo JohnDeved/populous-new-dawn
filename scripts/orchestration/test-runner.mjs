@@ -110,6 +110,7 @@ export function shardInputFingerprint(repo) {
   assert(lstatSync(policyPath).isFile(), 'Shard policy must be a regular file')
   return hash(JSON.stringify({ tests, scripts, production, policy: hash(readFileSync(policyPath)),
     runtime: { node: process.versions.node, platform: process.platform, arch: process.arch },
+    childEnvironment: { PYTHONDONTWRITEBYTECODE: '1' },
     environment: Object.fromEntries(['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE', 'PND_TEST_CONCURRENCY']
       .map(key => [key, process.env[key] ?? ''])) }))
 }
@@ -169,6 +170,9 @@ export async function runTestPlan(repo, plan, { launch = spawn, signals = proces
   const env = { ...process.env }
   assert(!/--(?:experimental-)?test/.test(env.NODE_OPTIONS ?? ''), 'NODE_OPTIONS must not change test selection or isolation')
   delete env.NODE_TEST_CONTEXT
+  // Python importer tests must not create source-adjacent __pycache__ files
+  // during a frozen shard. This effective setting is part of its input digest.
+  if (plan.mode === 'shard') env.PYTHONDONTWRITEBYTECODE = '1'
   let interrupted = null, child
   const results = []
   const interrupt = signal => {

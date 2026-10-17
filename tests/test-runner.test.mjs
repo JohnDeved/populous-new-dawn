@@ -341,3 +341,21 @@ test('real native shard execution writes a source-bound terminal receipt and ref
   assert.equal(duplicate.stdout, '')
   assert.equal(readFileSync(output, 'utf8'), before)
 })
+
+test('shards suppress Python importer bytecode without changing ordinary runner environment', async t => {
+  const { repo, put } = shardFixture(t)
+  put('scripts/importer.py', 'value = 1\n')
+  put('tests/a.test.mjs', `import test from 'node:test'; import assert from 'node:assert/strict'; import { spawnSync } from 'node:child_process';
+    test('import', () => {
+      const result = spawnSync('python3', ['-c', "import importlib.util; s=importlib.util.spec_from_file_location('sample','scripts/importer.py'); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); assert m.value == 1"], { encoding: 'utf8' });
+      assert.equal(result.status, 0, result.stderr);
+    });\n`)
+  const receipt = await runTestShard(repo, planTestShard(repo, 0), quiet)
+  assert.equal(receipt.result.status, 'passed')
+  assert.equal(receipt.inputsAfter, receipt.inputsBefore)
+  const inherited = process.env.PYTHONDONTWRITEBYTECODE
+  await runTestPlan(repo, planTestRun(repo, 'focus', ['tests/b.test.mjs']), { ...quiet, launch(command, args, options) {
+    assert.equal(options.env.PYTHONDONTWRITEBYTECODE, inherited)
+    return fakeLaunch()(command, args, options)
+  } })
+})
