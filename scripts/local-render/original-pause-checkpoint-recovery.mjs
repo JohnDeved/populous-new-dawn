@@ -35,6 +35,17 @@ export function pauseStartupReady() {
     getComputedStyle(skip).visibility !== 'hidden' && !skip.disabled ? 'skip' : false
 }
 
+// The introduction may finish between readiness and activation. Always await the
+// bounded public click, and forgive its failure only if input is already unlocked.
+export async function skipPauseIntroduction(page) {
+  if (await page.evaluate(() => !window.testStore.getWorld().inputMask)) return
+  try {
+    await page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout: 2500 })
+  } catch (error) {
+    if (await page.evaluate(() => !!window.testStore.getWorld().inputMask)) throw error
+  }
+}
+
 export default async function ({ browser, page, url, root, output, receipt, signal }) {
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
   const checks = [], screenshots = [], renderers = []
@@ -66,8 +77,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     const startup = await page.waitForFunction(pauseStartupReady)
     const action = await startup.jsonValue()
     await startup.dispose()
-    if (action === 'skip')
-      await page.getByRole('button', { name: /^Skip introduction/ }).click()
+    if (action === 'skip') await skipPauseIntroduction(page)
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     renderers.push(await page.evaluate(() => {
       const gl = window.testSceneRef.current.renderer.getContext()

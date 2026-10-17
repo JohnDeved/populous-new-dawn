@@ -165,3 +165,8 @@ behavior was changed.
 The earlier Mac functional pass and first hosted failure remain separate evidence.
 Authored app blobs are unchanged; the scenario now contains this diagnosed
 readiness repair. Its final composed hosted acceptance must be obtained afresh.
+A naturally completed introduction can also remove Skip after readiness. The
+scenario rechecks unlocked input before activation, awaits a public click bounded
+to 2.5 seconds, and accepts a click failure only when input is already unlocked.
+It never leaves a click running in the background; still-locked failures preserve
+the original error and the final unlocked-input assertion remains mandatory.

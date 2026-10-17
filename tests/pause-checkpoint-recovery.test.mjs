@@ -271,10 +271,41 @@ test('recovery scenario awaits actionable startup and uses public click before u
   const entry = source.slice(source.indexOf('  async function enterMission'), source.indexOf('  async function openFailedLoad'))
   assert.match(entry, /await page.waitForFunction\(pauseStartupReady\)/)
   assert.match(entry, /await startup.dispose\(\)/)
-  assert.match(entry, /if \(action === 'skip'\)\s+await page.getByRole\('button', \{ name: \/\^Skip introduction\/ \}\).click\(\)/)
+  assert.match(entry, /if \(action === 'skip'\) await skipPauseIntroduction\(page\)/)
   assert.ok(entry.indexOf("if (action === 'skip')") < entry.indexOf('await page.waitForFunction(() => !window.testStore.getWorld().inputMask)'))
   assert.doesNotMatch(entry, /skip\.isVisible|waitForTimeout|skipIntroduction\(|store\.change|\.inputMask\s*=/)
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   assert.match(runner, /page.setDefaultTimeout\(25000\)/)
   assert.match(runner, /receipt.browserCapMs = 180000/)
+})
+
+test('natural completion during public Skip activation is accepted only after the click settles', async () => {
+  const { skipPauseIntroduction } = await import('../scripts/local-render/original-pause-checkpoint-recovery.mjs')
+  for (const mode of ['already-unlocked', 'click-success', 'unlocks-during-click', 'still-locked']) {
+    let reads = 0, clicks = 0, settled = false
+    const failure = new Error('Skip disappeared or remained unclickable')
+    const page = {
+      evaluate: async () => {
+        reads++
+        if (reads === 1) return mode === 'already-unlocked'
+        assert.equal(settled, true, 'cannot inspect completion while an abandoned click is pending')
+        return mode === 'still-locked'
+      },
+      getByRole: (role, options) => {
+        assert.equal(role, 'button')
+        assert.equal(options.name.test('Skip introduction ESC'), true)
+        return { click: async options => {
+          clicks++
+          assert.equal(options.timeout, 2500)
+          await Promise.resolve()
+          settled = true
+          if (mode !== 'click-success') throw failure
+        } }
+      },
+    }
+    if (mode === 'still-locked') await assert.rejects(skipPauseIntroduction(page), error => error === failure)
+    else await skipPauseIntroduction(page)
+    assert.equal(clicks, mode === 'already-unlocked' ? 0 : 1)
+    if (clicks) assert.equal(settled, true)
+  }
 })
