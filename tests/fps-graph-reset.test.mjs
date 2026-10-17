@@ -96,6 +96,10 @@ test('short landscape layout preserves noninteractive diagnostics without changi
   const compact = css.slice(css.indexOf('@media (max-height:800px) and (min-width:560px)'), css.indexOf('.native-hud{'))
   assert.match(compact, /grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\)/)
   assert.match(compact, /max-width:calc\(100% - 16px\)/)
+  assert.match(compact, /\.fps-graph svg\{height:28px;margin:3px 0\}/)
+  const recoveredHeight = (52 + 2 * 5) - (28 + 2 * 3)
+  const addedRowHeight = 12 * 1.4 + 2
+  assert.ok(recoveredHeight > addedRowHeight, 'New row must not consume 640px campaign clearance or 900px viewport clearance')
   assert.doesNotMatch(compact, /display:none|overflow:|transform:|font-size:|pointer-events:/)
   assert.match(css, /\.fps-graph\{[^}]*pointer-events:none/)
   for (const metric of ['callback', 'pointer', 'pointer-tail', 'other', 'raf-tail', 'cpu-tail', 'cpu-peak', 'renderer', 'cores', 'memory', 'heap'])
