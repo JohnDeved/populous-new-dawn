@@ -301,3 +301,121 @@ test('live to modal publication includes both samples, then replaces the pointer
   assert.equal(samples.pointerMs, 0)
   assert.equal(samples.otherMs, 1)
 })
+
+test('export capture is bounded, chronological and independent of graph summary publication', () => {
+  const samples = new FramePerformance()
+  for (let i = 1; i <= 1301; i++) samples.sample(10, i, 2, 30, i + 9, 4, i * 10, i % 2 ? 'live' : 'menu')
+  const frames = samples.recentFrames()
+  assert.equal(samples.count, 240)
+  assert.equal(frames.length, 1200)
+  assert.deepEqual(frames[0], { timestampMs: 1020, rafIntervalMs: 10, simulationCpuMs: 102,
+    sceneRenderCpuMs: 2, sceneDrawCalls: 30, callbackCpuMs: 111, pointerTooltipCpuMs: 4,
+    otherCallbackCpuMs: 3, state: 'menu' })
+  assert.equal(frames.at(-1).timestampMs, 13010)
+  frames[0].simulationCpuMs = -999
+  assert.equal(samples.recentFrames()[0].simulationCpuMs, 102, 'export is detached from mutable storage')
+  samples.sample(10, 0, 0, 0, 1, 3, 13020, 'paused')
+  assert.equal(samples.recentFrames().at(-1).otherCallbackCpuMs, -2)
+  samples.reset()
+  assert.deepEqual(samples.recentFrames(), [])
+  samples.sample(8, 1, 2, 3, 6, 1, 20000, 'live')
+  assert.equal(samples.recentFrames().length, 1)
+  assert.equal(samples.recentFrames()[0].timestampMs, 20000)
+})
+
+test('invalid sample rejects raw export without partially writing any fields', () => {
+  const samples = new FramePerformance()
+  samples.sample(10, 1, 2, 3, 6, 1, 10, 'live')
+  const before = samples.recentFrames()
+  for (const index of [0, 1, 2, 3, 4, 5, 6]) {
+    const args = [10, 1, 2, 3, 6, 1, 20, 'live']
+    args[index] = NaN
+    samples.sample(...args)
+    assert.deepEqual(samples.recentFrames(), before)
+  }
+})
+
+test('explicit export produces versioned local JSON with actual span and no game/account contents', async () => {
+  const originals = new Map(), urls = [], links = [], revoked = [], timers = []
+  const replace = (name, value) => {
+    originals.set(name, Object.getOwnPropertyDescriptor(globalThis, name))
+    Object.defineProperty(globalThis, name, { configurable: true, value })
+  }
+  let blob
+  replace('navigator', { userAgent: 'Test browser', account: 'DO NOT EXPORT' })
+  replace('document', { visibilityState: 'visible', createElement(tag) {
+    assert.equal(tag, 'a')
+    const link = { click() { links.push({ href: this.href, download: this.download }) } }
+    return link
+  } })
+  replace('innerWidth', 1280); replace('innerHeight', 720); replace('devicePixelRatio', 2)
+  replace('URL', { createObjectURL(value) { blob = value; urls.push('blob:local'); return 'blob:local' }, revokeObjectURL(url) { revoked.push(url) } })
+  replace('setTimeout', fn => { timers.push(fn) })
+  const graph = Object.create(FpsGraph.prototype)
+  Object.assign(graph, { samples: new FramePerformance(), enabledAt: '2026-10-17T00:00:00.000Z',
+    hardware: { renderer: 'Test renderer', cores: '8', memory: '~8 GiB' },
+    gl: { drawingBufferWidth: 2560, drawingBufferHeight: 1440 },
+    fields: { 'export-status': { textContent: '' } }, world: { save: 'DO NOT EXPORT' } })
+  try {
+    graph.exportRecentFrames()
+    assert.equal(urls.length, 0)
+    assert.match(graph.fields['export-status'].textContent, /No frames/)
+    graph.samples.sample(10, 1, 2, 3, 6, 1, 100, 'live')
+    graph.samples.sample(30, 2, 3, 4, 9, 2, 130, 'paused')
+    graph.exportRecentFrames()
+    const report = JSON.parse(await blob.text())
+    assert.equal(report.schema, 'populous-new-dawn/frame-performance')
+    assert.equal(report.schemaVersion, 1)
+    assert.equal(report.buildRevision, 'unknown')
+    assert.equal(report.timing.capturedSpanMs, 40)
+    assert.equal(report.timing.count, 2)
+    assert.equal(report.timing.startTimestampMs, 90)
+    assert.equal(report.timing.endTimestampMs, 130)
+    assert.equal(report.frames[1].state, 'paused')
+    assert.equal(report.environment.userAgent, 'Test browser')
+    assert.deepEqual(report.environment.viewportCssPixels, { width: 1280, height: 720 })
+    assert.ok(!JSON.stringify(report).includes('DO NOT EXPORT'))
+    assert.equal(links.length, 1)
+    assert.match(links[0].download, /^populous-frames-.*\.json$/)
+    assert.equal(links[0].href, 'blob:local')
+    assert.deepEqual(revoked, [])
+    timers[0]()
+    assert.deepEqual(revoked, ['blob:local'])
+    assert.equal(graph.samples.recentFrames().length, 2, 'export neither clears nor modifies capture')
+    graph.exportRecentFrames()
+    assert.equal(links.length, 2, 'repeated explicit export is supported')
+  } finally {
+    for (const [name, descriptor] of originals) {
+      if (descriptor) Object.defineProperty(globalThis, name, descriptor)
+      else delete globalThis[name]
+    }
+  }
+})
+
+test('download failures are surfaced without clearing capture and still revoke the URL', () => {
+  const originals = new Map(), timers = [], revoked = []
+  const replace = (name, value) => {
+    originals.set(name, Object.getOwnPropertyDescriptor(globalThis, name))
+    Object.defineProperty(globalThis, name, { configurable: true, value })
+  }
+  replace('navigator', { userAgent: 'Test browser' })
+  replace('document', { visibilityState: 'visible', createElement() { throw Error('download unavailable') } })
+  replace('innerWidth', 1280); replace('innerHeight', 720); replace('devicePixelRatio', 1)
+  replace('URL', { createObjectURL() { return 'blob:failed' }, revokeObjectURL(url) { revoked.push(url) } })
+  replace('setTimeout', fn => timers.push(fn))
+  const graph = Object.create(FpsGraph.prototype)
+  Object.assign(graph, { samples: new FramePerformance(), hardware: {}, gl: {}, fields: { 'export-status': { textContent: '' } } })
+  try {
+    graph.samples.sample(10, 1, 2, 3, 6, 1, 10)
+    assert.doesNotThrow(() => graph.exportRecentFrames())
+    assert.match(graph.fields['export-status'].textContent, /Export failed/)
+    assert.equal(graph.samples.recentFrames().length, 1)
+    timers[0]()
+    assert.deepEqual(revoked, ['blob:failed'])
+  } finally {
+    for (const [name, descriptor] of originals) {
+      if (descriptor) Object.defineProperty(globalThis, name, descriptor)
+      else delete globalThis[name]
+    }
+  }
+})

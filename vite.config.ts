@@ -1,7 +1,18 @@
+import { execFileSync } from "node:child_process";
 import vinext from "vinext";
 import { defineConfig } from "vite";
 import hostingConfig from "./.openai/hosting.json";
 import { sites } from "./build/sites-vite-plugin";
+
+// Embed the actual checkout identity, never a guessed release/version. Archives
+// without Git metadata explicitly report unknown in diagnostic exports.
+function buildRevision() {
+  try {
+    const revision = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    return /^[0-9a-f]{40}$/.test(revision) ? revision + (dirty ? "-dirty" : "") : "unknown";
+  } catch { return "unknown"; }
+}
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
@@ -44,6 +55,7 @@ export default defineConfig(async () => {
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
   return {
+    define: { __PND_BUILD_REVISION__: JSON.stringify(buildRevision()) },
     // Keep generated caches outside potentially shared, read-only dependencies.
     cacheDir: "work/build-cache/node_modules/.vite",
     server: {

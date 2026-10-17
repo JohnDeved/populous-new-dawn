@@ -1,5 +1,24 @@
+export const RECENT_FRAME_CAPACITY = 1200
+const RAW_WIDTH = 8
+
+export interface RecentFrame {
+  timestampMs: number
+  rafIntervalMs: number
+  simulationCpuMs: number
+  sceneRenderCpuMs: number
+  sceneDrawCalls: number
+  callbackCpuMs: number
+  pointerTooltipCpuMs: number
+  otherCallbackCpuMs: number
+  state: 'live' | 'paused' | 'menu' | 'unknown'
+}
+
 // Browser presentation telemetry only. Never feeds the simulation clock.
 export class FramePerformance {
+  private readonly recent = new Float64Array(RECENT_FRAME_CAPACITY * RAW_WIDTH)
+  private recentCursor = 0
+  private recentCount = 0
+  private timestamp = 0
   readonly history = new Float64Array(240)
   readonly callbackHistory = new Float64Array(240)
   private readonly sorted = new Float64Array(240)
@@ -24,6 +43,7 @@ export class FramePerformance {
   drawCalls = 0
 
   reset() {
+    this.recentCursor = this.recentCount = this.timestamp = 0
     this.pointer = this.pointerMs = this.otherMs = 0
     for (const summary of [this.rafPercentiles, this.callbackPercentiles])
       summary.p50 = summary.p95 = summary.p99 = summary.max = 0
@@ -49,7 +69,9 @@ export class FramePerformance {
     render: number,
     calls: number,
     callback: number,
-    pointer = 0
+    pointer = 0,
+    timestamp = this.timestamp + milliseconds,
+    state: RecentFrame['state'] = 'unknown'
   ) {
     if (!Number.isFinite(milliseconds) || milliseconds <= 0) return false
     // Reject invalid measurements as a whole, without poisoning either window.
@@ -63,9 +85,24 @@ export class FramePerformance {
       !Number.isFinite(callback) ||
       callback < 0 ||
       !Number.isFinite(pointer) ||
-      pointer < 0
+      pointer < 0 ||
+      !Number.isFinite(timestamp) ||
+      timestamp < 0
     )
       return false
+    this.timestamp = timestamp
+    const offset = this.recentCursor * RAW_WIDTH
+    this.recent[offset] = timestamp
+    this.recent[offset + 1] = milliseconds
+    this.recent[offset + 2] = simulation
+    this.recent[offset + 3] = render
+    this.recent[offset + 4] = calls
+    this.recent[offset + 5] = callback
+    this.recent[offset + 6] = pointer
+    this.recent[offset + 7] =
+      state === 'live' ? 1 : state === 'paused' ? 2 : state === 'menu' ? 3 : 0
+    this.recentCursor = (this.recentCursor + 1) % RECENT_FRAME_CAPACITY
+    this.recentCount = Math.min(this.recentCount + 1, RECENT_FRAME_CAPACITY)
     this.callbackHistory[this.cursor] = callback
     this.history[this.cursor] = milliseconds
     this.cursor = (this.cursor + 1) % this.history.length
@@ -97,6 +134,38 @@ export class FramePerformance {
     this.render = 0
     this.calls = 0
     return true
+  }
+
+  // Materialize only on explicit export. Sampling writes fixed numeric storage.
+  recentFrames(): RecentFrame[] {
+    return Array.from({ length: this.recentCount }, (_, index) => {
+      const offset =
+        ((this.recentCursor - this.recentCount + index + RECENT_FRAME_CAPACITY) %
+          RECENT_FRAME_CAPACITY) *
+        RAW_WIDTH
+      const [
+        timestampMs,
+        rafIntervalMs,
+        simulationCpuMs,
+        sceneRenderCpuMs,
+        sceneDrawCalls,
+        callbackCpuMs,
+        pointerTooltipCpuMs,
+        state,
+      ] = this.recent.subarray(offset, offset + RAW_WIDTH)
+      return {
+        timestampMs,
+        rafIntervalMs,
+        simulationCpuMs,
+        sceneRenderCpuMs,
+        sceneDrawCalls,
+        callbackCpuMs,
+        pointerTooltipCpuMs,
+        otherCallbackCpuMs:
+          callbackCpuMs - simulationCpuMs - sceneRenderCpuMs - pointerTooltipCpuMs,
+        state: state === 1 ? 'live' : state === 2 ? 'paused' : state === 3 ? 'menu' : 'unknown',
+      }
+    })
   }
 
   private summarize(history: Float64Array, result: typeof this.rafPercentiles) {

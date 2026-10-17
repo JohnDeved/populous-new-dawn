@@ -128,3 +128,5 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .follower-tasks button:enabled:is(:hover,:active) .follower-task-normal:has(+.follower-task-pressed){display:none}
 .follower-tasks button:enabled:is(:hover,:active) .follower-task-pressed{display:contents}
 .followers-dock .follower-list{margin:0 2px}
+
+.fps-export{pointer-events:auto;font:inherit;color:#f4f7f8;background:#24534d;border:1px solid #65e3ce80;border-radius:3px;padding:4px 8px;cursor:pointer}.fps-export:focus-visible{outline:2px solid #65e3ce;outline-offset:2px}
