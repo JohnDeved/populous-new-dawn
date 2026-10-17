@@ -551,6 +551,76 @@ test('production observer binds both complete timeline/run passes and immutable 
       return { sha256: f.grant.workflowHashes[path] }
     },
   }
+  // Representative REST committed row has no created_at/actor/id. Its author
+  // date is intentionally in the future and must NEVER become PR event time.
+  const committed = {
+    event: 'committed',
+    sha: tuple.head,
+    author: { date: '2099-01-01T00:00:00Z' },
+    committer: { date: '2099-01-01T00:00:00Z' },
+  }
+  const ancestryCalls = []
+  const withCommit = {
+    ...reader,
+    get(endpoint) {
+      if (endpoint.includes('/timeline?')) return [clone(committed)]
+      return reader.get(endpoint)
+    },
+    git(...args) {
+      ancestryCalls.push(args)
+      return ''
+    },
+  }
+  const commitObservation = collectDraftRecoveryObservation(withCommit, f.grant, () => 64000)
+  assert.deepEqual(ancestryCalls, [['merge-base', '--is-ancestor', tuple.head, tuple.head]])
+  assert.equal(commitObservation.timeline.items[0].at, null)
+  assert.equal(commitObservation.timeline.items[0].actorId, null)
+  assert.equal(commitObservation.timeline.items[0].id, `commit:${tuple.head}`)
+  assert.equal(commitObservation.timeline.pages[0].sha256, digest([committed]))
+  assert.throws(
+    () =>
+      collectDraftRecoveryObservation(
+        {
+          ...withCommit,
+          git() {
+            throw Error('not an ancestor')
+          },
+        },
+        f.grant,
+        () => 64000
+      ),
+    /not an ancestor/
+  )
+  for (const row of [
+    { ...committed, sha: '../bad' },
+    { event: 'converted_to_draft', id: 123, actor: { id: 42 } },
+    { event: 'unknown-kind', id: 123 },
+  ])
+    assert.throws(() =>
+      collectDraftRecoveryObservation(
+        {
+          ...withCommit,
+          get(endpoint) {
+            return endpoint.includes('/timeline?') ? [row] : reader.get(endpoint)
+          },
+        },
+        f.grant,
+        () => 64000
+      )
+    )
+  const commitItem = commitObservation.timeline.items[0]
+  const pair = clone(f.pair)
+  for (const observation of pair) observation.timeline = f.collection([commitItem])
+  assert.equal(
+    prepareDraftRecovery(f.original, f.hash, null, f.grant, pair, 64000).ledger.records[0].spent,
+    true
+  )
+  for (const change of [{ at: 1 }, { ancestryHead: 'f'.repeat(40) }, { actorId: 42 }]) {
+    const invalid = clone(pair)
+    invalid[1].timeline.items[0] = { ...commitItem, ...change }
+    assert.throws(() => prepareDraftRecovery(f.original, f.hash, null, f.grant, invalid, 64000))
+  }
+  calls.length = 0
   const observed = collectDraftRecoveryObservation(reader, f.grant, () => 64000)
   assert.equal(observed.complete, true)
   assert.equal(observed.timeline.pages.length, 1)

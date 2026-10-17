@@ -8,6 +8,22 @@ const hash = value => /^[a-f0-9]{64}$/.test(value ?? '')
 const equal = (a, b) => assert.equal(digest(a), digest(b))
 const transition = event => ['converted_to_draft', 'ready_for_review'].includes(event.kind)
 
+function validTimelineItem(event, observation) {
+  if (event.kind === 'committed')
+    return (
+      event.at === null &&
+      event.actorId === null &&
+      /^[a-f0-9]{40}$/.test(event.commitSha ?? '') &&
+      event.id === `commit:${event.commitSha}` &&
+      event.ancestryHead === observation.tuple.head
+    )
+  return (
+    typeof event.kind === 'string' &&
+    Number.isFinite(event.at) &&
+    event.at <= observation.observedAt
+  )
+}
+
 export function validateRecoveryGrant(original, originalSha256, grant, now) {
   const record = original.records.at(-1)
   assert.equal(original.repo, REPO)
@@ -88,15 +104,10 @@ function validateObservation(observation, grant, intendedAt, now) {
     assert.equal(run.status, 'completed', 'Active attempt blocks recovery')
   }
   const events = observation.timeline.items
-  assert(
-    events.every(
-      event =>
-        Number.isFinite(event.at) &&
-        event.at <= observation.observedAt &&
-        typeof event.kind === 'string'
-    )
+  assert(events.every(event => validTimelineItem(event, observation)))
+  const after = events.filter(
+    event => event.kind !== 'committed' && event.at >= Math.floor(intendedAt / 1000) * 1000
   )
-  const after = events.filter(event => event.at >= Math.floor(intendedAt / 1000) * 1000)
   assert(
     after.every(event => event.actorId === grant.actorId),
     'Intervening or unknown actor blocks recovery'
@@ -396,7 +407,9 @@ export function observeOriginalReady(saved, observation, original, now) {
   // Validate all common state/provenance requirements with the allowed expected
   // draft->ready history removed only after verifying it exactly below.
   const events = observation.timeline.items.filter(
-    event => event.at >= Math.floor(original.records.at(-1).pending.intendedAt / 1000) * 1000
+    event =>
+      event.kind !== 'committed' &&
+      event.at >= Math.floor(original.records.at(-1).pending.intendedAt / 1000) * 1000
   )
   const changes = events.filter(transition)
   assert.deepEqual(
@@ -416,11 +429,7 @@ export function observeOriginalReady(saved, observation, original, now) {
   assert(observation.observedAt <= now && now - observation.observedAt <= 60_000)
   completeCollection(observation.timeline, 'id')
   completeCollection(observation.runs, 'id')
-  assert(
-    observation.timeline.items.every(
-      event => Number.isFinite(event.at) && event.at <= observation.observedAt
-    )
-  )
+  assert(observation.timeline.items.every(event => validTimelineItem(event, observation)))
   assert(
     events.every(event => event.actorId === recovery.grant.actorId),
     'Intervening actor blocks continuation'

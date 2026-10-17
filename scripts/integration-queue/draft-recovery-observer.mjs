@@ -83,6 +83,20 @@ export function collectDraftRecoveryObservation(reader, grant, clock = Date.now)
     timeline: {
       pages: timeline.pages,
       items: timeline.items.map(event => {
+        // REST timeline committed rows are immutable commit objects, not timed
+        // PR activity. Author/committer dates cannot establish when GitHub saw them.
+        if (event.event === 'committed') {
+          assert(/^[a-f0-9]{40}$/.test(event.sha ?? ''), 'Invalid timeline commit SHA')
+          reader.git('merge-base', '--is-ancestor', event.sha, tuple.head)
+          return {
+            id: `commit:${event.sha}`,
+            kind: 'committed',
+            at: null,
+            actorId: null,
+            commitSha: event.sha,
+            ancestryHead: tuple.head,
+          }
+        }
         const at = Date.parse(event.created_at)
         assert(Number.isFinite(at), 'Timeline event lacks attributable time')
         return {
