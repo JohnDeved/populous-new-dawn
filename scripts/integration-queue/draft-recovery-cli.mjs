@@ -5,12 +5,11 @@ import {
   readFileSync,
   realpathSync,
   lstatSync,
-  existsSync,
   openSync,
   closeSync,
   unlinkSync,
 } from 'node:fs'
-import { dirname, resolve, isAbsolute } from 'node:path'
+import { resolve, isAbsolute } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { sha256, digest } from './policy.mjs'
 import { atomicWrite } from './cli.mjs'
@@ -18,8 +17,6 @@ import { GitHubReader } from './github.mjs'
 import { observeAdmission } from './admission-observer.mjs'
 import { collectDraftRecoveryObservation } from './draft-recovery-observer.mjs'
 import {
-  DRAFT_CONNECTOR,
-  READY_CONNECTOR,
   prepareDraftRecovery,
   dispatchDraftRecovery,
   recordDraftRecoveryReceipt,

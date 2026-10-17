@@ -505,7 +505,6 @@ test('receipt cannot forge descriptor, chronology, local invocation identity or 
 })
 
 import { collectDraftRecoveryObservation } from '../scripts/integration-queue/draft-recovery-observer.mjs'
-import { validateOriginalReadyCompletion } from '../scripts/integration-queue/draft-recovery.mjs'
 
 test('production observer binds both complete timeline/run passes and immutable tuple without protection calls', () => {
   const f = fixture(),
