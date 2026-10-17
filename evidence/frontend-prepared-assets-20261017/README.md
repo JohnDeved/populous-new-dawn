@@ -1,52 +1,49 @@
-# Frontend assets settle before the menu appears (#513)
+# Frontend asset readiness (#513)
 
-The Home startup overlay now covers checkpoint restore and a frontend-only asset preparation promise. Independent groups load composition, normal/highlight fonts, low font, logo, background, pointer and frontend sliders concurrently. MainMenu and frontend Options consume one settled snapshot. A named 10,000 ms browser deadline freezes missing groups as fallbacks for that Home session. Late decodes cannot enable their CSS URLs or replace visible fallback text/sliders. There are no retries.
+Home prepares composition, normal/highlight/low fonts, logo, background, pointer
+and frontend sliders alongside checkpoint restore. MainMenu and frontend Options
+consume one settled session snapshot. Independent failures preserve healthy groups;
+a named 10-second deadline freezes fallbacks and suppresses their pending CSS URLs.
+Initial canvas drawing and Options shadow-row publication happen before paint.
+GameScene, level loading, pause ownership and in-game asset loading are unchanged.
 
-MainMenu sizes and draws its initial canvas in layout effects. Options publishes its foreground text rows in a layout effect so the parent draws their shadows before paint. Frontend Options reads prepared readiness synchronously on initial entry and remount. The existing in-game Options asset-loading branch remains unchanged and ignores the frontend snapshot; its caller does not supply the frontend row callback. GameScene, level loading, pause keyboard handling and clocks are untouched.
-
-## Source and prior baseline
+## Source and verification
 
 - Accepted production base: `14a985b3f11c6efde862d9837596fe2e9ed0588b` (#510).
-- Retained baseline publication: `ce76881944c446c0aa9fab5005323e3b05c12de5`; [original baseline](../ui-preload-baseline-20261017/README.md) and its 33 hash-bound files are unchanged.
-- Initial implementation/browser source: `ea98ff70b45c5a67ae77c1370e464851678619e8`.
-- Final tested implementation: `7122a48291150fbb201fa59e5724b1d2a0289dd7`. Follow-up moved the image helper out of the session closure and used `new Error` to satisfy the strict linter. All final browser cases and focused tests ran on this clean commit. The subsequent publication commit only adds evidence.
+- Tested implementation: `7122a48291150fbb201fa59e5724b1d2a0289dd7`.
+- Original evidence publication: `6cbc72c42c4a1a96f3443d6eb188fcec275518ac`.
+- 73 focused tests across nine affected files, TypeScript, scoped formatting and
+  new-helper strict lint passed. Scoped ESLint comparison found no new findings.
+- Four actual-Home browser cases passed: healthy cold/warm, slider 404, normal-font
+  404, and successful decodes arriving after the real deadline. Checks include
+  first visible canvas sizing/content, stable Options text-shadow rows, keyboard
+  use, return focus and no new relevant requests/decodes on warm reopen.
+- Inherited MainMenu ref errors and page HUD-restoration/image lint findings remain.
+  Scoped strict lint fails on the inherited MainMenu errors. Full check/build and
+  any resource-policy refresh remain parent-owned integration work.
 
-## Final checks
+The browser fixture uses production Home through plain React/Vite and sandboxed
+Chrome, excluding hosted Vinext/Cloudflare/RSC serving and hydration. Warm means
+same-document resource reuse, not an HTTP-cache benchmark. No hardware-performance
+or native-parity claim is made. Expected deliberate 404 errors and observation
+warnings were retained; no unexpected page/console errors occurred.
 
-| Check | Result |
-| --- | --- |
-| Nine affected test files via `npm run test:focus` | 73 passed, source-bound final-focused receipt |
-| TypeScript | Passed |
-| Scoped formatting | Passed |
-| New asset module strict lint | Passed without findings |
-| Scoped ESLint comparison against accepted #510 | No new findings across 14 changed JS/TS files |
-| Scoped strict lint across four application files | Failed on two inherited MainMenu `react(refs)` errors; raw final-oxlint-scoped receipt retained |
-| Structural orchestration check | Passed on initial implementation; final correction changes no structural metadata |
-| Full check/build/hosted serving | Not run locally; parent-owned ready-PR gates |
+## Reusable probes and local results
 
-The ESLint comparison retains complete before/after messages in `receipts/lint-details.json`. Existing findings are MainMenu's two `react-hooks/refs` errors at its row map, page HUD-size restoration's `set-state-in-effect` error, and its image warning. No lint configuration or suppression changed. The strict lint run also retains inherited warnings in existing menu/page code. Its initial run found two new `throw-new-error` errors and a helper-scope warning; those were repaired before the final checks.
+`run-probe.mjs` runs `scripts/local-render/frontend-prepared-assets.mjs` with
+`POPULOUS_BROWSER` pointing to official Chrome Headless Shell,
+`POPULOUS_PREPARED_OUTPUT` pointing to a fresh ignored `work/orchestration/` folder,
+and `POPULOUS_PREPARED_MODE` set to `healthy`, `slider-failure`, `font-failure`, or
+`late-success`. It uses port 4401 and an owned temporary browser profile. Serialize
+browser runs. `lint-compare.mjs` retains the scoped baseline-comparison procedure.
+The [prior baseline summary](../ui-preload-baseline-20261017/README.md) explains the
+observed defect and links to its reusable runner.
 
-The orchestration planner was inspected against the exact production base. Its coarse `app/page.tsx` mapping selects unrelated campaign/native probes and a conservative full suite for unmapped files. Those are not claims of this frontend-only slice; native execution is outside authorization, and full suites/build remain hosted integration gates. Focused tests cover the changed production paths, retained composition goldens, Options states, checkpoint restore ordering/cancellation, and selector launch guards.
-
-The accepted resource policy (`engineering/test-resources.json`), runner, workflow and gate drivers are unchanged. This application change may require the parent's reviewed resource fingerprint refresh under the separately coordinated CI work before readiness. No policy refresh is claimed here. Main later merged #510 as `bc9cabf404240ad99b2aab8c26e9b0137cdd7702`; evidence remains attributed to the accepted pre-merge #510 source, with no automatic rebase.
-
-## Browser evidence
-
-Actual Home, store, CSS and assets in a plain React/Vite fixture, official Chrome Headless Shell 153.0.8010.12, 1280×800 DPR 1. Sandboxing is enabled; default arguments are omitted; launch contains `--remote-debugging-pipe` and an owned temporary profile. Each source.json records actual launch, browser executable hash, installed dependency lock hash and production/probe file hashes. Browser/context/server close is awaited; only the owned profile is removed. Port 4401 was no longer listening after the run. No build ran.
-
-| Final case | UTC interval | Result |
-| --- | --- | --- |
-| Healthy cold + warm | 02:30:12.217–02:30:15.989 | All 10 relevant assets requested during startup; held composition keeps loader visible. First observed menu frame has decoded fonts/logo, 768×480 populated canvas displayed at 1280×800. Cold/warm Options have zero fallback labels and ready sliders. Reopen adds no relevant requests or image decode calls. |
-| Slider HTTP 404 | 02:30:16.840–02:30:20.270 | Native slider fallback remains usable; fonts/logo/background/cursor stay ready. Warm result stays settled. |
-| Normal-font HTTP 404 | 02:30:21.212–02:30:24.907 | Fallback text remains stable; logo, sliders and other healthy groups remain available. Shadow rows remain omitted for fallback foreground. |
-| Late success | 02:30:26.046–02:30:40.563 | Background, pointer and one slider held across the native deadline. Snapshot observed about 10.615 s after first decode began has CSS background `none`, cursor `auto`, fallback sliders and healthy text/logo/composition. All held decodes then resolve; flags, CSS and fallbacks stay unchanged, including another Options remount. |
-
-All cases exercised arrow non-interception in frontend Options, Enter to select Sound, range Home/End, Tab movement, Escape return and restored MainMenu Options focus. This is not a focus-containment claim. MainMenu first observed canvas dimensions/alpha are asserted on every visible frame sample. Options Game text-shadow row 139 hash is `ee09a376` on every sampled cold/warm ready frame; failed-font fallback consistently uses `4e059302`. The baseline had fallback-to-glyph reflow and delayed row publication; this check sees neither in the healthy case. These samples establish the observed frontend behavior, not exhaustive compositor timing.
-
-Each case retained one Canvas2D readback performance warning caused by observation. Deliberate font/slider 404 cases retain their expected URL-specific console error; no unexpected console errors or page errors occurred. Responses are gated directly; native Image.decode is forwarded and observed, with no injected app state/readiness. Routing disables HTTP caching, so warm means same-document resource reuse. The fixture does not validate Vinext/Cloudflare/RSC serving, hydration, gameplay or hardware performance.
-
-## Retained attempts and integrity
-
-`healthy-1.json` failed before browser/server launch because the output environment variable was missing. It is retained with its raw log hashes. The four initial corrected browser runs passed on the first implementation; their reports/source metadata and receipts remain alongside the four final runs. Final screenshots are published; earlier passing screenshots remain in the owned local raw run directories. No previous baseline artifacts were replaced.
-
-`manifest.json` binds each published artifact to original and published SHA-256 values. Portable text redacts machine paths; hashes embedded in command receipts continue to describe the original raw logs. Local raw receipts are under `work/orchestration/frontend-prepared/`. Weekly Codex usage was 20%, below the 70% stop threshold. This is a draft review handoff; no merge or ready transition is authorized here.
+Generated screenshots, reports, manifests and command logs are local review
+outputs, not repository fixtures. They were untracked without changing their local
+bytes. A hash-verified copy of both original evidence directories, including their
+old summaries and source metadata, is retained outside this checkout under
+`local-evidence/pr514-before-cleanup-20261017/`; raw ignored runs remain under
+`work/orchestration/`. The local inventory records the pre-cleanup head and every
+removed path/hash. Earlier commits remain intact; cleanup does not rewrite history
+or change the tested implementation. No fresh runtime pass is implied by cleanup.
