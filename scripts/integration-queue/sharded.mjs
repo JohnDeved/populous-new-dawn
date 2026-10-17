@@ -41,6 +41,17 @@ export function shardedLogReceipt(log) {
   return JSON.parse(bytes.toString('utf8'))
 }
 
+// Keep this trusted allowlist independent of candidate executable policy.
+function shardCommandMatches(command, group, runtime, expected) {
+  const prefix = ['--test', `--test-concurrency=${group.concurrency}`, '--test-reporter=tap']
+  if (same(command, [...prefix, ...group.files])) return true
+  return sha256(expected.timingReporterSha256) &&
+    runtime.timingReporterSha256 === expected.timingReporterSha256 &&
+    same(command, [...prefix, '--test-reporter-destination=stdout',
+      '--test-reporter=./scripts/orchestration/test-timing-reporter.mjs',
+      '--test-reporter-destination=stderr', ...group.files])
+}
+
 export function validateShardedReceipt(receipt, expected) {
   const { identity, inventory } = expected
   ensure(receipt?.version === 1 && receipt.kind === 'full-check' && receipt.status === 'passed',
@@ -87,8 +98,8 @@ export function validateShardedReceipt(receipt, expected) {
       result.results.length === plan.groups.length, 'incomplete or interrupted shard result')
     result.results.forEach((r, i) => ensure(r.status === 'passed' && r.exitCode === 0 &&
       r.signal === null && r.error === null && Array.isArray(r.command) &&
-      /^\/.*\/node$/.test(r.command[0]) && same(r.command.slice(1),
-        ['--test', `--test-concurrency=${plan.groups[i].concurrency}`, '--test-reporter=tap', ...plan.groups[i].files]) &&
+      /^\/.*\/node$/.test(r.command[0]) &&
+      shardCommandMatches(r.command.slice(1), plan.groups[i], runtime, expected) &&
       r.concurrency === plan.groups[i].concurrency &&
       same(r.files, plan.groups[i].files), 'failed/skipped/missing test subprocess'))
     coverage.push(...files)

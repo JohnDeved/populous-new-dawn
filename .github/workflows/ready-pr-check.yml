@@ -151,7 +151,8 @@ jobs:
           node scripts/orchestration/ci-gate.mjs snapshot work/ci/before.json
 
       - name: Run test shard
-        run: node scripts/orchestration/test-runner.mjs shard --shard-index=${{ matrix.index }} --shard-count=4 --receipt=work/ci/shard.json
+        id: shard
+        run: node scripts/orchestration/test-runner.mjs shard --shard-index=${{ matrix.index }} --shard-count=4 --receipt=work/ci/shard.json --timings=summary-v1
 
       - name: Reject tracked input mutation
         run: |
@@ -164,6 +165,21 @@ jobs:
           name: full-check-${{ github.run_id }}-${{ github.run_attempt }}-shard-${{ matrix.label }}
           path: work/ci/receipt.json
           if-no-files-found: error
+          retention-days: 7
+
+      # Diagnostics never enter the strict five-artifact acceptance namespace.
+      - name: Upload optional per-file timing diagnostics
+        if: ${{ always() && (steps.shard.outcome == 'success' || steps.shard.outcome == 'failure') }}
+        continue-on-error: true
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: test-timings-${{ github.run_id }}-${{ github.run_attempt }}-shard-${{ matrix.label }}
+          path: |
+            work/ci/before.json
+            work/ci/shard.json
+            work/ci/receipt.json
+            work/ci/timings/*.jsonl
+          if-no-files-found: warn
           retention-days: 7
 
   full-check:

@@ -281,3 +281,59 @@ test('baseline diagnostics prove independent full coverage and real subprocess s
   ]) { const rows = log.trim().split('\n').map(JSON.parse); mutate(rows)
     assert.throws(() => validateBaselineLog(rows.map(r => JSON.stringify(r)).join('\n'), inventory), /baseline/) }
 })
+
+const reporterBytes = 'trusted reporter source\n'
+function enableTiming(receipt) {
+  for (const envelope of [receipt, receipt.quality, ...receipt.shards])
+    envelope.runtime.timingReporterSha256 = sha256(reporterBytes)
+  for (const shard of receipt.shards) for (const result of shard.shard.result.results)
+    result.command = ['/usr/bin/node', '--test', `--test-concurrency=${result.concurrency}`,
+      '--test-reporter=tap', '--test-reporter-destination=stdout',
+      '--test-reporter=./scripts/orchestration/test-timing-reporter.mjs',
+      '--test-reporter-destination=stderr', ...result.files]
+}
+
+test('trusted timing command admits only fixed reporter with independently bound source', () => {
+  const { receipt, expected } = fixture()
+  enableTiming(receipt)
+  expected.timingReporterSha256 = sha256(reporterBytes)
+  assert.equal(validateShardedReceipt(receipt, expected), true)
+  for (const mutate of [
+    r => { r.shards[0].shard.result.results[0].command.push('--test-name-pattern=skip') },
+    r => { r.shards[0].shard.result.results[0].command[5] = '--test-reporter=evil' },
+    r => { r.shards[0].shard.result.results[0].command[6] = '--test-reporter-destination=stdout' },
+    r => { r.shards[0].shard.result.results[0].command.splice(4, 1) },
+    r => { r.shards[0].shard.result.results[0].exitCode = 1 },
+    r => { r.runtime.timingReporterSha256 = 'f'.repeat(64) },
+    r => { delete r.runtime.timingReporterSha256 },
+  ]) {
+    const bad = structuredClone(receipt)
+    mutate(bad)
+    assert.throws(() => validateShardedReceipt(bad, expected), /Sharded Full check/)
+  }
+  for (const hash of [undefined, 'f'.repeat(64), 'invalid'])
+    assert.throws(() => validateShardedReceipt(receipt, { ...expected, timingReporterSha256: hash }))
+})
+
+test('reader obtains diagnostic reporter hash from exact merge Git bytes, not receipt claims', () => {
+  for (const altered of [false, true]) {
+    const { reader, args } = adapterFixture()
+    const receipt = shardedLogReceipt(args[6])
+    enableTiming(receipt)
+    args[6] = args[6].slice(0, args[6].indexOf('PND_FULL_CHECK_RECEIPT')) + receiptLog(receipt)
+    const gitOutput = reader.gitOutput.bind(reader), seen = []
+    reader.gitOutput = (command, ref) => {
+      if (ref.endsWith(':scripts/orchestration/test-timing-reporter.mjs')) {
+        seen.push(ref)
+        return altered ? 'changed reporter' : reporterBytes
+      }
+      return gitOutput(command, ref)
+    }
+    if (altered) assert.throws(() => reader.verifyShardedRun(...args), /test subprocess/)
+    else {
+      reader.verifyShardedRun(...args)
+      assert.equal(args[5].shardedVerified, true)
+    }
+    assert.deepEqual(seen, [`${oid(4)}:scripts/orchestration/test-timing-reporter.mjs`])
+  }
+})

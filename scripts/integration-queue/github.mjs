@@ -335,7 +335,10 @@ export class GitHubReader {
       .filter(file => /^tests\/[^./\0\r\n][^/\0\r\n]*\.test\.mjs$/.test(file)).sort()
     const inventory = files.map(file => ({ file, sha256: sha256(this.gitOutput('show', `${synthetic.sha}:${file}`)) }))
     validateShardedReceipt(receipt, { identity, inventory,
-      lockSha256: sha256(this.gitOutput('show', `${synthetic.sha}:package-lock.json`)) })
+      lockSha256: sha256(this.gitOutput('show', `${synthetic.sha}:package-lock.json`)),
+      ...(receipt.runtime?.timingReporterSha256 !== undefined ? {
+        timingReporterSha256: sha256(this.gitOutput('show', `${synthetic.sha}:scripts/orchestration/test-timing-reporter.mjs`)),
+      } : {}) })
     if (baselineLog !== undefined) validateBaselineLog(baselineLog, inventory)
     row.shardedVerified = true
     row.shardedReceiptSha256 = sha256(JSON.stringify(receipt))
