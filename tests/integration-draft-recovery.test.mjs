@@ -739,3 +739,90 @@ test('pre-dispatch freshness failure retains exact observation and named predica
   assert.match(result.validation.message, /ageMs=61000/)
   assert.equal(readFileSync(f.sidecar, 'utf8'), stopped)
 })
+
+test('durable adapter completes the explicit draft/ready receipt lifecycle across fresh invocations', async t => {
+  const f = adapterFixture(t),
+    originalBytes = readFileSync(f.journal, 'utf8')
+  const load = () => JSON.parse(readFileSync(f.sidecar))
+  const recordConnector = async (mode, descriptor, now, name) => {
+    // A fixture response is evidence of the explicit boundary, not state proof.
+    const [rawReceiptPath, rawReceiptSha256] = f.write(name, { fixture: true, returned: true })
+    await f.call(mode, {
+      rawReceiptPath,
+      receipt: {
+        ...descriptor,
+        descriptorDigest: digest(descriptor),
+        toolCallId: null,
+        rawReceiptSha256,
+        startedAt: now,
+        finishedAt: now,
+        outcome: 'returned',
+      },
+    })
+  }
+  await f.call('prepare', { observations: f.pair })
+  f.setNow(65000)
+  const draft = await f.call('dispatch-draft', {})
+  assert.equal(load().records[0].phase, 'dispatch-intended')
+  assert.equal(draft.descriptor.tool, 'github.convert_pull_request_to_draft')
+  f.setNow(66000)
+  await recordConnector('record-draft', draft.descriptor, 66000, 'draft-result.json')
+  assert.notEqual(load().records[0].phase, 'observed')
+  const events = [{ id: 'draft', kind: 'convert_to_draft', at: 66000, actorId: 42 }]
+  f.setNow(67000)
+  await f.call('observe-draft', {}, { observe: () => f.observation(67000, true, events) })
+  const observed = load().records[0]
+  f.setNow(128000)
+  const ready = await f.call(
+    'prepare-ready',
+    {
+      authorization: {
+        authority: 'original-ready-once-after-draft-convergence',
+        owner: f.original.owner,
+        registrationDigest: f.grant.registrationDigest,
+        recoveryDigest: digest(f.grant),
+        recoveryEvidenceDigest: digest(observed.receipts),
+        tuple: f.grant.tuple,
+        acceptDelayedDraftLivenessRisk: true,
+        onUnexpectedRedraft: 'permanent-stop-no-retry',
+        createdAt: 128000,
+        expiresAt: 228000,
+      },
+    },
+    {
+      observe: () => f.observation(128000, true, events),
+      admissionObserve: () => f.observation(128000, true, events).admission,
+    }
+  )
+  assert.equal(load().records[0].normalReady.spent, true)
+  assert.equal(ready.descriptor.tool, 'github.mark_pull_request_ready_for_review')
+  f.setNow(129000)
+  await recordConnector('record-ready', ready.descriptor, 129000, 'ready-result.json')
+  events.push({ id: 'ready', kind: 'ready_for_review', at: 129000, actorId: 42 })
+  f.setNow(130000)
+  await f.call('observe-ready', {}, { observe: () => f.observation(130000, false, events) })
+  f.setNow(131000)
+  const final = await f.call(
+    'verify-final',
+    {},
+    {
+      observe: () => f.observation(131000, false, events),
+      admissionObserve: () => ({
+        ...f.observation(131000).admission,
+        full: {
+          state: 'passed',
+          required: true,
+          sourceBound: true,
+          tuple: f.grant.tuple,
+          runId: 1,
+          attempt: 1,
+          checkId: 2,
+        },
+      }),
+    }
+  )
+  assert.equal(load().records[0].normalReady.phase, 'validated')
+  assert.equal(load().records[0].originalTransportOutcome, 'unknown')
+  assert.equal(final.mergeAuthority, false)
+  assert.equal(readFileSync(f.journal, 'utf8'), originalBytes)
+})
