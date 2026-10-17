@@ -9,6 +9,8 @@ on:
       - 'public/**'
       - 'scripts/browser-*.mjs'
       - 'scripts/local-render/tutorial-recommendation.mjs'
+      - 'scripts/local-render/original-pause-checkpoint-recovery.mjs'
+      - 'scripts/local-render/checkpoint-observer.mjs'
       - 'scripts/tutorial-browser/**'
       - '.github/workflows/tutorial-browser.yml'
       - 'package.json'
@@ -24,10 +26,25 @@ concurrency:
 
 jobs:
   tutorial-browser:
-    name: Tutorial browser
+    name: ${{ matrix.name }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - scenario: tutorial
+            name: Tutorial browser
+            artifact: tutorial-browser
+            buildStep: Build plain production Home and validate Tutorial interactions
+          - scenario: pause-checkpoint-recovery
+            name: Pause checkpoint recovery browser
+            artifact: pause-checkpoint-recovery-browser
+            buildStep: Build plain production Home and validate pause checkpoint recovery
     env:
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      POPULOUS_BROWSER_SCENARIO: ${{ matrix.scenario }}
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -71,7 +88,7 @@ jobs:
           node --version
           npm --version
           sha256sum package-lock.json node_modules/playwright-core/browsers.json
-      - name: Build plain production Home and validate Tutorial interactions
+      - name: ${{ matrix.buildStep }}
         run: node scripts/tutorial-browser/run.mjs
       - name: Reject tracked input mutation
         if: ${{ always() && steps.checkout.outcome == 'success' }}
@@ -80,7 +97,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: tutorial-browser-${{ github.sha }}
+          name: ${{ matrix.artifact }}-${{ github.sha }}
           path: |
             outputs/tutorial-browser/*.json
             outputs/tutorial-browser/*.log

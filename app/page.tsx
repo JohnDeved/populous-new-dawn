@@ -1557,6 +1557,10 @@ export default function Home() {
           prepared={frontendAssets?.ingame}
           tutorial={world.outcome.level === tutorialLevel}
           hasCheckpoint={store.hasCheckpoint()}
+          checkpointReadStatus={store.getCheckpointReadStatus()}
+          onRetryCheckpoint={() => {
+            void store.restoreCheckpoint()
+          }}
           onContinue={closeMenu}
           onSave={saveCheckpoint}
           onLoad={loadCheckpoint}
