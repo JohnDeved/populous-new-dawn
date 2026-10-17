@@ -14,6 +14,11 @@ export const SHARDED_JOBS = [
     steps: [...common, 'Run test shard', 'Reject tracked input mutation', 'Upload shard receipt'] })),
 ]
 
+export const BASELINE_DIAGNOSTIC = {
+  name: 'Legacy test baseline (diagnostic)',
+  steps: [...common, 'Legacy full test suite', 'Reject tracked input mutation'],
+}
+
 export function shardedLogReceipt(log) {
   const lines = log.split('\n').map(line => line.replace(/^\d{4}-\d\d-\d\dT\S+\s+/, ''))
     .filter(line => line.startsWith('PND_FULL_CHECK_RECEIPT'))
@@ -89,5 +94,28 @@ export function validateShardedReceipt(receipt, expected) {
     coverage.push(...files)
   }
   ensure(same(coverage.sort(), inventory.map(i => i.file)), 'test coverage is not exact')
+  return true
+}
+
+export function validateBaselineLog(log, inventory) {
+  const rows = log.split('\n').map(line => line.replace(/^\d{4}-\d\d-\d\dT\S+\s+/, ''))
+    .filter(line => line.startsWith('{"kind":"pnd-test-plan",') || line.startsWith('{"kind":"pnd-test-result",'))
+    .map(line => JSON.parse(line))
+  const plans = rows.filter(r => r.kind === 'pnd-test-plan'), results = rows.filter(r => r.kind === 'pnd-test-result')
+  ensure(plans.length === 1 && results.length === 1, 'baseline needs one complete test plan/result')
+  const plan = plans[0], result = results[0], files = inventory.map(i => i.file)
+  ensure(plan.mode === 'all' && plan.fullSuite === true && same(plan.files, files) &&
+    Array.isArray(plan.groups) && plan.groups.length > 0 &&
+    plan.groups.every(g => [1, 2].includes(g.concurrency) && Array.isArray(g.files) && g.files.length > 0) &&
+    same(plan.groups.flatMap(g => g.files).sort(), files), 'baseline lacks exact full-suite coverage')
+  ensure(result.mode === 'all' && result.fullSuite === true && result.complete === true &&
+    result.interrupted === null && result.status === 'passed' &&
+    Array.isArray(result.results) && result.results.length === plan.groups.length,
+    'baseline test suite did not finish successfully')
+  result.results.forEach((r, i) => ensure(r.status === 'passed' && r.exitCode === 0 &&
+    r.signal === null && r.error === null && r.concurrency === plan.groups[i].concurrency &&
+    same(r.files, plan.groups[i].files) && Array.isArray(r.command) && /^\/.*\/node$/.test(r.command[0]) &&
+    same(r.command.slice(1), ['--test', `--test-concurrency=${r.concurrency}`, '--test-reporter=tap', ...r.files]),
+    'baseline subprocess failed or changed test selection'))
   return true
 }

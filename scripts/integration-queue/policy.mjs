@@ -109,6 +109,12 @@ export function validateEntry(entry) {
     entry.fullCheckPolicy === undefined || ['legacy-v1', 'sharded-v1'].includes(entry.fullCheckPolicy),
     'Unsupported Full check evidence policy'
   )
+  if (entry.fullCheckDiagnostic !== undefined) {
+    const d = entry.fullCheckDiagnostic
+    requireThat(entry.fullCheckPolicy === 'sharded-v1' && d &&
+      Object.keys(d).length === 1 && Number.isSafeInteger(d.activationPr) && d.activationPr > 0,
+      'Diagnostic policy must pin one literal activation PR under sharded-v1')
+  }
   if (entry.workflowTransition !== undefined) {
     const t = entry.workflowTransition
     requireThat(
