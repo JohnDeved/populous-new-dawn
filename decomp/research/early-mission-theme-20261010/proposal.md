@@ -1,5 +1,18 @@
 # Missions 1–3: shared authored environment selection
 
+## Historical status (updated 2026-10-17)
+
+This document preserves the accepted October 10 source/data proof and design
+boundary. Below, “current” loader gaps and unstarted implementation refer to
+comparison source `35de8e6c`, not the present game. The environment implementation
+was subsequently delivered in [51bd8f93](https://github.com/JohnDeved/populous-new-dawn/commit/51bd8f93dce15809b70cdcd3835ccc4bc2244ebe),
+and shared Temple materials in [71dadcb2](https://github.com/JohnDeved/populous-new-dawn/commit/71dadcb29ebc2e34c8f48fba0851a9b28c93c6d5).
+See the maintained `app/world-environment.ts`, `scripts/import-world-environments.py`
+and `scripts/authored-environment-inputs.json` for their current implementation
+and pinned import inputs. The historical acceptance plan below does not establish
+which later rendered gates passed; consult the implementation evidence for that.
+This documentation integration adds no runtime behavior or new parity claim.
+
 Issue [#14](https://github.com/JohnDeved/populous-new-dawn/issues/14) already owns
 terrain, skies and ambience. Johann's October 10 report says Missions 2 and 3
 retain Mission 1's appearance instead of their original colors and trees.
@@ -15,7 +28,8 @@ the terrain and vegetation work below.
 - Canonical archive SHA256:
   `6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702`.
 - Existing Binary Refinery 0.10.11 reads only 32 selected Component0 members.
-  `inventory.json` retains exact member names/components, sizes, SHA256 values,
+  [The frozen inventory](https://github.com/JohnDeved/populous-new-dawn/blob/d13825915c557cb24b0fc5341b5280c69ac88c94/decomp/research/early-mission-theme-20261010/inventory.json)
+  retains exact member names/components, sizes, SHA256 values,
   comparison-source hashes and computed metadata. No raw members or archive
   are published.
 - Pure helpers from `scripts/import-original.py`, SHA256
@@ -82,7 +96,7 @@ These are Mission 3's dominant model 3 trees and its model 6 tree. The original
 SHAPES table matches the imported table; the missing bank selection is in object
 indices. This shadow ownership belongs in the coherent vegetation correction.
 
-## Current shared consumers and smallest coherent implementation
+## Historical shared consumers and proposed implementation
 
 1. Add one immutable, generic environment selection from actual header data.
    Resolve landscape12/28/25 to c/s/p terrain and full model atlas, and resolve
@@ -184,20 +198,35 @@ must follow the actual shared resource/controller lifetime and readiness contrac
   than treating an old pass as s/p or ordinary acceptance. Fresh independent
   review and rendered evidence are still required before runtime merge.
 
-## Reproduction and next decision
+## Historical reproduction and retained evidence
 
-The recovered canonical archive and existing archive-reader runtime were found
-on this executor. The old shared-prerequisites directory was absent; that was
-not a missing-input blocker. All32 scoped members were readable and checked.
-Use the already verified extraction environment; no installation is required by
-this proof. From the source checkout, with that environment on PYTHONPATH:
+The October 10 inventory read all 32 scoped members using the then-available
+verified extraction environment. That historical success does not establish the
+availability of that environment on another machine.
+
+Retain `inventory.py` as reproducible research source. Its pinned decoder and
+baseline model assertions target the comparison checkout, not current main.
+Current main's decoder and model bytes have changed. Supply a separate checkout
+at `35de8e6ca6864a98aff3bca0f263e87eee7fa65c`, the hash-matching canonical archive,
+and an already verified Python environment with Binary Refinery 0.10.11. From the
+checkout containing this research script:
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 python decomp/research/early-mission-theme-20261010/inventory.py \
-  /path/to/PopulousTB-Setup.zip --repo . \
+  /path/to/PopulousTB-Setup.zip --repo /path/to/historical-35de8e6c-checkout \
   --source-commit 35de8e6ca6864a98aff3bca0f263e87eee7fa65c
 ```
 
-`run.json` records the actual command, source/input identities and exit status.
-No external source blocker remains. **Review this data/scope freeze next; no
-runtime implementation or imported asset changes have been started.**
+The script prints metadata to stdout; keep any newly captured output outside
+tracked source. Its `--source-commit` argument labels the report, so verify the
+historical checkout identity independently before execution. No archive decode or
+reproduction execution was performed for this documentation integration.
+
+[The frozen run receipt](https://github.com/JohnDeved/populous-new-dawn/blob/d13825915c557cb24b0fc5341b5280c69ac88c94/decomp/research/early-mission-theme-20261010/run.json)
+records the original command, input identities and successful exit, including
+machine-specific paths that are not portable setup instructions. The generated
+inventory and run receipt are intentionally not tracked in the current tree;
+the immutable accepted commit retains them. Maintained importer inputs live in
+`scripts/authored-environment-inputs.json`; these historical outputs are not
+runtime or test fixtures. The original source review is recorded in
+[PR #312's acceptance](https://github.com/JohnDeved/populous-new-dawn/pull/312#issuecomment-6096955319).

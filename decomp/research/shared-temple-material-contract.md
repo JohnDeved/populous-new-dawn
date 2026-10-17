@@ -1,5 +1,21 @@
 # Shared ordinary Temple material contract
 
+## Historical status (updated 2026-10-17)
+
+This is the accepted October 10 design contract, not an outstanding implementation
+plan. Its “current” descriptions below refer to the frozen runtime named there.
+The bank-aware environment was delivered in
+[51bd8f93](https://github.com/JohnDeved/populous-new-dawn/commit/51bd8f93dce15809b70cdcd3835ccc4bc2244ebe),
+and shared ordinary Temple materials in
+[71dadcb2](https://github.com/JohnDeved/populous-new-dawn/commit/71dadcb29ebc2e34c8f48fba0851a9b28c93c6d5).
+Current `app/temple-art.ts` admits completed models 95–98 independently of mission
+and tribe, while keeping acquisition sprite-palette eligibility separate.
+The invariants and original acceptance requirements remain useful historical
+rationale; their presence here is not a claim that any later rendered gate passed.
+This documentation integration changes no runtime behavior and performs no new
+rendering validation. The original review remains recorded in
+[PR #313's acceptance](https://github.com/JohnDeved/populous-new-dawn/pull/313#issuecomment-6097007130).
+
 Proposed implementation contract for issues [#23](https://github.com/JohnDeved/populous-new-dawn/issues/23)
 and [#14](https://github.com/JohnDeved/populous-new-dawn/issues/14), frozen against
 runtime `219384134d21200f80df0496a4866fb02fb200db`. This is source review and a
@@ -114,7 +130,7 @@ its proven scoped p atlas and shares the same tile snapshot as world Temples;
 M1 model103 remains on its existing c overlay atlas. Full-atlas migration or
 additional overlay admission is unnecessary for this contract.
 
-## Future implementation acceptance
+## Original implementation acceptance requirements
 
 Extend the existing store/material/Scene tests through actual callers: initial
 M1 resource; c/s/p and fallback identity; all four ordinary Temple models;
@@ -133,4 +149,5 @@ re-run the accepted archive/model inventory. Standard check/build and affected
 material, Scene, acquisition and lifecycle gates remain implementation gates.
 No new original/native/game execution, extraction, regression test or runtime
 edit was performed for this contract. The source inputs/phase producer are
-identified; implementation and its acceptance are the remaining work.
+identified. Implementation and its acceptance were the remaining work at this
+October 10 checkpoint; see the historical-status section for subsequent delivery.
