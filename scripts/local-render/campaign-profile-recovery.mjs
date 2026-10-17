@@ -284,7 +284,8 @@ export default async function ({ browser, context: initialContext, page: initial
       await startup.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
       await bindGame(page)
       const skip = page.getByRole('button', { name: /Skip introduction/ })
-      if (await skip.isVisible()) await skip.click({ noWaitAfter: true })
+      // Mission 1 starts the flyby after the scene binds; wait for its public control.
+      await skip.click({ noWaitAfter: true })
       entry.readiness = await waitForShamanReadiness(page)
       await page.getByRole('button', { name: 'Game settings', exact: true }).click()
       const menu = page.locator('dialog[data-original-pause-menu]')
