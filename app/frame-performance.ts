@@ -1,4 +1,4 @@
-import type { PointerFrameMetrics } from './pointer-frame-metrics.ts'
+import { createPointerFrameMetrics, type PointerFrameMetrics } from './pointer-frame-metrics.ts'
 
 export const RECENT_FRAME_CAPACITY = 1200
 const POINTER_FIELDS = [
@@ -175,11 +175,10 @@ export class FramePerformance {
         pointerTooltipCpuMs,
         state,
       ] = this.recent.subarray(offset, offset + RAW_WIDTH)
-      const pointerBreakdown = this.recent[offset + 8]
-        ? (Object.fromEntries(
-            POINTER_FIELDS.map((key, i) => [key, this.recent[offset + 9 + i]])
-          ) as unknown as PointerFrameMetrics)
-        : null
+      const pointerBreakdown = this.recent[offset + 8] ? createPointerFrameMetrics() : null
+      if (pointerBreakdown)
+        for (let i = 0; i < POINTER_FIELDS.length; i++)
+          pointerBreakdown[POINTER_FIELDS[i]] = this.recent[offset + 9 + i]
       return {
         pointerBreakdown,
         timestampMs,

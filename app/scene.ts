@@ -670,8 +670,8 @@ export class GameScene {
     const p = this.view.screen(position, this.camera)
     return p.z < -1 || p.z > 1 ? null : p
   }
-  pickUnit(event: { clientX: number; clientY: number }) {
-    return pickUnit(this, event)
+  pickUnit(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics) {
+    return pickUnit(this, event, metrics)
   }
   visible(p: Point, h = this.y(p)) {
     const q = this.screen(p, h)
@@ -717,8 +717,8 @@ export class GameScene {
   pointerMove = ((event: PointerEvent) => {
     pointerMove(this, event)
   }) as EventListener
-  updateDrag(event: { clientX: number; clientY: number }) {
-    updateDrag(this, event)
+  updateDrag(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics) {
+    updateDrag(this, event, metrics)
   }
   pointerUp = ((event: PointerEvent) => {
     pointerUp(this, event)
