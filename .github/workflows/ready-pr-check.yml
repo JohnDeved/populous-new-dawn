@@ -167,7 +167,6 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-
       # Diagnostics never enter the strict five-artifact acceptance namespace.
       - name: Upload optional per-file timing diagnostics
         if: ${{ always() && (steps.shard.outcome == 'success' || steps.shard.outcome == 'failure') }}

@@ -358,20 +358,20 @@ test('one activation diagnostic compares the unchanged legacy test suite without
 
 test('timing upload is optional and isolated from mandatory acceptance artifacts', () => {
   const workflow = read('.github/workflows/ready-pr-check.yml')
-  const block = workflow.match(/      - name: Upload optional per-file timing diagnostics\n([\s\S]*?)\n  full-check:/)?.[1]
+  const block = workflow.match(/ {6}- name: Upload optional per-file timing diagnostics\n([\s\S]*?)\n  full-check:/)?.[1]
   assert.ok(block)
   assert.match(block, /if: \$\{\{ always\(\) && \(steps.shard.outcome == 'success' \|\| steps.shard.outcome == 'failure'\) \}\}/)
   assert.match(block, /continue-on-error: true/)
   assert.equal((workflow.match(/continue-on-error:/g) ?? []).length, 1)
   assert.match(block, /name: test-timings-\$\{\{ github.run_id \}\}-\$\{\{ github.run_attempt \}\}-shard-\$\{\{ matrix.label \}\}/)
-  assert.deepEqual([...block.matchAll(/^            (work\/ci\/[^\n]+)$/gm)].map(match => match[1]),
+  assert.deepEqual([...block.matchAll(/^ {12}(work\/ci\/[^\n]+)$/gm)].map(match => match[1]),
     ['work/ci/before.json', 'work/ci/shard.json', 'work/ci/receipt.json', 'work/ci/timings/*.jsonl'])
   assert.match(block, /if-no-files-found: warn/)
   assert.match(block, /retention-days: 7/)
   assert.doesNotMatch(block, /full-check-|run:/)
-  assert.match(workflow, /name: Run test shard\n        id: shard\n        run: node scripts\/orchestration\/test-runner.mjs shard --shard-index=\$\{\{ matrix.index \}\} --shard-count=4 --receipt=work\/ci\/shard.json --timings=summary-v1\n/)
+  assert.match(workflow, /name: Run test shard\n {8}id: shard\n {8}run: node scripts\/orchestration\/test-runner.mjs shard --shard-index=\$\{\{ matrix.index \}\} --shard-count=4 --receipt=work\/ci\/shard.json --timings=summary-v1\n/)
   for (const name of ['quality', 'shard']) {
-    const required = workflow.match(new RegExp(`      - name: Upload ${name} receipt\\n([\\s\\S]*?)(?=\\n      |\\n  [a-z])`))?.[1]
+    const required = workflow.match(new RegExp(`      - name: Upload ${name} receipt\\n([\\s\\S]*?)(?=\\n {6}- |\\n {2}[a-z])`))?.[1]
     assert.ok(required)
     assert.match(required, /path: work\/ci\/receipt.json/)
     assert.doesNotMatch(required, /continue-on-error|timings/)
