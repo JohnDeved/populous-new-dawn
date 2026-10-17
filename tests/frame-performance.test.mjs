@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { createPointerFrameMetrics, resetPointerFrameMetrics } from '../app/pointer-frame-metrics.ts'
 import { FramePerformance } from '../app/frame-performance.ts'
 
 test('frame telemetry computes time-weighted cadence and per-frame CPU/call means at four Hz', () => {
@@ -90,6 +91,7 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
   const events = [], updates = []
   const step = name => () => { events.push(name); clock += 1 }
   const context = {
+    resetPointerFrameMetrics,
     performance: { now() { reads++; return clock } },
     document: { hidden, querySelector() { return null } }, devicePixelRatio: 1,
     requestAnimationFrame() { events.push('schedule'); clock += 1; return 42 },
@@ -98,6 +100,7 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
   }
   const scene = vm.runInNewContext(stripTypeScriptTypes(`new (class { ${body} })()`), context)
   Object.assign(scene, {
+    pointerFrameMetrics: createPointerFrameMetrics(),
     isCurrent: () => current, previous: 0, modalSuspended: modal,
     hoveredObject: null, world: { selected: [], buildings: [], trees: [] },
     renderer: { getPixelRatio: () => 1, render: step('render'), info: { render: { calls: 7 } } },
@@ -135,7 +138,7 @@ test('modal callback measures rendering and scheduling without simulation or HUD
   const { events, updates, reads } = runCallback({ modal: true })
   assert.deepEqual(events, ['render', 'schedule', 'telemetry'])
   assert.equal(reads, 4)
-  assert.deepEqual(Array.from(updates[0]), [10, 0, 1, 7, 'Menu · rendering', 2])
+  assert.deepEqual(Array.from(updates[0]), [10, 0, 1, 7, 'Menu · rendering', 2, 0, createPointerFrameMetrics()])
 })
 
 test('disabled and hidden diagnostics add no clock reads and preserve game callback order', () => {
@@ -310,7 +313,7 @@ test('export capture is bounded, chronological and independent of graph summary 
   assert.equal(frames.length, 1200)
   assert.deepEqual(frames[0], { timestampMs: 1020, rafIntervalMs: 10, simulationCpuMs: 102,
     sceneRenderCpuMs: 2, sceneDrawCalls: 30, callbackCpuMs: 111, pointerTooltipCpuMs: 4,
-    otherCallbackCpuMs: 3, state: 'menu' })
+    otherCallbackCpuMs: 3, state: 'menu', pointerBreakdown: null })
   assert.equal(frames.at(-1).timestampMs, 13010)
   frames[0].simulationCpuMs = -999
   assert.equal(samples.recentFrames()[0].simulationCpuMs, 102, 'export is detached from mutable storage')
@@ -418,4 +421,21 @@ test('download failures are surfaced without clearing capture and still revoke t
       else delete globalThis[name]
     }
   }
+})
+
+test('raw pointer phase export snapshots all counters, marks unavailable and clears modal/reset state', () => {
+  const samples = new FramePerformance(), metrics = createPointerFrameMetrics()
+  for (const [index, key] of Object.keys(metrics).entries()) metrics[key] = index + 1
+  const expected = { ...metrics }
+  samples.sample(10, 1, 2, 3, 6, 1, 10, 'live', metrics)
+  resetPointerFrameMetrics(metrics)
+  assert.deepEqual(samples.recentFrames()[0].pointerBreakdown, expected)
+  samples.sample(10, 0, 1, 3, 2, 0, 20, 'menu', metrics)
+  assert.deepEqual(samples.recentFrames()[1].pointerBreakdown, createPointerFrameMetrics())
+  metrics.objectModelsMs = NaN
+  samples.sample(10, 1, 2, 3, 6, 1, 30, 'live', metrics)
+  assert.equal(samples.recentFrames().length, 2)
+  samples.reset()
+  samples.sample(10, 1, 2, 3, 6, 1, 40, 'live')
+  assert.equal(samples.recentFrames()[0].pointerBreakdown, null)
 })

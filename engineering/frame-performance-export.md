@@ -14,7 +14,7 @@ re-enable before reproducing another issue. Serialization occurs only on request
 
 Schema `populous-new-dawn/frame-performance`, version 1, includes RAF intervals,
 inclusive callback CPU, simulation CPU, scene-render CPU, pointer/tooltip CPU,
-signed other-callback CPU, draw-call counts and each frame's live/paused/menu state.
+signed other-callback CPU, nested pointer phase timings/counters, draw-call counts and each frame's live/paused/menu state.
 All timings are milliseconds. RAF timestamps use `performance.timeOrigin`; the
 origin is included as Unix milliseconds, with ISO export/enable times.
 The first interval's start is included in the actual captured span.
@@ -28,7 +28,16 @@ can still affect the following RAF interval. Browser/OS scheduling may do so too
 The file includes browser user agent, browser-reported renderer/core/RAM hints,
 viewport, device pixel ratio and drawing buffer dimensions at export time.
 Hardware hints can be coarse or unavailable. The build embeds the actual Git
-revision with a `-dirty` suffix for tracked modifications; an archive without Git
+revision with a `-dirty` suffix for tracked or untracked modifications; an archive without Git
 metadata reports `unknown`. No URL, account details, save, seed, entity contents,
 or other world state is serialized. Review the file before sharing if browser
 or hardware information is sensitive to you.
+
+`pointerBreakdown` is null when unavailable, otherwise includes terrain picks,
+object picks, nested unit/model/occlusion time, object cache hits, tooltip input
+publication and tooltip rendering. These are overlapping diagnostic scopes, NOT
+additive CPU stages: tooltip input includes its picks, object picks include their
+unit/model/occlusion phases, and tooltip rendering occurs outside pointer CPU.
+Layout flushes are attributed to the phase where the browser executes them, not
+necessarily where DOM writes originally dirtied layout. Session metadata includes
+only the numeric campaign level, not the world/save.

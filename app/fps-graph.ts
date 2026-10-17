@@ -1,4 +1,5 @@
 import { FramePerformance, RECENT_FRAME_CAPACITY } from './frame-performance.ts'
+import type { PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import { readHardwareInfo, readHeapEstimate } from './performance-hardware.ts'
 
 declare const __PND_BUILD_REVISION__: string
@@ -7,6 +8,7 @@ declare const __PND_BUILD_REVISION__: string
 export class FpsGraph {
   readonly element = document.createElement('aside')
   readonly samples = new FramePerformance()
+  private readonly level: number | null
   private readonly enabledAt = new Date().toISOString()
   private readonly gl: WebGLRenderingContext | WebGL2RenderingContext
   private readonly hardware: ReturnType<typeof readHardwareInfo>
@@ -17,8 +19,9 @@ export class FpsGraph {
   private line: SVGPolylineElement
   private budget: SVGPathElement
 
-  constructor(gl: WebGLRenderingContext | WebGL2RenderingContext) {
+  constructor(gl: WebGLRenderingContext | WebGL2RenderingContext, level?: number) {
     this.gl = gl
+    this.level = level !== undefined && Number.isInteger(level) ? level : null
     this.hardware = readHardwareInfo(gl, navigator)
     this.element.className = 'fps-graph'
     this.element.setAttribute(
@@ -126,6 +129,7 @@ export class FpsGraph {
         endTimestampMs: last.timestampMs,
         capturedSpanMs: last.timestampMs - first.timestampMs + first.rafIntervalMs,
       },
+      session: { level: this.level },
       environment: {
         userAgent: navigator.userAgent,
         hardware: this.hardware,
@@ -140,6 +144,8 @@ export class FpsGraph {
       notes: [
         'RAF cadence is not presented FPS. CPU wall times are not GPU timings.',
         'Callback includes all CPU stages; other is a signed remainder. Overlay and export work are excluded.',
+        'Pointer breakdown phases overlap: tooltipInput includes nested picks; objectPick includes units/models/occlusion; tooltipRender is outside pointerTooltip CPU. Do not sum them.',
+        'Browser layout flushes execute in the phase that reads layout, which may differ from the phase that dirtied it.',
         'Capture resets on focus loss, hidden tab or F8 disable. No account, URL, save or world contents are included.',
       ],
       frames,
@@ -208,7 +214,8 @@ export class FpsGraph {
     calls: number,
     state: string,
     callback: number,
-    pointer = 0
+    pointer = 0,
+    metrics?: PointerFrameMetrics
   ) {
     this.cleared = false
     const { previous } = this
@@ -232,7 +239,8 @@ export class FpsGraph {
             ? 'paused'
             : state.startsWith('Menu')
               ? 'menu'
-              : 'unknown'
+              : 'unknown',
+        metrics
       )
     )
       return

@@ -1,5 +1,19 @@
+import type { PointerFrameMetrics } from './pointer-frame-metrics.ts'
+
 export const RECENT_FRAME_CAPACITY = 1200
-const RAW_WIDTH = 8
+const POINTER_FIELDS = [
+  'terrainPickMs',
+  'terrainPickCalls',
+  'objectPickMs',
+  'objectPickCalls',
+  'objectUnitsMs',
+  'objectModelsMs',
+  'objectOcclusionMs',
+  'objectCacheHits',
+  'tooltipInputMs',
+  'tooltipRenderMs',
+] as const
+const RAW_WIDTH = 9 + POINTER_FIELDS.length
 
 export interface RecentFrame {
   timestampMs: number
@@ -10,6 +24,7 @@ export interface RecentFrame {
   callbackCpuMs: number
   pointerTooltipCpuMs: number
   otherCallbackCpuMs: number
+  pointerBreakdown: PointerFrameMetrics | null
   state: 'live' | 'paused' | 'menu' | 'unknown'
 }
 
@@ -71,7 +86,8 @@ export class FramePerformance {
     callback: number,
     pointer = 0,
     timestamp = this.timestamp + milliseconds,
-    state: RecentFrame['state'] = 'unknown'
+    state: RecentFrame['state'] = 'unknown',
+    metrics?: PointerFrameMetrics
   ) {
     if (!Number.isFinite(milliseconds) || milliseconds <= 0) return false
     // Reject invalid measurements as a whole, without poisoning either window.
@@ -90,6 +106,9 @@ export class FramePerformance {
       timestamp < 0
     )
       return false
+    if (metrics)
+      for (const key of POINTER_FIELDS)
+        if (!Number.isFinite(metrics[key]) || metrics[key] < 0) return false
     this.timestamp = timestamp
     const offset = this.recentCursor * RAW_WIDTH
     this.recent[offset] = timestamp
@@ -101,6 +120,9 @@ export class FramePerformance {
     this.recent[offset + 6] = pointer
     this.recent[offset + 7] =
       state === 'live' ? 1 : state === 'paused' ? 2 : state === 'menu' ? 3 : 0
+    this.recent[offset + 8] = metrics ? 1 : 0
+    for (let i = 0; i < POINTER_FIELDS.length; i++)
+      this.recent[offset + 9 + i] = metrics?.[POINTER_FIELDS[i]] ?? 0
     this.recentCursor = (this.recentCursor + 1) % RECENT_FRAME_CAPACITY
     this.recentCount = Math.min(this.recentCount + 1, RECENT_FRAME_CAPACITY)
     this.callbackHistory[this.cursor] = callback
@@ -153,7 +175,13 @@ export class FramePerformance {
         pointerTooltipCpuMs,
         state,
       ] = this.recent.subarray(offset, offset + RAW_WIDTH)
+      const pointerBreakdown = this.recent[offset + 8]
+        ? (Object.fromEntries(
+            POINTER_FIELDS.map((key, i) => [key, this.recent[offset + 9 + i]])
+          ) as unknown as PointerFrameMetrics)
+        : null
       return {
+        pointerBreakdown,
         timestampMs,
         rafIntervalMs,
         simulationCpuMs,

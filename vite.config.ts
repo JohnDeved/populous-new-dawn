@@ -8,8 +8,8 @@ import { sites } from "./build/sites-vite-plugin";
 // without Git metadata explicitly report unknown in diagnostic exports.
 function buildRevision() {
   try {
-    const revision = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
-    const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    const revision = execFileSync("git", ["rev-parse", "HEAD"], { cwd: import.meta.dirname, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    const dirty = execFileSync("git", ["status", "--porcelain"], { cwd: import.meta.dirname, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
     return /^[0-9a-f]{40}$/.test(revision) ? revision + (dirty ? "-dirty" : "") : "unknown";
   } catch { return "unknown"; }
 }

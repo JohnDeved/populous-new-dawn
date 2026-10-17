@@ -11,6 +11,11 @@ import { orderSound, playWorldSounds, soundEnvironment } from './audio'
 import { renderBuildingPanels } from './building-panels.ts'
 import { createCameraMotion, createResultCamera } from './camera-motion.ts'
 import { type FlybyCamera } from './flyby.ts'
+import {
+  createPointerFrameMetrics,
+  resetPointerFrameMetrics,
+  type PointerFrameMetrics,
+} from './pointer-frame-metrics.ts'
 import { FpsGraph } from './fps-graph.ts'
 import { levelStartCamera } from './level-start.ts'
 import { advanceGame } from './game-clock.ts'
@@ -297,12 +302,14 @@ export class GameScene {
   started = false
   disposed = false
   fpsGraph: FpsGraph | null = null
+  private readonly pointerFrameMetrics = createPointerFrameMetrics()
   togglePerformance() {
     if (this.fpsGraph) {
       this.fpsGraph.element.remove()
       this.fpsGraph = null
     } else {
-      this.fpsGraph = new FpsGraph(this.renderer.getContext())
+      this.fpsGraph = new FpsGraph(this.renderer.getContext(), this.world.outcome.level)
+      this.fpsGraph.element.addEventListener('focusin', () => this.keys.clear())
       this.container.appendChild(this.fpsGraph.element)
     }
   }
@@ -740,8 +747,8 @@ export class GameScene {
   updateFlyby(dt: number) {
     return updateFlyby(this, dt)
   }
-  renderTooltip() {
-    renderTooltip(this)
+  renderTooltip(metrics?: PointerFrameMetrics) {
+    renderTooltip(this, metrics)
   }
   renderBuildingPanels() {
     renderBuildingPanels(this, texture('hud').image as HTMLImageElement)
@@ -840,6 +847,8 @@ export class GameScene {
     }
     const diagnostic = document.hidden ? null : this.fpsGraph
     const callbackStart = diagnostic ? performance.now() : 0
+    const pointerMetrics = diagnostic ? this.pointerFrameMetrics : undefined
+    if (pointerMetrics) resetPointerFrameMetrics(pointerMetrics)
     if (this.renderer.getPixelRatio() !== Math.min(devicePixelRatio, 1.8)) this.setSize()
     const previous = this.previous ?? now,
       skyTicks = Math.imul(Math.max(0, Math.floor(now) - Math.floor(previous)), 64) >>> 0,
@@ -859,7 +868,9 @@ export class GameScene {
         renderMs,
         this.renderer.info.render.calls,
         'Menu · rendering',
-        performance.now() - callbackStart
+        performance.now() - callbackStart,
+        0,
+        pointerMetrics
       )
       return
     }
@@ -888,13 +899,13 @@ export class GameScene {
     if (!cameraOwnsFrame && !this.updateFlyby(dt)) this.updateView()
     this.updateUnitsFrame()
     updateVehiclesFrame(this)
-    this.renderTooltip()
+    this.renderTooltip(pointerMetrics)
     this.updateBuildingsFrame()
     this.updateEffectsFrame()
     this.updateShrinesFrame()
     const spec = SPELLS.find(s => s.id === this.world.mode)
     const pointerStart = diagnostic ? performance.now() : 0
-    this.updatePointerFrame(now)
+    this.updatePointerFrame(now, pointerMetrics)
     const pointerMs = diagnostic ? performance.now() - pointerStart : 0
     let hovered: Parameters<typeof renderSceneFrame>[1] =
       this.hoveredObject === null ? null : worldTooltipObject(this.world, this.hoveredObject)
@@ -923,7 +934,8 @@ export class GameScene {
       this.renderer.info.render.calls,
       this.world.paused ? 'Paused · rendering' : 'Live',
       performance.now() - callbackStart,
-      pointerMs
+      pointerMs,
+      pointerMetrics
     )
   }
   private updateTerrainFrame() {
@@ -950,8 +962,8 @@ export class GameScene {
     updateShrinesFrame(this)
   }
 
-  private updatePointerFrame(now: number) {
-    updatePointerFrame(this, now)
+  private updatePointerFrame(now: number, metrics?: PointerFrameMetrics) {
+    updatePointerFrame(this, now, metrics)
   }
 
   private updateSpellPointerFrame(spec: (typeof SPELLS)[number] | undefined) {
