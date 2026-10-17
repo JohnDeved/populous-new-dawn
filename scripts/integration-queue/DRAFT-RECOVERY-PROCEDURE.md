@@ -47,7 +47,22 @@ Run mode `observe` twice with at least sixty seconds between the first completed
 observation and second start, retaining each raw result. Each observation enumerates
 the entire ordinary timeline and all head-associated workflow runs twice, checks
 pagination/coherence and immutable source/workflow identity, and reuses the existing
-source-bound admission observer. Supply both in INPUT.observations to mode `prepare`.
+source-bound admission observer. Immutable workflow bytes are read from exact local
+Git objects and checked against the pinned hashes; missing objects or mismatches stop.
+Mutable PR, run and timeline observations remain live, complete and coherent.
+
+The read-only result includes `validation.valid`. A process exit of zero only means
+observation collection completed; `validation.valid: false` is NOT acceptance. Retain
+the named predicate, source timestamps and stack, and do not prepare from that result.
+The preparation and dispatch core independently validate the evidence again, rather
+than trusting the diagnostic boolean. Supply both in INPUT.observations to mode `prepare`.
+
+REST timeline `committed` rows have no authoritative PR-event timestamp. Preserve
+them in complete raw-page hashes and the quiet-window inventory, verify their commit
+SHAs are ancestors of the exact reviewed head, and keep normalized time/actor null.
+Never substitute author/committer dates. The actual REST conversion event is
+`convert_to_draft` (GraphQL calls its type `ConvertToDraftEvent`); its real timestamp
+and actor remain mandatory.
 The canonical sidecar stores the separate allowance before any action can be exposed.
 If draft is already observed with exactly one attributable transition, preparation
 records state-based convergence without a connector call or original-success claim.
@@ -61,6 +76,15 @@ local invocation ID and spend before returning the descriptor. Root may invoke o
 that exact github.convert_pull_request_to_draft target once. A local invocation ID
 is coordinator correlation, not a GitHub request ID. If the descriptor/result is
 lost or ambiguous, do not repeat the call or reset history.
+
+Before validation, dispatch persists the complete source-bound observation and digest.
+A validation failure records its named predicate and stack and stops, without returning
+a descriptor. `spent: true` at preparation reserves the single allowance; it does not
+prove a connector was invoked. A `dispatch-intended` receipt means the descriptor
+boundary may have been crossed and must never be replayed. No automatic continuation,
+expiry renewal, stopped-state reset or replacement budget is implemented. A separate
+owner incident procedure must preserve the failed record and distinguish demonstrable
+pre-dispatch failure from an ambiguous external call; this CLI cannot authorize it.
 
 Save the actual raw structured connector result/error. Mode `record-draft` INPUT:
 rawReceiptPath and receipt containing exact tool, arguments, recoveryDigest,
@@ -93,3 +117,25 @@ Even validated state grants no merge authority: final merge decisions still requ
 fresh protected-check/server mergeability checks. A delayed original draft is an
 explicit fail-closed liveness risk, never evidence that source or server guards can
 be skipped. This procedure never claims the old network request was unsent.
+
+
+## Publication and acceptance status
+
+The focused offline suites cover durable spend ordering, lock/sidecar exclusion,
+malformed/copy-path evidence, source-policy preflight, commit timeline rows, actual
+REST draft-event spelling, freshness failures and no-replay guards. Retained real
+read-only smoke observations exercise the live API schemas and source-bound parser.
+These checks are not an end-to-end success claim for the recovery controller.
+
+PR531 reached successful validation and merge through a separately reviewed owner
+incident procedure after the controller stopped before descriptor emission. Its
+original UNKNOWN intent and failed recovery record were preserved, not rewritten
+as successful controller execution. The owner consumed the same reserved draft and
+previously unspent ready allowances once each. This historical incident does not
+create standing retry authority or a general exception to stopped-state guards.
+
+Before autonomous promotion, review the exact combined published source, rerun the
+focused suites after any integration changes, and demonstrate a bounded end-to-end
+fixture/hosted acceptance of the connector receipt lifecycle. Keep the PR draft until
+its separately allocated normal required checks pass. Publishing this source does not
+activate a worker, grant mutation authority, or weaken repository protections.
