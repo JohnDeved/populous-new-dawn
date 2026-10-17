@@ -136,6 +136,6 @@ create standing retry authority or a general exception to stopped-state guards.
 
 Before autonomous promotion, review the exact combined published source, rerun the
 focused suites after any integration changes, and demonstrate a bounded end-to-end
-fixture/hosted acceptance of the connector receipt lifecycle. Keep the PR draft until
-its separately allocated normal required checks pass. Publishing this source does not
+fixture/hosted acceptance of the connector receipt lifecycle. Keep the PR draft until a separately allocated, explicitly authorized normal CI
+admission; do not merge until its required checks pass. Publishing this source does not
 activate a worker, grant mutation authority, or weaken repository protections.
