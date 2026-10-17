@@ -43,6 +43,10 @@ success callback. Partial observations and failures are written on exit. Existin
 checkpoint comparison fields deliberately exclude a full serialized-record hash
 comparison at the load boundary because migration may normalize runtime fields;
 committed storage itself is compared by full record hash before/after each mutation.
+The boundary wrapper uses the independently read saved record version to serialize
+its clone; that supplied version is not an independent version observation and is
+not asserted as one. This limitation was corrected after source review; no browser
+episode had run.
 No application code has changed and no product defect or browser pass is claimed.
 
 ## Slot request

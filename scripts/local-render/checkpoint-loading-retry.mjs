@@ -88,7 +88,7 @@ export default async function ({ page, output }) {
       assert.equal(requests, attempt)
       await page.evaluate(() => { window.checkpointRetryBoundary = window.checkpointRetryBoundaries.at(-1) })
       const boundary = await page.evaluate(checkpointObservation, { observationName: 'checkpointRetryBoundary' })
-      for (const field of ['version', 'level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256'])
+      for (const field of ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256'])
         assert.deepEqual(boundary[field], report.saved[field], `attempt ${attempt}: saved ${field}`)
       const snapshot = () => page.evaluate(() => {
         const scene = window.checkpointRetryScenes.at(-1), world = window.checkpointRetryStore.getWorld()
