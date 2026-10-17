@@ -54,3 +54,21 @@ episode results; the runner's source manifest includes the added scenario.
 The selector receipt is saved after observation/context cleanup and validates late
 runtime errors. Scenario failures and each cleanup failure remain in the terminal
 receipt; cleanup still attempts to close the context if observer teardown fails.
+
+The final bounded Mission 1 scenery/placement episode follows the actual New Game
+recommendation, Start Mission 1, Skip introduction, Pause, Brave selection and Hut
+controls. Read-only observers project authored settlement points into the viewport;
+real pointer events exercise valid, invalid and scenery-overlapping footprints.
+Repeated paused previews must leave building IDs and retained scenery poses unchanged.
+After Resume, an invalid click must create no building and a valid click must create
+exactly one plan. No world entities, selected IDs, camera poses, simulation clocks,
+rendering calls or placement helpers are injected. Screenshots and
+`scenery-placement.json` include actual renderer/viewport/DPR and observed state.
+The new scenario has a 60-second bound inside the unchanged 180-second aggregate
+browser bound; existing Tutorial and selector scenarios still run first.
+
+This is preview/plan and scenery-preservation coverage, not completed construction,
+tree depletion/regrowth, native-executable equivalence or hardware performance.
+The scenario's own context closes before terminal acceptance, including late runtime
+errors; the runner hashes its source and retains its normal failure/cleanup receipts.
+No new workflow, browser-download route, permission or timeout increase is involved.
