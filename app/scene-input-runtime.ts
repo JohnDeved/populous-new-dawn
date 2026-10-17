@@ -78,9 +78,15 @@ const cameraKeys: Record<string, number> = {
   numpad9: 202,
 }
 
-export function pickUnit(scene: GameScene, event: { clientX: number; clientY: number }) {
+export function pickUnit(
+  scene: GameScene,
+  event: { clientX: number; clientY: number },
+  metrics?: PointerFrameMetrics
+) {
   if (scene.overviewActive) return
-  const id = scene.picking.pickPerson(event)
+  const id = metrics
+    ? measurePointerQuery(metrics, 'object', () => scene.picking.pickPerson(event, metrics))
+    : scene.picking.pickPerson(event)
   return scene.world.units.find(u => u.id === id && u.team === 'blue' && canOrder(u))
 }
 
@@ -313,16 +319,23 @@ export function pointerMove(scene: GameScene, event: PointerEvent) {
   }
 }
 
-export function updateDrag(scene: GameScene, event: { clientX: number; clientY: number }) {
+export function updateDrag(
+  scene: GameScene,
+  event: { clientX: number; clientY: number },
+  metrics?: PointerFrameMetrics
+) {
   const drag = scene.drag
   if (!drag || scene.world.mode || scene.world.inputMask || scene.overviewActive) {
     scene.dragActive.value = false
     return
   }
-  const picked = scene.pick(event),
+  const picked = metrics
+      ? measurePointerQuery(metrics, 'terrain', () => scene.pick(event))
+      : scene.pick(event),
     end = picked && nativePosition(scene.world, picked)
   if (!drag.active) {
-    if (scene.down.unit !== undefined) drag.active = scene.pickUnit(event)?.id !== scene.down.unit
+    if (scene.down.unit !== undefined)
+      drag.active = scene.pickUnit(event, metrics)?.id !== scene.down.unit
     else if (end) drag.active = dragMoved(drag.start, end)
   }
   if (end) drag.end = dragEndpoint(drag.start, end, scene.view.angle)
@@ -813,7 +826,8 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
   ].join(',')
   const pointerChanged = pointerState !== scene.pointerState
   if (pointerChanged) {
-    if (scene.pointerButtons === 1 && scene.pointerScreen) scene.updateDrag(scene.pointerScreen)
+    if (scene.pointerButtons === 1 && scene.pointerScreen)
+      scene.updateDrag(scene.pointerScreen, metrics)
     const directBlast =
         !scene.overviewActive &&
         blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags),

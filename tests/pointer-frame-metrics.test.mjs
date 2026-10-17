@@ -76,3 +76,37 @@ test('actual pointer input preserves picking with diagnostics and skips clocks w
   renderTooltip(scene, metrics)
   assert.ok(metrics.tooltipRenderMs > 0, 'early-return hidden tooltip is still timed')
 })
+
+test('held-selection drag forwards metrics for ground and person queries with unchanged results', async t => {
+  const { tooltipCallerFixture } = await import('./support/tooltip-scene.mjs')
+  const { scene, point } = await tooltipCallerFixture(t)
+  const { updatePointerFrame, updateDrag, pickUnit } = await import('../app/scene-input-runtime.ts')
+  // Bind the production runtime functions as the scene facade does; the fixture
+  // ordinarily disables drag rendering as unrelated to tooltip acceptance.
+  scene.updateDrag = (event, metrics) => updateDrag(scene, event, metrics)
+  scene.pickUnit = (event, metrics) => pickUnit(scene, event, metrics)
+  scene.pointerScreen = { ...point }
+  scene.pointerButtons = 1
+  scene.world.mode = ''
+  scene.down = { unit: -999 }
+  let groundCalls = 0, personCalls = 0
+  scene.pick = () => { groundCalls++; return null }
+  const original = scene.picking.pickPerson.bind(scene.picking)
+  scene.picking.pickPerson = (event, metrics) => { personCalls++; return original(event, metrics) }
+  const run = metrics => {
+    scene.pointerState = ''
+    scene.picking.lastKey = ''
+    scene.drag = { start: { x: 0, y: 0 }, end: { x: 0, y: 0 }, active: false }
+    updatePointerFrame(scene, 100, metrics)
+    return { active: scene.drag.active, visible: scene.selectionOverlay.visible }
+  }
+  const metrics = createPointerFrameMetrics()
+  const enabled = run(metrics)
+  assert.equal(personCalls, 1)
+  assert.ok(groundCalls >= 1)
+  assert.equal(metrics.terrainPickCalls, groundCalls)
+  assert.ok(metrics.objectPickCalls >= personCalls)
+  const disabled = run()
+  assert.deepEqual(disabled, enabled)
+  assert.equal(personCalls, 2)
+})
