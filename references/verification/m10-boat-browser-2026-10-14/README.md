@@ -1,5 +1,7 @@
 # M10 ordinary Boat browser checkpoint witness
 
+> Historical PNG captures are [preserved unchanged at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m10-boat-browser-2026-10-14). They are no longer tracked in the current checkout; the source-bound findings, image names and any recorded hashes below remain historical evidence.
+
 > Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m10-boat-browser-2026-10-14), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
 
 Runtime: merged main `758fcb84d64f55670b3a407183ec94e5a4929b46`, unchanged application.
@@ -39,13 +41,13 @@ Game-clock timestamps are not wall-clock performance measurements.
 The images were visually inspected. They are unchanged actual 1440×1000 captures,
 not synthetic renders or pixel-matched before/after product comparisons.
 
-![Boarded authored Boat](save/boarded.png)
+![Boarded authored Boat](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m10-boat-browser-2026-10-14/save/boarded.png)
 
-![Public Save settings](save/saved-occupied-boat.png)
+![Public Save settings](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m10-boat-browser-2026-10-14/save/saved-occupied-boat.png)
 
-![After separate browser Load](load-inspection/restored-occupied-boat.png)
+![After separate browser Load](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m10-boat-browser-2026-10-14/load-inspection/restored-occupied-boat.png)
 
-![All five unloaded and landed](load-inspection/unloaded-alive.png)
+![All five unloaded and landed](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m10-boat-browser-2026-10-14/load-inspection/unloaded-alive.png)
 
 ## Retained failures
 
