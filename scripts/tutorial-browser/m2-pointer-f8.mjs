@@ -208,6 +208,15 @@ export default async function ({ browser, url, output, fixture }) {
     if (report.startup.action === 'skip')
       await page.getByRole('button', { name: /^Skip introduction/ }).click()
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+    // Admit the compact viewport through its shipped public notice before the
+    // paused no-orders baseline: Continue intentionally resumes the simulation.
+    await page.setViewportSize({ width: 640, height: 480 })
+    const desktopNotice = page.locator('.desktop-recommendation')
+    await desktopNotice.waitFor({ state: 'visible' })
+    await desktopNotice.getByRole('button', { name: /^Continue anyway/ }).click()
+    await desktopNotice.waitFor({ state: 'hidden' })
+    report.compactNoticeDismissed = true
+    await page.setViewportSize({ width: 1440, height: 1000 })
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     const observe = () =>

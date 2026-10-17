@@ -245,3 +245,18 @@ test('sample publication readiness rejects absent, empty and reset overlay field
   field = { textContent: '12 / 240 samples' }
   assert.equal(ready(), true)
 })
+
+test('compact notice is publicly dismissed before the paused witness, never during it', () => {
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  const dismiss = source.indexOf(
+    "desktopNotice.getByRole('button', { name: /^Continue anyway/ }).click()"
+  )
+  assert.ok(dismiss > 0)
+  assert.ok(source.indexOf("await desktopNotice.waitFor({ state: 'visible' })") < dismiss)
+  assert.ok(dismiss < source.indexOf("name: 'Pause game'"))
+  assert.ok(dismiss < source.indexOf('report.before = await observe()'))
+  assert.equal(source.match(/Continue anyway/g).length, 1)
+})
