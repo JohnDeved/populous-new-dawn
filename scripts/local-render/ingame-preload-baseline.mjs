@@ -77,7 +77,7 @@ export default async function ({ page, context, output, url }) {
     new MutationObserver(()=>record('mutation')).observe(document,{subtree:true,childList:true,attributes:true})
     const frame=()=>{record('frame');requestAnimationFrame(frame)};requestAnimationFrame(frame)
   })
-  const button=name=>page.getByRole('button',{name,exact:true}),options=page.locator('[data-original-options]')
+  const button=name=>page.getByRole('button',{name,exact:true})
   const twoFrames=()=>page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))
   const phase=async name=>{
     await page.evaluate(name=>{window.ingameBaseline.phase=name},name)
