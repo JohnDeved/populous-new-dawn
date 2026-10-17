@@ -291,3 +291,19 @@ test('public zoom readiness follows settled preset/configuration, not flyby zoom
   scene.overviewActive = true
   assert.equal(ready(2), false)
 })
+
+test('pause-overlay regression detects occlusion while permitting edge-touching rectangles', async () => {
+  const { m2RectanglesOverlap } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  const graph = { left: 104, top: 8, right: 632, bottom: 350 }
+  assert.equal(m2RectanglesOverlap(graph, { left: 272, top: 177, right: 464, bottom: 254 }), true)
+  assert.equal(m2RectanglesOverlap(graph, { left: 490, top: 410, right: 632, bottom: 464 }), false)
+  assert.equal(m2RectanglesOverlap(graph, { left: 8, top: 20, right: 104, bottom: 80 }), false)
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(source, /\[900, 360\]/)
+  assert.match(source, /m2RectanglesOverlap\(layout, layout.pause\)/)
+  assert.match(source, /m2RectanglesOverlap\(layout.pause, ui\)/)
+  assert.match(source, /pauseActionable/)
+})

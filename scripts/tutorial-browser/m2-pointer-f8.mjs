@@ -45,6 +45,10 @@ export const m2RouteReady = ({ x, y, world }) => {
   )
 }
 
+export function m2RectanglesOverlap(a, b) {
+  return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top
+}
+
 export function m2ViewReady(preset) {
   const s = window.testSceneRef.current
   return (
@@ -346,6 +350,7 @@ export default async function ({ browser, url, output, fixture }) {
     )
     for (const [width, height] of [
       [640, 480],
+      [900, 360],
       [1440, 1000],
     ]) {
       await page.setViewportSize({ width, height })
@@ -355,7 +360,36 @@ export default async function ({ browser, url, output, fixture }) {
       await page.waitForFunction(m2ViewReady, 2)
       const layout = await graph.evaluate(el => {
         const r = el.getBoundingClientRect()
+        const badge = document.querySelector('button.paused-badge')
+        const b = badge?.getBoundingClientRect()
         return {
+          pause: b && { left: b.left, top: b.top, right: b.right, bottom: b.bottom },
+          pauseActionable:
+            !!badge &&
+            !badge.disabled &&
+            !!b &&
+            document
+              .elementFromPoint((b.left + b.right) / 2, (b.top + b.bottom) / 2)
+              ?.closest('.paused-badge') === badge,
+          pauseText: badge?.textContent,
+          interactiveUi: [
+            ...document.querySelectorAll(
+              '.native-hud,.top-actions,.campaign-messages summary,.campaign-messages details[open]>div'
+            ),
+          ]
+            .filter(
+              node => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
+            )
+            .map(node => {
+              const r = node.getBoundingClientRect()
+              return {
+                name: node.className || node.tagName,
+                left: r.left,
+                top: r.top,
+                right: r.right,
+                bottom: r.bottom,
+              }
+            }),
           left: r.left,
           top: r.top,
           right: r.right,
@@ -382,6 +416,21 @@ export default async function ({ browser, url, output, fixture }) {
       assert.equal(layout.rowsFit, true, 'Metric rows must fit without horizontal clipping')
       assert.equal(layout.overflow, false)
       assert.equal(layout.events, 'none')
+      assert.ok(layout.pause, 'Public pause indicator must remain present')
+      assert.equal(layout.pauseActionable, true, 'Public resume control must remain hit-testable')
+      assert.match(layout.pauseText, /WORLD PAUSED/)
+      assert.match(layout.pauseText, /Click to resume/)
+      assert.equal(
+        m2RectanglesOverlap(layout, layout.pause),
+        false,
+        'Paused badge must not obscure F8 diagnostics'
+      )
+      for (const ui of layout.interactiveUi)
+        assert.equal(
+          m2RectanglesOverlap(layout.pause, ui),
+          false,
+          `Pause control must not cover interactive UI: ${ui.name}`
+        )
       const routed = await moveAndObserve(width - 60, height - 100, true)
       const sidebar = await moveToHud()
       report.samples.push({ viewport: [width, height], layout, routed, sidebar })
