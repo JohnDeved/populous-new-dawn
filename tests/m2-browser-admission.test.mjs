@@ -345,11 +345,18 @@ test('open campaign panel regression rejects the captured short-wide collision w
   assert.match(source, /panel\.closeActionable,\s*true/)
   const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
   assert.match(css, /--campaign-message-width:340px/)
+  assert.match(css, /\.world-viewport\{position:absolute;inset:0 0 0 var\(--side\)/)
   assert.match(css, /@media \(min-width:900px\) and \(max-height:700px\)/)
   assert.match(
     css,
-    /max-width:calc\(100% - var\(--side\) - var\(--campaign-message-width\) - 24px\)/
+    /max-width:calc\(100% - var\(--campaign-message-width\) - 24px\)/
   )
   assert.match(css, /\.campaign-messages details\[open\]\{width:var\(--campaign-message-width\)\}/)
   assert.match(css, /\.fps-renderer\{max-height:none;overflow:visible\}/)
+  for (const side of [72, 100, 140]) {
+    const worldWidth = 900 - side
+    const graphWidth = Math.min(560, worldWidth - 340 - 24)
+    const graphLeft = 900 - 8 - graphWidth
+    assert.equal(graphLeft - (side + 340), 16, 'HUD is excluded once by the containing viewport')
+  }
 })
