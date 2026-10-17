@@ -51,7 +51,7 @@ export default async function ({ page, context, output, url }) {
     if (message.type() === 'warning') report.warnings.push(message.text())
   })
   await context.addInitScript(() => {
-    window.uiBaseline = { samples: [], decodes: [], shifts: [], frame: 0, phase: 'boot' }
+    window.uiBaseline = { samples: [], frameSamples: [], decodes: [], shifts: [], frame: 0, phase: 'boot' }
     const data = window.uiBaseline
     const decode = HTMLImageElement.prototype.decode
     HTMLImageElement.prototype.decode = function (...args) {
@@ -99,6 +99,9 @@ export default async function ({ page, context, output, url }) {
     }
     const sample = source => {
       const state = window.uiSnapshot(), signature = JSON.stringify(state)
+      if (source === 'animation-frame' && signature !== data.lastFrame && data.frameSamples.length < 2000) {
+        data.frameSamples.push({ at: performance.now(), frame: data.frame, ...state }); data.lastFrame = signature
+      }
       if (signature !== data.last && data.samples.length < 2000) {
         data.samples.push({ source, at: performance.now(), frame: data.frame, ...state }); data.last = signature
       }
@@ -164,6 +167,7 @@ export default async function ({ page, context, output, url }) {
     await phase('09-reopened-options-ready')
     await back()
     await phase('10-return-focus')
+    assert.deepEqual(report.errors, [])
     report.status = 'passed-baseline-observations'
   } catch (error) {
     report.status = 'failed'
@@ -175,6 +179,5 @@ export default async function ({ page, context, output, url }) {
     report.browser = await page.evaluate(() => window.uiBaseline).catch(() => null)
     save()
   }
-  assert.deepEqual(report.errors, [])
   return { status: report.status, phases: report.phases.length, report: 'baseline.json' }
 }
