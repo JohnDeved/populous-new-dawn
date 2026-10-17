@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Keep Node's isolated test runner and exit semantics. This only bounds file
-// concurrency; it is neither a test framework nor a receipt/reuse mechanism.
+// concurrency. Optional CI shards retain native results for a separate aggregate;
+// they never reuse test outcomes or certify a full suite individually.
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { lstatSync, readdirSync, readFileSync } from 'node:fs'
+import { lstatSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -87,6 +88,79 @@ export function planTestRun(repo, mode, requested = [], { concurrency = '2' } = 
   ] }
 }
 
+// Shards are separate CI machines, not extra local concurrency. Every shard keeps
+// the reviewed C2/C1 policy, and only their validated aggregate is a full suite.
+export const TEST_SHARD_COUNT = 4
+export function partitionTestFiles(files, index, count = TEST_SHARD_COUNT) {
+  assert(count === TEST_SHARD_COUNT, 'Shard count must be exactly 4')
+  assert(Number.isInteger(index) && index >= 0 && index < count, 'Shard index must be an integer from 0 to 3')
+  assert(Array.isArray(files) && files.length >= count && files.every(testPath), 'Sharding needs at least four valid test files')
+  assert(new Set(files).size === files.length, 'Duplicate discovered test file')
+  return [...files].sort().filter((_, offset) => offset % count === index)
+}
+
+export function shardInputFingerprint(repo) {
+  // Include all tests and scripts, not just selected files: drift in discovery,
+  // helpers or the runner invalidates the run. The CI envelope additionally binds
+  // the complete tracked source tree, git/workflow identity and installed lock.
+  const tests = treeFingerprint(repo, 'tests'), scripts = treeFingerprint(repo, 'scripts')
+  const production = productionFingerprint(repo)
+  assert(tests && scripts && production, 'Shard inputs must be regular files/directories without symlinks')
+  const policyPath = join(repo, 'engineering/test-resources.json')
+  assert(lstatSync(policyPath).isFile(), 'Shard policy must be a regular file')
+  return hash(JSON.stringify({ tests, scripts, production, policy: hash(readFileSync(policyPath)),
+    runtime: { node: process.versions.node, platform: process.platform, arch: process.arch },
+    childEnvironment: { PYTHONDONTWRITEBYTECODE: '1' },
+    environment: Object.fromEntries(['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE', 'PND_TEST_CONCURRENCY']
+      .map(key => [key, process.env[key] ?? ''])) }))
+}
+
+function freeze(value) {
+  if (value && typeof value === 'object') {
+    Object.values(value).forEach(freeze)
+    Object.freeze(value)
+  }
+  return value
+}
+
+export function planTestShard(repo, index, count = TEST_SHARD_COUNT, options = {}) {
+  const all = planTestRun(repo, 'all', [], options)
+  const files = partitionTestFiles(all.files, index, count), selected = new Set(files)
+  return freeze({ ...all, mode: 'shard', fullSuite: false,
+    shard: { index, count, algorithm: 'sorted-round-robin-v1' }, discovered: all.files,
+    files, groups: all.groups.map(group => ({ ...group, files: group.files.filter(file => selected.has(file)) }))
+      .filter(group => group.files.length), inputFingerprint: shardInputFingerprint(repo) })
+}
+
+export async function runTestShard(repo, plan, options = {}) {
+  // Copy/freeze even a caller-supplied plan; reject changed policy, selection,
+  // classification or concurrency instead of trusting a mutable plan object.
+  const frozen = freeze(structuredClone(plan))
+  assert(frozen.mode === 'shard' && frozen.fullSuite === false, 'Expected a shard plan')
+  const concurrency = frozen.groups.some(group => group.concurrency === 2) ? '2' : '1'
+  assert.deepEqual(frozen, planTestShard(repo, frozen.shard?.index, frozen.shard?.count, { concurrency }), 'Shard plan or discovery drift before execution')
+  const inputsBefore = shardInputFingerprint(repo)
+  const result = await runTestPlan(repo, frozen, options)
+  let inputsAfter = null, inputError = null
+  try { inputsAfter = shardInputFingerprint(repo) } catch (error) { inputError = error.message }
+  const stable = inputsBefore === inputsAfter
+  result.shardComplete = stable && result.complete
+  if (!stable) result.status = 'failed'
+  return { version: 1, kind: 'pnd-test-shard-receipt', plan: frozen, inputsBefore, inputsAfter, inputError, result }
+}
+
+export function parseShardArguments(args) {
+  const values = {}
+  for (const arg of args) {
+    const match = /^--(shard-index|shard-count|receipt)=(.+)$/.exec(arg)
+    assert(match && !Object.hasOwn(values, match[1]), 'Use unique --shard-index=N --shard-count=4 --receipt=PATH arguments')
+    values[match[1]] = match[2]
+  }
+  assert(/^[0-3]$/.test(values['shard-index'] ?? '') && values['shard-count'] === '4', 'Shard index 0..3 and shard count 4 are both required')
+  assert(values.receipt && !/[\0\r\n]/.test(values.receipt), 'Shard receipt path is required')
+  return { index: Number(values['shard-index']), count: 4, receipt: values.receipt }
+}
+
 export async function runTestPlan(repo, plan, { launch = spawn, signals = process, log = value => console.error(JSON.stringify(value)) } = {}) {
   const startedAt = performance.now()
   assert(plan.files?.length && plan.groups?.length, 'Test plan must not be empty')
@@ -96,6 +170,9 @@ export async function runTestPlan(repo, plan, { launch = spawn, signals = proces
   const env = { ...process.env }
   assert(!/--(?:experimental-)?test/.test(env.NODE_OPTIONS ?? ''), 'NODE_OPTIONS must not change test selection or isolation')
   delete env.NODE_TEST_CONTEXT
+  // Python importer tests must not create source-adjacent __pycache__ files
+  // during a frozen shard. This effective setting is part of its input digest.
+  if (plan.mode === 'shard') env.PYTHONDONTWRITEBYTECODE = '1'
   let interrupted = null, child
   const results = []
   const interrupt = signal => {
@@ -142,7 +219,16 @@ export async function runTestPlan(repo, plan, { launch = spawn, signals = proces
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   try {
     const [mode, ...requested] = process.argv.slice(2)
-    const result = await runTestPlan(ROOT, planTestRun(ROOT, mode, requested, { concurrency: process.env.PND_TEST_CONCURRENCY ?? '2' }))
+    let result
+    if (mode === 'shard') {
+      const { index, count, receipt } = parseShardArguments(requested)
+      // Reserve a fresh artifact before launching: a retry cannot silently rerun
+      // into an existing receipt or retain a stale successful payload.
+      writeFileSync(receipt, `${JSON.stringify({ version: 1, kind: 'pnd-test-shard-receipt', status: 'running' })}\n`, { flag: 'wx' })
+      const payload = await runTestShard(ROOT, planTestShard(ROOT, index, count, { concurrency: process.env.PND_TEST_CONCURRENCY ?? '2' }))
+      writeFileSync(receipt, `${JSON.stringify(payload, null, 2)}\n`)
+      result = payload.result
+    } else result = await runTestPlan(ROOT, planTestRun(ROOT, mode, requested, { concurrency: process.env.PND_TEST_CONCURRENCY ?? '2' }))
     if (result.status !== 'passed') process.exitCode = result.interrupted ? 130 : 1
   } catch (error) {
     console.error(`test runner: ${error.message}`)
