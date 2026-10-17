@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { waitRecoveryReadiness } from '../tutorial-browser/profile-readiness.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import { showSelectorControls } from '../browser-game.mjs'
 import { createHash } from 'node:crypto'
@@ -157,7 +158,7 @@ async function installLoadObserver(page) {
 export default async function ({ browser, context: initialContext, page: initialPage, url, root, output, receipt, signal }) {
   const require = createRequire(resolve(root, 'package.json'))
   const digest = file => createHash('sha256').update(readFileSync(file)).digest('hex')
-  const { bindGame, waitForShamanReadiness } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
+  const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
   const { waitForCheckpointReadback } = await import(pathToFileURL(resolve(root, 'scripts/checkpoint-readback.mjs')).href)
   const { checkpointObservation } = await import(pathToFileURL(resolve(root, 'scripts/local-render/checkpoint-observer.mjs')).href)
   const runtime = () => ({
@@ -165,7 +166,7 @@ export default async function ({ browser, context: initialContext, page: initial
       browserVersion: receipt.browserVersion, browserSha256: digest(receipt.browserPath ?? receipt.launch.executablePath),
       launch: receipt.launch, playwright: require('@playwright/test/package.json').version,
       installedLockSha256: digest(resolve(root, 'node_modules/.package-lock.json')),
-      helpers: Object.fromEntries(['scripts/local-render/harness.mjs', 'scripts/local-render/vite.config.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/browser-game.mjs', 'scripts/checkpoint-readback.mjs'].map(file => [file, digest(resolve(root, file))])),
+      helpers: Object.fromEntries(['scripts/tutorial-browser/profile-readiness.mjs', 'scripts/campaign-start-readiness.mjs', 'scripts/local-render/harness.mjs', 'scripts/local-render/vite.config.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/browser-game.mjs', 'scripts/checkpoint-readback.mjs'].map(file => [file, digest(resolve(root, file))])),
   })
   const report = {
     status: 'running',
@@ -296,7 +297,7 @@ export default async function ({ browser, context: initialContext, page: initial
       const skip = page.getByRole('button', { name: /Skip introduction/ })
       // Mission 1 starts the flyby after the scene binds; wait for its public control.
       await skip.click({ noWaitAfter: true })
-      entry.readiness = await waitForShamanReadiness(page)
+      entry.readiness = await waitRecoveryReadiness(page, { signal })
       await page.getByRole('button', { name: 'Game settings', exact: true }).click()
       const menu = page.locator('dialog[data-original-pause-menu]')
       await menu.waitFor({ state: 'visible' })

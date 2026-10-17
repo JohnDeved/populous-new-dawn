@@ -47,3 +47,46 @@ test('recovery selects only the existing nine-case matrix and skips M2 fixture g
   assert.match(scenario, /reflect.apply|Reflect.apply/)
   assert.match(scenario, /Startup\/restore\/load must preserve every stored record/)
 })
+
+test('hosted readiness uses exact production eligibility without a served source module', async () => {
+  const { recoveryReadiness, waitRecoveryReadiness } =
+    await import('../scripts/tutorial-browser/profile-readiness.mjs')
+  const snapshot = {
+    status: 'playing',
+    paused: false,
+    inputMask: 0,
+    turn: 42,
+    selected: [],
+    outcome: { level: 1 },
+    units: [
+      { id: 1, kind: 'shaman', team: 'blue', hp: 100, native: { state: 1, flags2: 0, flags4: 0 } },
+    ],
+  }
+  assert.equal(recoveryReadiness(null).ready, false)
+  assert.equal(recoveryReadiness(snapshot).ready, true)
+  for (const bit of ['flags2', 'flags4']) {
+    const blocked = structuredClone(snapshot)
+    blocked.units[0].native[bit] = bit === 'flags2' ? 0x100000 : 128
+    assert.equal(recoveryReadiness(blocked).ready, false)
+  }
+  const samples = [null, snapshot]
+  const result = await waitRecoveryReadiness({
+    evaluate: async () => samples.shift(),
+    waitForTimeout: async () => {},
+  })
+  assert.equal(result.samples, 2)
+  assert.equal(result.after.level, 1)
+  assert.equal(result.after.ready, true)
+  const signal = AbortSignal.abort(Error('cancelled'))
+  await assert.rejects(
+    waitRecoveryReadiness(
+      { evaluate: () => assert.fail('No observation after abort') },
+      { signal }
+    ),
+    /cancelled/
+  )
+  assert.doesNotMatch(
+    read('scripts/local-render/campaign-profile-recovery.mjs'),
+    /waitForShamanReadiness/
+  )
+})
