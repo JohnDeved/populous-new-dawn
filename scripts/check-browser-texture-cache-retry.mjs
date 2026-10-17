@@ -194,8 +194,10 @@ try {
     assert.ok(activated.time <= activated.elapsedSinceRelease * activated.speed,
       `game time exceeded the measured post-release interval: ${JSON.stringify(activated)}`)
     await page.getByRole('button', { name: /Skip introduction/ }).click()
-    await page.waitForFunction(time => globalThis.testStore.getWorld().time > time, activated.time)
-    observations.push({ advancedTime: await page.evaluate(() => globalThis.testStore.getWorld().time) })
+    await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
+    const playableTime = await page.evaluate(() => globalThis.testStore.getWorld().time)
+    await page.waitForFunction(time => globalThis.testStore.getWorld().time > time, playableTime)
+    observations.push({ playableTime, advancedTime: await page.evaluate(() => globalThis.testStore.getWorld().time) })
     if (output) await page.screenshot({ path: resolve(output, 'recovered.png') })
 
     const identity = await page.evaluate(async () => {
