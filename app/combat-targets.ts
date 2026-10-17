@@ -44,8 +44,10 @@ export interface CombatTargetWorld {
   gameFlags: number
 }
 type AreaOrder = Pick<PersonOrder, 'model' | 'flags' | 'a' | 'b'>
+export const combatTribesAllied = (alliances: readonly number[], tribe: number, other: number) =>
+  tribe === -1 || other === -1 || tribe === other || !!(alliances[tribe] & (1 << other))
 const allied = (w: CombatTargetWorld, tribe: number, other: number) =>
-  tribe === -1 || other === -1 || tribe === other || !!(w.alliances[tribe] & (1 << other))
+  combatTribesAllied(w.alliances, tribe, other)
 
 export function* areaCells(order: Pick<PersonOrder, 'a' | 'b'>) {
   const rx = order.b & 255,

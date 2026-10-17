@@ -23,6 +23,7 @@ import {
 import { approachMeleeSlot, meleeAnimationObject } from './melee.ts'
 import { stepMeleeEncounter } from './melee-encounter.ts'
 import { nativePersonModel } from './live-combat.ts'
+import { syncNativeTerrain } from './world-terrain-runtime.ts'
 import { teamForTribe, tribeForTeam } from './world-types.ts'
 export { cancelBuildingEntry } from './live-building-entry.ts'
 import {
@@ -320,15 +321,13 @@ export function leaveLiveBuilding(w: World, u: Unit) {
 // ponytail: victory bootstrap supplies initial order; full native allocation
 // must establish membership for ordinary units and the remaining object classes.
 export function syncLivePersonCells(w: World) {
-  const people = new Map(
-    w.units
-      .filter(
-        u =>
-          (u.flight || u.fight?.motion || u.native || u.entry) &&
-          (u.hp > 0 || u.flight || u.native?.state === 44)
-      )
-      .map(u => [u.id, (u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person)!])
-  )
+  const people = new Map<number, LivePerson>()
+  for (const u of w.units)
+    if (
+      (u.flight || u.fight?.motion || u.native || u.entry) &&
+      (u.hp > 0 || u.flight || u.native?.state === 44)
+    )
+      people.set(u.id, (u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person)!)
   for (const [id, p] of w.objectCells.objects)
     if (people.get(id) !== p) {
       if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
@@ -366,12 +365,18 @@ export function syncLivePersonCells(w: World) {
 // this same physical person. Flight, combat and seats already own native poses.
 export function syncBrowserPersonPosition(w: World, u: Unit, p: LivePerson) {
   if (u.flight || u.fight?.motion || p.vehicle) return
-  const to = nativePosition(w, u)
-  to.x &= 65535
-  to.y &= 65535
+  // Synchronization can notify and move live owners before their pose is read.
+  syncNativeTerrain(w)
+  const to = {
+    x: Math.round((u.x + 8) * 256) & 65535,
+    y: Math.round((-u.z - 8) * 256) & 65535,
+    h: 0,
+  }
   // Keep the existing epilogue's native-height ownership on unchanged XY.
-  if (unitAnimationSource(u) === p)
-    to.h = to.x === p.x && to.y === p.y ? p.h : terrainPointHeight(w.land, to)
+  to.h =
+    unitAnimationSource(u) === p && to.x === p.x && to.y === p.y
+      ? p.h
+      : terrainPointHeight(w.land, to)
   if (to.x !== p.x || to.y !== p.y || to.h !== p.h) moveObjectInCells(w.objectCells, p, to)
 }
 

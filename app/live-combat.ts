@@ -19,6 +19,7 @@ import {
 import { shareCombatOrder, startCombatResponse } from './combat-orders.ts'
 import {
   areaCells,
+  combatTribesAllied,
   detectCombatThreat,
   hasPreacherPrimaryThreat,
   hasPreacherResponseThreat,
@@ -77,6 +78,10 @@ export function combatPerson(u: Unit): CombatPerson {
 // ponytail: ordinary people/fights still use browser list ties; retain native
 // cell-chain order where owned, and replace the fallback with mixed-class allocation.
 export function combatWorld(w: World, source: CombatPerson, range: number) {
+  return projectCombatWorld(w, source, range)
+}
+
+function projectCombatWorld(w: World, source: CombatPerson, range: number, threatsOnly = false) {
   const objects = new Map<number, CombatTarget>()
   const owners = new Map<number, Unit | Building | World['fights'][number]>()
   const cells = new Map<number, CombatTarget[]>()
@@ -92,6 +97,10 @@ export function combatWorld(w: World, source: CombatPerson, range: number) {
   const radius = Math.trunc(range / 2) * 2
   for (const u of w.units) {
     if (!(u.hp > 0) || !range) continue
+    // Detection cannot select allied people. Full target selection still needs
+    // the complete projection, including friendly members of joinable fights.
+    if (threatsOnly && combatTribesAllied(w.outcome.alliances, source.tribe, nativePersonTribe(u)))
+      continue
     // Reject on each wrapped cell axis before constructing a target record.
     // Most distant people need neither a Y projection nor a combat snapshot.
     const x = Math.round((u.x + 8) * 256)
@@ -102,8 +111,14 @@ export function combatWorld(w: World, source: CombatPerson, range: number) {
   for (const fight of w.fights) {
     const point = position(fight)
     if (!inEngagementArea(source, point, range)) continue
-    const members = fight.members.map(id => w.units.find(u => u.id === id)).filter(u => !!u)
-    for (const u of members) if (!objects.has(u.id)) add(combatPerson(u), u, false)
+    const members =
+      threatsOnly && fight.tribes
+        ? []
+        : fight.members.map(id => w.units.find(u => u.id === id)).filter(u => !!u)
+    // Threat detection only resolves a person's group model; it never reads
+    // member snapshots. Keep every fight and its reservation in the same order.
+    if (!threatsOnly)
+      for (const u of members) if (!objects.has(u.id)) add(combatPerson(u), u, false)
     add(
       {
         ...point,
@@ -426,7 +441,7 @@ export function allocateLiveCombatResponse(
   if (scanner === 'firewarrior')
     return startFirewarriorResponse(w, u, p, peers, effects, target => firewarriorReady(target))
   const range = engagementRange(p, order, false),
-    { world } = combatWorld(w, p, range)
+    { world } = projectCombatWorld(w, p, range, true)
   startCombatResponse(world, w.buildingOrders, p, peers, effects)
   const id = p.immediateCommand
   return id && w.buildingOrders.records[id].model === 21 ? id : 0
