@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { bindGame } from '../browser-game.mjs'
-import { checkFrameExport } from './frame-export.mjs'
+import { checkFrameExport, m2NativePointerTarget } from './frame-export.mjs'
 import { checkpointCodec } from './checkpoint-codec.mjs'
 
 export const m2FunctionalLimitMs = 45000
@@ -327,9 +327,13 @@ export default async function ({ browser, url, output, fixture }) {
       report.hudPoints.push(point)
       return moveAndObserve(point.x, point.y, false)
     }
+    // Replace one arbitrary ground pixel with a rendered native person hit.
+    const nativeTarget = await page.evaluate(m2NativePointerTarget)
+    assert.ok(nativeTarget, 'bounded rendered-person target must be available')
+    report.nativePointerTarget = nativeTarget
     // Pause gives an exact no-orders witness while ordinary RAF still drives picks.
     for (const [x, y, world] of [
-      [700, 340, true],
+      [nativeTarget.x, nativeTarget.y, true],
       [null, null, false],
       [900, 400, true],
     ]) {

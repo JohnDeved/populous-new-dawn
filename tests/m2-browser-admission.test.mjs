@@ -1,4 +1,4 @@
-import { assertNativeFrameExport } from '../scripts/tutorial-browser/frame-export.mjs'
+import { assertNativeFrameExport, m2NativePointerTarget } from '../scripts/tutorial-browser/frame-export.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -366,7 +366,7 @@ test('hosted M2 route awaits actual pointer and keyboard export checks inside ex
     new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
     'utf8'
   )
-  assert.match(source, /import \{ checkFrameExport \} from '\.\/frame-export\.mjs'/)
+  assert.match(source, /import \{ checkFrameExport, m2NativePointerTarget \} from '\.\/frame-export\.mjs'/)
   assert.match(source, /await checkFrameExport\(\{ page, output, keyboard: width === 1280 \}\)/)
   assert.match(source, /\[1280, 720\]/)
   const helper = readFileSync(
@@ -438,5 +438,37 @@ test('actual downloaded M2 frames require versioned finite native counters witho
   assert.match(helper, /bounds, nativeDiagnostics/)
   assert.match(helper, /assert.ok\(nativeDiagnostics.nativeWorkFrames > 0/)
   assert.doesNotMatch(helper, /newContext|page\.goto|setTimeout|waitForTimeout/)
+  assert.equal(m2FunctionalLimitMs, 45000)
+})
+
+
+test('native export target uses rendered bounds and real input without invoking the picker', () => {
+  const canvas = { getBoundingClientRect: () => ({ left: 200, top: 0, right: 1000, bottom: 600 }) }
+  const layer = { visible: true }
+  const group = { visible: true, userData: { layers: [layer] } }
+  const scene = { renderer: { domElement: canvas }, unitMeshes: new Map([[54, group]]),
+    view: { painter: { source: value => value === layer ? {} : null } },
+    picking: { personBounds: () => ({ x: 100, y: 100, width: 20, height: 30 }),
+      pick: () => assert.fail('must not invoke picker') } }
+  const context = { window: { testSceneRef: { current: scene } },
+    document: { elementFromPoint: () => canvas } }
+  const choose = () => runInNewContext(`(${m2NativePointerTarget.toString()})()`, context)
+  assert.equal(choose().x, 310)
+  assert.equal(choose().y, 115)
+  context.document.elementFromPoint = () => ({})
+  assert.equal(choose(), null, 'HUD-obstructed points are rejected')
+  context.document.elementFromPoint = () => canvas
+  group.userData.pickable = false
+  assert.equal(choose(), null)
+  delete group.userData.pickable
+  scene.view.painter.source = () => null
+  assert.equal(choose(), null, 'unsubmitted sprites cannot establish native hit route')
+  const route = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
+  assert.match(route, /page.evaluate\(m2NativePointerTarget\)/)
+  assert.match(route, /\[nativeTarget.x, nativeTarget.y, true\]/)
+  const helper = readFileSync(new URL('../scripts/tutorial-browser/frame-export.mjs', import.meta.url), 'utf8')
+  assert.ok(helper.indexOf('await download.saveAs') < helper.indexOf('const report = JSON.parse'))
+  assert.ok(helper.indexOf("filename.replace('.json', '-native-summary.json')") < helper.indexOf('assert.ok(nativeDiagnostics.nativeWorkFrames'))
+  assert.match(helper, /examined > 128/)
   assert.equal(m2FunctionalLimitMs, 45000)
 })

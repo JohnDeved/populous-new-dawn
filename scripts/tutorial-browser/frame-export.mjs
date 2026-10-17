@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const nativeTimers = ['submissionKeyMs', 'projectionMs', 'triangleScanMs']
@@ -25,6 +25,28 @@ export function assertNativeFrameExport(frames) {
     if (native.submittedTriangles > 0) nativeWorkFrames++
   }
   return { measuredFrames: measured.length, nativeWorkFrames, counters: totals }
+}
+
+// Read one rendered person target, not a synthetic picker invocation. The public
+// pointer event still has to traverse ordinary gameplay picking and frame export.
+export function m2NativePointerTarget() {
+  const scene = window.testSceneRef.current, canvas = scene.renderer.domElement
+  const rect = canvas.getBoundingClientRect()
+  let examined = 0
+  for (const [id, group] of scene.unitMeshes) {
+    if (++examined > 128) break
+    if (!group.visible || group.userData.pickable === false) continue
+    const layer = group.userData.layers?.findLast(piece => piece.visible)
+    if (!layer || !scene.view.painter.source(layer)) continue
+    const bounds = scene.picking.personBounds(id, rect)
+    if (!bounds || bounds.width < 2 || bounds.height < 2) continue
+    const x = rect.left + Math.floor(bounds.x + bounds.width / 2)
+    const y = rect.top + Math.floor(bounds.y + bounds.height / 2)
+    if (x <= rect.left || y <= rect.top || x >= rect.right || y >= rect.bottom) continue
+    if (document.elementFromPoint(x, y) !== canvas) continue
+    return { x, y, id, examined }
+  }
+  return null
 }
 
 // Reuse the existing paused M2 scene and its deadline. No new navigation, world,
@@ -60,6 +82,9 @@ export async function checkFrameExport({ page, output, keyboard }) {
       keyboard ? page.keyboard.press('Space') : button.click(),
     ])
     assert.match(download.suggestedFilename(), /^populous-frames-.*\.json$/)
+    const filename = keyboard ? 'm2-frame-export-keyboard.json' : 'm2-frame-export-pointer.json'
+    // Preserve the actual hosted download even when a later assertion fails.
+    await download.saveAs(resolve(output, filename))
     const report = JSON.parse(readFileSync(await download.path(), 'utf8'))
     assert.equal(report.schema, 'populous-new-dawn/frame-performance')
     assert.equal(report.schemaVersion, 1)
@@ -71,6 +96,8 @@ export async function checkFrameExport({ page, output, keyboard }) {
     assert.ok(report.frames.every(frame => Number.isFinite(frame.pointerTooltipCpuMs)))
     assert.ok(report.frames.some(frame => frame.pointerBreakdown !== null))
     const nativeDiagnostics = assertNativeFrameExport(report.frames)
+    writeFileSync(resolve(output, filename.replace('.json', '-native-summary.json')),
+      JSON.stringify({ frameCount: report.frames.length, nativeDiagnostics }, null, 2))
     assert.ok(nativeDiagnostics.nativeWorkFrames > 0,
       'existing M2 pointer/camera inputs must export actual native triangle work')
     assert.deepEqual(await page.evaluate(() => window.frameExportInputs), [], 'export inputs must not bubble into gameplay')
@@ -84,8 +111,6 @@ export async function checkFrameExport({ page, output, keyboard }) {
     assert.equal(bounds.buttonFits, true)
     assert.equal(bounds.statusFits, true)
     assert.equal(bounds.hit, true)
-    const filename = keyboard ? 'm2-frame-export-keyboard.json' : 'm2-frame-export-pointer.json'
-    await download.saveAs(resolve(output, filename))
     summary = { filename, keyboard, frameCount: report.frames.length, capturedSpanMs: report.timing.capturedSpanMs,
       buildRevision: report.buildRevision, viewport: report.environment.viewportCssPixels, bounds, nativeDiagnostics }
   } finally {
