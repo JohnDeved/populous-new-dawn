@@ -1,4 +1,0 @@
-npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
-loaded config: /workspace/scratch/69fd8163d94e/populous-m17-route-cells/.fallowrc.json
-
-✗ 2613 above threshold · 27771 analyzed (0.87s)

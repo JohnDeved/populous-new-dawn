@@ -1,5 +1,7 @@
 # Hosted inherited Git configuration repair
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-git-config-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Tested repair: `eeec329f9dc6455713fd2e40927046adad83a4ee`.
 Prior accepted/failed-gate head: `ad9043fd6ca0b0a35f31b93227148a42d60bb3e4`.
 Only `tests/integration-queue.test.mjs` changes outside this evidence directory.
@@ -56,16 +58,16 @@ allowlist stays unarmed and unchanged at SHA-256
 ## Preserved evidence
 
 The complete failed hosted log is retained losslessly as
-[hosted-full-38960740277.log.gz](hosted-full-38960740277.log.gz), with run/job metadata
+[hosted-full-38960740277.log.gz](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-git-config-20261016/hosted-full-38960740277.log.gz), with run/job metadata
 and line-numbered failure excerpts. Its decompressed SHA-256 is
 `6df1882e0046e3e8afcf29a3ffbf3fcaacf06af06dfd64790246951b841db08c`.
 Original downloaded log/metadata remain outside the repository under
 `integration-pilot-503/observations/`. Local before/after originals remain under
 ignored `work/orchestration/integration-queue-git-config*/`.
 
-[Artifact index](artifact-index.json) binds original/published hashes; local
+[Artifact index](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-git-config-20261016/artifact-index.json) binds original/published hashes; local
 repository paths in the before receipt/log are redacted. The hosted log is unchanged
-apart from lossless gzip. [Source manifest](source-manifest.json) binds nine tested
+apart from lossless gzip. [Source manifest](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-git-config-20261016/source-manifest.json) binds nine tested
 source/input files. The controlled config digest matches the before receipt and
 was unchanged during the after run.
 

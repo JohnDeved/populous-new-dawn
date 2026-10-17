@@ -1,5 +1,7 @@
 # Avoid redundant cleared FPS graph resets
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/fps-reset-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Base: c9e3cbc8003be7c9b3fc489d794297679476d2b9.
 
 The graph remembers when reset has already cleared sampling state and SVG output. Repeated resets still update a changed state label but skip redundant clearing. Every update invalidates the guard, including warmup-only and unpublished samples, so the next reset still clears those states. The existing reset output, peak history, auto scale, 120 FPS guide and resume sampling semantics remain unchanged.

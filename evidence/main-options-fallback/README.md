@@ -1,5 +1,7 @@
 # Main menu and Options foreground/shadow readiness
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/main-options-fallback), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Product candidate: `a935b649db5443fcc083b35f61d04a1a750c8d7b`.
 Base: `01be71701f9ce085be47c07a27d1347d320c9225` (includes the accepted logo fallback fix).
 Refs #16 and #457. This evidence commit changes no product code.

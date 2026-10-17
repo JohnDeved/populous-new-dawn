@@ -1,5 +1,7 @@
 # Plain-person replay comparison views
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/plain-person-comparison-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Base: c9e3cbc8003be7c9b3fc489d794297679476d2b9.
 
 This test-only change reuses the accepted non-mutating checkpoint comparison view. The prior local normalizer deep-cloned two whole worlds on each of 1,200 ticks, in both fresh and historical cases. The exact original undefined-reward/truthy-rewardMana policy remains in the shared helper.

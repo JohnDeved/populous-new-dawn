@@ -165,7 +165,7 @@ are proposed in the PR for CEO integration, not silently edited by this worker.
 
 ## Western label and clear follow-up (2026-10-16)
 
-[Retained static source packet](../../evidence/loading-recovery-20261016/native-presentation.tar.gz)
+[Retained static source packet](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/loading-recovery-20261016/native-presentation.tar.gz)
 contains the source-hashed byte windows, GNU objdump listings, bounded reconstruction,
 and independent importer verification. This does not rerun or broaden the historical
 loading-mask checker above, and no original code was executed.

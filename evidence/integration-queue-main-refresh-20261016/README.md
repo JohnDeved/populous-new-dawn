@@ -1,5 +1,7 @@
 # Integration driver main refresh
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-main-refresh-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Approved prior head: `7c5f375c66bd20e84d794a12a5409e21edcc8699`.
 Exact approved main: `52aacab7e17a12090b9158649b373427d439f234`.
 Tested merge: `3b7a7152bc8c230bcd91f1df1dcb793b4b03040c`.
@@ -11,7 +13,7 @@ The ordinary two-parent merge completed without conflicts, preserving parents
 tests are byte-for-byte unchanged. Both workflows and `engineering/test-resources.json`
 are identical to approved main. No source feature or policy adjustment was made.
 
-[Refresh proof](refresh-proof.json) records these checks, exact identities, resource
+[Refresh proof](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-main-refresh-20261016/refresh-proof.json) records these checks, exact identities, resource
 policy digest and the complete tested diff path list against main. The non-evidence
 PR diff consists only of six integration-queue files and its focused test file.
 
@@ -33,8 +35,8 @@ this refreshed PR candidate.
 
 ## Artifacts
 
-[Source manifest](source-manifest.json) binds 13 source/input files.
-[Artifact index](artifact-index.json) binds 18 receipts/logs with original and
+[Source manifest](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-main-refresh-20261016/source-manifest.json) binds 13 source/input files.
+[Artifact index](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-main-refresh-20261016/artifact-index.json) binds 18 receipts/logs with original and
 published hashes. Repository and temporary paths are redacted. Original receipts
 remain in ignored `work/orchestration/integration-queue-main-refresh/`.
 

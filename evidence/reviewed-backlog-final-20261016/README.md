@@ -1,5 +1,7 @@
 # Reviewed backlog: combined focused validation
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/reviewed-backlog-final-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Tested source: `6f5d5c168d265dab4d2341940eb76f4d1e1eb813`.
 Tested tree: `c6dc2cd27dabd7666d23689aa0cf7ea34b490371`.
 Main base: `52aacab7e17a12090b9158649b373427d439f234`.

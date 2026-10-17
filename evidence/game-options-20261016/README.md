@@ -1,5 +1,7 @@
 # Original Game options: bounded validation
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/game-options-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Issue [#457](https://github.com/JohnDeved/populous-new-dawn/issues/457),
 PR [#467](https://github.com/JohnDeved/populous-new-dawn/pull/467).
 Base: `04a84dab17c809d1888e5a734e99d34addfc5a1d`.
@@ -72,21 +74,21 @@ At final `774af5cd`, a fresh short startup episode passed all four mutually excl
 categories, Game roundtrip/value/reload, repeated Enter/Space same-node focus, exact
 640 row positions and the readable session-only storage notice. Only
 `original-options.tsx` differs among the 1,105 prior runtime inputs. The
-[source relationship](browser-source-relationship.json) records the explicit
+[source relationship](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/game-options-20261016/browser-source-relationship.json) records the explicit
 rendering-only carry-forward for earlier in-game evidence.
 
 Screenshots are **after** captures, not invented before/after comparisons:
 
-- [Frontend, 640×480](frontend-game-640x480.png): final repaired candidate.
-- [Storage-write failure, 640×480](frontend-game-storage-failure-640x480.png): final candidate.
-- [Frontend, 1280×960](frontend-game-1280x960.png): prior runtime, carried across reviewed guards.
-- [In-game, 1280×960](ingame-game-1280x960.png): prior runtime, carried across reviewed guards.
+- [Frontend, 640×480](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/game-options-20261016/frontend-game-640x480.png): final repaired candidate.
+- [Storage-write failure, 640×480](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/game-options-20261016/frontend-game-storage-failure-640x480.png): final candidate.
+- [Frontend, 1280×960](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/game-options-20261016/frontend-game-1280x960.png): prior runtime, carried across reviewed guards.
+- [In-game, 1280×960](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/game-options-20261016/ingame-game-1280x960.png): prior runtime, carried across reviewed guards.
 
 ## Production build and explicit limits
 
 The exact `774af5cd` canonical Workers build completed **SUCCESS** at
 2026-10-16 01:12:47 UTC; [build details](https://dash.cloudflare.com/19321bcee0ed17a93b709cb602dd070c/workers/services/view/populous-new-dawn/production/builds/8cd4151c-79c7-407a-98c4-f429f50edf8d).
-[The fresh PR commit/check record](canonical-build-774af5cd.json) is retained.
+[The fresh PR commit/check record](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/game-options-20261016/canonical-build-774af5cd.json) is retained.
 The documented production command is `npm run build:cloudflare`, chaining full
 `vinext build`. The remote phase log/live dashboard configuration was not captured.
 No local ordinary build pass or deployed-browser validation follows from this check.

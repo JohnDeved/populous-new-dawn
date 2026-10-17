@@ -1,5 +1,7 @@
 # Tutorial pre-ready admission qualification
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-tutorial-guard-final-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Tested source: `696ca675fa558ade7f071d3dcb097b184c40c1c5`.
 Review delta base: `0b57d833aa89da4f4ffd9fceccafbf7cfc50621f`.
 
@@ -36,8 +38,8 @@ or credential operation ran. Independent repair review and hosted Full validatio
 remain pending. Original receipts are in ignored
 `work/orchestration/integration-queue-tutorial-guard-final/`.
 
-[Source manifest](source-manifest.json) binds nine source files.
-[Artifact index](artifact-index.json) binds 18 published receipts/logs and retains
+[Source manifest](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-tutorial-guard-final-20261016/source-manifest.json) binds nine source files.
+[Artifact index](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-tutorial-guard-final-20261016/artifact-index.json) binds 18 published receipts/logs and retains
 original hashes; repository and temporary paths are redacted.
 
 - Artifact index SHA-256: `a33c0fc3c821958bf3968dc07966a93b8a843bb7415adb038544e5e7b636e472`

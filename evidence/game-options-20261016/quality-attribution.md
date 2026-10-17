@@ -1,5 +1,7 @@
 # Independent quality attribution at 774af5cd
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/game-options-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Read-only comparison of retained finished command receipts and matching raw stdout/stderr hashes. No quality command or build was run by the auditor. Baseline 17f9d776 differs from accepted canonical base 04a84dab only in research/evidence; app, package/config and installed dependency lock inputs agree. Current source remained clean 774af5cd. Detailed machine report: `quality-attribution-final-774af5cd.json`; parser: `compare-quality-774af5cd.py`.
 
 - Format: failed on the same sole `app/viewport-bounds.ts` file; no added file.

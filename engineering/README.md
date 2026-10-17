@@ -83,6 +83,10 @@ npm run orchestration:receipt -- --output work/orchestration/task/build.json -- 
   runs retain their raw logs without inventing a terminal result. Accept `status:
   passed`, not merely exit zero, because source drift invalidates evidence. Prefer
   a committed candidate. Never substitute a summary for the underlying evidence.
+- Keep generated command logs, receipts, captures, timing samples, and review bundles
+  in ignored `work/` or outside the checkout. Publish needed review artifacts on the
+  issue/PR, not in development commits. Preserve consumed fixtures, native proof,
+  reusable probes, and concise findings; see [artifact retention](artifact-retention.md).
 - `review-bundle` exports a committed full diff and bounded redacted receipts for a
   reviewer in another worktree/executor. [Handoff](worker-handoff.md) describes trusted
   caller-supplied identity verification and deletion coverage.

@@ -1,5 +1,7 @@
 # Independent supplied Balloon Hut renderer review
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/balloon-hut-models-2026-10-14/browser), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Decision: ACCEPT supplied-layout geometry comparison only. Reviewer: review_browser_checkpoint.
 Before source7da254e1cbbb8c8be64d266b35f3993f816c657c; after235c94c85a00cd4f1b0c5159a896c9ecd50b8cb6, independently confirmed runtime-equivalent to f7a2c22a7707e84107aa820a98d1a1449165230b. Both source receipts clean and identical before/after execution.
 

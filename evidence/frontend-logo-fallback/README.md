@@ -1,5 +1,7 @@
 # Frontend logo shadow: fallback readiness
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/frontend-logo-fallback), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Refs #16, #457. Stacked checkpoint on PR484's frozen head
 `f1e085cbb5e0f2d63a1e5cf1fb79d5addc158cc5`. After PR484 merged, this branch
 was updated onto main `c9d98cbb325a418a8b17243e7a3f142a2b91b8fa`.

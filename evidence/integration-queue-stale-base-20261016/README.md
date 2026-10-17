@@ -1,5 +1,7 @@
 # Stale advertised base: refresh-only admission
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-stale-base-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Tested source: `6b97054be7b37429d227a1f494f15b3fc40c2a9f` on base `e3d3659793b70f6ec82cf09f9704041e2b662ff5`.
 
 The accepted driver stopped correctly when PR #505 advertised base `52aacab7e17a12090b9158649b373427d439f234` while authoritative main was `e3d3659793b70f6ec82cf09f9704041e2b662ff5`. The retained live CLI output is **before-change evidence only**, captured by driver `8ba665e391fdc9d3b05eb32137be30753d7d527c`; action, plan and execution were null. The patched driver has not been run against #505 and no live effect was attempted.

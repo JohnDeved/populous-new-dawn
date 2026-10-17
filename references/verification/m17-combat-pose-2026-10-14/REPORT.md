@@ -1,5 +1,7 @@
 # M17 ordinary walking-to-combat pose handoff
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m17-combat-pose-2026-10-14), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 ## Result
 
 The final narrow candidate reconciles an ordinary person's current browser pose into its existing native record only when combat admission adopts that record. Normal world-turn and path/route code remain byte-identical to base. No actor replacement, timer/preparation visit, RNG draw, order cancellation or existing trajectory expectation adjustment was added.
