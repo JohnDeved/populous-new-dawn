@@ -5,7 +5,7 @@ import { migrateCheckpoint } from '../app/game-store.ts'
 
 for (const [mission, reward] of [[1, 'lightning'], [1, 'bridge'], [2, 'tornado']]) {
   for (const capped of [false, true]) {
-    test(`M${mission} ${reward} payout preserves status at ${capped ? 'full' : 'empty'} stock`, () => {
+    test(`M${mission} ${reward} payout preserves status at ${capped ? 'above-cap' : 'empty'} stock`, () => {
       const world = createWorld(mission),
         head = world.shrines.find(shrine => shrine.kind === reward),
         gift = createGift(world, reward, head, 0, head.ordinarySpellReward)
@@ -13,7 +13,7 @@ for (const [mission, reward] of [[1, 'lightning'], [1, 'bridge'], [2, 'tornado']
       gift.phase = 0
       gift.remaining = 1
       world.shots[reward] = capped ? 9 : 0
-      world.giftCounts[reward] = 14
+      world.giftCounts[reward] = 15
       world.message = 'Existing compatibility notice'
       world.messageUntil = 12345
       const restored = migrateCheckpoint(structuredClone(world))
