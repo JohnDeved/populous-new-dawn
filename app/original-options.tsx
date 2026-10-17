@@ -100,7 +100,10 @@ export function OriginalOptions({
   const [category, setCategory] = useState<Category>('Game')
   const [browser, setBrowser] = useState(false)
   const [highlight, setHighlight] = useState<string | null>(null)
-  const [ready, setReady] = useState(false)
+  const [textSkin, setTextSkin] = useState<OriginalOptionsProps['skin'] | null>(null)
+  const [sliderSkin, setSliderSkin] = useState<OriginalOptionsProps['skin'] | null>(null)
+  const textReady = textSkin === skin
+  const slidersReady = sliderSkin === skin
   const root = useRef<HTMLElement>(null)
   const masterText = `Master volume : <${Math.round(volume * 100)}%>`
   const musicText = `Music volume : <${Math.round(musicVolume * 100)}%>`
@@ -147,25 +150,30 @@ export function OriginalOptions({
     [browser, category, masterText, musicText, gameRows]
   )
   useEffect(() => {
-    onTextRowsChange?.(ready ? rows : [])
-  }, [rows, onTextRowsChange, ready])
+    onTextRowsChange?.(textReady ? rows : [])
+  }, [rows, onTextRowsChange, textReady])
   useEffect(() => {
     let active = true
-    const paths = [
-      ...(skin === 'frontend'
+    const fonts =
+      skin === 'frontend'
         ? ['frontend/feft33we', 'frontend/fehi33we', 'frontend/felo33we']
-        : ['pause-font']),
-      ...[0, 1, 2].map(frame => `options/${skin}-${frame}`),
-    ]
-    void Promise.all(
-      paths.map(path => {
-        const image = new Image()
-        image.src = `/original/${path}.png`
-        return image.decode()
-      })
-    )
+        : ['pause-font']
+    const load = (paths: string[]) =>
+      Promise.all(
+        paths.map(path => {
+          const image = new Image()
+          image.src = `/original/${path}.png`
+          return image.decode()
+        })
+      )
+    void load(fonts)
       .then(() => {
-        if (active) setReady(true)
+        if (active) setTextSkin(skin)
+      })
+      .catch(() => {})
+    void load([0, 1, 2].map(frame => `options/${skin}-${frame}`))
+      .then(() => {
+        if (active) setSliderSkin(skin)
       })
       .catch(() => {})
     return () => {
@@ -211,7 +219,7 @@ export function OriginalOptions({
     let state: TextState = 'normal'
     if (low) state = 'low'
     else if (highlight === id) state = 'highlight'
-    return <Text text={text} skin={skin} state={state} ready={ready} />
+    return <Text text={text} skin={skin} state={state} ready={textReady} />
   }
   function choice(
     text: string,
@@ -262,7 +270,7 @@ export function OriginalOptions({
       data-original-options
       data-category={category}
       data-skin={skin}
-      data-art-ready={ready}
+      data-art-ready={slidersReady}
       className={styles.options}
     >
       {browser ? (

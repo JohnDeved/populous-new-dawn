@@ -1,0 +1,145 @@
+{
+  "status": "passed",
+  "observations": [
+    {
+      "attempt": 1,
+      "loading": {
+        "phase": "loading",
+        "level": 1,
+        "time": 0,
+        "turn": 0,
+        "randomState": 3921238491,
+        "cosmeticRandomState": 1,
+        "started": false,
+        "previous": null,
+        "frame": 0,
+        "disposed": false,
+        "aborted": false,
+        "canvasConnected": true,
+        "sceneCount": 1,
+        "worldCount": 1,
+        "mapCount": 1,
+        "oldScenesDisposed": true
+      },
+      "heldMs": 1200,
+      "failed": {
+        "phase": "failed",
+        "level": 1,
+        "time": 0,
+        "turn": 0,
+        "randomState": 3921238491,
+        "cosmeticRandomState": 1,
+        "started": false,
+        "previous": null,
+        "frame": 0,
+        "disposed": true,
+        "aborted": true,
+        "canvasConnected": false,
+        "sceneCount": 1,
+        "worldCount": 1,
+        "mapCount": 1,
+        "oldScenesDisposed": true
+      },
+      "retryInput": "Enter"
+    },
+    {
+      "attempt": 2,
+      "loading": {
+        "phase": "loading",
+        "level": 1,
+        "time": 0,
+        "turn": 0,
+        "randomState": 3921238491,
+        "cosmeticRandomState": 1,
+        "started": false,
+        "previous": null,
+        "frame": 0,
+        "disposed": false,
+        "aborted": false,
+        "canvasConnected": true,
+        "sceneCount": 2,
+        "worldCount": 2,
+        "mapCount": 2,
+        "oldScenesDisposed": true
+      },
+      "heldMs": 1200,
+      "failed": {
+        "phase": "failed",
+        "level": 1,
+        "time": 0,
+        "turn": 0,
+        "randomState": 3921238491,
+        "cosmeticRandomState": 1,
+        "started": false,
+        "previous": null,
+        "frame": 0,
+        "disposed": true,
+        "aborted": true,
+        "canvasConnected": false,
+        "sceneCount": 2,
+        "worldCount": 2,
+        "mapCount": 2,
+        "oldScenesDisposed": true
+      },
+      "retryInput": "pointer"
+    },
+    {
+      "attempt": 3,
+      "loading": {
+        "phase": "loading",
+        "level": 1,
+        "time": 0,
+        "turn": 0,
+        "randomState": 3921238491,
+        "cosmeticRandomState": 1,
+        "started": false,
+        "previous": null,
+        "frame": 0,
+        "disposed": false,
+        "aborted": false,
+        "canvasConnected": true,
+        "sceneCount": 3,
+        "worldCount": 3,
+        "mapCount": 3,
+        "oldScenesDisposed": true
+      },
+      "heldMs": 1200
+    },
+    {
+      "activated": {
+        "sceneIsThird": true,
+        "ownsWorld": true,
+        "level": 1,
+        "started": true,
+        "disposed": false,
+        "time": 1.1666666666666667,
+        "turn": 14,
+        "frame": 22,
+        "speed": 1,
+        "elapsedSinceRelease": 1.1847999999523162
+      }
+    },
+    {
+      "playableTime": 8.25,
+      "advancedTime": 8.333333333333334
+    },
+    {
+      "atlasRequests": 3,
+      "atlasErrors": 2,
+      "unitLayerRequests": 1,
+      "identity": {
+        "placed": true,
+        "preparation": true,
+        "cursorFresh": true,
+        "cursorMapUuid": "e13a165a-dea3-4423-b511-221a4a52efe7",
+        "failedMapUuid": "0e017a26-e75b-491a-8283-9c7ac5ada053",
+        "planExists": true,
+        "planUsesCursorMaterial": true,
+        "planUsesFreshAtlas": true,
+        "planMapUuid": "e13a165a-dea3-4423-b511-221a4a52efe7"
+      },
+      "pageErrors": []
+    }
+  ],
+  "browser": "153.0.8010.12"
+}
