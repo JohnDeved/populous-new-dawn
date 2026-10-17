@@ -28,7 +28,8 @@ test('recovery selects only the existing nine-case matrix and skips M2 fixture g
     runner.indexOf("} else if (selectedScenario === 'm2-pointer-f8')")
   )
   assert.match(branch, /receipt.profileRecovery/)
-  assert.doesNotMatch(branch, /selectorInspection|sceneryPlacement|m2PointerF8/)
+  assert.doesNotMatch(branch, /selectorInspection|sceneryPlacement|m2PointerF8|spellProjection/)
+  assert.match(runner, /if \(selectedScenario === 'tutorial'\) receipt\.spellProjection =/)
   const scenario = read('scripts/local-render/campaign-profile-recovery.mjs')
   for (const name of [
     'empty',
