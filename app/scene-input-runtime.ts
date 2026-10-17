@@ -1,3 +1,4 @@
+import { measurePointerQuery, type PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import { hudTransports, selectFollowerTransport } from './follower-transports-runtime.ts'
 import { focusTransport, type TransportKind } from './hud-transports.ts'
 import { liveVehiclePassengers } from './vehicle-panel-runtime.ts'
@@ -77,9 +78,15 @@ const cameraKeys: Record<string, number> = {
   numpad9: 202,
 }
 
-export function pickUnit(scene: GameScene, event: { clientX: number; clientY: number }) {
+export function pickUnit(
+  scene: GameScene,
+  event: { clientX: number; clientY: number },
+  metrics?: PointerFrameMetrics
+) {
   if (scene.overviewActive) return
-  const id = scene.picking.pickPerson(event)
+  const id = metrics
+    ? measurePointerQuery(metrics, 'object', () => scene.picking.pickPerson(event, metrics))
+    : scene.picking.pickPerson(event)
   return scene.world.units.find(u => u.id === id && u.team === 'blue' && canOrder(u))
 }
 
@@ -312,16 +319,23 @@ export function pointerMove(scene: GameScene, event: PointerEvent) {
   }
 }
 
-export function updateDrag(scene: GameScene, event: { clientX: number; clientY: number }) {
+export function updateDrag(
+  scene: GameScene,
+  event: { clientX: number; clientY: number },
+  metrics?: PointerFrameMetrics
+) {
   const drag = scene.drag
   if (!drag || scene.world.mode || scene.world.inputMask || scene.overviewActive) {
     scene.dragActive.value = false
     return
   }
-  const picked = scene.pick(event),
+  const picked = metrics
+      ? measurePointerQuery(metrics, 'terrain', () => scene.pick(event))
+      : scene.pick(event),
     end = picked && nativePosition(scene.world, picked)
   if (!drag.active) {
-    if (scene.down.unit !== undefined) drag.active = scene.pickUnit(event)?.id !== scene.down.unit
+    if (scene.down.unit !== undefined)
+      drag.active = scene.pickUnit(event, metrics)?.id !== scene.down.unit
     else if (end) drag.active = dragMoved(drag.start, end)
   }
   if (end) drag.end = dragEndpoint(drag.start, end, scene.view.angle)
@@ -712,41 +726,46 @@ export function acknowledgePointer(scene: GameScene, target: number) {
   scene.pointerAck = { target, until: performance.now() + 5000 / 24 }
 }
 
-export function renderTooltip(scene: GameScene) {
-  const output = scene.tooltipController?.output,
-    state = output ?? scene.tooltip,
-    ordinary = output?.kind === 'object',
-    pointer = ordinary ? output.pointer : null,
-    object = ordinary ? null : worldTooltipObject(scene.world, state.target),
-    element = scene.tooltipElement
-  element.hidden =
-    !state.draw || !state.text || !(pointer || object) || !!document.querySelector('dialog[open]')
-  if (element.hidden) return
-  const p =
-    object &&
-    (object.type === 1
-      ? scene.unitScreen(object.id, 1)
-      : scene.screen(object, scene.y(object) + 512 / 45))
-  if (!pointer && (!p || (object && object.type !== 1 && !scene.visible(object)))) {
-    element.hidden = true
-    return
+export function renderTooltip(scene: GameScene, metrics?: PointerFrameMetrics) {
+  const start = metrics ? performance.now() : 0
+  try {
+    const output = scene.tooltipController?.output,
+      state = output ?? scene.tooltip,
+      ordinary = output?.kind === 'object',
+      pointer = ordinary ? output.pointer : null,
+      object = ordinary ? null : worldTooltipObject(scene.world, state.target),
+      element = scene.tooltipElement
+    element.hidden =
+      !state.draw || !state.text || !(pointer || object) || !!document.querySelector('dialog[open]')
+    if (element.hidden) return
+    const p =
+      object &&
+      (object.type === 1
+        ? scene.unitScreen(object.id, 1)
+        : scene.screen(object, scene.y(object) + 512 / 45))
+    if (!pointer && (!p || (object && object.type !== 1 && !scene.visible(object)))) {
+      element.hidden = true
+      return
+    }
+    element.setAttribute(
+      'aria-label',
+      state.text.replaceAll('{}', 'Left-click ').replaceAll('|}', 'Right-click ')
+    )
+    const { left = 0, top = 0, width, height } = scene.container.getBoundingClientRect()
+    drawTooltip(
+      scene.tooltipCanvas,
+      texture('hud').image as HTMLImageElement,
+      state.text,
+      window.innerWidth,
+      Math.trunc(height)
+    )
+    const x = pointer ? pointer.clientX - left : ((p!.x + 1) * width) / 2,
+      y = pointer ? pointer.clientY - top : ((1 - p!.y) * height) / 2
+    element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, x))}px`
+    element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, y))}px`
+  } finally {
+    if (metrics) metrics.tooltipRenderMs += performance.now() - start
   }
-  element.setAttribute(
-    'aria-label',
-    state.text.replaceAll('{}', 'Left-click ').replaceAll('|}', 'Right-click ')
-  )
-  const { left = 0, top = 0, width, height } = scene.container.getBoundingClientRect()
-  drawTooltip(
-    scene.tooltipCanvas,
-    texture('hud').image as HTMLImageElement,
-    state.text,
-    window.innerWidth,
-    Math.trunc(height)
-  )
-  const x = pointer ? pointer.clientX - left : ((p!.x + 1) * width) / 2,
-    y = pointer ? pointer.clientY - top : ((1 - p!.y) * height) / 2
-  element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, x))}px`
-  element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, y))}px`
 }
 
 export function drawPointer(scene: GameScene, now: number) {
@@ -780,7 +799,7 @@ export function drawPointer(scene: GameScene, now: number) {
   )
 }
 
-export function updatePointerFrame(scene: GameScene, now: number) {
+export function updatePointerFrame(scene: GameScene, now: number, metrics?: PointerFrameMetrics) {
   // Original geometry advances per draw; its animation clock is still a
   // browser 12 Hz presentation clock until native timer ownership is ported.
   scene.updateSpellHalo(Math.floor((now * 12) / 1000))
@@ -807,30 +826,49 @@ export function updatePointerFrame(scene: GameScene, now: number) {
   ].join(',')
   const pointerChanged = pointerState !== scene.pointerState
   if (pointerChanged) {
-    if (scene.pointerButtons === 1 && scene.pointerScreen) scene.updateDrag(scene.pointerScreen)
+    if (scene.pointerButtons === 1 && scene.pointerScreen)
+      scene.updateDrag(scene.pointerScreen, metrics)
     const directBlast =
         !scene.overviewActive &&
         blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags),
       personId =
-        directBlast && scene.pointerScreen ? scene.picking.pickPerson(scene.pointerScreen) : null,
+        directBlast && scene.pointerScreen
+          ? metrics
+            ? measurePointerQuery(metrics, 'object', () =>
+                scene.picking.pickPerson(scene.pointerScreen!, metrics)
+              )
+            : scene.picking.pickPerson(scene.pointerScreen)
+          : null,
       person = personId === null ? null : blastPersonPosition(scene.world, personId, nativePosition)
     scene.pointer = null
     if (scene.pointerScreen && scene.world.mode)
-      scene.pointer = person ? browserPosition(person) : scene.pick(scene.pointerScreen)
+      scene.pointer = person
+        ? browserPosition(person)
+        : metrics
+          ? measurePointerQuery(metrics, 'terrain', () => scene.pick(scene.pointerScreen!))
+          : scene.pick(scene.pointerScreen)
     scene.hoveredObject = null
     if (scene.pointerScreen && !scene.pointerButtons && !scene.world.inputMask) {
       if (directBlast) {
         if (person) scene.hoveredObject = personId
       } else if (!scene.world.mode) {
-        scene.hoveredObject = scene.overviewActive
-          ? (scene.pickWorldObject(scene.pointerScreen)?.id ?? null)
-          : scene.picking.pick(scene.pointerScreen)
+        scene.hoveredObject = metrics
+          ? measurePointerQuery(metrics, 'object', () =>
+              scene.overviewActive
+                ? (scene.pickWorldObject(scene.pointerScreen!)?.id ?? null)
+                : scene.picking.pick(scene.pointerScreen!, metrics)
+            )
+          : scene.overviewActive
+            ? (scene.pickWorldObject(scene.pointerScreen)?.id ?? null)
+            : scene.picking.pick(scene.pointerScreen)
       }
     }
     scene.pointerState = pointerState
   }
   scene.selectionOverlay.visible = scene.dragActive.value
-  publishTooltipInput(scene, pointerChanged)
+  const tooltipStart = metrics ? performance.now() : 0
+  publishTooltipInput(scene, pointerChanged, metrics)
+  if (metrics) metrics.tooltipInputMs += performance.now() - tooltipStart
 }
 
 export function updateSpellPointerFrame(

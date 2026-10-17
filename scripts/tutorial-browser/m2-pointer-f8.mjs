@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { bindGame } from '../browser-game.mjs'
+import { checkFrameExport } from './frame-export.mjs'
 import { checkpointCodec } from './checkpoint-codec.mjs'
 
 export const m2FunctionalLimitMs = 45000
@@ -367,6 +368,7 @@ export default async function ({ browser, url, output, fixture }) {
     for (const [width, height] of [
       [640, 480],
       [900, 360],
+      [1280, 720],
       [1440, 1000],
     ]) {
       await page.setViewportSize({ width, height })
@@ -374,11 +376,28 @@ export default async function ({ browser, url, output, fixture }) {
         () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
       )
       await page.waitForFunction(m2ViewReady, 2)
+      if (width === 640 || width === 1280) {
+        report.exports ??= []
+        report.exports.push(await checkFrameExport({ page, output, keyboard: width === 1280 }))
+        stage(`export-${width}-verified`)
+      }
       const layout = await graph.evaluate(el => {
         const r = el.getBoundingClientRect()
         const badge = document.querySelector('button.paused-badge')
         const b = badge?.getBoundingClientRect()
+        const exportButton = el.querySelector('.fps-export')
+        const exportStatus = el.querySelector('[data-metric="export-status"]')
+        const fits = node => {
+          const bounds = node?.getBoundingClientRect()
+          return !!bounds && bounds.left >= r.left && bounds.right <= r.right &&
+            bounds.top >= r.top && bounds.bottom <= r.bottom &&
+            node.scrollWidth <= node.clientWidth && node.scrollHeight <= node.clientHeight
+        }
+        const e = exportButton?.getBoundingClientRect()
         return {
+          exportFits: fits(exportButton) && fits(exportStatus),
+          exportActionable: !!e && !exportButton.disabled &&
+            document.elementFromPoint((e.left + e.right) / 2, (e.top + e.bottom) / 2) === exportButton,
           pause: b && { left: b.left, top: b.top, right: b.right, bottom: b.bottom },
           pauseActionable:
             !!badge &&
@@ -456,6 +475,8 @@ export default async function ({ browser, url, output, fixture }) {
       assert.equal(layout.rowsFit, true, 'Metric rows must fit without horizontal clipping')
       assert.equal(layout.overflow, false)
       assert.equal(layout.events, 'none')
+      assert.equal(layout.exportFits, true, 'Export button and status must fit at every viewport')
+      assert.equal(layout.exportActionable, true, 'Export must remain reachable beside campaign text')
       assert.ok(layout.campaignPanels.length > 0, 'Authored open campaign message must be observed')
       for (const panel of layout.campaignPanels) {
         assert.equal(

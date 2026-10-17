@@ -342,6 +342,8 @@ test('open campaign panel regression rejects the captured short-wide collision w
   assert.match(source, /layout\.campaignPanels\.length > 0/)
   assert.match(source, /m2RectanglesOverlap\(layout, panel\)/)
   assert.match(source, /panel\.contentFits, true/)
+  assert.match(source, /layout\.exportFits, true/)
+  assert.match(source, /layout\.exportActionable, true/)
   assert.match(source, /panel\.closeActionable,\s*true/)
   const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
   assert.match(css, /--campaign-message-width:340px/)
@@ -356,4 +358,17 @@ test('open campaign panel regression rejects the captured short-wide collision w
     const graphLeft = 900 - 8 - graphWidth
     assert.equal(graphLeft - (side + 340), 16, 'HUD is excluded once by the containing viewport')
   }
+})
+
+test('hosted M2 route awaits actual pointer and keyboard export checks inside existing scene deadline', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
+  assert.match(source, /import \{ checkFrameExport \} from '\.\/frame-export\.mjs'/)
+  assert.match(source, /await checkFrameExport\(\{ page, output, keyboard: width === 1280 \}\)/)
+  assert.match(source, /\[1280, 720\]/)
+  const helper = readFileSync(new URL('../scripts/tutorial-browser/frame-export.mjs', import.meta.url), 'utf8')
+  assert.match(helper, /waitForEvent\('download'\)/)
+  assert.match(helper, /readFileSync\(await download\.path\(\), 'utf8'\)/)
+  assert.match(helper, /keyboard\.press\('Space'\)/)
+  assert.doesNotMatch(helper, /newContext|page\.goto|setTimeout/)
+  assert.equal(m2FunctionalLimitMs, 45000)
 })

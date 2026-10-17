@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
-import { writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
 
@@ -18,11 +18,41 @@ export async function checkPerformancePage(page, { output } = {}) {
   assert.equal(facts.clickThrough, true)
   assert.match(facts.label, /performance/i)
   assert.notEqual(facts.live, 'assertive')
-  assert.equal(facts.focusables, 0)
+  assert.equal(facts.focusables, 1)
   assert.ok(facts.x >= 0 && facts.y >= 0 && facts.x + facts.width <= 640 && facts.y + facts.height <= 480)
-  assert.match(facts.text, /not GPU/)
+  assert.match(facts.text, /GPU not measured/)
   assert.equal(await overlay.evaluate(el => { const r = el.getBoundingClientRect(); return !el.contains(document.elementFromPoint(r.x + 10, r.y + 10)) }), true)
   if (output) await page.screenshot({ path: resolve(output, 'performance-640x480.png') })
+  const exportButton = overlay.getByRole('button', { name: 'Export recent frames', exact: true })
+  assert.equal(await exportButton.evaluate(el => getComputedStyle(el).pointerEvents), 'auto')
+  await page.evaluate(() => {
+    cancelAnimationFrame(window.testScene.frame)
+    window.exportInputEvents = []
+    window.exportInputListener = event => window.exportInputEvents.push(event.type)
+    for (const type of ['pointerdown', 'pointerup', 'click', 'keydown', 'keyup'])
+      window.addEventListener(type, window.exportInputListener)
+  })
+  for (const keyboard of [false, true]) {
+    const pending = page.waitForEvent('download')
+    if (keyboard) { await exportButton.focus(); await page.keyboard.press('Space') }
+    else await exportButton.click()
+    const download = await pending
+    const report = JSON.parse(readFileSync(await download.path(), 'utf8'))
+    assert.equal(report.schemaVersion, 1)
+    assert.match(report.buildRevision, /^(?:[0-9a-f]{40}(?:-dirty)?|unknown)$/)
+    assert.ok(report.frames.length > 0 && report.frames.length <= 1200)
+    assert.ok(report.timing.capturedSpanMs > 0)
+    assert.ok(report.frames.every(frame => Number.isFinite(frame.pointerTooltipCpuMs)))
+    assert.ok(report.frames.some(frame => frame.pointerBreakdown !== null))
+    assert.equal(report.session.level, 1)
+    if (output) await download.saveAs(resolve(output, keyboard ? 'keyboard-frame-export.json' : 'pointer-frame-export.json'))
+  }
+  assert.deepEqual(await page.evaluate(() => window.exportInputEvents), [], 'button activation does not reach game input handlers')
+  await page.evaluate(() => {
+    for (const type of ['pointerdown', 'pointerup', 'click', 'keydown', 'keyup'])
+      window.removeEventListener(type, window.exportInputListener)
+    window.testScene.frame = requestAnimationFrame(window.testScene.animate)
+  })
   await page.evaluate(() => document.activeElement?.blur())
   await page.keyboard.press('F8')
   assert.equal(await overlay.count(), 0, 'trusted F8 disables overlay')
@@ -44,15 +74,15 @@ export async function checkPerformancePage(page, { output } = {}) {
     const check = (value, message) => { if (!value) throw Error(message) }
     const metric = name => graph.element.querySelector(`[data-metric="${name}"]`).textContent
     graph.reset()
-    graph.update(1000, 0, 0, 0, 'Live')
-    for (let i = 1; i <= 32; i++) graph.update(1000 + i * 1000 / 120, 2, 3, 100, 'Live')
+    graph.update(1000, 0, 0, 0, 'Live', 0)
+    for (let i = 1; i <= 32; i++) graph.update(1000 + i * 1000 / 120, 2, 3, 100, 'Live', 7)
     check(metric('fps') === '120', '120 callback cadence')
     check(metric('simulation') === '2.00 ms' && metric('render') === '3.00 ms' && metric('calls') === '100', 'exact CPU and draw means')
-    graph.reset(); graph.update(0, 0, 0, 0, 'Live')
-    for (let i = 1; i <= 10; i++) graph.update(i * 10, 1, 2, 3, 'Live')
-    graph.update(250, 1, 2, 3, 'Live')
+    graph.reset(); graph.update(0, 0, 0, 0, 'Live', 0)
+    for (let i = 1; i <= 10; i++) graph.update(i * 10, 1, 2, 3, 'Live', 5)
+    graph.update(250, 1, 2, 3, 'Live', 5)
     check(metric('fps') === '44' && metric('peak') === '150.0 ms', 'unclamped spike')
-    for (let i = 1; i <= 300; i++) graph.update(250 + i * 10, 1, 2, 3, 'Live')
+    for (let i = 1; i <= 300; i++) graph.update(250 + i * 10, 1, 2, 3, 'Live', 5)
     check(graph.samples.count === 240 && graph.samples.history.length === 240, 'fixed ring')
     const points = graph.element.querySelector('polyline').getAttribute('points').trim().split(/\s+/).map(p => p.split(',').map(Number))
     check(points.length <= 240 && points.every(([x, y]) => x >= 0 && x <= 240 && y >= 0 && y <= 60), 'graph bounds')
@@ -124,6 +154,9 @@ export async function checkPerformancePage(page, { output } = {}) {
   if (output) writeFileSync(resolve(output, 'performance-observations.json'), JSON.stringify({ facts, lifecycle, overhead }, null, 2))
   await page.setViewportSize({ width: 1280, height: 720 })
   await page.waitForFunction(() => Number(document.querySelector('.fps-graph strong')?.textContent) > 0)
+  const wideDownload = page.waitForEvent('download')
+  await exportButton.click()
+  await wideDownload
   if (output) await page.screenshot({ path: resolve(output, 'performance-1280x720.png') })
   const wide = await overlay.boundingBox()
   assert.ok(wide.x >= 0 && wide.y + wide.height <= 720 && wide.x + wide.width <= 1280)

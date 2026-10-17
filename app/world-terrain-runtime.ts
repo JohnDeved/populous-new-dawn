@@ -9,6 +9,7 @@ import {
 } from './world-types.ts'
 import { GRID } from './world-rules.ts'
 import { height, nativeTerrainHeight } from './world-coordinates.ts'
+import { resampleTerrainSurface } from './terrain-surface.ts'
 import { short } from './native-math.ts'
 import {
   terrainPointHeight,
@@ -78,12 +79,23 @@ export function supportsFollower(w: World, p: Point & { inside?: number | null }
 export function refreshTerrainSurface(w: World) {
   // Resample the compatibility grid after native writes; keep collision, picking
   // and the rendered native terrain on the same surface.
-  for (let i = 0; i < w.terrain.length; i++) {
-    const x = (i % GRID) - 48,
-      z = Math.floor(i / GRID) - 48
-    const h = terrainPointHeight(w.land, { x: (x + 8) * 256, y: (-z - 8) * 256 }) / 45
-    w.terrain[i] = h || -0.35
-  }
+  if (
+    GRID === 97 &&
+    Array.isArray(w.terrain) &&
+    w.terrain.length === 9409 &&
+    w.land.heights instanceof Int16Array &&
+    w.land.heights.length === 16384 &&
+    w.land.flags instanceof Uint32Array &&
+    w.land.flags.length === 16384
+  )
+    resampleTerrainSurface(w.land.heights, w.land.flags, w.terrain)
+  else
+    for (let i = 0; i < w.terrain.length; i++) {
+      const x = (i % GRID) - 48,
+        z = Math.floor(i / GRID) - 48
+      const h = terrainPointHeight(w.land, { x: (x + 8) * 256, y: (-z - 8) * 256 }) / 45
+      w.terrain[i] = h || -0.35
+    }
   w.terrainVersion++
   w.landVersion = w.terrainVersion
 }
