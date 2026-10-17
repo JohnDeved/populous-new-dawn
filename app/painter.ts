@@ -50,12 +50,17 @@ export class Painter {
     this.view = view
   }
 
+  // Returned centers are a mutable cache; source edits/count changes require a version update.
+  // Never retain a previous-version snapshot by holding this BufferAttribute.
   triangleCenters(position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute) {
     const version = 'data' in position ? position.data.version : position.version
     let cached = this.centers.get(position)
     if (!cached || cached.version !== version) {
       // Retain JS precision: float32 centers can cross native cell boundaries.
-      const positions = new THREE.BufferAttribute(new Float64Array(position.count), 3),
+      const positions =
+          cached?.positions.array.length === position.count
+            ? cached.positions
+            : new THREE.BufferAttribute(new Float64Array(position.count), 3),
         center = new THREE.Vector3(),
         vertex = new THREE.Vector3()
       for (let i = 0; i < position.count; i += 3) {
