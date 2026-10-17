@@ -52,6 +52,24 @@ export function m2LoadReady() {
   return button?.getAttribute('aria-disabled') === 'false'
 }
 
+export function m2StartupReady() {
+  const world = window.testStore.getWorld()
+  const button = document.querySelector('button.skip-introduction')
+  const skipVisible =
+    !!button &&
+    button.getClientRects().length > 0 &&
+    getComputedStyle(button).visibility !== 'hidden' &&
+    !button.disabled
+  if (world.inputMask && !skipVisible) return false
+  return {
+    action: world.inputMask ? 'skip' : 'ready',
+    inputMask: world.inputMask,
+    flybyFlags: world.flyby.flags,
+    level: world.outcome.level,
+    skipVisible,
+  }
+}
+
 export default async function ({ browser, url, output, fixture }) {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
@@ -162,8 +180,14 @@ export default async function ({ browser, url, output, fixture }) {
     )
     report.loadBoundaryMatched = true
     await bindGame(page)
-    const skip = page.getByRole('button', { name: /^Skip introduction/ })
-    if (await skip.isVisible()) await skip.click()
+    // Scene binding can precede the campaign script's first flyby and React's
+    // public Skip control. Wait for an actionable state, never sample once.
+    const startup = await page.waitForFunction(m2StartupReady)
+    report.startup = await startup.jsonValue()
+    await startup.dispose()
+    assert.equal(report.startup.level, 2)
+    if (report.startup.action === 'skip')
+      await page.getByRole('button', { name: /^Skip introduction/ }).click()
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
@@ -348,6 +372,24 @@ export default async function ({ browser, url, output, fixture }) {
     assert.equal(report.returned.sameScene, true)
   } catch (error) {
     failure = error
+    try {
+      report.failureState = await page.evaluate(() => {
+        const w = window.testStore?.getWorld(),
+          button = document.querySelector('button.skip-introduction')
+        return {
+          level: w?.outcome.level,
+          turn: w?.turn,
+          inputMask: w?.inputMask,
+          flybyFlags: w?.flyby.flags,
+          paused: w?.paused,
+          skipVisible: !!button && button.getClientRects().length > 0,
+          skipText: button?.textContent,
+          body: document.body.innerText.slice(0, 2000),
+        }
+      })
+    } catch (diagnosticError) {
+      report.diagnosticError = String(diagnosticError)
+    }
     try {
       await page.screenshot({ path: resolve(output, 'm2-pointer-failure.png'), timeout: 3000 })
     } catch {}

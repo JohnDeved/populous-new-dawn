@@ -179,3 +179,28 @@ test('public Load readiness uses accessible bitmap-menu state, not absent text o
   present = false
   assert.equal(ready(), false)
 })
+
+test('M2 waits for delayed public Skip or naturally ready input, not one-shot visibility', async () => {
+  const { m2StartupReady } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  const world = { inputMask: 128, flyby: { flags: 16 }, outcome: { level: 2 } }
+  let visible = false,
+    mounted = false
+  const button = { disabled: false, getClientRects: () => (visible ? [{}] : []) }
+  const ready = runInNewContext(`(${m2StartupReady.toString()})`, {
+    window: { testStore: { getWorld: () => world } },
+    document: { querySelector: () => (mounted ? button : null) },
+    getComputedStyle: () => ({ visibility: 'visible' }),
+  })
+  assert.equal(ready(), false)
+  world.flyby.flags = 17
+  world.inputMask = 192
+  assert.equal(ready(), false, 'Active script before React control is still waiting')
+  mounted = true
+  assert.equal(ready(), false, 'Hidden Skip is not actionable')
+  visible = true
+  assert.equal(ready().action, 'skip')
+  assert.equal(ready().inputMask, 192)
+  world.inputMask = 0
+  mounted = false
+  assert.equal(ready().action, 'ready')
+})
