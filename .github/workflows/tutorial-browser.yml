@@ -10,6 +10,8 @@ on:
       - 'scripts/browser-*.mjs'
       - 'scripts/local-render/tutorial-recommendation.mjs'
       - 'scripts/local-render/original-pause-checkpoint-recovery.mjs'
+      - 'scripts/local-render/campaign-profile-recovery.mjs'
+      - 'scripts/checkpoint-readback.mjs'
       - 'scripts/local-render/checkpoint-observer.mjs'
       - 'scripts/tutorial-browser/**'
       - '.github/workflows/tutorial-browser.yml'
@@ -41,6 +43,10 @@ jobs:
             name: Pause checkpoint recovery browser
             artifact: pause-checkpoint-recovery-browser
             buildStep: Build plain production Home and validate pause checkpoint recovery
+          - scenario: profile-recovery
+            name: Profile recovery browser
+            artifact: profile-recovery-browser
+            buildStep: Build plain production Home and validate IndexedDB recovery
     env:
       PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}

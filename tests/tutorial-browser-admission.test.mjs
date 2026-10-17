@@ -85,7 +85,7 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
   assert.match(runner, /pauseRecoveryScenarioSha256: hash\(pauseRecoveryScenario\)/)
   assert.match(
     runner,
-    /if \(selectedScenario !== 'pause-checkpoint-recovery'\) \{\s+const \{ createM2Checkpoint \}/
+    /if \(selectedScenario === 'tutorial' \|\| selectedScenario === 'm2-pointer-f8'\) \{\s+const \{ createM2Checkpoint \}/
   )
   assert.match(
     runner,
