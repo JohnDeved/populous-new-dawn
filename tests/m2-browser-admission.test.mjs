@@ -149,3 +149,33 @@ test('ordinary null-mode pointer witnesses use processed tooltip cells, not plac
   assert.match(source, /name: \/\^Skip introduction\//)
   assert.doesNotMatch(source, /name: 'Skip introduction', exact: true/)
 })
+
+test('public Load readiness uses accessible bitmap-menu state, not absent text or native disabled', async () => {
+  const { m2LoadReady } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  let state = 'true',
+    present = true
+  const ready = runInNewContext(`(${m2LoadReady.toString()})`, {
+    document: {
+      querySelector(selector) {
+        assert.equal(selector, 'nav[aria-label="Main menu choices"] button[aria-label="Load Game"]')
+        return present
+          ? {
+              textContent: '',
+              disabled: false,
+              getAttribute(name) {
+                assert.equal(name, 'aria-disabled')
+                return state
+              },
+            }
+          : null
+      },
+    },
+  })
+  assert.equal(ready(), false)
+  state = 'false'
+  assert.equal(ready(), true)
+  state = null
+  assert.equal(ready(), false)
+  present = false
+  assert.equal(ready(), false)
+})

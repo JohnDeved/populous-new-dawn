@@ -45,6 +45,13 @@ export const m2RouteReady = ({ x, y, world }) => {
   )
 }
 
+export function m2LoadReady() {
+  const button = document.querySelector(
+    'nav[aria-label="Main menu choices"] button[aria-label="Load Game"]'
+  )
+  return button?.getAttribute('aria-disabled') === 'false'
+}
+
 export default async function ({ browser, url, output, fixture }) {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
@@ -120,12 +127,7 @@ export default async function ({ browser, url, output, fixture }) {
       .getByRole('dialog', { name: 'Main menu', exact: true })
       .getByRole('button', { name: 'Load Game', exact: true })
     await load.waitFor({ state: 'visible' })
-    await page.waitForFunction(() => {
-      const button = [...document.querySelectorAll('button')].find(
-        b => b.textContent.trim() === 'Load Game'
-      )
-      return button && !button.disabled
-    })
+    await page.waitForFunction(m2LoadReady)
     await page.evaluate(() => {
       const main = document.querySelector('main')
       let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))],
