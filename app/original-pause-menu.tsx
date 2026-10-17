@@ -210,6 +210,7 @@ export function OriginalPauseMenu(props: Props) {
       }}
       onKeyDown={event => {
         if (
+          panel === 'options' ||
           !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key) ||
           (event.target as HTMLElement).closest('input,select,textarea')
         )
