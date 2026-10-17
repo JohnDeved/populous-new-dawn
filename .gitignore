@@ -205,3 +205,9 @@ __pycache__/
 /references/verification/world-selector-globes-2026-10-15/after-640x480.png
 /references/verification/world-selector-globes-2026-10-15/before-1920x1080.png
 /references/verification/world-selector-globes-2026-10-15/before-640x480.png
+
+# Byte-identical historical checkpoint aliases; canonical replay/test inputs stay tracked.
+/references/verification/m17-celebration-2026-10-14/public-replay/camera-settled-fixed-terminal.v8.gz
+/references/verification/m17-celebration-2026-10-14/public-replay/final-qualified-terminal.v8.gz
+/references/verification/m17-celebration-2026-10-14/public-replay/continue18-terminal.v8.gz
+/references/verification/m17-celebration-2026-10-14/public-replay/won-fixed-terminal-584d.v8.gz
