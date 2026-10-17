@@ -55,7 +55,8 @@ Input: original `d3dpoptb.exe`, SHA-256
 Tool: GNU objdump (GNU Binutils for Debian) 2.44. Static read only, no original
 instructions executed or emulated. Reproduce with `objdump -d --start-address=START
 --stop-address=STOP <verified-executable>` for windows 0x404c50–0x404c80,
-0x4be230–0x4be330 and 0x4bf1b0–0x4bf630. Trailing breakpoint padding is retained.
+0x4be230–0x4be330 and 0x4bf1b0–0x4bf630. Trailing line whitespace is trimmed;
+original instruction bytes and trailing breakpoint padding are retained.
 
 ## Regression boundaries
 

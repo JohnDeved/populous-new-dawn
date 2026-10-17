@@ -20,7 +20,7 @@ Disassembly of section .text:
   4be251:	81 e1 00 fe 00 00    	and    $0xfe00,%ecx
   4be257:	0b c1                	or     %ecx,%eax
   4be259:	0f bf 34 85 e8 03 8a 	movswl 0x8a03e8(,%eax,4),%esi
-  4be260:	00 
+  4be260:	00
   4be261:	8d 0c 85 e4 03 8a 00 	lea    0x8a03e4(,%eax,4),%ecx
   4be268:	8a c2                	mov    %dl,%al
   4be26a:	04 02                	add    $0x2,%al
@@ -38,7 +38,7 @@ Disassembly of section .text:
   4be294:	33 ff                	xor    %edi,%edi
   4be296:	80 44 24 0f 02       	addb   $0x2,0xf(%esp)
   4be29b:	0f bf 1c 85 e8 03 8a 	movswl 0x8a03e8(,%eax,4),%ebx
-  4be2a2:	00 
+  4be2a2:	00
   4be2a3:	66 8b 7c 24 0e       	mov    0xe(%esp),%di
   4be2a8:	2b d3                	sub    %ebx,%edx
   4be2aa:	33 c0                	xor    %eax,%eax
@@ -48,7 +48,7 @@ Disassembly of section .text:
   4be2bc:	03 c0                	add    %eax,%eax
   4be2be:	0b c7                	or     %edi,%eax
   4be2c0:	0f bf 3c 85 e8 03 8a 	movswl 0x8a03e8(,%eax,4),%edi
-  4be2c7:	00 
+  4be2c7:	00
   4be2c8:	2b fe                	sub    %esi,%edi
   4be2ca:	be 5e 01 00 00       	mov    $0x15e,%esi
   4be2cf:	0f bf 05 aa 7a 93 00 	movswl 0x937aaa,%eax

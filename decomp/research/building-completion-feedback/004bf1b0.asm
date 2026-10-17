@@ -12,14 +12,14 @@ Disassembly of section .text:
   4bf1c1:	56                   	push   %esi
   4bf1c2:	33 c0                	xor    %eax,%eax
   4bf1c4:	66 8b 84 24 8c 00 00 	mov    0x8c(%esp),%ax
-  4bf1cb:	00 
+  4bf1cb:	00
   4bf1cc:	57                   	push   %edi
   4bf1cd:	55                   	push   %ebp
   4bf1ce:	25 fe 00 00 00       	and    $0xfe,%eax
   4bf1d3:	03 c0                	add    %eax,%eax
   4bf1d5:	33 c9                	xor    %ecx,%ecx
   4bf1d7:	66 8b 8c 24 94 00 00 	mov    0x94(%esp),%cx
-  4bf1de:	00 
+  4bf1de:	00
   4bf1df:	81 e1 00 fe 00 00    	and    $0xfe00,%ecx
   4bf1e5:	0b c1                	or     %ecx,%eax
   4bf1e7:	8d 0c 85 e4 03 8a 00 	lea    0x8a03e4(,%eax,4),%ecx
@@ -38,14 +38,14 @@ Disassembly of section .text:
   4bf217:	7e 04                	jle    0x4bf21d
   4bf219:	89 44 24 14          	mov    %eax,0x14(%esp)
   4bf21d:	c7 44 24 24 20 00 00 	movl   $0x20,0x24(%esp)
-  4bf224:	00 
+  4bf224:	00
   4bf225:	33 c0                	xor    %eax,%eax
   4bf227:	f6 01 08             	testb  $0x8,(%ecx)
   4bf22a:	8a c2                	mov    %dl,%al
   4bf22c:	89 44 24 54          	mov    %eax,0x54(%esp)
   4bf230:	75 08                	jne    0x4bf23a
   4bf232:	c7 44 24 24 00 00 00 	movl   $0x0,0x24(%esp)
-  4bf239:	00 
+  4bf239:	00
   4bf23a:	8a 84 24 94 00 00 00 	mov    0x94(%esp),%al
   4bf241:	33 c9                	xor    %ecx,%ecx
   4bf243:	04 02                	add    $0x2,%al
@@ -73,14 +73,14 @@ Disassembly of section .text:
   4bf294:	7e 04                	jle    0x4bf29a
   4bf296:	89 44 24 1c          	mov    %eax,0x1c(%esp)
   4bf29a:	c7 44 24 2c 20 00 00 	movl   $0x20,0x2c(%esp)
-  4bf2a1:	00 
+  4bf2a1:	00
   4bf2a2:	33 c0                	xor    %eax,%eax
   4bf2a4:	f6 01 08             	testb  $0x8,(%ecx)
   4bf2a7:	8a c2                	mov    %dl,%al
   4bf2a9:	89 44 24 5c          	mov    %eax,0x5c(%esp)
   4bf2ad:	75 08                	jne    0x4bf2b7
   4bf2af:	c7 44 24 2c 00 00 00 	movl   $0x0,0x2c(%esp)
-  4bf2b6:	00 
+  4bf2b6:	00
   4bf2b7:	33 c0                	xor    %eax,%eax
   4bf2b9:	33 c9                	xor    %ecx,%ecx
   4bf2bb:	80 44 24 11 02       	addb   $0x2,0x11(%esp)
@@ -105,14 +105,14 @@ Disassembly of section .text:
   4bf308:	7e 04                	jle    0x4bf30e
   4bf30a:	89 44 24 20          	mov    %eax,0x20(%esp)
   4bf30e:	c7 44 24 30 20 00 00 	movl   $0x20,0x30(%esp)
-  4bf315:	00 
+  4bf315:	00
   4bf316:	33 c0                	xor    %eax,%eax
   4bf318:	f6 01 08             	testb  $0x8,(%ecx)
   4bf31b:	8a 41 0a             	mov    0xa(%ecx),%al
   4bf31e:	89 44 24 60          	mov    %eax,0x60(%esp)
   4bf322:	75 08                	jne    0x4bf32c
   4bf324:	c7 44 24 30 00 00 00 	movl   $0x0,0x30(%esp)
-  4bf32b:	00 
+  4bf32b:	00
   4bf32c:	33 c0                	xor    %eax,%eax
   4bf32e:	33 c9                	xor    %ecx,%ecx
   4bf330:	80 6c 24 10 02       	subb   $0x2,0x10(%esp)
@@ -137,14 +137,14 @@ Disassembly of section .text:
   4bf37d:	7e 04                	jle    0x4bf383
   4bf37f:	89 44 24 18          	mov    %eax,0x18(%esp)
   4bf383:	c7 44 24 28 20 00 00 	movl   $0x20,0x28(%esp)
-  4bf38a:	00 
+  4bf38a:	00
   4bf38b:	33 c0                	xor    %eax,%eax
   4bf38d:	f6 01 08             	testb  $0x8,(%ecx)
   4bf390:	8a 41 0a             	mov    0xa(%ecx),%al
   4bf393:	89 44 24 58          	mov    %eax,0x58(%esp)
   4bf397:	75 08                	jne    0x4bf3a1
   4bf399:	c7 44 24 28 00 00 00 	movl   $0x0,0x28(%esp)
-  4bf3a0:	00 
+  4bf3a0:	00
   4bf3a1:	8b 44 24 48          	mov    0x48(%esp),%eax
   4bf3a5:	2b 44 24 44          	sub    0x44(%esp),%eax
   4bf3a9:	c1 e0 0d             	shl    $0xd,%eax
@@ -225,7 +225,7 @@ Disassembly of section .text:
   4bf4c7:	c0 e8 01             	shr    $0x1,%al
   4bf4ca:	8b bc 24 98 00 00 00 	mov    0x98(%esp),%edi
   4bf4d1:	c7 44 24 24 08 00 00 	movl   $0x8,0x24(%esp)
-  4bf4d8:	00 
+  4bf4d8:	00
   4bf4d9:	8a d0                	mov    %al,%dl
   4bf4db:	03 ca                	add    %edx,%ecx
   4bf4dd:	c1 e1 05             	shl    $0x5,%ecx
@@ -237,7 +237,7 @@ Disassembly of section .text:
   4bf4f6:	89 54 24 64          	mov    %edx,0x64(%esp)
   4bf4fa:	89 5c 24 68          	mov    %ebx,0x68(%esp)
   4bf4fe:	c7 44 24 44 08 00 00 	movl   $0x8,0x44(%esp)
-  4bf505:	00 
+  4bf505:	00
   4bf506:	8b d6                	mov    %esi,%edx
   4bf508:	8b 1d b8 45 5d 00    	mov    0x5d45b8,%ebx
   4bf50e:	c1 fa 10             	sar    $0x10,%edx
