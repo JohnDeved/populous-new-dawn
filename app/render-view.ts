@@ -475,9 +475,7 @@ export class RenderView {
             : ''
           const cache = this.groundPickCache.get(object)?.get(instance)
           const reuse = nativeEdges && cache?.key === cacheKey && cache.position === position
-          const world: THREE.Vector3[] = reuse ? cache.world : [],
-            screen: THREE.Vector4[] = reuse ? cache.screen : [],
-            scale = object.userData.nativeScale
+          const scale = object.userData.nativeScale
           const origin = new THREE.Vector3().setFromMatrixPosition(transform),
             basis = modelMatrix(
               object.parent?.userData.nativeHeading ?? 0,
@@ -486,10 +484,8 @@ export class RenderView {
             ),
             unwrapped = !!object.userData.nativeRelative
           const count = index ? Math.min(index.count, geometry.drawRange.count) : position.count
-          // Equal shipped grid corners share projection work only within this
-          // query and instance. Never retain painter or cross-query buffers.
-          const terrainCorners =
-            !nativeEdges &&
+          const terrainLayout =
+            (!nativeEdges || (!reuse && count > 0 && !this.overview)) &&
             !scale &&
             object instanceof THREE.InstancedMesh &&
             object.userData.terrainGrid &&
@@ -514,16 +510,26 @@ export class RenderView {
             !index.normalized &&
             index.itemSize === 1 &&
             count % 6 === 0
-              ? new Uint32Array(129 * 129)
-              : null
+          // Equal shipped grid corners share projection work only within this
+          // query and instance. Never retain painter or cross-query buffers.
+          const terrainCorners = !nativeEdges && terrainLayout ? new Uint32Array(129 * 129) : null,
+            terrainIndex =
+              terrainLayout &&
+              index!.array.subarray(0, count).every((id: number) => id < position.count)
           // Original vertex IDs are sparse and duplicate corners need only an
           // alias, not another sparse world/screen array entry. Keep projected
           // entries packed for this query; candidate triangle IDs stay original.
-          const terrainSlots =
-            terrainCorners &&
-            index!.array.subarray(0, count).every((id: number) => id < position.count)
-              ? new Uint32Array(position.count)
-              : null
+          const terrainSlots = !nativeEdges && terrainIndex ? new Uint32Array(position.count) : null
+          // A native cache rebuild writes by original source ID. Reserve holes
+          // for the bounded shipped layout; unseen IDs still project lazily.
+          // Default-edge packed storage must continue to start with empty arrays.
+          const reserve = nativeEdges && terrainIndex,
+            world: THREE.Vector3[] = reuse ? cache.world : reserve ? new Array(position.count) : [],
+            screen: THREE.Vector4[] = reuse
+              ? cache.screen
+              : reserve
+                ? new Array(position.count)
+                : []
           for (let vertex = 0; vertex < count; vertex++) {
             const i = index ? index.getX(vertex) : vertex
             if (terrainSlots ? terrainSlots[i] : screen[i]) continue

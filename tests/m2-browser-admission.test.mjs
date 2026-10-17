@@ -323,16 +323,89 @@ test('bounded M2 avoids duplicate initial-wide PNG while retaining all viewport 
   assert.equal(m2FunctionalLimitMs, 45000)
 })
 
+test('open campaign panel regression rejects the captured short-wide collision without hiding either panel', async () => {
+  const { m2RectanglesOverlap } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  const message = { left: 72, top: 241, right: 412, bottom: 341 }
+  assert.equal(m2RectanglesOverlap({ left: 332, top: 8, right: 892, bottom: 350 }, message), true)
+  assert.equal(m2RectanglesOverlap({ left: 428, top: 8, right: 892, bottom: 350 }, message), false)
+  assert.equal(
+    m2RectanglesOverlap(
+      { left: 104, top: 8, right: 632, bottom: 350 },
+      { left: 96, top: 355, right: 436, bottom: 455 }
+    ),
+    false
+  )
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(source, /layout\.campaignPanels\.length > 0/)
+  assert.match(source, /m2RectanglesOverlap\(layout, panel\)/)
+  assert.match(source, /panel\.contentFits, true/)
+  assert.match(source, /layout\.exportFits, true/)
+  assert.match(source, /layout\.exportActionable,\s*true/)
+  assert.match(source, /panel\.closeActionable,\s*true/)
+  const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
+  assert.match(css, /--campaign-message-width:340px/)
+  assert.match(css, /\.world-viewport\{position:absolute;inset:0 0 0 var\(--side\)/)
+  assert.match(css, /@media \(min-width:900px\) and \(max-height:700px\)/)
+  assert.match(css, /max-width:calc\(100% - var\(--campaign-message-width\) - 24px\)/)
+  assert.match(css, /\.campaign-messages details\[open\]\{width:var\(--campaign-message-width\)\}/)
+  assert.match(css, /\.fps-renderer\{max-height:none;overflow:visible\}/)
+  for (const side of [72, 100, 140]) {
+    const worldWidth = 900 - side
+    const graphWidth = Math.min(560, worldWidth - 340 - 24)
+    const graphLeft = 900 - 8 - graphWidth
+    assert.equal(graphLeft - (side + 340), 16, 'HUD is excluded once by the containing viewport')
+  }
+})
 
 test('hosted M2 route awaits actual pointer and keyboard export checks inside existing scene deadline', () => {
-  const source = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
   assert.match(source, /import \{ checkFrameExport \} from '\.\/frame-export\.mjs'/)
   assert.match(source, /await checkFrameExport\(\{ page, output, keyboard: width === 1280 \}\)/)
   assert.match(source, /\[1280, 720\]/)
-  const helper = readFileSync(new URL('../scripts/tutorial-browser/frame-export.mjs', import.meta.url), 'utf8')
+  const helper = readFileSync(
+    new URL('../scripts/tutorial-browser/frame-export.mjs', import.meta.url),
+    'utf8'
+  )
   assert.match(helper, /waitForEvent\('download'\)/)
   assert.match(helper, /readFileSync\(await download\.path\(\), 'utf8'\)/)
   assert.match(helper, /keyboard\.press\('Space'\)/)
   assert.doesNotMatch(helper, /newContext|page\.goto|setTimeout/)
+  assert.equal(m2FunctionalLimitMs, 45000)
+})
+
+test('full checkpoint protocol transport uses JSON text without weakening structured equality', () => {
+  const buffer = new ArrayBuffer(16)
+  const view = new Float64Array(buffer)
+  view.set([NaN, -0])
+  const world = { buffer, view, map: new Map([[1n, Infinity]]), absent: undefined }
+  world.self = world
+  const encoded = checkpointCodec(world)
+  const transported = JSON.parse(JSON.stringify(encoded))
+  assert.deepEqual(transported, encoded)
+  const decoded = checkpointCodec(transported, true)
+  assert.equal(decoded.self, decoded)
+  assert.equal(decoded.view.buffer, decoded.buffer)
+  assert.ok(Number.isNaN(decoded.view[0]))
+  assert.ok(Object.is(decoded.view[1], -0))
+  assert.equal(decoded.map.get(1n), Infinity)
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(source, /const transfer = JSON\.parse\(transferJson\)/)
+  assert.match(source, /JSON\.stringify\(fixture\.transfer\)/)
+  assert.match(source, /const readback = JSON\.parse\(readbackJson\)/)
+  assert.match(source, /assert\.deepEqual\(\s*readback,\s*fixture\.transfer/)
+  assert.match(
+    source,
+    /JSON\.parse\(await page\.evaluate\(\(\) => window\.m2LoadBoundary\)\),\s*fixture\.expected/
+  )
+  assert.match(source, /JSON\.stringify\(window\.m2CheckpointCodec\(store\.getWorld\(\)\)\)/)
   assert.equal(m2FunctionalLimitMs, 45000)
 })

@@ -398,3 +398,60 @@ test('packed terrain slots preserve sparse original triangle IDs and retained qu
     f.close()
   }
 })
+
+test('native cache projects new submitted IDs lazily and retains prior query ownership', async () => {
+  const f = await fixture(0)
+  try {
+    const position = f.mesh.geometry.attributes.position,
+      high = position.count - 6,
+      corners = [[0, 0, 0], [0, 0, 2], [2, 0, 0], [2, 0, 0], [0, 0, 2], [2, 0, 2]]
+    for (const base of [0, high]) corners.forEach((point, i) => position.setXYZ(base + i, ...point))
+    const submit = ids => {
+      f.mesh.geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(ids), 1))
+      f.mesh.geometry.setDrawRange(0, ids.length)
+    }
+    f.mesh.count = 1
+    f.mesh.setMatrixAt(0, new THREE.Matrix4())
+    submit([0, 1, 2, 3, 4, 5])
+    const projected = f.view.screen(new THREE.Vector3(2 / 3, 0, 2 / 3), new THREE.Camera(), true),
+      mouse = new THREE.Vector2(projected.x, projected.y),
+      first = f.sample(true, mouse),
+      cache = f.view.groundPickCache.get(f.mesh).get(0),
+      world = cache.world,
+      screen = cache.screen
+    assert.equal(first.actualCalls, 6, 'cold native query projects the submitted source IDs')
+    assert.deepEqual(first.candidates.map(hit => hit.triangle), [0])
+    const retained = first.candidates.map(({ point, depth, triangle, instance }) => ({
+      point: { ...point }, depth, triangle, instance,
+    }))
+    assert.equal(f.sample(true, mouse).actualCalls, 0, 'unchanged native query reuses projections')
+    submit([...Array.from({ length: 6 }, (_, i) => high + i), 0, 1, 2, 3, 4, 5])
+    const expanded = f.sample(true, mouse)
+    assert.equal(expanded.actualCalls, 6, 'same-key submission expansion projects only unseen IDs')
+    assert.deepEqual(expanded.candidates.map(hit => hit.triangle), [high / 3, 0])
+    const warm = f.sample(true, mouse)
+    assert.equal(warm.actualCalls, 0)
+    assert.deepEqual(warm.candidates, expanded.candidates)
+    assert.strictEqual(f.view.groundPickCache.get(f.mesh).get(0).world, world)
+    assert.strictEqual(f.view.groundPickCache.get(f.mesh).get(0).screen, screen)
+    assert.notStrictEqual(expanded.candidates[1].point, first.candidates[0].point)
+    // Replacing a same-valued position buffer must invalidate the cache as well.
+    f.mesh.geometry.setAttribute('position', position.clone())
+    const replaced = f.sample(true, mouse)
+    assert.equal(replaced.actualCalls, 12)
+    assert.deepEqual(replaced.candidates, expanded.candidates)
+    assert.deepEqual(first.candidates.map(({ point, depth, triangle, instance }) => ({
+      point, depth, triangle, instance,
+    })), retained)
+    submit([])
+    f.mesh.geometry.setAttribute('position', position.clone())
+    const empty = f.sample(true, mouse),
+      emptyCache = f.view.groundPickCache.get(f.mesh).get(0)
+    assert.equal(empty.actualCalls, 0)
+    assert.deepEqual(empty.candidates, [])
+    assert.equal(emptyCache.world.length, 0, 'empty submission reserves no world storage')
+    assert.equal(emptyCache.screen.length, 0, 'empty submission reserves no screen storage')
+  } finally {
+    f.close()
+  }
+})
