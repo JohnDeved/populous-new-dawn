@@ -358,7 +358,7 @@ test('one activation diagnostic compares the unchanged legacy test suite without
 
 test('timing upload is optional and isolated from mandatory acceptance artifacts', () => {
   const workflow = read('.github/workflows/ready-pr-check.yml')
-  const block = workflow.match(/ {6}- name: Upload optional per-file timing diagnostics\n([\s\S]*?)\n  full-check:/)?.[1]
+  const block = workflow.match(/ {6}- name: Upload optional per-file timing diagnostics\n([\s\S]*?)\n {2}full-check:/)?.[1]
   assert.ok(block)
   assert.match(block, /if: \$\{\{ always\(\) && \(steps.shard.outcome == 'success' \|\| steps.shard.outcome == 'failure'\) \}\}/)
   assert.match(block, /continue-on-error: true/)

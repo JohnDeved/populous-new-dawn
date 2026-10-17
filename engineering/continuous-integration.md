@@ -235,7 +235,6 @@ for concurrency and runner variance, and never convert test-name duration sums
 into claimed whole-file wall time. Before enabling weighted scheduling, separately
 review completeness, source-bound samples and immutable deterministic partitioning.
 
-
 ### Hosted timing collection
 
 Each existing shard opts into `summary-v1`; there are no additional test runs,
