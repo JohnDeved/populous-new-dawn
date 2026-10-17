@@ -16,8 +16,15 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 const SELF = fileURLToPath(import.meta.url)
 const ROOT = resolve(dirname(SELF), '..')
 const VERSION = 1
-const DEFAULT_TURNS = { mission18: 3600, mission6: 1200, march: 240, combat: 240, attack: 600, blocked: 600, dismantle: 600 }
+const DEFAULT_TURNS = { mission18: 3600, mission6: 1200, march: 240, combat: 240, attack: 600, blocked: 600, dismantle: 600, bridge: 96, armageddon: 192, erosion: 64 }
 const DEFAULT_SCENARIOS = 'mission18,mission6,march,combat,blocked,dismantle'
+const TERRAIN_MISSIONS = { bridge: 2, armageddon: 18, erosion: 3 }
+const TERRAIN_LIFECYCLES = { bridge: 62, armageddon: 128, erosion: 64 }
+const TERRAIN_SCOPES = {
+  bridge: 'Bridge retains authored Mission 2 actors, terrain and AI. Its untimed prelude advances the opening and ordinary Shaman worship until the original head creates bridge.turn=1. The measured window includes all 62 terrain visits and cleanup; no actors, terrain or spell resources are supplied.',
+  armageddon: 'Armageddon retains authored Mission 18 initialization and uses one supplied Armageddon shot through public cast and normal projectile processing. Its untimed prelude ends at actual effect allocation, with terrainRemaining=128. The 192-turn default includes all 128 phase-0 turns (64 terrain reshapes) and 64 staging turns. Production Armageddon rebuilds its roster and suspends ordinary movement during deformation.',
+  erosion: 'Erosion retains authored Mission 3 actors, terrain and AI. Its untimed prelude completes the opening and original Shaman travel and worship, stopping one turn before natural activation. The 64-turn default includes activation, all 63 live work visits and terminal retirement. No actors, resources or effect internals are supplied. Native height changes can leave the sampled compatibility surface and walk masks unchanged; their actual hashes, change counts and version increments are reported.',
+}
 const sha256 = value => createHash('sha256').update(value).digest('hex')
 const readJson = path => JSON.parse(readFileSync(path, 'utf8'))
 const json = value => `${JSON.stringify(value, null, 2)}\n`
@@ -134,8 +141,8 @@ export function workloadOptions(options) {
   return {
     version: VERSION,
     clockHz: 60,
-    scenarios: names.map(name => ({ name, turns: overrides.get(name) ?? DEFAULT_TURNS[name], people: name.startsWith('mission') ? null : people, seed })),
-    scope: 'Natural missions retain authored initialization and AI. Synthetic stress uses an empty World state, flat test terrain, production entities/orders and complete turns, with campaign AI disabled. Default natural RNG is unmodified; --seed explicitly overrides both streams after world creation. Blocked terrain opens before turn 121.',
+    scenarios: names.map(name => ({ name, turns: overrides.get(name) ?? DEFAULT_TURNS[name], people: name.startsWith('mission') || Object.hasOwn(TERRAIN_SCOPES, name) ? null : people, seed })),
+    scope: ['Natural missions retain authored initialization and AI. Synthetic stress uses an empty World state, flat test terrain, production entities/orders and complete turns, with campaign AI disabled. Default natural RNG is unmodified; --seed explicitly overrides both streams after world creation. Blocked terrain opens before turn 121.', ...names.filter(name => Object.hasOwn(TERRAIN_SCOPES, name)).map(name => TERRAIN_SCOPES[name])].join(' '),
   }
 }
 
@@ -189,12 +196,148 @@ async function loadEngine(tree) {
   return { ...model, createWorldState: state.createWorldState, advanceGame: clock.advanceGame, dismantleBuilding: building.dismantleBuilding }
 }
 
-function fixture(engine, spec) {
+function terrainSignatures(world) {
+  const masks = createHash('sha256')
+  for (const mask of world.land.walkMasks) masks.update(mask)
+  return { heights: sha256(world.land.heights), walkMasks: masks.digest('hex'), surface: sha256(new Float64Array(world.terrain)) }
+}
+
+function preludeUntil(engine, setup, driver, ready, limit, label, observeTurn = () => {}) {
+  for (let index = 0; !ready() && index < limit; index++) {
+    const previous = setup.world.turn
+    advance(engine, setup, driver)
+    assert.equal(setup.world.turn, previous + 1, `${label}: prelude must execute an ordinary turn`)
+    observeTurn()
+  }
+  assert.ok(ready(), `${label}: prelude did not finish within ${limit} turns`)
+}
+
+function prepareErosionScenario(engine, setup, spec, driver) {
+  const world = setup.world, createdTurn = world.turn
+  const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+  const head = world.shrines.find(shrine => shrine.id === 101 && shrine.kind === 'erosionEffect')
+  assert.ok(shaman && head, 'erosion: original Mission 3 Shaman and head are required')
+  assert.deepEqual({ x: shaman.x, z: shaman.z }, { x: 35, z: 81 })
+  assert.deepEqual({ x: head.x, z: head.z }, { x: -7, z: 115 })
+  assert.deepEqual([head.required, head.target, head.remaining, head.uses, head.forced], [1, 40, 1, 0, false])
+  assert.equal(head.effectTargets.length, 1, 'erosion: one authored controller is required')
+  const position = { x: shaman.x, z: shaman.z }
+  let pathSearches = 0, pathObserved = false
+  const observePath = () => {
+    assert.equal(world.units.find(unit => unit.id === shaman.id), shaman, 'erosion: original Shaman identity must survive the prelude')
+    assert.ok(shaman.hp > 0, 'erosion: original Shaman must survive ordinary worship')
+    assert.equal(head.uses, 0, 'erosion: natural activation must remain inside the measured window')
+    assert.equal(world.effects.some(effect => effect.erosion), false, 'erosion: unexpected prelude effect')
+    pathSearches += world.pathfinding.state.searches // Native counters reset at each turn.
+    if (shaman.path.length || shaman.native?.speed > 0) pathObserved = true
+  }
+  const openingFinished = () => world.levelStart.every(site =>
+    site.phase === 4 && !site.wave && !site.carriers.length &&
+    site.stoneTurns.every(turn => turn === null || world.turn - turn >= 20))
+  preludeUntil(engine, setup, driver, openingFinished, 256, 'erosion opening', observePath)
+  engine.select(world, 'shaman')
+  assert.deepEqual(world.selected, [shaman.id])
+  const searchesBeforeOrder = world.pathfinding.state.searches, orderTurn = world.turn
+  assert.equal(engine.command(world, head), true, 'erosion: ordinary worship order must be accepted')
+  pathSearches += (world.pathfinding.state.searches - searchesBeforeOrder) >>> 0
+  if (shaman.path.length || shaman.native?.speed > 0) pathObserved = true
+  // Observe the real penultimate work value; do not force activation or move actors.
+  const ready = () => !((world.turn + 1) & 3) && !head.reset && head.enabled &&
+    head.followers >= head.required && head.work === (head.target - 1) * head.required ** 2
+  preludeUntil(engine, setup, driver, ready, 2400 - (world.turn - createdTurn), 'erosion travel and worship', observePath)
+  assert.equal(head.uses, 0)
+  assert.equal(head.forced, false)
+  assert.equal(world.effects.some(effect => effect.erosion), false)
+  const moved = Math.hypot(shaman.x - position.x, shaman.z - position.z) > .01
+  assert.ok(pathObserved && pathSearches > 0 && moved, 'erosion: original Shaman must travel through ordinary pathfinding')
+  setup.terrain = {
+    name: spec.name, effect: null, head, previous: terrainSignatures(world), before: null,
+    prelude: {
+      mission: 3, turns: world.turn - createdTurn, orderTurn, source: TERRAIN_SCOPES.erosion,
+      suppliedShots: [], shamanId: shaman.id, shamanPathObserved: pathObserved, shamanMoved: moved, pathSearches,
+      headId: head.id, headUsesBeforeActivation: head.uses, workBeforeActivation: head.work,
+      followersBeforeActivation: head.followers, effectTarget: { ...head.effectTargets[0] },
+    },
+  }
+}
+
+function prepareTerrainScenario(engine, setup, spec, driver) {
+  const world = setup.world, createdTurn = world.turn
+  const openingFinished = () => world.levelStart.every(site =>
+    site.phase === 4 && !site.wave && !site.carriers.length &&
+    site.stoneTurns.every(turn => turn === null || world.turn - turn >= 20))
+  preludeUntil(engine, setup, driver, openingFinished, 256, `${spec.name} opening`)
+  const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+  assert.ok(shaman && shaman.hp > 0, `${spec.name}: authored Shaman must be alive`)
+  const position = { x: shaman.x, z: shaman.z }
+  let effect, head = null, pathObserved = false, pathSearches = 0
+  if (spec.name === 'bridge') {
+    preludeUntil(engine, setup, driver, () => world.turn >= 122, 122, 'bridge opening wait')
+    head = world.shrines.find(shrine => shrine.kind === 'bridgeEffect')
+    assert.ok(head && head.uses === 0, 'bridge: original unused head is required')
+    engine.select(world, 'shaman')
+    const searchesBeforeOrder = world.pathfinding.state.searches
+    assert.equal(engine.command(world, head), true, 'bridge: ordinary worship order must be accepted')
+    pathSearches = (world.pathfinding.state.searches - searchesBeforeOrder) >>> 0
+    pathObserved = shaman.path.length > 0 || shaman.native?.speed > 0
+    const observePath = () => {
+      if (shaman.path.length || shaman.native?.speed > 0) pathObserved = true
+      pathSearches += world.pathfinding.state.searches // Native counters reset at each turn.
+    }
+    preludeUntil(engine, setup, driver, () => {
+      effect = world.effects.find(item => item.bridge)
+      return !!effect
+    }, 1000, 'bridge worship', observePath)
+    assert.equal(head.uses, 1, 'bridge: ordinary worship must activate the head exactly once')
+    assert.equal(effect.bridge.turn, 1, 'bridge: prelude must stop at the authored initialization visit')
+    assert.equal(world.stats.bridges, 1, 'bridge: exactly one authored bridge must be allocated')
+    assert.ok(pathObserved && Math.hypot(shaman.x - position.x, shaman.z - position.z) > .01, 'bridge: original Shaman must travel through ordinary pathfinding')
+  } else {
+    world.shots.armageddon = 1
+    engine.select(world, 'shaman')
+    assert.equal(engine.cast(world, 'armageddon', { x: shaman.x + 1, z: shaman.z }), true, 'armageddon: public cast must accept the supplied shot')
+    preludeUntil(engine, setup, driver, () => {
+      effect = world.effects.find(item => item.armageddon)
+      return !!effect
+    }, 180, 'armageddon projectile')
+    assert.equal(world.shots.armageddon, 0, 'armageddon: the cast must consume its supplied shot')
+    assert.equal(effect.armageddon.phase, 0)
+    assert.equal(effect.armageddon.terrainRemaining, 128, 'armageddon: no deformation visit may occur in the prelude')
+  }
+  const signatures = terrainSignatures(world)
+  const arenaCenter = effect.armageddon ? engine.nativePosition(world, effect) : null
+  setup.terrain = {
+    name: spec.name, effect, head, previous: signatures, before: null,
+    arenaCenterIndex: arenaCenter ? ((arenaCenter.y & 65535) >>> 9) * 128 + ((arenaCenter.x & 65535) >>> 9) : null,
+    prelude: {
+      mission: TERRAIN_MISSIONS[spec.name],
+      turns: world.turn - createdTurn,
+      source: TERRAIN_SCOPES[spec.name],
+      suppliedShots: spec.name === 'armageddon' ? [{ spell: 'armageddon', count: 1 }] : [],
+      shamanId: shaman.id, shamanPathObserved: pathObserved,
+      shamanMoved: Math.hypot(shaman.x - position.x, shaman.z - position.z) > .01,
+      pathSearches,
+    },
+  }
+}
+
+function fixture(engine, spec, driver = 'tick') {
   const natural = spec.name.startsWith('mission')
-  const world = natural ? engine.createWorld(Number(spec.name.slice(7))) : engine.createWorldState(1)
+  const terrain = Object.hasOwn(TERRAIN_SCOPES, spec.name)
+  const world = natural || terrain ? engine.createWorld(terrain ? TERRAIN_MISSIONS[spec.name] : Number(spec.name.slice(7))) : engine.createWorldState(1)
   if (spec.seed !== null) { world.randomState = spec.seed; world.cosmeticRandom.randomState = spec.seed }
   const clock = { animationTime: 0, animationFrame: 0 }
   const setup = { world, clock, target: null, actors: [], positions: new Map(), startTurn: world.turn }
+  if (terrain) {
+    if (spec.name === 'erosion') prepareErosionScenario(engine, setup, spec, driver)
+    else prepareTerrainScenario(engine, setup, spec, driver)
+    for (const unit of world.units) {
+      setup.actors.push(unit.id)
+      setup.positions.set(unit.id, { x: unit.x, z: unit.z })
+    }
+    setup.startTurn = world.turn
+    return setup
+  }
   if (natural) return setup
   world.manaWorld.gameFlags = 96
   world.terrain.fill(spec.name === 'blocked' ? 0 : 3)
@@ -227,6 +370,18 @@ function fixture(engine, spec) {
 }
 
 function beforeTurn(setup, spec, index) {
+  if (setup.terrain) {
+    const { effect } = setup.terrain
+    setup.terrain.before = {
+      active: !!effect && setup.world.effects.includes(effect),
+      bridgeTurn: effect?.bridge?.turn,
+      phase: effect?.armageddon?.phase,
+      remaining: effect?.armageddon?.terrainRemaining,
+      erosionRemaining: effect?.erosion?.remaining,
+      terrainVersion: setup.world.terrainVersion,
+      landVersion: setup.world.landVersion,
+    }
+  }
   if (spec.name !== 'blocked' || index !== 120) return
   assert.ok(setup.world.units.some(unit => unit.native?.state === 33), 'blocked workload must reach route recovery before terrain opens')
   setup.world.terrain.fill(3); setup.world.terrainVersion++
@@ -238,13 +393,30 @@ function advance(engine, setup, driver) {
 }
 
 function witness(setup) {
-  return {
+  const result = {
     initialUnits: setup.world.units.length, minimumUnits: setup.world.units.length, maximumUnits: setup.world.units.length,
     personSnapshots: 0, movingSnapshots: 0, fightingSnapshots: 0, blockedSnapshots: 0,
     observation: 'Counts sum post-turn population and flags, not actual simulation dispatches.',
     peakFights: 0, peakFormations: 0, pathAttempts: 0, peakBuildings: setup.world.buildings.length,
     initialHitPoints: setup.world.units.reduce((sum, unit) => sum + unit.hp, 0), minimumHitPoints: Infinity,
   }
+  if (setup.terrain) result.terrain = {
+    prelude: setup.terrain.prelude,
+    initialHeightSha256: setup.terrain.previous.heights,
+    initialWalkMaskSha256: setup.terrain.previous.walkMasks,
+    initialSurfaceSha256: setup.terrain.previous.surface,
+    surfaceSampleCount: setup.world.terrain.length,
+    initialTerrainVersion: setup.world.terrainVersion, initialLandVersion: setup.world.landVersion,
+    heightChangedTurns: 0, walkMaskChangedTurns: 0, surfaceChangedTurns: 0,
+    terrainVersionChangedTurns: 0, landVersionChangedTurns: 0,
+    terrainVersionIncrements: 0, landVersionIncrements: 0,
+    bridgeTerrainVisits: 0, armageddonPhase0Visits: 0, armageddonDeformationVisits: 0,
+    erosionActivations: 0, erosionWorkVisits: 0, erosionRetirementVisits: 0,
+    erosionActivationAge: null, erosionInitialRemaining: null, erosionRemaining: [],
+    maximumStagedParticipants: 0,
+    observation: 'Post-turn hashes cover native height and walk-mask bytes and every compatibility-grid value serialized as Float64 bytes. Height changes can leave walk masks and sampled surface values unchanged. Version increments report actual world state; they and controller progress are not instrumented kernel-call counts. Full production terrain processing and surface resampling stay inside timed ticks; these hashes, copied sample values and counters are outside them.',
+  }
+  return result
 }
 
 function observe(setup, result) {
@@ -264,6 +436,131 @@ function observe(setup, result) {
     if (unit.native?.state === 33) result.blockedSnapshots++
   }
   result.minimumHitPoints = Math.min(result.minimumHitPoints, hitPoints)
+  if (setup.terrain) {
+    const terrain = setup.terrain, activity = result.terrain, { before } = terrain
+    let { effect } = terrain
+    const signatures = terrainSignatures(world)
+    if (signatures.heights !== terrain.previous.heights) activity.heightChangedTurns++
+    if (signatures.walkMasks !== terrain.previous.walkMasks) activity.walkMaskChangedTurns++
+    if (signatures.surface !== terrain.previous.surface) activity.surfaceChangedTurns++
+    assert.equal(world.terrain.length, activity.surfaceSampleCount, 'surface sample count must stay fixed')
+    for (const version of ['terrainVersion', 'landVersion']) {
+      const increment = world[version] - before[version]
+      integer(increment, `${terrain.name} ${version} increment`, 0, Number.MAX_SAFE_INTEGER)
+      if (increment) activity[`${version}ChangedTurns`]++
+      activity[`${version}Increments`] += increment
+    }
+    terrain.previous = signatures
+    if (terrain.name === 'erosion') {
+      const live = world.effects.filter(item => item.erosion)
+      if (!effect) {
+        assert.equal(world.turn, setup.startTurn + 1, 'erosion: activation must occur in the first measured turn')
+        assert.equal(live.length, 1, 'erosion: the head must create exactly its one authored effect')
+        effect = terrain.effect = live[0]
+        assert.equal(terrain.head.uses, 1)
+        assert.equal(terrain.head.remaining, 0)
+        assert.equal(terrain.head.active, false)
+        assert.equal(effect.age, 0, 'erosion: activation owns an immediate work visit')
+        assert.equal(effect.erosion.remaining, 63)
+        activity.erosionActivations++
+        activity.erosionWorkVisits++
+        activity.erosionActivationAge = effect.age
+        activity.erosionInitialRemaining = effect.erosion.remaining
+      } else if (before.active) {
+        assert.equal(effect.erosion.remaining, before.erosionRemaining - 1, 'erosion: each scheduled visit must advance once')
+        if (before.erosionRemaining > 1) activity.erosionWorkVisits++
+        else activity.erosionRetirementVisits++
+      }
+      if (before.active || activity.erosionRemaining.length === 0) activity.erosionRemaining.push(effect.erosion.remaining)
+      assert.equal(live.length, effect.erosion.remaining > 0 ? 1 : 0, 'erosion: exactly the original live controller may remain')
+      if (live.length) assert.equal(live[0], effect, 'erosion: controller identity must survive')
+    }
+    if (before.active && effect.bridge) {
+      assert.equal(effect.bridge.turn, before.bridgeTurn + 1, 'bridge: every scheduled effect visit must advance exactly once')
+      if (before.bridgeTurn >= 1 && before.bridgeTurn < 63) activity.bridgeTerrainVisits++
+    }
+    if (before.active && before.phase === 0) {
+      assert.equal(effect.armageddon.terrainRemaining, before.remaining - 1, 'armageddon: every phase-0 visit must advance exactly once')
+      activity.armageddonPhase0Visits++
+      if (before.remaining >= 1 && before.remaining <= 64) activity.armageddonDeformationVisits++
+    }
+    if (effect.armageddon) activity.maximumStagedParticipants = Math.max(activity.maximumStagedParticipants, effect.armageddon.staged.reduce((sum, count) => sum + count, 0))
+  }
+}
+
+export function validateTerrainWitness(spec, result, turns) {
+  if (!Object.hasOwn(TERRAIN_SCOPES, spec.name)) return
+  const activity = result?.terrain
+  assert.ok(activity, `${spec.name}: missing terrain activity witness`)
+  const validateCount = (value, label, minimum, maximum) => {
+    assert.equal(typeof value, 'number', `${label}: numeric witness required`)
+    return integer(value, label, minimum, maximum)
+  }
+  for (const [label, count] of [['Height', 'heightChangedTurns'], ['WalkMask', 'walkMaskChangedTurns'], ['Surface', 'surfaceChangedTurns']]) {
+    for (const prefix of ['initial', 'final'])
+      assert.ok(/^[0-9a-f]{64}$/.test(activity[`${prefix}${label}Sha256`]), `${spec.name}: invalid terrain or surface digest`)
+    validateCount(activity[count], `${spec.name} ${count}`, 0, turns)
+    if (!activity[count])
+      assert.equal(activity[`final${label}Sha256`], activity[`initial${label}Sha256`], `${spec.name}: unchanged ${label} values must retain their digest`)
+  }
+  validateCount(activity.surfaceSampleCount, `${spec.name} surface samples`, 1, Number.MAX_SAFE_INTEGER)
+  assert.equal(activity.surfaceValuesUnchanged, activity.surfaceChangedTurns === 0, `${spec.name}: unchanged-surface disclosure must match observed values`)
+  for (const [key, label] of [['terrainVersion', 'TerrainVersion'], ['landVersion', 'LandVersion']]) {
+    for (const prefix of ['initial', 'final']) validateCount(activity[`${prefix}${label}`], `${spec.name} ${prefix}${label}`, 0, Number.MAX_SAFE_INTEGER)
+    const increments = activity[`${key}Increments`], changedTurns = activity[`${key}ChangedTurns`]
+    validateCount(increments, `${spec.name} ${key} increments`, 0, Number.MAX_SAFE_INTEGER)
+    validateCount(changedTurns, `${spec.name} ${key} changed turns`, 0, turns)
+    assert.ok(increments >= changedTurns && (!!increments === !!changedTurns), `${spec.name}: version increments must agree with changed turns`)
+    assert.equal(activity[`final${label}`], activity[`initial${label}`] + increments, `${spec.name}: version increment total must match its endpoints`)
+  }
+  if (spec.name === 'bridge' || spec.name === 'erosion') {
+    assert.equal(activity.prelude.shamanPathObserved, true, `${spec.name}: prelude must include real Shaman pathfinding`)
+    assert.equal(activity.prelude.shamanMoved, true, `${spec.name}: original Shaman must actually travel`)
+    validateCount(activity.prelude.pathSearches, `${spec.name} prelude path searches`, 1, Number.MAX_SAFE_INTEGER)
+  }
+  if (spec.name === 'bridge') {
+    assert.equal(activity.bridgeTerrainVisits, Math.min(turns, 62), 'bridge: incomplete terrain lifecycle')
+    assert.equal(activity.headUses, 1, 'bridge: original head must activate exactly once')
+    assert.equal(activity.bridges, 1, 'bridge: exactly one bridge must be allocated')
+    if (turns >= 62) {
+      assert.equal(activity.finalBridgeTurn, 63)
+      assert.equal(activity.effectRetired, true, 'bridge: completed effect must retire')
+    }
+  } else if (spec.name === 'armageddon') {
+    assert.equal(activity.armageddonPhase0Visits, Math.min(turns, 128), 'armageddon: incomplete phase-0 lifecycle')
+    assert.equal(activity.armageddonDeformationVisits, Math.max(0, Math.min(turns - 64, 64)), 'armageddon: incomplete deformation lifecycle')
+    validateCount(activity.finalArmageddonPhase, 'armageddon phase', 0, 2)
+    validateCount(activity.maximumStagedParticipants, 'armageddon staged participants', 0, Number.MAX_SAFE_INTEGER)
+    assert.equal(activity.finalTerrainRemaining, Math.max(128 - turns, 0))
+    if (turns < 128) assert.equal(activity.finalArmageddonPhase, 0)
+    if (turns >= 128) {
+      assert.ok(activity.finalArmageddonPhase >= 1 && activity.maximumStagedParticipants > 0, 'armageddon: terrain completion must stage the real roster')
+      assert.equal(activity.arenaCenterHeight, 50)
+    }
+  } else {
+    assert.equal(activity.erosionActivations, 1, 'erosion: exactly one natural activation is required')
+    assert.equal(activity.erosionActivationAge, 0)
+    assert.equal(activity.erosionInitialRemaining, 63)
+    assert.equal(activity.erosionWorkVisits, Math.min(turns, 63), 'erosion: incomplete work lifecycle')
+    assert.equal(activity.erosionRetirementVisits, turns >= 64 ? 1 : 0, 'erosion: incorrect retirement lifecycle')
+    assert.deepEqual(activity.erosionRemaining, Array.from({ length: Math.min(turns, 64) }, (_, index) => 63 - index), 'erosion: controller sequence must include every visit')
+    assert.equal(activity.finalErosionRemaining, Math.max(64 - turns, 0))
+    assert.equal(activity.remainingErosionEffects, turns >= 64 ? 0 : 1)
+    assert.equal(activity.effectRetired, turns >= 64)
+    assert.equal(activity.headUses, 1, 'erosion: the original one-use reward must not replay')
+    assert.equal(activity.headRemaining, 0)
+    assert.equal(activity.prelude.mission, 3)
+    assert.equal(activity.prelude.headId, 101)
+    assert.equal(activity.prelude.headUsesBeforeActivation, 0)
+    assert.equal(activity.prelude.workBeforeActivation, 39)
+    validateCount(activity.prelude.followersBeforeActivation, 'erosion worship followers', 1, Number.MAX_SAFE_INTEGER)
+    assert.deepEqual(activity.prelude.suppliedShots, [])
+    validateCount(activity.prelude.turns, 'erosion prelude turns', 1, 2400)
+  }
+  if (turns >= TERRAIN_LIFECYCLES[spec.name]) {
+    assert.ok(activity.heightChangedTurns > 0, `${spec.name}: real terrain heights must change`)
+    if (spec.name === 'erosion') assert.ok(activity.terrainVersionIncrements > 0, 'erosion: native deformation must reach production terrain refresh')
+  }
 }
 
 function finishWitness(setup, spec, result, turns) {
@@ -286,11 +583,29 @@ function finishWitness(setup, spec, result, turns) {
   if (spec.name === 'blocked' && turns >= 120) assert.ok(result.blockedSnapshots > 0, 'blocked workload must exercise recovery')
   if (['attack', 'blocked', 'dismantle'].includes(spec.name) && turns >= 600) assert.equal(setup.target.hp, 0, 'queued workload must finish the building task')
   if (spec.name === 'dismantle' && turns >= 600) assert.equal(setup.target.dismantled, true)
+  if (setup.terrain) {
+    const { effect, head, previous } = setup.terrain
+    Object.assign(result.terrain, {
+      finalHeightSha256: previous.heights, finalWalkMaskSha256: previous.walkMasks, finalSurfaceSha256: previous.surface,
+      finalTerrainVersion: world.terrainVersion, finalLandVersion: world.landVersion,
+      surfaceValuesUnchanged: result.terrain.surfaceChangedTurns === 0,
+      effectRetired: !world.effects.includes(effect),
+    })
+    if (effect.bridge) Object.assign(result.terrain, { finalBridgeTurn: effect.bridge.turn, headUses: head.uses, bridges: world.stats.bridges })
+    else if (effect.armageddon) {
+      Object.assign(result.terrain, {
+        finalArmageddonPhase: effect.armageddon.phase, finalTerrainRemaining: effect.armageddon.terrainRemaining,
+        arenaCenterHeight: world.land.heights[setup.terrain.arenaCenterIndex],
+        participants: effect.armageddon.participants.map(ids => ids.length), staged: [...effect.armageddon.staged],
+      })
+    } else Object.assign(result.terrain, { finalErosionRemaining: effect.erosion.remaining, remainingErosionEffects: world.effects.filter(item => item.erosion).length, headUses: head.uses, headRemaining: head.remaining })
+    validateTerrainWitness(spec, result, turns)
+  }
   return result
 }
 
 function run(engine, spec, { driver = 'tick', timed = true, turns = spec.turns } = {}) {
-  const setup = fixture(engine, spec), activity = witness(setup), samples = new Float64Array(turns)
+  const setup = fixture(engine, spec, driver), activity = witness(setup), samples = new Float64Array(turns)
   const memoryBefore = process.memoryUsage(), cpuBefore = process.cpuUsage(), start = performance.now()
   for (let index = 0; index < turns; index++) {
     beforeTurn(setup, spec, index)
@@ -328,7 +643,7 @@ async function verify(report, options) {
   report.results = []
   for (const spec of report.workload.scenarios) for (const driver of ['tick', 'clock']) {
     const turns = driver === 'tick' ? spec.turns : Math.min(spec.turns, report.verification.clockTurns)
-    const setups = engines.map(engine => fixture(engine, spec)), activities = setups.map(witness)
+    const setups = engines.map(engine => fixture(engine, spec, driver)), activities = setups.map(witness)
     const checkpoints = [{ turn: 0, sha256: verifyWorlds(...setups, `${spec.name}/${driver}/initial`) }]
     for (let index = 0; index < turns; index++) {
       for (let side = 0; side < 2; side++) { beforeTurn(setups[side], spec, index); advance(engines[side], setups[side], driver); observe(setups[side], activities[side]) }
@@ -342,7 +657,7 @@ async function verify(report, options) {
     report.results.push({ scenario: spec.name, driver, turns, checkpoints, witness: witnesses[0] })
     console.error(`Verified ${spec.name}: ${turns} ${driver} turns, ${checkpoints.length} complete graph checkpoints`)
   }
-  report.claim = 'Baseline and candidate world/clock values agree after every turn. Listed complete graph checkpoints additionally compare Map/Set order, property descriptors, aliases and cycles. Both direct ticks and the production 60-Hz game clock are checked separately; this does not assert tick and advanceGame produce identical states.'
+  report.claim = 'Baseline and candidate world/clock values agree after every measured-window turn. Listed complete graph checkpoints additionally compare Map/Set order, property descriptors, aliases and cycles. Both direct ticks and the production 60-Hz game clock are checked separately; this does not assert tick and advanceGame produce identical states. Terrain-scenario preludes run independently with each selected driver; their final setup graphs are compared, while intermediate prelude states are outside the per-turn proof.'
 }
 
 async function sample(report) {
@@ -357,7 +672,7 @@ async function sample(report) {
     report.samples.push(result)
     console.error(`Sampled ${spec.name}: ${result.engineMs.toFixed(3)} ms for ${spec.turns} complete turns`)
   }
-  report.claim = 'A single-source diagnostic sample, not a before/after comparison. Engine time sums direct tick calls only. Setup, warmup, hashing, witnesses and terrain events are excluded; process CPU/loop time include loop bookkeeping and witnesses. Heap changes are net retained usage, not allocated bytes. No renderer, GPU or hardware-FPS claim.'
+  report.claim = 'A single-source diagnostic sample, not a before/after comparison. Engine time sums direct tick calls only. Setup, warmup, hashing, witnesses and scripted between-turn terrain edits are excluded. Complete production terrain processing and surface resampling inside ticks are included. Process CPU/loop time include loop bookkeeping and witnesses. Heap changes are net retained usage, not allocated bytes. No renderer, GPU or hardware-FPS claim.'
 }
 
 function withinWork(path) {
@@ -417,6 +732,10 @@ export function validateVerification(proof, report) {
         if (index) assert.ok(Number.isInteger(checkpoint.turn) && checkpoint.turn > row.checkpoints[index - 1].turn, 'unordered verification checkpoints')
       })
       assert.equal(row.checkpoints.at(-1).turn, turns)
+      if (Object.hasOwn(TERRAIN_SCOPES, spec.name)) {
+        assert.ok(turns >= TERRAIN_LIFECYCLES[spec.name], `${spec.name}: comparison requires its complete deformation lifecycle in both drivers`)
+        validateTerrainWitness(spec, row.witness, turns)
+      }
     }
   }
 }
@@ -485,7 +804,7 @@ async function compare(report, options, artifacts, output) {
   }
   assert.equal(sha256(readFileSync(verificationPath)), report.verification.sha256, 'verification report changed during comparison')
   report.summary = Object.fromEntries(report.workload.scenarios.map(spec => [spec.name, pairedSummary(report.pairs.filter(pair => pair.scenario === spec.name))]))
-  report.claim = 'Complete direct-tick elapsed runtime, excluding initialization, warmup, terrain events, witness collection and hashing. Each timed run\'s final state and aggregate activity record matches separate source-bound verification. Fresh sequential child processes, equally many AB and BA pairs. Turn samples are not independent replicates. Process CPU is recorded separately and includes witnesses; net heap deltas do not measure allocations. No renderer, GPU, hardware-FPS or cross-machine claim.'
+  report.claim = 'Complete direct-tick elapsed runtime, excluding initialization/prelude, warmup, scripted between-turn terrain edits, witness collection and hashing. Complete production terrain processing and surface resampling inside ticks are included. Each timed run\'s final state and aggregate activity record matches separate source-bound verification. Fresh sequential child processes, equally many AB and BA pairs. Turn samples are not independent replicates. Process CPU is recorded separately and includes witnesses; net heap deltas do not measure allocations. No renderer, GPU, hardware-FPS or cross-machine claim.'
 }
 
 function help() {
@@ -506,6 +825,14 @@ Options:
   --warmup-turns 240 warmup prefix length, capped by scenario turns
   --timeout-ms 600000 per timing-child timeout
 
+Bridge: authored Mission 2, ordinary worship prelude, then 96 measured turns.
+Armageddon: authored Mission 18, one supplied shot and real cast/projectile
+prelude, then 192 measured turns covering deformation and initial staging.
+Erosion: authored Mission 3, ordinary Shaman travel and worship prelude,
+then 64 measured turns including activation, 63 work visits and retirement.
+Native heights, masks and all sampled surface values have separate witnesses;
+surface values and masks may remain unchanged despite native deformation.
+Terrain comparisons require the full deformation lifecycle in both drivers.
 Freeze identical workload options and source trees for verify and compare.
 Every output must be a fresh .json file under this checkout's ignored work/.
 No historical evidence, engine sources, installed dependencies or Git refs are changed.
