@@ -45,6 +45,10 @@ export const m2RouteReady = ({ x, y, world }) => {
   )
 }
 
+export function m2RectanglesOverlap(a, b) {
+  return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top
+}
+
 export function m2ViewReady(preset) {
   const s = window.testSceneRef.current
   return (
@@ -111,6 +115,7 @@ export default async function ({ browser, url, output, fixture }) {
     setup: fixture.receipt,
     errors: [],
     samples: [],
+    stages: [],
     limits: [
       'Test-only imported M2 checkpoint, not campaign progression/unlock proof',
       'Paused functional pointer/camera/F8 coverage, not timing, hardware FPS or responsiveness acceptance',
@@ -125,7 +130,11 @@ export default async function ({ browser, url, output, fixture }) {
     if (m.type() === 'error') report.errors.push(m.text())
   })
   page.on('crash', () => report.errors.push('Page crashed'))
+  const started = performance.now()
+  const stage = name => report.stages.push({ name, elapsedMs: performance.now() - started })
+  stage('start')
   timer = setTimeout(() => {
+    stage('deadline')
     report.timedOut = true
     void context.close().catch(() => {})
   }, m2FunctionalLimitMs)
@@ -136,6 +145,7 @@ export default async function ({ browser, url, output, fixture }) {
       content: `window.m2CheckpointCodec = ${checkpointCodec.toString()};`,
     })
     await page.goto(url, { waitUntil: 'domcontentloaded' })
+    stage('home-open')
     const readback = await page.evaluate(async transfer => {
       const db = await new Promise((resolve, reject) => {
         const request = indexedDB.open('populous-new-dawn', 1)
@@ -171,6 +181,7 @@ export default async function ({ browser, url, output, fixture }) {
       fixture.transfer,
       'Committed IDB preserves entire structured checkpoint'
     )
+    stage('idb-readback-matched')
     await page.reload({ waitUntil: 'domcontentloaded' })
     const load = page
       .getByRole('dialog', { name: 'Main menu', exact: true })
@@ -202,6 +213,7 @@ export default async function ({ browser, url, output, fixture }) {
         }
       })
     })
+    stage('public-load-ready')
     await load.click()
     assert.equal(await page.evaluate(() => window.m2LoadError), null)
     assert.deepEqual(
@@ -210,7 +222,9 @@ export default async function ({ browser, url, output, fixture }) {
       'Exact full post-migration world at public Load boundary'
     )
     report.loadBoundaryMatched = true
+    stage('load-boundary-matched')
     await bindGame(page)
+    stage('scene-bound')
     // Scene binding can precede the campaign script's first flyby and React's
     // public Skip control. Wait for an actionable state, never sample once.
     const startup = await page.waitForFunction(m2StartupReady)
@@ -220,6 +234,7 @@ export default async function ({ browser, url, output, fixture }) {
     if (report.startup.action === 'skip')
       await page.getByRole('button', { name: /^Skip introduction/ }).click()
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+    stage('introduction-ready')
     // Admit the compact viewport through its shipped public notice before the
     // paused no-orders baseline: Continue intentionally resumes the simulation.
     await page.setViewportSize({ width: 640, height: 480 })
@@ -228,6 +243,7 @@ export default async function ({ browser, url, output, fixture }) {
     await desktopNotice.getByRole('button', { name: /^Continue anyway/ }).click()
     await desktopNotice.waitFor({ state: 'hidden' })
     report.compactNoticeDismissed = true
+    stage('compact-admitted')
     await page.setViewportSize({ width: 1440, height: 1000 })
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
@@ -282,6 +298,7 @@ export default async function ({ browser, url, output, fixture }) {
         }
       })
     report.before = await observe()
+    stage('paused-baseline')
     assert.equal(report.before.level, 2)
     assert.match(report.before.webgl, /WebGL 2/)
     const graph = page.locator('.fps-graph')
@@ -312,7 +329,9 @@ export default async function ({ browser, url, output, fixture }) {
     ]) {
       report.samples.push(world ? await moveAndObserve(x, y, true) : await moveToHud())
     }
-    await page.screenshot({ path: resolve(output, 'm2-pointer-wide.png') })
+    stage('initial-pointer-routes-matched')
+    // The restored-wide capture below covers this unchanged layout too; avoid
+    // another large PNG encode inside the bounded functional episode.
     const beforeCamera = await observe()
     report.cameraBefore = beforeCamera
     assert.equal(beforeCamera.camera.preset, 0, 'Loaded ground view begins at normal preset')
@@ -325,6 +344,7 @@ export default async function ({ browser, url, output, fixture }) {
     report.cameraRequested = await observe()
     await page.waitForFunction(m2ViewReady, 2)
     report.cameraAfter = await observe()
+    stage('camera-reached')
     assertM2Input(report.before, report.cameraAfter)
     assert.notEqual(
       report.cameraAfter.camera.position.angle,
@@ -346,6 +366,7 @@ export default async function ({ browser, url, output, fixture }) {
     )
     for (const [width, height] of [
       [640, 480],
+      [900, 360],
       [1440, 1000],
     ]) {
       await page.setViewportSize({ width, height })
@@ -355,7 +376,36 @@ export default async function ({ browser, url, output, fixture }) {
       await page.waitForFunction(m2ViewReady, 2)
       const layout = await graph.evaluate(el => {
         const r = el.getBoundingClientRect()
+        const badge = document.querySelector('button.paused-badge')
+        const b = badge?.getBoundingClientRect()
         return {
+          pause: b && { left: b.left, top: b.top, right: b.right, bottom: b.bottom },
+          pauseActionable:
+            !!badge &&
+            !badge.disabled &&
+            !!b &&
+            document
+              .elementFromPoint((b.left + b.right) / 2, (b.top + b.bottom) / 2)
+              ?.closest('.paused-badge') === badge,
+          pauseText: badge?.textContent,
+          interactiveUi: [
+            ...document.querySelectorAll(
+              '.native-hud,.top-actions,.campaign-messages summary,.campaign-messages details[open]>div'
+            ),
+          ]
+            .filter(
+              node => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
+            )
+            .map(node => {
+              const r = node.getBoundingClientRect()
+              return {
+                name: node.className || node.tagName,
+                left: r.left,
+                top: r.top,
+                right: r.right,
+                bottom: r.bottom,
+              }
+            }),
           left: r.left,
           top: r.top,
           right: r.right,
@@ -382,10 +432,27 @@ export default async function ({ browser, url, output, fixture }) {
       assert.equal(layout.rowsFit, true, 'Metric rows must fit without horizontal clipping')
       assert.equal(layout.overflow, false)
       assert.equal(layout.events, 'none')
+      assert.ok(layout.pause, 'Public pause indicator must remain present')
+      assert.equal(layout.pauseActionable, true, 'Public resume control must remain hit-testable')
+      assert.match(layout.pauseText, /WORLD PAUSED/)
+      assert.match(layout.pauseText, /Click to resume/)
+      assert.equal(
+        m2RectanglesOverlap(layout, layout.pause),
+        false,
+        'Paused badge must not obscure F8 diagnostics'
+      )
+      for (const ui of layout.interactiveUi)
+        assert.equal(
+          m2RectanglesOverlap(layout.pause, ui),
+          false,
+          `Pause control must not cover interactive UI: ${ui.name}`
+        )
       const routed = await moveAndObserve(width - 60, height - 100, true)
       const sidebar = await moveToHud()
       report.samples.push({ viewport: [width, height], layout, routed, sidebar })
+      stage(`viewport-${width}x${height}-asserted`)
       await page.screenshot({ path: resolve(output, `m2-pointer-${width}.png`) })
+      stage(`viewport-${width}x${height}-captured`)
     }
     await page.keyboard.press('F8')
     await graph.waitFor({ state: 'hidden' })
@@ -408,11 +475,13 @@ export default async function ({ browser, url, output, fixture }) {
       'New F8 overlay begins with an empty window before RAF'
     )
     report.after = await observe()
+    stage('f8-reset-matched')
     assertM2Input(report.before, report.after)
     await page.getByRole('button', { name: 'Resume game', exact: true }).click()
     await page.waitForFunction(turn => window.testStore.getWorld().turn > turn, report.before.turn)
     await page.waitForFunction(m2SamplesReady)
     report.resumed = await observe()
+    stage('resumed')
     await page.getByRole('button', { name: 'Game settings', exact: true }).click()
     await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
     await page.waitForFunction(() =>
@@ -423,6 +492,7 @@ export default async function ({ browser, url, output, fixture }) {
     await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'hidden' })
     await page.waitForFunction(() => !window.testStore.getWorld().paused)
     report.returned = await observe()
+    stage('menu-returned')
     assert.equal(report.returned.level, 2)
     assert.equal(report.returned.sameScene, true)
   } catch (error) {
@@ -454,7 +524,9 @@ export default async function ({ browser, url, output, fixture }) {
     }
     try {
       await page.screenshot({ path: resolve(output, 'm2-pointer-failure.png'), timeout: 3000 })
-    } catch {}
+    } catch {
+      // A closed deadline context may prevent capture; preserve the original failure.
+    }
   } finally {
     clearTimeout(timer)
   }
