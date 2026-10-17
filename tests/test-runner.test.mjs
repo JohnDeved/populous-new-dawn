@@ -6,7 +6,7 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSyn
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test, { after } from 'node:test'
-import { discoverTests, helperFingerprint, productionFingerprint, planTestRun, runTestPlan } from '../scripts/orchestration/test-runner.mjs'
+import { discoverTests, helperFingerprint, productionFingerprint, planTestRun, runTestPlan, partitionTestFiles, planTestShard, shardInputFingerprint, runTestShard, parseShardArguments } from '../scripts/orchestration/test-runner.mjs'
 
 // These synthetic inventories explicitly model an uncustomized Node runtime.
 // The environment-fallback regression below supplies customizations separately.
@@ -221,4 +221,141 @@ test('runtime preloads/customization and application symlinks conservatively use
   symlinkSync('source.ts', join(repo, 'app/alias.ts'))
   assert.equal(planTestRun(repo, 'all').groups[0].concurrency, 1)
   assert.deepEqual(planTestRun(repo, 'all').files, discoverTests(repo))
+})
+
+function shardFixture(t) {
+  const result = fixture(t)
+  for (const name of ['c', 'd', 'e', 'f', 'g', 'h', 'i'])
+    result.put(`tests/${name}.test.mjs`, `import test from 'node:test'; test('${name}', () => {})\n`)
+  result.put('scripts/runner.mjs', 'export {}\n')
+  return result
+}
+
+test('fixed four-way shards partition every discovered file exactly once without changing resource policy', t => {
+  const { repo } = shardFixture(t)
+  const all = planTestRun(repo, 'all')
+  const plans = Array.from({ length: 4 }, (_, index) => planTestShard(repo, index, 4))
+  assert.deepEqual(plans.flatMap(plan => plan.files).sort(), all.files)
+  assert.equal(new Set(plans.flatMap(plan => plan.files)).size, all.files.length)
+  for (const [index, plan] of plans.entries()) {
+    assert.equal(plan.fullSuite, false)
+    assert.equal(plan.mode, 'shard')
+    assert.deepEqual(plan.discovered, all.files)
+    assert.deepEqual(plan.files, all.files.filter((_, offset) => offset % 4 === index))
+    assert.equal(plan.parallelEligibility, all.parallelEligibility)
+    assert.deepEqual(plan.groups, all.groups.map(group => ({ ...group, files: group.files.filter(file => plan.files.includes(file)) })).filter(group => group.files.length))
+    assert(Object.isFrozen(plan) && Object.isFrozen(plan.groups[0].files))
+  }
+  assert.deepEqual(partitionTestFiles([...all.files].reverse(), 0), plans[0].files)
+})
+
+test('shard arguments reject partial, invalid, duplicate and selection-spoofing inputs', t => {
+  const { repo } = shardFixture(t)
+  for (const index of [-1, 4, 0.5, '0', NaN]) assert.throws(() => planTestShard(repo, index, 4), /Shard index/)
+  for (const count of [0, 1, 2, 3, 5, '4', NaN]) assert.throws(() => planTestShard(repo, 0, count), /Shard count/)
+  for (const args of [[], ['--shard-index=0'], ['--shard-count=4'],
+    ['--shard-index=0', '--shard-count=4'],
+    ['--shard-index=04', '--shard-count=4', '--receipt=x'],
+    ['--shard-index=0', '--shard-count=4', '--receipt=x', '--shard-index=1'],
+    ['--shard-index=0', '--shard-count=4', '--receipt=x', '--test-only']])
+    assert.throws(() => parseShardArguments(args), /Shard|unique/)
+  assert.deepEqual(parseShardArguments(['--shard-index=3', '--shard-count=4', '--receipt=work/shard.json']), { index: 3, count: 4, receipt: 'work/shard.json' })
+  assert.throws(() => partitionTestFiles(['tests/a.test.mjs'], 0), /at least four/)
+  assert.throws(() => partitionTestFiles(Array(4).fill('tests/a.test.mjs'), 0), /Duplicate/)
+})
+
+test('shard prelaunch rejects discovery, content and receipt-plan identity drift without launching', async t => {
+  for (const path of ['tests/new.test.mjs', 'tests/a.test.mjs', 'scripts/runner.mjs', 'app/source.ts', 'node_modules/.package-lock.json']) {
+    const { repo, put } = shardFixture(t), plan = planTestShard(repo, 0)
+    put(path, '// changed\n')
+    let launched = false
+    await assert.rejects(runTestShard(repo, plan, { ...quiet, launch() { launched = true } }), /drift/)
+    assert.equal(launched, false)
+  }
+  const { repo } = shardFixture(t)
+  const plan = structuredClone(planTestShard(repo, 0))
+  plan.shard.index = 1
+  await assert.rejects(runTestShard(repo, plan, quiet), /drift/)
+  plan.shard.index = 0; plan.groups[0].files.push(plan.groups[0].files[0])
+  await assert.rejects(runTestShard(repo, plan, quiet), /drift/)
+})
+
+test('shard receipt binds executed groups and never claims full suite or passes mutation', async t => {
+  const { repo, put } = shardFixture(t), plan = planTestShard(repo, 0)
+  const receipt = await runTestShard(repo, plan, { ...quiet, launch: fakeLaunch() })
+  assert.equal(receipt.kind, 'pnd-test-shard-receipt')
+  assert.equal(receipt.inputsBefore, receipt.inputsAfter)
+  assert.equal(receipt.inputsBefore, plan.inputFingerprint)
+  assert.equal(receipt.inputsBefore, shardInputFingerprint(repo))
+  assert.equal(receipt.result.fullSuite, false)
+  assert.equal(receipt.result.shardComplete, true)
+  assert.equal(receipt.result.status, 'passed')
+  assert.deepEqual(receipt.result.results.flatMap(result => result.files).sort(), [...plan.files].sort())
+  for (const [index, result] of receipt.result.results.entries()) {
+    assert.deepEqual(result.command, [process.execPath, '--test', `--test-concurrency=${plan.groups[index].concurrency}`, '--test-reporter=tap', ...plan.groups[index].files])
+  }
+  const mutated = await runTestShard(repo, plan, { ...quiet, launch(...args) {
+    put('tests/introduced.test.mjs', '// discovered during run\n')
+    return fakeLaunch()(...args)
+  } })
+  assert.notEqual(mutated.inputsBefore, mutated.inputsAfter)
+  assert.equal(mutated.result.status, 'failed')
+  assert.equal(mutated.result.shardComplete, false)
+})
+
+test('shard signals, failed groups and inherited test-selection flags cannot certify success', async t => {
+  const { repo } = shardFixture(t), plan = planTestShard(repo, 0)
+  for (const variant of [{ exitCode: 1 }, { exitCode: null, signal: 'SIGTERM' }, { error: 'ENOENT' }]) {
+    const receipt = await runTestShard(repo, plan, { ...quiet, launch: fakeLaunch(variant) })
+    assert.equal(receipt.result.status, 'failed')
+    assert.equal(receipt.result.fullSuite, false)
+  }
+  process.env.NODE_OPTIONS = '--test-only'
+  try {
+    await assert.rejects(runTestShard(repo, planTestShard(repo, 0), quiet), /must not change test selection or isolation/)
+  } finally { process.env.NODE_OPTIONS = '' }
+})
+
+test('real native shard execution writes a source-bound terminal receipt and refuses an existing receipt', async t => {
+  const { repo, put } = shardFixture(t)
+  put('scripts/orchestration/test-runner.mjs', readFileSync(new URL('../scripts/orchestration/test-runner.mjs', import.meta.url)))
+  const output = join(repo, 'shard.json')
+  const cli = () => new Promise(resolve => {
+    const child = spawn(process.execPath, [join(repo, 'scripts/orchestration/test-runner.mjs'), 'shard',
+      '--shard-index=0', '--shard-count=4', `--receipt=${output}`], { env: { ...process.env, NODE_TEST_CONTEXT: '' } })
+    let stdout = '', stderr = ''
+    child.stdout.on('data', bytes => { stdout += bytes })
+    child.stderr.on('data', bytes => { stderr += bytes })
+    child.once('close', exitCode => resolve({ exitCode, stdout, stderr }))
+  })
+  const result = await cli()
+  assert.equal(result.exitCode, 0, result.stderr)
+  const receipt = JSON.parse(readFileSync(output, 'utf8'))
+  assert.equal(receipt.result.status, 'passed')
+  assert.equal(receipt.result.shardComplete, true)
+  assert.equal(receipt.result.fullSuite, false)
+  assert.deepEqual(receipt.result.results.flatMap(group => group.files).sort(), ['tests/a.test.mjs', 'tests/e.test.mjs', 'tests/i.test.mjs'])
+  const before = readFileSync(output, 'utf8'), duplicate = await cli()
+  assert.equal(duplicate.exitCode, 1)
+  assert.match(duplicate.stderr, /EEXIST/)
+  assert.equal(duplicate.stdout, '')
+  assert.equal(readFileSync(output, 'utf8'), before)
+})
+
+test('shards suppress Python importer bytecode without changing ordinary runner environment', async t => {
+  const { repo, put } = shardFixture(t)
+  put('scripts/importer.py', 'value = 1\n')
+  put('tests/a.test.mjs', `import test from 'node:test'; import assert from 'node:assert/strict'; import { spawnSync } from 'node:child_process';
+    test('import', () => {
+      const result = spawnSync('python3', ['-c', "import importlib.util; s=importlib.util.spec_from_file_location('sample','scripts/importer.py'); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); assert m.value == 1"], { encoding: 'utf8' });
+      assert.equal(result.status, 0, result.stderr);
+    });\n`)
+  const receipt = await runTestShard(repo, planTestShard(repo, 0), quiet)
+  assert.equal(receipt.result.status, 'passed')
+  assert.equal(receipt.inputsAfter, receipt.inputsBefore)
+  const inherited = process.env.PYTHONDONTWRITEBYTECODE
+  await runTestPlan(repo, planTestRun(repo, 'focus', ['tests/b.test.mjs']), { ...quiet, launch(command, args, options) {
+    assert.equal(options.env.PYTHONDONTWRITEBYTECODE, inherited)
+    return fakeLaunch()(command, args, options)
+  } })
 })

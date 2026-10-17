@@ -2,7 +2,9 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
-import { CLOUDFLARE, GATES, REPO, sha256, validateEntry } from './policy.mjs'
+import { CLOUDFLARE, GATES, REPO, sha256, validateEntry, gatesFor, SHARDED_FULL_GATE } from './policy.mjs'
+
+import { BASELINE_DIAGNOSTIC, SHARDED_JOBS, shardedLogReceipt, validateShardedReceipt, validateBaselineLog } from './sharded.mjs'
 
 const sha = value => /^[0-9a-f]{40}$/.test(value ?? '')
 const ensure = (condition, message) => {
@@ -85,7 +87,8 @@ export class GitHubReader {
     }
     throw new Error(`Pagination bound reached: ${endpoint}; cannot claim a complete observation`)
   }
-  git(...args) {
+  git(...args) { return this.gitOutput(...args).trim() }
+  gitOutput(...args) {
     const prefix = [
       '-c',
       'core.hooksPath=/dev/null',
@@ -99,7 +102,7 @@ export class GitHubReader {
     assertSafeGitConfiguration(
       this.execute('git', [...prefix, 'config', '--null', '--list'], this.cwd)
     )
-    return this.execute('git', [...prefix, ...args], this.cwd).trim()
+    return this.execute('git', [...prefix, ...args], this.cwd)
   }
   commit(oid) {
     ensure(sha(oid), 'Missing immutable commit SHA')
@@ -171,7 +174,7 @@ export class GitHubReader {
   }
   runs(entry, pr, synthetic) {
     const runs = []
-    for (const gate of GATES) {
+    for (const gate of gatesFor(entry)) {
       const all = this.pages(
         `repos/${REPO}/actions/workflows/${gate.workflow.split('/').at(-1)}/runs?event=pull_request&branch=${encodeURIComponent(pr.head.ref)}`,
         'workflow_runs'
@@ -269,6 +272,9 @@ export class GitHubReader {
             sha(identity.merge) &&
             check.conclusion === 'success' &&
             row.workflowSha256 === entry.workflowHashes[gate.workflow]
+          if (gate === SHARDED_FULL_GATE && job.name === gate.job && exact.conclusion === 'success') {
+            this.verifyShardedRun(entry, pr, synthetic, exact, jobs, row, log)
+          }
           row.identityVerified =
             identity.head === pr.head.sha &&
             identity.base === pr.base.sha &&
@@ -281,6 +287,58 @@ export class GitHubReader {
       }
     }
     return runs
+  }
+  verifyShardedRun(entry, pr, synthetic, exact, jobs, row, log) {
+    ensure(synthetic && row.merge === synthetic.sha, 'Sharded run lacks current synthetic source')
+    const specs = [{ name: SHARDED_FULL_GATE.job, steps: SHARDED_FULL_GATE.steps }, ...SHARDED_JOBS,
+      ...(entry.fullCheckDiagnostic ? [BASELINE_DIAGNOSTIC] : [])]
+    ensure(jobs.length === specs.length && new Set(jobs.map(j => j.id)).size === jobs.length,
+      'Missing, duplicate or extra sharded workflow jobs')
+    let baselineLog
+    for (const spec of specs) {
+      const matches = jobs.filter(j => j.name === spec.name)
+      ensure(matches.length === 1, 'Missing or duplicate sharded job')
+      const j = matches[0]
+      const skippedDiagnostic = spec === BASELINE_DIAGNOSTIC && entry.pr !== entry.fullCheckDiagnostic.activationPr
+      const conclusion = skippedDiagnostic ? 'skipped' : 'success'
+      ensure(j.run_id === exact.id && j.run_attempt === exact.run_attempt &&
+        j.status === 'completed' && j.conclusion === conclusion &&
+        (skippedDiagnostic ? Array.isArray(j.steps) && j.steps.every(s => s.conclusion === 'skipped') :
+          spec.steps.every(name => j.steps?.filter(s => s.name === name).length === 1 &&
+            j.steps.find(s => s.name === name).conclusion === 'success')),
+        'Sharded job attempt/stage did not genuinely succeed')
+      ensure(new RegExp(`^https://api\\.github\\.com/repos/${REPO}/check-runs/[1-9][0-9]*$`).test(j.check_run_url),
+        'Unexpected sharded check URL')
+      const check = this.get(j.check_run_url.slice('https://api.github.com/'.length))
+      ensure(check.id === Number(j.check_run_url.split('/').at(-1)) &&
+        check.check_suite?.id === exact.check_suite_id && check.head_sha === pr.head.sha &&
+        check.name === spec.name && check.app?.id === 15368 && check.app?.slug === 'github-actions' &&
+        check.status === 'completed' && check.conclusion === conclusion, 'Sharded check identity/result mismatch')
+      if (skippedDiagnostic) continue
+      const workerLog = spec.name === row.job ? log :
+        stripVTControlCharacters(this.get(`repos/${REPO}/actions/jobs/${j.id}/logs`, true))
+      if (spec === BASELINE_DIAGNOSTIC) baselineLog = workerLog
+      const identity = logIdentity(workerLog)
+      ensure(identity.head === pr.head.sha && identity.base === pr.base.sha && identity.merge === synthetic.sha,
+        'Sharded worker tested a different candidate')
+    }
+    const receipt = shardedLogReceipt(log)
+    ensure(receipt.identity?.workflowSha === synthetic.sha &&
+      receipt.identity.workflowRef === `${REPO}/${SHARDED_FULL_GATE.workflow}@refs/pull/${entry.pr}/merge` &&
+      this.workflow(SHARDED_FULL_GATE.workflow, receipt.identity.workflowSha).sha256 ===
+        entry.workflowHashes[SHARDED_FULL_GATE.workflow], 'Sharded workflow source/ref differs')
+    const identity = { repository: REPO, runId: String(exact.id), runAttempt: String(exact.run_attempt),
+      workflowRef: receipt.identity.workflowRef, workflowSha: receipt.identity.workflowSha,
+      mergeSha: synthetic.sha, headSha: pr.head.sha, baseSha: pr.base.sha, treeSha: synthetic.tree,
+      workflowSha256: entry.workflowHashes[SHARDED_FULL_GATE.workflow] }
+    const files = this.git('ls-tree', '-r', '--name-only', synthetic.sha, '--', 'tests').split('\n')
+      .filter(file => /^tests\/[^./\0\r\n][^/\0\r\n]*\.test\.mjs$/.test(file)).sort()
+    const inventory = files.map(file => ({ file, sha256: sha256(this.gitOutput('show', `${synthetic.sha}:${file}`)) }))
+    validateShardedReceipt(receipt, { identity, inventory,
+      lockSha256: sha256(this.gitOutput('show', `${synthetic.sha}:package-lock.json`)) })
+    if (baselineLog !== undefined) validateBaselineLog(baselineLog, inventory)
+    row.shardedVerified = true
+    row.shardedReceiptSha256 = sha256(JSON.stringify(receipt))
   }
   inspect(entry, allowlistDirectory) {
     validateEntry(entry)

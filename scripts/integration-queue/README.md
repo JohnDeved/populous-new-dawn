@@ -298,3 +298,67 @@ The original GitHub deployment observer remains available as
 environment and URL. An explicit `{ "kind": "unverified", "reason": "..." }`
 policy instead finishes with `merge: confirmed, deployment: unverified`; it must
 never be described as production verification.
+
+## Staged sharded-gate rollout
+
+The default `fullCheckPolicy` remains `legacy-v1` (also used when omitted).
+`sharded-v1` is an explicit, independently reviewed entry policy, never inferred
+from a green check name or workflow content. It requires the real `Full check`
+aggregate, `Quality and build`, and each `Test shard 1/4` through `Test shard 4/4`.
+Every job must belong to the exact run attempt, have a GitHub Actions app 15368
+check in its run's suite, and have all required stages genuinely succeed. Logs
+must bind the same checkout/head/base. The aggregate receipt is independently
+checked against immutable Git test bytes, the tracked lockfile, complete unique
+four-way coverage, subprocess success, stable inputs, and exact provenance.
+Skipped, canceled, missing, duplicate and stale receipts are not passes.
+No candidate JavaScript is imported by this trusted reader.
+
+Bootstrap requires two separately reviewed PRs:
+
+1. Land the dual-policy driver and runner support while leaving both workflow
+   files unchanged. Use the existing trusted legacy driver and real legacy full
+   gate to validate this first PR. A driver in the candidate is not trusted merely
+   because that candidate includes it.
+2. From the landed, reviewed driver checkout, validate the separately reviewed
+   workflow activation PR with `fullCheckPolicy: "sharded-v1"`, the new workflow
+   digest in `workflowHashes`, and this narrow transition object:
+
+```json
+{
+  "version": 1,
+  "workflow": ".github/workflows/ready-pr-check.yml",
+  "sourceHead": "<same exact reviewed sourceHead as entry>",
+  "base": "<same exact reviewBase as entry>",
+  "baseSha256": "<old workflow digest at that main commit>",
+  "candidateSha256": "<new workflow digest at head AND synthetic>"
+}
+```
+
+Place that object in `workflowTransition`; set `allowMechanicalRefresh: false`.
+The authorization is bound into the existing allowlist/checkpoint digest and
+independent source review. It permits only the named workflow difference for one
+exact PR/head/base integration, not workflow adoption, a wildcard, a bypass, or
+renamed legacy stages. Main advancement, source changes, a different workflow,
+or a changed policy requires a fresh independent review and authorization.
+After the exact merge, the existing one-effect journal reconciles only that merge
+and the unchanged exact-commit deployment observer. Remove the transition field
+from subsequent entries: normal sharded PRs require matching reviewed workflow
+hashes at main, head and synthetic again. Strict `Full check` branch protection
+and all writer permissions remain unchanged.
+
+### Activation-only diagnostic baseline
+
+When the reviewed workflow includes `Legacy test baseline (diagnostic)`, each
+entry must explicitly set `fullCheckDiagnostic: { "activationPr": <literal PR> }`.
+Exactly that seventh job is recognized; arbitrary extras or duplicates still stop.
+For the activation PR it must genuinely succeed with the fixed setup/identity,
+`Legacy full test suite`, and mutation-guard stages, the same run/attempt/app/check
+identity, and logs proving the independent legacy full test inventory and successful
+subprocesses. It is never counted as shard coverage or an alternative gate.
+The reviewed workflow schedules this diagnostic after successful `Full check`.
+The observer still drains the entire workflow and requires successful terminal
+completion; a failed/canceled baseline stops instead of certifying a benchmark.
+For every later PR, that job must be skipped with no executed steps. Keep the
+same reviewed activation pin in those entries while the diagnostic remains in the
+workflow. Omit the field only after a separately reviewed workflow cleanup removes
+the diagnostic. There is no implicit extra-job exemption.

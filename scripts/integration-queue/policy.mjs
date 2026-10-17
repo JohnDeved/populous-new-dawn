@@ -33,6 +33,25 @@ export const GATES = [
     ],
   },
 ]
+export const SHARDED_FULL_GATE = {
+  ...GATES[0],
+  steps: [
+    'Require a ready pull request',
+    'Check out the exact proposed merge',
+    'Set up Node',
+    'Set up Python for portable fixture tests',
+    'Install locked dependencies',
+    'Verify and record candidate identity',
+    'Require successful dependencies',
+    'Download current attempt receipts',
+    'Validate complete sharded gate',
+    'Reject tracked input mutation',
+  ],
+}
+export const gatesFor = entry => [
+  entry.fullCheckPolicy === 'sharded-v1' ? SHARDED_FULL_GATE : GATES[0],
+  GATES[1],
+]
 export const sha256 = value => createHash('sha256').update(value).digest('hex')
 export const digest = value => sha256(JSON.stringify(value))
 const sha = value => typeof value === 'string' && /^[0-9a-f]{40}$/.test(value)
@@ -86,7 +105,44 @@ export function validateEntry(entry) {
         /^https:\/\//.test(entry.deployment.url ?? '')),
     'Pin a supported deployment observation policy'
   )
+  requireThat(
+    entry.fullCheckPolicy === undefined || ['legacy-v1', 'sharded-v1'].includes(entry.fullCheckPolicy),
+    'Unsupported Full check evidence policy'
+  )
+  if (entry.fullCheckDiagnostic !== undefined) {
+    const d = entry.fullCheckDiagnostic
+    requireThat(entry.fullCheckPolicy === 'sharded-v1' && d &&
+      Object.keys(d).length === 1 && Number.isSafeInteger(d.activationPr) && d.activationPr > 0,
+      'Diagnostic policy must pin one literal activation PR under sharded-v1')
+  }
+  if (entry.workflowTransition !== undefined) {
+    const t = entry.workflowTransition
+    requireThat(
+      t?.version === 1 && t.workflow === GATES[0].workflow &&
+        t.sourceHead === entry.sourceHead && t.base === entry.reviewBase &&
+        hash(t.baseSha256) && t.candidateSha256 === entry.workflowHashes[t.workflow] &&
+        t.baseSha256 !== t.candidateSha256 && entry.fullCheckPolicy === 'sharded-v1' &&
+        entry.allowMechanicalRefresh === false,
+      'Workflow transition must pin one reviewed base/head and both digests without refresh'
+    )
+  }
   return entry
+}
+
+export function reviewedWorkflows(entry, observation) {
+  const o = observation, t = entry.workflowTransition
+  if (!Array.isArray(o.workflows)) return false
+  if (t && !o.merged && (o.base !== t.base || o.head !== t.sourceHead)) return false
+  return o.workflows.every(w => {
+    if (!t || w.path !== t.workflow || o.merged)
+      return entry.workflowHashes[w.path] === w.sha256
+    // Main may retain the reviewed old workflow only for this exact transition.
+    if (w.ref === t.base) return w.sha256 === t.baseSha256
+    return (w.ref === t.sourceHead || w.ref === o.synthetic?.sha) &&
+      w.sha256 === t.candidateSha256
+  }) && gatesFor(entry).every(g => o.workflows.some(w => w.path === g.workflow)) &&
+    (!t || o.merged || [t.base, t.sourceHead, ...(o.synthetic ? [o.synthetic.sha] : [])]
+      .every(ref => o.workflows.some(w => w.path === t.workflow && w.ref === ref)))
 }
 
 export function browserRequired(paths) {
@@ -155,8 +211,7 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
       'Required strict Full check protection, admin enforcement or supported rules are missing'
     )
     requireThat(
-      o.workflows?.every(w => entry.workflowHashes[w.path] === w.sha256) &&
-        GATES.every(g => o.workflows.some(w => w.path === g.workflow)),
+      reviewedWorkflows(entry, o),
       'Workflow differs from reviewed policy; re-review the workflow'
     )
 
@@ -313,7 +368,7 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
       ) && new Set(o.runs.map(r => `${r.id}/${r.attempt}`)).size === o.runs.length,
       'Invalid or duplicate workflow run identity'
     )
-    const required = GATES.filter(
+    const required = gatesFor(entry).filter(
       (g, i) => i === 0 || entry.requireBrowser || browserRequired(o.changedPaths)
     )
     if (o.runs.some(r => r.status !== 'completed')) {
@@ -397,7 +452,7 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
       return propose({ kind: 'ready', head: o.head, base: o.base })
     }
     requireThat(o.draft === false && o.mergeable === true, 'PR readiness/mergeability is unknown')
-    const fullRuns = gateRuns(entry, o, GATES[0]).filter(r => r.base === o.base)
+    const fullRuns = gateRuns(entry, o, gatesFor(entry)[0]).filter(r => r.base === o.base)
     if (fullRuns.length === 0) {
       validateBeforeDraft(entry, o, required)
       if (state.readyAdmission) {
@@ -502,6 +557,7 @@ function validatePassedGate(o, gate, latest) {
       latest.jobConclusion === 'success' &&
       latest.app === 'github-actions' &&
       latest.appId === 15368 &&
+      (gate !== SHARDED_FULL_GATE || latest.shardedVerified === true) &&
       gate.steps.every(
         name =>
           latest.steps?.filter(s => s.name === name).length === 1 &&

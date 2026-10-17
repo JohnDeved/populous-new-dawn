@@ -214,31 +214,41 @@ test('focused suggestions are advisory and broad or unknown changes fall back to
   assert.equal(focusedTestFeedback({ changes: [], unknownPaths: [], checks: [] }).command, null)
 })
 
-// This is a deliberately simple one-job workflow. Keep its merge-critical
-// structure reviewable; hosted lifecycle evidence remains separate from these
-// source/shell contract checks (this is not a YAML or Actions implementation).
-test('ready-PR full gate admits only ready_for_review with candidate isolation and least privilege', () => {
+// Structural contracts complement, but never replace, hosted lifecycle evidence.
+test('ready-PR sharded gate is exhaustive, fail-closed and least privilege', () => {
   const workflow = read('.github/workflows/ready-pr-check.yml')
   assert.match(workflow, /^name: Ready PR checks$/m)
   assert.equal(workflow.match(/^on:\n([\s\S]*?)\n\n/m)?.[1],
     '  pull_request:\n    branches: [main]\n    types: [ready_for_review]')
   assert.match(workflow, /^permissions:\n {2}contents: read\n/m)
   assert.match(workflow, /^concurrency:\n {2}group: .+\n {2}cancel-in-progress: true$/m)
-  assert.match(workflow, /^jobs:\n {2}full-check:\n(?: {4}#.*\n)* {4}name: \$\{\{ toJSON\(github.event.pull_request.draft\) == 'false' && 'Full check' \|\| 'Draft PR \(not validated\)' \}\}\n {4}runs-on: ubuntu-24.04\n {4}timeout-minutes: 120$/m)
-  assert.doesNotMatch(workflow, /^\s*(?:if|continue-on-error|paths|paths-ignore|push|pull_request_target|workflow_run|environment|secrets):/m)
-  assert.doesNotMatch(workflow, /\$\{\{\s*secrets\.|actions\/(?:cache|upload-artifact)@|--if-present|npm run (?:deploy|parity:record)/)
-  assert.deepEqual([...workflow.matchAll(/uses: ([\w/-]+)@([a-f0-9]{40})/g)].map(m => [m[1], m[2]]), [
+  assert.deepEqual([...workflow.matchAll(/^ {2}([a-z-]+):$/gm)].map(match => match[1]).filter(name => ['quality', 'test-shards', 'full-check'].includes(name)), ['quality', 'test-shards', 'full-check'])
+  assert.match(workflow, /needs: \[quality, test-shards\]\n {4}if: \$\{\{ always\(\) \}\}/)
+  assert.equal((workflow.match(/^\s*if:/gm) ?? []).length, 2)
+  assert.match(workflow, /fail-fast: false\n {6}max-parallel: 4/)
+  assert.deepEqual([...workflow.matchAll(/- \{ index: (\d), label: (\d) \}/g)].map(match => [Number(match[1]), Number(match[2])]), [[0, 1], [1, 2], [2, 3], [3, 4]])
+  assert.doesNotMatch(workflow, /^\s*(?:continue-on-error|paths|paths-ignore|push|pull_request_target|workflow_run|environment|secrets|run-id|github-token):/m)
+  assert.doesNotMatch(workflow, /\$\{\{\s*secrets\.|actions\/cache@|--if-present|npm run (?:deploy|parity:record)|run: npm run check/)
+  const pins = new Map([
     ['actions/checkout', '3d3c42e5aac5ba805825da76410c181273ba90b1'],
     ['actions/setup-node', '949feb2413d6458794dcd2491c4babbbce0c15c1'],
     ['actions/setup-python', '5fda3b95a4ea91299a34e894583c3862153e4b97'],
+    ['actions/upload-artifact', 'ea165f8d65b6e75b540449e92b4886f43607fa02'],
+    ['actions/download-artifact', 'd3f86a106a0bac45b974a628896c90dbdf5c8093'],
   ])
-  assert.match(workflow, /ref: \$\{\{ github.sha \}\}\n[\s\S]*fetch-depth: 0\n {10}persist-credentials: false/)
-  assert.match(workflow, /node-version: '24\.19\.0'/)
-  assert.match(workflow, /package-manager-cache: false/)
-  assert.match(workflow, /npm ci --no-audit --no-fund/)
-  assert.match(workflow, /--require-hashes -r engineering\/ci-python-requirements\.txt/)
-  assert.match(workflow, /- name: Full typecheck, tests, parity and orchestration\n {8}run: npm run check\n\n {6}- name: Production build\n {8}run: npm run build/)
-  assert.match(workflow, /run: git diff --exit-code HEAD --/)
+  const actions = [...workflow.matchAll(/uses: ([\w/-]+)@([^ ]+)/g)]
+  assert.equal(actions.length, 15)
+  for (const [, action, sha] of actions) assert.equal(sha, pins.get(action))
+  for (const value of ['ref: ${{ github.sha }}', 'persist-credentials: false', "node-version: '24.19.0'", "python-version: '3.12.14'", 'npm ci --no-audit --no-fund', '--require-hashes -r engineering/ci-python-requirements.txt'])
+    assert.equal(workflow.split(value).length - 1, 4, value)
+  for (const command of ['typecheck', 'parity:check', 'orchestration:check', 'build'])
+    assert.equal(workflow.split(`run: npm run ${command}\n`).length - 1, 1, command)
+  assert.match(workflow, /shard --shard-index=\$\{\{ matrix.index \}\} --shard-count=4 --receipt=work\/ci\/shard.json/)
+  assert.match(workflow, /pattern: full-check-\$\{\{ github.run_id \}\}-\$\{\{ github.run_attempt \}\}-\*/)
+  assert.match(workflow, /merge-multiple: false/)
+  assert.equal((workflow.match(/if-no-files-found: error/g) ?? []).length, 2)
+  assert.match(workflow, /run: test "\$QUALITY_RESULT" = success && test "\$SHARDS_RESULT" = success/)
+  assert.match(workflow, /run: node scripts\/orchestration\/ci-gate.mjs aggregate work\/ci\/receipts work\/ci\/full-check.json/)
   assert.match(read('engineering/ci-python-requirements.txt'), /^Pillow==12\.3\.0 --hash=sha256:[a-f0-9]{64}$/m)
   const { checks } = JSON.parse(read('engineering/checks.json'))
   for (const id of ['orchestration-tests', 'repository-check'])
@@ -278,7 +288,7 @@ function admission(draft, overrides = {}) {
     return context[expression]
   })
   return {
-    name: render(workflow.match(/^ {4}name: (.+)$/m)[1]),
+    name: render(workflow.match(/^ {4}name: (\$\{\{ toJSON.+)$/m)[1]),
     group: render(workflow.match(/^ {2}group: (.+)$/m)[1]),
   }
 }
@@ -317,35 +327,30 @@ test('repeated transitions and three overlapping admissions retain separate cand
   assert.equal(admission(false).group, ready.group)
 })
 
-test('full/build/mutation shell commands propagate stubbed failures and cancellation', () => {
+test('aggregate dependency guard rejects missing, failed, skipped and cancelled jobs', () => {
   const workflow = read('.github/workflows/ready-pr-check.yml')
-  const tail = workflow.slice(workflow.indexOf('      - name: Full typecheck, tests, parity and orchestration'))
-  const commands = [...tail.matchAll(/^ {8}run: (.+)$/gm)].map(match => match[1])
-  assert.deepEqual(commands, ['npm run check', 'npm run build', 'git diff --exit-code HEAD --'])
-  const script = `
-    npm() {
-      printf '%s\\n' "$*"
-      if [ "$2" = check ]; then
-        if [ "$FAILURE" = cancel ]; then kill -TERM "$$"; fi
-        if [ "$FAILURE" = check ]; then return 17; fi
-      elif [ "$FAILURE" = build ]; then return 23; fi
+  const script = workflow.match(/run: (test "\$QUALITY_RESULT"[^\n]+)/)[1]
+  for (const quality of ['success', 'failure', 'cancelled', 'skipped', '']) {
+    for (const shards of ['success', 'failure', 'cancelled', 'skipped', '']) {
+      const result = spawnSync('bash', ['-e', '-c', script], {
+        env: { ...process.env, QUALITY_RESULT: quality, SHARDS_RESULT: shards }, encoding: 'utf8',
+      })
+      assert.equal(result.status, quality === 'success' && shards === 'success' ? 0 : 1)
     }
-    git() { printf '%s\\n' "$*"; if [ "$FAILURE" = mutation ]; then return 1; fi; }
-    ${commands.join('\n')}
-  `
-  for (const [failure, status, signal, output] of [
-    ['none', 0, null, ['run check', 'run build', 'diff --exit-code HEAD --']],
-    ['check', 17, null, ['run check']],
-    ['build', 23, null, ['run check', 'run build']],
-    ['mutation', 1, null, ['run check', 'run build', 'diff --exit-code HEAD --']],
-    ['cancel', null, 'SIGTERM', ['run check']],
-  ]) {
-    const result = spawnSync('bash', ['-e', '-c', script], {
-      env: { ...process.env, FAILURE: failure }, encoding: 'utf8',
-    })
-    assert.equal(result.error, undefined)
-    assert.equal(result.status, status, result.stderr)
-    assert.equal(result.signal, signal)
-    assert.deepEqual(result.stdout.trim().split('\n'), output)
   }
+})
+
+test('one activation diagnostic compares the unchanged legacy test suite without replacing coverage', () => {
+  const workflow = read('.github/workflows/ready-pr-check.yml')
+  const baseline = workflow.split('  benchmark-baseline:\n')[1]
+  assert.ok(baseline)
+  assert.match(baseline, /^ {4}name: Legacy test baseline \(diagnostic\)$/m)
+  assert.match(baseline, /^ {4}needs: full-check$/m)
+  assert.match(baseline, /^ {4}if: \$\{\{ github.event.pull_request.number == 516 && needs.full-check.result == 'success' \}\}$/m)
+  assert.match(baseline, /PYTHONDONTWRITEBYTECODE: '1'/)
+  assert.match(baseline, /- name: Legacy full test suite\n {8}run: npm test/)
+  assert.equal((workflow.match(/run: npm test$/gm) ?? []).length, 1)
+  assert.doesNotMatch(baseline, /npm run (?:check|build|typecheck|parity:check|orchestration:check)|upload-artifact/)
+  assert.match(baseline, /ci-gate.mjs baseline work\/ci\/before.json work\/ci\/baseline.json/)
+  assert.match(workflow.split('  full-check:\n')[1].split('  benchmark-baseline:')[0], /needs: \[quality, test-shards\]/)
 })
