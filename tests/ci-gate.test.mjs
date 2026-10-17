@@ -3,8 +3,9 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
+import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { reportLines, QUALITY_STAGES, readEnvelopes, validateGate, validateShard } from '../scripts/orchestration/ci-gate.mjs'
+import { candidateSnapshot, reportLines, QUALITY_STAGES, readEnvelopes, validateGate, validateShard } from '../scripts/orchestration/ci-gate.mjs'
 
 function fixture() {
   const inventory = Array.from({ length: 12 }, (_, index) => ({ file: `tests/${String(index).padStart(2, '0')}.test.mjs`, sha256: 'a'.repeat(64) }))
@@ -112,4 +113,36 @@ test('full raw report survives bounded log chunks with exact JSON checksum', () 
   const json = Buffer.from(encoded, 'base64').toString('utf8')
   assert.deepEqual(JSON.parse(json), report)
   assert.equal(lines.at(-1), `PND_FULL_CHECK_RECEIPT_SHA256=${createHash('sha256').update(json).digest('hex')}`)
+})
+
+function candidateFixture(t) {
+  const root = mkdtempSync(join(tmpdir(), 'pnd-ci-candidate-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim()
+  git('init', '-q'); git('config', 'user.name', 'CI fixture'); git('config', 'user.email', 'ci@example.invalid')
+  mkdirSync(join(root, '.github/workflows'), { recursive: true }); mkdirSync(join(root, 'tests'))
+  writeFileSync(join(root, '.github/workflows/ready-pr-check.yml'), 'fixture')
+  writeFileSync(join(root, 'tests/a.test.mjs'), 'fixture')
+  git('add', '.'); git('commit', '-qm', 'base')
+  const base = git('rev-parse', 'HEAD')
+  writeFileSync(join(root, 'head.txt'), 'head')
+  git('add', '.'); git('commit', '-qm', 'head')
+  const head = git('rev-parse', 'HEAD'), tree = git('rev-parse', 'HEAD^{tree}')
+  const merge = git('commit-tree', tree, '-p', base, '-p', head, '-m', 'synthetic')
+  git('checkout', '-q', '--detach', merge)
+  const env = { GITHUB_REPOSITORY: 'owner/repo', GITHUB_RUN_ID: '123', GITHUB_RUN_ATTEMPT: '2',
+    GITHUB_WORKFLOW_REF: 'owner/repo/.github/workflows/ready-pr-check.yml@refs/pull/1/merge',
+    GITHUB_WORKFLOW_SHA: merge, GITHUB_SHA: merge, PR_HEAD_SHA: head, PR_BASE_SHA: base }
+  return { root, env }
+}
+
+for (const mutation of ['checkout', 'parents', 'tracked', 'untracked-test', 'missing-identity']) test(`candidate snapshot rejects ${mutation} before runtime setup`, t => {
+  const { root, env } = candidateFixture(t)
+  if (mutation === 'checkout') env.GITHUB_SHA = 'f'.repeat(40)
+  if (mutation === 'parents') [env.PR_HEAD_SHA, env.PR_BASE_SHA] = [env.PR_BASE_SHA, env.PR_HEAD_SHA]
+  if (mutation === 'tracked') writeFileSync(join(root, 'tests/a.test.mjs'), 'mutation')
+  if (mutation === 'untracked-test') writeFileSync(join(root, 'tests/new.test.mjs'), 'uncommitted')
+  if (mutation === 'missing-identity') delete env.GITHUB_WORKFLOW_SHA
+  const expected = { checkout: /Checkout differs/, parents: /parents differ/, tracked: /Command failed: git diff/, 'untracked-test': /inventory differs/, 'missing-identity': /Missing identity/ }
+  assert.throws(() => candidateSnapshot(root, env), expected[mutation])
 })
