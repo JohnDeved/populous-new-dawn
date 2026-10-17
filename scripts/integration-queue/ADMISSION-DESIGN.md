@@ -82,3 +82,17 @@ No protection endpoint is read by this distinct observer. Its output explicitly
 says protectionConfiguration=unverified-admission-only and mergeAuthority=false.
 The default integration reader still reads protection and its unchanged policy
 still requires strict protected Full checks. Passing CI here cannot waive that.
+
+## Entry policy preflight
+
+Trusted entry preparation can call deriveFullCheckDiagnostic on the reviewed
+Full workflow bytes and pin its result in entry.fullCheckDiagnostic before hashing
+entry/grant. CLI preflight independently checks those immutable bytes at head,
+base and synthetic merge, the ready-only event contract and exact diagnostic
+policy before any journal creation/write. It never repairs or rewrites pinned
+inputs. Missing, extra or mismatched policy fails even before a draft run exists.
+The diagnostic parser accepts only the reviewed literal benchmark-baseline job
+with its fixed name, full-check dependency and literal activation PR condition;
+changed/ambiguous forms require source review. Terminal source-bound receipt
+validation remains unchanged. This prevents the PR531 omitted-policy failure
+without reviving its stopped journal or replenishing any effect budget.

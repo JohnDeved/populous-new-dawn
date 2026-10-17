@@ -178,11 +178,16 @@ test('CLI parser has no fixture, refresh, merge, rerun or unknown argument path'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { sha256 } from '../scripts/integration-queue/policy.mjs'
 import { admissionMain } from '../scripts/integration-queue/admission-cli.mjs'
+import { deriveFullCheckDiagnostic, preflightAdmissionPolicy } from '../scripts/integration-queue/admission-preflight.mjs'
 
 test('usable CLI registers trusted grant, dry-runs and performs exactly one bounded pair through injected offline transport', async t => {
   const dir = mkdtempSync(join(tmpdir(), 'pnd-admission-cli-')); t.after(() => rmSync(dir, { recursive: true, force: true }))
   const candidate = join(dir, 'candidate'); mkdirSync(candidate)
   const f = observerFixture(); let clock = 0
+  const workflow = 'on:\n  pull_request:\n    branches: [main]\n    types: [ready_for_review]\n\n'
+  f.entry.workflowHashes[FULL_WORKFLOW] = sha256(workflow)
+  f.grant.workflowHashes[FULL_WORKFLOW] = sha256(workflow)
+  for (const w of f.raw.workflows) if (w.path === FULL_WORKFLOW) w.sha256 = sha256(workflow)
   const review = 'independent offline review fixture'; writeFileSync(join(dir, 'review.txt'), review)
   const entry = { ...f.entry, version: 1, repo: REPO, baseRef: 'main', sourceHead: f.grant.tuple.head,
     sourceTree: f.grant.tuple.tree, reviewBase: f.grant.tuple.base, allowMechanicalRefresh: false,
@@ -198,14 +203,40 @@ test('usable CLI registers trusted grant, dry-runs and performs exactly one boun
     constructor({ cwd }) { this.cwd = cwd }
     git(command) { return command === 'rev-parse' ? grant.driverHead : '' }
     inspectAdmission() { return { ...f.raw, observedAt: clock } }
-    gitOutput() { return 'on:\n  pull_request:\n    branches: [main]\n    types: [ready_for_review]\n\n' }
+    gitOutput() { return workflow }
     execute() { return JSON.stringify({ data: { repository: { pullRequest: { headRefOid: f.raw.head, baseRefOid: f.raw.base,
       isDraft: f.raw.draft, potentialMergeCommit: { oid: f.raw.synthetic.sha }, commits: { nodes: [{ commit: { statusCheckRollup: null } }] } } } } }) }
   }
   const calls = [], options = { Reader, clock: () => clock, transport: args => calls.push(args) }
   const args = ['--entry', join(dir, 'entry.json'), '--entry-sha256', sha256(entryBytes), '--grant', join(dir, 'grant.json'),
     '--grant-sha256', sha256(grantBytes), '--candidate', candidate, '--journal', grant.journalPath]
+  // An extra policy not present in the pinned workflow must fail before the
+  // canonical journal is created. Its trusted hashes are otherwise consistent.
+  const wrongEntry = { ...entry, fullCheckPolicy: 'sharded-v1', fullCheckDiagnostic: { activationPr: 516 } }
+  const wrongGrant = { ...grant, entryDigest: digest(wrongEntry) }
+  writeFileSync(join(dir, 'wrong-entry.json'), JSON.stringify(wrongEntry))
+  writeFileSync(join(dir, 'wrong-grant.json'), JSON.stringify(wrongGrant))
+  const wrongArgs = [...args]
+  wrongArgs[1] = join(dir, 'wrong-entry.json'); wrongArgs[3] = sha256(JSON.stringify(wrongEntry))
+  wrongArgs[5] = join(dir, 'wrong-grant.json'); wrongArgs[7] = sha256(JSON.stringify(wrongGrant))
+  await assert.rejects(admissionMain([...wrongArgs, '--register', '--previous', 'none'], options), /diagnostic policy/)
+  assert.throws(() => readFileSync(grant.journalPath), { code: 'ENOENT' })
+  const diagnosticWorkflow = workflow + "jobs:\n  benchmark-baseline:\n    name: Legacy test baseline (diagnostic)\n    needs: full-check\n    if: ${{ github.event.pull_request.number == 516 && needs.full-check.result == 'success' }}\n"
+  class DiagnosticReader extends Reader { gitOutput() { return diagnosticWorkflow } }
+  for (const policy of [undefined, { activationPr: 515 }]) {
+    const diagnosticEntry = { ...entry, fullCheckPolicy: 'sharded-v1', workflowHashes: { ...entry.workflowHashes, [FULL_WORKFLOW]: sha256(diagnosticWorkflow) } }
+    if (policy) diagnosticEntry.fullCheckDiagnostic = policy
+    const diagnosticGrant = { ...grant, workflowHashes: diagnosticEntry.workflowHashes, entryDigest: digest(diagnosticEntry) }
+    writeFileSync(join(dir, 'wrong-entry.json'), JSON.stringify(diagnosticEntry))
+    writeFileSync(join(dir, 'wrong-grant.json'), JSON.stringify(diagnosticGrant))
+    wrongArgs[3] = sha256(JSON.stringify(diagnosticEntry)); wrongArgs[7] = sha256(JSON.stringify(diagnosticGrant))
+    await assert.rejects(admissionMain([...wrongArgs, '--register', '--previous', 'none'], { ...options, Reader: DiagnosticReader }), /diagnostic policy/)
+    assert.throws(() => readFileSync(grant.journalPath), { code: 'ENOENT' })
+  }
   assert.equal((await admissionMain([...args, '--register', '--previous', 'none'], options)).status, 'registered')
+  const registeredBytes = readFileSync(grant.journalPath, 'utf8')
+  await assert.rejects(admissionMain(wrongArgs, { ...options, Reader: DiagnosticReader }), /diagnostic policy/)
+  assert.equal(readFileSync(grant.journalPath, 'utf8'), registeredBytes)
   assert.equal((await admissionMain(args, options)).status, 'wait')
   clock = 60_000
   assert.equal((await admissionMain(args, options)).status, 'propose'); assert.equal(calls.length, 0)
@@ -232,4 +263,30 @@ test('observer accepts a source-proved matching required Full, never a merely gr
   assert.throws(() => normalizeAdmission(f.entry, f.grant, f.raw, [{ ...checks[0], isRequired: false }]), /required/)
   const bad = structuredClone(f.raw); bad.runs[0].steps.pop()
   assert.throws(() => normalizeAdmission(f.entry, f.grant, bad, checks), /unverified/)
+})
+
+test('diagnostic derivation accepts only the reviewed literal policy and preflight never repairs pinned inputs', () => {
+  const prefix = 'on:\n  pull_request:\n    branches: [main]\n    types: [ready_for_review]\n\njobs:\n'
+  const block = "  benchmark-baseline:\n    name: Legacy test baseline (diagnostic)\n    needs: full-check\n    if: ${{ github.event.pull_request.number == 516 && needs.full-check.result == 'success' }}\n"
+  const workflow = prefix + block
+  assert.deepEqual(deriveFullCheckDiagnostic(workflow), { activationPr: 516 })
+  assert.equal(deriveFullCheckDiagnostic(prefix), undefined)
+  for (const bad of [workflow + block, workflow.replace('== 516', '!= 516'),
+    workflow.replace('benchmark-baseline:', '"benchmark-baseline":'),
+    workflow.replace('needs: full-check', 'needs: [full-check]'),
+    workflow.replace('== 516', '== inputs.pr'), workflow.replace('    if:', '    if: true\n    if:'),
+    workflow + '    name: Other\n', workflow + '    needs: other-job\n',
+    workflow + '    "if": true\n', workflow + "    'if': true\n",
+    workflow.replace('    name:', '    "name":'), workflow.replace('    needs:', "    'needs':")])
+    assert.throws(() => deriveFullCheckDiagnostic(bad))
+  const entry = { workflowHashes: { [FULL_WORKFLOW]: sha256(workflow) } }
+  const grant = fixture().grant, reader = { gitOutput: () => workflow }
+  const before = JSON.stringify(entry)
+  assert.throws(() => preflightAdmissionPolicy(reader, entry, grant), /diagnostic policy/)
+  assert.equal(JSON.stringify(entry), before)
+  entry.fullCheckDiagnostic = { activationPr: 515 }
+  assert.throws(() => preflightAdmissionPolicy(reader, entry, grant), /diagnostic policy/)
+  entry.fullCheckDiagnostic = { activationPr: 516 }
+  assert.deepEqual(preflightAdmissionPolicy(reader, entry, grant), { activationPr: 516 })
+  assert.throws(() => preflightAdmissionPolicy({ gitOutput: () => workflow + '\n' }, entry, grant), /Pinned Full workflow/)
 })

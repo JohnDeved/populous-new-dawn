@@ -10,6 +10,7 @@ import { trustedFile } from './cli.mjs'
 import { digest, validateEntry } from './policy.mjs'
 import { registerAdmission, admissionTick, withAdmissionJournal, validateRegistration } from './admission.mjs'
 import { observeAdmission } from './admission-observer.mjs'
+import { preflightAdmissionPolicy } from './admission-preflight.mjs'
 
 export function parseAdmissionArguments(argv) {
   const result = {}, booleans = new Set(['--apply', '--register'])
@@ -51,6 +52,7 @@ export async function admissionMain(argv = process.argv.slice(2), { Reader = Git
   assert.equal(driver.git('rev-parse', 'HEAD'), grant.driverHead, 'Reviewed driver head differs')
   assert.equal(driver.git('status', '--porcelain', '--untracked-files=normal'), '', 'Driver must be clean')
   const reader = new Reader({ cwd: candidate })
+  preflightAdmissionPolicy(reader, entry, grant) // Before any journal creation/write or remote effect.
   return withAdmissionJournal(grant.journalPath, async (ledger, persist) => {
     if (args['--register']) {
       const previous = args['--previous'] === 'none' ? null : args['--previous']
