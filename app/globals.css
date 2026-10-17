@@ -11,7 +11,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 /* Keep the tall desktop flow; short landscape windows use width instead of
    hiding diagnostics or making this noninteractive overlay scrollable. */
 .fps-primary,.fps-secondary{display:contents}
-@media (max-height:700px) and (min-width:560px){
+@media (max-height:800px) and (min-width:560px){
   .fps-graph{top:8px;right:8px;width:560px;max-width:calc(100% - 16px);padding:8px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
   .fps-primary,.fps-secondary{display:block;min-width:0}
   .fps-graph dl{margin:6px 0;padding-top:4px}
@@ -72,11 +72,11 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .paused-badge{position:absolute;left:calc((100% + var(--side))/2);top:45%;transform:translate(-50%,-50%);padding:14px 24px;background:#262d20ed;border:2px ridge #d2ae59;color:#f4dda5;z-index:5;font-size:16px}.paused-badge small{display:block;font-size:10px;margin-top:9px}
 /* Keep the public pause/resume control clear of the short-landscape F8 panel.
    Taller narrow views have room below it; wider short views have room beside it. */
-@media (max-height:700px) and (min-width:560px) and (max-width:899px) and (min-height:420px){
+@media (max-height:800px) and (min-width:560px) and (max-width:899px) and (min-height:420px){
   .game-shell:has(.fps-graph) .paused-badge{left:auto;right:8px;top:auto;bottom:16px;transform:none;padding:6px 10px;font-size:12px}
   .game-shell:has(.fps-graph) .paused-badge small{margin-top:4px}
 }
-@media (max-height:700px) and (min-width:900px){
+@media (max-height:800px) and (min-width:900px){
   .game-shell:has(.fps-graph) .paused-badge{left:calc(var(--side) + 8px);right:auto;top:45%;width:160px;transform:translateY(-50%);padding:6px 10px;font-size:12px}
   .game-shell:has(.fps-graph) .paused-badge small{margin-top:4px}
 }
@@ -128,3 +128,5 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .follower-tasks button:enabled:is(:hover,:active) .follower-task-normal:has(+.follower-task-pressed){display:none}
 .follower-tasks button:enabled:is(:hover,:active) .follower-task-pressed{display:contents}
 .followers-dock .follower-list{margin:0 2px}
+
+.fps-export{pointer-events:auto;font:inherit;color:#f4f7f8;background:#24534d;border:1px solid #65e3ce80;border-radius:3px;padding:4px 8px;cursor:pointer}.fps-export:focus-visible{outline:2px solid #65e3ce;outline-offset:2px}

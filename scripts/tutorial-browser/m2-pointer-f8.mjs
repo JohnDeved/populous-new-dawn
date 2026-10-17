@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { bindGame } from '../browser-game.mjs'
+import { checkFrameExport } from './frame-export.mjs'
 import { checkpointCodec } from './checkpoint-codec.mjs'
 
 export const m2FunctionalLimitMs = 45000
@@ -367,6 +368,7 @@ export default async function ({ browser, url, output, fixture }) {
     for (const [width, height] of [
       [640, 480],
       [900, 360],
+      [1280, 720],
       [1440, 1000],
     ]) {
       await page.setViewportSize({ width, height })
@@ -374,6 +376,11 @@ export default async function ({ browser, url, output, fixture }) {
         () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
       )
       await page.waitForFunction(m2ViewReady, 2)
+      if (width === 640 || width === 1280) {
+        report.exports ??= []
+        report.exports.push(await checkFrameExport({ page, output, keyboard: width === 1280 }))
+        stage(`export-${width}-verified`)
+      }
       const layout = await graph.evaluate(el => {
         const r = el.getBoundingClientRect()
         const badge = document.querySelector('button.paused-badge')
