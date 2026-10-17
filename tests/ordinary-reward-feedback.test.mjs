@@ -3,7 +3,11 @@ import test from 'node:test'
 import { createWorld, createGift, tick } from '../app/model.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 
-for (const [mission, reward] of [[1, 'lightning'], [1, 'bridge'], [2, 'tornado']]) {
+for (const [mission, reward] of [
+  [1, 'lightning'],
+  [1, 'bridge'],
+  [2, 'tornado'],
+]) {
   for (const capped of [false, true]) {
     test(`M${mission} ${reward} payout preserves status at ${capped ? 'above-cap' : 'empty'} stock`, () => {
       const world = createWorld(mission),
@@ -21,7 +25,10 @@ for (const [mission, reward] of [[1, 'lightning'], [1, 'bridge'], [2, 'tornado']
         tick(candidate, 1 / 12)
         assert.equal(candidate.shots[reward], capped ? 9 : 1)
         assert.equal(candidate.giftCounts[reward], 15)
-        assert.equal(candidate.gifts.some(item => item.id === gift.id), false)
+        assert.equal(
+          candidate.gifts.some(item => item.id === gift.id),
+          false
+        )
         assert.equal(candidate.message, 'Existing compatibility notice')
         assert.equal(candidate.messageUntil, 12345)
       }
