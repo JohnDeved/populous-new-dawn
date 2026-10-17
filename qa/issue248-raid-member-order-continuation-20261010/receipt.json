@@ -1,0 +1,78 @@
+{
+  "status": "failed",
+  "classification": "intended expected-red ownership continuation assertion",
+  "sourceHead": "20f22f5908eddab2cf8b164c5d2a119b5dd4bbc5",
+  "runtimeBase": "4754e12d3590bde18656416514871b033de164be",
+  "testSha256": "9057a6351db9cf9026aba75e4d23cfc099ee042c2b736d02faea0d013ba38d8d",
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "55s",
+    "node",
+    "--test",
+    "tests/raid-member-order-continuation.test.mjs"
+  ],
+  "startedUtc": "2026-10-10T08:21:57.917883+00:00",
+  "endedUtc": "2026-10-10T08:21:59.078453+00:00",
+  "elapsedSeconds": 1.1601721110055223,
+  "exitCode": 1,
+  "counts": {
+    "tests": 3,
+    "passed": 2,
+    "failed": 1,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "failureAssertions": [
+    "missing raid ownership continuation: ordinary order cancellation must retain the registered person"
+  ],
+  "sourceInputsMatchPreflightBeforeAfter": true,
+  "trackedStatusBeforeAfter": "",
+  "inputsUnchanged": true,
+  "dependencyIdentityBefore": {
+    "realpath": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules",
+    "device": 27,
+    "inode": 538212
+  },
+  "dependencyIdentityAfter": {
+    "realpath": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules",
+    "device": 27,
+    "inode": 538212
+  },
+  "rawArtifacts": {
+    "receipt.json": {
+      "path": "work/orchestration/issue248-raid-member-order-continuation-20261010/run-1/receipt.json",
+      "bytes": 7307,
+      "sha256": "ed75dac07d7e3c01aceef749b204ea81af26dfc9906498e9ac7f5af86ac68ae9"
+    },
+    "stdout.log": {
+      "path": "work/orchestration/issue248-raid-member-order-continuation-20261010/run-1/stdout.log",
+      "bytes": 3641,
+      "sha256": "fd2a6a6fe69b6983648b17f2cbc6427cdf91283f84d09707840fe5e8913b8262"
+    },
+    "stderr.log": {
+      "path": "work/orchestration/issue248-raid-member-order-continuation-20261010/run-1/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "testSourceReviewSha256": "1a85f52cf385bf8dbb53560c4f36070e8c31e94cf1e2cb32302b4368f76bad9c",
+  "cleanupReportSha256": "c2baca97c15acd3fb42df93de7144934f8b058709e5bdf7ef89a981e11934ccb",
+  "cleanupReviewSha256": "1c54e9e78edeb1a8ba20800dfef883a2019424f1c5b89a0ebf55ed10f4c22231",
+  "priorAdmissionReceiptSha256": "217da873021e1854b3cde25fac38baddd1f04b3d000009c0c9fe721a3f0156dd",
+  "limits": [
+    "supplied actual-caller continuation, not a campaign witness",
+    "raw-native selection query mode explicitly supplied",
+    "clone readback verifies current field/alias mechanics, not original or legacy save parity",
+    "no runtime edits or broad gates",
+    "no native/emulator/browser execution",
+    "no dependency install/copy/move",
+    "earlier seven-case test and three-red receipt unchanged",
+    "general task flags, partial7f, reassignment/array agreement, other fresh owners and legacy-save migration remain held"
+  ],
+  "testResultReviewSha256": "846db971abae534b630536f16be5fc7119cdcfb8e6cc6fee1fee957c03f3885b"
+}
