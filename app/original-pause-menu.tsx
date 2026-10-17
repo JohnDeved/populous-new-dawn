@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import font from './original-pause-font.json'
 import type { IngameMenuAssets } from './frontend-assets'
+import type { CheckpointReadStatus } from './game-store'
 import { frontendScale } from './frontend-composition'
 import shared from './original-main-menu.module.css'
 import styles from './original-pause-menu.module.css'
@@ -49,6 +50,7 @@ function MenuRow({
   y,
   action,
   disabled = false,
+  unavailable,
   highlight,
   ready,
   setHighlight,
@@ -57,6 +59,7 @@ function MenuRow({
   y: number
   action: () => void
   disabled?: boolean
+  unavailable?: string
   highlight: string | null
   ready: boolean
   setHighlight: (label: string | null) => void
@@ -65,7 +68,7 @@ function MenuRow({
     <button
       aria-label={label}
       disabled={disabled}
-      title={disabled ? 'No saved checkpoint in this browser' : undefined}
+      title={disabled ? unavailable : undefined}
       style={{
         top: y,
         width: Math.max(200, textWidth(label) + 16),
@@ -87,6 +90,8 @@ interface Props {
   prepared?: IngameMenuAssets
   tutorial: boolean
   hasCheckpoint: boolean
+  checkpointReadStatus: CheckpointReadStatus
+  onRetryCheckpoint: () => void
   renderOptions: (onBack: () => void) => ReactNode
   onContinue: () => void
   onSave: () => Promise<boolean>
@@ -94,6 +99,22 @@ interface Props {
   onRestart: () => void
   onQuitLevel: () => void
   onQuitGame: () => void
+}
+function checkpointNotice(status: CheckpointReadStatus, hasCheckpoint: boolean) {
+  switch (status) {
+    case 'failed':
+      return 'Could not read browser storage. Your saved checkpoint may still be available.'
+    case 'pending':
+      return 'Checking browser storage…'
+    case 'unavailable':
+      return 'Browser storage is unavailable. You can still play and save for this session.'
+    case 'idle':
+      return 'Browser storage has not been checked yet.'
+    case 'read':
+      return hasCheckpoint
+        ? 'A checkpoint is available in this session.'
+        : 'No usable saved checkpoint was found in this browser.'
+  }
 }
 export function OriginalPauseMenu(props: Props) {
   const dialog = useRef<HTMLDialogElement>(null)
@@ -107,6 +128,9 @@ export function OriginalPauseMenu(props: Props) {
   const savingRef = useRef(false)
   const actionTaken = useRef(false)
   const returnFocus = useRef('Continue Game')
+  const rootFocus = useRef('Continue Game')
+  const lookupAvailable = ['idle', 'pending', 'failed'].includes(props.checkpointReadStatus)
+  const loadDisabled = !props.hasCheckpoint && !lookupAvailable
   useEffect(() => {
     const resize = () => setScale(frontendScale(window.innerWidth, window.innerHeight))
     resize()
@@ -134,8 +158,34 @@ export function OriginalPauseMenu(props: Props) {
     let label = 'Back'
     if (panel === 'root') label = returnFocus.current
     else if (['restart', 'quit-level', 'quit-game'].includes(panel)) label = 'No'
-    dialog.current?.querySelector<HTMLButtonElement>(`button[aria-label="${label}"]`)?.focus()
+    const target = dialog.current?.querySelector<HTMLButtonElement>(
+      `button[aria-label="${label}"]:not(:disabled)`
+    )
+    if (target) target.focus()
+    else
+      dialog.current
+        ?.querySelector<HTMLButtonElement>('button[aria-label="Continue Game"]')
+        ?.focus()
   }, [panel])
+  useEffect(() => {
+    if (panel !== 'root' || !loadDisabled || rootFocus.current !== 'Load Game') return
+    const active = document.activeElement
+    if (
+      active === document.body ||
+      active === dialog.current ||
+      active === dialog.current?.querySelector('button[aria-label="Load Game"]')
+    )
+      dialog.current
+        ?.querySelector<HTMLButtonElement>('button[aria-label="Continue Game"]')
+        ?.focus()
+  }, [panel, loadDisabled])
+  function retryCheckpoint() {
+    if (props.checkpointReadStatus === 'pending') return
+    // Back survives pending/settled lookup states. A late completion must never
+    // move focus out of another panel or replace the active world.
+    dialog.current?.querySelector<HTMLButtonElement>('button[aria-label="Back"]')?.focus()
+    props.onRetryCheckpoint()
+  }
   function back() {
     if (panel === 'root') props.onContinue()
     else setPanel('root')
@@ -209,11 +259,25 @@ export function OriginalPauseMenu(props: Props) {
       data-original-pause-menu
       data-panel={panel}
       style={{ '--frontend-scale': scale } as CSSProperties}
+      onFocusCapture={event => {
+        const label = (event.target as HTMLElement).closest('button')?.getAttribute('aria-label')
+        if (panel === 'root' && label) rootFocus.current = label
+      }}
       onCancel={event => {
         event.preventDefault()
         back()
       }}
       onKeyDown={event => {
+        if (
+          event.repeat &&
+          ['Enter', ' '].includes(event.key) &&
+          (event.target as HTMLElement).closest('button')
+        ) {
+          // Activation can move focus to Back. Holding the key must not then
+          // activate the newly focused control and leave the current panel.
+          event.preventDefault()
+          return
+        }
         if (
           panel === 'options' ||
           !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key) ||
@@ -256,7 +320,12 @@ export function OriginalPauseMenu(props: Props) {
               label={label}
               y={159 + (index + Number(!!confirmation)) * 30}
               action={() => activate(label)}
-              disabled={label === 'Load Game' && !props.hasCheckpoint}
+              disabled={label === 'Load Game' && loadDisabled}
+              unavailable={
+                props.checkpointReadStatus === 'unavailable'
+                  ? 'Browser storage is unavailable'
+                  : 'No usable saved checkpoint'
+              }
               highlight={highlight}
               ready={ready}
               setHighlight={setHighlight}
@@ -290,6 +359,20 @@ export function OriginalPauseMenu(props: Props) {
               </>
             ) : (
               <>
+                <p role="status">
+                  {checkpointNotice(props.checkpointReadStatus, props.hasCheckpoint)}
+                </p>
+                {props.hasCheckpoint && props.checkpointReadStatus !== 'read' && (
+                  <p>A checkpoint is available in this session and can be loaded.</p>
+                )}
+                {lookupAvailable && (
+                  <button
+                    disabled={props.checkpointReadStatus === 'pending'}
+                    onClick={retryCheckpoint}
+                  >
+                    Retry checkpoint lookup
+                  </button>
+                )}
                 <p>Loading replaces the current world and discards unsaved progress.</p>
                 <button disabled={!props.hasCheckpoint} onClick={() => once(props.onLoad)}>
                   Load checkpoint

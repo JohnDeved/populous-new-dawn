@@ -57,6 +57,47 @@ already paused. Original multi-slot file compatibility remains unimplemented.
 Quit Level returns to world selection; Quit Game returns to the main menu and
 explains that closing the browser tab exits. Neither pretends to terminate the browser.
 
+### Checkpoint lookup recovery
+
+The continuation from `a488a7f769d6d16bb09f130da49be079a51c3076` corrects the
+browser Load panel after a cold storage-read failure. Previously the original
+Load Game row was disabled and titled "No saved checkpoint in this browser"
+whenever memory had no checkpoint, even when the disk lookup had failed. The
+frontend already supported retrying that read; the in-game panel now exposes the
+same store-owned operation through the existing Load Game row.
+
+| Read status with no memory checkpoint | Load Game row | Load panel |
+| --- | --- | --- |
+| idle | enabled | not checked; retry available |
+| pending | enabled | checking; retry disabled |
+| failed | enabled | read failed; checkpoint may still exist; retry available |
+| read | disabled | if already open, reports no usable checkpoint |
+| unavailable | disabled | storage unavailable |
+
+A memory checkpoint keeps Load Game and explicit Load checkpoint usable in every
+read state. A read status does not establish whether a later Save persisted, so
+the Load panel calls it available in this session without claiming "session only."
+Save retains its own persistent/session-only completion notice.
+
+Retry only calls `restoreCheckpoint`: its existing single-flight promise owns the
+lookup, it retains a newer in-memory save over a late disk result, and it never
+replaces the active world. The explicit Load checkpoint action still owns world
+replacement. The original rows, font, anchors, Tutorial restrictions, Back and
+pause ownership remain as above. Read status and retry text are browser storage
+adaptations inside the existing Load panel, not a claim about original file slots.
+
+Retry synchronously focuses the persistent Back control before starting the read.
+Repeated activation keydowns on buttons are suppressed, so holding Enter cannot
+follow that focus change into Back and accidentally close the panel.
+Completion never changes panels or takes focus from Save/Options. Returning to a
+now-disabled Load Game row falls back to Continue Game; the same fallback applies
+if an empty result disables the currently focused root row. Unit regressions cover
+states, retry ownership and save/read races. The focused rendered scenario is
+`scripts/local-render/original-pause-checkpoint-recovery.mjs`; it uses a real UI
+save plus explicitly controlled IndexedDB failure/event timing, and separately
+checks empty-store focus at DPR2. Actual run results and any incomplete rendered
+acceptance belong in the source-bound PR evidence, not inferred from test source.
+
 ## Validation
 
 The dedicated browser scenario covers ordinary controls, interrupted/repeated
