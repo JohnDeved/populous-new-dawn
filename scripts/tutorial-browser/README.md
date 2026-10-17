@@ -14,6 +14,23 @@ on the final candidate before merging. A skipped/path-filtered browser run is
 not acceptance for a change affecting this scenario. No auto-merge or repository
 settings are changed here.
 
+Admission is only `pull_request: ready_for_review`, with the existing main-branch
+and path filters. Ordinary draft opening, synchronization and conversion create no
+browser-workflow run, rather than a failing draft precheck or a skipped validation
+job. The runtime ready guard remains fail-closed defense in depth. Full already
+uses the same ready-event-only policy and is unchanged; no skipped duplicate
+`Full check` is introduced (see the #526/#528 eligibility observations).
+
+After source changes or a main refresh, review the exact new candidate and issue
+one draft-to-ready transition when fresh validation is needed, including a PR
+opened already ready. An old-head green check, missing/path-filtered run or skipped
+job is not acceptance. Preserve the existing source-bound head/base/merge check
+before merge; readiness is an admission signal, not permission to reuse stale
+results. Historical runs and their failures are not rewritten by this trigger fix.
+
+GitHub documents activity-type filtering under
+[events that trigger workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request).
+
 The Playwright client is lockfile-installed; the browser is the official Chrome
 channel preinstalled on the Ubuntu runner. Ubuntu provides an existing AppArmor
 profile for this supported channel. Its exact version and executable hash are
