@@ -398,3 +398,136 @@ test('packed terrain slots preserve sparse original triangle IDs and retained qu
     f.close()
   }
 })
+
+test('native terrain storage preserves warm cache, new submitted cells and invalidation', async () => {
+  const f = await fixture(0)
+  try {
+    f.view.updateTerrainVisibility(f.mesh)
+    const mouse = new THREE.Vector2(0.1, 0.1),
+      first = f.sample(true, mouse),
+      original = first.candidates.map(hit => ({ ...hit, point: { ...hit.point } })),
+      entries = f.view.groundPickCache.get(f.mesh),
+      entry = entries.get(0)
+    assert.ok(first.actualCalls > 0, 'cold native query projects terrain')
+    assert.ok(
+      first.actualCalls < new Set(f.mesh.geometry.index.array).size / 3,
+      'fresh native rebuild shares equal cross-cell projections'
+    )
+    assert.equal(
+      f.sample(true, mouse).actualCalls,
+      0,
+      'warm query reuses the same projected vertices'
+    )
+    assert.strictEqual(f.view.groundPickCache.get(f.mesh).get(0), entry)
+
+    const geometry = f.mesh.geometry,
+      position = geometry.getAttribute('position'),
+      submitted = Array.from(geometry.index.array.slice(0, geometry.drawRange.count))
+    let extra = -1
+    for (let i = 0; i < position.count; i += 6)
+      if (!entry.screen[i]) {
+        extra = i
+        break
+      }
+    assert.ok(extra >= 0, 'fixture has an unprojected terrain cell')
+    const ids = [...submitted.slice(0, 6), ...Array.from({ length: 6 }, (_, i) => extra + i)]
+    geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(ids), 1))
+    geometry.setDrawRange(0, ids.length)
+    assert.ok(
+      f.sample(true, mouse).actualCalls > 0,
+      'same-key new submitted vertices are projected'
+    )
+    assert.strictEqual(f.view.groundPickCache.get(f.mesh).get(0), entry)
+    geometry.index.array.reverse()
+    geometry.index.needsUpdate = true
+    assert.equal(
+      f.sample(true, mouse).actualCalls,
+      0,
+      'reordered cached IDs need no new projection'
+    )
+
+    f.world.turn = 23
+    f.water()
+    f.sample(true, mouse)
+    const afterWater = f.view.groundPickCache.get(f.mesh).get(0)
+    assert.notStrictEqual(afterWater, entry, 'real water revision invalidates native cache')
+    const replacement = geometry.getAttribute('position').clone()
+    geometry.setAttribute('position', replacement)
+    f.sample(true, mouse)
+    assert.notStrictEqual(
+      f.view.groundPickCache.get(f.mesh).get(0),
+      afterWater,
+      'position identity invalidates'
+    )
+    // Out-of-range typed IDs remain ordinary JS array properties, just as in
+    // the sparse cache. Corner aliases must not impose a bounded slot map.
+    geometry.index.setX(0, replacement.count + 3)
+    f.sample(true, mouse)
+    const afterPosition = f.view.groundPickCache.get(f.mesh).get(0)
+    f.view.update(800, 600, { x: 0.25, z: -0.5 }, Math.PI / 2, 0, false)
+    f.reference?.update(800, 600, { x: 0.25, z: -0.5 }, Math.PI / 2, 0, false)
+    f.sample(true, mouse)
+    assert.notStrictEqual(
+      f.view.groundPickCache.get(f.mesh).get(0),
+      afterPosition,
+      'camera projection invalidates'
+    )
+    assert.deepEqual(
+      first.candidates,
+      original,
+      'later native queries never mutate returned points'
+    )
+  } finally {
+    f.close()
+  }
+})
+
+
+test('fresh native corner aliases preserve strict equality and original vertex IDs', async () => {
+  const f = await fixture(0)
+  try {
+    const p = f.mesh.geometry.attributes.position
+    const corners = [[0, 0, 0], [0, 0, 2], [2, 0, 0], [2, 0, 0], [0, 0, 2], [2, 0, 2],
+      [2, 0, 0], [2, 0, 2], [4, 0, 0], [4, 0, 0], [2, 0, 2], [4, 0, 2]]
+    const ids = [60000, 60001, 60002, 60003, 60004, 60005, 90000, 90001, 90002, 90003, 90004, 90005]
+    const reset = () => corners.forEach((v, i) => p.setXYZ(ids[i], ...v))
+    f.mesh.count = 1
+    f.mesh.setMatrixAt(0, new THREE.Matrix4())
+    f.mesh.geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(ids), 1))
+    f.mesh.geometry.setDrawRange(0, ids.length)
+    const sample = () => {
+      f.view.groundPickCache.delete(f.mesh)
+      f.reference?.groundPickCache.delete(f.mesh)
+      return f.sample(true)
+    }
+    reset()
+    assert.equal(sample().actualCalls, 6)
+    const entry = f.view.groundPickCache.get(f.mesh).get(0)
+    assert.strictEqual(entry.screen[60002], entry.screen[90000], 'aliases use original IDs')
+    assert.strictEqual(entry.world[60002], entry.world[90000])
+    p.setY(90000, 1)
+    assert.equal(sample().actualCalls, 7, 'different height projects independently')
+    for (const axis of ['X', 'Y', 'Z']) {
+      reset()
+      p.setXYZ(60004, 0, 0, 0)
+      const before = sample().actualCalls
+      p[`set${axis}`](60004, -0)
+      assert.equal(sample().actualCalls, before + 1, 'signed zero must not alias')
+    }
+    for (const value of [NaN, Infinity, -Infinity]) {
+      reset()
+      p.setY(90000, value)
+      assert.equal(sample().actualCalls, 7, 'nonfinite corner projects independently')
+    }
+    reset()
+    p.normalized = true
+    assert.equal(sample().actualCalls, 12, 'normalized attribute retains original native route')
+    p.normalized = false
+    const getter = p.getX
+    p.getX = function (i) { return getter.call(this, i) }
+    assert.equal(sample().actualCalls, 12, 'custom getter retains original native route')
+    delete p.getX
+  } finally {
+    f.close()
+  }
+})

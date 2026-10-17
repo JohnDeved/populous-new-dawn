@@ -487,9 +487,10 @@ export class RenderView {
             unwrapped = !!object.userData.nativeRelative
           const count = index ? Math.min(index.count, geometry.drawRange.count) : position.count
           // Equal shipped grid corners share projection work only within this
-          // query and instance. Never retain painter or cross-query buffers.
+          // query and instance, including a fresh native cache rebuild. The map
+          // is never retained; warm native caches keep their original-index route.
           const terrainCorners =
-            !nativeEdges &&
+            (!nativeEdges || !reuse) &&
             !scale &&
             object instanceof THREE.InstancedMesh &&
             object.userData.terrainGrid &&
@@ -520,6 +521,7 @@ export class RenderView {
           // alias, not another sparse world/screen array entry. Keep projected
           // entries packed for this query; candidate triangle IDs stay original.
           const terrainSlots =
+            !nativeEdges &&
             terrainCorners &&
             index!.array.subarray(0, count).every((id: number) => id < position.count)
               ? new Uint32Array(position.count)
