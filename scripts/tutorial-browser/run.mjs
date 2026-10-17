@@ -14,7 +14,8 @@ const scenario = resolve(root, 'scripts/local-render/tutorial-recommendation.mjs
 const selectorScenario = resolve(root, 'scripts/tutorial-browser/selector-inspection.mjs')
 const sceneryScenario = resolve(root, 'scripts/tutorial-browser/scenery-placement.mjs')
 const selectedScenario = process.env.POPULOUS_BROWSER_SCENARIO || 'tutorial'
-assert.ok(['tutorial', 'm2-pointer-f8'].includes(selectedScenario), 'Unknown browser scenario')
+assert.ok(['tutorial', 'm2-pointer-f8', 'profile-recovery'].includes(selectedScenario), 'Unknown browser scenario')
+const recoveryScenario = resolve(root, 'scripts/local-render/campaign-profile-recovery.mjs')
 const m2Scenario = resolve(root, 'scripts/tutorial-browser/m2-pointer-f8.mjs')
 const port = 5198
 if (existsSync(out)) throw Error('Output must be fresh')
@@ -55,7 +56,7 @@ function outputManifest(path, prefix = '') {
   }
   return result
 }
-const receipt = { selectedScenario, m2ScenarioSha256: hash(m2Scenario),
+const receipt = { recoveryScenarioSha256: hash(recoveryScenario), selectedScenario, m2ScenarioSha256: hash(m2Scenario),
   checkpointCodecSha256: hash(resolve(root, 'scripts/tutorial-browser/checkpoint-codec.mjs')),
   checkpointGeneratorSha256: hash(resolve(root, 'scripts/tutorial-browser/m2-checkpoint.mjs')), status: 'running', startedAt: new Date().toISOString(), source, command: process.argv,
   runnerSha256: hash(import.meta.filename), builderSha256: hash(resolve(dirname(import.meta.filename), 'build-home.mjs')),
@@ -95,7 +96,7 @@ try {
     receipt.publicLinks.push({ path: entry, source: resolve(root, 'public', entry) })
   }
   verifySource(); save()
-  {
+  if (selectedScenario !== 'profile-recovery') {
     const { createM2Checkpoint } = await import('./m2-checkpoint.mjs')
     m2Fixture = await createM2Checkpoint(out, source)
     receipt.m2Fixture = m2Fixture.receipt
@@ -105,13 +106,17 @@ try {
   browser = await chromium.launch(browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
   timer = setTimeout(() => { receipt.browserTimedOut = true; void browser.close() }, 180000)
-  context = await browser.newContext({ viewport: { width: 640, height: 480 }, deviceScaleFactor: 1 })
+  context = await browser.newContext({ viewport: selectedScenario === 'profile-recovery' ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
   page.on('console', m => { if (m.type() === 'error') receipt.errors.push(m.text()); if (m.type() === 'warning') receipt.warnings.push(m.text()) })
   page.on('crash', () => { receipt.errors.push('Page crashed'); save() })
   const url = `http://127.0.0.1:${port}`
-  if (selectedScenario === 'm2-pointer-f8') {
+  if (selectedScenario === 'profile-recovery') {
+    receipt.profileRecovery = await (await import(pathToFileURL(recoveryScenario).href)).default({
+      browser, context, page, url, root, output: out, receipt, signal: AbortSignal.timeout(180000),
+    })
+  } else if (selectedScenario === 'm2-pointer-f8') {
     receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
   } else {
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })

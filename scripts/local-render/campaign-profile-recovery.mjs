@@ -162,7 +162,7 @@ export default async function ({ browser, context: initialContext, page: initial
   const { checkpointObservation } = await import(pathToFileURL(resolve(root, 'scripts/local-render/checkpoint-observer.mjs')).href)
   const runtime = () => ({
       node: process.version, platform: process.platform, arch: process.arch,
-      browserVersion: receipt.browserVersion, browserSha256: digest(receipt.launch.executablePath),
+      browserVersion: receipt.browserVersion, browserSha256: digest(receipt.browserPath ?? receipt.launch.executablePath),
       launch: receipt.launch, playwright: require('@playwright/test/package.json').version,
       installedLockSha256: digest(resolve(root, 'node_modules/.package-lock.json')),
       helpers: Object.fromEntries(['scripts/local-render/harness.mjs', 'scripts/local-render/vite.config.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/browser-game.mjs', 'scripts/checkpoint-readback.mjs'].map(file => [file, digest(resolve(root, file))])),
@@ -178,18 +178,25 @@ export default async function ({ browser, context: initialContext, page: initial
   const save = () => writeFileSync(resolve(output, 'profile-recovery.json'), JSON.stringify(report, null, 2) + '\n')
   const freshPage = async first => {
     const context = first ? initialContext : await browser.newContext({ viewport: { width: 1440, height: 1000 } })
-    await context.addInitScript(observeStorageWrites)
-    const page = first ? initialPage : await context.newPage()
-    if (!first) {
-      page.on('pageerror', error => receipt.errors.push(String(error)))
-      page.on('console', message => {
-        if (message.type() === 'error') receipt.errors.push(message.text())
-        if (message.type() === 'warning') receipt.warnings.push(message.text())
-      })
+    try {
+      await context.addInitScript(observeStorageWrites)
+      const page = first ? initialPage : await context.newPage()
+      page.setDefaultTimeout(15000)
+      page.on('crash', () => receipt.errors.push('Profile recovery page crashed'))
+      if (!first) {
+        page.on('pageerror', error => receipt.errors.push(String(error)))
+        page.on('console', message => {
+          if (message.type() === 'error') receipt.errors.push(message.text())
+          if (message.type() === 'warning') receipt.warnings.push(message.text())
+        })
+      }
+      await page.goto(url, { waitUntil: 'domcontentloaded' })
+      await bindStartupStore(page)
+      return { context, page }
+    } catch (error) {
+      await context.close()
+      throw error
     }
-    await page.goto(url, { waitUntil: 'domcontentloaded' })
-    await bindStartupStore(page)
-    return { context, page }
   }
   const loadThroughUi = async (page, button) => {
     await installLoadObserver(page)

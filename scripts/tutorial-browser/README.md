@@ -111,3 +111,23 @@ observed browser upper bound, not an exact browser duration. Adding the M2 total
 45-second cap leaves about 49.8 seconds within the unchanged aggregate 180-second
 cap on that observed workload. This is feasibility planning, not a performance
 guarantee; the composed hosted run must actually pass without excluding episodes.
+
+## Real IndexedDB profile recovery (#90 / #342)
+
+The separate `Profile recovery browser` job selects
+`POPULOUS_BROWSER_SCENARIO=profile-recovery`. It uses the same exact-merge build,
+source/dependency manifests, official sandboxed Chrome and 180-second browser cap;
+it does not extend the Tutorial sequence or generate the M2 checkpoint fixture.
+Its artifact is named `profile-recovery-browser-<merge SHA>`.
+
+The retained nine-case scenario exercises seven diagnostic storage fixtures plus
+ordinary public Save → fresh-page Load and an in-session usable checkpoint after
+storage corruption. Fixtures use actual IndexedDB committed transactions in fresh
+contexts. Read-only full stored-record digests and forwarded write observation
+must show no restore/load mutation. UI availability, loaded fields, actual WebGL
+canvas and screenshots remain required. The current-world-without-drawMode case
+only checks that legacy default, not arbitrary historical saves. Page reload is
+not browser-process restart; no original binary-save, deployment or full PND-07
+claim follows. `profile-recovery.json` records every case and terminal failure.
+The build/browser gate must actually pass on the final candidate; focused Node
+checks and source review alone do not close #90.
