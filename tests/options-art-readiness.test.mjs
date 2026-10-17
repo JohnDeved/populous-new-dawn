@@ -12,11 +12,11 @@ const same = (a, b) => a && b && a.length === b.length && a.every((value, index)
 const tree = node => [node, ...[node?.props?.children].flat(Infinity)
   .filter(child => child && typeof child === 'object').flatMap(tree)]
 
-function fixture(initialSkin, preparedFrontend) {
+function fixture(initialSkin, preparedFrontend, preparedIngame) {
   const slots = [], pendingEffects = [], requests = [], publications = []
   let cursor = 0, dirty = false, mounted = true, lateWrites = 0, output
   const props = {
-    skin: initialSkin, preparedFrontend, volume: .35, musicVolume: .65, storageNotice: '', gameStorageNotice: '',
+    skin: initialSkin, preparedFrontend, preparedIngame, volume: .35, musicVolume: .65, storageNotice: '', gameStorageNotice: '',
     gamePreferences: { rotation: 'cursor', flipRotation: false },
     onBack() {}, onVolume() {}, onMusicVolume() {}, onGamePreferences() {},
     onTextRowsChange: rows => publications.push(rows),
@@ -172,4 +172,15 @@ test('prepared frontend cannot mark in-game Options ready or bypass their existi
   assert.deepEqual(f.state(), { text: false, sliders: false, rows: [] })
   assert.equal(f.group('fonts').length, 1)
   assert.equal(f.group('sliders').length, 3)
+})
+
+for (const fonts of [false, true]) for (const sliders of [false, true]) test(`prepared in-game fonts=${fonts} sliders=${sliders}: synchronous cold/warm render without new decodes`, () => {
+  const prepared = Object.freeze({ fonts, sliders, images: Object.freeze([]) })
+  for (let mount = 0; mount < 2; mount++) {
+    const f = fixture('ingame', undefined, prepared)
+    assert.equal(f.state().text, fonts);assert.equal(f.state().sliders, sliders)
+    assert.equal(f.state().rows.length > 0, fonts)
+    assert.deepEqual(f.group('fonts'), []);assert.deepEqual(f.group('sliders'), [])
+    f.unmount()
+  }
 })

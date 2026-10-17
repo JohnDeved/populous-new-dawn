@@ -1554,6 +1554,7 @@ export default function Home() {
       )}
       {menu && (
         <OriginalPauseMenu
+          prepared={frontendAssets?.ingame}
           tutorial={world.outcome.level === tutorialLevel}
           hasCheckpoint={store.hasCheckpoint()}
           onContinue={closeMenu}
@@ -1565,6 +1566,7 @@ export default function Home() {
           renderOptions={onBack => (
             <OriginalOptions
               skin="ingame"
+              preparedIngame={frontendAssets?.ingame}
               onBack={onBack}
               volume={volume}
               musicVolume={musicVolume}

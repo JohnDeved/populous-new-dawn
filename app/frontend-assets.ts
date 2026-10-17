@@ -3,7 +3,14 @@ import art from './original-frontend.json' with { type: 'json' }
 // Browser policy: do not keep startup behind optional menu artwork indefinitely.
 export const FRONTEND_ASSET_TIMEOUT_MS = 10_000
 
+export interface IngameMenuAssets {
+  fonts: boolean
+  sliders: boolean
+  images: readonly HTMLImageElement[]
+}
+
 export interface FrontendAssets {
+  ingame: IngameMenuAssets
   composition: Uint8Array | null
   fonts: boolean
   lowFont: boolean
@@ -24,7 +31,17 @@ export async function prepareFrontendAssets(): Promise<FrontendAssets> {
   })
   const settle = <T>(work: Promise<T>) => Promise.race([work.catch(() => null), deadline])
   try {
-    const [composition, fonts, lowFont, logo, background, cursor, sliders] = await Promise.all([
+    const [
+      composition,
+      fonts,
+      lowFont,
+      logo,
+      background,
+      cursor,
+      sliders,
+      pauseFont,
+      ingameSliders,
+    ] = await Promise.all([
       settle(
         fetch('/original/frontend/composition.bin', { signal: controller.signal })
           .then(response => {
@@ -43,8 +60,15 @@ export async function prepareFrontendAssets(): Promise<FrontendAssets> {
       settle(images(['frontend/background'])),
       settle(images(['frontend/pointer'])),
       settle(images([0, 1, 2].map(frame => `options/frontend-${frame}`))),
+      settle(images(['pause-font'])),
+      settle(images([0, 1, 2].map(frame => `options/ingame-${frame}`))),
     ])
     return Object.freeze({
+      ingame: Object.freeze({
+        fonts: pauseFont !== null,
+        sliders: ingameSliders !== null,
+        images: Object.freeze([pauseFont, ingameSliders].flatMap(group => group ?? [])),
+      }),
       composition,
       fonts: fonts !== null,
       lowFont: lowFont !== null,

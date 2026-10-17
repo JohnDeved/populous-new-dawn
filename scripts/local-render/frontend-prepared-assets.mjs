@@ -122,14 +122,14 @@ export default async function ({ page, context, output, url }) {
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     if (held.length) {
-      await page.waitForFunction(() => window.uiPrepared.decodes.length === 9)
+      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\//.test(entry.src) || /options\/frontend-/.test(entry.src)).length === 9)
       const loading = await phase('01-loading')
       assert.equal(loading.loading, true);assert.equal(loading.menuOpen, false)
       assert.ok((await page.locator('.loading-world').innerText()).trim().length > 0)
     }
     if (mode === 'healthy') {
       release(held.filter(path => !path.endsWith('.bin')))
-      await page.waitForFunction(() => window.uiPrepared.decodes.every(entry => entry.status === 'resolved'))
+      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\//.test(entry.src) || /options\/frontend-/.test(entry.src)).every(entry => entry.status === 'resolved'))
       await twoFrames()
       const partial = await phase('02-composition-held')
       assert.equal(partial.loading, true);assert.equal(partial.menuOpen, false)
@@ -181,7 +181,7 @@ export default async function ({ page, context, output, url }) {
     assert.equal(report.requests.filter(entry => entry.event === 'request' && assetPaths.includes(entry.path)).length, requestsBeforeReopen)
     if (timeout) {
       release(held)
-      await page.waitForFunction(() => window.uiPrepared.decodes.every(entry => entry.status === 'resolved'))
+      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\//.test(entry.src) || /options\/frontend-/.test(entry.src)).every(entry => entry.status === 'resolved'))
       await twoFrames()
       const late = await phase('06-late-success-frozen')
       assert.deepEqual(flags(late), flags(warm))
