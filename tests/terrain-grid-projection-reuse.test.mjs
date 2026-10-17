@@ -389,6 +389,11 @@ test('packed terrain slots preserve sparse original triangle IDs and retained qu
       retained
     )
     assert.notStrictEqual(first.candidates[0].point, second.candidates[1].point)
+    // Malformed Uint32 indices remain on the original sparse storage route.
+    // The default-edge projection leaf accepts them; a bounded slot table must
+    // not turn that existing behavior into an undefined-screen access.
+    ids[0] = p.count + 3
+    f.sample(false, mouse)
   } finally {
     f.close()
   }

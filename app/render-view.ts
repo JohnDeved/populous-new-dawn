@@ -519,7 +519,10 @@ export class RenderView {
           // Original vertex IDs are sparse and duplicate corners need only an
           // alias, not another sparse world/screen array entry. Keep projected
           // entries packed for this query; candidate triangle IDs stay original.
-          const terrainSlots = terrainCorners ? new Uint32Array(position.count) : null
+          const terrainSlots =
+            terrainCorners && index!.array.subarray(0, count).every(id => id < position.count)
+              ? new Uint32Array(position.count)
+              : null
           for (let vertex = 0; vertex < count; vertex++) {
             const i = index ? index.getX(vertex) : vertex
             if (terrainSlots ? terrainSlots[i] : screen[i]) continue
@@ -549,7 +552,11 @@ export class RenderView {
                   Object.is(y, position.getY(source)) &&
                   Object.is(z, position.getZ(source))
                 ) {
-                  terrainSlots![i] = terrainSlots![source]
+                  if (terrainSlots) terrainSlots[i] = terrainSlots[source]
+                  else {
+                    world[i] = world[source]
+                    screen[i] = screen[source]
+                  }
                   continue
                 }
               }
