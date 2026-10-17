@@ -18,7 +18,7 @@ function fixture() {
   Object.assign(graph, {
     cleared: false, previous: null, samples: new FramePerformance(),
     fields: Object.fromEntries(['state', 'fps', 'frame', 'peak', 'callback', 'simulation',
-      'render', 'calls', 'heap', 'scale'].map(name => [name, sink(name)])),
+      'render', 'calls', 'heap', 'scale', 'pointer', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak'].map(name => [name, sink(name)])),
     line: sink('line'), budget: sink('budget'),
   })
   const update = now => graph.update(now, 1, 2, 3, 'Live', 4)
@@ -33,12 +33,14 @@ test('actual graph repeated cleared resets avoid writes but preserve changed vis
   assert.equal(graph.previous, null)
   assert.equal(graph.samples.history, history)
   for (const key of ['count', 'cursor', 'elapsed', 'frames', 'fps', 'frameMs',
-    'simulation', 'callback', 'render', 'calls', 'simulationMs', 'callbackMs', 'renderMs', 'drawCalls'])
+    'simulation', 'callback', 'render', 'calls', 'simulationMs', 'callbackMs', 'renderMs', 'drawCalls', 'pointer', 'pointerMs', 'otherMs'])
     assert.equal(graph.samples[key], 0, key)
   assert.equal(graph.line.attributes.get('points'), '')
   assert.equal(graph.budget.attributes.get('d'), '')
-  for (const key of ['fps', 'frame', 'peak', 'simulation', 'render', 'calls', 'callback'])
+  for (const key of ['fps', 'frame', 'peak', 'simulation', 'render', 'calls', 'callback', 'pointer', 'other', 'raf-tail', 'cpu-tail', 'cpu-peak'])
     assert.equal(graph.fields[key].textContent, '--', key)
+  assert.equal(graph.fields.window.textContent, '0 samples')
+  assert.equal(graph.samples.callbackPercentiles.max, 0)
   writes.length = 0
   for (let i = 0; i < 10; i++) graph.reset('Hidden tab · sampling stopped')
   assert.deepEqual(writes, [])
@@ -68,4 +70,15 @@ test('actual graph resets warmup and unpublished samples and excludes hidden tim
   assert.equal(graph.samples.fps, 100)
   assert.equal(graph.fields.peak.textContent, '10.0 ms')
   assert.equal(graph.fields.scale.textContent, '0–40 ms')
+})
+
+
+test('rounded remainder suppresses negative zero but exposes meaningful ownership errors', () => {
+  const { graph } = fixture()
+  graph.update(0, 0.1, 0.2, 1, 'Live', 0.3)
+  graph.update(250, 0.1, 0.2, 1, 'Live', 0.3)
+  assert.ok(graph.samples.otherMs < 0, 'raw floating subtraction stays signed')
+  assert.equal(graph.fields.other.textContent, '0.00 ms')
+  graph.update(500, 2, 3, 1, 'Live', 1)
+  assert.equal(graph.fields.other.textContent, '-4.00 ms !')
 })
