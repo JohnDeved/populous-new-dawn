@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto'
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { discoverTests, planTestShard } from './test-runner.mjs'
+import { discoverTests, planTestShard, testGroupCommand, TIMING_REPORTER } from './test-runner.mjs'
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
@@ -40,7 +40,8 @@ export function candidateSnapshot(repo, env = process.env) {
     pillow: run(repo, 'python', ['-c', 'import PIL; print(PIL.__version__)']),
     platform: process.platform, arch: process.arch,
     lockSha256: hash(readFileSync(join(repo, 'package-lock.json'))),
-    installedLockSha256: hash(readFileSync(join(repo, 'node_modules/.package-lock.json'))) }
+    installedLockSha256: hash(readFileSync(join(repo, 'node_modules/.package-lock.json'))),
+    timingReporterSha256: hash(readFileSync(join(repo, TIMING_REPORTER))) }
   assert.equal(runtime.node, '24.19.0'); assert.equal(runtime.npm, '11.9.0')
   assert.equal(runtime.python, '3.12.14'); assert.equal(runtime.pillow, '12.3.0')
   assert.equal(runtime.platform, 'linux'); assert.equal(runtime.arch, 'x64')
@@ -60,7 +61,8 @@ export function validateShard(receipt, plan) {
   result.results.forEach((group, index) => {
     const expected = plan.groups[index]
     assert.deepEqual(group.files, expected.files); assert.equal(group.concurrency, expected.concurrency)
-    assert.deepEqual(group.command, [process.execPath, '--test', `--test-concurrency=${expected.concurrency}`, '--test-reporter=tap', ...expected.files])
+    const timings = group.command?.includes(`--test-reporter=${TIMING_REPORTER}`) ? 'summary-v1' : undefined
+    assert.deepEqual(group.command, testGroupCommand(expected, timings))
     assert.equal(group.exitCode, 0); assert.equal(group.signal, null); assert.equal(group.error, null); assert.equal(group.status, 'passed')
   })
 }
