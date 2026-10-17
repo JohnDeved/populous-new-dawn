@@ -88,12 +88,19 @@ export function checkBuildingSite(
       .filter(b => b.hp > 0)
       .map(b => [b.id & 1023, { model: buildingModel(b), tribe: tribeForTeam(b.team) }])
   )
-  const scenery = new Map<number, { class: number; model: number }[]>()
+  type Scenery = { class: number; model: number }
+  // Most occupied cells have one object. Keep captured descriptors independent,
+  // but allocate an ordered row only for collisions or an actual validity read.
+  const scenery = new Map<number, Scenery | Scenery[]>()
   const add = (p: NativePoint, model: number) => {
     const i = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
-    const row = scenery.get(i) ?? []
-    row.push({ class: 5, model })
-    scenery.set(i, row)
+    const row = scenery.get(i),
+      object = { class: 5, model }
+    if (!row) scenery.set(i, object)
+    else if (Array.isArray(row)) {
+      row.push(object)
+      scenery.set(i, row)
+    } else scenery.set(i, [row, object])
     land.flags[i] |= 2
   }
   for (const tree of w.trees) if (tree.logs > 0) add(nativePosition(w, tree), tree.model)
@@ -131,7 +138,10 @@ export function checkBuildingSite(
       if (!b) throw new Error(`Missing placement object ${id}`)
       return b
     },
-    scenery: (i: number) => scenery.get(i) ?? [],
+    scenery: (i: number) => {
+      const row = scenery.get(i)
+      return row ? (Array.isArray(row) ? row : [row]) : []
+    },
   }
   const valid = buildingFootprintTiles(pose).every(({ index, mask }) =>
     buildingCellValid(
