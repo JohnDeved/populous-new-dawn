@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "806a137d-1f0d-4f18-82b5-97c336af277c",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "a9fba37d19b75cbe1440b0f4b3fdf1ea165ce960",
+    "branch": "codex/home-loading-repeated-retry",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "evidence/home-loading-retry-20261017/run-probe.mjs"
+  ],
+  "cwd": "<REPO>",
+  "startedAt": "2026-10-17T01:24:34.518Z",
+  "artifacts": {
+    "stdout": "<REPO>/work/orchestration/home-loading-retry/browser-attempt3.json.artifacts/stdout.log",
+    "stderr": "<REPO>/work/orchestration/home-loading-retry/browser-attempt3.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T01:24:49.448Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "Production and probe inputs unchanged after run\n",
+  "stderr": "3:24:38 AM [vite] (client) [console.error] Texture load failed: unit-health {\"isTrusted\":true}\n3:24:38 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.\n3:24:39 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.\n3:24:44 AM [vite] (client) [console.error] Texture load failed: atlas {\"isTrusted\":true}\n3:24:46 AM [vite] (client) [console.error] Texture load failed: atlas {\"isTrusted\":true}\n3:24:48 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.\n3:24:48 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: held loading time must not be applied as gameplay catch-up\n    at file://<REPO>/scripts/check-browser-texture-cache-retry.mjs:190:12 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.18.0\n",
+  "stdoutSha256": "9dd86484451eaca0f5cc600cfd7eec6957db4cd3a826add33ccbf0f66c97e60f",
+  "stderrSha256": "b6c36787a56de94ecb80b50ec823b0c394deeedc2b795eaa0c6c427cad050fe8",
+  "sourceAfter": {
+    "headOid": "a9fba37d19b75cbe1440b0f4b3fdf1ea165ce960",
+    "branch": "codex/home-loading-repeated-retry",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

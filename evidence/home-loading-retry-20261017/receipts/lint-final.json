@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "192ad75c-5d73-4ef2-84d2-83acb5f10389",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "149a701773915320573123a9d42d3d2a2f923a71",
+    "branch": "codex/home-loading-repeated-retry",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "./node_modules/.bin/eslint",
+    "scripts/check-browser-texture-cache-retry.mjs",
+    "evidence/home-loading-retry-20261017/run-probe.mjs"
+  ],
+  "cwd": "<REPO>",
+  "startedAt": "2026-10-17T01:25:34.002Z",
+  "artifacts": {
+    "stdout": "<REPO>/work/orchestration/home-loading-retry/lint-final.json.artifacts/stdout.log",
+    "stderr": "<REPO>/work/orchestration/home-loading-retry/lint-final.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T01:25:34.869Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "149a701773915320573123a9d42d3d2a2f923a71",
+    "branch": "codex/home-loading-repeated-retry",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

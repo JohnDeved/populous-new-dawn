@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "3e6660ee-f4f1-4b56-b088-94638b0fc68a",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dbd95a9b2f1b651439e33dc55d52f94001225e85",
+    "branch": "codex/home-loading-repeated-retry",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "evidence/home-loading-retry-20261017/run-probe.mjs"
+  ],
+  "cwd": "<REPO>",
+  "startedAt": "2026-10-17T01:23:51.011Z",
+  "artifacts": {
+    "stdout": "<REPO>/work/orchestration/home-loading-retry/browser-attempt1.json.artifacts/stdout.log",
+    "stderr": "<REPO>/work/orchestration/home-loading-retry/browser-attempt1.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T01:23:51.365Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "Production and probe inputs unchanged after run\n",
+  "stderr": "node:net:1987\n      const error = new UVExceptionWithHostPort(rval, 'listen', address, port);\n                    ^\n\nError: listen EPERM: operation not permitted 127.0.0.1:4397\n    at Server.setupListenHandle [as _listen2] (node:net:1987:21)\n    at listenInCluster (node:net:2066:12)\n    at node:net:2275:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {\n  code: 'EPERM',\n  errno: -1,\n  syscall: 'listen',\n  address: '127.0.0.1',\n  port: 4397\n}\n\nNode.js v24.18.0\n",
+  "stdoutSha256": "9dd86484451eaca0f5cc600cfd7eec6957db4cd3a826add33ccbf0f66c97e60f",
+  "stderrSha256": "db2dd82b1ee1c75f390cf0107b2126aa05606f2a1f2ed7c8f0aa4a8fd1b30bab",
+  "sourceAfter": {
+    "headOid": "dbd95a9b2f1b651439e33dc55d52f94001225e85",
+    "branch": "codex/home-loading-repeated-retry",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}
