@@ -94,7 +94,8 @@ async function seedRecords(page, { kind, completed = [1, 2] }) {
   await page.evaluate(async ({ kind, completed }) => {
     let latest
     if (kind === 'malformed') latest = { version: 1, world: {} }
-    if (kind === 'partially-migratable') latest = { version: 1, world: { outcome: {} } }
+    // migrateCheckpoint converts heads before iterating missing units and throwing.
+    if (kind === 'partially-migratable') latest = { version: 1, world: { objectCells: { heads: new Uint16Array([0, 17]) } } }
     if (kind === 'incompatible') latest = { version: 999, world: {} }
     if (kind === 'current' || kind === 'legacy') {
       const world = structuredClone(window.testStore.getWorld())
@@ -221,6 +222,8 @@ export default async function ({ browser, context: initialContext, page: initial
   for (const kind of ['empty', 'missing', 'malformed', 'partially-migratable', 'incompatible', 'current', 'legacy']) {
     signal.throwIfAborted()
     const entry = { kind, fixture: true, status: 'running' }
+    if (kind === 'partially-migratable') entry.fixtureScope = 'Uint16Array objectCells.heads converts on the migration clone before missing units throws; complete stored-record digest must remain unchanged.'
+    if (kind === 'legacy') entry.fixtureScope = 'Current-world checkpoint with only drawMode omitted; validates that default, not broad historical compatibility.'
     report.cases.push(entry)
     save()
     const { context, page } = await freshPage(kind === 'empty')
