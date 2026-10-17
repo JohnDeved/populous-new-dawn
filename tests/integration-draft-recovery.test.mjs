@@ -139,7 +139,7 @@ test('draft recovery preserves original unknown/spent history and allows one sep
   assert.equal(submitted.records[0].receipts.at(-1).stage, 'connector-receipt')
   assert.equal(submitted.records[0].receipts.at(-1).at, 66000)
   assert.equal(submitted.records[0].phase, 'awaiting-observation')
-  const event = { id: 'draft1', kind: 'converted_to_draft', at: 66000, actorId: 42 }
+  const event = { id: 'draft1', kind: 'convert_to_draft', at: 66000, actorId: 42 }
   const observed = observeDraftRecovery(
     submitted,
     digest(f.grant),
@@ -164,7 +164,7 @@ test('no-state-change observation cannot relabel original unknown as success or 
       observeDraftRecovery(ledger, digest(f.grant), f.observation(65000, true), f.original, 65000),
     /attributable/
   )
-  const event = { id: 'draft1', kind: 'converted_to_draft', at: 63000, actorId: 43 }
+  const event = { id: 'draft1', kind: 'convert_to_draft', at: 63000, actorId: 43 }
   assert.throws(
     () =>
       observeDraftRecovery(
@@ -224,7 +224,7 @@ test('preparation rejects drift, ready intents, bad histories, pagination, futur
 
 test('already observed draft adopts state basis with no connector authority and no transport-success claim', () => {
   const f = fixture(),
-    event = { id: 'draft1', kind: 'converted_to_draft', at: 2000, actorId: 42 }
+    event = { id: 'draft1', kind: 'convert_to_draft', at: 2000, actorId: 42 }
   const result = prepareDraftRecovery(
     f.original,
     f.hash,
@@ -240,7 +240,7 @@ test('already observed draft adopts state basis with no connector authority and 
 
 test('original ready once requires explicit residual-risk decision; uncertain ready and redraft cannot retry', () => {
   const f = fixture(),
-    draftEvent = { id: 'draft1', kind: 'converted_to_draft', at: 64000, actorId: 42 }
+    draftEvent = { id: 'draft1', kind: 'convert_to_draft', at: 64000, actorId: 42 }
   const draft = observeDraftRecovery(
     prepared(f),
     digest(f.grant),
@@ -307,7 +307,7 @@ test('original ready once requires explicit residual-risk decision; uncertain re
       returned,
       f.observation(129000, true, [
         ...events,
-        { id: 'late', kind: 'converted_to_draft', at: 128000, actorId: 42 },
+        { id: 'late', kind: 'convert_to_draft', at: 128000, actorId: 42 },
       ]),
       f.original,
       129000
@@ -599,7 +599,7 @@ test('production observer binds both complete timeline/run passes and immutable 
   )
   for (const row of [
     { ...committed, sha: '../bad' },
-    { event: 'converted_to_draft', id: 123, actor: { id: 42 } },
+    { event: 'convert_to_draft', id: 123, actor: { id: 42 } },
     { event: 'unknown-kind', id: 123 },
   ])
     assert.throws(() =>
@@ -614,6 +614,28 @@ test('production observer binds both complete timeline/run passes and immutable 
         () => 64000
       )
     )
+  const actualDraftRow = {
+    id: 33535258277,
+    event: 'convert_to_draft',
+    created_at: '2026-10-17T18:47:30Z',
+    actor: { id: 24187269 },
+  }
+  const actualDraft = collectDraftRecoveryObservation(
+    {
+      ...withCommit,
+      get(endpoint) {
+        return endpoint.includes('/timeline?') ? [actualDraftRow] : reader.get(endpoint)
+      },
+    },
+    f.grant,
+    () => Date.parse('2026-10-17T18:48:00Z')
+  )
+  assert.deepEqual(actualDraft.timeline.items[0], {
+    id: '33535258277',
+    kind: 'convert_to_draft',
+    at: Date.parse('2026-10-17T18:47:30Z'),
+    actorId: 24187269,
+  })
   const commitItem = commitObservation.timeline.items[0]
   const pair = clone(f.pair)
   for (const observation of pair) observation.timeline = f.collection([commitItem])
@@ -657,7 +679,7 @@ test('production observer binds both complete timeline/run passes and immutable 
 
 test('ready quiet fingerprint cannot ignore completed new runs or timeline changes', () => {
   const f = fixture(),
-    event = { id: 'draft', kind: 'converted_to_draft', at: 64000, actorId: 42 }
+    event = { id: 'draft', kind: 'convert_to_draft', at: 64000, actorId: 42 }
   const observed = observeDraftRecovery(
     prepared(f),
     digest(f.grant),

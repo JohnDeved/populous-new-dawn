@@ -6,7 +6,7 @@ import { REPO, digest, GATES } from './policy.mjs'
 export const DRAFT_CONNECTOR = 'github.convert_pull_request_to_draft'
 const hash = value => /^[a-f0-9]{64}$/.test(value ?? '')
 const equal = (a, b) => assert.equal(digest(a), digest(b))
-const transition = event => ['converted_to_draft', 'ready_for_review'].includes(event.kind)
+const transition = event => ['convert_to_draft', 'ready_for_review'].includes(event.kind)
 
 function validTimelineItem(event, observation) {
   if (event.kind === 'committed')
@@ -125,7 +125,7 @@ export function validateObservation(observation, grant, intendedAt, now) {
   const changes = after.filter(transition)
   if (observation.draft) {
     assert.equal(changes.length, 1, 'Observed draft needs exactly one attributable transition')
-    assert.equal(changes[0].kind, 'converted_to_draft')
+    assert.equal(changes[0].kind, 'convert_to_draft')
   } else assert.equal(changes.length, 0, 'Conflicting transition history blocks draft convergence')
   if (!observation.draft) {
     const admission = observation.admission
@@ -425,7 +425,7 @@ export function observeOriginalReady(saved, observation, original, now) {
   const changes = events.filter(transition)
   assert.deepEqual(
     changes.map(event => event.kind),
-    ['converted_to_draft', 'ready_for_review']
+    ['convert_to_draft', 'ready_for_review']
   )
   assert(changes.every(event => event.actorId === recovery.grant.actorId))
   assert(changes[1].at >= Math.floor(ready.receipts[0].at / 1000) * 1000)
