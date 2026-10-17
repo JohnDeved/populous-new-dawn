@@ -23,14 +23,18 @@ function fixture(t) {
 
 test('frontend prepares all groups concurrently and retains decoded images in a frozen snapshot', async t => {
   const f = fixture(t)
-  assert.equal(f.requests.length, 10)
-  assert.equal(new Set(f.requests.map(r => r.url)).size, 10)
+  assert.equal(f.requests.length, 14)
+  assert.equal(new Set(f.requests.map(r => r.url)).size, 14)
   assert.equal(f.timers[0].delay, FRONTEND_ASSET_TIMEOUT_MS)
   f.requests.forEach(r => f.complete(r))
   const result = await f.pending
   for (const group of ['fonts', 'lowFont', 'logo', 'background', 'cursor', 'sliders']) assert.equal(result[group], true)
   assert.equal(result.composition.byteLength, art.binaryBytes)
   assert.equal(result.images.length, 9)
+  assert.equal(result.ingame.images.length, 4)
+  assert.equal(result.ingame.fonts, true);assert.equal(result.ingame.sliders, true)
+  assert.ok(Object.isFrozen(result.ingame) && Object.isFrozen(result.ingame.images))
+  assert.equal(f.timers.length, 1)
   assert.ok(Object.isFrozen(result) && Object.isFrozen(result.images))
   assert.equal(f.timers[0].cleared, true)
 })
@@ -98,4 +102,39 @@ test('Home effect replay shares its one preparation and only the live owner reve
   home.run()();home.run();finish(assets);await flush()
   assert.equal(preparations, 1)
   assert.deepEqual(home.calls, [['assets', assets], ['startup', 'choice']])
+})
+
+for (const first of ['pause-font', 'ingame-', 'frontend/']) test(`Home menu preparation waits for every group when ${first} finishes first`, async t => {
+  const f = fixture(t)
+  let settled = false
+  void f.pending.then(() => { settled = true })
+  const early = f.requests.filter(r => r.url.includes(first))
+  early.forEach(r => f.complete(r));await flush()
+  assert.equal(settled, false)
+  f.requests.filter(r => !early.includes(r)).reverse().forEach(r => f.complete(r))
+  const result = await f.pending
+  assert.equal(result.ingame.fonts, true);assert.equal(result.ingame.sliders, true)
+  assert.equal(result.fonts, true);assert.equal(result.sliders, true)
+})
+for (const failed of ['pause-font', 'ingame-0', 'ingame-1', 'ingame-2']) test(`${failed} failure preserves healthy frontend and independent in-game groups`, async t => {
+  const f = fixture(t)
+  f.requests.forEach(r => r.url.includes(failed) ? r.reject(Error('in-game asset failure')) : f.complete(r))
+  const result = await f.pending
+  for (const group of ['fonts', 'lowFont', 'logo', 'background', 'cursor', 'sliders']) assert.equal(result[group], true)
+  assert.equal(result.composition.byteLength, art.binaryBytes)
+  assert.equal(result.ingame.fonts, failed !== 'pause-font')
+  assert.equal(result.ingame.sliders, failed === 'pause-font')
+  assert.equal(result.ingame.images.length, failed === 'pause-font' ? 3 : 1)
+})
+for (const heldPart of ['pause-font', 'ingame-']) test(`${heldPart} shares one startup deadline and late success cannot update retained state`, async t => {
+  const f = fixture(t), held = f.requests.filter(r => r.url.includes(heldPart))
+  f.requests.filter(r => !held.includes(r)).forEach(r => f.complete(r));await flush()
+  assert.equal(f.timers.length, 1);assert.equal(f.timers[0].delay, 10000)
+  f.timers[0].run()
+  const result = await f.pending, before = { ...result.ingame, images: [...result.ingame.images] }
+  assert.equal(result.ingame.fonts, heldPart !== 'pause-font')
+  assert.equal(result.ingame.sliders, heldPart !== 'ingame-')
+  assert.equal(result.fonts, true);assert.equal(result.sliders, true)
+  held.forEach(r => f.complete(r));await flush()
+  assert.deepEqual(result.ingame, before)
 })

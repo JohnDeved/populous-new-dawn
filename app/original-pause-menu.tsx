@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import font from './original-pause-font.json'
+import type { IngameMenuAssets } from './frontend-assets'
 import { frontendScale } from './frontend-composition'
 import shared from './original-main-menu.module.css'
 import styles from './original-pause-menu.module.css'
@@ -83,6 +84,7 @@ function MenuRow({
 
 type Panel = 'root' | 'options' | 'save' | 'load' | 'restart' | 'quit-level' | 'quit-game'
 interface Props {
+  prepared?: IngameMenuAssets
   tutorial: boolean
   hasCheckpoint: boolean
   renderOptions: (onBack: () => void) => ReactNode
@@ -97,7 +99,8 @@ export function OriginalPauseMenu(props: Props) {
   const dialog = useRef<HTMLDialogElement>(null)
   const [panel, setPanel] = useState<Panel>('root')
   const [scale, setScale] = useState(1)
-  const [ready, setReady] = useState(false)
+  const [decoded, setDecoded] = useState(false)
+  const ready = props.prepared ? props.prepared.fonts : decoded
   const [highlight, setHighlight] = useState<string | null>(null)
   const [notice, setNotice] = useState('')
   const [saving, setSaving] = useState(false)
@@ -111,20 +114,22 @@ export function OriginalPauseMenu(props: Props) {
     const modal = dialog.current
     modal?.showModal()
     let active = true
-    const image = new Image()
-    image.src = '/original/pause-font.png'
-    void image
-      .decode()
-      .then(() => {
-        if (active) setReady(true)
-      })
-      .catch(() => {})
+    if (!props.prepared) {
+      const image = new Image()
+      image.src = '/original/pause-font.png'
+      void image
+        .decode()
+        .then(() => {
+          if (active) setDecoded(true)
+        })
+        .catch(() => {})
+    }
     return () => {
       active = false
       window.removeEventListener('resize', resize)
       modal?.close()
     }
-  }, [])
+  }, [props.prepared])
   useEffect(() => {
     let label = 'Back'
     if (panel === 'root') label = returnFocus.current

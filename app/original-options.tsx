@@ -2,12 +2,13 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode }
 import frontend from './original-frontend.json'
 import ingame from './original-pause-font.json'
 import type { FrontendTextRow } from './frontend-composition'
-import type { FrontendAssets } from './frontend-assets'
+import type { FrontendAssets, IngameMenuAssets } from './frontend-assets'
 import type { GamePreferences } from './game-preferences'
 import styles from './original-options.module.css'
 
 interface OriginalOptionsProps {
   preparedFrontend?: FrontendAssets
+  preparedIngame?: IngameMenuAssets
   skin: 'frontend' | 'ingame'
   onBack: () => void
   volume: number
@@ -87,6 +88,7 @@ function Text({
 
 export function OriginalOptions({
   preparedFrontend,
+  preparedIngame,
   skin,
   onBack,
   volume,
@@ -105,8 +107,10 @@ export function OriginalOptions({
   const [highlight, setHighlight] = useState<string | null>(null)
   const [textSkin, setTextSkin] = useState<OriginalOptionsProps['skin'] | null>(null)
   const [sliderSkin, setSliderSkin] = useState<OriginalOptionsProps['skin'] | null>(null)
-  const prepared = skin === 'frontend' ? preparedFrontend : undefined
-  const textReady = prepared ? prepared.fonts && prepared.lowFont : textSkin === skin
+  const prepared = skin === 'frontend' ? preparedFrontend : preparedIngame
+  const textReady = prepared
+    ? prepared.fonts && (skin !== 'frontend' || preparedFrontend!.lowFont)
+    : textSkin === skin
   const slidersReady = prepared ? prepared.sliders : sliderSkin === skin
   const root = useRef<HTMLElement>(null)
   const masterText = `Master volume : <${Math.round(volume * 100)}%>`
