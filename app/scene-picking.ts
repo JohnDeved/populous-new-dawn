@@ -1,3 +1,4 @@
+import type { PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import * as THREE from 'three'
 import type { GameScene } from './scene.ts'
 import type { Command } from './painter.ts'
@@ -147,7 +148,7 @@ export class ScenePicking {
     )
   }
 
-  pick(event: { clientX: number; clientY: number }) {
+  pick(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics) {
     const s = this.scene,
       { view } = s,
       rect = s.renderer.domElement.getBoundingClientRect()
@@ -163,8 +164,12 @@ export class ScenePicking {
       ...Object.values(view.projection),
     ].join(',')
     const key = [s.frame, viewKey, point.x, point.y].join(',')
-    if (key === this.lastKey) return this.lastId
+    if (key === this.lastKey) {
+      if (metrics) metrics.objectCacheHits++
+      return this.lastId
+    }
     const hits: QueuedHit[] = []
+    let phaseStart = metrics ? performance.now() : 0
     for (const [id, g] of s.unitMeshes) {
       if (!g.visible || g.userData.pickable === false) continue
       const bounds = this.personBounds(id, rect)
@@ -183,6 +188,11 @@ export class ScenePicking {
           bucket: source.bucket,
           face: source.face,
         })
+    }
+    if (metrics) {
+      const now = performance.now()
+      metrics.objectUnitsMs += now - phaseStart
+      phaseStart = now
     }
     for (const root of [s.objects, s.decorations])
       root.traverseVisible(object => {
@@ -203,6 +213,11 @@ export class ScenePicking {
         for (const c of commands)
           if (c.kind === 'model' && inHitTriangle(point, c.points)) hits.push({ ...c, source })
       })
+    if (metrics) {
+      const now = performance.now()
+      metrics.objectModelsMs += now - phaseStart
+      phaseStart = now
+    }
     if (hits.some(h => h.kind !== 'bounds')) {
       // The terrain triangle depends on view/display/land geometry, not the current
       // person/model painter stream. Cache only that geometric hit; resolve its
@@ -243,6 +258,7 @@ export class ScenePicking {
           face: source.face,
         })
     }
+    if (metrics) metrics.objectOcclusionMs += performance.now() - phaseStart
     hits.sort(
       (a, b) =>
         b.bucket - a.bucket ||
@@ -258,8 +274,8 @@ export class ScenePicking {
     return this.lastId
   }
 
-  pickPerson(event: { clientX: number; clientY: number }) {
-    const id = this.pick(event)
+  pickPerson(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics) {
+    const id = this.pick(event, metrics)
     return this.lastKind === 'person' ? id : null
   }
 }
