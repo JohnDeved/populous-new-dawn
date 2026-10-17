@@ -1,0 +1,63 @@
+app/original-main-menu.tsx:116:13: warning eslint(no-shadow): 'scale' is already declared in the upper scope. help: Consider renaming 'scale' to avoid shadowing the variable from the outer scope.
+app/original-main-menu.tsx:118:13: warning eslint(no-shadow): 'canvasWidth' is already declared in the upper scope. help: Consider renaming 'canvasWidth' to avoid shadowing the variable from the outer scope.
+app/original-main-menu.tsx:300:14: error react(refs): Cannot access refs during render help: React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected
+app/original-main-menu.tsx:300:14: error react(refs): Cannot access refs during render help: React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected
+app/original-main-menu.tsx:140:13: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/original-main-menu.tsx:142:17: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.
+app/original-main-menu.tsx:162:9: warning unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`. help: Replace the alias with `globalThis`.
+app/original-main-menu.tsx:163:19: warning unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`. help: Replace the alias with `globalThis`.
+app/original-main-menu.tsx:169:7: warning unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`. help: Replace the alias with `globalThis`.
+app/original-main-menu.tsx:199:20: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/original-main-menu.tsx:201:11: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/original-main-menu.tsx:203:13: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/original-main-menu.tsx:205:15: warning unicorn(no-nested-ternary): Unexpected deeply nested ternary expression. help: Avoid nesting ternary expressions for more than one level.
+app/original-main-menu.tsx:253:11: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/original-main-menu.tsx:255:15: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.
+app/original-main-menu.tsx:335:16: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/original-main-menu.tsx:337:19: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.
+app/page.tsx:540:21: warning eslint(no-shadow): 's' is already declared in the upper scope. help: Consider renaming 's' to avoid shadowing the variable from the outer scope.
+app/page.tsx:560:36: warning eslint(no-shadow): 'u' is already declared in the upper scope. help: Consider renaming 'u' to avoid shadowing the variable from the outer scope.
+app/page.tsx:381:19: warning react(exhaustive-effect-dependencies): Found extra effect dependencies help: Extra dependencies can cause an effect to fire more often than it should, resulting in performance problems such as excessive renders and side effects
+app/page.tsx:115:14: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.
+app/page.tsx:580:5: warning unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`. help: Replace the alias with `globalThis`.
+app/page.tsx:581:18: warning unicorn(prefer-global-this): Prefer `globalThis` over environment-specific global aliases like `window`, `self`, and `global`. help: Replace the alias with `globalThis`.
+app/page.tsx:819:7: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:825:11: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:834:13: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:843:15: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:849:17: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:861:19: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:872:21: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:884:23: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:896:25: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:915:27: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:936:29: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:952:31: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:969:33: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:978:35: warning unicorn(no-nested-ternary): Unexpected deeply nested ternary expression. help: Avoid nesting ternary expressions for more than one level.
+app/page.tsx:1090:12: warning unicorn(no-array-sort): Use `Array#toSorted()` instead of `Array#sort()`. help: `Array#sort()` mutates the original array. Use `Array#toSorted()` to return a new sorted array without modifying the original.
+app/page.tsx:1189:35: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1189:62: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.
+app/page.tsx:1408:25: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1408:49: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.
+app/page.tsx:1584:22: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1586:25: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1588:27: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1590:29: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1592:31: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1594:33: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1596:35: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1598:37: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1600:39: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1602:41: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1604:43: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1606:45: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1608:47: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1610:49: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1612:51: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1614:53: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1616:55: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1618:57: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1620:59: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1622:61: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/page.tsx:1624:63: warning unicorn(no-nested-ternary): Unexpected deeply nested ternary expression. help: Avoid nesting ternary expressions for more than one level.

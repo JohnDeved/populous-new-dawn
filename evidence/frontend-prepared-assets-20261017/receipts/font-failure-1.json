@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "c33abb58-d91d-4089-83f9-f85047cbf120",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ea98ff70b45c5a67ae77c1370e464851678619e8",
+    "branch": "codex/frontend-prepared-assets",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "evidence/frontend-prepared-assets-20261017/run-probe.mjs"
+  ],
+  "cwd": "<repo>",
+  "startedAt": "2026-10-17T02:28:31.631Z",
+  "artifacts": {
+    "stdout": "<repo>/work/orchestration/frontend-prepared/font-failure-1.json.artifacts/stdout.log",
+    "stderr": "<repo>/work/orchestration/frontend-prepared/font-failure-1.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T02:28:35.146Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"mode\":\"font-failure\",\"phases\":4}\nProduction and probe inputs unchanged after run\n",
+  "stderr": "",
+  "stdoutSha256": "cc1499535d4567a598c2bfcaeae699d1edb3f742a45c08afb8ed14683b841624",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ea98ff70b45c5a67ae77c1370e464851678619e8",
+    "branch": "codex/frontend-prepared-assets",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}
