@@ -127,3 +127,75 @@ test('preserves the exporter dirty-build provenance suffix', () => {
     assert.throws(() => summarize(value), /buildRevision/)
   }
 })
+
+test('reports separate strict RAF/callback budget counts and independent worst-frame rankings', () => {
+  const value = report()
+  let now = 0
+  value.frames = [8.33, 16.67, 40, 10].map((rafIntervalMs, index) => {
+    now += rafIntervalMs
+    const callbackCpuMs = [8.33, 16.67, 2, 30][index]
+    const pointerTooltipCpuMs = [0, 1, 0, 6][index]
+    return {
+      ...report().frames[0], timestampMs: now, rafIntervalMs, callbackCpuMs,
+      pointerTooltipCpuMs, simulationCpuMs: 0, sceneRenderCpuMs: 0,
+      otherCallbackCpuMs: callbackCpuMs - pointerTooltipCpuMs,
+      state: index === 2 ? 'paused' : 'live',
+    }
+  })
+  Object.assign(value.timing, { count: 4, endTimestampMs: now, capturedSpanMs: now })
+  const result = summarize(value)
+  assert.deepEqual(result.thresholdCounts, [
+    { thresholdMs: 8.33, rafFramesAbove: 3, callbackFramesAbove: 2 },
+    { thresholdMs: 16.67, rafFramesAbove: 1, callbackFramesAbove: 1 },
+  ])
+  assert.equal(result.worstFrames.raf[0].frameIndex, 2)
+  assert.equal(result.worstFrames.raf[0].state, 'paused')
+  assert.equal(result.worstFrames.callback[0].frameIndex, 3)
+  assert.equal(result.worstFrames.pointer[0].frameIndex, 3)
+  assert.deepEqual(result.spikeContexts.find(group => group.frameIndex === 0).frames.map(frame => frame.frameIndex), [0, 1, 2])
+  assert.deepEqual(result.spikeContexts.find(group => group.frameIndex === 3).frames.map(frame => frame.frameIndex), [1, 2, 3])
+  assert.ok(result.warnings.some(warning => warning.includes('not display-FPS guarantees')))
+})
+
+test('worst-frame evidence is bounded, tie-stable, whitelist-only and keeps nested phase values', () => {
+  const value = report()
+  value.frames = Array.from({ length: 30 }, (_, index) => ({
+    ...report().frames[0], timestampMs: (index + 1) * 10,
+    arbitraryPrivateContent: 'not exported',
+    pointerBreakdown: { ...createPointerFrameMetrics(), objectPickMs: 4, objectUnitsMs: 2, arbitraryPrivateContent: 'not exported' },
+  }))
+  Object.assign(value.timing, { count: 30, endTimestampMs: 300, capturedSpanMs: 300 })
+  const result = summarize(value)
+  for (const ranking of Object.values(result.worstFrames)) {
+    assert.equal(ranking.length, 10)
+    assert.deepEqual(ranking.map(frame => frame.frameIndex), [0,1,2,3,4,5,6,7,8,9])
+    assert.equal(ranking[0].pointerBreakdown.objectPickMs, 4)
+    assert.equal(ranking[0].pointerBreakdown.objectUnitsMs, 2)
+  }
+  assert.equal(result.spikeContexts.length, 10)
+  assert.equal(new Set(result.spikeContexts.map(group => group.frameIndex)).size, 10)
+  assert.ok(result.spikeContexts.every(group => group.frames.length <= 5))
+  assert.ok(!JSON.stringify(result).includes('not exported'))
+  assert.ok(!JSON.stringify(result).includes('arbitraryPrivateContent'))
+})
+
+test('context selection retains CPU-only spikes even when RAF gaps occupy the top cadence ranking', () => {
+  const value = report()
+  let now = 0
+  value.frames = Array.from({ length: 30 }, (_, index) => {
+    const rafIntervalMs = index < 15 ? 100 - index : 10
+    now += rafIntervalMs
+    const pointerTooltipCpuMs = index === 29 ? 40 : 0
+    const callbackCpuMs = index === 28 ? 60 : pointerTooltipCpuMs + 1
+    return {
+      ...report().frames[0], timestampMs: now, rafIntervalMs,
+      callbackCpuMs, pointerTooltipCpuMs, simulationCpuMs: 0, sceneRenderCpuMs: 0,
+      otherCallbackCpuMs: callbackCpuMs - pointerTooltipCpuMs, pointerBreakdown: null,
+    }
+  })
+  Object.assign(value.timing, { count: 30, endTimestampMs: now, capturedSpanMs: now })
+  const result = summarize(value)
+  assert.deepEqual(result.spikeContexts.slice(0, 3).map(group => group.frameIndex), [0, 28, 29])
+  assert.equal(result.spikeContexts.length, 10)
+  assert.equal(result.worstFrames.pointer[0].pointerBreakdown, null)
+})

@@ -31,6 +31,7 @@ const MAX_JSON_CODE_UNITS = 2 * 1024 * 1024
 
 type RecordValue = Record<string, unknown>
 type Frame = Record<(typeof FRAME_FIELDS)[number], number> & {
+  state: 'live' | 'paused' | 'menu' | 'unknown'
   pointerBreakdown: Record<(typeof POINTER_FIELDS)[number], number> | null
 }
 
@@ -55,6 +56,46 @@ function statistics(values: number[]) {
     p95: sorted[Math.ceil(sorted.length * 0.95) - 1],
     max: sorted[sorted.length - 1],
   }
+}
+
+function frameEvidence(frames: Frame[]) {
+  // Never copy arbitrary input properties into the output, including nested extras.
+  const snapshots = frames.map((frame, frameIndex) => ({
+    frameIndex,
+    state: frame.state,
+    ...(Object.fromEntries(FRAME_FIELDS.map(key => [key, frame[key]])) as Record<
+      (typeof FRAME_FIELDS)[number],
+      number
+    >),
+    pointerBreakdown: frame.pointerBreakdown
+      ? Object.fromEntries(POINTER_FIELDS.map(key => [key, frame.pointerBreakdown![key]]))
+      : null,
+  }))
+  const rank = (key: 'rafIntervalMs' | 'callbackCpuMs' | 'pointerTooltipCpuMs') =>
+    [...snapshots].sort((a, b) => b[key] - a[key] || a.frameIndex - b.frameIndex).slice(0, 10)
+  const worstFrames = {
+    raf: rank('rafIntervalMs'),
+    callback: rank('callbackCpuMs'),
+    pointer: rank('pointerTooltipCpuMs'),
+  }
+  // Round-robin the three rankings: long idle RAF gaps must not crowd out CPU spikes.
+  const selected = new Set<number>()
+  for (let rankIndex = 0; rankIndex < 10 && selected.size < 10; rankIndex++) {
+    for (const ranking of Object.values(worstFrames)) {
+      if (ranking[rankIndex]) selected.add(ranking[rankIndex].frameIndex)
+      if (selected.size === 10) break
+    }
+  }
+  const spikeContexts = [...selected].map(frameIndex => ({
+    frameIndex,
+    frames: snapshots.slice(Math.max(0, frameIndex - 2), frameIndex + 3),
+  }))
+  const thresholdCounts = [8.33, 16.67].map(thresholdMs => ({
+    thresholdMs,
+    rafFramesAbove: frames.filter(frame => frame.rafIntervalMs > thresholdMs).length,
+    callbackFramesAbove: frames.filter(frame => frame.callbackCpuMs > thresholdMs).length,
+  }))
+  return { worstFrames, spikeContexts, thresholdCounts }
 }
 
 /** Parse an exported JSON string and return bounded, local-only timing summaries. */
@@ -174,6 +215,8 @@ export function analyzeFrameExport(json: string) {
     'Callback CPU includes its stages. Pointer phases overlap: tooltipInput includes picks; objectPick includes units/models/occlusion. Do not sum nested phases.',
     'Tooltip rendering is outside pointerTooltip CPU. Deferred layout can execute in a later phase than the DOM writes that caused it.',
     'RAF cadence is not presented FPS; CPU wall times are not GPU timings or proof of hardware smoothness.',
+    'Threshold counts use strict >8.33 ms and >16.67 ms, separately for RAF and callback CPU; these are not display-FPS guarantees.',
+    'The RAF interval ends at its timestamp, while callback CPU measures that callback. Neighboring frames provide correlation, not proof of which work caused a gap. Worst rankings retain up to 10 frames each; at most 10 distinct context groups include up to two neighbors on each side.',
   ]
   if (frames.some(frame => frame.otherCallbackCpuMs < 0))
     warnings.push(
@@ -195,6 +238,7 @@ export function analyzeFrameExport(json: string) {
     callback: statistics(frames.map(frame => frame.callbackCpuMs)),
     topCpuPhases,
     pointerPhases,
+    ...frameEvidence(frames),
     warnings,
   }
 }

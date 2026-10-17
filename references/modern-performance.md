@@ -49,7 +49,11 @@ node scripts/analyze-frame-export.mjs /path/to/populous-frames.json
 The offline command prints JSON only to stdout and never uploads or modifies the
 input. Redirect stdout yourself if you want a saved summary. It validates the v1
 capture, reports sample count/span, available commit/level provenance, and
-mean/p50/p95/max CPU and RAF durations. Callback stages are ranked separately from
+mean/p50/p95/max CPU and RAF durations. It also lists worst RAF/callback/pointer
+frames, up to ten distinct spike contexts with two neighboring frames per side,
+and separate RAF/callback counts above 8.33 and 16.67 ms. These are diagnostic
+thresholds, not display-FPS guarantees; a RAF gap ends at its timestamp, whereas
+CPU timings describe the callback at that timestamp. Callback stages are ranked separately from
 nested pointer phases: **do not add overlapping timings**. Missing breakdowns are
 not treated as zero. Read the warnings, including signed residuals and deferred
 layout attribution; these exports alone do not establish GPU time, presented FPS,
