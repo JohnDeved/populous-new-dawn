@@ -123,6 +123,12 @@ test('ordinary null-mode pointer witnesses use processed tooltip cells, not plac
     window: { testSceneRef: { current: scene } },
   })
   assert.equal(ready({ x: 700, y: 340, world: true }), true)
+  scene.tooltipInput.cell = 0xa020
+  assert.equal(ready({ x: 700, y: 340, world: true }), true)
+  for (const invalid of [1, 0xffff, -2, 2 ** 32, NaN]) {
+    scene.tooltipInput.cell = invalid
+    assert.equal(ready({ x: 700, y: 340, world: true }), false)
+  }
   scene.tooltipInput.cell = null
   assert.equal(ready({ x: 700, y: 340, world: true }), false)
   scene.tooltipInput.cell = 12000

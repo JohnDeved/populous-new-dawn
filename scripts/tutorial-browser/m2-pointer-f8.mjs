@@ -40,7 +40,8 @@ export const m2RouteReady = ({ x, y, world }) => {
     worldRoute &&
     Number.isInteger(t.cell) &&
     t.cell >= 0 &&
-    t.cell < 128 * 128
+    t.cell <= 0xfefe &&
+    (t.cell & ~0xfefe) === 0
   )
 }
 
