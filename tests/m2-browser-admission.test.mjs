@@ -260,3 +260,34 @@ test('compact notice is publicly dismissed before the paused witness, never duri
   assert.ok(dismiss < source.indexOf('report.before = await observe()'))
   assert.equal(source.match(/Continue anyway/g).length, 1)
 })
+
+test('public zoom readiness follows settled preset/configuration, not flyby zoom scalar', async () => {
+  const { m2ViewReady } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  const target = { scale: 42, pitch: 300, bounds: [1, 2] }
+  const scene = {
+    viewZoom: 0,
+    viewPreset: 0,
+    viewTransition: null,
+    overviewActive: false,
+    view: { config: structuredClone(target), projection: { width: 544, height: 480 } },
+    container: { clientWidth: 544, clientHeight: 480 },
+    currentPreset: () => structuredClone(target),
+  }
+  const ready = runInNewContext(`(${m2ViewReady.toString()})`, {
+    window: { testSceneRef: { current: scene } },
+  })
+  assert.equal(ready(2), false)
+  scene.viewPreset = 2
+  scene.viewTransition = { remaining: 1 }
+  assert.equal(ready(2), false)
+  scene.viewTransition = null
+  assert.equal(ready(2), true, 'Ordinary preset change correctly leaves viewZoom at zero')
+  scene.view.config.scale = 41
+  assert.equal(ready(2), false, 'Requested preset alone is not reached-render proof')
+  scene.view.config.scale = 42
+  scene.view.projection.width = 1240
+  assert.equal(ready(2), false, 'Stale pre-resize projection must not pass')
+  scene.view.projection.width = 544
+  scene.overviewActive = true
+  assert.equal(ready(2), false)
+})

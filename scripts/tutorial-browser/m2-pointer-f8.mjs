@@ -45,6 +45,18 @@ export const m2RouteReady = ({ x, y, world }) => {
   )
 }
 
+export function m2ViewReady(preset) {
+  const s = window.testSceneRef.current
+  return (
+    s.viewPreset === preset &&
+    s.viewTransition === null &&
+    !s.overviewActive &&
+    JSON.stringify(s.view.config) === JSON.stringify(s.currentPreset()) &&
+    s.view.projection.width === Math.max(1, Math.round(s.container.clientWidth)) &&
+    s.view.projection.height === Math.max(1, Math.round(s.container.clientHeight))
+  )
+}
+
 export function m2HudPoint() {
   const hud = document.querySelector('.native-hud')
   if (!hud) throw new Error('Native HUD missing')
@@ -254,6 +266,11 @@ export default async function ({ browser, url, output, fixture }) {
             position: { ...s.cameraPosition },
             bearing: s.cameraBearing,
             zoom: s.viewZoom,
+            preset: s.viewPreset,
+            transitionRemaining: s.viewTransition?.remaining ?? null,
+            config: s.view.config,
+            targetConfig: s.currentPreset(),
+            projectionSize: [s.view.projection.width, s.view.projection.height],
             viewPoint: { ...s.viewPoint },
           },
           renderer: debug
@@ -297,16 +314,16 @@ export default async function ({ browser, url, output, fixture }) {
     }
     await page.screenshot({ path: resolve(output, 'm2-pointer-wide.png') })
     const beforeCamera = await observe()
+    report.cameraBefore = beforeCamera
+    assert.equal(beforeCamera.camera.preset, 0, 'Loaded ground view begins at normal preset')
     for (const key of ['ArrowRight', 'w']) {
       await page.keyboard.down(key)
       await page.waitForTimeout(250)
       await page.keyboard.up(key)
     }
     await page.keyboard.press('-')
-    await page.waitForFunction(
-      zoom => window.testSceneRef.current.viewZoom !== zoom,
-      beforeCamera.camera.zoom
-    )
+    report.cameraRequested = await observe()
+    await page.waitForFunction(m2ViewReady, 2)
     report.cameraAfter = await observe()
     assertM2Input(report.before, report.cameraAfter)
     assert.notEqual(
@@ -319,10 +336,13 @@ export default async function ({ browser, url, output, fixture }) {
       [beforeCamera.camera.position.x, beforeCamera.camera.position.y],
       'Public pan changed coordinates'
     )
-    assert.notEqual(
-      report.cameraAfter.camera.zoom,
-      beforeCamera.camera.zoom,
-      'Public zoom changed reached zoom'
+    assert.equal(report.cameraAfter.camera.preset, 2, 'Public zoom reached bird’s-eye preset')
+    assert.equal(report.cameraAfter.camera.transitionRemaining, null)
+    assert.deepEqual(report.cameraAfter.camera.config, report.cameraAfter.camera.targetConfig)
+    assert.notDeepEqual(
+      report.cameraAfter.camera.config,
+      beforeCamera.camera.config,
+      'Public zoom changed actual rendered camera configuration'
     )
     for (const [width, height] of [
       [640, 480],
@@ -332,6 +352,7 @@ export default async function ({ browser, url, output, fixture }) {
       await page.evaluate(
         () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
       )
+      await page.waitForFunction(m2ViewReady, 2)
       const layout = await graph.evaluate(el => {
         const r = el.getBoundingClientRect()
         return {
@@ -416,6 +437,13 @@ export default async function ({ browser, url, output, fixture }) {
           inputMask: w?.inputMask,
           flybyFlags: w?.flyby.flags,
           paused: w?.paused,
+          camera: window.testSceneRef?.current && {
+            preset: window.testSceneRef.current.viewPreset,
+            zoom: window.testSceneRef.current.viewZoom,
+            position: window.testSceneRef.current.cameraPosition,
+            transitionRemaining: window.testSceneRef.current.viewTransition?.remaining ?? null,
+            config: window.testSceneRef.current.view.config,
+          },
           skipVisible: !!button && button.getClientRects().length > 0,
           skipText: button?.textContent,
           body: document.body.innerText.slice(0, 2000),
