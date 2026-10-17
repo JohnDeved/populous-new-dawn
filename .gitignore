@@ -271,3 +271,7 @@ __pycache__/
 /references/performance/2026-09-11-terrain-notifications-full-replay.json
 /references/performance/2026-09-11-terrain-notifications.json
 /references/performance/2026-09-11-timber-search.json
+
+# Historical environment inventory outputs; source and pinned importer inputs stay tracked.
+/decomp/research/early-mission-theme-20261010/inventory.json
+/decomp/research/early-mission-theme-20261010/run.json
