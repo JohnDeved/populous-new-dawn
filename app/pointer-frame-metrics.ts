@@ -33,10 +33,15 @@ export function createPointerFrameMetrics(): PointerFrameMetrics {
 }
 
 export function resetPointerFrameMetrics(metrics: PointerFrameMetrics) {
-  metrics.terrainPickMs = metrics.terrainPickCalls = 0
-  metrics.objectPickMs = metrics.objectPickCalls = 0
-  metrics.tooltipInputMs = metrics.tooltipRenderMs = 0
-  metrics.objectUnitsMs = metrics.objectModelsMs = metrics.objectOcclusionMs = 0
+  metrics.terrainPickMs = 0
+  metrics.terrainPickCalls = 0
+  metrics.objectPickMs = 0
+  metrics.objectPickCalls = 0
+  metrics.tooltipInputMs = 0
+  metrics.tooltipRenderMs = 0
+  metrics.objectUnitsMs = 0
+  metrics.objectModelsMs = 0
+  metrics.objectOcclusionMs = 0
   metrics.objectCacheHits = 0
 }
 

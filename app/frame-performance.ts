@@ -58,10 +58,18 @@ export class FramePerformance {
   drawCalls = 0
 
   reset() {
-    this.recentCursor = this.recentCount = this.timestamp = 0
-    this.pointer = this.pointerMs = this.otherMs = 0
-    for (const summary of [this.rafPercentiles, this.callbackPercentiles])
-      summary.p50 = summary.p95 = summary.p99 = summary.max = 0
+    this.recentCursor = 0
+    this.recentCount = 0
+    this.timestamp = 0
+    this.pointer = 0
+    this.pointerMs = 0
+    this.otherMs = 0
+    for (const summary of [this.rafPercentiles, this.callbackPercentiles]) {
+      summary.p50 = 0
+      summary.p95 = 0
+      summary.p99 = 0
+      summary.max = 0
+    }
     this.count = 0
     this.cursor = 0
     this.elapsed = 0
