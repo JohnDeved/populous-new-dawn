@@ -1,3 +1,4 @@
+import { assertNativeFrameExport } from '../scripts/tutorial-browser/frame-export.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -407,5 +408,35 @@ test('full checkpoint protocol transport uses JSON text without weakening struct
     /JSON\.parse\(await page\.evaluate\(\(\) => window\.m2LoadBoundary\)\),\s*fixture\.expected/
   )
   assert.match(source, /JSON\.stringify\(window\.m2CheckpointCodec\(store\.getWorld\(\)\)\)/)
+  assert.equal(m2FunctionalLimitMs, 45000)
+})
+
+
+test('actual downloaded M2 frames require versioned finite native counters without duration thresholds', () => {
+  const native = { version: 1, submissionKeyMs: 0, projectionMs: 0, triangleScanMs: 0,
+    pixelCacheHits: 0, pixelCacheMisses: 1, cacheCold: 1, cachePositionChanged: 0,
+    cacheKeyChanged: 0, cacheHits: 0, projectedVertices: 6, submittedTriangles: 2 }
+  const frames = [{ pointerBreakdown: null }, { pointerBreakdown: { nativeOcclusion: native } }]
+  const result = assertNativeFrameExport(frames)
+  assert.equal(result.measuredFrames, 1)
+  assert.equal(result.nativeWorkFrames, 1)
+  assert.equal(result.counters.projectedVertices, 6)
+  for (const mutate of [
+    value => { value.version = 2 }, value => { delete value.projectionMs },
+    value => { value.triangleScanMs = Infinity }, value => { value.submissionKeyMs = -1 },
+    value => { value.pixelCacheMisses = 0.5 }, value => { value.cacheHits = NaN },
+    value => { value.submittedTriangles = Number.MAX_SAFE_INTEGER + 1 },
+  ]) {
+    const invalid = structuredClone(frames)
+    mutate(invalid[1].pointerBreakdown.nativeOcclusion)
+    assert.throws(() => assertNativeFrameExport(invalid))
+  }
+  assert.throws(() => assertNativeFrameExport([{ pointerBreakdown: {} }]))
+  assert.throws(() => assertNativeFrameExport([{ pointerBreakdown: null }]))
+  const helper = readFileSync(new URL('../scripts/tutorial-browser/frame-export.mjs', import.meta.url), 'utf8')
+  assert.match(helper, /const nativeDiagnostics = assertNativeFrameExport\(report.frames\)/)
+  assert.match(helper, /bounds, nativeDiagnostics/)
+  assert.match(helper, /assert.ok\(nativeDiagnostics.nativeWorkFrames > 0/)
+  assert.doesNotMatch(helper, /newContext|page\.goto|setTimeout|waitForTimeout/)
   assert.equal(m2FunctionalLimitMs, 45000)
 })

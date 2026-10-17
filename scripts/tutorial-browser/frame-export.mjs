@@ -2,6 +2,31 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
+const nativeTimers = ['submissionKeyMs', 'projectionMs', 'triangleScanMs']
+const nativeCounters = ['pixelCacheHits', 'pixelCacheMisses', 'cacheCold',
+  'cachePositionChanged', 'cacheKeyChanged', 'cacheHits', 'projectedVertices', 'submittedTriangles']
+
+// Inspect actual downloaded bytes. Quantized zero times are valid; use counters for work.
+export function assertNativeFrameExport(frames) {
+  const measured = frames.filter(frame => frame.pointerBreakdown !== null)
+  assert.ok(measured.length > 0, 'export contains pointer diagnostics')
+  const totals = Object.fromEntries(nativeCounters.map(key => [key, 0]))
+  let nativeWorkFrames = 0
+  for (const frame of measured) {
+    const native = frame.pointerBreakdown.nativeOcclusion
+    assert.ok(native && typeof native === 'object', 'actual export includes native diagnostics')
+    assert.equal(native.version, 1)
+    for (const key of nativeTimers)
+      assert.ok(Number.isFinite(native[key]) && native[key] >= 0, `finite nonnegative ${key}`)
+    for (const key of nativeCounters) {
+      assert.ok(Number.isSafeInteger(native[key]) && native[key] >= 0, `safe counter ${key}`)
+      totals[key] += native[key]
+    }
+    if (native.submittedTriangles > 0) nativeWorkFrames++
+  }
+  return { measuredFrames: measured.length, nativeWorkFrames, counters: totals }
+}
+
 // Reuse the existing paused M2 scene and its deadline. No new navigation, world,
 // profiler, startup, timer window or simulation-state injection.
 export async function checkFrameExport({ page, output, keyboard }) {
@@ -45,6 +70,9 @@ export async function checkFrameExport({ page, output, keyboard }) {
     assert.ok(report.timing.capturedSpanMs > 0)
     assert.ok(report.frames.every(frame => Number.isFinite(frame.pointerTooltipCpuMs)))
     assert.ok(report.frames.some(frame => frame.pointerBreakdown !== null))
+    const nativeDiagnostics = assertNativeFrameExport(report.frames)
+    assert.ok(nativeDiagnostics.nativeWorkFrames > 0,
+      'existing M2 pointer/camera inputs must export actual native triangle work')
     assert.deepEqual(await page.evaluate(() => window.frameExportInputs), [], 'export inputs must not bubble into gameplay')
     assert.deepEqual(await snapshot(), before, 'export preserves paused simulation, selection, camera and command mode')
     const bounds = await button.evaluate(el => {
@@ -59,7 +87,7 @@ export async function checkFrameExport({ page, output, keyboard }) {
     const filename = keyboard ? 'm2-frame-export-keyboard.json' : 'm2-frame-export-pointer.json'
     await download.saveAs(resolve(output, filename))
     summary = { filename, keyboard, frameCount: report.frames.length, capturedSpanMs: report.timing.capturedSpanMs,
-      buildRevision: report.buildRevision, viewport: report.environment.viewportCssPixels, bounds }
+      buildRevision: report.buildRevision, viewport: report.environment.viewportCssPixels, bounds, nativeDiagnostics }
   } finally {
     await page.evaluate(() => {
       for (const type of ['pointerdown', 'pointerup', 'click', 'keydown', 'keyup'])
