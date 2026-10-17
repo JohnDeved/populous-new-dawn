@@ -49,20 +49,18 @@ function fixture({ profile = true } = {}) {
     [job(GATES[1], 201, 101), ...(profile ? [job(PROFILE_RECOVERY_GATE, 202, 101)] : [])],
   ]
   const checks = new Map(
-    jobs
-      .flat()
-      .map(j => [
-        j.id + 100,
-        {
-          id: j.id + 100,
-          check_suite: { id: j.run_id + 300 },
-          head_sha: pr.head.sha,
-          name: j.name,
-          app: { id: 15368, slug: 'github-actions' },
-          status: 'completed',
-          conclusion: 'success',
-        },
-      ])
+    jobs.flat().map(j => [
+      j.id + 100,
+      {
+        id: j.id + 100,
+        check_suite: { id: j.run_id + 300 },
+        head_sha: pr.head.sha,
+        name: j.name,
+        app: { id: 15368, slug: 'github-actions' },
+        status: 'completed',
+        conclusion: 'success',
+      },
+    ])
   )
   const log = `PR_HEAD_SHA: ${pr.head.sha}\nPR_BASE_SHA: ${pr.base.sha}\n[command]/usr/bin/git log -1 --format=%H\n${synthetic.sha}\n`
   const logs = new Map(jobs.flat().map(j => [j.id, log]))
