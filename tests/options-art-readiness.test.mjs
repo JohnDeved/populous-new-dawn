@@ -12,11 +12,11 @@ const same = (a, b) => a && b && a.length === b.length && a.every((value, index)
 const tree = node => [node, ...[node?.props?.children].flat(Infinity)
   .filter(child => child && typeof child === 'object').flatMap(tree)]
 
-function fixture(initialSkin) {
+function fixture(initialSkin, preparedFrontend) {
   const slots = [], pendingEffects = [], requests = [], publications = []
   let cursor = 0, dirty = false, mounted = true, lateWrites = 0, output
   const props = {
-    skin: initialSkin, volume: .35, musicVolume: .65, storageNotice: '', gameStorageNotice: '',
+    skin: initialSkin, preparedFrontend, volume: .35, musicVolume: .65, storageNotice: '', gameStorageNotice: '',
     gamePreferences: { rotation: 'cursor', flipRotation: false },
     onBack() {}, onVolume() {}, onMusicVolume() {}, onGamePreferences() {},
     onTextRowsChange: rows => publications.push(rows),
@@ -45,6 +45,7 @@ function fixture(initialSkin) {
       })
     },
   }
+  react.useLayoutEffect = react.useEffect
   class Image {
     decode() {
       return new Promise((resolve, reject) => requests.push({ src: this.src, resolve, reject }))
@@ -153,3 +154,22 @@ for (const skin of ['frontend', 'ingame']) {
     assert.deepEqual(f.state(), { text: false, sliders: true, rows: [] })
   })
 }
+
+for (const failed of ['none', 'fonts', 'lowFont', 'sliders']) test(`prepared frontend ${failed}: initial render and remount never decode or reset healthy groups`, () => {
+  const prepared = { fonts: failed !== 'fonts', lowFont: failed !== 'lowFont', sliders: failed !== 'sliders' }
+  for (let mount = 0; mount < 2; mount++) {
+    const f = fixture('frontend', prepared)
+    assert.equal(f.state().text, prepared.fonts && prepared.lowFont)
+    assert.equal(f.state().sliders, prepared.sliders)
+    assert.equal(f.state().rows.length > 0, prepared.fonts && prepared.lowFont)
+    assert.deepEqual(f.group('fonts'), [])
+    assert.deepEqual(f.group('sliders'), [])
+    f.unmount()
+  }
+})
+test('prepared frontend cannot mark in-game Options ready or bypass their existing loaders', () => {
+  const f = fixture('ingame', { fonts: true, lowFont: true, sliders: true })
+  assert.deepEqual(f.state(), { text: false, sliders: false, rows: [] })
+  assert.equal(f.group('fonts').length, 1)
+  assert.equal(f.group('sliders').length, 3)
+})

@@ -12,14 +12,14 @@ const menuSource = ts.createSourceFile('menu.tsx', readFileSync(new URL('../app/
 const menuFunction = menuSource.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'OriginalMainMenu')
 const renderMenu = evaluatePage(menuFunction.getText(menuSource).replace(/^export /, ''), {
   useRef: current => ({ current }), useState: value => [value, () => {}],
-  useEffect: () => {}, useCallback: callback => callback,
+  useEffect: () => {}, useLayoutEffect: () => {}, useCallback: callback => callback,
   styles: new Proxy({}, { get: (_, name) => name }), MenuText: 'MenuText',
   frontendRowY, frontendTextWidth,
 })
 const homeMenu = pageNode(node => ts.isJsxSelfClosingElement(node) && node.tagName.getText(pageSource) === 'OriginalMainMenu')
 function menu(store, overrides = {}) {
   const home = evaluatePage(homeMenu.getText(pageSource), {
-    OriginalMainMenu: 'OriginalMainMenu', store,
+    OriginalMainMenu: 'OriginalMainMenu', store, frontendAssets: { fonts: false, lowFont: false, logo: false },
     setStartupCampaign: () => assert.fail('lookup must not navigate to campaign selection'),
     startMission: () => assert.fail('lookup must not start a mission'), tutorialLevel: 79,
     loadCheckpoint: () => assert.fail('lookup must not load a checkpoint'), ...overrides,
@@ -45,6 +45,7 @@ function startup(store) {
     setReady: () => {}, setError: () => {}, setTab: () => {},
   })()
   const cleanup = pageEffect('store.restoreCheckpoint()', {
+    frontendPreparation: { current: null }, prepareFrontendAssets: async () => ({}), setFrontendAssets() {},
     store, readAudioPreferences: () => ({ volume: 1, musicVolume: 1 }),
     readGamePreferences: () => ({}), setAudioPreferences: () => {}, audio: { current: null },
     gamePreferencesRef: { current: null }, setGamePreferences: () => {},

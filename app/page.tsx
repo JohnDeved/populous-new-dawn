@@ -1,6 +1,7 @@
 'use client'
 
 import { OriginalOptions } from './original-options'
+import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
 import { OriginalLoadingScreen } from './original-loading-screen'
 
 import { hudScale } from './hud-layout.ts'
@@ -130,6 +131,8 @@ export default function Home() {
   const [hudCamera, setHudCamera] = useState({ x: 0, y: 0 })
   const [nearbyPressed, setNearbyPressed] = useState(false)
   const [messageViewportHeight, setMessageViewportHeight] = useState(480)
+  const frontendPreparation = useRef<Promise<FrontendAssets> | null>(null)
+  const [frontendAssets, setFrontendAssets] = useState<FrontendAssets | null>(null)
   const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
   useEffect(() => {
     try {
@@ -406,17 +409,21 @@ export default function Home() {
   useEffect(() => {
     let active = true
     const initialWorld = store.getWorld()
-    void store.restoreCheckpoint().then(() => {
-      if (!active || store.getWorld() !== initialWorld) return
-      const preferences = readAudioPreferences()
-      setAudioPreferences(preferences)
-      audio.current?.setVolume(preferences.volume)
-      audio.current?.setMusicVolume(preferences.musicVolume)
-      const game = readGamePreferences()
-      gamePreferencesRef.current = game
-      setGamePreferences(game)
-      setStartup('choice')
-    })
+    frontendPreparation.current ??= prepareFrontendAssets()
+    void Promise.all([store.restoreCheckpoint(), frontendPreparation.current]).then(
+      ([, assets]) => {
+        if (!active || store.getWorld() !== initialWorld) return
+        const preferences = readAudioPreferences()
+        setAudioPreferences(preferences)
+        audio.current?.setVolume(preferences.volume)
+        audio.current?.setMusicVolume(preferences.musicVolume)
+        const game = readGamePreferences()
+        gamePreferencesRef.current = game
+        setGamePreferences(game)
+        setFrontendAssets(assets)
+        setStartup('choice')
+      }
+    )
     return () => {
       active = false
     }
@@ -1456,8 +1463,9 @@ export default function Home() {
         </div>
       )}
 
-      {startup === 'choice' && !startupCampaign && (
+      {startup === 'choice' && !startupCampaign && frontendAssets && (
         <OriginalMainMenu
+          prepared={frontendAssets}
           hasCheckpoint={store.hasCheckpoint()}
           checkpointReadStatus={store.getCheckpointReadStatus()}
           onRetryCheckpoint={() => {
@@ -1469,6 +1477,7 @@ export default function Home() {
           renderOptions={(onBack, onTextRowsChange) => (
             <OriginalOptions
               skin="frontend"
+              preparedFrontend={frontendAssets}
               onBack={onBack}
               onTextRowsChange={onTextRowsChange}
               volume={volume}
