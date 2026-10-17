@@ -32,7 +32,7 @@ const metadata = { source: execFileSync('git', ['rev-parse', 'HEAD'], { encoding
 writeFileSync(resolve(output, 'source.json'), JSON.stringify(metadata, null, 2) + '\n')
 const server = await createServer({ configFile: false, root: fixture, publicDir: resolve(root, 'public'),
   cacheDir: resolve(fixture, 'cache'), plugins: [react()], css: { postcss: { plugins: [tailwindcss({ base: fixture })] } },
-  server: { host: '127.0.0.1', port, strictPort: true, fs: { allow: [root] } }, logLevel: 'warn' })
+  server: { host: '127.0.0.1', port, strictPort: true, fs: { allow: [root, fixture] } }, logLevel: 'warn' })
 let browser, context, timer
 const profile = mkdtempSync(resolve(tmpdir(), 'pnd-ingame-prepared-'))
 try {
