@@ -347,10 +347,7 @@ test('open campaign panel regression rejects the captured short-wide collision w
   assert.match(css, /--campaign-message-width:340px/)
   assert.match(css, /\.world-viewport\{position:absolute;inset:0 0 0 var\(--side\)/)
   assert.match(css, /@media \(min-width:900px\) and \(max-height:700px\)/)
-  assert.match(
-    css,
-    /max-width:calc\(100% - var\(--campaign-message-width\) - 24px\)/
-  )
+  assert.match(css, /max-width:calc\(100% - var\(--campaign-message-width\) - 24px\)/)
   assert.match(css, /\.campaign-messages details\[open\]\{width:var\(--campaign-message-width\)\}/)
   assert.match(css, /\.fps-renderer\{max-height:none;overflow:visible\}/)
   for (const side of [72, 100, 140]) {
