@@ -1,6 +1,11 @@
 import { tribeForTeam, type World, type Unit, type Building } from './world-types.ts'
 import { buildingModel, buildingOutsidePoint, buildingPose } from './building-shapes.ts'
-import { automaticCombatScanner, engagementRange, inEngagementArea } from './melee-engagement.ts'
+import {
+  automaticCombatScanner,
+  engagementCellDelta,
+  engagementRange,
+  inEngagementArea,
+} from './melee-engagement.ts'
 import {
   allocatePersonOrder,
   attachPersonOrder,
@@ -45,8 +50,10 @@ export function combatPerson(u: Unit): CombatPerson {
   let state = u.path.length || u.work !== null ? 10 : 17
   if (u.fight) state = 25
   return {
-    ...position(u),
-    ...held,
+    x: Math.round((u.x + 8) * 256) & 65535,
+    y: Math.round((-u.z - 8) * 256) & 65535,
+    reactionTimer: held.reactionTimer,
+    reactionDuration: held.reactionDuration,
     id: u.id,
     class: 1,
     model: nativePersonModel(u),
@@ -82,8 +89,16 @@ export function combatWorld(w: World, source: CombatPerson, range: number) {
     row.push(o)
     cells.set(cell, row)
   }
-  for (const u of w.units)
-    if (u.hp > 0 && inEngagementArea(source, position(u), range)) add(combatPerson(u), u, true)
+  const radius = Math.trunc(range / 2) * 2
+  for (const u of w.units) {
+    if (!(u.hp > 0) || !range) continue
+    // Reject on each wrapped cell axis before constructing a target record.
+    // Most distant people need neither a Y projection nor a combat snapshot.
+    const x = Math.round((u.x + 8) * 256)
+    if (!(Math.abs(engagementCellDelta(source.x, x)) <= radius)) continue
+    const y = Math.round((-u.z - 8) * 256)
+    if (Math.abs(engagementCellDelta(source.y, y)) <= radius) add(combatPerson(u), u, true)
+  }
   for (const fight of w.fights) {
     const point = position(fight)
     if (!inEngagementArea(source, point, range)) continue
