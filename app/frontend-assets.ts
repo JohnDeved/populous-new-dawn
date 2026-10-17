@@ -23,25 +23,17 @@ export async function prepareFrontendAssets(): Promise<FrontendAssets> {
     timer = setTimeout(() => resolve(null), FRONTEND_ASSET_TIMEOUT_MS)
   })
   const settle = <T>(work: Promise<T>) => Promise.race([work.catch(() => null), deadline])
-  const images = (names: string[]) =>
-    Promise.all(
-      names.map(async name => {
-        const image = new Image()
-        image.src = `/original/${name}.png`
-        await image.decode()
-        return image
-      })
-    )
   try {
     const [composition, fonts, lowFont, logo, background, cursor, sliders] = await Promise.all([
       settle(
         fetch('/original/frontend/composition.bin', { signal: controller.signal })
           .then(response => {
-            if (!response.ok) throw Error('Frontend composition unavailable')
+            if (!response.ok) throw new Error('Frontend composition unavailable')
             return response.arrayBuffer()
           })
           .then(bytes => {
-            if (bytes.byteLength !== art.binaryBytes) throw Error('Invalid frontend composition')
+            if (bytes.byteLength !== art.binaryBytes)
+              throw new Error('Invalid frontend composition')
             return new Uint8Array(bytes)
           })
       ),
@@ -68,4 +60,15 @@ export async function prepareFrontendAssets(): Promise<FrontendAssets> {
     clearTimeout(timer!)
     controller.abort()
   }
+}
+
+function images(names: string[]) {
+  return Promise.all(
+    names.map(async name => {
+      const image = new Image()
+      image.src = `/original/${name}.png`
+      await image.decode()
+      return image
+    })
+  )
 }
