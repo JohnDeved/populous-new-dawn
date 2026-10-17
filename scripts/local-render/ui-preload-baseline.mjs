@@ -75,12 +75,21 @@ export default async function ({ page, context, output, url }) {
       const buttons = [...(options ?? menu ?? document).querySelectorAll('button')].filter(b =>
         ['Options', 'New Game', 'Game', 'Sound', 'Back'].includes(b.getAttribute('aria-label')) || b.dataset.optionKey === 'rotation')
       const canvas = menu?.querySelector('canvas')
+      let rowPixels = null
+      if (canvas) {
+        const pixels = canvas.getContext('2d').getImageData(Math.max(0, (canvas.width >> 1) - 240), 139, 480, 28).data
+        let hash = 2166136261
+        for (const value of pixels) hash = Math.imul(hash ^ value, 16777619) >>> 0
+        rowPixels = hash.toString(16)
+      }
       return {
         phase: data.phase, menuOpen: !!menu?.open, loading: !!document.querySelector('.loading-world'),
         optionsOpen: !!options, category: options?.dataset.category ?? null,
         sliderReady: options?.dataset.artReady ?? null,
         fallbackCount: (options ?? menu)?.querySelectorAll('[class*="fallback"]').length ?? 0,
         logo: menu?.querySelector('h1 > span')?.className ?? null,
+        canvasRow139Hash: rowPixels, canvasSize: canvas ? [canvas.width, canvas.height] : null, canvasBox: rect(canvas),
+        viewport: [innerWidth, innerHeight, devicePixelRatio],
         canvasCorner: canvas ? [...canvas.getContext('2d').getImageData(0, 0, 1, 1).data] : null,
         focus: { tag: active?.tagName, label: active?.getAttribute('aria-label') ?? active?.textContent?.trim().slice(0, 70), key: active?.dataset.optionKey ?? null },
         controls: buttons.map(b => ({ label: b.getAttribute('aria-label'), key: b.dataset.optionKey ?? null,
