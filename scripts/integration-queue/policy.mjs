@@ -33,6 +33,18 @@ export const GATES = [
     ],
   },
 ]
+export const PROFILE_RECOVERY_GATE = {
+  job: 'Profile recovery browser',
+  steps: [
+    'Require a ready pull request',
+    'Check out exact proposed merge',
+    'Set up Node',
+    'Install locked dependencies and verify supported Chrome',
+    'Record exact tested source',
+    'Build plain production Home and validate IndexedDB recovery',
+    'Reject tracked input mutation',
+  ],
+}
 export const SHARDED_FULL_GATE = {
   ...GATES[0],
   steps: [
@@ -147,7 +159,7 @@ export function reviewedWorkflows(entry, observation) {
 
 export function browserRequired(paths) {
   return paths.some(path =>
-    /^(app\/|public\/|scripts\/browser-[^/]*\.mjs$|scripts\/local-render\/tutorial-recommendation\.mjs$|scripts\/tutorial-browser\/|\.github\/workflows\/tutorial-browser\.yml$|package(?:-lock)?\.json$|tsconfig\.json$)/.test(
+    /^(app\/|public\/|scripts\/browser-[^/]*\.mjs$|scripts\/local-render\/(?:tutorial-recommendation|campaign-profile-recovery|checkpoint-observer)\.mjs$|scripts\/checkpoint-readback\.mjs$|scripts\/tutorial-browser\/|\.github\/workflows\/tutorial-browser\.yml$|package(?:-lock)?\.json$|tsconfig\.json$)/.test(
       path
     )
   )
@@ -545,6 +557,16 @@ export function gateRuns(entry, o, gate) {
 }
 
 export function validatePassedGate(o, gate, latest) {
+  if (gate === GATES[1] && o.workflows?.some(w =>
+    w.path === gate.workflow && w.profileRecoveryRequired === true)) {
+    requireThat(latest.profileRecovery?.verified === true,
+      'Missing verified Profile recovery companion')
+    const companion = latestChronological(
+      o.currentChecks.filter(c => c.name === PROFILE_RECOVERY_GATE.job && c.appId === 15368 && c.head === o.head),
+      'Profile recovery current checks')
+    requireThat(companion.id === latest.profileRecovery.checkId && companion.status === 'completed' &&
+      companion.conclusion === 'success', 'Current Profile recovery check disagrees with tested attempt')
+  }
   requireThat(
     !latest.identityVerified || (latest.base === o.base && latest.merge === o.synthetic?.sha),
     'Verified candidate identity contradicts run evidence'

@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
-import { CLOUDFLARE, GATES, REPO, sha256, validateEntry, gatesFor, SHARDED_FULL_GATE } from './policy.mjs'
+import { CLOUDFLARE, GATES, REPO, sha256, validateEntry, gatesFor, SHARDED_FULL_GATE, PROFILE_RECOVERY_GATE } from './policy.mjs'
 
 import { BASELINE_DIAGNOSTIC, SHARDED_JOBS, shardedLogReceipt, validateShardedReceipt, validateBaselineLog } from './sharded.mjs'
 
@@ -117,7 +117,10 @@ export class GitHubReader {
       blob.encoding === 'base64' && typeof blob.content === 'string',
       'Workflow content missing'
     )
-    return { path, ref, sha256: sha256(Buffer.from(blob.content, 'base64')) }
+    const bytes = Buffer.from(blob.content, 'base64')
+    const profileRecoveryRequired = path === GATES[1].workflow &&
+      /^  profile-recovery-browser:[ \t]*$/m.test(bytes.toString('utf8'))
+    return { path, ref, sha256: sha256(bytes), ...(profileRecoveryRequired ? { profileRecoveryRequired: true } : {}) }
   }
   refresh(entry, head, base) {
     ensure(sha(head) && sha(base), 'Merge proof requires immutable identities')
@@ -252,7 +255,12 @@ export class GitHubReader {
           row.job = job.name
           row.jobConclusion = job.conclusion
           row.steps = job.steps.map(s => ({ name: s.name, conclusion: s.conclusion }))
-          row.workflowSha256 = this.workflow(gate.workflow, exact.head_sha).sha256
+          const workflow = this.workflow(gate.workflow, exact.head_sha)
+          row.workflowSha256 = workflow.sha256
+          if (gate === GATES[1] && workflow.profileRecoveryRequired && exact.conclusion === 'success') {
+            ensure(workflow.sha256 === entry.workflowHashes[gate.workflow], 'Unreviewed Profile recovery workflow')
+            row.profileRecovery = this.verifyProfileRecovery(pr, synthetic, exact, jobs)
+          }
           const stage = (name, conclusion) =>
             row.steps.filter(s => s.name === name).length === 1 &&
             row.steps.find(s => s.name === name).conclusion === conclusion
@@ -287,6 +295,29 @@ export class GitHubReader {
       }
     }
     return runs
+  }
+  verifyProfileRecovery(pr, synthetic, exact, jobs) {
+    const spec = PROFILE_RECOVERY_GATE
+    const matches = jobs.filter(job => job.name === spec.job)
+    ensure(matches.length === 1, 'Missing or duplicate Profile recovery job')
+    const job = matches[0]
+    ensure(job.run_id === exact.id && job.run_attempt === exact.run_attempt &&
+      job.status === 'completed' && job.conclusion === 'success' &&
+      spec.steps.every(name => job.steps?.filter(step => step.name === name).length === 1 &&
+        job.steps.find(step => step.name === name).conclusion === 'success'),
+      'Profile recovery attempt/stages did not genuinely succeed')
+    ensure(new RegExp(`^https://api\\.github\\.com/repos/${REPO}/check-runs/[1-9][0-9]*$`).test(job.check_run_url),
+      'Unexpected Profile recovery check URL')
+    const check = this.get(job.check_run_url.slice('https://api.github.com/'.length))
+    ensure(check.id === Number(job.check_run_url.split('/').at(-1)) &&
+      check.check_suite?.id === exact.check_suite_id && check.head_sha === pr.head.sha &&
+      check.name === spec.job && check.app?.id === 15368 && check.app?.slug === 'github-actions' &&
+      check.status === 'completed' && check.conclusion === 'success', 'Profile recovery check identity/result mismatch')
+    const rawLog = this.get(`repos/${REPO}/actions/jobs/${job.id}/logs`, true)
+    const identity = logIdentity(stripVTControlCharacters(rawLog))
+    ensure(synthetic && identity.head === pr.head.sha && identity.base === pr.base.sha &&
+      identity.merge === synthetic.sha, 'Profile recovery tested a different candidate')
+    return { verified: true, jobId: job.id, checkId: check.id, logSha256: sha256(rawLog), ...identity }
   }
   verifyShardedRun(entry, pr, synthetic, exact, jobs, row, log) {
     ensure(synthetic && row.merge === synthetic.sha, 'Sharded run lacks current synthetic source')
@@ -476,7 +507,7 @@ export class GitHubReader {
           `${root}/commits/${pr.head.sha}/check-runs?filter=all`,
           'check_runs'
         )
-          .filter(c => c.app?.id === 15368 && GATES.some(g => g.job === c.name))
+          .filter(c => c.app?.id === 15368 && (GATES.some(g => g.job === c.name) || c.name === PROFILE_RECOVERY_GATE.job))
           .map(c => ({
             id: c.id,
             name: c.name,
