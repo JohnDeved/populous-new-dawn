@@ -333,3 +333,63 @@ test('cross-cell exact equality, boundary IDs, fallback corners and instance iso
     f.close()
   }
 })
+
+test('packed terrain slots preserve sparse original triangle IDs and retained query results', async () => {
+  const f = await fixture(0)
+  try {
+    const p = f.mesh.geometry.attributes.position,
+      high = p.count - 6,
+      corners = [
+        [0, 0, 0],
+        [0, 0, 2],
+        [2, 0, 0],
+        [2, 0, 0],
+        [0, 0, 2],
+        [2, 0, 2],
+      ]
+    for (const base of [high, 0]) corners.forEach((point, i) => p.setXYZ(base + i, ...point))
+    let ids = [...Array.from({ length: 6 }, (_, i) => high + i), 0, 1, 2, 3, 4, 5]
+    const submit = () => {
+      f.mesh.geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(ids), 1))
+      f.mesh.geometry.setDrawRange(0, ids.length)
+    }
+    f.view.updateTerrainVisibility = submit
+    if (f.reference) f.reference.updateTerrainVisibility = submit
+    f.mesh.count = 1
+    f.mesh.setMatrixAt(0, new THREE.Matrix4())
+    const projected = f.view.screen(new THREE.Vector3(2 / 3, 0, 2 / 3), new THREE.Camera(), true),
+      mouse = new THREE.Vector2(projected.x, projected.y),
+      first = f.sample(false, mouse)
+    assert.equal(first.actualCalls, 4, 'high first source and low aliases project four corners')
+    assert.deepEqual(
+      first.candidates.map(hit => hit.triangle),
+      [high / 3, 0]
+    )
+    const retained = first.candidates.map(({ point, depth, triangle, instance }) => ({
+      point: { ...point },
+      depth,
+      triangle,
+      instance,
+    }))
+    ids = [...ids.slice(6), ...ids.slice(0, 6)]
+    const second = f.sample(false, mouse)
+    assert.deepEqual(
+      second.candidates.map(hit => hit.triangle),
+      [0, high / 3]
+    )
+    for (const base of [high, 0]) for (let i = 0; i < 6; i++) p.setY(base + i, 1)
+    f.sample(false, mouse)
+    assert.deepEqual(
+      first.candidates.map(({ point, depth, triangle, instance }) => ({
+        point,
+        depth,
+        triangle,
+        instance,
+      })),
+      retained
+    )
+    assert.notStrictEqual(first.candidates[0].point, second.candidates[1].point)
+  } finally {
+    f.close()
+  }
+})
