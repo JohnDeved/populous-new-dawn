@@ -152,3 +152,35 @@ test('explicit wrapped point shots live beyond the ordinary sixteen-visit timeou
   assert.ok(ids.every(id => !w.effects.some(e => e.id === id)))
   assert.equal(w.sounds.filter(s => s.cue === 178).length, 1)
 })
+
+// Static 0x4bbf30 at 0x4bc059–0x4bc09a gates each separately sign-extended
+// coordinate before wrapped distance. This is not a new native-execution claim.
+test('point arrival rejects a close wrapped destination across either signed coordinate seam', () => {
+  for (const axis of ['x', 'y']) {
+    const w = createWorld(),
+      u = addUnit(w, 'blue', 'firewarrior', { x: 0, z: 0 }),
+      p = createLivePerson(w, u),
+      start = { x: 0, y: 0, h: 128, [axis]: 32760 },
+      destination = { x: 0, y: 0, h: 128, [axis]: -32760 }
+    u.native = p
+    w.land.heights.fill(128)
+    w.landVersion = w.terrainVersion
+    w.effects = []
+    w.sounds = []
+    launchFirewarriorPoint(w, u, p, destination, { effect, sound })
+    const pair = w.effects.filter(fx => fx.firewarriorShot)
+    for (const fx of pair) Object.assign(fx, browserPosition(start), { height: 128 / 45 })
+    stepFirewarriorShots(w)
+    assert.ok(
+      pair.every(fx => fx.duration === Infinity),
+      'wrapped distance alone cannot retire a shot'
+    )
+    assert.equal(w.sounds.filter(s => s.cue === 178).length, 0)
+    stepFirewarriorShots(w)
+    assert.ok(
+      pair.every(fx => fx.duration === fx.age),
+      'arrival resumes after crossing the signed seam'
+    )
+    assert.equal(w.sounds.filter(s => s.cue === 178).length, 1)
+  }
+})
