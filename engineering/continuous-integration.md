@@ -206,8 +206,8 @@ recorded on [PR #475](https://github.com/JohnDeved/populous-new-dawn/pull/475).
 A separately reviewed genuine shard invocation may append `--timings=summary-v1`
 to `scripts/orchestration/test-runner.mjs shard`. It does not launch additional
 runs or change partitioning, order, resource classification, concurrency or test
-selection. Default invocation remains the exact legacy TAP command. This change
-does not itself enable diagnostics in the hosted workflow.
+selection. Default invocation remains the exact legacy TAP command. The hosted ready-PR
+workflow opts into this reviewed diagnostic mode for its four existing shards.
 
 The opt-in command adds only the fixed source-controlled timing reporter, retaining
 TAP on stdout and a silent diagnostic reporter on stderr. The aggregate admits
@@ -234,3 +234,37 @@ are excluded. Use exact candidate/runtime receipts alongside diagnostics, accoun
 for concurrency and runner variance, and never convert test-name duration sums
 into claimed whole-file wall time. Before enabling weighted scheduling, separately
 review completeness, source-bound samples and immutable deterministic partitioning.
+
+
+### Hosted timing collection
+
+Each existing shard opts into `summary-v1`; there are no additional test runs,
+shards, workers or scheduling weights. A separate `test-timings-RUN-ATTEMPT-shard-N`
+artifact retains the before-source snapshot, available shard/gate receipts and
+bounded JSONL files for seven days. It is uploaded after a successful or failed
+test step. Upload failure is non-gating; cancellation, setup failure or reporter
+failure may leave missing/partial diagnostics. Missing rows are never zero-cost
+measurements or evidence that a test passed.
+
+The required `full-check-*` artifacts still contain only their single mandatory
+receipt. The aggregate's download pattern and strict five-artifact validation are
+unchanged and do not consume timing files. Match diagnostic file/reporter hashes,
+Node version, complete inventory and source identities against the accompanying
+receipts before comparing samples. A before snapshot alone is not a successful
+or source-stable run; failed/partial samples cannot establish complete costs.
+
+Job finish order also includes setup variance. For example, in
+[run 39064882062](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39064882062)
+the shard-2 test step took 6m14, but shard 3 finished last after a setup delay even
+though its test step took 3m05. In
+[run 39064081889](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39064081889),
+shard 3's test step took 5m16 versus shard 2's 5m06. These are GitHub step timings,
+not per-file cost estimates. Collect source-bound samples before proposing a
+separately reviewed balancing change; preserve resource limits and all coverage.
+
+The external integration validator independently admits only the original TAP
+command or the exact `summary-v1` reporter/destination argument list. For the
+latter it hashes the reporter from the exact proposed merge's Git bytes and
+requires the receipt's reporter hash to match. It never imports executable
+candidate policy, accepts arbitrary reporter flags, or uses timing rows as gate
+proof. Legacy baseline command validation remains unchanged.
