@@ -152,16 +152,26 @@ export async function runTestShard(repo, plan, options = {}) {
 export function parseShardArguments(args) {
   const values = {}
   for (const arg of args) {
-    const match = /^--(shard-index|shard-count|receipt)=(.+)$/.exec(arg)
+    const match = /^--(shard-index|shard-count|receipt|timings)=(.+)$/.exec(arg)
     assert(match && !Object.hasOwn(values, match[1]), 'Use unique --shard-index=N --shard-count=4 --receipt=PATH arguments')
     values[match[1]] = match[2]
   }
   assert(/^[0-3]$/.test(values['shard-index'] ?? '') && values['shard-count'] === '4', 'Shard index 0..3 and shard count 4 are both required')
   assert(values.receipt && !/[\0\r\n]/.test(values.receipt), 'Shard receipt path is required')
-  return { index: Number(values['shard-index']), count: 4, receipt: values.receipt }
+  assert(values.timings === undefined || values.timings === 'summary-v1', 'Unknown timing diagnostics version')
+  return { index: Number(values['shard-index']), count: 4, receipt: values.receipt, ...(values.timings ? { timings: values.timings } : {}) }
 }
 
-export async function runTestPlan(repo, plan, { launch = spawn, signals = process, log = value => console.error(JSON.stringify(value)) } = {}) {
+export const TIMING_REPORTER = './scripts/orchestration/test-timing-reporter.mjs'
+export function testGroupCommand(group, timings) {
+  assert(timings === undefined || timings === 'summary-v1', 'Unknown timing diagnostics version')
+  const reporters = timings ? ['--test-reporter=tap', '--test-reporter-destination=stdout',
+    `--test-reporter=${TIMING_REPORTER}`, '--test-reporter-destination=stderr'] : ['--test-reporter=tap']
+  return [process.execPath, '--test', `--test-concurrency=${group.concurrency}`, ...reporters, ...group.files]
+}
+
+export async function runTestPlan(repo, plan, { launch = spawn, signals = process, log = value => console.error(JSON.stringify(value)), timings } = {}) {
+  assert(timings === undefined || (timings === 'summary-v1' && plan.mode === 'shard'), 'Timing diagnostics require a shard and summary-v1')
   const startedAt = performance.now()
   assert(plan.files?.length && plan.groups?.length, 'Test plan must not be empty')
   assert(new Set(plan.files).size === plan.files.length, 'Duplicate planned test file')
@@ -169,6 +179,7 @@ export async function runTestPlan(repo, plan, { launch = spawn, signals = proces
   assert.deepEqual(plan.groups.flatMap(group => group.files).sort(), [...plan.files].sort(), 'Groups must cover every selected file exactly once')
   const env = { ...process.env }
   assert(!/--(?:experimental-)?test/.test(env.NODE_OPTIONS ?? ''), 'NODE_OPTIONS must not change test selection or isolation')
+  delete env.PND_TEST_TIMING_SLOT
   delete env.NODE_TEST_CONTEXT
   // Python importer tests must not create source-adjacent __pycache__ files
   // during a frozen shard. This effective setting is part of its input digest.
@@ -185,9 +196,10 @@ export async function runTestPlan(repo, plan, { launch = spawn, signals = proces
   signals.on('SIGINT', onInt); signals.on('SIGTERM', onTerm)
   try {
     log({ kind: 'pnd-test-plan', ...plan })
-    for (const group of plan.groups) {
+    for (const [groupIndex, group] of plan.groups.entries()) {
       if (interrupted) break
-      const command = [process.execPath, '--test', `--test-concurrency=${group.concurrency}`, '--test-reporter=tap', ...group.files]
+      const command = testGroupCommand(group, timings)
+      if (timings) env.PND_TEST_TIMING_SLOT = `shard-${plan.shard.index}-group-${groupIndex}`
       const started = performance.now()
       const result = await new Promise(resolve => {
         let error
@@ -221,11 +233,11 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     const [mode, ...requested] = process.argv.slice(2)
     let result
     if (mode === 'shard') {
-      const { index, count, receipt } = parseShardArguments(requested)
+      const { index, count, receipt, timings } = parseShardArguments(requested)
       // Reserve a fresh artifact before launching: a retry cannot silently rerun
       // into an existing receipt or retain a stale successful payload.
       writeFileSync(receipt, `${JSON.stringify({ version: 1, kind: 'pnd-test-shard-receipt', status: 'running' })}\n`, { flag: 'wx' })
-      const payload = await runTestShard(ROOT, planTestShard(ROOT, index, count, { concurrency: process.env.PND_TEST_CONCURRENCY ?? '2' }))
+      const payload = await runTestShard(ROOT, planTestShard(ROOT, index, count, { concurrency: process.env.PND_TEST_CONCURRENCY ?? '2' }), { timings })
       writeFileSync(receipt, `${JSON.stringify(payload, null, 2)}\n`)
       result = payload.result
     } else result = await runTestPlan(ROOT, planTestRun(ROOT, mode, requested, { concurrency: process.env.PND_TEST_CONCURRENCY ?? '2' }))

@@ -200,3 +200,37 @@ readiness guard. Checkout, runtime setup, dependency installs, full checks and
 build were all skipped. This verifies the cheap draft boundary, not a full pass.
 Historical ready/synchronize runs and that reviewed candidate's full results are
 recorded on [PR #475](https://github.com/JohnDeved/populous-new-dawn/pull/475).
+
+## Optional per-file timing diagnostics (summary-v1)
+
+A separately reviewed genuine shard invocation may append `--timings=summary-v1`
+to `scripts/orchestration/test-runner.mjs shard`. It does not launch additional
+runs or change partitioning, order, resource classification, concurrency or test
+selection. Default invocation remains the exact legacy TAP command. This change
+does not itself enable diagnostics in the hosted workflow.
+
+The opt-in command adds only the fixed source-controlled timing reporter, retaining
+TAP on stdout and a silent diagnostic reporter on stderr. The aggregate admits
+only these two exact command forms, never arbitrary reporter/destination flags.
+Reporter source is hashed into the candidate runtime identity; scripts remain in
+the before/after shard input fingerprint. Timing data is not a receipt input,
+permission, scheduling weight or evidence that tests passed. Missing diagnostic
+data cannot satisfy any gate, and genuine test failure still fails unchanged.
+
+Each group writes a fresh, bounded file under ignored
+`work/ci/timings/shard-N-group-N.jsonl` (zero-based indices). No configurable path
+is accepted. Existing files/symlink directories are refused, never overwritten;
+diagnostic I/O/validation errors emit a bounded notice and omit further diagnostics
+without altering test outcomes. A partial file must not be treated as a complete
+inventory. Outputs are limited to 2,048 unique file summaries and 1 MiB per group.
+Keep them outside committed source; collection/upload needs its own reviewed step,
+not an extra file inside the mandatory receipt artifact.
+
+Rows contain a relative test path, file/reporter hashes, Node version, success flag
+and Node `test:summary` duration in milliseconds. This is **Node test-summary run
+duration**, not OS process lifetime or total startup/import/cleanup time. Per-file
+summaries are supported by the pinned Node 24.19.0 runtime; cumulative summaries
+are excluded. Use exact candidate/runtime receipts alongside diagnostics, account
+for concurrency and runner variance, and never convert test-name duration sums
+into claimed whole-file wall time. Before enabling weighted scheduling, separately
+review completeness, source-bound samples and immutable deterministic partitioning.

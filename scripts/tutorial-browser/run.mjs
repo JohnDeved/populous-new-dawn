@@ -12,6 +12,7 @@ const fixture = resolve(dirname(import.meta.filename), 'fixture')
 const out = resolve(process.argv[2] || resolve(root, 'outputs/tutorial-browser'))
 const scenario = resolve(root, 'scripts/local-render/tutorial-recommendation.mjs')
 const selectorScenario = resolve(root, 'scripts/tutorial-browser/selector-inspection.mjs')
+const sceneryScenario = resolve(root, 'scripts/tutorial-browser/scenery-placement.mjs')
 const port = 5198
 if (existsSync(out)) throw Error('Output must be fresh')
 mkdirSync(out, { recursive: true })
@@ -55,7 +56,7 @@ const receipt = { status: 'running', startedAt: new Date().toISOString(), source
   runnerSha256: hash(import.meta.filename), builderSha256: hash(resolve(dirname(import.meta.filename), 'build-home.mjs')),
   browserConfigSha256: hash(resolve(dirname(import.meta.filename), 'browser-config.mjs')),
   scenarioSha256: hash(scenario), fixtureSha256: hash(resolve(fixture, 'main.tsx')),
-  selectorScenarioSha256: hash(selectorScenario),
+  selectorScenarioSha256: hash(selectorScenario), sceneryScenarioSha256: hash(sceneryScenario),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),
   browserPath, browserPathSource: browserConfig.browserPathSource, launch: browserConfig.launch,
@@ -102,6 +103,7 @@ try {
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
   receipt.result = await (await import(pathToFileURL(scenario).href)).default({ page, context, browser, url, root, output: out, receipt })
   receipt.selectorInspection = await (await import(pathToFileURL(selectorScenario).href)).default({ browser, url, output: out })
+  receipt.sceneryPlacement = await (await import(pathToFileURL(sceneryScenario).href)).default({ browser, url, output: out })
   assert.equal(receipt.browserTimedOut, undefined)
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
   receipt.status = 'passed'

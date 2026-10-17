@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
+import { testGroupCommand } from '../scripts/orchestration/test-runner.mjs'
 import { candidateSnapshot, reportLines, QUALITY_STAGES, readEnvelopes, validateGate, validateShard } from '../scripts/orchestration/ci-gate.mjs'
 
 function fixture() {
@@ -146,4 +147,24 @@ for (const mutation of ['checkout', 'parents', 'tracked', 'untracked-test', 'mis
   if (mutation === 'missing-identity') delete env.GITHUB_WORKFLOW_SHA
   const expected = { checkout: /Checkout differs/, parents: /parents differ/, tracked: /Command failed: git diff/, 'untracked-test': /inventory differs/, 'missing-identity': /Missing identity/ }
   assert.throws(() => candidateSnapshot(root, env), expected[mutation])
+})
+
+
+test('gate accepts only exact legacy or fixed diagnostic commands, never timing as proof', () => {
+  const f = fixture()
+  for (const envelope of f.envelopes.filter(e => e.kind === 'shard')) {
+    for (const group of envelope.shard.result.results) group.command = testGroupCommand(group, 'summary-v1')
+  }
+  assert.equal(validate(f).status, 'passed')
+  for (const flag of ['--test-reporter=evil', '--test-reporter-destination=../../escape', '--test-reporter-destination=stdout', '--test-name-pattern=skip']) {
+    const bad = structuredClone(f); bad.envelopes[1].shard.result.results[0].command.push(flag)
+    assert.throws(() => validate(bad))
+  }
+  const missing = structuredClone(f)
+  missing.envelopes[1].shard.result.results[0].command = missing.envelopes[1].shard.result.results[0].command.filter(x => x !== '--test-reporter-destination=stderr')
+  assert.throws(() => validate(missing))
+  const failure = structuredClone(f); failure.envelopes[1].shard.result.results[0].exitCode = 1
+  assert.throws(() => validate(failure))
+  const drift = structuredClone(f); drift.envelopes[1].runtime.timingReporterSha256 = 'f'.repeat(64)
+  assert.throws(() => validate(drift), /runtime drift/)
 })
