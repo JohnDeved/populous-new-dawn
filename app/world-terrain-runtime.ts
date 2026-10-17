@@ -179,10 +179,8 @@ export function syncLandscapeObjects(w: World) {
     const offset = poses.length
     poses.push(
       rules.sceneryObjects[tree.model],
-      nativeModelResource(
-        rules.sceneryObjects[tree.model],
-        worldEnvironment(w).objects.bank
-      ).shapeIndices[0],
+      nativeModelResource(rules.sceneryObjects[tree.model], worldEnvironment(w).objects.bank)
+        .shapeIndices[0],
       p.x & 0xfe00,
       p.y & 0xfe00
     )
