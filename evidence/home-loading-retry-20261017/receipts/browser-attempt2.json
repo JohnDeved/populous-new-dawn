@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "57464006-566c-46c8-89f6-753e79fab564",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dbd95a9b2f1b651439e33dc55d52f94001225e85",
+    "branch": "codex/home-loading-repeated-retry",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "evidence/home-loading-retry-20261017/run-probe.mjs"
+  ],
+  "cwd": "<REPO>",
+  "startedAt": "2026-10-17T01:24:07.984Z",
+  "artifacts": {
+    "stdout": "<REPO>/work/orchestration/home-loading-retry/browser-attempt2.json.artifacts/stdout.log",
+    "stderr": "<REPO>/work/orchestration/home-loading-retry/browser-attempt2.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T01:24:08.646Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "Production and probe inputs unchanged after run\n",
+  "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nbrowserType.launch: Opening in existing browser session. This usually means that the profile is already in use by another instance of Chromium.\nCall log:\n\u001b[2m  - <launching> <SYSTEM_CHROME>/Contents/MacOS/Google Chrome --remote-debugging-pipe\u001b[22m\n\u001b[2m  - <launched> pid=63190\u001b[22m\n\u001b[2m  - [pid=63190][out] Opening in existing browser session.\u001b[22m\n\u001b[2m  - [pid=63190] <gracefully close start>\u001b[22m\n\u001b[2m  - [pid=63190] <kill>\u001b[22m\n\u001b[2m  - [pid=63190] <will force kill>\u001b[22m\n\u001b[2m  - [pid=63190] exception while trying to kill process: Error: kill EPERM\u001b[22m\n\u001b[2m  - [pid=63190] <process did exit: exitCode=0, signal=null>\u001b[22m\n\u001b[2m  - [pid=63190] starting temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=63190] finished temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=63190] <gracefully close end>\u001b[22m\n\n    at <REPO>/scripts/check-browser-texture-cache-retry.mjs:28:32 {\n  log: [\n    '  - <launching> <SYSTEM_CHROME>/Contents/MacOS/Google Chrome --remote-debugging-pipe',\n    '  - <launched> pid=63190',\n    '  - [pid=63190][out] Opening in existing browser session.',\n    '  - [pid=63190] <gracefully close start>',\n    '  - [pid=63190] <kill>',\n    '  - [pid=63190] <will force kill>',\n    '  - [pid=63190] exception while trying to kill process: Error: kill EPERM',\n    '  - [pid=63190] <process did exit: exitCode=0, signal=null>',\n    '  - [pid=63190] starting temporary directories cleanup',\n    '  - [pid=63190] finished temporary directories cleanup',\n    '  - [pid=63190] <gracefully close end>'\n  ]\n}\n\nNode.js v24.18.0\n",
+  "stdoutSha256": "9dd86484451eaca0f5cc600cfd7eec6957db4cd3a826add33ccbf0f66c97e60f",
+  "stderrSha256": "c35aeaf18f659a340ebf70da7fcd01e7450b91374de13784d660602bda69309e",
+  "sourceAfter": {
+    "headOid": "dbd95a9b2f1b651439e33dc55d52f94001225e85",
+    "branch": "codex/home-loading-repeated-retry",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}
