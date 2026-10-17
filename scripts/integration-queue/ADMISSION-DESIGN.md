@@ -96,3 +96,54 @@ with its fixed name, full-check dependency and literal activation PR condition;
 changed/ambiguous forms require source review. Terminal source-bound receipt
 validation remains unchanged. This prevents the PR531 omitted-policy failure
 without reviving its stopped journal or replenishing any effect budget.
+
+## Explicit interrupted-draft recovery (source increment, not automatically active)
+
+A stopped opaque subprocess may leave an UNKNOWN draft intent. Neither current
+ready state nor an empty transition timeline proves that its request was never
+sent. Recovery never rewrites that original journal, clears its spent bit, or
+claims transport success. Root may separately authorize one idempotent convergence
+to draft, scoped to exact registration/intent/journal bytes, source tuple,
+reviewed workflow hashes, denial/authorization/termination evidence and actor.
+A recovery grant lasts at most ten minutes. Two complete coherent observations
+at least sixty seconds apart must agree on full timeline and run inventory,
+confirm terminated local action, no active attempts or intervening actor, and
+retain the ordinary source-bound admission gates. Incomplete pagination, drift,
+conflicting transitions, or missing evidence stops. GitHub timestamps have
+second resolution: boundary events are conservatively included for conflict checks.
+
+The fixed sidecar is originalJournalPath + '.draft-recovery.json', using the SAME
+canonical lock. The old CLI checks sidecar presence both before and inside that
+lock, including dangling links; it cannot ignore a consumed sidecar budget.
+Copied journal paths are rejected. No CLI removes stale locks: owner reconciliation
+must first verify the original session/process has ended. Historical journal
+bytes remain immutable. All state is same-OS-user trusted data, not signed evidence.
+
+The recovery CLI has explicit modes, each with a trusted manifest/input SHA256:
+observe; prepare; dispatch-draft; record-draft; observe-draft; prepare-ready;
+record-ready; observe-ready; verify-final. It never invokes a mutation itself.
+The manifest pins original journal path/hash, grant path/hash, reviewed driver
+head, candidate and original source entry path/hash, plus the denial, owner
+authorization and process-termination receipt paths whose hashes are in the grant.
+Inputs and sidecar remain outside the candidate. Preparation persists a separately
+consumed allowance. Dispatch re-observes, persists descriptor/tool/arguments/local
+invocation identity before returning exactly one connector action descriptor.
+A lost returned descriptor is NOT regenerated. Invoke that descriptor once through
+the explicit GitHub connector, save its raw structured result/error, then record
+its hash, local correlation identity, available actual tool-call ID (or null),
+real invocation timestamps and reported outcome. Correlation is the trusted local
+coordinator boundary, not a GitHub-signed execution attestation. A returned receipt
+alone never establishes desired state or causally attributes it to either call.
+Only independent attributed transition history plus exact state records convergence.
+
+After convergence, a SEPARATE owner authorization may consume only the original
+never-spent ready allowance once. It binds convergence evidence, exact tuple and
+explicitly accepts delayed-draft liveness risk, with permanent-stop-no-retry on
+unexpected redraft. The normal quiet interval and source-bound gates still apply.
+Original UNKNOWN persists forever. An old delayed draft can stop progress; it
+cannot waive fresh required checks, current not-draft state or authoritative
+server merge guards. Denied/unknown ready receipt, subsequent redraft or conflict
+never permits another ready/recovery. verify-final waits while genuine validation
+is active, but failed or unproven evidence stops. A successful final receipt is
+only current source-bound Full/Tutorial evidence, never merge authority or a future
+freshness waiver. No new credentials, protection changes or workflow triggers.

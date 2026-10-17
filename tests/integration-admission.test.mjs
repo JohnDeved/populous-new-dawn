@@ -248,6 +248,12 @@ test('usable CLI registers trusted grant, dry-runs and performs exactly one boun
   f.raw.draft = false; clock = 122_000; assert.equal((await admissionMain(args, options)).status, 'wait')
   clock = 422_000; assert.equal((await admissionMain([...args, '--apply'], options)).status, 'stop')
   assert.equal(calls.length, 2)
+  const beforeRecoveryGuard = readFileSync(grant.journalPath, 'utf8')
+  class RacingReader extends Reader {
+    gitOutput() { writeFileSync(`${grant.journalPath}.draft-recovery.json`, '{}'); return workflow }
+  }
+  await assert.rejects(admissionMain(args, { ...options, Reader: RacingReader }), /Recovery history disables/)
+  assert.equal(readFileSync(grant.journalPath, 'utf8'), beforeRecoveryGuard)
 })
 
 test('observer accepts a source-proved matching required Full, never a merely green or unselected check', () => {

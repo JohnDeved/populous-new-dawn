@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Explicit bounded admission-only CLI. No scheduling, merge, refresh or rerun.
 import assert from 'node:assert/strict'
-import { realpathSync } from 'node:fs'
+import { realpathSync, lstatSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
@@ -11,6 +11,11 @@ import { digest, validateEntry } from './policy.mjs'
 import { registerAdmission, admissionTick, withAdmissionJournal, validateRegistration } from './admission.mjs'
 import { observeAdmission } from './admission-observer.mjs'
 import { preflightAdmissionPolicy } from './admission-preflight.mjs'
+
+function hasRecoveryHistory(path) {
+  try { lstatSync(`${path}.draft-recovery.json`); return true }
+  catch (error) { if (error.code === 'ENOENT') return false; throw error }
+}
 
 export function parseAdmissionArguments(argv) {
   const result = {}, booleans = new Set(['--apply', '--register'])
@@ -52,8 +57,10 @@ export async function admissionMain(argv = process.argv.slice(2), { Reader = Git
   assert.equal(driver.git('rev-parse', 'HEAD'), grant.driverHead, 'Reviewed driver head differs')
   assert.equal(driver.git('status', '--porcelain', '--untracked-files=normal'), '', 'Driver must be clean')
   const reader = new Reader({ cwd: candidate })
+  assert(!hasRecoveryHistory(grant.journalPath), 'Explicit recovery history requires its dedicated no-replay continuation; ordinary admission is disabled')
   preflightAdmissionPolicy(reader, entry, grant) // Before any journal creation/write or remote effect.
   return withAdmissionJournal(grant.journalPath, async (ledger, persist) => {
+    assert(!hasRecoveryHistory(grant.journalPath), 'Recovery history disables ordinary admission under the canonical lock')
     if (args['--register']) {
       const previous = args['--previous'] === 'none' ? null : args['--previous']
       const next = registerAdmission(ledger, grant, previous, clock())
