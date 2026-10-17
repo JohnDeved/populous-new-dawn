@@ -150,3 +150,37 @@ Precise coverage changes optimized execution: these observations are not timing,
 FPS, GC, natural spell-firing, terrain-refresh rendering or native-equivalence
 acceptance. Paired baseline/candidate screenshots must retain exact source and turn
 identities; unequal final turns are not deterministic pixel-comparison evidence.
+
+## Real IndexedDB profile recovery (#90 / #342)
+
+The separate `Profile recovery browser` job selects
+`POPULOUS_BROWSER_SCENARIO=profile-recovery`. It uses the same exact-merge build,
+source/dependency manifests, official sandboxed Chrome and 180-second browser cap;
+it does not extend the Tutorial sequence or generate the M2 checkpoint fixture.
+Its artifact is named `profile-recovery-browser-<merge SHA>`.
+
+The retained nine-case scenario exercises seven diagnostic storage fixtures plus
+ordinary public Save → fresh-page Load and an in-session usable checkpoint after
+storage corruption. Fixtures use actual IndexedDB committed transactions in fresh
+contexts. Read-only full stored-record digests and forwarded write observation
+must show no restore/load mutation. UI availability, loaded fields, actual WebGL
+canvas and screenshots remain required. The current-world-without-drawMode case
+only checks that legacy default, not arbitrary historical saves. Page reload is
+not browser-process restart; no original binary-save, deployment or full PND-07
+claim follows. `profile-recovery.json` records every case and terminal failure.
+The build/browser gate must actually pass on the final candidate; focused Node
+checks and source review alone do not close #90.
+
+The current composition retains Tutorial and Pause checkpoint recovery as separate
+matrix jobs and adds Profile recovery as a third job, with no change to their
+caps or assertions. Profile startup and loaded worlds reuse the reviewed public
+Skip-or-unlocked readiness helper. No forced simulation ticks or production state
+mutation is used to satisfy readiness.
+
+The explicit reviewed `profile-recovery-v1` integration policy requires all three
+jobs; historical single-job and `pause-recovery-v1` two-job admissions remain
+separate. Profile success emits a bounded source-bound terminal envelope with
+all nine case results, unchanged runtime evidence and hashes of the two actual
+screenshots and full raw receipt. Failed scenarios retain the original report and
+error, never a successful compact envelope. Candidate policy modules are not a
+trusted authority; the coordinator must review and pin the transition externally.
