@@ -307,3 +307,18 @@ test('pause-overlay regression detects occlusion while permitting edge-touching 
   assert.match(source, /m2RectanglesOverlap\(layout.pause, ui\)/)
   assert.match(source, /pauseActionable/)
 })
+
+test('bounded M2 avoids duplicate initial-wide PNG while retaining all viewport captures and stage evidence', () => {
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.doesNotMatch(source, /m2-pointer-wide\.png/)
+  assert.match(source, /m2-pointer-\$\{width\}\.png/)
+  assert.match(source, /\[1440, 1000\]/)
+  assert.match(source, /stage\('deadline'\)/)
+  assert.match(source, /stage\('load-boundary-matched'\)/)
+  assert.match(source, /stage\('menu-returned'\)/)
+  assert.match(source, /assert\.deepEqual\(\s*readback,\s*fixture\.transfer/)
+  assert.equal(m2FunctionalLimitMs, 45000)
+})
