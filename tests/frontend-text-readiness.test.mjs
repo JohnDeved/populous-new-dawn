@@ -41,14 +41,14 @@ test('Options publishes only its own ready foreground rows and republishes on re
   visit(parsed)
   assert.ok(effect)
   const body = ts.transpileModule(`return ${effect.arguments[0].getText(parsed)};`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText
-  const make = new Function('ready', 'rows', 'onTextRowsChange', body)
+  const make = new Function('textReady', 'rows', 'onTextRowsChange', body)
   const rows = [{ text: 'Back', x: 320, y: 454 }]
   const observed = []
-  for (const ready of [false, true, false]) make(ready, rows, value => observed.push(value))()
+  for (const textReady of [false, true, false]) make(textReady, rows, value => observed.push(value))()
   assert.deepEqual(observed, [[], rows, []])
   assert.equal(observed[1], rows)
   make(false, rows, undefined)()
-  assert.match(effect.arguments[1].getText(parsed), /\bready\b/)
+  assert.match(effect.arguments[1].getText(parsed), /\btextReady\b/)
   assert.match(effect.arguments[1].getText(parsed), /\brows\b/)
   assert.match(effect.arguments[1].getText(parsed), /\bonTextRowsChange\b/)
 })

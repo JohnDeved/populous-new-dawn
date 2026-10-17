@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "15f66837-afdb-46b1-b85e-8a9038d15c7e",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "f4db91c5bd70d7683f14b17275e4a593cb932620",
+    "branch": "fix/options-art-readiness",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/original-options.tsx"
+  ],
+  "cwd": "<source-root>",
+  "startedAt": "2026-10-17T01:33:54.227Z",
+  "artifacts": {
+    "stdout": "<source-root>/work/orchestration/options-readiness/format.json.artifacts/stdout.log",
+    "stderr": "<source-root>/work/orchestration/options-readiness/format.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T01:33:54.321Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 5ms on 1 files using 10 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "d88beffd0730296f9cae35dac939577ed155ca01dc4d289f9484b8ccde7222e5",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "f4db91c5bd70d7683f14b17275e4a593cb932620",
+    "branch": "fix/options-art-readiness",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
