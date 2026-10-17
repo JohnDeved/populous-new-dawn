@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "aa718def-cef7-4f11-a20e-bac58a8a86f8",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "75c4e9005ca163855f321ace54a9f71c83e116e7",
+    "branch": "codex/ui-preload-baseline",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "./node_modules/.bin/eslint",
+    "scripts/local-render/ui-preload-baseline.mjs",
+    "evidence/ui-preload-baseline-20261017/run-probe.mjs"
+  ],
+  "cwd": "<repository>",
+  "startedAt": "2026-10-17T02:11:43.540Z",
+  "artifacts": {
+    "stdout": "<repository>/work/orchestration/ui-preload-baseline/lint.json.artifacts/stdout.log",
+    "stderr": "<repository>/work/orchestration/ui-preload-baseline/lint.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T02:11:44.001Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "75c4e9005ca163855f321ace54a9f71c83e116e7",
+    "branch": "codex/ui-preload-baseline",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

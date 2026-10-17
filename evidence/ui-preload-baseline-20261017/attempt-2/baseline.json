@@ -1,0 +1,4973 @@
+{
+  "status": "passed-baseline-observations",
+  "phases": [
+    {
+      "name": "01-first-menu-held",
+      "at": 2233,
+      "snapshot": {
+        "phase": "01-first-menu-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 10,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "New Game",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 551.59,
+              "y": 231.67,
+              "width": 176.82,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 575.55,
+              "y": 431.67,
+              "width": 128.91,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          }
+        ]
+      }
+    },
+    {
+      "name": "02-immediate-options-held",
+      "at": 2306,
+      "snapshot": {
+        "phase": "02-immediate-options-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Game",
+        "sliderReady": "false",
+        "fallbackCount": 9,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Back",
+          "key": "Back"
+        },
+        "controls": [
+          {
+            "label": "Rotation : <Cursor>",
+            "key": "rotation",
+            "box": {
+              "x": 190,
+              "y": 281.67,
+              "width": 900,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 490.89,
+              "y": 285,
+              "width": 298.23,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Sound",
+            "key": "Sound",
+            "box": {
+              "x": 521.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 592.66,
+              "y": 703.33,
+              "width": 94.69,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 604.19,
+              "y": 760,
+              "width": 71.59,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          }
+        ]
+      }
+    },
+    {
+      "name": "03-sound-held",
+      "at": 2387,
+      "snapshot": {
+        "phase": "03-sound-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "false",
+        "fallbackCount": 7,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 346.77,
+              "y": 703.33,
+              "width": 86.46,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 604.19,
+              "y": 760,
+              "width": 71.59,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          }
+        ]
+      }
+    },
+    {
+      "name": "04-fonts-ready-sliders-held",
+      "at": 2449,
+      "snapshot": {
+        "phase": "04-fonts-ready-sliders-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "false",
+        "fallbackCount": 0,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 335,
+              "y": 700,
+              "width": 110,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      }
+    },
+    {
+      "name": "05-options-ready",
+      "at": 2515,
+      "snapshot": {
+        "phase": "05-options-ready",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "true",
+        "fallbackCount": 0,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 335,
+              "y": 700,
+              "width": 110,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      }
+    },
+    {
+      "name": "06-main-artwork-held",
+      "at": 2605,
+      "snapshot": {
+        "phase": "06-main-artwork-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 10,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 551.59,
+              "y": 231.67,
+              "width": 176.82,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 575.55,
+              "y": 431.67,
+              "width": 128.91,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          }
+        ]
+      }
+    },
+    {
+      "name": "07-main-composition-held",
+      "at": 2650,
+      "snapshot": {
+        "phase": "07-main-composition-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      }
+    },
+    {
+      "name": "08-main-ready",
+      "at": 2786,
+      "snapshot": {
+        "phase": "08-main-ready",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "8d1c3836",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      }
+    },
+    {
+      "name": "09-reopened-options-ready",
+      "at": 2984,
+      "snapshot": {
+        "phase": "09-reopened-options-ready",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Game",
+        "sliderReady": "true",
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "ee09a376",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Back",
+          "key": "Back"
+        },
+        "controls": [
+          {
+            "label": "Rotation : <Cursor>",
+            "key": "rotation",
+            "box": {
+              "x": 190,
+              "y": 281.67,
+              "width": 900,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 403.33,
+              "y": 281.67,
+              "width": 473.33,
+              "height": 46.67
+            },
+            "glyphs": 19,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Sound",
+            "key": "Sound",
+            "box": {
+              "x": 521.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 570,
+              "y": 700,
+              "width": 140,
+              "height": 46.67
+            },
+            "glyphs": 5,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      }
+    },
+    {
+      "name": "10-return-focus",
+      "at": 3155,
+      "snapshot": {
+        "phase": "10-return-focus",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "8d1c3836",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      }
+    }
+  ],
+  "requests": [
+    {
+      "event": "request",
+      "path": "/original/loading-mask.png",
+      "group": null,
+      "at": 2191
+    },
+    {
+      "event": "request",
+      "path": "/original/loading-label.png",
+      "group": null,
+      "at": 2191
+    },
+    {
+      "event": "request",
+      "path": "/original/hud-panel.png",
+      "group": null,
+      "at": 2198
+    },
+    {
+      "event": "request",
+      "path": "/original/hud-tab.png",
+      "group": null,
+      "at": 2198
+    },
+    {
+      "event": "request",
+      "path": "/original/hud.png",
+      "group": null,
+      "at": 2198
+    },
+    {
+      "event": "request",
+      "path": "/original/hud-tab-active.png",
+      "group": null,
+      "at": 2199
+    },
+    {
+      "event": "request",
+      "path": "/original/hud-portrait.png",
+      "group": null,
+      "at": 2199
+    },
+    {
+      "event": "request",
+      "path": "/original/hud-health.png",
+      "group": null,
+      "at": 2199
+    },
+    {
+      "event": "request",
+      "path": "/original/hud-follower.png",
+      "group": null,
+      "at": 2200
+    },
+    {
+      "event": "request",
+      "path": "/original/hud-population.png",
+      "group": null,
+      "at": 2200
+    },
+    {
+      "event": "request",
+      "path": "/original/hud-mana.png",
+      "group": null,
+      "at": 2200
+    },
+    {
+      "event": "request",
+      "path": "/original/hud-commands.png",
+      "group": null,
+      "at": 2200
+    },
+    {
+      "event": "request",
+      "path": "/original/hud-button.png",
+      "group": null,
+      "at": 2200
+    },
+    {
+      "event": "request",
+      "path": "/original/hud-charge.png",
+      "group": null,
+      "at": 2200
+    },
+    {
+      "event": "finished",
+      "path": "/original/loading-mask.png",
+      "at": 2200
+    },
+    {
+      "event": "finished",
+      "path": "/original/loading-label.png",
+      "at": 2200
+    },
+    {
+      "event": "request",
+      "path": "/original/minimap-frame.png",
+      "group": null,
+      "at": 2208
+    },
+    {
+      "event": "finished",
+      "path": "/original/hud-panel.png",
+      "at": 2209
+    },
+    {
+      "event": "finished",
+      "path": "/original/hud-tab.png",
+      "at": 2209
+    },
+    {
+      "event": "finished",
+      "path": "/original/hud.png",
+      "at": 2209
+    },
+    {
+      "event": "finished",
+      "path": "/original/hud-tab-active.png",
+      "at": 2209
+    },
+    {
+      "event": "finished",
+      "path": "/original/hud-portrait.png",
+      "at": 2209
+    },
+    {
+      "event": "finished",
+      "path": "/original/hud-health.png",
+      "at": 2209
+    },
+    {
+      "event": "finished",
+      "path": "/original/hud-follower.png",
+      "at": 2210
+    },
+    {
+      "event": "finished",
+      "path": "/original/hud-population.png",
+      "at": 2210
+    },
+    {
+      "event": "finished",
+      "path": "/original/hud-mana.png",
+      "at": 2210
+    },
+    {
+      "event": "finished",
+      "path": "/original/hud-commands.png",
+      "at": 2210
+    },
+    {
+      "event": "finished",
+      "path": "/original/hud-button.png",
+      "at": 2210
+    },
+    {
+      "event": "finished",
+      "path": "/original/hud-charge.png",
+      "at": 2210
+    },
+    {
+      "event": "finished",
+      "path": "/original/minimap-frame.png",
+      "at": 2210
+    },
+    {
+      "event": "request",
+      "path": "/original/frontend/pointer.png",
+      "group": null,
+      "at": 2217
+    },
+    {
+      "event": "request",
+      "path": "/original/frontend/background.png",
+      "group": "artwork",
+      "at": 2217
+    },
+    {
+      "event": "request",
+      "path": "/original/frontend/composition.bin",
+      "group": "composition",
+      "at": 2217
+    },
+    {
+      "event": "request",
+      "path": "/original/frontend/feft33we.png",
+      "group": "fonts",
+      "at": 2217
+    },
+    {
+      "event": "request",
+      "path": "/original/frontend/fehi33we.png",
+      "group": "fonts",
+      "at": 2217
+    },
+    {
+      "event": "request",
+      "path": "/original/frontend/felgspen.png",
+      "group": "artwork",
+      "at": 2217
+    },
+    {
+      "event": "request",
+      "path": "/original/frontend/felo33we.png",
+      "group": "fonts",
+      "at": 2217
+    },
+    {
+      "event": "finished",
+      "path": "/original/frontend/pointer.png",
+      "at": 2218
+    },
+    {
+      "event": "request",
+      "path": "/original/options/frontend-0.png",
+      "group": "sliders",
+      "at": 2305
+    },
+    {
+      "event": "request",
+      "path": "/original/options/frontend-1.png",
+      "group": "sliders",
+      "at": 2306
+    },
+    {
+      "event": "request",
+      "path": "/original/options/frontend-2.png",
+      "group": "sliders",
+      "at": 2306
+    },
+    {
+      "event": "finished",
+      "path": "/original/frontend/feft33we.png",
+      "at": 2438
+    },
+    {
+      "event": "finished",
+      "path": "/original/frontend/fehi33we.png",
+      "at": 2438
+    },
+    {
+      "event": "finished",
+      "path": "/original/frontend/felo33we.png",
+      "at": 2438
+    },
+    {
+      "event": "finished",
+      "path": "/original/options/frontend-0.png",
+      "at": 2502
+    },
+    {
+      "event": "finished",
+      "path": "/original/options/frontend-2.png",
+      "at": 2503
+    },
+    {
+      "event": "finished",
+      "path": "/original/options/frontend-1.png",
+      "at": 2503
+    },
+    {
+      "event": "finished",
+      "path": "/original/frontend/felgspen.png",
+      "at": 2647
+    },
+    {
+      "event": "finished",
+      "path": "/original/frontend/background.png",
+      "at": 2647
+    },
+    {
+      "event": "finished",
+      "path": "/original/frontend/composition.bin",
+      "at": 2765
+    }
+  ],
+  "releases": [
+    {
+      "group": "fonts",
+      "at": 2431
+    },
+    {
+      "group": "sliders",
+      "at": 2500
+    },
+    {
+      "group": "artwork",
+      "at": 2645
+    },
+    {
+      "group": "composition",
+      "at": 2763
+    }
+  ],
+  "errors": [],
+  "warnings": [
+    "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently"
+  ],
+  "limits": [
+    "Actual Home in plain React/Vite; excludes production serving/hydration.",
+    "Routing disables HTTP cache while installed. Reopen is same-document loaded-resource reuse, not proof of warm HTTP cache.",
+    "Animation-frame/DOM observations supplement retained screenshots; transient DOM states alone do not establish visibly painted frames.",
+    "Response holds are controlled diagnostics, not a measured network profile. No product timeout policy is introduced."
+  ],
+  "browser": {
+    "samples": [
+      {
+        "source": "mutation",
+        "at": 12,
+        "frame": 0,
+        "phase": "boot",
+        "menuOpen": false,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": null,
+        "canvasRow139Hash": null,
+        "canvasSize": null,
+        "canvasBox": null,
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": null,
+        "focus": {
+          "key": null
+        },
+        "controls": []
+      },
+      {
+        "source": "mutation",
+        "at": 12.199999988079071,
+        "frame": 0,
+        "phase": "boot",
+        "menuOpen": false,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": null,
+        "canvasRow139Hash": null,
+        "canvasSize": null,
+        "canvasBox": null,
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": null,
+        "focus": {
+          "tag": "BODY",
+          "label": "",
+          "key": null
+        },
+        "controls": []
+      },
+      {
+        "source": "mutation",
+        "at": 2187.399999976158,
+        "frame": 127,
+        "phase": "boot",
+        "menuOpen": false,
+        "loading": true,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": null,
+        "canvasRow139Hash": null,
+        "canvasSize": null,
+        "canvasBox": null,
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": null,
+        "focus": {
+          "tag": "BODY",
+          "label": "⟡A world worth a bigger screen.For the best experience, play on a desk",
+          "key": null
+        },
+        "controls": []
+      },
+      {
+        "source": "mutation",
+        "at": 2202.5,
+        "frame": 128,
+        "phase": "boot",
+        "menuOpen": false,
+        "loading": true,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": null,
+        "canvasRow139Hash": null,
+        "canvasSize": null,
+        "canvasBox": null,
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": null,
+        "focus": {
+          "tag": "DIV",
+          "label": "Loading...Checking for a saved checkpoint in this browser.",
+          "key": null
+        },
+        "controls": []
+      },
+      {
+        "source": "mutation",
+        "at": 2211,
+        "frame": 129,
+        "phase": "boot",
+        "menuOpen": false,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 10,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          640,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BODY",
+          "label": "⟡A world worth a bigger screen.For the best experience, play on a desk",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0
+            },
+            "textBox": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0
+            },
+            "textBox": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 2213.699999988079,
+        "frame": 129,
+        "phase": "boot",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 10,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "New Game",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 551.59,
+              "y": 231.67,
+              "width": 176.82,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 575.55,
+              "y": 431.67,
+              "width": 128.91,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "source": "animation-frame",
+        "at": 2246.599999964237,
+        "frame": 132,
+        "phase": "01-first-menu-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 10,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "New Game",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 551.59,
+              "y": 231.67,
+              "width": 176.82,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 575.55,
+              "y": 431.67,
+              "width": 128.91,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 2302.5,
+        "frame": 135,
+        "phase": "01-first-menu-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Game",
+        "sliderReady": "false",
+        "fallbackCount": 9,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Back",
+          "key": "Back"
+        },
+        "controls": [
+          {
+            "label": "Rotation : <Cursor>",
+            "key": "rotation",
+            "box": {
+              "x": 190,
+              "y": 281.67,
+              "width": 900,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 490.89,
+              "y": 285,
+              "width": 298.23,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Sound",
+            "key": "Sound",
+            "box": {
+              "x": 521.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 592.66,
+              "y": 703.33,
+              "width": 94.69,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 604.19,
+              "y": 760,
+              "width": 71.59,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "source": "animation-frame",
+        "at": 2313.2999999523163,
+        "frame": 136,
+        "phase": "02-immediate-options-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Game",
+        "sliderReady": "false",
+        "fallbackCount": 9,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Back",
+          "key": "Back"
+        },
+        "controls": [
+          {
+            "label": "Rotation : <Cursor>",
+            "key": "rotation",
+            "box": {
+              "x": 190,
+              "y": 281.67,
+              "width": 900,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 490.89,
+              "y": 285,
+              "width": 298.23,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Sound",
+            "key": "Sound",
+            "box": {
+              "x": 521.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 592.66,
+              "y": 703.33,
+              "width": 94.69,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 604.19,
+              "y": 760,
+              "width": 71.59,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 2383.7999999523163,
+        "frame": 140,
+        "phase": "02-immediate-options-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "false",
+        "fallbackCount": 7,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 346.77,
+              "y": 703.33,
+              "width": 86.46,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 604.19,
+              "y": 760,
+              "width": 71.59,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 2386.2999999523163,
+        "frame": 140,
+        "phase": "03-sound-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "false",
+        "fallbackCount": 7,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 346.77,
+              "y": 703.33,
+              "width": 86.46,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 604.19,
+              "y": 760,
+              "width": 71.59,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 2437.5,
+        "frame": 143,
+        "phase": "03-sound-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "false",
+        "fallbackCount": 0,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 335,
+              "y": 700,
+              "width": 110,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 2448.099999964237,
+        "frame": 144,
+        "phase": "04-fonts-ready-sliders-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "false",
+        "fallbackCount": 0,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 335,
+              "y": 700,
+              "width": 110,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 2501.7999999523163,
+        "frame": 147,
+        "phase": "04-fonts-ready-sliders-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "true",
+        "fallbackCount": 0,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 335,
+              "y": 700,
+              "width": 110,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 2514.699999988079,
+        "frame": 148,
+        "phase": "05-options-ready",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "true",
+        "fallbackCount": 0,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 335,
+              "y": 700,
+              "width": 110,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 2600.399999976158,
+        "frame": 153,
+        "phase": "05-options-ready",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "true",
+        "fallbackCount": 0,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Back",
+          "key": "Back"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 335,
+              "y": 700,
+              "width": 110,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 2602.2999999523163,
+        "frame": 153,
+        "phase": "05-options-ready",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 10,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 551.59,
+              "y": 231.67,
+              "width": 176.82,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 575.55,
+              "y": 431.67,
+              "width": 128.91,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "source": "animation-frame",
+        "at": 2613.699999988079,
+        "frame": 154,
+        "phase": "06-main-artwork-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 10,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 551.59,
+              "y": 231.67,
+              "width": 176.82,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 575.55,
+              "y": 431.67,
+              "width": 128.91,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 2647.099999964237,
+        "frame": 155,
+        "phase": "06-main-artwork-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "animation-frame",
+        "at": 2663.599999964237,
+        "frame": 157,
+        "phase": "07-main-composition-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "animation-frame",
+        "at": 2783.199999988079,
+        "frame": 164,
+        "phase": "07-main-composition-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "8d1c3836",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "animation-frame",
+        "at": 2796.099999964237,
+        "frame": 165,
+        "phase": "08-main-ready",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "8d1c3836",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "animation-frame",
+        "at": 2912,
+        "frame": 172,
+        "phase": "warm-reopen",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "8d1c3836",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 2951.7999999523163,
+        "frame": 174,
+        "phase": "warm-reopen",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Game",
+        "sliderReady": "false",
+        "fallbackCount": 9,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "4e059302",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Back",
+          "key": "Back"
+        },
+        "controls": [
+          {
+            "label": "Rotation : <Cursor>",
+            "key": "rotation",
+            "box": {
+              "x": 190,
+              "y": 281.67,
+              "width": 900,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 490.89,
+              "y": 285,
+              "width": 298.23,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Sound",
+            "key": "Sound",
+            "box": {
+              "x": 521.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 592.66,
+              "y": 703.33,
+              "width": 94.69,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 604.19,
+              "y": 760,
+              "width": 71.59,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 2967.099999964237,
+        "frame": 175,
+        "phase": "warm-reopen",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Game",
+        "sliderReady": "true",
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "4e059302",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Back",
+          "key": "Back"
+        },
+        "controls": [
+          {
+            "label": "Rotation : <Cursor>",
+            "key": "rotation",
+            "box": {
+              "x": 190,
+              "y": 281.67,
+              "width": 900,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 403.33,
+              "y": 281.67,
+              "width": 473.33,
+              "height": 46.67
+            },
+            "glyphs": 19,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Sound",
+            "key": "Sound",
+            "box": {
+              "x": 521.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 570,
+              "y": 700,
+              "width": 140,
+              "height": 46.67
+            },
+            "glyphs": 5,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "animation-frame",
+        "at": 2980.399999976158,
+        "frame": 176,
+        "phase": "warm-reopen",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Game",
+        "sliderReady": "true",
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "ee09a376",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Back",
+          "key": "Back"
+        },
+        "controls": [
+          {
+            "label": "Rotation : <Cursor>",
+            "key": "rotation",
+            "box": {
+              "x": 190,
+              "y": 281.67,
+              "width": 900,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 403.33,
+              "y": 281.67,
+              "width": 473.33,
+              "height": 46.67
+            },
+            "glyphs": 19,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Sound",
+            "key": "Sound",
+            "box": {
+              "x": 521.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 570,
+              "y": 700,
+              "width": 140,
+              "height": 46.67
+            },
+            "glyphs": 5,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "animation-frame",
+        "at": 2996.899999976158,
+        "frame": 177,
+        "phase": "09-reopened-options-ready",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Game",
+        "sliderReady": "true",
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "ee09a376",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Back",
+          "key": "Back"
+        },
+        "controls": [
+          {
+            "label": "Rotation : <Cursor>",
+            "key": "rotation",
+            "box": {
+              "x": 190,
+              "y": 281.67,
+              "width": 900,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 403.33,
+              "y": 281.67,
+              "width": 473.33,
+              "height": 46.67
+            },
+            "glyphs": 19,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Sound",
+            "key": "Sound",
+            "box": {
+              "x": 521.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 570,
+              "y": 700,
+              "width": 140,
+              "height": 46.67
+            },
+            "glyphs": 5,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "mutation",
+        "at": 3151.699999988079,
+        "frame": 186,
+        "phase": "09-reopened-options-ready",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "8d1c3836",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "source": "animation-frame",
+        "at": 3163.599999964237,
+        "frame": 187,
+        "phase": "10-return-focus",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "8d1c3836",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      }
+    ],
+    "frameSamples": [
+      {
+        "at": 12.5,
+        "frame": 1,
+        "phase": "boot",
+        "menuOpen": false,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": null,
+        "canvasRow139Hash": null,
+        "canvasSize": null,
+        "canvasBox": null,
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": null,
+        "focus": {
+          "tag": "BODY",
+          "label": "",
+          "key": null
+        },
+        "controls": []
+      },
+      {
+        "at": 2187.699999988079,
+        "frame": 128,
+        "phase": "boot",
+        "menuOpen": false,
+        "loading": true,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": null,
+        "canvasRow139Hash": null,
+        "canvasSize": null,
+        "canvasBox": null,
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": null,
+        "focus": {
+          "tag": "BODY",
+          "label": "⟡A world worth a bigger screen.For the best experience, play on a desk",
+          "key": null
+        },
+        "controls": []
+      },
+      {
+        "at": 2202.599999964237,
+        "frame": 129,
+        "phase": "boot",
+        "menuOpen": false,
+        "loading": true,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": null,
+        "canvasRow139Hash": null,
+        "canvasSize": null,
+        "canvasBox": null,
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": null,
+        "focus": {
+          "tag": "DIV",
+          "label": "Loading...Checking for a saved checkpoint in this browser.",
+          "key": null
+        },
+        "controls": []
+      },
+      {
+        "at": 2214.199999988079,
+        "frame": 130,
+        "phase": "boot",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 10,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "New Game",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 551.59,
+              "y": 231.67,
+              "width": 176.82,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 575.55,
+              "y": 431.67,
+              "width": 128.91,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "at": 2246.599999964237,
+        "frame": 132,
+        "phase": "01-first-menu-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 10,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "New Game",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 551.59,
+              "y": 231.67,
+              "width": 176.82,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 575.55,
+              "y": 431.67,
+              "width": 128.91,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "at": 2313.2999999523163,
+        "frame": 136,
+        "phase": "02-immediate-options-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Game",
+        "sliderReady": "false",
+        "fallbackCount": 9,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Back",
+          "key": "Back"
+        },
+        "controls": [
+          {
+            "label": "Rotation : <Cursor>",
+            "key": "rotation",
+            "box": {
+              "x": 190,
+              "y": 281.67,
+              "width": 900,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 490.89,
+              "y": 285,
+              "width": 298.23,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Sound",
+            "key": "Sound",
+            "box": {
+              "x": 521.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 592.66,
+              "y": 703.33,
+              "width": 94.69,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 604.19,
+              "y": 760,
+              "width": 71.59,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "at": 2397,
+        "frame": 141,
+        "phase": "03-sound-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "false",
+        "fallbackCount": 7,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 346.77,
+              "y": 703.33,
+              "width": 86.46,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 604.19,
+              "y": 760,
+              "width": 71.59,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "at": 2445.5,
+        "frame": 144,
+        "phase": "03-sound-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "false",
+        "fallbackCount": 0,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 335,
+              "y": 700,
+              "width": 110,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "at": 2463.599999964237,
+        "frame": 145,
+        "phase": "04-fonts-ready-sliders-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "false",
+        "fallbackCount": 0,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 335,
+              "y": 700,
+              "width": 110,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "at": 2512.599999964237,
+        "frame": 148,
+        "phase": "04-fonts-ready-sliders-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "true",
+        "fallbackCount": 0,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 335,
+              "y": 700,
+              "width": 110,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "at": 2530.2999999523163,
+        "frame": 149,
+        "phase": "05-options-ready",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Sound",
+        "sliderReady": "true",
+        "fallbackCount": 0,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "SPAN",
+          "label": "Sound",
+          "key": "Sound"
+        },
+        "controls": [
+          {
+            "label": "Game",
+            "key": "Game",
+            "box": {
+              "x": 271.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 335,
+              "y": 700,
+              "width": 110,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "at": 2613.699999988079,
+        "frame": 154,
+        "phase": "06-main-artwork-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 10,
+        "logo": "_fallbackTitle_m3oir_54",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 551.59,
+              "y": 231.67,
+              "width": 176.82,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 575.55,
+              "y": 431.67,
+              "width": 128.91,
+              "height": 46.67
+            },
+            "glyphs": 0,
+            "font": "22px / 28px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "at": 2647.5,
+        "frame": 156,
+        "phase": "06-main-artwork-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "at": 2663.599999964237,
+        "frame": 157,
+        "phase": "07-main-composition-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "4b3145c5",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "at": 2783.199999988079,
+        "frame": 164,
+        "phase": "07-main-composition-held",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "8d1c3836",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "at": 2796.099999964237,
+        "frame": 165,
+        "phase": "08-main-ready",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "8d1c3836",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "at": 2912,
+        "frame": 172,
+        "phase": "warm-reopen",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "8d1c3836",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "at": 2963.699999988079,
+        "frame": 175,
+        "phase": "warm-reopen",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Game",
+        "sliderReady": "false",
+        "fallbackCount": 9,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "4e059302",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Back",
+          "key": "Back"
+        },
+        "controls": [
+          {
+            "label": "Rotation : <Cursor>",
+            "key": "rotation",
+            "box": {
+              "x": 190,
+              "y": 281.67,
+              "width": 900,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 490.89,
+              "y": 285,
+              "width": 298.23,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Sound",
+            "key": "Sound",
+            "box": {
+              "x": 521.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 592.66,
+              "y": 703.33,
+              "width": 94.69,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 604.19,
+              "y": 760,
+              "width": 71.59,
+              "height": 36.67
+            },
+            "glyphs": 0,
+            "font": "20px / 26px Georgia, serif"
+          }
+        ]
+      },
+      {
+        "at": 2980.399999976158,
+        "frame": 176,
+        "phase": "warm-reopen",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Game",
+        "sliderReady": "true",
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "ee09a376",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Back",
+          "key": "Back"
+        },
+        "controls": [
+          {
+            "label": "Rotation : <Cursor>",
+            "key": "rotation",
+            "box": {
+              "x": 190,
+              "y": 281.67,
+              "width": 900,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 403.33,
+              "y": 281.67,
+              "width": 473.33,
+              "height": 46.67
+            },
+            "glyphs": 19,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Sound",
+            "key": "Sound",
+            "box": {
+              "x": 521.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 570,
+              "y": 700,
+              "width": 140,
+              "height": 46.67
+            },
+            "glyphs": 5,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "at": 2996.899999976158,
+        "frame": 177,
+        "phase": "09-reopened-options-ready",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": true,
+        "category": "Game",
+        "sliderReady": "true",
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "ee09a376",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Back",
+          "key": "Back"
+        },
+        "controls": [
+          {
+            "label": "Rotation : <Cursor>",
+            "key": "rotation",
+            "box": {
+              "x": 190,
+              "y": 281.67,
+              "width": 900,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 403.33,
+              "y": 281.67,
+              "width": 473.33,
+              "height": 46.67
+            },
+            "glyphs": 19,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Sound",
+            "key": "Sound",
+            "box": {
+              "x": 521.67,
+              "y": 700,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 570,
+              "y": 700,
+              "width": 140,
+              "height": 46.67
+            },
+            "glyphs": 5,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Back",
+            "key": "Back",
+            "box": {
+              "x": 521.67,
+              "y": 756.67,
+              "width": 236.67,
+              "height": 43.33
+            },
+            "textBox": {
+              "x": 586.67,
+              "y": 756.67,
+              "width": 106.67,
+              "height": 46.67
+            },
+            "glyphs": 4,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      },
+      {
+        "at": 3163.599999964237,
+        "frame": 187,
+        "phase": "10-return-focus",
+        "menuOpen": true,
+        "loading": false,
+        "optionsOpen": false,
+        "category": null,
+        "sliderReady": null,
+        "fallbackCount": 0,
+        "logo": "_logo_m3oir_28",
+        "canvasRow139Hash": "8d1c3836",
+        "canvasSize": [
+          768,
+          480
+        ],
+        "canvasBox": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "viewport": [
+          1280,
+          800,
+          1
+        ],
+        "canvasCorner": [
+          71,
+          51,
+          7,
+          255
+        ],
+        "focus": {
+          "tag": "BUTTON",
+          "label": "Options",
+          "key": null
+        },
+        "controls": [
+          {
+            "label": "New Game",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 231.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 531.67,
+              "y": 231.67,
+              "width": 216.67,
+              "height": 46.67
+            },
+            "glyphs": 8,
+            "font": "12px / 18px Arial, sans-serif"
+          },
+          {
+            "label": "Options",
+            "key": null,
+            "box": {
+              "x": 473.33,
+              "y": 431.67,
+              "width": 333.33,
+              "height": 48.33
+            },
+            "textBox": {
+              "x": 550,
+              "y": 431.67,
+              "width": 180,
+              "height": 46.67
+            },
+            "glyphs": 7,
+            "font": "12px / 18px Arial, sans-serif"
+          }
+        ]
+      }
+    ],
+    "decodes": [
+      {
+        "src": "http://127.0.0.1:4401/original/frontend/feft33we.png",
+        "start": 2212.699999988079,
+        "end": 2434.899999976158,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/frontend/fehi33we.png",
+        "start": 2212.699999988079,
+        "end": 2435.199999988079,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/frontend/felgspen.png",
+        "start": 2212.699999988079,
+        "end": 2644.699999988079,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/frontend/felo33we.png",
+        "start": 2212.699999988079,
+        "end": 2435.199999988079,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/frontend/feft33we.png",
+        "start": 2301.099999964237,
+        "end": 2434.899999976158,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/frontend/fehi33we.png",
+        "start": 2301.099999964237,
+        "end": 2435.199999988079,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/frontend/felo33we.png",
+        "start": 2301.099999964237,
+        "end": 2435.199999988079,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/options/frontend-0.png",
+        "start": 2301.099999964237,
+        "end": 2499.899999976158,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/options/frontend-1.png",
+        "start": 2301.099999964237,
+        "end": 2500,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/options/frontend-2.png",
+        "start": 2301.099999964237,
+        "end": 2500,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/frontend/feft33we.png",
+        "start": 2948.899999976158,
+        "end": 2951.899999976158,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/frontend/fehi33we.png",
+        "start": 2948.899999976158,
+        "end": 2951.899999976158,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/frontend/felo33we.png",
+        "start": 2948.899999976158,
+        "end": 2951.899999976158,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/options/frontend-0.png",
+        "start": 2948.899999976158,
+        "end": 2951.899999976158,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/options/frontend-1.png",
+        "start": 2948.899999976158,
+        "end": 2951.899999976158,
+        "status": "resolved"
+      },
+      {
+        "src": "http://127.0.0.1:4401/original/options/frontend-2.png",
+        "start": 2948.899999976158,
+        "end": 2951.899999976158,
+        "status": "resolved"
+      }
+    ],
+    "shifts": [
+      {
+        "at": 2159.599999964237,
+        "value": 0.00625,
+        "hadRecentInput": false
+      },
+      {
+        "at": 2202.899999976158,
+        "value": 0.0360107421875,
+        "hadRecentInput": false
+      },
+      {
+        "at": 2512.2999999523163,
+        "value": 0.00014117431640625,
+        "hadRecentInput": true
+      },
+      {
+        "at": 2647.199999988079,
+        "value": 0.047925301525183026,
+        "hadRecentInput": true
+      }
+    ],
+    "frame": 194,
+    "phase": "10-return-focus",
+    "last": "{\"phase\":\"10-return-focus\",\"menuOpen\":true,\"loading\":false,\"optionsOpen\":false,\"category\":null,\"sliderReady\":null,\"fallbackCount\":0,\"logo\":\"_logo_m3oir_28\",\"canvasRow139Hash\":\"8d1c3836\",\"canvasSize\":[768,480],\"canvasBox\":{\"x\":0,\"y\":0,\"width\":1280,\"height\":800},\"viewport\":[1280,800,1],\"canvasCorner\":[71,51,7,255],\"focus\":{\"tag\":\"BUTTON\",\"label\":\"Options\",\"key\":null},\"controls\":[{\"label\":\"New Game\",\"key\":null,\"box\":{\"x\":473.33,\"y\":231.67,\"width\":333.33,\"height\":48.33},\"textBox\":{\"x\":531.67,\"y\":231.67,\"width\":216.67,\"height\":46.67},\"glyphs\":8,\"font\":\"12px / 18px Arial, sans-serif\"},{\"label\":\"Options\",\"key\":null,\"box\":{\"x\":473.33,\"y\":431.67,\"width\":333.33,\"height\":48.33},\"textBox\":{\"x\":550,\"y\":431.67,\"width\":180,\"height\":46.67},\"glyphs\":7,\"font\":\"12px / 18px Arial, sans-serif\"}]}",
+    "lastFrame": "{\"phase\":\"10-return-focus\",\"menuOpen\":true,\"loading\":false,\"optionsOpen\":false,\"category\":null,\"sliderReady\":null,\"fallbackCount\":0,\"logo\":\"_logo_m3oir_28\",\"canvasRow139Hash\":\"8d1c3836\",\"canvasSize\":[768,480],\"canvasBox\":{\"x\":0,\"y\":0,\"width\":1280,\"height\":800},\"viewport\":[1280,800,1],\"canvasCorner\":[71,51,7,255],\"focus\":{\"tag\":\"BUTTON\",\"label\":\"Options\",\"key\":null},\"controls\":[{\"label\":\"New Game\",\"key\":null,\"box\":{\"x\":473.33,\"y\":231.67,\"width\":333.33,\"height\":48.33},\"textBox\":{\"x\":531.67,\"y\":231.67,\"width\":216.67,\"height\":46.67},\"glyphs\":8,\"font\":\"12px / 18px Arial, sans-serif\"},{\"label\":\"Options\",\"key\":null,\"box\":{\"x\":473.33,\"y\":431.67,\"width\":333.33,\"height\":48.33},\"textBox\":{\"x\":550,\"y\":431.67,\"width\":180,\"height\":46.67},\"glyphs\":7,\"font\":\"12px / 18px Arial, sans-serif\"}]}"
+  }
+}
