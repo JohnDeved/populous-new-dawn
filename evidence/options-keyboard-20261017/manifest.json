@@ -6,7 +6,7 @@
   "baselineBrowserSource": "8e6a31ecfb566bd08b83a67f1a150e9fe4a820a1",
   "fixSource": "e4188e4a2621fd762adfed7cee19f78880bbefc3",
   "fixTree": "25eab778ccbd95b5476547df1e9e866a5596481e",
-  "fixedBrowser": "not-run; new shared-slot interval required",
+  "fixedBrowser": "passed; clean source bcab15a8f6bfaeaf6a62e3139de11390f083442a; browser/server/profile cleanup completed",
   "files": [
     {
       "path": "receipts/baseline-1.json",
@@ -77,6 +77,32 @@
       "path": "baseline-2/frontend-back-focus.png",
       "originalSha256": "07378198e29253602037c73dd32febed8d8dd67ccad460cbc1dbe68d7fafa526",
       "publishedSha256": "07378198e29253602037c73dd32febed8d8dd67ccad460cbc1dbe68d7fafa526"
+    },
+    {
+      "path": "receipts/fixed-1.json",
+      "originalSha256": "9edfa4a206255f5cf4ec094414fc5cecfbe092c2a20cf2d2bb6379167191c2bb",
+      "publishedSha256": "14a7a4fdfd615befd9e600b60edcf4bb4df1fc5d80e9b5c17522665901ed8bda"
+    },
+    {
+      "path": "fixed-1/source.json",
+      "originalSha256": "3f51601200628bd5b70da4bc09dc1730d0edd5f23326c8a6aba8b7157e6af5ef",
+      "publishedSha256": "3f51601200628bd5b70da4bc09dc1730d0edd5f23326c8a6aba8b7157e6af5ef"
+    },
+    {
+      "path": "fixed-1/keyboard.json",
+      "originalSha256": "119467060e21e40efc1016af1527df7d4001efba2e8398bfe7604ab51ba76e57",
+      "publishedSha256": "119467060e21e40efc1016af1527df7d4001efba2e8398bfe7604ab51ba76e57"
+    },
+    {
+      "path": "fixed-1/ingame-back-focus.png",
+      "originalSha256": "032b9d4fa742176b6bc0bda2a027893594e375ac54b79408602944ef880f8040",
+      "publishedSha256": "032b9d4fa742176b6bc0bda2a027893594e375ac54b79408602944ef880f8040"
+    },
+    {
+      "path": "fixed-1/frontend-back-focus.png",
+      "originalSha256": "07378198e29253602037c73dd32febed8d8dd67ccad460cbc1dbe68d7fafa526",
+      "publishedSha256": "07378198e29253602037c73dd32febed8d8dd67ccad460cbc1dbe68d7fafa526"
     }
-  ]
+  ],
+  "fixedBrowserSource": "bcab15a8f6bfaeaf6a62e3139de11390f083442a"
 }

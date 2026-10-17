@@ -67,11 +67,24 @@ must be confirmed separately.
 - Resource policy is unchanged. Planner retains unmapped new probe/evidence paths
   and conservative full verification; focused checks do not replace hosted gates.
 
-**Fixed browser episode pending.** Request a separate four-minute shared slot to
-run the same matrix with `POPULOUS_KEYBOARD_BASELINE` unset. Every button/key case
-will then require retained focus in both skins. Sliders, native Tab, Escape, Back,
-focus return and resume assertions remain enabled. Parent owns independent review,
-integration, readiness and merge; this is a draft candidate, not accepted delivery.
+**Fixed browser episode passed** at clean source
+`bcab15a8f6bfaeaf6a62e3139de11390f083442a`, using the same scenario as the completed
+baseline with `POPULOUS_KEYBOARD_BASELINE` unset. All 24 in-game and all 24 frontend
+cases retained focus: zero jumps, compared with 19 in-game jumps before the fix.
+[Final receipt](receipts/fixed-1.json) and [all observations](fixed-1/keyboard.json)
+retain the source identity and exact cases. Both Master/Music sliders passed
+Home/End/Up/Down adjustment, native Tab was not intercepted, Escape and Back
+returned focus to Options, and Continue Game restored unpaused play. No page errors.
+Expected Three.js missing-image console warnings remain, not a silent-console claim.
+
+The fixed browser source is the documentation child of the focused-tested fix;
+application and scenario bytes are identical to their focused-tested source.
+This publication adds only the final evidence and wording. Original failed probe
+and pre-fix regression receipts are preserved, and all prior published manifest
+hashes were checked before adding the final artifacts. Awaited cleanup closed the
+owned browser/context/server on 4399 and removed its temporary profile. Shared Mac
+slot released. Parent independent review, hosted full gate, integration, readiness
+and merge remain separate; no effect or readiness transition was performed.
 
 ```sh
 POPULOUS_BROWSER=/path/to/official/chrome-headless-shell \
