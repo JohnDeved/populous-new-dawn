@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { EventEmitter } from 'node:events'
 import { createHash } from 'node:crypto'
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test, { after } from 'node:test'
@@ -358,4 +358,62 @@ test('shards suppress Python importer bytecode without changing ordinary runner 
     assert.equal(options.env.PYTHONDONTWRITEBYTECODE, inherited)
     return fakeLaunch()(command, args, options)
   } })
+})
+
+test('optional timing reporter preserves shard scheduling, TAP and failures without making diagnostics mandatory', async t => {
+  for (const fail of [false, true]) {
+    const { repo, put } = shardFixture(t)
+    put('scripts/orchestration/test-timing-reporter.mjs', readFileSync(new URL('../scripts/orchestration/test-timing-reporter.mjs', import.meta.url)))
+    put('tests/a.test.mjs', `import test from 'node:test'; test('timing fixture', () => { ${fail ? "throw Error('expected fixture failure')" : ''} });`)
+    const plan = planTestShard(repo, 0)
+    const outputs = []
+    const launch = (command, args, options) => {
+      const child = spawn(command, args, { ...options, stdio: ['ignore', 'pipe', 'pipe'] })
+      let stdout = '', stderr = ''
+      child.stdout.on('data', data => { stdout += data }); child.stderr.on('data', data => { stderr += data })
+      child.on('close', () => outputs.push({ stdout, stderr }))
+      return child
+    }
+    const legacy = await runTestShard(repo, plan, { ...quiet, launch })
+    const timed = await runTestShard(repo, plan, { ...quiet, launch, timings: 'summary-v1' })
+    assert.equal(timed.result.status, legacy.result.status)
+    assert.deepEqual(timed.plan, legacy.plan)
+    assert.equal(timed.inputsBefore, timed.inputsAfter)
+    assert.deepEqual(timed.result.results.map(g => [g.files, g.concurrency, g.exitCode]), legacy.result.results.map(g => [g.files, g.concurrency, g.exitCode]))
+    assert.ok(outputs.every(o => o.stdout.startsWith('TAP version 13')))
+    const rows = plan.groups.flatMap((_, index) => readFileSync(join(repo, `work/ci/timings/shard-0-group-${index}.jsonl`), 'utf8').trim().split('\n').filter(Boolean).map(JSON.parse))
+    assert.deepEqual(rows.map(r => r.file).sort(), [...plan.files].sort())
+    for (const row of rows) {
+      assert.equal(row.kind, 'node-test-summary-duration'); assert.equal(row.version, 1)
+      assert.equal(row.node, process.versions.node); assert.ok(row.durationMs >= 0)
+      assert.equal(row.fileSha256, digest(readFileSync(join(repo, row.file))))
+      assert.equal(row.reporterSha256, digest(readFileSync(join(repo, 'scripts/orchestration/test-timing-reporter.mjs'))))
+    }
+    assert.equal(rows.find(r => r.file === 'tests/a.test.mjs').success, !fail)
+    const original = readFileSync(join(repo, 'work/ci/timings/shard-0-group-0.jsonl'), 'utf8')
+    // Existing destinations cannot be overwritten. Diagnostics unavailable must
+    // not change either a successful test result or a genuine failing result.
+    const duplicate = await runTestShard(repo, plan, { ...quiet, launch, timings: 'summary-v1' })
+    assert.equal(duplicate.result.status, legacy.result.status)
+    assert.equal(readFileSync(join(repo, 'work/ci/timings/shard-0-group-0.jsonl'), 'utf8'), original)
+    assert.ok(outputs.some(o => o.stderr.includes('PND_TIMING_DIAGNOSTIC_UNAVAILABLE')))
+  }
+})
+
+test('timing CLI accepts only its fixed version, with no destination or arbitrary reporter flags', () => {
+  const base = ['--shard-index=0', '--shard-count=4', '--receipt=work/ci/shard.json']
+  assert.equal(parseShardArguments([...base, '--timings=summary-v1']).timings, 'summary-v1')
+  for (const extra of [ ['--timings=../../escape'], ['--timings=summary-v2'], ['--timings=summary-v1', '--timings=summary-v1'],
+    ['--timing-destination=/tmp/x'], ['--test-reporter=evil'], ['--test-reporter-destination=stdout'] ])
+    assert.throws(() => parseShardArguments([...base, ...extra]))
+})
+
+test('timing diagnostics reject directory symlinks without touching their target or altering test results', async t => {
+  const { repo, put } = shardFixture(t)
+  put('scripts/orchestration/test-timing-reporter.mjs', readFileSync(new URL('../scripts/orchestration/test-timing-reporter.mjs', import.meta.url)))
+  mkdirSync(join(repo, 'external')); symlinkSync('external', join(repo, 'work'))
+  const plan = planTestShard(repo, 0)
+  const result = await runTestShard(repo, plan, { ...quiet, timings: 'summary-v1' })
+  assert.equal(result.result.status, 'passed')
+  assert.deepEqual(readdirSync(join(repo, 'external')), [])
 })
