@@ -199,3 +199,51 @@ test('context selection retains CPU-only spikes even when RAF gaps occupy the to
   assert.equal(result.spikeContexts.length, 10)
   assert.equal(result.worstFrames.pointer[0].pointerBreakdown, null)
 })
+
+test('optional versioned native diagnostics preserve old v1 and sanitize new evidence', () => {
+  const old = summarize(report())
+  assert.equal(old.worstFrames.pointer[0].pointerBreakdown.nativeOcclusion, undefined)
+  const value = report(), native = createPointerFrameMetrics(true).nativeOcclusion
+  native.cacheCold = 1
+  native.projectedVertices = 24
+  native.privateExtra = 'must not be copied'
+  value.frames[0].pointerBreakdown.nativeOcclusion = native
+  const result = summarize(value)
+  const evidence = result.worstFrames.pointer.find(frame => frame.frameIndex === 0)
+  assert.equal(evidence.pointerBreakdown.nativeOcclusion.projectedVertices, 24)
+  assert.equal(evidence.pointerBreakdown.nativeOcclusion.privateExtra, undefined)
+  for (const mutate of [
+    n => { n.version = 2 }, n => { delete n.projectionMs },
+    n => { n.projectedVertices = 0.5 }, n => { n.cacheHits = -1 },
+    n => { n.triangleScanMs = null }, n => { n.submittedTriangles = Number.MAX_SAFE_INTEGER + 1 },
+  ]) {
+    const invalid = structuredClone(value)
+    mutate(invalid.frames[0].pointerBreakdown.nativeOcclusion)
+    assert.throws(() => summarize(invalid))
+  }
+})
+
+test('full native-detail ring remains within the existing 2 MiB JSON bound', async t => {
+  const { FramePerformance } = await import('../app/frame-performance.ts')
+  const { NATIVE_OCCLUSION_FIELDS } = await import('../app/native-occlusion-metrics.ts')
+  const samples = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+  // Long numeric representations, large finite durations and largest supported
+  // counters are deliberately less compact than ordinary millisecond recordings.
+  for (const key of Object.keys(metrics))
+    if (key !== 'nativeOcclusion') metrics[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
+  for (const key of NATIVE_OCCLUSION_FIELDS)
+    metrics.nativeOcclusion[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
+  for (let i = 1; i <= 1200; i++)
+    samples.sample(16.666666666666668, 1234567.8901234567, 1234567.8901234567,
+      Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, 'live', metrics)
+  const value = report()
+  value.frames = samples.recentFrames()
+  const last = value.frames.at(-1)
+  Object.assign(value.timing, { count: 1200, startTimestampMs: 0, endTimestampMs: last.timestampMs,
+    capturedSpanMs: last.timestampMs })
+  const json = JSON.stringify(value)
+  const bytes = Buffer.byteLength(json, 'utf8')
+  t.diagnostic(`${bytes} bytes for 1200 populated native-detail frames`)
+  assert.ok(bytes < 2 * 1024 * 1024)
+  assert.equal(analyzeFrameExport(json).sampleCount, 1200)
+})

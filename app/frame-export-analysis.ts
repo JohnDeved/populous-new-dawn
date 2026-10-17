@@ -1,3 +1,4 @@
+import { NATIVE_OCCLUSION_FIELDS, type NativeOcclusionMetrics } from './native-occlusion-metrics.ts'
 // Offline analysis only. Never import this into the frame loop or treat nested timings as additive.
 const FRAME_FIELDS = [
   'timestampMs',
@@ -32,7 +33,9 @@ const MAX_JSON_CODE_UNITS = 2 * 1024 * 1024
 type RecordValue = Record<string, unknown>
 type Frame = Record<(typeof FRAME_FIELDS)[number], number> & {
   state: 'live' | 'paused' | 'menu' | 'unknown'
-  pointerBreakdown: Record<(typeof POINTER_FIELDS)[number], number> | null
+  pointerBreakdown:
+    | (Record<(typeof POINTER_FIELDS)[number], number> & { nativeOcclusion?: NativeOcclusionMetrics })
+    | null
 }
 
 function object(value: unknown, path: string): RecordValue {
@@ -68,7 +71,22 @@ function frameEvidence(frames: Frame[]) {
       number
     >),
     pointerBreakdown: frame.pointerBreakdown
-      ? Object.fromEntries(POINTER_FIELDS.map(key => [key, frame.pointerBreakdown![key]]))
+      ? {
+          ...Object.fromEntries(POINTER_FIELDS.map(key => [key, frame.pointerBreakdown![key]])),
+          ...(frame.pointerBreakdown.nativeOcclusion
+            ? {
+                nativeOcclusion: {
+                  version: 1,
+                  ...Object.fromEntries(
+                    NATIVE_OCCLUSION_FIELDS.map(key => [
+                      key,
+                      frame.pointerBreakdown!.nativeOcclusion![key],
+                    ])
+                  ),
+                },
+              }
+            : {}),
+        }
       : null,
   }))
   const rank = (key: 'rafIntervalMs' | 'callbackCpuMs' | 'pointerTooltipCpuMs') =>
@@ -182,6 +200,16 @@ export function analyzeFrameExport(json: string) {
       const pointer = object(frame.pointerBreakdown, `frames[${index}].pointerBreakdown`)
       for (const key of POINTER_FIELDS)
         finite(pointer[key], `frames[${index}].pointerBreakdown.${key}`)
+      if (pointer.nativeOcclusion !== undefined) {
+        const path = `frames[${index}].pointerBreakdown.nativeOcclusion`
+        const native = object(pointer.nativeOcclusion, path)
+        if (native.version !== 1) throw new Error(`Unsupported ${path}.version`)
+        for (const key of NATIVE_OCCLUSION_FIELDS) {
+          const value = finite(native[key], `${path}.${key}`)
+          if (!key.endsWith('Ms') && !Number.isSafeInteger(value))
+            throw new Error(`Invalid ${path}.${key}: expected a safe integer counter`)
+        }
+      }
       for (const key of ['terrainPickCalls', 'objectPickCalls', 'objectCacheHits'])
         if (!Number.isSafeInteger(pointer[key]))
           throw new Error(`Invalid ${key}: expected an integer`)
