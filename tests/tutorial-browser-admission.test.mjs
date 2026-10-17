@@ -53,3 +53,51 @@ test('required Full gate remains unconditional after dependencies and rejects sk
   assert.match(gate, /Require successful dependencies/)
   assert.match(gate, /ci-gate\.mjs aggregate/)
 })
+
+test('pause recovery has an isolated bounded hosted episode without replacing Tutorial coverage', () => {
+  const workflow = read('tutorial-browser.yml')
+  assert.match(
+    workflow,
+    /scenario: tutorial\n +name: Tutorial browser\n +artifact: tutorial-browser/
+  )
+  assert.match(
+    workflow,
+    /scenario: pause-checkpoint-recovery\n +name: Pause checkpoint recovery browser\n +artifact: pause-checkpoint-recovery-browser/
+  )
+  assert.match(workflow, /POPULOUS_BROWSER_SCENARIO: \$\{\{ matrix\.scenario \}\}/)
+  assert.match(workflow, /name: \$\{\{ matrix\.artifact \}\}-\$\{\{ github\.sha \}\}/)
+  assert.match(workflow, /timeout-minutes: 15/)
+  assert.match(workflow, /fail-fast: false/)
+  assert.match(workflow, /scripts\/local-render\/original-pause-checkpoint-recovery\.mjs/)
+  const runner = readFileSync(
+    new URL('../scripts/tutorial-browser/run.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(runner, /pauseRecoveryScenarioSha256: hash\(pauseRecoveryScenario\)/)
+  assert.match(
+    runner,
+    /if \(selectedScenario !== 'pause-checkpoint-recovery'\) \{\s+const \{ createM2Checkpoint \}/
+  )
+  assert.match(
+    runner,
+    /else if \(selectedScenario === 'pause-checkpoint-recovery'\) \{\s+await page\.goto\(url/
+  )
+  assert.match(
+    runner,
+    /receipt\.pauseCheckpointRecovery = await .*pauseRecoveryScenario.*signal: abort\.signal/
+  )
+  assert.match(runner, /const abort = new AbortController\(\)/)
+  assert.match(
+    runner,
+    /abort\.abort\(new Error\('Browser deadline exceeded'\)\); void browser\.close\(\) \}, 180000\)/
+  )
+  assert.match(runner, /capMs: 120000/)
+  for (const result of [
+    'result',
+    'selectorInspection',
+    'sceneryPlacement',
+    'm2PointerF8',
+    'spellProjection',
+  ])
+    assert.match(runner, new RegExp(`receipt\\.${result} = await`))
+})
