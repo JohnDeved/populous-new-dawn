@@ -18,7 +18,7 @@ export async function checkFrameExport({ page, output, keyboard }) {
   if (keyboard) await button.focus()
   await page.waitForFunction(() => {
     const scene = window.testSceneRef.current
-    return scene.navigationPointer === null && scene.keys.size === 0 &&
+    return scene.navigationPointer === null && scene.cameraPreviewButtons === null && scene.keys.size === 0 &&
       Object.values(scene.cameraVelocity).every(value => value === 0)
   })
   const before = await snapshot()
