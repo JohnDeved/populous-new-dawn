@@ -56,7 +56,7 @@ test('M2 functional acceptance rejects level, selection, order, clock and Scene 
     assert.throws(() => assertM2Input(before, { ...before, ...change }))
 })
 
-test('M2 is explicit selection; legacy scenarios and security/time bounds retained', () => {
+test('M2 has isolated selection and default append; legacy scenarios and bounds retained', () => {
   const run = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   assert.match(run, /POPULOUS_BROWSER_SCENARIO \|\| 'tutorial'/)
   assert.match(run, /\['tutorial', 'm2-pointer-f8'\]/)
@@ -64,12 +64,17 @@ test('M2 is explicit selection; legacy scenarios and security/time bounds retain
   assert.match(run, /120000/)
   assert.ok(run.indexOf('receipt.result =') < run.indexOf('receipt.selectorInspection ='))
   assert.ok(run.indexOf('receipt.selectorInspection =') < run.indexOf('receipt.sceneryPlacement ='))
+  assert.ok(run.indexOf('receipt.sceneryPlacement =') < run.lastIndexOf('receipt.m2PointerF8 ='))
   assert.equal(m2FunctionalLimitMs, 45000)
   const source = readFileSync(
     new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
     'utf8'
   )
   assert.match(source, /loadBoundaryMatched = true/)
+  assert.ok(
+    source.indexOf('timer = setTimeout') < source.indexOf('await page.goto'),
+    '45-second bound includes admission'
+  )
   assert.match(source, /tx.oncomplete = resolve/)
   assert.doesNotMatch(source, /showAllMissions|\.tick\(|\.startMission\(|\.setWorld\(|--no-sandbox/)
 })

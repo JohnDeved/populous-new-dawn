@@ -69,6 +69,10 @@ export default async function ({ browser, url, output, fixture }) {
     if (m.type() === 'error') report.errors.push(m.text())
   })
   page.on('crash', () => report.errors.push('Page crashed'))
+  timer = setTimeout(() => {
+    report.timedOut = true
+    void context.close().catch(() => {})
+  }, m2FunctionalLimitMs)
   try {
     // Only test setup writes storage. This context is new, has no user data/profile,
     // and closes at termination. The identical codec preserves structured values.
@@ -156,10 +160,6 @@ export default async function ({ browser, url, output, fixture }) {
     )
     report.loadBoundaryMatched = true
     await bindGame(page)
-    timer = setTimeout(() => {
-      report.timedOut = true
-      void context.close().catch(() => {})
-    }, m2FunctionalLimitMs)
     const skip = page.getByRole('button', { name: /^Skip introduction/ })
     if (await skip.isVisible()) await skip.click()
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)

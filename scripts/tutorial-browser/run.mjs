@@ -95,7 +95,7 @@ try {
     receipt.publicLinks.push({ path: entry, source: resolve(root, 'public', entry) })
   }
   verifySource(); save()
-  if (selectedScenario === 'm2-pointer-f8') {
+  {
     const { createM2Checkpoint } = await import('./m2-checkpoint.mjs')
     m2Fixture = await createM2Checkpoint(out, source)
     receipt.m2Fixture = m2Fixture.receipt
@@ -118,6 +118,7 @@ try {
   receipt.result = await (await import(pathToFileURL(scenario).href)).default({ page, context, browser, url, root, output: out, receipt })
   receipt.selectorInspection = await (await import(pathToFileURL(selectorScenario).href)).default({ browser, url, output: out })
   receipt.sceneryPlacement = await (await import(pathToFileURL(sceneryScenario).href)).default({ browser, url, output: out })
+  receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
   }
   assert.equal(receipt.browserTimedOut, undefined)
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
