@@ -1,0 +1,498 @@
+{
+  "version": 1,
+  "productSource": "e989fbb71849f2530692f896ea3d045afd6432bf",
+  "baselineApplicationSource": "219384134d21200f80df0496a4866fb02fb200db",
+  "exports": [
+    {
+      "file": "before/receipt.json",
+      "rawSource": "world-theme-browser-reference02-20261010/work/orchestration/browser-02/receipt.json",
+      "rawSha256": "fee1c03bfc1cd09c48c784b042fdcd8ccc3552d60b4208b002c4dba2d096b592",
+      "publishedSha256": "57de992336dc712e572054efba16c324f2d0cab91ac500f9db0a87dcf6699847",
+      "bytes": 239127,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "before/world-theme-switch.json",
+      "rawSource": "world-theme-browser-reference02-20261010/work/orchestration/browser-02/world-theme-switch.json",
+      "rawSha256": "03106eedc5f21847f1de9e82ccaf5d342484a53b4fbeda05d7988ea55163ec4e",
+      "publishedSha256": "db2f5762091e6930716673f2552582604a7d5210834bfaf3de6528ff15419fcd",
+      "bytes": 216193,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "before/command.json",
+      "rawSource": "world-theme-browser-reference02-20261010/work/orchestration/browser-02-command.json",
+      "rawSha256": "0e8235b5c08e038fcdd2f479ea5270490bdb0ca6fb3308aa92ed254f35afda10",
+      "publishedSha256": "ecd9eb201b2ef853cd1a3e6deb8f832ca1cca79a02252903d1ce43b483db051d",
+      "bytes": 123735,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "before/fresh-m1-ground-viewport.png",
+      "rawSource": "world-theme-browser-reference02-20261010/work/orchestration/browser-02/fresh-m1-ground-viewport.png",
+      "rawSha256": "060c65c55b54e9872915ce9d30f80fa88f3980523df4ad4c779471a8d30fc29e",
+      "publishedSha256": "060c65c55b54e9872915ce9d30f80fa88f3980523df4ad4c779471a8d30fc29e",
+      "bytes": 2065248,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "before/fresh-m1-ground-minimapPng.png",
+      "rawSource": "world-theme-browser-reference02-20261010/work/orchestration/browser-02/fresh-m1-ground-minimapPng.png",
+      "rawSha256": "9c477276113717bb1b0e1389a6ddf48ba528f9535d177bc338148d28f82720d8",
+      "publishedSha256": "9c477276113717bb1b0e1389a6ddf48ba528f9535d177bc338148d28f82720d8",
+      "bytes": 8860,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "before/fresh-m1-overview-viewport.png",
+      "rawSource": "world-theme-browser-reference02-20261010/work/orchestration/browser-02/fresh-m1-overview-viewport.png",
+      "rawSha256": "9991923bfea047e87fb6d5c2007bbff74618fa7fe6d7de008973088e19082b56",
+      "publishedSha256": "9991923bfea047e87fb6d5c2007bbff74618fa7fe6d7de008973088e19082b56",
+      "bytes": 920070,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "before/fresh-m3-ground-viewport.png",
+      "rawSource": "world-theme-browser-reference02-20261010/work/orchestration/browser-02/fresh-m3-ground-viewport.png",
+      "rawSha256": "1f21cbb0edf6085b3f515d15a87a35b4732b5d35f7cd982610c8badab546b805",
+      "publishedSha256": "1f21cbb0edf6085b3f515d15a87a35b4732b5d35f7cd982610c8badab546b805",
+      "bytes": 2577416,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "before/fresh-m3-ground-minimapPng.png",
+      "rawSource": "world-theme-browser-reference02-20261010/work/orchestration/browser-02/fresh-m3-ground-minimapPng.png",
+      "rawSha256": "c63045f082bcf0d741c1b361d6c169eca53772fcd31b88dc0b10375faec7c5df",
+      "publishedSha256": "c63045f082bcf0d741c1b361d6c169eca53772fcd31b88dc0b10375faec7c5df",
+      "bytes": 26690,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "before/fresh-m3-overview-viewport.png",
+      "rawSource": "world-theme-browser-reference02-20261010/work/orchestration/browser-02/fresh-m3-overview-viewport.png",
+      "rawSha256": "508cc87d1b8b4b015b082567d5ca92e0ccb9fa71db8683560ee871c201c187e6",
+      "publishedSha256": "508cc87d1b8b4b015b082567d5ca92e0ccb9fa71db8683560ee871c201c187e6",
+      "bytes": 1039776,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "before/warm-m2-ground-viewport.png",
+      "rawSource": "world-theme-browser-reference02-20261010/work/orchestration/browser-02/warm-m2-ground-viewport.png",
+      "rawSha256": "3983e66c84446b6176292b594e5049a1329dd5512c6b854b437abd3dd9c4c885",
+      "publishedSha256": "3983e66c84446b6176292b594e5049a1329dd5512c6b854b437abd3dd9c4c885",
+      "bytes": 2310774,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "before/warm-m2-ground-minimapPng.png",
+      "rawSource": "world-theme-browser-reference02-20261010/work/orchestration/browser-02/warm-m2-ground-minimapPng.png",
+      "rawSha256": "3cecd45c8185ebf1b4f827d9f7ca6de21c3f1501844d15d06c22de54af2869cb",
+      "publishedSha256": "3cecd45c8185ebf1b4f827d9f7ca6de21c3f1501844d15d06c22de54af2869cb",
+      "bytes": 17254,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "before/warm-m2-overview-viewport.png",
+      "rawSource": "world-theme-browser-reference02-20261010/work/orchestration/browser-02/warm-m2-overview-viewport.png",
+      "rawSha256": "ad1bc52cb549f68b0049f16f8911a9bedf1f99a91befb6b28f18d5241c19f9bb",
+      "publishedSha256": "ad1bc52cb549f68b0049f16f8911a9bedf1f99a91befb6b28f18d5241c19f9bb",
+      "bytes": 990747,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "after/receipt.json",
+      "rawSource": "world-theme-browser-candidate-20261010/work/orchestration/browser-02/receipt.json",
+      "rawSha256": "a892bbd6c7b0d9487af00ce3fcab3cbd09ac2ecd4fd96fb4e7c4b91ddc95609c",
+      "publishedSha256": "30302384dccf1aea1ad1ad7a0aed4c5db6235a030586c441c86cf82e79037140",
+      "bytes": 248953,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "after/world-theme-switch.json",
+      "rawSource": "world-theme-browser-candidate-20261010/work/orchestration/browser-02/world-theme-switch.json",
+      "rawSha256": "7a860e9dd1b8ec0b1ef25d3819db4a4aab3ff2212e63bbc9ebfe29e9a9644b74",
+      "publishedSha256": "37bde1faac9b73e6a64400b1c0b5a978bcd04df15630d9db111f6ab00312c078",
+      "bytes": 224417,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "after/command.json",
+      "rawSource": "world-theme-browser-candidate-20261010/work/orchestration/browser-02-command.json",
+      "rawSha256": "170fe55e6d586f9ea9dc11824457575682a99d352f2be8ecd9dc3e42b41c58f6",
+      "publishedSha256": "034cb789cbb28b70dfcc8044f08b7f5912689febe0e3473d853d661b0c94ee54",
+      "bytes": 128566,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "after/fresh-m1-ground-viewport.png",
+      "rawSource": "world-theme-browser-candidate-20261010/work/orchestration/browser-02/fresh-m1-ground-viewport.png",
+      "rawSha256": "c34651b2754c7f4da44c08deb05fa1516b51d72800222d6f4e8495a19ae52bf8",
+      "publishedSha256": "c34651b2754c7f4da44c08deb05fa1516b51d72800222d6f4e8495a19ae52bf8",
+      "bytes": 2066690,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "after/fresh-m1-ground-minimapPng.png",
+      "rawSource": "world-theme-browser-candidate-20261010/work/orchestration/browser-02/fresh-m1-ground-minimapPng.png",
+      "rawSha256": "9c477276113717bb1b0e1389a6ddf48ba528f9535d177bc338148d28f82720d8",
+      "publishedSha256": "9c477276113717bb1b0e1389a6ddf48ba528f9535d177bc338148d28f82720d8",
+      "bytes": 8860,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "after/fresh-m1-overview-viewport.png",
+      "rawSource": "world-theme-browser-candidate-20261010/work/orchestration/browser-02/fresh-m1-overview-viewport.png",
+      "rawSha256": "5f6f473dbf27f0c18ff8d757d99106fc60e76c0265314d95d87f682232835037",
+      "publishedSha256": "5f6f473dbf27f0c18ff8d757d99106fc60e76c0265314d95d87f682232835037",
+      "bytes": 920106,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "after/fresh-m3-ground-viewport.png",
+      "rawSource": "world-theme-browser-candidate-20261010/work/orchestration/browser-02/fresh-m3-ground-viewport.png",
+      "rawSha256": "77077d0aa75a975bc0bade8b412786a9b414830e3359fc444e05ceabc53ed1d3",
+      "publishedSha256": "77077d0aa75a975bc0bade8b412786a9b414830e3359fc444e05ceabc53ed1d3",
+      "bytes": 2457314,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "after/fresh-m3-ground-minimapPng.png",
+      "rawSource": "world-theme-browser-candidate-20261010/work/orchestration/browser-02/fresh-m3-ground-minimapPng.png",
+      "rawSha256": "8f2894fcabb982ac125fc7c6ba03e5bdfbb624f9627b8c694e1f83ef182f32d4",
+      "publishedSha256": "8f2894fcabb982ac125fc7c6ba03e5bdfbb624f9627b8c694e1f83ef182f32d4",
+      "bytes": 27580,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "after/fresh-m3-overview-viewport.png",
+      "rawSource": "world-theme-browser-candidate-20261010/work/orchestration/browser-02/fresh-m3-overview-viewport.png",
+      "rawSha256": "83744453060b433c55d6970c290f18e4cae5d3509579a798d351fefaf02f4ce8",
+      "publishedSha256": "83744453060b433c55d6970c290f18e4cae5d3509579a798d351fefaf02f4ce8",
+      "bytes": 996118,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "after/warm-m2-ground-viewport.png",
+      "rawSource": "world-theme-browser-candidate-20261010/work/orchestration/browser-02/warm-m2-ground-viewport.png",
+      "rawSha256": "ef68febf6b31556c0b876d287fe65722631ad9fb73a447f7d6b0055b0b2dc455",
+      "publishedSha256": "ef68febf6b31556c0b876d287fe65722631ad9fb73a447f7d6b0055b0b2dc455",
+      "bytes": 1923548,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "after/warm-m2-ground-minimapPng.png",
+      "rawSource": "world-theme-browser-candidate-20261010/work/orchestration/browser-02/warm-m2-ground-minimapPng.png",
+      "rawSha256": "737beb0f5abeb53238a1762a8b2f641d653c455ed869a3389488f6acd79f3d12",
+      "publishedSha256": "737beb0f5abeb53238a1762a8b2f641d653c455ed869a3389488f6acd79f3d12",
+      "bytes": 17807,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "after/warm-m2-overview-viewport.png",
+      "rawSource": "world-theme-browser-candidate-20261010/work/orchestration/browser-02/warm-m2-overview-viewport.png",
+      "rawSha256": "b7ce5dd9393e43fe62edc1364f38f8ed483c24512f4666636c8628d9206709fb",
+      "publishedSha256": "b7ce5dd9393e43fe62edc1364f38f8ed483c24512f4666636c8628d9206709fb",
+      "bytes": 882236,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "temple-construction/m3-construction-6.png",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-01/m3-construction-6.png",
+      "rawSha256": "03aa974ae3f66c463c3fe57d45bdd756d8cdcf0dcad621cb3b0f8fc01946a1bf",
+      "publishedSha256": "03aa974ae3f66c463c3fe57d45bdd756d8cdcf0dcad621cb3b0f8fc01946a1bf",
+      "bytes": 2430037,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "temple-construction/m3-construction-8.png",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-01/m3-construction-8.png",
+      "rawSha256": "4c8a32884eb8198cca43107ff56c2ba3bc5f680499d22414ea6861b88a70d029",
+      "publishedSha256": "4c8a32884eb8198cca43107ff56c2ba3bc5f680499d22414ea6861b88a70d029",
+      "bytes": 2442841,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "temple-construction/m3-construction-9.png",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-01/m3-construction-9.png",
+      "rawSha256": "74f4bd6b886cfdd63e002a2d4857099163f3d07636babc080b3df665389eccbf",
+      "publishedSha256": "74f4bd6b886cfdd63e002a2d4857099163f3d07636babc080b3df665389eccbf",
+      "bytes": 2427070,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "temple-construction/m3-construction-10.png",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-01/m3-construction-10.png",
+      "rawSha256": "a31fb460ce71004d73534321928816695fa15ef6e0fc2c7c81f6dd3964473cdd",
+      "publishedSha256": "a31fb460ce71004d73534321928816695fa15ef6e0fc2c7c81f6dd3964473cdd",
+      "bytes": 2420780,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "temple-construction/m3-construction-11.png",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-01/m3-construction-11.png",
+      "rawSha256": "41c5fe0d1e7ac11c9d6f1140d768be7333a459a71c5168a8be91567ca08f1cf3",
+      "publishedSha256": "41c5fe0d1e7ac11c9d6f1140d768be7333a459a71c5168a8be91567ca08f1cf3",
+      "bytes": 2419788,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "temple-construction/receipt.json",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-01/receipt.json",
+      "rawSha256": "4915f1dd4dcd978bb8e9a5950f723b62f3d4b6c9d75e8178b987ac84016c6728",
+      "publishedSha256": "8f4203c86f9da2745d9bea680657bcc4a5b9397d00a94fc303bb5a40394d690c",
+      "bytes": 7740,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "temple-construction/ordinary-temple-scenes.json",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-01/ordinary-temple-scenes.json",
+      "rawSha256": "7d50914b829a64ffbdfe981bd029096da78234932e820a06b21c63f02cd1fb25",
+      "publishedSha256": "744093f76ecbfff097b8f689e1e9ceff58a4abc2e7ed0367cf845b513f1874fa",
+      "bytes": 53195,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "temple-construction/mission3-temple-checkpoint.json",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-01/mission3-temple-checkpoint.json",
+      "rawSha256": "fd5ddbc14e4c711e04982c63dd941b55085400c08a55d24743b19727df162ed4",
+      "publishedSha256": "656685ccf7b1bc889d4426f2d43ce74c036a352207946786ebf2e1bcc35af091",
+      "bytes": 527507,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "temple-construction/retained-temple-revalidation.json",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/retained-temple-revalidation.json",
+      "rawSha256": "3bb7cb41a4ca069df3bf595c9bdba10d0e59eb69c40b09f213906ef60d45ae04",
+      "publishedSha256": "f588f616e5eab45d031f39e49d9bc9f46517c4af235ca8930690814ef9415114",
+      "bytes": 5354,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "temple-construction/retained-temple-revalidation-result.json",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/retained-temple-revalidation-result.json",
+      "rawSha256": "8fc1e913b1eef1012e000b05af80b83dd19b0b4a44b308d76293eb830b802a50",
+      "publishedSha256": "fedc7e9b0b98abd2b64844181922cc51cdaf73cbb0267638868c6fa86e25a3a7",
+      "bytes": 9717,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "failed-attempts/failed-theme-locator-receipt.json",
+      "rawSource": "world-theme-browser-reference-20261010/work/orchestration/browser-01/receipt.json",
+      "rawSha256": "df71c7de4761e7e03d22bc246d0501ff458ecb82149371766a8b4dfffd8f5f0d",
+      "publishedSha256": "c6fa94ba9d972275d9af94639f130b07e72d21af5547d79f4e0c0b4ef6918b56",
+      "bytes": 5913,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": null,
+      "rawSource": "world-theme-browser-reference-20261010/work/orchestration/browser-01/world-theme-switch.json",
+      "rawSha256": "9cb8587e9693217c2a0267d03509f81bb55bec71a27010d1cbd48ef709685650",
+      "mode": "retained-failed-raw-report",
+      "failure": "locator.click: Timeout 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Select shaman', exact: true })\u001b[22m\n\n    at views (<workspace>/world-theme-browser-reference-20261010/scripts/local-render/world-theme-switch.mjs:317:35)\n    at worldThemeSwitch (<workspace>/world-theme-browser-reference-20261010/scripts/local-render/world-theme-switch.mjs:345:11)\n    at async runLocalBrowser (<workspace>/world-theme-browser-reference-20261010/scripts/local-render/harness.mjs:399:20)\n    at async file://<workspace>/world-theme-browser-reference-20261010/scripts/local-render/harness.mjs:592:21"
+    },
+    {
+      "file": "failed-attempts/failed-authored-minimap-receipt.json",
+      "rawSource": "world-temple-browser-authored-20261010/work/orchestration/browser-01/receipt.json",
+      "rawSha256": "4d615322becd2bf29d0a148ac6b1213930a77fbc2a9ca849b88461d47ca1b71f",
+      "publishedSha256": "74ef43fc82fefaf661a57d3f0d32e88b36eb41d0f07d7b31238162a8eff24377",
+      "bytes": 7273,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": null,
+      "rawSource": "world-temple-browser-authored-20261010/work/orchestration/browser-01/ordinary-temple-scenes.json",
+      "rawSha256": "d01382470ac5d90af92af65ce8ef6de5d640e46082a1ff173ce3ef55f1455a9d",
+      "mode": "retained-failed-raw-report",
+      "failure": "AssertionError [ERR_ASSERTION]: No owned minimap input near the actual target\n    at Object.view (file://<workspace>/world-temple-browser-authored-20261010/scripts/local-render/mission1-vault-input.mjs:162:12)\n    at async ordinaryTempleScenes (file://<workspace>/world-temple-browser-authored-20261010/scripts/local-render/ordinary-temple-scenes.mjs:309:11)\n    at async runLocalBrowser (file://<workspace>/world-temple-browser-authored-20261010/scripts/local-render/harness.mjs:399:20)\n    at async file://<workspace>/world-temple-browser-authored-20261010/scripts/local-render/harness.mjs:592:21"
+    },
+    {
+      "file": "authored-temples/receipt.json",
+      "rawSource": "world-temple-browser-authored02-20261010/work/orchestration/browser-03/receipt.json",
+      "rawSha256": "e3b316a3ac53ae8da88d50b02e6bc06b6e371c09d8ffbde314f073e26c93ceb8",
+      "publishedSha256": "f119e38334089bafd6a2e11be6cc1ec16aa66617103c1006640bdee028463115",
+      "bytes": 112046,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "authored-temples/ordinary-temple-scenes.json",
+      "rawSource": "world-temple-browser-authored02-20261010/work/orchestration/browser-03/ordinary-temple-scenes.json",
+      "rawSha256": "6986e1882ca0e38434756f8dbca4bfd67cd5f6cbd9a322e6b6b4e8788ecf573f",
+      "publishedSha256": "7ec6d416d357d8c8dfc858c600c92f44a80548fa8d6b80e2beba0f7b3314cec7",
+      "bytes": 97656,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "authored-temples/command.json",
+      "rawSource": "world-temple-browser-authored02-20261010/work/orchestration/browser-03-command.json",
+      "rawSha256": "083341a6e10aa64d75629fda4f41168d2808bb254932660b512be4caf29e4ca7",
+      "publishedSha256": "f983a2d2dce94bda3310250a319686a84d6356433572529bb1069e1a29fc7df0",
+      "bytes": 59997,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "authored-temples/m10-authored-0.png",
+      "rawSource": "world-temple-browser-authored02-20261010/work/orchestration/browser-03/m10-authored-0.png",
+      "rawSha256": "13fac60aea756b6d174f4db3d811494876d30b773727e3d04447280e436709bb",
+      "publishedSha256": "13fac60aea756b6d174f4db3d811494876d30b773727e3d04447280e436709bb",
+      "bytes": 2337472,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "authored-temples/m10-authored-1.png",
+      "rawSource": "world-temple-browser-authored02-20261010/work/orchestration/browser-03/m10-authored-1.png",
+      "rawSha256": "30bde45ae1f9e512d51851bdf1a4b83ed04833a49240ac86a4b2bd8e61495f60",
+      "publishedSha256": "30bde45ae1f9e512d51851bdf1a4b83ed04833a49240ac86a4b2bd8e61495f60",
+      "bytes": 2335370,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "authored-temples/m10-authored-2.png",
+      "rawSource": "world-temple-browser-authored02-20261010/work/orchestration/browser-03/m10-authored-2.png",
+      "rawSha256": "dd296e2c0f76168c92edbad7670f7036b04601e22e59e3ead26ba6a54f491468",
+      "publishedSha256": "dd296e2c0f76168c92edbad7670f7036b04601e22e59e3ead26ba6a54f491468",
+      "bytes": 2034469,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "authored-temples/m10-authored-3.png",
+      "rawSource": "world-temple-browser-authored02-20261010/work/orchestration/browser-03/m10-authored-3.png",
+      "rawSha256": "d3e6060c891ec305cbeba7c04e5589e4819027b44108b0bef2d95bead9dfd26e",
+      "publishedSha256": "d3e6060c891ec305cbeba7c04e5589e4819027b44108b0bef2d95bead9dfd26e",
+      "bytes": 2036135,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "authored-temples/m17-authored-2.png",
+      "rawSource": "world-temple-browser-authored02-20261010/work/orchestration/browser-03/m17-authored-2.png",
+      "rawSha256": "efa5544720d4e4c9475da099ecc99ee14a5dc8988ce3bd43268cd7f61fc2d190",
+      "publishedSha256": "efa5544720d4e4c9475da099ecc99ee14a5dc8988ce3bd43268cd7f61fc2d190",
+      "bytes": 2234358,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "authored-temples/m17-authored-3.png",
+      "rawSource": "world-temple-browser-authored02-20261010/work/orchestration/browser-03/m17-authored-3.png",
+      "rawSha256": "d92043697727fabf88e22b01a5b57b6224eaf47f3b2f8d60a1953dbd577debce",
+      "publishedSha256": "d92043697727fabf88e22b01a5b57b6224eaf47f3b2f8d60a1953dbd577debce",
+      "bytes": 2233665,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "authored-temples/m17-authored-4.png",
+      "rawSource": "world-temple-browser-authored02-20261010/work/orchestration/browser-03/m17-authored-4.png",
+      "rawSha256": "3e1ca9df1da5e70bed7833cb5e51711664f1d97a4da4a96c5cc7a937b3d11120",
+      "publishedSha256": "3e1ca9df1da5e70bed7833cb5e51711664f1d97a4da4a96c5cc7a937b3d11120",
+      "bytes": 2319808,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "authored-temples/m17-authored-5.png",
+      "rawSource": "world-temple-browser-authored02-20261010/work/orchestration/browser-03/m17-authored-5.png",
+      "rawSha256": "588e9324c2f64fa1b4183433a0f09a6ec14fdb3c23f86d98cbafb204ca6c8ed8",
+      "publishedSha256": "588e9324c2f64fa1b4183433a0f09a6ec14fdb3c23f86d98cbafb204ca6c8ed8",
+      "bytes": 2317837,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "authored-temples/m17-authored-6.png",
+      "rawSource": "world-temple-browser-authored02-20261010/work/orchestration/browser-03/m17-authored-6.png",
+      "rawSha256": "d86b274985dd828236accbe996764f8a58acad73411e3e3910860eaf62fc6253",
+      "publishedSha256": "d86b274985dd828236accbe996764f8a58acad73411e3e3910860eaf62fc6253",
+      "bytes": 2322436,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "authored-temples/m17-authored-7.png",
+      "rawSource": "world-temple-browser-authored02-20261010/work/orchestration/browser-03/m17-authored-7.png",
+      "rawSha256": "c6639cad3fe6f87d87abb57beedfaa2c6f9eff712bf6e9d844d4eee8ab3191cc",
+      "publishedSha256": "c6639cad3fe6f87d87abb57beedfaa2c6f9eff712bf6e9d844d4eee8ab3191cc",
+      "bytes": 2321887,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "temple-lifecycle/receipt.json",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-02/receipt.json",
+      "rawSha256": "0e35f745a5efa8fe739a44dc8f0717f32d894ec5a133ee13ebd35ba3ba5a9c8f",
+      "publishedSha256": "24b6404dfe29311888998155bbe82b3505e089b547dfc57b004fa4e2b6984f07",
+      "bytes": 89768,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "temple-lifecycle/ordinary-temple-scenes.json",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-02/ordinary-temple-scenes.json",
+      "rawSha256": "99e2465120a8fc507332932b8703cf1f67175f087ec78b1d22bdfcb2ce6e57bc",
+      "publishedSha256": "0ddc0fa266c779f16cf51de91f13b8aa779848bf057c7381bd04683e173f9f77",
+      "bytes": 77353,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "temple-lifecycle/command.json",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-02-command.json",
+      "rawSha256": "e5c68a3a07c1020831a34db53aaad720d3a1274360ef6d30ce9005101f9bed75",
+      "publishedSha256": "0d4536448c0c58953bb5c23433dee5032e29086040ded518a2194fc7e36a7034",
+      "bytes": 52986,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "temple-lifecycle/m3-loaded-0.png",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-02/m3-loaded-0.png",
+      "rawSha256": "03e39ab43be506c4da9abf6550c44fe4b780d44163eb72803f7a1046624b1811",
+      "publishedSha256": "03e39ab43be506c4da9abf6550c44fe4b780d44163eb72803f7a1046624b1811",
+      "bytes": 2506155,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "temple-lifecycle/m3-loaded-1.png",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-02/m3-loaded-1.png",
+      "rawSha256": "07fe1c89bb050f035560a3bca1a356e2104bf9d8b128ca6eb2510d137846585c",
+      "publishedSha256": "07fe1c89bb050f035560a3bca1a356e2104bf9d8b128ca6eb2510d137846585c",
+      "bytes": 2506764,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "temple-lifecycle/m3-loaded-after-restart-0.png",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-02/m3-loaded-after-restart-0.png",
+      "rawSha256": "3cc8bd6e31c5464235ef4e10d2f1f1ac255c8245bc2e9671de3b1fd63e08756b",
+      "publishedSha256": "3cc8bd6e31c5464235ef4e10d2f1f1ac255c8245bc2e9671de3b1fd63e08756b",
+      "bytes": 2506043,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "temple-lifecycle/m3-loaded-after-restart-1.png",
+      "rawSource": "world-temple-browser-construction-20261010/work/orchestration/browser-02/m3-loaded-after-restart-1.png",
+      "rawSha256": "f497b5ae8217451c4c018244ae25592e8cda98468447485fff5797a0dc7cccdd",
+      "publishedSha256": "f497b5ae8217451c4c018244ae25592e8cda98468447485fff5797a0dc7cccdd",
+      "bytes": 2505810,
+      "mode": "unchanged-raw-png"
+    },
+    {
+      "file": "helper-validation/focused.json",
+      "rawSource": "world-theme-switch-qa-recovered-20261010/work/orchestration/ordinary-temple-helper-05/focused.json",
+      "rawSha256": "7b932121f8db8ae52213c54064f7a78db405ca0a5fcc3d2413cca00b1bb1caa8",
+      "publishedSha256": "ff1b0839fe9b5c3f152341e2eb9979d8e2757a676803619778090ce21e815fee",
+      "bytes": 5843,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "helper-validation/quality.json",
+      "rawSource": "world-theme-switch-qa-recovered-20261010/work/orchestration/ordinary-temple-helper-05/quality.json",
+      "rawSha256": "6ff2b8da6a3766fca19661038465933e8c2d23d6f1b20aa6ada39bc3a0dd4570",
+      "publishedSha256": "ae2523044063dc8c8f0cd8350e7d42bbb679c6f8130931f87ca75546f875c299",
+      "bytes": 2245,
+      "mode": "profile-free-json"
+    },
+    {
+      "file": "helper-validation/format.json",
+      "rawSource": "world-theme-switch-qa-recovered-20261010/work/orchestration/ordinary-temple-helper-05/format.json",
+      "rawSha256": "51f7922ab6733b911c6f30684a051c51199c866906c9dc6df0fd130209e34386",
+      "publishedSha256": "be3b99e129c3bec0e86e2f15abf6acd56d9b3278c8feff11bee714ae1a824749",
+      "bytes": 2371,
+      "mode": "profile-free-json"
+    }
+  ],
+  "limits": [
+    "Only named representative PNGs are exported; all actual run artifacts remain in retained source-bound raw outputs.",
+    "JSON copies remove private profile/session metadata and normalize executor paths; their unchanged raw-file hashes and published-file hashes are both recorded.",
+    "Headless SwiftShader rendering is functional evidence, not native raster equality or hardware performance."
+  ]
+}

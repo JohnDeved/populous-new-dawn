@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "f758a2d443e7c1b815914e1ee58988dc065b9415",
+    "branch": "test/world-theme-switch-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/world-theme-witness.test.mjs",
+    "tests/ordinary-temple-witness.test.mjs",
+    "tests/ordinary-temple-continuation.test.mjs"
+  ],
+  "cwd": "<workspace>/world-theme-switch-qa-recovered-20261010",
+  "startedAt": "2026-10-10T18:43:54.625Z",
+  "artifacts": {
+    "stdout": "<workspace>/world-theme-switch-qa-recovered-20261010/work/orchestration/ordinary-temple-helper-05/focused.json.artifacts/stdout.log",
+    "stderr": "<workspace>/world-theme-switch-qa-recovered-20261010/work/orchestration/ordinary-temple-helper-05/focused.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T18:43:55.422Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\u2714 continuation admits only exact clean owned predecessor and genuine unchanged saved construction (2.466182ms)\n\u2714 changed source/runtime, unknown cleanup, unreviewed checker, changed Save or unearned construction fail closed (11.382806ms)\n\u2714 actual observer only copies naturally submitted pixels, preserves callbacks and binds two live tiles (23.002123ms)\n\u2714 actual staged construction and completion require cap geometry then shared completed material (13.367996ms)\n\u2714 frustum rejection, paused state and non-submission cannot become rendered evidence (1.464567ms)\n\u2714 original render and callback exceptions propagate unchanged and all owned wrappers restore (1.712815ms)\n\u2714 replacement, phase drift and lost observer ownership fail without mutating product state (0.954367ms)\n\u2714 strict frame assertions reject wrong atlas, phase, geometry, shader mode and missing live tile (7.220393ms)\n\u2714 trusted actual Load and Restart observers preserve synchronous phase lineage without direct mutators (2.393846ms)\n\u2714 untrusted input and merely asynchronous resource reads do not satisfy replacement evidence (2.911487ms)\n\u2714 a throwing product mesh callback is never suppressed by the observer (1.703419ms)\n\u2714 phase drift within a real draw cannot yield a coherent Temple frame (1.664526ms)\n\u2714 distant Temple views use bounded shortest-wrap minimap waypoints and preserve the exact endpoint (4.872193ms)\n\u2714 actual RenderView.prepare composes the precise native mesh shader cache key (3.360323ms)\n\u2714 persisted JSON permits only signed-zero normalization, never an inexact Temple offset (4.823431ms)\n\u2714 startup Load observes the actual React store without a stale Scene alias (0.928121ms)\n\u2714 actual Save observer owns the trusted event and exact typed snapshot, then cleans once (11.199764ms)\n\u2714 actual action composition captures Load before normal auto-resume and closes the handle (2.70998ms)\n\u2714 actual observer uses shipped mission aria-label and fresh Restart turn without changing either (0.811259ms)\n\u2714 untrusted clicks and wrong replacement direction are errors without escaping into game callbacks (1.26633ms)\n\u2714 action composition cleans after click rejection, cancellation and a missed notification (2.311965ms)\n\u2714 observer cleanup never deletes another owner snapshot (0.660335ms)\n\u2714 actual Save waiter awaits sequential committed reads and verifies the complete typed digest (1.964903ms)\n\u2714 typed mismatch, storage errors, missing commit and cancellation never become Save success (3.0115ms)\n\u2714 natural frame observer preserves the real call and hashes captured live bytes only at read time (5.465152ms)\n\u2714 default frame mode rejects absent identities; explicit reference still requires ordinary readiness (2.707965ms)\n\u2714 render exception, replacement and pre-capture cancellation preserve original behavior and cleanup (1.668761ms)\n\u2714 reference admission checks the fixed full app/public scope and rejects source or untracked drift (0.556827ms)\n\u2714 candidate frame assertion rejects wrong live terrain, model bytes and material independently of descriptor (2.142102ms)\n\u2714 visibility observes rendered group positions without nativePosition or terrain synchronization (3.910271ms)\n\u2714 minimap copies the post-HUD pixels with its own frame and pose bracket (1.908017ms)\n\u2714 pending minimap reads are discarded after cancellation, disposal or replacement (1.441859ms)\n\u2714 exported ordinary view sequence follows the shipped zoomPreset order (0.263666ms)\n\u2714 theme camera focus uses the shipped primary portrait action and its exact accessible label (52.001145ms)\n\u2139 tests 34\n\u2139 suites 0\n\u2139 pass 34\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 698.679497\n",
+  "stderr": "",
+  "stdoutSha256": "1413414a433395f9f5ef88845b9e914de8e1f2cdd89accb35ab315cbb51dcef4",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "f758a2d443e7c1b815914e1ee58988dc065b9415",
+    "branch": "test/world-theme-switch-20261010",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

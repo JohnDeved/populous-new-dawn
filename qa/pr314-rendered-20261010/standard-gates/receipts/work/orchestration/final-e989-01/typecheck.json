@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "22b7a2f5-a2a8-4189-8481-49c904dc676b",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "e989fbb71849f2530692f896ea3d045afd6432bf",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "3b8a837c172a783bc9517ee15d9d5eba0abaaeadcfebbdab6fd9e2dfa0052304",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+      "work/orchestration/final-e989-01/profile.json": "c71c6f62daee5f7e50067c099d6673456f1936890c4df0a7a7b85898c825a659",
+      "work/orchestration/final-e989-01/run-profile.py": "6fdbcd76230f5f56e0de363a826c172aad0e0b5ada39d36c48d20649eb39e025"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "180s",
+    "taskset",
+    "-c",
+    "5-7",
+    "npm",
+    "run",
+    "typecheck"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-10T18:19:32.858Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/final-e989-01/typecheck.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/final-e989-01/typecheck.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T18:19:47.367Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 typecheck\n> tsc --noEmit\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n",
+  "stdoutSha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+  "stderrSha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65",
+  "sourceAfter": {
+    "headOid": "e989fbb71849f2530692f896ea3d045afd6432bf",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "3b8a837c172a783bc9517ee15d9d5eba0abaaeadcfebbdab6fd9e2dfa0052304",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+      "work/orchestration/final-e989-01/profile.json": "c71c6f62daee5f7e50067c099d6673456f1936890c4df0a7a7b85898c825a659",
+      "work/orchestration/final-e989-01/run-profile.py": "6fdbcd76230f5f56e0de363a826c172aad0e0b5ada39d36c48d20649eb39e025"
+    }
+  }
+}

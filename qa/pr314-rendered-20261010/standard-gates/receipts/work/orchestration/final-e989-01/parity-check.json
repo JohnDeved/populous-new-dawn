@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "bf674e02-cc2a-4c58-85fe-516965e121c5",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "e989fbb71849f2530692f896ea3d045afd6432bf",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "3b8a837c172a783bc9517ee15d9d5eba0abaaeadcfebbdab6fd9e2dfa0052304",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+      "work/orchestration/final-e989-01/profile.json": "c71c6f62daee5f7e50067c099d6673456f1936890c4df0a7a7b85898c825a659",
+      "work/orchestration/final-e989-01/run-profile.py": "6fdbcd76230f5f56e0de363a826c172aad0e0b5ada39d36c48d20649eb39e025"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "180s",
+    "taskset",
+    "-c",
+    "5-7",
+    "npm",
+    "run",
+    "parity:check"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-10T18:29:51.556Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/final-e989-01/parity-check.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/final-e989-01/parity-check.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-10T18:29:52.155Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 parity:check\n> node scripts/parity.mjs check\n\nParity ledger, evidence paths, revision and generated report are consistent.\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n",
+  "stdoutSha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9",
+  "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+  "sourceAfter": {
+    "headOid": "e989fbb71849f2530692f896ea3d045afd6432bf",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package.json": "3b8a837c172a783bc9517ee15d9d5eba0abaaeadcfebbdab6fd9e2dfa0052304",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "cb6e670973ddf7e0e83bb7efb79e7b4f2315e575d9764620c539a8683ea6727d",
+      "work/orchestration/final-e989-01/profile.json": "c71c6f62daee5f7e50067c099d6673456f1936890c4df0a7a7b85898c825a659",
+      "work/orchestration/final-e989-01/run-profile.py": "6fdbcd76230f5f56e0de363a826c172aad0e0b5ada39d36c48d20649eb39e025"
+    }
+  }
+}

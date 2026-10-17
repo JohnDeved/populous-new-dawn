@@ -1,0 +1,557 @@
+{
+  "version": 1,
+  "kind": "pnd-review-bundle",
+  "taskId": "pr314-final-e989",
+  "repository": {
+    "branch": "",
+    "baseCommit": "219384134d21200f80df0496a4866fb02fb200db",
+    "headOid": "e989fbb71849f2530692f896ea3d045afd6432bf"
+  },
+  "diff": {
+    "path": "changes.patch",
+    "sha256": "fa128606efaa36268dc8a67dac6a1015e1a90673c1af5ea82e03cc91fa091e0c",
+    "bytes": 1045262
+  },
+  "sources": [
+    {
+      "status": "M",
+      "path": "app/building-shapes.ts",
+      "state": "present",
+      "sha256": "276df2475dbc96706125209e05f2496640b5fcf591a4f3db8b6bc186d148bba0",
+      "blobOid": "895f2a3c4472ac06ef22c4aaddd99688c36a32fa",
+      "bytes": 17625
+    },
+    {
+      "status": "M",
+      "path": "app/game-store.ts",
+      "state": "present",
+      "sha256": "1a48cc21cdbcbee579347b9ee3321086750376816a2e152ac13aa6b27bf3081d",
+      "blobOid": "309b89cce4ca344fed59bdad2eb48df2e461eb42",
+      "bytes": 19202
+    },
+    {
+      "status": "A",
+      "path": "app/model-resources.ts",
+      "state": "present",
+      "sha256": "dd42f97e6cdd11ade034235be160fb9a73303cf41895f9eab297aa42f9d534e6",
+      "blobOid": "a31c4158409db120fb2f5b738ef73c1348b31bfc",
+      "bytes": 1218
+    },
+    {
+      "status": "A",
+      "path": "app/original-models-bank6.json",
+      "state": "present",
+      "sha256": "2142386d17b828d69f7831cda060820a19ecf8a0e1388bca051195e41273dc01",
+      "blobOid": "b352a3d027340149824edb2620afd7ca1c142278",
+      "bytes": 33904
+    },
+    {
+      "status": "M",
+      "path": "app/scene-assets.ts",
+      "state": "present",
+      "sha256": "e8e2a7e5fb22af8c45afa4a3682b7a5f6dcfcddb6e74878073f18932ad2835e5",
+      "blobOid": "96b14717a29974d4de2a4db356665926cdaa17a0",
+      "bytes": 11401
+    },
+    {
+      "status": "M",
+      "path": "app/scene-effects.ts",
+      "state": "present",
+      "sha256": "8930aed795fb2f833d901041cced2fd31a743c0764df5c74f1b07c3324aaeb0f",
+      "blobOid": "4f0de887599441eb6143a69ea09f874a111e526d",
+      "bytes": 20352
+    },
+    {
+      "status": "M",
+      "path": "app/scene-entities.ts",
+      "state": "present",
+      "sha256": "c1eff40e1054cfcf3fd916ea54b090ef1a4989bac90c7b3b74f3bf5cbd703353",
+      "blobOid": "0739bee1956816086664924c96080b30e522fcf4",
+      "bytes": 29665
+    },
+    {
+      "status": "M",
+      "path": "app/scene-picking.ts",
+      "state": "present",
+      "sha256": "1ed97e1bbea39da073af0d979b26b53f34fdad9bd80587bd8dfe3e0bffe76cde",
+      "blobOid": "c0d09d15eff060ceb88bdb59bb16739318970a77",
+      "bytes": 9724
+    },
+    {
+      "status": "M",
+      "path": "app/scene-terrain-runtime.ts",
+      "state": "present",
+      "sha256": "9c8a4bd3c891ff02ed2402386f0748a964143134355a35090a78ef02f90a97bf",
+      "blobOid": "2324dddc1976366a4afc7f6b7f4283ac5ed1996c",
+      "bytes": 12803
+    },
+    {
+      "status": "M",
+      "path": "app/scene-worship-acquisition.ts",
+      "state": "present",
+      "sha256": "9fb9e9f55121313aa25170b81984c8e401f6e7748f5d500d4795b65349a00cfb",
+      "blobOid": "3aac87733a45d09698cd0bddf7c5f19ec96e5f60",
+      "bytes": 14768
+    },
+    {
+      "status": "M",
+      "path": "app/scene.ts",
+      "state": "present",
+      "sha256": "579ebc2f139c781d09543978f831a5763dae38e79f1f978b27f6a51970d86226",
+      "blobOid": "cbe33d85f9717cb6acaf43eeee0b46b45dd09689",
+      "bytes": 31506
+    },
+    {
+      "status": "M",
+      "path": "app/shared-anibl.ts",
+      "state": "present",
+      "sha256": "1a188288aff85bd35a653108d84178adca195cdc79838ccc2ab063351ed6718e",
+      "blobOid": "f180c200aeb0ce81dc0a595be7e54e67fa1ec7bd",
+      "bytes": 1562
+    },
+    {
+      "status": "M",
+      "path": "app/temple-art.ts",
+      "state": "present",
+      "sha256": "9299d792a151104d2252ed1d247ec6664df5ebdfcc7edd00919b8494b660b88b",
+      "blobOid": "b1c294f0da8938eb6f27b1cdd1ce1b82796bd57a",
+      "bytes": 2275
+    },
+    {
+      "status": "A",
+      "path": "app/world-environment.ts",
+      "state": "present",
+      "sha256": "5c0bdcad416724efa660381ae1ce9d2cb5b18f7c29b72b4ce1be00d0575e07ce",
+      "blobOid": "d07cdead4d7613dd4ac8139d7a4c3a026abf4206",
+      "bytes": 1605
+    },
+    {
+      "status": "M",
+      "path": "app/world-terrain-runtime.ts",
+      "state": "present",
+      "sha256": "1310e20ad478c0f6f7b60ca6a324a598651accca3e27d85dd08d371ad90eb963",
+      "blobOid": "a779964c09e46a4e0db76b50fe75c48674543677",
+      "bytes": 10122
+    },
+    {
+      "status": "A",
+      "path": "engineering/authored-world-themes.md",
+      "state": "present",
+      "sha256": "5c0d03c2f501e9650a35219970df1f5f287e3d88ca4bc70311095acf388df071",
+      "blobOid": "f998f534125d3c4421632d69fa117630373d00d5",
+      "bytes": 5012
+    },
+    {
+      "status": "M",
+      "path": "engineering/generated-files.json",
+      "state": "present",
+      "sha256": "e0f4bb6d08cedd2d6a21ca4203425b90f4f778dffc3335f5e5e0f0a136221c4f",
+      "blobOid": "1390060128d45af0539575555596a45224f5fb6f",
+      "bytes": 21900
+    },
+    {
+      "status": "A",
+      "path": "public/original/atlas-p.png",
+      "state": "present",
+      "sha256": "80769b7095b3db309a46737805f40308e37d75cc88d02f4c6c4befa84f03cc02",
+      "blobOid": "c0932e20ea18187e946e9cd63b6510498a53f7c9",
+      "bytes": 148476
+    },
+    {
+      "status": "A",
+      "path": "public/original/atlas-s.png",
+      "state": "present",
+      "sha256": "a01fdcb4c7d872172d2d1e6e678ae76668d2e262c399053bb75e0a1b030a10c9",
+      "blobOid": "6a856f547965f72d0b901d8053f5baeb475676f2",
+      "bytes": 148426
+    },
+    {
+      "status": "A",
+      "path": "public/original/landscape-p.bin",
+      "state": "present",
+      "sha256": "a07fc142b38441dd65bc99e55e2eb8f33a6423b4d02b3662f3be78e4eb4880f9",
+      "blobOid": "909a3ce0c410143539b977ac91afd448771d9ce2",
+      "bytes": 386048
+    },
+    {
+      "status": "A",
+      "path": "public/original/landscape-s.bin",
+      "state": "present",
+      "sha256": "e4bbc3509b7eae22ed24648e0a7161ba940a723de1720a9ff479e842075aaaac",
+      "blobOid": "c6e97b3575bddbdcf86c4bb7e4649c50a11f33c1",
+      "bytes": 386048
+    },
+    {
+      "status": "A",
+      "path": "public/original/world-environments.json",
+      "state": "present",
+      "sha256": "dd4b7310b9620956dfe6bcc36c9e933a2135cdac70f23bbe3d79db8ae3337b79",
+      "blobOid": "e405ce0a37387e41a0e1f71d765a793c66e57a5a",
+      "bytes": 8326
+    },
+    {
+      "status": "M",
+      "path": "qa/mission3-building-screen/observer.test.mjs",
+      "state": "present",
+      "sha256": "0c40a2146fcff5a3f7efce846d12b35e0b7d9787335ccb53c7287f3bb2b530d2",
+      "blobOid": "b0f7c27d2e39e17e052139065c7467545c4dcc17",
+      "bytes": 21305
+    },
+    {
+      "status": "M",
+      "path": "qa/native-visuals.mjs",
+      "state": "present",
+      "sha256": "fb73874fd0c1293e4087541bdc8cfd72144b3f07a416f95cc3232c972690237a",
+      "blobOid": "0de28e8acbb1a49b98fe409178ea612525871664",
+      "bytes": 10250
+    },
+    {
+      "status": "M",
+      "path": "qa/projection-check.mjs",
+      "state": "present",
+      "sha256": "cd04757e2b7f2aa728a644b9786d950fbb496b0fad2ff2a7e95c8664530839bd",
+      "blobOid": "0c9e1b88261172b47f67038fadbd150351e1f702",
+      "bytes": 9264
+    },
+    {
+      "status": "A",
+      "path": "qa/shared-temple-material-red-20261010/README.md",
+      "state": "present",
+      "sha256": "246f776c98cc9d259be06ea479a9a57876dcb0598c9d6fbd8d5f03fa0da6c6ac",
+      "blobOid": "aa371ba75f278fea5a1ba493d0c6304ed00850d0",
+      "bytes": 3010
+    },
+    {
+      "status": "A",
+      "path": "qa/shared-temple-material-red-20261010/focused.json",
+      "state": "present",
+      "sha256": "7a848f1a8b4412943503996f524d6e46fe2e39eb27a9b44ce24d84f6d99ba995",
+      "blobOid": "e82a9ef8a726fb0bee2858f14973ba1a4d590ccf",
+      "bytes": 28027
+    },
+    {
+      "status": "A",
+      "path": "qa/shared-temple-material-red-20261010/inputs.json",
+      "state": "present",
+      "sha256": "e988740141c5af07358288dd7ebe3d184c64e1334cc6ed95b3421a0f939d41b0",
+      "blobOid": "a36c1a4eb8468b954a359c53890cbbe90fc354e7",
+      "bytes": 623
+    },
+    {
+      "status": "A",
+      "path": "qa/shared-temple-material-red-20261010/world-environment-scene.input.txt",
+      "state": "present",
+      "sha256": "1f1c9c6df121ef1b0b8c311cab7e9af2d2686d22fc9aae20642f1d165181a5fc",
+      "blobOid": "058d9a9b51abfba4d72dad14def3774826a4506b",
+      "bytes": 2137
+    },
+    {
+      "status": "A",
+      "path": "scripts/authored-environment-inputs.json",
+      "state": "present",
+      "sha256": "2fdc4f481845a60a54fc67d5080b3e18cab753f3671bd673a153b2397ae0fe3b",
+      "blobOid": "3d5520841e9bbd81a7bad410dfe8ed608b544132",
+      "bytes": 10201
+    },
+    {
+      "status": "A",
+      "path": "scripts/import-world-environments.py",
+      "state": "present",
+      "sha256": "715b23e16423fd5e2dc3cff218764821ee923aadd6da20ed1fb5061d7f166ff6",
+      "blobOid": "9cbb5544c444774bde4493c2db38c505116ab6b9",
+      "bytes": 7100
+    },
+    {
+      "status": "M",
+      "path": "scripts/local-render/mission3-building-screen-witness.mjs",
+      "state": "present",
+      "sha256": "e7c9b02fcac4a938262d3a1961ff0d44cb63d6111df6d2cd21dfac4600a45d2b",
+      "blobOid": "97638380a7120fb37e0c555da7f8a59028954c4b",
+      "bytes": 26760
+    },
+    {
+      "status": "M",
+      "path": "scripts/local-render/mission3-building-screen.mjs",
+      "state": "present",
+      "sha256": "b40f89685cfcec13ebb22bbef78f2f1f5be5a0cf18983f0b362c64b3134ae7eb",
+      "blobOid": "1af023403726eeae3741f759acf89fd98a40d1a7",
+      "bytes": 16818
+    },
+    {
+      "status": "M",
+      "path": "tests/building-acquisition-runtime.test.mjs",
+      "state": "present",
+      "sha256": "00aab2f98f134f3bc2648d43c2e0f043793e2430a732db25464fe5d99d84f307",
+      "blobOid": "3b185a5fe49a2c934c5b8bb80acdc73df5136927",
+      "bytes": 7013
+    },
+    {
+      "status": "M",
+      "path": "tests/shared-anibl-store.test.mjs",
+      "state": "present",
+      "sha256": "53b9a8042be0c7f4fdb7d881f9529778818fdd299af354aa44b50867302663c9",
+      "blobOid": "f7dec2ba2725a7d4a5edb3a33f6d4d739a00c537",
+      "bytes": 11101
+    },
+    {
+      "status": "A",
+      "path": "tests/shared-temple-scene-material.test.mjs",
+      "state": "present",
+      "sha256": "917877e608032260d402c9418d86858ed67e160ffc7acc29cebcd8c501726f72",
+      "blobOid": "b0d171210c8768c35621d7fe072e2110ce1cc6bf",
+      "bytes": 9186
+    },
+    {
+      "status": "M",
+      "path": "tests/support/bloodlust-scene.mjs",
+      "state": "present",
+      "sha256": "68141adbfb7cd7193ee2fcaf85d8b9f169b4a8a7f4d98ac7bf8aaba025722337",
+      "blobOid": "a52efaab6dc5e75299581d05d9616efc4de4e941",
+      "bytes": 5396
+    },
+    {
+      "status": "M",
+      "path": "tests/support/temple-panel-scene.mjs",
+      "state": "present",
+      "sha256": "079cdf82ccab1467701b4dca97fd13cf7282929c1bcd9ad2d50cae3117f782fb",
+      "blobOid": "48d689fef669a3650e3402a547ee751fb42beedc",
+      "bytes": 2534
+    },
+    {
+      "status": "A",
+      "path": "tests/support/world-environment-scene.mjs",
+      "state": "present",
+      "sha256": "1f1c9c6df121ef1b0b8c311cab7e9af2d2686d22fc9aae20642f1d165181a5fc",
+      "blobOid": "058d9a9b51abfba4d72dad14def3774826a4506b",
+      "bytes": 2137
+    },
+    {
+      "status": "M",
+      "path": "tests/temple-acquisition-material.test.mjs",
+      "state": "present",
+      "sha256": "ea5f154b7a34ee4cd462473d9db42d6d097d02ab9021c0199c0c6f08e3503967",
+      "blobOid": "1a84a3f647f47aa3e29ea23299a90c44b301a2d0",
+      "bytes": 7430
+    },
+    {
+      "status": "M",
+      "path": "tests/temple-scene-lifecycle.test.mjs",
+      "state": "present",
+      "sha256": "877c45d652dfd48bdcb929482e886f74b4c4903c04f2f0adeab840e04b7acd42",
+      "blobOid": "e7b3a17c8e458534491b5d5820256db2dced1996",
+      "bytes": 18057
+    },
+    {
+      "status": "M",
+      "path": "tests/training-hut-appearance.test.mjs",
+      "state": "present",
+      "sha256": "cf5e116f37751fa73303894cb1bf219946ab01e6959546d0dcabc2e95a5f7677",
+      "blobOid": "d4b3badedff0779a9b858f389c6f9fed467371e9",
+      "bytes": 4879
+    },
+    {
+      "status": "M",
+      "path": "tests/vehicle-appearance.test.mjs",
+      "state": "present",
+      "sha256": "3209a465da5beec3e81a51fb62d5930c1839f3d0c77a451a02ff00e283a1cfd1",
+      "blobOid": "3842b08eaa452f910a3b648e3cc5d1b6ad4700ed",
+      "bytes": 8471
+    },
+    {
+      "status": "A",
+      "path": "tests/world-environment-callers.test.mjs",
+      "state": "present",
+      "sha256": "bdaa904d036921a91de997efe87f3e3a87678fd01188b1452676ed3222485425",
+      "blobOid": "833038ee6eab6ab043c4d9aace6734ef9070f094",
+      "bytes": 9875
+    },
+    {
+      "status": "A",
+      "path": "tests/world-environment-lifecycle.test.mjs",
+      "state": "present",
+      "sha256": "6ce0c9716f69813c2ad737056b4f8a0d3222f52c5043aee1e86472efc6c66bbc",
+      "blobOid": "acfce276d20efd6fd68a414bd0a7d8ee2793f932",
+      "bytes": 9023
+    }
+  ],
+  "receipts": [
+    {
+      "sourcePath": "work/orchestration/final-e989-01/typecheck.json",
+      "sourceSha256": "ff33d7ddeafee3ec96736ce92a11eca34028f8d4fd95708624abc49c3e02ab61",
+      "sourceBytes": 3204,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/typecheck.json",
+      "bundleSha256": "a17dd83e3e92ae8a733bdc750e28bfba1828940a7e7cf871cafbee0bf0f3f0d9",
+      "bundleBytes": 3036,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/tests-01.json",
+      "sourceSha256": "ae0e272cef0fc8f28ef2e54293264e2585e5bd7207d4707646509ff56aa4d4e5",
+      "sourceBytes": 22854,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/tests-01.json",
+      "bundleSha256": "6b04a4def719a6db3dcbc6fde1c376bac36fe468538c9bffb6da6ca4e18e97a6",
+      "bundleBytes": 22686,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/tests-02.json",
+      "sourceSha256": "0f9e4ef41eb4d8f333a4d85390af33300e0ab40095c49592ff7d7d13dbf6294d",
+      "sourceBytes": 23023,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/tests-02.json",
+      "bundleSha256": "a2c25bb1119cd5afc8a8305e896efa99a9e3e2a09dcb7b07b2082ed1a7301937",
+      "bundleBytes": 22855,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/tests-03.json",
+      "sourceSha256": "b0d147bdb898c6e0d74149ee38adce448a87c09a114d27c0ac0204ff27552df7",
+      "sourceBytes": 20560,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/tests-03.json",
+      "bundleSha256": "f636a66e758a086a7afe4d04c9c6fb09c95eba458656104ac36e2faad4f8062b",
+      "bundleBytes": 20392,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/tests-04.json",
+      "sourceSha256": "d2fd944d1a594b560239a5083f15c34828279e5de9e5b38449f67a259d2d32f2",
+      "sourceBytes": 29943,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/tests-04.json",
+      "bundleSha256": "15877efe1bb94099c3f75f6680702968729e2219ebe8f50c6488c70eb84d4a42",
+      "bundleBytes": 29775,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/tests-05.json",
+      "sourceSha256": "3893b0e24512f03632c3f609934f86c631c5ba938e88f765232b80b679d8e8d9",
+      "sourceBytes": 25615,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/tests-05.json",
+      "bundleSha256": "19ecca22cb7596f76fd471a49cbcc5dbb49e1001f68a676d3d454455b5f217ac",
+      "bundleBytes": 25447,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/tests-06.json",
+      "sourceSha256": "8f8ea00cb61728e43753d8d0e7175bff62aa6f9f46a8d26e12c89a2bc0b35198",
+      "sourceBytes": 26220,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/tests-06.json",
+      "bundleSha256": "ba5c1d60c239d9c4844cdad3895a9611d77f5e4ceae516f38b2de7d0c7e0f9c1",
+      "bundleBytes": 26052,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/tests-07.json",
+      "sourceSha256": "8b40d754e8342c8c74af38cf6ee0f2156a15f9446969373b23b66575bbd61417",
+      "sourceBytes": 23537,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/tests-07.json",
+      "bundleSha256": "5d99fbc9d2b16cabce75b56f9df95a33b50b32b2ad2401da148085b0ba0fe976",
+      "bundleBytes": 23369,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/tests-08.json",
+      "sourceSha256": "e54db374ec6e89f0d7a934d16e8ef0b9537993164c7588083d584373cfee81ec",
+      "sourceBytes": 28617,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/tests-08.json",
+      "bundleSha256": "ca8d4dfe6c2eede769fbf55d214d904da32954be8e83a2f989faf437b4f83688",
+      "bundleBytes": 28449,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/tests-09.json",
+      "sourceSha256": "f881e4d78b2d93acb938902e4c30bc55f7642303f64d7b51b073c95a80d8cee1",
+      "sourceBytes": 33158,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/tests-09.json",
+      "bundleSha256": "a82d0a8a4c78127404e65bfba9d2d15afb33c6ad39fbffb4af27b179157ee75b",
+      "bundleBytes": 32990,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/tests-10.json",
+      "sourceSha256": "c9be970dea376a77125116ee89a2c9843e90cdc98bab424e2309b4dc6d60c9b9",
+      "sourceBytes": 26974,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/tests-10.json",
+      "bundleSha256": "11aae8cb210dc5a10499943915f39e86b45f00457ab952eb1d64a86f3fc8c7ee",
+      "bundleBytes": 26806,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/tests-11.json",
+      "sourceSha256": "8f414c868d7e8835219163eb456ec14c623c9b3dc26112d8669ea2f1ddd66d74",
+      "sourceBytes": 24720,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/tests-11.json",
+      "bundleSha256": "762d106c5e9556f660a6ed82ae684ad4cf299d33a005987e49e99be63219bd72",
+      "bundleBytes": 24328,
+      "redactions": 7
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/tests-12.json",
+      "sourceSha256": "34b35a2ddfe1cb7def7ef86bdf07ccdb89b0a7885ac884bf675c66fe511fd5d0",
+      "sourceBytes": 21266,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/tests-12.json",
+      "bundleSha256": "a2e1f644a1c50ee0e89c4c6c10c344796c6085807d7d4f81fc418052a289fe8c",
+      "bundleBytes": 21098,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/tests-13.json",
+      "sourceSha256": "26b6de792b198edf752eaf635ac465508baf59c046a815e4410e882879ad9bb2",
+      "sourceBytes": 16253,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/tests-13.json",
+      "bundleSha256": "12ccc8330eca557e668a239e4768cf640728b510d3df6fb789af17fc678acd0f",
+      "bundleBytes": 16029,
+      "redactions": 4
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/parity-check.json",
+      "sourceSha256": "2b149d59471a93e63ffc0827a9a06e558faaf4b57760ebae0e33e251f1505385",
+      "sourceBytes": 3098,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/parity-check.json",
+      "bundleSha256": "46b6ad0122211122d502963bcc31b10237c48eb8bb249a68d2dfa0ec7f1c12f2",
+      "bundleBytes": 2930,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/orchestration-check.json",
+      "sourceSha256": "ba2e16a53d25566470c22f11a15f18819c66d46fdaf3e9a1cefc8d69f67f1b97",
+      "sourceBytes": 8588,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/orchestration-check.json",
+      "bundleSha256": "9b9ac96fad35423c746d2d59931c1e99f30765a5724397295e92db580430df53",
+      "bundleBytes": 8420,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/build.json",
+      "sourceSha256": "f77e164f80d69dc9c824c63d9c884636ea2a586e443669cba7fb6b764051e94f",
+      "sourceBytes": 6301,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/build.json",
+      "bundleSha256": "79f8708d52f19a40bdeeb4de7e6330cd74cd221f4a1b73b225e0ed374a69ceb7",
+      "bundleBytes": 6133,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/profile.json",
+      "sourceSha256": "c71c6f62daee5f7e50067c099d6673456f1936890c4df0a7a7b85898c825a659",
+      "sourceBytes": 78527,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/profile.json",
+      "bundleSha256": "c71c6f62daee5f7e50067c099d6673456f1936890c4df0a7a7b85898c825a659",
+      "bundleBytes": 78527,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/final-e989-01/run-profile.py",
+      "sourceSha256": "6fdbcd76230f5f56e0de363a826c172aad0e0b5ada39d36c48d20649eb39e025",
+      "sourceBytes": 2171,
+      "bundlePath": "receipts/work/orchestration/final-e989-01/run-profile.py",
+      "bundleSha256": "6fdbcd76230f5f56e0de363a826c172aad0e0b5ada39d36c48d20649eb39e025",
+      "bundleBytes": 2171,
+      "redactions": 0
+    }
+  ],
+  "reviewerPreflight": {
+    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
+    "verify": [
+      "node",
+      "verify.mjs"
+    ]
+  }
+}

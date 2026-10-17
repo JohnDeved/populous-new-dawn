@@ -1,0 +1,3923 @@
+{
+  "startedAt": "2026-10-10T18:48:21.312Z",
+  "source": {
+    "root": "<workspace>/world-temple-browser-authored02-20261010",
+    "commit": "e989fbb71849f2530692f896ea3d045afd6432bf",
+    "tree": "e724ce4018995a5c421fa7d7c4b0f475c2cca073",
+    "status": "?? scripts/local-render/ordinary-temple-scenes.mjs\n?? scripts/local-render/ordinary-temple-witness.mjs\n?? scripts/local-render/world-theme-witness.mjs",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [
+      {
+        "path": "scripts/local-render/ordinary-temple-scenes.mjs",
+        "mode": 33188,
+        "sha256": "087ed9ad6f885457f5e3c0f5954cff7d1cbf930e065a566e1ceb73bb7c8aeb14"
+      },
+      {
+        "path": "scripts/local-render/ordinary-temple-witness.mjs",
+        "mode": 33188,
+        "sha256": "e72cced4639e6d56aedcef776c0b05c11c8d229ccacc3648b83c1497dad8126a"
+      },
+      {
+        "path": "scripts/local-render/world-theme-witness.mjs",
+        "mode": 33188,
+        "sha256": "d51e1580ac3bb3c2d43516df9b43a0663036193b75e1ddee8f4d9742ababacb2"
+      }
+    ],
+    "fingerprint": "59eb799c521c4172c76e39fb81b3c42fddda6d9965b17785c1e2af1e95b6c5ca"
+  },
+  "launch": {
+    "executablePath": "<workspace>/recovery-20261010b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe",
+      "--user-data-dir=<private-profile>",
+      "about:blank"
+    ],
+    "timeout": 30000,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "acceptDownloads": false,
+    "serviceWorkers": "block"
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x51c00197000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x51c00197000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x51c00197000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x51c00197000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content."
+  ],
+  "status": "passed",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "<workspace>/recovery-20261010b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "19212b8b57d8f1ec47583ec12a3b33152832c103b91a266aa4a774bf0043a021",
+      "owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenario": {
+    "path": "<workspace>/world-temple-browser-authored02-20261010/scripts/local-render/ordinary-temple-scenes.mjs",
+    "sha256": "087ed9ad6f885457f5e3c0f5954cff7d1cbf930e065a566e1ceb73bb7c8aeb14"
+  },
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 7,
+    "first": {
+      "elapsedMs": 15315,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 24857,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 24857,
+    "listening": true,
+    "ready": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "runtimeAfter": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "<workspace>/recovery-20261010b/browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "19212b8b57d8f1ec47583ec12a3b33152832c103b91a266aa4a774bf0043a021",
+      "owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenarioAfter": {
+    "path": "<workspace>/world-temple-browser-authored02-20261010/scripts/local-render/ordinary-temple-scenes.mjs",
+    "sha256": "087ed9ad6f885457f5e3c0f5954cff7d1cbf930e065a566e1ceb73bb7c8aeb14"
+  },
+  "result": {
+    "status": "passed",
+    "route": "authored",
+    "source": {
+      "root": "<workspace>/world-temple-browser-authored02-20261010",
+      "commit": "e989fbb71849f2530692f896ea3d045afd6432bf",
+      "tree": "e724ce4018995a5c421fa7d7c4b0f475c2cca073",
+      "status": "?? scripts/local-render/ordinary-temple-scenes.mjs\n?? scripts/local-render/ordinary-temple-witness.mjs\n?? scripts/local-render/world-theme-witness.mjs",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked": [
+        {
+          "path": "scripts/local-render/ordinary-temple-scenes.mjs",
+          "mode": 33188,
+          "sha256": "087ed9ad6f885457f5e3c0f5954cff7d1cbf930e065a566e1ceb73bb7c8aeb14"
+        },
+        {
+          "path": "scripts/local-render/ordinary-temple-witness.mjs",
+          "mode": 33188,
+          "sha256": "e72cced4639e6d56aedcef776c0b05c11c8d229ccacc3648b83c1497dad8126a"
+        },
+        {
+          "path": "scripts/local-render/world-theme-witness.mjs",
+          "mode": 33188,
+          "sha256": "d51e1580ac3bb3c2d43516df9b43a0663036193b75e1ddee8f4d9742ababacb2"
+        }
+      ],
+      "fingerprint": "59eb799c521c4172c76e39fb81b3c42fddda6d9965b17785c1e2af1e95b6c5ca"
+    },
+    "actions": [
+      {
+        "evidence": {
+          "kind": "start",
+          "label": "Mission 10",
+          "captured": true,
+          "closed": false,
+          "errors": [],
+          "boundary": {
+            "trusted": true,
+            "replaced": true,
+            "before": {
+              "level": 1,
+              "turn": 0
+            },
+            "after": {
+              "level": 10,
+              "turn": 0,
+              "paused": false
+            }
+          },
+          "cleanup": true
+        },
+        "digest": {
+          "version": 1,
+          "level": 10,
+          "turn": 0,
+          "time": 0,
+          "checkpointSha256": "948887a4a2a292648bd6e4e2bd66957bfaf28e1592094c9f77f4a8f916e2e6b7",
+          "actorsSha256": "d5cc19a393075724859b46c97f273b5fabc9a2256edffa5a2bc3737bec7a92b1",
+          "terrainSha256": "88146514f66b829465c426cd7a016c41fb36a0136896906acc99914690ce7f1d",
+          "stockSha256": "6a677442dba598f6d0e65fb815739513858f34504a899ba1f5808e0e1e40a5ee"
+        }
+      },
+      {
+        "level": 10,
+        "authoredTargets": [
+          {
+            "id": 74,
+            "team": "blue",
+            "x": 110.99609375,
+            "z": -32.92578125,
+            "progress": 1
+          },
+          {
+            "id": 33,
+            "team": "green",
+            "x": -8.7890625,
+            "z": 62.8671875,
+            "progress": 1
+          }
+        ]
+      },
+      {
+        "label": "authored-Temple-camera-route",
+        "target": {
+          "id": 74,
+          "team": "blue",
+          "x": 110.99609375,
+          "z": -32.92578125,
+          "progress": 1
+        },
+        "center": {
+          "x": 29,
+          "z": -5
+        },
+        "waypoints": [
+          {
+            "x": 56.33203125,
+            "z": -14.30859375
+          },
+          {
+            "x": 83.6640625,
+            "z": -23.6171875
+          },
+          {
+            "x": 110.99609375,
+            "z": -32.92578125
+          }
+        ]
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 151.4760707174569,
+          "x": 127,
+          "y": 85,
+          "native": {
+            "x": 16556,
+            "y": 1739
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 9472,
+              "y": -768
+            },
+            "heading": 0,
+            "target": {
+              "x": 16469,
+              "y": 1615
+            },
+            "maxDistance": 2048
+          },
+          "turn": 96,
+          "projected": 36848,
+          "ownershipChecks": 929,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 16556,
+              "y": 1739
+            },
+            "local": {
+              "x": 127,
+              "y": 85
+            },
+            "distance": 151.4760707174569,
+            "point": {
+              "x": 127,
+              "y": 85
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 16556,
+              "y": 1739
+            },
+            "local": {
+              "x": 127,
+              "y": 85
+            },
+            "distance": 151.4760707174569,
+            "point": {
+              "x": 127,
+              "y": 85
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:07.576Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:07.710Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 134.5362404707371,
+          "x": 126,
+          "y": 85,
+          "native": {
+            "x": 23492,
+            "y": 4130
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 16556,
+              "y": 1739
+            },
+            "heading": 0,
+            "target": {
+              "x": 23466,
+              "y": 3998
+            },
+            "maxDistance": 2048
+          },
+          "turn": 116,
+          "projected": 36848,
+          "ownershipChecks": 916,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 23492,
+              "y": 4130
+            },
+            "local": {
+              "x": 126,
+              "y": 85
+            },
+            "distance": 134.5362404707371,
+            "point": {
+              "x": 126,
+              "y": 85
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 23492,
+              "y": 4130
+            },
+            "local": {
+              "x": 126,
+              "y": 85
+            },
+            "distance": 134.5362404707371,
+            "point": {
+              "x": 126,
+              "y": 85
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:09.273Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:09.387Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 156.236999459155,
+          "x": 128,
+          "y": 87,
+          "native": {
+            "x": 30590,
+            "y": 6290
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 23492,
+              "y": 4130
+            },
+            "heading": 0,
+            "target": {
+              "x": 30463,
+              "y": 6381
+            },
+            "maxDistance": 2048
+          },
+          "turn": 135,
+          "projected": 36848,
+          "ownershipChecks": 953,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 30590,
+              "y": 6290
+            },
+            "local": {
+              "x": 128,
+              "y": 87
+            },
+            "distance": 156.236999459155,
+            "point": {
+              "x": 128,
+              "y": 87
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 30590,
+              "y": 6290
+            },
+            "local": {
+              "x": 128,
+              "y": 87
+            },
+            "distance": 156.236999459155,
+            "point": {
+              "x": 128,
+              "y": 87
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:10.850Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:10.952Z"
+      },
+      {
+        "label": "authored-Temple-camera-route",
+        "target": {
+          "id": 33,
+          "team": "green",
+          "x": -8.7890625,
+          "z": 62.8671875,
+          "progress": 1
+        },
+        "center": {
+          "x": 111.4921875,
+          "z": -32.5703125
+        },
+        "waypoints": [
+          {
+            "x": 87.43593750000002,
+            "z": -13.482812500000023
+          },
+          {
+            "x": 63.37968749999999,
+            "z": 5.604687500000011
+          },
+          {
+            "x": 39.32343750000001,
+            "z": 24.69218749999999
+          },
+          {
+            "x": 15.267187499999977,
+            "z": 43.77968750000002
+          },
+          {
+            "x": -8.7890625,
+            "z": 62.8671875
+          }
+        ]
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 139.21566003866087,
+          "x": 79,
+          "y": 112,
+          "native": {
+            "x": 24398,
+            "y": 1269
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 30590,
+              "y": 6290
+            },
+            "heading": 0,
+            "target": {
+              "x": 24432,
+              "y": 1404
+            },
+            "maxDistance": 2048
+          },
+          "turn": 168,
+          "projected": 36848,
+          "ownershipChecks": 1243,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 24398,
+              "y": 1269
+            },
+            "local": {
+              "x": 79,
+              "y": 112
+            },
+            "distance": 139.21566003866087,
+            "point": {
+              "x": 79,
+              "y": 112
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 24398,
+              "y": 1269
+            },
+            "local": {
+              "x": 79,
+              "y": 112
+            },
+            "distance": 139.21566003866087,
+            "point": {
+              "x": 79,
+              "y": 112
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:13.650Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:13.782Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 129.9576854210631,
+          "x": 79,
+          "y": 111,
+          "native": {
+            "x": 18173,
+            "y": 61970
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 24398,
+              "y": 1269
+            },
+            "heading": 0,
+            "target": {
+              "x": 18273,
+              "y": -3483
+            },
+            "maxDistance": 2048
+          },
+          "turn": 192,
+          "projected": 36848,
+          "ownershipChecks": 1203,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 18173,
+              "y": 61970
+            },
+            "local": {
+              "x": 79,
+              "y": 111
+            },
+            "distance": 129.9576854210631,
+            "point": {
+              "x": 79,
+              "y": 111
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 18173,
+              "y": 61970
+            },
+            "local": {
+              "x": 79,
+              "y": 111
+            },
+            "distance": 129.9576854210631,
+            "point": {
+              "x": 79,
+              "y": 111
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:15.637Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:15.766Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 107.48953437428223,
+          "x": 80,
+          "y": 111,
+          "native": {
+            "x": 12220,
+            "y": 57190
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 18173,
+              "y": -3566
+            },
+            "heading": 0,
+            "target": {
+              "x": 12115,
+              "y": -8369
+            },
+            "maxDistance": 2048
+          },
+          "turn": 214,
+          "projected": 36848,
+          "ownershipChecks": 1284,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 12220,
+              "y": 57190
+            },
+            "local": {
+              "x": 80,
+              "y": 111
+            },
+            "distance": 107.48953437428223,
+            "point": {
+              "x": 80,
+              "y": 111
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 12220,
+              "y": 57190
+            },
+            "local": {
+              "x": 80,
+              "y": 111
+            },
+            "distance": 107.48953437428223,
+            "point": {
+              "x": 80,
+              "y": 111
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:17.445Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:17.561Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 84.53401682163224,
+          "x": 80,
+          "y": 110,
+          "native": {
+            "x": 5995,
+            "y": 52355
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 12220,
+              "y": -8346
+            },
+            "heading": 0,
+            "target": {
+              "x": 5956,
+              "y": -13256
+            },
+            "maxDistance": 2048
+          },
+          "turn": 242,
+          "projected": 36848,
+          "ownershipChecks": 1253,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 5995,
+              "y": 52355
+            },
+            "local": {
+              "x": 80,
+              "y": 110
+            },
+            "distance": 84.53401682163224,
+            "point": {
+              "x": 80,
+              "y": 110
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 5995,
+              "y": 52355
+            },
+            "local": {
+              "x": 80,
+              "y": 110
+            },
+            "distance": 84.53401682163224,
+            "point": {
+              "x": 80,
+              "y": 110
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:19.930Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:20.276Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 51,
+          "x": 79,
+          "y": 112,
+          "native": {
+            "x": 65358,
+            "y": 47349
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 5995,
+              "y": -13181
+            },
+            "heading": 0,
+            "target": {
+              "x": -202,
+              "y": -18142
+            },
+            "maxDistance": 2048
+          },
+          "turn": 266,
+          "projected": 36848,
+          "ownershipChecks": 1273,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 65358,
+              "y": 47349
+            },
+            "local": {
+              "x": 79,
+              "y": 112
+            },
+            "distance": 51,
+            "point": {
+              "x": 79,
+              "y": 112
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 65358,
+              "y": 47349
+            },
+            "local": {
+              "x": 79,
+              "y": 112
+            },
+            "distance": 51,
+            "point": {
+              "x": 79,
+              "y": 112
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:21.780Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:21.909Z"
+      },
+      {
+        "evidence": {
+          "kind": "start",
+          "label": "Mission 17",
+          "captured": true,
+          "closed": false,
+          "errors": [],
+          "boundary": {
+            "trusted": true,
+            "replaced": true,
+            "before": {
+              "level": 10,
+              "turn": 330
+            },
+            "after": {
+              "level": 17,
+              "turn": 0,
+              "paused": false
+            }
+          },
+          "cleanup": true
+        },
+        "digest": {
+          "version": 1,
+          "level": 17,
+          "turn": 0,
+          "time": 0,
+          "checkpointSha256": "bec9a3611e269486e70b96ba5aa64a7636f491d95498ce4f97693bb50a1d890c",
+          "actorsSha256": "177d7eaf924b1b8d000f5186ddca3f4a036c04acdd23fd35efb6ce78c166938f",
+          "terrainSha256": "6942e4713377b65194253d81cfc78e537cebf531ada071ef288ba21d52aa2fdb",
+          "stockSha256": "682c06fd20a41ade10bbf49f23aabe1d074f2dd1542a98404d521b4e8431b64d"
+        }
+      },
+      {
+        "level": 17,
+        "authoredTargets": [
+          {
+            "id": 400,
+            "team": "blue",
+            "x": -72.92578125,
+            "z": 47.00390625,
+            "progress": 1
+          },
+          {
+            "id": 450,
+            "team": "red",
+            "x": 82.234375,
+            "z": 67.0546875,
+            "progress": 1
+          },
+          {
+            "id": 463,
+            "team": "yellow",
+            "x": 53.84375,
+            "z": -73.015625,
+            "progress": 1
+          },
+          {
+            "id": 404,
+            "team": "green",
+            "x": -78.7890625,
+            "z": -83.1328125,
+            "progress": 1
+          }
+        ]
+      },
+      {
+        "label": "authored-Temple-camera-route",
+        "target": {
+          "id": 400,
+          "team": "blue",
+          "x": -72.92578125,
+          "z": 47.00390625,
+          "progress": 1
+        },
+        "center": {
+          "x": -51,
+          "z": 35
+        },
+        "waypoints": [
+          {
+            "x": -72.92578125,
+            "z": 47.00390625
+          }
+        ]
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 80.99382692526635,
+          "x": 81,
+          "y": 105,
+          "native": {
+            "x": 48871,
+            "y": 51387
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": -11008,
+              "y": -11008
+            },
+            "heading": 0,
+            "target": {
+              "x": -16621,
+              "y": -14081
+            },
+            "maxDistance": 2048
+          },
+          "turn": 77,
+          "projected": 36848,
+          "ownershipChecks": 1137,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 48871,
+              "y": 51387
+            },
+            "local": {
+              "x": 81,
+              "y": 105
+            },
+            "distance": 80.99382692526635,
+            "point": {
+              "x": 81,
+              "y": 105
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 48871,
+              "y": 51387
+            },
+            "local": {
+              "x": 81,
+              "y": 105
+            },
+            "distance": 80.99382692526635,
+            "point": {
+              "x": 81,
+              "y": 105
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:39.853Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:40.005Z"
+      },
+      {
+        "label": "authored-Temple-camera-route",
+        "target": {
+          "id": 450,
+          "team": "red",
+          "x": 82.234375,
+          "z": 67.0546875,
+          "progress": 1
+        },
+        "center": {
+          "x": -73.09765625,
+          "z": 47.26953125
+        },
+        "waypoints": [
+          {
+            "x": -98.2646484375,
+            "z": 52.2158203125
+          },
+          {
+            "x": -123.431640625,
+            "z": 57.162109375
+          },
+          {
+            "x": 107.4013671875,
+            "z": 62.1083984375
+          },
+          {
+            "x": 82.234375,
+            "z": 67.0546875
+          }
+        ]
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 113.01769772916099,
+          "x": 78,
+          "y": 99,
+          "native": {
+            "x": 42486,
+            "y": 50024
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": -16665,
+              "y": -14149
+            },
+            "heading": 0,
+            "target": {
+              "x": -23108,
+              "y": -15415
+            },
+            "maxDistance": 2048
+          },
+          "turn": 111,
+          "projected": 36848,
+          "ownershipChecks": 1077,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 42486,
+              "y": 50024
+            },
+            "local": {
+              "x": 78,
+              "y": 99
+            },
+            "distance": 113.01769772916099,
+            "point": {
+              "x": 78,
+              "y": 99
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 42486,
+              "y": 50024
+            },
+            "local": {
+              "x": 78,
+              "y": 99
+            },
+            "distance": 113.01769772916099,
+            "point": {
+              "x": 78,
+              "y": 99
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:42.716Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:42.886Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 60.53924347066125,
+          "x": 78,
+          "y": 97,
+          "native": {
+            "x": 35934,
+            "y": 48886
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": -23050,
+              "y": -15512
+            },
+            "heading": 0,
+            "target": {
+              "x": -29550,
+              "y": -16681
+            },
+            "maxDistance": 2048
+          },
+          "turn": 137,
+          "projected": 36848,
+          "ownershipChecks": 1014,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 35934,
+              "y": 48886
+            },
+            "local": {
+              "x": 78,
+              "y": 97
+            },
+            "distance": 60.53924347066125,
+            "point": {
+              "x": 78,
+              "y": 97
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 35934,
+              "y": 48886
+            },
+            "local": {
+              "x": 78,
+              "y": 97
+            },
+            "distance": 60.53924347066125,
+            "point": {
+              "x": 78,
+              "y": 97
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:44.763Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:44.959Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 108.37435120913065,
+          "x": 77,
+          "y": 98,
+          "native": {
+            "x": 29435,
+            "y": 47579
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": -29602,
+              "y": -16650
+            },
+            "heading": 0,
+            "target": {
+              "x": 29543,
+              "y": -17948
+            },
+            "maxDistance": 2048
+          },
+          "turn": 160,
+          "projected": 36848,
+          "ownershipChecks": 1007,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 29435,
+              "y": 47579
+            },
+            "local": {
+              "x": 77,
+              "y": 98
+            },
+            "distance": 108.37435120913065,
+            "point": {
+              "x": 77,
+              "y": 98
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 29435,
+              "y": 47579
+            },
+            "local": {
+              "x": 77,
+              "y": 98
+            },
+            "distance": 108.37435120913065,
+            "point": {
+              "x": 77,
+              "y": 98
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:46.856Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:47.005Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 122.53978945632313,
+          "x": 78,
+          "y": 98,
+          "native": {
+            "x": 23154,
+            "y": 46212
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 29435,
+              "y": -17957
+            },
+            "heading": 0,
+            "target": {
+              "x": 23100,
+              "y": -19214
+            },
+            "maxDistance": 2048
+          },
+          "turn": 182,
+          "projected": 36848,
+          "ownershipChecks": 1061,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 23154,
+              "y": 46212
+            },
+            "local": {
+              "x": 78,
+              "y": 98
+            },
+            "distance": 122.53978945632313,
+            "point": {
+              "x": 78,
+              "y": 98
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 23154,
+              "y": 46212
+            },
+            "local": {
+              "x": 78,
+              "y": 98
+            },
+            "distance": 122.53978945632313,
+            "point": {
+              "x": 78,
+              "y": 98
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:48.586Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:48.733Z"
+      },
+      {
+        "label": "authored-Temple-camera-route",
+        "target": {
+          "id": 463,
+          "team": "yellow",
+          "x": 53.84375,
+          "z": -73.015625,
+          "progress": 1
+        },
+        "center": {
+          "x": 82.4453125,
+          "z": 67.484375
+        },
+        "waypoints": [
+          {
+            "x": 75.294921875,
+            "z": 96.359375
+          },
+          {
+            "x": 68.14453125,
+            "z": 125.234375
+          },
+          {
+            "x": 60.994140625,
+            "z": -101.890625
+          },
+          {
+            "x": 53.84375,
+            "z": -73.015625
+          }
+        ]
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 106.92988356862641,
+          "x": 94,
+          "y": 120,
+          "native": {
+            "x": 21279,
+            "y": 38917
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 23154,
+              "y": -19324
+            },
+            "heading": 0,
+            "target": {
+              "x": 21324,
+              "y": -26716
+            },
+            "maxDistance": 2048
+          },
+          "turn": 218,
+          "projected": 36848,
+          "ownershipChecks": 1296,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 21279,
+              "y": 38917
+            },
+            "local": {
+              "x": 94,
+              "y": 120
+            },
+            "distance": 106.92988356862641,
+            "point": {
+              "x": 94,
+              "y": 120
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 21279,
+              "y": 38917
+            },
+            "local": {
+              "x": 94,
+              "y": 120
+            },
+            "distance": 106.92988356862641,
+            "point": {
+              "x": 94,
+              "y": 120
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:51.628Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:51.787Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 98.79271228182775,
+          "x": 95,
+          "y": 121,
+          "native": {
+            "x": 19585,
+            "y": 31464
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 21279,
+              "y": -26619
+            },
+            "heading": 0,
+            "target": {
+              "x": 19493,
+              "y": -34108
+            },
+            "maxDistance": 2048
+          },
+          "turn": 244,
+          "projected": 36848,
+          "ownershipChecks": 1336,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 19585,
+              "y": 31464
+            },
+            "local": {
+              "x": 95,
+              "y": 121
+            },
+            "distance": 98.79271228182775,
+            "point": {
+              "x": 95,
+              "y": 121
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 19585,
+              "y": 31464
+            },
+            "local": {
+              "x": 95,
+              "y": 121
+            },
+            "distance": 98.79271228182775,
+            "point": {
+              "x": 95,
+              "y": 121
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:53.757Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:53.920Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 138.43771162512041,
+          "x": 94,
+          "y": 120,
+          "native": {
+            "x": 17674,
+            "y": 23898
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 19585,
+              "y": -34072
+            },
+            "heading": 0,
+            "target": {
+              "x": 17663,
+              "y": 24036
+            },
+            "maxDistance": 2048
+          },
+          "turn": 274,
+          "projected": 36848,
+          "ownershipChecks": 1333,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 17674,
+              "y": 23898
+            },
+            "local": {
+              "x": 94,
+              "y": 120
+            },
+            "distance": 138.43771162512041,
+            "point": {
+              "x": 94,
+              "y": 120
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 17674,
+              "y": 23898
+            },
+            "local": {
+              "x": 94,
+              "y": 120
+            },
+            "distance": 138.43771162512041,
+            "point": {
+              "x": 94,
+              "y": 120
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:56.280Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:56.527Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 126.37246535539298,
+          "x": 94,
+          "y": 119,
+          "native": {
+            "x": 15709,
+            "y": 16673
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 17674,
+              "y": 23898
+            },
+            "heading": 0,
+            "target": {
+              "x": 15832,
+              "y": 16644
+            },
+            "maxDistance": 2048
+          },
+          "turn": 305,
+          "projected": 36848,
+          "ownershipChecks": 1332,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 15709,
+              "y": 16673
+            },
+            "local": {
+              "x": 94,
+              "y": 119
+            },
+            "distance": 126.37246535539298,
+            "point": {
+              "x": 94,
+              "y": 119
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 15709,
+              "y": 16673
+            },
+            "local": {
+              "x": 94,
+              "y": 119
+            },
+            "distance": 126.37246535539298,
+            "point": {
+              "x": 94,
+              "y": 119
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:49:58.884Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:49:59.062Z"
+      },
+      {
+        "label": "authored-Temple-camera-route",
+        "target": {
+          "id": 404,
+          "team": "green",
+          "x": -78.7890625,
+          "z": -83.1328125,
+          "progress": 1
+        },
+        "center": {
+          "x": 53.36328125,
+          "z": -73.12890625
+        },
+        "waypoints": [
+          {
+            "x": 84.3251953125,
+            "z": -75.6298828125
+          },
+          {
+            "x": 115.287109375,
+            "z": -78.130859375
+          },
+          {
+            "x": -109.7509765625,
+            "z": -80.6318359375
+          },
+          {
+            "x": -78.7890625,
+            "z": -83.1328125
+          }
+        ]
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 155,
+          "x": 131,
+          "y": 91,
+          "native": {
+            "x": 23542,
+            "y": 17437
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 15709,
+              "y": 16673
+            },
+            "heading": 0,
+            "target": {
+              "x": 23635,
+              "y": 17313
+            },
+            "maxDistance": 2048
+          },
+          "turn": 342,
+          "projected": 36848,
+          "ownershipChecks": 956,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 23542,
+              "y": 17437
+            },
+            "local": {
+              "x": 131,
+              "y": 91
+            },
+            "distance": 155,
+            "point": {
+              "x": 131,
+              "y": 91
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 23542,
+              "y": 17437
+            },
+            "local": {
+              "x": 131,
+              "y": 91
+            },
+            "distance": 155,
+            "point": {
+              "x": 131,
+              "y": 91
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:50:01.956Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:50:02.126Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 131.52946437965903,
+          "x": 132,
+          "y": 93,
+          "native": {
+            "x": 31678,
+            "y": 17892
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 23542,
+              "y": 17437
+            },
+            "heading": 0,
+            "target": {
+              "x": 31562,
+              "y": 17954
+            },
+            "maxDistance": 2048
+          },
+          "turn": 372,
+          "projected": 36848,
+          "ownershipChecks": 1039,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 31678,
+              "y": 17892
+            },
+            "local": {
+              "x": 132,
+              "y": 93
+            },
+            "distance": 131.52946437965903,
+            "point": {
+              "x": 132,
+              "y": 93
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 31678,
+              "y": 17892
+            },
+            "local": {
+              "x": 132,
+              "y": 93
+            },
+            "distance": 131.52946437965903,
+            "point": {
+              "x": 132,
+              "y": 93
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:50:04.453Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:50:04.642Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 172.59490143106777,
+          "x": 131,
+          "y": 91,
+          "native": {
+            "x": 39598,
+            "y": 18461
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": 31678,
+              "y": 17892
+            },
+            "heading": 0,
+            "target": {
+              "x": -26048,
+              "y": 18594
+            },
+            "maxDistance": 2048
+          },
+          "turn": 398,
+          "projected": 36848,
+          "ownershipChecks": 1006,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 39598,
+              "y": 18461
+            },
+            "local": {
+              "x": 131,
+              "y": 91
+            },
+            "distance": 172.59490143106777,
+            "point": {
+              "x": 131,
+              "y": 91
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 39598,
+              "y": 18461
+            },
+            "local": {
+              "x": 131,
+              "y": 91
+            },
+            "distance": 172.59490143106777,
+            "point": {
+              "x": 131,
+              "y": 91
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:50:06.558Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:50:06.714Z"
+      },
+      {
+        "label": "minimap-probe",
+        "hit": {
+          "distance": 106.90182411914215,
+          "x": 130,
+          "y": 92,
+          "native": {
+            "x": 47516,
+            "y": 19202
+          }
+        },
+        "diagnostics": {
+          "geometry": {
+            "width": 200,
+            "height": 192,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 200,
+              "height": 192
+            },
+            "center": {
+              "x": -25938,
+              "y": 18461
+            },
+            "heading": 0,
+            "target": {
+              "x": -18122,
+              "y": 19234
+            },
+            "maxDistance": 2048
+          },
+          "turn": 423,
+          "projected": 36848,
+          "ownershipChecks": 1025,
+          "ownershipRejected": 0,
+          "nearestProjected": {
+            "native": {
+              "x": 47516,
+              "y": 19202
+            },
+            "local": {
+              "x": 130,
+              "y": 92
+            },
+            "distance": 106.90182411914215,
+            "point": {
+              "x": 130,
+              "y": 92
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          },
+          "nearestOwned": {
+            "native": {
+              "x": 47516,
+              "y": 19202
+            },
+            "local": {
+              "x": 130,
+              "y": 92
+            },
+            "distance": 106.90182411914215,
+            "point": {
+              "x": 130,
+              "y": 92
+            },
+            "owned": true,
+            "ownerTag": "CANVAS",
+            "ownerLabel": "Minimap. Click to move the camera."
+          }
+        }
+      },
+      {
+        "label": "minimap-view",
+        "phase": "before",
+        "at": "2026-10-10T18:50:08.663Z"
+      },
+      {
+        "label": "minimap-view",
+        "phase": "after",
+        "at": "2026-10-10T18:50:08.817Z"
+      }
+    ],
+    "epochs": [
+      {
+        "label": "m10-authored",
+        "expected": {
+          "level": 10,
+          "bank": "p",
+          "atlas": "atlas-p",
+          "objects": 2
+        },
+        "ids": [
+          74,
+          33
+        ],
+        "construction": false,
+        "evidence": {
+          "errors": [],
+          "closed": true,
+          "frames": [
+            {
+              "level": 10,
+              "turn": 151,
+              "paused": false,
+              "resource": {
+                "bank": "p",
+                "modelAtlas": "atlas-p",
+                "epoch": 2,
+                "counter": 0,
+                "tile": 92
+              },
+              "environment": {
+                "landscape": {
+                  "requested": 25,
+                  "bank": "p",
+                  "supported": true,
+                  "terrain": "landscape-p.bin",
+                  "modelAtlas": "atlas-p"
+                },
+                "objects": {
+                  "requested": 0,
+                  "bank": 2,
+                  "supported": true
+                }
+              },
+              "beforeFrame": 71,
+              "afterFrame": 72,
+              "buildings": [
+                {
+                  "id": 74,
+                  "team": "blue",
+                  "x": 110.99609375,
+                  "z": -32.92578125,
+                  "hp": 260,
+                  "progress": 1,
+                  "logs": 8,
+                  "model": 95,
+                  "stage": 4,
+                  "bank": 2,
+                  "source": "http://127.0.0.1:4417/original/atlas-p.png",
+                  "encoded": true,
+                  "alphaTest": 0.5,
+                  "side": 1,
+                  "program": "native-mesh-true-false-native-model-light-temple",
+                  "offset": [
+                    0,
+                    0
+                  ],
+                  "epoch": 2,
+                  "clip": {
+                    "x": -0.020161290322580627,
+                    "y": 0.16525,
+                    "z": -0.60107421875
+                  },
+                  "vertices": 666,
+                  "mode32Vertices": 96,
+                  "capVertices": 351,
+                  "trustedRenderSubmission": true,
+                  "positionsSha256": "dfd15686c2fc96876eae8f68f251baf36ea3db494abb59aa30dbebdfe49f71ea",
+                  "uvSha256": "2d058a03f47ba8ca1fa055e5d66f77072c311a0e7af113b907c571db4706353f",
+                  "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+                }
+              ],
+              "viewport": [
+                1440,
+                1000
+              ],
+              "canvas": [
+                1240,
+                1000
+              ],
+              "dpr": 1,
+              "camera": {
+                "position": {
+                  "x": 30590,
+                  "y": 6290,
+                  "angle": 0
+                },
+                "center": {
+                  "x": 30590,
+                  "y": 6290
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "diameter": 50,
+                  "scale": 40786,
+                  "spriteScale": 40786,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "pitch": 1932,
+                  "offsetX": 0,
+                  "offsetY": -77,
+                  "horizon": 425,
+                  "width": 1240,
+                  "height": 1000,
+                  "shamanScale": 280,
+                  "bounds": [
+                    -18,
+                    -20,
+                    18,
+                    -20,
+                    32,
+                    54,
+                    -32,
+                    54
+                  ],
+                  "boundsMode": 1,
+                  "scaledSprites": 0,
+                  "matrix": [
+                    16384,
+                    0,
+                    0,
+                    0,
+                    15357,
+                    5708,
+                    0,
+                    -5708,
+                    15357
+                  ],
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625
+                },
+                "preset": 0,
+                "overview": false
+              },
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "png": {
+                "file": "m10-authored-0.png",
+                "sha256": "13fac60aea756b6d174f4db3d811494876d30b773727e3d04447280e436709bb"
+              }
+            },
+            {
+              "level": 10,
+              "turn": 155,
+              "paused": false,
+              "resource": {
+                "bank": "p",
+                "modelAtlas": "atlas-p",
+                "epoch": 2,
+                "counter": 7,
+                "tile": 103
+              },
+              "environment": {
+                "landscape": {
+                  "requested": 25,
+                  "bank": "p",
+                  "supported": true,
+                  "terrain": "landscape-p.bin",
+                  "modelAtlas": "atlas-p"
+                },
+                "objects": {
+                  "requested": 0,
+                  "bank": 2,
+                  "supported": true
+                }
+              },
+              "beforeFrame": 73,
+              "afterFrame": 74,
+              "buildings": [
+                {
+                  "id": 74,
+                  "team": "blue",
+                  "x": 110.99609375,
+                  "z": -32.92578125,
+                  "hp": 260,
+                  "progress": 1,
+                  "logs": 8,
+                  "model": 95,
+                  "stage": 4,
+                  "bank": 2,
+                  "source": "http://127.0.0.1:4417/original/atlas-p.png",
+                  "encoded": true,
+                  "alphaTest": 0.5,
+                  "side": 1,
+                  "program": "native-mesh-true-false-native-model-light-temple",
+                  "offset": [
+                    0.375,
+                    -0.03125
+                  ],
+                  "epoch": 2,
+                  "clip": {
+                    "x": -0.020161290322580627,
+                    "y": 0.16525,
+                    "z": -0.60107421875
+                  },
+                  "vertices": 666,
+                  "mode32Vertices": 96,
+                  "capVertices": 351,
+                  "trustedRenderSubmission": true,
+                  "positionsSha256": "dfd15686c2fc96876eae8f68f251baf36ea3db494abb59aa30dbebdfe49f71ea",
+                  "uvSha256": "2d058a03f47ba8ca1fa055e5d66f77072c311a0e7af113b907c571db4706353f",
+                  "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+                }
+              ],
+              "viewport": [
+                1440,
+                1000
+              ],
+              "canvas": [
+                1240,
+                1000
+              ],
+              "dpr": 1,
+              "camera": {
+                "position": {
+                  "x": 30590,
+                  "y": 6290,
+                  "angle": 0
+                },
+                "center": {
+                  "x": 30590,
+                  "y": 6290
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "diameter": 50,
+                  "scale": 40786,
+                  "spriteScale": 40786,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "pitch": 1932,
+                  "offsetX": 0,
+                  "offsetY": -77,
+                  "horizon": 425,
+                  "width": 1240,
+                  "height": 1000,
+                  "shamanScale": 280,
+                  "bounds": [
+                    -18,
+                    -20,
+                    18,
+                    -20,
+                    32,
+                    54,
+                    -32,
+                    54
+                  ],
+                  "boundsMode": 1,
+                  "scaledSprites": 0,
+                  "matrix": [
+                    16384,
+                    0,
+                    0,
+                    0,
+                    15357,
+                    5708,
+                    0,
+                    -5708,
+                    15357
+                  ],
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625
+                },
+                "preset": 0,
+                "overview": false
+              },
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "png": {
+                "file": "m10-authored-1.png",
+                "sha256": "30bde45ae1f9e512d51851bdf1a4b83ed04833a49240ac86a4b2bd8e61495f60"
+              }
+            },
+            {
+              "level": 10,
+              "turn": 283,
+              "paused": false,
+              "resource": {
+                "bank": "p",
+                "modelAtlas": "atlas-p",
+                "epoch": 2,
+                "counter": 0,
+                "tile": 92
+              },
+              "environment": {
+                "landscape": {
+                  "requested": 25,
+                  "bank": "p",
+                  "supported": true,
+                  "terrain": "landscape-p.bin",
+                  "modelAtlas": "atlas-p"
+                },
+                "objects": {
+                  "requested": 0,
+                  "bank": 2,
+                  "supported": true
+                }
+              },
+              "beforeFrame": 152,
+              "afterFrame": 153,
+              "buildings": [
+                {
+                  "id": 33,
+                  "team": "green",
+                  "x": -8.7890625,
+                  "z": 62.8671875,
+                  "hp": 260,
+                  "progress": 1,
+                  "logs": 8,
+                  "model": 98,
+                  "stage": 4,
+                  "bank": 2,
+                  "source": "http://127.0.0.1:4417/original/atlas-p.png",
+                  "encoded": true,
+                  "alphaTest": 0.5,
+                  "side": 1,
+                  "program": "native-mesh-true-false-native-model-light-temple",
+                  "offset": [
+                    0,
+                    0
+                  ],
+                  "epoch": 2,
+                  "clip": {
+                    "x": -0.0040322580645161255,
+                    "y": 0.41525,
+                    "z": -0.61651611328125
+                  },
+                  "vertices": 666,
+                  "mode32Vertices": 96,
+                  "capVertices": 351,
+                  "trustedRenderSubmission": true,
+                  "positionsSha256": "5421b91be6924363c7f5db7e92d601c16eb82887ef972ed78d5e95cbc51b50fe",
+                  "uvSha256": "b613d08c233f9ebb0c0dab1c79b4744a669d9a4cddf9c157f88521d186e78cf5",
+                  "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+                }
+              ],
+              "viewport": [
+                1440,
+                1000
+              ],
+              "canvas": [
+                1240,
+                1000
+              ],
+              "dpr": 1,
+              "camera": {
+                "position": {
+                  "x": 65358,
+                  "y": 47349,
+                  "angle": 0
+                },
+                "center": {
+                  "x": -178,
+                  "y": -18187
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "diameter": 50,
+                  "scale": 40786,
+                  "spriteScale": 40786,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "pitch": 1932,
+                  "offsetX": 0,
+                  "offsetY": -77,
+                  "horizon": 425,
+                  "width": 1240,
+                  "height": 1000,
+                  "shamanScale": 280,
+                  "bounds": [
+                    -18,
+                    -20,
+                    18,
+                    -20,
+                    32,
+                    54,
+                    -32,
+                    54
+                  ],
+                  "boundsMode": 1,
+                  "scaledSprites": 0,
+                  "matrix": [
+                    16384,
+                    0,
+                    0,
+                    0,
+                    15357,
+                    5708,
+                    0,
+                    -5708,
+                    15357
+                  ],
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625
+                },
+                "preset": 0,
+                "overview": false
+              },
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "png": {
+                "file": "m10-authored-2.png",
+                "sha256": "dd296e2c0f76168c92edbad7670f7036b04601e22e59e3ead26ba6a54f491468"
+              }
+            },
+            {
+              "level": 10,
+              "turn": 285,
+              "paused": false,
+              "resource": {
+                "bank": "p",
+                "modelAtlas": "atlas-p",
+                "epoch": 2,
+                "counter": 8,
+                "tile": 108
+              },
+              "environment": {
+                "landscape": {
+                  "requested": 25,
+                  "bank": "p",
+                  "supported": true,
+                  "terrain": "landscape-p.bin",
+                  "modelAtlas": "atlas-p"
+                },
+                "objects": {
+                  "requested": 0,
+                  "bank": 2,
+                  "supported": true
+                }
+              },
+              "beforeFrame": 153,
+              "afterFrame": 154,
+              "buildings": [
+                {
+                  "id": 33,
+                  "team": "green",
+                  "x": -8.7890625,
+                  "z": 62.8671875,
+                  "hp": 260,
+                  "progress": 1,
+                  "logs": 8,
+                  "model": 98,
+                  "stage": 4,
+                  "bank": 2,
+                  "source": "http://127.0.0.1:4417/original/atlas-p.png",
+                  "encoded": true,
+                  "alphaTest": 0.5,
+                  "side": 1,
+                  "program": "native-mesh-true-false-native-model-light-temple",
+                  "offset": [
+                    0,
+                    -0.0625
+                  ],
+                  "epoch": 2,
+                  "clip": {
+                    "x": -0.0040322580645161255,
+                    "y": 0.41525,
+                    "z": -0.61651611328125
+                  },
+                  "vertices": 666,
+                  "mode32Vertices": 96,
+                  "capVertices": 351,
+                  "trustedRenderSubmission": true,
+                  "positionsSha256": "5421b91be6924363c7f5db7e92d601c16eb82887ef972ed78d5e95cbc51b50fe",
+                  "uvSha256": "b613d08c233f9ebb0c0dab1c79b4744a669d9a4cddf9c157f88521d186e78cf5",
+                  "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+                }
+              ],
+              "viewport": [
+                1440,
+                1000
+              ],
+              "canvas": [
+                1240,
+                1000
+              ],
+              "dpr": 1,
+              "camera": {
+                "position": {
+                  "x": 65358,
+                  "y": 47349,
+                  "angle": 0
+                },
+                "center": {
+                  "x": -178,
+                  "y": -18187
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "diameter": 50,
+                  "scale": 40786,
+                  "spriteScale": 40786,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "pitch": 1932,
+                  "offsetX": 0,
+                  "offsetY": -77,
+                  "horizon": 425,
+                  "width": 1240,
+                  "height": 1000,
+                  "shamanScale": 280,
+                  "bounds": [
+                    -18,
+                    -20,
+                    18,
+                    -20,
+                    32,
+                    54,
+                    -32,
+                    54
+                  ],
+                  "boundsMode": 1,
+                  "scaledSprites": 0,
+                  "matrix": [
+                    16384,
+                    0,
+                    0,
+                    0,
+                    15357,
+                    5708,
+                    0,
+                    -5708,
+                    15357
+                  ],
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625
+                },
+                "preset": 0,
+                "overview": false
+              },
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "png": {
+                "file": "m10-authored-3.png",
+                "sha256": "d3e6060c891ec305cbeba7c04e5589e4819027b44108b0bef2d95bead9dfd26e"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "label": "m17-authored",
+        "expected": {
+          "level": 17,
+          "bank": "c",
+          "atlas": "atlas",
+          "objects": 2
+        },
+        "ids": [
+          400,
+          450,
+          463,
+          404
+        ],
+        "construction": false,
+        "evidence": {
+          "errors": [],
+          "closed": true,
+          "frames": [
+            {
+              "level": 17,
+              "turn": 69,
+              "paused": false,
+              "resource": {
+                "bank": "c",
+                "modelAtlas": "atlas",
+                "epoch": 3,
+                "counter": 8,
+                "tile": 108
+              },
+              "environment": {
+                "landscape": {
+                  "requested": 12,
+                  "bank": "c",
+                  "supported": true,
+                  "terrain": "landscape.bin",
+                  "modelAtlas": "atlas"
+                },
+                "objects": {
+                  "requested": 0,
+                  "bank": 2,
+                  "supported": true
+                }
+              },
+              "beforeFrame": 32,
+              "afterFrame": 33,
+              "buildings": [
+                {
+                  "id": 404,
+                  "team": "green",
+                  "x": -78.7890625,
+                  "z": -83.1328125,
+                  "hp": 260,
+                  "progress": 1,
+                  "logs": 8,
+                  "model": 98,
+                  "stage": 4,
+                  "bank": 2,
+                  "source": "http://127.0.0.1:4417/original/atlas.png",
+                  "encoded": true,
+                  "alphaTest": 0.5,
+                  "side": 1,
+                  "program": "native-mesh-true-false-native-model-light-temple",
+                  "offset": [
+                    0,
+                    -0.0625
+                  ],
+                  "epoch": 3,
+                  "clip": {
+                    "x": -0.35725806451612907,
+                    "y": 0.028000000000000025,
+                    "z": 0.24945068359375
+                  },
+                  "vertices": 666,
+                  "mode32Vertices": 96,
+                  "capVertices": 351,
+                  "trustedRenderSubmission": true,
+                  "positionsSha256": "5421b91be6924363c7f5db7e92d601c16eb82887ef972ed78d5e95cbc51b50fe",
+                  "uvSha256": "b613d08c233f9ebb0c0dab1c79b4744a669d9a4cddf9c157f88521d186e78cf5",
+                  "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+                }
+              ],
+              "viewport": [
+                1440,
+                1000
+              ],
+              "canvas": [
+                1240,
+                1000
+              ],
+              "dpr": 1,
+              "camera": {
+                "position": {
+                  "x": 54528,
+                  "y": 54528,
+                  "angle": 0
+                },
+                "center": {
+                  "x": -11008,
+                  "y": -11008
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "diameter": 50,
+                  "scale": 40786,
+                  "spriteScale": 40786,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "pitch": 1932,
+                  "offsetX": 0,
+                  "offsetY": -77,
+                  "horizon": 425,
+                  "width": 1240,
+                  "height": 1000,
+                  "shamanScale": 280,
+                  "bounds": [
+                    -18,
+                    -20,
+                    18,
+                    -20,
+                    32,
+                    54,
+                    -32,
+                    54
+                  ],
+                  "boundsMode": 1,
+                  "scaledSprites": 0,
+                  "matrix": [
+                    16384,
+                    0,
+                    0,
+                    0,
+                    15357,
+                    5708,
+                    0,
+                    -5708,
+                    15357
+                  ],
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625
+                },
+                "preset": 0,
+                "overview": false
+              },
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "png": {
+                "file": "m17-authored-0.png",
+                "sha256": "a8af19688d9fd264dfae9a8c466127771013d7a55aed2adabaa30ba571d5f5de"
+              }
+            },
+            {
+              "level": 17,
+              "turn": 72,
+              "paused": false,
+              "resource": {
+                "bank": "c",
+                "modelAtlas": "atlas",
+                "epoch": 3,
+                "counter": 0,
+                "tile": 92
+              },
+              "environment": {
+                "landscape": {
+                  "requested": 12,
+                  "bank": "c",
+                  "supported": true,
+                  "terrain": "landscape.bin",
+                  "modelAtlas": "atlas"
+                },
+                "objects": {
+                  "requested": 0,
+                  "bank": 2,
+                  "supported": true
+                }
+              },
+              "beforeFrame": 33,
+              "afterFrame": 34,
+              "buildings": [
+                {
+                  "id": 404,
+                  "team": "green",
+                  "x": -78.7890625,
+                  "z": -83.1328125,
+                  "hp": 260,
+                  "progress": 1,
+                  "logs": 8,
+                  "model": 98,
+                  "stage": 4,
+                  "bank": 2,
+                  "source": "http://127.0.0.1:4417/original/atlas.png",
+                  "encoded": true,
+                  "alphaTest": 0.5,
+                  "side": 1,
+                  "program": "native-mesh-true-false-native-model-light-temple",
+                  "offset": [
+                    0,
+                    0
+                  ],
+                  "epoch": 3,
+                  "clip": {
+                    "x": -0.35725806451612907,
+                    "y": 0.028000000000000025,
+                    "z": 0.24945068359375
+                  },
+                  "vertices": 666,
+                  "mode32Vertices": 96,
+                  "capVertices": 351,
+                  "trustedRenderSubmission": true,
+                  "positionsSha256": "5421b91be6924363c7f5db7e92d601c16eb82887ef972ed78d5e95cbc51b50fe",
+                  "uvSha256": "b613d08c233f9ebb0c0dab1c79b4744a669d9a4cddf9c157f88521d186e78cf5",
+                  "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+                }
+              ],
+              "viewport": [
+                1440,
+                1000
+              ],
+              "canvas": [
+                1240,
+                1000
+              ],
+              "dpr": 1,
+              "camera": {
+                "position": {
+                  "x": 54528,
+                  "y": 54528,
+                  "angle": 0
+                },
+                "center": {
+                  "x": -11008,
+                  "y": -11008
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "diameter": 50,
+                  "scale": 40786,
+                  "spriteScale": 40786,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "pitch": 1932,
+                  "offsetX": 0,
+                  "offsetY": -77,
+                  "horizon": 425,
+                  "width": 1240,
+                  "height": 1000,
+                  "shamanScale": 280,
+                  "bounds": [
+                    -18,
+                    -20,
+                    18,
+                    -20,
+                    32,
+                    54,
+                    -32,
+                    54
+                  ],
+                  "boundsMode": 1,
+                  "scaledSprites": 0,
+                  "matrix": [
+                    16384,
+                    0,
+                    0,
+                    0,
+                    15357,
+                    5708,
+                    0,
+                    -5708,
+                    15357
+                  ],
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625
+                },
+                "preset": 0,
+                "overview": false
+              },
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "png": {
+                "file": "m17-authored-1.png",
+                "sha256": "d6d49728372ed592c8b30678ab7f090ba18d4c1ce30e69570d0a1dbd03963548"
+              }
+            },
+            {
+              "level": 17,
+              "turn": 93,
+              "paused": false,
+              "resource": {
+                "bank": "c",
+                "modelAtlas": "atlas",
+                "epoch": 3,
+                "counter": 7,
+                "tile": 103
+              },
+              "environment": {
+                "landscape": {
+                  "requested": 12,
+                  "bank": "c",
+                  "supported": true,
+                  "terrain": "landscape.bin",
+                  "modelAtlas": "atlas"
+                },
+                "objects": {
+                  "requested": 0,
+                  "bank": 2,
+                  "supported": true
+                }
+              },
+              "beforeFrame": 43,
+              "afterFrame": 44,
+              "buildings": [
+                {
+                  "id": 400,
+                  "team": "blue",
+                  "x": -72.92578125,
+                  "z": 47.00390625,
+                  "hp": 260,
+                  "progress": 1,
+                  "logs": 8,
+                  "model": 95,
+                  "stage": 4,
+                  "bank": 2,
+                  "source": "http://127.0.0.1:4417/original/atlas.png",
+                  "encoded": true,
+                  "alphaTest": 0.5,
+                  "side": 1,
+                  "program": "native-mesh-true-false-native-model-light-temple",
+                  "offset": [
+                    0.375,
+                    -0.03125
+                  ],
+                  "epoch": 3,
+                  "clip": {
+                    "x": 0.007056451612903247,
+                    "y": 0.351,
+                    "z": -0.61224365234375
+                  },
+                  "vertices": 666,
+                  "mode32Vertices": 96,
+                  "capVertices": 351,
+                  "trustedRenderSubmission": true,
+                  "positionsSha256": "dfd15686c2fc96876eae8f68f251baf36ea3db494abb59aa30dbebdfe49f71ea",
+                  "uvSha256": "2d058a03f47ba8ca1fa055e5d66f77072c311a0e7af113b907c571db4706353f",
+                  "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+                }
+              ],
+              "viewport": [
+                1440,
+                1000
+              ],
+              "canvas": [
+                1240,
+                1000
+              ],
+              "dpr": 1,
+              "camera": {
+                "position": {
+                  "x": 48871,
+                  "y": 51387,
+                  "angle": 0
+                },
+                "center": {
+                  "x": -16665,
+                  "y": -14149
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "diameter": 50,
+                  "scale": 40786,
+                  "spriteScale": 40786,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "pitch": 1932,
+                  "offsetX": 0,
+                  "offsetY": -77,
+                  "horizon": 425,
+                  "width": 1240,
+                  "height": 1000,
+                  "shamanScale": 280,
+                  "bounds": [
+                    -18,
+                    -20,
+                    18,
+                    -20,
+                    32,
+                    54,
+                    -32,
+                    54
+                  ],
+                  "boundsMode": 1,
+                  "scaledSprites": 0,
+                  "matrix": [
+                    16384,
+                    0,
+                    0,
+                    0,
+                    15357,
+                    5708,
+                    0,
+                    -5708,
+                    15357
+                  ],
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625
+                },
+                "preset": 0,
+                "overview": false
+              },
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "png": {
+                "file": "m17-authored-2.png",
+                "sha256": "efa5544720d4e4c9475da099ecc99ee14a5dc8988ce3bd43268cd7f61fc2d190"
+              }
+            },
+            {
+              "level": 17,
+              "turn": 98,
+              "paused": false,
+              "resource": {
+                "bank": "c",
+                "modelAtlas": "atlas",
+                "epoch": 3,
+                "counter": 4,
+                "tile": 100
+              },
+              "environment": {
+                "landscape": {
+                  "requested": 12,
+                  "bank": "c",
+                  "supported": true,
+                  "terrain": "landscape.bin",
+                  "modelAtlas": "atlas"
+                },
+                "objects": {
+                  "requested": 0,
+                  "bank": 2,
+                  "supported": true
+                }
+              },
+              "beforeFrame": 45,
+              "afterFrame": 46,
+              "buildings": [
+                {
+                  "id": 400,
+                  "team": "blue",
+                  "x": -72.92578125,
+                  "z": 47.00390625,
+                  "hp": 260,
+                  "progress": 1,
+                  "logs": 8,
+                  "model": 95,
+                  "stage": 4,
+                  "bank": 2,
+                  "source": "http://127.0.0.1:4417/original/atlas.png",
+                  "encoded": true,
+                  "alphaTest": 0.5,
+                  "side": 1,
+                  "program": "native-mesh-true-false-native-model-light-temple",
+                  "offset": [
+                    0,
+                    -0.03125
+                  ],
+                  "epoch": 3,
+                  "clip": {
+                    "x": 0.007056451612903247,
+                    "y": 0.351,
+                    "z": -0.61224365234375
+                  },
+                  "vertices": 666,
+                  "mode32Vertices": 96,
+                  "capVertices": 351,
+                  "trustedRenderSubmission": true,
+                  "positionsSha256": "dfd15686c2fc96876eae8f68f251baf36ea3db494abb59aa30dbebdfe49f71ea",
+                  "uvSha256": "2d058a03f47ba8ca1fa055e5d66f77072c311a0e7af113b907c571db4706353f",
+                  "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+                }
+              ],
+              "viewport": [
+                1440,
+                1000
+              ],
+              "canvas": [
+                1240,
+                1000
+              ],
+              "dpr": 1,
+              "camera": {
+                "position": {
+                  "x": 48871,
+                  "y": 51387,
+                  "angle": 0
+                },
+                "center": {
+                  "x": -16665,
+                  "y": -14149
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "diameter": 50,
+                  "scale": 40786,
+                  "spriteScale": 40786,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "pitch": 1932,
+                  "offsetX": 0,
+                  "offsetY": -77,
+                  "horizon": 425,
+                  "width": 1240,
+                  "height": 1000,
+                  "shamanScale": 280,
+                  "bounds": [
+                    -18,
+                    -20,
+                    18,
+                    -20,
+                    32,
+                    54,
+                    -32,
+                    54
+                  ],
+                  "boundsMode": 1,
+                  "scaledSprites": 0,
+                  "matrix": [
+                    16384,
+                    0,
+                    0,
+                    0,
+                    15357,
+                    5708,
+                    0,
+                    -5708,
+                    15357
+                  ],
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625
+                },
+                "preset": 0,
+                "overview": false
+              },
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "png": {
+                "file": "m17-authored-3.png",
+                "sha256": "d92043697727fabf88e22b01a5b57b6224eaf47f3b2f8d60a1953dbd577debce"
+              }
+            },
+            {
+              "level": 17,
+              "turn": 199,
+              "paused": false,
+              "resource": {
+                "bank": "c",
+                "modelAtlas": "atlas",
+                "epoch": 3,
+                "counter": 1,
+                "tile": 93
+              },
+              "environment": {
+                "landscape": {
+                  "requested": 12,
+                  "bank": "c",
+                  "supported": true,
+                  "terrain": "landscape.bin",
+                  "modelAtlas": "atlas"
+                },
+                "objects": {
+                  "requested": 0,
+                  "bank": 2,
+                  "supported": true
+                }
+              },
+              "beforeFrame": 101,
+              "afterFrame": 102,
+              "buildings": [
+                {
+                  "id": 450,
+                  "team": "red",
+                  "x": 82.234375,
+                  "z": 67.0546875,
+                  "hp": 260,
+                  "progress": 1,
+                  "logs": 8,
+                  "model": 96,
+                  "stage": 4,
+                  "bank": 2,
+                  "source": "http://127.0.0.1:4417/original/atlas.png",
+                  "encoded": true,
+                  "alphaTest": 0.5,
+                  "side": 1,
+                  "program": "native-mesh-true-false-native-model-light-temple",
+                  "offset": [
+                    0.125,
+                    0
+                  ],
+                  "epoch": 3,
+                  "clip": {
+                    "x": -0.008770161290322598,
+                    "y": 0.39075000000000004,
+                    "z": -0.61309814453125
+                  },
+                  "vertices": 666,
+                  "mode32Vertices": 96,
+                  "capVertices": 351,
+                  "trustedRenderSubmission": true,
+                  "positionsSha256": "659c848f5394e19c4050e17d61a7ae44db21330501704df8d17870faa6ef6f32",
+                  "uvSha256": "67bb41a8ca29bcf1b83ea54ef3ba7cac5171d9a597150a9afa222f0afe72994c",
+                  "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+                }
+              ],
+              "viewport": [
+                1440,
+                1000
+              ],
+              "canvas": [
+                1240,
+                1000
+              ],
+              "dpr": 1,
+              "camera": {
+                "position": {
+                  "x": 23154,
+                  "y": 46212,
+                  "angle": 0
+                },
+                "center": {
+                  "x": 23154,
+                  "y": -19324
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "diameter": 50,
+                  "scale": 40786,
+                  "spriteScale": 40786,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "pitch": 1932,
+                  "offsetX": 0,
+                  "offsetY": -77,
+                  "horizon": 425,
+                  "width": 1240,
+                  "height": 1000,
+                  "shamanScale": 280,
+                  "bounds": [
+                    -18,
+                    -20,
+                    18,
+                    -20,
+                    32,
+                    54,
+                    -32,
+                    54
+                  ],
+                  "boundsMode": 1,
+                  "scaledSprites": 0,
+                  "matrix": [
+                    16384,
+                    0,
+                    0,
+                    0,
+                    15357,
+                    5708,
+                    0,
+                    -5708,
+                    15357
+                  ],
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625
+                },
+                "preset": 0,
+                "overview": false
+              },
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "png": {
+                "file": "m17-authored-4.png",
+                "sha256": "3e1ca9df1da5e70bed7833cb5e51711664f1d97a4da4a96c5cc7a937b3d11120"
+              }
+            },
+            {
+              "level": 17,
+              "turn": 204,
+              "paused": false,
+              "resource": {
+                "bank": "c",
+                "modelAtlas": "atlas",
+                "epoch": 3,
+                "counter": 7,
+                "tile": 103
+              },
+              "environment": {
+                "landscape": {
+                  "requested": 12,
+                  "bank": "c",
+                  "supported": true,
+                  "terrain": "landscape.bin",
+                  "modelAtlas": "atlas"
+                },
+                "objects": {
+                  "requested": 0,
+                  "bank": 2,
+                  "supported": true
+                }
+              },
+              "beforeFrame": 103,
+              "afterFrame": 104,
+              "buildings": [
+                {
+                  "id": 450,
+                  "team": "red",
+                  "x": 82.234375,
+                  "z": 67.0546875,
+                  "hp": 260,
+                  "progress": 1,
+                  "logs": 8,
+                  "model": 96,
+                  "stage": 4,
+                  "bank": 2,
+                  "source": "http://127.0.0.1:4417/original/atlas.png",
+                  "encoded": true,
+                  "alphaTest": 0.5,
+                  "side": 1,
+                  "program": "native-mesh-true-false-native-model-light-temple",
+                  "offset": [
+                    0.375,
+                    -0.03125
+                  ],
+                  "epoch": 3,
+                  "clip": {
+                    "x": -0.008770161290322598,
+                    "y": 0.39075000000000004,
+                    "z": -0.61309814453125
+                  },
+                  "vertices": 666,
+                  "mode32Vertices": 96,
+                  "capVertices": 351,
+                  "trustedRenderSubmission": true,
+                  "positionsSha256": "659c848f5394e19c4050e17d61a7ae44db21330501704df8d17870faa6ef6f32",
+                  "uvSha256": "67bb41a8ca29bcf1b83ea54ef3ba7cac5171d9a597150a9afa222f0afe72994c",
+                  "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+                }
+              ],
+              "viewport": [
+                1440,
+                1000
+              ],
+              "canvas": [
+                1240,
+                1000
+              ],
+              "dpr": 1,
+              "camera": {
+                "position": {
+                  "x": 23154,
+                  "y": 46212,
+                  "angle": 0
+                },
+                "center": {
+                  "x": 23154,
+                  "y": -19324
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "diameter": 50,
+                  "scale": 40786,
+                  "spriteScale": 40786,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "pitch": 1932,
+                  "offsetX": 0,
+                  "offsetY": -77,
+                  "horizon": 425,
+                  "width": 1240,
+                  "height": 1000,
+                  "shamanScale": 280,
+                  "bounds": [
+                    -18,
+                    -20,
+                    18,
+                    -20,
+                    32,
+                    54,
+                    -32,
+                    54
+                  ],
+                  "boundsMode": 1,
+                  "scaledSprites": 0,
+                  "matrix": [
+                    16384,
+                    0,
+                    0,
+                    0,
+                    15357,
+                    5708,
+                    0,
+                    -5708,
+                    15357
+                  ],
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625
+                },
+                "preset": 0,
+                "overview": false
+              },
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "png": {
+                "file": "m17-authored-5.png",
+                "sha256": "588e9324c2f64fa1b4183433a0f09a6ec14fdb3c23f86d98cbafb204ca6c8ed8"
+              }
+            },
+            {
+              "level": 17,
+              "turn": 323,
+              "paused": false,
+              "resource": {
+                "bank": "c",
+                "modelAtlas": "atlas",
+                "epoch": 3,
+                "counter": 0,
+                "tile": 92
+              },
+              "environment": {
+                "landscape": {
+                  "requested": 12,
+                  "bank": "c",
+                  "supported": true,
+                  "terrain": "landscape.bin",
+                  "modelAtlas": "atlas"
+                },
+                "objects": {
+                  "requested": 0,
+                  "bank": 2,
+                  "supported": true
+                }
+              },
+              "beforeFrame": 155,
+              "afterFrame": 156,
+              "buildings": [
+                {
+                  "id": 463,
+                  "team": "yellow",
+                  "x": 53.84375,
+                  "z": -73.015625,
+                  "hp": 260,
+                  "progress": 1,
+                  "logs": 8,
+                  "model": 97,
+                  "stage": 4,
+                  "bank": 2,
+                  "source": "http://127.0.0.1:4417/original/atlas.png",
+                  "encoded": true,
+                  "alphaTest": 0.5,
+                  "side": 1,
+                  "program": "native-mesh-true-false-native-model-light-temple",
+                  "offset": [
+                    0,
+                    0
+                  ],
+                  "epoch": 3,
+                  "clip": {
+                    "x": 0.019758064516129048,
+                    "y": 0.33887500000000004,
+                    "z": -0.61468505859375
+                  },
+                  "vertices": 666,
+                  "mode32Vertices": 96,
+                  "capVertices": 351,
+                  "trustedRenderSubmission": true,
+                  "positionsSha256": "04cd77fcf6c923f29590503cb8623783e20bae3ab23f626a791fb78a73602c7b",
+                  "uvSha256": "fff0da5586efe1d82ccfbb64fb232a29da3cb366b19459f9c88735bfc1307940",
+                  "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+                }
+              ],
+              "viewport": [
+                1440,
+                1000
+              ],
+              "canvas": [
+                1240,
+                1000
+              ],
+              "dpr": 1,
+              "camera": {
+                "position": {
+                  "x": 15709,
+                  "y": 16673,
+                  "angle": 0
+                },
+                "center": {
+                  "x": 15709,
+                  "y": 16673
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "diameter": 50,
+                  "scale": 40786,
+                  "spriteScale": 40786,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "pitch": 1932,
+                  "offsetX": 0,
+                  "offsetY": -77,
+                  "horizon": 425,
+                  "width": 1240,
+                  "height": 1000,
+                  "shamanScale": 280,
+                  "bounds": [
+                    -18,
+                    -20,
+                    18,
+                    -20,
+                    32,
+                    54,
+                    -32,
+                    54
+                  ],
+                  "boundsMode": 1,
+                  "scaledSprites": 0,
+                  "matrix": [
+                    16384,
+                    0,
+                    0,
+                    0,
+                    15357,
+                    5708,
+                    0,
+                    -5708,
+                    15357
+                  ],
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625
+                },
+                "preset": 0,
+                "overview": false
+              },
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "png": {
+                "file": "m17-authored-6.png",
+                "sha256": "d86b274985dd828236accbe996764f8a58acad73411e3e3910860eaf62fc6253"
+              }
+            },
+            {
+              "level": 17,
+              "turn": 327,
+              "paused": false,
+              "resource": {
+                "bank": "c",
+                "modelAtlas": "atlas",
+                "epoch": 3,
+                "counter": 3,
+                "tile": 95
+              },
+              "environment": {
+                "landscape": {
+                  "requested": 12,
+                  "bank": "c",
+                  "supported": true,
+                  "terrain": "landscape.bin",
+                  "modelAtlas": "atlas"
+                },
+                "objects": {
+                  "requested": 0,
+                  "bank": 2,
+                  "supported": true
+                }
+              },
+              "beforeFrame": 156,
+              "afterFrame": 157,
+              "buildings": [
+                {
+                  "id": 463,
+                  "team": "yellow",
+                  "x": 53.84375,
+                  "z": -73.015625,
+                  "hp": 260,
+                  "progress": 1,
+                  "logs": 8,
+                  "model": 97,
+                  "stage": 4,
+                  "bank": 2,
+                  "source": "http://127.0.0.1:4417/original/atlas.png",
+                  "encoded": true,
+                  "alphaTest": 0.5,
+                  "side": 1,
+                  "program": "native-mesh-true-false-native-model-light-temple",
+                  "offset": [
+                    0.375,
+                    0
+                  ],
+                  "epoch": 3,
+                  "clip": {
+                    "x": 0.019758064516129048,
+                    "y": 0.33887500000000004,
+                    "z": -0.61468505859375
+                  },
+                  "vertices": 666,
+                  "mode32Vertices": 96,
+                  "capVertices": 351,
+                  "trustedRenderSubmission": true,
+                  "positionsSha256": "04cd77fcf6c923f29590503cb8623783e20bae3ab23f626a791fb78a73602c7b",
+                  "uvSha256": "fff0da5586efe1d82ccfbb64fb232a29da3cb366b19459f9c88735bfc1307940",
+                  "modesSha256": "098b95f47f9cb2c723bebf8dacfb4b35a83000c394b842ce6ce649ca001e360a"
+                }
+              ],
+              "viewport": [
+                1440,
+                1000
+              ],
+              "canvas": [
+                1240,
+                1000
+              ],
+              "dpr": 1,
+              "camera": {
+                "position": {
+                  "x": 15709,
+                  "y": 16673,
+                  "angle": 0
+                },
+                "center": {
+                  "x": 15709,
+                  "y": 16673
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "diameter": 50,
+                  "scale": 40786,
+                  "spriteScale": 40786,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "pitch": 1932,
+                  "offsetX": 0,
+                  "offsetY": -77,
+                  "horizon": 425,
+                  "width": 1240,
+                  "height": 1000,
+                  "shamanScale": 280,
+                  "bounds": [
+                    -18,
+                    -20,
+                    18,
+                    -20,
+                    32,
+                    54,
+                    -32,
+                    54
+                  ],
+                  "boundsMode": 1,
+                  "scaledSprites": 0,
+                  "matrix": [
+                    16384,
+                    0,
+                    0,
+                    0,
+                    15357,
+                    5708,
+                    0,
+                    -5708,
+                    15357
+                  ],
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625
+                },
+                "preset": 0,
+                "overview": false
+              },
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "png": {
+                "file": "m17-authored-7.png",
+                "sha256": "c6639cad3fe6f87d87abb57beedfaa2c6f9eff712bf6e9d844d4eee8ab3191cc"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "transitions": [],
+    "responses": [
+      {
+        "path": "/original/atlas-p.png",
+        "bytes": 148476,
+        "sha256": "80769b7095b3db309a46737805f40308e37d75cc88d02f4c6c4befa84f03cc02"
+      },
+      {
+        "path": "/original/atlas.png",
+        "bytes": 149694,
+        "sha256": "fdb5c2af7ca43debb5d943036969df29949773b6b94c0b7ce99ffc5d946b27b0"
+      }
+    ],
+    "cleanupErrors": [],
+    "limits": "Actual shipped-control browser rendering with natural RAF. No injected World, time or storage, original raster parity, original cadence, campaign victory, or hardware performance claim.",
+    "responseErrors": []
+  },
+  "finishedAt": "2026-10-10T18:50:14.649Z",
+  "sourceAfter": {
+    "root": "<workspace>/world-temple-browser-authored02-20261010",
+    "commit": "e989fbb71849f2530692f896ea3d045afd6432bf",
+    "tree": "e724ce4018995a5c421fa7d7c4b0f475c2cca073",
+    "status": "?? scripts/local-render/ordinary-temple-scenes.mjs\n?? scripts/local-render/ordinary-temple-witness.mjs\n?? scripts/local-render/world-theme-witness.mjs",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [
+      {
+        "path": "scripts/local-render/ordinary-temple-scenes.mjs",
+        "mode": 33188,
+        "sha256": "087ed9ad6f885457f5e3c0f5954cff7d1cbf930e065a566e1ceb73bb7c8aeb14"
+      },
+      {
+        "path": "scripts/local-render/ordinary-temple-witness.mjs",
+        "mode": 33188,
+        "sha256": "e72cced4639e6d56aedcef776c0b05c11c8d229ccacc3648b83c1497dad8126a"
+      },
+      {
+        "path": "scripts/local-render/world-theme-witness.mjs",
+        "mode": 33188,
+        "sha256": "d51e1580ac3bb3c2d43516df9b43a0663036193b75e1ddee8f4d9742ababacb2"
+      }
+    ],
+    "fingerprint": "59eb799c521c4172c76e39fb81b3c42fddda6d9965b17785c1e2af1e95b6c5ca"
+  },
+  "ownedBrowserCleanupVerified": true,
+  "checkpointProvenanceVerified": true
+}
