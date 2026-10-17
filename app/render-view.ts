@@ -589,10 +589,12 @@ export class RenderView {
             entries.set(instance, { key: cacheKey, position, world, screen })
           }
           for (let i = 0; i < count; i += 3) {
-            const ids = index
-              ? [index.getX(i), index.getX(i + 1), index.getX(i + 2)]
-              : [i, i + 1, i + 2]
-            const [a, b, c] = ids.map(id => screen[terrainSlots ? terrainSlots[id] - 1 : id])
+            const first = index ? index.getX(i) : i,
+              second = index ? index.getX(i + 1) : i + 1,
+              third = index ? index.getX(i + 2) : i + 2,
+              a = screen[terrainSlots ? terrainSlots[first] - 1 : first],
+              b = screen[terrainSlots ? terrainSlots[second] - 1 : second],
+              c = screen[terrainSlots ? terrainSlots[third] - 1 : third]
             // Reject distant triangles before allocating pixel-edge test inputs.
             // One pixel of padding preserves native nearest-even rounding.
             if (
@@ -604,9 +606,11 @@ export class RenderView {
             )
               continue
             if (
-              [a, b, c].every(p => p.z < -1) ||
-              [a, b, c].every(p => p.z > 1) ||
-              [a, b, c].some(p => p.w <= 0)
+              (a.z < -1 && b.z < -1 && c.z < -1) ||
+              (a.z > 1 && b.z > 1 && c.z > 1) ||
+              a.w <= 0 ||
+              b.w <= 0 ||
+              c.w <= 0
             )
               continue
             const determinant = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y)
@@ -631,11 +635,22 @@ export class RenderView {
               )
                 continue
             } else if (u < 0 || v < 0 || t < 0) continue
-            const weights = [u / a.w, v / b.w, t / c.w],
-              sum = weights.reduce((total, weight) => total + weight),
+            const firstWeight = u / a.w,
+              secondWeight = v / b.w,
+              thirdWeight = t / c.w,
+              sum = firstWeight + secondWeight + thirdWeight,
               p = new THREE.Vector3()
-            ids.forEach((id, j) =>
-              p.addScaledVector(world[terrainSlots ? terrainSlots[id] - 1 : id], weights[j] / sum)
+            p.addScaledVector(
+              world[terrainSlots ? terrainSlots[first] - 1 : first],
+              firstWeight / sum
+            )
+            p.addScaledVector(
+              world[terrainSlots ? terrainSlots[second] - 1 : second],
+              secondWeight / sum
+            )
+            p.addScaledVector(
+              world[terrainSlots ? terrainSlots[third] - 1 : third],
+              thirdWeight / sum
             )
             if (!this.overview && !this.visible(p, unwrapped)) continue
             const wrap = (n: number) => ((((n + 128) % 256) + 256) % 256) - 128
@@ -643,7 +658,7 @@ export class RenderView {
               point: { x: wrap(p.x), z: wrap(p.z) },
               object,
               depth: u * a.z + v * b.z + t * c.z,
-              triangle: ids[0] / 3,
+              triangle: first / 3,
               instance,
             })
           }
