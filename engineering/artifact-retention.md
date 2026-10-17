@@ -8,11 +8,13 @@ and their manifests or archives. Keep these available to reviewers without addin
 copies to the source tree. A failed run is still useful evidence, not source code.
 
 Never classify a file solely by extension or by an `evidence` directory name.
-Tests consume the Firewarrior compressed native comparison under `evidence/`,
-and Mission 3 raid native observations named `stdout.log` under
-`references/verification/`. They remain tracked, as do `tests/fixtures/`,
-`references/fixtures/`, imported public assets, native assembly, research provenance,
-and reusable probes. A baseline source snapshot is not a disposable screenshot.
+Original-game comparison facts are retained as small, versioned
+[intentional fixtures](../tests/fixtures/native-reference-fixtures.md), not by
+keeping broad run logs merely because tests once parsed them. Preserve independent
+expected values, case identities, original source hashes and claim limits when
+extracting them. Do not regenerate expected native behavior from the implementation.
+Imported public assets, native assembly, reusable probes and required fixture inputs
+remain tracked. A baseline source snapshot is not a disposable screenshot.
 
 ## Historical cleanup
 

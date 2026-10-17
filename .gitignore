@@ -162,3 +162,12 @@ __pycache__/
 !/engineering/test-throughput-2026-10-16/**/*.py
 !/engineering/test-throughput-2026-10-16/measurement-results.json
 /decomp/research/frontend-quit-menu/static-check.log
+
+# Historical run transports replaced by intentional native-reference fixtures.
+/evidence/firewarrior-firing-phase/native-comparison-20261006/**
+/references/verification/mission3-raid-allocation-2026-10-06/**
+/references/verification/mission3-raid-recruitment-origin-2026-10-06/**
+!/references/verification/mission3-raid-allocation-2026-10-06/**/
+!/references/verification/mission3-raid-allocation-2026-10-06/**/*.md
+!/references/verification/mission3-raid-recruitment-origin-2026-10-06/**/
+!/references/verification/mission3-raid-recruitment-origin-2026-10-06/**/*.md
