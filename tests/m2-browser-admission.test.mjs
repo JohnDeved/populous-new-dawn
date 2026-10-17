@@ -343,7 +343,7 @@ test('open campaign panel regression rejects the captured short-wide collision w
   assert.match(source, /m2RectanglesOverlap\(layout, panel\)/)
   assert.match(source, /panel\.contentFits, true/)
   assert.match(source, /layout\.exportFits, true/)
-  assert.match(source, /layout\.exportActionable, true/)
+  assert.match(source, /layout\.exportActionable,\s*true/)
   assert.match(source, /panel\.closeActionable,\s*true/)
   const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
   assert.match(css, /--campaign-message-width:340px/)
