@@ -8,7 +8,7 @@ import {
   type LivePerson,
 } from './live-people.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
-import { nativePosition, nativeCellIndex } from './world-terrain-runtime.ts'
+import { nativePosition, nativeCellIndex, syncNativeTerrain } from './world-terrain-runtime.ts'
 import { combatPerson, nativePersonModel } from './live-combat.ts'
 import {
   buildingFootprintCells,
@@ -40,7 +40,7 @@ import {
   orderEffects,
   adoptLiveOrders,
 } from './live-movement.ts'
-import { cellDistanceSquared, random, spiralCell } from './native-math.ts'
+import { cellDistanceSquared, random, spiralCell, short } from './native-math.ts'
 import { isShaman, SPELLS } from './world-rules.ts'
 import {
   campaignPersonCount,
@@ -2118,15 +2118,18 @@ export function stepComputerTasks(w: World, tribe: number) {
 // ponytail: browser unit arrays supply cell order until native terrain lists and
 // person records are live. Blast scoring does not consume terrain flags.
 function computerSpellPerson(w: World, u: Unit): SpellTargetUnit {
-  const p = nativePosition(w, u),
+  // Keep terrain notifications before reading the live person; height is unused.
+  syncNativeTerrain(w)
+  const x = short(Math.round((u.x + 8) * 256)),
+    y = short(Math.round((-u.z - 8) * 256)),
     live = unitAnimationSource(u)
   return {
     class: 1,
     model: nativePersonModel(u),
     state: live?.state ?? 0,
     tribe: tribeForTeam(u.team),
-    x: p.x,
-    y: p.y,
+    x,
+    y,
     flags2: u.inside === null ? 0 : 0x800000,
     flags4: live?.flags4 ?? (u.invisibility ? 0x1000 : 0),
     assignment: live?.assignment ?? 0,
