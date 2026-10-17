@@ -82,3 +82,22 @@ test('rounded remainder suppresses negative zero but exposes meaningful ownershi
   graph.update(500, 2, 3, 1, 'Live', 1)
   assert.equal(graph.fields.other.textContent, '-4.00 ms !')
 })
+
+
+test('short landscape layout preserves noninteractive diagnostics without changing desktop flow', async () => {
+  const { readFileSync } = await import('node:fs')
+  const graph = readFileSync(new URL('../app/fps-graph.ts', import.meta.url), 'utf8')
+  const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
+  assert.match(graph, /class="fps-primary"/)
+  assert.match(graph, /class="fps-secondary"/)
+  assert.match(css, /\.fps-primary,\.fps-secondary\{display:contents\}/)
+  const compact = css.slice(css.indexOf('@media (max-height:700px) and (min-width:560px)'), css.indexOf('.native-hud{'))
+  assert.match(compact, /grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\)/)
+  assert.match(compact, /max-width:calc\(100% - 16px\)/)
+  assert.doesNotMatch(compact, /display:none|overflow:|transform:|font-size:|pointer-events:/)
+  assert.match(css, /\.fps-graph\{[^}]*pointer-events:none/)
+  for (const metric of ['callback', 'pointer', 'other', 'raf-tail', 'cpu-tail', 'cpu-peak', 'renderer', 'cores', 'memory', 'heap'])
+    assert.match(graph, new RegExp(`data-metric="${metric}"`))
+  assert.match(graph, /GPU not measured/)
+  assert.match(graph, /not presented FPS/)
+})
