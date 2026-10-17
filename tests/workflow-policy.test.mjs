@@ -224,11 +224,11 @@ test('ready-PR sharded gate is exhaustive, fail-closed and least privilege', () 
   assert.match(workflow, /^concurrency:\n {2}group: .+\n {2}cancel-in-progress: true$/m)
   assert.deepEqual([...workflow.matchAll(/^ {2}([a-z-]+):$/gm)].map(match => match[1]).filter(name => ['quality', 'test-shards', 'full-check'].includes(name)), ['quality', 'test-shards', 'full-check'])
   assert.match(workflow, /needs: \[quality, test-shards\]\n {4}if: \$\{\{ always\(\) \}\}/)
-  assert.equal((workflow.match(/^\s*if:/gm) ?? []).length, 1)
+  assert.equal((workflow.match(/^\s*if:/gm) ?? []).length, 2)
   assert.match(workflow, /fail-fast: false\n {6}max-parallel: 4/)
   assert.deepEqual([...workflow.matchAll(/- \{ index: (\d), label: (\d) \}/g)].map(match => [Number(match[1]), Number(match[2])]), [[0, 1], [1, 2], [2, 3], [3, 4]])
   assert.doesNotMatch(workflow, /^\s*(?:continue-on-error|paths|paths-ignore|push|pull_request_target|workflow_run|environment|secrets|run-id|github-token):/m)
-  assert.doesNotMatch(workflow, /\$\{\{\s*secrets\.|actions\/cache@|--if-present|npm run (?:deploy|parity:record)|run: npm run check|run: npm test/)
+  assert.doesNotMatch(workflow, /\$\{\{\s*secrets\.|actions\/cache@|--if-present|npm run (?:deploy|parity:record)|run: npm run check/)
   const pins = new Map([
     ['actions/checkout', '3d3c42e5aac5ba805825da76410c181273ba90b1'],
     ['actions/setup-node', '949feb2413d6458794dcd2491c4babbbce0c15c1'],
@@ -237,10 +237,10 @@ test('ready-PR sharded gate is exhaustive, fail-closed and least privilege', () 
     ['actions/download-artifact', 'd3f86a106a0bac45b974a628896c90dbdf5c8093'],
   ])
   const actions = [...workflow.matchAll(/uses: ([\w/-]+)@([^ ]+)/g)]
-  assert.equal(actions.length, 12)
+  assert.equal(actions.length, 15)
   for (const [, action, sha] of actions) assert.equal(sha, pins.get(action))
   for (const value of ['ref: ${{ github.sha }}', 'persist-credentials: false', "node-version: '24.19.0'", "python-version: '3.12.14'", 'npm ci --no-audit --no-fund', '--require-hashes -r engineering/ci-python-requirements.txt'])
-    assert.equal(workflow.split(value).length - 1, 3, value)
+    assert.equal(workflow.split(value).length - 1, 4, value)
   for (const command of ['typecheck', 'parity:check', 'orchestration:check', 'build'])
     assert.equal(workflow.split(`run: npm run ${command}\n`).length - 1, 1, command)
   assert.match(workflow, /shard --shard-index=\$\{\{ matrix.index \}\} --shard-count=4 --receipt=work\/ci\/shard.json/)
@@ -338,4 +338,19 @@ test('aggregate dependency guard rejects missing, failed, skipped and cancelled 
       assert.equal(result.status, quality === 'success' && shards === 'success' ? 0 : 1)
     }
   }
+})
+
+test('one activation diagnostic compares the unchanged legacy test suite without replacing coverage', () => {
+  const workflow = read('.github/workflows/ready-pr-check.yml')
+  const baseline = workflow.split('  benchmark-baseline:\n')[1]
+  assert.ok(baseline)
+  assert.match(baseline, /^ {4}name: Legacy test baseline \(diagnostic\)$/m)
+  assert.match(baseline, /^ {4}needs: full-check$/m)
+  assert.match(baseline, /^ {4}if: \$\{\{ github.event.pull_request.number == 516 && needs.full-check.result == 'success' \}\}$/m)
+  assert.match(baseline, /PYTHONDONTWRITEBYTECODE: '1'/)
+  assert.match(baseline, /- name: Legacy full test suite\n {8}run: npm test/)
+  assert.equal((workflow.match(/run: npm test$/gm) ?? []).length, 1)
+  assert.doesNotMatch(baseline, /npm run (?:check|build|typecheck|parity:check|orchestration:check)|upload-artifact/)
+  assert.match(baseline, /ci-gate.mjs baseline work\/ci\/before.json work\/ci\/baseline.json/)
+  assert.match(workflow.split('  full-check:\n')[1].split('  benchmark-baseline:')[0], /needs: \[quality, test-shards\]/)
 })

@@ -235,3 +235,63 @@ jobs:
 
       - name: Reject tracked input mutation
         run: git diff --exit-code HEAD --
+
+  benchmark-baseline:
+    # This diagnostic runs only for the reviewed activation PR, never as coverage.
+    name: Legacy test baseline (diagnostic)
+    needs: full-check
+    if: ${{ github.event.pull_request.number == 516 && needs.full-check.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      # Match the effective child environment used by the shard runner.
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Require a ready pull request
+        env:
+          IS_DRAFT: ${{ toJSON(github.event.pull_request.draft) }}
+        run: |
+          if [ "$IS_DRAFT" != false ]; then
+            echo '::notice::Draft PR: full checks have not run. Mark ready to start them.'
+            exit 1
+          fi
+
+      - name: Check out the exact proposed merge
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          # erosion-observation.test.mjs reads a pinned historical Git blob.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+
+      - name: Set up Python for portable fixture tests
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12.14'
+          architecture: x64
+
+      - name: Install locked dependencies
+        run: |
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+          npm ci --no-audit --no-fund
+          python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
+
+      - name: Verify and record candidate identity
+        run: |
+          git cat-file -e 3b899125cc8cedef938823718ad5d44f49957b66:app/erosion.ts
+          node scripts/orchestration/ci-gate.mjs snapshot work/ci/before.json
+
+      - name: Legacy full test suite
+        run: npm test
+
+      - name: Reject tracked input mutation
+        run: |
+          git diff --exit-code HEAD --
+          node scripts/orchestration/ci-gate.mjs baseline work/ci/before.json work/ci/baseline.json

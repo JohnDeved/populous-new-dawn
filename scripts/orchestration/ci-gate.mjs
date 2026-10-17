@@ -117,10 +117,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       write(path, snapshot)
       console.log(`PR head: ${snapshot.identity.headSha}\nBase: ${snapshot.identity.baseSha}\nTested merge: ${snapshot.identity.mergeSha}`)
       console.log(JSON.stringify(snapshot))
-    } else if (mode === 'quality' || mode === 'shard') {
+    } else if (mode === 'quality' || mode === 'shard' || mode === 'baseline') {
       assert.deepEqual(snapshot, read(path), 'Inputs changed after validation')
       const receipt = { version: 1, kind: mode, ...snapshot, status: 'passed' }
       if (mode === 'quality') receipt.stages = QUALITY_STAGES
+      else if (mode === 'baseline') receipt.stages = ['tests']
       else {
         receipt.shard = read(payload)
         validateShard(receipt.shard, planTestShard(ROOT, receipt.shard.plan.shard.index, 4))
@@ -130,6 +131,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const report = validateGate(snapshot, readEnvelopes(path), [0, 1, 2, 3].map(index => planTestShard(ROOT, index, 4)), JSON.parse(process.env.CI_NEEDS))
       for (const line of reportLines(report)) console.log(line)
       if (output) write(output, report)
-    } else throw new Error('Use snapshot, quality, shard or aggregate')
+    } else throw new Error('Use snapshot, quality, shard, baseline or aggregate')
   } catch (error) { console.error(`ci gate: ${error.message}`); process.exitCode = 1 }
 }

@@ -26,8 +26,9 @@ native, rendered-browser or hardware-performance acceptance.
 
 PRs targeting main trigger only on `ready_for_review`. Opening, reopening,
 synchronizing, converting to draft or retargeting a PR does not admit this
-workflow. There is no push trigger, path filter or dispatch path. The only job condition is
-the aggregate’s `always()` dependency-failure guard.
+workflow. There is no push trigger, path filter or dispatch path. The only job conditions are
+the aggregate’s `always()` dependency-failure guard and the activation-only
+diagnostic described below.
 The reviewed-candidate coordinator must issue one draft-to-ready transition after
 reviewing each exact candidate that lacks a matching full pass. This includes
 repairs, main refreshes and PRs opened or reopened already ready. Reuse an existing
@@ -122,6 +123,31 @@ candidate; no speedup or hosted acceptance is claimed from local fixtures alone.
 The rollout first lands runner/dual-policy verifier support under the old gate,
 then activates this workflow with an explicit reviewed workflow-hash transition.
 Normal integration still requires unchanged trusted/candidate workflow hashes.
+
+## One activation-only baseline
+
+PR #516 additionally runs `Legacy test baseline (diagnostic)` after the required
+sharded `Full check` succeeds, on the same immutable event merge, run and attempt.
+It repeats only `npm test`, with the unchanged legacy full-suite C2/C1 runner and
+`PYTHONDONTWRITEBYTECODE=1` matching shard children. Checkout, runtime, locked
+install and before/after source checks match the gate. Typecheck, parity,
+orchestration and production build are not repeated. Other PR numbers skip this
+job; no extra trigger, token permission or repository setting is introduced.
+
+This baseline cannot satisfy aggregate coverage and is not a dependency of
+`Full check`. The trusted integration policy explicitly pins activation PR 516:
+the diagnostic must succeed there, and must be skipped without executed steps on
+later PRs. Any failure is retained for investigation, not described as a benchmark
+pass or silently omitted before merge.
+
+The single controlled pair measures test-stage timing only. Report baseline test
+duration, each shard’s test duration, maximum shard duration, observed earliest
+shard-start to latest shard-end span, actual sharded gate latency and summed runner
+minutes separately. Setup/queue skew and VM variability remain limitations; one
+pair is not a statistical speedup claim or a whole-legacy-gate comparison. Cost is
+one extra standard Ubuntu installation and one full test-suite execution. Existing
+logs retain source identities and complete legacy plan/group/result records; no
+additional artifact upload or committed raw evidence is needed.
 
 ## Permissions and cost
 

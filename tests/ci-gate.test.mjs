@@ -47,6 +47,7 @@ const invalid = {
   'duplicate shard': f => { f.envelopes[4] = structuredClone(f.envelopes[3]) },
   'missing quality': f => f.envelopes.shift(),
   'missing build': f => f.envelopes[0].stages.pop(),
+  'baseline cannot replace quality': f => { f.envelopes[0].kind = 'baseline'; f.envelopes[0].stages = ['tests'] },
   'failed quality': f => { f.envelopes[0].status = 'failed' },
   'wrong attempt': f => { f.envelopes[2].identity.runAttempt = '1' },
   'wrong source': f => { f.envelopes[2].identity.mergeSha = 'd'.repeat(40) },
