@@ -309,7 +309,13 @@ export class GameScene {
       this.fpsGraph = null
     } else {
       this.fpsGraph = new FpsGraph(this.renderer.getContext(), this.world.outcome.level)
-      this.fpsGraph.element.addEventListener('focusin', () => this.keys.clear())
+      this.fpsGraph.element.addEventListener('pointerenter', () => {
+        this.navigationPointer = null
+      })
+      this.fpsGraph.element.addEventListener('focusin', () => {
+        this.keys.clear()
+        this.navigationPointer = null
+      })
       this.container.appendChild(this.fpsGraph.element)
     }
   }

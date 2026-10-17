@@ -439,3 +439,26 @@ test('raw pointer phase export snapshots all counters, marks unavailable and cle
   samples.sample(10, 1, 2, 3, 6, 1, 40, 'live')
   assert.equal(samples.recentFrames()[0].pointerBreakdown, null)
 })
+
+test('export control focus releases held gameplay keys and stale edge navigation without changing game state', () => {
+  const source = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
+  const body = source.slice(source.indexOf('  togglePerformance()'), source.indexOf('  previous: number'))
+  const listeners = new Map()
+  class FakeGraph {
+    constructor(gl, level) { this.level = level }
+    element = { addEventListener(type, fn) { listeners.set(type, fn) }, remove() {} }
+  }
+  const scene = vm.runInNewContext(stripTypeScriptTypes(`new (class { ${body} })()`), { FpsGraph: FakeGraph })
+  Object.assign(scene, { fpsGraph: null, renderer: { getContext: () => ({}) },
+    world: { outcome: { level: 2 }, paused: false, selected: [7] },
+    container: { appendChild() {} }, keys: new Set(['arrowright']), navigationPointer: { x: 1279, y: 100, buttons: 0 } })
+  const worldBefore = JSON.stringify(scene.world)
+  scene.togglePerformance()
+  assert.equal(scene.fpsGraph.level, 2)
+  listeners.get('pointerenter')()
+  assert.equal(scene.navigationPointer, null)
+  assert.ok(scene.keys.has('arrowright'), 'entering button without focus does not consume held keys')
+  listeners.get('focusin')()
+  assert.equal(scene.keys.size, 0, 'release cannot be stranded by stopped keyup on focused button')
+  assert.equal(JSON.stringify(scene.world), worldBefore)
+})

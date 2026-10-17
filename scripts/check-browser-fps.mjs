@@ -43,6 +43,8 @@ export async function checkPerformancePage(page, { output } = {}) {
     assert.ok(report.frames.length > 0 && report.frames.length <= 1200)
     assert.ok(report.timing.capturedSpanMs > 0)
     assert.ok(report.frames.every(frame => Number.isFinite(frame.pointerTooltipCpuMs)))
+    assert.ok(report.frames.some(frame => frame.pointerBreakdown !== null))
+    assert.equal(report.session.level, 1)
     if (output) await download.saveAs(resolve(output, keyboard ? 'keyboard-frame-export.json' : 'pointer-frame-export.json'))
   }
   assert.deepEqual(await page.evaluate(() => window.exportInputEvents), [], 'button activation does not reach game input handlers')
@@ -152,6 +154,9 @@ export async function checkPerformancePage(page, { output } = {}) {
   if (output) writeFileSync(resolve(output, 'performance-observations.json'), JSON.stringify({ facts, lifecycle, overhead }, null, 2))
   await page.setViewportSize({ width: 1280, height: 720 })
   await page.waitForFunction(() => Number(document.querySelector('.fps-graph strong')?.textContent) > 0)
+  const wideDownload = page.waitForEvent('download')
+  await exportButton.click()
+  await wideDownload
   if (output) await page.screenshot({ path: resolve(output, 'performance-1280x720.png') })
   const wide = await overlay.boundingBox()
   assert.ok(wide.x >= 0 && wide.y + wide.height <= 720 && wide.x + wide.width <= 1280)
