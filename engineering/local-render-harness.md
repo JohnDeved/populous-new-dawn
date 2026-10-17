@@ -230,6 +230,25 @@ contract rather than this early-campaign selection sequence. The owners are
 [page.tsx](../app/page.tsx), and the regression in
 [deselection.test.mjs](../tests/deselection.test.mjs).
 
+Roster selection is additive in the shipped HUD modes. Before ordering an exact
+cohort, use the existing ordinary clear/replacement path and then read back all
+selected IDs; a successful class-button click does not establish that a previously
+selected Shaman was removed. [selectFollowers](../app/selection-runtime.ts) and
+its [HUD callers](../app/page.tsx) own those modes. Keep unrelated selected actors
+out of the command through ordinary input, not direct selection-field writes.
+
+Paused preparation must also respect the rendered Pause badge. A centered ground
+point can be covered by that [overlay and its resume handler](../app/page.tsx),
+whose placement is defined in [globals.css](../app/globals.css). Use a bounded
+ordinary camera offset through the [minimap handler](../app/scene-input-runtime.ts),
+then require actual canvas ownership for the complete target interior. Ordinary
+[camera motion](../app/scene-camera-runtime.ts) can settle while paused when the
+result camera is inactive. Do not click through or hide the badge. Keep camera
+and point preparation paused, Resume through the shipped control for the one real
+order, and revalidate the point/context immediately before dispatch. The actual
+[command handler](../app/live-command.ts) still rejects paused orders.
+
+
 ### Separate saved state, load state and subsequent play
 
 Click `Save checkpoint`, then await committed IndexedDB readback with
