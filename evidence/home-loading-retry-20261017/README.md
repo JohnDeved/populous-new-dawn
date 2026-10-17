@@ -1,5 +1,7 @@
 # Same-session Home loading recovery
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/home-loading-retry-20261017), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Bounded negative result: no product defect demonstrated. On main base
 `b77aa038914196781e717c4436659fffeeec24f2`, actual Home recovered from two consecutive
 required atlas failures in one page/context. Only the existing browser regression
@@ -22,8 +24,8 @@ scene objects; it does not supply readiness, callback, scene, world or clock res
 The post-recovery placement check retains the existing injected `placeBuilding`
 caller; it is texture identity evidence, not pointer placement acceptance.
 
-[Final browser receipt](receipts/browser-attempt5.json) and
-[observations](attempt5/observations.json) establish:
+[Final browser receipt](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/home-loading-retry-20261017/receipts/browser-attempt5.json) and
+[observations](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/home-loading-retry-20261017/attempt5/observations.json) establish:
 
 - Three committed loading phases, three distinct scenes/worlds/atlas objects.
 - Each scene held for 1,200 ms with unchanged time, turn, RNG, frame and start state.
@@ -40,7 +42,7 @@ caller; it is texture identity evidence, not pointer placement acceptance.
 - The pre-existing optional unit-health failure case also passed: repeated passive
   lookups issued/logged only one failed request.
 
-[Second failure](attempt5/failed-2.png) and [recovered battlefield](attempt5/recovered.png)
+[Second failure](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/home-loading-retry-20261017/attempt5/failed-2.png) and [recovered battlefield](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/home-loading-retry-20261017/attempt5/recovered.png)
 are 1280×800 captures of that exact source. Loading-1/2/3 and first-failure captures
 are adjacent. These are state evidence, not native pixel parity or hardware performance.
 

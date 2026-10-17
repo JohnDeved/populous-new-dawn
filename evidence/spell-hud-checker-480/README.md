@@ -1,5 +1,7 @@
 # Spell HUD checker contract validation
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/spell-hud-checker-480), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Candidate: `731bda43becc9abe3479be8e1cca26a65a8aa54d` (PR #480 plus main `7dc1ecda9a4b1901ffcfbb1dc1339185e649de55`).
 
 Latest-main integration: `12da9549756b71a5a686c0613f91647b110a2103`, main `9151962441d5735aea0427edac842dff86943ed8`. Browser evidence is explicitly carried from the tested candidate; no browser rerun is claimed. Of 1113 browser-input fingerprints, 1111 are unchanged. Only the Graphics/Direct3D options component and CSS changed; neither panel is opened by this spell scenario.

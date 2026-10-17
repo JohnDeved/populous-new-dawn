@@ -1,5 +1,7 @@
 # Ordinary selector globe comparison
 
+> Historical PNG captures are [preserved unchanged at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/world-selector-globes-2026-10-15). They are no longer tracked in the current checkout; the source-bound findings, image names and any recorded hashes below remain historical evidence.
+
 Before: actual shipped selector at main
 `762be79c810d8ae5d9e05d8e44e283bdff94b47b`, Mission 1, fresh profile.
 The old flat CSS crop used the selected-preview texture's linear layout.
@@ -17,13 +19,13 @@ adapted. No native full-screen pixel parity or hardware FPS claim.
 
 ## 640 × 480
 
-![Before: flat CSS-cropped Mission 1 preview at 762be79c](before-640x480.png)
-![After: source-derived ordinary Mission 1 globe at 0e10d80e](after-640x480.png)
+![Before: flat CSS-cropped Mission 1 preview at 762be79c](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/world-selector-globes-2026-10-15/before-640x480.png)
+![After: source-derived ordinary Mission 1 globe at 0e10d80e](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/world-selector-globes-2026-10-15/after-640x480.png)
 
 ## 1920 × 1080
 
-![Before: flat CSS-cropped Mission 1 preview at 762be79c](before-1920x1080.png)
-![After: source-derived ordinary Mission 1 globe at 0e10d80e](after-1920x1080.png)
+![Before: flat CSS-cropped Mission 1 preview at 762be79c](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/world-selector-globes-2026-10-15/before-1920x1080.png)
+![After: source-derived ordinary Mission 1 globe at 0e10d80e](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/world-selector-globes-2026-10-15/after-1920x1080.png)
 
 The adjacent source-frozen receipts include source fingerprints, actual browser,
 scenario and measured render checks. At 3840×2160/DPR2, the repaired cooperative

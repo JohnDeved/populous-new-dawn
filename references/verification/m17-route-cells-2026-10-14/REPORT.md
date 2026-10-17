@@ -1,5 +1,7 @@
 # M17 registered route owner cell-chain repair
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m17-route-cells-2026-10-14), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 ## Genuine failure
 
 A fresh public M17 retry on merged `5fad3dbc52b52cd93516a3114d527ceac63f95ec` earned and cast Armageddon. Starting from actual turn5355, the strict observer stopped at6055: cell13031 named missing registered owner4088. Red Brave4088 was still alive23.5HP; Yellow Brave8384 occupied the damaged chain. The original failed campaign receipt remains under `history/`.

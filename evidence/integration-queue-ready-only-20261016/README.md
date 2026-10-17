@@ -1,5 +1,7 @@
 # Ready-only admission compatibility evidence
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-ready-only-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Tested source: `b8cfda914ea72fd5f831f8e50bc988ca26aa4f31`.
 Delta base: `8df0acfd7513bf760a562305432ef5c939f0395a`.
 The independent parent reviewer must assess this substantive delta before a pilot.
@@ -48,8 +50,8 @@ The proposed ready-only workflow must be independently reviewed and hash-pinned.
 
 ## Artifacts
 
-[Source manifest](source-manifest.json) binds nine source files to the tested commit.
-[Artifact index](artifact-index.json) binds 18 exported receipts/logs; repository and
+[Source manifest](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-ready-only-20261016/source-manifest.json) binds nine source files to the tested commit.
+[Artifact index](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-ready-only-20261016/artifact-index.json) binds 18 exported receipts/logs; repository and
 temporary paths are redacted and original/published hashes are retained. Original
 receipts remain under ignored `work/orchestration/integration-queue-ready-only/`.
 

@@ -1,5 +1,7 @@
 # Pause save notice scope
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/pause-save-notice-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Base: c9e3cbc8003be7c9b3fc489d794297679476d2b9.
 
 A pending Save could finish after Escape and Load Game navigation and display its

@@ -1,5 +1,7 @@
 # Loading identity and browser recovery evidence
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/loading-recovery-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Issue [#457](https://github.com/JohnDeved/populous-new-dawn/issues/457),
 PR [#468](https://github.com/JohnDeved/populous-new-dawn/pull/468).
 
@@ -15,7 +17,7 @@ PR [#468](https://github.com/JohnDeved/populous-new-dawn/pull/468).
 - Independent review accepts the bounded presentation and repair. The full
   inventory remains an execution of `42e9e2bc`; it is carried forward only through
   this explicit equivalence. Final evidence publication changes documentation and
-  artifacts only. [Tested source](tested-source.json) records runtime tree IDs.
+  artifacts only. [Tested source](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/loading-recovery-20261016/tested-source.json) records runtime tree IDs.
 
 ## Verified results
 
@@ -100,7 +102,7 @@ Retained failures are part of the result:
   timeouts were weakened. A prepared optional diagnostic was not run.
 
 See [browser review](independent-browser-review.md),
-[broad-wrapper qualification](broad-wrapper-qualification-42e9e2bc.json) and
+[broad-wrapper qualification](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/loading-recovery-20261016/broad-wrapper-qualification-42e9e2bc.json) and
 [phase-repair review](phase-repair-review.md) for the exact bounded disposition.
 
 ## Native identity and browser adaptations
@@ -134,16 +136,16 @@ original save-slot or failure-dialog parity.
 
 Before browser checkpoint lookup:
 
-![Before checkpoint lookup](before-restore-640x480.png)
+![Before checkpoint lookup](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/loading-recovery-20261016/before-restore-640x480.png)
 
 Restored loading identity during actual held mission resources:
 
-![Original loading identity](loading-640x480.png)
+![Original loading identity](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/loading-recovery-20261016/loading-640x480.png)
 
 Browser recovery with original identity:
 
-![Adapted browser recovery](error-640x480.png)
+![Adapted browser recovery](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/loading-recovery-20261016/error-640x480.png)
 
-[Cold lookup](restore-640x480.png), [odd 641×481](loading-641x481.png),
-[expanded recovery at 640×300](error-expanded-640x300.png),
-[before recovery](before-error-640x480.png).
+[Cold lookup](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/loading-recovery-20261016/restore-640x480.png), [odd 641×481](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/loading-recovery-20261016/loading-641x481.png),
+[expanded recovery at 640×300](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/loading-recovery-20261016/error-expanded-640x300.png),
+[before recovery](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/loading-recovery-20261016/before-error-640x480.png).

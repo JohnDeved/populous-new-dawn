@@ -1,5 +1,7 @@
 # Ready-only trigger correction: focused evidence
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/ci-ready-only-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Implementation: `0c0a330fc5f7204b4c725f1e76d21e60c28e154b`.
 Prior hosted candidate: `870d3012f6d7800414b3a06efa106e9518bd38ff`.
 

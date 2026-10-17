@@ -1,5 +1,7 @@
 # Source-only widescreen framing experiment
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Status: **held after visual review; not accepted for merge**. Refs #460; experimental draft #470. This is a new bounded source-only framing experiment, not another tile surround or generated outpaint. It does not replace draft #461 or complete the issue.
 
 ## Captured sources and method
@@ -23,45 +25,45 @@ Status: **held after visual review; not accepted for merge**. Refs #460; experim
 
 Before at `d5768f9d`:
 
-![Before 1920×1080](before-1920x1080.png)
+![Before 1920×1080](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/before-1920x1080.png)
 
 After at `96868869`:
 
-![After 1920×1080](after-1920x1080.png)
+![After 1920×1080](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/after-1920x1080.png)
 
 ### 21:9-class, 3440×1440
 
 Before:
 
-![Before 3440×1440](before-3440x1440.png)
+![Before 3440×1440](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/before-3440x1440.png)
 
 After:
 
-![After 3440×1440](after-3440x1440.png)
+![After 3440×1440](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/after-3440x1440.png)
 
 ### 32:9, 3840×1080
 
 Before:
 
-![Before 3840×1080](before-3840x1080.png)
+![Before 3840×1080](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/before-3840x1080.png)
 
 After:
 
-![After 3840×1080](after-3840x1080.png)
+![After 3840×1080](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/after-3840x1080.png)
 
 ### The 4:3 breakpoint
 
 Native 640×480, unchanged before/after:
 
-![Native unchanged](native-640x480-unchanged.png)
+![Native unchanged](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/native-640x480-unchanged.png)
 
 Before 641×480:
 
-![Before 641×480](before-641x480.png)
+![Before 641×480](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/before-641x480.png)
 
 After 641×480; the one-pixel wider viewport triggers a roughly 25% backdrop zoom:
 
-![After 641×480](after-641x480.png)
+![After 641×480](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/after-641x480.png)
 
 ## Exact source and trademark limits
 
@@ -71,8 +73,8 @@ The Bullfrog panel is x5–58/y387–475; the QSound panel x569–616/y416–475
 
 Actual rendered 16:9 detail crops:
 
-![Bullfrog detail](bullfrog-detail-1920x1080.png)
-![QSound detail](qsound-detail-1920x1080.png)
+![Bullfrog detail](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/bullfrog-detail-1920x1080.png)
+![QSound detail](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/qsound-detail-1920x1080.png)
 
 ## Checks and deferred gates
 

@@ -1,5 +1,7 @@
 # Tutorial recommendation candidate: validation remains blocked
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/tutorial-recommendation-482), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Refs #16 and #457. Product source commit `d5088d8fa5c75f1e17fce5b8397146a5074128c7`;
 reviewed harness source `fd4c946814c58d488080f90872f4b55401402edf`. Later commit
 `cc290d290cb66edd24216c0b24e99f80dcbf0e74` adds independent baseline pause evidence

@@ -1,5 +1,7 @@
 # Frontend Quit fallback shadow repair
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/quit-fallback-shadow), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Refs #16/#457. Product candidate f6cdab7a, based on merged main0b94142b.
 Original menu1 question/choice rows and glyph shadow composition come from
 `decomp/research/frontend-quit-menu` and `frontend-menu-composition.md`.

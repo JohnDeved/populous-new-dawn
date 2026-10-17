@@ -1,5 +1,7 @@
 # Original Graphics and Direct3D Options rows
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/graphics-options-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Refs #457 and #16. This restores original row presentation through both shipped
 Options callers. It does not implement legacy graphics/device settings.
 
@@ -101,15 +103,15 @@ without that preceding high-resolution stress sequence. This does not establish
 
 ## Retained artifacts and source carry
 
-- [Before frontend Graphics](before-frontend-graphics-1280x960.png): baseline
+- [Before frontend Graphics](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/graphics-options-20261016/before-frontend-graphics-1280x960.png): baseline
   `7ab389ce`, 1280×960/DPR1, passed baseline run.
-- [After frontend Graphics](after-frontend-graphics-1280x960.png): candidate
+- [After frontend Graphics](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/graphics-options-20261016/after-frontend-graphics-1280x960.png): candidate
   `b675952c`, 1280×960/DPR1, passed frontend run.
-- [Before live Direct3D](before-ingame-direct3d-1280x960.png): baseline `7ab389ce`,
+- [Before live Direct3D](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/graphics-options-20261016/before-ingame-direct3d-1280x960.png): baseline `7ab389ce`,
   1280×960/DPR1, passed baseline run.
-- [After live Direct3D Options](after-ingame-direct3d-1280x960.png): candidate
+- [After live Direct3D Options](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/graphics-options-20261016/after-ingame-direct3d-1280x960.png): candidate
   `b675952c`, 1280×960/DPR1, captured before the later large-DPR crash described above.
-- [Accepted native-size live composition](accepted-ingame-direct3d-640x480.png):
+- [Accepted native-size live composition](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/graphics-options-20261016/accepted-ingame-direct3d-640x480.png):
   candidate `b675952c`, 640×480/DPR1, from the fully passed native-size run.
 - `validation-b675952c.tar.gz` retains all seven raw browser receipts (including
   four failed attempts), exact hash-matched scenario/runner files, the setup

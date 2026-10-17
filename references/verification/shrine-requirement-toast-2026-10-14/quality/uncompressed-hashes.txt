@@ -1,3 +1,0 @@
-2c0b165c35ee34f629892c02f40f6fef8786411a31b692ee2d891920d75456ca  work/shrine-toast/oxlint-base.json
-db1eea3f5f8da2f2d52c1152f77ed5bf03dda43176ff43a8b0202a4237a4d08e  work/shrine-toast/oxlint-candidate.json
-0918d0cd6b69789fff4eb935ea1e8dc964a8ba61714b1cff6c05a5e7f90ae395  work/shrine-toast/oxlint-candidate-introduced.json

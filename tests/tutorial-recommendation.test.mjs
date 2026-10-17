@@ -91,7 +91,7 @@ test('production recommendation and Quit draws omit shadows only for HTML-fallba
   visit(parsed)
   assert.ok(draw)
   const body = ts.transpileModule(`return ${draw.getText(parsed)};`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText
-  const make = new Function('canvas', 'pixels', 'pointer', 'panel', 'pointerMode', 'glowFrame', 'optionRows', 'canvasWidth', 'tutorialRecommendationRows', 'frontendQuitRows', 'tutorialParagraphRows', 'questionReady', 'artReady', 'frontendBackground', 'ImageData', body)
+  const make = new Function('canvas', 'prepared', 'pointer', 'panel', 'pointerMode', 'glowFrame', 'optionRows', 'canvasWidth', 'tutorialRecommendationRows', 'frontendQuitRows', 'tutorialParagraphRows', 'questionReady', 'artReady', 'logoReady', 'frontendBackground', 'ImageData', body)
   const allRows = [...tutorialParagraphRows, ...tutorialChoiceRows]
   for (const [panel, questionRows, choiceRows] of [
     ['tutorial-recommendation', tutorialParagraphRows, tutorialChoiceRows],
@@ -102,13 +102,13 @@ test('production recommendation and Quit draws omit shadows only for HTML-fallba
   ]) {
     let captured
     const draw = make(
-      { current: { getContext: () => ({ putImageData() {} }) } }, { current: new Uint8Array(1) },
+      { current: { getContext: () => ({ putImageData() {} }) } }, { composition: new Uint8Array(1) },
       { current: { x: 320, y: 240 } }, panel, { current: false }, { current: 0 },
-      [], 640, allRows, frontendQuitRows, tutorialParagraphRows, questionReady, artReady,
+      [], 640, allRows, frontendQuitRows, tutorialParagraphRows, questionReady, artReady, true,
       (...args) => { captured = args[4]; return new Uint8ClampedArray(4) }, class {},
     )
     draw()
     assert.deepEqual(captured, expected)
   }
-  assert.match(source, /\[panel, optionRows, canvasWidth, questionReady, artReady\]/)
+  assert.match(source, /\[panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared\]/)
 })

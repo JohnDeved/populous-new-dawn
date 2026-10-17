@@ -1,5 +1,7 @@
 # CI draft/ready race: source-bound local evidence
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/ci-event-race-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Base: cf38a755a3a00255184c63c175a00076cff6b025
 Tested implementation: 7c86021d208780659bb91ef55e7b948e37fd0b08
 

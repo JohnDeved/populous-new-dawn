@@ -1,5 +1,9 @@
 # M14 ordinary rendered linked-head acquisition
 
+> Historical PNG captures are [preserved unchanged at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m14-linked-head-browser-2026-10-14). They are no longer tracked in the current checkout; the source-bound findings, image names and any recorded hashes below remain historical evidence.
+
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m14-linked-head-browser-2026-10-14), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 ## Accepted bounded result
 
 Actual sandboxed official Chrome Headless Shell 154.0.8037.92, ANGLE Vulkan SwiftShader, 1440×1000. Scenario `scripts/local-render/mission14-linked-head.mjs` executed on exact QA source `3cb8647df588a177f12428e8806ab48770cb1e6e`, based on main `9c2cf2ef41163c7f73bc986ce0003dd667d2fcdd`. Runtime, tests and dependencies were unchanged. The raw receipt retains exact source before/after fingerprints and browser launch options. Run: 2026-10-14 10:30:57.856–10:35:14.678 UTC.
@@ -20,7 +24,7 @@ Independent reviewer inspected the source/helpers, raw evidence and actual PNGs.
 
 The first run passed; there are no discarded attempts for this scenario. Browser warnings (software fallback deprecation, ReadPixels stalls, texture-update warnings) are retained in `run/receipt.json`; errors were empty. The unsafe opt-in suggested by Chromium's warning was not used. Sandbox remained enabled; only remote-debugging-pipe was passed.
 
-`run/head-commanded.png` also records a real UI defect: “One follower is enough” despite authored required6. The acquisition succeeds, but this is not blanket UI correctness. A separate runtime repair owns that issue; this packet preserves the original pixels and bytes.
+[run/head-commanded.png](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m14-linked-head-browser-2026-10-14/run/head-commanded.png) also records a real UI defect: “One follower is enough” despite authored required6. The acquisition succeeds, but this is not blanket UI correctness. A separate runtime repair owns that issue; this packet preserves the original pixels and bytes.
 
 This establishes the short authored acquisition route and rendered HUD control. It does not establish full M14 completion, Angel acquisition, sea traversal, browser persistence, original-game parity or hardware-GPU performance. It supplements rather than reclassifies the older supplied-state browser reward script and separate CPU campaign route.
 

@@ -1,5 +1,7 @@
 # Independent M10 browser checkpoint review
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m10-boat-browser-2026-10-14), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Decision: ACCEPT bounded gameplay/storage witness.
 Reviewer: review_browser_checkpoint
 Save source: cb2d73af2a92debdc6b9a0042513770a7697b17c

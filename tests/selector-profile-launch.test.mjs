@@ -52,6 +52,7 @@ test('fresh Home restores independent progress and selector Start launches Missi
       const store = await freshStore(), initialWorld = store.getWorld(), before = structuredClone(records)
       const states = [], presentation = {}, loadRequest = { current: null }
       const cleanup = pageEffect('store.restoreCheckpoint()', {
+        frontendPreparation: { current: null }, prepareFrontendAssets: async () => ({}), setFrontendAssets() {},
         store, readAudioPreferences: () => ({ volume: 1, musicVolume: 1 }),
         readGamePreferences: () => ({}), setAudioPreferences: () => {}, audio: { current: null },
         gamePreferencesRef: { current: null }, setGamePreferences: () => {},

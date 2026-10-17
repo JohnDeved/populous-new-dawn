@@ -1,5 +1,7 @@
 # Staged checkpoint comparison views
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/engineering/test-throughput-2026-10-16/staged-views), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 ## Scope
 
 Test-only follow-on to PR488. The staged Mission22 test has a distinct normalization policy: every comparison asserts shrine IDs102/120 at indices0/2, then defaults only an undefined reward at those indices to mana. It does not use rewardMana. Other shrine rewards remain untouched. The existing general mana-truthiness helper is unchanged.

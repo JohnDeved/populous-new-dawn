@@ -1,5 +1,7 @@
 # Mission 1 ordinary-control observation, 2026-10-04
 
+> Historical PNG captures are [preserved unchanged at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/mission-one-controls-2026-10-04). They are no longer tracked in the current checkout; the source-bound findings, image names and any recorded hashes below remain historical evidence.
+
 Refs [PND-11](https://github.com/JohnDeved/populous-new-dawn/issues/11). This is a
 bounded gameplay observation with a separately pinned evidence archive. It is **not a clean passing
 maintained checker**, a full-campaign acceptance, an original-pixel comparison,
@@ -38,7 +40,7 @@ legitimately rejected out-of-range cast. The nearer-shore correction then reache
 natural victory. The terminal guard refused to turn that second run into a clean
 checker pass. No failed attempt was discarded or relabelled.
 
-![Actual Mission 1 victory](012.png)
+![Actual Mission 1 victory](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/mission-one-controls-2026-10-04/012.png)
 
 *Unedited 1440×1000 screenshot of tested b846500, captured
 2026-10-04 12:37:41.555 UTC at observed turn 4837. The displayed mission time is
@@ -102,7 +104,7 @@ claim that the exploratory tests passed.
 | 12:34:28.961 | 4329 | HUD-selected trained Warriors crossed north and entered live combat after an ordinary enemy-settlement click | [combat pixels](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/008.png), [state](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/008.json) |
 | 12:35:34.085 | 4398 | Red Warriors had fallen from 90 HP to 14.45 and 45.75 through normal fighting; Blue Warriors also took damage | [state](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/010.json) |
 | 12:36:39.444 | 4609 | Acquired Lightning killed the Dakini Shaman; regular combat left four enemy Braves | [input](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/command-11.json), [state](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/011.json) |
-| 12:37:41.555 | 4837 | Further ordinary Warrior attack reached won; no Dakini remained; visible result and Continue to Mission 2 offer | [victory pixels](012.png), [state](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/012.json) |
+| 12:37:41.555 | 4837 | Further ordinary Warrior attack reached won; no Dakini remained; visible result and Continue to Mission 2 offer | [victory pixels](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/mission-one-controls-2026-10-04/012.png), [state](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/012.json) |
 | 12:39:04.950 | 5838 | Victory celebration continued; awaited profile read confirmed persisted Mission 1 completion | [readback](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/extra-13.json) |
 
 The final profile diagnostic read observed turn 5837, and the subsequent snapshot

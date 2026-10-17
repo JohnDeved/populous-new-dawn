@@ -1,5 +1,7 @@
 # World selector bottom-panel comparison
 
+> Historical PNG captures are [preserved unchanged at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/ui-world-selector). They are no longer tracked in the current checkout; the source-bound findings, image names and any recorded hashes below remain historical evidence.
+
 Refs #17 and #457; partial presentation slice, not full selector parity.
 
 - Before: actual clean main `053cda0d35c8d508915cd74c7f07b7ed0ee66792`.
@@ -14,18 +16,18 @@ Refs #17 and #457; partial presentation slice, not full selector parity.
 
 Before: the former modal needs scrolling to reach campaign controls.
 
-![Main before at640×480](before-640x480.png)
+![Main before at640×480](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/ui-world-selector/before-640x480.png)
 
 After: source `plspanel.spr` strip at(1,419), selected-palette available/completed
 status overlays and hand launch; readable compatibility controls remain available.
 
-![Source-bound panel after at640×480](after-640x480.png)
+![Source-bound panel after at640×480](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/ui-world-selector/after-640x480.png)
 
 ## 1920×1080
 
-![Main before at1920×1080](before-1920x1080.png)
+![Main before at1920×1080](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/ui-world-selector/before-1920x1080.png)
 
-![Source-bound panel after at1920×1080](after-1920x1080.png)
+![Source-bound panel after at1920×1080](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/ui-world-selector/after-1920x1080.png)
 
 ## Evidence boundary
 

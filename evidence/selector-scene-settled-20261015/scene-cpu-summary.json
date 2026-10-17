@@ -1,7 +1,0 @@
-{
-  "warmupCallbacksDiscarded": 5,
-  "samples": 299,
-  "p95": 4.800000011920929,
-  "max": 31.400000005960464,
-  "workload": "viewport/selection/DPR transitions, geometry/pixel observers disabled"
-}

@@ -1,5 +1,7 @@
 # M17 victory celebration point projectiles
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m17-celebration-2026-10-14), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Base: f2e97561be4e186db1d24a1c161a8f4958ea9180.
 Initial tested runtime: ede773bf7e848ba57fb9a1903001a582d6d97b37.
 Final factored runtime: 584d40aebd4a18bb2adb37a0788697acc3f0406c.
@@ -89,3 +91,18 @@ The independent player replay repeated the genuine won6784 continuation on
 camera at6799 and completes all point-shot/trail/retirement, strict native
 cell/live-pose, twins, synthetic profile17, fresh restore and public18 checks
 at6879. Earlier receipts remain preserved.
+
+## Identical checkpoint aliases
+
+The following historical output names contain byte-identical gzip snapshots.
+Only the canonical copies remain tracked; the old paths remain available at
+[the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m17-celebration-2026-10-14/public-replay).
+The historical manifest paths and hashes are unchanged. Replay scripts still
+write their original names under ignored `work/` directories. This removes
+1,476,181 bytes from a fresh checkout, not duplicate Git objects: Git already
+stores identical blob content once.
+
+- `public-replay/camera-settled-fixed-terminal.v8.gz` → [camera-settled-fixed-terminal-584d.v8.gz](public-replay/camera-settled-fixed-terminal-584d.v8.gz).
+- `public-replay/final-qualified-terminal.v8.gz` → [final-qualified-terminal-584d.v8.gz](public-replay/final-qualified-terminal-584d.v8.gz).
+- `public-replay/continue18-terminal.v8.gz` → [continue18-terminal-584d.v8.gz](public-replay/continue18-terminal-584d.v8.gz).
+- `public-replay/won-fixed-terminal-584d.v8.gz` → [won-terminal.v8.gz](../../fixtures/m17-celebration/won-terminal.v8.gz).

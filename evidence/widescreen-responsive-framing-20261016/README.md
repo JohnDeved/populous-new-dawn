@@ -1,5 +1,7 @@
 # Responsive original-art menu framing
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-responsive-framing-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Refs #460 and draft #470. This revision replaces the held cropped-cover experiment with a source-derived, palette-coherent side field. The face, crown, title and menu retain their original logical scale. The 640→641 breakpoint no longer zooms the artwork.
 
 ## Sources and scope
@@ -18,37 +20,37 @@ Both comparison sides are unfocused with reduced motion. The older multi-view sc
 
 Before:
 
-![Before 1920×1080](../widescreen-source-framing-20261016/before-1920x1080.png)
+![Before 1920×1080](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/before-1920x1080.png)
 
 After:
 
-![After 1920×1080](after-1920x1080.webp)
+![After 1920×1080](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-responsive-framing-20261016/after-1920x1080.webp)
 
 ### 21:9-class, 3440×1440
 
 Before:
 
-![Before 3440×1440](../widescreen-source-framing-20261016/before-3440x1440.png)
+![Before 3440×1440](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/before-3440x1440.png)
 
 After:
 
-![After 3440×1440](after-3440x1440.webp)
+![After 3440×1440](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-responsive-framing-20261016/after-3440x1440.webp)
 
 ### 32:9, 3840×1080
 
 Before:
 
-![Before 3840×1080](../widescreen-source-framing-20261016/before-3840x1080.png)
+![Before 3840×1080](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/before-3840x1080.png)
 
 After:
 
-![After 3840×1080](after-3840x1080.webp)
+![After 3840×1080](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-responsive-framing-20261016/after-3840x1080.webp)
 
 ## Composition contract
 
 The full original 640×480 artwork stays centered at the unchanged height-based scale. The central 400 columns remain exact. A feather grows continuously from zero to at most 120 columns per side. Six small outer-art samples above the baked badge strip supply averaged source RGB colors; interpolating these creates a subordinate field without repeated texture, added motifs or a second face. Serpentine error diffusion selects only original palette indices, avoiding the rejected broad quantization bands. Existing native palette-fade masks then apply to the widened indexed background at the same logical offsets.
 
-The exact Bullfrog/QSound panels and source-coordinate trademark mattes stay at their original centered-frame positions. They do not move to the viewport's outer corners. This avoids duplicate baked marks during resizing. The matte is an explicit modern extraction, not recovered original transparency; the [source-coordinate contract](../widescreen-source-framing-20261016/tm-matte-contract.json) records its limits. Imported assets are unchanged.
+The exact Bullfrog/QSound panels and source-coordinate trademark mattes stay at their original centered-frame positions. They do not move to the viewport's outer corners. This avoids duplicate baked marks during resizing. The matte is an explicit modern extraction, not recovered original transparency; the [source-coordinate contract](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016/tm-matte-contract.json) records its limits. Imported assets are unchanged.
 
 The backing canvas stays 480 logical pixels high with an even width; DPR does not increase it. Only one current-width indexed background is cached per source. Per-width quantization maps and diffusion buffers are local to generation; cached draws do not resample the field. Native 4:3 and narrower compositions use the unchanged native path.
 

@@ -1,5 +1,7 @@
 # Faster test feedback: observed result
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/engineering/test-throughput-2026-10-16), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 On 2026-10-16, the complete `npm run check` fell from **38m 55.044s to
 22m 51.563s**, an observed saving of **16m 03.481s (41.26%)**. Both conditions
 passed all **435 files / 2,809 tests**, with identical cases and no failures,
@@ -67,7 +69,7 @@ failures, without rewriting their outcomes:
 
 ## Portable raw evidence
 
-[raw-evidence.tar.gz](raw-evidence.tar.gz) contains 80 original artifacts plus its
+[raw-evidence.tar.gz](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/engineering/test-throughput-2026-10-16/raw-evidence.tar.gz) contains 80 original artifacts plus its
 manifest: raw logs, immutable receipts, frozen parsers/configuration, dependency
 manifests, attempt records, and focused regression evidence. Archived Python is
 inert historical evidence, not new project tooling. This directory is outside
@@ -76,7 +78,7 @@ Private temporary directories and Python caches are excluded. A credential and
 email-pattern scan found no matches; technical absolute paths are retained.
 
 Verify the download using `sha256sum -c SHA256SUMS` from this directory. The
-[artifact manifest](artifact-manifest.json) maps each historical source path to
+[artifact manifest](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/engineering/test-throughput-2026-10-16/artifact-manifest.json) maps each historical source path to
 its portable archive path, byte length and SHA-256. Receipt/config/log bytes are
 unchanged, including their original paths; use the manifest to resolve them
 instead of rewriting them. The archive's `benchmark-artifacts.json` separately

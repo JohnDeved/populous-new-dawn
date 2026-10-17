@@ -30,12 +30,12 @@ test('hidden main shadows equal transparent glyph masks independently of logo an
   assert.deepEqual(bytes, before)
 })
 
-test('Options publishes only its own ready foreground rows and republishes on readiness changes', () => {
+test('Options publishes only ready foreground rows in its before-paint layout effect', () => {
   const source = readFileSync(new URL('../app/original-options.tsx', import.meta.url), 'utf8')
   const parsed = ts.createSourceFile('options.tsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
   let effect
   function visit(node) {
-    if (ts.isCallExpression(node) && node.expression.getText(parsed) === 'useEffect' && node.arguments[0]?.getText(parsed).includes('onTextRowsChange?.')) effect = node
+    if (ts.isCallExpression(node) && node.expression.getText(parsed) === 'useLayoutEffect' && node.arguments[0]?.getText(parsed).includes('onTextRowsChange?.')) effect = node
     ts.forEachChild(node, visit)
   }
   visit(parsed)
