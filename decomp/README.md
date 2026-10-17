@@ -4,6 +4,13 @@
 
 This is part of the full-parity goal, not a separate experiment. It records the original routines used to reconstruct browser behavior. `generated/*.c` is Ghidra pseudocode, **not recovered, compilable Bullfrog source**. Names/types can come from community annotations or inference; generated control flow still needs review against instructions and runtime observations.
 
+## Building-completion feedback ownership
+
+[Bounded original completion-owner comparison](research/building-completion-feedback.md)
+separates completed geometry/audio/terrain/timer work from the removed generic
+status toast. Other reward/reincarnation decisions and original campaign feedback
+remain separate.
+
 ## Setup and reproduce
 
 On this project's macOS arm64 development machine, with Python 3, Git and Xcode Command Line Tools:
