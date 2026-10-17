@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "1757b1b9-4852-49f5-9a1a-b77bdc7fee51",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "92be6d78189292f52da547407804be36df09e94c",
+    "branch": "codex/options-keyboard-ownership",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "evidence/options-keyboard-20261017/run-probe.mjs"
+  ],
+  "cwd": "<REPO>",
+  "startedAt": "2026-10-17T01:40:31.576Z",
+  "artifacts": {
+    "stdout": "<REPO>/work/orchestration/options-keyboard/baseline-1.json.artifacts/stdout.log",
+    "stderr": "<REPO>/work/orchestration/options-keyboard/baseline-1.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T01:40:35.292Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "Production and probe inputs unchanged after run\n",
+  "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Tab remains in modal Options controls\n\nfalse !== true\n\n    at default (file://<REPO>/scripts/local-render/options-keyboard.mjs:64:14)\n    at async file://<REPO>/evidence/options-keyboard-20261017/run-probe.mjs:52:30 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.18.0\n",
+  "stdoutSha256": "9dd86484451eaca0f5cc600cfd7eec6957db4cd3a826add33ccbf0f66c97e60f",
+  "stderrSha256": "f4e443e1762567a56a31ee5a9d81704b1e2d3a69b981272f3476188bfb7919d4",
+  "sourceAfter": {
+    "headOid": "92be6d78189292f52da547407804be36df09e94c",
+    "branch": "codex/options-keyboard-ownership",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

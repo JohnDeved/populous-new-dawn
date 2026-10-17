@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "2681fcf6-ea87-4044-b0d6-67033f214747",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "08c5e40643e211c5d1942ca14953edd026a57e17",
+    "branch": "codex/options-keyboard-ownership",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "npm",
+    "run",
+    "test:focus",
+    "--",
+    "tests/options-keyboard-ownership.test.mjs"
+  ],
+  "cwd": "<REPO>",
+  "startedAt": "2026-10-17T01:41:59.643Z",
+  "artifacts": {
+    "stdout": "<REPO>/work/orchestration/options-keyboard/focused-before.json.artifacts/stdout.log",
+    "stderr": "<REPO>/work/orchestration/options-keyboard/focused-before.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T01:41:59.928Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 test:focus\n> node scripts/orchestration/test-runner.mjs focus tests/options-keyboard-ownership.test.mjs\n\nTAP version 13\n# Subtest: pause Options keeps ownership of arrow/Home/End focus outside and inside category navigation\nnot ok 1 - pause Options keeps ownership of arrow/Home/End focus outside and inside category navigation\n  ---\n  duration_ms: 12.532917\n  type: 'test'\n  location: '<REPO>/tests/options-keyboard-ownership.test.mjs:38:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Rotation: ArrowUp\n    + actual - expected\n    \n      {\n    +   focus: [Function: focus],\n    +   id: 1\n    -   control: 'Rotation'\n      }\n    \n  code: 'ERR_TEST_FAILURE'\n  ...\n# Subtest: pause root and confirmation navigation retain enabled-row keyboard behavior\nok 2 - pause root and confirmation navigation retain enabled-row keyboard behavior\n  ---\n  duration_ms: 14.820834\n  type: 'test'\n  ...\n# Subtest: native slider keys and Tab are left to their controls\nok 3 - native slider keys and Tab are left to their controls\n  ---\n  duration_ms: 7.770375\n  type: 'test'\n  ...\n# Subtest: Options Escape still reaches the dialog cancel/back owner\nok 4 - Options Escape still reaches the dialog cancel/back owner\n  ---\n  duration_ms: 0.780916\n  type: 'test'\n  ...\n1..4\n# tests 4\n# suites 0\n# pass 3\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 157.284375\n",
+  "stderr": "{\"kind\":\"pnd-test-plan\",\"mode\":\"focus\",\"fullSuite\":false,\"parallelEligibility\":\"focused-serial\",\"files\":[\"tests/options-keyboard-ownership.test.mjs\"],\"groups\":[{\"concurrency\":1,\"files\":[\"tests/options-keyboard-ownership.test.mjs\"]}]}\n{\"kind\":\"pnd-test-group\",\"command\":[\"<NODE>\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/options-keyboard-ownership.test.mjs\"],\"files\":[\"tests/options-keyboard-ownership.test.mjs\"],\"concurrency\":1,\"exitCode\":1,\"signal\":null,\"error\":null,\"status\":\"failed\",\"wallMs\":180.436917}\n{\"kind\":\"pnd-test-result\",\"mode\":\"focus\",\"fullSuite\":false,\"complete\":true,\"interrupted\":null,\"results\":[{\"command\":[\"<NODE>\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/options-keyboard-ownership.test.mjs\"],\"files\":[\"tests/options-keyboard-ownership.test.mjs\"],\"concurrency\":1,\"exitCode\":1,\"signal\":null,\"error\":null,\"status\":\"failed\",\"wallMs\":180.436917}],\"wallMs\":181.02083299999998,\"status\":\"failed\"}\n",
+  "stdoutSha256": "be36a4ad7ce737abcdf91b6393ad33712d5af780e527c828039ceeec552950b5",
+  "stderrSha256": "4b5ff073e03b265ee36a31aaa28e5a00b2639bcc82d147d7b3c920d996dacb4f",
+  "sourceAfter": {
+    "headOid": "08c5e40643e211c5d1942ca14953edd026a57e17",
+    "branch": "codex/options-keyboard-ownership",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}
