@@ -11,5 +11,5 @@ await build({
   publicDir: false,
   plugins: [react()],
   css: { postcss: { plugins: [tailwindcss({ base: resolve(fixture) })] } },
-  build: { outDir: resolve(output), emptyOutDir: false, copyPublicDir: false, sourcemap: false, reportCompressedSize: false },
+  build: { outDir: resolve(output), emptyOutDir: false, copyPublicDir: false, sourcemap: true, reportCompressedSize: false },
 })

@@ -340,7 +340,10 @@ export class GitHubReader {
     row.shardedVerified = true
     row.shardedReceiptSha256 = sha256(JSON.stringify(receipt))
   }
-  inspect(entry, allowlistDirectory) {
+  inspect(entry, allowlistDirectory) { return this.inspectMode(entry, allowlistDirectory, false) }
+  // Explicit narrower observation surface: never an integration-policy fallback.
+  inspectAdmission(entry, allowlistDirectory) { return this.inspectMode(entry, allowlistDirectory, true) }
+  inspectMode(entry, allowlistDirectory, admissionOnly) {
     validateEntry(entry)
     const start = Date.now()
     const root = `repos/${REPO}`
@@ -391,7 +394,7 @@ export class GitHubReader {
         ensure(source.tree === entry.sourceTree, 'Reviewed source tree mismatch')
         result.acceptedRefresh = this.refresh(entry, entry.sourceHead, result.headCommit.parents[1])
       }
-      result.protection = this.protection()
+      result.protection = admissionOnly ? { unverified: 'admission-only; no merge authority' } : this.protection()
       result.workflows = GATES.flatMap(g => [
         this.workflow(g.workflow, pr.head.sha),
         this.workflow(g.workflow, main),
