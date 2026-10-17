@@ -159,6 +159,7 @@ for (const diagonal of [0, 1])
                   caseHits += Number(result.candidates.length > 0)
                 }
           }
+          assert.ok(caseHits > 0, `${name}: camera case must witness real terrain hits`)
           hits += caseHits
           t.diagnostic(`${name}: ${caseHits}/54 queries with ordered hits`)
         }
