@@ -147,7 +147,7 @@ const render = new Function('React', 'useEffect', 'useMemo', 'useRef', 'useState
   ].join('\n'), {compilerOptions: {target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React}}).outputText
 )
 function renderOptions(skin, category, highlight = null) {
-  const state = [category, false, highlight, true], nodes = [], effects = [], focus = []
+  const state = [category, false, highlight, skin, skin], nodes = [], effects = [], focus = []
   const React = {
     Fragment: 'fragment',
     createElement(type, props, ...children) {
