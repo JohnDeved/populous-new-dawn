@@ -37,6 +37,24 @@ experienced-player expectations while improving performance and presentation.
 - Keep native comparisons and gameplay regressions. Document any compatibility
   correction rather than disguising it as exact original behavior.
 
+## Interpreting an F8 frame export
+
+After capturing gameplay with F8 open, choose **Export recent frames** and analyze
+that local JSON file with Node 22.13+ from the repository root:
+
+```sh
+node scripts/analyze-frame-export.mjs /path/to/populous-frames.json
+```
+
+The offline command prints JSON only to stdout and never uploads or modifies the
+input. Redirect stdout yourself if you want a saved summary. It validates the v1
+capture, reports sample count/span, available commit/level provenance, and
+mean/p50/p95/max CPU and RAF durations. Callback stages are ranked separately from
+nested pointer phases: **do not add overlapping timings**. Missing breakdowns are
+not treated as zero. Read the warnings, including signed residuals and deferred
+layout attribution; these exports alone do not establish GPU time, presented FPS,
+or a controlled before/after performance improvement.
+
 ## Completed local optimization: minimap palette conversion
 
 `scripts/bench-minimap.mjs` compares the initial implementation's per-pixel

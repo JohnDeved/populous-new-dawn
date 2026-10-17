@@ -27,7 +27,7 @@ const CPU_PHASES = [
   'pointerTooltipCpuMs',
   'otherCallbackCpuMs',
 ] as const
-const MAX_JSON_LENGTH = 2 * 1024 * 1024
+const MAX_JSON_CODE_UNITS = 2 * 1024 * 1024
 
 type RecordValue = Record<string, unknown>
 type Frame = Record<(typeof FRAME_FIELDS)[number], number> & {
@@ -59,8 +59,8 @@ function statistics(values: number[]) {
 
 /** Parse an exported JSON string and return bounded, local-only timing summaries. */
 export function analyzeFrameExport(json: string) {
-  if (typeof json !== 'string' || json.length > MAX_JSON_LENGTH)
-    throw new Error('Invalid export: expected JSON text no longer than 2 MiB')
+  if (typeof json !== 'string' || json.length > MAX_JSON_CODE_UNITS)
+    throw new Error('Invalid export: expected JSON text no longer than 2097152 UTF-16 code units')
   const report = object(
     JSON.parse(json, (_key, value) => {
       if (typeof value === 'number' && !Number.isFinite(value))
@@ -89,9 +89,11 @@ export function analyzeFrameExport(json: string) {
   if (report.buildRevision !== undefined) {
     if (
       typeof report.buildRevision !== 'string' ||
-      !/^(?:[a-fA-F0-9]{7,40}|unknown)$/.test(report.buildRevision)
+      !/^(?:[a-fA-F0-9]{40}(?:-dirty)?|unknown)$/.test(report.buildRevision)
     )
-      throw new Error('Invalid buildRevision: expected a commit hash or unknown')
+      throw new Error(
+        'Invalid buildRevision: expected a full commit hash, optional -dirty suffix, or unknown'
+      )
     buildRevision = report.buildRevision
   }
   let level: number | null = null

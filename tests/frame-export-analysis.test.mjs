@@ -116,3 +116,14 @@ test('accepts small floating-point residual roundoff without concealing signed v
   value.frames[0].otherCallbackCpuMs += 0.01
   assert.throws(() => summarize(value), /remainder/)
 })
+
+
+test('preserves the exporter dirty-build provenance suffix', () => {
+  const value = report()
+  value.buildRevision = '91a68d9e6add75b11caee0d04d83cc51d0520c56-dirty'
+  assert.equal(summarize(value).buildRevision, value.buildRevision)
+  for (const invalid of ['91a68d9e-dirty', value.buildRevision + '-extra', 'dirty']) {
+    value.buildRevision = invalid
+    assert.throws(() => summarize(value), /buildRevision/)
+  }
+})
