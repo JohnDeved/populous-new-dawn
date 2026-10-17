@@ -28,6 +28,7 @@ if (output) mkdirSync(output, { recursive: true })
 const observations = []
 const profile = mkdtempSync(resolve(tmpdir(), 'pnd-loading-retry-'))
 let browser
+const report = { status: 'running', observations }
 try {
   const launch = launchOptions(process.env.POPULOUS_BROWSER)
   browser = await chromium.launch({ ...launch, args: [...launch.args, `--user-data-dir=${profile}`], headless: !process.argv.includes('--headed') })
@@ -156,6 +157,7 @@ try {
       assert.equal(atlasRequests, attempt, 'one request per explicit load')
       observations.push({ attempt, loading: before, heldMs: 1200 })
       if (output) await page.screenshot({ path: resolve(output, `loading-${attempt}.png`) })
+      if (attempt === 3) await page.evaluate(() => { globalThis.retryReleasedAt = performance.now() })
       gates[attempt - 1](attempt < 3 ? 'fail' : 'continue')
       if (attempt === 3) break
       await page.getByRole('heading', { name: 'Loading failed', exact: true }).waitFor()
@@ -180,17 +182,20 @@ try {
       const scene = globalThis.testScene, world = globalThis.testStore.getWorld()
       return { sceneIsThird: scene === globalThis.retryScenes[2], ownsWorld: scene.world === world,
         level: world.outcome.level, started: scene.started, disposed: scene.disposed,
-        time: world.time, turn: world.turn, frame: scene.frame }
+        time: world.time, turn: world.turn, frame: scene.frame, speed: world.speed,
+        elapsedSinceRelease: (performance.now() - globalThis.retryReleasedAt) / 1000 }
     })
     assert.equal(activated.sceneIsThird, true)
     assert.equal(activated.ownsWorld, true)
     assert.equal(activated.level, 1)
     assert.equal(activated.started, true)
     assert.equal(activated.disposed, false)
-    assert.ok(activated.time < 1, 'held loading time must not be applied as gameplay catch-up')
+    observations.push({ activated })
+    assert.ok(activated.time <= activated.elapsedSinceRelease * activated.speed,
+      `game time exceeded the measured post-release interval: ${JSON.stringify(activated)}`)
     await page.getByRole('button', { name: /Skip introduction/ }).click()
     await page.waitForFunction(time => globalThis.testStore.getWorld().time > time, activated.time)
-    observations.push({ activated, advancedTime: await page.evaluate(() => globalThis.testStore.getWorld().time) })
+    observations.push({ advancedTime: await page.evaluate(() => globalThis.testStore.getWorld().time) })
     if (output) await page.screenshot({ path: resolve(output, 'recovered.png') })
 
     const identity = await page.evaluate(async () => {
@@ -235,11 +240,16 @@ try {
     await context.close()
   }
 
-  const report = { status: 'passed', browser: browser.version(), observations }
+  report.status = 'passed'
+  console.log('PASS: passive optional failure stays cached; two same-session Home retries commit loading before each failure and recover before consumers, and recovered cursor plus real placement plan share the fresh atlas identity')
+} catch (error) {
+  report.status = 'failed'
+  report.error = String(error)
+  throw error
+} finally {
+  report.browser = browser?.version()
   if (output) writeFileSync(resolve(output, 'observations.json'), JSON.stringify(report, null, 2) + '\n')
   console.log(JSON.stringify(report))
-  console.log('PASS: passive optional failure stays cached; two same-session Home retries commit loading before each failure and recover before consumers, and recovered cursor plus real placement plan share the fresh atlas identity')
-} finally {
   await browser?.close()
   rmSync(profile, { recursive: true, force: true })
 }
