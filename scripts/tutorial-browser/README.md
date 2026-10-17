@@ -72,3 +72,42 @@ tree depletion/regrowth, native-executable equivalence or hardware performance.
 The scenario's own context closes before terminal acceptance, including late runtime
 errors; the runner hashes its source and retains its normal failure/cleanup receipts.
 No new workflow, browser-download route, permission or timeout increase is involved.
+
+## Selectable M2 pointer/F8 functional diagnostic
+
+`POPULOUS_BROWSER_SCENARIO=m2-pointer-f8 node scripts/tutorial-browser/run.mjs`
+selects an isolated diagnostic invocation of the same runner. The default
+`tutorial` selection retains all existing Tutorial, selector and scenery episodes,
+then appends M2 on the reviewed F8/picker composition. The isolated selection does
+not imply the default episodes passed. Unknown selections fail. No workflow is
+changed: the existing job invokes the default sequence.
+
+Node generates `createWorld(2)` from the exact checked-out source using the existing
+fixture loader. Its immutable structured checkpoint, source/Node/RNG identity and
+SHA256 are recorded. The JSON transport preserves typed-array buffers/offsets,
+Maps, Sets, special scalar values and shared references. The V8 copy is an additional
+local artifact; the JSON transfer/source receipts match the existing hosted artifact
+filter. Both checkpoint copies are hash-checked again after execution.
+
+Only disposable-context test setup seeds IndexedDB `latest`, verifies the completed
+transaction by full structured readback, then reloads Home and clicks public Load
+Game. A read-only synchronous store subscription verifies the entire loaded world
+against the exact-source restore/load migration result before normal RAF advances.
+This is imported test setup, not a user save or earned campaign-unlock evidence.
+
+A 45-second total scenario bound includes IDB admission and public Load, then
+ordinary Skip/Pause/F8/pointer/camera,
+resize and menu/resume inputs, including unchanged selection/order witnesses while
+paused, actual renderer/state, layout, overlay input transparency and reset checks.
+The aggregate browser bound stays 180 seconds; browser sandbox/config stay unchanged.
+No live world, camera, clock or selection mutation is injected. Seam crossing,
+hidden-tab behavior, hardware FPS, overhead and responsiveness remain unproven;
+this functional mode does not report performance acceptance.
+
+Activation budget: the initial PR533 hosted receipt measured 85.178 seconds for
+build plus all prior browser scenarios (Vite reported 1.41 seconds). Independent
+browser-phase timestamps were not recorded, so 85.178 seconds is a conservative
+observed browser upper bound, not an exact browser duration. Adding the M2 total
+45-second cap leaves about 49.8 seconds within the unchanged aggregate 180-second
+cap on that observed workload. This is feasibility planning, not a performance
+guarantee; the composed hosted run must actually pass without excluding episodes.
