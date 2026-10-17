@@ -33,6 +33,7 @@ test('ranks only disjoint callback stages and reports nearest-rank distributions
 test('preserves signed residual and excludes unmeasured pointer frames from summaries', () => {
   const value = report()
   value.frames[0].otherCallbackCpuMs = -2
+  value.frames[0].callbackCpuMs = 7
   value.frames[0].pointerBreakdown = null
   const result = summarize(value)
   assert.equal(result.pointerPhases[0].sampleCount, 2)
@@ -57,6 +58,16 @@ test('rejects unsupported schemas, units, invalid fields and inconsistent captur
     value => { value.frames[0].rafIntervalMs = 0 },
     value => { value.frames[1].timestampMs = 9 },
     value => { value.frames[0].state = 'unsupported' },
+    value => { value.frames[0].otherCallbackCpuMs = 123 },
+    value => { value.frames[0].sceneDrawCalls = 1.5 },
+    value => { value.frames[0].sceneDrawCalls = -1 },
+    value => { value.frames[0].pointerBreakdown.terrainPickCalls = 0.5 },
+    value => { value.frames[0].pointerBreakdown.objectPickCalls = -1 },
+    value => { value.frames[0].pointerBreakdown.objectCacheHits = 0.1 },
+    value => { value.frames[1].timestampMs = 10 },
+    value => { value.buildRevision = 'https://not-a-commit.example' },
+    value => { value.session = { level: 256 } },
+    value => { value.session = { level: 1.5 } },
   ]) {
     const value = report()
     mutate(value)
@@ -75,4 +86,33 @@ test('single-frame capture uses its RAF interval, not a zero timestamp differenc
   const result = summarize(value)
   assert.equal(result.capturedSpanMs, 10)
   assert.equal(result.raf.p50, 10)
+})
+
+test('accepts a production FpsGraph export contract fixture and exposes bounded provenance', async () => {
+  // Generated with FpsGraph.exportRecentFrames source from commit 194e914b
+  // from FramePerformance samples. Date/timeOrigin/userAgent normalized only.
+  // Supplied environment and timings are contract data, not a gameplay benchmark.
+  const { readFileSync } = await import('node:fs')
+  const json = readFileSync(new URL('./fixtures/frame-performance-export-v1.json', import.meta.url), 'utf8')
+  const result = analyzeFrameExport(json)
+  assert.equal(result.sampleCount, 2)
+  assert.equal(result.capturedSpanMs, 34)
+  assert.equal(result.level, 2)
+  assert.equal(result.buildRevision, 'unknown')
+  assert.equal(result.topCpuPhases[0].phase, 'pointerTooltipCpuMs')
+  const value = report()
+  value.buildRevision = '91a68d9e6add75b11caee0d04d83cc51d0520c56'
+  value.session = { level: 2, ignoredPrivateField: 'do not copy' }
+  const withProvenance = summarize(value)
+  assert.equal(withProvenance.buildRevision, value.buildRevision)
+  assert.equal(withProvenance.level, 2)
+  assert.ok(!JSON.stringify(withProvenance).includes('do not copy'))
+})
+
+test('accepts small floating-point residual roundoff without concealing signed values', () => {
+  const value = report()
+  value.frames[0].otherCallbackCpuMs += 1e-10
+  assert.doesNotThrow(() => summarize(value))
+  value.frames[0].otherCallbackCpuMs += 0.01
+  assert.throws(() => summarize(value), /remainder/)
 })

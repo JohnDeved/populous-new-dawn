@@ -85,13 +85,53 @@ export function analyzeFrameExport(json: string) {
     throw new Error('Invalid timing: frame count or capacity mismatch')
   for (const key of ['timeOriginUnixMs', 'startTimestampMs', 'endTimestampMs', 'capturedSpanMs'])
     finite(timing[key], `timing.${key}`, key === 'startTimestampMs' ? -Infinity : 0)
+  let buildRevision: string | null = null
+  if (report.buildRevision !== undefined) {
+    if (
+      typeof report.buildRevision !== 'string' ||
+      !/^(?:[a-fA-F0-9]{7,40}|unknown)$/.test(report.buildRevision)
+    )
+      throw new Error('Invalid buildRevision: expected a commit hash or unknown')
+    buildRevision = report.buildRevision
+  }
+  let level: number | null = null
+  if (report.session !== undefined) {
+    const session = object(report.session, 'session')
+    if (session.level !== undefined && session.level !== null) {
+      level = finite(session.level, 'session.level')
+      if (!Number.isSafeInteger(level) || level > 255) throw new Error('Invalid session.level')
+    }
+  }
   let previous = -Infinity
   const frames: Frame[] = report.frames.map((raw, index) => {
     const frame = object(raw, `frames[${index}]`)
     for (const key of FRAME_FIELDS)
       finite(frame[key], `frames[${index}].${key}`, key === 'otherCallbackCpuMs' ? -Infinity : 0)
-    if (frame.rafIntervalMs === 0 || (frame.timestampMs as number) < previous)
+    if (frame.rafIntervalMs === 0 || (frame.timestampMs as number) <= previous)
       throw new Error('Invalid frames: non-positive RAF interval or non-chronological timestamps')
+    const remainder =
+      (frame.callbackCpuMs as number) -
+      (frame.simulationCpuMs as number) -
+      (frame.sceneRenderCpuMs as number) -
+      (frame.pointerTooltipCpuMs as number)
+    const tolerance =
+      1e-6 +
+      Number.EPSILON *
+        8 *
+        Math.max(
+          Math.abs(remainder),
+          frame.callbackCpuMs as number,
+          frame.simulationCpuMs as number,
+          frame.sceneRenderCpuMs as number,
+          frame.pointerTooltipCpuMs as number
+        )
+    if (
+      !Number.isFinite(remainder) ||
+      Math.abs((frame.otherCallbackCpuMs as number) - remainder) > tolerance
+    )
+      throw new Error('Invalid otherCallbackCpuMs: inconsistent callback remainder')
+    if (!Number.isSafeInteger(frame.sceneDrawCalls))
+      throw new Error('Invalid sceneDrawCalls: expected an integer')
     previous = frame.timestampMs as number
     if (!['live', 'paused', 'menu', 'unknown'].includes(frame.state as string))
       throw new Error('Invalid frame state')
@@ -99,6 +139,9 @@ export function analyzeFrameExport(json: string) {
       const pointer = object(frame.pointerBreakdown, `frames[${index}].pointerBreakdown`)
       for (const key of POINTER_FIELDS)
         finite(pointer[key], `frames[${index}].pointerBreakdown.${key}`)
+      for (const key of ['terrainPickCalls', 'objectPickCalls', 'objectCacheHits'])
+        if (!Number.isSafeInteger(pointer[key]))
+          throw new Error(`Invalid ${key}: expected an integer`)
     }
     return frame as Frame
   })
@@ -139,6 +182,8 @@ export function analyzeFrameExport(json: string) {
       'Some frames lack pointer breakdowns; pointer summaries use only measured frames, not zero-filled samples.'
     )
   return {
+    buildRevision,
+    level,
     sampleCount: frames.length,
     startTimestampMs,
     endTimestampMs,
