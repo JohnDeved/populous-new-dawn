@@ -72,3 +72,33 @@ tree depletion/regrowth, native-executable equivalence or hardware performance.
 The scenario's own context closes before terminal acceptance, including late runtime
 errors; the runner hashes its source and retains its normal failure/cleanup receipts.
 No new workflow, browser-download route, permission or timeout increase is involved.
+
+## Selectable M2 pointer/F8 functional diagnostic
+
+`POPULOUS_BROWSER_SCENARIO=m2-pointer-f8 node scripts/tutorial-browser/run.mjs`
+selects a separate bounded functional invocation of the same runner. The default
+`tutorial` selection retains all existing Tutorial, selector and scenery episodes;
+M2 does not silently replace those checks or imply they passed. Unknown selections
+fail. No workflow is changed here: hosted selection/admission requires a reviewed
+invocation, and the M2 mode requires the reviewed F8/picker composition.
+
+Node generates `createWorld(2)` from the exact checked-out source using the existing
+fixture loader. Its immutable structured checkpoint, source/Node/RNG identity and
+SHA256 are recorded. The JSON transport preserves typed-array buffers/offsets,
+Maps, Sets, special scalar values and shared references. The V8 copy is an additional
+local artifact; the JSON transfer/source receipts match the existing hosted artifact
+filter. Both checkpoint copies are hash-checked again after execution.
+
+Only disposable-context test setup seeds IndexedDB `latest`, verifies the completed
+transaction by full structured readback, then reloads Home and clicks public Load
+Game. A read-only synchronous store subscription verifies the entire loaded world
+against the exact-source restore/load migration result before normal RAF advances.
+This is imported test setup, not a user save or earned campaign-unlock evidence.
+
+After ready Scene, a 45-second bound covers ordinary Skip/Pause/F8/pointer/camera,
+resize and menu/resume inputs, including unchanged selection/order witnesses while
+paused, actual renderer/state, layout, overlay input transparency and reset checks.
+The aggregate browser bound stays 180 seconds; browser sandbox/config stay unchanged.
+No live world, camera, clock or selection mutation is injected. Seam crossing,
+hidden-tab behavior, hardware FPS, overhead and responsiveness remain unproven;
+this functional mode does not report performance acceptance.
