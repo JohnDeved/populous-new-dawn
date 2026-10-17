@@ -22,8 +22,11 @@ Collision-heavy layouts or frequently queried cells may save little; extra branc
 cost time. No allocation or speed improvement has been measured. Profile percentages
 are not an achievable-speedup claim.
 
-The regression file pins the accepted git object's SHA-256 and extracts just its exact
-checkBuildingSite function. Explicit dependency boundaries observe snapshots, descriptor
+The regression file pins a small checked-in fixture containing only the exact accepted
+checkBuildingSite function. Its source is the baseline construction-runtime.ts git blob
+(SHA-256 2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653).
+The required ready-PR workflow currently checks out full history (fetch-depth: 0), but
+this test does not require Git history and also works in a source archive. Explicit dependency boundaries observe snapshots, descriptor
 order/independence and exceptions. Cases cover collisions, depleted trees, shrines,
 vault occupancy, stone filtering, late getter mutation, throws and validity short-circuit.
 This is not a native oracle, full-world equality gate or rendered placement test. No full

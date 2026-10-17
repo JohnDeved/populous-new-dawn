@@ -2,20 +2,19 @@
 // a claim of complete campaign/native equivalence. No copied runtime module.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { stripTypeScriptTypes } from 'node:module'
 import vm from 'node:vm'
 
-const base = '6cfb658d5cfaf42db86b70bbf82ef8af57735a5c'
-const original = execFileSync('git', ['show', `${base}:app/construction-runtime.ts`], {
-  cwd: new URL('../', import.meta.url), encoding: 'utf8',
-})
+// Exact function from accepted 6cfb658d5cfaf42db86b70bbf82ef8af57735a5c.
+// Fixture avoids adding a Git-history prerequisite to this test.
+const original = readFileSync(new URL('./fixtures/placement-check-site-original.ts.txt', import.meta.url), 'utf8')
 const candidate = readFileSync(new URL('../app/construction-runtime.ts', import.meta.url), 'utf8')
 function load(source, dependencies) {
   const start = source.indexOf('export function checkBuildingSite(')
-  const end = source.indexOf('\nexport function buildingPlanPose(', start)
+  const nextFunction = source.indexOf('\nexport function buildingPlanPose(', start)
+  const end = nextFunction < 0 ? source.length : nextFunction
   assert.ok(start >= 0 && end > start)
   return vm.runInNewContext(stripTypeScriptTypes(source.slice(start, end).replace('export ', '')) +
     '\ncheckBuildingSite', dependencies)
@@ -64,7 +63,7 @@ function compare(setup, options) {
 }
 
 test('oracle is the immutable accepted construction runtime', () => {
-  assert.equal(createHash('sha256').update(original).digest('hex'), '2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653')
+  assert.equal(createHash('sha256').update(original).digest('hex'), 'b4cbe2fce86b4273a93ee8361030298107f5db62c99e943c0a130236b5866ac4')
 })
 test('singleton cells, three-way collisions, dead trees and independent descriptors', () => {
   const result = compare(w => {

@@ -1,0 +1,80 @@
+export function checkBuildingSite(
+  w: World,
+  pose: BuildingShapePose,
+  model: number,
+  team: Team,
+  plan = 0
+) {
+  syncNativeTerrain(w)
+  syncLandscapeObjects(w)
+  const tribe = {
+    tribe: tribeForTeam(team),
+    playerType: w.manaTribes[tribeForTeam(team)].playerType,
+    flags: 0,
+  }
+  // ponytail: build a read-only cell view until all scenery and shrine classes
+  // share the world's native object index.
+  const land = { ...w.land, flags: w.land.flags.slice(), buildingIds: w.land.buildingIds.slice() }
+  const buildings = new Map(
+    w.buildings
+      .filter(b => b.hp > 0)
+      .map(b => [b.id & 1023, { model: buildingModel(b), tribe: tribeForTeam(b.team) }])
+  )
+  const scenery = new Map<number, { class: number; model: number }[]>()
+  const add = (p: NativePoint, model: number) => {
+    const i = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
+    const row = scenery.get(i) ?? []
+    row.push({ class: 5, model })
+    scenery.set(i, row)
+    land.flags[i] |= 2
+  }
+  for (const tree of w.trees) if (tree.logs > 0) add(nativePosition(w, tree), tree.model)
+  for (const shrine of w.shrines) {
+    if (shrine.kind !== 'vault') {
+      add(nativePosition(w, shrine), 9)
+      continue
+    }
+    const p = nativePosition(w, shrine),
+      id = shrine.id & 1023
+    buildings.set(id, { model: 18, tribe: 255 })
+    for (const i of buildingFootprintCells({
+      object: rules.buildingObjects[18],
+      angle: Math.round((shrine.angle * 1024) / Math.PI) & 2047,
+      anchorX: p.x & 0xfe00,
+      anchorY: p.y & 0xfe00,
+    })) {
+      land.flags[i] |= 512
+      land.buildingIds[i] = (land.buildingIds[i] & 0xfc00) | id
+    }
+  }
+  for (const team of campaignShamanTeams(w)) {
+    const center = campaignPosition(w, team)
+    for (const [index, stone] of reincarnationStones(land, nativePosition(w, center)).entries())
+      if (levelStartStoneExists(w.levelStart, tribeForTeam(team), index)) add(stone, 12)
+  }
+  const world = {
+    land,
+    // ponytail: the live first mission has no fog ownership; connect these
+    // original visibility gates when level loading owns the native fog flags.
+    landFlags: 0,
+    levelFlags: 0,
+    building: (id: number) => {
+      const b = buildings.get(id)
+      if (!b) throw new Error(`Missing placement object ${id}`)
+      return b
+    },
+    scenery: (i: number) => scenery.get(i) ?? [],
+  }
+  const valid = buildingFootprintTiles(pose).every(({ index, mask }) =>
+    buildingCellValid(
+      world,
+      tribe,
+      ((index & 127) << 1) | ((index >> 7) << 9),
+      mask,
+      model,
+      plan,
+      tribe.playerType === 1
+    )
+  )
+  return { valid, flags: tribe.flags }
+}
