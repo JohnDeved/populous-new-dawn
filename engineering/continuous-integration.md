@@ -13,9 +13,9 @@ native, rendered-browser or hardware-performance acceptance.
    requires typecheck, every discovered top-level test across four shards, parity and
    orchestration checks, and a production build of the exact synthetic candidate. Do not launch a duplicate local full gate while this
    one is pending; continue independent work in another branch or review/research.
-3. Repair failures with focused feedback and push. After review of the exact new
-   head, return an already-ready PR to draft and mark it ready once. A synchronize
-   event does not start this workflow. Never weaken assertions, omit test files or
+3. Repair failures with focused feedback and push. A new head on an already-ready
+   PR automatically starts verification. Review the exact new head before merge;
+   automatic CI admission is not review approval. Never weaken assertions, omit test files or
    regenerate reference evidence to obtain a pass.
 4. Before merging, verify the current reviewed PR head, current main base and exact
    tested merge match the successful check. Keep the run URL/attempt, source SHAs,
@@ -24,45 +24,39 @@ native, rendered-browser or hardware-performance acceptance.
 
 ## Events and draft behavior
 
-PRs targeting main trigger only on `ready_for_review`. Opening, reopening,
-synchronizing, converting to draft or retargeting a PR does not admit this
-workflow. There is no push trigger, path filter or dispatch path. The only job conditions are
-the aggregate’s `always()` dependency-failure guard and the activation-only
-diagnostic described below.
-The reviewed-candidate coordinator must issue one draft-to-ready transition after
-reviewing each exact candidate that lacks a matching full pass. This includes
-repairs, main refreshes and PRs opened or reopened already ready. Reuse an existing
-genuine pass when it exactly matches the reviewed head/base/merge; opening or
-reopening alone is not a reason to rerun it. New heads without a successful gate
-remain blocked by required checks; a missing run is not success.
+PRs targeting main trigger on `opened`, `synchronize`, `reopened` and
+`ready_for_review`. A ready PR therefore validates its initial head and subsequent
+pushed heads without a manual draft/ready toggle. There is no push trigger, path
+filter or dispatch path. Edits, conversion to draft and independent main movement
+do not start runs. Retargeting to main requires a subsequent supported event;
+update/rebase or make one draft-to-ready transition when needed.
 
-The strict readiness guard remains defense in depth. Only the boolean `false`
-permits the required `Full check` name and passes the guard. A missing/malformed
-value or the string `"false"` fails before checkout under `Draft PR (not validated)`.
-Normal draft activity now creates no Full-workflow run; the guard is not a separate
-draft-admission service. Every worker retains this guard. The aggregate uses `if: always()` with explicit
-success checks for both dependencies, so failed, cancelled, missing or skipped
-workers cannot manufacture a passing required check. A workflow-wide cancellation
-can cancel the aggregate too; cancellation is never accepted as success.
+Only a literal boolean `false` draft field admits quality/build, shards and the
+aggregate. Draft or malformed events skip these jobs before allocating runners;
+their aggregate is named `Draft PR (not validated)`, never required `Full check`.
+The strict first shell guard remains defense in depth in every gate job. A skipped
+draft suite is not validation and cannot be accepted as a full pass.
+For ready events, the aggregate retains `always()` and explicit success checks for
+both dependencies: failed, cancelled, missing or skipped workers cannot manufacture
+a passing required check. Workflow-wide cancellation may cancel the aggregate;
+cancellation is never accepted as success.
 
 Concurrency remains partitioned by workflow, PR number, event head, event base,
 proposed merge SHA and draft/ready lane. Duplicate ready events for the same
-candidate may supersede each other. Converting to draft does not cancel existing
-ready validation. Separate candidates can consume obsolete compute; the coordinator
-must avoid unnecessary transitions and never cancel current work during cleanup.
+candidate may supersede each other. A draft event cannot cancel ready validation,
+and different candidates cannot replace one another's pending run. This deliberately
+allows obsolete compute rather than risking cancellation of current work. Verify
+exact current head/base/merge identity before accepting any successful check.
 
-The earlier split-name pilot proved draft/ready cancellation isolation but failed
-newer-suite eligibility: a companion's non-required draft failure appeared in
-#502's rollup and the primary remained blocked despite a successful required Full
-check. Closing the companion did not restore eligibility. The precise internal
-blocking rule was not exposed. See the retained results and revised bounded pilot
-in [ci-event-race-pilot.md](ci-event-race-pilot.md). The trigger correction prevents
-new draft admissions; it does not retroactively repair that tested SHA or establish
-hosted success before its own pilot passes.
+The earlier split-name pilot recorded a same-head companion's non-required draft
+failure blocking the ready PR despite a successful Full check. This change skips
+rather than fails draft jobs, but local source tests cannot prove hosted check-suite
+selection. See [ci-event-race-pilot.md](ci-event-race-pilot.md) for retained evidence
+and the required bounded follow-up pilot. Until that pilot passes, do not claim
+that skipped companion suites preserve merge eligibility.
 
-Main moving independently does not start a run. Update/rebase the PR, review its
-new candidate, and transition it from draft to ready before accepting the new
-combined tree. Retargeting to main follows the same reviewed transition contract.
+Main moving independently does not start a run. Update/rebase the PR and review
+its new candidate; a ready PR's synchronize event then validates the combined tree.
 A future merge queue needs a separately reviewed `merge_group` trigger.
 
 ## Reproducible inputs

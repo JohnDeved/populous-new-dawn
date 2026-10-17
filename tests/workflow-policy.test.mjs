@@ -219,12 +219,12 @@ test('ready-PR sharded gate is exhaustive, fail-closed and least privilege', () 
   const workflow = read('.github/workflows/ready-pr-check.yml')
   assert.match(workflow, /^name: Ready PR checks$/m)
   assert.equal(workflow.match(/^on:\n([\s\S]*?)\n\n/m)?.[1],
-    '  pull_request:\n    branches: [main]\n    types: [ready_for_review]')
+    '  pull_request:\n    branches: [main]\n    types: [opened, synchronize, reopened, ready_for_review]')
   assert.match(workflow, /^permissions:\n {2}contents: read\n/m)
   assert.match(workflow, /^concurrency:\n {2}group: .+\n {2}cancel-in-progress: true$/m)
   assert.deepEqual([...workflow.matchAll(/^ {2}([a-z-]+):$/gm)].map(match => match[1]).filter(name => ['quality', 'test-shards', 'full-check'].includes(name)), ['quality', 'test-shards', 'full-check'])
-  assert.match(workflow, /needs: \[quality, test-shards\]\n {4}if: \$\{\{ always\(\) \}\}/)
-  assert.equal((workflow.match(/^\s*if:/gm) ?? []).length, 2)
+  assert.match(workflow, /needs: \[quality, test-shards\]\n {4}if: \$\{\{ always\(\) && toJSON\(github.event.pull_request.draft\) == 'false' \}\}/)
+  assert.equal((workflow.match(/^\s*if:/gm) ?? []).length, 4)
   assert.match(workflow, /fail-fast: false\n {6}max-parallel: 4/)
   assert.deepEqual([...workflow.matchAll(/- \{ index: (\d), label: (\d) \}/g)].map(match => [Number(match[1]), Number(match[2])]), [[0, 1], [1, 2], [2, 3], [3, 4]])
   assert.doesNotMatch(workflow, /^\s*(?:continue-on-error|paths|paths-ignore|push|pull_request_target|workflow_run|environment|secrets|run-id|github-token):/m)
@@ -253,6 +253,29 @@ test('ready-PR sharded gate is exhaustive, fail-closed and least privilege', () 
   const { checks } = JSON.parse(read('engineering/checks.json'))
   for (const id of ['orchestration-tests', 'repository-check'])
     assert.ok(checks.find(check => check.id === id).inputs.includes('.github/workflows/ready-pr-check.yml'))
+})
+
+test('ready head events run all gates; draft and malformed events skip without a required check name', () => {
+  const workflow = read('.github/workflows/ready-pr-check.yml')
+  const events = workflow.match(/types: \[([^\]]+)\]/)[1].split(', ')
+  assert.deepEqual(events, ['opened', 'synchronize', 'reopened', 'ready_for_review'])
+  // All three jobs require literal boolean false. The ready aggregate still runs
+  // after unsuccessful dependencies; its existing receipt/dependency checks fail.
+  for (const job of ['quality', 'test-shards', 'full-check']) {
+    const body = workflow.split(`  ${job}:\n`)[1].split(/\n  [a-z-]+:\n/)[0]
+    const expression = body.match(/^ {4}if: \$\{\{ (.+) \}\}$/m)?.[1]
+    assert.equal(expression, `${job === 'full-check' ? 'always() && ' : ''}toJSON(github.event.pull_request.draft) == 'false'`)
+  }
+  for (const event of events) {
+    for (const draft of [false, true, undefined, null, '', 'false', 0, [], {}]) {
+      const admitted = JSON.stringify(draft) === 'false'
+      assert.equal(admitted, draft === false, event)
+      assert.equal(admission(draft).name, admitted ? 'Full check' : 'Draft PR (not validated)', event)
+    }
+  }
+  // No converted-to-draft or edited trigger: neither cancels an existing ready
+  // candidate. A new head/base/merge receives its own concurrency lane below.
+  for (const excluded of ['converted_to_draft', 'edited', 'closed']) assert.ok(!events.includes(excluded))
 })
 
 test('draft readiness guard fails closed before checkout, installation or full tests', () => {
