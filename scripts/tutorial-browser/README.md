@@ -128,3 +128,25 @@ observed browser upper bound, not an exact browser duration. Adding the M2 total
 45-second cap leaves about 49.8 seconds within the unchanged aggregate 180-second
 cap on that observed workload. This is feasibility planning, not a performance
 guarantee; the composed hosted run must actually pass without excluding episodes.
+
+The bounded spell-projection episode uses a fresh public Mission 1 start, then
+public Pause/Resume/Pause around at least eight naturally advancing turns. It
+records scene/store/world identity, computer-tribe eligibility, living outside
+people, renderer details and comparable-view before/after screenshots. Test-only
+Chrome precise function coverage is reset while paused immediately before Resume.
+The browser script must match the emitted bundle byte for byte; the emitted source
+map must embed the exact app/computer-runtime.ts source. Each of the three own
+function declarations (stepComputerSpells, computerSpellWorld, computerSpellPerson)
+must map unambiguously to a positive call count. A nested callback, script root,
+stale source or missing map cannot substitute for that evidence. The existing
+production-mode fixture builder emits source maps without changing minification.
+Node's built-in SourceMap reader adds no dependency.
+
+The episode has a 35-second body bound inside the unchanged 180-second aggregate
+browser bound. Coverage and context cleanup are independently attempted. Retained
+spell-projection.json, spell-projection-coverage.json and screenshots bind this
+functional witness to the runner's source manifest and hashed built artifacts.
+Precise coverage changes optimized execution: these observations are not timing,
+FPS, GC, natural spell-firing, terrain-refresh rendering or native-equivalence
+acceptance. Paired baseline/candidate screenshots must retain exact source and turn
+identities; unequal final turns are not deterministic pixel-comparison evidence.
