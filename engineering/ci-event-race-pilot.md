@@ -102,3 +102,32 @@ required Full-check race; hosted acceptance remains pending for the trigger corr
 Primary semantics: [concurrency and pending replacement](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency),
 [expression context availability](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability),
 [required-check selection and skipped/neutral outcomes](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks).
+
+## Ready-head admission follow-up (source-only; hosted acceptance pending)
+
+The subsequent ready-head change replaces the manual toggle requirement with
+`opened`, `synchronize`, `reopened` and `ready_for_review` admission. Boolean-ready
+job conditions skip draft/malformed jobs, under the non-required draft aggregate
+name. It preserves the exact candidate/draft concurrency key and all shard,
+quality, receipt, permission and ready aggregate failure guards. The earlier
+ready-only correction and its evidence above remain historical, not proof of this
+new behavior. Draft events now create skipped suites, unlike the ready-only design.
+
+After source review and root allocation of the hosted full-check lane:
+
+1. Open a ready candidate or push a reviewed new head to an already-ready PR.
+   Confirm the actual event and exact head/base/merge, all four shards and quality
+   success, and required Full check receipt success on that candidate. Opening or
+   reopening ready is also supported; structural tests cover all four event types.
+2. Observe a root-approved same-head draft companion event. Confirm gate jobs are
+   skipped, no required Full check is manufactured, and the ready run is not
+   cancelled. Observe terminal check-suite associations and primary required-check
+   selection/merge eligibility. A skipped draft name alone is not sufficient.
+3. Preserve raw evidence and stop on candidate drift, unexpected execution,
+   cancellation, missing terminal evidence or unexplained BLOCKED eligibility.
+   Do not weaken protection, invent check results or repeatedly provoke events.
+
+Local bounded tests cover event types, strict boolean admission, cancellation key
+isolation, all dependency outcomes and unchanged receipt completeness. They cannot
+establish GitHub's scheduling or latest-suite selection. This proposal authorizes
+no pilot execution, push, merge, branch-protection change or auto-merge activation.

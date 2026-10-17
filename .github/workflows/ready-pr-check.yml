@@ -3,7 +3,7 @@ name: Ready PR checks
 on:
   pull_request:
     branches: [main]
-    types: [ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -25,6 +25,7 @@ env:
 
 jobs:
   quality:
+    if: ${{ toJSON(github.event.pull_request.draft) == 'false' }}
     name: Quality and build
     runs-on: ubuntu-24.04
     timeout-minutes: 120
@@ -96,6 +97,7 @@ jobs:
           retention-days: 7
 
   test-shards:
+    if: ${{ toJSON(github.event.pull_request.draft) == 'false' }}
     name: Test shard ${{ matrix.label }}/4
     runs-on: ubuntu-24.04
     timeout-minutes: 120
@@ -170,7 +172,7 @@ jobs:
     # A failed, skipped or cancelled dependency must still reach this gate.
     name: ${{ toJSON(github.event.pull_request.draft) == 'false' && 'Full check' || 'Draft PR (not validated)' }}
     needs: [quality, test-shards]
-    if: ${{ always() }}
+    if: ${{ always() && toJSON(github.event.pull_request.draft) == 'false' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
