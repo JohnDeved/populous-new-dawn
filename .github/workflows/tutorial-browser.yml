@@ -36,10 +36,14 @@ jobs:
           - scenario: tutorial
             name: Tutorial browser
             artifact: tutorial-browser
+            buildStep: Build plain production Home and validate Tutorial interactions
           - scenario: pause-checkpoint-recovery
             name: Pause checkpoint recovery browser
             artifact: pause-checkpoint-recovery-browser
+            buildStep: Build plain production Home and validate pause checkpoint recovery
     env:
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
       POPULOUS_BROWSER_SCENARIO: ${{ matrix.scenario }}
       CI: 'true'
       NODE_OPTIONS: ''
@@ -84,7 +88,7 @@ jobs:
           node --version
           npm --version
           sha256sum package-lock.json node_modules/playwright-core/browsers.json
-      - name: Build plain production Home and validate selected interactions
+      - name: ${{ matrix.buildStep }}
         run: node scripts/tutorial-browser/run.mjs
       - name: Reject tracked input mutation
         if: ${{ always() && steps.checkout.outcome == 'success' }}

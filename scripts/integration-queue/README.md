@@ -362,3 +362,39 @@ For every later PR, that job must be skipped with no executed steps. Keep the
 same reviewed activation pin in those entries while the diagnostic remains in the
 workflow. Omit the field only after a separately reviewed workflow cleanup removes
 the diagnostic. There is no implicit extra-job exemption.
+
+## Pause-recovery browser evidence policy
+
+Historical entries keep the original Tutorial-only gate. The reviewed two-episode
+workflow requires an explicit trusted allowlist `browserPolicy: "pause-recovery-v1"`;
+never infer or import this policy from candidate code. It keeps the original
+Tutorial job and mandatory step labels, then independently requires the named
+`Pause checkpoint recovery browser` job from the same current run/attempt, check
+suite, app, head/base/synthetic source and successful stages. Missing, skipped,
+canceled, duplicate or extra jobs fail closed. The current recovery check must
+also match the validated attempt, not merely an older green result.
+
+The runner emits a bounded checksummed recovery envelope after cleanup and source
+verification. The trusted reader checks its exact run/source identity, independently
+hashed Git inputs, all five scenario assertions, ten named viewport/DPR captures,
+official Chrome sandbox configuration, build/deadline result, unchanged dependencies
+and clean source/runtime state. Screenshot and full-receipt hashes remain available
+for artifact review; this structural gate does not itself interpret image pixels or
+claim native/hardware equivalence. Initial rendered acceptance still includes image
+inspection. The full-check/shard receipt parser is unchanged.
+
+For the first workflow transition, explicitly approve a separate
+`browserWorkflowTransition` with version 1, the Tutorial workflow path, exact
+`sourceHead` and `base`, old `baseSha256` and new `candidateSha256`; its candidate
+hash must equal `workflowHashes` and mechanical refresh must be false. A different
+head/base or missing workflow observation invalidates that transition. After merge,
+all workflow observations must match the new pinned hash. This field does not
+relax an existing Full-workflow transition.
+
+Before activation, the parent must independently review and pin the trusted reader
+changes (`policy.mjs`, `github.mjs`, new `pause-recovery.mjs`) outside the candidate
+checkout, update its trusted code manifest, and approve the new workflow hash and
+source-bound review/allowlist. Candidate receipt producer changes alone cannot
+activate or satisfy a trusted policy. Reuse no old authorization checkpoint after
+changing the allowlist. No branch protection, deployment, credentials or automatic
+candidate-policy installation is changed by this implementation.

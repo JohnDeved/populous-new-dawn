@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url'
 import { readFileSync, writeFileSync, readdirSync, lstatSync, statSync, existsSync, mkdirSync, symlinkSync, accessSync, constants } from 'node:fs'
 import assert from 'node:assert/strict'
 import { browserConfiguration } from './browser-config.mjs'
+import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
 const root = resolve(dirname(import.meta.filename), '../..')
 const fixture = resolve(dirname(import.meta.filename), 'fixture')
 const out = resolve(process.argv[2] || resolve(root, 'outputs/tutorial-browser'))
@@ -108,6 +109,7 @@ try {
   server = await preview({ configFile: false, root: fixture, build: { outDir: dist }, preview: { host: '127.0.0.1', port, strictPort: true } })
   browser = await chromium.launch(browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
+  receipt.browserCapMs = 180000
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, 180000)
   context = await browser.newContext({ viewport: { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
@@ -149,5 +151,8 @@ try {
   receipt.dependencyChanges = Object.keys({ ...before, ...after }).filter(key => JSON.stringify(before[key]) !== JSON.stringify(after[key]))
   receipt.dependenciesAfterSha256 = createHash('sha256').update(JSON.stringify(after)).digest('hex')
   if (receipt.dependencyChanges.length) { receipt.status = 'failed'; process.exitCode = 1 }
-  receipt.endedAt = new Date().toISOString(); save(); console.log(JSON.stringify({ status: receipt.status, failure: receipt.failure, cleanupVerified: receipt.cleanupVerified, output: out }))
+  receipt.endedAt = new Date().toISOString(); save()
+  if (selectedScenario === 'pause-checkpoint-recovery' && receipt.status === 'passed')
+    console.log(recoveryReceiptLog(recoveryReceipt(receipt, out)))
+  console.log(JSON.stringify({ status: receipt.status, failure: receipt.failure, cleanupVerified: receipt.cleanupVerified, output: out }))
 }

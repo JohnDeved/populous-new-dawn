@@ -66,6 +66,15 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
   )
   assert.match(workflow, /POPULOUS_BROWSER_SCENARIO: \$\{\{ matrix\.scenario \}\}/)
   assert.match(workflow, /name: \$\{\{ matrix\.artifact \}\}-\$\{\{ github\.sha \}\}/)
+  assert.match(
+    workflow,
+    /buildStep: Build plain production Home and validate Tutorial interactions/
+  )
+  assert.match(
+    workflow,
+    /buildStep: Build plain production Home and validate pause checkpoint recovery/
+  )
+  assert.match(workflow, /name: \$\{\{ matrix\.buildStep \}\}/)
   assert.match(workflow, /timeout-minutes: 15/)
   assert.match(workflow, /fail-fast: false/)
   assert.match(workflow, /scripts\/local-render\/original-pause-checkpoint-recovery\.mjs/)
