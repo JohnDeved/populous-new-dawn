@@ -1,0 +1,258 @@
+{
+  "redactions": [
+    "absolute source root",
+    "user home prefix"
+  ],
+  "files": [
+    {
+      "path": "outputs/options-readiness-baseline-01/frontend-none.png",
+      "originalSha256": "96bcfaf5d47407d1c9d598b7f3b24132b63b7f1445eeb2b5decbadcc916a9267",
+      "retainedSha256": "96bcfaf5d47407d1c9d598b7f3b24132b63b7f1445eeb2b5decbadcc916a9267"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-01/options-readiness.json",
+      "originalSha256": "66f7547fb71c2353bfd0af79a688d3a889c9369d7ddfc5569f5158b6deb2d7ac",
+      "retainedSha256": "66f7547fb71c2353bfd0af79a688d3a889c9369d7ddfc5569f5158b6deb2d7ac"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-01/failure.png",
+      "originalSha256": "6f58a1804601b404723b3367b2419b62865ecba6c521cf430ce5977004f2074a",
+      "retainedSha256": "6f58a1804601b404723b3367b2419b62865ecba6c521cf430ce5977004f2074a"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-01/receipt.json",
+      "originalSha256": "82df6009ab6dd523f5e3da77ca36673928c562b80d3c17f872ae204f1b1ba0ce",
+      "retainedSha256": "38688a8e407383508dc50c95f9883f9184bb0380857140660d486fc603801bad"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-01/build.log",
+      "originalSha256": "8b5d6f3bde95955292d11f6be5e661a3cce6eb1187df9bf793668ef3151ad64b",
+      "retainedSha256": "8b5d6f3bde95955292d11f6be5e661a3cce6eb1187df9bf793668ef3151ad64b"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-02/frontend-none.png",
+      "originalSha256": "96bcfaf5d47407d1c9d598b7f3b24132b63b7f1445eeb2b5decbadcc916a9267",
+      "retainedSha256": "96bcfaf5d47407d1c9d598b7f3b24132b63b7f1445eeb2b5decbadcc916a9267"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-02/options-readiness.json",
+      "originalSha256": "66f7547fb71c2353bfd0af79a688d3a889c9369d7ddfc5569f5158b6deb2d7ac",
+      "retainedSha256": "66f7547fb71c2353bfd0af79a688d3a889c9369d7ddfc5569f5158b6deb2d7ac"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-02/failure.png",
+      "originalSha256": "9bc8570c20b06631cd961b74051be937b7e861d3bc36a6742c8feb0ee9a7cac8",
+      "retainedSha256": "9bc8570c20b06631cd961b74051be937b7e861d3bc36a6742c8feb0ee9a7cac8"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-02/receipt.json",
+      "originalSha256": "81b6aa45857583e5eb94e1048e7d615266e6c74bc62147da9953de75e8c98fe8",
+      "retainedSha256": "ce4c0d42e654312d871d01910d84ed4a13ffde377cf7d9db30d88ab66de6847a"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-02/build.log",
+      "originalSha256": "d0deea9f87b43bbeb1b222b25aed3424a1b4ddef8651c2d0762617aa2d7cda65",
+      "retainedSha256": "d0deea9f87b43bbeb1b222b25aed3424a1b4ddef8651c2d0762617aa2d7cda65"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/ingame-none.png",
+      "originalSha256": "ffb267a654719bb93059b6e5c80d1de0494e50109d6c084f7b0211fad0e8200d",
+      "retainedSha256": "ffb267a654719bb93059b6e5c80d1de0494e50109d6c084f7b0211fad0e8200d"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/frontend-none.png",
+      "originalSha256": "96bcfaf5d47407d1c9d598b7f3b24132b63b7f1445eeb2b5decbadcc916a9267",
+      "retainedSha256": "96bcfaf5d47407d1c9d598b7f3b24132b63b7f1445eeb2b5decbadcc916a9267"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/ingame-font-normal.png",
+      "originalSha256": "76560bcd2589fbecb735e4fb3da05772ce54fe6f88cf0bdf4b2e267057f7c806",
+      "retainedSha256": "76560bcd2589fbecb735e4fb3da05772ce54fe6f88cf0bdf4b2e267057f7c806"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/frontend-font-highlight.png",
+      "originalSha256": "ee55f784af8339d19a074d9c0b011b23b9c021906b9ce6eb555fad467c202dee",
+      "retainedSha256": "ee55f784af8339d19a074d9c0b011b23b9c021906b9ce6eb555fad467c202dee"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/frontend-font-low.png",
+      "originalSha256": "7dcd6e93a99b9c7ac05d093918614cfc50095a2f7445da139ecf2758b88a7be4",
+      "retainedSha256": "7dcd6e93a99b9c7ac05d093918614cfc50095a2f7445da139ecf2758b88a7be4"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/options-readiness.json",
+      "originalSha256": "3b8b7dd858b029c5ba0ff64e248738f06e680de9fbd3a9bc4159bd4dd9e07262",
+      "retainedSha256": "3b8b7dd858b029c5ba0ff64e248738f06e680de9fbd3a9bc4159bd4dd9e07262"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/frontend-slider-2.png",
+      "originalSha256": "7dcd6e93a99b9c7ac05d093918614cfc50095a2f7445da139ecf2758b88a7be4",
+      "retainedSha256": "7dcd6e93a99b9c7ac05d093918614cfc50095a2f7445da139ecf2758b88a7be4"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/frontend-slider-1.png",
+      "originalSha256": "7dcd6e93a99b9c7ac05d093918614cfc50095a2f7445da139ecf2758b88a7be4",
+      "retainedSha256": "7dcd6e93a99b9c7ac05d093918614cfc50095a2f7445da139ecf2758b88a7be4"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/frontend-slider-0.png",
+      "originalSha256": "7dcd6e93a99b9c7ac05d093918614cfc50095a2f7445da139ecf2758b88a7be4",
+      "retainedSha256": "7dcd6e93a99b9c7ac05d093918614cfc50095a2f7445da139ecf2758b88a7be4"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/frontend-font-normal.png",
+      "originalSha256": "ee55f784af8339d19a074d9c0b011b23b9c021906b9ce6eb555fad467c202dee",
+      "retainedSha256": "ee55f784af8339d19a074d9c0b011b23b9c021906b9ce6eb555fad467c202dee"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/ingame-slider-2.png",
+      "originalSha256": "76560bcd2589fbecb735e4fb3da05772ce54fe6f88cf0bdf4b2e267057f7c806",
+      "retainedSha256": "76560bcd2589fbecb735e4fb3da05772ce54fe6f88cf0bdf4b2e267057f7c806"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/ingame-slider-0.png",
+      "originalSha256": "76560bcd2589fbecb735e4fb3da05772ce54fe6f88cf0bdf4b2e267057f7c806",
+      "retainedSha256": "76560bcd2589fbecb735e4fb3da05772ce54fe6f88cf0bdf4b2e267057f7c806"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/receipt.json",
+      "originalSha256": "905edc5249f4e7ee641c49d6614be6ff5b30a8f43dac5e52d17e1cd5db4a0ef5",
+      "retainedSha256": "2ebb6ff1601480a56ac033571286b15e56f502ef97dad0b5ed728739016ebb9d"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/ingame-slider-1.png",
+      "originalSha256": "76560bcd2589fbecb735e4fb3da05772ce54fe6f88cf0bdf4b2e267057f7c806",
+      "retainedSha256": "76560bcd2589fbecb735e4fb3da05772ce54fe6f88cf0bdf4b2e267057f7c806"
+    },
+    {
+      "path": "outputs/options-readiness-baseline-03/build.log",
+      "originalSha256": "c800f856936e0821f19e6e692b20f578d5d33c0c544485a47397d6a5ff062e28",
+      "retainedSha256": "c800f856936e0821f19e6e692b20f578d5d33c0c544485a47397d6a5ff062e28"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/ingame-none.png",
+      "originalSha256": "ffb267a654719bb93059b6e5c80d1de0494e50109d6c084f7b0211fad0e8200d",
+      "retainedSha256": "ffb267a654719bb93059b6e5c80d1de0494e50109d6c084f7b0211fad0e8200d"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/frontend-none.png",
+      "originalSha256": "96bcfaf5d47407d1c9d598b7f3b24132b63b7f1445eeb2b5decbadcc916a9267",
+      "retainedSha256": "96bcfaf5d47407d1c9d598b7f3b24132b63b7f1445eeb2b5decbadcc916a9267"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/ingame-font-normal.png",
+      "originalSha256": "ce38c68c77a51959fcc92a96829c0ebae7848da475941a22b2519e222fa232f3",
+      "retainedSha256": "ce38c68c77a51959fcc92a96829c0ebae7848da475941a22b2519e222fa232f3"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/frontend-font-highlight.png",
+      "originalSha256": "91e37fb61377e3c5eb38abafa8a76a02e0a6a29f3ac15cd3b66244b4a7cb774e",
+      "retainedSha256": "91e37fb61377e3c5eb38abafa8a76a02e0a6a29f3ac15cd3b66244b4a7cb774e"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/frontend-font-low.png",
+      "originalSha256": "a73db3246c48d284945a98ef36ead2d92bf3c5e93654dc87173648183f748852",
+      "retainedSha256": "a73db3246c48d284945a98ef36ead2d92bf3c5e93654dc87173648183f748852"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/options-readiness.json",
+      "originalSha256": "d92889102b69ae3435846d9a4429703c5bf1b3acc7c89b3623a0b7303bc6d75f",
+      "retainedSha256": "d92889102b69ae3435846d9a4429703c5bf1b3acc7c89b3623a0b7303bc6d75f"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/frontend-slider-2.png",
+      "originalSha256": "752620c787afbd045b0670c86736427a52538d49e42bfddb5d2ff1808d2fdc1d",
+      "retainedSha256": "752620c787afbd045b0670c86736427a52538d49e42bfddb5d2ff1808d2fdc1d"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/frontend-slider-1.png",
+      "originalSha256": "752620c787afbd045b0670c86736427a52538d49e42bfddb5d2ff1808d2fdc1d",
+      "retainedSha256": "752620c787afbd045b0670c86736427a52538d49e42bfddb5d2ff1808d2fdc1d"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/frontend-slider-0.png",
+      "originalSha256": "752620c787afbd045b0670c86736427a52538d49e42bfddb5d2ff1808d2fdc1d",
+      "retainedSha256": "752620c787afbd045b0670c86736427a52538d49e42bfddb5d2ff1808d2fdc1d"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/frontend-font-normal.png",
+      "originalSha256": "91e37fb61377e3c5eb38abafa8a76a02e0a6a29f3ac15cd3b66244b4a7cb774e",
+      "retainedSha256": "91e37fb61377e3c5eb38abafa8a76a02e0a6a29f3ac15cd3b66244b4a7cb774e"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/ingame-slider-2.png",
+      "originalSha256": "cbf393e10b67268bf4bf662e82471684d1cfb3105cd2c2077581466488ee90f3",
+      "retainedSha256": "cbf393e10b67268bf4bf662e82471684d1cfb3105cd2c2077581466488ee90f3"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/ingame-slider-0.png",
+      "originalSha256": "cbf393e10b67268bf4bf662e82471684d1cfb3105cd2c2077581466488ee90f3",
+      "retainedSha256": "cbf393e10b67268bf4bf662e82471684d1cfb3105cd2c2077581466488ee90f3"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/receipt.json",
+      "originalSha256": "4e3528088d2c0f06e85c21a17888f4fe05dc8aaf5f48e0c6799f42b47db80a14",
+      "retainedSha256": "b7dcca989d4bb70e1efb98a72cbea769d9907c936ff3a41778baeee43d5b4062"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/ingame-slider-1.png",
+      "originalSha256": "cbf393e10b67268bf4bf662e82471684d1cfb3105cd2c2077581466488ee90f3",
+      "retainedSha256": "cbf393e10b67268bf4bf662e82471684d1cfb3105cd2c2077581466488ee90f3"
+    },
+    {
+      "path": "outputs/options-readiness-candidate-01/build.log",
+      "originalSha256": "a95d5f18db192b4446bf139ffc036d1ad076f3234ca2fb4e4a2a0b1cce7f585b",
+      "retainedSha256": "a95d5f18db192b4446bf139ffc036d1ad076f3234ca2fb4e4a2a0b1cce7f585b"
+    },
+    {
+      "path": "work/orchestration/options-readiness/scenario.mjs",
+      "originalSha256": "44000ce01698db94ec7954aea3cb8f098ace2e11cfd000d9bf493da9b554db35",
+      "retainedSha256": "44000ce01698db94ec7954aea3cb8f098ace2e11cfd000d9bf493da9b554db35"
+    },
+    {
+      "path": "work/orchestration/options-readiness/scenario-baseline-01.mjs",
+      "originalSha256": "0666793b2e800b8dd7c8df7da8e633c9efa826a38cb7789ce613fb6318938f28",
+      "retainedSha256": "0666793b2e800b8dd7c8df7da8e633c9efa826a38cb7789ce613fb6318938f28"
+    },
+    {
+      "path": "work/orchestration/options-readiness/scenario-baseline-02.mjs",
+      "originalSha256": "fe89c3f370a47e1ec7a68656406763666a30852c415b190b04ecdb3c53ebad3a",
+      "retainedSha256": "fe89c3f370a47e1ec7a68656406763666a30852c415b190b04ecdb3c53ebad3a"
+    },
+    {
+      "path": "work/orchestration/options-readiness/run-browser.mjs",
+      "originalSha256": "6f139f3bf147be2f115ceeb1b00d830d36f8fc3037b0ef24c1aed75791be24ad",
+      "retainedSha256": "6f139f3bf147be2f115ceeb1b00d830d36f8fc3037b0ef24c1aed75791be24ad"
+    },
+    {
+      "path": "work/orchestration/options-readiness/focused-baseline.log",
+      "originalSha256": "237908aa4a290e6216d8ec57fd96ed515f331a9355797a95c635b913669b2054",
+      "retainedSha256": "034f6d821649cb18c5883b702001be6afdd59b07efeb88716acf0b1c0e371e7c"
+    },
+    {
+      "path": "work/orchestration/options-readiness/baseline-binding.json",
+      "originalSha256": "6634ab520170c5fbb58dbd7710473d0870f7e51aeca1100b8c58693c03b05af9",
+      "retainedSha256": "6634ab520170c5fbb58dbd7710473d0870f7e51aeca1100b8c58693c03b05af9"
+    },
+    {
+      "path": "work/orchestration/options-readiness/focused-candidate-01.log",
+      "originalSha256": "ba4a887edc4ecf0f4963d597368a3172ec2b4c0dd1335547e0e0fd26ddd808ae",
+      "retainedSha256": "ba4a887edc4ecf0f4963d597368a3172ec2b4c0dd1335547e0e0fd26ddd808ae"
+    },
+    {
+      "path": "work/orchestration/options-readiness/focused-candidate-02.json",
+      "originalSha256": "8cf9483ab206b7f42560099071aff067f941b0bdda6ecffb34d45081b0f473f3",
+      "retainedSha256": "a62c464087ea3ae18ea06f374050973dd9125fe034c67eb408a64d733a708eff"
+    },
+    {
+      "path": "work/orchestration/options-readiness/check-plan.json",
+      "originalSha256": "59553f4d1742890d75305411b0d156623af6da447bdbd0f35c7e4e9b95654999",
+      "retainedSha256": "59553f4d1742890d75305411b0d156623af6da447bdbd0f35c7e4e9b95654999"
+    },
+    {
+      "path": "work/orchestration/options-readiness/all-success-pixels.json",
+      "originalSha256": "3c728d576db58c515eeb858c3e1b75780ff8e6d30dc85fe0a62d8333b2604a13",
+      "retainedSha256": "3c728d576db58c515eeb858c3e1b75780ff8e6d30dc85fe0a62d8333b2604a13"
+    }
+  ]
+}
