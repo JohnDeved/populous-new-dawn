@@ -119,7 +119,7 @@ export class GitHubReader {
     )
     const bytes = Buffer.from(blob.content, 'base64')
     const profileRecoveryRequired = path === GATES[1].workflow &&
-      /^  profile-recovery-browser:[ \t]*$/m.test(bytes.toString('utf8'))
+      /^ {2}profile-recovery-browser:[ \t]*$/m.test(bytes.toString('utf8'))
     return { path, ref, sha256: sha256(bytes), ...(profileRecoveryRequired ? { profileRecoveryRequired: true } : {}) }
   }
   refresh(entry, head, base) {
