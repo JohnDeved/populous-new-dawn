@@ -893,7 +893,9 @@ export class GameScene {
     this.updateEffectsFrame()
     this.updateShrinesFrame()
     const spec = SPELLS.find(s => s.id === this.world.mode)
+    const pointerStart = diagnostic ? performance.now() : 0
     this.updatePointerFrame(now)
+    const pointerMs = diagnostic ? performance.now() - pointerStart : 0
     let hovered: Parameters<typeof renderSceneFrame>[1] =
       this.hoveredObject === null ? null : worldTooltipObject(this.world, this.hoveredObject)
     if (!hovered && this.hoveredObject !== null) {
@@ -920,7 +922,8 @@ export class GameScene {
       renderMs,
       this.renderer.info.render.calls,
       this.world.paused ? 'Paused · rendering' : 'Live',
-      performance.now() - callbackStart
+      performance.now() - callbackStart,
+      pointerMs
     )
   }
   private updateTerrainFrame() {
