@@ -5,9 +5,9 @@ import test from 'node:test'
 const read = name => readFileSync(new URL(`../.github/workflows/${name}`, import.meta.url), 'utf8')
 const activityTypes = source => {
   const admission = source.slice(source.indexOf('\non:\n'), source.indexOf('\npermissions:\n'))
-  assert.match(admission, /\n  pull_request:\n/)
+  assert.match(admission, /\n {2}pull_request:\n/)
   assert.match(admission, /branches: \[main\]/)
-  assert.doesNotMatch(admission, /pull_request_target|workflow_dispatch|workflow_run|\n  push:/)
+  assert.doesNotMatch(admission, /pull_request_target|workflow_dispatch|workflow_run|\n {2}push:/)
   const types = admission.match(/types: \[([^\]]+)\]/)
   assert.ok(types, 'Explicit activity types prevent implicit opened/synchronize admission')
   return types[1].split(',').map(value => value.trim())
@@ -37,8 +37,8 @@ test('Tutorial preserves exact merge, runtime readiness defense and validation, 
   assert.doesNotMatch(source, /Full check|continue-on-error|exit 0/)
   const jobs = source.slice(source.indexOf('\njobs:\n'))
   // No job-level draft skip: non-ready events are excluded before creating a run.
-  for (const header of jobs.split(/\n  [a-z][a-z0-9-]*:\n/).slice(1))
-    assert.doesNotMatch(header.slice(0, header.indexOf('    steps:')), /^    if:/m)
+  for (const header of jobs.split(/\n {2}[a-z][a-z0-9-]*:\n/).slice(1))
+    assert.doesNotMatch(header.slice(0, header.indexOf('    steps:')), /^ {4}if:/m)
 })
 
 test('required Full gate remains unconditional after dependencies and rejects skipped workers', () => {
