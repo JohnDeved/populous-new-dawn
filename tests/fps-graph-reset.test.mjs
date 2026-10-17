@@ -18,7 +18,7 @@ function fixture() {
   Object.assign(graph, {
     cleared: false, previous: null, samples: new FramePerformance(),
     fields: Object.fromEntries(['state', 'fps', 'frame', 'peak', 'callback', 'simulation',
-      'render', 'calls', 'heap', 'scale', 'pointer', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak'].map(name => [name, sink(name)])),
+      'render', 'calls', 'heap', 'scale', 'pointer', 'pointer-tail', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak'].map(name => [name, sink(name)])),
     line: sink('line'), budget: sink('budget'),
   })
   const update = now => graph.update(now, 1, 2, 3, 'Live', 4)
@@ -37,7 +37,7 @@ test('actual graph repeated cleared resets avoid writes but preserve changed vis
     assert.equal(graph.samples[key], 0, key)
   assert.equal(graph.line.attributes.get('points'), '')
   assert.equal(graph.budget.attributes.get('d'), '')
-  for (const key of ['fps', 'frame', 'peak', 'simulation', 'render', 'calls', 'callback', 'pointer', 'other', 'raf-tail', 'cpu-tail', 'cpu-peak'])
+  for (const key of ['fps', 'frame', 'peak', 'simulation', 'render', 'calls', 'callback', 'pointer', 'pointer-tail', 'other', 'raf-tail', 'cpu-tail', 'cpu-peak'])
     assert.equal(graph.fields[key].textContent, '--', key)
   assert.equal(graph.fields.window.textContent, '0 samples')
   assert.equal(graph.samples.callbackPercentiles.max, 0)
@@ -89,6 +89,8 @@ test('short landscape layout preserves noninteractive diagnostics without changi
   const graph = readFileSync(new URL('../app/fps-graph.ts', import.meta.url), 'utf8')
   const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
   assert.match(graph, /class="fps-primary"/)
+  assert.match(graph, /Pointer p95 \/ peak · ≤240f/)
+  assert.ok(graph.indexOf('data-metric="pointer-tail"') < graph.indexOf('class="fps-secondary"'), 'Tail row uses primary column, not the already taller export column')
   assert.match(graph, /class="fps-secondary"/)
   assert.match(css, /\.fps-primary,\.fps-secondary\{display:contents\}/)
   const compact = css.slice(css.indexOf('@media (max-height:800px) and (min-width:560px)'), css.indexOf('.native-hud{'))
@@ -96,8 +98,20 @@ test('short landscape layout preserves noninteractive diagnostics without changi
   assert.match(compact, /max-width:calc\(100% - 16px\)/)
   assert.doesNotMatch(compact, /display:none|overflow:|transform:|font-size:|pointer-events:/)
   assert.match(css, /\.fps-graph\{[^}]*pointer-events:none/)
-  for (const metric of ['callback', 'pointer', 'other', 'raf-tail', 'cpu-tail', 'cpu-peak', 'renderer', 'cores', 'memory', 'heap'])
+  for (const metric of ['callback', 'pointer', 'pointer-tail', 'other', 'raf-tail', 'cpu-tail', 'cpu-peak', 'renderer', 'cores', 'memory', 'heap'])
     assert.match(graph, new RegExp(`data-metric="${metric}"`))
   assert.match(graph, /GPU not measured/)
   assert.match(graph, /not presented FPS/)
+})
+
+
+test('pointer tails expose spikes separately from the mean and clear on reset', () => {
+  const { graph } = fixture()
+  graph.update(0, 0, 0, 1, 'Live', 40, 0)
+  for (let i = 1; i <= 25; i++) graph.update(i * 10, 0, 0, 1, 'Live', 40, i === 25 ? 30.3 : 5)
+  assert.equal(graph.fields.pointer.textContent, '6.01 ms')
+  assert.equal(graph.fields['pointer-tail'].textContent, '5.0 / 30.3 ms')
+  graph.reset('Hidden tab · sampling stopped')
+  assert.equal(graph.fields['pointer-tail'].textContent, '--')
+  assert.equal(graph.samples.pointerPercentiles.max, 0)
 })

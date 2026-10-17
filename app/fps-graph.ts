@@ -40,6 +40,7 @@ export class FpsGraph {
         <div><dt>Simulation CPU</dt><dd data-metric="simulation">--</dd></div>
         <div><dt>Scene render CPU</dt><dd data-metric="render">--</dd></div>
         <div title="updatePointerFrame only: pointer targeting, spell halo and tooltip publishing, including their nested picks. Other HUD and event-handler picking is not included."><dt>Pointer + tooltip CPU</dt><dd data-metric="pointer">--</dd></div>
+        <div title="Nearest-rank p95 and maximum pointer/tooltip CPU over the last up to 240 accepted frames, published with the other readouts. Not the short-window mean."><dt>Pointer p95 / peak · ≤240f</dt><dd data-metric="pointer-tail">--</dd></div>
         <div title="Callback minus simulation, scene render and pointer/tooltip stages. Other callback work, not idle time. A negative value signals inconsistent measurement ownership."><dt>Other callback CPU</dt><dd data-metric="other">--</dd></div>
         <div><dt>Scene draw calls / frame</dt><dd data-metric="calls">--</dd></div>
       </dl>
@@ -194,6 +195,7 @@ export class FpsGraph {
       'calls',
       'callback',
       'pointer',
+      'pointer-tail',
       'other',
       'raf-tail',
       'cpu-tail',
@@ -257,6 +259,10 @@ export class FpsGraph {
     this.text('render', `${samples.renderMs.toFixed(2)} ms`)
     this.text('calls', samples.drawCalls.toFixed(0))
     this.text('pointer', `${samples.pointerMs.toFixed(2)} ms`)
+    this.text(
+      'pointer-tail',
+      `${samples.pointerPercentiles.p95.toFixed(1)} / ${samples.pointerPercentiles.max.toFixed(1)} ms`
+    )
     const other = Number(samples.otherMs.toFixed(2))
     this.text('other', `${other.toFixed(2)} ms${other < 0 ? ' !' : ''}`)
     this.text('window', `${samples.count} / 240 samples`)

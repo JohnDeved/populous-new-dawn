@@ -462,3 +462,27 @@ test('export control focus releases held gameplay keys and stale edge navigation
   assert.equal(scene.keys.size, 0, 'release cannot be stranded by stopped keyup on focused button')
   assert.equal(JSON.stringify(scene.world), worldBefore)
 })
+
+
+test('pointer percentiles use fixed bounded storage, nearest rank and reset partial windows', () => {
+  const sample = new FramePerformance()
+  const history = sample.pointerHistory
+  const summary = sample.pointerPercentiles
+  for (let i = 1; i <= 240; i++) sample.sample(250, 0, 0, 0, i, i)
+  assert.equal(summary.p95, 228)
+  assert.equal(summary.max, 240)
+  for (let i = 0; i < 240; i++) sample.sample(250, 0, 0, 0, 3, 3)
+  assert.equal(summary.p95, 3)
+  assert.equal(summary.max, 3, 'Old spikes leave the 240-frame ring')
+  assert.equal(sample.pointerHistory, history)
+  assert.equal(sample.pointerPercentiles, summary)
+  assert.equal(history.length, 240)
+  sample.sample(250, 0, 0, 0, 100, NaN)
+  assert.equal(summary.max, 3, 'Rejected pointer samples do not poison tails')
+  sample.reset()
+  assert.equal(summary.max, 0)
+  sample.sample(250, 0, 0, 0, 8, 8)
+  assert.equal(summary.p95, 8)
+  assert.equal(summary.max, 8, 'Partial window cannot expose stale ring values')
+  assert.equal(sample.pointerHistory, history)
+})
