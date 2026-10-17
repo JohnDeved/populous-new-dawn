@@ -9,6 +9,7 @@ import { effect, sound } from './world-effects.ts'
 import { applyUnitDamage } from './combat-runtime.ts'
 import { damageBuilding, ensureBuildingDamage } from './building-damage.ts'
 import { TURNS_PER_SECOND } from './world-rules.ts'
+import { stepFirewarriorPoint } from './firewarrior-point.ts'
 import { automaticTowerFirewarriorTarget } from './live-combat.ts'
 import { engagementRange } from './melee-engagement.ts'
 import constants from './original-constants.json' with { type: 'json' }
@@ -95,6 +96,10 @@ export const towerFirewarriorReady = (w: World, source: Unit, target: Unit) =>
 
 export function stepFirewarriorShots(w: World) {
   for (const fx of w.effects.filter(effect => effect.firewarriorShot)) {
+    if (fx.firewarriorShot!.point) {
+      stepFirewarriorPoint(w, fx, nativePosition(w, fx), { effect, sound })
+      continue
+    }
     const shot = fx.firewarriorShot!,
       unit = w.units.find(unit => unit.id === shot.target && unit.hp > 0),
       building = w.buildings.find(building => building.id === shot.target && building.hp > 0),
@@ -115,7 +120,11 @@ export function stepFirewarriorShots(w: World) {
       // ponytail: this slice proves the ordinary Brave result. Add the native
       // target table, splash, protection, and LOS as those live paths land.
       const source = w.units.find(unit => unit.id === shot.source && unit.hp > 0),
+        // Older in-flight checkpoints may omit the marker; retain their unit
+        // impact behavior. Every current launch explicitly identifies its side.
+        ownsImpact = shot.impact !== false,
         damaged =
+          ownsImpact &&
           unit &&
           applyUnitDamage(
             unit,
@@ -144,7 +153,7 @@ export function stepFirewarriorShots(w: World) {
         w.attackCell = context.attackCell
         context.tribes.forEach((tribe, i) => (w.manaTribes[i].flags2 = tribe.flags))
       }
-      if (target) effect(w, 'hit', target)
+      if (target && ownsImpact) effect(w, 'hit', target)
       fx.duration = fx.age
       continue
     }

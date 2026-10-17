@@ -1,6 +1,7 @@
 import { movePosition, nativeAngle, short } from './native-math.ts'
 import { browserPosition, wrappedDistance, wrappedPlanarDelta } from './world-coordinates.ts'
 import { tribeForTeam, type AngelState, type Effect, type Unit, type World } from './world-types.ts'
+import { spyDisguisedFrom } from './computer-selection.ts'
 
 const STRIKE_DISTANCE = 0x1f8
 // ponytail: bounded chase speed until the native 600 speed field's movement scaling is recovered.
@@ -33,6 +34,8 @@ function nearestEnemy(w: World, angel: Effect) {
       unit.hp <= 0 ||
       unit.inside !== null ||
       unit.invisibility ||
+      person?.state === 23 ||
+      (person && person.disguise !== undefined && spyDisguisedFrom(person, tribe)) ||
       !!((person?.flags4 ?? 0) & 0x1000) ||
       targetTribe < 0 ||
       targetTribe === tribe ||

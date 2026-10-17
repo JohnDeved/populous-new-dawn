@@ -1,0 +1,25 @@
+✖ authored multi-follower heads report required count, not selected or admitted count (402.991183ms)
+✔ single-follower head keeps singular feedback (75.793653ms)
+✔ Shaman-only authored head identifies its required worshipper (91.853747ms)
+✔ Vault commands retain their separate queued-command feedback (75.42512ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 3
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2417.084013
+
+✖ failing tests:
+
+test at tests/shrine-command-message.test.mjs:25:1
+✖ authored multi-follower heads report required count, not selected or admitted count (402.991183ms)
+  TypeError: Cannot convert undefined or null to object
+      at Object.assign (<anonymous>)
+      at commandAtHead (file:///workspace/scratch/69fd8163d94e/populous-shrine-toast/tests/shrine-command-message.test.mjs:15:10)
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/populous-shrine-toast/tests/shrine-command-message.test.mjs:32:29)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)

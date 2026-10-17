@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
+import { showSelectorControls } from '../browser-game.mjs'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -8,7 +10,7 @@ import { pathToFileURL } from 'node:url'
 // Named local-render scenario. All seeded records are explicit browser-storage
 // fixtures; public startup/Save/Load assertions are recorded separately.
 async function bindStartupStore(page) {
-  await page.getByRole('dialog', { name: 'Start game', exact: true }).waitFor()
+  await page.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor()
   await page.waitForFunction(() => {
     const main = document.querySelector('main')
     let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
@@ -92,7 +94,8 @@ async function seedRecords(page, { kind, completed = [1, 2] }) {
   await page.evaluate(async ({ kind, completed }) => {
     let latest
     if (kind === 'malformed') latest = { version: 1, world: {} }
-    if (kind === 'partially-migratable') latest = { version: 1, world: { outcome: {} } }
+    // migrateCheckpoint converts heads before iterating missing units and throwing.
+    if (kind === 'partially-migratable') latest = { version: 1, world: { objectCells: { heads: new Uint16Array([0, 17]) } } }
     if (kind === 'incompatible') latest = { version: 999, world: {} }
     if (kind === 'current' || kind === 'legacy') {
       const world = structuredClone(window.testStore.getWorld())
@@ -120,19 +123,22 @@ async function seedRecords(page, { kind, completed = [1, 2] }) {
 }
 
 async function expectProfileUi(page, completed) {
+  await openCampaignFromMainMenu(page)
   const dialog = page.getByRole('dialog', { name: 'Start game', exact: true })
   const labels = []
   for (const mission of [1, 2, 3]) {
-    const label = await dialog.getByRole('button', { name: `Select Mission ${mission}`, exact: true }).innerText()
+    const label = await dialog.getByRole('button', { name: `Panel Mission ${mission}${completed.includes(mission) ? ', completed' : ''}`, exact: true }).innerText()
     labels.push({ mission, label })
-    if (completed.includes(mission)) assert.match(label, /Completed ✓/)
+    if (completed.includes(mission)) assert.match(label, /Completed, ready to replay/)
     else assert.match(label, mission === 1 || completed.includes(mission - 1) ? /Available/ : /Locked/)
   }
   const target = completed.includes(2) ? 3 : 1
-  await dialog.getByRole('button', { name: `Select Mission ${target}`, exact: true }).click()
+  await dialog.getByRole('button', { name: `Panel Mission ${target}${completed.includes(target) ? ', completed' : ''}`, exact: true }).click()
   const start = dialog.getByRole('button', { name: `${completed.includes(target) ? 'Replay' : 'Start'} Mission ${target}`, exact: true })
   assert.equal(await start.isEnabled(), true)
-  return { labels, enabledStart: await start.innerText() }
+  const enabledStart = await start.getAttribute('aria-label')
+  await showSelectorControls(page)
+  return { labels, enabledStart }
 }
 
 async function installLoadObserver(page) {
@@ -166,7 +172,7 @@ export default async function ({ browser, context: initialContext, page: initial
     scenarioSha256: digest(new URL(import.meta.url)),
     runtime: runtime(),
     method: 'Real IndexedDB committed transactions in fresh ephemeral browser contexts. Seeded latest/profile records are diagnostic fixtures. Fresh page startup, selector availability, and valid checkpoint Load use shipped UI. The ordinary Save → fresh-page Load case seeds no records or gameplay state. In-session restore is a direct store diagnostic with an ordinary UI checkpoint and seeded completion/corruption.',
-    limits: 'Browser checkpoint failure isolation only. No authentic original-save interoperability, naturally earned campaign completion, deployment behavior, hardware performance, or full PND-07 claim.',
+    limits: 'Browser checkpoint failure isolation only. Page reload within one browser context is not browser-process restart persistence. Complete stored-record digests do not establish full loaded-world equality. Load-boundary version is a supplied wrapper value, not an independent observation. No authentic original-save interoperability, naturally earned campaign completion, deployment behavior, hardware performance, or full PND-07 claim.',
     cases: [],
   }
   const save = () => writeFileSync(resolve(output, 'profile-recovery.json'), JSON.stringify(report, null, 2) + '\n')
@@ -194,6 +200,9 @@ export default async function ({ browser, context: initialContext, page: initial
       return { turn: world.turn, randomState: world.randomState, drawMode: world.drawMode }
     })
     await bindGame(page)
+    const skip = page.getByRole('button', { name: /Skip introduction/ })
+    if (await skip.isVisible()) await skip.click()
+    await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
     assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true)
     const renderer = await page.evaluate(() => {
@@ -206,12 +215,15 @@ export default async function ({ browser, context: initialContext, page: initial
       }
     })
     assert.equal(renderer.contextLost, false)
-    return { loaded, fields, renderer, canvasVisible: await page.locator('.world-viewport canvas').isVisible() }
+    return { loaded, fields, renderer, canvasVisible: await page.locator('.world-viewport canvas.battlefield').isVisible() }
   }
   save()
+  try {
   for (const kind of ['empty', 'missing', 'malformed', 'partially-migratable', 'incompatible', 'current', 'legacy']) {
     signal.throwIfAborted()
     const entry = { kind, fixture: true, status: 'running' }
+    if (kind === 'partially-migratable') entry.fixtureScope = 'Uint16Array objectCells.heads converts on the migration clone before missing units throws; complete stored-record digest must remain unchanged.'
+    if (kind === 'legacy') entry.fixtureScope = 'Current-world checkpoint with only drawMode omitted; validates that default, not broad historical compatibility.'
     report.cases.push(entry)
     save()
     const { context, page } = await freshPage(kind === 'empty')
@@ -269,17 +281,20 @@ export default async function ({ browser, context: initialContext, page: initial
         await bindStartupStore(page)
         assert.deepEqual(await page.evaluate(() => window.testStore.getCompletedMissions()), [3])
       }
+      await openCampaignFromMainMenu(page)
       const startup = page.getByRole('dialog', { name: 'Start game', exact: true })
-      await startup.getByRole('button', { name: 'Select Mission 1', exact: true }).click()
+      await startup.getByRole('button', { name: 'Panel Mission 1', exact: true }).click()
       await startup.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
       await bindGame(page)
-      const skip = page.locator('.skip-introduction')
-      if (await skip.isVisible()) await skip.click({ noWaitAfter: true })
+      const skip = page.getByRole('button', { name: /Skip introduction/ })
+      // Mission 1 starts the flyby after the scene binds; wait for its public control.
+      await skip.click({ noWaitAfter: true })
       entry.readiness = await waitForShamanReadiness(page)
       await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-      const menu = page.locator('dialog.game-dialog')
+      const menu = page.locator('dialog[data-original-pause-menu]')
       await menu.waitFor({ state: 'visible' })
       const savedTurn = await page.evaluate(() => window.testStore.getWorld().turn)
+      await menu.getByRole('button', { name: 'Save Game', exact: true }).click()
       await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
       let saved
       assert.equal(await waitForCheckpointReadback(async () => {
@@ -300,6 +315,7 @@ export default async function ({ browser, context: initialContext, page: initial
         assert.deepEqual(await page.evaluate(() => window.recoveryStorageWrites), [])
         await page.screenshot({ path: resolve(output, 'ordinary-fresh-load.png') })
       } else {
+        await menu.getByRole('button', { name: 'Back', exact: true }).click()
         await menu.getByRole('button', { name: /^Continue Game/ }).click()
         await menu.waitFor({ state: 'hidden' })
         await page.getByRole('button', { name: 'Pause game', exact: true }).waitFor()
@@ -322,6 +338,7 @@ export default async function ({ browser, context: initialContext, page: initial
         assert.ok(entry.session.turnBefore > saved.turn)
         assert.deepEqual(entry.session.completed, [1, 2, 3])
         assert.equal(entry.session.writesAfter, entry.session.writesBefore)
+        await menu.getByRole('button', { name: 'Load Game', exact: true }).click()
         entry.publicLoad = await loadThroughUi(page, menu.getByRole('button', { name: 'Load checkpoint', exact: true }))
         for (const key of ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256'])
           assert.deepEqual(entry.publicLoad.loaded[key], saved[key], `Usable session checkpoint preserves ${key}`)
@@ -347,4 +364,10 @@ export default async function ({ browser, context: initialContext, page: initial
   report.status = 'passed'
   save()
   return report
+  } catch (error) {
+    report.status = 'failed'
+    report.failure = String(error)
+    save()
+    throw error
+  }
 }

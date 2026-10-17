@@ -1,0 +1,93 @@
+# Original in-game pause menu, bounded restoration
+
+Refs #457 / #16. Base `3f87f5f767fa6e9a08e6b853de18feaf0fa83b9e`.
+
+The shipped Menu/Game settings controls now open menu 16's original rows over the
+paused battlefield. Browser-specific options/help, HUD scaling, sound preferences,
+speed/camera conveniences and world selection remain under the explicitly named
+Browser options and help panel. Camera requests apply only after closing the menu.
+
+## Native evidence and limits
+
+Original static evidence: `decomp/research/original-menus.md`,
+`decomp/research/frontend-menu-composition.md`, and `decomp/generated/004fdbc0.c`.
+The game renderer `00522b04 → 004581c0` queues text with `0045b6e0` and draws it
+with `004fdbc0`; it does not use the startup `00459100` background/logo/glow path.
+Menu16 table `005d9e98`, list `005d9b30`, initializer `004581f0` produces top anchors
+159,189,219,249,279,309,339 and Back 454 at 640×480. Tutorial 79 keeps only Continue
+Game 159, Options 189, Quit Game 219 and Back 454. All playable browser campaign levels
+are within the native expanded single-player range 1–25. Native Quit Level's extra
+`0089d17c&1` gate has no corresponding browser mode and is not claimed implemented.
+
+Exact English questions: Restart Level? 1210, Quit Level? 1211, Quit Game? 1185;
+Yes 235 / No 236 / Back 328 at 159 / 189 / 219 / 454. These are separate confirmations.
+
+A further static audit corrected the frontend-font hypothesis: `004fdd64–004fdda8`
+remaps style 2 bank IDs 6/7/8/9 to pointer `0087cbf4`, resource record `005a4790`
+`data/f00t9-0.dat`. The dedicated importer preserves PSFB glyph pixels/widths using
+the same initial pal0-c as the existing HUD importer. English settled foreground
+uses normal alpha 170, highlighted 255 and dim 85. Native sine entrance fade,
+language-specific paths and live palette changes are not claimed reproduced.
+The frontend Fepointe cursor is reused as an explicit identity-preserving browser
+approximation. The pause pointer path `00522b12–00522b2d → 00517750` reaches a
+RET-only routine in this D3D executable, so it does not prove that resource choice.
+The separate frontend selection is at `0045929d`.
+Uniform 4:3 fitting, native HTML keyboard/focus controls, visible focus outlines,
+and readable fallback labels are browser/accessibility adaptations.
+
+## Ownership and browser adaptations
+
+`00458060` captures prior pause in `0059d134`. Continue `004584f0` and root
+Back `00458710` clear pause only if the world was previously running. Browser opening
+captures that state and the world identity synchronously; only final same-world
+close restores it. Options, save/load and No/Back/Escape keep ownership. Beginning
+a load/restart/quit invalidates the old session before replacement.
+
+Scene modal suspension stops fixed turns, time/RNG, worship acquisition visits,
+unit/object animation, camera motion, sky/globe phase and environmental updates.
+It keeps rendering the frozen scene and sampling frame timestamps, avoiding elapsed
+time catch-up. Ordinary Space pause still supports its previous acquisition behavior.
+Opening cancels captured pointer gestures so drag input cannot move the frozen world.
+
+Browser Save stores one checkpoint, replacing the previous one only on the explicit
+Save checkpoint action. Its pause override affects only the clone, never the live
+world. Persistent versus session-only saves are reported. Explicit browser Load
+continues the existing auto-resume behavior, including a checkpoint saved while
+already paused. Original multi-slot file compatibility remains unimplemented.
+Quit Level returns to world selection; Quit Game returns to the main menu and
+explains that closing the browser tab exits. Neither pretends to terminate the browser.
+
+## Validation
+
+The dedicated browser scenario covers ordinary controls, interrupted/repeated
+flows, frozen state, already-paused and running close, confirmation focus/cancel,
+checkpoint persistence and replacement, original Tutorial restriction and distinct
+quit outcomes. Synthetic wrappers count calls for repeated-click checks only;
+this is not a claim of native execution or hardware performance.
+
+Retain source-bound command/browser receipts and failed attempts in the review
+handoff. Before/after screenshots must identify the actual source head. Software
+Chrome evidence cannot certify hardware frame performance or exact native pixels.
+
+### Recorded browser coverage and remaining harness work
+
+Clean `b7f4eeae` interaction evidence establishes frozen world/clock/camera,
+640×480 through ultrawide/short layouts, confirmation cancel/focus, running and
+already-paused close, selector return, and durable checkpoint replacement. Its
+later restart scene creation crashed; that complete episode is not a pass.
+Separate clean `24479c53` episodes passed restart replacement/one-shot Yes and
+Tutorial captured-drag cancellation/Quit Game. Clean `97e96c5f` episodes passed
+real DPR2 and a blocked font request with readable keyboard-accessible fallback.
+Quit Level Yes and the controlled storage-failure/pending-save episode remain
+rendered acceptance gaps: later attempts failed during initial world/startup
+loading, before those actions. Initial-world software-Chrome crashes were also
+reproduced on exact base main. These failures are retained, not counted as passes.
+
+The new pause scenarios supplement recent migrated startup/checkpoint scenarios.
+Older browser scenarios still need menu-navigation/observer-selector migration:
+`early-missions`, `minimap-frame`, `mission1-hut-dismantle` and its `-witness`,
+`mission10-boat-checkpoint`, `mission3-building-lifecycle`,
+`mission3-building-screen`, `mission3-temple-checkpoint`, `readiness-lifecycle`,
+`temple-training-auto`, `temple-training-witness`, and `water-shore-animation`
+(all under `scripts/local-render`, `.mjs`). They are not claimed passing here;
+stale combined-dialog selectors must not be diagnosed as gameplay regressions.

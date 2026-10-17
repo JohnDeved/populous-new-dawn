@@ -37,7 +37,8 @@ behavior, evidence quality, and existing user work. Read `GOAL.md` for direction
 - Preserve source ownership in `engineering/generated-files.json`. Do not
   mass-regenerate evidence, casually append `--record`, or hand-edit imported assets.
   Leave `.openai/hosting.json` untouched. Deployment, parity recording, credentials,
-  paid services, and new GitHub Actions need explicit authorization.
+  paid services, and additional GitHub Actions need explicit authorization. The
+  approved ready-PR full gate is documented in `engineering/continuous-integration.md`.
 - Select checks with `orchestration:plan -- --base <actual-base>` and inspect their
   commands/side effects. Unknown changed paths require explicit review, never an
   empty check set. Context/contract/audit helpers are optional aids, not a second

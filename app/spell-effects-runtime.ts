@@ -49,6 +49,7 @@ import {
   type World,
 } from './world-types.ts'
 import {
+  buildingInsidePoint,
   buildingFirePoints,
   buildingModel,
   buildingOutsidePoint,
@@ -76,6 +77,7 @@ import {
   createSwarmState,
   hasSwarmRuntime,
   initializeSwarmInsects,
+  stepSwarmBuilding,
   stepSwarmLifetime,
   stepSwarmMotion,
   swarmNeedsScan,
@@ -93,6 +95,7 @@ import { startArmageddon } from './armageddon.ts'
 import { setDirectPersonDestination } from './person-routes.ts'
 import { blastPersonPosition } from './blast-targeting.ts'
 import { residentPerson } from './building-resident.ts'
+import { leaveBuildingEntry } from './live-building-entry.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
 const SHIELD_TURNS = constants.SHIELD_COUNT_X8 * 8
@@ -112,7 +115,10 @@ function replaceHypnotisedUnit(w: World, source: Unit, team: Team, originalTeam?
   const position = { x: source.x, z: source.z },
     { hp, cargo, heading, kind } = source,
     people = retainedPeople(source)
-  releaseTasks(w, source)
+  // Release the physical building slot while its passive resident still exists.
+  // Generic task cleanup alone discards that owner and leaves a deleted occupant.
+  const occupant = release(w, source)
+  if (occupant && !people.includes(occupant)) people.push(occupant)
   for (const p of people) if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
   w.objectCells.objects.delete(source.id)
   w.selected = w.selected.filter(id => id !== source.id)
@@ -133,38 +139,110 @@ function replaceHypnotisedUnit(w: World, source: Unit, team: Team, originalTeam?
   return replacement
 }
 
-export function applyHypnotise(w: World, point: Point, team: Team) {
+// 00515e30 marks nearest recipients, then invokes callbacks along its prepended
+// discovery chain. Keep the whole legacy projection when exact ownership or
+// geometry is unavailable; this does not expand the existing eligibility rules.
+function registeredHypnotiseOrder(
+  w: World,
+  candidates: { u: Unit; p: { x: number; y: number }; scan: number }[],
+  x: number,
+  y: number
+) {
+  const byId = new Map(candidates.map(candidate => [candidate.u.id, candidate])),
+    reverse: typeof candidates = [],
+    seen = new Set<number>()
+  if (byId.size !== candidates.length) return null
+  for (const dy of [-2, 0, 2])
+    for (const dx of [-2, 0, 2])
+      for (const object of objectsInCell(
+        w.objectCells,
+        ((x + dx) & 254) | (((y + dy) & 254) << 8)
+      )) {
+        const candidate = byId.get(object.id)
+        if (!candidate) continue
+        const owner = unitAnimationSource(candidate.u)
+        if (
+          !owner ||
+          object !== owner ||
+          owner.id !== candidate.u.id ||
+          w.objectCells.objects.get(owner.id) !== owner ||
+          seen.has(owner.id) ||
+          owner.class !== 1 ||
+          owner.flags2 & 1 ||
+          owner.tribe !== tribeForTeam(candidate.u.team) ||
+          owner.model !== nativePersonModel(candidate.u) ||
+          (owner.x & 65535) !== (candidate.p.x & 65535) ||
+          (owner.y & 65535) !== (candidate.p.y & 65535)
+        )
+          return null
+        seen.add(owner.id)
+        reverse.unshift(candidate)
+      }
+  return seen.size === candidates.length ? reverse : null
+}
+
+// 0050eab0 has no inside-building exclusion. Keep the legacy ground predicate,
+// and admit occupants only through their exact linked native person owner.
+function linkedHypnotiseOccupant(w: World, u: Unit, point: { x: number; y: number }) {
+  const p = unitAnimationSource(u)
+  return (
+    !!p &&
+    p.id === u.id &&
+    p.class === 1 &&
+    !(p.flags2 & 1) &&
+    p.tribe === tribeForTeam(u.team) &&
+    p.model === nativePersonModel(u) &&
+    (p.x & 65535) === (point.x & 65535) &&
+    (p.y & 65535) === (point.y & 65535) &&
+    w.objectCells.objects.get(u.id) === p &&
+    [...objectsInCell(w.objectCells, (p.y & 0xfe00) | ((p.x >>> 8) & 254))].includes(p)
+  )
+}
+
+export function hypnotiseTargets(w: World, point: Point, team: Team) {
   const center = nativePosition(w, point),
     x = (center.x >>> 8) & 254,
     y = (center.y >>> 8) & 254,
     order = new Map<string, number>()
   for (const dy of [-2, 0, 2])
     for (const dx of [-2, 0, 2]) order.set(`${(x + dx) & 254}:${(y + dy) & 254}`, order.size)
-  const targets = w.units
+  const candidates = w.units
     .map((u, index) => {
       const p = nativePosition(w, u),
         scan = order.get(`${(p.x >>> 8) & 254}:${(p.y >>> 8) & 254}`)
       return { u, p, scan: scan === undefined ? -1 : scan * w.units.length + index }
     })
-    .filter(({ u, scan }) => {
+    .filter(({ u, p: position, scan }) => {
       const p = unitAnimationSource(u)
       return (
         scan >= 0 &&
-        u.inside === null &&
+        (u.inside === null || linkedHypnotiseOccupant(w, u, position)) &&
         ![1, 7, 8].includes(nativePersonModel(u)) &&
         u.team !== team &&
         !((p?.flags4 ?? 0) & 0x1000) &&
         !u.invisibility
       )
     })
-    .toSorted(
-      (a, b) => positionDistance(a.p, center) - positionDistance(b.p, center) || b.scan - a.scan
-    )
-    .slice(0, constants.HYPNO_NUM_PEOPLE)
+  const reverse = registeredHypnotiseOrder(w, candidates, x, y),
+    nearest = (reverse ?? candidates)
+      .toSorted(
+        (a, b) =>
+          positionDistance(a.p, center) - positionDistance(b.p, center) ||
+          (reverse ? 0 : b.scan - a.scan)
+      )
+      .slice(0, constants.HYPNO_NUM_PEOPLE),
+    marked = new Set(nearest),
+    targets = reverse ? reverse.filter(candidate => marked.has(candidate)) : nearest
+  return targets
+}
+
+export function applyHypnotise(w: World, point: Point, team: Team) {
+  const targets = hypnotiseTargets(w, point, team)
   for (const { u } of targets) {
     const p = unitAnimationSource(u)
     if ((p?.flags4 ?? 0) & 0x800) {
-      releaseTasks(w, u)
+      if (u.inside === null) releaseTasks(w, u)
+      else release(w, u)
       if ((p?.flags2 ?? 0) & 0x20000) removeObjectFromCell(w.objectCells, p as LivePerson)
       w.objectCells.objects.delete(u.id)
       w.selected = w.selected.filter(id => id !== u.id)
@@ -180,14 +258,16 @@ export function stepUnitHypnotise(w: World) {
   for (const u of [...w.units]) {
     const status = u.hypnotise
     if (!status || u.hp <= 0) continue
-    status.counter = (status.counter + 1) & 255
-    if (status.counter & 7 || --status.remaining > 0) continue
     const tribe = tribeForTeam(status.originalTeam)
     if (tribe >= 0 && w.manaTribes[tribe].defeatTimer) {
       delete u.hypnotise
       for (const p of [...retainedPeople(u), residentPerson(w, u)])
         if (p) p.flags4 = (p.flags4 & ~0x4000) >>> 0
-    } else replaceHypnotisedUnit(w, u, status.originalTeam)
+      continue
+    }
+    status.counter = (status.counter + 1) & 255
+    if (status.counter & 7 || --status.remaining > 0) continue
+    replaceHypnotisedUnit(w, u, status.originalTeam)
   }
 }
 
@@ -220,24 +300,40 @@ export function stepUnitShields(w: World) {
 }
 
 export function shieldFollowers(w: World, point: Point, team: Team) {
-  const center = nativePosition(w, point)
-  // ponytail: nearest candidates approximate the unavailable native radius-3
-  // land-list callbacks; replace this ordering when 00515e30 is exportable.
-  const targets = w.units
-    .filter(
-      u =>
-        u.team === team &&
-        u.kind !== 'shaman' &&
-        u.hp > 0 &&
-        u.inside === null &&
-        positionDistance(nativePosition(w, u), center) <= 3 * 512
-    )
+  const center = nativePosition(w, point),
+    x = (center.x >>> 8) & 254,
+    y = (center.y >>> 8) & 254,
+    tribe = tribeForTeam(team),
+    units = new Map(w.units.map(u => [u.id, u])),
+    candidates: { unit: Unit; person: LivePerson; order: number }[] = []
+  // 00515e30 scans a 3-by-3 even-cell square, not a radius. Its temporary
+  // candidate chain reverses discovery before strict nearest-first selection.
+  for (const dy of [-2, 0, 2])
+    for (const dx of [-2, 0, 2])
+      for (const object of objectsInCell(
+        w.objectCells,
+        ((x + dx) & 254) | (((y + dy) & 254) << 8)
+      )) {
+        const person = object as LivePerson,
+          unit = units.get(person.id)
+        // 005156b0: existing Shield is ineligible, so recasting cannot refresh it.
+        if (
+          unit &&
+          person.class === 1 &&
+          person.tribe === tribe &&
+          ![1, 7, 8].includes(person.model) &&
+          !(person.flags4 & 0x4800) &&
+          !(person.flags3 & 0x8000)
+        )
+          candidates.push({ unit, person, order: candidates.length })
+      }
+  const targets = candidates
     .toSorted(
       (a, b) =>
-        positionDistance(nativePosition(w, a), center) -
-        positionDistance(nativePosition(w, b), center)
+        positionDistance(a.person, center) - positionDistance(b.person, center) || b.order - a.order
     )
     .slice(0, constants.SHIELD_NUM_PEOPLE)
+    .map(({ unit }) => unit)
   for (const u of targets) setUnitShield(w, u, SHIELD_TURNS)
   return targets
 }
@@ -359,25 +455,35 @@ export function invisibilityFollowers(w: World, point: Point, team: Team) {
   const center = nativePosition(w, point),
     x = (center.x >>> 8) & 254,
     y = (center.y >>> 8) & 254,
-    order = new Map<string, number>()
+    units = new Map(w.units.map(u => [u.id, u])),
+    candidates: { u: Unit; p: NativePoint; scan: number }[] = []
+  // 00515e30 collects linked-cell members and reverses that discovery chain.
+  // 0050d890 admits registered class-1 occupants, including Towers. Preserve the existing
+  // ground predicate while requiring the exact live owner for this added branch.
   for (const dy of [-2, 0, 2])
-    for (const dx of [-2, 0, 2]) order.set(`${(x + dx) & 254}:${(y + dy) & 254}`, order.size)
-  const targets = w.units
-    .map((u, index) => {
-      const p = nativePosition(w, u),
-        scan = order.get(`${(p.x >>> 8) & 254}:${(p.y >>> 8) & 254}`)
-      return { u, p, scan: scan === undefined ? -1 : scan * w.units.length + index }
-    })
-    .filter(
-      ({ u, scan }) =>
-        scan >= 0 &&
-        u.team === team &&
-        u.kind !== 'shaman' &&
-        u.hp > 0 &&
-        u.inside === null &&
-        !u.invisibility &&
-        !((unitAnimationSource(u)?.flags4 ?? 0) & 0x1000)
-    )
+    for (const dx of [-2, 0, 2])
+      for (const p of objectsInCell(w.objectCells, ((x + dx) & 254) | (((y + dy) & 254) << 8))) {
+        const u = units.get(p.id),
+          owner = u && unitAnimationSource(u)
+        if (
+          u &&
+          u.team === team &&
+          u.kind !== 'shaman' &&
+          u.hp > 0 &&
+          (u.inside === null ||
+            (owner &&
+              p === owner &&
+              owner.id === u.id &&
+              owner.class === 1 &&
+              !(owner.flags2 & 1) &&
+              owner.tribe === tribeForTeam(team) &&
+              owner.model !== 7)) &&
+          !u.invisibility &&
+          !((owner?.flags4 ?? 0) & 0x1000)
+        )
+          candidates.push({ u, p, scan: candidates.length })
+      }
+  const targets = candidates
     .toSorted(
       (a, b) => positionDistance(a.p, center) - positionDistance(b.p, center) || b.scan - a.scan
     )
@@ -643,7 +749,7 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
   const vehicles = new Map(w.vehicles.filter(v => v.active).map(v => [v.id, v]))
   const cells = new Map<number, BlastTarget[]>()
   const records = new Map<number, BlastTarget>()
-  const people = new Map<number, LivePerson>()
+  const people = new Map<number, LivePerson & BlastTarget>()
   const shaken = new Map<number, Building | Tree>()
   const add = (p: BlastTarget) => {
     records.set(p.id, p)
@@ -657,8 +763,9 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
     const existing = u.flight ?? u.fight?.motion ?? u.native
     const p = existing ?? createLivePerson(w, u)
     p.life = Math.round(u.hp * 20)
-    people.set(p.id, p)
-    add(Object.assign(p, { shake: 0, shakeOrigin: 0 }))
+    const target = Object.assign(p, { shake: 0, shakeOrigin: 0 })
+    people.set(p.id, target)
+    add(target)
   }
   const addShaken = (
     source: Building | Tree,
@@ -717,6 +824,27 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
       shake: 0,
       shakeOrigin: 0,
     })
+  // Preserve the adapter's unregistered/mixed-class slots, but project exact
+  // owned people into their retained cell-chain order (0050b740's visit order).
+  // Snapshot all cells before callbacks can release or replace person owners.
+  for (const [index, cell] of cells) {
+    const linked: BlastTarget[] = []
+    for (const object of objectsInCell(
+      w.objectCells,
+      ((index % 128) * 2) | ((Math.floor(index / 128) * 2) << 8)
+    )) {
+      const person = people.get(object.id)
+      if (person === object && cell.includes(person)) linked.push(person)
+    }
+    const owned = new Set(linked)
+    // An ambiguous repeated person must not overrun the retained linked slots.
+    if (cell.filter(person => owned.has(person)).length !== linked.length) continue
+    let next = 0
+    cells.set(
+      index,
+      cell.map(person => (owned.has(person) ? linked[next++] : person))
+    )
+  }
   const state = {
     randomState: w.randomState,
     search: w.indexedSearch,
@@ -763,7 +891,12 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
     u.hp = p.life / 20
     u.burnTrail = p.burnTrail
     if (p.flags2 & 0x80000) {
-      if (!u.flight) release(w, u)
+      if (!u.flight) {
+        // 0x50b740 ordinary push retains its person state and resting slot.
+        // Panic and other owners still take their existing task-release path.
+        const resting = u.native === p && [1, 17, 19].includes(p.state)
+        release(w, u, false, resting)
+      }
       u.flight = p
       u.lift = 1
     }
@@ -777,6 +910,59 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
   }
   w.randomState = state.randomState
   return alive
+}
+
+function ejectSwarmBuildingPeople(w: World, id: number, tribe: number) {
+  const building = w.buildings.find(b => b.id === id)
+  if (!building?.admission?.inside) return
+  // Native walks six physical slots while removal callbacks mutate the array.
+  for (let slot = 0; slot < 6; slot++) {
+    const personId = building.admission.occupants[slot],
+      unit = w.units.find(u => u.id === personId && u.hp > 0)
+    if (!unit) continue
+    const owner = unit.entry?.person ?? unit.native ?? unit.resident?.person
+    if (owner && (owner.flags2 & 1 || !owner.class)) continue
+    const p = leaveBuildingEntry(w, unit)
+    if (!p) continue
+    unit.native = p
+    p.flags2 &= ~16
+    if (!(p.flags2 & 0x100000)) initializeLivePanic(w, unit, p)
+    // The building arm orders panic before ghost removal, then damage/reveal.
+    if (p.flags4 & 0x800) p.life = 0
+    damagePerson(p, w.levelFlags2, tribe, constants.SWARM_PERSON_DAMAGE)
+    if (p.model === 5) p.disguise = (p.tribe << 6) & 255
+    unit.hp = p.life / 20
+  }
+}
+
+function swarmBuildingEffects(w: World, swarm: ReturnType<typeof swarmState>) {
+  const valid = (id: number) => w.buildings.find(b => b.id === id && b.hp > 0)
+  return {
+    acquire: (history: readonly number[]) => {
+      const origin = (swarm.origin.y & 0xfe00) | ((swarm.origin.x >>> 8) & 254)
+      for (let index = 0; index < 167; index++) {
+        const cell = spiralCell(origin, index, 0)
+        // Buildings have no native class-2 cell chain in this adapter. Retain
+        // roster order within a cell; the authored witness has a unique target.
+        const building = w.buildings.find(b => {
+          if (
+            b.preparation ||
+            b.hp <= 0 ||
+            tribeForTeam(b.team) === swarm.tribe ||
+            history.includes(b.id)
+          )
+            return false
+          const point = nativePosition(w, b)
+          return ((point.y & 0xfe00) | ((point.x >>> 8) & 254)) === cell
+        })
+        if (building) return building.id
+      }
+    },
+    valid: (id: number) => !!valid(id),
+    outside: (id: number) => buildingOutsidePoint(buildingPose(valid(id)!)),
+    inside: (id: number) => buildingInsidePoint(buildingPose(valid(id)!)),
+    eject: (id: number) => ejectSwarmBuildingPeople(w, id, swarm.tribe),
+  }
 }
 
 export function stepSwarm(w: World, fx: Effect) {
@@ -796,7 +982,7 @@ export function stepSwarm(w: World, fx: Effect) {
   if (initializing) {
     initializeSwarmInsects(w, swarm)
     swarm.phase = 'wandering'
-  }
+  } else stepSwarmBuilding(w, swarm, swarmBuildingEffects(w, swarm))
   if (swarmNeedsScan(swarm)) {
     const centerCell = ((swarm.y & 0xfe00) | ((swarm.x >>> 8) & 254)) >>> 0,
       cells = new Set([
@@ -838,7 +1024,7 @@ export function stepSwarm(w: World, fx: Effect) {
     }
     swarm.applied = true
   }
-  stepSwarmMotion(w, swarm, point => terrainPointHeight(w.land, point), !initializing)
+  stepSwarmMotion(w, swarm, point => terrainPointHeight(w.land, point), false)
   Object.assign(fx, browserPosition(swarm))
   fx.height = swarm.h / 45
   return stepSwarmLifetime(swarm)
@@ -849,13 +1035,28 @@ export function stepLiveSwamp(w: World, swamp: Swamp) {
     people = new Map<number, LivePerson>(),
     cells = new Map<number, SwampTarget[]>()
   for (const u of w.units) {
-    if (u.inside !== null || (u.hp <= 0 && !u.flight)) continue
+    if (u.hp <= 0 && !u.flight) continue
     const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? createLivePerson(w, u),
       cell = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9),
       row = cells.get(cell) ?? []
+    // 00511400 visits registered class1 occupants, including Tower residents.
+    // Hidden/unregistered building placeholders retain the existing exclusion.
+    if (
+      u.inside !== null &&
+      (p.id !== u.id ||
+        p.class !== 1 ||
+        p.flags2 & 1 ||
+        w.objectCells.objects.get(u.id) !== p ||
+        ![...objectsInCell(w.objectCells, (p.y & 0xfe00) | ((p.x >>> 8) & 254))].includes(p))
+    )
+      continue
     units.set(p.id, u)
     people.set(p.id, p)
-    row.unshift({ ...p, attached: p.vehicle, immune: false })
+    row.unshift({
+      ...p,
+      attached: p.vehicle,
+      immune: u.inside !== null && !!(rules.personPhysicsFlags[p.physics] & 2),
+    })
     cells.set(cell, row)
   }
   swamp.counter = (swamp.counter + 1) & 255
@@ -875,7 +1076,9 @@ export function stepLiveSwamp(w: World, swamp: Swamp) {
     remove: target => {
       const p = people.get(target.id)!,
         u = units.get(p.id)!
-      releaseTasks(w, u)
+      // 004ef180→004d4b50 removes occupied ghosts through 00407490 first.
+      if (u.inside === null) releaseTasks(w, u)
+      else release(w, u)
       const index = w.units.indexOf(u)
       if (index !== -1) w.units.splice(index, 1)
       w.selected = w.selected.filter(id => id !== u.id)

@@ -3,7 +3,7 @@ import test from 'node:test'
 import levelSix from '../app/level-six.ts'
 import scriptSix from '../app/original-script-six.json' with { type: 'json' }
 import { addUnit, browserPosition, createWorld, joinBattle, tick } from '../app/model.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { createGameStore, migrateCheckpoint } from '../app/game-store.ts'
 import { syncLivePersonCells } from '../app/live-people.ts'
 import { stepLiveConversionVictim, stepLivePreaching } from '../app/live-movement.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
@@ -16,6 +16,8 @@ import { campaignInternal, withCampaignTribe } from '../app/campaign-runtime.ts'
 import { stepComputerTasks } from '../app/computer-runtime.ts'
 import { createComputerQueue, requestAttack, stepAttackTask } from '../app/computer.ts'
 import { createLivePerson } from '../app/live-people.ts'
+import { objectsInCell } from '../app/object-cells.ts'
+import { combatPerson } from '../app/live-combat.ts'
 
 test('Mission 6 keeps both original opponents distinct through outcome and checkpoints', () => {
   assert.equal(
@@ -146,7 +148,7 @@ test('Mission 6 low-population survivors counterattack the player Shaman', () =>
   }
 })
 
-test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () => {
+test('Mission 6 Chumara converts Blue and retires its first mixed raid by return timeout', async () => {
   let world = createWorld(6)
   world.campaignAIs[3].variables[20] = 1 // Keep this established scenario focused on Chumara's raid.
   world.manaTribes[3].active = false
@@ -223,7 +225,7 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
   )
   assert.equal(restored.campaignAIs[2].variables[1], 1)
 
-  const raiding = migrateCheckpoint(structuredClone(restored)),
+  let raiding = migrateCheckpoint(structuredClone(restored)),
     restoredAttack = raiding.campaignAIs[2].tasks.find(task => task.flags & 1 && task.type === 20)
   assert.ok(restoredAttack)
   assert.equal(
@@ -280,78 +282,187 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
         (unit.native?.flags4 ?? 0) & 0x40000
     )
   )
-  const originalMembers = [...restoredAttack.members]
-  let abortTurn = null,
-    retired = false
-  for (let turn = 0; turn < 513; turn++) {
-    const phase = restoredAttack.phase,
-      elapsed = restoredAttack.elapsed,
-      fallback = restoredAttack.fallback,
-      active = !!(restoredAttack.flags & 1),
-      owners = phase === 6 ? originalMembers.map(id => {
-        const unit = raiding.units.find(unit => unit.id === id),
-          person = raiding.objectCells.objects.get(id),
-          order = person && currentPersonOrder(raiding.buildingOrders, person)
-        assert.ok(unit && person)
-        assert.ok([unit.flight, unit.fight?.motion, unit.native, unit.entry?.person,
-          unit.builder?.person].includes(person))
-        return {
-          id, person, state: person.state, speed: person.speed,
-          fightOwned: unit.fight?.motion === person,
-          immediate: person.immediateCommand, cursor: person.commandCursor,
-          commands: [...person.commands],
-          queuedModel: raiding.buildingOrders.records[person.commands[person.commandCursor]]?.model,
-          order, payload: order && { ...order },
-        }
-      }) : []
+  const originalMembers = [...restoredAttack.members],
+    warriors = originalMembers.filter(id => id !== preacherId),
+    raidSlot = raiding.campaignAIs[2].tasks.indexOf(restoredAttack)
+  // The next-turn Hut scheduler changes the fresh campaign outcome: all four
+  // remaining Blue Braves convert before its Shaman dies without respawn.
+  // The source-bound pre-newborn casualty/reuse witness is retained separately.
+  assert.equal(raiding.turn, 8092)
+  assert.deepEqual(originalMembers, [367, 368, 449, 425])
+  const personOf = u => u && (u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person)
+  const conversions = new Map([
+    [8097, [289, 549]], [8191, [290, 572]],
+    [8193, [282, 575]], [8246, [291, 595]],
+  ])
+  let convertedCount = 0, firstAnchors = 0, emptyRetries = 0
+  while (raiding.turn < 8371) {
+    const beforeUnits = new Map(raiding.units.map(u => [u.id, u])),
+      beforeBlue = raiding.units.filter(u => u.team === 'blue').map(u => u.id),
+      priorRetries = restoredAttack.retries, priorTarget = restoredAttack.target,
+      shamanBeforeHp = beforeUnits.get(95)?.hp,
+      nextConversion = conversions.get(raiding.turn + 1),
+      victim = nextConversion && beforeUnits.get(nextConversion[0]),
+      victimBefore = victim && { hp: victim.hp, state: personOf(victim)?.state }
     tick(raiding, 1 / 12)
-    const activeRaids = raiding.campaignAIs[2].tasks.filter(task => task.flags & 1 && task.type === 20)
-    assert.ok(activeRaids.length <= 1)
-    if (activeRaids.length) assert.equal(activeRaids[0], restoredAttack)
-    if (phase === 6 && restoredAttack.phase === 23) {
-      // 004d14f0 aborts on an admitted combat member, even while others move.
-      const combat = owners.find(owner => owner.id === preacherId && owner.fightOwned &&
-        [25, 29].includes(owner.state))
-      assert.ok(combat)
-      assert.equal(combat.order?.model, 32)
-      assert.ok(combat.immediate > 0)
-      assert.equal(combat.queuedModel, 3)
-      assert.ok(owners.some(owner => owner.state === 10 && owner.speed > 0 && owner.order?.model === 3))
-      assert.equal(abortTurn, null)
-      assert.ok(elapsed <= 1800)
-      assert.equal(fallback, 23)
-      assert.equal(restoredAttack.elapsed, 1801)
-      assert.equal(restoredAttack.fallback, 23)
-      assert.equal(restoredAttack.flags & 1, 1)
-      assert.deepEqual(restoredAttack.members, originalMembers)
-      for (const owner of owners) {
-        assert.equal(raiding.objectCells.objects.get(owner.id), owner.person)
-        assert.equal(owner.person.immediateCommand, owner.immediate)
-        assert.equal(owner.person.commandCursor, owner.cursor)
-        assert.deepEqual(owner.person.commands, owner.commands)
-        assert.equal(currentPersonOrder(raiding.buildingOrders, owner.person), owner.order)
-        assert.deepEqual(owner.order, owner.payload)
-      }
-      abortTurn = raiding.turn
+    assert.deepEqual(restoredAttack.members, originalMembers)
+    const active = raiding.campaignAIs[2].tasks.filter(t => t.flags & 1 && t.type === 20)
+    assert.deepEqual(active, [restoredAttack])
+    assert.equal(restoredAttack.phase, raiding.turn < 8371 ? 16 : 6)
+    if (raiding.turn === 8093) {
+      const orders = warriors.map(id => {
+        const u = raiding.units.find(u => u.id === id), p = personOf(u)
+        assert.equal(raiding.objectCells.objects.get(id), p)
+        return currentPersonOrder(raiding.buildingOrders, p)
+      })
+      assert.ok(orders.every(order => order === orders[0]))
+      assert.deepEqual([orders[0].model, orders[0].a, orders[0].b, orders[0].references], [19, 13882, 0x0808, 3])
     }
-    if (active && !(restoredAttack.flags & 1)) {
-      assert.equal(phase, 23)
-      assert.ok(abortTurn !== null && raiding.turn > abortTurn)
-      assert.equal(restoredAttack.phase, 23)
-      assert.equal(restoredAttack.elapsed, 1801)
+    if (nextConversion) {
+      const [oldId, newId] = nextConversion,
+        replacement = raiding.units.find(u => u.id === newId), p = personOf(replacement)
+      assert.deepEqual(victimBefore, { hp: 50, state: 23 })
+      assert.equal(victim.hp, 0)
+      assert.equal(raiding.units.includes(victim), false)
+      assert.equal(raiding.objectCells.objects.has(oldId), false)
+      assert.equal(beforeUnits.has(newId), false)
+      assert.deepEqual([replacement.team, replacement.kind, replacement.hp], ['yellow', 'brave', 50])
+      assert.equal(raiding.objectCells.objects.get(newId), p)
+      assert.equal(p.life, 1000)
+      assert.ok(p.flags4 & 0x40000)
+      convertedCount++
+    }
+    const removedBlue = beforeBlue.filter(id => !raiding.units.some(u => u.id === id))
+    assert.deepEqual(removedBlue, nextConversion ? [nextConversion[0]] : raiding.turn === 8269 ? [95] : [])
+    if (raiding.turn === 8269) {
+      const shaman = beforeUnits.get(95)
+      assert.equal(shamanBeforeHp, 13.35)
+      assert.equal(shaman.hp, 0)
+      assert.equal(personOf(shaman).damageAttacker, 2)
+      assert.equal(raiding.objectCells.objects.has(95), false)
+      assert.equal(raiding.killCredits[2][0], 1)
+    }
+    if (raiding.turn >= 8269) {
+      assert.equal(raiding.units.some(u => u.team === 'blue'), false)
+      assert.equal(raiding.buildings.some(b => b.team === 'blue'), false)
+      assert.deepEqual(raiding.respawns, [0, 0, 0, 0])
+      assert.equal(raiding.effects.some(e => e.reincarnationWave?.tribe === 0), false)
+    }
+    if (restoredAttack.retries !== priorRetries) {
+      assert.ok(raiding.turn >= 8269)
+      assert.equal(restoredAttack.retries, priorRetries + 1)
+      emptyRetries++
+      if (emptyRetries === 1) {
+        assert.equal(priorTarget, 14394)
+        assert.equal(raiding.outcome.alliances[2], 0)
+        const scan = new Set([priorTarget & 0xfefe, ...Array.from({length:223}, (_,i) => spiralCell(priorTarget,i,0) & 0xfefe)])
+        // The recorded empty scene has only Green hostiles. Prove all seven
+        // exact physical owners lie outside the native radius7 scan, including
+        // their live cell links; Wild model1/tribe-1 actors cannot be targets.
+        assert.ok(raiding.units.every(u => ['yellow','green','wild'].includes(u.team)))
+        assert.ok(raiding.buildings.every(b => b.team === 'yellow'))
+        const green = raiding.units.filter(u => u.team === 'green')
+        assert.deepEqual(green.map(u=>u.id), [3,4,5,6,7,8,9])
+        for (const u of green) {
+          const p = personOf(u), cell=((p.x>>>8)&254)|(p.y&0xfe00)
+          assert.ok(u.hp>0)
+          assert.equal(raiding.objectCells.objects.get(u.id),p)
+          assert.ok([...objectsInCell(raiding.objectCells,cell)].includes(p))
+          assert.equal(p.tribe,3)
+          assert.equal(scan.has(cell),false)
+        }
+        for (const u of raiding.units.filter(u=>u.team==='wild')) {
+          const p=combatPerson(u)
+          assert.deepEqual([p.model,p.tribe],[1,-1])
+        }
+      }
+    }
+    if (!firstAnchors && warriors.every(id => {
+      const p = raiding.objectCells.objects.get(id)
+      return p && p.anchorX === 15104 && p.anchorY === 14592
+    })) {
+      firstAnchors = raiding.turn
+      for (const id of warriors) {
+        const u=raiding.units.find(u=>u.id===id), p=personOf(u)
+        assert.equal(raiding.objectCells.objects.get(id),p)
+        assert.equal(p.state,17)
+        assert.equal(currentPersonOrder(raiding.buildingOrders,p),undefined)
+      }
+      const preacher=raiding.units.find(u=>u.id===preacherId), p=personOf(preacher)
+      assert.equal(raiding.objectCells.objects.get(preacherId),p)
+      assert.equal(currentPersonOrder(raiding.buildingOrders,p).model,17)
+      assert.deepEqual([restoredAttack.damage,restoredAttack.extra],[2,20])
+    }
+  }
+  assert.equal(convertedCount, 4)
+  assert.equal(firstAnchors, 8271)
+  assert.equal(emptyRetries, 33)
+  assert.deepEqual([restoredAttack.phase, restoredAttack.retries, restoredAttack.elapsed, restoredAttack.fallback], [6, 33, 0, 23])
+  const store = createGameStore()
+  store.startMission(6)
+  Object.assign(store.getWorld(), raiding)
+  assert.deepEqual(store.getWorld(), raiding)
+  await store.saveCheckpoint()
+  const replay = migrateCheckpoint(structuredClone(store.getWorld()))
+  assert.ok(store.loadCheckpoint())
+  raiding = store.getWorld()
+  restoredAttack = raiding.campaignAIs[2].tasks[raidSlot]
+  assert.deepEqual(raiding, replay)
+  const owners = originalMembers.map(id => raiding.objectCells.objects.get(id)),
+    returnOrder = currentPersonOrder(raiding.buildingOrders, owners[0]),
+    returnId = raiding.buildingOrders.records.indexOf(returnOrder)
+  assert.ok(owners.every(p => currentPersonOrder(raiding.buildingOrders, p) === returnOrder))
+  assert.deepEqual([returnOrder.model, returnOrder.a, returnOrder.b, returnOrder.references], [3, 38016, 53376, 4])
+  let previousReferences = 4, releaseTransitions = 0, retired = false
+  // Source phase6 timeout is strictly elapsed>1800. This observed scene reaches
+  // home and releases its orders, then retires by timeout rather than settlement.
+  for (; raiding.turn < 10234;) {
+    const beforePhase = restoredAttack.phase, beforeElapsed = restoredAttack.elapsed
+    tick(raiding, 1 / 12)
+    tick(replay, 1 / 12)
+    assert.deepEqual(raiding, replay)
+    assert.equal(raiding.units.some(u => u.team === 'blue'), false)
+    assert.deepEqual(raiding.respawns, [0, 0, 0, 0])
+    assert.equal(raiding.effects.some(e => e.reincarnationWave?.tribe === 0), false)
+    assert.equal(raiding.campaignAIs[2].tasks[raidSlot], restoredAttack)
+    assert.equal(raiding.buildingOrders.records[returnId], returnOrder)
+    assert.deepEqual([returnOrder.model, returnOrder.a, returnOrder.b], [3, 38016, 53376])
+    const active = raiding.campaignAIs[2].tasks.filter(t => t.flags & 1 && t.type === 20)
+    assert.deepEqual(active, raiding.turn < 10234 ? [restoredAttack] : [])
+    if (returnOrder.references !== previousReferences) {
+      assert.deepEqual([raiding.turn, returnOrder.references], [[9071, 3], [9112, 1], [9116, 0]][releaseTransitions++])
+      previousReferences = returnOrder.references
+    }
+    if (raiding.turn === 10233) {
+      assert.deepEqual([beforePhase, beforeElapsed, restoredAttack.phase, restoredAttack.elapsed], [6, 1800, 23, 1801])
+    } else if (raiding.turn < 10233) assert.equal(restoredAttack.phase, 6)
+    if (raiding.turn === 10234) {
+      assert.equal(beforePhase, 23)
       assert.equal(restoredAttack.flags & 3, 0)
       assert.deepEqual(restoredAttack.members, [])
       retired = true
-    }
-    if (retired) {
-      assert.equal(activeRaids.length, 0)
-      assert.equal(restoredAttack.flags & 1, 0)
-      assert.deepEqual(restoredAttack.members, [])
+    } else assert.deepEqual(restoredAttack.members, originalMembers)
+    for (const [index, id] of originalMembers.entries()) {
+      const u = raiding.units.find(u => u.id === id), p = personOf(u)
+      assert.ok(u && u.hp > 0)
+      assert.equal(p, owners[index])
+      assert.equal(raiding.objectCells.objects.get(id), p)
+      assert.equal(p.computerAssignment, 0)
     }
   }
-  assert.ok(abortTurn !== null)
   assert.ok(retired)
-  assert.ok(originalMembers.every(id => raiding.units.some(unit => unit.id === id && unit.hp > 0)))
+  assert.equal(releaseTransitions, 3)
+  assert.equal(returnOrder.references, 0)
+  assert.equal(restoredAttack.elapsed, 1801)
+  assert.equal(restoredAttack.phase, 23)
+  assert.deepEqual(originalMembers.map(id => raiding.units.find(u => u.id === id).hp), [90.15, 90.2, 90.2, 55])
+  for (const p of owners) {
+    assert.deepEqual(p.commands, [0, 0, 0, 0, 0, 0, 0, 0])
+    assert.equal(p.commandCursor, 0)
+    assert.equal(p.immediateCommand, 0)
+    assert.equal(currentPersonOrder(raiding.buildingOrders, p), undefined)
+    assert.deepEqual([p.anchorX, p.anchorY], [38144, 53504])
+  }
 })
 
 test('Mission 6 opponents expand and Matak launches its first Warrior raid', () => {
@@ -644,34 +755,66 @@ test('Mission 6 ATTACK snapshots the native three-spell payload and keeps old ta
   task.phase = 6
   task.fallback = 18
   const seen = [],
+    events = [],
     input = {
       staging: 0,
       select: () => [],
-      settled: () => true,
+      settled: () => {
+        events.push('settled')
+        return true
+      },
       memberWithin: () => null,
       ready: () => true,
       activeMembers: () => 1,
       targetsRemain: () => true,
       random: () => 0,
       taskSpell: (models, target) => {
-        seen.push({ models: [...models], target })
+        events.push('cast')
+        seen.push({ models: [...models], target, elapsed: task.elapsed })
         return null
       },
     }
   assert.deepEqual(stepAttackTask(ai, 0, input), [])
-  assert.equal(
-    task.phase,
-    6,
-    'a retained task spell must retry rather than skip the native phase-6 hook'
-  )
+  assert.equal(task.phase, 18, 'a refused spell still reaches settled-member fallback')
   assert.deepEqual(task.spells, [12, 3, 2], 'failed allocation must not consume a task spell')
-  assert.deepEqual(seen, [{ models: [12, 3, 2], target: 0x80ce }])
+  assert.deepEqual(seen, [{ models: [12, 3, 2], target: 0x80ce, elapsed: 1 }])
+  assert.deepEqual(events, ['cast', 'settled'])
 
-  input.taskSpell = models => models[0]
+  task.phase = 6
+  events.length = 0
+  input.taskSpell = models => {
+    events.push('cast')
+    return models[0]
+  }
   assert.deepEqual(stepAttackTask(ai, 0, input), [])
-  assert.equal(task.phase, 6)
+  assert.equal(task.phase, 18)
+  assert.equal(task.elapsed, 2)
+  assert.deepEqual(events, ['cast', 'settled'])
   assert.deepEqual(task.spells, [0, 3, 2], 'successful allocation consumes only the selected model')
 
+  task.phase = 6
+  task.elapsed = 1799
+  stepAttackTask(ai, 0, { ...input, taskSpell: () => null, settled: () => false })
+  assert.equal(task.elapsed, 1800)
+  assert.equal(task.phase, 6, 'timeout is strictly greater than 1800')
+  assert.deepEqual(
+    stepAttackTask(ai, 0, { ...input, taskSpell: () => null, settled: () => false }),
+    []
+  )
+  assert.equal(task.elapsed, 1801)
+  assert.equal(task.phase, 18, 'remaining payload cannot suppress the native timeout')
+  assert.deepEqual(task.spells, [0, 3, 2])
+
+  task.phase = 6
+  task.members.push(123)
+  assert.deepEqual(
+    stepAttackTask(ai, 0, { ...input, taskSpell: () => null, settled: () => null }),
+    []
+  )
+  assert.equal(task.flags & 3, 0)
+  assert.deepEqual(task.members, [], 'missing members still clean up with a retained payload')
+
+  task.flags |= 1
   delete task.spells
   task.phase = 6
   assert.deepEqual(stepAttackTask(ai, 0, { ...input, taskSpell: undefined }), [])

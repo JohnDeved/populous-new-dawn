@@ -278,7 +278,7 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     for (let i = 0; i < g.children.length; i++) {
       const sprite = g.children[i] as THREE.Sprite,
         insect = swarm.insects[i]
-      sprite.visible = !!insect
+      sprite.visible = !!insect && !insect.hidden
       if (!insect) continue
       sprite.position.set(
         short(insect.x - swarm.x) / 256,
@@ -574,9 +574,15 @@ export function updateSpellHalo(scene: GameScene, frame: number) {
   }
 }
 
+const effectFrameIds = new WeakMap<GameScene, Set<number>>()
+
 export function updateEffectsFrame(scene: GameScene) {
+  let ids = effectFrameIds.get(scene)
+  if (!ids) effectFrameIds.set(scene, (ids = new Set()))
+  ids.clear()
+  for (const f of scene.world.effects) ids.add(f.id)
   for (const [id, g] of scene.fxMeshes)
-    if (!scene.world.effects.some(f => f.id === id)) {
+    if (Number.isNaN(id) || !ids.has(id)) {
       g.removeFromParent()
       scene.releaseGroup(g)
       scene.fxMeshes.delete(id)

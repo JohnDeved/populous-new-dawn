@@ -1,0 +1,12 @@
+✔ authored multi-follower heads report required count, not selected or admitted count (272.51335ms)
+✔ single-follower head keeps singular feedback (111.879841ms)
+✔ Shaman-only authored head identifies its required worshipper (122.441463ms)
+✔ Vault commands retain their separate queued-command feedback (66.401528ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2880.269908

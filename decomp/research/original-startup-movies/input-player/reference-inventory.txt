@@ -1,0 +1,6 @@
+  49cc17:	c7 05 64 a8 5c 00 01 	mov    DWORD PTR ds:0x5ca864,0x1
+  49cc37:	c7 05 64 a8 5c 00 01 	mov    DWORD PTR ds:0x5ca864,0x1
+  49cc61:	83 3d 64 a8 5c 00 00 	cmp    DWORD PTR ds:0x5ca864,0x0
+  49cc6a:	c7 05 64 a8 5c 00 00 	mov    DWORD PTR ds:0x5ca864,0x0
+  52cb08:	e8 a3 fa ff ff       	call   0x52c5b0
+  52d094:	e8 17 f5 ff ff       	call   0x52c5b0

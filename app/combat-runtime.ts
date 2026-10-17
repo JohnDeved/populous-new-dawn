@@ -384,7 +384,7 @@ export function cleanBattles(w: World) {
       count: b.members.length,
       winner: b.winner ?? 255,
     }
-    const result = cleanFightRoster(group, people)
+    const result = cleanFightRoster(group, people, id => id)
     b.slots = group.members
     b.tribes = group.tribes
     b.winner = group.winner

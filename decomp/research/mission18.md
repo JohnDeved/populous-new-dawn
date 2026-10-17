@@ -19,9 +19,10 @@ and one Preacher and gives them persistent guard routes between those markers.
 The live port reaches the same path from ordinary Mission 18 creation and normal
 AI turns; no test-created enemy people or economy state are required.
 
-The first recurring Red block at words 624–644 is not claimed. Although its
-`1092(1,2,-1,-1)` patrol is reachable at turn 1472, the same branch also calls
-unported command 1074. The adjacent Green Erosion/boat and Land Bridge attacks
+The first recurring Red block at words 624–644 was initially deferred because
+command1074 was unported. The later [bounded recurring restoration](mission18-recurring-preacher.md)
+delivers that complete block and its original kill-count guard transition using
+the now-reviewed generic consumers. The adjacent Green Erosion/boat and Land Bridge attacks
 require specialist/vehicle populations absent from the authored browser start.
 
 ## Bank-g sky

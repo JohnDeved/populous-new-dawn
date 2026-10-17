@@ -13,13 +13,13 @@ const observed = JSON.parse(execFileSync(process.execPath, [
 // Reviewed original observations, not expected values produced by the adapter.
 // These fixtures isolate allocation and supplied population reads. The separate
 // early-mission-ai test remains the unchanged ordinary gameplay/checkpoint gate.
-const original = [2, 3].flatMap(attempt => {
-  const path = new URL(
-    `../references/verification/mission3-raid-allocation-2026-10-06/attempt${attempt}/stdout.log`,
-    import.meta.url,
-  )
-  return JSON.parse(readFileSync(path, 'utf8')).cases.map(c => c.native)
-})
+const reference = JSON.parse(readFileSync(new URL(
+  './fixtures/mission3-raid-allocation-native.json', import.meta.url), 'utf8'))
+assert.equal(reference.schemaVersion, 1)
+assert.equal(reference.kind, 'mission3-raid-allocation-native')
+const original = reference.cases
+const expectedFields = ['name', 'rng', 'reads', 'allocated', 'occupiedUnchanged', 'attributes']
+for (const expected of original) assert.deepEqual(Object.keys(expected), expectedFields)
 assert.equal(original.length, 5)
 assert.equal(observed.length, original.length)
 

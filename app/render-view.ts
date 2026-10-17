@@ -175,6 +175,7 @@ export class RenderView {
       programKey: string
     }
   >()
+  private drawCallbacks = new WeakMap<THREE.Object3D, THREE.Object3D['onBeforeRender']>()
   terrainHeights: [number, number] = [0, 63]
   config = cameraConfig(0)
   projection: Projection = {
@@ -248,8 +249,13 @@ export class RenderView {
         : overview
           ? circularMeshBounds(this.config.diameter)
           : this.displayGroundFootprint.cover(
-              circularMeshBounds(this.config.diameter), this.config, width, height,
-              this.terrainHeights, angle, this.rawCenter
+              circularMeshBounds(this.config.diameter),
+              this.config,
+              width,
+              height,
+              this.terrainHeights,
+              angle,
+              this.rawCenter
             )
     const pixels = this.boundsTexture.image.data as Float32Array
     for (let i = 0; i < 222; i++) pixels.set(this.bounds[i], i * 2)
@@ -480,9 +486,71 @@ export class RenderView {
             ),
             unwrapped = !!object.userData.nativeRelative
           const count = index ? Math.min(index.count, geometry.drawRange.count) : position.count
+          // Equal shipped grid corners share projection work only within this
+          // query and instance. Never retain painter or cross-query buffers.
+          const terrainCorners =
+            !nativeEdges &&
+            !scale &&
+            object instanceof THREE.InstancedMesh &&
+            object.userData.terrainGrid &&
+            object.userData.painterGround &&
+            object.userData.nativeRelative &&
+            position instanceof THREE.BufferAttribute &&
+            Object.getPrototypeOf(position) === THREE.Float32BufferAttribute.prototype &&
+            position.getX === THREE.BufferAttribute.prototype.getX &&
+            position.getY === THREE.BufferAttribute.prototype.getY &&
+            position.getZ === THREE.BufferAttribute.prototype.getZ &&
+            Object.getPrototypeOf(position.array) === Float32Array.prototype &&
+            position.array.buffer instanceof ArrayBuffer &&
+            !position.normalized &&
+            position.itemSize === 3 &&
+            position.count === 128 * 128 * 6 &&
+            index &&
+            Object.getPrototypeOf(index) === THREE.BufferAttribute.prototype &&
+            index.getX === THREE.BufferAttribute.prototype.getX &&
+            index.setX === THREE.BufferAttribute.prototype.setX &&
+            Object.getPrototypeOf(index.array) === Uint32Array.prototype &&
+            index.array.buffer instanceof ArrayBuffer &&
+            !index.normalized &&
+            index.itemSize === 1 &&
+            count % 6 === 0
+              ? new Uint32Array(129 * 129)
+              : null
           for (let vertex = 0; vertex < count; vertex++) {
             const i = index ? index.getX(vertex) : vertex
             if (screen[i]) continue
+            let firstCorner = -1
+            if (terrainCorners) {
+              const x = position.getX(i),
+                y = position.getY(i),
+                z = position.getZ(i),
+                gridX = (x + 128) / 2,
+                gridZ = (z + 128) / 2
+              if (
+                Number.isFinite(x) &&
+                Number.isFinite(y) &&
+                Number.isFinite(z) &&
+                Number.isInteger(gridX) &&
+                Number.isInteger(gridZ) &&
+                gridX >= 0 &&
+                gridX <= 128 &&
+                gridZ >= 0 &&
+                gridZ <= 128
+              ) {
+                const corner = gridZ * 129 + gridX,
+                  source = terrainCorners[corner] - 1
+                if (source < 0) firstCorner = corner
+                else if (
+                  Object.is(x, position.getX(source)) &&
+                  Object.is(y, position.getY(source)) &&
+                  Object.is(z, position.getZ(source))
+                ) {
+                  world[i] = world[source]
+                  screen[i] = screen[source]
+                  continue
+                }
+              }
+            }
             let p = new THREE.Vector3().fromBufferAttribute(position, i)
             if (scale) {
               const raw = [
@@ -499,6 +567,8 @@ export class RenderView {
             } else p.applyMatrix4(transform)
             world[i] = p
             screen[i] = this.screen(p, camera, unwrapped)
+            // Keep the first source when later corners disagree in height or sign.
+            if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
           }
           if (nativeEdges && !reuse) {
             let entries = this.groundPickCache.get(object)
@@ -617,6 +687,29 @@ export class RenderView {
     index.needsUpdate = true
     geometry.setDrawRange(0, count)
   }
+  private createDrawCallback(object: THREE.Object3D): THREE.Object3D['onBeforeRender'] {
+    return (_renderer, _scene, _camera, _geometry, material) => {
+      const local = material.userData.nativeUniforms
+      if (!local) return
+      if (object.userData.atlasTransform)
+        local.nativeAtlasTransform.value = object.userData.atlasTransform
+      local.nativePainterRange.value.set(
+        !this.overview ? (this.painter.ranges.get(object) ?? [-1, 0]) : [-1, 0]
+      )
+      local.nativeModelScale.value = object.userData.nativeScale ?? 0
+      local.nativeObjectScale.value = object.userData.nativeSize ?? object.userData.nativeScale ?? 0
+      local.nativeRelative.value = object.userData.nativeRelative ? 1 : 0
+      const cell = object.parent?.userData.cellPosition
+      local.nativeCellAnchor.value.set(cell?.x ?? 0, 0, cell?.z ?? 0, cell ? 1 : 0)
+      local.nativeObjectBasis.value.set(
+        modelMatrix(
+          object.parent?.userData.nativeHeading ?? 0,
+          object.parent?.userData.nativeTilt ?? 0,
+          object.parent?.userData.nativeRoll ?? 0
+        )
+      )
+    }
+  }
   prepare(scene: THREE.Scene) {
     scene.onBeforeRender = renderer => {
       scene.traverseVisible(object => this.updateTerrainVisibility(object))
@@ -656,28 +749,12 @@ export class RenderView {
       object.material = Array.isArray(object.material)
         ? object.material.map(ownMaterial)
         : ownMaterial(object.material)
-      object.onBeforeRender = (_renderer, _scene, _camera, _geometry, material) => {
-        const local = material.userData.nativeUniforms
-        if (!local) return
-        if (object.userData.atlasTransform)
-          local.nativeAtlasTransform.value = object.userData.atlasTransform
-        local.nativePainterRange.value.set(
-          !this.overview ? (this.painter.ranges.get(object) ?? [-1, 0]) : [-1, 0]
-        )
-        local.nativeModelScale.value = object.userData.nativeScale ?? 0
-        local.nativeObjectScale.value =
-          object.userData.nativeSize ?? object.userData.nativeScale ?? 0
-        local.nativeRelative.value = object.userData.nativeRelative ? 1 : 0
-        const cell = object.parent?.userData.cellPosition
-        local.nativeCellAnchor.value.set(cell?.x ?? 0, 0, cell?.z ?? 0, cell ? 1 : 0)
-        local.nativeObjectBasis.value.set(
-          modelMatrix(
-            object.parent?.userData.nativeHeading ?? 0,
-            object.parent?.userData.nativeTilt ?? 0,
-            object.parent?.userData.nativeRoll ?? 0
-          )
-        )
+      let onBeforeRender = this.drawCallbacks.get(object)
+      if (!onBeforeRender) {
+        onBeforeRender = this.createDrawCallback(object)
+        this.drawCallbacks.set(object, onBeforeRender)
       }
+      object.onBeforeRender = onBeforeRender
       for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
         if (this.materials.has(material)) continue
         material.fog = false

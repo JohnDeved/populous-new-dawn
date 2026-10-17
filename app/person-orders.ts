@@ -94,8 +94,10 @@ export function writePersonOrder(
   model: number,
   first: number,
   point: number,
-  flags: number
+  flags: number,
+  objectId?: (stored: number) => number
 ) {
+  const reference = objectId?.(first) ?? first & 65535
   model &= 255
   first &= 65535
   point &= 65535
@@ -105,9 +107,9 @@ export function writePersonOrder(
   if (type & 1) {
     order.a = ((point << 8) + 128) & 65535
     order.b = (point & 0xff00) + 128
-  } else if (type & 0x242) order.a = first
+  } else if (type & 0x242) order.a = reference
   else if (type & 4) {
-    order.a = first
+    order.a = reference
     order.b = point
   } else if (type & 0x800) {
     order.a = point

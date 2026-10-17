@@ -101,3 +101,37 @@ armed-wait checkpoints. Its static coordinates are source-derived assertions,
 not native CPU captures. The unchanged Spy test in `tests/training-entry.test.mjs`
 is the end-to-end model witness. Rendered ordinary acceptance and standard gates
 remain separate; this source note alone does not establish them.
+
+## Aftermath discovery ownership — October 12, 2026
+
+A later audit of retained `00439d30` found an independent discovery boundary:
+phase 3 decrements its eight-visit timer, ignites the building, sets phase 4 and
+arms flags2 bit `0x40000000`. It does not call the proximity detector. On the
+next phase-4 entry the original sets timer 24 and, for player type other than 1,
+consumes one gameplay-RNG draw before testing the target's discovery percentage
+and land bit 8. Land bit 8 suppresses reveal, not that draw. The entry visit also
+decrements the timer to 23. Later phase-4 visits do not repeat discovery.
+
+The previous port ran this roll during ignition and short-circuited it on an
+extra proximity test or land bit 8. The bounded repair moves only aftermath
+entry/discovery ownership. Phase-1/2 detection, approach, ignition, target
+selection, movement and order retirement keep their existing implementations.
+The detector's `00439c30` export is not retained, so this change makes no new
+claim about its detailed original eligibility or traversal.
+
+The regression producer trains an actual Spy, submits disguise command 16 and
+sabotage command 15, and advances ordinary turns to the final phase-3 visit.
+School, terrain, Brave population and training funding are supplied mechanics
+inputs, not an unmodified campaign route. The matrix then controls player type,
+land bit 8, discovery chance and detector placement at that captured boundary.
+It checks one-shot RNG/reveal, repeated visits, checkpoints before/after entry,
+and existing phase-1/2 detection. Existing phase-4 checkpoints without the entry
+bit continue their timer without replaying their earlier roll; saves before that
+boundary receive the corrected future transition without a schema migration.
+
+The retained training integration fixture's old detection label was misleading:
+its phase-1/2 Spy cell is `(14,106)` while its detector is `(14,102)`. Its reveal
+came from the discovery roll rather than that out-of-range detector. Regression
+expectations distinguish ignition from the following aftermath visit, keeping
+training, order, ignition and checkpoint ownership assertions intact. This is
+source-derived sequencing evidence, not a fresh native or rendered capture.

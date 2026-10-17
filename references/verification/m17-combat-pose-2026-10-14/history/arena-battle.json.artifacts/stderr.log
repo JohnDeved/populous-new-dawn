@@ -1,0 +1,24 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Native/browser position agreement for 1586 at 6674
++ actual - expected
+
++ 0.27091470131874534
+- 0
+
+    at assertNativeSeatConsistency (file:///workspace/scratch/69fd8163d94e/populous-m17-clock-audit/work/m17-clock-route/convoy-native-consistency-combat.mjs:13:10)
+    at step (file:///workspace/scratch/69fd8163d94e/populous-m17-clock-audit/work/m17-clock-route/arena-battle.mjs:5:294)
+    at file:///workspace/scratch/69fd8163d94e/populous-m17-clock-audit/work/m17-clock-route/arena-battle.mjs:6:51
+    at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m17-clock-audit/tests/support/profile-storage.mjs:115:5)
+    at async file:///workspace/scratch/69fd8163d94e/populous-m17-clock-audit/work/m17-clock-route/arena-battle.mjs:4:1 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0.27091470131874534,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

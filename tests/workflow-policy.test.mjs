@@ -26,7 +26,7 @@ test('live aggregate coverage includes every maintained workflow integrity suite
   const { checks } = JSON.parse(read('engineering/checks.json'))
   assert.deepEqual(checks.find(check => check.id === 'orchestration-tests').args, [
     '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs',
-    'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs',
+    'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs',
   ])
   for (const id of ['orchestration-tests', 'repository-check']) {
     assert.ok(checks.find(check => check.id === id).inputs.includes('.codex/config.toml'),
@@ -182,4 +182,175 @@ test('preflight does not mistake a no-index access error for a clean difference'
   assert.equal(result.status, 'failed')
   assert.equal(attempts.length, 4)
   assert.ok(attempts.every(command => command[0] === 'git'))
+})
+
+// The aggregate gate and the intentionally partial editing loop are distinct.
+test('bounded test entrypoints preserve aggregate coverage and keep focus explicit', () => {
+  const { scripts } = JSON.parse(read('package.json'))
+  assert.equal(scripts.test, 'node scripts/orchestration/test-runner.mjs all')
+  assert.equal(scripts['test:focus'], 'node scripts/orchestration/test-runner.mjs focus')
+  assert.equal(scripts['test:serial'], 'node scripts/orchestration/test-runner.mjs serial')
+  assert.equal(scripts.check, 'npm run typecheck && npm test && npm run parity:check && npm run orchestration:check')
+})
+
+test('focused suggestions are advisory and broad or unknown changes fall back to the full suite', async () => {
+  const { focusedTestFeedback } = await import('../scripts/orchestration/cli.mjs')
+  const make = (path, status = 'M', unknown = false) => focusedTestFeedback({
+    changes: [{ path, status, endpoint: 'path' }], unknownPaths: unknown ? [path] : [],
+    checks: [{ command: ['node', '--test', 'tests/a.test.mjs'] }],
+  }, [
+    ...JSON.parse(read('engineering/project-map.json')).crossCutting.map(entry => entry.path),
+    ...JSON.parse(read('engineering/project-map.json')).subsystems.flatMap(subsystem => subsystem.sharedPaths),
+  ])
+  const focused = make('app/narrow.ts')
+  assert.deepEqual(focused.command, ['npm', 'run', 'test:focus', '--', 'tests/a.test.mjs'])
+  assert.equal(focused.finalGate, false)
+  assert.equal(focused.fullVerificationRequired, true)
+  assert.deepEqual(make('tests/new.test.mjs', 'A', true).command, ['npm', 'run', 'test:focus', '--', 'tests/a.test.mjs', 'tests/new.test.mjs'])
+  for (const path of ['app/model.ts', 'app/scene.ts', 'app/world-state.ts', 'app/world-types.ts', 'package-lock.json', 'tests/support/helper.mjs', 'scripts/new.mjs'])
+    assert.deepEqual(make(path).command, ['npm', 'test'])
+  assert.deepEqual(make('app/unmapped.ts', 'M', true).command, ['npm', 'test'])
+  assert.deepEqual(make('tests/deleted.test.mjs', 'D').command, ['npm', 'test'])
+  assert.equal(focusedTestFeedback({ changes: [], unknownPaths: [], checks: [] }).command, null)
+})
+
+// Structural contracts complement, but never replace, hosted lifecycle evidence.
+test('ready-PR sharded gate is exhaustive, fail-closed and least privilege', () => {
+  const workflow = read('.github/workflows/ready-pr-check.yml')
+  assert.match(workflow, /^name: Ready PR checks$/m)
+  assert.equal(workflow.match(/^on:\n([\s\S]*?)\n\n/m)?.[1],
+    '  pull_request:\n    branches: [main]\n    types: [ready_for_review]')
+  assert.match(workflow, /^permissions:\n {2}contents: read\n/m)
+  assert.match(workflow, /^concurrency:\n {2}group: .+\n {2}cancel-in-progress: true$/m)
+  assert.deepEqual([...workflow.matchAll(/^ {2}([a-z-]+):$/gm)].map(match => match[1]).filter(name => ['quality', 'test-shards', 'full-check'].includes(name)), ['quality', 'test-shards', 'full-check'])
+  assert.match(workflow, /needs: \[quality, test-shards\]\n {4}if: \$\{\{ always\(\) \}\}/)
+  assert.equal((workflow.match(/^\s*if:/gm) ?? []).length, 2)
+  assert.match(workflow, /fail-fast: false\n {6}max-parallel: 4/)
+  assert.deepEqual([...workflow.matchAll(/- \{ index: (\d), label: (\d) \}/g)].map(match => [Number(match[1]), Number(match[2])]), [[0, 1], [1, 2], [2, 3], [3, 4]])
+  assert.doesNotMatch(workflow, /^\s*(?:continue-on-error|paths|paths-ignore|push|pull_request_target|workflow_run|environment|secrets|run-id|github-token):/m)
+  assert.doesNotMatch(workflow, /\$\{\{\s*secrets\.|actions\/cache@|--if-present|npm run (?:deploy|parity:record)|run: npm run check/)
+  const pins = new Map([
+    ['actions/checkout', '3d3c42e5aac5ba805825da76410c181273ba90b1'],
+    ['actions/setup-node', '949feb2413d6458794dcd2491c4babbbce0c15c1'],
+    ['actions/setup-python', '5fda3b95a4ea91299a34e894583c3862153e4b97'],
+    ['actions/upload-artifact', 'ea165f8d65b6e75b540449e92b4886f43607fa02'],
+    ['actions/download-artifact', 'd3f86a106a0bac45b974a628896c90dbdf5c8093'],
+  ])
+  const actions = [...workflow.matchAll(/uses: ([\w/-]+)@([^ ]+)/g)]
+  assert.equal(actions.length, 15)
+  for (const [, action, sha] of actions) assert.equal(sha, pins.get(action))
+  for (const value of ['ref: ${{ github.sha }}', 'persist-credentials: false', "node-version: '24.19.0'", "python-version: '3.12.14'", 'npm ci --no-audit --no-fund', '--require-hashes -r engineering/ci-python-requirements.txt'])
+    assert.equal(workflow.split(value).length - 1, 4, value)
+  for (const command of ['typecheck', 'parity:check', 'orchestration:check', 'build'])
+    assert.equal(workflow.split(`run: npm run ${command}\n`).length - 1, 1, command)
+  assert.match(workflow, /shard --shard-index=\$\{\{ matrix.index \}\} --shard-count=4 --receipt=work\/ci\/shard.json/)
+  assert.match(workflow, /pattern: full-check-\$\{\{ github.run_id \}\}-\$\{\{ github.run_attempt \}\}-\*/)
+  assert.match(workflow, /merge-multiple: false/)
+  assert.equal((workflow.match(/if-no-files-found: error/g) ?? []).length, 2)
+  assert.match(workflow, /run: test "\$QUALITY_RESULT" = success && test "\$SHARDS_RESULT" = success/)
+  assert.match(workflow, /run: node scripts\/orchestration\/ci-gate.mjs aggregate work\/ci\/receipts work\/ci\/full-check.json/)
+  assert.match(read('engineering/ci-python-requirements.txt'), /^Pillow==12\.3\.0 --hash=sha256:[a-f0-9]{64}$/m)
+  const { checks } = JSON.parse(read('engineering/checks.json'))
+  for (const id of ['orchestration-tests', 'repository-check'])
+    assert.ok(checks.find(check => check.id === id).inputs.includes('.github/workflows/ready-pr-check.yml'))
+})
+
+test('draft readiness guard fails closed before checkout, installation or full tests', () => {
+  const workflow = read('.github/workflows/ready-pr-check.yml')
+  const guard = workflow.match(/ {4}steps:\n(?: {6}#.*\n)* {6}- name: Require a ready pull request\n {8}env:\n {10}IS_DRAFT: \$\{\{ toJSON\(github.event.pull_request.draft\) \}\}\n {8}run: \|\n((?: {10}[^\n]*\n)+)/)?.[1]
+  assert.ok(guard, 'readiness guard must be the first step')
+  const script = guard.replace(/^ {10}/gm, '')
+  for (const value of [false, true, undefined, null, '', 'false', 'False', 'true', 0, [], {}]) {
+    const status = value === false ? 0 : 1
+    const result = spawnSync('bash', ['-e', '-c', script], {
+      env: { ...process.env, IS_DRAFT: JSON.stringify(value) ?? '' }, encoding: 'utf8',
+    })
+    assert.equal(result.error, undefined)
+    assert.equal(result.status, status, result.stderr)
+    if (status) assert.match(result.stdout, /Draft PR: full checks have not run/)
+  }
+})
+
+// Evaluate only this workflow's small expression subset against event fixtures.
+// These contracts cannot establish GitHub scheduling or required-check selection.
+function admission(draft, overrides = {}) {
+  const workflow = read('.github/workflows/ready-pr-check.yml')
+  const context = {
+    'github.workflow': 'Ready PR checks', 'github.event.pull_request.number': 123,
+    'github.event.pull_request.head.sha': '1'.repeat(40),
+    'github.event.pull_request.base.sha': '2'.repeat(40), 'github.sha': '3'.repeat(40),
+    ...overrides,
+  }
+  const render = template => template.replace(/\$\{\{ (.*?) \}\}/g, (_, expression) => {
+    const choice = expression.match(/^toJSON\(github.event.pull_request.draft\) == 'false' && '([^']+)' \|\| '([^']+)'$/)
+    if (choice) return JSON.stringify(draft) === 'false' ? choice[1] : choice[2]
+    assert.ok(Object.hasOwn(context, expression), `unreviewed expression: ${expression}`)
+    return context[expression]
+  })
+  return {
+    name: render(workflow.match(/^ {4}name: (\$\{\{ toJSON.+)$/m)[1]),
+    group: render(workflow.match(/^ {2}group: (.+)$/m)[1]),
+  }
+}
+
+test('only boolean-ready events publish Full check; stale or malformed draft admission is separate', () => {
+  const ready = admission(false)
+  assert.equal(ready.name, 'Full check')
+  assert.equal(ready.group, `Ready PR checks-123-${'1'.repeat(40)}-${'2'.repeat(40)}-${'3'.repeat(40)}-ready`)
+  for (const value of [true, undefined, null, '', 'false', 'False', 0, [], {}]) {
+    const draft = admission(value)
+    assert.equal(draft.name, 'Draft PR (not validated)')
+    assert.notEqual(draft.group, ready.group)
+    assert.ok(draft.group.endsWith('-draft'))
+  }
+})
+
+test('old heads, bases and merge SHAs cannot share current-candidate cancellation or pending replacement', () => {
+  for (const draft of [false, true]) {
+    const current = admission(draft)
+    for (const key of ['github.event.pull_request.head.sha', 'github.event.pull_request.base.sha', 'github.sha']) {
+      assert.notEqual(admission(draft, { [key]: '4'.repeat(40) }).group, current.group, key)
+    }
+    assert.notEqual(admission(draft, { 'github.event.pull_request.number': 124 }).group, current.group)
+    assert.notEqual(admission(draft, { 'github.workflow': 'Another workflow' }).group, current.group)
+  }
+})
+
+test('repeated transitions and three overlapping admissions retain separate candidate and draft groups', () => {
+  const ready = admission(false), staleDraft = admission(true)
+  const oldReady = admission(false, { 'github.event.pull_request.base.sha': '4'.repeat(40) })
+  assert.equal(new Set([ready.group, staleDraft.group, oldReady.group]).size, 3)
+  for (const sequence of [[false, true, false], [true, false, true], [false, false, true, false]]) {
+    for (const draft of sequence) assert.deepEqual(admission(draft), draft ? staleDraft : ready)
+  }
+  // Same-candidate ready duplicates may supersede each other; each still runs the full gate.
+  assert.equal(admission(false).group, ready.group)
+})
+
+test('aggregate dependency guard rejects missing, failed, skipped and cancelled jobs', () => {
+  const workflow = read('.github/workflows/ready-pr-check.yml')
+  const script = workflow.match(/run: (test "\$QUALITY_RESULT"[^\n]+)/)[1]
+  for (const quality of ['success', 'failure', 'cancelled', 'skipped', '']) {
+    for (const shards of ['success', 'failure', 'cancelled', 'skipped', '']) {
+      const result = spawnSync('bash', ['-e', '-c', script], {
+        env: { ...process.env, QUALITY_RESULT: quality, SHARDS_RESULT: shards }, encoding: 'utf8',
+      })
+      assert.equal(result.status, quality === 'success' && shards === 'success' ? 0 : 1)
+    }
+  }
+})
+
+test('one activation diagnostic compares the unchanged legacy test suite without replacing coverage', () => {
+  const workflow = read('.github/workflows/ready-pr-check.yml')
+  const baseline = workflow.split('  benchmark-baseline:\n')[1]
+  assert.ok(baseline)
+  assert.match(baseline, /^ {4}name: Legacy test baseline \(diagnostic\)$/m)
+  assert.match(baseline, /^ {4}needs: full-check$/m)
+  assert.match(baseline, /^ {4}if: \$\{\{ github.event.pull_request.number == 516 && needs.full-check.result == 'success' \}\}$/m)
+  assert.match(baseline, /PYTHONDONTWRITEBYTECODE: '1'/)
+  assert.match(baseline, /- name: Legacy full test suite\n {8}run: npm test/)
+  assert.equal((workflow.match(/run: npm test$/gm) ?? []).length, 1)
+  assert.doesNotMatch(baseline, /npm run (?:check|build|typecheck|parity:check|orchestration:check)|upload-artifact/)
+  assert.match(baseline, /ci-gate.mjs baseline work\/ci\/before.json work\/ci\/baseline.json/)
+  assert.match(workflow.split('  full-check:\n')[1].split('  benchmark-baseline:')[0], /needs: \[quality, test-shards\]/)
 })

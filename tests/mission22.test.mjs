@@ -1,3 +1,4 @@
+import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
@@ -7,6 +8,8 @@ import { liveVehicleCellObjects } from '../app/live-vehicles.ts'
 import { messageText } from '../app/messages.ts'
 import { missionComputerTribes, missionData, missionScript } from '../app/mission-data.ts'
 import { addUnit, browserPosition, cast, command, tick } from '../app/model.ts'
+import { currentPersonOrder } from '../app/person-orders.ts'
+import { supportsFollower } from '../app/world-terrain-runtime.ts'
 import { vehicleCanDisembark } from '../app/vehicle-routing.ts'
 import { createWorld } from '../app/world-initialization.ts'
 
@@ -54,7 +57,14 @@ test('Mission 22 opens with its solo Shaman, native heads, tribes and transport'
     'None of my followers could accompany me to this world. I am alone and I shall need all my strength and cunning to survive. '
   )
   assert.deepEqual(
-    world.shrines.map(head => [head.kind, head.mode, head.model, head.required, head.target, head.rewardMana]),
+    world.shrines.map(head => [
+      head.kind,
+      head.mode,
+      head.model,
+      head.required,
+      head.target,
+      head.rewardMana,
+    ]),
     [
       ['mana', 3, 8, 1, 5, 600_000],
       ['inert', 3, 8, 1, 5, undefined],
@@ -70,7 +80,6 @@ test('Mission 22 opens with its solo Shaman, native heads, tribes and transport'
   )
 })
 
-
 test('Mission 22 mode-3 head rejects an injected Brave supporting fixture', () => {
   const world = createWorld(22),
     head = world.shrines.find(shrine => shrine.kind === 'inert'),
@@ -84,7 +93,14 @@ test('Mission 22 mode-3 head rejects an injected Brave supporting fixture', () =
   assert.equal(command(world, head), true)
   for (let turn = 0; turn < 300 && brave.native?.commandStatus !== 0; turn++) tick(world, 1 / 12)
   assert.deepEqual(
-    { mode: head.mode, model: head.model, work: head.work, followers: head.followers, rewardDelay: head.rewardDelay, command: brave.native?.commandStatus },
+    {
+      mode: head.mode,
+      model: head.model,
+      work: head.work,
+      followers: head.followers,
+      rewardDelay: head.rewardDelay,
+      command: brave.native?.commandStatus,
+    },
     { mode: 3, model: 8, work: 0, followers: 0, rewardDelay: undefined, command: 0 }
   )
 })
@@ -105,8 +121,14 @@ test('Mission 22 nearby head is a one-shot presentation with no gameplay reward'
   tick(world, 1 / 12)
 
   assert.deepEqual([head.rewardDelay, head.active, head.uses], [0, false, 1])
-  assert.deepEqual(world.manaTribes.map(tribe => tribe.pending), pending)
-  assert.equal(world.effects.some(effect => effect.kind === 'gift'), false)
+  assert.deepEqual(
+    world.manaTribes.map(tribe => tribe.pending),
+    pending
+  )
+  assert.equal(
+    world.effects.some(effect => effect.kind === 'gift'),
+    false
+  )
   assert.equal(shaman.hp, 100)
 })
 
@@ -132,20 +154,17 @@ test('Mission 22 southern head delivers its delayed 600,000 mana gift after real
   assert.deepEqual([head.mode, head.model], [3, 8])
   stepUntil(world, () => world.effects.some(effect => effect.reward === 'mana'), 50)
   const gift = world.effects.find(effect => effect.reward === 'mana')
-  assert.deepEqual([gift.amount, gift.recipient, gift.rewardModel, gift.phase, gift.remaining], [
-    600_000,
-    0,
-    5,
-    1,
-    82,
-  ])
+  assert.deepEqual(
+    [gift.amount, gift.recipient, gift.rewardModel, gift.phase, gift.remaining],
+    [600_000, 0, 5, 1, 82]
+  )
   stepUntil(world, () => !world.effects.some(effect => effect.id === gift.id), 82)
   assert.ok(world.manaTribes[0].pending >= 590_000)
   assert.equal(head.active, false)
   assert.equal(shaman.hp, 100)
 })
 
-test('Mission 22 Shaman can steal, checkpoint and sail the authored enemy Boat', () => {
+test('Mission 22 supplied-focus Shaman can steal, checkpoint and sail the authored enemy Boat', () => {
   let world = createWorld(22),
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     boat = world.vehicles.find(vehicle => vehicle.model === 1)
@@ -160,20 +179,20 @@ test('Mission 22 Shaman can steal, checkpoint and sail the authored enemy Boat',
   world.selected = [shaman.id]
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
-  assert.deepEqual([boat.team, boat.passengers, shaman.native.vehicle], [
-    'blue',
-    [shaman.id],
-    boat.id,
-  ])
+  assert.deepEqual(
+    [boat.team, boat.passengers, shaman.native.vehicle],
+    ['blue', [shaman.id], boat.id]
+  )
+
+  assert.deepEqual([world.turn, shaman.hp], [1378, 81.4])
 
   world = migrateCheckpoint(structuredClone(world))
   shaman = world.units.find(unit => unit.id === shaman.id)
   boat = world.vehicles.find(vehicle => vehicle.id === boat.id)
-  assert.deepEqual([boat.team, boat.passengers, shaman.native.vehicle], [
-    'blue',
-    [shaman.id],
-    boat.id,
-  ])
+  assert.deepEqual(
+    [boat.team, boat.passengers, shaman.native.vehicle],
+    ['blue', [shaman.id], boat.id]
+  )
 
   const land = {
       flags: world.land.flags,
@@ -184,10 +203,7 @@ test('Mission 22 Shaman can steal, checkpoint and sail the authored enemy Boat',
       .flatMap(y => Array.from({ length: 128 }, (_, x) => ({ x: (x * 2 + 1) * 256, y: y * 256 })))
       .map(point => ({
         point,
-        distance: Math.hypot(
-          ((point.x - boat.x) << 16) >> 16,
-          ((point.y - boat.y) << 16) >> 16
-        ),
+        distance: Math.hypot(((point.x - boat.x) << 16) >> 16, ((point.y - boat.y) << 16) >> 16),
       }))
       .filter(
         ({ point, distance }) =>
@@ -198,16 +214,37 @@ test('Mission 22 Shaman can steal, checkpoint and sail the authored enemy Boat',
       )
       .sort((a, b) => a.distance - b.distance)
       .find(({ point }) => browserPosition(point).x < 20)?.point
-  assert.ok(landing)
+  assert.deepEqual(landing, { x: 6912, y: 11520 })
   world.selected = [shaman.id]
   assert.ok(command(world, browserPosition(landing)))
+  const sail = currentPersonOrder(world.buildingOrders, shaman.native)
+  stepUntil(
+    world,
+    () => !currentPersonOrder(world.buildingOrders, shaman.native) && boat.speed === 0,
+    2_000
+  )
+  assert.equal(sail.references, 0)
+  assert.equal(shaman.native.vehicle, boat.id)
+  assert.deepEqual(boat.passengers, [shaman.id])
+  assert.ok(shaman.hp >= 81.4)
+  // Coastal suitability is not a dry ground destination. Plain completion stays
+  // aboard; the separate dry route below performs actual ground-leg departure.
+  const dry = { x: -25, z: -61 }
+  assert.ok(supportsFollower(world, dry))
+  assert.ok(command(world, dry))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  // This first shore is on the retained ground route, before its distant final goal.
+  settleRouteLaunch(world, shaman)
+  assert.deepEqual([shaman.x, shaman.z], [-33.2890625, -57.13671875])
   assert.equal(shaman.native.vehicle, 0)
-  assert.equal(shaman.hp, 100)
+  assert.ok(supportsFollower(world, shaman))
+  // The extra public dry voyage permits full natural healing before landing.
+  assert.equal(world.turn, 1939)
+  assert.equal(shaman.hp, 100.6)
   assert.equal(boat.team, 'blue')
 })
 
-test('Mission 22 Shaman can claim the authored Balloon and complete the northern mana route', () => {
+test('Mission 22 supplied-focus Shaman can claim the authored Balloon and complete the northern mana route', () => {
   let world = createWorld(22),
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     balloon = world.vehicles.find(vehicle => vehicle.model === 3),
@@ -225,8 +262,13 @@ test('Mission 22 Shaman can claim the authored Balloon and complete the northern
   world.selected = [shaman.id]
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
-  assert.ok(command(world, { x: -25, z: -63 }))
+  // A dry destination requests the native route-ground departure.
+  assert.ok(supportsFollower(world, { x: -25, z: -61 }))
+  assert.ok(command(world, { x: -25, z: -61 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -25, z: -61 })
+  assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
+  assert.equal(shaman.native.vehicle, 0)
 
   world.charging = true
   world.manaWorld.spells[0].disabled = 0xffffffff & ~(1 << 4) & ~(1 << 11)
@@ -239,8 +281,13 @@ test('Mission 22 Shaman can claim the authored Balloon and complete the northern
   world.selected = [shaman.id]
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
-  assert.ok(command(world, { x: -83, z: -57 }))
+  // A dry destination requests the native route-ground departure.
+  assert.ok(supportsFollower(world, { x: -83, z: -59 }))
+  assert.ok(command(world, { x: -83, z: -59 }))
   stepUntil(world, () => boat.passengerCount === 0, 2_000)
+  settleRouteLaunch(world, shaman, { x: -83, z: -59 })
+  assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
+  assert.equal(shaman.native.vehicle, 0)
   assert.ok(cast(world, 'bridge', { x: -83, z: -69 }))
   stepUntil(world, () => !shaman.casting, 100)
   for (let turn = 0; turn < 160; turn++) tick(world, 1 / 12)
@@ -248,25 +295,30 @@ test('Mission 22 Shaman can claim the authored Balloon and complete the northern
   world.selected = [shaman.id]
   assert.ok(command(world, { ...browserPosition(balloon), id: balloon.id }))
   stepUntil(world, () => balloon.passengerCount === 1, 1_000)
-  assert.deepEqual([balloon.team, balloon.passengers, shaman.native.vehicle], [
-    'blue',
-    [shaman.id],
-    balloon.id,
-  ])
+  assert.deepEqual(
+    [balloon.team, balloon.passengers, shaman.native.vehicle],
+    ['blue', [shaman.id], balloon.id]
+  )
 
   world = migrateCheckpoint(structuredClone(world))
   shaman = world.units.find(unit => unit.id === shaman.id)
   balloon = world.vehicles.find(vehicle => vehicle.id === balloon.id)
   north = world.shrines.find(shrine => shrine.id === north.id)
-  assert.deepEqual([balloon.team, balloon.passengers, shaman.native.vehicle], [
-    'blue',
-    [shaman.id],
-    balloon.id,
-  ])
+  assert.deepEqual(
+    [balloon.team, balloon.passengers, shaman.native.vehicle],
+    ['blue', [shaman.id], balloon.id]
+  )
 
   world.selected = [shaman.id]
-  assert.ok(command(world, { x: 55, z: 121 }))
+  assert.ok(command(world, { x: 55, z: 121 }, { shiftKey: true }))
+  const firstFlightOwner = shaman.native,
+    firstFlightOrder = currentPersonOrder(world.buildingOrders, firstFlightOwner)
+  assert.equal(firstFlightOrder.flags, 64)
   stepUntil(world, () => balloon.passengerCount === 0, 2_000)
+  stepUntil(world, () => !shaman.flight, 120)
+  assert.ok(shaman.hp > 0 && supportsFollower(world, shaman))
+  assert.equal(firstFlightOwner.vehicle, 0)
+  assert.equal(firstFlightOrder.references, 0)
   const priorSwarms = new Set(world.effects.filter(effect => effect.swarm).map(effect => effect.id))
   assert.ok(cast(world, 'swarm', { x: 55, z: 121 }))
   stepUntil(
@@ -303,7 +355,12 @@ test('Mission 22 Shaman can claim the authored Balloon and complete the northern
     for (let turn = 0; turn < limit; turn++) {
       tick(world, 1 / 12)
       assert.deepEqual(
-        [north.active, north.uses, north.rewardDelay, world.effects.some(effect => effect.reward === 'mana')],
+        [
+          north.active,
+          north.uses,
+          north.rewardDelay,
+          world.effects.some(effect => effect.reward === 'mana'),
+        ],
         [false, 1, 0, false]
       )
       assert.ok(world.manaTribes[0].pending <= previousPending)
@@ -316,11 +373,29 @@ test('Mission 22 Shaman can claim the authored Balloon and complete the northern
   world.selected = [shaman.id]
   assert.ok(command(world, { ...browserPosition(balloon), id: balloon.id }))
   continueWithoutReplay(() => balloon.passengerCount === 1, 1_000)
-  assert.ok(command(world, { x: -29, z: -33 }))
+  const secondFlightOwner = shaman.native
+  assert.ok(command(world, { x: -29, z: -33 }, { shiftKey: true }))
+  const secondFlightOrder = currentPersonOrder(world.buildingOrders, secondFlightOwner)
+  assert.equal(secondFlightOrder.flags, 64)
   continueWithoutReplay(() => balloon.passengerCount === 0, 2_000)
-  assert.deepEqual([balloon.team, shaman.native.vehicle, shaman.hp], ['blue', 0, 100])
+  continueWithoutReplay(() => !shaman.flight, 120)
+  assert.ok(supportsFollower(world, shaman))
+  assert.deepEqual([balloon.team, secondFlightOwner.vehicle, shaman.hp], ['blue', 0, 100.6])
+  assert.equal(secondFlightOrder.references, 0)
+  assert.equal(shaman.flight, undefined)
+  assert.equal(shaman.lift, 0)
+  // Ordinary idle settling releases its transient native/registry projection.
+  assert.equal(shaman.native, null)
+  assert.equal(world.objectCells.objects.get(shaman.id), undefined)
+  assert.ok(world.units.includes(shaman))
+  assert.equal(balloon.passengerCount, 0)
   assert.deepEqual(
-    [north.active, north.uses, north.rewardDelay, world.effects.some(effect => effect.reward === 'mana')],
+    [
+      north.active,
+      north.uses,
+      north.rewardDelay,
+      world.effects.some(effect => effect.reward === 'mana'),
+    ],
     [false, 1, 0, false]
   )
 })

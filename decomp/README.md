@@ -1,5 +1,7 @@
 # Static decompilation workspace
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/decomp), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 This is part of the full-parity goal, not a separate experiment. It records the original routines used to reconstruct browser behavior. `generated/*.c` is Ghidra pseudocode, **not recovered, compilable Bullfrog source**. Names/types can come from community annotations or inference; generated control flow still needs review against instructions and runtime observations.
 
 ## Setup and reproduce
@@ -35,7 +37,8 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 ## Port index
 
-Recent reusable topic notes: [Preacher sermon gestures and original artwork](research/preacher-sermon-gestures.md),
+Recent reusable topic notes: [Original Game options and bounded keyboard preferences](research/game-options-static/findings.md),
+[Preacher sermon gestures and original artwork](research/preacher-sermon-gestures.md),
 [Automatic Preacher sermons and raid ownership](research/automatic-preacher-and-raid-ownership.md),
 [Shrine Erosion activation](research/erosion-activation.md),
 [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
@@ -1550,9 +1553,11 @@ Run `scripts/check-native-resting-slots.py EXE`: 16,384 sequential indexed-searc
 operations compare every record byte, startup checks compare every offset, and
 2,048 cases each compare cell eligibility, slot validity, search and compaction.
 Native search, terrain, command and linked-list routines execute; only the
-building outside-point consumer is supplied. Slot-validity fixtures use owned
-slots within their shape; invalid shape/slot combinations read unrelated native
-storage. Search pool exhaustion, stale bytes, marked objects and failed terrain
+building outside-point consumer is supplied. Slot-validity fixtures cover all six
+slot numbers independently of population: sparse native compaction can retain a
+number above its shape and read the following initialized ring. See
+[resting-slot layout](research/resting-slot-layout.md) for the M18 crash repair.
+Search pool exhaustion, stale bytes, marked objects and failed terrain
 eligibility are included. A gameplay regression composes actual linked cells,
 search, ownership, compaction and the resting controller's reposition request
 through follower arrival and departure. There are 612 raw exports and 57 gameplay
@@ -5248,3 +5253,15 @@ remains separate. This evidence alone does not claim live browser completion.
 per-call native height/RNG inputs, detached observation and strict source/runtime
 admission. Native sound ownership, reward activation timing and downstream terrain
 consumers remain explicit boundaries. Browser/native execution is not yet claimed.
+
+Mixed-raid target availability versus member-order refresh: see
+[the static evidence and live-caller regression](research/mixed-raid-target-exhaustion/README.md).
+
+- [Ordinary selector globe texture, rings, UV and vertex light](research/world-selector-globes.md)
+
+## Original frontend Quit submenu
+
+[Menu1 source evidence](research/frontend-quit-menu/README.md) records the hash-locked
+Quit?/Yes/No/Back descriptors, font flags, native positions, shadows and navigation.
+The browser preserves that presentation with an explicitly unavailable Yes and
+conditional checkpoint guidance; this is not native exit-behavior parity.

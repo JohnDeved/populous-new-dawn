@@ -1,5 +1,7 @@
 # Temple manual inspection: final ordinary witness
 
+> Historical PNG captures are [preserved unchanged at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/temple-manual-final-2026-10-10). They are no longer tracked in the current checkout; the source-bound findings, image names and any recorded hashes below remain historical evidence.
+
 Ordinary attempt 04 is **PASS** on QA
 `01ff23c93ea617746273757ec8b1c7f694926893`, tree
 `76744af62e743717ee0d4cbea1bd8206083bc202`, with unchanged product
@@ -84,15 +86,15 @@ pixel comparison.
 
 Manual name and idle panel visible:
 
-![Final-run Temple manual name and panel](temple-manual-first.png)
+![Final-run Temple manual name and panel](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/temple-manual-final-2026-10-10/temple-manual-first.png)
 
 One trainee in the five-person-capacity panel, with training progress visible:
 
-![Final-run Temple active training panel](temple-training-active.png)
+![Final-run Temple active training panel](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/temple-manual-final-2026-10-10/temple-training-active.png)
 
 After conversion and complete panel retirement; post-Load camera framing differs:
 
-![Final-run Temple training panel retired](temple-training-released.png)
+![Final-run Temple training panel retired](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/temple-manual-final-2026-10-10/temple-training-released.png)
 
 PNG hashes and exact bytes are in the summary. Native walltime cadence, complete
 Temple raster equivalence, physical allocation and hardware frame performance

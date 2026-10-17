@@ -37,7 +37,8 @@ async function fixture(t) {
       world, presentationBinding: store.bindPresentation(world), started: true, disposed: false,
       nearbyFollowersHudActive: true, previous: null, fpsGraph: null,
       gameClock: { animationTime: 0, animationFrame: 0 }, overviewActive: false, overviewStage: null,
-      renderer: { getPixelRatio: () => 1 }, hoveredObject: null, buildingPanels: new Map(),
+      keys: new Set(), dragActive: { value: false }, selectionOverlay: { visible: false }, globeMotion: { velocity: { x: 0, y: 0 } },
+      renderer: { getPixelRatio: () => 1, render: noOp }, hoveredObject: null, buildingPanels: new Map(),
       onSound: (...args) => logs.push(['cue', ...args]),
       onChange: () => logs.push(['change', world.castingTribes[0].flags]),
       updateCameraMotion: () => true,
@@ -206,4 +207,25 @@ test('actual Scene disposal cancels pending input and the elapsed phase', async 
   f.scene.animate(1000)
   assert.equal(mode(f.world), false)
   assert.equal(f.scene.requestNearbyFollowers(), false)
+})
+
+test('actual Scene modal boundary freezes game clock and rendering consumers, then restarts elapsed time at zero', async t => {
+  const { scene, page, world, logs } = await fixture(t)
+  world.paused = false
+  page.openMenu()
+  const before = structuredClone(world)
+  const clock = structuredClone(scene.gameClock)
+  let renders = 0
+  scene.renderer.render = () => renders++
+  scene.animate(1000)
+  scene.animate(100000)
+  assert.equal(renders,2)
+  assert.deepEqual(world,before)
+  assert.deepEqual(scene.gameClock,clock)
+  assert.equal(logs.filter(item=>item[0]==='advanceGame').length,0)
+  page.closeMenu()
+  const turn=world.turn
+  scene.animate(200000)
+  assert.equal(world.turn,turn,'first resumed frame has zero elapsed time')
+  assert.equal(logs.filter(item=>item[0]==='advanceGame').length,1)
 })

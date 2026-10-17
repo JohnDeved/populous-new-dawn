@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "532c9cb9-07da-46a1-85fd-ffd195c2c008",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "5fad3dbc52b52cd93516a3114d527ceac63f95ec",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m17-source-support/cell-retirement-baseline.mjs": "c8d5facb919b9acd751a777ff311e184ae4ac855766674cc2d501c0c0a890773",
+      "work/m17-restart-route/arena-admission-terminal.v8": "5576982295472f1e9eed8e895566143a64192ce3d1788652c1438587468c9b7f",
+      "work/m17-source-support/before-retirement-6052.v8": "ce30378c3199cbb4a561cbe7cd74d52065a77f117516ff82bb453fce4672b548"
+    }
+  },
+  "command": [
+    "node",
+    "work/m17-source-support/cell-retirement-baseline.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m17-pose-audit",
+  "startedAt": "2026-10-14T15:23:33.493Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/orchestration/m17-source-support/cell-retirement-baseline.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/orchestration/m17-source-support/cell-retirement-baseline.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T15:23:40.628Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"event\":\"plain replay matches observation-derived6052\",\"turn\":6052,\"sha256\":\"6b3786dfaf300330f6abbbd361f58403406f638d35570e1d4edf58837d043b0a\"}\n{\"event\":\"baseline dangling head reproduced without observation hooks\",\"turn\":6055,\"head\":4088,\"registered\":false,\"alive\":23.5}\n",
+  "stderr": "",
+  "stdoutSha256": "91e0acf29bd014c976a6c2d46cc785ad102a23805383d5b5d40826e4c1b5aec8",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "5fad3dbc52b52cd93516a3114d527ceac63f95ec",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m17-source-support/cell-retirement-baseline.mjs": "c8d5facb919b9acd751a777ff311e184ae4ac855766674cc2d501c0c0a890773",
+      "work/m17-restart-route/arena-admission-terminal.v8": "5576982295472f1e9eed8e895566143a64192ce3d1788652c1438587468c9b7f",
+      "work/m17-source-support/before-retirement-6052.v8": "ce30378c3199cbb4a561cbe7cd74d52065a77f117516ff82bb453fce4672b548"
+    }
+  }
+}

@@ -69,8 +69,19 @@ npm run orchestration:review-bundle -- verify \
 
 Repeat `--expected-source`, `--expected-deletion`, and `--expected-receipt` for the complete expected sets. Deleted sources are explicit `state: "deleted"` manifest entries with no ambiguous `sha256: null`. `--expected-receipt` uses the copied bundle receipt hash (`bundleSha256` from the trusted creation output), so altered receipt payloads cannot self-authenticate by changing the manifest. The verifier rejects absolute/traversal paths, symlink escapes, identity-count drift, and any manifest identity that disagrees with those caller-supplied values.
 
-A reviewer can run the bundled `node verify.mjs` from any permitted executor with
-the same trusted expected arguments, without editing or opening the worker worktree.
+The standalone verifier locates the bundle beside its own `verify.mjs`, regardless
+of the working directory. `--bundle` belongs to the repository wrapper above and
+is not accepted by the standalone CLI. Run it directly from any permitted executor,
+without opening the worker worktree, using the same trusted `--expected-*` identities:
+
+```sh
+node /absolute/review-bundle/verify.mjs \
+  --expected-head "$HEAD" \
+  --expected-diff-sha256 "$DIFF_SHA" \
+  --expected-source path/to/source.ts="$SOURCE_SHA" \
+  --expected-deletion path/to/deleted-source.ts \
+  --expected-receipt work/orchestration/task/npm-check.json="$RECEIPT_SHA"
+```
 
 ## Raw source-bound command receipts
 
@@ -91,6 +102,23 @@ and input fingerprints. Commit the candidate before final verification when prac
 If relevant code, fixture, dependency, or runtime input changes, rerun affected checks.
 A portable bundle verifies identities and transport integrity, not gameplay correctness.
 Never include credentials, browser profiles, session data, or arbitrary machine logs.
+
+A completed role worktree may be reused after owner-confirmed closure and independent
+verification that its historical evidence remains recoverable. Preserve existing
+branches, reachable tested HEADs, raw receipts, artifacts, and held LOCAL packets.
+Reconstruct historical tracked inputs from recorded Git objects only when their bytes
+match receipt hashes; preserve dirty, untracked, helper, and installed-runtime inputs
+through explicit backups or verified references. Record reconstruction separately
+without rewriting original receipts or claiming old logical paths remain current.
+Current commands still require exact physical source/input checks before and after
+execution. The read-only `historical-input-resolver.mjs` verifies caller-pinned receipt
+and HEAD identities with complete explicit input mappings; its proof does not release
+ownership or authorize worktree reuse, evidence deletion, or publication.
+It requires the supplied original source root to match the receipt's recorded `cwd`;
+receipts captured with a separate command working directory need separate source-root
+evidence before this resolver can support them. Git reconstruction ignores replacement
+objects and disables lazy fetch so only available immutable objects supply verified
+blob bytes.
 
 For function-level research, optional [compact views and claim bindings](research-evidence.md)
 keep conclusions and evidence boundaries visible while deferring raw assembly and

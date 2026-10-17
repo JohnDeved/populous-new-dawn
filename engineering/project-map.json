@@ -302,6 +302,7 @@
         { "path": "decomp/research/mission9-boat-house.md", "heading": "Mission 9 Boat House production" },
         { "path": "decomp/research/vehicle-destruction.md", "heading": "Vehicle damage and destruction" },
         { "path": "decomp/research/transport-idle-state.md", "heading": "Native behavior" },
+        { "path": "decomp/research/resting-slot-layout.md", "heading": "Native contract" },
         { "path": "decomp/research/balloon-command-position.md", "heading": "Finding" },
         { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Terrain changes do not invalidate active person routes" },
         { "path": "decomp/README.md", "heading": "State-10 order dispatch and resumption" },
@@ -442,6 +443,7 @@
       ],
       "evidence": [
         { "path": "references/modern-performance.md", "heading": "Chronological game clock" },
+        { "path": "decomp/research/game-options-static/findings.md", "heading": "Original Game options: bounded keyboard adapter" },
         { "path": "decomp/research/camera-bookmarks.md", "heading": "Camera bookmarks" },
         { "path": "decomp/research/minimap-frame.md", "heading": "Minimap frame composition" },
         {
@@ -778,6 +780,7 @@
         "app/worship.ts"
       ],
       "researchPaths": [
+        "decomp/research/world-selector-globes.md",
         "tests/worship-acquisition-controller.test.mjs",
         "tests/worship-acquisition-runtime.test.mjs",
         "tests/worship-acquisition-source.test.mjs",
@@ -1121,6 +1124,7 @@
         "effects.reincarnation"
       ],
       "evidence": [
+        { "path": "decomp/research/world-selector-globes.md", "heading": "Ordinary selector globes" },
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
         { "path": "decomp/research/worship-grant-handoff.md", "heading": "Three findings" },
         { "path": "decomp/research/worship-grant-presentation.md", "heading": "Three findings" },
@@ -1453,14 +1457,15 @@
       "mappingStatus": "reviewed",
       "implementationPaths": ["app/game-store.ts"],
       "sharedPaths": ["app/page.tsx"],
-      "researchPaths": ["engineering/single-player-feasibility.md"],
+      "researchPaths": ["engineering/single-player-feasibility.md", "decomp/research/frontend-quit-menu/README.md"],
       "entrySymbols": [
         { "path": "app/game-store.ts", "symbol": "createGameStore" },
         { "path": "app/page.tsx", "symbol": "Home" }
       ],
       "parityIds": ["persistence.save", "persistence.load", "persistence.profile", "interface.menus"],
       "evidence": [
-        { "path": "decomp/README.md", "heading": "Defeat and victory decisions" }
+        { "path": "decomp/README.md", "heading": "Defeat and victory decisions" },
+        { "path": "decomp/research/frontend-quit-menu/README.md", "heading": "Exact menu1 evidence" }
       ],
       "nativeAddresses": [],
       "checkIds": [

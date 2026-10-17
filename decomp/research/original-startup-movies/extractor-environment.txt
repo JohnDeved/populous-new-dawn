@@ -1,0 +1,14 @@
+binary-refinery==0.10.11
+colorama==0.4.6
+Cython==3.3.0
+defusedxml==0.7.1
+lief==1.0.0
+msgpack==1.2.3
+numpy==2.5.4
+packaging==26.3
+pure-magic-rs==0.5.1
+pycryptodomex==3.24.1
+pyperclip==1.11.0
+setuptools==84.0.0
+toml==0.10.2
+wheel==0.48.0

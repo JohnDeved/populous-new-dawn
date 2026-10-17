@@ -1,3 +1,4 @@
+import { moveObjectInCells } from './object-cells.ts'
 import { buildingPose } from './building-shapes.ts'
 import {
   nativePosition,
@@ -8,7 +9,13 @@ import {
   type Point,
   type Vehicle,
 } from './model.ts'
-import { createLivePerson, collisionWorld, type LivePerson } from './live-people.ts'
+import {
+  createLivePerson,
+  collisionWorld,
+  publishLiveVehicleLaunch,
+  type LivePerson,
+} from './live-people.ts'
+import { departVehiclePerson } from './vehicle-unload.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
 import { buildingBlocksPerson, pathCellBlocked } from './person-collision.ts'
 import { terrainCellHeightRange } from './native-terrain.ts'
@@ -34,13 +41,12 @@ import {
 } from './vehicle-routing.ts'
 import {
   boardLiveVehicle,
-  leaveLiveVehicle,
   liveVehicleCellObjects,
   liveVehicles,
   nearestLiveBoat,
 } from './live-vehicles.ts'
 import { searchPersonPath, collectSearchPath } from './path-search.ts'
-import { createPathSolver, solvePersonPath } from './path-solver.ts'
+import { solvePersonPath } from './path-solver.ts'
 import {
   preparePathCandidates,
   choosePathCandidate,
@@ -139,13 +145,30 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
     active: t.active,
     defeatTimer: t.defeatTimer,
   }))
-  const vehicles = liveVehicles(w)
+  const vehicles = liveVehicles(w),
+    people = new Map(w.pathfinding.people)
+  // Occupied-vehicle admission resolves persistent native drivers, independently
+  // of whether they currently own an active person route.
+  for (const vehicle of vehicles.values()) {
+    people.delete(vehicle.passengers[0])
+    const unit = w.units.find(u => u.id === vehicle.passengers[0] && u.hp > 0),
+      owner = unit?.native ?? unit?.entry?.person ?? unit?.builder?.person
+    if (
+      owner &&
+      owner.id === unit!.id &&
+      owner.class === 1 &&
+      !(owner.flags2 & 1) &&
+      owner.vehicle === vehicle.id &&
+      w.objectCells.objects.get(owner.id) === owner
+    )
+      people.set(owner.id, owner)
+  }
   const vehicleWorld = {
     flags: w.land.flags,
     categories: w.land.categories,
     boatsEnabled: Number(boats),
     vehicles,
-    people: w.pathfinding.people,
+    people,
     tribes,
     cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
   }
@@ -362,8 +385,12 @@ function advanceLiveRoute(w: World, p: LivePerson) {
       vehicle.turnAngle = to.x
       vehicle.turnY = to.y
     },
-    leaveVehicle: (vehicle, person, to) =>
-      leaveLiveVehicle(w, vehicle as Vehicle, person as LivePerson, to),
+    // 0x4eadc0 calls 0x4659d0: launch from the current seat toward the next
+    // ground waypoint. That waypoint is a heading, never an immediate position.
+    leaveVehicle: (vehicle, person, to) => {
+      if (departVehiclePerson(w, vehicle as Vehicle, person as LivePerson, to))
+        publishLiveVehicleLaunch(w, person as LivePerson)
+    },
     clearOrders: person => releasePersonRoute(w.motionRoutes, person),
   })
 }
@@ -376,9 +403,15 @@ export function stepLiveRoute(w: World, u: Unit) {
   if (!p) return
   if (p !== u.native) {
     const to = nativePosition(w, u)
-    p.x = to.x & 65535
-    p.y = to.y & 65535
-    p.h = to.h
+    // A retired task can leave its route record aliased to a linked physical
+    // person. Move that owner through its cell chains before later retirement.
+    if (w.objectCells.objects.get(p.id) === p && p.flags2 & 0x20000)
+      moveObjectInCells(w.objectCells, p, to)
+    else {
+      p.x = to.x & 65535
+      p.y = to.y & 65535
+      p.h = to.h
+    }
     p.counter = w.turn & 255
   }
   advanceLiveRoute(w, p)

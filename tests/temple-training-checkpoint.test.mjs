@@ -247,6 +247,8 @@ function publicLoad(store) {
   const noop = () => {},
     bindings = {
       store,
+      menuSession: { current: null },
+      pendingMenuCamera: { current: [] },
       cancelNearbyInput: noop,
       engine: { current: null },
       setSelectorOpen: noop,
@@ -422,9 +424,18 @@ test('fresh store restores committed active Temple and public Load Game publishe
   const selector = readFileSync(new URL('../app/world-selector.tsx', import.meta.url), 'utf8'),
     selectorUse = page.match(/<WorldSelector\b[\s\S]*?\n\s*\/>/)?.[0],
     handlerName = selectorUse?.match(/\bonLoad=\{(\w+)\}/)?.[1]
+  // Native-default presentation groups adapted Load access behind its explicit
+  // compatibility toggle; checkpoint availability and Page ownership stay intact.
+  assert.match(selector, /aria-expanded=\{compatibility\}/)
+  assert.match(selector, /aria-controls="selector-browser-controls"/)
+  assert.match(selector, /onClick=\{\(\) => setCompatibility\(value => !value\)\}/)
+  const compatibilityControls = selector.match(
+    /\{compatibility && \(\s*<section\s+id="selector-browser-controls"[\s\S]*?<\/section>/
+  )?.[0]
+  assert.ok(compatibilityControls)
   assert.match(
-    selector,
-    /\{hasCheckpoint && \(\s*<button autoFocus onClick=\{onLoad\}>\s*Load Game\s*<\/button>/
+    compatibilityControls,
+    /\{hasCheckpoint && <button onClick=\{onLoad\}>Load Game<\/button>\}/
   )
   assert.match(selectorUse, /hasCheckpoint=\{store\.hasCheckpoint\(\)\}/)
   assert.ok(handlerName)
