@@ -45,6 +45,25 @@ export const m2RouteReady = ({ x, y, world }) => {
   )
 }
 
+export function m2HudPoint() {
+  const hud = document.querySelector('.native-hud')
+  if (!hud) throw new Error('Native HUD missing')
+  const r = hud.getBoundingClientRect()
+  const x = Math.floor((Math.max(0, r.left) + Math.min(innerWidth, r.right)) / 2)
+  const y = Math.floor((Math.max(0, r.top) + Math.min(innerHeight, r.bottom)) / 2)
+  if (
+    !(x > r.left && x < r.right && y > r.top && y < r.bottom) ||
+    document.elementFromPoint(x, y)?.closest('.native-hud') !== hud
+  )
+    throw new Error('Measured HUD point is not owned by native HUD')
+  return { x, y, left: r.left, right: r.right, top: r.top, bottom: r.bottom }
+}
+
+export function m2SamplesReady() {
+  const text = document.querySelector('.fps-graph [data-metric="window"]')?.textContent
+  return /^[1-9]\d* \/ 240 samples$/.test(text ?? '')
+}
+
 export function m2LoadReady() {
   const button = document.querySelector(
     'nav[aria-label="Main menu choices"] button[aria-label="Load Game"]'
@@ -253,13 +272,19 @@ export default async function ({ browser, url, output, fixture }) {
       assertM2Input(report.before, state)
       return state
     }
+    const moveToHud = async () => {
+      const point = await page.evaluate(m2HudPoint)
+      report.hudPoints ??= []
+      report.hudPoints.push(point)
+      return moveAndObserve(point.x, point.y, false)
+    }
     // Pause gives an exact no-orders witness while ordinary RAF still drives picks.
     for (const [x, y, world] of [
       [700, 340, true],
-      [100, 300, false],
+      [null, null, false],
       [900, 400, true],
     ]) {
-      report.samples.push(await moveAndObserve(x, y, world))
+      report.samples.push(world ? await moveAndObserve(x, y, true) : await moveToHud())
     }
     await page.screenshot({ path: resolve(output, 'm2-pointer-wide.png') })
     const beforeCamera = await observe()
@@ -319,6 +344,8 @@ export default async function ({ browser, url, output, fixture }) {
           }),
         }
       })
+      report.layouts ??= []
+      report.layouts.push({ viewport: [width, height], ...layout })
       assert.ok(
         layout.left >= 0 && layout.top >= 0 && layout.right <= width && layout.bottom <= height
       )
@@ -326,7 +353,7 @@ export default async function ({ browser, url, output, fixture }) {
       assert.equal(layout.overflow, false)
       assert.equal(layout.events, 'none')
       const routed = await moveAndObserve(width - 60, height - 100, true)
-      const sidebar = await moveAndObserve(100, 300, false)
+      const sidebar = await moveToHud()
       report.samples.push({ viewport: [width, height], layout, routed, sidebar })
       await page.screenshot({ path: resolve(output, `m2-pointer-${width}.png`) })
     }
@@ -354,9 +381,7 @@ export default async function ({ browser, url, output, fixture }) {
     assertM2Input(report.before, report.after)
     await page.getByRole('button', { name: 'Resume game', exact: true }).click()
     await page.waitForFunction(turn => window.testStore.getWorld().turn > turn, report.before.turn)
-    await page.waitForFunction(
-      () => document.querySelector('.fps-graph [data-metric="window"]')?.textContent !== '0 samples'
-    )
+    await page.waitForFunction(m2SamplesReady)
     report.resumed = await observe()
     await page.getByRole('button', { name: 'Game settings', exact: true }).click()
     await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })

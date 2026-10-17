@@ -204,3 +204,44 @@ test('M2 waits for delayed public Skip or naturally ready input, not one-shot vi
   mounted = false
   assert.equal(ready().action, 'ready')
 })
+
+test('HUD witness stays inside transformed compact and wide docks and rejects an obstructed target', async () => {
+  const { m2HudPoint } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  for (const [width, height, right] of [
+    [640, 480, 96],
+    [1440, 1000, 200],
+  ]) {
+    const hud = { getBoundingClientRect: () => ({ left: 0, top: 0, right, bottom: height - 20 }) }
+    let owned = true
+    const point = runInNewContext(`(${m2HudPoint.toString()})`, {
+      innerWidth: width,
+      innerHeight: height,
+      document: {
+        querySelector: () => hud,
+        elementFromPoint(x, y) {
+          assert.ok(x > 0 && x < right)
+          assert.ok(y > 0 && y < height - 20)
+          return { closest: () => (owned ? hud : null) }
+        },
+      },
+    })
+    assert.equal(point().x, right / 2)
+    owned = false
+    assert.throws(point, /not owned/)
+  }
+})
+
+test('sample publication readiness rejects absent, empty and reset overlay fields', async () => {
+  const { m2SamplesReady } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  let field = null
+  const ready = runInNewContext(`(${m2SamplesReady.toString()})`, {
+    document: { querySelector: () => field },
+  })
+  assert.equal(ready(), false)
+  for (const textContent of ['', '0 samples', '0 / 240 samples']) {
+    field = { textContent }
+    assert.equal(ready(), false)
+  }
+  field = { textContent: '12 / 240 samples' }
+  assert.equal(ready(), true)
+})
