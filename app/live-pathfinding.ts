@@ -401,7 +401,7 @@ function advanceLiveRoute(w: World, p: LivePerson) {
 export function stepLiveRoute(w: World, u: Unit) {
   const p = w.pathfinding.people.get(u.id)
   if (!p) return
-  if (p !== u.native) {
+  if (p !== u.native && p !== u.builder?.person) {
     const to = nativePosition(w, u)
     // A retired task can leave its route record aliased to a linked physical
     // person. Move that owner through its cell chains before later retirement.

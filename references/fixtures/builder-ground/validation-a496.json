@@ -1,0 +1,401 @@
+{
+  "head": "a49634ab746e5ef3f5fcb16ba41af3b83263416b",
+  "tree": "e1747d09f66e08c56455702c6f66624426d1f88f",
+  "coverage": "complete-diagnostic-coverage-not-acceptance",
+  "coveredFiles": 425,
+  "outerTests": 2758,
+  "passingFiles": 402,
+  "failingFiles": 23,
+  "passingTests": 2727,
+  "failingTests": 31,
+  "nativeExecutableExecuted": false,
+  "acceptance": "BLOCKED; inventory coverage is not a passing gate; no committed assertions changed",
+  "matrix": [
+    {
+      "file": "tests/balloon-attack.test.mjs",
+      "tests": 4,
+      "failedTests": 2,
+      "category": "Paired d91 control passes; material current fresh Tower destruction/Shaman survival change",
+      "receipt": "file-017-final1.json",
+      "receiptSha256": "672628ffc96a14b9295a605b384c12d80b2fdbb07b988aa50eddb42bc000fd0b",
+      "failureSummaries": [
+        {
+          "test": "fresh supplied-focus Balloon tower attack is intercepted before Tower damage and cleans up through Save/Load",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    11 !== 10\n    "
+        },
+        {
+          "test": "historical c44 supplied-focus Balloon checkpoint retains Warrior11, Tower105 destruction and local Shaman rest through Save/Load",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    5352 !== 5350\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/balloon-person-attack.test.mjs",
+      "tests": 1,
+      "failedTests": 1,
+      "category": "Paired d91 control passes; diagnostic preserves all functional outcomes, chronology differs",
+      "receipt": "file-021-final1.json",
+      "receiptSha256": "16e3be34121d76a37bcd960051842d0f1eceb1052b271bfbb3059a535ffde184",
+      "failureSummaries": [
+        {
+          "test": "supplied-focus current Mission22 queued person target moves its transport and preserves handoff through Save/Load",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly deep-equal:\n    + actual - expected\n    \n      [\n        [\n          3841,\n          17\n        ],\n        [\n    +     3857,\n    +     11\n    -     3868,\n    -     12\n        ],\n        [\n    +     3862,\n    +     10\n    -     3882,\n    -     11\n        ],\n        [\n    +     3866,\n    -     3888,\n          12\n        ]\n      ]\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/balloon-plain-person-attack.test.mjs",
+      "tests": 2,
+      "failedTests": 2,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-022-inventory1.json",
+      "receiptSha256": "e784de80e748ed469072eb66ea616894e8b33f09892507d1da3199743ed5eb82",
+      "failureSummaries": [
+        {
+          "test": "fresh supplied-focus dry-route plain person target preserves interception and cleanup through Save/Load",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly deep-equal:\n    + actual - expected\n    \n      [\n        [\n          3845,\n          17\n        ],\n        [\n    +     3866,\n    -     3858,\n    -     10\n    -   ],\n    -   [\n    -     3863,\n          11\n        ],\n        [\n    +     3870,\n    +     10\n    -     3871,\n    -     12\n        ]\n      ]\n    "
+        },
+        {
+          "test": "historical c44 Balloon checkpoint uses corrected seat origin and retains current interception cleanup through Save/Load",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    3574 !== 3578\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/balloon-staged-movement.test.mjs",
+      "tests": 2,
+      "failedTests": 1,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-024-inventory1.json",
+      "receiptSha256": "7cacee4eebb8eedaf21d07f2114184a3e16c730b7ed324b5264c19a7fb46c28c",
+      "failureSummaries": [
+        {
+          "test": "fresh supplied-focus Mission22 staged transport retains queue, idle combat, Shift departure and successor through Save/Load",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly deep-equal:\n    + actual - expected\n    \n      [\n        3867,\n        3872,\n        10,\n    +   3923\n    -   3975\n      ]\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/building-work.test.mjs",
+      "tests": 4,
+      "failedTests": 2,
+      "category": "Reviewed obsolete adapter-order/lifetime assertions; remaining semantics untested",
+      "receipt": "file-056-inventory1.json",
+      "receiptSha256": "913c5fac2df914a3009a7bb2c0b4fcb4f55e53e30d5f72f4b48b495506fff223",
+      "failureSummaries": [
+        {
+          "test": "crews leave finished huts in all four orientations before the plan releases them",
+          "type": "'testCodeFailure'",
+          "error": "'departure must move continuously, including release'"
+        },
+        {
+          "test": "player construction orders approach natively and deposit carried logs before fetching",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    + actual - expected\n    \n    + -0.6484375\n    - -0.37890625\n         ^\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/flame-cell-order.test.mjs",
+      "tests": 5,
+      "failedTests": 2,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-114-inventory1.json",
+      "receiptSha256": "29e7a8a5e10e5cac47a7b973561e8534ee0a5f91b25f5e77388fc663b4a53e83",
+      "failureSummaries": [
+        {
+          "test": "ordinary Mission 3 fire assigns panic directions in retained person order and survives Save/Load",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    + actual - expected\n    \n    + 3347046661\n    - 1286605328\n    "
+        },
+        {
+          "test": "source-ordered snapshot matches per-person panic draws without changing aggregate RNG",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    + actual - expected\n    \n    + 787027549\n    - 3222226918\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/hypnotise-order.test.mjs",
+      "tests": 5,
+      "failedTests": 1,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-156-inventory1.json",
+      "receiptSha256": "5e87ab1166d8b0f1ac60d937a7b8b7dfa8925c1b9d389f604f1307efe3e15f78",
+      "failureSummaries": [
+        {
+          "test": "earned M22 Hypnotise binds replacement allocation to actual cell callback order",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    6165 !== 6172\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/hypnotise-registered-occupants.test.mjs",
+      "tests": 2,
+      "failedTests": 1,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-157-inventory1.json",
+      "receiptSha256": "b9a288f0787ac871560614a3ce12b7731e2ebcd02d68456a299030c8ad957a09",
+      "failureSummaries": [
+        {
+          "test": "fresh earned Hypnotise retains registered occupant conversion, measured damage and real death through Save/Load",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    6233 !== 6241\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/live-handle-consumers.test.mjs",
+      "tests": 25,
+      "failedTests": 3,
+      "category": "Reviewed obsolete absent-builder-registry assertion",
+      "receipt": "file-167-inventory1.json",
+      "receiptSha256": "da67a0236cce027e186cbce2af51e16d6e1e6df826f77855db0727e4d8612fcf",
+      "failureSummaries": [
+        {
+          "test": "live construction search retains builder owner 17",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    true !== false\n    "
+        },
+        {
+          "test": "live construction search retains builder owner 65536",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    true !== false\n    "
+        },
+        {
+          "test": "live construction search retains builder owner 287375",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    true !== false\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/mission11-opening.test.mjs",
+      "tests": 2,
+      "failedTests": 1,
+      "category": "Unresolved: expected BUILD_AT plan/hut absent at old4606 milestone",
+      "receipt": "file-184-inventory1.json",
+      "receiptSha256": "eb4d3b3b326218ac1355d9424c9ba1783da7b35a6449fd2589db127f7b406489",
+      "failureSummaries": [
+        {
+          "test": "Mission 11 opponents build their first settlement and scripted BUILD_AT tower on native cadence",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    The expression evaluated to a falsy value:\n    \n      assert.ok(rejectedPlan && rejectedHut)\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/mission12-training-capacity.test.mjs",
+      "tests": 2,
+      "failedTests": 1,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-186-inventory1.json",
+      "receiptSha256": "bad9c61f1c16e3a30a8fba26b062c07b046f6c1c1dc893fda33c7fbda294a7e3",
+      "failureSummaries": [
+        {
+          "test": "ordinary M12 capacity admission produces real Warriors and replays the training lifecycle",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly deep-equal:\n    + actual - expected\n    \n      [\n        [\n    +     218,\n    -     217,\n          164\n        ],\n        [\n    +     217,\n    +     166\n    -     218,\n    -     168\n        ]\n      ]\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/mission2-raid.test.mjs",
+      "tests": 3,
+      "failedTests": 1,
+      "category": "Paired d91 control passes; original raider12 actually dies2808, no living orphan shown; changed combat outcome remains unaccepted",
+      "receipt": "file-202-inventory1.json",
+      "receiptSha256": "a406924e6e0ab8e27c42b72f3a231a41144e92c055d4319dbdc0761d905c7806",
+      "failureSummaries": [
+        {
+          "test": "Mission 2 naturally earns Matak kills and launches the organized raid",
+          "type": "'testCodeFailure'",
+          "error": "'living original member has a registry owner'"
+        }
+      ]
+    },
+    {
+      "file": "tests/mission22-marker-patrol.test.mjs",
+      "tests": 2,
+      "failedTests": 1,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-207-inventory1.json",
+      "receiptSha256": "31be8573973f14698ebfc501101c99fd5798956b02acac04edb8d4b62b7452b5",
+      "failureSummaries": [
+        {
+          "test": "ordinary returned Warrior resumes the authored patrol after real conversion and retreat",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    6165 !== 6172\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/mission23.test.mjs",
+      "tests": 3,
+      "failedTests": 1,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-210-inventory1.json",
+      "receiptSha256": "fb5edc0a84c35967b84dc74c3295511690339ecc8e7b0e6d5c26c471349de317",
+      "failureSummaries": [
+        {
+          "test": "Mission 23 enemy tribes grow their native settlements and populations",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    1055 !== 967\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/mission3-natural-preacher.test.mjs",
+      "tests": 3,
+      "failedTests": 3,
+      "category": "Paired d91 dispatch2513 passes; candidate Blue preacher dies4379 without matching defender assignment; competing type11/eligibility cause remains unaccepted",
+      "receipt": "file-217-inventory1.json",
+      "receiptSha256": "f0e8eb279b2432f9eeddbd9d51e84e17983aa686d1a81837b0cfbb85dd70daac",
+      "failureSummaries": [
+        {
+          "test": "Mission 3 naturally trains a Blue Preacher, converts an authored Brave and resumes its mid-conversion checkpoint",
+          "type": "'testCodeFailure'",
+          "error": "'preacher-response-dispatched did not complete by turn 6188'"
+        },
+        {
+          "test": "a real movement command cancels the naturally acquired Blue sermon without converting its listener",
+          "type": "'testCodeFailure'",
+          "error": "'preacher-response-dispatched did not complete by turn 6188'"
+        },
+        {
+          "test": "natural Mission 3 conversion follows elapsed game time across display schedules",
+          "type": "'testCodeFailure'",
+          "error": "'preacher-response-dispatched did not complete by turn 6188'"
+        }
+      ]
+    },
+    {
+      "file": "tests/mission3-preacher-expiry.test.mjs",
+      "tests": 1,
+      "failedTests": 1,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-219-inventory1.json",
+      "receiptSha256": "9cbe7dd5246a1e67c450c4290797023e83d1f00941bc4eca6a63539dc308f2b8",
+      "failureSummaries": [
+        {
+          "test": "ordinary automatic sermon reaches 840, retires its identity and resumes the retained route",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    2188 !== 2012\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/mission3-preacher-queued.test.mjs",
+      "tests": 1,
+      "failedTests": 1,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-220-inventory1.json",
+      "receiptSha256": "2a3de7b081ea0d6c806da17fb25249e24c655845c17f14bbd63f3f07996d25e3",
+      "failureSummaries": [
+        {
+          "test": "authored Mission 3 automatic sermon ends and completes its retained next waypoint",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    2680 !== 2500\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/mission5-natural-victory.test.mjs",
+      "tests": 1,
+      "failedTests": 1,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-230-inventory1.json",
+      "receiptSha256": "b620f24a432fb08f09cfd501462e48a869273ba676e8666aa16d56056dd8dd20",
+      "failureSummaries": [
+        {
+          "test": "fresh Mission5 victory persists across stores and the source-bound Continue6 path",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly deep-equal:\n    + actual - expected\n    \n      [\n        3844,\n    +   5344,\n    -   5337,\n        'blue'\n      ]\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/mission6-natural-marker-bridge.test.mjs",
+      "tests": 1,
+      "failedTests": 1,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-236-inventory1.json",
+      "receiptSha256": "3ca8201b0dab6b2fa42b96b50e5e6667133db57cdfb7bd715b2c1491cd633592",
+      "failureSummaries": [
+        {
+          "test": "ordinary Mission6 stages at marker0 and bridges to marker16 with checkpoint continuity",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    569 !== 566\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/mission6-natural-raid-release.test.mjs",
+      "tests": 1,
+      "failedTests": 1,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-237-inventory1.json",
+      "receiptSha256": "daa8ce8142eefbc9b7489360b187c96277ec322878b67fd0a025fb85f974eff9",
+      "failureSummaries": [
+        {
+          "test": "legacy markerless Mission6 task releases its blocked raid without stranded owners",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    569 !== 566\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/mission6.test.mjs",
+      "tests": 10,
+      "failedTests": 1,
+      "category": "Unresolved: original3000-turn temple/attribute condition not reached",
+      "receipt": "file-239-inventory1.json",
+      "receiptSha256": "27f608f1041ff394fa1ab8cd4bc3e09d785aefc7eb65c1cdb880e7e85549c653",
+      "failureSummaries": [
+        {
+          "test": "Mission 6 Chumara converts Blue and retires its first mixed raid by return timeout",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    0 !== 1\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/mission7.test.mjs",
+      "tests": 1,
+      "failedTests": 1,
+      "category": "Wild roster49vs58; may be inherited draft455 AI Convert change, attribution unproved",
+      "receipt": "file-245-inventory1.json",
+      "receiptSha256": "967f62c5ee25f878013aad74aef2e983a6b85d3c3a70e0c940e09995712f7e23",
+      "failureSummaries": [
+        {
+          "test": "Mission 7 converts Wildmen and grants Invisibility through its original head",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    49 !== 58\n    "
+        }
+      ]
+    },
+    {
+      "file": "tests/swamp-tower.test.mjs",
+      "tests": 1,
+      "failedTests": 1,
+      "category": "Observed chronology/RNG/count assertion; downstream semantics and baseline attribution not yet established",
+      "receipt": "file-342-inventory1.json",
+      "receiptSha256": "34879535795f2c763bf60b394305bbc1f95a8163035dca1ca78f1d29175bbaae",
+      "failureSummaries": [
+        {
+          "test": "earned Swamp kills an ordinary built Tower resident and releases its physical ownership",
+          "type": "'testCodeFailure'",
+          "error": "|-\n    Expected values to be strictly equal:\n    \n    557 !== 414\n    "
+        }
+      ]
+    }
+  ],
+  "pausedReason": "User priority changed to UI/modals; no further campaign fixes or pin updates"
+}
