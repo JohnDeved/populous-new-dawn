@@ -208,11 +208,11 @@ test('policy rejects a merely named green aggregate without trusted sharded proo
 
 
 test('reader rejects foreign worker checkout, workflow source, ref and altered Git bytes', () => {
-  for (const mutate of [
-    ({ reader }) => { const get = reader.get.bind(reader); reader.get = endpoint => endpoint.endsWith('/logs') ? get(endpoint).replace(oid(4), oid(9)) : get(endpoint) },
-    ({ args }) => { const log = shardedLogReceipt(args[6]); log.identity.workflowSha = oid(9); args[6] = receiptLog(log) },
-    ({ args }) => { const log = shardedLogReceipt(args[6]); log.identity.workflowRef = 'wrong'; args[6] = receiptLog(log) },
-    ({ reader }) => { reader.workflow = () => ({ sha256: 'b'.repeat(64) }) },
-    ({ reader }) => { reader.gitOutput = () => 'altered source' },
-  ]) { const f = adapterFixture(); mutate(f); assert.throws(() => f.reader.verifyShardedRun(...f.args)) }
+  for (const [mutate, reason] of [
+    [({ reader }) => { const get = reader.get.bind(reader); reader.get = endpoint => endpoint.endsWith('/logs') ? get(endpoint).replace(oid(4), oid(9)) : get(endpoint) }, /worker tested a different candidate/],
+    [({ args }) => { const log = shardedLogReceipt(args[6]); log.identity.workflowSha = oid(9); args[6] = args[6].slice(0, args[6].indexOf('PND_FULL_CHECK_RECEIPT')) + receiptLog(log) }, /workflow source\/ref differs/],
+    [({ args }) => { const log = shardedLogReceipt(args[6]); log.identity.workflowRef = 'wrong'; args[6] = args[6].slice(0, args[6].indexOf('PND_FULL_CHECK_RECEIPT')) + receiptLog(log) }, /workflow source\/ref differs/],
+    [({ reader }) => { reader.workflow = () => ({ sha256: 'b'.repeat(64) }) }, /workflow source\/ref differs/],
+    [({ reader }) => { reader.gitOutput = () => 'altered source' }, /test inventory differs/],
+  ]) { const f = adapterFixture(); mutate(f); assert.throws(() => f.reader.verifyShardedRun(...f.args), reason) }
 })
