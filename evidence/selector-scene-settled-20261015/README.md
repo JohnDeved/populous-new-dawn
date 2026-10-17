@@ -1,5 +1,7 @@
 # Settled shared scene, not final acceptance
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/selector-scene-settled-20261015), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 All captures and browser receipts here refer to clean source
 `52e645ad96273c6c153bb895b3b566d8299652d7`. Mission 1/2 settled images are
 800×600 captures after natural camera convergence; the separately named 640×480

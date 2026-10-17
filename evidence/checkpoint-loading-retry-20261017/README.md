@@ -1,10 +1,12 @@
 # Checkpoint loading retry verification
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/checkpoint-loading-retry-20261017), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 
 Final bounded episode: **passed** at source
 `85d3b555f45bca2fed9bcebeff06bac755cba7b5`. No product defect demonstrated.
-[Command receipt](browser-1.json), [observations](browser-1/checkpoint-loading-retry.json)
-and [recovered screenshot](browser-1/checkpoint-recovered.png) retain exact results.
+[Command receipt](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/checkpoint-loading-retry-20261017/browser-1.json), [observations](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/checkpoint-loading-retry-20261017/browser-1/checkpoint-loading-retry.json)
+and [recovered screenshot](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/checkpoint-loading-retry-20261017/browser-1/checkpoint-recovered.png) retain exact results.
 
 The genuine UI save was Mission 1, turn 101, time 8.4166666667. Both failed-world
 mutations changed turn to 1102/1103, Blast stock to 105/106 and actor HP to -1/-2.

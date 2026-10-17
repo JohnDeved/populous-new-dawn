@@ -1,5 +1,7 @@
 # M10 ordinary Boat browser checkpoint witness
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m10-boat-browser-2026-10-14), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Runtime: merged main `758fcb84d64f55670b3a407183ec94e5a4929b46`, unchanged application.
 Save QA source: `cb2d73af2a92debdc6b9a0042513770a7697b17c`.
 Final Load QA source: `6daeb09242a59f0545b7d45a3f21f76182b2a706`.

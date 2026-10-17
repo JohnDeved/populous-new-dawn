@@ -1,5 +1,7 @@
 # Home result lifecycle coverage audit
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/home-result-lifecycle-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Base: `8280e4b367dd2b58f047e4e23cf2dda056cdee4c` (main through #494).
 This branch changes tests and a browser scenario only. It does not depend on the
 heading-position repair in #496 and changes no outcome or statistics producer.

@@ -1,5 +1,7 @@
 # Authored shrine command requirements
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/shrine-requirement-toast-2026-10-14), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 ## Change and source
 
 PR435, base `9c2cf2ef41163c7f73bc986ce0003dd667d2fcdd`.

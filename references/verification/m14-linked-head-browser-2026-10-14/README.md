@@ -1,5 +1,7 @@
 # M14 ordinary rendered linked-head acquisition
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m14-linked-head-browser-2026-10-14), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 ## Accepted bounded result
 
 Actual sandboxed official Chrome Headless Shell 154.0.8037.92, ANGLE Vulkan SwiftShader, 1440×1000. Scenario `scripts/local-render/mission14-linked-head.mjs` executed on exact QA source `3cb8647df588a177f12428e8806ab48770cb1e6e`, based on main `9c2cf2ef41163c7f73bc986ce0003dd667d2fcdd`. Runtime, tests and dependencies were unchanged. The raw receipt retains exact source before/after fingerprints and browser launch options. Run: 2026-10-14 10:30:57.856–10:35:14.678 UTC.

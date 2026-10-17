@@ -1,5 +1,7 @@
 # Publication gates on 6b36565f
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m10-boat-browser-2026-10-14/gates), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 All receipts bind exact source `6b36565fc6c362651f78a77cfa9b4cf0cd5ac8cf`
 and unchanged tracked inputs before/after. Publication afterward adds only these
 receipts, the official browser metadata entry, this explanation and manifest hashes.

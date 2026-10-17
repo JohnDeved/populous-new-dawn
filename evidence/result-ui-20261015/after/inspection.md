@@ -1,5 +1,7 @@
 # Result-screen scoped browser acceptance
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/result-ui-20261015/after), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 ## Outcome
 
 PASS for source-bound presentation and explicitly stubbed integration fragments at source commit `73f3b74271850344b15fe996a456bd6153108b60`. Final run completed 24 checks and 19 screenshots with no page errors and all nine production input hashes unchanged. It took 14.9 seconds. Repository files were never edited by this worker.

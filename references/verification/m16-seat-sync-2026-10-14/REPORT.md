@@ -1,5 +1,7 @@
 # Native seated-position ownership after route retirement
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m16-seat-sync-2026-10-14), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 PR436, base `a550ac898d15ce5a5c58947c0cd0f8cbabc0cd06`.
 Runtime `287d4ee0a90df1296a626bbde26edb9d86f56c3a`.
 Corrected test head `c900971788dfa014ef3aa99a9f3121a91e9ecbe9`.

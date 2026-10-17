@@ -1,8 +1,0 @@
-{
-  "baseHead": "caae208c47536e31dbdb495c3fc785af8c7e68a8",
-  "originalStagedSha256": "1b2187206c82c99e40858a3161b8e411727f389bf6135a50b9eb7b48c6a16c41",
-  "patchSha256": "902bbb0ffd3249e7887406cfa9ed9cdabbefa8ecc36a492438e6b736d70e923c",
-  "executed": true,
-  "helperTests": "6/6 pass",
-  "replay": "2/2 pass, exit0, sourceStable"
-}

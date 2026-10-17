@@ -1,5 +1,7 @@
 # Independent review: bounded original Game options
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/game-options-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 ## Verdict
 
 **ACCEPT** the bounded two-keyboard-setting adapter at **774af5cd968935603f61bfed3ab5ec750e25eac6**, based on **04a84dab17c809d1888e5a734e99d34addfc5a1d**. Root owns integration/merge. No unresolved code defect found in this slice. This is not acceptance of complete original Options, original installed defaults/persistence, full scene replacement, or the release gate.

@@ -1,5 +1,7 @@
 # Checkpoint replay assertion preparation
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/engineering/test-throughput-2026-10-16/checkpoint-views), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 ## Existing measured cost
 
 Accepted Full check log `/tmp/pr484-full-passed.log` recorded:

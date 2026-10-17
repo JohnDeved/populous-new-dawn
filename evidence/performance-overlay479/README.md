@@ -1,5 +1,7 @@
 # Optional web-game performance overlay
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/performance-overlay479), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Issue #478 / PR #479. Product and browser source: `f48a7a2fd6040f3cc2e9b09507bf8731c5c75087`.
 Independent source/UI review: ACCEPT, pending the hosted exact-merge `Full check`.
 

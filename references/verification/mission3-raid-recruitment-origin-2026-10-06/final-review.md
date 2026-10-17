@@ -1,5 +1,7 @@
 # Corrected Mission 3 recruitment origin: result review
 
+> Historical run output is [archived at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/mission3-raid-recruitment-origin-2026-10-06). Current regressions use [intentional native-reference fixtures](../../../tests/fixtures/native-reference-fixtures.md), not these old run logs.
+
 **FINAL SOURCE/EVIDENCE ACCEPT:
 `0e94469658cf1ab3ad6e3cf795072182b77012b2`.** The native/natural/full/build
 execution source remains `118a5eeeb83a3cc29a49e3bdb8407f32bb5b61fe`, carried

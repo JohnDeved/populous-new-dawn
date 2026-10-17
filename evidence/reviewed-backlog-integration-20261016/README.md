@@ -1,5 +1,7 @@
 # Reviewed backlog integration: ancestry and resolution
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/reviewed-backlog-integration-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Source candidate: `b7da697a4cfe2912b821b24817fa31396369226d`.
 Source tree: `7939655030941a014bfa4362986b6b1397c39469`.
 Base: reviewed #502 `2ea256bbc0535d4ccc1813cb94bfbc9130e5beed`.

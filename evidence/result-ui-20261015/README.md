@@ -1,5 +1,7 @@
 # Result UI restoration evidence
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/result-ui-20261015), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Refs #457. Native source proof and bounded presentation verification are complete;
 bounded presentation acceptance is retained below. Actual full-game lifecycle
 remains blocked and is not claimed.

@@ -1,5 +1,7 @@
 # Independent review of 96868869
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/widescreen-source-framing-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Disposition: **HOLD. Do not merge.** The visual direction is not accepted; no implementation repair was requested for this bounded experiment.
 
 Inspected the complete four-file source/test diff and the actual Home screenshots, geometry records and badge-detail crops.

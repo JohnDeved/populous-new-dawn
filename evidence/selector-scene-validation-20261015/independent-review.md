@@ -1,5 +1,7 @@
 # PR465 independent final review
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/selector-scene-validation-20261015), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Disposition: ACCEPT for the bounded shared original selector presentation slice at clean cd08f30aec9fcda2d78fda366d445f72e561828e. Root retains merge ownership. This does not close #17/#457 or claim original GPU pixel parity.
 
 Source and static evidence: reviewed source-derived indexed body geometry, authored mapping/textures, elapsed orbits, selected-camera vs progression anchor, native depth producer, black clear, sun/halo and depth-aware ribbons/stars. Independently bound title Felo20we %02d : %s, Fettwe icon tooltips >500ms/same-ID retention, and plspanel frame12 cursor. Modern interpolation/palette/timing/lifecycle adaptations are explicit. Allocation cleanup, canceled promise settlement, broken-generation guards and stale tooltip/fallback repairs were reviewed. No remaining demonstrated production defect.

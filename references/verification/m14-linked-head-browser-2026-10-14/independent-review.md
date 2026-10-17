@@ -1,5 +1,7 @@
 # Independent M14 bounded rendered witness review
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m14-linked-head-browser-2026-10-14), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Decision: ACCEPT acquisition witness at 3cb8647df588a177f12428e8806ab48770cb1e6e.
 Reviewer: review_browser_checkpoint
 Base: 9c2cf2ef41163c7f73bc986ce0003dd667d2fcdd.

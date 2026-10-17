@@ -1,5 +1,7 @@
 # Guarded integration writer — review repair evidence
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-writer-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Tested code: `9cbb3125eafc2e4e084ad02d7cc03684acd18464`.
 Branch source base: `cf38a755a3a00255184c63c175a00076cff6b025`.
 This supersedes the earlier read-only foundation's scope; the earlier receipts
@@ -7,13 +9,13 @@ remain historical evidence. The source manifest binds nine exact maintained inpu
 
 | Check | Result | Receipt |
 | --- | --- | --- |
-| Queue plus existing runner tests | Passed, 46 tests, zero failed/skipped | [focused.json](focused.json) |
-| Targeted ESLint | Passed | [lint.json](lint.json) |
-| Targeted Oxfmt | Passed | [format.json](format.json) |
-| Repository structural validation | Passed | [structural.json](structural.json) |
-| Diff whitespace | Passed | [diff.json](diff.json) |
-| Full plan, not execution | 450 files, serial fallback: production-config-runtime-drift | [resource-preflight.json](resource-preflight.json) |
-| Exact-merge Cloudflare observation | Read-only provider check observed | [cloudflare-observation.json](cloudflare-observation.json) |
+| Queue plus existing runner tests | Passed, 46 tests, zero failed/skipped | [focused.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-writer-20261016/focused.json) |
+| Targeted ESLint | Passed | [lint.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-writer-20261016/lint.json) |
+| Targeted Oxfmt | Passed | [format.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-writer-20261016/format.json) |
+| Repository structural validation | Passed | [structural.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-writer-20261016/structural.json) |
+| Diff whitespace | Passed | [diff.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-writer-20261016/diff.json) |
+| Full plan, not execution | 450 files, serial fallback: production-config-runtime-drift | [resource-preflight.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-writer-20261016/resource-preflight.json) |
+| Exact-merge Cloudflare observation | Read-only provider check observed | [cloudflare-observation.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-writer-20261016/cloudflare-observation.json) |
 
 The 34 queue cases include fixed GH argument arrays for `expected_head_sha`
 refresh, ready, and `sha`-guarded merge; zero dry-run transport writes; exact-plan,

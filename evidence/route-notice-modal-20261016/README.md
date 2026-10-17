@@ -1,5 +1,7 @@
 # Route notice modal evidence
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/route-notice-modal-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Tested source: 3a5fe13442293dcc0d3fdeaf20f09fa23a7426ec. Baseline: f85a8105fd77c71547fe5cd01594d3467c47b098. This publication adds evidence only.
 
 Valid baseline with the final five component tests: 2 passed,3 failed (missing timer suspension for both prior pause states, and replacement-world callback ownership). Candidate: 14/14 passed across five component tests, three pause-ownership tests and six unchanged route-recovery producer tests. No skips.

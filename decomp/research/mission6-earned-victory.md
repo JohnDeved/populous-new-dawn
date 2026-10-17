@@ -15,7 +15,7 @@ The independently reviewed research run used source
 `4703fe29686eefaf3dad4bb4142d91c3365af1b8`. Its tree
 `63fbf954ae65d1f9c6f5dcb2dc688e35bbaea7f4` exactly equals merged main
 `62641038a25aa01da7c26d6e6d8bd12e4efd7bc2`.
-[The compact historical manifest](../../evidence/mission6-earned-victory.json)
+[The compact historical manifest](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/mission6-earned-victory.json)
 records all 19 successful receipts, scripts, consumed saves and produced artifacts
 by SHA-256. Ignored local raw receipts/checkpoints are not bundled as portable
 input fixtures; the maintained command below regenerates them from a fresh start.

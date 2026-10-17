@@ -1,5 +1,7 @@
 # Options font and slider readiness
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/options-readiness-20261017), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Refs #457. Product base: `b77aa038914196781e717c4436659fffeeec24f2`.
 Tested fix: `f4db91c5bd70d7683f14b17275e4a593cb932620`.
 
@@ -72,20 +74,20 @@ The corresponding full hashes are above. All captures are 640×480, DPR 1.
 
 Frontend, only slider track fails:
 
-![Before: all text falls back](before-frontend-slider-0.png)
-![After: original text retained, browser slider fallback](after-frontend-slider-0.png)
+![Before: all text falls back](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/options-readiness-20261017/before-frontend-slider-0.png)
+![After: original text retained, browser slider fallback](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/options-readiness-20261017/after-frontend-slider-0.png)
 
 In-game, only slider track fails:
 
-![Before: all text falls back](before-ingame-slider-0.png)
-![After: original text retained, browser slider fallback](after-ingame-slider-0.png)
+![Before: all text falls back](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/options-readiness-20261017/before-ingame-slider-0.png)
+![After: original text retained, browser slider fallback](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/options-readiness-20261017/after-ingame-slider-0.png)
 
 Frontend, normal font fails (coherent text fallback):
 
-![Before: usable slider art suppressed](before-frontend-font-normal.png)
-![After: usable slider art retained](after-frontend-font-normal.png)
+![Before: usable slider art suppressed](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/options-readiness-20261017/before-frontend-font-normal.png)
+![After: usable slider art retained](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/options-readiness-20261017/after-frontend-font-normal.png)
 
 In-game font fails:
 
-![Before: usable slider art suppressed](before-ingame-font-normal.png)
-![After: usable slider art retained](after-ingame-font-normal.png)
+![Before: usable slider art suppressed](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/options-readiness-20261017/before-ingame-font-normal.png)
+![After: usable slider art retained](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/options-readiness-20261017/after-ingame-font-normal.png)

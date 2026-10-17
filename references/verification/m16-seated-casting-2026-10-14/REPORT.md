@@ -1,5 +1,7 @@
 # Seated Shaman casting lifecycle — M16
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/m16-seated-casting-2026-10-14), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 ## Genuine failure and native-backed repair
 
 Runtime source4a51e684, final tested source5c7867be, baseefdd4d51. The historical

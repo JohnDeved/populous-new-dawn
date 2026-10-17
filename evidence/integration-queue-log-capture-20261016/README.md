@@ -1,5 +1,7 @@
 # Captured Actions log transport
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-log-capture-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Tested source: `1637a692fb6d215e9f5f230e48d4a32b8daedf21`. Previous accepted source: `d5bac197da1f2be57a438b4800f42b6f9d4b2272`.
 
 The retained read-only #505 observation passed stale-base refresh proof but stopped at job-log GET `repos/JohnDeved/populous-new-dawn/actions/jobs/117178077076/logs`: gh 2.101.0 rejected terminal escape sequences. Its exit code was 2, with null action, plan and execution. Journal UUID `00aed794-84e6-4b03-a94b-a2e46e3ffc90` and content were unchanged. These logs are before-change evidence, not a successful patched live observation. Parent owns cancellation of Full run 38967631933 and future readiness; this worker did not rerun or cancel workflows.

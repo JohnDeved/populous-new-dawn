@@ -1,5 +1,7 @@
 # Original Balloon Hut family and structural-debris repair
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/balloon-hut-models-2026-10-14), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Base7da254e1; asset/importer candidatef7a2c22a, tested/rendered235c94c8 (earlier
 evidence-only commit, identical runtime/assets/tests). No original executable or
 installer was executed or emulated. All original input use was static data decoding.

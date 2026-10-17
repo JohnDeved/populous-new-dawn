@@ -1,5 +1,7 @@
 # Check selection and explicit limits
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/result-ui-20261015/validation), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Base aaa3202a; runtime checkpoint73f3b742; evidence/tooling candidate17f9d776.
 The routing plan selects81 checks because shared page.tsx maps broadly to campaign,
 camera, persistence and HUD systems:35 native,26 browser,16 portable,3 metadata,

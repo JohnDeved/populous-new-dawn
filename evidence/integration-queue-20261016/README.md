@@ -1,5 +1,7 @@
 # Read-only integration queue evidence — 2026-10-16
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-20261016), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Historical foundation evidence. Current guarded-writer checks and review repairs
 are in [the later report](../integration-queue-writer-20261016/README.md).
 
@@ -11,12 +13,12 @@ accepted feature checkouts untouched.
 
 | Check | Result | Receipt |
 | --- | --- | --- |
-| Queue + existing test-runner tests | Passed, 32 tests, 0 failed/skipped | [focused.json](focused.json) |
-| Targeted ESLint | Passed, exit 0 | [lint.json](lint.json) |
-| Targeted Oxfmt check | Passed, exit 0 | [format.json](format.json) |
-| Repository structural validation | Passed, exit 0 | [structural.json](structural.json) |
-| Diff whitespace | Passed, exit 0 | [diff.json](diff.json) |
-| Full test-plan preflight, without executing it | Observed 450 files, all serial; `production-config-runtime-drift` | [resource-preflight.json](resource-preflight.json) |
+| Queue + existing test-runner tests | Passed, 32 tests, 0 failed/skipped | [focused.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-20261016/focused.json) |
+| Targeted ESLint | Passed, exit 0 | [lint.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-20261016/lint.json) |
+| Targeted Oxfmt check | Passed, exit 0 | [format.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-20261016/format.json) |
+| Repository structural validation | Passed, exit 0 | [structural.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-20261016/structural.json) |
+| Diff whitespace | Passed, exit 0 | [diff.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-20261016/diff.json) |
+| Full test-plan preflight, without executing it | Observed 450 files, all serial; `production-config-runtime-drift` | [resource-preflight.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/evidence/integration-queue-20261016/resource-preflight.json) |
 
 The focused log includes an intentionally failing child test from the existing
 runner's failure-propagation test. The outer aggregate is the terminal 32/32 pass;
