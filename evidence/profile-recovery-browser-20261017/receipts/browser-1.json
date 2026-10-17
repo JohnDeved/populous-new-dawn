@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "bde4b2b0-25e8-41bf-973f-bb6a63b29d3c",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "2368d7b37c5f490288f8eda476bc03823e58b34b",
+    "branch": "codex/profile-recovery-browser",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "node",
+    "evidence/profile-recovery-browser-20261017/run-probe.mjs"
+  ],
+  "cwd": "<repository>",
+  "startedAt": "2026-10-17T01:49:09.705Z",
+  "artifacts": {
+    "stdout": "<repository>/work/orchestration/profile-recovery-browser/browser-1.json.artifacts/stdout.log",
+    "stderr": "<repository>/work/orchestration/profile-recovery-browser/browser-1.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T01:49:23.262Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "Production and probe inputs unchanged after run\n",
+  "stderr": "3:49:18 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.\n3:49:19 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nlocator.isVisible: Error: strict mode violation: locator('.world-viewport canvas') resolved to 2 elements:\n    1) <canvas tabindex=\"0\" width=\"1240\" height=\"1000\" class=\"battlefield\" data-engine=\"three.js r185\" aria-label=\"Island battlefield. Click to select, right-click to move, drag to select a group.\"></canvas> aka getByLabel('Island battlefield. Click to')\n    2) <canvas aria-hidden=\"true\"></canvas> aka locator('canvas').nth(1)\n\nCall log:\n\u001b[2m    - checking visibility of locator('.world-viewport canvas')\u001b[22m\n\n    at loadThroughUi (<repository>/scripts/local-render/campaign-profile-recovery.mjs:217:100)\n    at async default (<repository>/scripts/local-render/campaign-profile-recovery.mjs:249:28)\n    at async file://<repository>/evidence/profile-recovery-browser-20261017/run-probe.mjs:59:36 {\n  log: [ \"    - checking visibility of locator('.world-viewport canvas')\" ]\n}\n\nNode.js v24.18.0\n",
+  "stdoutSha256": "9dd86484451eaca0f5cc600cfd7eec6957db4cd3a826add33ccbf0f66c97e60f",
+  "stderrSha256": "88f72ffcf7f5a2e8ec30de653a81ca1ac9f8b818ef579cd2f8954aac4403ee68",
+  "sourceAfter": {
+    "headOid": "2368d7b37c5f490288f8eda476bc03823e58b34b",
+    "branch": "codex/profile-recovery-browser",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

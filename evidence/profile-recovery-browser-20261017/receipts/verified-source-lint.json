@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "630af961-1803-44ea-8e68-2e26e7422470",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "2e8faef403b9b78cd93eeb1803c3b5bf8967a6d8",
+    "branch": "codex/profile-recovery-browser",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "./node_modules/.bin/eslint",
+    "scripts/local-render/campaign-profile-recovery.mjs",
+    "evidence/profile-recovery-browser-20261017/run-probe.mjs"
+  ],
+  "cwd": "<repository>",
+  "startedAt": "2026-10-17T01:54:19.221Z",
+  "artifacts": {
+    "stdout": "<repository>/work/orchestration/profile-recovery-browser/verified-source-lint.json.artifacts/stdout.log",
+    "stderr": "<repository>/work/orchestration/profile-recovery-browser/verified-source-lint.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T01:54:20.201Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "2e8faef403b9b78cd93eeb1803c3b5bf8967a6d8",
+    "branch": "codex/profile-recovery-browser",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}

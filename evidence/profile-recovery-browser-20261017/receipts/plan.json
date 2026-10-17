@@ -1,0 +1,78 @@
+
+> populous-first-dawn@0.1.0 orchestration:plan
+> node scripts/orchestration/cli.mjs plan --base b77aa038914196781e717c4436659fffeeec24f2
+
+{
+  "version": 1,
+  "base": "b77aa038914196781e717c4436659fffeeec24f2",
+  "head": "2368d7b37c5f490288f8eda476bc03823e58b34b",
+  "changes": [
+    {
+      "path": "evidence/profile-recovery-browser-20261017/run-probe.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "6b40d53c7df69a80220ee46fba7a58dc093d729298b33a8342f3b907595f91ba",
+      "changeHash": "90a4f92e2f7ce4a9d1b6e2fc1ce59124fb29c71c60e7a980a3a753164f71d328"
+    },
+    {
+      "path": "scripts/local-render/campaign-profile-recovery.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "12b95e398b1d537e44757d77a82ce64d178e9474234c6db0dd4a8e0181b0cec8",
+      "changeHash": "a550b682c7865bcadd079b48242788c785b70b059d394f65abdb7d14614f200a"
+    }
+  ],
+  "affectedSubsystems": [],
+  "unknownPaths": [
+    "evidence/profile-recovery-browser-20261017/run-probe.mjs",
+    "scripts/local-render/campaign-profile-recovery.mjs"
+  ],
+  "checks": [
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "reasons": [
+        "unmapped path requires conservative general validation: evidence/profile-recovery-browser-20261017/run-probe.mjs",
+        "unmapped path requires conservative general validation: scripts/local-render/campaign-profile-recovery.mjs"
+      ],
+      "knownLimits": [
+        "Does not run native executable, browser integration, or hardware performance checks."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [
+        "May update ignored tool caches",
+        "Runs every top-level tests/*.test.mjs file through the bounded Node runner; resource-sensitive/unreviewed files are serial."
+      ],
+      "resources": [
+        "Serialize with other full test runs"
+      ],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    }
+  ],
+  "executesChecks": false,
+  "feedback": {
+    "advisory": true,
+    "finalGate": false,
+    "fullVerificationRequired": true,
+    "scope": "full",
+    "command": [
+      "npm",
+      "test"
+    ],
+    "reasons": [
+      "Conservative fallback: broad, deleted, unmapped, or no exact portable test mapping.",
+      "evidence/profile-recovery-browser-20261017/run-probe.mjs",
+      "scripts/local-render/campaign-profile-recovery.mjs"
+    ]
+  }
+}
