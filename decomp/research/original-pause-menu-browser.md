@@ -146,3 +146,22 @@ fixture is generated for recovery. Its receipt binds the scenario hash and actua
 source, browser and dependencies, and its distinct artifact retains the authored
 progress report and screenshots. This route is prepared, not rendered acceptance:
 only a successful hosted run and inspection of its evidence establish that.
+
+### First hosted recovery failure and startup-readiness repair
+
+The first hosted recovery episode on PR550's composed `3b4cfce1` failed at the
+second Mission1 entry (after the persisted-save reload): `enterMission` timed out
+waiting for unlocked input. The retained failure showed the public Skip
+introduction control and initial narration, no browser errors, and successful
+cleanup. The first-failure artifact SHA256 is
+`d61b8aa21f5db6520a398122ba65fe1ba329fc1bae6a9a80d5b4512201725ad6`.
+The scenario had polled flyby state, then sampled Skip visibility only once;
+React could mount its ready-gated control after that snapshot. It now polls until
+the public control is visible/enabled or input is already unlocked, clicks the
+actual Skip button when needed, and retains the final unlocked-input assertion.
+The 25-second operation and 180-second browser caps are unchanged. No production
+behavior was changed.
+
+The earlier Mac functional pass and first hosted failure remain separate evidence.
+Authored app blobs are unchanged; the scenario now contains this diagnosed
+readiness repair. Its final composed hosted acceptance must be obtained afresh.

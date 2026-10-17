@@ -235,3 +235,46 @@ test('a newer in-session Save wins over a delayed lookup started through the pau
     assert.equal(store.getWorld().paused, false)
   }, { failFirstRestore: true })
 })
+
+test('recovery startup waits through delayed, hidden and disabled public Skip controls', async () => {
+  const { pauseStartupReady } = await import('../scripts/local-render/original-pause-checkpoint-recovery.mjs')
+  const { runInNewContext } = await import('node:vm')
+  const world = { inputMask: 1, flyby: { flags: 1 } }
+  let skip = null
+  const context = {
+    window: { testStore: { getWorld: () => world } },
+    document: { querySelector: selector => {
+      assert.equal(selector, 'button.skip-introduction')
+      return skip
+    } },
+    getComputedStyle: node => ({ visibility: node.visibility }),
+  }
+  const poll = () => runInNewContext(`(${pauseStartupReady.toString()})()`, context)
+  assert.equal(poll(), false, 'flyby state alone cannot admit a not-yet-rendered control')
+  skip = { getClientRects: () => [], visibility: 'visible', disabled: false }
+  assert.equal(poll(), false)
+  skip.getClientRects = () => [{}]
+  skip.visibility = 'hidden'
+  assert.equal(poll(), false)
+  skip.visibility = 'visible'
+  skip.disabled = true
+  assert.equal(poll(), false)
+  skip.disabled = false
+  assert.equal(poll(), 'skip', 'later React commit becomes actionable without a fixed sleep')
+  world.inputMask = 0
+  skip = null
+  assert.equal(poll(), 'ready', 'naturally completed introduction does not require a stale click')
+})
+
+test('recovery scenario awaits actionable startup and uses public click before unlocked-input assertion', () => {
+  const source = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-recovery.mjs', import.meta.url), 'utf8')
+  const entry = source.slice(source.indexOf('  async function enterMission'), source.indexOf('  async function openFailedLoad'))
+  assert.match(entry, /await page.waitForFunction\(pauseStartupReady\)/)
+  assert.match(entry, /await startup.dispose\(\)/)
+  assert.match(entry, /if \(action === 'skip'\)\s+await page.getByRole\('button', \{ name: \/\^Skip introduction\/ \}\).click\(\)/)
+  assert.ok(entry.indexOf("if (action === 'skip')") < entry.indexOf('await page.waitForFunction(() => !window.testStore.getWorld().inputMask)'))
+  assert.doesNotMatch(entry, /skip\.isVisible|waitForTimeout|skipIntroduction\(|store\.change|\.inputMask\s*=/)
+  const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
+  assert.match(runner, /page.setDefaultTimeout\(25000\)/)
+  assert.match(runner, /receipt.browserCapMs = 180000/)
+})

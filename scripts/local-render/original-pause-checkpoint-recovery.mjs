@@ -25,6 +25,16 @@ function coldLookupFailure() {
   }
 }
 
+// Store/Scene binding and flyby flags may precede React's ready-gated Skip
+// control. Poll for a public actionable state rather than sampling visibility once.
+export function pauseStartupReady() {
+  const world = window.testStore.getWorld()
+  if (!world.inputMask) return 'ready'
+  const skip = document.querySelector('button.skip-introduction')
+  return skip && skip.getClientRects().length > 0 &&
+    getComputedStyle(skip).visibility !== 'hidden' && !skip.disabled ? 'skip' : false
+}
+
 export default async function ({ browser, page, url, root, output, receipt, signal }) {
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
   const checks = [], screenshots = [], renderers = []
@@ -53,9 +63,11 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     await bindGame(page)
     const desktop = page.getByRole('button', { name: 'Continue anyway', exact: false })
     if (await desktop.isVisible()) await desktop.click()
-    await page.waitForFunction(() => window.testStore.getWorld().flyby.flags & 1 || !window.testStore.getWorld().inputMask)
-    const skip = page.locator('.skip-introduction')
-    if (await skip.isVisible()) await skip.click()
+    const startup = await page.waitForFunction(pauseStartupReady)
+    const action = await startup.jsonValue()
+    await startup.dispose()
+    if (action === 'skip')
+      await page.getByRole('button', { name: /^Skip introduction/ }).click()
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     renderers.push(await page.evaluate(() => {
       const gl = window.testSceneRef.current.renderer.getContext()
