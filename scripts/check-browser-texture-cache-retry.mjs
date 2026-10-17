@@ -1,6 +1,7 @@
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import { launchOptions } from './local-render/harness.mjs'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -25,8 +26,11 @@ async function selectMission(page, mission) {
 const output = process.env.POPULOUS_RETRY_OUTPUT
 if (output) mkdirSync(output, { recursive: true })
 const observations = []
-const browser = await chromium.launch({ ...launchOptions(process.env.POPULOUS_BROWSER), headless: !process.argv.includes('--headed') })
+const profile = mkdtempSync(resolve(tmpdir(), 'pnd-loading-retry-'))
+let browser
 try {
+  const launch = launchOptions(process.env.POPULOUS_BROWSER)
+  browser = await chromium.launch({ ...launch, args: [...launch.args, `--user-data-dir=${profile}`], headless: !process.argv.includes('--headed') })
   // Optional texture failure: repeated passive unit-health lookups must reuse the failed entry.
   {
     const context = await browser.newContext({ viewport: { width: 1280, height: 800 } })
@@ -236,5 +240,6 @@ try {
   console.log(JSON.stringify(report))
   console.log('PASS: passive optional failure stays cached; two same-session Home retries commit loading before each failure and recover before consumers, and recovered cursor plus real placement plan share the fresh atlas identity')
 } finally {
-  await browser.close()
+  await browser?.close()
+  rmSync(profile, { recursive: true, force: true })
 }
