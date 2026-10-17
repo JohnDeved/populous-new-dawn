@@ -378,3 +378,34 @@ test('hosted M2 route awaits actual pointer and keyboard export checks inside ex
   assert.doesNotMatch(helper, /newContext|page\.goto|setTimeout/)
   assert.equal(m2FunctionalLimitMs, 45000)
 })
+
+test('full checkpoint protocol transport uses JSON text without weakening structured equality', () => {
+  const buffer = new ArrayBuffer(16)
+  const view = new Float64Array(buffer)
+  view.set([NaN, -0])
+  const world = { buffer, view, map: new Map([[1n, Infinity]]), absent: undefined }
+  world.self = world
+  const encoded = checkpointCodec(world)
+  const transported = JSON.parse(JSON.stringify(encoded))
+  assert.deepEqual(transported, encoded)
+  const decoded = checkpointCodec(transported, true)
+  assert.equal(decoded.self, decoded)
+  assert.equal(decoded.view.buffer, decoded.buffer)
+  assert.ok(Number.isNaN(decoded.view[0]))
+  assert.ok(Object.is(decoded.view[1], -0))
+  assert.equal(decoded.map.get(1n), Infinity)
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(source, /const transfer = JSON\.parse\(transferJson\)/)
+  assert.match(source, /JSON\.stringify\(fixture\.transfer\)/)
+  assert.match(source, /const readback = JSON\.parse\(readbackJson\)/)
+  assert.match(source, /assert\.deepEqual\(\s*readback,\s*fixture\.transfer/)
+  assert.match(
+    source,
+    /JSON\.parse\(await page\.evaluate\(\(\) => window\.m2LoadBoundary\)\),\s*fixture\.expected/
+  )
+  assert.match(source, /JSON\.stringify\(window\.m2CheckpointCodec\(store\.getWorld\(\)\)\)/)
+  assert.equal(m2FunctionalLimitMs, 45000)
+})

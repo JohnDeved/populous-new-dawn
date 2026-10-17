@@ -147,7 +147,11 @@ export default async function ({ browser, url, output, fixture }) {
     })
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     stage('home-open')
-    const readback = await page.evaluate(async transfer => {
+    // The codec graph is already lossless JSON-safe tagged data. Transfer its
+    // complete JSON text instead of expanding every numeric node through the
+    // browser protocol serializer; keep full structural equality at both boundaries.
+    const readbackJson = await page.evaluate(async transferJson => {
+      const transfer = JSON.parse(transferJson)
       const db = await new Promise((resolve, reject) => {
         const request = indexedDB.open('populous-new-dawn', 1)
         request.onupgradeneeded = () => request.result.createObjectStore('checkpoints')
@@ -169,14 +173,15 @@ export default async function ({ browser, url, output, fixture }) {
           request.onsuccess = () => {
             value = request.result
           }
-          tx.oncomplete = () => resolve(window.m2CheckpointCodec(value))
+          tx.oncomplete = () => resolve(JSON.stringify(window.m2CheckpointCodec(value)))
           tx.onerror = () => reject(tx.error)
           tx.onabort = () => reject(tx.error)
         })
       } finally {
         db.close()
       }
-    }, fixture.transfer)
+    }, JSON.stringify(fixture.transfer))
+    const readback = JSON.parse(readbackJson)
     assert.deepEqual(
       readback,
       fixture.transfer,
@@ -206,7 +211,7 @@ export default async function ({ browser, url, output, fixture }) {
       const unsubscribe = store.subscribe(() => {
         if (store.getWorld() === before) return
         try {
-          window.m2LoadBoundary = window.m2CheckpointCodec(store.getWorld())
+          window.m2LoadBoundary = JSON.stringify(window.m2CheckpointCodec(store.getWorld()))
         } catch (error) {
           window.m2LoadError = String(error)
         } finally {
@@ -218,7 +223,7 @@ export default async function ({ browser, url, output, fixture }) {
     await load.click()
     assert.equal(await page.evaluate(() => window.m2LoadError), null)
     assert.deepEqual(
-      await page.evaluate(() => window.m2LoadBoundary),
+      JSON.parse(await page.evaluate(() => window.m2LoadBoundary)),
       fixture.expected,
       'Exact full post-migration world at public Load boundary'
     )
