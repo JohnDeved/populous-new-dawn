@@ -1,0 +1,17 @@
+{
+  "testedSource": "6063c036a44d8a919b9c5084cc4053043e138e5c",
+  "base": "b77aa038914196781e717c4436659fffeeec24f2",
+  "browser": "not-run; awaiting shared Mac slot",
+  "files": [
+    {
+      "path": "focused.json",
+      "originalSha256": "64ee22e4e5097047b56ae475b4a8753442bfb7440232652444dca7e16768e231",
+      "publishedSha256": "0cce5a974929fffda0d75ad1f9e7b90cb0ff4ac9e083680b9984db49bccea960"
+    },
+    {
+      "path": "lint.json",
+      "originalSha256": "356d302c3517b6107687d134f862962c23298c9bac4f34d021e162371a785022",
+      "publishedSha256": "e3ef11877867b21e293c164441a56b7a0624108af0308ebcb0229eb1a7add1aa"
+    }
+  ]
+}

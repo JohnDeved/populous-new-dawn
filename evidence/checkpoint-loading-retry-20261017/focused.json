@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b9a7194e-db85-4d16-b54f-dc1ae7e216e5",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6063c036a44d8a919b9c5084cc4053043e138e5c",
+    "branch": "codex/checkpoint-repeated-loading-retry",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  },
+  "command": [
+    "npm",
+    "run",
+    "test:focus",
+    "--",
+    "tests/home-checkpoint-retry.test.mjs",
+    "tests/original-loading-screen.test.mjs",
+    "tests/pause-checkpoint.test.mjs"
+  ],
+  "cwd": "<REPO>",
+  "startedAt": "2026-10-17T01:32:15.273Z",
+  "artifacts": {
+    "stdout": "<REPO>/work/orchestration/checkpoint-loading-retry/focused.json.artifacts/stdout.log",
+    "stderr": "<REPO>/work/orchestration/checkpoint-loading-retry/focused.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-17T01:32:16.310Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 test:focus\n> node scripts/orchestration/test-runner.mjs focus tests/home-checkpoint-retry.test.mjs tests/original-loading-screen.test.mjs tests/pause-checkpoint.test.mjs\n\nTAP version 13\n# Subtest: each Home Retry restores the retained checkpoint, not the mutated failed world\nok 1 - each Home Retry restores the retained checkpoint, not the mutated failed world\n  ---\n  duration_ms: 45.112334\n  type: 'test'\n  ...\n# Subtest: restore and actual resource loading share the imported mask and readable loading label\nok 2 - restore and actual resource loading share the imported mask and readable loading label\n  ---\n  duration_ms: 3.030833\n  type: 'test'\n  ...\n# Subtest: failure keeps original identity but explicitly labels the browser recovery controls\nok 3 - failure keeps original identity but explicitly labels the browser recovery controls\n  ---\n  duration_ms: 0.243708\n  type: 'test'\n  ...\n# Subtest: one failed presentation dispatches only one retry; a new keyed presentation may retry again\nok 4 - one failed presentation dispatches only one retry; a new keyed presentation may retry again\n  ---\n  duration_ms: 0.373167\n  type: 'test'\n  ...\n# Subtest: the bounded imported label retains exact source hashes, independent centering and two-pass metrics\nok 5 - the bounded imported label retains exact source hashes, independent centering and two-pass metrics\n  ---\n  duration_ms: 0.752833\n  type: 'test'\n  ...\n# Subtest: modal checkpoint pause override affects the clone, never the live world\nok 6 - modal checkpoint pause override affects the clone, never the live world\n  ---\n  duration_ms: 24.352416\n  type: 'test'\n  ...\n# Subtest: ordinary saves retain explicitly paused state and replacement does not mutate the old world\nok 7 - ordinary saves retain explicitly paused state and replacement does not mutate the old world\n  ---\n  duration_ms: 32.466125\n  type: 'test'\n  ...\n1..7\n# tests 7\n# suites 0\n# pass 7\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 909.450834\n",
+  "stderr": "{\"kind\":\"pnd-test-plan\",\"mode\":\"focus\",\"fullSuite\":false,\"parallelEligibility\":\"focused-serial\",\"files\":[\"tests/home-checkpoint-retry.test.mjs\",\"tests/original-loading-screen.test.mjs\",\"tests/pause-checkpoint.test.mjs\"],\"groups\":[{\"concurrency\":1,\"files\":[\"tests/home-checkpoint-retry.test.mjs\",\"tests/original-loading-screen.test.mjs\",\"tests/pause-checkpoint.test.mjs\"]}]}\n{\"kind\":\"pnd-test-group\",\"command\":[\"<NODE>\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/home-checkpoint-retry.test.mjs\",\"tests/original-loading-screen.test.mjs\",\"tests/pause-checkpoint.test.mjs\"],\"files\":[\"tests/home-checkpoint-retry.test.mjs\",\"tests/original-loading-screen.test.mjs\",\"tests/pause-checkpoint.test.mjs\"],\"concurrency\":1,\"exitCode\":0,\"signal\":null,\"error\":null,\"status\":\"passed\",\"wallMs\":932.561917}\n{\"kind\":\"pnd-test-result\",\"mode\":\"focus\",\"fullSuite\":false,\"complete\":true,\"interrupted\":null,\"results\":[{\"command\":[\"<NODE>\",\"--test\",\"--test-concurrency=1\",\"--test-reporter=tap\",\"tests/home-checkpoint-retry.test.mjs\",\"tests/original-loading-screen.test.mjs\",\"tests/pause-checkpoint.test.mjs\"],\"files\":[\"tests/home-checkpoint-retry.test.mjs\",\"tests/original-loading-screen.test.mjs\",\"tests/pause-checkpoint.test.mjs\"],\"concurrency\":1,\"exitCode\":0,\"signal\":null,\"error\":null,\"status\":\"passed\",\"wallMs\":932.561917}],\"wallMs\":933.156917,\"status\":\"passed\"}\n",
+  "stdoutSha256": "c029a7d0ecc1964da49c46eb597c94c62b190a2589928abbcc0622ddd2f352cd",
+  "stderrSha256": "0062ade9deee9d2ee39e16a7850d7777683e24215d5180f95e60ca977f5dccdd",
+  "sourceAfter": {
+    "headOid": "6063c036a44d8a919b9c5084cc4053043e138e5c",
+    "branch": "codex/checkpoint-repeated-loading-retry",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "078009cbc3fffa5bd7fc66d3afe2f1984c24b94c532e2baedab865bd373b57a9"
+    }
+  }
+}
