@@ -458,11 +458,19 @@ function context(w: World) {
 
 function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>, p = u.native!) {
   const { state, effects } = ctx
+  // Only state-14 entry/exit reads its own tribe's selection count. Capture it
+  // before initialization callbacks can deselect passengers or start new states.
+  let selectedCount = 0
+  if (w.selected.length && (p.state === 14 || p.previousState === 14)) {
+    const selected = new Set(w.selected)
+    for (const unit of w.units)
+      if (unit.native?.tribe === p.tribe && selected.has(unit.id)) selectedCount++
+  }
   const tribes = w.manaTribes.map((t, i) => ({
     x: 0,
     y: 0,
     angle: 0,
-    selectedCount: w.units.filter(u => u.native?.tribe === i && w.selected.includes(u.id)).length,
+    selectedCount: i === p.tribe ? selectedCount : 0,
     flags: t.flags2,
   }))
   const initWorld = Object.assign(state, {
