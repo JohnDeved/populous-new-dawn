@@ -361,11 +361,17 @@ test('open campaign panel regression rejects the captured short-wide collision w
 })
 
 test('hosted M2 route awaits actual pointer and keyboard export checks inside existing scene deadline', () => {
-  const source = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
   assert.match(source, /import \{ checkFrameExport \} from '\.\/frame-export\.mjs'/)
   assert.match(source, /await checkFrameExport\(\{ page, output, keyboard: width === 1280 \}\)/)
   assert.match(source, /\[1280, 720\]/)
-  const helper = readFileSync(new URL('../scripts/tutorial-browser/frame-export.mjs', import.meta.url), 'utf8')
+  const helper = readFileSync(
+    new URL('../scripts/tutorial-browser/frame-export.mjs', import.meta.url),
+    'utf8'
+  )
   assert.match(helper, /waitForEvent\('download'\)/)
   assert.match(helper, /readFileSync\(await download\.path\(\), 'utf8'\)/)
   assert.match(helper, /keyboard\.press\('Space'\)/)
