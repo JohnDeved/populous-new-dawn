@@ -441,3 +441,105 @@ test('green Tutorial cannot substitute for missing recovery proof under the new 
   delete latest.pauseRecoveryVerified
   validatePassedGate(o, GATES[1], latest)
 })
+
+test('actual runner footer preserves browser failure and records malformed success evidence failure', async () => {
+  const { readFileSync } = await import('node:fs')
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/run.mjs', import.meta.url),
+    'utf8'
+  )
+  const footer = source.slice(source.indexOf('  receipt.endedAt ='), source.lastIndexOf('\n}'))
+  const finish = new Function(
+    'receipt',
+    'selectedScenario',
+    'save',
+    'console',
+    'recoveryReceiptLog',
+    'recoveryReceipt',
+    'out',
+    'process',
+    footer
+  )
+  for (const status of ['failed', 'passed']) {
+    const receipt = { status, failure: 'original diagnostic', pauseCheckpointRecovery: {} }
+    let attempts = 0
+    const saved = [],
+      runtime = {}
+    finish(
+      receipt,
+      'pause-checkpoint-recovery',
+      () => saved.push(structuredClone(receipt)),
+      { log() {} },
+      value => value,
+      () => {
+        attempts++
+        throw Error('incomplete evidence')
+      },
+      '/unused',
+      runtime
+    )
+    assert.equal(receipt.failure, 'original diagnostic')
+    assert.equal(receipt.status, 'failed')
+    assert.equal(attempts, status === 'failed' ? 0 : 1)
+    assert.equal(saved.at(-1).status, 'failed')
+    if (status === 'passed') {
+      assert.match(receipt.evidenceError, /incomplete evidence/)
+      assert.equal(runtime.exitCode, 1)
+    }
+  }
+})
+
+test('producer hashes actual evidence files and forwards real child close/build deadline fields', async t => {
+  const { mkdtempSync, writeFileSync, rmSync, readFileSync } = await import('node:fs')
+  const { tmpdir } = await import('node:os')
+  const { join } = await import('node:path')
+  const { spawn } = await import('node:child_process')
+  const { recoveryReceipt } = await import('../scripts/tutorial-browser/recovery-receipt.mjs')
+  const dir = mkdtempSync(join(tmpdir(), 'pause-receipt-'))
+  t.after(() => rmSync(dir, { recursive: true, force: true }))
+  const { receipt: proof, expected } = fixture()
+  const close = await new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, ['-e', ''], { stdio: 'ignore' })
+    child.on('error', reject)
+    child.on('close', (code, signal) =>
+      resolve({ pid: child.pid, exitCode: code, signal, timedOut: false, capMs: 120000 })
+    )
+  })
+  assert.equal(close.signal, null)
+  const raw = {
+    ...proof,
+    source: { commit: expected.identity.mergeSha, files: expected.inputs },
+    build: close,
+    pauseCheckpointRecovery: { checks: proof.checks, screenshots: proof.screenshots },
+  }
+  writeFileSync(join(dir, 'receipt.json'), JSON.stringify(raw))
+  for (const s of proof.screenshots) writeFileSync(join(dir, s.name), `capture:${s.name}`)
+  const env = {
+    GITHUB_REPOSITORY: expected.identity.repository,
+    GITHUB_RUN_ID: expected.identity.runId,
+    GITHUB_RUN_ATTEMPT: expected.identity.runAttempt,
+    GITHUB_WORKFLOW_REF: expected.identity.workflowRef,
+    PR_HEAD_SHA: expected.identity.headSha,
+    PR_BASE_SHA: expected.identity.baseSha,
+  }
+  const produced = recoveryReceipt(raw, dir, env)
+  assert.equal(validatePauseRecovery(produced, expected), true)
+  assert.deepEqual(produced.build, close)
+  assert.equal(produced.receiptSha256, sha256(readFileSync(join(dir, 'receipt.json'))))
+  const runner = readFileSync(
+    new URL('../scripts/tutorial-browser/run.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(
+    runner,
+    /resolveBuild\(\{ pid: child.pid, exitCode: code, signal, timedOut, capMs: 120000 \}\)/
+  )
+  assert.match(runner, /receipt.browserCapMs = 180000/)
+  for (const result of [undefined, {}, { checks: [] }, { screenshots: [] }])
+    assert.throws(
+      () => recoveryReceipt({ ...raw, pauseCheckpointRecovery: result }, dir, env),
+      /checks and screenshots/
+    )
+  rmSync(join(dir, proof.screenshots[0].name))
+  assert.throws(() => recoveryReceipt(raw, dir, env), /ENOENT/)
+})

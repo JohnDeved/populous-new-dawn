@@ -152,7 +152,12 @@ try {
   receipt.dependenciesAfterSha256 = createHash('sha256').update(JSON.stringify(after)).digest('hex')
   if (receipt.dependencyChanges.length) { receipt.status = 'failed'; process.exitCode = 1 }
   receipt.endedAt = new Date().toISOString(); save()
-  if (selectedScenario === 'pause-checkpoint-recovery' && receipt.status === 'passed')
-    console.log(recoveryReceiptLog(recoveryReceipt(receipt, out)))
+  if (selectedScenario === 'pause-checkpoint-recovery' && receipt.status === 'passed') {
+    try { console.log(recoveryReceiptLog(recoveryReceipt(receipt, out))) }
+    catch (error) {
+      receipt.evidenceError = String(error); receipt.failure ??= receipt.evidenceError
+      receipt.status = 'failed'; process.exitCode = 1; save()
+    }
+  }
   console.log(JSON.stringify({ status: receipt.status, failure: receipt.failure, cleanupVerified: receipt.cleanupVerified, output: out }))
 }

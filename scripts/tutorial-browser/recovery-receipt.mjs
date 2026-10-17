@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -5,6 +6,11 @@ import { resolve } from 'node:path'
 // Evidence only. The trusted integration reader independently validates this
 // envelope against the current Actions attempt and reviewed Git blobs.
 export function recoveryReceipt(receipt, output, env = process.env) {
+  const result = receipt.pauseCheckpointRecovery
+  assert.ok(
+    Array.isArray(result?.checks) && Array.isArray(result?.screenshots),
+    'Successful recovery scenario must provide checks and screenshots'
+  )
   const hash = file => createHash('sha256').update(readFileSync(file)).digest('hex')
   return {
     version: 1,
@@ -50,8 +56,8 @@ export function recoveryReceipt(receipt, output, env = process.env) {
     browserTimedOut: receipt.browserTimedOut ?? false,
     browserPath: receipt.browserPath,
     launch: receipt.launch,
-    checks: receipt.pauseCheckpointRecovery?.checks,
-    screenshots: receipt.pauseCheckpointRecovery?.screenshots.map(s => ({
+    checks: result.checks,
+    screenshots: result.screenshots.map(s => ({
       ...s,
       sha256: hash(resolve(output, s.name)),
     })),
