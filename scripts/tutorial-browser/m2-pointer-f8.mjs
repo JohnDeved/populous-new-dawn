@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { bindGame } from '../browser-game.mjs'
+import { checkFrameExport } from './frame-export.mjs'
 import { checkpointCodec } from './checkpoint-codec.mjs'
 
 export const m2FunctionalLimitMs = 45000
@@ -146,7 +147,11 @@ export default async function ({ browser, url, output, fixture }) {
     })
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     stage('home-open')
-    const readback = await page.evaluate(async transfer => {
+    // The codec graph is already lossless JSON-safe tagged data. Transfer its
+    // complete JSON text instead of expanding every numeric node through the
+    // browser protocol serializer; keep full structural equality at both boundaries.
+    const readbackJson = await page.evaluate(async transferJson => {
+      const transfer = JSON.parse(transferJson)
       const db = await new Promise((resolve, reject) => {
         const request = indexedDB.open('populous-new-dawn', 1)
         request.onupgradeneeded = () => request.result.createObjectStore('checkpoints')
@@ -168,14 +173,15 @@ export default async function ({ browser, url, output, fixture }) {
           request.onsuccess = () => {
             value = request.result
           }
-          tx.oncomplete = () => resolve(window.m2CheckpointCodec(value))
+          tx.oncomplete = () => resolve(JSON.stringify(window.m2CheckpointCodec(value)))
           tx.onerror = () => reject(tx.error)
           tx.onabort = () => reject(tx.error)
         })
       } finally {
         db.close()
       }
-    }, fixture.transfer)
+    }, JSON.stringify(fixture.transfer))
+    const readback = JSON.parse(readbackJson)
     assert.deepEqual(
       readback,
       fixture.transfer,
@@ -205,7 +211,7 @@ export default async function ({ browser, url, output, fixture }) {
       const unsubscribe = store.subscribe(() => {
         if (store.getWorld() === before) return
         try {
-          window.m2LoadBoundary = window.m2CheckpointCodec(store.getWorld())
+          window.m2LoadBoundary = JSON.stringify(window.m2CheckpointCodec(store.getWorld()))
         } catch (error) {
           window.m2LoadError = String(error)
         } finally {
@@ -217,7 +223,7 @@ export default async function ({ browser, url, output, fixture }) {
     await load.click()
     assert.equal(await page.evaluate(() => window.m2LoadError), null)
     assert.deepEqual(
-      await page.evaluate(() => window.m2LoadBoundary),
+      JSON.parse(await page.evaluate(() => window.m2LoadBoundary)),
       fixture.expected,
       'Exact full post-migration world at public Load boundary'
     )
@@ -367,6 +373,7 @@ export default async function ({ browser, url, output, fixture }) {
     for (const [width, height] of [
       [640, 480],
       [900, 360],
+      [1280, 720],
       [1440, 1000],
     ]) {
       await page.setViewportSize({ width, height })
@@ -374,11 +381,37 @@ export default async function ({ browser, url, output, fixture }) {
         () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
       )
       await page.waitForFunction(m2ViewReady, 2)
+      if (width === 640 || width === 1280) {
+        report.exports ??= []
+        report.exports.push(await checkFrameExport({ page, output, keyboard: width === 1280 }))
+        stage(`export-${width}-verified`)
+      }
       const layout = await graph.evaluate(el => {
         const r = el.getBoundingClientRect()
         const badge = document.querySelector('button.paused-badge')
         const b = badge?.getBoundingClientRect()
+        const exportButton = el.querySelector('.fps-export')
+        const exportStatus = el.querySelector('[data-metric="export-status"]')
+        const fits = node => {
+          const bounds = node?.getBoundingClientRect()
+          return (
+            !!bounds &&
+            bounds.left >= r.left &&
+            bounds.right <= r.right &&
+            bounds.top >= r.top &&
+            bounds.bottom <= r.bottom &&
+            node.scrollWidth <= node.clientWidth &&
+            node.scrollHeight <= node.clientHeight
+          )
+        }
+        const e = exportButton?.getBoundingClientRect()
         return {
+          exportFits: fits(exportButton) && fits(exportStatus),
+          exportActionable:
+            !!e &&
+            !exportButton.disabled &&
+            document.elementFromPoint((e.left + e.right) / 2, (e.top + e.bottom) / 2) ===
+              exportButton,
           pause: b && { left: b.left, top: b.top, right: b.right, bottom: b.bottom },
           pauseActionable:
             !!badge &&
@@ -388,6 +421,30 @@ export default async function ({ browser, url, output, fixture }) {
               .elementFromPoint((b.left + b.right) / 2, (b.top + b.bottom) / 2)
               ?.closest('.paused-badge') === badge,
           pauseText: badge?.textContent,
+          campaignPanels: [...document.querySelectorAll('.campaign-messages details[open]>div')]
+            .filter(
+              node => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
+            )
+            .map(node => {
+              const r = node.getBoundingClientRect()
+              const close = node.querySelector('button[aria-label="Dismiss campaign message"]')
+              const c = close?.getBoundingClientRect()
+              return {
+                left: r.left,
+                top: r.top,
+                right: r.right,
+                bottom: r.bottom,
+                text: node.querySelector('p')?.textContent,
+                contentFits:
+                  node.scrollWidth <= node.clientWidth && node.scrollHeight <= node.clientHeight,
+                closeActionable:
+                  !!close &&
+                  !close.disabled &&
+                  !!c &&
+                  document.elementFromPoint((c.left + c.right) / 2, (c.top + c.bottom) / 2) ===
+                    close,
+              }
+            }),
           interactiveUi: [
             ...document.querySelectorAll(
               '.native-hud,.top-actions,.campaign-messages summary,.campaign-messages details[open]>div'
@@ -432,6 +489,30 @@ export default async function ({ browser, url, output, fixture }) {
       assert.equal(layout.rowsFit, true, 'Metric rows must fit without horizontal clipping')
       assert.equal(layout.overflow, false)
       assert.equal(layout.events, 'none')
+      assert.equal(layout.exportFits, true, 'Export button and status must fit at every viewport')
+      assert.equal(
+        layout.exportActionable,
+        true,
+        'Export must remain reachable beside campaign text'
+      )
+      assert.ok(layout.campaignPanels.length > 0, 'Authored open campaign message must be observed')
+      for (const panel of layout.campaignPanels) {
+        assert.equal(
+          m2RectanglesOverlap(layout, panel),
+          false,
+          'Campaign text must not obscure F8 diagnostics'
+        )
+        assert.ok(
+          panel.left >= 0 && panel.top >= 0 && panel.right <= width && panel.bottom <= height
+        )
+        assert.ok(panel.text?.trim(), 'Campaign text must remain present')
+        assert.equal(panel.contentFits, true, 'Campaign text must not be clipped')
+        assert.equal(
+          panel.closeActionable,
+          true,
+          'Public campaign message control must remain hit-testable'
+        )
+      }
       assert.ok(layout.pause, 'Public pause indicator must remain present')
       assert.equal(layout.pauseActionable, true, 'Public resume control must remain hit-testable')
       assert.match(layout.pauseText, /WORLD PAUSED/)
