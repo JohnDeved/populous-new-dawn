@@ -212,10 +212,12 @@ test('hosted runner preserves old episodes, aggregate cap and source-bound new s
   assert.match(source, /spellProjectionScenarioSha256: hash\(spellProjectionScenario\)/)
   assert.match(source, /spellProjectionCoverageSha256:/)
   assert.match(source, /if \(selectedScenario === 'tutorial'\) receipt\.spellProjection/)
-  assert.ok(
-    source.indexOf('receipt.m2PointerF8 =', source.indexOf('receipt.sceneryPlacement =')) <
-      source.indexOf('receipt.spellProjection =')
+  const m2Index = source.indexOf(
+    'receipt.m2PointerF8 =',
+    source.indexOf('receipt.sceneryPlacement =')
   )
+  const spellIndex = source.indexOf('receipt.spellProjection =')
+  assert.ok(m2Index >= 0 && spellIndex >= 0 && m2Index < spellIndex)
   assert.match(source, /180000\)/)
   assert.match(builder, /sourcemap: true/)
   assert.match(scenario, /callCount:\s*true,\s*detailed:\s*false/)
