@@ -5933,7 +5933,7 @@ Evidence:
 - `check-browser-melee-groups.mjs --headed`: eight fights receive reinforcements,
   replace weak allies, and split into sixteen fights. Original visible poses and
   no browser errors; staged membership captures and measured hardware frames are
-  retained in `performance/2026-09-10-melee-groups.json`.
+  retained in [performance/2026-09-10-melee-groups.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-10-melee-groups.json).
 - Shared target selection rechecked against 2,048 native detectors and 2,048
   native selectors. Existing melee/recoil/approach and outdoor encounter checks
   retain their independent coverage.
@@ -7531,7 +7531,7 @@ scope includes linked worship/other-class target panels, hover/pressed tint, bit
 transitions and complete ownership; those remain partial in the parity ledger.
 
 The recorded rendering comparison is
-[order-marker rendering cost](performance/2026-09-10-order-marker.json): one shared-atlas
+[order-marker rendering cost](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-10-order-marker.json): one shared-atlas
 sprite adds one draw call and two triangles, with zero new GPU textures across all
 three viewport/DPI cases. These are software-renderer operation counts, not a
 hardware frame-rate claim. The existing person-panel input regression and Blast
@@ -8678,7 +8678,7 @@ has no ox-standard diagnostics; the shared file retains exactly its 12 existing
 diagnostics. The real browser's desktop/ultrawide queued-dismantling regression
 also passes after the shared-helper refactor, retaining work sprites, queue
 identity, timber and cleanup. Its rerun is saved in
-`references/performance/2026-09-11-construction-order-queue-regression.json`;
+[references/performance/2026-09-11-construction-order-queue-regression.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-11-construction-order-queue-regression.json);
 SwiftShader timing is not a hardware FPS claim or a construction integration
 check. No new playable construction behavior is published by this checkpoint.
 
@@ -8881,7 +8881,7 @@ The actual desktop/ultrawide blocked-group browser check passes, retaining share
 queues, pause, notices, visible units, recovery, combat and arrival. Its first run
 failed the unrelated Web Audio peak probe (cue 45 was active but sampled zero);
 a clean rerun passed the complete check. The rerun is preserved as
-`performance/2026-09-11-terrain-notifications-browser.json`; that transient audio
+[performance/2026-09-11-terrain-notifications-browser.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-11-terrain-notifications-browser.json); that transient audio
 failure is not evidence of a terrain/gameplay mismatch or an audio fix.
 
 ## 2026-09-11 — mission-one direct shaman attack ownership
