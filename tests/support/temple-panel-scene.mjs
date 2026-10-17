@@ -10,7 +10,7 @@ async function buildEmptyTemple({ api, world, scene, frame }) {
   // as texture IO. Its material phase is not this panel ownership proof.
   const { createSharedAniblResource } = await import('../../app/shared-anibl.ts'),
     resource = createSharedAniblResource()
-  resource.transition(true)
+  resource.transition({ bank: 'p', modelAtlas: 'atlas-p' })
   scene.presentationBinding = {
     isCurrent: () => scene.world === world,
     snapshot: resource.snapshot,

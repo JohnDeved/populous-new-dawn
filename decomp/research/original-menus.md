@@ -36,9 +36,14 @@ width, not language entry640.
 | Continue Game | Menu16 label303, callback `004584f0`; guarded native cleanup/resume-related calls are present. | Closing the dialog unconditionally sets `world.paused=false`; Return closes it. |
 | Return/back context | `004c3800` may select16,21 or0 according to mode globals. | Tutorial has an explicit return-to-main action; ordinary missions do not expose the same menu action. |
 
-**Reachability limit:** this establishes selectors and conditional control routes,
-not the complete executable-start→intro videos→menu sequence or OS key/mouse→action
-producer. The exact pause-opening event and simulation-stop/resume contract still
+**Reachability limit:** this establishes selectors and conditional control routes.
+The [startup movie inventory](original-startup-movies.md),
+[startup-boundary trace](original-startup-boundaries.md), and
+[movie input/player trace](original-movie-input-player.md) add conditional
+executable-entry linkage, lobby/language producers and delivered-event
+current-clip termination. They do not establish observed visible boot ordering,
+held-at-entry behavior or frontend event carry-over. The exact pause-opening
+event and simulation-stop/resume contract still
 need their upstream native call path checked. Menu21 is a separate restricted
 context selected by another flag; it must not be casually equated with normal
 single-player pause. Neither a table row nor a resume-named callback alone proves

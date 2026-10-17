@@ -1,3 +1,5 @@
+import { worldEnvironment } from './world-environment.ts'
+import { nativeModelResource } from './model-resources.ts'
 import {
   tribeForTeam,
   type World,
@@ -172,6 +174,10 @@ export function syncLandscapeObjects(w: World) {
     const p = nativePosition(w, tree)
     scenery.set(tree.id, {
       object: rules.sceneryObjects[tree.model],
+      shapeIndex: nativeModelResource(
+        rules.sceneryObjects[tree.model],
+        worldEnvironment(w).objects.bank
+      ).shapeIndices[0],
       anchorX: p.x & 0xfe00,
       anchorY: p.y & 0xfe00,
     })
@@ -182,6 +188,7 @@ export function syncLandscapeObjects(w: World) {
     if (
       !next ||
       old.object !== next.object ||
+      old.shapeIndex !== next.shapeIndex ||
       old.anchorX !== next.anchorX ||
       old.anchorY !== next.anchorY
     ) {
@@ -228,6 +235,7 @@ export function notifyHeightChanges(w: World, changes: Iterable<{ cell: number; 
         if (b?.damageState) b.damageState.flags2 |= 4
         const u = w.units.find(u => u.id === id)
         if (u?.native) u.native.flags2 |= 4
+        if (u?.flight) u.flight.flags2 |= 4
         if (u?.builder?.person) u.builder.person.flags2 |= 4
         const fx = w.effects.find(fx => fx.id === id)
         if (fx?.fire) fx.fire.groundDirty = true

@@ -147,6 +147,7 @@ export class WorshipAcquisitionPresentation {
 
   private sprite(command: Extract<WorshipAcquisitionDrawCommand, { kind: 'sprite' }>) {
     const material = templeSpriteMaterial(
+        this.scene.world.outcome.level,
         command.frame,
         command.palette,
         this.scene.templeResourceSnapshot

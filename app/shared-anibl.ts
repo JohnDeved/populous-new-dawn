@@ -1,5 +1,10 @@
+import type { WorldEnvironment } from './world-environment.ts'
+
+type Landscape = Pick<WorldEnvironment['landscape'], 'bank' | 'modelAtlas'>
+
 export interface SharedAniblSnapshot {
-  readonly bank: 'p'
+  readonly bank: Landscape['bank']
+  readonly modelAtlas: Landscape['modelAtlas']
   readonly epoch: number
   readonly counter: number
   readonly tile: number
@@ -19,19 +24,30 @@ const templeFrames = [92, 93, 94, 95, 100, 101, 102, 103, 108] as const
 export function createSharedAniblResource() {
   let epoch = 0,
     state: SharedAniblSnapshot | null = null
-  const selection = (counter: number): SharedAniblSnapshot =>
-    Object.freeze({ bank: 'p', epoch, counter, tile: templeFrames[counter] })
+  const selection = (landscape: Landscape, counter: number): SharedAniblSnapshot =>
+    Object.freeze({
+      bank: landscape.bank,
+      modelAtlas: landscape.modelAtlas,
+      epoch,
+      counter,
+      tile: templeFrames[counter],
+    })
   return {
     snapshot: () => state,
-    transition: (supported: boolean, retain = false) => {
-      if (!supported) state = null
-      else if (!retain || !state) {
+    transition: (landscape: Landscape | null, retain = false) => {
+      if (!landscape) state = null
+      else if (
+        !retain ||
+        !state ||
+        state.bank !== landscape.bank ||
+        state.modelAtlas !== landscape.modelAtlas
+      ) {
         epoch++
-        state = selection(0)
+        state = selection(landscape, 0)
       }
     },
     advance: () => {
-      if (state) state = selection((state.counter + 1) % templeFrames.length)
+      if (state) state = selection(state, (state.counter + 1) % templeFrames.length)
     },
   }
 }

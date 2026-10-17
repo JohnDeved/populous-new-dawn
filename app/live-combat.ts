@@ -280,7 +280,7 @@ function startPreacherResponse(
           !unsigned(record.y, 65535) ||
           (record.y >> 9) * 128 + (record.x >> 9) !== cell ||
           record.cellPrevious !== previous ||
-          !unsigned(record.cellNext, 65535)
+          !unsigned(record.cellNext, Number.MAX_SAFE_INTEGER)
         )
           return 0
         linked.set(id, cell)
@@ -311,13 +311,13 @@ function startPreacherResponse(
         !Number.isInteger(record.life) ||
         record.life < -32768 ||
         record.life > 32767 ||
-        !unsigned(record.workFlags, 65535) ||
+        !unsigned(record.workFlags, Number.MAX_SAFE_INTEGER) ||
         !unsigned(record.state, rules.personStateFlags.length - 1) ||
         record.state !== person.state ||
         !unsigned(record.flags4, 0xffffffff) ||
         (record.flags2 ^ person.flags2) & 0x810000 ||
         (record.flags4 ^ person.flags4) & 0x1000 ||
-        !unsigned(record.vehicle, 65535) ||
+        !unsigned(record.vehicle, Number.MAX_SAFE_INTEGER) ||
         record.vehicle !== person.vehicle ||
         !unsigned(record.disguise, 255) ||
         record.disguise !== person.disguise

@@ -186,21 +186,24 @@ export class Painter {
           object.getMatrixAt(instance, local)
           transform.multiply(local)
         }
-        const origin = new THREE.Vector3().setFromMatrixPosition(transform)
-        const nativeOrigin = view.relative(origin, (origin.y * 128) / 45, unwrapped)
+        const origin =
+          sprite || scale ? new THREE.Vector3().setFromMatrixPosition(transform) : undefined
         // Every face of a native model uses the same anchor cell.
-        if ((sprite || scale) && !view.visible(metadata.cellPosition ?? origin, unwrapped)) continue
+        if ((sprite || scale) && !view.visible(metadata.cellPosition ?? origin!, unwrapped))
+          continue
+        const nativeOrigin =
+          sprite || scale ? view.relative(origin!, (origin!.y * 128) / 45, unwrapped) : undefined
         if (listener && scale && !this.pendingSoundEnvironment!.trees) {
           const tree = metadata.point
           if (tree?.model > 0 && tree.model < 7)
             this.pendingSoundEnvironment!.trees = treeAmbienceAudible(
-              { x: Math.round((origin.x + 8) * 256), y: Math.round((-origin.z - 8) * 256) },
+              { x: Math.round((origin!.x + 8) * 256), y: Math.round((-origin!.z - 8) * 256) },
               listener
             )
         }
         for (let face = 0; face < submitted; face++) {
           const triangle = index ? index.getX(face * 3) / 3 : face
-          if (sprite || scale) anchor.copy(origin)
+          if (sprite || scale) anchor.copy(origin!)
           else {
             anchor.fromBufferAttribute(centers!, triangle).applyMatrix4(transform)
             if (!view.visible(metadata.cellPosition ?? anchor, unwrapped)) continue
@@ -213,7 +216,7 @@ export class Painter {
           if (!vertices)
             bucket =
               spriteBucket(
-                depth(nativeOrigin),
+                depth(nativeOrigin!),
                 object === metadata.shadow ? -192 : (metadata.depthBias ?? -300)
               ) - 1
           else {
@@ -232,7 +235,7 @@ export class Painter {
                     raw,
                     object.userData.nativeSize ?? scale,
                     rotation!,
-                    nativeOrigin
+                    nativeOrigin!
                   )
                   vertices.depth[vertex] = depth(point)
                   if (object.userData.stage === 4)

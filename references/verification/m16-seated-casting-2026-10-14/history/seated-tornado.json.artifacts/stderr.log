@@ -1,0 +1,19 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Physical continuity for115: 3.0002949887521475 at26252
+    at verifyPhysicalStep (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/m16-clock-route/convoy-continuity.mjs:9:81)
+    at step (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/m16-clock-route/seated-tornado.mjs:11:716)
+    at file:///workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/m16-clock-route/seated-tornado.mjs:12:614
+    at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-audit/tests/support/profile-storage.mjs:115:5)
+    at async file:///workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/m16-clock-route/seated-tornado.mjs:8:1 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

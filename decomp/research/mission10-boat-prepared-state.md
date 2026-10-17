@@ -1,6 +1,61 @@
 # Mission 10 Boat preparation: field bindings and exact-state boundary
 
-## Status
+## 2026-10-13: scoped cold endpoint closed
+
+The historical unresolved-input status below is superseded for cold LEVEL10 by
+fresh static data reconstruction and independent review. No original executable
+or CPU emulation was run. Under normal compiled-entry/ABI, valid restored-input
+and documented memory-ownership assumptions:
+
+- Startup429ff0 clears [88f000,89d173), including all search-slot enable bytes.
+  All34 acquisition sites have explicit returned-handle zero tests. The33
+  admitted cold-prefix scopes have matched-handle releases, no unresolved held
+  indirect/missing-instruction frontier, and only nesting4502ba→45070c, peak2.
+  The excluded50b740 acquisition lies behind processing-loop dominance after
+  init_all. Boat109's constructor stack is outside held scopes: incoming0 held,
+  15 free, slot1 selected. This is not a save/load or universal runtime bound.
+- Exact129×129 wrapped/deduplicated terrain queue, flush1024 and one recursion,
+  over restored heights yields base terrain SHA256
+  `901ecc91e83c24fbd5898d8bc55e9da6f91fc261386d158bd91b819bed881e7f`.
+  The third DAT flags block is zero. This hash describes base terrain, not all
+  far-away changes made by preceding constructors.
+- RawBoat109(9814,6230) starts at cell1555 flags17/category1 and fails464f90.
+  Type2 angle0 rings0..16 accepts the eighth emitted point, centered9472/5888,
+  cell1426 flags0x1000011/category8. Direction1's exact162 adjustment gives
+  **9586/6002**, height0 and native heading1280.
+- Predicate/direction dependencies are cells1426,1427,1428,1555,1556,1683,1684;
+  height corners1426,1427,1554,1555. All14 earlier building writer bounds
+  (shape, grading corners, refresh and dock radius) have empty intersection.
+  Class1 initialization is fresh state10 without commands/reservations;
+  class5 writes only irrelevant occupancy/shadow fields at these dependencies
+  (conditional3×3 flags absent); class6 models6/9 initialization dispatches to
+  RET; class7 model23/state24 and warning83 initialize fields, not terrain.
+  No earlier authored or secondary class4 occurs. Queue neighbor reads do not
+  widen the write set beyond queued cells.
+
+`app/vehicle-routing.ts` now owns the null-person464ae0 preparation contract;
+`app/vehicle-initialization.ts` composes the fresh Boat constructor. Registration
+uses the existing browser class4 collection projection, includes inactive
+previous templates, and precedes height/heading sampling even on failure.
+The navigation bypass is caller-owned. Boat models1/2 both use source physics12
+and descriptor initial state1; state1 clears speed(+5f), reservation(+9f) and
+navigation bits10000/100/1, then sets4000. Fresh allocation supplies zero seats
+and turn fields. Life uses the imported shipped balance value5000.
+The existing Boat movement consumer reads personSpeeds[physics]: model12 is110,
+where the old placeholder model1 was32. This corrects movement speed as well as
+readiness for authored Boats across missions, so affected route regressions must
+be requalified; unchanged Boat motion is not claimed.
+Presentation/audio fields outside the current Vehicle representation are not
+claimed as newly ported here.
+
+The observation-only `scripts/inspect-authored-boat-entry.mjs` captures actual
+browser constructor-entry inputs without mutating them. The initial receipt
+matches the entire accepted dependency projection, all15 free enable bytes,
+no prior vehicles and14 prior buildings. The maintained loader test uses plain
+`createWorld(10)` with no terrain, Boat position, activation or readiness edits.
+M5 reward-time recreation and full runtime/save-load capacity remain separate.
+
+## Historical status (before this reconstruction)
 
 **Exact authored prepared state is not proved. No runtime implementation is
 reserved by this note.** The first unprovided original-world input is the native
@@ -166,3 +221,61 @@ Original-byte window hashes:
 **Result:** field/call binding advanced; exact authored shoreline/prepared state
 remains BLOCKED at the genuine native terrain/cell-state input. No guessed state,
 production patch, native proof-budget expansion or unchanged browser retry.
+
+## Runtime increment receipts
+
+Source-derived capacity, shoreline trace and dependency witnesses are retained in
+[boat-initialization-evidence](boat-initialization-evidence/). These compact JSON
+receipts are static reconstructions, not original runtime dumps. The complete
+local disassembly/lifetime review packet remains separate; the JSON records its
+finite composed bound and explicit assumptions.
+
+Focused tests cover valid-point adjustment, exact search/release, full-slot and
+no-candidate continuation, caller bypass, all-class4 occupancy including inactive
+prior Boats, wrapped displacement, registration-before-height, and untouched
+M10 loading. A bounded ordinary input probe selected the four authored Warriors
+111–114 through selectUnit, issued command22 against Boat62, and obtained all
+four seats by turn111. A plain water command moved the Boat from9586/6002 to
+9696/5993 at turn112 with all four retained. No terrain painting, entity injection,
+position rewrite, direct boarding call or readiness override is used. This is
+Node execution of browser game source, not a rendered mouse-input proof.
+
+### Authored-Boat consequences beyond Mission 10
+
+The constructor's physics12 selects speed110 in the existing movement adapter,
+where the previous physics1 selected32. This increment therefore changes actual
+Boat travel, not only boarding readiness. The shipped authored-Boat inventory is
+Mission5/index100, Mission10/index109 and Mission22/index132; Mission15 has none.
+The initial Mission5 template remains inactive and linked. Its prepared fields
+also affect later reward copying, whose separate allocation/processing contract
+is not implemented by this increment.
+
+The unchanged Mission22 theft/checkpoint/sail route provides a bounded health
+explanation. Both old and prepared-Boat runs take the same100→75 damage at1355,
+board at1390 with81.4HP and choose native landing6912/11520. The prepared Boat
+arrives1447 with92.6HP; the former Boat arrives1585 with100.6HP. The exact health
+trace differs only by five later1.6-point regeneration events before the former
+arrival. It is not additional incoming damage or a changed destination.
+
+Earlier Boat travel also advances ordinary Balloon acquisition from2953 to2206.
+Moving-input transport regressions must select their actual model3 owner, speed,
+reference and geometry phase rather than reuse absolute3900/3980/4000 campaign
+turns. The shared test helper reaches measured flight points using ordinary
+simulation with a finite bound and asserts ownership, occupancy, readiness and
+exit predicate. Separate idle input remains a required scenario: qualification
+exposed the generic player-model28 startup omission, repaired in the preceding
+transport increment rather than concealed by moving-phase test maintenance.
+
+All observations here are game-source CPU evidence. Original executable execution
+and rendered gameplay acceptance are not claimed.
+
+The supplied direct-unload regression also exposes a material seat-projection
+consequence. In untouched Mission22 terrain, a supplied Brave aboard the prepared
+Boat starts at10330/6177/h48 and launches with velocity(-118,60,-109) toward the
+valid projected exit9600/5504. Four physics steps settle at9878/5761/h0, still
+unsupported: retained native life1000 stays positive while the existing browser
+landing adapter sets HP0 and clears flight. This scoped result is not native death
+parity. The authored Balloon control still settles supported and alive. A separate,
+explicitly supplied dry-category neighborhood with a retained coastal craft cell
+verifies living Boat and Balloon unload mechanics without replacing the actual
+shoreline hazard. Ordinary sailed Mission22 landing remains separately exercised.

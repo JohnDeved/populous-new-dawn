@@ -9,9 +9,17 @@ import { fileURLToPath } from 'node:url'
 const root = fileURLToPath(new URL('../', import.meta.url))
 const fixturePath = resolve(root, 'tests/fixtures/mission3-raid-recruitment-origins.json')
 const fixture = JSON.parse(readFileSync(fixturePath, 'utf8'))
-const evidence = resolve(root, 'references/verification/mission3-raid-recruitment-origin-2026-10-06')
-const witnesses = ['attempt1', 'established-attempt1'].flatMap(name =>
-  JSON.parse(readFileSync(join(evidence, name, 'stdout.log'), 'utf8')).cases.map(c => c.native))
+const reference = JSON.parse(readFileSync(resolve(root,
+  'tests/fixtures/mission3-raid-recruitment-native.json'), 'utf8'))
+assert.equal(reference.schemaVersion, 1)
+assert.equal(reference.kind, 'mission3-raid-recruitment-native')
+const witnesses = reference.cases
+assert.equal(witnesses.length, 3)
+for (const witness of witnesses) {
+  assert.deepEqual(Object.keys(witness), ['id', 'comparison'])
+  assert.deepEqual(Object.keys(witness.comparison),
+    ['selector', 'count', 'ids', 'ranks', 'flags3', 'task', 'rng'])
+}
 assert.deepEqual(witnesses.map(c => c.id), fixture.cases.map(c => c.id))
 
 function runAdapter(path, count) {

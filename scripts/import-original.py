@@ -1,11 +1,12 @@
 """Decode the supplied Populous assets; never execute the Windows installer.
-Usage: python3 scripts/import-original.py /path/to/extracted/game [--units-only | --vehicles-only | --training-huts-only | --hut-smoke-only]
+Usage: python3 scripts/import-original.py /path/to/extracted/game [--units-only | --vehicles-only | --training-huts-only | --balloon-huts-only | --hut-smoke-only]
 --units-only appends Shaman, Firewarrior and Preacher sermon artwork and writes only
 app/original-units.json, public/original/unit-layers.png and provenance.json.
 --vehicles-only appends original mesh143/144 to original-models.json and its
 provenance modelIds; it never regenerates the shared object atlas.
 --training-huts-only appends meshes 98/100/101/102/105 and provenance modelIds,
 retaining every existing model, texture and unrelated asset.
+--balloon-huts-only appends meshes87–90 and provenance IDs, retaining all prior models and atlas.
 --hut-smoke-only appends HFX1329-1344 and HFX1385-1400 after the existing
 effects atlas rows, preserving all existing pixels and metadata indices.
 Native layout evidence and remaining renderer differences: references/native-assets.md.
@@ -516,6 +517,46 @@ def append_training_hut_models(source, project):
     print('Appended original training-hut meshes 98, 100, 101, 102, 105; previous models and atlas retained.')
 
 
+def append_balloon_hut_models(source, project):
+    """Append only the four original tribe-specific Balloon Hut meshes.
+
+    0040b170 chooses a distinct object for each owner. The original points and
+    textures differ from Blue; neither a fallback mesh nor recoloring is valid.
+    """
+    selected = (87, 88, 89, 90)
+    models_path = project / 'app/original-models.json'
+    provenance_path = project / 'public/original/provenance.json'
+    models = json.loads(models_path.read_text())
+    provenance = json.loads(provenance_path.read_text())
+    if provenance['objectBank'] != 2:
+        raise ValueError('Balloon-hut append requires the reviewed bank-2 baseline')
+    raw = []
+    for kind in ('objs', 'facs', 'pnts'):
+        name = f'objects/{kind}0-2.dat'
+        data = (source / name).read_bytes()
+        if hashlib.sha256(data).hexdigest() != provenance['sha256'][name]:
+            raise ValueError('Original Balloon-hut input hash mismatch: ' + name)
+        raw.append(data)
+    if any(len(data) % stride for data, stride in zip(raw, (54, 60, 6))):
+        raise ValueError('Invalid original Balloon-hut record sizes')
+    additions = {str(model): decode_original_model(*raw, model)[0] for model in selected}
+    for key, decoded in additions.items():
+        if key in models and models[key] != decoded:
+            raise ValueError('Refusing to overwrite a differing existing Balloon Hut mesh: ' + key)
+    before = dict(models)
+    atlas_hash = hashlib.sha256((project / 'public/original/atlas.png').read_bytes()).hexdigest()
+    models.update(additions)
+    assert all(models[key] == value for key, value in before.items())
+    assert all(0 <= tile < 256 for mesh in additions.values() for tile in mesh['tiles'])
+    for model in selected:
+        if model not in provenance['modelIds']:
+            provenance['modelIds'].append(model)
+    models_path.write_text(json.dumps(models, separators=(',', ':')))
+    provenance_path.write_text(json.dumps(provenance, indent=2) + '\n')
+    assert hashlib.sha256((project / 'public/original/atlas.png').read_bytes()).hexdigest() == atlas_hash
+    print('Appended original Balloon-hut meshes 87, 88, 89, 90; previous models and atlas retained.')
+
+
 def append_hut_smoke_effects(source, project):
     """Append occupancy-smoke HFX rows without moving or rewriting existing atlas pixels."""
     output = project / 'public/original'
@@ -665,6 +706,11 @@ def main():
             raise ValueError('Usage: import-original.py GAME_ROOT --hut-smoke-only')
         append_hut_smoke_effects(source, project)
         return
+    if '--balloon-huts-only' in sys.argv[2:]:
+        if sys.argv[2:] != ['--balloon-huts-only']:
+            raise ValueError('Usage: import-original.py GAME_ROOT --balloon-huts-only')
+        append_balloon_hut_models(source, project)
+        return
     if '--training-huts-only' in sys.argv[2:]:
         if sys.argv[2:] != ['--training-huts-only']:
             raise ValueError('Usage: import-original.py GAME_ROOT --training-huts-only')
@@ -699,7 +745,7 @@ def main():
     assert len(objects)%54 == len(faces)%60 == len(points)%6 == 0
     models, topology = {}, {}
     # Models actually used in this mission, including every hut family, upgrade and all four tribe colors.
-    selected = [5,13,14,15,16,17,18,30,45,152,153,154,155,79,80,81,82,*range(83,87),*range(91,107),*range(107,143)]
+    selected = [5,13,14,15,16,17,18,30,45,152,153,154,155,79,80,81,82,*range(83,91),*range(91,107),*range(107,143)]
     animation_tiles = read('data/anibl0-0.dat')
     assert len(animation_tiles) == 500
     fire = animation_tiles[20:40] # ANIBL record 1, consumed by 0x4f0f60.

@@ -120,3 +120,93 @@ test('unknown consumed release fields do not cause partial release or invented z
     visit(c, false)
   }
 })
+
+// Supplied phase-10 composition controls use the same captured owners/pool.
+function outboundFixture() {
+  const c = fixture(), task = c.ai.tasks[1]
+  task.phase = 10
+  task.elapsed = 0
+  task.members = [c.u.id]
+  task.target = 0
+  return { ...c, task }
+}
+function outboundVisit(c) {
+  c.ai.cursor = 1
+  withCampaignTribe(c.w, 3, () => stepComputerTasks(c.w, 3))
+}
+
+test('outbound release retires the exact owner reference before task cleanup', () => {
+  const c = outboundFixture(), record = c.w.buildingOrders.records[131]
+  assert.equal(record.references, 1)
+  outboundVisit(c)
+  assert.equal(c.task.phase, 23)
+  assert.deepEqual(c.task.members, [])
+  assert.equal(record.references, 0)
+  assert.equal(c.w.objectCells.objects.get(c.u.id), c.p)
+  assert.equal(c.u.native, c.p)
+  assert.equal(c.p.state, 10)
+  assert.equal(c.p.anchorX, 38656)
+  assert.equal(c.p.anchorY, 28416)
+  assert.equal(c.p.anchorFlags, 0)
+  outboundVisit(c)
+  assert.equal(c.task.flags & 3, 0)
+})
+
+test('unsupported outbound release cannot fall through into near-member regroup', () => {
+  for (const mutate of [
+    c => { delete c.p.assignment },
+    c => { c.p.substate = 2; c.p.animationMode = 256 },
+  ]) {
+    const c = outboundFixture()
+    c.task.target = ((c.p.x >>> 8) & 254) | (c.p.y & 0xfe00)
+    mutate(c)
+    outboundVisit(c)
+    assert.equal(c.task.phase, 10)
+    assert.equal(c.w.buildingOrders.records[131].references, 1)
+    assert.deepEqual(c.task.members, [c.u.id])
+  }
+})
+
+test('outbound timeout is strict and preserves the prior regroup point', () => {
+  const c = outboundFixture()
+  Object.assign(c.p, { state: 10, substate: 0 })
+  c.task.regroup = 0x1234
+  const active = c.ai.tasks.filter(task => task.flags & 1).length
+  c.task.elapsed = 1800 - active
+  outboundVisit(c)
+  assert.equal(c.task.elapsed, 1800)
+  assert.equal(c.task.phase, 10)
+  outboundVisit(c)
+  assert.equal(c.task.phase, 11)
+  assert.equal(c.task.regroup, 0x1234)
+})
+
+test('outbound traversal preserves near, forced and release member ordering', () => {
+  for (const later of ['forced', 'release']) {
+    const c = outboundFixture(), second = structuredClone(c.u)
+    second.id = 65000
+    second.native = structuredClone(c.p)
+    second.native.id = second.id
+    second.native.commands.fill(0)
+    second.native.immediateCommand = 0
+    if (later === 'forced') second.native.state = 25
+    c.w.units.push(second)
+    c.w.objectCells.objects.set(second.id, second.native)
+    c.task.members.push(second.id)
+    Object.assign(c.p, { state: 19, substate: 0, speed: 0 })
+    c.task.target = ((c.p.x >>> 8) & 254) | (c.p.y & 0xfe00)
+    const before = structuredClone(second.native)
+    outboundVisit(c)
+    assert.equal(c.task.phase, 11)
+    // Callback traversal only: the existing proximity adapter does not yet
+    // compose native's subsequent whole-group state19/leader-anchor reset.
+    assert.deepEqual(second.native, before, 'retained proximity adapter leaves the later owner unchanged')
+    assert.equal(c.w.buildingOrders.records[131].references, 1)
+  }
+  const c = outboundFixture()
+  Object.assign(c.p, { state: 25, speed: 0 })
+  c.task.target = ((c.p.x >>> 8) & 254) | (c.p.y & 0xfe00)
+  outboundVisit(c)
+  assert.equal(c.task.phase, 15, 'forced state precedes proximity for the same member')
+  assert.equal(c.w.buildingOrders.records[131].references, 1)
+})

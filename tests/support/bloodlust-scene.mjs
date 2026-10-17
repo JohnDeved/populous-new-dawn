@@ -79,6 +79,10 @@ export async function normalBloodlustWorld() {
 
 export async function makeSceneFixture(world, options = {}) {
   const api = await loadSceneFixture()
+  const { worldEnvironment } = await import('../../app/world-environment.ts')
+  const { createSharedAniblResource } = await import('../../app/shared-anibl.ts')
+  const resource = createSharedAniblResource()
+  resource.transition(worldEnvironment(world).landscape)
   const requests = []
   const originalLoad = THREE.TextureLoader.prototype.load
   const originalDocument = globalThis.document
@@ -93,6 +97,8 @@ export async function makeSceneFixture(world, options = {}) {
   globalThis.document = { querySelector: () => null }
   const scene = {
     world,
+    environment: worldEnvironment(world),
+    templeResourceSnapshot: resource.snapshot(),
     objects: new THREE.Group(),
     unitMeshes: new Map(),
     keys: new Set(),

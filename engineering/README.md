@@ -49,7 +49,9 @@ Record the worker owner honestly in an issue/PR note; do not impersonate a GitHu
 assignee. Update status at meaningful changes and remove stale labels. A blocker
 names its dependency, owner, next action, and acceptance; a closed prerequisite does
 not automatically complete its dependent gate. Reuse existing issues, labels, and
-repository access. No new Projects credentials, paid tools, or GitHub Actions.
+repository access. No new Projects credentials, paid tools, or additional GitHub Actions without
+separate authorization. The approved ready-PR workflow is described in
+[continuous integration](continuous-integration.md).
 
 For narrow read-only research or a small docs fix, a compact issue/PR brief is enough.
 Do not create another contract just to delegate. An optional contract helps when scope,
@@ -68,6 +70,9 @@ npm run orchestration:receipt -- --output work/orchestration/task/build.json -- 
 - `context` retrieves bounded mapped evidence, current parity scope, source hashes,
   and omitted paths/headings. It rebuilds a stale ignored index. Follow relevant
   omitted sources; a packet is not an exhaustive proof inventory.
+- Optional `research-view`, `research-read`, and `research-claims` commands add
+  hash-linked raw retrieval and finite proof bindings; see [research evidence](research-evidence.md).
+  They retain evidence limits and never replace full review or award parity.
 - `plan` routes branch/staged/unstaged/deleted/renamed/untracked changes to reviewed
   checks. Unknown paths stay explicit. It does not execute checks.
 - `check` validates manifests, paths, ownership, and parity references; it does not
@@ -78,6 +83,10 @@ npm run orchestration:receipt -- --output work/orchestration/task/build.json -- 
   runs retain their raw logs without inventing a terminal result. Accept `status:
   passed`, not merely exit zero, because source drift invalidates evidence. Prefer
   a committed candidate. Never substitute a summary for the underlying evidence.
+- Keep generated command logs, receipts, captures, timing samples, and review bundles
+  in ignored `work/` or outside the checkout. Publish needed review artifacts on the
+  issue/PR, not in development commits. Preserve consumed fixtures, native proof,
+  reusable probes, and concise findings; see [artifact retention](artifact-retention.md).
 - `review-bundle` exports a committed full diff and bounded redacted receipts for a
   reviewer in another worktree/executor. [Handoff](worker-handoff.md) describes trusted
   caller-supplied identity verification and deletion coverage.
@@ -88,6 +97,82 @@ npm run orchestration:receipt -- --output work/orchestration/task/build.json -- 
 There is no mandatory Local Dev binding, source-release handshake, delivery-clock
 ledger, separate reviewer chat, or browser-driven worker watcher. Use the executor's
 normal task controls and report useful results directly to the parent.
+
+## Fast feedback and full verification
+
+Use `npm run test:focus -- tests/example.test.mjs` while editing. It accepts exact,
+unique existing top-level test paths only, runs them with Node file isolation and
+concurrency one, and rejects empty lists, unknown paths and extra Node flags.
+`orchestration:plan` now adds an advisory `feedback` command from the existing
+reviewed mappings and directly changed tests. Broad/shared, deleted, unmapped and
+unresolved cases suggest the full suite. These suggestions are deliberately
+partial; they do not establish dependency completeness or reuse a previous pass.
+
+`npm test` discovers the same top-level `tests/*.test.mjs` set as before. It runs
+content-reviewed, in-memory/read-only files with at most two isolated Node workers,
+then every other file serially. `engineering/test-resources.json` binds each
+parallel file, all non-test `.mjs` helpers under `tests/`, the whole `app/` tree,
+package/installed-lock/TypeScript configuration, and Node version/platform/architecture
+to a reviewed resource inventory. New/changed/unclassified tests run serially;
+shared-helper, production/config/runtime drift makes the whole suite serial until
+reviewed. Any nonempty `NODE_OPTIONS`, `NODE_PATH`, `NODE_COMPILE_CACHE`, or
+`NODE_V8_COVERAGE` also forces serial execution;
+test-selection/isolation options in `NODE_OPTIONS` are rejected. The inventory never excludes a discovered test. Review
+transitive production/runtime resource changes too: this classification is not a
+sandbox or a general proof that imported code has no side effects. Installed
+dependencies must remain trusted/read-only: lockfile hashes do not attest arbitrary
+manually altered package JavaScript; formal comparisons bind actual package bytes. Script consumers,
+filesystem mutators, subprocess/socket tests and environment-controlled witnesses
+are conservatively serial in the initial inventory. Browser, build and performance
+jobs still hold the shared lane separately.
+
+After reviewing a production change for resource side effects, deliberately refresh
+`productionSha256` using the exported `productionFingerprint(repo)`; likewise use
+`helperFingerprint(repo)` after shared-helper review. Commit the reviewed policy before freezing the final
+candidate; do not edit it during verification. Inspect new/changed test
+imports and writes before adding/updating that file's SHA-256 in `parallel`.
+Do not refresh hashes merely to regain concurrency after an unexplained drift.
+For example, this prints candidate shared fingerprints without writing the policy:
+
+```sh
+node --input-type=module -e "import {productionFingerprint,helperFingerprint} from './scripts/orchestration/test-runner.mjs'; console.log(JSON.stringify({productionSha256:productionFingerprint(process.cwd()),helpersSha256:helperFingerprint(process.cwd())},null,2))"
+```
+
+`PND_TEST_CONCURRENCY=1 npm run check` uses the same file groups/order with the
+parallel group reduced to one worker. Only values `1` and `2` are accepted.
+`npm run test:serial` provides the same serial test phase directly.
+On an executor with an inherited global module path, the conservative default is
+serial. After verifying that this checkout resolves its installed dependencies
+without a custom loader/path, use `NODE_PATH= NODE_OPTIONS= NODE_COMPILE_CACHE= NODE_V8_COVERAGE= npm run check` for
+that one invocation; use the same empty environment for both measurement profiles. This also prevents
+shared cache/coverage writes from qualifying for the parallel inventory.
+Do not change persistent settings or discard an intentional custom loader silently.
+`pnd-test-plan.parallelEligibility` explains any shared/runtime fallback. Focus always
+uses one worker. No new transform/result cache or runtime migration is involved.
+The standard `npm run check` and `npm run build` final gates remain required.
+For ready PRs targeting main, the approved [hosted full gate](continuous-integration.md)
+runs both on the exact proposed merge. Use focused local checks while editing;
+do not duplicate a current hosted full run locally merely to wait for it. Keep
+affected native, rendered-browser and performance evidence separate.
+
+The runner prints JSON `pnd-test-plan`, `pnd-test-group` and `pnd-test-result`
+markers on stderr with exact file lists, commands, concurrency, native exits and
+wall time. Stdout retains Node's TAP stream for each group. Node owns assertion,
+skip and failure accounting; the wrapper does not parse nested diagnostics as
+additional tests. Ordinary failed groups do not omit later groups. A signal,
+launch error or interruption is non-passing and stops new groups; the wrapper
+never certifies cleanup of detached descendants. A successful focused command is
+explicitly not a full-suite result, and a full-suite result is still only one
+component of the final gate.
+
+Use the existing command receipt wrapper with a fresh output for every attempt;
+commit the candidate first or explicitly fingerprint all untracked inputs with
+`--input`. Preserve raw logs and failed/unknown attempts. There is no automatic
+receipt reuse: unchanged inputs, exact selection, command/profile/runtime and
+required coverage must be checked before reusing any evidence. An interrupted or
+drift-invalidated attempt cannot become a pass. The aggregate inclusion rule is
+narrowly extended to this full-discovery runner and its own regression suite;
+`test:focus` never qualifies for aggregate coverage.
 
 ## Sources and evidence boundaries
 

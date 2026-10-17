@@ -42,7 +42,6 @@ import {
 import { depleteTree, sound } from './world-effects.ts'
 import { changeBuildingWork } from './building-damage.ts'
 import {
-  SceneryPhase,
   stepBuildingPeople,
   stepBuildingScenery,
   type ClearingPerson,
@@ -148,7 +147,7 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
       sound: cue => sound(w, cue, u),
       target: timber,
       refreshSearch: (point, angle) => {
-        refreshTimberSearch(w.timberSearches, site, timberCell(point), angle, p)
+        refreshTimberSearch(w.timberSearches, site, timberCell(point), angle, p, id => id)
         b.timberSearch = site.searchIndex
       },
       findWood: index => findTimber(w.timberSearches, searchWorld, index, p.id, true, false).target,

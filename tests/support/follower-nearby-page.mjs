@@ -27,14 +27,17 @@ export function pageEffect(contains, bindings) {
 }
 export function pageNearby(scene, overrides = {}) {
   let pressed = false
+  scene.setModalSuspended ??= suspended => { scene.modalSuspended = suspended }
   const nearbyPress = { current: null },
     bindings = {
       engine: { current: scene }, world: scene.world, ready: true, startup: 'playing',
       menu: false, selectorOpen: false, nearbyPress,
+      store: { getWorld: () => scene.world, change: action => action(scene.world) },
+      menuSession: { current: null }, pendingMenuCamera: { current: [] },
       setNearbyPressed: value => { pressed = value },
       setMenu: () => {}, setSelectorOpen: () => {}, useCallback: callback => callback, ...overrides,
     }
-  const names = ['clearNearbyPress', 'cancelNearbyInput', 'openMenu', 'openSelector', 'currentNearbyScene', 'releaseNearbyPress', 'nearbyControl']
+  const names = ['clearNearbyPress', 'cancelNearbyInput', 'openMenu', 'closeMenu', 'openSelector', 'currentNearbyScene', 'releaseNearbyPress', 'nearbyControl']
   const bodies = names.map(name => pageNode(node =>
     (ts.isFunctionDeclaration(node) && node.name?.text === name) ||
     (ts.isVariableStatement(node) && node.declarationList.declarations.some(declaration => declaration.name.getText(pageSource) === name))

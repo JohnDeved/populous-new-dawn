@@ -24,6 +24,32 @@ export function assertVaultVisible(s) {
 }
 export const vaultReleased = s => !s.record && !s.latch && !s.dom.present && s.reservations === 0
 
+export function assertVaultPanelAnchor(sample) {
+  assert(sample.dom?.connected && !sample.dom.hidden && !sample.camera.overview)
+  assert.deepEqual(sample.socket, { x: 58112, y: 32000, heightOffset: 480 })
+  assert(sample.width > 0 && sample.height > 0 && sample.scale > 0)
+  const close = (a, b) => {
+    for (const axis of ['x', 'y'])
+      assert(Number.isFinite(a[axis]) && Number.isFinite(b[axis]) && Math.abs(a[axis] - b[axis]) <= 1 / 16,
+        `Vault DOM ${axis} must match source socket0 within a CSS layout subpixel`)
+  }
+  const source = sample.expected.socket0
+  for (const point of Object.values(sample.expected)) close(point.raw, point.clamped)
+  close(sample.dom.inline, source.raw)
+  close(sample.dom.tail, source.raw)
+  for (const name of ['legacy', 'reward'])
+    assert(Math.hypot(source.raw.x - sample.expected[name].raw.x,
+      source.raw.y - sample.expected[name].raw.y) > 1, `${name} must be distinguishable from socket0`)
+}
+
+export function assertVaultPanelAnchorBracket(before, after) {
+  assertVaultPanelAnchor(before)
+  assertVaultPanelAnchor(after)
+  for (const key of ['head', 'socket', 'ground', 'renderer', 'container', 'scale', 'width', 'height', 'camera', 'expected', 'dom'])
+    assert.deepEqual(after[key], before[key], `Vault screenshot ${key} drifted`)
+  assert(after.turn >= before.turn && after.animationFrame >= before.animationFrame)
+}
+
 export function assertVaultUninspectedCommand(row, targetId) {
   assert(row?.kind === 'input' && row.trusted && row.button === 0)
   assert.equal(row.after.shaman.order?.model, 33)

@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+undefined !== 2
+
+    at file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/m17-restart-route/final-accept.mjs:6:98
+    at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/tests/support/profile-storage.mjs:115:5)
+    at async file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/m17-restart-route/final-accept.mjs:5:1 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: 2,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

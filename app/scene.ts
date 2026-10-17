@@ -1,3 +1,5 @@
+import { worldEnvironment, type WorldEnvironment } from './world-environment.ts'
+import { DEFAULT_GAME_PREFERENCES, type GamePreferences } from './game-preferences.ts'
 import type { PresentationBinding, SharedAniblSnapshot } from './shared-anibl.ts'
 import { templeArt } from './temple-art.ts'
 import type { TransportKind } from './hud-transports.ts'
@@ -105,6 +107,7 @@ import {
 import { updateHudFrame } from './scene-hud-runtime.ts'
 import {
   acknowledgePointer,
+  cancelPointerGesture,
   chooseFollowers,
   chooseTransport,
   drawPointer,
@@ -137,6 +140,7 @@ import {
 
 export class GameScene {
   world: World
+  gamePreferences: GamePreferences = { ...DEFAULT_GAME_PREFERENCES }
   waveFrames = new WeakMap<object, number>()
   view = new RenderView()
   skyBackdrop = new THREE.Mesh(
@@ -216,8 +220,8 @@ export class GameScene {
   waves: Uint8Array | null = null
   waterMap = new THREE.DataTexture(new Uint8Array(256 * 256 * 4), 256, 256)
   waterState = ''
-  waterScroll = { value: 0 }
   terrainMap = new THREE.DataTexture(new Uint8Array(4096 * 4096 * 4), 4096, 4096)
+  readonly environment: WorldEnvironment
   terrainTextures: TerrainTextures | null = null
   terrainUpload = new THREE.DataTexture()
   terrainAtlasState: ReturnType<typeof terrainAtlas> | undefined
@@ -282,6 +286,7 @@ export class GameScene {
   hudTransportFocus = Array<number>(16).fill(0)
   buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
+  pointerGesture: { pointerId: number; button: number } | null = null
   drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
     null
   selectionOverlay: SelectionOverlay
@@ -291,8 +296,29 @@ export class GameScene {
   frame = 0
   started = false
   disposed = false
-  fpsGraph = new URLSearchParams(location.search).has('fps') ? new FpsGraph() : null
+  fpsGraph: FpsGraph | null = null
+  togglePerformance() {
+    if (this.fpsGraph) {
+      this.fpsGraph.element.remove()
+      this.fpsGraph = null
+    } else {
+      this.fpsGraph = new FpsGraph(this.renderer.getContext())
+      this.container.appendChild(this.fpsGraph.element)
+    }
+  }
   previous: number | null = null
+  modalSuspended = false
+  setModalSuspended(suspended: boolean) {
+    this.modalSuspended = suspended
+    this.previous = null
+    this.keys.clear()
+    const pointerId = this.pointerGesture?.pointerId
+    if (pointerId !== undefined && this.renderer.domElement.hasPointerCapture(pointerId))
+      this.renderer.domElement.releasePointerCapture(pointerId)
+    cancelPointerGesture(this)
+    this.cancelNearbyFollowers()
+    this.cancelTooltipInspection()
+  }
   uiTimer = 0
   unitMotion = new UnitMotion()
   projectileMotion = new ProjectileMotion()
@@ -356,8 +382,8 @@ export class GameScene {
   ) {
     this.presentationBinding = presentationBinding
     this.templeResourceSnapshot = presentationBinding?.snapshot() ?? null
-    if (world.outcome.level === 3 && !this.templeResourceSnapshot)
-      throw new Error('Mission 3 requires its presentation resource binding')
+    if (!this.templeResourceSnapshot)
+      throw new Error('Scene requires its presentation resource binding')
     if (tooltipSession) {
       this.tooltipSession = tooltipSession
       this.tooltipController = createTooltipController(this.tooltip, tooltipSession)
@@ -366,6 +392,7 @@ export class GameScene {
     this.mini = minimap
     this.portrait = portrait
     this.world = world
+    this.environment = worldEnvironment(world)
     this.soundSerial = world.soundSerial
     for (const effect of world.effects) if (effect.fire) effect.fire.soundPlaying = false
     for (const building of world.buildings) if (building.burn) building.burn.soundPlaying = false
@@ -383,9 +410,13 @@ export class GameScene {
     // Resolve failed required textures before constructing anything that captures them.
     // Passive texture()/loadTexture() lookups still reuse failures; only this new-scene
     // preload boundary may replace a completed required failure.
-    const atlasAsset = retryFailedTexture('atlas'),
+    const atlasAsset = retryFailedTexture(this.environment.landscape.modelAtlas),
+      selectionAtlasAsset =
+        this.environment.landscape.modelAtlas === 'atlas'
+          ? atlasAsset
+          : retryFailedTexture('atlas'),
       unitAtlasAsset =
-        nativeUnits.atlas === 'atlas' ? atlasAsset : retryFailedTexture(nativeUnits.atlas),
+        nativeUnits.atlas === 'atlas' ? selectionAtlasAsset : retryFailedTexture(nativeUnits.atlas),
       knowledgeAtlas = vaultKnowledgeAtlas(world.outcome.level),
       knowledgeAtlasAsset = knowledgeAtlas ? retryFailedTexture(knowledgeAtlas) : null,
       templeAssets =
@@ -399,7 +430,10 @@ export class GameScene {
           ['effects', loadTexture('effects'), false],
           ['hud', loadTexture('hud'), false],
           ['unit-health', loadTexture('unit-health'), false],
-          ['atlas', atlasAsset, true],
+          [this.environment.landscape.modelAtlas, atlasAsset, true],
+          ...(this.environment.landscape.modelAtlas === 'atlas'
+            ? []
+            : [['atlas', selectionAtlasAsset, true] as const]),
           [nativeUnits.atlas, unitAtlasAsset, true],
           ...(knowledgeAtlasAsset ? [[knowledgeAtlas!, knowledgeAtlasAsset, true] as const] : []),
           ...templeAssets,
@@ -439,7 +473,7 @@ export class GameScene {
     this.renderer.domElement.tabIndex = 0
     this.renderer.domElement.className = 'battlefield'
     container.appendChild(this.renderer.domElement)
-    if (this.fpsGraph) container.appendChild(this.fpsGraph.element)
+    if (new URLSearchParams(location.search).has('fps')) this.togglePerformance()
     Object.assign(this.pointerOutline.style, {
       position: 'absolute',
       inset: '0',
@@ -755,9 +789,10 @@ export class GameScene {
     directions: { frames: number[]; flip: boolean }[],
     age: number,
     once = false,
-    frameNumber?: number
+    frameNumber?: number,
+    selectedIds?: ReadonlySet<number>
   ) {
-    animatePerson(this, g, heading, directions, age, once, frameNumber)
+    animatePerson(this, g, heading, directions, age, once, frameNumber, selectedIds)
   }
   makeFx(f: Effect) {
     return makeFx(this, f)
@@ -803,15 +838,36 @@ export class GameScene {
       this.nearbyFollowers?.reset()
       return
     }
+    const diagnostic = document.hidden ? null : this.fpsGraph
+    const callbackStart = diagnostic ? performance.now() : 0
     if (this.renderer.getPixelRatio() !== Math.min(devicePixelRatio, 1.8)) this.setSize()
     const previous = this.previous ?? now,
       skyTicks = Math.imul(Math.max(0, Math.floor(now) - Math.floor(previous)), 64) >>> 0,
       dt = Math.max(0, now - previous) / 1000
-    if (this.fpsGraph) this.fpsGraph.update(document.hidden ? 0 : dt * 1000)
+    if (document.hidden) this.fpsGraph?.reset('Hidden tab · sampling stopped')
     this.previous = now
+    // Pause menus freeze the entire presentation, not ordinary Space pause.
+    // Keep sampling timestamps so resuming never catches up suspended wall time.
+    if (this.modalSuspended) {
+      const renderStart = diagnostic ? performance.now() : 0
+      this.renderer.render(this.scene, this.camera)
+      const renderMs = diagnostic ? performance.now() - renderStart : 0
+      this.frame = requestAnimationFrame(this.animate)
+      diagnostic?.update(
+        now,
+        0,
+        renderMs,
+        this.renderer.info.render.calls,
+        'Menu · rendering',
+        performance.now() - callbackStart
+      )
+      return
+    }
     syncSecondaryReservations(this)
     this.dispatchNearbyFollowers(now)
+    const simulationStart = diagnostic ? performance.now() : 0
     advanceGame(this.world, this.gameClock, dt)
+    const simulationMs = diagnostic ? performance.now() - simulationStart : 0
     this.templeResourceSnapshot = this.presentationBinding?.snapshot() ?? null
     this.playWorldSounds()
     this.updateTerrainFrame()
@@ -851,9 +907,21 @@ export class GameScene {
     this.updatePlacement()
     this.updateSpellPointerFrame(spec)
     this.updateEnvironmentFrame(skyTicks)
+    const renderStart = diagnostic ? performance.now() : 0
     this.renderSceneFrame(hovered, hoveredBuilding)
+    const renderMs = diagnostic ? performance.now() - renderStart : 0
     this.updateHudFrame(now, dt)
     this.frame = requestAnimationFrame(this.animate)
+    // Synchronous game callback work, including HUD and scheduling; excludes
+    // this diagnostic's own update and deferred browser/GPU work.
+    diagnostic?.update(
+      now,
+      simulationMs,
+      renderMs,
+      this.renderer.info.render.calls,
+      this.world.paused ? 'Paused · rendering' : 'Live',
+      performance.now() - callbackStart
+    )
   }
   private updateTerrainFrame() {
     updateTerrainFrame(this)

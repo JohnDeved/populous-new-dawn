@@ -1,0 +1,1974 @@
+{
+  "scope": "cold LEVEL10 before initial Boat109; conditional normal-entry ABI and valid-buffer ownership",
+  "conservative_acquire_sites": 33,
+  "maximum_simultaneous": 2,
+  "boat_incoming_held": 0,
+  "boat_incoming_free": 15,
+  "rows": [
+    {
+      "acquire": "0x40b7a1",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x40b84d"
+      ],
+      "saved_handle": {
+        "acquire": "0x40b7a1",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x40b84d",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x40b7e4",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x40b840",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x40be20",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x40c024"
+      ],
+      "saved_handle": {
+        "acquire": "0x40be20",
+        "savedStackOffset": 24,
+        "register": null,
+        "release": [
+          {
+            "site": "0x40c024",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x40be75",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x40bf6d",
+          "target": "0x416d70",
+          "routines": 1
+        },
+        {
+          "site": "0x40bf8c",
+          "target": "0x4de7b0",
+          "routines": 1
+        },
+        {
+          "site": "0x40bf9e",
+          "target": "0x4de7b0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x40c042",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x40c17c"
+      ],
+      "saved_handle": {
+        "acquire": "0x40c042",
+        "savedStackOffset": 24,
+        "register": null,
+        "release": [
+          {
+            "site": "0x40c17c",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x40c08f",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x40c167",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x43a62c",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x43a6ee"
+      ],
+      "saved_handle": {
+        "acquire": "0x43a62c",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x43a6ee",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x43a66f",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x43a6d5",
+          "target": "0x43a310",
+          "routines": 9
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x447459",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x447564"
+      ],
+      "saved_handle": {
+        "acquire": "0x447459",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x447564",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x44749c",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x447987",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x447a51"
+      ],
+      "saved_handle": {
+        "acquire": "0x447987",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x447a51",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x4479d2",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x447add",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x447b8e"
+      ],
+      "saved_handle": {
+        "acquire": "0x447add",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x447b8e",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x447b23",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x447c17",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x447cd7"
+      ],
+      "saved_handle": {
+        "acquire": "0x447c17",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x447cd7",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x447c62",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x447d48",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x447e5f"
+      ],
+      "saved_handle": {
+        "acquire": "0x447d48",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x447e5f",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x447d8b",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x447e4e",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x447eb7",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x447fbc"
+      ],
+      "saved_handle": {
+        "acquire": "0x447eb7",
+        "savedStackOffset": 20,
+        "register": null,
+        "release": [
+          {
+            "site": "0x447fbc",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x447f08",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x4502ba",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x450359"
+      ],
+      "saved_handle": {
+        "acquire": "0x4502ba",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x450359",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x45030a",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x450339",
+          "target": "0x450610",
+          "routines": 11
+        },
+        {
+          "site": "0x45034c",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [
+        "0x45070c"
+      ],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 2
+    },
+    {
+      "acquire": "0x45070c",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x450814"
+      ],
+      "saved_handle": {
+        "acquire": "0x45070c",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x450814",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x450733",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x4507d4",
+          "target": "0x494f50",
+          "routines": 3
+        },
+        {
+          "site": "0x4507f0",
+          "target": "0x4bdd40",
+          "routines": 4
+        },
+        {
+          "site": "0x450803",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x464b32",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x464c98"
+      ],
+      "saved_handle": {
+        "acquire": "0x464b32",
+        "savedStackOffset": 40,
+        "register": null,
+        "release": [
+          {
+            "site": "0x464c98",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x464b85",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x464bed",
+          "target": "0x464f90",
+          "routines": 1
+        },
+        {
+          "site": "0x464c1b",
+          "target": "0x4ec630",
+          "routines": 2
+        },
+        {
+          "site": "0x464c2d",
+          "target": "0x4ec630",
+          "routines": 2
+        },
+        {
+          "site": "0x464c64",
+          "target": "0x4ea920",
+          "routines": 31
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x464de6",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x464f5d"
+      ],
+      "saved_handle": {
+        "acquire": "0x464de6",
+        "savedStackOffset": 28,
+        "register": null,
+        "release": [
+          {
+            "site": "0x464f5d",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x464e23",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x4652a8",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x46541d"
+      ],
+      "saved_handle": {
+        "acquire": "0x4652a8",
+        "savedStackOffset": 28,
+        "register": null,
+        "release": [
+          {
+            "site": "0x46541d",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x4652e5",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x465cab",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x465e81"
+      ],
+      "saved_handle": {
+        "acquire": "0x465cab",
+        "savedStackOffset": 24,
+        "register": null,
+        "release": [
+          {
+            "site": "0x465e81",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x465cfc",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x465e65",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x47bff7",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x47c0bb"
+      ],
+      "saved_handle": {
+        "acquire": "0x47bff7",
+        "savedStackOffset": 24,
+        "register": null,
+        "release": [
+          {
+            "site": "0x47c0bb",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x47c02d",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x493fcd",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x49418b"
+      ],
+      "saved_handle": {
+        "acquire": "0x493fcd",
+        "savedStackOffset": 24,
+        "register": null,
+        "release": [
+          {
+            "site": "0x49418b",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x493fff",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x4964b3",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x496560"
+      ],
+      "saved_handle": {
+        "acquire": "0x4964b3",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x496560",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x4964fb",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x49654e",
+          "target": "0x4d55a0",
+          "routines": 2
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x49c7b0",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x49c876"
+      ],
+      "saved_handle": {
+        "acquire": "0x49c7b0",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x49c876",
+            "sp": 0
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x49c7f7",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x49c863",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x4a7520",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x4a7713"
+      ],
+      "saved_handle": {
+        "acquire": "0x4a7520",
+        "savedStackOffset": 40,
+        "register": null,
+        "release": [
+          {
+            "site": "0x4a7713",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x4a7570",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x4a7686",
+          "target": "0x4ea6b0",
+          "routines": 7
+        },
+        {
+          "site": "0x4a769b",
+          "target": "0x4ea970",
+          "routines": 24
+        },
+        {
+          "site": "0x4a76d4",
+          "target": "0x44e940",
+          "routines": 1
+        },
+        {
+          "site": "0x4a76e7",
+          "target": "0x5178d0",
+          "routines": 4
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x4a8451",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x4a8643"
+      ],
+      "saved_handle": {
+        "acquire": "0x4a8451",
+        "savedStackOffset": 24,
+        "register": null,
+        "release": [
+          {
+            "site": "0x4a8643",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x4a84a1",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x4a85c9",
+          "target": "0x44e940",
+          "routines": 1
+        },
+        {
+          "site": "0x4a85dd",
+          "target": "0x518200",
+          "routines": 1
+        },
+        {
+          "site": "0x4a85fa",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x4a8673",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x4a8842"
+      ],
+      "saved_handle": {
+        "acquire": "0x4a8673",
+        "savedStackOffset": 24,
+        "register": null,
+        "release": [
+          {
+            "site": "0x4a8842",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x4a86d0",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x4d4909",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x4d49ee"
+      ],
+      "saved_handle": {
+        "acquire": "0x4d4909",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x4d49ee",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x4d494c",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x4d4a1d",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x4d4b00"
+      ],
+      "saved_handle": {
+        "acquire": "0x4d4a1d",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x4d4b00",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x4d4a68",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x4d513b",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x4d540a"
+      ],
+      "saved_handle": {
+        "acquire": "0x4d513b",
+        "savedStackOffset": 44,
+        "register": null,
+        "release": [
+          {
+            "site": "0x4d540a",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x4d51a9",
+          "target": "0x4044b0",
+          "routines": 1
+        },
+        {
+          "site": "0x4d51f2",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x4d524c",
+          "target": "0x4d55a0",
+          "routines": 2
+        },
+        {
+          "site": "0x4d531f",
+          "target": "0x44f600",
+          "routines": 1
+        },
+        {
+          "site": "0x4d5330",
+          "target": "0x44f980",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x4d705d",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x4d70d8"
+      ],
+      "saved_handle": {
+        "acquire": "0x4d705d",
+        "savedStackOffset": 28,
+        "register": null,
+        "release": [
+          {
+            "site": "0x4d70d8",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x4d7080",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x4d70b2",
+          "target": "0x4d72d0",
+          "routines": 2
+        },
+        {
+          "site": "0x4d70c1",
+          "target": "0x518200",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x4ec4be",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x4ec61e"
+      ],
+      "saved_handle": {
+        "acquire": "0x4ec4be",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x4ec61e",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x4ec4e2",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x4ec56e",
+          "target": "0x465510",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x501c95",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x501e66"
+      ],
+      "saved_handle": {
+        "acquire": "0x501c95",
+        "savedStackOffset": 24,
+        "register": null,
+        "release": [
+          {
+            "site": "0x501e66",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x501ce2",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x501de7",
+          "target": "0x586074",
+          "routines": 1
+        },
+        {
+          "site": "0x501dfc",
+          "target": "0x4e9b70",
+          "routines": 1
+        },
+        {
+          "site": "0x501e17",
+          "target": "0x4503f0",
+          "routines": 2
+        },
+        {
+          "site": "0x501e51",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x501eb5",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x501fe1"
+      ],
+      "saved_handle": {
+        "acquire": "0x501eb5",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x501fe1",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x501efd",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x501fd0",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x5021c8",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x502290"
+      ],
+      "saved_handle": {
+        "acquire": "0x5021c8",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x502290",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x50220b",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x502283",
+          "target": "0x49a3f0",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x50b76f",
+      "classification": "excluded: processing SCC",
+      "release": [
+        "0x50bbb8"
+      ],
+      "saved_handle": {
+        "acquire": "0x50b76f",
+        "savedStackOffset": 24,
+        "register": null,
+        "release": [
+          {
+            "site": "0x50bbb8",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x50b7bc",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x50b83e",
+          "target": "0x416d70",
+          "routines": 1
+        },
+        {
+          "site": "0x50b910",
+          "target": "0x4ed6f0",
+          "routines": 1
+        },
+        {
+          "site": "0x50b91d",
+          "target": "0x4ed640",
+          "routines": 306
+        },
+        {
+          "site": "0x50b995",
+          "target": "0x586074",
+          "routines": 1
+        },
+        {
+          "site": "0x50b9ba",
+          "target": "0x4503f0",
+          "routines": 2
+        },
+        {
+          "site": "0x50b9ec",
+          "target": "0x4e93f0",
+          "routines": 2
+        },
+        {
+          "site": "0x50ba28",
+          "target": "0x4d3ea0",
+          "routines": 3
+        },
+        {
+          "site": "0x50baac",
+          "target": "0x4da080",
+          "routines": 1
+        },
+        {
+          "site": "0x50bac7",
+          "target": "0x4ef180",
+          "routines": 306
+        },
+        {
+          "site": "0x50bb1e",
+          "target": "0x409200",
+          "routines": 1
+        },
+        {
+          "site": "0x50bb74",
+          "target": "0x416d70",
+          "routines": 1
+        },
+        {
+          "site": "0x50bb8c",
+          "target": "0x409200",
+          "routines": 1
+        },
+        {
+          "site": "0x50bba3",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x50b8d7",
+          "target": "0x466f00",
+          "routines": 1
+        }
+      ],
+      "nested_acquires": [
+        "0x464de6",
+        "0x4d705d",
+        "0x4ec4be"
+      ],
+      "unresolved_held_calls": [
+        [
+          "0x4d23d0",
+          "0x4d2410",
+          "jmp    DWORD PTR [eax*4+0x4d2718]"
+        ],
+        [
+          "0x402ec0",
+          "0x402ed0",
+          "jmp    DWORD PTR [eax*4+0x403074]"
+        ],
+        [
+          "0x403f00",
+          "0x4042de",
+          "jmp    DWORD PTR [ecx*4+0x4043dc]"
+        ],
+        [
+          "0x403d50",
+          "0x403d97",
+          "jmp    DWORD PTR [eax*4+0x403edc]"
+        ],
+        [
+          "0x403d50",
+          "0x403e63",
+          "jmp    DWORD PTR [eax*4+0x403eec]"
+        ],
+        [
+          "0x445940",
+          "0x445976",
+          "jmp    DWORD PTR [eax*4+0x445c00]"
+        ],
+        [
+          "0x4631b0",
+          "0x463212",
+          "jmp    DWORD PTR [eax*4+0x463360]"
+        ],
+        [
+          "0x4a5ef0",
+          "0x4a5fc9",
+          "jmp    DWORD PTR [eax*4+0x4a61bc]"
+        ],
+        [
+          "0x4fa530",
+          "0x4fa548",
+          "jmp    DWORD PTR [eax*4+0x4fa7c4]"
+        ],
+        [
+          "0x509c10",
+          "0x509c2e",
+          "jmp    DWORD PTR [eax*4+0x50a59c]"
+        ],
+        [
+          "0x4bab10",
+          "0x4bab29",
+          "jmp    DWORD PTR [eax*4+0x4bada8]"
+        ],
+        [
+          "0x500a30",
+          "0x500a49",
+          "jmp    DWORD PTR [eax*4+0x500dcc]"
+        ],
+        [
+          "0x4c14c0",
+          "0x4c1526",
+          "jmp    DWORD PTR [eax*4+0x4c18b8]"
+        ],
+        [
+          "0x48a050",
+          "0x48a597",
+          "call   DWORD PTR ds:0xd0c784"
+        ],
+        [
+          "0x48b010",
+          "0x48b093",
+          "call   DWORD PTR [eax+0x14]"
+        ],
+        [
+          "0x48b010",
+          "0x48b0ba",
+          "call   DWORD PTR [esi+0x10]"
+        ],
+        [
+          "0x48b010",
+          "0x48b0e7",
+          "call   DWORD PTR [esi+0x10]"
+        ],
+        [
+          "0x4895c0",
+          "0x489686",
+          "call   DWORD PTR [esi+0x14]"
+        ],
+        [
+          "0x48abb0",
+          "0x48abe8",
+          "call   DWORD PTR ds:0xd0c784"
+        ],
+        [
+          "0x563660",
+          "0x563678",
+          "call   eax"
+        ],
+        [
+          "0x55e080",
+          "0x55e08f",
+          "call   DWORD PTR ds:0xd0c680"
+        ],
+        [
+          "0x55e010",
+          "0x55e04f",
+          "call   DWORD PTR ds:0xd0c6f4"
+        ],
+        [
+          "0x55e010",
+          "0x55e06e",
+          "call   DWORD PTR ds:0xd0c6f0"
+        ],
+        [
+          "0x55bdd0",
+          "0x55be32",
+          "call   DWORD PTR ds:0xd0c6a8"
+        ],
+        [
+          "0x562e30",
+          "0x562e7a",
+          "call   DWORD PTR ds:0xd0c644"
+        ],
+        [
+          "0x562dd0",
+          "0x562de3",
+          "call   DWORD PTR ds:0xd0c644"
+        ],
+        [
+          "0x562dd0",
+          "0x562e1a",
+          "call   DWORD PTR ds:0xd0c6a8"
+        ],
+        [
+          "0x55d870",
+          "0x55d890",
+          "call   DWORD PTR ds:0x5e2428"
+        ],
+        [
+          "0x565990",
+          "0x565a0f",
+          "call   ebp"
+        ],
+        [
+          "0x565990",
+          "0x565b4f",
+          "call   DWORD PTR ds:0xd0c780"
+        ],
+        [
+          "0x565990",
+          "0x565b75",
+          "call   DWORD PTR ds:0xd0c6e8"
+        ],
+        [
+          "0x5693b0",
+          "0x5693c2",
+          "call   DWORD PTR ds:0xd0c77c"
+        ],
+        [
+          "0x5693b0",
+          "0x5693da",
+          "call   edi"
+        ],
+        [
+          "0x5693b0",
+          "0x5693eb",
+          "call   edi"
+        ],
+        [
+          "0x5693b0",
+          "0x5693f8",
+          "call   edi"
+        ],
+        [
+          "0x5693b0",
+          "0x569408",
+          "call   eax"
+        ],
+        [
+          "0x5693b0",
+          "0x56941a",
+          "call   DWORD PTR ds:0x5e4534"
+        ],
+        [
+          "0x5693b0",
+          "0x569432",
+          "call   DWORD PTR ds:0x5e452c"
+        ],
+        [
+          "0x565950",
+          "0x56597d",
+          "call   eax"
+        ],
+        [
+          "0x55c280",
+          "0x55c2ca",
+          "call   DWORD PTR ds:0xd0c69c"
+        ],
+        [
+          "0x562fc0",
+          "0x56316b",
+          "call   DWORD PTR ds:0xd0c640"
+        ],
+        [
+          "0x562c60",
+          "0x562c86",
+          "call   edi"
+        ],
+        [
+          "0x562c60",
+          "0x562c9f",
+          "call   edi"
+        ],
+        [
+          "0x562c60",
+          "0x562dac",
+          "call   DWORD PTR ds:0xd0c644"
+        ],
+        [
+          "0x562c60",
+          "0x562dc3",
+          "call   DWORD PTR ds:0xd0c6a8"
+        ],
+        [
+          "0x562c60",
+          "0x562ce6",
+          "call   DWORD PTR ds:0xd0c69c"
+        ],
+        [
+          "0x4047b0",
+          "0x4047cd",
+          "jmp    DWORD PTR [edx*4+0x404914]"
+        ],
+        [
+          "0x43d510",
+          "0x43d53f",
+          "jmp    DWORD PTR [ecx*4+0x43d65c]"
+        ],
+        [
+          "0x432df0",
+          "0x432f7b",
+          "jmp    DWORD PTR [ecx*4+0x433440]"
+        ],
+        [
+          "0x44d7f0",
+          "0x44d85a",
+          "jmp    DWORD PTR [esi*4+0x44db20]"
+        ],
+        [
+          "0x4783a0",
+          "0x4783e2",
+          "jmp    DWORD PTR [eax*4+0x4784f0]"
+        ],
+        [
+          "0x4e0af0",
+          "0x4e0b0f",
+          "jmp    DWORD PTR [eax*4+0x4e25ec]"
+        ],
+        [
+          "0x40b860",
+          "0x40b93d",
+          "jmp    DWORD PTR [edi*4+0x40b9b0]"
+        ],
+        [
+          "0x40b860",
+          "0x40b8e2",
+          "jmp    DWORD PTR [ebx*4+0x40b9a0]"
+        ],
+        [
+          "0x40b860",
+          "0x40b8cd",
+          "jmp    DWORD PTR [ebx*4+0x40b990]"
+        ],
+        [
+          "0x4a66c0",
+          "0x4a66ed",
+          "jmp    DWORD PTR [ecx*4+0x4a67a8]"
+        ],
+        [
+          "0x4a8860",
+          "0x4a88cf",
+          "jmp    DWORD PTR [eax*4+0x4a8940]"
+        ],
+        [
+          "0x4fa9e0",
+          "0x4fa9f6",
+          "jmp    DWORD PTR [eax*4+0x4faae0]"
+        ],
+        [
+          "0x5029d0",
+          "0x5029e8",
+          "jmp    DWORD PTR [eax*4+0x502e8c]"
+        ],
+        [
+          "0x4d23d0",
+          "0x4d2410",
+          "jmp    DWORD PTR [eax*4+0x4d2718]"
+        ],
+        [
+          "0x402ec0",
+          "0x402ed0",
+          "jmp    DWORD PTR [eax*4+0x403074]"
+        ],
+        [
+          "0x403f00",
+          "0x4042de",
+          "jmp    DWORD PTR [ecx*4+0x4043dc]"
+        ],
+        [
+          "0x403d50",
+          "0x403d97",
+          "jmp    DWORD PTR [eax*4+0x403edc]"
+        ],
+        [
+          "0x403d50",
+          "0x403e63",
+          "jmp    DWORD PTR [eax*4+0x403eec]"
+        ],
+        [
+          "0x445940",
+          "0x445976",
+          "jmp    DWORD PTR [eax*4+0x445c00]"
+        ],
+        [
+          "0x4631b0",
+          "0x463212",
+          "jmp    DWORD PTR [eax*4+0x463360]"
+        ],
+        [
+          "0x4a5ef0",
+          "0x4a5fc9",
+          "jmp    DWORD PTR [eax*4+0x4a61bc]"
+        ],
+        [
+          "0x4fa530",
+          "0x4fa548",
+          "jmp    DWORD PTR [eax*4+0x4fa7c4]"
+        ],
+        [
+          "0x509c10",
+          "0x509c2e",
+          "jmp    DWORD PTR [eax*4+0x50a59c]"
+        ],
+        [
+          "0x4bab10",
+          "0x4bab29",
+          "jmp    DWORD PTR [eax*4+0x4bada8]"
+        ],
+        [
+          "0x500a30",
+          "0x500a49",
+          "jmp    DWORD PTR [eax*4+0x500dcc]"
+        ],
+        [
+          "0x4c14c0",
+          "0x4c1526",
+          "jmp    DWORD PTR [eax*4+0x4c18b8]"
+        ],
+        [
+          "0x48a050",
+          "0x48a597",
+          "call   DWORD PTR ds:0xd0c784"
+        ],
+        [
+          "0x48b010",
+          "0x48b093",
+          "call   DWORD PTR [eax+0x14]"
+        ],
+        [
+          "0x48b010",
+          "0x48b0ba",
+          "call   DWORD PTR [esi+0x10]"
+        ],
+        [
+          "0x48b010",
+          "0x48b0e7",
+          "call   DWORD PTR [esi+0x10]"
+        ],
+        [
+          "0x4895c0",
+          "0x489686",
+          "call   DWORD PTR [esi+0x14]"
+        ],
+        [
+          "0x48abb0",
+          "0x48abe8",
+          "call   DWORD PTR ds:0xd0c784"
+        ],
+        [
+          "0x563660",
+          "0x563678",
+          "call   eax"
+        ],
+        [
+          "0x55e080",
+          "0x55e08f",
+          "call   DWORD PTR ds:0xd0c680"
+        ],
+        [
+          "0x55e010",
+          "0x55e04f",
+          "call   DWORD PTR ds:0xd0c6f4"
+        ],
+        [
+          "0x55e010",
+          "0x55e06e",
+          "call   DWORD PTR ds:0xd0c6f0"
+        ],
+        [
+          "0x55bdd0",
+          "0x55be32",
+          "call   DWORD PTR ds:0xd0c6a8"
+        ],
+        [
+          "0x562e30",
+          "0x562e7a",
+          "call   DWORD PTR ds:0xd0c644"
+        ],
+        [
+          "0x562dd0",
+          "0x562de3",
+          "call   DWORD PTR ds:0xd0c644"
+        ],
+        [
+          "0x562dd0",
+          "0x562e1a",
+          "call   DWORD PTR ds:0xd0c6a8"
+        ],
+        [
+          "0x55d870",
+          "0x55d890",
+          "call   DWORD PTR ds:0x5e2428"
+        ],
+        [
+          "0x565990",
+          "0x565a0f",
+          "call   ebp"
+        ],
+        [
+          "0x565990",
+          "0x565b4f",
+          "call   DWORD PTR ds:0xd0c780"
+        ],
+        [
+          "0x565990",
+          "0x565b75",
+          "call   DWORD PTR ds:0xd0c6e8"
+        ],
+        [
+          "0x5693b0",
+          "0x5693c2",
+          "call   DWORD PTR ds:0xd0c77c"
+        ],
+        [
+          "0x5693b0",
+          "0x5693da",
+          "call   edi"
+        ],
+        [
+          "0x5693b0",
+          "0x5693eb",
+          "call   edi"
+        ],
+        [
+          "0x5693b0",
+          "0x5693f8",
+          "call   edi"
+        ],
+        [
+          "0x5693b0",
+          "0x569408",
+          "call   eax"
+        ],
+        [
+          "0x5693b0",
+          "0x56941a",
+          "call   DWORD PTR ds:0x5e4534"
+        ],
+        [
+          "0x5693b0",
+          "0x569432",
+          "call   DWORD PTR ds:0x5e452c"
+        ],
+        [
+          "0x565950",
+          "0x56597d",
+          "call   eax"
+        ],
+        [
+          "0x55c280",
+          "0x55c2ca",
+          "call   DWORD PTR ds:0xd0c69c"
+        ],
+        [
+          "0x562fc0",
+          "0x56316b",
+          "call   DWORD PTR ds:0xd0c640"
+        ],
+        [
+          "0x562c60",
+          "0x562c86",
+          "call   edi"
+        ],
+        [
+          "0x562c60",
+          "0x562c9f",
+          "call   edi"
+        ],
+        [
+          "0x562c60",
+          "0x562dac",
+          "call   DWORD PTR ds:0xd0c644"
+        ],
+        [
+          "0x562c60",
+          "0x562dc3",
+          "call   DWORD PTR ds:0xd0c6a8"
+        ],
+        [
+          "0x562c60",
+          "0x562ce6",
+          "call   DWORD PTR ds:0xd0c69c"
+        ],
+        [
+          "0x43d510",
+          "0x43d53f",
+          "jmp    DWORD PTR [ecx*4+0x43d65c]"
+        ],
+        [
+          "0x4047b0",
+          "0x4047cd",
+          "jmp    DWORD PTR [edx*4+0x404914]"
+        ],
+        [
+          "0x432df0",
+          "0x432f7b",
+          "jmp    DWORD PTR [ecx*4+0x433440]"
+        ],
+        [
+          "0x44d7f0",
+          "0x44d85a",
+          "jmp    DWORD PTR [esi*4+0x44db20]"
+        ],
+        [
+          "0x4783a0",
+          "0x4783e2",
+          "jmp    DWORD PTR [eax*4+0x4784f0]"
+        ],
+        [
+          "0x4e0af0",
+          "0x4e0b0f",
+          "jmp    DWORD PTR [eax*4+0x4e25ec]"
+        ],
+        [
+          "0x40b860",
+          "0x40b93d",
+          "jmp    DWORD PTR [edi*4+0x40b9b0]"
+        ],
+        [
+          "0x40b860",
+          "0x40b8e2",
+          "jmp    DWORD PTR [ebx*4+0x40b9a0]"
+        ],
+        [
+          "0x40b860",
+          "0x40b8cd",
+          "jmp    DWORD PTR [ebx*4+0x40b990]"
+        ],
+        [
+          "0x4a66c0",
+          "0x4a66ed",
+          "jmp    DWORD PTR [ecx*4+0x4a67a8]"
+        ],
+        [
+          "0x4a8860",
+          "0x4a88cf",
+          "jmp    DWORD PTR [eax*4+0x4a8940]"
+        ],
+        [
+          "0x4fa9e0",
+          "0x4fa9f6",
+          "jmp    DWORD PTR [eax*4+0x4faae0]"
+        ],
+        [
+          "0x5029d0",
+          "0x5029e8",
+          "jmp    DWORD PTR [eax*4+0x502e8c]"
+        ]
+      ],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": null
+    },
+    {
+      "acquire": "0x519ded",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x519ec6"
+      ],
+      "saved_handle": {
+        "acquire": "0x519ded",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x519ec6",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x519e2f",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x519e9b",
+          "target": "0x44e940",
+          "routines": 1
+        },
+        {
+          "site": "0x519eb0",
+          "target": "0x51e4b0",
+          "routines": 6
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    },
+    {
+      "acquire": "0x51c24f",
+      "classification": "conservative cold-prefix superset",
+      "release": [
+        "0x51c2ee"
+      ],
+      "saved_handle": {
+        "acquire": "0x51c24f",
+        "savedStackOffset": null,
+        "register": "ebx",
+        "release": [
+          {
+            "site": "0x51c2ee",
+            "sp": -4
+          }
+        ],
+        "issues": []
+      },
+      "open_exits": [],
+      "local_unresolved": [],
+      "held_closures": [
+        {
+          "site": "0x51c271",
+          "target": "0x49a3f0",
+          "routines": 1
+        },
+        {
+          "site": "0x51c29e",
+          "target": "0x518070",
+          "routines": 4
+        }
+      ],
+      "nested_acquires": [],
+      "unresolved_held_calls": [],
+      "missing_held_instructions": [],
+      "max_additional_simultaneous": 1
+    }
+  ]
+}

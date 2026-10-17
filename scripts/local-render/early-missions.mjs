@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
@@ -119,10 +120,11 @@ export default async function ({
     }
     try {
       await check('Public mission entry', async () => {
+        await openCampaignFromMainMenu(page)
         const dialog = page.getByRole('dialog', { name: 'Start game', exact: true })
         await dialog.waitFor()
         if (level === 1) {
-          await dialog.getByRole('button', { name: 'Select Mission 1', exact: true }).click()
+          await dialog.getByRole('button', { name: /^Panel Mission 1(?:, completed)?$/, exact: true }).click()
           await dialog.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
         } else {
           await showAllMissions(page)
@@ -220,7 +222,7 @@ export default async function ({
         await waitForSavedCheckpoint(page, saved.turn, signal)
         await page.screenshot({ path: resolve(output, `mission-${level}-saved-settings.png`) })
         await page.reload({ waitUntil: 'domcontentloaded' })
-        const selector = page.getByRole('dialog', { name: 'Start game', exact: true })
+        const selector = page.getByRole('dialog', { name: 'Main menu', exact: true })
         await selector.waitFor()
         // Observe replacement synchronously; scene binding may span real turns.
         await page.evaluate(() => {

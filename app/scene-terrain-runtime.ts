@@ -1,7 +1,7 @@
 import { tribeForTeam } from './world-types.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
-import { nativeModels, nativeModel } from './scene-assets.ts'
+import { nativeModel } from './scene-assets.ts'
 import {
   readTerrainTextures,
   terrainAtlas,
@@ -37,7 +37,7 @@ export function initializeTerrain(scene: GameScene) {
   scene.waterMap.minFilter = THREE.LinearFilter
   scene.waterMap.magFilter = THREE.LinearFilter
   const ready = Promise.all(
-    ['landscape.bin', 'waves.bin'].map(name =>
+    [scene.environment.landscape.terrain, 'waves.bin'].map(name =>
       fetch(`/original/${name}`, { signal: scene.terrainLoad.signal }).then(response => {
         if (!response.ok) throw new Error(`Terrain texture load failed: ${response.status}`)
         return response.arrayBuffer()
@@ -64,7 +64,6 @@ export function initializeTerrain(scene: GameScene) {
       uniforms: {
         map: { value: scene.terrainMap },
         waterMap: { value: scene.waterMap },
-        scroll: scene.waterScroll,
       },
       vertexShader: `
           attribute vec2 landUv;
@@ -84,12 +83,11 @@ export function initializeTerrain(scene: GameScene) {
           }`,
       fragmentShader: `
           uniform sampler2D map, waterMap;
-          uniform float scroll;
           varying vec2 land, waterUV;
           varying float sea;
           varying vec3 diffuse, specular;
           void main() {
-            gl_FragColor = sea > .5 ? texture2D(waterMap, waterUV + scroll) : texture2D(map, land);
+            gl_FragColor = sea > .5 ? texture2D(waterMap, waterUV) : texture2D(map, land);
             gl_FragColor.rgb = clamp(gl_FragColor.rgb * diffuse + specular, 0., 1.);
           }`,
     }),
@@ -170,7 +168,7 @@ export function rebuildTerrain(scene: GameScene) {
         positions.setXYZ(vertex, px, w.land.heights[scene.landIndex(px, pz)] / 128, pz)
         uv.setXY(vertex, px, pz)
         // Each original terrain texture has its own inset endpoints. Keep
-        // these separate from world coordinates used by the scrolling sea.
+        // these separate from the spatial coordinates used by open water.
         landUV.setXY(
           vertex,
           ((x + 128) / 2 + low + dx * (high - low)) / 128,
@@ -244,9 +242,7 @@ export function updateWater(scene: GameScene) {
     key = `${w.turn}:${w.landVersion}:${w.lightRevision}:${scene.terrain.geometry.id}`
   if (key === scene.waterState) return
   scene.waterState = key
-  // ponytail: simulation turns feed both clocks until the native outer
-  // command loop is live; the original texture uses its separate outer turn.
-  scene.waterScroll.value = (w.turn & 255) / 256
+  // Shared wet points animate height/light; the acquired texture stays spatial.
   const pos = scene.terrain.geometry.getAttribute('position'),
     surface = scene.terrain.geometry.getAttribute('surface'),
     light = scene.terrain.geometry.getAttribute('light'),
@@ -295,7 +291,7 @@ export function makeDecorations(scene: GameScene) {
       continue
     }
     const g = new THREE.Group()
-    g.add(nativeModel(rules.sceneryObjects[tree.model]))
+    g.add(nativeModel(rules.sceneryObjects[tree.model], 2, 4, false, scene.environment))
     scene.locate(g, tree)
     g.userData.point = tree
     scene.decorations.add(g)
@@ -309,7 +305,7 @@ export function makeDecorations(scene: GameScene) {
       group.userData.startTribe = tribeForTeam(team)
       group.userData.startStone = index
       group.userData.groundPoint = browserPosition(stone)
-      group.add(nativeModel(30))
+      group.add(nativeModel(30, 2, 4, false, scene.environment))
       scene.locate(group, group.userData.groundPoint)
       scene.orientModel(group, (stone.heading * Math.PI) / 1024)
       placeReincarnationStone(scene, group)
@@ -350,7 +346,7 @@ export function updateDecorationsFrame(scene: GameScene) {
         timberScale(
           Math.round(tree.logs * 100),
           rules.sceneryWood[tree.model],
-          nativeModels[rules.sceneryObjects[tree.model]].scale
+          mesh.userData.nativeScale
         )
       group.visible = tree.logs > 0
     }

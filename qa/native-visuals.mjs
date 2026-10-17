@@ -8,9 +8,10 @@ try{
  await page.evaluate(async()=>{
   const {GameScene}=await import('/app/scene.ts'),m=await import('/app/model.ts');
   const host=document.createElement('div');Object.assign(host.style,{position:'fixed',inset:'0',zIndex:10000,background:'#233544'});document.body.append(host);
-  const mini=document.createElement('canvas'),w=m.createWorld();w.paused=true;w.inputMask=0;w.ai.variables[57]=1;w.effects=[];w.selected=[];w.units=[];
+  const {createGameStore}=await import('/app/game-store.ts'),store=createGameStore();
+  const mini=document.createElement('canvas'),w=store.getWorld();w.paused=true;w.inputMask=0;w.ai.variables[57]=1;w.effects=[];w.selected=[];w.units=[];
   for(const [team,kind,x,z] of [['blue','shaman',4,29],['red','shaman',8,29],['blue','brave',4,33],['blue','warrior',8,33]])m.addUnit(w,team,kind,{x,z});
-  const scene=new GameScene(host,mini,document.createElement('canvas'),w,()=>{},()=>{});scene.focus({x:5,z:31});
+  const scene=new GameScene(host,mini,document.createElement('canvas'),w,()=>{},()=>{},undefined,store.bindPresentation(w));scene.focus({x:5,z:31});
   window.nativeQA={scene,w,m};
  });
  await page.waitForTimeout(800);await page.screenshot({path:'qa/native-idle.png'});

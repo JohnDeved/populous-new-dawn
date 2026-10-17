@@ -17,7 +17,8 @@ export function guardShamanOrders<P extends OrderedPerson>(
   people: P[],
   shaman: number | null,
   effects: OrderEffects,
-  anchor: (person: P, order: PersonOrder | undefined) => void
+  anchor: (person: P, order: PersonOrder | undefined) => void,
+  personId?: (stored: number) => number
 ) {
   const changed: P[] = []
   if (shaman === null) return changed
@@ -27,7 +28,7 @@ export function guardShamanOrders<P extends OrderedPerson>(
       if (p.id === shaman || !(p.selectionFlags & 128)) continue
       if (!shared) {
         shared = allocatePersonOrder(pool)
-        if (shared) writePersonOrder(pool.records[shared], 30, shaman, 0, 0)
+        if (shared) writePersonOrder(pool.records[shared], 30, shaman, 0, 0, personId)
       }
       p.flags2 = (p.flags2 | 16) >>> 0
       clearPersonOrders(pool, p, effects)

@@ -50,8 +50,17 @@ intervals are unknown until backed by receipts. Sources:
 
 Run `npm run orchestration:preflight -- --base <accepted-base>` before booking the
 final lane. It uses existing changed-path discovery (branch, index, worktree,
-untracked files), changed app Oxfmt/Oxlint, changed JS/TS ESLint, manifest/reference
-validation, and the unchanged context tests. The 24,000-byte default budget and
+untracked files), then runs read-only `git diff --check` before any lint/tests:
+accepted base to HEAD, HEAD to index (`--cached`), and index to worktree are checked
+separately, so a later repair cannot hide an earlier finding. Untracked regular
+files are checked as additions with `--no-index` against `/dev/null`; ignored files
+and untracked symlink targets are not scanned. For `--no-index`, exit 1 passes
+only without stderr diagnostics (a clean difference, rather than an access error);
+the receipt preserves that exit code. Git's whitespace
+and attribute policy applies; binary files and deletions are handled by Git, and
+unchanged historical lines are not checked. Existing repository path/symlink safety checks still apply.
+The remaining screen uses changed app Oxfmt/Oxlint, changed JS/TS ESLint,
+manifest/reference validation, and the unchanged context tests. The 24,000-byte default budget and
 required evidence/check assertions remain intact. Deleted files are not linted.
 No installation, automatic fix, build, browser or native run happens here.
 

@@ -816,17 +816,19 @@
         "Git change routing",
         "Contract audit",
         "Portable review bundle integrity",
-        "Source-bound raw command receipts"
+        "Source-bound raw command receipts",
+        "Hash-linked research navigation and finite claim bindings"
       ],
       "knownLimits": [
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
       ],
       "executable": "node",
-      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs"],
+      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
         ".codex/config.toml",
+        ".github/workflows/ready-pr-check.yml",
         ".agents/skills/populous-engineering/SKILL.md",
         "AGENTS.md",
         "GOAL.md",
@@ -902,6 +904,7 @@
       "env": [],
       "inputs": [
         ".codex/config.toml",
+        ".github/workflows/ready-pr-check.yml",
         "package.json",
         "app",
         "engineering",
@@ -912,7 +915,7 @@
         "PARITY.md"
       ],
       "prerequisites": ["Installed npm dependencies"],
-      "sideEffects": ["May update ignored tool caches"],
+      "sideEffects": ["May update ignored tool caches", "Runs every top-level tests/*.test.mjs file through the bounded Node runner; resource-sensitive/unreviewed files are serial."],
       "resources": ["Serialize with other full test runs"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
@@ -4326,15 +4329,19 @@
         "Does not prove browser RAF, input, GPU presentation, or complete native outer scheduling."
       ],
       "executable": "node",
-      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-interpolation.test.mjs", "tests/hut-tooltip-controller.test.mjs", "tests/camp-inspection.test.mjs", "tests/import-tooltip-string.test.mjs"],
+      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-motion.test.mjs", "tests/hut-tooltip-controller.test.mjs", "tests/camp-inspection.test.mjs", "tests/import-tooltip-string.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
         "app/game-clock.ts",
         "app/unit-motion.ts",
+        "app/projection.ts",
+        "app/original-camera.json",
         "app/model.ts",
         "app/world-turn.ts",
         "tests/game-clock.test.mjs",
+        "tests/unit-motion.test.mjs",
+        "tests/fixtures/unit-interpolation.json",
         "tests/hut-tooltip-controller.test.mjs",
         "tests/camp-inspection.test.mjs",
         "tests/support/tooltip-scene.mjs",

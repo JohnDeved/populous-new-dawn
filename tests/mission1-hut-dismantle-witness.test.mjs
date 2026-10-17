@@ -66,6 +66,8 @@ function pageLoad(store) {
     end = source.indexOf('\n  function restart()', start),
     bindings = {
       store,
+      menuSession: { current: null },
+      pendingMenuCamera: { current: [] },
       cancelNearbyInput: noop,
       engine: { current: null },
       setSelectorOpen: noop,

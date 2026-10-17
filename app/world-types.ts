@@ -110,6 +110,10 @@ export type Fight = {
 }
 export type NativePoint = { x: number; y: number; h: number }
 export type Vehicle = NativePoint & {
+  // Native allocation/visit byte. Missing in legacy checkpoints means unknown.
+  counter?: number
+  // Snapshot of the reward's immediate visit, not an ordinary vehicle controller.
+  rewardInitialization?: import('./vehicle-reward.ts').BoatRewardInitialization
   // Native apparent owner (+0x2f); team retains real count owner (+0xa1).
   apparentTribe?: number
   id: number
@@ -388,6 +392,7 @@ export type Effect = Point & {
     target: number
     attacker: number
     remaining: number
+    point?: boolean
     tower?: boolean
     bloodlust?: boolean
     impact?: boolean
@@ -482,6 +487,8 @@ export type World = {
   terrain: number[]
   terrainVersion: number
   units: Unit[]
+  // Native class-4 allocation seed; legacy history cannot be inferred from IDs.
+  vehicleAllocationSeed?: number
   vehicles: Vehicle[]
   buildings: Building[]
   effects: Effect[]

@@ -1,0 +1,7 @@
+{
+  "origin": "https://storage.googleapis.com/chrome-for-testing-public/154.0.8037.92/linux64/chrome-headless-shell-linux64.zip",
+  "metadataOrigin": "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json",
+  "version": "154.0.8037.92",
+  "zipSha256": "636aa5c79f2693632e9921b8bbb050038ba11672e02346c06c20f991aed096f9",
+  "binarySha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+}

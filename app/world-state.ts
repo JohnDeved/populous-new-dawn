@@ -89,7 +89,13 @@ export function createWorldState(missionNumber = 1): World {
       targets: [0, 0, 0, 0],
     })),
     playerSpellMask =
-      missionSpellMask(missionNumber) & SPELLS.reduce((mask, spell) => mask | (1 << spell.model), 0)
+      missionSpellMask(missionNumber) &
+      // 0x42ca00 clears descriptor modes 0/2 after loading the campaign HDR.
+      SPELLS.reduce(
+        (mask, spell) =>
+          rules.spellCharging[spell.model].mode === 1 ? mask | (1 << spell.model) : mask,
+        0
+      )
   return {
     flyby: createFlyby(),
     drawMode: missionNumber === tutorialLevel ? 2 : 0,
@@ -125,7 +131,7 @@ export function createWorldState(missionNumber = 1): World {
       teleport: 0,
       swarm: 0,
     },
-    objectCells: { heads: new Uint16Array(16384), objects: new Map() },
+    objectCells: { heads: new Float64Array(16384), objects: new Map() },
     marching: [],
     combatMarches: [],
     lastOrderTurn: 0,
@@ -207,6 +213,7 @@ export function createWorldState(missionNumber = 1): World {
     terrain: makeTerrain(land),
     terrainVersion: 0,
     units: [],
+    vehicleAllocationSeed: 0,
     vehicles: [],
     buildings: [],
     effects: [],

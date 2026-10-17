@@ -1,0 +1,272 @@
+{
+  "schemaVersion": 1,
+  "kind": "mission3-raid-recruitment-native",
+  "provenance": {
+    "commit": "bc9cabf404240ad99b2aab8c26e9b0137cdd7702",
+    "sources": [
+      {
+        "path": "references/verification/mission3-raid-recruitment-origin-2026-10-06/attempt1/stdout.log",
+        "sha256": "e6d29dcc7df45d3d8e4b3df43b6f8388fba6fdcf6e32eec0ede56e00c25549ea",
+        "decodedSha256": "e6d29dcc7df45d3d8e4b3df43b6f8388fba6fdcf6e32eec0ede56e00c25549ea",
+        "bytes": 75694,
+        "decodedBytes": 75694
+      },
+      {
+        "path": "references/verification/mission3-raid-recruitment-origin-2026-10-06/established-attempt1/stdout.log",
+        "sha256": "3190c11fce3b1f31fac49a69e8eecec5348764d1cf63852fc01aeedca5e3e849",
+        "decodedSha256": "3190c11fce3b1f31fac49a69e8eecec5348764d1cf63852fc01aeedca5e3e849",
+        "bytes": 94985,
+        "decodedBytes": 94985
+      }
+    ],
+    "scope": "Original selector/recruitment observations ending before 004cb6da with supplied records; state17 cases skip radius helper. Not whole-mission, later movement, save, or rendering parity."
+  },
+  "cases": [
+    {
+      "id": "common-origin-control",
+      "comparison": {
+        "selector": {
+          "model": 2,
+          "alternative": 2,
+          "target": -1,
+          "mode": 1,
+          "origin": 25852,
+          "flags": 7,
+          "requested": 3
+        },
+        "count": 3,
+        "ids": [
+          306,
+          302,
+          303
+        ],
+        "ranks": [
+          {
+            "distance": 34,
+            "id": 306
+          },
+          {
+            "distance": 36,
+            "id": 302
+          },
+          {
+            "distance": 38,
+            "id": 303
+          }
+        ],
+        "flags3": [
+          {
+            "id": 301,
+            "value": 3
+          },
+          {
+            "id": 302,
+            "value": 2
+          },
+          {
+            "id": 303,
+            "value": 2
+          },
+          {
+            "id": 304,
+            "value": 3
+          },
+          {
+            "id": 305,
+            "value": 3
+          },
+          {
+            "id": 306,
+            "value": 2
+          },
+          {
+            "id": 307,
+            "value": 3
+          }
+        ],
+        "task": {
+          "type": 20,
+          "phase": 3,
+          "selected": 0,
+          "cursor": 1,
+          "requested": 3,
+          "quotas": [
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "flags": 1,
+          "entity": 0
+        },
+        "rng": 305419896
+      }
+    },
+    {
+      "id": "no-base-authored-coordinates",
+      "comparison": {
+        "selector": {
+          "model": 2,
+          "alternative": 2,
+          "target": -1,
+          "mode": 1,
+          "origin": 24794,
+          "flags": 7,
+          "requested": 3
+        },
+        "count": 3,
+        "ids": [
+          301,
+          302,
+          303
+        ],
+        "ranks": [
+          {
+            "distance": 2,
+            "id": 301
+          },
+          {
+            "distance": 2,
+            "id": 302
+          },
+          {
+            "distance": 4,
+            "id": 303
+          }
+        ],
+        "flags3": [
+          {
+            "id": 301,
+            "value": 2
+          },
+          {
+            "id": 302,
+            "value": 2
+          },
+          {
+            "id": 303,
+            "value": 2
+          },
+          {
+            "id": 304,
+            "value": 3
+          },
+          {
+            "id": 305,
+            "value": 3
+          },
+          {
+            "id": 306,
+            "value": 3
+          },
+          {
+            "id": 307,
+            "value": 3
+          }
+        ],
+        "task": {
+          "type": 20,
+          "phase": 3,
+          "selected": 0,
+          "cursor": 1,
+          "requested": 3,
+          "quotas": [
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "flags": 1,
+          "entity": 0
+        },
+        "rng": 305419896
+      }
+    },
+    {
+      "id": "established-base-distinct",
+      "comparison": {
+        "selector": {
+          "model": 2,
+          "alternative": 2,
+          "target": -1,
+          "mode": 1,
+          "origin": 25304,
+          "flags": 7,
+          "requested": 3
+        },
+        "count": 3,
+        "ids": [
+          305,
+          301,
+          304
+        ],
+        "ranks": [
+          {
+            "distance": 0,
+            "id": 305
+          },
+          {
+            "distance": 2,
+            "id": 301
+          },
+          {
+            "distance": 4,
+            "id": 304
+          }
+        ],
+        "flags3": [
+          {
+            "id": 301,
+            "value": 2
+          },
+          {
+            "id": 302,
+            "value": 3
+          },
+          {
+            "id": 303,
+            "value": 3
+          },
+          {
+            "id": 304,
+            "value": 2
+          },
+          {
+            "id": 305,
+            "value": 2
+          },
+          {
+            "id": 306,
+            "value": 3
+          },
+          {
+            "id": 307,
+            "value": 3
+          }
+        ],
+        "task": {
+          "type": 20,
+          "phase": 3,
+          "selected": 0,
+          "cursor": 1,
+          "requested": 3,
+          "quotas": [
+            100,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "flags": 1,
+          "entity": 0
+        },
+        "rng": 305419896
+      }
+    }
+  ]
+}

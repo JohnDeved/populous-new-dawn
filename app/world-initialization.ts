@@ -1,5 +1,7 @@
+import { assignVehicleAllocationCounter } from './vehicle-allocation.ts'
+import { initializeAuthoredBoat } from './vehicle-initialization.ts'
 import { initializeLevelStart } from './level-start-runtime.ts'
-import type { Point, Shrine, World } from './world-types.ts'
+import type { Point, Shrine, Vehicle, World } from './world-types.ts'
 import { addBuilding } from './construction-runtime.ts'
 import {
   campaignPosition,
@@ -153,7 +155,7 @@ export function createWorld(missionNumber = 1): World {
       addUnit(w, o.owner === 255 ? 'wild' : teamForTribe(o.owner), unitKindFromModel(o.model), o)
     if (o.type === 4) {
       const point = nativePosition(w, o)
-      w.vehicles.push({
+      const vehicle: Vehicle = {
         ...point,
         id: w.nextId++,
         class: 4,
@@ -171,7 +173,13 @@ export function createWorld(missionNumber = 1): World {
         active: !linkedObjectIds.has(o.index + 1),
         life: rules.vehicleLife[o.model],
         destructionState: 0,
-      })
+      }
+      assignVehicleAllocationCounter(w, vehicle)
+      if (o.model === 1 || o.model === 2) {
+        // Earlier authored footprints must exist before the shore predicate.
+        syncLandscapeObjects(w)
+        initializeAuthoredBoat(w, vehicle)
+      } else w.vehicles.push(vehicle)
     }
     if (o.type === 5 && o.model <= 6 && !(missionNumber === 20 && linkedObjectIds.has(o.index + 1)))
       w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })

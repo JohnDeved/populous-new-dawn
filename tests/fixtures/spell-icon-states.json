@@ -1,0 +1,35 @@
+{
+  "source": "decomp/research/spell-hud-icons.md: retained 20-model descriptor table; spell-hud-visibility.md: HFX1056 and October 14 selection/charging correction",
+  "icons": {
+    "2": [355, 373, 391],
+    "3": [356, 374, 392],
+    "4": [357, 375, 393],
+    "5": [358, 376, 394],
+    "6": [359, 377, 395],
+    "7": [360, 378, 396],
+    "8": [361, 379, 397],
+    "9": [362, 380, 398],
+    "10": [363, 381, 399],
+    "11": [364, 382, 400],
+    "12": [365, 383, 401],
+    "13": [366, 384, 402],
+    "14": [367, 385, 403],
+    "15": [368, 386, 404],
+    "16": [369, 387, 405],
+    "17": [370, 388, 406],
+    "18": [354, 372, 390],
+    "19": [408, 409, 410],
+    "20": [411, 412, 413],
+    "21": [371, 389, 407]
+  },
+  "states": [
+    { "name": "normal", "permanent": false, "stock": 1, "gifts": 1, "icon": 0, "frame": "button-gift" },
+    { "name": "inactive", "permanent": true, "stock": 0, "icon": 1, "frame": "button" },
+    { "name": "selected", "permanent": false, "stock": 1, "selected": true, "icon": 0, "frame": "button-gift-selected" },
+    { "name": "selected-inactive", "permanent": true, "stock": 0, "selected": true, "icon": 1, "frame": "button-selected" },
+    { "name": "charging", "permanent": true, "stock": 0, "charging": true, "icon": 0, "frame": "button" },
+    { "name": "hover", "permanent": false, "stock": 1, "hovered": true, "icon": 2, "frame": "button-gift-hover" },
+    { "name": "disabled", "permanent": false, "stock": 1, "disabled": true, "icon": 0, "frame": "button-gift" },
+    { "name": "disabled-inactive", "permanent": true, "stock": 0, "disabled": true, "icon": 1, "frame": "button" }
+  ]
+}

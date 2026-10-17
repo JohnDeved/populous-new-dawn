@@ -1,0 +1,75 @@
+{
+  "startedAt": "2026-10-15T20:00:03.269Z",
+  "source": {
+    "root": "/tmp/populous-raid447-fallback-0229",
+    "commit": "ea046be2cc99c16ef6b9f144813b28ae95cf5021",
+    "tree": "8efeba8c4e495e0e33cf27695dc97b9a87b10ba3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "8f3cc79841c243adafe18a4fa4562b90b260643d681152d3f8c9d46ce04fc721"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/browser-recovery-20261014/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [],
+  "status": "passed",
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 7,
+    "first": {
+      "elapsedMs": 20429,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 30495,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 30495,
+    "listening": true,
+    "ready": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "result": {
+    "dpr": 4,
+    "matchesOld": false,
+    "matchesFresh2": false,
+    "matchesFresh4": true,
+    "events": [
+      {
+        "name": "device-box",
+        "t": 26350.40000000596,
+        "dpr": 2,
+        "css": 225.265625,
+        "backing": 451,
+        "box": 226
+      }
+    ]
+  },
+  "finishedAt": "2026-10-15T20:01:02.832Z",
+  "sourceAfter": {
+    "root": "/tmp/populous-raid447-fallback-0229",
+    "commit": "ea046be2cc99c16ef6b9f144813b28ae95cf5021",
+    "tree": "8efeba8c4e495e0e33cf27695dc97b9a87b10ba3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "8f3cc79841c243adafe18a4fa4562b90b260643d681152d3f8c9d46ce04fc721"
+  }
+}

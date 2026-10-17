@@ -108,12 +108,15 @@ test('active world checkpoint resumes faces, bindings and RNG without a second h
   const bridge = { cue: () => cues++, geometry: () => geometry, failed: () => assert.fail() }
   startPendingWorshipAcquisitions(world, bridge)
   for (let ui = 0; ui < 90; ui++) visitWorshipAcquisition(world, () => {})
-  const saved = JSON.parse(JSON.stringify(world)),
-    restored = migrateCheckpoint(saved)
-  assert.deepEqual(
-    restored.worshipAcquisition,
-    JSON.parse(JSON.stringify(world.worshipAcquisition))
-  )
+  // Save/Load and IndexedDB preserve the typed World graph with structured clone.
+  const saved = structuredClone(world)
+  assert.ok(saved.buildingFootprints instanceof Map)
+  assert.ok(saved.sceneryShadows instanceof Map)
+  assert.ok(saved.land.flags instanceof Uint32Array)
+  assert.deepEqual(saved.land.flags, world.land.flags)
+  assert.notEqual(saved.land.flags, world.land.flags)
+  const restored = migrateCheckpoint(saved)
+  assert.deepEqual(restored.worshipAcquisition, structuredClone(world.worshipAcquisition))
   assert.deepEqual(restored.cosmeticRandom, world.cosmeticRandom)
   startPendingWorshipAcquisitions(restored, bridge)
   assert.equal(cues, 2)

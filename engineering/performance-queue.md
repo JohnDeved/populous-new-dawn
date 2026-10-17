@@ -20,6 +20,54 @@ scripts cannot accidentally inherit its `package.json` module type.
 no shared fixed ports, profiles, capture paths, or record modes. The receipt helper
 does not enforce isolation or manage arbitrary daemons.
 
+Before creating the worktree or copying private dependencies, check user-available
+space on the **destination filesystem** (use its existing parent if the target does
+not exist). Record the destination, timestamp, available bytes, source paths and
+their full-copy size estimate, plus an explicit reserve for build output, caches,
+temporary files and receipt logs. Include every copy still to be made; do not assume
+reflinks, sparse files or hardlinks will save space. Stop preparation if available
+bytes are less than the copy estimate plus reserve, or either value is unknown.
+Check again immediately before a large dependency copy if preparation intervenes.
+This is a point-in-time guard, not a reservation or guarantee against ENOSPC; other
+writers, inode exhaustion and quotas can still cause failure.
+
+If space is insufficient, coordinate with the parent. Reclaim only explicitly owned,
+completed runs whose dependencies are not used by another checkout. Preserve source,
+raw logs, receipts, queue locks and dependency-lock identity before removing generated
+dependencies or build output. Unknown runs remain untouched; a missing process in
+another execution scope does not prove completion. Recheck available space before
+retrying, and never solve the shortage by sharing writable dependency trees.
+
+For example, on Linux, GNU `du -s -B1 --count-links SOURCE...` reports allocated
+bytes; repeat with `--apparent-size` and use at least the larger estimate for each
+source. Count repeated copies separately and allow for destination allocation
+overhead. Record the source commit and dependency-lock hashes; size is not input
+identity. Declare the output/scratch reserve from the planned workload and retained
+comparable output sizes, with headroom, rather than treating a fixed value as safe.
+After assigning those byte estimates and an existing destination parent, this
+read-only Node check prints the budget and exits nonzero on a shortage or bad input:
+
+```sh
+node --input-type=module - "$existingDestinationParent" "$fullCopyBytes" "$outputScratchReserveBytes" <<'NODE'
+import { statfsSync } from 'node:fs'
+const [destination, copy, reserve] = process.argv.slice(2)
+if (!destination || !/^[0-9]+$/.test(copy ?? '') || !/^[0-9]+$/.test(reserve ?? '') || BigInt(reserve) === 0n)
+  throw new Error('Declare destination, full-copy bytes and a positive output/scratch reserve')
+const { bsize, bavail } = statfsSync(destination, { bigint: true })
+if (bsize <= 0n || bavail < 0n) throw new Error('Unknown usable filesystem capacity')
+const available = bsize * bavail
+const required = BigInt(copy) + BigInt(reserve)
+console.log(JSON.stringify({ destination, measuredAt: new Date().toISOString(),
+  blockBytes: String(bsize), availableBlocks: String(bavail), availableBytes: String(available),
+  fullCopyBytes: copy, reserveBytes: reserve, requiredBytes: String(required),
+  status: available >= required ? 'sufficient-at-measurement' : 'insufficient' }))
+if (available < required) process.exitCode = 1
+NODE
+```
+
+Retain the output with the preparation evidence and require a zero exit before
+proceeding. The command neither copies nor deletes anything and does not reserve space.
+
 Run the existing command receipt helper directly, without the detached queue:
 
 ```sh
@@ -52,6 +100,70 @@ The parent may authorize fresh isolated functional checks after checking that th
 share no writable resources with that job. This does not recover the old queue or
 establish machine idleness; timing/performance claims remain blocked. Browser work
 also needs its reviewed same-invocation process guardian and private resources.
+
+### Same-invocation test-throughput comparisons
+
+For the bounded test-workflow comparison, predeclare the order within one foreground
+invocation and use the same committed source, complete test set, group order,
+Node executable/version, environment and inspected read-only dependency bytes.
+Only the declared concurrency/profile may differ. Retain source, runner, helper,
+lockfile and installed-package fingerprints before and after, all raw results,
+per-group coverage/exits and owned-process CPU/RSS telemetry. Give each attempt
+private outputs and temporary directories. Coordinate it as the sole currently
+scheduled heavy lane; never edit its loaded runners or dependencies.
+
+This can establish comparative command throughput in that invocation even when
+old jobs, machine quota or external host contention cannot be resolved. State
+those unknowns explicitly. It does not establish host idleness, recover old jobs,
+certify their cleanup, or measure hardware game performance. The existing rules
+for preserving unknown jobs and their writable resources remain unchanged.
+Read-only installed dependencies may be shared for this inspected comparison;
+any command that can write them needs the existing private-resource preparation.
+
+Reject drift, unequal selected cases, missing completion and failed/cancelled
+attempts as successful speedup evidence. Preserve all failed/unknown attempts.
+Report cold/warm conditions, order effects and observed memory tradeoffs; hashing
+reads warms filesystem caches and is not a genuinely cold start. A small pilot
+cannot establish whole-suite saving. Compare the complete identical final test
+set before making that claim. Keep typecheck/cache effects separate from the
+test phase, and retain the full correctness and build gates. A single complete
+C1-to-C2 pair may report its observed same-workload delta, explicitly subject to
+order, cache and host variability. It is not balanced or demonstrated repeatability.
+An order-controlled A/B/B/A pilot is separate supporting evidence, not a reason to
+extrapolate its percentage or erase the complete pair's sampling limits.
+
+### Optional bounded foreground advisories
+
+For a foreground advisory whose children do not detach, the existing queue tool
+also offers a same-invocation supervisor. It does not submit a queue job or acquire
+its shared lane. Coordinate expensive work with the parent as above. Choose an
+explicit timeout for the particular attempt; no timeout or quality default changes.
+For example, a deliberately two-minute health investigation can use:
+
+```sh
+node scripts/orchestration/command-receipt.mjs \
+  --output work/orchestration/unique-attempt/health.json \
+  --input scripts/performance-queue.mjs \
+  --input package-lock.json --input node_modules/.package-lock.json \
+  -- node scripts/performance-queue.mjs foreground 120000 -- npm run quality:health
+```
+
+`foreground TIMEOUT_MS -- COMMAND [ARG...]` requires a positive integer timeout,
+passes direct argv, and inherits raw stdout/stderr into the receipt's logs. It
+checks the owned process-group identities before signalling, sends TERM and then
+KILL if necessary, and checks release even when the command leader exits early.
+The deadline excludes the bounded cleanup grace period. Timeout exits 124,
+interruption exits 130, and findings preserve the child's nonzero exit; even a
+TERM handler exiting zero cannot turn a timeout into a pass. The terminal summary
+in stderr distinguishes `timed-out`, `interrupted`, and `cleanup-blocked`; the
+outer command receipt remains a failed non-pass with raw evidence.
+
+This mode is only for foreground commands whose descendants stay in the owned
+process group, not browsers, detached daemons, or arbitrary process discovery.
+Unknown identities or failed cleanup cannot certify release. Losing/killing the
+outer receipt session still leaves its prepared receipt **unknown**; a missing
+session never proves cleanup. Keep its resources and logs as described above.
+Required check/build gates and long-running explicitly requested jobs are unchanged.
 
 ## Stable-scope detached queue
 

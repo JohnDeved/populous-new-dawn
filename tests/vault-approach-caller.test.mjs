@@ -1,8 +1,12 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { command, createWorld, select, tick } from '../app/model.ts'
-import { buildingFootprintCells, buildingOutsidePoint } from '../app/building-shapes.ts'
+import { buildingFootprintCells, buildingOutsidePoint, buildingSocketPoint } from '../app/building-shapes.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
+import { terrainPointHeight } from '../app/native-terrain.ts'
+import { vaultShapePose } from '../app/vault-geometry.ts'
+import { vaultKnowledgePlacement } from '../app/vault-appearance.ts'
+import levelOne from '../app/level-one.ts'
 import levelThree from '../app/level-three.ts'
 import { finishLevelStart } from './level-start-fixture.mjs'
 import { bindTrainingPanelRequests } from '../app/training-panel-requests.ts'
@@ -170,22 +174,31 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
   await loadSceneFixture()
   const { GameScene } = await import('../app/scene.ts')
   const { ObjectPanels } = await import('../app/object-panels.ts')
-  const element = () => ({
+  const projections = []
+  const draws = []
+  let screenOverride
+  const element = (tagName = 'div') => ({
+    tagName,
     children: [], style: {}, dataset: {}, classList: { add: nop },
     setAttribute: nop, addEventListener: nop, matches: () => false, contains: () => false,
     insertBefore(child) { this.children.push(child) },
+    querySelectorAll(tag) { return this.children.filter(child => child.tagName === tag) },
+    getContext: () => ({ drawImage: (...args) => draws.push(args), fillRect: nop }),
+    getBoundingClientRect: () => ({ left: 40, top: 20, width: 1200, height: 800 }),
     remove() { this.removed = true },
   })
   const globals = new Map()
   for (const [name, value] of Object.entries({
     document: { createElement: element, querySelector: () => null },
     window: {}, requestAnimationFrame: () => 1, cancelAnimationFrame: nop,
+    getComputedStyle: () => ({ getPropertyValue: () => '1.5' }),
   })) {
     globals.set(name, Object.getOwnPropertyDescriptor(globalThis, name))
     Object.defineProperty(globalThis, name, { configurable: true, value })
   }
   const scene = Object.assign(Object.create(GameScene.prototype), {
     world, started: false, disposed: false,
+    flybyCamera: { zoom: 0 }, onChange: nop,
     terrainLoad: { signal: { aborted: false }, abort: nop },
     drawMinimap: nop, listen: nop, mini: {}, animate: nop,
     gameClock: { animationFrame: 0 },
@@ -194,10 +207,18 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
     visible: () => true, ownedSounds: new Map(), resize: { disconnect: nop },
     disposeListeners: [], scene: { remove: nop }, globe: { dispose: nop },
     releaseGroup: nop, waterMap: { dispose: nop }, terrainMap: { dispose: nop },
-    view: { dispose: nop }, renderer: { dispose: nop, domElement: element() },
+    view: {
+      dispose: nop,
+      screen(point) {
+        projections.push(point.clone())
+        return screenOverride ?? { x: point.x / 128, y: point.y / 32, z: 0 }
+      },
+    },
+    renderer: { dispose: nop, domElement: element() },
     cancelTooltipInspection: nop, tooltipElement: element(), pointerOutline: element(),
     spellPointer: element(), worshipPresentation: { dispose: nop },
   })
+  scene.renderer.domElement.getBoundingClientRect = () => ({ left: 240, top: 60, width: 1000, height: 700 })
   scene.objectPanels = new ObjectPanels(scene)
   assert.equal(scene.start(), true)
   t.after(() => {
@@ -208,11 +229,12 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
     }
   })
   return {
-    scene, world,
+    scene, world, projections, draws,
+    setScreen(point) { screenOverride = point },
     vault: world.shrines.find(shrine => shrine.kind === 'vault' && shrine.reward === 'temple'),
-    paint(visits = 1) {
+    paint(visits = 1, complete = false) {
       scene.gameClock.animationFrame += visits
-      scene.objectPanels.update({ complete: false, naturalWidth: 0 })
+      scene.objectPanels.update({ complete, naturalWidth: complete ? 1024 : 0 })
     },
   }
 }
@@ -224,6 +246,126 @@ function until(world, label, condition) {
 
 const reservationCount = (world, id) =>
   world.secondaryEffects.reservations.filter(owner => owner === `object-panel:${id}`).length
+
+// Supplied atlas/DOM and view.screen boundary, with real ObjectPanels.update and
+// GameScene.screen. This proves consumer coordinates and compatible clamping,
+// not original full-frame pixels, artwork or GPU rendering.
+test('ordinary M3 prayer panel projects its live building socket through the actual scene consumer', async t => {
+  const { scene, world, vault, paint, projections, draws, setScreen } = await vaultSceneFixture(t)
+  finishLevelStart(world)
+  scene.skipIntroduction()
+  assert.equal(world.inputMask, 0)
+  select(world, 'shaman')
+  assert.equal(command(world, vault), true)
+  until(world, 'ordinary automatic Vault record', () => scene.objectPanels.panels.has(vault.id))
+  const panel = scene.objectPanels.panels.get(vault.id)
+  paint(4, true)
+  assert.equal(panel.phase, 1)
+  assert.equal(panel.automatic, true)
+  assert.equal(vault.followers, 1)
+  assert.equal(vault.model, 154)
+  assert.equal(panel.element.hidden, false)
+  assert.ok(draws.length, 'a complete atlas must reach the real canvas painter')
+  assert.equal(projections.length, 1, 'the real GameScene.screen must reach the supplied view')
+  const socket = { x: 58112, y: 32000 }
+  const terrain = terrainPointHeight(world.land, socket)
+  await t.test('canonical socket 0, separate from scenery height and reward socket 1', () => {
+    const point = projections.at(-1)
+    // browserPosition wraps the authored z=-133 to z=123. RenderView owns
+    // camera-relative wrapping; assert the canonical native XY at this boundary.
+    assert.deepEqual([
+      Math.round((point.x + 8) * 256) & 65535,
+      Math.round((-point.z - 8) * 256) & 65535,
+    ], [58112, 32000])
+    t.diagnostic(JSON.stringify({ nativeXY: socket, terrain, actualHeight: point.y * 128, expectedHeight: terrain + 480 }))
+    assert.equal(point.y * 128, terrain + 480, 'Vault panel must use terrain + 480, not mesh panelHeight 1028')
+    assert.equal(panel.offset, 0, 'the class-2/model-18 panel record contributes no second height')
+    assert.deepEqual(vaultKnowledgePlacement(vault), { x: -37, z: 123, heightOffset: 1072 })
+    assert.equal(panel.element.style.left, `${200 + ((-37 / 128 + 1) * 1000) / 2}px`)
+    assert.equal(panel.element.style.top, `${40 + ((1 - (terrain + 480) / 128 / 32) * 700) / 2}px`)
+  })
+  await t.test('retained panel samples freshly changed terrain without a redraw', () => {
+    const i = cell(socket), east = (i & ~127) | ((i + 1) & 127), south = (i + 128) & 16383
+    for (const corner of [i, east, south, (east + 128) & 16383]) world.land.heights[corner] += 64
+    assert.equal(terrainPointHeight(world.land, socket), terrain + 64)
+    const drawCount = draws.length
+    paint(0, true)
+    assert.equal(scene.objectPanels.panels.get(vault.id), panel)
+    assert.equal(draws.length, drawCount, 'unchanged panel artwork should stay cached')
+    assert.equal(projections.at(-1).y * 128, terrain + 64 + 480)
+    assert.equal(panel.element.style.top, `${40 + ((1 - (terrain + 64 + 480) / 128 / 32) * 700) / 2}px`)
+  })
+  await t.test('renderer-relative edges retain HUD-scale panel clamps', () => {
+    setScreen({ x: -2, y: 2, z: 0 })
+    paint(0, true)
+    assert.equal(panel.element.style.left, `${200 + panel.canvas.width * 1.5 / 2}px`)
+    assert.equal(panel.element.style.top, `${40 + panel.canvas.height * 1.5}px`)
+    setScreen({ x: 2, y: -2, z: 0 })
+    paint(0, true)
+    assert.equal(panel.element.style.left, `${1200 - panel.canvas.width * 1.5 / 2}px`)
+    assert.equal(panel.element.style.top, '740px')
+  })
+})
+
+test('authored M1 quarter-turn Vault uses socket 0 in the actual panel consumer', async t => {
+  const { scene, world, paint, projections } = await vaultSceneFixture(t, createWorld(1))
+  finishLevelStart(world)
+  scene.skipIntroduction()
+  assert.equal(world.inputMask, 0)
+  const vault = world.shrines.find(shrine => shrine.kind === 'vault')
+  const body = levelOne.objects.find(object => object.index === 35)
+  assert.deepEqual([body.type, body.model, body.x, body.z, body.angle], [2, 18, -6, -2, 512])
+  assert.equal(vault.angle, Math.PI / 2)
+  // Secondary supplied inspection boundary; the M3 case above owns ordinary
+  // command/travel/prayer/request integration, without actor or phase injection.
+  scene.objectPanels.open(vault.id, true)
+  paint(0, true)
+  const point = projections.at(-1)
+  const terrain = terrainPointHeight(world.land, { x: 768, y: 64256 })
+  assert.deepEqual([point.x, point.z], [-5, -3])
+  await t.test('authored quarter-turn height', () => {
+    assert.equal(point.y * 128, terrain + 480)
+  })
+  await t.test('retained panel synchronizes newer authoritative browser terrain', () => {
+    // Supplied terrain edit at the existing compatibility-grid boundary. The
+    // actual nativePosition call must perform syncNativeTerrain on presentation.
+    for (const x of [-6, -4])
+      for (const z of [-4, -2]) world.terrain[(z + 48) * 97 + x + 48] += 64 / 45
+    world.terrainVersion++
+    assert.notEqual(world.landVersion, world.terrainVersion)
+    paint(0, true)
+    assert.equal(world.landVersion, world.terrainVersion)
+    assert.equal(terrainPointHeight(world.land, { x: 768, y: 64256 }), terrain + 64)
+    assert.equal(projections.at(-1).y * 128, terrain + 64 + 480)
+  })
+})
+
+test('non-Vault scenery retains its own panelHeight in the actual panel consumer', async t => {
+  const { scene, world, paint, projections } = await vaultSceneFixture(t)
+  finishLevelStart(world)
+  scene.skipIntroduction()
+  assert.equal(world.inputMask, 0)
+  const head = world.shrines.find(shrine => shrine.kind !== 'vault')
+  assert.ok(head, 'use an authored scenery head, not an injected Vault substitute')
+  const { default: models } = await import('../app/original-models.json', { with: { type: 'json' } })
+  const { nativePosition } = await import('../app/model.ts')
+  scene.objectPanels.open(head.id, true)
+  paint(0, true)
+  const panel = scene.objectPanels.panels.get(head.id), point = projections.at(-1)
+  assert.equal(panel.offset, models[head.model].panelHeight)
+  assert.deepEqual([point.x, point.z], [head.x, head.z])
+  assert.equal(point.y * 128, nativePosition(world, head).h + models[head.model].panelHeight)
+})
+
+test('Vault frames and quarter turns preserve distinct prayer and reward sockets', () => {
+  for (const model of [152, 153, 154, 155]) {
+    for (const angle of [0, Math.PI / 2, Math.PI, Math.PI * 1.5]) {
+      const pose = vaultShapePose({ x: -37, z: -133, model, angle })
+      assert.deepEqual(buildingSocketPoint(pose, 0), { x: 58112, y: 32000, heightOffset: 480 })
+      assert.deepEqual(buildingSocketPoint(pose, 1), { x: 58112, y: 32000, heightOffset: 1072 })
+    }
+  }
+})
 
 test('ordinary M3 prayer opens only from the prior positive count, expires on cancellation and recreates on reissue', async t => {
   const { scene, world, vault, paint } = await vaultSceneFixture(t)
