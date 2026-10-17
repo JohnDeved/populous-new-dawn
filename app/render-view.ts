@@ -520,7 +520,8 @@ export class RenderView {
           // alias, not another sparse world/screen array entry. Keep projected
           // entries packed for this query; candidate triangle IDs stay original.
           const terrainSlots =
-            terrainCorners && index!.array.subarray(0, count).every(id => id < position.count)
+            terrainCorners &&
+            index!.array.subarray(0, count).every((id: number) => id < position.count)
               ? new Uint32Array(position.count)
               : null
           for (let vertex = 0; vertex < count; vertex++) {
