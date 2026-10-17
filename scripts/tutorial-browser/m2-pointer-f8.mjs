@@ -27,6 +27,23 @@ export async function finishM2Functional({ context, report, output, failure }) {
   return report
 }
 
+export const m2RouteReady = ({ x, y, world }) => {
+  const s = window.testSceneRef.current,
+    t = s.tooltipInput
+  const worldRoute = ['world', 'unmapped-cell', 'unmapped-object'].includes(t?.route)
+  if (!world) return s.pointerScreen === null && !worldRoute
+  return (
+    s.pointerScreen?.clientX === x &&
+    s.pointerScreen?.clientY === y &&
+    t?.pointer?.clientX === x &&
+    t?.pointer?.clientY === y &&
+    worldRoute &&
+    Number.isInteger(t.cell) &&
+    t.cell >= 0 &&
+    t.cell < 128 * 128
+  )
+}
+
 export default async function ({ browser, url, output, fixture }) {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
@@ -142,7 +159,7 @@ export default async function ({ browser, url, output, fixture }) {
       report.timedOut = true
       void context.close().catch(() => {})
     }, m2FunctionalLimitMs)
-    const skip = page.getByRole('button', { name: 'Skip introduction', exact: true })
+    const skip = page.getByRole('button', { name: /^Skip introduction/ })
     if (await skip.isVisible()) await skip.click()
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
@@ -168,7 +185,16 @@ export default async function ({ browser, url, output, fixture }) {
             u.guard,
             u.path.map(p => [p.x, p.z]),
           ]),
-          pointer: s.pointer ? { x: s.pointer.x, z: s.pointer.z } : null,
+          pointerScreen: s.pointerScreen ? { ...s.pointerScreen } : null,
+          hover: s.hoveredObject,
+          tooltip: s.tooltipInput
+            ? {
+                route: s.tooltipInput.route,
+                cell: s.tooltipInput.cell,
+                picked: s.tooltipInput.picked,
+                pointer: s.tooltipInput.pointer,
+              }
+            : null,
           camera: {
             position: { ...s.cameraPosition },
             bearing: s.cameraBearing,
@@ -193,20 +219,20 @@ export default async function ({ browser, url, output, fixture }) {
     assert.match(await graph.innerText(), /Pointer \+ tooltip CPU/)
     assert.match(await graph.innerText(), /GPU not measured/)
     assert.equal(await graph.evaluate(el => getComputedStyle(el).pointerEvents), 'none')
+    const moveAndObserve = async (x, y, world) => {
+      await page.mouse.move(x, y)
+      await page.waitForFunction(m2RouteReady, { x, y, world })
+      const state = await observe()
+      assertM2Input(report.before, state)
+      return state
+    }
     // Pause gives an exact no-orders witness while ordinary RAF still drives picks.
     for (const [x, y, world] of [
       [700, 340, true],
       [100, 300, false],
       [900, 400, true],
     ]) {
-      await page.mouse.move(x, y)
-      await page.waitForFunction(
-        expectWorld => !!window.testSceneRef.current.pointer === expectWorld,
-        world
-      )
-      const state = await observe()
-      assertM2Input(report.before, state)
-      report.samples.push(state)
+      report.samples.push(await moveAndObserve(x, y, world))
     }
     await page.screenshot({ path: resolve(output, 'm2-pointer-wide.png') })
     const beforeCamera = await observe()
@@ -272,13 +298,9 @@ export default async function ({ browser, url, output, fixture }) {
       assert.equal(layout.rowsFit, true, 'Metric rows must fit without horizontal clipping')
       assert.equal(layout.overflow, false)
       assert.equal(layout.events, 'none')
-      await page.mouse.move(width - 60, height - 100)
-      await page.waitForFunction(() => !!window.testSceneRef.current.pointer)
-      const routed = await observe()
-      assertM2Input(report.before, routed)
-      await page.mouse.move(100, 300)
-      await page.waitForFunction(() => window.testSceneRef.current.pointer === null)
-      report.samples.push({ viewport: [width, height], layout, routed })
+      const routed = await moveAndObserve(width - 60, height - 100, true)
+      const sidebar = await moveAndObserve(100, 300, false)
+      report.samples.push({ viewport: [width, height], layout, routed, sidebar })
       await page.screenshot({ path: resolve(output, `m2-pointer-${width}.png`) })
     }
     await page.keyboard.press('F8')

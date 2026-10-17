@@ -107,3 +107,34 @@ test('M2 terminal acceptance includes late errors, timeout and cleanup failure',
     rmSync(output, { recursive: true, force: true })
   }
 })
+
+test('ordinary null-mode pointer witnesses use processed tooltip cells, not placement pointer', async () => {
+  const { m2RouteReady } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  const scene = {
+    pointer: null,
+    pointerScreen: { clientX: 700, clientY: 340 },
+    tooltipInput: {
+      pointer: { clientX: 700, clientY: 340 },
+      route: 'unmapped-cell',
+      cell: 12000,
+    },
+  }
+  const ready = runInNewContext(`(${m2RouteReady.toString()})`, {
+    window: { testSceneRef: { current: scene } },
+  })
+  assert.equal(ready({ x: 700, y: 340, world: true }), true)
+  scene.tooltipInput.cell = null
+  assert.equal(ready({ x: 700, y: 340, world: true }), false)
+  scene.tooltipInput.cell = 12000
+  scene.tooltipInput.pointer.clientX = 699
+  assert.equal(ready({ x: 700, y: 340, world: true }), false)
+  scene.pointerScreen = null
+  scene.tooltipInput.route = 'hud'
+  assert.equal(ready({ x: 100, y: 300, world: false }), true)
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(source, /name: \/\^Skip introduction\//)
+  assert.doesNotMatch(source, /name: 'Skip introduction', exact: true/)
+})
