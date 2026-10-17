@@ -36,9 +36,11 @@ export class FramePerformance {
   private timestamp = 0
   readonly history = new Float64Array(240)
   readonly callbackHistory = new Float64Array(240)
+  readonly pointerHistory = new Float64Array(240)
   private readonly sorted = new Float64Array(240)
   readonly rafPercentiles = { p50: 0, p95: 0, p99: 0, max: 0 }
   readonly callbackPercentiles = { p50: 0, p95: 0, p99: 0, max: 0 }
+  readonly pointerPercentiles = { p50: 0, p95: 0, p99: 0, max: 0 }
   pointer = 0
   pointerMs = 0
   otherMs = 0
@@ -64,7 +66,11 @@ export class FramePerformance {
     this.pointer = 0
     this.pointerMs = 0
     this.otherMs = 0
-    for (const summary of [this.rafPercentiles, this.callbackPercentiles]) {
+    for (const summary of [
+      this.rafPercentiles,
+      this.callbackPercentiles,
+      this.pointerPercentiles,
+    ]) {
       summary.p50 = 0
       summary.p95 = 0
       summary.p99 = 0
@@ -134,6 +140,7 @@ export class FramePerformance {
     this.recentCursor = (this.recentCursor + 1) % RECENT_FRAME_CAPACITY
     this.recentCount = Math.min(this.recentCount + 1, RECENT_FRAME_CAPACITY)
     this.callbackHistory[this.cursor] = callback
+    this.pointerHistory[this.cursor] = pointer
     this.history[this.cursor] = milliseconds
     this.cursor = (this.cursor + 1) % this.history.length
     this.count = Math.min(this.count + 1, this.history.length)
@@ -156,6 +163,7 @@ export class FramePerformance {
     this.otherMs = this.callbackMs - this.simulationMs - this.renderMs - this.pointerMs
     this.summarize(this.history, this.rafPercentiles)
     this.summarize(this.callbackHistory, this.callbackPercentiles)
+    this.summarize(this.pointerHistory, this.pointerPercentiles)
     this.pointer = 0
     this.elapsed = 0
     this.frames = 0
