@@ -1,0 +1,19 @@
+{
+  "archive": "water-point-sampled-profile.tar.gz",
+  "bytes": 178144,
+  "sha256": "142b21daf3eb1109b0bfda43c6e0ed793f3b3cc5101a0ef02d96a693266872a3",
+  "files": {
+    "diagnostic-sampled-cpu-v3.mjs": "f7549f54130be6f828140f9363c8964c71c3fd3a63f61482c91c40680e766488",
+    "analyze-sampled-profile.py": "b8ec55b6c01f5baf2dee249837566570533eb16976eedd22cc49139f858da50e",
+    "sampled-profile-analysis.json": "ef4884537dbbd163994c6bdccb8744084e540a0e4e4b1ba1e0072a22069e1aa1",
+    "SAMPLED-PROFILE-REPORT.md": "1f765f428ab7c9bbd6e61fc8bee2b368d5e55b0fd7fa6001594468790827ab3d",
+    "SAMPLED-PROFILE-SHA256SUMS": "5158707ec63d0539d0342ee6480beb895c0e9e14c486597cbbf55cff41fb1e45",
+    "sampled-profile-independent-review.json": "d977bf0b7fdbad8f8437a3d8990a60525179dc3a1e009a383588b22b15a80491",
+    "profile-1-candidate.jsonl": "f3c1d65a6178feb10abdb193f6f9eb84b5d578acd641d7beeaa6839756caea76",
+    "profile-1-candidate.cpuprofile": "997c08f382cc481ba074c7b9c6754f679eef723216e55e38dc4849f300bdc3ed",
+    "profile-1-candidate.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "profile-2-baseline.jsonl": "28bf48d347fafdbb861b1530ff1a9087045eed046d81f28fb6294359bd46ccd7",
+    "profile-2-baseline.cpuprofile": "e484b2fa789f089c6e26429d3f75c4bfe630ec81b7ab30eebd7d1f46e29cfc97",
+    "profile-2-baseline.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

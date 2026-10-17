@@ -1,0 +1,30 @@
+{
+  "sha256": "0e59189ac34f0bb47a1ba124bdaeef53a5c4422a0e76ac90147892ede0bf6ddb",
+  "bytes": 241445,
+  "members": {
+    "REPORT.md": "69e2387280d44e52f262dd918aab84e2e89add47ee42334c4483534e7e94a41d",
+    "compare-paired.py": "829035f7811bc812829890a4d90a39dde06c13d2427da91861ad3de3fddb3cd1",
+    "focused-serial-tests.tap": "07918260176d9cd62986e85aeb68200205fd8ace37446e34b7cb8288cf6c83f2",
+    "focused-tests.tap": "dc72426cb8776d7389cb4de9b769a15d7241894228fa025407fd7eb1407e20ac",
+    "measured-candidate.patch": "0bae3835f00ef19136ba94b56d514f232e9a077936f4e8ea7e80fb302d273c17",
+    "pair-1-baseline.jsonl": "f2a1b2330a2986be05ccf085411beb98f06f02663fa2aa85d89e50bdf1e0c2cb",
+    "pair-1-baseline.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pair-2-candidate.jsonl": "53b471a4beff499b739c6fcb20c6f6949290edd6e030ab8de608e52267b66071",
+    "pair-2-candidate.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pair-3-candidate.jsonl": "09f3794984608992bea130e484d4bf793a908a8eca3609e776c9cbed9e437652",
+    "pair-3-candidate.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pair-4-baseline.jsonl": "7ad82afae682fd75247afcfee0f940e4c1499c941bfd1f8dffc2ed74dc19db1c",
+    "pair-4-baseline.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "paired-benchmark.mjs": "22013396d55c20b4e2327ddc9d2e8c57956c79c05881c0ebfedcdbb7cf41b82d",
+    "paired-comparison.json": "8a9301497a521deb09c84ea9a78997d1fc6dd0618853c3589a222bd766a1751f",
+    "paired-effect-summary.json": "5509e951f930e9d69db9d61d4206cbda09c827da649d23b46b024e58d895c69e",
+    "paired-execution.log": "e0c2570d985b7afd977f4b2449feb810162390dca46936ecab253373e672fcaa",
+    "run-paired.sh": "3b9fa15c9cefc8a45caa6035f2d3b9a79b4c687ee18bdbfd7da90a9c218adfa1",
+    "snapshot-manifest.json": "bb9fa5738e396b53e223d44cb7e4dd42d15a96f205c5976dfb281f92cd2da37d",
+    "snapshot-provenance-note.json": "eb5c12d51d9c2f9929d305647c0c584ca5ed84b569e4053969f98c75ee96c2a4",
+    "typecheck-1536.log": "ec421798960efef718fad6a742f784ec978fcc66766201994353775cba688fe0",
+    "typecheck-768-retry.log": "e67d2ae0c18d150d48c5e75cf9798a4db97898430dc5b2f9fb406abd45d2ca1a",
+    "typecheck-768.log": "3e737f6a9117cec194b02103b357f8668fae9adb86a8a8cd0bf25efab8948548",
+    "typecheck.log": "7b0d8612a8c8de814775acef984ad6c298df5060197c3fa3572bff973d21bd9e"
+  }
+}

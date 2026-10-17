@@ -1,0 +1,15 @@
+# Tail diagnostics: observed GC does not explain the largest candidate tail
+
+One candidate then one baseline block-mode diagnostic process completed with exit 0, unchanged archived 256-phase outputs, immutable inputs and resolved-source fingerprint checks. This separate instrumented run is not primary ABBA performance evidence. No forced GC, discarded samples, new dependency or production source changes were used.
+
+Candidate: 10 changed-turn calls exceeded 10 ms; the maximum was 48.025 ms at index 344. No GC entries were observed in the instrumented observation window. Baseline: 54 total GC entries were observed, 36 changed-turn calls overlapped entries, and only one of four calls exceeding 10 ms overlapped GC. These results do not support attributing the candidate's largest tail to an observed GC event. They do not prove the absence of other collector work.
+
+Process CPU tracked wall time closely at the 64-call block level, including the slow candidate blocks. For example, candidate indices 256–319 used 451.60 ms process CPU over 451.46 ms wall time; indices 320–383 used 377.91 ms over 377.98 ms. CPU includes helper threads, so this cannot establish main-thread CPU work or exclude main-thread descheduling. The resource context-switch interval is slightly wider than the CPU/wall interval. Scheduler contention, JIT/runtime behavior and other causes remain unproven hypotheses.
+
+Empty-body control loop wall cost per iteration (timer-only → extra aligned timers/assertion) was candidate 0.242 → 0.694 microseconds before and 0.171 → 0.621 after; baseline 0.245 → 0.664 before and 0.224 → 0.484 after. These controls characterize measurement calls only, include a control-only assertion, and neither quantify total workload perturbation nor justify subtracting overhead. The observer and resource reads may change allocation/JIT/scheduling behavior. Same-key observations remain timer-sensitive.
+
+The observer used performance.now-compatible GC intervals and drained after complete synchronous cases. There were no between-call or between-block event-loop yields. Raw GC entries, all per-call durations/aligned intervals/phase indices, block CPU/resource/memory observations and every control sample are preserved. CPU/sample mode was not executed. Heap deltas are not allocation rates.
+
+See diagnostic-summary.json for recomputable summaries and diagnostic-execution-receipt.json for exit/headroom records. No FPS, production smoothness improvement or causal attribution is established. The candidate remains experimental with the earlier typecheck failures unresolved.
+
+Independent post-run review verified all raw statistics, archived phases/invariants and all current 341 candidate / 339 baseline fingerprints. Baseline changed-turn GC events totaled 29.779 ms; the one >10 ms overlap was index 261, an 11.134 ms call overlapping a 5.280 ms event. Candidate maximum was phase 89. Review recommends retaining this as an experiment and no additional run without a targeted new hypothesis.

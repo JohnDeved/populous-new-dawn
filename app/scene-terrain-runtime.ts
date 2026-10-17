@@ -9,7 +9,8 @@ import {
   terrainTextureBounds,
 } from './terrain-texture.ts'
 import { terrainTiles } from './terrain-visibility.ts'
-import { waterCell, waterPoint, waterTexture } from './water.ts'
+import { waterCell, waterTexture } from './water.ts'
+import { waterPointValues } from './water-point-values.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import {
   nativePosition,
@@ -246,14 +247,14 @@ export function updateWater(scene: GameScene) {
   const pos = scene.terrain.geometry.getAttribute('position'),
     surface = scene.terrain.geometry.getAttribute('surface'),
     light = scene.terrain.geometry.getAttribute('light'),
-    highlight = scene.terrain.geometry.getAttribute('highlight')
+    highlight = scene.terrain.geometry.getAttribute('highlight'),
+    points = waterPointValues(scene, w.land, w.turn, scene.waves)
   for (let j = 0; j < pos.count; j++) {
-    const i = scene.landIndex(pos.getX(j), pos.getZ(j)),
-      p = waterPoint(w.land, i, w.turn, scene.waves)
+    const i = scene.landIndex(pos.getX(j), pos.getZ(j))
     // 0x4673b0 uses the same diffuse conversion on coast and land; only
     // open-water triangles suppress the additive warm light channel.
-    const colors = vertexLighting(p.color, surface.getX(j) ? 0 : 0xfdb935)
-    pos.setY(j, p.height / 128)
+    const colors = vertexLighting(points.colors[i], surface.getX(j) ? 0 : 0xfdb935)
+    pos.setY(j, points.heights[i] / 128)
     light.setXYZ(
       j,
       ((colors.diffuse >>> 16) & 255) / 255,
