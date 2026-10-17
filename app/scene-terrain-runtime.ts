@@ -247,13 +247,35 @@ export function updateWater(scene: GameScene) {
     surface = scene.terrain.geometry.getAttribute('surface'),
     light = scene.terrain.geometry.getAttribute('light'),
     highlight = scene.terrain.geometry.getAttribute('highlight')
+  // Compare stored Float32 bits, including signed zero/NaN payloads, rather
+  // than unrounded JS heights. Unusual attribute writers retain dirty marking.
+  const positionBits =
+    pos instanceof THREE.BufferAttribute &&
+    Object.getPrototypeOf(pos) === THREE.Float32BufferAttribute.prototype &&
+    pos.array instanceof Float32Array &&
+    Object.getPrototypeOf(pos.array) === Float32Array.prototype &&
+    Object.getPrototypeOf(pos.array.buffer) === ArrayBuffer.prototype &&
+    pos.itemSize === 3 &&
+    Number.isInteger(pos.count) &&
+    pos.count * 3 === pos.array.length &&
+    pos.array.buffer !== light.array.buffer &&
+    pos.array.buffer !== highlight.array.buffer &&
+    !pos.normalized &&
+    pos.getX === THREE.BufferAttribute.prototype.getX &&
+    pos.getZ === THREE.BufferAttribute.prototype.getZ &&
+    pos.setY === THREE.BufferAttribute.prototype.setY
+      ? new Uint32Array(pos.array.buffer, pos.array.byteOffset, pos.array.length)
+      : undefined
+  let positionChanged = !positionBits
   for (let j = 0; j < pos.count; j++) {
     const i = scene.landIndex(pos.getX(j), pos.getZ(j)),
       p = waterPoint(w.land, i, w.turn, scene.waves)
     // 0x4673b0 uses the same diffuse conversion on coast and land; only
     // open-water triangles suppress the additive warm light channel.
     const colors = vertexLighting(p.color, surface.getX(j) ? 0 : 0xfdb935)
+    const before = positionChanged ? 0 : positionBits![j * 3 + 1]
     pos.setY(j, p.height / 128)
+    if (!positionChanged && positionBits![j * 3 + 1] !== before) positionChanged = true
     light.setXYZ(
       j,
       ((colors.diffuse >>> 16) & 255) / 255,
@@ -269,7 +291,7 @@ export function updateWater(scene: GameScene) {
   }
   highlight.needsUpdate = true
   light.needsUpdate = true
-  pos.needsUpdate = true
+  if (positionChanged) pos.needsUpdate = true
 }
 
 export function makeDecorations(scene: GameScene) {
