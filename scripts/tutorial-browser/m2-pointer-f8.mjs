@@ -421,6 +421,7 @@ export default async function ({ browser, url, output, fixture }) {
               .elementFromPoint((b.left + b.right) / 2, (b.top + b.bottom) / 2)
               ?.closest('.paused-badge') === badge,
           pauseText: badge?.textContent,
+          pointerTail: el.querySelector('[data-metric="pointer-tail"]')?.textContent,
           campaignPanels: [...document.querySelectorAll('.campaign-messages details[open]>div')]
             .filter(
               node => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
@@ -487,6 +488,11 @@ export default async function ({ browser, url, output, fixture }) {
         layout.left >= 0 && layout.top >= 0 && layout.right <= width && layout.bottom <= height
       )
       assert.equal(layout.rowsFit, true, 'Metric rows must fit without horizontal clipping')
+      assert.match(
+        layout.pointerTail,
+        /^\d+\.\d \/ \d+\.\d ms$/,
+        'Recent pointer p95 and peak must be visible'
+      )
       assert.equal(layout.overflow, false)
       assert.equal(layout.events, 'none')
       assert.equal(layout.exportFits, true, 'Export button and status must fit at every viewport')

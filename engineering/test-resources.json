@@ -1,7 +1,7 @@
 {
   "version": 1,
   "helpersSha256": "039d4c9eafa9b822cb3b10c32fdd30b10da47c95b58e88128693d3683f84d8a5",
-  "productionSha256": "6d4a8002ea8d3b6b79abdb4673637f04e28a5a8443f8d9c934e926571028ad7b",
+  "productionSha256": "e7866c37f8ac49552d3a1024dca93043b73f32de334c81fb85a4ba1ce3c72b48",
   "parallel": {
     "tests/ai-producer-schedule.test.mjs": "e9c41f775b53064b5d27f26c5aee66a62afdb1cfee0f5fe1a02f5002d67a1489",
     "tests/ai-response-task.test.mjs": "a616ec84ec3f7ce1a681d608b66972b702c4af5b727ca6ceb4d176b568014809",
