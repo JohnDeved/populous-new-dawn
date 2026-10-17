@@ -570,8 +570,15 @@ function acquirePreacherVictims(w: World, preacher: LivePerson, radius: number) 
   // ponytail: the game caps tribes at 200 people; a direct scan avoids a second index.
   for (const u of w.units) {
     if (u.hp <= 0 || u.inside !== null || u.flight) continue
-    const victim = u.native ?? u.entry?.person ?? u.fight?.motion ?? createLivePerson(w, u)
-    if (!inPreachingRange(preacher, victim, radius)) continue
+    let victim = u.native ?? u.entry?.person ?? u.fight?.motion
+    if (victim) {
+      if (!inPreachingRange(preacher, victim, radius)) continue
+    } else {
+      // Keep nativePosition's terrain synchronization even for rejected candidates.
+      const pos = nativePosition(w, u)
+      if (!inPreachingRange(preacher, { x: pos.x & 65535, y: pos.y & 65535 }, radius)) continue
+      victim = createLivePerson(w, u, pos)
+    }
     if (victim.state !== 23) {
       if (!eligiblePreacherVictim(w, preacher, victim)) continue
       releaseTasks(w, u)
