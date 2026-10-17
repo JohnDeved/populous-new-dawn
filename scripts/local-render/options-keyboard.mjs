@@ -60,8 +60,13 @@ export default async function ({ page, output }) {
       await button('Back to Options').click()
       assert.equal(await options.getAttribute('data-category'), 'Sound')
       await button('Back').focus()
+      await page.evaluate(() => {
+        window.optionsTabPrevented = null
+        window.addEventListener('keydown', event => { window.optionsTabPrevented = event.defaultPrevented }, { once: true })
+      })
       await page.keyboard.press('Tab')
-      assert.equal(await options.evaluate(el => el.contains(document.activeElement)), true, 'Tab remains in modal Options controls')
+      report[`${skin}Tab`] = { focus: await focused(), prevented: await page.evaluate(() => window.optionsTabPrevented) }
+      assert.equal(report[`${skin}Tab`].prevented, false, 'native Tab is not intercepted by the menu')
       await button('Back').focus()
       await page.screenshot({ path: resolve(output, `${skin}-back-focus.png`) })
       await page.keyboard.press('Escape')
