@@ -379,6 +379,7 @@
       ],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Construction command wrapper" },
+        { "path": "decomp/research/building-completion-feedback.md", "heading": "Building-completion feedback ownership" },
         { "path": "decomp/README.md", "heading": "Construction timber hauling" },
         { "path": "decomp/README.md", "heading": "Shared construction resource searches" },
         { "path": "decomp/research/mission9-boat-house.md", "heading": "Mission 9 Boat House production" },

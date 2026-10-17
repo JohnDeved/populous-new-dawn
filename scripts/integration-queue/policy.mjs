@@ -516,7 +516,7 @@ export function recordIntent(decision) {
   }
 }
 
-function latestChronological(items, label) {
+export function latestChronological(items, label) {
   requireThat(
     items.length > 0 && items.every(item => Number.isFinite(Date.parse(item.startedAt))),
     `Missing attempt chronology: ${label}`
@@ -529,7 +529,7 @@ function latestChronological(items, label) {
   return ordered[0]
 }
 
-function gateRuns(entry, o, gate) {
+export function gateRuns(entry, o, gate) {
   return o.runs.filter(
     r =>
       r.workflow === gate.workflow &&
@@ -544,7 +544,7 @@ function gateRuns(entry, o, gate) {
   )
 }
 
-function validatePassedGate(o, gate, latest) {
+export function validatePassedGate(o, gate, latest) {
   requireThat(
     !latest.identityVerified || (latest.base === o.base && latest.merge === o.synthetic?.sha),
     'Verified candidate identity contradicts run evidence'
@@ -578,7 +578,7 @@ function validatePassedGate(o, gate, latest) {
   )
 }
 
-function validateBeforeDraft(entry, o, required, allowTutorialDraftGuard = false) {
+export function validateBeforeDraft(entry, o, required, allowTutorialDraftGuard = false) {
   requireThat(Array.isArray(o.currentChecks), 'Missing current required-check selection')
   for (const gate of required) {
     const guards =
