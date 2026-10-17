@@ -83,7 +83,7 @@ import vm from 'node:vm'
 
 // Exercise the actual callback body with deterministic boundary stubs. No
 // renderer, asset loading or timing benchmark is involved in this contract test.
-function runCallback({ enabled = true, hidden = false, modal = false, current = true } = {}) {
+function runCallback({ enabled = true, hidden = false, modal = false, current = true, nestedPointer = 0 } = {}) {
   const source = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
   const body = source.slice(source.indexOf('  animate = (now:'), source.indexOf('  private updateTerrainFrame()'))
   let clock = 0, reads = 0
@@ -109,6 +109,10 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
     'updateEffectsFrame', 'updateShrinesFrame', 'updatePointerFrame', 'updatePlacement',
     'updateSpellPointerFrame', 'updateEnvironmentFrame', 'renderSceneFrame', 'updateHudFrame'])
     scene[name] = step(name)
+  if (nestedPointer) scene.updatePointerFrame = () => {
+    events.push('updatePointerFrame'); clock += 1
+    events.push('nested tooltip pick'); clock += nestedPointer
+  }
   scene.animate(10)
   return { scene, events, reads, updates, clock }
 }
@@ -116,9 +120,10 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
 test('live callback CPU includes preparation, HUD and scheduling, excluding overlay work', () => {
   const { scene, events, reads, updates, clock } = runCallback()
   assert.equal(scene.frame, 42)
-  assert.equal(reads, 6)
+  assert.equal(reads, 8)
   assert.equal(updates.length, 1)
-  const [now, simulation, render, calls, state, callback] = updates[0]
+  const [now, simulation, render, calls, state, callback, pointer] = updates[0]
+  assert.equal(pointer, 1)
   assert.deepEqual([now, simulation, render, calls, state], [10, 1, 1, 7, 'Live'])
   assert.equal(callback, clock - 100)
   assert.ok(callback > simulation + render)
@@ -176,7 +181,7 @@ test('actual graph keeps a startup spike, auto scale and 120 FPS guide consisten
     previous: null,
     samples: new FramePerformance(),
     fields: Object.fromEntries(['state', 'fps', 'frame', 'peak', 'callback', 'simulation',
-      'render', 'calls', 'heap', 'scale'].map(name => [name, sink()])),
+      'render', 'calls', 'heap', 'scale', 'pointer', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak'].map(name => [name, sink()])),
     line: sink(),
     budget: sink(),
   })
@@ -215,4 +220,84 @@ test('actual graph keeps a startup spike, auto scale and 120 FPS guide consisten
   const points = graph.line.getAttribute('points').trim().split(/\s+/)
   assert.equal(points.length, 240)
   for (const [index, point] of points.entries()) assert.equal(point, `${index},44.5`)
+})
+
+
+test('disjoint stage means retain inclusive callback and expose inconsistent ownership', () => {
+  const samples = new FramePerformance()
+  samples.sample(250, 2, 3, 10, 12, 4)
+  assert.equal(samples.pointerMs, 4)
+  assert.equal(samples.otherMs, 3)
+  assert.equal(samples.simulationMs + samples.renderMs + samples.pointerMs + samples.otherMs, samples.callbackMs)
+  samples.sample(250, 2, 3, 10, 4, 1)
+  assert.equal(samples.otherMs, -2, 'do not clamp away overlapping or invalid boundaries')
+  samples.sample(250, 0, 1, 10, 2)
+  assert.equal(samples.pointerMs, 0, 'modal/default sample has no stale pointer stage')
+  assert.equal(samples.otherMs, 1)
+})
+
+test('rolling RAF and callback nearest-rank summaries use partial windows and expire together', () => {
+  const samples = new FramePerformance()
+  const history = samples.callbackHistory
+  samples.sample(250, 0, 0, 0, 9)
+  assert.deepEqual(samples.rafPercentiles, { p50: 250, p95: 250, p99: 250, max: 250 })
+  assert.deepEqual(samples.callbackPercentiles, { p50: 9, p95: 9, p99: 9, max: 9 })
+  samples.reset()
+  for (let i = 1; i <= 100; i++) samples.sample(250 + i, 0, 0, 0, i)
+  assert.deepEqual(samples.callbackPercentiles, { p50: 50, p95: 95, p99: 99, max: 100 })
+  assert.deepEqual(samples.rafPercentiles, { p50: 300, p95: 345, p99: 349, max: 350 })
+  for (let i = 1; i <= 240; i++) samples.sample(250, 0, 0, 0, 2)
+  assert.deepEqual(samples.callbackPercentiles, { p50: 2, p95: 2, p99: 2, max: 2 })
+  assert.deepEqual(samples.rafPercentiles, { p50: 250, p95: 250, p99: 250, max: 250 })
+  assert.equal(samples.callbackHistory, history)
+  samples.reset()
+  assert.equal(samples.callbackHistory, history)
+  assert.equal(history.length, 240)
+  assert.deepEqual(samples.callbackPercentiles, { p50: 0, p95: 0, p99: 0, max: 0 })
+  assert.deepEqual(samples.rafPercentiles, { p50: 0, p95: 0, p99: 0, max: 0 })
+  assert.equal(samples.pointerMs, 0)
+  assert.equal(samples.otherMs, 0)
+  samples.sample(250, 0, 0, 0, 5)
+  assert.deepEqual(samples.callbackPercentiles, { p50: 5, p95: 5, p99: 5, max: 5 })
+})
+
+test('nonfinite or negative CPU/call measurements reject both windows without partial mutation', () => {
+  const samples = new FramePerformance()
+  for (const index of [1, 2, 3, 4, 5]) {
+    for (const invalid of [NaN, Infinity, -Infinity, -1]) {
+      const args = [250, 1, 2, 3, 6, 1]
+      args[index] = invalid
+      assert.equal(samples.sample(...args), false)
+      assert.equal(samples.count, 0)
+      assert.equal(samples.elapsed, 0)
+      assert.equal(samples.pointer, 0)
+    }
+  }
+  samples.sample(250, 1, 2, 3, 6, 1)
+  assert.equal(samples.count, 1)
+  assert.equal(samples.otherMs, 2)
+})
+
+
+test('pointer stage includes nested tooltip picking without counting it twice', () => {
+  const ordinary = runCallback(), nested = runCallback({ nestedPointer: 7 })
+  assert.equal(nested.reads, ordinary.reads)
+  assert.equal(nested.updates[0][6], 8)
+  assert.equal(nested.updates[0][5] - ordinary.updates[0][5], 7)
+  const samples = new FramePerformance()
+  const [, simulation, render, calls, , callback, pointer] = nested.updates[0]
+  samples.sample(250, simulation, render, calls, callback, pointer)
+  assert.equal(samples.otherMs, callback - simulation - render - pointer)
+})
+
+test('live to modal publication includes both samples, then replaces the pointer mean', () => {
+  const samples = new FramePerformance()
+  assert.equal(samples.sample(100, 2, 3, 10, 12, 4), false)
+  assert.equal(samples.sample(150, 0, 1, 5, 2, 0), true)
+  assert.equal(samples.pointerMs, 2, 'mean covers the full publication window, not just current mode')
+  assert.equal(samples.callbackMs, 7)
+  assert.equal(samples.otherMs, 2)
+  assert.equal(samples.sample(250, 0, 1, 5, 2, 0), true)
+  assert.equal(samples.pointerMs, 0)
+  assert.equal(samples.otherMs, 1)
 })
