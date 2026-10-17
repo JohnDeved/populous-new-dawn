@@ -168,36 +168,48 @@ export function syncLandscapeObjects(w: World) {
       update(b, 1)
       w.buildingFootprints.set(id, b)
     }
-  const scenery = new Map<number, SceneryShapePose>()
+  // Keep independent per-pass scalar snapshots, including undefined shape indices.
+  // A retained pose may be mutated/replaced by later terrain callbacks or reentry.
+  const scenery = new Map<number, number>()
+  const poses: number[] = []
   for (const tree of w.trees) {
     if (tree.logs <= 0 || !(rules.sceneryFlags[tree.model] & 1)) continue
     const p = nativePosition(w, tree)
-    scenery.set(tree.id, {
-      object: rules.sceneryObjects[tree.model],
-      shapeIndex: nativeModelResource(
+    const id = tree.id
+    const offset = poses.length
+    poses.push(
+      rules.sceneryObjects[tree.model],
+      nativeModelResource(
         rules.sceneryObjects[tree.model],
         worldEnvironment(w).objects.bank
       ).shapeIndices[0],
-      anchorX: p.x & 0xfe00,
-      anchorY: p.y & 0xfe00,
-    })
+      p.x & 0xfe00,
+      p.y & 0xfe00
+    )
+    scenery.set(id, offset)
   }
   const refresh = (p: SceneryShapePose) => refreshSceneryShadow(w.land, p, shade, () => {})
   for (const [id, old] of w.sceneryShadows) {
     const next = scenery.get(id)
     if (
-      !next ||
-      old.object !== next.object ||
-      old.shapeIndex !== next.shapeIndex ||
-      old.anchorX !== next.anchorX ||
-      old.anchorY !== next.anchorY
+      next === undefined ||
+      old.object !== poses[next] ||
+      old.shapeIndex !== poses[next + 1] ||
+      old.anchorX !== poses[next + 2] ||
+      old.anchorY !== poses[next + 3]
     ) {
       refresh(old)
       w.sceneryShadows.delete(id)
     }
   }
-  for (const [id, p] of scenery)
+  for (const [id, offset] of scenery)
     if (!w.sceneryShadows.has(id)) {
+      const p: SceneryShapePose = {
+        object: poses[offset],
+        shapeIndex: poses[offset + 1],
+        anchorX: poses[offset + 2],
+        anchorY: poses[offset + 3],
+      }
       refresh(p)
       w.sceneryShadows.set(id, p)
     }

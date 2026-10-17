@@ -2,9 +2,12 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { stripTypeScriptTypes } from 'node:module'
+import vm from 'node:vm'
 import { createHash } from 'node:crypto'
 import { createWorld } from '../app/world-initialization.ts'
 import { syncLandscapeObjects as original } from './support/scenery-retained-pose-original.ts'
+import { syncLandscapeObjects as compact } from '../app/world-terrain-runtime.ts'
 import { syncLandscapeObjects as candidate } from './support/scenery-retained-pose-candidate.ts'
 
 function world() {
@@ -86,6 +89,7 @@ test('ordinary duplicate last-write and removal-before-addition map operations s
   }
   const a=run(original),b=run(candidate)
   assert.deepEqual(a,b)
+  assert.deepEqual(a,run(compact))
   assert.deepEqual(a.operations.map(([kind,id])=>[kind,id]),[['remove',90001],['remove',90002],['add',90001],['add',90003]])
   assert.equal(a.poses[0][1].anchorX,4096,'last duplicate tree, not first, owns the temporary snapshot')
 })
@@ -100,7 +104,59 @@ test('ordinary stale-terrain notification recipients remain dirty in the candida
   }
   const a=run(original),b=run(candidate)
   assert.deepEqual(a,b)
+  assert.deepEqual(a,run(compact))
   assert.ok(a.unit.native.flags2&4);assert.ok(a.unit.flight.flags2&4);assert.ok(a.unit.builder.person.flags2&4)
   assert.equal(a.effect.fire.groundDirty,true);assert.ok(a.effect.smoke.flags2&4)
   assert.equal(a.landVersion,a.terrainVersion)
+})
+
+
+test('compact independent snapshots preserve both retained mutation and reentrant identity contracts', () => {
+  assert.deepEqual(mutateRetained(compact),mutateRetained(original))
+  assert.deepEqual(nestedSync(compact),nestedSync(original))
+})
+test('compact snapshot ordinary transitions match frozen baseline without replacing unchanged retained records', () => {
+  const a=world(), b=structuredClone(a), before=b.sceneryShadows.get(90001)
+  compact(b)
+  assert.equal(b.sceneryShadows.get(90001),before)
+  for(const edit of [()=>{},w=>{w.trees[0].x+=2},w=>{w.trees[1].logs=0},w=>{w.trees.push({...w.trees[0],x:8})},w=>{w.outcome.level=3},w=>{w.terrain[40*97+40]+=1;w.terrainVersion++}]) {
+    edit(a);edit(b);original(a);compact(b)
+    assert.deepEqual(values(a),values(b));assert.deepEqual(a.land,b.land)
+  }
+})
+test('compact snapshots preserve coordinate, ID, model and environment read order and thrown lookup side effects', () => {
+  function run(sync,fail) {
+    const w=world(),trace=[]
+    let model=3
+    const tree=w.trees[0]
+    Object.defineProperty(tree,'x',{enumerable:true,get(){trace.push('position-x');return -8}})
+    Object.defineProperty(tree,'id',{enumerable:true,get(){trace.push('tree-id');return 90001}})
+    Object.defineProperty(tree,'model',{enumerable:true,get(){trace.push('tree-model');return model}})
+    Object.defineProperty(w.outcome,'level',{enumerable:true,get(){trace.push('environment');if(fail)throw Error('environment lookup failed');return 1}})
+    let error
+    try{sync(w)}catch(e){error=e.message}
+    return {trace,error,poses:values(w),land:w.land}
+  }
+  for(const fail of [false,true])assert.deepEqual(run(compact,fail),run(original,fail))
+})
+// Inject only the resource/terrain boundaries into the exact extracted functions
+// to exercise optional/non-finite scalar storage without inventing native assets.
+function scalarProbe(path,shapeIndex) {
+  const source=readFileSync(new URL(path,import.meta.url),'utf8')
+  const start=source.indexOf('export function syncLandscapeObjects(')
+  const end=source.indexOf('\n}\n// ponytail:',start)+2
+  const fn=stripTypeScriptTypes(source.slice(start,end).replace('export ',''),{mode:'strip'})
+  const events=[],world={buildings:[],buildingFootprints:new Map(),trees:[{id:1,logs:1,model:0}],sceneryShadows:new Map(),land:{}}
+  const context=vm.createContext({Map, rules:{sceneryFlags:[1],sceneryObjects:[15]},nativePosition:()=>({x:0,y:512}),worldEnvironment:()=>({objects:{bank:2}}),nativeModelResource:()=>({shapeIndices:[shapeIndex]}),refreshSceneryShadow:(_land,p)=>events.push({...p}),cellShade:()=>0})
+  const sync=vm.runInContext(`${fn}; syncLandscapeObjects`,context)
+  sync(world);const retained=world.sceneryShadows.get(1);sync(world)
+  return {pose:{...world.sceneryShadows.get(1)},retained:retained===world.sceneryShadows.get(1),events}
+}
+test('ordinary arrays preserve undefined, NaN, infinities and negative zero without typed-array coercion', () => {
+  for(const value of [undefined,NaN,Infinity,-Infinity,-0,0,1]) {
+    const a=scalarProbe('./support/scenery-retained-pose-original.ts',value)
+    const b=scalarProbe('../app/world-terrain-runtime.ts',value)
+    assert.deepEqual(a,b)
+    assert.ok(Object.is(b.pose.shapeIndex,value))
+  }
 })
