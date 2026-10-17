@@ -154,9 +154,8 @@ export type LivePerson = StatefulPerson &
 const short = (n: number) => (n << 16) >> 16
 // Bootstrap the existing browser follower at the handoff to native controllers.
 // Legacy orders/physics are not native records; their full migration is pending.
-export function createLivePerson(w: World, u: Unit): LivePerson {
-  const pos = nativePosition(w, u),
-    model = nativePersonModel(u)
+export function createLivePerson(w: World, u: Unit, pos = nativePosition(w, u)): LivePerson {
+  const model = nativePersonModel(u)
   const selected = w.selected.includes(u.id),
     angle = Math.round(((Math.PI - u.heading) * 1024) / Math.PI) & 2047
   return {
