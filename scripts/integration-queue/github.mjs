@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
 import { CLOUDFLARE, GATES, REPO, sha256, validateEntry, gatesFor, SHARDED_FULL_GATE } from './policy.mjs'
 
-import { SHARDED_JOBS, shardedLogReceipt, validateShardedReceipt } from './sharded.mjs'
+import { BASELINE_DIAGNOSTIC, SHARDED_JOBS, shardedLogReceipt, validateShardedReceipt, validateBaselineLog } from './sharded.mjs'
 
 const sha = value => /^[0-9a-f]{40}$/.test(value ?? '')
 const ensure = (condition, message) => {
@@ -290,15 +290,22 @@ export class GitHubReader {
   }
   verifyShardedRun(entry, pr, synthetic, exact, jobs, row, log) {
     ensure(synthetic && row.merge === synthetic.sha, 'Sharded run lacks current synthetic source')
-    ensure(jobs.length === SHARDED_JOBS.length + 1, 'Missing or extra sharded workflow jobs')
-    for (const spec of [{ name: SHARDED_FULL_GATE.job, steps: SHARDED_FULL_GATE.steps }, ...SHARDED_JOBS]) {
+    const specs = [{ name: SHARDED_FULL_GATE.job, steps: SHARDED_FULL_GATE.steps }, ...SHARDED_JOBS,
+      ...(entry.fullCheckDiagnostic ? [BASELINE_DIAGNOSTIC] : [])]
+    ensure(jobs.length === specs.length && new Set(jobs.map(j => j.id)).size === jobs.length,
+      'Missing, duplicate or extra sharded workflow jobs')
+    let baselineLog
+    for (const spec of specs) {
       const matches = jobs.filter(j => j.name === spec.name)
       ensure(matches.length === 1, 'Missing or duplicate sharded job')
       const j = matches[0]
+      const skippedDiagnostic = spec === BASELINE_DIAGNOSTIC && entry.pr !== entry.fullCheckDiagnostic.activationPr
+      const conclusion = skippedDiagnostic ? 'skipped' : 'success'
       ensure(j.run_id === exact.id && j.run_attempt === exact.run_attempt &&
-        j.status === 'completed' && j.conclusion === 'success' &&
-        spec.steps.every(name => j.steps?.filter(s => s.name === name).length === 1 &&
-          j.steps.find(s => s.name === name).conclusion === 'success'),
+        j.status === 'completed' && j.conclusion === conclusion &&
+        (skippedDiagnostic ? Array.isArray(j.steps) && j.steps.every(s => s.conclusion === 'skipped') :
+          spec.steps.every(name => j.steps?.filter(s => s.name === name).length === 1 &&
+            j.steps.find(s => s.name === name).conclusion === 'success')),
         'Sharded job attempt/stage did not genuinely succeed')
       ensure(new RegExp(`^https://api\\.github\\.com/repos/${REPO}/check-runs/[1-9][0-9]*$`).test(j.check_run_url),
         'Unexpected sharded check URL')
@@ -306,9 +313,11 @@ export class GitHubReader {
       ensure(check.id === Number(j.check_run_url.split('/').at(-1)) &&
         check.check_suite?.id === exact.check_suite_id && check.head_sha === pr.head.sha &&
         check.name === spec.name && check.app?.id === 15368 && check.app?.slug === 'github-actions' &&
-        check.status === 'completed' && check.conclusion === 'success', 'Sharded check identity/result mismatch')
+        check.status === 'completed' && check.conclusion === conclusion, 'Sharded check identity/result mismatch')
+      if (skippedDiagnostic) continue
       const workerLog = spec.name === row.job ? log :
         stripVTControlCharacters(this.get(`repos/${REPO}/actions/jobs/${j.id}/logs`, true))
+      if (spec === BASELINE_DIAGNOSTIC) baselineLog = workerLog
       const identity = logIdentity(workerLog)
       ensure(identity.head === pr.head.sha && identity.base === pr.base.sha && identity.merge === synthetic.sha,
         'Sharded worker tested a different candidate')
@@ -327,6 +336,7 @@ export class GitHubReader {
     const inventory = files.map(file => ({ file, sha256: sha256(this.gitOutput('show', `${synthetic.sha}:${file}`)) }))
     validateShardedReceipt(receipt, { identity, inventory,
       lockSha256: sha256(this.gitOutput('show', `${synthetic.sha}:package-lock.json`)) })
+    if (baselineLog !== undefined) validateBaselineLog(baselineLog, inventory)
     row.shardedVerified = true
     row.shardedReceiptSha256 = sha256(JSON.stringify(receipt))
   }

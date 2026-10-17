@@ -345,3 +345,20 @@ and the unchanged exact-commit deployment observer. Remove the transition field
 from subsequent entries: normal sharded PRs require matching reviewed workflow
 hashes at main, head and synthetic again. Strict `Full check` branch protection
 and all writer permissions remain unchanged.
+
+### Activation-only diagnostic baseline
+
+When the reviewed workflow includes `Legacy test baseline (diagnostic)`, each
+entry must explicitly set `fullCheckDiagnostic: { "activationPr": <literal PR> }`.
+Exactly that seventh job is recognized; arbitrary extras or duplicates still stop.
+For the activation PR it must genuinely succeed with the fixed setup/identity,
+`Legacy full test suite`, and mutation-guard stages, the same run/attempt/app/check
+identity, and logs proving the independent legacy full test inventory and successful
+subprocesses. It is never counted as shard coverage or an alternative gate.
+The reviewed workflow schedules this diagnostic after successful `Full check`.
+The observer still drains the entire workflow and requires successful terminal
+completion; a failed/canceled baseline stops instead of certifying a benchmark.
+For every later PR, that job must be skipped with no executed steps. Keep the
+same reviewed activation pin in those entries while the diagnostic remains in the
+workflow. Omit the field only after a separately reviewed workflow cleanup removes
+the diagnostic. There is no implicit extra-job exemption.

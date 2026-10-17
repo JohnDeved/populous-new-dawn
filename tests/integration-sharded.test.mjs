@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { GATES, SHARDED_FULL_GATE, gatesFor, reviewedWorkflows, validateEntry, decide, sha256 } from '../scripts/integration-queue/policy.mjs'
-import { SHARDED_JOBS, shardedLogReceipt, validateShardedReceipt } from '../scripts/integration-queue/sharded.mjs'
+import { BASELINE_DIAGNOSTIC, SHARDED_JOBS, shardedLogReceipt, validateShardedReceipt, validateBaselineLog } from '../scripts/integration-queue/sharded.mjs'
 import { GitHubReader } from '../scripts/integration-queue/github.mjs'
 
 const oid = n => String(n).repeat(40)
@@ -215,4 +215,69 @@ test('reader rejects foreign worker checkout, workflow source, ref and altered G
     [({ reader }) => { reader.workflow = () => ({ sha256: 'b'.repeat(64) }) }, /workflow source\/ref differs/],
     [({ reader }) => { reader.gitOutput = () => 'altered source' }, /test inventory differs/],
   ]) { const f = adapterFixture(); mutate(f); assert.throws(() => f.reader.verifyShardedRun(...f.args), reason) }
+})
+
+
+test('only an explicitly pinned activation diagnostic may extend the six-job gate', () => {
+  function diagnosticFixture(activationPr = 123) {
+    const f = adapterFixture(), [e, , , , jobs] = f.args
+    e.fullCheckDiagnostic = { activationPr }
+    const conclusion = activationPr === e.pr ? 'success' : 'skipped'
+    jobs.push({ id: 206, name: BASELINE_DIAGNOSTIC.name, run_id: 100, run_attempt: 2,
+      check_run_url: `https://api.github.com/repos/${e.repo}/check-runs/306`,
+      status: 'completed', conclusion, steps: conclusion === 'skipped' ? [] :
+        BASELINE_DIAGNOSTIC.steps.map(name => ({ name, conclusion: 'success' })) })
+    const get = f.reader.get.bind(f.reader)
+    f.reader.get = endpoint => endpoint.endsWith('/jobs/206/logs') ? `${get(endpoint)}${baselineLog(fixture().expected.inventory)}` : endpoint.endsWith('/check-runs/306') ? {
+      id: 306, name: BASELINE_DIAGNOSTIC.name, check_suite: { id: 500 }, head_sha: oid(1),
+      app: { id: 15368, slug: 'github-actions' }, status: 'completed', conclusion,
+    } : get(endpoint)
+    return f
+  }
+  for (const pr of [123, 999]) {
+    const f = diagnosticFixture(pr)
+    validateEntry(f.args[0])
+    f.reader.verifyShardedRun(...f.args)
+    assert.equal(f.args[5].shardedVerified, true)
+  }
+  for (const [activationPr, mutate] of [
+    [123, f => { delete f.args[0].fullCheckDiagnostic }],
+    [123, f => { f.args[4].pop() }],
+    [123, f => { f.args[4][6].name = 'Arbitrary green job' }],
+    [123, f => { f.args[4][6].conclusion = 'skipped'; f.args[4][6].steps = [] }],
+    [123, f => { f.args[4][6].conclusion = 'failure' }],
+    [123, f => { f.args[4][6].conclusion = 'cancelled' }],
+    [123, f => { f.args[4][6].run_attempt = 1 }],
+    [123, f => { f.args[4][6].steps.pop() }],
+    [999, f => { f.args[4][6].conclusion = 'success' }],
+    [999, f => { f.args[4][6].steps = [{ name: 'Legacy full test suite', conclusion: 'success' }] }],
+    [999, f => { f.args[4][6].check_run_url = f.args[4][0].check_run_url }],
+  ]) { const f = diagnosticFixture(activationPr); mutate(f); assert.throws(() => f.reader.verifyShardedRun(...f.args)) }
+  for (const diagnostic of [null, {}, { activationPr: 0 }, { activationPr: '123' }, { activationPr: 123, ignoreFailure: true }]) {
+    const e = transitionEntry(); e.fullCheckDiagnostic = diagnostic
+    assert.throws(() => validateEntry(e), /Diagnostic policy/)
+  }
+})
+
+
+function baselineLog(inventory) {
+  const files = inventory.map(i => i.file), groups = [{ files, concurrency: 1 }]
+  const plan = { kind: 'pnd-test-plan', mode: 'all', fullSuite: true, files, groups }
+  const result = { kind: 'pnd-test-result', mode: 'all', fullSuite: true, complete: true, interrupted: null, status: 'passed',
+    results: [{ files, concurrency: 1, exitCode: 0, signal: null, error: null, status: 'passed',
+      command: ['/usr/bin/node', '--test', '--test-concurrency=1', '--test-reporter=tap', ...files] }] }
+  return `${JSON.stringify(plan)}\n${JSON.stringify(result)}\n`
+}
+
+test('baseline diagnostics prove independent full coverage and real subprocess success', () => {
+  const { inventory } = fixture().expected, log = baselineLog(inventory)
+  assert.equal(validateBaselineLog(log, inventory), true)
+  for (const mutate of [
+    ([p]) => { p.files.pop() }, ([p]) => { p.mode = 'focus' },
+    ([p]) => { p.groups[0].files.pop() },
+    ([, r]) => { r.complete = false }, ([, r]) => { r.results[0].exitCode = 1 },
+    ([, r]) => { r.results[0].command.push('--test-name-pattern=nothing') },
+    rows => { rows.push(rows[1]) }, rows => { rows.pop() },
+  ]) { const rows = log.trim().split('\n').map(JSON.parse); mutate(rows)
+    assert.throws(() => validateBaselineLog(rows.map(r => JSON.stringify(r)).join('\n'), inventory), /baseline/) }
 })
