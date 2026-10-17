@@ -486,3 +486,28 @@ test('pointer percentiles use fixed bounded storage, nearest rank and reset part
   assert.equal(summary.max, 8, 'Partial window cannot expose stale ring values')
   assert.equal(sample.pointerHistory, history)
 })
+
+test('optional native occlusion extension snapshots independently and never fabricates old data', () => {
+  const samples = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+  metrics.nativeOcclusion.cacheCold = 1
+  metrics.nativeOcclusion.projectedVertices = 42
+  metrics.nativeOcclusion.triangleScanMs = 3.5
+  const expected = structuredClone(metrics)
+  samples.sample(10, 1, 2, 3, 6, 1, 10, 'live', metrics)
+  assert.equal(samples.recentFrames().length, 1)
+  resetPointerFrameMetrics(metrics)
+  assert.deepEqual(samples.recentFrames()[0].pointerBreakdown, expected)
+  const first = samples.recentFrames()
+  first[0].pointerBreakdown.nativeOcclusion.cacheCold = 999
+  assert.deepEqual(samples.recentFrames()[0].pointerBreakdown, expected)
+  samples.sample(10, 0, 1, 3, 2, 0, 20, 'live', createPointerFrameMetrics())
+  assert.equal(samples.recentFrames()[1].pointerBreakdown.nativeOcclusion, undefined)
+  for (const value of [-1, NaN, 0.5, Number.MAX_SAFE_INTEGER + 1]) {
+    metrics.nativeOcclusion.projectedVertices = value
+    assert.equal(samples.sample(10, 0, 1, 3, 2, 0, 30, 'live', metrics), false)
+  }
+  resetPointerFrameMetrics(metrics)
+  metrics.nativeOcclusion.version = 2
+  assert.equal(samples.sample(10, 0, 1, 3, 2, 0, 30, 'live', metrics), false)
+  assert.equal(samples.recentFrames().length, 2)
+})

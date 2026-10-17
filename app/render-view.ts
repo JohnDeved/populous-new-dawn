@@ -1,3 +1,4 @@
+import type { NativeOcclusionMetrics } from './native-occlusion-metrics.ts'
 import { inHitTriangle } from './world-picking.ts'
 import * as THREE from 'three'
 import { Painter } from './painter.ts'
@@ -411,8 +412,10 @@ export class RenderView {
     mouse: THREE.Vector2,
     objects: THREE.Object3D[],
     camera: THREE.Camera,
-    nativeEdges = false
+    nativeEdges = false,
+    metrics?: NativeOcclusionMetrics
   ): ViewPickCandidate[] {
+    const nativeMetrics = nativeEdges ? metrics : undefined
     if (this.overview) {
       const p = globePick(
         this.globe,
@@ -475,6 +478,13 @@ export class RenderView {
             : ''
           const cache = this.groundPickCache.get(object)?.get(instance)
           const reuse = nativeEdges && cache?.key === cacheKey && cache.position === position
+          let projectionStart = nativeMetrics ? performance.now() : 0
+          if (nativeMetrics) {
+            if (reuse) nativeMetrics.cacheHits++
+            else if (!cache) nativeMetrics.cacheCold++
+            else if (cache.position !== position) nativeMetrics.cachePositionChanged++
+            else nativeMetrics.cacheKeyChanged++
+          }
           const world: THREE.Vector3[] = reuse ? cache.world : [],
             screen: THREE.Vector4[] = reuse ? cache.screen : [],
             scale = object.userData.nativeScale
@@ -579,6 +589,7 @@ export class RenderView {
             const slot = terrainSlots ? world.length : i
             world[slot] = p
             screen[slot] = this.screen(p, camera, unwrapped)
+            if (nativeMetrics) nativeMetrics.projectedVertices++
             if (terrainSlots) terrainSlots[i] = slot + 1
             // Keep the first source when later corners disagree in height or sign.
             if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
@@ -587,6 +598,12 @@ export class RenderView {
             let entries = this.groundPickCache.get(object)
             if (!entries) this.groundPickCache.set(object, (entries = new Map()))
             entries.set(instance, { key: cacheKey, position, world, screen })
+          }
+          if (nativeMetrics) {
+            const now = performance.now()
+            nativeMetrics.projectionMs += now - projectionStart
+            nativeMetrics.submittedTriangles += Math.ceil(count / 3)
+            projectionStart = now
           }
           for (let i = 0; i < count; i += 3) {
             const ids = index
@@ -647,6 +664,7 @@ export class RenderView {
               instance,
             })
           }
+          if (nativeMetrics) nativeMetrics.triangleScanMs += performance.now() - projectionStart
         }
       })
     return candidates

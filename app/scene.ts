@@ -302,7 +302,7 @@ export class GameScene {
   started = false
   disposed = false
   fpsGraph: FpsGraph | null = null
-  private readonly pointerFrameMetrics = createPointerFrameMetrics()
+  private readonly pointerFrameMetrics = createPointerFrameMetrics(true)
   togglePerformance() {
     if (this.fpsGraph) {
       this.fpsGraph.element.remove()

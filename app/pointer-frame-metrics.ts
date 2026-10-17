@@ -1,5 +1,13 @@
+import {
+  createNativeOcclusionMetrics,
+  resetNativeOcclusionMetrics,
+  type NativeOcclusionMetrics,
+} from './native-occlusion-metrics.ts'
+
 // Optional per-callback diagnostics. These fields never feed gameplay state.
 export interface PointerFrameMetrics {
+  /** Optional versioned native-terrain detail, nested within objectOcclusionMs. */
+  nativeOcclusion?: NativeOcclusionMetrics
   /** Default-edge terrain queries made by pointer/tooltip input, excluding native occlusion. */
   terrainPickMs: number
   terrainPickCalls: number
@@ -17,8 +25,9 @@ export interface PointerFrameMetrics {
   tooltipRenderMs: number
 }
 
-export function createPointerFrameMetrics(): PointerFrameMetrics {
+export function createPointerFrameMetrics(includeNative = false): PointerFrameMetrics {
   return {
+    ...(includeNative ? { nativeOcclusion: createNativeOcclusionMetrics() } : {}),
     terrainPickMs: 0,
     terrainPickCalls: 0,
     objectPickMs: 0,
@@ -33,6 +42,7 @@ export function createPointerFrameMetrics(): PointerFrameMetrics {
 }
 
 export function resetPointerFrameMetrics(metrics: PointerFrameMetrics) {
+  if (metrics.nativeOcclusion) resetNativeOcclusionMetrics(metrics.nativeOcclusion)
   metrics.terrainPickMs = 0
   metrics.terrainPickCalls = 0
   metrics.objectPickMs = 0
