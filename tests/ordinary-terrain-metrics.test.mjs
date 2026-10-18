@@ -38,7 +38,7 @@ test('ordinary phases count actual projections and triangle visits, nest within 
   resetPointerFrameMetrics(metrics)
   assert.equal(metrics.ordinaryTerrain, detail)
   assert.equal(detail.version, 1)
-  assert.ok(Object.entries(detail).every(([key, value]) => key === 'version' || value === 0))
+  assert.ok(Object.entries(detail).every(([key, value]) => key === 'version' || (key === 'visibility' ? Object.values(value).every(n => n === 0) : value === 0)))
 })
 
 test('actual GameScene pointer caller forwards ordinary diagnostics to real RenderView picking', async t => {
@@ -58,7 +58,14 @@ test('actual GameScene pointer caller forwards ordinary diagnostics to real Rend
   scene.pointerScreen = point
   scene.pointerState = ''
   const reads = clock(t), metrics = createPointerFrameMetrics(true)
+  const updateVisibility = scene.view.updateTerrainVisibility
+  let suppliedVisibility
+  scene.view.updateTerrainVisibility = function (object, detail) {
+    suppliedVisibility = detail
+    return updateVisibility.call(this, object, detail)
+  }
   updatePointerFrame(scene, 100, metrics)
+  assert.equal(suppliedVisibility, metrics.ordinaryTerrain.visibility)
   assert.equal(metrics.terrainPickCalls, 1)
   assert.equal(metrics.ordinaryTerrain.projectedVertices, 4)
   assert.equal(metrics.ordinaryTerrain.visitedTriangles, 2)
@@ -68,6 +75,7 @@ test('actual GameScene pointer caller forwards ordinary diagnostics to real Rend
   updatePointerFrame(scene, 100)
   assert.deepEqual(scene.tooltipInput, sample)
   assert.equal(reads(), enabledReads, 'disabled real caller reads no timers')
+  assert.equal(suppliedVisibility, undefined, 'disabled caller supplies no counter sink')
 })
 
 test('culled instances do not count submitted geometry as visited triangles', t => {

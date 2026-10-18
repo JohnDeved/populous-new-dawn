@@ -200,3 +200,29 @@ test('shipped terrain rebuild and water update between ordinary picking and rend
     assert.equal(f.mesh.geometry.index.version, indexVersion)
   } finally { f.close() }
 })
+
+test('pointer visibility counters distinguish actual writes, validated reuse and selection rebuilds', async t => {
+  const { createTerrainVisibilityMetrics } = await import('../app/ordinary-terrain-metrics.ts')
+  const f = fixture(), detail = createTerrainVisibilityMetrics()
+  t.after(() => f.close())
+  const now = performance.now
+  Object.defineProperty(performance, 'now', { configurable: true, value: () => { throw new Error('visibility counters must not read timers') } })
+  t.after(() => Object.defineProperty(performance, 'now', { configurable: true, value: now }))
+  f.view.updateTerrainVisibility(f.mesh, detail)
+  const count = f.mesh.geometry.drawRange.count
+  assert.ok(count > 0)
+  assert.deepEqual(detail, { indexEntriesWritten: count, indexReuseCalls: 0, selectionRebuilds: 1 })
+  f.view.updateTerrainVisibility(f.mesh, detail)
+  assert.deepEqual(detail, { indexEntriesWritten: count, indexReuseCalls: 1, selectionRebuilds: 1 })
+  f.mesh.geometry.index.array[0]++
+  f.view.updateTerrainVisibility(f.mesh, detail)
+  assert.deepEqual(detail, { indexEntriesWritten: count * 2, indexReuseCalls: 1, selectionRebuilds: 1 })
+  // The ordinary renderer call has no counter sink: its work must not be
+  // attributed as pointer-side work, even if it primes selection/index reuse.
+  f.view.bounds[0][1]++
+  f.view.updateTerrainVisibility(f.mesh)
+  assert.deepEqual(detail, { indexEntriesWritten: count * 2, indexReuseCalls: 1, selectionRebuilds: 1 })
+  f.view.updateTerrainVisibility(f.mesh, detail)
+  assert.equal(detail.indexReuseCalls, 2)
+  assert.equal(detail.selectionRebuilds, 1, 'renderer rebuild is not pointer rebuild')
+})

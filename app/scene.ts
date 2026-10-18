@@ -1,3 +1,4 @@
+import type { WaterUpdateMetrics } from './water-update-reasons.ts'
 import { worldEnvironment, type WorldEnvironment } from './world-environment.ts'
 import { DEFAULT_GAME_PREFERENCES, type GamePreferences } from './game-preferences.ts'
 import type { PresentationBinding, SharedAniblSnapshot } from './shared-anibl.ts'
@@ -302,6 +303,7 @@ export class GameScene {
   started = false
   disposed = false
   fpsGraph: FpsGraph | null = null
+  private waterFrameMetrics?: WaterUpdateMetrics
   private readonly pointerFrameMetrics = createPointerFrameMetrics(true)
   togglePerformance() {
     if (this.fpsGraph) {
@@ -696,8 +698,8 @@ export class GameScene {
   landIndex(x: number, z: number) {
     return landIndex(this, x, z)
   }
-  updateWater() {
-    updateWater(this)
+  updateWater(metrics?: WaterUpdateMetrics) {
+    updateWater(this, metrics)
   }
   makeDecorations() {
     makeDecorations(this)
@@ -855,6 +857,8 @@ export class GameScene {
     const callbackStart = diagnostic ? performance.now() : 0
     const pointerMetrics = diagnostic ? this.pointerFrameMetrics : undefined
     if (pointerMetrics) resetPointerFrameMetrics(pointerMetrics)
+    const waterMetrics = diagnostic ? (this.waterFrameMetrics ??= { reasons: 0 }) : undefined
+    if (waterMetrics) waterMetrics.reasons = 0
     if (this.renderer.getPixelRatio() !== Math.min(devicePixelRatio, 1.8)) this.setSize()
     const previous = this.previous ?? now,
       skyTicks = Math.imul(Math.max(0, Math.floor(now) - Math.floor(previous)), 64) >>> 0,
@@ -876,7 +880,8 @@ export class GameScene {
         'Menu · rendering',
         performance.now() - callbackStart,
         0,
-        pointerMetrics
+        pointerMetrics,
+        waterMetrics?.reasons
       )
       return
     }
@@ -925,7 +930,7 @@ export class GameScene {
 
     this.updatePlacement()
     this.updateSpellPointerFrame(spec)
-    this.updateEnvironmentFrame(skyTicks)
+    this.updateEnvironmentFrame(skyTicks, waterMetrics)
     const renderStart = diagnostic ? performance.now() : 0
     this.renderSceneFrame(hovered, hoveredBuilding)
     const renderMs = diagnostic ? performance.now() - renderStart : 0
@@ -941,7 +946,8 @@ export class GameScene {
       this.world.paused ? 'Paused · rendering' : 'Live',
       performance.now() - callbackStart,
       pointerMs,
-      pointerMetrics
+      pointerMetrics,
+      waterMetrics?.reasons
     )
   }
   private updateTerrainFrame() {
@@ -976,8 +982,8 @@ export class GameScene {
     updateSpellPointerFrame(this, spec)
   }
 
-  private updateEnvironmentFrame(skyTicks: number) {
-    updateEnvironmentFrame(this, skyTicks)
+  private updateEnvironmentFrame(skyTicks: number, metrics?: WaterUpdateMetrics) {
+    updateEnvironmentFrame(this, skyTicks, metrics)
   }
 
   private renderSceneFrame(
