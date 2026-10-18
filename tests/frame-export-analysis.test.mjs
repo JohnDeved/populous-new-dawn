@@ -343,3 +343,14 @@ test('optional model work tuple validates old absence and sanitizes known eviden
     assert.throws(() => summarize(value), /modelWork/)
   }
 })
+
+test('optional simulation steps preserve v1 compatibility and reject fabricated counts', () => {
+  assert.equal(summarize(report()).sampleCount, 3)
+  const value = report()
+  value.frames.forEach((frame, i) => { frame.simulationSteps = [0, 1, 4][i]; frame.futureField = 'ignored' })
+  assert.equal(summarize(value).sampleCount, 3)
+  for (const invalid of [null, -1, 0.25, '1', Number.MAX_SAFE_INTEGER + 1]) {
+    value.frames[0].simulationSteps = invalid
+    assert.throws(() => summarize(value), /simulationSteps/)
+  }
+})

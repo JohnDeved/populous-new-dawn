@@ -218,7 +218,8 @@ export class FpsGraph {
     callback: number,
     pointer = 0,
     metrics?: PointerFrameMetrics,
-    waterUpdateReasons?: number
+    waterUpdateReasons?: number,
+    simulationSteps?: number
   ) {
     this.cleared = false
     const { previous } = this
@@ -244,7 +245,8 @@ export class FpsGraph {
               ? 'menu'
               : 'unknown',
         metrics,
-        waterUpdateReasons
+        waterUpdateReasons,
+        simulationSteps
       )
     )
       return

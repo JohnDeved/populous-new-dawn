@@ -38,11 +38,14 @@ const INTERACTION_OFFSET = ORDINARY_OFFSET + 1 + ORDINARY_TERRAIN_FIELDS.length
 const VISIBILITY_OFFSET = INTERACTION_OFFSET + 7
 const WATER_OFFSET = VISIBILITY_OFFSET + 1 + TERRAIN_VISIBILITY_FIELDS.length
 const MODEL_WORK_OFFSET = WATER_OFFSET + 1
-const RAW_WIDTH = MODEL_WORK_OFFSET + 4
+const SIMULATION_STEPS_OFFSET = MODEL_WORK_OFFSET + 4
+const RAW_WIDTH = SIMULATION_STEPS_OFFSET + 1
 
 export interface RecentFrame {
   /** Render-side actual water call reasons, not pointer CPU ownership. */
   waterUpdateReasons?: number
+  /** Actual logical turn increments in this callback; missing means unknown. */
+  simulationSteps?: number
   timestampMs: number
   rafIntervalMs: number
   simulationCpuMs: number
@@ -129,7 +132,8 @@ export class FramePerformance {
     timestamp = this.timestamp + milliseconds,
     state: RecentFrame['state'] = 'unknown',
     metrics?: PointerFrameMetrics,
-    waterUpdateReasons?: number
+    waterUpdateReasons?: number,
+    simulationSteps?: number
   ) {
     if (!Number.isFinite(milliseconds) || milliseconds <= 0) return false
     // Reject invalid measurements as a whole, without poisoning either window.
@@ -185,6 +189,11 @@ export class FramePerformance {
     if (interaction !== undefined && !validPointerInteractionContext(interaction)) return false
     if (waterUpdateReasons !== undefined && !validWaterUpdateReasons(waterUpdateReasons))
       return false
+    if (
+      simulationSteps !== undefined &&
+      (!Number.isSafeInteger(simulationSteps) || simulationSteps < 0)
+    )
+      return false
     this.timestamp = timestamp
     const offset = this.recentCursor * RAW_WIDTH
     this.recent[offset] = timestamp
@@ -200,6 +209,7 @@ export class FramePerformance {
     for (let i = 0; i < POINTER_FIELDS.length; i++)
       this.recent[offset + 9 + i] = metrics?.[POINTER_FIELDS[i]] ?? 0
     this.recent[offset + WATER_OFFSET] = waterUpdateReasons ?? -1
+    this.recent[offset + SIMULATION_STEPS_OFFSET] = simulationSteps ?? -1
     this.recent[offset + NATIVE_OFFSET] = native ? 1 : 0
     for (let i = 0; i < NATIVE_OCCLUSION_FIELDS.length; i++)
       this.recent[offset + NATIVE_OFFSET + 1 + i] = native?.[NATIVE_OCCLUSION_FIELDS[i]] ?? 0
@@ -319,6 +329,9 @@ export class FramePerformance {
         pointerBreakdown.interaction = interaction
       }
       return {
+        ...(this.recent[offset + SIMULATION_STEPS_OFFSET] >= 0
+          ? { simulationSteps: this.recent[offset + SIMULATION_STEPS_OFFSET] }
+          : {}),
         ...(this.recent[offset + WATER_OFFSET] >= 0
           ? { waterUpdateReasons: this.recent[offset + WATER_OFFSET] }
           : {}),

@@ -86,7 +86,7 @@ import vm from 'node:vm'
 
 // Exercise the actual callback body with deterministic boundary stubs. No
 // renderer, asset loading or timing benchmark is involved in this contract test.
-function runCallback({ enabled = true, hidden = false, modal = false, current = true, nestedPointer = 0, waterReason } = {}) {
+function runCallback({ enabled = true, hidden = false, modal = false, current = true, nestedPointer = 0, waterReason, simulationSteps = 0 } = {}) {
   const source = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
   const body = source.slice(source.indexOf('  animate = (now:'), source.indexOf('  private updateTerrainFrame()'))
   let clock = 0, reads = 0
@@ -97,7 +97,7 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
     performance: { now() { reads++; return clock } },
     document: { hidden, querySelector() { return null } }, devicePixelRatio: 1,
     requestAnimationFrame() { events.push('schedule'); clock += 1; return 42 },
-    syncSecondaryReservations: step('reservations'), advanceGame: step('simulation'),
+    syncSecondaryReservations: step('reservations'), advanceGame: (_world, _clock, _dt, metrics) => { step('simulation')(); if (metrics) metrics.steps += simulationSteps },
     updateVehiclesFrame: step('vehicles'), SPELLS: []
   }
   const scene = vm.runInNewContext(stripTypeScriptTypes(`new (class { ${body} })()`), context)
@@ -145,7 +145,7 @@ test('modal callback measures rendering and scheduling without simulation or HUD
   const { events, updates, reads } = runCallback({ modal: true })
   assert.deepEqual(events, ['render', 'schedule', 'telemetry'])
   assert.equal(reads, 4)
-  assert.deepEqual(Array.from(updates[0]), [10, 0, 1, 7, 'Menu · rendering', 2, 0, createPointerFrameMetrics(), 0])
+  assert.deepEqual(Array.from(updates[0]), [10, 0, 1, 7, 'Menu · rendering', 2, 0, createPointerFrameMetrics(), 0, 0])
 })
 
 test('disabled and hidden diagnostics add no clock reads and preserve game callback order', () => {
@@ -411,13 +411,14 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
     graph.samples.reset()
     for (let i = 1; i <= 1200; i++)
       graph.samples.sample(16.666666666666668, 1234567.8901234567, 1234567.8901234567,
-        Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, 'live', metrics, 127)
+        Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, 'live', metrics, 127, Number.MAX_SAFE_INTEGER)
     graph.exportRecentFrames()
     const downloaded = await blob.text()
     const downloadedFrames = JSON.parse(downloaded).frames
     assert.equal(downloadedFrames.length, 1200)
     assert.deepEqual(downloadedFrames[0].pointerBreakdown.modelWork, Array(3).fill(Number.MAX_SAFE_INTEGER))
     assert.equal(downloadedFrames[0].waterUpdateReasons, 127)
+    assert.equal(downloadedFrames[0].simulationSteps, Number.MAX_SAFE_INTEGER)
     assert.equal(downloadedFrames[0].pointerBreakdown.ordinaryTerrain.visibility.indexEntriesWritten, Number.MAX_SAFE_INTEGER)
     assert.equal(downloadedFrames.at(-1).pointerBreakdown.interaction.route, metrics.interaction.route)
     assert.ok(blob.size <= 2 * 1024 * 1024, 'actual download obeys CLI byte bound')
@@ -638,4 +639,29 @@ test('actual animate propagates frame-local water reasons without disabled alloc
     assert.equal(result.scene.waterFrameMetrics, undefined)
   }
   assert.equal(runCallback({ modal: true, waterReason: 32 }).updates[0][8], 0)
+})
+
+
+test('actual callback carries simulation counts including menu zero and disabled no allocation', () => {
+  for (const steps of [0, 1, 4]) assert.equal(runCallback({ simulationSteps: steps }).updates[0][9], steps)
+  assert.equal(runCallback({ modal: true, simulationSteps: 4 }).updates[0][9], 0)
+  const disabled = runCallback({ enabled: false, simulationSteps: 4 })
+  assert.equal(disabled.scene.simulationFrameMetrics, undefined)
+  assert.equal(disabled.reads, 0)
+  assert.equal(runCallback({ hidden: true }).scene.simulationFrameMetrics, undefined)
+})
+
+test('simulation count ring preserves unknown, zero, catch-up and reset without stale slots', () => {
+  const s = new FramePerformance()
+  for (let i = 0; i < 1203; i++) s.sample(16, 1, 1, 1, 3, 0, i + 1, 'live', undefined, undefined, i % 3 === 0 ? undefined : i % 3 === 1 ? 0 : 4)
+  const f = s.recentFrames()
+  assert.equal(f.length, 1200)
+  assert.equal(f[0].simulationSteps, undefined)
+  assert.equal(f[1].simulationSteps, 0)
+  assert.equal(f[2].simulationSteps, 4)
+  for (const count of [-1, NaN, Infinity, 0.5, Number.MAX_SAFE_INTEGER + 1])
+    assert.equal(s.sample(16, 1, 1, 1, 3, 0, 2000, 'live', undefined, undefined, count), false)
+  s.reset()
+  s.sample(16, 1, 1, 1, 3)
+  assert.equal(s.recentFrames()[0].simulationSteps, undefined)
 })

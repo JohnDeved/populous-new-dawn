@@ -304,6 +304,7 @@ export class GameScene {
   disposed = false
   fpsGraph: FpsGraph | null = null
   private waterFrameMetrics?: WaterUpdateMetrics
+  private simulationFrameMetrics?: { steps: number }
   private readonly pointerFrameMetrics = createPointerFrameMetrics(true)
   togglePerformance() {
     if (this.fpsGraph) {
@@ -859,6 +860,10 @@ export class GameScene {
     if (pointerMetrics) resetPointerFrameMetrics(pointerMetrics)
     const waterMetrics = diagnostic ? (this.waterFrameMetrics ??= { reasons: 0 }) : undefined
     if (waterMetrics) waterMetrics.reasons = 0
+    const simulationMetrics = diagnostic
+      ? (this.simulationFrameMetrics ??= { steps: 0 })
+      : undefined
+    if (simulationMetrics) simulationMetrics.steps = 0
     if (this.renderer.getPixelRatio() !== Math.min(devicePixelRatio, 1.8)) this.setSize()
     const previous = this.previous ?? now,
       skyTicks = Math.imul(Math.max(0, Math.floor(now) - Math.floor(previous)), 64) >>> 0,
@@ -881,14 +886,15 @@ export class GameScene {
         performance.now() - callbackStart,
         0,
         pointerMetrics,
-        waterMetrics?.reasons
+        waterMetrics?.reasons,
+        simulationMetrics?.steps
       )
       return
     }
     syncSecondaryReservations(this)
     this.dispatchNearbyFollowers(now)
     const simulationStart = diagnostic ? performance.now() : 0
-    advanceGame(this.world, this.gameClock, dt)
+    advanceGame(this.world, this.gameClock, dt, simulationMetrics)
     const simulationMs = diagnostic ? performance.now() - simulationStart : 0
     this.templeResourceSnapshot = this.presentationBinding?.snapshot() ?? null
     this.playWorldSounds()
@@ -947,7 +953,8 @@ export class GameScene {
       performance.now() - callbackStart,
       pointerMs,
       pointerMetrics,
-      waterMetrics?.reasons
+      waterMetrics?.reasons,
+      simulationMetrics?.steps
     )
   }
   private updateTerrainFrame() {

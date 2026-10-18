@@ -93,3 +93,14 @@ test('CLI emits machine-readable output and rejects invalid/oversized inputs', t
   writeFileSync(file, ' '.repeat(2 * 1024 * 1024 + 1)); assert.equal(run(file).status, 1)
   assert.equal(run(dir).status, 1)
 })
+
+test('simulation steps summarize only measured values without zero-filling legacy frames', () => {
+  const value = capture([undefined, undefined, undefined])
+  assert.equal(group(summarize(value), 'all').metrics.simulationSteps.sampleCount, 0)
+  value.frames[1].simulationSteps = 0
+  value.frames[2].simulationSteps = 3
+  const metric = group(summarize(value), 'all').metrics.simulationSteps
+  assert.equal(metric.sampleCount, 2)
+  assert.equal(metric.p50, 0)
+  assert.equal(metric.max, 3)
+})

@@ -45,6 +45,7 @@ const MAX_JSON_CODE_UNITS = 2 * 1024 * 1024
 
 type RecordValue = Record<string, unknown>
 type Frame = Record<(typeof FRAME_FIELDS)[number], number> & {
+  simulationSteps?: number
   waterUpdateReasons?: number
   state: 'live' | 'paused' | 'menu' | 'unknown'
   pointerBreakdown:
@@ -85,6 +86,7 @@ function frameEvidence(frames: Frame[]) {
   const snapshots = frames.map((frame, frameIndex) => ({
     frameIndex,
     state: frame.state,
+    ...(frame.simulationSteps !== undefined ? { simulationSteps: frame.simulationSteps } : {}),
     ...(frame.waterUpdateReasons !== undefined
       ? { waterUpdateReasons: frame.waterUpdateReasons }
       : {}),
@@ -258,6 +260,11 @@ export function analyzeFrameExport(json: string) {
     previous = frame.timestampMs as number
     if (!['live', 'paused', 'menu', 'unknown'].includes(frame.state as string))
       throw new Error('Invalid frame state')
+    if (
+      frame.simulationSteps !== undefined &&
+      (!Number.isSafeInteger(frame.simulationSteps) || (frame.simulationSteps as number) < 0)
+    )
+      throw new Error(`Invalid frames[${index}].simulationSteps`)
     if (
       frame.waterUpdateReasons !== undefined &&
       !validWaterUpdateReasons(frame.waterUpdateReasons)
