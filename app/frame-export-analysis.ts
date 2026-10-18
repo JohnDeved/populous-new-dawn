@@ -1,10 +1,15 @@
+import { validWaterUpdateReasons } from './water-update-reasons.ts'
 import {
   validPointerInteractionContext,
   INTERACTION_BOOLEAN_FIELDS,
   INTERACTION_CHANGE_FIELDS,
   type PointerInteractionContext,
 } from './pointer-interaction-context.ts'
-import { ORDINARY_TERRAIN_FIELDS, type OrdinaryTerrainMetrics } from './ordinary-terrain-metrics.ts'
+import {
+  ORDINARY_TERRAIN_FIELDS,
+  TERRAIN_VISIBILITY_FIELDS,
+  type OrdinaryTerrainMetrics,
+} from './ordinary-terrain-metrics.ts'
 import { NATIVE_OCCLUSION_FIELDS, type NativeOcclusionMetrics } from './native-occlusion-metrics.ts'
 // Offline analysis only. Never import this into the frame loop or treat nested timings as additive.
 const FRAME_FIELDS = [
@@ -39,6 +44,7 @@ const MAX_JSON_CODE_UNITS = 2 * 1024 * 1024
 
 type RecordValue = Record<string, unknown>
 type Frame = Record<(typeof FRAME_FIELDS)[number], number> & {
+  waterUpdateReasons?: number
   state: 'live' | 'paused' | 'menu' | 'unknown'
   pointerBreakdown:
     | (Record<(typeof POINTER_FIELDS)[number], number> & {
@@ -77,6 +83,9 @@ function frameEvidence(frames: Frame[]) {
   const snapshots = frames.map((frame, frameIndex) => ({
     frameIndex,
     state: frame.state,
+    ...(frame.waterUpdateReasons !== undefined
+      ? { waterUpdateReasons: frame.waterUpdateReasons }
+      : {}),
     ...(Object.fromEntries(FRAME_FIELDS.map(key => [key, frame[key]])) as Record<
       (typeof FRAME_FIELDS)[number],
       number
@@ -121,6 +130,16 @@ function frameEvidence(frames: Frame[]) {
                       frame.pointerBreakdown!.ordinaryTerrain![key],
                     ])
                   ),
+                  ...(frame.pointerBreakdown.ordinaryTerrain.visibility
+                    ? {
+                        visibility: Object.fromEntries(
+                          TERRAIN_VISIBILITY_FIELDS.map(key => [
+                            key,
+                            frame.pointerBreakdown!.ordinaryTerrain!.visibility![key],
+                          ])
+                        ),
+                      }
+                    : {}),
                 },
               }
             : {}),
@@ -234,6 +253,11 @@ export function analyzeFrameExport(json: string) {
     previous = frame.timestampMs as number
     if (!['live', 'paused', 'menu', 'unknown'].includes(frame.state as string))
       throw new Error('Invalid frame state')
+    if (
+      frame.waterUpdateReasons !== undefined &&
+      !validWaterUpdateReasons(frame.waterUpdateReasons)
+    )
+      throw new Error(`Invalid frames[${index}].waterUpdateReasons`)
     if (frame.pointerBreakdown !== null) {
       const pointer = object(frame.pointerBreakdown, `frames[${index}].pointerBreakdown`)
       for (const key of POINTER_FIELDS)
@@ -258,6 +282,14 @@ export function analyzeFrameExport(json: string) {
           const value = finite(ordinary[key], `${path}.${key}`)
           if (!key.endsWith('Ms') && !Number.isSafeInteger(value))
             throw new Error(`Invalid ${path}.${key}: expected a safe integer counter`)
+        }
+        if (ordinary.visibility !== undefined) {
+          const visibility = object(ordinary.visibility, `${path}.visibility`)
+          for (const key of TERRAIN_VISIBILITY_FIELDS) {
+            const value = finite(visibility[key], `${path}.visibility.${key}`)
+            if (!Number.isSafeInteger(value))
+              throw new Error(`Invalid ${path}.visibility.${key}: expected a safe integer counter`)
+          }
         }
       }
       for (const key of ['terrainPickCalls', 'objectPickCalls', 'objectCacheHits'])

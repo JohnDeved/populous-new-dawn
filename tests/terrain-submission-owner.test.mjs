@@ -240,3 +240,26 @@ test('prototype setX override before first index creation cannot certify altered
   assert.equal(f.validations(), calls + 2, 'custom initialization permanently revokes ownership')
   assert.equal(f.runtime.terrain.geometry.index.array[0] % 6, 0, 'ordinary fallback repairs altered IDs')
 })
+
+
+test('visibility counters include certified owned reuse without adding renderer or native work', async t => {
+  const f = await fixture(t), mesh = f.runtime.terrain
+  const metrics = createPointerFrameMetrics(true).ordinaryTerrain
+  const mouse = new THREE.Vector2(), camera = new THREE.Camera()
+  f.view.pickCandidates(mouse, [mesh], camera, false, undefined, metrics)
+  const first = structuredClone(metrics.visibility)
+  assert.ok(first.indexEntriesWritten > 0)
+  assert.equal(first.selectionRebuilds, 1)
+  assert.equal(first.indexReuseCalls, 0)
+  const validations = f.validations()
+  f.view.pickCandidates(mouse, [mesh], camera, false, undefined, metrics)
+  assert.equal(f.validations(), validations, 'counter does not defeat owner fastpath')
+  assert.deepEqual(metrics.visibility, { ...first, indexReuseCalls: 1 })
+  f.scene.onBeforeRender({})
+  f.view.pickCandidates(mouse, [mesh], camera, true, undefined, metrics)
+  assert.deepEqual(metrics.visibility, { ...first, indexReuseCalls: 1 }, 'renderer/native work is not pointer visibility work')
+  f.view.revokeTerrainSubmission(mesh)
+  f.view.pickCandidates(mouse, [mesh], camera, false, undefined, metrics)
+  assert.equal(f.validations(), validations + 1)
+  assert.deepEqual(metrics.visibility, { ...first, indexReuseCalls: 2 }, 'validated unowned reuse counted too')
+})

@@ -1,3 +1,8 @@
+import {
+  recordWaterUpdateKey,
+  WATER_UPDATE_REASON,
+  type WaterUpdateMetrics,
+} from './water-update-reasons.ts'
 import { tribeForTeam } from './world-types.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
@@ -241,11 +246,16 @@ export function landIndex(scene: GameScene, x: number, z: number) {
   return ((Math.round((-z - 8) / 2) & 127) << 7) | (Math.round((x + 8) / 2) & 127)
 }
 
-export function updateWater(scene: GameScene) {
-  if (!scene.waves) return
+export function updateWater(scene: GameScene, metrics?: WaterUpdateMetrics) {
+  if (!scene.waves) {
+    if (metrics) metrics.reasons |= WATER_UPDATE_REASON.missingWaves
+    return
+  }
   const w = scene.world,
     key = `${w.turn}:${w.landVersion}:${w.lightRevision}:${scene.terrain.geometry.id}`
-  if (key === scene.waterState) return
+  const previous = scene.waterState
+  if (metrics) recordWaterUpdateKey(metrics, previous, key)
+  if (key === previous) return
   scene.waterState = key
   // Shared wet points animate height/light; the acquired texture stays spatial.
   const pos = scene.terrain.geometry.getAttribute('position'),
