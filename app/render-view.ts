@@ -1,3 +1,4 @@
+import { OrdinaryProjectionCache, ordinaryProjectionState } from './ordinary-projection-cache.ts'
 import type {
   OrdinaryTerrainMetrics,
   TerrainVisibilityMetrics,
@@ -178,6 +179,7 @@ class OrdinaryPickScratch {
 
 export class RenderView {
   private ordinaryPickScratch: OrdinaryPickScratch | null = null
+  private ordinaryProjectionCache: OrdinaryProjectionCache | null = null
   private ordinaryPickDepth = 0
   private ordinaryPickDisposed = false
   groundPickCache = new WeakMap<
@@ -602,6 +604,30 @@ export class RenderView {
               ? (this.ordinaryPickScratch ??= new OrdinaryPickScratch())
               : null
           scratch?.reset()
+          // Cross-query reuse is narrower than scratch reuse. Only canonical
+          // helpers and data access can certify a projection without executing it.
+          const projectionState =
+            scratch &&
+            unwrapped &&
+            Object.getPrototypeOf(this) === RenderView.prototype &&
+            !Object.hasOwn(this, 'screen') &&
+            !Object.hasOwn(this, 'relative') &&
+            RenderView.prototype.screen === ordinaryScreen &&
+            RenderView.prototype.relative === ordinaryRelative &&
+            ordinaryMath.every(([name, method]) => Math[name] === method) &&
+            THREE.Vector3.prototype.fromBufferAttribute === ordinaryFromBuffer &&
+            THREE.Vector3.prototype.applyMatrix4 === ordinaryApplyMatrix &&
+            canonicalProjectionAttribute(position, false) &&
+            canonicalProjectionAttribute(index!, true)
+              ? ordinaryProjectionState(this, transform)
+              : null
+          const projectionCache = projectionState
+            ? (this.ordinaryProjectionCache ??= new OrdinaryProjectionCache()).prepare(
+                object,
+                instance,
+                projectionState
+              )
+            : null
           const world: THREE.Vector3[] = reuse ? cache.world : (scratch?.world ?? []),
             screen: THREE.Vector4[] = reuse ? cache.screen : (scratch?.screen ?? []),
             terrainSlots = packedTerrain
@@ -613,7 +639,8 @@ export class RenderView {
           for (let vertex = 0; vertex < count; vertex++) {
             const i = index ? index.getX(vertex) : vertex
             if (terrainSlots ? terrainSlots[i] : screen[i]) continue
-            let firstCorner = -1
+            let firstCorner = -1,
+              projectionCorner = -1
             if (shareTerrainCorners) {
               terrainCorners ??= new Uint32Array(129 * 129)
               const x = position.getX(i),
@@ -634,6 +661,7 @@ export class RenderView {
               ) {
                 const corner = gridZ * 129 + gridX,
                   source = terrainCorners[corner] - 1
+                projectionCorner = corner
                 if (source < 0) firstCorner = corner
                 else if (
                   Object.is(x, position.getX(source)) &&
@@ -665,8 +693,37 @@ export class RenderView {
             } else p.applyMatrix4(transform)
             const slot = terrainSlots ? world.length : i
             world[slot] = p
-            screen[slot] = this.screen(p, camera, unwrapped)
-            if (projectionMetrics) projectionMetrics.projectedVertices++
+            const canReuse =
+              projectionCache &&
+              projectionCorner >= 0 &&
+              Number.isFinite(p.x) &&
+              Number.isFinite(p.y) &&
+              Number.isFinite(p.z)
+            const cached = canReuse ? projectionCache.lookup(projectionCorner, p.x, p.y, p.z) : -1
+            if (cached >= 0) {
+              const values = projectionCache!.values
+              screen[slot] = new THREE.Vector4(
+                values[cached + 3],
+                values[cached + 4],
+                values[cached + 5],
+                values[cached + 6]
+              )
+            } else {
+              const projected = this.screen(p, camera, unwrapped)
+              screen[slot] = projected
+              if (projectionMetrics) projectionMetrics.projectedVertices++
+              if (canReuse)
+                projectionCache.store(
+                  projectionCorner,
+                  p.x,
+                  p.y,
+                  p.z,
+                  projected.x,
+                  projected.y,
+                  projected.z,
+                  projected.w
+                )
+            }
             if (terrainSlots) terrainSlots[i] = slot + 1
             // Keep the first source when later corners disagree in height or sign.
             if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
@@ -997,6 +1054,7 @@ export class RenderView {
   dispose() {
     // Drop ownership without mutating any buffers an active reentrant call holds.
     this.ordinaryPickScratch = null
+    this.ordinaryProjectionCache = null
     // Remaining instances/roots in this query must not reacquire ownership.
     // A later independent top-level query may initialize fresh storage.
     this.ordinaryPickDisposed = true
@@ -1004,3 +1062,45 @@ export class RenderView {
     this.painter.texture.dispose()
   }
 }
+
+// Capture canonical implementations once; a replaced prototype also falls back.
+const ordinaryScreen = RenderView.prototype.screen
+const ordinaryRelative = RenderView.prototype.relative
+const ordinaryFromBuffer = THREE.Vector3.prototype.fromBufferAttribute
+const ordinaryApplyMatrix = THREE.Vector3.prototype.applyMatrix4
+
+function canonicalProjectionAttribute(
+  attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
+  index: boolean
+) {
+  const prototype = index ? THREE.BufferAttribute.prototype : THREE.Float32BufferAttribute.prototype
+  if (
+    Object.getPrototypeOf(attribute) !== prototype ||
+    Object.getOwnPropertyDescriptor(attribute, 'normalized')?.value !== false ||
+    Object.getOwnPropertyDescriptor(attribute, 'itemSize')?.value !== (index ? 1 : 3)
+  )
+    return false
+  const array = Object.getOwnPropertyDescriptor(attribute, 'array')?.value
+  if (!array || Object.hasOwn(array, 'buffer')) return false
+  for (const [name, method] of ordinaryAttributeGetters) {
+    if (
+      Object.hasOwn(attribute, name) ||
+      (!index && Object.hasOwn(THREE.Float32BufferAttribute.prototype, name)) ||
+      Object.getOwnPropertyDescriptor(THREE.BufferAttribute.prototype, name)?.value !== method
+    )
+      return false
+  }
+  return true
+}
+const ordinaryAttributeGetters = [
+  ['getX', THREE.BufferAttribute.prototype.getX],
+  ['getY', THREE.BufferAttribute.prototype.getY],
+  ['getZ', THREE.BufferAttribute.prototype.getZ],
+] as const
+
+const ordinaryMath = [
+  ['round', Math.round],
+  ['imul', Math.imul],
+  ['trunc', Math.trunc],
+  ['fround', Math.fround],
+] as const
