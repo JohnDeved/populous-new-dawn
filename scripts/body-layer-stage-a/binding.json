@@ -1,10 +1,10 @@
 {
-  "scope": "Revision 10, unexecuted lossless content-addressed observation storage",
+  "scope": "Revision 10 repaired whole-output accounting, unexecuted lossless content-addressed observation storage",
   "baseline": "5087f2e805097665c4fdcce657553db3a693bb76",
   "candidate": "8bd14a84e34545f9a0f0b1fe5c1ebbf8267e5f59",
   "previousRejectedUnexecutedBinding": "bc83b122b67e6ad0dbf8124ad8a4f5e954e137caebc32f12da19ed5fb7238504",
   "files": {
-    "PLAN.md": "c3fad3ef28b7941163b15871ce839016fa674819dd0d0ff7c0cfbfc5ef59f5d5",
+    "PLAN.md": "41136e1dc49835ed75ef4fb3e638d07988cf397837a9231d12a465224d84e685",
     "build.mjs": "3285f16604d0a00e82716e0ecd18f8846a5f549b2bd267f6bd47593662a09c23",
     "compare.mjs": "965393ca8c2f208f66d633474ce57a8820ba3905614f65b758a1a5bb90271f19",
     "driver.mjs": "dcc3dfb17f742f23ab675027e12b39165b28301c7924bc20f8e0580c230006f9",
@@ -21,8 +21,8 @@
     "focus-constructor.test.mjs": "0aa50f81ed4e0df8312d10e0066e59611e8f819e8044cd0cd9a67847c245700a",
     "transport.mjs": "0602d2130a35772acedb6287b37c00b74b14623dfdd6daf0cc87194bd58deea2",
     "transport.test.mjs": "2b05f717c6a6ab06896ef4ba42be6def6fe546eef75f6a6d7a63a56d8c476623",
-    "observation-store.mjs": "3b9230bd0824dfc3f64764aa5aa9d5fa300e1660302c44a169bbacc272327cb6",
-    "observation-store.test.mjs": "f6bdedd488017a95a621f7c70ab4ea810436e8603354e2242678497270148842"
+    "observation-store.mjs": "6e6c83ca7b1eaca3110773e2b2e2a2c4de922ec11336bba95b57c80d4d005315",
+    "observation-store.test.mjs": "8d6e5b13999a2d3d8b0ffa365b9795eebfc53df129e4a30f7d26a4f4efebe057"
   },
   "previousFailedBinding": "b71327d8509359bdb2882bb20486895d9fa3fa40b6f5bcd07f737b10bd7310a0",
   "preservedFailedRuns": [
@@ -32,5 +32,6 @@
     39174207447,
     39174948729
   ],
-  "previousExecutedBinding": "47c868b3ebcedec821ea5eeb181d6142e110c5498f4874e95d6e83020427c419"
+  "previousExecutedBinding": "47c868b3ebcedec821ea5eeb181d6142e110c5498f4874e95d6e83020427c419",
+  "previousRejectedStorageBinding": "9dce086ee5b0e4d0f0b14e05acc0e977c8a4fa76d4a223012600ca8795735f53"
 }

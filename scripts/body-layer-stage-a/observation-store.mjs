@@ -88,3 +88,42 @@ export function enforceBudget(root, cap) {
   }
   return { ...count, cap }
 }
+
+// Final launcher receipt is included in its own stable content-byte accounting.
+export function finalizeEvidence(root, receipt, report, cap) {
+  writeFileSync(receipt, JSON.stringify(report, null, 2) + '\n')
+  const stat = lstatSync(receipt)
+  assert.equal(stat.nlink, 1, 'Launcher receipt must not be shared')
+  const start = accounting(root)
+  const basePhysical = start.physicalBytes - stat.size
+  const baseLogical = start.logicalBytes - stat.size
+  let size = stat.size
+  for (let attempt = 0; attempt < 16; attempt++) {
+    const physicalBytes = basePhysical + size
+    if (physicalBytes >= cap) {
+      report.status = 'failed'
+      report.budgetFailure = 'Final whole-output evidence cap exceeded; all evidence retained'
+    }
+    report.finalEvidenceAccounting = {
+      scope: 'Whole launcher output, including this final receipt and driver log',
+      physicalBytes,
+      logicalBytes: baseLogical + size,
+      files: start.files,
+      uniqueFiles: start.uniqueFiles,
+      receiptBytes: size,
+      cap,
+    }
+    const encoded = JSON.stringify(report, null, 2) + '\n'
+    const nextSize = Buffer.byteLength(encoded)
+    if (nextSize !== size) {
+      size = nextSize
+      continue
+    }
+    writeFileSync(receipt, encoded)
+    const final = accounting(root)
+    assert.equal(final.physicalBytes, physicalBytes, 'Final evidence accounting drift')
+    assert.equal(final.logicalBytes, baseLogical + size, 'Final logical accounting drift')
+    return physicalBytes < cap
+  }
+  throw new Error('Final receipt accounting did not stabilize')
+}

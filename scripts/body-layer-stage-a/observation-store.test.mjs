@@ -16,6 +16,7 @@ import {
   materializeObservations,
   manifest,
   enforceBudget,
+  finalizeEvidence,
 } from './observation-store.mjs'
 import { accounting } from './io.mjs'
 const root = () => mkdtempSync(join(tmpdir(), 'body-cas-test-'))
@@ -94,4 +95,25 @@ test('archive keeps CAS and receipts but not redundant observation links; budget
   m.paths['../escape.gz'] = entry
   writeFileSync(join(dir, 'observation-cas', 'manifest.json'), JSON.stringify(m))
   assert.throws(() => materializeObservations(dir), /Unsafe observation path/)
+})
+
+test('final launcher accounting includes sibling log and self-sized terminal receipt', () => {
+  const dir = root(),
+    receipt = join(dir, 'launcher.json')
+  mkdirSync(join(dir, 'run'))
+  writeFileSync(join(dir, 'run', 'status.json'), 'terminal child receipt')
+  writeFileSync(join(dir, 'driver.log'), Buffer.alloc(4096))
+  const report = { status: 'passed' }
+  assert.equal(finalizeEvidence(dir, receipt, report, 10000), true)
+  let saved = JSON.parse(readFileSync(receipt))
+  assert.equal(saved.finalEvidenceAccounting.physicalBytes, accounting(dir).physicalBytes)
+  assert.equal(saved.finalEvidenceAccounting.receiptBytes, readFileSync(receipt).length)
+  const cap = accounting(dir).physicalBytes
+  assert.equal(finalizeEvidence(dir, receipt, report, cap), false)
+  saved = JSON.parse(readFileSync(receipt))
+  assert.equal(saved.status, 'failed')
+  assert.match(saved.budgetFailure, /all evidence retained/)
+  assert.equal(saved.finalEvidenceAccounting.physicalBytes, accounting(dir).physicalBytes)
+  assert.equal(saved.finalEvidenceAccounting.logicalBytes, accounting(dir).logicalBytes)
+  assert.equal(readFileSync(join(dir, 'driver.log')).length, 4096)
 })

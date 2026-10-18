@@ -375,3 +375,10 @@ fallback from the fixed budget. All prior artifacts and revisions remain intact.
 The 150-second child, 720-second launcher, 15-minute hosted limits and all four
 children remain unchanged. Deduplication adds hashing and manifest work, so this
 is not evidence that the remaining deadline will pass or that gameplay is faster.
+
+Final launcher accounting covers the entire output root, not only run/: it is
+performed after driver.log and child terminal receipts exist. The launcher.json
+receipt includes its own exact UTF-8 size through a bounded fixed-point encoding,
+then the whole directory is recounted to reject drift. Exceeding the unchanged
+cap marks the final receipt failed and exits nonzero, retaining all evidence.
+Inner per-observation checks remain early run-subtree checks, not the final total.

@@ -3,8 +3,10 @@ import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { spawn } from 'node:child_process'
+import { finalizeEvidence } from './observation-store.mjs'
+import { protocol } from './protocol.mjs'
 import { sha, fileSha, save } from './io.mjs'
-const expectedBinding = '9dce086ee5b0e4d0f0b14e05acc0e977c8a4fa76d4a223012600ca8795735f53'
+const expectedBinding = 'cd643ebe879e675467f7adbdbb187cb560b94d11580ecb9e34ae908a74347362'
 const here = import.meta.dirname,
   bindingPath = join(here, 'binding.json')
 const [base, candidate, output, browser] = process.argv.slice(2),
@@ -77,5 +79,5 @@ try {
     process.exitCode = 1
   }
   report.endedAt = new Date().toISOString()
-  save(receipt, report)
+  if (!finalizeEvidence(out, receipt, report, protocol.maximumEvidenceBytes)) process.exitCode = 1
 }
