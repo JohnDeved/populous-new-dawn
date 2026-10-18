@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import capture from './snapshot-capture.mjs'
+import { inspectDragSource, dragContract } from './snapshot-drag-contract.mjs'
 import { createSnapshotFixture, validateSnapshotFixture } from './snapshot-setup.mjs'
 import { plan, shards } from './snapshot-protocol.mjs'
 
@@ -19,6 +20,7 @@ export default async function snapshotSmoke({ browser, url, output, source, expe
   const save = () => writeFileSync(resolve(output, 'candidate-snapshot-smoke.json'), JSON.stringify(receipt, null, 2) + '\n')
   save()
   try {
+    receipt.dragSource = inspectDragSource(resolve(import.meta.dirname, '../..'))
     const fixture = await createFixture({ source })
     fixture.receipt = { ...fixture.receipt, executionRole: receipt.role,
       setup: 'TEST SETUP: candidate production-controller authored turn-70 snapshot; functional smoke only, not trusted comparative evidence or a browser-recorded save' }
@@ -38,9 +40,10 @@ export default async function snapshotSmoke({ browser, url, output, source, expe
         const error = value => { if (session.errors.length < 20) session.errors.push(String(value).slice(0, 2000)) }
         page.on('pageerror', error); page.on('crash', () => error('Page crashed'))
         page.on('console', message => { if (message.type() === 'error') error(message.text()) })
-        const result = await captureScenario({ page, url, output: directory, fixture, expectedRevision, shard })
+        const result = await captureScenario({ page, url, output: directory, fixture, expectedRevision, shard, dragSource: receipt.dragSource, getErrorCount: () => session.errors.length })
         assert.equal(result.status, 'passed'); assert.deepEqual(result.phases.map(p => p.name), shards[shard])
-        assert.ok(result.phases.every(p => p.status === 'passed')); assert.deepEqual(session.errors, [])
+        assert.ok(result.phases.every(p => p.status === 'passed' || (p.name === dragContract.phase && p.status === 'unsupported-source-contract')));
+        session.unsupportedPhases = result.phases.filter(p => p.status === 'unsupported-source-contract').map(p => p.name); assert.deepEqual(session.errors, [])
         session.phases = result.phases.map(p => p.name); session.status = 'passed'
       } catch (error) { session.failure = String(error).slice(0, 2000) }
       finally { try { await context?.close() } catch (error) { session.cleanupFailure = String(error); session.status = 'incomplete' }; save() }

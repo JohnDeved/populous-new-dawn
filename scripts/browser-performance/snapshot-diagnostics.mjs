@@ -19,8 +19,13 @@ function blockMismatch(phases, field) {
     const blocks = phases.map(phase => phase.blocks[step]), label = `Input ${step + 1}`
     if (field === 'geometry') {
       const reason = mismatch(blocks, block => block.geometrySha256, `${label} terrain-input fingerprint SHA-256`, true)
+        ?? (Object.hasOwn(blocks[0], 'geometryAfterSha256') ? mismatch(blocks, block => block.geometryAfterSha256, `${label} post-input terrain fingerprint SHA-256`, true) : null)
       if (reason) return `${reason} This fingerprint includes bounded consumer function signatures; see raw boundary diagnostics for component detail. It does not establish gameplay drift.`
     } else {
+      if (Object.hasOwn(blocks[0], 'inputPoseSha256')) {
+        const reason = mismatch(blocks, block => block.inputPoseSha256, `${label} pre-input pose SHA-256`, true)
+        if (reason) return reason
+      }
       for (const [axis, name] of ['x', 'y'].entries()) {
         const reason = mismatch(blocks, block => block.point[axis], `${label} pointer ${name} pixels`)
         if (reason) return reason
@@ -51,6 +56,8 @@ function presence(report, phase) {
   }).join('; ')
 }
 function explanation(status, report, phase, reports) {
+  if (status === 'incomplete-cohort') return 'The added held-drag cohort did not complete strict capture/summary admission in at least one arm. Its measurements are missing, not passed; retained stable-phase results remain available. The first failure and raw evidence are retained in the run artifacts.'
+  if (status === 'unsupported-source-contract') return 'Held-drag routing/admission source differs from the reviewed contract in at least one arm. This new cohort is unsupported pending source review; the five stable phases remain independently available. Exact expected/actual source hashes are retained in the raw receipt.'
   if (status === 'incomplete' || status === 'incompatible-dependencies')
     return `Shard report ${report?.status ?? 'missing'}. ${presence(report, phase)}. All six runs and the shard report must be complete; each run must contain this phase. Failure cause is not recorded in this schema.`
   const phases = report.runs.map(run => run.phases.find(item => item.name === phase))
@@ -84,7 +91,7 @@ export function snapshotDiagnostics(comparison, identity, reports) {
   const verified = compareReports(reports, identity)
   for (const report of reports) assert.ok(Buffer.byteLength(JSON.stringify(report)) <= maxReportBytes)
   assert.deepEqual(comparison, verified)
-  const blocked = new Set(['incomplete', 'incompatible-dependencies', 'environment-mismatch', 'geometry-input-mismatch', 'workload-mismatch'])
+  const blocked = new Set(['incomplete-cohort', 'unsupported-source-contract', 'incomplete', 'incompatible-dependencies', 'environment-mismatch', 'geometry-input-mismatch', 'workload-mismatch'])
   return Object.entries(shards).flatMap(([shard, names]) => names.map(phase => {
     const status = verified.rows.find(row => row.shard === shard && row.phase === phase).p50.status
     if (!blocked.has(status)) return { shard, phase, diagnosis: null }
