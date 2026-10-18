@@ -26,6 +26,7 @@ import {
   selectFollowers,
   spellTargetError,
   type Building,
+  type Point,
 } from './model'
 import { command } from './live-command.ts'
 import { focusHudPerson } from './hud-selection.ts'
@@ -341,7 +342,7 @@ export function updateDrag(
   if (end) drag.end = dragEndpoint(drag.start, end, scene.view.angle)
   scene.dragActive.value = drag.active && positionDistance(drag.start, drag.end) > 0
   scene.selectionOverlay.visible = scene.dragActive.value
-  if (!scene.dragActive.value) return
+  if (!scene.dragActive.value) return picked
   const angle = nativeAngle(
     ((drag.end.x - drag.start.x) << 16) >> 16,
     -(((drag.end.y - drag.start.y) << 16) >> 16)
@@ -356,6 +357,7 @@ export function updateDrag(
     scene.world.land,
     scene.view
   )
+  return picked
 }
 
 export function pointerUp(scene: GameScene, event: PointerEvent) {
@@ -825,9 +827,10 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
     scene.container.clientHeight,
   ].join(',')
   const pointerChanged = pointerState !== scene.pointerState
+  let ground: Point | null | undefined
   if (pointerChanged) {
     if (scene.pointerButtons === 1 && scene.pointerScreen)
-      scene.updateDrag(scene.pointerScreen, metrics)
+      ground = scene.updateDrag(scene.pointerScreen, metrics)
     const directBlast =
         !scene.overviewActive &&
         blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags),
@@ -844,9 +847,9 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
     if (scene.pointerScreen && scene.world.mode)
       scene.pointer = person
         ? browserPosition(person)
-        : metrics
-          ? measurePointerQuery(metrics, 'terrain', () => scene.pick(scene.pointerScreen!))
-          : scene.pick(scene.pointerScreen)
+        : (ground = metrics
+            ? measurePointerQuery(metrics, 'terrain', () => scene.pick(scene.pointerScreen!))
+            : scene.pick(scene.pointerScreen))
     scene.hoveredObject = null
     if (scene.pointerScreen && !scene.pointerButtons && !scene.world.inputMask) {
       if (directBlast) {
@@ -867,7 +870,7 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
   }
   scene.selectionOverlay.visible = scene.dragActive.value
   const tooltipStart = metrics ? performance.now() : 0
-  publishTooltipInput(scene, pointerChanged, metrics)
+  publishTooltipInput(scene, pointerChanged, metrics, ground)
   if (metrics) metrics.tooltipInputMs += performance.now() - tooltipStart
 }
 

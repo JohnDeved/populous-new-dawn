@@ -718,7 +718,7 @@ export class GameScene {
     pointerMove(this, event)
   }) as EventListener
   updateDrag(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics) {
-    updateDrag(this, event, metrics)
+    return updateDrag(this, event, metrics)
   }
   pointerUp = ((event: PointerEvent) => {
     pointerUp(this, event)
