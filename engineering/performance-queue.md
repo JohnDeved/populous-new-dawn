@@ -224,19 +224,42 @@ No retries are automatic. Fix a failed input or setup, then submit a new job.
 Optional `env` is a string-valued object for job-specific environment settings.
 The submitting worker's PATH is retained, not inherited from another job's controller.
 New submissions retain the caller's effective specification as `requestedSpec`.
-`spec.command` is the explicitly versioned `executionEnvelope`: a frozen launcher
-and the original argv/declared ports, not a replacement description of the user's
-command. Retry matching uses `requestedSpec`; source fingerprints still bind the
+`spec.command` contains transport argv described by the versioned `executionEnvelope`:
+a frozen launcher and original argv/declared ports, not a replacement description of the user's
+command. Retry matching uses `requestedSpec` and, for guarded jobs, the frozen
+effective `NODE_OPTIONS`; source fingerprints still bind the
 original inputs. The frozen launcher bytes are hashed in `executionEnvelope`.
 Before any payload starts, it verifies the launching parent's PID/start identity,
-the lock owner's supported protocol/source identity, and the exact declared-port
-environment. An unchanged legacy controller can dequeue this envelope but cannot
+the lock owner's supported protocol, exact submitting-controller source SHA256,
+and declared-port environment. A different queue-source revision fails closed even
+if it advertises the same protocol; it must release normally before a matching
+controller can serve a new guarded payload. An unchanged legacy controller can dequeue this envelope but cannot
 run its payload: rejection exits nonzero, records the original command/reason in
 `launch.json`, and supplies an empty prelaunch cleanup receipt because no payload
 was started. This is a failed job, never a successful check.
 After launch, the payload alone remains responsible for its normal cleanup receipt.
-The launcher stays in the controller-created process group and reaps its child;
-it neither starts a second queue nor changes ownership, FIFO, or port admission.
+No requested environment reaches the launcher: its transport env only clears
+`NODE_OPTIONS` before Node initializes. After validation it reads the requested env
+from private job data, verifies the frozen environment digest, and applies it only
+to the payload. Values are not copied into process argv. The effective requested
+or submitter-inherited `NODE_OPTIONS` is frozen separately for payload restoration;
+arbitrary inherited environment is not copied. Controller-supplied `PND_QUEUE_*`
+fields still override caller values. This is not a security sandbox for an already
+customized controller process environment.
+The launcher resolves the command with the payload's PATH and performs a true exec
+handoff: the payload retains the controller's original child PID/process group, so
+even SIGKILL escalation remains directly reapable. It neither starts a second queue
+nor changes ownership, FIFO, or port admission. `launch.json` status `handoff` is a
+synchronous pre-exec record, not proof of successful execution or cleanup.
+Guarded detached jobs require a supported POSIX runtime exposing experimental
+`process.execve` (added in Node22.15/23.11; verified here on24.19). A missing feature
+fails before launch; there is no spawn fallback or whole-project engine change.
+Commands must be kernel-executable binaries or supported shebang scripts. This is
+not execvp's implicit shell fallback for executable text lacking a shebang.
+Missing/non-executable paths are rejected before handoff. Node24 can abort on a
+later kernel error, such as a missing interpreter or a path race: no synthetic
+cleanup receipt is written, so the job remains nonpassing/cleanup-blocked. See the
+[pinned execve contract](https://nodejs.org/download/release/v24.19.0/docs/api/process.html#processexecvefile-args-env).
 Existing unwrapped jobs remain readable/executable by current controllers; no live
 controller, lock, or already-admitted historical command is rewritten or upgraded.
 Use a current submitter for new work. Legacy submitters compare the old transport

@@ -521,6 +521,7 @@ export function submit(spec, dir = queueDirectory(spec.cwd)) {
   spec = { ...spec, env: { PATH: process.env.PATH, ...spec.env } }
   initialize(dir)
   const inputs = fingerprint(spec),
+    nodeOptions = spec.env.NODE_OPTIONS ?? process.env.NODE_OPTIONS ?? '',
     lock = path.join(dir, 'submission.lock'),
     deadline = Date.now() + 5000,
     sleeper = new Int32Array(new SharedArrayBuffer(4))
@@ -542,7 +543,8 @@ export function submit(spec, dir = queueDirectory(spec.cwd)) {
       previous =>
         ['queued', 'starting', 'running', 'cleanup-blocked'].includes(previous.status) &&
         !exists(path.join(previous.output, 'cancel')) &&
-        isDeepStrictEqual(previous.requestedSpec ?? previous.spec, spec)
+        isDeepStrictEqual(previous.requestedSpec ?? previous.spec, spec) &&
+        (!previous.executionEnvelope || previous.executionEnvelope.nodeOptions === nodeOptions)
     )
     if (job)
       assert.deepEqual(
@@ -550,7 +552,7 @@ export function submit(spec, dir = queueDirectory(spec.cwd)) {
         job.fingerprint,
         `Unfinished job ${job.id} has different inputs; wait for it or cancel it before resubmitting`
       )
-    else job = enqueue(spec, inputs, dir)
+    else job = enqueue(spec, inputs, dir, nodeOptions)
   } finally {
     fs.closeSync(fd)
     fs.unlinkSync(lock)
@@ -558,10 +560,11 @@ export function submit(spec, dir = queueDirectory(spec.cwd)) {
   kick(dir)
   return job
 }
-function enqueue(spec, inputs, dir) {
+function enqueue(spec, inputs, dir, nodeOptions) {
   const id = randomUUID(),
     output = path.join(dir, 'jobs', id),
-    launcherSource = fs.readFileSync(new URL('./performance-queue-launcher.cjs', import.meta.url), 'utf8')
+    launcherSource = fs.readFileSync(new URL('./performance-queue-launcher.cjs', import.meta.url), 'utf8'),
+    payloadEnvironmentSha256 = hash(JSON.stringify({ ...spec.env, NODE_OPTIONS: nodeOptions }))
   fs.mkdirSync(output)
   const job = {
     id,
@@ -569,12 +572,17 @@ function enqueue(spec, inputs, dir) {
     // there, while retaining the original specification for receipts and retries.
     requestedSpec: spec,
     executionEnvelope: {
-      version: 1, controllerProtocol, launcherSha256: hash(launcherSource),
+      version: 1, controllerProtocol, controllerSourceSha256,
+      launcherSha256: hash(launcherSource), payloadEnvironmentSha256, nodeOptions,
     },
     spec: {
       ...spec,
+      // Requested PATH, loader hooks and other payload environment must not affect
+      // the launcher. Keep their values in the private job file, not process argv.
+      env: { NODE_OPTIONS: '' },
       command: [process.execPath, '--input-type=commonjs', '-e', launcherSource,
-        JSON.stringify({ id, output, command: spec.command, ports: spec.ports, protocol: controllerProtocol })],
+        JSON.stringify({ id, output, command: spec.command, ports: spec.ports,
+          protocol: controllerProtocol, controllerSourceSha256, payloadEnvironmentSha256 })],
     },
     fingerprint: inputs,
     status: 'queued',
