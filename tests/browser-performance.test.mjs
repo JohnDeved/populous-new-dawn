@@ -7,6 +7,8 @@ import { repository, shards, order, metrics, workMetrics, statistics, summarizeM
 import { readReportArchive } from '../scripts/browser-performance/artifact.mjs'
 import { renderComment, commentMarker } from '../scripts/browser-performance/render.mjs'
 import { gameplayPhaseSchedule } from '../scripts/tutorial-browser/gameplay-frames.mjs'
+import * as snapshot from '../scripts/browser-performance/snapshot-protocol.mjs'
+import { renderSnapshotComment } from '../scripts/browser-performance/snapshot-render.mjs'
 import { reportRun, workflowPath } from '../scripts/browser-performance/reporter.mjs'
 
 const identity = { repository, prNumber: 42, baseSha: 'a'.repeat(40), headSha: 'b'.repeat(40), harnessSha: 'a'.repeat(40), runId: 1234, runAttempt: 1 }
@@ -126,8 +128,8 @@ test('artifact reader accepts only one bounded regular report.json and rejects c
   const two = zip('{}'); two.writeUInt16LE(2, two.length - 22 + 10); assert.throws(() => readReportArchive(two))
 })
 
-function apiFixture() {
-  const calls = [], archives = new Map(), reports = [fixture(), fixture('recovery')]
+function apiFixture(reports = [fixture(), fixture('recovery')]) {
+  const calls = [], archives = new Map()
   const trustedWorkflow = 'reviewed workflow'
   const run = { id: identity.runId, repository: { full_name: repository }, event: 'pull_request', status: 'completed',
     path: workflowPath, run_attempt: 1, workflow_id: 44, head_sha: identity.headSha,
@@ -269,4 +271,53 @@ test('streamed ZIP data descriptors are bounded data, never an extraction instru
   streamed.writeUInt16LE(8, central + 16 + 8)
   streamed.writeUInt32LE(central + 16, streamed.length - 22 + 16)
   assert.equal(readReportArchive(streamed), '{"streamed":true}')
+})
+
+function snapshotFixture(shard = 'world') {
+  const r = fixture(shard)
+  r.version = 2; r.protocolSha256 = snapshot.protocolHash(); r.snapshotSha256 = 'f'.repeat(64)
+  for (const run of r.runs) run.phases = snapshot.shards[shard].map(name => {
+    const value = run.side === 'base' ? 10 : 8
+    const stats = n => ({ n, mean: value, p50: value, p95: value, max: value })
+    return { name, stateSha256: 'a'.repeat(64), viewConfigSha256: 'b'.repeat(64), targetId: name === 'native-hover' ? 54 : null,
+      point: [900, 400], frames: 24, rawFrames: 40, durationMs: 1000,
+      blocks: Array.from({ length: 6 }, (_, step) => ({ step, event: 'pointermove',
+        point: [900, 400], geometrySha256: 'd'.repeat(64), poses: Array(4).fill('c'.repeat(64)), inventory: Array.from({ length: 4 }, () => name === 'hud' ? [0, 0, 0] : [1, 1, 8]) })),
+      timings: Object.fromEntries(snapshot.strata.map(s => [s, Object.fromEntries(Object.keys(metrics).map(key => [key,
+        { all: stats(s === 'first' ? 6 : 18), nonzero: stats(s === 'first' ? 6 : 18), perQuery: stats(s === 'first' ? 6 : 18) }]))])),
+      work: Object.fromEntries(snapshot.strata.map(s => [s, Object.fromEntries(Object.keys(workMetrics).map(key => [key, stats(s === 'first' ? 6 : 18)]))])) }
+  })
+  return r
+}
+test('trusted source explicitly chooses v2; v1 artifact cannot select a compatibility execution path', async () => {
+  const old = apiFixture(); old.arguments.protocolVersion = 2; old.arguments.trustedProtocol = snapshot.protocolHash()
+  await assert.rejects(reportRun(old.arguments)); assert.equal(old.state.calls.some(c => c.method), false)
+  const reports = [snapshotFixture(), snapshotFixture('recovery')], mock = apiFixture(reports)
+  Object.assign(mock.arguments, { protocolVersion: 2, trustedProtocol: snapshot.protocolHash() })
+  assert.equal((await reportRun(mock.arguments)).status, 'created')
+  const write = mock.state.calls.find(c => c.method)
+  assert.ok(Buffer.byteLength(write.body.body) < 60000)
+  assert.match(write.body.body, /controlled browser CPU comparison/)
+  mock.state.comments = [{ id: 99, user: { id: 41898282, type: 'Bot', login: 'github-actions[bot]' }, body: write.body.body }]
+  mock.state.calls.length = 0
+  assert.equal((await reportRun(mock.arguments)).status, 'updated')
+  assert.ok(mock.state.calls.filter(c => c.method).every(c => /issues\/comments\/99$/.test(c.path)))
+  const paths = mock.state.calls.filter(c => c.path.includes('/contents/')).map(c => c.path)
+  assert.ok(paths.some(p => p.includes('snapshot-observer.mjs')))
+  assert.ok(paths.some(p => p.includes('snapshot-setup.mjs')))
+})
+test('v2 rejects forged metadata/metrics/shards before any comment and bounds worst-case rendered data', async () => {
+  const changes = [r => { r.identity.headSha = 'd'.repeat(40) }, r => { r.protocolSha256 = 'd'.repeat(64) },
+    r => { r.shard = '[unsafe](https://evil)' }, r => { r.runs[0].phases[0].timings.first.command = 'execute' },
+    r => { r.runs[0].phases[0].blocks[0].poses[0] = 'unsafe' }]
+  for (const change of changes) {
+    const reports = [snapshotFixture(), snapshotFixture('recovery')]; change(reports[0])
+    const mock = apiFixture(reports); mock.state.artifacts[0].name = 'browser-performance-report-1234-1-world'; Object.assign(mock.arguments, { protocolVersion: 2, trustedProtocol: snapshot.protocolHash() })
+    await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(c => c.method), false)
+  }
+  const reports = [snapshotFixture(), snapshotFixture('recovery')]
+  const body = renderSnapshotComment(snapshot.compareReports(reports, identity), identity, reports, { harnessChanged: true })
+  assert.ok(Buffer.byteLength(body) < 60000); assert.match(body, /not the first post-close callback/)
+  assert.match(body, /simulation or water-advance performance/); assert.match(body, /not statistical significance/)
+  assert.match(body, /may perturb RAF cadence/); assert.match(body, /does not cover fresh-world factory-ownership optimizations/)
 })

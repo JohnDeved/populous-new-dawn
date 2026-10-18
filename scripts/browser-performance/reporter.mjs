@@ -4,11 +4,16 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 import { repository, shards, parseReport, compareReports, protocolHash, maxReportBytes } from './protocol.mjs'
+import * as snapshot from './snapshot-protocol.mjs'
+import { renderSnapshotComment } from './snapshot-render.mjs'
 import { gameplayFramePlan } from '../tutorial-browser/gameplay-frame-evidence.mjs'
 import { readReportArchive } from './artifact.mjs'
 import { commentMarker, renderComment } from './render.mjs'
 
 export const workflowPath = '.github/workflows/browser-performance.yml'
+const snapshotPaths = ['scripts/browser-performance/snapshot-geometry.mjs', 'scripts/browser-performance/snapshot-protocol.mjs', 'scripts/browser-performance/snapshot-observer.mjs',
+  'scripts/browser-performance/snapshot-capture.mjs', 'scripts/browser-performance/snapshot-setup.mjs',
+  'scripts/tutorial-browser/checkpoint-codec.mjs', 'tests/support/bloodlust-scene.mjs']
 const harnessPaths = ['scripts/browser-performance/protocol.mjs', 'scripts/browser-performance/run.mjs',
   'scripts/browser-performance/build.mjs', 'scripts/tutorial-browser/gameplay-frames.mjs',
   'scripts/tutorial-browser/gameplay-frame-evidence.mjs', 'scripts/tutorial-browser/browser-config.mjs',
@@ -20,7 +25,9 @@ const harnessPaths = ['scripts/browser-performance/protocol.mjs', 'scripts/brows
 const positive = number => Number.isSafeInteger(number) && number > 0
 const digest = value => typeof value === 'string' && /^[a-f0-9]{40}$/.test(value)
 const prefix = `/repos/${repository}`
-export async function reportRun({ api, download, runId, expectedPrNumber, trustedWorkflow, trustedProtocol = protocolHash(gameplayFramePlan) }) {
+export async function reportRun({ api, download, runId, expectedPrNumber, trustedWorkflow, protocolVersion = 1, trustedProtocol = protocolVersion === 2 ? snapshot.protocolHash() : protocolHash(gameplayFramePlan) }) {
+  assert.ok(protocolVersion === 1 || protocolVersion === 2, 'Only trusted explicitly selected protocols')
+  const protocol = protocolVersion === 2 ? snapshot : { shards, parseReport, compareReports }
   assert.ok(positive(runId) && positive(expectedPrNumber))
   const run = await api(`${prefix}/actions/runs/${runId}`)
   assert.equal(run.id, runId); assert.equal(run.repository.full_name, repository)
@@ -59,14 +66,14 @@ export async function reportRun({ api, download, runId, expectedPrNumber, truste
   for (const ref of [identity.baseSha, identity.headSha])
     assert.ok((await file(workflowPath, ref)).equals(Buffer.from(trustedWorkflow)), 'Untrusted benchmark workflow revision')
   let harnessChanged = false
-  for (const path of harnessPaths) {
+  for (const path of [...harnessPaths, ...(protocolVersion === 2 ? snapshotPaths : [])]) {
     const [base, head] = await Promise.all([file(path, identity.baseSha), file(path, identity.headSha)])
     if (!base.equals(head)) harnessChanged = true
   }
   const listed = await api(`${prefix}/actions/runs/${runId}/artifacts?per_page=100`)
   assert.ok(listed.total_count <= 100 && listed.artifacts.length === listed.total_count, 'Unbounded/incomplete artifact inventory')
   const reports = []
-  for (const shard of Object.keys(shards)) {
+  for (const shard of Object.keys(protocol.shards)) {
     const name = `browser-performance-report-${runId}-${identity.runAttempt}-${shard}`
     const candidates = listed.artifacts.filter(artifact => artifact.name === name)
     assert.ok(candidates.length <= 1, 'Duplicate artifact')
@@ -74,14 +81,14 @@ export async function reportRun({ api, download, runId, expectedPrNumber, truste
     const artifact = candidates[0]
     assert.ok(positive(artifact.id)); assert.ok(artifact.size_in_bytes > 0 && artifact.size_in_bytes <= maxReportBytes + 65536)
     assert.equal(artifact.workflow_run.id, runId)
-    const report = parseReport(readReportArchive(await download(artifact.id)))
+    const report = protocol.parseReport(readReportArchive(await download(artifact.id)))
     assert.equal(report.shard, shard)
     // The base may have moved without a new head. This old run is not current.
     if (report.identity.baseSha !== identity.baseSha) return { status: 'skipped-stale-base' }
     reports.push(report)
   }
-  const comparison = compareReports(reports, identity, trustedProtocol)
-  const body = renderComment(comparison, identity, reports, { harnessChanged })
+  const comparison = protocol.compareReports(reports, identity, trustedProtocol)
+  const body = (protocolVersion === 2 ? renderSnapshotComment : renderComment)(comparison, identity, reports, { harnessChanged })
     .replace(commentMarker, `${commentMarker}\n<!-- populous-browser-performance-run:${runId}:${identity.runAttempt} -->`)
   assert.ok(Buffer.byteLength(body) < 60000, 'Comment too large')
   let comments = []
@@ -137,7 +144,7 @@ export async function main() {
   }
   if (event.workflow_run.pull_requests?.length !== 1) { console.log('Skipped unassociated event'); return }
   const result = await reportRun({ api, download, runId: event.workflow_run.id,
-    expectedPrNumber: event.workflow_run.pull_requests[0].number,
+    expectedPrNumber: event.workflow_run.pull_requests[0].number, protocolVersion: 2,
     trustedWorkflow: readFileSync(new URL('../../.github/workflows/browser-performance.yml', import.meta.url)) })
   console.log(JSON.stringify(result))
 }

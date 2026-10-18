@@ -1,3 +1,5 @@
+import yaml from 'js-yaml'
+import { browserScenarios, browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
@@ -58,11 +60,11 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
   const workflow = read('tutorial-browser.yml')
   assert.match(
     workflow,
-    /scenario: tutorial\n +name: Tutorial browser\n +artifact: tutorial-browser/
+    /scenario: tutorial\n +timeoutMinutes: 15\n +name: Tutorial browser\n +artifact: tutorial-browser/
   )
   assert.match(
     workflow,
-    /scenario: pause-checkpoint-recovery\n +name: Pause checkpoint recovery browser\n +artifact: pause-checkpoint-recovery-browser/
+    /scenario: pause-checkpoint-recovery\n +timeoutMinutes: 15\n +name: Pause checkpoint recovery browser\n +artifact: pause-checkpoint-recovery-browser/
   )
   assert.match(workflow, /POPULOUS_BROWSER_SCENARIO: \$\{\{ matrix\.scenario \}\}/)
   assert.match(workflow, /name: \$\{\{ matrix\.artifact \}\}-\$\{\{ github\.sha \}\}/)
@@ -75,7 +77,8 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
     /buildStep: Build plain production Home and validate pause checkpoint recovery/
   )
   assert.match(workflow, /name: \$\{\{ matrix\.buildStep \}\}/)
-  assert.match(workflow, /timeout-minutes: 15/)
+  assert.match(workflow, /timeout-minutes: \$\{\{ matrix\.timeoutMinutes \}\}/)
+  assert.equal((workflow.match(/timeoutMinutes: 15/g) ?? []).length, 4)
   assert.match(workflow, /fail-fast: false/)
   assert.match(workflow, /scripts\/local-render\/original-pause-checkpoint-recovery\.mjs/)
   const runner = readFileSync(
@@ -98,7 +101,7 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
   assert.match(runner, /const abort = new AbortController\(\)/)
   assert.match(
     runner,
-    /abort\.abort\(new Error\('Browser deadline exceeded'\)\); void browser\.close\(\) \}, 180000\)/
+    /abort\.abort\(new Error\('Browser deadline exceeded'\)\); void browser\.close\(\) \}, receipt\.browserCapMs\)/
   )
   assert.match(runner, /capMs: 120000/)
   for (const result of [
@@ -109,4 +112,29 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
     'spellProjection',
   ])
     assert.match(runner, new RegExp(`receipt\\.${result} = await`))
+})
+
+test('candidate snapshot smoke is one read-only bounded functional case, never a trusted comparison', () => {
+  const workflow = read('tutorial-browser.yml')
+  assert.match(workflow, /scenario: snapshot-protocol\n +timeoutMinutes: 6\n +name: Controlled snapshot functional smoke\n +artifact: candidate-snapshot-functional-smoke/)
+  assert.equal((workflow.match(/- scenario:/g) ?? []).length, 5)
+  assert.match(workflow, /scripts\/browser-performance\/\*\*/)
+  assert.match(workflow, /outputs\/tutorial-browser\/snapshot-\*\/\*\.json/)
+  assert.doesNotMatch(workflow, /: write|secrets\.|pull_request_target|workflow_dispatch|continue-on-error/)
+  const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
+  assert.match(runner, /receipt\.browserCapMs = browserCapMs\(selectedScenario\)/)
+  assert.match(runner, /assert.ok\(browserScenarios.includes\(selectedScenario\)/)
+  assert.match(runner, /snapshotScenarioSha256: hash\(snapshotScenario\)/)
+  assert.match(runner, /receipt\.snapshotSmoke = await/)
+})
+
+
+test('parsed hosted matrix and actual pure policy preserve every existing cap and bound candidate smoke', () => {
+  const workflow = readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8')
+  const job = yaml.load(workflow).jobs['tutorial-browser'], items = job.strategy.matrix.include
+  assert.equal(job['timeout-minutes'], '${{ matrix.timeoutMinutes }}')
+  assert.deepEqual(items.map(item => item.scenario).sort(), browserScenarios.filter(name => name !== 'm2-pointer-f8').sort())
+  for (const name of browserScenarios) assert.equal(browserCapMs(name), name === 'snapshot-protocol' ? 90000 : 180000)
+  for (const item of items) assert.equal(item.timeoutMinutes, item.scenario === 'snapshot-protocol' ? 6 : 15)
+  for (const invalid of ['', 'unknown', null, 900000]) assert.throws(() => browserCapMs(invalid), /Unknown browser scenario/)
 })
