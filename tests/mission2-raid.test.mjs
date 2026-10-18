@@ -18,7 +18,7 @@ function stepUntil(w, ready, limit) {
   assert.ok(ready(), `condition timed out at turn ${w.turn}`)
 }
 
-test('Mission 2 naturally earns Matak kills and launches the organized raid', () => {
+function launchObservedRaid() {
   const w = createWorld(2)
   stepUntil(w, () => w.turn >= 70, 1000)
 
@@ -130,22 +130,53 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
     }
     return true
   }, 2000)
-  // Return one actual follower to fight the raid. Clicking the camp itself
-  // starts training, whose replacement object is not evidence of combat damage.
+  return { w, raid, originalMembers, originalUnits, registeredOwner }
+}
+
+test('Mission 2 naturally earns Matak kills and launches the organized raid', () => {
+  launchObservedRaid()
+})
+
+test('Mission 2 combat casualty removes only the dead original owner and credits its death tick', () => {
+  const { w, raid, originalMembers, originalUnits, registeredOwner } = launchObservedRaid()
+  // Keep the uncontrolled surrounding combat here, separate from the bounded
+  // live encounter. Death is permitted only with its actual cleanup and credit.
   select(w, 'brave')
-  assert.ok(w.selected.length)
   const defender = w.units.find(unit => unit.id === w.selected[0])
-  const attacker = w.units.find(unit => unit.id === raid.members[0])
-  assert.ok(defender && attacker)
+  assert.ok(defender)
   setSelection(w, [defender.id])
-  assert.ok(command(w, attacker))
-  const blueHp = defender.hp
-  const taskDamage = raid.damage
-  // Newborn followers change total tribe HP, so observe this fixed lifetime.
-  stepUntil(w, () => { observeCohort(); return defender.hp < blueHp }, 5000)
-  assert.ok(raid.members.includes(defender.fight?.opponent) || raid.damage > taskDamage)
+  assert.ok(command(w, originalUnits.get(originalMembers[0])))
+  let casualty = null
+  for (let turns = 0; !casualty && turns < 5000; turns++) {
+    const before = new Map(originalMembers.map(id => [id, {
+      hp: originalUnits.get(id).hp,
+      opponent: originalUnits.get(id).fight?.opponent,
+    }]))
+    const credits = w.killCredits[0][3]
+    const livingGreen = w.units.filter(unit => unit.team === 'green' && unit.hp > 0)
+    tick(w, 1 / 12)
+    assert.deepEqual(raid.members, originalMembers, 'no substitute cohort is accepted')
+    for (const id of originalMembers) {
+      const original = originalUnits.get(id)
+      if (original.hp > 0) {
+        assert.equal(registeredOwner(id).unit, original, 'every living original stays owned')
+      } else {
+        assert.ok(before.get(id).hp > 0, 'observed living-to-dead transition')
+        assert.equal(original.hp, 0)
+        assert.equal(w.units.some(unit => unit.id === id), false, 'dead Unit is removed')
+        assert.equal(w.objectCells.objects.has(id), false, 'dead registry owner is removed')
+        assert.equal(w.units.find(unit => unit.id === before.get(id).opponent)?.team, 'blue')
+        assert.deepEqual(livingGreen.filter(unit => unit.hp <= 0).map(unit => unit.id), [id],
+          'the original casualty is the only Green death on this tick')
+        assert.equal(w.killCredits[0][3], credits + 1, 'Blue receives credit on the actual death tick')
+        assert.equal(casualty, null, 'this observation contains exactly one original casualty')
+        casualty = id
+      }
+    }
+  }
+  assert.notEqual(casualty, null, 'a real original-cohort casualty must be observed')
   assert.equal(raid.phase, 16)
-  assert.equal(raid.fallback, 14)
+  assert.equal(raid.fallback, 18, 'first-launch casualty precedes a regroup/fallback-14 cycle')
   assert.ok(raid.flags & 1)
 })
 
