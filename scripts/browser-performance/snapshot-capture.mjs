@@ -2,11 +2,13 @@ import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { loadSnapshot, observeSnapshotState, assertSnapshotAdmission } from './snapshot-setup.mjs'
+import { recognizeReaderSources } from './snapshot-readers.mjs'
+import { validateReaderEvidence } from './snapshot-reader-proof.mjs'
 import { createSnapshotGeometryObserver } from './snapshot-geometry.mjs'
 import { installSnapshotObserver } from './snapshot-observer.mjs'
 import { installSnapshotDragObserver } from './snapshot-drag-observer.mjs'
 import { dragContract } from './snapshot-drag-contract.mjs'
-import { plan, shards, invariant, assertDragWarmupReturn, summarizeSnapshotPhase } from './snapshot-protocol.mjs'
+import { plan, shards, invariant, assertDragWarmupReturn, summarizeSnapshotPhase, sha256 } from './snapshot-protocol.mjs'
 import { m2HudPoint } from '../tutorial-browser/m2-pointer-f8.mjs'
 
 // Fixed authored Shaman, never opportunistically choose a different visible person.
@@ -72,14 +74,78 @@ export async function captureDragWarmup({ page, record, observe, runBlocks, save
   }, installSnapshotDragObserver.toString())
   save(); assert.equal(record.warmup.observer.error, null)
 }
-export default async function capture({ page, url, output, expectedRevision, fixture, shard, dragSource, allowDragFailure = false, getErrorCount = () => 0 }) {
+// Optional semantic admission happens before installing/arming any sample
+// observer. Never replace an observer after a measured input fails.
+export function installSnapshotPhaseGeometry(source) {
+  const create = (0, eval)(`(${source})`), scene = window.testSceneRef.current
+  const session = window.__pndSnapshotReaderSession
+  if (!session) { window.__pndSnapshotGeometry = create(scene); return null }
+  try {
+    window.__pndSnapshotGeometry = create(scene, session)
+    return window.__pndSnapshotGeometry.readerEvidence()
+  } catch {
+    session.stable = false
+    window.__pndSnapshotGeometry = create(scene)
+    return { ...window.__pndSnapshotGeometry.observedReaders(session.Matrix4), strictData: false, matrixBinding: false, sessionStable: false }
+  }
+}
+// Retain bounded observed bodies BEFORE deciding whether their syntax qualifies.
+// A rejected future bundler spelling must not recreate hash-only evidence.
+export function recordSnapshotReaders({ report, evidence, readerSource, readerProvenance, save }) {
+  const observed = { ...evidence, rawSha256: sha256(JSON.stringify(evidence.sources.slice(0, 7))) }
+  report.observedReaders ??= observed
+  if (JSON.stringify(report.observedReaders) !== JSON.stringify(observed)) {
+    report.readerChanges ??= []; assert.ok(report.readerChanges.length < 6)
+    report.readerChanges.push(observed)
+  }
+  save()
+  try {
+    assert.notEqual(report.readerAdmission, 'unsupported')
+    const recognized = recognizeReaderSources(evidence.sources)
+    const readers = { ...evidence, rawSha256: recognized.rawSha256, allSourcesSha256: recognized.allSourcesSha256,
+      semanticSha256: recognized.semanticSha256, source: readerSource, provenance: readerProvenance }
+    validateReaderEvidence(readers)
+    if (report.readers) assert.deepEqual(readers, report.readers)
+    report.readers = readers; report.readerAdmission = 'admitted'; save(); return true
+  } catch {
+    // Optional semantic proof never suppresses original exact-hash measurements.
+    delete report.readers; report.readerAdmission = 'unsupported'; save(); return false
+  }
+}
+// Proof is optional; only this finalization can fail without changing any
+// completed exact phase status. It never recaptures or selects different frames.
+export function finalizeSnapshotReaderSummaries(report, summarize, write) {
+  if (!report.readers) return false
+  try {
+    const summaries = report.phases.filter(record => record.status === 'passed').map(record => ({ record,
+      summary: summarize(record), name: `snapshot-summary-${record.name}-readers.json` }))
+    for (const { name, summary } of summaries) write(name, summary)
+    for (const { record, name } of summaries) { record.exactSummaryFile = record.summaryFile; record.summaryFile = name }
+    return true
+  } catch (error) {
+    delete report.readers; report.readerAdmission = 'unsupported'
+    report.readerFinalizationFailure = String(error).slice(0, 2000)
+    return false
+  }
+}
+export default async function capture({ page, url, output, expectedRevision, fixture, shard, dragSource, readerSource, readerProvenance, allowDragFailure = false, getErrorCount = () => 0 }) {
   assert.ok(Object.hasOwn(shards, shard))
   const report = { version: 2, kind: plan.kind, plan, shard, expectedRevision, status: 'incomplete', phases: [] }
   const save = () => writeFileSync(resolve(output, 'snapshot-frames.json'), JSON.stringify(report, null, 2) + '\n')
   const observe = () => page.evaluate(observeSnapshotState), graph = page.locator('.fps-graph')
+  const finalizeReaderSummaries = () => finalizeSnapshotReaderSummaries(report,
+    record => summarizeSnapshotPhase(readFileSync(resolve(output, record.rawFile), 'utf8'), record, expectedRevision, report.readers),
+    (name, summary) => writeFileSync(resolve(output, name), JSON.stringify(summary, null, 2) + '\n'))
+
   save()
   try {
     report.setup = await loadSnapshot({ page, url, fixture, expectedRevision }); save()
+    if (readerProvenance) await page.evaluate(() => {
+      const descriptor = Object.getOwnPropertyDescriptor(globalThis, '__pndReaderTypes')
+      if (!descriptor || descriptor.writable !== false || descriptor.configurable !== false ||
+          !Object.isFrozen(descriptor.value) || typeof descriptor.value.Matrix4 !== 'function') throw Error('Trusted fixture reader binding missing')
+      window.__pndSnapshotReaderSession = { Matrix4: descriptor.value.Matrix4 }
+    })
     await page.mouse.move(900, 400)
     report.warmupBefore = await observe()
     await page.waitForTimeout(plan.warmupMs)
@@ -112,7 +178,12 @@ export default async function capture({ page, url, output, expectedRevision, fix
       await graph.waitFor({ state: 'hidden' }); await page.keyboard.press('F8'); await graph.waitFor({ state: 'visible' })
       await page.waitForFunction(() => window.testSceneRef.current.fpsGraph.samples.recentCount >= 2)
       record.before = await observe(); invariant(record.before); assertSnapshotAdmission(record.before, fixture)
-      await page.evaluate(source => { window.__pndSnapshotGeometry = (0, eval)(`(${source})`)(window.testSceneRef.current) }, createSnapshotGeometryObserver.toString())
+      const evidence = await page.evaluate(installSnapshotPhaseGeometry, createSnapshotGeometryObserver.toString())
+      if (readerProvenance && !recordSnapshotReaders({ report, evidence, readerSource, readerProvenance, save }))
+        await page.evaluate(source => {
+          window.__pndSnapshotReaderSession.stable = false
+          window.__pndSnapshotGeometry = (0, eval)(`(${source})`)(window.testSceneRef.current)
+        }, createSnapshotGeometryObserver.toString())
       await page.evaluate(viewChange ? installSnapshotDragObserver : installSnapshotObserver)
       try {
         if (viewChange) {
@@ -161,6 +232,7 @@ export default async function capture({ page, url, output, expectedRevision, fix
       record.status = 'passed'; save()
       await page.keyboard.press('F8'); await graph.waitFor({ state: 'hidden' })
     }
+    finalizeReaderSummaries()
     report.status = 'passed'; return report
   } catch (error) {
     report.failure = String(error)
@@ -171,8 +243,13 @@ export default async function capture({ page, url, output, expectedRevision, fix
       try { if (await graph.isVisible()) await exportSnapshotRaw({ page, output, record }) }
       catch (exportError) { record.exportFailure = String(exportError) }
     }
-    if (retainStablePhasesAfterDragFailure(report, allowDragFailure)) return report
+    if (retainStablePhasesAfterDragFailure(report, allowDragFailure)) {
+      let stable = false
+      try { stable = !page.isClosed() && await page.evaluate(() => window.__pndSnapshotReaderSession?.stable === true) } catch { /* unavailable proof */ }
+      if (!stable) delete report.readers
+      finalizeReaderSummaries(); return report
+    }
     throw error
   }
-  finally { save() }
+  finally { save(); if (!page.isClosed()) await page.evaluate(() => { delete window.__pndSnapshotReaderSession }) }
 }

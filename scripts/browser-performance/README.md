@@ -313,3 +313,40 @@ geometry; native picking still precedes the ordinary visibility/index rebuild.
 The initial runtime PR's old-base unsupported result remains historical evidence,
 not reinterpreted as a comparison. Comparative execution of the new route requires
 this reviewed bridge on the trusted default base, followed by fresh browser proof.
+
+### Bounded reader equivalence (geometry admission version 2)
+
+The original exact consumer-method and composite geometry hashes are preserved.
+Different raw method spellings are not, by themselves, different submitted inputs.
+An alternative match is available only when every session supplies eight bounded
+raw Three reader bodies, the complete admitted generic/owned source profile, the
+actual namespace-import/scratch-constructor binding, strict non-normalized data
+attributes, stable reader references within and between phases, and matching
+installed dependency/package/lock/trusted-builder hashes. Each arm's raw reader
+and emitted-runtime manifest must stay identical across all repetitions/shards.
+
+A dependency-free, fixed-shape recognizer admits only the reviewed reader
+semantics, including the actual imported Matrix4.fromArray callee. The trusted
+reporter independently recognizes retained bodies and recomputes the original
+composite hash before comparing metadata/position/index/instance inputs without
+the method-spelling component. Changed operations, unknown source profiles,
+missing evidence, or real geometry/state/pose/query differences remain withheld.
+The Node-only build admission uses the pinned installed TypeScript parser; the
+write-capable reporter still installs nothing and never evaluates artifact code.
+
+Raw bodies are retained before recognition, including unsupported spellings.
+Unsupported optional proof falls back before measured inputs to original exact
+admission; failures during sampled callbacks never cause replacement or replay.
+Original exact summaries remain alongside separately named semantic-proof summaries.
+Candidate functional smoke requires reader-body/prototype proof, not just exact
+capture, and labels complete-source-and-callee separately from incomplete source
+admission. Qualification of this repair requires complete-source-and-callee in
+both hosted smoke sessions; ordinary unsupported appended-source status remains
+nonblocking for the five completed exact cohorts.
+Build/dependency manifests are retained in existing uploaded evidence paths.
+Boundary and fixed-size callback witnesses detect persistent reader replacement;
+transient mutations reverted entirely between observations are not universally
+observable. This is a narrow reviewed terrain contract, not arbitrary JavaScript
+equivalence. The old hash-only PR600 capture remains rejected: its exact differing
+bodies were not retained and no minifier cause has been proven retrospectively.
+No cohort, input, sample count, noise threshold, runner count or timeout changes.
