@@ -12,9 +12,10 @@ export const dragContract = Object.freeze({ version: 2, phase: 'native-view-drag
   firstInputGeometry: 'pre-input native prefix; post-input ordinary prefix',
   firstProjection: 'view-invalidated native projection; settled no-work observations',
   poseWidth: 72, projectionWidth: 44,
-  sourceContract: 'exact reviewed routing/admission owners; projection kernel remains reviewable',
+  sourceContract: 'atomic exact generic/owned routing profiles; projection kernel remains reviewable',
   limitation: 'Endpoint witnesses and source-owner binding do not observe transient unversioned mutation inside a query.',
 })
+// Both profiles are whole reviewed routes, not independent per-owner alternatives.
 export const dragSourceSlices = Object.freeze([
   {
     "id": "input-move",
@@ -83,8 +84,8 @@ export const dragSourceSlices = Object.freeze([
     "id": "query-inputs",
     "path": "app/render-view.ts",
     "start": "  private collectPickCandidates(",
-    "end": "\n          // Share only exact shipped-grid corners newly projected in this query.",
-    "sha256": "1a361b3eb7ccc4ece3b1ed98f62faad0330da56184eaa03f9984dcc947c2ff95"
+    "end": "\n          for (let vertex = 0; vertex < count; vertex++) {",
+    "sha256": "62d763225a3b4b9499fb0767d40793f4f02ea9ddfa5f8e360fe20dfaf63a2922"
   },
   {
     "id": "camera-producers",
@@ -99,31 +100,134 @@ export const dragSourceSlices = Object.freeze([
     "start": null,
     "end": null,
     "sha256": "a2cb6c361c3c20b2984947a7d6f95abb9626c4183ed729bd4adfbeac2fbb5830"
+  },
+  {
+    "id": "public-terrain-dispatch",
+    "path": "app/scene-input-runtime.ts",
+    "start": "export function pick(",
+    "end": "\nexport function pickWorldObject(",
+    "sha256": "17b25565640a5d346ab2ad34089b5a4c4bfcbf693012a29ac018e0243c7be185"
+  },
+  {
+    "id": "terrain-constructor",
+    "path": "app/scene.ts",
+    "start": "    this.cursor.visible = false\n    this.range.visible = false\n    this.rebuildTerrain()",
+    "end": "\n    this.makeDecorations()",
+    "sha256": "aa8cae70b0f7701adafdde3568bb3a79e15536fb1d99ddef8804de623f36112a"
+  },
+  {
+    "id": "owned-terrain-helper",
+    "path": "app/runtime-terrain-picking.ts",
+    "absentFile": true
+  },
+  {
+    "id": "owned-terrain-entry",
+    "path": "app/render-view.ts",
+    "absentMarker": "  pickOwnedTerrain("
   }
+].map(Object.freeze))
+const ownedRouteOverrides = {
+  "query-entry": {
+    "id": "query-entry",
+    "path": "app/render-view.ts",
+    "start": "  pickCandidates(",
+    "end": "\n  private collectPickCandidates(",
+    "sha256": "5344885e512cc204ccbd721fb5210977eb9b16efa7dc55de39ee72b235cb1bb8"
+  },
+  "query-inputs": {
+    "id": "query-inputs",
+    "path": "app/render-view.ts",
+    "start": "  private collectPickCandidates(",
+    "end": "\n          for (let vertex = 0; vertex < count; vertex++) {",
+    "sha256": "766eeb9c4c381ce38f1e718e13f8ba9cf79ae912bd1b0031fae36dbcb10c2a0e"
+  },
+  "terrain-producers": {
+    "id": "terrain-producers",
+    "path": "app/scene-terrain-runtime.ts",
+    "start": null,
+    "end": null,
+    "sha256": "dc14566b740986371148d787257891351a3ca0f7ea236cda730cba542f50a3ad"
+  },
+  "public-terrain-dispatch": {
+    "id": "public-terrain-dispatch",
+    "path": "app/scene-input-runtime.ts",
+    "start": "export function pick(",
+    "end": "\nexport function pickWorldObject(",
+    "sha256": "a741a336fe45b51c5225dd75eca1ab2a0a5c27a8f3b29a72ec377d8f7ec3ae2b"
+  },
+  "terrain-constructor": {
+    "id": "terrain-constructor",
+    "path": "app/scene.ts",
+    "start": "    this.cursor.visible = false\n    this.range.visible = false\n    this.rebuildTerrain()",
+    "end": "\n    this.makeDecorations()",
+    "sha256": "0a604ca13b5cf53f13bcbabd37a79d240018addd4e9943c95cd90d93dc9f03f2"
+  },
+  "owned-terrain-helper": {
+    "id": "owned-terrain-helper",
+    "path": "app/runtime-terrain-picking.ts",
+    "start": null,
+    "end": null,
+    "sha256": "2a43f16d67f4f542d7b281af4e26bacfe19815f0c40565ab873ecde7ad8494d2"
+  },
+  "owned-terrain-entry": {
+    "id": "owned-terrain-entry",
+    "path": "app/render-view.ts",
+    "start": "  pickOwnedTerrain(",
+    "end": "\n  releaseOrdinaryNumericProjection()",
+    "sha256": "c69ef62767a9417c736a1cc6636fdfba48ee81e305a995d0001d06d760741e86"
+  }
+}
+export const dragSourceProfiles = Object.freeze([
+  Object.freeze({ id: 'generic-terrain-v1', slices: dragSourceSlices }),
+  Object.freeze({ id: 'owned-numeric-terrain-v1', slices: Object.freeze(dragSourceSlices.map(
+    slice => Object.freeze(ownedRouteOverrides[slice.id] ?? slice))) }),
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {
-  const files = new Map(), slices = []
-  for (const spec of dragSourceSlices) {
-    let actualSha256 = null, reason = null
-    try {
-      if (!files.has(spec.path)) {
-        const text = read(spec.path)
+  // Cache success AND failure once across both attempts. A missing path is not
+  // interchangeable with an unreadable, empty, non-string or oversized source.
+  const files = new Map()
+  const file = path => {
+    if (!files.has(path)) {
+      try {
+        const text = read(path)
         if (typeof text !== 'string' || Buffer.byteLength(text) > 1024 * 1024) throw Error('source-bound')
-        files.set(spec.path, text)
-      }
-      const text = files.get(spec.path)
-      let part = text
-      if (spec.start !== null) {
-        const start = text.indexOf(spec.start), end = text.indexOf(spec.end)
-        if (start < 0 || end <= start || text.indexOf(spec.start, start + spec.start.length) >= 0 ||
-            text.indexOf(spec.end, end + spec.end.length) >= 0) throw Error('source-boundary')
-        part = text.slice(start, end)
-      }
-      actualSha256 = hash(part)
-      if (actualSha256 !== spec.sha256) reason = 'source-changed'
-    } catch { reason = 'source-unavailable-or-boundary' }
-    slices.push({ id: spec.id, expectedSha256: spec.sha256, actualSha256, reason })
+        files.set(path, { text })
+      } catch (error) { files.set(path, { missing: error?.code === 'ENOENT' }) }
+    }
+    return files.get(path)
   }
-  return { version: 1, status: slices.every(slice => slice.reason === null) ? 'admitted' : 'unsupported-source-contract', slices }
+  const profiles = dragSourceProfiles.map(profile => {
+    const slices = profile.slices.map(spec => {
+      const source = file(spec.path)
+      let actualSha256 = null, reason = null
+      if (spec.absentFile) {
+        if (!source.missing) reason = source.text === undefined ? 'source-unavailable-or-boundary' : 'source-present'
+        if (source.text !== undefined) actualSha256 = hash(source.text)
+      } else if (source.text === undefined) reason = 'source-unavailable-or-boundary'
+      else if (spec.absentMarker) {
+        actualSha256 = hash(source.text)
+        if (source.text.includes(spec.absentMarker)) reason = 'source-present'
+      } else {
+        try {
+          const text = source.text
+          let part = text
+          if (spec.start !== null) {
+            const start = text.indexOf(spec.start), end = text.indexOf(spec.end)
+            if (start < 0 || end <= start || text.indexOf(spec.start, start + spec.start.length) >= 0 ||
+                text.indexOf(spec.end, end + spec.end.length) >= 0) throw Error('source-boundary')
+            part = text.slice(start, end)
+          }
+          actualSha256 = hash(part)
+          if (actualSha256 !== spec.sha256) reason = 'source-changed'
+        } catch { reason = 'source-unavailable-or-boundary' }
+      }
+      return { id: spec.id, expectedSha256: spec.sha256 ?? null, actualSha256, reason }
+    })
+    return { id: profile.id, status: slices.every(slice => slice.reason === null) ? 'admitted' : 'unsupported-source-contract', slices }
+  })
+  const admitted = profiles.filter(profile => profile.status === 'admitted')
+  const selected = admitted.length === 1 ? admitted[0] : null
+  return { version: 2, status: selected ? 'admitted' : 'unsupported-source-contract',
+    profile: selected?.id ?? null, slices: (selected ?? profiles[0]).slices, profiles }
 }
