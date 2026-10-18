@@ -223,6 +223,29 @@ No retries are automatic. Fix a failed input or setup, then submit a new job.
 
 Optional `env` is a string-valued object for job-specific environment settings.
 The submitting worker's PATH is retained, not inherited from another job's controller.
+New submissions retain the caller's effective specification as `requestedSpec`.
+`spec.command` is the explicitly versioned `executionEnvelope`: a frozen launcher
+and the original argv/declared ports, not a replacement description of the user's
+command. Retry matching uses `requestedSpec`; source fingerprints still bind the
+original inputs. The frozen launcher bytes are hashed in `executionEnvelope`.
+Before any payload starts, it verifies the launching parent's PID/start identity,
+the lock owner's supported protocol/source identity, and the exact declared-port
+environment. An unchanged legacy controller can dequeue this envelope but cannot
+run its payload: rejection exits nonzero, records the original command/reason in
+`launch.json`, and supplies an empty prelaunch cleanup receipt because no payload
+was started. This is a failed job, never a successful check.
+After launch, the payload alone remains responsible for its normal cleanup receipt.
+The launcher stays in the controller-created process group and reaps its child;
+it neither starts a second queue nor changes ownership, FIFO, or port admission.
+Existing unwrapped jobs remain readable/executable by current controllers; no live
+controller, lock, or already-admitted historical command is rewritten or upgraded.
+Use a current submitter for new work. Legacy submitters compare the old transport
+specification and cannot deduplicate guarded jobs; resubmitting through one can
+create a separate, unguarded job. Current submitters match both guarded requests
+and historical canonical specs. For an existing submission, including from an old
+caller, use `wait JOB_ID`: its ID and status remain specific to that job. A separate
+duplicate's success never turns a rejected guarded job into a success. These
+guards do not retroactively protect unwrapped jobs admitted by legacy submitters.
 Results return directly to the calling worker via `run`/`wait`; no completion
 message bridge or CEO acknowledgment is required. `submit` provides the job ID for
 independent work. A runner may send an already-authorized exceptional notification
@@ -237,6 +260,8 @@ Replace old wall-clock slot guards with these supplied environment variables:
 - `PND_QUEUE_OUTPUT`: fresh, owned output directory.
 - `PND_QUEUE_DEADLINE`: absolute ISO timeout; reserve cleanup time **inside** it.
 - `PND_QUEUE_CLEANUP`: exact path for the final cleanup receipt.
+- `PND_QUEUE_PORTS`: exact comma-separated declared ports, including an empty string
+  when no ports were declared. It must not be inherited from another job.
 
 Reuse the existing startup, measurement and process guardian. The runner must own
 and clean every browser profile, detached process group, server and temporary wake

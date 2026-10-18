@@ -15,6 +15,8 @@ const script = fileURLToPath(import.meta.url)
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const json = file => JSON.parse(fs.readFileSync(file, 'utf8'))
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
+const controllerProtocol = 1
+const controllerSourceSha256 = hash(fs.readFileSync(script))
 const git = (cwd, ...args) =>
   execFileSync('git', ['-C', cwd, ...args], { maxBuffer: 32 * 1024 * 1024 })
     .toString()
@@ -540,7 +542,7 @@ export function submit(spec, dir = queueDirectory(spec.cwd)) {
       previous =>
         ['queued', 'starting', 'running', 'cleanup-blocked'].includes(previous.status) &&
         !exists(path.join(previous.output, 'cancel')) &&
-        isDeepStrictEqual(previous.spec, spec)
+        isDeepStrictEqual(previous.requestedSpec ?? previous.spec, spec)
     )
     if (job)
       assert.deepEqual(
@@ -558,11 +560,22 @@ export function submit(spec, dir = queueDirectory(spec.cwd)) {
 }
 function enqueue(spec, inputs, dir) {
   const id = randomUUID(),
-    output = path.join(dir, 'jobs', id)
+    output = path.join(dir, 'jobs', id),
+    launcherSource = fs.readFileSync(new URL('./performance-queue-launcher.cjs', import.meta.url), 'utf8')
   fs.mkdirSync(output)
   const job = {
     id,
-    spec,
+    // Legacy controllers execute spec.command too. Freeze the launch boundary
+    // there, while retaining the original specification for receipts and retries.
+    requestedSpec: spec,
+    executionEnvelope: {
+      version: 1, controllerProtocol, launcherSha256: hash(launcherSource),
+    },
+    spec: {
+      ...spec,
+      command: [process.execPath, '--input-type=commonjs', '-e', launcherSource,
+        JSON.stringify({ id, output, command: spec.command, ports: spec.ports, protocol: controllerProtocol })],
+    },
     fingerprint: inputs,
     status: 'queued',
     submittedAt: new Date().toISOString(),
@@ -701,7 +714,10 @@ export async function drain(dir) {
     throw e
   }
   const token = randomUUID()
-  write(path.join(lock, 'owner.json'), { pid: process.pid, identity: identity(process.pid), token, executionScope: executionScope() })
+  write(path.join(lock, 'owner.json'), {
+    pid: process.pid, identity: identity(process.pid), token, executionScope: executionScope(),
+    protocol: controllerProtocol, sourceSha256: controllerSourceSha256,
+  })
   // A crash deliberately leaves the lock and active job. Recovery never expires a live owner.
   let cleanExit = false
   try {
