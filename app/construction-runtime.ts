@@ -73,6 +73,12 @@ export function checkBuildingSite(
   team: Team,
   plan = 0
 ) {
+  return prepareBuildingSiteCheck(w, team)(pose, model, plan)
+}
+
+// Own this snapshot only across consecutive read-only rejected proposals.
+// Discard before selection/pathfinding, any world edit, or returning to a caller.
+export function prepareBuildingSiteCheck(w: World, team: Team) {
   syncNativeTerrain(w)
   syncLandscapeObjects(w)
   const tribe = {
@@ -133,19 +139,23 @@ export function checkBuildingSite(
     },
     scenery: (i: number) => scenery.get(i) ?? [],
   }
-  const valid = buildingFootprintTiles(pose).every(({ index, mask }) =>
-    buildingCellValid(
-      world,
-      tribe,
-      ((index & 127) << 1) | ((index >> 7) << 9),
-      mask,
-      model,
-      plan,
-      tribe.playerType === 1
+  return (pose: BuildingShapePose, model: number, plan = 0) => {
+    tribe.flags = 0
+    const valid = buildingFootprintTiles(pose).every(({ index, mask }) =>
+      buildingCellValid(
+        world,
+        tribe,
+        ((index & 127) << 1) | ((index >> 7) << 9),
+        mask,
+        model,
+        plan,
+        tribe.playerType === 1
+      )
     )
-  )
-  return { valid, flags: tribe.flags }
+    return { valid, flags: tribe.flags }
+  }
 }
+
 export function buildingPlanPose(w: World, kind: BuildingKind, p: Point) {
   return {
     object: rules.buildingObjects[buildingModel({ kind, level: 1 })],

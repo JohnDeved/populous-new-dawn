@@ -1,4 +1,7 @@
-import type { OrdinaryTerrainMetrics, TerrainVisibilityMetrics } from './ordinary-terrain-metrics.ts'
+import type {
+  OrdinaryTerrainMetrics,
+  TerrainVisibilityMetrics,
+} from './ordinary-terrain-metrics.ts'
 import type { NativeOcclusionMetrics } from './native-occlusion-metrics.ts'
 import { inHitTriangle } from './world-picking.ts'
 import * as THREE from 'three'
@@ -27,6 +30,24 @@ import {
   type Projection,
   type CameraConfig,
 } from './projection.ts'
+
+// Eligibility must compare with captured methods, not a mutable prototype: an
+// index override can return IDs outside the raw array validated for packed slots.
+const terrainGetX = THREE.BufferAttribute.prototype.getX,
+  terrainGetY = THREE.BufferAttribute.prototype.getY,
+  terrainGetZ = THREE.BufferAttribute.prototype.getZ,
+  terrainSetX = THREE.BufferAttribute.prototype.setX
+
+// Only data methods on the admitted instance/prototype chain qualify. Reading
+// an accessor even once for eligibility can mutate inputs before native picking.
+function terrainDataMethod(object: object, name: string, expected: unknown) {
+  let owner: object | null = object
+  for (let depth = 0; owner && depth < 3; depth++, owner = Object.getPrototypeOf(owner)) {
+    const descriptor = Object.getOwnPropertyDescriptor(owner, name)
+    if (descriptor) return 'value' in descriptor && descriptor.value === expected
+  }
+  return false
+}
 
 // WebGL2 port of the CPU-compared projection. Unsigned operations preserve x86
 // wrap explicitly; splitting the final sum avoids premature float32 rounding.
@@ -560,9 +581,15 @@ export class RenderView {
             object.userData.nativeRelative &&
             position instanceof THREE.BufferAttribute &&
             Object.getPrototypeOf(position) === THREE.Float32BufferAttribute.prototype &&
-            position.getX === THREE.BufferAttribute.prototype.getX &&
-            position.getY === THREE.BufferAttribute.prototype.getY &&
-            position.getZ === THREE.BufferAttribute.prototype.getZ &&
+            (nativeEdges
+              ? terrainDataMethod(position, 'getX', terrainGetX)
+              : position.getX === THREE.BufferAttribute.prototype.getX) &&
+            (nativeEdges
+              ? terrainDataMethod(position, 'getY', terrainGetY)
+              : position.getY === THREE.BufferAttribute.prototype.getY) &&
+            (nativeEdges
+              ? terrainDataMethod(position, 'getZ', terrainGetZ)
+              : position.getZ === THREE.BufferAttribute.prototype.getZ) &&
             Object.getPrototypeOf(position.array) === Float32Array.prototype &&
             position.array.buffer instanceof ArrayBuffer &&
             !position.normalized &&
@@ -570,8 +597,12 @@ export class RenderView {
             position.count === 128 * 128 * 6 &&
             index &&
             Object.getPrototypeOf(index) === THREE.BufferAttribute.prototype &&
-            index.getX === THREE.BufferAttribute.prototype.getX &&
-            index.setX === THREE.BufferAttribute.prototype.setX &&
+            (nativeEdges
+              ? terrainDataMethod(index, 'getX', terrainGetX)
+              : index.getX === THREE.BufferAttribute.prototype.getX) &&
+            (nativeEdges
+              ? terrainDataMethod(index, 'setX', terrainSetX)
+              : index.setX === THREE.BufferAttribute.prototype.setX) &&
             Object.getPrototypeOf(index.array) === Uint32Array.prototype &&
             index.array.buffer instanceof ArrayBuffer &&
             !index.normalized &&

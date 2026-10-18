@@ -643,3 +643,112 @@ test('native instrumentation preserves exact picks, cache lifecycle and diagnost
     f.close()
   }
 })
+
+
+test('native prototype index overrides cannot qualify raw-array packed slots', async () => {
+  const f = await fixture(0)
+  const original = Object.getOwnPropertyDescriptor(THREE.BufferAttribute.prototype, 'getX')
+  try {
+    const { p, mouse } = nativeSubset(f), pixel = mouse()
+    Object.defineProperty(THREE.BufferAttribute.prototype, 'getX', {
+      ...original,
+      value(i) { return this.itemSize === 1 ? p.count + i : original.value.call(this, i) },
+    })
+    assert.deepEqual(f.nativeSample(pixel).candidates, [])
+  } finally {
+    Object.defineProperty(THREE.BufferAttribute.prototype, 'getX', original)
+    f.close()
+  }
+})
+
+test('native prototype attribute overrides retain sparse fallback and recovery', async () => {
+  const f = await fixture(0)
+  try {
+    const { mouse } = nativeSubset(f), pixel = mouse()
+    for (const method of ['getX', 'getY', 'getZ', 'setX']) {
+      const original = Object.getOwnPropertyDescriptor(THREE.BufferAttribute.prototype, method)
+      try {
+        Object.defineProperty(THREE.BufferAttribute.prototype, method, {
+          ...original,
+          value(...args) { return original.value.apply(this, args) },
+        })
+        assert.equal(f.nativeSample(pixel).actualCalls, 6, `${method}: custom sparse fallback`)
+        assert.equal(f.nativeSample(pixel).actualCalls, 0, `${method}: unchanged sparse key reuses`)
+      } finally {
+        Object.defineProperty(THREE.BufferAttribute.prototype, method, original)
+      }
+      assert.equal(f.nativeSample(pixel).actualCalls, 4, `${method}: restored packed representation`)
+    }
+  } finally {
+    f.close()
+  }
+})
+
+test('native canonical-returning accessors preserve baseline reads and mutable picking inputs', async t => {
+  if (!ReferenceView) return t.skip('requires untouched main oracle')
+  const f = await fixture(0)
+  try {
+    const { p, mouse } = nativeSubset(f), pixel = mouse(), index = f.mesh.geometry.index,
+      initial = p.array.slice()
+    for (const [owner, method, label] of [
+      [index, 'getX', 'own index'], [index, 'setX', 'own index setter'],
+      ...['getX', 'getY', 'getZ'].map(method => [p, method, 'own position']),
+      ...['getX', 'getY', 'getZ'].map(method => [THREE.Float32BufferAttribute.prototype, method, 'position prototype']),
+      ...['getX', 'getY', 'getZ', 'setX'].map(method => [THREE.BufferAttribute.prototype, method, 'base prototype']),
+    ]) {
+      const descriptor = Object.getOwnPropertyDescriptor(owner, method), original = owner[method]
+      let reads = 0
+      try {
+        Object.defineProperty(owner, method, { configurable: true, get() {
+          reads++
+          p.array[1] += 0.125
+          return original
+        } })
+        const run = view => {
+          p.array.set(initial)
+          reads = 0
+          view.groundPickCache.delete(f.mesh)
+          const candidates = view.pickCandidates(pixel, [f.mesh], new THREE.Camera(), true)
+          return { candidates, winner: view.resolvePickCandidates(candidates), reads, height: p.array[1] }
+        }
+        assert.deepEqual(run(f.view), run(f.reference), `${label}.${method}`)
+      } finally {
+        if (descriptor) Object.defineProperty(owner, method, descriptor)
+        else delete owner[method]
+      }
+      p.array.set(initial)
+      p.needsUpdate = true
+      assert.equal(f.nativeSample(pixel).actualCalls, 4, `${label}.${method}: packed recovery`)
+    }
+  } finally {
+    f.close()
+  }
+})
+
+
+test('ordinary custom accessor eligibility preserves untouched-main hook behavior', async t => {
+  if (!ReferenceView) return t.skip('requires untouched main oracle')
+  const f = await fixture(0)
+  try {
+    const { p, mouse } = nativeSubset(f), pixel = mouse(), index = f.mesh.geometry.index,
+      original = THREE.BufferAttribute.prototype.getX, initial = p.array.slice()
+    // Hold the same previously submitted subset for both ordinary query oracles.
+    f.view.updateTerrainVisibility = f.reference.updateTerrainVisibility = () => {}
+    let reads = 0
+    Object.defineProperty(index, 'getX', { configurable: true, get() {
+      reads++
+      p.array[1] += 0.125
+      return original
+    } })
+    const run = view => {
+      p.array.set(initial)
+      reads = 0
+      const candidates = view.pickCandidates(pixel, [f.mesh], new THREE.Camera(), false)
+      return { candidates, winner: view.resolvePickCandidates(candidates), reads, height: p.array[1] }
+    }
+    assert.deepEqual(run(f.view), run(f.reference))
+    delete index.getX
+  } finally {
+    f.close()
+  }
+})
