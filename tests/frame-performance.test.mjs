@@ -429,8 +429,43 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
     assert.equal(cohorts.sampleCount, 1200)
     assert.equal(cohorts.cohorts.find(group => group.name === 'all').metrics['pointerBreakdown.ordinaryTerrain.visibility.indexEntriesWritten'].max, Number.MAX_SAFE_INTEGER)
     assert.equal(cohorts.cohorts.find(group => group.name === 'all').metrics.waterUpdateReasons, undefined, 'water is a separate scalar, not an inferred metric or grouping')
+    const fullDetailBytes = blob.size
+    // Adversarial valid fields exceed the old optimistic max-counter fixture.
+    for (const [state, agent] of [['live', 'Test browser'], ['paused', 'Test browser'], ['paused', 'GPU 😀'.repeat(2000)]]) {
+      metrics.terrainPickMs = 0.12345678901234567
+      navigator.userAgent = agent
+      graph.samples.reset()
+      for (let i = 1; i <= 1200; i++)
+        graph.samples.sample(16.666666666666668, 1234567.8901234567, 1234567.8901234567,
+          Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, state, metrics, 127, Number.MAX_SAFE_INTEGER)
+      const original = graph.samples.recentFrames()
+      graph.exportRecentFrames()
+      const json = await blob.text(), bounded = JSON.parse(json), analysis = analyzeFrameExport(json)
+      assert.ok(blob.size <= 2 * 1024 * 1024)
+      assert.ok(json.length <= 2 * 1024 * 1024)
+      assert.ok(bounded.frames.length < original.length, 'overflow must be explicitly bounded')
+      assert.deepEqual(bounded.frames, original.slice(-bounded.frames.length), 'retain exact newest contiguous measurements')
+      assert.deepEqual(graph.samples.recentFrames(), original, 'export never trims the recording ring')
+      assert.equal(bounded.retention.availableFrames, 1200)
+      assert.equal(bounded.retention.droppedOldestFrames, 1200 - bounded.frames.length)
+      assert.equal(analysis.retention.droppedOldestFrames, bounded.retention.droppedOldestFrames)
+      assert.equal(analysis.sampleCount, bounded.frames.length)
+      assert.match(graph.fields['export-status'].textContent, /omitted .* oldest/)
+      assert.ok(analysis.warnings.some(warning => warning.includes('omitted')))
+      const repeated = json
+      graph.exportRecentFrames()
+      const again = JSON.parse(await blob.text()), prior = JSON.parse(repeated)
+      delete again.exportedAt; delete prior.exportedAt
+      assert.deepEqual(again, prior)
+    }
+    const countBeforeRefusal = links.length, retained = graph.samples.recentFrames()
+    navigator.userAgent = '😀'.repeat(600000)
+    graph.exportRecentFrames()
+    assert.equal(links.length, countBeforeRefusal, 'oversized metadata cannot emit an invalid file')
+    assert.match(graph.fields['export-status'].textContent, /Export failed/)
+    assert.deepEqual(graph.samples.recentFrames(), retained)
     const indentedBytes = new Blob([JSON.stringify(JSON.parse(downloaded), null, 2)]).size
-    t.diagnostic(`${blob.size} bytes in actual full-detail exported Blob; ${indentedBytes} bytes if indented`)
+    t.diagnostic(`${fullDetailBytes} bytes in actual full-detail exported Blob; ${indentedBytes} bytes if indented`)
     assert.ok(indentedBytes > 2 * 1024 * 1024, 'compact serializer is required for populated interaction captures')
 
   } finally {

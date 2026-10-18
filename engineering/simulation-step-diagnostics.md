@@ -20,3 +20,19 @@ the CPU stage also includes presentation/animation and turns have varying work.
 The separately frozen browser benchmark allowlist/classification is unchanged;
 simulation remains observation-only until a separately reviewed protocol adopts
 this field. The existing 2 MiB export/parser limit and schema version remain intact.
+
+## Export size and explicit retention
+
+The original maximal-counter fixture left only 939 bytes of headroom; valid
+fractional timings or paused-state strings exceeded the same 2 MiB cap. Export now
+checks both UTF-8 Blob bytes and JSON code units, preserving exact values. If the
+full ring does not fit, it exports a newest contiguous suffix with recomputed
+count/start/end/span and optional `retention` metadata (`availableFrames`,
+`droppedOldestFrames`, reason `serialized-size-limit`). The UI reports omitted
+oldest frames; the recording ring is untouched. Metadata plus one frame that cannot
+fit causes a visible failure, never an invalid download. Size handling runs only
+on explicit export. Legacy v1 readers see an ordinary valid suffix and its actual
+span/count; updated readers additionally validate and report omissions. Comparison
+protocols must continue checking required coverage, not treat a shorter window as
+faster work. Further optional fields must pass adversarial actual-Blob tests, not
+assume a single large-number fixture is the worst JSON representation.

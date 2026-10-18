@@ -354,3 +354,17 @@ test('optional simulation steps preserve v1 compatibility and reject fabricated 
     assert.throws(() => summarize(value), /simulationSteps/)
   }
 })
+
+
+test('explicit retention is validated while old v1 captures remain unchanged', () => {
+  const value = report()
+  assert.equal(summarize(value).retention, undefined)
+  value.retention = { availableFrames: 5, droppedOldestFrames: 2, reason: 'serialized-size-limit' }
+  assert.deepEqual(summarize(value).retention, value.retention)
+  for (const retention of [null, { ...value.retention, availableFrames: 6 },
+    { ...value.retention, droppedOldestFrames: 0 }, { ...value.retention, availableFrames: 1201 },
+    { ...value.retention, reason: 'other' }, { ...value.retention, droppedOldestFrames: 1.5 }]) {
+    value.retention = retention
+    assert.throws(() => summarize(value), /retention/)
+  }
+})
