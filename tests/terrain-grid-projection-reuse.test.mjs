@@ -11,16 +11,20 @@ import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 
 let ReferenceView
 if (process.env.PND_TERRAIN_BASELINE) {
-  const threeURL = import.meta.resolve('three')
+  const threeURL = import.meta.resolve('three'),
+    baselineURL = pathToFileURL(process.env.PND_TERRAIN_BASELINE).href,
+    appURL = new URL('../app/render-view.ts', import.meta.url)
   const hook = registerHooks({
     resolve(specifier, context, next) {
+      if (context.parentURL === baselineURL && specifier.startsWith('.'))
+        return next(new URL(specifier, appURL).href, context)
       return specifier === 'three'
         ? { url: threeURL, shortCircuit: true }
         : next(specifier, context)
     },
   })
   try {
-    ReferenceView = (await import(pathToFileURL(process.env.PND_TERRAIN_BASELINE).href)).RenderView
+    ReferenceView = (await import(baselineURL)).RenderView
   } finally {
     hook.deregister()
   }
@@ -48,8 +52,10 @@ async function fixture(diagonal) {
   scene.landIndex = (x, z) => landIndex(scene, x, z)
   rebuildTerrain(scene)
   view.update(800, 600, { x: 0, z: 0 }, 0, 0, false)
-  const reference = ReferenceView ? new ReferenceView() : null
-  reference?.update(800, 600, { x: 0, z: 0 }, 0, 0, false)
+  const reference = ReferenceView ? new ReferenceView() : null,
+    nativeFallback = new RenderView()
+  for (const oracle of [reference, nativeFallback])
+    oracle?.update(800, 600, { x: 0, z: 0 }, 0, 0, false)
   const camera = new THREE.Camera()
   const original = view.screen
   let projections = 0
@@ -81,6 +87,27 @@ async function fixture(diagonal) {
     assert.deepEqual(view.resolvePickCandidates(actual), view.resolvePickCandidates(expected))
     return { actualCalls, expectedCalls: projections, candidates: actual }
   }
+  // Keep the measured View's native cache warm. sample() above deliberately
+  // changes eligibility on that same View and cannot prove consecutive reuse.
+  const nativeSample = mouse => {
+    projections = 0
+    const actual = view.pickCandidates(mouse, [mesh], camera, true),
+      actualCalls = projections,
+      position = mesh.geometry.getAttribute('position')
+    for (const oracle of [reference, nativeFallback]) {
+      if (!oracle) continue
+      const normalized = position.normalized
+      try {
+        if (oracle === nativeFallback) position.normalized = true
+        const expected = oracle.pickCandidates(mouse, [mesh], camera, true)
+        assert.deepEqual(actual, expected, 'native ordered candidate oracle')
+        assert.deepEqual(view.resolvePickCandidates(actual), oracle.resolvePickCandidates(expected))
+      } finally {
+        position.normalized = normalized
+      }
+    }
+    return { actualCalls, candidates: actual }
+  }
   return {
     view,
     reference,
@@ -89,9 +116,14 @@ async function fixture(diagonal) {
     scene,
     sample,
     projectionCount: () => projections,
+    nativeSample,
+    update(...args) {
+      for (const target of [view, reference, nativeFallback]) target?.update(...args)
+    },
     water: () => updateWater(scene),
     close() {
       reference?.dispose()
+      nativeFallback.dispose()
       view.dispose()
       mesh.geometry.dispose()
       mesh.material.dispose()
@@ -401,6 +433,139 @@ test('packed terrain slots preserve sparse original triangle IDs and retained qu
   }
 })
 
+// Native picking consumes an existing submission; it must not rebuild visibility.
+// Use the real allocation with overlapping low/high cells for ordered hit witnesses.
+function nativeSubset(f) {
+  const p = f.mesh.geometry.attributes.position,
+    high = p.count - 6,
+    lowIDs = [0, 1, 2, 3, 4, 5],
+    highIDs = lowIDs.map(i => high + i),
+    corners = [[0, 0, 0], [0, 0, 2], [2, 0, 0], [2, 0, 0], [0, 0, 2], [2, 0, 2]]
+  for (const base of [0, high]) corners.forEach((point, i) => p.setXYZ(base + i, ...point))
+  const submit = ids => {
+    f.mesh.geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(ids), 1))
+    f.mesh.geometry.setDrawRange(0, ids.length)
+  }
+  submit(lowIDs)
+  f.mesh.count = 1
+  f.mesh.setMatrixAt(0, new THREE.Matrix4())
+  f.view.updateTerrainVisibility = () => assert.fail('native picking changed terrain submission')
+  const mouse = (height = 0) => {
+    const p = f.view.screen(new THREE.Vector3(2 / 3, height, 2 / 3), new THREE.Camera(), true)
+    return new THREE.Vector2(p.x, p.y)
+  }
+  return { p, high, lowIDs, highIDs, submit, mouse }
+}
+
+test('native packed cache retains slots across pixels, submissions and versioned invalidation', async () => {
+  const f = await fixture(0)
+  try {
+    const { p, high, lowIDs, highIDs, submit, mouse } = nativeSubset(f),
+      pixel = mouse(),
+      nextPixel = pixel.clone().add(new THREE.Vector2(2 / 800, 0)),
+      first = f.nativeSample(pixel)
+    assert.equal(first.actualCalls, 4, 'cold native query projects four exact corners')
+    assert.deepEqual(first.candidates.map(hit => hit.triangle), [0])
+    const retained = structuredClone(first.candidates.map(({ object, ...hit }) => hit))
+    assert.equal(f.nativeSample(nextPixel).actualCalls, 0, 'new pixel keeps projected slots')
+    submit([...lowIDs, ...highIDs])
+    const added = f.nativeSample(pixel)
+    assert.equal(added.actualCalls, 4, 'only new IDs project and share within this query')
+    assert.deepEqual(added.candidates.map(hit => hit.triangle), [0, high / 3])
+    assert.notStrictEqual(first.candidates[0].point, added.candidates[0].point)
+    submit([...highIDs, ...lowIDs])
+    const reordered = f.nativeSample(pixel)
+    assert.equal(reordered.actualCalls, 0)
+    assert.deepEqual(reordered.candidates.map(hit => hit.triangle), [high / 3, 0])
+    submit(highIDs)
+    assert.equal(f.nativeSample(nextPixel).actualCalls, 0, 'subset retains source-ID mapping')
+    submit([...lowIDs, ...highIDs])
+    for (const [label, change] of [
+      ['position version', () => {
+        for (const id of [...lowIDs, ...highIDs]) p.setY(id, 1)
+        p.needsUpdate = true
+      }],
+      ['live water version', () => {
+        const version = p.version
+        f.world.turn = 23
+        f.water()
+        assert.ok(p.version > version)
+      }],
+      ['camera', () => f.update(800, 600, { x: 0.25, z: -0.375 }, Math.PI / 2, 0, false)],
+      ['instance transform', () => {
+        f.mesh.setMatrixAt(0, new THREE.Matrix4().makeTranslation(1, 0, 0))
+        f.mesh.instanceMatrix.needsUpdate = true
+      }],
+    ]) {
+      change()
+      assert.ok(f.nativeSample(pixel).actualCalls > 0, `${label} invalidates native projections`)
+      assert.equal(f.nativeSample(nextPixel).actualCalls, 0, `${label} warms the replacement cache`)
+    }
+    assert.deepEqual(first.candidates.map(({ object, ...hit }) => hit), retained)
+    f.view.painter.depth = (_object, triangle) => triangle === high / 3 ? -0.5 : 0.5
+    assert.equal(f.view.resolvePickCandidates(added.candidates).triangle, high / 3)
+    f.view.painter.depth = (_object, triangle) => triangle === 0 ? -0.5 : 0.5
+    assert.equal(f.view.resolvePickCandidates(added.candidates).triangle, 0)
+  } finally {
+    f.close()
+  }
+})
+
+test('native newly submitted aliases read current data without reusing old-query corners', async () => {
+  const f = await fixture(0)
+  try {
+    const { p, high, lowIDs, highIDs, submit, mouse } = nativeSubset(f)
+    assert.equal(f.nativeSample(mouse()).actualCalls, 4)
+    const version = p.version
+    for (const id of [...lowIDs, ...highIDs]) p.setY(id, 4)
+    assert.equal(p.version, version, 'deliberately preserve the original native cache lifetime')
+    submit([...lowIDs, ...highIDs])
+    const added = f.nativeSample(mouse(4))
+    assert.equal(added.actualCalls, 4, 'old IDs stay cached; new duplicates project current height')
+    assert.ok(added.candidates.some(hit => hit.triangle === high / 3), 'new-height native hit')
+    assert.equal(f.nativeSample(mouse(4)).actualCalls, 0)
+    // Once versioned, signed-zero and nonfinite sources still obey exact equality.
+    for (const [axis, value] of [['X', -0], ['Y', NaN], ['Y', Infinity]]) {
+      p.setX(high + 4, 0)
+      p.setY(high + 4, 4)
+      p[`set${axis}`](high + 4, value)
+      p.needsUpdate = true
+      assert.equal(f.nativeSample(mouse(4)).actualCalls, 5, `${axis} ${value} projects independently`)
+    }
+  } finally {
+    f.close()
+  }
+})
+
+test('native dense and sparse cache transitions preserve valid and malformed submissions', async () => {
+  const f = await fixture(0)
+  try {
+    const { p, lowIDs, highIDs, submit, mouse } = nativeSubset(f),
+      ids = [...highIDs, ...lowIDs],
+      pixel = mouse()
+    submit(ids)
+    assert.equal(f.nativeSample(pixel).actualCalls, 4)
+    for (const [label, enter, leave] of [
+      ['normalized position', () => { p.normalized = true }, () => { p.normalized = false }],
+      ['custom index getter', () => {
+        const index = f.mesh.geometry.index
+        index.getX = function (i) { return this.array[i] }
+      }, () => { delete f.mesh.geometry.index.getX }],
+      ['partial cell', () => f.mesh.geometry.setDrawRange(0, 9),
+        () => f.mesh.geometry.setDrawRange(0, ids.length)],
+      ['out-of-range index', () => submit([p.count + 3, ...ids.slice(1)]), () => submit(ids)],
+    ]) {
+      enter()
+      assert.ok(f.nativeSample(pixel).actualCalls > 0, `${label}: dense to sparse rebuild`)
+      assert.equal(f.nativeSample(pixel).actualCalls, 0, `${label}: sparse cache remains warm`)
+      leave()
+      assert.equal(f.nativeSample(pixel).actualCalls, 4, `${label}: sparse to dense rebuild`)
+      assert.equal(f.nativeSample(pixel).actualCalls, 0)
+    }
+  } finally {
+    f.close()
+  }
+})
 
 test('native instrumentation preserves exact picks, cache lifecycle and diagnostic-off clocks', async () => {
   const f = await fixture(0)
@@ -432,6 +597,14 @@ test('native instrumentation preserves exact picks, cache lifecycle and diagnost
     assert.equal(metrics.projectedVertices, 0)
     assert.equal(metrics.cacheCold + metrics.cachePositionChanged + metrics.cacheKeyChanged, 0)
     const pos = f.mesh.geometry.getAttribute('position')
+    for (const normalized of [true, false]) {
+      pos.normalized = normalized
+      resetNativeOcclusionMetrics(metrics)
+      assert.deepEqual(query(), plain)
+      assert.ok(metrics.projectedVertices > 0)
+      assert.equal(metrics.cacheHits, 0, 'representation-only rebuild is not a retained hit')
+      assert.equal(metrics.cacheKeyChanged + metrics.cacheCold + metrics.cachePositionChanged, 0)
+    }
     pos.needsUpdate = true
     resetNativeOcclusionMetrics(metrics)
     assert.deepEqual(query(), plain)
@@ -445,7 +618,7 @@ test('native instrumentation preserves exact picks, cache lifecycle and diagnost
     const entry = f.view.groundPickCache.get(f.mesh).get(0)
     let extra = -1
     for (let i = 0; i < pos.count; i += 6)
-      if (!entry.screen[i]) { extra = i; break }
+      if (entry.slots ? !entry.slots[i] : !entry.screen[i]) { extra = i; break }
     assert.ok(extra >= 0)
     f.mesh.geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(
       Array.from({ length: 6 }, (_, i) => extra + i)), 1))

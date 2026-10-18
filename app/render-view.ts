@@ -162,6 +162,7 @@ export class RenderView {
         position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute
         world: THREE.Vector3[]
         screen: THREE.Vector4[]
+        slots: Uint32Array | null
       }
     >
   >()
@@ -477,17 +478,8 @@ export class RenderView {
               ].join(',')
             : ''
           const cache = this.groundPickCache.get(object)?.get(instance)
-          const reuse = nativeEdges && cache?.key === cacheKey && cache.position === position
           let projectionStart = nativeMetrics ? performance.now() : 0
-          if (nativeMetrics) {
-            if (reuse) nativeMetrics.cacheHits++
-            else if (!cache) nativeMetrics.cacheCold++
-            else if (cache.position !== position) nativeMetrics.cachePositionChanged++
-            else nativeMetrics.cacheKeyChanged++
-          }
-          const world: THREE.Vector3[] = reuse ? cache.world : [],
-            screen: THREE.Vector4[] = reuse ? cache.screen : [],
-            scale = object.userData.nativeScale
+          const scale = object.userData.nativeScale
           const origin = new THREE.Vector3().setFromMatrixPosition(transform),
             basis = modelMatrix(
               object.parent?.userData.nativeHeading ?? 0,
@@ -496,10 +488,10 @@ export class RenderView {
             ),
             unwrapped = !!object.userData.nativeRelative
           const count = index ? Math.min(index.count, geometry.drawRange.count) : position.count
-          // Equal shipped grid corners share projection work only within this
-          // query and instance. Never retain painter or cross-query buffers.
-          const terrainCorners =
-            !nativeEdges &&
+          // Share only exact shipped-grid corners newly projected in this query.
+          // Native queries retain slots, but never a corner alias to an earlier
+          // query's projection; newly submitted IDs must read current positions.
+          const shareTerrainCorners =
             !scale &&
             object instanceof THREE.InstancedMesh &&
             object.userData.terrainGrid &&
@@ -524,21 +516,39 @@ export class RenderView {
             !index.normalized &&
             index.itemSize === 1 &&
             count % 6 === 0
-              ? new Uint32Array(129 * 129)
-              : null
           // Original vertex IDs are sparse and duplicate corners need only an
           // alias, not another sparse world/screen array entry. Keep projected
-          // entries packed for this query; candidate triangle IDs stay original.
-          const terrainSlots =
-            terrainCorners &&
-            index!.array.subarray(0, count).every((id: number) => id < position.count)
-              ? new Uint32Array(position.count)
+          // entries packed; candidate triangle IDs stay original.
+          const packedTerrain =
+            shareTerrainCorners &&
+            index.array.subarray(0, count).every((id: number) => id < position.count)
+          const reuse =
+            nativeEdges &&
+            cache?.key === cacheKey &&
+            cache.position === position &&
+            !!cache.slots === !!packedTerrain
+          if (nativeMetrics) {
+            if (reuse) nativeMetrics.cacheHits++
+            else if (!cache) nativeMetrics.cacheCold++
+            else if (cache.position !== position) nativeMetrics.cachePositionChanged++
+            else if (cache.key !== cacheKey) nativeMetrics.cacheKeyChanged++
+            // Version 1 has no representation-only reason; do not report a
+            // changed key when only packed/sparse storage eligibility changed.
+          }
+          const world: THREE.Vector3[] = reuse ? cache.world : [],
+            screen: THREE.Vector4[] = reuse ? cache.screen : [],
+            terrainSlots = packedTerrain
+              ? reuse
+                ? cache.slots!
+                : new Uint32Array(position.count)
               : null
+          let terrainCorners: Uint32Array | null = null
           for (let vertex = 0; vertex < count; vertex++) {
             const i = index ? index.getX(vertex) : vertex
             if (terrainSlots ? terrainSlots[i] : screen[i]) continue
             let firstCorner = -1
-            if (terrainCorners) {
+            if (shareTerrainCorners) {
+              terrainCorners ??= new Uint32Array(129 * 129)
               const x = position.getX(i),
                 y = position.getY(i),
                 z = position.getZ(i),
@@ -597,7 +607,7 @@ export class RenderView {
           if (nativeEdges && !reuse) {
             let entries = this.groundPickCache.get(object)
             if (!entries) this.groundPickCache.set(object, (entries = new Map()))
-            entries.set(instance, { key: cacheKey, position, world, screen })
+            entries.set(instance, { key: cacheKey, position, world, screen, slots: terrainSlots })
           }
           if (nativeMetrics) {
             const now = performance.now()
@@ -606,10 +616,12 @@ export class RenderView {
             projectionStart = now
           }
           for (let i = 0; i < count; i += 3) {
-            const ids = index
-              ? [index.getX(i), index.getX(i + 1), index.getX(i + 2)]
-              : [i, i + 1, i + 2]
-            const [a, b, c] = ids.map(id => screen[terrainSlots ? terrainSlots[id] - 1 : id])
+            const ia = index ? index.getX(i) : i,
+              ib = index ? index.getX(i + 1) : i + 1,
+              ic = index ? index.getX(i + 2) : i + 2,
+              a = screen[terrainSlots ? terrainSlots[ia] - 1 : ia],
+              b = screen[terrainSlots ? terrainSlots[ib] - 1 : ib],
+              c = screen[terrainSlots ? terrainSlots[ic] - 1 : ic]
             // Reject distant triangles before allocating pixel-edge test inputs.
             // One pixel of padding preserves native nearest-even rounding.
             if (
@@ -620,6 +632,7 @@ export class RenderView {
                 mouse.y > Math.max(a.y, b.y, c.y) + 2 / this.projection.height)
             )
               continue
+            const ids = [ia, ib, ic]
             if (
               [a, b, c].every(p => p.z < -1) ||
               [a, b, c].every(p => p.z > 1) ||
