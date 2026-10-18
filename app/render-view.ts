@@ -4,7 +4,7 @@ import { inHitTriangle } from './world-picking.ts'
 import * as THREE from 'three'
 import { Painter } from './painter.ts'
 import { DisplayGroundFootprint, widenGroundBounds } from './viewport-bounds.ts'
-import { visibleTerrainCells, visibleTerrainCopies, terrainTiles } from './terrain-visibility.ts'
+import { TerrainVisibilityPreparation } from './terrain-visibility.ts'
 import { globePoint, globeVisible, globePick } from './globe.ts'
 import {
   cameraConfig,
@@ -167,6 +167,8 @@ export class RenderView {
     >
   >()
   pickSubmissions = new WeakMap<THREE.Object3D, PickSubmissionState>()
+
+  private terrainVisibility = new TerrainVisibilityPreparation()
 
   painter = new Painter(this)
   materials = new WeakMap<
@@ -336,9 +338,8 @@ export class RenderView {
   }
 
   // Cache identity for the terrain that is actually submitted to the painter.
-  // updateTerrainVisibility rewrites the same index buffer each render, so its raw
-  // BufferAttribute version is not a stable cache key. Compare the submitted cell
-  // list when that version changes and retain a revision while the contents match.
+  // Compare submitted cells when the index version changes, retaining a revision
+  // for equivalent submissions even when an external producer rewrites the index.
   pickSubmissionKey(objects: THREE.Object3D[]) {
     const keys: string[] = []
     for (const root of objects)
@@ -714,10 +715,16 @@ export class RenderView {
   }
   updateTerrainVisibility(object: THREE.Object3D) {
     if (!(object instanceof THREE.Mesh) || !object.userData.terrainGrid) return
+    const geometry = object.geometry,
+      vertices = geometry.getAttribute('position').count,
+      selection = this.terrainVisibility.prepare(
+        this.bounds,
+        this.rawCenter,
+        this.overview,
+        vertices
+      )
     if (object instanceof THREE.InstancedMesh) {
-      const tiles = this.overview
-          ? terrainTiles
-          : visibleTerrainCopies(this.bounds, this.rawCenter),
+      const tiles = selection.tiles,
         matrices = object.instanceMatrix.array
       if (
         object.count !== tiles.length ||
@@ -733,18 +740,33 @@ export class RenderView {
         object.count = tiles.length
       }
     }
-    const geometry = object.geometry,
-      vertices = geometry.getAttribute('position').count
     if (!geometry.index) geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(vertices), 1))
     const index = geometry.index!,
-      cells = this.overview ? null : visibleTerrainCells(this.bounds, this.rawCenter)
-    let count = 0
-    for (let cell = 0; cell < vertices / 6; cell++) {
-      if (cells && !cells[cell]) continue
-      for (let vertex = cell * 6; vertex < cell * 6 + 6; vertex++) index.setX(count++, vertex)
+      { indices, count } = selection
+    // Validate the actual prefix, not just BufferAttribute.version: custom callers
+    // can mutate the array without needsUpdate. Keep their original write path.
+    const standard =
+      Object.getPrototypeOf(index) === THREE.BufferAttribute.prototype &&
+      index.getX === THREE.BufferAttribute.prototype.getX &&
+      index.setX === THREE.BufferAttribute.prototype.setX &&
+      Object.getPrototypeOf(index.array) === Uint32Array.prototype &&
+      index.array.buffer instanceof ArrayBuffer &&
+      !index.normalized &&
+      index.itemSize === 1 &&
+      index.count >= count
+    let same = standard
+    if (same)
+      for (let i = 0; i < count; i++)
+        if (index.array[i] !== indices[i]) {
+          same = false
+          break
+        }
+    if (!same) {
+      for (let i = 0; i < count; i++) index.setX(i, indices[i])
+      index.needsUpdate = true
     }
-    index.needsUpdate = true
-    geometry.setDrawRange(0, count)
+    if (!standard || geometry.drawRange.start !== 0 || geometry.drawRange.count !== count)
+      geometry.setDrawRange(0, count)
   }
   private createDrawCallback(object: THREE.Object3D): THREE.Object3D['onBeforeRender'] {
     return (_renderer, _scene, _camera, _geometry, material) => {
