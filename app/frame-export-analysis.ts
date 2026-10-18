@@ -1,3 +1,4 @@
+import { validSceneUpdateMetrics, type SceneUpdateMetrics } from './scene-update-metrics.ts'
 import { validGpuFrameTiming, type GpuFrameTiming } from './gpu-frame-timing.ts'
 import { FRAME_EXPORT_LIMIT } from './frame-export-size.ts'
 import { validModelPickWork, type ModelPickWork } from './model-pick-work.ts'
@@ -49,6 +50,7 @@ type RecordValue = Record<string, unknown>
 type Frame = Record<(typeof FRAME_FIELDS)[number], number> & {
   simulationSteps?: number
   sceneRenderGpu?: GpuFrameTiming
+  sceneUpdateCpu?: SceneUpdateMetrics
   waterUpdateReasons?: number
   state: 'live' | 'paused' | 'menu' | 'unknown'
   pointerBreakdown:
@@ -89,6 +91,15 @@ function frameEvidence(frames: Frame[]) {
   const snapshots = frames.map((frame, frameIndex) => ({
     frameIndex,
     state: frame.state,
+    ...(frame.sceneUpdateCpu !== undefined
+      ? {
+          sceneUpdateCpu: {
+            terrainCpuMs: frame.sceneUpdateCpu.terrainCpuMs,
+            waterCpuMs: frame.sceneUpdateCpu.waterCpuMs,
+            hudCpuMs: frame.sceneUpdateCpu.hudCpuMs,
+          },
+        }
+      : {}),
     ...(frame.sceneRenderGpu !== undefined
       ? {
           sceneRenderGpu: {
@@ -278,6 +289,16 @@ export function analyzeFrameExport(json: string) {
       (!Number.isSafeInteger(frame.simulationSteps) || (frame.simulationSteps as number) < 0)
     )
       throw new Error(`Invalid frames[${index}].simulationSteps`)
+    if (frame.sceneUpdateCpu !== undefined) {
+      const sub = frame.sceneUpdateCpu
+      if (
+        !validSceneUpdateMetrics(sub) ||
+        !Number.isFinite(
+          (frame.otherCallbackCpuMs as number) - sub.terrainCpuMs - sub.waterCpuMs - sub.hudCpuMs
+        )
+      )
+        throw new Error(`Invalid frames[${index}].sceneUpdateCpu`)
+    }
     if (frame.sceneRenderGpu !== undefined && !validGpuFrameTiming(frame.sceneRenderGpu))
       throw new Error(`Invalid frames[${index}].sceneRenderGpu`)
     if (

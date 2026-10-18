@@ -1,3 +1,4 @@
+import type { SceneUpdateMetrics } from './scene-update-metrics.ts'
 import { GpuRenderTimer } from './gpu-render-timer.ts'
 import type { GpuFrameSample } from './gpu-frame-timing.ts'
 import { boundedFrameExport } from './frame-export-size.ts'
@@ -203,6 +204,7 @@ export class FpsGraph {
       },
       notes: [
         'RAF cadence is not presented FPS. CPU wall times are not GPU timings.',
+        'Optional sceneUpdateCpu terrain/water/HUD timings are disjoint subsets of otherCallbackCpuMs, not extra callback costs. The remainder is unclassified.',
         'Optional sceneRenderGpu is asynchronous elapsed GPU render work attributed to its originating frame; pending/unsupported/disjoint/lost/busy/failed are unknown, never zero. It is not added to CPU buckets.',
         'Callback includes all CPU stages; other is a signed remainder. Overlay and export work are excluded.',
         'Pointer breakdown phases overlap: tooltipInput includes nested picks; objectPick includes units/models/occlusion; tooltipRender is outside pointerTooltip CPU. Do not sum them.',
@@ -289,7 +291,8 @@ export class FpsGraph {
     pointer = 0,
     metrics?: PointerFrameMetrics,
     waterUpdateReasons?: number,
-    simulationSteps?: number
+    simulationSteps?: number,
+    sceneUpdates?: SceneUpdateMetrics
   ) {
     if (this.disposed) return
     const gpu = this.gpuFrame
@@ -320,7 +323,8 @@ export class FpsGraph {
         metrics,
         waterUpdateReasons,
         simulationSteps,
-        gpu
+        gpu,
+        sceneUpdates
       )
     )
       return
