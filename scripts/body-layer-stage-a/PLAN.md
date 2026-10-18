@@ -1,4 +1,4 @@
-# Prospective real-renderer body-layer validation, revision 6
+# Prospective real-renderer body-layer validation, revision 7
 
 STATUS: design for review only. No browser launch, build, measurement, publication,
 new cloud task or hardware qualification is authorized by this file.
@@ -249,3 +249,34 @@ Canvas focus, actual public drags/right-click and every original admission check
 remain unchanged. Negative tests reject camera, selection, World and callback drift.
 Both failed hosted runs and their exact source/bindings remain preserved. Revision 6
 is unexecuted and requires new independent source admission before any hosted run.
+
+## Revision 7: lossless observation transport and diagnostic phases
+
+Retained run 39173419489 passed setup and rendered the dt0 bootstrap plus three
+baseline camera steps, then reached the unchanged 100-second child deadline. No
+candidate or pixel comparison ran. Actual renderer was ANGLE SwiftShader WebGL2,
+with a 1240x1000 canvas in the canonical window. Each state was about15MB JSON,
+plus6.6MB pixel base64; approximately20-second whole-proof write intervals do not
+attribute cost to rendering, readPixels, capture serialization or transport.
+Transport overhead remains a hypothesis, not an established bottleneck.
+
+Revision7 retains every callback, control, deadline, observation field and original
+RGBA byte. After the existing capture finishes synchronously and the scheduled RAF
+is cancelled, native CompressionStream gzip packs the complete observation before
+Playwright transport. Existing encoded state/initialState graphs and pixel base64
+remain verbatim; outer metadata uses the same checkpoint codec to retain undefined,
+signed zero and nonfinite values without double-encoding the large state graph.
+Node verifies raw byte length and SHA256, decompresses, and restores the identical
+observation before the unchanged store/comparator. Unsupported compression fails;
+there is no download, fallback or data omission. A64MiB uncompressed payload bound
+protects decoding, not callback/control coverage.
+
+Diagnostic phases live only in report.observationDiagnostics, outside state equality:
+callbackMs (actual animate), readbackMs (gl.readPixels), captureTotalMs (including
+readback, graph construction/codec and pixel base64), controlRenderMs where relevant,
+encodeMs, gzipMs, packTotalMs, Node roundTripMs and decodeMs. Nested phases overlap
+and must not be summed. Roundtrip includes browser execution/packing and transfer,
+not pure transport. These are untimed-proof attribution aids, never gameplay speed
+or StageB measurements. No GPU synchronization beyond existing proof readPixels
+is added. Earlier raw receipts and both setup failures remain preserved. Revision7
+requires separate independent admission before any hosted execution.

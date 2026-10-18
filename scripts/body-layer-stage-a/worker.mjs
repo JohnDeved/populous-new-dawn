@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, mkdirSync, realpathSync } from 'node:fs'
 import { resolve, join, dirname } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { gzipSync } from 'node:zlib'
+import { packObservation, unpackObservation } from './transport.mjs'
 import { preview } from 'vite'
 import { chromium } from '@playwright/test'
 import { protocol as p } from './protocol.mjs'
@@ -31,6 +32,7 @@ const revision = p[side],
     controls: [],
     errors: [],
     served: [],
+    observationDiagnostics: [],
     startedAt: new Date().toISOString(),
   }
 const receipt = join(out, 'report.json'),
@@ -45,6 +47,35 @@ const { checkpointCodec } = await import(
 const { browserConfiguration } = await import(
   pathToFileURL(join(base, 'scripts/tutorial-browser/browser-config.mjs'))
 )
+async function observe(page, label, operation, arg) {
+  const row = { label, status: 'started', startedAt: new Date().toISOString() }
+  report.observationDiagnostics.push(row)
+  persist()
+  const started = performance.now()
+  const envelope = await page.evaluate(
+    async ({ source, arg }) => {
+      const observation = (0, eval)(`(${source})`)(arg)
+      const observationPhases = { ...window.__bodyPhases }
+      return {
+        payload: await window.__bodyPack(observation, window.__bodyCodec),
+        observationPhases,
+      }
+    },
+    { source: operation.toString(), arg }
+  )
+  row.roundTripMs = performance.now() - started
+  const decodeStarted = performance.now()
+  const observation = unpackObservation(envelope.payload, checkpointCodec)
+  row.decodeMs = performance.now() - decodeStarted
+  row.phases = envelope.observationPhases
+  row.packing = envelope.payload.phases
+  row.rawBytes = envelope.payload.rawBytes
+  row.compressedBytes = envelope.payload.compressedBytes
+  row.status = 'decoded'
+  row.endedAt = new Date().toISOString()
+  persist()
+  return observation
+}
 function store(label, result, picks) {
   space(out)
   assert.ok(bytes(dirname(out)) < p.maximumEvidenceBytes, 'Evidence budget exceeded')
@@ -138,9 +169,13 @@ try {
   })
   persist()
   await page.waitForFunction(assetsReady, null, { timeout: p.actionMs })
-  await page.evaluate(source => {
-    window.__bodyCapture = (0, eval)(`(${source})`)
-  }, capturePage.toString())
+  await page.evaluate(
+    ({ capture, pack }) => {
+      window.__bodyCapture = (0, eval)(`(${capture})`)
+      window.__bodyPack = (0, eval)(`(${pack})`)
+    },
+    { capture: capturePage.toString(), pack: packObservation.toString() }
+  )
   report.environment = await page.evaluate(preparePage, {
     viewport: p.viewport,
     admittedCanvas: report.setup.admitted.viewport.canvas,
@@ -148,7 +183,7 @@ try {
     codecSource: checkpointCodec.toString(),
   })
   persist()
-  const bootstrap = await page.evaluate(bootstrapAndPixels)
+  const bootstrap = await observe(page, 'bootstrap', bootstrapAndPixels)
   const initialState = Buffer.from(JSON.stringify(bootstrap.initialState))
   delete bootstrap.initialState
   writeFileSync(join(out, 'initial-state.json.gz'), gzipSync(initialState, { level: 6 }), {
@@ -163,7 +198,7 @@ try {
   if (cohort === 'camera') await page.mouse.down({ button: 'right' })
   for (let i = 0; i < p.callbacks; i++) {
     if (cohort === 'camera') await page.mouse.move(point.x + p.pointerOffsets[i], point.y)
-    const result = await page.evaluate(callbackAndPixels, {
+    const result = await observe(page, `step-${i}`, callbackAndPixels, {
       now: p.initialNow + (i + 1) * p.deltaMs,
       cohort,
       expectedAngle: cohort === 'camera' ? p.pointerOffsets[i] : null,
@@ -175,7 +210,10 @@ try {
   if (cohort === 'camera') await page.mouse.up({ button: 'right' })
   for (const size of p.controlSizes)
     for (const name of p.controls) {
-      const result = await page.evaluate(controlRender, { name, size })
+      const result = await observe(page, `control-${size.width}-${name}`, controlRender, {
+        name,
+        size,
+      })
       report.controls.push({
         name,
         size,

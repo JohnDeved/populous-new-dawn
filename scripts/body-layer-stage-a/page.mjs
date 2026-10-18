@@ -96,11 +96,13 @@ export function callbackAndPixels({ now, cohort, expectedAngle }) {
   s.world.paused = cohort === 'camera'
   if (expectedAngle !== null && s.cameraPosition.angle !== expectedAngle)
     throw Error('Literal input angle mismatch')
+  const callbackStarted = performance.now()
   try {
     s.animate(now)
   } finally {
     cancelAnimationFrame(s.frame)
   }
+  window.__bodyPhases = { callbackMs: performance.now() - callbackStarted }
   window.__bodyStep++
   return window.__bodyCapture()
 }
@@ -125,11 +127,13 @@ export function bootstrapAndPixels() {
     },
   })
   // First original callback uses previous ?? now, hence dt is exactly zero.
+  const callbackStarted = performance.now()
   try {
     s.animate(window.__bodyInitialNow)
   } finally {
     cancelAnimationFrame(s.frame)
   }
+  window.__bodyPhases = { callbackMs: performance.now() - callbackStarted }
   if (s.previous !== window.__bodyInitialNow) throw Error('Bootstrap timestamp drift')
   delete window.__bodyStartLatch
   delete window.__bodyVerifyStart
@@ -137,6 +141,7 @@ export function bootstrapAndPixels() {
 }
 
 export function capturePage() {
+  const captureStarted = performance.now()
   const s = window.testSceneRef.current
   if (
     s.view.painter.transparentMeshes.length ||
@@ -148,6 +153,7 @@ export function capturePage() {
   if (gl.isContextLost() || gl.getError() !== gl.NO_ERROR) throw Error('GL failure')
   if (s.renderer.getRenderTarget() !== null) throw Error('Unexpected framebuffer')
   const pixels = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4)
+  const readbackStarted = performance.now()
   gl.readPixels(
     0,
     0,
@@ -157,6 +163,7 @@ export function capturePage() {
     gl.UNSIGNED_BYTE,
     pixels
   )
+  window.__bodyPhases.readbackMs = performance.now() - readbackStarted
   if (gl.getError() !== gl.NO_ERROR) throw Error('Pixel read failed')
   let text = ''
   for (let i = 0; i < pixels.length; i += 32768)
@@ -246,7 +253,7 @@ export function capturePage() {
     depth: Array.from(s.view.painter.texture.image.data),
   }
   // Encode the complete graph and numeric edge cases, not lossy JSON arithmetic.
-  return {
+  const result = {
     step: window.__bodyStep,
     rafHandle: s.frame,
     resourceHandles,
@@ -268,6 +275,8 @@ export function capturePage() {
     counters: { ...s.renderer.info.render },
     memory: { ...s.renderer.info.memory, programs: s.renderer.info.programs?.length ?? null },
   }
+  window.__bodyPhases.captureTotalMs = performance.now() - captureStarted
+  return result
 }
 
 export function picksAfterPixels() {
@@ -436,7 +445,9 @@ export function controlRender({ name, size }) {
     s.renderer.setSize(size.width, size.height, false)
     s.updateView()
   }
+  const renderStarted = performance.now()
   s.renderSceneFrame(null, undefined)
+  window.__bodyPhases = { controlRenderMs: performance.now() - renderStarted }
   if (window.__bodyExtra) {
     if (s.renderer.info.render.points !== 1)
       throw Error('Points control was not actually submitted exactly once')
