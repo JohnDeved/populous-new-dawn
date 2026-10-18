@@ -47,6 +47,10 @@ jobs:
             name: Profile recovery browser
             artifact: profile-recovery-browser
             buildStep: Build plain production Home and validate IndexedDB recovery
+          - scenario: gameplay-frames
+            name: Gameplay frame recording browser
+            artifact: gameplay-frame-recording-browser
+            buildStep: Record live authored Level 2 frame exports and workload summaries
     env:
       PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}

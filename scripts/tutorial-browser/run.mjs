@@ -9,6 +9,8 @@ import assert from 'node:assert/strict'
 import { browserConfiguration } from './browser-config.mjs'
 import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
 import { profileRecoveryReceipt, profileRecoveryReceiptLog } from './profile-recovery-receipt.mjs'
+import { buildRevision } from './build-provenance.mjs'
+import { arch, cpus, platform, release } from 'node:os'
 const root = resolve(dirname(import.meta.filename), '../..')
 const fixture = resolve(dirname(import.meta.filename), 'fixture')
 const out = resolve(process.argv[2] || resolve(root, 'outputs/tutorial-browser'))
@@ -19,7 +21,8 @@ const spellProjectionScenario = resolve(root, 'scripts/tutorial-browser/spell-pr
 const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
 const recoveryScenario = resolve(root, 'scripts/local-render/campaign-profile-recovery.mjs')
 const selectedScenario = process.env.POPULOUS_BROWSER_SCENARIO || 'tutorial'
-assert.ok(['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'profile-recovery'].includes(selectedScenario), 'Unknown browser scenario')
+assert.ok(['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'profile-recovery', 'gameplay-frames'].includes(selectedScenario), 'Unknown browser scenario')
+const gameplayScenario = resolve(root, 'scripts/tutorial-browser/gameplay-frames.mjs')
 const m2Scenario = resolve(root, 'scripts/tutorial-browser/m2-pointer-f8.mjs')
 const port = 5198
 if (existsSync(out)) throw Error('Output must be fresh')
@@ -60,7 +63,14 @@ function outputManifest(path, prefix = '') {
   }
   return result
 }
-const receipt = { recoveryScenarioSha256: hash(recoveryScenario), selectedScenario, pauseRecoveryScenarioSha256: hash(pauseRecoveryScenario), m2ScenarioSha256: hash(m2Scenario),
+const receipt = { buildRevision: buildRevision(root), gameplayScenarioSha256: hash(gameplayScenario),
+  host: { platform: platform(), arch: arch(), release: release(), logicalCpus: cpus().length,
+    cpuModels: [...new Set(cpus().map(cpu => cpu.model))] },
+  github: { head: process.env.PR_HEAD_SHA ?? null, base: process.env.PR_BASE_SHA ?? null,
+    merge: process.env.GITHUB_SHA ?? null, runId: process.env.GITHUB_RUN_ID ?? null,
+    runAttempt: process.env.GITHUB_RUN_ATTEMPT ?? null, runnerImage: process.env.ImageOS ?? null,
+    runnerImageVersion: process.env.ImageVersion ?? null },
+  recoveryScenarioSha256: hash(recoveryScenario), selectedScenario, pauseRecoveryScenarioSha256: hash(pauseRecoveryScenario), m2ScenarioSha256: hash(m2Scenario),
   checkpointCodecSha256: hash(resolve(root, 'scripts/tutorial-browser/checkpoint-codec.mjs')),
   checkpointGeneratorSha256: hash(resolve(root, 'scripts/tutorial-browser/m2-checkpoint.mjs')), status: 'running', startedAt: new Date().toISOString(), source, command: process.argv,
   runnerSha256: hash(import.meta.filename), builderSha256: hash(resolve(dirname(import.meta.filename), 'build-home.mjs')),
@@ -119,7 +129,9 @@ try {
   page.on('console', m => { if (m.type() === 'error') receipt.errors.push(m.text()); if (m.type() === 'warning') receipt.warnings.push(m.text()) })
   page.on('crash', () => { receipt.errors.push('Page crashed'); save() })
   const url = `http://127.0.0.1:${port}`
-  if (selectedScenario === 'profile-recovery') {
+  if (selectedScenario === 'gameplay-frames') {
+    receipt.gameplayFrames = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision })
+  } else if (selectedScenario === 'profile-recovery') {
     receipt.profileRecovery = await (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal })
   } else if (selectedScenario === 'm2-pointer-f8') {
     receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })

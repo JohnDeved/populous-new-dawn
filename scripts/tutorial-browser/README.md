@@ -52,7 +52,7 @@ Build time is capped at 120 seconds, browser time at 180 seconds, and the job at
 `outputs/tutorial-browser`). Public assets are linked from the checkout rather
 than copied into a second large asset tree. Receipts record the source hashes,
 browser executable hash/version, dependencies, output bundle hashes, and cleanup.
-The workflow retains only receipts, logs and screenshots for seven days, even
+The workflow retains only receipts, frame/analysis JSON, logs and screenshots for seven days, even
 on failure; it does not upload dependencies, the bundle, or original game assets.
 Local typechecking/full builds should not be repeated just to run this check.
 
@@ -184,3 +184,59 @@ all nine case results, unchanged runtime evidence and hashes of the two actual
 screenshots and full raw receipt. Failed scenarios retain the original report and
 error, never a successful compact envelope. Candidate policy modules are not a
 trusted authority; the coordinator must review and pin the transition externally.
+
+## Automatic live Level 2 frame recording
+
+`POPULOUS_BROWSER_SCENARIO=gameplay-frames node scripts/tutorial-browser/run.mjs`
+selects an isolated real-browser recording. The existing ready-only workflow adds
+`Gameplay frame recording browser` alongside, not instead of, Tutorial, Pause
+checkpoint recovery and Profile recovery. It retains their triggers, sandbox,
+180-second browser bound, 15-minute job bound and seven-day artifact retention.
+The separate required `Full check` workflow is unchanged. The integration
+coordinator must explicitly review the four-job workflow transition before using
+it as merge evidence; three historical green jobs do not certify the new episode.
+
+The scenario starts the authored Mission 2 through New Game → recommendation No
+→ Browser controls → All missions → Mission 2, then uses the public Skip control
+if needed. This is direct public mission access, not campaign-unlock proof. No
+checkpoint or user profile is imported and no scene state, simulation clock,
+renderer call, picked object or exported sample is injected. It does not force
+terrain changes or claim construction/spell-mutation coverage.
+
+At fixed 1440×1000 CSS pixels and DPR 1, normal-speed natural RAF advances the
+world through a two-second warmup, then five independently labeled 1.6-second
+phases: rendered-person hover, public camera rotation/pan with a world pointer,
+HUD hover, world-pointer recovery, and world-pointer recovery after a public
+pause-menu interruption. Twelve specified pointer offsets at 120 ms intervals
+and the camera key-down/up schedule are retained in `gameplay-frames.json`,
+alongside actual browser timestamps, coordinates, turns and phase outcomes.
+Actual duration can exceed the requested duration on a busy renderer. Camera
+motion and scene work are measured, not assumed identical across machines.
+
+Each phase enables a fresh F8 window and activates the actual Export recent
+frames button with keyboard Space. `gameplay-frame-<phase>.json` is the unchanged
+browser download using the existing schema. A separate
+`gameplay-summary-<phase>.json` contains its hash, the independent phase bounds,
+selected raw frame indices, measured work totals, the existing offline parser
+output and overlapping cohort distributions. Only complete RAF intervals inside
+the observed phase enter that phase's summary. Boundary/export input frames are
+retained in raw data but excluded from the phase summary. Timings can validly
+quantize to zero; positive counters establish actual work.
+
+Acceptance rejects menu/paused-only captures, nonadvancing turns, non-rendered
+frames, absent/wrong pointer routes, zero terrain/object queries or terrain work,
+missing initial native-occlusion work, unchanged camera inputs, ring overflow,
+and wrong mission/build/viewport. The raw export now embeds the real checkout
+revision through the production Home fixture build, including `-dirty` when
+applicable. The enclosing receipt binds source and bundle hashes, exact browser
+executable/version, package versions, OS/CPU identity and available GitHub
+head/base/merge/run/runner-image metadata. Failures retain available raw files and
+terminal diagnostics rather than producing a successful recording.
+
+Find the artifacts under `gameplay-frame-recording-browser-<tested merge SHA>`.
+They are generated only in ignored output directories and never committed. These
+are cloud/browser-renderer workload diagnostics, not the user's Mac GPU results,
+presented FPS or hardware smoothness acceptance. Compare matching phases,
+viewport, renderer/runtime and observed work/turn counts across source-bound
+builds; unmatched workload, scheduling and runner variation cannot establish a
+causal speedup. Nested CPU timing buckets overlap and must not be summed.
