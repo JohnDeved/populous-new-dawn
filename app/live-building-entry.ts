@@ -52,6 +52,7 @@ import {
 import { clearLivePath, planLivePath, acceptLivePath, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import {
+  setCellObject,
   insertObjectIntoCell,
   removeObjectFromCell,
   moveObjectInCells,
@@ -351,7 +352,7 @@ function occupancyEffects(w: World, people: Map<number, EntryPerson>): Occupancy
       Object.assign(u, browserPosition(p))
     },
     insertCell: p => {
-      w.objectCells.objects.set(p.id, p as EntryPerson)
+      setCellObject(w.objectCells, p.id, p as EntryPerson)
       insertObjectIntoCell(w.objectCells, p as EntryPerson, p)
     },
     removeCell: p => removeObjectFromCell(w.objectCells, p as EntryPerson),
