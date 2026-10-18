@@ -615,10 +615,14 @@ export class RenderView {
               ordinaryScreenMethod &&
             Object.getOwnPropertyDescriptor(RenderView.prototype, 'relative')?.value ===
               ordinaryRelativeMethod &&
-            THREE.Vector3.prototype.fromBufferAttribute === ordinaryFromBufferAttribute &&
-            THREE.Vector3.prototype.applyMatrix4 === ordinaryApplyMatrix4 &&
-            THREE.Vector3.prototype.addScaledVector === ordinaryAddScaledVector &&
-            THREE.Vector4.prototype.set === ordinaryVector4Set
+            Object.getOwnPropertyDescriptor(THREE.Vector3.prototype, 'fromBufferAttribute')
+              ?.value === ordinaryFromBufferAttribute &&
+            Object.getOwnPropertyDescriptor(THREE.Vector3.prototype, 'applyMatrix4')?.value ===
+              ordinaryApplyMatrix4 &&
+            Object.getOwnPropertyDescriptor(THREE.Vector3.prototype, 'addScaledVector')?.value ===
+              ordinaryAddScaledVector &&
+            Object.getOwnPropertyDescriptor(THREE.Vector4.prototype, 'set')?.value ===
+              ordinaryVector4Set
           const world: THREE.Vector3[] = reuse ? cache.world : (scratch?.world ?? []),
             screen: THREE.Vector4[] = reuse ? cache.screen : (scratch?.screen ?? []),
             terrainSlots = packedTerrain

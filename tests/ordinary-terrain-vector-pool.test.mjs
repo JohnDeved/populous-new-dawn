@@ -437,3 +437,26 @@ test('custom interpolation retains fresh world inputs even after the ordinary po
     assert.equal(f.view.ordinaryPickScratch.worldPool, pool, 'canonical consumer can reuse the existing pool again')
   } finally { THREE.Vector3.prototype.addScaledVector = original; f.close() }
 })
+
+for (const [Vector, method] of [[THREE.Vector3, 'fromBufferAttribute'], [THREE.Vector3, 'applyMatrix4'], [THREE.Vector3, 'addScaledVector'], [THREE.Vector4, 'set']])
+  test(`accessor-backed ${Vector.name}.${method} cannot certify pooled ownership`, async () => {
+    const f = await fixture(), descriptor = Object.getOwnPropertyDescriptor(Vector.prototype, method)
+    const held = []
+    try {
+      assert.ok(f.query().length > 0)
+      const scratch = f.view.ordinaryPickScratch
+      Object.defineProperty(Vector.prototype, method, { configurable: true, get() {
+        if (method === 'addScaledVector' && this !== Vector.prototype)
+          return function (vector, scale) { held.push(vector); return descriptor.value.call(this, vector, scale) }
+        if (this !== Vector.prototype) held.push(this)
+        return descriptor.value
+      } })
+      f.query()
+      const pooled = held.filter(value => scratch.worldPool.includes(value) || scratch.screenPool.includes(value))
+      assert.equal(pooled.length, 0, 'accessor must not observe any pool-owned vector')
+      f.world.turn = 23; f.water(); f.update(0.4, 0, { x: 4, z: 8 }); f.query()
+      assert.ok(held.every(value => !scratch.worldPool.includes(value) && !scratch.screenPool.includes(value)))
+      Object.defineProperty(Vector.prototype, method, descriptor)
+      assert.deepEqual(f.query(), f.expected())
+    } finally { Object.defineProperty(Vector.prototype, method, descriptor); f.close() }
+  })
