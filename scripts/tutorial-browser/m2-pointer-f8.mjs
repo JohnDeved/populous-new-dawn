@@ -14,7 +14,13 @@ export function assertM2Input(before, after) {
   assert.equal(after.turn, before.turn, 'Paused diagnostic must preserve the simulation turn')
 }
 
-export async function finishM2Functional({ context, report, output, failure }) {
+export async function finishM2Functional({
+  context,
+  report,
+  output,
+  failure,
+  fileName = 'm2-pointer-f8.json',
+}) {
   try {
     await context.close()
     report.contextClosed = true
@@ -23,7 +29,7 @@ export async function finishM2Functional({ context, report, output, failure }) {
   }
   report.status = failure || report.errors.length || report.timedOut ? 'failed' : 'passed'
   if (failure) report.failure = { message: String(failure), stack: failure.stack }
-  writeFileSync(resolve(output, 'm2-pointer-f8.json'), JSON.stringify(report, null, 2))
+  writeFileSync(resolve(output, fileName), JSON.stringify(report, null, 2))
   assert.equal(report.status, 'passed', 'M2 functional scenario failed; see receipt')
   return report
 }
@@ -106,20 +112,23 @@ export function m2StartupReady() {
   }
 }
 
-export default async function ({ browser, url, output, fixture }) {
+export default async function ({ browser, url, output, fixture, compactMessages = false }) {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
     deviceScaleFactor: 1,
   })
   const report = {
     status: 'running',
+    scenario: compactMessages ? 'compact-message-layout' : 'm2-pointer-f8',
     setup: fixture.receipt,
     errors: [],
     samples: [],
     stages: [],
     limits: [
       'Test-only imported M2 checkpoint, not campaign progression/unlock proof',
-      'Paused functional pointer/camera/F8 coverage, not timing, hardware FPS or responsiveness acceptance',
+      compactMessages
+        ? 'Paused compact message/F8 layout and public HUD preference coverage, not performance acceptance'
+        : 'Paused functional pointer/camera/F8 coverage, not timing, hardware FPS or responsiveness acceptance',
       'Seam crossing and hidden-tab transition not covered; actual reached camera states recorded',
     ],
   }
@@ -307,285 +316,150 @@ export default async function ({ browser, url, output, fixture }) {
     stage('paused-baseline')
     assert.equal(report.before.level, 2)
     assert.match(report.before.webgl, /WebGL 2/)
-    const graph = page.locator('.fps-graph')
-    await graph.waitFor({ state: 'hidden' })
-    await page.keyboard.press('F8')
-    await graph.waitFor({ state: 'visible' })
-    assert.match(await graph.innerText(), /Pointer \+ tooltip CPU/)
-    assert.match(await graph.innerText(), /CPU excludes overlay\/GPU\. Async GPU: export only/)
-    assert.equal(await graph.evaluate(el => getComputedStyle(el).pointerEvents), 'none')
-    const moveAndObserve = async (x, y, world) => {
-      await page.mouse.move(x, y)
-      await page.waitForFunction(m2RouteReady, { x, y, world })
-      const state = await observe()
-      assertM2Input(report.before, state)
-      return state
-    }
-    const moveToHud = async () => {
-      const point = await page.evaluate(m2HudPoint)
-      report.hudPoints ??= []
-      report.hudPoints.push(point)
-      return moveAndObserve(point.x, point.y, false)
-    }
-    // Replace one arbitrary ground pixel with a rendered native person hit.
-    const nativeTarget = await page.evaluate(m2NativePointerTarget)
-    assert.ok(nativeTarget, 'bounded rendered-person target must be available')
-    report.nativePointerTarget = nativeTarget
-    // Pause gives an exact no-orders witness while ordinary RAF still drives picks.
-    for (const [x, y, world] of [
-      [nativeTarget.x, nativeTarget.y, true],
-      [null, null, false],
-      [900, 400, true],
-    ]) {
-      report.samples.push(world ? await moveAndObserve(x, y, true) : await moveToHud())
-    }
-    stage('initial-pointer-routes-matched')
-    // The restored-wide capture below covers this unchanged layout too; avoid
-    // another large PNG encode inside the bounded functional episode.
-    const beforeCamera = await observe()
-    report.cameraBefore = beforeCamera
-    assert.equal(beforeCamera.camera.preset, 0, 'Loaded ground view begins at normal preset')
-    for (const key of ['ArrowRight', 'w']) {
-      await page.keyboard.down(key)
-      await page.waitForTimeout(250)
-      await page.keyboard.up(key)
-    }
-    await page.keyboard.press('-')
-    report.cameraRequested = await observe()
-    await page.waitForFunction(m2ViewReady, 2)
-    report.cameraAfter = await observe()
-    stage('camera-reached')
-    assertM2Input(report.before, report.cameraAfter)
-    assert.notEqual(
-      report.cameraAfter.camera.position.angle,
-      beforeCamera.camera.position.angle,
-      'Public rotation changed angle'
-    )
-    assert.notDeepEqual(
-      [report.cameraAfter.camera.position.x, report.cameraAfter.camera.position.y],
-      [beforeCamera.camera.position.x, beforeCamera.camera.position.y],
-      'Public pan changed coordinates'
-    )
-    assert.equal(report.cameraAfter.camera.preset, 2, 'Public zoom reached bird’s-eye preset')
-    assert.equal(report.cameraAfter.camera.transitionRemaining, null)
-    assert.deepEqual(report.cameraAfter.camera.config, report.cameraAfter.camera.targetConfig)
-    assert.notDeepEqual(
-      report.cameraAfter.camera.config,
-      beforeCamera.camera.config,
-      'Public zoom changed actual rendered camera configuration'
-    )
-    for (const [width, height] of [
-      [640, 480],
-      [900, 360],
-      [1280, 720],
-      [1440, 1000],
-    ]) {
-      await page.setViewportSize({ width, height })
-      await page.evaluate(
-        () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
-      )
+    if (compactMessages) {
+      const { checkCompactMessages } = await import('./compact-message-layout.mjs')
+      report.compactMessages = { cases: [] }
+      await checkCompactMessages({ page, output, stage, report: report.compactMessages })
+    } else {
+      const graph = page.locator('.fps-graph')
+      await graph.waitFor({ state: 'hidden' })
+      await page.keyboard.press('F8')
+      await graph.waitFor({ state: 'visible' })
+      assert.match(await graph.innerText(), /Pointer \+ tooltip CPU/)
+      assert.match(await graph.innerText(), /CPU excludes overlay\/GPU\. Async GPU: export only/)
+      assert.equal(await graph.evaluate(el => getComputedStyle(el).pointerEvents), 'none')
+      const moveAndObserve = async (x, y, world) => {
+        await page.mouse.move(x, y)
+        await page.waitForFunction(m2RouteReady, { x, y, world })
+        const state = await observe()
+        assertM2Input(report.before, state)
+        return state
+      }
+      const moveToHud = async () => {
+        const point = await page.evaluate(m2HudPoint)
+        report.hudPoints ??= []
+        report.hudPoints.push(point)
+        return moveAndObserve(point.x, point.y, false)
+      }
+      // Replace one arbitrary ground pixel with a rendered native person hit.
+      const nativeTarget = await page.evaluate(m2NativePointerTarget)
+      assert.ok(nativeTarget, 'bounded rendered-person target must be available')
+      report.nativePointerTarget = nativeTarget
+      // Pause gives an exact no-orders witness while ordinary RAF still drives picks.
+      for (const [x, y, world] of [
+        [nativeTarget.x, nativeTarget.y, true],
+        [null, null, false],
+        [900, 400, true],
+      ]) {
+        report.samples.push(world ? await moveAndObserve(x, y, true) : await moveToHud())
+      }
+      stage('initial-pointer-routes-matched')
+      // The restored-wide capture below covers this unchanged layout too; avoid
+      // another large PNG encode inside the bounded functional episode.
+      const beforeCamera = await observe()
+      report.cameraBefore = beforeCamera
+      assert.equal(beforeCamera.camera.preset, 0, 'Loaded ground view begins at normal preset')
+      for (const key of ['ArrowRight', 'w']) {
+        await page.keyboard.down(key)
+        await page.waitForTimeout(250)
+        await page.keyboard.up(key)
+      }
+      await page.keyboard.press('-')
+      report.cameraRequested = await observe()
       await page.waitForFunction(m2ViewReady, 2)
-      if (width === 640 || width === 1280) {
-        report.exports ??= []
-        report.exports.push(await checkFrameExport({ page, output, keyboard: width === 1280 }))
-        stage(`export-${width}-verified`)
+      report.cameraAfter = await observe()
+      stage('camera-reached')
+      assertM2Input(report.before, report.cameraAfter)
+      assert.notEqual(
+        report.cameraAfter.camera.position.angle,
+        beforeCamera.camera.position.angle,
+        'Public rotation changed angle'
+      )
+      assert.notDeepEqual(
+        [report.cameraAfter.camera.position.x, report.cameraAfter.camera.position.y],
+        [beforeCamera.camera.position.x, beforeCamera.camera.position.y],
+        'Public pan changed coordinates'
+      )
+      assert.equal(report.cameraAfter.camera.preset, 2, 'Public zoom reached bird’s-eye preset')
+      assert.equal(report.cameraAfter.camera.transitionRemaining, null)
+      assert.deepEqual(report.cameraAfter.camera.config, report.cameraAfter.camera.targetConfig)
+      assert.notDeepEqual(
+        report.cameraAfter.camera.config,
+        beforeCamera.camera.config,
+        'Public zoom changed actual rendered camera configuration'
+      )
+      for (const [width, height] of [
+        [640, 480],
+        [900, 360],
+        [1280, 720],
+        [1440, 1000],
+      ]) {
+        await page.setViewportSize({ width, height })
+        await page.evaluate(
+          () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+        )
+        await page.waitForFunction(m2ViewReady, 2)
+        if (width === 640 || width === 1280) {
+          report.exports ??= []
+          report.exports.push(await checkFrameExport({ page, output, keyboard: width === 1280 }))
+          stage(`export-${width}-verified`)
+        }
+        const layout = await graph.evaluate(m2DiagnosticLayout)
+        report.layouts ??= []
+        report.layouts.push({ viewport: [width, height], ...layout })
+        assertM2DiagnosticLayout(layout, width, height)
+        const routed = await moveAndObserve(width - 60, height - 100, true)
+        const sidebar = await moveToHud()
+        report.samples.push({ viewport: [width, height], layout, routed, sidebar })
+        stage(`viewport-${width}x${height}-asserted`)
+        await page.screenshot({ path: resolve(output, `m2-pointer-${width}.png`) })
+        stage(`viewport-${width}x${height}-captured`)
       }
-      const layout = await graph.evaluate(el => {
-        const r = el.getBoundingClientRect()
-        const badge = document.querySelector('button.paused-badge')
-        const b = badge?.getBoundingClientRect()
-        const exportButton = el.querySelector('.fps-export')
-        const exportStatus = el.querySelector('[data-metric="export-status"]')
-        const fits = node => {
-          const bounds = node?.getBoundingClientRect()
-          return (
-            !!bounds &&
-            bounds.left >= r.left &&
-            bounds.right <= r.right &&
-            bounds.top >= r.top &&
-            bounds.bottom <= r.bottom &&
-            node.scrollWidth <= node.clientWidth &&
-            node.scrollHeight <= node.clientHeight
-          )
-        }
-        const e = exportButton?.getBoundingClientRect()
-        return {
-          exportFits: fits(exportButton) && fits(exportStatus),
-          exportActionable:
-            !!e &&
-            !exportButton.disabled &&
-            document.elementFromPoint((e.left + e.right) / 2, (e.top + e.bottom) / 2) ===
-              exportButton,
-          pause: b && { left: b.left, top: b.top, right: b.right, bottom: b.bottom },
-          pauseActionable:
-            !!badge &&
-            !badge.disabled &&
-            !!b &&
-            document
-              .elementFromPoint((b.left + b.right) / 2, (b.top + b.bottom) / 2)
-              ?.closest('.paused-badge') === badge,
-          pauseText: badge?.textContent,
-          pointerTail: el.querySelector('[data-metric="pointer-tail"]')?.textContent,
-          campaignPanels: [...document.querySelectorAll('.campaign-messages details[open]>div')]
-            .filter(
-              node => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
-            )
-            .map(node => {
-              const r = node.getBoundingClientRect()
-              const close = node.querySelector('button[aria-label="Dismiss campaign message"]')
-              const c = close?.getBoundingClientRect()
-              return {
-                left: r.left,
-                top: r.top,
-                right: r.right,
-                bottom: r.bottom,
-                text: node.querySelector('p')?.textContent,
-                contentFits:
-                  node.scrollWidth <= node.clientWidth && node.scrollHeight <= node.clientHeight,
-                closeActionable:
-                  !!close &&
-                  !close.disabled &&
-                  !!c &&
-                  document.elementFromPoint((c.left + c.right) / 2, (c.top + c.bottom) / 2) ===
-                    close,
-              }
-            }),
-          interactiveUi: [
-            ...document.querySelectorAll(
-              '.native-hud,.top-actions,.campaign-messages summary,.campaign-messages details[open]>div'
-            ),
-          ]
-            .filter(
-              node => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
-            )
-            .map(node => {
-              const r = node.getBoundingClientRect()
-              return {
-                name: node.className || node.tagName,
-                left: r.left,
-                top: r.top,
-                right: r.right,
-                bottom: r.bottom,
-              }
-            }),
-          left: r.left,
-          top: r.top,
-          right: r.right,
-          bottom: r.bottom,
-          overflow: document.documentElement.scrollWidth > innerWidth,
-          events: getComputedStyle(el).pointerEvents,
-          rowsFit: [...el.querySelectorAll('dl > div')].every(row => {
-            const bounds = row.getBoundingClientRect()
-            return (
-              bounds.left >= r.left &&
-              bounds.right <= r.right &&
-              bounds.top >= r.top &&
-              bounds.bottom <= r.bottom &&
-              row.scrollWidth <= row.clientWidth
-            )
-          }),
-        }
+      await page.keyboard.press('F8')
+      await graph.waitFor({ state: 'hidden' })
+      await page.evaluate(() => {
+        window.m2ResetWindow = null
+        const observer = new MutationObserver(() => {
+          const graph = document.querySelector('.fps-graph')
+          if (!graph) return
+          window.m2ResetWindow = graph.querySelector('[data-metric="window"]').textContent
+          observer.disconnect()
+        })
+        observer.observe(document.body, { childList: true, subtree: true })
       })
-      report.layouts ??= []
-      report.layouts.push({ viewport: [width, height], ...layout })
-      assert.ok(
-        layout.left >= 0 && layout.top >= 0 && layout.right <= width && layout.bottom <= height
-      )
-      assert.equal(layout.rowsFit, true, 'Metric rows must fit without horizontal clipping')
-      assert.match(
-        layout.pointerTail,
-        /^\d+\.\d \/ \d+\.\d ms$/,
-        'Recent pointer p95 and peak must be visible'
-      )
-      assert.equal(layout.overflow, false)
-      assert.equal(layout.events, 'none')
-      assert.equal(layout.exportFits, true, 'Export button and status must fit at every viewport')
+      await page.keyboard.press('F8')
+      await graph.waitFor({ state: 'visible' })
+      report.resetWindow = await page.evaluate(() => window.m2ResetWindow)
       assert.equal(
-        layout.exportActionable,
-        true,
-        'Export must remain reachable beside campaign text'
+        report.resetWindow,
+        '0 samples',
+        'New F8 overlay begins with an empty window before RAF'
       )
-      assert.ok(layout.campaignPanels.length > 0, 'Authored open campaign message must be observed')
-      for (const panel of layout.campaignPanels) {
-        assert.equal(
-          m2RectanglesOverlap(layout, panel),
-          false,
-          'Campaign text must not obscure F8 diagnostics'
-        )
-        assert.ok(
-          panel.left >= 0 && panel.top >= 0 && panel.right <= width && panel.bottom <= height
-        )
-        assert.ok(panel.text?.trim(), 'Campaign text must remain present')
-        assert.equal(panel.contentFits, true, 'Campaign text must not be clipped')
-        assert.equal(
-          panel.closeActionable,
-          true,
-          'Public campaign message control must remain hit-testable'
-        )
-      }
-      assert.ok(layout.pause, 'Public pause indicator must remain present')
-      assert.equal(layout.pauseActionable, true, 'Public resume control must remain hit-testable')
-      assert.match(layout.pauseText, /WORLD PAUSED/)
-      assert.match(layout.pauseText, /Click to resume/)
-      assert.equal(
-        m2RectanglesOverlap(layout, layout.pause),
-        false,
-        'Paused badge must not obscure F8 diagnostics'
+      report.after = await observe()
+      stage('f8-reset-matched')
+      assertM2Input(report.before, report.after)
+      await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+      await page.waitForFunction(
+        turn => window.testStore.getWorld().turn > turn,
+        report.before.turn
       )
-      for (const ui of layout.interactiveUi)
-        assert.equal(
-          m2RectanglesOverlap(layout.pause, ui),
-          false,
-          `Pause control must not cover interactive UI: ${ui.name}`
-        )
-      const routed = await moveAndObserve(width - 60, height - 100, true)
-      const sidebar = await moveToHud()
-      report.samples.push({ viewport: [width, height], layout, routed, sidebar })
-      stage(`viewport-${width}x${height}-asserted`)
-      await page.screenshot({ path: resolve(output, `m2-pointer-${width}.png`) })
-      stage(`viewport-${width}x${height}-captured`)
+      await page.waitForFunction(m2SamplesReady)
+      report.resumed = await observe()
+      stage('resumed')
+      await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+      await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
+      await page.waitForFunction(() =>
+        document.querySelector('.fps-graph [data-metric="state"]')?.textContent.startsWith('Menu')
+      )
+      report.menu = await observe()
+      await page.keyboard.press('Escape')
+      await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'hidden' })
+      await page.waitForFunction(() => !window.testStore.getWorld().paused)
+      report.returned = await observe()
+      stage('menu-returned')
+      assert.equal(report.returned.level, 2)
+      assert.equal(report.returned.sameScene, true)
     }
-    await page.keyboard.press('F8')
-    await graph.waitFor({ state: 'hidden' })
-    await page.evaluate(() => {
-      window.m2ResetWindow = null
-      const observer = new MutationObserver(() => {
-        const graph = document.querySelector('.fps-graph')
-        if (!graph) return
-        window.m2ResetWindow = graph.querySelector('[data-metric="window"]').textContent
-        observer.disconnect()
-      })
-      observer.observe(document.body, { childList: true, subtree: true })
-    })
-    await page.keyboard.press('F8')
-    await graph.waitFor({ state: 'visible' })
-    report.resetWindow = await page.evaluate(() => window.m2ResetWindow)
-    assert.equal(
-      report.resetWindow,
-      '0 samples',
-      'New F8 overlay begins with an empty window before RAF'
-    )
-    report.after = await observe()
-    stage('f8-reset-matched')
-    assertM2Input(report.before, report.after)
-    await page.getByRole('button', { name: 'Resume game', exact: true }).click()
-    await page.waitForFunction(turn => window.testStore.getWorld().turn > turn, report.before.turn)
-    await page.waitForFunction(m2SamplesReady)
-    report.resumed = await observe()
-    stage('resumed')
-    await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-    await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
-    await page.waitForFunction(() =>
-      document.querySelector('.fps-graph [data-metric="state"]')?.textContent.startsWith('Menu')
-    )
-    report.menu = await observe()
-    await page.keyboard.press('Escape')
-    await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'hidden' })
-    await page.waitForFunction(() => !window.testStore.getWorld().paused)
-    report.returned = await observe()
-    stage('menu-returned')
-    assert.equal(report.returned.level, 2)
-    assert.equal(report.returned.sameScene, true)
   } catch (error) {
     failure = error
     try {
@@ -614,12 +488,165 @@ export default async function ({ browser, url, output, fixture }) {
       report.diagnosticError = String(diagnosticError)
     }
     try {
-      await page.screenshot({ path: resolve(output, 'm2-pointer-failure.png'), timeout: 3000 })
+      await page.screenshot({
+        path: resolve(
+          output,
+          compactMessages ? 'compact-message-failure.png' : 'm2-pointer-failure.png'
+        ),
+        timeout: 3000,
+      })
     } catch {
       // A closed deadline context may prevent capture; preserve the original failure.
     }
   } finally {
     clearTimeout(timer)
   }
-  return finishM2Functional({ context, report, output, failure })
+  return finishM2Functional({
+    context,
+    report,
+    output,
+    failure,
+    fileName: compactMessages ? 'compact-message-layout.json' : 'm2-pointer-f8.json',
+  })
+}
+
+// Shared read-only DOM witness for pointer and compact-preference episodes.
+export function m2DiagnosticLayout(el) {
+  const r = el.getBoundingClientRect()
+  const badge = document.querySelector('button.paused-badge')
+  const b = badge?.getBoundingClientRect()
+  const exportButton = el.querySelector('.fps-export')
+  const exportStatus = el.querySelector('[data-metric="export-status"]')
+  const fits = node => {
+    const bounds = node?.getBoundingClientRect()
+    return (
+      !!bounds &&
+      bounds.left >= r.left &&
+      bounds.right <= r.right &&
+      bounds.top >= r.top &&
+      bounds.bottom <= r.bottom &&
+      node.scrollWidth <= node.clientWidth &&
+      node.scrollHeight <= node.clientHeight
+    )
+  }
+  const e = exportButton?.getBoundingClientRect()
+  return {
+    exportFits: fits(exportButton) && fits(exportStatus),
+    exportActionable:
+      !!e &&
+      !exportButton.disabled &&
+      document.elementFromPoint((e.left + e.right) / 2, (e.top + e.bottom) / 2) === exportButton,
+    pause: b && { left: b.left, top: b.top, right: b.right, bottom: b.bottom },
+    pauseActionable:
+      !!badge &&
+      !badge.disabled &&
+      !!b &&
+      document
+        .elementFromPoint((b.left + b.right) / 2, (b.top + b.bottom) / 2)
+        ?.closest('.paused-badge') === badge,
+    pauseText: badge?.textContent,
+    pointerTail: el.querySelector('[data-metric="pointer-tail"]')?.textContent,
+    campaignPanels: [...document.querySelectorAll('.campaign-messages details[open]>div')]
+      .filter(
+        node => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
+      )
+      .map(node => {
+        const r = node.getBoundingClientRect()
+        const close = node.querySelector('button[aria-label="Dismiss campaign message"]')
+        const c = close?.getBoundingClientRect()
+        return {
+          left: r.left,
+          top: r.top,
+          right: r.right,
+          bottom: r.bottom,
+          text: node.querySelector('p')?.textContent,
+          contentFits:
+            node.scrollWidth <= node.clientWidth && node.scrollHeight <= node.clientHeight,
+          closeActionable:
+            !!close &&
+            !close.disabled &&
+            !!c &&
+            document.elementFromPoint((c.left + c.right) / 2, (c.top + c.bottom) / 2) === close,
+        }
+      }),
+    interactiveUi: [
+      ...document.querySelectorAll(
+        '.native-hud,.top-actions,.campaign-messages summary,.campaign-messages details[open]>div'
+      ),
+    ]
+      .filter(
+        node => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
+      )
+      .map(node => {
+        const r = node.getBoundingClientRect()
+        return {
+          name: node.className || node.tagName,
+          left: r.left,
+          top: r.top,
+          right: r.right,
+          bottom: r.bottom,
+        }
+      }),
+    left: r.left,
+    top: r.top,
+    right: r.right,
+    bottom: r.bottom,
+    overflow: document.documentElement.scrollWidth > innerWidth,
+    events: getComputedStyle(el).pointerEvents,
+    rowsFit: [...el.querySelectorAll('dl > div')].every(row => {
+      const bounds = row.getBoundingClientRect()
+      return (
+        bounds.left >= r.left &&
+        bounds.right <= r.right &&
+        bounds.top >= r.top &&
+        bounds.bottom <= r.bottom &&
+        row.scrollWidth <= row.clientWidth
+      )
+    }),
+  }
+}
+
+export function assertM2DiagnosticLayout(layout, width, height) {
+  assert.ok(layout.left >= 0 && layout.top >= 0 && layout.right <= width && layout.bottom <= height)
+  assert.equal(layout.rowsFit, true, 'Metric rows must fit without horizontal clipping')
+  assert.match(
+    layout.pointerTail,
+    /^\d+\.\d \/ \d+\.\d ms$/,
+    'Recent pointer p95 and peak must be visible'
+  )
+  assert.equal(layout.overflow, false)
+  assert.equal(layout.events, 'none')
+  assert.equal(layout.exportFits, true, 'Export button and status must fit at every viewport')
+  assert.equal(layout.exportActionable, true, 'Export must remain reachable beside campaign text')
+  assert.ok(layout.campaignPanels.length > 0, 'Authored open campaign message must be observed')
+  for (const panel of layout.campaignPanels) {
+    assert.equal(
+      m2RectanglesOverlap(layout, panel),
+      false,
+      'Campaign text must not obscure F8 diagnostics'
+    )
+    assert.ok(panel.left >= 0 && panel.top >= 0 && panel.right <= width && panel.bottom <= height)
+    assert.ok(panel.text?.trim(), 'Campaign text must remain present')
+    assert.equal(panel.contentFits, true, 'Campaign text must not be clipped')
+    assert.equal(
+      panel.closeActionable,
+      true,
+      'Public campaign message control must remain hit-testable'
+    )
+  }
+  assert.ok(layout.pause, 'Public pause indicator must remain present')
+  assert.equal(layout.pauseActionable, true, 'Public resume control must remain hit-testable')
+  assert.match(layout.pauseText, /WORLD PAUSED/)
+  assert.match(layout.pauseText, /Click to resume/)
+  assert.equal(
+    m2RectanglesOverlap(layout, layout.pause),
+    false,
+    'Paused badge must not obscure F8 diagnostics'
+  )
+  for (const ui of layout.interactiveUi)
+    assert.equal(
+      m2RectanglesOverlap(layout.pause, ui),
+      false,
+      `Pause control must not cover interactive UI: ${ui.name}`
+    )
 }
