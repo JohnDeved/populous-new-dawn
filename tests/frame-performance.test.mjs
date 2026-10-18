@@ -416,6 +416,7 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
     const downloaded = await blob.text()
     const downloadedFrames = JSON.parse(downloaded).frames
     assert.equal(downloadedFrames.length, 1200)
+    assert.deepEqual(downloadedFrames[0].pointerBreakdown.modelWork, Array(3).fill(Number.MAX_SAFE_INTEGER))
     assert.equal(downloadedFrames[0].waterUpdateReasons, 127)
     assert.equal(downloadedFrames[0].pointerBreakdown.ordinaryTerrain.visibility.indexEntriesWritten, Number.MAX_SAFE_INTEGER)
     assert.equal(downloadedFrames.at(-1).pointerBreakdown.interaction.route, metrics.interaction.route)

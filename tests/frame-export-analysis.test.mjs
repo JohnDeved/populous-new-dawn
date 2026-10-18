@@ -231,11 +231,12 @@ test('full native and ordinary-detail ring remains within the existing 2 MiB JSO
   // Long numeric representations, large finite durations and largest supported
   // counters are deliberately less compact than ordinary millisecond recordings.
   for (const key of Object.keys(metrics))
-    if (key !== 'nativeOcclusion' && key !== 'ordinaryTerrain' && key !== 'interaction') metrics[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
+    if (key !== 'nativeOcclusion' && key !== 'ordinaryTerrain' && key !== 'interaction' && key !== 'modelWork') metrics[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
   for (const key of NATIVE_OCCLUSION_FIELDS)
     metrics.nativeOcclusion[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
   for (const key of ORDINARY_TERRAIN_FIELDS)
     metrics.ordinaryTerrain[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
+  metrics.modelWork.fill(Number.MAX_SAFE_INTEGER)
   metrics.interaction.pointerMoved = false
   metrics.interaction.viewChanged = false
   for (let i = 1; i <= 1200; i++)
@@ -329,4 +330,16 @@ test('optional frame-level water reasons preserve missing old fields and sanitiz
   }
   delete value.frames[0].waterUpdateReasons
   assert.equal(summarize(value).sampleCount, 3)
+})
+
+
+test('optional model work tuple validates old absence and sanitizes known evidence', () => {
+  const value = report()
+  assert.equal(summarize(value).worstFrames.raf[0].pointerBreakdown.modelWork, undefined)
+  value.frames[2].pointerBreakdown.modelWork = [2, 10, 3]
+  assert.deepEqual(summarize(value).worstFrames.raf[0].pointerBreakdown.modelWork, [2,10,3])
+  for (const bad of [null, [], [1,2], [1,2,3], [-1,2,1], [1.5,2,1]]) {
+    value.frames[2].pointerBreakdown.modelWork = bad
+    assert.throws(() => summarize(value), /modelWork/)
+  }
 })

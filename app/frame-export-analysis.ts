@@ -1,3 +1,4 @@
+import { validModelPickWork, type ModelPickWork } from './model-pick-work.ts'
 import { validWaterUpdateReasons } from './water-update-reasons.ts'
 import {
   validPointerInteractionContext,
@@ -48,6 +49,7 @@ type Frame = Record<(typeof FRAME_FIELDS)[number], number> & {
   state: 'live' | 'paused' | 'menu' | 'unknown'
   pointerBreakdown:
     | (Record<(typeof POINTER_FIELDS)[number], number> & {
+        modelWork?: ModelPickWork
         interaction?: PointerInteractionContext
         nativeOcclusion?: NativeOcclusionMetrics
         ordinaryTerrain?: OrdinaryTerrainMetrics
@@ -93,6 +95,9 @@ function frameEvidence(frames: Frame[]) {
     pointerBreakdown: frame.pointerBreakdown
       ? {
           ...Object.fromEntries(POINTER_FIELDS.map(key => [key, frame.pointerBreakdown![key]])),
+          ...(frame.pointerBreakdown.modelWork
+            ? { modelWork: [...frame.pointerBreakdown.modelWork] }
+            : {}),
           ...(frame.pointerBreakdown.interaction
             ? {
                 interaction: {
@@ -262,6 +267,8 @@ export function analyzeFrameExport(json: string) {
       const pointer = object(frame.pointerBreakdown, `frames[${index}].pointerBreakdown`)
       for (const key of POINTER_FIELDS)
         finite(pointer[key], `frames[${index}].pointerBreakdown.${key}`)
+      if (pointer.modelWork !== undefined && !validModelPickWork(pointer.modelWork))
+        throw new Error(`Invalid frames[${index}].pointerBreakdown.modelWork`)
       if (pointer.interaction !== undefined && !validPointerInteractionContext(pointer.interaction))
         throw new Error(`Invalid frames[${index}].pointerBreakdown.interaction`)
       if (pointer.nativeOcclusion !== undefined) {

@@ -1,3 +1,4 @@
+import type { ModelPickWork } from './model-pick-work.ts'
 import {
   createPointerInteractionContext,
   resetPointerInteractionContext,
@@ -16,6 +17,7 @@ import {
 
 // Optional per-callback diagnostics. These fields never feed gameplay state.
 export interface PointerFrameMetrics {
+  modelWork?: ModelPickWork
   interaction?: PointerInteractionContext
   ordinaryTerrain?: OrdinaryTerrainMetrics
   /** Optional versioned native-terrain detail, nested within objectOcclusionMs. */
@@ -41,6 +43,7 @@ export function createPointerFrameMetrics(includeNative = false): PointerFrameMe
   return {
     ...(includeNative
       ? {
+          modelWork: [0, 0, 0] as ModelPickWork,
           interaction: createPointerInteractionContext(),
           nativeOcclusion: createNativeOcclusionMetrics(),
           ordinaryTerrain: createOrdinaryTerrainMetrics(true),
@@ -60,6 +63,7 @@ export function createPointerFrameMetrics(includeNative = false): PointerFrameMe
 }
 
 export function resetPointerFrameMetrics(metrics: PointerFrameMetrics) {
+  if (metrics.modelWork) metrics.modelWork.fill(0)
   if (metrics.interaction) resetPointerInteractionContext(metrics.interaction)
   if (metrics.nativeOcclusion) resetNativeOcclusionMetrics(metrics.nativeOcclusion)
   if (metrics.ordinaryTerrain) resetOrdinaryTerrainMetrics(metrics.ordinaryTerrain)

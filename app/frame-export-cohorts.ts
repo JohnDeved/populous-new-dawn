@@ -27,6 +27,10 @@ const POINTER_METRICS = [
 ] as const
 const METRICS = [
   ...FRAME_METRICS,
+  'modelCacheBuilds',
+  'modelFacesVisited',
+  'modelFacesAccepted',
+  'modelFacesRejected',
   ...POINTER_METRICS.map(key => `pointerBreakdown.${key}`),
   ...ORDINARY_TERRAIN_FIELDS.map(key => `pointerBreakdown.ordinaryTerrain.${key}`),
   ...TERRAIN_VISIBILITY_FIELDS.map(key => `pointerBreakdown.ordinaryTerrain.visibility.${key}`),
@@ -60,6 +64,16 @@ function distribution(values: number[]) {
   }
 }
 function metric(frame: InputFrame, path: string): number | undefined {
+  const modelIndex = [
+    'modelCacheBuilds',
+    'modelFacesVisited',
+    'modelFacesAccepted',
+    'modelFacesRejected',
+  ].indexOf(path)
+  if (modelIndex >= 0) {
+    const work = (frame.pointerBreakdown as { modelWork?: number[] } | null)?.modelWork
+    return work ? (modelIndex === 3 ? work[1] - work[2] : work[modelIndex]) : undefined
+  }
   let value: unknown = frame
   for (const part of path.split('.')) {
     if (!value || typeof value !== 'object') return undefined

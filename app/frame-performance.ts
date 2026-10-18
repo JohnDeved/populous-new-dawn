@@ -1,3 +1,4 @@
+import { validModelPickWork } from './model-pick-work.ts'
 import { validWaterUpdateReasons } from './water-update-reasons.ts'
 import {
   createPointerInteractionContext,
@@ -36,7 +37,8 @@ const ORDINARY_OFFSET = NATIVE_OFFSET + 1 + NATIVE_OCCLUSION_FIELDS.length
 const INTERACTION_OFFSET = ORDINARY_OFFSET + 1 + ORDINARY_TERRAIN_FIELDS.length
 const VISIBILITY_OFFSET = INTERACTION_OFFSET + 7
 const WATER_OFFSET = VISIBILITY_OFFSET + 1 + TERRAIN_VISIBILITY_FIELDS.length
-const RAW_WIDTH = WATER_OFFSET + 1
+const MODEL_WORK_OFFSET = WATER_OFFSET + 1
+const RAW_WIDTH = MODEL_WORK_OFFSET + 4
 
 export interface RecentFrame {
   /** Render-side actual water call reasons, not pointer CPU ownership. */
@@ -160,6 +162,8 @@ export class FramePerformance {
         )
           return false
     }
+    const modelWork = metrics?.modelWork
+    if (modelWork !== undefined && !validModelPickWork(modelWork)) return false
     const ordinary = metrics?.ordinaryTerrain
     if (ordinary !== undefined) {
       if (!ordinary || ordinary.version !== 1) return false
@@ -218,6 +222,9 @@ export class FramePerformance {
     for (let i = 0; i < TERRAIN_VISIBILITY_FIELDS.length; i++)
       this.recent[offset + VISIBILITY_OFFSET + 1 + i] =
         visibility?.[TERRAIN_VISIBILITY_FIELDS[i]] ?? 0
+    this.recent[offset + MODEL_WORK_OFFSET] = modelWork ? 1 : 0
+    for (let i = 0; i < 3; i++)
+      this.recent[offset + MODEL_WORK_OFFSET + 1 + i] = modelWork?.[i] ?? 0
     this.recentCursor = (this.recentCursor + 1) % RECENT_FRAME_CAPACITY
     this.recentCount = Math.min(this.recentCount + 1, RECENT_FRAME_CAPACITY)
     this.callbackHistory[this.cursor] = callback
@@ -276,6 +283,10 @@ export class FramePerformance {
       if (pointerBreakdown)
         for (let i = 0; i < POINTER_FIELDS.length; i++)
           pointerBreakdown[POINTER_FIELDS[i]] = this.recent[offset + 9 + i]
+      if (pointerBreakdown && this.recent[offset + MODEL_WORK_OFFSET])
+        pointerBreakdown.modelWork = [0, 1, 2].map(
+          i => this.recent[offset + MODEL_WORK_OFFSET + 1 + i]
+        ) as [number, number, number]
       if (pointerBreakdown && this.recent[offset + NATIVE_OFFSET]) {
         const native = createNativeOcclusionMetrics()
         for (let i = 0; i < NATIVE_OCCLUSION_FIELDS.length; i++)
