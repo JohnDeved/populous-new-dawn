@@ -3,7 +3,28 @@
 // DOM/projection/texture IO and frame deltas are supplied; this is not the ordinary browser witness.
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { firewarriorPanelFixture } from './support/firewarrior-panel-scene.mjs'
+import { tooltipCallerFixture } from './support/tooltip-scene.mjs'
+import { supplyPanelDom } from './support/camp-panel-scene.mjs'
+
+// Test-local supplied-school fixture; no shared helper or resource policy expansion.
+async function firewarriorPanelFixture(t) {
+  const fixture = await tooltipCallerFixture(t, {
+    level: 2,
+    async prepareTarget({ api, world }) {
+      const { buildingAdmission } = await import('../app/live-building-entry.ts')
+      const hut = api.addBuilding(world, 'blue', 'firewarriorHut', { x: -99, z: -105 }, true)
+      const admission = buildingAdmission(world, hut)
+      assert.equal(admission.class, 2)
+      assert.equal(admission.model, 8)
+      assert.equal(admission.activity & 0x80, 0)
+      return hut
+    },
+  })
+  const { renderBuildingPanels } = await import('../app/building-panels.ts')
+  supplyPanelDom(t, fixture.scene)
+  const paint = () => renderBuildingPanels(fixture.scene, { complete: true, naturalWidth: 2048 })
+  return { ...fixture, school: fixture.hut, paint }
+}
 
 const nop = () => {}
 const records = scene => scene.objectPanels.buildingRecords
