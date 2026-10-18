@@ -8,7 +8,7 @@ import {
 } from './painter-order.ts'
 import type { RenderView } from './render-view.ts'
 import { PainterVertices } from './painter-vertices.ts'
-import { cellObjectOrder, type ObjectCells } from './object-cells.ts'
+import { renderCellObjectOrder, type ObjectCells } from './object-cells.ts'
 import { TerrainAmbience } from './terrain-ambience.ts'
 import type { NativeTerrain } from './native-terrain.ts'
 import { soundListener, treeAmbienceAudible, type SoundEnvironment } from './ambient-sound.ts'
@@ -109,7 +109,7 @@ export class Painter {
     const commands: Command[] = [],
       view = this.view,
       basis = view.uniforms.nativeBasis.value
-    const cellOrder = this.cells ? cellObjectOrder(this.cells) : new Map<number, number>()
+    const cellOrder = this.cells ? renderCellObjectOrder(this.cells) : new Map<number, number>()
     const depth = (p: { x: number; y: number; z: number }) =>
       (Math.imul(p.x, basis[6]) + Math.imul(p.y, basis[7]) + Math.imul(p.z, basis[8])) >> 14
     const world = new THREE.Vector3(),

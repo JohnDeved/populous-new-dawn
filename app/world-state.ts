@@ -1,3 +1,4 @@
+import { createObjectCells } from './object-cells.ts'
 import { createSecondaryEffects } from './secondary-effects.ts'
 import { createWorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
 import {
@@ -131,7 +132,7 @@ export function createWorldState(missionNumber = 1): World {
       teleport: 0,
       swarm: 0,
     },
-    objectCells: { heads: new Float64Array(16384), objects: new Map() },
+    objectCells: createObjectCells(),
     marching: [],
     combatMarches: [],
     lastOrderTurn: 0,
