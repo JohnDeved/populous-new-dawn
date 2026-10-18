@@ -1,3 +1,4 @@
+import { materializeObservations, enforceBudget } from './observation-store.mjs'
 import assert from 'node:assert/strict'
 import { spawn, execFileSync } from 'node:child_process'
 import {
@@ -13,7 +14,7 @@ import {
 import { join, resolve, dirname, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { protocol as p } from './protocol.mjs'
-import { space, save, sha, fileSha, bytes } from './io.mjs'
+import { space, save, sha, fileSha } from './io.mjs'
 import { comparePair } from './compare.mjs'
 const [baseArg, candidateArg, outArg, browserArg] = process.argv.slice(2)
 const base = realpathSync(baseArg),
@@ -167,7 +168,7 @@ try {
   }
   for (const [cohort, side] of p.order) {
     space(out)
-    assert.ok(bytes(out) < p.maximumEvidenceBytes, 'Total evidence budget')
+    report.evidenceAccounting = enforceBudget(out, p.maximumEvidenceBytes)
     const dir = join(out, `${cohort}-${side}`)
     await child(
       `${cohort}-${side}`,
@@ -196,6 +197,8 @@ try {
   const { checkpointCodec } = await import(
     pathToFileURL(join(base, 'scripts/tutorial-browser/checkpoint-codec.mjs'))
   )
+  materializeObservations(out)
+  report.evidenceAccounting = enforceBudget(out, p.maximumEvidenceBytes)
   for (const cohort of ['camera', 'animation'])
     report.comparisons.push({
       cohort,
@@ -206,9 +209,10 @@ try {
         checkpointCodec
       ),
     })
+  report.evidenceAccounting = enforceBudget(out, p.maximumEvidenceBytes)
   report.status = 'passed'
 } catch (error) {
-  report.failure = { message: String(error), stack: error.stack }
+  report.failure = { message: String(error), stack: error.stack, accounting: error.accounting }
   process.exitCode = 1
 } finally {
   try {

@@ -35,12 +35,13 @@ synthetic favorable population. Fresh document/World/context for each child.
 
 F8 is off (scene.fpsGraph === null), no GPU timer observer is installed. Bind
 the canonical browser window to 1440x1000, devicePixelRatio 1 and renderer pixelRatio
+
 1. The main cohorts retain the actual HUD-laid-out canvas, not a forced window-sized
-canvas. Record its CSS rectangle and actual drawing-buffer dimensions separately;
-assert agreement with the unchanged setup admission and normal renderer sizing. Wait for the actual required textures/assets to finish loading in both arms; do
-not compare placeholder textures. Verify WebGL2, non-lost context, logarithmic/reversed-depth capabilities false,
-actual renderer/GL vendor strings and actual browser binary/flags. Software WebGL
-is valid rasterization evidence but explicitly not physical GPU performance.
+   canvas. Record its CSS rectangle and actual drawing-buffer dimensions separately;
+   assert agreement with the unchanged setup admission and normal renderer sizing. Wait for the actual required textures/assets to finish loading in both arms; do
+   not compare placeholder textures. Verify WebGL2, non-lost context, logarithmic/reversed-depth capabilities false,
+   actual renderer/GL vendor strings and actual browser binary/flags. Software WebGL
+   is valid rasterization evidence but explicitly not physical GPU performance.
 
 The fixture uses real GameScene construction and the actual Three WebGLRenderer,
 but a declared symmetric test-only scheduling boundary. Exactly one known start()
@@ -228,7 +229,6 @@ in both arms; the custom material callback must run. Shared/ignored controls req
 exact suppression accounting excluding only the shared target, while hook controls
 require all draw counters equal. Completed source review is still not pixel proof.
 
-
 Revision 5 preserves failed hosted attempt 39172358949 (diagnostic f8e17698). Both builds passed, but the generated test entry had an automatic-semicolon-insertion error before the startup latch, so no controlled callback or pixel comparison ran. The only executable setup repair adds an explicit statement separator. An execution-level TSX regression runs the exact generated entry with IO mocks, proves the preserved old entry throws, and proves the repaired entry installs the latch before its single render. Candidate runtime, fixtures, trajectories, counters and acceptance remain unchanged. Revision 5 then ran once as 39172774059 and failed at the setup focus-motion wait,
 with zero browser page errors and no controlled callback or pixel comparison.
 
@@ -311,8 +311,7 @@ required. All previous incomplete/failing attempts remain separately retained.
 
 Run 39174948729 completed 28 baseline camera callbacks and 21 controls, then correctly
 failed the 1440-wide shared-Points clipping precondition. The original fixed unit 5
-was clipped at 640x480, but its stored depth at 1440x1000 was 0.9892343879, not sentinel
-2. This is baseline control invalidity, not candidate pixel mismatch.
+was clipped at 640x480, but its stored depth at 1440x1000 was 0.9892343879, not sentinel 2. This is baseline control invalidity, not candidate pixel mismatch.
 
 Only correctness controls now use a literal map shared by both arms and cohorts:
 640x480 uses unit 5/layer 0; 1440x1000 uses unit 9/layer 0. Both are existing authored
@@ -335,3 +334,44 @@ No main-cohort actor, World, trajectory, callback count, control count, assertio
 budget is changed. The existing controlled removal/recreation operations now apply
 to the explicit target for each viewport. Previous failures remain retained.
 Separate source admission is required before any new hosted attempt.
+
+## Revision 10: lossless observation storage (unexecuted)
+
+Revision 9 run 39176221668 retained three complete children; its final animation
+candidate stopped after 20 callbacks because the fixed 805,306,368-byte evidence
+cap was reached. This was not a pixel mismatch. Offline, the unchanged comparator
+passed all 53 camera observations (bootstrap, 28 callbacks, 24 controls). Full
+Stage A remains incomplete. The exact failed physical byte count was not recorded
+by revision 9; the archive contains only selected extensions, not every build or
+Chrome profile file, so it cannot reconstruct that count.
+
+Revision 10 changes storage only. Every original gzip byte stream, including
+initial states, is stored under its SHA-256 in observation-cas/*.blob.gz. A durable
+manifest maps every original logical path to its exact compressed byte length
+and hash. Identical blobs are compared byte-for-byte before reuse. Before the
+unchanged comparator runs, all paths are verified and reconstructed as hardlinks.
+No observation, codec marker, pixel byte, callback, control, or assertion is
+removed. Missing/corrupt blobs, unsafe paths, symlinks and conflicting existing
+materializations fail closed. These are sequential children, not concurrent
+manifest writers.
+
+The unchanged cap measures total regular-file bytes by unique device/inode,
+including builds, browser profiles, fixture files, logs, CAS blobs and manifests.
+This is physical content-byte accounting, not filesystem allocated-block usage;
+the independent free-space floor still applies. Logical path bytes and file
+counts are reported separately, so hardlink deduplication is explicit. Budget
+failures now record exact physical bytes, logical bytes and cap. Checks occur
+before and after observation writes and around comparison; a write crossing the
+cap is retained and fails rather than silently deleting evidence.
+
+The hosted artifact retains CAS blobs, manifest, reports, logs, binding receipts,
+and comparison/failure PNGs. It excludes only redundant materialized per-child
+gzip paths. To reconstruct an artifact, call materializeObservations(runRoot),
+then invoke the unchanged comparePair with the original checkpoint codec. A
+copy-only filesystem can copy each verified blob to its mapped path offline,
+but this launcher requires same-filesystem hardlinks and does not hide a copy
+fallback from the fixed budget. All prior artifacts and revisions remain intact.
+
+The 150-second child, 720-second launcher, 15-minute hosted limits and all four
+children remain unchanged. Deduplication adds hashing and manifest work, so this
+is not evidence that the remaining deadline will pass or that gameplay is faster.

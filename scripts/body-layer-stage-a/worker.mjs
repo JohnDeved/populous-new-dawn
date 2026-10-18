@@ -1,5 +1,6 @@
+import { storeObservation, enforceBudget } from './observation-store.mjs'
 import assert from 'node:assert/strict'
-import { readFileSync, writeFileSync, mkdirSync, realpathSync } from 'node:fs'
+import { readFileSync, mkdirSync, realpathSync } from 'node:fs'
 import { resolve, join, dirname } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { gzipSync } from 'node:zlib'
@@ -8,7 +9,7 @@ import { preview } from 'vite'
 import { chromium } from '@playwright/test'
 import { protocol as p } from './protocol.mjs'
 import { loadSetup } from './setup-adapter.mjs'
-import { space, bytes, save, sha, fileSha } from './io.mjs'
+import { space, save, sha, fileSha } from './io.mjs'
 import {
   preparePage,
   assetsReady,
@@ -78,7 +79,7 @@ async function observe(page, label, operation, arg) {
 }
 function store(label, result, picks) {
   space(out)
-  assert.ok(bytes(dirname(out)) < p.maximumEvidenceBytes, 'Evidence budget exceeded')
+  report.evidenceAccounting = enforceBudget(dirname(out), p.maximumEvidenceBytes)
   const pixel = Buffer.from(result.pixels, 'base64')
   assert.equal(pixel.length, result.width * result.height * 4)
   delete result.pixels
@@ -86,8 +87,9 @@ function store(label, result, picks) {
     stateFile = `${label}.state.json.gz`
   const state = Buffer.from(JSON.stringify({ state: result.state, picks }))
   delete result.state
-  writeFileSync(join(out, pixelFile), gzipSync(pixel, { level: 6 }), { flag: 'wx' })
-  writeFileSync(join(out, stateFile), gzipSync(state, { level: 6 }), { flag: 'wx' })
+  storeObservation(dirname(out), `${cohort}-${side}/${pixelFile}`, gzipSync(pixel, { level: 6 }))
+  storeObservation(dirname(out), `${cohort}-${side}/${stateFile}`, gzipSync(state, { level: 6 }))
+  report.evidenceAccounting = enforceBudget(dirname(out), p.maximumEvidenceBytes)
   return { ...result, pixelFile, pixelSha256: sha(pixel), stateFile, stateSha256: sha(state) }
 }
 try {
@@ -186,9 +188,11 @@ try {
   const bootstrap = await observe(page, 'bootstrap', bootstrapAndPixels)
   const initialState = Buffer.from(JSON.stringify(bootstrap.initialState))
   delete bootstrap.initialState
-  writeFileSync(join(out, 'initial-state.json.gz'), gzipSync(initialState, { level: 6 }), {
-    flag: 'wx',
-  })
+  storeObservation(
+    dirname(out),
+    `${cohort}-${side}/initial-state.json.gz`,
+    gzipSync(initialState, { level: 6 })
+  )
   report.initialStateSha256 = sha(initialState)
   report.bootstrap = store('bootstrap', bootstrap, await page.evaluate(picksAfterPixels))
   persist()
@@ -229,7 +233,7 @@ try {
   assert.equal(report.controls.length, 24)
   report.status = 'passed'
 } catch (error) {
-  report.failure = { message: String(error), stack: error.stack }
+  report.failure = { message: String(error), stack: error.stack, accounting: error.accounting }
   process.exitCode = 1
 } finally {
   clearTimeout(timer)
@@ -242,6 +246,12 @@ try {
     process.exitCode = 1
   }
   await Promise.allSettled([...pendingResponses])
+  try {
+    report.evidenceAccounting = enforceBudget(dirname(out), p.maximumEvidenceBytes)
+  } catch (error) {
+    report.budgetFailure = { message: String(error), accounting: error.accounting }
+    process.exitCode = 1
+  }
   report.endedAt = new Date().toISOString()
   persist()
 }

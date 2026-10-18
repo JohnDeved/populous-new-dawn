@@ -21,12 +21,31 @@ export function space(path, start = false) {
   )
   return String(free)
 }
-export function bytes(path) {
-  if (!existsSync(path)) return 0
-  const s = lstatSync(path)
-  if (s.isSymbolicLink()) return 0
-  return s.isDirectory() ? readdirSync(path).reduce((n, p) => n + bytes(join(path, p)), 0) : s.size
+export function accounting(path) {
+  const seen = new Set()
+  let physicalBytes = 0,
+    logicalBytes = 0,
+    files = 0
+  function visit(path) {
+    if (!existsSync(path)) return
+    const s = lstatSync(path)
+    if (s.isSymbolicLink()) return
+    if (s.isDirectory()) {
+      for (const p of readdirSync(path)) visit(join(path, p))
+      return
+    }
+    logicalBytes += s.size
+    files++
+    const key = `${s.dev}:${s.ino}`
+    if (!seen.has(key)) {
+      seen.add(key)
+      physicalBytes += s.size
+    }
+  }
+  visit(path)
+  return { physicalBytes, logicalBytes, files, uniqueFiles: seen.size }
 }
+export const bytes = path => accounting(path).physicalBytes
 export function save(path, value) {
   writeFileSync(path, JSON.stringify(value, null, 2) + '\n')
 }

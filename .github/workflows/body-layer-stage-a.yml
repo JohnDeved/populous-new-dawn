@@ -62,5 +62,7 @@ jobs:
             diagnostic/outputs/body-layer-stage-a/**/*.gz
             diagnostic/outputs/body-layer-stage-a/**/*.png
             diagnostic/outputs/body-layer-stage-a/**/*.log
+            !diagnostic/outputs/body-layer-stage-a/run/camera-*/*.gz
+            !diagnostic/outputs/body-layer-stage-a/run/animation-*/*.gz
           if-no-files-found: warn
           retention-days: 7
