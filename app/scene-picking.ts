@@ -2,7 +2,8 @@ import type { PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import * as THREE from 'three'
 import type { GameScene } from './scene.ts'
 import type { Command } from './painter.ts'
-import { modelMatrix, modelPoint, projectPoint } from './projection.ts'
+import { modelMatrix, projectPoint } from './projection.ts'
+import { preparePickingModelTransform } from './picking-model-transform.ts'
 import { modelFaceVisible } from './model-faces.ts'
 import { modelTriangleVisible, polygonBucket } from './painter-order.ts'
 import {
@@ -62,6 +63,9 @@ export class ScenePicking {
     const origin = new THREE.Vector3().setFromMatrixPosition(mesh.matrixWorld)
     const nativeOrigin = s.view.relative(origin, (origin.y * 128) / 45)
     const basis = modelMatrix(meta.nativeHeading ?? 0, meta.nativeTilt ?? 0, meta.nativeRoll ?? 0)
+    // This fresh basis is local to this cache miss and never escapes to a model,
+    // painter or command. Animated key changes build a new scalar snapshot.
+    const transformPoint = preparePickingModelTransform(basis)
     const points = new Map<string, ReturnType<typeof projectPoint>>()
     const commands: ModelCommand[] = []
     let rendered = 0,
@@ -84,7 +88,7 @@ export class ScenePicking {
         let p = points.get(vertexKey)
         if (!p) {
           p = projectPoint(
-            modelPoint(raw, shape.nativeSize ?? data.scale, basis, nativeOrigin),
+            transformPoint(raw, shape.nativeSize ?? data.scale, nativeOrigin),
             s.view.projection
           )
           points.set(vertexKey, p)
