@@ -39,6 +39,8 @@ test('mixed overlapping groups retain unknown changes and independently measured
     null, undefined,
   ]))
   assert.equal(result.groupsOverlap, true)
+  assert.equal(group(result, 'all').metrics.modelFacesRejected.sampleCount, 6)
+  assert.equal(group(result, 'all').metrics.modelFacesRejected.max, 0)
   for (const [name, count] of Object.entries({ all: 7, worldPointerMoving: 1, worldPointerStationary: 1,
     worldPointerUnknown: 1, cameraChanged: 2, cameraUnknown: 3, hud: 1, outside: 1, unknown: 3 }))
     assert.equal(group(result, name).sampleCount, count, name)

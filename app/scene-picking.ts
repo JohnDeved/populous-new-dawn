@@ -206,12 +206,21 @@ export class ScenePicking {
           return
         const source = view.painter.source(object)
         if (!source) return
-        const commands = this.model(object, viewKey),
-          bounds = commands.at(-1)!
+        const work = metrics?.modelWork
+        const previousModel = work ? this.models.get(object) : undefined
+        const commands = this.model(object, viewKey)
+        if (work && this.models.get(object) !== previousModel) work[0]++
+        const bounds = commands.at(-1)!
         if (bounds.kind !== 'bounds' || !inHitBounds(point, bounds.bounds)) return
         hits.push({ ...bounds, source })
         for (const c of commands)
-          if (c.kind === 'model' && inHitTriangle(point, c.points)) hits.push({ ...c, source })
+          if (c.kind === 'model') {
+            if (metrics?.modelWork) metrics.modelWork[1]++
+            if (inHitTriangle(point, c.points)) {
+              if (metrics?.modelWork) metrics.modelWork[2]++
+              hits.push({ ...c, source })
+            }
+          }
       })
     if (metrics) {
       const now = performance.now()
