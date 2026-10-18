@@ -1,0 +1,86 @@
+name: Browser performance comparison
+
+on:
+  pull_request:
+    branches: [main]
+    types: [ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browser-performance-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    name: Informational browser performance (${{ matrix.shard }})
+    if: ${{ github.event.pull_request.draft == false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        shard: [world, recovery]
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      BENCHMARK_SHARD: ${{ matrix.shard }}
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Check out trusted exact base and common harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: harness
+          persist-credentials: false
+      - name: Check out exact unmerged PR head as build input only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: candidate
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Install common locked base dependencies
+        working-directory: harness
+        run: |
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+          npm ci --ignore-scripts --no-audit --no-fund
+          test -x /opt/google/chrome/chrome
+          test -f scripts/browser-performance/run.mjs
+      - name: Run sequential paired fresh browsers on this runner
+        working-directory: harness
+        run: node scripts/browser-performance/run.mjs
+      - name: Retain bounded reporter input separately from raw evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: browser-performance-report-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
+          path: harness/outputs/browser-performance/${{ matrix.shard }}/report.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Retain raw captures, summaries and execution provenance
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: browser-performance-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
+          path: |
+            harness/outputs/browser-performance/${{ matrix.shard }}/receipt.json
+            harness/outputs/browser-performance/${{ matrix.shard }}/*.log
+            harness/outputs/browser-performance/${{ matrix.shard }}/session-*/*.json
+            harness/outputs/browser-performance/${{ matrix.shard }}/session-*/*.png
+          if-no-files-found: warn
+          retention-days: 7
