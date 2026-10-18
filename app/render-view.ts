@@ -612,11 +612,17 @@ export class RenderView {
             Object.getPrototypeOf(this) === RenderView.prototype &&
             !Object.hasOwn(this, 'screen') &&
             !Object.hasOwn(this, 'relative') &&
-            RenderView.prototype.screen === ordinaryScreen &&
-            RenderView.prototype.relative === ordinaryRelative &&
-            ordinaryMath.every(([name, method]) => Math[name] === method) &&
-            THREE.Vector3.prototype.fromBufferAttribute === ordinaryFromBuffer &&
-            THREE.Vector3.prototype.applyMatrix4 === ordinaryApplyMatrix &&
+            Object.getOwnPropertyDescriptor(RenderView.prototype, 'screen')?.value ===
+              ordinaryScreen &&
+            Object.getOwnPropertyDescriptor(RenderView.prototype, 'relative')?.value ===
+              ordinaryRelative &&
+            ordinaryMath.every(
+              ([name, method]) => Object.getOwnPropertyDescriptor(Math, name)?.value === method
+            ) &&
+            Object.getOwnPropertyDescriptor(THREE.Vector3.prototype, 'fromBufferAttribute')
+              ?.value === ordinaryFromBuffer &&
+            Object.getOwnPropertyDescriptor(THREE.Vector3.prototype, 'applyMatrix4')?.value ===
+              ordinaryApplyMatrix &&
             canonicalProjectionAttribute(position, false) &&
             canonicalProjectionAttribute(index!, true)
               ? ordinaryProjectionState(this, transform)

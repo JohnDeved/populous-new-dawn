@@ -50,3 +50,13 @@ Downstream addScaledVector receives freshly prepared world vectors, never cached
 numeric storage. Retaining or mutating those arguments after a query cannot poison
 later projections. The cache copies output components before candidate resolution;
 no custom consumer receives a cache array or retained mutable projection object.
+
+## Accessor certification repair
+
+Canonical helper identity is certified from own data descriptors, not property
+reads. Accessors that return the canonical function are rejected for screen,
+relative, Vector3.fromBufferAttribute/applyMatrix4 and all four projection Math
+helpers. Attribute getX/getY/getZ, normalized/itemSize/array, and projection/matrix
+input certification already used own descriptors; those remain unchanged.
+Downstream custom vector consumers still receive only fresh vectors, not retained
+cache state. Eight failure-first regressions cover every repaired helper guard.

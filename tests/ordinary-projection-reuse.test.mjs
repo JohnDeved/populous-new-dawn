@@ -257,3 +257,18 @@ test('retaining and mutating addScaledVector arguments cannot poison cached proj
   assert.deepEqual(next.candidates, expected)
   assert.deepEqual(next.candidates, f.oracle())
 })
+
+for (const [target, name] of [
+  [RenderView.prototype, 'screen'], [RenderView.prototype, 'relative'],
+  [THREE.Vector3.prototype, 'fromBufferAttribute'], [THREE.Vector3.prototype, 'applyMatrix4'],
+  ...['round', 'imul', 'trunc', 'fround'].map(name => [Math, name]),
+]) test('accessor returning canonical ' + name + ' cannot certify reuse', t => {
+  const f = fixture(t)
+  f.query()
+  const descriptor = Object.getOwnPropertyDescriptor(target, name)
+  try {
+    Object.defineProperty(target, name, { configurable: true, get: () => descriptor.value })
+    assert.equal(f.query().metrics.projectedVertices, 4, name + ' accessor must fall back')
+    assert.deepEqual(f.query().candidates, f.oracle())
+  } finally { Object.defineProperty(target, name, descriptor) }
+})
