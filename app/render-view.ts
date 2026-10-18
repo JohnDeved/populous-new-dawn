@@ -153,7 +153,30 @@ interface PickSubmissionState {
   cells: Uint32Array
 }
 
+// Fixed shipped-grid capacity. These are working buffers, never a geometry cache:
+// every ordinary query recomputes current positions and projections.
+class OrdinaryPickScratch {
+  corners = new Uint32Array(129 * 129)
+  slots = new Uint32Array(128 * 128 * 6)
+  world: THREE.Vector3[] = []
+  screen: THREE.Vector4[] = []
+
+  reset() {
+    this.corners.fill(0)
+    this.slots.fill(0)
+    this.clearPoints()
+  }
+
+  clearPoints() {
+    this.world.length = 0
+    this.screen.length = 0
+  }
+}
+
 export class RenderView {
+  private ordinaryPickScratch: OrdinaryPickScratch | null = null
+  private ordinaryPickDepth = 0
+  private ordinaryPickDisposed = false
   groundPickCache = new WeakMap<
     THREE.Object3D,
     Map<
@@ -418,6 +441,30 @@ export class RenderView {
     metrics?: NativeOcclusionMetrics,
     ordinaryMetrics?: OrdinaryTerrainMetrics
   ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0) this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+      return this.collectPickCandidates(
+        mouse,
+        objects,
+        camera,
+        nativeEdges,
+        metrics,
+        ordinaryMetrics
+      )
+    } finally {
+      if (--this.ordinaryPickDepth === 0) this.ordinaryPickScratch?.clearPoints()
+    }
+  }
+
+  private collectPickCandidates(
+    mouse: THREE.Vector2,
+    objects: THREE.Object3D[],
+    camera: THREE.Camera,
+    nativeEdges: boolean,
+    metrics?: NativeOcclusionMetrics,
+    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ): ViewPickCandidate[] {
     const nativeMetrics = nativeEdges ? metrics : undefined
     const ordinary = nativeEdges ? undefined : ordinaryMetrics
     const projectionMetrics = nativeMetrics ?? ordinary
@@ -492,9 +539,7 @@ export class RenderView {
             else if (cache.position !== position) nativeMetrics.cachePositionChanged++
             else nativeMetrics.cacheKeyChanged++
           }
-          const world: THREE.Vector3[] = reuse ? cache.world : [],
-            screen: THREE.Vector4[] = reuse ? cache.screen : [],
-            scale = object.userData.nativeScale
+          const scale = object.userData.nativeScale
           const origin = new THREE.Vector3().setFromMatrixPosition(transform),
             basis = modelMatrix(
               object.parent?.userData.nativeHeading ?? 0,
@@ -504,8 +549,8 @@ export class RenderView {
             unwrapped = !!object.userData.nativeRelative
           const count = index ? Math.min(index.count, geometry.drawRange.count) : position.count
           // Equal shipped grid corners share projection work only within this
-          // query and instance. Never retain painter or cross-query buffers.
-          const terrainCorners =
+          // query and instance. Reuse storage, not projected values or painter state.
+          const terrainCornerEligible =
             !nativeEdges &&
             !scale &&
             object instanceof THREE.InstancedMesh &&
@@ -531,16 +576,27 @@ export class RenderView {
             !index.normalized &&
             index.itemSize === 1 &&
             count % 6 === 0
-              ? new Uint32Array(129 * 129)
-              : null
           // Original vertex IDs are sparse and duplicate corners need only an
           // alias, not another sparse world/screen array entry. Keep projected
           // entries packed for this query; candidate triangle IDs stay original.
-          const terrainSlots =
-            terrainCorners &&
+          const terrainSlotEligible =
+            terrainCornerEligible &&
             index!.array.subarray(0, count).every((id: number) => id < position.count)
-              ? new Uint32Array(position.count)
+          // A screen/visibility override can synchronously pick again. Nested
+          // calls use independent temporary storage, never the active lease.
+          const scratch =
+            terrainSlotEligible && this.ordinaryPickDepth === 1 && !this.ordinaryPickDisposed
+              ? (this.ordinaryPickScratch ??= new OrdinaryPickScratch())
               : null
+          scratch?.reset()
+          const terrainCorners = terrainCornerEligible
+              ? (scratch?.corners ?? new Uint32Array(129 * 129))
+              : null,
+            terrainSlots = terrainSlotEligible
+              ? (scratch?.slots ?? new Uint32Array(position.count))
+              : null,
+            world: THREE.Vector3[] = reuse ? cache.world : (scratch?.world ?? []),
+            screen: THREE.Vector4[] = reuse ? cache.screen : (scratch?.screen ?? [])
           for (let vertex = 0; vertex < count; vertex++) {
             const i = index ? index.getX(vertex) : vertex
             if (terrainSlots ? terrainSlots[i] : screen[i]) continue
@@ -920,6 +976,11 @@ export class RenderView {
     })
   }
   dispose() {
+    // Drop ownership without mutating any buffers an active reentrant call holds.
+    this.ordinaryPickScratch = null
+    // Remaining instances/roots in this query must not reacquire ownership.
+    // A later independent top-level query may initialize fresh storage.
+    this.ordinaryPickDisposed = true
     this.boundsTexture.dispose()
     this.painter.texture.dispose()
   }

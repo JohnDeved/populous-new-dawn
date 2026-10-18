@@ -3,6 +3,7 @@ import test from 'node:test'
 import * as THREE from 'three'
 import { readFileSync } from 'node:fs'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
+import { createPointerFrameMetrics, resetPointerFrameMetrics } from '../app/pointer-frame-metrics.ts'
 import { RenderView } from '../app/render-view.ts'
 import { TerrainVisibilityPreparation, terrainTiles, visibleTerrainCells, visibleTerrainCopies } from '../app/terrain-visibility.ts'
 
@@ -171,6 +172,21 @@ test('shipped terrain rebuild and water update between ordinary picking and rend
     f.view.prepare(scene)
     f.view.painter.update = () => {}
     f.view.pickCandidates(new THREE.Vector2(), [f.mesh], new THREE.Camera())
+    const metrics = createPointerFrameMetrics(true)
+    const point = new THREE.Vector2(), camera = new THREE.Camera()
+    const disabled = f.view.pickCandidates(point, [f.mesh], camera)
+    const scratch = f.view.ordinaryPickScratch
+    const enabled = f.view.pickCandidates(point, [f.mesh], camera, false, metrics.nativeOcclusion, metrics.ordinaryTerrain)
+    assert.deepEqual(enabled, disabled)
+    assert.ok(metrics.ordinaryTerrain.projectedVertices > 0)
+    assert.equal(metrics.nativeOcclusion.projectedVertices, 0)
+    assert.equal(f.view.ordinaryPickScratch, scratch)
+    assert.equal(scratch.world.length, 0)
+    assert.equal(scratch.screen.length, 0)
+    f.view.pickCandidates(point, [f.mesh], camera, true, metrics.nativeOcclusion, metrics.ordinaryTerrain)
+    resetPointerFrameMetrics(metrics)
+    assert.equal(metrics.ordinaryTerrain.projectedVertices, 0)
+    assert.deepEqual(f.view.pickCandidates(point, [f.mesh], camera), disabled)
     const indexVersion = f.mesh.geometry.index.version
     const positionVersion = f.mesh.geometry.getAttribute('position').version
     world.turn = 23
