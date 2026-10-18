@@ -213,8 +213,10 @@ export function updateTerrainTexture(scene: GameScene) {
   const terrainChanged =
     scene.terrainMapVersion !== w.landVersion ||
     !w.land.shadows.every((v, i) => v === scene.terrainShadows[i])
-  let fullUpload = false
+  let fullUpload = false,
+    bounds: NonNullable<GameScene['terrainAtlasState']>['updatedBounds'] = null
   if (terrainChanged) {
+    const previous = scene.terrainAtlasState
     scene.terrainAtlasState = terrainAtlas(
       w.land,
       scene.terrainTextures,
@@ -222,24 +224,40 @@ export function updateTerrainTexture(scene: GameScene) {
       32,
       marks.pixels
     )
-    fullUpload = scene.terrainAtlasState.updated > 0
+    bounds = scene.terrainAtlasState.updatedBounds
+    fullUpload = !!bounds && !previous
     scene.terrainMapVersion = w.landVersion
     scene.terrainShadows.set(w.land.shadows)
   }
-  if (!scene.terrainAtlasState || (!fullUpload && !marks.dirty.size)) return
+  if (!scene.terrainAtlasState || (!bounds && !marks.dirty.size)) return
+  // Preserve all CPU edits while no GPU destination can accept the subimage.
+  fullUpload ||= scene.renderer.getContext().isContextLost()
   scene.terrainMap.image = { data: scene.terrainAtlasState.pixels, width: 4096, height: 4096 }
-  // An unbound DataTexture supplies CPU pixels directly: one subimage upload
-  // per tile, with no staging copies, extra draw calls or 64 MiB atlas upload.
+  // An unbound DataTexture supplies the full CPU image plus source stride/offset.
+  // Footprint tiles and changed terrain rectangles need no packed staging copy.
   scene.terrainUpload.image = scene.terrainMap.image
   const region = new THREE.Box2()
   updateFootprintTiles(scene.terrainAtlasState, w.land, scene.terrainTextures, marks, (x, y) => {
-    if (fullUpload) return
+    if (
+      fullUpload ||
+      (bounds && x >= bounds[0] && y >= bounds[1] && x + 32 <= bounds[2] && y + 32 <= bounds[3])
+    )
+      return
     region.min.set(x, y)
     region.max.set(x + 32, y + 32)
     scene.renderer.copyTextureToTexture(scene.terrainUpload, scene.terrainMap, region, region.min)
   })
   marks.dirty.clear()
   if (fullUpload) scene.terrainMap.needsUpdate = true
+  else if (bounds) {
+    // One bounding rectangle avoids a full 64 MiB upload for local land/shadow
+    // edits, without turning dense changes into thousands of GPU calls. The
+    // renderer initializes pending/restored/disposed destinations from the full
+    // CPU image before copying; the source remains unbound, as for footprints.
+    region.min.set(bounds[0], bounds[1])
+    region.max.set(bounds[2], bounds[3])
+    scene.renderer.copyTextureToTexture(scene.terrainUpload, scene.terrainMap, region, region.min)
+  }
 }
 
 export function landIndex(scene: GameScene, x: number, z: number) {
