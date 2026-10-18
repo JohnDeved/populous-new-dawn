@@ -1,4 +1,11 @@
-import { NATIVE_OCCLUSION_FIELDS, createNativeOcclusionMetrics } from './native-occlusion-metrics.ts'
+import {
+  ORDINARY_TERRAIN_FIELDS,
+  createOrdinaryTerrainMetrics,
+} from './ordinary-terrain-metrics.ts'
+import {
+  NATIVE_OCCLUSION_FIELDS,
+  createNativeOcclusionMetrics,
+} from './native-occlusion-metrics.ts'
 import { createPointerFrameMetrics, type PointerFrameMetrics } from './pointer-frame-metrics.ts'
 
 export const RECENT_FRAME_CAPACITY = 1200
@@ -15,7 +22,8 @@ const POINTER_FIELDS = [
   'tooltipRenderMs',
 ] as const
 const NATIVE_OFFSET = 9 + POINTER_FIELDS.length
-const RAW_WIDTH = NATIVE_OFFSET + 1 + NATIVE_OCCLUSION_FIELDS.length
+const ORDINARY_OFFSET = NATIVE_OFFSET + 1 + NATIVE_OCCLUSION_FIELDS.length
+const RAW_WIDTH = ORDINARY_OFFSET + 1 + ORDINARY_TERRAIN_FIELDS.length
 
 export interface RecentFrame {
   timestampMs: number
@@ -136,6 +144,17 @@ export class FramePerformance {
         )
           return false
     }
+    const ordinary = metrics?.ordinaryTerrain
+    if (ordinary !== undefined) {
+      if (!ordinary || ordinary.version !== 1) return false
+      for (const key of ORDINARY_TERRAIN_FIELDS)
+        if (
+          !Number.isFinite(ordinary[key]) ||
+          ordinary[key] < 0 ||
+          (!key.endsWith('Ms') && !Number.isSafeInteger(ordinary[key]))
+        )
+          return false
+    }
     this.timestamp = timestamp
     const offset = this.recentCursor * RAW_WIDTH
     this.recent[offset] = timestamp
@@ -153,6 +172,9 @@ export class FramePerformance {
     this.recent[offset + NATIVE_OFFSET] = native ? 1 : 0
     for (let i = 0; i < NATIVE_OCCLUSION_FIELDS.length; i++)
       this.recent[offset + NATIVE_OFFSET + 1 + i] = native?.[NATIVE_OCCLUSION_FIELDS[i]] ?? 0
+    this.recent[offset + ORDINARY_OFFSET] = ordinary ? 1 : 0
+    for (let i = 0; i < ORDINARY_TERRAIN_FIELDS.length; i++)
+      this.recent[offset + ORDINARY_OFFSET + 1 + i] = ordinary?.[ORDINARY_TERRAIN_FIELDS[i]] ?? 0
     this.recentCursor = (this.recentCursor + 1) % RECENT_FRAME_CAPACITY
     this.recentCount = Math.min(this.recentCount + 1, RECENT_FRAME_CAPACITY)
     this.callbackHistory[this.cursor] = callback
@@ -216,6 +238,12 @@ export class FramePerformance {
         for (let i = 0; i < NATIVE_OCCLUSION_FIELDS.length; i++)
           native[NATIVE_OCCLUSION_FIELDS[i]] = this.recent[offset + NATIVE_OFFSET + 1 + i]
         pointerBreakdown.nativeOcclusion = native
+      }
+      if (pointerBreakdown && this.recent[offset + ORDINARY_OFFSET]) {
+        const ordinary = createOrdinaryTerrainMetrics()
+        for (let i = 0; i < ORDINARY_TERRAIN_FIELDS.length; i++)
+          ordinary[ORDINARY_TERRAIN_FIELDS[i]] = this.recent[offset + ORDINARY_OFFSET + 1 + i]
+        pointerBreakdown.ordinaryTerrain = ordinary
       }
       return {
         pointerBreakdown,

@@ -511,3 +511,28 @@ test('optional native occlusion extension snapshots independently and never fabr
   assert.equal(samples.sample(10, 0, 1, 3, 2, 0, 30, 'live', metrics), false)
   assert.equal(samples.recentFrames().length, 2)
 })
+
+test('optional ordinary terrain extension snapshots independently and never fabricates old data', () => {
+  const samples = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+  metrics.ordinaryTerrain.visitedTriangles = 1
+  metrics.ordinaryTerrain.projectedVertices = 42
+  metrics.ordinaryTerrain.triangleScanMs = 3.5
+  const expected = structuredClone(metrics)
+  samples.sample(10, 1, 2, 3, 6, 1, 10, 'live', metrics)
+  assert.equal(samples.recentFrames().length, 1)
+  resetPointerFrameMetrics(metrics)
+  assert.deepEqual(samples.recentFrames()[0].pointerBreakdown, expected)
+  const first = samples.recentFrames()
+  first[0].pointerBreakdown.ordinaryTerrain.visitedTriangles = 999
+  assert.deepEqual(samples.recentFrames()[0].pointerBreakdown, expected)
+  samples.sample(10, 0, 1, 3, 2, 0, 20, 'live', createPointerFrameMetrics())
+  assert.equal(samples.recentFrames()[1].pointerBreakdown.ordinaryTerrain, undefined)
+  for (const value of [-1, NaN, 0.5, Number.MAX_SAFE_INTEGER + 1]) {
+    metrics.ordinaryTerrain.projectedVertices = value
+    assert.equal(samples.sample(10, 0, 1, 3, 2, 0, 30, 'live', metrics), false)
+  }
+  resetPointerFrameMetrics(metrics)
+  metrics.ordinaryTerrain.version = 2
+  assert.equal(samples.sample(10, 0, 1, 3, 2, 0, 30, 'live', metrics), false)
+  assert.equal(samples.recentFrames().length, 2)
+})

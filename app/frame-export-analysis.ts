@@ -1,3 +1,4 @@
+import { ORDINARY_TERRAIN_FIELDS, type OrdinaryTerrainMetrics } from './ordinary-terrain-metrics.ts'
 import { NATIVE_OCCLUSION_FIELDS, type NativeOcclusionMetrics } from './native-occlusion-metrics.ts'
 // Offline analysis only. Never import this into the frame loop or treat nested timings as additive.
 const FRAME_FIELDS = [
@@ -34,7 +35,10 @@ type RecordValue = Record<string, unknown>
 type Frame = Record<(typeof FRAME_FIELDS)[number], number> & {
   state: 'live' | 'paused' | 'menu' | 'unknown'
   pointerBreakdown:
-    | (Record<(typeof POINTER_FIELDS)[number], number> & { nativeOcclusion?: NativeOcclusionMetrics })
+    | (Record<(typeof POINTER_FIELDS)[number], number> & {
+        nativeOcclusion?: NativeOcclusionMetrics
+        ordinaryTerrain?: OrdinaryTerrainMetrics
+      })
     | null
 }
 
@@ -81,6 +85,19 @@ function frameEvidence(frames: Frame[]) {
                     NATIVE_OCCLUSION_FIELDS.map(key => [
                       key,
                       frame.pointerBreakdown!.nativeOcclusion![key],
+                    ])
+                  ),
+                },
+              }
+            : {}),
+          ...(frame.pointerBreakdown.ordinaryTerrain
+            ? {
+                ordinaryTerrain: {
+                  version: 1,
+                  ...Object.fromEntries(
+                    ORDINARY_TERRAIN_FIELDS.map(key => [
+                      key,
+                      frame.pointerBreakdown!.ordinaryTerrain![key],
                     ])
                   ),
                 },
@@ -206,6 +223,16 @@ export function analyzeFrameExport(json: string) {
         if (native.version !== 1) throw new Error(`Unsupported ${path}.version`)
         for (const key of NATIVE_OCCLUSION_FIELDS) {
           const value = finite(native[key], `${path}.${key}`)
+          if (!key.endsWith('Ms') && !Number.isSafeInteger(value))
+            throw new Error(`Invalid ${path}.${key}: expected a safe integer counter`)
+        }
+      }
+      if (pointer.ordinaryTerrain !== undefined) {
+        const path = `frames[${index}].pointerBreakdown.ordinaryTerrain`
+        const ordinary = object(pointer.ordinaryTerrain, path)
+        if (ordinary.version !== 1) throw new Error(`Unsupported ${path}.version`)
+        for (const key of ORDINARY_TERRAIN_FIELDS) {
+          const value = finite(ordinary[key], `${path}.${key}`)
           if (!key.endsWith('Ms') && !Number.isSafeInteger(value))
             throw new Error(`Invalid ${path}.${key}: expected a safe integer counter`)
         }
