@@ -1,10 +1,12 @@
 // Frozen into each admitted job's argv, so even an older drainer enters this
 // boundary. It is not a second controller and never acquires/releases queue locks.
+/* eslint-disable @typescript-eslint/no-require-imports -- Frozen CommonJS entry point validates synchronously before exec. */
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
 const { createHash } = require('node:crypto')
 const { spawnSync } = require('node:child_process')
+/* eslint-enable @typescript-eslint/no-require-imports */
 const envelope = JSON.parse(process.argv[1])
 const { id, output, command, ports, protocol, controllerSourceSha256, payloadEnvironmentSha256 } = envelope
 const cleanup = path.join(output, 'cleanup.json')
