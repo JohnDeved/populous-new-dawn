@@ -16,6 +16,35 @@ import {
   workshopWorkBlocks,
 } from './workshop-panel.ts'
 
+// Building handles are recycled. Controls belong to the identity last painted,
+// not whichever building later occupies that handle before the next paint.
+const panelBuildings = new WeakMap<HTMLDivElement, Building>()
+
+function currentPanelBuilding(scene: GameScene, panel: HTMLDivElement) {
+  if (panel.hidden || !scene.isCurrent() || scene.world.inputMask || scene.overviewActive) return
+  const rendered = panelBuildings.get(panel)
+  if (!rendered || scene.buildingPanels.get(rendered.id) !== panel) return
+  return scene.world.buildings.find(
+    b =>
+      b === rendered &&
+      b.team === 'blue' &&
+      b.hp > 0 &&
+      (b.progress < 1 || buildingOccupantPanelProfile(b))
+  )
+}
+
+function currentPanelOccupant(scene: GameScene, b: Building, id: number) {
+  return scene.world.units.find(
+    u =>
+      u.id === id &&
+      u.team === 'blue' &&
+      u.hp > 0 &&
+      (b.progress < 1
+        ? u.work === b.id && b.builders?.includes(id)
+        : u.inside === b.id && b.admission?.occupants.includes(id))
+  )
+}
+
 export function retainedBuildingPanel(
   b: Pick<Building, 'kind' | 'progress' | 'admission'>,
   playerTribe: number
@@ -77,19 +106,19 @@ function createPanel(scene: GameScene, b: Building) {
     const button = document.createElement('button')
     button.type = 'button'
     button.addEventListener('click', event => {
-      if (scene.world.inputMask || scene.overviewActive) return
-      selectBuildingOccupants(scene.world, b, Number(button.dataset.person), event.shiftKey)
+      const building = currentPanelBuilding(scene, panel),
+        person = building && currentPanelOccupant(scene, building, Number(button.dataset.person))
+      if (!building || !person) return
+      selectBuildingOccupants(scene.world, building, person.id, event.shiftKey)
       scene.onSound(0x6a)
       scene.onChange()
       scene.renderBuildingPanels()
     })
     button.addEventListener('contextmenu', event => {
       event.preventDefault()
-      if (scene.world.inputMask || scene.overviewActive) return
-      const u = scene.world.units.find(
-        unit => unit.id === Number(button.dataset.person) && unit.hp > 0
-      )
-      if (!u || (u.inside !== b.id && !(b.progress < 1 && b.builders?.includes(u.id)))) return
+      const building = currentPanelBuilding(scene, panel),
+        u = building && currentPanelOccupant(scene, building, Number(button.dataset.person))
+      if (!u) return
       scene.focus(u, { animate: true })
       scene.objectPanels.open(u.id, true)
       scene.onSound(0x6a)
@@ -100,8 +129,9 @@ function createPanel(scene: GameScene, b: Building) {
   dismantle.type = 'button'
   dismantle.className = 'dismantle-control'
   dismantle.addEventListener('click', () => {
-    if (scene.world.inputMask || scene.overviewActive) return
-    dismantleBuilding(scene.world, b)
+    const building = currentPanelBuilding(scene, panel)
+    if (!building) return
+    dismantleBuilding(scene.world, building)
     scene.onSound(0x6a)
     scene.onChange()
     scene.renderBuildingPanels()
@@ -208,6 +238,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       scene.buildingPanels.delete(b.id)
     }
     const panel = scene.buildingPanels.get(b.id) ?? createPanel(scene, b)
+    panelBuildings.set(panel, b)
     const canvas = panel.firstElementChild as HTMLCanvasElement,
       dismantle = panel.lastElementChild as HTMLButtonElement
     const buttons = [...panel.children].slice(1, -1) as HTMLButtonElement[]
