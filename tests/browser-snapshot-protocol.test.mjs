@@ -4,12 +4,12 @@ import vm from 'node:vm'
 import { FramePerformance } from '../app/frame-performance.ts'
 import { createPointerFrameMetrics } from '../app/pointer-frame-metrics.ts'
 import { installSnapshotObserver } from '../scripts/browser-performance/snapshot-observer.mjs'
-import { plan, shards, order, repository, metricEligibility, metrics, protocolHash, summarizeSnapshotPhase,
+import { plan, shards, order, repository, metricEligibility, eligibility, metrics, protocolHash, summarizeSnapshotPhase,
   validateReport, parseReport, comparableWork, compareReports, maxReportBytes } from '../scripts/browser-performance/snapshot-protocol.mjs'
 const revision = 'a'.repeat(40), digest = 'c'.repeat(64)
 const identity = { repository, prNumber: 42, baseSha: revision, headSha: 'b'.repeat(40), harnessSha: revision, runId: 1234, runAttempt: 1 }
 function fixture(name = 'ordinary-hover', cpu = 10, buildRevision = revision) {
-  const ring = new FramePerformance(), hud = name === 'hud', native = name === 'native-hover'
+  const ring = new FramePerformance(), hud = name === 'hud', drag = name === 'native-view-drag', native = name === 'native-hover' || drag
   for (let i = 0; i < 32; i++) {
     const pointer = createPointerFrameMetrics(true)
     pointer.interaction.route = hud ? 'hud' : 'world'
@@ -44,6 +44,36 @@ function fixture(name = 'ordinary-hover', cpu = 10, buildRevision = revision) {
     session: { level: 2 }, environment: { viewportCssPixels: plan.viewport, devicePixelRatio: 1, visibility: 'visible' },
     timing: { timeOriginUnixMs: 10000, capacityFrames: 1200, count: frames.length, startTimestampMs: 0,
       endTimestampMs: 640, capturedSpanMs: 640 }, frames }
+  if (drag) {
+    camera.position = { x: 40192, y: 23808, angle: 0 }; camera.viewPoint = { x: -107, z: -101 }
+    const boundary = (angle, version, time) => {
+      const count = angle ? 21636 : 22032, witness = Array(113).fill(0)
+      witness.splice(0, 6, 1, 1, 1, 1, 1, 0); witness[10] = version; witness[19] = count; witness[20] = 4
+      return { fingerprintSha256: (angle ? 'd' : 'c').repeat(64), positionSha256: digest, indexSha256: (angle ? 'e' : 'f').repeat(64),
+        instancesSha256: digest, consumerMethodsSha256: digest,
+        metadata: { drawRange: { start: 0, count }, index: { submittedCount: count }, instanceCount: 4 },
+        witness, observationStartTimestampMs: time, timestampMs: time }
+    }
+    for (const [step, block] of recording.blocks.entries()) {
+      const angle = (step + 1) % 2, anchor = block.event.anchorSerial
+      block.geometryBefore = boundary(step % 2, step + 1, anchor * 20)
+      block.geometryAfter = boundary(angle, step + 2, (anchor + 4) * 20)
+      block.preparation = null; block.event.x = 900 + angle; block.event.y = 400; block.event.buttons = 2
+      const pose = a => [40192, 23808, a, -107, -101, a * Math.PI / 1024, 0, 0, 900 + a, 400, 2, 1, 70,
+        ...Array(12).fill(0), 1, -1, 54, 40192, 23808, -25344, 23808, a, 0, ...Array(21).fill(0), a, ...Array(16).fill(0)]
+      block.event.beforePose = pose(step % 2); block.event.geometryWitness = [...block.geometryBefore.witness]
+      for (const [i, observed] of block.frames.entries()) {
+        observed.pose = pose(angle); observed.geometryWitness = [...block.geometryAfter.witness]
+        const frame = raw.frames[observed.serial - 1], pointer = frame.pointerBreakdown, n = pointer.nativeOcclusion
+        frame.simulationSteps = 0
+        pointer.terrainPickCalls = pointer.objectPickCalls = i ? 0 : 1
+        pointer.interaction.pointerMoved = pointer.interaction.viewChanged = i === 0
+        n.pixelCacheHits = 0; n.pixelCacheMisses = i ? 0 : 1
+        n.cacheHits = n.cacheCold = n.cachePositionChanged = 0; n.cacheKeyChanged = i ? 0 : 4
+        n.projectedVertices = i ? 0 : 15000; n.submittedTriangles = i ? 0 : block.geometryBefore.metadata.index.submittedCount * 4 / 3
+      }
+    }
+  }
   return { raw, recording }
 }
 const summarize = ({ raw, recording }) => summarizeSnapshotPhase(JSON.stringify(raw), recording, raw.buildRevision)
@@ -103,7 +133,7 @@ test('strict v2 bounded schema rejects new metrics, unknown fields, incomplete s
 test('paired classification requires exact query/submission inventory, state, source and complete shards, not internal work equality', () => {
   const reports = [report(), report('recovery')]
   let result = compareReports(reports, identity)
-  assert.equal(result.complete, true); assert.equal(result.rows.length, 150)
+  assert.equal(result.complete, true); assert.equal(result.rows.length, Object.values(shards).flat().length * 2 * Object.keys(metrics).length)
   assert.equal(result.rows.find(r => r.metric === 'terrainPick').p50.status, 'possible-improvement')
   assert.equal(result.rows.find(r => r.metric === 'simulation').p50.status, 'not-measured-paused')
   assert.equal(result.rows.find(r => r.metric === 'render').p50.status, 'observation-only-presentation-clocks')
@@ -153,7 +183,7 @@ test('sidecar rejects callback ordering, gaps, reset, replacement and cap, witho
 test('only the explicit terrain allowlist can signal; missing observations remain unknown', () => {
   assert.deepEqual(Object.keys(metricEligibility).sort(), Object.keys(metrics).sort())
   const reports = [report(), report('recovery')], result = compareReports(reports, identity)
-  for (const row of result.rows) if (metricEligibility[row.metric] !== 'terrain-input-matched')
+  for (const row of result.rows) if (eligibility(row.phase, row.stratum, row.metric) !== 'terrain-input-matched')
     assert.ok(!row.p50.status.startsWith('possible-') && !row.p95.status.startsWith('possible-'))
   for (const metric of Object.keys(metrics)) reports[0].runs[1].phases[0].timings.first[metric] = { all: null, nonzero: null, perQuery: null }
   for (const row of compareReports(reports, identity).rows.filter(r => r.phase === 'native-hover' && r.stratum === 'first'))
@@ -266,7 +296,82 @@ test('fixed native hover offsets follow production pixel quantization, exclude w
     assert.throws(() => vm.runInContext(`(${snapshotNativeTarget.toString()})`, context)([[1, 0], [1, 0]]), /unique/)
     bounds.width = 1; assert.throws(() => vm.runInContext(`(${snapshotNativeTarget.toString()})`, context)(plan.nativePointerOffsets), /bounds/)
   }
-  assert.equal(plan.cohortRevision, 2)
-  assert.equal(plan.nativeViewInvalidation, 'unsupported-unmeasured')
+  assert.equal(plan.cohortRevision, 3)
+  assert.equal(plan.nativeViewInvalidation, 'separate-native-view-drag-first-callback')
   assert.equal(metricEligibility.nativeProjection, 'observation-only-warm-projection-cache')
+})
+
+test('held drag admits exact first-work callbacks and preserves both geometry endpoints and pre-input projection', () => {
+  const input = fixture('native-view-drag'), copy = JSON.stringify(input), result = summarize(input)
+  assert.equal(result.phase.frames, 24)
+  assert.equal(result.phase.blocks.length, 6)
+  assert.notEqual(result.phase.blocks[0].geometrySha256, result.phase.blocks[0].geometryAfterSha256)
+  assert.match(result.phase.blocks[0].inputPoseSha256, /^[a-f0-9]{64}$/)
+  assert.equal(result.phase.work.first.nativeTriangles.mean, (29376 + 28848) / 2)
+  assert.equal(result.phase.work.settled.nativeTriangles.mean, 0)
+  assert.equal(JSON.stringify(input), copy)
+  const resultRows = compareReports([report(), report('recovery')], identity).rows
+  assert.equal(resultRows.find(r => r.phase === 'native-view-drag' && r.stratum === 'first' && r.metric === 'nativeProjection').p50.status, 'possible-improvement')
+  assert.equal(resultRows.find(r => r.phase === 'native-view-drag' && r.stratum === 'settled' && r.metric === 'nativeProjection').p50.status, 'unknown')
+  assert.equal(resultRows.find(r => r.phase === 'native-hover' && r.stratum === 'first' && r.metric === 'nativeProjection').p50.status, 'observation-only-warm-projection-cache')
+})
+
+test('held drag rejects wrong first input, swapped geometry, hidden projection drift and extra or absent work', () => {
+  const mutations = [
+    x => { x.recording.blocks[0].event.type = 'pointerup' },
+    x => { x.recording.blocks[0].geometryAfter.witness[10]++ },
+    x => { x.recording.blocks[0].geometryBefore.witness[10] = 0.5 },
+    x => { x.recording.blocks[1].event.beforePose[54]++ },
+    x => { x.recording.blocks[1].geometryBefore.fingerprintSha256 = 'a'.repeat(64) },
+    x => { x.recording.blocks[0].event.buttons = 0 },
+    x => { x.recording.blocks[0].event.beforePose[2] = 1 },
+    x => { x.recording.blocks[0].event.geometryWitness[19]-- },
+    x => { x.recording.blocks[0].frames.shift() },
+    x => { x.recording.blocks[0].frames[0].serial++ },
+    x => { x.recording.blocks[0].frames[1].geometryWitness[10]++ },
+    x => { x.recording.blocks[0].frames[0].pose[27] = 55 },
+    x => { x.recording.blocks[0].frames[0].pose[10] = 0 },
+    x => { x.recording.blocks[0].frames[1].pose[55]++ },
+    x => { x.recording.blocks[0].frames[0].pose[30]++ },
+    x => { x.recording.blocks[0].geometryAfter.positionSha256 = 'a'.repeat(64) },
+    x => { x.recording.blocks[0].geometryAfter.instancesSha256 = 'a'.repeat(64) },
+    x => { x.recording.blocks[0].geometryAfter.consumerMethodsSha256 = 'a'.repeat(64) },
+    x => { const b = x.recording.blocks[0]; [b.geometryBefore, b.geometryAfter] = [b.geometryAfter, b.geometryBefore] },
+    x => { x.raw.frames[1].pointerBreakdown.nativeOcclusion.submittedTriangles = 28848 },
+    x => { x.raw.frames[1].pointerBreakdown.nativeOcclusion.projectedVertices = 0 },
+    x => { x.raw.frames[1].pointerBreakdown.nativeOcclusion.cacheKeyChanged = 0 },
+    x => { x.raw.frames[1].pointerBreakdown.nativeOcclusion.pixelCacheHits = 1 },
+    x => { x.raw.frames[1].pointerBreakdown.objectPickCalls = 2 },
+    x => { x.raw.frames[2].pointerBreakdown.nativeOcclusion.submittedTriangles = 1 },
+    x => { x.raw.frames[1].pointerBreakdown.interaction.viewChanged = false },
+    x => { x.raw.frames[1].pointerBreakdown.interaction.dragQuery = true },
+    x => { x.raw.frames[1].simulationSteps = 1 },
+    x => { delete x.raw.frames[1].simulationSteps },
+  ]
+  for (const mutation of mutations) { const input = fixture('native-view-drag'); mutation(input); assert.throws(() => summarize(input)) }
+})
+
+test('held-drag effective projection and both prefix identities must match across all paired sessions; internal work need not', () => {
+  for (const field of ['geometrySha256', 'geometryAfterSha256', 'inputPoseSha256', 'poses']) {
+    const reports = [report(), report('recovery')], p = reports[0].runs[1].phases.at(-1)
+    if (field === 'poses') p.blocks[0].poses[0] = 'a'.repeat(64)
+    else p.blocks[0][field] = 'a'.repeat(64)
+    const row = compareReports(reports, identity).rows.find(r => r.phase === 'native-view-drag' && r.metric === 'nativeProjection')
+    assert.equal(row.p50.status, field.startsWith('geometry') ? 'geometry-input-mismatch' : 'workload-mismatch')
+  }
+  const reports = [report(), report('recovery')], phases = reports[0].runs.map(r => r.phases.at(-1))
+  phases[1].work.first.nativeVertices.mean = 5000; phases[1].work.first.nativeVertices.p50 = 5000
+  assert.equal(comparableWork(phases), true)
+})
+
+test('unsupported held-drag source binding cannot signal and does not invalidate the qualified five phases', () => {
+  const reports = [report(), report('recovery')]
+  reports[0].runs[1].phases[2] = { name: 'native-view-drag', unsupported: 'source-contract' }
+  const result = compareReports(reports, identity)
+  assert.equal(result.complete, true)
+  assert.ok(result.rows.filter(r => r.phase === 'native-view-drag').every(r => r.p50.status === 'unsupported-source-contract'))
+  assert.equal(result.rows.find(r => r.phase === 'ordinary-hover' && r.stratum === 'first' && r.metric === 'terrainPick').p50.status, 'possible-improvement')
+  for (const change of [p => { p.name = 'native-hover' }, p => { p.unsupported = 'free text' }, p => { p.command = 'execute' }]) {
+    const value = structuredClone(reports[0]); change(value.runs[1].phases[2]); assert.throws(() => validateReport(value))
+  }
 })

@@ -6,9 +6,10 @@ import { cpus, arch, platform, release, tmpdir } from 'node:os'
 import { preview } from 'vite'
 import { chromium } from '@playwright/test'
 import capture from './snapshot-capture.mjs'
+import { inspectDragSource } from './snapshot-drag-contract.mjs'
 import { createSnapshotFixture } from './snapshot-setup.mjs'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
-import { repository, shards, order, plan, sha256, protocolHash, validateReport } from './snapshot-protocol.mjs'
+import { repository, shards, order, plan, sha256, protocolHash, validateReport, appendSnapshotPhase } from './snapshot-protocol.mjs'
 
 const root = resolve(import.meta.dirname, '../..'), base = root, head = resolve(root, '../candidate')
 const shard = process.env.BENCHMARK_SHARD
@@ -32,7 +33,7 @@ const receipt = { identity, protocol: { plan, shards, order }, environment,
   startedAt: new Date().toISOString(), builds: [], sessions: [] }
 const saveReceipt = () => writeFileSync(resolve(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
 let server, browser
-const sources = { base, head }, fingerprints = {}
+const sources = { base, head }, fingerprints = {}, dragSources = {}
 async function build(side) {
   const output = resolve(out, `build-${side}`); mkdirSync(output)
   const result = await new Promise((done, reject) => {
@@ -62,6 +63,8 @@ try {
       !readFileSync(resolve(base, 'package.json')).equals(readFileSync(resolve(head, 'package.json')))) {
     report.status = 'incompatible-dependencies'; save(); throw Error('Dependency changes need a separately reviewed protocol')
   }
+  for (const [side, source] of Object.entries(sources)) dragSources[side] = inspectDragSource(source)
+  receipt.dragSources = dragSources; saveReceipt()
   assert.ok(!existsSync(resolve(head, 'node_modules')), 'Candidate install must be absent')
   symlinkSync(resolve(root, 'node_modules'), resolve(head, 'node_modules'), 'dir')
   const config = browserConfiguration()
@@ -91,19 +94,23 @@ try {
       const page = await context.newPage(); page.setDefaultTimeout(15000)
       page.on('pageerror', error => session.errors.push(String(error).slice(0, 2000)))
       page.on('console', message => { if (message.type() === 'error' && session.errors.length < 20) session.errors.push(message.text().slice(0, 2000)) })
-      await capture({ page, url: 'http://127.0.0.1:5199', output, expectedRevision: run.revision, fixture, shard })
-      assert.equal(session.timedOut, undefined); assert.deepEqual(session.errors, [])
+      await capture({ page, url: 'http://127.0.0.1:5199', output, expectedRevision: run.revision, fixture, shard, dragSource: dragSources[side], allowDragFailure: true, getErrorCount: () => session.errors.length })
       const recording = JSON.parse(readFileSync(resolve(output, 'snapshot-frames.json')))
+      if (recording.status !== 'passed-with-incomplete-drag') { assert.equal(session.timedOut, undefined); assert.deepEqual(session.errors, []) }
       for (const name of shards[shard]) {
-        const phase = recording.phases.find(phase => phase.name === name)
-        assert.equal(phase.status, 'passed')
-        const rawBytes = readFileSync(resolve(output, phase.rawFile)), raw = JSON.parse(rawBytes)
-        const summary = JSON.parse(readFileSync(resolve(output, phase.summaryFile)))
-        assert.equal(sha256(rawBytes), summary.rawSha256)
-        const environmentSha = sha256(JSON.stringify({ browser: browser.version(), host: receipt.host, environment: raw.environment }))
-        if (run.environmentSha256 !== null) assert.equal(run.environmentSha256, environmentSha)
-        run.environmentSha256 = environmentSha
-        run.phases.push(summary.phase)
+        const admission = appendSnapshotPhase(report, run, name, () => {
+          const phase = recording.phases.find(phase => phase.name === name)
+          if (phase?.status === 'unsupported-source-contract') return { name, unsupported: 'source-contract' }
+          assert.equal(phase?.status, 'passed')
+          const rawBytes = readFileSync(resolve(output, phase.rawFile)), raw = JSON.parse(rawBytes)
+          const summary = JSON.parse(readFileSync(resolve(output, phase.summaryFile)))
+          assert.equal(sha256(rawBytes), summary.rawSha256)
+          const environmentSha = sha256(JSON.stringify({ browser: browser.version(), host: receipt.host, environment: raw.environment }))
+          if (run.environmentSha256 !== null) assert.equal(run.environmentSha256, environmentSha)
+          run.environmentSha256 = environmentSha
+          return summary.phase
+        })
+        if (admission.status === 'incomplete-cohort') session.dragFailure = admission.failure
       }
       run.status = 'complete'
     } catch (error) { session.failure = String(error).slice(0, 2000) }
