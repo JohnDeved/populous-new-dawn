@@ -432,7 +432,7 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
     const fullDetailBytes = blob.size
     // Adversarial valid fields exceed the old optimistic max-counter fixture.
     for (const [state, agent] of [['live', 'Test browser'], ['paused', 'Test browser'], ['paused', 'GPU 😀'.repeat(2000)]]) {
-      metrics.terrainPickMs = 0.12345678901234567
+      metrics.terrainPickMs = Number('0.12345678901234567')
       navigator.userAgent = agent
       graph.samples.reset()
       for (let i = 1; i <= 1200; i++)

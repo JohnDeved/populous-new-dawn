@@ -36,3 +36,11 @@ span/count; updated readers additionally validate and report omissions. Comparis
 protocols must continue checking required coverage, not treat a shorter window as
 faster work. Further optional fields must pass adversarial actual-Blob tests, not
 assume a single large-number fixture is the worst JSON representation.
+
+Gameplay phase summaries validate raw retention before selecting complete phase
+intervals. Original export retention remains in `rawAnalysis`, with retained raw
+frame count and exact selected raw indices as provenance. Derived parser summaries
+omit export retention and recompute their own subset timing/count; they do not
+claim omitted history was captured. The anti-wrap guard uses pre-trim available
+frame count, and the independently observed action window still governs minimum
+coverage. Neither trimming nor subset selection changes benchmark classification.
