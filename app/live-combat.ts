@@ -135,7 +135,10 @@ export function combatWorld(w: World, source: CombatPerson, range: number) {
       const row = cells.get(cell)
       if (!row) return []
       const ordered: CombatTarget[] = []
-      for (const indexed of objectsInCell(w.objectCells, cell)) {
+      // Combat scans use dense landscape indices; the native chain API takes
+      // packed even-byte X/Y coordinates instead.
+      const packedCell = ((cell & 127) << 1) | ((cell >>> 7) << 9)
+      for (const indexed of objectsInCell(w.objectCells, packedCell)) {
         const object = objects.get(indexed.id)
         if (object && row.includes(object)) ordered.push(object)
       }

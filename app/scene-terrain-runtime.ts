@@ -9,6 +9,10 @@ import {
   terrainTextureBounds,
 } from './terrain-texture.ts'
 import { terrainTiles } from './terrain-visibility.ts'
+import {
+  registerTerrainSubmissionOwner,
+  replaceTerrainSubmissionGeometry,
+} from './terrain-submission-owner.ts'
 import { waterCell, waterPoint, waterTexture } from './water.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import {
@@ -99,6 +103,7 @@ export function initializeTerrain(scene: GameScene) {
   terrain.userData.nativeRelative = true
   terrain.userData.painterGround = true
   terrain.userData.terrainGrid = true
+  registerTerrainSubmissionOwner(terrain)
   return { terrain, ready }
 }
 
@@ -132,7 +137,7 @@ export function rebuildTerrain(scene: GameScene) {
         name,
         new THREE.Float32BufferAttribute(new Float32Array(128 * 128 * 6 * size), size)
       )
-    scene.terrain.geometry = geo
+    replaceTerrainSubmissionGeometry(scene.terrain, geo)
   }
   const positions = geo.getAttribute('position'),
     uv = geo.getAttribute('uv'),
