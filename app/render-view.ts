@@ -1,3 +1,4 @@
+import type { OrdinaryTerrainMetrics } from './ordinary-terrain-metrics.ts'
 import type { NativeOcclusionMetrics } from './native-occlusion-metrics.ts'
 import { inHitTriangle } from './world-picking.ts'
 import * as THREE from 'three'
@@ -413,9 +414,12 @@ export class RenderView {
     objects: THREE.Object3D[],
     camera: THREE.Camera,
     nativeEdges = false,
-    metrics?: NativeOcclusionMetrics
+    metrics?: NativeOcclusionMetrics,
+    ordinaryMetrics?: OrdinaryTerrainMetrics
   ): ViewPickCandidate[] {
     const nativeMetrics = nativeEdges ? metrics : undefined
+    const ordinary = nativeEdges ? undefined : ordinaryMetrics
+    const projectionMetrics = nativeMetrics ?? ordinary
     if (this.overview) {
       const p = globePick(
         this.globe,
@@ -441,8 +445,10 @@ export class RenderView {
     for (const root of objects)
       root.traverseVisible(object => {
         if (!(object instanceof THREE.Mesh) || !object.visible) return
+        const visibilityStart = ordinary ? performance.now() : 0
         object.updateWorldMatrix(true, false)
         if (!nativeEdges) this.updateTerrainVisibility(object)
+        if (ordinary) ordinary.visibilityMs += performance.now() - visibilityStart
         const geometry = object.geometry,
           position = geometry.getAttribute('position'),
           index = geometry.getIndex()
@@ -478,7 +484,7 @@ export class RenderView {
             : ''
           const cache = this.groundPickCache.get(object)?.get(instance)
           const reuse = nativeEdges && cache?.key === cacheKey && cache.position === position
-          let projectionStart = nativeMetrics ? performance.now() : 0
+          let projectionStart = projectionMetrics ? performance.now() : 0
           if (nativeMetrics) {
             if (reuse) nativeMetrics.cacheHits++
             else if (!cache) nativeMetrics.cacheCold++
@@ -589,7 +595,7 @@ export class RenderView {
             const slot = terrainSlots ? world.length : i
             world[slot] = p
             screen[slot] = this.screen(p, camera, unwrapped)
-            if (nativeMetrics) nativeMetrics.projectedVertices++
+            if (projectionMetrics) projectionMetrics.projectedVertices++
             if (terrainSlots) terrainSlots[i] = slot + 1
             // Keep the first source when later corners disagree in height or sign.
             if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
@@ -599,13 +605,14 @@ export class RenderView {
             if (!entries) this.groundPickCache.set(object, (entries = new Map()))
             entries.set(instance, { key: cacheKey, position, world, screen })
           }
-          if (nativeMetrics) {
+          if (projectionMetrics) {
             const now = performance.now()
-            nativeMetrics.projectionMs += now - projectionStart
-            nativeMetrics.submittedTriangles += Math.ceil(count / 3)
+            projectionMetrics.projectionMs += now - projectionStart
+            if (nativeMetrics) nativeMetrics.submittedTriangles += Math.ceil(count / 3)
             projectionStart = now
           }
           for (let i = 0; i < count; i += 3) {
+            if (ordinary) ordinary.visitedTriangles++
             const ids = index
               ? [index.getX(i), index.getX(i + 1), index.getX(i + 2)]
               : [i, i + 1, i + 2]
@@ -664,7 +671,8 @@ export class RenderView {
               instance,
             })
           }
-          if (nativeMetrics) nativeMetrics.triangleScanMs += performance.now() - projectionStart
+          if (projectionMetrics)
+            projectionMetrics.triangleScanMs += performance.now() - projectionStart
         }
       })
     return candidates
@@ -683,8 +691,26 @@ export class RenderView {
     return best
   }
 
-  pick(mouse: THREE.Vector2, objects: THREE.Object3D[], camera: THREE.Camera, nativeEdges = false) {
-    return this.resolvePickCandidates(this.pickCandidates(mouse, objects, camera, nativeEdges))
+  pick(
+    mouse: THREE.Vector2,
+    objects: THREE.Object3D[],
+    camera: THREE.Camera,
+    nativeEdges = false,
+    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ) {
+    const candidates = this.pickCandidates(
+      mouse,
+      objects,
+      camera,
+      nativeEdges,
+      undefined,
+      ordinaryMetrics
+    )
+    const ordinary = nativeEdges ? undefined : ordinaryMetrics
+    const start = ordinary ? performance.now() : 0
+    const hit = this.resolvePickCandidates(candidates)
+    if (ordinary) ordinary.resolutionMs += performance.now() - start
+    return hit
   }
   updateTerrainVisibility(object: THREE.Object3D) {
     if (!(object instanceof THREE.Mesh) || !object.userData.terrainGrid) return
