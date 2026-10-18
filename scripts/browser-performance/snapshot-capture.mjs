@@ -4,6 +4,8 @@ import { resolve } from 'node:path'
 import { loadSnapshot, observeSnapshotState, assertSnapshotAdmission } from './snapshot-setup.mjs'
 import { createSnapshotGeometryObserver } from './snapshot-geometry.mjs'
 import { installSnapshotObserver } from './snapshot-observer.mjs'
+import { installSnapshotDragObserver } from './snapshot-drag-observer.mjs'
+import { dragContract } from './snapshot-drag-contract.mjs'
 import { plan, shards, invariant, summarizeSnapshotPhase } from './snapshot-protocol.mjs'
 import { m2HudPoint } from '../tutorial-browser/m2-pointer-f8.mjs'
 
@@ -45,7 +47,16 @@ export async function exportSnapshotRaw({ page, output, record }) {
   record.rawFile = `snapshot-frame-${record.name}.json`
   await download.saveAs(resolve(output, record.rawFile))
 }
-export default async function capture({ page, url, output, expectedRevision, fixture, shard }) {
+// This opt-in belongs only to the comparative runner. Functional smoke never
+// converts an admitted new-cohort failure into a passed candidate scenario.
+export function retainStablePhasesAfterDragFailure(report, allow) {
+  const record = report.phases.at(-1)
+  if (!allow || report.shard !== 'world' || record?.name !== dragContract.phase ||
+      report.phases.length !== shards.world.length || !report.phases.slice(0, -1).every(phase => phase.status === 'passed')) return false
+  record.status = 'incomplete'; report.status = 'passed-with-incomplete-drag'
+  return true
+}
+export default async function capture({ page, url, output, expectedRevision, fixture, shard, dragSource, allowDragFailure = false, getErrorCount = () => 0 }) {
   assert.ok(Object.hasOwn(shards, shard))
   const report = { version: 2, kind: plan.kind, plan, shard, expectedRevision, status: 'incomplete', phases: [] }
   const save = () => writeFileSync(resolve(output, 'snapshot-frames.json'), JSON.stringify(report, null, 2) + '\n')
@@ -63,6 +74,10 @@ export default async function capture({ page, url, output, expectedRevision, fix
     for (const name of shards[shard]) {
       const record = { name, status: 'incomplete', preparation: [], blocks: [] }
       report.phases.push(record); save()
+      const viewChange = name === dragContract.phase
+      if (viewChange && dragSource?.status !== 'admitted') {
+        record.status = 'unsupported-source-contract'; record.sourceAdmission = dragSource ?? null; save(); continue
+      }
       if (name === 'menu-recovery') {
         record.preparation.push({ action: 'open-public-settings', before: await observe() })
         await page.getByRole('button', { name: 'Game settings', exact: true }).click()
@@ -74,7 +89,7 @@ export default async function capture({ page, url, output, expectedRevision, fix
         // This measures subsequent pointer-input CPU, NOT first post-close work.
       }
       const point = name === 'hud' ? await page.evaluate(m2HudPoint)
-        : name === 'native-hover' ? await page.evaluate(snapshotNativeTarget, plan.nativePointerOffsets) : { x: 900, y: 400 }
+        : name === 'native-hover' || viewChange ? await page.evaluate(snapshotNativeTarget, plan.nativePointerOffsets) : { x: 900, y: 400 }
       assert.ok(point, 'Visible authored native target required'); record.point = point
       await page.mouse.move(point.x, point.y)
       record.preparation.push({ action: 'initial-pointer', point })
@@ -82,15 +97,21 @@ export default async function capture({ page, url, output, expectedRevision, fix
       await page.waitForFunction(() => window.testSceneRef.current.fpsGraph.samples.recentCount >= 2)
       record.before = await observe(); invariant(record.before); assertSnapshotAdmission(record.before, fixture)
       await page.evaluate(source => { window.__pndSnapshotGeometry = (0, eval)(`(${source})`)(window.testSceneRef.current) }, createSnapshotGeometryObserver.toString())
-      await page.evaluate(installSnapshotObserver)
+      await page.evaluate(viewChange ? installSnapshotDragObserver : installSnapshotObserver)
       try {
+        if (viewChange) {
+          record.preparation.push({ action: 'right-down-unmeasured', before: await observe() })
+          await page.mouse.down({ button: 'right' })
+          await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+          record.preparation.push({ action: 'right-down-settled', after: await observe() })
+        }
         for (let step = 0; step < plan.steps; step++) {
-          const [dx, dy] = (name === 'native-hover' ? plan.nativePointerOffsets : plan.pointerOffsets)[step]
+          const [dx, dy] = (viewChange ? dragContract.pointerOffsets : name === 'native-hover' ? plan.nativePointerOffsets : plan.pointerOffsets)[step]
           const x = point.x + dx, y = point.y + dy
           const geometryBefore = await page.evaluate(() => window.__pndSnapshotGeometry.captureBoundary())
           const preparation = name === 'native-hover' ? await page.evaluate(observeNativePixelAdmission, { x, y }) : null
           if (preparation) assert.equal(preparation.cached, false, 'Fixed native pixel was warmed before measured input')
-          const expected = { geometryWitness: geometryBefore.witness, type: 'pointermove', x, y, buttons: 0 }
+          const expected = { geometryWitness: geometryBefore.witness, type: 'pointermove', x, y, buttons: viewChange ? 2 : 0 }
           await page.evaluate(expected => window.__pndSnapshotObserver.arm(expected), expected)
           // The capture-phase listener binds the exact next completed callback.
           await page.mouse.move(x, y)
@@ -98,6 +119,12 @@ export default async function capture({ page, url, output, expectedRevision, fix
           const block = await page.evaluate(() => window.__pndSnapshotObserver.finish(4))
           const geometryAfter = await page.evaluate(() => window.__pndSnapshotGeometry.captureBoundary())
           record.blocks.push({ preparation, geometryBefore, geometryAfter, ...block }); save()
+        }
+        if (viewChange) {
+          record.preparation.push({ action: 'right-up-unmeasured', before: await observe() })
+          await page.mouse.up({ button: 'right' })
+          await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+          record.preparation.push({ action: 'right-up-settled', after: await observe() })
         }
         record.after = await observe(); assertSnapshotAdmission(record.after, fixture)
       } finally {
@@ -110,6 +137,7 @@ export default async function capture({ page, url, output, expectedRevision, fix
       const summary = summarizeSnapshotPhase(readFileSync(resolve(output, record.rawFile), 'utf8'), record, expectedRevision)
       record.summaryFile = `snapshot-summary-${name}.json`
       writeFileSync(resolve(output, record.summaryFile), JSON.stringify(summary, null, 2) + '\n')
+      assert.equal(getErrorCount(), 0, 'Browser errors before completed phase admission')
       record.status = 'passed'; save()
       await page.keyboard.press('F8'); await graph.waitFor({ state: 'hidden' })
     }
@@ -123,6 +151,7 @@ export default async function capture({ page, url, output, expectedRevision, fix
       try { if (await graph.isVisible()) await exportSnapshotRaw({ page, output, record }) }
       catch (exportError) { record.exportFailure = String(exportError) }
     }
+    if (retainStablePhasesAfterDragFailure(report, allowDragFailure)) return report
     throw error
   }
   finally { save() }

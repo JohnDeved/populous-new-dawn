@@ -2,12 +2,17 @@
 
 ## Protocol status
 
-V2 is a proposed, explicitly different paused snapshot workload. Portable tests
-are not browser qualification. Admission requires reviewed trusted-base support,
-then an actual two-shard comparison and same-runtime-source control. Before landing,
-one candidate-only functional smoke validates the proposed implementation itself. No new ready
-cycle, automatic rerun, or relaxed guard is implied by this source change.
+Cohort revision 2's five stable phases are qualified for input comparability by
+[same-runtime-source control PR593](https://github.com/JohnDeved/populous-new-dawn/pull/593#issuecomment-6253189072):
+12 fresh sessions, 30 phase captures and 720 exactly attributed callbacks had no
+workload mismatch. Many timing cells were noisy; this is not a quiet or blocking
+regression gate. The disposable control was closed without merging its README reflow.
 
+Cohort revision 3 appends a separately declared `native-view-drag` phase. Its
+portable tests/source review are not browser qualification. A new candidate smoke
+and trusted same-runtime-source comparison are required before claiming this added
+view-invalidated projection workload works in hosted browsers. The five stable
+phases and their original observer remain unchanged.
 The two workflows are already active. Their reviewed files/templates, permissions,
 triggers and caps are unchanged here. The common capture/build code always comes
 from the exact PR base, so a PR proposing V2 cannot run its own untrusted harness.
@@ -29,8 +34,8 @@ published source, but failed the old native-view-release work guard. All six fir
 release callbacks were real native pixel-cache hits with zero submitted triangles;
 the preceding unmeasured drag had already performed the view-invalidated work.
 Those failed raw captures remain historical evidence. The revision-2 stable-hover
-repair still requires a new candidate functional smoke, then a trusted same-source
-comparison after landing. It is not already qualified by the old run.
+repair subsequently passed [candidate smoke 39150561670](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39150561670)
+and the PR593 paired control. Neither result qualifies the new held-drag phase.
 
 ## Fixed controlled workload
 
@@ -54,20 +59,54 @@ comparison after landing. It is not already qualified by the old run.
 
 Two concurrent scenario shards, never concurrent arms on one runner:
 
-1. `world`: `native-hover` then `ordinary-hover`. Cohort revision 2 replaces the
+1. `world`: `native-hover`, `ordinary-hover`, then new `native-view-drag`. Cohort revision 2 replaces the
    unqualified release cohort, without reinterpreting its retained failed captures.
    The fixed authored Shaman ID 54 is sampled at six unique one-pixel neighbors,
    using production `Math.trunc(client - canvas origin)` native pixel quantization.
    All exclude the warmed initial pixel; read-only cache admission must be cold for
    that pixel, and the exact first callback must show a real native pixel miss,
    submitted triangles and actual hovered ID 54. No later-frame search or cache
-   clearing. Camera remains stable. View-invalidated native projection is explicitly
-   unsupported/unmeasured; native projection CPU remains observation-only because
+   clearing. Camera remains stable. This stable-hover phase does not measure view-invalidated
+   native projection; its projection CPU remains observation-only because
    initial setup may warm its cache. Fixed pixels outside target bounds fail closed.
 2. `recovery`: `hud`, `world-recovery`, `menu-recovery`. HUD is the prerequisite to
    world return. Menu recovery means subsequent world-pointer inputs after opening
    and closing the real settings menu, not the first post-close callback. Initial
    pointer/setup callbacks are explicitly unmeasured, with raw preparation receipts.
+
+The new held-drag phase uses one unmeasured public right-button press, followed by
+six fixed one-pixel moves (angle 0→1→0→1→0→1→0), then an unmeasured release. No held
+keys, time-dependent camera travel, cache clearing, direct camera mutation or
+favorable-frame search. Each move's capture-phase listener records the old pose
+and actual geometry witness before the public handler, and binds the exact next
+four completed callbacks. Actual `tooltipInput.picked` must be authored ID54;
+ordinary hovered-object state is intentionally empty while the button is held.
+
+Native picking in the reviewed callback consumes the old terrain index prefix
+under the new projection, before ordinary picking rebuilds the new-pose prefix.
+Both full boundary fingerprints, the exact single index-version transition, all
+fixed-size per-frame witnesses, effective RenderView centers/projection fields and
+between-input continuity must match. The first native triangle inventory must
+identify the old prefix. Only native key/projection/triangle timing is eligible in
+this new first stratum. Its ordinary buckets remain observation-only because their
+inside-query post-prefix attribution is not separately instrumented. The three
+settled callbacks require zero queries; per-query timing there is unknown, not a
+measured zero-cost query. Projection/cache outcomes are retained, not equated across
+arms. A new cache policy that removes all declared invalidated work is unsupported
+by this narrow cohort, not proof of no benefit.
+
+The trusted runner reads both source trees as data and verifies bounded exact
+hashes of the reviewed routing, admission and pre-query geometry producers. The
+projection/cache/triangle kernel remains changeable under ordinary source review.
+Changed source owners or missing boundaries mark only this new phase unsupported;
+they do not erase the five stable phases. A failed or malformed added phase is
+likewise an explicit missing measurement in comparative reports; candidate functional
+smoke still fails when the admitted new scenario fails. Raw receipts retain expected/actual
+source hashes. This is a deliberately narrow ownership contract, not a universal
+proof of arbitrary intermediate mutation. The separate preallocated held-drag
+observer retains 72 pose/projection scalars plus 113 geometry scalars per RAF;
+full hashes are outside measured samples and the original stable observer is
+byte-identical. No renderer/picker wrapper or production hook is installed.
 
 Loaded checkpoint cells can intentionally take a fallback instead of a fresh-world
 factory-ownership optimization (for example the owned-cell rank cache in PR591).
@@ -96,8 +135,9 @@ signals; no whole-picker or whole-program equivalence is claimed.
 Geometry fingerprints are taken outside selected callbacks at each input block's
 boundaries, after genuine initial pointer/render setup. Fixed-size
 identity/version/count/transform witnesses guard the selected callbacks. Versions
-are intra-block guards, not cross-arm implementation-state equality. A first query
-that changes the admitted geometry is unsupported, not a reason to skip it.
+are intra-block guards, not cross-arm implementation-state equality. For the five stable phases, a first query
+that changes admitted geometry is unsupported, not a reason to skip it. Only the
+new declared held-drag transition permits the separately bound old/new index prefixes.
 Transient unversioned mutation reverted between boundaries is not proved absent.
 Hashing can warm CPU caches; identical preparation/sidecar overhead is part of this
 protocol, not overhead-free measurement.

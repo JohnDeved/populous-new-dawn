@@ -1,16 +1,18 @@
 // v2 is a separate controlled, paused workload. The live v1 policy is unchanged.
 import assert from 'node:assert/strict'
+import { dragContract, dragSourceSlices } from './snapshot-drag-contract.mjs'
+import { assertDragGeometry, assertDragPose, assertDragFrame } from './snapshot-drag-protocol.mjs'
 import { analyzeFrameExport } from '../../app/frame-export-analysis.ts'
 import { repository, order, metrics, metricLabels, workMetrics, queryCounters, policy,
   sha256, summarizeTimings, summarizeMetrics, validateIdentity, classify, maxReportBytes } from './protocol.mjs'
 export { repository, order, metrics, metricLabels, workMetrics, queryCounters, sha256, maxReportBytes }
-export const shards = Object.freeze({ world: ['native-hover', 'ordinary-hover'], recovery: ['hud', 'world-recovery', 'menu-recovery'] })
+export const shards = Object.freeze({ world: ['native-hover', 'ordinary-hover', dragContract.phase], recovery: ['hud', 'world-recovery', 'menu-recovery'] })
 export const plan = Object.freeze({ version: 2, kind: 'paused-authored-snapshot-cpu', level: 2,
   viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1, warmupMs: 2000,
   steps: 6, callbacksPerStep: 4, firstCallbacks: 1, settledCallbacks: 3,
   pointerOffsets: [[3, 0], [3, 3], [0, 3], [-3, 0], [0, -3], [0, 0]],
   nativePointerOffsets: [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1]],
-  cohortRevision: 2, nativePixelQuantization: 'truncate-css-minus-canvas-origin', nativeViewInvalidation: 'unsupported-unmeasured', observerVersion: 1, geometryVersion: 1, nativeTargetId: 54, snapshotAuthoringVersion: 1, authoredTurn: 70,
+  cohortRevision: 3, drag: dragContract, nativePixelQuantization: 'truncate-css-minus-canvas-origin', nativeViewInvalidation: 'separate-native-view-drag-first-callback', observerVersion: 1, geometryVersion: 1, nativeTargetId: 54, snapshotAuthoringVersion: 1, authoredTurn: 70,
   coverage: 'exact-4-of-4-contiguous-recorded-callbacks-per-input', menuRecovery: 'first-subsequent-world-pointer-input-not-first-close-callback',
   simulation: 'not-measured-paused', waterAdvance: 'not-measured-paused',
   renderCallbackRaf: 'observation-only-presentation-clocks-advance',
@@ -24,8 +26,16 @@ export const metricEligibility = Object.freeze({
   terrainPick: 'terrain-input-matched', ordinaryVisibility: 'terrain-input-matched', ordinaryProjection: 'terrain-input-matched',
   ordinaryTriangles: 'terrain-input-matched', nativeKey: 'terrain-input-matched', nativeProjection: 'observation-only-warm-projection-cache', nativeTriangles: 'terrain-input-matched',
 })
+export const eligibility = (phase, stratum, metric) => {
+  if (phase !== dragContract.phase) return metricEligibility[metric]
+  if (['terrainPick', 'ordinaryVisibility', 'ordinaryProjection', 'ordinaryTriangles'].includes(metric))
+    return 'observation-only-view-change-ordinary-attribution'
+  if (['nativeKey', 'nativeProjection', 'nativeTriangles'].includes(metric))
+    return stratum === 'first' ? 'terrain-input-matched' : 'observation-only-settled-no-query-work'
+  return metricEligibility[metric]
+}
 export const classificationPolicy = Object.freeze(Object.fromEntries(['pairs', 'baselineSpread', 'minimumEffect', 'absoluteFloorMs', 'noiseMultiplier'].map(key => [key, policy[key]])))
-export const protocolHash = () => sha256(JSON.stringify({ plan, shards, order, metrics, workMetrics, queryCounters, classificationPolicy, metricEligibility }))
+export const protocolHash = () => sha256(JSON.stringify({ plan, shards, order, metrics, workMetrics, queryCounters, classificationPolicy, metricEligibility, dragSourceSlices }))
 const keys = (value, names) => { assert.ok(value && typeof value === 'object' && !Array.isArray(value)); assert.deepEqual(Object.keys(value).sort(), [...names].sort()) }
 const number = (value, max = 1e9, integer = false) => assert.ok(typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= max && (!integer || Number.isSafeInteger(value)))
 const digest = value => assert.match(value, /^[a-f0-9]{64}$/)
@@ -53,15 +63,22 @@ export function validateReport(report) {
     assert.ok(['complete', 'incomplete'].includes(run.status)); if (run.environmentSha256 !== null) digest(run.environmentSha256)
     assert.ok(Array.isArray(run.phases) && run.phases.length <= shards[report.shard].length)
     for (const [offset, phase] of run.phases.entries()) {
+      if (phase.name === dragContract.phase && Object.hasOwn(phase, 'unsupported')) {
+        keys(phase, ['name', 'unsupported']); assert.ok(['source-contract', 'capture-incomplete'].includes(phase.unsupported))
+        assert.equal(phase.name, shards[report.shard][offset]); continue
+      }
       keys(phase, ['name', 'stateSha256', 'viewConfigSha256', 'targetId', 'point', 'frames', 'rawFrames', 'durationMs', 'blocks', 'timings', 'work'])
       assert.equal(phase.name, shards[report.shard][offset]); digest(phase.stateSha256); digest(phase.viewConfigSha256)
       if (phase.targetId !== null) number(phase.targetId, 1e9, true)
+      if (phase.name === dragContract.phase) assert.equal(phase.targetId, plan.nativeTargetId)
       assert.ok(Array.isArray(phase.point) && phase.point.length === 2); phase.point.forEach((x, i) => number(x, i ? 1000 : 1440))
       assert.equal(phase.frames, plan.steps * plan.callbacksPerStep); number(phase.rawFrames, 1199, true); assert.ok(phase.rawFrames >= phase.frames)
       number(phase.durationMs, 90000); assert.ok(phase.durationMs > 0)
       assert.ok(Array.isArray(phase.blocks) && phase.blocks.length === plan.steps)
       for (const [step, block] of phase.blocks.entries()) {
-        keys(block, ['step', 'event', 'point', 'poses', 'inventory', 'geometrySha256'])
+        keys(block, ['step', 'event', 'point', 'poses', 'inventory', 'geometrySha256',
+          ...(phase.name === dragContract.phase ? ['geometryAfterSha256', 'inputPoseSha256'] : [])])
+        if (phase.name === dragContract.phase) { digest(block.geometryAfterSha256); digest(block.inputPoseSha256); assert.notEqual(block.geometrySha256, block.geometryAfterSha256) }
         digest(block.geometrySha256)
         assert.equal(block.step, step); assert.equal(block.event, 'pointermove')
         assert.ok(Array.isArray(block.point) && block.point.length === 2); block.point.forEach((x, i) => number(x, i ? 1000 : 1440))
@@ -71,9 +88,13 @@ export function validateReport(report) {
           assert.ok(Array.isArray(item) && item.length === 3)
           item.forEach(x => { if (x !== null) number(x, 1e8, true) })
           assert.ok(item[0] !== null && item[1] !== null)
+          if (phase.name === dragContract.phase) {
+            if (index === 0) { assert.deepEqual(item.slice(0, 2), [1, 1]); assert.ok(item[2] > 0) }
+            else assert.deepEqual(item, [0, 0, 0])
+          }
           if (phase.name === 'hud') assert.deepEqual(item.slice(0, 2), [0, 0])
           else if (index === 0) assert.ok(item[0] > 0 && item[1] > 0)
-          if (phase.name === 'native-hover' && index === 0) assert.ok(item[2] > 0)
+          if ((phase.name === 'native-hover' || phase.name === dragContract.phase) && index === 0) assert.ok(item[2] > 0)
         }
       }
       keys(phase.timings, strata); keys(phase.work, strata)
@@ -87,6 +108,23 @@ export function validateReport(report) {
   if (report.status === 'complete') { assert.equal(report.runs.length, 6); assert.ok(report.runs.every(run => run.status === 'complete')); assert.ok(report.runtimeSha256 && report.snapshotSha256) }
   return report
 }
+// The added final cohort is optional evidence, not a prerequisite for retaining
+// already validated stable phases. A malformed/missing new summary becomes an
+// explicit missing measurement; required stable phase errors still propagate.
+export function appendSnapshotPhase(report, run, name, read) {
+  assert.ok(report.runs.includes(run)); assert.equal(shards[report.shard][run.phases.length], name)
+  const prior = run.phases.length
+  try {
+    run.phases.push(read()); validateReport(report)
+    return { status: 'admitted' }
+  } catch (error) {
+    run.phases.length = prior
+    if (name !== dragContract.phase) throw error
+    run.phases.push({ name, unsupported: 'capture-incomplete' }); validateReport(report)
+    return { status: 'incomplete-cohort', failure: String(error).slice(0, 2000) }
+  }
+}
+
 export function parseReport(text) { assert.ok(typeof text === 'string' && Buffer.byteLength(text) <= maxReportBytes); return validateReport(JSON.parse(text)) }
 
 export function invariant(state) {
@@ -102,6 +140,7 @@ export function invariant(state) {
 export function summarizeSnapshotPhase(json, recording, revision) {
   assert.match(revision, /^[a-f0-9]{40}$/)
   analyzeFrameExport(json) // Validate actual downloaded schema/limits, never a synthetic replacement.
+  const viewChange = recording.name === dragContract.phase
   const raw = JSON.parse(json), before = recording.before, after = recording.after
   assert.equal(raw.buildRevision, revision); assert.equal(raw.session.level, 2)
   assert.deepEqual(raw.environment.viewportCssPixels, plan.viewport); assert.equal(raw.environment.devicePixelRatio, 1); assert.equal(raw.environment.visibility, 'visible')
@@ -125,13 +164,15 @@ export function summarizeSnapshotPhase(json, recording, revision) {
   const selected = { first: [], settled: [] }, selectedRawFrameIndices = [], blocks = []
   for (const [step, block] of recording.blocks.entries()) {
     const { event, frames, geometryBefore, geometryAfter } = block;
-    digest(geometryBefore.fingerprintSha256); assert.equal(geometryBefore.fingerprintSha256, geometryAfter.fingerprintSha256, 'Actual terrain submission geometry changed')
+    digest(geometryBefore.fingerprintSha256)
+    if (viewChange) assertDragGeometry(block)
+    else assert.equal(geometryBefore.fingerprintSha256, geometryAfter.fingerprintSha256, 'Actual terrain submission geometry changed')
     assert.ok(Array.isArray(geometryBefore.witness) && geometryBefore.witness.length === 113 && geometryBefore.witness.every(Number.isFinite))
-    assert.deepEqual(geometryBefore.witness, geometryAfter.witness, 'Geometry version/identity changed during selected block')
+    if (!viewChange) assert.deepEqual(geometryBefore.witness, geometryAfter.witness, 'Geometry version/identity changed during selected block')
     assert.ok(geometryBefore.timestampMs <= event.timestampMs)
     assert.ok(geometryAfter.observationStartTimestampMs >= frames.at(-1).timestampMs); assert.equal(frames.length, plan.callbacksPerStep)
     assert.equal(event.sequence, step + 1)
-    const [dx, dy] = (recording.name === 'native-hover' ? plan.nativePointerOffsets : plan.pointerOffsets)[step]
+    const [dx, dy] = (viewChange ? dragContract.pointerOffsets : recording.name === 'native-hover' ? plan.nativePointerOffsets : plan.pointerOffsets)[step]
     assert.deepEqual([event.x, event.y], [recording.point.x + dx, recording.point.y + dy])
     if (recording.name === 'native-hover') {
       const { canvas, nativePixels, initialNativePixel } = recording.point, prep = block.preparation
@@ -153,20 +194,41 @@ export function summarizeSnapshotPhase(json, recording, revision) {
     assert.equal(raw.frames[event.anchorSerial - dropped - 1]?.timestampMs, event.anchorTimestampMs, 'Exact pre-input raw anchor missing')
     if (step) assert.ok(event.anchorSerial >= recording.blocks[step - 1].frames.at(-1).serial)
     number(event.anchorSerial, 1199, true); number(event.anchorTimestampMs); number(event.sequence, 1000, true)
-    assert.equal(event.type, 'pointermove'); assert.equal(event.buttons, 0)
+    assert.equal(event.type, 'pointermove'); assert.equal(event.buttons, viewChange ? 2 : 0)
+    if (viewChange) {
+      assertDragPose(event.beforePose, recording, step, true)
+      if (step) {
+        const previous = recording.blocks[step - 1]
+        assert.deepEqual(event.beforePose, previous.frames.at(-1).pose, 'Between-input pose/projection drift')
+        assert.deepEqual(geometryBefore.witness, previous.geometryAfter.witness, 'Between-input geometry revision drift')
+        assert.equal(geometryBefore.fingerprintSha256, previous.geometryAfter.fingerprintSha256, 'Between-input geometry content drift')
+      }
+    }
     const poses = [], inventory = []
     for (const [i, observed] of frames.entries()) {
       assert.equal(observed.serial, event.anchorSerial + i + 1, 'Never skip the first post-input callback')
-      assert.deepEqual(observed.geometryWitness, geometryBefore.witness, 'Per-callback geometry witness mismatch')
+      assert.deepEqual(observed.geometryWitness, (viewChange ? geometryAfter : geometryBefore).witness, 'Per-callback geometry witness mismatch')
       assert.equal(observed.sequence, event.sequence); assert.ok(observed.timestampMs > event.anchorTimestampMs)
       const found = indexed.get(observed.timestampMs); assert.ok(found, 'Attributed callback missing from raw download')
       assert.equal(found.index, observed.serial - dropped - 1, 'Recorder serial must match raw chronological index')
       assert.ok(observed.timestampMs <= after.observationStartTimestampMs)
       assert.ok(!selectedRawFrameIndices.includes(found.index)); selectedRawFrameIndices.push(found.index)
-      const { frame } = found, p = observed.pose; assert.ok(Array.isArray(p) && p.length === 27 && p.every(Number.isFinite))
-      assert.equal(p[10], 0); assert.equal(p[11], 1); assert.equal(p[12], before.turn); assert.deepEqual(p.slice(13, 26), Array(13).fill(0))
-      const c = before.camera, angle = c.position.angle
-      assert.deepEqual(p.slice(0, 8), [c.position.x, c.position.y, angle, c.viewPoint.x, c.viewPoint.z, angle * Math.PI / 1024, c.zoom, c.preset])
+      const { frame } = found, p = observed.pose
+      if (viewChange) {
+        assert.equal(recording.point.id, plan.nativeTargetId)
+        assertDragPose(p, recording, step); assertDragFrame(frame, block, i)
+        // Effective projection is constant within each selected block and across
+        // repetitions; the move changes only the declared angle/matrix/pointer.
+        assert.deepEqual(p, frames[0].pose)
+        const allowed = new Set([2, 5, 8, 32, ...Array.from({ length: 9 }, (_, n) => 55 + n)])
+        for (let n = 0; n < p.length; n++) if (!allowed.has(n)) assert.equal(p[n], event.beforePose[n])
+        assert.notDeepEqual(p.slice(55, 64), event.beforePose.slice(55, 64), 'Effective native projection matrix must change')
+      } else {
+        assert.ok(Array.isArray(p) && p.length === 27 && p.every(Number.isFinite))
+        assert.equal(p[10], 0); assert.equal(p[11], 1); assert.equal(p[12], before.turn); assert.deepEqual(p.slice(13, 26), Array(13).fill(0))
+        const c = before.camera, angle = c.position.angle
+        assert.deepEqual(p.slice(0, 8), [c.position.x, c.position.y, angle, c.viewPoint.x, c.viewPoint.z, angle * Math.PI / 1024, c.zoom, c.preset])
+      }
       assert.equal(frame.state, 'paused'); assert.ok(frame.sceneDrawCalls > 0)
       const route = recording.name === 'hud' ? 'hud' : 'world'
       assert.equal(frame.pointerBreakdown?.interaction?.route, route)
@@ -182,7 +244,8 @@ export function summarizeSnapshotPhase(json, recording, revision) {
       poses.push(sha256(JSON.stringify(p))); inventory.push([terrain, object, frame.pointerBreakdown.nativeOcclusion?.submittedTriangles ?? null])
       selected[i === 0 ? 'first' : 'settled'].push(frame)
     }
-    blocks.push({ step, event: event.type, point: [event.x, event.y], poses, inventory, geometrySha256: geometryBefore.fingerprintSha256 })
+    blocks.push({ step, event: event.type, point: [event.x, event.y], poses, inventory, geometrySha256: geometryBefore.fingerprintSha256,
+      ...(viewChange ? { geometryAfterSha256: geometryAfter.fingerprintSha256, inputPoseSha256: sha256(JSON.stringify(event.beforePose)) } : {}) })
   }
   const phase = { name: recording.name, stateSha256, viewConfigSha256: sha256(JSON.stringify(before.camera.config)),
     targetId: recording.point.id ?? null, point: [recording.point.x, recording.point.y], frames: selectedRawFrameIndices.length,
@@ -195,7 +258,7 @@ export function summarizeSnapshotPhase(json, recording, revision) {
 export function comparableWork(phases) {
   if (phases.length !== 6 || phases.some(phase => !phase)) return false
   const shape = phase => [phase.stateSha256, phase.viewConfigSha256, phase.targetId, phase.point,
-    phase.blocks.map(block => [block.step, block.event, block.point, block.poses, block.inventory, block.geometrySha256])]
+    phase.blocks.map(block => [block.step, block.event, block.point, block.poses, block.inventory, block.geometrySha256, block.geometryAfterSha256, block.inputPoseSha256])]
   return phases.every(phase => JSON.stringify(shape(phase)) === JSON.stringify(shape(phases[0])))
 }
 export function compareReports(reports, identity, trustedProtocol = protocolHash()) {
@@ -213,12 +276,13 @@ export function compareReports(reports, identity, trustedProtocol = protocolHash
       for (const statistic of ['p50', 'p95']) {
         let result
         if (!report || report.status !== 'complete' || phases.some(p => !p)) result = { status: report?.status === 'incompatible-dependencies' ? report.status : 'incomplete' }
+        else if (phases.some(p => p.unsupported)) result = { status: phases.some(p => p.unsupported === 'capture-incomplete') ? 'incomplete-cohort' : 'unsupported-source-contract' }
         else if (runtime.size !== 1 || environments.size !== 1 || environments.has(null)) result = { status: 'environment-mismatch' }
-        else if (snapshots.size !== 1 || !comparableWork(phases)) result = { status: phases.some(p => p.blocks.some((b, i) => b.geometrySha256 !== phases[0].blocks[i].geometrySha256)) ? 'geometry-input-mismatch' : 'workload-mismatch' }
+        else if (snapshots.size !== 1 || !comparableWork(phases)) result = { status: phases.some(p => p.blocks.some((b, i) => b.geometrySha256 !== phases[0].blocks[i].geometrySha256 || b.geometryAfterSha256 !== phases[0].blocks[i].geometryAfterSha256)) ? 'geometry-input-mismatch' : 'workload-mismatch' }
         else {
           const get = side => report.runs.filter(r => r.side === side).map(r => r.phases.find(p => p.name === phase).timings[stratum][metric][queryCounters[metric] ? 'perQuery' : 'all']?.[statistic] ?? null)
           result = classify(get('base'), get('head'))
-          if (result.baseline !== undefined && metricEligibility[metric] !== 'terrain-input-matched') result.status = metricEligibility[metric]
+          if (result.baseline !== undefined && eligibility(phase, stratum, metric) !== 'terrain-input-matched') result.status = eligibility(phase, stratum, metric)
           else if (!complete && result.status.startsWith('possible-')) result.status = 'incomplete-shards-observation-only'
         }
         row[statistic] = result

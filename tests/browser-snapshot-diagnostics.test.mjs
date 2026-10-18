@@ -11,10 +11,10 @@ function report(shard) {
     runs: order.map((side, index) => ({ index, side, revision: identity[`${side}Sha`], status: 'complete', environmentSha256: digest,
       phases: shards[shard].map(name => {
         const value = side === 'base' ? 10 : 8, stats = n => ({ n, mean: value, p50: value, p95: value, max: value })
-        return { name, stateSha256: digest, viewConfigSha256: digest, targetId: name === 'native-hover' ? 54 : null,
+        return { name, stateSha256: digest, viewConfigSha256: digest, targetId: name.startsWith('native-') ? 54 : null,
           point: [900, 400], frames: 24, rawFrames: 40, durationMs: 1000,
-          blocks: Array.from({ length: 6 }, (_, step) => ({ step, event: 'pointermove', point: [900, 400], geometrySha256: digest,
-            poses: Array(4).fill(digest), inventory: Array.from({ length: 4 }, () => name === 'hud' ? [0, 0, 0] : [1, 1, 8]) })),
+          blocks: Array.from({ length: 6 }, (_, step) => ({ step, event: 'pointermove', point: [900, 400], geometrySha256: digest, ...(name === 'native-view-drag' ? { geometryAfterSha256: other, inputPoseSha256: digest } : {}),
+            poses: Array(4).fill(digest), inventory: Array.from({ length: 4 }, (_, i) => name === 'hud' || (name === 'native-view-drag' && i > 0) ? [0, 0, 0] : [1, 1, 8]) })),
           timings: Object.fromEntries(strata.map(s => [s, Object.fromEntries(Object.keys(metrics).map(key => [key,
             { all: stats(s === 'first' ? 6 : 18), nonzero: stats(s === 'first' ? 6 : 18), perQuery: stats(s === 'first' ? 6 : 18) }]))])),
           work: Object.fromEntries(strata.map(s => [s, Object.fromEntries(Object.keys(workMetrics).map(key => [key, stats(s === 'first' ? 6 : 18)]))])) }
@@ -30,7 +30,7 @@ test('matching workloads retain exact classifications, timing rows and work outc
   assert.ok(diagnose(input).every(item => item.diagnosis === null))
   const body = renderSnapshotComment(comparison, identity, input)
   assert.match(section(body), /Terrain pick CPU \/ first .*possible-improvement: 10\.000 → 8\.000 \(-2\.000 ms\)/)
-  assert.equal(body.match(/\| Section \/ callback stratum/g).length, 5)
+  assert.equal(body.match(/\| Section \/ callback stratum/g).length, Object.values(shards).flat().length)
   assert.match(body, /observation-only-unverified-nonterrain-inputs/)
   assert.equal(JSON.stringify(input), original)
   assert.deepEqual(compareReports(input, identity), comparison)
@@ -102,7 +102,7 @@ test('incomplete capture names exact pair/arm presence, never inventing a browse
   const input = reports(), world = input[0]
   world.status = 'incomplete'; world.runs.pop()
   world.runs[1].status = 'incomplete'; world.runs[1].phases = []
-  world.runs[3].status = 'incomplete'; world.runs[3].phases.pop()
+  world.runs[3].status = 'incomplete'; world.runs[3].phases.splice(1)
   const native = diagnose(input)[0].diagnosis, ordinary = diagnose(input)[1].diagnosis
   assert.match(native, /pair 1\/base: phase present, run complete/)
   assert.match(native, /pair 1\/head: phase missing, run incomplete/)
@@ -121,7 +121,7 @@ test('incomplete capture names exact pair/arm presence, never inventing a browse
 
 test('missing reports and incompatible dependencies remain bounded presence diagnostics', () => {
   const empty = diagnose([])
-  assert.equal(empty.length, 5)
+  assert.equal(empty.length, Object.values(shards).flat().length)
   for (const item of empty) {
     assert.match(item.diagnosis, /^incomplete: Shard report missing/)
     assert.equal(item.diagnosis.match(/run missing, phase missing/g).length, 6)
@@ -171,7 +171,7 @@ test('wrong identities, duplicate shards and untrusted protocol cannot be format
 test('worst-case bounded numbers and one diagnosis per phase keep comments below reporter size cap', () => {
   const input = reports()
   for (const item of input) for (const run of item.runs) for (const phase of run.phases) {
-    phase.targetId = 1e9; phase.point = [1440, 1000]; phase.rawFrames = 1199; phase.durationMs = 90000
+    phase.targetId = phase.name === 'native-view-drag' ? 54 : 1e9; phase.point = [1440, 1000]; phase.rawFrames = 1199; phase.durationMs = 90000
     for (const stratum of strata) {
       for (const metric of Object.values(phase.timings[stratum])) for (const value of Object.values(metric))
         for (const key of ['mean', 'p50', 'p95', 'max']) value[key] = 1e9
@@ -179,10 +179,10 @@ test('worst-case bounded numbers and one diagnosis per phase keep comments below
     }
   }
   assert.ok(Buffer.byteLength(render(input)) < 60000)
-  for (const item of input) for (const phase of item.runs[5].phases) phase.targetId--
+  for (const item of input) for (const phase of item.runs[5].phases) phase.point[0]--
   const diagnostics = diagnose(input), body = render(input)
   assert.ok(diagnostics.every(item => item.diagnosis.length < 1000))
-  assert.equal(body.match(/workload-mismatch/g).length, 5)
+  assert.equal(body.match(/workload-mismatch/g).length, Object.values(shards).flat().length)
   assert.ok(Buffer.byteLength(body) < 16000)
   assert.doesNotMatch(body, /Session p50/)
 })
