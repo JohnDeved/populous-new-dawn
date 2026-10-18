@@ -1,0 +1,97 @@
+name: Melee public input diagnostic
+
+# One explicitly reviewed diagnostic branch, not a PR readiness/full-gate event.
+on:
+  push:
+    branches: [diagnostic/melee-public-input-20261018]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: melee-public-input-diagnostic
+  cancel-in-progress: false
+
+jobs:
+  gameplay-frames:
+    name: Bounded gameplay frames and public melee input
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CANDIDATE_SHA: '330046bf63a78b569861363aa63cd88d9b4d46f2'
+      PR_HEAD_SHA: '330046bf63a78b569861363aa63cd88d9b4d46f2'
+      PR_BASE_SHA: 'e6c6a6594acd3b713d9a9dd0bce43fe72df33a87'
+      EXPECTED_CHROME_VERSION: 'Google Chrome 155.0.8059.39'
+      EXPECTED_CHROME_SHA256: '9bfb381296dffe75f3419d07b6cc64525105ed117d1453a4ef3b291cb97d2b58'
+      POPULOUS_BROWSER_SCENARIO: gameplay-frames
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Check out exact diagnostic commit
+        id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Set up pinned Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Require workflow-only successor and record diagnostic provenance
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD^)" = "$CANDIDATE_SHA"
+          test "$(git diff --name-only "$CANDIDATE_SHA" HEAD)" = '.github/workflows/melee-input-diagnostic.yml'
+          node --input-type=module <<'NODE'
+          import { execFileSync } from 'node:child_process'
+          import { writeFileSync } from 'node:fs'
+          import { join } from 'node:path'
+          const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim()
+          const provenance = {
+            purpose: 'One bounded public-input and artwork diagnostic; not PR readiness or a full-gate run.',
+            candidate: process.env.CANDIDATE_SHA, base: process.env.PR_BASE_SHA,
+            diagnosticCommit: process.env.GITHUB_SHA, diagnosticTree: git('rev-parse', 'HEAD^{tree}'),
+            candidateTree: git('rev-parse', 'HEAD^^{tree}'),
+            changedPaths: git('diff', '--name-only', process.env.CANDIDATE_SHA, 'HEAD').split('\n'),
+            runId: process.env.GITHUB_RUN_ID, runAttempt: process.env.GITHUB_RUN_ATTEMPT,
+            runnerReceiptMergeField: 'The unchanged runner labels GITHUB_SHA as github.merge. Here it is the diagnostic commit above, NOT an actual PR merge.',
+            caps: { buildMs: 120000, browserMs: 180000, jobMinutes: 15 },
+            expectedChrome: { version: process.env.EXPECTED_CHROME_VERSION, sha256: process.env.EXPECTED_CHROME_SHA256 },
+          }
+          writeFileSync(join(process.env.RUNNER_TEMP, 'melee-diagnostic-provenance.json'), JSON.stringify(provenance, null, 2) + '\n')
+          NODE
+          printf 'Candidate: %s\nBase: %s\nDiagnostic commit (NOT a PR merge): %s\n' "$CANDIDATE_SHA" "$PR_BASE_SHA" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+      - name: Install locked dependencies and verify pinned installed Chrome
+        run: |
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+          npm ci --no-audit --no-fund
+          test -x /opt/google/chrome/chrome
+          test "$(/opt/google/chrome/chrome --version)" = "$EXPECTED_CHROME_VERSION"
+          printf '%s  /opt/google/chrome/chrome\n' "$EXPECTED_CHROME_SHA256" | sha256sum --check --strict
+          node --version
+          npm --version
+          sha256sum package-lock.json node_modules/playwright-core/browsers.json
+      - name: Run unchanged bounded gameplay-frames runner
+        run: node scripts/tutorial-browser/run.mjs
+      - name: Reject tracked input mutation
+        if: ${{ always() && steps.checkout.outcome == 'success' }}
+        run: git diff --exit-code HEAD --
+      - name: Retain diagnostic provenance, receipts and screenshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: melee-input-diagnostic-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/melee-diagnostic-provenance.json
+            outputs/tutorial-browser/*.json
+            outputs/tutorial-browser/*.log
+            outputs/tutorial-browser/*.png
+          if-no-files-found: warn
+          retention-days: 7
