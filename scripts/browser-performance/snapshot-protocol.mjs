@@ -1,6 +1,6 @@
 // v2 is a separate controlled, paused workload. The live v1 policy is unchanged.
 import assert from 'node:assert/strict'
-import { dragContract, dragSourceSlices } from './snapshot-drag-contract.mjs'
+import { dragContract, dragSourceProfiles } from './snapshot-drag-contract.mjs'
 import { assertDragGeometry, assertDragPose, assertDragFrame } from './snapshot-drag-protocol.mjs'
 import { analyzeFrameExport } from '../../app/frame-export-analysis.ts'
 import { repository, order, metrics, metricLabels, workMetrics, queryCounters, policy,
@@ -36,7 +36,7 @@ export const eligibility = (phase, stratum, metric) => {
   return metricEligibility[metric]
 }
 export const classificationPolicy = Object.freeze(Object.fromEntries(['pairs', 'baselineSpread', 'minimumEffect', 'absoluteFloorMs', 'noiseMultiplier'].map(key => [key, policy[key]])))
-export const protocolHash = () => sha256(JSON.stringify({ plan, shards, order, metrics, workMetrics, queryCounters, classificationPolicy, metricEligibility, warmupMetrics, dragSourceSlices }))
+export const protocolHash = () => sha256(JSON.stringify({ plan, shards, order, metrics, workMetrics, queryCounters, classificationPolicy, metricEligibility, warmupMetrics, dragSourceProfiles }))
 const keys = (value, names) => { assert.ok(value && typeof value === 'object' && !Array.isArray(value)); assert.deepEqual(Object.keys(value).sort(), [...names].sort()) }
 const number = (value, max = 1e9, integer = false) => assert.ok(typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= max && (!integer || Number.isSafeInteger(value)))
 const digest = value => assert.match(value, /^[a-f0-9]{64}$/)
