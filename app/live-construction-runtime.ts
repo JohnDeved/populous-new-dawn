@@ -1,3 +1,4 @@
+import { timberPhaseObjects } from './timber-phase-index.ts'
 import { tribeForTeam, type Building, type Point, type Unit, type World } from './world-types.ts'
 import { buildingHp, unitSpeed } from './world-rules.ts'
 import { breedingWork } from './world-state.ts'
@@ -457,7 +458,18 @@ function liveTimberWorld(w: World): TimberSearchWorld {
 
 export function stepLiveTimberSearches(w: World) {
   const world = liveTimberWorld(w),
-    collision = collisionWorld(w)
+    collision = collisionWorld(w),
+    expansionWorld: TimberSearchWorld = {
+      ...world,
+      objects: timberPhaseObjects(
+        w,
+        tree => {
+          const point = nativePosition(w, tree)
+          return ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+        },
+        cell => liveTimberObjects(w, cell)
+      ),
+    }
   stepTimberSearches(
     w.timberSearches,
     world,
@@ -478,7 +490,8 @@ export function stepLiveTimberSearches(w: World) {
       }
       return { result: 1, cost: candidate.cost }
     },
-    id => w.units.some(u => u.id === id && u.hp > 0)
+    id => w.units.some(u => u.id === id && u.hp > 0),
+    expansionWorld
   )
 }
 

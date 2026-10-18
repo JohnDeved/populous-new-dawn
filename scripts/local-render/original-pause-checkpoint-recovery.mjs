@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
+import { checkPauseHeldEscape } from './pause-held-escape.mjs'
 
 // Controlled failure/timing at the browser storage boundary. The retry opens a
 // real database; only delivery of its success event is held. No game/store state
@@ -222,6 +223,9 @@ export default async function ({ browser, page, url, root, output, receipt, sign
   const saved = await readCommittedCheckpoint(page)
   assert.ok(saved?.checkpointSha256)
   passed('checkpoint created and persisted by ordinary Save Game UI')
+  await button(page, 'Back').click()
+  const heldEscape = await checkPauseHeldEscape(page, output)
+  passed('native held Escape cancels each subpanel once without resuming; a fresh press resumes')
 
   await page.addInitScript(coldLookupFailure)
   await frontendRetry('Enter')
@@ -315,7 +319,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     await emptyContext.close()
   }
   return {
-    checks, screenshots, saved, renderers, frontendKeyboard,
+    checks, screenshots, saved, renderers, frontendKeyboard, heldEscape,
     limits: [
       'Controlled cold IndexedDB open failure and delayed success delivery; all checkpoint contents, storage transactions, world transitions and UI handlers are real.',
       'Repeated disabled-button clicks are synthetic activation probes; mission entry, saving, retry, Back and loading use rendered controls.',
