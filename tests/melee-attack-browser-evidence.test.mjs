@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { validateMeleeAttackFrames } from '../scripts/tutorial-browser/melee-attack-evidence.mjs'
-import { installMeleeFrameObserver, meleeAttackMapping } from '../scripts/tutorial-browser/melee-attack.mjs'
+import { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
+  readMeleeRouteState } from '../scripts/tutorial-browser/melee-attack.mjs'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
 
@@ -201,6 +202,38 @@ test('browser mapping reads all original Shaman attack rows independently of obs
     'a caller cannot mutate the retained tables through an earlier mapping result')
 })
 
+test('ordinary M2 startup rejects hidden Warrior13 and admits the visible authored Shaman20 route', async () => {
+  const { createWorld, canPickUnit, select, command } = await import('../app/model.ts')
+  const { finishLevelStart } = await import('./level-start-fixture.mjs')
+  const { advanceGame } = await import('../app/game-clock.ts')
+  const { zoomPreset } = await import('../app/camera-view.ts')
+  const world = finishLevelStart(createWorld(2)), clock = { animationTime: 0, animationFrame: 0 }
+  while (world.turn < 120) advanceGame(world, clock, 1 / 12)
+  const hidden = world.units.find(unit => unit.id === 13), target = world.units.find(unit => unit.id === 20)
+  assert.deepEqual([hidden.x, hidden.z, hidden.inside], [103.03515625, 117.01171875, 71])
+  assert.equal(canPickUnit(world, hidden), false, 'the first hosted case targeted an ineligible occupant')
+  assert.equal(canPickUnit(world, target), true)
+  const state = { sceneAvailable: true, sceneStoreMatch: true, selected: [54], paused: true, speed: 1,
+    inputMask: 0, drawMode: 0, target: { ...target, visible: target.inside === null, pickable: canPickUnit(world, target) },
+    camera: { preset: zoomPreset(0, false), overview: false, transitioning: false, active: 0, resultActive: 0 } }
+  const before = structuredClone(state)
+  assert.doesNotThrow(() => assertMeleeRouteReady(state)); assert.deepEqual(state, before)
+  assert.throws(() => assertMeleeRouteReady({ ...state, target: { ...state.target, inside: 71 } }), /outside/)
+  assert.throws(() => assertMeleeRouteReady({ ...state, target: { ...state.target, pickable: false } }), /eligible/)
+  assert.throws(() => assertMeleeRouteReady({ ...state, target: { ...state.target, visible: false } }), /visible/)
+  for (const changed of [{ preset: 4 }, { overview: true }, { transitioning: true }, { active: 1 }])
+    assert.throws(() => assertMeleeRouteReady({ ...state, camera: { ...state.camera, ...changed } }))
+  assert.throws(() => assertMeleeRouteReady({ ...state, drawMode: 4 }))
+  select(world, 'shaman'); assert.equal(command(world, target), true)
+  const actor = world.units.find(unit => unit.id === 54)
+  assert.equal(actor.target, 20)
+  for (let turns = 0; turns < 400 && !['attack', 'strike', 'special'].includes(actor.fight?.action); turns++)
+    advanceGame(world, clock, 1 / 12)
+  assert.ok(['attack', 'strike', 'special'].includes(actor.fight?.action), 'eligible public target reaches ordinary melee')
+  assert.equal(actor.fight.motion.object, mapping[`shaman:${actor.fight.action}`].object)
+  assert.ok(world.units.some(unit => unit.id === actor.fight.opponent && unit.team === 'green'))
+})
+
 // Explicit supplied World/canvas/RAF diagnostic. No browser, actual game method,
 // rendering, screenshot pixels, original-game timing or live campaign claim.
 function withObserverFixture(run) {
@@ -341,5 +374,30 @@ test('supplied observer stops on Scene replacement and cancels only its own RAF'
     assert.deepEqual([...pending.keys()], [unrelated], 'a stale cancelled observer callback cannot reschedule itself')
     assert.equal(drawCalls.length, 1)
     assert.deepEqual(cancellations, [id], 'stale callback does not cancel any other owner')
+  })
+})
+
+test('route diagnostics and attack observations retain actual interception identities without World writes', () => {
+  withObserverFixture(({ world, scene, group, next, observation }) => {
+    world.units[0].fight.group = 9; world.units[0].fight.opponent = 19
+    world.fights = [{ id: 9, members: [54, 13, 19] }]
+    world.units.push({ id: 20, kind: 'shaman', team: 'green', hp: 100, inside: null, x: 91, z: 119 },
+      { id: 13, kind: 'warrior', team: 'green', hp: 90, inside: 71 })
+    scene.unitMeshes.set(20, { visible: true, userData: { pickable: true, frame: 1 } })
+    scene.unitMeshes.set(13, { visible: false, userData: { pickable: false, frame: 2 } })
+    scene.cameraPosition = { x: 1, y: 2, angle: 1537 }
+    scene.cameraMotion = { active: 0, target: { x: 3, y: 4 } }
+    scene.resultCamera = { active: 0 }; scene.viewPreset = 2; scene.overviewActive = false
+    scene.viewTransition = null
+    const before = structuredClone(world), state = readMeleeRouteState()
+    assert.deepEqual(world, before)
+    assert.deepEqual([state.target.id, state.target.inside, state.target.visible, state.target.pickable], [20, null, true, true])
+    assert.deepEqual([state.hiddenPriorTarget.inside, state.hiddenPriorTarget.visible, state.hiddenPriorTarget.pickable], [71, false, false])
+    assert.equal(state.camera.preset, 2); assert.equal(state.camera.overview, false)
+    assert.deepEqual(state.actor.fight, { group: 9, action: 'strike', opponent: 19 })
+    next()
+    assert.equal(observation.result.samples[0].opponent, 19)
+    assert.deepEqual(observation.result.samples[0].participants, [54, 13, 19])
+    assert.equal(group.userData.frame, 998); assert.deepEqual(world, before)
   })
 })

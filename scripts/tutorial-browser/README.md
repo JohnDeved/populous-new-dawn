@@ -246,10 +246,23 @@ causal speedup. Nested CPU timing buckets overlap and must not be summed.
 After every existing gameplay-frame phase/export/assertion, that same job closes
 its first context and starts one fresh authored Mission 2 context. Public New Game,
 recommendation No, Browser controls, All missions, Mission 2 and Skip controls lead
-to public Pause and Select and focus shaman. A declared pure minimap inverse chooses
-camera input near authored Warrior 13; real pointer hovers must identify that person
-before the attack click. Shaman 54's target/order is observed before public Resume.
+to public Pause and Select and focus shaman. One public `-` zoom-out reaches the
+ordinary bird’s-eye preset (2), explicitly not the no-person world overview.
+A declared pure minimap inverse chooses camera input near authored Green Shaman 20;
+that person must be outside, visible and eligible in the actual renderer's picking
+metadata, and real pointer hovers must identify him before the attack click.
+Shaman 54's target/order is observed before public Resume. Defenders may naturally
+intercept the order; actual opponent and encounter participant IDs are retained,
+not forced. The native artwork assertions still observe Blue Shaman 54.
 No person, health, position, selection, clock, renderer call or command is injected.
+
+The first hosted attempt at `fd435e24` failed before any attack: Warrior 13 was an
+invalid public target. An exact-position/turn CPU replay places him inside Hut 71,
+where ordinary picking correctly rejects him. That failed artifact is not an
+animation failure or browser acceptance. The repaired route records eligibility,
+camera/preset, bounds and hover winners, plus a best-effort failure PNG and state
+trace before cleanup. A closed/crashed page may prevent those diagnostics; missing
+evidence is retained explicitly rather than treated as a pass.
 
 The separate 75-second case fits inside, not in addition to, the unchanged
 180-second aggregate browser cap. There is no new workflow/job, browser route,

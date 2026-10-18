@@ -13,6 +13,40 @@ export const meleeAttackLimitMs = 75000
 const root = resolve(import.meta.dirname, '../..')
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 
+// Read the eligibility published by updateUnitsFrame, not a private hit query.
+export function readMeleeRouteState() {
+  const scene = window.testSceneRef?.current, world = window.testStore?.getWorld()
+  if (!scene || !world) return { sceneAvailable: false }
+  const person = id => {
+    const unit = world.units.find(unit => unit.id === id), group = scene.unitMeshes.get(id)
+    return unit ? { id, kind: unit.kind, team: unit.team, hp: unit.hp, x: unit.x, z: unit.z,
+      inside: unit.inside, visible: group?.visible ?? false, pickable: group?.userData.pickable === true,
+      frame: group?.userData.frame ?? null, target: unit.target,
+      fight: unit.fight && { group: unit.fight.group, action: unit.fight.action, opponent: unit.fight.opponent } } : null
+  }
+  return { sceneAvailable: true, sceneStoreMatch: scene.world === world, turn: world.turn,
+    selected: [...world.selected], paused: world.paused, speed: world.speed, drawMode: world.drawMode,
+    inputMask: world.inputMask, actor: person(54), target: person(20), hiddenPriorTarget: person(13),
+    camera: { position: { ...scene.cameraPosition }, target: { ...scene.cameraMotion.target },
+      active: scene.cameraMotion.active, preset: scene.viewPreset, overview: scene.overviewActive,
+      transitioning: !!scene.viewTransition, resultActive: scene.resultCamera.active },
+    rendererStamp: scene.renderer.info.render.frame, canvasConnected: scene.renderer.domElement.isConnected }
+}
+
+export function assertMeleeRouteReady(state) {
+  assert.equal(state.sceneAvailable, true); assert.equal(state.sceneStoreMatch, true)
+  assert.deepEqual(state.selected, [54]); assert.equal(state.paused, true); assert.equal(state.speed, 1)
+  assert.equal(state.target?.id, 20); assert.equal(state.target?.kind, 'shaman')
+  assert.equal(state.target?.team, 'green'); assert.ok(state.target.hp > 0)
+  assert.equal(state.target.inside, null, 'Public melee target must be outside a building')
+  assert.equal(state.target.visible, true, 'Public melee target must be visible')
+  assert.equal(state.target.pickable, true, 'Public melee target must be eligible for ordinary picking')
+  assert.equal(state.camera.preset, 2, 'One public zoom-out must reach ordinary bird’s-eye')
+  assert.equal(state.camera.overview, false); assert.equal(state.drawMode, 0)
+  assert.equal(state.camera.transitioning, false); assert.equal(state.camera.active, 0)
+  assert.equal(state.camera.resultActive, 0); assert.equal(state.inputMask, 0)
+}
+
 // Expected artwork comes from retained tables, never from the observed pose.
 export function meleeAttackMapping() {
   const rules = JSON.parse(readFileSync(resolve(root, 'app/original-rules.json')))
@@ -54,6 +88,7 @@ export function installMeleeFrameObserver() {
         const sample = { timestampMs: performance.now(), turn: world.turn,
           animationFrame: scene.gameClock.animationFrame, stamp: scene.renderer.info.render.frame,
           id: 54, kind: unit.kind, action: fight.action, started: fight.started,
+          opponent: fight.opponent, participants: [...(world.fights?.find(group => group.id === fight.group)?.members ?? [])],
           object: person.object, draw: person.draw, f1: person.f1, f2: person.f2,
           logicalStamp: person.stamp, nativeAttackAnimation: fight.nativeAttackAnimation === true,
           frame: group.userData.frame, flip: group.userData.frameFlip,
@@ -107,7 +142,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   page.setDefaultTimeout(10000)
   const report = { schema: 'populous-new-dawn/ordinary-melee-artwork', schemaVersion: 1,
     status: 'running', expectedRevision, capMs: meleeAttackLimitMs, actions: [], errors: [],
-    method: 'Public authored M2 startup, Shaman54 selection, supplied minimap camera input and real Warrior13 attack click; normal RAF and read-only same-frame canvas observation.',
+    method: 'Public authored M2 startup, Shaman54 selection, one public bird’s-eye zoom-out, supplied minimap camera input and real eligible Green Shaman20 attack click; normal defenders may intercept; normal RAF and same-frame canvas observation.',
     limits: ['Direct mission access, not earned campaign unlock.', 'No original-game FPS calibration, hardware smoothness or Firewarrior browser claim.',
       'Marker is recorded, not represented as direct observation of a private getter return. Native object and actual directional frame are independently compared.',
       'Canvas readback perturbs rendering; crops require visual review and do not establish pixel-perfect composition or performance.',
@@ -171,9 +206,14 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       return !scene.cameraMotion.active && !scene.resultCamera.active && !scene.viewTransition
     })
     await settle()
+    assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
+    await action('One public - zoom-out to ordinary bird’s-eye', () => page.keyboard.press('-'))
+    await settle()
+    report.eligibility = await page.evaluate(readMeleeRouteState); save()
+    assertMeleeRouteReady(report.eligibility)
     const setup = await page.evaluate(() => {
-      const scene = window.testSceneRef.current, w = scene.world, target = w.units.find(unit => unit.id === 13)
-      if (!target || target.kind !== 'warrior' || target.team === 'blue' || target.hp <= 0) throw Error('Authored Warrior13 unavailable')
+      const scene = window.testSceneRef.current, w = scene.world, target = w.units.find(unit => unit.id === 20)
+      if (!target || target.kind !== 'shaman' || target.team !== 'green' || target.hp <= 0) throw Error('Authored Green Shaman20 unavailable')
       const rect = scene.mini.getBoundingClientRect()
       return { turn: w.turn, selected: [...w.selected], paused: w.paused, speed: w.speed,
         environment: { viewport: { width: innerWidth, height: innerHeight }, dpr: devicePixelRatio,
@@ -196,19 +236,22 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assert.ok(camera, 'Authored target must be reachable through public minimap camera input')
     assert.equal(await page.evaluate(point => document.elementFromPoint(point.x, point.y) === window.testSceneRef.current.mini, camera), true)
     report.cameraInput = camera
-    await action('Minimap camera toward authored Warrior13', () => page.mouse.click(camera.x, camera.y))
+    await action('Minimap camera toward authored Green Shaman20', () => page.mouse.click(camera.x, camera.y))
     await settle()
-    const targetBounds = await page.evaluate(() => {
+    report.afterFocus = await page.evaluate(readMeleeRouteState); save()
+    assertMeleeRouteReady(report.afterFocus)
+    const targetBounds = report.targetBounds = await page.evaluate(() => {
       const s = window.testSceneRef.current, canvas = s.renderer.domElement, rect = canvas.getBoundingClientRect()
-      const g = s.unitMeshes.get(13), bounds = s.picking.personBounds(13, rect)
+      const g = s.unitMeshes.get(20), bounds = s.picking.personBounds(20, rect)
       if (!g?.visible || !bounds) return null
       return { x: rect.left + bounds.x, y: rect.top + bounds.y, width: bounds.width, height: bounds.height }
     })
-    assert.ok(targetBounds, 'Authored Warrior13 must have rendered canvas bounds')
+    save()
+    assert.ok(targetBounds, 'Eligible Green Shaman20 must have rendered canvas bounds')
     report.targetHoverAttempts = []
     let targetPoint
     // Fixed body-interior candidates. Actual pointer events, not a test picker
-    // call, must identify Warrior13 before the one real attack click.
+    // call, must identify Green Shaman20 before the one real attack click.
     for (const [fx, fy] of [[.5, .5], [.5, .65], [.35, .5], [.65, .5], [.5, .35]]) {
       const point = { x: Math.floor(targetBounds.x + targetBounds.width * fx), y: Math.floor(targetBounds.y + targetBounds.height * fy) }
       const before = await page.evaluate(() => window.testSceneRef.current.renderer.info.render.frame)
@@ -222,18 +265,20 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
         return { id: s.hoveredObject, canvasOwnsPoint: document.elementFromPoint(point.x, point.y) === s.renderer.domElement }
       }, point)
       report.targetHoverAttempts.push({ point, ...observed }); save()
-      if (observed.id === 13 && observed.canvasOwnsPoint) { targetPoint = point; break }
+      if (observed.id === 20 && observed.canvasOwnsPoint) { targetPoint = point; break }
     }
-    assert.ok(targetPoint, 'Public pointer route must identify authored Warrior13')
+    assert.ok(targetPoint, 'Public pointer route must identify eligible Green Shaman20')
     report.targetInput = targetPoint
-    await action('Real canvas attack click on Warrior13', () => page.mouse.click(targetPoint.x, targetPoint.y))
+    report.beforeAttack = await page.evaluate(readMeleeRouteState); save()
+    assertMeleeRouteReady(report.beforeAttack)
+    await action('Real canvas attack click on Green Shaman20', () => page.mouse.click(targetPoint.x, targetPoint.y))
     report.order = await page.evaluate(() => {
       const w = window.testStore.getWorld(), u = w.units.find(unit => unit.id === 54)
       return { turn: w.turn, selected: [...w.selected], target: u.target, path: structuredClone(u.path),
         nativeCommands: u.native && { commands: [...u.native.commands], commandCursor: u.native.commandCursor,
           commandStatus: u.native.commandStatus, workTarget: u.native.workTarget }, paused: w.paused }
     })
-    assert.deepEqual(report.order.selected, [54]); assert.equal(report.order.target, 13)
+    assert.deepEqual(report.order.selected, [54]); assert.equal(report.order.target, 20)
     assert.equal(report.order.paused, true); assert.equal(report.order.turn, setup.turn)
     await page.evaluate(installMeleeFrameObserver)
     await button('Resume game')
@@ -247,7 +292,18 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     report.acceptance = validateMeleeAttackFrames(report.observation.samples, report.mapping)
     await button('Pause game')
     await page.screenshot({ path: resolve(output, 'melee-attack-context.png') })
-  } catch (error) { failure = error; report.failure = { message: String(error), stack: error.stack } }
+  } catch (error) {
+    failure = error; report.failure = { message: String(error), stack: error.stack }; save()
+    if (!page.isClosed()) {
+      try { report.failureState = await page.evaluate(readMeleeRouteState); save() }
+      catch (diagnostic) { report.failureStateError = String(diagnostic) }
+      try {
+        const filename = 'melee-attack-failure.png'
+        await page.screenshot({ path: resolve(output, filename), timeout: 2000 })
+        report.failureScreenshot = { filename, sha256: sha256(readFileSync(resolve(output, filename))) }
+      } catch (diagnostic) { report.failureScreenshotError = String(diagnostic) }
+    }
+  }
   finally {
     clearTimeout(timer)
     try { await retainObservation() }
