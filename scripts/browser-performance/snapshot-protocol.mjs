@@ -1,5 +1,6 @@
 // v2 is a separate controlled, paused workload. The live v1 policy is unchanged.
 import assert from 'node:assert/strict'
+import { readerProofContract, validateReaderEvidence, geometryProof, validateGeometryProof, equivalentReaderEvidence } from './snapshot-reader-proof.mjs'
 import { dragContract, dragSourceProfiles } from './snapshot-drag-contract.mjs'
 import { assertDragGeometry, assertDragPose, assertDragFrame } from './snapshot-drag-protocol.mjs'
 import { analyzeFrameExport } from '../../app/frame-export-analysis.ts'
@@ -12,7 +13,7 @@ export const plan = Object.freeze({ version: 2, kind: 'paused-authored-snapshot-
   steps: 6, callbacksPerStep: 4, firstCallbacks: 1, settledCallbacks: 3,
   pointerOffsets: [[3, 0], [3, 3], [0, 3], [-3, 0], [0, -3], [0, 0]],
   nativePointerOffsets: [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1]],
-  cohortRevision: 4, drag: dragContract, nativePixelQuantization: 'truncate-css-minus-canvas-origin', nativeViewInvalidation: 'separate-warmed-native-view-drag-first-callback', observerVersion: 1, geometryVersion: 1, nativeTargetId: 54, snapshotAuthoringVersion: 1, authoredTurn: 70,
+  cohortRevision: 4, drag: dragContract, nativePixelQuantization: 'truncate-css-minus-canvas-origin', nativeViewInvalidation: 'separate-warmed-native-view-drag-first-callback', observerVersion: 1, geometryVersion: 2, nativeTargetId: 54, snapshotAuthoringVersion: 1, authoredTurn: 70,
   coverage: 'exact-4-of-4-contiguous-recorded-callbacks-per-input', menuRecovery: 'first-subsequent-world-pointer-input-not-first-close-callback',
   simulation: 'not-measured-paused', waterAdvance: 'not-measured-paused',
   renderCallbackRaf: 'observation-only-presentation-clocks-advance',
@@ -36,7 +37,7 @@ export const eligibility = (phase, stratum, metric) => {
   return metricEligibility[metric]
 }
 export const classificationPolicy = Object.freeze(Object.fromEntries(['pairs', 'baselineSpread', 'minimumEffect', 'absoluteFloorMs', 'noiseMultiplier'].map(key => [key, policy[key]])))
-export const protocolHash = () => sha256(JSON.stringify({ plan, shards, order, metrics, workMetrics, queryCounters, classificationPolicy, metricEligibility, warmupMetrics, dragSourceProfiles }))
+export const protocolHash = () => sha256(JSON.stringify({ plan, shards, order, metrics, workMetrics, queryCounters, classificationPolicy, metricEligibility, warmupMetrics, dragSourceProfiles, readerProofContract }))
 const keys = (value, names) => { assert.ok(value && typeof value === 'object' && !Array.isArray(value)); assert.deepEqual(Object.keys(value).sort(), [...names].sort()) }
 const number = (value, max = 1e9, integer = false) => assert.ok(typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= max && (!integer || Number.isSafeInteger(value)))
 const digest = value => assert.match(value, /^[a-f0-9]{64}$/)
@@ -52,11 +53,16 @@ function timings(value, n) {
   for (const item of Object.values(value)) { keys(item, ['all', 'nonzero', 'perQuery']); stats(item.all, n); stats(item.nonzero, n, false); stats(item.perQuery, n, false)
     if (item.all === null) assert.ok(item.nonzero === null && item.perQuery === null) }
 }
-function validateBlocks(blocks, name) {
+function validateBlocks(blocks, name, readers) {
   assert.ok(Array.isArray(blocks) && blocks.length === plan.steps)
   for (const [step, block] of blocks.entries()) {
     keys(block, ['step', 'event', 'point', 'poses', 'inventory', 'geometrySha256',
-      ...(name === dragContract.phase ? ['geometryAfterSha256', 'inputPoseSha256'] : [])])
+      ...(name === dragContract.phase ? ['geometryAfterSha256', 'inputPoseSha256'] : []),
+      ...(readers ? ['geometryProof', ...(name === dragContract.phase ? ['geometryAfterProof'] : [])] : [])])
+    if (readers) {
+      validateGeometryProof(block.geometryProof, block.geometrySha256, readers.rawSha256)
+      if (name === dragContract.phase) validateGeometryProof(block.geometryAfterProof, block.geometryAfterSha256, readers.rawSha256)
+    }
     if (name === dragContract.phase) { digest(block.geometryAfterSha256); digest(block.inputPoseSha256); assert.notEqual(block.geometrySha256, block.geometryAfterSha256) }
     digest(block.geometrySha256)
     assert.equal(block.step, step); assert.equal(block.event, 'pointermove')
@@ -84,7 +90,9 @@ export function validateReport(report) {
   assert.ok(Object.hasOwn(shards, report.shard)); assert.ok(['complete', 'incomplete', 'incompatible-dependencies'].includes(report.status))
   assert.ok(Array.isArray(report.runs) && report.runs.length <= 6)
   for (const [index, run] of report.runs.entries()) {
-    keys(run, ['index', 'side', 'revision', 'status', 'environmentSha256', 'phases'])
+    keys(run, ['index', 'side', 'revision', 'status', 'environmentSha256', 'phases', ...(Object.hasOwn(run, 'readers') ? ['readers'] : [])])
+    if (run.readers) validateReaderEvidence(run.readers)
+    else assert.ok(!Object.hasOwn(run, 'readers'))
     assert.equal(run.index, index); assert.equal(run.side, order[index]); assert.equal(run.revision, report.identity[`${run.side}Sha`])
     assert.ok(['complete', 'incomplete'].includes(run.status)); if (run.environmentSha256 !== null) digest(run.environmentSha256)
     assert.ok(Array.isArray(run.phases) && run.phases.length <= shards[report.shard].length)
@@ -93,19 +101,20 @@ export function validateReport(report) {
         keys(phase, ['name', 'unsupported']); assert.ok(['source-contract', 'capture-incomplete'].includes(phase.unsupported))
         assert.equal(phase.name, shards[report.shard][offset]); continue
       }
-      keys(phase, ['name', 'stateSha256', 'viewConfigSha256', 'targetId', 'point', 'frames', 'rawFrames', 'durationMs', 'blocks', 'timings', 'work', ...(phase.name === dragContract.phase ? ['warmup'] : [])])
+      keys(phase, ['name', 'stateSha256', 'viewConfigSha256', 'targetId', 'point', 'frames', 'rawFrames', 'durationMs', 'blocks', 'timings', 'work', ...(phase.name === dragContract.phase ? ['warmup'] : []), ...(run.readers ? ['readerEvidenceSha256'] : [])])
+      if (run.readers) assert.equal(phase.readerEvidenceSha256, run.readers.allSourcesSha256)
       assert.equal(phase.name, shards[report.shard][offset]); digest(phase.stateSha256); digest(phase.viewConfigSha256)
       if (phase.targetId !== null) number(phase.targetId, 1e9, true)
       if (phase.name === dragContract.phase) assert.equal(phase.targetId, plan.nativeTargetId)
       assert.ok(Array.isArray(phase.point) && phase.point.length === 2); phase.point.forEach((x, i) => number(x, i ? 1000 : 1440))
       assert.equal(phase.frames, plan.steps * plan.callbacksPerStep); number(phase.rawFrames, 1199, true); assert.ok(phase.rawFrames >= phase.frames)
       number(phase.durationMs, 90000); assert.ok(phase.durationMs > 0)
-      validateBlocks(phase.blocks, phase.name)
+      validateBlocks(phase.blocks, phase.name, run.readers)
       if (phase.name === dragContract.phase) {
         const warmup = phase.warmup
         keys(warmup, ['frames', 'blocks', 'firstCpuMs']); assert.equal(warmup.frames, 24)
         assert.ok(phase.rawFrames >= phase.frames + warmup.frames + 1)
-        validateBlocks(warmup.blocks, phase.name); keys(warmup.firstCpuMs, warmupMetrics)
+        validateBlocks(warmup.blocks, phase.name, run.readers); keys(warmup.firstCpuMs, warmupMetrics)
         for (const values of Object.values(warmup.firstCpuMs)) {
           assert.ok(Array.isArray(values) && values.length === 6)
           values.forEach(value => { if (value !== null) number(value) })
@@ -177,7 +186,8 @@ export function assertDragWarmupReturn(recording) {
   assertDragPose(first.event.beforePose, recording, 0, true)
   assertDragPose(last.frames.at(-1).pose, recording, plan.steps - 1)
 }
-export function summarizeSnapshotPhase(json, recording, revision) {
+export function summarizeSnapshotPhase(json, recording, revision, readers = null) {
+  if (readers) validateReaderEvidence(readers)
   assert.match(revision, /^[a-f0-9]{40}$/)
   analyzeFrameExport(json) // Validate actual downloaded schema/limits, never a synthetic replacement.
   const viewChange = recording.name === dragContract.phase
@@ -286,7 +296,11 @@ export function summarizeSnapshotPhase(json, recording, revision) {
         poses.push(sha256(JSON.stringify(p))); inventory.push([terrain, object, frame.pointerBreakdown.nativeOcclusion?.submittedTriangles ?? null])
         selected[i === 0 ? 'first' : 'settled'].push(frame)
       }
-      blocks.push({ step, event: event.type, point: [event.x, event.y], poses, inventory, geometrySha256: geometryBefore.fingerprintSha256,
+      if (readers) {
+        validateGeometryProof(geometryProof(geometryBefore), geometryBefore.fingerprintSha256, readers.rawSha256)
+        validateGeometryProof(geometryProof(geometryAfter), geometryAfter.fingerprintSha256, readers.rawSha256)
+      }
+      blocks.push({ ...(readers ? { geometryProof: geometryProof(geometryBefore), ...(viewChange ? { geometryAfterProof: geometryProof(geometryAfter) } : {}) } : {}), step, event: event.type, point: [event.x, event.y], poses, inventory, geometrySha256: geometryBefore.fingerprintSha256,
         ...(viewChange ? { geometryAfterSha256: geometryAfter.fingerprintSha256, inputPoseSha256: sha256(JSON.stringify(event.beforePose)) } : {}) })
     }
     return { selected, selectedRawFrameIndices, blocks }
@@ -318,7 +332,7 @@ export function summarizeSnapshotPhase(json, recording, revision) {
     warmupResult = summarizeBlocks(warmup.blocks)
   }
   const { selected, selectedRawFrameIndices, blocks } = summarizeBlocks(recording.blocks)
-  const phase = { name: recording.name, stateSha256, viewConfigSha256: sha256(JSON.stringify(before.camera.config)),
+  const phase = { ...(readers ? { readerEvidenceSha256: readers.allSourcesSha256 } : {}), name: recording.name, stateSha256, viewConfigSha256: sha256(JSON.stringify(before.camera.config)),
     targetId: recording.point.id ?? null, point: [recording.point.x, recording.point.y], frames: selectedRawFrameIndices.length,
     rawFrames: raw.frames.length, durationMs: after.timestampMs - before.timestampMs, blocks,
     ...(warmupResult ? { warmup: { frames: 24, blocks: warmupResult.blocks,
@@ -328,11 +342,32 @@ export function summarizeSnapshotPhase(json, recording, revision) {
   return { version: 2, rawSha256: sha256(json), selectedRawFrameIndices, ...(warmupResult ? { warmupRawFrameIndices: warmupResult.selectedRawFrameIndices } : {}), phase }
 }
 
-export function comparableWork(phases) {
+export function comparableWork(phases, readerContexts = null) {
   if (phases.length !== 6 || phases.some(phase => !phase)) return false
-  const shape = phase => [phase.stateSha256, phase.viewConfigSha256, phase.targetId, phase.point,
-    phase.blocks.map(block => [block.step, block.event, block.point, block.poses, block.inventory, block.geometrySha256, block.geometryAfterSha256, block.inputPoseSha256]), phase.warmup?.blocks]
-  return phases.every(phase => JSON.stringify(shape(phase)) === JSON.stringify(shape(phases[0])))
+  // Preserve the original exact reader+geometry route. Proof fields are not
+  // workload inputs and do not alter exact-match eligibility.
+  const shape = (phase, semantic) => {
+    const block = b => [b.step, b.event, b.point, b.poses, b.inventory,
+      semantic ? validateGeometryProof(b.geometryProof, b.geometrySha256, b.geometryProof.consumerMethodsSha256) : b.geometrySha256,
+      semantic && b.geometryAfterSha256 ? validateGeometryProof(b.geometryAfterProof, b.geometryAfterSha256, b.geometryAfterProof.consumerMethodsSha256) : b.geometryAfterSha256,
+      b.inputPoseSha256]
+    return [phase.stateSha256, phase.viewConfigSha256, phase.targetId, phase.point,
+      phase.blocks.map(block), phase.warmup?.blocks.map(block)]
+  }
+  const same = semantic => phases.every(phase => JSON.stringify(shape(phase, semantic)) === JSON.stringify(shape(phases[0], semantic)))
+  if (same(false)) return true
+  if (!equivalentReaderEvidence(readerContexts)) return false
+  try {
+    for (const [i, phase] of phases.entries()) {
+      const evidence = readerContexts[i].evidence
+      assert.equal(phase.readerEvidenceSha256, evidence.allSourcesSha256)
+      for (const block of [...phase.blocks, ...(phase.warmup?.blocks ?? [])]) {
+        validateGeometryProof(block.geometryProof, block.geometrySha256, evidence.rawSha256)
+        if (block.geometryAfterSha256) validateGeometryProof(block.geometryAfterProof, block.geometryAfterSha256, evidence.rawSha256)
+      }
+    }
+    return same(true)
+  } catch { return false }
 }
 export function compareReports(reports, identity, trustedProtocol = protocolHash()) {
   const map = new Map()
@@ -340,10 +375,15 @@ export function compareReports(reports, identity, trustedProtocol = protocolHash
   const missing = Object.keys(shards).filter(shard => !map.has(shard))
   const runtime = new Set(reports.map(r => r.runtimeSha256).filter(Boolean)), snapshots = new Set(reports.map(r => r.snapshotSha256).filter(Boolean))
   const complete = !missing.length && runtime.size === 1 && snapshots.size === 1 && reports.every(r => r.status === 'complete')
+  // No per-shard escape: each arm's raw readers, emitted bundle and complete
+  // source binding must also be identical across all present shard receipts.
+  const readerShardsStable = ['base', 'head'].every(side => new Set(reports.flatMap(r => r.runs.filter(run => run.side === side)
+    .map(run => run.readers ? JSON.stringify([run.readers.allSourcesSha256, run.readers.provenance, run.readers.source]) : null))).size === 1)
   const rows = []
   for (const [shard, names] of Object.entries(shards)) for (const phase of names) {
     const report = map.get(shard), phases = report?.runs.map(run => run.phases.find(p => p.name === phase)) ?? []
     const environments = new Set(report?.runs.map(run => run.environmentSha256))
+    const workMatches = phases.length === 6 && phases.every(p => p && !p.unsupported) && comparableWork(phases, readerShardsStable ? report.runs.map(run => ({ side: run.side, evidence: run.readers })) : null)
     for (const stratum of strata) for (const metric of Object.keys(metrics)) {
       const row = { shard, phase, stratum, metric, basis: queryCounters[metric] ? 'per-query frame average' : 'per-frame' }
       for (const statistic of ['p50', 'p95']) {
@@ -351,7 +391,7 @@ export function compareReports(reports, identity, trustedProtocol = protocolHash
         if (!report || report.status !== 'complete' || phases.some(p => !p)) result = { status: report?.status === 'incompatible-dependencies' ? report.status : 'incomplete' }
         else if (phases.some(p => p.unsupported)) result = { status: phases.some(p => p.unsupported === 'capture-incomplete') ? 'incomplete-cohort' : 'unsupported-source-contract' }
         else if (runtime.size !== 1 || environments.size !== 1 || environments.has(null)) result = { status: 'environment-mismatch' }
-        else if (snapshots.size !== 1 || !comparableWork(phases)) result = { status: phases.some(p => p.blocks.some((b, i) => b.geometrySha256 !== phases[0].blocks[i].geometrySha256 || b.geometryAfterSha256 !== phases[0].blocks[i].geometryAfterSha256)) ? 'geometry-input-mismatch' : 'workload-mismatch' }
+        else if (snapshots.size !== 1 || !workMatches) result = { status: phases.some(p => p.blocks.some((b, i) => b.geometrySha256 !== phases[0].blocks[i].geometrySha256 || b.geometryAfterSha256 !== phases[0].blocks[i].geometryAfterSha256)) ? 'geometry-input-mismatch' : 'workload-mismatch' }
         else {
           const get = side => report.runs.filter(r => r.side === side).map(r => r.phases.find(p => p.name === phase).timings[stratum][metric][queryCounters[metric] ? 'perQuery' : 'all']?.[statistic] ?? null)
           result = classify(get('base'), get('head'))

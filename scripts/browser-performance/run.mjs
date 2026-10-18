@@ -6,6 +6,7 @@ import { cpus, arch, platform, release, tmpdir } from 'node:os'
 import { preview } from 'vite'
 import { chromium } from '@playwright/test'
 import capture from './snapshot-capture.mjs'
+import { readerDependencyManifest, readerBundleManifest, readerBuildProvenance, readerSourceEvidence } from './reader-build.mjs'
 import { inspectDragSource } from './snapshot-drag-contract.mjs'
 import { createSnapshotFixture } from './snapshot-setup.mjs'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
@@ -72,10 +73,18 @@ try {
   environment.browserSha256 = sha256(readFileSync(config.browserPath))
   report.runtimeSha256 = sha256(JSON.stringify(environment))
   const fixtureOutput = resolve(out, 'session-fixture'); mkdirSync(fixtureOutput)
+  const dependencies = readerDependencyManifest(root)
   const fixture = await createSnapshotFixture({ output: fixtureOutput, source: { commit: identity.baseSha } })
   report.snapshotSha256 = fixture.receipt.snapshotSha256; receipt.fixture = fixture.receipt
   const dist = { base: await build('base'), head: await build('head') }
+  assert.equal(readerDependencyManifest(root).sha256, dependencies.sha256, 'Installed dependency mutation during builds')
+  const bundles = Object.fromEntries(Object.entries(dist).map(([side, directory]) => [side, readerBundleManifest(directory)]))
+  const readerSources = Object.fromEntries(Object.entries(sources).map(([side, source]) => [side, readerSourceEvidence(source, dragSources[side])]))
+  const readerProvenance = Object.fromEntries(Object.keys(sources).map(side => [side, readerBuildProvenance(root, dependencies, bundles[side],
+    ['scripts/browser-performance/build.mjs', 'scripts/browser-performance/reader-build.mjs', 'scripts/tutorial-browser/fixture/index.html'])]))
+  writeFileSync(resolve(fixtureOutput, 'reader-build-provenance.json'), JSON.stringify({ dependencies, bundles, readerSources, readerProvenance }, null, 2) + '\n')
   for (const [index, side] of order.entries()) {
+    assert.deepEqual(readerBundleManifest(dist[side]), bundles[side], 'Emitted arm bundle changed')
     const output = resolve(out, `session-${index}-${side}`); mkdirSync(output)
     const run = { index, side, revision: identity[`${side}Sha`], status: 'incomplete', environmentSha256: null, phases: [] }
     report.runs.push(run); save()
@@ -94,8 +103,9 @@ try {
       const page = await context.newPage(); page.setDefaultTimeout(15000)
       page.on('pageerror', error => session.errors.push(String(error).slice(0, 2000)))
       page.on('console', message => { if (message.type() === 'error' && session.errors.length < 20) session.errors.push(message.text().slice(0, 2000)) })
-      await capture({ page, url: 'http://127.0.0.1:5199', output, expectedRevision: run.revision, fixture, shard, dragSource: dragSources[side], allowDragFailure: true, getErrorCount: () => session.errors.length })
+      await capture({ page, url: 'http://127.0.0.1:5199', output, expectedRevision: run.revision, fixture, shard, dragSource: dragSources[side], readerSource: readerSources[side], readerProvenance: readerProvenance[side], allowDragFailure: true, getErrorCount: () => session.errors.length })
       const recording = JSON.parse(readFileSync(resolve(output, 'snapshot-frames.json')))
+      if (recording.readers) run.readers = recording.readers
       if (recording.status !== 'passed-with-incomplete-drag') { assert.equal(session.timedOut, undefined); assert.deepEqual(session.errors, []) }
       for (const name of shards[shard]) {
         const admission = appendSnapshotPhase(report, run, name, () => {
@@ -116,6 +126,8 @@ try {
     } catch (error) { session.failure = String(error).slice(0, 2000) }
     finally { clearTimeout(timer); await browser?.close(); browser = null; await server?.close(); server = null; rmSync(profile, { recursive: true, force: true }); session.endedAt = new Date().toISOString(); save(); saveReceipt() }
   }
+  assert.equal(readerDependencyManifest(root).sha256, dependencies.sha256, 'Installed dependency mutation during capture')
+  for (const side of Object.keys(sources)) assert.deepEqual(readerBundleManifest(dist[side]), bundles[side], 'Emitted arm bundle changed')
   for (const [side, source] of Object.entries(sources)) assert.equal(fingerprint(source), fingerprints[side], 'Tracked source mutation')
   if (report.runs.every(run => run.status === 'complete')) report.status = 'complete'
 } catch (error) { receipt.failure = String(error).slice(0, 2000); process.exitCode = 1 }

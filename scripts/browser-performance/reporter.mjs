@@ -11,7 +11,7 @@ import { readReportArchive } from './artifact.mjs'
 import { commentMarker, renderComment } from './render.mjs'
 
 export const workflowPath = '.github/workflows/browser-performance.yml'
-const snapshotPaths = ['scripts/browser-performance/snapshot-drag-contract.mjs', 'scripts/browser-performance/snapshot-drag-protocol.mjs', 'scripts/browser-performance/snapshot-drag-observer.mjs', 'scripts/browser-performance/snapshot-geometry.mjs', 'scripts/browser-performance/snapshot-protocol.mjs', 'scripts/browser-performance/snapshot-observer.mjs',
+const snapshotPaths = ['scripts/browser-performance/snapshot-readers.mjs', 'scripts/browser-performance/snapshot-reader-proof.mjs', 'scripts/browser-performance/reader-build.mjs', 'scripts/browser-performance/snapshot-drag-contract.mjs', 'scripts/browser-performance/snapshot-drag-protocol.mjs', 'scripts/browser-performance/snapshot-drag-observer.mjs', 'scripts/browser-performance/snapshot-geometry.mjs', 'scripts/browser-performance/snapshot-protocol.mjs', 'scripts/browser-performance/snapshot-observer.mjs',
   'scripts/browser-performance/snapshot-capture.mjs', 'scripts/browser-performance/snapshot-setup.mjs',
   'scripts/tutorial-browser/checkpoint-codec.mjs', 'tests/support/bloodlust-scene.mjs']
 const harnessPaths = ['scripts/browser-performance/protocol.mjs', 'scripts/browser-performance/run.mjs',

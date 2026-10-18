@@ -9,11 +9,18 @@ export const snapshotGeometryContract = Object.freeze({ version: 1,
 
 // Self-contained for page.evaluate serialization. The returned observer only
 // retains references to existing objects; it never attaches to production code.
-export function createSnapshotGeometryObserver(scene) {
+export function createSnapshotGeometryObserver(scene, readerSession = null) {
   const mesh = scene?.terrain, geometry = mesh?.geometry, position = geometry?.attributes?.position,
     index = geometry?.index, instances = mesh?.instanceMatrix,
     parent = mesh?.parent, root = parent?.parent, world = scene?.world, view = scene?.view
-  const fail = message => { throw Error(`Snapshot terrain geometry: ${message}`) }
+  const fail = message => { if (readerSession) readerSession.stable = false; throw Error(`Snapshot terrain geometry: ${message}`) }
+  if (readerSession) for (const attribute of [position, index, instances]) {
+    for (const name of ['normalized', 'array', 'itemSize', 'count']) {
+      const descriptor = attribute && Object.getOwnPropertyDescriptor(attribute, name)
+      if (!descriptor || !Object.hasOwn(descriptor, 'value') || (name === 'normalized' && descriptor.value !== false))
+        fail('semantic reader requires strict own attribute data properties')
+    }
+  }
   if (!mesh?.isInstancedMesh || !mesh.isMesh || parent !== scene.ground || root !== scene.scene || root.parent !== null || mesh.children.length)
     fail('unsupported terrain hierarchy')
   if (!geometry.isBufferGeometry || !position?.isBufferAttribute || position.isInterleavedBufferAttribute ||
@@ -34,15 +41,62 @@ export function createSnapshotGeometryObserver(scene) {
   const arrays = [position.array, index.array, instances.array], buffers = arrays.map(array => array.buffer)
   const methodOwners = [geometry, geometry, mesh, position, position, position, index]
   const methodNames = ['getAttribute', 'getIndex', 'getMatrixAt', 'getX', 'getY', 'getZ', 'getX']
-  const methods = methodOwners.map((owner, i) => {
-    if (Object.hasOwn(owner, methodNames[i])) fail('own consumer method override is unsupported')
-    const method = owner[methodNames[i]]
-    if (typeof method !== 'function') fail('consumer method is missing')
-    return method
-  })
+  // Descriptor lookup never invokes an own/inherited getter. The optional
+  // source-aware path additionally binds the actual imported Matrix4 prototype.
+  const resolveMethod = (owner, name, allowOwn = false) => {
+    let target = owner
+    for (let depth = 0; target && depth < 8; depth++, target = Object.getPrototypeOf(target)) {
+      const descriptor = Object.getOwnPropertyDescriptor(target, name)
+      if (!descriptor) continue
+      if ((!allowOwn && target === owner) || !Object.hasOwn(descriptor, 'value') || typeof descriptor.value !== 'function')
+        fail('own consumer method override or accessor is unsupported')
+      return { method: descriptor.value, prototype: target }
+    }
+    fail('consumer method is missing or prototype chain is unsupported')
+  }
+  const resolvedMethods = methodOwners.map((owner, i) => resolveMethod(owner, methodNames[i]))
+  const methods = resolvedMethods.map(value => value.method)
   const methodSources = methods.map(method => Function.prototype.toString.call(method))
   if (methodSources.some(source => source.length > 8192 || source.includes('[native code]')))
     fail('opaque or oversized consumer method is unsupported')
+  let matrixPrototype = null, matrixReader = null, allMethodSources = null
+  const attributeData = [position, index, instances].map(attribute => [attribute, [['normalized', false], ['array', attribute.array], ['itemSize', attribute.itemSize], ['count', attribute.count]]])
+  const strictAttributes = () => {
+    for (const [attribute, fields] of attributeData) {
+      for (const [name, expected] of fields) {
+        const descriptor = Object.getOwnPropertyDescriptor(attribute, name)
+        if (!descriptor || !Object.hasOwn(descriptor, 'value') || descriptor.value !== expected)
+          fail('semantic reader requires stable own attribute data properties')
+      }
+    }
+  }
+  if (readerSession) {
+    strictAttributes()
+    const constructor = readerSession.Matrix4
+    if (typeof constructor !== 'function') fail('trusted Matrix4 binding is missing')
+    const descriptor = Object.getOwnPropertyDescriptor(constructor, 'prototype')
+    matrixPrototype = descriptor?.value
+    if (!matrixPrototype || Object.getOwnPropertyDescriptor(matrixPrototype, 'constructor')?.value !== constructor)
+      fail('trusted Matrix4 prototype is unsupported')
+    const matrixResolution = resolveMethod(matrixPrototype, 'fromArray', true)
+    if (matrixResolution.prototype !== matrixPrototype) fail('Matrix4.fromArray must belong to imported prototype')
+    matrixReader = matrixResolution.method
+    if ([mesh, parent, root].some(owner => Object.getPrototypeOf(owner.matrixWorld) !== matrixPrototype ||
+      Object.hasOwn(owner.matrixWorld, 'fromArray'))) fail('actual matrix prototype differs from trusted constructor')
+    allMethodSources = [...methodSources, Function.prototype.toString.call(matrixReader)]
+    if (allMethodSources.some(source => source.length > 8192 || source.includes('[native code]')))
+      fail('bounded semantic reader body is unsupported')
+    const bindings = [...methods, matrixReader, matrixPrototype, ...resolvedMethods.map(value => value.prototype)]
+    if (readerSession.bindings && (readerSession.bindings.length !== bindings.length ||
+      readerSession.bindings.some((binding, i) => binding !== bindings[i]))) {
+      readerSession.stable = false; fail('reader identity changed between phases')
+    }
+    readerSession.bindings ??= bindings
+    readerSession.sources ??= allMethodSources
+    readerSession.stable ??= true
+    if (!readerSession.stable || readerSession.sources.some((source, i) => source !== allMethodSources[i]))
+      fail('reader session source identity changed')
+  }
   const owners = [mesh, parent, root]
   const matrices = owners.map(owner => owner.matrixWorld.elements)
   const fields = ['bindingsStable', 'liveScene', 'meshVisible', 'parentVisible', 'rootVisible', 'children',
@@ -60,11 +114,15 @@ export function createSnapshotGeometryObserver(scene) {
   // No arrays, objects, hashing, graph traversal, or method calls are allocated
   // or performed here. Three fixed owners and their fixed transform scalars only.
   function writeWitness(buffer, offset = 0, currentScene = scene) {
+    try {
     if (!Number.isSafeInteger(offset) || offset < 0 || !buffer || offset + witnessWidth > buffer.length)
       fail('witness buffer is too small')
     let n = offset
     buffer[n++] = Number(currentScene === scene && scene.world === world && scene.view === view && scene.terrain === mesh &&
       mesh.geometry === geometry && geometry.attributes.position === position && geometry.index === index && mesh.instanceMatrix === instances &&
+      (!readerSession || (readerSession.stable && position.normalized === false && index.normalized === false && instances.normalized === false &&
+        matrixPrototype.fromArray === matrixReader && Object.getPrototypeOf(mesh.matrixWorld) === matrixPrototype &&
+        Object.getPrototypeOf(parent.matrixWorld) === matrixPrototype && Object.getPrototypeOf(root.matrixWorld) === matrixPrototype)) &&
       position.array === arrays[0] && index.array === arrays[1] && instances.array === arrays[2] &&
       position.array.buffer === buffers[0] && index.array.buffer === buffers[1] && instances.array.buffer === buffers[2] &&
       position.array.length === 128 * 128 * 6 * 3 && index.array.length === index.count && instances.array.length === 9 * 16 &&
@@ -72,6 +130,7 @@ export function createSnapshotGeometryObserver(scene) {
       position.getX === methods[3] && position.getY === methods[4] && position.getZ === methods[5] && index.getX === methods[6] &&
       mesh.parent === parent && parent.parent === root && root.parent === null && geometry.boundingBox === box &&
       mesh.matrixWorld.elements === matrices[0] && parent.matrixWorld.elements === matrices[1] && root.matrixWorld.elements === matrices[2])
+    if (readerSession && buffer[offset] !== 1) readerSession.stable = false
     buffer[n++] = Number(!scene.disposed)
     buffer[n++] = Number(mesh.visible); buffer[n++] = Number(parent.visible); buffer[n++] = Number(root.visible)
     buffer[n++] = mesh.children.length
@@ -92,8 +151,17 @@ export function createSnapshotGeometryObserver(scene) {
       buffer[n++] = object.scale.x; buffer[n++] = object.scale.y; buffer[n++] = object.scale.z
     }
     return n
+    } catch (error) { if (readerSession) readerSession.stable = false; throw error }
   }
   async function captureBoundary() {
+    if (readerSession) {
+      strictAttributes()
+      if (resolveMethod(matrixPrototype, 'fromArray', true).method !== matrixReader ||
+        resolvedMethods.some((value, i) => {
+          const current = resolveMethod(methodOwners[i], methodNames[i])
+          return current.method !== value.method || current.prototype !== value.prototype
+        })) { readerSession.stable = false; fail('reader descriptor changed at boundary') }
+    }
     const observationStartTimestampMs = performance.now(), witness = new Float64Array(witnessWidth)
     writeWitness(witness)
     if (!witness.every(Number.isFinite) || witness[0] !== 1 || witness[1] !== 1 || witness[2] !== 1 || witness[3] !== 1 || witness[4] !== 1 || witness[5] !== 0)
@@ -128,5 +196,15 @@ export function createSnapshotGeometryObserver(scene) {
     return { fingerprintSha256, positionSha256, indexSha256, instancesSha256, consumerMethodsSha256, metadata,
       witness: [...witness], observationStartTimestampMs, timestampMs: performance.now() }
   }
-  return { witnessWidth, witnessFields: Object.freeze(fields), writeWitness, captureBoundary }
+  const observedReaders = constructor => {
+    const prototype = typeof constructor === 'function' ? Object.getOwnPropertyDescriptor(constructor, 'prototype')?.value : null
+    const descriptor = prototype && Object.getOwnPropertyDescriptor(prototype, 'fromArray')
+    const body = typeof descriptor?.value === 'function' ? Function.prototype.toString.call(descriptor.value) : null
+    return { version: 1, sources: [...methodSources, body && body.length <= 8192 ? body : null] }
+  }
+  const readerEvidence = () => {
+    if (!readerSession || !readerSession.stable) fail('reader session proof is unavailable')
+    return { version: 1, sources: [...readerSession.sources], strictData: true, matrixBinding: true, sessionStable: true }
+  }
+  return { witnessWidth, witnessFields: Object.freeze(fields), writeWitness, captureBoundary, readerEvidence, observedReaders }
 }
