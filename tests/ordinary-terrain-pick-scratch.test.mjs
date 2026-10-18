@@ -197,3 +197,40 @@ for (const multipleRoots of [false, true])
       assert.notEqual(v.ordinaryPickScratch, scratch)
     } finally { close(v, object, second) }
   })
+
+test('native retained packed cache never leases ordinary scratch across nesting or throws', () => {
+  const v = view(), object = mesh(), nested = mesh()
+  try {
+    v.projection.width = 800; v.projection.height = 600
+    const native = () => v.pickCandidates(mouse, [object], camera, true)
+    const first = native(), cache = v.groundPickCache.get(object).get(0)
+    assert.ok(cache.slots instanceof Uint32Array)
+    const retained = cache.world.map(point => point.clone()), slots = cache.slots.slice()
+    v.pickCandidates(mouse, [object], camera)
+    const scratch = v.ordinaryPickScratch
+    assert.notStrictEqual(cache.slots, scratch.slots)
+    assert.notStrictEqual(cache.world, scratch.world)
+    assert.notStrictEqual(cache.screen, scratch.screen)
+    assert.deepEqual(cache.world, retained)
+    assert.deepEqual(cache.slots, slots)
+    let entered = false
+    v.screen = p => {
+      if (!entered) {
+        entered = true
+        assert.deepEqual(native(), first, 'nested native hit reads retained native buffers')
+        v.pickCandidates(mouse, [nested], camera, true)
+      }
+      return project(p)
+    }
+    v.pickCandidates(mouse, [object], camera)
+    assert.deepEqual(cache.world, retained)
+    assert.deepEqual(cache.slots, slots)
+    object.geometry.attributes.position.needsUpdate = true
+    v.screen = () => { throw Error('native interrupted') }
+    assert.throws(native, /native interrupted/)
+    assert.strictEqual(v.groundPickCache.get(object).get(0), cache, 'failed rebuild does not publish partial cache')
+    v.screen = project
+    assert.deepEqual(native(), first)
+    assert.deepEqual(v.pickCandidates(mouse, [object], camera), oracle([object]))
+  } finally { close(v, object, nested) }
+})
