@@ -11,13 +11,18 @@ function report(shard) {
     runs: order.map((side, index) => ({ index, side, revision: identity[`${side}Sha`], status: 'complete', environmentSha256: digest,
       phases: shards[shard].map(name => {
         const value = side === 'base' ? 10 : 8, stats = n => ({ n, mean: value, p50: value, p95: value, max: value })
-        return { name, stateSha256: digest, viewConfigSha256: digest, targetId: name.startsWith('native-') ? 54 : null,
+        const phase = { name, stateSha256: digest, viewConfigSha256: digest, targetId: name.startsWith('native-') ? 54 : null,
           point: [900, 400], frames: 24, rawFrames: 40, durationMs: 1000,
-          blocks: Array.from({ length: 6 }, (_, step) => ({ step, event: 'pointermove', point: [900, 400], geometrySha256: digest, ...(name === 'native-view-drag' ? { geometryAfterSha256: other, inputPoseSha256: digest } : {}),
-            poses: Array(4).fill(digest), inventory: Array.from({ length: 4 }, (_, i) => name === 'hud' || (name === 'native-view-drag' && i > 0) ? [0, 0, 0] : [1, 1, 8]) })),
+          blocks: Array.from({ length: 6 }, (_, step) => ({ step, event: 'pointermove', point: [900, 400], geometrySha256: digest, ...(name === 'native-view-drag-warm' ? { geometryAfterSha256: other, inputPoseSha256: digest } : {}),
+            poses: Array(4).fill(digest), inventory: Array.from({ length: 4 }, (_, i) => name === 'hud' || (name === 'native-view-drag-warm' && i > 0) ? [0, 0, 0] : [1, 1, 8]) })),
           timings: Object.fromEntries(strata.map(s => [s, Object.fromEntries(Object.keys(metrics).map(key => [key,
             { all: stats(s === 'first' ? 6 : 18), nonzero: stats(s === 'first' ? 6 : 18), perQuery: stats(s === 'first' ? 6 : 18) }]))])),
           work: Object.fromEntries(strata.map(s => [s, Object.fromEntries(Object.keys(workMetrics).map(key => [key, stats(s === 'first' ? 6 : 18)]))])) }
+        if (name === 'native-view-drag-warm') {
+          phase.rawFrames = 80
+          phase.warmup = { frames: 24, blocks: structuredClone(phase.blocks), firstCpuMs: Object.fromEntries(['nativeKey', 'nativeProjection', 'nativeTriangles', 'callback'].map(key => [key, Array(6).fill(value)])) }
+        }
+        return phase
       }) })) }
 }
 const reports = () => [report('world'), report('recovery')]
@@ -171,7 +176,7 @@ test('wrong identities, duplicate shards and untrusted protocol cannot be format
 test('worst-case bounded numbers and one diagnosis per phase keep comments below reporter size cap', () => {
   const input = reports()
   for (const item of input) for (const run of item.runs) for (const phase of run.phases) {
-    phase.targetId = phase.name === 'native-view-drag' ? 54 : 1e9; phase.point = [1440, 1000]; phase.rawFrames = 1199; phase.durationMs = 90000
+    phase.targetId = phase.name === 'native-view-drag-warm' ? 54 : 1e9; phase.point = [1440, 1000]; phase.rawFrames = 1199; phase.durationMs = 90000
     for (const stratum of strata) {
       for (const metric of Object.values(phase.timings[stratum])) for (const value of Object.values(metric))
         for (const key of ['mean', 'p50', 'p95', 'max']) value[key] = 1e9
@@ -185,4 +190,15 @@ test('worst-case bounded numbers and one diagnosis per phase keep comments below
   assert.equal(body.match(/workload-mismatch/g).length, Object.values(shards).flat().length)
   assert.ok(Buffer.byteLength(body) < 16000)
   assert.doesNotMatch(body, /Session p50/)
+})
+
+test('warmup input differences give bounded reasons without suppressing qualified stable phases', () => {
+  for (const field of ['geometrySha256', 'inputPoseSha256']) {
+    const input = reports(), block = input[0].runs[1].phases[2].warmup.blocks[0]
+    block[field] = 'e'.repeat(64)
+    const body = render(input)
+    assert.match(section(body, 'native-view-drag-warm'), /workload-mismatch: Warmup input 1/)
+    assert.doesNotMatch(section(body, 'native-view-drag-warm'), /Session p50/)
+    assert.match(section(body, 'ordinary-hover'), /possible-improvement/)
+  }
 })

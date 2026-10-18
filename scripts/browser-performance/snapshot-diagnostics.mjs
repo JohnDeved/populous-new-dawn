@@ -14,9 +14,10 @@ function mismatch(phases, read, label, digest = false, missing = 'unknown') {
   if (index < 0) return null
   return `${label}: ${values(items, digest ? prefix : value => number(value, missing))}. ${session(0)} != ${session(index)}; exact ${digest ? 'full SHA-256' : 'value'} equality required across all six sessions${digest ? ' (12-character prefixes shown)' : ''}.`
 }
-function blockMismatch(phases, field) {
+function blockMismatch(phases, field, warmup = false) {
+  if (warmup) phases = phases.map(phase => ({ blocks: phase.warmup.blocks }))
   for (let step = 0; step < phases[0].blocks.length; step++) {
-    const blocks = phases.map(phase => phase.blocks[step]), label = `Input ${step + 1}`
+    const blocks = phases.map(phase => phase.blocks[step]), label = `${warmup ? 'Warmup input' : 'Input'} ${step + 1}`
     if (field === 'geometry') {
       const reason = mismatch(blocks, block => block.geometrySha256, `${label} terrain-input fingerprint SHA-256`, true)
         ?? (Object.hasOwn(blocks[0], 'geometryAfterSha256') ? mismatch(blocks, block => block.geometryAfterSha256, `${label} post-input terrain fingerprint SHA-256`, true) : null)
@@ -79,6 +80,7 @@ function explanation(status, report, phase, reports) {
       if (reason) return reason
     }
     return blockMismatch(phases, 'workload')
+      ?? (phases[0].warmup ? blockMismatch(phases, 'geometry', true) ?? blockMismatch(phases, 'workload', true) : null)
   }
   return null
 }

@@ -21,6 +21,7 @@ export function installSnapshotDragObserver() {
         projection.matrix.length !== 9 || projection.bounds.length !== 8) throw Error('Unsupported projection input shape')
   }
   checkProjectionShape()
+  const startSerial = recorder.recentCount, startTimestampMs = recorder.timestamp
   const state = { count: 0, events: [], error: null, serial: recorder.recentCount,
     sequence: 0, expected: null, event: null, stopped: false, frame: null }
   const fail = message => { state.error ??= message; state.stopped = true }
@@ -139,10 +140,12 @@ export function installSnapshotDragObserver() {
       return { event: materializeEvent(event), frames }
     },
     stop() {
+      if (scene.fpsGraph?.samples !== recorder || scene !== window.testSceneRef.current || recorder.recentCount < state.serial) fail('Recorder epoch changed')
       state.stopped = true; cancelAnimationFrame(state.frame)
       for (const name of ['pointermove', 'pointerdown', 'pointerup']) window.removeEventListener(name, input, true)
       delete window.__pndSnapshotObserver
-      return { frames: Array.from({ length: state.count }, (_, i) => materialize(i)), events: state.events.map(materializeEvent), error: state.error }
+      return { frames: Array.from({ length: state.count }, (_, i) => materialize(i)), events: state.events.map(materializeEvent), error: state.error,
+        recorder: { startSerial, startTimestampMs, endSerial: recorder.recentCount, endTimestampMs: recorder.timestamp } }
     },
   }
   window.__pndSnapshotObserver = api

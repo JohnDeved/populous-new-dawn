@@ -48,7 +48,7 @@ function observer() {
     const list = [...callbacks.values()]; callbacks.clear(); list.forEach(fn => fn(now)) }
   const move = () => { scene.cameraPosition.angle = 1; scene.cameraBearing = Math.PI / 1024; scene.pointerScreen.clientX = 821
     view.update(1240, 1000, scene.viewPoint, scene.cameraBearing, 0, false, 1440); witness[10] = 2; witness[19] = 21636 }
-  return { api, witness, scene, recorder, input, tick, move, callbacks, events, arm: () => api.arm({ geometryWitness: [...witness], type: 'pointermove', x: 821, y: 380, buttons: 2 }) }
+  return { context, window, api, witness, scene, recorder, input, tick, move, callbacks, events, arm: () => api.arm({ geometryWitness: [...witness], type: 'pointermove', x: 821, y: 380, buttons: 2 }) }
 }
 
 test('separate held-drag observer binds synchronous old input, exact next sample and all effective projection values', () => {
@@ -113,7 +113,7 @@ test('only comparative runner opt-in retains completed stable phases after the f
   const make = () => ({ shard: 'world', status: 'incomplete', phases: [
     { name: 'native-hover', status: 'passed', summaryFile: 'native.json' },
     { name: 'ordinary-hover', status: 'passed', summaryFile: 'ordinary.json' },
-    { name: 'native-view-drag', status: 'incomplete', rawFile: 'failed-raw.json', failure: 'first callback missing' },
+    { name: 'native-view-drag-warm', status: 'incomplete', rawFile: 'failed-raw.json', failure: 'first callback missing' },
   ] })
   const report = make(), prior = structuredClone(report.phases)
   assert.equal(retainStablePhasesAfterDragFailure(report, true), true)
@@ -125,4 +125,41 @@ test('only comparative runner opt-in retains completed stable phases after the f
   }
   const smoke = make(); assert.equal(retainStablePhasesAfterDragFailure(smoke, false), false)
   assert.equal(smoke.status, 'incomplete')
+})
+
+test('observer stop records absolute epoch and rejects replacement or reset even before a subsequent RAF', () => {
+  const valid = observer(); valid.arm(); valid.input(); valid.move()
+  for (let serial = 2; serial <= 5; serial++) valid.tick(serial)
+  const result = valid.api.stop()
+  assert.deepEqual(JSON.parse(JSON.stringify(result.recorder)), { startSerial: 1, startTimestampMs: 20, endSerial: 5, endTimestampMs: 100 })
+  for (const change of [o => { o.scene.fpsGraph.samples = { ...o.recorder } }, o => { o.recorder.recentCount = 0 }]) {
+    const value = observer(); change(value); assert.equal(value.api.stop().error, 'Recorder epoch changed')
+  }
+})
+
+test('two fixed six-input observers retain one absolute recorder epoch and never select a later first callback', () => {
+  const o = observer(), sequences = []
+  let serial = 1
+  for (let sequence = 0; sequence < 2; sequence++) {
+    const api = o.window.__pndSnapshotObserver
+    for (let step = 0; step < 6; step++) {
+      const angle = (step + 1) % 2, x = 820 + angle
+      api.arm({ geometryWitness: [...o.witness], type: 'pointermove', x, y: 380, buttons: 2 })
+      o.input({ clientX: x }); o.scene.cameraPosition.angle = angle; o.scene.cameraBearing = angle * Math.PI / 1024
+      o.scene.pointerScreen.clientX = x
+      o.scene.view.update(1240, 1000, o.scene.viewPoint, o.scene.cameraBearing, 0, false, 1440)
+      o.witness[10]++; o.witness[19] = angle ? 21636 : 22032
+      for (let i = 0; i < 4; i++) o.tick(++serial)
+      const block = api.finish(4)
+      assert.equal(block.event.sequence, step + 1)
+      assert.equal(block.frames[0].serial, sequence * 24 + step * 4 + 2)
+      assert.equal(block.frames[0].serial, block.event.anchorSerial + 1)
+    }
+    sequences.push(api.stop())
+    if (sequence === 0) vm.runInContext(`(${installSnapshotDragObserver.toString()})()`, o.context)
+  }
+  assert.equal(sequences[0].recorder.endSerial, 25); assert.equal(sequences[1].recorder.startSerial, 25)
+  assert.equal(sequences[0].recorder.endTimestampMs, sequences[1].recorder.startTimestampMs)
+  assert.equal(o.recorder.recentCount, 49); assert.equal(o.scene.cameraPosition.angle, 0)
+  for (const result of sequences) { assert.equal(result.error, null); assert.equal(result.events.length, 6); assert.equal(result.frames.length, 24) }
 })

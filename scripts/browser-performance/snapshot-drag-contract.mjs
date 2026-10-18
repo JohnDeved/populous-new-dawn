@@ -4,8 +4,10 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-export const dragContract = Object.freeze({ version: 1, phase: 'native-view-drag',
+export const dragContract = Object.freeze({ version: 2, phase: 'native-view-drag-warm',
   pointerOffsets: [[1, 0], [0, 0], [1, 0], [0, 0], [1, 0], [0, 0]],
+  warmup: { steps: 6, callbacksPerStep: 4, purpose: 'first-use native-drag in this prepared workload',
+    retention: 'all raw callbacks; no size trimming', return: 'exact angle-zero pose and geometry; index version advances six' },
   input: 'public held-right pointermove; right-down/release unmeasured',
   firstInputGeometry: 'pre-input native prefix; post-input ordinary prefix',
   firstProjection: 'view-invalidated native projection; settled no-work observations',

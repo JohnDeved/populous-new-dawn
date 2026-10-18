@@ -8,11 +8,25 @@ Cohort revision 2's five stable phases are qualified for input comparability by
 workload mismatch. Many timing cells were noisy; this is not a quiet or blocking
 regression gate. The disposable control was closed without merging its README reflow.
 
-Cohort revision 3 appends a separately declared `native-view-drag` phase. Its
-portable tests/source review are not browser qualification. A new candidate smoke
-and trusted same-runtime-source comparison are required before claiming this added
-view-invalidated projection workload works in hosted browsers. The five stable
-phases and their original observer remain unchanged.
+Cohort revision 3's separately declared `native-view-drag` phase passed
+[candidate smoke 39154077272](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39154077272)
+and [same-runtime-source control PR596](https://github.com/JohnDeved/populous-new-dawn/pull/596#issuecomment-6253802227).
+All six phase inputs matched, but five of six eligible drag timing cells were noisy.
+All 36 retained first callbacks show a first-use concentration: step projection
+medians were 34.85, 10.8, 8.75, 7.25, 6.95 and 6.7 ms. Step 1 was the maximum in
+five sessions, step 2 in one. Same-angle work and geometry matched. This does not
+identify JIT, GC or scheduler causes: there are no such traces.
+
+Cohort revision 4 separately names `native-view-drag-warm`: exactly one fixed
+six-move real invalidation warmup, then the unchanged six measured moves. This
+predeclared warmup count is not tuned from subsequent runs. It measures warmed
+interaction, not first-use latency or proven steady state. The former remains
+explicit diagnostic evidence, not discarded samples. The revision-3 raw control
+and classifications remain historical evidence, never reinterpreted.
+Candidate functional smoke and one trusted same-runtime-source control for this
+new revision are **not run yet**. Source tests are not browser qualification or a
+promise that warmup removes noise. The five stable phases and their observer
+remain unchanged. No threshold relaxation, timing-based retry or frame trimming.
 The two workflows are already active. Their reviewed files/templates, permissions,
 triggers and caps are unchanged here. The common capture/build code always comes
 from the exact PR base, so a PR proposing V2 cannot run its own untrusted harness.
@@ -59,7 +73,7 @@ and the PR593 paired control. Neither result qualifies the new held-drag phase.
 
 Two concurrent scenario shards, never concurrent arms on one runner:
 
-1. `world`: `native-hover`, `ordinary-hover`, then new `native-view-drag`. Cohort revision 2 replaces the
+1. `world`: `native-hover`, `ordinary-hover`, then `native-view-drag-warm`. Cohort revision 2 replaces the
    unqualified release cohort, without reinterpreting its retained failed captures.
    The fixed authored Shaman ID 54 is sampled at six unique one-pixel neighbors,
    using production `Math.trunc(client - canvas origin)` native pixel quantization.
@@ -74,13 +88,38 @@ Two concurrent scenario shards, never concurrent arms on one runner:
    and closing the real settings menu, not the first post-close callback. Initial
    pointer/setup callbacks are explicitly unmeasured, with raw preparation receipts.
 
-The new held-drag phase uses one unmeasured public right-button press, followed by
-six fixed one-pixel moves (angle 0→1→0→1→0→1→0), then an unmeasured release. No held
-keys, time-dependent camera travel, cache clearing, direct camera mutation or
-favorable-frame search. Each move's capture-phase listener records the old pose
-and actual geometry witness before the public handler, and binds the exact next
-four completed callbacks. Actual `tooltipInput.picked` must be authored ID54;
-ordinary hovered-object state is intentionally empty while the button is held.
+The warmed held-drag phase uses one unmeasured public right-button press. It
+records six fixed warmup moves (angle 0→1→0→1→0→1→0), then repeats those same six
+moves for the comparison, and finally releases the button unmeasured. Every move
+requires the exact first callback plus three contiguous settled callbacks, with
+actual native invalidation and query work. No held keys, time-dependent camera
+travel, cache clearing, direct camera mutation or favorable-frame search.
+
+Warmup and measurement have separate six-event read-only observers, but share one
+continuous F8 recorder epoch, absolute sample serials and raw export. The boundary
+must return the full original 72-scalar pose, authored logical state and actual
+geometry content. Only the six expected index-version increments are allowed;
+the measured first pre-input pose and geometry witness must match the final
+warmup endpoint exactly. Fresh observer allocation is outside app CPU buckets but
+can perturb scheduling; it is not an overhead-free or JIT/GC experiment.
+
+All warmup raw callbacks, including unselected extras, must survive: any
+serialized-size trimming or ring wrap makes only the new cohort incomplete. Its
+24 selected warmup callbacks and all pre-input anchors have the same strict
+serial/timestamp/geometry/work checks as the 24 measured callbacks. Per-step
+first-use native key/projection/triangle and callback CPU remain in summaries and
+the informational comment, separately labeled **first-use native-drag in this
+prepared workload**. This is not a cold page/session or an un-warmed projection
+cache. Those timings never enter warmed comparisons or threshold decisions.
+Warmup input identities must match across arms; internal projection/cache work and
+timing outcomes are not cross-arm input equality. Missing/invalid warmup cannot
+suppress the five qualified phases. Functional smoke still fails an admitted
+new-cohort capture failure rather than declaring it passed.
+
+Each move's capture-phase listener records the old pose and actual geometry
+witness before the public handler, and binds the exact next four completed
+callbacks. Actual `tooltipInput.picked` must be authored ID54; ordinary
+hovered-object state is intentionally empty while the button is held.
 
 Native picking in the reviewed callback consumes the old terrain index prefix
 under the new projection, before ordinary picking rebuilds the new-pose prefix.

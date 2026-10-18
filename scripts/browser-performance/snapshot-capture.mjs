@@ -6,7 +6,7 @@ import { createSnapshotGeometryObserver } from './snapshot-geometry.mjs'
 import { installSnapshotObserver } from './snapshot-observer.mjs'
 import { installSnapshotDragObserver } from './snapshot-drag-observer.mjs'
 import { dragContract } from './snapshot-drag-contract.mjs'
-import { plan, shards, invariant, summarizeSnapshotPhase } from './snapshot-protocol.mjs'
+import { plan, shards, invariant, assertDragWarmupReturn, summarizeSnapshotPhase } from './snapshot-protocol.mjs'
 import { m2HudPoint } from '../tutorial-browser/m2-pointer-f8.mjs'
 
 // Fixed authored Shaman, never opportunistically choose a different visible person.
@@ -55,6 +55,22 @@ export function retainStablePhasesAfterDragFailure(report, allow) {
       report.phases.length !== shards.world.length || !report.phases.slice(0, -1).every(phase => phase.status === 'passed')) return false
   record.status = 'incomplete'; report.status = 'passed-with-incomplete-drag'
   return true
+}
+// Exactly one preregistered real-input sequence. Never wait for a timing or cache
+// outcome, retry, release the held gesture, or reset the production F8 recorder.
+export async function captureDragWarmup({ page, record, observe, runBlocks, save }) {
+  record.warmup = { before: await observe(), blocks: [] }; save()
+  await runBlocks(record.warmup.blocks)
+  record.warmup.after = await observe()
+  save(); assertDragWarmupReturn(record)
+  // Reset only the bounded read-only sidecar's event namespace. F8, the
+  // held gesture, production caches and absolute recorder serials persist.
+  record.warmup.observer = await page.evaluate(source => {
+    const result = window.__pndSnapshotObserver.stop()
+    if (!result.error) (0, eval)(`(${source})`)()
+    return result
+  }, installSnapshotDragObserver.toString())
+  save(); assert.equal(record.warmup.observer.error, null)
 }
 export default async function capture({ page, url, output, expectedRevision, fixture, shard, dragSource, allowDragFailure = false, getErrorCount = () => 0 }) {
   assert.ok(Object.hasOwn(shards, shard))
@@ -105,21 +121,25 @@ export default async function capture({ page, url, output, expectedRevision, fix
           await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
           record.preparation.push({ action: 'right-down-settled', after: await observe() })
         }
-        for (let step = 0; step < plan.steps; step++) {
-          const [dx, dy] = (viewChange ? dragContract.pointerOffsets : name === 'native-hover' ? plan.nativePointerOffsets : plan.pointerOffsets)[step]
-          const x = point.x + dx, y = point.y + dy
-          const geometryBefore = await page.evaluate(() => window.__pndSnapshotGeometry.captureBoundary())
-          const preparation = name === 'native-hover' ? await page.evaluate(observeNativePixelAdmission, { x, y }) : null
-          if (preparation) assert.equal(preparation.cached, false, 'Fixed native pixel was warmed before measured input')
-          const expected = { geometryWitness: geometryBefore.witness, type: 'pointermove', x, y, buttons: viewChange ? 2 : 0 }
-          await page.evaluate(expected => window.__pndSnapshotObserver.arm(expected), expected)
-          // The capture-phase listener binds the exact next completed callback.
-          await page.mouse.move(x, y)
-          await page.waitForFunction(() => window.__pndSnapshotObserver.ready(4))
-          const block = await page.evaluate(() => window.__pndSnapshotObserver.finish(4))
-          const geometryAfter = await page.evaluate(() => window.__pndSnapshotGeometry.captureBoundary())
-          record.blocks.push({ preparation, geometryBefore, geometryAfter, ...block }); save()
+        const runBlocks = async blocks => {
+          for (let step = 0; step < plan.steps; step++) {
+            const [dx, dy] = (viewChange ? dragContract.pointerOffsets : name === 'native-hover' ? plan.nativePointerOffsets : plan.pointerOffsets)[step]
+            const x = point.x + dx, y = point.y + dy
+            const geometryBefore = await page.evaluate(() => window.__pndSnapshotGeometry.captureBoundary())
+            const preparation = name === 'native-hover' ? await page.evaluate(observeNativePixelAdmission, { x, y }) : null
+            if (preparation) assert.equal(preparation.cached, false, 'Fixed native pixel was warmed before measured input')
+            const expected = { geometryWitness: geometryBefore.witness, type: 'pointermove', x, y, buttons: viewChange ? 2 : 0 }
+            await page.evaluate(expected => window.__pndSnapshotObserver.arm(expected), expected)
+            // The capture-phase listener binds the exact next completed callback.
+            await page.mouse.move(x, y)
+            await page.waitForFunction(() => window.__pndSnapshotObserver.ready(4))
+            const block = await page.evaluate(() => window.__pndSnapshotObserver.finish(4))
+            const geometryAfter = await page.evaluate(() => window.__pndSnapshotGeometry.captureBoundary())
+            blocks.push({ preparation, geometryBefore, geometryAfter, ...block }); save()
+          }
         }
+        if (viewChange) await captureDragWarmup({ page, record, observe, runBlocks, save })
+        await runBlocks(record.blocks)
         if (viewChange) {
           record.preparation.push({ action: 'right-up-unmeasured', before: await observe() })
           await page.mouse.up({ button: 'right' })
