@@ -328,42 +328,45 @@ export function picksAfterPixels() {
   return window.__bodyCodec(rows)
 }
 
-export function controlRender({ name, size }) {
+export function controlRender({ name, size, target }) {
   const s = window.testSceneRef.current,
     T = window.__bodyThree
   cancelAnimationFrame(s.frame)
-  if (!window.__bodyControl) {
-    const entry = [...s.unitMeshes].find(
-      ([, g]) =>
-        g.visible &&
-        g.userData.layers?.some(
-          l =>
-            l.visible &&
-            !l.material.transparent &&
-            l.material.opacity === 1 &&
-            l.material.depthWrite &&
-            s.view.painter.depth(l, 0, 0) === 3
-        )
+  if (!target || !Number.isInteger(target.id) || target.layerIndex !== 0)
+    throw Error('Missing fixed viewport control target')
+  const viewportKey = `${size.width}x${size.height}`
+  if (!window.__bodyControl || window.__bodyControl.viewportKey !== viewportKey) {
+    const id = target.id,
+      g = s.unitMeshes.get(id),
+      u = s.world.units.find(u => u.id === id),
+      l = g?.userData.layers?.[target.layerIndex]
+    if (
+      !u ||
+      u.kind !== 'brave' ||
+      u.team !== 'green' ||
+      g?.userData.layers?.length !== 3 ||
+      !g.visible ||
+      !l?.visible ||
+      l.material.transparent ||
+      l.material.opacity !== 1 ||
+      !l.material.depthWrite ||
+      s.view.painter.depth(l, 0, 0) !== 3
     )
-    if (!entry) throw Error('No naturally clipped body for control')
-    const [id, g] = entry,
-      u = s.world.units.find(u => u.id === id)
-    if (!u) throw Error('Control unit missing')
+      throw Error('Fixed authored control target is not independently clipped')
     window.__bodyControl = {
       id,
       u,
+      viewportKey,
       index: s.world.units.indexOf(u),
       drawFlags: g.userData.drawFlags,
-      layerIndex: g.userData.layers.findIndex(
-        l =>
-          l.visible &&
-          !l.material.transparent &&
-          l.material.opacity === 1 &&
-          l.material.depthWrite &&
-          s.view.painter.depth(l, 0, 0) === 3
-      ),
+      layerIndex: target.layerIndex,
     }
   }
+  if (
+    window.__bodyControl.id !== target.id ||
+    window.__bodyControl.layerIndex !== target.layerIndex
+  )
+    throw Error('Control target drift within viewport')
   const c = window.__bodyControl
   if (window.__bodyExtra) {
     s.scene.remove(window.__bodyExtra)
@@ -448,6 +451,11 @@ export function controlRender({ name, size }) {
   const renderStarted = performance.now()
   s.renderSceneFrame(null, undefined)
   window.__bodyPhases = { controlRenderMs: performance.now() - renderStarted }
+  if (name === 'return') {
+    const layer = g.userData.layers[c.layerIndex]
+    if (!g.visible || !layer.visible || s.view.painter.depth(layer, 0, 0) !== 3)
+      throw Error('Fixed control target is not clipped at actual viewport')
+  }
   if (window.__bodyExtra) {
     if (s.renderer.info.render.points !== 1)
       throw Error('Points control was not actually submitted exactly once')

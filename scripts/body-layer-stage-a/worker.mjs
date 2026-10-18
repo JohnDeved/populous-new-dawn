@@ -213,6 +213,7 @@ try {
       const result = await observe(page, `control-${size.width}-${name}`, controlRender, {
         name,
         size,
+        target: p.controlTargets[`${size.width}x${size.height}`],
       })
       report.controls.push({
         name,

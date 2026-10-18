@@ -1,5 +1,5 @@
 export const protocol = Object.freeze({
-  version: 8,
+  version: 9,
   mode: 'untimed-pixels-only',
   baseline: '5087f2e805097665c4fdcce657553db3a693bb76',
   baselineTree: '6a1d5602531ab9afcf7d517884443fe938361d1e',
@@ -34,6 +34,7 @@ export const protocol = Object.freeze({
     'ignored-points',
     'points-hook',
   ],
+  controlTargets: { '640x480': { id: 5, layerIndex: 0 }, '1440x1000': { id: 9, layerIndex: 0 } },
   controlSizes: [
     { width: 640, height: 480 },
     { width: 1440, height: 1000 },

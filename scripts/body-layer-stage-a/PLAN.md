@@ -1,4 +1,4 @@
-# Prospective real-renderer body-layer validation, revision 8
+# Prospective real-renderer body-layer validation, revision 9
 
 STATUS: design for review only. No browser launch, build, measurement, publication,
 new cloud task or hardware qualification is authorized by this file.
@@ -306,3 +306,32 @@ A structure regression pins this arithmetic, exact four-child order, callback an
 control coverage, action/launch/build deadlines, 720 s launcher literal and 15-minute
 workflow cap. No new attempt is authorized by this file; independent review is
 required. All previous incomplete/failing attempts remain separately retained.
+
+## Revision 9: fixed per-viewport authored correctness-control targets
+
+Run 39174948729 completed 28 baseline camera callbacks and 21 controls, then correctly
+failed the 1440-wide shared-Points clipping precondition. The original fixed unit 5
+was clipped at 640x480, but its stored depth at 1440x1000 was 0.9892343879, not sentinel
+2. This is baseline control invalidity, not candidate pixel mismatch.
+
+Only correctness controls now use a literal map shared by both arms and cohorts:
+640x480 uses unit 5/layer 0; 1440x1000 uses unit 9/layer 0. Both are existing authored
+green braves with three layers. Retained baseline native-projection observations
+independently prove the selected layer clipped at each size. This is an explicit
+reviewed control selection, not adaptive retargeting after a failure during a run.
+Missing actors, changed class/team/topology, non-clipped targets, or target drift
+fail closed. Original clipping is checked on admission and after return to the
+actual viewport, and the shared/ignored controls retain their strict clipping test.
+
+Bounded CPU preflight used actual GameScene construction/Painter/producers with the
+existing DOM/GPU IO seam. From the retained pre-bootstrap authored World it ran the
+actual dt0 callback plus all 28 live callbacks at the fixed timestamps, ending at
+turn 75, then all 24 controls sequentially. Both source arms retained clipping,
+three-layer topology, fresh factory ownership, positive Points inventory/hook
+observations and restoration, with equal control-result rows. This is not WebGL
+pixel/counter validation; IO endpoints do not establish real draw counts.
+
+No main-cohort actor, World, trajectory, callback count, control count, assertion or
+budget is changed. The existing controlled removal/recreation operations now apply
+to the explicit target for each viewport. Previous failures remain retained.
+Separate source admission is required before any new hosted attempt.

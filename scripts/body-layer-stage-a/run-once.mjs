@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { spawn } from 'node:child_process'
 import { sha, fileSha, save } from './io.mjs'
-const expectedBinding = 'b71327d8509359bdb2882bb20486895d9fa3fa40b6f5bcd07f737b10bd7310a0'
+const expectedBinding = '47c868b3ebcedec821ea5eeb181d6142e110c5498f4874e95d6e83020427c419'
 const here = import.meta.dirname,
   bindingPath = join(here, 'binding.json')
 const [base, candidate, output, browser] = process.argv.slice(2),

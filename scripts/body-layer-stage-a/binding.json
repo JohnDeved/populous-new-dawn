@@ -1,32 +1,33 @@
 {
-  "scope": "Revision 8, unexecuted Stage A bounded 150-second child budget",
+  "scope": "Revision 9, unexecuted Stage A fixed viewport correctness-control map",
   "baseline": "5087f2e805097665c4fdcce657553db3a693bb76",
   "candidate": "8bd14a84e34545f9a0f0b1fe5c1ebbf8267e5f59",
   "previousRejectedUnexecutedBinding": "bc83b122b67e6ad0dbf8124ad8a4f5e954e137caebc32f12da19ed5fb7238504",
   "files": {
-    "PLAN.md": "e044e4d89577cf98e4fa512465c302c32e6af8360650ff94ea5d3b9f3c80c19f",
+    "PLAN.md": "4b67846dc5f017b7e4c064295cf3f2673fd663f5924981b803bf4b79935df588",
     "build.mjs": "3285f16604d0a00e82716e0ecd18f8846a5f549b2bd267f6bd47593662a09c23",
     "compare.mjs": "965393ca8c2f208f66d633474ce57a8820ba3905614f65b758a1a5bb90271f19",
     "driver.mjs": "eecb1195df764b7326778043c15a7f6d07ec6de107054ed3af55f5361395cee8",
-    "helpers.test.mjs": "cdd8258c673308d9fa3c9e54da84097b70040e48534c910fce325679090ce455",
+    "helpers.test.mjs": "04743587aa6cceed86bb5a477c109882411b932a9283e447d58ac2e2d79814a5",
     "hosted-workflow.yml": "a42cdb13727e171def145dfc55417cff726b2c1af633e9debaf3996135781d8d",
     "io.mjs": "4a9801ce84836ebd80573eb70e83ea780ae279e97e3087615d92205ea3aa0fa5",
-    "page.mjs": "65856a0ff771a4dd5d7a47d2dc947d1c6c6eae8c6cadc0b73caaf1cfbffd79fa",
-    "protocol.mjs": "0e40ff3398f9a95ed4bb02f50173d756e8ad8529974f01ea6e46e2e4cd06097e",
+    "page.mjs": "4769ea5d16b30f298c4dd10a041b572480498dca6d05177705fccc37eef5aaf5",
+    "protocol.mjs": "d1a6b422a6ab9bc671aebe3a34d514f849fb4419e087e94aeacf4899bd674a26",
     "rejected-controls.fixture.mjs": "192cde733fabeb8a76b9e160648705972ca41dbcdcb1d79b2651ec0e73662f35",
     "setup-adapter.mjs": "dce62fb7212172ff8cd42ff75c73c0ec5deb1ed0a4bf719888924d54317b8f6d",
     "start-latch.mjs": "0140a17ff9774e2adc86777b53dd8104e103062afc8913b0c11fc7ac4afd653d",
     "start-transform-bindings.json": "00eae461b0604363c5877f3675726a14390fdefdc77ffc445edf0948a8cf5242",
-    "worker.mjs": "de020e9f6c71186a2c82024278980bd49d34d812c1b90d415a067405a46bab11",
+    "worker.mjs": "98ee95e8081f98be7125b50fad491db26865c5eefb2b50a5626c15297dd7679c",
     "focus-constructor.test.mjs": "0aa50f81ed4e0df8312d10e0066e59611e8f819e8044cd0cd9a67847c245700a",
     "transport.mjs": "0602d2130a35772acedb6287b37c00b74b14623dfdd6daf0cc87194bd58deea2",
     "transport.test.mjs": "2b05f717c6a6ab06896ef4ba42be6def6fe546eef75f6a6d7a63a56d8c476623"
   },
-  "previousFailedBinding": "28553789d388255fcd1a2fbaaed504b2d258a420dc2c4fa90365f087f1dd73fa",
+  "previousFailedBinding": "b71327d8509359bdb2882bb20486895d9fa3fa40b6f5bcd07f737b10bd7310a0",
   "preservedFailedRuns": [
     39172358949,
     39172774059,
     39173419489,
-    39174207447
+    39174207447,
+    39174948729
   ]
 }

@@ -260,7 +260,7 @@ test('each Points control creates a fresh body and supplies actual SpriteMateria
   const { controlRender: rejected } = await import('./rejected-controls.fixture.mjs')
   const run = control => {
     let created = 0
-    const unit = { id: 7, heading: 0 },
+    const unit = { id: 7, heading: 0, kind: 'brave', team: 'green' },
       groups = new Map(),
       world = { units: [unit], paused: true },
       rootScene = new T.Scene()
@@ -268,7 +268,7 @@ test('each Points control creates a fresh body and supplies actual SpriteMateria
       created++
       const g = new T.Group(),
         layer = new T.Sprite(new T.SpriteMaterial({ transparent: false }))
-      g.userData = { layers: [layer], drawFlags: 0 }
+      g.userData = { layers: [layer, layer.clone(), layer.clone()], drawFlags: 0 }
       g.add(layer)
       groups.set(7, g)
       return g
@@ -308,7 +308,9 @@ test('each Points control creates a fresh body and supplies actual SpriteMateria
     const rows = []
     try {
       for (const name of ['shared-points', 'ignored-points', 'points-hook'])
-        rows.push(control({ name, size: { width: 640, height: 480 } }))
+        rows.push(
+          control({ name, size: { width: 640, height: 480 }, target: { id: 7, layerIndex: 0 } })
+        )
       return rows
     } finally {
       delete globalThis.window
@@ -486,4 +488,55 @@ test('revision8 preserves proof coverage and fits the fixed global budget allowa
   assert.match(launcher, /}, 720000\)/)
   const workflow = readFileSync(new URL('./hosted-workflow.yml', import.meta.url), 'utf8')
   assert.match(workflow, /timeout-minutes: 15/)
+})
+
+test('fixed viewport targets never adapt to an available but different clipped actor', async () => {
+  const { protocol: p } = await import('./protocol.mjs')
+  const { controlRender } = await import('./page.mjs')
+  assert.deepEqual(p.controlTargets, {
+    '640x480': { id: 5, layerIndex: 0 },
+    '1440x1000': { id: 9, layerIndex: 0 },
+  })
+  const material = { transparent: false, opacity: 1, depthWrite: true },
+    layer = { visible: true, material }
+  const group = { visible: true, userData: { layers: [layer, layer, layer], drawFlags: 0 } }
+  const world = { units: [{ id: 5, kind: 'brave', team: 'green' }] }
+  const scene = {
+    frame: 0,
+    world,
+    unitMeshes: new Map([[5, group]]),
+    view: { painter: { depth: () => 3 } },
+  }
+  globalThis.window = { testSceneRef: { current: scene }, __bodyThree: {} }
+  globalThis.cancelAnimationFrame = () => {}
+  try {
+    assert.throws(
+      () =>
+        controlRender({
+          name: 'overview',
+          size: { width: 1440, height: 1000 },
+          target: p.controlTargets['1440x1000'],
+        }),
+      /Fixed authored control target/
+    )
+    world.units.push({ id: 9, kind: 'brave', team: 'green' })
+    scene.unitMeshes.set(9, group)
+    scene.view.painter.depth = () => 0.978
+    assert.throws(
+      () =>
+        controlRender({
+          name: 'overview',
+          size: { width: 1440, height: 1000 },
+          target: p.controlTargets['1440x1000'],
+        }),
+      /Fixed authored control target/
+    )
+    assert.throws(
+      () => controlRender({ name: 'overview', size: { width: 1440, height: 1000 } }),
+      /Missing fixed viewport/
+    )
+  } finally {
+    delete globalThis.window
+    delete globalThis.cancelAnimationFrame
+  }
 })
