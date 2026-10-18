@@ -13,11 +13,21 @@ import {
   buildingOutsidePoint,
   buildingPose,
 } from './building-shapes.ts'
-import { collisionWorld, createLivePerson, setLivePersonAnimation } from './live-people.ts'
+import {
+  collisionWorld,
+  createLivePerson,
+  setLivePersonAnimation,
+  registerLiveBuilder,
+  stepLiveBuilderPhysics,
+  type LivePerson,
+} from './live-people.ts'
 import { nativePersonModel } from './live-combat.ts'
-import { removeObjectFromCell } from './object-cells.ts'
-import { turnPerson } from './person-motion.ts'
-import { clearLivePath, probeLivePathCost } from './live-pathfinding.ts'
+import {
+  clearLivePath,
+  probeLivePathCost,
+  planLivePath,
+  acceptLivePath,
+} from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import { browserPosition, distance } from './world-coordinates.ts'
 import { buildingDoor, entrance, findPath, route } from './live-command.ts'
@@ -65,23 +75,23 @@ export function completeBuildingConstruction(w: World, b: Building) {
 }
 
 export function processBuilderWork(w: World, u: Unit, b: Building) {
-  const task = u.builder!,
-    p = (task.person ??= u.native ?? createLivePerson(w, u)),
-    pose = buildingPose(b)
-  if (u.native === p) {
-    if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
-    w.objectCells.objects.delete(p.id)
-    u.native = null
+  const task = u.builder!
+  if (!task.person) {
+    task.person = u.native ?? createLivePerson(w, u)
+    task.person.state = 10
   }
-  Object.assign(p, nativePosition(w, u))
-  p.x &= 65535
-  p.y &= 65535
-  p.counter = w.turn & 255
-  p.state = 10
+  const p = task.person
+  registerLiveBuilder(w, u, p)
+  if (u.native === p) u.native = null
+  if (u.path.length && w.pathfinding.people.get(u.id) !== p) acceptLivePath(w, u, p)
   p.cargo = Math.round(u.cargo * 100)
-  const leaving = task.task === BuilderTask.Leave
-  if (leaving || task.task === BuilderTask.ClearScenery || task.task === BuilderTask.ClearPeople)
-    turnPerson(p)
+  stepLiveBuilderPhysics(w, u, p, () => stepBuilderController(w, u, b, p))
+}
+
+function stepBuilderController(w: World, u: Unit, b: Building, p: LivePerson) {
+  const task = u.builder!,
+    pose = buildingPose(b),
+    leaving = task.task === BuilderTask.Leave
   // 0x495520 clears movement mode when a construction subtask restarts.
   if (task.restart) p.flags4 = (p.flags4 & 0xfffefff8) >>> 0
   if (leaving && task.restart) {
@@ -93,10 +103,11 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
   const destination = (to: { x: number; y: number }, direct = false) => {
     clearLivePath(w, u)
     setDirectPersonDestination(w.motionRoutes, p, to)
-    if (direct) u.path = [browserPosition(to)]
-    else if (!route(w, u, browserPosition(to), true).length) {
-      // ponytail: short construction fallback; remove when the person solver handles plan edges.
-      u.path = [browserPosition(to)]
+    if (!direct && planLivePath(w, u, browserPosition(to), p)) acceptLivePath(w, u, p)
+    else {
+      // Retain the controller's direct fallback on the same physical person.
+      setDirectPersonDestination(w.motionRoutes, p, to)
+      acceptLivePath(w, u, p)
     }
   }
   const animation = (_: unknown, object: number) => {
@@ -324,7 +335,6 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
       }
     )
   } else if (task.task === BuilderTask.Level && b.preparation) {
-    turnPerson(p)
     const result = stepBuildingLevel(
       w,
       p,

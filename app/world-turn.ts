@@ -1331,7 +1331,12 @@ function stepTurn(w: World) {
       continue
     }
     if (u.flight && !resumeLiveSeatedFlight(u)) {
-      stepLiveImpulse(w, u)
+      const site =
+        u.builder?.person === u.flight &&
+        builderActivity(u) &&
+        w.buildings.find(b => b.id === u.work && b.hp > 0)
+      if (site) processBuilderWork(w, u, site)
+      else stepLiveImpulse(w, u)
       continue
     }
     if (u.hp <= 0) continue
@@ -1592,7 +1597,11 @@ function stepTurn(w: World) {
       const shaman = w.units.find(a => a.team === u.team && isShaman(a))
       if (shaman && distance(u, shaman) > 3) route(w, u, entrance(w, shaman, 2))
     }
-    if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
+    if (builderActivity(u) && work && 'hp' in work) {
+      processBuilderWork(w, u, work)
+      u.idleTurns = 0
+      continue
+    }
     if (
       u.native &&
       (u.native.guardInputPending ||

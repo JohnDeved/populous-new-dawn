@@ -150,6 +150,9 @@ export type LivePerson = StatefulPerson &
     // Public G retains this exact owner until its deferred order/state visit.
     // Optional so legacy boolean-guard checkpoints keep their original policy.
     guardInputPending?: boolean
+    // Adapter ownership, not a native flag: migrated builders keep their one
+    // physical record after cancellation/landing. Absent retains legacy policy.
+    retainPhysicalOwner?: boolean
   }
 const short = (n: number) => (n << 16) >> 16
 // Bootstrap the existing browser follower at the handoff to native controllers.
@@ -324,10 +327,13 @@ export function syncLivePersonCells(w: World) {
     w.units
       .filter(
         u =>
-          (u.flight || u.fight?.motion || u.native || u.entry) &&
+          (u.flight || u.fight?.motion || u.native || u.entry || u.builder?.person) &&
           (u.hp > 0 || u.flight || u.native?.state === 44)
       )
-      .map(u => [u.id, (u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person)!])
+      .map(u => [
+        u.id,
+        (u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person)!,
+      ])
   )
   for (const [id, p] of w.objectCells.objects)
     if (people.get(id) !== p) {
@@ -351,12 +357,12 @@ export function syncLivePersonCells(w: World) {
     }
     if (!p) continue
     if (!w.objectCells.objects.has(p.id)) {
-      w.objectCells.objects.set(p.id, p)
-      insertObjectIntoCell(w.objectCells, p, p)
+      if (u.builder?.person === p) registerLiveBuilder(w, u, p)
+      else registerLivePerson(w, p)
     }
     // Vehicle attachment owns seated height/position independently of the
     // animation-source projection (command22 is not an on-foot pose owner).
-    if (u.flight || u.fight?.motion || p.vehicle) continue
+    if (u.flight || u.fight?.motion || u.builder?.person === p || p.vehicle) continue
     syncBrowserPersonPosition(w, u, p)
   }
   return people
@@ -941,6 +947,18 @@ export function stepLiveMeleeMotion(w: World, u: Unit) {
   if (p.state !== 25 && p.state !== 29) u.fight = null
 }
 
+// Adopt the old browser-only construction pose once. Registered builders keep
+// their native pose through reconciliation, retries and checkpoint continuation.
+export function registerLiveBuilder(w: World, u: Unit, p: LivePerson) {
+  p.retainPhysicalOwner = true
+  if (w.objectCells.objects.get(u.id) !== p && u.flight !== p) {
+    Object.assign(p, nativePosition(w, u))
+    p.x &= 65535
+    p.y &= 65535
+  }
+  registerLivePerson(w, p)
+}
+
 export function registerLivePerson(w: World, p: LivePerson) {
   const previous = w.objectCells.objects.get(p.id)
   if (previous !== p) {
@@ -950,10 +968,9 @@ export function registerLivePerson(w: World, p: LivePerson) {
   }
 }
 
-// Grounded combat and airborne impulses share the original person physics.
-export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
-  const fighting = p.state === 25 || p.state === 29,
-    recovering = p.state === 33
+// Preparation and physics do not dispatch a controller. The caller owns the
+// one state visit and commits any initialization RNG before that controller.
+function prepareLivePhysics(w: World, u: Unit, p: LivePerson, path = () => {}) {
   registerLivePerson(w, p)
   // Ordinary combat still owns browser HP; don't restore an opportunistic hit
   // from the preceding physics snapshot when the defender is being pushed.
@@ -1003,14 +1020,41 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
         if (unitClass !== 7 || model !== 3) throw new Error('Unsupported airborne allocation')
         emitGroundSpark(w, to)
       },
-      // Reveal, path-group and fight-resumption ownership remain open.
+      // Reveal and fight-resumption ownership remain open.
       reveal: () => {},
-      path: () => {},
+      path,
       class3: () => {},
       canFight: () => false,
       readyToFight: () => false,
     }
   )
+  return {
+    initialize,
+    stateContext,
+    commit: () => {
+      if (ctx) w.randomState = ctx.state.randomState
+    },
+  }
+}
+
+// Grounded combat and airborne impulses share the original person physics.
+export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
+  const previousState = p.state,
+    prepared = prepareLivePhysics(w, u, p)
+  dispatchLivePhysics(w, u, p, previousState, prepared)
+  publishLivePhysics(u, p)
+}
+
+function dispatchLivePhysics(
+  w: World,
+  u: Unit,
+  p: LivePerson,
+  previousState: number,
+  prepared: ReturnType<typeof prepareLivePhysics>
+) {
+  const fighting = previousState === 25 || previousState === 29,
+    recovering = previousState === 33,
+    { initialize, stateContext, commit } = prepared
   // 0x4d32de: seated ownership clears these bits after preparation/physics,
   // before ordinary person-state dispatch. The falling-animation bit survives.
   if (p.vehicle) p.flags2 = (p.flags2 & ~0x82000) >>> 0
@@ -1063,16 +1107,40 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
   }
   if (p.state === 26) updateLivePanic(w, u, stateContext(), p)
   if ((fighting || recovering) && p.state === 10) adoptLiveOrders(w, u, p)
-  if (ctx) w.randomState = ctx.state.randomState
+  commit()
   if (resting) {
     stepLiveRestingState(w, u, p)
     u.cargo = p.cargo / 100
   }
+}
+
+function publishLivePhysics(u: Unit, p: LivePerson) {
   p.flags2 = (p.flags2 & ~0x2004) >>> 0
   Object.assign(u, browserPosition(p))
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
   u.hp = p.life / 20
   u.supportHeight = p.supportHeight || undefined
+}
+
+// Construction uses the same physical driver, with its own single controller.
+export function stepLiveBuilderPhysics(w: World, u: Unit, p: LivePerson, controller: () => void) {
+  const previousState = p.state,
+    prepared = prepareLivePhysics(w, u, p, () => stepLiveRoute(w, u))
+  // World effects and controller queries observe this completed physical step.
+  Object.assign(u, browserPosition(p))
+  if (p.flags2 & 0x80000) u.flight = p
+  if (p.state === 10) {
+    prepared.commit()
+    controller()
+  } else {
+    // Dispatch an actual preparation/landing transition on the same visit,
+    // without another physics step or overwriting its new state next turn.
+    releaseTasks(w, u, true, true)
+    u.native = p
+    dispatchLivePhysics(w, u, p, previousState, prepared)
+  }
+  publishLivePhysics(u, p)
+  if (u.flight === p) finishLiveImpulse(w, u, p)
 }
 
 // Publish the existing voluntary vehicle-launch physics/animation owner.
@@ -1107,12 +1175,17 @@ export function resumeLiveSeatedFlight(u: Unit) {
 export function stepLiveImpulse(w: World, u: Unit) {
   const p = u.flight!
   stepLivePhysics(w, u, p)
+  finishLiveImpulse(w, u, p)
+}
+
+function finishLiveImpulse(w: World, u: Unit, p: LivePerson) {
   // Voluntary vehicle exits can be airborne through the live impulse flag
   // without destruction's forced-airborne bit. Keep their physics owner to landing.
   if (!(p.flags2 & 0x80000) && !(p.flags4 & 0x400) && u.fight?.action !== 'push') {
     u.flight = undefined
     if (
       u.native === p &&
+      !p.retainPhysicalOwner &&
       ![26, 41, 44].includes(p.state) &&
       !currentPersonOrder(w.buildingOrders, p)
     )

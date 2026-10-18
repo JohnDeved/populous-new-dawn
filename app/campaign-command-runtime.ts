@@ -864,6 +864,11 @@ export function campaignRules(w: World) {
                           12,
                           1003,
                           ...script.codes.slice(254, 259),
+                          // Original EVERY255/offset132 population branches: enable usage
+                          // limits in both. Model2..16 interval commands remain unbound.
+                          ...script.codes.slice(298, 310),
+                          ...script.codes.slice(374, 380),
+                          ...script.codes.slice(444, 447),
                           // Chumara's original EVERY255 settlement and training targets.
                           // Later tower, patrol, raid and message branches remain unbound.
                           ...script.codes.slice(447, 595),
