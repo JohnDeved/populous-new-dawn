@@ -47,13 +47,13 @@ test('failed smoke keeps incomplete evidence, closes contexts and never retries 
     await assert.rejects(smoke({ browser: b, url: 'http://localhost', output, source, expectedRevision: source.commit, createFixture,
       captureScenario: async ({ shard }) => {
         calls.push(shard)
-        if (shard === 'world') throw Error('first release did not exercise native query')
+        if (shard === 'world') throw Error('first hover did not exercise native query')
         return { status: 'passed', phases: shards[shard].map(name => ({ name, status: 'passed' })) }
       } }), /functional smoke incomplete/)
     assert.deepEqual(calls, ['world', 'recovery']); assert.ok(b.contexts.every(c => c.closed))
     const result = JSON.parse(readFileSync(join(output, 'candidate-snapshot-smoke.json')))
     assert.equal(result.status, 'incomplete'); assert.equal(result.sessions[0].status, 'incomplete')
-    assert.match(result.sessions[0].failure, /first release/); assert.equal(result.sessions[1].status, 'passed')
+    assert.match(result.sessions[0].failure, /first hover/); assert.equal(result.sessions[1].status, 'passed')
     assert.equal(result.comparativeClassification, 'not-run')
   } finally { rmSync(output, { recursive: true, force: true }) }
 })

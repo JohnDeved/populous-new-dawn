@@ -4,12 +4,13 @@ import { analyzeFrameExport } from '../../app/frame-export-analysis.ts'
 import { repository, order, metrics, metricLabels, workMetrics, queryCounters, policy,
   sha256, summarizeTimings, summarizeMetrics, validateIdentity, classify, maxReportBytes } from './protocol.mjs'
 export { repository, order, metrics, metricLabels, workMetrics, queryCounters, sha256, maxReportBytes }
-export const shards = Object.freeze({ world: ['native-view-release', 'ordinary-hover'], recovery: ['hud', 'world-recovery', 'menu-recovery'] })
+export const shards = Object.freeze({ world: ['native-hover', 'ordinary-hover'], recovery: ['hud', 'world-recovery', 'menu-recovery'] })
 export const plan = Object.freeze({ version: 2, kind: 'paused-authored-snapshot-cpu', level: 2,
   viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1, warmupMs: 2000,
   steps: 6, callbacksPerStep: 4, firstCallbacks: 1, settledCallbacks: 3,
   pointerOffsets: [[3, 0], [3, 3], [0, 3], [-3, 0], [0, -3], [0, 0]],
-  rightDragPixels: [1, -1, 1, -1, 1, -1], observerVersion: 1, geometryVersion: 1, nativeTargetId: 54, snapshotAuthoringVersion: 1, authoredTurn: 70,
+  nativePointerOffsets: [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1]],
+  cohortRevision: 2, nativePixelQuantization: 'truncate-css-minus-canvas-origin', nativeViewInvalidation: 'unsupported-unmeasured', observerVersion: 1, geometryVersion: 1, nativeTargetId: 54, snapshotAuthoringVersion: 1, authoredTurn: 70,
   coverage: 'exact-4-of-4-contiguous-recorded-callbacks-per-input', menuRecovery: 'first-subsequent-world-pointer-input-not-first-close-callback',
   simulation: 'not-measured-paused', waterAdvance: 'not-measured-paused',
   renderCallbackRaf: 'observation-only-presentation-clocks-advance',
@@ -21,7 +22,7 @@ export const metricEligibility = Object.freeze({
   pointer: 'observation-only-unverified-nonterrain-inputs', objectPick: 'observation-only-unverified-nonterrain-inputs',
   model: 'observation-only-unverified-nonterrain-inputs', nativeOcclusion: 'observation-only-unverified-nonterrain-inputs',
   terrainPick: 'terrain-input-matched', ordinaryVisibility: 'terrain-input-matched', ordinaryProjection: 'terrain-input-matched',
-  ordinaryTriangles: 'terrain-input-matched', nativeKey: 'terrain-input-matched', nativeProjection: 'terrain-input-matched', nativeTriangles: 'terrain-input-matched',
+  ordinaryTriangles: 'terrain-input-matched', nativeKey: 'terrain-input-matched', nativeProjection: 'observation-only-warm-projection-cache', nativeTriangles: 'terrain-input-matched',
 })
 export const classificationPolicy = Object.freeze(Object.fromEntries(['pairs', 'baselineSpread', 'minimumEffect', 'absoluteFloorMs', 'noiseMultiplier'].map(key => [key, policy[key]])))
 export const protocolHash = () => sha256(JSON.stringify({ plan, shards, order, metrics, workMetrics, queryCounters, classificationPolicy, metricEligibility }))
@@ -62,7 +63,7 @@ export function validateReport(report) {
       for (const [step, block] of phase.blocks.entries()) {
         keys(block, ['step', 'event', 'point', 'poses', 'inventory', 'geometrySha256'])
         digest(block.geometrySha256)
-        assert.equal(block.step, step); assert.equal(block.event, phase.name === 'native-view-release' ? 'pointerup' : 'pointermove')
+        assert.equal(block.step, step); assert.equal(block.event, 'pointermove')
         assert.ok(Array.isArray(block.point) && block.point.length === 2); block.point.forEach((x, i) => number(x, i ? 1000 : 1440))
         assert.ok(Array.isArray(block.poses) && block.poses.length === plan.callbacksPerStep); block.poses.forEach(digest)
         assert.ok(Array.isArray(block.inventory) && block.inventory.length === 4)
@@ -72,7 +73,7 @@ export function validateReport(report) {
           assert.ok(item[0] !== null && item[1] !== null)
           if (phase.name === 'hud') assert.deepEqual(item.slice(0, 2), [0, 0])
           else if (index === 0) assert.ok(item[0] > 0 && item[1] > 0)
-          if (phase.name === 'native-view-release' && index === 0) assert.ok(item[2] > 0)
+          if (phase.name === 'native-hover' && index === 0) assert.ok(item[2] > 0)
         }
       }
       keys(phase.timings, strata); keys(phase.work, strata)
@@ -130,21 +131,29 @@ export function summarizeSnapshotPhase(json, recording, revision) {
     assert.ok(geometryBefore.timestampMs <= event.timestampMs)
     assert.ok(geometryAfter.observationStartTimestampMs >= frames.at(-1).timestampMs); assert.equal(frames.length, plan.callbacksPerStep)
     assert.equal(event.sequence, step + 1)
-    const dx = recording.name === 'native-view-release' ? plan.rightDragPixels.slice(0, step + 1).reduce((a, b) => a + b, 0) : plan.pointerOffsets[step][0]
-    const dy = recording.name === 'native-view-release' ? 0 : plan.pointerOffsets[step][1]
+    const [dx, dy] = (recording.name === 'native-hover' ? plan.nativePointerOffsets : plan.pointerOffsets)[step]
     assert.deepEqual([event.x, event.y], [recording.point.x + dx, recording.point.y + dy])
-    if (recording.name === 'native-view-release') {
-      const prep = block.preparation, angle = (before.camera.position.angle + dx) & 2047
-      assert.equal(prep.buttons, 2); assert.equal(prep.position.angle, angle)
-      assert.equal(prep.position.x, before.camera.position.x); assert.equal(prep.position.y, before.camera.position.y)
-      assert.equal(prep.bearing, angle * Math.PI / 1024)
-      assert.deepEqual(prep.point, { clientX: event.x, clientY: event.y })
-      assert.ok(prep.serial <= event.anchorSerial)
+    if (recording.name === 'native-hover') {
+      const { canvas, nativePixels, initialNativePixel } = recording.point, prep = block.preparation
+      keys(canvas, ['left', 'top']); number(canvas.left, plan.viewport.width); number(canvas.top, plan.viewport.height)
+      assert.ok(Array.isArray(nativePixels) && nativePixels.length === plan.steps)
+      for (const pixel of [...nativePixels, initialNativePixel]) {
+        assert.ok(Array.isArray(pixel) && pixel.length === 2)
+        pixel.forEach((value, i) => number(value, i ? plan.viewport.height : plan.viewport.width, true))
+      }
+      keys(prep, ['pixel', 'cached', 'timestampMs']); number(prep.timestampMs)
+      const expected = [Math.trunc(event.x - canvas.left), Math.trunc(event.y - canvas.top)]
+      assert.deepEqual(initialNativePixel, [Math.trunc(recording.point.x - canvas.left), Math.trunc(recording.point.y - canvas.top)])
+      assert.equal(new Set(nativePixels.map(p => p.join(','))).size, plan.steps)
+      assert.ok(nativePixels.every(p => p.join(',') !== initialNativePixel.join(',')))
+      assert.deepEqual(expected, nativePixels[step]); assert.deepEqual(prep.pixel, expected)
+      assert.equal(prep.cached, false, 'Measured native pixel was already warmed')
+      assert.ok(prep.timestampMs <= event.timestampMs)
     } else assert.equal(block.preparation, null)
     assert.equal(raw.frames[event.anchorSerial - dropped - 1]?.timestampMs, event.anchorTimestampMs, 'Exact pre-input raw anchor missing')
     if (step) assert.ok(event.anchorSerial >= recording.blocks[step - 1].frames.at(-1).serial)
     number(event.anchorSerial, 1199, true); number(event.anchorTimestampMs); number(event.sequence, 1000, true)
-    assert.equal(event.type, recording.name === 'native-view-release' ? 'pointerup' : 'pointermove'); assert.equal(event.buttons, 0)
+    assert.equal(event.type, 'pointermove'); assert.equal(event.buttons, 0)
     const poses = [], inventory = []
     for (const [i, observed] of frames.entries()) {
       assert.equal(observed.serial, event.anchorSerial + i + 1, 'Never skip the first post-input callback')
@@ -156,7 +165,7 @@ export function summarizeSnapshotPhase(json, recording, revision) {
       assert.ok(!selectedRawFrameIndices.includes(found.index)); selectedRawFrameIndices.push(found.index)
       const { frame } = found, p = observed.pose; assert.ok(Array.isArray(p) && p.length === 27 && p.every(Number.isFinite))
       assert.equal(p[10], 0); assert.equal(p[11], 1); assert.equal(p[12], before.turn); assert.deepEqual(p.slice(13, 26), Array(13).fill(0))
-      const c = before.camera, angle = (c.position.angle + (recording.name === 'native-view-release' ? dx : 0)) & 2047
+      const c = before.camera, angle = c.position.angle
       assert.deepEqual(p.slice(0, 8), [c.position.x, c.position.y, angle, c.viewPoint.x, c.viewPoint.z, angle * Math.PI / 1024, c.zoom, c.preset])
       assert.equal(frame.state, 'paused'); assert.ok(frame.sceneDrawCalls > 0)
       const route = recording.name === 'hud' ? 'hud' : 'world'
@@ -165,9 +174,9 @@ export function summarizeSnapshotPhase(json, recording, revision) {
       const terrain = frame.pointerBreakdown.terrainPickCalls, object = frame.pointerBreakdown.objectPickCalls
       if (route === 'world' && i === 0) assert.ok(terrain > 0 && object > 0)
       if (route === 'hud') assert.ok(terrain === 0 && object === 0)
-      if (recording.name === 'native-view-release') { assert.equal(recording.point.id, plan.nativeTargetId); assert.equal(p[26], plan.nativeTargetId, 'Actual production hover must own authored target 54') }
-      if (recording.name === 'native-view-release' && i === 0)
-        assert.ok(frame.pointerBreakdown.nativeOcclusion?.submittedTriangles > 0, 'Native release work unsupported/missing')
+      if (recording.name === 'native-hover') { assert.equal(recording.point.id, plan.nativeTargetId); assert.equal(p[26], plan.nativeTargetId, 'Actual production hover must own authored target 54') }
+      if (recording.name === 'native-hover' && i === 0)
+        assert.ok(frame.pointerBreakdown.nativeOcclusion?.submittedTriangles > 0 && frame.pointerBreakdown.nativeOcclusion.pixelCacheMisses > 0, 'First native hover query work unsupported/missing')
       // The sidecar establishes a fixed camera/input state for every selected CPU callback.
       // Timestamp and observer sequence are deliberately excluded from the workload digest.
       poses.push(sha256(JSON.stringify(p))); inventory.push([terrain, object, frame.pointerBreakdown.nativeOcclusion?.submittedTriangles ?? null])

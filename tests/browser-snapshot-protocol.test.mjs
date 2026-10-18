@@ -9,14 +9,14 @@ import { plan, shards, order, repository, metricEligibility, metrics, protocolHa
 const revision = 'a'.repeat(40), digest = 'c'.repeat(64)
 const identity = { repository, prNumber: 42, baseSha: revision, headSha: 'b'.repeat(40), harnessSha: revision, runId: 1234, runAttempt: 1 }
 function fixture(name = 'ordinary-hover', cpu = 10, buildRevision = revision) {
-  const ring = new FramePerformance(), hud = name === 'hud', native = name === 'native-view-release'
+  const ring = new FramePerformance(), hud = name === 'hud', native = name === 'native-hover'
   for (let i = 0; i < 32; i++) {
     const pointer = createPointerFrameMetrics(true)
     pointer.interaction.route = hud ? 'hud' : 'world'
     pointer.terrainPickCalls = hud ? 0 : 1; pointer.objectPickCalls = hud ? 0 : 1
     pointer.terrainPickMs = cpu; pointer.objectPickMs = cpu; pointer.objectModelsMs = cpu
     pointer.nativeOcclusion.submittedTriangles = hud ? 0 : 8
-    pointer.nativeOcclusion.projectionMs = cpu
+    pointer.nativeOcclusion.projectionMs = cpu; pointer.nativeOcclusion.pixelCacheMisses = hud ? 0 : 1
     ring.sample(20, 0, cpu, 12, cpu * 3, cpu, (i + 1) * 20, 'paused', pointer)
   }
   const frames = ring.recentFrames(), camera = { position: { x: 1, y: 2, angle: 0 }, viewPoint: { x: 3, z: 4 }, bearing: 0, zoom: 0, preset: 0, config: {} }
@@ -26,16 +26,16 @@ function fixture(name = 'ordinary-hover', cpu = 10, buildRevision = revision) {
     turn: 70, time: 2, pendingTime: 0, randomState: 0xffffffff,
     simulationSha256: digest, unitsSha256: digest, terrainSha256: digest, geometrySha256: digest,
     camera, timeOriginUnixMs: 10000, timestampMs: 10, observationStartTimestampMs: 9 }
-  const recording = { name, point: { x: 900, y: 400, ...(native ? { id: 54 } : {}) }, before,
+  const recording = { name, point: { x: 900, y: 400, ...(native ? { id: 54, canvas: { left: 200, top: 0 }, initialNativePixel: [700, 400],
+    nativePixels: plan.nativePointerOffsets.map(([dx, dy]) => [700 + dx, 400 + dy]) } : {}) }, before,
     after: { ...before, timestampMs: 710, observationStartTimestampMs: 700 }, observer: { error: null }, blocks: [] }
   for (let step = 0; step < 6; step++) {
-    const dx = native ? (step % 2 ? 0 : 1) : plan.pointerOffsets[step][0], dy = native ? 0 : plan.pointerOffsets[step][1]
-    const angle = native ? dx : 0, anchor = 1 + step * 5
+    const [dx, dy] = (native ? plan.nativePointerOffsets : plan.pointerOffsets)[step]
+    const angle = 0, anchor = 1 + step * 5
     const witness = Array(113).fill(0), geometry = { fingerprintSha256: digest, witness, timestampMs: anchor * 20, observationStartTimestampMs: (anchor + 4) * 20 }
     const pose = [1, 2, angle, 3, 4, angle * Math.PI / 1024, 0, 0, ...(hud ? [-1, -1] : [900 + dx, 400 + dy]), 0, 1, 70, ...Array(13).fill(0), native ? 54 : -1]
-    recording.blocks.push({ geometryBefore: geometry, geometryAfter: geometry, preparation: native ? { position: { x: 1, y: 2, angle }, bearing: angle * Math.PI / 1024,
-      buttons: 2, point: { clientX: 900 + dx, clientY: 400 + dy }, serial: anchor } : null,
-    event: { sequence: step + 1, type: native ? 'pointerup' : 'pointermove', x: 900 + dx, y: 400 + dy, buttons: 0,
+    recording.blocks.push({ geometryBefore: geometry, geometryAfter: geometry, preparation: native ? { pixel: [700 + dx, 400 + dy], cached: false, timestampMs: anchor * 20 } : null,
+    event: { sequence: step + 1, type: 'pointermove', x: 900 + dx, y: 400 + dy, buttons: 0,
       anchorSerial: anchor, anchorTimestampMs: anchor * 20, timestampMs: (anchor + 1) * 20 + 5 },
     frames: Array.from({ length: 4 }, (_, i) => ({ serial: anchor + i + 1, timestampMs: (anchor + i + 1) * 20, sequence: step + 1, pose: [...pose], geometryWitness: [...witness] })) })
   }
@@ -76,10 +76,18 @@ test('wrong first/intermediate serial, index, timestamp, route, live/menu state 
   ]
   for (const change of changes) { const input = fixture(); change(input); assert.throws(() => summarize(input)) }
 })
-test('native held drag does not count as release query work; actual native work and exact prepared pose required', () => {
+test('stable native hover requires first-callback miss, unique unwarmed native pixels, authored ownership and fixed pose', () => {
   for (const change of [x => { x.raw.frames[1].pointerBreakdown.nativeOcclusion.submittedTriangles = 0 },
-    x => { x.recording.blocks[0].frames[0].pose[10] = 2 }, x => { x.recording.blocks[0].frames[0].pose[26] = 5 }, x => { x.recording.blocks[0].preparation.position.angle++ }]) {
-    const input = fixture('native-view-release'); change(input); assert.throws(() => summarize(input))
+    x => { x.recording.blocks[0].frames[0].pose[10] = 2 }, x => { x.recording.blocks[0].frames[0].pose[26] = 5 }, x => { x.recording.blocks[0].frames[0].pose[2]++ },
+    x => { x.raw.frames[1].pointerBreakdown.nativeOcclusion.pixelCacheMisses = 0 },
+    x => { x.recording.blocks[0].preparation.cached = true },
+    x => { x.recording.blocks[0].preparation.pixel[0]++ },
+    x => { x.recording.point.nativePixels[1] = x.recording.point.nativePixels[0] },
+    x => { x.recording.point.nativePixels.push([1, 2]) }, x => { x.recording.point.canvas.left = NaN },
+    x => { x.recording.point.initialNativePixel[0]++ }, x => { x.recording.blocks[0].preparation.timestampMs = -1 },
+    x => { x.recording.point.nativePixels[0] = x.recording.point.initialNativePixel },
+    x => { x.recording.name = 'native-view-release' }]) {
+    const input = fixture('native-hover'); change(input); assert.throws(() => summarize(input))
   }
 })
 test('strict v2 bounded schema rejects new metrics, unknown fields, incomplete strata and false coverage', () => {
@@ -96,14 +104,14 @@ test('paired classification requires exact query/submission inventory, state, so
   const reports = [report(), report('recovery')]
   let result = compareReports(reports, identity)
   assert.equal(result.complete, true); assert.equal(result.rows.length, 150)
-  assert.equal(result.rows.find(r => r.metric === 'nativeProjection').p50.status, 'possible-improvement')
+  assert.equal(result.rows.find(r => r.metric === 'terrainPick').p50.status, 'possible-improvement')
   assert.equal(result.rows.find(r => r.metric === 'simulation').p50.status, 'not-measured-paused')
   assert.equal(result.rows.find(r => r.metric === 'render').p50.status, 'observation-only-presentation-clocks')
   const phases = reports[0].runs.map(r => r.phases[0]); phases[1].work.first.nativeVertices = null
   assert.equal(comparableWork(phases), true)
   phases[1].blocks[0].inventory[0][2]++
   assert.equal(compareReports(reports, identity).rows[0].p50.status, 'workload-mismatch')
-  assert.equal(compareReports([report()], identity).rows.find(r => r.metric === 'nativeProjection').p50.status, 'incomplete-shards-observation-only')
+  assert.equal(compareReports([report()], identity).rows.find(r => r.metric === 'terrainPick').p50.status, 'incomplete-shards-observation-only')
   const geometry = report(); geometry.runs[1].phases[0].blocks[0].geometrySha256 = 'd'.repeat(64)
   assert.equal(compareReports([geometry, report('recovery')], identity).rows[0].p50.status, 'geometry-input-mismatch')
   const wrong = report(); wrong.runtimeSha256 = 'd'.repeat(64)
@@ -148,7 +156,7 @@ test('only the explicit terrain allowlist can signal; missing observations remai
   for (const row of result.rows) if (metricEligibility[row.metric] !== 'terrain-input-matched')
     assert.ok(!row.p50.status.startsWith('possible-') && !row.p95.status.startsWith('possible-'))
   for (const metric of Object.keys(metrics)) reports[0].runs[1].phases[0].timings.first[metric] = { all: null, nonzero: null, perQuery: null }
-  for (const row of compareReports(reports, identity).rows.filter(r => r.phase === 'native-view-release' && r.stratum === 'first'))
+  for (const row of compareReports(reports, identity).rows.filter(r => r.phase === 'native-hover' && r.stratum === 'first'))
     assert.equal(row.p50.status, 'unknown')
 })
 
@@ -188,8 +196,8 @@ test('v2 baseline repeat spread is noisy, not a possible regression/improvement'
   const reports = [report(), report('recovery')]
   const phase = reports[0].runs[3].phases[0]
   for (const field of ['all', 'nonzero', 'perQuery']) for (const key of ['mean', 'p50', 'p95', 'max'])
-    phase.timings.first.nativeProjection[field][key] = 14
-  const row = compareReports(reports, identity).rows.find(r => r.phase === phase.name && r.stratum === 'first' && r.metric === 'nativeProjection')
+    phase.timings.first.terrainPick[field][key] = 14
+  const row = compareReports(reports, identity).rows.find(r => r.phase === phase.name && r.stratum === 'first' && r.metric === 'terrainPick')
   assert.equal(row.p50.status, 'noisy'); assert.equal(row.p95.status, 'noisy')
 })
 
@@ -228,4 +236,37 @@ test('sidecar serial/timestamp contract matches the actual recorder including op
     assert.equal(raw[observed.serial - 1].simulationSteps, 0)
   }
   o.api.stop()
+})
+
+test('fixed native hover offsets follow production pixel quantization, exclude warmed center and never clear caches', async () => {
+  const { snapshotNativeTarget, observeNativePixelAdmission } = await import('../scripts/browser-performance/snapshot-capture.mjs')
+  const { readFileSync } = await import('node:fs')
+  const production = readFileSync(new URL('../app/scene-picking.ts', import.meta.url), 'utf8')
+  assert.match(production, /x: Math.trunc\(event.clientX - rect.left\)/)
+  assert.match(production, /y: Math.trunc\(event.clientY - rect.top\)/)
+  for (const left of [200, 200.25]) {
+    const rect = { left, top: 0.5 }, bounds = { x: 610, y: 370, width: 20, height: 20 }
+    const canvas = { getBoundingClientRect: () => rect }, layer = { visible: true }
+    const groundHits = new Map([['620,380', []]])
+    const scene = { renderer: { domElement: canvas }, unitMeshes: new Map([[54, { visible: true, userData: { layers: [layer] } }]]),
+      view: { painter: { source: () => ({}) } }, picking: { personBounds: () => bounds, groundHits } }
+    const context = vm.createContext({ window: { testSceneRef: { current: scene } }, document: { elementFromPoint: () => canvas }, performance: { now: () => 12 } })
+    const target = vm.runInContext(`(${snapshotNativeTarget.toString()})`, context)(plan.nativePointerOffsets)
+    assert.equal(new Set(target.nativePixels.map(p => p.join(','))).size, 6)
+    assert.ok(target.nativePixels.every(p => p.join(',') !== target.initialNativePixel.join(',')))
+    const admission = vm.runInContext(`(${observeNativePixelAdmission.toString()})`, context)
+    for (const [dx, dy] of plan.nativePointerOffsets) {
+      const proof = admission({ x: target.x + dx, y: target.y + dy })
+      assert.equal(proof.cached, false)
+      assert.deepEqual(Array.from(proof.pixel), [Math.trunc(target.x + dx - left), Math.trunc(target.y + dy - rect.top)])
+    }
+    assert.equal(admission({ x: target.x, y: target.y }).cached, true)
+    assert.equal(groundHits.size, 1)
+    assert.throws(() => vm.runInContext(`(${snapshotNativeTarget.toString()})`, context)([[0, 0]]), /exclude warmed/)
+    assert.throws(() => vm.runInContext(`(${snapshotNativeTarget.toString()})`, context)([[1, 0], [1, 0]]), /unique/)
+    bounds.width = 1; assert.throws(() => vm.runInContext(`(${snapshotNativeTarget.toString()})`, context)(plan.nativePointerOffsets), /bounds/)
+  }
+  assert.equal(plan.cohortRevision, 2)
+  assert.equal(plan.nativeViewInvalidation, 'unsupported-unmeasured')
+  assert.equal(metricEligibility.nativeProjection, 'observation-only-warm-projection-cache')
 })

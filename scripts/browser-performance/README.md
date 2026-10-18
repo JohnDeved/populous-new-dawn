@@ -14,13 +14,23 @@ from the exact PR base, so a PR proposing V2 cannot run its own untrusted harnes
 The reporter selects V2 explicitly from trusted source, never from artifact input.
 An old V1 report is not silently reinterpreted as V2.
 
-The original live capture, protocol and renderer remain unchanged; `run-live.mjs`
-retains the V1 entry point. See [the original contract](README-live-v1.md), whose
+The original live capture, schema, workload classifier and thresholds remain unchanged;
+V1 reporting now explains mismatches with bounded per-phase values instead of
+repeating labels. `run-live.mjs` retains the V1 entry point. See [the original contract](README-live-v1.md), whose
 historical staged-activation description is retained as history, not current status.
 V1 hosted run 39144578788 executed 12 fresh sessions and 30 valid captures, but all
 comparisons were workload-mismatched. Startup simulation, moving target and held
 camera-input scheduling drift made those results unsuitable for speed claims.
 V2 does not erase or reinterpret that evidence.
+
+Candidate smoke [39149068238](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39149068238)
+proved public Load/readback, paused pose and all three recovery phases on its exact
+published source, but failed the old native-view-release work guard. All six first
+release callbacks were real native pixel-cache hits with zero submitted triangles;
+the preceding unmeasured drag had already performed the view-invalidated work.
+Those failed raw captures remain historical evidence. The revision-2 stable-hover
+repair still requires a new candidate functional smoke, then a trusted same-source
+comparison after landing. It is not already qualified by the old run.
 
 ## Fixed controlled workload
 
@@ -44,11 +54,16 @@ V2 does not erase or reinterpret that evidence.
 
 Two concurrent scenario shards, never concurrent arms on one runner:
 
-1. `world`: `native-view-release` then `ordinary-hover`. Native target is the fixed
-   authored Shaman ID 54, not whichever person is convenient. Each ±1 pixel right
-   drag is unmeasured preparation; release is the anchored input. Actual first
-   release route/query/native work and production hovered ID must pass, otherwise
-   unsupported/incomplete. Held drag can suppress hover and is never relabeled.
+1. `world`: `native-hover` then `ordinary-hover`. Cohort revision 2 replaces the
+   unqualified release cohort, without reinterpreting its retained failed captures.
+   The fixed authored Shaman ID 54 is sampled at six unique one-pixel neighbors,
+   using production `Math.trunc(client - canvas origin)` native pixel quantization.
+   All exclude the warmed initial pixel; read-only cache admission must be cold for
+   that pixel, and the exact first callback must show a real native pixel miss,
+   submitted triangles and actual hovered ID 54. No later-frame search or cache
+   clearing. Camera remains stable. View-invalidated native projection is explicitly
+   unsupported/unmeasured; native projection CPU remains observation-only because
+   initial setup may warm its cache. Fixed pixels outside target bounds fail closed.
 2. `recovery`: `hud`, `world-recovery`, `menu-recovery`. HUD is the prerequisite to
    world return. Menu recovery means subsequent world-pointer inputs after opening
    and closing the real settings menu, not the first post-close callback. Initial
@@ -79,7 +94,7 @@ The bounded proof covers terrain, not every model mesh: pointer-total/object/mod
 CPU stays observation-only. Only matched terrain-specific buckets may show possible
 signals; no whole-picker or whole-program equivalence is claimed.
 Geometry fingerprints are taken outside selected callbacks at each input block's
-boundaries, after genuine held-drag/render setup where applicable. Fixed-size
+boundaries, after genuine initial pointer/render setup. Fixed-size
 identity/version/count/transform witnesses guard the selected callbacks. Versions
 are intra-block guards, not cross-arm implementation-state equality. A first query
 that changes the admitted geometry is unsupported, not a reason to skip it.

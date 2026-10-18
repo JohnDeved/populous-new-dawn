@@ -279,9 +279,9 @@ function snapshotFixture(shard = 'world') {
   for (const run of r.runs) run.phases = snapshot.shards[shard].map(name => {
     const value = run.side === 'base' ? 10 : 8
     const stats = n => ({ n, mean: value, p50: value, p95: value, max: value })
-    return { name, stateSha256: 'a'.repeat(64), viewConfigSha256: 'b'.repeat(64), targetId: name === 'native-view-release' ? 54 : null,
+    return { name, stateSha256: 'a'.repeat(64), viewConfigSha256: 'b'.repeat(64), targetId: name === 'native-hover' ? 54 : null,
       point: [900, 400], frames: 24, rawFrames: 40, durationMs: 1000,
-      blocks: Array.from({ length: 6 }, (_, step) => ({ step, event: name === 'native-view-release' ? 'pointerup' : 'pointermove',
+      blocks: Array.from({ length: 6 }, (_, step) => ({ step, event: 'pointermove',
         point: [900, 400], geometrySha256: 'd'.repeat(64), poses: Array(4).fill('c'.repeat(64)), inventory: Array.from({ length: 4 }, () => name === 'hud' ? [0, 0, 0] : [1, 1, 8]) })),
       timings: Object.fromEntries(snapshot.strata.map(s => [s, Object.fromEntries(Object.keys(metrics).map(key => [key,
         { all: stats(s === 'first' ? 6 : 18), nonzero: stats(s === 'first' ? 6 : 18), perQuery: stats(s === 'first' ? 6 : 18) }]))])),

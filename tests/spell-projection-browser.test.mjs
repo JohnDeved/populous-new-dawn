@@ -1,3 +1,4 @@
+import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
@@ -218,7 +219,8 @@ test('hosted runner preserves old episodes, aggregate cap and source-bound new s
   )
   const spellIndex = source.indexOf('receipt.spellProjection =')
   assert.ok(m2Index >= 0 && spellIndex >= 0 && m2Index < spellIndex)
-  assert.match(source, /180000\)/)
+  assert.equal(browserCapMs('tutorial'), 180000)
+  assert.match(source, /}, receipt.browserCapMs\)/)
   assert.match(builder, /sourcemap: true/)
   assert.match(scenario, /callCount:\s*true,\s*detailed:\s*false/)
   assert.match(scenario, /assert\.equal\(\s*observed\.scriptSource,\s*code/)

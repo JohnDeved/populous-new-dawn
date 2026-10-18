@@ -1,3 +1,5 @@
+import yaml from 'js-yaml'
+import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
@@ -6,17 +8,15 @@ const read = file => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8'
 
 test('IndexedDB acceptance has an independent hosted job without extending Tutorial', () => {
   const workflow = read('.github/workflows/tutorial-browser.yml')
-  assert.match(
-    workflow,
-    /scenario: profile-recovery\n\s+name: Profile recovery browser\n\s+artifact: profile-recovery-browser/
-  )
-  assert.match(workflow, /scenario: tutorial\n\s+name: Tutorial browser/)
-  assert.match(
-    workflow,
-    /scenario: pause-checkpoint-recovery\n\s+name: Pause checkpoint recovery browser/
-  )
+  const job = yaml.load(workflow).jobs['tutorial-browser']
+  for (const [scenario, name] of [['tutorial', 'Tutorial browser'], ['profile-recovery', 'Profile recovery browser'],
+    ['pause-checkpoint-recovery', 'Pause checkpoint recovery browser']]) {
+    const item = job.strategy.matrix.include.find(item => item.scenario === scenario)
+    assert.equal(item.name, name); assert.equal(item.timeoutMinutes, 15)
+  }
+  assert.equal(job.strategy.matrix.include.find(item => item.scenario === 'profile-recovery').artifact, 'profile-recovery-browser')
   assert.match(workflow, /POPULOUS_BROWSER_SCENARIO: \$\{\{ matrix.scenario \}\}/)
-  assert.match(workflow, /timeout-minutes: 15/)
+  assert.match(workflow, /timeout-minutes: \$\{\{ matrix.timeoutMinutes \}\}/)
   assert.match(workflow, /ref: \$\{\{ github.sha \}\}/)
   assert.match(workflow, /persist-credentials: false/)
   const config = browserConfiguration()
@@ -32,7 +32,7 @@ test('recovery selects only the existing nine-case matrix and skips M2 fixture g
   )
   assert.match(runner, /recoveryScenarioSha256: hash\(recoveryScenario\)/)
   assert.match(runner, /signal: abort.signal/)
-  assert.match(runner, /receipt.browserCapMs = 180000/)
+  assert.equal(browserCapMs('profile-recovery'), 180000)
   const branch = runner.slice(
     runner.indexOf("if (selectedScenario === 'profile-recovery')"),
     runner.indexOf("} else if (selectedScenario === 'm2-pointer-f8')")

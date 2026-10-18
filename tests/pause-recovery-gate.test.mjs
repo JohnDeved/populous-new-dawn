@@ -1,3 +1,4 @@
+import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
@@ -534,7 +535,7 @@ test('producer hashes actual evidence files and forwards real child close/build 
     runner,
     /resolveBuild\(\{ pid: child.pid, exitCode: code, signal, timedOut, capMs: 120000 \}\)/
   )
-  assert.match(runner, /receipt.browserCapMs = 180000/)
+  assert.equal(browserCapMs('pause-checkpoint-recovery'), 180000)
   for (const result of [undefined, {}, { checks: [] }, { screenshots: [] }])
     assert.throws(
       () => recoveryReceipt({ ...raw, pauseCheckpointRecovery: result }, dir, env),

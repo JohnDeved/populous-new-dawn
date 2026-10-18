@@ -1,9 +1,12 @@
 import { metricLabels, metrics, shards, strata } from './snapshot-protocol.mjs'
 import { commentMarker } from './render.mjs'
+import { snapshotDiagnostics } from './snapshot-diagnostics.mjs'
 const format = value => Number.isFinite(value) ? value.toFixed(3) : 'unknown'
 const signal = result => result.baseline === undefined ? result.status
   : `${result.status}: ${format(result.baseline)} → ${format(result.candidate)} (${result.delta >= 0 ? '+' : ''}${format(result.delta)} ms)`
 export function renderSnapshotComment(comparison, identity, reports, { harnessChanged = false } = {}) {
+  const diagnostics = snapshotDiagnostics(comparison, identity, reports)
+  // Only fixed labels and fully validated bounded report values reach this comment.
   const runUrl = `https://github.com/JohnDeved/populous-new-dawn/actions/runs/${identity.runId}/attempts/${identity.runAttempt}`
   const lines = [commentMarker, '## Informational controlled browser CPU comparison (v2)',
     `Base \`${identity.baseSha}\` → PR \`${identity.headSha}\`. [Raw F8 downloads, exact snapshot, sidecars and summaries](${runUrl}).`,
@@ -12,7 +15,7 @@ export function renderSnapshotComment(comparison, identity, reports, { harnessCh
     'Explicit test setup: exact-base production-authored Level 2 turn-70 snapshot loaded through the public Load path, ordinarily paused, public focus and integer-pixel right-drag normalization. Same snapshot bytes in both arms. Not live-gameplay, campaign progression, simulation or water-advance performance.',
     'Loaded checkpoint cells can take ownership-sensitive fallback paths. This cohort does not cover fresh-world factory-ownership optimizations; no effect here is not no effect everywhere. Ownership is never injected to manufacture a win.',
     '1440×1000, DPR 1, 2-second warmup. Six discrete inputs per phase. Each input requires the exact next four contiguous recorded callbacks: first 1 and settled 3 separately. No favorable-frame search. Raw extra callbacks are retained, not pooled into the comparison.',
-    'Native-view-release means first input callback after unmeasured one-pixel camera drag and public release, not held-drag native picking. Menu-recovery means subsequent world-pointer input after menu close, not the first post-close callback. Recovery shard includes the HUD prerequisite.',
+    'Native-hover uses six unique native pixels around fixed authored target 54 at a stable camera pose; the warmed initial pixel is excluded. Native projection caches may be warm; projection CPU remains observation-only, and view-invalidated projection work is unsupported and unmeasured. Menu-recovery means subsequent world-pointer input after menu close, not the first post-close callback. Recovery shard includes the HUD prerequisite.',
     'Small sample: three session pairs, only six first-input observations per session. Possible signals are not statistical significance. Baseline repeats/noise guards are preliminary, not qualified regression gates.',
     'F8 CPU wall-time and RAF cadence only, not GPU time, presented FPS, or hardware smoothness. Presentation clocks may advance while paused; render/callback/RAF remain observation-only. Nested timings overlap. The identical bounded read-only sidecar adds overhead outside app CPU buckets and may perturb RAF cadence.',
     'Pointer-total/object/model/inclusive native-occlusion CPU remains observation-only because non-terrain submitted mesh equivalence is not proved. Narrow possible signals apply only to matched terrain-specific buckets.',
@@ -21,10 +24,15 @@ export function renderSnapshotComment(comparison, identity, reports, { harnessCh
     ...(comparison.missing.length ? [`Missing shards: ${comparison.missing.join(', ')}. Available results are diagnostic only.`] : []),
     'Classification: ≥0.1 ms, >5%, >2× baseline repeat range, same direction in all three pairs; >15% repeat spread with 0.1 ms floor is noisy. Full all/nonzero/per-query distributions and paired ranges are retained in artifacts.', '']
   for (const [shard, names] of Object.entries(shards)) for (const phase of names) {
-    lines.push(`<details><summary>${phase} (${shard})</summary>`, '', '| Section / callback stratum | Session p50 | Session p95 | B/H p50 range |', '| --- | --- | --- | --- |')
-    for (const stratum of strata) for (const metric of Object.keys(metrics)) {
-      const row = comparison.rows.find(r => r.phase === phase && r.stratum === stratum && r.metric === metric)
-      lines.push(`| ${metricLabels[metric]} / ${stratum} (${row.basis}) | ${signal(row.p50)} | ${signal(row.p95)} | ${format(row.p50.baselineRange)}/${format(row.p50.candidateRange)} |`)
+    lines.push(`<details><summary>${phase} (${shard})</summary>`, '')
+    const diagnosis = diagnostics.find(item => item.shard === shard && item.phase === phase).diagnosis
+    if (diagnosis) lines.push(diagnosis)
+    else {
+      lines.push('| Section / callback stratum | Session p50 | Session p95 | B/H p50 range |', '| --- | --- | --- | --- |')
+      for (const stratum of strata) for (const metric of Object.keys(metrics)) {
+        const row = comparison.rows.find(r => r.phase === phase && r.stratum === stratum && r.metric === metric)
+        lines.push(`| ${metricLabels[metric]} / ${stratum} (${row.basis}) | ${signal(row.p50)} | ${signal(row.p95)} | ${format(row.p50.baselineRange)}/${format(row.p50.candidateRange)} |`)
+      }
     }
     lines.push('', '| Pair/arm | Selected/raw frames | Phase elapsed ms | First terrain/object queries | First native triangles/query | First projected ordinary/native vertices | First model builds |', '| --- | --- | --- | --- | --- | --- | --- |')
     for (const run of reports.find(r => r.shard === shard)?.runs ?? []) {

@@ -1,3 +1,5 @@
+import yaml from 'js-yaml'
+import { browserScenarios, browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
@@ -120,7 +122,19 @@ test('candidate snapshot smoke is one read-only bounded functional case, never a
   assert.match(workflow, /outputs\/tutorial-browser\/snapshot-\*\/\*\.json/)
   assert.doesNotMatch(workflow, /: write|secrets\.|pull_request_target|workflow_dispatch|continue-on-error/)
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
-  assert.match(runner, /receipt\.browserCapMs = selectedScenario === 'snapshot-protocol' \? 90000 : 180000/)
+  assert.match(runner, /receipt\.browserCapMs = browserCapMs\(selectedScenario\)/)
+  assert.match(runner, /assert.ok\(browserScenarios.includes\(selectedScenario\)/)
   assert.match(runner, /snapshotScenarioSha256: hash\(snapshotScenario\)/)
   assert.match(runner, /receipt\.snapshotSmoke = await/)
+})
+
+
+test('parsed hosted matrix and actual pure policy preserve every existing cap and bound candidate smoke', () => {
+  const workflow = readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8')
+  const job = yaml.load(workflow).jobs['tutorial-browser'], items = job.strategy.matrix.include
+  assert.equal(job['timeout-minutes'], '${{ matrix.timeoutMinutes }}')
+  assert.deepEqual(items.map(item => item.scenario).sort(), browserScenarios.filter(name => name !== 'm2-pointer-f8').sort())
+  for (const name of browserScenarios) assert.equal(browserCapMs(name), name === 'snapshot-protocol' ? 90000 : 180000)
+  for (const item of items) assert.equal(item.timeoutMinutes, item.scenario === 'snapshot-protocol' ? 6 : 15)
+  for (const invalid of ['', 'unknown', null, 900000]) assert.throws(() => browserCapMs(invalid), /Unknown browser scenario/)
 })

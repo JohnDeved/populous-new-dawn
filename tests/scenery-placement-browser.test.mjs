@@ -1,3 +1,4 @@
+import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
@@ -84,7 +85,8 @@ test('existing hosted runner keeps prior scenarios, bounded timing and source id
     source.indexOf('receipt.selectorInspection =') < source.indexOf('receipt.sceneryPlacement =')
   )
   assert.match(source, /sceneryScenarioSha256: hash\(sceneryScenario\)/)
-  assert.match(source, /180000\)/)
+  assert.equal(browserCapMs('tutorial'), 180000)
+  assert.match(source, /}, receipt.browserCapMs\)/)
   assert.match(source, /120000\)/)
   assert.match(source, /receipt\.status = 'passed'/)
 })

@@ -8,7 +8,7 @@ import { plan, shards, invariant, summarizeSnapshotPhase } from './snapshot-prot
 import { m2HudPoint } from '../tutorial-browser/m2-pointer-f8.mjs'
 
 // Fixed authored Shaman, never opportunistically choose a different visible person.
-export function snapshotNativeTarget() {
+export function snapshotNativeTarget(offsets) {
   const scene = window.testSceneRef.current, canvas = scene.renderer.domElement, group = scene.unitMeshes.get(54)
   if (!group?.visible || group.userData.pickable === false) throw Error('Authored target 54 is not visible/pickable')
   const layer = group.userData.layers?.findLast(piece => piece.visible)
@@ -17,14 +17,23 @@ export function snapshotNativeTarget() {
   if (!bounds || bounds.width < 2 || bounds.height < 2) throw Error('Authored target has no usable screen bounds')
   const x = rect.left + Math.floor(bounds.x + bounds.width / 2), y = rect.top + Math.floor(bounds.y + bounds.height / 2)
   if (document.elementFromPoint(x, y) !== canvas) throw Error('Authored target is obscured')
-  return { x, y, id: 54 }
+  // Match ScenePicking.pick's actual native pixel key, not CSS-distance guesses.
+  const initialNativePixel = [Math.trunc(x - rect.left), Math.trunc(y - rect.top)]
+  const nativePixels = offsets.map(([dx, dy]) => {
+    const px = x + dx, py = y + dy, pixel = [Math.trunc(px - rect.left), Math.trunc(py - rect.top)]
+    if (document.elementFromPoint(px, py) !== canvas || pixel[0] < bounds.x || pixel[0] >= bounds.x + bounds.width ||
+      pixel[1] < bounds.y || pixel[1] >= bounds.y + bounds.height) throw Error('Fixed native pixel is outside authored target bounds')
+    return pixel
+  })
+  if (new Set(nativePixels.map(p => p.join(','))).size !== offsets.length ||
+    nativePixels.some(p => p.join(',') === initialNativePixel.join(','))) throw Error('Native input pixels must be unique and exclude warmed initial pixel')
+  return { x, y, id: 54, nativePixels, initialNativePixel, canvas: { left: rect.left, top: rect.top } }
 }
-// Preparation reads are outside selected callbacks. No renderer/picker invocation.
-export function observeDragPreparation() {
-  const s = window.testSceneRef.current
-  return { position: { ...s.cameraPosition }, bearing: s.cameraBearing, buttons: s.pointerButtons,
-    point: s.pointerScreen && { ...s.pointerScreen }, serial: s.fpsGraph.samples.recentCount,
-    timestampMs: performance.now() }
+// Read-only admission outside selected callbacks; never clear or replace caches.
+export function observeNativePixelAdmission({ x, y }) {
+  const s = window.testSceneRef.current, rect = s.renderer.domElement.getBoundingClientRect()
+  const pixel = [Math.trunc(x - rect.left), Math.trunc(y - rect.top)]
+  return { pixel, cached: s.picking.groundHits.has(pixel.join(',')), timestampMs: performance.now() }
 }
 export async function exportSnapshotRaw({ page, output, record }) {
   assert.equal(record.exportAttempted, undefined, 'Never retry an uncertain export action')
@@ -65,7 +74,7 @@ export default async function capture({ page, url, output, expectedRevision, fix
         // This measures subsequent pointer-input CPU, NOT first post-close work.
       }
       const point = name === 'hud' ? await page.evaluate(m2HudPoint)
-        : name === 'native-view-release' ? await page.evaluate(snapshotNativeTarget) : { x: 900, y: 400 }
+        : name === 'native-hover' ? await page.evaluate(snapshotNativeTarget, plan.nativePointerOffsets) : { x: 900, y: 400 }
       assert.ok(point, 'Visible authored native target required'); record.point = point
       await page.mouse.move(point.x, point.y)
       record.preparation.push({ action: 'initial-pointer', point })
@@ -75,24 +84,16 @@ export default async function capture({ page, url, output, expectedRevision, fix
       await page.evaluate(source => { window.__pndSnapshotGeometry = (0, eval)(`(${source})`)(window.testSceneRef.current) }, createSnapshotGeometryObserver.toString())
       await page.evaluate(installSnapshotObserver)
       try {
-        let x = point.x, y = point.y
         for (let step = 0; step < plan.steps; step++) {
-          let preparation = null
-          if (name === 'native-view-release') {
-            await page.mouse.down({ button: 'right' })
-            x += plan.rightDragPixels[step]
-            await page.mouse.move(x, y)
-            await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
-            preparation = await page.evaluate(observeDragPreparation)
-            assert.equal(preparation.buttons, 2)
-          } else [x, y] = [point.x + plan.pointerOffsets[step][0], point.y + plan.pointerOffsets[step][1]]
+          const [dx, dy] = (name === 'native-hover' ? plan.nativePointerOffsets : plan.pointerOffsets)[step]
+          const x = point.x + dx, y = point.y + dy
           const geometryBefore = await page.evaluate(() => window.__pndSnapshotGeometry.captureBoundary())
-          const expected = { geometryWitness: geometryBefore.witness, type: name === 'native-view-release' ? 'pointerup' : 'pointermove', x, y, buttons: 0 }
+          const preparation = name === 'native-hover' ? await page.evaluate(observeNativePixelAdmission, { x, y }) : null
+          if (preparation) assert.equal(preparation.cached, false, 'Fixed native pixel was warmed before measured input')
+          const expected = { geometryWitness: geometryBefore.witness, type: 'pointermove', x, y, buttons: 0 }
           await page.evaluate(expected => window.__pndSnapshotObserver.arm(expected), expected)
-          // Event capture synchronously anchors the pre-input recorder serial;
-          // no remote-command roundtrip or route-readiness predicate selects it.
-          if (name === 'native-view-release') await page.mouse.up({ button: 'right' })
-          else await page.mouse.move(x, y)
+          // The capture-phase listener binds the exact next completed callback.
+          await page.mouse.move(x, y)
           await page.waitForFunction(() => window.__pndSnapshotObserver.ready(4))
           const block = await page.evaluate(() => window.__pndSnapshotObserver.finish(4))
           const geometryAfter = await page.evaluate(() => window.__pndSnapshotGeometry.captureBoundary())

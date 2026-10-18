@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url'
 import { readFileSync, writeFileSync, readdirSync, lstatSync, statSync, existsSync, mkdirSync, symlinkSync, accessSync, constants } from 'node:fs'
 import assert from 'node:assert/strict'
 import { browserConfiguration } from './browser-config.mjs'
+import { browserScenarios, browserCapMs } from './scenario-policy.mjs'
 import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
 import { profileRecoveryReceipt, profileRecoveryReceiptLog } from './profile-recovery-receipt.mjs'
 import { buildRevision } from './build-provenance.mjs'
@@ -21,7 +22,7 @@ const spellProjectionScenario = resolve(root, 'scripts/tutorial-browser/spell-pr
 const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
 const recoveryScenario = resolve(root, 'scripts/local-render/campaign-profile-recovery.mjs')
 const selectedScenario = process.env.POPULOUS_BROWSER_SCENARIO || 'tutorial'
-assert.ok(['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'profile-recovery', 'gameplay-frames', 'snapshot-protocol'].includes(selectedScenario), 'Unknown browser scenario')
+assert.ok(browserScenarios.includes(selectedScenario), 'Unknown browser scenario')
 const snapshotScenario = resolve(root, 'scripts/browser-performance/snapshot-smoke.mjs')
 const gameplayScenario = resolve(root, 'scripts/tutorial-browser/gameplay-frames.mjs')
 const m2Scenario = resolve(root, 'scripts/tutorial-browser/m2-pointer-f8.mjs')
@@ -122,7 +123,7 @@ try {
   server = await preview({ configFile: false, root: fixture, build: { outDir: dist }, preview: { host: '127.0.0.1', port, strictPort: true } })
   browser = await chromium.launch(browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
-  receipt.browserCapMs = selectedScenario === 'snapshot-protocol' ? 90000 : 180000
+  receipt.browserCapMs = browserCapMs(selectedScenario)
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
   if (selectedScenario !== 'snapshot-protocol') {
   context = await browser.newContext({ viewport: selectedScenario === 'profile-recovery' ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
