@@ -71,7 +71,7 @@ function fixture(overrides = {}) {
   function back() { output.props.onCancel({ preventDefault() {} }); render() }
   function statuses() { return nodes.filter(node => node.props?.role === 'status').map(node => node.props.children) }
   render()
-  return { render, button, click, back, statuses, retries: () => retries, loads: () => loads }
+  return { render, button, click, back, statuses, keyDown: event => output.props.onKeyDown(event), retries: () => retries, loads: () => loads }
 }
 
 for (const state of ['failed', 'pending', 'idle']) {
@@ -308,5 +308,33 @@ test('natural completion during public Skip activation is accepted only after th
     else await skipPauseIntroduction(page)
     assert.equal(clicks, mode === 'already-unlocked' ? 0 : 1)
     if (clicks) assert.equal(settled, true)
+  }
+})
+
+
+// This proves shipped handler ownership, not browser-generated cancel behavior.
+// A separate actual-Chrome key-hold episode must verify the native default action.
+test('held Escape cannot cross pause subpanels, but a fresh press retains native cancel', () => {
+  for (const panel of ['Load Game', 'Save Game', 'Options', 'Restart Level', 'Quit Level', 'Quit Game']) {
+    let resumes = 0
+    const ui = fixture({ onContinue() { resumes++ } })
+    ui.click(panel)
+    function escape(repeat) {
+      let prevented = false
+      ui.keyDown({ key: 'Escape', repeat, target: { closest: () => null }, preventDefault() { prevented = true } })
+      return prevented
+    }
+    const originalPanel = ui.render().props['data-panel']
+    assert.notEqual(originalPanel, 'root')
+    assert.equal(escape(true), true, 'a held key entering a subpanel must not cancel it')
+    assert.equal(ui.render().props['data-panel'], originalPanel)
+    assert.equal(escape(false), false, 'initial press remains browser-owned')
+    ui.back() // Explicitly model only the native cancel handler, not Chromium dispatch.
+    assert.equal(ui.render().props['data-panel'], 'root')
+    for (let i = 0; i < 3; i++) assert.equal(escape(true), true, 'held repeats prevent another native cancel')
+    assert.equal(resumes, 0)
+    assert.equal(escape(false), false, 'release then press remains browser-owned')
+    ui.back()
+    assert.equal(resumes, 1)
   }
 })

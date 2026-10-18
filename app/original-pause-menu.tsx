@@ -268,6 +268,12 @@ export function OriginalPauseMenu(props: Props) {
         back()
       }}
       onKeyDown={event => {
+        // The first Escape keeps the browser's native cancel action. Its repeats
+        // must not dismiss the newly revealed root menu and resume gameplay.
+        if (event.repeat && event.key === 'Escape') {
+          event.preventDefault()
+          return
+        }
         if (
           event.repeat &&
           ['Enter', ' '].includes(event.key) &&
