@@ -70,7 +70,15 @@ test('actual supplied model8 Firewarrior Hut input reserves its automatic owner 
   const request = scene.objectPanels.requestAutomaticTraining
   let observed
   scene.objectPanels.requestAutomaticTraining = function (id) {
+    const before = id === school.id && !observed ? structuredClone(world) : null
     const result = request.call(this, id)
+    if (before) {
+      assert.deepEqual(before.secondaryEffects.reservations, [])
+      // The sole World write belongs to the existing class10/model3 UI pool
+      // reservation adapter; no gameplay field or RNG normalization is allowed.
+      before.secondaryEffects.reservations.push(reservation(school))
+      assert.deepEqual(world, before, 'initial callback changes only its exact UI reservation')
+    }
     if (id === school.id && !observed) {
       observed = {
         activity: !!(school.admission.activity & 0x80),
@@ -124,6 +132,39 @@ test('actual supplied model8 Firewarrior Hut input reserves its automatic owner 
   assert.ok(world.units.some(unit => unit.team === 'blue' && unit.kind === 'firewarrior'))
   assert.equal(school.admission.activity & 0x80, 0)
   assert.equal(records(scene).has(school.id), true)
+})
+
+test('first automatic allocation and same-call conversion preserve the full unbound World except one UI reservation', async t => {
+  const { scene, world, school, api, frame } = await firewarriorPanelFixture(t),
+    { stepLiveTraining } = await import('../app/live-building-entry.ts')
+  const brave = world.units.find(u => u.team === 'blue' && u.kind === 'brave' && u.hp > 0)
+  assert.ok(brave)
+  api.setSelection(world, [brave.id])
+  assert.equal(api.command(world, school), true)
+  scene.pointerScreen = null
+  world.speed = 1
+  // Earn entry with no Scene binding: no automatic owner can already exist.
+  for (let visits = 0; visits < 4000 && !school.admission.inside; visits++) frame(1 / 12)
+  assert.equal(brave.inside, school.id)
+  assert.equal(records(scene).size, 0)
+  assert.equal(scene.objectPanels.automaticTrainingLatches.size, 0)
+  assert.deepEqual(world.secondaryEffects.reservations, [])
+  startScene(t, scene)
+  school.timer = 1000000000 // Supplied affordability only, not natural mana timing.
+  const unbound = structuredClone(world),
+    beforeTrained = world.stats.trained
+  stepLiveTraining(
+    unbound,
+    unbound.buildings.find(b => b.id === school.id)
+  )
+  stepLiveTraining(world, school)
+  assert.equal(world.stats.trained, beforeTrained + 1)
+  assert.equal(records(scene).get(school.id)?.phase, -1)
+  assert.equal(scene.objectPanels.automaticTrainingLatches.has(school.id), true)
+  assert.equal(school.admission.activity & 0x80, 0)
+  assert.deepEqual(unbound.secondaryEffects.reservations, [])
+  unbound.secondaryEffects.reservations.push(reservation(school))
+  assert.deepEqual(world, unbound, 'no other World value changes with initial panel allocation')
 })
 
 test('Firewarrior Hut independent controls yield to active training, failed capacity and fresh automatic entry', async t => {

@@ -69,3 +69,49 @@ Raw source-bound red02, green01 and focused02 receipts remain in the owner's
 Focused02 passed all28 new/existing Firewarrior, Camp, Temple automatic and Temple
 manual cases. Exact frozen-source follow-up and independent review are recorded
 in the PR handoff, not inferred from these earlier working-tree results.
+
+### First-allocation World comparison
+
+The actual initial callback now compares the complete World immediately before
+and after synchronous allocation. A separate actual-entry case begins without a
+Scene owner, binds one only after admission, then compares first allocation plus
+same-call affordable conversion against an identical unbound World. Both permit
+exactly one documented mutation: adding `building-panel:<id>` to the previously
+empty `secondaryEffects.reservations` array. No fields are deleted, zeroed or
+otherwise normalized, and no World/native latch is excused. All other state,
+including both RNG streams, matches. The shared reservation adapter accounts for
+the native class10/model3 panel allocation observed in `00504060`; Scene latch
+and record maps are transient, outside World. This bounded comparison does not
+claim future near-capacity secondary-effect allocations ignore that real resource
+reservation. The extended six-case working-tree run allocation06 passed.
+
+## Proposed ordinary rendered witness (not executed)
+
+Use the shipped Mission10 selector, not a fabricated Mission8 victory. Read the
+actual initial state and use only public pointer/keyboard controls. The imported
+`level-ten.ts` has **two** Blue model8 schools: DAT120 at(-126,-32) and DAT149
+at(20,-8). The old checker uses `.find` and selects the remote first one before
+teleporting a Brave; do not reuse that target shortcut. DAT149 is near the initial
+Shaman DAT110 at(29,-5), Brave DAT173 at(23,-3), and Brave DAT174 at(21,-15).
+Imported positions are target identity hints, not instructions to alter positions.
+
+Bound the first proposed episode to 180 seconds after mission entry and at most
+2160 ordinary simulation turns, with no forced ticks or accelerated game speed.
+This is well below the retained first mission deadline of5760 turns; path travel
+and naturally funded conversion duration are still unmeasured, not guaranteed.
+Allow ordinary introduction completion or its shipped Skip introduction control.
+Find the visible central school and an actual local Brave through the consumed
+picker; use normal click selection followed by a real school click. If occluded,
+use ordinary camera controls, not `scene.focus` or injected camera settling.
+
+Retain read-only command8/target/entry and synchronous callback observations,
+then capture visible progress/list after normal controller admission, pointer
+leave/re-entry, natural conversion/activity loss, exit, and no stale panel.
+Capture phase-1 and phase-2 pixels where a natural frame exposes them; phase-1
+absence at synchronous creation is a CPU observation, not a claimed screenshot.
+Do not rewrite timers, mana, actors, activity, phase or outcomes. Stop on first
+rejection, path stall, mission outcome or the declared limit and report exact
+last state rather than silently substituting a fixture. This verifies ordinary
+training in an authored building, not earning/building one or full Mission10.
+Build/acquisition acceptance remains a separate unproved route. No browser or
+long simulation was launched while preparing this proposal.
