@@ -2,7 +2,8 @@
 
 ## Protocol status
 
-V2 is a proposed, explicitly different paused snapshot workload. Portable tests
+V2 is a proposed, explicitly different paused snapshot workload.
+Portable tests
 are not browser qualification. Admission requires reviewed trusted-base support,
 then an actual two-shard comparison and same-runtime-source control. Before landing,
 one candidate-only functional smoke validates the proposed implementation itself. No new ready
