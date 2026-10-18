@@ -1,4 +1,4 @@
-# Prospective real-renderer body-layer validation, revision 7
+# Prospective real-renderer body-layer validation, revision 8
 
 STATUS: design for review only. No browser launch, build, measurement, publication,
 new cloud task or hardware qualification is authorized by this file.
@@ -280,3 +280,29 @@ not pure transport. These are untimed-proof attribution aids, never gameplay spe
 or StageB measurements. No GPU synchronization beyond existing proof readPixels
 is added. Earlier raw receipts and both setup failures remain preserved. Revision7
 requires separate independent admission before any hosted execution.
+
+## Revision 8: bounded proof budget, not gameplay timing
+
+Retained run 39174207447 completed the baseline dt0 bootstrap, all 28 camera callbacks
+and 10 of 24 controls before the 100 s browser deadline. No candidate or pair comparison
+completed. Across 28 baseline camera callbacks, separate nearest-rank medians were
+animate 32.5 ms, readback 117 ms, capture 397.4 ms, packing 652.3 ms, roundtrip 1149.0 ms and
+Node decode 442.7 ms. These phases overlap; they are not summed, nor evidence of
+gameplay speed or current-main acceptance.
+
+Only childMs changes 100000 → 150000. All 4 children, 28 callbacks and 24 controls per child,
+every observation and assertion remain fixed. The 720000 ms launcher and 15-minute
+hosted hardcaps remain unchanged, as do 120 s per-build and 5 s child-kill-grace caps.
+R7 driver start 22:54:28.871 to first browser child 22:55:00.641 was 31.770 seconds,
+including both builds (10.179s and10.332s). Budget arithmetic: 4 × 150 s = 600 s; reserve
+45s for pre-browser setup/builds (13.230s above the observed 31.770 s),4 × 5 s = 20 s for
+possible child kill grace, leaving 55 s for comparison/end-binding verification
+inside 720 s. Comparison of complete pairs has not yet run, so this is a bounded
+prospective allowance, not a completion guarantee. The independent 120 s build caps
+cannot all be exhausted together with maximum browser caps within 720 s; the global
+launcher remains the authoritative fail-closed bound. Do not inflate it on failure.
+
+A structure regression pins this arithmetic, exact four-child order, callback and
+control coverage, action/launch/build deadlines, 720 s launcher literal and 15-minute
+workflow cap. No new attempt is authorized by this file; independent review is
+required. All previous incomplete/failing attempts remain separately retained.

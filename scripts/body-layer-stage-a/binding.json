@@ -1,18 +1,18 @@
 {
-  "scope": "Revision 7, unexecuted Stage A lossless observation transport",
+  "scope": "Revision 8, unexecuted Stage A bounded 150-second child budget",
   "baseline": "5087f2e805097665c4fdcce657553db3a693bb76",
   "candidate": "8bd14a84e34545f9a0f0b1fe5c1ebbf8267e5f59",
   "previousRejectedUnexecutedBinding": "bc83b122b67e6ad0dbf8124ad8a4f5e954e137caebc32f12da19ed5fb7238504",
   "files": {
-    "PLAN.md": "aed511811939be60bc7907ec3fb65ba9d207d7f29e9a90f8253ba0c213d65df7",
+    "PLAN.md": "e044e4d89577cf98e4fa512465c302c32e6af8360650ff94ea5d3b9f3c80c19f",
     "build.mjs": "3285f16604d0a00e82716e0ecd18f8846a5f549b2bd267f6bd47593662a09c23",
     "compare.mjs": "965393ca8c2f208f66d633474ce57a8820ba3905614f65b758a1a5bb90271f19",
     "driver.mjs": "eecb1195df764b7326778043c15a7f6d07ec6de107054ed3af55f5361395cee8",
-    "helpers.test.mjs": "29dc90972d24df5c35d45184830ef17b3ba333c867df8e080766eefd5a70e42f",
+    "helpers.test.mjs": "cdd8258c673308d9fa3c9e54da84097b70040e48534c910fce325679090ce455",
     "hosted-workflow.yml": "a42cdb13727e171def145dfc55417cff726b2c1af633e9debaf3996135781d8d",
     "io.mjs": "4a9801ce84836ebd80573eb70e83ea780ae279e97e3087615d92205ea3aa0fa5",
     "page.mjs": "65856a0ff771a4dd5d7a47d2dc947d1c6c6eae8c6cadc0b73caaf1cfbffd79fa",
-    "protocol.mjs": "6643615f7c1d24149a03f4bea754e8e39189e2c714d94b4f17a5ef923c5e714a",
+    "protocol.mjs": "0e40ff3398f9a95ed4bb02f50173d756e8ad8529974f01ea6e46e2e4cd06097e",
     "rejected-controls.fixture.mjs": "192cde733fabeb8a76b9e160648705972ca41dbcdcb1d79b2651ec0e73662f35",
     "setup-adapter.mjs": "dce62fb7212172ff8cd42ff75c73c0ec5deb1ed0a4bf719888924d54317b8f6d",
     "start-latch.mjs": "0140a17ff9774e2adc86777b53dd8104e103062afc8913b0c11fc7ac4afd653d",
@@ -22,10 +22,11 @@
     "transport.mjs": "0602d2130a35772acedb6287b37c00b74b14623dfdd6daf0cc87194bd58deea2",
     "transport.test.mjs": "2b05f717c6a6ab06896ef4ba42be6def6fe546eef75f6a6d7a63a56d8c476623"
   },
-  "previousFailedBinding": "c04abada52721b341dc58f81ec34fc862564f91fdba4e44f9d4cc0b0fa6a3e69",
+  "previousFailedBinding": "28553789d388255fcd1a2fbaaed504b2d258a420dc2c4fa90365f087f1dd73fa",
   "preservedFailedRuns": [
     39172358949,
     39172774059,
-    39173419489
+    39173419489,
+    39174207447
   ]
 }

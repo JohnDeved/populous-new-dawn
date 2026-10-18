@@ -453,3 +453,37 @@ test('redundant focus omission rejects changed camera, selection, World and esca
   assert.match(text, /page.mouse.click/)
   assert.equal(text.split('assertSnapshotAdmission(').length, 3)
 })
+
+test('revision8 preserves proof coverage and fits the fixed global budget allowance', async () => {
+  const { protocol: p } = await import('./protocol.mjs')
+  const { readFileSync } = await import('node:fs')
+  assert.deepEqual(p.order, [
+    ['camera', 'baseline'],
+    ['camera', 'candidate'],
+    ['animation', 'baseline'],
+    ['animation', 'candidate'],
+  ])
+  assert.equal(p.callbacks, 28)
+  assert.equal(p.controls.length, 12)
+  assert.equal(p.controlSizes.length, 2)
+  assert.equal(p.childMs, 150000)
+  assert.equal(p.childGraceMs, 5000)
+  assert.equal(p.buildMs, 120000)
+  assert.equal(p.actionMs, 15000)
+  assert.equal(p.launchMs, 30000)
+  assert.equal(p.totalMs, 720000)
+  const observedSetup =
+    Date.parse('2026-10-18T22:55:00.641Z') - Date.parse('2026-10-18T22:54:28.871Z')
+  assert.equal(observedSetup, 31770)
+  const setupAllowance = 45000,
+    verificationAllowance = 55000
+  assert.ok(observedSetup < setupAllowance)
+  assert.equal(
+    p.order.length * (p.childMs + p.childGraceMs) + setupAllowance + verificationAllowance,
+    p.totalMs
+  )
+  const launcher = readFileSync(new URL('./run-once.mjs', import.meta.url), 'utf8')
+  assert.match(launcher, /}, 720000\)/)
+  const workflow = readFileSync(new URL('./hosted-workflow.yml', import.meta.url), 'utf8')
+  assert.match(workflow, /timeout-minutes: 15/)
+})

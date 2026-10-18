@@ -1,5 +1,5 @@
 export const protocol = Object.freeze({
-  version: 7,
+  version: 8,
   mode: 'untimed-pixels-only',
   baseline: '5087f2e805097665c4fdcce657553db3a693bb76',
   baselineTree: '6a1d5602531ab9afcf7d517884443fe938361d1e',
@@ -40,7 +40,7 @@ export const protocol = Object.freeze({
   ],
   totalMs: 720000,
   buildMs: 120000,
-  childMs: 100000,
+  childMs: 150000,
   childGraceMs: 5000,
   actionMs: 15000,
   launchMs: 30000,
