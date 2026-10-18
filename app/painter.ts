@@ -1,3 +1,4 @@
+import { suppressBodyLayer } from './body-layer-submission.ts'
 import * as THREE from 'three'
 import { modelMatrix, modelPoint, projectPoint, spriteBucket } from './projection.ts'
 import {
@@ -392,25 +393,67 @@ export class Painter {
   }
 
   private renderLeaseBases: number[] = []
+  private bodyLayers?: ReadonlyMap<number, THREE.Group>
+  private suppressedBodyMaterials: THREE.SpriteMaterial[] = []
+
+  suppressBodyLayers(renderer: THREE.WebGLRenderer) {
+    if (
+      this.renderLeaseBases.length !== 1 ||
+      !this.bodyLayers ||
+      this.view.overview ||
+      this.view.uniforms.nativeMode.value !== 1 ||
+      this.view.uniforms.nativePainter.value !== this.texture ||
+      renderer.capabilities?.logarithmicDepthBuffer !== false ||
+      renderer.capabilities?.reversedDepthBuffer !== false
+    )
+      return
+    for (const group of this.bodyLayers.values()) {
+      if (!group.visible) continue
+      for (const layer of (group.userData.layers ?? []) as THREE.Sprite[]) {
+        if (!layer.visible || layer.parent !== group) continue
+        const range = this.ranges.get(layer)
+        if (!range || range[0] < 0 || range[1] !== 1) continue
+        const material = suppressBodyLayer(layer, this.texture.image.data![range[0]])
+        if (material) this.suppressedBodyMaterials.push(material)
+      }
+    }
+  }
+
+  private restoreBodyMaterials() {
+    while (this.suppressedBodyMaterials.length) this.suppressedBodyMaterials.pop()!.visible = true
+  }
 
   // Own cleanup around the renderer, not user callbacks. Three does not invoke
   // scene.onAfterRender when rendering throws. Nested renders restore only the
   // edits they added; the normal callback and finally path are idempotent.
-  render(renderer: Pick<THREE.WebGLRenderer, 'render'>, scene: THREE.Scene, camera: THREE.Camera) {
+  render(
+    renderer: Pick<THREE.WebGLRenderer, 'render'>,
+    scene: THREE.Scene,
+    camera: THREE.Camera,
+    bodyLayers?: ReadonlyMap<number, THREE.Group>
+  ) {
+    // Nested renders see the original materials and use the generic path. The
+    // outer renderer already owns its render list; no nested decision leaks out.
+    this.restoreBodyMaterials()
+    const previousBodyLayers = this.bodyLayers
+    this.bodyLayers = bodyLayers
     const base = this.transparentMeshes.length
     this.renderLeaseBases.push(base)
     try {
       renderer.render(scene, camera)
     } finally {
       try {
+        this.restoreBodyMaterials()
         this.restoreTransparentMeshes(base)
       } finally {
+        this.bodyLayers = previousBodyLayers
         this.renderLeaseBases.pop()
       }
     }
   }
 
   afterRender() {
+    this.restoreBodyMaterials()
     this.restoreTransparentMeshes(this.renderLeaseBases.at(-1) ?? 0)
   }
 
