@@ -266,7 +266,9 @@ in `melee-attack.json`. No hidden-body redraw or replacement rendering method is
 used. A later paused context screenshot is labeled separately, not substituted
 for those same-frame crops. Terminal acceptance includes observer/context cleanup
 and runtime errors; available partial observations survive ordinary failures.
-Readback perturbs rendering. The retained crops require visual review; metadata
+The observer does not mutate World or issue hit-selection queries, but reading
+crop bounds may touch renderer/picker metadata. Readback perturbs rendering.
+The retained crops require visual review; metadata
 matching alone does not prove pixel-perfect composition or hardware performance.
 
 The original table mapping is independent of observed artwork. Idle source 424

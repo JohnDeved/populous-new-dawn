@@ -25,7 +25,8 @@ export function meleeAttackMapping() {
 }
 
 // A separate RAF reads after the Scene's already-scheduled ordinary render.
-// It never advances time, invokes rendering/picking, or replaces a game method.
+// It does not mutate World, advance time, render, replace a game method or issue
+// a hit-selection query. Reading crop bounds may touch renderer/picker metadata.
 export function installMeleeFrameObserver() {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   const canvas = scene.renderer.domElement
@@ -110,6 +111,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     limits: ['Direct mission access, not earned campaign unlock.', 'No original-game FPS calibration, hardware smoothness or Firewarrior browser claim.',
       'Marker is recorded, not represented as direct observation of a private getter return. Native object and actual directional frame are independently compared.',
       'Canvas readback perturbs rendering; crops require visual review and do not establish pixel-perfect composition or performance.',
+      'Crop bounds read renderer/picker metadata; observation does not mutate World or issue a hit-selection query.',
       '30/60/120/144Hz and irregular schedule evidence remains the separate CPU regression.'],
     source: Object.fromEntries(['app/original-rules.json', 'app/original-units.json', 'app/projection.ts',
       'app/unit-animation-source.ts', 'app/scene-entities.ts', 'scripts/tutorial-browser/melee-attack.mjs',
