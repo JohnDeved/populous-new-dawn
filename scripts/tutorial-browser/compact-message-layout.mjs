@@ -220,6 +220,7 @@ export async function checkCompactMessages({ page, output, stage, report }) {
       await graph.waitFor({ state: 'hidden' })
       await settle()
       const restored = await page.evaluate(compactMessageWitness)
+      sample.restored = restored
       assert.deepEqual(
         restored,
         before,
@@ -230,7 +231,6 @@ export async function checkCompactMessages({ page, output, stage, report }) {
         baseline.world,
         'Public settings and diagnostics preserve the paused world'
       )
-      sample.restored = restored
       stage(`compact-${preference}-${width}x${height}-captured-and-restored`)
     }
   }
