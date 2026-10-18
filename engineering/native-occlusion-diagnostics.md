@@ -9,7 +9,7 @@ All counters are per callback. Timers are milliseconds. The entire extension is 
 - `projectionMs`: per-instance projection preparation, cached-vertex lookup/fill and cache publication. Includes array preparation and loop overhead, not solely mathematical projection.
 - `triangleScanMs`: per-instance triangle scan, pixel-edge tests and candidate creation. Counts elapsed synchronous work, not isolated allocation or GC time.
 - `cacheHits`: retained per-instance projection-cache entries. A hit can still project previously unsubmitted original vertex IDs.
-- `cacheCold`, `cachePositionChanged`, `cacheKeyChanged`: mutually exclusive rebuild reasons per instance. Missing prior entry, changed position-attribute identity, or otherwise a changed existing key. `cacheKeyChanged` intentionally does not guess whether camera, transform or position version changed. If identity and key both change, identity takes precedence.
+- `cacheCold`, `cachePositionChanged`, `cacheKeyChanged`: mutually exclusive rebuild reasons per instance. Missing prior entry, changed position-attribute identity, or otherwise a changed existing key. `cacheKeyChanged` intentionally does not guess whether camera, transform or position version changed. If identity and key both change, identity takes precedence. These reasons are not exhaustive: a packed/sparse representation-only rebuild with unchanged position identity and key has no reason field in version 1. It still contributes projection time and projected vertices, and is not a cache hit.
 - `projectedVertices`: actual calls to the screen-projection function, including retained-cache fills.
 - `submittedTriangles`: triangles visited by the scan, before rejection; not successful hits.
 
