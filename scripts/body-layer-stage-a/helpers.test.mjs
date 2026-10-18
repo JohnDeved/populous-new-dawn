@@ -325,3 +325,72 @@ test('each Points control creates a fresh body and supplies actual SpriteMateria
   assert.ok(rows[1].extra.userData.nativeIgnore)
   assert.ok(rows[2].extra.userData.calls > 0)
 })
+
+test('generated TSX entry installs the latch and renders once; preserved ASI entry fails', async () => {
+  const { readFileSync } = await import('node:fs')
+  const { resolve } = await import('node:path')
+  const { runInNewContext } = await import('node:vm')
+  const ts = await import('typescript')
+  const buildSource = readFileSync(new URL('./build.mjs', import.meta.url), 'utf8')
+  const template = buildSource.match(/`import \{ createRoot \}[\s\S]*?`/g)
+  assert.equal(template?.length, 1)
+  const entry = new Function(
+    'resolve',
+    'source',
+    'installStartLatch',
+    'checkpointCodec',
+    `return ${template[0]}`
+  )(resolve, '/source', installStartLatch, checkpointCodec)
+  const oldBuild = execFileSync(
+    'git',
+    ['show', 'f8e1769874b19da230b2ae5dcc25983bcec60e68:scripts/body-layer-stage-a/build.mjs'],
+    { cwd: root, encoding: 'utf8' }
+  )
+  const oldTemplate = oldBuild.match(/`import \{ createRoot \}[\s\S]*?`/g)
+  assert.equal(oldTemplate?.length, 1)
+  const oldEntry = new Function(
+    'resolve',
+    'source',
+    'installStartLatch',
+    'checkpointCodec',
+    `return ${oldTemplate[0]}`
+  )(resolve, '/source', installStartLatch, checkpointCodec)
+  function execute(source) {
+    let renders = 0
+    const window = {},
+      three = { sentinel: true }
+    const compiled = ts.transpileModule(source, {
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        jsx: ts.JsxEmit.ReactJSX,
+        target: ts.ScriptTarget.ES2022,
+      },
+    }).outputText
+    runInNewContext(compiled, {
+      window,
+      exports: {},
+      document: { getElementById: () => ({}) },
+      require(id) {
+        if (id === 'three') return three
+        if (id === 'react-dom/client')
+          return {
+            createRoot: () => ({
+              render() {
+                assert.equal(typeof window.__bodyStartLatch, 'function')
+                renders++
+              },
+            }),
+          }
+        if (id === 'react/jsx-runtime') return { jsx: (...args) => args }
+        if (id === '/source/app/page.tsx') return { default: function Home() {} }
+        if (id === '/source/app/globals.css') return {}
+        throw Error(`Unexpected entry import ${id}`)
+      },
+    })
+    assert.equal(renders, 1)
+    assert.equal(window.__bodyThree, three)
+    assert.equal(typeof window.__bodyVerifyStart, 'function')
+  }
+  assert.throws(() => execute(oldEntry), /Object.assign\(\.\.\.\) is not a function/)
+  execute(entry)
+})

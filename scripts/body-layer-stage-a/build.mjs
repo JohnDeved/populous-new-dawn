@@ -41,7 +41,7 @@ writeFileSync(
 )
 writeFileSync(
   resolve(fixture, 'main.tsx'),
-  `import { createRoot } from 'react-dom/client'\nimport Home from ${JSON.stringify(resolve(source, 'app/page.tsx'))}\nimport ${JSON.stringify(resolve(source, 'app/globals.css'))}\nimport * as THREE from 'three'\nObject.assign(window, { __bodyThree: THREE })\n(${installStartLatch.toString()})((${checkpointCodec.toString()}))\ncreateRoot(document.getElementById('root')!).render(<Home />)\n`
+  `import { createRoot } from 'react-dom/client'\nimport Home from ${JSON.stringify(resolve(source, 'app/page.tsx'))}\nimport ${JSON.stringify(resolve(source, 'app/globals.css'))}\nimport * as THREE from 'three'\nObject.assign(window, { __bodyThree: THREE });\n(${installStartLatch.toString()})((${checkpointCodec.toString()}))\ncreateRoot(document.getElementById('root')!).render(<Home />)\n`
 )
 let startTransforms = 0
 await build({

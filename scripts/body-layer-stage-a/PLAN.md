@@ -225,3 +225,6 @@ SpriteMaterial center and frustumCulled=false. Actual renderer points must be on
 in both arms; the custom material callback must run. Shared/ignored controls require
 exact suppression accounting excluding only the shared target, while hook controls
 require all draw counters equal. Completed source review is still not pixel proof.
+
+
+Revision 5 preserves failed hosted attempt 39172358949 (diagnostic f8e17698). Both builds passed, but the generated test entry had an automatic-semicolon-insertion error before the startup latch, so no controlled callback or pixel comparison ran. The only executable setup repair adds an explicit statement separator. An execution-level TSX regression runs the exact generated entry with IO mocks, proves the preserved old entry throws, and proves the repaired entry installs the latch before its single render. Candidate runtime, fixtures, trajectories, counters and acceptance remain unchanged. Any new hosted attempt requires separate review and authorization; no retry has run.
