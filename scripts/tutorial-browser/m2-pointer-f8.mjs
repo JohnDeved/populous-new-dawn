@@ -312,7 +312,7 @@ export default async function ({ browser, url, output, fixture }) {
     await page.keyboard.press('F8')
     await graph.waitFor({ state: 'visible' })
     assert.match(await graph.innerText(), /Pointer \+ tooltip CPU/)
-    assert.match(await graph.innerText(), /GPU not measured/)
+    assert.match(await graph.innerText(), /CPU excludes overlay\/GPU\. Async GPU: export only/)
     assert.equal(await graph.evaluate(el => getComputedStyle(el).pointerEvents), 'none')
     const moveAndObserve = async (x, y, world) => {
       await page.mouse.move(x, y)

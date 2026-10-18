@@ -343,3 +343,39 @@ test('optional model work tuple validates old absence and sanitizes known eviden
     assert.throws(() => summarize(value), /modelWork/)
   }
 })
+
+test('optional simulation steps preserve v1 compatibility and reject fabricated counts', () => {
+  assert.equal(summarize(report()).sampleCount, 3)
+  const value = report()
+  value.frames.forEach((frame, i) => { frame.simulationSteps = [0, 1, 4][i]; frame.futureField = 'ignored' })
+  assert.equal(summarize(value).sampleCount, 3)
+  for (const invalid of [null, -1, 0.25, '1', Number.MAX_SAFE_INTEGER + 1]) {
+    value.frames[0].simulationSteps = invalid
+    assert.throws(() => summarize(value), /simulationSteps/)
+  }
+})
+
+
+test('explicit retention is validated while old v1 captures remain unchanged', () => {
+  const value = report()
+  assert.equal(summarize(value).retention, undefined)
+  value.retention = { availableFrames: 5, droppedOldestFrames: 2, reason: 'serialized-size-limit' }
+  assert.deepEqual(summarize(value).retention, value.retention)
+  for (const retention of [null, { ...value.retention, availableFrames: 6 },
+    { ...value.retention, droppedOldestFrames: 0 }, { ...value.retention, availableFrames: 1201 },
+    { ...value.retention, reason: 'other' }, { ...value.retention, droppedOldestFrames: 1.5 }]) {
+    value.retention = retention
+    assert.throws(() => summarize(value), /retention/)
+  }
+})
+
+
+test('GPU optional states stay separate from CPU attribution and old captures', () => {
+ const old=summarize(report());assert.equal(old.worstFrames.raf[0].sceneRenderGpu,undefined)
+ const value=report();value.frames[0].sceneRenderGpu={status:'unsupported'};value.frames[1].sceneRenderGpu={status:'pending'};value.frames[2].sceneRenderGpu={status:'available',milliseconds:900}
+ const result=summarize(value);assert.deepEqual(result.topCpuPhases,old.topCpuPhases)
+ assert.deepEqual(result.worstFrames.raf[0].sceneRenderGpu,{status:'available',milliseconds:900})
+ for(const invalid of [null,{},[],{status:'unknown'},{status:'unsupported',milliseconds:0},{status:'available'},{status:'available',milliseconds:Infinity},{status:'available',milliseconds:-1}]) {
+  value.frames[0].sceneRenderGpu=invalid;assert.throws(()=>summarize(value),/sceneRenderGpu/)
+ }
+})

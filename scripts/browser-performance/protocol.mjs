@@ -142,6 +142,44 @@ export function parseReport(text) {
 const median = values => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)]
 const spread = values => Math.max(...values) - Math.min(...values)
 const differs = (a, b, tolerance, floor = 0) => Math.abs(a - b) > Math.max(floor, tolerance * Math.max(a, b))
+// Reporting-only diagnostics. The admission predicate below remains authoritative;
+// these fixed reason codes never become part of an artifact or protocol input.
+export function workloadDiagnostics(phases) {
+  if (phases.length !== order.length || phases.some(phase => !phase))
+    return [{ code: 'missing-sessions', observations: [] }]
+  const first = phases[0], reasons = []
+  const numeric = (field, values, tolerance) => {
+    const failures = values.flatMap((value, index) => {
+      const limit = typeof tolerance === 'function' ? tolerance(values[0], value) : tolerance
+      const difference = Math.abs(value - values[0])
+      return difference > limit ? [{ index, difference, limit }] : []
+    })
+    if (!failures.length) return null
+    // Report one concrete failing session, not a rounded aggregate that could hide it.
+    return { field, values, ...failures[0] }
+  }
+  const add = (code, observations) => {
+    const known = observations.filter(Boolean)
+    if (known.length) reasons.push({ code, observations: known })
+  }
+  add('duration', [numeric('duration', phases.map(p => p.durationMs), (a, b) => policy.durationTolerance * Math.max(a, b))])
+  add('turn', ['startTurn', 'endTurn'].map(field => numeric(field, phases.map(p => p[field]), 2)))
+  if (phases.some(p => p.point.id !== first.point.id))
+    add('target', [{ field: 'id', values: phases.map(p => p.point.id) }])
+  add('pointer', ['x', 'y'].map(field => numeric(field, phases.map(p => p.point[field]), 6)))
+  if (phases.some(p => p.inputOffsetsMs.length !== first.inputOffsetsMs.length))
+    add('input-count', [{ field: 'count', values: phases.map(p => p.inputOffsetsMs.length) }])
+  else add('input-timing', first.inputOffsetsMs.map((_, index) =>
+    numeric(index, phases.map(p => p.inputOffsetsMs[index]), 150)))
+  add('camera', first.camera.map((_, index) =>
+    numeric(index, phases.map(p => p.camera[index]), index % 3 === 2 ? 0.1 : 0.5)))
+  for (const key of ['terrainCalls', 'objectCalls']) {
+    const values = phases.map(p => p.work[key]?.mean ?? null)
+    if (values.some(value => value === null || (value > 0) !== (values[0] > 0)))
+      add('query-presence', [{ field: key, values }])
+  }
+  return reasons
+}
 export function comparableWork(phases) {
   const first = phases[0]
   if (!first || phases.length !== 6) return false

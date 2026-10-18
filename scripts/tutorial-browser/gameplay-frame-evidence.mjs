@@ -64,7 +64,8 @@ export function summarizeGameplayPhase(json, phase, before, after, expectedRevis
   assert.equal(after.timeOriginUnixMs, before.timeOriginUnixMs)
   assert.ok(Number.isSafeInteger(before.turn) && Number.isSafeInteger(after.turn) && after.turn > before.turn,
     'simulation turns must actually advance during every measured phase')
-  assert.ok(raw.frames.length < 1200, 'phase must not silently overwrite its frame ring')
+  assert.ok((analysis.retention?.availableFrames ?? raw.frames.length) < 1200,
+    'phase must not silently overwrite its frame ring')
   const indices = raw.frames.flatMap((frame, index) =>
     frame.timestampMs - frame.rafIntervalMs >= before.timestampMs && frame.timestampMs <= after.timestampMs ? [index] : [])
   const frames = indices.map(index => raw.frames[index])
@@ -103,7 +104,11 @@ export function summarizeGameplayPhase(json, phase, before, after, expectedRevis
   const start = first.timestampMs - first.rafIntervalMs
   // A derived in-memory selection uses the same schema solely for parser reuse.
   // The saved raw file remains the exact browser download, including boundary frames.
-  const scoped = JSON.stringify({ ...raw, frames, timing: { ...raw.timing, count: frames.length,
+  // Export retention describes the original ring, not this derived phase subset.
+  // Keep it in rawAnalysis alongside rawFrameCount and selectedRawFrameIndices.
+  const scopedRaw = { ...raw }
+  delete scopedRaw.retention
+  const scoped = JSON.stringify({ ...scopedRaw, frames, timing: { ...raw.timing, count: frames.length,
     startTimestampMs: start, endTimestampMs: last.timestampMs, capturedSpanMs: last.timestampMs - start } })
   return {
     schema: 'populous-new-dawn/gameplay-frame-phase', schemaVersion: 1,

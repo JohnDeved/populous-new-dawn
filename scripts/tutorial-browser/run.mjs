@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url'
 import { readFileSync, writeFileSync, readdirSync, lstatSync, statSync, existsSync, mkdirSync, symlinkSync, accessSync, constants } from 'node:fs'
 import assert from 'node:assert/strict'
 import { browserConfiguration } from './browser-config.mjs'
+import { browserScenarios, browserCapMs } from './scenario-policy.mjs'
 import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
 import { profileRecoveryReceipt, profileRecoveryReceiptLog } from './profile-recovery-receipt.mjs'
 import { buildRevision } from './build-provenance.mjs'
@@ -21,7 +22,8 @@ const spellProjectionScenario = resolve(root, 'scripts/tutorial-browser/spell-pr
 const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
 const recoveryScenario = resolve(root, 'scripts/local-render/campaign-profile-recovery.mjs')
 const selectedScenario = process.env.POPULOUS_BROWSER_SCENARIO || 'tutorial'
-assert.ok(['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'profile-recovery', 'gameplay-frames'].includes(selectedScenario), 'Unknown browser scenario')
+assert.ok(browserScenarios.includes(selectedScenario), 'Unknown browser scenario')
+const snapshotScenario = resolve(root, 'scripts/browser-performance/snapshot-smoke.mjs')
 const gameplayScenario = resolve(root, 'scripts/tutorial-browser/gameplay-frames.mjs')
 const m2Scenario = resolve(root, 'scripts/tutorial-browser/m2-pointer-f8.mjs')
 const port = 5198
@@ -63,7 +65,7 @@ function outputManifest(path, prefix = '') {
   }
   return result
 }
-const receipt = { buildRevision: buildRevision(root), gameplayScenarioSha256: hash(gameplayScenario),
+const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision: buildRevision(root), gameplayScenarioSha256: hash(gameplayScenario),
   host: { platform: platform(), arch: arch(), release: release(), logicalCpus: cpus().length,
     cpuModels: [...new Set(cpus().map(cpu => cpu.model))] },
   github: { head: process.env.PR_HEAD_SHA ?? null, base: process.env.PR_BASE_SHA ?? null,
@@ -121,15 +123,19 @@ try {
   server = await preview({ configFile: false, root: fixture, build: { outDir: dist }, preview: { host: '127.0.0.1', port, strictPort: true } })
   browser = await chromium.launch(browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
-  receipt.browserCapMs = 180000
-  timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, 180000)
+  receipt.browserCapMs = browserCapMs(selectedScenario)
+  timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
+  if (selectedScenario !== 'snapshot-protocol') {
   context = await browser.newContext({ viewport: selectedScenario === 'profile-recovery' ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
   page.on('console', m => { if (m.type() === 'error') receipt.errors.push(m.text()); if (m.type() === 'warning') receipt.warnings.push(m.text()) })
   page.on('crash', () => { receipt.errors.push('Page crashed'); save() })
+  }
   const url = `http://127.0.0.1:${port}`
-  if (selectedScenario === 'gameplay-frames') {
+  if (selectedScenario === 'snapshot-protocol') {
+    receipt.snapshotSmoke = await (await import(pathToFileURL(snapshotScenario).href)).default({ browser, url, output: out, source, expectedRevision: receipt.buildRevision })
+  } else if (selectedScenario === 'gameplay-frames') {
     receipt.gameplayFrames = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision })
   } else if (selectedScenario === 'profile-recovery') {
     receipt.profileRecovery = await (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal })

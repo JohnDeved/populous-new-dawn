@@ -236,6 +236,8 @@ test('nativeModel owns independent geometry/material clones while its cache and 
 
 test('GameScene.dispose delegates real resource ownership once and preserves the World', async () => {
   const { GameScene } = await import('../app/scene.ts'),
+    { FpsGraph } = await import('../app/fps-graph.ts'),
+    { FramePerformance } = await import('../app/frame-performance.ts'),
     world = api.createWorld(1),
     before = structuredClone(world),
     shared = geometry(key('scene-dispose'), () => new THREE.BoxGeometry()),
@@ -269,6 +271,10 @@ test('GameScene.dispose delegates real resource ownership once and preserves the
     element = name => ({ remove: leaf(name) }),
     terrainLoad = new AbortController()
   globe.dispose = leaf('globe')
+  const fpsGraph = Object.assign(Object.create(FpsGraph.prototype), {
+    gpuTimer: disposable('gpu timer'), samples: new FramePerformance(), element: element('fps'),
+  })
+  fpsGraph.samples.sample(10, 1, 2, 3, 6)
   // The maintained lifecycle runs on actual Three resources. Browser/GPU/DOM
   // endpoints are observed leaves, without constructing a WebGL renderer.
   const receiver = {
@@ -291,7 +297,7 @@ test('GameScene.dispose delegates real resource ownership once and preserves the
     terrainMap: disposable('terrain map'),
     view: disposable('view'),
     renderer: { ...disposable('renderer'), domElement: element('renderer element') },
-    fpsGraph: { element: element('fps') },
+    fpsGraph,
     cancelTooltipInspection: GameScene.prototype.cancelTooltipInspection,
     tooltipInspectionInputs: ['diagnostic input'],
     tooltipInput: 'diagnostic input',
@@ -324,9 +330,10 @@ test('GameScene.dispose delegates real resource ownership once and preserves the
     'water map',
     'terrain map',
     'view',
+    'gpu timer',
+    'fps',
     'renderer',
     'renderer element',
-    'fps',
     'inspection release',
     'tooltip',
     'pointer',
@@ -335,6 +342,9 @@ test('GameScene.dispose delegates real resource ownership once and preserves the
     'spell pointer',
     'worship',
   ])
+  assert.equal(receiver.fpsGraph, null)
+  assert.equal(fpsGraph.gpuTimer, null)
+  assert.equal(fpsGraph.samples.recentFrames().length, 0)
   assert.equal(terrainLoad.signal.aborted, true)
   assert.equal(globe.parent, null)
   assert.equal(receiver.ownedSounds.size, 0)

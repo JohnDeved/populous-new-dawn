@@ -86,18 +86,19 @@ import vm from 'node:vm'
 
 // Exercise the actual callback body with deterministic boundary stubs. No
 // renderer, asset loading or timing benchmark is involved in this contract test.
-function runCallback({ enabled = true, hidden = false, modal = false, current = true, nestedPointer = 0, waterReason } = {}) {
+function runCallback({ enabled = true, hidden = false, modal = false, current = true, nestedPointer = 0, waterReason, simulationSteps = 0 } = {}) {
   const source = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
   const body = source.slice(source.indexOf('  animate = (now:'), source.indexOf('  private updateTerrainFrame()'))
   let clock = 0, reads = 0
   const events = [], updates = []
+  let gpuCalls = 0
   const step = name => () => { events.push(name); clock += 1 }
   const context = {
     resetPointerFrameMetrics,
     performance: { now() { reads++; return clock } },
     document: { hidden, querySelector() { return null } }, devicePixelRatio: 1,
     requestAnimationFrame() { events.push('schedule'); clock += 1; return 42 },
-    syncSecondaryReservations: step('reservations'), advanceGame: step('simulation'),
+    syncSecondaryReservations: step('reservations'), advanceGame: (_world, _clock, _dt, metrics) => { step('simulation')(); if (metrics) metrics.steps += simulationSteps },
     updateVehiclesFrame: step('vehicles'), SPELLS: []
   }
   const scene = vm.runInNewContext(stripTypeScriptTypes(`new (class { ${body} })()`), context)
@@ -107,7 +108,7 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
     isCurrent: () => current, previous: 0, modalSuspended: modal,
     hoveredObject: null, world: { selected: [], buildings: [], trees: [] },
     renderer: { getPixelRatio: () => 1, render: step('render'), info: { render: { calls: 7 } } },
-    fpsGraph: enabled ? { update(...args) { events.push('telemetry'); updates.push(args); clock += 100 }, reset: step('reset') } : null
+    fpsGraph: enabled ? { renderGpu(draw) { gpuCalls++; return draw() }, update(...args) { events.push('telemetry'); updates.push(args); clock += 100 }, reset: step('reset') } : null
   })
   for (const name of ['cancelNearbyFollowers', 'dispatchNearbyFollowers', 'playWorldSounds',
     'updateTerrainFrame', 'updateDecorationsFrame', 'updateCameraMotion', 'cancelTooltipInspection',
@@ -124,16 +125,17 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
     if (metrics) metrics.reasons |= waterReason
   }
   scene.animate(10)
-  return { scene, events, reads, updates, clock }
+  return { scene, events, reads, updates, clock, gpuCalls }
 }
 
 test('live callback CPU includes preparation, HUD and scheduling, excluding overlay work', () => {
   const { scene, events, reads, updates, clock } = runCallback()
   assert.equal(scene.frame, 42)
-  assert.equal(reads, 8)
+  assert.equal(reads, 12)
   assert.equal(updates.length, 1)
   const [now, simulation, render, calls, state, callback, pointer] = updates[0]
   assert.equal(pointer, 1)
+  assert.deepEqual(JSON.parse(JSON.stringify(updates[0][10])), { terrainCpuMs: 1, waterCpuMs: 0, hudCpuMs: 1 })
   assert.deepEqual([now, simulation, render, calls, state], [10, 1, 1, 7, 'Live'])
   assert.equal(callback, clock - 100)
   assert.ok(callback > simulation + render)
@@ -145,7 +147,7 @@ test('modal callback measures rendering and scheduling without simulation or HUD
   const { events, updates, reads } = runCallback({ modal: true })
   assert.deepEqual(events, ['render', 'schedule', 'telemetry'])
   assert.equal(reads, 4)
-  assert.deepEqual(Array.from(updates[0]), [10, 0, 1, 7, 'Menu · rendering', 2, 0, createPointerFrameMetrics(), 0])
+  assert.deepEqual(JSON.parse(JSON.stringify(updates[0])), [10, 0, 1, 7, 'Menu · rendering', 2, 0, createPointerFrameMetrics(), 0, 0, { terrainCpuMs: 0, waterCpuMs: 0, hudCpuMs: 0 }])
 })
 
 test('disabled and hidden diagnostics add no clock reads and preserve game callback order', () => {
@@ -411,13 +413,14 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
     graph.samples.reset()
     for (let i = 1; i <= 1200; i++)
       graph.samples.sample(16.666666666666668, 1234567.8901234567, 1234567.8901234567,
-        Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, 'live', metrics, 127)
+        Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, 'live', metrics, 127, Number.MAX_SAFE_INTEGER)
     graph.exportRecentFrames()
     const downloaded = await blob.text()
     const downloadedFrames = JSON.parse(downloaded).frames
     assert.equal(downloadedFrames.length, 1200)
     assert.deepEqual(downloadedFrames[0].pointerBreakdown.modelWork, Array(3).fill(Number.MAX_SAFE_INTEGER))
     assert.equal(downloadedFrames[0].waterUpdateReasons, 127)
+    assert.equal(downloadedFrames[0].simulationSteps, Number.MAX_SAFE_INTEGER)
     assert.equal(downloadedFrames[0].pointerBreakdown.ordinaryTerrain.visibility.indexEntriesWritten, Number.MAX_SAFE_INTEGER)
     assert.equal(downloadedFrames.at(-1).pointerBreakdown.interaction.route, metrics.interaction.route)
     assert.ok(blob.size <= 2 * 1024 * 1024, 'actual download obeys CLI byte bound')
@@ -428,8 +431,48 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
     assert.equal(cohorts.sampleCount, 1200)
     assert.equal(cohorts.cohorts.find(group => group.name === 'all').metrics['pointerBreakdown.ordinaryTerrain.visibility.indexEntriesWritten'].max, Number.MAX_SAFE_INTEGER)
     assert.equal(cohorts.cohorts.find(group => group.name === 'all').metrics.waterUpdateReasons, undefined, 'water is a separate scalar, not an inferred metric or grouping')
+    const fullDetailBytes = blob.size
+    // Adversarial valid fields exceed the old optimistic max-counter fixture.
+    for (const [state, agent] of [['live', 'Test browser'], ['paused', 'Test browser'], ['paused', 'GPU 😀'.repeat(2000)]]) {
+      metrics.terrainPickMs = Number('0.12345678901234567')
+      navigator.userAgent = agent
+      graph.samples.reset()
+      for (let i = 1; i <= 1200; i++)
+        graph.samples.sample(16.666666666666668, 1234567.8901234567, 1234567.8901234567,
+          Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, state, metrics, 127, Number.MAX_SAFE_INTEGER,
+          { token: graph.samples.reserveGpuFrame(), timing: { status: 'available', milliseconds: Number.MAX_SAFE_INTEGER / 1e6 } },
+          { terrainCpuMs: Number('0.12345678901234567'), waterCpuMs: Number('0.12345678901234567'), hudCpuMs: Number('0.12345678901234567') })
+      const original = graph.samples.recentFrames()
+      graph.exportRecentFrames()
+      const json = await blob.text(), bounded = JSON.parse(json), analysis = analyzeFrameExport(json)
+      t.diagnostic(`GPU ${state}: ${blob.size} bytes, ${bounded.frames.length}/1200 retained, agent ${agent.length} code units`)
+      assert.ok(blob.size <= 2 * 1024 * 1024)
+      assert.ok(json.length <= 2 * 1024 * 1024)
+      assert.ok(bounded.frames.length < original.length, 'overflow must be explicitly bounded')
+      assert.deepEqual(bounded.frames, original.slice(-bounded.frames.length), 'retain exact newest contiguous measurements')
+      assert.deepEqual(graph.samples.recentFrames(), original, 'export never trims the recording ring')
+      assert.equal(bounded.retention.availableFrames, 1200)
+      assert.equal(bounded.retention.droppedOldestFrames, 1200 - bounded.frames.length)
+      assert.equal(analysis.retention.droppedOldestFrames, bounded.retention.droppedOldestFrames)
+      assert.equal(analysis.sampleCount, bounded.frames.length)
+      assert.ok(bounded.frames.every(f => f.sceneRenderGpu.status === 'available'))
+      assert.equal(bounded.frames[0].sceneRenderGpu.milliseconds, Number.MAX_SAFE_INTEGER / 1e6)
+      assert.match(graph.fields['export-status'].textContent, /omitted .* oldest/)
+      assert.ok(analysis.warnings.some(warning => warning.includes('omitted')))
+      const repeated = json
+      graph.exportRecentFrames()
+      const again = JSON.parse(await blob.text()), prior = JSON.parse(repeated)
+      delete again.exportedAt; delete prior.exportedAt
+      assert.deepEqual(again, prior)
+    }
+    const countBeforeRefusal = links.length, retained = graph.samples.recentFrames()
+    navigator.userAgent = '😀'.repeat(600000)
+    graph.exportRecentFrames()
+    assert.equal(links.length, countBeforeRefusal, 'oversized metadata cannot emit an invalid file')
+    assert.match(graph.fields['export-status'].textContent, /Export failed/)
+    assert.deepEqual(graph.samples.recentFrames(), retained)
     const indentedBytes = new Blob([JSON.stringify(JSON.parse(downloaded), null, 2)]).size
-    t.diagnostic(`${blob.size} bytes in actual full-detail exported Blob; ${indentedBytes} bytes if indented`)
+    t.diagnostic(`${fullDetailBytes} bytes in actual full-detail exported Blob; ${indentedBytes} bytes if indented`)
     assert.ok(indentedBytes > 2 * 1024 * 1024, 'compact serializer is required for populated interaction captures')
 
   } finally {
@@ -627,7 +670,7 @@ test('visibility and interaction snapshots remain separate across ring wrap and 
 test('actual animate propagates frame-local water reasons without disabled allocations or clocks', () => {
   const enabled = runCallback({ waterReason: 32 })
   assert.equal(enabled.updates[0][8], 32)
-  assert.equal(enabled.reads, 8)
+  assert.equal(enabled.reads, 12)
   enabled.scene.waterFrameMetrics.reasons = 127
   enabled.scene.updateEnvironmentFrame = () => {}
   enabled.scene.animate(20)
@@ -636,6 +679,42 @@ test('actual animate propagates frame-local water reasons without disabled alloc
     const result = runCallback({ ...options, waterReason: 32 })
     assert.equal(result.reads, 0)
     assert.equal(result.scene.waterFrameMetrics, undefined)
+    assert.equal(result.scene.sceneUpdateMetrics, undefined)
   }
   assert.equal(runCallback({ modal: true, waterReason: 32 }).updates[0][8], 0)
+})
+
+
+test('actual callback carries simulation counts including menu zero and disabled no allocation', () => {
+  for (const steps of [0, 1, 4]) assert.equal(runCallback({ simulationSteps: steps }).updates[0][9], steps)
+  assert.equal(runCallback({ modal: true, simulationSteps: 4 }).updates[0][9], 0)
+  const disabled = runCallback({ enabled: false, simulationSteps: 4 })
+  assert.equal(disabled.scene.simulationFrameMetrics, undefined)
+  assert.equal(disabled.reads, 0)
+  assert.equal(runCallback({ hidden: true }).scene.simulationFrameMetrics, undefined)
+})
+
+test('simulation count ring preserves unknown, zero, catch-up and reset without stale slots', () => {
+  const s = new FramePerformance()
+  for (let i = 0; i < 1203; i++) s.sample(16, 1, 1, 1, 3, 0, i + 1, 'live', undefined, undefined, i % 3 === 0 ? undefined : i % 3 === 1 ? 0 : 4)
+  const f = s.recentFrames()
+  assert.equal(f.length, 1200)
+  assert.equal(f[0].simulationSteps, undefined)
+  assert.equal(f[1].simulationSteps, 0)
+  assert.equal(f[2].simulationSteps, 4)
+  for (const count of [-1, NaN, Infinity, 0.5, Number.MAX_SAFE_INTEGER + 1])
+    assert.equal(s.sample(16, 1, 1, 1, 3, 0, 2000, 'live', undefined, undefined, count), false)
+  s.reset()
+  s.sample(16, 1, 1, 1, 3)
+  assert.equal(s.recentFrames()[0].simulationSteps, undefined)
+})
+
+
+test('actual live/modal render callers invoke GPU seam only with active visible profiling', () => {
+ for(const modal of [false,true]) {
+  assert.equal(runCallback({modal}).gpuCalls,1)
+  assert.equal(runCallback({modal,enabled:false}).gpuCalls,0)
+  assert.equal(runCallback({modal,hidden:true}).gpuCalls,0)
+  assert.equal(runCallback({modal,current:false}).gpuCalls,0)
+ }
 })
