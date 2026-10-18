@@ -426,12 +426,15 @@ export function checkTimberRoutes(
 
 // 0x493af0: shared expansion/route budgets and 321-turn idle expiry. Call once
 // per simulation turn; rendering rate never advances this cache.
+// An optional expansion adapter changes only object lookup cost within the
+// existing expansion owner. Route checks and availability retain the live world.
 export function stepTimberSearches(
   pool: TimberSearchPool,
   w: TimberSearchWorld,
   indexed: Uint8Array,
   route: Parameters<typeof checkTimberRoutes>[4],
-  personExists: (id: number) => boolean
+  personExists: (id: number) => boolean,
+  expansionWorld: TimberSearchWorld = w
 ) {
   if (pool.active <= 0) return
   if (--pool.expansionTimer < 1) {
@@ -448,7 +451,7 @@ export function stepTimberSearches(
           visited++
           if (search.flags & 2) {
             budget--
-            expandTimberSearch(pool, w, indexed, search)
+            expandTimberSearch(pool, expansionWorld, indexed, search)
           }
         }
         cursor++
