@@ -1,12 +1,8 @@
 import * as THREE from 'three'
 import { modelMatrix, modelPoint, projectPoint, spriteBucket } from './projection.ts'
-import {
-  comparePolygons,
-  modelTriangleVisible,
-  painterDepth,
-  polygonBucket,
-} from './painter-order.ts'
+import { modelTriangleVisible, painterDepth, polygonBucket } from './painter-order.ts'
 import type { RenderView } from './render-view.ts'
+import { PainterDepthOrder } from './painter-depth-order.ts'
 import { PainterVertices } from './painter-vertices.ts'
 import { cellObjectOrder, type ObjectCells } from './object-cells.ts'
 import { TerrainAmbience } from './terrain-ambience.ts'
@@ -28,6 +24,7 @@ export interface Command {
 // fetches a constant per-triangle value; texture batching cannot change it.
 export class Painter {
   vertices = new PainterVertices()
+  private depthOrder = new PainterDepthOrder()
   view: RenderView
   landFlags: Uint32Array = new Uint32Array(16384)
   land?: Pick<NativeTerrain, 'heights' | 'categories'>
@@ -48,6 +45,7 @@ export class Painter {
   texture = new THREE.DataTexture(new Float32Array(1024), 1024, 1, THREE.RedFormat, THREE.FloatType)
   constructor(view: RenderView) {
     this.view = view
+    this.texture.addEventListener('dispose', () => this.depthOrder.clear())
   }
 
   triangleCenters(position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute) {
@@ -313,7 +311,7 @@ export class Painter {
     commands.forEach((command, i) => {
       command.order = i
     })
-    commands.sort(comparePolygons)
+    this.depthOrder.sort(commands)
     // ponytail: full original batch capacity/flush ownership remains unported.
     // Keep a larger browser frame ordered inside the depth range in the meantime.
     const stretch = Math.max(1, commands.length / 16000)
