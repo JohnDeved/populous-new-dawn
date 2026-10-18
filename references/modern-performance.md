@@ -73,6 +73,28 @@ not submitted triangles or accepted hits. No timers run when diagnostics are off
 there are no per-triangle timer reads. Optional absent detail remains absent in
 old v1 captures; bounded ring storage snapshots the new fields independently.
 
+Optional `pointerBreakdown.interaction` v1 adds bounded, F8-only context:
+- `route`: the actual tooltip input route grouped into world, HUD (including
+  panels/messages), outside, or unknown. It is routing evidence, not a physical
+  hit-test guarantee while a pointer is captured.
+- `pointerMoved`: whether the sampled pointer position changed since the last
+  diagnostic pointer sample. Null means no comparable position or first sample.
+- `viewChanged`: whether existing camera/view/viewport invalidation inputs changed
+  since that sample. This includes zoom, transition, overview and resize, not just
+  camera translation. Simulation turns alone do not set it.
+- `dragQuery` and `placementQuery`: whether this pointer update actually issued
+  the corresponding ordinary terrain query (including misses; placement includes
+  spell targeting). They do not merely indicate a selected tool or held button.
+- `sharedTerrain`: whether tooltip cell lookup actually consumed the drag/placement
+  terrain result, including a miss.
+
+No coordinates, object IDs or text are exported. Comparisons use the last recorded
+pointer sample, which may precede a hidden/menu gap; reopening F8 starts an unknown
+baseline. Motion between samples that returns to the same position is invisible.
+Unknown/menu samples are not evidence of a stationary pointer. Old captures omit
+this record. Context does not establish matched worlds, gesture paths, rendering
+hardware or a controlled before/after workload.
+
 ## Completed local optimization: minimap palette conversion
 
 `scripts/bench-minimap.mjs` compares the initial implementation's per-pixel
