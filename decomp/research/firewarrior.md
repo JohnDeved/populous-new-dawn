@@ -202,3 +202,51 @@ canonical `worshipHeadPose` as command admission and the production count, and
 asserts head completion before waiting for the gift. Its8-turn admission,
 8-turn completion and82-turn gift bounds and both Volcano rewards are unchanged.
 This corrects test placement rather than changing worship or Firewarrior timing.
+
+## Bounded terrain-clearance port (2026-10-18)
+
+Source inspection at `e1b468a9b8a355bd46fb149a1100b43442898b1e` found that
+`app/firewarrior.ts:firewarriorReady` returned the axis-range result without the
+terrain test retained in `decomp/generated/0051f990.c`. The new
+`app/firewarrior-clearance.ts` composes only that missing test after the existing
+range gate; target acquisition, range policy, firing cadence, damage and projectiles
+remain unchanged. Issue #4 remains open.
+
+The original uses toroidal planar distance, `clamp(distance / 0x180, 1, 16)` samples,
+integer-truncated horizontal and height increments, the fixed-point angle step,
+and signed-short coordinate/height accumulation. Each sample rejects only when
+terrain exceeds stored interpolated height plus `0x8c`. This is not continuous
+ray casting: do not replace the bounded sample positions with a denser line or a
+floating-point endpoint interpolation.
+
+Height ownership is distinct from display/launch geometry:
+
+- `0051f990` reads each object's signed word at `+0x41`, not the tower socket's
+  support offset at `+0x1c` or the projectile launch offset. The existing native
+  tower probe deliberately supplies ground height 128 and support 480 separately.
+- `app/building-occupants.ts:setPersonOccupancy` likewise records support separately
+  and moves an occupant to the socket's terrain height. The readiness adapter uses
+  retained flight/fight/native/entry/builder height, in the same priority as the
+  existing live-movement person source, with sampled terrain for a person without
+  a retained record. It does not add render support, lift or projectile offsets.
+- Buildings retain their object height as `foundation * 45` in the existing
+  building-runtime terrain owner. Readiness reads it without altering the foundation.
+- The established range gate still uses its existing height and coordinates. This
+  slice does not reconcile the separate special-level, point-target, or range laws.
+
+Failure-first checks of the public readiness function passed flat-ground controls
+then incorrectly accepted an intervening ridge for both ground and tower range
+modes. An earlier fixture accidentally retained state 10/command 0 and failed its
+range prerequisite; it was corrected before interpreting the ridge failure.
+The added tests cover exact 140/141 clearance, signed heights, descending integer
+steps, wrapped coordinates, bounded sample counts, foundation/motion height and
+absence of predicate-side gameplay mutation in a synchronized world. The actual
+tower firing caller also withholds its volley/cooldown behind the ridge and resumes
+on clear terrain. These are supplied CPU fixtures, not an ordinary campaign run.
+The pre-existing nativePosition terrain synchronization boundary is unchanged.
+
+This port is grounded in retained static evidence, not a new original-executable
+ridge comparison. No new native execution, rendered scene acceptance, ordinary
+acquisition episode, whole-suite/build result or hardware performance measurement
+is claimed by this note. Existing flat native probe and tower/impact tests retain
+their original narrower evidence scope.
