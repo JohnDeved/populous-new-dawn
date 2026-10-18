@@ -288,3 +288,28 @@ bytes, allowing only distinct revision/build labels. It is same-runtime-source,
 not identical-commit A/A. Reporter lifecycle and one-comment identity remain
 independent of whether any performance comparison is useful. No automatic merge
 approval, stronger guarantee, matrix expansion or qualified thresholds follows.
+
+### Reviewed ordinary-route bridge
+
+Held-drag source admission is the atomic union of two exact reviewed profiles,
+not a per-file or per-slice hash allowlist. The original generic terrain route
+and the GameScene-owned numeric route each bind all 16 owners. The owned route
+additionally binds its full factory/rebind/release helper, public terrain input,
+owned query entry and actual constructor opt-in after the first rebuild. The
+query-input boundary includes packed/native-cache and scratch/numeric eligibility
+through the vertex-loop start; projection and scan arithmetic remains reviewable.
+
+The generic profile requires the new helper file and owned entry to be absent.
+Only an actual missing-file ENOENT establishes file absence; unreadable, empty or
+malformed source never does. Source reads, including failures, are cached once
+across both profile attempts. Mixed, partial or unknown routes fail closed for
+this cohort while the original five phases remain independent. Both complete
+profiles, absence rules and exact boundaries are included in the protocol hash.
+
+This bridge changes admission only. Fixed inputs, first-callback attribution,
+geometry guards, warmup, raw retention, metrics and classification thresholds do
+not change. Ordinary numeric buffers are internal work, not different submitted
+geometry; native picking still precedes the ordinary visibility/index rebuild.
+The initial runtime PR's old-base unsupported result remains historical evidence,
+not reinterpreted as a comparison. Comparative execution of the new route requires
+this reviewed bridge on the trusted default base, followed by fresh browser proof.

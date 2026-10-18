@@ -3,26 +3,77 @@ import test from 'node:test'
 import vm from 'node:vm'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { inspectDragSource, dragSourceSlices } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
+import { inspectDragSource, dragSourceProfiles } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
 import { installSnapshotDragObserver } from '../scripts/browser-performance/snapshot-drag-observer.mjs'
 import { RenderView } from '../app/render-view.ts'
 const root = resolve(import.meta.dirname, '..')
 
-test('source-owner admission is exact, bounded and read-only; projection kernel remains changeable', () => {
+test('source-owner admission selects one exact bounded route; projection kernel remains changeable', () => {
   const read = path => readFileSync(resolve(root, path), 'utf8')
-  assert.equal(inspectDragSource(root).status, 'admitted')
-  for (const slice of dragSourceSlices) {
-    const changed = inspectDragSource(root, path => path !== slice.path ? read(path)
-      : slice.start === null ? `${read(path)}\n` : read(path).replace(slice.start, `${slice.start}\n/* changed admission */`))
+  const admitted = inspectDragSource(root)
+  assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
+  assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
+  assert.ok(profile); assert.equal(profile.slices.length, 16)
+  for (const slice of profile.slices) {
+    const changed = inspectDragSource(root, path => {
+      if (path !== slice.path) return read(path)
+      if (slice.absentFile) return ''
+      if (slice.absentMarker) return `${read(path)}\n${slice.absentMarker}`
+      return slice.start === null ? `${read(path)}\n`
+        : read(path).replace(slice.start, `${slice.start}\n/* changed admission */`)
+    })
     assert.equal(changed.status, 'unsupported-source-contract', slice.id)
-    assert.ok(changed.slices.find(s => s.id === slice.id).reason)
+    assert.equal(changed.profile, null)
+    assert.ok(changed.profiles.find(p => p.id === profile.id).slices.find(s => s.id === slice.id).reason)
   }
-  const boundary = dragSourceSlices.find(s => s.id === 'query-inputs')
-  for (const replacement of ['', `${boundary.start}\n${boundary.start}`, ' '.repeat(1024 * 1024 + 1)]) {
+  const boundary = profile.slices.find(s => s.id === 'query-inputs')
+  for (const replacement of ['', `${boundary.start}\n${boundary.start}`, ' '.repeat(1024 * 1024 + 1),
+    `${read(boundary.path)}\n${boundary.end}`]) {
     assert.equal(inspectDragSource(root, path => path === boundary.path ? replacement : read(path)).status, 'unsupported-source-contract')
   }
   assert.equal(inspectDragSource(root, path => path !== boundary.path ? read(path)
     : read(path).replace(boundary.end, `${boundary.end}\n          // reviewable projection kernel change`)).status, 'admitted')
+})
+
+test('atomic route profiles cache both source reads and failures; only ENOENT establishes helper absence', () => {
+  const calls = new Map(), helper = 'app/runtime-terrain-picking.ts'
+  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const result = inspectDragSource(root, path => { calls.set(path, (calls.get(path) ?? 0) + 1); return read(path) })
+  assert.equal(result.status, 'admitted'); assert.ok([...calls.values()].every(count => count === 1))
+  assert.equal(calls.size, new Set(dragSourceProfiles.flatMap(p => p.slices.map(s => s.path))).size)
+  for (const replacement of [() => '', () => undefined, () => ' '.repeat(1024 * 1024 + 1),
+    () => { throw Object.assign(Error('unreadable'), { code: 'EACCES' }) }, () => { throw Error('unknown failure') }]) {
+    let failures = 0
+    const changed = inspectDragSource(root, path => {
+      if (path !== helper) return read(path)
+      failures++; return replacement()
+    })
+    assert.equal(changed.status, 'unsupported-source-contract'); assert.equal(failures, 1)
+  }
+  // A failed RenderView read cannot establish the absence of an owned method.
+  assert.equal(inspectDragSource(root, path => {
+    if (path === 'app/render-view.ts') throw Object.assign(Error('missing'), { code: 'ENOENT' })
+    return read(path)
+  }).status, 'unsupported-source-contract')
+})
+
+test('route admission binds numeric lease gates, actual constructor order and helper lifecycle, not just query signatures', () => {
+  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const checks = [
+    ['app/render-view.ts', '          const scratch =\n            !nativeEdges &&', '          const scratch =\n            nativeEdges &&'],
+    ['app/scene.ts', '    this.cursor.visible = false\n    this.range.visible = false', '    this.range.visible = false\n    this.cursor.visible = false'],
+    ['app/scene-input-runtime.ts', 'export function pick(', 'export function pick(\n/* altered public dispatch */'],
+  ]
+  if (inspectDragSource(root).profile === 'owned-numeric-terrain-v1') checks.push(
+    ['app/render-view.ts', 'owned && scratch && runtimeTerrainPicking(this, object)', 'owned && scratch'],
+    ['app/runtime-terrain-picking.ts', 'if (released.has(scene.view)) return', 'if (false) return'],
+    ['app/scene-terrain-runtime.ts', '    rebindRuntimeTerrainPicking(scene)', '    /* omitted rebind */'])
+  for (const [path, before, after] of checks) {
+    assert.equal(read(path).split(before).length, 2)
+    assert.equal(inspectDragSource(root, name => name === path ? read(name).replace(before, after) : read(name)).status,
+      'unsupported-source-contract', path)
+  }
 })
 
 function observer() {
