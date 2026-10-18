@@ -28,6 +28,7 @@ const POINTER_METRICS = [
 const METRICS = [
   ...FRAME_METRICS,
   'simulationSteps',
+  'sceneRenderGpu.milliseconds',
   'modelCacheBuilds',
   'modelFacesVisited',
   'modelFacesAccepted',
@@ -148,7 +149,10 @@ export function summarizeFrameExportCohorts(json: string) {
         METRICS.map(path => [
           path,
           {
-            unit: path.endsWith('Ms') ? 'milliseconds' : 'per frame',
+            unit:
+              path.endsWith('Ms') || path === 'sceneRenderGpu.milliseconds'
+                ? 'milliseconds'
+                : 'per frame',
             ...distribution(
               members[name as keyof typeof GROUPS].flatMap(frame => {
                 const value = metric(frame, path)

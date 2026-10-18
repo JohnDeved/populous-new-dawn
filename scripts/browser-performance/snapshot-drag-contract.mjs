@@ -40,7 +40,7 @@ export const dragSourceSlices = Object.freeze([
     "path": "app/scene.ts",
     "start": "  animate = (now: number) => {",
     "end": "\n  private updateTerrainFrame()",
-    "sha256": "7dd0bdffef11b02369780effc05cb630617a2113c12beaaa08fb389369c13e94"
+    "sha256": "ec1bca14fc30bd50e72f9cb9951eea0812f44e9ce1b779fb44aecad14f679873"
   },
   {
     "id": "frame-facades",

@@ -104,3 +104,19 @@ test('simulation steps summarize only measured values without zero-filling legac
   assert.equal(metric.p50, 0)
   assert.equal(metric.max, 3)
 })
+
+
+test('GPU cohorts summarize only available values with separate duration units', () => {
+  const value = capture([undefined, undefined, undefined, undefined])
+  value.frames[0].sceneRenderGpu = { status: 'available', milliseconds: 0 }
+  value.frames[1].sceneRenderGpu = { status: 'available', milliseconds: 900 }
+  value.frames[2].sceneRenderGpu = { status: 'unsupported' }
+  const metrics = group(summarize(value), 'all').metrics
+  assert.deepEqual(metrics['sceneRenderGpu.milliseconds'],
+    { unit: 'milliseconds', sampleCount: 2, p50: 0, p95: 900, p99: 900, max: 900 })
+  assert.equal(metrics.callbackCpuMs.max, 13)
+  delete value.frames[0].sceneRenderGpu
+  delete value.frames[1].sceneRenderGpu
+  assert.deepEqual(group(summarize(value), 'all').metrics['sceneRenderGpu.milliseconds'],
+    { unit: 'milliseconds', sampleCount: 0, p50: null, p95: null, p99: null, max: null })
+})

@@ -308,7 +308,7 @@ export class GameScene {
   private readonly pointerFrameMetrics = createPointerFrameMetrics(true)
   togglePerformance() {
     if (this.fpsGraph) {
-      this.fpsGraph.element.remove()
+      this.fpsGraph.dispose()
       this.fpsGraph = null
     } else {
       this.fpsGraph = new FpsGraph(this.renderer.getContext(), this.world.outcome.level)
@@ -874,7 +874,9 @@ export class GameScene {
     // Keep sampling timestamps so resuming never catches up suspended wall time.
     if (this.modalSuspended) {
       const renderStart = diagnostic ? performance.now() : 0
-      this.view.painter.render(this.renderer, this.scene, this.camera)
+      if (diagnostic)
+        diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
+      else this.view.painter.render(this.renderer, this.scene, this.camera)
       const renderMs = diagnostic ? performance.now() - renderStart : 0
       this.frame = requestAnimationFrame(this.animate)
       diagnostic?.update(
@@ -938,7 +940,8 @@ export class GameScene {
     this.updateSpellPointerFrame(spec)
     this.updateEnvironmentFrame(skyTicks, waterMetrics)
     const renderStart = diagnostic ? performance.now() : 0
-    this.renderSceneFrame(hovered, hoveredBuilding)
+    if (diagnostic) diagnostic.renderGpu(() => this.renderSceneFrame(hovered, hoveredBuilding))
+    else this.renderSceneFrame(hovered, hoveredBuilding)
     const renderMs = diagnostic ? performance.now() - renderStart : 0
     this.updateHudFrame(now, dt)
     this.frame = requestAnimationFrame(this.animate)
@@ -1027,9 +1030,10 @@ export class GameScene {
     this.waterMap.dispose()
     this.terrainMap.dispose()
     this.view.dispose()
+    this.fpsGraph?.dispose()
     this.renderer.dispose()
     this.renderer.domElement.remove()
-    this.fpsGraph?.element.remove()
+    this.fpsGraph = null
     this.cancelTooltipInspection()
     this.tooltipInput = null
     this.tooltipElement.remove()

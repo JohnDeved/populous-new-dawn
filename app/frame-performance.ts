@@ -1,3 +1,10 @@
+import {
+  GPU_RENDER_STATUSES,
+  validGpuFrameTiming,
+  type GpuFrameToken,
+  type GpuFrameSample,
+  type GpuFrameTiming,
+} from './gpu-frame-timing.ts'
 import { validModelPickWork } from './model-pick-work.ts'
 import { validWaterUpdateReasons } from './water-update-reasons.ts'
 import {
@@ -39,9 +46,11 @@ const VISIBILITY_OFFSET = INTERACTION_OFFSET + 7
 const WATER_OFFSET = VISIBILITY_OFFSET + 1 + TERRAIN_VISIBILITY_FIELDS.length
 const MODEL_WORK_OFFSET = WATER_OFFSET + 1
 const SIMULATION_STEPS_OFFSET = MODEL_WORK_OFFSET + 4
-const RAW_WIDTH = SIMULATION_STEPS_OFFSET + 1
+const GPU_OFFSET = SIMULATION_STEPS_OFFSET + 1
+const RAW_WIDTH = GPU_OFFSET + 3
 
 export interface RecentFrame {
+  sceneRenderGpu?: GpuFrameTiming
   /** Render-side actual water call reasons, not pointer CPU ownership. */
   waterUpdateReasons?: number
   /** Actual logical turn increments in this callback; missing means unknown. */
@@ -64,6 +73,9 @@ export class FramePerformance {
   private recentCursor = 0
   private recentCount = 0
   private timestamp = 0
+  private gpuGeneration = 0
+  private gpuSerial = 0
+  private readonly gpuSlots = new Map<number, number>()
   readonly history = new Float64Array(240)
   readonly callbackHistory = new Float64Array(240)
   readonly pointerHistory = new Float64Array(240)
@@ -89,7 +101,25 @@ export class FramePerformance {
   renderMs = 0
   drawCalls = 0
 
+  reserveGpuFrame(): GpuFrameToken {
+    return { generation: this.gpuGeneration, serial: ++this.gpuSerial }
+  }
+
+  acceptsGpuFrame(token: GpuFrameToken) {
+    return token.generation === this.gpuGeneration && this.gpuSlots.has(token.serial)
+  }
+
+  completeGpuFrame(token: GpuFrameToken, timing: GpuFrameTiming) {
+    if (!this.acceptsGpuFrame(token) || !validGpuFrameTiming(timing)) return false
+    const offset = this.gpuSlots.get(token.serial)!
+    this.recent[offset + GPU_OFFSET] = GPU_RENDER_STATUSES.indexOf(timing.status) + 1
+    this.recent[offset + GPU_OFFSET + 1] = timing.milliseconds ?? 0
+    return true
+  }
+
   reset() {
+    this.gpuGeneration++
+    this.gpuSlots.clear()
     this.recentCursor = 0
     this.recentCount = 0
     this.timestamp = 0
@@ -133,7 +163,8 @@ export class FramePerformance {
     state: RecentFrame['state'] = 'unknown',
     metrics?: PointerFrameMetrics,
     waterUpdateReasons?: number,
-    simulationSteps?: number
+    simulationSteps?: number,
+    gpu?: GpuFrameSample
   ) {
     if (!Number.isFinite(milliseconds) || milliseconds <= 0) return false
     // Reject invalid measurements as a whole, without poisoning either window.
@@ -196,6 +227,15 @@ export class FramePerformance {
       return false
     this.timestamp = timestamp
     const offset = this.recentCursor * RAW_WIDTH
+    this.gpuSlots.delete(this.recent[offset + GPU_OFFSET + 2])
+    this.recent[offset + GPU_OFFSET] = 0
+    this.recent[offset + GPU_OFFSET + 1] = 0
+    this.recent[offset + GPU_OFFSET + 2] = 0
+    if (gpu && gpu.token.generation === this.gpuGeneration && validGpuFrameTiming(gpu.timing)) {
+      this.gpuSlots.set(gpu.token.serial, offset)
+      this.recent[offset + GPU_OFFSET + 2] = gpu.token.serial
+      this.completeGpuFrame(gpu.token, gpu.timing)
+    }
     this.recent[offset] = timestamp
     this.recent[offset + 1] = milliseconds
     this.recent[offset + 2] = simulation
@@ -328,7 +368,16 @@ export class FramePerformance {
             !!this.recent[offset + INTERACTION_OFFSET + 4 + i]
         pointerBreakdown.interaction = interaction
       }
+      const gpuStatus = this.recent[offset + GPU_OFFSET]
       return {
+        ...(gpuStatus
+          ? {
+              sceneRenderGpu: {
+                status: GPU_RENDER_STATUSES[gpuStatus - 1],
+                ...(gpuStatus === 2 ? { milliseconds: this.recent[offset + GPU_OFFSET + 1] } : {}),
+              },
+            }
+          : {}),
         ...(this.recent[offset + SIMULATION_STEPS_OFFSET] >= 0
           ? { simulationSteps: this.recent[offset + SIMULATION_STEPS_OFFSET] }
           : {}),
