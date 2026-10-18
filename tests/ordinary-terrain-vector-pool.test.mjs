@@ -409,3 +409,31 @@ test('pooled ordinary queries preserve combined F8 work and visibility counters'
     }
   } finally { referenceMesh.geometry.dispose(); f.close() }
 })
+
+test('custom interpolation retains fresh world inputs even after the ordinary pool is warm', async () => {
+  const f = await fixture(), original = THREE.Vector3.prototype.addScaledVector
+  try {
+    assert.ok(f.query().length > 0)
+    const pool = f.view.ordinaryPickScratch.worldPool
+    assert.ok(pool.length > 0)
+    const held = []
+    THREE.Vector3.prototype.addScaledVector = function (vector, scale) {
+      held.push(vector)
+      return original.call(this, vector, scale)
+    }
+    const first = f.query()
+    assert.ok(first.length > 0)
+    const inputs = held.slice(), snapshots = inputs.map(p => p.clone())
+    assert.ok(inputs.length > 0, 'accepted-hit interpolation exercised')
+    f.world.turn = 23
+    f.water()
+    f.update(0.4, 0, { x: 4, z: 8 })
+    const second = f.query()
+    inputs.forEach((p, i) => assert.deepEqual(p, snapshots[i], 'retained interpolation input is immutable across queries'))
+    assert.ok(inputs.every(p => !pool.includes(p)), 'overridden consumer receives no retained pool vectors')
+    assert.deepEqual(second, f.expected())
+    THREE.Vector3.prototype.addScaledVector = original
+    assert.deepEqual(f.query(), f.expected())
+    assert.equal(f.view.ordinaryPickScratch.worldPool, pool, 'canonical consumer can reuse the existing pool again')
+  } finally { THREE.Vector3.prototype.addScaledVector = original; f.close() }
+})

@@ -617,6 +617,7 @@ export class RenderView {
               ordinaryRelativeMethod &&
             THREE.Vector3.prototype.fromBufferAttribute === ordinaryFromBufferAttribute &&
             THREE.Vector3.prototype.applyMatrix4 === ordinaryApplyMatrix4 &&
+            THREE.Vector3.prototype.addScaledVector === ordinaryAddScaledVector &&
             THREE.Vector4.prototype.set === ordinaryVector4Set
           const world: THREE.Vector3[] = reuse ? cache.world : (scratch?.world ?? []),
             screen: THREE.Vector4[] = reuse ? cache.screen : (scratch?.screen ?? []),
@@ -1039,6 +1040,7 @@ const ordinaryScreenMethod = RenderView.prototype.screen
 const ordinaryRelativeMethod = RenderView.prototype.relative
 const ordinaryFromBufferAttribute = THREE.Vector3.prototype.fromBufferAttribute
 const ordinaryApplyMatrix4 = THREE.Vector3.prototype.applyMatrix4
+const ordinaryAddScaledVector = THREE.Vector3.prototype.addScaledVector
 const ordinaryVector4Set = THREE.Vector4.prototype.set
 const ordinaryAttributeGetX = THREE.BufferAttribute.prototype.getX
 const ordinaryAttributeGetY = THREE.BufferAttribute.prototype.getY
