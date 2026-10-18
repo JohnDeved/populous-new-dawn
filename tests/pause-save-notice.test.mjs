@@ -40,7 +40,8 @@ function fixture() {
     throw new Error(`Unexpected component dependency: ${name}`)
   }, component, component.exports)
   const props = {
-    tutorial: false, hasCheckpoint: true, renderOptions: () => null,
+    tutorial: false, hasCheckpoint: true, checkpointReadStatus: 'read', renderOptions: () => null,
+    onRetryCheckpoint() {},
     onContinue() {}, onLoad() {}, onRestart() {}, onQuitLevel() {}, onQuitGame() {},
     onSave() { calls++; return pending },
   }
@@ -80,7 +81,7 @@ for (const [name, outcome, message] of [
     ui.row('Save Game'); ui.save(); ui.escape(); ui.row('Load Game')
     await ui.settle(outcome)
     assert.equal(ui.render().props['data-panel'], 'load')
-    assert.deepEqual(ui.statuses(), [])
+    assert.deepEqual(ui.statuses(), ['A checkpoint is available in this session.'])
     assert.equal(ui.calls(), 1)
   })
   test(`${name} completion remains visible after reopening pending Save Game`, async () => {

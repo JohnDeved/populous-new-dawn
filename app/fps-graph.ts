@@ -153,9 +153,9 @@ export class FpsGraph {
     }
     let url: string | undefined
     try {
-      url = URL.createObjectURL(
-        new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' })
-      )
+      // Keep the actual download within the offline parser's bounded input budget.
+      // Pretty printing adds substantial overhead to a full diagnostic ring.
+      url = URL.createObjectURL(new Blob([JSON.stringify(report)], { type: 'application/json' }))
       const link = document.createElement('a')
       link.href = url
       link.download = `populous-frames-${report.exportedAt.replace(/[:.]/g, '-')}.json`

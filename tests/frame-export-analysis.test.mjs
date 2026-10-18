@@ -199,3 +199,99 @@ test('context selection retains CPU-only spikes even when RAF gaps occupy the to
   assert.equal(result.spikeContexts.length, 10)
   assert.equal(result.worstFrames.pointer[0].pointerBreakdown, null)
 })
+
+test('optional versioned native diagnostics preserve old v1 and sanitize new evidence', () => {
+  const old = summarize(report())
+  assert.equal(old.worstFrames.pointer[0].pointerBreakdown.nativeOcclusion, undefined)
+  const value = report(), native = createPointerFrameMetrics(true).nativeOcclusion
+  native.cacheCold = 1
+  native.projectedVertices = 24
+  native.privateExtra = 'must not be copied'
+  value.frames[0].pointerBreakdown.nativeOcclusion = native
+  const result = summarize(value)
+  const evidence = result.worstFrames.pointer.find(frame => frame.frameIndex === 0)
+  assert.equal(evidence.pointerBreakdown.nativeOcclusion.projectedVertices, 24)
+  assert.equal(evidence.pointerBreakdown.nativeOcclusion.privateExtra, undefined)
+  for (const mutate of [
+    n => { n.version = 2 }, n => { delete n.projectionMs },
+    n => { n.projectedVertices = 0.5 }, n => { n.cacheHits = -1 },
+    n => { n.triangleScanMs = null }, n => { n.submittedTriangles = Number.MAX_SAFE_INTEGER + 1 },
+  ]) {
+    const invalid = structuredClone(value)
+    mutate(invalid.frames[0].pointerBreakdown.nativeOcclusion)
+    assert.throws(() => summarize(invalid))
+  }
+})
+
+test('full native and ordinary-detail ring remains within the existing 2 MiB JSON bound', async t => {
+  const { FramePerformance } = await import('../app/frame-performance.ts')
+  const { NATIVE_OCCLUSION_FIELDS } = await import('../app/native-occlusion-metrics.ts')
+  const { ORDINARY_TERRAIN_FIELDS } = await import('../app/ordinary-terrain-metrics.ts')
+  const samples = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+  // Long numeric representations, large finite durations and largest supported
+  // counters are deliberately less compact than ordinary millisecond recordings.
+  for (const key of Object.keys(metrics))
+    if (key !== 'nativeOcclusion' && key !== 'ordinaryTerrain' && key !== 'interaction') metrics[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
+  for (const key of NATIVE_OCCLUSION_FIELDS)
+    metrics.nativeOcclusion[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
+  for (const key of ORDINARY_TERRAIN_FIELDS)
+    metrics.ordinaryTerrain[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
+  metrics.interaction.pointerMoved = false
+  metrics.interaction.viewChanged = false
+  for (let i = 1; i <= 1200; i++)
+    samples.sample(16.666666666666668, 1234567.8901234567, 1234567.8901234567,
+      Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, 'live', metrics)
+  const value = report()
+  value.frames = samples.recentFrames()
+  const last = value.frames.at(-1)
+  Object.assign(value.timing, { count: 1200, startTimestampMs: 0, endTimestampMs: last.timestampMs,
+    capturedSpanMs: last.timestampMs })
+  const json = JSON.stringify(value)
+  const bytes = Buffer.byteLength(json, 'utf8')
+  t.diagnostic(`${bytes} bytes for 1200 populated native and ordinary-detail frames`)
+  assert.ok(bytes < 2 * 1024 * 1024)
+  assert.equal(analyzeFrameExport(json).sampleCount, 1200)
+})
+
+
+test('optional ordinary terrain v1 accepts old captures and validates new nested detail', () => {
+  assert.equal(summarize(report()).sampleCount, 3)
+  const value = report()
+  value.frames[0].pointerBreakdown.ordinaryTerrain = createPointerFrameMetrics(true).ordinaryTerrain
+  value.frames[0].pointerBreakdown.ordinaryTerrain.visitedTriangles = 7
+  const result = summarize(value)
+  assert.ok(JSON.stringify(result).includes('"visitedTriangles":7'))
+  for (const invalid of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1]) {
+    value.frames[0].pointerBreakdown.ordinaryTerrain.visitedTriangles = invalid
+    assert.throws(() => summarize(value), /visitedTriangles/)
+  }
+  value.frames[0].pointerBreakdown.ordinaryTerrain.visitedTriangles = 7
+  value.frames[0].pointerBreakdown.ordinaryTerrain.version = 2
+  assert.throws(() => summarize(value), /version/)
+})
+
+
+
+
+test('optional interaction context preserves old captures and rejects malformed new values', () => {
+  const value = report()
+  assert.equal(summarize(value).sampleCount, 3)
+  value.frames[0].pointerBreakdown.interaction = createPointerFrameMetrics(true).interaction
+  assert.ok(JSON.stringify(summarize(value)).includes('"route":"unknown"'))
+  for (const key of Object.keys(value.frames[0].pointerBreakdown.interaction)) {
+    const previous = value.frames[0].pointerBreakdown.interaction[key]
+    delete value.frames[0].pointerBreakdown.interaction[key]
+    assert.throws(() => summarize(value), /interaction/, 'present context requires ' + key)
+    value.frames[0].pointerBreakdown.interaction[key] = previous
+  }
+  value.frames[0].pointerBreakdown.interaction.route = 'hud'
+  assert.ok(JSON.stringify(summarize(value)).includes('"route":"hud"'))
+  for (const [key, invalid] of [['version', 2], ['route', 'private-id'], ['pointerMoved', 1], ['viewChanged', undefined], ['sharedTerrain', null]]) {
+    const previous = value.frames[0].pointerBreakdown.interaction[key]
+    value.frames[0].pointerBreakdown.interaction[key] = invalid
+    assert.throws(() => summarize(value), /interaction/)
+    value.frames[0].pointerBreakdown.interaction[key] = previous
+  }
+  value.frames[0].pointerBreakdown.interaction.privateCoordinates = 'do not copy'
+  assert.ok(!JSON.stringify(summarize(value)).includes('privateCoordinates'))
+})

@@ -298,3 +298,211 @@ test('offset Float32 views preserve untouched bytes, pending dirtiness and updat
   assert.deepEqual(position.updateRanges, ranges, 'existing range semantics unchanged')
   s.terrain.geometry.dispose()
 })
+
+for (const method of ['getX', 'getZ', 'setY']) {
+  test(`accessor-backed ${method} returning canonical method remains dirty without extra getter calls`, () => {
+    const s = fixture()
+    updateWater(s)
+    const position = attr(s),
+      canonical = THREE.BufferAttribute.prototype[method]
+    let reads = 0
+    Object.defineProperty(position, method, {
+      configurable: true,
+      get() {
+        reads++
+        position.array[2] += 1
+        return canonical
+      },
+    })
+    const version = position.version,
+      beforeZ = position.array[2]
+    s.world.turn++
+    updateWater(s)
+    assert.equal(position.version, version + 1, 'custom accessor must preserve dirty fallback')
+    assert.equal(reads, position.count, 'eligibility must not invoke accessor')
+    assert.equal(position.array[2], beforeZ + position.count)
+    s.terrain.geometry.dispose()
+  })
+}
+
+test('prototype setY replacement that changes Z remains dirty', () => {
+  const s = fixture()
+  updateWater(s)
+  const position = attr(s),
+    descriptor = Object.getOwnPropertyDescriptor(THREE.BufferAttribute.prototype, 'setY')
+  const version = position.version,
+    beforeZ = position.array[2]
+  let calls = 0
+  THREE.BufferAttribute.prototype.setY = function (index, value) {
+    calls++
+    this.array[index * 3 + 2] += 1
+    return descriptor.value.call(this, index, value)
+  }
+  try {
+    s.world.turn++
+    updateWater(s)
+    assert.equal(position.version, version + 1)
+    assert.equal(calls, position.count)
+    assert.equal(position.array[2], beforeZ + 1)
+  } finally {
+    Object.defineProperty(THREE.BufferAttribute.prototype, 'setY', descriptor)
+    s.terrain.geometry.dispose()
+  }
+})
+
+// Exact current-main a2cdba7f updateWater, independent of the eligibility repair.
+const parentUpdateWaterSource =
+  "function updateWater(scene: GameScene) {\n  if (!scene.waves) return\n  const w = scene.world,\n    key = `${w.turn}:${w.landVersion}:${w.lightRevision}:${scene.terrain.geometry.id}`\n  if (key === scene.waterState) return\n  scene.waterState = key\n  // Shared wet points animate height/light; the acquired texture stays spatial.\n  const pos = scene.terrain.geometry.getAttribute('position'),\n    surface = scene.terrain.geometry.getAttribute('surface'),\n    light = scene.terrain.geometry.getAttribute('light'),\n    highlight = scene.terrain.geometry.getAttribute('highlight')\n  for (let j = 0; j < pos.count; j++) {\n    const i = scene.landIndex(pos.getX(j), pos.getZ(j)),\n      p = waterPoint(w.land, i, w.turn, scene.waves)\n    // 0x4673b0 uses the same diffuse conversion on coast and land; only\n    // open-water triangles suppress the additive warm light channel.\n    const colors = vertexLighting(p.color, surface.getX(j) ? 0 : 0xfdb935)\n    pos.setY(j, p.height / 128)\n    light.setXYZ(\n      j,\n      ((colors.diffuse >>> 16) & 255) / 255,\n      ((colors.diffuse >>> 8) & 255) / 255,\n      (colors.diffuse & 255) / 255\n    )\n    highlight.setXYZ(\n      j,\n      ((colors.specular >>> 16) & 255) / 255,\n      ((colors.specular >>> 8) & 255) / 255,\n      (colors.specular & 255) / 255\n    )\n  }\n  highlight.needsUpdate = true\n  light.needsUpdate = true\n  pos.needsUpdate = true\n}\n"
+
+test('custom accessors and prototype writers match exact current-parent bytes, versions and callback order', async () => {
+  const { stripTypeScriptTypes } = await import('node:module')
+  const { waterPoint } = await import('../app/water.ts')
+  const { vertexLighting } = await import('../app/projection.ts')
+  const parentUpdateWater = new Function(
+    'waterPoint',
+    'vertexLighting',
+    'return ' + stripTypeScriptTypes(parentUpdateWaterSource)
+  )(waterPoint, vertexLighting)
+  for (const kind of ['getX', 'getZ', 'setY', 'prototype-writer', 'prototype-accessor']) {
+    function run(update) {
+      const s = fixture()
+      update(s)
+      const position = attr(s),
+        proto = THREE.BufferAttribute.prototype
+      const saved = Object.getOwnPropertyDescriptor(proto, 'setY'),
+        trace = []
+      const name = kind.startsWith('prototype') ? 'setY' : kind,
+        canonical = proto[name]
+      const owner = kind.startsWith('prototype') ? proto : position
+      if (kind === 'prototype-writer')
+        Object.defineProperty(owner, name, {
+          ...saved,
+          value: function (index, value) {
+            trace.push(index)
+            this.array[index * 3 + 2]++
+            return canonical.call(this, index, value)
+          },
+        })
+      else
+        Object.defineProperty(owner, name, {
+          configurable: true,
+          get() {
+            trace.push(name)
+            position.array[2]++
+            return canonical
+          },
+        })
+      try {
+        s.world.turn++
+        update(s)
+        return {
+          position: [...bits(s)],
+          light: [...attr(s, 'light').array],
+          highlight: [...attr(s, 'highlight').array],
+          version: position.version,
+          trace,
+        }
+      } finally {
+        if (kind.startsWith('prototype')) Object.defineProperty(proto, 'setY', saved)
+        s.terrain.geometry.dispose()
+      }
+    }
+    assert.deepEqual(run(updateWater), run(parentUpdateWater), kind)
+  }
+})
+
+test('interposed attribute prototype cannot bypass custom-writer fallback', () => {
+  const s = fixture()
+  updateWater(s)
+  const position = attr(s),
+    prototype = THREE.Float32BufferAttribute.prototype
+  const parent = Object.getPrototypeOf(prototype),
+    original = parent.setY
+  const custom = Object.create(parent)
+  custom.setY = function (index, value) {
+    this.array[index * 3 + 2]++
+    return original.call(this, index, value)
+  }
+  const version = position.version
+  Object.setPrototypeOf(prototype, custom)
+  try {
+    s.world.turn++
+    updateWater(s)
+    assert.equal(position.version, version + 1)
+  } finally {
+    Object.setPrototypeOf(prototype, parent)
+    s.terrain.geometry.dispose()
+  }
+})
+
+test('metadata accessors preserve exact parent bytes, reads and dirty versions', async () => {
+  const { stripTypeScriptTypes } = await import('node:module')
+  const { waterPoint } = await import('../app/water.ts')
+  const { vertexLighting } = await import('../app/projection.ts')
+  const parent = new Function(
+    'waterPoint',
+    'vertexLighting',
+    'return ' + stripTypeScriptTypes(parentUpdateWaterSource)
+  )(waterPoint, vertexLighting)
+  for (const key of [
+    'count',
+    'array',
+    'itemSize',
+    'normalized',
+    'light.array',
+    'highlight.array',
+  ]) {
+    function run(update) {
+      const s = fixture()
+      update(s)
+      const position = attr(s),
+        owner = key.includes('.') ? attr(s, key.split('.')[0]) : position,
+        field = key.includes('.') ? 'array' : key,
+        value = owner[field],
+        array = position.array
+      let reads = 0
+      Object.defineProperty(owner, field, {
+        configurable: true,
+        get() {
+          reads++
+          array[2]++
+          return value
+        },
+      })
+      try {
+        s.world.turn++
+        update(s)
+        return { reads, version: position.version, bits: [...new Uint32Array(array.buffer)] }
+      } finally {
+        s.terrain.geometry.dispose()
+      }
+    }
+    assert.deepEqual(run(updateWater), run(parent), key)
+  }
+})
+
+test('typed-array buffer metadata hooks are not invoked by eligibility', () => {
+  for (const key of ['buffer', 'byteOffset', 'length']) {
+    const s = fixture()
+    updateWater(s)
+    const position = attr(s),
+      array = position.array,
+      value = array[key]
+    let reads = 0
+    Object.defineProperty(array, key, {
+      configurable: true,
+      get() {
+        reads++
+        array[2]++
+        return value
+      },
+    })
+    try {
+      s.world.turn++
+      updateWater(s)
+      assert.equal(reads, 0, `parent never reads typed-array ${key}`)
+    } finally {
+      s.terrain.geometry.dispose()
+    }
+  }
+})

@@ -48,7 +48,7 @@ test('actual pointer input preserves picking with diagnostics and skips clocks w
   const { tooltipCallerFixture } = await import('./support/tooltip-scene.mjs')
   const { scene, point } = await tooltipCallerFixture(t)
   const { updatePointerFrame, renderTooltip } = await import('../app/scene-input-runtime.ts')
-  const metrics = createPointerFrameMetrics()
+  const metrics = createPointerFrameMetrics(true)
   const originalNow = performance.now
   let clockReads = 0
   Object.defineProperty(performance, 'now', { configurable: true, value: () => ++clockReads })
@@ -56,6 +56,7 @@ test('actual pointer input preserves picking with diagnostics and skips clocks w
   scene.pointerScreen = { ...point }
   scene.pointerState = ''
   scene.picking.lastKey = ''
+  scene.picking.groundHits.clear()
   updatePointerFrame(scene, 100, metrics)
   const enabled = { hovered: scene.hoveredObject, picked: scene.tooltipInput.picked, cell: scene.tooltipInput.cell, route: scene.tooltipInput.route }
   assert.ok(metrics.objectPickCalls > 0)
@@ -64,6 +65,12 @@ test('actual pointer input preserves picking with diagnostics and skips clocks w
   assert.ok(metrics.objectModelsMs > 0)
   assert.ok(metrics.objectCacheHits > 0, 'tooltip reuses the same-frame object pick')
   assert.ok(metrics.tooltipInputMs > 0)
+  assert.ok(metrics.nativeOcclusion.pixelCacheMisses > 0)
+  assert.ok(metrics.nativeOcclusion.submissionKeyMs > 0)
+  scene.frame++
+  scene.picking.lastKey = ''
+  scene.picking.pick(point, metrics)
+  assert.ok(metrics.nativeOcclusion.pixelCacheHits > 0)
   scene.pointerState = ''
   scene.picking.lastKey = ''
   clockReads = 0
@@ -109,4 +116,16 @@ test('held-selection drag forwards metrics for ground and person queries with un
   const disabled = run()
   assert.deepEqual(disabled, enabled)
   assert.equal(personCalls, 2)
+})
+
+test('native diagnostics are opt-in and reset fixed nested storage', () => {
+  assert.equal(createPointerFrameMetrics().nativeOcclusion, undefined)
+  const metrics = createPointerFrameMetrics(true), native = metrics.nativeOcclusion
+  native.cacheCold = 2
+  native.projectionMs = 7
+  resetPointerFrameMetrics(metrics)
+  assert.strictEqual(metrics.nativeOcclusion, native)
+  assert.equal(native.version, 1)
+  assert.equal(native.cacheCold, 0)
+  assert.equal(native.projectionMs, 0)
 })

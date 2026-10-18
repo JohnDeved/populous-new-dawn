@@ -1,3 +1,4 @@
+import { capturePointerInteraction } from './pointer-interaction-context.ts'
 import { measurePointerQuery, type PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import { hudTransports, selectFollowerTransport } from './follower-transports-runtime.ts'
 import { focusTransport, type TransportKind } from './hud-transports.ts'
@@ -26,6 +27,7 @@ import {
   selectFollowers,
   spellTargetError,
   type Building,
+  type Point,
 } from './model'
 import { command } from './live-command.ts'
 import { focusHudPerson } from './hud-selection.ts'
@@ -161,13 +163,20 @@ export function planGeometry(
   return { geometry, cells, entrance }
 }
 
-export function pick(scene: GameScene, event: { clientX: number; clientY: number }) {
+export function pick(
+  scene: GameScene,
+  event: { clientX: number; clientY: number },
+  metrics?: PointerFrameMetrics
+) {
   const rect = scene.renderer.domElement.getBoundingClientRect()
   scene.mouse.set(
     ((event.clientX - rect.left) / rect.width) * 2 - 1,
     1 - ((event.clientY - rect.top) / rect.height) * 2
   )
-  return scene.view.pick(scene.mouse, [scene.terrain], scene.camera)?.point ?? null
+  return (
+    scene.view.pick(scene.mouse, [scene.terrain], scene.camera, false, metrics?.ordinaryTerrain)
+      ?.point ?? null
+  )
 }
 
 export function pickWorldObject(scene: GameScene, event: { clientX: number; clientY: number }) {
@@ -330,7 +339,7 @@ export function updateDrag(
     return
   }
   const picked = metrics
-      ? measurePointerQuery(metrics, 'terrain', () => scene.pick(event))
+      ? measurePointerQuery(metrics, 'terrain', () => scene.pick(event, metrics))
       : scene.pick(event),
     end = picked && nativePosition(scene.world, picked)
   if (!drag.active) {
@@ -341,7 +350,7 @@ export function updateDrag(
   if (end) drag.end = dragEndpoint(drag.start, end, scene.view.angle)
   scene.dragActive.value = drag.active && positionDistance(drag.start, drag.end) > 0
   scene.selectionOverlay.visible = scene.dragActive.value
-  if (!scene.dragActive.value) return
+  if (!scene.dragActive.value) return picked
   const angle = nativeAngle(
     ((drag.end.x - drag.start.x) << 16) >> 16,
     -(((drag.end.y - drag.start.y) << 16) >> 16)
@@ -356,6 +365,7 @@ export function updateDrag(
     scene.world.land,
     scene.view
   )
+  return picked
 }
 
 export function pointerUp(scene: GameScene, event: PointerEvent) {
@@ -804,7 +814,7 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
   // browser 12 Hz presentation clock until native timer ownership is ported.
   scene.updateSpellHalo(Math.floor((now * 12) / 1000))
   // Picking projects the entire terrain; repeat when the pointer/view changes.
-  const pointerState = [
+  const pointerInputs = [
     scene.world.mode,
     scene.world.manaWorld.gameFlags,
     scene.world.inputMask,
@@ -823,11 +833,15 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
     ...scene.camera.position.toArray(),
     scene.container.clientWidth,
     scene.container.clientHeight,
-  ].join(',')
+  ]
+  const pointerState = pointerInputs.join(',')
   const pointerChanged = pointerState !== scene.pointerState
+  let ground: Point | null | undefined
   if (pointerChanged) {
-    if (scene.pointerButtons === 1 && scene.pointerScreen)
-      scene.updateDrag(scene.pointerScreen, metrics)
+    if (scene.pointerButtons === 1 && scene.pointerScreen) {
+      ground = scene.updateDrag(scene.pointerScreen, metrics)
+      if (metrics?.interaction) metrics.interaction.dragQuery = ground !== undefined
+    }
     const directBlast =
         !scene.overviewActive &&
         blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags),
@@ -841,12 +855,16 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
           : null,
       person = personId === null ? null : blastPersonPosition(scene.world, personId, nativePosition)
     scene.pointer = null
-    if (scene.pointerScreen && scene.world.mode)
+    if (scene.pointerScreen && scene.world.mode) {
+      if (metrics?.interaction) metrics.interaction.placementQuery = !person
       scene.pointer = person
         ? browserPosition(person)
-        : metrics
-          ? measurePointerQuery(metrics, 'terrain', () => scene.pick(scene.pointerScreen!))
-          : scene.pick(scene.pointerScreen)
+        : (ground = metrics
+            ? measurePointerQuery(metrics, 'terrain', () =>
+                scene.pick(scene.pointerScreen!, metrics)
+              )
+            : scene.pick(scene.pointerScreen))
+    }
     scene.hoveredObject = null
     if (scene.pointerScreen && !scene.pointerButtons && !scene.world.inputMask) {
       if (directBlast) {
@@ -867,8 +885,16 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
   }
   scene.selectionOverlay.visible = scene.dragActive.value
   const tooltipStart = metrics ? performance.now() : 0
-  publishTooltipInput(scene, pointerChanged, metrics)
+  publishTooltipInput(scene, pointerChanged, metrics, ground)
   if (metrics) metrics.tooltipInputMs += performance.now() - tooltipStart
+  if (metrics?.interaction)
+    capturePointerInteraction(
+      metrics.interaction,
+      scene.fpsGraph,
+      scene.tooltipInput?.pointer ?? null,
+      pointerInputs,
+      scene.tooltipInput?.route
+    )
 }
 
 export function updateSpellPointerFrame(

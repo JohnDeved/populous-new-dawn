@@ -9,6 +9,10 @@ import {
   terrainTextureBounds,
 } from './terrain-texture.ts'
 import { terrainTiles } from './terrain-visibility.ts'
+import {
+  registerTerrainSubmissionOwner,
+  replaceTerrainSubmissionGeometry,
+} from './terrain-submission-owner.ts'
 import { waterCell, waterPoint, waterTexture } from './water.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import {
@@ -99,6 +103,7 @@ export function initializeTerrain(scene: GameScene) {
   terrain.userData.nativeRelative = true
   terrain.userData.painterGround = true
   terrain.userData.terrainGrid = true
+  registerTerrainSubmissionOwner(terrain)
   return { terrain, ready }
 }
 
@@ -132,7 +137,7 @@ export function rebuildTerrain(scene: GameScene) {
         name,
         new THREE.Float32BufferAttribute(new Float32Array(128 * 128 * 6 * size), size)
       )
-    scene.terrain.geometry = geo
+    replaceTerrainSubmissionGeometry(scene.terrain, geo)
   }
   const positions = geo.getAttribute('position'),
     uv = geo.getAttribute('uv'),
@@ -236,6 +241,99 @@ export function landIndex(scene: GameScene, x: number, z: number) {
   return ((Math.round((-z - 8) / 2) & 127) << 7) | (Math.round((x + 8) / 2) & 127)
 }
 
+// Capture shipped methods once. Comparing against a live prototype would certify
+// a replacement writer; reading pos[name] would invoke accessor hooks during the
+// eligibility check. Only data properties along the known attribute chain qualify.
+const waterPositionMethods = {
+  getX: Object.getOwnPropertyDescriptor(THREE.BufferAttribute.prototype, 'getX')!.value,
+  getZ: Object.getOwnPropertyDescriptor(THREE.BufferAttribute.prototype, 'getZ')!.value,
+  setY: Object.getOwnPropertyDescriptor(THREE.BufferAttribute.prototype, 'setY')!.value,
+}
+function canonicalWaterPositionMethod(
+  position: THREE.BufferAttribute,
+  name: keyof typeof waterPositionMethods
+) {
+  for (const owner of [
+    position,
+    THREE.Float32BufferAttribute.prototype,
+    THREE.BufferAttribute.prototype,
+  ]) {
+    const descriptor = Object.getOwnPropertyDescriptor(owner, name)
+    if (descriptor) return 'value' in descriptor && descriptor.value === waterPositionMethods[name]
+  }
+  return false
+}
+
+// Typed-array accessors are captured intrinsically so shadowing buffer/offset/
+// length properties cannot add reads or hide aliasing during admission.
+const waterTypedArrayPrototype = Object.getPrototypeOf(Float32Array.prototype)
+const waterArrayBuffer = Object.getOwnPropertyDescriptor(waterTypedArrayPrototype, 'buffer')!.get!
+const waterArrayOffset = Object.getOwnPropertyDescriptor(
+  waterTypedArrayPrototype,
+  'byteOffset'
+)!.get!
+const waterArrayLength = Object.getOwnPropertyDescriptor(waterTypedArrayPrototype, 'length')!.get!
+const waterArrayKind = Object.getOwnPropertyDescriptor(
+  waterTypedArrayPrototype,
+  Symbol.toStringTag
+)!.get!
+function ownWaterData(object: object, key: string) {
+  const descriptor = Object.getOwnPropertyDescriptor(object, key)
+  return descriptor && 'value' in descriptor ? descriptor : undefined
+}
+function comparableWaterPositionBits(
+  position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
+  light: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
+  highlight: THREE.BufferAttribute | THREE.InterleavedBufferAttribute
+) {
+  if (
+    Object.getPrototypeOf(position) !== THREE.Float32BufferAttribute.prototype ||
+    Object.getPrototypeOf(THREE.Float32BufferAttribute.prototype) !==
+      THREE.BufferAttribute.prototype
+  )
+    return undefined
+  const array = ownWaterData(position, 'array'),
+    itemSize = ownWaterData(position, 'itemSize'),
+    count = ownWaterData(position, 'count'),
+    normalized = ownWaterData(position, 'normalized'),
+    lightArray = ownWaterData(light, 'array'),
+    highlightArray = ownWaterData(highlight, 'array')
+  if (
+    !array ||
+    !itemSize ||
+    !count ||
+    !normalized ||
+    !lightArray ||
+    !highlightArray ||
+    itemSize.value !== 3 ||
+    !Number.isInteger(count.value) ||
+    normalized.value !== false ||
+    typeof array.value !== 'object' ||
+    array.value === null ||
+    Object.getPrototypeOf(array.value) !== Float32Array.prototype ||
+    !canonicalWaterPositionMethod(position as THREE.BufferAttribute, 'getX') ||
+    !canonicalWaterPositionMethod(position as THREE.BufferAttribute, 'getZ') ||
+    !canonicalWaterPositionMethod(position as THREE.BufferAttribute, 'setY')
+  )
+    return undefined
+  try {
+    const buffer = waterArrayBuffer.call(array.value),
+      length = waterArrayLength.call(array.value)
+    if (
+      waterArrayKind.call(array.value) !== 'Float32Array' ||
+      Object.getPrototypeOf(buffer) !== ArrayBuffer.prototype ||
+      count.value * 3 !== length ||
+      buffer === waterArrayBuffer.call(lightArray.value) ||
+      buffer === waterArrayBuffer.call(highlightArray.value)
+    )
+      return undefined
+    return new Uint32Array(buffer, waterArrayOffset.call(array.value), length)
+  } catch {
+    // Non-intrinsic receivers (including proxies) retain the original write path.
+    return undefined
+  }
+}
+
 export function updateWater(scene: GameScene) {
   if (!scene.waves) return
   const w = scene.world,
@@ -249,23 +347,7 @@ export function updateWater(scene: GameScene) {
     highlight = scene.terrain.geometry.getAttribute('highlight')
   // Compare stored Float32 bits, including signed zero/NaN payloads, rather
   // than unrounded JS heights. Unusual attribute writers retain dirty marking.
-  const positionBits =
-    pos instanceof THREE.BufferAttribute &&
-    Object.getPrototypeOf(pos) === THREE.Float32BufferAttribute.prototype &&
-    pos.array instanceof Float32Array &&
-    Object.getPrototypeOf(pos.array) === Float32Array.prototype &&
-    Object.getPrototypeOf(pos.array.buffer) === ArrayBuffer.prototype &&
-    pos.itemSize === 3 &&
-    Number.isInteger(pos.count) &&
-    pos.count * 3 === pos.array.length &&
-    pos.array.buffer !== light.array.buffer &&
-    pos.array.buffer !== highlight.array.buffer &&
-    !pos.normalized &&
-    pos.getX === THREE.BufferAttribute.prototype.getX &&
-    pos.getZ === THREE.BufferAttribute.prototype.getZ &&
-    pos.setY === THREE.BufferAttribute.prototype.setY
-      ? new Uint32Array(pos.array.buffer, pos.array.byteOffset, pos.array.length)
-      : undefined
+  const positionBits = comparableWaterPositionBits(pos, light, highlight)
   let positionChanged = !positionBits
   for (let j = 0; j < pos.count; j++) {
     const i = scene.landIndex(pos.getX(j), pos.getZ(j)),

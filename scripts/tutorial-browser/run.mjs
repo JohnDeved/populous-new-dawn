@@ -7,6 +7,8 @@ import { pathToFileURL } from 'node:url'
 import { readFileSync, writeFileSync, readdirSync, lstatSync, statSync, existsSync, mkdirSync, symlinkSync, accessSync, constants } from 'node:fs'
 import assert from 'node:assert/strict'
 import { browserConfiguration } from './browser-config.mjs'
+import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
+import { profileRecoveryReceipt, profileRecoveryReceiptLog } from './profile-recovery-receipt.mjs'
 const root = resolve(dirname(import.meta.filename), '../..')
 const fixture = resolve(dirname(import.meta.filename), 'fixture')
 const out = resolve(process.argv[2] || resolve(root, 'outputs/tutorial-browser'))
@@ -14,8 +16,10 @@ const scenario = resolve(root, 'scripts/local-render/tutorial-recommendation.mjs
 const selectorScenario = resolve(root, 'scripts/tutorial-browser/selector-inspection.mjs')
 const sceneryScenario = resolve(root, 'scripts/tutorial-browser/scenery-placement.mjs')
 const spellProjectionScenario = resolve(root, 'scripts/tutorial-browser/spell-projection.mjs')
+const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
+const recoveryScenario = resolve(root, 'scripts/local-render/campaign-profile-recovery.mjs')
 const selectedScenario = process.env.POPULOUS_BROWSER_SCENARIO || 'tutorial'
-assert.ok(['tutorial', 'm2-pointer-f8'].includes(selectedScenario), 'Unknown browser scenario')
+assert.ok(['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'profile-recovery'].includes(selectedScenario), 'Unknown browser scenario')
 const m2Scenario = resolve(root, 'scripts/tutorial-browser/m2-pointer-f8.mjs')
 const port = 5198
 if (existsSync(out)) throw Error('Output must be fresh')
@@ -56,7 +60,7 @@ function outputManifest(path, prefix = '') {
   }
   return result
 }
-const receipt = { selectedScenario, m2ScenarioSha256: hash(m2Scenario),
+const receipt = { recoveryScenarioSha256: hash(recoveryScenario), selectedScenario, pauseRecoveryScenarioSha256: hash(pauseRecoveryScenario), m2ScenarioSha256: hash(m2Scenario),
   checkpointCodecSha256: hash(resolve(root, 'scripts/tutorial-browser/checkpoint-codec.mjs')),
   checkpointGeneratorSha256: hash(resolve(root, 'scripts/tutorial-browser/m2-checkpoint.mjs')), status: 'running', startedAt: new Date().toISOString(), source, command: process.argv,
   runnerSha256: hash(import.meta.filename), builderSha256: hash(resolve(dirname(import.meta.filename), 'build-home.mjs')),
@@ -71,6 +75,7 @@ const receipt = { selectedScenario, m2ScenarioSha256: hash(m2Scenario),
   environment: { TMPDIR: process.env.TMPDIR, XDG_CACHE_HOME: process.env.XDG_CACHE_HOME },
   limits: [...source.limits, 'Production Vite bundle of actual Home; excludes Vinext/Cloudflare/RSC hosting. No causal claim about prior development-server crashes.'], errors: [], warnings: [] }
 const save = () => writeFileSync(resolve(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
+const abort = new AbortController()
 let browser, context, page, server, timer, m2Fixture
 const before = metadata(dependencies)
 receipt.dependenciesBeforeSha256 = createHash('sha256').update(JSON.stringify(before)).digest('hex')
@@ -97,7 +102,7 @@ try {
     receipt.publicLinks.push({ path: entry, source: resolve(root, 'public', entry) })
   }
   verifySource(); save()
-  {
+  if (selectedScenario === 'tutorial' || selectedScenario === 'm2-pointer-f8') {
     const { createM2Checkpoint } = await import('./m2-checkpoint.mjs')
     m2Fixture = await createM2Checkpoint(out, source)
     receipt.m2Fixture = m2Fixture.receipt
@@ -106,15 +111,21 @@ try {
   server = await preview({ configFile: false, root: fixture, build: { outDir: dist }, preview: { host: '127.0.0.1', port, strictPort: true } })
   browser = await chromium.launch(browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
-  timer = setTimeout(() => { receipt.browserTimedOut = true; void browser.close() }, 180000)
-  context = await browser.newContext({ viewport: { width: 640, height: 480 }, deviceScaleFactor: 1 })
+  receipt.browserCapMs = 180000
+  timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, 180000)
+  context = await browser.newContext({ viewport: selectedScenario === 'profile-recovery' ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
   page.on('console', m => { if (m.type() === 'error') receipt.errors.push(m.text()); if (m.type() === 'warning') receipt.warnings.push(m.text()) })
   page.on('crash', () => { receipt.errors.push('Page crashed'); save() })
   const url = `http://127.0.0.1:${port}`
-  if (selectedScenario === 'm2-pointer-f8') {
+  if (selectedScenario === 'profile-recovery') {
+    receipt.profileRecovery = await (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal })
+  } else if (selectedScenario === 'm2-pointer-f8') {
     receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
+  } else if (selectedScenario === 'pause-checkpoint-recovery') {
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    receipt.pauseCheckpointRecovery = await (await import(pathToFileURL(pauseRecoveryScenario).href)).default({ browser, page, url, root, output: out, receipt, signal: abort.signal })
   } else {
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
   receipt.result = await (await import(pathToFileURL(scenario).href)).default({ page, context, browser, url, root, output: out, receipt })
@@ -144,5 +155,20 @@ try {
   receipt.dependencyChanges = Object.keys({ ...before, ...after }).filter(key => JSON.stringify(before[key]) !== JSON.stringify(after[key]))
   receipt.dependenciesAfterSha256 = createHash('sha256').update(JSON.stringify(after)).digest('hex')
   if (receipt.dependencyChanges.length) { receipt.status = 'failed'; process.exitCode = 1 }
-  receipt.endedAt = new Date().toISOString(); save(); console.log(JSON.stringify({ status: receipt.status, failure: receipt.failure, cleanupVerified: receipt.cleanupVerified, output: out }))
+  receipt.endedAt = new Date().toISOString(); save()
+  if (selectedScenario === 'pause-checkpoint-recovery' && receipt.status === 'passed') {
+    try { console.log(recoveryReceiptLog(recoveryReceipt(receipt, out))) }
+    catch (error) {
+      receipt.evidenceError = String(error); receipt.failure ??= receipt.evidenceError
+      receipt.status = 'failed'; process.exitCode = 1; save()
+    }
+  }
+  if (selectedScenario === 'profile-recovery' && receipt.status === 'passed') {
+    try { console.log(profileRecoveryReceiptLog(profileRecoveryReceipt(receipt, out))) }
+    catch (error) {
+      receipt.evidenceError = String(error); receipt.failure ??= receipt.evidenceError
+      receipt.status = 'failed'; process.exitCode = 1; save()
+    }
+  }
+  console.log(JSON.stringify({ status: receipt.status, failure: receipt.failure, cleanupVerified: receipt.cleanupVerified, output: out }))
 }

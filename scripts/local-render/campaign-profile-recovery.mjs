@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import { pauseStartupReady, skipPauseIntroduction } from './original-pause-checkpoint-recovery.mjs'
+import { waitRecoveryReadiness } from '../tutorial-browser/profile-readiness.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import { showSelectorControls } from '../browser-game.mjs'
 import { createHash } from 'node:crypto'
@@ -157,15 +159,15 @@ async function installLoadObserver(page) {
 export default async function ({ browser, context: initialContext, page: initialPage, url, root, output, receipt, signal }) {
   const require = createRequire(resolve(root, 'package.json'))
   const digest = file => createHash('sha256').update(readFileSync(file)).digest('hex')
-  const { bindGame, waitForShamanReadiness } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
+  const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
   const { waitForCheckpointReadback } = await import(pathToFileURL(resolve(root, 'scripts/checkpoint-readback.mjs')).href)
   const { checkpointObservation } = await import(pathToFileURL(resolve(root, 'scripts/local-render/checkpoint-observer.mjs')).href)
   const runtime = () => ({
       node: process.version, platform: process.platform, arch: process.arch,
-      browserVersion: receipt.browserVersion, browserSha256: digest(receipt.launch.executablePath),
+      browserVersion: receipt.browserVersion, browserSha256: digest(receipt.browserPath ?? receipt.launch.executablePath),
       launch: receipt.launch, playwright: require('@playwright/test/package.json').version,
       installedLockSha256: digest(resolve(root, 'node_modules/.package-lock.json')),
-      helpers: Object.fromEntries(['scripts/local-render/harness.mjs', 'scripts/local-render/vite.config.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/browser-game.mjs', 'scripts/checkpoint-readback.mjs'].map(file => [file, digest(resolve(root, file))])),
+      helpers: Object.fromEntries(['scripts/tutorial-browser/profile-readiness.mjs', 'scripts/campaign-start-readiness.mjs', 'scripts/local-render/harness.mjs', 'scripts/local-render/vite.config.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/browser-game.mjs', 'scripts/checkpoint-readback.mjs'].map(file => [file, digest(resolve(root, file))])),
   })
   const report = {
     status: 'running',
@@ -174,22 +176,36 @@ export default async function ({ browser, context: initialContext, page: initial
     method: 'Real IndexedDB committed transactions in fresh ephemeral browser contexts. Seeded latest/profile records are diagnostic fixtures. Fresh page startup, selector availability, and valid checkpoint Load use shipped UI. The ordinary Save → fresh-page Load case seeds no records or gameplay state. In-session restore is a direct store diagnostic with an ordinary UI checkpoint and seeded completion/corruption.',
     limits: 'Browser checkpoint failure isolation only. Page reload within one browser context is not browser-process restart persistence. Complete stored-record digests do not establish full loaded-world equality. Load-boundary version is a supplied wrapper value, not an independent observation. No authentic original-save interoperability, naturally earned campaign completion, deployment behavior, hardware performance, or full PND-07 claim.',
     cases: [],
+    screenshots: [],
+  }
+  const capture = async (page, name) => {
+    const viewport = page.viewportSize()
+    const dpr = await page.evaluate(() => devicePixelRatio)
+    await page.screenshot({ path: resolve(output, name) })
+    report.screenshots.push({ name, viewport, dpr })
   }
   const save = () => writeFileSync(resolve(output, 'profile-recovery.json'), JSON.stringify(report, null, 2) + '\n')
   const freshPage = async first => {
     const context = first ? initialContext : await browser.newContext({ viewport: { width: 1440, height: 1000 } })
-    await context.addInitScript(observeStorageWrites)
-    const page = first ? initialPage : await context.newPage()
-    if (!first) {
-      page.on('pageerror', error => receipt.errors.push(String(error)))
-      page.on('console', message => {
-        if (message.type() === 'error') receipt.errors.push(message.text())
-        if (message.type() === 'warning') receipt.warnings.push(message.text())
-      })
+    try {
+      await context.addInitScript(observeStorageWrites)
+      const page = first ? initialPage : await context.newPage()
+      page.setDefaultTimeout(15000)
+      page.on('crash', () => receipt.errors.push('Profile recovery page crashed'))
+      if (!first) {
+        page.on('pageerror', error => receipt.errors.push(String(error)))
+        page.on('console', message => {
+          if (message.type() === 'error') receipt.errors.push(message.text())
+          if (message.type() === 'warning') receipt.warnings.push(message.text())
+        })
+      }
+      await page.goto(url, { waitUntil: 'domcontentloaded' })
+      await bindStartupStore(page)
+      return { context, page }
+    } catch (error) {
+      await context.close()
+      throw error
     }
-    await page.goto(url, { waitUntil: 'domcontentloaded' })
-    await bindStartupStore(page)
-    return { context, page }
   }
   const loadThroughUi = async (page, button) => {
     await installLoadObserver(page)
@@ -200,8 +216,10 @@ export default async function ({ browser, context: initialContext, page: initial
       return { turn: world.turn, randomState: world.randomState, drawMode: world.drawMode }
     })
     await bindGame(page)
-    const skip = page.getByRole('button', { name: /Skip introduction/ })
-    if (await skip.isVisible()) await skip.click()
+    const startup = await page.waitForFunction(pauseStartupReady)
+    const action = await startup.jsonValue()
+    await startup.dispose()
+    if (action === 'skip') await skipPauseIntroduction(page)
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
     assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true)
@@ -247,7 +265,7 @@ export default async function ({ browser, context: initialContext, page: initial
       assert.deepEqual(entry.startup.writes, [])
       entry.selector = await expectProfileUi(page, expected)
       assert.equal(await page.getByRole('button', { name: 'Load Game', exact: true }).count(), valid ? 1 : 0)
-      if (kind === 'malformed') await page.screenshot({ path: resolve(output, 'malformed-profile-selector.png') })
+      if (kind === 'malformed') await capture(page, 'malformed-profile-selector.png')
       if (valid) {
         entry.publicLoad = await loadThroughUi(page, page.getByRole('button', { name: 'Load Game', exact: true }))
         assert.deepEqual(entry.publicLoad.fields, { turn: 217, randomState: 0x12345678, drawMode: 0 })
@@ -286,10 +304,12 @@ export default async function ({ browser, context: initialContext, page: initial
       await startup.getByRole('button', { name: 'Panel Mission 1', exact: true }).click()
       await startup.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
       await bindGame(page)
-      const skip = page.getByRole('button', { name: /Skip introduction/ })
-      // Mission 1 starts the flyby after the scene binds; wait for its public control.
-      await skip.click({ noWaitAfter: true })
-      entry.readiness = await waitForShamanReadiness(page)
+      const startupReady = await page.waitForFunction(pauseStartupReady)
+      const action = await startupReady.jsonValue()
+      await startupReady.dispose()
+      if (action === 'skip') await skipPauseIntroduction(page)
+      await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+      entry.readiness = await waitRecoveryReadiness(page, { signal })
       await page.getByRole('button', { name: 'Game settings', exact: true }).click()
       const menu = page.locator('dialog[data-original-pause-menu]')
       await menu.waitFor({ state: 'visible' })
@@ -313,7 +333,7 @@ export default async function ({ browser, context: initialContext, page: initial
         entry.afterLoad = await page.evaluate(storedRecords)
         assert.deepEqual(entry.afterLoad, entry.beforeReload)
         assert.deepEqual(await page.evaluate(() => window.recoveryStorageWrites), [])
-        await page.screenshot({ path: resolve(output, 'ordinary-fresh-load.png') })
+        await capture(page, 'ordinary-fresh-load.png')
       } else {
         await menu.getByRole('button', { name: 'Back', exact: true }).click()
         await menu.getByRole('button', { name: /^Continue Game/ }).click()

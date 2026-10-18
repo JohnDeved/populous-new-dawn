@@ -222,24 +222,32 @@ export class ScenePicking {
       // The terrain triangle depends on view/display/land geometry, not the current
       // person/model painter stream. Cache only that geometric hit; resolve its
       // painter command every visit so occupancy and animated object ordering stay live.
+      const nativeMetrics = metrics?.nativeOcclusion
+      const submissionStart = nativeMetrics ? performance.now() : 0
       const groundKey = [
         viewKey,
         rect.width,
         rect.height,
         view.pickSubmissionKey([s.terrain]),
       ].join(',')
+      if (nativeMetrics) nativeMetrics.submissionKeyMs += performance.now() - submissionStart
       if (groundKey !== this.groundKey) {
         this.groundKey = groundKey
         this.groundHits.clear()
       }
       const pixelKey = `${point.x},${point.y}`
       let candidates = this.groundHits.get(pixelKey)
+      if (nativeMetrics) {
+        if (candidates) nativeMetrics.pixelCacheHits++
+        else nativeMetrics.pixelCacheMisses++
+      }
       if (!candidates) {
         candidates = view.pickCandidates(
           new THREE.Vector2((point.x * 2) / rect.width - 1, 1 - (point.y * 2) / rect.height),
           [s.terrain],
           s.camera,
-          true
+          true,
+          nativeMetrics
         )
         // Pointer motion can visit many pixels; keep a small locality cache rather
         // than retaining an unbounded screen-sized map.

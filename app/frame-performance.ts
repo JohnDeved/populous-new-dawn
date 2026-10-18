@@ -1,3 +1,18 @@
+import {
+  createPointerInteractionContext,
+  validPointerInteractionContext,
+  INTERACTION_ROUTES,
+  INTERACTION_BOOLEAN_FIELDS,
+  INTERACTION_CHANGE_FIELDS,
+} from './pointer-interaction-context.ts'
+import {
+  ORDINARY_TERRAIN_FIELDS,
+  createOrdinaryTerrainMetrics,
+} from './ordinary-terrain-metrics.ts'
+import {
+  NATIVE_OCCLUSION_FIELDS,
+  createNativeOcclusionMetrics,
+} from './native-occlusion-metrics.ts'
 import { createPointerFrameMetrics, type PointerFrameMetrics } from './pointer-frame-metrics.ts'
 
 export const RECENT_FRAME_CAPACITY = 1200
@@ -13,7 +28,10 @@ const POINTER_FIELDS = [
   'tooltipInputMs',
   'tooltipRenderMs',
 ] as const
-const RAW_WIDTH = 9 + POINTER_FIELDS.length
+const NATIVE_OFFSET = 9 + POINTER_FIELDS.length
+const ORDINARY_OFFSET = NATIVE_OFFSET + 1 + NATIVE_OCCLUSION_FIELDS.length
+const INTERACTION_OFFSET = ORDINARY_OFFSET + 1 + ORDINARY_TERRAIN_FIELDS.length
+const RAW_WIDTH = INTERACTION_OFFSET + 7
 
 export interface RecentFrame {
   timestampMs: number
@@ -123,6 +141,30 @@ export class FramePerformance {
     if (metrics)
       for (const key of POINTER_FIELDS)
         if (!Number.isFinite(metrics[key]) || metrics[key] < 0) return false
+    const native = metrics?.nativeOcclusion
+    if (native !== undefined) {
+      if (!native || native.version !== 1) return false
+      for (const key of NATIVE_OCCLUSION_FIELDS)
+        if (
+          !Number.isFinite(native[key]) ||
+          native[key] < 0 ||
+          (!key.endsWith('Ms') && !Number.isSafeInteger(native[key]))
+        )
+          return false
+    }
+    const ordinary = metrics?.ordinaryTerrain
+    if (ordinary !== undefined) {
+      if (!ordinary || ordinary.version !== 1) return false
+      for (const key of ORDINARY_TERRAIN_FIELDS)
+        if (
+          !Number.isFinite(ordinary[key]) ||
+          ordinary[key] < 0 ||
+          (!key.endsWith('Ms') && !Number.isSafeInteger(ordinary[key]))
+        )
+          return false
+    }
+    const interaction = metrics?.interaction
+    if (interaction !== undefined && !validPointerInteractionContext(interaction)) return false
     this.timestamp = timestamp
     const offset = this.recentCursor * RAW_WIDTH
     this.recent[offset] = timestamp
@@ -137,6 +179,24 @@ export class FramePerformance {
     this.recent[offset + 8] = metrics ? 1 : 0
     for (let i = 0; i < POINTER_FIELDS.length; i++)
       this.recent[offset + 9 + i] = metrics?.[POINTER_FIELDS[i]] ?? 0
+    this.recent[offset + NATIVE_OFFSET] = native ? 1 : 0
+    for (let i = 0; i < NATIVE_OCCLUSION_FIELDS.length; i++)
+      this.recent[offset + NATIVE_OFFSET + 1 + i] = native?.[NATIVE_OCCLUSION_FIELDS[i]] ?? 0
+    this.recent[offset + ORDINARY_OFFSET] = ordinary ? 1 : 0
+    for (let i = 0; i < ORDINARY_TERRAIN_FIELDS.length; i++)
+      this.recent[offset + ORDINARY_OFFSET + 1 + i] = ordinary?.[ORDINARY_TERRAIN_FIELDS[i]] ?? 0
+    this.recent[offset + INTERACTION_OFFSET] = interaction ? 1 : 0
+    if (interaction) {
+      this.recent[offset + INTERACTION_OFFSET + 1] = INTERACTION_ROUTES.indexOf(interaction.route)
+      for (let i = 0; i < INTERACTION_CHANGE_FIELDS.length; i++) {
+        const value = interaction[INTERACTION_CHANGE_FIELDS[i]]
+        this.recent[offset + INTERACTION_OFFSET + 2 + i] = value === null ? -1 : Number(value)
+      }
+      for (let i = 0; i < INTERACTION_BOOLEAN_FIELDS.length; i++)
+        this.recent[offset + INTERACTION_OFFSET + 4 + i] = Number(
+          interaction[INTERACTION_BOOLEAN_FIELDS[i]]
+        )
+    }
     this.recentCursor = (this.recentCursor + 1) % RECENT_FRAME_CAPACITY
     this.recentCount = Math.min(this.recentCount + 1, RECENT_FRAME_CAPACITY)
     this.callbackHistory[this.cursor] = callback
@@ -195,6 +255,30 @@ export class FramePerformance {
       if (pointerBreakdown)
         for (let i = 0; i < POINTER_FIELDS.length; i++)
           pointerBreakdown[POINTER_FIELDS[i]] = this.recent[offset + 9 + i]
+      if (pointerBreakdown && this.recent[offset + NATIVE_OFFSET]) {
+        const native = createNativeOcclusionMetrics()
+        for (let i = 0; i < NATIVE_OCCLUSION_FIELDS.length; i++)
+          native[NATIVE_OCCLUSION_FIELDS[i]] = this.recent[offset + NATIVE_OFFSET + 1 + i]
+        pointerBreakdown.nativeOcclusion = native
+      }
+      if (pointerBreakdown && this.recent[offset + ORDINARY_OFFSET]) {
+        const ordinary = createOrdinaryTerrainMetrics()
+        for (let i = 0; i < ORDINARY_TERRAIN_FIELDS.length; i++)
+          ordinary[ORDINARY_TERRAIN_FIELDS[i]] = this.recent[offset + ORDINARY_OFFSET + 1 + i]
+        pointerBreakdown.ordinaryTerrain = ordinary
+      }
+      if (pointerBreakdown && this.recent[offset + INTERACTION_OFFSET]) {
+        const interaction = createPointerInteractionContext()
+        interaction.route = INTERACTION_ROUTES[this.recent[offset + INTERACTION_OFFSET + 1]]
+        for (let i = 0; i < INTERACTION_CHANGE_FIELDS.length; i++) {
+          const value = this.recent[offset + INTERACTION_OFFSET + 2 + i]
+          interaction[INTERACTION_CHANGE_FIELDS[i]] = value === -1 ? null : !!value
+        }
+        for (let i = 0; i < INTERACTION_BOOLEAN_FIELDS.length; i++)
+          interaction[INTERACTION_BOOLEAN_FIELDS[i]] =
+            !!this.recent[offset + INTERACTION_OFFSET + 4 + i]
+        pointerBreakdown.interaction = interaction
+      }
       return {
         pointerBreakdown,
         timestampMs,

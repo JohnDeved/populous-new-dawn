@@ -302,7 +302,7 @@ export class GameScene {
   started = false
   disposed = false
   fpsGraph: FpsGraph | null = null
-  private readonly pointerFrameMetrics = createPointerFrameMetrics()
+  private readonly pointerFrameMetrics = createPointerFrameMetrics(true)
   togglePerformance() {
     if (this.fpsGraph) {
       this.fpsGraph.element.remove()
@@ -705,8 +705,8 @@ export class GameScene {
   makeShrines() {
     makeShrines(this)
   }
-  pick(event: { clientX: number; clientY: number }): Point | null {
-    return pick(this, event)
+  pick(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics): Point | null {
+    return pick(this, event, metrics)
   }
   pickWorldObject(event: { clientX: number; clientY: number }) {
     return pickWorldObject(this, event)
@@ -718,7 +718,7 @@ export class GameScene {
     pointerMove(this, event)
   }) as EventListener
   updateDrag(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics) {
-    updateDrag(this, event, metrics)
+    return updateDrag(this, event, metrics)
   }
   pointerUp = ((event: PointerEvent) => {
     pointerUp(this, event)

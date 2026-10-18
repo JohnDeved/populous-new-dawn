@@ -48,6 +48,10 @@ export function multiplyShift16(a: number, b: number) {
 }
 const dot = (a: number[], b: number[]) =>
   (Math.imul(a[0], b[0]) + Math.imul(a[1], b[1]) + Math.imul(a[2], b[2])) | 0
+// Scalar arguments retain the original row-first operand read order without
+// constructing two temporary arrays for each projected dot product.
+const projectionDot = (a: number, b: number, c: number, x: number, y: number, z: number) =>
+  (Math.imul(a, x) + Math.imul(b, y) + Math.imul(c, z)) | 0
 const cross = (a: number[], b: number[]) => [
   (Math.imul(a[1], b[2]) - Math.imul(a[2], b[1])) >> 14,
   (Math.imul(a[2], b[0]) - Math.imul(a[0], b[2])) >> 14,
@@ -376,8 +380,8 @@ export function projectPoint(
 ): ProjectedPoint {
   const m = v.matrix
   const x = (Math.imul(p.x, m[0]) + Math.imul(p.z, m[2])) >> 14
-  let y = dot([m[3], m[4], m[5]], [p.x, p.y, p.z]) >> 14
-  const z = dot([m[6], m[7], m[8]], [p.x, p.y, p.z]) >> 14
+  let y = projectionDot(m[3], m[4], m[5], p.x, p.y, p.z) >> 14
+  const z = projectionDot(m[6], m[7], m[8], p.x, p.y, p.z) >> 14
   const radiusSquared = (Math.imul(x << 1, x << 1) + Math.imul(z << 1, z << 1)) | 0
   y = (y - (multiplyShift16(radiusSquared, v.curvature) >> 16)) | 0
   const depth = (z + v.depth) | 0
