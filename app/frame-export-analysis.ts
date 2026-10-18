@@ -1,3 +1,4 @@
+import { FRAME_EXPORT_LIMIT } from './frame-export-size.ts'
 import { validModelPickWork, type ModelPickWork } from './model-pick-work.ts'
 import { validWaterUpdateReasons } from './water-update-reasons.ts'
 import {
@@ -41,10 +42,11 @@ const CPU_PHASES = [
   'pointerTooltipCpuMs',
   'otherCallbackCpuMs',
 ] as const
-const MAX_JSON_CODE_UNITS = 2 * 1024 * 1024
+const MAX_JSON_CODE_UNITS = FRAME_EXPORT_LIMIT
 
 type RecordValue = Record<string, unknown>
 type Frame = Record<(typeof FRAME_FIELDS)[number], number> & {
+  simulationSteps?: number
   waterUpdateReasons?: number
   state: 'live' | 'paused' | 'menu' | 'unknown'
   pointerBreakdown:
@@ -85,6 +87,7 @@ function frameEvidence(frames: Frame[]) {
   const snapshots = frames.map((frame, frameIndex) => ({
     frameIndex,
     state: frame.state,
+    ...(frame.simulationSteps !== undefined ? { simulationSteps: frame.simulationSteps } : {}),
     ...(frame.waterUpdateReasons !== undefined
       ? { waterUpdateReasons: frame.waterUpdateReasons }
       : {}),
@@ -259,6 +262,11 @@ export function analyzeFrameExport(json: string) {
     if (!['live', 'paused', 'menu', 'unknown'].includes(frame.state as string))
       throw new Error('Invalid frame state')
     if (
+      frame.simulationSteps !== undefined &&
+      (!Number.isSafeInteger(frame.simulationSteps) || (frame.simulationSteps as number) < 0)
+    )
+      throw new Error(`Invalid frames[${index}].simulationSteps`)
+    if (
       frame.waterUpdateReasons !== undefined &&
       !validWaterUpdateReasons(frame.waterUpdateReasons)
     )
@@ -315,6 +323,26 @@ export function analyzeFrameExport(json: string) {
   }))
     if (Math.abs((timing[key] as number) - expected) > 1e-6)
       throw new Error(`Invalid timing.${key}: inconsistent with frames`)
+  let retention:
+    | { availableFrames: number; droppedOldestFrames: number; reason: string }
+    | undefined
+  if (report.retention !== undefined) {
+    const value = object(report.retention, 'retention')
+    if (
+      !Number.isSafeInteger(value.availableFrames) ||
+      !Number.isSafeInteger(value.droppedOldestFrames) ||
+      (value.availableFrames as number) > 1200 ||
+      (value.droppedOldestFrames as number) <= 0 ||
+      value.availableFrames !== frames.length + (value.droppedOldestFrames as number) ||
+      value.reason !== 'serialized-size-limit'
+    )
+      throw new Error('Invalid retention metadata')
+    retention = {
+      availableFrames: value.availableFrames as number,
+      droppedOldestFrames: value.droppedOldestFrames as number,
+      reason: value.reason,
+    }
+  }
   const topCpuPhases = CPU_PHASES.map(phase => ({
     phase,
     ...statistics(frames.map(frame => frame[phase])),
@@ -335,6 +363,10 @@ export function analyzeFrameExport(json: string) {
     'Threshold counts use strict >8.33 ms and >16.67 ms, separately for RAF and callback CPU; these are not display-FPS guarantees.',
     'The RAF interval ends at its timestamp, while callback CPU measures that callback. Neighboring frames provide correlation, not proof of which work caused a gap. Worst rankings retain up to 10 frames each; at most 10 distinct context groups include up to two neighbors on each side.',
   ]
+  if (retention)
+    warnings.push(
+      `Export retained the newest ${frames.length} of ${retention.availableFrames} frames; ${retention.droppedOldestFrames} oldest frames were omitted for the serialized size limit.`
+    )
   if (frames.some(frame => frame.otherCallbackCpuMs < 0))
     warnings.push(
       'Negative callback residual detected: timing ownership may be inconsistent; signed values are preserved.'
@@ -346,6 +378,7 @@ export function analyzeFrameExport(json: string) {
   return {
     buildRevision,
     level,
+    ...(retention ? { retention } : {}),
     sampleCount: frames.length,
     startTimestampMs,
     endTimestampMs,

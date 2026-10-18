@@ -1,3 +1,4 @@
+import { boundedFrameExport } from './frame-export-size.ts'
 import { FramePerformance, RECENT_FRAME_CAPACITY } from './frame-performance.ts'
 import type { PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import { readHardwareInfo, readHeapEstimate } from './performance-hardware.ts'
@@ -155,17 +156,24 @@ export class FpsGraph {
     try {
       // Keep the actual download within the offline parser's bounded input budget.
       // Pretty printing adds substantial overhead to a full diagnostic ring.
-      url = URL.createObjectURL(new Blob([JSON.stringify(report)], { type: 'application/json' }))
+      const bounded = boundedFrameExport(report)
+      url = URL.createObjectURL(bounded.blob)
       const link = document.createElement('a')
       link.href = url
       link.download = `populous-frames-${report.exportedAt.replace(/[:.]/g, '-')}.json`
       link.click()
       this.text(
         'export-status',
-        `Exported ${frames.length} frames · ${(report.timing.capturedSpanMs / 1000).toFixed(1)} s`
+        `Exported ${bounded.frameCount} frames · ${(bounded.capturedSpanMs / 1000).toFixed(1)} s` +
+          (bounded.droppedOldestFrames
+            ? ` · omitted ${bounded.droppedOldestFrames} oldest of ${frames.length} frames to fit 2 MiB`
+            : '')
       )
     } catch {
-      this.text('export-status', 'Export failed. Please try again.')
+      this.text(
+        'export-status',
+        'Export failed: capture could not fit the size limit or download failed.'
+      )
     } finally {
       if (url) {
         const downloadUrl = url
@@ -218,7 +226,8 @@ export class FpsGraph {
     callback: number,
     pointer = 0,
     metrics?: PointerFrameMetrics,
-    waterUpdateReasons?: number
+    waterUpdateReasons?: number,
+    simulationSteps?: number
   ) {
     this.cleared = false
     const { previous } = this
@@ -244,7 +253,8 @@ export class FpsGraph {
               ? 'menu'
               : 'unknown',
         metrics,
-        waterUpdateReasons
+        waterUpdateReasons,
+        simulationSteps
       )
     )
       return

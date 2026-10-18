@@ -168,3 +168,32 @@ test('live recording extends existing ready-only workflow without replacing its 
   assert.doesNotMatch(source, /advanceGame\(|\.animate\(|cancelAnimationFrame\(|\.exportRecentFrames\(/)
   assert.match(read('scripts/tutorial-browser/build-home.mjs'), /define: \{ __PND_BUILD_REVISION__:/)
 })
+
+
+test('size-trimmed exports retain raw provenance while derived phase metadata describes only its subset', () => {
+  const input = fixture()
+  input.raw.retention = { availableFrames: 20, droppedOldestFrames: 2, reason: 'serialized-size-limit' }
+  const original = JSON.stringify(input)
+  const summary = summarize(input)
+  assert.equal(summary.rawFrameCount, 18)
+  assert.deepEqual(summary.rawAnalysis.retention, input.raw.retention)
+  assert.equal(summary.analysis.retention, undefined)
+  assert.equal(summary.analysis.sampleCount, 16)
+  assert.deepEqual(summary.selectedRawFrameIndices, Array.from({ length: 16 }, (_, i) => i + 1))
+  assert.equal(summary.coveredSpanMs, 1600)
+  assert.equal(JSON.stringify(input), original)
+})
+
+test('size trimming cannot hide a full ring or make an insufficient phase window acceptable', () => {
+  const full = fixture()
+  full.raw.retention = { availableFrames: 1200, droppedOldestFrames: 1182, reason: 'serialized-size-limit' }
+  assert.throws(() => summarize(full), /silently overwrite/)
+  const tail = fixture()
+  tail.raw.frames = tail.raw.frames.slice(-8)
+  Object.assign(tail.raw.timing, { count: 8, startTimestampMs: 1000, capturedSpanMs: 800 })
+  tail.raw.retention = { availableFrames: 18, droppedOldestFrames: 10, reason: 'serialized-size-limit' }
+  // Use eight complete frames within the original independently measured window.
+  tail.before.timestampMs = 0
+  tail.after.timestampMs = 1800
+  assert.throws(() => summarize(tail), /cover at least 75%/)
+})

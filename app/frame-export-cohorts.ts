@@ -27,6 +27,7 @@ const POINTER_METRICS = [
 ] as const
 const METRICS = [
   ...FRAME_METRICS,
+  'simulationSteps',
   'modelCacheBuilds',
   'modelFacesVisited',
   'modelFacesAccepted',
