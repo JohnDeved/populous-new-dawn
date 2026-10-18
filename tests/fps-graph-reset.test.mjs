@@ -104,7 +104,7 @@ test('short landscape layout preserves noninteractive diagnostics without changi
   assert.match(css, /\.fps-graph\{[^}]*pointer-events:none/)
   for (const metric of ['callback', 'pointer', 'pointer-tail', 'other', 'raf-tail', 'cpu-tail', 'cpu-peak', 'renderer', 'cores', 'memory', 'heap'])
     assert.match(graph, new RegExp(`data-metric="${metric}"`))
-  assert.match(graph, /GPU not measured/)
+  assert.match(graph, /Synchronous CPU excludes overlay and GPU; async GPU details are in exports/)
   assert.match(graph, /not presented FPS/)
 })
 

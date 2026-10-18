@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
+import { validGpuFrameTiming } from '../app/gpu-frame-timing.ts'
 
 // Shared with the owned local-render harness; ordinary entry and actual Scene.
 export async function checkPerformancePage(page, { output } = {}) {
@@ -20,7 +21,7 @@ export async function checkPerformancePage(page, { output } = {}) {
   assert.notEqual(facts.live, 'assertive')
   assert.equal(facts.focusables, 1)
   assert.ok(facts.x >= 0 && facts.y >= 0 && facts.x + facts.width <= 640 && facts.y + facts.height <= 480)
-  assert.match(facts.text, /GPU not measured/)
+  assert.match(facts.text, /Synchronous CPU excludes overlay and GPU; async GPU details are in exports/)
   assert.equal(await overlay.evaluate(el => { const r = el.getBoundingClientRect(); return !el.contains(document.elementFromPoint(r.x + 10, r.y + 10)) }), true)
   if (output) await page.screenshot({ path: resolve(output, 'performance-640x480.png') })
   const exportButton = overlay.getByRole('button', { name: 'Export recent frames', exact: true })
@@ -41,6 +42,8 @@ export async function checkPerformancePage(page, { output } = {}) {
     assert.equal(report.schemaVersion, 1)
     assert.match(report.buildRevision, /^(?:[0-9a-f]{40}(?:-dirty)?|unknown)$/)
     assert.ok(report.frames.length > 0 && report.frames.length <= 1200)
+    assert.ok(report.frames.every(frame => validGpuFrameTiming(frame.sceneRenderGpu)), 'actual F8 frames expose valid optional GPU states')
+    assert.ok(report.frames.every(frame => frame.sceneRenderGpu.status === 'available' || frame.sceneRenderGpu.milliseconds === undefined), 'unavailable GPU timing is unknown, not zero')
     assert.ok(report.timing.capturedSpanMs > 0)
     assert.ok(report.frames.every(frame => Number.isFinite(frame.pointerTooltipCpuMs)))
     assert.ok(report.frames.some(frame => frame.pointerBreakdown !== null))
