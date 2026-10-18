@@ -332,32 +332,27 @@ export function createWorldState(missionNumber = 1): World {
 
 export const housing = (b: Building) => rules.buildingCapacity[buildingModel(b)]
 export function population(w: World, team: Team) {
-  return (
-    1 + w.units.filter(u => u.team === team && u.kind !== 'shaman' && !u.ghost && u.hp > 0).length
-  )
+  let count = 1
+  for (const u of w.units)
+    if (u.team === team && u.kind !== 'shaman' && !u.ghost && u.hp > 0) count++
+  return count
 }
+const hutPopulationCapacity = [
+  constants.MAX_POP_VALUE__HUT_1,
+  constants.MAX_POP_VALUE__HUT_2,
+  constants.MAX_POP_VALUE__HUT_3,
+]
 export function populationLimit(w: World, team: Team) {
-  return Math.min(
-    200,
-    6 +
-      w.buildings
-        .filter(b => b.team === team && b.kind === 'hut' && b.progress === 1 && b.hp > 0)
-        .reduce(
-          (sum, b) =>
-            sum +
-            [
-              constants.MAX_POP_VALUE__HUT_1,
-              constants.MAX_POP_VALUE__HUT_2,
-              constants.MAX_POP_VALUE__HUT_3,
-            ][b.level - 1],
-          0
-        )
-  )
+  let capacity = 0
+  for (const b of w.buildings)
+    if (b.team === team && b.kind === 'hut' && b.progress === 1 && b.hp > 0)
+      capacity += hutPopulationCapacity[b.level - 1]
+  return Math.min(200, 6 + capacity)
 }
-export function breedingWork(w: World, b: Building) {
+export function breedingWork(w: World, b: Building, people = population(w, b.team)) {
   return Math.floor(
     (rules.hutBreedingWork[b.level - 1] *
-      rules.breedingBands[Math.min(19, Math.floor(population(w, b.team) / 10))]) /
+      rules.breedingBands[Math.min(19, Math.floor(people / 10))]) /
       256
   )
 }

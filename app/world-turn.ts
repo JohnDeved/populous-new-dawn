@@ -1237,28 +1237,33 @@ function stepTurn(w: World) {
       }
     } else if (b.kind === 'hut') {
       const admission = buildingAdmission(w, b)
-      if (
-        !(w.manaWorld.gameFlags & 32) &&
-        stepHutBirth(
-          b,
-          admission.inside,
-          population(w, b.team) < populationLimit(w, b.team),
-          breedingWork(w, b)
-        )
-      ) {
-        const points = hutBirthPoints(buildingPose(b), point => {
-          const cell = (point.y >> 9) * 128 + (point.x >> 9)
-          if (!(w.land.flags[cell] & 512)) return
-          const neighbor = w.buildings.find(other => other.id === (w.land.buildingIds[cell] & 1023))
-          return neighbor && buildingPose(neighbor)
-        })
-        const u = addUnit(w, b.team, 'brave', browserPosition(points.inside))
-        hutNewborns.add(u)
-        u.heading = Math.PI - b.angle
-        if (b.team === 'blue') sound(w, 0x28, u)
-        effect(w, 'birth', browserPosition(points.flash))
-        // ponytail: native newborn home/state ownership still uses the live route adapter.
-        route(w, u, browserPosition(points.destination))
+      if (!(w.manaWorld.gameFlags & 32)) {
+        // Reuse only within this visit: a birth must affect the next hut's count.
+        const people = population(w, b.team)
+        if (
+          stepHutBirth(
+            b,
+            admission.inside,
+            people < populationLimit(w, b.team),
+            breedingWork(w, b, people)
+          )
+        ) {
+          const points = hutBirthPoints(buildingPose(b), point => {
+            const cell = (point.y >> 9) * 128 + (point.x >> 9)
+            if (!(w.land.flags[cell] & 512)) return
+            const neighbor = w.buildings.find(
+              other => other.id === (w.land.buildingIds[cell] & 1023)
+            )
+            return neighbor && buildingPose(neighbor)
+          })
+          const u = addUnit(w, b.team, 'brave', browserPosition(points.inside))
+          hutNewborns.add(u)
+          u.heading = Math.PI - b.angle
+          if (b.team === 'blue') sound(w, 0x28, u)
+          effect(w, 'birth', browserPosition(points.flash))
+          // ponytail: native newborn home/state ownership still uses the live route adapter.
+          route(w, u, browserPosition(points.destination))
+        }
       }
       const haulers = w.units.filter(
         u => u.work === b.id && u.inside === null && u.hp > 0 && u.kind === 'brave' && !u.builder
