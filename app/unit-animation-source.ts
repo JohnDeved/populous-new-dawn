@@ -17,7 +17,13 @@ export function builderActivity(u: Unit) {
 export function unitAnimationSource(u: Unit) {
   if (u.flight) return u.flight
   if (u.fight?.action === 'encounter') return u.fight.motion!
-  if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
+  if (
+    u.fight?.motion &&
+    (['walk', 'idle'].includes(u.fight.animation ?? '') ||
+      (u.fight.nativeAttackAnimation === true &&
+        ['attack', 'strike', 'special', 'approach'].includes(u.fight.action)))
+  )
+    return u.fight.motion
   if (
     u.native &&
     (u.native.guardInputPending ||
