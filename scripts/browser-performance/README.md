@@ -13,7 +13,8 @@ portable tests/source review are not browser qualification. A new candidate smok
 and trusted same-runtime-source comparison are required before claiming this added
 view-invalidated projection workload works in hosted browsers. The five stable
 phases and their original observer remain unchanged.
-The two workflows are already active. Their reviewed files/templates, permissions,
+The two workflows are already active.
+Their reviewed files/templates, permissions,
 triggers and caps are unchanged here. The common capture/build code always comes
 from the exact PR base, so a PR proposing V2 cannot run its own untrusted harness.
 The reporter selects V2 explicitly from trusted source, never from artifact input.
