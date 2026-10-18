@@ -1,6 +1,6 @@
 // Failure-first supplied model8 caller proof. Actual picked input, admission,
-// fixed turns and automatic callback run; completed building is supplied. DOM/projection/texture IO
-// and frame deltas are supplied; this is not the ordinary browser witness.
+// fixed turns and automatic callback run; completed building is supplied.
+// DOM/projection/texture IO and frame deltas are supplied; this is not the ordinary browser witness.
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { firewarriorPanelFixture } from './support/firewarrior-panel-scene.mjs'
@@ -111,7 +111,15 @@ test('actual supplied model8 Firewarrior Hut input reserves its automatic owner 
   // After real input/admission, supply affordability to isolate the callback's
   // ordering against same-call conversion. No natural mana timing claim.
   school.timer = 1000000000
+  // Same complete world/aliases and production training step without a Scene
+  // binding: UI ownership must not alter conversion, units, orders or either RNG.
+  const headless = structuredClone(world)
+  stepLiveTraining(
+    headless,
+    headless.buildings.find(b => b.id === school.id)
+  )
   stepLiveTraining(world, school)
+  assert.deepEqual(world, headless)
   assert.equal(world.stats.trained, 1)
   assert.ok(world.units.some(unit => unit.team === 'blue' && unit.kind === 'firewarrior'))
   assert.equal(school.admission.activity & 0x80, 0)
@@ -192,6 +200,9 @@ test('Firewarrior Hut automatic renewal and phase2 reuse preserve clocks while h
   source()
   const record = records(scene).get(school.id)
   assert.ok(record)
+  const initial = structuredClone(record)
+  source()
+  assert.deepEqual(record, initial, 'latched callbacks do not reset phase or lifetime')
   for (let visit = 0; visit < 4; visit++) step()
   assert.deepEqual(record, { automatic: true, phase: 1, remaining: 15, hold: 16 })
   paint()
@@ -236,7 +247,16 @@ test('Firewarrior Hut automatic identity rejects mismatched native class/model a
   // buildingAdmission restores model from kind before the simulation callback.
   // Exercise this supplied malformed identity at the real bound consumer seam.
   requestTrainingPanel(world, school.id)
-  assert.equal(records(scene).has(school.id), false, 'Firewarrior Hut kind cannot impersonate camp model7')
+  assert.equal(
+    records(scene).has(school.id),
+    false,
+    'Firewarrior Hut kind cannot impersonate camp model7'
+  )
+  school.kind = 'spyHut'
+  school.admission.model = 6
+  requestTrainingPanel(world, school.id)
+  assert.equal(records(scene).has(school.id), false, 'Spy remains outside this repair')
+  school.kind = 'firewarriorHut'
   school.admission.model = 8
   school.admission.tribe = 1
   stepLiveTraining(world, school)
@@ -294,7 +314,6 @@ async function replacementScene(t, scene, world) {
   startScene(t, next)
   return next
 }
-
 
 test('Save preserves the current owner; Load clears transient ownership and stale bit23 cannot suppress the next request', async t => {
   const fixture = await firewarriorPanelFixture(t),
@@ -363,4 +382,3 @@ test('Save preserves the current owner; Load clears transient ownership and stal
     'Controlled in-session Save/Load only; typed committed IndexedDB belongs to the ordinary browser witness.'
   )
 })
-
