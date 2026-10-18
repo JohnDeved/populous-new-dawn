@@ -9,6 +9,10 @@ import { renderComment, commentMarker } from '../scripts/browser-performance/ren
 import { gameplayPhaseSchedule } from '../scripts/tutorial-browser/gameplay-frames.mjs'
 import * as snapshot from '../scripts/browser-performance/snapshot-protocol.mjs'
 import { renderSnapshotComment } from '../scripts/browser-performance/snapshot-render.mjs'
+import { recognizeReaderSources } from '../scripts/browser-performance/snapshot-readers.mjs'
+import { readerImportSha256 } from '../scripts/browser-performance/snapshot-reader-proof.mjs'
+import { dragSourceProfiles } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
+import { BufferGeometry, BufferAttribute, InstancedMesh, Matrix4 } from 'three'
 import { reportRun, workflowPath } from '../scripts/browser-performance/reporter.mjs'
 
 const identity = { repository, prNumber: 42, baseSha: 'a'.repeat(40), headSha: 'b'.repeat(40), harnessSha: 'a'.repeat(40), runId: 1234, runAttempt: 1 }
@@ -380,4 +384,144 @@ test('trusted reporter rejects unbounded warmup diagnostics and retains unknown 
   const body = mock.state.calls.find(c => c.method).body.body
   assert.match(body, /First-use native-drag in this prepared workload/)
   assert.match(body, /Diagnostic only, never pooled/); assert.match(body, /unknown, 10\.000/)
+})
+
+// Synthetic semantic controls only. No historical CI evidence is reclassified.
+function withReaderProof(reports) {
+  const original = [BufferGeometry.prototype.getAttribute, BufferGeometry.prototype.getIndex, InstancedMesh.prototype.getMatrixAt,
+    BufferAttribute.prototype.getX, BufferAttribute.prototype.getY, BufferAttribute.prototype.getZ, BufferAttribute.prototype.getX,
+    Matrix4.prototype.fromArray].map(method => method.toString())
+  for (const report of reports) for (const run of report.runs) {
+    const sources = original.map(source => run.side === 'base' ? source : source.replaceAll('denormalize', 'RenamedInactiveHelper'))
+    const { rawSha256, allSourcesSha256, semanticSha256 } = recognizeReaderSources(sources)
+    const profile = dragSourceProfiles[run.side === 'base' ? 0 : 1]
+    run.readers = { version: 1, sources, rawSha256, allSourcesSha256, semanticSha256, strictData: true, matrixBinding: true, sessionStable: true,
+      source: { profile: profile.id, slices: profile.slices.map(slice => ({ id: slice.id, expectedSha256: slice.sha256 ?? null,
+        actualSha256: slice.absentFile ? null : slice.sha256 ?? 'c'.repeat(64), reason: null })), importSha256: readerImportSha256 },
+      provenance: Object.fromEntries(['dependenciesSha256', 'threeSha256', 'packageSha256', 'lockSha256', 'builderSha256', 'bundleSha256']
+        .map(key => [key, key === 'bundleSha256' && run.side === 'head' ? 'e'.repeat(64) : 'd'.repeat(64)])) }
+    for (const phase of run.phases) {
+      phase.readerEvidenceSha256 = allSourcesSha256
+      for (const block of [...phase.blocks, ...(phase.warmup?.blocks ?? [])]) {
+        for (const [field, hashField, indexHash] of [['geometryProof', 'geometrySha256', 'a'], ...(phase.name === 'native-view-drag-warm' ? [['geometryAfterProof', 'geometryAfterSha256', 'b']] : [])]) {
+          block[field] = { metadata: { version: 1, position: { type: 'Float32Array', count: 98304, itemSize: 3, normalized: false },
+            index: { type: 'Uint32Array', submittedCount: 6, itemSize: 1, normalized: false }, drawRange: { start: 0, count: 6 }, instanceCount: 1,
+            worldMatrix: Array(16).fill(0), boundingBox: [0, 0, 0, 1, 1, 1], nativeRelative: true, painterGround: true, terrainGrid: true,
+            nativeScale: 0, nativeSize: 0, parentBasis: [0, 0, 0] }, positionSha256: 'c'.repeat(64), indexSha256: indexHash.repeat(64),
+            instancesSha256: 'd'.repeat(64), consumerMethodsSha256: rawSha256 }
+          block[hashField] = snapshot.sha256(JSON.stringify(block[field]))
+        }
+      }
+    }
+  }
+  return reports
+}
+const readerReports = () => withReaderProof([snapshotFixture(), snapshotFixture('recovery')])
+const readerMock = reports => { const mock = apiFixture(reports); Object.assign(mock.arguments, { protocolVersion: 2, trustedProtocol: snapshot.protocolHash() }); return mock }
+
+test('trusted reporter admits bounded equivalent raw readers only with complete source and component proof', async () => {
+  const reports = readerReports(), before = JSON.stringify(reports)
+  for (const report of reports) { assert.ok(Buffer.byteLength(JSON.stringify(report)) < maxReportBytes); snapshot.parseReport(JSON.stringify(report)) }
+  assert.notEqual(reports[0].runs[0].readers.rawSha256, reports[0].runs[1].readers.rawSha256)
+  assert.ok(snapshot.compareReports(reports, identity).rows.every(row => !row.p50.status.endsWith('mismatch')))
+  const mock = readerMock(reports)
+  assert.equal((await reportRun(mock.arguments)).status, 'created')
+  const body = mock.state.calls.find(call => call.method).body.body
+  assert.match(body, /possible-improvement/); assert.doesNotMatch(body, /geometry-input-mismatch|RenamedInactiveHelper|fromArray/)
+  assert.equal(JSON.stringify(reports), before)
+})
+
+test('trusted reporter rejects forged reader bodies, component hashes, ownership and unbounded fields without commenting', async () => {
+  const mutations = [
+    run => { run.readers.sources[7] = run.readers.sources[7].replace('< 16', '< 15') },
+    run => { run.readers.sources[0] = 'getAttribute(x){return process.exit()}' },
+    run => { run.readers.sources[0] = 'x'.repeat(1025) },
+    run => { run.readers.sources.push('extra') }, run => { run.readers.rawSha256 = 'a'.repeat(64) },
+    run => { run.readers.allSourcesSha256 = 'a'.repeat(64) }, run => { run.readers.semanticSha256 = 'a'.repeat(64) },
+    run => { run.readers.matrixBinding = false }, run => { run.readers.strictData = false }, run => { run.readers.sessionStable = false },
+    run => { run.readers.source.profile = 'unknown' }, run => { run.readers.source.slices[0].actualSha256 = 'f'.repeat(64) },
+    run => { run.readers.provenance.command = 'execute' }, run => { run.readers.provenance.bundleSha256 = '[unsafe]' },
+    run => { run.phases[0].blocks[0].geometryProof.metadata.position.normalized = 0 },
+    run => { run.phases[0].blocks[0].geometryProof.positionSha256 = 'a'.repeat(64) },
+    run => { delete run.phases[0].blocks[0].geometryProof }, run => { run.phases[0].readerEvidenceSha256 = 'a'.repeat(64) },
+  ]
+  for (const change of mutations) {
+    const reports = readerReports(); change(reports[0].runs[1]); const mock = readerMock(reports)
+    await assert.rejects(reportRun(mock.arguments), change.toString()); assert.equal(mock.state.calls.some(call => call.method), false)
+  }
+})
+
+test('missing proof, dependency/bundle/arm drift, unknown source and real geometry changes remain withheld', async () => {
+  for (const mode of ['missing', 'dependencies', 'three', 'builder', 'bundle', 'import', 'source', 'geometry', 'shard']) {
+    const reports = readerReports(), run = reports[mode === 'shard' ? 1 : 0].runs[1]
+    if (mode === 'missing') for (const report of reports) for (const r of report.runs) {
+      delete r.readers
+      for (const phase of r.phases) { delete phase.readerEvidenceSha256; for (const b of [...phase.blocks, ...(phase.warmup?.blocks ?? [])]) { delete b.geometryProof; delete b.geometryAfterProof } }
+    }
+    else if (['dependencies', 'three', 'builder', 'bundle', 'shard'].includes(mode)) run.readers.provenance[`${mode === 'shard' ? 'bundle' : mode}Sha256`] = 'f'.repeat(64)
+    else if (mode === 'import') run.readers.source.importSha256 = null
+    else if (mode === 'source') run.readers.source = { profile: null, slices: [], importSha256: readerImportSha256 }
+    else { const block = run.phases[0].blocks[0]; block.geometryProof.positionSha256 = 'a'.repeat(64); block.geometrySha256 = snapshot.sha256(JSON.stringify(block.geometryProof)) }
+    const mock = readerMock(reports); assert.equal((await reportRun(mock.arguments)).status, 'created')
+    assert.match(mock.state.calls.find(call => call.method).body.body, /geometry-input-mismatch/, mode)
+  }
+})
+
+test('exact original path is unchanged and unsupported appended cohort does not suppress five exact phases', async () => {
+  const reports = readerReports()
+  for (const report of reports) for (const run of report.runs) if (run.side === 'head') {
+    const reference = report.runs[0]
+    run.readers = structuredClone(reference.readers)
+    for (const [i, phase] of run.phases.entries()) {
+      phase.readerEvidenceSha256 = run.readers.allSourcesSha256
+      phase.blocks = structuredClone(reference.phases[i].blocks)
+      if (phase.warmup) phase.warmup.blocks = structuredClone(reference.phases[i].warmup.blocks)
+    }
+    run.readers.source = { profile: null, slices: [], importSha256: null }
+  }
+  reports[0].runs[1].phases[2] = { name: 'native-view-drag-warm', unsupported: 'source-contract' }
+  const mock = readerMock(reports); assert.equal((await reportRun(mock.arguments)).status, 'created')
+  const comparison = snapshot.compareReports(reports, identity)
+  assert.ok(comparison.rows.filter(row => row.phase !== 'native-view-drag-warm').every(row => !row.p50.status.endsWith('mismatch')))
+  assert.ok(comparison.rows.filter(row => row.phase === 'native-view-drag-warm').every(row => row.p50.status === 'unsupported-source-contract'))
+})
+
+test('unsupported emitted syntax retains bounded observed source and original raw digest before failing admission', async () => {
+  const { recordSnapshotReaders } = await import('../scripts/browser-performance/snapshot-capture.mjs')
+  const readers = readerReports()[0].runs[0].readers, report = {}, saved = []
+  const evidence = { version: 1, sources: readers.sources.map((body, i) => i === 7 ? 'fromArray(a,o=0){return this}' : body),
+    strictData: true, matrixBinding: true, sessionStable: true }
+  assert.equal(recordSnapshotReaders({ report, evidence, readerSource: readers.source, readerProvenance: readers.provenance,
+    save: () => saved.push(structuredClone(report)) }), false)
+  assert.equal(report.readerAdmission, 'unsupported'); assert.equal(saved.length, 2); assert.equal(saved[0].observedReaders.sources[7], evidence.sources[7])
+  assert.equal(saved[0].observedReaders.rawSha256, readers.rawSha256); assert.equal(report.readers, undefined)
+})
+
+test('optional appended capture failure retains semantic comparisons for all five completed phases', async () => {
+  const reports = readerReports()
+  reports[0].runs[1].phases[2] = { name: 'native-view-drag-warm', unsupported: 'capture-incomplete' }
+  const mock = readerMock(reports); assert.equal((await reportRun(mock.arguments)).status, 'created')
+  const comparison = snapshot.compareReports(reports, identity)
+  assert.ok(comparison.rows.filter(row => row.phase !== 'native-view-drag-warm').every(row => !row.p50.status.endsWith('mismatch')))
+  assert.ok(comparison.rows.filter(row => row.phase === 'native-view-drag-warm').every(row => row.p50.status === 'incomplete-cohort'))
+})
+
+test('optional proof finalization never changes exact phase statuses/references on validation or write failure', async () => {
+  const { finalizeSnapshotReaderSummaries } = await import('../scripts/browser-performance/snapshot-capture.mjs')
+  for (const failure of ['validation', 'write', null]) {
+    const report = { readers: {}, readerAdmission: 'admitted', phases: ['native-hover', 'ordinary-hover'].map(name => ({ name, status: 'passed', summaryFile: `${name}.json` })) }
+    const original = structuredClone(report.phases), writes = [], reads = []
+    const result = finalizeSnapshotReaderSummaries(report, record => {
+      reads.push(record.name); if (failure === 'validation' && reads.length === 2) throw Error('unsupported optional proof')
+      return { exactPreviouslyValidated: true }
+    }, (name, summary) => { writes.push([name, summary]); if (failure === 'write' && writes.length === 2) throw Error('proof write failed') })
+    assert.equal(result, failure === null); assert.equal(reads.length, 2)
+    if (failure) {
+      assert.equal(report.readers, undefined); assert.equal(report.readerAdmission, 'unsupported'); assert.deepEqual(report.phases, original)
+      assert.equal(writes.length, failure === 'validation' ? 0 : 2)
+    } else {
+      assert.equal(writes.length, 2)
+      for (const [i, phase] of report.phases.entries()) { assert.equal(phase.status, 'passed'); assert.equal(phase.exactSummaryFile, original[i].summaryFile); assert.match(phase.summaryFile, /-readers\.json$/) }
+    }
+  }
 })

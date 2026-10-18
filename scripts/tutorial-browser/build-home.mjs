@@ -11,6 +11,7 @@ await build({
   define: { __PND_BUILD_REVISION__: JSON.stringify(buildRevision(resolve(import.meta.dirname, '../..'))) },
   root: resolve(fixture),
   publicDir: false,
+  resolve: { dedupe: ['react', 'react-dom', 'three'] },
   plugins: [react()],
   css: { postcss: { plugins: [tailwindcss({ base: resolve(fixture) })] } },
   build: { outDir: resolve(output), emptyOutDir: false, copyPublicDir: false, sourcemap: true, reportCompressedSize: false },

@@ -145,3 +145,99 @@ test('inherited consumer source difference cannot hide behind identical raw geom
   assert.notEqual(left.consumerMethodsSha256, right.consumerMethodsSha256)
   assert.notEqual(left.fingerprintSha256, right.fingerprintSha256)
 })
+
+test('semantic reader evidence binds the actual imported Matrix4 and persists across phase observers', async () => {
+  const scene = fixture(), session = { Matrix4: THREE.Matrix4 }
+  const first = createSnapshotGeometryObserver(scene, session), before = await first.captureBoundary()
+  assert.equal(first.readerEvidence().sources.length, 8)
+  const second = createSnapshotGeometryObserver(scene, session)
+  assert.deepEqual(second.readerEvidence(), first.readerEvidence())
+  assert.equal((await second.captureBoundary()).fingerprintSha256, before.fingerprintSha256)
+  class Substitute extends THREE.Matrix4 {}
+  assert.throws(() => createSnapshotGeometryObserver(scene, { Matrix4: Substitute }), /imported prototype|actual matrix prototype/)
+  const original = THREE.BufferGeometry.prototype.getIndex
+  try {
+    THREE.BufferGeometry.prototype.getIndex = function getIndex() { return this.index }
+    assert.throws(() => createSnapshotGeometryObserver(scene, session), /identity changed between phases/)
+    assert.equal(session.stable, false)
+  } finally { THREE.BufferGeometry.prototype.getIndex = original }
+})
+
+test('semantic admission rejects normalized lookalikes and accessors without invoking them', async () => {
+  for (const value of [0, null, undefined, true]) {
+    const scene = fixture(); scene.terrain.geometry.index.normalized = value
+    assert.throws(() => createSnapshotGeometryObserver(scene, { Matrix4: THREE.Matrix4 }), /strict own attribute/)
+  }
+  for (const name of ['getIndex', 'getAttribute']) {
+    const scene = fixture(), prototype = Object.create(Object.getPrototypeOf(scene.terrain.geometry))
+    let invoked = false
+    Object.defineProperty(prototype, name, { get() { invoked = true; throw Error('getter invoked') } })
+    Object.setPrototypeOf(scene.terrain.geometry, prototype)
+    assert.throws(() => createSnapshotGeometryObserver(scene, { Matrix4: THREE.Matrix4 }), /accessor/)
+    assert.equal(invoked, false)
+  }
+  const scene = fixture(), observer = createSnapshotGeometryObserver(scene, { Matrix4: THREE.Matrix4 })
+  let invoked = false
+  Object.defineProperty(scene.terrain.geometry.index, 'normalized', { get() { invoked = true; throw Error('getter invoked') } })
+  await assert.rejects(observer.captureBoundary(), /stable own attribute/)
+  assert.equal(invoked, false)
+})
+
+test('changing actual imported Matrix4 reader invalidates boundary and fixed witness', async () => {
+  const scene = fixture(), session = { Matrix4: THREE.Matrix4 }, observer = createSnapshotGeometryObserver(scene, session)
+  const original = THREE.Matrix4.prototype.fromArray
+  try {
+    THREE.Matrix4.prototype.fromArray = function fromArray() { return this }
+    assert.equal(signature(observer)[0], 0)
+    await assert.rejects(observer.captureBoundary(), /descriptor changed/)
+    assert.equal(session.stable, false)
+  } finally { THREE.Matrix4.prototype.fromArray = original }
+})
+
+test('look-alike scene matrices cannot conceal an altered real imported scratch Matrix4 reader', () => {
+  const scene = fixture(), original = THREE.Matrix4.prototype.fromArray
+  const fakePrototype = Object.create(THREE.Matrix4.prototype)
+  Object.defineProperty(fakePrototype, 'fromArray', { value: original })
+  for (const owner of [scene.terrain, scene.ground, scene.scene]) Object.setPrototypeOf(owner.matrixWorld, fakePrototype)
+  try {
+    THREE.Matrix4.prototype.fromArray = function fromArray() { return this }
+    assert.throws(() => createSnapshotGeometryObserver(scene, { Matrix4: THREE.Matrix4 }), /actual matrix prototype differs/)
+  } finally { THREE.Matrix4.prototype.fromArray = original }
+})
+
+test('unsupported optional semantic shape falls back only during pre-input installation and retains raw sources', async () => {
+  const { installSnapshotPhaseGeometry } = await import('../scripts/browser-performance/snapshot-capture.mjs')
+  const scene = fixture(), previous = globalThis.window
+  globalThis.window = { testSceneRef: { current: scene }, __pndSnapshotReaderSession: { Matrix4: THREE.Matrix4 } }
+  try {
+    scene.terrain.geometry.index.normalized = 0 // Falsy original exact path, not strict semantic proof.
+    const evidence = installSnapshotPhaseGeometry(createSnapshotGeometryObserver.toString())
+    assert.equal(evidence.strictData, false); assert.equal(evidence.sources.length, 8)
+    assert.equal(window.__pndSnapshotReaderSession.stable, false)
+    const exact = await window.__pndSnapshotGeometry.captureBoundary()
+    assert.match(exact.consumerMethodsSha256, /^[a-f0-9]{64}$/)
+    assert.equal(exact.witness[0], 1)
+  } finally { if (previous === undefined) delete globalThis.window; else globalThis.window = previous }
+})
+
+test('boundary descriptor exceptions permanently deny semantic proof before optional drag retention', async () => {
+  for (const property of ['normalized', 'getIndex']) {
+    const scene = fixture(), session = { Matrix4: THREE.Matrix4 }, observer = createSnapshotGeometryObserver(scene, session)
+    await observer.captureBoundary(); assert.equal(session.stable, true)
+    let invoked = false
+    const owner = property === 'normalized' ? scene.terrain.geometry.index : scene.terrain.geometry
+    Object.defineProperty(owner, property, { get() { invoked = true; throw Error('getter invoked') } })
+    await assert.rejects(observer.captureBoundary(), /attribute data properties|accessor/)
+    assert.equal(invoked, false); assert.equal(session.stable, false)
+    assert.throws(() => observer.readerEvidence(), /unavailable/)
+  }
+})
+
+test('throwing getters during the fixed callback witness permanently deny session proof without retry', async () => {
+  const scene = fixture(), session = { Matrix4: THREE.Matrix4 }, observer = createSnapshotGeometryObserver(scene, session)
+  await observer.captureBoundary()
+  Object.defineProperty(scene.terrain.geometry, 'getIndex', { get() { throw Error('changed throwing reader') } })
+  assert.throws(() => observer.writeWitness(new Float64Array(observer.witnessWidth)), /changed throwing reader/)
+  assert.equal(session.stable, false)
+  assert.throws(() => observer.readerEvidence(), /unavailable/)
+})
