@@ -279,13 +279,18 @@ function snapshotFixture(shard = 'world') {
   for (const run of r.runs) run.phases = snapshot.shards[shard].map(name => {
     const value = run.side === 'base' ? 10 : 8
     const stats = n => ({ n, mean: value, p50: value, p95: value, max: value })
-    return { name, stateSha256: 'a'.repeat(64), viewConfigSha256: 'b'.repeat(64), targetId: name.startsWith('native-') ? 54 : null,
+    const phase = { name, stateSha256: 'a'.repeat(64), viewConfigSha256: 'b'.repeat(64), targetId: name.startsWith('native-') ? 54 : null,
       point: [900, 400], frames: 24, rawFrames: 40, durationMs: 1000,
       blocks: Array.from({ length: 6 }, (_, step) => ({ step, event: 'pointermove',
-        point: [900, 400], geometrySha256: 'd'.repeat(64), ...(name === 'native-view-drag' ? { geometryAfterSha256: 'e'.repeat(64), inputPoseSha256: 'f'.repeat(64) } : {}), poses: Array(4).fill('c'.repeat(64)), inventory: Array.from({ length: 4 }, (_, i) => name === 'hud' || (name === 'native-view-drag' && i > 0) ? [0, 0, 0] : [1, 1, 8]) })),
+        point: [900, 400], geometrySha256: 'd'.repeat(64), ...(name === 'native-view-drag-warm' ? { geometryAfterSha256: 'e'.repeat(64), inputPoseSha256: 'f'.repeat(64) } : {}), poses: Array(4).fill('c'.repeat(64)), inventory: Array.from({ length: 4 }, (_, i) => name === 'hud' || (name === 'native-view-drag-warm' && i > 0) ? [0, 0, 0] : [1, 1, 8]) })),
       timings: Object.fromEntries(snapshot.strata.map(s => [s, Object.fromEntries(Object.keys(metrics).map(key => [key,
         { all: stats(s === 'first' ? 6 : 18), nonzero: stats(s === 'first' ? 6 : 18), perQuery: stats(s === 'first' ? 6 : 18) }]))])),
       work: Object.fromEntries(snapshot.strata.map(s => [s, Object.fromEntries(Object.keys(workMetrics).map(key => [key, stats(s === 'first' ? 6 : 18)]))])) }
+    if (name === 'native-view-drag-warm') {
+      phase.rawFrames = 80
+      phase.warmup = { frames: 24, blocks: structuredClone(phase.blocks), firstCpuMs: Object.fromEntries(['nativeKey', 'nativeProjection', 'nativeTriangles', 'callback'].map(key => [key, Array(6).fill(value)])) }
+    }
+    return phase
   })
   return r
 }
@@ -323,14 +328,17 @@ test('v2 rejects forged metadata/metrics/shards before any comment and bounds wo
 })
 
 test('trusted reporter retains five stable comparisons when appended drag is unsupported, failed, missing or malformed', async () => {
-  for (const outcome of ['source-contract', 'failure', 'missing-fields', 'wrong-inventory']) {
+  for (const outcome of ['source-contract', 'failure', 'missing-fields', 'wrong-inventory', 'missing-warmup', 'short-warmup', 'bad-warmup-value']) {
     const reports = [snapshotFixture(), snapshotFixture('recovery')], world = reports[0], run = world.runs[1], phase = run.phases.pop()
     world.status = 'incomplete'; run.status = 'incomplete'
-    const result = snapshot.appendSnapshotPhase(world, run, 'native-view-drag', () => {
-      if (outcome === 'source-contract') return { name: 'native-view-drag', unsupported: 'source-contract' }
+    const result = snapshot.appendSnapshotPhase(world, run, 'native-view-drag-warm', () => {
+      if (outcome === 'source-contract') return { name: 'native-view-drag-warm', unsupported: 'source-contract' }
       if (outcome === 'failure') throw Error('Raw capture missing')
       if (outcome === 'missing-fields') delete phase.blocks[0].geometryAfterSha256
       if (outcome === 'wrong-inventory') phase.blocks[0].inventory[0][0] = 2
+      if (outcome === 'missing-warmup') delete phase.warmup
+      if (outcome === 'short-warmup') phase.warmup.blocks.pop()
+      if (outcome === 'bad-warmup-value') phase.warmup.firstCpuMs.nativeProjection[0] = -1
       return phase
     })
     assert.equal(result.status, outcome === 'source-contract' ? 'admitted' : 'incomplete-cohort')
@@ -343,8 +351,8 @@ test('trusted reporter retains five stable comparisons when appended drag is uns
     assert.match(section('ordinary-hover'), /possible-improvement/)
     assert.match(section('native-hover'), /possible-improvement/)
     for (const name of ['hud', 'world-recovery', 'menu-recovery']) assert.match(section(name), /Section \/ callback stratum/)
-    assert.match(section('native-view-drag'), outcome === 'source-contract' ? /unsupported-source-contract/ : /incomplete-cohort/)
-    assert.doesNotMatch(section('native-view-drag'), /possible-improvement|possible-regression|Session p50/)
+    assert.match(section('native-view-drag-warm'), outcome === 'source-contract' ? /unsupported-source-contract/ : /incomplete-cohort/)
+    assert.doesNotMatch(section('native-view-drag-warm'), /possible-improvement|possible-regression|Session p50/)
     assert.equal(body.match(/\| Section \/ callback stratum/g).length, 5)
   }
 })
@@ -354,4 +362,22 @@ test('required stable phase admission remains strict while optional missing fiel
   report.status = 'incomplete'; run.status = 'incomplete'; run.phases = []
   assert.throws(() => snapshot.appendSnapshotPhase(report, run, 'native-hover', () => ({ name: 'native-hover' })))
   assert.deepEqual(run.phases, [])
+})
+
+test('trusted reporter rejects unbounded warmup diagnostics and retains unknown values without changing warmed classification', async () => {
+  for (const mutate of [w => { w.command = 'execute' }, w => { w.firstCpuMs.nativeProjection[0] = '[link](https://evil)' },
+    w => { w.firstCpuMs.nativeProjection[0] = 1e9 + 1 }, w => { w.firstCpuMs.callback.push(1) },
+    w => { w.firstCpuMs.unknownMetric = Array(6).fill(1) }, w => { w.frames = 23 }]) {
+    const reports = [snapshotFixture(), snapshotFixture('recovery')]; mutate(reports[0].runs[0].phases[2].warmup)
+    const mock = apiFixture(reports); Object.assign(mock.arguments, { protocolVersion: 2, trustedProtocol: snapshot.protocolHash() })
+    await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(c => c.method), false)
+  }
+  const reports = [snapshotFixture(), snapshotFixture('recovery')], comparison = snapshot.compareReports(reports, identity)
+  reports[0].runs[0].phases[2].warmup.firstCpuMs.nativeProjection[0] = null
+  const mock = apiFixture(reports); Object.assign(mock.arguments, { protocolVersion: 2, trustedProtocol: snapshot.protocolHash() })
+  assert.equal((await reportRun(mock.arguments)).status, 'created')
+  assert.deepEqual(snapshot.compareReports(reports, identity), comparison)
+  const body = mock.state.calls.find(c => c.method).body.body
+  assert.match(body, /First-use native-drag in this prepared workload/)
+  assert.match(body, /Diagnostic only, never pooled/); assert.match(body, /unknown, 10\.000/)
 })

@@ -1,4 +1,4 @@
-import { metricLabels, metrics, shards, strata } from './snapshot-protocol.mjs'
+import { metricLabels, metrics, shards, strata, warmupMetrics } from './snapshot-protocol.mjs'
 import { commentMarker } from './render.mjs'
 import { snapshotDiagnostics } from './snapshot-diagnostics.mjs'
 const format = value => Number.isFinite(value) ? value.toFixed(3) : 'unknown'
@@ -15,7 +15,8 @@ export function renderSnapshotComment(comparison, identity, reports, { harnessCh
     'Explicit test setup: exact-base production-authored Level 2 turn-70 snapshot loaded through the public Load path, ordinarily paused, public focus and integer-pixel right-drag normalization. Same snapshot bytes in both arms. Not live-gameplay, campaign progression, simulation or water-advance performance.',
     'Loaded checkpoint cells can take ownership-sensitive fallback paths. This cohort does not cover fresh-world factory-ownership optimizations; no effect here is not no effect everywhere. Ownership is never injected to manufacture a win.',
     '1440×1000, DPR 1, 2-second warmup. Six discrete inputs per phase. Each input requires the exact next four contiguous recorded callbacks: first 1 and settled 3 separately. No favorable-frame search. Raw extra callbacks are retained, not pooled into the comparison.',
-    'Native-hover uses six unique native pixels around fixed authored target 54 at a stable camera pose; the warmed initial pixel is excluded. Native projection caches may be warm; projection CPU remains observation-only, The separate native-view-drag cohort measures view invalidation only in its first held-right move callback, with six fixed ±1-pixel moves and unmeasured press/release. It does not replace stable hover. Menu-recovery means subsequent world-pointer input after menu close, not the first post-close callback. Recovery shard includes the HUD prerequisite.',
+    'Native-hover uses six unique native pixels around fixed authored target 54 at a stable camera pose; the warmed initial pixel is excluded. Native projection caches may be warm; projection CPU remains observation-only, The separate native-view-drag-warm cohort measures warmed interaction view invalidation only in its first held-right move callback, with six fixed ±1-pixel moves after exactly one identical six-move warmup returning to angle zero, and unmeasured press/release. It does not replace stable hover. Menu-recovery means subsequent world-pointer input after menu close, not the first post-close callback. Recovery shard includes the HUD prerequisite.',
+    'Warmup retains every raw callback and its exact first1+settled3 blocks as first-use native-drag in this prepared workload, separately below. It is not a cold page/session or an un-warmed projection cache. No callback trimming, retries, adaptive warmup or changed thresholds. A fresh bounded observer is allocated at the handoff; caches/F8/held input are not reset. Warmed interaction is not proof of stationarity or a JIT/GC explanation.',
     'Held-drag additionally binds the old native and new ordinary terrain prefixes, effective projection inputs, exact query inventory and reviewed routing/admission source. Changed source owners make only that cohort unsupported; settled held callbacks are no-work observations. Only its native key/projection/triangle buckets are eligible; ordinary work is observation-only because first-query post-prefix attribution is not separately instrumented. Projection/cache work counts are outcomes, not cross-arm input equality.',
     'Small sample: three session pairs, only six first-input observations per session. Possible signals are not statistical significance. Baseline repeats/noise guards are preliminary, not qualified regression gates.',
     'F8 CPU wall-time and RAF cadence only, not GPU time, presented FPS, or hardware smoothness. Presentation clocks may advance while paused; render/callback/RAF remain observation-only. Nested timings overlap. The identical bounded read-only sidecar adds overhead outside app CPU buckets and may perturb RAF cadence.',
@@ -41,6 +42,15 @@ export function renderSnapshotComment(comparison, identity, reports, { harnessCh
       if (!sample || sample.unsupported) continue
       const w = sample.work.first
       lines.push(`| ${Math.floor(run.index / 2) + 1}/${run.side} | ${sample.frames}/${sample.rawFrames} | ${format(sample.durationMs)} | ${format(w.terrainCalls?.mean)}/${format(w.objectCalls?.mean)} | ${format(w.nativeTriangles?.mean / w.objectCalls?.mean)} | ${format(w.ordinaryVertices?.mean)}/${format(w.nativeVertices?.mean)} | ${format(w.modelBuilds?.mean)} |`)
+    }
+    const warmedRuns = (reports.find(r => r.shard === shard)?.runs ?? []).filter(run => run.phases.find(p => p.name === phase)?.warmup)
+    if (warmedRuns.length) {
+      lines.push('', 'First-use native-drag in this prepared workload: all six warmup first callbacks, in fixed input order (ms). Diagnostic only, never pooled into warmed comparisons or classified as a speedup.',
+        '| Pair/arm | Native key 1–6 | Native projection 1–6 | Native triangles 1–6 | Callback 1–6 |', '| --- | --- | --- | --- | --- |')
+      for (const run of warmedRuns) {
+        const warmup = run.phases.find(p => p.name === phase).warmup
+        lines.push(`| ${Math.floor(run.index / 2) + 1}/${run.side} | ${warmupMetrics.map(metric => warmup.firstCpuMs[metric].map(format).join(', ')).join(' | ')} |`)
+      }
     }
     lines.push('', 'Work values are per-frame means; elapsed phase time includes unmeasured preparation and is not a speedup metric.', '', '</details>', '')
   }

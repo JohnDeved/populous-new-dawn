@@ -9,8 +9,8 @@ import { plan, shards, order, repository, metricEligibility, eligibility, metric
 const revision = 'a'.repeat(40), digest = 'c'.repeat(64)
 const identity = { repository, prNumber: 42, baseSha: revision, headSha: 'b'.repeat(40), harnessSha: revision, runId: 1234, runAttempt: 1 }
 function fixture(name = 'ordinary-hover', cpu = 10, buildRevision = revision) {
-  const ring = new FramePerformance(), hud = name === 'hud', drag = name === 'native-view-drag', native = name === 'native-hover' || drag
-  for (let i = 0; i < 32; i++) {
+  const ring = new FramePerformance(), hud = name === 'hud', drag = name === 'native-view-drag-warm', native = name === 'native-hover' || drag
+  for (let i = 0; i < (drag ? 64 : 32); i++) {
     const pointer = createPointerFrameMetrics(true)
     pointer.interaction.route = hud ? 'hud' : 'world'
     pointer.terrainPickCalls = hud ? 0 : 1; pointer.objectPickCalls = hud ? 0 : 1
@@ -74,6 +74,30 @@ function fixture(name = 'ordinary-hover', cpu = 10, buildRevision = revision) {
       }
     }
   }
+  if (drag) {
+    const warmupBlocks = structuredClone(recording.blocks)
+    for (const block of recording.blocks) {
+      block.event.anchorSerial += 32; block.event.anchorTimestampMs += 640; block.event.timestampMs += 640
+      block.event.geometryWitness[10] += 6
+      for (const boundary of [block.geometryBefore, block.geometryAfter]) {
+        boundary.witness[10] += 6; boundary.timestampMs += 640; boundary.observationStartTimestampMs += 640
+      }
+      for (const observed of block.frames) {
+        const prior = structuredClone(raw.frames[observed.serial - 1])
+        observed.serial += 32; observed.timestampMs += 640; observed.geometryWitness[10] += 6
+        prior.timestampMs += 640; raw.frames[observed.serial - 1] = prior
+      }
+    }
+    const epoch = (startSerial, endSerial) => ({ startSerial, startTimestampMs: startSerial * 20, endSerial, endTimestampMs: endSerial * 20 })
+    const held = { ...camera, pointerButtons: 2, pointerGesture: true }
+    recording.warmup = { before: { ...before, camera: held, timestampMs: 12, observationStartTimestampMs: 11 },
+      after: { ...before, camera: structuredClone(held), timestampMs: 630, observationStartTimestampMs: 620 }, blocks: warmupBlocks,
+      observer: { error: null, recorder: epoch(1, 32), events: warmupBlocks.map(block => block.event) } }
+    recording.observer = { error: null, recorder: epoch(32, 64), events: recording.blocks.map(block => block.event) }
+    recording.after.timestampMs = 1350; recording.after.observationStartTimestampMs = 1340
+    raw.timing.endTimestampMs = raw.timing.capturedSpanMs = 1280
+  }
+
   return { raw, recording }
 }
 const summarize = ({ raw, recording }) => summarizeSnapshotPhase(JSON.stringify(raw), recording, raw.buildRevision)
@@ -296,13 +320,13 @@ test('fixed native hover offsets follow production pixel quantization, exclude w
     assert.throws(() => vm.runInContext(`(${snapshotNativeTarget.toString()})`, context)([[1, 0], [1, 0]]), /unique/)
     bounds.width = 1; assert.throws(() => vm.runInContext(`(${snapshotNativeTarget.toString()})`, context)(plan.nativePointerOffsets), /bounds/)
   }
-  assert.equal(plan.cohortRevision, 3)
-  assert.equal(plan.nativeViewInvalidation, 'separate-native-view-drag-first-callback')
+  assert.equal(plan.cohortRevision, 4)
+  assert.equal(plan.nativeViewInvalidation, 'separate-warmed-native-view-drag-first-callback')
   assert.equal(metricEligibility.nativeProjection, 'observation-only-warm-projection-cache')
 })
 
 test('held drag admits exact first-work callbacks and preserves both geometry endpoints and pre-input projection', () => {
-  const input = fixture('native-view-drag'), copy = JSON.stringify(input), result = summarize(input)
+  const input = fixture('native-view-drag-warm'), copy = JSON.stringify(input), result = summarize(input)
   assert.equal(result.phase.frames, 24)
   assert.equal(result.phase.blocks.length, 6)
   assert.notEqual(result.phase.blocks[0].geometrySha256, result.phase.blocks[0].geometryAfterSha256)
@@ -311,8 +335,8 @@ test('held drag admits exact first-work callbacks and preserves both geometry en
   assert.equal(result.phase.work.settled.nativeTriangles.mean, 0)
   assert.equal(JSON.stringify(input), copy)
   const resultRows = compareReports([report(), report('recovery')], identity).rows
-  assert.equal(resultRows.find(r => r.phase === 'native-view-drag' && r.stratum === 'first' && r.metric === 'nativeProjection').p50.status, 'possible-improvement')
-  assert.equal(resultRows.find(r => r.phase === 'native-view-drag' && r.stratum === 'settled' && r.metric === 'nativeProjection').p50.status, 'unknown')
+  assert.equal(resultRows.find(r => r.phase === 'native-view-drag-warm' && r.stratum === 'first' && r.metric === 'nativeProjection').p50.status, 'possible-improvement')
+  assert.equal(resultRows.find(r => r.phase === 'native-view-drag-warm' && r.stratum === 'settled' && r.metric === 'nativeProjection').p50.status, 'unknown')
   assert.equal(resultRows.find(r => r.phase === 'native-hover' && r.stratum === 'first' && r.metric === 'nativeProjection').p50.status, 'observation-only-warm-projection-cache')
 })
 
@@ -348,7 +372,7 @@ test('held drag rejects wrong first input, swapped geometry, hidden projection d
     x => { x.raw.frames[1].simulationSteps = 1 },
     x => { delete x.raw.frames[1].simulationSteps },
   ]
-  for (const mutation of mutations) { const input = fixture('native-view-drag'); mutation(input); assert.throws(() => summarize(input)) }
+  for (const mutation of mutations) { const input = fixture('native-view-drag-warm'); mutation(input); assert.throws(() => summarize(input)) }
 })
 
 test('held-drag effective projection and both prefix identities must match across all paired sessions; internal work need not', () => {
@@ -356,7 +380,7 @@ test('held-drag effective projection and both prefix identities must match acros
     const reports = [report(), report('recovery')], p = reports[0].runs[1].phases.at(-1)
     if (field === 'poses') p.blocks[0].poses[0] = 'a'.repeat(64)
     else p.blocks[0][field] = 'a'.repeat(64)
-    const row = compareReports(reports, identity).rows.find(r => r.phase === 'native-view-drag' && r.metric === 'nativeProjection')
+    const row = compareReports(reports, identity).rows.find(r => r.phase === 'native-view-drag-warm' && r.metric === 'nativeProjection')
     assert.equal(row.p50.status, field.startsWith('geometry') ? 'geometry-input-mismatch' : 'workload-mismatch')
   }
   const reports = [report(), report('recovery')], phases = reports[0].runs.map(r => r.phases.at(-1))
@@ -366,12 +390,102 @@ test('held-drag effective projection and both prefix identities must match acros
 
 test('unsupported held-drag source binding cannot signal and does not invalidate the qualified five phases', () => {
   const reports = [report(), report('recovery')]
-  reports[0].runs[1].phases[2] = { name: 'native-view-drag', unsupported: 'source-contract' }
+  reports[0].runs[1].phases[2] = { name: 'native-view-drag-warm', unsupported: 'source-contract' }
   const result = compareReports(reports, identity)
   assert.equal(result.complete, true)
-  assert.ok(result.rows.filter(r => r.phase === 'native-view-drag').every(r => r.p50.status === 'unsupported-source-contract'))
+  assert.ok(result.rows.filter(r => r.phase === 'native-view-drag-warm').every(r => r.p50.status === 'unsupported-source-contract'))
   assert.equal(result.rows.find(r => r.phase === 'ordinary-hover' && r.stratum === 'first' && r.metric === 'terrainPick').p50.status, 'possible-improvement')
   for (const change of [p => { p.name = 'native-hover' }, p => { p.unsupported = 'free text' }, p => { p.command = 'execute' }]) {
     const value = structuredClone(reports[0]); change(value.runs[1].phases[2]); assert.throws(() => validateReport(value))
+  }
+})
+
+test('warmed drag retains all 24 warmup and 24 measured callbacks in one raw epoch, without changing measured quotas', () => {
+  const input = fixture('native-view-drag-warm'), result = summarize(input)
+  assert.deepEqual(result.warmupRawFrameIndices, input.recording.warmup.blocks.flatMap(b => b.frames.map(f => f.serial - 1)))
+  assert.deepEqual(result.selectedRawFrameIndices, input.recording.blocks.flatMap(b => b.frames.map(f => f.serial - 1)))
+  assert.equal(new Set([...result.warmupRawFrameIndices, ...result.selectedRawFrameIndices]).size, 48)
+  assert.equal(result.phase.rawFrames, 64); assert.equal(result.phase.frames, 24); assert.equal(result.phase.warmup.frames, 24)
+  assert.equal(result.phase.warmup.firstCpuMs.nativeProjection.length, 6)
+  assert.deepEqual(result.phase.warmup.blocks, result.phase.blocks)
+  const original = JSON.stringify(result.phase.timings)
+  for (const index of result.warmupRawFrameIndices) input.raw.frames[index].pointerBreakdown.nativeOcclusion.projectionMs = 999
+  const changed = summarize(input)
+  assert.equal(JSON.stringify(changed.phase.timings), original)
+  assert.deepEqual(changed.phase.warmup.firstCpuMs.nativeProjection, Array(6).fill(999))
+  delete input.raw.frames[result.warmupRawFrameIndices[0]].pointerBreakdown.nativeOcclusion.projectionMs
+  assert.throws(() => summarize(input), /projectionMs/, 'Required raw instrumentation must not be invented')
+})
+
+test('warmup missing first/intermediate work, reset epochs, return drift or any raw trimming fails closed', () => {
+  const mutations = [
+    x => { delete x.recording.warmup },
+    x => { x.recording.name = 'native-view-drag' },
+    x => { x.recording.warmup.blocks.pop() }, x => { x.recording.warmup.blocks.push(x.recording.warmup.blocks[0]) },
+    x => { x.recording.warmup.blocks[0].frames.shift() },
+    x => { x.recording.warmup.blocks[0].event.anchorSerial++ },
+    x => { x.recording.warmup.blocks[0].frames[0].serial++ },
+    x => { x.recording.warmup.blocks[0].frames[1].timestampMs++ },
+    x => { x.recording.warmup.blocks[0].event.sequence++ },
+    x => { x.recording.warmup.blocks[0].frames[0].sequence++ },
+    x => { x.recording.warmup.observer.error = 'Recorder replaced' },
+    x => { x.recording.warmup.observer.events.pop() },
+    x => { x.recording.warmup.observer.recorder.endSerial-- },
+    x => { x.recording.observer.recorder.startTimestampMs-- },
+    x => { x.recording.observer.recorder.startSerial-- },
+    x => { x.recording.warmup.after.turn++ },
+    x => { x.recording.warmup.after.timeOriginUnixMs++ },
+    x => { x.recording.warmup.after.camera.position.angle++ },
+    x => { x.recording.warmup.after.camera.pointerButtons = 0 },
+    x => { x.recording.warmup.before.camera.pointerGesture = false },
+    x => { x.recording.warmup.blocks.at(-1).frames.at(-1).pose[55]++ },
+    x => { x.recording.warmup.blocks.at(-1).geometryAfter.witness[10]++ },
+    x => { x.recording.warmup.blocks.at(-1).geometryAfter.witness[7]++ },
+    x => { x.recording.warmup.blocks.at(-1).geometryAfter.indexSha256 = 'a'.repeat(64) },
+    x => { x.recording.blocks[0].event.beforePose[54]++ },
+    x => { x.recording.blocks[0].geometryBefore.witness[10]++ },
+    x => { x.raw.retention = { availableFrames: 65, droppedOldestFrames: 1, reason: 'serialized-size-limit' } },
+    x => { x.raw.frames[1].pointerBreakdown.nativeOcclusion.projectedVertices = 0 },
+  ]
+  for (const change of mutations) { const input = fixture('native-view-drag-warm'); change(input); assert.throws(() => summarize(input), change.toString()) }
+})
+
+test('warmup input identity, never first-use CPU, controls new-cohort matching; five stable cohorts remain independent', () => {
+  const input = [report(), report('recovery')], original = compareReports(input, identity)
+  input[0].runs[1].phases[2].warmup.firstCpuMs.nativeProjection = Array(6).fill(999)
+  assert.deepEqual(compareReports(input, identity), original)
+  for (const field of ['geometrySha256', 'inputPoseSha256', 'poses']) {
+    const changed = structuredClone(input), block = changed[0].runs[1].phases[2].warmup.blocks[1]
+    if (field === 'poses') block.poses[0] = 'a'.repeat(64)
+    else block[field] = 'a'.repeat(64)
+    const comparison = compareReports(changed, identity)
+    assert.ok(comparison.rows.filter(row => row.phase === 'native-view-drag-warm').every(row => row.p50.status === 'workload-mismatch'))
+    assert.deepEqual(comparison.rows.filter(row => row.phase !== 'native-view-drag-warm'), original.rows.filter(row => row.phase !== 'native-view-drag-warm'))
+  }
+})
+
+
+test('capture handoff checks return before measured inputs or sidecar restart, with no retry after first failure', async () => {
+  const { captureDragWarmup } = await import('../scripts/browser-performance/snapshot-capture.mjs')
+  const { installSnapshotDragObserver } = await import('../scripts/browser-performance/snapshot-drag-observer.mjs')
+  for (const failure of [null, 'input', 'return']) {
+    const { recording: record } = fixture('native-view-drag-warm'), prior = record.warmup, calls = []
+    let observations = 0
+    if (failure === 'return') prior.after.turn++
+    const page = { evaluate: async (fn, source) => { calls.push('restart-sidecar'); assert.equal(source, installSnapshotDragObserver.toString()); return prior.observer } }
+    const run = captureDragWarmup({ page, record,
+      observe: async () => { calls.push('observe'); return observations++ === 0 ? prior.before : prior.after },
+      runBlocks: async blocks => { calls.push('six-fixed-inputs'); blocks.push(...prior.blocks); if (failure === 'input') throw Error('first failed input') }, save: () => calls.push('save') })
+    const measured = run.then(() => calls.push('measured-inputs'))
+    if (failure) {
+      await assert.rejects(measured)
+      assert.equal(calls.includes('measured-inputs'), false)
+      assert.equal(calls.includes('restart-sidecar'), false)
+    } else {
+      await measured
+      assert.deepEqual(calls, ['observe', 'save', 'six-fixed-inputs', 'observe', 'save', 'restart-sidecar', 'save', 'measured-inputs'])
+    }
+    assert.equal(calls.filter(call => call === 'six-fixed-inputs').length, 1)
+    assert.equal(record.warmup.blocks.length, 6)
   }
 })
