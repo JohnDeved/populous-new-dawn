@@ -1,4 +1,11 @@
 import {
+  createPointerInteractionContext,
+  validPointerInteractionContext,
+  INTERACTION_ROUTES,
+  INTERACTION_BOOLEAN_FIELDS,
+  INTERACTION_CHANGE_FIELDS,
+} from './pointer-interaction-context.ts'
+import {
   ORDINARY_TERRAIN_FIELDS,
   createOrdinaryTerrainMetrics,
 } from './ordinary-terrain-metrics.ts'
@@ -23,7 +30,8 @@ const POINTER_FIELDS = [
 ] as const
 const NATIVE_OFFSET = 9 + POINTER_FIELDS.length
 const ORDINARY_OFFSET = NATIVE_OFFSET + 1 + NATIVE_OCCLUSION_FIELDS.length
-const RAW_WIDTH = ORDINARY_OFFSET + 1 + ORDINARY_TERRAIN_FIELDS.length
+const INTERACTION_OFFSET = ORDINARY_OFFSET + 1 + ORDINARY_TERRAIN_FIELDS.length
+const RAW_WIDTH = INTERACTION_OFFSET + 7
 
 export interface RecentFrame {
   timestampMs: number
@@ -155,6 +163,8 @@ export class FramePerformance {
         )
           return false
     }
+    const interaction = metrics?.interaction
+    if (interaction !== undefined && !validPointerInteractionContext(interaction)) return false
     this.timestamp = timestamp
     const offset = this.recentCursor * RAW_WIDTH
     this.recent[offset] = timestamp
@@ -175,6 +185,18 @@ export class FramePerformance {
     this.recent[offset + ORDINARY_OFFSET] = ordinary ? 1 : 0
     for (let i = 0; i < ORDINARY_TERRAIN_FIELDS.length; i++)
       this.recent[offset + ORDINARY_OFFSET + 1 + i] = ordinary?.[ORDINARY_TERRAIN_FIELDS[i]] ?? 0
+    this.recent[offset + INTERACTION_OFFSET] = interaction ? 1 : 0
+    if (interaction) {
+      this.recent[offset + INTERACTION_OFFSET + 1] = INTERACTION_ROUTES.indexOf(interaction.route)
+      for (let i = 0; i < INTERACTION_CHANGE_FIELDS.length; i++) {
+        const value = interaction[INTERACTION_CHANGE_FIELDS[i]]
+        this.recent[offset + INTERACTION_OFFSET + 2 + i] = value === null ? -1 : Number(value)
+      }
+      for (let i = 0; i < INTERACTION_BOOLEAN_FIELDS.length; i++)
+        this.recent[offset + INTERACTION_OFFSET + 4 + i] = Number(
+          interaction[INTERACTION_BOOLEAN_FIELDS[i]]
+        )
+    }
     this.recentCursor = (this.recentCursor + 1) % RECENT_FRAME_CAPACITY
     this.recentCount = Math.min(this.recentCount + 1, RECENT_FRAME_CAPACITY)
     this.callbackHistory[this.cursor] = callback
@@ -244,6 +266,18 @@ export class FramePerformance {
         for (let i = 0; i < ORDINARY_TERRAIN_FIELDS.length; i++)
           ordinary[ORDINARY_TERRAIN_FIELDS[i]] = this.recent[offset + ORDINARY_OFFSET + 1 + i]
         pointerBreakdown.ordinaryTerrain = ordinary
+      }
+      if (pointerBreakdown && this.recent[offset + INTERACTION_OFFSET]) {
+        const interaction = createPointerInteractionContext()
+        interaction.route = INTERACTION_ROUTES[this.recent[offset + INTERACTION_OFFSET + 1]]
+        for (let i = 0; i < INTERACTION_CHANGE_FIELDS.length; i++) {
+          const value = this.recent[offset + INTERACTION_OFFSET + 2 + i]
+          interaction[INTERACTION_CHANGE_FIELDS[i]] = value === -1 ? null : !!value
+        }
+        for (let i = 0; i < INTERACTION_BOOLEAN_FIELDS.length; i++)
+          interaction[INTERACTION_BOOLEAN_FIELDS[i]] =
+            !!this.recent[offset + INTERACTION_OFFSET + 4 + i]
+        pointerBreakdown.interaction = interaction
       }
       return {
         pointerBreakdown,

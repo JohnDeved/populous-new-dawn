@@ -1,4 +1,9 @@
 import {
+  createPointerInteractionContext,
+  resetPointerInteractionContext,
+  type PointerInteractionContext,
+} from './pointer-interaction-context.ts'
+import {
   createOrdinaryTerrainMetrics,
   resetOrdinaryTerrainMetrics,
   type OrdinaryTerrainMetrics,
@@ -11,6 +16,7 @@ import {
 
 // Optional per-callback diagnostics. These fields never feed gameplay state.
 export interface PointerFrameMetrics {
+  interaction?: PointerInteractionContext
   ordinaryTerrain?: OrdinaryTerrainMetrics
   /** Optional versioned native-terrain detail, nested within objectOcclusionMs. */
   nativeOcclusion?: NativeOcclusionMetrics
@@ -35,6 +41,7 @@ export function createPointerFrameMetrics(includeNative = false): PointerFrameMe
   return {
     ...(includeNative
       ? {
+          interaction: createPointerInteractionContext(),
           nativeOcclusion: createNativeOcclusionMetrics(),
           ordinaryTerrain: createOrdinaryTerrainMetrics(),
         }
@@ -53,6 +60,7 @@ export function createPointerFrameMetrics(includeNative = false): PointerFrameMe
 }
 
 export function resetPointerFrameMetrics(metrics: PointerFrameMetrics) {
+  if (metrics.interaction) resetPointerInteractionContext(metrics.interaction)
   if (metrics.nativeOcclusion) resetNativeOcclusionMetrics(metrics.nativeOcclusion)
   if (metrics.ordinaryTerrain) resetOrdinaryTerrainMetrics(metrics.ordinaryTerrain)
   metrics.terrainPickMs = 0

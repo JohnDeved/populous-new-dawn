@@ -1,3 +1,4 @@
+import { capturePointerInteraction } from './pointer-interaction-context.ts'
 import { measurePointerQuery, type PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import { hudTransports, selectFollowerTransport } from './follower-transports-runtime.ts'
 import { focusTransport, type TransportKind } from './hud-transports.ts'
@@ -813,7 +814,7 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
   // browser 12 Hz presentation clock until native timer ownership is ported.
   scene.updateSpellHalo(Math.floor((now * 12) / 1000))
   // Picking projects the entire terrain; repeat when the pointer/view changes.
-  const pointerState = [
+  const pointerInputs = [
     scene.world.mode,
     scene.world.manaWorld.gameFlags,
     scene.world.inputMask,
@@ -832,12 +833,15 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
     ...scene.camera.position.toArray(),
     scene.container.clientWidth,
     scene.container.clientHeight,
-  ].join(',')
+  ]
+  const pointerState = pointerInputs.join(',')
   const pointerChanged = pointerState !== scene.pointerState
   let ground: Point | null | undefined
   if (pointerChanged) {
-    if (scene.pointerButtons === 1 && scene.pointerScreen)
+    if (scene.pointerButtons === 1 && scene.pointerScreen) {
       ground = scene.updateDrag(scene.pointerScreen, metrics)
+      if (metrics?.interaction) metrics.interaction.dragQuery = ground !== undefined
+    }
     const directBlast =
         !scene.overviewActive &&
         blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags),
@@ -851,7 +855,8 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
           : null,
       person = personId === null ? null : blastPersonPosition(scene.world, personId, nativePosition)
     scene.pointer = null
-    if (scene.pointerScreen && scene.world.mode)
+    if (scene.pointerScreen && scene.world.mode) {
+      if (metrics?.interaction) metrics.interaction.placementQuery = !person
       scene.pointer = person
         ? browserPosition(person)
         : (ground = metrics
@@ -859,6 +864,7 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
                 scene.pick(scene.pointerScreen!, metrics)
               )
             : scene.pick(scene.pointerScreen))
+    }
     scene.hoveredObject = null
     if (scene.pointerScreen && !scene.pointerButtons && !scene.world.inputMask) {
       if (directBlast) {
@@ -881,6 +887,14 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
   const tooltipStart = metrics ? performance.now() : 0
   publishTooltipInput(scene, pointerChanged, metrics, ground)
   if (metrics) metrics.tooltipInputMs += performance.now() - tooltipStart
+  if (metrics?.interaction)
+    capturePointerInteraction(
+      metrics.interaction,
+      scene.fpsGraph,
+      scene.tooltipInput?.pointer ?? null,
+      pointerInputs,
+      scene.tooltipInput?.route
+    )
 }
 
 export function updateSpellPointerFrame(

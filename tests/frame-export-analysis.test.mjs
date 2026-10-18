@@ -231,11 +231,13 @@ test('full native and ordinary-detail ring remains within the existing 2 MiB JSO
   // Long numeric representations, large finite durations and largest supported
   // counters are deliberately less compact than ordinary millisecond recordings.
   for (const key of Object.keys(metrics))
-    if (key !== 'nativeOcclusion' && key !== 'ordinaryTerrain') metrics[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
+    if (key !== 'nativeOcclusion' && key !== 'ordinaryTerrain' && key !== 'interaction') metrics[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
   for (const key of NATIVE_OCCLUSION_FIELDS)
     metrics.nativeOcclusion[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
   for (const key of ORDINARY_TERRAIN_FIELDS)
     metrics.ordinaryTerrain[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
+  metrics.interaction.pointerMoved = false
+  metrics.interaction.viewChanged = false
   for (let i = 1; i <= 1200; i++)
     samples.sample(16.666666666666668, 1234567.8901234567, 1234567.8901234567,
       Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, 'live', metrics)
@@ -266,4 +268,23 @@ test('optional ordinary terrain v1 accepts old captures and validates new nested
   value.frames[0].pointerBreakdown.ordinaryTerrain.visitedTriangles = 7
   value.frames[0].pointerBreakdown.ordinaryTerrain.version = 2
   assert.throws(() => summarize(value), /version/)
+})
+
+
+
+
+test('optional interaction context preserves old captures and rejects malformed new values', () => {
+  const value = report()
+  assert.equal(summarize(value).sampleCount, 3)
+  value.frames[0].pointerBreakdown.interaction = createPointerFrameMetrics(true).interaction
+  value.frames[0].pointerBreakdown.interaction.route = 'hud'
+  assert.ok(JSON.stringify(summarize(value)).includes('"route":"hud"'))
+  for (const [key, invalid] of [['version', 2], ['route', 'private-id'], ['pointerMoved', 1], ['viewChanged', undefined], ['sharedTerrain', null]]) {
+    const previous = value.frames[0].pointerBreakdown.interaction[key]
+    value.frames[0].pointerBreakdown.interaction[key] = invalid
+    assert.throws(() => summarize(value), /interaction/)
+    value.frames[0].pointerBreakdown.interaction[key] = previous
+  }
+  value.frames[0].pointerBreakdown.interaction.privateCoordinates = 'do not copy'
+  assert.ok(!JSON.stringify(summarize(value)).includes('privateCoordinates'))
 })
