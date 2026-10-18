@@ -69,3 +69,17 @@ The local Chromium startup blocker remains; it is not bypassed or retried here.
 Existing hosted scenarios can provide broader UI regression but do not currently
 exercise recycled building handles. Full standard gates and independent review
 remain separate from the focused source proof.
+
+### Hosted regression admission, not an executed result
+
+The existing tutorial scenario now appends a separately bounded 35-second building
+identity episode without changing its 180-second overall cap or earlier assertions.
+Only the plain test host's explicit query parameter exposes the bounded fixture;
+the shipped entry and gameplay flags are unchanged. Public startup/Skip and pause
+precede supplied allocation-boundary entities. Real damage/retirement/reallocation
+and entry finish synchronously between paints, checking frame and old DOM identity.
+Visible locator clicks must select the replacement and start real worker dismantling;
+partial work, living occupant release, completion and timber recovery are required.
+Four hashed screenshots and an error/cleanup receipt accompany a successful run.
+This admission is source-tested only until the exact hosted candidate passes; it
+does not yet establish rendered behavior, native pixels or ordinary acquisition.
