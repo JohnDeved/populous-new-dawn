@@ -87,6 +87,30 @@ coverage from qualifying for final parity review.
 
 Maintainability is a standing [main priority](GOAL.md#main-priority-clean-readable-and-maintainable-typescript). The current stack is TypeScript, React 19, Three.js, Web Audio and Vite 8 through vinext. Keep the simulation runnable without a browser; UI and rendering consume its state. [Three.js](https://threejs.org/manual/en/fundamentals.html) supplies scene/rendering primitives while our engine retains control of original simulation rules.
 
+### Gameplay parity and performance
+
+Gameplay parity preserves observable gameplay and relevant deterministic outcomes:
+rules, intended timing, targeting/selection results, and RNG progression or
+checkpoint continuation where they affect required behavior. Historical code
+structure, algorithms, architecture, incidental allocations and internal
+representation are not parity requirements. Do not sacrifice performance merely
+to imitate the original implementation.
+
+Prefer modern, measurably better algorithms and data structures when they preserve
+required behavior. A slow ray-cast path can be replaced with a better spatial query
+or acceleration method; optimization need not retain the existing algorithm.
+Validate actual gameplay semantics, including hit/occlusion, boundary, wrap and
+tie behavior where relevant. Keep native comparisons and compatibility regressions;
+do not delete tests blindly or weaken correctness requirements to admit a faster
+implementation. If a test constrains only an incidental internal detail, establish
+and retain coverage of the required behavior before changing that assertion.
+
+Use comparable before/after workloads and measure full-frame or end-to-end cost,
+including setup, updates, invalidation, deferred work and allocation pressure as
+applicable. Moving work outside a timing bucket or renaming it does not establish
+a speedup. Separate microbenchmark results from complete gameplay performance;
+follow the [measurement rules](references/modern-performance.md#measurement-rules).
+
 | Change | Start here |
 | --- | --- |
 | Spell identity, behavior or engine state | `app/model.ts`; use the shared `SPELLS` definitions, including native model IDs |
