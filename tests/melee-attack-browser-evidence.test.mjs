@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { validateMeleeAttackFrames } from '../scripts/tutorial-browser/melee-attack-evidence.mjs'
 import { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
-  readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
+  readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget,
+  publicMeleePauseKey, assertMeleePauseInputReady } from '../scripts/tutorial-browser/melee-attack.mjs'
 import { minimapPick } from '../app/minimap.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
@@ -48,6 +49,27 @@ test('public attack input presses Shift for the real click and releases it on su
       ? [['down', 'Shift'], ['up', 'Shift']]
       : [['down', 'Shift'], ['click', 818, 294], ['up', 'Shift']])
   }
+})
+
+test('public pause key is released after success or failure and requires actual canvas-focused attack', async () => {
+  for (const fail of [false, true]) {
+    const calls = [], page = { keyboard: {
+      async down(key) { calls.push(['down', key]); if (fail) throw Error('supplied key failure') },
+      async up(key) { calls.push(['up', key]) },
+    } }
+    if (fail) await assert.rejects(publicMeleePauseKey(page), /supplied key failure/)
+    else await publicMeleePauseKey(page)
+    assert.deepEqual(calls, [['down', 'Space'], ['up', 'Space']])
+  }
+  const state = { sceneStoreMatch: true, canvasFocused: true, dialogOpen: false, modifiers: [],
+    paused: false, speed: 1, inputMask: 0, mode: null, attack: { id: 54, action: 'special' } }
+  const before = structuredClone(state)
+  assert.doesNotThrow(() => assertMeleePauseInputReady(state, false)); assert.deepEqual(state, before)
+  assert.doesNotThrow(() => assertMeleePauseInputReady({ ...state, paused: true }, true))
+  for (const change of [{ canvasFocused: false }, { dialogOpen: true }, { modifiers: ['shift'] },
+    { mode: 'hut' }, { inputMask: 64 }, { paused: true }, { attack: null },
+    { attack: { id: 54, action: 'approach' } }])
+    assert.throws(() => assertMeleePauseInputReady({ ...state, ...change }, false))
 })
 
 test('one fixed minimap corridor offset retains nearest input and scales backing pixels into CSS', () => {
@@ -359,7 +381,7 @@ test('ordinary M2 startup rejects hidden Warrior13 and admits the visible author
 
 // Explicit supplied World/canvas/RAF diagnostic. No browser, actual game method,
 // rendering, screenshot pixels, original-game timing or live campaign claim.
-function withObserverFixture(run) {
+function withObserverFixture(run, protocol = 'running-hold') {
   const world = structuredClone({ turn: 40, paused: false, randomState: 12345,
     terrain: new Uint8Array([1, 2, 3]), selected: [54],
     units: [{ id: 54, kind: 'shaman', team: 'blue', hp: 120, heading: Math.PI,
@@ -372,7 +394,8 @@ function withObserverFixture(run) {
   ]
   const submitted = new Set([layers[0], layers[2]]), sourceCalls = [], drawCalls = [], cancellations = []
   const rect = { width: 720, height: 500, left: 15, top: 25 }
-  const canvas = { width: 1440, height: 1000, isConnected: true, getBoundingClientRect: () => rect }
+  const canvas = { tagName: 'CANVAS', className: 'battlefield', width: 1440, height: 1000,
+    isConnected: true, getBoundingClientRect: () => rect }
   const group = { visible: true, userData: { layers, frame: 998, frameFlip: false } }
   const noGameMethod = () => assert.fail('observer must not call a game update/render/pick method')
   const scene = { world, renderer: { domElement: canvas, info: { render: { frame: 100 } }, render: noGameMethod },
@@ -387,7 +410,7 @@ function withObserverFixture(run) {
   let nextRaf = 1000
   const request = callback => { const id = ++nextRaf; pending.set(id, callback); return id }
   const unrelated = request(() => assert.fail('observer must not run an unrelated RAF'))
-  const document = { visibilityState: 'visible', createElement(tag) {
+  const document = { visibilityState: 'visible', elementFromPoint: () => canvas, querySelectorAll: () => [], createElement(tag) {
     assert.equal(tag, 'canvas')
     let captured
     const copy = { width: 0, height: 0,
@@ -417,14 +440,14 @@ function withObserverFixture(run) {
   } }
   const replacements = { window, document, requestAnimationFrame: request,
     cancelAnimationFrame(id) { cancellations.push(id); pending.delete(id) },
-    performance: { now: () => 1234 } }
+    performance: { now: () => 1234 }, getComputedStyle: () => ({ display: 'block', visibility: 'visible', opacity: '1' }) }
   const descriptors = new Map(Object.keys(replacements).map(key =>
     [key, Object.getOwnPropertyDescriptor(globalThis, key)]))
   try {
     for (const [key, value] of Object.entries(replacements))
       Object.defineProperty(globalThis, key, { configurable: true, writable: true, value })
     const before = structuredClone(world)
-    installMeleeFrameObserver()
+    installMeleeFrameObserver(protocol)
     assert.deepEqual(world, before, 'installation preserves the supplied World')
     const observation = window.__pndMeleeObservation
     const next = () => {
@@ -478,6 +501,44 @@ test('supplied observer keeps same-frame crop metadata and counts only visible s
       { stamp: 100, turn: 40, frame: 998, f2: 0 }, { stamp: 102, turn: 41, frame: 999, f2: 1 },
     ])
   })
+})
+
+test('layered observer labels actual pause state and reserves four phase-bound crops without World writes', () => {
+  withObserverFixture(({ world, scene, group, next, observation }) => {
+    next()
+    scene.renderer.info.render.frame++
+    next()
+    assert.equal(observation.result.crops.length, 1, 'only the first running frame spends the pre-pause crop')
+    world.paused = true
+    for (let visit = 0; visit < 3; visit++) { scene.renderer.info.render.frame++; next() }
+    assert.equal(observation.result.crops.length, 3, 'exactly two real paused renders spend held crops')
+    world.paused = false; world.turn++; world.units[0].fight.motion.f2 = 1; world.units[0].fight.motion.stamp = world.turn
+    scene.gameClock.animationFrame += 2; scene.renderer.info.render.frame++; group.userData.frame = 999
+    next()
+    const { samples, crops } = observation.result
+    assert.deepEqual(crops.map(crop => crop.phase), ['running-before-pause', 'public-paused-hold', 'public-paused-hold', 'running-after-resume'])
+    assert.deepEqual(samples.map(sample => sample.phase), ['running-before-pause', 'running-before-pause',
+      'public-paused-hold', 'public-paused-hold', 'public-paused-hold', 'running-after-resume'])
+    for (const sample of samples.filter(sample => sample.cropFile)) {
+      assert.equal(sample.bodyCanvasOwned, true); assert.equal(sample.bodyInCanvas, true); assert.equal(sample.cropOverlayClear, true)
+      assert.deepEqual(sample.cropVisibility.overlays, [])
+      assert.equal(sample.paused, sample.phase === 'public-paused-hold')
+    }
+    assert.equal(observation.result.error, null)
+  }, 'public-pause-v1')
+})
+
+test('layered canvas readback retains actual DOM ownership and overlapping HUD exclusion evidence', () => {
+  withObserverFixture(({ next, observation }) => {
+    const badge = { tagName: 'BUTTON', className: 'paused-badge',
+      getBoundingClientRect: () => ({ x: 100, y: 90, width: 50, height: 50 }) }
+    document.elementFromPoint = () => badge; document.querySelectorAll = () => [badge]
+    next()
+    const sample = observation.result.samples[0]
+    assert.equal(sample.bodyCanvasOwned, false); assert.equal(sample.cropOverlayClear, false)
+    assert.equal(sample.cropVisibility.overlays[0].className, 'paused-badge')
+    assert.equal(sample.cropVisibility.bodyOwner.tag, 'BUTTON')
+  }, 'public-pause-v1')
 })
 
 test('supplied observer stops on Scene replacement and cancels only its own RAF', () => {

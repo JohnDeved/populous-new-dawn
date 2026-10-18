@@ -296,20 +296,52 @@ on eligible Shaman 20, then failed because plain left-click takes the selection
 branch and paused World rejects commands. No attack order or animation result
 was produced. The repaired public Resume / Shift+left route is backed by actual
 pointer-down/up caller regressions on authored Worlds for all four paused/running
-and plain/Shift combinations, not a direct command invocation. Browser command
-delivery and artwork acceptance remain pending; all four prior failures remain
-separate setup evidence.
+and plain/Shift combinations, not a direct command invocation. All four prior
+failures remain separate setup evidence; the later diagnostic below supplies
+actual command and artwork observations but does not pass the strict hold contract.
+
+The corrected one-job diagnostic at `0da6bcb9` (run 39176936163) reached actual
+public command delivery: target 20 at turn 143, then natural Shaman 54 versus 20
+combat. All five observed special samples matched original object 552 and their
+native directional frames; four same-frame crops showed changing visible poses.
+The original strict running-hold validator still failed: turns 508/509/511/517/519
+never repeated across renderer stamps. The sampled interval averaged 131.06 ms
+per stamp, including rendering, scheduling and readback. No callback-end or
+readback span was recorded, so observer overhead cannot be isolated. That failed
+run remains failed, not relabeled as a cadence pass. A preceding diagnostic
+failed Chrome admission before build/browser; the reviewed normalization repair
+kept exact version/bytes pinned and retained raw output before comparing.
 
 The separate 75-second case fits inside, not in addition to, the unchanged
-180-second aggregate browser cap. There is no new workflow/job, browser route,
-dependency, timeout override or resource-policy refresh. Hosted execution must
+180-second aggregate browser cap. The PR adds no new workflow/job, browser route,
+dependency, cap increase or resource-policy refresh. A separately reviewed one-job
+diagnostic is not a readiness/full-gate run. Hosted execution must
 actually meet that budget. The existing complete frame exports remain separate
 from this functional case and retain their original assertions and interpretation.
 
 A read-only post-render RAF observer samples a fixed ten-turn window from the first
-Shaman attack. It binds physical native object/draw/f1/f2, original directional
-frame/flip, visible body-layer submission and the actual renderer frame stamp.
-Up to four small canvas crops are copied synchronously with those samples, with
+Shaman attack. The separately named `public-pause-v1` protocol has three explicit
+phases: `running-before-pause`, `public-paused-hold`, and `running-after-resume`.
+After the first natural attack signal, one public Space pause requires actual
+canvas keyboard focus, no dialog, mode, modifier or input mask, and a live attack.
+The actual paused action/start/turn is recorded; it is not assumed to be the first
+observed sequence. Two distinct real renderer stamps must retain identical turn,
+animation clock, action/start, object/draw/f1/f2, direction/frame/flip and opponent.
+One public Space resume must then produce advancing logical phase and artwork in
+that same attack sequence. Both Space keys are released in `finally`. Landing
+outside an attack, expiring before a resumed advance, or missing evidence fails
+closed; there is no retry to seek another attack and no World/clock rewrite.
+
+The viewport remains 1440×1000 at DPR 1, with the 200-pixel HUD leaving a 1240×1000
+game canvas. Camera, target, startup route, game speed and all budgets remain
+unchanged. Exactly four small canvas crops are reserved: first running attack,
+first two paused render stamps, and first advancing resumed frame. Each binds
+physical native object/draw/f1/f2, original directional frame/flip, visible
+body-layer submission and the actual renderer stamp. Full body bounds must fit
+the canvas; actual DOM ownership at the body center and non-overlap with the
+shipped HUD/pause/message/dialog rectangles are recorded and required. This
+guard matters because canvas readback excludes HTML overlays. Crops are copied
+synchronously with those samples, with
 their PNG hashes, source/frame/turn/renderer stamps and crop coordinates retained
 in `melee-attack.json`. No hidden-body redraw or replacement rendering method is
 used. A later paused context screenshot is labeled separately, not substituted
@@ -327,10 +359,23 @@ same predicate. Running this same browser case against the old runtime is a
 failure-first route, not an already executed browser-baseline claim. The retained
 ordinary CPU baseline separately observed that exact idle-pose failure.
 
-Acceptance requires a same-turn visible hold and advancing native phases/artwork
-within one attack, with at least two crop-backed frames. Missing observations fail
-closed rather than being interpreted as a cadence pass. The marker is not direct
-observation of a private getter identity. This establishes bounded browser artwork
-consistency, not native absolute FPS, hardware smoothness, Firewarrior browser
-coverage or the separate 30/60/120/144 Hz CPU schedule result. Broad issue #214 and
-recoil/knockback remain outside this acceptance.
+Coverage is deliberately layered, not a generic `paused=true` exemption:
+
+- Running browser samples prove original mapped artwork and advancing logical
+  phase/frame before and after the public pause, within the same attack.
+- Public-paused browser samples prove native-pose hold across real renders.
+  `page.tsx` toggles ordinary pause; `scene.ts` still updates/render-submits people,
+  while `game-clock.ts` and `live-people.ts` freeze native animation. Retained
+  `004ee770.c` gates animation lists on the pause flag; this is not a newly
+  verified original-game Space-key/UI mapping.
+- The actual Scene CPU regression explicitly asserts unpaused equal-turn/equal
+  native-phase/equal-artwork pairs around a one-turn advancement. It executes the
+  real frame-selection caller with supplied texture/projection/motion boundaries,
+  not a GPU render. The 30/60/120/144 Hz/irregular CPU schedule checks remain separate.
+
+The original `validateMeleeAttackFrames` contract remains unchanged and rejects
+paused evidence or absent running same-turn hold. The new separately named
+`validateMeleePauseFrames` cannot claim running same-turn browser behavior. Missing
+observations fail closed. Neither protocol proves original absolute FPS, hardware
+smoothness, Firewarrior browser behavior or pixel-perfect composition. Broad issue
+#214 and recoil/knockback remain outside this acceptance.

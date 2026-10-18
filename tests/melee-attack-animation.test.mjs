@@ -137,6 +137,7 @@ test('actual Scene attack frames consume the retained native phase without mutat
   const shown = []
   try {
     for (let visit = 0; visit < 4; visit++) {
+      assert.equal(world.paused, false, 'CPU same-turn hold is explicitly unpaused')
       const before = structuredClone(world)
       fixture.render()
       assert.deepEqual(world, before)
@@ -152,12 +153,14 @@ test('actual Scene attack frames consume the retained native phase without mutat
       assert.equal(group.userData.frame, frame)
       assert.ok(group.userData.layers.some(layer => layer.visible))
       assert.equal(group.userData.nativeFrameHeight, sprites.frames[frame].nativeHeight)
-      shown.push(frame)
+      shown.push({ frame, turn: world.turn, f1: person.f1, f2: person.f2 })
       if (visit < 3) fixture.advance(1 / 24)
     }
-    assert.equal(shown[0], shown[1], 'extra presentation visits retain the same frame')
-    assert.notEqual(shown[1], shown[2], 'the logical combat visit changes original artwork')
-    assert.equal(shown[2], shown[3])
+    assert.deepEqual(shown[0], shown[1], 'same unpaused logical turn retains native phase and actual Scene frame')
+    assert.equal(shown[2].turn, shown[1].turn + 1)
+    assert.notEqual(shown[1].f2, shown[2].f2)
+    assert.notEqual(shown[1].frame, shown[2].frame, 'the logical combat visit changes original artwork')
+    assert.deepEqual(shown[2], shown[3])
   } finally {
     fixture.close()
   }
