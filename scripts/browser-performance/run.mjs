@@ -5,10 +5,10 @@ import { resolve } from 'node:path'
 import { cpus, arch, platform, release, tmpdir } from 'node:os'
 import { preview } from 'vite'
 import { chromium } from '@playwright/test'
-import capture from '../tutorial-browser/gameplay-frames.mjs'
-import { gameplayFramePlan } from '../tutorial-browser/gameplay-frame-evidence.mjs'
+import capture from './snapshot-capture.mjs'
+import { createSnapshotFixture } from './snapshot-setup.mjs'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
-import { repository, shards, order, workMetrics, sha256, protocolHash, summarizeMetrics, summarizeTimings, validateReport } from './protocol.mjs'
+import { repository, shards, order, plan, sha256, protocolHash, validateReport } from './snapshot-protocol.mjs'
 
 const root = resolve(import.meta.dirname, '../..'), base = root, head = resolve(root, '../candidate')
 const shard = process.env.BENCHMARK_SHARD
@@ -18,7 +18,7 @@ const identity = { repository, prNumber: Number(process.env.PR_NUMBER), baseSha:
   runId: Number(process.env.GITHUB_RUN_ID), runAttempt: Number(process.env.GITHUB_RUN_ATTEMPT) }
 const out = resolve(root, 'outputs/browser-performance', shard)
 assert.ok(!existsSync(out), 'Output must be fresh'); mkdirSync(out, { recursive: true })
-const report = { version: 1, identity, protocolSha256: protocolHash(gameplayFramePlan), runtimeSha256: null, shard, status: 'incomplete', runs: [] }
+const report = { version: 2, identity, protocolSha256: protocolHash(), runtimeSha256: null, snapshotSha256: null, shard, status: 'incomplete', runs: [] }
 const save = () => { validateReport(report); writeFileSync(resolve(out, 'report.json'), JSON.stringify(report) + '\n') }
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8' }).trim()
 const fingerprint = source => sha256(execFileSync('git', ['ls-files', '-z'], { cwd: source }).toString().split('\0').filter(Boolean)
@@ -27,7 +27,7 @@ const environment = { node: process.version, arch: arch(), platform: platform(),
   runnerImage: process.env.ImageOS ?? null, runnerVersion: process.env.ImageVersion ?? null,
   lockSha256: sha256(readFileSync(resolve(root, 'package-lock.json'))),
   playwrightSha256: sha256(readFileSync(resolve(root, 'node_modules/playwright-core/browsers.json'))) }
-const receipt = { identity, protocol: { plan: gameplayFramePlan, shards, order }, environment,
+const receipt = { identity, protocol: { plan, shards, order }, environment,
   host: { cpuModels: [...new Set(cpus().map(cpu => cpu.model))], logicalCpus: cpus().length },
   startedAt: new Date().toISOString(), builds: [], sessions: [] }
 const saveReceipt = () => writeFileSync(resolve(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
@@ -68,6 +68,9 @@ try {
   environment.browserVersion = execFileSync(config.browserPath, ['--version'], { encoding: 'utf8' }).trim()
   environment.browserSha256 = sha256(readFileSync(config.browserPath))
   report.runtimeSha256 = sha256(JSON.stringify(environment))
+  const fixtureOutput = resolve(out, 'session-fixture'); mkdirSync(fixtureOutput)
+  const fixture = await createSnapshotFixture({ output: fixtureOutput, source: { commit: identity.baseSha } })
+  report.snapshotSha256 = fixture.receipt.snapshotSha256; receipt.fixture = fixture.receipt
   const dist = { base: await build('base'), head: await build('head') }
   for (const [index, side] of order.entries()) {
     const output = resolve(out, `session-${index}-${side}`); mkdirSync(output)
@@ -84,13 +87,13 @@ try {
       browser = await chromium.launch({ ...config.launch, env: { ...process.env,
         HOME: profile, XDG_CONFIG_HOME: resolve(profile, 'config'), XDG_CACHE_HOME: resolve(profile, 'cache') } })
       timer = setTimeout(() => { session.timedOut = true; void browser?.close() }, 90000)
-      const context = await browser.newContext({ viewport: gameplayFramePlan.viewport, deviceScaleFactor: 1 })
+      const context = await browser.newContext({ viewport: plan.viewport, deviceScaleFactor: 1 })
       const page = await context.newPage(); page.setDefaultTimeout(15000)
       page.on('pageerror', error => session.errors.push(String(error).slice(0, 2000)))
       page.on('console', message => { if (message.type() === 'error' && session.errors.length < 20) session.errors.push(message.text().slice(0, 2000)) })
-      await capture({ page, url: 'http://127.0.0.1:5199', output, expectedRevision: run.revision, measuredPhases: shards[shard] })
+      await capture({ page, url: 'http://127.0.0.1:5199', output, expectedRevision: run.revision, fixture, shard })
       assert.equal(session.timedOut, undefined); assert.deepEqual(session.errors, [])
-      const recording = JSON.parse(readFileSync(resolve(output, 'gameplay-frames.json')))
+      const recording = JSON.parse(readFileSync(resolve(output, 'snapshot-frames.json')))
       for (const name of shards[shard]) {
         const phase = recording.phases.find(phase => phase.name === name)
         assert.equal(phase.status, 'passed')
@@ -100,13 +103,7 @@ try {
         const environmentSha = sha256(JSON.stringify({ browser: browser.version(), host: receipt.host, environment: raw.environment }))
         if (run.environmentSha256 !== null) assert.equal(run.environmentSha256, environmentSha)
         run.environmentSha256 = environmentSha
-        const frames = summary.selectedRawFrameIndices.map(i => raw.frames[i])
-        run.phases.push({ name, frames: frames.length, startTurn: summary.boundary.before.turn, endTurn: summary.boundary.after.turn,
-          durationMs: summary.observedDurationMs, coveredSpanMs: summary.coveredSpanMs,
-          point: { x: phase.point.x, y: phase.point.y, id: phase.point.id ?? null },
-          inputOffsetsMs: phase.inputs.map(input => input.observedTimestampMs - phase.before.timestampMs),
-          camera: [phase.before.camera.x, phase.before.camera.y, phase.before.camera.angle, phase.after.camera.x, phase.after.camera.y, phase.after.camera.angle],
-          metrics: summarizeTimings(frames), work: summarizeMetrics(frames, workMetrics) })
+        run.phases.push(summary.phase)
       }
       run.status = 'complete'
     } catch (error) { session.failure = String(error).slice(0, 2000) }
