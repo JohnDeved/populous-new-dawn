@@ -162,13 +162,20 @@ export function planGeometry(
   return { geometry, cells, entrance }
 }
 
-export function pick(scene: GameScene, event: { clientX: number; clientY: number }) {
+export function pick(
+  scene: GameScene,
+  event: { clientX: number; clientY: number },
+  metrics?: PointerFrameMetrics
+) {
   const rect = scene.renderer.domElement.getBoundingClientRect()
   scene.mouse.set(
     ((event.clientX - rect.left) / rect.width) * 2 - 1,
     1 - ((event.clientY - rect.top) / rect.height) * 2
   )
-  return scene.view.pick(scene.mouse, [scene.terrain], scene.camera)?.point ?? null
+  return (
+    scene.view.pick(scene.mouse, [scene.terrain], scene.camera, false, metrics?.ordinaryTerrain)
+      ?.point ?? null
+  )
 }
 
 export function pickWorldObject(scene: GameScene, event: { clientX: number; clientY: number }) {
@@ -331,7 +338,7 @@ export function updateDrag(
     return
   }
   const picked = metrics
-      ? measurePointerQuery(metrics, 'terrain', () => scene.pick(event))
+      ? measurePointerQuery(metrics, 'terrain', () => scene.pick(event, metrics))
       : scene.pick(event),
     end = picked && nativePosition(scene.world, picked)
   if (!drag.active) {
@@ -848,7 +855,9 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
       scene.pointer = person
         ? browserPosition(person)
         : (ground = metrics
-            ? measurePointerQuery(metrics, 'terrain', () => scene.pick(scene.pointerScreen!))
+            ? measurePointerQuery(metrics, 'terrain', () =>
+                scene.pick(scene.pointerScreen!, metrics)
+              )
             : scene.pick(scene.pointerScreen))
     scene.hoveredObject = null
     if (scene.pointerScreen && !scene.pointerButtons && !scene.world.inputMask) {
