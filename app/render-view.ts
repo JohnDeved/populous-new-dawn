@@ -5,6 +5,13 @@ import * as THREE from 'three'
 import { Painter } from './painter.ts'
 import { DisplayGroundFootprint, widenGroundBounds } from './viewport-bounds.ts'
 import { TerrainVisibilityPreparation } from './terrain-visibility.ts'
+import {
+  terrainSubmissionOwner,
+  standardTerrainSubmissionIndex,
+  reuseTerrainSubmission,
+  certifyTerrainSubmission,
+  revokeTerrainSubmissionOwner,
+} from './terrain-submission-owner.ts'
 import { globePoint, globeVisible, globePick } from './globe.ts'
 import {
   cameraConfig,
@@ -769,9 +776,22 @@ export class RenderView {
     if (ordinary) ordinary.resolutionMs += performance.now() - start
     return hit
   }
+  private terrainSubmissionMatches(
+    index: THREE.BufferAttribute,
+    indices: Uint32Array,
+    count: number
+  ) {
+    for (let i = 0; i < count; i++) if (index.array[i] !== indices[i]) return false
+    return true
+  }
+  // Call before debug/custom unversioned writes to a production terrain index.
+  revokeTerrainSubmission(object: THREE.Mesh) {
+    revokeTerrainSubmissionOwner(object)
+  }
   updateTerrainVisibility(object: THREE.Object3D) {
     if (!(object instanceof THREE.Mesh) || !object.userData.terrainGrid) return
-    const geometry = object.geometry,
+    const owner = terrainSubmissionOwner(object),
+      geometry = object.geometry,
       vertices = geometry.getAttribute('position').count,
       selection = this.terrainVisibility.prepare(
         this.bounds,
@@ -801,28 +821,19 @@ export class RenderView {
       { indices, count } = selection
     // Validate the actual prefix, not just BufferAttribute.version: custom callers
     // can mutate the array without needsUpdate. Keep their original write path.
-    const standard =
-      Object.getPrototypeOf(index) === THREE.BufferAttribute.prototype &&
-      index.getX === THREE.BufferAttribute.prototype.getX &&
-      index.setX === THREE.BufferAttribute.prototype.setX &&
-      Object.getPrototypeOf(index.array) === Uint32Array.prototype &&
-      index.array.buffer instanceof ArrayBuffer &&
-      !index.normalized &&
-      index.itemSize === 1 &&
-      index.count >= count
-    let same = standard
-    if (same)
-      for (let i = 0; i < count; i++)
-        if (index.array[i] !== indices[i]) {
-          same = false
-          break
-        }
+    const standard = standardTerrainSubmissionIndex(index) && index.count >= count
+    // Only initialized, exclusively owned terrain can bypass prefix validation.
+    // Custom/index identity/method changes fall back; marked edits validate once.
+    if (owner && standard && reuseTerrainSubmission(owner, selection)) return
+    if (owner && !standard) revokeTerrainSubmissionOwner(object)
+    const same = standard && this.terrainSubmissionMatches(index, indices, count)
     if (!same) {
       for (let i = 0; i < count; i++) index.setX(i, indices[i])
       index.needsUpdate = true
     }
     if (!standard || geometry.drawRange.start !== 0 || geometry.drawRange.count !== count)
       geometry.setDrawRange(0, count)
+    if (owner && standard) certifyTerrainSubmission(owner, selection)
   }
   private createDrawCallback(object: THREE.Object3D): THREE.Object3D['onBeforeRender'] {
     return (_renderer, _scene, _camera, _geometry, material) => {
