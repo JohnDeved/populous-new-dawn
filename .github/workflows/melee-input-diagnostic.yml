@@ -19,6 +19,7 @@ jobs:
     timeout-minutes: 15
     env:
       CANDIDATE_SHA: '330046bf63a78b569861363aa63cd88d9b4d46f2'
+      PREVIOUS_DIAGNOSTIC_SHA: '6215dd26dd1e579f5c598f625ec531dd0fa66f3c'
       PR_HEAD_SHA: '330046bf63a78b569861363aa63cd88d9b4d46f2'
       PR_BASE_SHA: 'e6c6a6594acd3b713d9a9dd0bce43fe72df33a87'
       EXPECTED_CHROME_VERSION: 'Google Chrome 155.0.8059.39'
@@ -36,7 +37,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
-          fetch-depth: 2
+          fetch-depth: 3
           persist-credentials: false
       - name: Set up pinned Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -47,7 +48,8 @@ jobs:
       - name: Require workflow-only successor and record diagnostic provenance
         run: |
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse HEAD^)" = "$CANDIDATE_SHA"
+          test "$(git rev-parse HEAD^)" = "$PREVIOUS_DIAGNOSTIC_SHA"
+          test "$(git rev-parse HEAD^^)" = "$CANDIDATE_SHA"
           test "$(git diff --name-only "$CANDIDATE_SHA" HEAD)" = '.github/workflows/melee-input-diagnostic.yml'
           node --input-type=module <<'NODE'
           import { execFileSync } from 'node:child_process'
@@ -58,7 +60,8 @@ jobs:
             purpose: 'One bounded public-input and artwork diagnostic; not PR readiness or a full-gate run.',
             candidate: process.env.CANDIDATE_SHA, base: process.env.PR_BASE_SHA,
             diagnosticCommit: process.env.GITHUB_SHA, diagnosticTree: git('rev-parse', 'HEAD^{tree}'),
-            candidateTree: git('rev-parse', 'HEAD^^{tree}'),
+            candidateTree: git('rev-parse', `${process.env.CANDIDATE_SHA}^{tree}`),
+            previousDiagnostic: process.env.PREVIOUS_DIAGNOSTIC_SHA,
             changedPaths: git('diff', '--name-only', process.env.CANDIDATE_SHA, 'HEAD').split('\n'),
             runId: process.env.GITHUB_RUN_ID, runAttempt: process.env.GITHUB_RUN_ATTEMPT,
             runnerReceiptMergeField: 'The unchanged runner labels GITHUB_SHA as github.merge. Here it is the diagnostic commit above, NOT an actual PR merge.',
@@ -73,8 +76,24 @@ jobs:
           npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
           npm ci --no-audit --no-fund
           test -x /opt/google/chrome/chrome
-          test "$(/opt/google/chrome/chrome --version)" = "$EXPECTED_CHROME_VERSION"
-          printf '%s  /opt/google/chrome/chrome\n' "$EXPECTED_CHROME_SHA256" | sha256sum --check --strict
+          node --input-type=module <<'CHROME'
+          import assert from 'node:assert/strict'
+          import { spawnSync } from 'node:child_process'
+          import { createHash } from 'node:crypto'
+          import { readFileSync, writeFileSync } from 'node:fs'
+          import { join } from 'node:path'
+          const binary = '/opt/google/chrome/chrome'
+          const result = spawnSync(binary, ['--version'], { encoding: 'utf8' })
+          // Match run.mjs's intentional .trim(), retaining raw output first.
+          const actual = { binary, stdout: result.stdout, stderr: result.stderr,
+            exitCode: result.status, signal: result.signal, error: result.error?.message,
+            version: result.stdout?.trim(), sha256: createHash('sha256').update(readFileSync(binary)).digest('hex') }
+          console.log(JSON.stringify(actual, null, 2))
+          writeFileSync(join(process.env.RUNNER_TEMP, 'melee-diagnostic-chrome.json'), JSON.stringify(actual, null, 2) + '\n')
+          assert.equal(actual.exitCode, 0, 'Installed Chrome version query must succeed')
+          assert.equal(actual.version, process.env.EXPECTED_CHROME_VERSION, 'Installed Chrome version must match the retained pin')
+          assert.equal(actual.sha256, process.env.EXPECTED_CHROME_SHA256, 'Installed Chrome bytes must match the retained pin')
+          CHROME
           node --version
           npm --version
           sha256sum package-lock.json node_modules/playwright-core/browsers.json
@@ -90,6 +109,7 @@ jobs:
           name: melee-input-diagnostic-${{ github.sha }}
           path: |
             ${{ runner.temp }}/melee-diagnostic-provenance.json
+            ${{ runner.temp }}/melee-diagnostic-chrome.json
             outputs/tutorial-browser/*.json
             outputs/tutorial-browser/*.log
             outputs/tutorial-browser/*.png
