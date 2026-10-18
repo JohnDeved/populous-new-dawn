@@ -181,6 +181,13 @@ export function OriginalMainMenu({
   function back() {
     setPanel('main')
   }
+  function retryCheckpoint() {
+    if (checkpointReadStatus === 'pending') return
+    // This row survives every lookup result, unlike the recovery button. Keep
+    // keyboard focus inside the menu before the lookup disables/removes Retry.
+    dialog.current?.querySelector<HTMLButtonElement>('nav button[aria-label="Load Game"]')?.focus()
+    onRetryCheckpoint()
+  }
   const rows = [
     {
       label: 'New Game',
@@ -233,6 +240,15 @@ export function OriginalMainMenu({
       onKeyDown={event => {
         pointerMode.current = false
         draw()
+        // A held activation key must not follow Retry focus into Load Game.
+        if (
+          event.repeat &&
+          (event.key === 'Enter' || event.key === ' ') &&
+          (event.target as Element).closest('button')
+        ) {
+          event.preventDefault()
+          return
+        }
         // Keep the fullscreen frontend open across repeated native close requests.
         if (event.key === 'Escape') {
           event.preventDefault()
@@ -342,7 +358,7 @@ export function OriginalMainMenu({
               <button
                 type="button"
                 disabled={checkpointReadStatus === 'pending'}
-                onClick={onRetryCheckpoint}
+                onClick={retryCheckpoint}
               >
                 Retry checkpoint lookup
               </button>
