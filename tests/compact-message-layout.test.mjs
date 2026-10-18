@@ -15,6 +15,7 @@ const text = (bounds, value) => ({
   ...bounds,
   text: value,
   fragments: [bounds],
+  clips: [],
   contentFits: true,
   fontSize: 12,
   lineHeight: '18px',
@@ -55,6 +56,10 @@ function clearWitness() {
         metric,
         ...text(box(435, 140, 654, 157), 'Measured value'),
       })),
+      diagnosticTextRuns: [
+        { text: 'First leaf', fragments: [box(435, 20, 480, 32)], clips: [] },
+        { text: 'Second leaf', fragments: [box(490, 20, 550, 32)], clips: [] },
+      ],
     },
   }
 }
@@ -118,6 +123,54 @@ test('compact message acceptance rejects status occlusion, clipping, missing con
   }
 })
 
+test('real FPS font overhang is allowed only inside actual clipping and non-overlap boundaries', () => {
+  const good = clearWitness()
+  // Retained run 39175629111 / artifact 12154202752, Automatic 900x360:
+  // 26px font with 28.6px line-height has a 30px text Range, not a clipped glyph.
+  const fps = {
+    metric: 'fps',
+    ...text(box(435, 34.390625, 463.921875, 62.984375), '24'),
+    fragments: [box(435, 33.390625, 463.921875, 63.390625)],
+    fontSize: 26,
+    lineHeight: '28.6px',
+  }
+  good.witness.diagnosticFields[0] = fps
+  good.witness.diagnosticTextRuns[0] = { text: fps.text, fragments: fps.fragments, clips: [] }
+  assertCompactMessageWitness(good.layout, good.witness, 900, 360)
+  const clipping = {
+    ...box(435, 34.390625, 463.921875, 62.984375),
+    name: 'actual-parent', clipX: true, clipY: false,
+    overflowX: 'clip', overflowY: 'visible', contain: 'none', clipPath: 'none', clip: 'auto',
+  }
+  const horizontalOnly = structuredClone(good)
+  horizontalOnly.witness.diagnosticFields[0].clips = [clipping]
+  assertCompactMessageWitness(horizontalOnly.layout, horizontalOnly.witness, 900, 360)
+  for (const damage of [
+    ({ witness }) => {
+      witness.diagnosticFields[0].clips = [{ ...clipping, clipY: true, overflowY: 'hidden' }]
+    },
+    ({ witness }) => {
+      witness.diagnosticTextRuns[0].clips = [{ ...clipping, clipY: true, contain: 'paint' }]
+    },
+    ({ witness }) => {
+      witness.diagnosticFields[0].fragments[0].top = 7
+    },
+    ({ witness }) => {
+      witness.diagnosticTextRuns[1].fragments = witness.diagnosticTextRuns[0].fragments
+    },
+    ({ witness }) => {
+      witness.diagnosticTextRuns[0].clips = [{ ...clipping, clipPath: 'inset(2px)' }]
+    },
+    ({ witness }) => {
+      witness.diagnosticTextRuns = []
+    },
+  ]) {
+    const bad = structuredClone(good)
+    damage(bad)
+    assert.throws(() => assertCompactMessageWitness(bad.layout, bad.witness, 900, 360))
+  }
+})
+
 test('compact preferences use public controls with genuine text geometry and F8-off restoration', () => {
   assert.deepEqual(compactMessageCases, [
     {
@@ -152,6 +205,13 @@ test('compact preferences use public controls with genuine text geometry and F8-
     assert.ok(source.includes(control))
   assert.match(source, /await setting\.selectOption\(preference\)/)
   assert.match(source, /range\.getClientRects\(\)/)
+  assert.match(source, /style\.overflowX/)
+  assert.match(source, /style\.overflowY/)
+  assert.match(source, /style\.contain/)
+  assert.match(source, /parent\.clientLeft \+ parent\.clientWidth/)
+  assert.match(source, /parent\.clientTop \+ parent\.clientHeight/)
+  assert.ok(source.indexOf('await page.screenshot({ path: resolve(output, screenshot) })') <
+    source.indexOf('assertCompactMessageWitness(layout, witness, width, height)', source.indexOf('report.cases.push(sample)')))
   assert.match(
     source,
     /node\.scrollWidth <= node\.clientWidth && node\.scrollHeight <= node\.clientHeight/

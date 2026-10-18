@@ -58,22 +58,58 @@ export function compactMessageWitness() {
   }
   const visible = node =>
     node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
+  const clips = node => {
+    const result = []
+    for (let parent = node; parent; parent = parent.parentElement) {
+      const style = getComputedStyle(parent)
+      const paint = /\b(paint|content|strict)\b/.test(style.contain)
+      const clipX = paint || /^(hidden|clip|scroll|auto)$/.test(style.overflowX)
+      const clipY = paint || /^(hidden|clip|scroll|auto)$/.test(style.overflowY)
+      if (!clipX && !clipY && style.clipPath === 'none' && style.clip === 'auto') continue
+      const bounds = rect(parent)
+      result.push({
+        name: parent.className || parent.tagName,
+        left: bounds.left + parent.clientLeft,
+        top: bounds.top + parent.clientTop,
+        right: bounds.left + parent.clientLeft + parent.clientWidth,
+        bottom: bounds.top + parent.clientTop + parent.clientHeight,
+        clipX,
+        clipY,
+        overflowX: style.overflowX,
+        overflowY: style.overflowY,
+        contain: style.contain,
+        clipPath: style.clipPath,
+        clip: style.clip,
+      })
+    }
+    return result
+  }
+  const textRuns = node => {
+    const runs = []
+    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT)
+    for (let part = walker.nextNode(); part; part = walker.nextNode()) {
+      if (!part.textContent.trim() || !visible(part.parentElement)) continue
+      const range = document.createRange()
+      range.selectNodeContents(part)
+      runs.push({
+        text: part.textContent,
+        fragments: [...range.getClientRects()].map(r => ({
+          left: r.left, top: r.top, right: r.right, bottom: r.bottom,
+        })),
+        clips: clips(part.parentElement),
+      })
+    }
+    return runs
+  }
   const text = node => {
     const bounds = rect(node),
       style = getComputedStyle(node),
-      fragments = []
-    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT)
-    for (let part = walker.nextNode(); part; part = walker.nextNode()) {
-      if (!part.textContent.trim()) continue
-      const range = document.createRange()
-      range.selectNodeContents(part)
-      for (const r of range.getClientRects())
-        fragments.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom })
-    }
+      fragments = textRuns(node).flatMap(run => run.fragments)
     return {
       ...bounds,
       text: node.textContent,
       fragments,
+      clips: clips(node),
       fontSize: Number.parseFloat(style.fontSize),
       lineHeight: style.lineHeight,
       clientSize: [node.clientWidth, node.clientHeight],
@@ -93,6 +129,8 @@ export function compactMessageWitness() {
     diagnosticFields: [...document.querySelectorAll('.fps-graph [data-metric]')]
       .filter(visible)
       .map(node => ({ metric: node.dataset.metric, ...text(node) })),
+    diagnosticTextRuns: document.querySelector('.fps-graph')
+      ? textRuns(document.querySelector('.fps-graph')) : [],
     pause: document.querySelector('.paused-badge') && rect(document.querySelector('.paused-badge')),
     overflow:
       document.documentElement.scrollWidth > innerWidth ||
@@ -120,23 +158,50 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
         node.bottom <= layout.bottom,
       'Diagnostic fields must fit F8'
     )
-  for (const node of [
+  const strictBoxes = [
     ...witness.worldMessages,
     ...witness.campaignText,
     ...witness.diagnosticRows,
+  ]
+  const contains = (box, fragment, x = true, y = true) =>
+    (!x || (fragment.left >= box.left - 0.5 && fragment.right <= box.right + 0.5)) &&
+    (!y || (fragment.top >= box.top - 0.5 && fragment.bottom <= box.bottom + 0.5))
+  const assertFragment = (fragment, node, diagnostic) => {
+    assert.ok(contains({ left: 0, top: 0, right: width, bottom: height }, fragment), 'Text must fit viewport')
+    if (diagnostic) assert.ok(contains(layout, fragment), 'Diagnostic text must fit F8')
+    for (const clip of node.clips) {
+      // Do not claim rectangular evidence proves an unmeasured shape clip.
+      assert.equal(clip.clipPath, 'none', 'Shape clipping needs separate geometry evidence')
+      assert.equal(clip.clip, 'auto', 'Legacy clipping needs separate geometry evidence')
+      assert.ok(contains(clip, fragment, clip.clipX, clip.clipY), `Text must fit actual clip: ${clip.name}`)
+    }
+  }
+  for (const node of [
+    ...strictBoxes,
     ...witness.diagnosticFields.filter(node => node.metric !== 'export-status' || node.text.trim()),
   ]) {
     assert.ok(node.text.trim() && node.fragments.length, 'Visible text fragments are required')
     assert.equal(node.contentFits, true, 'Text must not overflow its own box')
     assert.ok(node.left >= 0 && node.top >= 0 && node.right <= width && node.bottom <= height)
-    for (const fragment of node.fragments)
-      assert.ok(
-        fragment.left >= node.left - 0.5 &&
-          fragment.top >= node.top - 0.5 &&
-          fragment.right <= node.right + 0.5 &&
-          fragment.bottom <= node.bottom + 0.5,
-        `Wrapped text must remain inside its box: ${node.text}`
-      )
+    for (const fragment of node.fragments) {
+      if (strictBoxes.includes(node))
+        assert.ok(contains(node, fragment), `Wrapped text must remain inside its box: ${node.text}`)
+      // A font's Range can extend beyond its line-height box without clipping.
+      // Keep its real fragments and validate actual clipping/paint boundaries.
+      assertFragment(fragment, node, Boolean(node.metric) || witness.diagnosticRows.includes(node))
+    }
+  }
+  assert.ok(witness.diagnosticTextRuns.length, 'Distinct diagnostic text runs are required')
+  for (const [index, run] of witness.diagnosticTextRuns.entries()) {
+    assert.ok(run.text.trim() && run.fragments.length, 'Diagnostic text runs must be visible')
+    for (const fragment of run.fragments) {
+      assertFragment(fragment, run, true)
+      for (const other of witness.diagnosticTextRuns.slice(index + 1))
+        for (const neighbor of other.fragments)
+          assert.equal(m2RectanglesOverlap(fragment, neighbor), false, 'Distinct diagnostic text must not overlap')
+      for (const ui of [layout.pause, ...layout.interactiveUi, ...witness.worldMessages])
+        assert.equal(m2RectanglesOverlap(fragment, ui), false, 'Diagnostic text must not obscure unrelated UI')
+    }
   }
   for (const ui of layout.interactiveUi)
     assert.equal(
@@ -214,8 +279,8 @@ export async function checkCompactMessages({ page, output, stage, report }) {
         witness,
       }
       report.cases.push(sample)
-      assertCompactMessageWitness(layout, witness, width, height)
       await page.screenshot({ path: resolve(output, screenshot) })
+      assertCompactMessageWitness(layout, witness, width, height)
       await page.keyboard.press('F8')
       await graph.waitFor({ state: 'hidden' })
       await settle()
