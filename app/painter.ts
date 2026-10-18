@@ -24,6 +24,83 @@ export interface Command {
   order: number
 }
 
+type PositionAttribute = THREE.BufferAttribute | THREE.InterleavedBufferAttribute
+
+const centerGetX = THREE.BufferAttribute.prototype.getX
+const centerGetY = THREE.BufferAttribute.prototype.getY
+const centerGetZ = THREE.BufferAttribute.prototype.getZ
+function reusableCenterPosition(position: PositionAttribute) {
+  return (
+    Object.getPrototypeOf(position) === THREE.Float32BufferAttribute.prototype &&
+    position.getX === centerGetX &&
+    position.getY === centerGetY &&
+    position.getZ === centerGetZ &&
+    !position.normalized &&
+    position.itemSize === 3 &&
+    position.count % 3 === 0 &&
+    Object.getPrototypeOf(position.array) === Float32Array.prototype &&
+    position.array.buffer instanceof ArrayBuffer &&
+    position.count * 3 === position.array.length
+  )
+}
+
+function fillTriangleCenters(position: PositionAttribute, positions: THREE.BufferAttribute) {
+  const center = new THREE.Vector3(),
+    vertex = new THREE.Vector3()
+  for (let i = 0; i < position.count; i += 3) {
+    center.set(0, 0, 0)
+    for (let j = 0; j < 3; j++) center.add(vertex.fromBufferAttribute(position, i + j))
+    center.multiplyScalar(1 / 3)
+    positions.setXYZ(i / 3, center.x, center.y, center.z)
+  }
+}
+
+// Render-owned storage, never returned by the public snapshot helper. One
+// backing buffer per live geometry; nested updates use the snapshot path.
+class RenderCenters {
+  entries = new WeakMap<
+    THREE.BufferGeometry,
+    {
+      position: PositionAttribute
+      version: number
+      positions: THREE.BufferAttribute
+      array: PositionAttribute['array']
+    }
+  >()
+  watched = new WeakSet<THREE.BufferGeometry>()
+  clear() {
+    this.entries = new WeakMap()
+  }
+  get(geometry: THREE.BufferGeometry, position: PositionAttribute) {
+    if (!this.watched.has(geometry)) {
+      this.watched.add(geometry)
+      geometry.addEventListener('dispose', () => this.entries.delete(geometry))
+    }
+    const version = 'data' in position ? position.data.version : position.version
+    let cached = this.entries.get(geometry)
+    if (
+      !cached ||
+      cached.position !== position ||
+      cached.array !== position.array ||
+      cached.positions.array.length !== position.count
+    ) {
+      cached = {
+        position,
+        version: NaN,
+        array: position.array,
+        positions: new THREE.BufferAttribute(new Float64Array(position.count), 3),
+      }
+      this.entries.set(geometry, cached)
+    }
+    if (cached.version !== version) {
+      cached.version = NaN // A throwing custom vector hook must not leave a valid partial fill.
+      fillTriangleCenters(position, cached.positions)
+      cached.version = version
+    }
+    return cached.positions
+  }
+}
+
 // One depth stream is shared by terrain, models and sprite layers. The GPU
 // fetches a constant per-triangle value; texture batching cannot change it.
 export class Painter {
@@ -46,8 +123,15 @@ export class Painter {
     groups: THREE.BufferGeometry['groups']
   }[] = []
   texture = new THREE.DataTexture(new Float32Array(1024), 1024, 1, THREE.RedFormat, THREE.FloatType)
+  private renderCenters = new RenderCenters()
+  private updateDepth = 0
+  private centersDisposed = false
   constructor(view: RenderView) {
     this.view = view
+    this.texture.addEventListener('dispose', () => {
+      this.renderCenters.clear()
+      this.centersDisposed = true
+    })
   }
 
   triangleCenters(position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute) {
@@ -55,15 +139,8 @@ export class Painter {
     let cached = this.centers.get(position)
     if (!cached || cached.version !== version) {
       // Retain JS precision: float32 centers can cross native cell boundaries.
-      const positions = new THREE.BufferAttribute(new Float64Array(position.count), 3),
-        center = new THREE.Vector3(),
-        vertex = new THREE.Vector3()
-      for (let i = 0; i < position.count; i += 3) {
-        center.set(0, 0, 0)
-        for (let j = 0; j < 3; j++) center.add(vertex.fromBufferAttribute(position, i + j))
-        center.multiplyScalar(1 / 3)
-        positions.setXYZ(i / 3, center.x, center.y, center.z)
-      }
+      const positions = new THREE.BufferAttribute(new Float64Array(position.count), 3)
+      fillTriangleCenters(position, positions)
       cached = { version, positions }
       this.centers.set(position, cached)
     }
@@ -71,6 +148,16 @@ export class Painter {
   }
 
   update(scene: THREE.Scene, renderer: THREE.WebGLRenderer) {
+    if (this.updateDepth === 0) this.centersDisposed = false
+    this.updateDepth++
+    try {
+      this.updateCommands(scene, renderer)
+    } finally {
+      this.updateDepth--
+    }
+  }
+
+  private updateCommands(scene: THREE.Scene, renderer: THREE.WebGLRenderer) {
     const sampleAmbience = this.pendingSoundEnvironment && this.land
     const listener = sampleAmbience && soundListener(this.view.center, this.view.angle)
     if (sampleAmbience) {
@@ -152,7 +239,22 @@ export class Painter {
       const index = geometry.index,
         submitted = index ? Math.min(index.count, geometry.drawRange.count) / 3 : triangles
       const scale = object.userData.nativeScale as number | undefined
-      const centers = sprite || scale ? null : this.triangleCenters(position)
+      const reuseCenters =
+        !sprite &&
+        !scale &&
+        this.updateDepth === 1 &&
+        !this.centersDisposed &&
+        this.triangleCenters === canonicalTriangleCenters &&
+        reusableCenterPosition(position)
+      // Only the outer update owns the lease. Nested fallback must not discard
+      // its caller's entry; outer fallback releases no-longer-eligible storage.
+      if (!reuseCenters && this.updateDepth === 1) this.renderCenters.entries.delete(geometry)
+      const centers =
+        sprite || scale
+          ? null
+          : reuseCenters
+            ? this.renderCenters.get(geometry, position)
+            : this.triangleCenters(position)
       const vertices = sprite ? null : this.vertices.get(position, !!object.userData.terrainGrid)
       const group = object.parent!,
         metadata = group.userData
@@ -421,3 +523,5 @@ export class Painter {
       : null
   }
 }
+
+const canonicalTriangleCenters = Painter.prototype.triangleCenters
