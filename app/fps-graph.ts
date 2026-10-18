@@ -49,7 +49,6 @@ export class FpsGraph {
         <div title="updatePointerFrame only: pointer targeting, spell halo and tooltip publishing, including their nested picks. Other HUD and event-handler picking is not included."><dt>Pointer + tooltip CPU</dt><dd data-metric="pointer">--</dd></div>
         <div title="Nearest-rank p95 and maximum pointer/tooltip CPU over the last up to 240 accepted frames, published with the other readouts. Not the short-window mean."><dt>Pointer p95 / peak · ≤240f</dt><dd data-metric="pointer-tail">--</dd></div>
         <div title="Callback minus simulation, scene render and pointer/tooltip stages. Other callback work, not idle time. A negative value signals inconsistent measurement ownership."><dt>Other callback CPU</dt><dd data-metric="other">--</dd></div>
-        <div><dt>GPU render timing</dt><dd>Async · export details</dd></div>
         <div><dt>Scene draw calls / frame</dt><dd data-metric="calls">--</dd></div>
       </dl>
       </div><div class="fps-secondary">
@@ -68,7 +67,7 @@ export class FpsGraph {
           <div><dt>JS heap · estimate</dt><dd data-metric="heap">Unavailable</dd></div>
         </dl>
       </div>
-      <p>RAF cadence, not presented FPS. Means: ≥250 ms windows.<br>CPU stages sum to inclusive callback.<br>Synchronous CPU excludes overlay and GPU; async GPU details are in exports.</p>
+      <p>RAF cadence, not presented FPS. Means: ≥250 ms windows.<br>CPU stages sum to inclusive callback.<br>CPU excludes overlay/GPU. Async GPU: export only.</p>
       <button type="button" class="fps-export">Export recent frames</button>
       <div class="fps-caption">Up to 1,200 frames · local JSON only</div>
       <div class="fps-caption" data-metric="export-status" role="status"></div></div>`

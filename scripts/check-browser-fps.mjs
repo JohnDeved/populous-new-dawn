@@ -21,7 +21,7 @@ export async function checkPerformancePage(page, { output } = {}) {
   assert.notEqual(facts.live, 'assertive')
   assert.equal(facts.focusables, 1)
   assert.ok(facts.x >= 0 && facts.y >= 0 && facts.x + facts.width <= 640 && facts.y + facts.height <= 480)
-  assert.match(facts.text, /Synchronous CPU excludes overlay and GPU; async GPU details are in exports/)
+  assert.match(facts.text, /CPU excludes overlay\/GPU\. Async GPU: export only/)
   assert.equal(await overlay.evaluate(el => { const r = el.getBoundingClientRect(); return !el.contains(document.elementFromPoint(r.x + 10, r.y + 10)) }), true)
   if (output) await page.screenshot({ path: resolve(output, 'performance-640x480.png') })
   const exportButton = overlay.getByRole('button', { name: 'Export recent frames', exact: true })
