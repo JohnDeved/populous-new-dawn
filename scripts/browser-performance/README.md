@@ -256,9 +256,24 @@ References: [GitHub workflow_run security warning](https://docs.github.com/en/ac
 ## Candidate-only hosted functional admission
 
 The Tutorial-browser matrix includes one `snapshot-protocol` case, capped at six
-minutes including the existing 120-second build cap and a 90-second total browser
-deadline. It runs the exact proposed merge once in two sequential fresh contexts,
-world then recovery, and attempts all five phase captures without retries. Its
+minutes including the existing 120-second build cap. Candidate smoke now has at
+most two independently bounded 90-second episodes, world then recovery, with a
+180-second combined browser allowance. This explicitly expands the previous
+shared 90-second resource budget; it is not a timing improvement or a renamed
+bucket. The six-minute job-wide hard ceiling, including installation, build,
+one-time fixture/provenance preparation, both episodes, final dependency/bundle
+verification and cleanup, is unchanged. Preparation happens once before either
+episode. Each episode includes context creation, capture and context cleanup;
+timeout closes the owning browser and stops the smoke, without a retry or a
+replacement capture. Non-timeout attribution failure remains failed even when
+the other independent context is attempted. A cleanup failure stops continuation.
+
+It runs the exact proposed merge once in two sequential fresh contexts and
+retains all six phase captures, 144 measured callbacks and 24 separate warmup
+callbacks. Monotonic raw stage/episode start, end, elapsed and allowance fields
+record preparation, session work, cleanup and final verification; delayed timer
+dispatch cannot turn an over-budget episode into a pass. These orchestration
+intervals are not benchmark measurements. Its
 fixture is authored from candidate source and explicitly labeled as such, not as
 trusted common-base comparative evidence. This adds at most six occupied runner
 minutes; the two comparative runners and reporter caps/permissions are unchanged.

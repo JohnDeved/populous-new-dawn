@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url'
 import { readFileSync, writeFileSync, readdirSync, lstatSync, statSync, existsSync, mkdirSync, symlinkSync, accessSync, constants } from 'node:fs'
 import assert from 'node:assert/strict'
 import { browserConfiguration } from './browser-config.mjs'
-import { browserScenarios, browserCapMs } from './scenario-policy.mjs'
+import { browserScenarios, browserCapMs, snapshotSmokeBudget } from './scenario-policy.mjs'
 import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
 import { profileRecoveryReceipt, profileRecoveryReceiptLog } from './profile-recovery-receipt.mjs'
 import { buildRevision } from './build-provenance.mjs'
@@ -124,6 +124,8 @@ try {
   browser = await chromium.launch(browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
   receipt.browserCapMs = browserCapMs(selectedScenario)
+  if (selectedScenario === 'snapshot-protocol') receipt.browserBudget = snapshotSmokeBudget
+  else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
   if (selectedScenario !== 'snapshot-protocol') {
   context = await browser.newContext({ viewport: selectedScenario === 'profile-recovery' ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
@@ -156,8 +158,11 @@ try {
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
   receipt.status = 'passed'
 } catch (error) {
+  if (error.code === 'SNAPSHOT_EPISODE_TIMEOUT') receipt.browserTimedOut = true
   receipt.status = 'failed'; receipt.failure = String(error); receipt.stack = error.stack; process.exitCode = 1
-  try { receipt.failureState = await page.evaluate(() => ({ active: document.activeElement?.outerHTML?.slice(0, 500), body: document.body.innerText.slice(0, 2500) })); await page.screenshot({ path: resolve(out, 'failure.png'), timeout: 10000 }) } catch (e) { receipt.diagnosticError = String(e) }
+  if (page) {
+    try { receipt.failureState = await page.evaluate(() => ({ active: document.activeElement?.outerHTML?.slice(0, 500), body: document.body.innerText.slice(0, 2500) })); await page.screenshot({ path: resolve(out, 'failure.png'), timeout: 10000 }) } catch (e) { receipt.diagnosticError = String(e) }
+  } else if (selectedScenario === 'snapshot-protocol') receipt.failureEvidence = 'candidate-snapshot-smoke.json'
 } finally {
   clearTimeout(timer)
   try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
