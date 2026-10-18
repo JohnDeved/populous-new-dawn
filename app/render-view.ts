@@ -193,6 +193,7 @@ export class RenderView {
         position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute
         world: THREE.Vector3[]
         screen: THREE.Vector4[]
+        slots: Uint32Array | null
       }
     >
   >()
@@ -538,14 +539,7 @@ export class RenderView {
               ].join(',')
             : ''
           const cache = this.groundPickCache.get(object)?.get(instance)
-          const reuse = nativeEdges && cache?.key === cacheKey && cache.position === position
           let projectionStart = projectionMetrics ? performance.now() : 0
-          if (nativeMetrics) {
-            if (reuse) nativeMetrics.cacheHits++
-            else if (!cache) nativeMetrics.cacheCold++
-            else if (cache.position !== position) nativeMetrics.cachePositionChanged++
-            else nativeMetrics.cacheKeyChanged++
-          }
           const scale = object.userData.nativeScale
           const origin = new THREE.Vector3().setFromMatrixPosition(transform),
             basis = modelMatrix(
@@ -555,10 +549,10 @@ export class RenderView {
             ),
             unwrapped = !!object.userData.nativeRelative
           const count = index ? Math.min(index.count, geometry.drawRange.count) : position.count
-          // Equal shipped grid corners share projection work only within this
-          // query and instance. Reuse storage, not projected values or painter state.
-          const terrainCornerEligible =
-            !nativeEdges &&
+          // Share only exact shipped-grid corners newly projected in this query.
+          // Native queries retain slots, but never a corner alias to an earlier
+          // query's projection; newly submitted IDs must read current positions.
+          const shareTerrainCorners =
             !scale &&
             object instanceof THREE.InstancedMesh &&
             object.userData.terrainGrid &&
@@ -585,30 +579,50 @@ export class RenderView {
             count % 6 === 0
           // Original vertex IDs are sparse and duplicate corners need only an
           // alias, not another sparse world/screen array entry. Keep projected
-          // entries packed for this query; candidate triangle IDs stay original.
-          const terrainSlotEligible =
-            terrainCornerEligible &&
+          // entries packed; candidate triangle IDs stay original.
+          const packedTerrain =
+            shareTerrainCorners &&
             index!.array.subarray(0, count).every((id: number) => id < position.count)
-          // A screen/visibility override can synchronously pick again. Nested
-          // calls use independent temporary storage, never the active lease.
+          const reuse =
+            nativeEdges &&
+            cache?.key === cacheKey &&
+            cache.position === position &&
+            !!cache.slots === !!packedTerrain
+          if (nativeMetrics) {
+            if (reuse) nativeMetrics.cacheHits++
+            else if (!cache) nativeMetrics.cacheCold++
+            else if (cache.position !== position) nativeMetrics.cachePositionChanged++
+            else if (cache.key !== cacheKey) nativeMetrics.cacheKeyChanged++
+            // Version 1 has no representation-only reason; do not report a
+            // changed key when only packed/sparse storage eligibility changed.
+          }
+          // Only ordinary outer queries lease scratch. Native packed buffers are
+          // retained by the native cache, never reset or shared with that lease.
           const scratch =
-            terrainSlotEligible && this.ordinaryPickDepth === 1 && !this.ordinaryPickDisposed
+            !nativeEdges &&
+            packedTerrain &&
+            this.ordinaryPickDepth === 1 &&
+            !this.ordinaryPickDisposed
               ? (this.ordinaryPickScratch ??= new OrdinaryPickScratch())
               : null
           scratch?.reset()
-          const terrainCorners = terrainCornerEligible
+          const world: THREE.Vector3[] = reuse ? cache.world : (scratch?.world ?? []),
+            screen: THREE.Vector4[] = reuse ? cache.screen : (scratch?.screen ?? []),
+            terrainSlots = packedTerrain
+              ? reuse
+                ? cache.slots!
+                : (scratch?.slots ?? new Uint32Array(position.count))
+              : null
+          let terrainCorners: Uint32Array | null =
+            !nativeEdges && shareTerrainCorners
               ? (scratch?.corners ?? new Uint32Array(129 * 129))
-              : null,
-            terrainSlots = terrainSlotEligible
-              ? (scratch?.slots ?? new Uint32Array(position.count))
-              : null,
-            world: THREE.Vector3[] = reuse ? cache.world : (scratch?.world ?? []),
-            screen: THREE.Vector4[] = reuse ? cache.screen : (scratch?.screen ?? [])
+              : null
           for (let vertex = 0; vertex < count; vertex++) {
             const i = index ? index.getX(vertex) : vertex
             if (terrainSlots ? terrainSlots[i] : screen[i]) continue
             let firstCorner = -1
-            if (terrainCorners) {
+            if (shareTerrainCorners) {
+              terrainCorners ??= new Uint32Array(129 * 129)
               const x = position.getX(i),
                 y = position.getY(i),
                 z = position.getZ(i),
@@ -667,7 +681,7 @@ export class RenderView {
           if (nativeEdges && !reuse) {
             let entries = this.groundPickCache.get(object)
             if (!entries) this.groundPickCache.set(object, (entries = new Map()))
-            entries.set(instance, { key: cacheKey, position, world, screen })
+            entries.set(instance, { key: cacheKey, position, world, screen, slots: terrainSlots })
           }
           if (projectionMetrics) {
             const now = performance.now()
