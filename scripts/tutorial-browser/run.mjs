@@ -26,6 +26,7 @@ const selectedScenario = process.env.POPULOUS_BROWSER_SCENARIO || 'tutorial'
 assert.ok(browserScenarios.includes(selectedScenario), 'Unknown browser scenario')
 const snapshotScenario = resolve(root, 'scripts/browser-performance/snapshot-smoke.mjs')
 const gameplayScenario = resolve(root, 'scripts/tutorial-browser/gameplay-frames.mjs')
+const meleeScenario = resolve(root, 'scripts/tutorial-browser/melee-attack.mjs')
 const m2Scenario = resolve(root, 'scripts/tutorial-browser/m2-pointer-f8.mjs')
 const port = 5198
 if (existsSync(out)) throw Error('Output must be fresh')
@@ -66,7 +67,7 @@ function outputManifest(path, prefix = '') {
   }
   return result
 }
-const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision: buildRevision(root), gameplayScenarioSha256: hash(gameplayScenario),
+const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision: buildRevision(root), gameplayScenarioSha256: hash(gameplayScenario), meleeScenarioSha256: hash(meleeScenario),
   host: { platform: platform(), arch: arch(), release: release(), logicalCpus: cpus().length,
     cpuModels: [...new Set(cpus().map(cpu => cpu.model))] },
   github: { head: process.env.PR_HEAD_SHA ?? null, base: process.env.PR_BASE_SHA ?? null,
@@ -141,6 +142,10 @@ try {
     receipt.snapshotSmoke = await (await import(pathToFileURL(snapshotScenario).href)).default({ browser, url, output: out, source, expectedRevision: receipt.buildRevision, dist })
   } else if (selectedScenario === 'gameplay-frames') {
     receipt.gameplayFrames = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision })
+    // Keep all original exports/assertions, then release their live world before
+    // the independent ordinary-combat artwork episode. One browser, same cap.
+    await context.close(); context = undefined; page = undefined
+    receipt.meleeAttack = await (await import(pathToFileURL(meleeScenario).href)).default({ browser, url, output: out, expectedRevision: receipt.buildRevision })
   } else if (selectedScenario === 'profile-recovery') {
     receipt.profileRecovery = await (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal })
   } else if (selectedScenario === 'm2-pointer-f8') {

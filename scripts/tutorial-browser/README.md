@@ -240,3 +240,46 @@ presented FPS or hardware smoothness acceptance. Compare matching phases,
 viewport, renderer/runtime and observed work/turn counts across source-bound
 builds; unmatched workload, scheduling and runner variation cannot establish a
 causal speedup. Nested CPU timing buckets overlap and must not be summed.
+
+### Ordinary M2 melee artwork
+
+After every existing gameplay-frame phase/export/assertion, that same job closes
+its first context and starts one fresh authored Mission 2 context. Public New Game,
+recommendation No, Browser controls, All missions, Mission 2 and Skip controls lead
+to public Pause and Select and focus shaman. A declared pure minimap inverse chooses
+camera input near authored Warrior 13; real pointer hovers must identify that person
+before the attack click. Shaman 54's target/order is observed before public Resume.
+No person, health, position, selection, clock, renderer call or command is injected.
+
+The separate 75-second case fits inside, not in addition to, the unchanged
+180-second aggregate browser cap. There is no new workflow/job, browser route,
+dependency, timeout override or resource-policy refresh. Hosted execution must
+actually meet that budget. The existing complete frame exports remain separate
+from this functional case and retain their original assertions and interpretation.
+
+A read-only post-render RAF observer samples a fixed ten-turn window from the first
+Shaman attack. It binds physical native object/draw/f1/f2, original directional
+frame/flip, visible body-layer submission and the actual renderer frame stamp.
+Up to four small canvas crops are copied synchronously with those samples, with
+their PNG hashes, source/frame/turn/renderer stamps and crop coordinates retained
+in `melee-attack.json`. No hidden-body redraw or replacement rendering method is
+used. A later paused context screenshot is labeled separately, not substituted
+for those same-frame crops. Terminal acceptance includes observer/context cleanup
+and runtime errors; available partial observations survive ordinary failures.
+Readback perturbs rendering. The retained crops require visual review; metadata
+matching alone does not prove pixel-perfect composition or hardware performance.
+
+The original table mapping is independent of observed artwork. Idle source 424
+cannot satisfy Shaman strike source 456, even if an ownership marker is forged;
+the pure validator's baseline-shaped fixture is an explicit negative test of this
+same predicate. Running this same browser case against the old runtime is a
+failure-first route, not an already executed browser-baseline claim. The retained
+ordinary CPU baseline separately observed that exact idle-pose failure.
+
+Acceptance requires a same-turn visible hold and advancing native phases/artwork
+within one attack, with at least two crop-backed frames. Missing observations fail
+closed rather than being interpreted as a cadence pass. The marker is not direct
+observation of a private getter identity. This establishes bounded browser artwork
+consistency, not native absolute FPS, hardware smoothness, Firewarrior browser
+coverage or the separate 30/60/120/144 Hz CPU schedule result. Broad issue #214 and
+recoil/knockback remain outside this acceptance.
