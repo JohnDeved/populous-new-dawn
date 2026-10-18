@@ -412,7 +412,9 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
     assert.ok(downloaded.length <= 2 * 1024 * 1024, 'actual download obeys parser code-unit bound')
     const { analyzeFrameExport } = await import('../app/frame-export-analysis.ts')
     assert.equal(analyzeFrameExport(downloaded).sampleCount, 1200)
-    t.diagnostic(`${blob.size} bytes in actual full-detail exported Blob`)
+    const indentedBytes = new Blob([JSON.stringify(JSON.parse(downloaded), null, 2)]).size
+    t.diagnostic(`${blob.size} bytes in actual full-detail exported Blob; ${indentedBytes} bytes if indented`)
+    assert.ok(indentedBytes > 2 * 1024 * 1024, 'compact serializer is required for populated interaction captures')
 
   } finally {
     for (const [name, descriptor] of originals) {

@@ -277,6 +277,13 @@ test('optional interaction context preserves old captures and rejects malformed 
   const value = report()
   assert.equal(summarize(value).sampleCount, 3)
   value.frames[0].pointerBreakdown.interaction = createPointerFrameMetrics(true).interaction
+  assert.ok(JSON.stringify(summarize(value)).includes('"route":"unknown"'))
+  for (const key of Object.keys(value.frames[0].pointerBreakdown.interaction)) {
+    const previous = value.frames[0].pointerBreakdown.interaction[key]
+    delete value.frames[0].pointerBreakdown.interaction[key]
+    assert.throws(() => summarize(value), /interaction/, 'present context requires ' + key)
+    value.frames[0].pointerBreakdown.interaction[key] = previous
+  }
   value.frames[0].pointerBreakdown.interaction.route = 'hud'
   assert.ok(JSON.stringify(summarize(value)).includes('"route":"hud"'))
   for (const [key, invalid] of [['version', 2], ['route', 'private-id'], ['pointerMoved', 1], ['viewChanged', undefined], ['sharedTerrain', null]]) {
