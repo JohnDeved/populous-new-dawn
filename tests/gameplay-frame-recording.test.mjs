@@ -112,6 +112,31 @@ test('a reset leaving a short tail cannot masquerade as the complete scheduled p
   assert.throws(() => summarize(value), /75%/)
 })
 
+test('a long observed phase rejects a valid but short surviving export tail', () => {
+  const value = fixture()
+  value.after.timestampMs = value.before.timestampMs + 10000
+  value.raw.frames.forEach(frame => { frame.timestampMs += 8200 })
+  Object.assign(value.raw.timing, { startTimestampMs: 8200, endTimestampMs: 10000 })
+  assert.equal(value.raw.frames.length, 18)
+  assert.equal(value.raw.timing.capturedSpanMs, 1800)
+  assert.throws(() => summarize(value), /75%/, '18% of observed duration must not pass as a complete phase')
+})
+
+test('extended captures pass only when they cover at least 75% of the observed duration', () => {
+  const value = fixture()
+  value.raw.frames.forEach((frame, index) => {
+    frame.rafIntervalMs = 500
+    frame.timestampMs = value.before.timestampMs + (index + 1) * 500
+  })
+  Object.assign(value.raw.timing, { startTimestampMs: 100, endTimestampMs: 9100, capturedSpanMs: 9000 })
+  value.after.timestampMs = value.before.timestampMs + 10000
+  assert.equal(summarize(value).coveredSpanMs, 9000, '90% of an extended phase remains valid')
+  value.after.timestampMs = value.before.timestampMs + 12000
+  assert.equal(summarize(value).coveredSpanMs, 9000, 'exactly 75% is accepted')
+  value.after.timestampMs += 1
+  assert.throws(() => summarize(value), /75%/, 'less than 75% is rejected even with substantial live work')
+})
+
 test('build identity is derived from actual Git checkout and preserves dirty state', t => {
   const root = mkdtempSync(join(tmpdir(), 'gameplay-build-provenance-'))
   t.after(() => rmSync(root, { recursive: true, force: true }))

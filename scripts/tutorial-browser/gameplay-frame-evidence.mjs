@@ -57,7 +57,8 @@ export function summarizeGameplayPhase(json, phase, before, after, expectedRevis
   assert.equal(raw.environment.visibility, 'visible')
   assertLive(before); assertLive(after)
   assert.ok(Number.isFinite(before.timestampMs) && Number.isFinite(after.timestampMs))
-  assert.ok(after.timestampMs - before.timestampMs >= gameplayFramePlan.phaseDurationMs,
+  const observedDurationMs = after.timestampMs - before.timestampMs
+  assert.ok(observedDurationMs >= gameplayFramePlan.phaseDurationMs,
     'complete requested phase duration required')
   assert.equal(raw.timing.timeOriginUnixMs, before.timeOriginUnixMs)
   assert.equal(after.timeOriginUnixMs, before.timeOriginUnixMs)
@@ -69,7 +70,7 @@ export function summarizeGameplayPhase(json, phase, before, after, expectedRevis
   const frames = indices.map(index => raw.frames[index])
   assert.ok(frames.length >= 8, 'at least eight complete in-phase rendered frames required')
   const coveredSpanMs = frames.at(-1).timestampMs - (frames[0].timestampMs - frames[0].rafIntervalMs)
-  assert.ok(coveredSpanMs >= gameplayFramePlan.phaseDurationMs * 0.75,
+  assert.ok(coveredSpanMs >= observedDurationMs * 0.75,
     'capture must cover at least 75% of the phase, not only a short surviving tail')
   assert.ok(frames.every(frame => frame.state === 'live'), 'menu/paused/unknown samples cannot pass gameplay')
   assert.ok(frames.every(frame => frame.sceneDrawCalls > 0), 'every sampled gameplay frame must draw')
@@ -108,7 +109,7 @@ export function summarizeGameplayPhase(json, phase, before, after, expectedRevis
     schema: 'populous-new-dawn/gameplay-frame-phase', schemaVersion: 1,
     phase: phase.name, rawSha256: createHash('sha256').update(json).digest('hex'),
     boundary: { before, after }, requestedDurationMs: gameplayFramePlan.phaseDurationMs,
-    observedDurationMs: after.timestampMs - before.timestampMs, coveredSpanMs, turnsAdvanced: after.turn - before.turn,
+    observedDurationMs, coveredSpanMs, turnsAdvanced: after.turn - before.turn,
     rawFrameCount: raw.frames.length, selectedRawFrameIndices: indices, work,
     rawAnalysis: analysis, analysis: analyzeFrameExport(scoped), cohorts: summarizeFrameExportCohorts(scoped),
     limits: gameplayFrameLimits,
