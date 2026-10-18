@@ -59,6 +59,20 @@ not treated as zero. Read the warnings, including signed residuals and deferred
 layout attribution; these exports alone do not establish GPU time, presented FPS,
 or a controlled before/after performance improvement.
 
+The optional v1 `pointerBreakdown.ordinaryTerrain` detail is F8-only and nested
+inside `terrainPickMs` (and possibly `tooltipInputMs`). `visibilityMs` covers each
+mesh's world-matrix update and visibility preparation. `projectionMs` covers
+per-instance vertex scratch preparation, deduplication and projection, after
+instance transform/culling; `triangleScanMs` covers the triangle loop including
+candidate creation; `resolutionMs` covers final painter-depth resolution. These
+phases do not exhaust the inclusive pick time: traversal, transforms/culling,
+DOM coordinate conversion and instrumentation overhead remain outside them.
+Overview inverse picking has no mesh phases. Counters report actual screen
+projections and entered triangle-loop iterations, including rejected triangles,
+not submitted triangles or accepted hits. No timers run when diagnostics are off;
+there are no per-triangle timer reads. Optional absent detail remains absent in
+old v1 captures; bounded ring storage snapshots the new fields independently.
+
 ## Completed local optimization: minimap palette conversion
 
 `scripts/bench-minimap.mjs` compares the initial implementation's per-pixel

@@ -178,7 +178,7 @@ export function publishTooltipInput(
       let ground = terrainPick
       if (ground === undefined)
         ground = metrics
-          ? measurePointerQuery(metrics, 'terrain', () => scene.pick(scene.pointerScreen!))
+          ? measurePointerQuery(metrics, 'terrain', () => scene.pick(scene.pointerScreen!, metrics))
           : scene.pick(scene.pointerScreen)
       if (ground) sample.cell = packedCell(nativePosition(scene.world, ground))
     }
