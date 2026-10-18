@@ -48,7 +48,7 @@ export async function skipPauseIntroduction(page) {
 
 export default async function ({ browser, page, url, root, output, receipt, signal }) {
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
-  const checks = [], screenshots = [], renderers = []
+  const checks = [], screenshots = [], renderers = [], frontendKeyboard = []
   const passed = name => {
     checks.push(name)
     writeFileSync(resolve(output, 'progress.json'), JSON.stringify({ checks, screenshots }, null, 2))
@@ -124,6 +124,80 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     await button(page, 'Retry checkpoint lookup').evaluate(node => { node.click(); node.click() })
     assert.equal(await page.evaluate(() => window.pauseLookupAttempts), 2)
   }
+  async function frontendRetry(key, leaveForOptions = false) {
+    signal.throwIfAborted()
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    const main = page.getByRole('dialog', { name: 'Main menu', exact: true })
+    await main.getByRole('status').filter({ hasText: 'Could not read browser storage.' }).waitFor()
+    await page.evaluate(() => {
+      // Read-only observation of Home's real store, as in profile-recovery.
+      const root = document.querySelector('main')
+      let fiber = root[Object.keys(root).find(key => key.startsWith('__reactFiber'))]
+      for (; fiber; fiber = fiber.return)
+        for (let hook = fiber.memoizedState; hook; hook = hook.next)
+          if (hook.memoizedState?.getCheckpointReadStatus && hook.memoizedState?.getWorld)
+            window.frontendRecoveryStore = hook.memoizedState
+      if (!window.frontendRecoveryStore) throw Error('Home checkpoint observer unavailable')
+      window.frontendRecoveryWorld = window.frontendRecoveryStore.getWorld()
+      window.frontendRecoveryKeys = []
+      for (const type of ['keydown', 'keyup'])
+        document.addEventListener(type, event => {
+          if (event.key === 'Enter' || event.key === ' ')
+            window.frontendRecoveryKeys.push({ type, key: event.key,
+              repeat: event.repeat, prevented: event.defaultPrevented })
+        })
+    })
+    await button(page, 'Retry checkpoint lookup').focus()
+    await page.keyboard.down(key)
+    let held = true
+    try {
+      await page.keyboard.down(key)
+      await page.keyboard.down(key)
+      if (key === 'Space') {
+        assert.equal(await page.evaluate(() => window.pauseLookupAttempts), 1,
+          'Space must activate Retry on release, not repeated keydown')
+        await page.keyboard.up(key)
+        held = false
+      }
+      await page.waitForFunction(() => typeof window.finishPauseLookup === 'function')
+      assert.equal(await button(page, 'Retry checkpoint lookup').isDisabled(), true)
+      assert.equal(await focused(page, 'Load Game'), true)
+      assert.equal(await page.evaluate(() => window.pauseLookupAttempts), 2)
+      if (leaveForOptions) {
+        if (held) {
+          await page.keyboard.up(key)
+          held = false
+        }
+        await button(page, 'Options').click()
+        await button(page, 'Back').focus()
+      }
+      await page.evaluate(() => window.finishPauseLookup())
+      await page.waitForFunction(() => window.frontendRecoveryStore.getCheckpointReadStatus() === 'read')
+      if (held) {
+        await page.keyboard.down(key)
+        await page.keyboard.down(key)
+        await page.keyboard.up(key)
+        held = false
+      }
+      assert.equal(await main.isVisible(), true, 'held activation must not load the checkpoint')
+      assert.equal(await page.evaluate(() => window.frontendRecoveryStore.getWorld() === window.frontendRecoveryWorld), true)
+      if (leaveForOptions) {
+        assert.equal(await focused(page, 'Back'), true, 'late lookup must not steal Options focus')
+        await button(page, 'Back').click()
+      } else assert.equal(await focused(page, 'Load Game'), true)
+      assert.equal(await button(page, 'Load Game').getAttribute('aria-disabled'), 'false')
+      const events = await page.evaluate(() => window.frontendRecoveryKeys)
+      assert.ok(events.some(event => event.type === 'keydown' && event.repeat && event.prevented))
+      assert.ok(events.some(event => event.type === 'keyup'))
+      frontendKeyboard.push({ key, leaveForOptions, events, lookupAttempts: 2, worldRetained: true })
+      const name = `frontend-retry-${key.toLowerCase()}${leaveForOptions ? '-options' : ''}.png`
+      await page.screenshot({ path: resolve(output, name) })
+      screenshots.push({ name, viewport: page.viewportSize(), dpr: await page.evaluate(() => devicePixelRatio) })
+      passed(`frontend Retry preserves keyboard focus through ${key} repeats/release${leaveForOptions ? ' and late Options completion' : ' and successful lookup'}`)
+    } finally {
+      if (held) await page.keyboard.up(key)
+    }
+  }
   async function capture(page, name) {
     const viewport = page.viewportSize()
     for (const control of await modal(page).getByRole('button').all()) {
@@ -150,6 +224,9 @@ export default async function ({ browser, page, url, root, output, receipt, sign
   passed('checkpoint created and persisted by ordinary Save Game UI')
 
   await page.addInitScript(coldLookupFailure)
+  await frontendRetry('Enter')
+  await frontendRetry('Space')
+  await frontendRetry('Enter', true)
   await page.reload({ waitUntil: 'domcontentloaded' })
   await openFailedLoad(page, true)
   await page.evaluate(() => { window.pauseRecoveryWorld = window.testStore.getWorld() })
@@ -238,7 +315,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     await emptyContext.close()
   }
   return {
-    checks, screenshots, saved, renderers,
+    checks, screenshots, saved, renderers, frontendKeyboard,
     limits: [
       'Controlled cold IndexedDB open failure and delayed success delivery; all checkpoint contents, storage transactions, world transitions and UI handlers are real.',
       'Repeated disabled-button clicks are synthetic activation probes; mission entry, saving, retry, Back and loading use rendered controls.',

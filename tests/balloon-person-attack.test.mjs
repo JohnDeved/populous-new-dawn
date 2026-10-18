@@ -3,6 +3,10 @@ import {
   boundedGroundAttackDeparture,
 } from './helpers/seated-attack-origin.mjs'
 import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
+import {
+  checkpointComparisonView,
+  assertCheckpointComparisonDomain,
+} from './helpers/checkpoint-comparison-view.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { supportsFollower } from '../app/model.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
@@ -118,13 +122,9 @@ test('supplied-focus current Mission22 queued person target moves its transport 
 
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
-  const restored = store.getWorld(),
-    comparable = w => {
-      const copy = structuredClone(w)
-      for (const head of copy.shrines)
-        if (head.reward === undefined && head.rewardMana) head.reward = 'mana'
-      return copy
-    }
+  const restored = store.getWorld()
+  assertCheckpointComparisonDomain(world)
+  assertCheckpointComparisonDomain(restored)
   const encounters = []
   let departures = 0,
     departure = 0,
@@ -143,7 +143,7 @@ test('supplied-focus current Mission22 queued person target moves its transport 
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
     if (person.vehicle) seatedAttackOrigin(world, shaman, balloon)
-    assert.deepEqual(comparable(restored), comparable(world))
+    assert.deepEqual(checkpointComparisonView(restored), checkpointComparisonView(world))
     if (beforeVehicle && !person.vehicle) {
       boundedGroundAttackDeparture(shaman, beforeSeat)
       departures++

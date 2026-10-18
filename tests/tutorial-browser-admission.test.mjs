@@ -1,5 +1,5 @@
 import yaml from 'js-yaml'
-import { browserScenarios, browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
+import { browserScenarios, browserCapMs, snapshotSmokeBudget } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
@@ -126,6 +126,12 @@ test('candidate snapshot smoke is one read-only bounded functional case, never a
   assert.match(runner, /assert.ok\(browserScenarios.includes\(selectedScenario\)/)
   assert.match(runner, /snapshotScenarioSha256: hash\(snapshotScenario\)/)
   assert.match(runner, /receipt\.snapshotSmoke = await/)
+  assert.match(runner, /if \(selectedScenario === 'snapshot-protocol'\) receipt\.browserBudget = snapshotSmokeBudget\s+else\s+timer = setTimeout/)
+  assert.match(runner, /if \(error.code === 'SNAPSHOT_EPISODE_TIMEOUT'\) receipt.browserTimedOut = true/)
+  assert.match(runner, /if \(page\) \{/)
+  assert.match(runner, /receipt.failureEvidence = 'candidate-snapshot-smoke.json'/)
+  assert.equal(snapshotSmokeBudget.maxEpisodes * snapshotSmokeBudget.episodeMs, snapshotSmokeBudget.totalBrowserMs)
+  assert.equal(snapshotSmokeBudget.hostedJobMs, 6 * 60 * 1000)
 })
 
 

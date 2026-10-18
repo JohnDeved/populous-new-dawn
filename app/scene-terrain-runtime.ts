@@ -1,3 +1,4 @@
+import { rebindRuntimeTerrainPicking } from './runtime-terrain-picking.ts'
 import {
   recordWaterUpdateKey,
   WATER_UPDATE_REASON,
@@ -143,6 +144,7 @@ export function rebuildTerrain(scene: GameScene) {
         new THREE.Float32BufferAttribute(new Float32Array(128 * 128 * 6 * size), size)
       )
     replaceTerrainSubmissionGeometry(scene.terrain, geo)
+    rebindRuntimeTerrainPicking(scene)
   }
   const positions = geo.getAttribute('position'),
     uv = geo.getAttribute('uv'),
