@@ -1,3 +1,5 @@
+import { OrdinaryNumericProjection } from './ordinary-numeric-projection.ts'
+import { runtimeTerrainPicking, releaseRuntimeTerrainPicking } from './runtime-terrain-picking.ts'
 import type {
   OrdinaryTerrainMetrics,
   TerrainVisibilityMetrics,
@@ -202,6 +204,7 @@ class OrdinaryPickScratch {
 }
 
 export class RenderView {
+  private ordinaryNumericProjection: OrdinaryNumericProjection | null = null
   private ordinaryPickScratch: OrdinaryPickScratch | null = null
   private ordinaryPickDepth = 0
   private ordinaryPickDisposed = false
@@ -486,13 +489,40 @@ export class RenderView {
     }
   }
 
+  private pickCandidateQuery(
+    mouse: THREE.Vector2,
+    objects: THREE.Object3D[],
+    camera: THREE.Camera,
+    nativeEdges: boolean,
+    metrics?: NativeOcclusionMetrics,
+    ordinaryMetrics?: OrdinaryTerrainMetrics,
+    owned = false
+  ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0) this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+      return this.collectPickCandidates(
+        mouse,
+        objects,
+        camera,
+        nativeEdges,
+        metrics,
+        ordinaryMetrics,
+        owned
+      )
+    } finally {
+      if (--this.ordinaryPickDepth === 0) this.ordinaryPickScratch?.clearPoints()
+    }
+  }
+
   private collectPickCandidates(
     mouse: THREE.Vector2,
     objects: THREE.Object3D[],
     camera: THREE.Camera,
     nativeEdges: boolean,
     metrics?: NativeOcclusionMetrics,
-    ordinaryMetrics?: OrdinaryTerrainMetrics
+    ordinaryMetrics?: OrdinaryTerrainMetrics,
+    owned = false
   ): ViewPickCandidate[] {
     const nativeMetrics = nativeEdges ? metrics : undefined
     const ordinary = nativeEdges ? undefined : ordinaryMetrics
@@ -637,6 +667,11 @@ export class RenderView {
               ? (this.ordinaryPickScratch ??= new OrdinaryPickScratch())
               : null
           scratch?.reset()
+          const numeric =
+            owned && scratch && runtimeTerrainPicking(this, object)
+              ? (this.ordinaryNumericProjection ??= new OrdinaryNumericProjection())
+              : null
+          numeric?.reset()
           const world: THREE.Vector3[] = reuse ? cache.world : (scratch?.world ?? []),
             screen: THREE.Vector4[] = reuse ? cache.screen : (scratch?.screen ?? []),
             terrainSlots = packedTerrain
@@ -687,6 +722,22 @@ export class RenderView {
                 }
               }
             }
+            if (numeric) {
+              const slot = numeric.append(
+                position.getX(i),
+                position.getY(i),
+                position.getZ(i),
+                transform.elements,
+                this.rawCenter.x,
+                this.rawCenter.y,
+                this.projection,
+                this.config.depth
+              )
+              terrainSlots![i] = slot + 1
+              if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
+              if (projectionMetrics) projectionMetrics.projectedVertices++
+              continue
+            }
             let p = new THREE.Vector3().fromBufferAttribute(position, i)
             if (scale) {
               const raw = [
@@ -719,6 +770,22 @@ export class RenderView {
             projectionMetrics.projectionMs += now - projectionStart
             if (nativeMetrics) nativeMetrics.submittedTriangles += Math.ceil(count / 3)
             projectionStart = now
+          }
+          if (numeric) {
+            this.scanOrdinaryNumeric(
+              numeric,
+              terrainSlots!,
+              index!,
+              count,
+              mouse,
+              object,
+              instance,
+              candidates,
+              ordinary
+            )
+            if (projectionMetrics)
+              projectionMetrics.triangleScanMs += performance.now() - projectionStart
+            continue
           }
           for (let i = 0; i < count; i += 3) {
             if (ordinary) ordinary.visitedTriangles++
@@ -792,6 +859,94 @@ export class RenderView {
         }
       })
     return candidates
+  }
+
+  // The factory is the only opt-in. Generic/public picking and native caches
+  // never use these numeric buffers, even on the same owned view.
+  pickOwnedTerrain(
+    mouse: THREE.Vector2,
+    terrain: THREE.Object3D,
+    camera: THREE.Camera,
+    metrics?: OrdinaryTerrainMetrics
+  ) {
+    if (!runtimeTerrainPicking(this, terrain) || this.overview || this.ordinaryPickDepth !== 0)
+      return this.pick(mouse, [terrain], camera, false, metrics)
+    const candidates = this.pickCandidateQuery(
+      mouse,
+      [terrain],
+      camera,
+      false,
+      undefined,
+      metrics,
+      true
+    )
+    const start = metrics ? performance.now() : 0
+    const result = this.resolvePickCandidates(candidates)
+    if (metrics) metrics.resolutionMs += performance.now() - start
+    return result
+  }
+
+  releaseOrdinaryNumericProjection() {
+    // An active query owns its local reference until completion. Detach only.
+    this.ordinaryNumericProjection = null
+  }
+
+  private scanOrdinaryNumeric(
+    numeric: OrdinaryNumericProjection,
+    slots: Uint32Array,
+    index: THREE.BufferAttribute,
+    count: number,
+    mouse: THREE.Vector2,
+    object: THREE.Object3D,
+    instance: number,
+    candidates: ViewPickCandidate[],
+    metrics?: OrdinaryTerrainMetrics
+  ) {
+    const values = numeric.values
+    for (let i = 0; i < count; i += 3) {
+      if (metrics) metrics.visitedTriangles++
+      const ia = index.getX(i),
+        ib = index.getX(i + 1),
+        ic = index.getX(i + 2)
+      const a = (slots[ia] - 1) * 6,
+        b = (slots[ib] - 1) * 6,
+        c = (slots[ic] - 1) * 6
+      const ax = values[a + 3],
+        ay = values[a + 4],
+        az = values[a + 5],
+        bx = values[b + 3],
+        by = values[b + 4],
+        bz = values[b + 5],
+        cx = values[c + 3],
+        cy = values[c + 4],
+        cz = values[c + 5]
+      if ((az < -1 && bz < -1 && cz < -1) || (az > 1 && bz > 1 && cz > 1)) continue
+      const determinant = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy)
+      if (Math.abs(determinant) < 1e-12) continue
+      const u = ((by - cy) * (mouse.x - cx) + (cx - bx) * (mouse.y - cy)) / determinant,
+        v = ((cy - ay) * (mouse.x - cx) + (ax - cx) * (mouse.y - cy)) / determinant,
+        t = 1 - u - v
+      if (u < 0 || v < 0 || t < 0) continue
+      const ids = [ia, ib, ic],
+        weights = [u / 1, v / 1, t / 1],
+        sum = weights.reduce((total, weight) => total + weight),
+        p = new THREE.Vector3(),
+        source = new THREE.Vector3()
+      ids.forEach((id, j) => {
+        const offset = (slots[id] - 1) * 6
+        source.set(values[offset], values[offset + 1], values[offset + 2])
+        p.addScaledVector(source, weights[j] / sum)
+      })
+      if (!this.visible(p, true)) continue
+      const wrap = (n: number) => ((((n + 128) % 256) + 256) % 256) - 128
+      candidates.push({
+        point: { x: wrap(p.x), z: wrap(p.z) },
+        object,
+        depth: u * az + v * bz + t * cz,
+        triangle: ids[0] / 3,
+        instance,
+      })
+    }
   }
 
   resolvePickCandidates(candidates: ViewPickCandidate[]) {
@@ -1044,6 +1199,7 @@ export class RenderView {
     })
   }
   dispose() {
+    releaseRuntimeTerrainPicking(this)
     // Drop ownership without mutating any buffers an active reentrant call holds.
     this.ordinaryPickScratch = null
     // Remaining instances/roots in this query must not reacquire ownership.
