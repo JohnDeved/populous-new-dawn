@@ -210,6 +210,13 @@
           "producer": "scripts/import-level.py"
         },
         {
+          "path": "app/level-seventeen.ts",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-level.py"
+        },
+        {
           "path": "app/level-eighteen.ts",
           "type": "file",
           "tracked": true,
