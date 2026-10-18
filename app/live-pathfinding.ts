@@ -420,6 +420,8 @@ export function stepLiveRoute(w: World, u: Unit) {
 }
 
 export function removeDeadLiveRoutes(w: World) {
+  // No registered route can need release; avoid scanning the live roster.
+  if (w.pathfinding.people.size === 0) return
   const alive = new Set(w.units.filter(u => u.hp > 0).map(u => u.id))
   for (const [id, p] of w.pathfinding.people)
     if (!alive.has(id)) {
