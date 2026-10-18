@@ -91,6 +91,7 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
   const body = source.slice(source.indexOf('  animate = (now:'), source.indexOf('  private updateTerrainFrame()'))
   let clock = 0, reads = 0
   const events = [], updates = []
+  let gpuCalls = 0
   const step = name => () => { events.push(name); clock += 1 }
   const context = {
     resetPointerFrameMetrics,
@@ -107,7 +108,7 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
     isCurrent: () => current, previous: 0, modalSuspended: modal,
     hoveredObject: null, world: { selected: [], buildings: [], trees: [] },
     renderer: { getPixelRatio: () => 1, render: step('render'), info: { render: { calls: 7 } } },
-    fpsGraph: enabled ? { update(...args) { events.push('telemetry'); updates.push(args); clock += 100 }, reset: step('reset') } : null
+    fpsGraph: enabled ? { renderGpu(draw) { gpuCalls++; return draw() }, update(...args) { events.push('telemetry'); updates.push(args); clock += 100 }, reset: step('reset') } : null
   })
   for (const name of ['cancelNearbyFollowers', 'dispatchNearbyFollowers', 'playWorldSounds',
     'updateTerrainFrame', 'updateDecorationsFrame', 'updateCameraMotion', 'cancelTooltipInspection',
@@ -124,7 +125,7 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
     if (metrics) metrics.reasons |= waterReason
   }
   scene.animate(10)
-  return { scene, events, reads, updates, clock }
+  return { scene, events, reads, updates, clock, gpuCalls }
 }
 
 test('live callback CPU includes preparation, HUD and scheduling, excluding overlay work', () => {
@@ -437,10 +438,12 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
       graph.samples.reset()
       for (let i = 1; i <= 1200; i++)
         graph.samples.sample(16.666666666666668, 1234567.8901234567, 1234567.8901234567,
-          Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, state, metrics, 127, Number.MAX_SAFE_INTEGER)
+          Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, state, metrics, 127, Number.MAX_SAFE_INTEGER,
+          { token: graph.samples.reserveGpuFrame(), timing: { status: 'available', milliseconds: Number.MAX_SAFE_INTEGER / 1e6 } })
       const original = graph.samples.recentFrames()
       graph.exportRecentFrames()
       const json = await blob.text(), bounded = JSON.parse(json), analysis = analyzeFrameExport(json)
+      t.diagnostic(`GPU ${state}: ${blob.size} bytes, ${bounded.frames.length}/1200 retained, agent ${agent.length} code units`)
       assert.ok(blob.size <= 2 * 1024 * 1024)
       assert.ok(json.length <= 2 * 1024 * 1024)
       assert.ok(bounded.frames.length < original.length, 'overflow must be explicitly bounded')
@@ -450,6 +453,8 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
       assert.equal(bounded.retention.droppedOldestFrames, 1200 - bounded.frames.length)
       assert.equal(analysis.retention.droppedOldestFrames, bounded.retention.droppedOldestFrames)
       assert.equal(analysis.sampleCount, bounded.frames.length)
+      assert.ok(bounded.frames.every(f => f.sceneRenderGpu.status === 'available'))
+      assert.equal(bounded.frames[0].sceneRenderGpu.milliseconds, Number.MAX_SAFE_INTEGER / 1e6)
       assert.match(graph.fields['export-status'].textContent, /omitted .* oldest/)
       assert.ok(analysis.warnings.some(warning => warning.includes('omitted')))
       const repeated = json
@@ -699,4 +704,14 @@ test('simulation count ring preserves unknown, zero, catch-up and reset without 
   s.reset()
   s.sample(16, 1, 1, 1, 3)
   assert.equal(s.recentFrames()[0].simulationSteps, undefined)
+})
+
+
+test('actual live/modal render callers invoke GPU seam only with active visible profiling', () => {
+ for(const modal of [false,true]) {
+  assert.equal(runCallback({modal}).gpuCalls,1)
+  assert.equal(runCallback({modal,enabled:false}).gpuCalls,0)
+  assert.equal(runCallback({modal,hidden:true}).gpuCalls,0)
+  assert.equal(runCallback({modal,current:false}).gpuCalls,0)
+ }
 })

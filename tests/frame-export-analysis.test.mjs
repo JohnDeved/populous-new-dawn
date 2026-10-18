@@ -368,3 +368,14 @@ test('explicit retention is validated while old v1 captures remain unchanged', (
     assert.throws(() => summarize(value), /retention/)
   }
 })
+
+
+test('GPU optional states stay separate from CPU attribution and old captures', () => {
+ const old=summarize(report());assert.equal(old.worstFrames.raf[0].sceneRenderGpu,undefined)
+ const value=report();value.frames[0].sceneRenderGpu={status:'unsupported'};value.frames[1].sceneRenderGpu={status:'pending'};value.frames[2].sceneRenderGpu={status:'available',milliseconds:900}
+ const result=summarize(value);assert.deepEqual(result.topCpuPhases,old.topCpuPhases)
+ assert.deepEqual(result.worstFrames.raf[0].sceneRenderGpu,{status:'available',milliseconds:900})
+ for(const invalid of [null,{},[],{status:'unknown'},{status:'unsupported',milliseconds:0},{status:'available'},{status:'available',milliseconds:Infinity},{status:'available',milliseconds:-1}]) {
+  value.frames[0].sceneRenderGpu=invalid;assert.throws(()=>summarize(value),/sceneRenderGpu/)
+ }
+})

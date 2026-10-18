@@ -1,3 +1,4 @@
+import { validGpuFrameTiming, type GpuFrameTiming } from './gpu-frame-timing.ts'
 import { FRAME_EXPORT_LIMIT } from './frame-export-size.ts'
 import { validModelPickWork, type ModelPickWork } from './model-pick-work.ts'
 import { validWaterUpdateReasons } from './water-update-reasons.ts'
@@ -47,6 +48,7 @@ const MAX_JSON_CODE_UNITS = FRAME_EXPORT_LIMIT
 type RecordValue = Record<string, unknown>
 type Frame = Record<(typeof FRAME_FIELDS)[number], number> & {
   simulationSteps?: number
+  sceneRenderGpu?: GpuFrameTiming
   waterUpdateReasons?: number
   state: 'live' | 'paused' | 'menu' | 'unknown'
   pointerBreakdown:
@@ -87,6 +89,16 @@ function frameEvidence(frames: Frame[]) {
   const snapshots = frames.map((frame, frameIndex) => ({
     frameIndex,
     state: frame.state,
+    ...(frame.sceneRenderGpu !== undefined
+      ? {
+          sceneRenderGpu: {
+            status: frame.sceneRenderGpu.status,
+            ...(frame.sceneRenderGpu.status === 'available'
+              ? { milliseconds: frame.sceneRenderGpu.milliseconds }
+              : {}),
+          },
+        }
+      : {}),
     ...(frame.simulationSteps !== undefined ? { simulationSteps: frame.simulationSteps } : {}),
     ...(frame.waterUpdateReasons !== undefined
       ? { waterUpdateReasons: frame.waterUpdateReasons }
@@ -266,6 +278,8 @@ export function analyzeFrameExport(json: string) {
       (!Number.isSafeInteger(frame.simulationSteps) || (frame.simulationSteps as number) < 0)
     )
       throw new Error(`Invalid frames[${index}].simulationSteps`)
+    if (frame.sceneRenderGpu !== undefined && !validGpuFrameTiming(frame.sceneRenderGpu))
+      throw new Error(`Invalid frames[${index}].sceneRenderGpu`)
     if (
       frame.waterUpdateReasons !== undefined &&
       !validWaterUpdateReasons(frame.waterUpdateReasons)
