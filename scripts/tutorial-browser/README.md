@@ -251,6 +251,11 @@ ordinary bird’s-eye preset (2), explicitly not the no-person world overview.
 A declared pure minimap inverse chooses camera input near authored Green Shaman 20;
 that person must be outside, visible and eligible in the actual renderer's picking
 metadata, and real pointer hovers must identify him before the attack click.
+The same five fixed body-interior candidates are checked for actual DOM ownership
+before waiting for canvas pointer events. A HUD-covered candidate is recorded and
+skipped, never clicked through; an exposed candidate still needs a real pointer
+event, a later renderer stamp and the ordinary hover winner. No qualifying point
+fails closed with the complete attempt trace, without moving or hiding the HUD.
 Shaman 54's target/order is observed before public Resume. Defenders may naturally
 intercept the order; actual opponent and encounter participant IDs are retained,
 not forced. The native artwork assertions still observe Blue Shaman 54.
@@ -263,6 +268,12 @@ animation failure or browser acceptance. The repaired route records eligibility,
 camera/preset, bounds and hover winners, plus a best-effort failure PNG and state
 trace before cleanup. A closed/crashed page may prevent those diagnostics; missing
 evidence is retained explicitly rather than treated as a pass.
+The second attempt at `24eb18a1` confirmed eligible Shaman 20 and ordinary preset 2,
+but the pause badge covered the first body-interior point. Its pointer wait timed
+out before the previous late DOM guard could skip that point. That separate failed
+artifact includes the actual failure screenshot and is also pre-attack setup
+evidence, not an animation failure. The ownership preflight preserves every
+candidate, camera input, timeout and native artwork assertion from that attempt.
 
 The separate 75-second case fits inside, not in addition to, the unchanged
 180-second aggregate browser cap. There is no new workflow/job, browser route,

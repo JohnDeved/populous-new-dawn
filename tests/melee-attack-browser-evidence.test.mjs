@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { validateMeleeAttackFrames } from '../scripts/tutorial-browser/melee-attack-evidence.mjs'
 import { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
-  readMeleeRouteState } from '../scripts/tutorial-browser/melee-attack.mjs'
+  readMeleeRouteState, meleeTargetPoint } from '../scripts/tutorial-browser/melee-attack.mjs'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
 
@@ -33,6 +33,81 @@ const evidence = () => [
   sample({ stamp: 101, animationFrame: 81 }),
   sample({ stamp: 102, turn: 41, animationFrame: 82, f2: 1, cropFile: 'shaman-strike-frame1.png' }),
 ]
+
+// Supplied DOM/event fixture, not browser acceptance. The bounds reproduce the
+// second hosted failure; owner selection below is explicit test input.
+async function withPointerFixture(ownerAt, run, { failWait = false, hoveredId = 20 } = {}) {
+  const bounds = { x: 813, y: 466, width: 22, height: 37 }, attempts = [], saved = [], moves = []
+  const element = (tagName, className, rect) => ({ tagName, className,
+    getAttribute: () => null, getBoundingClientRect: () => rect })
+  const canvas = element('CANVAS', '', { x: 200, y: 0, width: 1240, height: 1000 })
+  const badge = element('BUTTON', 'paused-badge', { x: 723, y: 410, width: 193, height: 79 })
+  const scene = { renderer: { domElement: canvas, info: { render: { frame: 108 } } },
+    hoveredObject: null, pointerScreen: null }
+  const replacements = { window: { testSceneRef: { current: scene } },
+    document: { elementFromPoint: (x, y) => ownerAt({ x, y }) ? canvas : badge } }
+  const descriptors = new Map(Object.keys(replacements).map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]))
+  const save = () => saved.push(structuredClone(attempts))
+  const page = { evaluate: (fn, arg) => fn(arg),
+    mouse: { async move(x, y) {
+      assert.equal(ownerAt({ x, y }), true, 'blocked points must not receive synthetic movement')
+      moves.push({ x, y }); scene.pointerScreen = { clientX: x, clientY: y }; scene.hoveredObject = hoveredId
+    } },
+    async waitForFunction(fn, arg) {
+      assert.equal(fn(arg), false, 'a pointer move alone must not satisfy the later-render requirement')
+      if (failWait) throw Error('supplied pointer-render timeout')
+      scene.renderer.info.render.frame++
+      assert.equal(fn(arg), true, 'the same predicate requires supplied pointer coordinates and a later render')
+    } }
+  try {
+    for (const [key, value] of Object.entries(replacements))
+      Object.defineProperty(globalThis, key, { configurable: true, writable: true, value })
+    return await run({ page, bounds, attempts, saved, moves, save })
+  } finally {
+    for (const [key, descriptor] of descriptors)
+      if (descriptor) Object.defineProperty(globalThis, key, descriptor)
+      else delete globalThis[key]
+  }
+}
+
+test('public target helper retains blocked first candidate and requires actual hover at exposed second', async () => {
+  await withPointerFixture(point => point.y >= 489, async ({ page, bounds, attempts, saved, moves, save }) => {
+    assert.deepEqual(await meleeTargetPoint(page, bounds, attempts, save), { x: 824, y: 490 })
+    assert.deepEqual(moves, [{ x: 824, y: 490 }])
+    assert.equal(attempts.length, 2)
+    assert.deepEqual(attempts[0].point, { x: 824, y: 484 })
+    assert.equal(attempts[0].status, 'blocked'); assert.equal(attempts[0].before.canvasOwnsPoint, false)
+    assert.equal(attempts[0].before.owner.className, 'paused-badge')
+    assert.equal(attempts[1].after.id, 20); assert.equal(attempts[1].after.canvasOwnsPoint, true)
+    assert.deepEqual(attempts[1].after.pointerScreen, { clientX: 824, clientY: 490 })
+    assert.equal(attempts[1].after.stamp, 109)
+    assert.deepEqual(saved.at(-1), attempts)
+  })
+})
+
+test('all blocked fixed target candidates fail closed with their complete saved owner trace', async () => {
+  await withPointerFixture(() => false, async ({ page, bounds, attempts, saved, moves, save }) => {
+    await assert.rejects(meleeTargetPoint(page, bounds, attempts, save), /Public pointer route must identify/)
+    assert.deepEqual(attempts.map(attempt => attempt.point), [
+      { x: 824, y: 484 }, { x: 824, y: 490 }, { x: 820, y: 484 }, { x: 827, y: 484 }, { x: 824, y: 478 },
+    ])
+    assert.ok(attempts.every(attempt => attempt.status === 'blocked' && !attempt.before.canvasOwnsPoint))
+    assert.deepEqual(moves, []); assert.equal(saved.length, 5); assert.deepEqual(saved.at(-1), attempts)
+  })
+})
+
+test('exposed target candidates cannot pass on the wrong hover winner and pending waits retain trace', async () => {
+  await withPointerFixture(() => true, async ({ page, bounds, attempts, saved, save }) => {
+    await assert.rejects(meleeTargetPoint(page, bounds, attempts, save), /Public pointer route must identify/)
+    assert.equal(attempts.length, 5); assert.ok(attempts.every(attempt => attempt.after.id === 13))
+    assert.deepEqual(saved.at(-1), attempts)
+  }, { hoveredId: 13 })
+  await withPointerFixture(() => true, async ({ page, bounds, attempts, saved, save }) => {
+    await assert.rejects(meleeTargetPoint(page, bounds, attempts, save), /supplied pointer-render timeout/)
+    assert.equal(attempts.length, 1); assert.equal(attempts[0].status, 'moving')
+    assert.deepEqual(saved.at(-1), attempts)
+  }, { failWait: true })
+})
 
 test('original mapped attack frames, same-turn hold, logical advance and native crops pass without mutation', () => {
   const samples = evidence(), before = structuredClone({ samples, mapping })

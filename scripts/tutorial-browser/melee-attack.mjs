@@ -47,6 +47,40 @@ export function assertMeleeRouteReady(state) {
   assert.equal(state.camera.resultActive, 0); assert.equal(state.inputMask, 0)
 }
 
+// DOM ownership is not a game hit query. A paused HUD button can cover an
+// otherwise eligible body, so do not wait for a canvas event at a blocked point.
+export function readMeleePointerState(point) {
+  const scene = window.testSceneRef.current, owner = document.elementFromPoint(point.x, point.y)
+  const rect = owner?.getBoundingClientRect()
+  return { id: scene.hoveredObject, canvasOwnsPoint: owner === scene.renderer.domElement,
+    pointerScreen: scene.pointerScreen && { ...scene.pointerScreen },
+    stamp: scene.renderer.info.render.frame,
+    owner: owner && { tag: owner.tagName, className: owner.className,
+      label: owner.getAttribute('aria-label'),
+      rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height } } }
+}
+
+export async function meleeTargetPoint(page, bounds, attempts, save) {
+  // Preserve this fixed body-interior set and order. Only real pointer events
+  // and the ordinary rendered hover winner may establish the attack target.
+  for (const [fx, fy] of [[.5, .5], [.5, .65], [.35, .5], [.65, .5], [.5, .35]]) {
+    const point = { x: Math.floor(bounds.x + bounds.width * fx), y: Math.floor(bounds.y + bounds.height * fy) }
+    const before = await page.evaluate(readMeleePointerState, point)
+    const attempt = { point, before, status: before.canvasOwnsPoint ? 'moving' : 'blocked' }
+    attempts.push(attempt); save()
+    if (!before.canvasOwnsPoint) continue
+    await page.mouse.move(point.x, point.y)
+    await page.waitForFunction(({ point, before }) => {
+      const s = window.testSceneRef.current
+      return s.renderer.info.render.frame > before && s.pointerScreen?.clientX === point.x && s.pointerScreen?.clientY === point.y
+    }, { point, before: before.stamp })
+    attempt.after = await page.evaluate(readMeleePointerState, point)
+    attempt.status = 'observed'; save()
+    if (attempt.after.id === 20 && attempt.after.canvasOwnsPoint) return point
+  }
+  assert.fail('Public pointer route must identify eligible Green Shaman20')
+}
+
 // Expected artwork comes from retained tables, never from the observed pose.
 export function meleeAttackMapping() {
   const rules = JSON.parse(readFileSync(resolve(root, 'app/original-rules.json')))
@@ -249,25 +283,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     save()
     assert.ok(targetBounds, 'Eligible Green Shaman20 must have rendered canvas bounds')
     report.targetHoverAttempts = []
-    let targetPoint
-    // Fixed body-interior candidates. Actual pointer events, not a test picker
-    // call, must identify Green Shaman20 before the one real attack click.
-    for (const [fx, fy] of [[.5, .5], [.5, .65], [.35, .5], [.65, .5], [.5, .35]]) {
-      const point = { x: Math.floor(targetBounds.x + targetBounds.width * fx), y: Math.floor(targetBounds.y + targetBounds.height * fy) }
-      const before = await page.evaluate(() => window.testSceneRef.current.renderer.info.render.frame)
-      await page.mouse.move(point.x, point.y)
-      await page.waitForFunction(({ point, before }) => {
-        const s = window.testSceneRef.current
-        return s.renderer.info.render.frame > before && s.pointerScreen?.clientX === point.x && s.pointerScreen?.clientY === point.y
-      }, { point, before })
-      const observed = await page.evaluate(point => {
-        const s = window.testSceneRef.current
-        return { id: s.hoveredObject, canvasOwnsPoint: document.elementFromPoint(point.x, point.y) === s.renderer.domElement }
-      }, point)
-      report.targetHoverAttempts.push({ point, ...observed }); save()
-      if (observed.id === 20 && observed.canvasOwnsPoint) { targetPoint = point; break }
-    }
-    assert.ok(targetPoint, 'Public pointer route must identify eligible Green Shaman20')
+    const targetPoint = await meleeTargetPoint(page, targetBounds, report.targetHoverAttempts, save)
     report.targetInput = targetPoint
     report.beforeAttack = await page.evaluate(readMeleeRouteState); save()
     assertMeleeRouteReady(report.beforeAttack)
