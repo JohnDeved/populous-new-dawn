@@ -176,6 +176,7 @@ export function publishTooltipInput(
     if (!reuse && sample.cell === null) {
       // Share only the ordinary terrain query from this pointer update, including misses.
       let ground = terrainPick
+      if (metrics?.interaction && ground !== undefined) metrics.interaction.sharedTerrain = true
       if (ground === undefined)
         ground = metrics
           ? measurePointerQuery(metrics, 'terrain', () => scene.pick(scene.pointerScreen!, metrics))

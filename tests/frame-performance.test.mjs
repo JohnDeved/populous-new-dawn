@@ -338,7 +338,7 @@ test('invalid sample rejects raw export without partially writing any fields', (
   }
 })
 
-test('explicit export produces versioned local JSON with actual span and no game/account contents', async () => {
+test('explicit export produces bounded parser-compatible local JSON with actual span and no game/account contents', async t => {
   const originals = new Map(), urls = [], links = [], revoked = [], timers = []
   const replace = (name, value) => {
     originals.set(name, Object.getOwnPropertyDescriptor(globalThis, name))
@@ -387,6 +387,35 @@ test('explicit export produces versioned local JSON with actual span and no game
     assert.equal(graph.samples.recentFrames().length, 2, 'export neither clears nor modifies capture')
     graph.exportRecentFrames()
     assert.equal(links.length, 2, 'repeated explicit export is supported')
+    // Exercise the shipped Blob serializer, not a separately compacted report.
+    // Populate every current optional detail so future additive diagnostics are
+    // automatically covered here too (including nullable interaction flags).
+    const metrics = createPointerFrameMetrics(true)
+    const populate = object => {
+      for (const [key, value] of Object.entries(object)) {
+        if (key === 'version') continue
+        if (value && typeof value === 'object') populate(value)
+        else if (typeof value === 'number')
+          object[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
+        else if (value === null) object[key] = false
+      }
+    }
+    populate(metrics)
+    graph.samples.reset()
+    for (let i = 1; i <= 1200; i++)
+      graph.samples.sample(16.666666666666668, 1234567.8901234567, 1234567.8901234567,
+        Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, 'live', metrics)
+    graph.exportRecentFrames()
+    const downloaded = await blob.text()
+    assert.equal(JSON.parse(downloaded).frames.length, 1200)
+    assert.ok(blob.size <= 2 * 1024 * 1024, 'actual download obeys CLI byte bound')
+    assert.ok(downloaded.length <= 2 * 1024 * 1024, 'actual download obeys parser code-unit bound')
+    const { analyzeFrameExport } = await import('../app/frame-export-analysis.ts')
+    assert.equal(analyzeFrameExport(downloaded).sampleCount, 1200)
+    const indentedBytes = new Blob([JSON.stringify(JSON.parse(downloaded), null, 2)]).size
+    t.diagnostic(`${blob.size} bytes in actual full-detail exported Blob; ${indentedBytes} bytes if indented`)
+    assert.ok(indentedBytes > 2 * 1024 * 1024, 'compact serializer is required for populated interaction captures')
+
   } finally {
     for (const [name, descriptor] of originals) {
       if (descriptor) Object.defineProperty(globalThis, name, descriptor)
