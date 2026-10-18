@@ -1,7 +1,7 @@
 {
   "version": 1,
   "helpersSha256": "039d4c9eafa9b822cb3b10c32fdd30b10da47c95b58e88128693d3683f84d8a5",
-  "productionSha256": "e0b759cb7ed84ec52ed9e6e49fe8e5220935213c16d7b82597d9648a114b3562",
+  "productionSha256": "a126dfffb4699fe415af9e38bc034758f193d1e67884fae4335f6dc44956d08b",
   "parallel": {
     "tests/ai-producer-schedule.test.mjs": "e9c41f775b53064b5d27f26c5aee66a62afdb1cfee0f5fe1a02f5002d67a1489",
     "tests/ai-response-task.test.mjs": "a616ec84ec3f7ce1a681d608b66972b702c4af5b727ca6ceb4d176b568014809",
@@ -48,6 +48,7 @@
     "tests/building-ground.test.mjs": "204e21f84e02abdbd3ba2b3d46f6f1eb1bbf645a407f366de123b877a824697a",
     "tests/building-menu.test.mjs": "b5e1ec91ad8996211192eddd6ba352be0c444f772220f10f70e0e235c6199b72",
     "tests/building-mesh-reconciliation.test.mjs": "f02d9632550ea5fc897ef4114af5d3298005d16dae0529418654b1269ec1f40a",
+    "tests/building-panel-identity.test.mjs": "847f6680fa2043bea3b1cacd21949665979588df8274372169610f19211b3b07",
     "tests/building-preparation.test.mjs": "0276af6c92df2da9013d5d20d20ba18df59191062e51cf8e9313812a96de4e54",
     "tests/building-terrain.test.mjs": "6dcf4f42b71b28f43aecf69eabbce0fbef41738674fbfe30f3a7845e16aed5fa",
     "tests/building-validity.test.mjs": "75d0751280c01160071c640561fba8f19e8c48ec37a9ca8b88bcafa9b7a57c0d",
