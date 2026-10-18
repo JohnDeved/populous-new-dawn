@@ -163,6 +163,10 @@ class OrdinaryPickScratch {
   slots = new Uint32Array(128 * 128 * 6)
   world: THREE.Vector3[] = []
   screen: THREE.Vector4[] = []
+  // Lazily retain at most one grid's corner capacity. Split-height overflow
+  // uses fresh vectors; separate pools survive working-alias resets.
+  worldPool: THREE.Vector3[] = []
+  screenPool: THREE.Vector4[] = []
 
   reset() {
     this.corners.fill(0)
@@ -342,15 +346,7 @@ export class RenderView {
     return projectPoint(this.relative(p, height), this.projection)
   }
   screen(world: THREE.Vector3, _camera: THREE.Camera, unwrapped = false) {
-    if (!this.overview) {
-      const p = projectPoint(this.relative(world, (world.y * 128) / 45, unwrapped), this.projection)
-      return new THREE.Vector4(
-        (p.screenX * 2) / this.projection.width - 1,
-        1 - (p.screenY * 2) / this.projection.height,
-        (p.z + this.config.depth) / 16384 - 1,
-        1
-      )
-    }
+    if (!this.overview) return ordinaryScreen(this, world, unwrapped)
     const p = globePoint(
       this.globe,
       Math.round((world.x + 8) * 256),
@@ -602,6 +598,26 @@ export class RenderView {
               ? (this.ordinaryPickScratch ??= new OrdinaryPickScratch())
               : null
           scratch?.reset()
+          // Public/custom projection hooks may retain their input or return
+          // objects. Only the original methods can consume reusable vectors.
+          const pooled =
+            scratch &&
+            !this.overview &&
+            position.getX === ordinaryAttributeGetX &&
+            position.getY === ordinaryAttributeGetY &&
+            position.getZ === ordinaryAttributeGetZ &&
+            index!.getX === ordinaryAttributeGetX &&
+            index!.setX === ordinaryAttributeSetX &&
+            Object.getPrototypeOf(this) === RenderView.prototype &&
+            !Object.hasOwn(this, 'screen') &&
+            !Object.hasOwn(this, 'relative') &&
+            Object.getOwnPropertyDescriptor(RenderView.prototype, 'screen')?.value ===
+              ordinaryScreenMethod &&
+            Object.getOwnPropertyDescriptor(RenderView.prototype, 'relative')?.value ===
+              ordinaryRelativeMethod &&
+            THREE.Vector3.prototype.fromBufferAttribute === ordinaryFromBufferAttribute &&
+            THREE.Vector3.prototype.applyMatrix4 === ordinaryApplyMatrix4 &&
+            THREE.Vector4.prototype.set === ordinaryVector4Set
           const world: THREE.Vector3[] = reuse ? cache.world : (scratch?.world ?? []),
             screen: THREE.Vector4[] = reuse ? cache.screen : (scratch?.screen ?? []),
             terrainSlots = packedTerrain
@@ -649,7 +665,13 @@ export class RenderView {
                 }
               }
             }
-            let p = new THREE.Vector3().fromBufferAttribute(position, i)
+            const poolSlot = world.length,
+              pooledSlot = pooled && poolSlot < scratch.corners.length
+            let p = (
+              pooledSlot
+                ? (scratch.worldPool[poolSlot] ??= new THREE.Vector3())
+                : new THREE.Vector3()
+            ).fromBufferAttribute(position, i)
             if (scale) {
               const raw = [
                 Math.round(p.x * scale * 3),
@@ -665,7 +687,14 @@ export class RenderView {
             } else p.applyMatrix4(transform)
             const slot = terrainSlots ? world.length : i
             world[slot] = p
-            screen[slot] = this.screen(p, camera, unwrapped)
+            screen[slot] = pooledSlot
+              ? ordinaryScreen(
+                  this,
+                  p,
+                  unwrapped,
+                  (scratch.screenPool[poolSlot] ??= new THREE.Vector4())
+                )
+              : this.screen(p, camera, unwrapped)
             if (projectionMetrics) projectionMetrics.projectedVertices++
             if (terrainSlots) terrainSlots[i] = slot + 1
             // Keep the first source when later corners disagree in height or sign.
@@ -1003,4 +1032,28 @@ export class RenderView {
     this.boundsTexture.dispose()
     this.painter.texture.dispose()
   }
+}
+
+// Capture identity once: replacing a prototype hook must also take the fallback.
+const ordinaryScreenMethod = RenderView.prototype.screen
+const ordinaryRelativeMethod = RenderView.prototype.relative
+const ordinaryFromBufferAttribute = THREE.Vector3.prototype.fromBufferAttribute
+const ordinaryApplyMatrix4 = THREE.Vector3.prototype.applyMatrix4
+const ordinaryVector4Set = THREE.Vector4.prototype.set
+const ordinaryAttributeGetX = THREE.BufferAttribute.prototype.getX
+const ordinaryAttributeGetY = THREE.BufferAttribute.prototype.getY
+const ordinaryAttributeGetZ = THREE.BufferAttribute.prototype.getZ
+const ordinaryAttributeSetX = THREE.BufferAttribute.prototype.setX
+
+function ordinaryScreen(
+  view: RenderView,
+  world: THREE.Vector3,
+  unwrapped: boolean,
+  target?: THREE.Vector4
+) {
+  const p = projectPoint(view.relative(world, (world.y * 128) / 45, unwrapped), view.projection),
+    x = (p.screenX * 2) / view.projection.width - 1,
+    y = 1 - (p.screenY * 2) / view.projection.height,
+    z = (p.z + view.config.depth) / 16384 - 1
+  return target ? target.set(x, y, z, 1) : new THREE.Vector4(x, y, z, 1)
 }
