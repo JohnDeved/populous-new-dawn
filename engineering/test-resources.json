@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "helpersSha256": "039d4c9eafa9b822cb3b10c32fdd30b10da47c95b58e88128693d3683f84d8a5",
+  "helpersSha256": "4eac04c015dcf3d4a6d9feebf6a8f39bffad46b609a32620682f5ae346f9f2b3",
   "productionSha256": "e0b759cb7ed84ec52ed9e6e49fe8e5220935213c16d7b82597d9648a114b3562",
   "parallel": {
     "tests/ai-producer-schedule.test.mjs": "e9c41f775b53064b5d27f26c5aee66a62afdb1cfee0f5fe1a02f5002d67a1489",
@@ -256,6 +256,7 @@
     "tests/route-endpoints.test.mjs": "b526e315363c459a267a131cb57d7a74210ca6f15afd191cf2bf529c683d6287",
     "tests/route-recovery.test.mjs": "828fbdcadf7bed17a1dfbdaafa3144c90724ca992796bd0283a3a385b514f1d7",
     "tests/route-vehicle-launch.test.mjs": "8400a79b3ff12b37442ac5866520455f259a400d0782f788c4afda5edd8d800f",
+    "tests/scene-fixture-source.test.mjs": "1bea1dcc28767b5288274e3141988e2d8cb80f011b303fbdd42c8fd660510d9c",
     "tests/seated-boarding.test.mjs": "075aea943f7428f8704a248ca6e258eab7bf4f39cf421c5438ce8066a06bde21",
     "tests/seated-casting.test.mjs": "2bda4be2d3b187af0cd63765f07caa30bd831e33c126294a407e8ba6120bc9b5",
     "tests/seated-flight-dispatch.test.mjs": "84a4aa02a3bd261acabd3eb51b542c01733db4c53edcab88e0ec60eca14cda4e",
