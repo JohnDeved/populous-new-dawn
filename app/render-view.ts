@@ -175,6 +175,7 @@ class OrdinaryPickScratch {
 export class RenderView {
   private ordinaryPickScratch: OrdinaryPickScratch | null = null
   private ordinaryPickDepth = 0
+  private ordinaryPickDisposed = false
   groundPickCache = new WeakMap<
     THREE.Object3D,
     Map<
@@ -437,6 +438,7 @@ export class RenderView {
     nativeEdges = false,
     metrics?: NativeOcclusionMetrics
   ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0) this.ordinaryPickDisposed = false
     this.ordinaryPickDepth++
     try {
       return this.collectPickCandidates(mouse, objects, camera, nativeEdges, metrics)
@@ -568,7 +570,7 @@ export class RenderView {
           // A screen/visibility override can synchronously pick again. Nested
           // calls use independent temporary storage, never the active lease.
           const scratch =
-            terrainSlotEligible && this.ordinaryPickDepth === 1
+            terrainSlotEligible && this.ordinaryPickDepth === 1 && !this.ordinaryPickDisposed
               ? (this.ordinaryPickScratch ??= new OrdinaryPickScratch())
               : null
           scratch?.reset()
@@ -920,6 +922,9 @@ export class RenderView {
   dispose() {
     // Drop ownership without mutating any buffers an active reentrant call holds.
     this.ordinaryPickScratch = null
+    // Remaining instances/roots in this query must not reacquire ownership.
+    // A later independent top-level query may initialize fresh storage.
+    this.ordinaryPickDisposed = true
     this.boundsTexture.dispose()
     this.painter.texture.dispose()
   }
