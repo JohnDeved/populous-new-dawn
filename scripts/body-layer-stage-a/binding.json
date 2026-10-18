@@ -1,0 +1,22 @@
+{
+  "scope": "Revision 4, unexecuted Stage A untimed hosted pixels only",
+  "baseline": "5087f2e805097665c4fdcce657553db3a693bb76",
+  "candidate": "8bd14a84e34545f9a0f0b1fe5c1ebbf8267e5f59",
+  "previousRejectedUnexecutedBinding": "bc83b122b67e6ad0dbf8124ad8a4f5e954e137caebc32f12da19ed5fb7238504",
+  "files": {
+    "PLAN.md": "d1111a40108f042c66c955571afd954d4403dee9adfa25be6ea29be7c632394d",
+    "build.mjs": "98639d14a563ce383e182cadb7eba3fc7df5f39ae173115268c127120425f97f",
+    "compare.mjs": "965393ca8c2f208f66d633474ce57a8820ba3905614f65b758a1a5bb90271f19",
+    "driver.mjs": "eecb1195df764b7326778043c15a7f6d07ec6de107054ed3af55f5361395cee8",
+    "helpers.test.mjs": "01c6da66565310c6d8300eecdda101381af3f5861878bca67f0a0c927cee35cb",
+    "hosted-workflow.yml": "a42cdb13727e171def145dfc55417cff726b2c1af633e9debaf3996135781d8d",
+    "io.mjs": "4a9801ce84836ebd80573eb70e83ea780ae279e97e3087615d92205ea3aa0fa5",
+    "page.mjs": "799ba54ba58d296e19bcd25cc6daae99ff468b3aac5a2068af2b4acbe1f27065",
+    "protocol.mjs": "8f557d5953039b5782d61cbd812717ad0c1826cc02ba34ed53f914dee9c54865",
+    "rejected-controls.fixture.mjs": "192cde733fabeb8a76b9e160648705972ca41dbcdcb1d79b2651ec0e73662f35",
+    "setup-adapter.mjs": "37982d6ac0c58f2908360ae808fe1f43e5fbe7f9dade5802227ca0bf2abd1d21",
+    "start-latch.mjs": "0140a17ff9774e2adc86777b53dd8104e103062afc8913b0c11fc7ac4afd653d",
+    "start-transform-bindings.json": "00eae461b0604363c5877f3675726a14390fdefdc77ffc445edf0948a8cf5242",
+    "worker.mjs": "e3bc9bdeb45fcac47d74b58f7f8a2d675ef23920337b33cc3c8214dda3c039ce"
+  }
+}

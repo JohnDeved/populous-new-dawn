@@ -1,0 +1,66 @@
+# Proposed one-shot workflow, NOT installed or published. No Stage B timing.
+name: Body layer Stage A pixels (experimental)
+on:
+  push:
+    branches: [diagnostic/body-layer-stage-a-8bd14a84]
+permissions:
+  contents: read
+jobs:
+  pixels:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Check out reviewed diagnostic harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          path: diagnostic
+          persist-credentials: false
+      - name: Check out exact baseline
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 5087f2e805097665c4fdcce657553db3a693bb76
+          path: baseline
+          persist-credentials: false
+      - name: Check out exact accepted candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 8bd14a84e34545f9a0f0b1fe5c1ebbf8267e5f59
+          path: candidate
+          persist-credentials: false
+      - name: Set up pinned Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Use common locked baseline dependencies and existing Chrome
+        working-directory: baseline
+        run: |
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+          npm ci --ignore-scripts --no-audit --no-fund
+          test -x /opt/google/chrome/chrome
+          ln -s "$PWD/node_modules" ../candidate/node_modules
+          ln -s "$PWD/node_modules" ../diagnostic/node_modules
+      - name: Run one fixed untimed four-child attempt
+        working-directory: diagnostic
+        run: node scripts/body-layer-stage-a/run-once.mjs ../baseline ../candidate outputs/body-layer-stage-a /opt/google/chrome/chrome
+      - name: Retain partial and terminal proof, including failure pixels
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: body-layer-stage-a-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            diagnostic/outputs/body-layer-stage-a/**/*.json
+            diagnostic/outputs/body-layer-stage-a/**/*.gz
+            diagnostic/outputs/body-layer-stage-a/**/*.png
+            diagnostic/outputs/body-layer-stage-a/**/*.log
+          if-no-files-found: warn
+          retention-days: 7
