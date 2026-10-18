@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import ts from 'typescript'
+import * as THREE from 'three'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 import { pageNearby, nearbyEvent, noOp } from './support/follower-nearby-page.mjs'
 
@@ -15,6 +16,7 @@ const execute = (expression, bindings, receiver) => Function(...Object.keys(bind
 async function fixture(t) {
   const api = await loadSceneFixture(),
     { GameScene } = await import('../app/scene.ts'),
+    { RenderView } = await import('../app/render-view.ts'),
     { createGameStore } = await import('../app/game-store.ts'),
     store = createGameStore(), logs = [], globals = new Map()
   let arrival = 1, modal = false
@@ -30,10 +32,14 @@ async function fixture(t) {
   })
   function bind() {
     const world = store.getWorld()
+    // Modal animate uses the real Painter render lease even with GPU IO stubbed.
+    const view = new RenderView()
+    t.after(() => view.dispose())
     world.inputMask = 0
     world.manaWorld.gameFlags &= ~32
     world.paused = true
     const scene = Object.assign(Object.create(GameScene.prototype), {
+      view, scene: new THREE.Scene(), camera: new THREE.Camera(),
       world, presentationBinding: store.bindPresentation(world), started: true, disposed: false,
       nearbyFollowersHudActive: true, previous: null, fpsGraph: null,
       gameClock: { animationTime: 0, animationFrame: 0 }, overviewActive: false, overviewStage: null,

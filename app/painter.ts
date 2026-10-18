@@ -391,9 +391,32 @@ export class Painter {
     this.texture.needsUpdate = true
   }
 
+  private renderLeaseBases: number[] = []
+
+  // Own cleanup around the renderer, not user callbacks. Three does not invoke
+  // scene.onAfterRender when rendering throws. Nested renders restore only the
+  // edits they added; the normal callback and finally path are idempotent.
+  render(renderer: Pick<THREE.WebGLRenderer, 'render'>, scene: THREE.Scene, camera: THREE.Camera) {
+    const base = this.transparentMeshes.length
+    this.renderLeaseBases.push(base)
+    try {
+      renderer.render(scene, camera)
+    } finally {
+      try {
+        this.restoreTransparentMeshes(base)
+      } finally {
+        this.renderLeaseBases.pop()
+      }
+    }
+  }
+
   afterRender() {
+    this.restoreTransparentMeshes(this.renderLeaseBases.at(-1) ?? 0)
+  }
+
+  private restoreTransparentMeshes(base: number) {
     // Keep scene material edits and geometry ownership unchanged between frames.
-    while (this.transparentMeshes.length) {
+    while (this.transparentMeshes.length > base) {
       const { mesh, material, groups } = this.transparentMeshes.pop()!
       mesh.material = material
       mesh.geometry.groups = groups

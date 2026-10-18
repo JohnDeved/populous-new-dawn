@@ -1,3 +1,4 @@
+import { Painter } from '../app/painter.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createPointerFrameMetrics, resetPointerFrameMetrics } from '../app/pointer-frame-metrics.ts'
@@ -100,6 +101,7 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
   }
   const scene = vm.runInNewContext(stripTypeScriptTypes(`new (class { ${body} })()`), context)
   Object.assign(scene, {
+    view: { painter: new Painter({}) },
     pointerFrameMetrics: createPointerFrameMetrics(),
     isCurrent: () => current, previous: 0, modalSuspended: modal,
     hoveredObject: null, world: { selected: [], buildings: [], trees: [] },
