@@ -407,7 +407,10 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
         Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, 'live', metrics)
     graph.exportRecentFrames()
     const downloaded = await blob.text()
-    assert.equal(JSON.parse(downloaded).frames.length, 1200)
+    const downloadedFrames = JSON.parse(downloaded).frames
+    assert.equal(downloadedFrames.length, 1200)
+    assert.equal(downloadedFrames[0].pointerBreakdown.ordinaryTerrain.visibility.indexEntriesWritten, Number.MAX_SAFE_INTEGER)
+    assert.equal(downloadedFrames.at(-1).pointerBreakdown.interaction.route, metrics.interaction.route)
     assert.ok(blob.size <= 2 * 1024 * 1024, 'actual download obeys CLI byte bound')
     assert.ok(downloaded.length <= 2 * 1024 * 1024, 'actual download obeys parser code-unit bound')
     const { analyzeFrameExport } = await import('../app/frame-export-analysis.ts')
@@ -564,4 +567,45 @@ test('optional ordinary terrain extension snapshots independently and never fabr
   metrics.ordinaryTerrain.version = 2
   assert.equal(samples.sample(10, 0, 1, 3, 2, 0, 30, 'live', metrics), false)
   assert.equal(samples.recentFrames().length, 2)
+})
+
+
+test('optional visibility counters snapshot and old ordinary captures retain absence', () => {
+  const frames = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+  metrics.ordinaryTerrain.visibility.indexEntriesWritten = 12
+  frames.sample(10, 0, 0, 0, 1, 1, 10, 'live', metrics)
+  resetPointerFrameMetrics(metrics)
+  assert.equal(frames.recentFrames()[0].pointerBreakdown.ordinaryTerrain.visibility.indexEntriesWritten, 12)
+  for (const invalid of [-1, 0.5, null, Number.MAX_SAFE_INTEGER + 1]) {
+    metrics.ordinaryTerrain.visibility.indexReuseCalls = invalid
+    frames.sample(10, 0, 0, 0, 1, 1, 20, 'live', metrics)
+    assert.equal(frames.recentFrames().length, 1)
+  }
+  delete metrics.ordinaryTerrain.visibility
+  frames.sample(10, 0, 0, 0, 1, 1, 20, 'live', metrics)
+  assert.equal(frames.recentFrames()[1].pointerBreakdown.ordinaryTerrain.visibility, undefined)
+})
+
+
+test('visibility and interaction snapshots remain separate across ring wrap and missing old fields', () => {
+  const frames = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+  for (let i = 1; i <= 1205; i++) {
+    metrics.ordinaryTerrain.visibility.indexReuseCalls = i
+    metrics.interaction.route = i % 2 ? 'hud' : 'world'
+    frames.sample(10, 0, 0, 0, 1, 1, i * 10, 'live', metrics)
+  }
+  const recent = frames.recentFrames()
+  assert.equal(recent.length, 1200)
+  assert.equal(recent[0].pointerBreakdown.ordinaryTerrain.visibility.indexReuseCalls, 6)
+  assert.equal(recent[0].pointerBreakdown.interaction.route, 'world')
+  assert.equal(recent.at(-1).pointerBreakdown.ordinaryTerrain.visibility.indexReuseCalls, 1205)
+  assert.equal(recent.at(-1).pointerBreakdown.interaction.route, 'hud')
+  recent[0].pointerBreakdown.ordinaryTerrain.visibility.indexReuseCalls = 999
+  assert.equal(frames.recentFrames()[0].pointerBreakdown.ordinaryTerrain.visibility.indexReuseCalls, 6)
+  delete metrics.ordinaryTerrain.visibility
+  frames.sample(10, 0, 0, 0, 1, 1, 12060, 'live', metrics)
+  assert.equal(frames.recentFrames().at(-1).timestampMs, 12060)
+  assert.equal(frames.recentFrames().at(-1).pointerBreakdown.ordinaryTerrain.visibility, undefined)
+  frames.reset()
+  assert.equal(frames.recentFrames().length, 0)
 })

@@ -7,6 +7,8 @@ import {
 } from './pointer-interaction-context.ts'
 import {
   ORDINARY_TERRAIN_FIELDS,
+  TERRAIN_VISIBILITY_FIELDS,
+  createTerrainVisibilityMetrics,
   createOrdinaryTerrainMetrics,
 } from './ordinary-terrain-metrics.ts'
 import {
@@ -31,7 +33,8 @@ const POINTER_FIELDS = [
 const NATIVE_OFFSET = 9 + POINTER_FIELDS.length
 const ORDINARY_OFFSET = NATIVE_OFFSET + 1 + NATIVE_OCCLUSION_FIELDS.length
 const INTERACTION_OFFSET = ORDINARY_OFFSET + 1 + ORDINARY_TERRAIN_FIELDS.length
-const RAW_WIDTH = INTERACTION_OFFSET + 7
+const VISIBILITY_OFFSET = INTERACTION_OFFSET + 7
+const RAW_WIDTH = VISIBILITY_OFFSET + 1 + TERRAIN_VISIBILITY_FIELDS.length
 
 export interface RecentFrame {
   timestampMs: number
@@ -163,6 +166,12 @@ export class FramePerformance {
         )
           return false
     }
+    const visibility = ordinary?.visibility
+    if (visibility !== undefined) {
+      if (!visibility) return false
+      for (const key of TERRAIN_VISIBILITY_FIELDS)
+        if (!Number.isSafeInteger(visibility[key]) || visibility[key] < 0) return false
+    }
     const interaction = metrics?.interaction
     if (interaction !== undefined && !validPointerInteractionContext(interaction)) return false
     this.timestamp = timestamp
@@ -197,6 +206,10 @@ export class FramePerformance {
           interaction[INTERACTION_BOOLEAN_FIELDS[i]]
         )
     }
+    this.recent[offset + VISIBILITY_OFFSET] = visibility ? 1 : 0
+    for (let i = 0; i < TERRAIN_VISIBILITY_FIELDS.length; i++)
+      this.recent[offset + VISIBILITY_OFFSET + 1 + i] =
+        visibility?.[TERRAIN_VISIBILITY_FIELDS[i]] ?? 0
     this.recentCursor = (this.recentCursor + 1) % RECENT_FRAME_CAPACITY
     this.recentCount = Math.min(this.recentCount + 1, RECENT_FRAME_CAPACITY)
     this.callbackHistory[this.cursor] = callback
@@ -265,6 +278,13 @@ export class FramePerformance {
         const ordinary = createOrdinaryTerrainMetrics()
         for (let i = 0; i < ORDINARY_TERRAIN_FIELDS.length; i++)
           ordinary[ORDINARY_TERRAIN_FIELDS[i]] = this.recent[offset + ORDINARY_OFFSET + 1 + i]
+        if (this.recent[offset + VISIBILITY_OFFSET]) {
+          const visibility = createTerrainVisibilityMetrics()
+          for (let i = 0; i < TERRAIN_VISIBILITY_FIELDS.length; i++)
+            visibility[TERRAIN_VISIBILITY_FIELDS[i]] =
+              this.recent[offset + VISIBILITY_OFFSET + 1 + i]
+          ordinary.visibility = visibility
+        }
         pointerBreakdown.ordinaryTerrain = ordinary
       }
       if (pointerBreakdown && this.recent[offset + INTERACTION_OFFSET]) {
