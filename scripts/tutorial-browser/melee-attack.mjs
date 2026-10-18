@@ -105,6 +105,24 @@ export function assertMeleePauseInputReady(state, paused) {
     'One public pause must land in an actual attack; no retry to find another sequence')
 }
 
+export function assertMeleePauseReceiptBinding(report) {
+  const hold = report.acceptance.obligations.publicPausedHold
+  const resumed = report.acceptance.obligations.resumedAdvancement.after
+  assertMeleePauseInputReady(report.pauseBefore, false)
+  for (const state of [report.pauseAfter, report.resumeBefore]) {
+    assertMeleePauseInputReady(state, true)
+    for (const key of ['turn', 'animationFrame'])
+      assert.equal(hold.anchor[key], state[key], `Paused sample ${key} must match the public input receipt`)
+    for (const key of ['action', 'started', 'opponent', 'object', 'draw', 'f1', 'f2'])
+      assert.equal(hold.anchor[key], state.attack[key], `Paused sample ${key} must match the public attack receipt`)
+  }
+  assert.equal(report.resumeAfter.sceneStoreMatch, true)
+  assert.equal(report.resumeAfter.paused, false)
+  assert.ok(hold.anchor.stamp > report.pauseBefore.stamp, 'Paused samples must follow the public pause input')
+  assert.ok(hold.stamps.at(-1) <= report.resumeAfter.stamp, 'Paused samples must precede the public resume receipt')
+  assert.ok(resumed.stamp > report.resumeBefore.stamp, 'Advancing sample must follow the public resume input')
+}
+
 // DOM ownership is not a game hit query. A paused HUD button can cover an
 // otherwise eligible body, so do not wait for a canvas event at a blocked point.
 export function readMeleePointerState(point) {
@@ -429,6 +447,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assert.equal(report.observation.done, true)
     report.mapping = meleeAttackMapping()
     report.acceptance = validateMeleePauseFrames(report.observation.samples, report.mapping)
+    assertMeleePauseReceiptBinding(report)
     await button('Pause game')
     await page.screenshot({ path: resolve(output, 'melee-attack-context.png') })
   } catch (error) {

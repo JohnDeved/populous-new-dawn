@@ -325,7 +325,9 @@ phases: `running-before-pause`, `public-paused-hold`, and `running-after-resume`
 After the first natural attack signal, one public Space pause requires actual
 canvas keyboard focus, no dialog, mode, modifier or input mask, and a live attack.
 The actual paused action/start/turn is recorded; it is not assumed to be the first
-observed sequence. Two distinct real renderer stamps must retain identical turn,
+observed sequence. Final acceptance explicitly binds the validator's paused anchor
+to both paused input receipts, and brackets paused/resumed renderer stamps with
+the public input receipts. Two distinct real renderer stamps must retain identical turn,
 animation clock, action/start, object/draw/f1/f2, direction/frame/flip and opponent.
 One public Space resume must then produce advancing logical phase and artwork in
 that same attack sequence. Both Space keys are released in `finally`. Landing

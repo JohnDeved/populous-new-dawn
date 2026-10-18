@@ -3,7 +3,7 @@ import test from 'node:test'
 import { validateMeleeAttackFrames } from '../scripts/tutorial-browser/melee-attack-evidence.mjs'
 import { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
   readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget,
-  publicMeleePauseKey, assertMeleePauseInputReady } from '../scripts/tutorial-browser/melee-attack.mjs'
+  publicMeleePauseKey, assertMeleePauseInputReady, assertMeleePauseReceiptBinding } from '../scripts/tutorial-browser/melee-attack.mjs'
 import { minimapPick } from '../app/minimap.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
@@ -70,6 +70,35 @@ test('public pause key is released after success or failure and requires actual 
     { mode: 'hut' }, { inputMask: 64 }, { paused: true }, { attack: null },
     { attack: { id: 54, action: 'approach' } }])
     assert.throws(() => assertMeleePauseInputReady({ ...state, ...change }, false))
+})
+
+test('layered acceptance binds actual public pause/resume receipts to the sampled anchor and renderer chronology', () => {
+  const attack = { id: 54, action: 'special', started: 40, opponent: 20, object: 552, draw: 14, f1: 0, f2: 1 }
+  const state = { sceneStoreMatch: true, canvasFocused: true, dialogOpen: false, modifiers: [],
+    paused: true, speed: 1, inputMask: 0, mode: null, turn: 41, animationFrame: 82, stamp: 102, attack }
+  const report = { pauseBefore: { ...state, paused: false, stamp: 99 }, pauseAfter: { ...state, stamp: 101 },
+    resumeBefore: state, resumeAfter: { ...state, paused: false, stamp: 103 },
+    acceptance: { obligations: { publicPausedHold: { anchor: { ...attack, turn: 41, animationFrame: 82, stamp: 101 },
+      stamps: [101, 102] }, resumedAdvancement: { after: { stamp: 103 } } } } }
+  const before = structuredClone(report)
+  assert.doesNotThrow(() => assertMeleePauseReceiptBinding(report)); assert.deepEqual(report, before)
+  for (const receipt of ['pauseAfter', 'resumeBefore']) {
+    for (const key of ['turn', 'animationFrame']) {
+      const wrong = structuredClone(report); wrong[receipt][key]++
+      assert.throws(() => assertMeleePauseReceiptBinding(wrong), /must match the public input receipt/)
+    }
+    for (const key of ['action', 'started', 'opponent', 'object', 'draw', 'f1', 'f2']) {
+      const wrong = structuredClone(report); wrong[receipt].attack[key] = key === 'action' ? 'strike' : attack[key] + 1
+      assert.throws(() => assertMeleePauseReceiptBinding(wrong), /must match the public attack receipt/)
+    }
+  }
+  for (const [receipt, stamp, error] of [['pauseBefore', 101, /follow the public pause/],
+    ['resumeAfter', 101, /precede the public resume/], ['resumeBefore', 103, /follow the public resume/]]) {
+    const wrong = structuredClone(report); wrong[receipt].stamp = stamp
+    assert.throws(() => assertMeleePauseReceiptBinding(wrong), error)
+  }
+  const wrong = structuredClone(report); wrong.resumeAfter.paused = true
+  assert.throws(() => assertMeleePauseReceiptBinding(wrong))
 })
 
 test('one fixed minimap corridor offset retains nearest input and scales backing pixels into CSS', () => {
