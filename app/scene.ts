@@ -1,3 +1,4 @@
+import type { SceneUpdateMetrics } from './scene-update-metrics.ts'
 import type { WaterUpdateMetrics } from './water-update-reasons.ts'
 import { worldEnvironment, type WorldEnvironment } from './world-environment.ts'
 import { DEFAULT_GAME_PREFERENCES, type GamePreferences } from './game-preferences.ts'
@@ -303,11 +304,13 @@ export class GameScene {
   started = false
   disposed = false
   fpsGraph: FpsGraph | null = null
+  private sceneUpdateMetrics?: SceneUpdateMetrics
   private waterFrameMetrics?: WaterUpdateMetrics
+  private simulationFrameMetrics?: { steps: number }
   private readonly pointerFrameMetrics = createPointerFrameMetrics(true)
   togglePerformance() {
     if (this.fpsGraph) {
-      this.fpsGraph.element.remove()
+      this.fpsGraph.dispose()
       this.fpsGraph = null
     } else {
       this.fpsGraph = new FpsGraph(this.renderer.getContext(), this.world.outcome.level)
@@ -859,6 +862,18 @@ export class GameScene {
     if (pointerMetrics) resetPointerFrameMetrics(pointerMetrics)
     const waterMetrics = diagnostic ? (this.waterFrameMetrics ??= { reasons: 0 }) : undefined
     if (waterMetrics) waterMetrics.reasons = 0
+    const sceneUpdates = diagnostic
+      ? (this.sceneUpdateMetrics ??= { terrainCpuMs: 0, waterCpuMs: 0, hudCpuMs: 0 })
+      : undefined
+    if (sceneUpdates) {
+      sceneUpdates.terrainCpuMs = 0
+      sceneUpdates.waterCpuMs = 0
+      sceneUpdates.hudCpuMs = 0
+    }
+    const simulationMetrics = diagnostic
+      ? (this.simulationFrameMetrics ??= { steps: 0 })
+      : undefined
+    if (simulationMetrics) simulationMetrics.steps = 0
     if (this.renderer.getPixelRatio() !== Math.min(devicePixelRatio, 1.8)) this.setSize()
     const previous = this.previous ?? now,
       skyTicks = Math.imul(Math.max(0, Math.floor(now) - Math.floor(previous)), 64) >>> 0,
@@ -869,7 +884,9 @@ export class GameScene {
     // Keep sampling timestamps so resuming never catches up suspended wall time.
     if (this.modalSuspended) {
       const renderStart = diagnostic ? performance.now() : 0
-      this.view.painter.render(this.renderer, this.scene, this.camera)
+      if (diagnostic)
+        diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
+      else this.view.painter.render(this.renderer, this.scene, this.camera)
       const renderMs = diagnostic ? performance.now() - renderStart : 0
       this.frame = requestAnimationFrame(this.animate)
       diagnostic?.update(
@@ -881,18 +898,22 @@ export class GameScene {
         performance.now() - callbackStart,
         0,
         pointerMetrics,
-        waterMetrics?.reasons
+        waterMetrics?.reasons,
+        simulationMetrics?.steps,
+        sceneUpdates
       )
       return
     }
     syncSecondaryReservations(this)
     this.dispatchNearbyFollowers(now)
     const simulationStart = diagnostic ? performance.now() : 0
-    advanceGame(this.world, this.gameClock, dt)
+    advanceGame(this.world, this.gameClock, dt, simulationMetrics)
     const simulationMs = diagnostic ? performance.now() - simulationStart : 0
     this.templeResourceSnapshot = this.presentationBinding?.snapshot() ?? null
     this.playWorldSounds()
+    const terrainStart = sceneUpdates ? performance.now() : 0
     this.updateTerrainFrame()
+    if (sceneUpdates) sceneUpdates.terrainCpuMs = performance.now() - terrainStart
     this.updateDecorationsFrame()
     const cameraOwnsFrame = this.updateCameraMotion(dt)
     if (
@@ -930,11 +951,14 @@ export class GameScene {
 
     this.updatePlacement()
     this.updateSpellPointerFrame(spec)
-    this.updateEnvironmentFrame(skyTicks, waterMetrics)
+    this.updateEnvironmentFrame(skyTicks, waterMetrics, sceneUpdates)
     const renderStart = diagnostic ? performance.now() : 0
-    this.renderSceneFrame(hovered, hoveredBuilding)
+    if (diagnostic) diagnostic.renderGpu(() => this.renderSceneFrame(hovered, hoveredBuilding))
+    else this.renderSceneFrame(hovered, hoveredBuilding)
     const renderMs = diagnostic ? performance.now() - renderStart : 0
+    const hudStart = sceneUpdates ? performance.now() : 0
     this.updateHudFrame(now, dt)
+    if (sceneUpdates) sceneUpdates.hudCpuMs = performance.now() - hudStart
     this.frame = requestAnimationFrame(this.animate)
     // Synchronous game callback work, including HUD and scheduling; excludes
     // this diagnostic's own update and deferred browser/GPU work.
@@ -947,7 +971,9 @@ export class GameScene {
       performance.now() - callbackStart,
       pointerMs,
       pointerMetrics,
-      waterMetrics?.reasons
+      waterMetrics?.reasons,
+      simulationMetrics?.steps,
+      sceneUpdates
     )
   }
   private updateTerrainFrame() {
@@ -982,8 +1008,12 @@ export class GameScene {
     updateSpellPointerFrame(this, spec)
   }
 
-  private updateEnvironmentFrame(skyTicks: number, metrics?: WaterUpdateMetrics) {
-    updateEnvironmentFrame(this, skyTicks, metrics)
+  private updateEnvironmentFrame(
+    skyTicks: number,
+    metrics?: WaterUpdateMetrics,
+    sceneUpdates?: SceneUpdateMetrics
+  ) {
+    updateEnvironmentFrame(this, skyTicks, metrics, sceneUpdates)
   }
 
   private renderSceneFrame(
@@ -1020,9 +1050,10 @@ export class GameScene {
     this.waterMap.dispose()
     this.terrainMap.dispose()
     this.view.dispose()
+    this.fpsGraph?.dispose()
     this.renderer.dispose()
     this.renderer.domElement.remove()
-    this.fpsGraph?.element.remove()
+    this.fpsGraph = null
     this.cancelTooltipInspection()
     this.tooltipInput = null
     this.tooltipElement.remove()

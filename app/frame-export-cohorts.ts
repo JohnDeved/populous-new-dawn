@@ -27,6 +27,12 @@ const POINTER_METRICS = [
 ] as const
 const METRICS = [
   ...FRAME_METRICS,
+  'simulationSteps',
+  'sceneRenderGpu.milliseconds',
+  'sceneUpdateCpu.terrainCpuMs',
+  'sceneUpdateCpu.waterCpuMs',
+  'sceneUpdateCpu.hudCpuMs',
+  'otherCallbackUnclassifiedCpuMs',
   'modelCacheBuilds',
   'modelFacesVisited',
   'modelFacesAccepted',
@@ -64,6 +70,14 @@ function distribution(values: number[]) {
   }
 }
 function metric(frame: InputFrame, path: string): number | undefined {
+  if (path === 'otherCallbackUnclassifiedCpuMs') {
+    const sub = frame.sceneUpdateCpu as
+      | { terrainCpuMs: number; waterCpuMs: number; hudCpuMs: number }
+      | undefined
+    return sub
+      ? (frame.otherCallbackCpuMs as number) - sub.terrainCpuMs - sub.waterCpuMs - sub.hudCpuMs
+      : undefined
+  }
   const modelIndex = [
     'modelCacheBuilds',
     'modelFacesVisited',
@@ -136,6 +150,7 @@ export function summarizeFrameExportCohorts(json: string) {
       'Missing context and null change fields are unknown, never inferred stationary. Stored changes compare recorded samples, not input-event counts.',
       'Each metric uses only measured samples; missing optional metrics are not zero-filled. Empty distributions contain null quantiles.',
       'Timings are reported independently: never sum nested CPU phases.',
+      'sceneUpdateCpu regions are disjoint subsets of otherCallbackCpuMs. The derived remainder is unclassified, not an inferred phase; negative residuals expose inconsistent timing ownership.',
       'Unmatched captures and cohort differences do not establish causal speedup.',
       ...analysis.warnings,
     ],
@@ -147,7 +162,10 @@ export function summarizeFrameExportCohorts(json: string) {
         METRICS.map(path => [
           path,
           {
-            unit: path.endsWith('Ms') ? 'milliseconds' : 'per frame',
+            unit:
+              path.endsWith('Ms') || path === 'sceneRenderGpu.milliseconds'
+                ? 'milliseconds'
+                : 'per frame',
             ...distribution(
               members[name as keyof typeof GROUPS].flatMap(frame => {
                 const value = metric(frame, path)

@@ -1008,11 +1008,14 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
           anchorX: (cell & 254) << 8,
           anchorY: cell & 0xfe00,
         },
-        footprint = new Set(buildingFootprintCells(pose))
+        footprintCells = buildingFootprintCells(pose)
       checkSite ??= prepareBuildingSiteCheck(w, team)
       if (!checkSite(pose, task.requested).valid) continue
       // Selection/pathfinding may mutate the world even when rejecting a site.
       checkSite = undefined
+      // Keep shape evaluation/throws before site synchronization, but allocate the
+      // wild-unit membership Set only for sites that can reach that veto.
+      const footprint = new Set(footprintCells)
       // ponytail: wild units lack native wandering; remove this veto when their movement is live.
       if (
         w.units.some(unit => {

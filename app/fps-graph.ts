@@ -1,3 +1,7 @@
+import type { SceneUpdateMetrics } from './scene-update-metrics.ts'
+import { GpuRenderTimer } from './gpu-render-timer.ts'
+import type { GpuFrameSample } from './gpu-frame-timing.ts'
+import { boundedFrameExport } from './frame-export-size.ts'
 import { FramePerformance, RECENT_FRAME_CAPACITY } from './frame-performance.ts'
 import type { PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import { readHardwareInfo, readHeapEstimate } from './performance-hardware.ts'
@@ -15,6 +19,10 @@ export class FpsGraph {
   private exportButton: HTMLButtonElement
   private cleared = false
   private previous: number | null = null
+  private gpuRendering = false
+  private disposed = false
+  private gpuTimer: GpuRenderTimer | null = null
+  private gpuFrame: GpuFrameSample | undefined
   private fields: Record<string, HTMLElement> = {}
   private line: SVGPolylineElement
   private budget: SVGPathElement
@@ -60,7 +68,7 @@ export class FpsGraph {
           <div><dt>JS heap · estimate</dt><dd data-metric="heap">Unavailable</dd></div>
         </dl>
       </div>
-      <p>RAF cadence, not presented FPS. Means: ≥250 ms windows.<br>CPU stages sum to inclusive callback.<br>Synchronous CPU excludes overlay; GPU not measured.</p>
+      <p>RAF cadence, not presented FPS. Means: ≥250 ms windows.<br>CPU stages sum to inclusive callback.<br>CPU excludes overlay/GPU. Async GPU: export only.</p>
       <button type="button" class="fps-export">Export recent frames</button>
       <div class="fps-caption">Up to 1,200 frames · local JSON only</div>
       <div class="fps-caption" data-metric="export-status" role="status"></div></div>`
@@ -100,6 +108,58 @@ export class FpsGraph {
       'Optional Chromium JS-heap estimate; may include shared heaps and exclude workers. Not total memory usage.'
     this.line = this.element.querySelector('polyline')!
     this.budget = this.element.querySelector('.fps-budget')!
+  }
+
+  renderGpu(draw: () => void) {
+    if (this.disposed || this.gpuRendering) return draw()
+    this.gpuRendering = true
+    try {
+      this.gpuTimer?.poll()
+      const token = this.samples.reserveGpuFrame()
+      this.gpuFrame = { token, timing: { status: 'pending' } }
+      if (!('createQuery' in this.gl)) {
+        this.gpuFrame.timing = { status: 'unsupported' }
+        return draw()
+      }
+      if (!this.gpuTimer) {
+        const generation = token.generation
+        this.gpuTimer = new GpuRenderTimer(
+          this.gl as WebGL2RenderingContext,
+          result => {
+            const origin = { generation, serial: result.frame }
+            const timing = {
+              status: result.status,
+              ...(result.milliseconds === undefined ? {} : { milliseconds: result.milliseconds }),
+            }
+            if (
+              this.gpuFrame?.token.generation === generation &&
+              this.gpuFrame.token.serial === result.frame
+            )
+              this.gpuFrame.timing = timing
+            else this.samples.completeGpuFrame(origin, timing)
+          },
+          serial =>
+            (this.gpuFrame?.token.generation === generation &&
+              this.gpuFrame.token.serial === serial) ||
+            this.samples.acceptsGpuFrame({ generation, serial })
+        )
+      }
+      return this.gpuTimer.render(token.serial, draw)
+    } catch (error) {
+      this.gpuFrame = undefined
+      throw error
+    } finally {
+      this.gpuRendering = false
+    }
+  }
+
+  dispose() {
+    this.disposed = true
+    this.gpuFrame = undefined
+    this.gpuTimer?.dispose()
+    this.gpuTimer = null
+    this.samples.reset()
+    this.element.remove()
   }
 
   exportRecentFrames() {
@@ -144,6 +204,8 @@ export class FpsGraph {
       },
       notes: [
         'RAF cadence is not presented FPS. CPU wall times are not GPU timings.',
+        'Optional sceneUpdateCpu terrain/water/HUD timings are disjoint subsets of otherCallbackCpuMs, not extra callback costs. The remainder is unclassified.',
+        'Optional sceneRenderGpu is asynchronous elapsed GPU render work attributed to its originating frame; pending/unsupported/disjoint/lost/busy/failed are unknown, never zero. It is not added to CPU buckets.',
         'Callback includes all CPU stages; other is a signed remainder. Overlay and export work are excluded.',
         'Pointer breakdown phases overlap: tooltipInput includes nested picks; objectPick includes units/models/occlusion; tooltipRender is outside pointerTooltip CPU. Do not sum them.',
         'Browser layout flushes execute in the phase that reads layout, which may differ from the phase that dirtied it.',
@@ -155,17 +217,24 @@ export class FpsGraph {
     try {
       // Keep the actual download within the offline parser's bounded input budget.
       // Pretty printing adds substantial overhead to a full diagnostic ring.
-      url = URL.createObjectURL(new Blob([JSON.stringify(report)], { type: 'application/json' }))
+      const bounded = boundedFrameExport(report)
+      url = URL.createObjectURL(bounded.blob)
       const link = document.createElement('a')
       link.href = url
       link.download = `populous-frames-${report.exportedAt.replace(/[:.]/g, '-')}.json`
       link.click()
       this.text(
         'export-status',
-        `Exported ${frames.length} frames · ${(report.timing.capturedSpanMs / 1000).toFixed(1)} s`
+        `Exported ${bounded.frameCount} frames · ${(bounded.capturedSpanMs / 1000).toFixed(1)} s` +
+          (bounded.droppedOldestFrames
+            ? ` · omitted ${bounded.droppedOldestFrames} oldest of ${frames.length} frames to fit 2 MiB`
+            : '')
       )
     } catch {
-      this.text('export-status', 'Export failed. Please try again.')
+      this.text(
+        'export-status',
+        'Export failed: capture could not fit the size limit or download failed.'
+      )
     } finally {
       if (url) {
         const downloadUrl = url
@@ -179,6 +248,9 @@ export class FpsGraph {
   }
 
   reset(state = 'Warming up') {
+    this.gpuFrame = undefined
+    this.gpuTimer?.dispose()
+    this.gpuTimer = null
     if (this.cleared) {
       this.text('state', state)
       return
@@ -218,8 +290,13 @@ export class FpsGraph {
     callback: number,
     pointer = 0,
     metrics?: PointerFrameMetrics,
-    waterUpdateReasons?: number
+    waterUpdateReasons?: number,
+    simulationSteps?: number,
+    sceneUpdates?: SceneUpdateMetrics
   ) {
+    if (this.disposed) return
+    const gpu = this.gpuFrame
+    this.gpuFrame = undefined
     this.cleared = false
     const { previous } = this
     this.previous = now
@@ -244,7 +321,10 @@ export class FpsGraph {
               ? 'menu'
               : 'unknown',
         metrics,
-        waterUpdateReasons
+        waterUpdateReasons,
+        simulationSteps,
+        gpu,
+        sceneUpdates
       )
     )
       return

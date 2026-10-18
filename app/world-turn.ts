@@ -455,7 +455,7 @@ export interface TurnObserver {
   beforeTurn?: () => void
   afterTurn?: () => void
 }
-export function tick(w: World, dt: number, observer?: TurnObserver) {
+export function tick(w: World, dt: number, observer?: TurnObserver, metrics?: { steps: number }) {
   if (w.paused) return
   if (!Number.isFinite(dt) || dt < 0)
     throw new RangeError('Simulation delta must be finite and nonnegative')
@@ -466,11 +466,11 @@ export function tick(w: World, dt: number, observer?: TurnObserver) {
     w.pendingTime = Math.max(0, w.pendingTime - 1 / TURNS_PER_SECOND)
     if (w.pendingTime < 1e-9) w.pendingTime = 0
     observer?.beforeTurn?.()
-    stepTurn(w)
+    stepTurn(w, metrics)
     observer?.afterTurn?.()
   }
 }
-function stepTurn(w: World) {
+function stepTurn(w: World, metrics?: { steps: number }) {
   // 0x4a5590: tribe work observes the previous completed object turn.
   // First-mission initialization supplies two active tribes. Object phases below remain partial.
   if (w.land.landFlags & 2) return
@@ -503,6 +503,8 @@ function stepTurn(w: World) {
   const hutNewborns = new Set<Unit>()
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
+  // Count actual logical advances, independent of wrapping/resettable turn IDs.
+  if (metrics) metrics.steps++
   if (!(w.manaWorld.gameFlags & 2))
     for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
       if (w.campaignAIs[tribe]) withCampaignTribe(w, tribe, () => stepForcedCampaignAttack(w))

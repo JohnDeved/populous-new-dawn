@@ -1,3 +1,4 @@
+import { browserCapMs, browserScenarios } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import { assertNativeFrameExport, m2NativePointerTarget } from '../scripts/tutorial-browser/frame-export.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -60,8 +61,8 @@ test('M2 functional acceptance rejects level, selection, order, clock and Scene 
 test('M2 has isolated selection and default append; legacy scenarios and bounds retained', () => {
   const run = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   assert.match(run, /POPULOUS_BROWSER_SCENARIO \|\| 'tutorial'/)
-  assert.match(run, /\['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'profile-recovery', 'gameplay-frames'\]/)
-  assert.match(run, /180000/)
+  assert.deepEqual(browserScenarios, ['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'profile-recovery', 'gameplay-frames', 'snapshot-protocol'])
+  assert.equal(browserCapMs('m2-pointer-f8'), 180000)
   assert.match(run, /120000/)
   assert.ok(run.indexOf('receipt.result =') < run.indexOf('receipt.selectorInspection ='))
   assert.ok(run.indexOf('receipt.selectorInspection =') < run.indexOf('receipt.sceneryPlacement ='))

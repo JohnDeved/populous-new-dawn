@@ -1,3 +1,4 @@
+import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -276,7 +277,7 @@ test('recovery scenario awaits actionable startup and uses public click before u
   assert.doesNotMatch(entry, /skip\.isVisible|waitForTimeout|skipIntroduction\(|store\.change|\.inputMask\s*=/)
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   assert.match(runner, /page.setDefaultTimeout\(25000\)/)
-  assert.match(runner, /receipt.browserCapMs = 180000/)
+  assert.equal(browserCapMs('pause-checkpoint-recovery'), 180000)
 })
 
 test('natural completion during public Skip activation is accepted only after the click settles', async () => {
