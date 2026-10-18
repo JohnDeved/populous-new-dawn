@@ -1,3 +1,4 @@
+import { createRuntimeTerrainPicking } from './runtime-terrain-picking.ts'
 import type { SceneUpdateMetrics } from './scene-update-metrics.ts'
 import type { WaterUpdateMetrics } from './water-update-reasons.ts'
 import { worldEnvironment, type WorldEnvironment } from './world-environment.ts'
@@ -553,6 +554,7 @@ export class GameScene {
     this.cursor.visible = false
     this.range.visible = false
     this.rebuildTerrain()
+    createRuntimeTerrainPicking(this)
     this.makeDecorations()
     this.makeShrines()
     const shaman = this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman')

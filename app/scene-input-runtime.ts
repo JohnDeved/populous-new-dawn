@@ -1,3 +1,4 @@
+import { pickRuntimeTerrain } from './runtime-terrain-picking.ts'
 import { capturePointerInteraction } from './pointer-interaction-context.ts'
 import { measurePointerQuery, type PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import { hudTransports, selectFollowerTransport } from './follower-transports-runtime.ts'
@@ -173,10 +174,7 @@ export function pick(
     ((event.clientX - rect.left) / rect.width) * 2 - 1,
     1 - ((event.clientY - rect.top) / rect.height) * 2
   )
-  return (
-    scene.view.pick(scene.mouse, [scene.terrain], scene.camera, false, metrics?.ordinaryTerrain)
-      ?.point ?? null
-  )
+  return pickRuntimeTerrain(scene, metrics)?.point ?? null
 }
 
 export function pickWorldObject(scene: GameScene, event: { clientX: number; clientY: number }) {
