@@ -15,8 +15,10 @@ preparation and native occlusion queries do not populate them, even when rendere
 work primes a later pointer reuse. They do not count scan visits, elapsed time,
 GPU work, or imply an optimization benefit.
 
-F8-off callers pass no sink, allocate no visibility object, and add no clock reads.
-Enabled construction/reset reuses the existing optional metrics lifecycle. The
+GameScene constructs its fixed pointer metrics object, including visibility detail,
+once even when F8 is off. Disabled callbacks pass no metrics sink and add no
+diagnostic clock reads or per-callback visibility-object allocation. Enabled reset
+reuses that existing metrics object. The
 frame ring adds four Float64 slots per retained frame (presence plus three values),
 38,400 bytes for the fixed 1200-frame ring. Existing interaction slots remain intact.
 Missing old visibility detail stays absent, not fabricated as zero; supplied
