@@ -1,3 +1,4 @@
+import { summarizeFrameExportCohorts } from '../app/frame-export-cohorts.ts'
 import { Painter } from '../app/painter.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
@@ -85,7 +86,7 @@ import vm from 'node:vm'
 
 // Exercise the actual callback body with deterministic boundary stubs. No
 // renderer, asset loading or timing benchmark is involved in this contract test.
-function runCallback({ enabled = true, hidden = false, modal = false, current = true, nestedPointer = 0 } = {}) {
+function runCallback({ enabled = true, hidden = false, modal = false, current = true, nestedPointer = 0, waterReason } = {}) {
   const source = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
   const body = source.slice(source.indexOf('  animate = (now:'), source.indexOf('  private updateTerrainFrame()'))
   let clock = 0, reads = 0
@@ -118,6 +119,10 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
     events.push('updatePointerFrame'); clock += 1
     events.push('nested tooltip pick'); clock += nestedPointer
   }
+  if (waterReason !== undefined) scene.updateEnvironmentFrame = (_ticks, metrics) => {
+    events.push('updateEnvironmentFrame'); clock += 1
+    if (metrics) metrics.reasons |= waterReason
+  }
   scene.animate(10)
   return { scene, events, reads, updates, clock }
 }
@@ -140,7 +145,7 @@ test('modal callback measures rendering and scheduling without simulation or HUD
   const { events, updates, reads } = runCallback({ modal: true })
   assert.deepEqual(events, ['render', 'schedule', 'telemetry'])
   assert.equal(reads, 4)
-  assert.deepEqual(Array.from(updates[0]), [10, 0, 1, 7, 'Menu · rendering', 2, 0, createPointerFrameMetrics()])
+  assert.deepEqual(Array.from(updates[0]), [10, 0, 1, 7, 'Menu · rendering', 2, 0, createPointerFrameMetrics(), 0])
 })
 
 test('disabled and hidden diagnostics add no clock reads and preserve game callback order', () => {
@@ -406,14 +411,22 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
     graph.samples.reset()
     for (let i = 1; i <= 1200; i++)
       graph.samples.sample(16.666666666666668, 1234567.8901234567, 1234567.8901234567,
-        Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, 'live', metrics)
+        Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, 'live', metrics, 127)
     graph.exportRecentFrames()
     const downloaded = await blob.text()
-    assert.equal(JSON.parse(downloaded).frames.length, 1200)
+    const downloadedFrames = JSON.parse(downloaded).frames
+    assert.equal(downloadedFrames.length, 1200)
+    assert.equal(downloadedFrames[0].waterUpdateReasons, 127)
+    assert.equal(downloadedFrames[0].pointerBreakdown.ordinaryTerrain.visibility.indexEntriesWritten, Number.MAX_SAFE_INTEGER)
+    assert.equal(downloadedFrames.at(-1).pointerBreakdown.interaction.route, metrics.interaction.route)
     assert.ok(blob.size <= 2 * 1024 * 1024, 'actual download obeys CLI byte bound')
     assert.ok(downloaded.length <= 2 * 1024 * 1024, 'actual download obeys parser code-unit bound')
     const { analyzeFrameExport } = await import('../app/frame-export-analysis.ts')
     assert.equal(analyzeFrameExport(downloaded).sampleCount, 1200)
+    const cohorts = summarizeFrameExportCohorts(downloaded)
+    assert.equal(cohorts.sampleCount, 1200)
+    assert.equal(cohorts.cohorts.find(group => group.name === 'all').metrics['pointerBreakdown.ordinaryTerrain.visibility.indexEntriesWritten'].max, Number.MAX_SAFE_INTEGER)
+    assert.equal(cohorts.cohorts.find(group => group.name === 'all').metrics.waterUpdateReasons, undefined, 'water is a separate scalar, not an inferred metric or grouping')
     const indentedBytes = new Blob([JSON.stringify(JSON.parse(downloaded), null, 2)]).size
     t.diagnostic(`${blob.size} bytes in actual full-detail exported Blob; ${indentedBytes} bytes if indented`)
     assert.ok(indentedBytes > 2 * 1024 * 1024, 'compact serializer is required for populated interaction captures')
@@ -566,4 +579,62 @@ test('optional ordinary terrain extension snapshots independently and never fabr
   metrics.ordinaryTerrain.version = 2
   assert.equal(samples.sample(10, 0, 1, 3, 2, 0, 30, 'live', metrics), false)
   assert.equal(samples.recentFrames().length, 2)
+})
+
+
+test('optional visibility counters snapshot and old ordinary captures retain absence', () => {
+  const frames = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+  metrics.ordinaryTerrain.visibility.indexEntriesWritten = 12
+  frames.sample(10, 0, 0, 0, 1, 1, 10, 'live', metrics)
+  resetPointerFrameMetrics(metrics)
+  assert.equal(frames.recentFrames()[0].pointerBreakdown.ordinaryTerrain.visibility.indexEntriesWritten, 12)
+  for (const invalid of [-1, 0.5, null, Number.MAX_SAFE_INTEGER + 1]) {
+    metrics.ordinaryTerrain.visibility.indexReuseCalls = invalid
+    frames.sample(10, 0, 0, 0, 1, 1, 20, 'live', metrics)
+    assert.equal(frames.recentFrames().length, 1)
+  }
+  delete metrics.ordinaryTerrain.visibility
+  frames.sample(10, 0, 0, 0, 1, 1, 20, 'live', metrics)
+  assert.equal(frames.recentFrames()[1].pointerBreakdown.ordinaryTerrain.visibility, undefined)
+})
+
+
+test('visibility and interaction snapshots remain separate across ring wrap and missing old fields', () => {
+  const frames = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+  for (let i = 1; i <= 1205; i++) {
+    metrics.ordinaryTerrain.visibility.indexReuseCalls = i
+    metrics.interaction.route = i % 2 ? 'hud' : 'world'
+    frames.sample(10, 0, 0, 0, 1, 1, i * 10, 'live', metrics)
+  }
+  const recent = frames.recentFrames()
+  assert.equal(recent.length, 1200)
+  assert.equal(recent[0].pointerBreakdown.ordinaryTerrain.visibility.indexReuseCalls, 6)
+  assert.equal(recent[0].pointerBreakdown.interaction.route, 'world')
+  assert.equal(recent.at(-1).pointerBreakdown.ordinaryTerrain.visibility.indexReuseCalls, 1205)
+  assert.equal(recent.at(-1).pointerBreakdown.interaction.route, 'hud')
+  recent[0].pointerBreakdown.ordinaryTerrain.visibility.indexReuseCalls = 999
+  assert.equal(frames.recentFrames()[0].pointerBreakdown.ordinaryTerrain.visibility.indexReuseCalls, 6)
+  delete metrics.ordinaryTerrain.visibility
+  frames.sample(10, 0, 0, 0, 1, 1, 12060, 'live', metrics)
+  assert.equal(frames.recentFrames().at(-1).timestampMs, 12060)
+  assert.equal(frames.recentFrames().at(-1).pointerBreakdown.ordinaryTerrain.visibility, undefined)
+  frames.reset()
+  assert.equal(frames.recentFrames().length, 0)
+})
+
+
+test('actual animate propagates frame-local water reasons without disabled allocations or clocks', () => {
+  const enabled = runCallback({ waterReason: 32 })
+  assert.equal(enabled.updates[0][8], 32)
+  assert.equal(enabled.reads, 8)
+  enabled.scene.waterFrameMetrics.reasons = 127
+  enabled.scene.updateEnvironmentFrame = () => {}
+  enabled.scene.animate(20)
+  assert.equal(enabled.updates[1][8], 0, 'new frame clears prior/off-frame state')
+  for (const options of [{ enabled: false }, { hidden: true }, { current: false }]) {
+    const result = runCallback({ ...options, waterReason: 32 })
+    assert.equal(result.reads, 0)
+    assert.equal(result.scene.waterFrameMetrics, undefined)
+  }
+  assert.equal(runCallback({ modal: true, waterReason: 32 }).updates[0][8], 0)
 })

@@ -217,7 +217,8 @@ export class FpsGraph {
     state: string,
     callback: number,
     pointer = 0,
-    metrics?: PointerFrameMetrics
+    metrics?: PointerFrameMetrics,
+    waterUpdateReasons?: number
   ) {
     this.cleared = false
     const { previous } = this
@@ -242,7 +243,8 @@ export class FpsGraph {
             : state.startsWith('Menu')
               ? 'menu'
               : 'unknown',
-        metrics
+        metrics,
+        waterUpdateReasons
       )
     )
       return

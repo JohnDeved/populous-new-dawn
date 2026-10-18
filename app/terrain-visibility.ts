@@ -1,3 +1,4 @@
+import type { TerrainVisibilityMetrics } from './ordinary-terrain-metrics.ts'
 // The terrain keeps its original six vertices per cell. An index buffer selects
 // only cells used by the native row spans; gl_VertexID retains painter face IDs.
 export function visibleTerrainCells(bounds: number[][], center: { x: number; y: number }) {
@@ -63,7 +64,8 @@ export class TerrainVisibilityPreparation {
     bounds: number[][],
     center: { x: number; y: number },
     overview: boolean,
-    vertices: number
+    vertices: number,
+    metrics?: TerrainVisibilityMetrics
   ) {
     const x = center.x >> 9,
       y = center.y >> 9,
@@ -92,6 +94,7 @@ export class TerrainVisibilityPreparation {
       if (cells && !cells[cell]) continue
       for (let vertex = cell * 6; vertex < cell * 6 + 6; vertex++) indices[count++] = vertex
     }
+    if (metrics) metrics.selectionRebuilds++
     this.state = {
       overview,
       x,

@@ -295,3 +295,38 @@ test('optional interaction context preserves old captures and rejects malformed 
   value.frames[0].pointerBreakdown.interaction.privateCoordinates = 'do not copy'
   assert.ok(!JSON.stringify(summarize(value)).includes('privateCoordinates'))
 })
+
+
+test('optional pointer visibility counters accept older ordinary detail and reject malformed new data', () => {
+  const value = report()
+  const detail = createPointerFrameMetrics(true).ordinaryTerrain
+  value.frames[0].pointerBreakdown.ordinaryTerrain = detail
+  detail.visibility.indexEntriesWritten = 12
+  assert.ok(JSON.stringify(summarize(value)).includes('"indexEntriesWritten":12'))
+  for (const invalid of [-1, 0.5, null, Number.MAX_SAFE_INTEGER + 1]) {
+    detail.visibility.indexReuseCalls = invalid
+    assert.throws(() => summarize(value), /indexReuseCalls/)
+  }
+  delete detail.visibility
+  assert.equal(summarize(value).sampleCount, 3, 'previous ordinary-detail captures remain accepted')
+  assert.ok(!JSON.stringify(summarize(value)).includes('indexEntriesWritten'))
+})
+
+
+test('optional frame-level water reasons preserve missing old fields and sanitize unknown fields', () => {
+  const value = report()
+  assert.ok(!JSON.stringify(summarize(value)).includes('waterUpdateReasons'))
+  for (const valid of [0, 1, 32, 127]) {
+    value.frames[0].waterUpdateReasons = valid
+    value.frames[0].privateWaterLocation = 'never copy'
+    const result = JSON.stringify(summarize(value))
+    assert.ok(result.includes(`"waterUpdateReasons":${valid}`))
+    assert.ok(!result.includes('privateWaterLocation'))
+  }
+  for (const invalid of [-1, 128, 1.5, null, '32', {}]) {
+    value.frames[0].waterUpdateReasons = invalid
+    assert.throws(() => summarize(value), /waterUpdateReasons/)
+  }
+  delete value.frames[0].waterUpdateReasons
+  assert.equal(summarize(value).sampleCount, 3)
+})

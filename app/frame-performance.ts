@@ -1,3 +1,4 @@
+import { validWaterUpdateReasons } from './water-update-reasons.ts'
 import {
   createPointerInteractionContext,
   validPointerInteractionContext,
@@ -7,6 +8,8 @@ import {
 } from './pointer-interaction-context.ts'
 import {
   ORDINARY_TERRAIN_FIELDS,
+  TERRAIN_VISIBILITY_FIELDS,
+  createTerrainVisibilityMetrics,
   createOrdinaryTerrainMetrics,
 } from './ordinary-terrain-metrics.ts'
 import {
@@ -31,9 +34,13 @@ const POINTER_FIELDS = [
 const NATIVE_OFFSET = 9 + POINTER_FIELDS.length
 const ORDINARY_OFFSET = NATIVE_OFFSET + 1 + NATIVE_OCCLUSION_FIELDS.length
 const INTERACTION_OFFSET = ORDINARY_OFFSET + 1 + ORDINARY_TERRAIN_FIELDS.length
-const RAW_WIDTH = INTERACTION_OFFSET + 7
+const VISIBILITY_OFFSET = INTERACTION_OFFSET + 7
+const WATER_OFFSET = VISIBILITY_OFFSET + 1 + TERRAIN_VISIBILITY_FIELDS.length
+const RAW_WIDTH = WATER_OFFSET + 1
 
 export interface RecentFrame {
+  /** Render-side actual water call reasons, not pointer CPU ownership. */
+  waterUpdateReasons?: number
   timestampMs: number
   rafIntervalMs: number
   simulationCpuMs: number
@@ -119,7 +126,8 @@ export class FramePerformance {
     pointer = 0,
     timestamp = this.timestamp + milliseconds,
     state: RecentFrame['state'] = 'unknown',
-    metrics?: PointerFrameMetrics
+    metrics?: PointerFrameMetrics,
+    waterUpdateReasons?: number
   ) {
     if (!Number.isFinite(milliseconds) || milliseconds <= 0) return false
     // Reject invalid measurements as a whole, without poisoning either window.
@@ -163,8 +171,16 @@ export class FramePerformance {
         )
           return false
     }
+    const visibility = ordinary?.visibility
+    if (visibility !== undefined) {
+      if (!visibility) return false
+      for (const key of TERRAIN_VISIBILITY_FIELDS)
+        if (!Number.isSafeInteger(visibility[key]) || visibility[key] < 0) return false
+    }
     const interaction = metrics?.interaction
     if (interaction !== undefined && !validPointerInteractionContext(interaction)) return false
+    if (waterUpdateReasons !== undefined && !validWaterUpdateReasons(waterUpdateReasons))
+      return false
     this.timestamp = timestamp
     const offset = this.recentCursor * RAW_WIDTH
     this.recent[offset] = timestamp
@@ -179,6 +195,7 @@ export class FramePerformance {
     this.recent[offset + 8] = metrics ? 1 : 0
     for (let i = 0; i < POINTER_FIELDS.length; i++)
       this.recent[offset + 9 + i] = metrics?.[POINTER_FIELDS[i]] ?? 0
+    this.recent[offset + WATER_OFFSET] = waterUpdateReasons ?? -1
     this.recent[offset + NATIVE_OFFSET] = native ? 1 : 0
     for (let i = 0; i < NATIVE_OCCLUSION_FIELDS.length; i++)
       this.recent[offset + NATIVE_OFFSET + 1 + i] = native?.[NATIVE_OCCLUSION_FIELDS[i]] ?? 0
@@ -197,6 +214,10 @@ export class FramePerformance {
           interaction[INTERACTION_BOOLEAN_FIELDS[i]]
         )
     }
+    this.recent[offset + VISIBILITY_OFFSET] = visibility ? 1 : 0
+    for (let i = 0; i < TERRAIN_VISIBILITY_FIELDS.length; i++)
+      this.recent[offset + VISIBILITY_OFFSET + 1 + i] =
+        visibility?.[TERRAIN_VISIBILITY_FIELDS[i]] ?? 0
     this.recentCursor = (this.recentCursor + 1) % RECENT_FRAME_CAPACITY
     this.recentCount = Math.min(this.recentCount + 1, RECENT_FRAME_CAPACITY)
     this.callbackHistory[this.cursor] = callback
@@ -265,6 +286,13 @@ export class FramePerformance {
         const ordinary = createOrdinaryTerrainMetrics()
         for (let i = 0; i < ORDINARY_TERRAIN_FIELDS.length; i++)
           ordinary[ORDINARY_TERRAIN_FIELDS[i]] = this.recent[offset + ORDINARY_OFFSET + 1 + i]
+        if (this.recent[offset + VISIBILITY_OFFSET]) {
+          const visibility = createTerrainVisibilityMetrics()
+          for (let i = 0; i < TERRAIN_VISIBILITY_FIELDS.length; i++)
+            visibility[TERRAIN_VISIBILITY_FIELDS[i]] =
+              this.recent[offset + VISIBILITY_OFFSET + 1 + i]
+          ordinary.visibility = visibility
+        }
         pointerBreakdown.ordinaryTerrain = ordinary
       }
       if (pointerBreakdown && this.recent[offset + INTERACTION_OFFSET]) {
@@ -280,6 +308,9 @@ export class FramePerformance {
         pointerBreakdown.interaction = interaction
       }
       return {
+        ...(this.recent[offset + WATER_OFFSET] >= 0
+          ? { waterUpdateReasons: this.recent[offset + WATER_OFFSET] }
+          : {}),
         pointerBreakdown,
         timestampMs,
         rafIntervalMs,

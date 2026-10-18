@@ -1,4 +1,4 @@
-import type { OrdinaryTerrainMetrics } from './ordinary-terrain-metrics.ts'
+import type { OrdinaryTerrainMetrics, TerrainVisibilityMetrics } from './ordinary-terrain-metrics.ts'
 import type { NativeOcclusionMetrics } from './native-occlusion-metrics.ts'
 import { inHitTriangle } from './world-picking.ts'
 import * as THREE from 'three'
@@ -502,7 +502,7 @@ export class RenderView {
         if (!(object instanceof THREE.Mesh) || !object.visible) return
         const visibilityStart = ordinary ? performance.now() : 0
         object.updateWorldMatrix(true, false)
-        if (!nativeEdges) this.updateTerrainVisibility(object)
+        if (!nativeEdges) this.updateTerrainVisibility(object, ordinary?.visibility)
         if (ordinary) ordinary.visibilityMs += performance.now() - visibilityStart
         const geometry = object.geometry,
           position = geometry.getAttribute('position'),
@@ -795,7 +795,7 @@ export class RenderView {
   revokeTerrainSubmission(object: THREE.Mesh) {
     revokeTerrainSubmissionOwner(object)
   }
-  updateTerrainVisibility(object: THREE.Object3D) {
+  updateTerrainVisibility(object: THREE.Object3D, metrics?: TerrainVisibilityMetrics) {
     if (!(object instanceof THREE.Mesh) || !object.userData.terrainGrid) return
     const owner = terrainSubmissionOwner(object),
       geometry = object.geometry,
@@ -804,7 +804,8 @@ export class RenderView {
         this.bounds,
         this.rawCenter,
         this.overview,
-        vertices
+        vertices,
+        metrics
       )
     if (object instanceof THREE.InstancedMesh) {
       const tiles = selection.tiles,
@@ -831,13 +832,17 @@ export class RenderView {
     const standard = standardTerrainSubmissionIndex(index) && index.count >= count
     // Only initialized, exclusively owned terrain can bypass prefix validation.
     // Custom/index identity/method changes fall back; marked edits validate once.
-    if (owner && standard && reuseTerrainSubmission(owner, selection)) return
+    if (owner && standard && reuseTerrainSubmission(owner, selection)) {
+      if (metrics) metrics.indexReuseCalls++
+      return
+    }
     if (owner && !standard) revokeTerrainSubmissionOwner(object)
     const same = standard && this.terrainSubmissionMatches(index, indices, count)
     if (!same) {
       for (let i = 0; i < count; i++) index.setX(i, indices[i])
+      if (metrics) metrics.indexEntriesWritten += count
       index.needsUpdate = true
-    }
+    } else if (metrics) metrics.indexReuseCalls++
     if (!standard || geometry.drawRange.start !== 0 || geometry.drawRange.count !== count)
       geometry.setDrawRange(0, count)
     if (owner && standard) certifyTerrainSubmission(owner, selection)

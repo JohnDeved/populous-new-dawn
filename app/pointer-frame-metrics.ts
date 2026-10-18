@@ -43,7 +43,7 @@ export function createPointerFrameMetrics(includeNative = false): PointerFrameMe
       ? {
           interaction: createPointerInteractionContext(),
           nativeOcclusion: createNativeOcclusionMetrics(),
-          ordinaryTerrain: createOrdinaryTerrainMetrics(),
+          ordinaryTerrain: createOrdinaryTerrainMetrics(true),
         }
       : {}),
     terrainPickMs: 0,
