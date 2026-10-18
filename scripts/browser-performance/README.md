@@ -27,7 +27,8 @@ Candidate functional smoke and one trusted same-runtime-source control for this
 new revision are **not run yet**. Source tests are not browser qualification or a
 promise that warmup removes noise. The five stable phases and their observer
 remain unchanged. No threshold relaxation, timing-based retry or frame trimming.
-The two workflows are already active. Their reviewed files/templates, permissions,
+The two workflows are already active.
+Their reviewed files/templates, permissions,
 triggers and caps are unchanged here. The common capture/build code always comes
 from the exact PR base, so a PR proposing V2 cannot run its own untrusted harness.
 The reporter selects V2 explicitly from trusted source, never from artifact input.
