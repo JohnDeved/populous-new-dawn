@@ -6,7 +6,7 @@ import {
 import { tribeForTeam } from './world-types.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
-import { nativeModel } from './scene-assets.ts'
+import { nativeModel, ownedStaticNativeModel } from './scene-assets.ts'
 import {
   readTerrainTextures,
   terrainAtlas,
@@ -324,7 +324,7 @@ export function makeDecorations(scene: GameScene) {
       continue
     }
     const g = new THREE.Group()
-    g.add(nativeModel(rules.sceneryObjects[tree.model], 2, 4, false, scene.environment))
+    g.add(ownedStaticNativeModel(rules.sceneryObjects[tree.model], 2, 4, false, scene.environment))
     scene.locate(g, tree)
     g.userData.point = tree
     scene.decorations.add(g)

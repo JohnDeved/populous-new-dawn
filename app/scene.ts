@@ -45,6 +45,7 @@ import { vaultKnowledgeAtlas } from './vault-appearance.ts'
 import { ProjectileMotion } from './projectile-motion.ts'
 import { loadTexture, releaseGroup, retryFailedTexture, texture } from './scene-assets.ts'
 import { ScenePicking } from './scene-picking.ts'
+import { createRuntimeModelPicking } from './owned-static-model.ts'
 import { createSkyMotion } from './sky.ts'
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
 import {
@@ -287,7 +288,7 @@ export class GameScene {
   tooltipElement = document.createElement('div')
   tooltipCanvas = document.createElement('canvas')
   objectPanels = new ObjectPanels(this)
-  picking = new ScenePicking(this)
+  picking = new ScenePicking(this, createRuntimeModelPicking(this.view))
   hudFocus = Array<number>(8).fill(0)
   hudTaskFocus = Array<number>(48).fill(0)
   hudTransportFocus = Array<number>(16).fill(0)

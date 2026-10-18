@@ -8,6 +8,7 @@ import {
   geometry,
   effectFrame,
   nativeModel,
+  ownedStaticNativeModel,
   nativeModels,
   material,
   part,
@@ -210,7 +211,7 @@ function makeBuilding(scene: GameScene, b: Building, stage: number, temple = fal
     renderId =
       originalTrainingHutObject(b) ??
       (nativeModels[id] ? id : nativeModels[base] ? base : rules.buildingObjects[13])
-  const model = nativeModel(
+  const model = ownedStaticNativeModel(
     renderId,
     b.kind === 'temple' ? 1.65 : 2,
     stage,
@@ -339,7 +340,7 @@ function updateHutSmokePuffs(scene: GameScene) {
 function makeVehicle(scene: GameScene, v: Vehicle) {
   const g = new THREE.Group(),
     resource = originalVehicleMesh(v.model),
-    mesh = nativeModel(resource, 2, 4, false, scene.environment)
+    mesh = ownedStaticNativeModel(resource, 2, 4, false, scene.environment)
   if (!mesh) throw new Error(`Missing original vehicle mesh ${resource}`)
   // Reuse the original model UV/material, integer transform, lighting and
   // painter/picking consumers. The vehicle's gameplay position stays unchanged.
