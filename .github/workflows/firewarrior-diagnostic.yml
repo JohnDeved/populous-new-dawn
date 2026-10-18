@@ -1,0 +1,88 @@
+# One-shot diagnostic branch only. Do not merge this workflow or scenario to main.
+name: Firewarrior panel diagnostic
+on:
+  push:
+    branches: [diagnostic/firewarrior-panel-20261018]
+permissions:
+  contents: read
+concurrency:
+  group: firewarrior-panel-diagnostic-20261018
+  cancel-in-progress: false
+jobs:
+  witness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 3
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Install exact locked registry dependencies; use preinstalled official Chrome
+        run: |
+          unset NODE_PATH NODE_COMPILE_CACHE NODE_V8_COVERAGE NODE_OPTIONS
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+          npm ci --no-audit --no-fund
+          test -x /opt/google/chrome/chrome
+          /opt/google/chrome/chrome --version
+      - name: Record exact source and dependency inputs
+        run: |
+          unset NODE_PATH NODE_COMPILE_CACHE NODE_V8_COVERAGE NODE_OPTIONS
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD^)" = 93f7bfc6ad4726f0f4c96edc0e9ae50ced9caa59
+          test "$(git rev-parse HEAD^^)" = bab9aa4ea8f228a5884528982cce71231cbb8bfd
+          test "$(git rev-parse HEAD^'^{tree}')" = 403aad2696f1b0da94a23f3472e4d5caf6bfa836
+          test "$(git rev-parse HEAD^^'^{tree}')" = d76fe1cd227286ed150fc1e8a33b4e1a3eb8d481
+          test "$(git diff-tree --no-commit-id --name-only -r HEAD)" = .github/workflows/firewarrior-diagnostic.yml
+          mkdir -p outputs/firewarrior-diagnostic
+          { printf 'Diagnostic-only scenario and workflow; source-hosted Vite, not production preview.\n'; git rev-parse HEAD HEAD^{tree} HEAD^ HEAD^'^{tree}' HEAD^^ HEAD^^'^{tree}'; node --version; npm --version; sha256sum package-lock.json node_modules/playwright-core/browsers.json /opt/google/chrome/chrome scripts/local-render/firewarrior-public-witness.mjs; } > outputs/firewarrior-diagnostic/inputs.txt
+      - name: One bounded source-hosted public M10 route, sandbox enabled
+        run: |
+          unset NODE_PATH NODE_COMPILE_CACHE NODE_V8_COVERAGE NODE_OPTIONS
+          # Intentional 4 GiB Node heap ceiling; no inherited Node loaders/caches.
+          export NODE_OPTIONS=--max-old-space-size=4096
+          owned=$(mktemp -d "$RUNNER_TEMP/firewarrior-chrome.XXXXXX")
+          profile="$owned/profile"
+          mkdir "$profile"
+          # The outer shell owns cleanup; the exec launcher has no ineffective EXIT trap.
+          cleanup() {
+            if pgrep -f -- "--user-data-dir=$profile" >/dev/null; then
+              echo 'Owned Chrome still running; preserving profile for runner teardown.' >&2
+            else
+              rm -rf -- "$owned"
+            fi
+          }
+          trap cleanup EXIT
+          printf '#!/bin/sh\nexec /opt/google/chrome/chrome --headless "--user-data-dir=%s" "$@"\n' "$profile" > "$owned/chrome-wrapper"
+          chmod 700 "$owned/chrome-wrapper"
+          cp "$owned/chrome-wrapper" outputs/firewarrior-diagnostic/chrome-wrapper.txt
+          { printf 'Wrapper (not Chrome binary):\n'; sha256sum "$owned/chrome-wrapper"; printf 'Real executable: /opt/google/chrome/chrome\nEffective flags: --headless --user-data-dir=%s --remote-debugging-pipe\n' "$profile"; } >> outputs/firewarrior-diagnostic/inputs.txt
+          sh -n "$owned/chrome-wrapper"
+          timeout --signal=TERM --kill-after=5s 180s node scripts/local-render/harness.mjs \
+            --game-root "$GITHUB_WORKSPACE" --browser "$owned/chrome-wrapper" \
+            --scenario scripts/local-render/firewarrior-public-witness.mjs \
+            --mission 10 --timeout 150000 --port 4188 \
+            --output outputs/firewarrior-diagnostic
+      - name: Reject tracked source mutation
+        if: always()
+        run: git diff --exit-code HEAD --
+      - name: Retain bounded diagnostic artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: firewarrior-panel-diagnostic-${{ github.sha }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            outputs/firewarrior-diagnostic/inputs.txt
+            outputs/firewarrior-diagnostic/chrome-wrapper.txt
+            outputs/firewarrior-diagnostic/receipt.json
+            outputs/firewarrior-diagnostic/firewarrior-public.json
+            outputs/firewarrior-diagnostic/active-off-pointer-panel.png
+            outputs/firewarrior-diagnostic/active-off-pointer-viewport.png
+            outputs/firewarrior-diagnostic/converted-and-retired-viewport.png
