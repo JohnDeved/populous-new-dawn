@@ -1,5 +1,5 @@
 export const protocol = Object.freeze({
-  version: 5,
+  version: 6,
   mode: 'untimed-pixels-only',
   baseline: '5087f2e805097665c4fdcce657553db3a693bb76',
   baselineTree: '6a1d5602531ab9afcf7d517884443fe938361d1e',

@@ -1,24 +1,28 @@
 {
-  "scope": "Revision 5, unexecuted Stage A ASI setup repair only",
+  "scope": "Revision 6, unexecuted Stage A redundant-focus setup repair",
   "baseline": "5087f2e805097665c4fdcce657553db3a693bb76",
   "candidate": "8bd14a84e34545f9a0f0b1fe5c1ebbf8267e5f59",
   "previousRejectedUnexecutedBinding": "bc83b122b67e6ad0dbf8124ad8a4f5e954e137caebc32f12da19ed5fb7238504",
   "files": {
-    "PLAN.md": "1e750be97e5e8468d16dd959e5c1916c4535d6d8f26ee8923e9e54382299b860",
+    "PLAN.md": "3d61abe9e890a752ca76ea5234bf627b487fd44ebdd14d70de8aa051ce0ba89d",
     "build.mjs": "3285f16604d0a00e82716e0ecd18f8846a5f549b2bd267f6bd47593662a09c23",
     "compare.mjs": "965393ca8c2f208f66d633474ce57a8820ba3905614f65b758a1a5bb90271f19",
     "driver.mjs": "eecb1195df764b7326778043c15a7f6d07ec6de107054ed3af55f5361395cee8",
-    "helpers.test.mjs": "5afef7426a83d72e08afe2abe41b6ed5df90dc123546b8dd8e4e3610122afd7c",
+    "helpers.test.mjs": "29dc90972d24df5c35d45184830ef17b3ba333c867df8e080766eefd5a70e42f",
     "hosted-workflow.yml": "a42cdb13727e171def145dfc55417cff726b2c1af633e9debaf3996135781d8d",
     "io.mjs": "4a9801ce84836ebd80573eb70e83ea780ae279e97e3087615d92205ea3aa0fa5",
     "page.mjs": "799ba54ba58d296e19bcd25cc6daae99ff468b3aac5a2068af2b4acbe1f27065",
-    "protocol.mjs": "f39f8d92d4ea326bdb16c80cde46b72e0cfe43ad168aab102ab69c1fbd95feb1",
+    "protocol.mjs": "60aee5db27a80e4b07fa1bd6cce42de8cb8b849bda9e34852935e621b445060f",
     "rejected-controls.fixture.mjs": "192cde733fabeb8a76b9e160648705972ca41dbcdcb1d79b2651ec0e73662f35",
-    "setup-adapter.mjs": "37982d6ac0c58f2908360ae808fe1f43e5fbe7f9dade5802227ca0bf2abd1d21",
+    "setup-adapter.mjs": "dce62fb7212172ff8cd42ff75c73c0ec5deb1ed0a4bf719888924d54317b8f6d",
     "start-latch.mjs": "0140a17ff9774e2adc86777b53dd8104e103062afc8913b0c11fc7ac4afd653d",
     "start-transform-bindings.json": "00eae461b0604363c5877f3675726a14390fdefdc77ffc445edf0948a8cf5242",
-    "worker.mjs": "e3bc9bdeb45fcac47d74b58f7f8a2d675ef23920337b33cc3c8214dda3c039ce"
+    "worker.mjs": "e3bc9bdeb45fcac47d74b58f7f8a2d675ef23920337b33cc3c8214dda3c039ce",
+    "focus-constructor.test.mjs": "0aa50f81ed4e0df8312d10e0066e59611e8f819e8044cd0cd9a67847c245700a"
   },
-  "previousFailedBinding": "78bf940cfbde58dda32376879d6014be013449bd75afb0ce763ed0acd5267ffb",
-  "preservedFailedRun": 39172358949
+  "previousFailedBinding": "e7afd3be25dfa8c6291776450b27e579b5c978589e07a0b759b2c95764493b8e",
+  "preservedFailedRuns": [
+    39172358949,
+    39172774059
+  ]
 }

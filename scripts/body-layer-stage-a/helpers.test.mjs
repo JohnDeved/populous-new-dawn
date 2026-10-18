@@ -61,7 +61,7 @@ test('asset symlinks are not copied or charged as generated evidence', () => {
   symlinkSync(dir, join(dir, 'alias'))
   assert.equal(bytes(dir), 11)
 })
-test('setup adaptation is bound and only adds the pre-input observer', async () => {
+test('setup adaptation is bound and preserves public drag plus admission checks', async () => {
   const { loadSnapshot, binding } = await loadSetup(root)
   assert.equal(typeof loadSnapshot, 'function')
   assert.equal(
@@ -393,4 +393,63 @@ test('generated TSX entry installs the latch and renders once; preserved ASI ent
   }
   assert.throws(() => execute(oldEntry), /Object.assign\(\.\.\.\) is not a function/)
   execute(entry)
+})
+
+test('redundant focus omission rejects changed camera, selection, World and escaped callbacks', async () => {
+  const { runInNewContext } = await import('node:vm')
+  const { assertInitialFocus } = await import('./setup-adapter.mjs')
+  const make = () => {
+    const world = {
+      turn: 70,
+      paused: true,
+      inputMask: 0,
+      selected: [54],
+      units: [{ id: 54, kind: 'shaman', team: 'blue', x: -107, z: -101 }],
+    }
+    const scene = {
+      world,
+      previous: null,
+      frame: 0,
+      fpsGraph: null,
+      cameraPosition: { x: 40192, y: 23808, angle: 0 },
+      viewPoint: { x: -107, z: -101 },
+      cameraBearing: 0,
+      cameraMotion: { active: 0 },
+    }
+    const window = { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }
+    const context = { window }
+    runInNewContext(`(${installStartLatch.toString()})(v=>v)`, context)
+    window.__bodyStartLatch(scene)
+    return { world, scene, window, context }
+  }
+  const run = x =>
+    runInNewContext(
+      `(${assertInitialFocus.toString()})({focus:{id:54,x:-107,z:-101},selected:[54]})`,
+      x.context
+    )
+  assert.equal(run(make()).motion, 0)
+  for (const mutate of [
+    x => x.scene.cameraPosition.x++,
+    x => x.scene.viewPoint.x++,
+    x => (x.scene.cameraBearing = 1),
+    x => (x.scene.cameraMotion.active = 1),
+    x => (x.world.selected = []),
+    x => x.world.turn++,
+    x => x.world.units[0].x++,
+    x => (x.scene.previous = 1),
+  ]) {
+    const x = make()
+    mutate(x)
+    assert.throws(() => run(x))
+  }
+  const { loadSnapshot } = await loadSetup(root)
+  const text = loadSnapshot.toString()
+  assert.doesNotMatch(text, /keyboard.press\(snapshotAuthoring.focusKey\)/)
+  assert.doesNotMatch(
+    text,
+    /waitForFunction\(\(\) => !window.testSceneRef.current.cameraMotion.active\)/
+  )
+  assert.match(text, /canvas.battlefield'\).focus\(\)/)
+  assert.match(text, /page.mouse.click/)
+  assert.equal(text.split('assertSnapshotAdmission(').length, 3)
 })

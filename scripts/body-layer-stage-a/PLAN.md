@@ -1,4 +1,4 @@
-# Prospective real-renderer body-layer validation, revision 4
+# Prospective real-renderer body-layer validation, revision 6
 
 STATUS: design for review only. No browser launch, build, measurement, publication,
 new cloud task or hardware qualification is authorized by this file.
@@ -28,8 +28,9 @@ Use the existing exact-base snapshot-setup author: Level 2, 140 actual advanceGa
 calls at 1/24 seconds, genuine skipIntroduction, turn 70, no input mask. Load the
 same lossless checkpoint through the existing IndexedDB/public Load helper and
 verify exact migrated World bytes before continuing. Preserve its source/asset
-binding and pause-latch removal checks. Normalize camera/selection using the
-existing public focus/right-click setup. Do not overwrite authored units or add a
+binding and pause-latch removal checks. Assert the exact constructor focus and use the existing public drag/right-click
+setup. Only the redundant animated focus key and its RAF-dependent wait are omitted,
+under the read-only exact precondition described below. Do not overwrite authored units or add a
 synthetic favorable population. Fresh document/World/context for each child.
 
 F8 is off (scene.fpsGraph === null), no GPU timer observer is installed. Bind
@@ -205,7 +206,8 @@ Actual scene.pick now exercises the owned numeric route. The extra explicit
 ordinary candidate oracle uses the generic public pickCandidates API, while the
 actual facade winner remains separately recorded. Neither path is substituted for
 the application's animate/pointer work. No previous browser proof is being reused:
-there has been no browser execution of either protocol revision.
+the earlier revisions had not run at that freeze. Subsequent failed hosted setup
+attempts are recorded below; neither reached pixel comparison.
 
 ## Unexecuted revision 3 rejection and revision 4 repair
 
@@ -227,4 +229,23 @@ exact suppression accounting excluding only the shared target, while hook contro
 require all draw counters equal. Completed source review is still not pixel proof.
 
 
-Revision 5 preserves failed hosted attempt 39172358949 (diagnostic f8e17698). Both builds passed, but the generated test entry had an automatic-semicolon-insertion error before the startup latch, so no controlled callback or pixel comparison ran. The only executable setup repair adds an explicit statement separator. An execution-level TSX regression runs the exact generated entry with IO mocks, proves the preserved old entry throws, and proves the repaired entry installs the latch before its single render. Candidate runtime, fixtures, trajectories, counters and acceptance remain unchanged. Any new hosted attempt requires separate review and authorization; no retry has run.
+Revision 5 preserves failed hosted attempt 39172358949 (diagnostic f8e17698). Both builds passed, but the generated test entry had an automatic-semicolon-insertion error before the startup latch, so no controlled callback or pixel comparison ran. The only executable setup repair adds an explicit statement separator. An execution-level TSX regression runs the exact generated entry with IO mocks, proves the preserved old entry throws, and proves the repaired entry installs the latch before its single render. Candidate runtime, fixtures, trajectories, counters and acceptance remain unchanged. Revision 5 then ran once as 39172774059 and failed at the setup focus-motion wait,
+with zero browser page errors and no controlled callback or pixel comparison.
+
+## Revision 6: exact redundant-focus precondition
+
+The actual constructor at the unchanged authored turn-70 checkpoint already has
+selected Shaman 54, viewPoint {-107,-101}, native camera {40192,23808,angle:0},
+bearing zero and inactive camera motion. An actual-constructor IO-leaf regression
+proves that animate:true focus at this identical target leaves the camera unchanged
+but sets motion active, requiring a callback forbidden by the startup latch.
+
+The exact-source-bound setup adapter now replaces only the focus key and inactive
+wait with a read-only precondition. It asserts exact authored selection and Shaman
+identity/position, camera/viewPoint/bearing, inactive motion, turn/pause/input state,
+scene/store/latch identity, no callbacks, and complete World equality to the start
+latch. Camera or motion is never assigned, and no private controller is called.
+Canvas focus, actual public drags/right-click and every original admission check
+remain unchanged. Negative tests reject camera, selection, World and callback drift.
+Both failed hosted runs and their exact source/bindings remain preserved. Revision 6
+is unexecuted and requires new independent source admission before any hosted run.
