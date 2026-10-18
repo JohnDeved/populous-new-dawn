@@ -165,27 +165,38 @@ test('views and reentrant queries have independent storage, including thrown cal
   } finally { second.dispose(); close(v, object, nested) }
 })
 
-test('dispose releases retained storage; subsequent and active queries remain safe', () => {
-  const v = view(), object = mesh()
-  try {
-    const expected = oracle([object])
-    v.pickCandidates(mouse, [object], camera)
-    const scratch = v.ordinaryPickScratch
-    v.dispose()
-    assert.equal(v.ordinaryPickScratch, null)
-    assert.deepEqual(v.pickCandidates(mouse, [object], camera), expected)
-    assert.notEqual(v.ordinaryPickScratch, scratch)
-    let disposed = false
-    v.screen = p => {
-      if (!disposed) { disposed = true; v.dispose() }
-      return project(p)
-    }
-    assert.deepEqual(v.pickCandidates(mouse, [object], camera), expected)
-    assert.equal(v.ordinaryPickScratch, null)
-    v.screen = project
-    assert.deepEqual(v.pickCandidates(mouse, [object], camera), expected)
-  } finally { close(v, object) }
-})
+for (const multipleRoots of [false, true])
+  test(`dispose stays released through later ${multipleRoots ? 'roots' : 'instances'} and permits a new query`, () => {
+    const v = view(), object = mesh(), second = mesh()
+    const objects = multipleRoots ? [object, second] : [object]
+    if (!multipleRoots) object.count = 2
+    try {
+      const expected = oracle(objects)
+      const query = () => v.pickCandidates(mouse, objects, camera)
+      query()
+      const scratch = v.ordinaryPickScratch
+      v.dispose()
+      assert.equal(v.ordinaryPickScratch, null)
+      assert.deepEqual(query(), expected)
+      assert.notEqual(v.ordinaryPickScratch, scratch)
+      let disposed = false
+      v.screen = p => {
+        if (!disposed) {
+          disposed = true
+          v.dispose()
+          assert.deepEqual(query(), expected, 'nested query remains independent after disposal')
+          assert.equal(v.ordinaryPickScratch, null)
+        }
+        return project(p)
+      }
+      assert.deepEqual(query(), expected)
+      assert.equal(v.ordinaryPickScratch, null, 'remaining work cannot reacquire retained storage')
+      v.screen = project
+      assert.deepEqual(query(), expected)
+      assert.ok(v.ordinaryPickScratch, 'a new top-level query may own new scratch')
+      assert.notEqual(v.ordinaryPickScratch, scratch)
+    } finally { close(v, object, second) }
+  })
 
 test('combined ordinary scratch, native cache and optional F8 ring stay independently owned', async () => {
   const { createPointerFrameMetrics, resetPointerFrameMetrics } = await import('../app/pointer-frame-metrics.ts')

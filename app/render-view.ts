@@ -176,6 +176,7 @@ class OrdinaryPickScratch {
 export class RenderView {
   private ordinaryPickScratch: OrdinaryPickScratch | null = null
   private ordinaryPickDepth = 0
+  private ordinaryPickDisposed = false
   groundPickCache = new WeakMap<
     THREE.Object3D,
     Map<
@@ -441,6 +442,7 @@ export class RenderView {
     metrics?: NativeOcclusionMetrics,
     ordinaryMetrics?: OrdinaryTerrainMetrics
   ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0) this.ordinaryPickDisposed = false
     this.ordinaryPickDepth++
     try {
       return this.collectPickCandidates(
@@ -590,7 +592,10 @@ export class RenderView {
           // Ordinary queries lease reusable storage, never native retained values.
           // Reentrant queries get independent temporary buffers.
           const scratch =
-            !nativeEdges && packedTerrain && this.ordinaryPickDepth === 1
+            !nativeEdges &&
+            packedTerrain &&
+            this.ordinaryPickDepth === 1 &&
+            !this.ordinaryPickDisposed
               ? (this.ordinaryPickScratch ??= new OrdinaryPickScratch())
               : null
           scratch?.reset()
@@ -987,6 +992,9 @@ export class RenderView {
   dispose() {
     // Drop ownership without mutating any buffers an active reentrant call holds.
     this.ordinaryPickScratch = null
+    // Remaining instances/roots in this query must not reacquire ownership.
+    // A later independent top-level query may initialize fresh storage.
+    this.ordinaryPickDisposed = true
     this.boundsTexture.dispose()
     this.painter.texture.dispose()
   }

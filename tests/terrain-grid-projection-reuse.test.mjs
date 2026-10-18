@@ -457,6 +457,13 @@ function nativeSubset(f) {
   return { p, high, lowIDs, highIDs, submit, mouse }
 }
 
+// Exclude the live Three.js object while preserving every candidate value field.
+function candidateValues(candidate) {
+  const values = { ...candidate }
+  delete values.object
+  return values
+}
+
 test('native packed cache retains slots across pixels, submissions and versioned invalidation', async () => {
   const f = await fixture(0)
   try {
@@ -466,7 +473,7 @@ test('native packed cache retains slots across pixels, submissions and versioned
       first = f.nativeSample(pixel)
     assert.equal(first.actualCalls, 4, 'cold native query projects four exact corners')
     assert.deepEqual(first.candidates.map(hit => hit.triangle), [0])
-    const retained = structuredClone(first.candidates.map(({ object, ...hit }) => hit))
+    const retained = structuredClone(first.candidates.map(candidateValues))
     assert.equal(f.nativeSample(nextPixel).actualCalls, 0, 'new pixel keeps projected slots')
     submit([...lowIDs, ...highIDs])
     const added = f.nativeSample(pixel)
@@ -501,7 +508,7 @@ test('native packed cache retains slots across pixels, submissions and versioned
       assert.ok(f.nativeSample(pixel).actualCalls > 0, `${label} invalidates native projections`)
       assert.equal(f.nativeSample(nextPixel).actualCalls, 0, `${label} warms the replacement cache`)
     }
-    assert.deepEqual(first.candidates.map(({ object, ...hit }) => hit), retained)
+    assert.deepEqual(first.candidates.map(candidateValues), retained)
     f.view.painter.depth = (_object, triangle) => triangle === high / 3 ? -0.5 : 0.5
     assert.equal(f.view.resolvePickCandidates(added.candidates).triangle, high / 3)
     f.view.painter.depth = (_object, triangle) => triangle === 0 ? -0.5 : 0.5
@@ -523,7 +530,7 @@ test('ordinary pointer queries leave retained native projections and candidates 
       const native = f.nativeSample(pixel)
       assert.ok(native.actualCalls > 0)
       assert.ok(native.candidates.length > 0)
-      const retained = structuredClone(native.candidates.map(({ object, ...hit }) => hit))
+      const retained = structuredClone(native.candidates.map(candidateValues))
       const slots = f.view.groundPickCache.get(f.mesh).get(0).slots
       assert.ok(slots instanceof Uint32Array)
       for (const ordinaryPixel of [pixel, new THREE.Vector2(-0.2, 0.15), pixel]) {
@@ -532,7 +539,7 @@ test('ordinary pointer queries leave retained native projections and candidates 
         assert.equal(repeated.actualCalls, 0, 'ordinary queries do not replace native slots')
         assert.strictEqual(f.view.groundPickCache.get(f.mesh).get(0).slots, slots)
         assert.deepEqual(repeated.candidates, native.candidates)
-        assert.deepEqual(native.candidates.map(({ object, ...hit }) => hit), retained)
+        assert.deepEqual(native.candidates.map(candidateValues), retained)
       }
     } finally {
       f.close()
