@@ -1,0 +1,44 @@
+name: Browser performance report
+
+on:
+  workflow_run:
+    workflows: [Browser performance comparison]
+    types: [completed]
+
+permissions: {}
+
+# Serialize each PR's single-comment upsert. Different PRs must not displace
+# each other's pending reports; use run ID only for an unassociated event.
+concurrency:
+  group: browser-performance-reporter-${{ github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  report:
+    if: ${{ github.event.workflow_run.event == 'pull_request' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - name: Check out trusted default-branch reporter only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Node without dependencies or caches
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Validate bounded data and update one informational bot comment
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          NODE_OPTIONS: ''
+          NODE_PATH: ''
+          NODE_COMPILE_CACHE: ''
+          NODE_V8_COVERAGE: ''
+        run: node scripts/browser-performance/reporter.mjs

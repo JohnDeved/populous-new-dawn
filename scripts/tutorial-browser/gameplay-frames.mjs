@@ -16,9 +16,17 @@ export function observeGameplayFramePhase() {
     visibility: document.visibilityState }
 }
 
-export default async function ({ page, url, output, expectedRevision }) {
+export function gameplayPhaseSchedule(measuredPhases) {
+  assert.ok(Array.isArray(measuredPhases) && measuredPhases.length > 0 && new Set(measuredPhases).size === measuredPhases.length)
+  assert.ok(measuredPhases.every(name => plan.phases.some(phase => phase.name === name)))
+  const lastPhase = Math.max(...measuredPhases.map(name => plan.phases.findIndex(phase => phase.name === name)))
+  return plan.phases.slice(0, lastPhase + 1).map(phase => ({ phase, measured: measuredPhases.includes(phase.name) }))
+}
+
+export default async function ({ page, url, output, expectedRevision, measuredPhases = plan.phases.map(phase => phase.name) }) {
+  const schedule = gameplayPhaseSchedule(measuredPhases)
   const report = { schema: 'populous-new-dawn/gameplay-frame-recording', schemaVersion: 1,
-    status: 'running', plan, expectedRevision, phases: [], limits: gameplayFrameLimits }
+    status: 'running', plan, measuredPhases, expectedRevision, phases: [], limits: gameplayFrameLimits }
   const save = () => writeFileSync(resolve(output, 'gameplay-frames.json'), JSON.stringify(report, null, 2) + '\n')
   const observe = () => page.evaluate(observeGameplayFramePhase)
   const graph = page.locator('.fps-graph')
@@ -42,7 +50,9 @@ export default async function ({ page, url, output, expectedRevision }) {
     report.warmupAfter = await observe()
     assert.ok(report.warmupAfter.turn > report.warmupBefore.turn, 'natural gameplay must advance during warmup')
     await graph.waitFor({ state: 'hidden' })
-    for (const phase of plan.phases) {
+    // Shards retain all prerequisite UI/input phases in their original order.
+    // Setup-only phases are unmeasured, not silently replaced by injected state.
+    for (const { phase, measured } of schedule) {
       // Real menu interruption followed by public Escape and world-pointer recovery.
       // This setup is outside measured windows, never passed off as live gameplay.
       if (phase.name === 'menu-recovery') {
@@ -61,8 +71,10 @@ export default async function ({ page, url, output, expectedRevision }) {
       assert.ok(point, 'a visible authored person is required for native hover work')
       await page.mouse.move(point.x, point.y)
       await page.waitForFunction(m2RouteReady, { ...point, world: phase.route === 'world' })
-      await page.keyboard.press('F8')
-      await graph.waitFor({ state: 'visible' })
+      if (measured) {
+        await page.keyboard.press('F8')
+        await graph.waitFor({ state: 'visible' })
+      }
       const before = await observe()
       const record = { name: phase.name, point, before, inputs: [], status: 'running' }
       report.phases.push(record); save()
@@ -93,6 +105,7 @@ export default async function ({ page, url, output, expectedRevision }) {
       await waitUntil(plan.phaseDurationMs)
       const after = await observe()
       record.after = after
+      if (!measured) { record.status = 'setup-only'; save(); continue }
       // Focus/Space activates the real export button without moving the world pointer
       // into the HUD. Export/action frames stay outside independently observed bounds.
       const button = page.getByRole('button', { name: 'Export recent frames', exact: true })
