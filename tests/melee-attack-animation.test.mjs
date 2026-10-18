@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createWorld, select, command, unitAnimationSource, addUnit } from '../app/model.ts'
+import { createWorld, select, command, unitAnimationSource, addUnit, canPickUnit, canOrder } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { createMeleePerson } from '../app/live-people.ts'
 import { processBattles } from '../app/combat-runtime.ts'
+import { unitRenderAnimationSource } from '../app/unit-animation-source.ts'
 import { meleeAnimationObject, meleeDuration } from '../app/melee.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { finishLevelStart } from './level-start-fixture.mjs'
@@ -67,7 +68,7 @@ test('ordinary Mission 2 attack adopts its native pose and logical frame owner',
   const unit = world.units.find(unit => unit.id === id), fight = unit.fight, person = fight.motion
   const [object, draw] = expectedPose(unit)
   assert.equal(fight.nativeAttackAnimation, true)
-  assert.equal(unitAnimationSource(unit), person)
+  assert.equal(unitRenderAnimationSource(unit), person)
   assert.deepEqual([person.object, person.draw, person.f1, person.f2], [object, draw, 0, 0])
   assert.equal(fight.remaining, meleeDuration(unit.kind, fight.action) - 1)
   const first = structuredClone(person)
@@ -84,7 +85,7 @@ test('all attack entries select original rows and Firewarrior descriptor delay o
       processBattles(world)
       const person = unit.fight.motion, [object, draw] = expectedPose(unit)
       assert.equal(unit.fight.nativeAttackAnimation, true, `${kind}/${action}`)
-      assert.equal(unitAnimationSource(unit), person)
+      assert.equal(unitRenderAnimationSource(unit), person)
       assert.deepEqual([person.object, person.draw, person.f1, person.f2], [object, draw, 1, 0])
       assert.equal(unit.fight.remaining, meleeDuration(kind, action) - 1)
       advanceGame(world, timing, 1 / 12)
@@ -113,17 +114,17 @@ test('active native attack checkpoints continue frames without replaying entry o
 test('legacy active attacks retain fallback and flight still overrides the native attack owner', () => {
   const { world, unit } = suppliedAttack('firewarrior', 'attack')
   unit.fight.remaining = 5
-  assert.equal(unitAnimationSource(unit), null, 'unmarked legacy poses are not guessed')
+  assert.equal(unitRenderAnimationSource(unit), null, 'unmarked legacy poses are not guessed')
   processBattles(world)
-  assert.equal(unitAnimationSource(unit), null, 'mid-action legacy saves are not reset')
+  assert.equal(unitRenderAnimationSource(unit), null, 'mid-action legacy saves are not reset')
   unit.fight.nativeAttackAnimation = true
-  assert.equal(unitAnimationSource(unit), unit.fight.motion)
+  assert.equal(unitRenderAnimationSource(unit), unit.fight.motion)
   const flight = { ...unit.fight.motion }
   unit.flight = flight
-  assert.equal(unitAnimationSource(unit), flight)
+  assert.equal(unitRenderAnimationSource(unit), flight)
   unit.flight = undefined
   unit.fight.action = 'recoil'
-  assert.equal(unitAnimationSource(unit), null, 'recoil/knockback keep their existing owner')
+  assert.equal(unitRenderAnimationSource(unit), null, 'recoil/knockback keep their existing owner')
 })
 
 test('actual Scene attack frames consume the retained native phase without mutating the world', async () => {
@@ -186,4 +187,19 @@ test('ordinary combat remains frame-schedule independent with pause and speed ch
   const baseline = run([1 / 60])
   for (const schedule of [[1 / 30], [1 / 120], [1 / 144], [.01, .09, .03, .2]])
     assert.deepEqual(run(schedule), baseline)
+})
+
+
+test('native attack presentation leaves gameplay animation-source and eligibility semantics unchanged', () => {
+  const { world, unit } = suppliedAttack('firewarrior', 'attack')
+  processBattles(world)
+  const person = unit.fight.motion
+  person.flags2 |= 0x100000
+  person.renderFlags &= ~128
+  const before = structuredClone(world)
+  assert.equal(unitRenderAnimationSource(unit), person)
+  assert.equal(unitAnimationSource(unit), null)
+  assert.equal(canOrder(unit), true, 'the existing gameplay eligibility adapter is unchanged')
+  assert.equal(canPickUnit(world, unit), true)
+  assert.deepEqual(world, before, 'neither source query mutates gameplay or animation')
 })

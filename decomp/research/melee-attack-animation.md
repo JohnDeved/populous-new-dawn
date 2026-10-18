@@ -31,7 +31,9 @@ frame 0 through the entry turn's logical visit in all these cases.
 
 The existing attack entry initializes the physical person's original row and
 frames. An optional `Fight.nativeAttackAnimation` marker admits only those newly
-initialized attacks to the existing native animation source. It also retains the
+initialized attacks to a visual-only native animation source. Gameplay queries
+continue using the unchanged `unitAnimationSource`; only the existing animation
+clock and unit-render caller use `unitRenderAnimationSource`. It also retains the
 last native pose during the already-existing transition to approach, until the
 next controller visit selects its movement/idle pose. Flight retains precedence.
 
