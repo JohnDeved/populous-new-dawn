@@ -95,10 +95,11 @@ teleporting a Brave; do not reuse that target shortcut. DAT149 is near the initi
 Shaman DAT110 at(29,-5), Brave DAT173 at(23,-3), and Brave DAT174 at(21,-15).
 Imported positions are target identity hints, not instructions to alter positions.
 
-Bound the first proposed episode to 180 seconds after mission entry and at most
-2160 ordinary simulation turns, with no forced ticks or accelerated game speed.
-This is well below the retained first mission deadline of5760 turns; path travel
-and naturally funded conversion duration are still unmeasured, not guaranteed.
+Bound a proposed rendered episode to 60 wall seconds after mission entry and
+at most300 ordinary simulation turns, with no forced ticks or accelerated game
+speed. This is below the retained first mission deadline of5760 turns. The
+headless feasibility below establishes one early-command route, not guaranteed
+browser duration or reachability after later player input.
 Allow ordinary introduction completion or its shipped Skip introduction control.
 Find the visible central school and an actual local Brave through the consumed
 picker; use normal click selection followed by a real school click. If occluded,
@@ -115,3 +116,35 @@ last state rather than silently substituting a fixture. This verifies ordinary
 training in an authored building, not earning/building one or full Mission10.
 Build/acquisition acceptance remains a separate unproved route. No browser or
 long simulation was launched while preparing this proposal.
+
+
+### Bounded authored-route feasibility
+
+At runtime-source `f9de908e81aa04357f64fcc07e2537932c532b40`, the actual
+Mission10 DAT149 school resolves by native anchor(7168,0) to building98, whose
+display center is(21.8671875,-7.7265625). DAT173 resolves to Brave121. After one
+ordinary turn, public model selection/command succeeds without an initial flyby;
+entry occurs at22, the first training callback at23, and naturally funded
+conversion at204 (~17 simulation seconds). The capped route completes in~303ms
+of headless loop time, excluding module loading. No actors, positions, buildings,
+input masks, mana, timers, training state or outcomes are supplied. Logical12Hz /
+24Hz scheduling uses `advanceGame`, not bare tick. The callback owner observes
+only; it does not instantiate DOM or claim renderer lifetime acceptance.
+
+The retained diagnostic attempts are explicit: route08 failed setup by matching
+a building's display center to its authored anchor; route09 completed300 turns
+without issuing input because it incorrectly required an initial flyby that M10
+does not have. Route10 corrects both and proves the timings above. The durable
+bounded regression additionally checks the retired original Brave and exactly one
+new living Blue Firewarrior. Its first attempt authored11 incorrectly expected
+the replacement to remain inside; `training-conversion.ts` instead allocates at
+the inside point and adopts the exit order. Corrected authored12 passes7/7 and
+preserves the failed assertion. No browser run or longer mission simulation was
+substituted for these source-specific setup corrections.
+
+For a rendered proposal, retain the exact central-school anchor, not first-match
+`.find`. Resolve the actual Brave's current visible person or occupied-Hut control
+through public UI: the early headless command does not prove it remains visible
+at browser readiness. If real input cannot select that identity within the bound,
+report that blocker rather than teleporting or silently selecting another unit.
+The natural route covers an authored school, not earning/building one.

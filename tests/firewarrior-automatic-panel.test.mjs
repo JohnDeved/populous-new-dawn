@@ -423,3 +423,84 @@ test('Save preserves the current owner; Load clears transient ownership and stal
     'Controlled in-session Save/Load only; typed committed IndexedDB belongs to the ordinary browser witness.'
   )
 })
+
+test('authored Mission10 DAT149 and DAT173 reach natural model8 training within 300 ordinary turns', async () => {
+  const { loadSceneFixture } = await import('./support/bloodlust-scene.mjs'),
+    api = await loadSceneFixture(),
+    { default: level } = await import('../app/level-ten.ts'),
+    { bindTrainingPanelRequests } = await import('../app/training-panel-requests.ts'),
+    world = api.createWorld(10),
+    clock = { animationTime: 0, animationFrame: 0 },
+    authoredSchool = level.objects.find(o => o.index === 149),
+    authoredBrave = level.objects.find(o => o.index === 173)
+  assert.deepEqual(
+    [
+      authoredSchool.type,
+      authoredSchool.model,
+      authoredSchool.owner,
+      authoredSchool.x,
+      authoredSchool.z,
+    ],
+    [2, 8, 0, 20, -8]
+  )
+  assert.deepEqual(
+    [
+      authoredBrave.type,
+      authoredBrave.model,
+      authoredBrave.owner,
+      authoredBrave.x,
+      authoredBrave.z,
+    ],
+    [1, 2, 0, 23, -3]
+  )
+  // addBuilding derives its display center from this authored native anchor.
+  const school = world.buildings.find(
+      b =>
+        b.kind === 'firewarriorHut' &&
+        b.team === 'blue' &&
+        b.anchor?.x === 7168 &&
+        b.anchor?.y === 0
+    ),
+    brave = world.units.find(
+      u => u.kind === 'brave' && u.team === 'blue' && u.x === 23 && u.z === -3
+    )
+  assert.ok(school && brave)
+  const initialIds = new Set(world.units.map(u => u.id))
+  let entered = false,
+    requested = false
+  const release = bindTrainingPanelRequests(world, {
+    requestAutomaticTraining(id) {
+      if (id === school.id) requested = true
+    },
+    requestAutomaticVault() {},
+  })
+  try {
+    api.advanceGame(world, clock, 1 / 12)
+    assert.equal(world.inputMask, 0)
+    assert.equal(world.flyby.flags & 1, 0)
+    api.setSelection(world, [brave.id])
+    assert.equal(api.command(world, school), true)
+    while (world.turn < 300 && world.stats.trained === 0 && world.status === 'playing') {
+      api.advanceGame(world, clock, 1 / 12)
+      entered ||= brave.inside === school.id
+    }
+    assert.ok(entered, 'authored Brave reaches the authored school without repositioning')
+    assert.ok(requested, 'actual natural training reaches its synchronous callback')
+    assert.equal(world.stats.trained, 1)
+    assert.equal(world.status, 'playing')
+    assert.equal(brave.hp, 0, 'conversion retires the original person')
+    // Conversion allocates at the inside point then adopts an exit order; the
+    // replacement is not an occupancy-list member (training-conversion.ts).
+    assert.equal(
+      world.units.filter(
+        u => !initialIds.has(u.id) && u.kind === 'firewarrior' && u.team === 'blue' && u.hp > 0
+      ).length,
+      1,
+      'the natural conversion creates exactly one living replacement Firewarrior'
+    )
+  } finally {
+    release()
+  }
+  // This is model-command feasibility with an observation-only request owner,
+  // not rendered pointer input, real-time browser timing or UI-phase acceptance.
+})
