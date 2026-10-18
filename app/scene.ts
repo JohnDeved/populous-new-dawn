@@ -705,8 +705,8 @@ export class GameScene {
   makeShrines() {
     makeShrines(this)
   }
-  pick(event: { clientX: number; clientY: number }): Point | null {
-    return pick(this, event)
+  pick(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics): Point | null {
+    return pick(this, event, metrics)
   }
   pickWorldObject(event: { clientX: number; clientY: number }) {
     return pickWorldObject(this, event)
