@@ -64,6 +64,9 @@ export class ScenePicking {
     const basis = modelMatrix(meta.nativeHeading ?? 0, meta.nativeTilt ?? 0, meta.nativeRoll ?? 0)
     const points = new Map<string, ReturnType<typeof projectPoint>>()
     const commands: ModelCommand[] = []
+    // Method-local scratch never escapes into cached commands or nested model calls.
+    const corners: ReturnType<typeof projectPoint>[] = [],
+      triangle: ReturnType<typeof projectPoint>[] = []
     let rendered = 0,
       vertex = 0,
       faceNumber = 0
@@ -72,7 +75,7 @@ export class ScenePicking {
       const count = data.faces[face * 2] === 3 ? 3 : 6,
         flags = data.faces[face * 2 + 1]
       const visible = modelFaceVisible(data, face, stage)
-      const corners = []
+      corners.length = 0
       for (let i = 0; i < count; i++) {
         const raw = visible
           ? [position.getX(rendered + i), position.getY(rendered + i), position.getZ(rendered + i)]
@@ -93,7 +96,9 @@ export class ScenePicking {
       }
       if (stage === 4 || flags & (1 << stage))
         for (let i = 0; i < count; i += 3) {
-          const triangle = corners.slice(i, i + 3)
+          triangle[0] = corners[i]
+          triangle[1] = corners[i + 1]
+          triangle[2] = corners[i + 2]
           const front = modelTriangleVisible(
             triangle,
             s.view.projection.width,
