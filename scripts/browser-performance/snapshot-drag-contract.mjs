@@ -40,7 +40,7 @@ export const dragSourceSlices = Object.freeze([
     "path": "app/scene.ts",
     "start": "  animate = (now: number) => {",
     "end": "\n  private updateTerrainFrame()",
-    "sha256": "ec1bca14fc30bd50e72f9cb9951eea0812f44e9ce1b779fb44aecad14f679873"
+    "sha256": "a108152922381c53f20693f2ac62c1ecdc601f3f05e1bad0f383519df8328aa3"
   },
   {
     "id": "frame-facades",
@@ -89,7 +89,7 @@ export const dragSourceSlices = Object.freeze([
     "path": "app/scene-camera-runtime.ts",
     "start": null,
     "end": null,
-    "sha256": "118fa18a0461146f8843f2f5d2f8ad76a9ae68ca92cc67165ea1db0f51b9e723"
+    "sha256": "458fa0be8df6e0ab718c1006b0f54f4b703e877850afd2896249544b9dcddad8"
   },
   {
     "id": "terrain-producers",

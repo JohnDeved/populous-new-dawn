@@ -131,10 +131,11 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
 test('live callback CPU includes preparation, HUD and scheduling, excluding overlay work', () => {
   const { scene, events, reads, updates, clock } = runCallback()
   assert.equal(scene.frame, 42)
-  assert.equal(reads, 8)
+  assert.equal(reads, 12)
   assert.equal(updates.length, 1)
   const [now, simulation, render, calls, state, callback, pointer] = updates[0]
   assert.equal(pointer, 1)
+  assert.deepEqual(JSON.parse(JSON.stringify(updates[0][10])), { terrainCpuMs: 1, waterCpuMs: 0, hudCpuMs: 1 })
   assert.deepEqual([now, simulation, render, calls, state], [10, 1, 1, 7, 'Live'])
   assert.equal(callback, clock - 100)
   assert.ok(callback > simulation + render)
@@ -146,7 +147,7 @@ test('modal callback measures rendering and scheduling without simulation or HUD
   const { events, updates, reads } = runCallback({ modal: true })
   assert.deepEqual(events, ['render', 'schedule', 'telemetry'])
   assert.equal(reads, 4)
-  assert.deepEqual(Array.from(updates[0]), [10, 0, 1, 7, 'Menu · rendering', 2, 0, createPointerFrameMetrics(), 0, 0])
+  assert.deepEqual(JSON.parse(JSON.stringify(updates[0])), [10, 0, 1, 7, 'Menu · rendering', 2, 0, createPointerFrameMetrics(), 0, 0, { terrainCpuMs: 0, waterCpuMs: 0, hudCpuMs: 0 }])
 })
 
 test('disabled and hidden diagnostics add no clock reads and preserve game callback order', () => {
@@ -439,7 +440,8 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
       for (let i = 1; i <= 1200; i++)
         graph.samples.sample(16.666666666666668, 1234567.8901234567, 1234567.8901234567,
           Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, state, metrics, 127, Number.MAX_SAFE_INTEGER,
-          { token: graph.samples.reserveGpuFrame(), timing: { status: 'available', milliseconds: Number.MAX_SAFE_INTEGER / 1e6 } })
+          { token: graph.samples.reserveGpuFrame(), timing: { status: 'available', milliseconds: Number.MAX_SAFE_INTEGER / 1e6 } },
+          { terrainCpuMs: Number('0.12345678901234567'), waterCpuMs: Number('0.12345678901234567'), hudCpuMs: Number('0.12345678901234567') })
       const original = graph.samples.recentFrames()
       graph.exportRecentFrames()
       const json = await blob.text(), bounded = JSON.parse(json), analysis = analyzeFrameExport(json)
@@ -668,7 +670,7 @@ test('visibility and interaction snapshots remain separate across ring wrap and 
 test('actual animate propagates frame-local water reasons without disabled allocations or clocks', () => {
   const enabled = runCallback({ waterReason: 32 })
   assert.equal(enabled.updates[0][8], 32)
-  assert.equal(enabled.reads, 8)
+  assert.equal(enabled.reads, 12)
   enabled.scene.waterFrameMetrics.reasons = 127
   enabled.scene.updateEnvironmentFrame = () => {}
   enabled.scene.animate(20)
@@ -677,6 +679,7 @@ test('actual animate propagates frame-local water reasons without disabled alloc
     const result = runCallback({ ...options, waterReason: 32 })
     assert.equal(result.reads, 0)
     assert.equal(result.scene.waterFrameMetrics, undefined)
+    assert.equal(result.scene.sceneUpdateMetrics, undefined)
   }
   assert.equal(runCallback({ modal: true, waterReason: 32 }).updates[0][8], 0)
 })

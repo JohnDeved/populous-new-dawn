@@ -44,3 +44,16 @@ test('nested GPU adapter calls preserve outer token; disposed overlay never resu
  assert.equal(f.graph.samples.recentFrames()[0].sceneRenderGpu.status,'available')
  f.graph.dispose();const before=f.calls;frame(f,40);assert.equal(f.calls,before);assert.equal(f.graph.samples.recentFrames().length,0)
 })
+
+
+test('actual FpsGraph forwards independent CPU subregions alongside asynchronous GPU records', () => {
+  const f = fixture(), regions = { terrainCpuMs: 1, waterCpuMs: 2, hudCpuMs: 3 }
+  for (const now of [10, 20]) {
+    f.graph.renderGpu(() => {})
+    f.graph.update(now, 1, 2, 3, 'Live', 12, 0, undefined, undefined, undefined, regions)
+  }
+  regions.waterCpuMs = 99
+  assert.deepEqual(f.graph.samples.recentFrames()[0].sceneUpdateCpu, { terrainCpuMs: 1, waterCpuMs: 2, hudCpuMs: 3 })
+  assert.equal(f.graph.samples.recentFrames()[0].sceneRenderGpu.status, 'pending')
+  f.graph.dispose()
+})

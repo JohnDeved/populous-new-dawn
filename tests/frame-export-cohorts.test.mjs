@@ -120,3 +120,32 @@ test('GPU cohorts summarize only available values with separate duration units',
   assert.deepEqual(group(summarize(value), 'all').metrics['sceneRenderGpu.milliseconds'],
     { unit: 'milliseconds', sampleCount: 0, p50: null, p95: null, p99: null, max: null })
 })
+
+
+test('CPU subregions retain unknown and report unclassified signed residual without summing into callback', () => {
+  const value = capture([undefined, undefined, undefined])
+  value.frames[0].sceneUpdateCpu = { terrainCpuMs: 1, waterCpuMs: 2, hudCpuMs: 1 }
+  value.frames[1].sceneUpdateCpu = { terrainCpuMs: 0, waterCpuMs: 0, hudCpuMs: 0 }
+  const metrics = group(summarize(value), 'all').metrics
+  assert.equal(metrics['sceneUpdateCpu.waterCpuMs'].sampleCount, 2)
+  assert.equal(metrics['sceneUpdateCpu.waterCpuMs'].p50, 0)
+  assert.equal(metrics.otherCallbackUnclassifiedCpuMs.sampleCount, 2)
+  assert.equal(metrics.otherCallbackUnclassifiedCpuMs.p50, value.frames[0].otherCallbackCpuMs - 4)
+  assert.equal(metrics.callbackCpuMs.max, 12)
+  for (const invalid of [{}, { terrainCpuMs: -1, waterCpuMs: 0, hudCpuMs: 0 }, null]) {
+    value.frames[0].sceneUpdateCpu = invalid
+    assert.throws(() => summarize(value), /sceneUpdateCpu/)
+  }
+})
+
+
+test('finite CPU regions cannot overflow the derived residual into null JSON quantiles', () => {
+  const value = capture([undefined])
+  value.frames[0].sceneUpdateCpu = { terrainCpuMs: 1e308, waterCpuMs: 1e308, hudCpuMs: 1e308 }
+  assert.throws(() => summarize(value), /sceneUpdateCpu/)
+  value.frames[0].sceneUpdateCpu = { terrainCpuMs: 100, waterCpuMs: 100, hudCpuMs: 100 }
+  const residual = group(summarize(value), 'all').metrics.otherCallbackUnclassifiedCpuMs
+  assert.equal(residual.sampleCount, 1)
+  assert.equal(residual.p50, value.frames[0].otherCallbackCpuMs - 300)
+  assert.ok(Number.isFinite(residual.p50) && residual.p50 < 0)
+})

@@ -1,4 +1,9 @@
 import {
+  SCENE_UPDATE_FIELDS,
+  validSceneUpdateMetrics,
+  type SceneUpdateMetrics,
+} from './scene-update-metrics.ts'
+import {
   GPU_RENDER_STATUSES,
   validGpuFrameTiming,
   type GpuFrameToken,
@@ -47,9 +52,11 @@ const WATER_OFFSET = VISIBILITY_OFFSET + 1 + TERRAIN_VISIBILITY_FIELDS.length
 const MODEL_WORK_OFFSET = WATER_OFFSET + 1
 const SIMULATION_STEPS_OFFSET = MODEL_WORK_OFFSET + 4
 const GPU_OFFSET = SIMULATION_STEPS_OFFSET + 1
-const RAW_WIDTH = GPU_OFFSET + 3
+const SCENE_UPDATE_OFFSET = GPU_OFFSET + 3
+const RAW_WIDTH = SCENE_UPDATE_OFFSET + 4
 
 export interface RecentFrame {
+  sceneUpdateCpu?: SceneUpdateMetrics
   sceneRenderGpu?: GpuFrameTiming
   /** Render-side actual water call reasons, not pointer CPU ownership. */
   waterUpdateReasons?: number
@@ -164,7 +171,8 @@ export class FramePerformance {
     metrics?: PointerFrameMetrics,
     waterUpdateReasons?: number,
     simulationSteps?: number,
-    gpu?: GpuFrameSample
+    gpu?: GpuFrameSample,
+    sceneUpdates?: SceneUpdateMetrics
   ) {
     if (!Number.isFinite(milliseconds) || milliseconds <= 0) return false
     // Reject invalid measurements as a whole, without poisoning either window.
@@ -225,6 +233,7 @@ export class FramePerformance {
       (!Number.isSafeInteger(simulationSteps) || simulationSteps < 0)
     )
       return false
+    if (sceneUpdates !== undefined && !validSceneUpdateMetrics(sceneUpdates)) return false
     this.timestamp = timestamp
     const offset = this.recentCursor * RAW_WIDTH
     this.gpuSlots.delete(this.recent[offset + GPU_OFFSET + 2])
@@ -250,6 +259,10 @@ export class FramePerformance {
       this.recent[offset + 9 + i] = metrics?.[POINTER_FIELDS[i]] ?? 0
     this.recent[offset + WATER_OFFSET] = waterUpdateReasons ?? -1
     this.recent[offset + SIMULATION_STEPS_OFFSET] = simulationSteps ?? -1
+    this.recent[offset + SCENE_UPDATE_OFFSET] = sceneUpdates ? 1 : 0
+    for (let i = 0; i < SCENE_UPDATE_FIELDS.length; i++)
+      this.recent[offset + SCENE_UPDATE_OFFSET + 1 + i] =
+        sceneUpdates?.[SCENE_UPDATE_FIELDS[i]] ?? 0
     this.recent[offset + NATIVE_OFFSET] = native ? 1 : 0
     for (let i = 0; i < NATIVE_OCCLUSION_FIELDS.length; i++)
       this.recent[offset + NATIVE_OFFSET + 1 + i] = native?.[NATIVE_OCCLUSION_FIELDS[i]] ?? 0
@@ -370,6 +383,15 @@ export class FramePerformance {
       }
       const gpuStatus = this.recent[offset + GPU_OFFSET]
       return {
+        ...(this.recent[offset + SCENE_UPDATE_OFFSET]
+          ? {
+              sceneUpdateCpu: {
+                terrainCpuMs: this.recent[offset + SCENE_UPDATE_OFFSET + 1],
+                waterCpuMs: this.recent[offset + SCENE_UPDATE_OFFSET + 2],
+                hudCpuMs: this.recent[offset + SCENE_UPDATE_OFFSET + 3],
+              },
+            }
+          : {}),
         ...(gpuStatus
           ? {
               sceneRenderGpu: {
