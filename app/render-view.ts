@@ -677,10 +677,14 @@ export class RenderView {
           }
           for (let i = 0; i < count; i += 3) {
             if (ordinary) ordinary.visitedTriangles++
-            const ids = index
-              ? [index.getX(i), index.getX(i + 1), index.getX(i + 2)]
-              : [i, i + 1, i + 2]
-            const [a, b, c] = ids.map(id => screen[terrainSlots ? terrainSlots[id] - 1 : id])
+            // Read all IDs before resolving screen entries, as the array path did.
+            // Rejected triangles need no temporary ID, map or clip-test arrays.
+            const ia = index ? index.getX(i) : i,
+              ib = index ? index.getX(i + 1) : i + 1,
+              ic = index ? index.getX(i + 2) : i + 2
+            const a = screen[terrainSlots ? terrainSlots[ia] - 1 : ia],
+              b = screen[terrainSlots ? terrainSlots[ib] - 1 : ib],
+              c = screen[terrainSlots ? terrainSlots[ic] - 1 : ic]
             // Reject distant triangles before allocating pixel-edge test inputs.
             // One pixel of padding preserves native nearest-even rounding.
             if (
@@ -692,9 +696,11 @@ export class RenderView {
             )
               continue
             if (
-              [a, b, c].every(p => p.z < -1) ||
-              [a, b, c].every(p => p.z > 1) ||
-              [a, b, c].some(p => p.w <= 0)
+              (a.z < -1 && b.z < -1 && c.z < -1) ||
+              (a.z > 1 && b.z > 1 && c.z > 1) ||
+              a.w <= 0 ||
+              b.w <= 0 ||
+              c.w <= 0
             )
               continue
             const determinant = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y)
@@ -719,7 +725,8 @@ export class RenderView {
               )
                 continue
             } else if (u < 0 || v < 0 || t < 0) continue
-            const weights = [u / a.w, v / b.w, t / c.w],
+            const ids = [ia, ib, ic],
+              weights = [u / a.w, v / b.w, t / c.w],
               sum = weights.reduce((total, weight) => total + weight),
               p = new THREE.Vector3()
             ids.forEach((id, j) =>

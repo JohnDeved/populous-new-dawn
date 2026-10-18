@@ -1,3 +1,9 @@
+import {
+  validPointerInteractionContext,
+  INTERACTION_BOOLEAN_FIELDS,
+  INTERACTION_CHANGE_FIELDS,
+  type PointerInteractionContext,
+} from './pointer-interaction-context.ts'
 import { ORDINARY_TERRAIN_FIELDS, type OrdinaryTerrainMetrics } from './ordinary-terrain-metrics.ts'
 import { NATIVE_OCCLUSION_FIELDS, type NativeOcclusionMetrics } from './native-occlusion-metrics.ts'
 // Offline analysis only. Never import this into the frame loop or treat nested timings as additive.
@@ -36,6 +42,7 @@ type Frame = Record<(typeof FRAME_FIELDS)[number], number> & {
   state: 'live' | 'paused' | 'menu' | 'unknown'
   pointerBreakdown:
     | (Record<(typeof POINTER_FIELDS)[number], number> & {
+        interaction?: PointerInteractionContext
         nativeOcclusion?: NativeOcclusionMetrics
         ordinaryTerrain?: OrdinaryTerrainMetrics
       })
@@ -77,6 +84,20 @@ function frameEvidence(frames: Frame[]) {
     pointerBreakdown: frame.pointerBreakdown
       ? {
           ...Object.fromEntries(POINTER_FIELDS.map(key => [key, frame.pointerBreakdown![key]])),
+          ...(frame.pointerBreakdown.interaction
+            ? {
+                interaction: {
+                  version: 1,
+                  route: frame.pointerBreakdown.interaction.route,
+                  ...Object.fromEntries(
+                    [...INTERACTION_CHANGE_FIELDS, ...INTERACTION_BOOLEAN_FIELDS].map(key => [
+                      key,
+                      frame.pointerBreakdown!.interaction![key],
+                    ])
+                  ),
+                },
+              }
+            : {}),
           ...(frame.pointerBreakdown.nativeOcclusion
             ? {
                 nativeOcclusion: {
@@ -217,6 +238,8 @@ export function analyzeFrameExport(json: string) {
       const pointer = object(frame.pointerBreakdown, `frames[${index}].pointerBreakdown`)
       for (const key of POINTER_FIELDS)
         finite(pointer[key], `frames[${index}].pointerBreakdown.${key}`)
+      if (pointer.interaction !== undefined && !validPointerInteractionContext(pointer.interaction))
+        throw new Error(`Invalid frames[${index}].pointerBreakdown.interaction`)
       if (pointer.nativeOcclusion !== undefined) {
         const path = `frames[${index}].pointerBreakdown.nativeOcclusion`
         const native = object(pointer.nativeOcclusion, path)
