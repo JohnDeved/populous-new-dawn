@@ -1,4 +1,8 @@
-import { ORDINARY_TERRAIN_FIELDS, type OrdinaryTerrainMetrics } from './ordinary-terrain-metrics.ts'
+import {
+  ORDINARY_TERRAIN_FIELDS,
+  TERRAIN_VISIBILITY_FIELDS,
+  type OrdinaryTerrainMetrics,
+} from './ordinary-terrain-metrics.ts'
 import { NATIVE_OCCLUSION_FIELDS, type NativeOcclusionMetrics } from './native-occlusion-metrics.ts'
 // Offline analysis only. Never import this into the frame loop or treat nested timings as additive.
 const FRAME_FIELDS = [
@@ -100,6 +104,16 @@ function frameEvidence(frames: Frame[]) {
                       frame.pointerBreakdown!.ordinaryTerrain![key],
                     ])
                   ),
+                  ...(frame.pointerBreakdown.ordinaryTerrain.visibility
+                    ? {
+                        visibility: Object.fromEntries(
+                          TERRAIN_VISIBILITY_FIELDS.map(key => [
+                            key,
+                            frame.pointerBreakdown!.ordinaryTerrain!.visibility![key],
+                          ])
+                        ),
+                      }
+                    : {}),
                 },
               }
             : {}),
@@ -235,6 +249,14 @@ export function analyzeFrameExport(json: string) {
           const value = finite(ordinary[key], `${path}.${key}`)
           if (!key.endsWith('Ms') && !Number.isSafeInteger(value))
             throw new Error(`Invalid ${path}.${key}: expected a safe integer counter`)
+        }
+        if (ordinary.visibility !== undefined) {
+          const visibility = object(ordinary.visibility, `${path}.visibility`)
+          for (const key of TERRAIN_VISIBILITY_FIELDS) {
+            const value = finite(visibility[key], `${path}.visibility.${key}`)
+            if (!Number.isSafeInteger(value))
+              throw new Error(`Invalid ${path}.visibility.${key}: expected a safe integer counter`)
+          }
         }
       }
       for (const key of ['terrainPickCalls', 'objectPickCalls', 'objectCacheHits'])

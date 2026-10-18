@@ -72,6 +72,15 @@ projections and entered triangle-loop iterations, including rejected triangles,
 not submitted triangles or accepted hits. No timers run when diagnostics are off;
 there are no per-triangle timer reads. Optional absent detail remains absent in
 old v1 captures; bounded ring storage snapshots the new fields independently.
+The further optional `ordinaryTerrain.visibility` counters cover pointer-side
+preparation only: `indexEntriesWritten` counts completed index writes,
+`indexReuseCalls` counts validated unchanged-prefix calls (including empty prefixes),
+and `selectionRebuilds` counts rebuilt visibility selections. Reuse still scans
+the prefix to validate it, so reuse is not proof of zero work or a speedup.
+Renderer-side preparation is uninstrumented and UNKNOWN, not zero: it can rebuild
+the selection/write indices before the pointer call. A zero pointer rebuild/write
+count therefore does not establish zero whole-frame work. Counters use no timers
+or per-entry updates and are absent from older captures, not backfilled with zeros.
 
 ## Completed local optimization: minimap palette conversion
 

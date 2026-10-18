@@ -226,7 +226,7 @@ test('optional versioned native diagnostics preserve old v1 and sanitize new evi
 test('full native and ordinary-detail ring remains within the existing 2 MiB JSON bound', async t => {
   const { FramePerformance } = await import('../app/frame-performance.ts')
   const { NATIVE_OCCLUSION_FIELDS } = await import('../app/native-occlusion-metrics.ts')
-  const { ORDINARY_TERRAIN_FIELDS } = await import('../app/ordinary-terrain-metrics.ts')
+  const { ORDINARY_TERRAIN_FIELDS, TERRAIN_VISIBILITY_FIELDS } = await import('../app/ordinary-terrain-metrics.ts')
   const samples = new FramePerformance(), metrics = createPointerFrameMetrics(true)
   // Long numeric representations, large finite durations and largest supported
   // counters are deliberately less compact than ordinary millisecond recordings.
@@ -236,6 +236,7 @@ test('full native and ordinary-detail ring remains within the existing 2 MiB JSO
     metrics.nativeOcclusion[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
   for (const key of ORDINARY_TERRAIN_FIELDS)
     metrics.ordinaryTerrain[key] = key.endsWith('Ms') ? 1234567.8901234567 : Number.MAX_SAFE_INTEGER
+  for (const key of TERRAIN_VISIBILITY_FIELDS) metrics.ordinaryTerrain.visibility[key] = Number.MAX_SAFE_INTEGER
   for (let i = 1; i <= 1200; i++)
     samples.sample(16.666666666666668, 1234567.8901234567, 1234567.8901234567,
       Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, 'live', metrics)
@@ -266,4 +267,20 @@ test('optional ordinary terrain v1 accepts old captures and validates new nested
   value.frames[0].pointerBreakdown.ordinaryTerrain.visitedTriangles = 7
   value.frames[0].pointerBreakdown.ordinaryTerrain.version = 2
   assert.throws(() => summarize(value), /version/)
+})
+
+
+test('optional pointer visibility counters accept older ordinary detail and reject malformed new data', () => {
+  const value = report()
+  const detail = createPointerFrameMetrics(true).ordinaryTerrain
+  value.frames[0].pointerBreakdown.ordinaryTerrain = detail
+  detail.visibility.indexEntriesWritten = 12
+  assert.ok(JSON.stringify(summarize(value)).includes('"indexEntriesWritten":12'))
+  for (const invalid of [-1, 0.5, null, Number.MAX_SAFE_INTEGER + 1]) {
+    detail.visibility.indexReuseCalls = invalid
+    assert.throws(() => summarize(value), /indexReuseCalls/)
+  }
+  delete detail.visibility
+  assert.equal(summarize(value).sampleCount, 3, 'previous ordinary-detail captures remain accepted')
+  assert.ok(!JSON.stringify(summarize(value)).includes('indexEntriesWritten'))
 })

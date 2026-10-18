@@ -536,3 +536,20 @@ test('optional ordinary terrain extension snapshots independently and never fabr
   assert.equal(samples.sample(10, 0, 1, 3, 2, 0, 30, 'live', metrics), false)
   assert.equal(samples.recentFrames().length, 2)
 })
+
+
+test('optional visibility counters snapshot and old ordinary captures retain absence', () => {
+  const frames = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+  metrics.ordinaryTerrain.visibility.indexEntriesWritten = 12
+  frames.sample(10, 0, 0, 0, 1, 1, 10, 'live', metrics)
+  resetPointerFrameMetrics(metrics)
+  assert.equal(frames.recentFrames()[0].pointerBreakdown.ordinaryTerrain.visibility.indexEntriesWritten, 12)
+  for (const invalid of [-1, 0.5, null, Number.MAX_SAFE_INTEGER + 1]) {
+    metrics.ordinaryTerrain.visibility.indexReuseCalls = invalid
+    frames.sample(10, 0, 0, 0, 1, 1, 20, 'live', metrics)
+    assert.equal(frames.recentFrames().length, 1)
+  }
+  delete metrics.ordinaryTerrain.visibility
+  frames.sample(10, 0, 0, 0, 1, 1, 20, 'live', metrics)
+  assert.equal(frames.recentFrames()[1].pointerBreakdown.ordinaryTerrain.visibility, undefined)
+})
