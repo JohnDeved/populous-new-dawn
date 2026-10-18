@@ -108,7 +108,7 @@ import {
 } from './computer-spells.ts'
 import { defaultPersonState, resetPersonMotion } from './person-state.ts'
 import { refreshBuildingTerritory } from './territory.ts'
-import { addBuilding, checkBuildingSite } from './construction-runtime.ts'
+import { addBuilding, prepareBuildingSiteCheck } from './construction-runtime.ts'
 import { entrance, findPath, route } from './live-command.ts'
 import { release, releaseTasks } from './world-tasks.ts'
 import { objectsInCell } from './object-cells.ts'
@@ -998,6 +998,7 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
     task.phase = 2
   }
   if (task.phase === 2) {
+    let checkSite: ReturnType<typeof prepareBuildingSiteCheck> | undefined
     for (let scanned = 0; scanned < 40 && task.elapsed < task.remaining; scanned++) {
       const cell = spiralCell(task.target, task.elapsed++, task.mode),
         point = nativeCellPoint(cell),
@@ -1008,7 +1009,10 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
           anchorY: cell & 0xfe00,
         },
         footprint = new Set(buildingFootprintCells(pose))
-      if (!checkBuildingSite(w, pose, task.requested, team).valid) continue
+      checkSite ??= prepareBuildingSiteCheck(w, team)
+      if (!checkSite(pose, task.requested).valid) continue
+      // Selection/pathfinding may mutate the world even when rejecting a site.
+      checkSite = undefined
       // ponytail: wild units lack native wandering; remove this veto when their movement is live.
       if (
         w.units.some(unit => {
