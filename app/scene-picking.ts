@@ -15,9 +15,13 @@ import {
 } from './world-picking.ts'
 import { nativeModelResource, type NativeModelResource } from './model-resources.ts'
 import frames from './original-units.json' with { type: 'json' }
+import { ModelPickBounds } from './model-pick-bounds.ts'
+import { runtimeModelAsset, type RuntimeModelPicking } from './owned-static-model.ts'
 
 type ModelCommand = PickCommand & { bucket: number; face: number }
 type QueuedHit = PickCommand & { source: Command; bucket: number; face: number }
+
+const runtimes = new WeakMap<ScenePicking, RuntimeModelPicking>()
 
 // Cache screen geometry at the input boundary. Static models do not need another
 // transform for every mouse move; picking-only faces never enter a GPU draw call.
@@ -31,100 +35,15 @@ export class ScenePicking {
   lastKind: 'person' | 'model' | null = null
   groundKey = ''
   groundHits = new Map<string, ReturnType<GameScene['view']['pickCandidates']>>()
-  constructor(readonly scene: GameScene) {}
+  constructor(
+    readonly scene: GameScene,
+    runtime?: RuntimeModelPicking
+  ) {
+    if (runtime) runtimes.set(this, runtime)
+  }
 
-  model(mesh: THREE.Mesh, viewKey: string) {
-    const s = this.scene,
-      g = mesh.parent!,
-      meta = g.userData,
-      shape = mesh.userData
-    const position = mesh.geometry.getAttribute('position') as THREE.BufferAttribute
-    mesh.updateWorldMatrix(true, false)
-    const key = [
-      viewKey,
-      position.version,
-      ...mesh.matrixWorld.elements,
-      shape.nativeModel,
-      shape.nativeResource?.bank,
-      shape.stage,
-      shape.nativeSize,
-      meta.nativeHeading,
-      meta.nativeTilt,
-      meta.nativeRoll,
-    ].join(',')
-    const cached = this.models.get(mesh)
-    if (cached?.key === key && cached.position === position) return cached.commands
-    const resource =
-        (shape.nativeResource as NativeModelResource | undefined) ??
-        nativeModelResource(shape.nativeModel),
-      { data } = resource,
-      { stage } = shape
-    const origin = new THREE.Vector3().setFromMatrixPosition(mesh.matrixWorld)
-    const nativeOrigin = s.view.relative(origin, (origin.y * 128) / 45)
-    const basis = modelMatrix(meta.nativeHeading ?? 0, meta.nativeTilt ?? 0, meta.nativeRoll ?? 0)
-    const points = new Map<string, ReturnType<typeof projectPoint>>()
-    const commands: ModelCommand[] = []
-    let rendered = 0,
-      vertex = 0,
-      faceNumber = 0
-    const id = meta.building ?? meta.shrine ?? meta.point?.id
-    for (let face = 0; face < data.tiles.length; face++) {
-      const count = data.faces[face * 2] === 3 ? 3 : 6,
-        flags = data.faces[face * 2 + 1]
-      const visible = modelFaceVisible(data, face, stage)
-      const corners = []
-      for (let i = 0; i < count; i++) {
-        const raw = visible
-          ? [position.getX(rendered + i), position.getY(rendered + i), position.getZ(rendered + i)]
-          : data.p.slice((vertex + i) * 3, (vertex + i + 1) * 3)
-        raw[0] = Math.round(raw[0] * data.scale * 3)
-        raw[1] = Math.round(raw[1] * data.scale * 3)
-        raw[2] = Math.round(-raw[2] * data.scale * 3)
-        const vertexKey = raw.join(',')
-        let p = points.get(vertexKey)
-        if (!p) {
-          p = projectPoint(
-            modelPoint(raw, shape.nativeSize ?? data.scale, basis, nativeOrigin),
-            s.view.projection
-          )
-          points.set(vertexKey, p)
-        }
-        corners.push(p)
-      }
-      if (stage === 4 || flags & (1 << stage))
-        for (let i = 0; i < count; i += 3) {
-          const triangle = corners.slice(i, i + 3)
-          const front = modelTriangleVisible(
-            triangle,
-            s.view.projection.width,
-            s.view.projection.height
-          )
-          if (stage === 4 && !front) continue
-          // Construction submits both sides, reversing rear-facing triangles.
-          if (stage !== 4 && !front) triangle.reverse()
-          commands.push({
-            kind: 'model',
-            id,
-            points: triangle.map(p => ({ x: p.screenX, y: p.screenY })),
-            bucket: polygonBucket(
-              triangle.map(p => p.z),
-              data.biases[face]
-            ),
-            face: faceNumber + i / 3,
-          })
-        }
-      if (visible) rendered += count
-      vertex += count
-      faceNumber += count / 3
-    }
-    commands.push({
-      kind: 'bounds',
-      id,
-      ...modelHitBounds([...points.values()]),
-      face: faceNumber,
-    })
-    this.models.set(mesh, { key, position, commands })
-    return commands
+  model(mesh: THREE.Mesh, viewKey: string): ModelCommand[] {
+    return modelCommands.call(this, mesh, viewKey, undefined, runtimes.get(this))!
   }
 
   personBounds(id: number, rect = this.scene.renderer.domElement.getBoundingClientRect()) {
@@ -194,6 +113,7 @@ export class ScenePicking {
       metrics.objectUnitsMs += now - phaseStart
       phaseStart = now
     }
+    const runtime = runtimes.get(this)
     for (const root of [s.objects, s.decorations])
       root.traverseVisible(object => {
         if (!(object instanceof THREE.Mesh) || object.userData.nativeModel === undefined) return
@@ -208,8 +128,14 @@ export class ScenePicking {
         if (!source) return
         const work = metrics?.modelWork
         const previousModel = work ? this.models.get(object) : undefined
-        const commands = this.model(object, viewKey)
-        if (work && this.models.get(object) !== previousModel) work[0]++
+        const commands = runtime
+          ? modelCommands.call(this, object, viewKey, point, runtime)
+          : this.model(object, viewKey)
+        if (work) {
+          const currentModel = this.models.get(object)
+          if (currentModel && currentModel !== previousModel) work[0]++
+        }
+        if (!commands) return
         const bounds = commands.at(-1)!
         if (bounds.kind !== 'bounds' || !inHitBounds(point, bounds.bounds)) return
         hits.push({ ...bounds, source })
@@ -295,4 +221,150 @@ export class ScenePicking {
     const id = this.pick(event, metrics)
     return this.lastKind === 'person' ? id : null
   }
+}
+
+// Module-local call avoids introducing a receiver property lookup on the generic
+// public model path. Only an explicit GameScene runtime can request bounds work.
+function modelCommands(
+  this: ScenePicking,
+  mesh: THREE.Mesh,
+  viewKey: string,
+  point?: { x: number; y: number },
+  runtime?: RuntimeModelPicking
+): ModelCommand[] | null {
+  const s = this.scene,
+    g = mesh.parent!,
+    meta = g.userData,
+    shape = mesh.userData
+  const position = mesh.geometry.getAttribute('position') as THREE.BufferAttribute
+  mesh.updateWorldMatrix(true, false)
+  const key = [
+    viewKey,
+    position.version,
+    ...mesh.matrixWorld.elements,
+    shape.nativeModel,
+    shape.nativeResource?.bank,
+    shape.stage,
+    shape.nativeSize,
+    meta.nativeHeading,
+    meta.nativeTilt,
+    meta.nativeRoll,
+  ].join(',')
+  const cached = this.models.get(mesh)
+  // Complete and partial records are mutually exclusive: either publication
+  // removes the other, so a complete hit needs no partial-cache operation.
+  if (cached?.key === key && cached.position === position) return cached.commands
+  const asset = point && runtime && runtimeModelAsset(mesh)
+  const partial = asset && runtime!.bounds.get(mesh)
+  const reusable = partial && partial.key === key && partial.asset === asset
+  if (reusable && !inHitBounds(point!, partial)) return null
+  const resource =
+      (shape.nativeResource as NativeModelResource | undefined) ??
+      nativeModelResource(shape.nativeModel),
+    { data } = resource,
+    { stage } = shape
+  const origin = new THREE.Vector3().setFromMatrixPosition(mesh.matrixWorld)
+  const nativeOrigin = s.view.relative(origin, (origin.y * 128) / 45)
+  const basis = modelMatrix(meta.nativeHeading ?? 0, meta.nativeTilt ?? 0, meta.nativeRoll ?? 0)
+  if (point && runtime && asset && !reusable) {
+    if (!runtime.workspace) runtime.workspace = new ModelPickBounds()
+    const { workspace } = runtime
+    if (
+      workspace.enclose(
+        asset.bounds,
+        shape.nativeSize ?? data.scale,
+        basis,
+        nativeOrigin,
+        runtime.view.projection
+      ) &&
+      !inHitBounds(point, workspace.bounds)
+    ) {
+      // Copy scalars: one workspace serves every mesh. Partial bounds are never
+      // published as a complete commands cache, nor reused across asset changes.
+      const { bounds } = workspace
+      if (partial) {
+        partial.key = key
+        partial.asset = asset
+        partial.x = bounds.x
+        partial.y = bounds.y
+        partial.width = bounds.width
+        partial.height = bounds.height
+      } else
+        runtime.bounds.set(mesh, {
+          key,
+          asset,
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+        })
+      // A -> rejected B -> A must not resurrect stale complete A commands.
+      this.models.delete(mesh)
+      return null
+    }
+  }
+  const points = new Map<string, ReturnType<typeof projectPoint>>()
+  const commands: ModelCommand[] = []
+  let rendered = 0,
+    vertex = 0,
+    faceNumber = 0
+  const id = meta.building ?? meta.shrine ?? meta.point?.id
+  for (let face = 0; face < data.tiles.length; face++) {
+    const count = data.faces[face * 2] === 3 ? 3 : 6,
+      flags = data.faces[face * 2 + 1]
+    const visible = modelFaceVisible(data, face, stage)
+    const corners = []
+    for (let i = 0; i < count; i++) {
+      const raw = visible
+        ? [position.getX(rendered + i), position.getY(rendered + i), position.getZ(rendered + i)]
+        : data.p.slice((vertex + i) * 3, (vertex + i + 1) * 3)
+      raw[0] = Math.round(raw[0] * data.scale * 3)
+      raw[1] = Math.round(raw[1] * data.scale * 3)
+      raw[2] = Math.round(-raw[2] * data.scale * 3)
+      const vertexKey = raw.join(',')
+      let p = points.get(vertexKey)
+      if (!p) {
+        p = projectPoint(
+          modelPoint(raw, shape.nativeSize ?? data.scale, basis, nativeOrigin),
+          s.view.projection
+        )
+        points.set(vertexKey, p)
+      }
+      corners.push(p)
+    }
+    if (stage === 4 || flags & (1 << stage))
+      for (let i = 0; i < count; i += 3) {
+        const triangle = corners.slice(i, i + 3)
+        const front = modelTriangleVisible(
+          triangle,
+          s.view.projection.width,
+          s.view.projection.height
+        )
+        if (stage === 4 && !front) continue
+        // Construction submits both sides, reversing rear-facing triangles.
+        if (stage !== 4 && !front) triangle.reverse()
+        commands.push({
+          kind: 'model',
+          id,
+          points: triangle.map(p => ({ x: p.screenX, y: p.screenY })),
+          bucket: polygonBucket(
+            triangle.map(p => p.z),
+            data.biases[face]
+          ),
+          face: faceNumber + i / 3,
+        })
+      }
+    if (visible) rendered += count
+    vertex += count
+    faceNumber += count / 3
+  }
+  commands.push({
+    kind: 'bounds',
+    id,
+    ...modelHitBounds([...points.values()]),
+    face: faceNumber,
+  })
+  this.models.set(mesh, { key, position, commands })
+  runtime?.bounds.delete(mesh)
+  return commands
 }

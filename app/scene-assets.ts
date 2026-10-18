@@ -1,6 +1,7 @@
 import { templeArt } from './temple-art.ts'
 import * as THREE from 'three'
 import { nativeModelResource, type NativeModelResource } from './model-resources.ts'
+import { ownedStaticModelAsset, registerOwnedStaticModel } from './owned-static-model.ts'
 import { compatibilityEnvironment, type WorldEnvironment } from './world-environment.ts'
 import { modelDepthBias, modelStage, modelTextureModes } from './model-faces.ts'
 import { modelLighting, modelWaveOffsets } from './model-lighting.ts'
@@ -120,9 +121,51 @@ export function nativeModel(
   animatedTemple = false,
   environment: WorldEnvironment = compatibilityEnvironment
 ) {
-  const resource = nativeModelResource(id, environment.objects.bank),
-    { data } = resource
-  const geo = geometry(`original-${resource.bank}-${id}-${stage}`, () => {
+  return makeNativeModel(
+    nativeModelResource(id, environment.objects.bank),
+    scale,
+    stage,
+    animatedTemple,
+    environment
+  )
+}
+
+const ownedModelGeometry = new WeakMap<NativeModelResource, Map<number, THREE.BufferGeometry>>()
+// Explicit internal GameScene tier, only for static building/tree/vehicle
+// producers. Resource/stage/position storage, picking ID and ordinary methods
+// stay fixed for the mesh lifetime. Generic/custom consumers use nativeModel;
+// a mutable handoff must releaseRuntimeModel first (and must not alias owned
+// position storage through THREE's default geometry-sharing clone).
+export function ownedStaticNativeModel(
+  id: number,
+  scale = 2,
+  stage = 4,
+  animatedTemple = false,
+  environment: WorldEnvironment = compatibilityEnvironment
+) {
+  const source = nativeModelResource(id, environment.objects.bank),
+    asset = ownedStaticModelAsset(source)
+  if (!asset) return nativeModel(id, scale, stage, animatedTemple, environment)
+  let cache = ownedModelGeometry.get(asset.resource)
+  if (!cache) {
+    cache = new Map()
+    ownedModelGeometry.set(asset.resource, cache)
+  }
+  const mesh = makeNativeModel(asset.resource, scale, stage, animatedTemple, environment, cache)
+  registerOwnedStaticModel(mesh, asset)
+  return mesh
+}
+
+function makeNativeModel(
+  resource: NativeModelResource,
+  scale: number,
+  stage: number,
+  animatedTemple: boolean,
+  environment: WorldEnvironment,
+  ownedCache?: Map<number, THREE.BufferGeometry>
+) {
+  const { data, id } = resource
+  const createGeometry = () => {
     const { p, uv } = modelStage(data, stage),
       g = new THREE.BufferGeometry()
     g.setAttribute('position', new THREE.Float32BufferAttribute(p, 3))
@@ -138,7 +181,12 @@ export function nativeModel(
     )
     g.computeVertexNormals()
     return g
-  })
+  }
+  let geo: THREE.BufferGeometry
+  if (ownedCache) {
+    geo = ownedCache.get(stage) ?? createGeometry()
+    ownedCache.set(stage, geo)
+  } else geo = geometry(`original-${resource.bank}-${id}-${stage}`, createGeometry)
   const mesh = new THREE.Mesh(
     geo.clone(),
     // Native screen-space winding is clockwise after the WebGL Y inversion.
