@@ -52,9 +52,9 @@ export function readMeleeRouteState() {
     rendererStamp: scene.renderer.info.render.frame, canvasConnected: scene.renderer.domElement.isConnected }
 }
 
-export function assertMeleeRouteReady(state) {
+export function assertMeleeRouteReady(state, paused = true) {
   assert.equal(state.sceneAvailable, true); assert.equal(state.sceneStoreMatch, true)
-  assert.deepEqual(state.selected, [54]); assert.equal(state.paused, true); assert.equal(state.speed, 1)
+  assert.deepEqual(state.selected, [54]); assert.equal(state.paused, paused); assert.equal(state.speed, 1)
   assert.equal(state.target?.id, 20); assert.equal(state.target?.kind, 'shaman')
   assert.equal(state.target?.team, 'green'); assert.ok(state.target.hp > 0)
   assert.equal(state.target.inside, null, 'Public melee target must be outside a building')
@@ -64,6 +64,15 @@ export function assertMeleeRouteReady(state) {
   assert.equal(state.camera.overview, false); assert.equal(state.drawMode, 0)
   assert.equal(state.camera.transitioning, false); assert.equal(state.camera.active, 0)
   assert.equal(state.camera.resultActive, 0); assert.equal(state.inputMask, 0)
+}
+
+export async function shiftClickMeleeTarget(page, point) {
+  try {
+    await page.keyboard.down('Shift')
+    await page.mouse.click(point.x, point.y)
+  } finally {
+    await page.keyboard.up('Shift')
+  }
 }
 
 // DOM ownership is not a game hit query. A paused HUD button can cover an
@@ -195,7 +204,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   page.setDefaultTimeout(10000)
   const report = { schema: 'populous-new-dawn/ordinary-melee-artwork', schemaVersion: 1,
     status: 'running', expectedRevision, capMs: meleeAttackLimitMs, actions: [], errors: [],
-    method: 'Public authored M2 startup, Shaman54 selection, one public bird’s-eye zoom-out, nearest-target minimap input plus one fixed (0,+12) backing-pixel corridor offset, and real eligible Green Shaman20 attack click; normal defenders may intercept; normal RAF and same-frame canvas observation.',
+    method: 'Public authored M2 startup, Shaman54 selection, one public bird’s-eye zoom-out, nearest-target minimap input plus one fixed (0,+12) backing-pixel corridor offset, public Resume and real Shift+left attack on eligible Green Shaman20; normal defenders may intercept; normal RAF and same-frame canvas observation.',
     limits: ['Direct mission access, not earned campaign unlock.', 'No original-game FPS calibration, hardware smoothness or Firewarrior browser claim.',
       'Marker is recorded, not represented as direct observation of a private getter return. Native object and actual directional frame are independently compared.',
       'Canvas readback perturbs rendering; crops require visual review and do not establish pixel-perfect composition or performance.',
@@ -292,6 +301,11 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     await settle()
     report.afterFocus = await page.evaluate(readMeleeRouteState); save()
     assertMeleeRouteReady(report.afterFocus)
+    await page.evaluate(installMeleeFrameObserver)
+    await button('Resume game')
+    await page.waitForFunction(() => !window.testStore.getWorld().paused)
+    report.afterResume = await page.evaluate(readMeleeRouteState); save()
+    assertMeleeRouteReady(report.afterResume, false)
     const targetBounds = report.targetBounds = await page.evaluate(() => {
       const s = window.testSceneRef.current, canvas = s.renderer.domElement, rect = canvas.getBoundingClientRect()
       const g = s.unitMeshes.get(20), bounds = s.picking.personBounds(20, rect)
@@ -304,20 +318,26 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     const targetPoint = await meleeTargetPoint(page, targetBounds, report.targetHoverAttempts, save)
     report.targetInput = targetPoint
     report.beforeAttack = await page.evaluate(readMeleeRouteState); save()
-    assertMeleeRouteReady(report.beforeAttack)
-    await action('Real canvas attack click on Green Shaman20', () => page.mouse.click(targetPoint.x, targetPoint.y))
+    assertMeleeRouteReady(report.beforeAttack, false)
+    assert.equal(report.beforeAttack.actor.target, null)
+    assert.equal(report.beforeAttack.actor.fight, null, 'Authored attacker must not already be fighting before the public order')
+    await action('Public Shift+left attack click on Green Shaman20 while running', () => shiftClickMeleeTarget(page, targetPoint))
     report.order = await page.evaluate(() => {
-      const w = window.testStore.getWorld(), u = w.units.find(unit => unit.id === 54)
-      return { turn: w.turn, selected: [...w.selected], target: u.target, path: structuredClone(u.path),
+      const s = window.testSceneRef.current, w = window.testStore.getWorld(), u = w.units.find(unit => unit.id === 54)
+      return { turn: w.turn, lastOrderTurn: w.lastOrderTurn, stamp: s.renderer.info.render.frame,
+        selected: [...w.selected], target: u.target, path: structuredClone(u.path),
         nativeCommands: u.native && { commands: [...u.native.commands], commandCursor: u.native.commandCursor,
           commandStatus: u.native.commandStatus, workTarget: u.native.workTarget }, paused: w.paused }
     })
+    save()
     assert.deepEqual(report.order.selected, [54]); assert.equal(report.order.target, 20)
-    assert.equal(report.order.paused, true); assert.equal(report.order.turn, setup.turn)
-    await page.evaluate(installMeleeFrameObserver)
-    await button('Resume game')
+    assert.equal(report.order.paused, false)
+    assert.ok(report.order.lastOrderTurn >= report.beforeAttack.turn && report.order.lastOrderTurn <= report.order.turn,
+      'Public attack must record an issued command on the live logical timeline')
     await page.waitForFunction(() => window.__pndMeleeObservation.result.done, null, { timeout: meleeAttackLimitMs })
     await retainObservation()
+    assert.ok(report.observation.samples.every(sample => sample.turn >= report.order.lastOrderTurn && sample.stamp > report.order.stamp),
+      'Every melee sample must follow the actual public attack command')
     for (const crop of report.observation.crops)
       assert.ok(crop.opaqueColors > 1, 'Same-frame canvas crop must not be blank')
     assert.equal(report.observation.error, null)

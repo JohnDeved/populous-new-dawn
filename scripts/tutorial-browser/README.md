@@ -262,8 +262,12 @@ before waiting for canvas pointer events. A HUD-covered candidate is recorded an
 skipped, never clicked through; an exposed candidate still needs a real pointer
 event, a later renderer stamp and the ordinary hover winner. No qualifying point
 fails closed with the complete attempt trace, without moving or hiding the HUD.
-Shaman 54's target/order is observed before public Resume. Defenders may naturally
-intercept the order; actual opponent and encounter participant IDs are retained,
+The observer is installed before public Resume, then fresh live eligibility,
+bounds, DOM ownership and hover checks precede a public Shift+left attack click.
+Shift is released in `finally`, even on input failure. Shaman 54's actual target,
+issued-command turn and renderer stamp are recorded; all accepted observations
+must follow that command. Defenders may naturally intercept the order; actual
+opponent and encounter participant IDs are retained,
 not forced. The native artwork assertions still observe Blue Shaman 54.
 No person, health, position, selection, clock, renderer call or command is injected.
 
@@ -287,6 +291,14 @@ of retained startup/encounter witnesses predicts target bounds above the badge
 and attacks inside the viewport, but neither CPU projection nor these three
 pre-attack failures establish browser artwork acceptance. The prior unshifted
 inputs and screenshots remain retained; no live fallback offset is attempted.
+The fourth attempt at `cf4a691b` confirmed the fixed camera and real canvas hover
+on eligible Shaman 20, then failed because plain left-click takes the selection
+branch and paused World rejects commands. No attack order or animation result
+was produced. The repaired public Resume / Shift+left route is backed by actual
+pointer-down/up caller regressions on authored Worlds for all four paused/running
+and plain/Shift combinations, not a direct command invocation. Browser command
+delivery and artwork acceptance remain pending; all four prior failures remain
+separate setup evidence.
 
 The separate 75-second case fits inside, not in addition to, the unchanged
 180-second aggregate browser cap. There is no new workflow/job, browser route,

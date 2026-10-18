@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { validateMeleeAttackFrames } from '../scripts/tutorial-browser/melee-attack-evidence.mjs'
 import { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
-  readMeleeRouteState, meleeTargetPoint, meleeCameraInput } from '../scripts/tutorial-browser/melee-attack.mjs'
+  readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
 import { minimapPick } from '../app/minimap.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
@@ -34,6 +34,21 @@ const evidence = () => [
   sample({ stamp: 101, animationFrame: 81 }),
   sample({ stamp: 102, turn: 41, animationFrame: 82, f2: 1, cropFile: 'shaman-strike-frame1.png' }),
 ]
+
+test('public attack input presses Shift for the real click and releases it on success or failure', async () => {
+  for (const failure of [null, 'down', 'click']) {
+    const calls = [], point = { x: 818, y: 294 }
+    const page = { keyboard: {
+      async down(key) { calls.push(['down', key]); if (failure === 'down') throw Error('supplied keydown failure') },
+      async up(key) { calls.push(['up', key]) },
+    }, mouse: { async click(x, y) { calls.push(['click', x, y]); if (failure === 'click') throw Error('supplied click failure') } } }
+    if (failure) await assert.rejects(shiftClickMeleeTarget(page, point), /supplied .* failure/)
+    else await shiftClickMeleeTarget(page, point)
+    assert.deepEqual(calls, failure === 'down'
+      ? [['down', 'Shift'], ['up', 'Shift']]
+      : [['down', 'Shift'], ['click', 818, 294], ['up', 'Shift']])
+  }
+})
 
 test('one fixed minimap corridor offset retains nearest input and scales backing pixels into CSS', () => {
   const minimap = { width: 200, height: 192, rect: { x: 0, y: 0, width: 200, height: 192 },
@@ -323,6 +338,9 @@ test('ordinary M2 startup rejects hidden Warrior13 and admits the visible author
     camera: { preset: zoomPreset(0, false), overview: false, transitioning: false, active: 0, resultActive: 0 } }
   const before = structuredClone(state)
   assert.doesNotThrow(() => assertMeleeRouteReady(state)); assert.deepEqual(state, before)
+  assert.doesNotThrow(() => assertMeleeRouteReady({ ...state, paused: false }, false))
+  assert.throws(() => assertMeleeRouteReady(state, false), /Expected values to be strictly equal/)
+  assert.throws(() => assertMeleeRouteReady({ ...state, paused: false }), /Expected values to be strictly equal/)
   assert.throws(() => assertMeleeRouteReady({ ...state, target: { ...state.target, inside: 71 } }), /outside/)
   assert.throws(() => assertMeleeRouteReady({ ...state, target: { ...state.target, pickable: false } }), /eligible/)
   assert.throws(() => assertMeleeRouteReady({ ...state, target: { ...state.target, visible: false } }), /visible/)
