@@ -865,7 +865,7 @@ export class GameScene {
     // Keep sampling timestamps so resuming never catches up suspended wall time.
     if (this.modalSuspended) {
       const renderStart = diagnostic ? performance.now() : 0
-      this.renderer.render(this.scene, this.camera)
+      this.view.painter.render(this.renderer, this.scene, this.camera)
       const renderMs = diagnostic ? performance.now() - renderStart : 0
       this.frame = requestAnimationFrame(this.animate)
       diagnostic?.update(
