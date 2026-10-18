@@ -25,6 +25,30 @@ export const compactMessageCases = Object.freeze([
   },
 ])
 
+export const diagnosticMetricIds = Object.freeze([
+  'fps',
+  'state',
+  'scale',
+  'frame',
+  'peak',
+  'callback',
+  'simulation',
+  'render',
+  'pointer',
+  'pointer-tail',
+  'other',
+  'calls',
+  'window',
+  'raf-tail',
+  'cpu-tail',
+  'cpu-peak',
+  'renderer',
+  'cores',
+  'memory',
+  'heap',
+  'export-status',
+])
+
 // Read real text fragments, including wrapping, rather than only an outer box.
 // This function is serialized into the page and never changes DOM or game state.
 export function compactMessageWitness() {
@@ -52,6 +76,8 @@ export function compactMessageWitness() {
       fragments,
       fontSize: Number.parseFloat(style.fontSize),
       lineHeight: style.lineHeight,
+      clientSize: [node.clientWidth, node.clientHeight],
+      scrollSize: [node.scrollWidth, node.scrollHeight],
       contentFits: node.scrollWidth <= node.clientWidth && node.scrollHeight <= node.clientHeight,
     }
   }
@@ -64,6 +90,9 @@ export function compactMessageWitness() {
       .filter(visible)
       .map(text),
     diagnosticRows: [...document.querySelectorAll('.fps-graph dl>div')].filter(visible).map(text),
+    diagnosticFields: [...document.querySelectorAll('.fps-graph [data-metric]')]
+      .filter(visible)
+      .map(node => ({ metric: node.dataset.metric, ...text(node) })),
     pause: document.querySelector('.paused-badge') && rect(document.querySelector('.paused-badge')),
     overflow:
       document.documentElement.scrollWidth > innerWidth ||
@@ -77,11 +106,25 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
   assert.equal(witness.overflow, false, 'No document scroll overflow in either dimension')
   assert.ok(witness.worldMessages.length > 0, 'Authored active status text must be present')
   assert.ok(witness.campaignText.length > 0, 'Authored campaign text must be present')
-  assert.ok(witness.diagnosticRows.length > 0, 'Actual diagnostic rows must be observed')
+  assert.equal(witness.diagnosticRows.length, 15, 'Every shipped diagnostic row must be observed')
+  assert.deepEqual(
+    witness.diagnosticFields.map(node => node.metric),
+    diagnosticMetricIds,
+    'Every shipped diagnostic value/caption must remain present'
+  )
+  for (const node of witness.diagnosticFields)
+    assert.ok(
+      node.left >= layout.left &&
+        node.top >= layout.top &&
+        node.right <= layout.right &&
+        node.bottom <= layout.bottom,
+      'Diagnostic fields must fit F8'
+    )
   for (const node of [
     ...witness.worldMessages,
     ...witness.campaignText,
     ...witness.diagnosticRows,
+    ...witness.diagnosticFields.filter(node => node.metric !== 'export-status' || node.text.trim()),
   ]) {
     assert.ok(node.text.trim() && node.fragments.length, 'Visible text fragments are required')
     assert.equal(node.contentFits, true, 'Text must not overflow its own box')

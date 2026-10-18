@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import {
   assertCompactMessageWitness,
   compactMessageCases,
+  diagnosticMetricIds,
 } from '../scripts/tutorial-browser/compact-message-layout.mjs'
 import { m2FunctionalLimitMs } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
@@ -47,7 +48,13 @@ function clearWitness() {
       overflow: false,
       worldMessages: [text(box(80, 8, 412, 78), 'Authored active objective')],
       campaignText: [text(box(86, 255, 398, 327), 'Authored campaign text')],
-      diagnosticRows: [text(box(435, 140, 654, 157), 'Simulation CPU 0.01ms')],
+      diagnosticRows: Array.from({ length: 15 }, () =>
+        text(box(435, 140, 654, 157), 'Diagnostic label/value')
+      ),
+      diagnosticFields: diagnosticMetricIds.map(metric => ({
+        metric,
+        ...text(box(435, 140, 654, 157), 'Measured value'),
+      })),
     },
   }
 }
@@ -63,7 +70,13 @@ test('compact message acceptance rejects status occlusion, clipping, missing con
       witness.campaignText = []
     },
     ({ witness }) => {
-      witness.diagnosticRows = []
+      witness.diagnosticRows.pop()
+    },
+    ({ witness }) => {
+      witness.diagnosticFields.pop()
+    },
+    ({ witness }) => {
+      witness.diagnosticFields.find(node => node.metric === 'renderer').contentFits = false
     },
     ({ witness }) => {
       witness.worldMessages[0] = text(box(309, 296, 693, 348), 'Old overlapping objective')
@@ -206,4 +219,12 @@ test('separate compact hosted scenario retains old bounds and existing groups', 
   )
   assert.ok(scenario.indexOf('timer = setTimeout') < scenario.indexOf('await page.goto'))
   assert.ok(scenario.indexOf('await page.goto') < scenario.indexOf('if (compactMessages)'))
+})
+
+test('diagnostic inventory covers every shipped F8 metric, not a subset', () => {
+  const graph = readFileSync(new URL('../app/fps-graph.ts', import.meta.url), 'utf8')
+  assert.deepEqual(
+    [...graph.matchAll(/data-metric="([^"]+)"/g)].map(match => match[1]),
+    diagnosticMetricIds
+  )
 })
