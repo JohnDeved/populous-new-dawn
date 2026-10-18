@@ -248,7 +248,13 @@ its first context and starts one fresh authored Mission 2 context. Public New Ga
 recommendation No, Browser controls, All missions, Mission 2 and Skip controls lead
 to public Pause and Select and focus shaman. One public `-` zoom-out reaches the
 ordinary bird’s-eye preset (2), explicitly not the no-person world overview.
-A declared pure minimap inverse chooses camera input near authored Green Shaman 20;
+A declared pure minimap inverse chooses the nearest input to Green Shaman 20,
+then adds exactly `(0,+12)` minimap backing pixels, converted to CSS coordinates,
+for one public camera click. This fixed setup frames the target above the pause
+badge and the retained approach/interception corridor inside the canvas; it is
+not adaptive camera pursuit. Nearest input, offset, actual click, predicted native
+point and resulting camera are retained. Bounds and actual minimap DOM ownership
+must pass before the click. Source-bound CPU geometry is setup rationale only;
 that person must be outside, visible and eligible in the actual renderer's picking
 metadata, and real pointer hovers must identify him before the attack click.
 The same five fixed body-interior candidates are checked for actual DOM ownership
@@ -274,6 +280,13 @@ out before the previous late DOM guard could skip that point. That separate fail
 artifact includes the actual failure screenshot and is also pre-attack setup
 evidence, not an animation failure. The ownership preflight preserves every
 candidate, camera input, timeout and native artwork assertion from that attempt.
+The third attempt at `5895f983` then recorded all five body-interior points owned
+by the paused badge or its child and correctly failed closed before attacking.
+The fixed corridor offset addresses this observed setup obstruction. Projection
+of retained startup/encounter witnesses predicts target bounds above the badge
+and attacks inside the viewport, but neither CPU projection nor these three
+pre-attack failures establish browser artwork acceptance. The prior unshifted
+inputs and screenshots remain retained; no live fallback offset is attempted.
 
 The separate 75-second case fits inside, not in addition to, the unchanged
 180-second aggregate browser cap. There is no new workflow/job, browser route,

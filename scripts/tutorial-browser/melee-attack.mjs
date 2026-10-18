@@ -13,6 +13,25 @@ export const meleeAttackLimitMs = 75000
 const root = resolve(import.meta.dirname, '../..')
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 
+export function meleeCameraInput(minimap) {
+  const { width, height, rect, center, heading } = minimap
+  assert.ok(Number.isInteger(width) && width > 0 && Number.isInteger(height) && height > 0)
+  assert.ok([rect.x, rect.y, rect.width, rect.height].every(Number.isFinite) && rect.width > 0 && rect.height > 0)
+  const nearest = minimapInput(minimap, minimapPick, () => true)
+  assert.ok(nearest, 'Authored target must be reachable through public minimap camera input')
+  // One fixed setup offset frames the target above the paused badge and the
+  // retained approach corridor inside the view. This is not live camera pursuit.
+  const offsetBacking = { x: 0, y: 12 }, backing = {
+    x: (nearest.x - rect.x) / rect.width * width + offsetBacking.x,
+    y: (nearest.y - rect.y) / rect.height * height + offsetBacking.y,
+  }
+  assert.ok(backing.x >= 2 && backing.x < width - 2 && backing.y >= 2 && backing.y < height - 2,
+    'Declared melee camera offset must remain inside the minimap')
+  return { nearest, offsetBacking, backing,
+    x: rect.x + backing.x / width * rect.width, y: rect.y + backing.y / height * rect.height,
+    native: minimapPick(width, height, center, heading, backing) }
+}
+
 // Read the eligibility published by updateUnitsFrame, not a private hit query.
 export function readMeleeRouteState() {
   const scene = window.testSceneRef?.current, world = window.testStore?.getWorld()
@@ -176,7 +195,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   page.setDefaultTimeout(10000)
   const report = { schema: 'populous-new-dawn/ordinary-melee-artwork', schemaVersion: 1,
     status: 'running', expectedRevision, capMs: meleeAttackLimitMs, actions: [], errors: [],
-    method: 'Public authored M2 startup, Shaman54 selection, one public bird’s-eye zoom-out, supplied minimap camera input and real eligible Green Shaman20 attack click; normal defenders may intercept; normal RAF and same-frame canvas observation.',
+    method: 'Public authored M2 startup, Shaman54 selection, one public bird’s-eye zoom-out, nearest-target minimap input plus one fixed (0,+12) backing-pixel corridor offset, and real eligible Green Shaman20 attack click; normal defenders may intercept; normal RAF and same-frame canvas observation.',
     limits: ['Direct mission access, not earned campaign unlock.', 'No original-game FPS calibration, hardware smoothness or Firewarrior browser claim.',
       'Marker is recorded, not represented as direct observation of a private getter return. Native object and actual directional frame are independently compared.',
       'Canvas readback perturbs rendering; crops require visual review and do not establish pixel-perfect composition or performance.',
@@ -266,11 +285,10 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assert.deepEqual(setup.selected, [54]); assert.equal(setup.paused, true); assert.equal(setup.speed, 1)
     assert.deepEqual(setup.environment.viewport, { width: 1440, height: 1000 })
     assert.equal(setup.environment.dpr, 1)
-    const camera = minimapInput(setup.minimap, minimapPick, () => true)
-    assert.ok(camera, 'Authored target must be reachable through public minimap camera input')
+    const camera = report.cameraInput = meleeCameraInput(setup.minimap)
+    save()
     assert.equal(await page.evaluate(point => document.elementFromPoint(point.x, point.y) === window.testSceneRef.current.mini, camera), true)
-    report.cameraInput = camera
-    await action('Minimap camera toward authored Green Shaman20', () => page.mouse.click(camera.x, camera.y))
+    await action('Minimap camera toward Green Shaman20 plus fixed (0,+12) backing-pixel corridor offset', () => page.mouse.click(camera.x, camera.y))
     await settle()
     report.afterFocus = await page.evaluate(readMeleeRouteState); save()
     assertMeleeRouteReady(report.afterFocus)

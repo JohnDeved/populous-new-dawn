@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { validateMeleeAttackFrames } from '../scripts/tutorial-browser/melee-attack-evidence.mjs'
 import { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
-  readMeleeRouteState, meleeTargetPoint } from '../scripts/tutorial-browser/melee-attack.mjs'
+  readMeleeRouteState, meleeTargetPoint, meleeCameraInput } from '../scripts/tutorial-browser/melee-attack.mjs'
+import { minimapPick } from '../app/minimap.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
 
@@ -33,6 +34,35 @@ const evidence = () => [
   sample({ stamp: 101, animationFrame: 81 }),
   sample({ stamp: 102, turn: 41, animationFrame: 82, f2: 1, cropFile: 'shaman-strike-frame1.png' }),
 ]
+
+test('one fixed minimap corridor offset retains nearest input and scales backing pixels into CSS', () => {
+  const minimap = { width: 200, height: 192, rect: { x: 0, y: 0, width: 200, height: 192 },
+    center: { x: -25344, y: 23808 }, heading: 1549, target: { x: 25344, y: -32512 } }
+  const before = structuredClone(minimap), original = meleeCameraInput(minimap)
+  assert.deepEqual(minimap, before)
+  assert.deepEqual([original.nearest.x, original.nearest.y], [132, 42])
+  assert.deepEqual(original.nearest.native, { x: 25292, y: 32963 })
+  assert.deepEqual(original.offsetBacking, { x: 0, y: 12 })
+  assert.deepEqual(original.backing, { x: 132, y: 54 })
+  assert.deepEqual([original.x, original.y], [132, 54])
+  assert.deepEqual(original.native, { x: 28566, y: 32817 })
+  const scaled = meleeCameraInput({ ...minimap, rect: { x: 11, y: 13, width: 100, height: 384 } })
+  assert.deepEqual([scaled.nearest.x, scaled.nearest.y], [77, 97])
+  assert.deepEqual([scaled.x, scaled.y], [77, 121])
+  assert.deepEqual(scaled.backing, original.backing); assert.deepEqual(scaled.native, original.native)
+})
+
+test('fixed minimap offset rejects invalid dimensions and an out-of-bounds shifted point without clamping', () => {
+  const minimap = { width: 200, height: 192, rect: { x: 0, y: 0, width: 200, height: 192 },
+    center: { x: -25344, y: 23808 }, heading: 1554 }
+  minimap.target = minimapPick(minimap.width, minimap.height, minimap.center, minimap.heading, { x: 100, y: 188 })
+  const before = structuredClone(minimap)
+  assert.throws(() => meleeCameraInput(minimap), /must remain inside the minimap/)
+  assert.deepEqual(minimap, before)
+  for (const change of [{ width: 0 }, { height: -1 }, { rect: { ...minimap.rect, height: 0 } },
+    { rect: { ...minimap.rect, x: NaN } }])
+    assert.throws(() => meleeCameraInput({ ...minimap, ...change }))
+})
 
 // Supplied DOM/event fixture, not browser acceptance. The bounds reproduce the
 // second hosted failure; owner selection below is explicit test input.
