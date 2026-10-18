@@ -107,6 +107,8 @@ import {
 } from './person-physics.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import {
+  setCellObject,
+  deleteCellObject,
   insertObjectIntoCell,
   removeObjectFromCell,
   moveObjectInCells,
@@ -303,7 +305,7 @@ export function leaveLiveBuilding(w: World, u: Unit) {
     (x, y) => terrainPointHeight(w.land, { x, y }),
     () => {
       if (u.native === p || u.flight === p) {
-        w.objectCells.objects.set(p.id, p)
+        setCellObject(w.objectCells, p.id, p)
         insertObjectIntoCell(w.objectCells, p, p)
       }
     }
@@ -332,7 +334,7 @@ export function syncLivePersonCells(w: World) {
   for (const [id, p] of w.objectCells.objects)
     if (people.get(id) !== p) {
       if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
-      w.objectCells.objects.delete(id)
+      deleteCellObject(w.objectCells, id)
     }
   for (const u of w.units) {
     // Preserve the native display offset across ordinary browser order handoff.
@@ -351,7 +353,7 @@ export function syncLivePersonCells(w: World) {
     }
     if (!p) continue
     if (!w.objectCells.objects.has(p.id)) {
-      w.objectCells.objects.set(p.id, p)
+      setCellObject(w.objectCells, p.id, p)
       insertObjectIntoCell(w.objectCells, p, p)
     }
     // Vehicle attachment owns seated height/position independently of the
@@ -945,7 +947,7 @@ export function registerLivePerson(w: World, p: LivePerson) {
   const previous = w.objectCells.objects.get(p.id)
   if (previous !== p) {
     if (previous && previous.flags2 & 0x20000) removeObjectFromCell(w.objectCells, previous)
-    w.objectCells.objects.set(p.id, p)
+    setCellObject(w.objectCells, p.id, p)
     insertObjectIntoCell(w.objectCells, p, p)
   }
 }

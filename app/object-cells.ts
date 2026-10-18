@@ -14,27 +14,99 @@ export interface ObjectCells {
   heads: Uint16Array | Float64Array
   objects: Map<number, CellObject>
 }
+// Only factory-created live worlds opt in. Their head/link and registry mutations
+// must use this module's helpers; identity checks do not detect arbitrary raw edits.
+// Clones/checkpoints and native fixtures are deliberately unowned and stay fresh.
+const ownedOrders = new WeakMap<ObjectCells, {
+  heads: ObjectCells['heads']
+  objects: ObjectCells['objects']
+  revision: number
+  mutating: number
+  order?: ReadonlyMap<number, number>
+}>()
+
+export function createObjectCells(): ObjectCells {
+  const cells: ObjectCells = { heads: new Float64Array(16384), objects: new Map() }
+  ownedOrders.set(cells, { heads: cells.heads, objects: cells.objects, revision: 0, mutating: 0 })
+  return cells
+}
+
+function beginOrderMutation(w: ObjectCells) {
+  const owned = ownedOrders.get(w)
+  if (owned) {
+    owned.mutating++
+    owned.revision++
+    owned.order = undefined
+  }
+  return owned
+}
+
+export function setCellObject(w: ObjectCells, id: number, object: CellObject) {
+  const owned = beginOrderMutation(w)
+  try {
+    w.objects.set(id, object)
+  } finally {
+    if (owned) owned.mutating--
+  }
+}
+
+export function deleteCellObject(w: ObjectCells, id: number) {
+  const owned = beginOrderMutation(w)
+  try {
+    return w.objects.delete(id)
+  } finally {
+    if (owned) owned.mutating--
+  }
+}
+
+// Renderer-only retained view. Public cellObjectOrder below always returns a
+// fresh independently mutable Map. Never publish partially computed rank data.
+export function renderCellObjectOrder(w: ObjectCells): ReadonlyMap<number, number> {
+  const owned = ownedOrders.get(w)
+  if (!owned) return cellObjectOrder(w)
+  if (owned.heads !== w.heads || owned.objects !== w.objects) {
+    ownedOrders.delete(w)
+    return cellObjectOrder(w)
+  }
+  if (owned.mutating) return cellObjectOrder(w)
+  if (owned.order) return owned.order
+  const revision = owned.revision,
+    order = cellObjectOrder(w)
+  if (owned.revision === revision) owned.order = order
+  return order
+}
+
 const index = (p: { x: number; y: number }) => ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
 const short = (n: number) => (n << 16) >> 16
 
 // 0x4ee470: attach an unlinked object at the head; position is not changed.
 export function insertObjectIntoCell(w: ObjectCells, p: CellObject, to: { x: number; y: number }) {
-  const i = index(to)
-  p.cellPrevious = 0
-  p.cellNext = w.heads[i]
-  const next = w.objects.get(p.cellNext)
-  if (next) next.cellPrevious = p.id
-  else p.cellNext = 0
-  w.heads[i] = p.id
-  p.flags2 = (p.flags2 | 0x20000) >>> 0
+  const owned = beginOrderMutation(w)
+  try {
+    const i = index(to)
+    p.cellPrevious = 0
+    p.cellNext = w.heads[i]
+    const next = w.objects.get(p.cellNext)
+    if (next) next.cellPrevious = p.id
+    else p.cellNext = 0
+    w.heads[i] = p.id
+    p.flags2 = (p.flags2 | 0x20000) >>> 0
+  } finally {
+    if (owned) owned.mutating--
+  }
 }
 
 // 0x4ee4f0: detach; the object's own next/previous fields remain unchanged.
 export function removeObjectFromCell(w: ObjectCells, p: CellObject) {
-  if (p.cellPrevious) w.objects.get(p.cellPrevious)!.cellNext = p.cellNext
-  else w.heads[index(p)] = p.cellNext
-  if (p.cellNext) w.objects.get(p.cellNext)!.cellPrevious = p.cellPrevious
-  p.flags2 = (p.flags2 & ~0x20000) >>> 0
+  const owned = beginOrderMutation(w)
+  try {
+    if (p.cellPrevious) w.objects.get(p.cellPrevious)!.cellNext = p.cellNext
+    else w.heads[index(p)] = p.cellNext
+    if (p.cellNext) w.objects.get(p.cellNext)!.cellPrevious = p.cellPrevious
+    p.flags2 = (p.flags2 & ~0x20000) >>> 0
+  } finally {
+    if (owned) owned.mutating--
+  }
 }
 
 // Complete 0x4ee580. Crossing a 512-unit cell splices both lists and returns

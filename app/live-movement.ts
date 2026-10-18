@@ -34,7 +34,7 @@ import {
 import { clearLivePath, stepLiveRoute, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute } from './person-routes.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
-import { objectsInCell, removeObjectFromCell } from './object-cells.ts'
+import { deleteCellObject, objectsInCell, removeObjectFromCell } from './object-cells.ts'
 import { nativeAngle, random } from './native-math.ts'
 import {
   startPersonOrders,
@@ -645,7 +645,7 @@ function replaceConvertedVictim(w: World, u: Unit, preacher: LivePerson) {
   point.y = (point.y & 0xfe00) + 0x100
   releaseTasks(w, u)
   if (victim.flags2 & 0x20000) removeObjectFromCell(w.objectCells, victim)
-  w.objectCells.objects.delete(oldId)
+  deleteCellObject(w.objectCells, oldId)
   w.selected = w.selected.filter(id => id !== oldId)
   victim.class = 0
   u.hp = 0

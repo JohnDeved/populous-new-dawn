@@ -15,7 +15,7 @@ import {
 } from './building-shapes.ts'
 import { collisionWorld, createLivePerson, setLivePersonAnimation } from './live-people.ts'
 import { nativePersonModel } from './live-combat.ts'
-import { removeObjectFromCell } from './object-cells.ts'
+import { deleteCellObject, removeObjectFromCell } from './object-cells.ts'
 import { turnPerson } from './person-motion.ts'
 import { clearLivePath, probeLivePathCost } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
@@ -70,7 +70,7 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
     pose = buildingPose(b)
   if (u.native === p) {
     if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
-    w.objectCells.objects.delete(p.id)
+    deleteCellObject(w.objectCells, p.id)
     u.native = null
   }
   Object.assign(p, nativePosition(w, u))

@@ -19,7 +19,7 @@ import {
   short,
   spiralCell,
 } from './native-math.ts'
-import { moveObjectInCells, objectsInCell, removeObjectFromCell } from './object-cells.ts'
+import { deleteCellObject, moveObjectInCells, objectsInCell, removeObjectFromCell } from './object-cells.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
 import {
   createFire,
@@ -120,7 +120,7 @@ function replaceHypnotisedUnit(w: World, source: Unit, team: Team, originalTeam?
   const occupant = release(w, source)
   if (occupant && !people.includes(occupant)) people.push(occupant)
   for (const p of people) if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
-  w.objectCells.objects.delete(source.id)
+  deleteCellObject(w.objectCells, source.id)
   w.selected = w.selected.filter(id => id !== source.id)
   const replacement = addUnit(w, team, kind, position)
   Object.assign(replacement, { hp, cargo, heading })
@@ -244,7 +244,7 @@ export function applyHypnotise(w: World, point: Point, team: Team) {
       if (u.inside === null) releaseTasks(w, u)
       else release(w, u)
       if ((p?.flags2 ?? 0) & 0x20000) removeObjectFromCell(w.objectCells, p as LivePerson)
-      w.objectCells.objects.delete(u.id)
+      deleteCellObject(w.objectCells, u.id)
       w.selected = w.selected.filter(id => id !== u.id)
       w.units.splice(w.units.indexOf(u), 1)
       continue
@@ -1131,7 +1131,7 @@ export function stepLiveConvertWild(w: World, fx: Effect) {
       if (!u || slot < 0) return
       releaseTasks(w, u)
       if (u.native!.flags2 & 0x20000) removeObjectFromCell(w.objectCells, u.native!)
-      w.objectCells.objects.delete(u.id)
+      deleteCellObject(w.objectCells, u.id)
       u.native!.class = 0
       u.hp = 0
       const replacement = addUnit(w, team, 'brave', browserPosition(p))

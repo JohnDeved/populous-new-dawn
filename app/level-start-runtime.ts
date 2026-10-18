@@ -17,7 +17,7 @@ import {
 } from './person-orders.ts'
 import { orderEffects } from './live-movement.ts'
 import { startPersonOrders } from './person-order-start.ts'
-import { removeObjectFromCell } from './object-cells.ts'
+import { deleteCellObject, removeObjectFromCell } from './object-cells.ts'
 import { effect, sound, shotVisual, moveVisual } from './world-effects.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { browserPosition } from './world-coordinates.ts'
@@ -180,7 +180,7 @@ function convertStartingWildman(w: World, u: Unit, tribe: number) {
     slot = w.units.indexOf(u)
   releaseTasks(w, u)
   if (u.native?.flags2 && u.native.flags2 & 0x20000) removeObjectFromCell(w.objectCells, u.native)
-  w.objectCells.objects.delete(u.id)
+  deleteCellObject(w.objectCells, u.id)
   const replacement = addUnit(w, teamForTribe(tribe), 'brave', browserPosition(point))
   w.units[slot] = replacement
   w.units.pop()
