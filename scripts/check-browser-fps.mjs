@@ -34,7 +34,7 @@ export async function checkPerformancePage(page, { output } = {}) {
     cancelAnimationFrame(window.testScene.frame)
     window.exportInputEvents = []
     window.exportInputListener = event => window.exportInputEvents.push(event.type)
-    for (const type of ['pointerdown', 'pointerup', 'click', 'keydown', 'keyup'])
+    for (const type of ['pointerdown', 'pointerup', 'click', 'wheel', 'keydown', 'keyup'])
       window.addEventListener(type, window.exportInputListener)
   })
   for (const keyboard of [false, true]) {
@@ -51,6 +51,61 @@ export async function checkPerformancePage(page, { output } = {}) {
     await pickingToggle.click()
     assert.equal(await pickingToggle.getAttribute('aria-expanded'), 'false')
   }
+  // Layout-only stress labels, not a renderer identity or a real export result.
+  // Exercise both sides of the compact-layout breakpoint with all detail open.
+  const originalLabels = await overlay.evaluate(el => {
+    const names = ['renderer', 'export-status']
+    const original = names.map(name => el.querySelector(`[data-metric="${name}"]`).textContent)
+    el.querySelector('[data-metric="renderer"]').textContent = 'Layout fixture: ANGLE (vendor, model, graphics backend, shader profile, driver version and long browser-reported renderer description)'
+    el.querySelector('[data-metric="export-status"]').textContent = 'Layout fixture: Exported 1,100 frames · 9.2 s · omitted 100 oldest of 1,200 frames to fit 2 MiB'
+    return original
+  })
+  const expandedLayouts = []
+  for (const [width, height] of [[640, 480], [1280, 799], [1280, 800], [1280, 801], [1280, 820]]) {
+    await page.setViewportSize({ width, height })
+    const collapsed = await overlay.evaluate(el => ({ width: el.getBoundingClientRect().width, height: el.getBoundingClientRect().height, pointerEvents: getComputedStyle(el).pointerEvents }))
+    assert.equal(collapsed.pointerEvents, 'none', 'collapsed readouts remain click-through')
+    await pickingToggle.click()
+    const expanded = await overlay.evaluate(el => {
+      const box = el.getBoundingClientRect(), style = getComputedStyle(el)
+      return { x: box.x, y: box.y, width: box.width, height: box.height, scrollHeight: el.scrollHeight, clientHeight: el.clientHeight, scrollWidth: el.scrollWidth, clientWidth: el.clientWidth, overflow: style.overflowY, pointerEvents: style.pointerEvents, tabIndex: el.tabIndex }
+    })
+    assert.ok(expanded.x >= 0 && expanded.y >= 0 && expanded.x + expanded.width <= width && expanded.y + expanded.height <= height, `expanded panel fits ${width}x${height}`)
+    assert.ok(expanded.scrollWidth <= expanded.clientWidth, 'no horizontal clipping')
+    assert.equal(expanded.overflow, 'auto')
+    assert.equal(expanded.pointerEvents, 'auto', 'expanded overflow accepts native scrolling')
+    assert.equal(expanded.tabIndex, 0, 'expanded panel is keyboard-scrollable')
+    if (output) await page.screenshot({ path: resolve(output, `performance-picking-layout-fixture-${width}x${height}-top.png`) })
+    if (expanded.scrollHeight > expanded.clientHeight) {
+      await overlay.focus()
+      await page.keyboard.press('End')
+      await page.waitForFunction(() => {
+        const el = document.querySelector('.fps-graph')
+        return el.scrollTop >= el.scrollHeight - el.clientHeight - 1
+      })
+      if (output) await page.screenshot({ path: resolve(output, `performance-picking-layout-fixture-${width}x${height}-bottom.png`) })
+      await page.keyboard.press('Home')
+      await page.waitForFunction(() => document.querySelector('.fps-graph').scrollTop === 0)
+      await page.mouse.move(expanded.x + expanded.width / 2, expanded.y + expanded.height / 2)
+      await page.mouse.wheel(0, 10000)
+      await page.waitForFunction(() => document.querySelector('.fps-graph').scrollTop > 0)
+    }
+    for (const selector of ['.fps-picking-toggle', '[data-metric="pick-representation"]', '[data-metric="renderer"]', '.fps-export', '[data-metric="export-status"]']) {
+      const target = overlay.locator(selector)
+      await target.scrollIntoViewIfNeeded()
+      const bounds = await target.boundingBox(), panel = await overlay.boundingBox()
+      assert.ok(bounds.y >= panel.y && bounds.y + bounds.height <= panel.y + panel.height, `${selector} reachable at ${width}x${height}`)
+    }
+    await pickingToggle.click()
+    assert.equal(await overlay.evaluate(el => el.scrollTop), 0, 'collapse restores the header')
+    assert.equal(await overlay.evaluate(el => el.tabIndex), -1, 'collapsed panel is not an extra tab stop')
+    assert.deepEqual(await overlay.evaluate(el => ({ width: el.getBoundingClientRect().width, height: el.getBoundingClientRect().height, pointerEvents: getComputedStyle(el).pointerEvents })), collapsed, 'collapse restores original layout')
+    expandedLayouts.push({ viewport: [width, height], syntheticLayoutLabels: true, collapsed, expanded })
+  }
+  await overlay.evaluate((el, original) => {
+    for (const [index, name] of ['renderer', 'export-status'].entries()) el.querySelector(`[data-metric="${name}"]`).textContent = original[index]
+  }, originalLabels)
+  await page.setViewportSize({ width: 640, height: 480 })
   for (const keyboard of [false, true]) {
     const pending = page.waitForEvent('download')
     if (keyboard) { await exportButton.focus(); await page.keyboard.press('Space') }
@@ -70,7 +125,7 @@ export async function checkPerformancePage(page, { output } = {}) {
   }
   assert.deepEqual(await page.evaluate(() => window.exportInputEvents), [], 'button activation does not reach game input handlers')
   await page.evaluate(() => {
-    for (const type of ['pointerdown', 'pointerup', 'click', 'keydown', 'keyup'])
+    for (const type of ['pointerdown', 'pointerup', 'click', 'wheel', 'keydown', 'keyup'])
       window.removeEventListener(type, window.exportInputListener)
     window.testScene.frame = requestAnimationFrame(window.testScene.animate)
   })
@@ -185,7 +240,7 @@ export async function checkPerformancePage(page, { output } = {}) {
   assert.ok(!/NaN|Infinity/.test(liveText))
   await page.evaluate(() => window.testScene.dispose())
   assert.equal(await overlay.count(), 0)
-  const report = { status: 'passed', facts, lifecycle, overhead, liveText, limitation: 'Headless software renderer; CPU callback observations include browser scheduling/noise. No GPU timing, hardware FPS certification, or broad performance claim.' }
+  const report = { status: 'passed', facts, expandedLayouts, lifecycle, overhead, liveText, limitation: 'Headless software renderer; CPU callback observations include browser scheduling/noise. No GPU timing, hardware FPS certification, or broad performance claim.' }
   if (output) writeFileSync(resolve(output, 'performance.json'), JSON.stringify(report, null, 2))
   return report
 }

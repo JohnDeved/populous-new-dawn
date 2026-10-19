@@ -199,6 +199,7 @@ test('picking details use an initially collapsed header control without relabeli
   assert.match(source, /Unknown = incomplete sampling/)
   assert.match(css, /\.fps-picking-toggle\{pointer-events:auto/)
   assert.match(css, /\.fps-picking\[hidden\]\{display:none\}/)
+  assert.match(css, /\.fps-graph:has\(\.fps-picking-toggle\[aria-expanded=true\]\)\{max-height:calc\(100dvh - 24px\);overflow:auto;pointer-events:auto;overscroll-behavior:contain\}/)
 })
 
 test('actual picking toggle preserves native activation, isolates game input and lets F8 through', t => {
@@ -229,6 +230,9 @@ test('actual picking toggle preserves native activation, isolates game input and
     toggle.dispatchEvent(new Event('click'))
     assert.equal(toggle.attributes.get('aria-expanded'), String(expected))
     assert.equal(details.hidden, !expected)
+    assert.equal(aside.tabIndex, expected ? 0 : -1, 'only expanded readouts enter the keyboard scroll order')
+    assert.equal(aside.scrollTop, 0, 'opening and closing restore the header')
+    aside.scrollTop = 100
   }
   for (const button of [toggle, controls.get('.fps-export')])
     for (const [type, key] of [['click'], ['pointerdown'], ['pointermove'], ['pointerup'], ['wheel'], ['keydown', 'Enter'], ['keyup', ' '], ['keydown', 'F8']]) {
@@ -239,4 +243,15 @@ test('actual picking toggle preserves native activation, isolates game input and
       assert.equal(stopped, key !== 'F8', `${type} ${key ?? ''}`)
       assert.equal(event.defaultPrevented, false, 'do not prevent native button activation')
     }
+  for (const expanded of [true, false]) {
+    if (details.hidden === expanded) toggle.dispatchEvent(new Event('click'))
+    for (const [type, key] of [['click'], ['pointerdown'], ['pointermove'], ['wheel'], ['keydown', 'End'], ['keyup', 'Home'], ['keydown', 'F8']]) {
+      const event = key === undefined ? new Event(type, { cancelable: true }) : new KeyboardEvent(type, { key, cancelable: true })
+      let stopped = false
+      event.stopPropagation = () => { stopped = true }
+      aside.dispatchEvent(event)
+      assert.equal(stopped, expanded && key !== 'F8', `${expanded ? 'expanded' : 'collapsed'} ${type} ${key ?? ''}`)
+      assert.equal(event.defaultPrevented, false, 'wheel/Home/End scrolling remains native')
+    }
+  }
 })

@@ -10,8 +10,12 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .fps-hardware{border-top:1px solid #ffffff20;padding-top:7px;color:#a2b1b9;font-size:10px}.fps-renderer{overflow-wrap:anywhere;max-height:56px;overflow:hidden}.fps-hardware dl{border:0;margin:4px 0 7px;padding:0}
 .fps-picking-toggle{pointer-events:auto;font:10px Arial,sans-serif;color:#b8c5ca;border:1px solid #ffffff40;border-radius:3px;padding:1px 5px}.fps-picking-toggle[aria-expanded=true]{color:#65e3ce;border-color:#65e3ce80}
 .fps-picking{margin-top:4px}.fps-picking[hidden]{display:none}.fps-picking dl{margin:4px 0;padding-top:4px}.fps-picking dl>div{padding:0}
+/* Optional detail can exceed either layout's height, especially just above the
+   800px breakpoint. Bound only the expanded panel and retain native scrolling. */
+.fps-graph:has(.fps-picking-toggle[aria-expanded=true]){max-height:calc(100dvh - 24px);overflow:auto;pointer-events:auto;overscroll-behavior:contain}
+.fps-graph:focus-visible{outline:2px solid #65e3ce;outline-offset:2px}
 /* Keep the tall desktop flow; short landscape windows use width instead of
-   hiding diagnostics or making this noninteractive overlay scrollable. */
+   hiding diagnostics. Collapsed readouts remain noninteractive. */
 .fps-primary,.fps-secondary{display:contents}
 @media (max-height:800px) and (min-width:560px){
   .fps-graph{top:8px;right:8px;width:560px;max-width:calc(100% - 16px);padding:8px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}

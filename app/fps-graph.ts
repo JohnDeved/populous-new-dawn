@@ -8,6 +8,10 @@ import { readHardwareInfo, readHeapEstimate } from './performance-hardware.ts'
 
 declare const __PND_BUILD_REVISION__: string
 
+function stopGameInput(event: Event) {
+  if (!(event instanceof KeyboardEvent && event.key === 'F8')) event.stopPropagation()
+}
+
 // FPS is requestAnimationFrame cadence. CPU wall times are not GPU execution time.
 export class FpsGraph {
   readonly element = document.createElement('aside')
@@ -95,26 +99,30 @@ export class FpsGraph {
     pickingToggle.addEventListener('click', () => {
       pickingDetails.hidden = !pickingDetails.hidden
       pickingToggle.setAttribute('aria-expanded', String(!pickingDetails.hidden))
+      this.element.tabIndex = pickingDetails.hidden ? -1 : 0
+      this.element.scrollTop = 0
     })
-    // Only the buttons intercept input; the graph remains click-through. Keep
-    // Enter/Space activation native, but never let input bubble into gameplay.
-    for (const button of [this.exportButton, pickingToggle])
-      for (const type of [
-        'click',
-        'pointerdown',
-        'pointerup',
-        'pointermove',
-        'mousedown',
-        'mouseup',
-        'dblclick',
-        'contextmenu',
-        'wheel',
-        'keydown',
-        'keyup',
-      ])
-        button.addEventListener(type, event => {
-          if (!(event instanceof KeyboardEvent && event.key === 'F8')) event.stopPropagation()
-        })
+    // Collapsed readouts stay click-through. Expanded readouts can scroll, so
+    // isolate their input too while retaining native scrolling and activation.
+    for (const type of [
+      'click',
+      'pointerdown',
+      'pointerup',
+      'pointermove',
+      'mousedown',
+      'mouseup',
+      'dblclick',
+      'contextmenu',
+      'wheel',
+      'keydown',
+      'keyup',
+    ]) {
+      for (const button of [this.exportButton, pickingToggle])
+        button.addEventListener(type, stopGameInput)
+      this.element.addEventListener(type, event => {
+        if (!pickingDetails.hidden) stopGameInput(event)
+      })
+    }
     this.exportButton.addEventListener('click', event => {
       event.stopPropagation()
       this.exportRecentFrames()
