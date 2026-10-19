@@ -26,6 +26,7 @@ if (process.env.PND_TERRAIN_BASELINE) {
     hook.deregister()
   }
 }
+const { OrdinaryProjectionCache } = await import('../app/ordinary-projection-cache.ts')
 const { OrdinaryNumericProjection } = await import('../app/ordinary-numeric-projection.ts')
 const {
   createRuntimeTerrainPicking,
@@ -77,8 +78,9 @@ function state(o) {
   }
 }
 
-async function fixture(owned = true) {
-  const world = api.createWorld(2),
+async function fixture(owned = true, restored = false) {
+  const initial = api.createWorld(2),
+    world = restored ? api.migrateCheckpoint(structuredClone(initial)) : initial,
     { scene: o } = await makeSceneFixture(world)
   Object.setPrototypeOf(o, GameScene.prototype)
   Object.assign(o, {
@@ -141,6 +143,333 @@ function prepare(o) {
 function event(o) {
   return { clientX: ((o.mouse.x + 1) * 2310) / 2, clientY: ((1 - o.mouse.y) * 1267) / 2 }
 }
+
+test('pointer-only authored queries reuse projections but preserve ordered hits and current Painter', async () => {
+  const base = await fixture(false),
+    owned = await fixture(true)
+  const first = createOrdinaryTerrainMetrics(true)
+  inputPick(owned, event(owned), { ordinaryTerrain: first })
+  assert.ok(first.projectedVertices > 0)
+  for (const [x, y] of [
+    [-0.1, 0.07],
+    [0.2, -0.3],
+    [-0.12, 0.08],
+  ]) {
+    base.mouse.set(x, y)
+    owned.mouse.set(x, y)
+    const metrics = createOrdinaryTerrainMetrics(true)
+    assert.deepEqual(
+      inputPick(owned, event(owned), { ordinaryTerrain: metrics }),
+      inputPick(base, event(base))
+    )
+    assert.deepEqual(
+      query(owned).map(normal),
+      base.view.pickCandidates(base.mouse, [base.terrain], base.camera).map(normal)
+    )
+    assert.equal(
+      metrics.projectedVertices,
+      0,
+      'unchanged geometry must avoid repeated projection arithmetic'
+    )
+    assert.ok(metrics.visitedTriangles > 0, 'pointer-dependent ordered scan still runs')
+  }
+})
+
+test('loaded snapshot scene also reuses ordinary projections independently of object-cell ownership', async () => {
+  const base = await fixture(false, true),
+    owned = await fixture(true, true)
+  assert.equal(runtimeTerrainPicking(owned.view, owned.terrain), true)
+  inputPick(owned, event(owned))
+  owned.mouse.set(0.1, -0.2)
+  base.mouse.copy(owned.mouse)
+  const metrics = createOrdinaryTerrainMetrics(true)
+  assert.deepEqual(
+    inputPick(owned, event(owned), { ordinaryTerrain: metrics }),
+    inputPick(base, event(base))
+  )
+  assert.equal(metrics.projectedVertices, 0)
+  assert.deepEqual(
+    query(owned).map(normal),
+    base.view.pickCandidates(base.mouse, [base.terrain], base.camera).map(normal)
+  )
+})
+
+test('warm authored cache validates raw XYZ, submission, water, view and live Painter', async () => {
+  const base = await fixture(false),
+    owned = await fixture(true),
+    pair = [base, owned]
+  const compare = () => {
+    const metrics = createOrdinaryTerrainMetrics(true)
+    assert.deepEqual(
+      inputPick(owned, event(owned), { ordinaryTerrain: metrics }),
+      inputPick(base, event(base))
+    )
+    const actual = query(owned),
+      expected = base.view.pickCandidates(base.mouse, [base.terrain], base.camera)
+    assert.deepEqual(actual.map(normal), expected.map(normal))
+    assert.deepEqual(
+      normal(owned.view.resolvePickCandidates(actual)),
+      normal(base.view.resolvePickCandidates(expected))
+    )
+    return metrics.projectedVertices
+  }
+  compare()
+  assert.equal(compare(), 0)
+  for (const axis of ['X', 'Y', 'Z']) {
+    const saved = pair.map(o => o.terrain.geometry.getAttribute('position').array.slice())
+    for (const value of [-0, 0, 0.03125, NaN, Infinity, -Infinity]) {
+      for (const o of pair) {
+        const p = o.terrain.geometry.getAttribute('position'),
+          index = o.terrain.geometry.index
+        // Diverge a currently submitted duplicate without setting needsUpdate.
+        p['set' + axis](index.getX(1), value)
+      }
+      compare()
+      assert.equal(compare(), 0)
+    }
+    pair.forEach((o, i) => o.terrain.geometry.getAttribute('position').array.set(saved[i]))
+    compare()
+    assert.equal(compare(), 0)
+  }
+  for (const turn of [1, 23, 256]) {
+    for (const o of pair) {
+      o.world.turn = turn
+      updateWater(o)
+    }
+    compare()
+    assert.equal(compare(), 0)
+    for (const o of pair) {
+      o.world.lightRevision++
+      updateWater(o)
+    }
+    assert.equal(compare(), 0, 'lighting-only position rewrites preserve exact height reuse')
+  }
+  for (const [x, z, angle, zoom] of configs) {
+    for (const o of pair) o.view.update(2310, 1267, { x, z }, angle, zoom, false)
+    compare() // changed view/submission BEFORE the next rendered Painter
+    assert.equal(compare(), 0)
+    pair.forEach(prepare)
+    compare()
+  }
+  for (const o of pair) o.view.update(2310, 1267, { x: 0, z: 0 }, 0, 0, false)
+  pair.forEach(prepare)
+  // Controlled presentation-depth witness: admit current geometric candidates,
+  // then reject them through the actual Painter texture without changing XYZ.
+  for (const o of pair) o.view.painter.texture.image.data.fill(0.5)
+  let found = false
+  search: for (const y of [-0.8, -0.4, 0, 0.4, 0.8])
+    for (const x of [-0.8, -0.4, 0, 0.4, 0.8]) {
+      for (const o of pair) o.mouse.set(x, y)
+      if (inputPick(owned, event(owned))) {
+        found = true
+        break search
+      }
+    }
+  assert.ok(found, 'Painter mutation witness starts with a real winning terrain hit')
+  compare()
+  // Painter depth is not in the arithmetic cache: keep current geometric hits,
+  // but reject every candidate through the real depth texture on the next visit.
+  for (const o of pair) o.view.painter.texture.image.data.fill(2)
+  assert.equal(inputPick(owned, event(owned)), null)
+  assert.equal(inputPick(base, event(base)), null)
+  assert.equal(compare(), 0)
+})
+
+test('numeric-disabled and invisible authored queries cannot misalign retained projections', async () => {
+  const base = await fixture(false),
+    owned = await fixture(true)
+  const compare = () => {
+    assert.deepEqual(inputPick(owned, event(owned)), inputPick(base, event(base)))
+    assert.deepEqual(
+      query(owned).map(normal),
+      base.view.pickCandidates(base.mouse, [base.terrain], base.camera).map(normal)
+    )
+  }
+  compare()
+  const cache = owned.view.ordinaryProjectionCache
+  for (const o of [base, owned]) o.terrain.userData.terrainGrid = false
+  compare() // same bound terrain, but no packed/numeric eligibility
+  for (const o of [base, owned]) {
+    const p = o.terrain.geometry.getAttribute('position')
+    p.setY(o.terrain.geometry.index.getX(1), 12.5)
+    o.terrain.visible = false
+  }
+  compare() // traversal skips the instance entirely
+  for (const o of [base, owned]) {
+    o.terrain.visible = true
+    o.terrain.userData.terrainGrid = true
+  }
+  compare()
+  assert.equal(owned.view.ordinaryProjectionCache, cache)
+})
+
+test('actual instance reorder/count shifts and culled copies preserve ordered candidates', async () => {
+  const { terrainTiles } = await import('../app/terrain-visibility.ts')
+  const saved = terrainTiles.slice(),
+    base = await fixture(false),
+    owned = await fixture(true)
+  const compare = () => {
+    assert.deepEqual(inputPick(owned, event(owned)), inputPick(base, event(base)))
+    assert.deepEqual(
+      query(owned).map(normal),
+      base.view.pickCandidates(base.mouse, [base.terrain], base.camera).map(normal)
+    )
+  }
+  try {
+    for (const o of [base, owned]) o.view.update(2310, 1267, { x: 124, z: -124 }, 2, 1, false)
+    compare()
+    const count = owned.terrain.count
+    assert.ok(count > 1, 'witness requires multiple submitted instances')
+    terrainTiles.reverse()
+    compare()
+    assert.equal(owned.terrain.count, count)
+    terrainTiles.splice(0, terrainTiles.length, [0, 0])
+    compare()
+    assert.ok(owned.terrain.count < count)
+    terrainTiles.length = 0
+    compare()
+    assert.equal(owned.terrain.count, 0)
+    terrainTiles.push(...saved)
+    compare()
+    assert.equal(owned.terrain.count, count)
+    for (const o of [base, owned]) o.terrain.position.x = 1000000
+    compare() // selected copies all skipped by transformed bounding boxes
+    for (const o of [base, owned]) o.terrain.position.x = 0
+    compare()
+  } finally {
+    terrainTiles.splice(0, terrainTiles.length, ...saved)
+  }
+})
+
+test('aggregate projection cache bounds, exact contexts and uncached overflow', () => {
+  const cache = new OrdinaryProjectionCache(),
+    numeric = new OrdinaryNumericProjection(),
+    fresh = new OrdinaryNumericProjection(),
+    view = new RenderView(),
+    matrix = new THREE.Matrix4().elements
+  view.update(800, 600, { x: 0, z: 0 }, 0, 0, false)
+  const context = () =>
+    cache.beginInstance(
+      matrix,
+      view.rawCenter.x,
+      view.rawCenter.y,
+      view.projection,
+      view.config.depth
+    )
+  const append = (x, y, z) => {
+    const args = [
+      x,
+      y,
+      z,
+      matrix,
+      view.rawCenter.x,
+      view.rawCenter.y,
+      view.projection,
+      view.config.depth,
+    ]
+    numeric.reset()
+    fresh.reset()
+    numeric.append(...args, cache)
+    fresh.append(...args)
+    assert.deepEqual(numeric.values.subarray(0, 6), fresh.values.subarray(0, 6))
+    return numeric.projected
+  }
+  const pass = () => {
+    cache.beginQuery()
+    let projected = 0
+    for (let instance = 0; instance < 9; instance++) {
+      matrix[12] = instance * 256
+      context()
+      for (let i = 0; i < 4096; i++) projected += append(i % 128, i % 73, Math.floor(i / 128))
+    }
+    return projected
+  }
+  assert.equal(pass(), 36864)
+  assert.equal(pass(), 4096, 'one aggregate 32768-entry bound, not nine independent caches')
+  assert.equal(
+    cache.values.byteLength +
+      cache.tags.byteLength +
+      cache.contexts.reduce((n, c) => n + c.values.byteLength, 0),
+    2493248
+  )
+  cache.beginQuery()
+  for (let i = 0; i < 10; i++) context()
+  assert.equal(append(0, 0, 0), true, 'tenth context stays uncached')
+  assert.equal(cache.contexts.length, 9)
+  // Exact key changes include in-place matrix/config edits and signed zeros.
+  for (const change of [
+    () => (matrix[3] = 0.001),
+    () => view.rawCenter.x++,
+    () => view.rawCenter.y++,
+    () => view.projection.matrix[0]++,
+    () => view.projection.width++,
+    () => view.projection.height++,
+    () => (view.projection.pixelScaleX = -0),
+    () => (view.projection.pixelScaleX = 0),
+    () => (view.config = { ...view.config, depth: view.config.depth + 1 }),
+  ]) {
+    change()
+    cache.beginQuery()
+    context()
+    assert.equal(append(0, NaN, -0), true)
+    cache.beginQuery()
+    context()
+    assert.equal(append(0, NaN, -0), false)
+    cache.beginQuery()
+    context()
+    assert.equal(append(-0, NaN, -0), true)
+  }
+  for (const field of [
+    'curvature',
+    'depth',
+    'perspective',
+    'scale',
+    'width',
+    'height',
+    'centerX',
+    'centerY',
+    'fractionX',
+    'fractionY',
+    'pixelScaleX',
+    'pixelScaleY',
+  ]) {
+    view.projection[field]++
+    cache.beginQuery()
+    context()
+    assert.equal(append(1, 2, 3), true, field)
+    cache.beginQuery()
+    context()
+    assert.equal(append(1, 2, 3), false, field)
+  }
+  for (const array of [matrix, view.projection.matrix])
+    for (let i = 0; i < array.length; i++) {
+      array[i]++
+      cache.beginQuery()
+      context()
+      assert.equal(append(1, 2, 3), true, `matrix lane ${i}`)
+      cache.beginQuery()
+      context()
+      assert.equal(append(1, 2, 3), false)
+    }
+  // Reorder, remove, re-add and skip contexts. The same ordinal can now name a
+  // different instance or coordinate, but no mismatching result may be reused.
+  for (const order of [[0, 1, 2], [2, 0, 1], [1], [], [1, 2], [0, 1, 2]]) {
+    cache.beginQuery()
+    for (const instance of order) {
+      matrix[12] = instance * 256
+      context()
+      for (let i = 0; i < 5 + instance; i++) append(i, instance, -i)
+    }
+  }
+  cache.serial = 0xffffffff
+  matrix[0]++
+  cache.beginQuery()
+  context()
+  assert.equal(append(0, 0, 0), true)
+  cache.beginQuery()
+  context()
+  assert.equal(append(0, 0, 0), false)
+})
 
 test('numeric kernel preserves full matrix, relative, fixed-point and NDC operation order', () => {
   const v = new RenderView(),
@@ -209,11 +538,9 @@ test('authored input entry preserves prior Painter, current raw duplicates/water
           inputPick(owned, event(owned), { ordinaryTerrain: cm }),
           inputPick(base, event(base), { ordinaryTerrain: bm })
         )
-        assert.deepEqual(
-          [cm.projectedVertices, cm.visitedTriangles, cm.visibility],
-          [bm.projectedVertices, bm.visitedTriangles, bm.visibility]
-        )
-        assert.ok(cm.projectedVertices > 0)
+        assert.deepEqual([cm.visitedTriangles, cm.visibility], [bm.visitedTriangles, bm.visibility])
+        // Arithmetic work may be reused; ordered geometry/candidate assertions below stay exact.
+        assert.ok(cm.projectedVertices <= bm.projectedVertices)
         const expected = base.view.pickCandidates(base.mouse, [base.terrain], base.camera)
         const actual = query(owned)
         assert.deepEqual(actual.map(normal), expected.map(normal))
@@ -252,6 +579,8 @@ test('factory ownership, replacement, nested fallback, release and disposal do n
   assert.equal(runtimeTerrainPicking(o.view, o.terrain), true)
   pickRuntimeTerrain(o)
   const storage = o.view.ordinaryNumericProjection
+  const cache = o.view.ordinaryProjectionCache
+  assert.ok(cache)
   assert.ok(storage)
   pickRuntimeTerrain(other)
   assert.notEqual(storage, other.view.ordinaryNumericProjection)
@@ -260,6 +589,7 @@ test('factory ownership, replacement, nested fallback, release and disposal do n
     const before = o.view.ordinaryNumericProjection
     pickRuntimeTerrain(o)
     assert.equal(o.view.ordinaryNumericProjection, before)
+    assert.equal(o.view.ordinaryProjectionCache, cache)
   } finally {
     o.view.ordinaryPickDepth = 0
   }
@@ -277,6 +607,7 @@ test('factory ownership, replacement, nested fallback, release and disposal do n
   o.view = oldView
   releaseRuntimeTerrainPicking(o.view)
   assert.equal(o.view.ordinaryNumericProjection, null)
+  assert.equal(o.view.ordinaryProjectionCache, null)
   let calls = 0
   const screen = o.view.screen
   o.view.screen = function (...args) {
@@ -293,6 +624,7 @@ test('factory ownership, replacement, nested fallback, release and disposal do n
   assert.equal(runtimeTerrainPicking(other.view, other.terrain), false)
   pickRuntimeTerrain(other)
   assert.equal(other.view.ordinaryNumericProjection, null)
+  assert.equal(other.view.ordinaryProjectionCache, null)
 })
 
 test('numeric storage grows lazily within exact grid cap and rejects overflow', () => {
@@ -324,7 +656,15 @@ test('active release/disposal and exceptions detach leases; nested calls fall ba
     OrdinaryNumericProjection.prototype.append = function (...args) {
       if (!entered) {
         entered = true
+        const lease = o.view.ordinaryProjectionCache,
+          cursor = lease.cursor
         const hits = o.view.pickCandidates(o.mouse, [o.terrain], o.camera)
+        assert.equal(o.view.ordinaryProjectionCache, lease)
+        assert.equal(
+          lease.cursor,
+          cursor,
+          'nested generic call cannot reset the active cache lease'
+        )
         assert.deepEqual(hits.map(normal), expected)
         nested++
       }
@@ -344,6 +684,7 @@ test('active release/disposal and exceptions detach leases; nested calls fall ba
     assert.deepEqual(query(o).map(normal), expected)
     assert.equal(o.view.ordinaryNumericProjection, null)
     assert.equal(o.view.ordinaryPickScratch, null)
+    assert.equal(o.view.ordinaryProjectionCache, null)
     assert.equal(runtimeTerrainPicking(o.view, o.terrain), false)
     pickRuntimeTerrain(o)
     assert.equal(o.view.ordinaryNumericProjection, null)
