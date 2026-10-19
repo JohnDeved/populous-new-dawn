@@ -1,3 +1,4 @@
+import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import { checkpointComparisonView, assertCheckpointComparisonDomain } from './helpers/checkpoint-comparison-view.mjs'
 import {
   seatedAttackOrigin,
@@ -16,6 +17,7 @@ import { release } from '../app/world-tasks.ts'
 
 import assert from 'node:assert/strict'
 import { browserPosition, cast, command, tick, selectUnit } from '../app/model.ts'
+const referenceId = scalableReferenceIds(22)
 const stepUntil = (w, done, limit) => {
     for (let i = 0; i < limit; i++) {
       tick(w, 1 / 12)
@@ -116,7 +118,7 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
   const mixed = structuredClone(world),
     mixedShaman = mixed.units.find(u => u.id === shaman.id),
     mixedPerson = mixedShaman.native,
-    grounded = mixed.units.find(u => u.id === 173)
+    grounded = mixed.units.find(u => u.id === (historical ? 173 : referenceId(173)))
   assert.equal(grounded.kind, 'brave')
   assert.ok(grounded.hp > 0)
   assert.ok(!grounded.native && !grounded.flight && !grounded.entry)

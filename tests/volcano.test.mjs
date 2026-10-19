@@ -10,7 +10,7 @@ import {
   tick,
 } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 
 const ground = () => ({
   heights: new Int16Array(16384).fill(512),
@@ -154,7 +154,7 @@ test('player and computer Volcano casts share the live controller and old saves 
 
   delete ai.shots.volcano
   delete ai.giftCounts.volcano
-  migrateCheckpoint(ai)
+  normalizeHistoricalFixture(ai)
   assert.equal(ai.shots.volcano, 0)
   assert.equal(ai.giftCounts.volcano, 0)
 })

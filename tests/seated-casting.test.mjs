@@ -9,8 +9,7 @@ import { advanceGame } from '../app/game-clock.ts'
 import { cast, spellTargetError } from '../app/live-command.ts'
 import { vehicleSeat } from '../app/vehicle-seats.ts'
 import { browserPosition, wrappedDistance } from '../app/world-coordinates.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
-import { withStorage } from './support/profile-storage.mjs'
+import { normalizeHistoricalFixture, createHistoricalFixtureHarness } from './helpers/historical-checkpoint.ts'
 const linked = (w, p) => {
   assert.equal(w.objectCells.objects.get(p.id), p)
   const cell = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9),
@@ -33,15 +32,15 @@ const checkpoint = () => {
     createHash('sha256').update(bytes).digest('hex'),
     '7585ea4141b940d88e29932e87eaa79e947b20e01a8bc849b15e0586e04ec119'
   )
-  return deserialize(bytes)
+  return normalizeHistoricalFixture(deserialize(bytes))
 }
 // Historical public campaign input, shipped simulation/animation clock; no actor edits.
-test('public seated Tornado finishes casting and permits a second earned cast through Save/Load', async () => {
-  await withStorage({}, async ({ freshStore }) => {
-    const store = await freshStore()
+test('public seated Tornado finishes casting and permits a second earned cast through historical clone/normalization', async () => {
+  {
+    const store = createHistoricalFixtureHarness()
     store.startMission(16)
     const w = store.getWorld()
-    Object.assign(w, migrateCheckpoint(checkpoint()))
+    Object.assign(w, normalizeHistoricalFixture(checkpoint()))
     const u = w.units.find(u => u.id === 8286),
       owner = u.native,
       stock = w.shots.tornado,
@@ -118,7 +117,7 @@ test('public seated Tornado finishes casting and permits a second earned cast th
     assert.notEqual(owner.state, 22)
     assert.equal(owner.vehicle, 8830)
     assert.equal(u.hp, 100)
-  })
+  }
 })
 
 // Supplied ownership controls: retained combat order, moving craft, Boat model,

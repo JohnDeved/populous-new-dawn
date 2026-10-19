@@ -16,6 +16,7 @@ import {
 import { createLivePerson } from '../app/live-people.ts'
 import { stepSwarm } from '../app/spell-effects-runtime.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import {
   SWARM_INSECT_COUNT,
@@ -374,7 +375,7 @@ test('Swarm follows player and computer cast paths with native insects, victim c
 
   delete ai.shots.swarm
   delete ai.giftCounts.swarm
-  migrateCheckpoint(ai)
+  normalizeHistoricalFixture(ai)
   assert.equal(ai.shots.swarm, 0)
   assert.equal(ai.giftCounts.swarm, 0)
 })

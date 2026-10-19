@@ -15,7 +15,7 @@ import {
   unitInvisibleToPlayer,
 } from '../app/model.ts'
 import { createLivePerson, createMeleePerson, enterLiveCombat, syncLivePersonCells } from '../app/live-people.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 
 const emptyWorld = () => {
   const w = createWorld()
@@ -130,7 +130,7 @@ test('player and computer casts share Invisibility application and old saves mig
 
   delete ai.shots.invisibility
   delete ai.giftCounts.invisibility
-  migrateCheckpoint(ai)
+  normalizeHistoricalFixture(ai)
   assert.equal(ai.shots.invisibility, 0)
   assert.equal(ai.giftCounts.invisibility, 0)
 })

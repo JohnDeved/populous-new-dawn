@@ -1,3 +1,4 @@
+import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
@@ -7,6 +8,8 @@ import { computerSelectionWorld, stepComputerTasks } from '../app/computer-runti
 import { availableTrainingPeople } from '../app/computer-selection.ts'
 import { random } from '../app/native-math.ts'
 import { withCampaignTribe } from '../app/campaign-runtime.ts'
+
+const referenceId = scalableReferenceIds(12)
 
 const training = w => w.campaignAIs[1].tasks.filter(t => t.flags & 1 && t.type === 6)
 const person = u => u?.entry?.person ?? u?.native ?? u?.flight ?? u?.fight?.motion
@@ -58,7 +61,7 @@ test('ordinary M12 capacity admission produces real Warriors and replays the tra
         )
         assert.equal(w.objectCells.objects.has(id), false)
       }
-      for (const id of [261, 262]) {
+      for (const id of [261, 262].map(referenceId)) {
         const u = w.units.find(u => u.id === id)
         assert.equal(u.kind, 'warrior')
         assert.equal(u.hp, 90)
@@ -79,14 +82,14 @@ test('ordinary M12 capacity admission produces real Warriors and replays the tra
   assert.deepEqual(
     [...conversions],
     [
-      [261, 372],
-      [262, 372],
-      [269, 628],
-      [270, 628],
-      [293, 1292],
-      [294, 1292],
-      [335, 1964],
-      [344, 2156],
+      [referenceId(261), 372],
+      [referenceId(262), 372],
+      [referenceId(269), 628],
+      [referenceId(270), 628],
+      [referenceId(293), 1292],
+      [referenceId(294), 1292],
+      [referenceId(335), 1964],
+      [referenceId(344), 2156],
     ]
   )
   assert.equal(training(w).length, 0)

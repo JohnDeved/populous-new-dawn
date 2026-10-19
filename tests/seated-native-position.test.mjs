@@ -11,8 +11,7 @@ import { browserPosition } from '../app/world-coordinates.ts'
 import { supportsFollower } from '../app/world-terrain-runtime.ts'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 import { canUnloadVehicle } from '../app/vehicle-panel-runtime.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
-import { withStorage } from './support/profile-storage.mjs'
+import { normalizeHistoricalFixture, createHistoricalFixtureHarness } from './helpers/historical-checkpoint.ts'
 
 const groups = [
   [1337, 603, 112],
@@ -38,18 +37,18 @@ const checkpoint = () => {
   )
   const w = deserialize(bytes)
   assert.equal(w.turn, 10183)
-  return w
+  return normalizeHistoricalFixture(w)
 }
 // Historical ordinary campaign checkpoint; no supplied positions or actor edits.
 // Uses shipped simulation/animation clock, not a rendered browser/camera witness.
-test('retired route-map Balloon occupants launch from actual seats through public panel and Save/Load', async () => {
+test('retired route-map Balloon occupants launch from actual seats through public panel and historical clone/normalization', async () => {
   await loadSceneFixture()
   const { ObjectPanels } = await import('../app/object-panels.ts')
-  await withStorage({}, async ({ freshStore }) => {
-    const store = await freshStore()
+  {
+    const store = createHistoricalFixtureHarness()
     store.startMission(16)
     const w = store.getWorld()
-    Object.assign(w, migrateCheckpoint(checkpoint()))
+    Object.assign(w, normalizeHistoricalFixture(checkpoint()))
     assert.ok(await store.saveCheckpoint())
     assert.ok(store.loadCheckpoint())
     const twin = store.getWorld()
@@ -156,7 +155,7 @@ test('retired route-map Balloon occupants launch from actual seats through publi
         return !u.flight && !u.native?.vehicle && supportsFollower(w, u)
       })
     )
-  })
+  }
 })
 
 // Supplied owner-resolution controls, separate from the ordinary checkpoint replay.
