@@ -7,7 +7,10 @@ menu geometry, timing, or simulation. The same small control sits at the lower
 right in frontend, selector, loading, gameplay, and pause dialogs. It is moved
 into the active native dialog's top layer, preserving its DOM identity and focus
 when already focused, rather than duplicating controls or placing an inert button
-behind the modal.
+behind the modal. On entry, the existing modal is closed and immediately shown
+modally again to re-promote it above the newly fullscreen documentElement. Its
+panel DOM and focused control are retained; the application has no dialog close
+handlers, so this cannot invoke its Back/Quit actions. Exit does not reopen dialogs.
 
 Click the button, or Tab to it and press Enter/Space. There is deliberately no new
 global key binding: existing F/gameplay keys and browser shortcuts remain owned by

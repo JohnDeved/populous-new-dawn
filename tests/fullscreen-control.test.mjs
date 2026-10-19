@@ -1,13 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { createFullscreenSession, placeFullscreenHost } from '../app/fullscreen-session.ts'
+import { createFullscreenSession, placeFullscreenHost, promoteFullscreenDialogs } from '../app/fullscreen-session.ts'
 
 function setup({ supported = true, reject = false } = {}) {
   const doc = new EventTarget(), win = new EventTarget(), states = []
   let time = 0, enters = 0, exits = 0
   Object.assign(doc, {
     fullscreenEnabled: supported, fullscreenElement: null,
+    querySelectorAll: () => [],
     documentElement: { requestFullscreen() {
       enters++
       if (reject) return Promise.reject(new Error('denied'))
@@ -152,4 +153,27 @@ test('shipped app mounts control once and keeps fullscreen available through loa
   assert.match(scene, /new ResizeObserver\(\(\) => this\.setSize\(\)\)/)
   assert.match(scene, /this\.resize\.observe\(container\)/)
   assert.match(page, /window\.addEventListener\('resize', resize\)/)
+})
+
+test('entry re-promotes existing modals above fullscreen without replacing panel DOM or focus', async () => {
+  const events = [], focused = { focus: () => events.push('focus') }
+  const dialog = {
+    close: () => events.push('close'), showModal: () => events.push('showModal'),
+    contains: node => node === focused,
+  }
+  const f = setup()
+  f.doc.activeElement = focused
+  f.doc.querySelectorAll = selector => { assert.equal(selector, 'dialog:modal'); return [dialog] }
+  await f.session.toggle()
+  assert.deepEqual(events, ['close', 'showModal', 'focus'])
+  events.length = 0
+  await f.session.toggle()
+  assert.deepEqual(events, [], 'exit does not close/reopen a modal')
+  f.session.dispose()
+  promoteFullscreenDialogs({ querySelectorAll: () => [], activeElement: focused })
+  assert.deepEqual(events, [], 'gameplay entry never steals focus')
+  for (const file of ['original-main-menu.tsx', 'original-pause-menu.tsx', 'page.tsx']) {
+    const source = readFileSync(new URL('../app/' + file, import.meta.url), 'utf8')
+    assert.doesNotMatch(source, /onClose=|addEventListener\(['"]close['"]/, 'promotion must not trigger app close/back handlers')
+  }
 })

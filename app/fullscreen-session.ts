@@ -19,6 +19,7 @@ export function createFullscreenSession(
     if (alive) update({ active: active(), available: available(), pending, error })
   }
   const changed = () => {
+    if (!wasActive && active()) promoteFullscreenDialogs(doc)
     if (wasActive && !active()) exitUntil = now() + 250
     wasActive = active()
     error = ''
@@ -93,4 +94,17 @@ export function placeFullscreenHost(doc: Document, host: HTMLElement) {
   const focused = host.contains(doc.activeElement) ? doc.activeElement as HTMLElement : null
   target.appendChild(host)
   focused?.focus({ preventScroll: true })
+}
+
+/** Fullscreen promotes html above existing top-layer entries. Re-promote only
+ * actual modals, retaining their panel DOM and focus; the app has no close handlers.
+ * Newly opened dialogs already enter above html and need no intervention. */
+export function promoteFullscreenDialogs(doc: Document) {
+  const dialogs = [...doc.querySelectorAll<HTMLDialogElement>('dialog:modal')]
+  const focused = doc.activeElement as HTMLElement | null
+  for (const dialog of dialogs) {
+    dialog.close()
+    dialog.showModal()
+  }
+  if (dialogs.some(dialog => dialog.contains(focused))) focused?.focus({ preventScroll: true })
 }
