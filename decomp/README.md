@@ -5046,6 +5046,19 @@ conditional on actual source-person exemptions, with no ordinary Mission1–3
 counterexample established. Pinned byte excerpts close the operand ambiguity;
 no original execution, runtime change or parity credit is claimed.
 
+### 2026-10-06 — final Shaman burst remains uncomposed
+
+The [historical final-burst assessment](research/reincarnation-final-burst.md)
+records that accepted mode2 and phase1-ground fixes survive inspected main
+`1c7e6b05`, then isolates a different missing edge: phase5's `004da0f0`
+requests a class7/model9 burst after its person allocation; current live spawn
+only adds the Shaman. Retained static PE bytes establish the call and distinguish
+person retry from the earlier one-shot wave. Its 2026-10-19 reconciliation links
+later accepted creation, allocation-control and scheduling results at immutable
+commits, preserving their supplied-state limits and the original static packet.
+Shared allocator/visit ownership and live composition remain unresolved, not
+missing initializer bytes. No runtime repair or new execution/parity claim is added.
+
 ## 2026-09-17 — Mission 17 Armageddon
 
 `check-native-mission17-armageddon.py EXE` verifies the authored trigger/reward,
