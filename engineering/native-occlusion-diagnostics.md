@@ -44,6 +44,21 @@ existing retention metadata. Offline worst-frame and cohort reports validate and
 retain the new values. Missing fields remain unknown and are excluded from numeric
 cohort coverage, while measured zero remains zero.
 
+The shipped serializer regression fixture quantifies the tradeoff:
+- Representative small-count frames: historical 1,430,572 bytes and instrumented
+  1,549,372 bytes; both retain all 1,200 frames (99 additional bytes per frame).
+- Adversarial maximum-safe-integer counters: historical 2,096,572 bytes retains
+  1,200 frames with only 580 bytes of remaining budget; instrumented full payload
+  grows by 190,800 bytes and retains 1,100 frames at 2,097,092 bytes.
+- A hypothetical compact ordinary tuple still retained only 1,129 maximum-detail
+  frames. It cannot preserve that almost-full adversarial baseline's window.
+  The descriptive extension keeps established nested metric names and parsing.
+
+Tests separately preserve historical 1,200-frame maximum-detail coverage,
+require 1,200 instrumented representative frames, bound per-frame addition to
+160 bytes in the maximal fixture, and protect the instrumented maximal-detail
+retention floor of 1,100 frames. The two capture windows must not be conflated.
+
 These counters establish path selection, not a cause for a timing difference,
 cost equivalence, GC behavior, or hardware frame performance. They cannot recover
 missing path observations in old captures.
@@ -61,7 +76,9 @@ This instrumentation changes only the `query-inputs` protected slice of the
 
 No source profiles or historical hashes are updated here. The unchanged
 `readerImportAdmission` requires an exact reviewed query-inputs slice and therefore
-rejects this candidate. A later independent review must inspect the precise delta
+rejects this candidate. Existing current-source assertions in
+`tests/browser-snapshot-drag.test.mjs` and `tests/browser-reader-build.test.mjs`
+therefore remain known full-gate blockers, not tests to relax. A later independent review must inspect the precise delta
 and decide any narrowly named additive profile. Broad hashes, relaxed matching,
 or automatic blessing would hide workload drift and are not permitted.
 Changed source/build fingerprints require new exact-head evidence; previous

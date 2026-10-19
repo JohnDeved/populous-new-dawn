@@ -435,6 +435,50 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
     assert.equal(cohorts.cohorts.find(group => group.name === 'all').metrics['pointerBreakdown.ordinaryTerrain.visibility.indexEntriesWritten'].max, Number.MAX_SAFE_INTEGER)
     assert.equal(cohorts.cohorts.find(group => group.name === 'all').metrics.waterUpdateReasons, undefined, 'water is a separate scalar, not an inferred metric or grouping')
     const fullDetailBytes = blob.size
+    const { boundedFrameExport } = await import('../app/frame-export-size.ts')
+    const baseReport = { ...boundedDownload, frames: graph.samples.recentFrames() }
+    delete baseReport.retention
+    const measure = (name, full) => {
+      const baseline = structuredClone(full)
+      for (const frame of baseline.frames) {
+        delete frame.pointerBreakdown.ordinaryTerrain.paths
+        delete frame.pointerBreakdown.nativeOcclusion.cacheRepresentationChanged
+      }
+      const old = boundedFrameExport(baseline), added = boundedFrameExport(full)
+      t.diagnostic(JSON.stringify({ capture: name, baseline: { bytes: old.blob.size, frames: old.frameCount },
+        instrumented: { bytes: added.blob.size, frames: added.frameCount },
+        unboundedBaselineBytes: new Blob([JSON.stringify(baseline)]).size,
+        unboundedInstrumentedBytes: new Blob([JSON.stringify(full)]).size }))
+      return { old, added }
+    }
+    const maximumSize = measure('maximal-safe-integer-detail', baseReport)
+    assert.equal(maximumSize.old.frameCount, 1200, 'preserve historical no-extension maximum-detail coverage')
+    assert.ok(maximumSize.added.frameCount >= 1100, 'new maximum-detail capture budget')
+    assert.ok(new Blob([JSON.stringify(baseReport)]).size - new Blob([JSON.stringify({
+      ...baseReport, frames: baseReport.frames.map(frame => {
+        const copy = structuredClone(frame)
+        delete copy.pointerBreakdown.ordinaryTerrain.paths
+        delete copy.pointerBreakdown.nativeOcclusion.cacheRepresentationChanged
+        return copy
+      }),
+    })]).size <= 160 * 1200, 'new fields add at most 160 bytes per maximal-count frame')
+    const normal = structuredClone(baseReport)
+    for (const frame of normal.frames) {
+      frame.pointerBreakdown = createPointerFrameMetrics(true)
+      frame.pointerBreakdown.ordinaryTerrain.paths.numeric = 9
+      frame.rafIntervalMs = 16.666666666666668
+      frame.simulationCpuMs = 1.1234567890123456
+      frame.sceneRenderCpuMs = 2.1234567890123456
+      frame.sceneDrawCalls = 100
+      frame.callbackCpuMs = 5.1234567890123456
+      frame.pointerTooltipCpuMs = 0.1234567890123456
+      frame.otherCallbackCpuMs = 1.7530864219753088
+      frame.waterUpdateReasons = 0
+      frame.simulationSteps = 0
+    }
+    const normalSize = measure('representative-small-counts', normal)
+    assert.equal(normalSize.old.frameCount, 1200)
+    assert.equal(normalSize.added.frameCount, 1200)
     // Adversarial valid fields exceed the old optimistic max-counter fixture.
     for (const [state, agent] of [['live', 'Test browser'], ['paused', 'Test browser'], ['paused', 'GPU 😀'.repeat(2000)]]) {
       metrics.terrainPickMs = Number('0.12345678901234567')
