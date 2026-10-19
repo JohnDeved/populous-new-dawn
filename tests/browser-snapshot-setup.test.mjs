@@ -190,3 +190,19 @@ test('cleanup uncertainty preserves the original load failure without throwing i
   })
   assert.equal(evaluations, 1)
 })
+
+test('generated current snapshot is admitted by a fresh real store without rewriting persisted input', async () => {
+  const f = await getFixture(), record = checkpointCodec(f.transfer, true),
+    { withStorage } = await import('./support/profile-storage.mjs')
+  assert.equal(record.version, 2)
+  await withStorage({ latest: record }, async ({ freshStore, records, writes }) => {
+    const store = await freshStore(), active = store.getWorld(), before = structuredClone(records)
+    assert.equal(await store.restoreCheckpoint(), true)
+    assert.equal(store.getCheckpointReadStatus(), 'read')
+    assert.equal(store.getWorld(), active)
+    assert.equal(store.loadCheckpoint(), true)
+    assert.deepEqual(store.getWorld(), checkpointCodec(f.expected, true))
+    assert.deepEqual(records, before)
+    assert.deepEqual(writes, [])
+  })
+})

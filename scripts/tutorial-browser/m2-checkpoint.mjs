@@ -8,11 +8,11 @@ import { checkpointCodec } from './checkpoint-codec.mjs'
 export async function createM2Checkpoint(output, source) {
   const { loadSceneFixture } = await import('../../tests/support/bloodlust-scene.mjs')
   const { createWorld, migrateCheckpoint } = await loadSceneFixture()
-  const checkpoint = { version: 1, world: createWorld(2) }
+  const checkpoint = { version: 2, world: createWorld(2, 'scalable') }
   assert.equal(checkpoint.world.outcome.level, 2)
   const transfer = checkpointCodec(checkpoint)
   assert.deepEqual(checkpointCodec(transfer, true), checkpoint)
-  // Model the shipped restore and load migrations, without changing the admitted save.
+  // Model the current restore and load normalization, without changing the admitted save.
   const expected = migrateCheckpoint(migrateCheckpoint(structuredClone(checkpoint.world)))
   const encoded = JSON.stringify(transfer)
   assert.ok(Buffer.byteLength(encoded) < 16 * 1024 * 1024, 'Bound checkpoint artifact size')
@@ -21,7 +21,7 @@ export async function createM2Checkpoint(output, source) {
   writeFileSync(resolve(output, 'm2-checkpoint.v8'), bytes, { flag: 'wx' })
   const sha = b => createHash('sha256').update(b).digest('hex')
   const receipt = {
-    setup: 'TEST SETUP: exact-source createWorld(2), not campaign unlock proof or user save',
+    setup: 'TEST SETUP: exact-source createWorld(2, scalable), not campaign unlock proof or user save',
     sourceCommit: source.commit,
     node: process.version,
     checkpointSha256: sha(bytes),

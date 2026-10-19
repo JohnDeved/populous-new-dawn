@@ -48,7 +48,7 @@ export default async function ({ page, root, output, receipt, openMission, obser
     const unsubscribe = store.subscribe(() => {
       const w = store.getWorld()
       if (w === before) return
-      try { window.restartCheckpointBoundary = { version: 1, world: structuredClone(w) } }
+      try { window.restartCheckpointBoundary = { version: 2, world: structuredClone(w) } }
       catch (error) { window.restartCheckpointObservationError = String(error) }
       finally { unsubscribe() }
     })

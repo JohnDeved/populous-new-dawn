@@ -256,7 +256,7 @@ test('new camp allocation failure still feeds back once and rejects stale or blo
 })
 
 test('actual store migration and Scene disposal separate saved camps from transient inspection owners', async t => {
-  const fixture = await campFixture(t),
+  const fixture = await campFixture(t, 'scalable'),
     { scene, world, camp, paint } = fixture,
     { createGameStore } = await import('../app/game-store.ts'),
     { createTooltip } = await import('../app/tooltips.ts'),

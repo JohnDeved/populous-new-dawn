@@ -246,7 +246,7 @@ export async function prepareM3Replacement({ kind, shamanId, birth, startup = fa
     try {
       loaded = next
       evidence.after = read(next)
-      if (kind === 'load') window.m3LoadedBoundary = { version: 1, world: structuredClone(next) }
+      if (kind === 'load') window.m3LoadedBoundary = { version: 2, world: structuredClone(next) }
     } catch (error) {
       evidence.errors.push(String(error))
     } finally {

@@ -38,8 +38,9 @@ export function validateSnapshotFixture(fixture) {
   const record = checkpointCodec(fixture.transfer, true), world = checkpointCodec(fixture.expected, true)
   assert.equal(encoded(record), text, 'Snapshot transport is not canonical/lossless')
   assert.equal(encoded(world), expectedText, 'Expected transport is not canonical/lossless')
-  assert.equal(record.version, 1)
+  assert.equal(record.version, 2)
   for (const w of [record.world, world]) {
+    assert.deepEqual(w.capacityPolicy, { version: 1, mode: 'scalable' })
     assert.equal(w.outcome.level, 2); assert.equal(w.turn, 70); assert.equal(w.inputMask, 0)
     assert.equal(w.flyby.flags & 1, 0); assert.equal(w.paused, false)
     assert.deepEqual(w.selected, [54]); assert.ok(w.units.find(u => u.id === 54 && u.kind === 'shaman' && u.native))
@@ -62,7 +63,7 @@ export async function createSnapshotFixture({ output, source }) {
   const { loadSceneFixture } = await import('../../tests/support/bloodlust-scene.mjs')
   const { createWorld, advanceGame, migrateCheckpoint, cancelInteraction } = await loadSceneFixture()
   const { skipIntroduction } = await import('../../app/scene-camera-runtime.ts')
-  const world = createWorld(2), clock = { animationTime: 0, animationFrame: 0 }
+  const world = createWorld(2, 'scalable'), clock = { animationTime: 0, animationFrame: 0 }
   assert.equal(world.inputMask, 128, 'Authored startup contract changed')
   for (let frame = 0; frame < snapshotAuthoring.frames; frame++)
     advanceGame(world, clock, snapshotAuthoring.secondsPerFrame)
@@ -73,7 +74,7 @@ export async function createSnapshotFixture({ output, source }) {
   let changed = 0
   skipIntroduction({ world, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() { changed++ } })
   assert.equal(changed, 1); assert.equal(world.inputMask, 0); assert.equal(world.flyby.flags, 20)
-  const checkpoint = { version: 1, world }
+  const checkpoint = { version: 2, world }
   const expectedWorld = migrateCheckpoint(migrateCheckpoint(structuredClone(world)))
   const admittedWorld = structuredClone(expectedWorld)
   cancelInteraction(admittedWorld)

@@ -96,15 +96,15 @@ async function seedRecords(page, { kind, completed = [1, 2] }) {
   await page.evaluate(async ({ kind, completed }) => {
     let latest
     if (kind === 'malformed') latest = { version: 1, world: {} }
-    // migrateCheckpoint converts heads before iterating missing units and throwing.
+    // Historical partial state is rejected before normalization.
     if (kind === 'partially-migratable') latest = { version: 1, world: { objectCells: { heads: new Uint16Array([0, 17]) } } }
     if (kind === 'incompatible') latest = { version: 999, world: {} }
     if (kind === 'current' || kind === 'legacy') {
       const world = structuredClone(window.testStore.getWorld())
       world.turn = 217
       world.randomState = 0x12345678
-      if (kind === 'legacy') delete world.drawMode
-      latest = { version: 1, world }
+      if (kind === 'legacy') { delete world.drawMode; delete world.capacityPolicy }
+      latest = { version: kind === 'legacy' ? 1 : 2, world }
     }
     const db = await new Promise((resolve, reject) => {
       const request = indexedDB.open('populous-new-dawn', 1)
@@ -150,7 +150,7 @@ async function installLoadObserver(page) {
     const unsubscribe = store.subscribe(() => {
       const world = store.getWorld()
       if (world === before) return
-      window.recoveryLoadBoundary = { version: 1, world: structuredClone(world) }
+      window.recoveryLoadBoundary = { version: 2, world: structuredClone(world) }
       unsubscribe()
     })
   })
@@ -240,8 +240,8 @@ export default async function ({ browser, context: initialContext, page: initial
   for (const kind of ['empty', 'missing', 'malformed', 'partially-migratable', 'incompatible', 'current', 'legacy']) {
     signal.throwIfAborted()
     const entry = { kind, fixture: true, status: 'running' }
-    if (kind === 'partially-migratable') entry.fixtureScope = 'Uint16Array objectCells.heads converts on the migration clone before missing units throws; complete stored-record digest must remain unchanged.'
-    if (kind === 'legacy') entry.fixtureScope = 'Current-world checkpoint with only drawMode omitted; validates that default, not broad historical compatibility.'
+    if (kind === 'partially-migratable') entry.fixtureScope = 'Obsolete partial state rejects without normalization; complete stored-record digest must remain unchanged.'
+    if (kind === 'legacy') entry.fixtureScope = 'Obsolete v1 checkpoint without capacity policy is rejected and preserved, not upgraded.'
     report.cases.push(entry)
     save()
     const { context, page } = await freshPage(kind === 'empty')
@@ -250,7 +250,7 @@ export default async function ({ browser, context: initialContext, page: initial
       entry.beforeStartup = await page.evaluate(storedRecords)
       await page.reload({ waitUntil: 'domcontentloaded' })
       await bindStartupStore(page)
-      const valid = kind === 'current' || kind === 'legacy', expected = kind === 'empty' ? [] : [1, 2]
+      const valid = kind === 'current', expected = kind === 'empty' ? [] : [1, 2]
       entry.startup = await page.evaluate(async () => {
         const store = window.testStore, active = store.getWorld()
         const before = { completed: store.getCompletedMissions(), hasCheckpoint: store.hasCheckpoint() }

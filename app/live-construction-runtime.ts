@@ -232,6 +232,7 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
       task,
       {
         outside: buildingOutsidePoint(pose),
+        scalableOrders: w.buildingOrders.scalable,
         target,
         scenery: () =>
           cells.flatMap(i =>

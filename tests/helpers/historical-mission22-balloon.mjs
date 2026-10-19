@@ -5,7 +5,7 @@ import fs from 'node:fs'
 import crypto from 'node:crypto'
 import v8 from 'node:v8'
 import { gunzipSync } from 'node:zlib'
-import { createGameStore, migrateCheckpoint } from '../../app/game-store.ts'
+import {  createHistoricalFixtureHarness, normalizeHistoricalFixture  } from './historical-checkpoint.ts'
 
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex')
 export async function loadHistoricalMission22Balloon() {
@@ -35,14 +35,16 @@ export async function loadHistoricalMission22Balloon() {
     metadata.producerSha256
   )
   const historical = v8.deserialize(serialized),
-    store = createGameStore()
+    store = createHistoricalFixtureHarness()
   assert.equal(historical.turn, 2206)
   assert.equal(historical.randomState, 4125041181)
   store.startMission(22)
   // Restore the complete recorded world, not selected actor/counter/RNG fields.
+  for (const key of Object.keys(store.getWorld())) if (!(key in historical)) delete store.getWorld()[key]
   Object.assign(store.getWorld(), historical)
+  assert.deepEqual(store.getWorld(), historical)
   await store.saveCheckpoint()
-  const expected = migrateCheckpoint(structuredClone(store.getWorld()))
+  const expected = normalizeHistoricalFixture(structuredClone(store.getWorld()))
   assert.ok(store.loadCheckpoint())
   const world = store.getWorld()
   assert.deepEqual(world, expected)

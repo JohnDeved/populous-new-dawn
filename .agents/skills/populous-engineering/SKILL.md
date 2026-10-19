@@ -16,15 +16,22 @@ internal representation are not parity requirements. Prefer modern, measurably
 better algorithms/data structures that preserve required behavior; do not sacrifice
 performance to imitate the original. A slow ray-cast path may be replaced with a
 better method after validating its gameplay semantics, including relevant edge cases.
-Keep native/compatibility tests and correctness requirements; change an assertion
+Keep native comparisons, supported-behavior regressions, and correctness requirements; change an assertion
 about incidental internals only after establishing coverage of the required behavior.
 Measure comparable full-frame/end-to-end cost, including setup, updates,
 invalidation, deferred work and allocations as applicable. A smaller or renamed
 timing bucket alone does not demonstrate an improvement.
 
+Apply [the development save contract](../../../README.md#development-save-contract).
+Do not retain old-save fallback support merely for backwards compatibility. Keep
+current-format gameplay flows correct and reject incompatible saves clearly
+without changing stored data. Explicit classic/native research fixtures are separate.
+
 1. Continue the assigned GitHub issue/feature outcome. Record actual base/head and
    existing dirty paths. Use one writer per isolated branch/worktree; the parent
-   coordinates up to six workers and owns integration.
+   coordinates at most four active workers across the entire delegation tree,
+   including nested workers and reviewers, and owns integration. With the parent,
+   this is five active agents total: the current usage budget, not a platform ceiling.
 2. Read existing topic findings and actual callers. Use `orchestration:context` when
    helpful; follow omissions or contradictions. For native work, use
    `engineering/native-research.md`, verify local inputs/tools, and preserve useful

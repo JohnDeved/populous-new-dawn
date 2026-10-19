@@ -58,7 +58,7 @@ test('shared selector geometry stays inside native frame at viewport edges, wide
 })
 
 test('native tooltip font covers every main-menu reason without widening the frame', () => {
-  const reasons = [...main.slice(main.indexOf('  const rows = ['), main.indexOf('  return (\n    <dialog')).matchAll(/(?:unavailable: |\? |: )'([^'\n]*(?:available|restored|storage|checkpoint)[^'\n]*)'/g)].map(match => match[1])
+  const reasons = [...main.slice(main.indexOf('  const checkpointDescriptions = {'), main.indexOf('  return (\n    <dialog')).replace(/  const checkpointRecoveryNotices = \{[\s\S]*?\n  \}/, '').matchAll(/(?:unavailable: |\? |: )'([^'\n]*(?:available|restored|storage|checkpoint)[^'\n]*)'/gi)].map(match => match[1])
   assert.ok(reasons.length >= 7)
   for (const reason of reasons) {
     const glyphs = [...reason].map(c => provenance.fonts.tooltip.glyphs[c.charCodeAt(0)-32])
@@ -128,13 +128,13 @@ test('visible tooltip typography is settled across late decode success and failu
 
 test('rendered native glyph widths equal advances and longest unavailable reason fits with padding', () => {
   for (const glyph of provenance.fonts.tooltip.glyphs) assert.equal(glyph.width, glyph.advance)
-  const rows = main.slice(main.indexOf('  const rows = ['), main.indexOf('  return (\n    <dialog'))
-  const reasons = [...rows.matchAll(/(?:unavailable: |\? |: )'([^'\n]*(?:available|restored|storage|checkpoint)[^'\n]*)'/g)].map(match => match[1])
+  const rows = main.slice(main.indexOf('  const checkpointDescriptions = {'), main.indexOf('  return (\n    <dialog'))
+  const reasons = [...rows.replace(/  const checkpointRecoveryNotices = \{[\s\S]*?\n  \}/, '').matchAll(/(?:unavailable: |\? |: )'([^'\n]*(?:available|restored|storage|checkpoint)[^'\n]*)'/gi)].map(match => match[1])
   const measured = reasons.map(text => ({ text, width: [...text].reduce((sum,c)=>sum+provenance.fonts.tooltip.glyphs[c.charCodeAt(0)-32].width,0) }))
   const longest = measured.sort((a,b)=>b.width-a.width)[0]
-  assert.deepEqual(longest, { text:'Multiplayer is not available in this single-player remake', width:298 })
-  assert.equal(4*(Math.floor(longest.width/4)+3),308)
-  assert.ok(308 < 640)
+  assert.deepEqual(longest, { text:'Checkpoint is incompatible with this development version', width:300 })
+  assert.equal(4*(Math.floor(longest.width/4)+3),312)
+  assert.ok(312 < 640)
 })
 
 test('prepared tooltip rendering never decodes again on category changes or reopen', () => {
