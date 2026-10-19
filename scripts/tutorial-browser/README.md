@@ -342,7 +342,7 @@ cannot establish running advancement, and this run is not retroactively passed.
 #### Maintained running-artwork contract
 
 The only maintained browser acceptance is `running-original-artwork-v1` in
-`melee-attack.mjs` and `validateMeleeRunningFrames` in
+`melee-attack.mjs` and `validateMeleeRunningObservation` in
 `melee-attack-running-evidence.mjs`. It removes the timing-sensitive in-attack
 Space round trip rather than broadening legal pause/successor predicates.
 Public setup Pause/Resume and the real command route above remain unchanged.
@@ -350,9 +350,19 @@ After the attack command, no input interrupts observation. A read-only ordinary
 post-render RAF observes the half-open logical interval
 `[firstObservedAttackTurn, firstObservedAttackTurn + 10)`. It terminates on the
 first visit reaching the boundary, even outside an attack, never upon finding a
-passing pair. Attack/strike/special samples throughout that interval are retained
+passing pair. The cutoff is checked before actor-life or attack state, so death or
+disappearance strictly within the interval fails, but actor state on or after its
+exclusive end does not extend the witness. Every stop retains its exact observed
+turn, renderer stamp and reason. Acceptance requires a `window-complete` terminal
+record at or after the cutoff, later than every sample's renderer stamp; an early
+stop or error cannot pass merely because an earlier pair advanced. The separate
+frame validator retains all existing artwork, identity, entry and crop obligations.
+Attack/strike/special samples throughout that interval are retained
 and all must pass; successor artwork is not an acceptance claim. Unexpected pause,
-Scene/world replacement, document hiding or actor death fails closed.
+Scene/world replacement, document hiding or disconnected canvas still fails closed,
+including on the terminal visit. Supplied real-observer boundary tests are not
+browser evidence and do not retroactively pass historical failed runs whose exact
+terminal callback was not retained.
 
 The first four distinct native poses reserve the only crop slots, before
 visibility or bounds eligibility is decided. Pose identity includes actor,
