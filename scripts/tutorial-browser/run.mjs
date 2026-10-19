@@ -154,7 +154,7 @@ try {
   } else if (selectedScenario === 'profile-recovery') {
     receipt.profileRecovery = await (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal })
   } else if (selectedScenario === 'compact-message-layout') {
-    receipt.compactMessageLayout = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture, compactMessages: true })
+    await (await import(pathToFileURL(m2Scenario).href)).runCompactDiagnosticEpisodes({ browser, url, output: out, fixture: m2Fixture, report: receipt })
   } else if (selectedScenario === 'm2-pointer-f8') {
     receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
   } else if (selectedScenario === 'pause-checkpoint-recovery') {

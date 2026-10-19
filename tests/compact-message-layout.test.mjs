@@ -1,13 +1,15 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { runInNewContext } from 'node:vm'
 import {
   assertCompactMessageWitness,
   compactMessageCases,
   diagnosticMetricIds,
 } from '../scripts/tutorial-browser/compact-message-layout.mjs'
-import { m2DiagnosticLayout, m2FunctionalLimitMs } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
+import runM2Functional, { m2DiagnosticLayout, m2FunctionalLimitMs, runCompactDiagnosticEpisodes } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import { hudScale } from '../app/hud-layout.ts'
 import { pickingPathMetricIds, pickingPathViewports } from '../scripts/tutorial-browser/picking-path-readout.mjs'
@@ -348,17 +350,83 @@ test('separate compact hosted scenario retains old bounds and existing groups', 
     'utf8'
   )
   assert.match(runner, /compactMessageScenarioSha256: hash/)
-  assert.match(runner, /receipt\.compactMessageLayout = await[^\n]+compactMessages: true/)
+  assert.match(runner, /await[^\n]+\.runCompactDiagnosticEpisodes\(\{ browser, url, output: out, fixture: m2Fixture, report: receipt \}\)/)
   assert.match(
     scenario,
     /if \(compactMessages\) \{\s+const \{ checkCompactMessages \} = await import/
   )
-  assert.match(
-    scenario,
-    /fileName: compactMessages \? 'compact-message-layout\.json' : 'm2-pointer-f8\.json'/
-  )
+  assert.match(scenario, /pickingPaths \? 'picking-path-readout' : compactMessages \? 'compact-message-layout' : 'm2-pointer-f8'/)
+  assert.match(scenario, /fileName: `\$\{scenario\}\.json`/)
   assert.ok(scenario.indexOf('timer = setTimeout') < scenario.indexOf('await page.goto'))
   assert.ok(scenario.indexOf('await page.goto') < scenario.indexOf('if (compactMessages)'))
+})
+
+test('actual compact routing awaits independent bounded episodes and preserves partial failure evidence', async () => {
+  const report = {}, calls = [], first = Promise.withResolvers()
+  const common = { browser: {}, url: 'http://fixture', output: 'fixture-output', fixture: {} }
+  const run = runCompactDiagnosticEpisodes({ ...common, report }, async options => {
+    calls.push(options)
+    if (options.compactMessages) return first.promise
+    assert.deepEqual(report.compactMessageLayout, { status: 'passed', contextClosed: true })
+    return { status: 'passed', contextClosed: true, scenario: 'picking-path-readout' }
+  })
+  assert.deepEqual(calls, [{ ...common, compactMessages: true }], 'expanded work cannot start before compact finishes')
+  first.resolve({ status: 'passed', contextClosed: true })
+  await run
+  assert.deepEqual(calls, [{ ...common, compactMessages: true }, { ...common, pickingPaths: true }])
+  assert.equal(report.pickingPathReadout.scenario, 'picking-path-readout')
+  for (const failAt of [0, 1]) {
+    const partial = {}, attempted = []
+    await assert.rejects(runCompactDiagnosticEpisodes({ ...common, report: partial }, async options => {
+      attempted.push(options)
+      if (attempted.length - 1 === failAt) throw Error('episode failure')
+      return { status: 'passed', contextClosed: true }
+    }), /episode failure/)
+    assert.equal(attempted.length, failAt + 1, 'a failed legacy episode cannot be hidden by expanded success')
+    assert.equal(!!partial.compactMessageLayout, failAt === 1, 'retain completed legacy evidence if expanded fails')
+    assert.equal(partial.pickingPathReadout, undefined)
+  }
+})
+
+test('real compact and expanded M2 episodes each close their fresh context at the unchanged 45-second deadline', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  const output = mkdtempSync(join(tmpdir(), 'compact-episode-deadline-'))
+  t.after(() => rmSync(output, { recursive: true, force: true }))
+  let created = 0
+  for (const [flag, name] of [['compactMessages', 'compact-message-layout'], ['pickingPaths', 'picking-path-readout']]) {
+    const entered = Promise.withResolvers(), navigation = Promise.withResolvers()
+    let closed = 0
+    const page = {
+      setDefaultTimeout() {}, on() {}, async addInitScript() {},
+      goto() { entered.resolve(); return navigation.promise },
+      async evaluate() { throw Error('context closed') },
+      async screenshot() { throw Error('context closed') },
+    }
+    const browser = { async newContext() {
+      created++
+      return {
+        async newPage() { return page },
+        async close() { closed++; navigation.reject(Error('context closed by deadline')) },
+      }
+    } }
+    const completed = assert.rejects(runM2Functional({ browser, url: 'http://fixture', output,
+      fixture: { receipt: {} }, [flag]: true }), /M2 functional scenario failed/)
+    await entered.promise
+    t.mock.timers.tick(m2FunctionalLimitMs - 1)
+    assert.equal(closed, 0, 'the episode retains its own full original allowance')
+    t.mock.timers.tick(1)
+    await completed
+    const receipt = JSON.parse(readFileSync(join(output, `${name}.json`), 'utf8'))
+    assert.equal(receipt.scenario, name)
+    assert.equal(receipt.status, 'failed')
+    assert.equal(receipt.timedOut, true)
+    assert.equal(receipt.contextClosed, true)
+    assert.equal(receipt.stages.at(-1).name, 'deadline')
+  }
+  assert.equal(created, 2)
+  assert.equal(m2FunctionalLimitMs, 45000)
+  assert.equal(browserCapMs('compact-message-layout'), 180000)
+  await assert.rejects(runM2Functional({ compactMessages: true, pickingPaths: true }), /independent contexts/)
 })
 
 test('collapsed and optional diagnostic inventories cover every shipped F8 metric without hiding missing fields', () => {
@@ -377,17 +445,26 @@ test('existing compact hosted job invokes shared expanded picking cases against 
   assert.deepEqual(pickingPathViewports, [[640, 480], [1280, 799], [1280, 800], [1280, 801], [1280, 820]])
   const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
   const compact = read('scripts/tutorial-browser/compact-message-layout.mjs')
+  const originalEpisode = compact.slice(compact.indexOf('export async function checkCompactMessages'), compact.indexOf('export async function checkExpandedPickingPaths'))
+  const expandedEpisode = compact.slice(compact.indexOf('export async function checkExpandedPickingPaths'))
   const shared = read('scripts/tutorial-browser/picking-path-readout.mjs')
   const standalone = read('scripts/check-browser-fps.mjs')
   assert.match(compact, /import \{ checkPickingPathReadout, pickingPathMetricIds \} from '\.\/picking-path-readout\.mjs'/)
   assert.match(compact, /report\.pickingPaths = await checkPickingPathReadout\(\{ page, output \}\)/)
   assert.match(standalone, /await checkPickingPathReadout\(\{ page, output \}\)/)
-  assert.ok(compact.indexOf('report.pickingPaths = await') > compact.indexOf('compact-${preference}-${width}x${height}-captured-and-restored'))
+  assert.doesNotMatch(originalEpisode, /checkPickingPathReadout|pickingPaths/)
+  assert.match(originalEpisode, /await selectHudPreference\(page, preference\)/)
+  assert.match(originalEpisode, /compact-\$\{preference\}-\$\{width\}x\$\{height\}-captured-and-restored/)
+  assert.match(expandedEpisode, /report\.pickingPaths = await checkPickingPathReadout/)
+  assert.match(expandedEpisode, /await selectHudPreference\(page, '4'\)/)
   assert.match(compact, /await toggle\.focus\(\)\s+await page\.keyboard\.press\('F8'\)/)
   assert.match(compact, /await toggle\.click\(\)\s+await graph\.focus\(\)\s+await page\.keyboard\.press\('F8'\)/)
   assert.match(compact, /report\.pickingPaths\.focusedF8Reset = true/)
   assert.match(compact, /cancelAnimationFrame\(scene\.frame\)/)
   assert.match(compact, /scene\.frame = requestAnimationFrame\(scene\.animate\)/)
+  assert.match(expandedEpisode, /await detail\.locator\('summary'\)\.click\(\)/)
+  assert.match(expandedEpisode, /assert\.notEqual\(await detail\.getAttribute\('open'\), null/)
+  assert.match(expandedEpisode, /stage\('expanded-picking-campaign-restored'\)/)
   for (const interaction of ["press('Space')", "press('End')", "press('Home')", 'page.mouse.wheel', 'target.scrollIntoViewIfNeeded'])
     assert.ok(shared.includes(interaction), interaction)
   assert.match(shared, /assert\.deepEqual\(inputEvents, \[\]/)
