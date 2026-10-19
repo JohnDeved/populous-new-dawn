@@ -79,3 +79,23 @@ test('actual Home Escape caller deselects real authored M10 World without clock,
  assert.deepEqual(world.selected,[]);assert.equal(world.mode,null);assert.equal(world.paused,before.paused);assert.equal(world.turn,before.turn);assert.equal(world.pendingTime,before.pendingTime)
  assert.deepEqual(world.buildingOrders,before.buildingOrders);assert.equal(clock.animationFrame,2)
 })
+
+test('one hover waits through delayed firstDisplay without new pixel discovery or input',async()=>{
+ const {pollSelectionControl}=await import('./firewarrior-selection.mjs')
+ const states=[{ready:false,reason:'missing panel',tooltip:{dwell:0,threshold:12,lastVisit:{firstDisplay:null}}},{ready:false,reason:'hidden panel',tooltip:{dwell:13,threshold:12,lastVisit:{firstDisplay:100}},record:{phase:-1}},{ready:true,point:{x:1,y:2},route:{kind:'occupant',id:121,buildingId:100}}]
+ const recorded=[];let reads=0,guards=0,waits=0
+ const result=await pollSelectionControl({read:async()=>states[reads++],guard:async()=>guards++,record:row=>recorded.push(row),wait:async()=>waits++})
+ assert.equal(result,states[2]);assert.deepEqual(recorded,states);assert.equal(reads,3);assert.equal(guards,3);assert.equal(waits,2)
+ const source=readFileSync(new URL('./firewarrior-selection.mjs',import.meta.url),'utf8')
+ const polling=source.slice(source.indexOf('const armed=await pollSelectionControl'),source.indexOf('// Exactly one click attempt'))
+ assert(!polling.includes('entityPoint('));assert(!polling.includes('page.mouse.'))
+})
+test('control polling rejects stale ownership, returns location change for pre-input discovery, and honors cap',async()=>{
+ const {pollSelectionControl}=await import('./firewarrior-selection.mjs')
+ const moved={ready:false,retryDiscovery:true,reason:'person location changed'}
+ assert.equal(await pollSelectionControl({read:async()=>moved,guard:async()=>{},record:()=>{},wait:async()=>{throw Error('must not wait')}}),moved)
+ await assert.rejects(pollSelectionControl({read:async()=>{throw Error('Current occupant ownership changed')},guard:async()=>{},record:()=>{}}),/ownership/)
+ let reads=0
+ await assert.rejects(pollSelectionControl({read:async()=>{reads++;return {ready:false}},guard:async()=>{throw Error('300-turn cap')},record:()=>{}}),/300-turn cap/)
+ assert.equal(reads,0)
+})

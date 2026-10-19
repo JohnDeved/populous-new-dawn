@@ -73,6 +73,14 @@ export function assertDeselectionReceipt(receipt) {
   requireSelection(JSON.stringify(stableBefore)===JSON.stringify(stableAfter),'Escape changed clock, mode, pause, dialog or World ownership')
   return receipt
 }
+export async function pollSelectionControl({read,guard,record,wait=()=>new Promise(resolve=>setTimeout(resolve,50))}) {
+  for(;;) {
+    await guard()
+    const state=await read();record(state)
+    if(state.ready||state.retryDiscovery)return state
+    await wait()
+  }
+}
 export async function selectAuthoredBrave({page,input,guard,report,save}) {
   report.firstSelection={probes:[],inputAttempted:false,receipt:null,deselection:null}
   const readRoute=()=>page.evaluate(async()=>{const {selectionRoute}=await import('/scripts/local-render/firewarrior-selection.mjs'),scene=window.testSceneRef.current,u=scene.world.units.find(u=>u.id===121);return selectionRoute({...u,identityMatches:u===window.firewarriorPublicEpoch.traineeObject})})
@@ -112,24 +120,29 @@ export async function selectAuthoredBrave({page,input,guard,report,save}) {
       await page.mouse.move(hit.x,hit.y)
       await guard()
     }
-    const armed=await page.evaluate(async({route,hit})=>{
+    probe.controlVisits=[]
+    const armed=await pollSelectionControl({guard,record:state=>{probe.controlVisits.push(state);save()},read:()=>page.evaluate(async({route,hit})=>{
       const {selectionRoute,observeFirstSelection}=await import('/scripts/local-render/firewarrior-selection.mjs'),{inspectEntityPoint,observeEntityPointer}=await import('/qa/erosion-ordinary/input.mjs')
       const scene=window.testSceneRef.current,u=scene.world.units.find(u=>u.id===121)
-      if(JSON.stringify(selectionRoute({...u,identityMatches:u===window.firewarriorPublicEpoch.traineeObject}))!==JSON.stringify(route))return null
+      if(JSON.stringify(selectionRoute({...u,identityMatches:u===window.firewarriorPublicEpoch.traineeObject}))!==JSON.stringify(route))return {ready:false,retryDiscovery:true,reason:'person location changed',turn:scene.world.turn}
       let button=null,point=hit
       if(route.kind==='occupant') {
         const panel=scene.buildingPanels.get(route.buildingId)
         button=panel?.querySelector('button[data-person="121"]')
-        if(!panel||panel.hidden||!button||button.hidden)return null
+        const owner=scene.tooltipController,record=scene.objectPanels.buildingRecords.get(route.buildingId)
+        const state={ready:false,turn:scene.world.turn,selected:[...scene.world.selected],inside:u.inside,occupants:[...(scene.world.buildings.find(b=>b.id===route.buildingId)?.admission?.occupants??[])],tooltip:{route:scene.tooltipInput?.route,picked:scene.tooltipInput?.picked,category:owner?.category,key:owner?.key,dwell:owner?.dwell,threshold:owner?.session.threshold,lastVisit:owner?.lastVisit,remaining:scene.tooltip.remaining},record:record?{...record}:null,panel:panel?{hidden:panel.hidden,connected:panel.isConnected}:null,button:button?{hidden:button.hidden,connected:button.isConnected,person:button.dataset.person}:null}
+        if(!panel||panel.hidden||!button||button.hidden)return {...state,reason:!panel?'missing panel':panel.hidden?'hidden panel':!button?'missing occupant button':'hidden occupant button'}
+        if(!state.occupants.includes(121)||u.inside!==route.buildingId)throw Error('Current occupant ownership changed')
         const rect=button.getBoundingClientRect();point={x:rect.x+rect.width/2,y:rect.y+rect.height/2}
-        if(!rect.width||!rect.height||!button.contains(document.elementFromPoint(point.x,point.y)))return null
-      }else {const picked=inspectEntityPoint(scene,'units',hit);if(!picked.canvasOwned||picked.hitId!==121)return null}
+        const top=document.elementFromPoint(point.x,point.y)
+        if(!rect.width||!rect.height||!button.contains(top))return {...state,reason:'control geometry or occlusion',rect:{x:rect.x,y:rect.y,width:rect.width,height:rect.height},top:top?{tag:top.tagName,className:top.className,person:top.dataset?.person}:null}
+      }else {const picked=inspectEntityPoint(scene,'units',hit);if(!picked.canvasOwned||picked.hitId!==121)throw Error('Final unit picker ownership changed')}
       if(window.firewarriorFirstSelection)throw Error('Foreign first-selection observer exists')
       window.firewarriorFirstSelection=observeFirstSelection({scene,store:window.testStore,route,button,observeEntityPointer})
-      return {point,turn:scene.world.turn,route}
-    },{route,hit})
+      return {ready:true,point,turn:scene.world.turn,route}
+    },{route,hit})})
     probe.armed=armed;save()
-    if(!armed)continue
+    if(!armed.ready)continue
     // Exactly one click attempt. Delivered-event validators can fail, never retry.
     report.firstSelection.inputAttempted=true;save()
     try {await page.mouse.click(armed.point.x,armed.point.y)}
