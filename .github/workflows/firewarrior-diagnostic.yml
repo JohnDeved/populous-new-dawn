@@ -17,7 +17,7 @@ jobs:
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-          fetch-depth: 5
+          fetch-depth: 7
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24.19.0'
@@ -34,15 +34,19 @@ jobs:
         run: |
           unset NODE_PATH NODE_COMPILE_CACHE NODE_V8_COVERAGE NODE_OPTIONS
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse HEAD^)" = 74ef1de2d943a952f01a91363a93bf6371588ffb
-          test "$(git rev-parse HEAD^^)" = 6195f97f4e360346a49578e0329ac4144727af7f
-          test "$(git rev-parse HEAD^^^^)" = bab9aa4ea8f228a5884528982cce71231cbb8bfd
-          test "$(git rev-parse HEAD^'^{tree}')" = 1cdb2b41691d26a13ecec0dd3ea4fedfbe67b0a5
-          test "$(git rev-parse HEAD^^^^'^{tree}')" = d76fe1cd227286ed150fc1e8a33b4e1a3eb8d481
+          test "$(git rev-parse HEAD^)" = ca0e579b1abe5d5787c98a983a00e2c1b5ea7874
+          test "$(git rev-parse HEAD^^)" = e4e1b33ba780d93e264cd325e332c86995985773
+          test "$(git rev-parse HEAD^^^^^^)" = bab9aa4ea8f228a5884528982cce71231cbb8bfd
+          test "$(git rev-parse HEAD^'^{tree}')" = a1271af8670630f06c7a0f4892f774092bcc5003
+          test "$(git rev-parse HEAD^^^^^^'^{tree}')" = d76fe1cd227286ed150fc1e8a33b4e1a3eb8d481
           test "$(git diff-tree --no-commit-id --name-only -r HEAD)" = .github/workflows/firewarrior-diagnostic.yml
           mkdir -p outputs/firewarrior-diagnostic
-          { printf 'Diagnostic-only scenario and workflow; source-hosted Vite, not production preview.\n'; git rev-parse HEAD HEAD^{tree} HEAD^ HEAD^'^{tree}' HEAD^^ HEAD^^'^{tree}'; node --version; npm --version; sha256sum package-lock.json node_modules/playwright-core/browsers.json /opt/google/chrome/chrome scripts/local-render/firewarrior-public-witness.mjs scripts/local-render/harness.mjs node_modules/vite/dist/node/chunks/logger.js; } > outputs/firewarrior-diagnostic/inputs.txt
+          { printf 'Diagnostic-only scenario and workflow; source-hosted Vite, not production preview.\n'; git rev-parse HEAD HEAD^{tree} HEAD^ HEAD^'^{tree}' HEAD^^ HEAD^^'^{tree}'; node --version; npm --version; sha256sum package-lock.json node_modules/playwright-core/browsers.json /opt/google/chrome/chrome scripts/local-render/firewarrior-public-witness.mjs scripts/local-render/harness.mjs scripts/local-render/firewarrior-selection.mjs scripts/local-render/firewarrior-selection.test.mjs node_modules/vite/dist/node/chunks/logger.js; } > outputs/firewarrior-diagnostic/inputs.txt
           git diff bab9aa4ea8f228a5884528982cce71231cbb8bfd -- scripts/local-render/harness.mjs > outputs/firewarrior-diagnostic/harness-diagnostic.patch
+      - name: Check exact selection admission and delivered ownership without browser
+        run: |
+          unset NODE_PATH NODE_COMPILE_CACHE NODE_V8_COVERAGE NODE_OPTIONS
+          node --test scripts/local-render/firewarrior-selection.test.mjs > outputs/firewarrior-diagnostic/selection-source-tests.log
       - name: One bounded source-hosted public M10 route, sandbox enabled
         run: |
           unset NODE_PATH NODE_COMPILE_CACHE NODE_V8_COVERAGE NODE_OPTIONS
@@ -91,6 +95,7 @@ jobs:
           if-no-files-found: error
           path: |
             outputs/firewarrior-diagnostic/inputs.txt
+            outputs/firewarrior-diagnostic/selection-source-tests.log
             outputs/firewarrior-diagnostic/chrome-wrapper.txt
             outputs/firewarrior-diagnostic/receipt.json
             outputs/firewarrior-diagnostic/harness-diagnostic.patch
