@@ -92,7 +92,10 @@ import {
 } from './live-vehicles.ts'
 import { vehicleReady } from './vehicle-routing.ts'
 import { restingCellCollision } from './person-collision.ts'
-import { clearFollowingBoardingOrders } from './vehicle-boarding-orders.ts'
+import {
+  boardingTargetLeftOrigin,
+  clearFollowingBoardingOrders,
+} from './vehicle-boarding-orders.ts'
 import { withinVehicleTransferRange } from './vehicle-transfer.ts'
 import {
   cancelConversionVictim,
@@ -925,7 +928,7 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
         p.speed = 0
         return 1
       }
-      if (!vehicle) return complete()
+      if (!vehicle || boardingTargetLeftOrigin(order, vehicle)) return complete()
       // 0x4666f0 resolves the persistent person object, not the active route cache.
       // A settled state-30 driver need not remain in pathfinding.people.
       const driverUnit = w.units.find(unit => unit.id === vehicle.passengers[0] && unit.hp > 0),
@@ -938,8 +941,6 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
           w.objectCells.objects.get(owner.id) === owner
             ? owner
             : undefined
-      // Keep the existing adapter's omitted clicked-distance lifetime check for
-      // old records whose producer wrote b=0. Never invent their original click.
       if (
         vehicle.passengerCount >= rules.vehicleCapacity[vehicle.model] ||
         !vehicleReady(w.land, vehicle) ||
