@@ -346,7 +346,7 @@ this reviewed bridge on the trusted default base, followed by fresh browser proo
 
 The original exact consumer-method and composite geometry hashes are preserved.
 Different raw method spellings are not, by themselves, different submitted inputs.
-An alternative match is available only when every session supplies eight bounded
+A full-profile semantic match is available only when every session supplies eight bounded
 raw Three reader bodies, the complete admitted generic/owned source profile, the
 actual namespace-import/scratch-constructor binding, strict non-normalized data
 attributes, stable reader references within and between phases, and matching
@@ -361,6 +361,18 @@ the method-spelling component. Changed operations, unknown source profiles,
 missing evidence, or real geometry/state/pose/query differences remain withheld.
 The Node-only build admission uses the pinned installed TypeScript parser; the
 write-capable reporter still installs nothing and never evaluates artifact code.
+
+The five stable cohorts also have a narrower inactive-helper-name proof. It keeps
+every recognized token (including local/parameter names and normalization branch
+spelling) except the free normalization-helper identifiers, which cannot execute
+under the observed strictly false own-data `normalized` properties. This path
+still requires all eight bodies, imported Matrix4/query-prefix admission, stable
+live bindings, matching dependency/build provenance, per-arm and cross-shard raw
+reader/source/bundle stability, and the original raw-reader-to-geometry component
+hash links. Only the complete held-drag source profile may be unavailable; an
+unknown or malformed profile is not accepted. All actual geometry and workload
+inputs still match exactly. Held drag never uses this narrower fallback, and its
+source contract is unchanged. No old raw hashes or retained results are rewritten.
 
 Raw bodies are retained before recognition, including unsupported spellings.
 Unsupported optional proof falls back before measured inputs to original exact

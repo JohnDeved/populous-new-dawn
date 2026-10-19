@@ -1,6 +1,6 @@
 // v2 is a separate controlled, paused workload. The live v1 policy is unchanged.
 import assert from 'node:assert/strict'
-import { readerProofContract, validateReaderEvidence, geometryProof, validateGeometryProof, equivalentReaderEvidence } from './snapshot-reader-proof.mjs'
+import { readerProofContract, validateReaderEvidence, geometryProof, validateGeometryProof, equivalentReaderEvidence, equivalentInactiveHelperEvidence } from './snapshot-reader-proof.mjs'
 import { dragContract, dragSourceProfiles } from './snapshot-drag-contract.mjs'
 import { assertDragGeometry, assertDragPose, assertDragFrame } from './snapshot-drag-protocol.mjs'
 import { analyzeFrameExport } from '../../app/frame-export-analysis.ts'
@@ -356,7 +356,10 @@ export function comparableWork(phases, readerContexts = null) {
   }
   const same = semantic => phases.every(phase => JSON.stringify(shape(phase, semantic)) === JSON.stringify(shape(phases[0], semantic)))
   if (same(false)) return true
-  if (!equivalentReaderEvidence(readerContexts)) return false
+  const stableHelperOnly = ['native-hover', 'ordinary-hover', 'hud', 'world-recovery', 'menu-recovery'].includes(phases[0].name) &&
+    phases.every(phase => phase.name === phases[0].name && phase.warmup === undefined &&
+      phase.blocks.every(block => block.geometryAfterSha256 === undefined && block.geometryAfterProof === undefined && block.inputPoseSha256 === undefined))
+  if (!equivalentReaderEvidence(readerContexts) && !(stableHelperOnly && equivalentInactiveHelperEvidence(readerContexts))) return false
   try {
     for (const [i, phase] of phases.entries()) {
       const evidence = readerContexts[i].evidence

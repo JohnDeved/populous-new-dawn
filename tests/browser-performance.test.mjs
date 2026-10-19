@@ -671,3 +671,19 @@ test('completed-run attempts must be positive safe integers before any comment w
     assert.equal(mock.state.calls.some(c => c.method), false)
   }
 })
+
+test('inactive-helper-only fallback qualifies five stable cohorts without admitting held drag', () => {
+  const reports = readerReports()
+  for (const report of reports) for (const run of report.runs) {
+    run.readers.source = { profile: null, slices: [], importSha256: readerImportSha256 }
+    if (report.shard === 'world') run.phases[2] = { name: 'native-view-drag-warm', unsupported: 'source-contract' }
+  }
+  const compared = snapshot.compareReports(reports, identity)
+  assert.ok(compared.rows.filter(row => row.phase !== 'native-view-drag-warm').every(row => !row.p50.status.endsWith('mismatch')))
+  assert.ok(compared.rows.filter(row => row.phase === 'native-view-drag-warm').every(row => row.p50.status === 'unsupported-source-contract'))
+  // Each shard alone has a consistent arm, but the two shards disagree about
+  // that arm's emitted runtime. The whole report must reject the fallback.
+  for (const run of reports[1].runs) if (run.side === 'head') run.readers.provenance.bundleSha256 = 'f'.repeat(64)
+  const drifted = snapshot.compareReports(reports, identity)
+  assert.ok(drifted.rows.filter(row => row.phase !== 'native-view-drag-warm').every(row => row.p50.status === 'geometry-input-mismatch'))
+})

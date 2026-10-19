@@ -77,7 +77,7 @@ const templates = shapes.map(variants => variants.map(tokenize))
 export const readerContract = Object.freeze({ version: 1, id: 'three-nonnormalized-terrain-readers-v1', names, ...limits,
   semanticSha256: sha256(JSON.stringify({ version: 1, names, canonicalSources: shapes.map(variants => variants[0]) })) })
 
-function matches(tokens, template) {
+function matches(tokens, template, helperPositions = null) {
   const bindings = new Map(), used = new Set()
   let cursor = 0
   for (let index = 0; index < template.length; index++) {
@@ -94,10 +94,30 @@ function matches(tokens, template) {
         bindings.set(expected, actual)
         used.add(actual)
       } else if (bindings.get(expected) !== actual) return false
+      if (expected === '$helper') helperPositions?.push(cursor)
     } else if (actual !== expected) return false
     cursor++
   }
   return cursor === tokens.length
+}
+
+// A narrower proof than semantic equivalence: preserve all tokens, including
+// branch spelling and local bindings, except the inactive free helper identifier.
+// Never use this without strict own-data normalized === false and live reader,
+// import/callee, provenance, session and original geometry proof validation.
+export function inactiveHelperReaderSha256(sources) {
+  recognizeReaderSources(sources)
+  const projected = sources.map((source, index) => {
+    const tokens = tokenize(source)
+    for (const template of templates[index]) {
+      const positions = []
+      if (!matches(tokens, template, positions)) continue
+      for (const position of positions) tokens[position] = '$inactiveNormalizationHelper'
+      return tokens
+    }
+    unsupported()
+  })
+  return sha256(JSON.stringify(projected))
 }
 
 export function recognizeReaderSources(sources) {
