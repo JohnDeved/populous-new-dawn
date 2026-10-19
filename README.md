@@ -135,6 +135,27 @@ hand-written code should stay easy to inspect.
 
 ### TypeScript quality workflow
 
+`npm run typecheck` uses pinned TypeScript 7.0.2's native checker with one checker
+worker to limit parallelism on memory-constrained runners. `npm run check` and the existing CI gate use this same
+command. It checks the unchanged `tsconfig.json`; it does not replace Vite/Oxc's
+JavaScript transpilation or change gameplay performance.
+
+We install [Microsoft's side-by-side packages](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6-0):
+`@typescript/native` aliases `typescript@7.0.2`, while `typescript` aliases
+`@typescript/typescript6@6.0.2` (wrapping compiler 6.0.3 in the lockfile).
+Existing `import ts from 'typescript'` consumers
+and typescript-eslint keep the JavaScript compiler API, including AST inspection
+and `transpileModule`. Native TypeScript is not a drop-in replacement for that API.
+Both npm scripts invoke exact package entrypoints instead of relying on PATH or
+an ambiguous `tsc` binary. `npm run typecheck:legacy` runs the compatibility checker
+for diagnosis, not as a replacement for the native gate.
+
+Use `npm ci` with optional dependencies enabled: the native compiler's
+platform-specific executable is supplied by npm. No Go installation is required.
+For cold-check comparisons, pass `-- --incremental false` to both scripts and keep
+source, dependency and generated-type inputs identical. A killed or failed check
+is not a performance baseline; no speed or memory ratio is claimed by this upgrade.
+
 Use `npm run format` to format maintained app TypeScript with
 [ox-standard](https://github.com/JohnDeved/ox-standard), and `npm run format:check`
 to verify it. Generated level data and original asset JSON remain importer-owned.
