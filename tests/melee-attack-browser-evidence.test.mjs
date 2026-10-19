@@ -1,9 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
-  readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget,
-  publicMeleePauseKey, assertMeleePauseInputReady,
-  assertMeleeTransitionReceiptBinding, meleeTransitionMapping } from '../scripts/tutorial-browser/melee-attack.mjs'
+  readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
+import { spriteDirection } from '../app/projection.ts'
 import { minimapPick } from '../app/minimap.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
@@ -13,7 +12,8 @@ import units from '../app/original-units.json' with { type: 'json' }
 const mapping = {}
 for (const [action, row] of [['attack', 10], ['strike', 8], ['special', 16]]) {
   const [object, draw] = rules.animationObjects[rules.personAnimationObjects[row * 9 + 7]]
-  mapping[`shaman:${action}`] = { object, draw, step: rules.animationDescriptors[draw].step,
+  mapping[`shaman:${action}`] = { object, draw, step: rules.animationDescriptors[draw].step, frameCount: units.frameCounts[object],
+    duration: (rules.animationDescriptors[draw].step + 1) * units.frameCounts[object],
     directions: units.shamanSources[object] }
 }
 
@@ -30,75 +30,6 @@ test('public attack input presses Shift for the real click and releases it on su
       ? [['down', 'Shift'], ['up', 'Shift']]
       : [['down', 'Shift'], ['click', 818, 294], ['up', 'Shift']])
   }
-})
-
-test('public pause key is released after success or failure and requires actual canvas-focused attack', async () => {
-  for (const fail of [false, true]) {
-    const calls = [], page = { keyboard: {
-      async down(key) { calls.push(['down', key]); if (fail) throw Error('supplied key failure') },
-      async up(key) { calls.push(['up', key]) },
-    } }
-    if (fail) await assert.rejects(publicMeleePauseKey(page), /supplied key failure/)
-    else await publicMeleePauseKey(page)
-    assert.deepEqual(calls, [['down', 'Space'], ['up', 'Space']])
-  }
-  const state = { sceneStoreMatch: true, canvasFocused: true, dialogOpen: false, modifiers: [],
-    paused: false, speed: 1, inputMask: 0, mode: null, attack: { id: 54, action: 'special' } }
-  const before = structuredClone(state)
-  assert.doesNotThrow(() => assertMeleePauseInputReady(state, false)); assert.deepEqual(state, before)
-  assert.doesNotThrow(() => assertMeleePauseInputReady({ ...state, paused: true }, true))
-  for (const change of [{ canvasFocused: false }, { dialogOpen: true }, { modifiers: ['shift'] },
-    { mode: 'hut' }, { inputMask: 64 }, { paused: true }, { attack: null },
-    { attack: { id: 54, action: 'approach' } }])
-    assert.throws(() => assertMeleePauseInputReady({ ...state, ...change }, false))
-})
-
-test('transition acceptance binds actual public pause/resume receipts to the sampled anchor and renderer chronology', () => {
-  const extra = { fightGroup: 9, remaining: 1, animation: 'special', personId: 54,
-    personState: 25, personSpeed: 0, motionIsNative: false, flight: false }
-  const attack = { id: 54, action: 'special', started: 40, opponent: 20, object: 552, draw: 14, f1: 0, f2: 1, ...extra }
-  const state = { sceneStoreMatch: true, canvasFocused: true, dialogOpen: false, modifiers: [],
-    paused: true, speed: 1, inputMask: 0, mode: null, turn: 41, animationFrame: 82, stamp: 102, attack }
-  const report = { pauseBefore: { ...state, paused: false, stamp: 99 }, pauseAfter: { ...state, stamp: 101 },
-    resumeBefore: state, resumeAfter: { ...state, paused: false, stamp: 103 },
-    acceptance: { obligations: { pausedHold: { anchor: { ...attack, turn: 41, animationFrame: 82, stamp: 101 },
-      stamps: [101, 102] }, resumedOutcome: { after: { stamp: 103 } } } } }
-  const before = structuredClone(report)
-  assert.doesNotThrow(() => assertMeleeTransitionReceiptBinding(report)); assert.deepEqual(report, before)
-  for (const receipt of ['pauseAfter', 'resumeBefore']) {
-    for (const key of ['turn', 'animationFrame']) {
-      const wrong = structuredClone(report); wrong[receipt][key]++
-      assert.throws(() => assertMeleeTransitionReceiptBinding(wrong), /must match the public input receipt/)
-    }
-    for (const key of ['action', 'started', 'opponent', 'object', 'draw', 'f1', 'f2']) {
-      const wrong = structuredClone(report); wrong[receipt].attack[key] = key === 'action' ? 'strike' : attack[key] + 1
-      assert.throws(() => assertMeleeTransitionReceiptBinding(wrong), /must match the public attack receipt/)
-    }
-  }
-  for (const [receipt, stamp, error] of [['pauseBefore', 101, /follow the public pause/],
-    ['resumeAfter', 101, /precede the public resume/], ['resumeBefore', 103, /follow the public resume/]]) {
-    const wrong = structuredClone(report); wrong[receipt].stamp = stamp
-    assert.throws(() => assertMeleeTransitionReceiptBinding(wrong), error)
-  }
-  const wrong = structuredClone(report); wrong.resumeAfter.paused = true
-  assert.throws(() => assertMeleeTransitionReceiptBinding(wrong))
-
-  for (const receipt of ['pauseAfter', 'resumeBefore'])
-    for (const [key, value] of Object.entries(extra)) {
-      const wrong = structuredClone(report)
-      wrong[receipt].attack[key] = typeof value === 'boolean' ? !value : typeof value === 'number' ? value + 1 : 'idle'
-      assert.throws(() => assertMeleeTransitionReceiptBinding(wrong), /public transition receipt/)
-    }
-})
-
-test('transition expectations retain original attack durations and distinct movement and idle rows', () => {
-  const { attacks, successors } = meleeTransitionMapping()
-  assert.deepEqual(Object.values(attacks).map(m => [m.object, m.draw, m.frameCount, m.duration]),
-    [[456, 14, 4, 4], [456, 14, 4, 4], [552, 14, 5, 5]])
-  assert.deepEqual(Object.values(successors).map(m => [m.row, m.animationId, m.object, m.draw, m.frameCount]),
-    [[0, 20, 424, 14, 5], [1, 26, 616, 13, 8], [9, 20, 424, 14, 5]])
-  assert.deepEqual(successors.recoil.directions, successors.idle.directions,
-    'the same artwork cannot independently prove recoil ownership')
 })
 
 test('one fixed minimap corridor offset retains nearest input and scales backing pixels into CSS', () => {
@@ -367,38 +298,54 @@ test('supplied observer keeps same-frame crop metadata and counts only visible s
     world.turn = 41; world.units[0].fight.motion.f2 = 1; world.units[0].fight.motion.stamp = 41
     scene.renderer.info.render.frame = 102; scene.gameClock.animationFrame = 82; group.userData.frame = 999
     next()
-    assert.equal(result.samples.length, 3); assert.equal(result.crops.length, 1)
-    assert.equal(result.samples[2].cropFile, undefined, 'advancing running frames reserve the remaining crops for pause/resume')
-    assert.deepEqual(drawCalls, [{ stamp: 100, turn: 40, frame: 998, f2: 0 }])
+    assert.equal(result.samples.length, 3); assert.equal(result.crops.length, 2)
+    assert.equal(result.samples[2].cropFile, 'melee-attack-frame-1.png')
+    assert.deepEqual(drawCalls, [{ stamp: 100, turn: 40, frame: 998, f2: 0 }, { stamp: 102, turn: 41, frame: 999, f2: 1 }])
   })
 })
 
-test('transition observer labels actual pause state and reserves four phase-bound crops without World writes', () => {
-  withObserverFixture(({ world, scene, group, next, observation }) => {
-    next()
-    scene.renderer.info.render.frame++
-    next()
-    assert.equal(observation.result.crops.length, 1, 'only the first running frame spends the pre-pause crop')
-    world.paused = true
-    for (let visit = 0; visit < 3; visit++) { scene.renderer.info.render.frame++; next() }
-    assert.equal(observation.result.crops.length, 3, 'exactly two real paused renders spend held crops')
-    world.paused = false; world.turn++; world.units[0].fight.motion.f2 = 1; world.units[0].fight.motion.stamp = world.turn
-    scene.gameClock.animationFrame += 2; scene.renderer.info.render.frame++; group.userData.frame = 999
-    next()
-    const { samples, crops } = observation.result
-    assert.deepEqual(crops.map(crop => crop.phase), ['running-before-pause', 'public-paused-hold', 'public-paused-hold', 'running-after-resume'])
-    assert.deepEqual(samples.map(sample => sample.phase), ['running-before-pause', 'running-before-pause',
-      'public-paused-hold', 'public-paused-hold', 'public-paused-hold', 'running-after-resume'])
-    for (const sample of samples.filter(sample => sample.cropFile)) {
-      assert.equal(sample.bodyCanvasOwned, true); assert.equal(sample.bodyInCanvas, true); assert.equal(sample.cropOverlayClear, true)
-      assert.deepEqual(sample.cropVisibility.overlays, [])
-      assert.equal(sample.paused, sample.phase === 'public-paused-hold')
+test('running observer captures first four distinct poses and terminates on the fixed boundary, not success', () => {
+  withObserverFixture(({ world, scene, group, next, observation, pending, unrelated }) => {
+    for (let visit = 0; visit < 6; visit++) {
+      world.turn = 40 + visit; world.units[0].fight.motion.f2 = visit
+      scene.renderer.info.render.frame++; group.userData.frame = 998 + visit; next()
     }
-    assert.equal(observation.result.error, null)
+    assert.equal(observation.result.samples.length, 6)
+    assert.equal(observation.result.crops.length, 4)
+    assert.deepEqual(observation.result.samples.map(s => s.cropPlanned), [true, true, true, true, false, false])
+    assert.equal(observation.result.done, false, 'neither four crops nor an advancing pair ends the window')
+    world.turn = 50; scene.renderer.info.render.frame++; next()
+    assert.equal(observation.result.done, true); assert.equal(observation.result.samples.length, 6)
+    assert.deepEqual([...pending.keys()], [unrelated])
   })
 })
 
-test('transition canvas readback retains actual DOM ownership and overlapping HUD exclusion evidence', () => {
+test('missing first crop consumes its slot and cannot be replaced by a later eligible duplicate', () => {
+  withObserverFixture(({ scene, next, observation }) => {
+    const bounds = scene.picking.personBounds
+    scene.picking.personBounds = () => null; next()
+    scene.picking.personBounds = bounds; scene.renderer.info.render.frame++; next()
+    assert.equal(observation.result.samples[0].cropPlanned, true)
+    assert.equal(observation.result.samples[0].cropFile, undefined)
+    assert.equal(observation.result.samples[1].cropPlanned, false)
+    assert.equal(observation.result.crops.length, 0)
+  })
+})
+
+test('observer crop direction agrees with retained projection across signed headings and wrapping', () => {
+  withObserverFixture(({ world, scene, next, observation }) => {
+    for (const camera of [-65537, -32768, -2049, -1, 0, 255, 256, 2047, 32768, 65537])
+      for (const object of [-32769, -2048, -1, 0, 127, 128, 2048, 32767]) {
+        scene.cameraBearing = camera * Math.PI / 1024
+        world.units[0].heading = Math.PI - object * Math.PI / 1024
+        scene.renderer.info.render.frame++; next()
+        assert.equal(observation.result.samples.at(-1).direction, spriteDirection(
+          Math.round(scene.cameraBearing * 1024 / Math.PI), Math.round((Math.PI - world.units[0].heading) * 1024 / Math.PI)))
+      }
+  })
+})
+
+test('running canvas readback retains actual DOM ownership and overlapping HUD exclusion evidence', () => {
   withObserverFixture(({ next, observation }) => {
     const badge = { tagName: 'BUTTON', className: 'paused-badge',
       getBoundingClientRect: () => ({ x: 100, y: 90, width: 50, height: 50 }) }
@@ -411,40 +358,20 @@ test('transition canvas readback retains actual DOM ownership and overlapping HU
   })
 })
 
-test('transition observer captures the first advanced resumed phase even if invalid, without searching another attack', () => {
-  for (const action of ['approach', 'ready', 'recoil', 'special'])
-    withObserverFixture(({ world, scene, group, next, observation, pending, unrelated }) => {
-      const unit = world.units[0], fight = unit.fight, person = fight.motion
-      Object.assign(fight, { group: 9, opponent: 20, animation: 'strike', remaining: 3 })
-      Object.assign(person, { id: 54, class: 1, model: 7, state: 25, speed: 0, workFlags: 9, flags2: 0, flags4: 0 })
-      world.fights = [{ id: 9, members: [20, 54] }]
-      world.units.push({ id: 20, kind: 'shaman', fight: { group: 9, opponent: 54,
-        action: 'ready', started: 35, motion: { object: 424, draw: 14 } } })
-      group.userData.draw = 14
-      next()
-      world.turn++; person.stamp++; person.f2++; fight.remaining--; scene.gameClock.animationFrame += 2
-      scene.renderer.info.render.frame++; group.userData.frame = 999; next()
-      world.paused = true
-      for (let visit = 0; visit < 2; visit++) { scene.renderer.info.render.frame++; next() }
-      world.paused = false; scene.renderer.info.render.frame++; next()
-      assert.equal(observation.result.done, false, 'same-turn resumed render is retained but not progress')
-      world.turn = 43; person.stamp = 43; scene.gameClock.animationFrame = 86
-      Object.assign(fight, { action, animation: action === 'recoil' ? 'recoil' : 'strike', remaining: null })
-      if (action === 'special') fight.started = 43
-      if (action === 'recoil') fight.nativeAttackAnimation = false
-      if (action === 'ready') fight.motion = { ...person }
-      scene.renderer.info.render.frame++; next()
-      const last = observation.result.samples.at(-1)
-      assert.equal(last.action, action); assert.equal(last.phase, 'running-after-resume')
-      assert.equal(last.cropFile, 'melee-attack-frame-3.png')
-      assert.equal(last.fightGroup, 9); assert.equal(last.renderedDraw, 14)
-      assert.equal(last.personIdentityMatch, action !== 'ready')
-      assert.equal(last.fightMotionSourceAdmitted, action === 'approach' || action === 'special')
-      assert.equal(last.opponentFight.id, 20); assert.equal(last.opponentFight.remaining, null)
-      assert.equal(observation.result.done, true); assert.equal(observation.result.error, null)
-      assert.deepEqual([...pending.keys()], [unrelated], 'no later attack may substitute for this terminal sample')
-      assert.equal(observation.result.crops.length, 4)
-    })
+test('running observer rejects an unexpected pause and ends at the boundary even outside an attack', () => {
+  withObserverFixture(({ world, scene, next, observation }) => {
+    next(); world.paused = true; scene.renderer.info.render.frame++; next()
+    assert.equal(observation.result.done, true)
+    assert.match(observation.result.error, /unexpectedly paused/)
+  })
+  withObserverFixture(({ world, scene, next, observation }) => {
+    next(); world.units[0].fight.action = 'approach'
+    world.turn = 49; scene.renderer.info.render.frame++; next()
+    assert.equal(observation.result.done, false)
+    world.turn = 50; scene.renderer.info.render.frame++; next()
+    assert.equal(observation.result.done, true); assert.equal(observation.result.error, null)
+    assert.equal(observation.result.samples.length, 1, 'no successor substitutes for attack artwork')
+  })
 })
 
 test('supplied observer stops on Scene replacement and cancels only its own RAF', () => {
