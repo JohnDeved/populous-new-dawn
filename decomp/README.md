@@ -2344,8 +2344,8 @@ compares 82,780 coloured GPU pixels at 1:1 resolution (RGB rounding tolerance 1)
 Native-resolution comparison avoids driver-dependent nearest-sampling decisions
 at scaled texel boundaries; it does not certify bit-identical scaled rasterization.
 A deliberate wrong-atlas UV mutation was rejected by this check. Existing live
-selection and real Blast shadow/landing checks also pass. Broader animation-state
-ownership and all original tribes/classes are not certified by these fixtures.
+selection and real Blast shadow/landing checks also pass.
+Broader animation-state ownership and all original tribes/classes remain unverified by these fixtures.
 
 
 ## Focus commands preserve the current camera
@@ -5023,6 +5023,8 @@ the imported layered unit atlas. The browser check observes shaman respawn plus
 ordinary corpse pixels, frames, rise, hidden wait and deletion. Static-site timing,
 relocation, particles/audio, general class-10 scheduling and unplayable follower
 models remain open.
+
+[Support audit](research/shaman-death-support.md) and [burst reconciliation](research/reincarnation-final-burst.md) retain bounded static/supplied-state evidence, not runtime/parity proof.
 
 ### 2026-10-05 — grounded Shaman spirit follows changing terrain
 
