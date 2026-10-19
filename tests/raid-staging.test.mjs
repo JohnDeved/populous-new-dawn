@@ -16,7 +16,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     })
     t.diagnostic(result.stdout)
     assert.equal(result.error, undefined)
-    assert.match(result.stdout, /tests 51\b/, 'all fifty-one child cases must report')
+    assert.match(result.stdout, /tests 77\b/, 'all seventy-seven child cases must report')
     assert.equal(result.status, 0, result.stderr + result.stdout)
   })
 } else {
@@ -91,6 +91,19 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     { name: 'Mission 6 lost Matak target returns to loaded origin', level: 6, tribe: 3, phase: 17, expected: 0x72d8, },
     { name: 'Mission 6 outbound target remains independent', level: 6, tribe: 2, phase: 9, expected: 0xd094, move: 0x2468, },
     { name: 'Mission 6 regroup target remains independent', level: 6, tribe: 3, phase: 12, expected: 0x72d8, move: 0x1357, },
+    ...['direct', 'modern', 'legacy'].flatMap(checkpoint =>
+      ['moved', 'dead', 'missing'].flatMap(shaman => [true, false].map(defence => ({
+        name: `Mission 4 loaded origin with ${shaman} Shaman, defence ${defence ? 'on' : 'off'}, ${checkpoint}`,
+        level: 4, tribe: 3, checkpoint, shaman, defence, expected: 0x36b6,
+      })))),
+    { name: 'Mission 4 quota recruitment receives loaded origin', level: 4, tribe: 3, phase: 3, quota: true, expected: 0x36b6 },
+    { name: 'Mission 4 fallback recruitment receives loaded origin', level: 4, tribe: 3, phase: 3, expected: 0x36b6 },
+    { name: 'Mission 4 below-quota retreat returns to loaded origin', level: 4, tribe: 3, phase: 16, retreat: true, expected: 0x36b6 },
+    { name: 'Mission 4 finished raid returns to loaded origin', level: 4, tribe: 3, phase: 16, expected: 0x36b6 },
+    { name: 'Mission 4 lost target returns to loaded origin', level: 4, tribe: 3, phase: 17, expected: 0x36b6 },
+    { name: 'Mission 4 saved established zero still wins', level: 4, tribe: 3, base: 0, checkpoint: 'modern', expected: 0 },
+    { name: 'Mission 4 outbound target remains independent', level: 4, tribe: 3, phase: 9, expected: 0x36b6, move: 0x2468 },
+    { name: 'Mission 4 regroup target remains independent', level: 4, tribe: 3, phase: 12, expected: 0x36b6, move: 0x1357 },
     { name: 'later Mission 5 retains enabled defence fallback', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, expected: 0x8232 },
     { name: 'later Mission 5 retains live Shaman fallback', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, defence: false, expected: 0x2020 },
   ]
