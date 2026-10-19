@@ -117,3 +117,21 @@ test('prospective setup and verified-input phase budgets preserve exact threshol
  assert(source.includes("assert(!boundClose,'Expired setup cannot gain a new budget')"))
  assert(source.includes('()=>assertTempleTrainInput(delivered,98,121)'))
 })
+
+test('retirement uses retained authored identity after roster removal and rejects false replacements',async()=>{
+ const {readTrainingRetirement}=await import('./firewarrior-selection.mjs')
+ const original={id:121,kind:'brave',team:'blue',hp:0},fresh={id:171,kind:'firewarrior',team:'blue',hp:35,inside:null},authored={...fresh,id:90}
+ const snapshot={trained:1,record:null,latch:false,reservations:0,dom:{present:false,hidden:true}}
+ const epoch={traineeObject:original,initialFirewarriors:[90],snapshot:()=>snapshot},world={turn:392,units:[authored,fresh]}
+ const read=()=>readTrainingRetirement({epoch,world})
+ const before=structuredClone({world,original,snapshot});assert.equal(read().complete,true);assert.deepEqual({world,original,snapshot},before)
+ assert.deepEqual(read().fresh,[{id:171,kind:'firewarrior',hp:35,inside:null}])
+ epoch.traineeObject={...original,hp:50};assert.equal(read().complete,false)
+ epoch.traineeObject=null;assert.equal(read().complete,false)
+ epoch.traineeObject=original;world.units.push({...original,hp:50});assert.equal(read().complete,false);world.units.pop()
+ world.units.push({...fresh,id:172});assert.equal(read().complete,false);world.units.pop()
+ world.units=[authored];assert.equal(read().complete,false);world.units=[authored,fresh]
+ for(const [key,value] of [['trained',0],['record',{phase:2}],['latch',true],['reservations',1],['dom',{present:true,hidden:false}]]){
+  const previous=snapshot[key];snapshot[key]=value;assert.equal(read().complete,false,key);snapshot[key]=previous
+ }
+})

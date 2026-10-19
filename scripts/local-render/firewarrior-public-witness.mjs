@@ -152,12 +152,17 @@ export default async function firewarriorPublicWitness({ page, root, output, sig
     report.firstRequest=first
     await waitFor('retained phase1 after pointer departure',()=>{const s=window.firewarriorPublicEpoch.snapshot();return s.record?.phase===1&&s.offTarget&&!s.dom.hidden&&s.target.admission.activity&128})
     await capture('active-off-pointer',1)
-    await waitFor('natural conversion and automatic exit',()=>{
-      const s=window.firewarriorPublicEpoch.snapshot(),w=window.testSceneRef.current.world
-      const old=w.units.find(u=>u.id===121),fresh=w.units.filter(u=>u.team==='blue'&&u.kind==='firewarrior'&&u.hp>0&&!window.firewarriorPublicEpoch.initialFirewarriors.includes(u.id))
-      return s.trained===1&&old?.hp===0&&fresh.length===1&&!s.record&&!s.latch&&!s.reservations&&(!s.dom.present||s.dom.hidden)
-    })
-    report.conversion=await page.evaluate(()=>{const w=window.testSceneRef.current.world;return{turn:w.turn,old:w.units.filter(u=>u.id===121).map(u=>({id:u.id,hp:u.hp,kind:u.kind})),fresh:w.units.filter(u=>u.team==='blue'&&u.kind==='firewarrior'&&u.hp>0&&!window.firewarriorPublicEpoch.initialFirewarriors.includes(u.id)).map(u=>({id:u.id,hp:u.hp,kind:u.kind,inside:u.inside}))}})
+    for(;;) {
+      await guard()
+      report.lastConversion=await page.evaluate(async()=>{
+        const {readTrainingRetirement}=await import('/scripts/local-render/firewarrior-selection.mjs')
+        return readTrainingRetirement({epoch:window.firewarriorPublicEpoch,world:window.testSceneRef.current.world})
+      })
+      save() // Preserve the last read-only diagnosis even if the watchdog closes the page.
+      if(report.lastConversion.complete)break
+      await page.waitForTimeout(25)
+    }
+    report.conversion=report.lastConversion
     await capture('converted-and-retired')
     report.status='passed'
   } catch (error) {

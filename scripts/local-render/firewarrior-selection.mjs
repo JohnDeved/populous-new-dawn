@@ -154,3 +154,11 @@ export async function selectAuthoredBrave({page,input,guard,report,save}) {
     return report.firstSelection
   }
 }
+
+// Read-only terminal evidence retains original identity after World removes its dead roster entry.
+export function readTrainingRetirement({epoch,world}) {
+  const snapshot=epoch.snapshot(),original=epoch.traineeObject
+  const state={turn:world.turn,trained:snapshot.trained,original:original?{id:original.id,kind:original.kind,team:original.team,hp:original.hp}:null,livingOriginal:world.units.filter(u=>u.id===121&&u.hp>0).map(u=>({id:u.id,kind:u.kind,hp:u.hp})),fresh:world.units.filter(u=>u.team==='blue'&&u.kind==='firewarrior'&&u.hp>0&&!epoch.initialFirewarriors.includes(u.id)).map(u=>({id:u.id,kind:u.kind,hp:u.hp,inside:u.inside})),record:snapshot.record,latch:snapshot.latch,reservations:snapshot.reservations,dom:snapshot.dom,admission:snapshot.target?.admission??null}
+  state.complete=state.trained===1&&state.original?.id===121&&state.original.kind==='brave'&&state.original.team==='blue'&&state.original.hp===0&&state.livingOriginal.length===0&&state.fresh.length===1&&!state.record&&!state.latch&&!state.reservations&&(!state.dom.present||state.dom.hidden)
+  return state
+}
