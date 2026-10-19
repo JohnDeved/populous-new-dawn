@@ -88,3 +88,40 @@ computed cursor URL/hotspot, ordinary picking, source natural size and standard/
 wide/high-DPI/failure behavior. OS cursors usually do not appear in browser
 screenshots, so screenshots alone cannot prove the cursor pixels. No native
 runtime, full cursor-state, performance or parity-percentage claim is made.
+
+## Integration source-contract and constructor-fixture review
+
+Full run `39212181938` on integration `b88bdf1c` exposed two validation
+integration gaps: drag source admission rejected the changed `frame-order`
+slice, and the real-constructor numeric-terrain fixture had no canvas
+`ownerDocument`. Neither failure establishes a runtime cursor or picking defect.
+
+The new `owned-numeric-terrain-neutral-cursor-v1` route preserves the historical
+16-slice generic/owned profiles verbatim. It binds the reviewed new frame-order
+hash and the complete `neutral-cursor.ts` owner (17 slices total). The other 15
+owned numeric slices are byte-identical. Review of the frame delta establishes:
+
+- Losing current-scene ownership or entering modal suspension only resets CSS
+  cursor ownership; no picking/projection/terrain state is written.
+- The former short-circuit tooltip-cancellation expression is evaluated in the
+  same order and retained as a boolean. Its cancellation still precedes view,
+  unit and pointer work.
+- Simulation, terrain/view updates, unit selection aggregation, pointer update,
+  placement and render ordering are unchanged; the cursor update follows the
+  existing pointer update. A held-right drag cannot install the neutral cursor:
+  both the captured pointer point and the predicate exclude held buttons.
+- The cursor owner only reads scene state and changes/restores canvas CSS. It does
+  not mutate projection leases, geometry, game selection, pointer picking or
+  query results. All original source-bound mutation checks remain, with explicit
+  new checks for removing the held-button exclusion or reordering cursor/pointer.
+- Added cursor work remains part of total frame cost, including `pointerMs` for
+  the post-pointer update. This admission is a reviewed source/ownership claim,
+  not performance equivalence or reuse of old measured timing evidence.
+
+The constructor fixture now supplies EventTarget document/window leaves, actual
+canvas document ownership, and a successfully decoded 17×17 cursor image. It
+awaits the unchanged real scene readiness, verifies cursor decoding/listener
+installation, and verifies image/listener cleanup on real scene disposal. No
+production branch, cursor preparation, terrain ownership, or query assertion is
+bypassed. Decode failure/timeout behavior remains covered by the focused cursor
+suite; this fixture specifically exercises successful preparation.
