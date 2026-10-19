@@ -53,6 +53,9 @@ function fixture(initialSkin, preparedFrontend, preparedIngame) {
   }
   const component = { exports: {} }
   new Function('require', 'module', 'exports', 'Image', emitted)(name => {
+    // Tooltip lifecycle/art is covered by menu-tooltip.test.mjs; this fixture
+    // renders only the Options owner and leaves child components unevaluated.
+    if (name === './menu-tooltip') return { MenuTooltip: () => null }
     if (name === 'react') return react
     if (name === 'react/jsx-runtime') return require(name)
     if (name.endsWith('.json')) return JSON.parse(readFileSync(new URL('../app/' + name.slice(2), import.meta.url)))

@@ -138,7 +138,7 @@ test('Graphics and Direct3D publish the native no-gamma rows and full navigation
 const textFunction = optionsSource.statements.find(
   node => ts.isFunctionDeclaration(node) && node.name?.text === 'Text'
 )
-const render = new Function('React', 'useEffect', 'useMemo', 'useRef', 'useState', 'frontend', 'ingame', 'styles', 'props',
+const render = new Function('MenuTooltip', 'React', 'useEffect', 'useMemo', 'useRef', 'useState', 'frontend', 'ingame', 'styles', 'props',
   ts.transpileModule([
     ...['categories', 'fontBanks', 'unavailableRows'].map(declaration),
     textFunction.getText(optionsSource),
@@ -153,11 +153,11 @@ function renderOptions(skin, category, highlight = null) {
     createElement(type, props, ...children) {
       const element = typeof type === 'function'
         ? type({...props, children}) : {type, props: props ?? {}, children}
-      nodes.push(element)
+      if (element) nodes.push(element)
       return element
     },
   }
-  render(React, (run, dependencies) => effects.push({run, dependencies}), make => make(),
+  render(() => null, React, (run, dependencies) => effects.push({run, dependencies}), make => make(),
     () => ({current: {querySelector: selector => ({focus: () => focus.push(selector)})}}),
     () => [state.shift(), () => {}], frontend, ingame, new Proxy({}, {get: (_, key) => key}), {
       skin, volume: .35, musicVolume: .65, storageNotice: '', gameStorageNotice: '',
@@ -174,7 +174,9 @@ test('both skins render unsupported rows as inert notes and focus the full selec
     assert.deepEqual(notes.map(node => [node.props['aria-label'], node.props.style.top]), expected.map(row => [row.text, row.y]))
     for (const note of notes) {
       assert.equal(note.type, 'div')
-      assert.equal(note.props.tabIndex, undefined)
+      assert.equal(note.props.tabIndex, 0)
+      assert.equal(note.props['data-menu-tooltip'], note.props['aria-description'])
+      assert.match(note.props['aria-description'], /not available in the browser version/)
       assert.equal(note.props.disabled, undefined)
       assert.equal(Object.keys(note.props).some(key => /^on[A-Z]/.test(key)), false)
       const text = note.children[0]
@@ -207,5 +209,50 @@ test('Direct3D Options has room for all 245 original glyph pixels in both fonts 
     const nav = nodes.find(node => node.props['data-option-key'] === 'Direct3D')
     assert.equal(nav.children[0].props.style.opacity, 1)
     assert.match(nav.children[0].children[0][0].props.style.backgroundImage, skin === 'ingame' ? /pause-font/ : /frontend\/fehi33we/)
+  }
+})
+
+
+test('Options keeps explanatory copy on keyboard-accessible selector tooltips, not persistent paragraphs', () => {
+  for (const skin of ['frontend', 'ingame']) for (const category of ['Game', 'Sound', 'Graphics', 'Direct3D']) {
+    const {nodes} = renderOptions(skin, category)
+    assert.equal(nodes.some(node => node.type === 'p'), false)
+    const targets = nodes.filter(node => node.props['data-menu-tooltip'])
+    assert.ok(targets.length >= 2)
+    for (const target of targets) {
+      assert.equal(target.props['aria-description'], target.props['data-menu-tooltip'])
+      assert.ok(target.type === 'button' || target.type === 'input' || target.props.tabIndex === 0)
+      if (target.props.role === 'note') assert.equal(target.props.onClick, undefined)
+    }
+    const browser = nodes.find(node => 'data-compatibility' in node.props)
+    assert.equal(browser.type, 'button')
+    assert.equal(browser.children[0], 'Browser compatibility and help')
+    assert.equal(typeof browser.props.onClick, 'function')
+    if (category === 'Game') {
+      for (const key of ['rotation', 'flipRotation']) {
+        assert.equal(typeof nodes.find(node => node.props['data-option-key'] === key).props.onClick, 'function')
+      }
+    }
+    if (category === 'Sound') {
+      const sliders = nodes.filter(node => node.props.type === 'range')
+      assert.deepEqual(sliders.map(node => node.props.value), [.35, .65])
+      assert.ok(sliders.every(node => typeof node.props.onChange === 'function'))
+    }
+  }
+  const css = readFileSync(new URL('../app/original-options.module.css', import.meta.url), 'utf8')
+  const browserStyle = css.match(/\.browserLink \{([^}]+)\}/)[1]
+  assert.match(browserStyle, /background: transparent/)
+  assert.match(browserStyle, /Georgia,serif/)
+})
+
+test('all Options tooltip text fits the original selector font within its reference frame', () => {
+  const {fonts} = JSON.parse(readFileSync(new URL('../public/original/world-selector/text/provenance.json', import.meta.url)))
+  for (const category of ['Game', 'Sound', 'Graphics', 'Direct3D']) {
+    const {nodes} = renderOptions('frontend', category)
+    for (const node of nodes.filter(node => node.props['data-menu-tooltip'])) {
+      const glyphs = [...node.props['data-menu-tooltip']].map(letter => fonts.tooltip.glyphs[letter.charCodeAt(0) - 32])
+      assert.ok(glyphs.every(Boolean))
+      assert.ok(glyphs.reduce((sum, glyph) => sum + glyph.advance, 0) < 620)
+    }
   }
 })

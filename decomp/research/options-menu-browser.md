@@ -96,3 +96,23 @@ and three distinct Escapes return one level each without duplicate cancellation.
 [Comparable before/after screenshots](../../references/ui-options/README.md) retain
 exact capture commits and limitations. Native defaults, Game/Graphics/Direct3D
 adapters, sound-quality behavior and full original settings persistence remain open.
+
+
+## October 19, 2026: quiet Options presentation
+
+The original Game/Sound/Graphics/Direct3D composition no longer carries permanent
+browser explanatory paragraphs. Essential unavailable-setting, keyboard-rotation,
+and audio guidance uses the shared selector-style tooltip with its existing dwell,
+placement, settled typography and readable fallback. Unsupported rows remain inert
+notes with explicit Unavailable labels; they now receive keyboard focus so their
+same explanation is available without a pointer. Accessible descriptions retain
+that explanation independently of the visual tooltip. Category changes remount the
+tooltip, and entering browser help unmounts it, preventing stale row guidance.
+
+Browser compatibility and help remains a separate, explicitly browser-only
+accessible destination, but its entry uses transparent gold serif text instead of
+the generic dark button. The destination, all supported controls, persisted values,
+storage-failure notices, Escape/Back navigation and audio retry are unchanged.
+This is presentation cleanup, not a native option implementation or new parity claim.
+Source/fixture tests cover both skins and all categories; current rendered evidence
+must come from the parent's hosted checks because local browser execution is blocked.
