@@ -85,8 +85,8 @@ const glyphs = provenance.fonts.tooltip.glyphs
 const atlas = '/original/world-selector/text/tooltip-font-c.png'
 
 function MenuTooltipText({ text, ready }: { text: string; ready: boolean }) {
-  // Freeze typography for this visible tooltip. A late decode can improve the
-  // next hover, but must never replace fallback text under the user's pointer.
+  // Freeze typography for this visible tooltip even if a caller replaces its
+  // prepared snapshot. Never replace fallback text under the user's pointer.
   const [useArtwork] = useState(ready)
   if (!useArtwork) return <>{text}</>
   return (
@@ -109,23 +109,16 @@ function MenuTooltipText({ text, ready }: { text: string; ready: boolean }) {
   )
 }
 
-export function MenuTooltip({ container }: { container: RefObject<HTMLElement | null> }) {
+export function MenuTooltip({
+  container,
+  ready = false,
+}: {
+  container: RefObject<HTMLElement | null>
+  ready?: boolean
+}) {
+  // Loading belongs to Home's bounded preparation, shared by both menu skins.
+  // Unprepared callers remain usable with a stable fallback, never hidden I/O.
   const state = useMenuTooltip(container, 'data-menu-tooltip')
-  const [ready, setReady] = useState(false)
-  useEffect(() => {
-    let active = true
-    const image = new Image()
-    image.src = atlas
-    void image
-      .decode()
-      .then(() => {
-        if (active) setReady(true)
-      })
-      .catch(() => {})
-    return () => {
-      active = false
-    }
-  }, [])
   if (!state || !container.current) return null
   const letters = Array.from(state.value, letter => glyphs[letter.charCodeAt(0) - 32] ?? glyphs[31])
   const width = letters.reduce((sum, glyph) => sum + glyph.advance, 0)

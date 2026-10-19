@@ -351,7 +351,11 @@ export function OriginalMainMenu({
           </nav>
         )}
         {panel === 'main' && (
-          <MenuTooltip key={`${hasCheckpoint}:${checkpointReadStatus}`} container={frame} />
+          <MenuTooltip
+            key={`${hasCheckpoint}:${checkpointReadStatus}`}
+            container={frame}
+            ready={prepared.tooltip}
+          />
         )}
         {panel === 'options' && renderOptions(back, setOptionRows)}
         {panel === 'main' && checkpointReadStatus !== 'read' && checkpointReadStatus !== 'idle' && (

@@ -77,7 +77,8 @@ function fixture(initialSkin, preparedFrontend, preparedIngame) {
       : skin === 'frontend' ? request.src.includes('/frontend/') : request.src.includes('/pause-font.'))
   }
   function state() {
-    const texts = tree(output).filter(node => typeof node?.type === 'function' && 'ready' in node.props)
+    // Inspect the Options label font owner, not the independently prepared tooltip.
+    const texts = tree(output).filter(node => node?.type?.name === 'Text')
     assert.ok(texts.length)
     return { text: texts.every(node => node.props.ready), sliders: output.props['data-art-ready'], rows: publications.at(-1) }
   }

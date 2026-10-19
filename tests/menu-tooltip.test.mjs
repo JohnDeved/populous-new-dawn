@@ -137,22 +137,18 @@ test('rendered native glyph widths equal advances and longest unavailable reason
   assert.ok(308 < 640)
 })
 
-test('atlas decoder failure does not block navigation and late completion cannot publish after unmount', async () => {
+test('prepared tooltip rendering never decodes again on category changes or reopen', () => {
   const component = source.slice(source.indexOf('export function MenuTooltip({')).replace('export function','function')
   const js = ts.transpileModule(component, { compilerOptions: { target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React } }).outputText
-  for (const outcome of ['success', 'failure', 'unmounted-success', 'unmounted-failure']) {
-    let resolve, reject, effect
-    const publications = []
-    const promise = new Promise((yes,no)=>{resolve=yes;reject=no})
-    class Image { decode() { return promise } }
-    const render = Function('useMenuTooltip','useState','useEffect','Image','atlas',js+'\nreturn MenuTooltip')(
-      ()=>undefined, ()=>[false,value=>publications.push(value)], fn=>{effect=fn},Image,'atlas')
-    assert.equal(render({container:{current:null}}),null,'pending art never blocks menu render')
-    const cleanup=effect()
-    if (outcome.startsWith('unmounted')) cleanup()
-    if (outcome.endsWith('success')) resolve(); else reject(new Error('Missing atlas'))
-    await Promise.resolve(); await Promise.resolve()
-    assert.deepEqual(publications,outcome==='success'?[true]:[])
-    cleanup()
+  const React = { createElement: (type, props, ...children) => ({ type, props, children }) }
+  const state = { value:'Unavailable', x:320, y:240, started:1 }
+  const render = Function('useMenuTooltip','React','glyphs','menuTooltipPosition','styles','MenuTooltipText','Image','useEffect',js+'\nreturn MenuTooltip')(
+    ()=>state, React, provenance.fonts.tooltip.glyphs, menuTooltipPosition, {}, 'MenuTooltipText',
+    class { constructor() { assert.fail('visible menus must never restart image loading') } },
+    ()=>assert.fail('tooltip rendering must not own loading effects'))
+  const container={current:{getBoundingClientRect:()=>({left:0,top:0,width:640,height:480})}}
+  for (const ready of [true,false,undefined]) for (const visit of ['main','Game','Sound','Graphics','Direct3D','back','reopen']) {
+    const result=render({container,ready})
+    assert.equal(result.children[0].props.ready, ready ?? false, `${visit} uses settled preparation or explicit fallback`)
   }
 })

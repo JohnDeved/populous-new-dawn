@@ -459,7 +459,7 @@ export function OriginalOptions({
               )}
           </nav>
           {choice('Back', 320, 454, onBack)}
-          <MenuTooltip key={category} container={root} />
+          <MenuTooltip key={category} container={root} ready={prepared?.tooltip ?? false} />
         </>
       )}
     </section>
