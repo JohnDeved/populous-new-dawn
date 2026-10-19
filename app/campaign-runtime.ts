@@ -34,6 +34,39 @@ export const campaignShamanTeams = (w: World) =>
 export const campaignTribe = (w: World) => w.activeCampaignTribe
 export const campaignTeam = (_w: World, tribe: number) => teamForTribe(tribe)
 
+// Missing/malformed history retains the complete prior selection adapter. A
+// present zero is authoritative; Load cannot reconstruct a historical maximum.
+export function knownConstructionHistory(w: World) {
+  const { ai } = w
+  return (
+    [1, 2, 3].includes(w.outcome.level) &&
+    Number.isInteger(ai.constructionRadius) &&
+    ai.constructionRadius! >= 0 &&
+    ai.constructionRadius! <= 255 &&
+    Array.isArray(ai.constructionBuildings) &&
+    ai.constructionBuildings.every(
+      b => b && Number.isInteger(b.id) && Number.isFinite(b.x) && Number.isFinite(b.z)
+    )
+  )
+}
+
+// 0x4ecac0's tribe +0x885/+8 list, projected from the maintained active-building
+// adapter. Class-9 preparation and models18/19 are excluded; incomplete class2
+// remains eligible. Keep references so subsequent removal/coordinate changes
+// remain visible until the next rebuild. Tornado allocation history is separate.
+export function rebuildConstructionBuildings(w: World) {
+  if (![1, 2, 3].includes(w.outcome.level)) return
+  for (const [tribe, ai] of w.campaignAIs.entries())
+    if (ai)
+      ai.constructionBuildings = w.buildings.filter(
+        b =>
+          tribeForTeam(b.team) === tribe &&
+          b.hp > 0 &&
+          !b.preparation &&
+          ![18, 19].includes(buildingModel(b))
+      )
+}
+
 export function withCampaignTribe<T>(w: World, tribe: number, run: (ai: CampaignAI) => T) {
   const ai = w.campaignAIs[tribe]
   if (!ai) throw new Error(`Missing campaign AI for tribe ${tribe}`)

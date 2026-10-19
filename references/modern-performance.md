@@ -1,5 +1,10 @@
 # Modernization audit
 
+Historical result files linked to the immutable pre-cleanup commit are archived
+there rather than tracked in this checkout. Their measurements and limitations
+remain historical, not current benchmark claims. Local parity evidence and the
+early-projection reproduction patch remain tracked and protected.
+
 Status: in progress. Latest 2026-09-09 direction: finish the current terrain
 optimization, then resume important gameplay and visual parity. Continue this
 audit alongside feature work; unfinished items remain explicit. Preserve mechanics, intended timing, input response and
@@ -31,6 +36,64 @@ experienced-player expectations while improving performance and presentation.
   become smoother, without changing rules or responsiveness.
 - Keep native comparisons and gameplay regressions. Document any compatibility
   correction rather than disguising it as exact original behavior.
+
+## Interpreting an F8 frame export
+
+After capturing gameplay with F8 open, choose **Export recent frames** and analyze
+that local JSON file with Node 22.13+ from the repository root:
+
+```sh
+node scripts/analyze-frame-export.mjs /path/to/populous-frames.json
+```
+
+The offline command prints JSON only to stdout and never uploads or modifies the
+input. Redirect stdout yourself if you want a saved summary. It validates the v1
+capture, reports sample count/span, available commit/level provenance, and
+mean/p50/p95/max CPU and RAF durations. It also lists worst RAF/callback/pointer
+frames, up to ten distinct spike contexts with two neighboring frames per side,
+and separate RAF/callback counts above 8.33 and 16.67 ms. These are diagnostic
+thresholds, not display-FPS guarantees; a RAF gap ends at its timestamp, whereas
+CPU timings describe the callback at that timestamp. Callback stages are ranked separately from
+nested pointer phases: **do not add overlapping timings**. Missing breakdowns are
+not treated as zero. Read the warnings, including signed residuals and deferred
+layout attribution; these exports alone do not establish GPU time, presented FPS,
+or a controlled before/after performance improvement.
+
+The optional v1 `pointerBreakdown.ordinaryTerrain` detail is F8-only and nested
+inside `terrainPickMs` (and possibly `tooltipInputMs`). `visibilityMs` covers each
+mesh's world-matrix update and visibility preparation. `projectionMs` covers
+per-instance vertex scratch preparation, deduplication and projection, after
+instance transform/culling; `triangleScanMs` covers the triangle loop including
+candidate creation; `resolutionMs` covers final painter-depth resolution. These
+phases do not exhaust the inclusive pick time: traversal, transforms/culling,
+DOM coordinate conversion and instrumentation overhead remain outside them.
+Overview inverse picking has no mesh phases. Counters report actual screen
+projections and entered triangle-loop iterations, including rejected triangles,
+not submitted triangles or accepted hits. No timers run when diagnostics are off;
+there are no per-triangle timer reads. Optional absent detail remains absent in
+old v1 captures; bounded ring storage snapshots the new fields independently.
+
+Optional `pointerBreakdown.interaction` v1 adds bounded, F8-only context:
+- `route`: the actual tooltip input route grouped into world, HUD (including
+  panels/messages), outside, or unknown. It is routing evidence, not a physical
+  hit-test guarantee while a pointer is captured.
+- `pointerMoved`: whether the sampled pointer position changed since the last
+  diagnostic pointer sample. Null means no comparable position or first sample.
+- `viewChanged`: whether existing camera/view/viewport invalidation inputs changed
+  since that sample. This includes zoom, transition, overview and resize, not just
+  camera translation. Simulation turns alone do not set it.
+- `dragQuery` and `placementQuery`: whether this pointer update actually issued
+  the corresponding ordinary terrain query (including misses; placement includes
+  spell targeting). They do not merely indicate a selected tool or held button.
+- `sharedTerrain`: whether tooltip cell lookup actually consumed the drag/placement
+  terrain result, including a miss.
+
+No coordinates, object IDs or text are exported. Comparisons use the last recorded
+pointer sample, which may precede a hidden/menu gap; reopening F8 starts an unknown
+baseline. Motion between samples that returns to the same position is invisible.
+Unknown/menu samples are not evidence of a stationary pointer. Old captures omit
+this record. Context does not establish matched worlds, gesture paths, rendering
+hardware or a controlled before/after workload.
 
 ## Completed local optimization: minimap palette conversion
 
@@ -91,8 +154,8 @@ node scripts/profile-game.mjs /tmp/indexed.json
 ```
 
 The flag restores the full-submission path inside the test page; all other code
-is identical. Raw reports: [full terrain](performance/2026-09-09-full-terrain.json)
-and [indexed terrain](performance/2026-09-09-indexed-terrain.json).
+is identical. Raw reports: [full terrain](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-full-terrain.json)
+and [indexed terrain](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-indexed-terrain.json).
 Measured Apple M5/macOS arm64, Node v24.18.0, headless Chrome 153, SwiftShader
 Vulkan, 1440×1000/DPR 1. Each scenario settles for one second and samples four
 seconds. The crowd adds 200 stationary braves for renderer stress.
@@ -221,8 +284,8 @@ frames at each cadence. GPU drawing is intentionally excluded from this CPU
 microbenchmark; it cannot certify total frame time or hardware FPS.
 
 Separate whole-frame diagnostic reports are retained for
-[stepped](performance/2026-09-09-stepped-camera.json) and
-[smooth](performance/2026-09-09-smooth-camera.json) camera modes, selectable with
+[stepped](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-stepped-camera.json) and
+[smooth](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-smooth-camera.json) camera modes, selectable with
 `profile-game.mjs --stepped-camera`. Those runs were noisy: the unchanged opening
 workload also became slower in the second process, and rotation CPU medians were
 5.6 versus 9.8 ms. They do **not** establish unchanged whole-game performance.
@@ -236,14 +299,14 @@ The final isolated measurements (Apple M5, macOS arm64, headless Chrome 153) are
 | 60 Hz | 0.01058 ms | 0.01175 ms | 1.17 microseconds |
 | 240 Hz | 0.00983 ms | 0.01058 ms | 0.75 microseconds |
 
-[Raw alternating CPU batches](performance/2026-09-09-camera-smoothing-cpu.json)
+[Raw alternating CPU batches](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-camera-smoothing-cpu.json)
 retain all measurements and endpoint comparisons. A second whole-frame check,
 `profile-game.mjs --compare-camera`, alternates stepped/smooth camera modes in
 one browser, resetting the same opening view each run. Its six runs use the order
 stepped/smooth/smooth/stepped/stepped/smooth, each with one second settling and
 four seconds sampled. Median CPU frame time across the three runs is 5.3 ms
 stepped versus 5.7 ms smooth; median p95 is 6.8 versus 7.2 ms. Median frame spacing
-is 33.3 ms for both in SwiftShader. [Raw paired runs](performance/2026-09-09-camera-paired.json)
+is 33.3 ms for both in SwiftShader. [Raw paired runs](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-camera-paired.json)
 show the variability. Smoother moving views can refresh dependent presentation
 work more often, so the isolated microsecond result must not be substituted for
 the measured 0.4 ms whole-frame difference. No extra draw passes are introduced.
@@ -329,7 +392,7 @@ ground: opaque ground pixels, projection, bounds and center picks remain identic
 Existing upper sky pixels differ by at most one channel value from floating-point
 interpolation, excluding the intentional texel-edge correction. Translucent
 edges correctly blend with the new backdrop. The test also verifies overview
-hides the backdrop. [Raw pixel/submission comparisons](performance/2026-09-09-sky-coverage.json)
+hides the backdrop. [Raw pixel/submission comparisons](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-sky-coverage.json)
 retain filled-area counts and submission counters. There is no added draw call or
 triangle for existing nonzero-height skies; the formerly empty zero-height sky
 adds one two-triangle backdrop. No extra terrain is submitted.
@@ -350,7 +413,7 @@ second settling and four seconds sampling each. The renderer remains at 79 calls
 and 68,613 triangles in both modes. Median CPU frame time across runs is 5.3 ms
 old versus 5.4 ms new; median p95 is 6.3 versus 6.6 ms. Median frame gap across runs
 is 66.7 ms in both modes, but the final new-background run reaches 83.3 ms.
-[Raw paired runs](performance/2026-09-09-sky-paired.json) retain that variability.
+[Raw paired runs](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-sky-paired.json) retain that variability.
 
 Conditions: Apple M5/macOS arm64, Node 24.18, headless Chromium with SwiftShader.
 These measurements do not certify hardware FPS or prove unchanged GPU cost.
@@ -411,7 +474,7 @@ paused flyby and result camera. Owned and rendered endpoints agree within 2e-7
 coordinate units. Every frame changes the lens UVs. Three real GPU renders at
 240 Hz change 96,305 and 96,147 pixels between successive frames. The actual Scene
 frame-loop check keeps wind running with a paused world and verifies blur does not
-replay hidden time. [Raw clock/pixel results](performance/2026-09-09-sky-clock.json)
+replay hidden time. [Raw clock/pixel results](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-sky-clock.json)
 retain all cases. The camera-only pixel regression explicitly holds sky drawing
 still so autonomous cloud motion cannot masquerade as camera movement.
 
@@ -435,7 +498,7 @@ On Apple M5/macOS arm64, Node 24.18:
 | 60 Hz | 5.508 microseconds | 5.605 microseconds | 0.097 microseconds |
 | 240 Hz | 5.549 microseconds | 5.612 microseconds | 0.063 microseconds |
 
-[Raw alternating batches and rate comparison](performance/2026-09-09-sky-motion-cpu.json)
+[Raw alternating batches and rate comparison](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-sky-motion-cpu.json)
 make the measurement reproducible. This isolates the changed CPU work; it does
 not measure GPU drawing, whole-game frame time or hardware FPS. The correction
 introduces no draw pass, shader, texture or geometry. The existing grid calculation
@@ -444,7 +507,7 @@ by this measurement; larger render-loop costs remain the performance priority.
 
 ## Painter geometry work on the Mac GPU
 
-The [headed hardware baseline](performance/2026-09-09-hardware-baseline.json)
+The [headed hardware baseline](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-hardware-baseline.json)
 identifies painter processing as the largest sampled JS cost in opening, rotating
 camera and 215-person scenes. Unlike the earlier SwiftShader runs, Chromium reports
 `ANGLE Metal Renderer: Apple M5`. The viewport and browser-reported screen are
@@ -468,7 +531,7 @@ All depth slots, RGBA bytes, draw counts, triangle counts and center picks agree
 11 cases: six heading/zoom/seam poses, a warm cache, terrain deformation, attribute
 replacement, changed transforms/model headings and overview bypass. The baseline
 is reconstructed from Git into ignored `.tools/performance/` by a shared test
-helper; it is not shipped. [Raw comparison](performance/2026-09-09-painter-equivalence.json).
+helper; it is not shipped. [Raw comparison](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-painter-equivalence.json).
 A portable check covers cache reuse, float precision, interleaved positions and
 attribute-version invalidation.
 
@@ -493,7 +556,7 @@ workload. The crowd adds 200 stationary braves once. Static comparison scenarios
 freeze simulation; camera samples hold Q. Both implementations share the current
 sky, camera, sprite and terrain-submission code.
 
-[Raw corrected paired hardware report](performance/2026-09-09-painter-hardware-paired.json),
+[Raw corrected paired hardware report](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-painter-hardware-paired.json),
 Apple M5/macOS arm64, Node 24.18, headed Chrome 153/Metal, 1440×1000/DPR 1.
 The table takes the median of each mode's three per-run statistics:
 
@@ -557,7 +620,7 @@ visible positions; at 60 Hz they produce 80. First displayed movement occurs wit
 one browser frame after the first simulated move. Drawing is stubbed for this
 schedule sweep; separate real GPU probes verify three isolated person frames differ,
 paused motion freezes, airborne selection works and an authoritative-cell-only gate
-still draws 350 person pixels. [Raw checks](performance/2026-09-09-unit-motion.json).
+still draws 350 person pixels. [Raw checks](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-unit-motion.json).
 
 Reproduce the hardware comparison with:
 
@@ -570,7 +633,7 @@ Each run resets the world/camera and orders the blue units to the same destinati
 the crowd adds 200 braves. The baseline disables snapshots and uses direct current
 positions. Both modes contain the current cell-uniform and selection changes, so
 this isolates interpolation cost, not the entire change from version 151.
-[Raw hardware report](performance/2026-09-09-unit-motion-hardware.json): Apple M5,
+[Raw hardware report](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-unit-motion-hardware.json): Apple M5,
 macOS arm64, Node 24.18, headed Chrome 153, ANGLE Metal, 1440×1000/DPR 1.
 Medians of each mode's three per-run statistics:
 
@@ -630,7 +693,7 @@ sizes test rendering equivalence, not physical display changes or HUD layout.
 Every RGBA byte, native painter depth slot and submitted triangle count agrees.
 Source visibility is restored, temporary batch meshes are detached, retained
 capacity survives reuse and disposal removes both GPU geometries.
-[Raw comparison](performance/2026-09-09-health-bars-equivalence.json).
+[Raw comparison](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-health-bars-equivalence.json).
 The mixed-team crowd falls from 1,079 to 685 calls (394 fewer); selected opening
 falls from 97 to 85. The native depth overlaps, translucent sprite/mesh ordering,
 392 imported sprite poses, real Blast shadow, live selection and nine motion
@@ -652,7 +715,7 @@ only toggles instanced health submission. The comparison therefore includes its
 collection, buffer-update and GPU-submission costs together.
 
 
-[Raw paired hardware report](performance/2026-09-09-health-bars-hardware.json):
+[Raw paired hardware report](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-health-bars-hardware.json):
 Apple M5/macOS arm64, Node 24.18, headed Chrome 153, ANGLE Metal, 1440×1000/DPR 1.
 Medians of each mode's three per-run statistics:
 
@@ -705,7 +768,7 @@ it adds no GPU buffer, triangle, draw or depth-texture upload.
 The first generic XYZ-map implementation improved warm calculations but regressed
 new-terrain median CPU time from 3.8 to 12.1 ms. The checked grid path removes that
 cost rather than hiding it behind a warm-only benchmark.
-[Initial diagnostic](performance/2026-09-09-painter-vertices-initial-cost.json).
+[Initial diagnostic](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-painter-vertices-initial-cost.json).
 
 `bench-painter-work.mjs` runs the actual painter without GPU drawing, using 12 warmup
 pairs and 18 alternating-order pairs per case. The water case changes all duplicate
@@ -720,7 +783,7 @@ is compared after every pair. Apple M5/macOS arm64, headed Chrome 153:
 | Changed water heights | 3.8 / 4.1 ms | 3.3 / 3.5 ms |
 | New terrain attribute | 3.9 / 4.2 ms | 3.5 / 3.7 ms |
 
-[Raw corrected CPU comparison](performance/2026-09-09-painter-vertices-cost.json).
+[Raw corrected CPU comparison](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-painter-vertices-cost.json).
 These are isolated painter timings, not frame times or FPS. Generic irregular
 geometry still pays for an exact XYZ map when first seen or split; the native
 terrain path avoids that string-map cost. Full terrain rebuilding, atlas uploads
@@ -736,7 +799,7 @@ attributes, model headings/transforms and overview bypass. The opening calls the
 native coordinate conversion 3,912 times instead of 22,188 (82.4% fewer); irregular
 split geometry intentionally shares less. These counters exclude model-local
 projection and are not whole-frame performance measurements.
-[Raw rendering comparison](performance/2026-09-09-painter-vertices-equivalence.json).
+[Raw rendering comparison](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-painter-vertices-equivalence.json).
 
 Portable checks cover interleaved attributes, shared motion, splits, replacement
 and invalid grid candidates. TypeScript, all 154 tests, parity consistency and
@@ -768,8 +831,8 @@ fixed-view terrain counts throughout each sample. Earlier runs with drifting vie
 were rejected. The retained moving run also records camera controls and simulation
 turns: crowd samples all finish on turn 62 with 43 people still moving.
 
-[Static/camera hardware report](performance/2026-09-09-painter-vertices-hardware.json)
-and [active-gameplay hardware report](performance/2026-09-09-painter-vertices-moving-hardware.json):
+[Static/camera hardware report](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-painter-vertices-hardware.json)
+and [active-gameplay hardware report](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-painter-vertices-moving-hardware.json):
 Apple M5/macOS arm64, Node 24.18, headed Chrome 153, ANGLE Metal, 1440×1000/DPR 1.
 Medians of each mode's three per-run statistics:
 
@@ -824,7 +887,7 @@ each selected cell, even though most copies are rejected later.
 | 3440×1440 | 103,630–133,018 |
 | 3840×2160 | 191,287–236,906 |
 
-[Raw coverage and submission counts](performance/2026-09-09-ground-coverage.json)
+[Raw coverage and submission counts](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-ground-coverage.json)
 record the baseline source commit. Reproduce with
 `node scripts/check-browser-ground-coverage.mjs [output.json]`; the default writes
 to `/private/tmp` so rerunning cannot silently replace historical evidence.
@@ -916,9 +979,9 @@ performance. They support removing unnecessary terrain work without lowering
 visual fidelity. The visible draw-region defect remains open and no new native
 parity credit is recorded.
 
-Raw evidence: [41 exact comparisons](performance/2026-09-09-terrain-copies-equivalence.json),
-[static/camera profiles](performance/2026-09-09-terrain-copies-hardware.json),
-[moving-order profiles](performance/2026-09-09-terrain-copies-moving-hardware.json).
+Raw evidence: [41 exact comparisons](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-terrain-copies-equivalence.json),
+[static/camera profiles](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-terrain-copies-hardware.json),
+[moving-order profiles](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-terrain-copies-moving-hardware.json).
 
 ### Rejected early shader experiment
 
@@ -939,7 +1002,7 @@ renderer call, including uploads and driver scheduling, and can include submissi
 bubbles. They do not measure display FPS or isolate shader execution. The median
 improvement is small (1.6–3.0%) relative to variation, with a worse unexpanded p95.
 The extra shader branch is **not shipped**. The report and candidate patch are
-retained as `performance/2026-09-09-early-projection.{json,patch}`. Reproduce with
+preserved as an [archived report](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-early-projection.json) and the [tracked reproduction patch](performance/2026-09-09-early-projection.patch). Reproduce with
 `check-browser-early-projection.mjs --measure` after applying that candidate patch;
 the script refuses to run if the candidate is absent. The original measured
 terrain-copy layout is the report's baseline commit, before copy selection.
@@ -960,7 +1023,7 @@ with geometry SHA-256 `79cb2490e161801e9d6ec0240b32561f0b62365ee53f611f3fd28051d
 The pinned opening ultrawide case restores 121,105 pixels with the 16-cell
 expansion; submission counts remain 66,096 / 109,296 / 152,496. The historical
 report is preserved, and the controlled fixture is recorded separately as
-[turn-zero coverage](performance/2026-09-09-ground-coverage-pinned.json).
+[turn-zero coverage](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-09-ground-coverage-pinned.json).
 This is a diagnostic correction, with no additional runtime change or parity credit.
 
 
@@ -1042,7 +1105,7 @@ three cycles and three unused dependencies remain. Broad ox-standard warnings
 remain, with no new rule errors. Screenshot review confirms intact HUD proportions
 and smooth lateral ground edges; distant model lighting remains a parity gap.
 
-Evidence under `references/performance/2026-09-09-viewport-*`: initial widening
+Archived [viewport experiment evidence](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance) (the `2026-09-09-viewport-*` files): initial widening
 cost, complete-view comparison, frozen clipping comparison, rejected and final
 moving comparisons, pinned normal/close coverage, full-color/picking comparison,
 and final painter equivalence. Run `profile-game.mjs --headed --wide
@@ -1116,8 +1179,8 @@ ran concurrently. In a 4.2-second sample:
 | Frame-gap median | 33.4 ms | 33.3 ms |
 | Frame-gap p95 | 66.7 ms | 33.5 ms |
 
-Raw runs: [`before`](performance/2026-09-10-fire-atlas-before.json) and
-[`after`](performance/2026-09-10-fire-atlas-after.json). This run was scheduled at
+Raw runs: [`before`](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-10-fire-atlas-before.json) and
+[`after`](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-10-fire-atlas-after.json). This run was scheduled at
 about 30 Hz by the browser/display; it does not certify high-refresh throughput
 or other hardware. The game still uses uncapped requestAnimationFrame with native
 simulation/animation clocks. The demonstrated improvement is removal of repeated
@@ -1132,7 +1195,7 @@ mirroring and visible pixels; UV assertions now read the per-object transform.
 
 The frozen comparison covered 286 sprites and produced zero differing RGBA bytes
 for both the legacy transform path and restoration of the shared path (see
-[`pixel evidence`](performance/2026-09-10-fire-atlas-pixels.json)). The broader
+[`pixel evidence`](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-10-fire-atlas-pixels.json)). The broader
 392 GPU unit-pose, airborne-shadow and selection regressions pass. All 163 portable
 checks pass; Fallow remains 85.9 maintainability, average cyclomatic 2.8, p90 5.
 
@@ -1537,7 +1600,7 @@ These are unpaired warmed workload samples. Prior release figures are retained
 above; only the isolated ranking benchmark establishes a speedup. Browser callback
 cadence is not physical monitor FPS. Earlier first-use terrain-replacement spikes
 remain an open loading/rebuild audit item. Full raw evidence and live squad choices
-are in `performance/2026-09-10-combat-targets.json`.
+are in [performance/2026-09-10-combat-targets.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-10-combat-targets.json).
 
 Validation: 4,096 complete native calls, portable captured cases, **217 tests**,
 5–240 Hz and irregular live replay, browser squad assignment/poses and existing
@@ -1568,7 +1631,7 @@ heavy checks or application edits during measurement:
 - Six staged active fights: 1,678 callbacks, CPU p50/p95 **1.5/2.1 ms**, p99
   **4.7 ms**, max **5.9 ms**; 104 draws.
 
-Raw evidence: `performance/2026-09-10-combat-alerts.json`. These are unpaired,
+Raw evidence: [performance/2026-09-10-combat-alerts.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-10-combat-alerts.json). These are unpaired,
 warmed, bounded workload samples, not speedup, loading or whole-engine claims.
 Callback cadence is not physical display FPS. Quadratic follower broadphase,
 first-use rebuild costs and broader hardware/population coverage remain open.
@@ -1604,7 +1667,7 @@ builds, heavy checks or app edits during measurement:
 - Six staged active fights: 1,679 callbacks, CPU p50/p95 **1.5/2.1 ms**,
   p99 **4.4 ms**, max **6.2 ms**; 104 draw calls.
 
-Raw evidence: `performance/2026-09-10-pursuit.json`. These unpaired, warmed,
+Raw evidence: [performance/2026-09-10-pursuit.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-10-pursuit.json). These unpaired, warmed,
 bounded samples do not establish physical display FPS, loading performance,
 whole-game smoothness or a speedup. Broader populations/hardware and full native
 command lifecycle remain unfinished. The browser pursuit check retains original
@@ -1651,7 +1714,7 @@ Same headed Chrome 153 / ANGLE Metal Apple M5, 1440×1000 DPR 1, six seconds of
   Encounter-bearing frames: 303, p50/p95 **1.4/2.6 ms**, max **5.3 ms**. 178 draws.
 - Existing six-fight workload: p50/p95 **1.5/2.2 ms**, max **6.4 ms**; 104 draws.
 
-Evidence: `performance/2026-09-10-melee-encounter.json` retains distributions,
+Evidence: [performance/2026-09-10-melee-encounter.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-10-melee-encounter.json) retains distributions,
 worst frames, source/dimensions of uploads and observed encounter poses. These
 sequential bounded samples establish the first-hit stall's source and its removal
 from combat. They do not establish physical display FPS, statistically improved
@@ -1680,7 +1743,7 @@ initial fights growing to 48 people and sixteen fights through live commands:
 **1,666 callbacks**, CPU p50/p95 **1.9/3.8 ms**, p99 **5.5 ms**, maximum **12 ms**;
 217 maximum draw calls. Admission, replacement and split frames are included;
 terrain and initial sprites were loaded first. No concurrent heavy checks, builds
-or app edits. The evidence file `performance/2026-09-10-melee-groups.json` retains
+or app edits. The evidence file [performance/2026-09-10-melee-groups.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-10-melee-groups.json) retains
 staged member assignments, visible poses, distributions and worst frames.
 This is an unpaired bounded sample, not a speedup claim or physical display FPS.
 Larger populations and global allocator/counter ownership remain unverified.
@@ -1724,7 +1787,7 @@ performance, or pixel equivalence with the incorrect previous geometry. Larger
 populations, other GPUs and 4K performance remain unmeasured here; desktop/DPR
 layout and native rendered pixels are independently checked.
 
-Evidence: `performance/2026-09-10-unit-health.json`; reproduce current samples with
+Evidence: [performance/2026-09-10-unit-health.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-10-unit-health.json); reproduce current samples with
 `node scripts/profile-unit-health.mjs`. The old `--compare-health-bars` experiment
 belongs to its historical checkout (before removal, commit `718bf01`); current
 `check-browser-health-bars.mjs` checks native pixels/input/lifetime instead.
@@ -2032,7 +2095,7 @@ rectangular `texSubImage2D` per changed tile, without staging pixel copies, extr
 meshes or draw calls. A full terrain edit keeps its existing rebuild path.
 
 Reproduce with `node scripts/check-browser-footprints.mjs` and a running dev
-server. `references/performance/2026-09-10-footprints.json` records the browser,
+server. [references/performance/2026-09-10-footprints.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-10-footprints.json) records the browser,
 viewport and paired samples. In the nine-tile walk scenario, transfers fell from
 **67,108,864 to 36,864 bytes/update** (64 MiB to 36 KiB, **99.945% less**), using
 nine rectangular uploads instead of one full upload. Median update time including
@@ -2298,7 +2361,7 @@ scheduling intentionally changes trajectories; native traversal comparisons and
 separate fixed-turn replay tests establish correctness. The older lazy-collision
 benchmark now uses the corrected phase and dates new reports instead of overwriting
 its historical measurement.
-Its rerun (`performance/2026-09-11-marching.json`) preserves exact movement,
+Its rerun ([performance/2026-09-11-marching.json](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-11-marching.json)) preserves exact movement,
 orders, formations, cell chains, routes and both RNGs across eager/lazy modes:
 2.912 → 0.140 ms median per movement-only turn. This excludes the other world
 processors and must not be confused with the complete-turn comparison above.
@@ -2449,7 +2512,7 @@ log and has a separate browser-code regression.
 Node v24.18.0, median cache cost was **0.777 ms**, p95 **0.878 ms**, maximum
 **1.297 ms** per measured turn. The run issued 240,000 queries and settled at
 1,220 candidates; no turn exceeded the native three-route-check budget. Raw
-measurement: [timber cache workload](performance/2026-09-11-timber-search.json).
+measurement: [timber cache workload](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-11-timber-search.json).
 
 This is cache CPU cost with supplied route results. It excludes the real path
 solver, world construction integration, rendering and browser FPS. The module
@@ -2472,7 +2535,7 @@ use the same batch helper. Walk masks are updated before notification dispatch;
 notification consumers do not inspect those masks. No state survives the batch,
 and no gameplay delay, route retry, simulation clock or renderer setting changes.
 
-The [paired benchmark](performance/2026-09-11-terrain-notifications.json) loads
+The [paired benchmark](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-11-terrain-notifications.json) loads
 baseline `8cbe966` and current `model.ts` with unchanged dependencies. Both worlds
 run 120 blocked turns before the timed complete terrain-change turn. Apple M5 /
 Node v24.18.0, ten warmup pairs, twenty alternating measured pairs:
@@ -2489,7 +2552,7 @@ The portable regression verifies one position read for each of 198 eligible
 people, despite thousands of changed vertices; inside/dead people stay excluded
 and every eligible native person receives its dirty flag.
 
-The [isolated five-replay run](performance/2026-09-11-terrain-notifications-full-replay.json)
+The [isolated five-replay run](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-11-terrain-notifications-full-replay.json)
 uses the original 200-person workload. Terrain-change turns now take **4.03–5.77
 ms**. Other turns still peak at **10.38–18.84 ms**, and p95 whole-turn CPU across
 replays is **5.87–6.81 ms**. This fix removes the identified repeated-indexing
@@ -2499,14 +2562,14 @@ and resting/collision queries as substantial remaining CPU/allocation work.
 
 Evidence and measurement limits:
 
-- [Baseline CPU profile](performance/2026-09-11-blocked-route-baseline.cpuprofile.gz),
+- [Baseline CPU profile](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-11-blocked-route-baseline.cpuprofile.gz),
   collected with `node --cpu-prof --cpu-prof-interval=100` and the blocked replay.
   Sampling adds overhead; its wall times are not the optimization comparison.
-- The exploratory [cold-clone pairs](performance/2026-09-11-terrain-notifications-cold-clone.json)
+- The exploratory [cold-clone pairs](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-11-terrain-notifications-cold-clone.json)
   timed a cloned checkpoint without replaying its preceding turns. They exaggerate
   cold object-shape/GC effects and are not used for the headline conclusion.
-- Exploratory [paired](performance/2026-09-11-terrain-notifications-contended.json)
-  and [full-replay](performance/2026-09-11-terrain-notifications-full-replay-contended.json)
+- Exploratory [paired](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-11-terrain-notifications-contended.json)
+  and [full-replay](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-11-terrain-notifications-full-replay-contended.json)
   runs overlapped another benchmark. They are retained and explicitly labeled;
   the reported comparison above comes from subsequent isolated runs.
 - These are CPU measurements, excluding rendering and real display presentation.
@@ -2521,6 +2584,6 @@ published before stopping.
 Validation: 371 portable tests, TypeScript/build, exact paired replay and real
 1440×1000 / 3440×1440 browser input pass. The first browser run sampled zero for an
 active audio cue; its complete rerun passed. The
-[browser record](performance/2026-09-11-terrain-notifications-browser.json) covers
+[browser record](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/performance/2026-09-11-terrain-notifications-browser.json) covers
 behavior and audio output, not hardware frame time. No additional ox-standard
 findings; Fallow remains 85.4 with 20 existing cycles.

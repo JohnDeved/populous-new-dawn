@@ -1,0 +1,419 @@
+import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
+import { readFileSync, writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { bindGame, showAllMissions } from '../browser-game.mjs'
+import { m2StartupReady } from './m2-pointer-f8.mjs'
+import { minimapInput } from '../../qa/erosion-ordinary/minimap-input.mjs'
+import { minimapPick } from '../../app/minimap.ts'
+import { spriteDirection } from '../../app/projection.ts'
+import { validateMeleeRunningFrames } from './melee-attack-running-evidence.mjs'
+
+export const meleeAttackLimitMs = 75000
+const root = resolve(import.meta.dirname, '../..')
+const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
+
+export function meleeCameraInput(minimap) {
+  const { width, height, rect, center, heading } = minimap
+  assert.ok(Number.isInteger(width) && width > 0 && Number.isInteger(height) && height > 0)
+  assert.ok([rect.x, rect.y, rect.width, rect.height].every(Number.isFinite) && rect.width > 0 && rect.height > 0)
+  const nearest = minimapInput(minimap, minimapPick, () => true)
+  assert.ok(nearest, 'Authored target must be reachable through public minimap camera input')
+  // One fixed setup offset frames the target above the paused badge and the
+  // retained approach corridor inside the view. This is not live camera pursuit.
+  const offsetBacking = { x: 0, y: 12 }, backing = {
+    x: (nearest.x - rect.x) / rect.width * width + offsetBacking.x,
+    y: (nearest.y - rect.y) / rect.height * height + offsetBacking.y,
+  }
+  assert.ok(backing.x >= 2 && backing.x < width - 2 && backing.y >= 2 && backing.y < height - 2,
+    'Declared melee camera offset must remain inside the minimap')
+  return { nearest, offsetBacking, backing,
+    x: rect.x + backing.x / width * rect.width, y: rect.y + backing.y / height * rect.height,
+    native: minimapPick(width, height, center, heading, backing) }
+}
+
+// Read the eligibility published by updateUnitsFrame, not a private hit query.
+export function readMeleeRouteState() {
+  const scene = window.testSceneRef?.current, world = window.testStore?.getWorld()
+  if (!scene || !world) return { sceneAvailable: false }
+  const person = id => {
+    const unit = world.units.find(unit => unit.id === id), group = scene.unitMeshes.get(id)
+    return unit ? { id, kind: unit.kind, team: unit.team, hp: unit.hp, x: unit.x, z: unit.z,
+      inside: unit.inside, visible: group?.visible ?? false, pickable: group?.userData.pickable === true,
+      frame: group?.userData.frame ?? null, target: unit.target,
+      fight: unit.fight && { group: unit.fight.group, action: unit.fight.action, opponent: unit.fight.opponent } } : null
+  }
+  return { sceneAvailable: true, sceneStoreMatch: scene.world === world, turn: world.turn,
+    selected: [...world.selected], paused: world.paused, speed: world.speed, drawMode: world.drawMode,
+    inputMask: world.inputMask, actor: person(54), target: person(20), hiddenPriorTarget: person(13),
+    camera: { position: { ...scene.cameraPosition }, target: { ...scene.cameraMotion.target },
+      active: scene.cameraMotion.active, preset: scene.viewPreset, overview: scene.overviewActive,
+      transitioning: !!scene.viewTransition, resultActive: scene.resultCamera.active },
+    rendererStamp: scene.renderer.info.render.frame, canvasConnected: scene.renderer.domElement.isConnected }
+}
+
+export function assertMeleeRouteReady(state, paused = true) {
+  assert.equal(state.sceneAvailable, true); assert.equal(state.sceneStoreMatch, true)
+  assert.deepEqual(state.selected, [54]); assert.equal(state.paused, paused); assert.equal(state.speed, 1)
+  assert.equal(state.target?.id, 20); assert.equal(state.target?.kind, 'shaman')
+  assert.equal(state.target?.team, 'green'); assert.ok(state.target.hp > 0)
+  assert.equal(state.target.inside, null, 'Public melee target must be outside a building')
+  assert.equal(state.target.visible, true, 'Public melee target must be visible')
+  assert.equal(state.target.pickable, true, 'Public melee target must be eligible for ordinary picking')
+  assert.equal(state.camera.preset, 2, 'One public zoom-out must reach ordinary bird’s-eye')
+  assert.equal(state.camera.overview, false); assert.equal(state.drawMode, 0)
+  assert.equal(state.camera.transitioning, false); assert.equal(state.camera.active, 0)
+  assert.equal(state.camera.resultActive, 0); assert.equal(state.inputMask, 0)
+}
+
+export async function shiftClickMeleeTarget(page, point) {
+  try {
+    await page.keyboard.down('Shift')
+    await page.mouse.click(point.x, point.y)
+  } finally {
+    await page.keyboard.up('Shift')
+  }
+}
+
+// DOM ownership is not a game hit query. A paused HUD button can cover an
+// otherwise eligible body, so do not wait for a canvas event at a blocked point.
+export function readMeleePointerState(point) {
+  const scene = window.testSceneRef.current, owner = document.elementFromPoint(point.x, point.y)
+  const rect = owner?.getBoundingClientRect()
+  return { id: scene.hoveredObject, canvasOwnsPoint: owner === scene.renderer.domElement,
+    pointerScreen: scene.pointerScreen && { ...scene.pointerScreen },
+    stamp: scene.renderer.info.render.frame,
+    owner: owner && { tag: owner.tagName, className: owner.className,
+      label: owner.getAttribute('aria-label'),
+      rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height } } }
+}
+
+export async function meleeTargetPoint(page, bounds, attempts, save) {
+  // Preserve this fixed body-interior set and order. Only real pointer events
+  // and the ordinary rendered hover winner may establish the attack target.
+  for (const [fx, fy] of [[.5, .5], [.5, .65], [.35, .5], [.65, .5], [.5, .35]]) {
+    const point = { x: Math.floor(bounds.x + bounds.width * fx), y: Math.floor(bounds.y + bounds.height * fy) }
+    const before = await page.evaluate(readMeleePointerState, point)
+    const attempt = { point, before, status: before.canvasOwnsPoint ? 'moving' : 'blocked' }
+    attempts.push(attempt); save()
+    if (!before.canvasOwnsPoint) continue
+    await page.mouse.move(point.x, point.y)
+    await page.waitForFunction(({ point, before }) => {
+      const s = window.testSceneRef.current
+      return s.renderer.info.render.frame > before && s.pointerScreen?.clientX === point.x && s.pointerScreen?.clientY === point.y
+    }, { point, before: before.stamp })
+    attempt.after = await page.evaluate(readMeleePointerState, point)
+    attempt.status = 'observed'; save()
+    if (attempt.after.id === 20 && attempt.after.canvasOwnsPoint) return point
+  }
+  assert.fail('Public pointer route must identify eligible Green Shaman20')
+}
+
+// Expected artwork comes from retained tables, never from the observed pose.
+export function meleeAttackMapping() {
+  const rules = JSON.parse(readFileSync(resolve(root, 'app/original-rules.json')))
+  const units = JSON.parse(readFileSync(resolve(root, 'app/original-units.json')))
+  return Object.fromEntries(Object.entries({ attack: 10, strike: 8, special: 16 }).map(([action, row]) => {
+    const [object, draw] = rules.animationObjects[rules.personAnimationObjects[row * 9 + 7]]
+    return [`shaman:${action}`, { object, draw, step: rules.animationDescriptors[draw].step,
+      frameCount: units.frameCounts[object],
+      duration: (rules.animationDescriptors[draw].step + 1) * units.frameCounts[object],
+      directions: units.shamanSources[object] }]
+  }))
+}
+
+// A separate RAF reads after the Scene's already-scheduled ordinary render.
+// It does not mutate World, advance time, render, replace a game method or issue
+// a hit-selection query. Reading crop bounds may touch renderer/picker metadata.
+export function installMeleeFrameObserver() {
+  const scene = window.testSceneRef.current, world = window.testStore.getWorld()
+  const canvas = scene.renderer.domElement
+  const result = { samples: [], crops: [], error: null, done: false, firstAttackTurn: null }
+  let raf, stopped = false, firstPerson = null
+  const cropKeys = new Set()
+  const stop = () => { stopped = true; cancelAnimationFrame(raf); return result }
+  window.__pndMeleeObservation = { result, stop }
+  const visit = () => {
+    if (stopped) return
+    try {
+      if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world || scene.world !== world)
+        throw Error('Melee observation lost its original Scene/world')
+      if (!canvas.isConnected || document.visibilityState !== 'visible')
+        throw Error('Melee canvas disconnected or document hidden')
+      const unit = world.units.find(unit => unit.id === 54), fight = unit?.fight
+      if (!unit || unit.kind !== 'shaman' || unit.team !== 'blue' || unit.hp <= 0)
+        throw Error('Authored Shaman54 disappeared or died')
+      if (result.firstAttackTurn !== null && world.paused) throw Error('Running melee observation unexpectedly paused')
+      // The half-open window excludes the boundary visit, including an attack there.
+      if (result.firstAttackTurn !== null && world.turn >= result.firstAttackTurn + 10) {
+        result.done = true; stop(); return
+      }
+      if (fight && ['attack', 'strike', 'special'].includes(fight.action)) {
+        result.firstAttackTurn ??= world.turn
+        const person = fight.motion, group = scene.unitMeshes.get(54)
+        if (!person || !group) throw Error('Attack lacks physical person or rendered group')
+        firstPerson ??= person
+        const layers = (group.userData.layers ?? []).filter(layer => layer.visible)
+        const submittedLayers = layers.filter(layer => scene.view.painter.source(layer)).length
+        const sample = { timestampMs: performance.now(), turn: world.turn,
+          animationFrame: scene.gameClock.animationFrame, stamp: scene.renderer.info.render.frame,
+          id: 54, kind: unit.kind, action: fight.action, started: fight.started,
+          opponent: fight.opponent, participants: [...(world.fights?.find(group => group.id === fight.group)?.members ?? [])],
+          object: person.object, draw: person.draw, f1: person.f1, f2: person.f2,
+          logicalStamp: person.stamp, nativeAttackAnimation: fight.nativeAttackAnimation === true,
+          frame: group.userData.frame, flip: group.userData.frameFlip,
+          heading: unit.heading, cameraBearing: scene.cameraBearing,
+          visible: group.visible, submittedLayers, canvasConnected: canvas.isConnected,
+          sceneStoreMatch: scene.world === world, paused: world.paused,
+          pieces: layers.map(layer => layer.userData.piece) }
+        Object.assign(sample, { fightGroup: fight.group, remaining: fight.remaining ?? null,
+          animation: fight.animation, personId: person.id, personState: person.state,
+          personSpeed: person.speed, motionIsNative: person === unit.native, flight: !!unit.flight,
+          personClass: person.class, personModel: person.model, workFlags: person.workFlags,
+          personFlags2: person.flags2, personFlags4: person.flags4, personIdentityMatch: person === firstPerson,
+          // This records the reviewed pure source-branch contract, not a
+          // direct call/observation of the private visual getter's return.
+          fightMotionSourceAdmitted: !unit.flight && (
+            fight.nativeAttackAnimation === true && ['attack', 'strike', 'special', 'approach'].includes(fight.action) ||
+            ['walk', 'idle'].includes(fight.animation) || person === unit.native && person.state !== 10),
+          renderedDraw: group.userData.draw,
+        })
+        const cameraHeading = Math.round(sample.cameraBearing * 1024 / Math.PI)
+        const objectHeading = Math.round((Math.PI - sample.heading) * 1024 / Math.PI)
+        sample.direction = ((((cameraHeading << 16) >> 16) - ((objectHeading << 16) >> 16) - 0x380) & 0x700) >> 8
+        sample.phase = 'running'
+        // Reserve the first four distinct native poses BEFORE visibility or crop
+        // eligibility. A failed slot is evidence failure, never a later replacement.
+        const key = JSON.stringify([sample.id, sample.action, sample.started, sample.fightGroup,
+          sample.opponent, sample.object, sample.draw, sample.f1, sample.f2, sample.direction])
+        sample.cropPlanned = !cropKeys.has(key) && cropKeys.size < 4
+        if (sample.cropPlanned) {
+          cropKeys.add(key)
+          const rect = canvas.getBoundingClientRect(), bounds = scene.picking.personBounds(54, rect)
+          if (bounds && bounds.width > 1 && bounds.height > 1) {
+            const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height
+            const x = Math.max(0, Math.floor((bounds.x - 12) * scaleX))
+            const y = Math.max(0, Math.floor((bounds.y - 12) * scaleY))
+            const width = Math.min(256, canvas.width - x, Math.ceil((bounds.width + 24) * scaleX))
+            const height = Math.min(256, canvas.height - y, Math.ceil((bounds.height + 24) * scaleY))
+            if (width > 1 && height > 1) {
+              // Canvas readback excludes HTML. Retain real body-center DOM
+              // ownership and reject overlap with the shipped HUD overlays.
+              const clip = { x: rect.left + x / scaleX, y: rect.top + y / scaleY,
+                width: width / scaleX, height: height / scaleY }
+              const owner = document.elementFromPoint(rect.left + bounds.x + bounds.width / 2,
+                rect.top + bounds.y + bounds.height / 2)
+              const overlays = [...document.querySelectorAll('.native-hud,.paused-badge,.campaign-messages summary,.campaign-messages details[open]>div,.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
+                .filter(element => { const style = getComputedStyle(element)
+                  return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0 })
+                .map(element => { const r = element.getBoundingClientRect()
+                  return { tag: element.tagName, className: element.className,
+                    x: r.x, y: r.y, width: r.width, height: r.height } })
+                .filter(r => r.width > 0 && r.height > 0 && r.x < clip.x + clip.width && r.x + r.width > clip.x &&
+                  r.y < clip.y + clip.height && r.y + r.height > clip.y)
+              sample.bodyCanvasOwned = owner === canvas
+              sample.bodyInCanvas = bounds.x >= 0 && bounds.y >= 0 &&
+                bounds.x + bounds.width <= rect.width && bounds.y + bounds.height <= rect.height
+              sample.cropOverlayClear = overlays.length === 0
+              sample.cropVisibility = { bodyOwner: { tag: owner?.tagName, className: owner?.className }, clip, overlays }
+              // Copy the current canvas synchronously in the same observer callback.
+              // This is readback, not a second Scene render or a hidden-body redraw.
+              const copy = document.createElement('canvas'); copy.width = width; copy.height = height
+              const context = copy.getContext('2d')
+              context.drawImage(canvas, x, y, width, height, 0, 0, width, height)
+              const pixels = context.getImageData(0, 0, width, height).data
+              const colors = new Set()
+              for (let at = 0; at < pixels.length; at += 4)
+                if (pixels[at + 3]) colors.add((pixels[at] << 16) | (pixels[at + 1] << 8) | pixels[at + 2])
+              sample.cropFile = `melee-attack-frame-${result.crops.length}.png`
+              result.crops.push({ filename: sample.cropFile, turn: world.turn, stamp: sample.stamp,
+                frame: sample.frame, object: sample.object, f2: sample.f2,
+                phase: sample.phase, clip: { x, y, width, height },
+                opaqueColors: colors.size, png: copy.toDataURL('image/png') })
+            }
+          }
+        }
+        result.samples.push(sample)
+        if (result.samples.length > 1200) throw Error('Melee observation exceeded bounded sample storage')
+      }
+    } catch (error) { result.error = String(error); result.done = true; stop(); return }
+    raf = requestAnimationFrame(visit)
+  }
+  raf = requestAnimationFrame(visit)
+}
+
+export default async function meleeAttack({ browser, url, output, expectedRevision }) {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 })
+  const page = await context.newPage()
+  page.setDefaultTimeout(10000)
+  const report = { schema: 'populous-new-dawn/ordinary-melee-artwork', schemaVersion: 1,
+    status: 'running', expectedRevision, capMs: meleeAttackLimitMs, actions: [], errors: [],
+    protocol: 'running-original-artwork-v1',
+    method: 'Public authored M2 startup, Shaman54 selection, one public bird’s-eye zoom-out, nearest-target minimap input plus one fixed (0,+12) backing-pixel corridor offset, public Resume and real Shift+left attack on eligible Green Shaman20; uninterrupted normal RAF through a fixed ten-logical-turn attack window with same-frame canvas observation.',
+    limits: ['Direct mission access, not earned campaign unlock.', 'No original-game FPS calibration, hardware smoothness or Firewarrior browser claim.',
+      'Running samples prove mapped artwork and cropped same-direction same-sequence logical advancement. No browser pause/hold/resume or running same-turn hold is claimed; deterministic CPU contracts remain separate.',
+      'Marker is recorded, not represented as direct observation of a private getter return. Native object and actual directional frame are independently compared.',
+      'Canvas readback perturbs rendering; crops require visual review and do not establish pixel-perfect composition or performance.',
+      'Crop bounds read renderer/picker metadata; observation does not mutate World or issue a hit-selection query.',
+      'Actual Scene CPU tests prove unpaused same-turn hold/advance and pause-to-expiry rendering. Separate 30/60/120/144Hz and irregular schedules compare simulation World states, not browser or per-schedule Scene renders.'],
+    source: Object.fromEntries(['app/original-rules.json', 'app/original-units.json', 'app/projection.ts',
+      'app/unit-animation-source.ts', 'app/scene-entities.ts', 'scripts/tutorial-browser/melee-attack.mjs',
+      'scripts/tutorial-browser/melee-attack-running-evidence.mjs',
+      'qa/erosion-ordinary/minimap-input.mjs']
+      .map(path => [path, sha256(readFileSync(resolve(root, path)))])) }
+  const save = () => writeFileSync(resolve(output, 'melee-attack.json'), JSON.stringify(report, null, 2) + '\n')
+  const action = async (name, perform) => {
+    report.actions.push({ name, startedAt: new Date().toISOString() }); save()
+    await perform()
+    report.actions.at(-1).finishedAt = new Date().toISOString(); save()
+  }
+  const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())
+  const runtimeError = error => { if (report.errors.length < 20) report.errors.push(String(error).slice(0, 2000)) }
+  page.on('pageerror', runtimeError)
+  page.on('console', message => { if (message.type() === 'error') runtimeError(message.text()) })
+  page.on('crash', () => runtimeError('Page crashed'))
+  const timer = setTimeout(() => { report.timedOut = true; void context.close().catch(() => {}) }, meleeAttackLimitMs)
+  let failure
+  const retainObservation = async () => {
+    if (report.observation || page.isClosed()) return
+    const observation = await page.evaluate(() => window.__pndMeleeObservation?.stop() ?? null)
+    if (!observation) return
+    report.observation = observation
+    for (const sample of observation.samples)
+      assert.equal(sample.direction, spriteDirection(Math.round(sample.cameraBearing * 1024 / Math.PI), Math.round((Math.PI - sample.heading) * 1024 / Math.PI)),
+        'Observer crop direction must match the retained projection function')
+    for (const crop of observation.crops) {
+      assert.match(crop.filename, /^melee-attack-frame-[0-3]\.png$/)
+      assert.match(crop.png, /^data:image\/png;base64,/)
+      const sample = observation.samples.find(sample => sample.cropFile === crop.filename)
+      assert.ok(sample, 'Every canvas crop must belong to an actual sampled native frame')
+      for (const field of ['turn', 'stamp', 'frame', 'object', 'f2', 'phase'])
+        assert.equal(crop[field], sample[field], `Canvas crop ${field} must match its synchronous observation`)
+      const bytes = Buffer.from(crop.png.split(',')[1], 'base64')
+      writeFileSync(resolve(output, crop.filename), bytes, { flag: 'wx' })
+      crop.sha256 = sha256(bytes); delete crop.png
+    }
+    save()
+  }
+  save()
+  try {
+    await page.goto(url, { waitUntil: 'domcontentloaded' })
+    await action('New Game / No / Browser controls / All missions', () => showAllMissions(page))
+    await button('Mission 2')
+    await bindGame(page)
+    const startup = await page.waitForFunction(m2StartupReady)
+    report.startup = await startup.jsonValue(); await startup.dispose()
+    assert.equal(report.startup.level, 2)
+    if (report.startup.action === 'skip') await action('Skip introduction', () => page.getByRole('button', { name: /^Skip introduction/ }).click())
+    await page.waitForFunction(() => {
+      const w = window.testStore.getWorld()
+      return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
+    })
+    await button('Pause game')
+    await button('Select and focus shaman')
+    const settle = () => page.waitForFunction(() => {
+      const scene = window.testSceneRef.current
+      return !scene.cameraMotion.active && !scene.resultCamera.active && !scene.viewTransition
+    })
+    await settle()
+    assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
+    await action('One public - zoom-out to ordinary bird’s-eye', () => page.keyboard.press('-'))
+    await settle()
+    report.eligibility = await page.evaluate(readMeleeRouteState); save()
+    assertMeleeRouteReady(report.eligibility)
+    const setup = await page.evaluate(() => {
+      const scene = window.testSceneRef.current, w = scene.world, target = w.units.find(unit => unit.id === 20)
+      if (!target || target.kind !== 'shaman' || target.team !== 'green' || target.hp <= 0) throw Error('Authored Green Shaman20 unavailable')
+      const rect = scene.mini.getBoundingClientRect()
+      return { turn: w.turn, selected: [...w.selected], paused: w.paused, speed: w.speed,
+        environment: { viewport: { width: innerWidth, height: innerHeight }, dpr: devicePixelRatio,
+          canvas: { width: scene.renderer.domElement.width, height: scene.renderer.domElement.height },
+          renderer: scene.renderer.getContext().getParameter(scene.renderer.getContext().RENDERER),
+          vendor: scene.renderer.getContext().getParameter(scene.renderer.getContext().VENDOR),
+          version: scene.renderer.getContext().getParameter(scene.renderer.getContext().VERSION) },
+        target: { id: target.id, kind: target.kind, team: target.team, x: target.x, z: target.z, hp: target.hp },
+        minimap: { width: scene.mini.width, height: scene.mini.height,
+          rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+          center: { x: Math.round((scene.viewPoint.x + 8) * 256), y: Math.round((-scene.viewPoint.z - 8) * 256) },
+          heading: Math.round(scene.cameraBearing * 1024 / Math.PI),
+          target: { x: Math.round((target.x + 8) * 256), y: Math.round((-target.z - 8) * 256) } } }
+    })
+    report.setup = setup
+    assert.deepEqual(setup.selected, [54]); assert.equal(setup.paused, true); assert.equal(setup.speed, 1)
+    assert.deepEqual(setup.environment.viewport, { width: 1440, height: 1000 })
+    assert.equal(setup.environment.dpr, 1)
+    const camera = report.cameraInput = meleeCameraInput(setup.minimap)
+    save()
+    assert.equal(await page.evaluate(point => document.elementFromPoint(point.x, point.y) === window.testSceneRef.current.mini, camera), true)
+    await action('Minimap camera toward Green Shaman20 plus fixed (0,+12) backing-pixel corridor offset', () => page.mouse.click(camera.x, camera.y))
+    await settle()
+    report.afterFocus = await page.evaluate(readMeleeRouteState); save()
+    assertMeleeRouteReady(report.afterFocus)
+    await page.evaluate(installMeleeFrameObserver)
+    await button('Resume game')
+    await page.waitForFunction(() => !window.testStore.getWorld().paused)
+    report.afterResume = await page.evaluate(readMeleeRouteState); save()
+    assertMeleeRouteReady(report.afterResume, false)
+    const targetBounds = report.targetBounds = await page.evaluate(() => {
+      const s = window.testSceneRef.current, canvas = s.renderer.domElement, rect = canvas.getBoundingClientRect()
+      const g = s.unitMeshes.get(20), bounds = s.picking.personBounds(20, rect)
+      if (!g?.visible || !bounds) return null
+      return { x: rect.left + bounds.x, y: rect.top + bounds.y, width: bounds.width, height: bounds.height }
+    })
+    save()
+    assert.ok(targetBounds, 'Eligible Green Shaman20 must have rendered canvas bounds')
+    report.targetHoverAttempts = []
+    const targetPoint = await meleeTargetPoint(page, targetBounds, report.targetHoverAttempts, save)
+    report.targetInput = targetPoint
+    report.beforeAttack = await page.evaluate(readMeleeRouteState); save()
+    assertMeleeRouteReady(report.beforeAttack, false)
+    assert.equal(report.beforeAttack.actor.target, null)
+    assert.equal(report.beforeAttack.actor.fight, null, 'Authored attacker must not already be fighting before the public order')
+    await action('Public Shift+left attack click on Green Shaman20 while running', () => shiftClickMeleeTarget(page, targetPoint))
+    report.order = await page.evaluate(() => {
+      const s = window.testSceneRef.current, w = window.testStore.getWorld(), u = w.units.find(unit => unit.id === 54)
+      return { turn: w.turn, lastOrderTurn: w.lastOrderTurn, stamp: s.renderer.info.render.frame,
+        selected: [...w.selected], target: u.target, path: structuredClone(u.path),
+        nativeCommands: u.native && { commands: [...u.native.commands], commandCursor: u.native.commandCursor,
+          commandStatus: u.native.commandStatus, workTarget: u.native.workTarget }, paused: w.paused }
+    })
+    save()
+    assert.deepEqual(report.order.selected, [54]); assert.equal(report.order.target, 20)
+    assert.equal(report.order.paused, false)
+    assert.ok(report.order.lastOrderTurn >= report.beforeAttack.turn && report.order.lastOrderTurn <= report.order.turn,
+      'Public attack must record an issued command on the live logical timeline')
+    await page.waitForFunction(() => window.__pndMeleeObservation.result.done, null, { timeout: meleeAttackLimitMs })
+    await retainObservation()
+    assert.ok(report.observation.samples.every(sample => sample.turn >= report.order.lastOrderTurn && sample.stamp > report.order.stamp),
+      'Every melee sample must follow the actual public attack command')
+    for (const crop of report.observation.crops)
+      assert.ok(crop.opaqueColors > 1, 'Same-frame canvas crop must not be blank')
+    assert.equal(report.observation.error, null)
+    assert.equal(report.observation.done, true)
+    report.mapping = meleeAttackMapping()
+    report.acceptance = validateMeleeRunningFrames(report.observation.samples, report.mapping)
+    await button('Pause game')
+    await page.screenshot({ path: resolve(output, 'melee-attack-context.png') })
+  } catch (error) {
+    failure = error; report.failure = { message: String(error), stack: error.stack }; save()
+    if (!page.isClosed()) {
+      try { report.failureState = await page.evaluate(readMeleeRouteState); save() }
+      catch (diagnostic) { report.failureStateError = String(diagnostic) }
+      try {
+        const filename = 'melee-attack-failure.png'
+        await page.screenshot({ path: resolve(output, filename), timeout: 2000 })
+        report.failureScreenshot = { filename, sha256: sha256(readFileSync(resolve(output, filename))) }
+      } catch (diagnostic) { report.failureScreenshotError = String(diagnostic) }
+    }
+  }
+  finally {
+    clearTimeout(timer)
+    try { await retainObservation() }
+    catch (error) { report.errors.push(`Observer cleanup: ${error}`) }
+    try { await context.close(); report.contextClosed = true }
+    catch (error) { report.errors.push(`Context cleanup: ${error}`) }
+    report.status = failure || report.errors.length || report.timedOut ? 'failed' : 'passed'; save()
+  }
+  assert.equal(report.status, 'passed', 'Ordinary melee browser case failed; see melee-attack.json')
+  return report
+}

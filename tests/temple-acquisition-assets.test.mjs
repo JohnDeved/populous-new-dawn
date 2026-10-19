@@ -39,7 +39,7 @@ const crop = (image, x, y, width, height) =>
     )
   )
 
-test('original c inputs remain byte-identical and p preserves every unselected atlas pixel/index', () => {
+test('original c textures and pre-existing model values stay intact while p preserves unselected atlas pixels', () => {
   assert.equal(
     hash(read('public/original/atlas.png')),
     'fdb5c2af7ca43debb5d943036969df29949773b6b94c0b7ce99ffc5d946b27b0'
@@ -48,9 +48,17 @@ test('original c inputs remain byte-identical and p preserves every unselected a
     hash(read('public/original/effects.png')),
     'dabd1d661b2b7cfe82d3f717f045bccbaa082a34ae0e2b0abf812c7744052a97'
   )
+  // The authenticated Balloon Hut append adds only87–90; every prior model
+  // remains identical in value while the whole JSON file necessarily changes.
+  const previousModels = Object.fromEntries(
+    Object.entries(JSON.parse(read('app/original-models.json'))).filter(
+      ([id]) => ![87, 88, 89, 90].includes(Number(id))
+    )
+  )
+  assert.equal(Object.keys(previousModels).length, 78)
   assert.equal(
-    hash(read('app/original-models.json')),
-    '1665fcc36e57bbb765259ec9b7c1755a6b126db837787c9038ed955c76a8afc5'
+    hash(JSON.stringify(previousModels)),
+    '92fad05e2ba22b54196ed40a87a3307fff5cf69ffe1e94fae7909a6e3dad1d96'
   )
   const c = png('atlas'),
     p = png(art.modelAtlas)

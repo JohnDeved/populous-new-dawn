@@ -301,9 +301,11 @@ export function initializePersonState(
     p.speed = 0
     effects.occupying()
   } else if (p.state === 22) {
-    // 0x4d2740: the browser has no adjacent vehicle, so use the ground-cast pose.
+    // 0x4d2740: seated casters retain the ordinary person animation row.
+    // Adjacent-but-unseated vehicle lookup remains outside this adapter.
     effects.releaseMotion(p)
-    effects.setAnimation(p, 0x6d)
+    if (p.vehicle) setPersonAnimationRow(p, p.cargo ? 4 : 0, effects.setAnimation)
+    else effects.setAnimation(p, 0x6d)
     p.timer = 10
   } else if (p.state === 25 || p.state === 29) {
     const enter = p.state === 25 ? effects.fight : effects.encounter

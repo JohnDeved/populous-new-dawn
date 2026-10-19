@@ -1,3 +1,10 @@
+import { grantLinkedBoatReward } from './vehicle-reward.ts'
+import {
+  assignVehicleAllocationCounter,
+  deferVehicleOrdinaryVisit,
+  finishVehicleOrdinaryVisits,
+} from './vehicle-allocation.ts'
+import { residentPerson } from './building-resident.ts'
 import { createReincarnationWave, stepReincarnationWave } from './reincarnation-wave-runtime.ts'
 import { reconcileWorldHutSmoke, stepSecondaryEffects } from './hut-smoke-runtime.ts'
 import {
@@ -54,6 +61,7 @@ import {
   campaignTribe,
   cleanupDefeatedTribe,
   withCampaignTribe,
+  rebuildConstructionBuildings,
 } from './campaign-runtime.ts'
 import { campaignRules, stepForcedCampaignAttack } from './campaign-command-runtime.ts'
 import {
@@ -180,6 +188,7 @@ import type {
 import { selectHudPeople, type HudSelectionMode } from './hud-selection.ts'
 import { worshipHeadPose } from './live-worship.ts'
 import { recordWorshipPanelActivity } from './worship-panel-activity.ts'
+import { requestVaultPanel } from './training-panel-requests.ts'
 import {
   cancelLiveOrder,
   stepLiveConversionVictim,
@@ -201,6 +210,7 @@ import {
 import { announceCombatMarches, type CombatMarch } from './combat-order-search.ts'
 import {
   stepLiveBuildingAttack,
+  stepLiveAboardPersonAttack,
   cancelLiveBuildingAttack,
   startLiveCombatResponse,
 } from './live-building-combat.ts'
@@ -314,6 +324,7 @@ import {
   leaveLiveBuilding,
   stepLivePerson,
   stepLiveImpulse,
+  resumeLiveSeatedFlight,
   registerLivePerson,
   changeLivePersonState,
   disturbLiveVolcanoPerson,
@@ -337,6 +348,7 @@ import {
   boardLiveVehicle,
   removeMissingVehiclePassengers,
   stepLiveVehicles,
+  beginLiveVehiclePass,
   syncLiveVehiclePassengers,
 } from './live-vehicles.ts'
 import {
@@ -428,7 +440,13 @@ import {
   type WorshipState,
 } from './worship.ts'
 import type { ModelMorph } from './morph.ts'
-import { processVaultTask, stepVaultWork, stepVaultTask, type VaultTask } from './vault.ts'
+import {
+  processVaultTask,
+  stepVaultWork,
+  stepVaultTask,
+  vaultWorkEligible,
+  type VaultTask,
+} from './vault.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import type { UnitKind } from './unit-kinds.ts'
 import { stepArmageddon } from './armageddon.ts'
@@ -437,7 +455,7 @@ export interface TurnObserver {
   beforeTurn?: () => void
   afterTurn?: () => void
 }
-export function tick(w: World, dt: number, observer?: TurnObserver) {
+export function tick(w: World, dt: number, observer?: TurnObserver, metrics?: { steps: number }) {
   if (w.paused) return
   if (!Number.isFinite(dt) || dt < 0)
     throw new RangeError('Simulation delta must be finite and nonnegative')
@@ -448,11 +466,11 @@ export function tick(w: World, dt: number, observer?: TurnObserver) {
     w.pendingTime = Math.max(0, w.pendingTime - 1 / TURNS_PER_SECOND)
     if (w.pendingTime < 1e-9) w.pendingTime = 0
     observer?.beforeTurn?.()
-    stepTurn(w)
+    stepTurn(w, metrics)
     observer?.afterTurn?.()
   }
 }
-function stepTurn(w: World) {
+function stepTurn(w: World, metrics?: { steps: number }) {
   // 0x4a5590: tribe work observes the previous completed object turn.
   // First-mission initialization supplies two active tribes. Object phases below remain partial.
   if (w.land.landFlags & 2) return
@@ -480,8 +498,13 @@ function stepTurn(w: World) {
         },
       }
     )
+  // 0x4ed8a0 prepends Hut births behind 0x4ec6f0's cached-next traversal.
+  // Initialization is immediate; their first scheduled person visit is next turn.
+  const hutNewborns = new Set<Unit>()
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
+  // Count actual logical advances, independent of wrapping/resettable turn IDs.
+  if (metrics) metrics.steps++
   if (!(w.manaWorld.gameFlags & 2))
     for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
       if (w.campaignAIs[tribe]) withCampaignTribe(w, tribe, () => stepForcedCampaignAttack(w))
@@ -558,7 +581,9 @@ function stepTurn(w: World) {
         w.shots[gift.reward]++
       // 0x4c2aa0: the separate gift counter increases even at full stock.
       w.giftCounts[gift.reward] = Math.min(15, w.giftCounts[gift.reward] + 1)
-      tell(w, `${spell.name} received. ${w.shots[gift.reward]} shots ready.`)
+      // Proven M1/M2 ordinary rewards already use the native acquisition presentation.
+      if (!gift.ordinaryWorship)
+        tell(w, `${spell.name} received. ${w.shots[gift.reward]} shots ready.`)
     }
   }
   w.gifts = w.gifts.filter(g => g.remaining > 0)
@@ -616,7 +641,14 @@ function stepTurn(w: World) {
           (source.flags3 & ~0x88000) |
           (event.hit.shield ? 0x8000 : 0) |
           (event.hit.bloodlust ? 0x80000 : 0)
-        damagePerson(source, w.levelFlags2, tribeForTeam(fx.team!), Math.round(event.hit.hp * 20))
+        // 004e0a30 subtracts life directly: Shield does not gate Angel impacts.
+        damagePerson(
+          source,
+          w.levelFlags2,
+          tribeForTeam(fx.team!),
+          Math.round(event.hit.hp * 20),
+          1
+        )
         event.hit.hp = Math.max(0, source.life / 20)
         effect(w, 'hit', event.hit)
         sound(w, 0xdc, event.hit)
@@ -863,7 +895,9 @@ function stepTurn(w: World) {
   processProjectiles(w)
   for (const message of w.messages.slots) if (message) message.age = (message.age + 1) | 0
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
+  const retiredVehicleHeads = new Set<number>()
   for (const shrine of w.shrines) {
+    const previousUsesRemaining = shrine.remaining
     if (shrine.kind !== 'vault') stepWorshipHead(shrine)
     if ((shrine.kind === 'mana' || shrine.kind === 'inert') && shrine.rewardDelay) {
       if (--shrine.rewardDelay === 0) {
@@ -888,14 +922,20 @@ function stepTurn(w: World) {
     let fired = false
     if (shrine.kind === 'vault') {
       const shaman = w.units.find(u => u.team === 'blue' && isShaman(u) && u.hp > 0)
-      // ponytail: native coarse-cell/adjacent-building eligibility awaits the occupancy port.
-      const eligible =
-        !!shaman &&
-        shaman.vault?.head === shrine.id &&
-        shaman.lift === 0 &&
-        !shaman.fight &&
-        !shaman.casting &&
-        wrappedDistance(shaman, shrine) < 3
+      const person = shaman?.native
+      // The linked Vault requests using the previous cached count, before this
+      // sample checks proximity or replaces the count/work. Approach is enough.
+      if (
+        shrine.enabled &&
+        !(w.turn & 3) &&
+        shrine.model &&
+        person?.tribe === w.manaWorld.playerTribe &&
+        person.state === 10 &&
+        person.commandStatus === 33 &&
+        w.objectCells.objects.get(shaman!.id) === person
+      )
+        requestVaultPanel(w, shrine.id)
+      const eligible = vaultWorkEligible(w, shaman, shrine)
       if (shrine.enabled && !(w.turn & 3)) shrine.followers = Number(eligible)
       fired = stepVaultWork(shrine, w.turn, eligible, shrine.forced)
       shrine.progress = shrine.target > 0 ? shrine.work / shrine.target : 0
@@ -1013,7 +1053,16 @@ function stepTurn(w: World) {
         }
       } else if (shrine.kind === 'boat') {
         const boat = w.vehicles.find(v => v.id === shrine.rewardVehicle)
-        if (boat) {
+        const finalUse = previousUsesRemaining === 1 && shrine.remaining === 0
+        if (!boat || boat.model === 1 || boat.model === 2) {
+          const reward = grantLinkedBoatReward(w, shrine, finalUse)
+          if (reward) {
+            w.castingTribes[0].flags |= 64
+            tell(w, 'Boat received. Select followers and click it to board.')
+          }
+          if (finalUse) retiredVehicleHeads.add(shrine.id)
+        } else {
+          // Other linked class4 models retain their existing reward adapter.
           boat.active = true
           w.castingTribes[0].flags |= 64
           tell(w, 'Boat received. Select followers and click it to board.')
@@ -1033,6 +1082,8 @@ function stepTurn(w: World) {
     }
     syncStoneHeadPresentation(shrine)
   }
+  if (retiredVehicleHeads.size)
+    w.shrines = w.shrines.filter(shrine => !retiredVehicleHeads.has(shrine.id))
   // New rewards have already notified their objects. Complete their queued
   // landscape work after all shrine calls, without a second notification pass.
   if (terrainCenters.length) {
@@ -1124,10 +1175,7 @@ function stepTurn(w: World) {
       b.kind === 'firewarriorHut'
     ) {
       stepLiveTraining(w, b)
-    } else if (
-      ((b.kind === 'boatHouse' && !b.boatLaunched) || b.kind === 'balloonHut') &&
-      inhabitants.length
-    ) {
+    } else if ((b.kind === 'boatHouse' || b.kind === 'balloonHut') && inhabitants.length) {
       const balloon = b.kind === 'balloonHut'
       if (++b.timer >= (balloon ? 1000 : 600)) {
         const pose = buildingPose(b),
@@ -1163,10 +1211,13 @@ function stepTurn(w: World) {
               destructionState: 0,
             },
             worker = inhabitants[0]
+          assignVehicleAllocationCounter(w, vehicle)
+          deferVehicleOrdinaryVisit(w, vehicle)
           w.vehicles.push(vehicle)
           release(w, worker)
           worker.native = createLivePerson(w, worker)
           w.pathfinding.people.set(worker.id, worker.native)
+          registerLivePerson(w, worker.native)
           boardLiveVehicle(w, worker.native, vehicle)
           if (w.manaTribes[tribeForTeam(b.team)].playerType === 1)
             for (const occupant of inhabitants.slice(1)) {
@@ -1204,6 +1255,7 @@ function stepTurn(w: World) {
           return neighbor && buildingPose(neighbor)
         })
         const u = addUnit(w, b.team, 'brave', browserPosition(points.inside))
+        hutNewborns.add(u)
         u.heading = Math.PI - b.angle
         if (b.team === 'blue') sound(w, 0x28, u)
         effect(w, 'birth', browserPosition(points.flash))
@@ -1253,7 +1305,7 @@ function stepTurn(w: World) {
   processBattles(w)
   const contacts: [Unit, Unit][] = []
   const burningPeople = w.units
-    .filter(u => u.burnTrail && u.hp > 0)
+    .filter(u => !hutNewborns.has(u) && u.burnTrail && u.hp > 0)
     .map(u => ({
       unit: u,
       previous: u.flight ? { x: u.flight.x, y: u.flight.y, h: u.flight.h } : nativePosition(w, u),
@@ -1264,8 +1316,9 @@ function stepTurn(w: World) {
   const startingPeople = new Set(w.units.filter(u => levelStartOwnsShaman(w, u)).map(u => u.id))
   stepLevelStarts(w)
   const armageddon = w.effects.find(fx => fx.armageddon)?.armageddon
+  beginLiveVehiclePass(w)
   for (const u of w.units) {
-    if (startingPeople.has(u.id)) continue
+    if (hutNewborns.has(u) || startingPeople.has(u.id)) continue
     if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
     u.fighting = false
     const spy = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
@@ -1279,7 +1332,7 @@ function stepTurn(w: World) {
       stepLiveTornadoPerson(w, u)
       continue
     }
-    if (u.flight) {
+    if (u.flight && !resumeLiveSeatedFlight(u)) {
       stepLiveImpulse(w, u)
       continue
     }
@@ -1322,6 +1375,7 @@ function stepTurn(w: World) {
     }
     if (
       u.native &&
+      u.native.state !== 22 &&
       [17, 31, 32].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
     ) {
       stepLivePreaching(w, u)
@@ -1337,6 +1391,7 @@ function stepTurn(w: World) {
     }
     if (
       u.native &&
+      u.native.state !== 22 &&
       [11, 15, 19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
     ) {
       stepLiveBuildingAttack(w, u)
@@ -1344,6 +1399,8 @@ function stepTurn(w: World) {
     }
     const castingState = u.native?.state === 22
     if (castingState) {
+      // Native person preparation precedes the cast-state timer, including aboard.
+      if (u.native!.vehicle) stepLivePhysics(w, u, u.native!)
       u.native!.timer = short(u.native!.timer - 1)
       if (u.native!.timer < 1)
         changeLivePersonState(w, u, defaultPersonState(u.native!, w.manaWorld.gameFlags))
@@ -1448,7 +1505,9 @@ function stepTurn(w: World) {
       }
     }
     const activeOrder = u.native && currentPersonOrder(w.buildingOrders, u.native)
+    if (activeOrder?.model === 28 && u.native?.vehicle && stepLiveAboardPersonAttack(w, u)) continue
     if (u.native?.vehicle && !activeOrder) {
+      stepLivePhysics(w, u, u.native)
       const vehicle = w.vehicles.find(vehicle => vehicle.id === u.native!.vehicle)
       if (vehicle) syncLiveVehiclePassengers(w, vehicle)
       continue
@@ -1635,7 +1694,7 @@ function stepTurn(w: World) {
       }
     } else u.idleTurns = 0
   }
-  stepLivePersonHealth(w)
+  stepLivePersonHealth(w, hutNewborns)
   for (const { unit: u, previous } of burningPeople) {
     if (u.hp <= 0 && !u.flight) continue
     const person = { ...(u.flight ?? nativePosition(w, u)), burnTrail: u.burnTrail! }
@@ -1683,7 +1742,7 @@ function stepTurn(w: World) {
   stepLiveVehicles(w)
   const dead = w.units.filter(u => u.hp <= 0 && !u.flight && u.native?.state !== 44),
     ordinaryDead = dead.filter(u => !u.ghost)
-  for (const u of ordinaryDead) restoreDeadHypnotisedUnit(u)
+  for (const u of ordinaryDead) restoreDeadHypnotisedUnit(u, residentPerson(w, u))
   for (const u of ordinaryDead) {
     const victim = tribeForTeam(u.team),
       person = u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person,
@@ -1742,6 +1801,7 @@ function stepTurn(w: World) {
   }
   // Native person epilogue decrements the arrival-voice cooldown after its state body.
   for (const u of w.units) {
+    if (hutNewborns.has(u)) continue
     const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
     if (p?.marchCooldown) p.marchCooldown--
   }
@@ -1761,6 +1821,8 @@ function stepTurn(w: World) {
   w.units = w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44)
   removeMissingVehiclePassengers(w)
   w.buildings = w.buildings.filter(b => b.hp > 0)
+  // The next tribe visit observes this completed object turn's membership.
+  rebuildConstructionBuildings(w)
   w.selected = w.selected.filter(id => w.units.some(u => u.id === id))
   syncLivePersonCells(w)
   syncLandscapeObjects(w)
@@ -1829,4 +1891,5 @@ function stepTurn(w: World) {
     w.status = 'lost'
   }
   w.effects = w.effects.filter(f => f.age < f.duration)
+  finishVehicleOrdinaryVisits(w)
 }

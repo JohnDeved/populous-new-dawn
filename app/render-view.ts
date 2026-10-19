@@ -1,8 +1,22 @@
+import { OrdinaryNumericProjection } from './ordinary-numeric-projection.ts'
+import { runtimeTerrainPicking, releaseRuntimeTerrainPicking } from './runtime-terrain-picking.ts'
+import type {
+  OrdinaryTerrainMetrics,
+  TerrainVisibilityMetrics,
+} from './ordinary-terrain-metrics.ts'
+import type { NativeOcclusionMetrics } from './native-occlusion-metrics.ts'
 import { inHitTriangle } from './world-picking.ts'
 import * as THREE from 'three'
 import { Painter } from './painter.ts'
 import { DisplayGroundFootprint, widenGroundBounds } from './viewport-bounds.ts'
-import { visibleTerrainCells, visibleTerrainCopies, terrainTiles } from './terrain-visibility.ts'
+import { TerrainVisibilityPreparation } from './terrain-visibility.ts'
+import {
+  terrainSubmissionOwner,
+  standardTerrainSubmissionIndex,
+  reuseTerrainSubmission,
+  certifyTerrainSubmission,
+  revokeTerrainSubmissionOwner,
+} from './terrain-submission-owner.ts'
 import { globePoint, globeVisible, globePick } from './globe.ts'
 import {
   cameraConfig,
@@ -18,6 +32,24 @@ import {
   type Projection,
   type CameraConfig,
 } from './projection.ts'
+
+// Eligibility must compare with captured methods, not a mutable prototype: an
+// index override can return IDs outside the raw array validated for packed slots.
+const terrainGetX = THREE.BufferAttribute.prototype.getX,
+  terrainGetY = THREE.BufferAttribute.prototype.getY,
+  terrainGetZ = THREE.BufferAttribute.prototype.getZ,
+  terrainSetX = THREE.BufferAttribute.prototype.setX
+
+// Only data methods on the admitted instance/prototype chain qualify. Reading
+// an accessor even once for eligibility can mutate inputs before native picking.
+function terrainDataMethod(object: object, name: string, expected: unknown) {
+  let owner: object | null = object
+  for (let depth = 0; owner && depth < 3; depth++, owner = Object.getPrototypeOf(owner)) {
+    const descriptor = Object.getOwnPropertyDescriptor(owner, name)
+    if (descriptor) return 'value' in descriptor && descriptor.value === expected
+  }
+  return false
+}
 
 // WebGL2 port of the CPU-compared projection. Unsigned operations preserve x86
 // wrap explicitly; splitting the final sum avoids premature float32 rounding.
@@ -151,7 +183,31 @@ interface PickSubmissionState {
   cells: Uint32Array
 }
 
+// Fixed shipped-grid capacity. These are working buffers, never a geometry cache:
+// every ordinary query recomputes current positions and projections.
+class OrdinaryPickScratch {
+  corners = new Uint32Array(129 * 129)
+  slots = new Uint32Array(128 * 128 * 6)
+  world: THREE.Vector3[] = []
+  screen: THREE.Vector4[] = []
+
+  reset() {
+    this.corners.fill(0)
+    this.slots.fill(0)
+    this.clearPoints()
+  }
+
+  clearPoints() {
+    this.world.length = 0
+    this.screen.length = 0
+  }
+}
+
 export class RenderView {
+  private ordinaryNumericProjection: OrdinaryNumericProjection | null = null
+  private ordinaryPickScratch: OrdinaryPickScratch | null = null
+  private ordinaryPickDepth = 0
+  private ordinaryPickDisposed = false
   groundPickCache = new WeakMap<
     THREE.Object3D,
     Map<
@@ -161,10 +217,13 @@ export class RenderView {
         position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute
         world: THREE.Vector3[]
         screen: THREE.Vector4[]
+        slots: Uint32Array | null
       }
     >
   >()
   pickSubmissions = new WeakMap<THREE.Object3D, PickSubmissionState>()
+
+  private terrainVisibility = new TerrainVisibilityPreparation()
 
   painter = new Painter(this)
   materials = new WeakMap<
@@ -175,6 +234,7 @@ export class RenderView {
       programKey: string
     }
   >()
+  private drawCallbacks = new WeakMap<THREE.Object3D, THREE.Object3D['onBeforeRender']>()
   terrainHeights: [number, number] = [0, 63]
   config = cameraConfig(0)
   projection: Projection = {
@@ -248,8 +308,13 @@ export class RenderView {
         : overview
           ? circularMeshBounds(this.config.diameter)
           : this.displayGroundFootprint.cover(
-              circularMeshBounds(this.config.diameter), this.config, width, height,
-              this.terrainHeights, angle, this.rawCenter
+              circularMeshBounds(this.config.diameter),
+              this.config,
+              width,
+              height,
+              this.terrainHeights,
+              angle,
+              this.rawCenter
             )
     const pixels = this.boundsTexture.image.data as Float32Array
     for (let i = 0; i < 222; i++) pixels.set(this.bounds[i], i * 2)
@@ -328,9 +393,8 @@ export class RenderView {
   }
 
   // Cache identity for the terrain that is actually submitted to the painter.
-  // updateTerrainVisibility rewrites the same index buffer each render, so its raw
-  // BufferAttribute version is not a stable cache key. Compare the submitted cell
-  // list when that version changes and retain a revision while the contents match.
+  // Compare submitted cells when the index version changes, retaining a revision
+  // for equivalent submissions even when an external producer rewrites the index.
   pickSubmissionKey(objects: THREE.Object3D[]) {
     const keys: string[] = []
     for (const root of objects)
@@ -405,8 +469,64 @@ export class RenderView {
     mouse: THREE.Vector2,
     objects: THREE.Object3D[],
     camera: THREE.Camera,
-    nativeEdges = false
+    nativeEdges = false,
+    metrics?: NativeOcclusionMetrics,
+    ordinaryMetrics?: OrdinaryTerrainMetrics
   ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0) this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+      return this.collectPickCandidates(
+        mouse,
+        objects,
+        camera,
+        nativeEdges,
+        metrics,
+        ordinaryMetrics
+      )
+    } finally {
+      if (--this.ordinaryPickDepth === 0) this.ordinaryPickScratch?.clearPoints()
+    }
+  }
+
+  private pickCandidateQuery(
+    mouse: THREE.Vector2,
+    objects: THREE.Object3D[],
+    camera: THREE.Camera,
+    nativeEdges: boolean,
+    metrics?: NativeOcclusionMetrics,
+    ordinaryMetrics?: OrdinaryTerrainMetrics,
+    owned = false
+  ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0) this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+      return this.collectPickCandidates(
+        mouse,
+        objects,
+        camera,
+        nativeEdges,
+        metrics,
+        ordinaryMetrics,
+        owned
+      )
+    } finally {
+      if (--this.ordinaryPickDepth === 0) this.ordinaryPickScratch?.clearPoints()
+    }
+  }
+
+  private collectPickCandidates(
+    mouse: THREE.Vector2,
+    objects: THREE.Object3D[],
+    camera: THREE.Camera,
+    nativeEdges: boolean,
+    metrics?: NativeOcclusionMetrics,
+    ordinaryMetrics?: OrdinaryTerrainMetrics,
+    owned = false
+  ): ViewPickCandidate[] {
+    const nativeMetrics = nativeEdges ? metrics : undefined
+    const ordinary = nativeEdges ? undefined : ordinaryMetrics
+    const projectionMetrics = nativeMetrics ?? ordinary
     if (this.overview) {
       const p = globePick(
         this.globe,
@@ -432,8 +552,10 @@ export class RenderView {
     for (const root of objects)
       root.traverseVisible(object => {
         if (!(object instanceof THREE.Mesh) || !object.visible) return
+        const visibilityStart = ordinary ? performance.now() : 0
         object.updateWorldMatrix(true, false)
-        if (!nativeEdges) this.updateTerrainVisibility(object)
+        if (!nativeEdges) this.updateTerrainVisibility(object, ordinary?.visibility)
+        if (ordinary) ordinary.visibilityMs += performance.now() - visibilityStart
         const geometry = object.geometry,
           position = geometry.getAttribute('position'),
           index = geometry.getIndex()
@@ -468,10 +590,8 @@ export class RenderView {
               ].join(',')
             : ''
           const cache = this.groundPickCache.get(object)?.get(instance)
-          const reuse = nativeEdges && cache?.key === cacheKey && cache.position === position
-          const world: THREE.Vector3[] = reuse ? cache.world : [],
-            screen: THREE.Vector4[] = reuse ? cache.screen : [],
-            scale = object.userData.nativeScale
+          let projectionStart = projectionMetrics ? performance.now() : 0
+          const scale = object.userData.nativeScale
           const origin = new THREE.Vector3().setFromMatrixPosition(transform),
             basis = modelMatrix(
               object.parent?.userData.nativeHeading ?? 0,
@@ -480,9 +600,148 @@ export class RenderView {
             ),
             unwrapped = !!object.userData.nativeRelative
           const count = index ? Math.min(index.count, geometry.drawRange.count) : position.count
+          // Share only exact shipped-grid corners newly projected in this query.
+          // Native queries retain slots, but never a corner alias to an earlier
+          // query's projection; newly submitted IDs must read current positions.
+          const shareTerrainCorners =
+            !scale &&
+            object instanceof THREE.InstancedMesh &&
+            object.userData.terrainGrid &&
+            object.userData.painterGround &&
+            object.userData.nativeRelative &&
+            position instanceof THREE.BufferAttribute &&
+            Object.getPrototypeOf(position) === THREE.Float32BufferAttribute.prototype &&
+            (nativeEdges
+              ? terrainDataMethod(position, 'getX', terrainGetX)
+              : position.getX === THREE.BufferAttribute.prototype.getX) &&
+            (nativeEdges
+              ? terrainDataMethod(position, 'getY', terrainGetY)
+              : position.getY === THREE.BufferAttribute.prototype.getY) &&
+            (nativeEdges
+              ? terrainDataMethod(position, 'getZ', terrainGetZ)
+              : position.getZ === THREE.BufferAttribute.prototype.getZ) &&
+            Object.getPrototypeOf(position.array) === Float32Array.prototype &&
+            position.array.buffer instanceof ArrayBuffer &&
+            !position.normalized &&
+            position.itemSize === 3 &&
+            position.count === 128 * 128 * 6 &&
+            index &&
+            Object.getPrototypeOf(index) === THREE.BufferAttribute.prototype &&
+            (nativeEdges
+              ? terrainDataMethod(index, 'getX', terrainGetX)
+              : index.getX === THREE.BufferAttribute.prototype.getX) &&
+            (nativeEdges
+              ? terrainDataMethod(index, 'setX', terrainSetX)
+              : index.setX === THREE.BufferAttribute.prototype.setX) &&
+            Object.getPrototypeOf(index.array) === Uint32Array.prototype &&
+            index.array.buffer instanceof ArrayBuffer &&
+            !index.normalized &&
+            index.itemSize === 1 &&
+            count % 6 === 0
+          // Original vertex IDs are sparse and duplicate corners need only an
+          // alias, not another sparse world/screen array entry. Keep projected
+          // entries packed; candidate triangle IDs stay original.
+          const packedTerrain =
+            shareTerrainCorners &&
+            index!.array.subarray(0, count).every((id: number) => id < position.count)
+          const reuse =
+            nativeEdges &&
+            cache?.key === cacheKey &&
+            cache.position === position &&
+            !!cache.slots === !!packedTerrain
+          if (nativeMetrics) {
+            if (reuse) nativeMetrics.cacheHits++
+            else if (!cache) nativeMetrics.cacheCold++
+            else if (cache.position !== position) nativeMetrics.cachePositionChanged++
+            else if (cache.key !== cacheKey) nativeMetrics.cacheKeyChanged++
+            else if (nativeMetrics.cacheRepresentationChanged !== undefined)
+              nativeMetrics.cacheRepresentationChanged++
+          }
+          // Only ordinary outer queries lease scratch. Native packed buffers are
+          // retained by the native cache, never reset or shared with that lease.
+          const scratch =
+            !nativeEdges &&
+            packedTerrain &&
+            this.ordinaryPickDepth === 1 &&
+            !this.ordinaryPickDisposed
+              ? (this.ordinaryPickScratch ??= new OrdinaryPickScratch())
+              : null
+          scratch?.reset()
+          const numeric =
+            owned && scratch && runtimeTerrainPicking(this, object)
+              ? (this.ordinaryNumericProjection ??= new OrdinaryNumericProjection())
+              : null
+          numeric?.reset()
+          // Observe the selected representation once per admitted instance, never
+          // re-read eligibility inputs or add work inside vertex/triangle loops.
+          const paths = ordinary?.paths
+          if (paths) paths[numeric ? 'numeric' : packedTerrain ? 'packedVector' : 'sparseVector']++
+          const world: THREE.Vector3[] = reuse ? cache.world : (scratch?.world ?? []),
+            screen: THREE.Vector4[] = reuse ? cache.screen : (scratch?.screen ?? []),
+            terrainSlots = packedTerrain
+              ? reuse
+                ? cache.slots!
+                : (scratch?.slots ?? new Uint32Array(position.count))
+              : null
+          let terrainCorners: Uint32Array | null =
+            !nativeEdges && shareTerrainCorners
+              ? (scratch?.corners ?? new Uint32Array(129 * 129))
+              : null
           for (let vertex = 0; vertex < count; vertex++) {
             const i = index ? index.getX(vertex) : vertex
-            if (screen[i]) continue
+            if (terrainSlots ? terrainSlots[i] : screen[i]) continue
+            let firstCorner = -1
+            if (shareTerrainCorners) {
+              terrainCorners ??= new Uint32Array(129 * 129)
+              const x = position.getX(i),
+                y = position.getY(i),
+                z = position.getZ(i),
+                gridX = (x + 128) / 2,
+                gridZ = (z + 128) / 2
+              if (
+                Number.isFinite(x) &&
+                Number.isFinite(y) &&
+                Number.isFinite(z) &&
+                Number.isInteger(gridX) &&
+                Number.isInteger(gridZ) &&
+                gridX >= 0 &&
+                gridX <= 128 &&
+                gridZ >= 0 &&
+                gridZ <= 128
+              ) {
+                const corner = gridZ * 129 + gridX,
+                  source = terrainCorners[corner] - 1
+                if (source < 0) firstCorner = corner
+                else if (
+                  Object.is(x, position.getX(source)) &&
+                  Object.is(y, position.getY(source)) &&
+                  Object.is(z, position.getZ(source))
+                ) {
+                  if (terrainSlots) terrainSlots[i] = terrainSlots[source]
+                  else {
+                    world[i] = world[source]
+                    screen[i] = screen[source]
+                  }
+                  continue
+                }
+              }
+            }
+            if (numeric) {
+              const slot = numeric.append(
+                position.getX(i),
+                position.getY(i),
+                position.getZ(i),
+                transform.elements,
+                this.rawCenter.x,
+                this.rawCenter.y,
+                this.projection,
+                this.config.depth
+              )
+              terrainSlots![i] = slot + 1
+              if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
+              if (projectionMetrics) projectionMetrics.projectedVertices++
+              continue
+            }
             let p = new THREE.Vector3().fromBufferAttribute(position, i)
             if (scale) {
               const raw = [
@@ -497,19 +756,51 @@ export class RenderView {
               })
               p = new THREE.Vector3(q.x, q.y, -q.z).multiplyScalar(1 / 128).add(origin)
             } else p.applyMatrix4(transform)
-            world[i] = p
-            screen[i] = this.screen(p, camera, unwrapped)
+            const slot = terrainSlots ? world.length : i
+            world[slot] = p
+            screen[slot] = this.screen(p, camera, unwrapped)
+            if (projectionMetrics) projectionMetrics.projectedVertices++
+            if (terrainSlots) terrainSlots[i] = slot + 1
+            // Keep the first source when later corners disagree in height or sign.
+            if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
           }
           if (nativeEdges && !reuse) {
             let entries = this.groundPickCache.get(object)
             if (!entries) this.groundPickCache.set(object, (entries = new Map()))
-            entries.set(instance, { key: cacheKey, position, world, screen })
+            entries.set(instance, { key: cacheKey, position, world, screen, slots: terrainSlots })
+          }
+          if (projectionMetrics) {
+            const now = performance.now()
+            projectionMetrics.projectionMs += now - projectionStart
+            if (nativeMetrics) nativeMetrics.submittedTriangles += Math.ceil(count / 3)
+            projectionStart = now
+          }
+          if (numeric) {
+            this.scanOrdinaryNumeric(
+              numeric,
+              terrainSlots!,
+              index!,
+              count,
+              mouse,
+              object,
+              instance,
+              candidates,
+              ordinary
+            )
+            if (projectionMetrics)
+              projectionMetrics.triangleScanMs += performance.now() - projectionStart
+            continue
           }
           for (let i = 0; i < count; i += 3) {
-            const ids = index
-              ? [index.getX(i), index.getX(i + 1), index.getX(i + 2)]
-              : [i, i + 1, i + 2]
-            const [a, b, c] = ids.map(id => screen[id])
+            if (ordinary) ordinary.visitedTriangles++
+            // Read all IDs before resolving screen entries, as the array path did.
+            // Rejected triangles need no temporary ID, map or clip-test arrays.
+            const ia = index ? index.getX(i) : i,
+              ib = index ? index.getX(i + 1) : i + 1,
+              ic = index ? index.getX(i + 2) : i + 2
+            const a = screen[terrainSlots ? terrainSlots[ia] - 1 : ia],
+              b = screen[terrainSlots ? terrainSlots[ib] - 1 : ib],
+              c = screen[terrainSlots ? terrainSlots[ic] - 1 : ic]
             // Reject distant triangles before allocating pixel-edge test inputs.
             // One pixel of padding preserves native nearest-even rounding.
             if (
@@ -521,9 +812,11 @@ export class RenderView {
             )
               continue
             if (
-              [a, b, c].every(p => p.z < -1) ||
-              [a, b, c].every(p => p.z > 1) ||
-              [a, b, c].some(p => p.w <= 0)
+              (a.z < -1 && b.z < -1 && c.z < -1) ||
+              (a.z > 1 && b.z > 1 && c.z > 1) ||
+              a.w <= 0 ||
+              b.w <= 0 ||
+              c.w <= 0
             )
               continue
             const determinant = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y)
@@ -548,10 +841,13 @@ export class RenderView {
               )
                 continue
             } else if (u < 0 || v < 0 || t < 0) continue
-            const weights = [u / a.w, v / b.w, t / c.w],
+            const ids = [ia, ib, ic],
+              weights = [u / a.w, v / b.w, t / c.w],
               sum = weights.reduce((total, weight) => total + weight),
               p = new THREE.Vector3()
-            ids.forEach((id, j) => p.addScaledVector(world[id], weights[j] / sum))
+            ids.forEach((id, j) =>
+              p.addScaledVector(world[terrainSlots ? terrainSlots[id] - 1 : id], weights[j] / sum)
+            )
             if (!this.overview && !this.visible(p, unwrapped)) continue
             const wrap = (n: number) => ((((n + 128) % 256) + 256) % 256) - 128
             candidates.push({
@@ -562,9 +858,99 @@ export class RenderView {
               instance,
             })
           }
+          if (projectionMetrics)
+            projectionMetrics.triangleScanMs += performance.now() - projectionStart
         }
       })
     return candidates
+  }
+
+  // The factory is the only opt-in. Generic/public picking and native caches
+  // never use these numeric buffers, even on the same owned view.
+  pickOwnedTerrain(
+    mouse: THREE.Vector2,
+    terrain: THREE.Object3D,
+    camera: THREE.Camera,
+    metrics?: OrdinaryTerrainMetrics
+  ) {
+    if (!runtimeTerrainPicking(this, terrain) || this.overview || this.ordinaryPickDepth !== 0)
+      return this.pick(mouse, [terrain], camera, false, metrics)
+    const candidates = this.pickCandidateQuery(
+      mouse,
+      [terrain],
+      camera,
+      false,
+      undefined,
+      metrics,
+      true
+    )
+    const start = metrics ? performance.now() : 0
+    const result = this.resolvePickCandidates(candidates)
+    if (metrics) metrics.resolutionMs += performance.now() - start
+    return result
+  }
+
+  releaseOrdinaryNumericProjection() {
+    // An active query owns its local reference until completion. Detach only.
+    this.ordinaryNumericProjection = null
+  }
+
+  private scanOrdinaryNumeric(
+    numeric: OrdinaryNumericProjection,
+    slots: Uint32Array,
+    index: THREE.BufferAttribute,
+    count: number,
+    mouse: THREE.Vector2,
+    object: THREE.Object3D,
+    instance: number,
+    candidates: ViewPickCandidate[],
+    metrics?: OrdinaryTerrainMetrics
+  ) {
+    const values = numeric.values
+    for (let i = 0; i < count; i += 3) {
+      if (metrics) metrics.visitedTriangles++
+      const ia = index.getX(i),
+        ib = index.getX(i + 1),
+        ic = index.getX(i + 2)
+      const a = (slots[ia] - 1) * 6,
+        b = (slots[ib] - 1) * 6,
+        c = (slots[ic] - 1) * 6
+      const ax = values[a + 3],
+        ay = values[a + 4],
+        az = values[a + 5],
+        bx = values[b + 3],
+        by = values[b + 4],
+        bz = values[b + 5],
+        cx = values[c + 3],
+        cy = values[c + 4],
+        cz = values[c + 5]
+      if ((az < -1 && bz < -1 && cz < -1) || (az > 1 && bz > 1 && cz > 1)) continue
+      const determinant = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy)
+      if (Math.abs(determinant) < 1e-12) continue
+      const u = ((by - cy) * (mouse.x - cx) + (cx - bx) * (mouse.y - cy)) / determinant,
+        v = ((cy - ay) * (mouse.x - cx) + (ax - cx) * (mouse.y - cy)) / determinant,
+        t = 1 - u - v
+      if (u < 0 || v < 0 || t < 0) continue
+      const ids = [ia, ib, ic],
+        weights = [u / 1, v / 1, t / 1],
+        sum = weights.reduce((total, weight) => total + weight),
+        p = new THREE.Vector3(),
+        source = new THREE.Vector3()
+      ids.forEach((id, j) => {
+        const offset = (slots[id] - 1) * 6
+        source.set(values[offset], values[offset + 1], values[offset + 2])
+        p.addScaledVector(source, weights[j] / sum)
+      })
+      if (!this.visible(p, true)) continue
+      const wrap = (n: number) => ((((n + 128) % 256) + 256) % 256) - 128
+      candidates.push({
+        point: { x: wrap(p.x), z: wrap(p.z) },
+        object,
+        depth: u * az + v * bz + t * cz,
+        triangle: ids[0] / 3,
+        instance,
+      })
+    }
   }
 
   resolvePickCandidates(candidates: ViewPickCandidate[]) {
@@ -580,15 +966,53 @@ export class RenderView {
     return best
   }
 
-  pick(mouse: THREE.Vector2, objects: THREE.Object3D[], camera: THREE.Camera, nativeEdges = false) {
-    return this.resolvePickCandidates(this.pickCandidates(mouse, objects, camera, nativeEdges))
+  pick(
+    mouse: THREE.Vector2,
+    objects: THREE.Object3D[],
+    camera: THREE.Camera,
+    nativeEdges = false,
+    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ) {
+    const candidates = this.pickCandidates(
+      mouse,
+      objects,
+      camera,
+      nativeEdges,
+      undefined,
+      ordinaryMetrics
+    )
+    const ordinary = nativeEdges ? undefined : ordinaryMetrics
+    const start = ordinary ? performance.now() : 0
+    const hit = this.resolvePickCandidates(candidates)
+    if (ordinary) ordinary.resolutionMs += performance.now() - start
+    return hit
   }
-  updateTerrainVisibility(object: THREE.Object3D) {
+  private terrainSubmissionMatches(
+    index: THREE.BufferAttribute,
+    indices: Uint32Array,
+    count: number
+  ) {
+    for (let i = 0; i < count; i++) if (index.array[i] !== indices[i]) return false
+    return true
+  }
+  // Call before debug/custom unversioned writes to a production terrain index.
+  revokeTerrainSubmission(object: THREE.Mesh) {
+    revokeTerrainSubmissionOwner(object)
+  }
+  updateTerrainVisibility(object: THREE.Object3D, metrics?: TerrainVisibilityMetrics) {
     if (!(object instanceof THREE.Mesh) || !object.userData.terrainGrid) return
+    const owner = terrainSubmissionOwner(object),
+      geometry = object.geometry,
+      vertices = geometry.getAttribute('position').count,
+      selection = this.terrainVisibility.prepare(
+        this.bounds,
+        this.rawCenter,
+        this.overview,
+        vertices,
+        metrics
+      )
     if (object instanceof THREE.InstancedMesh) {
-      const tiles = this.overview
-          ? terrainTiles
-          : visibleTerrainCopies(this.bounds, this.rawCenter),
+      const tiles = selection.tiles,
         matrices = object.instanceMatrix.array
       if (
         object.count !== tiles.length ||
@@ -604,18 +1028,51 @@ export class RenderView {
         object.count = tiles.length
       }
     }
-    const geometry = object.geometry,
-      vertices = geometry.getAttribute('position').count
     if (!geometry.index) geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(vertices), 1))
     const index = geometry.index!,
-      cells = this.overview ? null : visibleTerrainCells(this.bounds, this.rawCenter)
-    let count = 0
-    for (let cell = 0; cell < vertices / 6; cell++) {
-      if (cells && !cells[cell]) continue
-      for (let vertex = cell * 6; vertex < cell * 6 + 6; vertex++) index.setX(count++, vertex)
+      { indices, count } = selection
+    // Validate the actual prefix, not just BufferAttribute.version: custom callers
+    // can mutate the array without needsUpdate. Keep their original write path.
+    const standard = standardTerrainSubmissionIndex(index) && index.count >= count
+    // Only initialized, exclusively owned terrain can bypass prefix validation.
+    // Custom/index identity/method changes fall back; marked edits validate once.
+    if (owner && standard && reuseTerrainSubmission(owner, selection)) {
+      if (metrics) metrics.indexReuseCalls++
+      return
     }
-    index.needsUpdate = true
-    geometry.setDrawRange(0, count)
+    if (owner && !standard) revokeTerrainSubmissionOwner(object)
+    const same = standard && this.terrainSubmissionMatches(index, indices, count)
+    if (!same) {
+      for (let i = 0; i < count; i++) index.setX(i, indices[i])
+      if (metrics) metrics.indexEntriesWritten += count
+      index.needsUpdate = true
+    } else if (metrics) metrics.indexReuseCalls++
+    if (!standard || geometry.drawRange.start !== 0 || geometry.drawRange.count !== count)
+      geometry.setDrawRange(0, count)
+    if (owner && standard) certifyTerrainSubmission(owner, selection)
+  }
+  private createDrawCallback(object: THREE.Object3D): THREE.Object3D['onBeforeRender'] {
+    return (_renderer, _scene, _camera, _geometry, material) => {
+      const local = material.userData.nativeUniforms
+      if (!local) return
+      if (object.userData.atlasTransform)
+        local.nativeAtlasTransform.value = object.userData.atlasTransform
+      local.nativePainterRange.value.set(
+        !this.overview ? (this.painter.ranges.get(object) ?? [-1, 0]) : [-1, 0]
+      )
+      local.nativeModelScale.value = object.userData.nativeScale ?? 0
+      local.nativeObjectScale.value = object.userData.nativeSize ?? object.userData.nativeScale ?? 0
+      local.nativeRelative.value = object.userData.nativeRelative ? 1 : 0
+      const cell = object.parent?.userData.cellPosition
+      local.nativeCellAnchor.value.set(cell?.x ?? 0, 0, cell?.z ?? 0, cell ? 1 : 0)
+      local.nativeObjectBasis.value.set(
+        modelMatrix(
+          object.parent?.userData.nativeHeading ?? 0,
+          object.parent?.userData.nativeTilt ?? 0,
+          object.parent?.userData.nativeRoll ?? 0
+        )
+      )
+    }
   }
   prepare(scene: THREE.Scene) {
     scene.onBeforeRender = renderer => {
@@ -656,28 +1113,12 @@ export class RenderView {
       object.material = Array.isArray(object.material)
         ? object.material.map(ownMaterial)
         : ownMaterial(object.material)
-      object.onBeforeRender = (_renderer, _scene, _camera, _geometry, material) => {
-        const local = material.userData.nativeUniforms
-        if (!local) return
-        if (object.userData.atlasTransform)
-          local.nativeAtlasTransform.value = object.userData.atlasTransform
-        local.nativePainterRange.value.set(
-          !this.overview ? (this.painter.ranges.get(object) ?? [-1, 0]) : [-1, 0]
-        )
-        local.nativeModelScale.value = object.userData.nativeScale ?? 0
-        local.nativeObjectScale.value =
-          object.userData.nativeSize ?? object.userData.nativeScale ?? 0
-        local.nativeRelative.value = object.userData.nativeRelative ? 1 : 0
-        const cell = object.parent?.userData.cellPosition
-        local.nativeCellAnchor.value.set(cell?.x ?? 0, 0, cell?.z ?? 0, cell ? 1 : 0)
-        local.nativeObjectBasis.value.set(
-          modelMatrix(
-            object.parent?.userData.nativeHeading ?? 0,
-            object.parent?.userData.nativeTilt ?? 0,
-            object.parent?.userData.nativeRoll ?? 0
-          )
-        )
+      let onBeforeRender = this.drawCallbacks.get(object)
+      if (!onBeforeRender) {
+        onBeforeRender = this.createDrawCallback(object)
+        this.drawCallbacks.set(object, onBeforeRender)
       }
+      object.onBeforeRender = onBeforeRender
       for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
         if (this.materials.has(material)) continue
         material.fog = false
@@ -762,6 +1203,12 @@ export class RenderView {
     })
   }
   dispose() {
+    releaseRuntimeTerrainPicking(this)
+    // Drop ownership without mutating any buffers an active reentrant call holds.
+    this.ordinaryPickScratch = null
+    // Remaining instances/roots in this query must not reacquire ownership.
+    // A later independent top-level query may initialize fresh storage.
+    this.ordinaryPickDisposed = true
     this.boundsTexture.dispose()
     this.painter.texture.dispose()
   }

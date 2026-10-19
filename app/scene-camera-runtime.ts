@@ -1,3 +1,5 @@
+import type { SceneUpdateMetrics } from './scene-update-metrics.ts'
+import type { WaterUpdateMetrics } from './water-update-reasons.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import { texture } from './scene-assets.ts'
@@ -16,12 +18,7 @@ import {
   stepCameraMotion,
   interpolateCamera,
 } from './camera-motion.ts'
-import {
-  showObjectTooltip,
-  stepTooltip,
-  forcedTooltipObject,
-  worldTooltipObject,
-} from './tooltips.ts'
+import { forcedTooltipObject } from './tooltips.ts'
 import {
   zoomPreset,
   viewTransitionFrames,
@@ -150,8 +147,15 @@ export function updateSky(scene: GameScene) {
   }
 }
 
-export function updateEnvironmentFrame(scene: GameScene, skyTicks: number) {
-  scene.updateWater()
+export function updateEnvironmentFrame(
+  scene: GameScene,
+  skyTicks: number,
+  waterMetrics?: WaterUpdateMetrics,
+  sceneUpdates?: SceneUpdateMetrics
+) {
+  const waterStart = sceneUpdates ? performance.now() : 0
+  scene.updateWater(waterMetrics)
+  if (sceneUpdates) sceneUpdates.waterCpuMs += performance.now() - waterStart
   scene.ground.visible = !scene.overviewActive
   scene.globe.visible = scene.overviewActive
   scene.scene.background = scene.space
@@ -436,15 +440,14 @@ export function updateFlyby(scene: GameScene, dt: number) {
     while (scene.flybyTime + 1e-9 >= 1 / 24) {
       for (const event of stepFlyby(state, scene.flybyCamera, 24)) {
         if (event.kind === 5)
-          showObjectTooltip(
-            scene.tooltip,
+          scene.acquireForcedTooltip(
             forcedTooltipObject(scene.world, event.flags, event.value),
             event.duration
           )
       }
-      // Native render_land_ui consumes the request before the next frame.
-      scene.tooltip.draw = 0
-      stepTooltip(scene.tooltip, !!worldTooltipObject(scene.world, scene.tooltip.target), 24)
+      // One composed compatibility visit per existing tick. Catch-up visits use
+      // the actual outer RAF observation time, never invented earlier timestamps.
+      scene.updateTooltipController(scene.previous ?? performance.now())
       scene.flybyTime = Math.max(0, scene.flybyTime - 1 / 24)
       if (active) scene.commitSky(scene.flybyCamera, scene.flybyTime)
     }

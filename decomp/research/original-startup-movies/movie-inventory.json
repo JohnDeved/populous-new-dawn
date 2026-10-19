@@ -1,0 +1,198 @@
+[
+  {
+    "archiveMember": "data/{app}/Fmv/BLOGO.TGQ",
+    "component": "Component0",
+    "extractedPath": "game/fmv/blogo.tgq",
+    "size": 3522168,
+    "sha256": "65602921453014c11b079b95f664a29c89727fb0b2d0dce4c40fee94665a80fa",
+    "video": {
+      "index": 0,
+      "codec_name": "tqi",
+      "codec_type": "video",
+      "width": 320,
+      "height": 352,
+      "r_frame_rate": "25/1",
+      "duration": "0.000000",
+      "nb_read_packets": "188"
+    },
+    "audio": {
+      "index": 1,
+      "codec_name": "adpcm_ea",
+      "codec_type": "audio",
+      "sample_rate": "22050",
+      "channels": 2,
+      "r_frame_rate": "0/0",
+      "nb_read_packets": "188"
+    },
+    "nominalVideoSeconds": 7.52,
+    "durationCaveat": "Video packet count / probed 25 fps; not a measured native playback duration."
+  },
+  {
+    "archiveMember": "data/{app}/Fmv/OUTRO.TGQ",
+    "component": "Component0",
+    "extractedPath": "game/fmv/outro.tgq",
+    "size": 30325864,
+    "sha256": "3cd5efa43d82270160f2c6c53dde1bccdf6a4727f1c62c4416508ed8d544854e",
+    "video": {
+      "index": 0,
+      "codec_name": "tqi",
+      "codec_type": "video",
+      "width": 320,
+      "height": 352,
+      "r_frame_rate": "25/1",
+      "duration": "0.000000",
+      "nb_read_packets": "2094"
+    },
+    "audio": {
+      "index": 1,
+      "codec_name": "adpcm_ea",
+      "codec_type": "audio",
+      "sample_rate": "22050",
+      "channels": 2,
+      "r_frame_rate": "0/0",
+      "nb_read_packets": "2143"
+    },
+    "nominalVideoSeconds": 83.76,
+    "durationCaveat": "Video packet count / probed 25 fps; not a measured native playback duration."
+  },
+  {
+    "archiveMember": "data/{app}/Fmv/P3INTRO1.TGQ",
+    "component": "Component0",
+    "extractedPath": "game/fmv/p3intro1.tgq",
+    "size": 45412912,
+    "sha256": "aa1c0128d11c41b46b47c863175a3b2a6c41ffb85805143eb609a73c0677d8a7",
+    "video": {
+      "index": 0,
+      "codec_name": "tqi",
+      "codec_type": "video",
+      "width": 320,
+      "height": 352,
+      "r_frame_rate": "25/1",
+      "duration": "0.000000",
+      "nb_read_packets": "3201"
+    },
+    "audio": {
+      "index": 1,
+      "codec_name": "adpcm_ea",
+      "codec_type": "audio",
+      "sample_rate": "22050",
+      "channels": 2,
+      "r_frame_rate": "0/0",
+      "nb_read_packets": "13204"
+    },
+    "nominalVideoSeconds": 128.04,
+    "durationCaveat": "Video packet count / probed 25 fps; not a measured native playback duration."
+  },
+  {
+    "archiveMember": "data/{app}/Fmv/p3intro2.tgq",
+    "component": "Component0",
+    "extractedPath": "game/fmv/p3intro2.tgq",
+    "size": 45412912,
+    "sha256": "59765139ef619ce04fe7e1e523bf0133b4ea84c63c313984da8060857477b07b",
+    "video": {
+      "index": 0,
+      "codec_name": "tqi",
+      "codec_type": "video",
+      "width": 320,
+      "height": 352,
+      "r_frame_rate": "25/1",
+      "duration": "0.000000",
+      "nb_read_packets": "3201"
+    },
+    "audio": {
+      "index": 1,
+      "codec_name": "adpcm_ea",
+      "codec_type": "audio",
+      "sample_rate": "22050",
+      "channels": 2,
+      "r_frame_rate": "0/0",
+      "nb_read_packets": "13204"
+    },
+    "nominalVideoSeconds": 128.04,
+    "durationCaveat": "Video packet count / probed 25 fps; not a measured native playback duration."
+  },
+  {
+    "archiveMember": "data/{app}/Fmv/p3intro3.tgq",
+    "component": "Component0",
+    "extractedPath": "game/fmv/p3intro3.tgq",
+    "size": 35849176,
+    "sha256": "46261edb2c733f68fce90544fa55fc7e6804d6775914a3ab23702884923422d1",
+    "video": {
+      "index": 0,
+      "codec_name": "tqi",
+      "codec_type": "video",
+      "width": 320,
+      "height": 352,
+      "r_frame_rate": "25/1",
+      "duration": "0.000000",
+      "nb_read_packets": "3201"
+    },
+    "audio": {
+      "index": 1,
+      "codec_name": "adpcm_ea",
+      "codec_type": "audio",
+      "sample_rate": "22050",
+      "channels": 2,
+      "r_frame_rate": "0/0",
+      "nb_read_packets": "3301"
+    },
+    "nominalVideoSeconds": 128.04,
+    "durationCaveat": "Video packet count / probed 25 fps; not a measured native playback duration."
+  },
+  {
+    "archiveMember": "data/{app}/Fmv/POP3MASK.TGQ",
+    "component": "Component0",
+    "extractedPath": "game/fmv/pop3mask.tgq",
+    "size": 4872172,
+    "sha256": "5edfe4b9f4e154bf058491d46ec72e0399cb460aa6d1030a4696cdc7e0045019",
+    "video": {
+      "index": 0,
+      "codec_name": "tqi",
+      "codec_type": "video",
+      "width": 320,
+      "height": 352,
+      "r_frame_rate": "25/1",
+      "duration": "0.000000",
+      "nb_read_packets": "300"
+    },
+    "audio": {
+      "index": 1,
+      "codec_name": "adpcm_ea",
+      "codec_type": "audio",
+      "sample_rate": "22050",
+      "channels": 2,
+      "r_frame_rate": "0/0",
+      "nb_read_packets": "299"
+    },
+    "nominalVideoSeconds": 12.0,
+    "durationCaveat": "Video packet count / probed 25 fps; not a measured native playback duration."
+  },
+  {
+    "archiveMember": "data/{app}/Fmv/Trailer.tgq",
+    "component": "Component0",
+    "extractedPath": "game/fmv/trailer.tgq",
+    "size": 32317876,
+    "sha256": "ee3d455f715a9b35a1d974c3918bc3600e98d43d64ec87124a3460e2848b9dfe",
+    "video": {
+      "index": 0,
+      "codec_name": "tqi",
+      "codec_type": "video",
+      "width": 320,
+      "height": 240,
+      "r_frame_rate": "25/1",
+      "duration": "0.000000",
+      "nb_read_packets": "2425"
+    },
+    "audio": {
+      "index": 1,
+      "codec_name": "adpcm_ea",
+      "codec_type": "audio",
+      "sample_rate": "22050",
+      "channels": 2,
+      "r_frame_rate": "0/0",
+      "nb_read_packets": "2424"
+    },
+    "nominalVideoSeconds": 97.0,
+    "durationCaveat": "Video packet count / probed 25 fps; not a measured native playback duration."
+  }
+]

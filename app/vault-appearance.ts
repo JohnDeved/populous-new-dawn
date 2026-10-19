@@ -5,6 +5,7 @@ import { setAnimationObject, type AnimatedUnit } from './animation.ts'
 import type { Gift, Point, Shrine, World } from './world-types.ts'
 import temple from './original-vault-knowledge.json' with { type: 'json' }
 import camp from './original-vault-knowledge-camp.json' with { type: 'json' }
+import { vaultShapePose } from './vault-geometry.ts'
 
 const knowledgeVaults = [
   { ...camp, reward: 'camp' as const },
@@ -123,14 +124,6 @@ export function vaultKnowledgePlacement(shrine: Pick<Shrine, 'x' | 'z' | 'model'
   z: number
   heightOffset: number
 } {
-  const socket = buildingSocketPoint(
-    {
-      object: shrine.model,
-      angle: Math.round((shrine.angle * 2048) / (Math.PI * 2)) & 2047,
-      anchorX: Math.round((shrine.x + 8) * 256) & 0xfe00,
-      anchorY: Math.round((-shrine.z - 8) * 256) & 0xfe00,
-    },
-    VAULT_KNOWLEDGE_SOCKET
-  )
+  const socket = buildingSocketPoint(vaultShapePose(shrine), VAULT_KNOWLEDGE_SOCKET)
   return { ...browserPosition(socket), heightOffset: socket.heightOffset }
 }

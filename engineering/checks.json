@@ -2,6 +2,52 @@
   "version": 1,
   "checks": [
     {
+      "id": "neutral-canvas-cursor",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate the bounded POINT14 browser cursor adaptation, readiness and scene ownership.",
+      "coveredBehavior": [
+        "Exact source asset dimensions/hash and hotspot",
+        "Neutral-state exclusions, stationary transitions and original inline-style restoration",
+        "Decode failure, timeout, cancellation, blur and disposal; actual scene constructor/readiness/lifecycle statements"
+      ],
+      "knownLimits": [
+        "Mock DOM and image decode; parent-owned hosted cursor/picking/DPR verification remains required.",
+        "Browser adaptation, not complete native contextual cursor-state parity."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/neutral-cursor.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/neutral-cursor.ts",
+        "app/scene.ts",
+        "app/scene-entities.ts",
+        "app/unit-animation-source.ts",
+        "tests/neutral-cursor.test.mjs",
+        "public/original/cursor-point14.png",
+        "public/original/cursor-point14.json",
+        "scripts/import-neutral-cursor.py",
+        "scripts/import-original.py",
+        "decomp/research/neutral-canvas-cursor.md"
+      ],
+      "prerequisites": [
+        "Installed project dependencies",
+        "Node.js >=22.13.0"
+      ],
+      "sideEffects": [
+        "In-process mocked DOM/Image/timers only; reads source and asset files. No network, ports or filesystem writes."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "id": "blast-impact-original-reference",
       "kind": "portable",
       "automation": "manual",
@@ -178,7 +224,8 @@
       "automation": "safe",
       "purpose": "Validate receipt-derived automatic parity measurement without executing game checks.",
       "coveredBehavior": [
-        "Evidence freshness, failure precedence, unknown scope, deterministic history and report escaping"
+        "Evidence freshness, failure precedence, unknown scope, deterministic history and report escaping",
+        "Bounded sequential JSON reads, conservative cache exclusion and malformed/interrupted candidate retention"
       ],
       "knownLimits": [
         "Synthetic evidence validates measurement, not actual game parity."
@@ -188,7 +235,11 @@
         "--test",
         "tests/parity-measure.test.mjs",
         "tests/parity-owned-checkpoint.test.mjs",
-        "tests/parity-owned-blast.test.mjs"
+        "tests/parity-owned-blast.test.mjs",
+        "tests/parity-discovery.test.mjs",
+        "tests/parity-discovery-reader.test.mjs",
+        "tests/parity-streaming-discovery.test.mjs",
+        "tests/parity-json-metadata.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -204,7 +255,13 @@
         "tests/parity-measure.test.mjs",
         "engineering/parity-capabilities.json",
         "engineering/checks.json",
-        "parity.json"
+        "parity.json",
+        "scripts/parity-discovery.mjs",
+        "scripts/parity-json-metadata.mjs",
+        "tests/parity-discovery.test.mjs",
+        "tests/parity-discovery-reader.test.mjs",
+        "tests/parity-streaming-discovery.test.mjs",
+        "tests/parity-json-metadata.test.mjs"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
@@ -805,17 +862,19 @@
         "Git change routing",
         "Contract audit",
         "Portable review bundle integrity",
-        "Source-bound raw command receipts"
+        "Source-bound raw command receipts",
+        "Hash-linked research navigation and finite claim bindings"
       ],
       "knownLimits": [
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
       ],
       "executable": "node",
-      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs"],
+      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
         ".codex/config.toml",
+        ".github/workflows/ready-pr-check.yml",
         ".agents/skills/populous-engineering/SKILL.md",
         "AGENTS.md",
         "GOAL.md",
@@ -891,6 +950,7 @@
       "env": [],
       "inputs": [
         ".codex/config.toml",
+        ".github/workflows/ready-pr-check.yml",
         "package.json",
         "app",
         "engineering",
@@ -901,7 +961,7 @@
         "PARITY.md"
       ],
       "prerequisites": ["Installed npm dependencies"],
-      "sideEffects": ["May update ignored tool caches"],
+      "sideEffects": ["May update ignored tool caches", "Runs every top-level tests/*.test.mjs file through the bounded Node runner; resource-sensitive/unreviewed files are serial."],
       "resources": ["Serialize with other full test runs"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
@@ -4308,21 +4368,43 @@
         "12 Hz simulation",
         "pause",
         "long frames",
-        "5-240 Hz schedules"
+        "5-240 Hz schedules",
+        "Shared tooltip visits and retained Hut records on the existing flyby opportunity"
       ],
       "knownLimits": [
         "Does not prove browser RAF, input, GPU presentation, or complete native outer scheduling."
       ],
       "executable": "node",
-      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-interpolation.test.mjs"],
+      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-motion.test.mjs", "tests/hut-tooltip-controller.test.mjs", "tests/camp-inspection.test.mjs", "tests/import-tooltip-string.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
         "app/game-clock.ts",
         "app/unit-motion.ts",
+        "app/projection.ts",
+        "app/original-camera.json",
         "app/model.ts",
         "app/world-turn.ts",
-        "tests/game-clock.test.mjs"
+        "tests/game-clock.test.mjs",
+        "tests/unit-motion.test.mjs",
+        "tests/fixtures/unit-interpolation.json",
+        "tests/hut-tooltip-controller.test.mjs",
+        "tests/camp-inspection.test.mjs",
+        "tests/support/tooltip-scene.mjs",
+        "tests/import-tooltip-string.test.mjs",
+        "tests/support/bloodlust-scene.mjs",
+        "tests/support/hut-smoke-scene.mjs",
+        "app/tooltip-controller.ts",
+        "app/scene-tooltip-runtime.ts",
+        "app/scene.ts",
+        "app/scene-camera-runtime.ts",
+        "app/scene-input-runtime.ts",
+        "app/object-panels.ts",
+        "app/building-panels.ts",
+        "app/scene-secondary-effects.ts",
+        "app/tooltips.ts",
+        "app/original-tooltips.json",
+        "scripts/import-messages.py"
       ],
       "prerequisites": ["Installed npm dependencies"],
       "sideEffects": [],

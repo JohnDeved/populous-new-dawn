@@ -2,6 +2,7 @@ import art from './original-temple-acquisition.json' with { type: 'json' }
 import fire from './original-fire.json' with { type: 'json' }
 import type { SharedAniblSnapshot } from './shared-anibl.ts'
 import type { Building } from './world-types.ts'
+import type { WorldEnvironment } from './world-environment.ts'
 
 export { default as templeArt } from './original-temple-acquisition.json' with { type: 'json' }
 
@@ -14,32 +15,35 @@ export function templeTileOffset(tile: number | undefined): [number, number] {
 }
 
 export function templeWorldMaterial(
-  mission: number,
+  environment: WorldEnvironment,
   building: Pick<Building, 'kind' | 'team'>,
   object: number,
   stage: number,
   resource: SharedAniblSnapshot | null
 ) {
+  if (building.kind !== 'temple' || object < 95 || object > 98 || stage !== 4) return null
   if (
-    mission !== 3 ||
-    building.kind !== 'temple' ||
-    building.team !== 'blue' ||
-    object !== 95 ||
-    stage !== 4
+    !resource ||
+    resource.bank !== environment.landscape.bank ||
+    resource.modelAtlas !== environment.landscape.modelAtlas
   )
-    return null
-  if (!resource) throw new Error('Temple material resource is unavailable')
-  return { atlas: art.modelAtlas, offset: templeTileOffset(resource.tile), epoch: resource.epoch }
+    throw new Error('Temple material resource is unavailable or mismatched')
+  return {
+    atlas: environment.landscape.modelAtlas,
+    offset: templeTileOffset(resource.tile),
+    epoch: resource.epoch,
+  }
 }
 
 /** M3 companion and pulse share the active PAL/AL bank. Ghost trails retain
  * their proven-equal ordinary pixels and independent85/255 draw opacity. */
 export function templeSpriteMaterial(
+  mission: number,
   frame: number,
   palette: number | 'ghost',
   resource: SharedAniblSnapshot | null
 ) {
-  if (!resource) return null
+  if (mission !== 3 || resource?.bank !== 'p' || resource.modelAtlas !== 'atlas-p') return null
   const crop = art.frames.find(candidate => candidate.source === frame)
   if (palette === 'ghost') return null
   const tint = art.tints.find(candidate => candidate.selector === palette)

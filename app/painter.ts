@@ -8,7 +8,7 @@ import {
 } from './painter-order.ts'
 import type { RenderView } from './render-view.ts'
 import { PainterVertices } from './painter-vertices.ts'
-import { cellObjectOrder, type ObjectCells } from './object-cells.ts'
+import { renderCellObjectOrder, type ObjectCells } from './object-cells.ts'
 import { TerrainAmbience } from './terrain-ambience.ts'
 import type { NativeTerrain } from './native-terrain.ts'
 import { soundListener, treeAmbienceAudible, type SoundEnvironment } from './ambient-sound.ts'
@@ -109,7 +109,7 @@ export class Painter {
     const commands: Command[] = [],
       view = this.view,
       basis = view.uniforms.nativeBasis.value
-    const cellOrder = this.cells ? cellObjectOrder(this.cells) : new Map<number, number>()
+    const cellOrder = this.cells ? renderCellObjectOrder(this.cells) : new Map<number, number>()
     const depth = (p: { x: number; y: number; z: number }) =>
       (Math.imul(p.x, basis[6]) + Math.imul(p.y, basis[7]) + Math.imul(p.z, basis[8])) >> 14
     const world = new THREE.Vector3(),
@@ -186,21 +186,24 @@ export class Painter {
           object.getMatrixAt(instance, local)
           transform.multiply(local)
         }
-        const origin = new THREE.Vector3().setFromMatrixPosition(transform)
-        const nativeOrigin = view.relative(origin, (origin.y * 128) / 45, unwrapped)
+        const origin =
+          sprite || scale ? new THREE.Vector3().setFromMatrixPosition(transform) : undefined
         // Every face of a native model uses the same anchor cell.
-        if ((sprite || scale) && !view.visible(metadata.cellPosition ?? origin, unwrapped)) continue
+        if ((sprite || scale) && !view.visible(metadata.cellPosition ?? origin!, unwrapped))
+          continue
+        const nativeOrigin =
+          sprite || scale ? view.relative(origin!, (origin!.y * 128) / 45, unwrapped) : undefined
         if (listener && scale && !this.pendingSoundEnvironment!.trees) {
           const tree = metadata.point
           if (tree?.model > 0 && tree.model < 7)
             this.pendingSoundEnvironment!.trees = treeAmbienceAudible(
-              { x: Math.round((origin.x + 8) * 256), y: Math.round((-origin.z - 8) * 256) },
+              { x: Math.round((origin!.x + 8) * 256), y: Math.round((-origin!.z - 8) * 256) },
               listener
             )
         }
         for (let face = 0; face < submitted; face++) {
           const triangle = index ? index.getX(face * 3) / 3 : face
-          if (sprite || scale) anchor.copy(origin)
+          if (sprite || scale) anchor.copy(origin!)
           else {
             anchor.fromBufferAttribute(centers!, triangle).applyMatrix4(transform)
             if (!view.visible(metadata.cellPosition ?? anchor, unwrapped)) continue
@@ -213,7 +216,7 @@ export class Painter {
           if (!vertices)
             bucket =
               spriteBucket(
-                depth(nativeOrigin),
+                depth(nativeOrigin!),
                 object === metadata.shadow ? -192 : (metadata.depthBias ?? -300)
               ) - 1
           else {
@@ -232,7 +235,7 @@ export class Painter {
                     raw,
                     object.userData.nativeSize ?? scale,
                     rotation!,
-                    nativeOrigin
+                    nativeOrigin!
                   )
                   vertices.depth[vertex] = depth(point)
                   if (object.userData.stage === 4)
@@ -388,9 +391,32 @@ export class Painter {
     this.texture.needsUpdate = true
   }
 
+  private renderLeaseBases: number[] = []
+
+  // Own cleanup around the renderer, not user callbacks. Three does not invoke
+  // scene.onAfterRender when rendering throws. Nested renders restore only the
+  // edits they added; the normal callback and finally path are idempotent.
+  render(renderer: Pick<THREE.WebGLRenderer, 'render'>, scene: THREE.Scene, camera: THREE.Camera) {
+    const base = this.transparentMeshes.length
+    this.renderLeaseBases.push(base)
+    try {
+      renderer.render(scene, camera)
+    } finally {
+      try {
+        this.restoreTransparentMeshes(base)
+      } finally {
+        this.renderLeaseBases.pop()
+      }
+    }
+  }
+
   afterRender() {
+    this.restoreTransparentMeshes(this.renderLeaseBases.at(-1) ?? 0)
+  }
+
+  private restoreTransparentMeshes(base: number) {
     // Keep scene material edits and geometry ownership unchanged between frames.
-    while (this.transparentMeshes.length) {
+    while (this.transparentMeshes.length > base) {
       const { mesh, material, groups } = this.transparentMeshes.pop()!
       mesh.material = material
       mesh.geometry.groups = groups

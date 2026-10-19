@@ -1,6 +1,11 @@
 import { tribeForTeam, type World, type Unit, type Building } from './world-types.ts'
 import { buildingModel, buildingOutsidePoint, buildingPose } from './building-shapes.ts'
-import { automaticCombatScanner, engagementRange, inEngagementArea } from './melee-engagement.ts'
+import {
+  automaticCombatScanner,
+  engagementCellDelta,
+  engagementRange,
+  inEngagementArea,
+} from './melee-engagement.ts'
 import {
   allocatePersonOrder,
   attachPersonOrder,
@@ -45,8 +50,10 @@ export function combatPerson(u: Unit): CombatPerson {
   let state = u.path.length || u.work !== null ? 10 : 17
   if (u.fight) state = 25
   return {
-    ...position(u),
-    ...held,
+    x: Math.round((u.x + 8) * 256) & 65535,
+    y: Math.round((-u.z - 8) * 256) & 65535,
+    reactionTimer: held.reactionTimer,
+    reactionDuration: held.reactionDuration,
     id: u.id,
     class: 1,
     model: nativePersonModel(u),
@@ -82,8 +89,16 @@ export function combatWorld(w: World, source: CombatPerson, range: number) {
     row.push(o)
     cells.set(cell, row)
   }
-  for (const u of w.units)
-    if (u.hp > 0 && inEngagementArea(source, position(u), range)) add(combatPerson(u), u, true)
+  const radius = Math.trunc(range / 2) * 2
+  for (const u of w.units) {
+    if (!(u.hp > 0) || !range) continue
+    // Reject on each wrapped cell axis before constructing a target record.
+    // Most distant people need neither a Y projection nor a combat snapshot.
+    const x = Math.round((u.x + 8) * 256)
+    if (!(Math.abs(engagementCellDelta(source.x, x)) <= radius)) continue
+    const y = Math.round((-u.z - 8) * 256)
+    if (Math.abs(engagementCellDelta(source.y, y)) <= radius) add(combatPerson(u), u, true)
+  }
   for (const fight of w.fights) {
     const point = position(fight)
     if (!inEngagementArea(source, point, range)) continue
@@ -120,7 +135,10 @@ export function combatWorld(w: World, source: CombatPerson, range: number) {
       const row = cells.get(cell)
       if (!row) return []
       const ordered: CombatTarget[] = []
-      for (const indexed of objectsInCell(w.objectCells, cell)) {
+      // Combat scans use dense landscape indices; the native chain API takes
+      // packed even-byte X/Y coordinates instead.
+      const packedCell = ((cell & 127) << 1) | ((cell >>> 7) << 9)
+      for (const indexed of objectsInCell(w.objectCells, packedCell)) {
         const object = objects.get(indexed.id)
         if (object && row.includes(object)) ordered.push(object)
       }
@@ -280,7 +298,7 @@ function startPreacherResponse(
           !unsigned(record.y, 65535) ||
           (record.y >> 9) * 128 + (record.x >> 9) !== cell ||
           record.cellPrevious !== previous ||
-          !unsigned(record.cellNext, 65535)
+          !unsigned(record.cellNext, Number.MAX_SAFE_INTEGER)
         )
           return 0
         linked.set(id, cell)
@@ -311,13 +329,13 @@ function startPreacherResponse(
         !Number.isInteger(record.life) ||
         record.life < -32768 ||
         record.life > 32767 ||
-        !unsigned(record.workFlags, 65535) ||
+        !unsigned(record.workFlags, Number.MAX_SAFE_INTEGER) ||
         !unsigned(record.state, rules.personStateFlags.length - 1) ||
         record.state !== person.state ||
         !unsigned(record.flags4, 0xffffffff) ||
         (record.flags2 ^ person.flags2) & 0x810000 ||
         (record.flags4 ^ person.flags4) & 0x1000 ||
-        !unsigned(record.vehicle, 65535) ||
+        !unsigned(record.vehicle, Number.MAX_SAFE_INTEGER) ||
         record.vehicle !== person.vehicle ||
         !unsigned(record.disguise, 255) ||
         record.disguise !== person.disguise

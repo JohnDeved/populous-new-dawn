@@ -1,6 +1,13 @@
 'use client'
 
+import { FullscreenControl } from './fullscreen-control'
+import { OriginalOptions } from './original-options'
+import { BrowserHelpTips } from './browser-help-tips'
+import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
+import { OriginalLoadingScreen } from './original-loading-screen'
+
 import { hudScale } from './hud-layout.ts'
+import { OriginalResultScreen } from './original-result-screen'
 import { flushSync } from 'react-dom'
 import type { WorshipAcquisitionGeometry, WorshipTargetModel } from './worship-acquisition.ts'
 import type { WorshipHudGeometry } from './worship-acquisition-layout.ts'
@@ -14,6 +21,8 @@ import {
   useSyncExternalStore,
   type CSSProperties,
   type MouseEvent,
+  type PointerEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
   type SyntheticEvent,
 } from 'react'
 import {
@@ -34,6 +43,8 @@ import {
 } from './model'
 import { createGameStore } from './game-store'
 import { WorldSelector } from './world-selector'
+import { OriginalMainMenu } from './original-main-menu'
+import { OriginalPauseMenu } from './original-pause-menu'
 import worldSelectorStyles from './world-selector.module.css'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
@@ -43,6 +54,12 @@ import {
   saveAudioPreferences,
   type AudioPreferences,
 } from './audio-preferences'
+import {
+  DEFAULT_GAME_PREFERENCES,
+  readGamePreferences,
+  saveGamePreferences,
+  type GamePreferences,
+} from './game-preferences'
 import { messageIcon, messageText, messageViewPoint, removeMessage } from './messages'
 import {
   HudSprite,
@@ -57,10 +74,17 @@ import { spellOrder } from './spell-button'
 import { followerClassControls } from './hud-population'
 import { FollowerTasks } from './follower-tasks-view'
 import { hudTaskPeople } from './follower-tasks-runtime'
-import type { FollowerTask } from './hud-tasks'
+import { followerTaskCounts, type FollowerTask } from './hud-tasks'
 import type { TransportKind } from './hud-transports'
 import { hudTransports } from './follower-transports-runtime'
-import { spellHudButton, spellHudRoster, spellHudVisibility } from './spell-visibility'
+import { createTooltipSession } from './tooltip-controller'
+import {
+  spellHudButton,
+  spellHudRoster,
+  spellHudVisibility,
+  spellHudCanCharge,
+  spellHudPermanent,
+} from './spell-visibility'
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
 import { teamForTribe, type TribeTeam } from './world-types'
@@ -99,12 +123,18 @@ export default function Home() {
   const [audioPreferences, setAudioPreferences] =
     useState<AudioPreferences>(DEFAULT_AUDIO_PREFERENCES)
   const [audioStorageNotice, setAudioStorageNotice] = useState('')
+  const [audioStartNotice, setAudioStartNotice] = useState('')
   const { volume, musicVolume } = audioPreferences
+  const [gamePreferences, setGamePreferences] = useState<GamePreferences>(DEFAULT_GAME_PREFERENCES)
+  const gamePreferencesRef = useRef(gamePreferences)
+  const [gameStorageNotice, setGameStorageNotice] = useState('')
   const [soundPending, setSoundPending] = useState(false)
   const [hudSize, setHudSize] = useState('auto')
   const [hudCamera, setHudCamera] = useState({ x: 0, y: 0 })
+  const [nearbyPressed, setNearbyPressed] = useState(false)
   const [messageViewportHeight, setMessageViewportHeight] = useState(480)
-  const [checkpointNotice, setCheckpointNotice] = useState('')
+  const frontendPreparation = useRef<Promise<FrontendAssets> | null>(null)
+  const [frontendAssets, setFrontendAssets] = useState<FrontendAssets | null>(null)
   const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
   useEffect(() => {
     try {
@@ -117,6 +147,7 @@ export default function Home() {
   }, [])
   const [menu, setMenu] = useState(false)
   const [selectorOpen, setSelectorOpen] = useState(false)
+  const [startupCampaign, setStartupCampaign] = useState(false)
   const [ready, setReady] = useState(false)
   const [desktopNotice, setDesktopNotice] = useState(true)
   const [error, setError] = useState('')
@@ -130,6 +161,11 @@ export default function Home() {
     ['temple', templeButton],
   ])
   const followerPress = useRef<EventTarget | null>(null)
+  const nearbyPress = useRef<{
+    scene: GameScene
+    pointer?: number
+    key?: string
+  } | null>(null)
   const loadRequest = useRef<LoadRequest | null>(null)
   const messageDetails = useRef(new Map<number, HTMLDetailsElement>())
   useEffect(() => {
@@ -175,10 +211,96 @@ export default function Home() {
   const viewport = useRef<HTMLDivElement>(null),
     minimap = useRef<HTMLCanvasElement>(null),
     portrait = useRef<HTMLCanvasElement>(null),
-    startupDialog = useRef<HTMLDialogElement>(null),
-    dialog = useRef<HTMLDialogElement>(null)
+    startupDialog = useRef<HTMLDialogElement>(null)
+  const tooltipSession = useRef(createTooltipSession())
   const engine = useRef<GameScene | null>(null),
     audio = useRef<Soundscape | null>(null)
+  const clearNearbyPress = useCallback(() => {
+    nearbyPress.current = null
+    setNearbyPressed(false)
+  }, [])
+  const cancelNearbyInput = useCallback(() => {
+    clearNearbyPress()
+    engine.current?.cancelNearbyFollowers()
+  }, [clearNearbyPress])
+  const pendingMenuCamera = useRef<((scene: GameScene) => void)[]>([])
+  // Native 00458060 captures prior pause; only the same world may restore it.
+  const menuSession = useRef<{ world: typeof world; paused: boolean } | null>(null)
+  const openMenu = useCallback(() => {
+    cancelNearbyInput()
+    if (engine.current) engine.current.nearbyFollowersHudActive = false
+    if (!menuSession.current) {
+      const current = store.getWorld()
+      pendingMenuCamera.current = []
+      menuSession.current = { world: current, paused: current.paused }
+      engine.current?.setModalSuspended(true)
+      store.change(w => {
+        w.paused = true
+      })
+    }
+    setMenu(true)
+  }, [cancelNearbyInput, store, setMenu])
+  function closeMenu() {
+    const session = menuSession.current
+    menuSession.current = null
+    setMenu(false)
+    if (session?.world === store.getWorld()) {
+      store.change(w => {
+        w.paused = session.paused
+      })
+      if (engine.current?.world === session.world) {
+        engine.current.setModalSuspended(false)
+        for (const action of pendingMenuCamera.current) action(engine.current)
+      }
+    }
+    pendingMenuCamera.current = []
+  }
+  function openSelector() {
+    cancelNearbyInput()
+    if (engine.current) engine.current.nearbyFollowersHudActive = false
+    setSelectorOpen(true)
+  }
+  useEffect(() => {
+    const scene = engine.current
+    if (!scene) return
+    scene.onNearbyFollowersCancel = () => {
+      if (nearbyPress.current && nearbyPress.current.scene !== scene) return
+      nearbyPress.current = null
+      setNearbyPressed(false)
+    }
+    scene.nearbyFollowersHudActive =
+      ready && startup === 'playing' && !menu && !selectorOpen && scene.world === world
+    if (!scene.nearbyFollowersHudActive) scene.cancelNearbyFollowers()
+    return () => {
+      scene.nearbyFollowersHudActive = false
+      scene.cancelNearbyFollowers()
+      scene.onNearbyFollowersCancel = undefined
+    }
+  }, [world, ready, startup, menu, selectorOpen])
+  useEffect(() => {
+    const cancel = () => {
+      nearbyPress.current = null
+      setNearbyPressed(false)
+      engine.current?.cancelNearbyFollowers()
+    }
+    const hidden = () => {
+      if (document.hidden) cancel()
+    }
+    const escape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      nearbyPress.current = null
+      setNearbyPressed(false)
+    }
+    globalThis.addEventListener('blur', cancel)
+    document.addEventListener('visibilitychange', hidden)
+    globalThis.addEventListener('keydown', escape)
+    return () => {
+      globalThis.removeEventListener('blur', cancel)
+      document.removeEventListener('visibilitychange', hidden)
+      globalThis.removeEventListener('keydown', escape)
+      cancel()
+    }
+  }, [])
   const measureWorshipHud = useCallback(
     (
       model: WorshipTargetModel,
@@ -269,6 +391,16 @@ export default function Home() {
         : 'Volume changes apply for this session; browser storage is unavailable.'
     )
   }
+  function changeGamePreferences(next: GamePreferences) {
+    gamePreferencesRef.current = next
+    setGamePreferences(next)
+    if (engine.current) engine.current.gamePreferences = next
+    setGameStorageNotice(
+      saveGamePreferences(next)
+        ? ''
+        : 'Game settings apply for this session; browser storage is unavailable.'
+    )
+  }
   useEffect(() => {
     audio.current = new Soundscape()
     return () => {
@@ -278,14 +410,22 @@ export default function Home() {
   }, [])
   useEffect(() => {
     let active = true
-    void store.restoreCheckpoint().then(() => {
-      if (!active) return
-      const preferences = readAudioPreferences()
-      setAudioPreferences(preferences)
-      audio.current?.setVolume(preferences.volume)
-      audio.current?.setMusicVolume(preferences.musicVolume)
-      setStartup('choice')
-    })
+    const initialWorld = store.getWorld()
+    frontendPreparation.current ??= prepareFrontendAssets()
+    void Promise.all([store.restoreCheckpoint(), frontendPreparation.current]).then(
+      ([, assets]) => {
+        if (!active || store.getWorld() !== initialWorld) return
+        const preferences = readAudioPreferences()
+        setAudioPreferences(preferences)
+        audio.current?.setVolume(preferences.volume)
+        audio.current?.setMusicVolume(preferences.musicVolume)
+        const game = readGamePreferences()
+        gamePreferencesRef.current = game
+        setGamePreferences(game)
+        setFrontendAssets(assets)
+        setStartup('choice')
+      }
+    )
     return () => {
       active = false
     }
@@ -334,8 +474,12 @@ export default function Home() {
           },
           (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished),
           { select: selectAcquisitionPanel, measure: measureWorshipHud },
-          store.bindPresentation(world)
+          store.bindPresentation(world),
+          tooltipSession.current
         )
+        // Import and terrain startup can outlive a setting change. Use the
+        // latest page-owned choices without recreating the scene on each toggle.
+        created.gamePreferences = gamePreferencesRef.current
         scene = created
         engine.current = created
         setHudCamera({ x: created.cameraPosition.x, y: created.cameraPosition.y })
@@ -364,7 +508,7 @@ export default function Home() {
   }, [world, update, store, startup, measureWorshipHud])
   useEffect(() => {
     const modal = startupDialog.current
-    if ((startup === 'choice' || selectorOpen) && modal && !modal.open) {
+    if (((startup === 'choice' && startupCampaign) || selectorOpen) && modal && !modal.open) {
       if (selectorOpen)
         store.change(w => {
           w.paused = true
@@ -374,11 +518,12 @@ export default function Home() {
     return () => {
       if (modal?.open) modal.close()
     }
-  }, [startup, selectorOpen, store])
+  }, [startup, startupCampaign, selectorOpen, store])
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (
         !ready ||
+        menu ||
         e.ctrlKey ||
         e.metaKey ||
         e.altKey ||
@@ -395,7 +540,7 @@ export default function Home() {
       const s =
         !e.code.startsWith('Numpad') &&
         SPELLS.find(s => s.key === e.key && spellHudVisibility(world, s) === 'visible')
-      if (s) {
+      if (s && !e.repeat) {
         store.change(w => {
           w.mode = w.mode === s.id ? null : s.id
         })
@@ -406,7 +551,7 @@ export default function Home() {
       if (e.key === 'Escape') {
         if (store.getWorld().outcome.level === tutorialLevel) {
           e.preventDefault()
-          setMenu(true)
+          openMenu()
           return
         }
         store.change(cancelInteraction)
@@ -436,15 +581,7 @@ export default function Home() {
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [world, update, store, ready])
-  useEffect(() => {
-    if (menu) {
-      store.change(w => {
-        w.paused = true
-      })
-      dialog.current?.showModal()
-    } else if (dialog.current?.open) dialog.current.close()
-  }, [menu, world, store])
+  }, [world, update, store, ready, openMenu, menu])
   useEffect(() => {
     void audio.current?.setPaused(world.paused || document.hidden).catch(() => {
       audio.current?.mute()
@@ -461,6 +598,7 @@ export default function Home() {
     return () => clearInterval(timer)
   }, [])
   async function toggleSound() {
+    setAudioStartNotice('')
     if (sound) {
       audio.current?.mute()
       setSound(false)
@@ -472,6 +610,7 @@ export default function Home() {
         setSound(!!(await audio.current?.enable()))
       } catch {
         audio.current?.mute()
+        setAudioStartNotice('Audio could not start. Try the sound button again.')
         tell(world, 'Audio could not start. Try the sound button again.')
         update()
       } finally {
@@ -510,7 +649,77 @@ export default function Home() {
       },
     }
   }
+  function currentNearbyScene() {
+    const scene = engine.current
+    return ready &&
+      startup === 'playing' &&
+      !menu &&
+      !selectorOpen &&
+      scene?.world === world &&
+      scene.canRequestNearbyFollowers()
+      ? scene
+      : null
+  }
+  function releaseNearbyPress(scene: GameScene | undefined) {
+    clearNearbyPress()
+    if (scene && scene === currentNearbyScene()) scene.requestNearbyFollowers()
+  }
+  const nearbyControl = {
+    disabled:
+      !ready ||
+      startup !== 'playing' ||
+      menu ||
+      selectorOpen ||
+      !!world.inputMask ||
+      !!(world.manaWorld.gameFlags & 32),
+    onPointerDown: (event: PointerEvent<HTMLButtonElement>) => {
+      const scene = currentNearbyScene()
+      if (event.button !== 0 || !scene || event.currentTarget.disabled) return
+      nearbyPress.current = { scene, pointer: event.pointerId }
+      setNearbyPressed(true)
+    },
+    onPointerUp: (event: PointerEvent<HTMLButtonElement>) => {
+      const press = nearbyPress.current
+      if (event.button !== 0 || press?.pointer !== event.pointerId) return
+      const bounds = event.currentTarget.getBoundingClientRect(),
+        inside =
+          event.clientX >= bounds.left &&
+          event.clientX < bounds.right &&
+          event.clientY >= bounds.top &&
+          event.clientY < bounds.bottom
+      releaseNearbyPress(inside ? press.scene : undefined)
+    },
+    onPointerLeave: clearNearbyPress,
+    onPointerCancel: clearNearbyPress,
+    onBlur: clearNearbyPress,
+    onContextMenu: (event: MouseEvent<HTMLButtonElement>) => event.preventDefault(),
+    onClick: (event: MouseEvent<HTMLButtonElement>) => {
+      // Keyboard handling below suppresses browser key-generated clicks. A
+      // detail-zero click remains the accessibility/assistive activation path.
+      if (!event.detail && !nearbyPress.current) currentNearbyScene()?.requestNearbyFollowers()
+    },
+    onKeyDown: (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return
+      event.preventDefault()
+      if (event.repeat) return
+      const scene = currentNearbyScene()
+      if (!scene || event.currentTarget.disabled) return
+      nearbyPress.current = { scene, key: event.key }
+      setNearbyPressed(true)
+    },
+    onKeyUp: (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return
+      event.preventDefault()
+      const press = nearbyPress.current
+      if (press?.key === event.key) releaseNearbyPress(press.scene)
+    },
+  }
   function beginLoad(request: LoadRequest) {
+    if (request.kind === 'checkpoint' && !store.hasCheckpoint()) return
+    menuSession.current = null
+    pendingMenuCamera.current = []
+    cancelNearbyInput()
+    if (engine.current) engine.current.nearbyFollowersHudActive = false
     setSelectorOpen(false)
     audio.current?.reset()
     setMenu(false)
@@ -537,11 +746,16 @@ export default function Home() {
     beginLoad({ kind: 'mission', mission })
   }
   function exitTutorial() {
+    menuSession.current = null
+    pendingMenuCamera.current = []
+    cancelNearbyInput()
+    if (engine.current) engine.current.nearbyFollowersHudActive = false
     audio.current?.reset()
     setMenu(false)
     setReady(false)
     setError('')
     loadRequest.current = null
+    setStartupCampaign(false)
     setStartup('choice')
   }
   function loadCheckpoint() {
@@ -551,13 +765,26 @@ export default function Home() {
     if (loadRequest.current) beginLoad(loadRequest.current)
   }
   async function saveCheckpoint() {
-    setCheckpointNotice(
-      (await store.saveCheckpoint())
-        ? ''
-        : 'Checkpoint saved for this session only; browser storage is unavailable.'
-    )
+    const session = menuSession.current
+    return store.saveCheckpoint(session?.world === store.getWorld() ? session.paused : undefined)
   }
-  const blue = world.units.filter(u => u.team === 'blue'),
+  function quitLevel() {
+    menuSession.current = null
+    pendingMenuCamera.current = []
+    cancelNearbyInput()
+    audio.current?.reset()
+    setMenu(false)
+    setReady(false)
+    setSelectorOpen(false)
+    setError('')
+    loadRequest.current = null
+    setStartupCampaign(true)
+    setStartup('choice')
+  }
+  const nearby = !!(world.castingTribes[0].flags & 128),
+    followerPeople = hudTaskPeople(world),
+    followerCounts = followerTaskCounts(followerPeople, hudCamera, nearby),
+    blue = world.units.filter(u => u.team === 'blue'),
     enemyTribes = missionComputerTribes(world.outcome.level).filter(
       tribe => world.outcome.level !== 6 || tribe !== 1
     ),
@@ -578,14 +805,18 @@ export default function Home() {
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
   function blockLoadingInteraction(event: SyntheticEvent) {
-    if (ready || (event.target as Element).closest('.loading-world,[data-world-selector]'))
+    if (
+      ready ||
+      (event.target as Element).closest(
+        '.loading-world,[data-world-selector],[data-original-main-menu],[data-fullscreen-control]'
+      )
+    )
       return false
     event.preventDefault()
     event.stopPropagation()
     return true
   }
   const nextMission = missionNumbers.find(mission => mission === world.outcome.level + 1),
-    enemyName = enemies.map(enemy => enemy.name).join(' and '),
     objectives =
       world.outcome.level === 1
         ? [
@@ -777,6 +1008,7 @@ export default function Home() {
                                       },
                                     ]
                                   : []
+  const pendingLoadingPhase = startup === 'loading' ? 'restore' : 'loading'
   return (
     <main
       ref={shell}
@@ -789,7 +1021,7 @@ export default function Home() {
         if (
           world.inputMask &&
           !(e.target as Element).closest(
-            '.top-actions,.wordmark,.game-dialog,.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector]'
+            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu]'
           )
         ) {
           e.preventDefault()
@@ -800,6 +1032,7 @@ export default function Home() {
           (e.target as Element).closest('button')?.blur()
       }}
     >
+      <FullscreenControl />
       <div className="world-viewport" ref={viewport} />
       <div className="world-vignette" />
       {desktopNotice && (
@@ -820,28 +1053,11 @@ export default function Home() {
           </button>
         </aside>
       )}
-      {ready && routeNotice && (
-        <div
-          key={routeNotice.serial}
-          className="world-message route-notice"
-          role="status"
-          onAnimationEnd={() =>
-            store.change(w => {
-              if (w.routeNotice?.serial === routeNotice.serial) w.routeNotice = null
-            })
-          }
-        >
-          <span>✧</span>
-          {ROUTE_FAILURE_TEXT}
-        </div>
-      )}
-      {ready && !routeNotice && world.messageUntil > world.time && (
-        <div className="world-message" role="status">
-          <span>✧</span>
-          {world.message}
-        </div>
-      )}
-      <aside className="campaign-messages" aria-label="Campaign messages">
+      <aside
+        className="campaign-messages"
+        aria-label="Campaign messages"
+        style={{ visibility: menu ? 'hidden' : undefined }}
+      >
         {world.messages.slots
           .map((message, slot) => ({ message, slot }))
           .filter(entry => entry.message)
@@ -896,19 +1112,50 @@ export default function Home() {
           Skip introduction <kbd>ESC</kbd>
         </button>
       )}
-      {ready && world.paused && !menu && world.status === 'playing' && (
-        <button
-          className="paused-badge"
-          onClick={() => {
-            store.change(w => {
-              w.paused = false
-            })
-          }}
-        >
-          Ⅱ <span>WORLD PAUSED</span>
-          <small>Click to resume</small>
-        </button>
-      )}
+      <div className="game-status">
+        {ready && routeNotice && (
+          <div
+            key={routeNotice.serial}
+            className="world-message route-notice"
+            style={{
+              visibility: menu ? 'hidden' : undefined,
+              animationPlayState: menu || selectorOpen ? 'paused' : undefined,
+            }}
+            role="status"
+            onAnimationEnd={() =>
+              store.change(w => {
+                if (w === world && w.routeNotice === routeNotice) w.routeNotice = null
+              })
+            }
+          >
+            <span>✧</span>
+            {ROUTE_FAILURE_TEXT}
+          </div>
+        )}
+        {ready && !routeNotice && world.messageUntil > world.time && (
+          <div
+            className="world-message"
+            role="status"
+            style={{ visibility: menu ? 'hidden' : undefined }}
+          >
+            <span>✧</span>
+            {world.message}
+          </div>
+        )}
+        {ready && world.paused && !menu && world.status === 'playing' && (
+          <button
+            className="paused-badge"
+            onClick={() => {
+              store.change(w => {
+                w.paused = false
+              })
+            }}
+          >
+            Ⅱ <span>WORLD PAUSED</span>
+            <small>Click to resume</small>
+          </button>
+        )}
+      </div>
       {world.mode && (
         <div className="target-prompt">
           <span>◎</span> Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'}{' '}
@@ -962,12 +1209,13 @@ export default function Home() {
         </nav>
         <div className="shaman-controls">
           <button
-            className="globe-button"
-            aria-label="Planet overview"
-            title="Planet overview · Enter"
-            onClick={() => engine.current?.overview()}
+            className="nearby-followers-button"
+            aria-label="Nearby followers"
+            aria-pressed={nearby}
+            title="Nearby followers · Limit counts and selection to the camera area"
+            {...nearbyControl}
           >
-            <HudSprite id={875} />
+            <HudSprite id={875 + Number(nearby) * 2 + Number(nearbyPressed)} />
           </button>
           <button
             className="portrait"
@@ -986,7 +1234,7 @@ export default function Home() {
             className="help-button"
             aria-label="Menu"
             title="Help and game menu"
-            onClick={() => setMenu(true)}
+            onClick={openMenu}
           >
             ?
           </button>
@@ -1015,9 +1263,9 @@ export default function Home() {
               population={population(world, 'blue')}
               capacity={populationLimit(world, 'blue')}
             />
-            <FollowerNumber count={population(world, 'blue') - 1} total />
+            <FollowerNumber count={followerCounts.displayTotals[0]} total alternate={nearby} />
           </button>
-          {followerClassControls(blue).map(u => (
+          {followerClassControls(blue, followerCounts).map(u => (
             <button
               key={u.kind}
               aria-label={`Select ${u.kind}`}
@@ -1029,7 +1277,7 @@ export default function Home() {
               {u.enabled && (
                 <>
                   <FollowerIcon sprite={u.sprite} />
-                  <FollowerNumber count={u.count} />
+                  <FollowerNumber count={u.count} alternate={nearby} />
                 </>
               )}
             </button>
@@ -1042,12 +1290,12 @@ export default function Home() {
         >
           {tab === 'followers' && (
             <FollowerTasks
-              people={hudTaskPeople(world)}
+              counts={followerCounts}
               vehicles={hudTransports(world)}
               transportPeople={hudTaskPeople(world, false)}
               transportControl={(model, kind) => followerControl(model, undefined, kind)}
               center={hudCamera}
-              nearby={!!(world.castingTribes[0].flags & 128)}
+              nearby={nearby}
               control={followerControl}
             />
           )}
@@ -1059,15 +1307,15 @@ export default function Home() {
                 )
                 .map(({ spell: s, visibility }) => {
                   const player = world.manaWorld.playerTribe,
-                    owner = world.manaTribes[player]?.spellOwner ?? player,
-                    permanent = !!(world.manaWorld.spells[owner]?.available & (1 << s.model)),
+                    permanent = spellHudPermanent(world, s),
+                    canCharge = permanent && spellHudCanCharge(world, s),
                     undiscovered = visibility === 'undiscovered',
                     interactive = visibility === 'visible',
                     view = spellHudButton(visibility, {
                       model: s.model,
                       permanent,
                       charging:
-                        permanent &&
+                        canCharge &&
                         !(world.manaWorld.spells[player].disabled & (1 << (s.model - 1))),
                       hovered: !undiscovered && hover === s.id,
                       selected: interactive && world.mode === s.id,
@@ -1097,7 +1345,7 @@ export default function Home() {
                       title={
                         undiscovered
                           ? 'Undiscovered spell'
-                          : `${s.name}${permanent ? ' · Right-click to pause or resume charging' : ''}`
+                          : `${s.name}${canCharge ? ' · Right-click to pause or resume charging' : ''}`
                       }
                       onClick={() => {
                         if (!interactive) return
@@ -1108,7 +1356,7 @@ export default function Home() {
                       onContextMenu={e => {
                         e.preventDefault()
                         if (undiscovered) return
-                        if (permanent)
+                        if (canCharge)
                           store.change(w => {
                             const bit = 1 << (s.model - 1)
                             w.manaWorld.spells[player].disabled ^= bit
@@ -1116,6 +1364,7 @@ export default function Home() {
                               w.charging = !(w.manaWorld.spells[player].disabled & bit)
                           })
                       }}
+                      data-tooltip-hud={s.id === 'blast' && !undiscovered ? 'blast' : undefined}
                       onMouseEnter={() => {
                         if (!undiscovered) setHover(s.id)
                       }}
@@ -1207,7 +1456,7 @@ export default function Home() {
           >
             {world.paused ? '▷' : 'Ⅱ'}
           </button>
-          <button aria-label="Game settings" title="Game settings" onClick={() => setMenu(true)}>
+          <button aria-label="Game settings" title="Game settings" onClick={openMenu}>
             ☰
           </button>
         </div>
@@ -1219,7 +1468,40 @@ export default function Home() {
         </div>
       )}
 
-      {(startup === 'choice' || selectorOpen) && (
+      {startup === 'choice' && !startupCampaign && frontendAssets && (
+        <OriginalMainMenu
+          prepared={frontendAssets}
+          hasCheckpoint={store.hasCheckpoint()}
+          checkpointReadStatus={store.getCheckpointReadStatus()}
+          onRetryCheckpoint={() => {
+            void store.restoreCheckpoint()
+          }}
+          onNewGame={() => setStartupCampaign(true)}
+          onTutorial={() => startMission(tutorialLevel)}
+          onLoad={loadCheckpoint}
+          renderOptions={(onBack, onTextRowsChange) => (
+            <OriginalOptions
+              skin="frontend"
+              preparedFrontend={frontendAssets}
+              onBack={onBack}
+              onTextRowsChange={onTextRowsChange}
+              volume={volume}
+              musicVolume={musicVolume}
+              storageNotice={audioStorageNotice}
+              gamePreferences={gamePreferences}
+              onGamePreferences={changeGamePreferences}
+              gameStorageNotice={gameStorageNotice}
+              onVolume={nextVolume =>
+                changeAudioPreferences({ ...audioPreferences, volume: nextVolume })
+              }
+              onMusicVolume={nextVolume =>
+                changeAudioPreferences({ ...audioPreferences, musicVolume: nextVolume })
+              }
+            />
+          )}
+        />
+      )}
+      {((startup === 'choice' && startupCampaign) || selectorOpen) && (
         <dialog
           ref={startupDialog}
           className={worldSelectorStyles.dialog}
@@ -1229,12 +1511,13 @@ export default function Home() {
             event.preventDefault()
             if (selectorOpen) {
               setSelectorOpen(false)
-              if (world.status === 'playing') setMenu(true)
-            }
+              if (world.status === 'playing') openMenu()
+            } else setStartupCampaign(false)
           }}
         >
           <WorldSelector
             missions={missionNumbers}
+            replacingWorld={selectorOpen}
             completed={completedMissions}
             hasCheckpoint={store.hasCheckpoint()}
             onStart={startMission}
@@ -1244,356 +1527,326 @@ export default function Home() {
               selectorOpen
                 ? () => {
                     setSelectorOpen(false)
-                    if (world.status === 'playing') setMenu(true)
+                    if (world.status === 'playing') openMenu()
                   }
-                : undefined
+                : () => setStartupCampaign(false)
             }
           />
         </dialog>
       )}
-      {startup === 'loading' && (
-        <div className="loading-world" role="status">
-          <span className="loading-rune">⟡</span>
-          <h2>Loading...</h2>
-          <p>Looking for your last saved world.</p>
-        </div>
-      )}
-      {startup === 'playing' && (!ready || error) && (
-        <div
-          className={error ? 'loading-world' : 'loading-world loading-world-original'}
-          role="status"
-        >
-          {error ? (
-            <>
-              <span className="loading-rune">⟡</span>
-              <h2>Loading failed</h2>
-              <p>
-                The battlefield did not finish loading. Retry the same request when you are ready.
-              </p>
-              <details>
-                <summary>Technical details</summary>
-                {error}
-              </details>
-              <button className="primary-button" onClick={retryLoad}>
-                Try again
-              </button>
-            </>
-          ) : (
-            <div className="loading-original-art">
-              <span className="loading-original-label">Loading...</span>
-              <img src="/original/loading-mask.png" width={130} height={161} alt="" />
-            </div>
-          )}
-        </div>
+      {(startup === 'loading' || (startup === 'playing' && (!ready || error))) && (
+        <OriginalLoadingScreen
+          key={error ? 'failed' : startup}
+          phase={error ? 'failed' : pendingLoadingPhase}
+          error={error}
+          onRetry={retryLoad}
+        />
       )}
       {world.status !== 'playing' && !world.outcome.cameraPlaying && (
-        <div className="end-screen">
-          <span className="end-rune">{world.status === 'won' ? '✺' : '◈'}</span>
-          <p className="eyebrow">{world.status === 'won' ? 'Level Complete' : 'Level Failed'}</p>
-          <h2>{world.status === 'won' ? 'Level Won' : 'Level Lost'}</h2>
-          <p>
-            {world.status === 'won'
-              ? `The ${enemyName} are defeated.`
-              : 'You have failed to conquer this world.'}
-          </p>
-          <div className="end-stats">
-            <span>
-              {timeLabel(world.time)}
-              <small>TIME</small>
-            </span>
-            <span>
-              {world.stats.cast}
-              <small>SPELLS CAST</small>
-            </span>
-            <span>
-              {world.stats.built}
-              <small>BUILDINGS RAISED</small>
-            </span>
-          </div>
-          <button
-            className="primary-button"
-            onClick={world.status === 'won' && nextMission ? continueCampaign : restart}
-          >
-            {world.status === 'won' && nextMission
+        <OriginalResultScreen
+          status={world.status}
+          level={world.outcome.level}
+          player={world.manaWorld.playerTribe + 1}
+          time={world.time}
+          primaryLabel={
+            world.status === 'won' && nextMission
               ? `Continue to Mission ${nextMission}`
-              : 'Restart Level'}{' '}
-            <span>↗</span>
-          </button>
-          <button className="secondary-button" onClick={() => setSelectorOpen(true)}>
-            Select Level
-          </button>
-        </div>
+              : 'Restart Level'
+          }
+          onPrimary={world.status === 'won' && nextMission ? continueCampaign : restart}
+          onSelectLevel={openSelector}
+        />
       )}
-      <dialog
-        ref={dialog}
-        className="game-dialog"
-        onClose={() => {
-          setMenu(false)
-          store.change(w => {
-            if (!selectorOpen) w.paused = false
-          })
-        }}
-      >
-        <button className="dialog-close" onClick={() => setMenu(false)} aria-label="Close menu">
-          ×
-        </button>
-        <span className="eyebrow">Populous: The Beginning</span>
-        <h2>Game settings</h2>
-        <p>
-          {world.outcome.level === tutorialLevel
-            ? 'Leave the World View with Return, then learn to move and rotate the camera.'
-            : world.outcome.level === 1
-              ? 'Worship for Land Bridge, discover warrior training, then defeat every Dakini follower.'
-              : world.outcome.level === 2
-                ? 'Open the way with the Totem Pole, claim Tornado, then defeat every Matak follower.'
-                : world.outcome.level === 3
-                  ? 'Use Swarm against the Chumara, steal Temple knowledge, then train preachers to turn their followers.'
-                  : world.outcome.level === 4
-                    ? 'Convert Wildmen, discover the Guard Tower, claim Lightning, then defeat the Matak.'
-                    : world.outcome.level === 5
-                      ? 'Claim the Boat from the stone head, board your followers, cross the water, then defeat the Dakini.'
-                      : world.outcome.level === 6
-                        ? 'Establish your settlement, then defeat both the Chumara and Matak tribes.'
-                        : world.outcome.level === 7
-                          ? 'Convert Wildmen, claim Invisibility from the stone head, then conceal followers before engaging the Chumara.'
-                          : world.outcome.level === 8
-                            ? 'Claim Firewarrior training from the Vault, build the school, then train ranged defenders against the Dakini.'
-                            : world.outcome.level === 9
-                              ? 'Claim Boat House knowledge from the Vault, build at the shore, then send a Brave inside to build and board a Boat.'
-                              : world.outcome.level === 10
-                                ? 'Board two followers onto the provided Boat, cross the water, and worship the Totem Pole before the island sinks.'
-                                : world.outcome.level === 11
-                                  ? 'Explore the Hypnotise, Swamp, and Flatten knowledge sites before facing the Chumara and Matak tribes.'
-                                  : world.outcome.level === 12
-                                    ? 'Prepare for all three Enemy tribes and seek Tornado, Spy Training, and Erosion knowledge.'
-                                    : world.outcome.level === 13
-                                      ? 'Seek Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge before facing the Chumara and Matak tribes.'
-                                      : world.outcome.level === 14
-                                        ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge before facing all three Enemy tribes.'
-                                        : world.outcome.level === 15
-                                          ? 'Free your imprisoned Shaman before the Dakini timer expires.'
-                                          : world.outcome.level === 16
-                                            ? 'Claim Bloodlust, cast it on your followers, and use their fighting frenzy against every enemy tribe.'
-                                            : world.outcome.level === 17
-                                              ? 'Claim Armageddon and survive the final arena battle against every tribe.'
-                                              : world.outcome.level === 20
-                                                ? 'Create new land for war by following the linked stone heads through Land Bridge, Flatten, Firestorm, and Volcano.'
-                                                : world.outcome.level === 21
-                                                  ? 'Focus mana on Convert Wild, then send three followers to the fault’s Flatten totem before it erupts.'
-                                                  : world.outcome.level === 22
-                                                    ? 'Restore your magic at the southern stone head, cross the water alone, and steal enemy transport to reach the other tribes.'
-                                                    : "Prepare for the enemy tribes' powerful magic and seek Armageddon."}
-        </p>
-        <div className="menu-actions">
-          <button className="primary-button" onClick={() => setMenu(false)}>
-            Continue Game <span>↗</span>
-          </button>
-          {world.outcome.level === tutorialLevel ? (
-            <button className="secondary-button" onClick={exitTutorial}>
-              Quit to Main Menu
-            </button>
-          ) : (
-            <>
-              <button className="secondary-button" onClick={() => void saveCheckpoint()}>
-                Save checkpoint
-              </button>
-              <button
-                className="secondary-button"
-                disabled={!store.hasCheckpoint()}
-                onClick={loadCheckpoint}
-              >
-                Load checkpoint
-              </button>
-            </>
+      {menu && (
+        <OriginalPauseMenu
+          prepared={frontendAssets?.ingame}
+          tutorial={world.outcome.level === tutorialLevel}
+          hasCheckpoint={store.hasCheckpoint()}
+          checkpointReadStatus={store.getCheckpointReadStatus()}
+          onRetryCheckpoint={() => {
+            void store.restoreCheckpoint()
+          }}
+          onContinue={closeMenu}
+          onSave={saveCheckpoint}
+          onLoad={loadCheckpoint}
+          onRestart={restart}
+          onQuitLevel={quitLevel}
+          onQuitGame={exitTutorial}
+          renderOptions={onBack => (
+            <OriginalOptions
+              skin="ingame"
+              preparedIngame={frontendAssets?.ingame}
+              onBack={onBack}
+              volume={volume}
+              musicVolume={musicVolume}
+              storageNotice={audioStorageNotice}
+              gamePreferences={gamePreferences}
+              onGamePreferences={changeGamePreferences}
+              gameStorageNotice={gameStorageNotice}
+              onVolume={nextVolume =>
+                changeAudioPreferences({ ...audioPreferences, volume: nextVolume })
+              }
+              onMusicVolume={nextVolume =>
+                changeAudioPreferences({ ...audioPreferences, musicVolume: nextVolume })
+              }
+              compatibility={
+                <>
+                  <p>
+                    {world.outcome.level === tutorialLevel
+                      ? 'Leave the World View with Return, then learn to move and rotate the camera.'
+                      : world.outcome.level === 1
+                        ? 'Worship for Land Bridge, discover warrior training, then defeat every Dakini follower.'
+                        : world.outcome.level === 2
+                          ? 'Open the way with the Totem Pole, claim Tornado, then defeat every Matak follower.'
+                          : world.outcome.level === 3
+                            ? 'Use Swarm against the Chumara, steal Temple knowledge, then train preachers to turn their followers.'
+                            : world.outcome.level === 4
+                              ? 'Convert Wildmen, discover the Guard Tower, claim Lightning, then defeat the Matak.'
+                              : world.outcome.level === 5
+                                ? 'Claim the Boat from the stone head, board your followers, cross the water, then defeat the Dakini.'
+                                : world.outcome.level === 6
+                                  ? 'Establish your settlement, then defeat both the Chumara and Matak tribes.'
+                                  : world.outcome.level === 7
+                                    ? 'Convert Wildmen, claim Invisibility from the stone head, then conceal followers before engaging the Chumara.'
+                                    : world.outcome.level === 8
+                                      ? 'Claim Firewarrior training from the Vault, build the school, then train ranged defenders against the Dakini.'
+                                      : world.outcome.level === 9
+                                        ? 'Claim Boat House knowledge from the Vault, build at the shore, then send a Brave inside to build and board a Boat.'
+                                        : world.outcome.level === 10
+                                          ? 'Board two followers onto the provided Boat, cross the water, and worship the Totem Pole before the island sinks.'
+                                          : world.outcome.level === 11
+                                            ? 'Explore the Hypnotise, Swamp, and Flatten knowledge sites before facing the Chumara and Matak tribes.'
+                                            : world.outcome.level === 12
+                                              ? 'Prepare for all three Enemy tribes and seek Tornado, Spy Training, and Erosion knowledge.'
+                                              : world.outcome.level === 13
+                                                ? 'Seek Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge before facing the Chumara and Matak tribes.'
+                                                : world.outcome.level === 14
+                                                  ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge before facing all three Enemy tribes.'
+                                                  : world.outcome.level === 15
+                                                    ? 'Free your imprisoned Shaman before the Dakini timer expires.'
+                                                    : world.outcome.level === 16
+                                                      ? 'Claim Bloodlust, cast it on your followers, and use their fighting frenzy against every enemy tribe.'
+                                                      : world.outcome.level === 17
+                                                        ? 'Claim Armageddon and survive the final arena battle against every tribe.'
+                                                        : world.outcome.level === 20
+                                                          ? 'Create new land for war by following the linked stone heads through Land Bridge, Flatten, Firestorm, and Volcano.'
+                                                          : world.outcome.level === 21
+                                                            ? 'Focus mana on Convert Wild, then send three followers to the fault’s Flatten totem before it erupts.'
+                                                            : world.outcome.level === 22
+                                                              ? 'Restore your magic at the southern stone head, cross the water alone, and steal enemy transport to reach the other tribes.'
+                                                              : world.outcome.level === 18 ||
+                                                                  world.outcome.level === 23
+                                                                ? "Prepare for the enemy tribes' powerful magic and seek Armageddon."
+                                                                : null}
+                  </p>
+                  <div className="menu-actions">
+                    <button
+                      className="secondary-button"
+                      onClick={() => {
+                        setMenu(false)
+                        openSelector()
+                      }}
+                    >
+                      Select Level
+                    </button>
+                  </div>
+                  {objectives.length > 0 && (
+                    <details className="menu-objectives">
+                      <summary>
+                        Objectives · {objectives.filter(o => o.done).length} / {objectives.length}
+                      </summary>
+                      <ul>
+                        {objectives.map(o => (
+                          <li key={o.text}>
+                            {o.done ? '✓ ' : ''}
+                            {o.text}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
+                  <div className="menu-utilities">
+                    <span>{timeLabel(world.time)}</span>
+                    <button
+                      onClick={() => {
+                        store.change(w => {
+                          w.speed = w.speed === 1 ? 2 : 1
+                        })
+                      }}
+                    >
+                      {world.speed}× game speed
+                    </button>
+                    <button
+                      onClick={() => pendingMenuCamera.current.push(scene => scene.zoom(true))}
+                    >
+                      Zoom in
+                    </button>
+                    <button
+                      onClick={() => pendingMenuCamera.current.push(scene => scene.zoom(false))}
+                    >
+                      Zoom out
+                    </button>
+                    <button
+                      onClick={() =>
+                        pendingMenuCamera.current.push(scene =>
+                          scene.focus(shaman ?? HOME, { animate: true })
+                        )
+                      }
+                    >
+                      Focus settlement
+                    </button>
+                  </div>
+                  <p>Camera changes apply when you continue.</p>
+                  <button
+                    className="secondary-button"
+                    aria-pressed={!!engine.current?.fpsGraph}
+                    onClick={() => {
+                      engine.current?.togglePerformance()
+                      update()
+                    }}
+                  >
+                    Toggle performance overlay · F8
+                  </button>
+                  <label className="hud-settings">
+                    HUD size
+                    <select
+                      aria-label="HUD size"
+                      value={hudSize}
+                      onChange={e => {
+                        setHudSize(e.target.value)
+                        try {
+                          localStorage.setItem('hud-size', e.target.value)
+                        } catch {
+                          // Keep the session preference when storage is unavailable.
+                        }
+                      }}
+                    >
+                      <option value="auto">Automatic</option>
+                      {[1, 1.5, 2, 2.5, 3, 4].map(size => (
+                        <option key={size} value={size}>
+                          {size * 100}%
+                        </option>
+                      ))}
+                    </select>
+                    <span>Fits your window without stretching.</span>
+                  </label>
+                  <h3>Controls</h3>
+                  <div className="help-grid">
+                    <span>Click</span>
+                    <strong>Select a follower or give a move / attack order</strong>
+                    <span>Right-click / Escape</span>
+                    <strong>Cancel targeting, then deselect followers · Orders keep running</strong>
+                    <span>Drag on land</span>
+                    <strong>Select a group · Ctrl adds to selection</strong>
+                    <span>Shift Z / X / C / V · Z / X / C / V</span>
+                    <strong>Set camera bookmarks · Recall them</strong>
+                    <span>Ctrl-click / Shift-click</span>
+                    <strong>Toggle a follower / Give an order through friendly followers</strong>
+                    <span>HUD follower buttons</span>
+                    <strong>
+                      Click adds one · Ctrl adds five · Shift adds all · Right-click focuses next
+                    </strong>
+                    <span>Right / middle drag</span>
+                    <strong>Right drag turns the view · middle drag moves it</strong>
+                    <span>Scroll · = / −</span>
+                    <strong>Switch view · WASD to move · Q / E to turn</strong>
+                    <span>↑ / ↓ · ← / →</span>
+                    <strong>
+                      Move forward / back ·{' '}
+                      {gamePreferences.rotation === 'cursor' ? 'Rotate' : 'Pan'} left / right
+                    </strong>
+                    <span>Ctrl + ← / → · Shift</span>
+                    <strong>
+                      {gamePreferences.rotation === 'cursor' ? 'Pan sideways' : 'Rotate'} · Hold
+                      Shift for fast panning
+                    </strong>
+                    <span>Delete / Page Down</span>
+                    <strong>
+                      {gamePreferences.rotation === 'cursor' ? 'Pan sideways' : 'Rotate'} · Ctrl
+                      swaps pan and turn
+                    </strong>
+                    <span>Flip Rotation</span>
+                    <strong>
+                      Keyboard turn direction is{' '}
+                      {gamePreferences.flipRotation ? 'reversed' : 'normal'} · Mouse drag and
+                      sideways pan are unchanged
+                    </strong>
+                    <span>Screen edges</span>
+                    <strong>Move the pointer to an outer edge to scroll</strong>
+                    <span>1–3 / B</span>
+                    <strong>Choose a spell / open buildings</strong>
+                    <span>Space with a building plan</span>
+                    <strong>Rotate the entrance before placing</strong>
+                    <span>F8</span>
+                    <strong>Toggle live FPS, frame times and CPU/render diagnostics</strong>
+                    <span>H / F / G / Space / Esc</span>
+                    <strong>Shaman / focus / guard shaman / pause / cancel</strong>
+                  </div>
+                  <BrowserHelpTips level={world.outcome.level} />
+                  <div className="audio-settings">
+                    <button
+                      className="secondary-button"
+                      onClick={toggleSound}
+                      disabled={soundPending}
+                      aria-busy={soundPending}
+                    >
+                      {sound ? '♪ Sound on' : '♫ Enable sound'}
+                    </button>
+                  </div>
+                  {audioStorageNotice && <p role="status">{audioStorageNotice}</p>}
+                  {audioStartNotice && <p role="status">{audioStartNotice}</p>}
+                  <details className="reference-details">
+                    <summary>About this recreation & references</summary>
+                    <p>
+                      Mission 1 reference: The Journey Begins. Terrain, starting objects and shrine
+                      timings were read from the supplied original level file. Building and tree
+                      meshes, texture coordinates, layered unit animations, HUD artwork and
+                      landscape bank c were decoded from the supplied game archive. The browser
+                      renderer approximates the original lighting, terrain displacement and water
+                      animation. Selection voices, spell cues and combat sounds use the original
+                      recordings. Original music and percussion now play alongside environmental
+                      sounds; exact world mixing, activity ownership and the complete native sound
+                      scheduler are still being reconstructed. Village growth and mana use rules
+                      traced from the executable. Combat state selection, pathfinding and defensive
+                      AI still differ from the original.
+                    </p>
+                    <div>
+                      <a
+                        href="https://store.steampowered.com/app/2616430/Populous_The_Beginning/"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Original game & visual references ↗
+                      </a>
+                      <a
+                        href="https://wiki.popre.net/Populous%3A_The_Beginning"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Gameplay reference ↗
+                      </a>
+                      <a
+                        href="https://www.youtube.com/watch?v=kIY_4F47R6Q"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Mark Knight’s original soundtrack ↗
+                      </a>
+                      <a
+                        href="https://sounds.spriters-resource.com/pc_computer/populousbegin/asset/393974/"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Shaman voice reference ↗
+                      </a>
+                    </div>
+                  </details>
+                </>
+              }
+            />
           )}
-          <button className="secondary-button" onClick={restart}>
-            Restart world
-          </button>
-          <button
-            className="secondary-button"
-            onClick={() => {
-              setMenu(false)
-              setSelectorOpen(true)
-            }}
-          >
-            Select Level
-          </button>
-        </div>
-        {checkpointNotice && <p role="status">{checkpointNotice}</p>}
-        {objectives.length > 0 && (
-          <details className="menu-objectives">
-            <summary>
-              Objectives · {objectives.filter(o => o.done).length} / {objectives.length}
-            </summary>
-            <ul>
-              {objectives.map(o => (
-                <li key={o.text}>
-                  {o.done ? '✓ ' : ''}
-                  {o.text}
-                </li>
-              ))}
-            </ul>
-          </details>
-        )}
-        <div className="menu-utilities">
-          <span>{timeLabel(world.time)}</span>
-          <button
-            onClick={() => {
-              store.change(w => {
-                w.speed = w.speed === 1 ? 2 : 1
-              })
-            }}
-          >
-            {world.speed}× game speed
-          </button>
-          <button onClick={() => engine.current?.zoom(true)}>Zoom in</button>
-          <button onClick={() => engine.current?.zoom(false)}>Zoom out</button>
-          <button onClick={() => engine.current?.focus(shaman ?? HOME, { animate: true })}>
-            Focus settlement
-          </button>
-        </div>
-        <label className="hud-settings">
-          HUD size
-          <select
-            aria-label="HUD size"
-            value={hudSize}
-            onChange={e => {
-              setHudSize(e.target.value)
-              try {
-                localStorage.setItem('hud-size', e.target.value)
-              } catch {
-                // Keep the session preference when storage is unavailable.
-              }
-            }}
-          >
-            <option value="auto">Automatic</option>
-            {[1, 1.5, 2, 2.5, 3, 4].map(size => (
-              <option key={size} value={size}>
-                {size * 100}%
-              </option>
-            ))}
-          </select>
-          <span>Fits your window without stretching.</span>
-        </label>
-        <h3>Your powers, at a glance</h3>
-        <div className="help-grid">
-          <span>Click</span>
-          <strong>Select a follower or give a move / attack order</strong>
-          <span>Right-click / Escape</span>
-          <strong>Cancel targeting, then deselect followers · Orders keep running</strong>
-          <span>Drag on land</span>
-          <strong>Select a group · Ctrl adds to selection</strong>
-          <span>Shift Z / X / C / V · Z / X / C / V</span>
-          <strong>Set camera bookmarks · Recall them</strong>
-          <span>Ctrl-click / Shift-click</span>
-          <strong>Toggle a follower / Give an order through friendly followers</strong>
-          <span>HUD follower buttons</span>
-          <strong>
-            Click adds one · Ctrl adds five · Shift adds all · Right-click focuses next
-          </strong>
-          <span>Right / middle drag</span>
-          <strong>Right drag turns the view · middle drag moves it</strong>
-          <span>Scroll · = / −</span>
-          <strong>Switch view · WASD to move · Q / E to turn</strong>
-          <span>↑ / ↓ · ← / →</span>
-          <strong>Move forward / back · Rotate left / right</strong>
-          <span>Ctrl + ← / → · Shift</span>
-          <strong>Pan sideways · Hold Shift for fast panning</strong>
-          <span>Screen edges</span>
-          <strong>Move the pointer to an outer edge to scroll</strong>
-          <span>1–3 / B</span>
-          <strong>Choose a spell / open buildings</strong>
-          <span>Space with a building plan</span>
-          <strong>Rotate the entrance before placing</strong>
-          <span>H / F / G / Space / Esc</span>
-          <strong>Shaman / focus / guard shaman / pause / cancel</strong>
-        </div>
-        <p className="help-tip">
-          Each spell shows its own casting range. Right-click a rechargeable spell to pause or
-          resume it and focus mana elsewhere. Worship the southern head for Land Bridge (four held
-          at once), and the central head for four Lightning gifts. Only your shaman can learn at the
-          vault. Select braves and click a friendly hut to house them, or a completed training hut
-          to train them. Builders carry logs from trees. Followers drown in water; Blast can knock
-          them off a shore.
-        </p>
-        <div className="audio-settings">
-          <button
-            className="secondary-button"
-            onClick={toggleSound}
-            disabled={soundPending}
-            aria-busy={soundPending}
-          >
-            {sound ? '♪ Sound on' : '♫ Enable sound'}
-          </button>
-          <label>
-            Master volume{' '}
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step=".05"
-              value={volume}
-              onChange={e =>
-                changeAudioPreferences({ ...audioPreferences, volume: Number(e.target.value) })
-              }
-            />
-          </label>
-          <label>
-            Music volume{' '}
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step=".05"
-              value={musicVolume}
-              onChange={e =>
-                changeAudioPreferences({ ...audioPreferences, musicVolume: Number(e.target.value) })
-              }
-            />
-          </label>
-        </div>
-        {audioStorageNotice && <p role="status">{audioStorageNotice}</p>}
-        <details className="reference-details">
-          <summary>About this recreation & references</summary>
-          <p>
-            Level 1: The Journey Begins. Terrain, starting objects and shrine timings were read from
-            the supplied original level file. Building and tree meshes, texture coordinates, layered
-            unit animations, HUD artwork and landscape bank c were decoded from the supplied game
-            archive. The browser renderer approximates the original lighting, terrain displacement
-            and water animation. Selection voices, spell cues and combat sounds use the original
-            recordings. Original music and percussion now play alongside environmental sounds; exact
-            world mixing, activity ownership and the complete native sound scheduler are still being
-            reconstructed. Village growth and mana use rules traced from the executable. Combat
-            state selection, pathfinding and defensive AI still differ from the original.
-          </p>
-          <div>
-            <a
-              href="https://store.steampowered.com/app/2616430/Populous_The_Beginning/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Original game & visual references ↗
-            </a>
-            <a
-              href="https://wiki.popre.net/Populous%3A_The_Beginning"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Gameplay reference ↗
-            </a>
-            <a href="https://www.youtube.com/watch?v=kIY_4F47R6Q" target="_blank" rel="noreferrer">
-              Mark Knight’s original soundtrack ↗
-            </a>
-            <a
-              href="https://sounds.spriters-resource.com/pc_computer/populousbegin/asset/393974/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Shaman voice reference ↗
-            </a>
-          </div>
-        </details>
-      </dialog>
+        />
+      )}
     </main>
   )
 }

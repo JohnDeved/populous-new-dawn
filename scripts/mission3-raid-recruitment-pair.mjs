@@ -133,7 +133,7 @@ function runCase(index) {
     flags4: u.native.flags4, assignment: u.native.assignment, busy: 0, vehicle: 0,
     driver: 0, inside: 0, immediateCommand: 0, commands: [...u.native.commands], commandCursor: 0 }))
   active = { world, expectedPeople, liveShamanCell: c.liveShamanCell ?? fixture.shamanCell,
-    expectedStaging: c.hasConstructionBase ? c.constructionBaseCell : fixture.defencePosition }; selectorCalls = 0; controllerCalls = 0
+    expectedStaging: c.hasConstructionBase ? c.constructionBaseCell : fixture.shamanCell }; selectorCalls = 0; controllerCalls = 0
   assert.throws(() => stepComputerTasks(world, 2), error => error === stop)
   assert.equal(selectorCalls, 1); assert.equal(controllerCalls, 1)
   const expected = structuredClone(before)

@@ -1,4 +1,5 @@
 import rules from './original-rules.json' with { type: 'json' }
+import { movePosition } from './native-math.ts'
 import { pathBoatInCell } from './path-search.ts'
 import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
 
@@ -51,6 +52,48 @@ export function vehicleCanDisembark(
   return !!(category & 60) && !(category & 16)
 }
 
+// 0x464ae0, null-person constructor path. The caller owns navigation bypass.
+// Failure preserves the input and does not prevent subsequent construction.
+export function prepareVehiclePosition(
+  w: VehicleLand,
+  search: Uint8Array,
+  v: Pick<RoutingVehicle, 'id' | 'model'>,
+  from: Point
+) {
+  let point = { x: from.x, y: from.y },
+    found = vehicleCanDisembark(w, v, point)
+  if (!found) {
+    const handle = startIndexedSearch(search, 2, 0, 0, 16),
+      center = cell(from)
+    if (handle) {
+      for (
+        let offset = nextIndexedSearch(search, handle);
+        offset;
+        offset = nextIndexedSearch(search, handle)
+      ) {
+        const candidate = {
+          x: ((((center & 255) + offset.x * 2) & 255) + 1) * 256,
+          y: ((((center >>> 8) + offset.y * 2) & 255) + 1) * 256,
+        }
+        if (vehicleCanDisembark(w, v, candidate)) {
+          point = candidate
+          found = true
+          break
+        }
+      }
+      endIndexedSearch(search, handle)
+    }
+  }
+  // 0x4ec630 applies even when the original point already passed the predicate.
+  if (found && !(rules.vehicleRestFlags[v.model] & 1))
+    movePosition(
+      point,
+      (rules.terrainCategoryDirections[w.categories[index(cell(point))] & 15] & 7) << 8,
+      162
+    )
+  return { found, point }
+}
+
 // Complete 0x4650d0, including open-water category bit 2.
 export function vehicleCanApproach(w: VehicleLand, v: Pick<RoutingVehicle, 'id'>, p: Point) {
   const packed = cell(p),
@@ -89,7 +132,7 @@ export function boardingVehicle(w: VehicleRoutingWorld, p: { tribe: number }, pa
     !vehicleReady(w, v)
   )
     return 0
-  if (v.passengerCount && w.people.get(v.passengers[0])!.tribe !== p.tribe) return 0
+  if (v.passengerCount && w.people.get(v.passengers[0])?.tribe !== p.tribe) return 0
   return w.tribes[p.tribe].playerType === 1 && v.reservation ? 0 : id
 }
 

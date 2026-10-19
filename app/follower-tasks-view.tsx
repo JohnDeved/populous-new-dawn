@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from 'react'
 import { transportCounts, type HudTransport, type TransportKind } from './hud-transports.ts'
 import { FollowerNumber } from './hud'
 import art from './original-follower-tasks.json'
-import { followerTaskCounts, type FollowerTask, type TaskPerson } from './hud-tasks.ts'
+import type { followerTaskCounts, FollowerTask, TaskPerson } from './hud-tasks.ts'
 
 const columns = [
   { model: 0, label: 'Followers' },
@@ -37,7 +37,7 @@ function TaskIcon({ id }: { id: number }) {
 }
 
 export function FollowerTasks({
-  people,
+  counts,
   center,
   nearby,
   control,
@@ -48,13 +48,12 @@ export function FollowerTasks({
   vehicles: HudTransport[]
   transportPeople: (TaskPerson & { commandStatus: number })[]
   transportControl: (model: number, kind: TransportKind) => ButtonHTMLAttributes<HTMLButtonElement>
-  people: TaskPerson[]
+  counts: ReturnType<typeof followerTaskCounts>
   center: { x: number; y: number }
   nearby: boolean
   control: (model: number, category: FollowerTask) => ButtonHTMLAttributes<HTMLButtonElement>
 }) {
-  const counts = followerTaskCounts(people, center, nearby),
-    transports = transportCounts(vehicles, transportPeople, center, nearby)
+  const transports = transportCounts(vehicles, transportPeople, center, nearby)
   return (
     <section className="follower-tasks" aria-label="Follower tasks">
       {[

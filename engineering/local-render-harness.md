@@ -367,3 +367,31 @@ attempt's output separate and inspect images before attaching them to an issue/P
 The normal harness owns cleanup and cancellation; the scenario adds no controller.
 Actual software WebGL pixels and real elapsed time establish functional behavior,
 not hardware-GPU performance, native pixel parity or first-three-mission completion.
+
+## Cloud reset recovery and real browser persistence
+
+For the verified official Headless Shell version, download provenance, hashes,
+reset recovery boundaries and distinction from the provisioned Chrome/CDP browser,
+see [cloud render recovery](cloud-render-recovery.md). Never silently substitute
+a desktop browser wrapper or weaken the sandbox when a previous binary is missing.
+
+`mission10-boat-checkpoint.mjs` is a two-process ordinary-input witness. With a
+fresh task-owned profile it boards the authored Shaman and four Warriors in Boat62
+and saves through the menu. With the same exact source/origin/profile it loads the
+genuine browser checkpoint and uses the visible passenger panel to unload and
+await physical landing. Run it using the `--scenario`, `--profile`, and separate
+`--output` conventions above; allow `--timeout 600000` for software rendering.
+It does not prove a sea crossing, full mission or campaign completion. The
+[source-bound result and preserved failures](../references/verification/m10-boat-browser-2026-10-14/README.md)
+include the actual reviewed checker-only correspondence used during development.
+
+## Ordinary M14 linked-head acquisition
+
+`mission14-linked-head.mjs` starts authored Mission14 through the public menu,
+selects original Braves50–55 using the HUD, targets head47 through minimap and
+actual pointer input, then waits for natural walking/worship and both linked
+Earthquake/Bridge gifts. The browser owns all RAF/simulation progression. Use a
+fresh output, `--mission 14`, `--scenario` and `--timeout 660000`; no profile is
+required. See the [source-bound inspected packet](../references/verification/m14-linked-head-browser-2026-10-14/README.md).
+It proves bounded acquisition, not campaign completion. The retained pre-repair
+screenshot also exposes the incorrect one-follower command toast.

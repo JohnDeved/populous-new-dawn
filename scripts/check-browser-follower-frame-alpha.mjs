@@ -102,7 +102,7 @@ export default async function followerFrameAlpha({ browser, page, url, output, o
   await page.screenshot({ path: resolve(output, 'mission1-full.png') })
 
   await page.goto(url, { waitUntil: 'domcontentloaded' })
-  await page.getByRole('dialog', { name: 'Start game', exact: true }).waitFor({ state: 'visible' })
+  await page.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor({ state: 'visible' })
   await openMission(3)
   await freeze(page)
   await page.keyboard.press('Escape')

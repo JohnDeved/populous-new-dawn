@@ -8,6 +8,9 @@ import { createSharedAniblResource } from '../app/shared-anibl.ts'
 
 const { 95: model } = models,
   shell = { width: 640, height: 480, model: 95 }
+const environment = bank => ({
+  landscape: { bank, modelAtlas: bank === 'c' ? 'atlas' : `atlas-${bank}` },
+})
 const projection = face => {
   const { [face * 2]: n } = model.faces
   return {
@@ -52,15 +55,16 @@ test('Temple collector preserves all147 faces/222 triangles and mode32 fullbrigh
 
 test('all nine shared selections map world and acquisition UVs without advancing either consumer', () => {
   const resource = createSharedAniblResource()
-  resource.transition(true)
+  resource.transition(environment('p').landscape)
   const command = { whole: false, submissions: [projection(127)] },
     base = collectBuildingAcquisitionTriangles(command, { ...shell, templeTile: 92 }),
     blue = { kind: 'temple', team: 'blue' }
   for (const tile of fire.frames) {
     const snapshot = resource.snapshot()
     assert.equal(snapshot.tile, tile)
-    const world = templeWorldMaterial(3, blue, 95, 4, snapshot),
+    const world = templeWorldMaterial(environment('p'), blue, 95, 4, snapshot),
       screen = collectBuildingAcquisitionTriangles(command, { ...shell, templeTile: snapshot.tile })
+    assert.ok(world, 'completed Temple consumes the selected environment resource')
     for (let triangle = 0; triangle < 2; triangle++)
       for (let corner = 0; corner < 3; corner++) {
         const a = base[triangle].points[corner],
@@ -73,24 +77,29 @@ test('all nine shared selections map world and acquisition UVs without advancing
     resource.advance()
   }
   assert.equal(resource.snapshot().tile, 92)
-  for (const [mission, team, object, stage] of [
-    [1, 'blue', 95, 4],
-    [3, 'yellow', 97, 4],
-    [3, 'blue', 95, 3],
-    [3, 'blue', 103, 4],
+  for (const [team, object, stage] of [
+    ['blue', 95, 3],
+    ['blue', 103, 4],
   ])
     assert.equal(
-      templeWorldMaterial(mission, { kind: 'temple', team }, object, stage, resource.snapshot()),
+      templeWorldMaterial(
+        environment('p'),
+        { kind: 'temple', team },
+        object,
+        stage,
+        resource.snapshot()
+      ),
       null
     )
-  assert.throws(() => templeWorldMaterial(3, blue, 95, 4, null), /unavailable/)
+  assert.throws(() => templeWorldMaterial(environment('p'), blue, 95, 4, null), /unavailable/)
 })
 
-test('resource palette owns actual p sparkle RGB while ghost trails retain their independent owner', () => {
+test('explicit M3 resource palette owns p sparkle RGB while ghost trails retain their owner', () => {
   const resource = createSharedAniblResource()
-  resource.transition(true)
+  resource.transition(environment('p').landscape)
   for (const frame of Array.from({ length: 12 }, (_, i) => 1288 + i)) {
-    const draw = templeSpriteMaterial(frame, 0, resource.snapshot())
+    const draw = templeSpriteMaterial(3, frame, 0, resource.snapshot())
+    assert.ok(draw, 'M3 companion uses its qualified p material')
     assert.equal(draw.atlas, 'temple-sparkles-p')
     assert.equal(draw.crop.source, frame)
     assert.equal(draw.rgb, 0xf7ebc9)
@@ -101,7 +110,71 @@ test('resource palette owns actual p sparkle RGB while ghost trails retain their
     [1, 0x2fab63],
     [2, 0x333fcb],
   ])
-    assert.equal(templeSpriteMaterial(1288, selector, resource.snapshot()).rgb, rgb)
-  assert.equal(templeSpriteMaterial(318, 'ghost', resource.snapshot()), null)
-  assert.equal(templeSpriteMaterial(1288, 0, null), null)
+    assert.equal(templeSpriteMaterial(3, 1288, selector, resource.snapshot()).rgb, rgb)
+  assert.equal(templeSpriteMaterial(3, 318, 'ghost', resource.snapshot()), null)
+  assert.equal(templeSpriteMaterial(3, 1288, 0, null), null)
+  for (const mission of [1, 2, 6, 10])
+    assert.equal(
+      templeSpriteMaterial(mission, 1288, 0, resource.snapshot()),
+      null,
+      `M${mission} cannot acquire M3 sprite eligibility from a p resource alone`
+    )
+})
+
+test('all tribe Temple materials validate resource identity and preserve construction admission', () => {
+  const teams = ['blue', 'red', 'yellow', 'green']
+  for (const bank of ['c', 's', 'p']) {
+    const selected = environment(bank),
+      resource = createSharedAniblResource()
+    resource.transition(selected.landscape)
+    resource.advance()
+    for (const [tribe, team] of teams.entries()) {
+      const building = { kind: 'temple', team },
+        snapshot = resource.snapshot(),
+        material = templeWorldMaterial(selected, building, 95 + tribe, 4, snapshot)
+      assert.ok(material, `${bank}/${team} completed Temple must have a shared animated material`)
+      assert.equal(material.atlas, selected.landscape.modelAtlas)
+      assert.deepEqual(material.offset, templeTileOffset(snapshot.tile))
+      assert.equal(material.epoch, snapshot.epoch)
+      assert.equal(resource.snapshot(), snapshot)
+      for (let stage = 0; stage < 4; stage++)
+        assert.equal(templeWorldMaterial(selected, building, 95 + tribe, stage, snapshot), null)
+      assert.throws(() => templeWorldMaterial(selected, building, 95 + tribe, 4, null))
+      for (const mismatched of [
+        { ...snapshot, bank: bank === 'p' ? 'c' : 'p' },
+        {
+          ...snapshot,
+          modelAtlas: selected.landscape.modelAtlas === 'atlas' ? 'atlas-p' : 'atlas',
+        },
+      ])
+        assert.throws(
+          () => templeWorldMaterial(selected, building, 95 + tribe, 4, mismatched),
+          'an admitted world consumer must not silently use a different resource'
+        )
+    }
+  }
+})
+
+test('resource retention compares both bank and model atlas identity', () => {
+  const resource = createSharedAniblResource()
+  resource.transition(environment('c').landscape)
+  resource.advance()
+  const retained = resource.snapshot()
+  resource.transition(environment('c').landscape, true)
+  assert.equal(resource.snapshot(), retained)
+  resource.transition(environment('p').landscape, true)
+  assert.equal(resource.snapshot().bank, 'p')
+  assert.equal(resource.snapshot().modelAtlas, 'atlas-p')
+  assert.equal(resource.snapshot().counter, 0, 'retain request cannot carry phase to a new bank')
+  assert.ok(resource.snapshot().epoch > retained.epoch)
+  resource.advance()
+  const beforeAtlasChange = resource.snapshot()
+  resource.transition({ bank: 'p', modelAtlas: 'atlas' }, true)
+  assert.equal(resource.snapshot().modelAtlas, 'atlas')
+  assert.equal(
+    resource.snapshot().counter,
+    0,
+    'atlas identity also prevents incompatible retention'
+  )
+  assert.ok(resource.snapshot().epoch > beforeAtlasChange.epoch)
 })

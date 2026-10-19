@@ -179,7 +179,7 @@ export function stepTornadoPerson(
     person.h = Math.max(person.h, tornado.h + vertical + jitter - 37)
     return true
   }
-  person.flags3 = (person.flags3 | 0x400) >>> 0
+  person.flags4 = (person.flags4 | 0x400) >>> 0
   person.flags2 = ((person.flags2 | 0x82000) & ~0x4000) >>> 0
   person.heading = random(w) & 2047
   person.velocity.x = person.velocity.z = 0

@@ -1,5 +1,6 @@
+import { timberPhaseObjects } from './timber-phase-index.ts'
 import { tribeForTeam, type Building, type Point, type Unit, type World } from './world-types.ts'
-import { BUILDINGS, buildingHp, unitSpeed } from './world-rules.ts'
+import { buildingHp, unitSpeed } from './world-rules.ts'
 import { breedingWork } from './world-state.ts'
 import { short, positionDistance } from './native-math.ts'
 import rules from './original-rules.json' with { type: 'json' }
@@ -15,12 +16,12 @@ import {
 } from './building-shapes.ts'
 import { collisionWorld, createLivePerson, setLivePersonAnimation } from './live-people.ts'
 import { nativePersonModel } from './live-combat.ts'
-import { removeObjectFromCell } from './object-cells.ts'
+import { deleteCellObject, removeObjectFromCell } from './object-cells.ts'
 import { turnPerson } from './person-motion.ts'
 import { clearLivePath, probeLivePathCost } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import { browserPosition, distance } from './world-coordinates.ts'
-import { buildingDoor, entrance, findPath, route, tell } from './live-command.ts'
+import { buildingDoor, entrance, findPath, route } from './live-command.ts'
 import { BuilderTask } from './building-workers.ts'
 import { stepBuildingFetch } from './building-fetch.ts'
 import {
@@ -42,7 +43,6 @@ import {
 import { depleteTree, sound } from './world-effects.ts'
 import { changeBuildingWork } from './building-damage.ts'
 import {
-  SceneryPhase,
   stepBuildingPeople,
   stepBuildingScenery,
   type ClearingPerson,
@@ -63,7 +63,6 @@ export function completeBuildingConstruction(w: World, b: Building) {
   if (!b.upgrading && !b.damageState) w.stats.built++
   b.upgrading = false
   if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
-  tell(w, `${BUILDINGS.find(s => s.id === b.kind)!.name} completed.`)
 }
 
 export function processBuilderWork(w: World, u: Unit, b: Building) {
@@ -72,7 +71,7 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
     pose = buildingPose(b)
   if (u.native === p) {
     if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
-    w.objectCells.objects.delete(p.id)
+    deleteCellObject(w.objectCells, p.id)
     u.native = null
   }
   Object.assign(p, nativePosition(w, u))
@@ -148,7 +147,7 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
       sound: cue => sound(w, cue, u),
       target: timber,
       refreshSearch: (point, angle) => {
-        refreshTimberSearch(w.timberSearches, site, timberCell(point), angle, p)
+        refreshTimberSearch(w.timberSearches, site, timberCell(point), angle, p, id => id)
         b.timberSearch = site.searchIndex
       },
       findWood: index => findTimber(w.timberSearches, searchWorld, index, p.id, true, false).target,
@@ -459,7 +458,18 @@ function liveTimberWorld(w: World): TimberSearchWorld {
 
 export function stepLiveTimberSearches(w: World) {
   const world = liveTimberWorld(w),
-    collision = collisionWorld(w)
+    collision = collisionWorld(w),
+    expansionWorld: TimberSearchWorld = {
+      ...world,
+      objects: timberPhaseObjects(
+        w,
+        tree => {
+          const point = nativePosition(w, tree)
+          return ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+        },
+        cell => liveTimberObjects(w, cell)
+      ),
+    }
   stepTimberSearches(
     w.timberSearches,
     world,
@@ -480,7 +490,8 @@ export function stepLiveTimberSearches(w: World) {
       }
       return { result: 1, cost: candidate.cost }
     },
-    id => w.units.some(u => u.id === id && u.hp > 0)
+    id => w.units.some(u => u.id === id && u.hp > 0),
+    expansionWorld
   )
 }
 

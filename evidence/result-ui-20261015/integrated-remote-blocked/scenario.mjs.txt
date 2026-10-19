@@ -1,0 +1,66 @@
+import assert from 'node:assert/strict'
+import {createRequire} from 'node:module'
+import {readFileSync,writeFileSync} from 'node:fs'
+import {createHash} from 'node:crypto'
+import {launchOptions} from '/tmp/populous-selector-scene-457/scripts/local-render/harness.mjs'
+import {bindGame,showSelectorControls} from '/tmp/populous-selector-scene-457/scripts/browser-game.mjs'
+const repo='/tmp/populous-selector-scene-457',output='/tmp/result-screen457/remote-73f3b742-attempt1',url='https://7c7ddb14-populous-new-dawn.webtorrent.workers.dev',head='73f3b74271850344b15fe996a456bd6153108b60'
+const require=createRequire(repo+'/package.json'),{chromium}=require('@playwright/test')
+const hash=data=>createHash('sha256').update(data).digest('hex')
+const proofBytes=readFileSync(repo+'/evidence/result-ui-20261015/checks/cloudflare-73f3b742.json'),proof=JSON.parse(proofBytes),check=proof.check_runs.find(c=>c.head_sha===head&&c.conclusion==='success')
+assert.ok(check?.output?.summary.includes(url),'Immutable preview must be bound to successful exact-head check')
+writeFileSync(output+'/cloudflare-proof.json',proofBytes)
+const proxy=process.env.HTTPS_PROXY??process.env.https_proxy
+if(!proxy)throw Error('Existing supported HTTPS proxy configuration is absent')
+const redact=value=>String(value).replaceAll(proxy,'[configured HTTPS proxy]')
+const receipt={head,url,startedAt:new Date().toISOString(),status:'running',scenarioSha256:hash(readFileSync(import.meta.filename)),source:JSON.parse(readFileSync('/tmp/result-screen457/after-fixture-73f3b742/source.json','utf8')),deployment:{checkId:check.id,conclusion:check.conclusion,htmlUrl:check.html_url,proofSha256:hash(proofBytes),summary:check.output.summary},transport:'Existing supported HTTPS proxy explicitly configured; value intentionally omitted. Normal TLS validation and browser sandbox retained.',viewport:{width:960,height:720},stages:[],checks:[],observations:[],pageErrors:[],requestFailures:[],httpErrors:[],consoleErrors:[],limits:['Production immutable preview, fresh ephemeral browser context; no existing user session or saves touched.','One injected opponent-extinction setup in Mission1 and one injected player-extinction setup in Mission2 if reached. Status, result flags, camera state, turn, time and RAF are never assigned or manually advanced.','Existing reviewed bindGame observer locates live scene/store via React hooks. Transition wrappers call original store methods unchanged and record dispatch/world replacement.','Injected integration coverage is not naturally earned victory, ordinary-combat parity, original native-runtime equivalence or hardware performance evidence.','No local Vite server, network bypass, certificate override, new install or persistent proxy configuration.']}
+const save=()=>writeFileSync(output+'/receipt.json',JSON.stringify(receipt,null,2)+'\n')
+const stage=name=>{receipt.stages.push({name,at:new Date().toISOString()});save()}
+const pass=(name,data)=>{receipt.checks.push({name,status:'passed',data});save()}
+let browser,page,expired=false
+const timer=setTimeout(()=>{expired=true;receipt.status='blocked';receipt.error='Bounded remote episode exceeded180seconds';save();void browser?.close()},180000)
+const snapshot=async(label)=>{const data=await page.evaluate(()=>{const store=window.testStore,scene=window.testSceneRef.current,w=store.getWorld(),gl=scene.renderer.getContext(),debug=gl.getExtension('WEBGL_debug_renderer_info');return{level:w.outcome.level,status:w.status,turn:w.turn,time:w.time,paused:w.paused,inputMask:w.inputMask,cameraPlaying:w.outcome.cameraPlaying,cameraRequest:w.outcome.cameraRequest,cameraActive:scene.resultCamera.active,completedLevel:w.outcome.completedLevel,progressFlags:w.outcome.progressFlags,completedMissions:store.getCompletedMissions(),frame:scene.frame,sceneMatchesWorld:scene.world===w,overlayCount:document.querySelectorAll('[data-original-result]').length,dialog:document.querySelector('dialog[open]')?.getAttribute('aria-label')??null,renderer:debug?gl.getParameter(debug.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)}});receipt.observations.push({label,at:new Date().toISOString(),...data});save();return data}
+async function readyWorld(level){await bindGame(page);await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask);const skip=page.locator('.skip-introduction');if(await skip.isVisible())await skip.click();await page.waitForFunction(()=>!window.testStore.getWorld().inputMask);await bindGame(page);assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),level)}
+async function injectAndObserve(kind){
+ stage('inject-'+kind+'-extinction')
+ const setup=await page.evaluate(kind=>{const store=window.testStore,world=store.getWorld(),scene=window.testSceneRef.current;const before={level:world.outcome.level,status:world.status,turn:world.turn,time:world.time,units:world.units.length,teams:world.units.reduce((a,u)=>(a[u.team]=(a[u.team]??0)+1,a),{}),cameraRequest:world.outcome.cameraRequest};world.units=world.units.filter(u=>kind==='opponent'?u.team==='blue':u.team!=='blue');window.episodeWorld=world;window.episodeScene=scene;window.resultSamples=[];window.resultSampleTimer=setInterval(()=>{window.resultSamples.push({at:performance.now(),status:world.status,turn:world.turn,time:world.time,paused:world.paused,cameraPlaying:world.outcome.cameraPlaying,cameraActive:scene.resultCamera.active,cameraRequest:world.outcome.cameraRequest,inputMask:world.inputMask,overlay:!!document.querySelector('[data-original-result]')})},100);store.update();return{before,removed:before.units-world.units.length,remaining:world.units.length,assignedFields:['world.units']}} ,kind)
+ receipt.observations.push({label:'injected-setup-'+kind,...setup});save()
+ const status=kind==='opponent'?'won':'lost'
+ await page.waitForFunction(status=>window.testStore.getWorld().status===status&&window.testStore.getWorld().outcome.cameraPlaying,status,{timeout:30000,polling:50})
+ const active=await snapshot(kind+'-actual-camera-active');assert.equal(active.overlayCount,0);assert.ok(active.cameraRequest>setup.before.cameraRequest);assert.equal(active.paused,false)
+ await page.screenshot({path:output+'/'+kind+'-camera-active.png'})
+ stage(kind+'-waiting-real-camera-completion')
+ await page.waitForFunction(status=>window.testStore.getWorld().status===status&&!window.testStore.getWorld().outcome.cameraPlaying&&document.querySelector('[data-original-result]'),status,{timeout:45000,polling:100})
+ await page.waitForFunction(()=>document.querySelector('[data-original-result]')?.dataset.fontReady==='true')
+ const settled=await snapshot(kind+'-result-visible');assert.equal(settled.overlayCount,1);assert.equal(settled.paused,false)
+ const samples=await page.evaluate(()=>{clearInterval(window.resultSampleTimer);return window.resultSamples});receipt.observations.push({label:kind+'-camera-samples',samples});save();assert.ok(samples.some(s=>s.cameraPlaying&&!s.overlay));assert.equal(samples.some(s=>s.cameraPlaying&&s.overlay),false)
+ await page.waitForFunction(turn=>window.testStore.getWorld().turn>turn+6,settled.turn,{timeout:10000});const running=await snapshot(kind+'-result-turns-continue');assert.ok(running.time>settled.time);assert.equal(running.paused,false);assert.equal(running.sceneMatchesWorld,true)
+ await page.screenshot({path:output+'/'+kind+'-result-live.png'})
+ pass(kind+' extinction uses actual outcome, camera gate and ongoing simulation',{setup,active,settled,running,samples:samples.length})
+}
+try{
+ stage('launch-proxy-configured-sandbox-browser')
+ const options=launchOptions('/workspace/scratch/69fd8163d94e/browser-recovery-20261014/chrome-headless-shell-linux64/chrome-headless-shell');options.args.push('--proxy-server='+proxy)
+ browser=await chromium.launch(options);receipt.browser=browser.version();page=await browser.newPage({viewport:receipt.viewport,deviceScaleFactor:1});page.setDefaultTimeout(25000)
+ page.on('pageerror',e=>receipt.pageErrors.push(redact(e.stack??e)));page.on('requestfailed',r=>receipt.requestFailures.push({url:r.url(),error:r.failure()}));page.on('response',r=>{if(r.status()>=400)receipt.httpErrors.push({url:r.url(),status:r.status()})});page.on('console',m=>{if(m.type()==='error')receipt.consoleErrors.push(redact(m.text()))})
+ stage('navigate-immutable-preview')
+ const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});receipt.navigationStatus=response.status();receipt.finalUrl=page.url();save()
+ await page.getByRole('dialog',{name:'Main menu',exact:true}).waitFor();stage('main-menu-ready');await page.screenshot({path:output+'/main-menu.png'})
+ await page.getByRole('button',{name:'New Game',exact:true}).click();await page.getByRole('dialog',{name:'Start game',exact:true}).waitFor();await page.getByRole('button',{name:/^Panel Mission 1(, completed)?$/}).click();await page.getByRole('button',{name:'Start Mission 1',exact:true}).click();stage('mission-one-start-requested')
+ await readyWorld(1);const opening=await snapshot('mission-one-live');assert.equal(opening.status,'playing');assert.equal(opening.overlayCount,0);pass('shipped main menu, campaign panel and ordinary Mission1 startup',opening)
+ await page.evaluate(()=>{window.transitionCalls=[];const store=window.testStore;for(const method of ['startMission','restart']){const original=store[method].bind(store);store[method]=(...args)=>{const before=store.getWorld();const value=original(...args),after=store.getWorld();window.transitionCalls.push({method,args,before:{level:before.outcome.level,status:before.status},after:{level:after.outcome.level,status:after.status,turn:after.turn,time:after.time,paused:after.paused},worldReplaced:before!==after});return value}}})
+ await injectAndObserve('opponent')
+ assert.equal(await page.getByRole('button',{name:'Continue to Mission 2',exact:true}).count(),1);assert.ok((await snapshot('won-before-selector')).completedMissions.includes(1))
+ for(const dismissal of ['Back','Escape']){
+  stage('selector-return-'+dismissal);await page.getByRole('button',{name:'Select Level',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Start game',exact:true});await dialog.waitFor();assert.equal(await page.getByRole('button',{name:'Panel Mission 1, completed',exact:true}).count(),1)
+  if(dismissal==='Back'){await showSelectorControls(page);await dialog.getByRole('button',{name:'Back',exact:true}).click()}else await page.keyboard.press('Escape')
+  await dialog.waitFor({state:'hidden'});const state=await snapshot('selector-'+dismissal+'-returned');assert.equal(state.status,'won');assert.equal(state.paused,true);assert.equal(state.overlayCount,1);assert.equal(state.dialog,null);assert.equal(await page.evaluate(()=>window.testStore.getWorld()===window.episodeWorld&&window.testSceneRef.current===window.episodeScene),true);pass('selector '+dismissal+' preserves terminal world and baseline pause state',state)
+ }
+ stage('continue-to-mission-two');await page.getByRole('button',{name:'Continue to Mission 2',exact:true}).evaluate(el=>{el.click();el.click()});await readyWorld(2);const continued=await snapshot('mission-two-live-after-continue');assert.equal(continued.status,'playing');assert.equal(continued.paused,false);let calls=await page.evaluate(()=>window.transitionCalls);assert.equal(calls.length,1);assert.equal(calls[0].method,'startMission');assert.deepEqual(calls[0].args,[2]);assert.equal(calls[0].worldReplaced,true);pass('actual Continue callback dispatched once and replaced world with Mission2',{continued,calls})
+ await injectAndObserve('player')
+ assert.equal(await page.getByRole('button',{name:'Restart Level',exact:true}).count(),1);stage('restart-mission-two');await page.getByRole('button',{name:'Restart Level',exact:true}).focus();await page.keyboard.press('Enter');await readyWorld(2);const restarted=await snapshot('mission-two-live-after-restart');assert.equal(restarted.status,'playing');assert.equal(restarted.paused,false);calls=await page.evaluate(()=>window.transitionCalls);assert.equal(calls.length,2);assert.equal(calls[1].method,'restart');assert.equal(calls[1].worldReplaced,true);assert.deepEqual(restarted.completedMissions,[1]);pass('actual Restart keyboard callback replaces same level and preserves completion',{restarted,calls})
+ await page.screenshot({path:output+'/mission-two-restarted.png'})
+ if(receipt.pageErrors.length)throw Error('Unexpected page JavaScript errors')
+ receipt.status='passed';stage('complete')
+}catch(e){if(!expired){receipt.status='blocked';receipt.error=redact(e.stack??e)}save()}
+finally{clearTimeout(timer);if(page&&!page.isClosed())await page.evaluate(()=>clearInterval(window.resultSampleTimer)).catch(()=>{});await browser?.close();receipt.finishedAt=new Date().toISOString();save();console.log(JSON.stringify({status:receipt.status,error:receipt.error,checks:receipt.checks.map(c=>c.name),stages:receipt.stages,pageErrors:receipt.pageErrors,requestFailures:receipt.requestFailures,httpErrors:receipt.httpErrors,receipt:output+'/receipt.json'},null,2));if(receipt.status!=='passed')process.exitCode=1}

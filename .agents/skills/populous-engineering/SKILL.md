@@ -8,6 +8,20 @@ description: Evidence-driven engineering for Populous New Dawn using GitHub issu
 Read root `AGENTS.md`, `GOAL.md`, and `engineering/README.md`. A delegated specialist
 starts from the parent's bounded brief and relevant evidence, not whole task history.
 
+Apply [README's gameplay parity and performance principle](../../../README.md#gameplay-parity-and-performance):
+preserve observable gameplay and relevant deterministic outcomes, including intended
+timing, targeting, RNG progression and checkpoint continuation where required.
+Historical code structure, algorithms, architecture, incidental allocations and
+internal representation are not parity requirements. Prefer modern, measurably
+better algorithms/data structures that preserve required behavior; do not sacrifice
+performance to imitate the original. A slow ray-cast path may be replaced with a
+better method after validating its gameplay semantics, including relevant edge cases.
+Keep native/compatibility tests and correctness requirements; change an assertion
+about incidental internals only after establishing coverage of the required behavior.
+Measure comparable full-frame/end-to-end cost, including setup, updates,
+invalidation, deferred work and allocations as applicable. A smaller or renamed
+timing bucket alone does not demonstrate an improvement.
+
 1. Continue the assigned GitHub issue/feature outcome. Record actual base/head and
    existing dirty paths. Use one writer per isolated branch/worktree; the parent
    coordinates up to six workers and owns integration.
@@ -15,6 +29,9 @@ starts from the parent's bounded brief and relevant evidence, not whole task his
    helpful; follow omissions or contradictions. For native work, use
    `engineering/native-research.md`, verify local inputs/tools, and preserve useful
    exports/probes in indexed durable evidence.
+   Restore missing native prerequisites automatically using
+   `engineering/native-setup.md`; try its verified download/extraction path before
+   asking the user for files or setup instructions.
 3. Implement a playable live path. Keep acceptance and limits in the linked issue/PR.
    Optional contracts and role packets in `engineering/contracts.md` help complex
    scope; they are not required for every assignment.

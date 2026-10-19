@@ -101,15 +101,24 @@ test('the normal Balloon Hut producer creates the original144 appearance', () =>
   assert.ok(balloon)
   assert.equal(originalVehicleMesh(balloon.model), 144)
   assert.equal(balloon.passengers[0], brave.id)
+  assert.equal(balloon.passengerCount, 1)
   assert.equal(brave.native.vehicle, balloon.id)
-  assert.equal(originalVehicleMesh(migrateCheckpoint(structuredClone(world)).vehicles[0].model), 144)
+  assert.equal(world.objectCells.objects.get(brave.id), brave.native)
+  const restored = migrateCheckpoint(structuredClone(world)),
+    restoredBrave = restored.units.find(unit => unit.id === brave.id),
+    restoredBalloon = restored.vehicles.find(vehicle => vehicle.id === balloon.id)
+  assert.equal(originalVehicleMesh(restoredBalloon.model), 144)
+  assert.deepEqual(restoredBalloon.passengers, [brave.id])
+  assert.equal(restoredBalloon.passengerCount, 1)
+  assert.equal(restored.objectCells.objects.get(brave.id), restoredBrave.native)
+  assert.equal(restoredBrave.native.vehicle, balloon.id)
 })
 
 test('the shipped vehicle factory consumes original models, with no custom hull/envelope', () => {
   const entities = readFileSync(new URL('../app/scene-entities.ts', import.meta.url), 'utf8')
   const factory = entities.slice(entities.indexOf('function makeVehicle('), entities.indexOf('\nexport ', entities.indexOf('function makeVehicle(')))
   assert.ok(factory.includes('originalVehicleMesh(v.model)'))
-  assert.ok(factory.includes('nativeModel(resource)'))
+  assert.ok(factory.includes('nativeModel(resource, 2, 4, false, scene.environment)'))
   assert.ok(factory.includes('point: { id: v.id }, vehicle: v.id'))
   assert.ok(!/SphereGeometry|PlaneGeometry|\bbox\(/.test(factory))
   assert.ok(entities.includes('scene.locate(g, browserPosition(v), v.h / 45)'))

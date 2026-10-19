@@ -57,7 +57,12 @@ function turnPhase(clock: GameClock) {
 // Advance animation and simulation in chronological order. Animation fields are
 // also read by person controllers, so batching all turns before all animations
 // changes gameplay at low refresh rates. The renderer itself remains uncapped.
-export function advanceGame(w: World, clock: GameClock, seconds: number) {
+export function advanceGame(
+  w: World,
+  clock: GameClock,
+  seconds: number,
+  metrics?: { steps: number }
+) {
   if (!Number.isFinite(seconds) || seconds < 0) throw new RangeError('Invalid elapsed game time')
   const presentation = clock.worshipVisit && !clock.presentationHidden?.()
   if (w.paused && !presentation) return
@@ -79,7 +84,7 @@ export function advanceGame(w: World, clock: GameClock, seconds: number) {
       )
     const previousTurn = w.turn
     try {
-      if (active) tick(w, elapsed * w.speed, phase.observer)
+      if (active) tick(w, elapsed * w.speed, phase.observer, metrics)
     } finally {
       // A failing beforeTurn/body must not leave a later UI event inside a turn.
       phase.active = false

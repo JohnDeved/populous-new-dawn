@@ -102,3 +102,31 @@ selectors. Their setup now explicitly opens All missions through one shared publ
 UI helper. Campaign selection checks continue through Select Mission and Start;
 checkpoint completion/replay assertions were updated to that real flow instead of
 silently bypassing campaign availability. Final browser receipts accompany the PR.
+
+## Original bottom panel restoration (#457)
+
+The bounded follow-on uses the original 638×61 `plspanel.spr` frame0 at bottom
+centre (1,419 at640×480). Available/completed opening-world overlays use frames5/6
+at global(34,445),(54,445),(74,445); locked worlds leave their sockets empty.
+The hand launch artwork is baked into frame0; hover/focus uses frame10 at(577,430).
+The browser enlarges its interactive hit area to at least44×44 and uses ordinary
+button press feedback. Separate readable44px controls select the opening worlds:
+the status glyphs also select worlds with vertically enlarged, nonoverlapping
+hitboxes and press feedback. These are explicit accessibility adaptations, including selection of
+locked worlds for explanation and keyboard focus, not native pointer parity.
+
+The strip scales proportionally to available screen width/height; at narrower
+mobile widths launch positioning and title spacing prioritize readable controls.
+The generic Mission N title and its browser font remain adaptations. Its centred
+position19 source pixels above the strip follows the recovered title consumer,
+but original localized title text/font pixels are not claimed. Orbit map and
+sphere remain the existing adapted presentation. No `plsbackg.dat` background or
+main-menu palette is substituted. Compatibility navigation is retained at top.
+
+`scripts/import-world-selector-panel.py` writes only its own panel subdirectory,
+with input/output/RGBA hashes for c/s/p selected-world palettes. Its evidence is
+retained in [world-selector-panel/findings.md](world-selector-panel/findings.md)
+and the adjacent raw static packet. That packet's `/tmp` paths describe the
+research run; its reconstruction PNGs are source-art previews, not game captures.
+No native process was executed. Existing campaign, profile, checkpoint, mission
+loading/retry and menu ownership are unchanged.

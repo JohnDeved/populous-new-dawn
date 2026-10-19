@@ -1,0 +1,54 @@
+{
+  "base": "50657af8bc5b403f9306a3d9d1f866d74071e33c",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "exportManifestSha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+  "exportsVerified": {
+    "decomp/generated/00403280.c": "2714dbc7a2fc7a7f5baa9ea51b2f171f2df08f009df923b40cb13f2cedea327d",
+    "decomp/generated/00405b80.c": "05b5f7e151c07985c9e9d5a6036243644a115e5f07f00a949ac4cf02ca1b07b3",
+    "decomp/generated/0047ae00.c": "fac01fd16c714eeea273ffd6e94e4b28617b9196bbf4714e9befe8fa7afaf37a",
+    "decomp/generated/0047b1d0.c": "311cc00a58fff83e9915bba6ccc6034e0bd620b587424504dbaa4ceb16b2f90e",
+    "decomp/generated/004afff0.c": "ea01bc763ba0b0735435a0633d201d413f65723c5e57627b461eeeb9c6e72be7",
+    "decomp/generated/004ba130.c": "a129fb830edfda3fbfd2bb7aa32441c25c48e586ba5471cdfffb2f92c6084c80",
+    "decomp/generated/0044d7f0.c": "ad88c7f051cc071dd9f3d9a3f8ecf9e84a88278877855633ae1f46df5951da8f",
+    "decomp/generated/0044db60.c": "330b5dbf8540b8b29c4ab49ec004251c0b61c82d61d90615bb4fd892c34549d5",
+    "decomp/generated/004f0f90.c": "49084d3a46ac32514b4eed26659f0fdb4e6b354c56bef666a922f70b39727ff0",
+    "decomp/generated/00504060.c": "2038be12309b51322ae2f3536f9a257fe865b3554c5952decc5239bd06d9ea97",
+    "decomp/generated/00504920.c": "f5314cd673045e9887159198815e6a17dfbe6c2927e55d9c9135246f71f50e9e",
+    "decomp/generated/00509290.c": "bc5eb0df096dbea9d0f5e1201b6e2ca0b0fc4201d90262c62c546e25da65e21b",
+    "decomp/generated/005092e0.c": "9a48c34eeb57336caeebd673b6a7f6f7856a8b8fc1ee88a1145293500377d6e4",
+    "decomp/generated/004edae0.c": "99f288f5cbb482ce6fad7f12bce4dbf62735bebcdd4c1e394fdb1d7095f8f7eb"
+  },
+  "unchangedAssets": {
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "app/original-tooltips.json": "15c8abd4186e096b84ab17206e836be550a211e2fe14d0b8f8656494c90afeec",
+    "app/original-hud.json": "3b24abb207a0ad2fc92f7225866352f0d485cf9ac7d13fb8b76842fecc928929",
+    "app/original-models.json": "1665fcc36e57bbb765259ec9b7c1755a6b126db837787c9038ed955c76a8afc5",
+    "public/original/hud.png": "1479f593c925cee6c6af76b1652cb33d8c4cfea4581a9a9559cb03d0568b8ead",
+    "public/original/buildings.png": "6462b6ee61520a7b8a7af956bb4d9e2a8347e8d1aab3fd6122cb28a00d1c175d"
+  },
+  "baseCallers": {
+    "app/object-panels.ts": "1c41b8dab8606b90dbbb7f3cd71e99159493089146c88a8c0ce6d7a5f71e85c1",
+    "app/scene-tooltip-runtime.ts": "734ec180dd54b1f505ba28021a1f5dcc1cadf5fa4c1ff4f9608041cead871d07",
+    "app/scene-input-runtime.ts": "799a5b93afa282210bd2c6bd34e5b4c18fc9fecbfe3e65b8281febdb061bd85a",
+    "app/building-panels.ts": "ebb40df9a40f8af3b2869af9e381cd2f07cc71eb5700d37059bbb6c17097da00",
+    "app/scene-secondary-effects.ts": "2d074622107b79e32e9a01321ce449c716eb006103980965c2a0485fa1e9ade0",
+    "app/person-panel.ts": "2ede0182a7b477006f2ca1adb9e71df0b746785ba701b035456b2354d8b1699f",
+    "app/training-panel.ts": "15b2c7cc5a354640481ebfc2f67a50cb41c9a168d24d4a724daff38eeaecc52a",
+    "app/live-building-entry.ts": "9f58dbf0c20e362d4c45f8bba18c69b90f7310429e0eb82c495de808cf22fb99",
+    "app/training-conversion.ts": "6c8cade2447474f1d966cdfad22e9098d2fd4a5535891fe8c942ba7266806bf7",
+    "tests/building-menu.test.mjs": "b5e1ec91ad8996211192eddd6ba352be0c444f772220f10f70e0e235c6199b72",
+    "tests/hut-tooltip-controller.test.mjs": "d68b3d4d177b2d7838572a675e4d86fb14f3aabc45612340f962ef627f47cb3d"
+  },
+  "model7": {
+    "flags": 18591,
+    "capacity": 5,
+    "nameRecord": [
+      912,
+      940
+    ],
+    "localText": "Warrior Training Hut: Select Followers and {}to train. |}query.",
+    "inspectionKind": 5
+  },
+  "newNativeExecution": false,
+  "runtimeChanged": false
+}

@@ -1,5 +1,7 @@
 # Mission 2 ordinary-control observation, 2026-10-04
 
+> Historical PNG captures are [preserved unchanged at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/mission-two-controls-2026-10-04). They are no longer tracked in the current checkout; the source-bound findings, image names and any recorded hashes below remain historical evidence.
+
 Refs [PND-11](https://github.com/JohnDeved/populous-new-dawn/issues/11). This is a
 bounded observed victory, not a clean passing maintained checker, full native
 parity, original-pixel comparison, hardware-performance result or parity-ledger update.
@@ -19,7 +21,7 @@ integrity manifest live on a separate evidence branch at
 This integration contains only this note and one unedited figure. The raw archive
 must not be merged wholesale into main.
 
-![Actual Mission 2 victory](victory.png)
+![Actual Mission 2 victory](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/mission-two-controls-2026-10-04/victory.png)
 
 *Unedited 1440×1000 browser output from ab6e857, captured 16:55:58.545 UTC at
 turn 8937, after the normal victory camera completed. It shows Level Won, Matak

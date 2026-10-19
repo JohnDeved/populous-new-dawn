@@ -9,11 +9,14 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
+import { performance } from 'node:perf_hooks'
 
 const script = fileURLToPath(import.meta.url)
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const json = file => JSON.parse(fs.readFileSync(file, 'utf8'))
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
+const controllerProtocol = 1
+const controllerSourceSha256 = hash(fs.readFileSync(script))
 const git = (cwd, ...args) =>
   execFileSync('git', ['-C', cwd, ...args], { maxBuffer: 32 * 1024 * 1024 })
     .toString()
@@ -209,6 +212,56 @@ function childOutcome(child) {
     child.once('exit', (code, signal) => resolve({ code, signal }))
   })
 }
+// Opt-in same-invocation supervision for foreground commands whose descendants
+// stay in their process group. This does not acquire the shared queue or supervise
+// arbitrary daemons. Wrap it in command-receipt for source-bound, persistent logs.
+export async function runForegroundCommand({ command, timeoutMs, cwd = process.cwd(), env = process.env, stdio = 'inherit' }) {
+  assert(process.platform !== 'win32', 'Foreground supervision requires POSIX process groups')
+  argv(command, 'command')
+  assert(Number.isSafeInteger(timeoutMs) && timeoutMs > 0, 'timeoutMs must be a positive safe integer')
+  assert(['inherit', 'ignore'].includes(stdio), 'foreground stdio must be inherit or ignore')
+  const deadline = performance.now() + timeoutMs
+  let child, outcome, group, stopReason
+  const interrupted = () => { stopReason ??= 'interrupted' }
+  for (const name of ['SIGINT', 'SIGTERM']) process.on(name, interrupted)
+  try {
+    child = spawn(command[0], command.slice(1), { cwd, env, stdio, detached: true })
+    const finished = childOutcome(child).then(value => {
+      // An exit can arrive after the deadline but before the next poll. Classify
+      // it here; measuring after cleanup would incorrectly include its grace.
+      if (performance.now() >= deadline) stopReason ??= 'timed-out'
+      outcome = value
+    })
+    if (child.pid) {
+      group = { pid: child.pid, members: new Map() }
+      const owner = processTable().find(row => row.pid === child.pid && row.pgid === child.pid)
+      if (owner) group.members.set(owner.pid, owner.identity)
+    }
+    while (!outcome && !stopReason) {
+      if (group) verifyGroupIdentity(group)
+      if (performance.now() >= deadline) stopReason = 'timed-out'
+      else await sleep(50)
+    }
+    // A leader can exit while descendants keep running (or retain inherited
+    // pipes). Cleanup is independent of child close, and always verifies an
+    // observed owned identity before signalling. Missing proof fails closed.
+    if (group) await stopGroup(group)
+    await finished
+    return {
+      status: stopReason ?? (outcome.code === 0 && !outcome.error ? 'passed' : 'failed'),
+      exitCode: outcome.code ?? null,
+      signal: outcome.signal ?? null,
+      error: outcome.error ? { code: outcome.error.code, message: outcome.error.message } : undefined,
+      resourcesReleased: true,
+    }
+  } catch (error) {
+    child?.unref()
+    return { status: 'cleanup-blocked', resourcesReleased: false, reason: error.message }
+  } finally {
+    for (const name of ['SIGINT', 'SIGTERM']) process.removeListener(name, interrupted)
+  }
+}
+
 export async function superviseBrowserCheck({
   checkerCommand,
   cwd = process.cwd(),
@@ -468,6 +521,7 @@ export function submit(spec, dir = queueDirectory(spec.cwd)) {
   spec = { ...spec, env: { PATH: process.env.PATH, ...spec.env } }
   initialize(dir)
   const inputs = fingerprint(spec),
+    nodeOptions = spec.env.NODE_OPTIONS ?? process.env.NODE_OPTIONS ?? '',
     lock = path.join(dir, 'submission.lock'),
     deadline = Date.now() + 5000,
     sleeper = new Int32Array(new SharedArrayBuffer(4))
@@ -489,7 +543,8 @@ export function submit(spec, dir = queueDirectory(spec.cwd)) {
       previous =>
         ['queued', 'starting', 'running', 'cleanup-blocked'].includes(previous.status) &&
         !exists(path.join(previous.output, 'cancel')) &&
-        isDeepStrictEqual(previous.spec, spec)
+        isDeepStrictEqual(previous.requestedSpec ?? previous.spec, spec) &&
+        (!previous.executionEnvelope || previous.executionEnvelope.nodeOptions === nodeOptions)
     )
     if (job)
       assert.deepEqual(
@@ -497,7 +552,7 @@ export function submit(spec, dir = queueDirectory(spec.cwd)) {
         job.fingerprint,
         `Unfinished job ${job.id} has different inputs; wait for it or cancel it before resubmitting`
       )
-    else job = enqueue(spec, inputs, dir)
+    else job = enqueue(spec, inputs, dir, nodeOptions)
   } finally {
     fs.closeSync(fd)
     fs.unlinkSync(lock)
@@ -505,13 +560,30 @@ export function submit(spec, dir = queueDirectory(spec.cwd)) {
   kick(dir)
   return job
 }
-function enqueue(spec, inputs, dir) {
+function enqueue(spec, inputs, dir, nodeOptions) {
   const id = randomUUID(),
-    output = path.join(dir, 'jobs', id)
+    output = path.join(dir, 'jobs', id),
+    launcherSource = fs.readFileSync(new URL('./performance-queue-launcher.cjs', import.meta.url), 'utf8'),
+    payloadEnvironmentSha256 = hash(JSON.stringify({ ...spec.env, NODE_OPTIONS: nodeOptions }))
   fs.mkdirSync(output)
   const job = {
     id,
-    spec,
+    // Legacy controllers execute spec.command too. Freeze the launch boundary
+    // there, while retaining the original specification for receipts and retries.
+    requestedSpec: spec,
+    executionEnvelope: {
+      version: 1, controllerProtocol, controllerSourceSha256,
+      launcherSha256: hash(launcherSource), payloadEnvironmentSha256, nodeOptions,
+    },
+    spec: {
+      ...spec,
+      // Requested PATH, loader hooks and other payload environment must not affect
+      // the launcher. Keep their values in the private job file, not process argv.
+      env: { NODE_OPTIONS: '' },
+      command: [process.execPath, '--input-type=commonjs', '-e', launcherSource,
+        JSON.stringify({ id, output, command: spec.command, ports: spec.ports,
+          protocol: controllerProtocol, controllerSourceSha256, payloadEnvironmentSha256 })],
+    },
     fingerprint: inputs,
     status: 'queued',
     submittedAt: new Date().toISOString(),
@@ -650,7 +722,10 @@ export async function drain(dir) {
     throw e
   }
   const token = randomUUID()
-  write(path.join(lock, 'owner.json'), { pid: process.pid, identity: identity(process.pid), token, executionScope: executionScope() })
+  write(path.join(lock, 'owner.json'), {
+    pid: process.pid, identity: identity(process.pid), token, executionScope: executionScope(),
+    protocol: controllerProtocol, sourceSha256: controllerSourceSha256,
+  })
   // A crash deliberately leaves the lock and active job. Recovery never expires a live owner.
   let cleanExit = false
   try {
@@ -754,6 +829,14 @@ export async function waitForResult(dir, id) {
 }
 async function main() {
   const [command, ...args] = process.argv.slice(2)
+  if (command === 'foreground') {
+    assert(args.length >= 3 && args[1] === '--', 'foreground requires TIMEOUT_MS -- COMMAND [ARG...]')
+    const result = await runForegroundCommand({ timeoutMs: Number(args[0]), command: args.slice(2) })
+    console.error(JSON.stringify(result))
+    process.exitCode = result.status === 'passed' ? 0 : result.status === 'timed-out' ? 124
+      : result.status === 'interrupted' ? 130 : (result.exitCode || 1)
+    return
+  }
   if (command === 'supervise') {
     assert(args.length, 'supervise requires a checker path')
     await superviseBrowserCheck({ checkerCommand: [process.execPath, ...args] })
@@ -819,7 +902,7 @@ async function main() {
   else if (command === 'resume' || command === 'recover') await recover(dir)
   else
     throw Error(
-      'Usage: performance-queue.mjs run SPEC | submit SPEC | wait ID | status | cancel ID | pause REASON | resume | recover [--dir PATH] | supervise CHECKER [ARG...]'
+      'Usage: performance-queue.mjs run SPEC | submit SPEC | wait ID | status | cancel ID | pause REASON | resume | recover [--dir PATH] | supervise CHECKER [ARG...] | foreground TIMEOUT_MS -- COMMAND [ARG...]'
     )
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === script)

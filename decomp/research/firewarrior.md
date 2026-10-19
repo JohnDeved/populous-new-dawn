@@ -67,8 +67,9 @@ occlusion. State 21 scans on the model-6 mask-3 cadence only when cooldown is ze
 The paired projectiles start at perpendicular offsets of -96/+96. After the lateral
 step, native clamps their base height to the higher of the source ground and terrain
 at that offset, then adds tower support height plus 16; the tower cooldown is 36.
-The probed hostile Brave takes 500 native life, mapped to 25 browser HP per
-projectile. A lethal impact requests kill credit with the source and target identities.
+The probed hostile Brave takes 500 native life, mapped to 25 browser HP for the
+marked impact projectile. The paired unmarked projectile does not call damage
+(see the October 12 correction below). A lethal impact requests kill credit with the source and target identities.
 
 The probe supplies the global order and projectile slots and intercepts order
 allocation/attachment/sharing, audio, animation, sunlight, and the downstream
@@ -131,3 +132,150 @@ occupancy, positions, health, and the allocation context are synthetic.
 This does not prove general terrain line-of-fire, Bloodlust, allocation exhaustion,
 broad target damage, or whole-world native play. Do not hard-code the ordinary
 synthetic damage table into gameplay. Preserve any newly exposed uncertainty here.
+
+## Paired unit-impact ownership correction (2026-10-12)
+
+At main `0d355b62051b0f324bacf6acc2c33345619d42bc`, a real launch followed by the
+production shot consumer damaged a supplied 100 HP Brave twice: the complete pair
+left 80 HP, while each isolated side left 90 HP. The first side already carried
+`impact:false`, but only the building-damage branch respected that marker. This
+observation is a supplied CPU fixture, not normal acquisition or whole native play.
+The original failed state is retained separately from the repaired tests.
+
+The original contract is direct in the already indexed
+[`004bbcf0`](../generated/004bbcf0.c) and
+[`004bbf30`](../generated/004bbf30.c) exports: initializer side 0 leaves terminal
+mode 0, side 1 gets mode 1 for an entity target, and only mode 1 calls the
+[`00514410`](../generated/00514410.c) damage consumer. The old probes initialize
+both projectiles but advance the second through impact. They do not justify the
+former prose's “per projectile” interpretation or damage on the first visual side.
+These sources retain the executable hash and tool provenance recorded above; no
+new original-executable run is claimed.
+
+The repair gates unit damage, successful-damage attribution and hit feedback on
+impact ownership. The first side still flies and expires; it cannot damage, claim
+a lethal hit or emit a unit-hit effect. The second retains the existing damage
+amount, Bloodlust/Shield behavior and source-loss policy. Building damage remains
+restricted to explicit `impact:true`; its first visual side also stops emitting
+unearned hit feedback. Launch geometry, pairing, cooldown, trajectory and lifetime
+are unchanged. This is not a new per-class damage-table, splash, source-loss
+attribution or full projectile fidelity claim.
+
+### Legacy snapshot compatibility
+
+The optional marker predates this correction. Explicit false is harmless and
+explicit true owns impact. An absent marker retains the old in-flight unit-hit
+behavior, without guessing a side from array order or position. Missing-marker
+building damage remains disabled as before. This is an explicit compatibility
+policy for an ambiguous old browser record, not an original-save equivalence
+claim. Current launches always store the complete false/true pair.
+
+### Stronger regression expectations
+
+`tests/firewarrior-impact-owner.test.mjs` exercises ordinary/tower and Bloodlust
+pairs, first-side harmlessness, Shield, successful-damage attribution, kill credit,
+source loss, building markers, legacy missing markers and checkpoint continuation.
+The maintained Mission16 assertion changes from two damage applications to one,
+while preserving its acquisition/status and protection checks.
+
+The tower witness is split rather than widening its old 32-turn kill deadline:
+- A 25 HP target preserves all selector, stealth/protection and kill-owner assertions,
+  dying from the one marked tower hit within the original 32-turn bound.
+- A 50 HP target must have exactly 25 HP after the first pair and no kill credit. The
+  next pair must launch exactly 36 turns after the first. Normal combat may reveal or
+  retarget another enemy, so the test does not force a second hit on the same ID.
+
+The attempted same-target second-volley assertion failed because the existing
+ordinary combat correctly changed eligibility/targets between volleys. Its
+failure/diagnostic is retained; AI and retargeting were not disabled to satisfy it.
+Fresh native execution and rendered acquisition/combat acceptance remain unrun;
+no parity, complete specialist coverage or release-gate closure follows.
+
+The first full gate on the impact-owner repair exposed an existing Mission18
+fixture placement assumption: all three supplied head slots used the fallback
+heading256, while native-linked scenery474/477/480 supplies512/1536/512.
+With corrected combat ownership the final head had no eligible worshipper at
+turn196, so the native zero-follower sample decayed work7199 to7163; three
+eligible at200 only restored7165. All six supplied followers remained alive.
+The base happened to admit one at196 and finish. The fixture now uses the same
+canonical `worshipHeadPose` as command admission and the production count, and
+asserts head completion before waiting for the gift. Its8-turn admission,
+8-turn completion and82-turn gift bounds and both Volcano rewards are unchanged.
+This corrects test placement rather than changing worship or Firewarrior timing.
+
+## Bounded terrain-clearance port (2026-10-18)
+
+Source inspection at `e1b468a9b8a355bd46fb149a1100b43442898b1e` found that
+`app/firewarrior.ts:firewarriorReady` returned the axis-range result without the
+terrain test retained in `decomp/generated/0051f990.c`. The new
+`app/firewarrior-clearance.ts` composes only that missing test after the existing
+range gate; target acquisition, range policy, firing cadence, damage and projectiles
+remain unchanged. Issue #4 remains open.
+
+The original uses toroidal planar distance, `clamp(distance / 0x180, 1, 16)` samples,
+integer-truncated horizontal and height increments, the fixed-point angle step,
+and signed-short coordinate/height accumulation. Each sample rejects only when
+terrain exceeds stored interpolated height plus `0x8c`. This is not continuous
+ray casting: do not replace the bounded sample positions with a denser line or a
+floating-point endpoint interpolation.
+
+Height ownership is distinct from display/launch geometry:
+
+- `0051f990` reads each object's signed word at `+0x41`, not the tower socket's
+  support offset at `+0x1c` or the projectile launch offset. The existing native
+  tower probe deliberately supplies ground height 128 and support 480 separately.
+- `app/building-occupants.ts:setPersonOccupancy` likewise records support separately
+  and moves an occupant to the socket's terrain height. The readiness adapter uses
+  retained flight/fight/native/entry/builder height, in the same priority as the
+  existing live-movement person source, with sampled terrain for a person without
+  a retained record. It does not add render support, lift or projectile offsets.
+- Buildings retain their object height as `foundation * 45` in the existing
+  building-runtime terrain owner. Readiness reads it without altering the foundation.
+- The established range gate still uses its existing height and coordinates. This
+  slice does not reconcile the separate special-level, point-target, or range laws.
+
+Failure-first checks of the public readiness function passed flat-ground controls
+then incorrectly accepted an intervening ridge for both ground and tower range
+modes. An earlier fixture accidentally retained state 10/command 0 and failed its
+range prerequisite; it was corrected before interpreting the ridge failure.
+The added tests cover exact 140/141 clearance, signed heights, descending integer
+steps, wrapped coordinates, bounded sample counts, foundation/motion height and
+absence of predicate-side gameplay mutation in a synchronized world. The actual
+tower firing caller also withholds its volley/cooldown behind the ridge and resumes
+on clear terrain. These are supplied CPU fixtures, not an ordinary campaign run.
+The pre-existing nativePosition terrain synchronization boundary is unchanged.
+
+This port is grounded in retained static evidence, not a new original-executable
+ridge comparison. No new native execution, rendered scene acceptance, ordinary
+acquisition episode, whole-suite/build result or hardware performance measurement
+is claimed by this note. Existing flat native probe and tower/impact tests retain
+their original narrower evidence scope.
+
+### M22 delayed-shot regression qualification
+
+The first full candidate gate failed the unchanged supplied-focus Boat route:
+turn 1378 still boarded successfully, but Shaman HP was 79.8 rather than 81.4.
+A frozen baseline/candidate comparison preserves that failure and isolates the
+change to authored tower 96 firing at Shaman 89. All 1,378 per-turn RNG before/after
+values and Shaman positions match. Baseline fires at 1336 and impacts at 1347;
+clearance rejects 1336/1340 and first permits firing at 1344, impacting at 1355.
+Both impacts deal exactly 25 HP. The later impact misses the 1352 healing visit;
+subsequent visits 1360/1368/1376 each restore 1.6 HP. No RNG or damage-law repair
+is involved.
+
+An independent Python translation of retained 0051f990/00586074/004503f0/004e6a70/
+0044e940, reading sine/atan tables directly from the hash-verified original EXE,
+compared every executed sample with an observational hook in the actual port:
+
+- 1336: sample 8 `(6452,6304,h264)`, terrain 434, rejects above clearance 404.
+- 1340: sample 9 `(6782,6454,h234)`, terrain 410, rejects above clearance 374.
+- 1344: all 13 samples pass; tight sample 10 `(7140,6546,h182)` has terrain 319
+  against clearance 322. Final sample `(7944,7389,h107)` has terrain 103.
+
+Source/target stored heights and motion ownership were checked separately against
+captured native records; tower support is not added. This is a source-qualified
+comparison with original table bytes, **not original instruction execution**:
+available Python environments lacked Unicorn and no installation was attempted.
+The route expectation now includes the exact volley/impact/healing chain rather
+than merely lowering HP, alongside the authored-terrain three-state regression.
+The historical CI failure remains evidence, not a pass or an altered baseline.

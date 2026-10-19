@@ -94,7 +94,9 @@ test('Mission 16 worship grants Bloodlust and live combat consumes its status', 
   assert.equal(shots.length, 2)
   assert.ok(shots.every(shot => shot.firewarriorShot.bloodlust))
   stepFirewarriorShots(world)
-  assert.equal(target.hp, 100 - 20 * constants.BLOODLUST_DAMAGE_X)
+  // Native 004bbcf0/004bbf30 assigns damage to only the second projectile.
+  assert.deepEqual(shots.map(shot => shot.firewarriorShot.impact), [false, true])
+  assert.equal(target.hp, 100 - 10 * constants.BLOODLUST_DAMAGE_X)
 
   world.effects = world.effects.filter(effect => !effect.firewarriorShot)
   Object.assign(target, { hp: 100, shield: 1, damageAttacker: 2 })

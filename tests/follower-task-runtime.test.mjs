@@ -5,6 +5,7 @@ import { createLivePerson } from '../app/live-people.ts'
 import { BuilderTask } from '../app/building-workers.ts'
 import { hudTaskPeople, selectFollowerTask } from '../app/follower-tasks-runtime.ts'
 import { followerTaskCounts } from '../app/hud-tasks.ts'
+import { vehicleSeat } from '../app/vehicle-seats.ts'
 
 function setup() {
   const world = createWorld(1)
@@ -115,10 +116,10 @@ test('real boarding through a route owner overrides a dormant native person for 
     assert.ok(boardLiveVehicle(world, route, boat))
     return route
   })
-  // This authored craft has native settled offsets (-40,-128) and (-40,-64).
-  // Pin the fixture and unsigned seam coordinates independently of the runtime helper.
-  assert.deepEqual([boat.model,boat.x,boat.y,boat.heading],[1,-7084,12197,0])
-  const seats = [[58412,12069],[58412,12133]]
+  // Supplied activation/boarding fixture uses the browser initializer result,
+  // not the raw authored seed. Seat geometry has its own native projection tests.
+  assert.deepEqual([boat.model,boat.x,boat.y,boat.heading],[1,58226,12429,7*Math.PI/4])
+  const seats = units.map((_,i)=>{const p=vehicleSeat(boat,i);return [p.x,p.y]})
   assert.ok(units.every(u => u.native.vehicle === 0))
   world.selected = units.map(u => u.id)
   const before = structuredClone(world), people = hudTaskPeople(world)

@@ -112,7 +112,7 @@ export function requireScreenProof(epochs, templeId) {
       sample && sample.key === `temple-sparkles-p:${sample.frame}:${sample.resolvedRgb}`,
       `Missing actual ${owner} p crop/tint consumption`
     )
-    const expected = templeSpriteMaterial(sample.frame, sample.palette, sample.resource)
+    const expected = templeSpriteMaterial(3, sample.frame, sample.palette, sample.resource)
     assert.equal(sample.resolvedRgb, expected.rgb)
     assert.deepEqual(sample.crop, expected.crop)
     assert.equal(sample.width, expected.crop.w)
@@ -126,7 +126,7 @@ export function requireScreenProof(epochs, templeId) {
     assert.equal(sample.resource.bank, 'p')
     assert.equal(sample.resource.epoch, final.installation.state.resourceLive.epoch)
     assert.equal(sample.afterFrame, sample.beforeFrame + 1)
-    assert.ok(sample.src.split('?')[0].endsWith('/temple-model-p.png'))
+    assert.ok(sample.src.split('?')[0].endsWith('/atlas-p.png'))
   }
 }
 
@@ -202,7 +202,7 @@ export default async function mission3BuildingScreen(context, continuation = nul
       const click = async () => {
         if (startup)
           await page
-            .getByRole('dialog', { name: 'Start game', exact: true })
+            .getByRole('dialog', { name: 'Main menu', exact: true })
             .getByRole('button', { name: 'Load Game', exact: true })
             .click()
         else await page.getByRole('button', { name, exact: true }).click()

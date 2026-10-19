@@ -1,3 +1,9 @@
+import { NeutralCanvasCursor, neutralCanvasState } from './neutral-cursor.ts'
+import { createRuntimeTerrainPicking } from './runtime-terrain-picking.ts'
+import type { SceneUpdateMetrics } from './scene-update-metrics.ts'
+import type { WaterUpdateMetrics } from './water-update-reasons.ts'
+import { worldEnvironment, type WorldEnvironment } from './world-environment.ts'
+import { DEFAULT_GAME_PREFERENCES, type GamePreferences } from './game-preferences.ts'
 import type { PresentationBinding, SharedAniblSnapshot } from './shared-anibl.ts'
 import { templeArt } from './temple-art.ts'
 import type { TransportKind } from './hud-transports.ts'
@@ -9,9 +15,16 @@ import { orderSound, playWorldSounds, soundEnvironment } from './audio'
 import { renderBuildingPanels } from './building-panels.ts'
 import { createCameraMotion, createResultCamera } from './camera-motion.ts'
 import { type FlybyCamera } from './flyby.ts'
+import {
+  createPointerFrameMetrics,
+  resetPointerFrameMetrics,
+  type PointerFrameMetrics,
+} from './pointer-frame-metrics.ts'
 import { FpsGraph } from './fps-graph.ts'
 import { levelStartCamera } from './level-start.ts'
 import { advanceGame } from './game-clock.ts'
+import { FollowerNearbyMode } from './follower-nearby.ts'
+import { bindTrainingPanelRequests } from './training-panel-requests.ts'
 import {
   WorshipAcquisitionPresentation,
   type WorshipHudBridge,
@@ -36,7 +49,24 @@ import { loadTexture, releaseGroup, retryFailedTexture, texture } from './scene-
 import { ScenePicking } from './scene-picking.ts'
 import { createSkyMotion } from './sky.ts'
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
-import { createTooltip, tooltipPalette, worldTooltipObject } from './tooltips.ts'
+import {
+  createTooltip,
+  tooltipPalette,
+  worldTooltipObject,
+  type TooltipObject,
+} from './tooltips.ts'
+import {
+  createTooltipController,
+  createTooltipSession,
+  type TooltipSession,
+} from './tooltip-controller.ts'
+import {
+  acquireForcedTooltip,
+  cancelTooltipInspection,
+  updateTooltipController,
+  type TooltipInputSample,
+  type TooltipInspectionInput,
+} from './scene-tooltip-runtime.ts'
 import { UnitMotion } from './unit-motion.ts'
 
 import { type BuildingShapePose } from './building-shapes.ts'
@@ -86,6 +116,7 @@ import {
 import { updateHudFrame } from './scene-hud-runtime.ts'
 import {
   acknowledgePointer,
+  cancelPointerGesture,
   chooseFollowers,
   chooseTransport,
   drawPointer,
@@ -118,6 +149,7 @@ import {
 
 export class GameScene {
   world: World
+  gamePreferences: GamePreferences = { ...DEFAULT_GAME_PREFERENCES }
   waveFrames = new WeakMap<object, number>()
   view = new RenderView()
   skyBackdrop = new THREE.Mesh(
@@ -197,8 +229,8 @@ export class GameScene {
   waves: Uint8Array | null = null
   waterMap = new THREE.DataTexture(new Uint8Array(256 * 256 * 4), 256, 256)
   waterState = ''
-  waterScroll = { value: 0 }
   terrainMap = new THREE.DataTexture(new Uint8Array(4096 * 4096 * 4), 4096, 4096)
+  readonly environment: WorldEnvironment
   terrainTextures: TerrainTextures | null = null
   terrainUpload = new THREE.DataTexture()
   terrainAtlasState: ReturnType<typeof terrainAtlas> | undefined
@@ -248,6 +280,12 @@ export class GameScene {
   cameraPreviewButtons: number | null = null
   resultTurn = 0
   tooltip = createTooltip()
+  tooltipSession = createTooltipSession()
+  tooltipController = createTooltipController(this.tooltip, this.tooltipSession)
+  tooltipInput: TooltipInputSample | null = null
+  tooltipInspectionInputs: TooltipInspectionInput[] = []
+  tooltipHudOwners = new WeakMap<Element, string>()
+  tooltipHudSerial = 0
   tooltipElement = document.createElement('div')
   tooltipCanvas = document.createElement('canvas')
   objectPanels = new ObjectPanels(this)
@@ -257,6 +295,7 @@ export class GameScene {
   hudTransportFocus = Array<number>(16).fill(0)
   buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
+  pointerGesture: { pointerId: number; button: number } | null = null
   drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
     null
   selectionOverlay: SelectionOverlay
@@ -266,8 +305,44 @@ export class GameScene {
   frame = 0
   started = false
   disposed = false
-  fpsGraph = new URLSearchParams(location.search).has('fps') ? new FpsGraph() : null
+  fpsGraph: FpsGraph | null = null
+  private sceneUpdateMetrics?: SceneUpdateMetrics
+  private waterFrameMetrics?: WaterUpdateMetrics
+  private simulationFrameMetrics?: { steps: number }
+  private readonly pointerFrameMetrics = createPointerFrameMetrics(true)
+  togglePerformance() {
+    if (this.fpsGraph) {
+      this.fpsGraph.dispose()
+      this.fpsGraph = null
+    } else {
+      this.fpsGraph = new FpsGraph(this.renderer.getContext(), this.world.outcome.level)
+      this.fpsGraph.element.addEventListener('pointerenter', () => {
+        this.navigationPointer = null
+      })
+      this.fpsGraph.element.addEventListener('focusin', () => {
+        this.keys.clear()
+        this.navigationPointer = null
+      })
+      this.container.appendChild(this.fpsGraph.element)
+    }
+  }
   previous: number | null = null
+  private neutralCursor: NeutralCanvasCursor | null = null
+  neutralCursorRosterSelected = true
+  cursorFrameBlocked = true
+  modalSuspended = false
+  setModalSuspended(suspended: boolean) {
+    this.modalSuspended = suspended
+    this.neutralCursor?.reset()
+    this.previous = null
+    this.keys.clear()
+    const pointerId = this.pointerGesture?.pointerId
+    if (pointerId !== undefined && this.renderer.domElement.hasPointerCapture(pointerId))
+      this.renderer.domElement.releasePointerCapture(pointerId)
+    cancelPointerGesture(this)
+    this.cancelNearbyFollowers()
+    this.cancelTooltipInspection()
+  }
   uiTimer = 0
   unitMotion = new UnitMotion()
   projectileMotion = new ProjectileMotion()
@@ -292,6 +367,9 @@ export class GameScene {
   }
   templeResourceSnapshot: SharedAniblSnapshot | null = null
   private presentationBinding?: PresentationBinding
+  private nearbyFollowers?: FollowerNearbyMode
+  nearbyFollowersHudActive = false
+  onNearbyFollowersCancel?: () => void
   worshipPresentation: WorshipAcquisitionPresentation
   terrainVersion = -1
   treeSignature = ''
@@ -323,16 +401,22 @@ export class GameScene {
       finished?: () => void
     ) => (() => void) | void,
     worshipHud?: WorshipHudBridge,
-    presentationBinding?: PresentationBinding
+    presentationBinding?: PresentationBinding,
+    tooltipSession?: TooltipSession
   ) {
     this.presentationBinding = presentationBinding
     this.templeResourceSnapshot = presentationBinding?.snapshot() ?? null
-    if (world.outcome.level === 3 && !this.templeResourceSnapshot)
-      throw new Error('Mission 3 requires its presentation resource binding')
+    if (!this.templeResourceSnapshot)
+      throw new Error('Scene requires its presentation resource binding')
+    if (tooltipSession) {
+      this.tooltipSession = tooltipSession
+      this.tooltipController = createTooltipController(this.tooltip, tooltipSession)
+    }
     this.container = container
     this.mini = minimap
     this.portrait = portrait
     this.world = world
+    this.environment = worldEnvironment(world)
     this.soundSerial = world.soundSerial
     for (const effect of world.effects) if (effect.fire) effect.fire.soundPlaying = false
     for (const building of world.buildings) if (building.burn) building.burn.soundPlaying = false
@@ -350,9 +434,13 @@ export class GameScene {
     // Resolve failed required textures before constructing anything that captures them.
     // Passive texture()/loadTexture() lookups still reuse failures; only this new-scene
     // preload boundary may replace a completed required failure.
-    const atlasAsset = retryFailedTexture('atlas'),
+    const atlasAsset = retryFailedTexture(this.environment.landscape.modelAtlas),
+      selectionAtlasAsset =
+        this.environment.landscape.modelAtlas === 'atlas'
+          ? atlasAsset
+          : retryFailedTexture('atlas'),
       unitAtlasAsset =
-        nativeUnits.atlas === 'atlas' ? atlasAsset : retryFailedTexture(nativeUnits.atlas),
+        nativeUnits.atlas === 'atlas' ? selectionAtlasAsset : retryFailedTexture(nativeUnits.atlas),
       knowledgeAtlas = vaultKnowledgeAtlas(world.outcome.level),
       knowledgeAtlasAsset = knowledgeAtlas ? retryFailedTexture(knowledgeAtlas) : null,
       templeAssets =
@@ -366,7 +454,10 @@ export class GameScene {
           ['effects', loadTexture('effects'), false],
           ['hud', loadTexture('hud'), false],
           ['unit-health', loadTexture('unit-health'), false],
-          ['atlas', atlasAsset, true],
+          [this.environment.landscape.modelAtlas, atlasAsset, true],
+          ...(this.environment.landscape.modelAtlas === 'atlas'
+            ? []
+            : [['atlas', selectionAtlasAsset, true] as const]),
           [nativeUnits.atlas, unitAtlasAsset, true],
           ...(knowledgeAtlasAsset ? [[knowledgeAtlas!, knowledgeAtlasAsset, true] as const] : []),
           ...templeAssets,
@@ -406,7 +497,10 @@ export class GameScene {
     this.renderer.domElement.tabIndex = 0
     this.renderer.domElement.className = 'battlefield'
     container.appendChild(this.renderer.domElement)
-    if (this.fpsGraph) container.appendChild(this.fpsGraph.element)
+    this.neutralCursor = new NeutralCanvasCursor(this.renderer.domElement, () =>
+      neutralCanvasState(this)
+    )
+    if (new URLSearchParams(location.search).has('fps')) this.togglePerformance()
     Object.assign(this.pointerOutline.style, {
       position: 'absolute',
       inset: '0',
@@ -457,7 +551,9 @@ export class GameScene {
     this.camera.position.set(30, 155, 0)
     const terrain = initializeTerrain(this)
     this.terrain = terrain.terrain
-    this.ready = Promise.all([terrain.ready, ...preload]).then(() => undefined)
+    this.ready = Promise.all([terrain.ready, ...preload, this.neutralCursor?.ready]).then(
+      () => undefined
+    )
     this.selectionOverlay = new SelectionOverlay(texture('atlas'), this.view)
     this.selectionOverlay.material.uniforms.dragActive = this.dragActive
     this.scene.add(this.selectionOverlay)
@@ -468,6 +564,7 @@ export class GameScene {
     this.cursor.visible = false
     this.range.visible = false
     this.rebuildTerrain()
+    createRuntimeTerrainPicking(this)
     this.makeDecorations()
     this.makeShrines()
     const shaman = this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
@@ -486,17 +583,57 @@ export class GameScene {
     this.setSize()
     this.worshipPresentation = new WorshipAcquisitionPresentation(this, worshipHud)
   }
+  isCurrent() {
+    return !this.disposed && (!this.presentationBinding || this.presentationBinding.isCurrent())
+  }
+  canRequestNearbyFollowers() {
+    return !!(
+      this.started &&
+      this.isCurrent() &&
+      this.nearbyFollowersHudActive &&
+      !document.hidden &&
+      !document.querySelector('dialog[open]') &&
+      !this.world.inputMask &&
+      !this.overviewStage &&
+      !this.overviewActive &&
+      !(this.world.manaWorld.gameFlags & 32)
+    )
+  }
+  requestNearbyFollowers() {
+    if (!this.canRequestNearbyFollowers()) {
+      this.cancelNearbyFollowers()
+      return false
+    }
+    this.nearbyFollowers ??= new FollowerNearbyMode()
+    return this.nearbyFollowers.request(this.world, performance.now(), cue =>
+      this.onSound(cue, 1, 0)
+    )
+  }
+  dispatchNearbyFollowers(now: number) {
+    if (!this.canRequestNearbyFollowers()) {
+      this.cancelNearbyFollowers()
+      return
+    }
+    this.nearbyFollowers ??= new FollowerNearbyMode()
+    if (this.nearbyFollowers.advance(this.world, now)) this.onChange()
+  }
+  cancelNearbyFollowers() {
+    this.nearbyFollowers?.cancel()
+    this.onNearbyFollowersCancel?.()
+  }
   start() {
     if (this.presentationBinding && !this.presentationBinding.isCurrent()) return false
     if (this.started) return true
     if (this.disposed || this.terrainLoad.signal.aborted) return false
     this.started = true
+    this.releaseTrainingPanelRequests = bindTrainingPanelRequests(this.world, this.objectPanels)
     this.previous = null
     this.drawMinimap()
     installInputListeners(this, this.mini)
     this.frame = requestAnimationFrame(this.animate)
     return true
   }
+  private releaseTrainingPanelRequests: (() => void) | null = null
   makeSky() {
     makeSky(this)
   }
@@ -550,8 +687,8 @@ export class GameScene {
     const p = this.view.screen(position, this.camera)
     return p.z < -1 || p.z > 1 ? null : p
   }
-  pickUnit(event: { clientX: number; clientY: number }) {
-    return pickUnit(this, event)
+  pickUnit(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics) {
+    return pickUnit(this, event, metrics)
   }
   visible(p: Point, h = this.y(p)) {
     const q = this.screen(p, h)
@@ -576,8 +713,8 @@ export class GameScene {
   landIndex(x: number, z: number) {
     return landIndex(this, x, z)
   }
-  updateWater() {
-    updateWater(this)
+  updateWater(metrics?: WaterUpdateMetrics) {
+    updateWater(this, metrics)
   }
   makeDecorations() {
     makeDecorations(this)
@@ -585,8 +722,8 @@ export class GameScene {
   makeShrines() {
     makeShrines(this)
   }
-  pick(event: { clientX: number; clientY: number }): Point | null {
-    return pick(this, event)
+  pick(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics): Point | null {
+    return pick(this, event, metrics)
   }
   pickWorldObject(event: { clientX: number; clientY: number }) {
     return pickWorldObject(this, event)
@@ -597,8 +734,8 @@ export class GameScene {
   pointerMove = ((event: PointerEvent) => {
     pointerMove(this, event)
   }) as EventListener
-  updateDrag(event: { clientX: number; clientY: number }) {
-    updateDrag(this, event)
+  updateDrag(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics) {
+    return updateDrag(this, event, metrics)
   }
   pointerUp = ((event: PointerEvent) => {
     pointerUp(this, event)
@@ -621,11 +758,20 @@ export class GameScene {
   previewCamera(buttons: number) {
     return previewCamera(this, buttons)
   }
+  acquireForcedTooltip(object: TooltipObject | null, duration: number) {
+    acquireForcedTooltip(this, object, duration)
+  }
+  updateTooltipController(now: number) {
+    updateTooltipController(this, now)
+  }
+  cancelTooltipInspection() {
+    cancelTooltipInspection(this)
+  }
   updateFlyby(dt: number) {
     return updateFlyby(this, dt)
   }
-  renderTooltip() {
-    renderTooltip(this)
+  renderTooltip(metrics?: PointerFrameMetrics) {
+    renderTooltip(this, metrics)
   }
   renderBuildingPanels() {
     renderBuildingPanels(this, texture('hud').image as HTMLImageElement)
@@ -673,9 +819,10 @@ export class GameScene {
     directions: { frames: number[]; flip: boolean }[],
     age: number,
     once = false,
-    frameNumber?: number
+    frameNumber?: number,
+    selectedIds?: ReadonlySet<number>
   ) {
-    animatePerson(this, g, heading, directions, age, once, frameNumber)
+    animatePerson(this, g, heading, directions, age, once, frameNumber, selectedIds)
   }
   makeFx(f: Effect) {
     return makeFx(this, f)
@@ -716,40 +863,133 @@ export class GameScene {
     playWorldSounds(this)
   }
   animate = (now: number) => {
-    if (this.disposed || (this.presentationBinding && !this.presentationBinding.isCurrent())) return
+    if (!this.isCurrent()) {
+      this.neutralCursor?.reset()
+      this.cancelNearbyFollowers()
+      this.nearbyFollowers?.reset()
+      return
+    }
+    const diagnostic = document.hidden ? null : this.fpsGraph
+    const callbackStart = diagnostic ? performance.now() : 0
+    const pointerMetrics = diagnostic ? this.pointerFrameMetrics : undefined
+    if (pointerMetrics) resetPointerFrameMetrics(pointerMetrics)
+    const waterMetrics = diagnostic ? (this.waterFrameMetrics ??= { reasons: 0 }) : undefined
+    if (waterMetrics) waterMetrics.reasons = 0
+    const sceneUpdates = diagnostic
+      ? (this.sceneUpdateMetrics ??= { terrainCpuMs: 0, waterCpuMs: 0, hudCpuMs: 0 })
+      : undefined
+    if (sceneUpdates) {
+      sceneUpdates.terrainCpuMs = 0
+      sceneUpdates.waterCpuMs = 0
+      sceneUpdates.hudCpuMs = 0
+    }
+    const simulationMetrics = diagnostic
+      ? (this.simulationFrameMetrics ??= { steps: 0 })
+      : undefined
+    if (simulationMetrics) simulationMetrics.steps = 0
     if (this.renderer.getPixelRatio() !== Math.min(devicePixelRatio, 1.8)) this.setSize()
     const previous = this.previous ?? now,
       skyTicks = Math.imul(Math.max(0, Math.floor(now) - Math.floor(previous)), 64) >>> 0,
       dt = Math.max(0, now - previous) / 1000
-    if (this.fpsGraph) this.fpsGraph.update(document.hidden ? 0 : dt * 1000)
+    if (document.hidden) this.fpsGraph?.reset('Hidden tab · sampling stopped')
     this.previous = now
+    // Pause menus freeze the entire presentation, not ordinary Space pause.
+    // Keep sampling timestamps so resuming never catches up suspended wall time.
+    if (this.modalSuspended) {
+      this.neutralCursor?.reset()
+      const renderStart = diagnostic ? performance.now() : 0
+      if (diagnostic)
+        diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
+      else this.view.painter.render(this.renderer, this.scene, this.camera)
+      const renderMs = diagnostic ? performance.now() - renderStart : 0
+      this.frame = requestAnimationFrame(this.animate)
+      diagnostic?.update(
+        now,
+        0,
+        renderMs,
+        this.renderer.info.render.calls,
+        'Menu · rendering',
+        performance.now() - callbackStart,
+        0,
+        pointerMetrics,
+        waterMetrics?.reasons,
+        simulationMetrics?.steps,
+        sceneUpdates
+      )
+      return
+    }
     syncSecondaryReservations(this)
-    advanceGame(this.world, this.gameClock, dt)
+    this.dispatchNearbyFollowers(now)
+    const simulationStart = diagnostic ? performance.now() : 0
+    advanceGame(this.world, this.gameClock, dt, simulationMetrics)
+    const simulationMs = diagnostic ? performance.now() - simulationStart : 0
     this.templeResourceSnapshot = this.presentationBinding?.snapshot() ?? null
     this.playWorldSounds()
+    const terrainStart = sceneUpdates ? performance.now() : 0
     this.updateTerrainFrame()
+    if (sceneUpdates) sceneUpdates.terrainCpuMs = performance.now() - terrainStart
     this.updateDecorationsFrame()
-    if (!this.updateCameraMotion(dt) && !this.updateFlyby(dt)) {
-      this.updateView()
-    }
+    const cameraOwnsFrame = this.updateCameraMotion(dt)
+    this.cursorFrameBlocked = !!(
+      cameraOwnsFrame ||
+      this.world.paused ||
+      this.world.inputMask ||
+      this.world.mode ||
+      this.world.selected.length ||
+      this.overviewActive ||
+      this.overviewStage ||
+      document.hidden ||
+      document.querySelector('dialog[open]')
+    )
+    if (this.cursorFrameBlocked) this.cancelTooltipInspection()
+    if (!cameraOwnsFrame && !this.updateFlyby(dt)) this.updateView()
     this.updateUnitsFrame()
     updateVehiclesFrame(this)
-    this.renderTooltip()
+    this.renderTooltip(pointerMetrics)
     this.updateBuildingsFrame()
     this.updateEffectsFrame()
     this.updateShrinesFrame()
     const spec = SPELLS.find(s => s.id === this.world.mode)
-    this.updatePointerFrame(now)
-    const hovered =
+    const pointerStart = diagnostic ? performance.now() : 0
+    this.updatePointerFrame(now, pointerMetrics)
+    this.neutralCursor?.update()
+    const pointerMs = diagnostic ? performance.now() - pointerStart : 0
+    let hovered: Parameters<typeof renderSceneFrame>[1] =
       this.hoveredObject === null ? null : worldTooltipObject(this.world, this.hoveredObject)
+    if (!hovered && this.hoveredObject !== null) {
+      const tree = this.world.trees.find(
+        t => t.id === this.hoveredObject && t.logs >= 1 && t.model >= 1 && t.model <= 6
+      )
+      if (tree) hovered = { id: tree.id, type: 5, model: tree.model, owner: -1 }
+    }
     const hoveredBuilding = this.world.buildings.find(b => b.id === this.hoveredObject)
 
     this.updatePlacement()
     this.updateSpellPointerFrame(spec)
-    this.updateEnvironmentFrame(skyTicks)
-    this.renderSceneFrame(hovered, hoveredBuilding)
+    this.updateEnvironmentFrame(skyTicks, waterMetrics, sceneUpdates)
+    const renderStart = diagnostic ? performance.now() : 0
+    if (diagnostic) diagnostic.renderGpu(() => this.renderSceneFrame(hovered, hoveredBuilding))
+    else this.renderSceneFrame(hovered, hoveredBuilding)
+    const renderMs = diagnostic ? performance.now() - renderStart : 0
+    const hudStart = sceneUpdates ? performance.now() : 0
     this.updateHudFrame(now, dt)
+    if (sceneUpdates) sceneUpdates.hudCpuMs = performance.now() - hudStart
     this.frame = requestAnimationFrame(this.animate)
+    // Synchronous game callback work, including HUD and scheduling; excludes
+    // this diagnostic's own update and deferred browser/GPU work.
+    diagnostic?.update(
+      now,
+      simulationMs,
+      renderMs,
+      this.renderer.info.render.calls,
+      this.world.paused ? 'Paused · rendering' : 'Live',
+      performance.now() - callbackStart,
+      pointerMs,
+      pointerMetrics,
+      waterMetrics?.reasons,
+      simulationMetrics?.steps,
+      sceneUpdates
+    )
   }
   private updateTerrainFrame() {
     updateTerrainFrame(this)
@@ -775,20 +1015,24 @@ export class GameScene {
     updateShrinesFrame(this)
   }
 
-  private updatePointerFrame(now: number) {
-    updatePointerFrame(this, now)
+  private updatePointerFrame(now: number, metrics?: PointerFrameMetrics) {
+    updatePointerFrame(this, now, metrics)
   }
 
   private updateSpellPointerFrame(spec: (typeof SPELLS)[number] | undefined) {
     updateSpellPointerFrame(this, spec)
   }
 
-  private updateEnvironmentFrame(skyTicks: number) {
-    updateEnvironmentFrame(this, skyTicks)
+  private updateEnvironmentFrame(
+    skyTicks: number,
+    metrics?: WaterUpdateMetrics,
+    sceneUpdates?: SceneUpdateMetrics
+  ) {
+    updateEnvironmentFrame(this, skyTicks, metrics, sceneUpdates)
   }
 
   private renderSceneFrame(
-    hovered: ReturnType<typeof worldTooltipObject>,
+    hovered: Parameters<typeof renderSceneFrame>[1],
     hoveredBuilding: Building | undefined
   ) {
     renderSceneFrame(this, hovered, hoveredBuilding)
@@ -803,6 +1047,13 @@ export class GameScene {
   dispose() {
     if (this.disposed) return
     this.disposed = true
+    this.neutralCursor?.dispose()
+    this.neutralCursor = null
+    this.cancelNearbyFollowers()
+    this.nearbyFollowers?.reset()
+    this.onNearbyFollowersCancel = undefined
+    this.releaseTrainingPanelRequests?.()
+    this.releaseTrainingPanelRequests = null
     this.presentationBinding?.release()
     if (this.frame) cancelAnimationFrame(this.frame)
     for (const stop of this.ownedSounds.values()) stop()
@@ -816,9 +1067,12 @@ export class GameScene {
     this.waterMap.dispose()
     this.terrainMap.dispose()
     this.view.dispose()
+    this.fpsGraph?.dispose()
     this.renderer.dispose()
     this.renderer.domElement.remove()
-    this.fpsGraph?.element.remove()
+    this.fpsGraph = null
+    this.cancelTooltipInspection()
+    this.tooltipInput = null
     this.tooltipElement.remove()
     this.pointerOutline.remove()
     for (const canvas of this.buildingPanels.values()) canvas.remove()

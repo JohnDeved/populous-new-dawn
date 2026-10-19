@@ -38,7 +38,21 @@ test('global existence and nearby task counts are independent; selected overlays
   assert.deepEqual(global.tasks[0], global.tasks[2], 'Total excludes the Shaman')
   const nearby = followerTaskCounts(rows, origin, true)
   assert.equal(nearby.totals[2], 3)
+  assert.deepEqual(global.displayTotals, global.totals)
+  assert.equal(nearby.displayTotals[2], 2)
+  assert.equal(nearby.displayTotals[0], 2, 'Total counts people once and excludes Shaman')
   assert.deepEqual(nearby.tasks[2], [0, 3, 1, 0, 0, 0])
+})
+
+test('display totals share active/ghost and raw-radius count boundaries without summing overlapping rows', () => {
+  const rows = [person(1, 1, { selectionFlags: 128 }), person(2, 2, { x: 6144, y: 0 }), person(3, 2, { x: 6143, y: 0 }), person(4, 2, { model: 7 }), person(5, 2, { flags4: 0 }), person(6, 2, { flags4: 0x20000800 })],
+    before = structuredClone(rows), counts = followerTaskCounts(rows, origin, true)
+  assert.equal(counts.totals[0], 3)
+  assert.equal(counts.displayTotals[0], 2)
+  assert.equal(counts.displayTotals[7], 1)
+  assert.equal(counts.tasks[0][1], 2, 'selected category overlay stays independent')
+  assert.equal(counts.tasks[0][2], 1)
+  assert.deepEqual(rows, before)
 })
 
 test('task selection ignores persistent-strip assignment priority and uses category nearest', () => {

@@ -1,0 +1,31 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+0045b460 <.text+0x5a460>:
+  45b460:	8b 4c 24 04          	mov    ecx,DWORD PTR [esp+0x4]
+  45b464:	8b 01                	mov    eax,DWORD PTR [ecx]
+  45b466:	83 e8 04             	sub    eax,0x4
+  45b469:	83 f8 08             	cmp    eax,0x8
+  45b46c:	0f 87 23 02 00 00    	ja     0x45b695
+  45b472:	ff 24 85 98 b6 45 00 	jmp    DWORD PTR [eax*4+0x45b698]
+  45b479:	83 3d e0 9c 74 00 01 	cmp    DWORD PTR ds:0x749ce0,0x1
+  45b480:	0f 85 0f 02 00 00    	jne    0x45b695
+  45b486:	8b 41 04             	mov    eax,DWORD PTR [ecx+0x4]
+  45b489:	8b 48 28             	mov    ecx,DWORD PTR [eax+0x28]
+  45b48c:	51                   	push   ecx
+  45b48d:	e8 2e ef ff ff       	call   0x45a3c0
+  45b492:	83 c4 04             	add    esp,0x4
+  45b495:	c3                   	ret
+  45b496:	83 3d e0 9c 74 00 01 	cmp    DWORD PTR ds:0x749ce0,0x1
+  45b49d:	0f 85 f2 01 00 00    	jne    0x45b695
+  45b4a3:	8b 49 04             	mov    ecx,DWORD PTR [ecx+0x4]
+  45b4a6:	8b 41 28             	mov    eax,DWORD PTR [ecx+0x28]
+  45b4a9:	85 c0                	test   eax,eax
+  45b4ab:	0f 84 e4 01 00 00    	je     0x45b695
+  45b4b1:	51                   	push   ecx
+  45b4b2:	ff d0                	call   eax
+  45b4b4:	83 c4 04             	add    esp,0x4
+  45b4b7:	c3                   	ret

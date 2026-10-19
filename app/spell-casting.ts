@@ -458,8 +458,11 @@ export function beginCast(w: World, u: Unit, spell: Spell, p: Point, personId?: 
   }
   u.casting = { spell, point: target, remaining: 6 / TURNS_PER_SECOND }
   castVoice(w, u, spell)
-  // 0x4c1b80 retains the opening order while its Shaman enters cast state22.
-  // Other legacy casting owners retain their existing handoff.
-  if (u.native && currentPersonOrder(w.buildingOrders, u.native)?.model === 18)
+  // 0x4c1b80 enters cast state22 even while the Shaman owns a vehicle seat.
+  // Retain the existing opening-order handoff and other legacy cast owners.
+  if (
+    u.native &&
+    (u.native.vehicle || currentPersonOrder(w.buildingOrders, u.native)?.model === 18)
+  )
     changeLivePersonState(w, u, 22)
 }
