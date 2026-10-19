@@ -102,9 +102,28 @@ export function placeFullscreenHost(doc: Document, host: HTMLElement) {
 export function promoteFullscreenDialogs(doc: Document) {
   const dialogs = [...doc.querySelectorAll<HTMLDialogElement>('dialog:modal')]
   const focused = doc.activeElement as HTMLElement | null
+  const scroll = dialogs.flatMap(dialog => [dialog, ...dialog.querySelectorAll<HTMLElement>('*')])
+    .filter(element => element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth)
+    .map(element => ({ element, top: element.scrollTop, left: element.scrollLeft }))
   for (const dialog of dialogs) {
     dialog.close()
     dialog.showModal()
   }
   if (dialogs.some(dialog => dialog.contains(focused))) focused?.focus({ preventScroll: true })
+  for (const { element, top, left } of scroll) {
+    element.scrollTop = top
+    element.scrollLeft = left
+  }
+}
+
+/** Dialogs in the shipped app are direct children of the shell. Ignore ordinary
+ * HUD text/list updates; only modal changes or removal of our host need a scan. */
+export function fullscreenHostNeedsPlacement(records: MutationRecord[], host: HTMLElement) {
+  return records.some(record =>
+    record.type === 'attributes'
+      ? record.target.nodeName === 'DIALOG'
+      : [...record.addedNodes, ...record.removedNodes].some(node =>
+          node.nodeName === 'DIALOG' || node.contains(host)
+        )
+  )
 }

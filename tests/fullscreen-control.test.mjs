@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { createFullscreenSession, placeFullscreenHost, promoteFullscreenDialogs } from '../app/fullscreen-session.ts'
+import { createFullscreenSession, placeFullscreenHost, promoteFullscreenDialogs, fullscreenHostNeedsPlacement } from '../app/fullscreen-session.ts'
 
 function setup({ supported = true, reject = false } = {}) {
   const doc = new EventTarget(), win = new EventTarget(), states = []
@@ -158,7 +158,8 @@ test('shipped app mounts control once and keeps fullscreen available through loa
 test('entry re-promotes existing modals above fullscreen without replacing panel DOM or focus', async () => {
   const events = [], focused = { focus: () => events.push('focus') }
   const dialog = {
-    close: () => events.push('close'), showModal: () => events.push('showModal'),
+    close: () => events.push('close'), showModal: () => { events.push('showModal'); dialog.scrollTop = 0 },
+    querySelectorAll: () => [], scrollHeight: 100, clientHeight: 40, scrollTop: 25, scrollLeft: 0,
     contains: node => node === focused,
   }
   const f = setup()
@@ -166,6 +167,7 @@ test('entry re-promotes existing modals above fullscreen without replacing panel
   f.doc.querySelectorAll = selector => { assert.equal(selector, 'dialog:modal'); return [dialog] }
   await f.session.toggle()
   assert.deepEqual(events, ['close', 'showModal', 'focus'])
+  assert.equal(dialog.scrollTop, 25, 'modal promotion preserves scrolled panel position')
   events.length = 0
   await f.session.toggle()
   assert.deepEqual(events, [], 'exit does not close/reopen a modal')
@@ -176,4 +178,16 @@ test('entry re-promotes existing modals above fullscreen without replacing panel
     const source = readFileSync(new URL('../app/' + file, import.meta.url), 'utf8')
     assert.doesNotMatch(source, /onClose=|addEventListener\(['"]close['"]/, 'promotion must not trigger app close/back handlers')
   }
+})
+
+test('ordinary HUD mutations cause no modal traversal or relocation; modal and detached host changes do', () => {
+  const host = {}
+  const node = (nodeName, includesHost = false) => ({ nodeName, contains: value => includesHost && value === host })
+  const child = (addedNodes = [], removedNodes = []) => ({ type: 'childList', addedNodes, removedNodes })
+  assert.equal(fullscreenHostNeedsPlacement([child([node('#text'), node('SPAN')], [node('DIV')])], host), false)
+  assert.equal(fullscreenHostNeedsPlacement([{ type: 'attributes', target: node('DETAILS') }], host), false)
+  assert.equal(fullscreenHostNeedsPlacement([child([node('DIALOG')])], host), true)
+  assert.equal(fullscreenHostNeedsPlacement([child([], [node('DIALOG')])], host), true)
+  assert.equal(fullscreenHostNeedsPlacement([{ type: 'attributes', target: node('DIALOG') }], host), true)
+  assert.equal(fullscreenHostNeedsPlacement([child([], [node('MAIN', true)])], host), true)
 })

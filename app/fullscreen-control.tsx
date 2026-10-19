@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { createFullscreenSession, placeFullscreenHost, type FullscreenState } from './fullscreen-session'
+import { createFullscreenSession, placeFullscreenHost, fullscreenHostNeedsPlacement, type FullscreenState } from './fullscreen-session'
 import styles from './fullscreen-control.module.css'
 
 export function FullscreenControl() {
@@ -15,7 +15,9 @@ export function FullscreenControl() {
     node.className = styles.control
     placeFullscreenHost(document, node)
     setHost(node)
-    const observer = new MutationObserver(() => placeFullscreenHost(document, node))
+    const observer = new MutationObserver(records => {
+      if (fullscreenHostNeedsPlacement(records, node)) placeFullscreenHost(document, node)
+    })
     observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['open'] })
     session.current = createFullscreenSession(document, window, setState)
     return () => {
