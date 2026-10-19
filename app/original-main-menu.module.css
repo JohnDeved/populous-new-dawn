@@ -25,6 +25,10 @@
   transform: translate(-50%, -50%) scale(var(--frontend-scale));
 }
 .dialog[data-background-ready='true'] .frame { background: url('/original/frontend/background.png') center / 640px 480px no-repeat; }
+/* Preserve the original bitmap pixels through the responsive frame transform.
+   crisp-edges avoids fractional-scale interpolation where supported; pixelated
+   remains the compatible pixel-art scaling fallback. */
+.logo, .text { image-rendering: pixelated; image-rendering: crisp-edges; }
 .title { margin: 0; }
 .logo { position: absolute; display: block; background-repeat: no-repeat; pointer-events: none; }
 .logo { left: 181px; top: 10px; width: 290px; height: 101px; background-image: url('/original/frontend/felgspen.png'); }
