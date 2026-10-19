@@ -1,3 +1,7 @@
+import {
+  checkpointComparisonView as comparable,
+  assertCheckpointComparisonDomain,
+} from './helpers/checkpoint-comparison-view.mjs'
 import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { supportsFollower } from '../app/model.ts'
@@ -94,13 +98,6 @@ function prepareFlight() {
 // Mana focus above is supplied through the existing spell-mask adapter. Actors,
 // transport, spell stock, targets and travel are produced by campaign commands.
 // Migration already defaults these two authored heads' optional reward field.
-function comparable(world) {
-  const copy = structuredClone(world)
-  for (const head of copy.shrines)
-    if (head.reward === undefined && head.rewardMana) head.reward = 'mana'
-  return copy
-}
-
 test('supplied-focus Mission22 Balloon worship lands, rewards once and continues through public Save/Load', async () => {
   const { store, world, shaman, balloon, north } = prepareFlight()
   selectUnit(world, shaman.id, false)
@@ -139,6 +136,8 @@ test('supplied-focus Mission22 Balloon worship lands, rewards once and continues
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
   const restored = store.getWorld()
+  assertCheckpointComparisonDomain(world)
+  assertCheckpointComparisonDomain(restored)
   assert.deepEqual(comparable(restored), comparable(world))
   let landed = 0,
     rewarded = 0,
