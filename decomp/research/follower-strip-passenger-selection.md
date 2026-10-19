@@ -117,6 +117,18 @@ unfinished cleanup, omitted Shaman propagation, missing Escape, altered modifier
 and invalid unloaded membership. Compact tuples preserve the existing 12KB log
 bound; they do not replace the readable raw observations.
 
+The original adapter review found that the existing workflow uploads only
+top-level JSON/log/PNG (plus snapshot JSON), not the two nested M10 phase
+directories. The retention repair keeps that workflow unchanged: a finally-stage
+helper exclusively copies every regular phase JSON/log/PNG to deterministic
+top-level names and writes `mission10-artifacts.json`. Its manifest binds original
+and retained path, SHA-256 and byte size; compact receipt and raw summary paths
+name the retained copies. All 12 expected successful-route artifacts are required.
+Failed/incomplete routes retain available diagnostics with truthful incomplete
+status. Unknown entries, symlinks, collisions, missing success artifacts and
+changed bytes fail closed; the private browser profile is never enumerated.
+Tests reconcile emitted paths with the actual parsed workflow upload globs.
+
 Hosted budget fit and real rendered execution remain unverified. Review must
 precede activation; a timeout or missing rendered evidence blocks acceptance
 rather than authorizing a larger cap.

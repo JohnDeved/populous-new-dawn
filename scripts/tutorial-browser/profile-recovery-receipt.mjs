@@ -53,6 +53,7 @@ export function profileRecoveryReceipt(receipt, output, env = process.env) {
         'app/game-store.ts',
         'package-lock.json',
         'scripts/tutorial-browser/mission10-profile.mjs',
+        'scripts/tutorial-browser/mission10-artifacts.mjs',
         'scripts/tutorial-browser/mission10-input.mjs',
         'scripts/tutorial-browser/mission10-profile-receipt.mjs',
         'scripts/tutorial-browser/checkpoint-codec.mjs',

@@ -3,12 +3,14 @@ export function mission10ReceiptFixture(mergeSha) {
   const h = 'a'.repeat(64), party = [63, 111, 112, 113, 114]
   const saved = { version: 1, level: 10, turn: 100, time: 4, checkpointSha256: h, actorsSha256: h, terrainSha256: h, stockSha256: h }
   return { status: 'passed', sourceCommit: mergeSha, sourceFingerprint: h, runtimeSha256: h, reportSha256: h,
+    artifacts: { path: 'mission10-artifacts.json', bytes: 4000, sha256: h },
     phases: ['created', 'reused'].map((mode, index) => ({
       mode, status: 'passed', sourceCommit: mergeSha, sourceFingerprint: h, runtimeSha256: h,
       sourceAfter: 'identical', runtimeMatchesHost: true, profileId: '11111111-1111-1111-1111-111111111111',
       runId: index ? '33333333-3333-3333-3333-333333333333' : '22222222-2222-2222-2222-222222222222',
       previousRunId: index ? '22222222-2222-2222-2222-222222222222' : null,
-      cleanupVerified: true, continuationVerified: true, receiptSha256: h, resultSha256: h,
+      cleanupVerified: true, continuationVerified: true,
+      receiptName: `mission10-${mode}--receipt.json`, resultName: `mission10-${mode}--boat-checkpoint.json`, receiptSha256: h, resultSha256: h,
       checkpointAtStart: index ? h : null, checkpointAtEnd: h, saved: { ...saved }, loaded: index ? { ...saved } : null,
       selection: (index ? ['loaded', 'unloaded'] : ['boarded']).map(phase => ({
         phase, occupied: phase !== 'unloaded',
@@ -21,13 +23,14 @@ export function mission10ReceiptFixture(mergeSha) {
       publicActions: index ? ['public Load Game', 'ordinary Boat right-click inspection', 'public Unload all passengers']
         : ['ordinary rally click', 'ordinary Boat boarding click', 'public Save single click'],
       screenshots: (index ? ['loaded-class-selected.png', 'unloaded-class-selected.png'] : ['boarded-class-selected.png', 'saved-occupied-boat.png'])
-        .map(name => ({ name: `mission10-${mode}/${name}`, sha256: h })),
+        .map(name => ({ name: `mission10-${mode}--${name}`, sha256: h })),
     })) }
 }
 
 import { createHash } from 'node:crypto'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { mission10ExpectedArtifacts, retainMission10Artifacts } from '../../scripts/tutorial-browser/mission10-artifacts.mjs'
 export function writeMission10Fixture(output, receipt) {
   const value = mission10ReceiptFixture(receipt.source.commit), json = value => JSON.stringify(value, null, 2) + '\n'
   const hash = file => createHash('sha256').update(readFileSync(file)).digest('hex')
@@ -49,9 +52,11 @@ export function writeMission10Fixture(output, receipt) {
           checkpointAtEnd: { checkpointSha256: p.checkpointAtEnd } }, result }
       writeFileSync(resolve(output, dir, 'receipt.json'), json(phase))
       writeFileSync(resolve(output, dir, 'boat-checkpoint.json'), json(result))
-      for (const image of p.screenshots) writeFileSync(resolve(output, image.name), 'synthetic pixel bytes')
-      return { mode: p.mode, receiptSha256: hash(resolve(output, dir, 'receipt.json')) }
+      for (const name of mission10ExpectedArtifacts[p.mode].filter(name => name.endsWith('.png')))
+        writeFileSync(resolve(output, dir, name), 'synthetic pixel bytes')
+      return { mode: p.mode, receipt: `mission10-${p.mode}--receipt.json`, sourceReceipt: `${dir}/receipt.json`, receiptSha256: hash(resolve(output, dir, 'receipt.json')) }
     }) }
   writeFileSync(resolve(output, 'mission10-profile.json'), json(report))
+  retainMission10Artifacts(output, report)
   return report
 }

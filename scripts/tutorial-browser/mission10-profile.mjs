@@ -9,6 +9,7 @@ import scenario from '../local-render/mission10-boat-checkpoint.mjs'
 import { bindGame, showAllMissions } from '../browser-game.mjs'
 import { pauseStartupReady, skipPauseIntroduction } from '../local-render/original-pause-checkpoint-recovery.mjs'
 import { createMission10Input, mission10BoatPoint } from './mission10-input.mjs'
+import { retainMission10Artifacts, mission10RetainedName } from './mission10-artifacts.mjs'
 
 const digest = bytes => createHash('sha256').update(bytes).digest('hex')
 const json = value => JSON.stringify(value, null, 2) + '\n'
@@ -86,7 +87,7 @@ export default async function runMission10Profile({ chromium, launch, url, root,
           // Failed, interrupted or uncertain provenance retains the ownership lock.
           if (phase.profile.continuationVerified) lease.finish(phase, cleanup.verified)
           report.phases[index] = { mode, status: phase.status, cleanupVerified: phase.cleanupVerified,
-            receipt: `mission10-${mode}/receipt.json`, receiptSha256: digest(readFileSync(resolve(phaseOutput, 'receipt.json'))) }
+            receipt: mission10RetainedName(mode, 'receipt.json'), sourceReceipt: `mission10-${mode}/receipt.json`, receiptSha256: digest(readFileSync(resolve(phaseOutput, 'receipt.json'))) }
           saveReport()
         }
       }
@@ -139,4 +140,5 @@ export default async function runMission10Profile({ chromium, launch, url, root,
     }
     report.status = 'passed'; saveReport(); return report
   } catch (error) { report.status = 'failed'; report.failure = String(error); saveReport(); throw error }
+  finally { retainMission10Artifacts(output, report) }
 }

@@ -1,6 +1,7 @@
 // Compact evidence producer. Trusted admission validates this against reviewed
 // Git inputs; raw reports and screenshots remain independent hashed artifacts.
 import assert from 'node:assert/strict'
+import { mission10RetainedName, readMission10ArtifactManifest } from './mission10-artifacts.mjs'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -14,9 +15,12 @@ export function mission10ProfileReceipt(receipt, output) {
   return { status: report.status, sourceCommit: report.sourceCommit,
     sourceFingerprint: report.sourceFingerprint, runtimeSha256: report.runtimeSha256,
     reportSha256: hash(resolve(output, 'mission10-profile.json')),
+    artifacts: readMission10ArtifactManifest(output, report),
     phases: ['created', 'reused'].map((mode, index) => {
       const row = report.phases[index], dir = `mission10-${mode}`
       assert.equal(row.mode, mode)
+      assert.equal(row.receipt, mission10RetainedName(mode, 'receipt.json'))
+      assert.equal(row.sourceReceipt, `${dir}/receipt.json`)
       const file = resolve(output, dir, 'receipt.json'), phase = JSON.parse(readFileSync(file))
       assert.equal(hash(file), row.receiptSha256, 'Terminal phase receipt changed')
       const result = phase.result, profile = phase.profile
@@ -36,6 +40,7 @@ export function mission10ProfileReceipt(receipt, output) {
         sourceAfter: phase.sourceAfter, runtimeMatchesHost, profileId: profile.id, runId: profile.runId,
         previousRunId: profile.previousRun?.runId ?? null,
         cleanupVerified: phase.cleanupVerified, continuationVerified: profile.continuationVerified,
+        receiptName: mission10RetainedName(mode, 'receipt.json'), resultName: mission10RetainedName(mode, 'boat-checkpoint.json'),
         receiptSha256: hash(file), resultSha256: hash(resolve(output, dir, 'boat-checkpoint.json')),
         checkpointAtStart: profile.checkpointAtStart?.checkpointSha256 ?? null,
         checkpointAtEnd: profile.checkpointAtEnd?.checkpointSha256 ?? null,
@@ -50,6 +55,6 @@ export function mission10ProfileReceipt(receipt, output) {
         publicActions: result.actions.filter(action => action.phase === 'after' &&
           ['ordinary rally click', 'ordinary Boat boarding click', 'public Save single click',
             'public Load Game', 'ordinary Boat right-click inspection', 'public Unload all passengers'].includes(action.label)).map(action => action.label),
-        screenshots: screenshots.map(name => ({ name: `${dir}/${name}`, sha256: hash(resolve(output, dir, name)) })) }
+        screenshots: screenshots.map(name => ({ name: mission10RetainedName(mode, name), sha256: hash(resolve(output, dir, name)) })) }
     }) }
 }

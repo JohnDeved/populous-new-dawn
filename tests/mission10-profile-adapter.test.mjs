@@ -12,6 +12,9 @@ test('M10 companion requires complete source-bound Save/Load, all public selecti
   const good = mission10ReceiptFixture(sha)
   assert.equal(validateMission10Profile(good, sha), true)
   for (const mutate of [
+    v => { delete v.artifacts }, v => { v.artifacts.path = 'mission10-created/private.json' },
+    v => { v.artifacts.bytes = 0 }, v => { v.phases[0].receiptName = 'mission10-created/receipt.json' },
+    v => { v.phases[1].resultName = 'unretained.json' },
     v => { v.phases.pop() }, v => { v.phases.reverse() }, v => { v.sourceCommit = '2'.repeat(40) },
     v => { v.phases[1].sourceFingerprint = 'b'.repeat(64) }, v => { v.phases[1].runtimeSha256 = 'b'.repeat(64) }, v => { v.phases[1].runtimeMatchesHost = false },
     v => { v.phases[1].profileId = '44444444-4444-4444-4444-444444444444' },
