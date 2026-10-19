@@ -74,12 +74,19 @@ This instrumentation changes only the `query-inputs` protected slice of the
 - instrumented SHA-256:
   `c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c`.
 
-No source profiles or historical hashes are updated here. The unchanged
-`readerImportAdmission` requires an exact reviewed query-inputs slice and therefore
-rejects this candidate. Existing current-source assertions in
-`tests/browser-snapshot-drag.test.mjs` and `tests/browser-reader-build.test.mjs`
-therefore remain known full-gate blockers, not tests to relax. A later independent review must inspect the precise delta
-and decide any narrowly named additive profile. Broad hashes, relaxed matching,
-or automatic blessing would hide workload drift and are not permitted.
-Changed source/build fingerprints require new exact-head evidence; previous
-captures and acceptance results remain tied to their original identities.
+After independent review of this precise delta, the additive
+`owned-numeric-terrain-neutral-cursor-pick-paths-v1` profile admits the instrumented
+source with the same 17 slice boundaries. Only its query-inputs hash differs from
+the historical neutral-cursor profile. All historical profiles and hashes remain
+unchanged and selectable for their exact sources.
+
+The unchanged `readerImportAdmission` continues to require an exact reviewed
+query-inputs slice. Tests verify old and candidate profile selection, all 17
+slice mutations, unknown counter variants, and eligibility/lifecycle changes.
+No reader patterns, normalization, matching rules, or rejection assertions are
+relaxed. The earlier three current-source admission failures were retained as
+pre-profile evidence; the additive profile resolves that specific blocker only.
+
+Source/build fingerprints still require new exact-head evidence. Admission is
+not a performance-equivalence finding, and previous captures and acceptance
+results remain tied to their original identities.
