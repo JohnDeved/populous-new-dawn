@@ -1,5 +1,6 @@
 'use client'
 
+import { FullscreenControl } from './fullscreen-control'
 import { OriginalOptions } from './original-options'
 import { BrowserHelpTips } from './browser-help-tips'
 import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
@@ -807,7 +808,7 @@ export default function Home() {
     if (
       ready ||
       (event.target as Element).closest(
-        '.loading-world,[data-world-selector],[data-original-main-menu]'
+        '.loading-world,[data-world-selector],[data-original-main-menu],[data-fullscreen-control]'
       )
     )
       return false
@@ -1020,7 +1021,7 @@ export default function Home() {
         if (
           world.inputMask &&
           !(e.target as Element).closest(
-            '.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu]'
+            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu]'
           )
         ) {
           e.preventDefault()
@@ -1031,6 +1032,7 @@ export default function Home() {
           (e.target as Element).closest('button')?.blur()
       }}
     >
+      <FullscreenControl />
       <div className="world-viewport" ref={viewport} />
       <div className="world-vignette" />
       {desktopNotice && (

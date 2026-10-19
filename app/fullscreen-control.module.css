@@ -1,0 +1,7 @@
+/* Narrow browser adaptation, deliberately separate from native artwork/layout. */
+.control { position: fixed; right: 12px; bottom: 12px; z-index: 40; color: #efddb3; font: 12px/1.4 Arial, sans-serif; }
+.control button { display: flex; align-items: center; gap: 5px; min-height: 32px; padding: 5px 9px; border: 1px solid #9c8655; background: #242718ed; color: #efddb3; font: inherit; cursor: pointer; }
+.control button:hover { background: #413b24; }
+.control button:focus-visible { outline: 2px solid #f4dda5; outline-offset: 2px; }
+.control button:disabled { opacity: .65; cursor: wait; }
+.control p { position: absolute; right: 0; bottom: 40px; width: min(280px, calc(100vw - 24px)); margin: 0; padding: 10px; border: 1px solid #9c8655; background: #242718; color: #efddb3; }
