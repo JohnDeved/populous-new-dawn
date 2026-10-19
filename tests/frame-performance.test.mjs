@@ -479,6 +479,13 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
     const normalSize = measure('representative-small-counts', normal)
     assert.equal(normalSize.old.frameCount, 1200)
     assert.equal(normalSize.added.frameCount, 1200)
+    for (const frame of normal.frames) {
+      frame.sceneRenderGpu = { status: 'available', milliseconds: 2.1234567890123456 }
+      frame.sceneUpdateCpu = { terrainCpuMs: 0.1234567890123456, waterCpuMs: 0.1234567890123456, hudCpuMs: 0.1234567890123456 }
+    }
+    const normalGpuSize = measure('representative-small-counts-gpu-updates', normal)
+    assert.equal(normalGpuSize.old.frameCount, 1200)
+    assert.equal(normalGpuSize.added.frameCount, 1200)
     // Adversarial valid fields exceed the old optimistic max-counter fixture.
     for (const [state, agent] of [['live', 'Test browser'], ['paused', 'Test browser'], ['paused', 'GPU 😀'.repeat(2000)]]) {
       metrics.terrainPickMs = Number('0.12345678901234567')
