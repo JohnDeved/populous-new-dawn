@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
-      CANDIDATE_SHA: 'fed5ca52cbbe8468af223d2e55e8f1bad14aef94'
+      CANDIDATE_SHA: '15f3fc7855bb25c17e652155097aceab626fe140'
       RUNTIME_HELP_SHA: 'a7535cfac470ca92b60e217fa5b4fa210ef430aa'
       PR_BASE_SHA: 'c2fcaeb7143056261fcee03ac4cefc3b1b5dfe06'
       EXPECTED_CHROME_VERSION: 'Google Chrome 155.0.8059.39'
