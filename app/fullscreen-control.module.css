@@ -5,3 +5,16 @@
 .control button:focus-visible { outline: 2px solid #f4dda5; outline-offset: 2px; }
 .control button[aria-disabled='true'] { opacity: .65; cursor: wait; }
 .control p { position: absolute; right: 0; bottom: 40px; width: min(280px, calc(100vw - 24px)); margin: 0; padding: 10px; border: 1px solid #9c8655; background: #242718; color: #efddb3; }
+
+/* The selector owns the bottom Start panel and upper-right Browser controls.
+   Reserve its otherwise empty upper-left strip, including in direct-mission mode. */
+:global([data-world-selector]) > .control { top: 12px; left: 12px; right: auto; bottom: auto; }
+:global([data-world-selector]) > .control button { max-width: 150px; white-space: nowrap; }
+:global([data-world-selector]) > .control p { top: 40px; left: 0; right: auto; bottom: auto; }
+/* Gameplay has no globally vacant corner: F8 and compact status/Resume use the
+   right edge. Join the existing HUD action row instead of covering battlefield UI.
+   Four 17px actions plus three 4px gaps fit its 100px native coordinate width. */
+:global(.top-actions) > .control { position: relative; inset: auto; font: 10px/12px Arial, sans-serif; }
+:global(.top-actions) > .control button { display: block; width: 17px; height: 14px; min-height: 0; padding: 0; border: 1px outset #f5ce7a; font: inherit; }
+:global(.top-actions) > .control .label { display: none; }
+:global(.top-actions) > .control p { left: 0; right: auto; bottom: 20px; }

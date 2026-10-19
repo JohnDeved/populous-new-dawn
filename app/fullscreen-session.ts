@@ -89,7 +89,9 @@ export function createFullscreenSession(
 /** Keep one portal node inside the modal top layer, not behind an inert dialog. */
 export function placeFullscreenHost(doc: Document, host: HTMLElement) {
   const dialogs = doc.querySelectorAll<HTMLDialogElement>('dialog[open]')
-  const target = dialogs[dialogs.length - 1] ?? doc.body
+  const actions = doc.querySelector<HTMLElement>('.top-actions')
+  const target = dialogs[dialogs.length - 1] ??
+    (!doc.querySelector('.loading-world') && actions ? actions : doc.body)
   if (host.parentElement === target) return
   const focused = host.contains(doc.activeElement) ? doc.activeElement as HTMLElement : null
   target.appendChild(host)
@@ -117,13 +119,14 @@ export function promoteFullscreenDialogs(doc: Document) {
 }
 
 /** Dialogs in the shipped app are direct children of the shell. Ignore ordinary
- * HUD text/list updates; only modal changes or removal of our host need a scan. */
+ * HUD text/list updates; only modal/loading/dock changes or removal of our host need a scan. */
 export function fullscreenHostNeedsPlacement(records: MutationRecord[], host: HTMLElement) {
   return records.some(record =>
     record.type === 'attributes'
       ? record.target.nodeName === 'DIALOG'
       : [...record.addedNodes, ...record.removedNodes].some(node =>
-          node.nodeName === 'DIALOG' || node.contains(host)
+          node.nodeName === 'DIALOG' || node.contains(host) ||
+          (node.nodeType === 1 && (node as Element).matches('.loading-world,.top-actions'))
         )
   )
 }

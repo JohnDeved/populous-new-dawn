@@ -43,7 +43,7 @@ export function FullscreenControl() {
         aria-describedby={state.error ? 'fullscreen-status' : undefined}
         aria-disabled={state.pending} title={state.available || state.active ? label : 'Fullscreen availability'}
         onClick={() => { void session.current?.toggle() }}>
-        <span aria-hidden="true">{state.active ? '↙' : '⛶'}</span> {label}
+        <span aria-hidden="true">{state.active ? '↙' : '⛶'}</span><span className={styles.label}>{label}</span>
       </button>
       {state.error && <p id="fullscreen-status" role="status">{state.error}</p>}
     </div>, host

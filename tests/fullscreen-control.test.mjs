@@ -122,7 +122,7 @@ test('one stable portal follows open dialog, transfers focus only when already f
   const target = () => ({ appendChild(node) { assert.equal(node, host); node.parentElement = this; moves++ } })
   const body = target(), menu = target(), selector = target()
   let dialogs = []
-  const doc = { body, activeElement: null, querySelectorAll: () => dialogs }
+  const doc = { body, activeElement: null, querySelectorAll: () => dialogs, querySelector: () => null }
   placeFullscreenHost(doc, host)
   assert.equal(host.parentElement, body)
   dialogs = [menu]
@@ -190,4 +190,28 @@ test('ordinary HUD mutations cause no modal traversal or relocation; modal and d
   assert.equal(fullscreenHostNeedsPlacement([child([], [node('DIALOG')])], host), true)
   assert.equal(fullscreenHostNeedsPlacement([{ type: 'attributes', target: node('DIALOG') }], host), true)
   assert.equal(fullscreenHostNeedsPlacement([child([], [node('MAIN', true)])], host), true)
+})
+
+test('fullscreen portal transitions between gameplay action dock, selector modal, loading and pause without duplication', () => {
+  const host = { parentElement: null, contains: node => node === focused }
+  let focusCalls = 0
+  const focused = { focus: () => focusCalls++ }
+  const target = () => ({ appendChild(node) { node.parentElement = this } })
+  const body = target(), actions = target(), selector = target(), pause = target()
+  let dialogs = [], loading = false
+  const doc = { body, activeElement: focused, querySelectorAll: () => dialogs,
+    querySelector: selector => selector === '.top-actions' ? actions : loading ? {} : null }
+  for (const [modal, isLoading, expected] of [
+    [null, false, actions], [selector, false, selector], [null, false, actions],
+    [null, true, body], [pause, true, pause], [null, false, actions],
+  ]) {
+    dialogs = modal ? [modal] : []; loading = isLoading
+    placeFullscreenHost(doc, host)
+    assert.equal(host.parentElement, expected)
+  }
+  assert.equal(focusCalls, 6, 'same focused portal transfers between all owners')
+  const element = classes => ({ nodeName: 'DIV', nodeType: 1, contains: () => false,
+    matches: selector => selector.split(',').some(name => classes.includes(name)) })
+  for (const name of ['.loading-world', '.top-actions'])
+    assert.equal(fullscreenHostNeedsPlacement([{ type: 'childList', addedNodes: [element([name])], removedNodes: [] }], host), true)
 })
