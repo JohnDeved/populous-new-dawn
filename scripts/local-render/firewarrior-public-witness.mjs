@@ -13,6 +13,7 @@ import { createHash } from 'node:crypto'
 export default async function firewarriorPublicWitness({ page, root, output, signal, receipt }) {
   const { showAllMissions, bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')))
   const { createMission1VaultInput } = await import(pathToFileURL(resolve(root, 'scripts/local-render/mission1-vault-input.mjs')))
+  const { selectAuthoredBrave } = await import(pathToFileURL(resolve(root, 'scripts/local-render/firewarrior-selection.mjs')))
   const { assertTempleTrainInput } = await import(pathToFileURL(resolve(root, 'scripts/local-render/temple-training-contract.mjs')))
   const report = { status: 'running', source: receipt.source, limits: { turns: 300, wallMs: 60000, records: 4096 }, actions: [], captures: [], cleanupErrors: [] }
   const save = () => writeFileSync(resolve(output, 'firewarrior-public.json'), JSON.stringify(report, null, 2) + '\n')
@@ -104,29 +105,14 @@ export default async function firewarriorPublicWitness({ page, root, output, sig
       if (window.firewarriorPublicEpoch || window.mission1VaultDispatchModules || window.mission1VaultDispatch) throw Error('Foreign observer or dispatch modules exist')
       const epoch = createTempleTrainingEpoch({scene,store:window.testStore,targetId:98,maxRecords:4096})
       epoch.setTrainee(121)
+      epoch.traineeObject=brave
       window.firewarriorPublicEpoch = epoch
       epoch.initialFirewarriors=w.units.filter(u=>u.team==='blue'&&u.kind==='firewarrior'&&u.hp>0).map(u=>u.id)
       return {school:98,brave:121,shaman:shaman.id,braveInside:brave.inside,turn:w.turn,initialFirewarriors:[...epoch.initialFirewarriors]}
     })
     epochInstalled = true
     const input = createMission1VaultInput({ page, signal, report, save, originalShamanId:report.identities.shaman, deadlineAt:deadline })
-    // Smallest route: current central view only. No camera search or actor substitution.
-    const inside = await page.evaluate(() => window.testSceneRef.current.world.units.find(u=>u.id===121)?.inside)
-    const hit = await input.entityPoint(inside === null ? 'units' : 'buildings', inside ?? 121, null)
-    assert.equal(hit.rejection,null,JSON.stringify(hit.diagnostics))
-    await guard()
-    if (inside === null) await page.mouse.click(hit.x,hit.y)
-    else {
-      await page.mouse.move(hit.x,hit.y)
-      await waitFor('exact authored Brave occupant control', () => {
-        const scene=window.testSceneRef.current,u=scene.world.units.find(u=>u.id===121),panel=scene.buildingPanels.get(u?.inside)
-        return !!panel && !panel.hidden && !!panel.querySelector('button[data-person="121"]:not([hidden])')
-      })
-      const control=page.locator('.training-panel button[data-person="121"]:visible')
-      assert.equal(await control.count(),1,'ambiguous occupant controls')
-      await control.click({timeout:1000})
-    }
-    assert.deepEqual(await page.evaluate(()=>window.testSceneRef.current.world.selected),[121])
+    await selectAuthoredBrave({page,input,guard,report,save})
     await guard()
     await page.evaluate(()=>window.firewarriorPublicEpoch.armInput(121))
     await input.prepareDispatch()
