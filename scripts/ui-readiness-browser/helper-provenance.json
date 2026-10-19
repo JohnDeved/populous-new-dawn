@@ -1,0 +1,10 @@
+{
+  "runtimeSource": "ae5a767cc35a447cbc50ff1c1bdf0c644b208fd0",
+  "expectedSampling": "crisp-edges",
+  "reviewedInputSha256": "ccc03e463c6c5f75a8ccf6b3d9d54b5095294617ac5a3853fa9f0ae658f0b6de",
+  "composedSha256": "88098d0328dfffc03ad678b8c7a005c67fa2a8edd919a7d70f87250e61ed5656",
+  "adaptations": [
+    "Skip selected category heading; assert category before capture.",
+    "Assert and record actual logo sampling separately from glyph sampling."
+  ]
+}
