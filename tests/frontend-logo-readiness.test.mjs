@@ -47,7 +47,7 @@ test('every frontend panel passes foreground artwork readiness to its logo shado
   visit(parsed)
   assert.ok(callback)
   const body = ts.transpileModule(`return ${callback.getText(parsed)};`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText
-  const make = new Function('canvas', 'prepared', 'pointer', 'panel', 'pointerMode', 'glowFrame', 'optionRows', 'canvasWidth', 'tutorialRecommendationRows', 'frontendQuitRows', 'tutorialParagraphRows', 'questionReady', 'artReady', 'logoReady', 'frontendBackground', 'ImageData', body)
+  const make = new Function('canvas', 'prepared', 'pointer', 'panel', 'pointerMode', 'glowFrame', 'optionRows', 'canvasWidth', 'tutorialRecommendationRows', 'frontendQuitRows', 'tutorialParagraphRows', 'questionReady', 'artReady', 'logoReady', 'frontendBackground', 'ImageData', 'badges', 'vectorFailures', body)
   for (const panel of ['main', 'options', 'quit', 'tutorial-recommendation']) {
     for (const questionReady of [false, true]) for (const artReady of [false, true]) for (const logoReady of [false, true]) {
       let args
@@ -55,7 +55,7 @@ test('every frontend panel passes foreground artwork readiness to its logo shado
         { current: { getContext: () => ({ putImageData() {} }) } }, { composition: new Uint8Array(1) },
         { current: { x: 320, y: 240 } }, panel, { current: false }, { current: 0 }, [], 640,
         [...tutorialParagraphRows, ...tutorialChoiceRows], frontendQuitRows, tutorialParagraphRows,
-        questionReady, artReady, logoReady, (...values) => { args = values; return new Uint8ClampedArray(4) }, class {},
+        questionReady, artReady, logoReady, (...values) => { args = values; return new Uint8ClampedArray(4) }, class {}, { current: [] }, [false, false],
       )
       draw()
       assert.equal(args[6], logoReady, `${panel}: logo readiness follows foreground title`)
@@ -63,5 +63,5 @@ test('every frontend panel passes foreground artwork readiness to its logo shado
       assert.equal(args[2], panel === 'main')
     }
   }
-  assert.match(source, /\[panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared\]/)
+  assert.match(source, /\[panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared, vectorFailures\]/)
 })

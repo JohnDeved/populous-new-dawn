@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 const assetPaths = ['frontend/composition.bin', 'frontend/feft33we.png', 'frontend/fehi33we.png',
   'frontend/felo33we.png', 'frontend/felgspen.png', 'frontend/background.png', 'frontend/pointer.png',
   'options/frontend-0.png', 'options/frontend-1.png', 'options/frontend-2.png',
-  'world-selector/text/tooltip-font-c.png'].map(path => `/original/${path}`)
+  'world-selector/text/tooltip-font-c.png'].map(path => `/original/${path}`).concat(['/frontend-badges/bullfrog.svg', '/frontend-badges/qsound.svg'])
 
 // Gate actual responses; observe native decode promises without injecting readiness.
 export default async function ({ page, context, output, url }) {
@@ -19,7 +19,8 @@ export default async function ({ page, context, output, url }) {
   const save = () => writeFileSync(resolve(output, 'prepared.json'), JSON.stringify(report, null, 2) + '\n')
   const started = performance.now(), now = () => Math.round(performance.now() - started)
   const held = mode === 'healthy' ? assetPaths : mode === 'late-success' ? [
-    '/original/frontend/background.png', '/original/frontend/pointer.png', '/original/options/frontend-0.png'] : []
+    '/original/frontend/background.png', '/original/frontend/pointer.png', '/original/options/frontend-0.png',
+    '/frontend-badges/bullfrog.svg', '/frontend-badges/qsound.svg'] : []
   const failed = mode === 'slider-failure' ? '/original/options/frontend-1.png' :
     mode === 'font-failure' ? '/original/frontend/feft33we.png' : null
   const gates = new Map(held.map(path => { let release;const promise = new Promise(resolve => { release = resolve });return [path, { promise, release }] }))
@@ -33,9 +34,10 @@ export default async function ({ page, context, output, url }) {
     await route.continue().catch(error => report.errors.push({ kind: 'route', path, message: error.message }))
   }
   await context.route('**/original/**', route)
+  await context.route('**/frontend-badges/**', route)
   for (const event of ['request', 'requestfinished', 'requestfailed']) page.on(event, request => {
     const path = new URL(request.url()).pathname
-    if (path.startsWith('/original/')) report.requests.push({ event, path, at: now(), failure: request.failure()?.errorText ?? null })
+    if ((path.startsWith('/original/') || path.startsWith('/frontend-badges/'))) report.requests.push({ event, path, at: now(), failure: request.failure()?.errorText ?? null })
   })
   page.on('pageerror', error => report.errors.push({ kind: 'page', message: String(error) }))
   page.on('console', message => {
@@ -76,6 +78,7 @@ export default async function ({ page, context, output, url }) {
       }
       return {
         backgroundReady: menu?.dataset.backgroundReady ?? null, cursorReady: menu?.dataset.cursorReady ?? null, backgroundImage: menu ? getComputedStyle(menu.firstElementChild).backgroundImage : null, cursor: menu ? getComputedStyle(menu).cursor : null, phase: data.phase, menuOpen: !!menu?.open, loading: !!document.querySelector('.loading-world'),
+        badgeVectors: menu?.querySelectorAll('[data-frontend-badge-vector] img').length ?? 0,
         optionsOpen: !!options, category: options?.dataset.category ?? null,
         sliderReady: options?.dataset.artReady ?? null,
         fallbackCount: (options ?? menu)?.querySelectorAll('[class*="fallback"]').length ?? 0,
@@ -119,18 +122,18 @@ export default async function ({ page, context, output, url }) {
   const open = () => page.getByRole('button', { name: 'Options', exact: true }).click()
   const back = () => options().getByRole('button', { name: 'Back', exact: true }).click()
   const flags = state => ({ background: state.backgroundReady, cursor: state.cursorReady, backgroundImage: state.backgroundImage,
-    cursorStyle: state.cursor, fallback: state.fallbackCount, sliders: state.sliderReady })
+    cursorStyle: state.cursor, badgeVectors: state.badgeVectors, fallback: state.fallbackCount, sliders: state.sliderReady })
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     if (held.length) {
-      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\//.test(entry.src) || /options\/frontend-|tooltip-font-c/.test(entry.src)).length === 10)
+      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\/|frontend-badges\//.test(entry.src) || /options\/frontend-|tooltip-font-c/.test(entry.src)).length === 12)
       const loading = await phase('01-loading')
       assert.equal(loading.loading, true);assert.equal(loading.menuOpen, false)
       assert.ok((await page.locator('.loading-world').innerText()).trim().length > 0)
     }
     if (mode === 'healthy') {
       release(held.filter(path => !path.endsWith('.bin')))
-      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\//.test(entry.src) || /options\/frontend-|tooltip-font-c/.test(entry.src)).every(entry => entry.status === 'resolved'))
+      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\/|frontend-badges\//.test(entry.src) || /options\/frontend-|tooltip-font-c/.test(entry.src)).every(entry => entry.status === 'resolved'))
       await twoFrames()
       const partial = await phase('02-composition-held')
       assert.equal(partial.loading, true);assert.equal(partial.menuOpen, false)
@@ -145,6 +148,7 @@ export default async function ({ page, context, output, url }) {
     assert.equal(main.canvasCorner[3], 255)
     assert.ok(main.logo && !main.logo.includes('fallback'))
     const timeout = mode === 'late-success'
+    assert.equal(main.badgeVectors, timeout ? 0 : 2)
     assert.equal(main.backgroundReady, String(!timeout));assert.equal(main.cursorReady, String(!timeout))
     if (timeout) {
       assert.equal(main.backgroundImage, 'none');assert.equal(main.cursor, 'auto')
@@ -182,7 +186,7 @@ export default async function ({ page, context, output, url }) {
     assert.equal(report.requests.filter(entry => entry.event === 'request' && assetPaths.includes(entry.path)).length, requestsBeforeReopen)
     if (timeout) {
       release(held)
-      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\//.test(entry.src) || /options\/frontend-|tooltip-font-c/.test(entry.src)).every(entry => entry.status === 'resolved'))
+      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\/|frontend-badges\//.test(entry.src) || /options\/frontend-|tooltip-font-c/.test(entry.src)).every(entry => entry.status === 'resolved'))
       await twoFrames()
       const late = await phase('06-late-success-frozen')
       assert.deepEqual(flags(late), flags(warm))

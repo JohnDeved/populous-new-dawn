@@ -25,8 +25,8 @@ function fixture(t) {
 
 test('frontend prepares all groups concurrently and retains decoded images in a frozen snapshot', async t => {
   const f = fixture(t)
-  assert.equal(f.requests.length, 15)
-  assert.equal(new Set(f.requests.map(r => r.url)).size, 15)
+  assert.equal(f.requests.length, 17)
+  assert.equal(new Set(f.requests.map(r => r.url)).size, 17)
   assert.equal(f.timers[0].delay, FRONTEND_ASSET_TIMEOUT_MS)
   f.requests.forEach(r => f.complete(r))
   const result = await f.pending
@@ -222,9 +222,10 @@ test('prepared probes keep distinct exact request and decoded-image inventories'
   const frontend = readFileSync(new URL('../scripts/local-render/frontend-prepared-assets.mjs', import.meta.url), 'utf8')
   const ingame = readFileSync(new URL('../scripts/local-render/ingame-prepared-assets.mjs', import.meta.url), 'utf8')
   const frontendPaths = inventory(frontend, 'assetPaths'), ingamePaths = inventory(ingame, 'paths')
-  assert.equal(frontendPaths.length, 11)
-  assert.equal(new Set(frontendPaths).size, 11)
+  assert.equal(frontendPaths.length, 13)
+  assert.equal(new Set(frontendPaths).size, 13)
   assert.equal(frontendPaths.filter(path => path.endsWith('.png')).length, 10)
+  assert.deepEqual(frontendPaths.filter(path => path.endsWith('.svg')), ['/frontend-badges/bullfrog.svg', '/frontend-badges/qsound.svg'])
   assert.equal(frontendPaths.filter(path => path.endsWith('.bin')).length, 1)
   assert.equal(ingamePaths.length, 5)
   assert.equal(new Set(ingamePaths).size, 5)
@@ -233,8 +234,36 @@ test('prepared probes keep distinct exact request and decoded-image inventories'
   assert.match(frontend, /assert\.equal\(report\.requests\.filter\(entry => entry\.event === 'request' && assetPaths\.includes\(entry\.path\)\)\.length, assetPaths\.length\)/)
   assert.match(frontend, /assert\.equal\(await page\.evaluate\(\(\) => window\.uiPrepared\.decodes\.length\), decodesBeforeReopen\)/)
   assert.match(frontend, /assert\.equal\(report\.requests\.filter\(entry => entry\.event === 'request' && assetPaths\.includes\(entry\.path\)\)\.length, requestsBeforeReopen\)/)
-  assert.match(frontend, /tooltip-font-c\/\.test\(entry\.src\)\)\.length === 10/)
+  assert.match(frontend, /tooltip-font-c\/\.test\(entry\.src\)\)\.length === 12/)
   assert.match(ingame, /tooltip-font-c\/\.test\(d\.src\)\)\.length === 5/)
   assert.equal([...ingame.matchAll(/assert\.equal\(await decodeCount\(\),paths\.length/g)].length, 2)
   assert.match(ingame, /assert\.equal\(report\.requests\.filter\(r=>r\.event==='request'\)\.length,paths\.length,'each menu asset is requested once'\)/)
+})
+
+test('vector badge decoding is independent and a failed badge retains its native fallback', async t => {
+  const f = fixture(t)
+  f.requests.forEach(r => r.url.endsWith('/bullfrog.svg') ? r.reject(Error('unavailable vector')) : f.complete(r))
+  const result = await f.pending
+  assert.equal(result.badgeVectors[0], null)
+  assert.ok(result.badgeVectors[1].src.endsWith('/qsound.svg'))
+  assert.equal(result.logo, true)
+  assert.ok(result.composition)
+  assert.ok(Object.isFrozen(result.badgeVectors))
+})
+
+test('late vector success cannot replace the session-native fallback after deadline', async t => {
+  const f = fixture(t), held = f.requests.filter(r => r.url.endsWith('.svg'))
+  assert.equal(held.length, 2)
+  f.requests.filter(r => !held.includes(r)).forEach(r => f.complete(r))
+  await flush(); f.timers[0].run()
+  const result = await f.pending
+  assert.deepEqual(result.badgeVectors, [null, null])
+  held.forEach(r => f.complete(r)); await flush()
+  assert.deepEqual(result.badgeVectors, [null, null])
+  const count = f.requests.length
+  // A prepared Home session passes this same stable snapshot to each menu open.
+  for (let reopen = 0; reopen < 3; reopen++) assert.deepEqual(result.badgeVectors, [null, null])
+  assert.equal(f.requests.length, count)
+  const menu = readFileSync(new URL('../app/original-main-menu.tsx', import.meta.url), 'utf8')
+  assert.doesNotMatch(menu, /new Image\(|\.decode\(|fetch\(/, 'menu/reopen consumes already decoded session assets')
 })
