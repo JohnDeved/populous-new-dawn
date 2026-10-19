@@ -33,6 +33,7 @@ import {
 } from '../scripts/orchestration/cli.mjs'
 import { checkAutomation, startGameServer, verifyContract } from '../scripts/orchestration/verify.mjs'
 import { main as prepareMain, prepareContract } from '../scripts/orchestration/prepare.mjs'
+import { dragSourceProfiles } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
 
 const sha = value => createHash('sha256').update(value).digest('hex')
 const put = (repo, path, value) => {
@@ -903,6 +904,82 @@ test('plan handles cross-cutting edits, renames, deletions, untracked and unsafe
     assert.ok(plan.unknownPaths.includes('mystery/new.ts'))
     assert.equal(plan.checks.find(check => check.id === 'native').status, 'blocked')
     assert.throws(() => planChanges(repo, { base: '--help' }), /Unsafe base ref/)
+  }))
+
+// Use the live reviewed routes, not a second hand-maintained list of source owners.
+// Synthetic repositories isolate Git changes; no source-profile data is altered.
+test('protected held-drag owners explicitly select the cheap regression without replacing full gates', () =>
+  withRepo(repo => {
+    const { project, checks } = validateRepository(ROOT)
+    const check = checks.checks.find(item => item.id === 'snapshot-drag-portable')
+    assert.ok(check)
+    assert.equal(check.automation, 'safe')
+    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/browser-snapshot-drag.test.mjs'])
+    const owners = [...new Set(dragSourceProfiles.flatMap(profile => profile.slices.map(slice => slice.path)))]
+    const paths = [...owners, 'scripts/browser-performance/snapshot-drag-contract.mjs',
+      'scripts/browser-performance/snapshot-drag-observer.mjs', 'tests/browser-snapshot-drag.test.mjs']
+    const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    manifest.checks.push(check)
+    put(repo, 'engineering/checks.json', manifest)
+    for (const path of check.inputs.filter(path => !['app', 'package.json'].includes(path))) put(repo, path, '// fixture\n')
+    const mapping = JSON.parse(readFileSync(join(repo, 'engineering/project-map.json')))
+    for (const path of paths) {
+      const route = project.crossCutting.find(entry => entry.path === path)
+      assert.ok(route?.checkIds.includes(check.id), `Missing portable source-owner route: ${path}`)
+      assert.ok(check.inputs.some(input => path === input || path.startsWith(`${input}/`)), `Missing check input: ${path}`)
+      // Keep the real route's path and portable check; fixture subsystems are deliberately minimal.
+      mapping.crossCutting.push({ ...route, subsystemIds: ['selection'], checkIds: [check.id] })
+      put(repo, path, '// fixture\n')
+    }
+    put(repo, 'engineering/project-map.json', mapping)
+    run(repo, 'git', 'add', '.')
+    run(repo, 'git', 'commit', '-qm', 'protected source routes')
+    const base = run(repo, 'git', 'rev-parse', 'HEAD').trim()
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      const plan = planChanges(repo, { base })
+      assert.deepEqual(plan.checks.find(item => item.id === check.id)?.command, [check.executable, ...check.args], path)
+      assert.equal(plan.executesChecks, false)
+      assert.deepEqual(plan.feedback.command, ['npm', 'test'], path)
+      assert.equal(plan.feedback.finalGate, false)
+      assert.equal(plan.feedback.fullVerificationRequired, true)
+      if (path.startsWith('app/')) {
+        assert.ok(plan.checks.some(item => item.id === 'repository-check'), path)
+        assert.ok(plan.checks.some(item => item.id === 'production-build'), path)
+      }
+      put(repo, path, '// fixture\n')
+    }
+    put(repo, 'app/unmapped.ts', '// unrelated\n')
+    const unrelated = planChanges(repo, { base })
+    assert.ok(!unrelated.checks.some(item => item.id === check.id))
+    assert.ok(unrelated.unknownPaths.includes('app/unmapped.ts'))
+    assert.deepEqual(unrelated.feedback.command, ['npm', 'test'])
+  }))
+
+test('context-index mapping changes already require behavioral orchestration tests as well as structure', () =>
+  withRepo(repo => {
+    const { checks } = validateRepository(ROOT)
+    const original = checks.checks.find(check => check.id === 'orchestration-tests')
+    assert.ok(original.args.includes('tests/orchestration.test.mjs'))
+    const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    Object.assign(manifest.checks.find(check => check.id === original.id), {
+      executable: original.executable, args: original.args,
+    })
+    put(repo, 'engineering/checks.json', manifest)
+    run(repo, 'git', 'add', '.')
+    run(repo, 'git', 'commit', '-qm', 'real orchestration command')
+    const base = run(repo, 'git', 'rev-parse', 'HEAD').trim()
+    for (const path of ['engineering/project-map.json', 'engineering/README.md']) {
+      const previous = readFileSync(join(repo, path), 'utf8')
+      appendFileSync(join(repo, path), '\n')
+      const plan = planChanges(repo, { base })
+      assert.ok(plan.checks.find(check => check.id === 'orchestration-tests').command.includes('tests/orchestration.test.mjs'))
+      assert.ok(plan.checks.some(check => check.id === 'orchestration-structural'))
+      assert.ok(plan.checks.some(check => check.id === 'repository-check'))
+      assert.deepEqual(plan.feedback.command, ['npm', 'test'])
+      assert.equal(plan.executesChecks, false)
+      put(repo, path, previous)
+    }
   }))
 
 function contract(repo, base) {
