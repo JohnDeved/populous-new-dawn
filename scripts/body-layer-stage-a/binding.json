@@ -1,0 +1,37 @@
+{
+  "scope": "Revision 11, current-source Stage A rebind, unexecuted",
+  "baseline": "e1b468a9b8a355bd46fb149a1100b43442898b1e",
+  "candidate": "0d9ae8b299b613fc729e3c7d05c5e9a06fd4c36f",
+  "previousRejectedUnexecutedBinding": "bc83b122b67e6ad0dbf8124ad8a4f5e954e137caebc32f12da19ed5fb7238504",
+  "files": {
+    "PLAN.md": "967c6059d731fa90db89f929c788447d6c6de7e7b7b960a7e91b8ed6c590c220",
+    "build.mjs": "3285f16604d0a00e82716e0ecd18f8846a5f549b2bd267f6bd47593662a09c23",
+    "compare.mjs": "965393ca8c2f208f66d633474ce57a8820ba3905614f65b758a1a5bb90271f19",
+    "driver.mjs": "dcc3dfb17f742f23ab675027e12b39165b28301c7924bc20f8e0580c230006f9",
+    "helpers.test.mjs": "e9de8168f326b6b881c080611d5316ba74edb634f605020d6989733823cdf461",
+    "hosted-workflow.yml": "d8040bbacfc4f8834b17721118010d2f6b3d2ab71e801c272fe1327c471a8523",
+    "io.mjs": "eb79ba0d8c53eeb4092b7addff7d5de63bb8b429d1763fa646ae6797916e1abd",
+    "page.mjs": "4769ea5d16b30f298c4dd10a041b572480498dca6d05177705fccc37eef5aaf5",
+    "protocol.mjs": "b685841cd984f6b2d1db92f8f5a5586b27f705a074734aaf85001e2c02cd7c83",
+    "rejected-controls.fixture.mjs": "192cde733fabeb8a76b9e160648705972ca41dbcdcb1d79b2651ec0e73662f35",
+    "setup-adapter.mjs": "dce62fb7212172ff8cd42ff75c73c0ec5deb1ed0a4bf719888924d54317b8f6d",
+    "start-latch.mjs": "d21f378a8c393b5d97337fd5f5834a3e6aa5edbf7d370c5ed9cb3fcc251217e8",
+    "start-transform-bindings.json": "daef5f7a0da2664c5e3d2bba09a47e1208b13a34b6ea96d30963670b1a679102",
+    "worker.mjs": "feae8acc78c2bc777e90e7ed66654063894b20e667e672160515407395b51e74",
+    "focus-constructor.test.mjs": "0aa50f81ed4e0df8312d10e0066e59611e8f819e8044cd0cd9a67847c245700a",
+    "transport.mjs": "0602d2130a35772acedb6287b37c00b74b14623dfdd6daf0cc87194bd58deea2",
+    "transport.test.mjs": "2b05f717c6a6ab06896ef4ba42be6def6fe546eef75f6a6d7a63a56d8c476623",
+    "observation-store.mjs": "6e6c83ca7b1eaca3110773e2b2e2a2c4de922ec11336bba95b57c80d4d005315",
+    "observation-store.test.mjs": "8d6e5b13999a2d3d8b0ffa365b9795eebfc53df129e4a30f7d26a4f4efebe057"
+  },
+  "previousFailedBinding": "b71327d8509359bdb2882bb20486895d9fa3fa40b6f5bcd07f737b10bd7310a0",
+  "preservedFailedRuns": [
+    39172358949,
+    39172774059,
+    39173419489,
+    39174207447,
+    39174948729
+  ],
+  "previousExecutedBinding": "cd643ebe879e675467f7adbdbb187cb560b94d11580ecb9e34ae908a74347362",
+  "previousRejectedStorageBinding": "9dce086ee5b0e4d0f0b14e05acc0e977c8a4fa76d4a223012600ca8795735f53"
+}
