@@ -78,3 +78,14 @@ observer reviews accepted the bounded contracts. Full check/build, browser gates
 original runtime execution, cached native list/count timing and every class9
 alias state remain separate. Ordinary Mission4 raids are still blocked by the
 omitted original producers/ATTACK script, as documented on PR626 and issue256.
+
+Final source-candidate focused receipt at `888becc5` passed27 outer tests:
+24 construction controls, one ordinary subprocess, one M2 constructor subprocess
+(16 internal cases), and one raid-staging subprocess (77 internal cases). Counts
+are not added together as one aggregate. The ordinary regression passed direct
+full-World equality, without exclusions or migration normalization, at load,
+every64-turn boundary and completion. Two earlier final-focus attempts failed
+only the added housing control: first it assumed a lazily initialized person
+existed; then it incorrectly treated state10/order6 as idle as well as housing.
+The corrected controlled fixture supplies one idle Brave and a separate
+housing-order Brave. Both failures remain retained; no gameplay code changed.
