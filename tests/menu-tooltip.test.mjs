@@ -132,9 +132,9 @@ test('rendered native glyph widths equal advances and longest unavailable reason
   const reasons = [...rows.replace(/  const checkpointRecoveryNotices = \{[\s\S]*?\n  \}/, '').matchAll(/(?:unavailable: |\? |: )'([^'\n]*(?:available|restored|storage|checkpoint)[^'\n]*)'/gi)].map(match => match[1])
   const measured = reasons.map(text => ({ text, width: [...text].reduce((sum,c)=>sum+provenance.fonts.tooltip.glyphs[c.charCodeAt(0)-32].width,0) }))
   const longest = measured.sort((a,b)=>b.width-a.width)[0]
-  assert.deepEqual(longest, { text:'Multiplayer is not available in this single-player remake', width:298 })
-  assert.equal(4*(Math.floor(longest.width/4)+3),308)
-  assert.ok(308 < 640)
+  assert.deepEqual(longest, { text:'Checkpoint is incompatible with this development version', width:300 })
+  assert.equal(4*(Math.floor(longest.width/4)+3),312)
+  assert.ok(312 < 640)
 })
 
 test('prepared tooltip rendering never decodes again on category changes or reopen', () => {
