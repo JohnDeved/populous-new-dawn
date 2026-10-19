@@ -1,4 +1,10 @@
-import { recoverPersonMovement, stopPersonMovement, type StatefulPerson } from './person-state.ts'
+import {
+  recoverPersonMovement,
+  setPersonAnimationRow,
+  stopPersonMovement,
+  type StatefulPerson,
+} from './person-state.ts'
+import type { Animation } from './animation.ts'
 import {
   releasePersonRoute,
   setDirectPersonDestination,
@@ -17,6 +23,18 @@ const animationRows = { attack: 10, strike: 8, special: 16, recoil: 9 }
 
 export function meleeAnimationObject(kind: UnitKind, action: MeleeAttack | 'recoil') {
   return rules.personAnimationObjects[animationRows[action] * 9 + nativeUnitModel(kind)]
+}
+
+// 0x518fb0 substates 2/3/4 reset the original attack pose on entry. The
+// controller's existing duration/damage owner is independent of these frames.
+export function startMeleeAttackAnimation(
+  person: StatefulPerson & Animation,
+  action: MeleeAttack,
+  setAnimation: (person: StatefulPerson, object: number) => void
+) {
+  setPersonAnimationRow(person, animationRows[action], setAnimation)
+  person.f1 = 1
+  person.f2 = 0
 }
 
 // Timers in 0x518fb0 use the authored object duration. Recoil substates 5/6
