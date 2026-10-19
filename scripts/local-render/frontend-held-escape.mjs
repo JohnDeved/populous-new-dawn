@@ -25,11 +25,9 @@ export default async function ({ page, output }) {
     window.frontendEscapeEvents = []
     const observe = event => {
       if (event.type !== 'cancel' && event.key !== 'Escape') return
-      // Capture also sees Help's stopped event; defer until its handler finishes.
-      queueMicrotask(() => window.frontendEscapeEvents.push({
-        type: event.type, trusted: event.isTrusted,
-        repeat: event.repeat ?? null, prevented: event.defaultPrevented,
-      }))
+      // Capture also sees Help's stopped event. Retain the event itself, then
+      // inspect its final defaultPrevented state after the keyboard actions.
+      window.frontendEscapeEvents.push(event)
     }
     for (const type of ['keydown', 'keyup', 'cancel']) document.addEventListener(type, observe, true)
     window.removeFrontendEscapeObservers = () => {
@@ -69,7 +67,10 @@ export default async function ({ page, output }) {
     assert.equal(await button('Quit').evaluate(el => el === document.activeElement), true)
     assert.equal(await main.isVisible(), true)
     assert.deepEqual(await state(), initial)
-    const events = await page.evaluate(() => window.frontendEscapeEvents)
+    const events = await page.evaluate(() => window.frontendEscapeEvents.map(event => ({
+      type: event.type, trusted: event.isTrusted, repeat: event.repeat ?? null,
+      prevented: event.defaultPrevented,
+    })))
     assert.ok(events.every(event => event.trusted), 'only ordinary browser keyboard/default events')
     assert.deepEqual(events.filter(event => event.type === 'keydown').map(event => event.repeat),
       [false, true, true, true, false, false, true, true, true, false, false, false])
