@@ -1,19 +1,16 @@
 name: Built-worker UI readiness diagnostic
 
+# One explicitly reviewed diagnostic branch, never product PR readiness.
 on:
-  pull_request:
-    branches: [main]
-    types: [ready_for_review]
-    paths:
-      - 'scripts/ui-readiness-browser/**'
-      - '.github/workflows/ui-readiness-browser.yml'
+  push:
+    branches: [diagnostic/ui-built-worker-20261019]
 
 permissions:
   contents: read
 
 concurrency:
-  group: ui-readiness-browser-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  group: ui-readiness-browser-diagnostic
+  cancel-in-progress: false
 
 jobs:
   ui-readiness-browser:
@@ -21,8 +18,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
-      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-      PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      CANDIDATE_SHA: 'fed5ca52cbbe8468af223d2e55e8f1bad14aef94'
+      RUNTIME_HELP_SHA: 'a7535cfac470ca92b60e217fa5b4fa210ef430aa'
+      PR_BASE_SHA: 'c2fcaeb7143056261fcee03ac4cefc3b1b5dfe06'
+      EXPECTED_CHROME_VERSION: 'Google Chrome 155.0.8059.39'
+      EXPECTED_CHROME_SHA256: '9bfb381296dffe75f3419d07b6cc64525105ed117d1453a4ef3b291cb97d2b58'
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -30,42 +30,40 @@ jobs:
       NODE_V8_COVERAGE: ''
       WRANGLER_SEND_METRICS: 'false'
     steps:
-      - name: Require a ready pull request
-        env:
-          IS_DRAFT: ${{ github.event.pull_request.draft }}
-        run: |
-          if [ "$IS_DRAFT" != false ]; then
-            echo '::notice::Draft PR: browser validation has not run.'
-            exit 1
-          fi
-      - name: Check out exact proposed merge
+      - name: Check out exact diagnostic commit
         id: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
+          fetch-depth: 2
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24.19.0'
           architecture: x64
           package-manager-cache: false
-      - name: Install locked dependencies and verify supported Chrome
+      - name: Initialize receipt and verify diagnostic-only provenance
+        run: |
+          mkdir -p outputs/ui-readiness-upload
+          node --input-type=module <<'NODE'
+          import { writeFileSync } from 'node:fs'
+          writeFileSync('outputs/ui-readiness-upload/receipt.json', JSON.stringify({
+            status: 'setup-pending', diagnosticCommit: process.env.GITHUB_SHA,
+            candidate: process.env.CANDIDATE_SHA, runtimeHelp: process.env.RUNTIME_HELP_SHA,
+            base: process.env.PR_BASE_SHA, runId: process.env.GITHUB_RUN_ID,
+            attempt: process.env.GITHUB_RUN_ATTEMPT,
+            limits: ['Diagnostic push, not a product PR merge or readiness gate.'],
+          }, null, 2))
+          NODE
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD^)" = "$CANDIDATE_SHA"
+          test "$(git diff --name-only "$CANDIDATE_SHA" HEAD)" = '.github/workflows/ui-readiness-browser.yml'
+          printf 'Diagnostic: %s\nCandidate: %s\nRuntime help: %s\nBase: %s\n' "$GITHUB_SHA" "$CANDIDATE_SHA" "$RUNTIME_HELP_SHA" "$PR_BASE_SHA" >> "$GITHUB_STEP_SUMMARY"
+      - name: Install locked dependencies (never install a browser)
         run: |
           npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
           npm ci --no-audit --no-fund
-          test -x /opt/google/chrome/chrome
-          /opt/google/chrome/chrome --version
-      - name: Record exact tested source
-        env:
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: |
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          printf 'PR head: %s\nBase: %s\nTested merge: %s\n' "$PR_HEAD_SHA" "$PR_BASE_SHA" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
-          node --version
-          npm --version
-          sha256sum package-lock.json node_modules/playwright-core/browsers.json
       - name: Build current Vinext worker (no deployment)
         timeout-minutes: 10
         run: npm run build
@@ -75,14 +73,24 @@ jobs:
       - name: Reject tracked input mutation
         if: ${{ always() && steps.checkout.outcome == 'success' }}
         run: git diff --exit-code HEAD --
+      - name: Finalize failure before runner setup
+        if: ${{ always() && steps.checkout.outcome == 'success' }}
+        run: |
+          if [ ! -f outputs/ui-readiness-browser/receipt.json ]; then
+            mkdir -p outputs/ui-readiness-upload
+            node --input-type=module <<'NODE'
+          import { writeFileSync } from 'node:fs'
+          writeFileSync('outputs/ui-readiness-upload/receipt.json', JSON.stringify({ status: 'failed', diagnosticCommit: process.env.GITHUB_SHA, candidate: process.env.CANDIDATE_SHA, reason: 'Setup or build failed before runner receipt; inspect bounded workflow step logs.' }))
+          NODE
+          fi
       - name: Retain bounded validation receipts and screenshots
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ui-readiness-browser-${{ github.sha }}
           path: |
-            outputs/ui-readiness-browser/**/*.json
-            outputs/ui-readiness-browser/**/*.log
-            outputs/ui-readiness-browser/**/*.png
+            outputs/ui-readiness-upload/**/*.json
+            outputs/ui-readiness-upload/**/*.log
+            outputs/ui-readiness-upload/**/*.png
           if-no-files-found: warn
           retention-days: 7
