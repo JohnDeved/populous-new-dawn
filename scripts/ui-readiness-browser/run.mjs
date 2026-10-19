@@ -2,8 +2,8 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import { chromium } from '@playwright/test'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
 import frontend from '../local-render/frontend-prepared-assets.mjs'
@@ -11,37 +11,48 @@ import ingame from '../local-render/ingame-prepared-assets.mjs'
 import palette from './building-palette.mjs'
 import help from './contextual-help.mjs'
 
-assert.equal(process.env.GITHUB_ACTIONS, 'true', 'Only the reviewed GitHub runner is supported')
 const root = resolve(import.meta.dirname, '../..')
 const output = resolve(root, 'outputs/ui-readiness-browser')
+const upload = resolve(root, 'outputs/ui-readiness-upload')
 assert.ok(!existsSync(output), 'Require fresh output')
+mkdirSync(output, { recursive: true })
+mkdirSync(upload, { recursive: true })
+const receipt = { status: 'running', cases: [], runId: process.env.GITHUB_RUN_ID,
+  attempt: process.env.GITHUB_RUN_ATTEMPT, node: process.version,
+  limits: ['Built Vinext/RSC worker served by local workerd on GitHub Ubuntu; not deployed Cloudflare/CDN behavior.',
+    'Fresh browser contexts; only the nine readiness cases disable HTTP cache through routing. Reopening tests same-document reuse.',
+    'Sandboxed headless Chrome, no hardware-performance or original executable claim.'] }
+const save = () => {
+  const data = JSON.stringify(receipt, null, 2) + '\n'
+  writeFileSync(resolve(output, 'receipt.json'), data)
+  writeFileSync(resolve(upload, 'receipt.json'), Buffer.byteLength(data) <= 128 * 1024 * 1024 ? data :
+    JSON.stringify({ status: 'failed', reason: 'Receipt exceeded upload limit', commit: receipt.commit }))
+}
+save() // Preserve setup failures before Git, source, build or browser inspection.
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim()
 const hash = path => createHash('sha256').update(readFileSync(path)).digest('hex')
-const commit = git('rev-parse', 'HEAD')
-assert.equal(commit, process.env.GITHUB_SHA, 'Require exact proposed merge')
-assert.equal(git('status', '--porcelain', '--untracked-files=no'), '', 'Require clean tracked source')
-const source = Object.fromEntries(git('ls-files').split('\n').map(name => [name, hash(resolve(root, name))]))
-assert.ok(existsSync(resolve(root, 'dist/server/wrangler.json')), 'Build must produce the worker config')
-mkdirSync(output, { recursive: true })
+let source
 const config = browserConfiguration()
-const receipt = { status: 'running', commit, head: process.env.PR_HEAD_SHA, base: process.env.PR_BASE_SHA,
-  runId: process.env.GITHUB_RUN_ID, attempt: process.env.GITHUB_RUN_ATTEMPT, node: process.version,
-  browserVersion: execFileSync(config.browserPath, ['--version'], { encoding: 'utf8' }).trim(),
-  browserSha256: hash(config.browserPath), launch: config.launch, source,
-  lockSha256: hash(resolve(root, 'package-lock.json')),
-  installedLockSha256: hash(resolve(root, 'node_modules/.package-lock.json')),
-  workerConfigSha256: hash(resolve(root, 'dist/server/wrangler.json')), cases: [],
-  limits: ['Built Vinext/RSC worker served by local workerd on GitHub Ubuntu; not deployed Cloudflare/CDN behavior.',
-    'Fresh browser context per case; routing disables HTTP cache. Reopening tests same-document reuse.',
-    'Sandboxed headless Chrome, no hardware-performance or original executable claim.'] }
-const save = () => writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
 const url = 'http://127.0.0.1:5199'
 const servingDescription = receipt.limits[0]
 let browser, server, timer
-const stopServer = () => {
-  if (!server?.pid) return
-  try { process.kill(-server.pid, 'SIGTERM') } catch { return }
-  setTimeout(() => { try { process.kill(-server.pid, 'SIGKILL') } catch { /* Owned group already exited. */ } }, 2000).unref()
+let globalTimedOut = false
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+const closeBrowser = async () => {
+  let deadline
+  try { await Promise.race([browser?.close(), new Promise((_, reject) => { deadline = setTimeout(() => reject(Error('Browser close exceeded 5 seconds')), 5000) })]) }
+  finally { clearTimeout(deadline) }
+}
+const stopServer = async () => {
+  if (!server?.pid) return { status: 'not-started' }
+  const alive = () => { try { process.kill(-server.pid, 0); return true } catch (error) { if (error.code === 'ESRCH') return false; throw error } }
+  if (!alive()) return { status: 'already-exited', exitCode: server.exitCode }
+  process.kill(-server.pid, 'SIGTERM')
+  for (let i = 0; i < 20 && alive(); i++) await sleep(100)
+  let forced = false
+  if (alive()) { forced = true; process.kill(-server.pid, 'SIGKILL') }
+  for (let i = 0; i < 20 && alive(); i++) await sleep(100)
+  return { status: alive() ? 'failed' : 'stopped', forced, exitCode: server.exitCode, signalCode: server.signalCode }
 }
 let serverLog = ''
 let logTruncated = false
@@ -57,13 +68,28 @@ function artifacts(directory, prefix = '') {
   }))
 }
 try {
+  assert.equal(process.env.GITHUB_ACTIONS, 'true', 'Only the reviewed GitHub runner is supported')
+  receipt.commit = git('rev-parse', 'HEAD')
+  receipt.candidate = process.env.CANDIDATE_SHA
+  receipt.base = process.env.PR_BASE_SHA
+  assert.equal(receipt.commit, process.env.GITHUB_SHA, 'Require exact diagnostic push commit, not a PR merge')
+  assert.equal(git('status', '--porcelain', '--untracked-files=no'), '', 'Require clean tracked source')
+  source = receipt.source = Object.fromEntries(git('ls-files').split('\n').map(name => [name, hash(resolve(root, name))]))
+  receipt.browserVersion = execFileSync(config.browserPath, ['--version'], { encoding: 'utf8', timeout: 5000 }).trim()
+  receipt.browserSha256 = hash(config.browserPath)
+  receipt.launch = config.launch
+  assert.equal(receipt.browserVersion, process.env.EXPECTED_CHROME_VERSION, 'Reviewed installed Chrome version required; no install/fallback')
+  assert.equal(receipt.browserSha256, process.env.EXPECTED_CHROME_SHA256, 'Reviewed Chrome binary hash required')
+  receipt.lockSha256 = hash(resolve(root, 'package-lock.json'))
+  receipt.installedLockSha256 = hash(resolve(root, 'node_modules/.package-lock.json'))
+  receipt.workerConfigSha256 = hash(resolve(root, 'dist/server/wrangler.json'))
   receipt.buildArtifacts = artifacts(resolve(root, 'dist'))
   save()
   server = spawn(process.execPath, ['node_modules/wrangler/bin/wrangler.js', 'dev', '--config', 'dist/server/wrangler.json',
     '--local', '--ip', '127.0.0.1', '--port', '5199'], { cwd: root, detached: true, stdio: ['ignore', 'pipe', 'pipe'] })
   server.stdout.on('data', append); server.stderr.on('data', append)
   server.on('error', error => { receipt.serverError = String(error); save() })
-  timer = setTimeout(() => { receipt.status = 'timed-out'; save(); void browser?.close(); stopServer() }, 7 * 60_000)
+  timer = setTimeout(() => { globalTimedOut = true; receipt.status = 'timed-out'; save(); void browser?.close() }, 7 * 60_000)
   const deadline = Date.now() + 60_000
   for (;;) {
     assert.equal(server.exitCode, null, 'Worker server exited before readiness')
@@ -85,6 +111,7 @@ try {
     ['palette', palette, ['baseline']],
     ['help', help, ['contextual']],
   ]) for (const mode of modes) {
+    if (globalTimedOut) break
     const name = `${skin}-${mode}`, directory = resolve(output, name)
     mkdirSync(directory)
     process.env.POPULOUS_PREPARED_MODE = mode
@@ -93,27 +120,50 @@ try {
     const page = await context.newPage()
     page.setDefaultTimeout(30_000); page.setDefaultNavigationTimeout(30_000)
     const row = { name, status: 'running' }; receipt.cases.push(row); save()
-    const cap = setTimeout(() => { row.status = 'timed-out'; void context.close() }, 90_000)
+    let caseTimedOut = false
+    const cap = setTimeout(() => { caseTimedOut = true; row.status = 'timed-out'; void context.close() }, 90_000)
     try {
       row.result = await run({ page, context, output: directory, url, servingDescription })
-      row.status = 'passed'
-    } catch (error) { row.status = 'failed'; row.error = String(error.stack) }
+      row.status = caseTimedOut || globalTimedOut ? 'timed-out' : 'passed'
+    } catch (error) { row.status = caseTimedOut || globalTimedOut ? 'timed-out' : 'failed'; row.error = String(error.stack) }
     finally { clearTimeout(cap); await context.close(); save() }
   }
+  assert.ok(!globalTimedOut, 'Global diagnostic deadline expired')
+  assert.equal(receipt.cases.length, 11, 'All bounded cases must run')
   assert.ok(receipt.cases.every(row => row.status === 'passed'), 'One or more diagnostic cases failed')
   receipt.status = 'passed'
-} catch (error) { receipt.status = 'failed'; receipt.error = String(error.stack); process.exitCode = 1 }
+} catch (error) { receipt.status = globalTimedOut ? 'timed-out' : 'failed'; receipt.error = String(error.stack); process.exitCode = 1 }
 finally {
   clearTimeout(timer)
-  await browser?.close()
-  stopServer()
+  try { await closeBrowser() } catch (error) { receipt.status = globalTimedOut ? 'timed-out' : 'failed'; receipt.browserCleanupError = String(error); process.exitCode = 1 }
+  try {
+    receipt.serverCleanup = await stopServer()
+    assert.notEqual(receipt.serverCleanup.status, 'failed', 'Owned server process group survived cleanup')
+  } catch (error) { receipt.status = globalTimedOut ? 'timed-out' : 'failed'; receipt.cleanupError = String(error); process.exitCode = 1 }
   writeFileSync(resolve(output, 'server.log'), serverLog)
   receipt.serverLogTruncated = logTruncated
   try {
-    for (const [name, expected] of Object.entries(source)) assert.equal(hash(resolve(root, name)), expected, `Source drift: ${name}`)
-    receipt.sourceUnchanged = true
+    for (const [name, expected] of Object.entries(source ?? {})) assert.equal(hash(resolve(root, name)), expected, `Source drift: ${name}`)
+    receipt.sourceUnchanged = !!source
     receipt.artifacts = artifacts(output)
-    assert.ok(Object.values(receipt.artifacts).reduce((sum, file) => sum + file.bytes, 0) < 128 * 1024 * 1024, 'Diagnostic outputs exceed 128 MiB')
-  } catch (error) { receipt.status = 'failed'; receipt.finalizationError = String(error); process.exitCode = 1 }
+
+  } catch (error) { receipt.status = globalTimedOut ? 'timed-out' : 'failed'; receipt.finalizationError = String(error); process.exitCode = 1 }
+  const artifactBytes = Object.values(receipt.artifacts ?? {}).reduce((sum, file) => sum + file.bytes, 0)
+  receipt.upload = { limitBytes: 128 * 1024 * 1024, artifactBytes, excluded: false }
+  const serialized = JSON.stringify(receipt, null, 2) + '\n'
+  if (artifactBytes + Buffer.byteLength(serialized) > receipt.upload.limitBytes) {
+    receipt.status = globalTimedOut ? 'timed-out' : 'failed'; process.exitCode = 1
+    receipt.upload.excluded = true
+    receipt.upload.reason = 'Artifact set plus receipt exceeds 128 MiB; upload contains failure receipt only.'
+  } else try {
+    for (const name of Object.keys(receipt.artifacts ?? {})) {
+      const target = resolve(upload, name); mkdirSync(dirname(target), { recursive: true })
+      copyFileSync(resolve(output, name), target)
+    }
+  } catch (error) { receipt.status = globalTimedOut ? 'timed-out' : 'failed'; receipt.upload.error = String(error); process.exitCode = 1 }
   save()
+  if (statSync(resolve(upload, 'receipt.json')).size > 128 * 1024 * 1024) {
+    writeFileSync(resolve(upload, 'receipt.json'), JSON.stringify({ status: 'failed', reason: 'Receipt itself exceeded 128 MiB', commit: receipt.commit }))
+    process.exitCode = 1
+  }
 }

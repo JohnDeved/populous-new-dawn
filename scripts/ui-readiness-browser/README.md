@@ -8,13 +8,13 @@ local Wrangler/workerd on a GitHub Ubuntu runner, and launches the existing
 approved official Chrome configuration with its sandbox enabled. It never
 deploys, changes app code, uses a user computer, or falls back to unsafe flags.
 
-The proposed workflow runs only on explicit ready-for-review transition of a PR
-changing this diagnostic/workflow. Root must review/admit it before publication
+The proposed workflow runs only on a push to the exact reviewed diagnostic branch
+`diagnostic/ui-built-worker-20261019`, never a product PR readiness event. Root must review/admit it before publication
 or execution. No CI result or rendered finding is claimed by this candidate.
 
 ## Scope and bounds
 
-- Exact GitHub proposed-merge checkout, clean tracked source, full tracked input
+- Exact GitHub diagnostic-push checkout (not a PR merge), clean tracked source, full tracked input
   hashes before/after, locked dependencies, browser hash/version and run identity.
 - Standard current `npm run build` (10-minute step cap), then local worker on
   127.0.0.1:5199. Worker HTML is recorded by status, bytes and SHA256.
@@ -37,8 +37,14 @@ or execution. No CI result or rendered finding is claimed by this candidate.
   modal freeze/resume, and screenshots. A failure remains failed, not waived.
 - Worker readiness 60 seconds; each case 90 seconds; runner 7 minutes; external
   kill-after bound 8 minutes; workflow 20 minutes. Server log retained at 2 MiB;
-  report/screenshots checked against a combined 128 MiB limit. Artifacts retained
-  for 7 days. Source mutation fails the diagnostic.
+  upload contents including the receipt capped at 128 MiB; oversized output
+  is withheld and only an explicit failure receipt is uploaded. Artifacts retained
+  for 7 days. Source mutation fails the diagnostic. Deadlines are sticky; the global timeout
+  stops later cases. Owned server-group cleanup is awaited (2-second TERM grace,
+  then KILL and a further 2-second check) and its outcome recorded.
+- Chrome is pinned to the existing reviewed diagnostic `f9f77dc8` version/hash;
+  mismatch fails without installation or unsafe flags. The initial receipt is
+  written before setup inspection, and workflow preflight retains early failures.
 
 ## Limits
 
