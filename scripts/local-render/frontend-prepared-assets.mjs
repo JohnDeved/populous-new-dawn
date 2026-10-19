@@ -7,11 +7,11 @@ const assetPaths = ['frontend/composition.bin', 'frontend/feft33we.png', 'fronte
   'options/frontend-0.png', 'options/frontend-1.png', 'options/frontend-2.png'].map(path => `/original/${path}`)
 
 // Gate actual responses; observe native decode promises without injecting readiness.
-export default async function ({ page, context, output, url }) {
+export default async function ({ page, context, output, url, servingDescription }) {
   const mode = process.env.POPULOUS_PREPARED_MODE
   assert.ok(['healthy', 'slider-failure', 'font-failure', 'late-success'].includes(mode))
   const report = { mode, status: 'running', phases: [], requests: [], errors: [], warnings: [], releases: [],
-    limits: ['Actual Home via plain React/Vite; excludes production serving and hydration.',
+    limits: [servingDescription ?? 'Actual Home via plain React/Vite; excludes production serving and hydration.',
       'Routing disables HTTP cache. Warm reopen is same-document reuse.',
       'Controlled response holds are diagnostic, not a network profile. Native browser 10-second deadline is unchanged.',
       'Frame observations and screenshots do not establish hardware performance or native parity.'] }
