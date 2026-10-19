@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import assets from './original-frontend.json'
+import { frontendBadgeBounds, frontendBadgePixels } from './frontend-badges'
 import { MenuTooltip } from './menu-tooltip'
 import type { FrontendAssets } from './frontend-assets'
 import styles from './original-main-menu.module.css'
@@ -97,6 +98,7 @@ export function OriginalMainMenu({
   const frame = useRef<HTMLDivElement>(null)
   const first = useRef<HTMLButtonElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
+  const badges = useRef<(HTMLCanvasElement | null)[]>([])
   const pointer = useRef({ x: 320, y: 240 })
   const animation = useRef(0)
   const pointerMode = useRef(true)
@@ -131,31 +133,31 @@ export function OriginalMainMenu({
   }, [])
   const draw = useCallback(() => {
     const context = canvas.current?.getContext('2d')
-    if (context && prepared.composition)
-      context.putImageData(
-        new ImageData(
-          frontendBackground(
-            prepared.composition,
-            pointer.current,
-            panel === 'main',
-            pointerMode.current ? glowFrame.current : null,
-            panel === 'options'
-              ? optionRows
-              : panel === 'tutorial-recommendation'
-                ? tutorialRecommendationRows.filter(row =>
-                    tutorialParagraphRows.includes(row) ? questionReady : artReady
-                  )
-                : frontendQuitRows.filter((_, index) => (index === 0 ? questionReady : artReady)),
-            canvasWidth,
-            logoReady,
-            artReady
-          ),
-          canvasWidth,
-          480
-        ),
-        0,
-        0
+    if (context && prepared.composition) {
+      const rgba = frontendBackground(
+        prepared.composition,
+        pointer.current,
+        panel === 'main',
+        pointerMode.current ? glowFrame.current : null,
+        panel === 'options'
+          ? optionRows
+          : panel === 'tutorial-recommendation'
+            ? tutorialRecommendationRows.filter(row =>
+                tutorialParagraphRows.includes(row) ? questionReady : artReady
+              )
+            : frontendQuitRows.filter((_, index) => (index === 0 ? questionReady : artReady)),
+        canvasWidth,
+        logoReady,
+        artReady
       )
+      context.putImageData(new ImageData(rgba, canvasWidth, 480), 0, 0)
+      for (const [index, canvas] of badges.current.entries()) {
+        const badgeContext = canvas?.getContext('2d')
+        if (!badgeContext) continue
+        const { pixels, width, height } = frontendBadgePixels(rgba, canvasWidth, index)
+        badgeContext.putImageData(new ImageData(pixels, width, height), 0, 0)
+      }
+    }
   }, [panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared])
   useLayoutEffect(() => {
     draw()
@@ -310,6 +312,21 @@ export function OriginalMainMenu({
           style={{ width: canvasWidth, left: (640 - canvasWidth) / 2 }}
           aria-hidden="true"
         />
+        {prepared.composition &&
+          frontendBadgeBounds.map((badge, index) => (
+            <canvas
+              key={badge.x}
+              ref={element => {
+                badges.current[index] = element
+              }}
+              className={styles.badge}
+              data-frontend-badge={index === 0 ? 'bullfrog' : 'qsound'}
+              width={badge.width}
+              height={badge.height}
+              style={{ left: badge.x, top: badge.y }}
+              aria-hidden="true"
+            />
+          ))}
         <h1 className={styles.title} aria-label="Populous: The Beginning">
           {logoReady ? (
             <span className={styles.logo} />
