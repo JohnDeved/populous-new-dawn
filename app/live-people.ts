@@ -34,7 +34,6 @@ import {
   browserPosition,
   unitAnimationSource,
   unitAnimation,
-  buildingModel,
   supportsFollower,
   revealUnitInvisibility,
   unitInvisibilityRenderBit,

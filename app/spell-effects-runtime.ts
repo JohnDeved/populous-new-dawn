@@ -1305,8 +1305,8 @@ export function stepTeleport(w: World, fx: Effect) {
   release(w, shaman)
   shaman.flight = undefined
   shaman.native = person
-  let target = teleport.target,
-    cell = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
+  let target = teleport.target
+  const cell = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
   if (w.land.flags[cell] & 512) {
     const shape = liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
     if (shape) {
