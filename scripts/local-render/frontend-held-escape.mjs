@@ -41,6 +41,8 @@ async function episode({ page, output, url }) {
     for (let episode = 0; episode < 2; episode++) {
       await button('Options').click()
       await button('Sound').click()
+      assert.equal(await button('Browser compatibility and help').count(), 0)
+      await button('Game').click()
       await button('Browser compatibility and help').click()
       await help.waitFor()
       await page.keyboard.down('Escape')
@@ -48,7 +50,7 @@ async function episode({ page, output, url }) {
       await settle()
       for (let repeat = 0; repeat < 3; repeat++) await page.keyboard.down('Escape')
       assert.equal(await options.isVisible(), true, 'held Escape must stop at Options')
-      assert.equal(await options.getAttribute('data-category'), 'Sound')
+      assert.equal(await options.getAttribute('data-category'), 'Game')
       assert.equal(await button('Browser compatibility and help').evaluate(el => el === document.activeElement), true)
       assert.deepEqual(await state(), initial)
       if (!episode) await page.screenshot({ path: resolve(output, 'frontend-held-escape-options.png') })

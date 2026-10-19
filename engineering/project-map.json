@@ -2,6 +2,61 @@
   "version": 1,
   "subsystems": [
     {
+      "id": "neutral-canvas-cursor",
+      "title": "Original POINT14 neutral canvas adaptation",
+      "mappingStatus": "inferred",
+      "implementationPaths": [
+        "app/neutral-cursor.ts",
+        "scripts/import-neutral-cursor.py",
+        "public/original/cursor-point14.png",
+        "public/original/cursor-point14.json"
+      ],
+      "researchPaths": [
+        "decomp/research/neutral-canvas-cursor.md",
+        "tests/neutral-cursor.test.mjs"
+      ],
+      "sharedPaths": [
+        "app/scene.ts",
+        "app/scene-entities.ts",
+        "app/unit-animation-source.ts"
+      ],
+      "entrySymbols": [
+        {
+          "path": "app/neutral-cursor.ts",
+          "symbol": "NeutralCanvasCursor"
+        },
+        {
+          "path": "app/neutral-cursor.ts",
+          "symbol": "neutralCanvasState"
+        }
+      ],
+      "parityIds": ["interface.selection"],
+      "evidence": [
+        {
+          "path": "decomp/research/neutral-canvas-cursor.md",
+          "heading": "Original POINT14 in the neutral browser canvas"
+        }
+      ],
+      "nativeAddresses": [
+        "0x47a550",
+        "0x47a8b0",
+        "0x4fca00"
+      ],
+      "checkIds": [
+        "neutral-canvas-cursor"
+      ],
+      "generatedInputIds": [
+        "imported-runtime-data"
+      ],
+      "risks": [
+        "Scoped mouse-cursor ownership must not intercept input or add another roster scan."
+      ],
+      "unresolved": [
+        "Exact native physical override bindings and complete contextual cursor parity.",
+        "Hosted computed-cursor, picking and DPR verification remains parent-owned."
+      ]
+    },
+    {
       "id": "vehicle-passenger-panel",
       "title": "Native vehicle passenger panel and unload",
       "mappingStatus": "inferred",

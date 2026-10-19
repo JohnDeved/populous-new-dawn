@@ -6,6 +6,7 @@ export const FRONTEND_ASSET_TIMEOUT_MS = 10_000
 export interface IngameMenuAssets {
   fonts: boolean
   sliders: boolean
+  tooltip: boolean
   images: readonly HTMLImageElement[]
 }
 
@@ -18,6 +19,7 @@ export interface FrontendAssets {
   background: boolean
   cursor: boolean
   sliders: boolean
+  tooltip: boolean
   images: readonly HTMLImageElement[]
 }
 
@@ -41,6 +43,7 @@ export async function prepareFrontendAssets(): Promise<FrontendAssets> {
       sliders,
       pauseFont,
       ingameSliders,
+      tooltip,
     ] = await Promise.all([
       settle(
         fetch('/original/frontend/composition.bin', { signal: controller.signal })
@@ -62,12 +65,15 @@ export async function prepareFrontendAssets(): Promise<FrontendAssets> {
       settle(images([0, 1, 2].map(frame => `options/frontend-${frame}`))),
       settle(images(['pause-font'])),
       settle(images([0, 1, 2].map(frame => `options/ingame-${frame}`))),
+      // One decoded atlas is shared by both skins and every menu/category mount.
+      settle(images(['world-selector/text/tooltip-font-c'])),
     ])
     return Object.freeze({
       ingame: Object.freeze({
         fonts: pauseFont !== null,
         sliders: ingameSliders !== null,
-        images: Object.freeze([pauseFont, ingameSliders].flatMap(group => group ?? [])),
+        tooltip: tooltip !== null,
+        images: Object.freeze([pauseFont, ingameSliders, tooltip].flatMap(group => group ?? [])),
       }),
       composition,
       fonts: fonts !== null,
@@ -76,8 +82,9 @@ export async function prepareFrontendAssets(): Promise<FrontendAssets> {
       background: background !== null,
       cursor: cursor !== null,
       sliders: sliders !== null,
+      tooltip: tooltip !== null,
       images: Object.freeze(
-        [fonts, lowFont, logo, background, cursor, sliders].flatMap(group => group ?? [])
+        [fonts, lowFont, logo, background, cursor, sliders, tooltip].flatMap(group => group ?? [])
       ),
     })
   } finally {

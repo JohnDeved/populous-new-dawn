@@ -55,10 +55,12 @@ export default async function ({ page, output }) {
         assert.ok(Number(await slider.inputValue()) < 1)
         assert.equal(await slider.evaluate(el => el === document.activeElement), true)
       }
-      await button('Browser compatibility and help').click()
+      await category('Game')
+      await button('Browser compatibility and help').focus()
+      await page.keyboard.press('Enter')
       await keys(skin, 'Back to Options', button('Back to Options'))
       await button('Back to Options').click()
-      assert.equal(await options.getAttribute('data-category'), 'Sound')
+      assert.equal(await options.getAttribute('data-category'), 'Game')
       await button('Back').focus()
       await page.evaluate(() => {
         window.optionsTabPrevented = null

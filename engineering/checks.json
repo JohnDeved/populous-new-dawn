@@ -2,6 +2,52 @@
   "version": 1,
   "checks": [
     {
+      "id": "neutral-canvas-cursor",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate the bounded POINT14 browser cursor adaptation, readiness and scene ownership.",
+      "coveredBehavior": [
+        "Exact source asset dimensions/hash and hotspot",
+        "Neutral-state exclusions, stationary transitions and original inline-style restoration",
+        "Decode failure, timeout, cancellation, blur and disposal; actual scene constructor/readiness/lifecycle statements"
+      ],
+      "knownLimits": [
+        "Mock DOM and image decode; parent-owned hosted cursor/picking/DPR verification remains required.",
+        "Browser adaptation, not complete native contextual cursor-state parity."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/neutral-cursor.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/neutral-cursor.ts",
+        "app/scene.ts",
+        "app/scene-entities.ts",
+        "app/unit-animation-source.ts",
+        "tests/neutral-cursor.test.mjs",
+        "public/original/cursor-point14.png",
+        "public/original/cursor-point14.json",
+        "scripts/import-neutral-cursor.py",
+        "scripts/import-original.py",
+        "decomp/research/neutral-canvas-cursor.md"
+      ],
+      "prerequisites": [
+        "Installed project dependencies",
+        "Node.js >=22.13.0"
+      ],
+      "sideEffects": [
+        "In-process mocked DOM/Image/timers only; reads source and asset files. No network, ports or filesystem writes."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "id": "blast-impact-original-reference",
       "kind": "portable",
       "automation": "manual",

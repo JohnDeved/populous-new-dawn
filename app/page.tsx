@@ -1,6 +1,8 @@
 'use client'
 
+import { FullscreenControl } from './fullscreen-control'
 import { OriginalOptions } from './original-options'
+import { BrowserHelpTips } from './browser-help-tips'
 import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
 import { OriginalLoadingScreen } from './original-loading-screen'
 
@@ -806,7 +808,7 @@ export default function Home() {
     if (
       ready ||
       (event.target as Element).closest(
-        '.loading-world,[data-world-selector],[data-original-main-menu]'
+        '.loading-world,[data-world-selector],[data-original-main-menu],[data-fullscreen-control]'
       )
     )
       return false
@@ -1019,7 +1021,7 @@ export default function Home() {
         if (
           world.inputMask &&
           !(e.target as Element).closest(
-            '.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu]'
+            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu]'
           )
         ) {
           e.preventDefault()
@@ -1030,6 +1032,7 @@ export default function Home() {
           (e.target as Element).closest('button')?.blur()
       }}
     >
+      <FullscreenControl />
       <div className="world-viewport" ref={viewport} />
       <div className="world-vignette" />
       {desktopNotice && (
@@ -1631,7 +1634,10 @@ export default function Home() {
                                                             ? 'Focus mana on Convert Wild, then send three followers to the fault’s Flatten totem before it erupts.'
                                                             : world.outcome.level === 22
                                                               ? 'Restore your magic at the southern stone head, cross the water alone, and steal enemy transport to reach the other tribes.'
-                                                              : "Prepare for the enemy tribes' powerful magic and seek Armageddon."}
+                                                              : world.outcome.level === 18 ||
+                                                                  world.outcome.level === 23
+                                                                ? "Prepare for the enemy tribes' powerful magic and seek Armageddon."
+                                                                : null}
                   </p>
                   <div className="menu-actions">
                     <button
@@ -1724,7 +1730,7 @@ export default function Home() {
                     </select>
                     <span>Fits your window without stretching.</span>
                   </label>
-                  <h3>Your powers, at a glance</h3>
+                  <h3>Controls</h3>
                   <div className="help-grid">
                     <span>Click</span>
                     <strong>Select a follower or give a move / attack order</strong>
@@ -1776,14 +1782,7 @@ export default function Home() {
                     <span>H / F / G / Space / Esc</span>
                     <strong>Shaman / focus / guard shaman / pause / cancel</strong>
                   </div>
-                  <p className="help-tip">
-                    Each spell shows its own casting range. Right-click a rechargeable spell to
-                    pause or resume it and focus mana elsewhere. Worship the southern head for Land
-                    Bridge (four held at once), and the central head for four Lightning gifts. Only
-                    your shaman can learn at the vault. Select braves and click a friendly hut to
-                    house them, or a completed training hut to train them. Builders carry logs from
-                    trees. Followers drown in water; Blast can knock them off a shore.
-                  </p>
+                  <BrowserHelpTips level={world.outcome.level} />
                   <div className="audio-settings">
                     <button
                       className="secondary-button"
@@ -1799,17 +1798,17 @@ export default function Home() {
                   <details className="reference-details">
                     <summary>About this recreation & references</summary>
                     <p>
-                      Level 1: The Journey Begins. Terrain, starting objects and shrine timings were
-                      read from the supplied original level file. Building and tree meshes, texture
-                      coordinates, layered unit animations, HUD artwork and landscape bank c were
-                      decoded from the supplied game archive. The browser renderer approximates the
-                      original lighting, terrain displacement and water animation. Selection voices,
-                      spell cues and combat sounds use the original recordings. Original music and
-                      percussion now play alongside environmental sounds; exact world mixing,
-                      activity ownership and the complete native sound scheduler are still being
-                      reconstructed. Village growth and mana use rules traced from the executable.
-                      Combat state selection, pathfinding and defensive AI still differ from the
-                      original.
+                      Mission 1 reference: The Journey Begins. Terrain, starting objects and shrine
+                      timings were read from the supplied original level file. Building and tree
+                      meshes, texture coordinates, layered unit animations, HUD artwork and
+                      landscape bank c were decoded from the supplied game archive. The browser
+                      renderer approximates the original lighting, terrain displacement and water
+                      animation. Selection voices, spell cues and combat sounds use the original
+                      recordings. Original music and percussion now play alongside environmental
+                      sounds; exact world mixing, activity ownership and the complete native sound
+                      scheduler are still being reconstructed. Village growth and mana use rules
+                      traced from the executable. Combat state selection, pathfinding and defensive
+                      AI still differ from the original.
                     </p>
                     <div>
                       <a

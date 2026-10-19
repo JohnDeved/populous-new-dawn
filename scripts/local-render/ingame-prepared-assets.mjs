@@ -5,14 +5,14 @@ import { bindGame } from '../browser-game.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 
 export default async function ({ page, context, output, url }) {
-  const paths = ['/original/pause-font.png', ...[0, 1, 2].map(n => `/original/options/ingame-${n}.png`)]
+  const paths = ['/original/pause-font.png', ...[0, 1, 2].map(n => `/original/options/ingame-${n}.png`), '/original/world-selector/text/tooltip-font-c.png']
   const mode = process.env.POPULOUS_INGAME_MODE ?? 'healthy'
   assert.ok(['healthy', 'font-failure', 'slider-failure', 'late-font', 'late-sliders'].includes(mode))
   const failed = mode === 'font-failure' ? paths[0] : mode === 'slider-failure' ? paths[2] : null
-  const held = mode === 'healthy' ? paths : mode === 'late-font' ? [paths[0]] : mode === 'late-sliders' ? paths.slice(1) : []
+  const held = mode === 'healthy' ? paths : mode === 'late-font' ? [paths[0]] : mode === 'late-sliders' ? paths.slice(1, 4) : []
   const report = { status: 'running', mode, phases: [], requests: [], releases: [], frozen: [], errors: [], warnings: [],
     limits: ['Actual Home/GameScene via plain React/Vite, not hosted serving/hydration.',
-      'Only pause font and ingame sliders have held real responses. No state/readiness/clock injection.',
+      'Only pause font, ingame sliders and the shared tooltip atlas have held real responses. No state/readiness/clock injection.',
       'Routing disables HTTP cache; warm reopen is same-document reuse. Native decode promises are forwarded.',
       'DOM changes do not alone establish painted frames; separate animation-frame samples are retained.',
       'No original executable, hardware performance, unrelated asset, or CI work.'] }
@@ -110,7 +110,7 @@ export default async function ({ page, context, output, url }) {
     const after=await frozen();assert.deepEqual(after,before,`${name}: clock/world/camera/input freeze`)
     report.frozen.push({name,holdMs:500,keys:['w','ArrowLeft','='],before,after});save()
   }
-  const decodeCount = () => page.evaluate(() => window.ingamePrepared.decodes.filter(d => /pause-font|options\/ingame-/.test(d.src)).length)
+  const decodeCount = () => page.evaluate(() => window.ingamePrepared.decodes.filter(d => /pause-font|options\/ingame-|tooltip-font-c/.test(d.src)).length)
   const expectedFont = !['font-failure', 'late-font'].includes(mode)
   const expectedSliders = !['slider-failure', 'late-sliders'].includes(mode)
   const assertMenu = state => {
@@ -120,7 +120,7 @@ export default async function ({ page, context, output, url }) {
   }
   try {
     await page.goto(url,{waitUntil:'domcontentloaded'})
-    await page.waitForFunction(() => window.ingamePrepared.decodes.filter(d => /pause-font|options\/ingame-/.test(d.src)).length === 4)
+    await page.waitForFunction(() => window.ingamePrepared.decodes.filter(d => /pause-font|options\/ingame-|tooltip-font-c/.test(d.src)).length === 5)
     if (held.length) {
       const loading = await phase('01-startup-assets-held')
       assert.ok(loading.loading);assert.equal(loading.pauseOpen, false)
@@ -161,7 +161,7 @@ export default async function ({ page, context, output, url }) {
     await bindGame(page)
     await page.getByRole('button',{name:/Skip introduction/}).click()
     await page.waitForFunction(()=>!window.testStore.getWorld().inputMask&&window.testStore.getWorld().turn>0)
-    assert.equal(await decodeCount(),4)
+    assert.equal(await decodeCount(),paths.length)
     await button('Game settings').click();await twoFrames()
     assertMenu(await phase('03-cold-pause'));await assertFrozen('cold-pause')
     await button('Options').click();await twoFrames()
@@ -172,7 +172,7 @@ export default async function ({ page, context, output, url }) {
     assertMenu(await phase('06-warm-options'));await assertFrozen('warm-options')
     if (mode.startsWith('late-')) {
       release(held)
-      await page.waitForFunction(() => window.ingamePrepared.decodes.filter(d=>/pause-font|options\/ingame-/.test(d.src)).every(d=>d.status==='resolved'))
+      await page.waitForFunction(() => window.ingamePrepared.decodes.filter(d=>/pause-font|options\/ingame-|tooltip-font-c/.test(d.src)).every(d=>d.status==='resolved'))
       await twoFrames();assertMenu(await phase('07-late-success-still-frozen'))
       await button('Back').click();await button('Options').click();await twoFrames()
       assertMenu(await phase('08-remount-after-late-success'))
@@ -189,8 +189,8 @@ export default async function ({ page, context, output, url }) {
     assert.ok(report.resumed.time-beforeContinue.time<=report.resumed.sinceResume*report.resumed.speed+1/12,'resume must not catch up held modal time')
     await button('Game settings').click();await twoFrames()
     assertMenu(await phase('09-warm-pause'));await assertFrozen('warm-pause')
-    assert.equal(await decodeCount(),4,'cold and warm mounts do not repeat asset decode')
-    assert.equal(report.requests.filter(r=>r.event==='request').length,4,'each menu asset is requested once')
+    assert.equal(await decodeCount(),paths.length,'cold and warm mounts do not repeat asset decode')
+    assert.equal(report.requests.filter(r=>r.event==='request').length,paths.length,'each menu asset is requested once')
     const frames=await page.evaluate(()=>window.ingamePrepared.frames.filter(f=>f.pauseOpen))
     assert.ok(frames.length>=4)
     for(const frame of frames) assertMenu(frame)

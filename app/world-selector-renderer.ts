@@ -25,13 +25,14 @@ in vec2 uv;
 in vec4 color;
 in float specular;
 uniform float pointSize;
+uniform vec2 frameScale;
 out vec2 textureUV;
 out vec4 vertexColor;
 out float vertexSpecular;
 void main() {
   float w = 1.0 / reciprocalW;
-  gl_Position = vec4((position.x / 320.0 - 1.0) * w,
-    (1.0 - position.y / 240.0) * w, (position.z * 2.0 - 1.0) * w, w);
+  gl_Position = vec4((position.x / 320.0 - 1.0) * frameScale.x * w,
+    (1.0 - position.y / 240.0) * frameScale.y * w, (position.z * 2.0 - 1.0) * w, w);
   gl_PointSize = pointSize;
   textureUV = uv; vertexColor = color; vertexSpecular = specular;
 }`
@@ -59,6 +60,8 @@ export class SelectorRenderer {
   private images = new Map<HTMLImageElement, () => void>()
   private stream = new Float32Array(65536 * 11)
   private pointSize: WebGLUniformLocation | null
+  private frameScale: WebGLUniformLocation | null
+  private horizontalExpansion = 0
   private disposed = false
   private stars = createPointStars()
   readonly sun = new SunWobble()
@@ -120,6 +123,7 @@ export class SelectorRenderer {
       }
       gl.uniform1i(gl.getUniformLocation(program, 'surface'), 0)
       this.pointSize = gl.getUniformLocation(program, 'pointSize')
+      this.frameScale = gl.getUniformLocation(program, 'frameScale')
       const white = this.makeTexture('white')
       gl.bindTexture(gl.TEXTURE_2D, white)
       gl.texImage2D(
@@ -205,7 +209,19 @@ export class SelectorRenderer {
       this.canvas.height = height
     }
     this.gl.viewport(0, 0, width, height)
-    this.gl.uniform1f(this.pointSize, width / 640)
+    // Keep the native 640×480 composition at a uniform scale, revealing more
+    // scene horizontally on wide displays rather than stretching the globes.
+    // Use CSS dimensions so DPR and rounded backing sizes cannot move the art
+    // relative to the DOM panel. Point size alone is measured in backing pixels.
+    const logicalScale = Math.min(box.width / 640, box.height / 480)
+    this.horizontalExpansion =
+      logicalScale > 0 ? Math.max(0, (box.width / logicalScale - 640) / 2) : 0
+    this.gl.uniform2f(
+      this.frameScale,
+      (640 * logicalScale) / Math.max(1, box.width),
+      (480 * logicalScale) / Math.max(1, box.height)
+    )
+    this.gl.uniform1f(this.pointSize, logicalScale * scale)
   }
   private submit(
     vertices: readonly SceneVertex[],
@@ -310,7 +326,7 @@ export class SelectorRenderer {
     }
     let batch: SceneVertex[] = []
     for (const star of this.stars) {
-      const vertex = projectStar(star, camera)
+      const vertex = projectStar(star, camera, this.horizontalExpansion)
       if (!vertex) continue
       batch.push(vertex)
       if (batch.length === 128) {

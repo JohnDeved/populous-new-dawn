@@ -18,7 +18,7 @@ export default async function({page,root,output,receipt}) {
  const master=page.getByRole('slider',{name:'Master volume',exact:true});await master.focus();await page.keyboard.press('End');assert.equal(await master.inputValue(),'1')
  if(failure==='storage') {
   const notice=page.getByRole('status').filter({hasText:'browser storage is unavailable'});await notice.waitFor()
-  const text=await notice.boundingBox(),link=await button('Browser compatibility and help').boundingBox();assert.ok(text.y+text.height<link.y)
+  const text=await notice.boundingBox(),navigation=await button('Game').boundingBox();assert.ok(text.y+text.height<navigation.y);assert.equal(await button('Browser compatibility and help').count(),0)
  }
  await page.screenshot({path:resolve(output,`frontend-${failure}-640x480.png`)})
  await page.keyboard.press('Escape');assert.equal(await button('Options').evaluate(b=>b===document.activeElement),true)

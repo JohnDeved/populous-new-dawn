@@ -1,3 +1,4 @@
+import { NeutralCanvasCursor, neutralCanvasState } from './neutral-cursor.ts'
 import { createRuntimeTerrainPicking } from './runtime-terrain-picking.ts'
 import type { SceneUpdateMetrics } from './scene-update-metrics.ts'
 import type { WaterUpdateMetrics } from './water-update-reasons.ts'
@@ -326,9 +327,13 @@ export class GameScene {
     }
   }
   previous: number | null = null
+  private neutralCursor: NeutralCanvasCursor | null = null
+  neutralCursorRosterSelected = true
+  cursorFrameBlocked = true
   modalSuspended = false
   setModalSuspended(suspended: boolean) {
     this.modalSuspended = suspended
+    this.neutralCursor?.reset()
     this.previous = null
     this.keys.clear()
     const pointerId = this.pointerGesture?.pointerId
@@ -492,6 +497,9 @@ export class GameScene {
     this.renderer.domElement.tabIndex = 0
     this.renderer.domElement.className = 'battlefield'
     container.appendChild(this.renderer.domElement)
+    this.neutralCursor = new NeutralCanvasCursor(this.renderer.domElement, () =>
+      neutralCanvasState(this)
+    )
     if (new URLSearchParams(location.search).has('fps')) this.togglePerformance()
     Object.assign(this.pointerOutline.style, {
       position: 'absolute',
@@ -543,7 +551,9 @@ export class GameScene {
     this.camera.position.set(30, 155, 0)
     const terrain = initializeTerrain(this)
     this.terrain = terrain.terrain
-    this.ready = Promise.all([terrain.ready, ...preload]).then(() => undefined)
+    this.ready = Promise.all([terrain.ready, ...preload, this.neutralCursor?.ready]).then(
+      () => undefined
+    )
     this.selectionOverlay = new SelectionOverlay(texture('atlas'), this.view)
     this.selectionOverlay.material.uniforms.dragActive = this.dragActive
     this.scene.add(this.selectionOverlay)
@@ -854,6 +864,7 @@ export class GameScene {
   }
   animate = (now: number) => {
     if (!this.isCurrent()) {
+      this.neutralCursor?.reset()
       this.cancelNearbyFollowers()
       this.nearbyFollowers?.reset()
       return
@@ -885,6 +896,7 @@ export class GameScene {
     // Pause menus freeze the entire presentation, not ordinary Space pause.
     // Keep sampling timestamps so resuming never catches up suspended wall time.
     if (this.modalSuspended) {
+      this.neutralCursor?.reset()
       const renderStart = diagnostic ? performance.now() : 0
       if (diagnostic)
         diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
@@ -918,7 +930,7 @@ export class GameScene {
     if (sceneUpdates) sceneUpdates.terrainCpuMs = performance.now() - terrainStart
     this.updateDecorationsFrame()
     const cameraOwnsFrame = this.updateCameraMotion(dt)
-    if (
+    this.cursorFrameBlocked = !!(
       cameraOwnsFrame ||
       this.world.paused ||
       this.world.inputMask ||
@@ -929,7 +941,7 @@ export class GameScene {
       document.hidden ||
       document.querySelector('dialog[open]')
     )
-      this.cancelTooltipInspection()
+    if (this.cursorFrameBlocked) this.cancelTooltipInspection()
     if (!cameraOwnsFrame && !this.updateFlyby(dt)) this.updateView()
     this.updateUnitsFrame()
     updateVehiclesFrame(this)
@@ -940,6 +952,7 @@ export class GameScene {
     const spec = SPELLS.find(s => s.id === this.world.mode)
     const pointerStart = diagnostic ? performance.now() : 0
     this.updatePointerFrame(now, pointerMetrics)
+    this.neutralCursor?.update()
     const pointerMs = diagnostic ? performance.now() - pointerStart : 0
     let hovered: Parameters<typeof renderSceneFrame>[1] =
       this.hoveredObject === null ? null : worldTooltipObject(this.world, this.hoveredObject)
@@ -1034,6 +1047,8 @@ export class GameScene {
   dispose() {
     if (this.disposed) return
     this.disposed = true
+    this.neutralCursor?.dispose()
+    this.neutralCursor = null
     this.cancelNearbyFollowers()
     this.nearbyFollowers?.reset()
     this.onNearbyFollowersCancel = undefined

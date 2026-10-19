@@ -4,6 +4,7 @@
 // GameScene/RenderView/ScenePicking/model method or ownership helper is replaced.
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { getEventListeners } from 'node:events'
 import { readFileSync, existsSync } from 'node:fs'
 import { registerHooks, stripTypeScriptTypes } from 'node:module'
 import * as THREE from 'three'
@@ -67,8 +68,27 @@ registerHooks({
   },
 })
 const noop = () => {}
-class Element extends EventTarget {
-  style = {}
+// Node24 EventTarget does not remove boolean-capture registrations as browser
+// DOM EventTarget does. Normalize the DOM boolean shorthand at this leaf.
+class DomEventTarget extends EventTarget {
+  addEventListener(name, listener, options) {
+    super.addEventListener(name, listener, typeof options === 'boolean' ? { capture: options } : options)
+  }
+  removeEventListener(name, listener, options) {
+    super.removeEventListener(name, listener, typeof options === 'boolean' ? { capture: options } : options)
+  }
+}
+class Element extends DomEventTarget {
+  constructor(ownerDocument = globalThis.document) {
+    super()
+    this.ownerDocument = ownerDocument
+  }
+  style = {
+    getPropertyValue(name) { return this[name] ?? '' },
+    getPropertyPriority() { return '' },
+    setProperty(name, value) { this[name] = value },
+    removeProperty(name) { delete this[name] },
+  }
   dataset = {}
   children = []
   classList = { add: noop, remove: noop, toggle: noop }
@@ -154,20 +174,37 @@ test('real constructor owns first null-index query, production render and perman
   const requests = [],
     oldLoad = THREE.TextureLoader.prototype.load
   set('__runtimeConstructorRenderer', Renderer)
-  set('document', {
-    createElement: () => new Element(),
-    createElementNS: () => new Element(),
-    documentElement: new Element(),
-    body: new Element(),
+  // Canvas ownership and listener leaves match the browser DOM. The real
+  // NeutralCanvasCursor prepares/cleans itself; no production cursor bypass.
+  const doc = new DomEventTarget()
+  doc.defaultView = new DomEventTarget()
+  set('document', doc)
+  Object.assign(doc, {
+    createElement: () => new Element(doc),
+    createElementNS: () => new Element(doc),
+    documentElement: new Element(doc),
+    body: new Element(doc),
     querySelector: () => null,
+    hasFocus: () => true,
+    elementFromPoint: () => null,
     hidden: false,
   })
+  const decodedCursors = []
   set(
     'Image',
     class extends EventTarget {
       complete = false
       width = 256
       height = 256
+      src = ''
+      get naturalWidth() { return this.src === '/original/cursor-point14.png' ? 17 : 256 }
+      get naturalHeight() { return this.src === '/original/cursor-point14.png' ? 17 : 256 }
+      async decode() {
+        assert.equal(this.src, '/original/cursor-point14.png')
+        decodedCursors.push(this)
+        this.complete = true
+      }
+      removeAttribute(name) { if (name === 'src') this.src = '' }
     }
   )
   set(
@@ -206,6 +243,10 @@ test('real constructor owns first null-index query, production render and perman
   const scenes = []
   t.after(() => {
     for (const scene of scenes) scene.dispose()
+    assert.ok(decodedCursors.every(image => image.src === ''), 'Disposed scenes release prepared cursor images')
+    for (const name of ['pointerover', 'pointermove', 'pointerdown', 'pointerup', 'focusin', 'visibilitychange', 'keydown'])
+      assert.equal(getEventListeners(doc, name).length, 0, `Disposed document listener: ${name}`)
+    assert.equal(getEventListeners(doc.defaultView, 'blur').length, 0)
     THREE.TextureLoader.prototype.load = oldLoad
     for (const [name, descriptor] of saved) {
       if (descriptor) Object.defineProperty(globalThis, name, descriptor)
@@ -242,6 +283,8 @@ test('real constructor owns first null-index query, production render and perman
   }
   const base = await make(BaselineScene),
     scene = await make(GameScene)
+  assert.equal(decodedCursors.length, BaselineScene === GameScene ? 2 : 1)
+  assert.equal(getEventListeners(doc, 'pointermove').length, decodedCursors.length)
   if (BaselineScene === GameScene) releaseRuntimeTerrainPicking(base.view)
   assert.equal(Object.getPrototypeOf(scene), GameScene.prototype)
   assert.equal(runtimeTerrainPicking(scene.view, scene.terrain), true)

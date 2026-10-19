@@ -4,7 +4,8 @@ import { resolve } from 'node:path'
 
 const assetPaths = ['frontend/composition.bin', 'frontend/feft33we.png', 'frontend/fehi33we.png',
   'frontend/felo33we.png', 'frontend/felgspen.png', 'frontend/background.png', 'frontend/pointer.png',
-  'options/frontend-0.png', 'options/frontend-1.png', 'options/frontend-2.png'].map(path => `/original/${path}`)
+  'options/frontend-0.png', 'options/frontend-1.png', 'options/frontend-2.png',
+  'world-selector/text/tooltip-font-c.png'].map(path => `/original/${path}`)
 
 // Gate actual responses; observe native decode promises without injecting readiness.
 export default async function ({ page, context, output, url }) {
@@ -122,14 +123,14 @@ export default async function ({ page, context, output, url }) {
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     if (held.length) {
-      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\//.test(entry.src) || /options\/frontend-/.test(entry.src)).length === 9)
+      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\//.test(entry.src) || /options\/frontend-|tooltip-font-c/.test(entry.src)).length === 10)
       const loading = await phase('01-loading')
       assert.equal(loading.loading, true);assert.equal(loading.menuOpen, false)
       assert.ok((await page.locator('.loading-world').innerText()).trim().length > 0)
     }
     if (mode === 'healthy') {
       release(held.filter(path => !path.endsWith('.bin')))
-      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\//.test(entry.src) || /options\/frontend-/.test(entry.src)).every(entry => entry.status === 'resolved'))
+      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\//.test(entry.src) || /options\/frontend-|tooltip-font-c/.test(entry.src)).every(entry => entry.status === 'resolved'))
       await twoFrames()
       const partial = await phase('02-composition-held')
       assert.equal(partial.loading, true);assert.equal(partial.menuOpen, false)
@@ -181,7 +182,7 @@ export default async function ({ page, context, output, url }) {
     assert.equal(report.requests.filter(entry => entry.event === 'request' && assetPaths.includes(entry.path)).length, requestsBeforeReopen)
     if (timeout) {
       release(held)
-      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\//.test(entry.src) || /options\/frontend-/.test(entry.src)).every(entry => entry.status === 'resolved'))
+      await page.waitForFunction(() => window.uiPrepared.decodes.filter(entry => /frontend\//.test(entry.src) || /options\/frontend-|tooltip-font-c/.test(entry.src)).every(entry => entry.status === 'resolved'))
       await twoFrames()
       const late = await phase('06-late-success-frozen')
       assert.deepEqual(flags(late), flags(warm))
@@ -201,7 +202,7 @@ export default async function ({ page, context, output, url }) {
     const entries = visible.filter(sample => sample.optionsOpen && sample.category === 'Game')
     assert.ok(entries.length >= 2)
     if (entries.length > 1) assert.equal(new Set(entries.map(sample => sample.canvasRow139Hash)).size, 1)
-    assert.equal(report.requests.filter(entry => entry.event === 'request' && assetPaths.includes(entry.path)).length, 10)
+    assert.equal(report.requests.filter(entry => entry.event === 'request' && assetPaths.includes(entry.path)).length, assetPaths.length)
     const unexpected = report.errors.filter(error => !(failed && error.kind === 'console' &&
       error.location?.url?.endsWith(failed) && error.message.includes('404')))
     assert.deepEqual(unexpected, [])

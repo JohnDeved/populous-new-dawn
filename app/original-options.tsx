@@ -5,6 +5,7 @@ import type { FrontendTextRow } from './frontend-composition'
 import type { FrontendAssets, IngameMenuAssets } from './frontend-assets'
 import type { GamePreferences } from './game-preferences'
 import styles from './original-options.module.css'
+import { MenuTooltip } from './menu-tooltip'
 
 interface OriginalOptionsProps {
   preparedFrontend?: FrontendAssets
@@ -113,6 +114,10 @@ export function OriginalOptions({
     : textSkin === skin
   const slidersReady = prepared ? prepared.sliders : sliderSkin === skin
   const root = useRef<HTMLElement>(null)
+  const audioHelp =
+    skin === 'frontend'
+      ? 'Enable audio from the battlefield menu.'
+      : 'Enable audio in Browser compatibility and help.'
   const masterText = `Master volume : <${Math.round(volume * 100)}%>`
   const musicText = `Music volume : <${Math.round(musicVolume * 100)}%>`
   const gameRows = useMemo(
@@ -132,6 +137,7 @@ export function OriginalOptions({
       },
       { id: 'staySelected', text: 'Stay Selected : <Unavailable>', x: 320, y: 229 },
       { id: 'autocastSpell', text: 'Autocast Spell : <Unavailable>', x: 320, y: 259 },
+      { id: 'compatibility', text: 'Browser compatibility and help', x: 320, y: 289 },
     ],
     [gamePreferences.rotation, gamePreferences.flipRotation]
   )
@@ -236,7 +242,7 @@ export function OriginalOptions({
     y: number,
     action: () => void,
     selected = false,
-    options: { id?: string; wide?: boolean } = {}
+    options: { id?: string; wide?: boolean; help?: string } = {}
   ) {
     const position = { left: x, top: y }
     const id = options.id ?? text
@@ -261,7 +267,10 @@ export function OriginalOptions({
         style={position}
         aria-label={text}
         data-option-key={id}
+        data-compatibility={id === 'compatibility' || undefined}
         data-panel-back={text === 'Back' || undefined}
+        data-menu-tooltip={options.help}
+        aria-description={options.help}
         onPointerEnter={() => setHighlight(id)}
         onPointerLeave={() => setHighlight(null)}
         onFocus={() => setHighlight(id)}
@@ -298,9 +307,15 @@ export function OriginalOptions({
         <>
           {category === 'Game' && (
             <>
-              {gameRows.map(row =>
-                row.id === 'rotation' || row.id === 'flipRotation' ? (
-                  choice(
+              {gameRows.map(row => {
+                if (row.id === 'compatibility') {
+                  return choice(row.text, row.x, row.y, () => setBrowser(true), false, {
+                    id: row.id,
+                    wide: true,
+                  })
+                }
+                if (row.id === 'rotation' || row.id === 'flipRotation') {
+                  return choice(
                     row.text,
                     row.x,
                     row.y,
@@ -315,24 +330,31 @@ export function OriginalOptions({
                           : { ...gamePreferences, flipRotation: !gamePreferences.flipRotation }
                       ),
                     false,
-                    { id: row.id, wide: true }
+                    {
+                      id: row.id,
+                      wide: true,
+                      help:
+                        row.id === 'rotation'
+                          ? 'Choose arrow-key rotation with or without Control.'
+                          : 'Reverse keyboard rotation direction.',
+                    }
                   )
-                ) : (
+                }
+                return (
                   <div
                     key={row.id}
                     className={styles.soundLabel}
                     style={{ top: row.y }}
                     role="note"
+                    tabIndex={0}
+                    data-menu-tooltip="This setting is not available in the browser version."
+                    aria-description="This setting is not available in the browser version."
                     aria-label={row.text}
                   >
                     {label(row.text)}
                   </div>
                 )
-              )}
-              <p className={styles.notice}>
-                Rotation and Flip Rotation change keyboard controls. Tooltips, Stay Selected and
-                Autocast Spell settings are not yet available.
-              </p>
+              })}
               {gameStorageNotice && (
                 <p className={styles.storage} role="status">
                   {gameStorageNotice}
@@ -355,6 +377,8 @@ export function OriginalOptions({
                 style={{ top: 169 }}
                 id={`${skin}-master`}
                 aria-label="Master volume"
+                data-menu-tooltip={`Master volume also affects music. ${audioHelp}`}
+                aria-description={`Master volume also affects music. ${audioHelp}`}
                 type="range"
                 min="0"
                 max="1"
@@ -375,6 +399,8 @@ export function OriginalOptions({
                 style={{ top: 229 }}
                 id={`${skin}-music`}
                 aria-label="Music volume"
+                data-menu-tooltip={audioHelp}
+                aria-description={audioHelp}
                 type="range"
                 min="0"
                 max="1"
@@ -385,14 +411,14 @@ export function OriginalOptions({
               <div
                 className={styles.soundLabel}
                 style={{ top: 259 }}
+                role="note"
+                tabIndex={0}
+                data-menu-tooltip="Sound quality selection is not available in the browser version."
+                aria-description="Sound quality selection is not available in the browser version."
                 aria-label="Sound quality unavailable"
               >
                 {label('Sound quality : <Unavailable>')}
               </div>
-              <p className={styles.notice}>
-                Browser volume controls. Master also affects music. Audio starts when enabled
-                in-game.
-              </p>
               {storageNotice && (
                 <p className={styles.storage} role="status">
                   {storageNotice}
@@ -408,23 +434,16 @@ export function OriginalOptions({
                   className={styles.soundLabel}
                   style={{ top: row.y }}
                   role="note"
+                  tabIndex={0}
+                  data-menu-tooltip="This graphics setting is not available in the browser version."
+                  aria-description="This graphics setting is not available in the browser version."
                   aria-label={row.text}
                 >
                   {label(row.text)}
                 </div>
               ))}
-              <p className={styles.notice}>
-                These original graphics controls are unavailable in this browser version.
-              </p>
             </>
           )}
-          <button
-            className={styles.browserLink}
-            data-compatibility
-            onClick={() => setBrowser(true)}
-          >
-            Browser compatibility and help
-          </button>
           <nav aria-label="Options categories">
             {categories.map((text, index) =>
               choice(text, 170 + index * 150, 420, () => select(text), category === text)
@@ -442,6 +461,7 @@ export function OriginalOptions({
               )}
           </nav>
           {choice('Back', 320, 454, onBack)}
+          <MenuTooltip key={category} container={root} ready={prepared?.tooltip ?? false} />
         </>
       )}
     </section>

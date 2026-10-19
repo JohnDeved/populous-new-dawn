@@ -96,3 +96,45 @@ and three distinct Escapes return one level each without duplicate cancellation.
 [Comparable before/after screenshots](../../references/ui-options/README.md) retain
 exact capture commits and limitations. Native defaults, Game/Graphics/Direct3D
 adapters, sound-quality behavior and full original settings persistence remain open.
+
+
+## October 19, 2026: quiet Options presentation
+
+The original Game/Sound/Graphics/Direct3D composition no longer carries permanent
+browser explanatory paragraphs. Essential unavailable-setting, keyboard-rotation,
+and audio guidance uses the shared selector-style tooltip with its existing dwell,
+placement, settled typography and readable fallback. Unsupported rows remain inert
+notes with explicit Unavailable labels; they now receive keyboard focus so their
+same explanation is available without a pointer. Accessible descriptions retain
+that explanation independently of the visual tooltip. Category changes remount the
+tooltip, and entering browser help unmounts it, preventing stale row guidance.
+
+Browser compatibility and help remains a separate, explicitly browser-only
+accessible destination, but its entry uses transparent gold serif text instead of
+the generic dark button. The destination, all supported controls, persisted values,
+storage-failure notices, Escape/Back navigation and audio retry are unchanged.
+This is presentation cleanup, not a native option implementation or new parity claim.
+Source/fixture tests cover both skins and all categories; current rendered evidence
+must come from the parent's hosted checks because local browser execution is blocked.
+
+
+## October 19, 2026: browser help belongs in Game
+
+The user's later direction supersedes the separate browser-help link described
+above. Browser compatibility and help is now a normal selectable sixth Game row,
+at (320,289), following the existing 30-pixel row interval. The explicit Browser
+label remains a compatibility adaptation, not a newly claimed original option.
+Sound, Graphics and Direct3D have no duplicate help link. The row uses the same
+native text, highlight, focus and indexed-shadow inventory as the supported Game
+choices; its 448-pixel glyph string fits the existing 540-pixel choice hit target.
+The row clears the storage notice at338 and category navigation at420. Both skins
+retain the exact accessible label and separate destination. Back/Escape returns
+focus to that Game row. Existing public browser helpers now select Game before
+opening help where they previously entered from Sound.
+
+Focused source/interaction fixtures check row inventory, highlight/activation,
+Back focus, native glyph bounds and uniform standard/wide/high-DPI scaling. The
+hosted helper adds actual Enter/Escape and row-geometry witnesses but is not local
+rendered evidence until executed. Gameplay, settings values and storage semantics
+are unchanged. The independent tooltip startup-readiness patch is composed by the
+parent, not duplicated in this change.

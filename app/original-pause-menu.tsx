@@ -231,6 +231,13 @@ export function OriginalPauseMenu(props: Props) {
     'quit-game': { question: 'Quit Game?', action: props.onQuitGame },
   }
   const confirmation = confirmations[panel]
+  const quitWarning =
+    panel === 'quit-level' || panel === 'quit-game'
+      ? [
+          panel === 'quit-level' ? 'Return to world selection.' : 'Return to the main menu.',
+          'Unsaved progress will be lost.',
+        ]
+      : null
   const panelTitles: Partial<Record<Panel, string>> = {
     save: 'Save Game',
     load: 'Load Game',
@@ -256,6 +263,7 @@ export function OriginalPauseMenu(props: Props) {
       ref={dialog}
       className={styles.dialog}
       aria-label="Game menu"
+      aria-describedby={quitWarning ? 'pause-quit-warning' : undefined}
       data-original-pause-menu
       data-panel={panel}
       style={{ '--frontend-scale': scale } as CSSProperties}
@@ -310,11 +318,14 @@ export function OriginalPauseMenu(props: Props) {
             <h2 className={styles.question} aria-label={confirmation.question}>
               <MenuText text={confirmation.question} highlighted={false} ready={ready} />
             </h2>
-            {panel !== 'restart' && (
-              <p className={styles.adaptation}>
-                {panel === 'quit-level'
-                  ? 'Return to world selection. Unsaved progress will be lost.'
-                  : 'Return to the main menu. Unsaved progress will be lost. Close the browser tab to leave the game.'}
+            {quitWarning && (
+              <p id="pause-quit-warning" className={styles.quitWarning}>
+                <span className={styles.visuallyHidden}>{quitWarning.join(' ')}</span>
+                {quitWarning.map(line => (
+                  <span key={line} className={styles.warningLine} aria-hidden="true">
+                    <MenuText text={line} highlighted={false} ready={ready} />
+                  </span>
+                ))}
               </p>
             )}
           </>

@@ -1,19 +1,40 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import ts from 'typescript'
 import { createWorld } from '../app/world-initialization.ts'
 import { frontendRowY, frontendTextWidth } from '../app/frontend-composition.ts'
+import { menuTooltipPosition } from '../app/menu-tooltip-layout.ts'
 import { evaluatePage, pageEffect, pageNode, pageSource } from './support/follower-nearby-page.mjs'
 
 // Actual Home effect/JSX and menu component, with synthetic hooks and IndexedDB.
 // Rendering, browser storage, and native dialog focus remain separate browser gates.
+// Retain the real component identity at this structural JSX boundary. The
+// evaluator intentionally does not mount children: tooltip effects/rendering are
+// exercised by menu-tooltip.test.mjs, not silently replaced with a null stub.
+const require = createRequire(import.meta.url)
+const tooltipModule = { exports: {} }
+const tooltipJavascript = ts.transpileModule(
+  readFileSync(new URL('../app/menu-tooltip.tsx', import.meta.url), 'utf8'),
+  { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true,
+    jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 } }
+).outputText
+new Function('require', 'exports', tooltipJavascript)(name => {
+  if (name === 'react' || name === 'react/jsx-runtime') return require(name)
+  if (name === '../public/original/world-selector/text/provenance.json') return require(name)
+  if (name === './menu-tooltip-layout') return { menuTooltipPosition }
+  if (name === './menu-tooltip.module.css') return { tooltip: 'tooltip' }
+  throw new Error(`Unexpected tooltip dependency: ${name}`)
+}, tooltipModule.exports)
+const { MenuTooltip } = tooltipModule.exports
+
 const menuSource = ts.createSourceFile('menu.tsx', readFileSync(new URL('../app/original-main-menu.tsx', import.meta.url), 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
 const menuFunction = menuSource.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'OriginalMainMenu')
 const renderMenu = evaluatePage(menuFunction.getText(menuSource).replace(/^export /, ''), {
   useRef: current => ({ current }), useState: value => [value, () => {}],
   useEffect: () => {}, useLayoutEffect: () => {}, useCallback: callback => callback,
-  styles: new Proxy({}, { get: (_, name) => name }), MenuText: 'MenuText',
+  styles: new Proxy({}, { get: (_, name) => name }), MenuText: 'MenuText', MenuTooltip,
   frontendRowY, frontendTextWidth,
 })
 const homeMenu = pageNode(node => ts.isJsxSelfClosingElement(node) && node.tagName.getText(pageSource) === 'OriginalMainMenu')
@@ -110,7 +131,7 @@ for (const failure of ['open', 'abort']) test(`actual Home ${failure} failure ex
     assert.equal(store.getCheckpointReadStatus(), 'failed')
     const failed = menu(store), load = button(failed, 'Load Game'), retry = button(failed, 'Retry checkpoint lookup')
     assert.equal(load.props['aria-disabled'], true)
-    assert.equal(load.props.title, 'Saved checkpoint could not be read')
+    assert.equal(load.props['aria-description'], 'Saved checkpoint could not be read')
     assert.match(text(failed), /may still be available/)
     assert.ok(retry && !retry.props.disabled)
     retry.props.onClick()
@@ -145,7 +166,7 @@ test('genuine empty and unusable records are read results, not a failed lookup o
       await open(); await read()
       assert.equal(store.getCheckpointReadStatus(), 'read')
       assert.equal(store.hasCheckpoint(), false)
-      assert.equal(button(menu(store), 'Load Game').props.title, 'No usable saved checkpoint')
+      assert.equal(button(menu(store), 'Load Game').props['aria-description'], 'No usable saved checkpoint')
       assert.equal(button(menu(store), 'Retry checkpoint lookup'), undefined)
       assert.deepEqual(writes, [])
       home.cleanup()
@@ -212,7 +233,7 @@ test('unsupported storage ends startup, explains session saves, and permits memo
     await settle()
     assert.deepEqual(home.states, ['choice'])
     assert.equal(store.getCheckpointReadStatus(), 'unavailable')
-    assert.equal(button(menu(store), 'Load Game').props.title, 'Browser storage is unavailable')
+    assert.equal(button(menu(store), 'Load Game').props['aria-description'], 'Browser storage is unavailable')
     assert.equal(button(menu(store), 'Retry checkpoint lookup'), undefined)
     store.getWorld().turn = 313
     assert.equal(await store.saveCheckpoint(), false)
@@ -223,5 +244,25 @@ test('unsupported storage ends startup, explains session saves, and permits memo
     home.cleanup()
   } finally {
     if (previous) Object.defineProperty(globalThis, 'indexedDB', previous)
+  }
+})
+
+test('checkpoint menu retains real tooltip identity, current availability key and frame binding', () => {
+  assert.equal(typeof MenuTooltip, 'function')
+  for (const status of ['pending', 'read', 'failed', 'unavailable']) {
+    for (const hasCheckpoint of [false, true]) {
+      const tree = menu({ hasCheckpoint: () => hasCheckpoint, getCheckpointReadStatus: () => status })
+      const tooltip = nodes(tree).filter(node => node.type === MenuTooltip)
+      assert.equal(tooltip.length, 1, 'production tooltip remains in the real menu JSX')
+      assert.equal(tooltip[0].props.key, `${hasCheckpoint}:${status}`)
+      const frame = nodes(tree).find(node => node.type === 'div' && node.props.className === 'frame')
+      assert.equal(tooltip[0].props.container, frame.props.ref)
+      const load = button(tree, 'Load Game')
+      assert.equal(load.props['aria-disabled'], !hasCheckpoint)
+      assert.equal(load.props.title, undefined, 'browser tooltip must not duplicate the native presentation')
+      assert.equal(load.props['data-menu-tooltip'], load.props['aria-description'])
+      if (hasCheckpoint) assert.equal(load.props['aria-description'], undefined)
+      else assert.equal(typeof load.props['aria-description'], 'string')
+    }
   }
 })

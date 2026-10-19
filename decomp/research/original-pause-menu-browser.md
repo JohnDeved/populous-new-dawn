@@ -54,8 +54,13 @@ Save checkpoint action. Its pause override affects only the clone, never the liv
 world. Persistent versus session-only saves are reported. Explicit browser Load
 continues the existing auto-resume behavior, including a checkpoint saved while
 already paused. Original multi-slot file compatibility remains unimplemented.
-Quit Level returns to world selection; Quit Game returns to the main menu and
-explains that closing the browser tab exits. Neither pretends to terminate the browser.
+Quit Level returns to world selection; Quit Game returns to the main menu. Neither pretends to terminate the browser.
+The browser destination and unsaved-progress warning use two centered lines of the
+same in-game F00T9 atlas below the native confirmation rows (y262/y292). This wording
+and placement are browser adaptations, not recovered native text. The warning has
+an accessible text description and the existing readable font fallback. The redundant
+browser-tab instruction is omitted from this in-game confirmation; native question,
+Yes/No/Back anchors and the confirmation/cancel behavior remain unchanged.
 
 ### Checkpoint lookup recovery
 

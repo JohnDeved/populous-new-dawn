@@ -53,6 +53,9 @@ function fixture(initialSkin, preparedFrontend, preparedIngame) {
   }
   const component = { exports: {} }
   new Function('require', 'module', 'exports', 'Image', emitted)(name => {
+    // Tooltip lifecycle/art is covered by menu-tooltip.test.mjs; this fixture
+    // renders only the Options owner and leaves child components unevaluated.
+    if (name === './menu-tooltip') return { MenuTooltip: () => null }
     if (name === 'react') return react
     if (name === 'react/jsx-runtime') return require(name)
     if (name.endsWith('.json')) return JSON.parse(readFileSync(new URL('../app/' + name.slice(2), import.meta.url)))
@@ -74,7 +77,8 @@ function fixture(initialSkin, preparedFrontend, preparedIngame) {
       : skin === 'frontend' ? request.src.includes('/frontend/') : request.src.includes('/pause-font.'))
   }
   function state() {
-    const texts = tree(output).filter(node => typeof node?.type === 'function' && 'ready' in node.props)
+    // Inspect the Options label font owner, not the independently prepared tooltip.
+    const texts = tree(output).filter(node => node?.type?.name === 'Text')
     assert.ok(texts.length)
     return { text: texts.every(node => node.props.ready), sliders: output.props['data-art-ready'], rows: publications.at(-1) }
   }

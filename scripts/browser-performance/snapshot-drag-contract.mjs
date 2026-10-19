@@ -15,7 +15,7 @@ export const dragContract = Object.freeze({ version: 2, phase: 'native-view-drag
   sourceContract: 'atomic exact generic/owned routing profiles; projection kernel remains reviewable',
   limitation: 'Endpoint witnesses and source-owner binding do not observe transient unversioned mutation inside a query.',
 })
-// Both profiles are whole reviewed routes, not independent per-owner alternatives.
+// Profiles are whole reviewed routes, not independent per-owner alternatives.
 export const dragSourceSlices = Object.freeze([
   {
     "id": "input-move",
@@ -181,10 +181,20 @@ export const dragSourceProfiles = Object.freeze([
   Object.freeze({ id: 'generic-terrain-v1', slices: dragSourceSlices }),
   Object.freeze({ id: 'owned-numeric-terrain-v1', slices: Object.freeze(dragSourceSlices.map(
     slice => Object.freeze(ownedRouteOverrides[slice.id] ?? slice))) }),
+  // The neutral browser cursor adds lifecycle resets and a post-pointer update.
+  // Keep historical profiles exact; this route binds both changed frame order
+  // and the complete cursor owner. See neutral-canvas-cursor.md source review.
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-v1', slices: Object.freeze([
+    ...dragSourceSlices.map(slice => Object.freeze(slice.id === 'frame-order'
+      ? { ...slice, sha256: '27ed72fea09df7d40a3e632ca56da9aa487a2df73dc950655f74bf1bb7b93adf' }
+      : ownedRouteOverrides[slice.id] ?? slice)),
+    Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
+      sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
+  ]) }),
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {
-  // Cache success AND failure once across both attempts. A missing path is not
+  // Cache success AND failure once across all profile attempts. A missing path is not
   // interchangeable with an unreadable, empty, non-string or oversized source.
   const files = new Map()
   const file = path => {
