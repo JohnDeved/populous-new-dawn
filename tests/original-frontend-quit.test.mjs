@@ -80,3 +80,25 @@ test('frontend Escape prevents native dismissal and always reuses the existing b
   assert.equal(pointerMode.current,false);assert.equal(drawn,1);assert.equal(returned,1);assert.equal(prevented,1)
  }
 })
+
+test('browser Quit warning uses the prepared native font and retains truthful accessible guidance',()=>{
+ const main=readFileSync(new URL('../app/original-main-menu.tsx',import.meta.url),'utf8')
+ const css=readFileSync(new URL('../app/original-main-menu.module.css',import.meta.url),'utf8')
+ const warning=main.slice(main.indexOf('<p id="frontend-quit-guidance"'),main.indexOf('</p>',main.indexOf('<p id="frontend-quit-guidance"')))
+ assert.match(warning,/styles.visuallyHidden/)
+ assert.match(warning.replace(/\s+/g,' '),/Yes is unavailable in this browser\. Close this browser tab to quit\. Unsaved progress will be lost\. Only checkpoints successfully saved to browser storage will remain after closing it\./)
+ assert.match(warning,/<MenuText text=\{line\} highlighted=\{false\} low ready=\{questionReady\}/)
+ assert.match(warning,/styles.warningLine\} aria-hidden="true"/)
+ assert.match(main,/aria-labelledby="frontend-quit-question"\s+aria-describedby="frontend-quit-guidance"/)
+ assert.match(main,/disabled=\{row.text === 'Yes'\}/)
+ assert.match(main,/onClick=\{row.text === 'Yes' \? undefined : back\}/)
+ assert.doesNotMatch(css.match(/\.quitGuidance\s*\{[^}]+\}/)[0],/sans-serif|font:/)
+ const lines=[...warning.matchAll(/'([^']+)'/g)].map(match=>match[1])
+ assert.deepEqual(lines,['Close this browser tab to quit.','Unsaved progress will be lost.'])
+ for(const line of lines){
+  const glyphs=[...line].map(c=>assets.banks.felo33we.rects[c.charCodeAt(0)-32])
+  assert.ok(glyphs.every(Boolean));assert.ok(glyphs.every(glyph=>glyph.h<=30))
+  const width=glyphs.reduce((sum,glyph)=>sum+glyph.w,0)
+  assert.equal(width,frontendTextWidth(line));assert.ok(width<=600)
+ }
+})

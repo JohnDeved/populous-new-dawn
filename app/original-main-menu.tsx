@@ -523,6 +523,7 @@ export function OriginalMainMenu({
           <section
             className={styles.quit}
             aria-labelledby="frontend-quit-question"
+            aria-describedby="frontend-quit-guidance"
             data-original-quit-menu
           >
             <h2
@@ -565,8 +566,16 @@ export function OriginalMainMenu({
               ))}
             </nav>
             <p id="frontend-quit-guidance" className={styles.quitGuidance}>
-              Yes is unavailable in this browser. Close this browser tab to quit. Only checkpoints
-              successfully saved to browser storage will remain after closing it.
+              <span className={styles.visuallyHidden}>
+                Yes is unavailable in this browser. Close this browser tab to quit. Unsaved progress
+                will be lost. Only checkpoints successfully saved to browser storage will remain
+                after closing it.
+              </span>
+              {['Close this browser tab to quit.', 'Unsaved progress will be lost.'].map(line => (
+                <span key={line} className={styles.warningLine} aria-hidden="true">
+                  <MenuText text={line} highlighted={false} low ready={questionReady} />
+                </span>
+              ))}
             </p>
           </section>
         )}
