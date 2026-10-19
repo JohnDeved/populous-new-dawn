@@ -1338,7 +1338,12 @@ function stepTurn(w: World, metrics?: { steps: number }) {
     }
     if (u.hp <= 0) continue
     if (armageddon && (armageddon.phase < 2 || u.native?.state === 39)) continue
-    if (u.native?.state === 14) continue
+    if (u.native?.state === 14) {
+      // 0x4ec6f0 increments class_counter before dispatch, including AI reservation.
+      // Its remaining preparation/physics and state-14 controller are still pending.
+      u.native.counter = (u.native.counter + 1) & 255
+      continue
+    }
     const recovering = u.native ?? u.entry?.person
     if (recovering?.state === 33) {
       stepLivePhysics(w, u, recovering)
