@@ -1923,7 +1923,7 @@ export function stepComputerTasks(w: World, tribe: number) {
     if (task.type === 20) {
       let selection: ReturnType<typeof computerSelectionWorld> | undefined,
         loadedOrigin: number | undefined
-      if (w.ai.constructionBase === undefined && [1, 2, 3, 6].includes(w.outcome.level)) {
+      if (w.ai.constructionBase === undefined && [1, 2, 3, 4, 6].includes(w.outcome.level)) {
         const team = campaignTeam(w, tribe)
         if (team === 'wild') throw new Error('Invalid computer staging tribe')
         // 0x485b00 retains the loaded Shaman cell at tribe+0x5a2. These missions
