@@ -15,7 +15,7 @@ export const dragContract = Object.freeze({ version: 2, phase: 'native-view-drag
   sourceContract: 'atomic exact generic/owned routing profiles; projection kernel remains reviewable',
   limitation: 'Endpoint witnesses and source-owner binding do not observe transient unversioned mutation inside a query.',
 })
-// Both profiles are whole reviewed routes, not independent per-owner alternatives.
+// Profiles are whole reviewed routes, not independent per-owner alternatives.
 export const dragSourceSlices = Object.freeze([
   {
     "id": "input-move",
@@ -181,10 +181,18 @@ export const dragSourceProfiles = Object.freeze([
   Object.freeze({ id: 'generic-terrain-v1', slices: dragSourceSlices }),
   Object.freeze({ id: 'owned-numeric-terrain-v1', slices: Object.freeze(dragSourceSlices.map(
     slice => Object.freeze(ownedRouteOverrides[slice.id] ?? slice))) }),
+  // The body submission owner adds unitMeshes only to the modal early-return
+  // render calls. Ordinary drag callback/query ordering is unchanged. Keep the
+  // prior route intact; this is one additional exact route, not a hash allowlist.
+  // Review: engineering/snapshot-body-source-contract.md.
+  Object.freeze({ id: 'owned-numeric-terrain-body-v1', slices: Object.freeze(dragSourceSlices.map(
+    slice => Object.freeze(slice.id === 'frame-order'
+      ? { ...slice, sha256: '59a5a9dd0364ec6e6c21bd966f90687cec7ea1f7dc9dc85c429081c8b2c64770' }
+      : ownedRouteOverrides[slice.id] ?? slice))) }),
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {
-  // Cache success AND failure once across both attempts. A missing path is not
+  // Cache success AND failure once across all attempts. A missing path is not
   // interchangeable with an unreadable, empty, non-string or oversized source.
   const files = new Map()
   const file = path => {

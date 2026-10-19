@@ -1,3 +1,4 @@
+import { ownBodyLayer } from './body-layer-submission.ts'
 import { templeWorldMaterial } from './temple-art.ts'
 import { unitRenderAnimationSource } from './unit-animation-source.ts'
 import { hutSmokeState } from './hut-smoke-runtime.ts'
@@ -470,6 +471,7 @@ export function animatePerson(
           toneMapped: false,
         })
       )
+      ownBodyLayer(layer)
       layer.userData.atlasTransform = new THREE.Vector4()
       layers.push(layer)
       g.add(layer)
@@ -986,6 +988,6 @@ export function renderSceneFrame(
   scene.view.painter.land = scene.world.land
   scene.view.painter.cells = scene.world.objectCells
   scene.view.prepare(scene.scene)
-  scene.view.painter.render(scene.renderer, scene.scene, scene.camera)
+  scene.view.painter.render(scene.renderer, scene.scene, scene.camera, scene.unitMeshes)
   scene.worshipPresentation.rememberBodies()
 }

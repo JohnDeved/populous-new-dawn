@@ -1,5 +1,10 @@
 import { OrdinaryNumericProjection } from './ordinary-numeric-projection.ts'
 import { runtimeTerrainPicking, releaseRuntimeTerrainPicking } from './runtime-terrain-picking.ts'
+import {
+  bindBodyLayerShader,
+  observeBodyLayerMaterial,
+  bodyLayerCallbacksAreDefault,
+} from './body-layer-submission.ts'
 import type {
   OrdinaryTerrainMetrics,
   TerrainVisibilityMetrics,
@@ -1071,17 +1076,44 @@ export class RenderView {
     }
   }
   prepare(scene: THREE.Scene) {
+    let bodyCallbacksDefault = true
     scene.onBeforeRender = renderer => {
       scene.traverseVisible(object => this.updateTerrainVisibility(object))
       if (!this.overview) {
         this.painter.update(scene, renderer)
+        if (bodyCallbacksDefault && scene.overrideMaterial === null)
+          this.painter.suppressBodyLayers(renderer)
       }
     }
     scene.onAfterRender = () => {
       this.painter.afterRender()
     }
     scene.traverse(object => {
-      if (object.userData.nativeIgnore) return
+      // Observe every material holder Three submits, without extending native
+      // shader preparation to Points or native-ignored objects.
+      if (
+        object instanceof THREE.Mesh ||
+        object instanceof THREE.Sprite ||
+        object instanceof THREE.Line ||
+        object instanceof THREE.Points
+      ) {
+        for (const material of Array.isArray(object.material)
+          ? object.material
+          : [object.material]) {
+          observeBodyLayerMaterial(object, material)
+          if (object.visible && !bodyLayerCallbacksAreDefault(object, material))
+            bodyCallbacksDefault = false
+        }
+      }
+      if (object.userData.nativeIgnore || object instanceof THREE.Points) {
+        if (
+          object.visible &&
+          (object.onBeforeRender !== THREE.Object3D.prototype.onBeforeRender ||
+            object.onAfterRender !== THREE.Object3D.prototype.onAfterRender)
+        )
+          bodyCallbacksDefault = false
+        return
+      }
       if (
         !(
           object instanceof THREE.Mesh ||
@@ -1131,7 +1163,8 @@ export class RenderView {
           },
         }
         material.userData.nativeUniforms = local
-        const compile = material.onBeforeCompile.bind(material),
+        const originalCompile = material.onBeforeCompile,
+          compile = originalCompile.bind(material),
           programKey = material.customProgramCacheKey(),
           encodedColors =
             material instanceof THREE.MeshBasicMaterial && !!material.map?.userData.encodedColors
@@ -1194,6 +1227,7 @@ export class RenderView {
         }
         material.customProgramCacheKey = () =>
           `${object instanceof THREE.Sprite ? 'native-sprite' : 'native-mesh'}-${encodedColors}-${!!object.userData.atlasTransform}-${programKey}`
+        bindBodyLayerShader(object, material, originalCompile)
         material.needsUpdate = true
       }
     })

@@ -887,8 +887,10 @@ export class GameScene {
     if (this.modalSuspended) {
       const renderStart = diagnostic ? performance.now() : 0
       if (diagnostic)
-        diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
-      else this.view.painter.render(this.renderer, this.scene, this.camera)
+        diagnostic.renderGpu(() =>
+          this.view.painter.render(this.renderer, this.scene, this.camera, this.unitMeshes)
+        )
+      else this.view.painter.render(this.renderer, this.scene, this.camera, this.unitMeshes)
       const renderMs = diagnostic ? performance.now() - renderStart : 0
       this.frame = requestAnimationFrame(this.animate)
       diagnostic?.update(

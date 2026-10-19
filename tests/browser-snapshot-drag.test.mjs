@@ -36,6 +36,35 @@ test('source-owner admission selects one exact bounded route; projection kernel 
     : read(path).replace(boundary.end, `${boundary.end}\n          // reviewable projection kernel change`)).status, 'admitted')
 })
 
+test('body owner admits only its exact route and preserves the historical owned route', () => {
+  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const current = `        diagnostic.renderGpu(() =>
+          this.view.painter.render(this.renderer, this.scene, this.camera, this.unitMeshes)
+        )
+      else this.view.painter.render(this.renderer, this.scene, this.camera, this.unitMeshes)`
+  const previous = `        diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
+      else this.view.painter.render(this.renderer, this.scene, this.camera)`
+  const source = read('app/scene.ts')
+  assert.equal(source.split(current).length, 2)
+  const inspect = text => inspectDragSource(root, path => path === 'app/scene.ts' ? text : read(path))
+  const admitted = inspect(source)
+  assert.equal(admitted.profile, 'owned-numeric-terrain-body-v1')
+  assert.equal(admitted.profiles.filter(p => p.status === 'admitted').length, 1)
+  const historical = inspect(source.replace(current, previous))
+  assert.equal(historical.profile, 'owned-numeric-terrain-v1')
+  assert.equal(historical.profiles.filter(p => p.status === 'admitted').length, 1)
+  for (const [before, after] of [
+    [current, current.replaceAll('this.unitMeshes', 'new Map()')],
+    [current, current.replace('this.camera, this.unitMeshes', 'this.camera')],
+    ['    if (this.modalSuspended) {', '    if (!this.modalSuspended) {'],
+    ['    this.updatePointerFrame(now, pointerMetrics)', '    this.updatePointerFrame(now + 1, pointerMetrics)'],
+    ['    this.renderTooltip(pointerMetrics)', '    this.updatePointerFrame(now, pointerMetrics)\n    this.renderTooltip(pointerMetrics)'],
+  ]) {
+    assert.equal(source.split(before).length, 2)
+    assert.equal(inspect(source.replace(before, after)).status, 'unsupported-source-contract')
+  }
+})
+
 test('atomic route profiles cache both source reads and failures; only ENOENT establishes helper absence', () => {
   const calls = new Map(), helper = 'app/runtime-terrain-picking.ts'
   const read = path => readFileSync(resolve(root, path), 'utf8')
@@ -65,7 +94,7 @@ test('route admission binds numeric lease gates, actual constructor order and he
     ['app/scene.ts', '    this.cursor.visible = false\n    this.range.visible = false', '    this.range.visible = false\n    this.cursor.visible = false'],
     ['app/scene-input-runtime.ts', 'export function pick(', 'export function pick(\n/* altered public dispatch */'],
   ]
-  if (inspectDragSource(root).profile === 'owned-numeric-terrain-v1') checks.push(
+  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-body-v1'].includes(inspectDragSource(root).profile)) checks.push(
     ['app/render-view.ts', 'owned && scratch && runtimeTerrainPicking(this, object)', 'owned && scratch'],
     ['app/runtime-terrain-picking.ts', 'if (released.has(scene.view)) return', 'if (false) return'],
     ['app/scene-terrain-runtime.ts', '    rebindRuntimeTerrainPicking(scene)', '    /* omitted rebind */'])
