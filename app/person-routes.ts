@@ -428,8 +428,11 @@ export function planPersonDestination(w: RouteWorld, p: RoutedPerson, to: Point,
       }
       const a = { x: from.x >> 8, y: from.y >> 8 },
         b = { x: target.x >> 8, y: target.y >> 8 }
-      const built = reusablePersonRoute(w.routes, p, a, b) || e.build(p, a, b),
+      let id = reusablePersonRoute(w.routes, p, a, b)
+      if (!id) {
+        const built = e.build(p, a, b)
         id = w.routes.references ? built : short(built)
+      }
       p.recoveryCounter = 0
       if (adjusted) p.flags4 = (p.flags4 | 0x4000000) >>> 0
       if (id) {

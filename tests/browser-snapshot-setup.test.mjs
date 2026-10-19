@@ -194,7 +194,7 @@ test('cleanup uncertainty preserves the original load failure without throwing i
 test('generated current snapshot is admitted by a fresh real store without rewriting persisted input', async () => {
   const f = await getFixture(), record = checkpointCodec(f.transfer, true),
     { withStorage } = await import('./support/profile-storage.mjs')
-  assert.equal(record.version, 2)
+  assert.equal(record.version, 3)
   await withStorage({ latest: record }, async ({ freshStore, records, writes }) => {
     const store = await freshStore(), active = store.getWorld(), before = structuredClone(records)
     assert.equal(await store.restoreCheckpoint(), true)
