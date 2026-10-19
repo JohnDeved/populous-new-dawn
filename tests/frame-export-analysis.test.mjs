@@ -379,3 +379,31 @@ test('GPU optional states stay separate from CPU attribution and old captures', 
   value.frames[0].sceneRenderGpu=invalid;assert.throws(()=>summarize(value),/sceneRenderGpu/)
  }
 })
+
+test('actual path extensions are validated, retained and unknown when absent', () => {
+  const value = report(), metrics = createPointerFrameMetrics(true)
+  value.frames[0].pointerBreakdown = metrics
+  metrics.ordinaryTerrain.paths.numeric = 7
+  metrics.nativeOcclusion.cacheRepresentationChanged = 2
+  let result = summarize(value)
+  const selected = result.worstFrames.pointer.find(frame => frame.frameIndex === 0).pointerBreakdown
+  assert.deepEqual(selected.ordinaryTerrain.paths, metrics.ordinaryTerrain.paths)
+  assert.equal(selected.nativeOcclusion.cacheRepresentationChanged, 2)
+  for (const key of ['numeric', 'packedVector', 'sparseVector']) {
+    for (const invalid of [-1, 0.5, null, Number.MAX_SAFE_INTEGER + 1]) {
+      metrics.ordinaryTerrain.paths[key] = invalid
+      assert.throws(() => summarize(value), /paths/)
+    }
+    metrics.ordinaryTerrain.paths[key] = 0
+  }
+  for (const invalid of [-1, 0.5, null, Number.MAX_SAFE_INTEGER + 1]) {
+    metrics.nativeOcclusion.cacheRepresentationChanged = invalid
+    assert.throws(() => summarize(value), /cacheRepresentationChanged/)
+  }
+  delete metrics.ordinaryTerrain.paths
+  delete metrics.nativeOcclusion.cacheRepresentationChanged
+  result = summarize(value)
+  const historical = result.worstFrames.pointer.find(frame => frame.frameIndex === 0).pointerBreakdown
+  assert.equal(historical.ordinaryTerrain.paths, undefined)
+  assert.equal(historical.nativeOcclusion.cacheRepresentationChanged, undefined)
+})

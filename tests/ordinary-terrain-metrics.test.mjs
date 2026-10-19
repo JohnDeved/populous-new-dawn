@@ -35,10 +35,11 @@ test('ordinary phases count actual projections and triangle visits, nest within 
   for (const field of ['visibilityMs', 'projectionMs', 'triangleScanMs', 'resolutionMs']) assert.equal(detail[field], 1)
   assert.equal(metrics.terrainPickMs, 8)
   assert.equal(reads(), 9, 'timers are per phase, not per vertex/triangle')
+  assert.deepEqual(detail.paths, { version: 1, numeric: 0, packedVector: 0, sparseVector: 1 })
   resetPointerFrameMetrics(metrics)
   assert.equal(metrics.ordinaryTerrain, detail)
   assert.equal(detail.version, 1)
-  assert.ok(Object.entries(detail).every(([key, value]) => key === 'version' || (key === 'visibility' ? Object.values(value).every(n => n === 0) : value === 0)))
+  assert.ok(Object.entries(detail).every(([key, value]) => key === 'version' || (key === 'visibility' ? Object.values(value).every(n => n === 0) : key === 'paths' ? Object.entries(value).every(([name, n]) => name === 'version' ? n === 1 : n === 0) : value === 0)))
 })
 
 test('actual GameScene pointer caller forwards ordinary diagnostics to real RenderView picking', async t => {

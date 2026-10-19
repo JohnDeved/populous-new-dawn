@@ -13,6 +13,10 @@ remain separate.
 
 ## Setup and reproduce
 
+On the Linux cloud executor, use [native environment setup](../engineering/native-setup.md).
+It restores the original archive and tools automatically from checksum-pinned sources.
+The `scripts/decomp.py setup` command below is macOS-only.
+
 On this project's macOS arm64 development machine, with Python 3, Git and Xcode Command Line Tools:
 
 ```sh

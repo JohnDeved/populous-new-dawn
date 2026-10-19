@@ -531,3 +531,59 @@ test('generic public picker and disposal preserve untouched receiver lookup trac
   for (const method of ['pick', 'dispose'])
     assert.deepEqual(trace(RenderView, method), trace(BaselineView, method))
 })
+
+test('optional actual paths distinguish numeric, packed vector and sparse vector without changing hits', async () => {
+  const o = await fixture(), detail = createOrdinaryTerrainMetrics(false, true)
+  const plain = normal(pickRuntimeTerrain(o))
+  assert.deepEqual(normal(pickRuntimeTerrain(o, { ordinaryTerrain: detail })), plain)
+  assert.ok(detail.paths.numeric > 0)
+  assert.equal(detail.paths.packedVector, 0)
+  assert.equal(detail.paths.sparseVector, 0)
+  const instances = detail.paths.numeric
+  const generic = createOrdinaryTerrainMetrics(false, true)
+  assert.deepEqual(normal(o.view.pick(o.mouse, [o.terrain], o.camera, false, generic)), plain)
+  assert.deepEqual(generic.paths, { version: 1, numeric: 0, packedVector: instances, sparseVector: 0 })
+  const nested = createOrdinaryTerrainMetrics(false, true)
+  o.view.ordinaryPickDepth = 1
+  try {
+    assert.deepEqual(normal(pickRuntimeTerrain(o, { ordinaryTerrain: nested })), plain)
+    assert.deepEqual(nested.paths, { version: 1, numeric: 0, packedVector: instances, sparseVector: 0 })
+  } finally {
+    o.view.ordinaryPickDepth = 0
+  }
+  // Removing this producer flag selects sparse storage without changing geometry.
+  o.terrain.userData.terrainGrid = false
+  const sparse = createOrdinaryTerrainMetrics(false, true)
+  assert.deepEqual(normal(pickRuntimeTerrain(o, { ordinaryTerrain: sparse })), plain)
+  assert.deepEqual(sparse.paths, { version: 1, numeric: 0, packedVector: 0, sparseVector: instances })
+  assert.equal(detail.projectedVertices, generic.projectedVertices)
+  assert.equal(detail.visitedTriangles, sparse.visitedTriangles)
+  assert.equal(createOrdinaryTerrainMetrics().paths, undefined)
+})
+
+test('native representation-only invalidation is optional, exclusive and counts actual cache misses', async () => {
+  const { createNativeOcclusionMetrics, resetNativeOcclusionMetrics } = await import('../app/native-occlusion-metrics.ts')
+  const o = await fixture(), detail = createNativeOcclusionMetrics(true)
+  pickRuntimeTerrain(o) // Establish the ordinary submitted index before native cache admission.
+  const pick = () => o.view.pickCandidates(o.mouse, [o.terrain], o.camera, true, detail)
+  const first = pick()
+  const instances = detail.cacheCold
+  assert.ok(instances > 0)
+  assert.equal(detail.cacheRepresentationChanged, 0)
+  resetNativeOcclusionMetrics(detail)
+  assert.deepEqual(pick(), first)
+  assert.equal(detail.cacheHits, instances)
+  assert.equal(detail.cacheRepresentationChanged, 0)
+  resetNativeOcclusionMetrics(detail)
+  o.terrain.userData.terrainGrid = false
+  assert.deepEqual(pick(), first)
+  assert.equal(detail.cacheRepresentationChanged, instances)
+  for (const key of ['cacheHits', 'cacheCold', 'cachePositionChanged', 'cacheKeyChanged'])
+    assert.equal(detail[key], 0, key)
+  resetNativeOcclusionMetrics(detail)
+  assert.equal(detail.cacheRepresentationChanged, 0)
+  assert.deepEqual(pick(), first)
+  assert.equal(detail.cacheHits, instances)
+  assert.equal(detail.cacheRepresentationChanged, 0)
+  assert.equal(createNativeOcclusionMetrics().cacheRepresentationChanged, undefined)
+})

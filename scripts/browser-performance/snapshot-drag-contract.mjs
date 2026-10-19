@@ -191,6 +191,17 @@ export const dragSourceProfiles = Object.freeze([
     Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
       sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
   ]) }),
+  // Independently reviewed optional instance-path counters change only the exact
+  // query-inputs prefix. Preserve every historical profile and slice boundary.
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', slices: Object.freeze([
+    ...dragSourceSlices.map(slice => Object.freeze(slice.id === 'query-inputs'
+      ? { ...slice, sha256: 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c' }
+      : slice.id === 'frame-order'
+        ? { ...slice, sha256: '27ed72fea09df7d40a3e632ca56da9aa487a2df73dc950655f74bf1bb7b93adf' }
+        : ownedRouteOverrides[slice.id] ?? slice)),
+    Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
+      sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
+  ]) }),
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {

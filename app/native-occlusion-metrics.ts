@@ -13,14 +13,18 @@ export const NATIVE_OCCLUSION_FIELDS = [
   'submittedTriangles',
 ] as const
 
-export type NativeOcclusionMetrics = { version: 1 } & Record<
-  (typeof NATIVE_OCCLUSION_FIELDS)[number],
-  number
->
+export type NativeOcclusionMetrics = {
+  version: 1
+  // Optional representation-only misses; absent means unknown, not zero.
+  cacheRepresentationChanged?: number
+} & Record<(typeof NATIVE_OCCLUSION_FIELDS)[number], number>
 
-export function createNativeOcclusionMetrics(): NativeOcclusionMetrics {
+export function createNativeOcclusionMetrics(
+  includeRepresentation = false
+): NativeOcclusionMetrics {
   return {
     version: 1,
+    ...(includeRepresentation ? { cacheRepresentationChanged: 0 } : {}),
     submissionKeyMs: 0,
     pixelCacheHits: 0,
     pixelCacheMisses: 0,
@@ -38,5 +42,6 @@ export function createNativeOcclusionMetrics(): NativeOcclusionMetrics {
 }
 
 export function resetNativeOcclusionMetrics(metrics: NativeOcclusionMetrics) {
+  if (metrics.cacheRepresentationChanged !== undefined) metrics.cacheRepresentationChanged = 0
   for (const key of NATIVE_OCCLUSION_FIELDS) metrics[key] = 0
 }

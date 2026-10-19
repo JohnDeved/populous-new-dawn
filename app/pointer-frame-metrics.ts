@@ -45,8 +45,8 @@ export function createPointerFrameMetrics(includeNative = false): PointerFrameMe
       ? {
           modelWork: [0, 0, 0] as ModelPickWork,
           interaction: createPointerInteractionContext(),
-          nativeOcclusion: createNativeOcclusionMetrics(),
-          ordinaryTerrain: createOrdinaryTerrainMetrics(true),
+          nativeOcclusion: createNativeOcclusionMetrics(true),
+          ordinaryTerrain: createOrdinaryTerrainMetrics(true, true),
         }
       : {}),
     terrainPickMs: 0,

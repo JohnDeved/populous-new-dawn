@@ -14,7 +14,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
-  assert.ok(profile); assert.equal(profile.slices.length, profile.id === 'owned-numeric-terrain-neutral-cursor-v1' ? 17 : 16)
+  assert.ok(profile); assert.equal(profile.slices.length, ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1'].includes(profile.id) ? 17 : 16)
   for (const slice of profile.slices) {
     const changed = inspectDragSource(root, path => {
       if (path !== slice.path) return read(path)
@@ -67,7 +67,7 @@ test('route admission binds numeric lease gates, actual constructor order and he
     ['app/neutral-cursor.ts', '!scene.pointerButtons &&', 'true &&'],
     ['app/scene.ts', '    this.updatePointerFrame(now, pointerMetrics)\n    this.neutralCursor?.update()', '    this.neutralCursor?.update()\n    this.updatePointerFrame(now, pointerMetrics)'],
   ]
-  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1'].includes(inspectDragSource(root).profile)) checks.push(
+  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1'].includes(inspectDragSource(root).profile)) checks.push(
     ['app/render-view.ts', 'owned && scratch && runtimeTerrainPicking(this, object)', 'owned && scratch'],
     ['app/runtime-terrain-picking.ts', 'if (released.has(scene.view)) return', 'if (false) return'],
     ['app/scene-terrain-runtime.ts', '    rebindRuntimeTerrainPicking(scene)', '    /* omitted rebind */'])
@@ -75,6 +75,64 @@ test('route admission binds numeric lease gates, actual constructor order and he
     assert.equal(read(path).split(before).length, 2)
     assert.equal(inspectDragSource(root, name => name === path ? read(name).replace(before, after) : read(name)).status,
       'unsupported-source-contract', path)
+  }
+})
+
+
+test('pick-path admission adds one exact profile without replacing historical source contracts', () => {
+  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const oldId = 'owned-numeric-terrain-neutral-cursor-v1'
+  const newId = 'owned-numeric-terrain-neutral-cursor-pick-paths-v1'
+  const historical = dragSourceProfiles.find(profile => profile.id === oldId)
+  const candidate = dragSourceProfiles.find(profile => profile.id === newId)
+  assert.deepEqual(dragSourceProfiles.map(profile => profile.id), [
+    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId,
+  ])
+  assert.equal(historical.slices.length, 17)
+  assert.equal(candidate.slices.length, 17)
+  for (let i = 0; i < historical.slices.length; i++) {
+    const previous = historical.slices[i], next = candidate.slices[i]
+    if (previous.id !== 'query-inputs') assert.deepEqual(next, previous)
+    else {
+      assert.equal(previous.sha256, '766eeb9c4c381ce38f1e718e13f8ba9cf79ae912bd1b0031fae36dbcb10c2a0e')
+      assert.equal(next.sha256, 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c')
+      assert.deepEqual({ ...next, sha256: previous.sha256 }, previous, 'all boundaries remain exact')
+    }
+  }
+  const current = inspectDragSource(root)
+  assert.equal(current.profile, newId)
+  assert.equal(current.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  // Reconstruct only the independently reviewed inverse delta. Admission still
+  // hashes the complete resulting prefix, not a normalized instrumentation shape.
+  let oldSource = read('app/render-view.ts')
+  const inverse = [
+    [`            else if (nativeMetrics.cacheRepresentationChanged !== undefined)
+              nativeMetrics.cacheRepresentationChanged++`,
+     `            // Version 1 has no representation-only reason; do not report a
+            // changed key when only packed/sparse storage eligibility changed.`],
+    [`          // Observe the selected representation once per admitted instance, never
+          // re-read eligibility inputs or add work inside vertex/triangle loops.
+          const paths = ordinary?.paths
+          if (paths) paths[numeric ? 'numeric' : packedTerrain ? 'packedVector' : 'sparseVector']++
+`, ''],
+  ]
+  for (const [before, after] of inverse) {
+    assert.equal(oldSource.split(before).length, 2)
+    oldSource = oldSource.replace(before, after)
+  }
+  const old = inspectDragSource(root, path => path === 'app/render-view.ts' ? oldSource : read(path))
+  assert.equal(old.profile, oldId)
+  assert.equal(old.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  // Neither an unknown observer variant nor modified eligibility/lifecycle is admitted.
+  for (const [path, before, after] of [
+    ['app/render-view.ts', "const paths = ordinary?.paths", "const paths = undefined"],
+    ['app/render-view.ts', 'owned && scratch && runtimeTerrainPicking(this, object)', 'owned && scratch'],
+    ['app/runtime-terrain-picking.ts', 'if (released.has(scene.view)) return', 'if (false) return'],
+  ]) {
+    assert.equal(read(path).split(before).length, 2)
+    const rejected = inspectDragSource(root, name => name === path ? read(name).replace(before, after) : read(name))
+    assert.equal(rejected.status, 'unsupported-source-contract')
+    assert.equal(rejected.profile, null)
   }
 })
 
