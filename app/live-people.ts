@@ -892,12 +892,14 @@ export function startMeleeKnockback(w: World, u: Unit) {
   p.flags2 = ((p.flags2 & ~0x40000000) | 0x83080) >>> 0
   p.flags3 |= 0x8000000
   p.flags4 |= 0x2000
-  setLivePersonAnimation(w, p, meleeAnimationObject(u.kind, 'recoil'))
-  p.f1 = 1
-  // Carry the displayed recoil frame across the browser-to-native handoff.
-  // Ordinary fight poses still use elapsed turns rather than a retained person.
-  const elapsed = w.time - (u.fight?.started ?? w.turn) / 12
-  p.f2 = Math.min(sprites.frameCounts[p.object] - 1, Math.max(0, Math.floor(elapsed * sprites.fps)))
+  // Native substate7 retains both counters from the processed recoil entry.
+  // Only a pose without that owner still needs the existing elapsed-time adapter.
+  if (!u.fight?.nativeRecoilAnimation) {
+    setLivePersonAnimation(w, p, meleeAnimationObject(u.kind, 'recoil'))
+    p.f1 = 1
+    const elapsed = w.time - (u.fight?.started ?? w.turn) / 12
+    p.f2 = Math.min(sprites.frameCounts[p.object] - 1, Math.max(0, Math.floor(elapsed * sprites.fps)))
+  }
   groundVelocity(p.velocity, p, (random(w) % 70) + 35, (p.heading + 1024) & 2047, (x, y) =>
     terrainPointHeight(w.land, { x, y })
   )
