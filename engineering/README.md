@@ -12,7 +12,9 @@ coverage. Historical research and acceptance records remain evidence, not live q
    Prefer playable impact and unblock value, then evidence, effort, and risk. An issue
    names the live entry point, acceptance, owner, and concrete dependencies.
 2. **Isolate the writer.** Record the base/head and dirty status. Use one writer per
-   branch/worktree, with up to six workers coordinated by the parent. Commit coherent
+   branch/worktree. The current usage budget is four active workers across the whole
+   delegation tree, including nested workers and reviewers, plus the coordinating
+   parent (five active agents total), not a platform ceiling. Commit coherent
    checkpoints as Johann Berger <johann@objekt.stream>. Never overwrite another
    worker's work or push directly to main. Parent integration may use an explicitly
    supplied reviewed base; disclose dependencies in the PR.

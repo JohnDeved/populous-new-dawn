@@ -10,8 +10,7 @@ import { buildingObject, buildingModel } from '../app/building-shapes.ts'
 import { modelStage, modelTextureModes, modelDepthBias } from '../app/model-faces.ts'
 import { collapseBuildingFaces } from '../app/building-debris.ts'
 import { advanceGame } from '../app/game-clock.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
-import { withStorage } from './support/profile-storage.mjs'
+import { normalizeHistoricalFixture, createHistoricalFixtureHarness } from './helpers/historical-checkpoint.ts'
 const hash = b => createHash('sha256').update(b).digest('hex')
 const ids = [87, 88, 89, 90],
   hashes = [
@@ -27,7 +26,7 @@ const checkpoint = () => {
     )
   )
   assert.equal(hash(bytes), '47a887f51011e65fa7bd6be8ff70f719c5b62653de29304e5c2be9996a0f770d')
-  return deserialize(bytes)
+  return normalizeHistoricalFixture(deserialize(bytes))
 }
 test('four authentic Balloon Hut owners append without changing prior meshes or atlas', () => {
   assert.equal(
@@ -82,12 +81,15 @@ test('each Balloon Hut mesh supplies finite structural and terrain-collapse frag
       }
     }
 })
-test('ordinary M16 defeated Balloon Hut damage continues beyond the actual crash through Save/Load', async () => {
-  await withStorage({}, async ({ freshStore }) => {
-    const store = await freshStore()
+test('ordinary M16 defeated Balloon Hut damage continues beyond the actual crash through historical clone/normalization', async () => {
+  {
+    const store = createHistoricalFixtureHarness()
     store.startMission(16)
     const w = store.getWorld()
-    Object.assign(w, migrateCheckpoint(checkpoint()))
+    const historical = checkpoint()
+    for (const key of Object.keys(w)) if (!Object.hasOwn(historical, key)) delete w[key]
+    Object.assign(w, historical)
+    assert.deepEqual(w, historical, 'no fresh-world fields may leak into the archive')
     assert.equal(w.turn, 40406)
     const b = w.buildings.find(b => b.id === 299)
     assert.equal(buildingObject(b), 89)
@@ -107,5 +109,5 @@ test('ordinary M16 defeated Balloon Hut damage continues beyond the actual crash
     assert.ok(debris, 'Actual damage emits new nearby debris instead of skipping the face loop')
     assert.ok(!w.buildings.some(x => x.id === 299) || b.hp < 260)
     assert.equal(w.units.find(u => u.id === 8286).native.vehicle, 8830)
-  })
+  }
 })

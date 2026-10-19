@@ -39,7 +39,7 @@ import {
 import { addUnit, population } from './world-state.ts'
 import { nativePosition, syncLandscapeObjects } from './world-terrain-runtime.ts'
 import { browserPosition, nativeDistance, nativeStep3D, shotAngles } from './world-coordinates.ts'
-import { release, releaseTasks } from './world-tasks.ts'
+import { clearRetiredPersonOrders, release, releaseTasks } from './world-tasks.ts'
 import {
   teamForTribe,
   tribeForTeam,
@@ -115,16 +115,23 @@ function retainedPeople(u: Unit) {
   ].filter(Boolean) as LivePerson[]
 }
 
+function releaseRetiredPeople(w: World, source: Unit) {
+  const people = retainedPeople(source)
+  // Release the physical building slot before task cleanup discards its owner.
+  const occupant = release(w, source)
+  if (occupant && !people.includes(occupant)) people.push(occupant)
+  // Ordinary cancellation deliberately preserves AI patrol orders. Terminal
+  // removal retires these people, so every remaining queue owner must release.
+  clearRetiredPersonOrders(w, people)
+  return people
+}
+
 function replaceHypnotisedUnit(w: World, source: Unit, team: Team, originalTeam?: Team) {
   const slot = w.units.indexOf(source)
   if (slot < 0) return
   const position = { x: source.x, z: source.z },
     { hp, cargo, heading, kind } = source,
-    people = retainedPeople(source)
-  // Release the physical building slot while its passive resident still exists.
-  // Generic task cleanup alone discards that owner and leaves a deleted occupant.
-  const occupant = release(w, source)
-  if (occupant && !people.includes(occupant)) people.push(occupant)
+    people = releaseRetiredPeople(w, source)
   for (const p of people) if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
   deleteCellObject(w.objectCells, source.id)
   w.selected = w.selected.filter(id => id !== source.id)
@@ -247,9 +254,8 @@ export function applyHypnotise(w: World, point: Point, team: Team) {
   for (const { u } of targets) {
     const p = unitAnimationSource(u)
     if ((p?.flags4 ?? 0) & 0x800) {
-      if (u.inside === null) releaseTasks(w, u)
-      else release(w, u)
-      if ((p?.flags2 ?? 0) & 0x20000) removeObjectFromCell(w.objectCells, p as LivePerson)
+      for (const person of releaseRetiredPeople(w, u))
+        if (person.flags2 & 0x20000) removeObjectFromCell(w.objectCells, person)
       deleteCellObject(w.objectCells, u.id)
       w.selected = w.selected.filter(id => id !== u.id)
       w.units.splice(w.units.indexOf(u), 1)
@@ -1083,8 +1089,7 @@ export function stepLiveSwamp(w: World, swamp: Swamp) {
       const p = people.get(target.id)!,
         u = units.get(p.id)!
       // 004ef180→004d4b50 removes occupied ghosts through 00407490 first.
-      if (u.inside === null) releaseTasks(w, u)
-      else release(w, u)
+      releaseRetiredPeople(w, u)
       const index = w.units.indexOf(u)
       if (index !== -1) w.units.splice(index, 1)
       w.selected = w.selected.filter(id => id !== u.id)

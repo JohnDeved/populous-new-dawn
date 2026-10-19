@@ -29,7 +29,9 @@ without changing stored data. Explicit classic/native research fixtures are sepa
 
 1. Continue the assigned GitHub issue/feature outcome. Record actual base/head and
    existing dirty paths. Use one writer per isolated branch/worktree; the parent
-   coordinates up to six workers and owns integration.
+   coordinates at most four active workers across the entire delegation tree,
+   including nested workers and reviewers, and owns integration. With the parent,
+   this is five active agents total: the current usage budget, not a platform ceiling.
 2. Read existing topic findings and actual callers. Use `orchestration:context` when
    helpful; follow omissions or contradictions. For native work, use
    `engineering/native-research.md`, verify local inputs/tools, and preserve useful

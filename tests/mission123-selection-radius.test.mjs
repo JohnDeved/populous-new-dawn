@@ -9,6 +9,7 @@ import { campaignCommand } from '../app/campaign-command-runtime.ts'
 import { campaignPosition } from '../app/campaign-runtime.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import { nativePosition } from '../app/world-terrain-runtime.ts'
 import { browserPosition } from '../app/world-coordinates.ts'
 import { buildingOutsidePoint, buildingPose, buildingPosition } from '../app/building-shapes.ts'
@@ -223,7 +224,7 @@ function checkpoint(w, legacy = false) {
     delete saved.respawns
     delete saved.respawnPoints
   }
-  return migrateCheckpoint(saved)
+  return legacy ? normalizeHistoricalFixture(saved) : migrateCheckpoint(saved)
 }
 
 for (const legacy of [false, true])
@@ -249,13 +250,13 @@ for (const legacy of [false, true])
   })
 
 for (const base of [undefined, 0, 0x8062])
-  test(`missing legacy radius with base ${base} has an explicit compatibility boundary`, () => {
+  test(`missing legacy radius with base ${base} has an explicit historical reconstruction boundary`, () => {
     const w = knownWorld()
     if (base === undefined) delete w.ai.constructionBase
     else w.ai.constructionBase = base
     delete w.ai.constructionRadius
     delete w.ai.constructionBuildings
-    const restored = checkpoint(w)
+    const restored = normalizeHistoricalFixture(structuredClone(w))
     assert.equal(restored.ai.constructionRadius, base === undefined ? 0 : undefined)
     assert.equal(
       restored.ai.constructionBuildings,

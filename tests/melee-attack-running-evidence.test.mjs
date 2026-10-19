@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { validateMeleeRunningFrames } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
+import { validateMeleeRunningFrames, validateMeleeRunningObservation } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
 
@@ -31,6 +31,28 @@ function sample(overrides = {}) {
 }
 const evidence = () => [sample({ cropFile: 'first.png' }),
   sample({ turn: 515, animationFrame: 1030, stamp: 361, cropFile: 'second.png' })]
+
+test('complete observation validator consumes exact terminal evidence and preserves all frame obligations', () => {
+  const observation = { samples: evidence(), firstAttackTurn: 514, done: true, error: null,
+    terminal: { turn: 524, stamp: 370, reason: 'window-complete' } }
+  const before = structuredClone(observation)
+  const accepted = validateMeleeRunningObservation(observation, mapping)
+  assert.deepEqual(accepted.obligations.fixedWindow, { status: 'passed', firstAttackTurn: 514,
+    endExclusive: 524, terminal: observation.terminal })
+  assert.deepEqual(observation, before)
+  for (const change of [
+    s => { s.done = false }, s => { s.error = 'Shaman54 died' },
+    s => { s.firstAttackTurn = null }, s => { s.firstAttackTurn-- },
+    s => { delete s.terminal }, s => { s.terminal.reason = 'error' }, s => { s.terminal.reason = 'stopped' },
+    s => { s.terminal.turn-- }, s => { s.terminal.turn = 524.5 },
+    s => { delete s.terminal.stamp }, s => { s.terminal.stamp = 361 }, s => { s.terminal.stamp = 370.5 },
+    s => { s.samples[1].personIdentityMatch = false }, s => { s.samples[1].frame = 1 },
+    s => { delete s.samples[1].cropFile }, s => { s.samples.length = 1 },
+  ]) {
+    const invalid = structuredClone(observation); change(invalid)
+    assert.throws(() => validateMeleeRunningObservation(invalid, mapping))
+  }
+})
 
 test('cropped same-sequence running advancement preserves inputs and claims only running artwork', () => {
   const samples = evidence(), before = structuredClone({ samples, mapping })

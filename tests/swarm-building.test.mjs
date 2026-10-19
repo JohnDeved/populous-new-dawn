@@ -1,3 +1,4 @@
+import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createGameStore } from '../app/game-store.ts'
@@ -11,6 +12,8 @@ import {
   stepSwarmBuilding,
   stepSwarmInsectTarget,
 } from '../app/swarm.ts'
+
+const referenceId = scalableReferenceIds(22)
 
 const insect = (x = 0, y = 0) => ({ x, y, h: 500, vx: 8, vy: 9, verticalOffset: 0, jitter: [] })
 test('Swarm target motion uses strict Manhattan arrival, signed axes and word velocities', () => {
@@ -146,7 +149,7 @@ test('earned M22 Swarm pursues a unique occupied hut, ejects residents and retur
   const residents = w.units.filter(u => u.inside === hut.id)
   assert.deepEqual(
     residents.map(u => u.id),
-    [138, 202, 254]
+    [138, 202, 254].map(referenceId)
   )
   assert.ok(residents.every(u => u.hp === 50))
   assert.ok(cast(w, 'swarm', { x: hut.x + 2, z: hut.z }))

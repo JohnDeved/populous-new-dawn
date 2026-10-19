@@ -9,8 +9,7 @@ import { createLivePerson, registerLivePerson, syncLivePersonCells } from '../ap
 import { removeObjectFromCell } from '../app/object-cells.ts'
 import { stepLiveRoute } from '../app/live-pathfinding.ts'
 import { advanceGame } from '../app/game-clock.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
-import { withStorage } from './support/profile-storage.mjs'
+import { normalizeHistoricalFixture, createHistoricalFixtureHarness } from './helpers/historical-checkpoint.ts'
 const index = p => ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
 function validCells(w) {
   const seen = new Set()
@@ -137,7 +136,7 @@ test('unlinked, route-only, nonmatching registration and native-owned records pr
     validCells(w)
   }
 })
-test('genuine M17 retired encounter route crosses cells and unlinks cleanly through Save/Load twins', async () => {
+test('genuine M17 retired encounter route crosses cells and unlinks cleanly through historical clone/normalization twins', async () => {
   const bytes = gunzipSync(
     readFileSync(
       new URL('../references/fixtures/m17-route-cells/before-retirement.v8.gz', import.meta.url)
@@ -147,11 +146,14 @@ test('genuine M17 retired encounter route crosses cells and unlinks cleanly thro
     createHash('sha256').update(bytes).digest('hex'),
     'ce30378c3199cbb4a561cbe7cd74d52065a77f117516ff82bb453fce4672b548'
   )
-  await withStorage({}, async ({ freshStore }) => {
-    const store = await freshStore()
+  {
+    const store = createHistoricalFixtureHarness()
     store.startMission(17)
     const w = store.getWorld()
-    Object.assign(w, migrateCheckpoint(deserialize(bytes)))
+    const historical = normalizeHistoricalFixture(deserialize(bytes))
+    for (const key of Object.keys(w)) if (!Object.hasOwn(historical, key)) delete w[key]
+    Object.assign(w, historical)
+    assert.deepEqual(w, historical, 'no fresh-world fields may leak into the archive')
     assert.equal(w.turn, 6052)
     const p = w.objectCells.objects.get(4088)
     assert.equal(w.pathfinding.people.get(4088), p)
@@ -174,5 +176,5 @@ test('genuine M17 retired encounter route crosses cells and unlinks cleanly thro
         assert.equal(w.pathfinding.people.get(4088), p)
       }
     }
-  })
+  }
 })

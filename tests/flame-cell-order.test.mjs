@@ -1,3 +1,4 @@
+import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { browserPosition, cast, command, selectUnit, tick } from '../app/model.ts'
@@ -8,7 +9,9 @@ import { objectsInCell, removeObjectFromCell } from '../app/object-cells.ts'
 import { ignitePeopleInFireCell } from '../app/person-panic.ts'
 import { finishLevelStart } from './level-start-fixture.mjs'
 
-const ids = [309, 312]
+const referenceId = scalableReferenceIds(3)
+
+const ids = [309, 312].map(referenceId)
 const personOutcomes = world =>
   ids.map(id => {
     const unit = world.units.find(unit => unit.id === id),
@@ -23,13 +26,13 @@ function pendingIgnition() {
     points = buildingFirePoints(buildingPose(hut)),
     target = browserPosition(points[0])
   for (const unit of world.units.filter(
-    unit => unit.team === 'blue' && unit.kind === 'brave' && unit.id !== 312
+    unit => unit.team === 'blue' && unit.kind === 'brave' && unit.id !== referenceId(312)
   )) {
     selectUnit(world, unit.id, false)
     assert.ok(command(world, target))
   }
   for (let turn = 0; turn < 4; turn++) tick(world, 1 / 12)
-  selectUnit(world, 312, false)
+  selectUnit(world, referenceId(312), false)
   assert.ok(command(world, target))
   while (world.turn < 121) tick(world, 1 / 12)
   // Only stock is supplied. Authored people, hut, entry/departure and ignition
@@ -47,7 +50,7 @@ function pendingIgnition() {
     linked = [...objectsInCell(world.objectCells, packed)].filter(person => ids.includes(person.id))
   assert.deepEqual(
     linked.map(person => person.id),
-    [312, 309]
+    [312, 309].map(referenceId)
   )
   for (const person of linked)
     assert.equal(world.units.find(unit => unit.id === person.id).native, person)
@@ -73,8 +76,8 @@ test('ordinary Mission 3 fire assigns panic directions in retained person order 
     assert.ok(candidate.buildings.find(building => building.id === hutId).burn)
     assert.equal(candidate.randomState, 1286605328)
     assert.deepEqual(personOutcomes(candidate), [
-      { id: 309, angle: 1506, trail: 13, state: 26 },
-      { id: 312, angle: 1652, trail: 13, state: 26 },
+      { id: referenceId(309), angle: 1506, trail: 13, state: 26 },
+      { id: referenceId(312), angle: 1652, trail: 13, state: 26 },
     ])
   }
   assert.deepEqual(restored, world)
@@ -123,7 +126,7 @@ test('unregistered, partial and same-ID alias slots retain their previous fallba
 
 test('duplicate roster ownership keeps the fallback rather than overrunning the projection', () => {
   const { world, point } = pendingIgnition(),
-    unit = world.units.find(unit => unit.id === 312)
+    unit = world.units.find(unit => unit.id === referenceId(312))
   // Deliberately supplied malformed ownership, not an ordinary producer.
   world.units.push(unit)
   const expected = structuredClone(world),

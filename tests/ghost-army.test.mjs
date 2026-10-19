@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { processComputerSpells } from '../app/computer-spells.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { createTribeCasting } from '../app/spell-casting.ts'
 import {
@@ -165,7 +165,7 @@ test('Ghost Army casts, spawns native ghosts, accepts orders, vanishes in combat
 
   delete w.shots.ghostArmy
   delete w.giftCounts.ghostArmy
-  migrateCheckpoint(w)
+  normalizeHistoricalFixture(w)
   assert.equal(w.shots.ghostArmy, 0)
   assert.equal(w.giftCounts.ghostArmy, 0)
 })
