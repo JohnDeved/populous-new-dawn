@@ -162,7 +162,7 @@ test('trusted reporter verifies metadata, creates once and updates only its iden
   const write = state.calls.find(call => call.method); assert.equal(write.method, 'POST'); assert.match(write.path, /issues\/42\/comments$/)
   state.comments = [{ id: 99, user: { id: 41898282, type: 'Bot', login: 'github-actions[bot]' }, body: write.body.body }]
   state.calls.length = 0
-  assert.equal((await reportRun(args)).status, 'updated'); assert.equal(state.calls.find(call => call.method).method, 'PATCH')
+  assert.equal((await reportRun(args)).status, 'skipped-unchanged'); assert.equal(state.calls.some(call => call.method), false)
   assert.ok(state.calls.filter(call => call.method).every(call => /issues\/(?:42\/comments|comments\/99)$/.test(call.path)))
 })
 
@@ -309,7 +309,7 @@ test('trusted source explicitly chooses v2; v1 artifact cannot select a compatib
   assert.match(write.body.body, /controlled browser CPU comparison/)
   mock.state.comments = [{ id: 99, user: { id: 41898282, type: 'Bot', login: 'github-actions[bot]' }, body: write.body.body }]
   mock.state.calls.length = 0
-  assert.equal((await reportRun(mock.arguments)).status, 'updated')
+  assert.equal((await reportRun(mock.arguments)).status, 'skipped-unchanged')
   assert.ok(mock.state.calls.filter(c => c.method).every(c => /issues\/comments\/99$/.test(c.path)))
   const paths = mock.state.calls.filter(c => c.path.includes('/contents/')).map(c => c.path)
   assert.ok(paths.some(p => p.includes('snapshot-observer.mjs')))
@@ -462,8 +462,11 @@ test('missing proof, dependency/bundle/arm drift, unknown source and real geomet
     else if (mode === 'import') run.readers.source.importSha256 = null
     else if (mode === 'source') run.readers.source = { profile: null, slices: [], importSha256: readerImportSha256 }
     else { const block = run.phases[0].blocks[0]; block.geometryProof.positionSha256 = 'a'.repeat(64); block.geometrySha256 = snapshot.sha256(JSON.stringify(block.geometryProof)) }
-    const mock = readerMock(reports); assert.equal((await reportRun(mock.arguments)).status, 'created')
-    assert.match(mock.state.calls.find(call => call.method).body.body, /geometry-input-mismatch/, mode)
+    const mock = readerMock(reports), summaries = []
+    mock.arguments.publishSummary = text => summaries.push(text)
+    assert.equal((await reportRun(mock.arguments)).status, mode === 'geometry' ? 'created' : 'skipped-no-signal', mode)
+    assert.match(summaries[0], /geometry-input-mismatch/, mode)
+    if (mode !== 'geometry') assert.equal(mock.state.calls.some(call => call.method), false)
   }
 })
 
@@ -523,5 +526,105 @@ test('optional proof finalization never changes exact phase statuses/references 
       assert.equal(writes.length, 2)
       for (const [i, phase] of report.phases.entries()) { assert.equal(phase.status, 'passed'); assert.equal(phase.exactSummaryFile, original[i].summaryFile); assert.match(phase.summaryFile, /-readers\.json$/) }
     }
+  }
+})
+
+
+const ownedComment = body => ({ id: 99, user: { id: 41898282, type: 'Bot', login: 'github-actions[bot]' }, body })
+function quietReports(version, mode = 'within-noise') {
+  const reports = version === 2 ? [snapshotFixture(), snapshotFixture('recovery')] : [fixture(), fixture('recovery')]
+  for (const report of reports) for (const run of report.runs) for (const phase of run.phases) {
+    const groups = version === 2 ? Object.values(phase.timings) : [phase.metrics]
+    for (const group of groups) for (const [metric, distributions] of Object.entries(group)) {
+      const value = mode === 'noisy' ? [10, 8, 14, 8, 10, 8][run.index]
+        : mode === 'regression' ? (run.side === 'base' ? 10 : 12)
+        : mode === 'observation-only' && (version === 1 ? metric === 'simulation' : ['simulation', 'callback', 'render'].includes(metric)) ? (run.side === 'base' ? 10 : 8) : 10
+      for (const stat of Object.values(distributions)) if (stat) Object.assign(stat, { mean: value, p50: value, p95: value, max: value })
+    }
+    if (mode === 'mismatch') {
+      if (version === 2) phase.stateSha256 = (run.side === 'base' ? 'a' : 'b').repeat(64)
+      else phase.camera[0] = run.side === 'base' ? 0 : 10
+    }
+  }
+  if (mode === 'incomplete') reports.pop()
+  return reports
+}
+function reportMock(version, reports) {
+  const mock = apiFixture(reports), summaries = []
+  Object.assign(mock.arguments, { protocolVersion: version, publishSummary: text => summaries.push(text),
+    trustedProtocol: version === 2 ? snapshot.protocolHash() : protocol })
+  return { ...mock, summaries }
+}
+test('quiet and diagnostic runs retain full summaries without creating PR notifications in either protocol', async () => {
+  for (const version of [1, 2]) for (const mode of ['within-noise', 'noisy', 'observation-only', 'mismatch', 'incomplete']) {
+    const mock = reportMock(version, quietReports(version, mode))
+    const result = await reportRun(mock.arguments)
+    assert.equal(result.status, 'skipped-no-signal', `${version}: ${mode}`)
+    assert.equal(mock.state.calls.some(call => call.method), false)
+    assert.equal(mock.summaries.length, 1)
+    assert.match(mock.summaries[0], /world-hover|ordinary-hover/)
+    assert.match(mock.summaries[0], /recovery/)
+    assert.match(mock.summaries[0], /actions\/runs\/1234\/attempts\/1/)
+    if (mode === 'within-noise' || mode === 'noisy') assert.ok(mock.summaries[0].includes(mode))
+    if (mode === 'mismatch') assert.match(mock.summaries[0], /workload-mismatch/)
+    if (mode === 'incomplete') assert.match(mock.summaries[0], /incomplete|Incomplete/)
+  }
+})
+test('eligible regressions still notify and publish their complete Actions summary', async () => {
+  for (const version of [1, 2]) {
+    const mock = reportMock(version, quietReports(version, 'regression'))
+    assert.equal((await reportRun(mock.arguments)).status, 'created')
+    assert.match(mock.state.calls.find(c => c.method).body.body, /possible-regression/)
+    assert.match(mock.summaries[0], /possible-regression/)
+  }
+})
+test('actionable finding is superseded once, stays quiet, and can signal again; legacy routine comments stay untouched', async () => {
+  for (const version of [1, 2]) {
+    const signal = reportMock(version, version === 2 ? [snapshotFixture(), snapshotFixture('recovery')] : [fixture(), fixture('recovery')])
+    await reportRun(signal.arguments)
+    const actionable = signal.state.calls.find(c => c.method).body.body
+    for (const prior of [actionable, actionable.replace('<!-- populous-browser-performance-finding:actionable -->\n', '')]) {
+      const quiet = reportMock(version, quietReports(version))
+      quiet.state.comments = [ownedComment(prior)]
+      assert.equal((await reportRun(quiet.arguments)).status, 'updated')
+      const write = quiet.state.calls.find(c => c.method)
+      assert.equal(write.method, 'PATCH'); assert.match(write.path, /issues\/comments\/99$/)
+      assert.match(write.body.body, /finding superseded/); assert.match(write.body.body, /does not prove/)
+      assert.doesNotMatch(write.body.body, /\| possible-improvement:/)
+      quiet.state.comments = [ownedComment(write.body.body)]; quiet.state.calls.length = 0
+      assert.equal((await reportRun(quiet.arguments)).status, 'skipped-no-signal')
+      assert.equal(quiet.state.calls.some(c => c.method), false)
+      signal.state.comments = quiet.state.comments; signal.state.calls.length = 0
+      assert.equal((await reportRun(signal.arguments)).status, 'updated')
+      assert.match(signal.state.calls.find(c => c.method).body.body, /possible-improvement/)
+    }
+    const legacy = reportMock(version, quietReports(version))
+    await reportRun(legacy.arguments)
+    legacy.state.comments = [ownedComment(legacy.summaries[0])]; legacy.state.calls.length = 0
+    assert.equal((await reportRun(legacy.arguments)).status, 'skipped-no-signal')
+    assert.equal(legacy.state.calls.some(c => c.method), false)
+  }
+})
+test('supersession uses the same stale head, older-run, and attempt protections as actionable updates', async () => {
+  const signal = apiFixture(); await reportRun(signal.arguments)
+  const prior = signal.state.calls.find(c => c.method).body.body
+  for (const mode of ['stale', 'older', 'attempt', 'impostor', 'duplicate']) {
+    const mock = reportMock(2, quietReports(2))
+    mock.state.comments = [ownedComment(prior)]
+    if (mode === 'stale') mock.state.changeBeforeWrite = true
+    if (mode === 'older') mock.state.comments[0].body = prior.replace('run:1234:1', 'run:1235:1')
+    if (mode === 'impostor') mock.state.comments[0].user.id = 2
+    if (mode === 'duplicate') mock.state.comments.push(ownedComment(prior))
+    if (mode === 'attempt') {
+      const original = mock.arguments.api; let reads = 0
+      mock.arguments.api = async (path, options) => {
+        const result = await original(path, options)
+        return path.endsWith('/actions/runs/1234') && ++reads > 1 ? { ...result, run_attempt: 2 } : result
+      }
+    }
+    if (mode === 'duplicate') await assert.rejects(reportRun(mock.arguments), /Ambiguous/)
+    else assert.ok((await reportRun(mock.arguments)).status.startsWith('skipped-'))
+    assert.equal(mock.state.calls.some(c => c.method), false)
+    assert.equal(mock.summaries.length, 1)
   }
 })

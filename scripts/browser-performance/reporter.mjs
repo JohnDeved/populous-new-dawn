@@ -1,7 +1,7 @@
 // This module runs ONLY from workflow_run's trusted default-branch checkout.
 // No npm install, PR checkout, artifact extraction, eval, shell or artifact import.
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { appendFileSync, readFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 import { repository, shards, parseReport, compareReports, protocolHash, maxReportBytes } from './protocol.mjs'
 import * as snapshot from './snapshot-protocol.mjs'
@@ -25,7 +25,7 @@ const harnessPaths = ['scripts/browser-performance/protocol.mjs', 'scripts/brows
 const positive = number => Number.isSafeInteger(number) && number > 0
 const digest = value => typeof value === 'string' && /^[a-f0-9]{40}$/.test(value)
 const prefix = `/repos/${repository}`
-export async function reportRun({ api, download, runId, expectedPrNumber, trustedWorkflow, protocolVersion = 1, trustedProtocol = protocolVersion === 2 ? snapshot.protocolHash() : protocolHash(gameplayFramePlan) }) {
+export async function reportRun({ api, download, runId, expectedPrNumber, trustedWorkflow, publishSummary = () => {}, protocolVersion = 1, trustedProtocol = protocolVersion === 2 ? snapshot.protocolHash() : protocolHash(gameplayFramePlan) }) {
   assert.ok(protocolVersion === 1 || protocolVersion === 2, 'Only trusted explicitly selected protocols')
   const protocol = protocolVersion === 2 ? snapshot : { shards, parseReport, compareReports }
   assert.ok(positive(runId) && positive(expectedPrNumber))
@@ -88,9 +88,17 @@ export async function reportRun({ api, download, runId, expectedPrNumber, truste
     reports.push(report)
   }
   const comparison = protocol.compareReports(reports, identity, trustedProtocol)
-  const body = (protocolVersion === 2 ? renderSnapshotComment : renderComment)(comparison, identity, reports, { harnessChanged })
-    .replace(commentMarker, `${commentMarker}\n<!-- populous-browser-performance-run:${runId}:${identity.runAttempt} -->`)
-  assert.ok(Buffer.byteLength(body) < 60000, 'Comment too large')
+  const actionable = comparison.rows.some(row => ['p50', 'p95'].some(statistic =>
+    ['possible-improvement', 'possible-regression'].includes(row[statistic].status)))
+  const runMarker = `<!-- populous-browser-performance-run:${runId}:${identity.runAttempt} -->`
+  const findingMarker = '<!-- populous-browser-performance-finding:actionable -->'
+  const quietMarker = '<!-- populous-browser-performance-finding:superseded -->'
+  const summary = (protocolVersion === 2 ? renderSnapshotComment : renderComment)(comparison, identity, reports, { harnessChanged })
+    .replace(commentMarker, `${commentMarker}\n${runMarker}`)
+  assert.ok(Buffer.byteLength(summary) < 60000, 'Comment too large')
+  // Keep every validated result in Actions, even when no PR notification is useful.
+  await publishSummary(summary)
+  let body = summary.replace(runMarker, `${runMarker}\n${findingMarker}`)
   let comments = []
   for (let page = 1; page <= 5; page++) {
     const items = await api(`${prefix}/issues/${identity.prNumber}/comments?per_page=100&page=${page}`)
@@ -107,6 +115,21 @@ export async function reportRun({ api, download, runId, expectedPrNumber, truste
     assert.ok(marker, 'Unrecognized benchmark comment provenance')
     if (Number(marker[1]) > runId || (Number(marker[1]) === runId && Number(marker[2]) > identity.runAttempt)) return { status: 'skipped-older-run' }
   }
+  if (!actionable) {
+    const prior = existing[0]?.body
+    // Legacy reports have no finding marker. Recognize only their rendered table
+    // classifications, not incidental prose mentioning possible signals.
+    const wasActionable = prior?.includes(findingMarker) ||
+      (prior && !prior.includes(quietMarker) && /\| possible-(?:improvement|regression):/.test(prior))
+    if (!wasActionable) return { status: 'skipped-no-signal', complete: comparison.complete, missing: comparison.missing }
+    body = [commentMarker, runMarker, quietMarker, '## Browser performance finding superseded',
+      `The earlier possible performance signal is no longer a current finding for base \`${identity.baseSha}\` → PR \`${identity.headSha}\`.`,
+      'This run has no eligible possible-improvement or possible-regression classification. This does not prove the earlier change was fixed: results may be noisy, incomplete, incomparable, unknown or observation-only.',
+      `[Full comparison and raw evidence](https://github.com/JohnDeved/populous-new-dawn/actions/runs/${runId}/attempts/${identity.runAttempt}). Routine results remain in Actions; this comment will update if an eligible signal returns.`,
+      'Informational only, not a required check, review approval, or permission to merge.'].join('\n')
+  }
+  assert.ok(Buffer.byteLength(body) < 60000, 'Comment too large')
+  if (existing[0]?.body === body) return { status: 'skipped-unchanged', complete: comparison.complete, missing: comparison.missing }
   // Recheck immediately before the only mutation. Never turn a benchmark into a
   // review, label, check result, commit status, ready transition or merge action.
   if (!await current()) return { status: 'skipped-stale' }
@@ -145,6 +168,7 @@ export async function main() {
   if (event.workflow_run.pull_requests?.length !== 1) { console.log('Skipped unassociated event'); return }
   const result = await reportRun({ api, download, runId: event.workflow_run.id,
     expectedPrNumber: event.workflow_run.pull_requests[0].number, protocolVersion: 2,
+    publishSummary: summary => appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary}\n`),
     trustedWorkflow: readFileSync(new URL('../../.github/workflows/browser-performance.yml', import.meta.url)) })
   console.log(JSON.stringify(result))
 }
