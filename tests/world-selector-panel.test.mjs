@@ -44,3 +44,23 @@ test('selector strip retains source-palette frames and transparent PSFB skips', 
     }
   }
 })
+
+test('scene fills widescreen while the native panel and title retain their common art scale',()=>{
+  const css=readFileSync(new URL('../app/world-selector.module.css',import.meta.url),'utf8')
+  const rule=name=>css.match(new RegExp(`^\\.${name} \\{([^}]+)\\}`, 'm'))[1]
+  assert.match(rule('selector'),/--panel-width: min\(100vw, calc\(100dvh \* 4 \/ 3\)\)/)
+  assert.match(rule('scene'),/width: 100%;/)
+  assert.match(rule('scene'),/height: calc\(var\(--panel-width\) \* \.75\)/)
+  assert.match(rule('panel'),/width: calc\(var\(--panel-width\) \* 638 \/ 640\)/)
+  assert.match(rule('selectedTitle'),/bottom: calc\(var\(--panel-width\) \* 61 \/ 640\)/)
+  for(const [width,height] of [[640,480],[1920,1080],[3440,1440],[3840,2160]]){
+    const scale=Math.min(width/640,height/480)
+    const panelWidth=638*scale, panelHeight=61*scale
+    assert.ok(panelWidth<=width&&panelHeight<height)
+    assert.equal(panelWidth/panelHeight,638/61)
+    // Panel native (1,419) and title y400 remain in the original centered frame.
+    const frameLeft=(width-640*scale)/2
+    assert.ok(Math.abs((width-panelWidth)/2-(frameLeft+scale))<1e-10)
+    assert.ok(Math.abs(height-panelHeight-(height-480*scale+419*scale))<1e-10)
+  }
+})

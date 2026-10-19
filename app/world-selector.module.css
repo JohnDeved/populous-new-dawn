@@ -24,7 +24,7 @@
 .selector button:focus-visible { outline: 3px solid #f4db95; outline-offset: 2px; }
 .selector button:not(.panelGlyph)[aria-pressed='true'] { border-color: #eacf87; background: #38301e; }
 .selector button:disabled { opacity: .5; cursor: not-allowed; }
-.scene { position: absolute; width: var(--panel-width); height: calc(var(--panel-width) * .75); bottom: 0; left: 50%; transform: translateX(-50%); pointer-events: none; }
+.scene { position: absolute; width: 100%; height: calc(var(--panel-width) * .75); bottom: 0; left: 50%; transform: translateX(-50%); pointer-events: none; }
 .scene canvas { display: block; width: 100%; height: 100%; }
 .sceneFailure { position: absolute; top: 45%; left: 15%; right: 15%; text-align: center; pointer-events: auto; font-size: 13px; }
 .selectedTitle, .panel { z-index: 1; }

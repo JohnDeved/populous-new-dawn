@@ -89,3 +89,35 @@ test('shader compilation/linking and texture allocation failures release all own
   }finally{f.cleanup()}
  }
 })
+
+test('wide scene reveals lateral space with native uniform scale across resize and DPR changes',()=>{
+ const f=fixture()
+ try{
+  const renderer=new SelectorRenderer(f.canvas)
+  for(const [width,height,dpr] of [[640,480,1],[1440,1080,1],[1920,1080,1],[3440,1440,1],[1920,1080,2],[3840,2160,2],[853,480,1.25],[640,480,1]]){
+   f.canvas.getBoundingClientRect=()=>({width,height})
+   globalThis.window.devicePixelRatio=dpr
+   renderer.resize()
+   const backingScale=Math.min(dpr,4096/Math.max(width,height))
+   const logicalScale=Math.min(width/640,height/480)
+   assert.equal(f.canvas.width,Math.round(width*backingScale))
+   assert.equal(f.canvas.height,Math.round(height*backingScale))
+   assert.ok(f.canvas.width<=4096&&f.canvas.height<=4096)
+   const [, ,scaleX,scaleY]=f.calls.findLast(c=>c[0]==='uniform2f')
+   assert.equal(scaleX,640*logicalScale/width)
+   assert.equal(scaleY,480*logicalScale/height)
+   assert.equal(f.calls.findLast(c=>c[0]==='uniform1f')[2],logicalScale*backingScale)
+   // Shader mapping of a native 20-pixel radius stays circular in CSS pixels.
+   const radiusX=20/320*scaleX*width/2
+   const radiusY=20/240*scaleY*height/2
+   assert.ok(Math.abs(radiusX-radiusY)<1e-10)
+   // Original left/right edges are interior on widescreen: no 4:3 clip wall.
+   assert.equal(scaleX<1,width/height>4/3)
+   assert.ok(Math.abs((width-640*logicalScale)/2+320*logicalScale-width/2)<1e-10)
+  }
+  const shader=f.calls.find(c=>c[0]==='shaderSource'&&c[2].includes('gl_Position'))[2]
+  assert.match(shader,/position.x \/ 320.0 - 1.0\) \* frameScale.x \* w/)
+  assert.match(shader,/1.0 - position.y \/ 240.0\) \* frameScale.y \* w/)
+  renderer.dispose()
+ }finally{f.cleanup()}
+})

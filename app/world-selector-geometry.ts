@@ -120,9 +120,16 @@ export function createPointStars(seed = 0x504e44) {
   }
   return Array.from({ length: 1000 }, () => ({ x: next(), y: next(), z: next() }))
 }
-export function projectStar(star: ScenePoint, camera: SceneCamera) {
+export function projectStar(star: ScenePoint, camera: SceneCamera, horizontalExpansion = 0) {
   const p = projectPoint(star, camera)
-  if (p.depth <= 10 || p.x < 0 || p.x > 639 || p.y < 0 || p.y > 479) return undefined
+  if (
+    p.depth <= 10 ||
+    p.x < -horizontalExpansion ||
+    p.x > 639 + horizontalExpansion ||
+    p.y < 0 ||
+    p.y > 479
+  )
+    return undefined
   const gray = 2 * (63 - Math.max(0, Math.min(63, (roundEven(p.depth) >> 6) - 83)))
   return sceneVertex(p.x, p.y, 0.5, gray)
 }

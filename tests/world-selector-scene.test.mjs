@@ -116,3 +116,19 @@ test('all scene textures retain importer ownership and exact independently revie
   assert.equal(createHash('sha256').update(readFileSync(root+file)).digest('hex'),hash)
  }
 })
+
+test('widescreen star clipping expands symmetrically without changing native projection or depth',()=>{
+ const camera=cameraBasis({x:0,y:0,z:0},{x:0,y:0,z:1})
+ for(const x of [-900,900]){
+  const point={x,y:0,z:1000}
+  assert.equal(projectStar(point,camera),undefined)
+  const wide=projectStar(point,camera,320/3)
+  assert.ok(wide)
+  assert.equal(wide.x,projectPoint(point,camera).x)
+  assert.equal(wide.y,240)
+  assert.equal(wide.depth,.5)
+  assert.equal(projectStar({x:1400*Math.sign(x),y:0,z:1000},camera,320/3),undefined)
+ }
+ assert.equal(projectStar({x:0,y:900,z:1000},camera,320/3),undefined)
+ assert.equal(projectStar({x:0,y:0,z:10},camera,320/3),undefined)
+})
