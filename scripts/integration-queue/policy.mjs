@@ -160,7 +160,7 @@ export function reviewedWorkflows(entry, observation) {
 
 export function browserRequired(paths) {
   return paths.some(path =>
-    /^(app\/|public\/|scripts\/browser-[^/]*\.mjs$|scripts\/local-render\/(?:tutorial-recommendation|original-pause-checkpoint-recovery|campaign-profile-recovery|checkpoint-observer)\.mjs$|scripts\/checkpoint-readback\.mjs$|scripts\/tutorial-browser\/|\.github\/workflows\/tutorial-browser\.yml$|package(?:-lock)?\.json$|tsconfig\.json$)/.test(
+    /^(app\/|public\/|scripts\/browser-[^/]*\.mjs$|scripts\/local-render\/(?:tutorial-recommendation|original-pause-checkpoint-recovery|campaign-profile-recovery|checkpoint-observer|mission10-boat-checkpoint|mission1-vault-input|owned-profile)\.mjs$|qa\/erosion-ordinary\/(?:input|minimap-input)\.mjs$|scripts\/checkpoint-readback\.mjs$|scripts\/tutorial-browser\/|\.github\/workflows\/tutorial-browser\.yml$|package(?:-lock)?\.json$|tsconfig\.json$)/.test(
       path
     )
   )

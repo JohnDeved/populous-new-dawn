@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { mission10ReceiptFixture } from './support/mission10-profile-receipt.mjs'
 import {
   PROFILE_JOB,
   PROFILE_STEPS,
@@ -65,6 +66,7 @@ function fixture() {
       args: ['--headless', '--remote-debugging-pipe'],
       timeout: 30000,
     },
+    mission10: mission10ReceiptFixture(identity.mergeSha),
     scenarioStatus: 'passed',
     runtimeUnchanged: true,
     cases: PROFILE_CASES.map(([kind, status, fixture]) => ({ kind, status, fixture })),
@@ -539,6 +541,11 @@ test('both recovery scenarios and storage observer changes require browser accep
     'scripts/local-render/original-pause-checkpoint-recovery.mjs',
     'scripts/local-render/checkpoint-observer.mjs',
     'scripts/checkpoint-readback.mjs',
+    'scripts/local-render/mission10-boat-checkpoint.mjs',
+    'scripts/local-render/mission1-vault-input.mjs',
+    'scripts/local-render/owned-profile.mjs',
+    'qa/erosion-ordinary/input.mjs',
+    'qa/erosion-ordinary/minimap-input.mjs',
   ])
     assert.equal(browserRequired([path]), true)
 })

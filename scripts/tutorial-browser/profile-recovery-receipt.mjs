@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { mission10ProfileReceipt } from './mission10-profile-receipt.mjs'
 import { isDeepStrictEqual } from 'node:util'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
@@ -51,9 +52,27 @@ export function profileRecoveryReceipt(receipt, output, env = process.env) {
         'app/page.tsx',
         'app/game-store.ts',
         'package-lock.json',
+        'scripts/tutorial-browser/mission10-profile.mjs',
+        'scripts/tutorial-browser/mission10-input.mjs',
+        'scripts/tutorial-browser/mission10-profile-receipt.mjs',
+        'scripts/tutorial-browser/checkpoint-codec.mjs',
+        'scripts/local-render/mission10-boat-checkpoint.mjs',
+        'scripts/local-render/mission1-vault-input.mjs',
+        'qa/erosion-ordinary/input.mjs',
+        'qa/erosion-ordinary/minimap-input.mjs',
+        'app/minimap.ts',
+        'app/world-coordinates.ts',
+        'app/native-math.ts',
+        'app/original-rules.json',
+        'app/live-command.ts',
+        'app/world-terrain-runtime.ts',
+        'app/selection-runtime.ts',
+        'app/hud-selection.ts',
+        'app/hud-person-source.ts',
       ].map(path => [path, receipt.source.files[path]])
     ),
     receiptSha256: hash(resolve(output, 'receipt.json')),
+    mission10: mission10ProfileReceipt(receipt, output),
     selectedScenario: receipt.selectedScenario,
     build: receipt.build,
     sourceAfter: receipt.sourceAfter,

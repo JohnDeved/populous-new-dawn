@@ -24,7 +24,7 @@ test('IndexedDB acceptance has an independent hosted job without extending Tutor
   assert.deepEqual(config.launch.args, ['--headless', '--remote-debugging-pipe'])
 })
 
-test('recovery selects only the existing nine-case matrix and skips M2 fixture generation', () => {
+test('recovery retains its nine-case matrix and adds only bounded M10 continuation without M2 fixtures', () => {
   const runner = read('scripts/tutorial-browser/run.mjs')
   assert.match(
     runner,
@@ -38,6 +38,9 @@ test('recovery selects only the existing nine-case matrix and skips M2 fixture g
     runner.indexOf("} else if (selectedScenario === 'm2-pointer-f8')")
   )
   assert.match(branch, /receipt.profileRecovery/)
+  assert.match(branch, /receipt.mission10Profile/)
+  assert.match(branch, /deadlineAt: browserDeadlineAt/)
+  assert.ok(branch.indexOf('receipt.profileRecovery') < branch.indexOf('receipt.mission10Profile'))
   assert.doesNotMatch(branch, /selectorInspection|sceneryPlacement|m2PointerF8|spellProjection/)
   assert.match(runner, /if \(selectedScenario === 'tutorial'\) receipt\.spellProjection =/)
   const scenario = read('scripts/local-render/campaign-profile-recovery.mjs')

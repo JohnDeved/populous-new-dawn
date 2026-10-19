@@ -87,13 +87,39 @@ and after ordinary unload. It clears selection with Escape before single/Ctrl/Sh
 clicks, requires all five original occupants (including the Shaman) while aboard,
 and checks restored independent on-foot selection after unload. Public pause
 isolates order/RNG/crew preservation from normal simulation advancement. This
-scenario is NOT RUN for this PR until a supported runner executes both phases;
-a generic Mission 2 browser pass does not establish these assertions. The current
-hosted Tutorial runner neither imports nor admits this scenario and lacks the
-persistent-profile/restart/observation contract. Its existing profile-recovery
-case explicitly covers fresh-page reload, not process-restart persistence. No
-workflow, timeout or browser restriction is changed here; targeted rendered
-acceptance remains blocked pending an approved compatible runner route.
+scenario is NOT RUN for this PR until its supported hosted route executes both
+phases; a generic Mission 2 browser pass does not establish these assertions.
+
+`scripts/tutorial-browser/mission10-profile.mjs` adds that route after, not instead
+of, the existing nine `profile-recovery` cases. Both task-owned persistent Chrome
+processes share the existing 180000 ms browser deadline. It uses the reviewed
+owned-profile lease, a new private task-only directory, identical source/runtime
+bindings, public Save, complete committed-checkpoint readback, confirmed browser
+termination, fresh-process public Load, and same-shore unload. Unknown cleanup or
+provenance retains the profile lock and fails admission. No existing personal
+profile or checkpoint is adopted or seeded. The original nine cases still make
+only their original fresh-page-reload claims.
+
+The hosted input adapter computes the original minimap inverse and native Boat
+coordinates with the imported source helpers in Node. It verifies current DOM
+ownership before real mouse input and preserves the original strict 0.35 rally
+aim tolerance. Ground-command preflight receives a detached, typed-array/Map-safe
+observation through the existing checkpoint codec, never the live World. The old
+local route remains available through its default helpers. No production game
+code, source-serving workaround, world/HP/RNG write, workflow, job, browser cap or
+receipt-size limit is introduced by this adapter.
+
+The compact profile receipt now requires both M10 phases, their source/runtime
+and profile continuity, public route actions, all 18 Total/class selection
+checks, checkpoint boundaries, cleanup and four hashed screenshots. Full raw
+reports remain separate. Negative tests reject missing phases, wrong binding,
+unfinished cleanup, omitted Shaman propagation, missing Escape, altered modifiers
+and invalid unloaded membership. Compact tuples preserve the existing 12KB log
+bound; they do not replace the readable raw observations.
+
+Hosted budget fit and real rendered execution remain unverified. Review must
+precede activation; a timeout or missing rendered evidence blocks acceptance
+rather than authorizing a larger cap.
 
 The focused existing HUD/class/task/transport checks remain required. The planner
 also routes native and browser gates; those were not executed in this restricted

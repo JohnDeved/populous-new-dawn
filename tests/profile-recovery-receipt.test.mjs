@@ -4,6 +4,8 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
+import { writeMission10Fixture } from './support/mission10-profile-receipt.mjs'
+import { validateMission10Profile } from '../scripts/integration-queue/profile-recovery.mjs'
 import {
   profileRecoveryReceipt,
   profileRecoveryReceiptLog,
@@ -17,7 +19,8 @@ test('profile producer binds actual screenshots, cases, runtime and raw receipt'
     const receipt = {
       status: 'passed',
       selectedScenario: 'profile-recovery',
-      source: { commit: 'merge', files: {} },
+      source: { commit: '1'.repeat(40), files: {} },
+      browserSha256: 'a'.repeat(64), browserVersion: 'Chrome', node: process.version, launch: {}, buildPackageVersions: {},
       build: { exitCode: 0, signal: null, timedOut: false, capMs: 120000 },
       browserCapMs: 180000,
       profileRecovery: {
@@ -30,7 +33,9 @@ test('profile producer binds actual screenshots, cases, runtime and raw receipt'
         screenshots: [{ name: 'observed.png', viewport: { width: 123, height: 456 }, dpr: 2 }],
       },
     }
+    receipt.mission10Profile = writeMission10Fixture(output, receipt)
     const envelope = profileRecoveryReceipt(receipt, output, {})
+    assert.equal(validateMission10Profile(envelope.mission10, receipt.source.commit), true)
     assert.equal(envelope.runtimeUnchanged, true)
     assert.deepEqual(envelope.build, receipt.build)
     assert.equal(envelope.browserTimedOut, false)
