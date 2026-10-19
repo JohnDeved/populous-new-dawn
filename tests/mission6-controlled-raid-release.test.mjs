@@ -72,6 +72,13 @@ test('current controlled Mission6 raid releases blocked owners and checkpoint re
     tick(world, 1 / 12)
     tick(replay, 1 / 12)
     assert.deepEqual(replay, world)
+    for (const { id, unit, person, hp } of owners) {
+      assert.equal(world.units.find(candidate => candidate.id === id), unit)
+      assert.equal(unit.hp, hp)
+      assert.equal(unit.native, person)
+      assert.equal(world.objectCells.objects.get(id), person)
+      assert.equal(replay.objectCells.objects.get(id), replay.units.find(candidate => candidate.id === id).native)
+    }
     for (const person of before) if (!task.members.includes(person.id)) {
       assert.equal(person.state, 33, 'the real blocked route reaches state33 before release')
       assert.ok(person.substate === 3 || (person.substate === 2 && person.animationMode > 4))
