@@ -1,3 +1,4 @@
+import { decodeMission10Query, encodeMission10Query, mission10ExpectedSelection, mission10Controls, mission10Modifiers } from '../scripts/local-render/mission10-selection.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -86,8 +87,19 @@ test('complete producer, trusted tuple decoder and serializer retain ordinary an
       for (const shot of receipt.profileRecovery.screenshots) writeFileSync(join(output, shot.name), 'synthetic pixel bytes')
       receipt.mission10Profile = writeMission10Fixture(output, receipt, value => {
         for (const phase of value.phases) {
-          for (const checkpoint of [phase.saved, phase.loaded].filter(Boolean)) { checkpoint[2] = numeric.turn; checkpoint[3] = numeric.time }
-          for (const row of phase.selection) for (const occupant of row.occupants) occupant[1] = numeric.hp
+          for (const checkpoint of [phase.saved, phase.loaded].filter(Array.isArray)) { checkpoint[2] = numeric.turn; checkpoint[3] = numeric.time }
+          for (const row of phase.selection) {
+            for (const occupant of row.occupants) occupant[1] = numeric.hp
+            if (numeric.name !== 'ordinary') {
+              const query = decodeMission10Query(row.query)
+              // Widest accepted native camera representation, same relative
+              // offsets/roster order so the full control obligations still hold.
+              query.point = [-32768, -32768]
+              for (const p of query.people) { p[2] = (p[2] + 32768) & 65535; p[3] = (p[3] + 32768) & 65535 }
+              row.query = encodeMission10Query(query)
+              for (const check of row.checks) check[3] = mission10ExpectedSelection(query, mission10Controls[check[0]], mission10Modifiers[check[1]]).selected
+            }
+          }
         }
       })
       writeFileSync(join(output, 'receipt.json'), JSON.stringify(receipt))
@@ -97,8 +109,8 @@ test('complete producer, trusted tuple decoder and serializer retain ordinary an
       const envelope = profileRecoveryReceipt(receipt, output, env)
       assert.equal(validateProfileRecovery(envelope, { identity: envelope.identity, inputs }), true)
       for (const phase of envelope.mission10.phases) {
-        assert.equal(phase.binding.length, 10)
-        for (const checkpoint of [phase.saved, phase.loaded].filter(Boolean)) {
+        assert.equal(phase.binding.length, 8)
+        for (const checkpoint of [phase.saved, phase.loaded].filter(Array.isArray)) {
           assert.equal(checkpoint.length, 8); assert.equal(checkpoint[2], numeric.turn); assert.equal(checkpoint[3], numeric.time)
         }
         for (const row of phase.selection) for (const occupant of row.occupants) assert.equal(occupant[1], numeric.hp)

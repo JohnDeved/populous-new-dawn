@@ -21,15 +21,15 @@ test('M10 companion requires complete source-bound Save/Load, all public selecti
     v => { v.phases[1].binding.push(true) }, v => { v.phases[1].binding.reverse() },
     v => { delete v.phases[0].saved }, v => { v.phases[0].saved.pop() },
     v => { delete v.phases[1].loaded }, v => { v.phases[1].loaded.push('extra') }, v => { v.phases[1].loaded.reverse() },
-    v => { v.phases[0].saved[0] = 2 }, v => { v.phases[1].loaded[0] = 2 },
+    v => { v.phases[0].saved[0] = 2 }, v => { v.phases[1].saved = [...v.phases[0].saved] }, v => { v.phases[1].loaded[0] = 2 },
     v => { delete v.artifacts }, v => { v.artifacts.path = 'mission10-created/private.json' },
     v => { v.artifacts.bytes = 0 }, v => { v.phases[0].receiptName = 'mission10-created/receipt.json' },
     v => { v.phases[1].resultName = 'unretained.json' },
     v => { v.phases.pop() }, v => { v.phases.reverse() }, v => { v.sourceCommit = '2'.repeat(40) },
-    v => { v.phases[1].binding[1] = 'b'.repeat(64) }, v => { v.phases[1].binding[2] = 'b'.repeat(64) }, v => { v.phases[1].binding[4] = false },
-    v => { v.phases[1].binding[5] = '44444444-4444-4444-4444-444444444444' },
-    v => { v.phases[1].binding[6] = v.phases[0].binding[6] }, v => { v.phases[1].binding[7] = null },
-    v => { v.phases[0].binding[8] = false }, v => { v.phases[1].binding[9] = false },
+    v => { v.phases[1].binding[0] = 'b'.repeat(64) }, v => { v.phases[1].binding[0] = 'b'.repeat(64) }, v => { v.phases[1].binding[2] = false },
+    v => { v.phases[1].binding[3] = '44444444-4444-4444-4444-444444444444' },
+    v => { v.phases[1].binding[4] = v.phases[0].binding[4] }, v => { v.phases[1].binding[5] = null },
+    v => { v.phases[0].binding[6] = false }, v => { v.phases[1].binding[7] = false },
     v => { v.phases[1].checkpointAtStart = 'b'.repeat(64) }, v => { v.phases[1].loaded[5] = 'b'.repeat(64) },
     v => { v.phases[0].selection = [] }, v => { v.phases[1].selection.pop() },
     v => { v.phases[0].selection[0].checks.pop() }, v => { v.phases[0].selection[0].checks[0][3].shift() },
@@ -44,6 +44,13 @@ test('M10 companion requires complete source-bound Save/Load, all public selecti
     const copy = structuredClone(good); mutate(copy)
     assert.throws(() => validateMission10Profile(copy, sha), /Mission 10/)
   }
+  for (const mutate of [
+    v => { delete v.phases[0].selection[0].query },
+    v => { v.phases[0].selection[0].query[3] += 'junk' },
+    v => { v.phases[0].selection[0].checks[4][3].pop() },
+    v => { v.phases[0].selection[0].checks[5][3].push(999) },
+    v => { v.phases[1].selection[1].checks[4][3] = [63, 111, 112, 113, 114] },
+  ]) { const bad = structuredClone(good); mutate(bad); assert.throws(() => validateMission10Profile(bad, sha)) }
   assert.throws(() => validateMission10Profile(undefined, sha), /Mission 10/)
 })
 

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { readMission10Selection } from '../tutorial-browser/mission10-input.mjs'
+import { mission10SelectionQuery, mission10ExpectedSelection, mission10SelectionPreserved } from './mission10-selection.mjs'
 import { checkpointObservation } from './checkpoint-observer.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { bindGame } from '../browser-game.mjs'
@@ -19,31 +21,30 @@ export async function checkMission10FollowerStrip({ page, input, state, phase, o
   assert.ok(before.party.every(person => person && person.hp > 0))
   assert.ok(before.party.every(person => occupied ? person.vehicle === boatId : !person.vehicle))
   const result = { phase, occupied, occupants: before.party.map(({ id, hp, vehicle }) => ({ id, hp, vehicle })), checks: [] }
-  const warriors = party.filter(id => id !== 63)
   for (const name of ['Select warrior', 'Select follower']) {
     for (const modifiers of [[], ['Control'], ['Shift']]) {
       const label = `${phase}: ${name} ${modifiers[0] ?? 'single'}`
       await input.action(`${label} Escape-clear`, () => page.keyboard.press('Escape'))
       const cleared = await state(`${label} cleared`)
       assert.deepEqual(cleared.selected, [], 'Escape must clear the existing crew first')
+      const query = mission10SelectionQuery(cleared.selectionState)
+      if (!result.query) result.query = query
+      else assert.deepEqual(query, result.query, 'Paused pre-action selection query changed')
+      mission10SelectionPreserved(before.selectionState, cleared.selectionState)
+      const expected = mission10ExpectedSelection(query, name, modifiers[0] ?? 'single')
       await input.action(label, () => page.getByRole('button', { name, exact: true }).click({ modifiers }))
       const after = await state(`${label} selected`)
       const selected = [...after.selected].sort((a, b) => a - b)
-      if (occupied) assert.deepEqual(selected, party, 'Class/Total must acquire all five occupants, including Shaman')
-      else if (name === 'Select follower' && modifiers[0] === 'Control')
-        assert.deepEqual(selected, party, 'On-foot Total Ctrl can acquire Shaman after all four Warriors')
-      else if (modifiers.length) assert.deepEqual(selected, warriors, 'On-foot class Ctrl/Shift and Total Shift exclude Shaman')
-      else {
-        assert.equal(selected.length, 1, 'On-foot single click acquires one follower')
-        assert.ok(warriors.includes(selected[0]))
-      }
+      assert.deepEqual(selected, expected.selected, 'Exact original-contract class/Total selection differs')
+      if (occupied) assert.ok(party.every(id => selected.includes(id)), 'Class/Total must acquire all five occupants, including Shaman')
+      mission10SelectionPreserved(cleared.selectionState, after.selectionState)
       assert.equal(after.paused, true)
       assert.equal(after.turn, before.turn)
       assert.deepEqual(after.orders, before.orders, 'HUD selection preserves commands')
       assert.deepEqual(after.randomState, before.randomState, 'HUD selection preserves RNG')
       assert.deepEqual(after.boat, before.boat, 'HUD selection preserves craft and passenger slots')
       assert.deepEqual(after.party, before.party, 'HUD selection preserves live passenger activity')
-      result.checks.push({ name, modifier: modifiers[0] ?? 'single', cleared: cleared.selected, selected, preserved: true })
+      result.checks.push({ name, modifier: modifiers[0] ?? 'single', cleared: cleared.selected, selected, primary: expected.primary, preserved: true })
     }
   }
   if (!entering.paused) await input.resume()
@@ -70,6 +71,12 @@ export default async function ({ page, openMission, output, receipt, observeChec
         party: party.map(id => { const u = w.units.find(u => u.id === id); return u && { id, kind: u.kind, hp: u.hp, x: u.x, z: u.z, vehicle: u.native?.vehicle, state: u.native?.state, flags2: u.native?.flags2, flags4: u.native?.flags4, path: u.path, work: u.work, commands: u.native?.commands, commandStatus: u.native?.commandStatus } }),
         panels: [...document.querySelectorAll('.vehicle-panel')].map(e => ({ text: e.textContent, visible: !!e.getClientRects().length })) }
     }, { label, party, boatId })
+    if (label.endsWith('-strip-paused') || label.endsWith(' cleared') || label.endsWith(' selected')) {
+      row.selectionState = await page.evaluate(readMission10Selection)
+      assert.equal(row.selectionState.turn, row.turn)
+      assert.equal(row.selectionState.paused, true)
+      assert.deepEqual(row.selectionState.selected, row.selected)
+    }
     report.observations.push(row); save(); return row
   }
   const input = createInput({ page, signal, report, save, originalShamanId: 63, deadlineAt })

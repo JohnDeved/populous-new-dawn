@@ -1,4 +1,10 @@
+import { encodeMission10Query, decodeMission10Query, mission10ExpectedSelection, mission10Controls, mission10Modifiers, mission10OwnedIds } from '../../scripts/local-render/mission10-selection.mjs'
 // Synthetic evidence for validator tests only, never rendered acceptance.
+export function mission10QueryFixture(occupied) {
+  return { point: [256, 256], nearby: false, boat: [occupied ? 5 : 0, ...(occupied ? [63, 111, 112, 113, 114] : [0, 0, 0, 0, 0])],
+    people: mission10OwnedIds.map((id, i) => [id, i === 0 ? 7 : i < 5 ? 3 : i < 9 ? 4 : 2,
+      256 + (i < 5 ? i * 2 : i * 100), 256, 0, 0, occupied && i < 5 ? 62 : 0]) }
+}
 export function mission10ReceiptFixture(mergeSha) {
   const h = 'a'.repeat(64), party = [63, 111, 112, 113, 114]
   // version, level, turn, time, checkpoint/actors/terrain/stock SHA-256.
@@ -7,17 +13,16 @@ export function mission10ReceiptFixture(mergeSha) {
     artifacts: { path: 'mission10-artifacts.json', bytes: 4000, sha256: h },
     phases: ['created', 'reused'].map((mode, index) => ({
       mode, status: 'passed',
-      binding: [mergeSha, h, h, 'identical', true, '11111111-1111-1111-1111-111111111111',
+      binding: [0, 'identical', true, '11111111-1111-1111-1111-111111111111',
         index ? '33333333-3333-3333-3333-333333333333' : '22222222-2222-2222-2222-222222222222',
         index ? '22222222-2222-2222-2222-222222222222' : null, true, true],
       receiptName: `mission10-${mode}--receipt.json`, resultName: `mission10-${mode}--boat-checkpoint.json`, receiptSha256: h, resultSha256: h,
-      checkpointAtStart: index ? h : null, checkpointAtEnd: h, saved: [...saved], loaded: index ? [...saved] : null,
+      checkpointAtStart: index ? h : null, checkpointAtEnd: h, saved: index ? 0 : [...saved], loaded: index ? [...saved] : null,
       selection: (index ? ['loaded', 'unloaded'] : ['boarded']).map(phase => ({
-        phase, occupied: phase !== 'unloaded',
+        phase, occupied: phase !== 'unloaded', query: encodeMission10Query(mission10QueryFixture(phase !== 'unloaded')),
         occupants: party.map(id => [id, 100, phase !== 'unloaded' ? 62 : 0]),
-        checks: ['Select warrior', 'Select follower'].flatMap(name => ['single', 'Control', 'Shift'].map(modifier => [
-          name, modifier, [], phase !== 'unloaded' || name === 'Select follower' && modifier === 'Control' ? [...party]
-            : modifier === 'single' ? [111] : party.slice(1), true,
+        checks: mission10Controls.flatMap((name, control) => mission10Modifiers.map((modifier, code) => [
+          control, code, [], mission10ExpectedSelection(mission10QueryFixture(phase !== 'unloaded'), name, modifier).selected, true,
         ])),
       })),
       publicActions: index ? ['public Load Game', 'ordinary Boat right-click inspection', 'public Unload all passengers']
@@ -42,12 +47,13 @@ export function writeMission10Fixture(output, receipt, customize = () => {}) {
   const runtimeSha256 = createHash('sha256').update(JSON.stringify(runtime)).digest('hex')
   const report = { status: 'passed', sourceCommit: value.sourceCommit, sourceFingerprint: value.sourceFingerprint, runtimeSha256,
     phases: value.phases.map(p => {
-      const [sourceCommit, sourceFingerprint, , sourceAfter, , profileId, runId, previousRunId, cleanupVerified, continuationVerified] = p.binding
+      const [, sourceAfter, , profileId, runId, previousRunId, cleanupVerified, continuationVerified] = p.binding
+      const { sourceCommit, sourceFingerprint } = value
       const dir = `mission10-${p.mode}`; mkdirSync(resolve(output, dir))
-      const result = { status: 'passed', saved: p.mode === 'created' ? { checkpoint: checkpoint(p.saved) } : checkpoint(p.saved), loaded: checkpoint(p.loaded),
-        selection: p.selection.map(row => ({ ...row,
+      const result = { status: 'passed', saved: p.mode === 'created' ? { checkpoint: checkpoint(p.saved === 0 ? value.phases[0].saved : p.saved) } : checkpoint(p.saved === 0 ? value.phases[0].saved : p.saved), loaded: checkpoint(p.loaded),
+        selection: p.selection.map(row => ({ ...row, query: decodeMission10Query(row.query),
           occupants: row.occupants.map(([id, hp, vehicle]) => ({ id, hp, vehicle })),
-          checks: row.checks.map(([name, modifier, cleared, selected, preserved]) => ({ name, modifier, cleared, selected, preserved })),
+          checks: row.checks.map(([name, modifier, cleared, selected, preserved]) => ({ name: mission10Controls[name], modifier: mission10Modifiers[modifier], cleared, selected, preserved })),
         })), actions: p.publicActions.map(label => ({ label, phase: 'after' })) }
       const phase = { status: p.status, source: { commit: sourceCommit, fingerprint: sourceFingerprint },
         runtime, runtimeSha256, errors: [], sourceAfter, cleanupVerified,

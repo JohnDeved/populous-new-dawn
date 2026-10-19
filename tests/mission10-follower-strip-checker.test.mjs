@@ -3,6 +3,9 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { checkMission10FollowerStrip } from '../scripts/local-render/mission10-boat-checkpoint.mjs'
 
+import { mission10ExpectedSelection } from '../scripts/local-render/mission10-selection.mjs'
+import { mission10QueryFixture } from './support/mission10-profile-receipt.mjs'
+
 const party = [63, 111, 112, 113, 114]
 function fixture(occupied, fault) {
   const calls = [], observations = []
@@ -11,6 +14,12 @@ function fixture(occupied, fault) {
     boat: { id: 62, passengers: occupied ? [...party] : [] },
     party: party.map(id => ({ id, hp: 100, vehicle: occupied ? 62 : 0 })),
   }
+  const query = mission10QueryFixture(occupied)
+  const selectionState = () => ({ paused: live.paused, turn: live.turn, selected: live.selected,
+    point: { x: query.point[0], y: query.point[1] }, nearby: query.nearby,
+    vehicles: [{ id: 62, team: 'blue', model: 1, active: true, passengerCount: query.boat[0], passengers: query.boat.slice(1) }],
+    people: query.people.map(([id, model, x, y, priority, flags4, vehicle]) => ({ id, model, team: 'blue', hp: 100,
+      x, y, assignment: priority << 12, flags4, vehicle, owners: {} })) })
   return {
     live, calls, observations,
     page: {
@@ -22,8 +31,10 @@ function fixture(occupied, fault) {
         assert.ok(['Select warrior', 'Select follower'].includes(options.name))
         return { click: async ({ modifiers }) => {
           calls.push(['click', options.name, modifiers]); assert.equal(live.paused, true)
-          live.selected = occupied && fault !== 'no-propagation' || !occupied && options.name === 'Select follower' && modifiers[0] === 'Control'
-            ? [...party] : modifiers.length ? party.slice(1) : [111]
+          live.selected = mission10ExpectedSelection(query, options.name, modifiers[0] ?? 'single').selected
+          if (fault === 'no-propagation') live.selected = live.selected.filter(id => id !== 63)
+          if (fault === 'extra') live.selected.push(999)
+          if (fault === 'missing-extra' && options.name === 'Select follower' && modifiers[0] === 'Control') live.selected.pop()
           if (fault === 'orders') live.orders.next++
         } }
       },
@@ -33,7 +44,7 @@ function fixture(occupied, fault) {
       pause: async () => { calls.push(['pause']); live.paused = true },
       resume: async () => { calls.push(['resume']); live.paused = false },
     },
-    state: async label => { observations.push(label); return structuredClone(live) },
+    state: async label => { observations.push(label); return structuredClone({ ...live, selectionState: selectionState() }) },
   }
 }
 
@@ -52,7 +63,7 @@ test('M10 witness Escape-clears before every mounted class/Total modifier case a
 })
 
 test('M10 witness fails when the boarded Shaman is omitted or selection changes orders', async () => {
-  for (const [fault, expected] of [['no-propagation', /all five occupants/], ['orders', /preserves commands/]]) {
+  for (const [fault, expected] of [['no-propagation', /selection differs/], ['extra', /selection differs/], ['missing-extra', /selection differs/], ['orders', /preserves commands/]]) {
     const f = fixture(true, fault)
     await assert.rejects(checkMission10FollowerStrip({ ...f, phase: 'boarded', occupied: true }), expected)
   }

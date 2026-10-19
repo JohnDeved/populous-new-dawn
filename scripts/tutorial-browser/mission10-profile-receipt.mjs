@@ -1,3 +1,4 @@
+import { encodeMission10Query, mission10Controls, mission10Modifiers } from '../local-render/mission10-selection.mjs'
 // Compact evidence producer. Trusted admission validates this against reviewed
 // Git inputs; raw reports and screenshots remain independent hashed artifacts.
 import assert from 'node:assert/strict'
@@ -16,6 +17,7 @@ export function mission10ProfileReceipt(receipt, output) {
   assert.equal(report?.status, 'passed', 'Mission 10 companion must pass')
   assert.equal(report.phases.length, 2)
   assert.deepEqual(JSON.parse(readFileSync(resolve(output, 'mission10-profile.json'))), report)
+  let savedCheckpoint
   return { status: report.status, sourceCommit: report.sourceCommit,
     sourceFingerprint: report.sourceFingerprint, runtimeSha256: report.runtimeSha256,
     reportSha256: hash(resolve(output, 'mission10-profile.json')),
@@ -39,24 +41,31 @@ export function mission10ProfileReceipt(receipt, output) {
         JSON.stringify(phase.runtime.packages) === JSON.stringify(receipt.buildPackageVersions)
       const screenshots = mode === 'created' ? ['boarded-class-selected.png', 'saved-occupied-boat.png']
         : ['loaded-class-selected.png', 'unloaded-class-selected.png']
+      assert.equal(phase.source.commit, report.sourceCommit)
+      assert.equal(phase.source.fingerprint, report.sourceFingerprint)
+      assert.equal(phase.runtimeSha256, report.runtimeSha256)
+      const saved = checkpointTuple(mode === 'created' ? result.saved.checkpoint : result.saved)
+      if (index === 0) savedCheckpoint = saved
+      else assert.deepEqual(saved, savedCheckpoint, 'Exact current checkpoint changed across processes')
       return { mode, status: phase.status,
-        // Fixed binding tuple: commit, source fingerprint, runtime digest,
+        // Fixed binding tuple: shared source/runtime reference (0),
         // source-after status, host match, profile ID, run ID, previous run ID,
         // cleanup verified, continuation verified. No numeric/hash fact is lost.
-        binding: [phase.source.commit, phase.source.fingerprint, phase.runtimeSha256,
+        binding: [0, // exact reference to the outer source/runtime triple, asserted above
           phase.sourceAfter, runtimeMatchesHost, profile.id, profile.runId,
           profile.previousRun?.runId ?? null, phase.cleanupVerified, profile.continuationVerified],
         receiptName: mission10RetainedName(mode, 'receipt.json'), resultName: mission10RetainedName(mode, 'boat-checkpoint.json'),
         receiptSha256: hash(file), resultSha256: hash(resolve(output, dir, 'boat-checkpoint.json')),
         checkpointAtStart: profile.checkpointAtStart?.checkpointSha256 ?? null,
         checkpointAtEnd: profile.checkpointAtEnd?.checkpointSha256 ?? null,
-        saved: checkpointTuple(mode === 'created' ? result.saved.checkpoint : result.saved),
+        saved: index === 0 ? saved : 0, // 0 is a lossless reference to phases[0].saved after exact equality above.
         loaded: checkpointTuple(result.loaded ?? null), selection: result.selection.map(row => ({
-          phase: row.phase, occupied: row.occupied,
+          phase: row.phase, occupied: row.occupied, query: encodeMission10Query(row.query),
           // Bounded envelope tuples: occupant [id, hp, vehicle], check
-          // [accessible name, modifier, cleared IDs, selected IDs, preserved].
+          // [control code, modifier code, cleared IDs, selected IDs, preserved].
+          // Codes are exact indexes of the two fixed public names/three modifiers.
           occupants: row.occupants.map(({ id, hp, vehicle }) => [id, hp, vehicle]),
-          checks: row.checks.map(({ name, modifier, cleared, selected, preserved }) => [name, modifier, cleared, selected, preserved]),
+          checks: row.checks.map(({ name, modifier, cleared, selected, preserved }) => [mission10Controls.indexOf(name), mission10Modifiers.indexOf(modifier), cleared, selected, preserved]),
         })),
         publicActions: result.actions.filter(action => action.phase === 'after' &&
           ['ordinary rally click', 'ordinary Boat boarding click', 'public Save single click',

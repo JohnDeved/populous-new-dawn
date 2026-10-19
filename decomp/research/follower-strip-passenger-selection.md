@@ -84,8 +84,9 @@ These are portable integration fixtures, not rendered-browser evidence.
 The existing `scripts/local-render/mission10-boat-checkpoint.mjs` now checks the
 mounted Total/class controls after its real authored boarding, after public Load,
 and after ordinary unload. It clears selection with Escape before single/Ctrl/Shift
-clicks, requires all five original occupants (including the Shaman) while aboard,
-and checks restored independent on-foot selection after unload. Public pause
+clicks, requires all five original occupants (including the Shaman) while aboard plus
+every independently expected ordinary acquisition, and checks the complete
+independent on-foot set after unload. Public pause
 isolates order/RNG/crew preservation from normal simulation advancement. This
 scenario is NOT RUN for this PR until its supported hosted route executes both
 phases; a generic Mission 2 browser pass does not establish these assertions.
@@ -154,6 +155,62 @@ evaluator and serializers: it reproduces the original TypeError, then verifies
 the repaired production boundary, typed-array/Map transport, unchanged live World,
 strict ownership/aim/context guards and abort admission. This is not a rendered
 pass, and the failed run provides no boarding, crew-selection or Save/Load proof.
+
+## Exact ordinary-selection witness repair
+
+The second hosted attempt, [run 39327787899](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39327787899),
+reached genuine authored boarding. Warrior single/Ctrl/Shift and Total single
+selected the five occupants. Total Ctrl selected the crew plus 116, 118, 120 and
+122; the harness incorrectly demanded the crew alone. Authored M10 initialization
+identifies 116/118 as Blue Preachers and 120/122 as Blue Braves. The failed raw
+report did not capture their live pre-action positions, flags or ownership, so it
+remains a failure, not a retrospective product or rendered pass.
+
+The original `0x72` loop acquires **five primaries**, not five total recipients.
+Crew propagation occurs inside each iteration. The independent oracle follows
+that contract, using the retained nearest/priority selector `00451720` (SHA-256
+`775d3e6063c243d7c8393293a66eff04d2c59567aecce2ed340603ad07a2d6b9`),
+global fallback `004518c0` (SHA-256
+`d0036de2fc3fe47ab0fb4b1fd269dd28f2141f0ddd473cdabcb0c9d537c19efc`)
+and availability predicate `004e3430` (SHA-256
+`e573cc86a20df47f99eabc8fb5942ac85f755766ce78557b24a703346ea9ecb2`).
+It does not call `selectFollowers`, `selectHudPeople` or any production mutator.
+Assignment priority, strict nearby bounds, truncated wrapped distance, stable
+roster ties, class/Shaman fallback, availability and each immediate crew closure
+are preserved. Total Shift also includes all other eligible classes; unloaded
+Total Ctrl is not artificially restricted to the original party.
+
+Before and after every actual control, a synchronous read-only browser function
+captures the complete ordered roster, class/team/health, active controller facts,
+craft ownership/slots, selection and camera. It serializes the existing read-only
+controller readers rather than importing development modules in the production
+page. Native XY fallback does not invoke terrain synchronization. Public input,
+Escape, all three modifiers, pause, orders, RNG and existing party/craft guards
+remain unchanged. The paused query and all non-selection controller/ownership
+facts must remain stable. The bounded scenario requires all fourteen authored
+Blue followers in their original order/classes and fails on loss, conversion,
+new arrivals, unknown crew or a changed camera/query rather than silently
+omitting a person. Full other-tribe records remain in the raw evidence.
+
+The exact set computed from that pre-action roster is required in both the
+scenario and trusted admission. A missing legitimate extra, foreign extra,
+missing Shaman or subset-only result fails. Raw reports retain each primary
+acquisition sequence. Portable tests cover the extra Preacher/Brave acquisition,
+all six occupied/unloaded controls, native filter/priority/wrap/tie cases,
+serialized real observer with authored M10 identities, no live mutation, and
+strict roster/ownership tamper rejection. Supplied occupied fixtures support
+these tests; they are not natural boarding or fresh-browser evidence.
+
+To retain the existing 12,000-byte envelope, exact bounded query integers use a
+canonical fixed-width encoding; control names/modifiers use fixed checked codes.
+Repeated source/runtime and saved-checkpoint values use explicit references only
+after exact equality checks against the raw values. No raw number/hash is
+rounded or removed from retained reports. All 42 input hashes, all nine original
+cases, all 18 control checks, both processes, checkpoint boundaries, cleanup,
+manifest and screenshots remain required. The widest tested numeric, identity,
+PID, manifest and native-camera representation is 11,918 bytes. This is synthetic
+contract evidence, not rendered timing. The 180,000 ms browser cap and workflow
+are unchanged. New exact-source rendered acceptance remains pending.
 
 The focused existing HUD/class/task/transport checks remain required. The planner
 also routes native and browser gates; those were not executed in this restricted

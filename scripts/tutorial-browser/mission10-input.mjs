@@ -1,3 +1,6 @@
+import { BuilderTask } from '../../app/building-workers.ts'
+import { builderActivity, unitAnimationSource } from '../../app/unit-animation-source.ts'
+import { hudPersonSource } from '../../app/hud-person-source.ts'
 // Production-preview input geometry: source-owned pure helpers run in Node.
 // Browser callbacks read only live state/pickers; only real input commands change it.
 import assert from 'node:assert/strict'
@@ -94,3 +97,35 @@ export function createMission10Input(options) {
     },
   }
 }
+
+// Read-only, synchronous pre/post-input capture. Serialize the existing controller
+// readers into the real function body; no production-page module imports or World
+// adoption. The fallback records only native XY, never calls terrain sync.
+export const readMission10Selection = new Function(`
+  const BuilderTask = ${JSON.stringify(BuilderTask)};
+  const builderActivity = ${builderActivity.toString()};
+  const unitAnimationSource = ${unitAnimationSource.toString()};
+  const hudPersonSource = ${hudPersonSource.toString()};
+  const scene = window.testSceneRef.current, w = scene.world;
+  const model = { brave: 2, warrior: 3, preacher: 4, spy: 5, firewarrior: 6, shaman: 7 };
+  const fields = p => p && Object.fromEntries(['x','y','vehicle','state','assignment','flags2','flags3','flags4','selectionFlags','commands','commandStatus'].map(k => [k, p[k]]));
+  return { turn: w.turn, paused: w.paused, point: { ...scene.cameraPosition },
+    nearby: !!(w.castingTribes[0].flags & 128), selected: [...w.selected],
+    people: w.units.map(u => {
+      const snapshot = hudPersonSource(w, u), active = snapshot.active ?? u.native ?? u.entry?.person;
+      const source = snapshot.source?.vehicle ? snapshot.source : (active ?? u.builder?.person);
+      const point = source?.vehicle ? source : active;
+      const owners = { native: u.native, flight: u.flight, fight: u.fight?.motion,
+        entry: u.entry?.person, builder: u.builder?.person, route: w.pathfinding.people.get(u.id) };
+      return { id: u.id, team: u.team, kind: u.kind, hp: u.hp,
+        model: u.team === 'wild' ? 1 : model[u.kind],
+        x: point ? point.x : (Math.round((u.x + 8) * 256) << 16) >> 16,
+        y: point ? point.y : (Math.round((-u.z - 8) * 256) << 16) >> 16,
+        assignment: source?.assignment ?? 0, flags4: source?.flags4 ?? 0,
+        vehicle: source?.vehicle ?? 0,
+        owner: Object.keys(owners).find(key => owners[key] && owners[key] === source) ?? null,
+        owners: Object.fromEntries(Object.entries(owners).map(([key, value]) => [key, fields(value) ?? null])) };
+    }),
+    vehicles: w.vehicles.map(v => ({ id: v.id, team: v.team, model: v.model, active: v.active,
+      passengerCount: v.passengerCount, passengers: [...v.passengers] })) };
+`)

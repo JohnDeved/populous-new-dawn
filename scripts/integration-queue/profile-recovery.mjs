@@ -1,3 +1,4 @@
+import { decodeMission10Query, mission10ExpectedSelection, mission10Controls, mission10Modifiers } from '../local-render/mission10-selection.mjs'
 // Trusted read-only policy: never import this module from candidate Git source.
 import { createHash } from 'node:crypto'
 const ensure = (value, message) => {
@@ -45,6 +46,9 @@ export const PROFILE_INPUTS = [
   'scripts/tutorial-browser/mission10-profile-receipt.mjs',
   'scripts/tutorial-browser/checkpoint-codec.mjs',
   'scripts/local-render/mission10-boat-checkpoint.mjs',
+  'scripts/local-render/mission10-selection.mjs',
+  'app/unit-animation-source.ts',
+  'app/building-workers.ts',
   'scripts/local-render/mission1-vault-input.mjs',
   'qa/erosion-ordinary/input.mjs',
   'qa/erosion-ordinary/minimap-input.mjs',
@@ -173,20 +177,23 @@ export function validateMission10Profile(value, mergeSha) {
   ensure(value.artifacts?.path === 'mission10-artifacts.json' && isHash(value.artifacts.sha256) &&
     Number.isSafeInteger(value.artifacts.bytes) && value.artifacts.bytes > 0, 'Mission 10 retained artifact manifest missing')
   ensure(Array.isArray(value.phases) && value.phases.length === 2, 'Mission 10 requires both browser processes')
-  const party = [63, 111, 112, 113, 114], warriors = party.slice(1)
+  const party = [63, 111, 112, 113, 114]
   const uuid = value => typeof value === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(value)
   const checkpoint = tuple => {
     ensure(Array.isArray(tuple) && tuple.length === 8, 'Mission 10 checkpoint tuple malformed')
     const [version, level, turn, time, checkpointSha256, actorsSha256, terrainSha256, stockSha256] = tuple
     return { version, level, turn, time, checkpointSha256, actorsSha256, terrainSha256, stockSha256 }
   }
-  const phases = value.phases.map(phase => {
-    ensure(Array.isArray(phase.binding) && phase.binding.length === 10, 'Mission 10 binding tuple malformed')
-    const [sourceCommit, sourceFingerprint, runtimeSha256, sourceAfter, runtimeMatchesHost,
+  const phases = value.phases.map((phase, index) => {
+    ensure(Array.isArray(phase.binding) && phase.binding.length === 8, 'Mission 10 binding tuple malformed')
+    const [shared, sourceAfter, runtimeMatchesHost,
       profileId, runId, previousRunId, cleanupVerified, continuationVerified] = phase.binding
+    ensure(shared === 0, 'Mission 10 source/runtime reference invalid')
+    const { sourceCommit, sourceFingerprint, runtimeSha256 } = value
+    ensure(index === 0 ? Array.isArray(phase.saved) : phase.saved === 0, 'Mission 10 saved checkpoint reference invalid')
     return { ...phase, sourceCommit, sourceFingerprint, runtimeSha256, sourceAfter, runtimeMatchesHost,
       profileId, runId, previousRunId, cleanupVerified, continuationVerified,
-      saved: checkpoint(phase.saved), loaded: phase.loaded === null ? null : checkpoint(phase.loaded) }
+      saved: checkpoint(index === 0 ? phase.saved : value.phases[0].saved), loaded: phase.loaded === null ? null : checkpoint(phase.loaded) }
   })
   const [saved, loaded] = phases
   for (const [index, phase] of phases.entries()) {
@@ -205,6 +212,8 @@ export function validateMission10Profile(value, mergeSha) {
     ensure(Array.isArray(phase.selection) && same(phase.selection.map(row => row.phase), names), 'Mission 10 selection phases incomplete')
     for (const row of phase.selection) {
       const occupied = row.phase !== 'unloaded'
+      const query = decodeMission10Query(row.query)
+      ensure(query.people.every(p => party.includes(p[0]) ? p[6] === (occupied ? 62 : 0) : p[6] === 0), 'Mission 10 query occupancy differs')
       ensure(row.occupied === occupied && Array.isArray(row.occupants) &&
         row.occupants.every(Array.isArray) && same(row.occupants.map(person => person[0]), party) &&
         row.occupants.every(person => person.length === 3 && Number.isFinite(person[1]) && person[1] > 0 && (occupied ? person[2] === 62 : !person[2])),
@@ -214,12 +223,11 @@ export function validateMission10Profile(value, mergeSha) {
         ensure(Array.isArray(check) && check.length === 5, 'Mission 10 control observation malformed')
         const [control, observedModifier, cleared, selected, preserved] = check
         const name = at < 3 ? 'Select warrior' : 'Select follower', modifier = ['single', 'Control', 'Shift'][at % 3]
-        ensure(control === name && observedModifier === modifier && same(cleared, []) && preserved === true,
+        ensure(control === mission10Controls.indexOf(name) && observedModifier === mission10Modifiers.indexOf(modifier) && same(cleared, []) && preserved === true,
           'Mission 10 Escape/control/modifier/preservation evidence invalid')
-        const expected = occupied || name === 'Select follower' && modifier === 'Control' ? party : warriors
-        ensure(!occupied && modifier === 'single'
-          ? Array.isArray(selected) && selected.length === 1 && warriors.includes(selected[0])
-          : same(selected, expected), 'Mission 10 selected crew differs')
+        const expected = mission10ExpectedSelection(query, name, modifier).selected
+        ensure(same(selected, expected), 'Mission 10 selected crew differs')
+        ensure(!occupied || party.every(id => selected.includes(id)), 'Mission 10 crew propagation omitted')
       }
     }
     const actions = index === 0 ? ['ordinary rally click', 'ordinary Boat boarding click', 'public Save single click']
