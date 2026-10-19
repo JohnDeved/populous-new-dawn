@@ -150,3 +150,33 @@ test('late lookup completion cannot navigate or reclaim focus after opening Opti
   assert.deepEqual(ui.focusCalls, ['Load Game'])
   assert.equal(ui.loads(), 0)
 })
+
+// The shared Options capture listener consumes the first Escape in Browser help
+// and then unmounts. These repeats reach this actual frontend component handler.
+// React propagation, keyup and focus restoration are covered by frontend-held-escape.
+test('held Escape cannot leave newly revealed frontend Options; a fresh press still returns', () => {
+  const ui = fixture()
+  for (let episode = 0; episode < 2; episode++) {
+    ui.button('Options').props.onClick()
+    ui.render()
+    for (let repeat = 0; repeat < 3; repeat++) {
+      assert.equal(ui.activate('Escape', true, false), true)
+      const output = ui.render()
+      assert.ok(!tree(output).some(node => node.props?.['aria-label'] === 'Main menu choices'),
+        'held Escape must not cross from the newly revealed Options to Main')
+    }
+    assert.equal(ui.activate('Escape', false, false), true)
+    assert.ok(tree(ui.render()).some(node => node.props?.['aria-label'] === 'Main menu choices'))
+  }
+  assert.equal(ui.loads(), 0)
+})
+
+test('frontend native cancel retains its fresh back action', () => {
+  const ui = fixture()
+  ui.button('Options').props.onClick()
+  const output = ui.render()
+  let prevented = false
+  output.props.onCancel({ preventDefault() { prevented = true } })
+  assert.equal(prevented, true)
+  assert.ok(tree(ui.render()).some(node => node.props?.['aria-label'] === 'Main menu choices'))
+})
