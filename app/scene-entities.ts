@@ -1,3 +1,4 @@
+import { cursorRosterSelected } from './neutral-cursor.ts'
 import { templeWorldMaterial } from './temple-art.ts'
 import { unitRenderAnimationSource } from './unit-animation-source.ts'
 import { hutSmokeState } from './hut-smoke-runtime.ts'
@@ -538,7 +539,12 @@ export function updateUnitsFrame(scene: GameScene) {
     unitFrameIds.set(scene, ids)
   }
   ids.clear()
-  for (const u of scene.world.units) ids.add(u.id)
+  scene.neutralCursorRosterSelected = false
+  for (const u of scene.world.units) {
+    ids.add(u.id)
+    if (!scene.neutralCursorRosterSelected && cursorRosterSelected(u))
+      scene.neutralCursorRosterSelected = true
+  }
   let selectedIds = unitFrameSelectedIds.get(scene)
   if (!selectedIds) {
     selectedIds = new Set()
