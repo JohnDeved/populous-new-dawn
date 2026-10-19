@@ -129,6 +129,15 @@ status. Unknown entries, symlinks, collisions, missing success artifacts and
 changed bytes fail closed; the private browser profile is never enumerated.
 Tests reconcile emitted paths with the actual parsed workflow upload globs.
 
+A realistic compact fixture alone did not prove the unchanged 12KB log bound:
+review found admitted wide HP/turn/time numbers could overflow it. The compact
+checkpoint and provenance fields now use fixed-length, explicitly decoded tuples
+while retaining every exact numeric/hash value and all previous equality checks.
+Raw artifacts remain readable named-field JSON. Regression cases pass through the
+actual producer, trusted decoder and serializer with all 39 source hashes, nine
+profile cases, both M10 phases, wide finite numbers, long identity fields and PID.
+Missing, reordered or wrong-length tuples fail admission; the cap is unchanged.
+
 Hosted budget fit and real rendered execution remain unverified. Review must
 precede activation; a timeout or missing rendered evidence blocks acceptance
 rather than authorizing a larger cap.

@@ -5,6 +5,10 @@ import { mission10RetainedName, readMission10ArtifactManifest } from './mission1
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+// Lossless bounded checkpoint tuple: version, level, turn, time, then
+// checkpoint/actors/terrain/stock SHA-256. Raw reports retain named fields.
+const checkpointTuple = value => value === null ? null : [value.version, value.level, value.turn, value.time,
+  value.checkpointSha256, value.actorsSha256, value.terrainSha256, value.stockSha256]
 const hash = file => createHash('sha256').update(readFileSync(file)).digest('hex')
 
 export function mission10ProfileReceipt(receipt, output) {
@@ -35,17 +39,19 @@ export function mission10ProfileReceipt(receipt, output) {
         JSON.stringify(phase.runtime.packages) === JSON.stringify(receipt.buildPackageVersions)
       const screenshots = mode === 'created' ? ['boarded-class-selected.png', 'saved-occupied-boat.png']
         : ['loaded-class-selected.png', 'unloaded-class-selected.png']
-      return { mode, status: phase.status, sourceCommit: phase.source.commit,
-        sourceFingerprint: phase.source.fingerprint, runtimeSha256: phase.runtimeSha256,
-        sourceAfter: phase.sourceAfter, runtimeMatchesHost, profileId: profile.id, runId: profile.runId,
-        previousRunId: profile.previousRun?.runId ?? null,
-        cleanupVerified: phase.cleanupVerified, continuationVerified: profile.continuationVerified,
+      return { mode, status: phase.status,
+        // Fixed binding tuple: commit, source fingerprint, runtime digest,
+        // source-after status, host match, profile ID, run ID, previous run ID,
+        // cleanup verified, continuation verified. No numeric/hash fact is lost.
+        binding: [phase.source.commit, phase.source.fingerprint, phase.runtimeSha256,
+          phase.sourceAfter, runtimeMatchesHost, profile.id, profile.runId,
+          profile.previousRun?.runId ?? null, phase.cleanupVerified, profile.continuationVerified],
         receiptName: mission10RetainedName(mode, 'receipt.json'), resultName: mission10RetainedName(mode, 'boat-checkpoint.json'),
         receiptSha256: hash(file), resultSha256: hash(resolve(output, dir, 'boat-checkpoint.json')),
         checkpointAtStart: profile.checkpointAtStart?.checkpointSha256 ?? null,
         checkpointAtEnd: profile.checkpointAtEnd?.checkpointSha256 ?? null,
-        saved: mode === 'created' ? result.saved.checkpoint : result.saved,
-        loaded: result.loaded ?? null, selection: result.selection.map(row => ({
+        saved: checkpointTuple(mode === 'created' ? result.saved.checkpoint : result.saved),
+        loaded: checkpointTuple(result.loaded ?? null), selection: result.selection.map(row => ({
           phase: row.phase, occupied: row.occupied,
           // Bounded envelope tuples: occupant [id, hp, vehicle], check
           // [accessible name, modifier, cleared IDs, selected IDs, preserved].
