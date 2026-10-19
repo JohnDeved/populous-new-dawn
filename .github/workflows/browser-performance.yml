@@ -59,7 +59,7 @@ jobs:
         run: |
           npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
           npm ci --ignore-scripts --no-audit --no-fund
-          test -x /opt/google/chrome/chrome
+          node scripts/browser-performance/install-browser.mjs
           test -f scripts/browser-performance/run.mjs
       - name: Run sequential paired fresh browsers on this runner
         working-directory: harness
@@ -78,6 +78,8 @@ jobs:
         with:
           name: browser-performance-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
           path: |
+            harness/outputs/browser-runtime/receipt.json
+            harness/outputs/browser-runtime/install.log
             harness/outputs/browser-performance/${{ matrix.shard }}/receipt.json
             harness/outputs/browser-performance/${{ matrix.shard }}/*.log
             harness/outputs/browser-performance/${{ matrix.shard }}/session-*/*.json

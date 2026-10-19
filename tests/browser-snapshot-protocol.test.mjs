@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import vm from 'node:vm'
+import { sha256 } from '../scripts/browser-performance/browser-runtime.mjs'
 import { FramePerformance } from '../app/frame-performance.ts'
 import { createPointerFrameMetrics } from '../app/pointer-frame-metrics.ts'
 import { installSnapshotObserver } from '../scripts/browser-performance/snapshot-observer.mjs'
@@ -172,6 +173,19 @@ test('paired classification requires exact query/submission inventory, state, so
   assert.equal(compareReports([wrong, report('recovery')], identity).rows[0].p50.status, 'environment-mismatch')
   assert.throws(() => compareReports([report()], { ...identity, runId: 9 }))
 })
+test('snapshot comparisons retain host/runtime mismatch refusals after a common browser pin', () => {
+  const environment = { browserVersion: 'Google Chrome 155.0.8059.84', browserSha256: '1'.repeat(64),
+    browserPinSha256: '2'.repeat(64), release: '7.0.0-1017-azure', runnerVersion: '20261018.339.1' }
+  const make = (shard, change = {}) => ({ ...report(shard), runtimeSha256: sha256(JSON.stringify({ ...environment, ...change })) })
+  assert.equal(compareReports([make('world'), make('recovery')], identity).complete, true)
+  for (const change of [{ release: '6.17.0-1022-azure' }, { runnerVersion: '20261012.334.1' },
+    { browserVersion: 'Google Chrome 155.0.8059.39' }, { browserSha256: '3'.repeat(64) }, { browserPinSha256: '4'.repeat(64) }]) {
+    const result = compareReports([make('world'), make('recovery', change)], identity)
+    assert.equal(result.complete, false)
+    assert.ok(result.rows.every(row => row.p50.status === 'environment-mismatch' && row.p95.status === 'environment-mismatch'))
+  }
+})
+
 function observer(actualRecorder) {
   const callbacks = new Map(), events = new Map(); let id = 0
   const recorder = actualRecorder ?? { recentCount: 1, timestamp: 20 }, scene = { fpsGraph: { samples: recorder }, cameraPosition: { x: 1, y: 2, angle: 0 },

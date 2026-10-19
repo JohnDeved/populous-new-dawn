@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { deflateRawSync } from 'node:zlib'
 import { readFileSync } from 'node:fs'
-import { repository, shards, order, metrics, workMetrics, statistics, summarizeMetrics, summarizeTimings, validateReport,
+import { repository, shards, order, metrics, workMetrics, statistics, summarizeMetrics, summarizeTimings, validateReport, sha256,
   parseReport, compareReports, classify, comparableWork, maxReportBytes } from '../scripts/browser-performance/protocol.mjs'
 import { readReportArchive } from '../scripts/browser-performance/artifact.mjs'
 import { renderComment, commentMarker } from '../scripts/browser-performance/render.mjs'
@@ -107,6 +107,19 @@ test('missing per-section metrics remain unknown while matched known metrics are
   assert.equal(result.rows[1].p50.status, 'possible-improvement')
   const phases = fixture().runs.map(run => run.phases[0]); phases[1].work.terrainCalls = null
   assert.equal(comparableWork(phases), false)
+})
+
+test('pinning the browser does not admit different runner images, kernels or real browser mismatches', () => {
+  const environment = { browserVersion: 'Google Chrome 155.0.8059.84', browserSha256: '1'.repeat(64),
+    browserPinSha256: '2'.repeat(64), release: '7.0.0-1017-azure', runnerVersion: '20261018.339.1' }
+  const make = (shard, change = {}) => ({ ...fixture(shard), runtimeSha256: sha256(JSON.stringify({ ...environment, ...change })) })
+  assert.equal(compareReports([make('world'), make('recovery')], identity, protocol).complete, true)
+  for (const change of [{ release: '6.17.0-1022-azure' }, { runnerVersion: '20261012.334.1' },
+    { browserVersion: 'Google Chrome 155.0.8059.39' }, { browserSha256: '3'.repeat(64) }, { browserPinSha256: '4'.repeat(64) }]) {
+    const result = compareReports([make('world'), make('recovery', change)], identity, protocol)
+    assert.equal(result.complete, false)
+    assert.ok(result.rows.every(row => row.p50.status === 'environment-mismatch' && row.p95.status === 'environment-mismatch'))
+  }
 })
 
 test('comment is informational, section-specific, explicit about uncertainty and links only trusted run metadata', () => {

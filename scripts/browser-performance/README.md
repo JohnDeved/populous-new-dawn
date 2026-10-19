@@ -51,6 +51,75 @@ Those failed raw captures remain historical evidence. The revision-2 stable-hove
 repair subsequently passed [candidate smoke 39150561670](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39150561670)
 and the PR593 paired control. Neither result qualifies the new held-drag phase.
 
+## Proposed pinned browser runtime (issue #654)
+
+The benchmark now requires an explicit reviewed official `google-chrome-stable`
+Debian package pin from `browser-runtime.json`, not whichever Chrome patch the
+runner image happens to contain. Version `155.0.8059.84-1`, package size and SHA-256
+were read from [Google's package index](https://dl.google.com/linux/chrome/deb/dists/stable/main/binary-amd64/Packages)
+on 2026-10-19. The download URL is derived only from that version at Google's
+fixed repository. This is HTTPS repository provenance and a reviewed content pin,
+not an independently verified upstream signature or a reproducible-build claim.
+
+The installer requires the existing installed Chrome package, downloads into a
+fresh invocation-owned temporary directory, and verifies size, SHA-256, package
+name, version and architecture before installation. It streams the executable
+member from that verified package to derive its expected SHA-256 without creating
+a second browser tree. Ordinary `dpkg --install` replaces the existing package;
+there is no apt dependency repair/update, floating `latest`, shared browser cache,
+or system-browser fallback. Missing downloads, dependencies, package failures or
+wrong/corrupt executables fail closed and retain an installation receipt/log in
+the existing evidence artifact. Only the owned temporary download is removed.
+
+The launcher remains `/opt/google/chrome/chrome`, now supplied explicitly to
+Playwright. Full Chrome, `chromiumSandbox: true`, `ignoreDefaultArgs: true`, existing
+arguments and all session/build/job limits are unchanged. No AppArmor/sysctl
+change, new helper configuration, headless-shell substitution or `--no-sandbox`
+is permitted. [Chromium's sandbox documentation](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md)
+explains why an arbitrary downloaded browser-cache path is not equivalent on
+Ubuntu 24.04. The package route preserves the installed Chrome path covered by
+the existing platform policy. Hosted proof of this particular update is pending;
+do not infer successful sandbox launch from a version probe or source tests.
+
+The checked-in Playwright lock currently selects 1.63.0. Its [official browser
+manifest](https://github.com/microsoft/playwright/blob/v1.63.0/packages/playwright-core/browsers.json)
+selects Chrome for Testing 153.0.8010.12/revision 1243, but a cache-path launch would
+need separate sandbox suitability evidence. [Playwright documents support for
+stable branded Chrome](https://playwright.dev/docs/browsers#google-chrome--microsoft-edge),
+so this proposal pins the normal stable package instead. Actual installed
+Playwright version must match the trusted lock; lock and manifest hashes are
+recorded and rechecked, not duplicated into browser release constants.
+
+Each execution receipt binds the exact official package pin, package source,
+actual executable version/hash, absolute launcher path and installed Playwright
+identity. The executable is reverified before and after each arm and at final
+admission; the launched browser's reported version must also match. Browser pin
+identity joins the existing runtime hash. Kernel, runner image/version, CPU and
+renderer/GPU provenance and all comparison guards remain intact. Even identical
+browser bytes on different runner images/kernels remain an environment mismatch.
+No cross-machine pairing or historical reclassification is introduced.
+
+Upgrade the release by reviewing Google's exact package-index stanza, changing
+the one version/size/SHA-256 manifest, running focused admission tests and obtaining
+fresh hosted same-runner paired evidence. Never resolve `latest` at execution or
+refresh a pin merely to turn a failed run green. Package withdrawal is a visible
+blocker, not permission to substitute a release. Dependency-lock upgrades still
+require their normal review and fresh runtime qualification.
+
+Rollout limitation: this source-only draft has not installed or launched a browser.
+The first PR's comparison uses its old exact base and cannot execute its own new
+installer/harness; the changed workflow is also rejected by the existing trusted
+reporter admission. Review and land support before activating/qualifying the
+new path against a trusted base. Keep #654 open until a fresh complete matched
+hosted run proves the selected package installation and sandboxed launch. Old
+run 39303586009 remains refused, and pinning alone does not fix host drift or the
+separate live-melee observation failure.
+
+Portable coverage: `npm run test:focus -- tests/browser-runtime.test.mjs
+tests/browser-performance.test.mjs tests/browser-snapshot-protocol.test.mjs`.
+Installer tests use injected commands and one inert data-only Debian fixture;
+they never install a package, launch a browser or change security policy.
+
 ## Fixed controlled workload
 
 - Exact-base production `createWorld(2)`, 140 `advanceGame` calls at 1/24 seconds,

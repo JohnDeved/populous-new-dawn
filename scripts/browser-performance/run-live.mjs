@@ -7,7 +7,7 @@ import { preview } from 'vite'
 import { chromium } from '@playwright/test'
 import capture from '../tutorial-browser/gameplay-frames.mjs'
 import { gameplayFramePlan } from '../tutorial-browser/gameplay-frame-evidence.mjs'
-import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
+import { benchmarkBrowser } from './browser-runtime.mjs'
 import { repository, shards, order, workMetrics, sha256, protocolHash, summarizeMetrics, summarizeTimings, validateReport } from './protocol.mjs'
 
 const root = resolve(import.meta.dirname, '../..'), base = root, head = resolve(root, '../candidate')
@@ -64,9 +64,12 @@ try {
   }
   assert.ok(!existsSync(resolve(head, 'node_modules')), 'Candidate install must be absent')
   symlinkSync(resolve(root, 'node_modules'), resolve(head, 'node_modules'), 'dir')
-  const config = browserConfiguration()
-  environment.browserVersion = execFileSync(config.browserPath, ['--version'], { encoding: 'utf8' }).trim()
-  environment.browserSha256 = sha256(readFileSync(config.browserPath))
+  const pinnedBrowser = benchmarkBrowser(root), { config, provenance } = pinnedBrowser
+  receipt.browser = provenance
+  environment.browserVersion = provenance.browserVersion
+  environment.browserSha256 = provenance.browserSha256
+  environment.browserPinSha256 = provenance.pinSha256
+  saveReceipt()
   report.runtimeSha256 = sha256(JSON.stringify(environment))
   const dist = { base: await build('base'), head: await build('head') }
   for (const [index, side] of order.entries()) {
@@ -81,8 +84,11 @@ try {
       // ignoreDefaultArgs is retained from the reviewed sandboxed configuration.
       // Give Chrome a fresh HOME/config/cache as well as an incognito context, so
       // process-level profile/cache state cannot leak from a previous paired arm.
+      pinnedBrowser.verify()
       browser = await chromium.launch({ ...config.launch, env: { ...process.env,
         HOME: profile, XDG_CONFIG_HOME: resolve(profile, 'config'), XDG_CACHE_HOME: resolve(profile, 'cache') } })
+      session.browserVersion = browser.version()
+      pinnedBrowser.verifyLaunched(session.browserVersion)
       timer = setTimeout(() => { session.timedOut = true; void browser?.close() }, 90000)
       const context = await browser.newContext({ viewport: gameplayFramePlan.viewport, deviceScaleFactor: 1 })
       const page = await context.newPage(); page.setDefaultTimeout(15000)
@@ -108,10 +114,12 @@ try {
           camera: [phase.before.camera.x, phase.before.camera.y, phase.before.camera.angle, phase.after.camera.x, phase.after.camera.y, phase.after.camera.angle],
           metrics: summarizeTimings(frames), work: summarizeMetrics(frames, workMetrics) })
       }
+      pinnedBrowser.verify()
       run.status = 'complete'
     } catch (error) { session.failure = String(error).slice(0, 2000) }
     finally { clearTimeout(timer); await browser?.close(); browser = null; await server?.close(); server = null; rmSync(profile, { recursive: true, force: true }); session.endedAt = new Date().toISOString(); save(); saveReceipt() }
   }
+  pinnedBrowser.verify()
   for (const [side, source] of Object.entries(sources)) assert.equal(fingerprint(source), fingerprints[side], 'Tracked source mutation')
   if (report.runs.every(run => run.status === 'complete')) report.status = 'complete'
 } catch (error) { receipt.failure = String(error).slice(0, 2000); process.exitCode = 1 }
