@@ -23,7 +23,7 @@ test('authored Mission 3 automatic sermon ends and completes its retained next w
   assert.equal(records.length, 2)
   assert.ok(records.every(({ record }) => record.model === 3))
   until('automatic32', () => currentPersonOrder(w.buildingOrders, person)?.model === 32, 1000)
-  assert.equal(w.turn, 2500)
+  assert.equal(w.turn, 2492)
   const immediate = person.immediateCommand
   assert.ok(immediate && !queue.includes(immediate))
   assert.deepEqual(person.commands, queue)

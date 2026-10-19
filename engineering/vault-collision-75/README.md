@@ -89,3 +89,23 @@ are in the log. Later formatting and the second caller-fixture handle900 adjustm
 require the final frozen candidate validation; these earlier receipts are not
 claimed to cover unrun later changes. Typecheck, expanded focused regression and
 independent review remain required before activation.
+
+## Hosted integration diagnostic timing
+
+The first full gate on `cfe8f508` exposed previous-port campaign turn pins,
+not original-runtime goldens. Four initial observation pins are updated after
+review: automatic Mission3 sermon starts 2540→2528 and 2500→2492, Mission6
+marker Bridge completion 7306→8404, and first Mission6 raid 6767→7791. The
+original failures and paired source-bound traces are retained outside Git.
+
+The source-supported changes are distinct: Mission3 phase4 grants linked-body
+access and dispatches direct movement before recovery, as `0043c7a0` specifies;
+Mission6's real physical Vault mask changes a timber route cost from28 to30,
+reorders two equal-cost choices and subsequently changes economy/RNG history.
+Authored neutral class2/model18 bodies and their shrine adapters share the same
+coarse anchors. These observations do not certify original whole-game timing.
+
+Only these four previously measured port turns change here. Native counters,
+actor identities, phase/order/reference checks, RNG/checkpoint twins and outcomes
+are unchanged. Full affected journeys must still run: a later failure is a new
+diagnostic frontier, not permission to replace additional constants or goldens.

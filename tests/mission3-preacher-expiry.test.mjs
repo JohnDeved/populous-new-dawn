@@ -42,7 +42,7 @@ test('ordinary automatic sermon reaches 840, retires its identity and resumes th
   assert.ok(command(w, { x: -25, z: -100 }))
   const person = unitAnimationSource(preacher)
   until('automatic sermon', () => currentPersonOrder(w.buildingOrders, person)?.model === 32, 1000)
-  assert.equal(w.turn, 2540)
+  assert.equal(w.turn, 2528)
   const first = person.immediateCommand
   const slots = person.commands.filter(Boolean)
   const records = slots.map(id => structuredClone(w.buildingOrders.records[id]))

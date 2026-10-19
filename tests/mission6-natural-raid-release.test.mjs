@@ -60,7 +60,7 @@ test('legacy markerless Mission6 task releases its blocked raid without stranded
   while (world.turn < raidLimit && !raid() && world.status === 'playing') tick(world, 1 / 12)
   const task = raid()
   assert.ok(task)
-  assert.equal(world.turn, 6767)
+  assert.equal(world.turn, 7791)
   assert.deepEqual(task.spells, [12, 3, 2])
   delete task.stagingMarker
   delete task.spellMarker
