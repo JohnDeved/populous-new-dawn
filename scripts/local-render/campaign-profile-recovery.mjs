@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import { pauseStartupReady, skipPauseIntroduction } from './original-pause-checkpoint-recovery.mjs'
 import { waitRecoveryReadiness } from '../tutorial-browser/profile-readiness.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
@@ -93,7 +94,7 @@ async function storedRecords() {
 }
 
 async function seedRecords(page, { kind, completed = [1, 2] }) {
-  await page.evaluate(async ({ kind, completed }) => {
+  await page.evaluate(async ({ kind, completed, currentVersion }) => {
     let latest
     if (kind === 'malformed') latest = { version: 1, world: {} }
     // Historical partial state is rejected before normalization.
@@ -104,7 +105,7 @@ async function seedRecords(page, { kind, completed = [1, 2] }) {
       world.turn = 217
       world.randomState = 0x12345678
       if (kind === 'legacy') { delete world.drawMode; delete world.capacityPolicy }
-      latest = { version: kind === 'legacy' ? 1 : 2, world }
+      latest = { version: kind === 'legacy' ? 1 : currentVersion, world }
     }
     const db = await new Promise((resolve, reject) => {
       const request = indexedDB.open('populous-new-dawn', 1)
@@ -121,7 +122,7 @@ async function seedRecords(page, { kind, completed = [1, 2] }) {
         transaction.onabort = () => reject(transaction.error ?? Error('Fixture seed aborted'))
       })
     } finally { db.close() }
-  }, { kind, completed })
+  }, { kind, completed, currentVersion: CHECKPOINT_VERSION })
 }
 
 async function expectProfileUi(page, completed) {

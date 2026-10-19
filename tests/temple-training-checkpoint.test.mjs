@@ -5,7 +5,7 @@ import { addBuilding, addUnit } from '../app/model.ts'
 import { buildingAdmission } from '../app/live-building-entry.ts'
 import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
 import { allocatePersonOrder, attachPersonOrder } from '../app/person-orders.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { migrateCheckpoint, CHECKPOINT_VERSION } from '../app/game-store.ts'
 import { checkpointObservation } from '../scripts/local-render/checkpoint-observer.mjs'
 import {
   armTempleCheckpoint,
@@ -381,7 +381,7 @@ test('active Temple Save observes post-normalization publication, committed IDB 
   assert.equal(db.closed, 2, 'both readback database handles close')
 })
 
-for (const version of [2]) test(`fresh store restores v${version} active Temple and public Load Game publishes before Page unpause`, async t => {
+for (const version of [CHECKPOINT_VERSION]) test(`fresh store restores v${version} active Temple and public Load Game publishes before Page unpause`, async t => {
   const db = await storage(t),
     f = activeFixture(db.createGameStore),
     saved = f.store.saveCheckpoint()
