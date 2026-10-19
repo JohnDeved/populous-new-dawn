@@ -1,12 +1,13 @@
 // Sole launcher. Literal binding is filled only after review freeze.
 import assert from 'node:assert/strict'
+import { timingEnvironment } from './child-environment.mjs'
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { spawn, execFileSync } from 'node:child_process'
 import { finalizeEvidence } from '../../scripts/body-layer-stage-a/observation-store.mjs'
 import { protocol } from './protocol.mjs'
 import { sha, fileSha, save, space } from '../../scripts/body-layer-stage-a/io.mjs'
-const expectedBinding = '7d30ccbcece1be6dc0a8a8d029d3cd4a80692104fa8f105c3b886cd2051fbd62'
+const expectedBinding = '3433e0b65f474c1e28120d71791c62acd86aef32a5a86179e6ccc5f880331f99'
 const here = import.meta.dirname,
   bindingPath = join(here, 'binding.json')
 const [base, candidate, output, browser, references] = process.argv.slice(2),
@@ -44,7 +45,7 @@ try {
         references,
         String(deadline),
       ],
-      { stdio: ['ignore', 'pipe', 'pipe'], detached: true }
+      { stdio: ['ignore', 'pipe', 'pipe'], detached: true, env: timingEnvironment(process.env) }
     )
     let bytes = 0
     const log = []

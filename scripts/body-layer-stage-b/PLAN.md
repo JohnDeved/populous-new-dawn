@@ -68,7 +68,7 @@ unexecutable until the final launcher binding is frozen and independently review
 The reference manifest pins the qualified R11 proof and its limitations. Worker,
 driver and launcher reuse the frozen Stage A setup/build/codec/storage helpers by
 explicit source imports. No current Stage A file or PR618 runtime file is changed.
-Six unit tests exercise timer ordering/throw cleanup, fixed8-child schedule,
+Seven unit tests exercise timer ordering/throw cleanup, fixed8-child schedule,
 raw-tail summaries, terminal lossless state/pick/pixel/counter failure behavior and
 absence of per-step observation work. These are not actual browser validation.
 
@@ -141,3 +141,5 @@ floor. Every download/extraction write checks512MiB plus the pending chunk.
 Materialization uses only verified hardlinks, never copies blob contents; a32MiB
 additional reserve covers the428 paths and <2MiB extras above the512MiB floor,
 checked before/after materialization and before each extras copy. No floor changed.
+
+Artifact GH_TOKEN/GITHUB_TOKEN aliases are removed from the timing driver environment after acquisition, and therefore from its build and browser descendants.

@@ -1,4 +1,5 @@
 import test from 'node:test'
+import { timingEnvironment } from './child-environment.mjs'
 import assert from 'node:assert/strict'
 import { gzipSync } from 'node:zlib'
 import { readFileSync } from 'node:fs'
@@ -251,4 +252,12 @@ test('actual SIGTERM handler persists completed rows and attempted-step metadata
   assert.equal(saved.status, 'incomplete')
   assert.deepEqual(saved.steps, [{ index: 0, elapsedMs: 12 }])
   assert.deepEqual(saved.attempt, { index: 1, elapsedMs: null })
+})
+
+test('acquisition token aliases never enter timing descendants', () => {
+  const parent = { GH_TOKEN: 'test-only-gh', GITHUB_TOKEN: 'test-only-github', PATH: '/test' }
+  assert.deepEqual(timingEnvironment(parent), { PATH: '/test' })
+  assert.equal(parent.GH_TOKEN, 'test-only-gh')
+  assert.equal(parent.GITHUB_TOKEN, 'test-only-github')
+  assert.match(readFileSync(new URL('./run-once.mjs', import.meta.url), 'utf8'), /env: timingEnvironment\(process.env\)/)
 })

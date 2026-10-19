@@ -8,13 +8,13 @@
     "budget.mjs": "8872a2a484c96374262cd8cfdc1d68437f46410ab49b0845a9455e99de67707b",
     "protocol.mjs": "89483a3b24ae291e515cf8e4ffeec99b8eec4ee4b0c88abc29e2ce3d9f930de5",
     "hosted-workflow.yml": "20c869f85abea7c2bc20b1b1dfefe023b451b7cda247e1f5b7d23cb07e399477",
-    "PLAN.md": "b4461e4c24b077858f90e209a27b6fb61d51cd07714c17508568af490fb5a26f",
+    "PLAN.md": "aae0f3a62c6bb57e052e43310d5045c2d6c277ae3ec8cbca0b489492beab5403",
     "reference-binding.mjs": "3fe7cdb9e83181b3d8b13232d2205099e6d42171c1bb066f59f13e82b52a52e5",
     "timed-page.mjs": "38e92ee7b8f49284590a4d71911e5b87a51ceb471cac1c297e751a249a93f78b",
     "driver.mjs": "5df6ee028fefe079b9ba1440ee819c6ce32787ccb4cba24239e99ba68fceabc3",
     "acquire-reference.mjs": "c75c9f35c53f821494d553f27436fea322e85d1ec20e7fa4d631304109b3bec2",
     "acquisition.test.py": "ca0b7f23d4c24ac683cd419e727103e2c9ec45190463988b8c35400b4129228d",
-    "proposal.test.mjs": "56572ef08d7618dbee96847a97219800bc2537a531622c8b4c61928e66dd6a24",
+    "proposal.test.mjs": "faa2158c90b96a98986575d66639e0b465172cef20a5ae7ab456d044e665cdcb",
     "terminal-proof.mjs": "309be439d67929c9cd4a17f09b9f87908e9c3a552979f51a628a47088afc128e",
     "reference-extras/stage-b-reference-manifest.json": "195a2eaa8bc02e343b6c1bac95bcd66f328da60c4f378f8ff374349cd677edaa",
     "reference-extras/derive-body-step-identities.mjs": "2f7b6ebb71b28f3621f1bd7fad59e4cab0e789339857fee43e8fa9f07bb41d60",
@@ -100,6 +100,7 @@
     "../../scripts/tutorial-browser/fixture/main.tsx": "e6738a27bea60f59d595b7fa456c0c11ed466d7003a6d1c2e3286ad05ad5a7fa",
     "../../scripts/tutorial-browser/fixture/index.html": "4b628f3fe6dd1e6a6d809182355e39ff14254e2b8792797d2813a16d4bc5b01d",
     "../../package.json": "4cc4c8a4d22f87a09004739426d0dbbb3be01198a712849051f692d7afcb77f3",
-    "../../package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba"
+    "../../package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+    "child-environment.mjs": "1db299f08a142019fcc8061bd4e81252b45ad7e65bcb85145484d84ed813d043"
   }
 }
