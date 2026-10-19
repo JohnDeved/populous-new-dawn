@@ -338,3 +338,85 @@ test('held Escape cannot cross pause subpanels, but a fresh press retains native
     assert.equal(resumes, 1)
   }
 })
+
+for (const [label, callback, destination] of [
+  ['Quit Game', 'onQuitGame', 'Return to the main menu.'],
+  ['Quit Level', 'onQuitLevel', 'Return to world selection.'],
+]) {
+  test(`${label} retains destination and unsaved warning in pause-font lines and fallback`, () => {
+    for (const fonts of [true, false]) {
+      const ui = fixture({ prepared: { fonts } })
+      ui.click(label)
+      const nodes = tree(ui.render())
+      const warning = nodes.find(node => node.props.id === 'pause-quit-warning')
+      assert.ok(warning)
+      assert.equal(ui.render().props['aria-describedby'], 'pause-quit-warning')
+      assert.equal(warning.props.children[0].props.children, `${destination} Unsaved progress will be lost.`)
+      const lines = warning.props.children[1]
+      assert.equal(lines.length, 2)
+      const font = JSON.parse(readFileSync(new URL('../app/original-pause-font.json', import.meta.url)))
+      for (const [index, line] of lines.entries()) {
+        const text = [destination, 'Unsaved progress will be lost.'][index]
+        assert.equal(line.props.children.props.text, text)
+        assert.equal(line.props.children.props.ready, fonts)
+        assert.ok([...text].reduce((sum, c) => sum + font.rects[c.charCodeAt(0) - 32].w, 0) <= 480)
+        const rendered = tree(line)
+        assert.equal(rendered.some(node => node.type === 'i'), fonts)
+        if (!fonts) assert.ok(rendered.some(node => node.props.children === text))
+      }
+      assert.ok(!JSON.stringify(warning).includes('Close the browser tab'))
+      assert.equal(ui.button('Yes').props.style.top, 189)
+      assert.equal(ui.button('No').props.style.top, 219)
+      assert.equal(ui.button('Back').props.style.top, 454)
+    }
+  })
+  test(`${label} cancellation, reopen and repeated confirmation preserve actual callback ownership`, () => {
+    let quits = 0, otherQuits = 0, resumes = 0
+    const ui = fixture({ [callback]() { quits++ },
+      [callback === 'onQuitGame' ? 'onQuitLevel' : 'onQuitGame']() { otherQuits++ },
+      onContinue() { resumes++ } })
+    for (const cancel of ['No', 'Back', 'Escape']) {
+      ui.click(label)
+      if (cancel === 'Escape') ui.back()
+      else ui.click(cancel)
+      assert.equal(ui.render().props['data-panel'], 'root')
+      assert.equal(ui.render().props['aria-describedby'], undefined)
+      assert.equal(quits + otherQuits + resumes, 0)
+    }
+    ui.click(label)
+    for (const key of ['Enter', ' ']) {
+      let prevented = false
+      ui.keyDown({ key, repeat: true, target: { closest: () => ({}) }, preventDefault() { prevented = true } })
+      assert.equal(prevented, true)
+    }
+    const yes = ui.button('Yes')
+    yes.props.onClick(); yes.props.onClick()
+    assert.equal(quits, 1)
+    assert.equal(otherQuits + resumes, 0)
+  })
+}
+
+test('actual Home quit callbacks retain different destinations and clear obsolete menu ownership', () => {
+  for (const [name, campaign, callback] of [['exitTutorial', false, 'onQuitGame'], ['quitLevel', true, 'onQuitLevel']]) {
+    const states = {}, menuSession = { current: {} }, pendingMenuCamera = { current: [() => {}] }, loadRequest = { current: {} }
+    let cancelled = 0, reset = 0
+    const bindings = { menuSession, pendingMenuCamera, loadRequest,
+      cancelNearbyInput() { cancelled++ }, engine: { current: {} }, audio: { current: { reset() { reset++ } } },
+      ...Object.fromEntries(['Menu', 'Ready', 'Error', 'StartupCampaign', 'Startup', 'SelectorOpen'].map(key => [`set${key}`, value => { states[key] = value }])) }
+    const node = pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === name)
+    const action = evaluatePage(node.getText(pageSource), bindings)
+    const props = evaluatePage(pauseUse.getText(pageSource), {
+      OriginalPauseMenu: 'OriginalPauseMenu', frontendAssets: undefined, world: { outcome: { level: 1 } }, tutorialLevel: 0,
+      store: { hasCheckpoint: () => true, getCheckpointReadStatus: () => 'read' },
+      closeMenu() {}, saveCheckpoint() {}, loadCheckpoint() {}, restart() {}, quitLevel: action, exitTutorial: action,
+    }).props
+    const ui = fixture(props)
+    ui.click(callback === 'onQuitGame' ? 'Quit Game' : 'Quit Level')
+    assert.equal(cancelled, 0)
+    ui.click('Yes')
+    assert.equal(states.Startup, 'choice'); assert.equal(states.StartupCampaign, campaign)
+    assert.equal(states.Menu, false); assert.equal(states.Ready, false)
+    assert.equal(menuSession.current, null); assert.deepEqual(pendingMenuCamera.current, [])
+    assert.equal(loadRequest.current, null); assert.equal(cancelled, 1); assert.equal(reset, 1)
+  }
+})
