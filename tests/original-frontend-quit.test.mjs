@@ -102,3 +102,10 @@ test('browser Quit warning uses the prepared native font and retains truthful ac
   assert.equal(width,frontendTextWidth(line));assert.ok(width<=600)
  }
 })
+
+
+test('Quit browser geometry normalizes against the fixed frame, not the expanded widescreen canvas',()=>{
+ const scenario=readFileSync(new URL('../scripts/local-render/original-quit-menu.mjs',import.meta.url),'utf8')
+ assert.match(scenario,/bounds=frame.getBoundingClientRect\(\),scale=bounds.width\/640/)
+ assert.doesNotMatch(scenario,/bounds=canvas.getBoundingClientRect/)
+})
