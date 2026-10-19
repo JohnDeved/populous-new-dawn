@@ -1,0 +1,43 @@
+{
+  "priorRun": 39219199654,
+  "priorRuntime": "5330457fba0ae1cda79b95eed4ed695808d3b30e",
+  "runtimeSource": "3264c6cfe3331fd48bc1bdc592fb79a1e90e289b",
+  "equalGitObjects": {
+    "app": {
+      "priorObject": "746d099736142d8fce8d00ef2d75cf463f4b5007",
+      "runtimeObject": "746d099736142d8fce8d00ef2d75cf463f4b5007"
+    },
+    "public": {
+      "priorObject": "9ed3f00707978d4447c6984aa6b8b3dc322fd798",
+      "runtimeObject": "9ed3f00707978d4447c6984aa6b8b3dc322fd798"
+    },
+    "package.json": {
+      "priorObject": "4f9c16f0752053538d7c60e9c223ee85599b0181",
+      "runtimeObject": "4f9c16f0752053538d7c60e9c223ee85599b0181"
+    },
+    "package-lock.json": {
+      "priorObject": "97cd9ade0190af96e99b389c93d4ee20bef5065c",
+      "runtimeObject": "97cd9ade0190af96e99b389c93d4ee20bef5065c"
+    }
+  },
+  "retainedPassedCases": [
+    "settings-frontend",
+    "menu-feedback",
+    "quit-standard",
+    "settings-ingame",
+    "ingame-healthy",
+    "ingame-font-failure",
+    "ingame-slider-failure",
+    "ingame-late-font",
+    "ingame-late-sliders",
+    "cursor-dpr1",
+    "cursor-dpr2",
+    "cursor-decode-failure",
+    "help-contextual",
+    "fullscreen-frontend",
+    "fullscreen-placement"
+  ],
+  "limits": [
+    "Retains15passed cases only for identical application/assets/package bytes; diagnostic scripts differ. Prior6failures remain preserved. No cross-runner timing/performance inference."
+  ]
+}

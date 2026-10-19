@@ -1,0 +1,13 @@
+{
+  "runtimeSource": "3264c6cfe3331fd48bc1bdc592fb79a1e90e289b",
+  "helpers": {
+    "fullscreen.mjs": {
+      "reviewedInputSha256": "9eb39f5087b60aea89fbb6e8215876deee45dbd9e06599f405a75a39e7aa38ac",
+      "composedSha256": "9eb39f5087b60aea89fbb6e8215876deee45dbd9e06599f405a75a39e7aa38ac"
+    },
+    "quit-warning.mjs": {
+      "reviewedInputSha256": "803024253b421364291782a6ebeff6df29cc3b9780a58c0405f2f24827a8573c",
+      "composedSha256": "915db6ac793619441883b0fef1edf62f324bae0a98884214b44b350cab1dd9b7"
+    }
+  }
+}
