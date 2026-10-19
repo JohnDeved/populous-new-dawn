@@ -1,4 +1,5 @@
-import { decodeMission10Query, mission10ExpectedSelection, mission10Controls, mission10Modifiers } from '../local-render/mission10-selection.mjs'
+import { validateMission10SelectionEvidence } from '../local-render/mission10-selection-evidence.mjs'
+import { mission10ExpectedSelection, mission10Controls, mission10Modifiers } from '../local-render/mission10-selection.mjs'
 // Trusted read-only policy: never import this module from candidate Git source.
 import { createHash } from 'node:crypto'
 const ensure = (value, message) => {
@@ -47,6 +48,9 @@ export const PROFILE_INPUTS = [
   'scripts/tutorial-browser/checkpoint-codec.mjs',
   'scripts/local-render/mission10-boat-checkpoint.mjs',
   'scripts/local-render/mission10-selection.mjs',
+  'scripts/local-render/mission10-selection-evidence.mjs',
+  'scripts/integration-queue/profile-artifact.mjs',
+  'scripts/artifact-zip.mjs',
   'app/unit-animation-source.ts',
   'app/building-workers.ts',
   'scripts/local-render/mission1-vault-input.mjs',
@@ -164,13 +168,14 @@ export function validateProfileRecovery(receipt, expected) {
       receipt.screenshots.every(s => isHash(s.sha256)),
     'visual evidence inventory incomplete'
   )
-  validateMission10Profile(receipt.mission10, expected.identity.mergeSha)
+  validateMission10Profile(receipt.mission10, expected.identity.mergeSha, expected.mission10Evidence)
   return true
 }
 
 
 // Required companion, not a substitute for any of the nine recovery cases.
-export function validateMission10Profile(value, mergeSha) {
+export function validateMission10Profile(value, mergeSha, rawPhases) {
+  ensure(Array.isArray(rawPhases) && rawPhases.length === 2, 'Mission 10 bound raw evidence missing')
   ensure(value?.status === 'passed' && value.sourceCommit === mergeSha &&
     isHash(value.sourceFingerprint) && isHash(value.runtimeSha256) && isHash(value.reportSha256),
     'Mission 10 source/runtime or report is missing')
@@ -209,10 +214,13 @@ export function validateMission10Profile(value, mergeSha) {
     ensure(phase.receiptName === `mission10-${phase.mode}--receipt.json` &&
       phase.resultName === `mission10-${phase.mode}--boat-checkpoint.json`, 'Mission 10 retained report paths differ')
     const names = index === 0 ? ['boarded'] : ['loaded', 'unloaded']
-    ensure(Array.isArray(phase.selection) && same(phase.selection.map(row => row.phase), names), 'Mission 10 selection phases incomplete')
-    for (const row of phase.selection) {
+    ensure(phase.selection === 0, 'Mission 10 selection must resolve the complete retained result')
+    const selection = validateMission10SelectionEvidence(rawPhases[index], names)
+    for (const raw of selection) {
+      const row = { ...raw, occupants: raw.occupants.map(p => [p.id, p.hp, p.vehicle]),
+        checks: raw.checks.map(c => [mission10Controls.indexOf(c.name), mission10Modifiers.indexOf(c.modifier), c.cleared, c.selected, c.preserved]) }
       const occupied = row.phase !== 'unloaded'
-      const query = decodeMission10Query(row.query)
+      const query = row.query
       ensure(query.people.every(p => party.includes(p[0]) ? p[6] === (occupied ? 62 : 0) : p[6] === 0), 'Mission 10 query occupancy differs')
       ensure(row.occupied === occupied && Array.isArray(row.occupants) &&
         row.occupants.every(Array.isArray) && same(row.occupants.map(person => person[0]), party) &&

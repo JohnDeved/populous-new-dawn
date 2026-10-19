@@ -1,4 +1,3 @@
-import { encodeMission10Query, mission10Controls, mission10Modifiers } from '../local-render/mission10-selection.mjs'
 // Compact evidence producer. Trusted admission validates this against reviewed
 // Git inputs; raw reports and screenshots remain independent hashed artifacts.
 import assert from 'node:assert/strict'
@@ -59,14 +58,8 @@ export function mission10ProfileReceipt(receipt, output) {
         checkpointAtStart: profile.checkpointAtStart?.checkpointSha256 ?? null,
         checkpointAtEnd: profile.checkpointAtEnd?.checkpointSha256 ?? null,
         saved: index === 0 ? saved : 0, // 0 is a lossless reference to phases[0].saved after exact equality above.
-        loaded: checkpointTuple(result.loaded ?? null), selection: result.selection.map(row => ({
-          phase: row.phase, occupied: row.occupied, query: encodeMission10Query(row.query),
-          // Bounded envelope tuples: occupant [id, hp, vehicle], check
-          // [control code, modifier code, cleared IDs, selected IDs, preserved].
-          // Codes are exact indexes of the two fixed public names/three modifiers.
-          occupants: row.occupants.map(({ id, hp, vehicle }) => [id, hp, vehicle]),
-          checks: row.checks.map(({ name, modifier, cleared, selected, preserved }) => [mission10Controls.indexOf(name), mission10Modifiers.indexOf(modifier), cleared, selected, preserved]),
-        })),
+        loaded: checkpointTuple(result.loaded ?? null),
+        selection: 0, // Full ordered queries/checks resolve from resultName + resultSha256, never the log.
         publicActions: result.actions.filter(action => action.phase === 'after' &&
           ['ordinary rally click', 'ordinary Boat boarding click', 'public Save single click',
             'public Load Game', 'ordinary Boat right-click inspection', 'public Unload all passengers'].includes(action.label)).map(action => action.label),

@@ -398,3 +398,37 @@ source-bound review/allowlist. Candidate receipt producer changes alone cannot
 activate or satisfy a trusted policy. Reuse no old authorization checkpoint after
 changing the allowlist. No branch protection, deployment, credentials or automatic
 candidate-policy installation is changed by this implementation.
+
+## Profile companion raw-artifact admission
+
+The Mission 10 companion keeps the 12,000-byte profile log limit. Its phase
+`selection: 0` references the complete `resultName`/`resultSha256` raw report,
+not an empty selection or a hash-only pass. The trusted reader requires the
+current successful job's unique upload ID, name, size and SHA-256, and matching
+repository/run/head artifact metadata. The raw host receipt must bind the same
+head/base/merge/run/attempt as the compact envelope; reuploading an older receipt
+into a newer artifact does not establish a new attempt.
+
+The numeric repository-only GET is bounded to 16 MiB compressed. The in-memory
+ZIP reader admits at most 128 regular entries, 32 MiB per file and 128 MiB total,
+and the Profile resolver restricts names to its known host outputs and twelve
+required flattened Mission 10 files. It rejects duplicate names, missing files,
+symlinks, traversal, encryption, ZIP64, overlapping entries, inconsistent headers
+or streamed descriptors, and CRC/length/hash drift. It never extracts, executes,
+or loads code from the archive. The manifest binds each retained file's source
+path, exact bytes and hash; both phase receipts and results, screenshots,
+checkpoint continuity and runtime are cross-checked.
+
+Trusted selection validation then reconstructs each query from every paused raw
+observation, retaining the original fourteen actors as an ordered identity/class
+subsequence while including all additional living Blue actors in observation
+order. It independently recomputes all eighteen exact selected sets and validates
+clearing, crew propagation, ownership, health, commands, RNG and paused state.
+A missing raw observation or eligible extra actor cannot pass as a subset.
+
+Before activation, independently review and pin the complete trusted import
+closure, including `profile-artifact.mjs`, `../artifact-zip.mjs`,
+`../local-render/mission10-selection-evidence.mjs` and its selection oracle.
+Their candidate input hashes are also retained in `PROFILE_INPUTS`; this does
+not authorize loading candidate code as the trusted validator. Existing workflow,
+job-inventory, browser-deadline and permissions policies remain unchanged.

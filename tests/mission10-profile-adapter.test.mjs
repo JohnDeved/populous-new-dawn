@@ -7,15 +7,16 @@ import { createContext, runInContext, runInNewContext } from 'node:vm'
 import { withMission10Context } from '../scripts/tutorial-browser/mission10-profile.mjs'
 import { browserConfiguration } from '../scripts/tutorial-browser/browser-config.mjs'
 import { validateMission10Profile } from '../scripts/integration-queue/profile-recovery.mjs'
-import { mission10ReceiptFixture } from './support/mission10-profile-receipt.mjs'
+import { mission10ReceiptFixture, compactMission10Fixture, mission10EvidenceFixture } from './support/mission10-profile-receipt.mjs'
 import { createMission10Input, readMission10Ground, readMission10Minimap, mission10BoatPoint } from '../scripts/tutorial-browser/mission10-input.mjs'
 import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mjs'
 import { createWorld } from '../app/world-initialization.ts'
 const sha = '1'.repeat(40)
 
 test('M10 companion requires complete source-bound Save/Load, all public selections and cleanup', () => {
-  const good = mission10ReceiptFixture(sha)
-  assert.equal(validateMission10Profile(good, sha), true)
+  const template = mission10ReceiptFixture(sha)
+  const good = compactMission10Fixture(template), evidence = mission10EvidenceFixture(template)
+  assert.equal(validateMission10Profile(good, sha, evidence), true)
   for (const mutate of [
     v => { delete v.phases[0].binding }, v => { v.phases[0].binding.pop() },
     v => { v.phases[1].binding.push(true) }, v => { v.phases[1].binding.reverse() },
@@ -26,32 +27,32 @@ test('M10 companion requires complete source-bound Save/Load, all public selecti
     v => { v.artifacts.bytes = 0 }, v => { v.phases[0].receiptName = 'mission10-created/receipt.json' },
     v => { v.phases[1].resultName = 'unretained.json' },
     v => { v.phases.pop() }, v => { v.phases.reverse() }, v => { v.sourceCommit = '2'.repeat(40) },
-    v => { v.phases[1].binding[0] = 'b'.repeat(64) }, v => { v.phases[1].binding[0] = 'b'.repeat(64) }, v => { v.phases[1].binding[2] = false },
+    v => { v.phases[1].binding[0] = 'b'.repeat(64) }, v => { v.phases[1].binding[2] = false },
     v => { v.phases[1].binding[3] = '44444444-4444-4444-4444-444444444444' },
     v => { v.phases[1].binding[4] = v.phases[0].binding[4] }, v => { v.phases[1].binding[5] = null },
     v => { v.phases[0].binding[6] = false }, v => { v.phases[1].binding[7] = false },
     v => { v.phases[1].checkpointAtStart = 'b'.repeat(64) }, v => { v.phases[1].loaded[5] = 'b'.repeat(64) },
-    v => { v.phases[0].selection = [] }, v => { v.phases[1].selection.pop() },
-    v => { v.phases[0].selection[0].checks.pop() }, v => { v.phases[0].selection[0].checks[0][3].shift() },
-    v => { v.phases[0].selection[0].checks[0][2] = [63] }, v => { v.phases[0].selection[0].checks[0][4] = false },
-    v => { v.phases[0].selection[0].checks[0][0] = 'Select and focus shaman' },
-    v => { v.phases[0].selection[0].checks[1][1] = 'Shift' },
-    v => { v.phases[0].selection[0].occupants[0][2] = 0 },
-    v => { v.phases[1].selection[1].occupants[0][2] = 62 },
+    v => { v.phases[0].selection = [] }, v => { delete v.phases[1].selection },
     v => { v.phases[0].publicActions.splice(1, 1) }, v => { v.phases[1].publicActions.pop() },
     v => { v.phases[0].screenshots.pop() }, v => { v.phases[1].receiptSha256 = '' },
   ]) {
     const copy = structuredClone(good); mutate(copy)
-    assert.throws(() => validateMission10Profile(copy, sha), /Mission 10/)
+    assert.throws(() => validateMission10Profile(copy, sha, evidence), /Mission 10/)
   }
   for (const mutate of [
-    v => { delete v.phases[0].selection[0].query },
-    v => { v.phases[0].selection[0].query[3] += 'junk' },
-    v => { v.phases[0].selection[0].checks[4][3].pop() },
-    v => { v.phases[0].selection[0].checks[5][3].push(999) },
-    v => { v.phases[1].selection[1].checks[4][3] = [63, 111, 112, 113, 114] },
-  ]) { const bad = structuredClone(good); mutate(bad); assert.throws(() => validateMission10Profile(bad, sha)) }
-  assert.throws(() => validateMission10Profile(undefined, sha), /Mission 10/)
+    r => { r[0].selection = [] }, r => { r[1].selection.pop() }, r => { r[0].selection[0].checks.pop() },
+    r => { r[0].selection[0].checks[0].selected.shift() }, r => { r[0].selection[0].checks[0].cleared = [63] },
+    r => { r[0].selection[0].checks[0].preserved = false }, r => { r[0].selection[0].checks[0].name = 'Select and focus shaman' },
+    r => { r[0].selection[0].checks[1].modifier = 'Shift' }, r => { r[0].selection[0].occupants[0].vehicle = 0 },
+    r => { r[1].selection[1].occupants[0].vehicle = 62 }, r => { delete r[0].selection[0].query },
+    r => { r[0].selection[0].query.people[0].push('junk') }, r => { r[0].selection[0].checks[4].selected.pop() },
+    r => { r[0].selection[0].checks[5].selected.push(999) }, r => { r[1].selection[1].checks[4].selected = [63, 111, 112, 113, 114] },
+  ]) {
+    const raw = structuredClone(evidence); mutate(raw)
+    assert.throws(() => validateMission10Profile(good, sha, raw))
+  }
+  assert.throws(() => validateMission10Profile(good, sha), /bound raw evidence missing/)
+  assert.throws(() => validateMission10Profile(undefined, sha, evidence), /Mission 10/)
 })
 
 function browserFixture() {

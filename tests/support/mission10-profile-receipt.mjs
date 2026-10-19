@@ -32,6 +32,41 @@ export function mission10ReceiptFixture(mergeSha) {
     })) }
 }
 
+export function compactMission10Fixture(value) {
+  const compact = structuredClone(value)
+  for (const phase of compact.phases) phase.selection = 0
+  return compact
+}
+export function mission10EvidenceFixture(value) {
+  const checkpoint = tuple => tuple === null ? null : Object.fromEntries(['version', 'level', 'turn', 'time',
+    'checkpointSha256', 'actorsSha256', 'terrainSha256', 'stockSha256'].map((key, index) => [key, tuple[index]]))
+  return value.phases.map(p => {
+    const result = { status: 'passed', source: { commit: value.sourceCommit, fingerprint: value.sourceFingerprint }, observations: [],
+      saved: p.mode === 'created' ? { checkpoint: checkpoint(p.saved) } : checkpoint(value.phases[0].saved), loaded: checkpoint(p.loaded),
+      selection: p.selection.map(row => ({ ...row, query: decodeMission10Query(row.query),
+        occupants: row.occupants.map(([id, hp, vehicle]) => ({ id, hp, vehicle })),
+        checks: row.checks.map(([name, modifier, cleared, selected, preserved]) => ({ name: mission10Controls[name], modifier: mission10Modifiers[modifier], cleared, selected, preserved,
+          primary: mission10ExpectedSelection(decodeMission10Query(row.query), mission10Controls[name], mission10Modifiers[modifier]).primary })),
+      })), actions: p.publicActions.map(label => ({ label, phase: 'after' })) }
+    for (const row of result.selection) {
+      const q = row.query
+      const state = selected => ({ paused: true, turn: 100, selected,
+        point: { x: q.point[0], y: q.point[1] }, nearby: q.nearby,
+        vehicles: [{ id: 62, active: true, model: 1, passengerCount: q.boat[0], passengers: q.boat.slice(1) }],
+        people: q.people.map(([id, model, x, y, priority, flags4, vehicle]) => ({ id, model, x, y, assignment: priority << 12,
+          flags4, vehicle, team: 'blue', hp: row.occupants.find(p => p.id === id)?.hp ?? 100, owners: {} })) })
+      const observe = (label, selected) => ({ label, paused: true, turn: 100, selected,
+        party: row.occupants, boat: { passengers: q.boat.slice(1) }, orders: {}, randomState: 19, selectionState: state(selected) })
+      result.observations.push(observe(`${row.phase}-strip-paused`, []))
+      for (const check of row.checks) {
+        const label = `${row.phase}: ${check.name} ${check.modifier}`
+        result.observations.push(observe(`${label} cleared`, []), observe(`${label} selected`, check.selected))
+      }
+    }
+    return result
+  })
+}
+
 import { createHash } from 'node:crypto'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -39,8 +74,6 @@ import { mission10ExpectedArtifacts, retainMission10Artifacts } from '../../scri
 export function writeMission10Fixture(output, receipt, customize = () => {}) {
   const value = mission10ReceiptFixture(receipt.source.commit), json = value => JSON.stringify(value, null, 2) + '\n'
   customize(value)
-  const checkpoint = tuple => tuple === null ? null : Object.fromEntries(['version', 'level', 'turn', 'time',
-    'checkpointSha256', 'actorsSha256', 'terrainSha256', 'stockSha256'].map((key, index) => [key, tuple[index]]))
   const hash = file => createHash('sha256').update(readFileSync(file)).digest('hex')
   const runtime = { browserSha256: receipt.browserSha256, browserVersion: receipt.browserVersion, node: receipt.node,
     launch: receipt.launch, packages: receipt.buildPackageVersions }
@@ -50,11 +83,7 @@ export function writeMission10Fixture(output, receipt, customize = () => {}) {
       const [, sourceAfter, , profileId, runId, previousRunId, cleanupVerified, continuationVerified] = p.binding
       const { sourceCommit, sourceFingerprint } = value
       const dir = `mission10-${p.mode}`; mkdirSync(resolve(output, dir))
-      const result = { status: 'passed', saved: p.mode === 'created' ? { checkpoint: checkpoint(p.saved === 0 ? value.phases[0].saved : p.saved) } : checkpoint(p.saved === 0 ? value.phases[0].saved : p.saved), loaded: checkpoint(p.loaded),
-        selection: p.selection.map(row => ({ ...row, query: decodeMission10Query(row.query),
-          occupants: row.occupants.map(([id, hp, vehicle]) => ({ id, hp, vehicle })),
-          checks: row.checks.map(([name, modifier, cleared, selected, preserved]) => ({ name: mission10Controls[name], modifier: mission10Modifiers[modifier], cleared, selected, preserved })),
-        })), actions: p.publicActions.map(label => ({ label, phase: 'after' })) }
+      const result = mission10EvidenceFixture(value)[p.mode === 'created' ? 0 : 1]
       const phase = { status: p.status, source: { commit: sourceCommit, fingerprint: sourceFingerprint },
         runtime, runtimeSha256, errors: [], sourceAfter, cleanupVerified,
         profile: { id: profileId, runId, previousRun: previousRunId && { runId: previousRunId },

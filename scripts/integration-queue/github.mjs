@@ -1,3 +1,4 @@
+import { profileArtifactUpload, validateProfileArtifactMetadata, resolveProfileArtifact, profileArchiveLimit } from './profile-artifact.mjs'
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -31,9 +32,10 @@ const run = (file, args, cwd) => {
 
 // This reader only issues GET requests. The separately armed writer owns mutations.
 export class GitHubReader {
-  constructor({ cwd = process.cwd(), execute = run } = {}) {
+  constructor({ cwd = process.cwd(), execute = run, executeBinary = execute === run ? execFileSync : null } = {}) {
     this.cwd = cwd
     this.execute = execute
+    this.executeBinary = executeBinary
   }
   get(endpoint, text = false) {
     ensure(
@@ -50,6 +52,15 @@ export class GitHubReader {
     }
     const raw = this.execute('gh', args, this.cwd)
     return text ? raw : JSON.parse(raw)
+  }
+  artifactArchive(id) {
+    ensure(Number.isSafeInteger(id) && id > 0, 'Invalid numeric artifact ID')
+    ensure(typeof this.executeBinary === 'function', 'Binary artifact transport must be explicitly injected')
+    return this.executeBinary('gh', ['api', '--hostname', 'github.com', '--method', 'GET',
+      `repos/${REPO}/actions/artifacts/${id}/zip`], {
+      cwd: this.cwd, stdio: 'pipe', timeout: 30_000, maxBuffer: profileArchiveLimit,
+      env: { ...process.env, GH_PROMPT_DISABLED: '1', GH_PAGER: 'cat' },
+    })
   }
   pages(endpoint, key = null) {
     const values = []
@@ -339,6 +350,16 @@ export class GitHubReader {
     row.pauseRecoveryReceiptSha256 = receipt.receiptSha256
     row.pauseRecoveryCheckId = check.id
   }
+  profileEvidence(log, receipt, identity) {
+    const upload = profileArtifactUpload(log, identity.mergeSha)
+    const artifacts = this.pages(`repos/${REPO}/actions/runs/${identity.runId}/artifacts`, 'artifacts')
+    const matchesArtifact = artifacts.filter(artifact => artifact.name === upload.name)
+    ensure(matchesArtifact.length === 1, 'Missing or duplicate profile artifact')
+    validateProfileArtifactMetadata(matchesArtifact[0], upload, identity)
+    const metadata = this.get(`repos/${REPO}/actions/artifacts/${upload.id}`)
+    validateProfileArtifactMetadata(metadata, upload, identity)
+    return resolveProfileArtifact(this.artifactArchive(upload.id), upload, receipt)
+  }
   verifyProfileRecoveryRun(entry, pr, synthetic, exact, jobs, row) {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
       exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
@@ -371,13 +392,16 @@ export class GitHubReader {
     ensure(this.workflow(GATES[1].workflow, synthetic.sha).sha256 === entry.workflowHashes[GATES[1].workflow],
       'Profile recovery workflow source differs')
     const receipt = profileRecoveryLog(log)
-    validateProfileRecovery(receipt, {
+    const expected = {
       identity: { repository: REPO, runId: String(exact.id), runAttempt: String(exact.run_attempt),
         workflowRef: `${REPO}/${GATES[1].workflow}@refs/pull/${entry.pr}/merge`,
         mergeSha: synthetic.sha, headSha: pr.head.sha, baseSha: pr.base.sha },
       inputs: Object.fromEntries(PROFILE_INPUTS.map(path =>
         [path, sha256(this.gitOutput('show', `${synthetic.sha}:${path}`))])),
-    })
+    }
+    expected.mission10Evidence = this.profileEvidence(log, receipt, expected.identity)
+    validateProfileRecovery(receipt, expected)
+
     row.profileRecoveryVerified = true
     row.profileRecoveryReceiptSha256 = receipt.receiptSha256
     row.profileRecoveryCheckId = check.id

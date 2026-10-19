@@ -10,21 +10,27 @@ const priorities = [0, 2, 4, 3, 1, 5, 6]
 const integer = (n, min, max) => Number.isInteger(n) && n >= min && n <= max
 
 // Compact the complete ordered living Blue roster; this particular authored
-// witness fails closed on loss, conversion, birth or reordering. Full other-tribe
+// witness fails closed on authored loss, conversion or reordering. Live births
+// remain in original observation order and participate in every query. Other-tribe
 // and controller records remain in the raw pre/post observations.
 export function mission10SelectionQuery(state) {
   assert.equal(state.paused, true)
   assert.deepEqual(state.selected, [])
   assert.ok(Array.isArray(state.people) && state.people.every(p => integer(p.id, 1, 65535)))
   assert.equal(new Set(state.people.map(p => p.id)).size, state.people.length, 'Duplicate observed person ID')
-  const people = state.people.filter(p => p.team === 'blue' && p.hp > 0)
-  assert.deepEqual(people.map(p => p.id), mission10OwnedIds, 'Complete authored Blue roster changed')
-  assert.deepEqual(people.map(p => p.model), models, 'Authored Blue classes changed')
-  assert.ok(people.every(p => Number.isFinite(p.hp) && integer(p.x, -32768, 65535) &&
+  assert.ok(state.people.every(p => Number.isFinite(p.hp) && integer(p.model, 1, 7) && integer(p.x, -32768, 65535) &&
     integer(p.y, -32768, 65535) && integer(p.assignment, -2147483648, 4294967295) &&
     integer(p.flags4, -2147483648, 4294967295) && integer(p.vehicle, 0, 65535)), 'Malformed raw native selection facts')
+  const people = state.people.filter(p => p.team === 'blue' && p.hp > 0)
+  const authored = people.filter(p => mission10OwnedIds.includes(p.id))
+  assert.deepEqual(authored.map(p => p.id), mission10OwnedIds, 'Complete authored Blue roster changed')
+  assert.deepEqual(authored.map(p => p.model), models, 'Authored Blue classes changed')
+
+  assert.ok(Array.isArray(state.vehicles))
+  assert.equal(new Set(state.vehicles.map(v => v.id)).size, state.vehicles.length, 'Duplicate observed vehicle ID')
   const boat = state.vehicles.find(v => v.id === 62)
   assert.ok(boat?.active && boat.model === 1)
+  assert.ok(Array.isArray(boat.passengers) && boat.passengers.length === 5, 'Malformed passenger slots')
   assert.ok(state.vehicles.every(v => v.id === 62 || !people.some(p => p.vehicle === v.id)), 'Unexpected occupied craft')
   const slots = Array.from({ length: 5 }, (_, i) => boat.passengers[i] ?? 0)
   assert.ok(slots.every(id => !id || people.some(p => p.id === id)), 'Unexpected crew ownership')
@@ -42,10 +48,15 @@ export function validateMission10Query(q) {
   assert.ok(Array.isArray(q.boat) && q.boat.length === 6 && q.boat.every(n => integer(n, 0, 65535)))
   assert.equal(q.boat[0], q.boat.slice(1).filter(Boolean).length)
   assert.ok(new Set(q.boat.slice(1).filter(Boolean)).size === q.boat[0])
-  assert.ok(Array.isArray(q.people) && q.people.length === mission10OwnedIds.length)
-  for (const [i, p] of q.people.entries()) {
+  assert.ok(Array.isArray(q.people))
+  assert.equal(new Set(q.people.map(p => p[0])).size, q.people.length, 'Duplicate query person ID')
+  const authored = q.people.filter(p => mission10OwnedIds.includes(p[0]))
+  assert.deepEqual(authored.map(p => p[0]), mission10OwnedIds, 'Complete authored Blue roster changed')
+  assert.deepEqual(authored.map(p => p[1]), models, 'Authored Blue classes changed')
+  assert.ok(q.boat.slice(1).every(id => !id || q.people.some(p => p[0] === id)), 'Unknown crew')
+  for (const p of q.people) {
     assert.ok(Array.isArray(p) && p.length === 7 && p.every(n => integer(n, 0, 65535)))
-    assert.equal(p[0], mission10OwnedIds[i]); assert.equal(p[1], models[i])
+    assert.ok(p[0] > 0 && integer(p[1], 2, 7))
     assert.ok(p[4] <= 7 && !(p[5] & ~0x880) && [0, 62].includes(p[6]))
     assert.equal(q.boat.slice(1).includes(p[0]), p[6] === 62, 'Mission 10 crew/owner differs')
   }
@@ -99,9 +110,9 @@ export function encodeMission10Query(q) {
 export function decodeMission10Query(tuple) {
   assert.ok(Array.isArray(tuple) && tuple.length === 4 && typeof tuple[3] === 'string')
   const bytes = Buffer.from(tuple[3], 'base64')
-  assert.equal(bytes.length, mission10OwnedIds.length * 12); assert.equal(bytes.toString('base64'), tuple[3])
+  assert.ok(bytes.length > 0 && bytes.length % 12 === 0); assert.equal(bytes.toString('base64'), tuple[3])
   const q = { point: tuple[0], nearby: tuple[1], boat: tuple[2],
-    people: mission10OwnedIds.map((_, i) => { const at = i * 12; return [bytes.readUInt16LE(at), bytes.readUInt8(at + 2),
+    people: Array.from({ length: bytes.length / 12 }, (_, i) => { const at = i * 12; return [bytes.readUInt16LE(at), bytes.readUInt8(at + 2),
       bytes.readUInt16LE(at + 3), bytes.readUInt16LE(at + 5), bytes.readUInt8(at + 7), bytes.readUInt16LE(at + 8), bytes.readUInt16LE(at + 10)] }) }
   validateMission10Query(q); return q
 }
