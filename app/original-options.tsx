@@ -307,14 +307,15 @@ export function OriginalOptions({
         <>
           {category === 'Game' && (
             <>
-              {gameRows.map(row =>
-                row.id === 'compatibility' ? (
-                  choice(row.text, row.x, row.y, () => setBrowser(true), false, {
+              {gameRows.map(row => {
+                if (row.id === 'compatibility') {
+                  return choice(row.text, row.x, row.y, () => setBrowser(true), false, {
                     id: row.id,
                     wide: true,
                   })
-                ) : row.id === 'rotation' || row.id === 'flipRotation' ? (
-                  choice(
+                }
+                if (row.id === 'rotation' || row.id === 'flipRotation') {
+                  return choice(
                     row.text,
                     row.x,
                     row.y,
@@ -338,7 +339,8 @@ export function OriginalOptions({
                           : 'Reverse keyboard rotation direction.',
                     }
                   )
-                ) : (
+                }
+                return (
                   <div
                     key={row.id}
                     className={styles.soundLabel}
@@ -352,7 +354,7 @@ export function OriginalOptions({
                     {label(row.text)}
                   </div>
                 )
-              )}
+              })}
               {gameStorageNotice && (
                 <p className={styles.storage} role="status">
                   {gameStorageNotice}
