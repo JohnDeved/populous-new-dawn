@@ -1,0 +1,21 @@
+{
+  "runtimeSource": "f9058b35c188382b18eb68a6f7803ef120ea293a",
+  "helpers": {
+    "neutral-cursor.mjs": {
+      "reviewedInputSha256": "f895519843d939e6f7c980485e8b8bb788c2fb43c6e546377107db7b9715631f",
+      "composedSha256": "f895519843d939e6f7c980485e8b8bb788c2fb43c6e546377107db7b9715631f"
+    },
+    "fullscreen.mjs": {
+      "reviewedInputSha256": "17555053258e251d189604673b5d3fd8ed18260711ff4700a19d2c6b1e0aee9d",
+      "composedSha256": "17555053258e251d189604673b5d3fd8ed18260711ff4700a19d2c6b1e0aee9d"
+    },
+    "contextual-help.mjs": {
+      "reviewedInputSha256": "6167303b5ff0e375f54b6849df81ce13f70c344b3c8f58d87e25ce42e344e494",
+      "composedSha256": "6167303b5ff0e375f54b6849df81ce13f70c344b3c8f58d87e25ce42e344e494"
+    },
+    "settings-presentation.mjs": {
+      "reviewedInputSha256": "b466267b43ea035ca14e2cf48bbc65e031ac4d075fc3490be7437c1f311df8ad",
+      "composedSha256": "b466267b43ea035ca14e2cf48bbc65e031ac4d075fc3490be7437c1f311df8ad"
+    }
+  }
+}
