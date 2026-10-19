@@ -163,3 +163,16 @@ test('frontend held Escape is one separate hosted job, not added work inside Tut
   assert.match(runner, /capMs: 120000/)
   assert.ok(workflow.on.pull_request.paths.includes('scripts/local-render/frontend-held-escape.mjs'))
 })
+
+test('selector keyboard regression is reached by the existing hosted Tutorial path', () => {
+  const workflow = yaml.load(read('tutorial-browser.yml'))
+  assert.ok(workflow.jobs['tutorial-browser'].strategy.matrix.include.some(item => item.scenario === 'tutorial'))
+  assert.ok(workflow.on.pull_request.paths.includes('app/**'))
+  const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
+  assert.match(runner, /const scenario = resolve\(root, 'scripts\/local-render\/tutorial-recommendation.mjs'\)/)
+  assert.match(runner, /receipt\.result = await .*import\(pathToFileURL\(scenario\)\.href\)/)
+  const tutorial = readFileSync(new URL('../scripts/local-render/tutorial-recommendation.mjs', import.meta.url), 'utf8')
+  assert.match(tutorial, /import \{ checkSelectorKeyboardFocus \} from '\.\.\/check-browser-world-selector.mjs'/)
+  assert.match(tutorial, /await checkSelectorKeyboardFocus\(\{ page, output \}\)/)
+  assert.match(tutorial, /selector-keyboard\.json/)
+})

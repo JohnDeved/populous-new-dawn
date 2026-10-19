@@ -65,6 +65,28 @@ function validateAttack(sample, mapping, label) {
   validateAttackPhase(sample, mapping, label)
 }
 
+// Require the observer's actual terminal callback, not a later failure-state
+// snapshot or merely an advancing pair. PNG/public-command checks remain separate.
+export function validateMeleeRunningObservation(result, originalMapping) {
+  assert.ok(result && typeof result === 'object', 'Running melee observation required')
+  assert.equal(result.done, true, 'Running melee observation must finish')
+  assert.equal(result.error, null, 'Running melee observation must not fail')
+  assert.ok(integer(result.firstAttackTurn), 'First observed attack turn required')
+  const { terminal, firstAttackTurn } = result
+  assert.ok(terminal && typeof terminal === 'object', 'Exact melee terminal record required')
+  assert.equal(terminal.reason, 'window-complete', 'Melee observation must reach its fixed window boundary')
+  assert.ok(integer(terminal.turn) && terminal.turn >= firstAttackTurn + 10,
+    'Melee terminal turn must reach the fixed first-attack ten-turn boundary')
+  assert.ok(integer(terminal.stamp), 'Exact melee terminal renderer stamp required')
+  const acceptance = validateMeleeRunningFrames(result.samples, originalMapping)
+  assert.equal(firstAttackTurn, result.samples[0].turn, 'Window must start with the first retained attack sample')
+  assert.ok(terminal.stamp > result.samples.at(-1).stamp,
+    'Melee terminal renderer stamp must follow every retained sample')
+  acceptance.obligations.fixedWindow = { status: 'passed', firstAttackTurn, endExclusive: firstAttackTurn + 10,
+    terminal: { turn: terminal.turn, stamp: terminal.stamp, reason: terminal.reason } }
+  return acceptance
+}
+
 // Pure supplied-observation validation, not a browser receipt. The caller owns
 // actual public command receipts, fixed-window observation and PNG file checks.
 // Source ownership is a reviewed-source inference, never a private getter result.

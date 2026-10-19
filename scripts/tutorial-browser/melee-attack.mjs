@@ -7,7 +7,7 @@ import { m2StartupReady } from './m2-pointer-f8.mjs'
 import { minimapInput } from '../../qa/erosion-ordinary/minimap-input.mjs'
 import { minimapPick } from '../../app/minimap.ts'
 import { spriteDirection } from '../../app/projection.ts'
-import { validateMeleeRunningFrames } from './melee-attack-running-evidence.mjs'
+import { validateMeleeRunningObservation } from './melee-attack-running-evidence.mjs'
 
 export const meleeAttackLimitMs = 75000
 const root = resolve(import.meta.dirname, '../..')
@@ -127,28 +127,85 @@ export function meleeAttackMapping() {
 // a hit-selection query. Reading crop bounds may touch renderer/picker metadata.
 export function installMeleeFrameObserver() {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
-  const canvas = scene.renderer.domElement
-  const result = { samples: [], crops: [], error: null, done: false, firstAttackTurn: null }
+  const canvas = scene.renderer.domElement, visitLimit = 75 * 240
+  const result = { samples: [], crops: [], visits: [], visitLimit,
+    error: null, done: false, firstAttackTurn: null, terminal: null, retention: null }
   let raf, stopped = false, firstPerson = null
-  const cropKeys = new Set()
-  const stop = () => { stopped = true; cancelAnimationFrame(raf); return result }
-  window.__pndMeleeObservation = { result, stop }
-  const visit = () => {
+  const cropKeys = new Set(), copies = []
+  const stop = (reason = 'stopped') => {
+    if (!stopped) {
+      result.terminal = { turn: world.turn, stamp: scene.renderer.info.render.frame, reason }
+      stopped = true; cancelAnimationFrame(raf)
+    }
+    return result
+  }
+  // Encoding never runs inside the observer RAF, including its terminal visit.
+  // Only these private, once-drawn copies survive until explicit retention.
+  const retain = () => {
+    stop()
+    if (result.retention) return result
+    const timestampMs = performance.now()
+    result.retention = { timestampMs, durationMs: 0, copyCount: copies.length, done: false }
+    for (const { copy, context, crop } of copies) {
+      try {
+        let started = performance.now()
+        try {
+          const pixels = context.getImageData(0, 0, copy.width, copy.height).data
+          const colors = new Set()
+          for (let at = 0; at < pixels.length; at += 4)
+            if (pixels[at + 3]) colors.add((pixels[at] << 16) | (pixels[at + 1] << 8) | pixels[at + 2])
+          crop.opaqueColors = colors.size
+        } finally { crop.readbackScanMs = performance.now() - started }
+        started = performance.now()
+        try { crop.png = copy.toDataURL('image/png') }
+        finally { crop.encodingMs = performance.now() - started }
+      } catch (error) {
+        crop.error = String(error)
+        result.error ??= `Melee crop retention failed: ${error}`
+      } finally {
+        // Release backing stores even when readback/encoding failed. A second
+        // retention cannot retry a failed crop or replace it with later pixels.
+        copy.width = 0; copy.height = 0
+      }
+    }
+    copies.length = 0
+    result.retention.durationMs = performance.now() - timestampMs
+    result.retention.done = true
+    return result
+  }
+  window.__pndMeleeObservation = { result, stop, retain }
+  const visit = rafTimestampMs => {
     if (stopped) return
+    const timestampMs = performance.now()
+    const diagnostic = { timestampMs, rafTimestampMs, turn: world.turn, stamp: scene.renderer.info.render.frame,
+      animationFrame: scene.gameClock.animationFrame, paused: world.paused, stage: 'guards',
+      actorInspected: false, alive: null, hp: null, action: null, started: null, f2: null, frame: null,
+      observerMs: 0, cropCopyMs: 0 }
+    result.visits.push(diagnostic)
     try {
+      // 75 seconds at 240 callbacks/second bounds diagnostics separately from
+      // the unchanged 1,200 attack samples and case cap. Never drop visits silently.
+      if (result.visits.length >= visitLimit) throw Error('Melee observation exceeded bounded visit storage')
       if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world || scene.world !== world)
         throw Error('Melee observation lost its original Scene/world')
       if (!canvas.isConnected || document.visibilityState !== 'visible')
         throw Error('Melee canvas disconnected or document hidden')
+      if (result.firstAttackTurn !== null && world.paused) throw Error('Running melee observation unexpectedly paused')
+      // The half-open window excludes the boundary visit's actor/attack state.
+      // Keep Scene/world/canvas and uninterrupted-running guards above it.
+      if (result.firstAttackTurn !== null && world.turn >= result.firstAttackTurn + 10) {
+        diagnostic.stage = 'window-complete'
+        result.done = true; stop('window-complete'); return
+      }
       const unit = world.units.find(unit => unit.id === 54), fight = unit?.fight
+      Object.assign(diagnostic, { stage: 'observed', actorInspected: true,
+        alive: !!unit && unit.hp > 0, hp: unit?.hp ?? null,
+        action: fight?.action ?? null, started: fight?.started ?? null,
+        f2: fight?.motion?.f2 ?? null, frame: scene.unitMeshes.get(54)?.userData.frame ?? null })
       if (!unit || unit.kind !== 'shaman' || unit.team !== 'blue' || unit.hp <= 0)
         throw Error('Authored Shaman54 disappeared or died')
-      if (result.firstAttackTurn !== null && world.paused) throw Error('Running melee observation unexpectedly paused')
-      // The half-open window excludes the boundary visit, including an attack there.
-      if (result.firstAttackTurn !== null && world.turn >= result.firstAttackTurn + 10) {
-        result.done = true; stop(); return
-      }
       if (fight && ['attack', 'strike', 'special'].includes(fight.action)) {
+        diagnostic.stage = 'attack'
         result.firstAttackTurn ??= world.turn
         const person = fight.motion, group = scene.unitMeshes.get(54)
         if (!person || !group) throw Error('Attack lacks physical person or rendered group')
@@ -216,28 +273,38 @@ export function installMeleeFrameObserver() {
                 bounds.x + bounds.width <= rect.width && bounds.y + bounds.height <= rect.height
               sample.cropOverlayClear = overlays.length === 0
               sample.cropVisibility = { bodyOwner: { tag: owner?.tagName, className: owner?.className }, clip, overlays }
-              // Copy the current canvas synchronously in the same observer callback.
-              // This is readback, not a second Scene render or a hidden-body redraw.
-              const copy = document.createElement('canvas'); copy.width = width; copy.height = height
-              const context = copy.getContext('2d')
-              context.drawImage(canvas, x, y, width, height, 0, 0, width, height)
-              const pixels = context.getImageData(0, 0, width, height).data
-              const colors = new Set()
-              for (let at = 0; at < pixels.length; at += 4)
-                if (pixels[at + 3]) colors.add((pixels[at] << 16) | (pixels[at + 1] << 8) | pixels[at + 2])
+              // Snapshot the current canvas in this callback, never from a
+              // later render. Color scanning and PNG encoding wait until retain().
+              const started = performance.now(), copy = document.createElement('canvas')
+              let context
+              try {
+                copy.width = width; copy.height = height
+                context = copy.getContext('2d')
+                if (!context) throw Error('Melee crop lacks its 2D copy context')
+                context.drawImage(canvas, x, y, width, height, 0, 0, width, height)
+              } catch (error) {
+                copy.width = 0; copy.height = 0
+                throw error
+              } finally { diagnostic.cropCopyMs = performance.now() - started }
               sample.cropFile = `melee-attack-frame-${result.crops.length}.png`
-              result.crops.push({ filename: sample.cropFile, turn: world.turn, stamp: sample.stamp,
+              const crop = { filename: sample.cropFile, turn: world.turn, stamp: sample.stamp,
                 frame: sample.frame, object: sample.object, f2: sample.f2,
                 phase: sample.phase, clip: { x, y, width, height },
-                opaqueColors: colors.size, png: copy.toDataURL('image/png') })
+                copyMs: diagnostic.cropCopyMs, readbackScanMs: null, encodingMs: null }
+              result.crops.push(crop); copies.push({ copy, context, crop })
             }
           }
         }
         result.samples.push(sample)
         if (result.samples.length > 1200) throw Error('Melee observation exceeded bounded sample storage')
       }
-    } catch (error) { result.error = String(error); result.done = true; stop(); return }
-    raf = requestAnimationFrame(visit)
+    } catch (error) {
+      diagnostic.stage = 'error'
+      result.error = String(error); result.done = true; stop('error'); return
+    } finally {
+      if (!stopped) raf = requestAnimationFrame(visit)
+      diagnostic.observerMs = performance.now() - timestampMs
+    }
   }
   raf = requestAnimationFrame(visit)
 }
@@ -253,7 +320,8 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     limits: ['Direct mission access, not earned campaign unlock.', 'No original-game FPS calibration, hardware smoothness or Firewarrior browser claim.',
       'Running samples prove mapped artwork and cropped same-direction same-sequence logical advancement. No browser pause/hold/resume or running same-turn hold is claimed; deterministic CPU contracts remain separate.',
       'Marker is recorded, not represented as direct observation of a private getter return. Native object and actual directional frame are independently compared.',
-      'Canvas readback perturbs rendering; crops require visual review and do not establish pixel-perfect composition or performance.',
+      'Same-frame canvas copies and visit diagnostics perturb rendering; pixel scanning and PNG encoding are deferred until retention after stop. Timings are diagnostic, not a cause attribution or performance proof.',
+      'Crops still require visual review and do not establish pixel-perfect composition or hardware performance.',
       'Crop bounds read renderer/picker metadata; observation does not mutate World or issue a hit-selection query.',
       'Actual Scene CPU tests prove unpaused same-turn hold/advance and pause-to-expiry rendering. Separate 30/60/120/144Hz and irregular schedules compare simulation World states, not browser or per-schedule Scene renders.'],
     source: Object.fromEntries(['app/original-rules.json', 'app/original-units.json', 'app/projection.ts',
@@ -276,13 +344,14 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   let failure
   const retainObservation = async () => {
     if (report.observation || page.isClosed()) return
-    const observation = await page.evaluate(() => window.__pndMeleeObservation?.stop() ?? null)
+    const observation = await page.evaluate(() => window.__pndMeleeObservation?.retain() ?? null)
     if (!observation) return
     report.observation = observation
     for (const sample of observation.samples)
       assert.equal(sample.direction, spriteDirection(Math.round(sample.cameraBearing * 1024 / Math.PI), Math.round((Math.PI - sample.heading) * 1024 / Math.PI)),
         'Observer crop direction must match the retained projection function')
     for (const crop of observation.crops) {
+      if (crop.error) continue // Keep other immutable crops and the failed timeline.
       assert.match(crop.filename, /^melee-attack-frame-[0-3]\.png$/)
       assert.match(crop.png, /^data:image\/png;base64,/)
       const sample = observation.samples.find(sample => sample.cropFile === crop.filename)
@@ -386,12 +455,12 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     await retainObservation()
     assert.ok(report.observation.samples.every(sample => sample.turn >= report.order.lastOrderTurn && sample.stamp > report.order.stamp),
       'Every melee sample must follow the actual public attack command')
+    assert.equal(report.observation.error, null)
     for (const crop of report.observation.crops)
       assert.ok(crop.opaqueColors > 1, 'Same-frame canvas crop must not be blank')
-    assert.equal(report.observation.error, null)
     assert.equal(report.observation.done, true)
     report.mapping = meleeAttackMapping()
-    report.acceptance = validateMeleeRunningFrames(report.observation.samples, report.mapping)
+    report.acceptance = validateMeleeRunningObservation(report.observation, report.mapping)
     await button('Pause game')
     await page.screenshot({ path: resolve(output, 'melee-attack-context.png') })
   } catch (error) {
