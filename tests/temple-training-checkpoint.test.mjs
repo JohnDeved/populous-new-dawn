@@ -4,6 +4,7 @@ import test from 'node:test'
 import { addBuilding, addUnit } from '../app/model.ts'
 import { buildingAdmission } from '../app/live-building-entry.ts'
 import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
+import { allocatePersonOrder, attachPersonOrder } from '../app/person-orders.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { checkpointObservation } from '../scripts/local-render/checkpoint-observer.mjs'
 import {
@@ -156,8 +157,8 @@ async function storage(t) {
   }
 }
 
-function activeFixture(createGameStore) {
-  const store = createGameStore()
+function activeFixture(createGameStore, mode = 'scalable') {
+  const store = createGameStore(mode)
   store.startMission(3)
   const world = store.getWorld(),
     temple = addBuilding(world, 'blue', 'temple', { x: -2, z: 32 }, true),
@@ -166,20 +167,20 @@ function activeFixture(createGameStore) {
     admission = buildingAdmission(world, temple)
   registerLivePerson(world, person)
   const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
-  shaman.native = createLivePerson(world, shaman)
+  shaman.native ??= createLivePerson(world, shaman)
   registerLivePerson(world, shaman.native)
   Object.assign(world, { turn: 707, time: 707 / 12, paused: true, unlockedTemple: true })
   Object.assign(person, { flags3: 0, savedVehicle: 0, orderDelay: 0 })
-  person.commands.fill(0)
-  person.commands[0] = 1
-  person.commandCursor = 0
-  Object.assign(world.buildingOrders.records[1], {
+  // Supply the training state without overwriting unrelated authored owners.
+  const order = allocatePersonOrder(world.buildingOrders)
+  Object.assign(world.buildingOrders.records[order], {
     model: 8,
     a: temple.id,
     flags: 0,
-    references: 1,
   })
-  Object.assign(world.buildingOrders, { active: 1, cursor: 2 })
+  attachPersonOrder(world.buildingOrders, person, order, 0, {
+    prepare() {}, stopWork() {}, releaseSpell() {}, deleteObject() {}, releaseFight() {},
+  })
   Object.assign(trainee, {
     native: null,
     entry: { person, orders: world.buildingOrders },
@@ -227,7 +228,7 @@ function activeFixture(createGameStore) {
 
 async function typed(world) {
   const key = Symbol('test-only checkpoint'),
-    record = { version: 1, world }
+    record = { version: 2, world }
   Object.defineProperty(globalThis, key, { configurable: true, value: record })
   try {
     return await checkpointObservation({ observationName: key })
@@ -380,17 +381,23 @@ test('active Temple Save observes post-normalization publication, committed IDB 
   assert.equal(db.closed, 2, 'both readback database handles close')
 })
 
-test('fresh store restores committed active Temple and public Load Game publishes before Page unpause', async t => {
+for (const version of [1, 2]) test(`fresh store restores v${version} active Temple and public Load Game publishes before Page unpause`, async t => {
   const db = await storage(t),
-    f = activeFixture(db.createGameStore),
+    f = activeFixture(db.createGameStore, version === 1 ? 'classic' : 'scalable'),
     saved = f.store.saveCheckpoint()
   ;(await db.transaction('readwrite')).complete()
   assert.equal(await saved, true)
+  if (version === 1) {
+    db.records.get('latest').version = 1
+    delete db.records.get('latest').world.capacityPolicy
+  }
   const committedBefore = await db.read(),
     recordsBefore = structuredClone(db.records),
     read = readTempleCommittedLoad()
   ;(await db.transaction('readonly')).complete()
   const expected = await read
+  assert.equal(expected.committed.version, version)
+  assert.equal(expected.expectedLoad.version, 2)
   assert.deepEqual(expected.committed, committedBefore)
   assert.deepEqual(db.records, recordsBefore, 'detached restore/Load prediction cannot alter IDB')
   assert.notEqual(expected.expectedLoad.checkpointSha256, committedBefore.checkpointSha256)

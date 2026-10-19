@@ -217,7 +217,7 @@ export async function saveTempleCheckpoint({
       signal.throwIfAborted()
       entry.committed = await page.evaluate(readCommittedTempleSummary)
       return (
-        entry.committed?.version === 1 &&
+        [1, 2].includes(entry.committed?.version) &&
         JSON.stringify(entry.committed.summary) === JSON.stringify(entry.boundary.saved)
       )
     })
