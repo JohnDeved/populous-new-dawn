@@ -94,17 +94,25 @@ test('current controlled Mission6 raid releases blocked owners and checkpoint re
   assert.deepEqual(task.members, [])
   assert.deepEqual([...released].sort((a, b) => a - b), owners.map(({ id }) => id).sort((a, b) => a - b))
   assert.equal(order.references, 0)
-  for (const { id, unit, person, hp } of owners) {
-    assert.equal(world.units.find(candidate => candidate.id === id), unit)
-    assert.equal(unit.hp, hp)
-    assert.equal(unit.native, person)
-    assert.equal(world.objectCells.objects.get(id), person)
-    assert.ok(!person.commands.includes(orderId))
-    assert.notEqual(person.immediateCommand, orderId)
-    assert.equal(currentPersonOrder(world.buildingOrders, person), undefined)
+  const assertReleasedOwners = () => {
+    for (const { id, unit, person, hp } of owners) {
+      assert.equal(world.units.find(candidate => candidate.id === id), unit)
+      assert.equal(unit.hp, hp)
+      assert.equal(unit.native, person)
+      assert.equal(world.objectCells.objects.get(id), person)
+      assert.ok(!person.commands.includes(orderId))
+      assert.notEqual(person.immediateCommand, orderId)
+      assert.equal(currentPersonOrder(world.buildingOrders, person), undefined)
+    }
   }
+  assertReleasedOwners()
   while (world.turn < releaseLimit && task.flags & 1) advance()
   assert.equal(task.flags & 1, 0)
+  assertReleasedOwners()
+  // Preserve the prior lifetime guarantee after cleanup, not just phase23 entry.
+  // This is a controlled-world tail, not a claim about an authored raid schedule.
+  for (let turn = 0; turn < 145; turn++) advance()
+  assertReleasedOwners()
   assert.equal(order.references, 0)
   assert.equal(world.stats.bridges, 0, 'this controlled failed route does not create a land connection')
 })
