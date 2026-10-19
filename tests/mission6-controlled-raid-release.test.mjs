@@ -65,8 +65,39 @@ test('current controlled Mission6 raid releases blocked owners and checkpoint re
   assert.deepEqual(replay, world)
   assert.deepEqual([replay.campaignAIs[3].tasks[index].stagingMarker,
     replay.campaignAIs[3].tasks[index].spellMarker], [-1, -1])
+  const replayOwners = new Map(owners.map(({ id }) => [id, {
+    unit: replay.units.find(candidate => candidate.id === id),
+    person: replay.objectCells.objects.get(id),
+  }]))
+  let builderHandoffSeen = false
+  const assertTailOwner = (state, unit, person, hp) => {
+    assert.equal(unit.hp, hp)
+    assert.ok([unit.native, unit.builder?.person, unit.entry?.person, unit.flight,
+      unit.fight?.motion, unit.resident?.person].includes(person))
+    const registered = state.objectCells.objects.get(unit.id),
+      current = currentPersonOrder(state.buildingOrders, person)
+    const assertBuilderHandoff = () => {
+      assert.equal(unit.native, null)
+      assert.equal(unit.builder?.person, person)
+      assert.equal(current?.model, 6)
+      assert.equal(unit.work, current.a)
+      assert.ok(state.buildings.some(building => building.id === current.a && building.hp > 0))
+      if (state === world) builderHandoffSeen = true
+    }
+    if (registered) assert.equal(registered, person)
+    // processBuilderWork can detach the registered native slot while keeping
+    // this exact person in builder.person; no other absent-owner case is admitted.
+    else assertBuilderHandoff()
+    if (unit.native === null && unit.builder?.person === person) assertBuilderHandoff()
+    assert.ok(!person.commands.includes(orderId))
+    assert.notEqual(person.immediateCommand, orderId)
+    if (current) {
+      assert.notEqual(current, order)
+      assert.ok(current.references > 0)
+    }
+  }
   const released = new Set(), releaseLimit = world.turn + 512
-  const advance = () => {
+  const advance = (tail = false) => {
     const before = task.members.map(id => {
       const person = world.objectCells.objects.get(id)
       return { id, state: person.state, substate: person.substate, animationMode: person.animationMode }
@@ -76,10 +107,18 @@ test('current controlled Mission6 raid releases blocked owners and checkpoint re
     assert.deepEqual(replay, world)
     for (const { id, unit, person, hp } of owners) {
       assert.equal(world.units.find(candidate => candidate.id === id), unit)
-      assert.equal(unit.hp, hp)
-      assert.equal(unit.native, person)
-      assert.equal(world.objectCells.objects.get(id), person)
-      assert.equal(replay.objectCells.objects.get(id), replay.units.find(candidate => candidate.id === id).native)
+      const twin = replayOwners.get(id)
+      assert.equal(replay.units.find(candidate => candidate.id === id), twin.unit)
+      if (tail) {
+        assertTailOwner(world, unit, person, hp)
+        assertTailOwner(replay, twin.unit, twin.person, hp)
+      } else {
+        assert.equal(unit.hp, hp)
+        assert.equal(unit.native, person)
+        assert.equal(world.objectCells.objects.get(id), person)
+        assert.equal(twin.unit.native, twin.person)
+        assert.equal(replay.objectCells.objects.get(id), twin.person)
+      }
     }
     for (const person of before) if (!task.members.includes(person.id)) {
       assert.equal(person.state, 33, 'the real blocked route reaches state33 before release')
@@ -111,8 +150,8 @@ test('current controlled Mission6 raid releases blocked owners and checkpoint re
   assertReleasedOwners()
   // Preserve the prior lifetime guarantee after cleanup, not just phase23 entry.
   // This is a controlled-world tail, not a claim about an authored raid schedule.
-  for (let turn = 0; turn < 145; turn++) advance()
-  assertReleasedOwners()
+  for (let turn = 0; turn < 145; turn++) advance(true)
+  assert.ok(builderHandoffSeen, 'ordinary new construction owns the same released person')
   assert.equal(order.references, 0)
   assert.equal(world.stats.bridges, 0, 'this controlled failed route does not create a land connection')
 })

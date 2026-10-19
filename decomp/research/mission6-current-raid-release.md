@@ -28,3 +28,14 @@ Chumara's authored options `[0,7,-1,-1]`, but forwards marker options only for t
 Matak branch. Its explicit -1 current tasks do not prove original Chumara marker7
 parity. This controlled release test neither relies on that omission as an
 authored contract nor silently changes campaign production.
+
+The145-turn post-cleanup tail must not resurrect the retired raid order: every
+retained person queue excludes its ID, its references stay zero, and complete
+checkpoint twins, Unit identity and HP remain equal. Strict native/registered
+ownership and no current order are required at phase23 and immediately after task
+inactivity. Later ordinary construction may transfer the SAME person to
+`builder.person` through `adoptLiveOrders`/`processBuilderWork`; its genuine new
+command6/building target is checked, not mistaken for a stranded raid. A missing
+registry entry is admitted only for that explicit builder/native-null path; any
+present entry must still be the captured person. Other retained owner slots must
+keep their registry alias. No generic missing-owner fallback is added.
