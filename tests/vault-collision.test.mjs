@@ -46,7 +46,11 @@ function openFirstMissionBridge(world) {
 }
 
 function approach(mission, side = false) {
-  const world = finishLevelStart(createWorld(mission))
+  const store = createGameStore()
+  store.startMission(mission)
+  const world = finishLevelStart(store.getWorld())
+  assert.equal(world.capacityPolicy.mode, 'scalable')
+  assert.ok(world.objectCells.heads instanceof Float64Array)
   if (mission === 1) openFirstMissionBridge(world)
   const shaman = person(world), vault = head(world), points = vaultPoints(vault)
   const dx = short(points.inside.x - points.outside.x), dy = short(points.inside.y - points.outside.y)
@@ -69,7 +73,7 @@ function approach(mission, side = false) {
   const order = currentPersonOrder(world.buildingOrders, shaman.native)
   assert.equal(order.model, 33)
   assert.equal(order.a, vault.id)
-  return { world, shaman, vault, points }
+  return { store, world, shaman, vault, points }
 }
 
 function reachPrayer(state) {
@@ -138,14 +142,21 @@ test('Vault footprint registration follows the modeled top-level body, not trigg
 })
 
 test('ordinary open entry, current in-session Load, exit/departure and interrupted inside owners retain collision lifecycle', async t => {
-  const state = approach(3), { world, shaman, vault, points } = state
+  const state = approach(3), { store, world, shaman, vault, points } = state
   reachPrayer(state)
   const mask = footprint(vault), observed = new Set(), phaseEntries = new Map()
   let insideWorld, restored, completed = false
   for (let turns = 0; turns < 3000; turns++) {
     const entering = shaman.native
-    if ([4, 7, 9].includes(entering.commandPhase) && entering.flags2 & 0x40000000 && !phaseEntries.has(entering.commandPhase))
+    if ([4, 7, 9].includes(entering.commandPhase) && entering.flags2 & 0x40000000 && !phaseEntries.has(entering.commandPhase)) {
       phaseEntries.set(entering.commandPhase, structuredClone(world))
+      // Retain the earned current-store phase9 entry for the supplied occupied
+      // leave-cell probe below, without injecting a research world into Save.
+      if (entering.commandPhase === 9) {
+        assert.deepEqual(store.getWorld(), world)
+        await store.saveCheckpoint()
+      }
+    }
     step(world)
     if (restored) step(restored)
     const p = shaman.native, order = p && currentPersonOrder(world.buildingOrders, p)
@@ -167,11 +178,11 @@ test('ordinary open entry, current in-session Load, exit/departure and interrupt
       assert.equal(personStepCollision(collisionWorld(world), p, points.inside), 0)
       assert.equal(personStepCollision(collisionWorld(world), { ...p, workTarget: 0 }, points.inside), 1)
       insideWorld = structuredClone(world)
-      const store = createGameStore()
-      store.change(target => Object.assign(target, structuredClone(world)))
       await store.saveCheckpoint()
       assert.equal(store.loadCheckpoint(), true)
       restored = store.getWorld()
+      assert.equal(restored.capacityPolicy.mode, 'scalable')
+      assert.ok(restored.objectCells.heads instanceof Float64Array)
       syncLandscapeObjects(restored)
       assert.deepEqual(restored.buildingFootprints, world.buildingFootprints)
       assert.deepEqual(restored.land.buildingIds, world.land.buildingIds)
@@ -222,7 +233,9 @@ test('ordinary open entry, current in-session Load, exit/departure and interrupt
       assertEntryDispatch(structuredClone(entry), phase, phase === 9 ? points.leave : undefined)
   })
   await t.test('supplied occupied leave cell corrects only the idle anchor and survives current Load', async () => {
-    const w = structuredClone(phaseEntries.get(9)), h = head(w)
+    assert.equal(store.loadCheckpoint(), true)
+    const w = store.getWorld(), h = head(w)
+    assert.deepEqual(w, phaseEntries.get(9))
     const id = 900
     assert.equal([...w.units, ...w.buildings, ...w.shrines].some(o => o.id === id), false)
     // Supplied physical body at the already-earned leave point, not a naturally
@@ -232,8 +245,6 @@ test('ordinary open entry, current in-session Load, exit/departure and interrupt
     syncLandscapeObjects(w)
     assert.equal(w.land.buildingIds[cell(points.leave)] & 1023, id)
     const outside = vaultPoints(other).outside
-    const store = createGameStore()
-    store.change(target => Object.assign(target, structuredClone(w)))
     await store.saveCheckpoint()
     assert.equal(store.loadCheckpoint(), true)
     const loaded = store.getWorld()

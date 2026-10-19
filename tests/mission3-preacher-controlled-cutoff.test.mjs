@@ -13,6 +13,8 @@ import { acquireNaturalPreacher } from '../scripts/mission3-natural-preacher-sce
 test('controlled sermon timer 839 preserves current cutoff, order identities and queued route', async () => {
   const store = createGameStore()
   store.startMission(3)
+  assert.equal(store.getWorld().capacityPolicy.mode, 'scalable')
+  assert.ok(store.getWorld().objectCells.heads instanceof Float64Array)
   const journey = acquireNaturalPreacher(store.getWorld())
   const { world: w, preacher, shaman } = journey
   let restored

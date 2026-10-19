@@ -13,6 +13,8 @@ import { nativePosition } from '../app/world-terrain-runtime.ts'
 test('current controlled Mission6 raid releases blocked owners and checkpoint references', async () => {
   const store = createGameStore()
   store.startMission(6)
+  assert.equal(store.getWorld().capacityPolicy.mode, 'scalable')
+  assert.ok(store.getWorld().objectCells.heads instanceof Float64Array)
   const world = store.getWorld(), ai = world.campaignAIs[3]
   for (let turn = 0; turn < 1024 && !(ai.states & (1 << 20)); turn++) tick(world, 1 / 12)
   assert.ok(ai.states & (1 << 20), 'ordinary initialization enables the current producer')

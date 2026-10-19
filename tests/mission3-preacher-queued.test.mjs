@@ -1,16 +1,20 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createWorld, command, setSelection, tick } from '../app/model.ts'
+import { command, setSelection, tick } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { createGameStore } from '../app/game-store.ts'
 import { unitAnimationSource } from '../app/unit-animation-source.ts'
 import { acquireNaturalPreacher } from '../scripts/mission3-natural-preacher-scenario.mjs'
 
 // Authored Mission 3, unchanged ordinary Vault/build/training journey, then only
 // player movement orders. No entities, terrain, funds, flags, phases or timers
 // are supplied. This is a CPU campaign witness, not rendered/native acceptance.
-test('authored Mission 3 automatic sermon ends and completes its retained next waypoint', () => {
-  const journey = acquireNaturalPreacher(createWorld(3))
+test('authored Mission 3 automatic sermon ends and completes its retained next waypoint', async () => {
+  const store = createGameStore()
+  store.startMission(3)
+  assert.equal(store.getWorld().capacityPolicy.mode, 'scalable')
+  assert.ok(store.getWorld().objectCells.heads instanceof Float64Array)
+  const journey = acquireNaturalPreacher(store.getWorld())
   const { world: w, preacher, shaman, step, until } = journey
   // Ordinary 16-turn wait retains a natural no-listener conversion witness after
   // source-correct Vault movement changed the prior journey's RNG history.
@@ -29,7 +33,10 @@ test('authored Mission 3 automatic sermon ends and completes its retained next w
   const immediate = person.immediateCommand
   assert.ok(immediate && !queue.includes(immediate))
   assert.deepEqual(person.commands, queue)
-  const restored = migrateCheckpoint(structuredClone(w))
+  await store.saveCheckpoint()
+  assert.ok(store.loadCheckpoint())
+  const restored = store.getWorld()
+  assert.deepEqual(restored, w)
   const restoredPreacher = restored.units.find(u => u.id === preacher.id)
   const transition = []
   const advance = () => {
