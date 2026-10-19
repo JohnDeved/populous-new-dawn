@@ -8,6 +8,7 @@ import { launchOptions } from './local-render/harness.mjs'
 import { bindGame } from './browser-game.mjs'
 
 const url = process.env.POPULOUS_URL ?? 'http://localhost:3000'
+const inlineArt = JSON.parse(readFileSync(new URL('../app/original-loading-art.json', import.meta.url), 'utf8'))
 const MASK_SHA256 = '73437a1d2e8ec54551489d2c39d0e293aa1f52072f3287fd2b9e58ece3fe190d'
 
 function sha256(data) {
@@ -105,7 +106,7 @@ async function loadingLayout(page) {
 function assertOriginalLayout(layout) {
   assert.ok(layout)
   assert.deepEqual(layout.natural, { width: 130, height: 161 })
-  assert.equal(layout.source, '/original/loading-mask.png')
+  assert.equal(layout.source, inlineArt.mask.src)
   assert.equal(layout.art.width, 130)
   assert.equal(layout.art.height, 161)
   assert.equal(layout.image.width, 130)

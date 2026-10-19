@@ -8,6 +8,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { createElement } from 'react'
 
 const require = createRequire(import.meta.url)
+const art = JSON.parse(readFileSync(new URL('../app/original-loading-art.json', import.meta.url), 'utf8'))
 const source = readFileSync(new URL('../app/original-loading-screen.tsx', import.meta.url), 'utf8')
 const emitted = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
@@ -16,6 +17,7 @@ function load(react = require('react')) {
   const component = { exports: {} }
   new Function('require', 'module', 'exports', emitted)(name => {
     if (name === 'react') return react
+    if (name === './original-loading-art.json') return {default: art}
     if (name === 'react/jsx-runtime') return require(name)
     throw Error(`Unexpected component dependency: ${name}`)
   }, component, component.exports)
@@ -31,8 +33,8 @@ test('restore and actual resource loading share the imported mask and readable l
   for (const phase of ['restore', 'loading']) {
     const html = render(phase)
     assert.match(html, /class="loading-world loading-world-original"/)
-    assert.match(html, /src="\/original\/loading-mask.png" width="130" height="161"/)
-    assert.match(html, /src="\/original\/loading-label.png" width="82" height="20"/)
+    assert.ok(html.includes(`src="${art.mask.src}" width="130" height="161"`))
+    assert.ok(html.includes(`src="${art.label.src}" width="82" height="20"`))
     assert.match(html, /Loading\.\.\./)
     assert.match(html, /role="status"/)
     assert.ok(!html.includes('loading-rune') && !html.includes('<h2'))
@@ -40,15 +42,101 @@ test('restore and actual resource loading share the imported mask and readable l
   }
 })
 
+test('first server paint exposes eager native art without a visible generic text or hydration gate', () => {
+  for (const phase of ['restore', 'loading']) {
+    const html = render(phase)
+    assert.ok(!html.includes('src="/original/loading-'), 'no separate artwork fetch')
+    assert.match(html, /<style>\.loading-world\{position:fixed;/)
+    assert.match(html, /<span class="loading-text-hidden">Loading\.\.\.<\/span>/)
+    assert.ok(!/<img[^>]*hidden/.test(html), 'native art must not wait for hydration/onLoad')
+    assert.equal((html.match(/loading="eager"/g) ?? []).length, 2)
+    if (phase === 'restore') assert.match(html, /<p class="loading-text-hidden">Checking/)
+  }
+  const css = render('restore')
+  assert.match(css, /\.loading-text-hidden\{[^}]*clip-path:inset\(50%\)/)
+  assert.match(css, /\.loading-world\{[^}]*background:#000/)
+  assert.match(css, /\.loading-original-art\{[^}]*width:130px;height:161px/)
+})
+
+function inspectState() {
+  const states = [], refs = [], effects = []
+  let stateIndex = 0, refIndex = 0
+  const inspect = load({
+    useState(initial) {
+      const index = stateIndex++
+      if (!(index in states)) states[index] = initial
+      return [states[index], value => { states[index] = value }]
+    },
+    useRef(initial) {
+      const index = refIndex++
+      return refs[index] ??= {current: initial}
+    },
+    useEffect(callback) { effects.push(callback) },
+  })
+  return {
+    effects,
+    render(phase = 'loading') {
+      stateIndex = 0; refIndex = 0; effects.length = 0
+      return tree(inspect({phase, error: 'terrain failed', onRetry() {}}))
+    },
+  }
+}
+
+test('only a real label failure reveals readable fallback; mask failure cannot remove the status', () => {
+  const harness = inspectState()
+  let nodes = harness.render()
+  const image = name => nodes.find(node => node?.type === 'img' && node.props.src === (name === 'loading-mask.png' ? art.mask.src : art.label.src))
+  assert.equal(image('loading-label.png').props.hidden, false)
+  image('loading-mask.png').props.onError()
+  nodes = harness.render()
+  assert.equal(image('loading-mask.png'), undefined)
+  assert.equal(image('loading-label.png').props.hidden, false)
+  image('loading-label.png').props.onError()
+  nodes = harness.render()
+  assert.equal(image('loading-label.png').props.hidden, true)
+  const status = nodes.find(node => node?.type === 'span' && node.props.children === 'Loading...')
+  assert.equal(status.props.className, undefined)
+  assert.equal(nodes[0].props.role, 'status')
+})
+
+test('image completion before hydration is reconciled for both successful and failed requests', () => {
+  for (const naturalWidth of [0, 130]) {
+    const harness = inspectState()
+    let nodes = harness.render()
+    for (const node of nodes.filter(node => node?.type === 'img')) {
+      node.props.ref.current = {complete: true, naturalWidth}
+    }
+    harness.effects[0]()
+    nodes = harness.render()
+    assert.equal(nodes[0].props['data-mask-failed'], naturalWidth === 0)
+    assert.equal(nodes[0].props['data-label-ready'], naturalWidth > 0)
+    const label = nodes.find(node => node?.type === 'img' && node.props.src === art.label.src)
+    assert.equal(label.props.hidden, naturalWidth === 0)
+  }
+})
+
+test('inline artwork is exactly the reviewed original bytes, bounded and reproducible', () => {
+  let total = 0
+  for (const asset of Object.values(art)) {
+    const original = readFileSync(new URL('../' + asset.source, import.meta.url))
+    const embedded = Buffer.from(asset.src.split(',')[1], 'base64')
+    assert.deepEqual(embedded, original)
+    assert.equal(createHash('sha256').update(embedded).digest('hex'), asset.sha256)
+    assert.equal(embedded.length, asset.bytes)
+    total += asset.src.length
+  }
+  assert.ok(total < 2700, 'inline PNG data remains a tiny first-document payload')
+})
+
 test('failure keeps original identity but explicitly labels the browser recovery controls', () => {
   const html = render('failed')
-  assert.match(html, /src="\/original\/loading-mask.png"/)
+  assert.ok(html.includes(`src="${art.mask.src}"`))
   assert.match(html, /role="dialog" aria-label="Browser loading recovery" aria-modal="true"/)
   assert.match(html, /Loading failed/)
   assert.match(html, /Technical details/)
   assert.match(html, /&lt;failed terrain request&gt;/)
   assert.match(html, /Try again/)
-  assert.ok(!html.includes('loading-label.png') && !html.includes('loading-rune'))
+  assert.ok(!html.includes(art.label.src) && !html.includes('loading-rune'))
 })
 
 test('one failed presentation dispatches only one retry; a new keyed presentation may retry again', () => {

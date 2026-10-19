@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import test from 'node:test'
 import ts from 'typescript'
+import * as frontendBadges from '../app/frontend-badges.ts'
 
 const require = createRequire(import.meta.url)
 const emitted = ts.transpileModule(
@@ -38,6 +39,7 @@ function fixture(overrides = {}) {
     if (name === 'react') return react
     if (name === 'react/jsx-runtime') return require(name)
     if (name === './original-frontend.json') return {}
+    if (name === './frontend-badges') return frontendBadges
     // Tooltip lifecycle has its own production-hook tests; this fixture owns recovery.
     if (name === './menu-tooltip') return { MenuTooltip: () => null }
     if (name === './frontend-composition.ts') return {
