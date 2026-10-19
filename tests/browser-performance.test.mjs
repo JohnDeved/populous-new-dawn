@@ -180,6 +180,20 @@ test('trusted reporter verifies metadata, creates once and updates only its iden
   assert.ok(state.calls.filter(call => call.method).every(call => /issues\/(?:42\/comments|comments\/99)$/.test(call.path)))
 })
 
+test('pin and browser provisioner changes retain the trusted-base harness warning', async () => {
+  for (const name of ['run-live.mjs', 'browser-runtime.json', 'browser-runtime.mjs', 'install-browser.mjs']) {
+    const mock = apiFixture(), original = mock.arguments.api
+    mock.arguments.api = async (path, options) => {
+      const result = await original(path, options)
+      if (path.endsWith(`/contents/scripts/browser-performance/${name}?ref=${identity.headSha}`))
+        return { ...result, size: 7, content: Buffer.from('changed').toString('base64') }
+      return result
+    }
+    assert.equal((await reportRun(mock.arguments)).status, 'created')
+    assert.match(mock.state.calls.find(call => call.method).body.body, /changes the harness/)
+  }
+})
+
 test('stale PRs, old attempts, wrong workflows/identities, duplicate artifacts and forged metrics never write', async () => {
   const cases = [
     state => { state.pr.head.sha = 'f'.repeat(40) }, state => { state.pr.base.sha = 'f'.repeat(40) },
