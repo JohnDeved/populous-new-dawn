@@ -1,0 +1,47 @@
+{
+  "runtimeSource": "64daadcc5fefcaa8b19f07021d15fd3eb8ce40ed",
+  "base": "fa67ce0a56c680efc785d5125186af887a51efe8",
+  "helperSha256": "9d4a45f9988dfd2e6b9c3cc7f5f0d815d2d26f1899b48ff8757b263924c65b60",
+  "retainedQuit": {
+    "runId": 39239482583,
+    "diagnosticSource": "60ca713db256d03d56e6034e81cc464f45713ae9",
+    "runtimeSource": "f275d6c403a06cfb2ac76489a667c81f680d6439",
+    "artifactId": 12180148995,
+    "zipSha256": "75b196f58b6aea67a4a6dcccdeff4dccd09acf684bdad8b5b3784641dd083a80",
+    "receiptSha256": "b61f33ef734d7098c53780b4032bf2ff52cacd18a85c9ab595867b748ca1adf8",
+    "cases": [
+      "quit-compact",
+      "quit-wide"
+    ],
+    "identicalRelevantGitObjects": {
+      "app/original-main-menu.tsx": "783ff4cf6856a7bfb35f6cd7a7db9e2a53a2a6b4",
+      "app/original-main-menu.module.css": "a4fb591e3e5e79baa493681e0ac6a707b16e78d0",
+      "app/frontend-composition.ts": "02f7c8cb5f88fc8dda6feb9901624a811a4a8836",
+      "app/frontend-assets.ts": "aa18a0138401c693cb033416a990e72b51284afd",
+      "app/frontend-badges.ts": "fc36da4ec863271b1e9871a79825dc19abc292aa",
+      "app/original-frontend.json": "a1239c34bb37aa56005eee69bda7bd0a1e695584",
+      "public/original/frontend": "5b3fb38209706533563a55d82a09894ac713ef71",
+      "public/frontend-badges": "72044a9c276f18740a308bb02c5cb1833f0834ee",
+      "package.json": "4f9c16f0752053538d7c60e9c223ee85599b0181",
+      "package-lock.json": "97cd9ade0190af96e99b389c93d4ee20bef5065c"
+    }
+  },
+  "failedStartup": {
+    "runId": 39239482583,
+    "status": "failed in first case due uncaught route rejection; remaining two not run; no final owned cleanup proof",
+    "artifactId": 12180547343,
+    "zipSha256": "6727c78dd939f480ee332cfe19c4653300632c326609323f164d232af1c6bd34"
+  },
+  "retainedNormalStartup": {
+    "runId": 39241119690,
+    "diagnosticSource": "18f295b29486dc1d0464e4c55171497d764a5f01",
+    "runtimeSource": "64daadcc5fefcaa8b19f07021d15fd3eb8ce40ed",
+    "artifactId": 12181316967,
+    "zipSha256": "3a2c187aab46db8e554ef4bab90c122257620d51f713954bcb24d8e23fa2edfe",
+    "receiptSha256": "96fdb0755b63706782806a06875b69a6764a29bce89967dc9adbde63174ed153",
+    "case": "startup-inline-ssr",
+    "status": "passed"
+  },
+  "priorIsolationFailure": "Run39241119690 failed centering against innerWidth, not actual loader layout viewport. Later assertions not run; original failure preserved.",
+  "helperRepair": "Record documentElement.clientWidth/clientHeight; verify fixed loader against layout viewport; assert exact rounded artwork center within loader. No tolerance enlargement."
+}
