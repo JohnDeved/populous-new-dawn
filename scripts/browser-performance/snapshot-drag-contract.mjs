@@ -202,6 +202,19 @@ export const dragSourceProfiles = Object.freeze([
     Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
       sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
   ]) }),
+  // The reviewed F8 epoch fix changes only the pointer-callback recording argument.
+  // Bind its complete route without admitting unreviewed mixtures of old slices.
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', slices: Object.freeze([
+    ...dragSourceSlices.map(slice => Object.freeze(slice.id === 'pointer-callback'
+      ? { ...slice, sha256: '741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895' }
+      : slice.id === 'query-inputs'
+        ? { ...slice, sha256: 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c' }
+        : slice.id === 'frame-order'
+          ? { ...slice, sha256: '27ed72fea09df7d40a3e632ca56da9aa487a2df73dc950655f74bf1bb7b93adf' }
+          : ownedRouteOverrides[slice.id] ?? slice)),
+    Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
+      sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
+  ]) }),
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {
