@@ -51,21 +51,30 @@ export function restoreCapacityPolicy(world: World) {
   }
   if (active !== pool.active) throw new RangeError('Invalid scalable checkpoint active-order count')
   const people = new Set([
-    ...world.objectCells.objects.values(),
-    ...world.pathfinding.people.values(),
-    ...world.units.flatMap(unit => [
-      unit.native,
-      unit.flight,
-      unit.entry?.person,
-      unit.builder?.person,
-      unit.resident?.person,
-      unit.fight?.motion,
+      ...world.objectCells.objects.values(),
+      ...world.pathfinding.people.values(),
+      ...world.units.flatMap(unit => [
+        unit.native,
+        unit.flight,
+        unit.entry?.person,
+        unit.builder?.person,
+        unit.resident?.person,
+        unit.fight?.motion,
+      ]),
     ]),
-  ])
+    references = new Map<number, number>()
+  // Registries and controllers alias the same live person. Count that object
+  // once, but every occupied queue/immediate slot is an independently released
+  // reference. Never accept an undercount that can free a still-owned record.
   for (const person of people) {
     if (!person || !('commands' in person)) continue
     if (
       !('immediateCommand' in person) ||
+      !('commandCursor' in person) ||
+      typeof person.commandCursor !== 'number' ||
+      !Number.isInteger(person.commandCursor) ||
+      person.commandCursor < 0 ||
+      person.commandCursor >= 8 ||
       !Array.isArray(person.commands) ||
       person.commands.length !== 8 ||
       ![...person.commands, person.immediateCommand].every(
@@ -77,7 +86,12 @@ export function restoreCapacityPolicy(world: World) {
       )
     )
       throw new RangeError('Invalid scalable checkpoint person-order handle')
+    for (const id of [...person.commands, person.immediateCommand])
+      if (id) references.set(id, (references.get(id) ?? 0) + 1)
   }
+  for (let id = 1; id < pool.records.length; id++)
+    if (pool.records[id].references !== (references.get(id) ?? 0))
+      throw new RangeError('Invalid scalable checkpoint person-order ownership count')
   if (
     !Number.isSafeInteger(world.nextId) ||
     world.nextId < 1024 ||

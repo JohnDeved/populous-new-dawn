@@ -9,10 +9,11 @@ import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 // Genuine opening followed by a supplied legacy task without new marker metadata.
 // Keep the original failed-route release assertions as checkpoint compatibility;
 // fresh current-source marker travel/Bridge has a separate ordinary acceptance.
+// Its historical dynamic IDs and rule behavior deliberately use classic mode.
 test('legacy markerless Mission6 task releases its blocked raid without stranded owners', async () => {
   await loadSceneFixture()
   const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
-  const store = createGameStore()
+  const store = createGameStore('classic')
   store.startMission(6)
   const world = store.getWorld(),
     shaman = world.units.find(u => u.team === 'blue' && u.kind === 'shaman'),

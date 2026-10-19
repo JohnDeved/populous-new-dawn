@@ -125,13 +125,16 @@ for (const mode of ['classic', 'scalable']) test(`v2 ${mode} checkpoint restores
   })
 })
 
-for (const invalid of ['missing policy', 'unknown mode', 'stale reservation', 'negative references'])
+for (const invalid of ['missing policy', 'unknown mode', 'stale reservation', 'negative references', 'undercounted owners', 'overcounted owners'])
   test(`v2 ${invalid} rejects without suppressing campaign progress or rewriting storage`, async () => {
     const world = createWorld(1, 'scalable')
     if (invalid === 'missing policy') delete world.capacityPolicy
     if (invalid === 'unknown mode') world.capacityPolicy.mode = 'unknown'
     if (invalid === 'stale reservation') world.nextId = 20
     if (invalid === 'negative references') world.buildingOrders.records[1].references = -1
+    if (invalid === 'undercounted owners')
+      world.units.find(u => u.native?.commands[0] === 2).native.commands[1] = 1
+    if (invalid === 'overcounted owners') world.buildingOrders.records[1].references = 2
     await withStorage({ latest: { version: 2, world }, profile }, async ({ createGameStore, records, writes }) => {
       const store = createGameStore(), active = store.getWorld(), before = structuredClone(records)
       assert.equal(await store.restoreCheckpoint(), false)

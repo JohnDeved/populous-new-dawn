@@ -13,7 +13,9 @@ test('historical pre-newborn3916 idle encounter retains3917 lethal cleanup throu
  assert.equal(sha(readFileSync(new URL('../scripts/capture-historical-mission22-staged-death.mjs',import.meta.url))),p.producerSha256)
  const compressed=readFileSync(new URL('./fixtures/mission22-historical-staged/world-3916.v8.gz',import.meta.url));assert.equal(sha(compressed),'683a6c362c480f0003547f4f80bfef0b61bc68d89c97db873d85da881f1fd5e5')
  const serialized=gunzipSync(compressed);assert.equal(sha(serialized),'5efd8d3f8c80d596220dee9960ba46b328c7f0633b67d0737f80266f08ca2a8a')
- const historical=deserialize(serialized),store=createGameStore();store.startMission(22);Object.assign(store.getWorld(),historical);assert.deepEqual(store.getWorld(),historical)
+ const historical=deserialize(serialized),store=createGameStore();store.startMission(22)
+ for(const key of Object.keys(store.getWorld()))if(!Object.hasOwn(historical,key))delete store.getWorld()[key]
+ Object.assign(store.getWorld(),historical);assert.deepEqual(store.getWorld(),historical)
  await store.saveCheckpoint();const expected=migrateCheckpoint(structuredClone(historical));assert.ok(store.loadCheckpoint());const world=store.getWorld();assert.deepEqual(world,expected)
  const unit=world.units.find(u=>u.id===p.shamanId),owner=unit.fight.motion,craft=world.vehicles.find(v=>v.id===p.balloonId),order=world.buildingOrders.records[p.orderId]
  assert.equal(world.turn,3916);assert.equal(unit.hp,p.hp);assert.equal(owner.life,p.life);assert.equal(unit.fight.opponent,p.fightOpponent);assert.equal(world.objectCells.objects.get(unit.id),owner);assert.equal(order.model,28)

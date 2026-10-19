@@ -29,6 +29,8 @@ test('historical pre-newborn M6 whole checkpoint retains casualty and slot reuse
   assert.equal(sha(serialized),'f7fd8ab133ae00a02d43b296fd714148a28faae2d3733ef87b4446f17922557c')
   const historical=deserialize(serialized),store=createGameStore()
   store.startMission(6)
+  for (const key of Object.keys(store.getWorld()))
+    if (!Object.hasOwn(historical, key)) delete store.getWorld()[key]
   Object.assign(store.getWorld(),historical)
   assert.deepEqual(store.getWorld(),historical)
   await store.saveCheckpoint()

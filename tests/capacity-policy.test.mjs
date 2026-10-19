@@ -198,3 +198,105 @@ test('terrain handle reuse protects vehicles and linked heads, and exhaustion is
   assert.throws(() => addBuilding(world, 'blue', 'hut', { x: -8, z: 32 }), /No free terrain building handles/)
   assert.deepEqual(world, before)
 })
+
+test('scalable checkpoint counts real queue owners once across registry/controller aliases', async () => {
+  const { createLivePerson, registerLivePerson } = await import('../app/live-people.ts')
+  const store = createGameStore(), world = store.getWorld(), pool = world.buildingOrders,
+    units = [0, 1].map(x => addUnit(world, 'blue', 'warrior', { x, z: 32 })),
+    people = units.map(unit => createLivePerson(world, unit)), id = allocatePersonOrder(pool)
+  pool.records[id].model = 3
+  for (const [i, unit] of units.entries()) {
+    unit.native = people[i]
+    registerLivePerson(world, people[i])
+    world.pathfinding.people.set(unit.id, people[i])
+    attachPersonOrder(pool, people[i], id, 0, effects)
+  }
+  // Controller/registry aliases do not create more queue ownership. Each
+  // repeated slot, including the immediate slot, does acquire a reference.
+  units[0].fight = { motion: people[0], group: 0, started: 0, opponent: 0 }
+  units[0].native = null
+  attachPersonOrder(pool, people[0], id, 1, effects)
+  attachPersonOrder(pool, people[0], id, -1, effects)
+  assert.equal(pool.records[id].references, 4)
+  assert.doesNotThrow(() => restoreCapacityPolicy(world))
+  for (const count of [1, 3, 5]) {
+    const broken = structuredClone(world)
+    broken.buildingOrders.records[id].references = count
+    assert.throws(() => migrateCheckpoint(broken), /ownership count/, `references=${count}`)
+  }
+  const orphan = structuredClone(world)
+  const unowned = allocatePersonOrder(orphan.buildingOrders)
+  orphan.buildingOrders.records[unowned].references = 1
+  orphan.buildingOrders.active++
+  assert.throws(() => migrateCheckpoint(orphan), /ownership count/)
+  for (const cursor of [-1, 8, 0.5, '0']) {
+    const broken = structuredClone(world)
+    broken.units.find(u => u.id === units[0].id).fight.motion.commandCursor = cursor
+    assert.throws(() => migrateCheckpoint(broken), /person-order handle/)
+  }
+  await store.saveCheckpoint()
+  assert.equal(store.loadCheckpoint(), true)
+  assert.deepEqual(store.getWorld(), world)
+  const restored = store.getWorld(), first = restored.units.find(u => u.id === units[0].id)
+  assert.equal(first.fight.motion, restored.objectCells.objects.get(first.id))
+  assert.equal(first.fight.motion, restored.pathfinding.people.get(first.id))
+})
+
+test('ordinary initialized campaign queues save/load under scalable ownership validation', async () => {
+  const store = createGameStore()
+  for (const mission of [1, 5, 6, 22]) {
+    store.startMission(mission)
+    // Existing migration also normalizes authored shrine rewards. Compare the
+    // complete migrated world, without dropping queues, IDs or alias assertions.
+    const before = migrateCheckpoint(structuredClone(store.getWorld()))
+    await store.saveCheckpoint()
+    assert.equal(store.loadCheckpoint(), true, `mission ${mission}`)
+    assert.deepEqual(store.getWorld(), before)
+  }
+})
+
+test('live scalable scenery clearance treats bit-10 queue indices as handles, not flags', async () => {
+  const { processBuilderWork } = await import('../app/live-construction-runtime.ts')
+  const { createLivePerson } = await import('../app/live-people.ts')
+  const { buildingFootprintCells, buildingPose } = await import('../app/building-shapes.ts')
+  const { browserPosition } = await import('../app/world-coordinates.ts')
+  const { SceneryPhase } = await import('../app/building-clearing.ts')
+  for (const mode of ['classic', 'scalable']) {
+    const world = createWorld(1, mode), building = addBuilding(world, 'blue', 'hut', { x: -2, z: 32 }),
+      unit = world.units.find(u => u.kind === 'brave' && u.team === 'blue'),
+      p = createLivePerson(world, unit), cell = buildingFootprintCells(buildingPose(building))[0],
+      tree = world.trees.find(t => t.model === 1 && t.logs > 0)
+    Object.assign(tree, browserPosition({ x: (cell & 127) * 512 + 256, y: (cell >> 7) * 512 + 256 }))
+    if (mode === 'scalable') {
+      world.buildingOrders.records.push(...Array.from({ length: 800 }, emptyPersonOrder))
+      world.buildingOrders.cursor = 1024
+      const id = allocatePersonOrder(world.buildingOrders)
+      assert.equal(id, 1024)
+      world.buildingOrders.records[id].model = 3
+      attachPersonOrder(world.buildingOrders, p, id, 2, effects)
+    } else p.commands[2] = 1024 // Supplied native guard input, not a classic allocation.
+    unit.builder = { task: 3, busy: 0, phase: SceneryPhase.Find, restart: false, person: p }
+    world.turn = 0
+    processBuilderWork(world, unit, building)
+    assert.equal(unit.builder.task, mode === 'scalable' ? 3 : 2)
+    assert.equal(p.target, mode === 'scalable' ? tree.id : 0)
+    if (mode === 'scalable') assert.equal(unit.builder.phase, SceneryPhase.Approach)
+  }
+})
+
+test('scalable formation release tests the entire queue handle; classic retains the low byte', async () => {
+  const { initializePersonState } = await import('../app/person-state.ts')
+  const { createLivePerson } = await import('../app/live-people.ts')
+  for (const mode of ['classic', 'scalable']) for (const handle of [0, 255, 256, 799, 1024, 1280]) {
+    const world = createWorldState(1, mode), unit = addUnit(world, 'blue', 'brave', HOME),
+      p = createLivePerson(world, unit), formations = []
+    Object.assign(p, { state: 10, previousState: 1, assignment: 1, flags3: 0, formationCell: 123 })
+    p.commands[0] = handle
+    initializePersonState({ randomState: 1, instantFacing: false, levelFlags: 0,
+      orders: world.buildingOrders, tribes: world.manaTribes }, p, {
+      deselectPassengers() {}, rebuildTrainingQueue() {}, releaseMotion() {}, startOrders() {}, setAnimation() {},
+      rebuildFormation: cell => formations.push(cell),
+    })
+    assert.deepEqual(formations, (mode === 'scalable' ? handle : handle & 255) ? [123] : [], `${mode}/${handle}`)
+  }
+})

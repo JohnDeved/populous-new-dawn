@@ -31,6 +31,8 @@ single free record at wrap. Scalable references/active counts are safe integers,
 not wrapping 16-bit counters. Classic pool allocation and arithmetic are retained.
 The boarding-only release and computer attack validation consumers use the same
 mode-aware domain.
+The native scenery-clearing command-bit guard and formation low-byte test remain
+classic-only: scalable queue indices are complete handles, not packed flags.
 
 Campaign initialization retains authored identities and RNG. Before a scalable
 world is published, the general allocation cursor is at least 1024. Later people,
@@ -44,7 +46,8 @@ and campaign profile remain version 1. Current readers accept old version-1
 checkpoints; old clients reject new version-2 saves instead of silently using
 classic semantics on scalable data. Full-graph cloning retains pool indices,
 cursor, references and person aliases. Unknown policy versions/modes, mismatched
-pool modes, invalid reference counts/active totals, bad order handles and stale or
+pool modes, invalid reference counts/active totals, mismatched queue ownership
+(deduplicating registry/controller aliases), bad order handles and stale or
 unsafe general-ID reservations fail validation. No load remaps IDs or resets RNG.
 
 ## What is and is not established
