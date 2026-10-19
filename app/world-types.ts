@@ -106,6 +106,8 @@ export type Fight = {
   remaining?: number
   animation?: MeleeAttack | 'recoil' | 'walk' | 'idle'
   knockback?: boolean
+  // Only attacks entered with a native pose own it; legacy active saves keep fallback.
+  nativeAttackAnimation?: boolean
   motion?: LivePerson
 }
 export type NativePoint = { x: number; y: number; h: number }
