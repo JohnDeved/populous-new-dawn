@@ -9,6 +9,7 @@ on:
       - 'public/**'
       - 'scripts/browser-*.mjs'
       - 'scripts/local-render/tutorial-recommendation.mjs'
+      - 'scripts/local-render/frontend-held-escape.mjs'
       - 'scripts/local-render/original-pause-checkpoint-recovery.mjs'
       - 'scripts/local-render/campaign-profile-recovery.mjs'
       - 'scripts/checkpoint-readback.mjs'
@@ -41,6 +42,11 @@ jobs:
             name: Tutorial browser
             artifact: tutorial-browser
             buildStep: Build plain production Home and validate Tutorial interactions
+          - scenario: frontend-held-escape
+            timeoutMinutes: 15
+            name: Frontend held Escape browser
+            artifact: frontend-held-escape-browser
+            buildStep: Build plain production Home and validate bounded frontend Escape navigation
           - scenario: compact-message-layout
             timeoutMinutes: 15
             name: Compact message layout browser

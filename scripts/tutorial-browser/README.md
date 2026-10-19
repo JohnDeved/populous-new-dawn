@@ -447,3 +447,22 @@ separate browser captures. This layout correction neither hides messages nor
 reduces font sizes, and does not claim universal small-window or hardware
 performance support. #538 remains open until exact-source hosted receipts and
 actual screenshots are reviewed successfully.
+
+## Frontend held-Escape regression
+
+`POPULOUS_BROWSER_SCENARIO=frontend-held-escape node scripts/tutorial-browser/run.mjs`
+uses the existing production Home build, preview server, browser, source fingerprints
+and cleanup. One permanent, separate `Frontend held Escape browser` matrix job is
+added to the existing ready-PR workflow; this is additional hosted work, not free
+coverage appended to Tutorial or pause recovery. Existing selections and caps stay
+unchanged: 120-second build, 180-second browser, 15-minute hosted job.
+
+The new episode has its own 60-second bound, including Home navigation. It uses
+one 1280×960 viewport, two Help → Options held-Escape/release/fresh-press episodes,
+one direct Options control, one Quit control and one screenshot. Trusted keyboard
+events and final default prevention, category/focus retention, repeat reopening,
+unchanged URL/history/storage and absence of battlefield startup are observed.
+On deadline it closes only its runner-owned page to interrupt pending actions;
+the existing runner owns final context/browser/server cleanup and failure receipts.
+This is frontend navigation regression coverage, not native-game input parity,
+deployed hydration, exhaustive display acceptance or a performance measurement.
