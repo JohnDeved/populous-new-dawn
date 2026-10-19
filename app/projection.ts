@@ -103,17 +103,19 @@ export function modelMatrix(heading: number, pitch = 0, roll = 0) {
     cp = rules.sine[(pitch + 512) & 2047] >> 2
   const sr = rules.sine[roll & 2047] >> 2,
     cr = rules.sine[(roll + 512) & 2047] >> 2
-  const a = [
-      [cr, -sr, 0],
-      [sr, cr, 0],
-      [0, 0, 16384],
-    ],
-    b = [
-      [16384, 0, 0],
-      [0, cp, -sp],
-      [0, sp, cp],
-    ]
-  const matrix = a.flatMap(row => [0, 1, 2].map(i => dot(row, [b[0][i], b[1][i], b[2][i]]) >> 14))
+  // Sparse roll × pitch: each nonzero cell has only one product. Keep imul
+  // even for ×16384 so the original signed low-32-bit overflow is retained.
+  const matrix = [
+    Math.imul(cr, 16384) >> 14,
+    Math.imul(-sr, cp) >> 14,
+    Math.imul(-sr, -sp) >> 14,
+    Math.imul(sr, 16384) >> 14,
+    Math.imul(cr, cp) >> 14,
+    Math.imul(cr, -sp) >> 14,
+    0,
+    Math.imul(16384, sp) >> 14,
+    Math.imul(16384, cp) >> 14,
+  ]
   return heading || pitch || roll ? rotateBasis(matrix, -heading, 2) : matrix
 }
 
