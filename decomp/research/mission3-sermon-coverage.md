@@ -40,3 +40,13 @@ Coverage now separates three executable contracts:
 The historical ordinary expiry source at `2f20d5f4` and its earlier source/failed
 traces are retained, not rewritten. No controller, campaign producer, RNG, listener,
 HP or actor behavior is changed to manufacture the new tests' outcomes.
+
+The former150-turn allowance for the second sermon was a previous-port scenario
+budget, not a native constant. Supplying the preacher's839 boundary does not
+advance its actual listener's untouched retry countdown or RNG. The maintained
+fixed scenario allows genuine phase entry within20 turns, then checks the exact
+second identity/timer/phase/reference progression for at most840 active turns
+plus one retirement tick. Genuine conversion is still required; a new third
+sermon cannot mask failure, and the retained waypoint bound stays200 turns.
+This is one bounded scenario, not a guarantee that random conversion always
+succeeds within one sermon. Every failed earlier attempt remains retained.

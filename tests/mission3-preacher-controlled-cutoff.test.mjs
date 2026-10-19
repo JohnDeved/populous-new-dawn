@@ -111,7 +111,26 @@ test('controlled sermon timer 839 preserves current cutoff, order identities and
   const released = w.units.find(u => u.id === journey.authoredVictimId)
   assert.notEqual(released.native.state, 23)
   assert.equal(released.native.workTarget, 0)
-  until('second sermon ends', () => person.immediateCommand === 0, 150)
+  // Fixed-scenario observation bound, not a universal conversion guarantee:
+  // one genuine phase entry, the source's840 active turns, then one retirement.
+  // A third automatic sermon must not hide failure to complete this journey.
+  until('second sermon phase3 entry', () => person.substate === 3, 20)
+  assert.equal(person.immediateCommand, second)
+  assert.equal(person.timer, 0)
+  const secondRecord = w.buildingOrders.records[second], activeStart = w.turn
+  for (let timer = 1; timer <= 840 && person.immediateCommand === second; timer++) {
+    step()
+    if (person.immediateCommand === second) {
+      assert.equal(currentPersonOrder(w.buildingOrders, person), secondRecord)
+      assert.equal(secondRecord.references, 1)
+      assert.equal(person.timer, timer)
+      assert.equal(person.speed, 0)
+      assert.equal(person.substate, timer === 840 ? 4 : 3)
+    } else assert.equal(secondRecord.references, 0)
+  }
+  if (person.immediateCommand === second) step()
+  assert.ok(w.turn - activeStart <= 841)
+  assert.equal(person.immediateCommand, 0, 'no stuck second order or masking third sermon')
   assert.equal(w.buildingOrders.records[second].references, 0)
   assert.equal(w.buildingOrders.records[first].references, 0)
   assert.ok(!person.commands.includes(first) && !person.commands.includes(second))
