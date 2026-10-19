@@ -1,5 +1,6 @@
 import { departVehiclePerson } from './vehicle-unload.ts'
 import { buildingPose } from './building-shapes.ts'
+import { liveBuildingShape } from './live-building-shapes.ts'
 import { clearTaskBindings, releaseTasks } from './world-tasks.ts'
 import {
   buildingModel,
@@ -112,11 +113,9 @@ const short = (n: number) => (n << 16) >> 16
 export type LiveFormation = MarchingFormation & { tribe: number }
 function outsideBuilding(w: World, point: { x: number; y: number }) {
   const cell = (point.y >> 9) * 128 + (point.x >> 9)
-  const building =
-    w.land.flags[cell] & 512
-      ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
-      : undefined
-  return building ? buildingOutsidePoint(buildingPose(building)) : point
+  const shape =
+    w.land.flags[cell] & 512 ? liveBuildingShape(w, w.land.buildingIds[cell] & 1023) : undefined
+  return shape ? buildingOutsidePoint(shape) : point
 }
 const personSource = (u: Unit) =>
   u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
@@ -408,7 +407,7 @@ function issueLiveOrders(
         }
         if (model !== 3) unsupported()
         prepareMovementOrder(order, { x, y }, commandFlags, w.land, id =>
-          buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
+          buildingOutsidePoint(liveBuildingShape(w, id)!)
         )
       },
       acknowledge: (_, counts) => {
@@ -485,7 +484,7 @@ export function appendLiveGuardOrders(w: World, units: Unit[], marker: number, s
     prepare: (order, model, a, b, flags = 0) => {
       if (model === 3)
         prepareMovementOrder(order, { x: a, y: b }, flags, w.land, id =>
-          buildingOutsidePoint(buildingPose(w.buildings.find(building => building.id === id)!))
+          buildingOutsidePoint(liveBuildingShape(w, id)!)
         )
       else if (model === 11) prepareCellOrder(order, { a, b }, flags, w.land.categories, model)
       else unsupported()
@@ -497,7 +496,7 @@ export function movementOrder(w: World, to: { x: number; y: number }) {
   const id = allocatePersonOrder(w.buildingOrders)
   if (id)
     prepareMovementOrder(w.buildingOrders.records[id], to, 0, w.land, buildingId =>
-      buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === buildingId)!))
+      buildingOutsidePoint(liveBuildingShape(w, buildingId)!)
     )
   return id
 }
@@ -884,7 +883,7 @@ function stepLiveConstructionOrder(w: World, u: Unit, p: LivePerson, order: Pers
       prepare: (next, model, x, y, flags) => {
         if (model !== 3) unsupported()
         prepareMovementOrder(next, { x, y }, flags ?? 0, w.land, id =>
-          buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
+          buildingOutsidePoint(liveBuildingShape(w, id)!)
         )
       },
       task: task => {
@@ -1098,7 +1097,7 @@ export function stepLiveOrderQueue(
             if (building) prepareBuildingEntryOrder(next, building.id, 0, 0, false)
             else
               prepareMovementOrder(next, point, 0, w.land, buildingId =>
-                buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === buildingId)!))
+                buildingOutsidePoint(liveBuildingShape(w, buildingId)!)
               )
             attachPersonOrder(w.buildingOrders, p, nextId, slot, orderEffects(w))
           },

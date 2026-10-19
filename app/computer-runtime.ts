@@ -1,3 +1,4 @@
+import { liveBuildingShape } from './live-building-shapes.ts'
 import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
 import { TRIBE_TEAMS, tribeForTeam, type Unit, type World } from './world-types.ts'
 import {
@@ -284,11 +285,11 @@ function finishComputerPerson(
   if (!retainOwner) adoptLiveOrders(w, u, p)
   if (cleanup) {
     const cell = (p.y >>> 9) * 128 + (p.x >>> 9),
-      building =
+      shape =
         w.land.flags[cell] & 512
-          ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
+          ? liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
           : undefined,
-      point = building ? buildingOutsidePoint(buildingPose(building)) : p
+      point = shape ? buildingOutsidePoint(shape) : p
     //0x405090 snaps the idle anchor, not the active goal/route fields.
     p.anchorX = (point.x & 0xfe00) + 0x100
     p.anchorY = (point.y & 0xfe00) + 0x100
@@ -863,14 +864,16 @@ function produceMissionBuilding(w: World, tribe: number) {
         )
       }, 0)
   if (
-    (![2, 3, 6, 11, 12, 23].includes(w.outcome.level) && !missionFourTower && !(w.outcome.level === 7 && tribe === 2)) ||
+    (![2, 3, 6, 11, 12, 23].includes(w.outcome.level) &&
+      !missionFourTower &&
+      !(w.outcome.level === 7 && tribe === 2)) ||
     !(w.ai.states & 1) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
     return false
   const selection = computerSelectionWorld(w, tribe)
   const available =
-    (w.outcome.level === 2 || missionFourTower)
+    w.outcome.level === 2 || missionFourTower
       ? selection.world.people.filter(
           person => rules.personStateFlags[person.state] & 8 && !person.busy && person.model !== 7
         ).length
@@ -879,7 +882,9 @@ function produceMissionBuilding(w: World, tribe: number) {
   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
     // 0x4e5580 captures the loaded origin before an ordinary base is established.
     position =
-      (w.outcome.level === 2 || missionFourTower) && tribe === 3 && w.ai.constructionBase === undefined
+      (w.outcome.level === 2 || missionFourTower) &&
+      tribe === 3 &&
+      w.ai.constructionBase === undefined
         ? nativePosition(w, campaignPosition(w, 'green'))
         : shaman && nativePosition(w, shaman),
     origin =

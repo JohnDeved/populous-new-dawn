@@ -108,18 +108,7 @@ export function prepareBuildingSiteCheck(w: World, team: Team) {
       add(nativePosition(w, shrine), 9)
       continue
     }
-    const p = nativePosition(w, shrine),
-      id = shrine.id & 1023
-    buildings.set(id, { model: 18, tribe: 255 })
-    for (const i of buildingFootprintCells({
-      object: rules.buildingObjects[18],
-      angle: Math.round((shrine.angle * 1024) / Math.PI) & 2047,
-      anchorX: p.x & 0xfe00,
-      anchorY: p.y & 0xfe00,
-    })) {
-      land.flags[i] |= 512
-      land.buildingIds[i] = (land.buildingIds[i] & 0xfc00) | id
-    }
+    if (shrine.model) buildings.set(shrine.id, { model: 18, tribe: 255 })
   }
   for (const team of campaignShamanTeams(w)) {
     const center = campaignPosition(w, team)
