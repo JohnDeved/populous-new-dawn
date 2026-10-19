@@ -206,3 +206,35 @@ test('ingame prepared probe binds strict cold/warm decode and request counts to 
   assert.match(probe, /assert\.equal\(report\.requests\.filter\(r=>r\.event==='request'\)\.length,paths\.length,'each menu asset is requested once'\)/)
   assert.match(probe, /paths\.slice\(1, 4\)/)
 })
+
+test('prepared probes keep distinct exact request and decoded-image inventories', () => {
+  const inventory = (source, name) => {
+    const parsed = ts.createSourceFile('probe.mjs', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
+    let initializer
+    function visit(node) {
+      if (ts.isVariableDeclaration(node) && node.name.getText(parsed) === name) initializer = node.initializer
+      ts.forEachChild(node, visit)
+    }
+    visit(parsed)
+    assert.ok(initializer, `missing ${name} inventory`)
+    return Function(`return (${initializer.getText(parsed)})`)()
+  }
+  const frontend = readFileSync(new URL('../scripts/local-render/frontend-prepared-assets.mjs', import.meta.url), 'utf8')
+  const ingame = readFileSync(new URL('../scripts/local-render/ingame-prepared-assets.mjs', import.meta.url), 'utf8')
+  const frontendPaths = inventory(frontend, 'assetPaths'), ingamePaths = inventory(ingame, 'paths')
+  assert.equal(frontendPaths.length, 11)
+  assert.equal(new Set(frontendPaths).size, 11)
+  assert.equal(frontendPaths.filter(path => path.endsWith('.png')).length, 10)
+  assert.equal(frontendPaths.filter(path => path.endsWith('.bin')).length, 1)
+  assert.equal(ingamePaths.length, 5)
+  assert.equal(new Set(ingamePaths).size, 5)
+  assert.ok(ingamePaths.every(path => path.endsWith('.png')))
+  for (const paths of [frontendPaths, ingamePaths]) assert.ok(paths.includes('/original/world-selector/text/tooltip-font-c.png'))
+  assert.match(frontend, /assert\.equal\(report\.requests\.filter\(entry => entry\.event === 'request' && assetPaths\.includes\(entry\.path\)\)\.length, assetPaths\.length\)/)
+  assert.match(frontend, /assert\.equal\(await page\.evaluate\(\(\) => window\.uiPrepared\.decodes\.length\), decodesBeforeReopen\)/)
+  assert.match(frontend, /assert\.equal\(report\.requests\.filter\(entry => entry\.event === 'request' && assetPaths\.includes\(entry\.path\)\)\.length, requestsBeforeReopen\)/)
+  assert.match(frontend, /tooltip-font-c\/\.test\(entry\.src\)\)\.length === 10/)
+  assert.match(ingame, /tooltip-font-c\/\.test\(d\.src\)\)\.length === 5/)
+  assert.equal([...ingame.matchAll(/assert\.equal\(await decodeCount\(\),paths\.length/g)].length, 2)
+  assert.match(ingame, /assert\.equal\(report\.requests\.filter\(r=>r\.event==='request'\)\.length,paths\.length,'each menu asset is requested once'\)/)
+})

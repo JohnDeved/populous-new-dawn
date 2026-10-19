@@ -202,7 +202,7 @@ export default async function ({ page, context, output, url }) {
     const entries = visible.filter(sample => sample.optionsOpen && sample.category === 'Game')
     assert.ok(entries.length >= 2)
     if (entries.length > 1) assert.equal(new Set(entries.map(sample => sample.canvasRow139Hash)).size, 1)
-    assert.equal(report.requests.filter(entry => entry.event === 'request' && assetPaths.includes(entry.path)).length, 10)
+    assert.equal(report.requests.filter(entry => entry.event === 'request' && assetPaths.includes(entry.path)).length, assetPaths.length)
     const unexpected = report.errors.filter(error => !(failed && error.kind === 'console' &&
       error.location?.url?.endsWith(failed) && error.message.includes('404')))
     assert.deepEqual(unexpected, [])
