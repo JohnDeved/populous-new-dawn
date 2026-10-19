@@ -93,6 +93,7 @@ export function OriginalMainMenu({
   renderOptions,
 }: Props) {
   const dialog = useRef<HTMLDialogElement>(null)
+  const frame = useRef<HTMLDivElement>(null)
   const first = useRef<HTMLButtonElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
   const pointer = useRef({ x: 320, y: 240 })
@@ -159,14 +160,15 @@ export function OriginalMainMenu({
     draw()
   }, [draw])
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const timer = window.setInterval(() => {
-      if (!pointerMode.current || document.hidden) return
-      glowFrame.current = (glowFrame.current + 1) % 8
-      draw()
-    }, 101)
+    const timer = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ? undefined
+      : window.setInterval(() => {
+          if (!pointerMode.current || document.hidden) return
+          glowFrame.current = (glowFrame.current + 1) % 8
+          draw()
+        }, 101)
     return () => {
-      window.clearInterval(timer)
+      if (timer !== undefined) window.clearInterval(timer)
       cancelAnimationFrame(animation.current)
     }
   }, [draw])
@@ -237,6 +239,24 @@ export function OriginalMainMenu({
       data-original-main-menu
       data-background-ready={prepared.background}
       data-cursor-ready={prepared.cursor}
+      onPointerMove={event => {
+        const bounds = frame.current?.getBoundingClientRect()
+        if (!bounds) return
+        // The dialog receives side-area motion; keep native coordinates relative
+        // to the centered artwork, including negative x and x beyond 640.
+        const x = Math.floor((event.clientX - bounds.left) / scale)
+        const y = Math.floor((event.clientY - bounds.top) / scale)
+        if (x !== pointer.current.x || y !== pointer.current.y) pointerMode.current = true
+        pointer.current = { x, y }
+        cancelAnimationFrame(animation.current)
+        animation.current = requestAnimationFrame(draw)
+      }}
+      onPointerLeave={() => {
+        setHovered(null)
+        pointerMode.current = false
+        cancelAnimationFrame(animation.current)
+        draw()
+      }}
       onKeyDown={event => {
         pointerMode.current = false
         draw()
@@ -280,23 +300,7 @@ export function OriginalMainMenu({
       }}
       style={{ '--frontend-scale': scale } as CSSProperties}
     >
-      <div
-        className={styles.frame}
-        onPointerMove={event => {
-          const bounds = event.currentTarget.getBoundingClientRect()
-          const x = Math.floor((event.clientX - bounds.left) / scale)
-          const y = Math.floor((event.clientY - bounds.top) / scale)
-          if (x !== pointer.current.x || y !== pointer.current.y) pointerMode.current = true
-          pointer.current = { x, y }
-          cancelAnimationFrame(animation.current)
-          animation.current = requestAnimationFrame(draw)
-        }}
-        onPointerLeave={() => {
-          setHovered(null)
-          pointerMode.current = false
-          draw()
-        }}
-      >
+      <div ref={frame} className={styles.frame}>
         <canvas
           ref={canvas}
           className={styles.background}
