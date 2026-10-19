@@ -1,9 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { validateMeleeAttackFrames } from '../scripts/tutorial-browser/melee-attack-evidence.mjs'
 import { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
   readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget,
-  publicMeleePauseKey, assertMeleePauseInputReady, assertMeleePauseReceiptBinding,
+  publicMeleePauseKey, assertMeleePauseInputReady,
   assertMeleeTransitionReceiptBinding, meleeTransitionMapping } from '../scripts/tutorial-browser/melee-attack.mjs'
 import { minimapPick } from '../app/minimap.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
@@ -12,30 +11,11 @@ import units from '../app/original-units.json' with { type: 'json' }
 // Independent original data, not the production melee pose selector. Synthetic
 // observations exercise evidence rejection; they do not claim a rendered run.
 const mapping = {}
-for (const [kind, model, team] of [['shaman', 7, 'blue'], ['warrior', 3, 'red']]) {
-  for (const [action, row] of [['attack', 10], ['strike', 8], ['special', 16]]) {
-    const [object, draw] = rules.animationObjects[rules.personAnimationObjects[row * 9 + model]]
-    mapping[`${kind}:${action}`] = { object, draw, step: rules.animationDescriptors[draw].step,
-      directions: kind === 'shaman' ? units.shamanSources[object]
-        : Object.values(units.animations[`${team}-${kind}`]).find(directions => directions[0].source === object) }
-  }
+for (const [action, row] of [['attack', 10], ['strike', 8], ['special', 16]]) {
+  const [object, draw] = rules.animationObjects[rules.personAnimationObjects[row * 9 + 7]]
+  mapping[`shaman:${action}`] = { object, draw, step: rules.animationDescriptors[draw].step,
+    directions: units.shamanSources[object] }
 }
-
-function sample(overrides = {}) {
-  const result = { turn: 40, animationFrame: 80, id: 54, kind: 'shaman', action: 'strike', started: 40,
-    f1: 0, f2: 0, direction: 0, visible: true, submittedLayers: 2, canvasConnected: true,
-    sceneStoreMatch: true, paused: false, nativeAttackAnimation: true, stamp: 100, ...overrides }
-  const original = mapping[`${result.kind}:${result.action}`] ?? mapping['shaman:strike']
-  const direction = original.directions[result.direction] ?? original.directions[0]
-  return { object: original.object, draw: original.draw,
-    frame: direction.frames[result.f2 % direction.frames.length], flip: direction.flip, ...result }
-}
-
-const evidence = () => [
-  sample({ cropFile: 'shaman-strike-frame0.png' }),
-  sample({ stamp: 101, animationFrame: 81 }),
-  sample({ stamp: 102, turn: 41, animationFrame: 82, f2: 1, cropFile: 'shaman-strike-frame1.png' }),
-]
 
 test('public attack input presses Shift for the real click and releases it on success or failure', async () => {
   for (const failure of [null, 'down', 'click']) {
@@ -73,45 +53,39 @@ test('public pause key is released after success or failure and requires actual 
     assert.throws(() => assertMeleePauseInputReady({ ...state, ...change }, false))
 })
 
-test('layered acceptance binds actual public pause/resume receipts to the sampled anchor and renderer chronology', () => {
-  const attack = { id: 54, action: 'special', started: 40, opponent: 20, object: 552, draw: 14, f1: 0, f2: 1 }
+test('transition acceptance binds actual public pause/resume receipts to the sampled anchor and renderer chronology', () => {
+  const extra = { fightGroup: 9, remaining: 1, animation: 'special', personId: 54,
+    personState: 25, personSpeed: 0, motionIsNative: false, flight: false }
+  const attack = { id: 54, action: 'special', started: 40, opponent: 20, object: 552, draw: 14, f1: 0, f2: 1, ...extra }
   const state = { sceneStoreMatch: true, canvasFocused: true, dialogOpen: false, modifiers: [],
     paused: true, speed: 1, inputMask: 0, mode: null, turn: 41, animationFrame: 82, stamp: 102, attack }
   const report = { pauseBefore: { ...state, paused: false, stamp: 99 }, pauseAfter: { ...state, stamp: 101 },
     resumeBefore: state, resumeAfter: { ...state, paused: false, stamp: 103 },
-    acceptance: { obligations: { publicPausedHold: { anchor: { ...attack, turn: 41, animationFrame: 82, stamp: 101 },
-      stamps: [101, 102] }, resumedAdvancement: { after: { stamp: 103 } } } } }
+    acceptance: { obligations: { pausedHold: { anchor: { ...attack, turn: 41, animationFrame: 82, stamp: 101 },
+      stamps: [101, 102] }, resumedOutcome: { after: { stamp: 103 } } } } }
   const before = structuredClone(report)
-  assert.doesNotThrow(() => assertMeleePauseReceiptBinding(report)); assert.deepEqual(report, before)
+  assert.doesNotThrow(() => assertMeleeTransitionReceiptBinding(report)); assert.deepEqual(report, before)
   for (const receipt of ['pauseAfter', 'resumeBefore']) {
     for (const key of ['turn', 'animationFrame']) {
       const wrong = structuredClone(report); wrong[receipt][key]++
-      assert.throws(() => assertMeleePauseReceiptBinding(wrong), /must match the public input receipt/)
+      assert.throws(() => assertMeleeTransitionReceiptBinding(wrong), /must match the public input receipt/)
     }
     for (const key of ['action', 'started', 'opponent', 'object', 'draw', 'f1', 'f2']) {
       const wrong = structuredClone(report); wrong[receipt].attack[key] = key === 'action' ? 'strike' : attack[key] + 1
-      assert.throws(() => assertMeleePauseReceiptBinding(wrong), /must match the public attack receipt/)
+      assert.throws(() => assertMeleeTransitionReceiptBinding(wrong), /must match the public attack receipt/)
     }
   }
   for (const [receipt, stamp, error] of [['pauseBefore', 101, /follow the public pause/],
     ['resumeAfter', 101, /precede the public resume/], ['resumeBefore', 103, /follow the public resume/]]) {
     const wrong = structuredClone(report); wrong[receipt].stamp = stamp
-    assert.throws(() => assertMeleePauseReceiptBinding(wrong), error)
+    assert.throws(() => assertMeleeTransitionReceiptBinding(wrong), error)
   }
   const wrong = structuredClone(report); wrong.resumeAfter.paused = true
-  assert.throws(() => assertMeleePauseReceiptBinding(wrong))
+  assert.throws(() => assertMeleeTransitionReceiptBinding(wrong))
 
-  const extra = { fightGroup: 9, remaining: 1, animation: 'special', personId: 54,
-    personState: 25, personSpeed: 0, motionIsNative: false, flight: false }
-  const transition = structuredClone(report)
-  for (const key of ['pauseBefore', 'pauseAfter', 'resumeBefore']) Object.assign(transition[key].attack, extra)
-  const { publicPausedHold, resumedAdvancement } = transition.acceptance.obligations
-  Object.assign(publicPausedHold.anchor, extra)
-  transition.acceptance.obligations = { pausedHold: publicPausedHold, resumedOutcome: resumedAdvancement }
-  assert.doesNotThrow(() => assertMeleeTransitionReceiptBinding(transition))
   for (const receipt of ['pauseAfter', 'resumeBefore'])
     for (const [key, value] of Object.entries(extra)) {
-      const wrong = structuredClone(transition)
+      const wrong = structuredClone(report)
       wrong[receipt].attack[key] = typeof value === 'boolean' ? !value : typeof value === 'number' ? value + 1 : 'idle'
       assert.throws(() => assertMeleeTransitionReceiptBinding(wrong), /public transition receipt/)
     }
@@ -231,163 +205,6 @@ test('exposed target candidates cannot pass on the wrong hover winner and pendin
   }, { failWait: true })
 })
 
-test('original mapped attack frames, same-turn hold, logical advance and native crops pass without mutation', () => {
-  const samples = evidence(), before = structuredClone({ samples, mapping })
-  const result = validateMeleeAttackFrames(samples, mapping)
-  assert.equal(result.sampleCount, 3)
-  assert.equal(result.sequenceCount, 1)
-  assert.deepEqual(result.shamanSequence, {
-    id: 54, kind: 'shaman', action: 'strike', started: 40, sampleCount: 3,
-    firstTurn: 40, lastTurn: 41, heldPairs: 1, distinctF2: [0, 1], distinctFrames: [998, 999],
-    crops: [
-      { cropFile: 'shaman-strike-frame0.png', stamp: 100, turn: 40, direction: 0, f2: 0, frame: 998 },
-      { cropFile: 'shaman-strike-frame1.png', stamp: 102, turn: 41, direction: 0, f2: 1, frame: 999 },
-    ],
-  })
-  assert.deepEqual({ samples, mapping }, before)
-})
-
-test('baseline idle424 fails original strike456 expectation independently of the marker', () => {
-  assert.equal(mapping['shaman:strike'].object, 456)
-  for (const marker of [undefined, false, true]) {
-    const samples = evidence().map(s => ({ ...s, object: 424, nativeAttackAnimation: marker }))
-    assert.throws(() => validateMeleeAttackFrames(samples, mapping), /expected original attack object 456/)
-  }
-})
-
-test('all three attack states use their original rows and natural RAF may skip logical turns', () => {
-  for (const action of ['attack', 'strike', 'special']) {
-    const samples = [sample({ action, cropFile: 'first.png' }), sample({ action, stamp: 101 }),
-      sample({ action, stamp: 116, turn: 43, animationFrame: 87, f2: 3, cropFile: 'later.png' })]
-    assert.equal(validateMeleeAttackFrames(samples, mapping).shamanSequence.action, action)
-  }
-})
-
-test('directional artwork and flip use original modulo selection, not a bounded directional f2 assumption', () => {
-  const samples = evidence()
-  // Warrior strike direction2 has only five rendered frames; native object104 has seven.
-  const warrior = sample({ id: 13, kind: 'warrior', direction: 2, f2: 6, stamp: 100 })
-  assert.equal(mapping['warrior:strike'].directions[2].frames.length, 5)
-  samples.splice(1, 0, warrior)
-  assert.doesNotThrow(() => validateMeleeAttackFrames(samples, mapping))
-  const changedDirection = sample({ direction: 7, stamp: 101, animationFrame: 81 })
-  samples.splice(3, 0, { ...changedDirection, stamp: 102 })
-  samples.at(-1).stamp = 103
-  assert.doesNotThrow(() => validateMeleeAttackFrames(samples, mapping))
-})
-
-test('missing samples, original mapping, directions and frame lists cannot pass', () => {
-  for (const samples of [undefined, null, [], {}])
-    assert.throws(() => validateMeleeAttackFrames(samples, mapping), /samples required/)
-  for (const original of [undefined, null, {}, { 'shaman:strike': {} },
-    { 'shaman:strike': { ...mapping['shaman:strike'], directions: [] } },
-    { 'shaman:strike': { ...mapping['shaman:strike'], directions: Array(8).fill({ frames: [], flip: false }) } }])
-    assert.throws(() => validateMeleeAttackFrames(evidence(), original), /mapping|directions|frame list/)
-})
-
-test('frame, draw, flip and native marker mismatches fail independently', () => {
-  for (const [change, message] of [
-    [{ draw: 15 }, /expected original attack draw/],
-    [{ frame: 0, nativeAttackAnimation: false }, /displayed frame must match/],
-    [{ flip: true }, /displayed flip must match/],
-    [{ nativeAttackAnimation: false }, /ownership marker required/],
-    [{ nativeAttackAnimation: undefined, sourceOwned: true }, /ownership marker required/],
-  ]) {
-    const samples = evidence(); Object.assign(samples[0], change)
-    assert.throws(() => validateMeleeAttackFrames(samples, mapping), message)
-  }
-})
-
-test('absent or invisible submitted body layers, stale scene and paused frames fail', () => {
-  for (const [key, value, message] of [
-    ['submittedLayers', undefined, /submitted on this renderer stamp/],
-    ['submittedLayers', 0, /submitted on this renderer stamp/],
-    ['submittedLayers', [], /submitted on this renderer stamp/],
-    ['visible', false, /visible attack body/],
-    ['canvasConnected', false, /connected game canvas/],
-    ['sceneStoreMatch', false, /scene\/store identity/],
-    ['paused', true, /unpaused gameplay/],
-  ]) {
-    const samples = evidence(); samples[0][key] = value
-    assert.throws(() => validateMeleeAttackFrames(samples, mapping), message)
-  }
-})
-
-test('recoil, wrong authored identity and Warrior-only evidence cannot satisfy Shaman attack acceptance', () => {
-  for (const action of ['recoil', 'approach', 'idle', undefined]) {
-    const samples = evidence(); samples[0].action = action
-    assert.throws(() => validateMeleeAttackFrames(samples, mapping), /recoil is not attack evidence/)
-  }
-  for (const change of [{ id: 55 }, { kind: 'warrior' }]) {
-    const samples = evidence(); Object.assign(samples[0], change)
-    assert.throws(() => validateMeleeAttackFrames(samples, mapping), /authored M2/)
-  }
-  const warriors = evidence().map(s => sample({ ...s, id: 13, kind: 'warrior',
-    object: mapping['warrior:strike'].object, draw: mapping['warrior:strike'].draw,
-    frame: mapping['warrior:strike'].directions[s.direction].frames[s.f2] }))
-  assert.throws(() => validateMeleeAttackFrames(warriors, mapping), /Shaman54 attack sequence required/)
-})
-
-test('native f1 and f2 cannot advance within a logical turn, even when direction changes', () => {
-  for (const change of [{ f1: 1 }, { f2: 1 }, { f2: 1, direction: 1 }]) {
-    const samples = evidence(); samples[1] = sample({ stamp: 101, animationFrame: 81, ...change })
-    assert.throws(() => validateMeleeAttackFrames(samples, mapping), /same logical turn must retain native f1\/f2/)
-  }
-})
-
-test('distinct renderer visits, same-turn hold and advancing-turn artwork are all required', () => {
-  const noHold = evidence().filter((_, index) => index !== 1)
-  assert.throws(() => validateMeleeAttackFrames(noHold, mapping), /same-turn\/direction hold/)
-  const duplicatedVisit = evidence(); duplicatedVisit[1].stamp = 100; duplicatedVisit[1].animationFrame = 80
-  assert.throws(() => validateMeleeAttackFrames(duplicatedVisit, mapping), /duplicate person observation/)
-  const noAdvance = evidence(); noAdvance[2] = sample({ stamp: 102, turn: 41, animationFrame: 82, cropFile: 'later.png' })
-  assert.throws(() => validateMeleeAttackFrames(noAdvance, mapping), /advance native f2 and artwork/)
-  const directionOnly = evidence(); directionOnly[2] = sample({ stamp: 102, turn: 41, animationFrame: 82,
-    direction: 1, cropFile: 'later.png' })
-  assert.throws(() => validateMeleeAttackFrames(directionOnly, mapping), /advance native f2 and artwork/)
-})
-
-test('hold, advance and crops cannot be stitched across separate action/start sequences', () => {
-  for (const change of [{ started: 41 }, { action: 'attack' }]) {
-    const samples = evidence(); Object.assign(samples[2], change)
-    assert.throws(() => validateMeleeAttackFrames(samples, mapping), /One held Shaman54 sequence must advance/)
-  }
-})
-
-test('at least two unique native-frame crop files must show distinct advancing frames in the qualifying sequence', () => {
-  const absent = evidence().map(s => { const copy = { ...s }; delete copy.cropFile; return copy })
-  assert.throws(() => validateMeleeAttackFrames(absent, mapping), /Two to four native-frame crop/)
-  const one = evidence(); delete one[2].cropFile
-  assert.throws(() => validateMeleeAttackFrames(one, mapping), /Two to four native-frame crop/)
-  const duplicate = evidence(); duplicate[2].cropFile = duplicate[0].cropFile
-  assert.throws(() => validateMeleeAttackFrames(duplicate, mapping), /each native-frame crop must have its own file/)
-  const repeatedFrame = evidence(); repeatedFrame[1].cropFile = 'held.png'; delete repeatedFrame[2].cropFile
-  assert.throws(() => validateMeleeAttackFrames(repeatedFrame, mapping), /crops of distinct native f2\/artwork/)
-  const otherSequence = evidence(); delete otherSequence[2].cropFile
-  otherSequence.push(sample({ turn: 42, started: 42, stamp: 103, animationFrame: 84, cropFile: 'other.png' }))
-  assert.throws(() => validateMeleeAttackFrames(otherSequence, mapping), /crops of distinct native f2\/artwork/)
-  const tooMany = evidence()
-  for (let index = 0; index < 3; index++) tooMany.push(sample({ turn: 42 + index, f2: (index + 2) % 4,
-    stamp: 103 + index, animationFrame: 84 + index * 2, cropFile: `extra${index}.png` }))
-  assert.throws(() => validateMeleeAttackFrames(tooMany, mapping), /Two to four native-frame crop/)
-})
-
-test('invalid clocks, direction, byte phase, countdown and chronology fail closed', () => {
-  for (const [key, value, message] of [
-    ['turn', NaN, /integer turn/], ['animationFrame', -1, /integer animationFrame/],
-    ['stamp', undefined, /integer stamp/], ['started', 41, /cannot start after/],
-    ['direction', 8, /direction outside/], ['f2', 256, /native f2 must fit/],
-    ['f1', 2, /descriptor countdown/], ['frame', undefined, /integer frame/],
-  ]) {
-    const samples = evidence(); samples[0][key] = value
-    assert.throws(() => validateMeleeAttackFrames(samples, mapping), message)
-  }
-  for (const key of ['stamp', 'turn', 'animationFrame']) {
-    const samples = evidence(); samples[2][key] = samples[1][key] - 1
-    assert.throws(() => validateMeleeAttackFrames(samples, mapping), /chronological|cannot start after/)
-  }
-})
-
 test('browser mapping reads all original Shaman attack rows independently of observed poses', () => {
   const actual = meleeAttackMapping()
   assert.deepEqual(Object.keys(actual).sort(), ['shaman:attack', 'shaman:special', 'shaman:strike'])
@@ -436,7 +253,7 @@ test('ordinary M2 startup rejects hidden Warrior13 and admits the visible author
 
 // Explicit supplied World/canvas/RAF diagnostic. No browser, actual game method,
 // rendering, screenshot pixels, original-game timing or live campaign claim.
-function withObserverFixture(run, protocol = 'running-hold') {
+function withObserverFixture(run) {
   const world = structuredClone({ turn: 40, paused: false, randomState: 12345,
     terrain: new Uint8Array([1, 2, 3]), selected: [54],
     units: [{ id: 54, kind: 'shaman', team: 'blue', hp: 120, heading: Math.PI,
@@ -502,7 +319,7 @@ function withObserverFixture(run, protocol = 'running-hold') {
     for (const [key, value] of Object.entries(replacements))
       Object.defineProperty(globalThis, key, { configurable: true, writable: true, value })
     const before = structuredClone(world)
-    installMeleeFrameObserver(protocol)
+    installMeleeFrameObserver()
     assert.deepEqual(world, before, 'installation preserves the supplied World')
     const observation = window.__pndMeleeObservation
     const next = () => {
@@ -550,15 +367,13 @@ test('supplied observer keeps same-frame crop metadata and counts only visible s
     world.turn = 41; world.units[0].fight.motion.f2 = 1; world.units[0].fight.motion.stamp = 41
     scene.renderer.info.render.frame = 102; scene.gameClock.animationFrame = 82; group.userData.frame = 999
     next()
-    assert.equal(result.samples.length, 3); assert.equal(result.crops.length, 2)
-    assert.equal(result.samples[2].cropFile, result.crops[1].filename)
-    assert.deepEqual(drawCalls, [
-      { stamp: 100, turn: 40, frame: 998, f2: 0 }, { stamp: 102, turn: 41, frame: 999, f2: 1 },
-    ])
+    assert.equal(result.samples.length, 3); assert.equal(result.crops.length, 1)
+    assert.equal(result.samples[2].cropFile, undefined, 'advancing running frames reserve the remaining crops for pause/resume')
+    assert.deepEqual(drawCalls, [{ stamp: 100, turn: 40, frame: 998, f2: 0 }])
   })
 })
 
-test('layered observer labels actual pause state and reserves four phase-bound crops without World writes', () => {
+test('transition observer labels actual pause state and reserves four phase-bound crops without World writes', () => {
   withObserverFixture(({ world, scene, group, next, observation }) => {
     next()
     scene.renderer.info.render.frame++
@@ -580,10 +395,10 @@ test('layered observer labels actual pause state and reserves four phase-bound c
       assert.equal(sample.paused, sample.phase === 'public-paused-hold')
     }
     assert.equal(observation.result.error, null)
-  }, 'public-pause-v1')
+  })
 })
 
-test('layered canvas readback retains actual DOM ownership and overlapping HUD exclusion evidence', () => {
+test('transition canvas readback retains actual DOM ownership and overlapping HUD exclusion evidence', () => {
   withObserverFixture(({ next, observation }) => {
     const badge = { tagName: 'BUTTON', className: 'paused-badge',
       getBoundingClientRect: () => ({ x: 100, y: 90, width: 50, height: 50 }) }
@@ -593,7 +408,7 @@ test('layered canvas readback retains actual DOM ownership and overlapping HUD e
     assert.equal(sample.bodyCanvasOwned, false); assert.equal(sample.cropOverlayClear, false)
     assert.equal(sample.cropVisibility.overlays[0].className, 'paused-badge')
     assert.equal(sample.cropVisibility.bodyOwner.tag, 'BUTTON')
-  }, 'public-pause-v1')
+  })
 })
 
 test('transition observer captures the first advanced resumed phase even if invalid, without searching another attack', () => {
@@ -629,7 +444,7 @@ test('transition observer captures the first advanced resumed phase even if inva
       assert.equal(observation.result.done, true); assert.equal(observation.result.error, null)
       assert.deepEqual([...pending.keys()], [unrelated], 'no later attack may substitute for this terminal sample')
       assert.equal(observation.result.crops.length, 4)
-    }, 'public-pause-transition-v1')
+    })
 })
 
 test('supplied observer stops on Scene replacement and cancels only its own RAF', () => {

@@ -1,8 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { validateMeleeTransitionFrames } from '../scripts/tutorial-browser/melee-attack-transition-evidence.mjs'
-import { validateMeleePauseFrames } from '../scripts/tutorial-browser/melee-attack-pause-evidence.mjs'
-import { validateMeleeAttackFrames } from '../scripts/tutorial-browser/melee-attack-evidence.mjs'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
 
@@ -84,6 +82,19 @@ test('synthetic same-attack evidence proves pre-pause advancement, strict paused
   assert.deepEqual({ samples, mapping, successors }, unchanged)
 })
 
+test('baseline idle424 and missing native ownership cannot satisfy original attack456 even through a fallback source', () => {
+  for (const marker of [undefined, false, true]) {
+    const samples = evidence()
+    Object.assign(samples[0], { object: 424, nativeAttackAnimation: marker, motionIsNative: true })
+    assert.throws(() => validate(samples), /expected original object 456/)
+  }
+  for (const marker of [undefined, false]) {
+    const samples = evidence()
+    Object.assign(samples[0], { nativeAttackAnimation: marker, motionIsNative: true })
+    assert.throws(() => validate(samples), /native attack ownership marker required/)
+  }
+})
+
 test('all three original attack rows and mirrored directions retain exact native timers and phase', () => {
   for (const action of attacks) {
     const samples = evidence().map(fields => {
@@ -128,14 +139,6 @@ test('natural interception and extra held visits remain valid without a running 
   assert.deepEqual(result.obligations.pausedHold.stamps, [362, 363, 364])
   assert.equal(result.obligations.resumedOutcome.after.stamp, 366)
   assert.equal(result.obligations.runningSameTurnHold.status, 'not-claimed')
-})
-
-test('both historical validators retain their failed scopes rather than being weakened by this separate protocol', () => {
-  assert.throws(() => validateMeleeAttackFrames(evidence(), mapping), /unpaused gameplay required/)
-  const running = evidence().filter(fields => !fields.paused)
-  assert.throws(() => validateMeleeAttackFrames(running, mapping), /same-turn\/direction hold/)
-  assert.throws(() => validateMeleePauseFrames(evidence('expiry'), mapping), /recoil is not attack evidence/)
-  assert.throws(() => validateMeleePauseFrames(evidence().slice(0, -1), mapping), /running-after-resume sample required/)
 })
 
 test('missing pre-pause advancement cannot borrow resumed progress, paused stamps or another attack sequence', () => {
@@ -240,6 +243,15 @@ test('source marker cannot excuse wrong original object, draw, native artwork, f
   }
 })
 
+test('every observation phase requires actual submitted visible bodies and live canvas ownership', () => {
+  for (const index of [0, 1, 2, 3, 4])
+    for (const change of [{ submittedLayers: undefined }, { submittedLayers: [] }, { submittedLayers: 0 },
+      { visible: false }, { sceneStoreMatch: false }, { canvasConnected: false }]) {
+      const samples = evidence(); Object.assign(samples[index], change)
+      assert.throws(() => validate(samples), /submitted on this renderer stamp|visible body|scene\/store identity|connected game canvas/)
+    }
+})
+
 test('phase ordering, chronological clocks and complete paused hold are mandatory', () => {
   for (const [index, change, error] of [[2, { phase: 'paused' }, /explicit transition observation phase/],
     [3, { phase: 'running-before-pause', paused: false }, /phases must be ordered/],
@@ -253,16 +265,23 @@ test('phase ordering, chronological clocks and complete paused hold are mandator
     const samples = evidence(); Object.assign(samples[index], change)
     assert.throws(() => validate(samples), error)
   }
+  for (const change of [{ action: 'special', animation: 'special', started: 515 }, { turn: 516, animationFrame: 1032 }]) {
+    const samples = evidence()
+    samples[3] = sample({ phase: 'public-paused-hold', paused: true, turn: 515, animationFrame: 1030,
+      stamp: 363, cropFile: 'paused-second.png', ...change })
+    assert.throws(() => validate(samples), /Paused hold must retain/)
+  }
   for (const indexes of [[2, 3], [3], [4]])
     assert.throws(() => validate(evidence().filter((_, index) => !indexes.includes(index))), /paused-hold renderer visits|running-after-resume sample/)
 })
 
 test('all four planned crops are unique, same-observation, complete canvas-owned and overlay-clear', () => {
   for (const index of [0, 2, 3, 4]) {
-    for (const field of ['bodyCanvasOwned', 'bodyInCanvas', 'cropOverlayClear']) {
-      const samples = evidence(); samples[index][field] = false
-      assert.throws(() => validate(samples), /native-frame crop body/)
-    }
+    for (const field of ['bodyCanvasOwned', 'bodyInCanvas', 'cropOverlayClear'])
+      for (const value of [false, undefined, 1]) {
+        const samples = evidence(); samples[index][field] = value
+        assert.throws(() => validate(samples), /native-frame crop body/)
+      }
     const missing = evidence(); delete missing[index].cropFile
     assert.throws(() => validate(missing), /Exactly four unique/)
   }
@@ -272,8 +291,10 @@ test('all four planned crops are unique, same-observation, complete canvas-owned
   }
   const duplicate = evidence(); duplicate[3].cropFile = duplicate[2].cropFile
   assert.throws(() => validate(duplicate), /each native-frame crop must have its own file/)
-  const moved = evidence(); moved[1].cropFile = moved[4].cropFile; delete moved[4].cropFile
-  assert.throws(() => validate(moved), /Planned crops must cover/)
+  for (const index of [0, 2, 3, 4]) {
+    const moved = evidence(); moved[1].cropFile = moved[index].cropFile; delete moved[index].cropFile
+    assert.throws(() => validate(moved), /Planned crops must cover/)
+  }
   const extra = evidence(); extra[1].cropFile = 'extra.png'
   assert.throws(() => validate(extra), /Exactly four unique/)
 })
@@ -284,15 +305,21 @@ test('malformed observations and independently supplied original mappings fail c
   assert.throws(() => validate(malformed), /must be an object/)
   for (const key of ['turn', 'animationFrame', 'stamp', 'started', 'f1', 'f2', 'frame', 'direction',
     'opponent', 'fightGroup', 'personSpeed', 'personFlags2', 'personFlags4', 'logicalStamp']) {
-    const samples = evidence(); samples[0][key] = -1
-    assert.throws(() => validate(samples), /nonnegative integer/)
+    for (const value of [-1, 0.5, NaN, undefined, Number.MAX_SAFE_INTEGER + 1]) {
+      const samples = evidence(); samples[0][key] = value
+      assert.throws(() => validate(samples), /nonnegative integer/)
+    }
   }
-  for (const change of [{ frameCount: 0 }, { step: 1 }, { duration: 5 }, { directions: [] },
+  const future = evidence(); future[0].started = future[0].turn + 1
+  assert.throws(() => validate(future), /cannot start after observed turn/)
+  const missingMapping = { ...mapping }; delete missingMapping['shaman:attack']
+  assert.throws(() => validateMeleeTransitionFrames(evidence(), missingMapping, successors), /original mapping missing/)
+  for (const change of [{ object: undefined }, { draw: undefined }, { step: undefined }, { frameCount: 0 }, { step: 1 }, { duration: 5 }, { directions: [] },
     { directions: Array(8).fill({ frames: [], flip: false }) },
     { directions: Array(8).fill({ frames: [1006], flip: 0 }) }]) {
     const changed = { ...mapping, 'shaman:attack': { ...mapping['shaman:attack'], ...change } }
     assert.throws(() => validateMeleeTransitionFrames(evidence(), changed, successors),
-      /frameCount|step0|duration|directions|frame list|flip/)
+      /mapping|descriptor|frameCount|step0|duration|directions|frame list|flip/)
   }
   for (const value of [null, [], undefined]) {
     assert.throws(() => validateMeleeTransitionFrames(evidence(), value, successors), /mapping required/)

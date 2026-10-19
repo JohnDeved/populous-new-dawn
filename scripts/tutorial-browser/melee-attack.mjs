@@ -108,12 +108,6 @@ export function assertMeleePauseInputReady(state, paused) {
     'One public pause must land in an actual attack; no retry to find another sequence')
 }
 
-export function assertMeleePauseReceiptBinding(report) {
-  const hold = report.acceptance.obligations.publicPausedHold
-  const resumed = report.acceptance.obligations.resumedAdvancement.after
-  assertMeleeInputBinding(report, hold, resumed)
-}
-
 export function assertMeleeTransitionReceiptBinding(report) {
   const hold = report.acceptance.obligations.pausedHold
   assertMeleeInputBinding(report, hold, report.acceptance.obligations.resumedOutcome.after)
@@ -201,9 +195,7 @@ export function meleeTransitionMapping() {
 // A separate RAF reads after the Scene's already-scheduled ordinary render.
 // It does not mutate World, advance time, render, replace a game method or issue
 // a hit-selection query. Reading crop bounds may touch renderer/picker metadata.
-export function installMeleeFrameObserver(protocol = 'running-hold') {
-  if (!['running-hold', 'public-pause-v1', 'public-pause-transition-v1'].includes(protocol)) throw Error('Unknown melee observation protocol')
-  const transition = protocol === 'public-pause-transition-v1', layered = protocol !== 'running-hold'
+export function installMeleeFrameObserver() {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   const canvas = scene.renderer.domElement
   const result = { samples: [], crops: [], error: null, done: false, firstAttackTurn: null }
@@ -221,7 +213,7 @@ export function installMeleeFrameObserver(protocol = 'running-hold') {
       const unit = world.units.find(unit => unit.id === 54), fight = unit?.fight
       if (!unit || unit.kind !== 'shaman' || unit.team !== 'blue' || unit.hp <= 0)
         throw Error('Authored Shaman54 disappeared or died')
-      const afterResume = transition && pauseAnchor && !world.paused
+      const afterResume = pauseAnchor && !world.paused
       if (afterResume && !fight) throw Error('Public resume lost the original fight before successor observation')
       if (fight && (['attack', 'strike', 'special'].includes(fight.action) || afterResume)) {
         result.firstAttackTurn ??= world.turn
@@ -241,35 +233,29 @@ export function installMeleeFrameObserver(protocol = 'running-hold') {
           visible: group.visible, submittedLayers, canvasConnected: canvas.isConnected,
           sceneStoreMatch: scene.world === world, paused: world.paused,
           pieces: layers.map(layer => layer.userData.piece) }
-        if (transition) {
-          const opponent = world.units.find(unit => unit.id === fight.opponent), other = opponent?.fight
-          Object.assign(sample, { fightGroup: fight.group, remaining: fight.remaining ?? null,
-            animation: fight.animation, personId: person.id, personState: person.state,
-            personSpeed: person.speed, motionIsNative: person === unit.native, flight: !!unit.flight,
-            personClass: person.class, personModel: person.model, workFlags: person.workFlags,
-            personFlags2: person.flags2, personFlags4: person.flags4, personIdentityMatch: person === firstPerson,
-            // This records the reviewed pure source-branch contract, not a
-            // direct call/observation of the private visual getter's return.
-            fightMotionSourceAdmitted: !unit.flight && (
-              fight.nativeAttackAnimation === true && ['attack', 'strike', 'special', 'approach'].includes(fight.action) ||
-              ['walk', 'idle'].includes(fight.animation) || person === unit.native && person.state !== 10),
-            renderedDraw: group.userData.draw,
-            opponentFight: other ? { id: opponent.id, kind: opponent.kind, group: other.group, opponent: other.opponent,
-              action: other.action, started: other.started, remaining: other.remaining ?? null,
-              object: other.motion?.object, draw: other.motion?.draw } : null })
-        }
-        if (layered) {
-          sample.phase = world.paused ? 'public-paused-hold'
-            : pauseAnchor ? 'running-after-resume' : 'running-before-pause'
-          if (world.paused) pauseAnchor ??= { ...sample }
-        }
-        const phaseCrops = layered ? result.crops.filter(crop => crop.phase === sample.phase).length : 0
-        const wantsCrop = !layered || (sample.phase === 'running-before-pause' ? phaseCrops === 0
+        const opponent = world.units.find(unit => unit.id === fight.opponent), other = opponent?.fight
+        Object.assign(sample, { fightGroup: fight.group, remaining: fight.remaining ?? null,
+          animation: fight.animation, personId: person.id, personState: person.state,
+          personSpeed: person.speed, motionIsNative: person === unit.native, flight: !!unit.flight,
+          personClass: person.class, personModel: person.model, workFlags: person.workFlags,
+          personFlags2: person.flags2, personFlags4: person.flags4, personIdentityMatch: person === firstPerson,
+          // This records the reviewed pure source-branch contract, not a
+          // direct call/observation of the private visual getter's return.
+          fightMotionSourceAdmitted: !unit.flight && (
+            fight.nativeAttackAnimation === true && ['attack', 'strike', 'special', 'approach'].includes(fight.action) ||
+            ['walk', 'idle'].includes(fight.animation) || person === unit.native && person.state !== 10),
+          renderedDraw: group.userData.draw,
+          opponentFight: other ? { id: opponent.id, kind: opponent.kind, group: other.group, opponent: other.opponent,
+            action: other.action, started: other.started, remaining: other.remaining ?? null,
+            object: other.motion?.object, draw: other.motion?.draw } : null })
+        sample.phase = world.paused ? 'public-paused-hold'
+          : pauseAnchor ? 'running-after-resume' : 'running-before-pause'
+        if (world.paused) pauseAnchor ??= { ...sample }
+        const phaseCrops = result.crops.filter(crop => crop.phase === sample.phase).length
+        const wantsCrop = sample.phase === 'running-before-pause' ? phaseCrops === 0
           : sample.phase === 'public-paused-hold' ? phaseCrops < 2
-          : phaseCrops === 0 && sample.turn > pauseAnchor.turn && (transition ||
-            sample.started === pauseAnchor.started && sample.action === pauseAnchor.action &&
-            sample.f2 !== pauseAnchor.f2 && sample.frame !== pauseAnchor.frame))
-        const key = layered ? `${sample.phase}:${sample.stamp}` : `${fight.started}:${sample.frame}`
+          : phaseCrops === 0 && sample.turn > pauseAnchor.turn
+        const key = `${sample.phase}:${sample.stamp}`
         if (group.visible && submittedLayers > 0 && wantsCrop && !cropKeys.has(key) && result.crops.length < 4) {
           const rect = canvas.getBoundingClientRect(), bounds = scene.picking.personBounds(54, rect)
           if (bounds && bounds.width > 1 && bounds.height > 1) {
@@ -279,27 +265,25 @@ export function installMeleeFrameObserver(protocol = 'running-hold') {
             const width = Math.min(256, canvas.width - x, Math.ceil((bounds.width + 24) * scaleX))
             const height = Math.min(256, canvas.height - y, Math.ceil((bounds.height + 24) * scaleY))
             if (width > 1 && height > 1) {
-              if (layered) {
-                // Canvas readback excludes HTML. Retain real body-center DOM
-                // ownership and reject overlap with the shipped HUD overlays.
-                const clip = { x: rect.left + x / scaleX, y: rect.top + y / scaleY,
-                  width: width / scaleX, height: height / scaleY }
-                const owner = document.elementFromPoint(rect.left + bounds.x + bounds.width / 2,
-                  rect.top + bounds.y + bounds.height / 2)
-                const overlays = [...document.querySelectorAll('.native-hud,.paused-badge,.campaign-messages summary,.campaign-messages details[open]>div,.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
-                  .filter(element => { const style = getComputedStyle(element)
-                    return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0 })
-                  .map(element => { const r = element.getBoundingClientRect()
-                    return { tag: element.tagName, className: element.className,
-                      x: r.x, y: r.y, width: r.width, height: r.height } })
-                  .filter(r => r.width > 0 && r.height > 0 && r.x < clip.x + clip.width && r.x + r.width > clip.x &&
-                    r.y < clip.y + clip.height && r.y + r.height > clip.y)
-                sample.bodyCanvasOwned = owner === canvas
-                sample.bodyInCanvas = bounds.x >= 0 && bounds.y >= 0 &&
-                  bounds.x + bounds.width <= rect.width && bounds.y + bounds.height <= rect.height
-                sample.cropOverlayClear = overlays.length === 0
-                sample.cropVisibility = { bodyOwner: { tag: owner?.tagName, className: owner?.className }, clip, overlays }
-              }
+              // Canvas readback excludes HTML. Retain real body-center DOM
+              // ownership and reject overlap with the shipped HUD overlays.
+              const clip = { x: rect.left + x / scaleX, y: rect.top + y / scaleY,
+                width: width / scaleX, height: height / scaleY }
+              const owner = document.elementFromPoint(rect.left + bounds.x + bounds.width / 2,
+                rect.top + bounds.y + bounds.height / 2)
+              const overlays = [...document.querySelectorAll('.native-hud,.paused-badge,.campaign-messages summary,.campaign-messages details[open]>div,.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
+                .filter(element => { const style = getComputedStyle(element)
+                  return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0 })
+                .map(element => { const r = element.getBoundingClientRect()
+                  return { tag: element.tagName, className: element.className,
+                    x: r.x, y: r.y, width: r.width, height: r.height } })
+                .filter(r => r.width > 0 && r.height > 0 && r.x < clip.x + clip.width && r.x + r.width > clip.x &&
+                  r.y < clip.y + clip.height && r.y + r.height > clip.y)
+              sample.bodyCanvasOwned = owner === canvas
+              sample.bodyInCanvas = bounds.x >= 0 && bounds.y >= 0 &&
+                bounds.x + bounds.width <= rect.width && bounds.y + bounds.height <= rect.height
+              sample.cropOverlayClear = overlays.length === 0
+              sample.cropVisibility = { bodyOwner: { tag: owner?.tagName, className: owner?.className }, clip, overlays }
               // Copy the current canvas synchronously in the same observer callback.
               // This is readback, not a second Scene render or a hidden-body redraw.
               const copy = document.createElement('canvas'); copy.width = width; copy.height = height
@@ -312,7 +296,7 @@ export function installMeleeFrameObserver(protocol = 'running-hold') {
               sample.cropFile = `melee-attack-frame-${result.crops.length}.png`
               result.crops.push({ filename: sample.cropFile, turn: world.turn, stamp: sample.stamp,
                 frame: sample.frame, object: sample.object, f2: sample.f2,
-                ...(layered ? { phase: sample.phase } : {}), clip: { x, y, width, height },
+                phase: sample.phase, clip: { x, y, width, height },
                 opaqueColors: colors.size, png: copy.toDataURL('image/png') })
               cropKeys.add(key)
             }
@@ -350,7 +334,6 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       '30/60/120/144Hz and irregular schedule evidence remains the separate CPU regression.'],
     source: Object.fromEntries(['app/original-rules.json', 'app/original-units.json', 'app/projection.ts',
       'app/unit-animation-source.ts', 'app/scene-entities.ts', 'scripts/tutorial-browser/melee-attack.mjs',
-      'scripts/tutorial-browser/melee-attack-evidence.mjs', 'scripts/tutorial-browser/melee-attack-pause-evidence.mjs',
       'scripts/tutorial-browser/melee-attack-transition-evidence.mjs',
       'qa/erosion-ordinary/minimap-input.mjs']
       .map(path => [path, sha256(readFileSync(resolve(root, path)))])) }
@@ -441,7 +424,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     await settle()
     report.afterFocus = await page.evaluate(readMeleeRouteState); save()
     assertMeleeRouteReady(report.afterFocus)
-    await page.evaluate(installMeleeFrameObserver, 'public-pause-transition-v1')
+    await page.evaluate(installMeleeFrameObserver)
     await button('Resume game')
     await page.waitForFunction(() => !window.testStore.getWorld().paused)
     report.afterResume = await page.evaluate(readMeleeRouteState); save()

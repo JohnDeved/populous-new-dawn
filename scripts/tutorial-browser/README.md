@@ -343,8 +343,8 @@ The observed raw source fields admit only the reviewed visual-source branches;
 that is an explicit source-contract inference, not direct observation of a private
 getter return. Retained physical-reference identity, logical stamp and actual
 rendered draw/frame/flip/layers are independently checked. No production hook or
-runtime change is added. Both prior failed runs and their strict validators remain
-preserved, alongside the new transition-specific negative tests.
+runtime change is added. Both prior failed runs remain preserved with their exact
+historical source revisions; only the transition validator is maintained.
 
 The separate 75-second case fits inside, not in addition to, the unchanged
 180-second aggregate browser cap. The browser case adds no new workflow/job, browser route,
@@ -413,11 +413,16 @@ Coverage is deliberately layered, not a generic `paused=true` exemption:
   real frame-selection caller with supplied texture/projection/motion boundaries,
   not a GPU render. The 30/60/120/144 Hz/irregular CPU schedule checks remain separate.
 
-Both prior validators remain byte-identical: `validateMeleeAttackFrames` rejects
-paused evidence or absent running same-turn hold; `validateMeleePauseFrames` requires
-same-attack resumed advancement. The separately named `validateMeleeTransitionFrames`
-does not retroactively pass either failed run or claim running same-turn browser
-behavior. Missing observations fail closed. No protocol proves original absolute FPS, hardware
+The superseded contracts and tests are retained in Git, not as additional executable
+acceptance modes: [strict running-hold at `0da6bcb9`](https://github.com/JohnDeved/populous-new-dawn/blob/0da6bcb9d5adb970fde6b91d0e42623184c1eea1/scripts/tutorial-browser/melee-attack-evidence.mjs)
+and [same-attack pause/resume at `ac72f1de`](https://github.com/JohnDeved/populous-new-dawn/blob/ac72f1de622cec56094189d2a73b70de76b2c827/scripts/tutorial-browser/melee-attack-pause-evidence.mjs).
+Their failed runs above retain their original interpretation and raw artifacts.
+The maintained `validateMeleeTransitionFrames` does not retroactively pass either
+run or claim running same-turn browser behavior. Its observer has one protocol,
+with unchanged public input, first-resumed-frame, source, phase and crop guards.
+Removing historical modes changes the harness source fingerprint; old browser
+receipts are historical evidence, not an exact-head browser pass for that cleanup.
+Missing observations fail closed. No protocol proves original absolute FPS, hardware
 smoothness, Firewarrior browser behavior or pixel-perfect composition. Broad issue
 #214 and recoil/knockback remain outside this acceptance.
 
