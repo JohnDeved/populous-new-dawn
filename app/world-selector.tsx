@@ -51,11 +51,21 @@ export function WorldSelector({
     const availableMissions = openingCampaignMissions.filter(mission =>
       openingMissionAvailable(mission, completed)
     )
-    const direction = event.key === 'ArrowLeft' ? -1 : 1
-    const current = availableMissions.indexOf(selected as 1 | 2 | 3)
-    setSelected(
-      availableMissions[(current + direction + availableMissions.length) % availableMissions.length]
-    )
+    // Locked worlds can still be inspected through the panel. Search from that
+    // mission's position rather than treating it as a missing available index.
+    const next =
+      event.key === 'ArrowLeft'
+        ? (availableMissions.findLast(mission => mission < selected) ??
+          availableMissions[availableMissions.length - 1])
+        : (availableMissions.find(mission => mission > selected) ?? availableMissions[0])
+    setSelected(next)
+    // Keep panel activation tied to the world just selected by the arrow key.
+    // Arrows on Start retain its focus so Enter still launches that world.
+    if (event.currentTarget.hasAttribute('data-selector-mission')) {
+      container.current
+        ?.querySelector<HTMLButtonElement>(`[data-selector-mission="${next}"]`)
+        ?.focus()
+    }
   }
 
   return (
@@ -182,6 +192,7 @@ export function WorldSelector({
                   className={styles.panelGlyph}
                   aria-label={`Panel Mission ${mission}${completed.includes(mission) ? ', completed' : ''}`}
                   aria-pressed={mission === selected}
+                  data-selector-mission={mission}
                   autoFocus={mission === selected}
                   aria-describedby={`${descriptionId}-${mission}`}
                   data-selector-tooltip={
