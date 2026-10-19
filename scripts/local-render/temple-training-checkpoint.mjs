@@ -149,10 +149,10 @@ export function armTempleCheckpoint({ kind, store, button, snapshot }) {
       if (kind === 'load' && world === prior) return
       finishWindow()
       if (kind === 'save' && world !== prior) throw Error('Save replaced the Temple World')
-      // Save publishes after its normalization/clone; Load publishes the migrated
+      // Save publishes after its normalization/clone; Load publishes the normalized
       // replacement before Page's separate unpause. Freeze exactly that boundary.
       // Current-world observations use the writer's v2 envelope, including a
-      // Load of an older v1 record after migration. The committed record below
+      // Current-format Load after normalization. The committed record below
       // retains its actual stored version for the separate storage digest.
       record = { version: 2, world: structuredClone(world) }
       evidence.publication = readTarget('publication', world)
@@ -217,8 +217,8 @@ export function armTempleCheckpoint({ kind, store, button, snapshot }) {
   }
 }
 
-// Fresh-page restore migrates the committed record once, then public Load
-// migrates its private checkpoint again. Both expected Worlds stay in this call.
+// Fresh-page restore normalizes the current record once, then public Load
+// normalizes its private checkpoint again. Both expected Worlds stay in this call.
 export async function readTempleCommittedLoad() {
   if (!(await indexedDB.databases()).some(db => db.name === 'populous-new-dawn'))
     throw Error('Genuine committed Temple checkpoint database required')
