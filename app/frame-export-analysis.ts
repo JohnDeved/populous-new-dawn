@@ -11,6 +11,7 @@ import {
 } from './pointer-interaction-context.ts'
 import {
   ORDINARY_TERRAIN_FIELDS,
+  ORDINARY_PICK_PATH_FIELDS,
   TERRAIN_VISIBILITY_FIELDS,
   type OrdinaryTerrainMetrics,
 } from './ordinary-terrain-metrics.ts'
@@ -142,6 +143,13 @@ function frameEvidence(frames: Frame[]) {
             ? {
                 nativeOcclusion: {
                   version: 1,
+                  ...(frame.pointerBreakdown.nativeOcclusion.cacheRepresentationChanged !==
+                  undefined
+                    ? {
+                        cacheRepresentationChanged:
+                          frame.pointerBreakdown.nativeOcclusion.cacheRepresentationChanged,
+                      }
+                    : {}),
                   ...Object.fromEntries(
                     NATIVE_OCCLUSION_FIELDS.map(key => [
                       key,
@@ -161,6 +169,19 @@ function frameEvidence(frames: Frame[]) {
                       frame.pointerBreakdown!.ordinaryTerrain![key],
                     ])
                   ),
+                  ...(frame.pointerBreakdown.ordinaryTerrain.paths
+                    ? {
+                        paths: {
+                          version: 1,
+                          ...Object.fromEntries(
+                            ORDINARY_PICK_PATH_FIELDS.map(key => [
+                              key,
+                              frame.pointerBreakdown!.ordinaryTerrain!.paths![key],
+                            ])
+                          ),
+                        },
+                      }
+                    : {}),
                   ...(frame.pointerBreakdown.ordinaryTerrain.visibility
                     ? {
                         visibility: Object.fromEntries(
@@ -318,6 +339,15 @@ export function analyzeFrameExport(json: string) {
         const path = `frames[${index}].pointerBreakdown.nativeOcclusion`
         const native = object(pointer.nativeOcclusion, path)
         if (native.version !== 1) throw new Error(`Unsupported ${path}.version`)
+        if (
+          native.cacheRepresentationChanged !== undefined &&
+          !Number.isSafeInteger(
+            finite(native.cacheRepresentationChanged, `${path}.cacheRepresentationChanged`)
+          )
+        )
+          throw new Error(
+            `Invalid ${path}.cacheRepresentationChanged: expected a safe integer counter`
+          )
         for (const key of NATIVE_OCCLUSION_FIELDS) {
           const value = finite(native[key], `${path}.${key}`)
           if (!key.endsWith('Ms') && !Number.isSafeInteger(value))
@@ -332,6 +362,13 @@ export function analyzeFrameExport(json: string) {
           const value = finite(ordinary[key], `${path}.${key}`)
           if (!key.endsWith('Ms') && !Number.isSafeInteger(value))
             throw new Error(`Invalid ${path}.${key}: expected a safe integer counter`)
+        }
+        if (ordinary.paths !== undefined) {
+          const paths = object(ordinary.paths, `${path}.paths`)
+          if (paths.version !== 1) throw new Error(`Unsupported ${path}.paths.version`)
+          for (const key of ORDINARY_PICK_PATH_FIELDS)
+            if (!Number.isSafeInteger(finite(paths[key], `${path}.paths.${key}`)))
+              throw new Error(`Invalid ${path}.paths.${key}: expected a safe integer counter`)
         }
         if (ordinary.visibility !== undefined) {
           const visibility = object(ordinary.visibility, `${path}.visibility`)
