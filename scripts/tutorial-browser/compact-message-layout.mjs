@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
+import { checkPickingPathReadout, pickingPathMetricIds } from './picking-path-readout.mjs'
 import {
   assertM2DiagnosticLayout,
   m2DiagnosticLayout,
@@ -221,11 +222,25 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
   }
 }
 
+async function selectHudPreference(page, preference) {
+  const button = name => page.getByRole('button', { name, exact: true })
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await button('Game settings').click()
+  await button('Options').click()
+  await button('Browser compatibility and help').click()
+  const setting = page.getByRole('combobox', { name: 'HUD size', exact: true })
+  await setting.selectOption(preference)
+  assert.equal(await setting.inputValue(), preference)
+  await button('Back to Options').click()
+  await button('Back').click()
+  await button('Continue Game').click()
+  await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'hidden' })
+}
+
 export async function checkCompactMessages({ page, output, stage, report }) {
   const graph = page.locator('.fps-graph')
-  const button = name => page.getByRole('button', { name, exact: true })
   report.limits = [
-    'Automatic and 400% at 900x360 and 640x480 only; not universal viewport support or performance acceptance',
+    'Collapsed coexistence: Automatic and 400% at 900x360 and 640x480; not universal viewport support or performance acceptance.',
   ]
   const settle = () =>
     page.evaluate(
@@ -238,17 +253,7 @@ export async function checkCompactMessages({ page, output, stage, report }) {
   assert.equal(baseline.scene, true)
   for (const { preference, label, sizes } of compactMessageCases) {
     // Use the shipped setting, not localStorage seeding or forced DOM geometry.
-    await page.setViewportSize({ width: 1440, height: 1000 })
-    await button('Game settings').click()
-    await button('Options').click()
-    await button('Browser compatibility and help').click()
-    const setting = page.getByRole('combobox', { name: 'HUD size', exact: true })
-    await setting.selectOption(preference)
-    assert.equal(await setting.inputValue(), preference)
-    await button('Back to Options').click()
-    await button('Back').click()
-    await button('Continue Game').click()
-    await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'hidden' })
+    await selectHudPreference(page, preference)
     stage(`compact-preference-${preference}-selected`)
     for (const [width, height] of sizes) {
       await page.setViewportSize({ width, height })
@@ -298,6 +303,71 @@ export async function checkCompactMessages({ page, output, stage, report }) {
       )
       stage(`compact-${preference}-${width}x${height}-captured-and-restored`)
     }
+  }
+  return report
+}
+
+export async function checkExpandedPickingPaths({ page, output, stage, report }) {
+  const graph = page.locator('.fps-graph')
+  report.limits = [
+    'Expanded picking: independent paused M2 context with campaign text publicly closed and restored; not universal viewport support or performance acceptance.',
+  ]
+  // Use an independently admitted real bundled scene, not the remaining time in
+  // the legacy compact episode. Keep the public close/restore controls intact.
+  // The original appended episode inherited 400%; select that same preference
+  // publicly in this fresh context rather than silently testing only defaults.
+  await selectHudPreference(page, '4')
+  stage('expanded-preference-4-selected')
+  const openCampaignDetails = []
+  for (const detail of await page.locator('.campaign-messages details').all())
+    if (await detail.getAttribute('open') !== null) {
+      openCampaignDetails.push(detail)
+      await detail.locator('summary').click()
+    }
+  await page.keyboard.press('F8')
+  await graph.waitFor({ state: 'visible' })
+  await page.waitForFunction(() => /^\d+\.\d{2}$/.test(document.querySelector('[data-metric="pick-numeric"]')?.textContent ?? ''))
+  const beforePicking = await page.evaluate(() => {
+    const scene = window.testSceneRef.current, world = scene.world
+    if (!world.paused || scene !== window.testScene) throw Error('Expected the existing paused scene')
+    cancelAnimationFrame(scene.frame)
+    return { turn: world.turn, randomState: world.randomState, cosmeticRandom: world.cosmeticRandom, selected: [...world.selected] }
+  })
+  try {
+    report.pickingPaths = await checkPickingPathReadout({ page, output })
+    const toggle = graph.getByRole('button', { name: 'Picking paths', exact: true })
+    await toggle.click()
+    await graph.focus()
+    await page.keyboard.press('F8')
+    await graph.waitFor({ state: 'hidden' })
+    await page.keyboard.press('F8')
+    await graph.waitFor({ state: 'visible' })
+    assert.equal(await toggle.getAttribute('aria-expanded'), 'false', 're-enabled F8 starts collapsed')
+    for (const name of pickingPathMetricIds.slice(1))
+      assert.equal(await graph.locator(`[data-metric="${name}"]`).textContent(), '--', 're-enable cannot revive old counters')
+    assert.equal(await graph.locator('[data-metric="picking-window"]').textContent(), 'No samples yet')
+    await toggle.focus()
+    await page.keyboard.press('F8')
+    await graph.waitFor({ state: 'hidden' })
+    const afterPicking = await page.evaluate(() => {
+      const world = window.testSceneRef.current.world
+      return { turn: world.turn, randomState: world.randomState, cosmeticRandom: world.cosmeticRandom, selected: [...world.selected] }
+    })
+    assert.deepEqual(afterPicking, beforePicking, 'expanded diagnostics and focused F8 preserve the paused world')
+    report.pickingPaths.focusedF8Reset = true
+    stage('expanded-picking-boundaries-input-and-reset')
+  } finally {
+    await page.evaluate(() => {
+      const scene = window.testSceneRef.current
+      if (scene.fpsGraph) scene.togglePerformance()
+      scene.frame = requestAnimationFrame(scene.animate)
+    })
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    for (const detail of openCampaignDetails) {
+      await detail.locator('summary').click()
+      assert.notEqual(await detail.getAttribute('open'), null, 'Restore each original campaign message')
+    }
+    stage('expanded-picking-campaign-restored')
   }
   return report
 }

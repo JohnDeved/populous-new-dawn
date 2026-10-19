@@ -8,6 +8,10 @@ import { readHardwareInfo, readHeapEstimate } from './performance-hardware.ts'
 
 declare const __PND_BUILD_REVISION__: string
 
+function stopGameInput(event: Event) {
+  if (!(event instanceof KeyboardEvent && event.key === 'F8')) event.stopPropagation()
+}
+
 // FPS is requestAnimationFrame cadence. CPU wall times are not GPU execution time.
 export class FpsGraph {
   readonly element = document.createElement('aside')
@@ -41,7 +45,7 @@ export class FpsGraph {
       'aria-label',
       'Game performance. Toggle with F8 or the battlefield menu.'
     )
-    this.element.innerHTML = `<div class="fps-primary"><header><span>Performance</span><kbd>F8</kbd></header>
+    this.element.innerHTML = `<div class="fps-primary"><header><span>Performance</span><button type="button" class="fps-picking-toggle" aria-expanded="false">Picking paths</button><kbd>F8</kbd></header>
       <div class="fps-reading"><strong data-metric="fps">--</strong><span>RAF/s</span><small data-metric="state">Warming up</small></div>
       <div class="fps-caption"><span>RAF interval</span><span data-metric="scale">ms</span></div>
       <svg viewBox="0 0 240 60" aria-hidden="true"><path class="fps-grid" d="M0 1H240M0 30H240M0 59H240"/><path class="fps-budget"/><polyline fill="none"/></svg>
@@ -57,6 +61,16 @@ export class FpsGraph {
         <div title="Callback minus simulation, scene render and pointer/tooltip stages. Other callback work, not idle time. A negative value signals inconsistent measurement ownership."><dt>Other callback CPU</dt><dd data-metric="other">--</dd></div>
         <div><dt>Scene draw calls / frame</dt><dd data-metric="calls">--</dd></div>
       </dl>
+      <section class="fps-picking" aria-label="Picking path details" hidden>
+        <div class="fps-caption" data-metric="picking-window">No samples yet</div>
+        <dl>
+          <div><dt>Numeric instances</dt><dd data-metric="pick-numeric">--</dd></div>
+          <div><dt>Packed-vector instances</dt><dd data-metric="pick-packed">--</dd></div>
+          <div><dt>Sparse-vector instances</dt><dd data-metric="pick-sparse">--</dd></div>
+          <div title="Native-edge cache misses caused only by a packed/sparse representation change, with unchanged position identity and cache key."><dt>Native repr.-only misses</dt><dd data-metric="pick-representation">--</dd></div>
+        </dl>
+        <p>Ordinary terrain instance paths after culling, not query or vertex counts. Unknown = incomplete sampling.</p>
+      </section>
       </div><div class="fps-secondary">
       <div class="fps-caption"><span>Rolling window</span><span data-metric="window">0 samples</span></div>
       <div class="fps-caption"><span>p50 / p95 / p99 · ms</span></div>
@@ -80,9 +94,18 @@ export class FpsGraph {
     for (const field of this.element.querySelectorAll<HTMLElement>('[data-metric]'))
       this.fields[field.dataset.metric!] = field
     this.exportButton = this.element.querySelector<HTMLButtonElement>('.fps-export')!
-    // Only the button intercepts input; the graph remains click-through. Keep
-    // Enter/Space activation native, but never let input bubble into gameplay.
+    const pickingToggle = this.element.querySelector<HTMLButtonElement>('.fps-picking-toggle')!
+    const pickingDetails = this.element.querySelector<HTMLElement>('.fps-picking')!
+    pickingToggle.addEventListener('click', () => {
+      pickingDetails.hidden = !pickingDetails.hidden
+      pickingToggle.setAttribute('aria-expanded', String(!pickingDetails.hidden))
+      this.element.tabIndex = pickingDetails.hidden ? -1 : 0
+      this.element.scrollTop = 0
+    })
+    // Collapsed readouts stay click-through. Expanded readouts can scroll, so
+    // isolate their input too while retaining native scrolling and activation.
     for (const type of [
+      'click',
       'pointerdown',
       'pointerup',
       'pointermove',
@@ -93,10 +116,13 @@ export class FpsGraph {
       'wheel',
       'keydown',
       'keyup',
-    ])
-      this.exportButton.addEventListener(type, event => {
-        if (!(event instanceof KeyboardEvent && event.key === 'F8')) event.stopPropagation()
+    ]) {
+      for (const button of [this.exportButton, pickingToggle])
+        button.addEventListener(type, stopGameInput)
+      this.element.addEventListener(type, event => {
+        if (!pickingDetails.hidden) stopGameInput(event)
       })
+    }
     this.exportButton.addEventListener('click', event => {
       event.stopPropagation()
       this.exportRecentFrames()
@@ -279,11 +305,16 @@ export class FpsGraph {
       'cpu-tail',
       'cpu-peak',
       'heap',
+      'pick-numeric',
+      'pick-packed',
+      'pick-sparse',
+      'pick-representation',
     ])
       this.text(name, '--')
     this.text('state', state)
     this.text('export-status', '')
     this.text('window', '0 samples')
+    this.text('picking-window', 'No samples yet')
     this.text('scale', 'ms')
     this.line.setAttribute('points', '')
     this.budget.setAttribute('d', '')
@@ -348,6 +379,18 @@ export class FpsGraph {
     this.text('simulation', `${samples.simulationMs.toFixed(2)} ms`)
     this.text('render', `${samples.renderMs.toFixed(2)} ms`)
     this.text('calls', samples.drawCalls.toFixed(0))
+    const { picking } = samples
+    this.text(
+      'picking-window',
+      `Means/frame · ${picking.frames} frames / ${picking.milliseconds.toFixed(0)} ms`
+    )
+    for (const [name, value] of [
+      ['pick-numeric', picking.numeric],
+      ['pick-packed', picking.packedVector],
+      ['pick-sparse', picking.sparseVector],
+      ['pick-representation', picking.representationChanged],
+    ] as const)
+      this.text(name, value === null ? 'Unknown' : value.toFixed(2))
     this.text('pointer', `${samples.pointerMs.toFixed(2)} ms`)
     this.text(
       'pointer-tail',

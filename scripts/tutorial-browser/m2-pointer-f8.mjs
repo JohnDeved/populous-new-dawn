@@ -112,21 +112,30 @@ export function m2StartupReady() {
   }
 }
 
-export default async function ({ browser, url, output, fixture, compactMessages = false }) {
+// Keep the legacy compact episode within its original deadline. The expanded
+// readout has its own fresh context and deadline inside the existing job cap.
+export async function runCompactDiagnosticEpisodes({ report, ...options }, runEpisode = runM2Functional) {
+  report.compactMessageLayout = await runEpisode({ ...options, compactMessages: true })
+  report.pickingPathReadout = await runEpisode({ ...options, pickingPaths: true })
+}
+
+export default async function runM2Functional({ browser, url, output, fixture, compactMessages = false, pickingPaths = false }) {
+  assert.ok(!(compactMessages && pickingPaths), 'Diagnostic episodes must have independent contexts')
+  const scenario = pickingPaths ? 'picking-path-readout' : compactMessages ? 'compact-message-layout' : 'm2-pointer-f8'
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
     deviceScaleFactor: 1,
   })
   const report = {
     status: 'running',
-    scenario: compactMessages ? 'compact-message-layout' : 'm2-pointer-f8',
+    scenario,
     setup: fixture.receipt,
     errors: [],
     samples: [],
     stages: [],
     limits: [
       'Test-only imported M2 checkpoint, not campaign progression/unlock proof',
-      compactMessages
+      compactMessages || pickingPaths
         ? 'Paused compact message/F8 layout and public HUD preference coverage, not performance acceptance'
         : 'Paused functional pointer/camera/F8 coverage, not timing, hardware FPS or responsiveness acceptance',
       'Seam crossing and hidden-tab transition not covered; actual reached camera states recorded',
@@ -316,7 +325,11 @@ export default async function ({ browser, url, output, fixture, compactMessages 
     stage('paused-baseline')
     assert.equal(report.before.level, 2)
     assert.match(report.before.webgl, /WebGL 2/)
-    if (compactMessages) {
+    if (pickingPaths) {
+      const { checkExpandedPickingPaths } = await import('./compact-message-layout.mjs')
+      report.pickingPaths = {}
+      await checkExpandedPickingPaths({ page, output, stage, report: report.pickingPaths })
+    } else if (compactMessages) {
       const { checkCompactMessages } = await import('./compact-message-layout.mjs')
       report.compactMessages = { cases: [] }
       await checkCompactMessages({ page, output, stage, report: report.compactMessages })
@@ -491,7 +504,7 @@ export default async function ({ browser, url, output, fixture, compactMessages 
       await page.screenshot({
         path: resolve(
           output,
-          compactMessages ? 'compact-message-failure.png' : 'm2-pointer-failure.png'
+          pickingPaths ? 'picking-path-failure.png' : compactMessages ? 'compact-message-failure.png' : 'm2-pointer-failure.png'
         ),
         timeout: 3000,
       })
@@ -506,7 +519,7 @@ export default async function ({ browser, url, output, fixture, compactMessages 
     report,
     output,
     failure,
-    fileName: compactMessages ? 'compact-message-layout.json' : 'm2-pointer-f8.json',
+    fileName: `${scenario}.json`,
   })
 }
 
@@ -594,6 +607,9 @@ export function m2DiagnosticLayout(el) {
     overflow: document.documentElement.scrollWidth > innerWidth,
     events: getComputedStyle(el).pointerEvents,
     rowsFit: [...el.querySelectorAll('dl > div')].every(row => {
+      // Optional picking rows remain in the DOM while explicitly collapsed.
+      // Do not skip other hidden rows: mandatory diagnostics must still fit.
+      if (row.closest('.fps-picking[hidden]')) return true
       const bounds = row.getBoundingClientRect()
       return (
         bounds.left >= r.left &&

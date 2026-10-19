@@ -80,7 +80,8 @@ test('strict shared checks reject corrupt native, mapped, visible, source and cr
 
 test('no cross-direction, cross-sequence or single-sample substitute can establish advancement', () => {
   assert.throws(() => validate([evidence()[0]]), /advancement required/)
-  for (const override of [{ direction: 3 }, { started: 515 }, { action: 'strike' }]) {
+  for (const override of [{ direction: 3 }, { started: 518, turn: 518 },
+    { action: 'strike', started: 518, turn: 518 }]) {
     const s = [evidence()[0], sample({ turn: 515, animationFrame: 1030, stamp: 361,
       cropFile: 'second.png', ...override })]
     assert.throws(() => validate(s), /advancement required/)
@@ -88,6 +89,60 @@ test('no cross-direction, cross-sequence or single-sample substitute can establi
   for (const override of [{ opponent: 1208, participants: [54, 1208] }, { fightGroup: 8, workFlags: 8 }]) {
     const s = evidence(); Object.assign(s[1], override); assert.throws(() => validate(s), /retain the same/)
   }
+})
+
+// Supplied observations reproduce the failed hosted window, not a browser pass.
+const retargetedEvidence = () => [
+  ...[395, 396, 398].map((turn, index) => sample({ action: 'special', started: 395,
+    turn, animationFrame: turn * 2, stamp: 345 + index, opponent: 13,
+    fightGroup: 1252, workFlags: 1252, participants: [54, 1207, 19, 13],
+    cropFile: `melee-attack-frame-${index}.png` })),
+  ...[400, 402].map((turn, index) => sample({ started: 400, turn,
+    animationFrame: turn * 2, stamp: 349 + index, opponent: 1207, direction: 6,
+    fightGroup: 1252, workFlags: 1252, participants: [54, 1207, 19, 13],
+    ...(index ? { cropPlanned: false } : { cropFile: 'melee-attack-frame-3.png' }) })),
+]
+
+test('a later post-expiry entry may retarget without dropping either entry or its crop obligations', () => {
+  const samples = retargetedEvidence(), before = structuredClone(samples), result = validate(samples)
+  assert.equal(result.sampleCount, 5); assert.equal(result.sequenceCount, 2)
+  assert.equal(result.cropFiles.length, 4)
+  const { before: first, after } = result.obligations.runningAdvancement
+  assert.deepEqual([first.started, first.opponent, after.started, after.opponent], [395, 13, 395, 13])
+  assert.deepEqual(samples, before)
+  for (const change of [s => { delete s[3].cropFile }, s => { s[4].frame = 424 },
+    s => { s[4].nativeAttackAnimation = false }, s => { s[4].personIdentityMatch = false },
+    s => { s[4].participants = [54, 13] }]) {
+    const invalid = retargetedEvidence(); change(invalid)
+    assert.throws(() => validate(invalid), undefined, 'a successful earlier pair cannot hide invalid later coverage')
+  }
+})
+
+test('new entries with the same action can retarget but cannot supply a cross-entry advancing pair', () => {
+  const later = sample({ started: 518, turn: 518, animationFrame: 1036, stamp: 362,
+    opponent: 1208, participants: [54, 1207, 1208], cropFile: 'third.png' })
+  assert.equal(validate([...evidence(), later]).sequenceCount, 2)
+  assert.throws(() => validate([evidence()[0], later]), /advancement required/)
+})
+
+test('entry identity locks action and opponent even when a changed key would create a new sequence', () => {
+  for (const override of [{ opponent: 1208, participants: [54, 1207, 1208] }, { action: 'strike' }]) {
+    const s = [evidence()[0], sample({ turn: 515, animationFrame: 1030, stamp: 361,
+      cropFile: 'second.png', ...override })]
+    assert.throws(() => validate(s), /same (opponent|action)/)
+  }
+})
+
+test('changed entry stamps cannot reset an active attack, regress, or start on its expiry turn', () => {
+  for (const started of [513, 515, 516, 517]) {
+    const later = sample({ started, turn: Math.max(515, started), animationFrame: 1036, stamp: 362,
+      opponent: 1208, participants: [54, 1207, 1208], cropFile: 'third.png' })
+    assert.throws(() => validate([...evidence(), later]), /entry.*(chronological|expiry)/)
+  }
+  const s = retargetedEvidence()
+  s.push(sample({ started: 400, turn: 403, animationFrame: 806, stamp: 351,
+    fightGroup: 1252, workFlags: 1252, direction: 6, cropPlanned: false }))
+  assert.throws(() => validate(s), /cannot survive its native expiry/)
 })
 
 test('invalid later samples fail even after a complete valid witness and after the four-crop budget', () => {
