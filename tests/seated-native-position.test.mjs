@@ -48,7 +48,10 @@ test('retired route-map Balloon occupants launch from actual seats through publi
     const store = createHistoricalFixtureHarness()
     store.startMission(16)
     const w = store.getWorld()
-    Object.assign(w, normalizeHistoricalFixture(checkpoint()))
+    const historical = checkpoint()
+    for (const key of Object.keys(w)) if (!Object.hasOwn(historical, key)) delete w[key]
+    Object.assign(w, historical)
+    assert.deepEqual(w, historical, 'no fresh-world fields may leak into the archive')
     assert.ok(await store.saveCheckpoint())
     assert.ok(store.loadCheckpoint())
     const twin = store.getWorld()

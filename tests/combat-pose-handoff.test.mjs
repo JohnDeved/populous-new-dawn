@@ -120,7 +120,10 @@ test('genuine M17 arena walk publishes current pose before encounter adoption an
     const store = createHistoricalFixtureHarness()
     store.startMission(17)
     const w = store.getWorld()
-    Object.assign(w, normalizeHistoricalFixture(deserialize(bytes)))
+    const historical = normalizeHistoricalFixture(deserialize(bytes))
+    for (const key of Object.keys(w)) if (!Object.hasOwn(historical, key)) delete w[key]
+    Object.assign(w, historical)
+    assert.deepEqual(w, historical, 'no fresh-world fields may leak into the archive')
     assert.equal(w.turn, 6619)
     assert.ok(await store.saveCheckpoint())
     assert.ok(store.loadCheckpoint())

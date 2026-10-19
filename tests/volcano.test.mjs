@@ -87,7 +87,7 @@ test('Volcano replays its native terrain, emission and disruption lifecycle', ()
   assert.equal(land.shadows[center], 128)
 })
 
-test('player and computer Volcano casts share the live controller and old saves migrate', () => {
+test('player and computer Volcano casts share the live controller and explicit historical fixtures reconstruct', () => {
   const w = createWorld(),
     shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
   w.manaWorld.loadFlags |= 0x200

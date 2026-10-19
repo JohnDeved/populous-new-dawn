@@ -40,7 +40,10 @@ test('public seated Tornado finishes casting and permits a second earned cast th
     const store = createHistoricalFixtureHarness()
     store.startMission(16)
     const w = store.getWorld()
-    Object.assign(w, normalizeHistoricalFixture(checkpoint()))
+    const historical = checkpoint()
+    for (const key of Object.keys(w)) if (!Object.hasOwn(historical, key)) delete w[key]
+    Object.assign(w, historical)
+    assert.deepEqual(w, historical, 'no fresh-world fields may leak into the archive')
     const u = w.units.find(u => u.id === 8286),
       owner = u.native,
       stock = w.shots.tornado,

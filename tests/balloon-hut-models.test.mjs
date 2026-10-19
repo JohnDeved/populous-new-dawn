@@ -86,7 +86,10 @@ test('ordinary M16 defeated Balloon Hut damage continues beyond the actual crash
     const store = createHistoricalFixtureHarness()
     store.startMission(16)
     const w = store.getWorld()
-    Object.assign(w, normalizeHistoricalFixture(checkpoint()))
+    const historical = checkpoint()
+    for (const key of Object.keys(w)) if (!Object.hasOwn(historical, key)) delete w[key]
+    Object.assign(w, historical)
+    assert.deepEqual(w, historical, 'no fresh-world fields may leak into the archive')
     assert.equal(w.turn, 40406)
     const b = w.buildings.find(b => b.id === 299)
     assert.equal(buildingObject(b), 89)

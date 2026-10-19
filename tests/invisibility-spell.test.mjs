@@ -90,7 +90,7 @@ test('Invisibility marks the native six, does not refresh, and reveals on time o
   assert.equal(enterLiveCombat(w, unowned, 25).flags4 & 0x1000, 0)
 })
 
-test('player and computer casts share Invisibility application and old saves migrate', () => {
+test('player and computer casts share Invisibility application and explicit historical fixtures reconstruct', () => {
   const w = emptyWorld()
   addUnit(w, 'blue', 'shaman', { x: 0, z: 0 })
   const follower = addUnit(w, 'blue', 'brave', { x: 2, z: 0 })

@@ -137,13 +137,15 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
     !grounded.native || currentPersonOrder(mixed.buildingOrders, grounded.native)?.model !== 28
   )
 
-  // Supplied capacity boundary: every slot is held; the old movement record
-  // has one additional external reference so releasing this owner cannot free it.
+  // Supplied capacity boundary: every usable slot is externally held; releasing
+  // this owner's old movement record cannot free it. Classic exhausts while the
+  // actual current-store policy must grow without disturbing the seated owner.
   const full = structuredClone(world),
     fullUnit = full.units.find(u => u.id === shaman.id),
     fullPerson = fullUnit.native,
     heldOrder = fullPerson.commands.find(Boolean)
-  for (const record of full.buildingOrders.records) record.references = 1
+  assert.equal(full.buildingOrders.records.length, 800)
+  for (const record of full.buildingOrders.records.slice(1)) record.references = 1
   full.buildingOrders.records[heldOrder].references = 2
   full.buildingOrders.active = 799
   const released = structuredClone(full)
@@ -161,13 +163,27 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
   assert.equal(full.objectCells.objects.get(shaman.id), fullPerson)
   assert.equal(fullPerson.vehicle, balloon.id)
   assert.deepEqual(full.vehicles.find(v => v.id === balloon.id).passengers, [shaman.id])
-  assert.equal(currentPersonOrder(full.buildingOrders, fullPerson), undefined)
-  assert.deepEqual(fullPerson.commands, Array(8).fill(0))
+  if (historical) {
+    assert.equal(full.capacityPolicy.mode, 'classic')
+    assert.equal(currentPersonOrder(full.buildingOrders, fullPerson), undefined)
+    assert.deepEqual(fullPerson.commands, Array(8).fill(0))
+    assert.equal(full.buildingOrders.records.length, 800)
+    assert.match(full.message, /No command slots/)
+  } else {
+    assert.equal(full.capacityPolicy.mode, 'scalable')
+    const order = currentPersonOrder(full.buildingOrders, fullPerson)
+    assert.equal(order.model, 28)
+    assert.equal(order.a, target.id)
+    assert.equal(order.references, 1)
+    assert.equal(fullPerson.commands[fullPerson.commandCursor], 800)
+    assert.equal(full.buildingOrders.records.length, 1600)
+    assert.equal(full.buildingOrders.active, 800)
+    assert.doesNotMatch(full.message, /No command slots/)
+  }
   assert.equal(full.buildingOrders.records[heldOrder].references, 1)
   assert.equal(full.motionRoutes.active, released.motionRoutes.active)
   assert.deepEqual(routeReferences(full.motionRoutes), routeReferences(released.motionRoutes))
   assert.equal(full.pathfinding.people.has(shaman.id), false)
-  assert.match(full.message, /No command slots/)
 
   selectUnit(world, shaman.id, false)
   const previousPerson = shaman.native,

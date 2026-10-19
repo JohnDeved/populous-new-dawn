@@ -150,7 +150,10 @@ test('genuine M17 retired encounter route crosses cells and unlinks cleanly thro
     const store = createHistoricalFixtureHarness()
     store.startMission(17)
     const w = store.getWorld()
-    Object.assign(w, normalizeHistoricalFixture(deserialize(bytes)))
+    const historical = normalizeHistoricalFixture(deserialize(bytes))
+    for (const key of Object.keys(w)) if (!Object.hasOwn(historical, key)) delete w[key]
+    Object.assign(w, historical)
+    assert.deepEqual(w, historical, 'no fresh-world fields may leak into the archive')
     assert.equal(w.turn, 6052)
     const p = w.objectCells.objects.get(4088)
     assert.equal(w.pathfinding.people.get(4088), p)
