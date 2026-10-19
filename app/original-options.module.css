@@ -3,6 +3,8 @@
 .choice[data-option-key='Direct3D'] { width: 260px; }
 .gameChoice { width: 540px; }
 .text { position: absolute; left: 50%; top: 0; display: flex; align-items: flex-start; pointer-events: none; }
+/* Both menu skins use bitmap atlases, not browser-rasterized text. */
+.text { image-rendering: pixelated; image-rendering: crisp-edges; }
 .text i { display: block; flex-shrink: 0; }
 .fallback { font: 20px/26px Georgia,serif; color: #fff1bb; text-shadow: 1px 2px #000; white-space: nowrap; }
 .choice:focus-visible, .slider:focus-visible, .soundLabel:focus-visible { outline: 1px solid #fff1bb; outline-offset: 2px; }

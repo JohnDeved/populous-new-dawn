@@ -18,16 +18,17 @@ export default async function({page,context,browser,url,output,receipt}) {
  const open=async()=>{await button('Quit').focus();await page.keyboard.press('Enter');await quit().waitFor();await page.waitForFunction(()=>document.activeElement?.matches('[data-original-quit-menu] [data-panel-back]'));await settle()}
  const assertMain=async()=>{await button('Quit').waitFor();assert.equal(await button('Quit').evaluate(el=>el===document.activeElement),true)}
  const layout=()=>quit().evaluate(el=>{
-  const frame=el.parentElement,canvas=frame.querySelector('canvas'),bounds=canvas.getBoundingClientRect(),scale=bounds.width/640
+  const frame=el.parentElement,bounds=frame.getBoundingClientRect(),scale=bounds.width/640
   const map=e=>{const b=e.getBoundingClientRect();return{x:(b.x-bounds.x)/scale,y:(b.y-bounds.y)/scale,width:b.width/scale,height:b.height/scale,screen:b.toJSON(),text:e.innerText}}
   const title=el.querySelector('h2'),guide=el.querySelector('p')
-  return{viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},frame:bounds.toJSON(),scale,question:map(title),questionFont:title.querySelector('i')?.style.backgroundImage??'fallback',buttons:[...el.querySelectorAll('button')].map(b=>({label:b.getAttribute('aria-label'),disabled:b.disabled,ariaDisabled:b.getAttribute('aria-disabled'),buttonOpacity:getComputedStyle(b).opacity,labelOpacity:getComputedStyle(b.querySelector('span')).opacity,...map(b),font:b.querySelector('i')?.style.backgroundImage??'fallback',glyph:b.querySelector('span')?map(b.querySelector('span')):null})),guidance:map(guide),panelBorder:getComputedStyle(el).borderWidth,panelBackground:getComputedStyle(el).backgroundColor,active:document.activeElement?.getAttribute('aria-label')}
+  return{viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},frame:bounds.toJSON(),scale,question:map(title),questionFont:title.querySelector('i')?.style.backgroundImage??'fallback',buttons:[...el.querySelectorAll('button')].map(b=>({label:b.getAttribute('aria-label'),disabled:b.disabled,ariaDisabled:b.getAttribute('aria-disabled'),buttonOpacity:getComputedStyle(b).opacity,labelOpacity:getComputedStyle(b.querySelector('span')).opacity,...map(b),font:b.querySelector('i')?.style.backgroundImage??'fallback',glyph:b.querySelector('span')?map(b.querySelector('span')):null})),guidance:map(guide),warningLines:[...guide.querySelectorAll('[aria-hidden="true"]')].filter(e=>e.parentElement===guide).map(e=>({...map(e),font:e.querySelector('i')?.style.backgroundImage??'fallback',glyph:e.querySelector('span')?map(e.querySelector('span')):null})),panelBorder:getComputedStyle(el).borderWidth,panelBackground:getComputedStyle(el).backgroundColor,active:document.activeElement?.getAttribute('aria-label')}
  })
  const checkLayout=l=>{
   assert.equal(l.question.y,159);assert.equal(l.question.x,0);assert.equal(l.question.width,640)
   assert.deepEqual(l.buttons.map(b=>[b.label,b.y,b.disabled]),[['Yes',189,true],['No',219,false],['Back',454,false]])
   assert.equal(l.buttons[0].buttonOpacity,'1');assert.equal(l.buttons[0].labelOpacity,'0.5');assert.equal(l.panelBorder,'0px');assert.equal(l.panelBackground,'rgba(0, 0, 0, 0)')
   assert.ok(l.guidance.y>=245);assert.ok(l.guidance.y+l.guidance.height<454)
+  assert.equal(l.warningLines.length,2);for(const line of l.warningLines){assert.ok(line.glyph.screen.x>=0);assert.ok(line.glyph.screen.x+line.glyph.screen.width<=l.viewport.width+.01)}
   for(const b of l.buttons){assert.ok(b.screen.x>=0&&b.screen.y>=0);assert.ok(b.screen.x+b.screen.width<=l.viewport.width+.01);assert.ok(b.screen.y+b.screen.height<=l.viewport.height+.01)}
  }
  await main().waitFor()
@@ -39,8 +40,8 @@ export default async function({page,context,browser,url,output,receipt}) {
   await page.waitForFunction(()=>document.querySelector('#frontend-quit-question i')?.style.backgroundImage.includes('felo33we'))
   assert.equal(await button('Back').evaluate(el=>el===document.activeElement),true)
   assert.equal(await button('Yes').isDisabled(),true)
-  assert.match(await guidance().innerText(),/Yes is unavailable in this browser\. Close this browser tab to quit\. Only checkpoints successfully saved to browser storage will remain after closing it\./)
-  const l=await layout();checkLayout(l);assert.match(l.questionFont,/felo33we/);layouts.push(l)
+  assert.match((await guidance().textContent()).replace(/\s+/g,' '),/Yes is unavailable in this browser\. Close this browser tab to quit\. Unsaved progress will be lost\. Only checkpoints successfully saved to browser storage will remain after closing it\./)
+  const l=await layout();checkLayout(l);assert.match(l.questionFont,/felo33we/);for(const line of l.warningLines)assert.match(line.font,/felo33we/);layouts.push(l)
   await capture(`quit-after-${width}x${height}`)
   await button('Back').click();await assertMain()
  }
@@ -102,7 +103,7 @@ export default async function({page,context,browser,url,output,receipt}) {
  const saved=await page.evaluate(async()=>{let fiber=document.querySelector('main')?.[Object.keys(document.querySelector('main')).find(k=>k.startsWith('__reactFiber'))];let store;for(;fiber;fiber=fiber.return){for(let hook=fiber.memoizedState;hook;hook=hook.next)if(hook.memoizedState?.getWorld&&hook.memoizedState?.saveCheckpoint)store=hook.memoizedState;if(store)break}if(!store)throw Error('Actual Home store not found');const persisted=await store.saveCheckpoint();return{persisted,available:store.hasCheckpoint(),blockedOpens:globalThis.__quitBlockedOpens}})
  assert.equal(saved.persisted,false);assert.equal(saved.available,true);assert.ok(saved.blockedOpens>=2)
  assert.equal(await button('Load Game').getAttribute('aria-disabled'),'false')
- await open();assert.match(await guidance().innerText(),/Only checkpoints successfully saved to browser storage/);assert.doesNotMatch(await guidance().innerText(),/Your saved checkpoint will remain/);await capture('quit-session-only-storage-failure')
+ await open();assert.match(await guidance().textContent(),/Only checkpoints successfully saved to browser storage/);assert.doesNotMatch(await guidance().textContent(),/Your saved checkpoint will remain/);await capture('quit-session-only-storage-failure')
  const openCount=await page.evaluate(()=>globalThis.__quitBlockedOpens);await button('No').click();await assertMain();assert.equal(await button('Load Game').getAttribute('aria-disabled'),'false');assert.equal(await page.evaluate(()=>globalThis.__quitBlockedOpens),openCount)
  record('session-only checkpoint truthful copy', {...saved,limit:'State prepared by invoking the real observed store.saveCheckpoint API; not shipped in-game Save UI coverage'})
  await context.close();assert.deepEqual(receipt.errors,[])

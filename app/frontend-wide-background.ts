@@ -2,52 +2,7 @@
 // logical size and feather only its outer stone edges into a source-derived field.
 // The field has no copied texture or recognizable motifs. This is an explicit
 // adaptation; the native 4:3 compositor remains byte-exact.
-const trademarkRows = [
-  [
-    [0, 10],
-    [14, 16],
-  ],
-  [
-    [0, 11],
-    [13, 16],
-  ],
-  [
-    [3, 4],
-    [8, 11],
-    [13, 16],
-  ],
-  [
-    [3, 4],
-    [8, 11],
-    [13, 16],
-  ],
-  [
-    [3, 4],
-    [8, 16],
-  ],
-  [
-    [3, 4],
-    [8, 16],
-  ],
-  [
-    [3, 4],
-    [8, 9],
-    [11, 13],
-    [15, 16],
-  ],
-  [
-    [3, 4],
-    [8, 9],
-    [11, 13],
-    [15, 16],
-  ],
-  [
-    [3, 4],
-    [8, 9],
-    [11, 13],
-    [15, 16],
-  ],
-] as const
+import { frontendBadges, trademarkRows } from './frontend-badges.ts'
 const backgrounds = new WeakMap<Uint8Array, { width: number; indexed: Uint8Array }>()
 const smooth = (value: number) => value * value * (3 - 2 * value)
 
@@ -181,19 +136,13 @@ export function frontendWideIndexedBackground(source: Uint8Array, width: number)
   }
   // Keep the original badge positions and pixels over the feathered stone. Moving
   // them would require removing baked marks and can create duplicates mid-resize.
-  for (const [x, y, w, h] of [
-    [5, 387, 54, 89],
-    [569, 416, 48, 60],
-  ]) {
+  for (const { x, y, width: w, height: h } of frontendBadges) {
     for (let row = 0; row < h; row++) {
       const at = (y + row) * 640 + x
       indexed.set(source.subarray(at, at + w), (y + row) * width + x + offset)
     }
   }
-  for (const [x, y] of [
-    [61, 387],
-    [619, 416],
-  ]) {
+  for (const { trademarkX: x, y } of frontendBadges) {
     for (const [row, spans] of trademarkRows.entries()) {
       for (const [start, end] of spans) {
         const at = (y + row) * 640 + x + start

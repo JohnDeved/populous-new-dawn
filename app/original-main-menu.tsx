@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import assets from './original-frontend.json'
+import { frontendBadges, frontendBadgeBounds, frontendBadgePixels } from './frontend-badges'
 import { MenuTooltip } from './menu-tooltip'
 import type { FrontendAssets } from './frontend-assets'
 import styles from './original-main-menu.module.css'
@@ -41,6 +42,54 @@ interface Props {
     onBack: () => void,
     onTextRowsChange: (rows: FrontendTextRow[]) => void
   ) => ReactNode
+}
+
+const failedBadgeVectors = new WeakSet<HTMLImageElement>()
+
+// Reuse the decoded image object itself, not a second <img src> request on each
+// menu mount. This isolated host has no React children; cleanup never touches
+// another owner. SVG rasterization remains browser/display-resolution managed.
+function BadgeVector({
+  image,
+  index,
+  onError,
+}: {
+  image: HTMLImageElement
+  index: number
+  onError: (index: number) => void
+}) {
+  const host = useRef<HTMLSpanElement>(null)
+  useLayoutEffect(() => {
+    const container = host.current
+    if (!container) return
+    image.alt = ''
+    image.setAttribute('aria-hidden', 'true')
+    image.style.cssText =
+      'display:block;width:100%;height:100%;object-fit:contain;image-rendering:auto'
+    const failed = () => onError(index)
+    image.addEventListener('error', failed)
+    container.appendChild(image)
+    return () => {
+      image.removeEventListener('error', failed)
+      if (image.parentNode === container) container.removeChild(image)
+    }
+  }, [image, index, onError])
+  const badge = frontendBadges[index]
+  return (
+    <span
+      ref={host}
+      className={styles.badgeVector}
+      data-frontend-badge-vector={index === 0 ? 'bullfrog' : 'qsound'}
+      aria-hidden="true"
+      style={{
+        left: badge.x,
+        top: badge.y,
+        width: badge.width,
+        height: badge.height,
+        background: index === 0 ? '#fff' : '#000',
+      }}
+    />
+  )
 }
 
 function MenuText({
@@ -97,6 +146,7 @@ export function OriginalMainMenu({
   const frame = useRef<HTMLDivElement>(null)
   const first = useRef<HTMLButtonElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
+  const badges = useRef<(HTMLCanvasElement | null)[]>([])
   const pointer = useRef({ x: 320, y: 240 })
   const animation = useRef(0)
   const pointerMode = useRef(true)
@@ -110,6 +160,20 @@ export function OriginalMainMenu({
   )
   const [optionRows, setOptionRows] = useState<FrontendTextRow[]>([])
   const [{ scale, canvasWidth }, setViewport] = useState({ scale: 1, canvasWidth: 640 })
+  const [vectorFailures, setVectorFailures] = useState(
+    prepared.badgeVectors?.map(image => (image ? failedBadgeVectors.has(image) : false)) ?? [
+      false,
+      false,
+    ]
+  )
+  const failVector = useCallback(
+    (index: number) => {
+      const image = prepared.badgeVectors?.[index]
+      if (image) failedBadgeVectors.add(image)
+      setVectorFailures(previous => previous.map((failed, at) => at === index || failed))
+    },
+    [prepared]
+  )
   const artReady = prepared.fonts
   const questionReady = prepared.lowFont
   const logoReady = prepared.logo
@@ -131,32 +195,43 @@ export function OriginalMainMenu({
   }, [])
   const draw = useCallback(() => {
     const context = canvas.current?.getContext('2d')
-    if (context && prepared.composition)
-      context.putImageData(
-        new ImageData(
-          frontendBackground(
-            prepared.composition,
-            pointer.current,
-            panel === 'main',
-            pointerMode.current ? glowFrame.current : null,
-            panel === 'options'
-              ? optionRows
-              : panel === 'tutorial-recommendation'
-                ? tutorialRecommendationRows.filter(row =>
-                    tutorialParagraphRows.includes(row) ? questionReady : artReady
-                  )
-                : frontendQuitRows.filter((_, index) => (index === 0 ? questionReady : artReady)),
-            canvasWidth,
-            logoReady,
-            artReady
-          ),
-          canvasWidth,
-          480
-        ),
-        0,
-        0
+    if (context && prepared.composition) {
+      const rgba = frontendBackground(
+        prepared.composition,
+        pointer.current,
+        panel === 'main',
+        pointerMode.current ? glowFrame.current : null,
+        panel === 'options'
+          ? optionRows
+          : panel === 'tutorial-recommendation'
+            ? tutorialRecommendationRows.filter(row =>
+                tutorialParagraphRows.includes(row) ? questionReady : artReady
+              )
+            : frontendQuitRows.filter((_, index) => (index === 0 ? questionReady : artReady)),
+        canvasWidth,
+        logoReady,
+        artReady
       )
-  }, [panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared])
+      context.putImageData(new ImageData(rgba, canvasWidth, 480), 0, 0)
+      for (const [index, canvas] of badges.current.entries()) {
+        const badgeContext = canvas?.getContext('2d')
+        if (!badgeContext) continue
+        const { pixels, width, height } = frontendBadgePixels(
+          rgba,
+          canvasWidth,
+          index,
+          prepared.badgeVectors?.[index] && !vectorFailures[index]
+            ? {
+                source: prepared.composition,
+                pointer: pointer.current,
+                frame: pointerMode.current ? glowFrame.current : null,
+              }
+            : undefined
+        )
+        badgeContext.putImageData(new ImageData(pixels, width, height), 0, 0)
+      }
+    }
+  }, [panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared, vectorFailures])
   useLayoutEffect(() => {
     draw()
   }, [draw])
@@ -310,6 +385,28 @@ export function OriginalMainMenu({
           style={{ width: canvasWidth, left: (640 - canvasWidth) / 2 }}
           aria-hidden="true"
         />
+        {prepared.composition &&
+          frontendBadges.map((badge, index) => {
+            const image = prepared.badgeVectors?.[index]
+            return image && !vectorFailures[index] ? (
+              <BadgeVector key={badge.x} image={image} index={index} onError={failVector} />
+            ) : null
+          })}
+        {prepared.composition &&
+          frontendBadgeBounds.map((badge, index) => (
+            <canvas
+              key={badge.x}
+              ref={element => {
+                badges.current[index] = element
+              }}
+              className={styles.badge}
+              data-frontend-badge={index === 0 ? 'bullfrog' : 'qsound'}
+              width={badge.width}
+              height={badge.height}
+              style={{ left: badge.x, top: badge.y }}
+              aria-hidden="true"
+            />
+          ))}
         <h1 className={styles.title} aria-label="Populous: The Beginning">
           {logoReady ? (
             <span className={styles.logo} />
@@ -426,6 +523,7 @@ export function OriginalMainMenu({
           <section
             className={styles.quit}
             aria-labelledby="frontend-quit-question"
+            aria-describedby="frontend-quit-guidance"
             data-original-quit-menu
           >
             <h2
@@ -468,8 +566,16 @@ export function OriginalMainMenu({
               ))}
             </nav>
             <p id="frontend-quit-guidance" className={styles.quitGuidance}>
-              Yes is unavailable in this browser. Close this browser tab to quit. Only checkpoints
-              successfully saved to browser storage will remain after closing it.
+              <span className={styles.visuallyHidden}>
+                Yes is unavailable in this browser. Close this browser tab to quit. Unsaved progress
+                will be lost. Only checkpoints successfully saved to browser storage will remain
+                after closing it.
+              </span>
+              {['Close this browser tab to quit.', 'Unsaved progress will be lost.'].map(line => (
+                <span key={line} className={styles.warningLine} aria-hidden="true">
+                  <MenuText text={line} highlighted={false} low ready={questionReady} />
+                </span>
+              ))}
             </p>
           </section>
         )}

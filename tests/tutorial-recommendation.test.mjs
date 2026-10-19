@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import ts from 'typescript'
+import { frontendBadgePixels, frontendBadgeBounds } from '../app/frontend-badges.ts'
 import native from '../decomp/research/frontend-quit-menu/static-data.json' with { type: 'json' }
 import assets from '../app/original-frontend.json' with { type: 'json' }
 import { frontendTextWidth, frontendQuitRows } from '../app/frontend-composition.ts'
@@ -91,7 +92,7 @@ test('production recommendation and Quit draws omit shadows only for HTML-fallba
   visit(parsed)
   assert.ok(draw)
   const body = ts.transpileModule(`return ${draw.getText(parsed)};`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText
-  const make = new Function('canvas', 'prepared', 'pointer', 'panel', 'pointerMode', 'glowFrame', 'optionRows', 'canvasWidth', 'tutorialRecommendationRows', 'frontendQuitRows', 'tutorialParagraphRows', 'questionReady', 'artReady', 'logoReady', 'frontendBackground', 'ImageData', body)
+  const make = new Function('canvas', 'prepared', 'pointer', 'panel', 'pointerMode', 'glowFrame', 'optionRows', 'canvasWidth', 'tutorialRecommendationRows', 'frontendQuitRows', 'tutorialParagraphRows', 'questionReady', 'artReady', 'logoReady', 'frontendBackground', 'ImageData', 'badges', 'frontendBadgePixels', 'vectorFailures', body)
   const allRows = [...tutorialParagraphRows, ...tutorialChoiceRows]
   for (const [panel, questionRows, choiceRows] of [
     ['tutorial-recommendation', tutorialParagraphRows, tutorialChoiceRows],
@@ -101,14 +102,23 @@ test('production recommendation and Quit draws omit shadows only for HTML-fallba
     [true, false, questionRows], [false, false, []],
   ]) {
     let captured
+    const badgeUploads = []
+    const badges = { current: frontendBadgeBounds.map(() => ({ getContext: () => ({
+      putImageData: image => badgeUploads.push(image),
+    }) })) }
     const draw = make(
       { current: { getContext: () => ({ putImageData() {} }) } }, { composition: new Uint8Array(1) },
       { current: { x: 320, y: 240 } }, panel, { current: false }, { current: 0 },
       [], 640, allRows, frontendQuitRows, tutorialParagraphRows, questionReady, artReady, true,
-      (...args) => { captured = args[4]; return new Uint8ClampedArray(4) }, class {},
+      (...args) => { captured = args[4]; return new Uint8ClampedArray(640 * 480 * 4) },
+      class { constructor(data, width, height) { Object.assign(this, { data, width, height }) } },
+      badges, frontendBadgePixels, [false, false],
     )
     draw()
     assert.deepEqual(captured, expected)
+    assert.deepEqual(badgeUploads.map(({ width, height }) => ({ width, height })),
+      frontendBadgeBounds.map(({ width, height }) => ({ width, height })),
+      'recommendation and Quit draw both real badge crops without bypassing their new dependency')
   }
-  assert.match(source, /\[panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared\]/)
+  assert.match(source, /\[panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared, vectorFailures\]/)
 })
