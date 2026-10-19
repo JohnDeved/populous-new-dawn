@@ -78,8 +78,8 @@ test('serialized read-only observer preserves all authored identities/controller
     assert.throws(() => mission10SelectionQuery(changed), /roster/)
     const reordered = structuredClone(raw); reordered.people.reverse()
     assert.throws(() => mission10SelectionQuery(reordered), /roster/)
-    for (const change of [v => { v.people[0].x = undefined }, v => { v.people[0].y = NaN },
-      v => { v.people[0].assignment = 1.5 }, v => { v.people.push(structuredClone(v.people[0])) }]) {
+    for (const change of [v => { v.people.find(p => p.team === 'blue').x = undefined }, v => { v.people.find(p => p.team === 'blue').y = NaN },
+      v => { v.people.find(p => p.team === 'blue').assignment = 1.5 }, v => { v.people.push(structuredClone(v.people[0])) }]) {
       const bad = structuredClone(raw); change(bad); assert.throws(() => mission10SelectionQuery(bad))
     }
   }
