@@ -154,8 +154,17 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
     released.units.find(u => u.id === shaman.id)
   )
   const routeReferences = routes => {
-    const view = new DataView(routes.records.buffer)
-    return Array.from({ length: 401 }, (_, i) => view.getInt16(i * 109, true))
+    const slots = routes.records.length / 109
+    assert.ok(Number.isInteger(slots))
+    if (routes.references !== undefined) {
+      assert.ok(routes.references instanceof Float64Array)
+      assert.equal(routes.references.length, slots)
+      return Array.from(routes.references)
+    }
+    const view = new DataView(
+      routes.records.buffer, routes.records.byteOffset, routes.records.byteLength
+    )
+    return Array.from({ length: slots }, (_, i) => view.getInt16(i * 109, true))
   }
   selectUnit(full, shaman.id, false)
   assert.ok(command(full, { ...target, id: target.id }))
