@@ -136,7 +136,7 @@ test('recoil uses the direct native row even with airborne flags, and later cont
   assert.equal(unit.fight.remaining, remaining - 1)
 })
 
-test('the actual clock carries expired recoil into push before its later movement-row selection', () => {
+test('the actual clock retains recoil counters while native settlement and later movement own push art', () => {
   const { world, unit, timing } = suppliedRecoil('firewarrior', true)
   processBattles(world)
   for (let turn = 0; turn < 3; turn++) advanceGame(world, timing, 1 / 12)
@@ -149,7 +149,13 @@ test('the actual clock carries expired recoil into push before its later movemen
     { frameCounts: sprites.frameCounts, modelFrames: [], morphDurations: [] }, () => {})
   assert.equal(unit.flight, person)
   assert.equal(unit.fight.remaining, 1)
-  assert.deepEqual(phase(person), phase(reference), 'push entry retains phase before the single logical visit')
+  // Flat-ground settlement follows the controller in this turn: 0x4e9160
+  // clears airborne flags and 0x4d3ea0 selects grounded state25's row0.
+  const [groundedObject, groundedDraw] = rules.animationObjects[rules.personAnimationObjects[person.model]]
+  assert.deepEqual(phase(person), [groundedObject, groundedDraw, reference.f1, reference.f2],
+    'settlement may replace art, but push must not reset either retained frame counter')
+  assert.equal(person.flags2 & 0x80000, 0)
+  assert.equal(person.flags4 & 0x2000, 0)
   advanceGame(world, timing, 1 / 12)
   assert.equal(unit.fight.remaining, 0)
   assert.notEqual(person.object, recoilObject, 'only the second push visit selects its movement row')

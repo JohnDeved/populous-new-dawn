@@ -898,7 +898,10 @@ export function startMeleeKnockback(w: World, u: Unit) {
     setLivePersonAnimation(w, p, meleeAnimationObject(u.kind, 'recoil'))
     p.f1 = 1
     const elapsed = w.time - (u.fight?.started ?? w.turn) / 12
-    p.f2 = Math.min(sprites.frameCounts[p.object] - 1, Math.max(0, Math.floor(elapsed * sprites.fps)))
+    p.f2 = Math.min(
+      sprites.frameCounts[p.object] - 1,
+      Math.max(0, Math.floor(elapsed * sprites.fps))
+    )
   }
   groundVelocity(p.velocity, p, (random(w) % 70) + 35, (p.heading + 1024) & 2047, (x, y) =>
     terrainPointHeight(w.land, { x, y })

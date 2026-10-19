@@ -43,6 +43,10 @@ Relevant export bytes were checked against that index:
   not reselect the sprite or reset either frame counter. When its countdown
   reaches zero, it selects the existing movement row 1/5. Reconstructing a recoil
   frame from elapsed browser time at this handoff discards the retained phase.
+  Subsequent shared physics may legitimately replace the art: `004e9160.c` clears
+  airborne flags and calls `004d3ea0.c` for flag4 `0x2000` settlement. Grounded
+  state 25 selects row 0 without resetting the retained counters. Those exports
+  also match the existing hash index; a full-turn test must preserve this writer.
 
 ## Bounded implementation and evidence
 
