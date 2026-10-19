@@ -1683,17 +1683,17 @@
     {
       "path": "scripts/browser-performance/snapshot-drag-contract.mjs",
       "subsystemIds": ["selection", "terrain-performance"],
-      "checkIds": ["snapshot-drag-portable"]
+      "checkIds": ["snapshot-drag-portable", "repository-check"]
     },
     {
       "path": "scripts/browser-performance/snapshot-drag-observer.mjs",
       "subsystemIds": ["selection", "terrain-performance"],
-      "checkIds": ["snapshot-drag-portable"]
+      "checkIds": ["snapshot-drag-portable", "repository-check"]
     },
     {
       "path": "tests/browser-snapshot-drag.test.mjs",
       "subsystemIds": ["selection", "terrain-performance"],
-      "checkIds": ["snapshot-drag-portable"]
+      "checkIds": ["snapshot-drag-portable", "repository-check"]
     },
     {
       "path": "app/world-state.ts",

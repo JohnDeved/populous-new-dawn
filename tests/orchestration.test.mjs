@@ -927,8 +927,8 @@ test('protected held-drag owners explicitly select the cheap regression without 
       const route = project.crossCutting.find(entry => entry.path === path)
       assert.ok(route?.checkIds.includes(check.id), `Missing portable source-owner route: ${path}`)
       assert.ok(check.inputs.some(input => path === input || path.startsWith(`${input}/`)), `Missing check input: ${path}`)
-      // Keep the real route's path and portable check; fixture subsystems are deliberately minimal.
-      mapping.crossCutting.push({ ...route, subsystemIds: ['selection'], checkIds: [check.id] })
+      // Preserve the real route's checks; fixture subsystems are deliberately minimal.
+      mapping.crossCutting.push({ ...route, subsystemIds: ['selection'] })
       put(repo, path, '// fixture\n')
     }
     put(repo, 'engineering/project-map.json', mapping)
@@ -943,10 +943,8 @@ test('protected held-drag owners explicitly select the cheap regression without 
       assert.deepEqual(plan.feedback.command, ['npm', 'test'], path)
       assert.equal(plan.feedback.finalGate, false)
       assert.equal(plan.feedback.fullVerificationRequired, true)
-      if (path.startsWith('app/')) {
-        assert.ok(plan.checks.some(item => item.id === 'repository-check'), path)
-        assert.ok(plan.checks.some(item => item.id === 'production-build'), path)
-      }
+      assert.ok(plan.checks.some(item => item.id === 'repository-check'), path)
+      if (path.startsWith('app/')) assert.ok(plan.checks.some(item => item.id === 'production-build'), path)
       put(repo, path, '// fixture\n')
     }
     put(repo, 'app/unmapped.ts', '// unrelated\n')
