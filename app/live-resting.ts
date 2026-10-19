@@ -1,3 +1,4 @@
+import { publishLiveCombatPosition } from './live-combat-index.ts'
 import { buildingPose } from './building-shapes.ts'
 import { sound } from './world-effects.ts'
 import { browserPosition, nativePosition, type World, type Unit } from './model.ts'
@@ -183,7 +184,7 @@ export function stepLiveRestingState(w: World, u: Unit, p: LivePerson) {
         directDestination: to => setDirectPersonDestination(w.motionRoutes, p, to),
         insert: to => {
           moveObjectInCells(w.objectCells, p, to)
-          Object.assign(u, browserPosition(p))
+          publishLiveCombatPosition(w, u, browserPosition(p))
         },
         height: to => terrainPointHeight(w.land, to),
         allocateLog: () => {

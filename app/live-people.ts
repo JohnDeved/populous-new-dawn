@@ -1,3 +1,4 @@
+import { publishLiveCombatPosition } from './live-combat-index.ts'
 import { launchFirewarriorPoint } from './firewarrior-point.ts'
 import { unitRenderAnimationSource } from './unit-animation-source.ts'
 import { discardInvalidResident, residentPerson } from './building-resident.ts'
@@ -508,7 +509,7 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
           insert: point => {
             registerLivePerson(w, p)
             moveObjectInCells(w.objectCells, p, point)
-            Object.assign(u, browserPosition(point))
+            publishLiveCombatPosition(w, u, browserPosition(point))
           },
           height: point => terrainPointHeight(w.land, point),
           allocate: (_unitClass, _model, _tribe, point) => {
@@ -870,7 +871,11 @@ export function stepLiveEncounter(w: World, attacker: Unit, defender: Unit, buil
           ...to,
           h: terrainPointHeight(w.land, to),
         })
-        Object.assign(p.id === attacker.id ? attacker : defender, browserPosition(to))
+        publishLiveCombatPosition(
+          w,
+          p.id === attacker.id ? attacker : defender,
+          browserPosition(to)
+        )
       },
     },
   })
@@ -927,7 +932,7 @@ export function approachLiveMelee(
         y: point.y & 65535,
         h: terrainPointHeight(w.land, point),
       })
-      Object.assign(u, browserPosition(p))
+      publishLiveCombatPosition(w, u, browserPosition(p))
     },
   })
   w.randomState = state.randomState
@@ -1072,7 +1077,7 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
     u.cargo = p.cargo / 100
   }
   p.flags2 = (p.flags2 & ~0x2004) >>> 0
-  Object.assign(u, browserPosition(p))
+  publishLiveCombatPosition(w, u, browserPosition(p))
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
   u.hp = p.life / 20
   u.supportHeight = p.supportHeight || undefined
@@ -1224,7 +1229,7 @@ export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
       }
     }
     moveObjectInCells(w.objectCells, p, next)
-    Object.assign(u, browserPosition(next))
+    publishLiveCombatPosition(w, u, browserPosition(next))
   }
   stepLiveRoute(w, u) // Native routes advance after position, before the state controller.
 }

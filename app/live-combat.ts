@@ -1,9 +1,10 @@
+import { liveCombatNeighborhood } from './live-combat-index.ts'
 import { tribeForTeam, type World, type Unit, type Building } from './world-types.ts'
 import { buildingModel, buildingOutsidePoint, buildingPose } from './building-shapes.ts'
 import {
   automaticCombatScanner,
-  engagementCellDelta,
   engagementRange,
+  engagementCellDelta,
   inEngagementArea,
 } from './melee-engagement.ts'
 import {
@@ -89,20 +90,21 @@ export function combatWorld(w: World, source: CombatPerson, range: number) {
     row.push(o)
     cells.set(cell, row)
   }
-  const radius = Math.trunc(range / 2) * 2
-  for (const u of w.units) {
+  const nearby = liveCombatNeighborhood(w, source, range),
+    radius = Math.trunc(range / 2) * 2
+  for (const u of nearby?.units ?? w.units) {
     if (!(u.hp > 0) || !range) continue
-    // Reject on each wrapped cell axis before constructing a target record.
-    // Most distant people need neither a Y projection nor a combat snapshot.
     const x = Math.round((u.x + 8) * 256)
     if (!(Math.abs(engagementCellDelta(source.x, x)) <= radius)) continue
     const y = Math.round((-u.z - 8) * 256)
     if (Math.abs(engagementCellDelta(source.y, y)) <= radius) add(combatPerson(u), u, true)
   }
-  for (const fight of w.fights) {
+  for (const fight of nearby?.fights ?? w.fights) {
     const point = position(fight)
     if (!inEngagementArea(source, point, range)) continue
-    const members = fight.members.map(id => w.units.find(u => u.id === id)).filter(u => !!u)
+    const members = fight.members
+      .map(id => (nearby ? nearby.unitById.get(id) : w.units.find(u => u.id === id)))
+      .filter(u => !!u)
     for (const u of members) if (!objects.has(u.id)) add(combatPerson(u), u, false)
     add(
       {
@@ -134,15 +136,16 @@ export function combatWorld(w: World, source: CombatPerson, range: number) {
     cellObjects: cell => {
       const row = cells.get(cell)
       if (!row) return []
-      const ordered: CombatTarget[] = []
+      const ordered: CombatTarget[] = [],
+        remaining = new Set(row)
       // Combat scans use dense landscape indices; the native chain API takes
       // packed even-byte X/Y coordinates instead.
       const packedCell = ((cell & 127) << 1) | ((cell >>> 7) << 9)
       for (const indexed of objectsInCell(w.objectCells, packedCell)) {
         const object = objects.get(indexed.id)
-        if (object && row.includes(object)) ordered.push(object)
+        if (object && remaining.delete(object)) ordered.push(object)
       }
-      return ordered.length ? [...ordered, ...row.filter(o => !ordered.includes(o))] : row
+      return ordered.length ? [...ordered, ...remaining] : row
     },
     buildingAt: cell => {
       const id = w.land.buildingIds[cell] & 1023

@@ -1,3 +1,4 @@
+import { publishLiveCombatPosition } from './live-combat-index.ts'
 import { damageTornadoBuilding, damageTornadoTree } from './building-runtime.ts'
 import { buildingModel } from './building-shapes.ts'
 import {
@@ -103,7 +104,7 @@ export function stepLiveTornadoPerson(w: World, u: Unit) {
     after = { x: p.x, y: p.y, h: p.h }
   Object.assign(p, before)
   moveObjectInCells(w.objectCells, p, after)
-  Object.assign(u, browserPosition(p))
+  publishLiveCombatPosition(w, u, browserPosition(p))
   u.heading = Math.PI - (p.heading * Math.PI) / 1024
   if (!carried) {
     u.flight = p

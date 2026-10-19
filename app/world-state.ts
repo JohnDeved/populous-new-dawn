@@ -1,3 +1,4 @@
+import { appendLiveCombatUnit } from './live-combat-index.ts'
 import { createObjectCells } from './object-cells.ts'
 import { createSecondaryEffects } from './secondary-effects.ts'
 import { createWorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
@@ -396,5 +397,6 @@ export function addUnit(w: World, team: Team, kind: UnitKind, p: Point) {
     casting: null,
   }
   w.units.push(u)
+  appendLiveCombatUnit(w, u)
   return u
 }

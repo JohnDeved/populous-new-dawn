@@ -1,3 +1,9 @@
+import {
+  publishLiveCombatPosition,
+  refreshLiveCombatPosition,
+  withLiveCombatQueries,
+  invalidateLiveCombatQueries,
+} from './live-combat-index.ts'
 import { grantLinkedBoatReward } from './vehicle-reward.ts'
 import {
   assignVehicleAllocationCounter,
@@ -466,7 +472,7 @@ export function tick(w: World, dt: number, observer?: TurnObserver, metrics?: { 
     w.pendingTime = Math.max(0, w.pendingTime - 1 / TURNS_PER_SECOND)
     if (w.pendingTime < 1e-9) w.pendingTime = 0
     observer?.beforeTurn?.()
-    stepTurn(w, metrics)
+    withLiveCombatQueries(w, () => stepTurn(w, metrics))
     observer?.afterTurn?.()
   }
 }
@@ -504,7 +510,10 @@ function stepTurn(w: World, metrics?: { steps: number }) {
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
   // Count actual logical advances, independent of wrapping/resettable turn IDs.
-  if (metrics) metrics.steps++
+  if (metrics) {
+    metrics.steps++
+    invalidateLiveCombatQueries(w)
+  }
   if (!(w.manaWorld.gameFlags & 2))
     for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
       if (w.campaignAIs[tribe]) withCampaignTribe(w, tribe, () => stepForcedCampaignAttack(w))
@@ -1649,6 +1658,7 @@ function stepTurn(w: World, metrics?: { steps: number }) {
       }
       u.x = p.x
       u.z = p.z
+      refreshLiveCombatPosition(w, u)
       if (Math.hypot(dx, dz) <= length) u.path.shift()
       stepLiveRoute(w, u)
     } else if (
@@ -1658,7 +1668,7 @@ function stepTurn(w: World, metrics?: { steps: number }) {
       u.builder.person?.speed
     ) {
       const p = nativeStep(u, u.builder.person.heading, u.builder.person.speed)
-      if (supportsFollower(w, p)) Object.assign(u, p)
+      if (supportsFollower(w, p)) publishLiveCombatPosition(w, u, p)
     } else if (target && u.target !== null)
       route(w, u, 'progress' in target ? entrance(w, target) : target)
     else if (work && u.tree === null && !builderActivity(u))

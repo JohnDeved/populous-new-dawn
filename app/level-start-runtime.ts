@@ -1,3 +1,4 @@
+import { invalidateLiveCombatUnits } from './live-combat-index.ts'
 import { teamForTribe, tribeForTeam, type World, type Unit, type Effect } from './world-types.ts'
 import { missionData } from './mission-data.ts'
 import {
@@ -184,6 +185,7 @@ function convertStartingWildman(w: World, u: Unit, tribe: number) {
   const replacement = addUnit(w, teamForTribe(tribe), 'brave', browserPosition(point))
   w.units[slot] = replacement
   w.units.pop()
+  invalidateLiveCombatUnits(w)
   replacement.heading = u.heading
   replacement.native = createLivePerson(w, replacement)
   replacement.native.speed = randomPersonSpeed(w, replacement.native)

@@ -1,3 +1,4 @@
+import { publishLiveCombatPosition } from './live-combat-index.ts'
 import { reconcileWorldHutSmoke } from './hut-smoke-runtime.ts'
 import { notifyHutOccupancy } from './hut-occupancy-smoke.ts'
 import { buildingPose } from './building-shapes.ts'
@@ -349,7 +350,7 @@ function occupancyEffects(w: World, people: Map<number, EntryPerson>): Occupancy
       const p = person as EntryPerson
       moveObjectInCells(w.objectCells, p, { x, y, h })
       const u = w.units.find(unit => unit.id === p.id)!
-      Object.assign(u, browserPosition(p))
+      publishLiveCombatPosition(w, u, browserPosition(p))
     },
     insertCell: p => {
       setCellObject(w.objectCells, p.id, p as EntryPerson)

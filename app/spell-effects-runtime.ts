@@ -1,3 +1,4 @@
+import { invalidateLiveCombatUnits, publishLiveCombatPosition } from './live-combat-index.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 import modelAssets from './original-models.json' with { type: 'json' }
@@ -19,7 +20,12 @@ import {
   short,
   spiralCell,
 } from './native-math.ts'
-import { deleteCellObject, moveObjectInCells, objectsInCell, removeObjectFromCell } from './object-cells.ts'
+import {
+  deleteCellObject,
+  moveObjectInCells,
+  objectsInCell,
+  removeObjectFromCell,
+} from './object-cells.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
 import {
   createFire,
@@ -136,6 +142,7 @@ function replaceHypnotisedUnit(w: World, source: Unit, team: Team, originalTeam?
   registerLivePerson(w, replacement.native)
   w.units[slot] = replacement
   w.units.pop()
+  invalidateLiveCombatUnits(w)
   return replacement
 }
 
@@ -1137,6 +1144,7 @@ export function stepLiveConvertWild(w: World, fx: Effect) {
       const replacement = addUnit(w, team, 'brave', browserPosition(p))
       w.units[slot] = replacement
       w.units.pop()
+      invalidateLiveCombatUnits(w)
       replacement.heading = u.heading
       replacement.native = createLivePerson(w, replacement)
       replacement.native.speed = randomPersonSpeed(w, replacement.native)
@@ -1318,7 +1326,7 @@ export function stepTeleport(w: World, fx: Effect) {
   })
   setDirectPersonDestination(w.motionRoutes, person, target)
   person.flags2 = (person.flags2 | 0x1080) >>> 0
-  Object.assign(shaman, browserPosition(target))
+  publishLiveCombatPosition(w, shaman, browserPosition(target))
   const vehicle = liveVehicleCellObjects(w, ((target.x >>> 8) & 254) | (target.y & 0xfe00)).find(
     candidate =>
       !candidate.passengerCount ||

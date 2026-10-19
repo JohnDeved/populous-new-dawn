@@ -1,0 +1,136 @@
+# Live combat query index: ownership and evidence
+
+Issue [#656](https://github.com/JohnDeved/populous-new-dawn/issues/656), under
+[#648](https://github.com/JohnDeved/populous-new-dawn/issues/648). Source base:
+`55770f1a03478883e8d0b00a1fd518e222782c3b`. This is separate from capacity/current-save
+policy (#653) and renderer projection (#652).
+
+## Existing path and bounded change
+
+`scene.ts` → `game-clock.ts` → `world-turn.ts:tick/stepTurn` →
+`live-building-combat.ts:startLiveCombatResponse` → `live-combat.ts:combatWorld`.
+The native-derived selector in `combat-targets.ts` already visits local cells.
+The old live adapter scanned all N people for every scanner S, then every fight,
+resolved fight members through `units.find`, and reconstructed native-first ties.
+This is a source-level O(SN) contribution, not a measured speedup or capacity claim.
+
+One synchronous logical turn now owns a disposable query session in a WeakMap.
+The first eligible query lazily builds wrapped 128×128 buckets, an ID lookup and
+roster ranks. Later queries gather local owners, sort by roster rank, and project
+current HP, tribe, flags, reservations and fight membership. Native chains are read
+at query time. Browser x/z remain authoritative even when the native owner is
+unregistered, detached or not yet published. Dead units remain in the ID lookup
+until roster compaction; ordinary person candidates still require HP > 0.
+
+Ordering remains: native chain first within each cell, remaining people in roster
+order, then fights in insertion order. Response-sharing peers use roster order,
+not native chain or bucket insertion order. Target rules, the 64-candidate budget,
+scan cadence, distance ties, RNG and orders are unchanged.
+
+The index is never attached to World or serialized. A current checkpoint rebuilt
+as an ordinary World obtains a fresh session on its next turn. No old-save decoder
+or compatibility branch is introduced. Outside an owned session the original
+exhaustive path stays fresh for commands, public mutable fixtures and tooling.
+
+## Mutation inventory
+
+All following browser-position publications now notify the index immediately,
+not just at turn end. Native position writes themselves do not publish a combat
+position. Existing Object.assign evaluation/write order is retained; direct x/z
+writes retain their original order and notify only afterward.
+
+- `world-turn.ts`: ordinary path step and builder retreat.
+- `live-people.ts`: terrain/death placement, encounter building move (either actor),
+  melee approach, physics publication and ground movement.
+- `live-vehicles.ts`: voluntary exit and every seated passenger, not only driver.
+- `live-building-entry.ts`: building-exit placement.
+- `live-building-combat.ts`: area-attack movement callback.
+- `live-resting.ts`, `live-worship.ts`, `tornado-runtime.ts`, `armageddon.ts`:
+  ordinary resting, shrine placement, spell physics and arena placement.
+- `spell-effects-runtime.ts`: Shaman Teleport.
+- `combat-runtime.ts`: battle relocation, encounter-to-group ID/center transition,
+  changed center and post-fight recenter. Current fight fields are not cached.
+
+`world-state.ts:addUnit` appends to an already-built unit index in O(1). Preacher,
+Convert Wild, startup conversion and Hypnotise replace an earlier roster slot and
+pop the temporary append; their explicit invalidation catches this same-length,
+same-array mutation. Splices, compaction and Armageddon reset change array identity
+or length and rebuild the affected index before the next query. Fight creation and
+filtering use the same identity/length boundary. There are no other production
+same-length roster replacements in this base.
+
+## Callbacks, custom records and teardown
+
+World and query-owned record/array descriptors are checked without evaluating
+accessors. Plain World/outcome/mana/terrain records, plain unit/native projection
+owners, building projection owners, unique person IDs, ordinary arrays and the
+ordinary object-cell registry qualify. Accessor-backed/custom records retain the
+exhaustive path; this is public-input behavior, not save-version compatibility.
+The supported live model is ordinary data, not Proxies or replaced ECMAScript
+intrinsics. New records created during a turn use the same factories/publishers.
+
+Observer callbacks run outside the session. The optional metrics.steps accessor
+can itself query/reenter the engine or mutate retained aliases, so completing that
+read/write invalidates every retained view before simulation continues. Ordinary
+in-engine callbacks are synchronous game-owned closures and use the publishers
+listed above. Nested owned visits share the session; outer try/finally destroys
+it on success or throw. A caught partial Object.assign failure invalidates first,
+then rethrows the original error. No cached turn ID is used as a freshness claim.
+
+## Correctness evidence
+
+- `tests/helpers/exhaustive-live-combat.mjs` freezes the pre-change exhaustive
+  adapter and independent wrapped-range predicate, before implementation.
+- `tests/live-combat-index.test.mjs` compares projected records, owner identity,
+  cell ordering and selector results across seams, ranges, mixed registration,
+  distant/dead fight members, stable ties and >64 candidates. Query → mutation →
+  query covers births, death, roster removal, fight IDs/relocation, actual Boat and
+  Balloon multi-passenger publishers, Hypnotise and Preacher replacement, nested
+  sessions, metrics reentrancy, thrown ticks and custom getters.
+- `tests/live-combat-index-replay.test.mjs` runs independent indexed/exhaustive
+  module graphs. It compares all enumerable world fields, typed values, collection
+  order and object aliases after each turn, including current checkpoint reloads.
+  Workloads cover Missions 1/5/22 and a hostile front that must move, create fights
+  and cause actual damage. Source transformation affects only the test subprocess,
+  never production or shared dependencies.
+- Existing combat/native-capture, conversion, transport and clock regressions
+  remain required. Planning reports the new index/helper/test files as unmapped;
+  explicitly review them, rather than treating an empty mapping as acceptance.
+
+These are correctness evidence, not hardware performance or full campaign parity.
+Raw command/source receipts belong in ignored work directories and the linked PR.
+No parity scope or fixture recording changes are requested.
+
+## Controlled end-to-end benchmark protocol (pending lane/review)
+
+First compare the actual baseline and candidate, under the same runtime/CPU,
+locked dependencies, inputs, seeds, source fingerprints and serialized foreground
+lane. Include 200 followers, then 1k/5k/10k after the scalable-capacity changes are
+integrated into both comparison variants. Do not bypass an exhausted order/effect
+pool and call partial simulation a pass. A pre-capacity diagnostic is explicitly
+limited to its attainable active workload.
+
+Use three deterministic workloads: distributed no-match scans, moving hostile
+fronts with real damage, and dense-cell adverse cases. Issue multiple destinations,
+retain full gameplay cadence, and verify active movement, scans, fights and damage.
+Keep campaign workloads beside stress fixtures. Compare exact per-turn semantic
+state/RNG/orders/cell chains and current-save continuation before interpreting time.
+
+For each scenario/tier, separately record startup/setup and repeated whole-tick
+samples, not just selector inner loops. Account for descriptor eligibility checks,
+unit/fight bucket construction, ID/rank maps, append/move updates, conversion and
+array invalidation/rebuilds, local gather/sort/projection, native-chain ordering,
+allocations/GC and disposal. Record global/local candidate visits, actual scanners,
+movers, births/removals, fights and index-maintenance counts through test-only
+instrumentation applied symmetrically. Instrumented accounting and uninstrumented
+timing must be separate runs, with source identities retained.
+
+After warmup, alternate baseline/candidate order over at least five paired runs;
+retain per-tick samples and report p50/p95/p99, worst tick, total wall time, memory
+and observed GC limitations. A smaller combat bucket alone is not an improvement.
+The fixed map can make neighborhoods dense, so no universal linear-complexity or
+speedup claim follows from the algorithm. Descriptor/setup costs may dominate
+small populations. Unrelated remaining per-building/idle-hut/full-roster work is
+not removed here. Follow with separately reserved browser-frame measurements on
+matched renderer/resolution/hardware; cloud CPU or software-GPU results are not
+owner-hardware FPS. Standard check/build and independent review gate integration.

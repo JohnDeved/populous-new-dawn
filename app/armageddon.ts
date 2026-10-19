@@ -1,3 +1,4 @@
+import { publishLiveCombatPosition } from './live-combat-index.ts'
 import { changeLivePersonState, createLivePerson, registerLivePerson } from './live-people.ts'
 import { nativePosition, refreshTerrainSurface } from './world-terrain-runtime.ts'
 import { browserPosition } from './world-coordinates.ts'
@@ -175,7 +176,7 @@ function stage(w: World, fx: Effect, u: Unit, rank: number) {
     p.displacement.y = 0
     p.displacement.h = 0
     p.renderFlags &= ~16
-    Object.assign(u, browserPosition(p))
+    publishLiveCombatPosition(w, u, browserPosition(p))
   }
   p.link = rank
   changeLivePersonState(w, u, 39)

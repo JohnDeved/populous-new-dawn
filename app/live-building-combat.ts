@@ -1,3 +1,4 @@
+import { publishLiveCombatPosition, liveCombatPeopleInCell } from './live-combat-index.ts'
 import {
   buildingFirePoints,
   buildingFootprintCells,
@@ -277,7 +278,7 @@ export function startLiveCombatResponse(w: World, u: Unit) {
     { unit: u, person: source },
   ]
   const peers = () => {
-    people = w.units
+    people = (liveCombatPeopleInCell(w, cell) ?? w.units)
       .filter(unit => {
         const point = nativePosition(w, unit)
         return (
@@ -884,7 +885,7 @@ function stepAreaAttack(
       },
       move: point => {
         moveObjectInCells(w.objectCells, p, { ...point, h: terrainPointHeight(w.land, point) })
-        Object.assign(u, browserPosition(p))
+        publishLiveCombatPosition(w, u, browserPosition(p))
       },
     })
     Object.assign(reservation, { flags4: record.flags4, reactionTimer: record.reactionTimer })

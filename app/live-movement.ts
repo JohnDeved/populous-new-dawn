@@ -1,3 +1,4 @@
+import { invalidateLiveCombatUnits } from './live-combat-index.ts'
 import { departVehiclePerson } from './vehicle-unload.ts'
 import { buildingPose } from './building-shapes.ts'
 import { clearTaskBindings, releaseTasks } from './world-tasks.ts'
@@ -652,6 +653,7 @@ function replaceConvertedVictim(w: World, u: Unit, preacher: LivePerson) {
   const replacement = addUnit(w, team, u.kind, browserPosition(point))
   w.units[slot] = replacement
   w.units.pop()
+  invalidateLiveCombatUnits(w)
   replacement.heading = Math.PI - (preacher.angle * Math.PI) / 1024
   replacement.native = createLivePerson(w, replacement)
   replacement.native.speed = randomPersonSpeed(w, replacement.native)

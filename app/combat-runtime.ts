@@ -1,3 +1,4 @@
+import { publishLiveCombatPosition, refreshLiveCombatPosition } from './live-combat-index.ts'
 import { tribeForTeam, type Unit, type World, type Battle, type Building } from './world-types.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import { maxHp } from './world-rules.ts'
@@ -172,7 +173,7 @@ function relocateBattle(w: World, b: Battle, force = false) {
     fight,
     force
   )
-  Object.assign(b, browserPosition(fight))
+  publishLiveCombatPosition(w, b, browserPosition(fight))
 }
 export function joinBattle(
   w: World,
@@ -332,6 +333,7 @@ function processEncounter(w: World, b: Battle) {
   b.center = 0
   b.x = defender.x
   b.z = defender.z
+  refreshLiveCombatPosition(w, b)
   delete b.encounter
   delete b.encounterBuilding
   for (const [u, target] of [
@@ -466,6 +468,7 @@ export function processBattles(w: World) {
     if ((b.center ?? b.members[0]) !== center.id) {
       b.x = members[0].x
       b.z = members[0].z
+      refreshLiveCombatPosition(w, b)
       b.angle = (b.angle + 1024) & 2047
     }
     b.center = center.id
@@ -565,7 +568,11 @@ export function processBattles(w: World) {
     }
     if (recenter) {
       const p = nativePosition(w, b)
-      Object.assign(b, browserPosition({ x: (p.x & 0xfe00) + 256, y: (p.y & 0xfe00) + 256 }))
+      publishLiveCombatPosition(
+        w,
+        b,
+        browserPosition({ x: (p.x & 0xfe00) + 256, y: (p.y & 0xfe00) + 256 })
+      )
     }
   }
   w.fights = w.fights.filter(b => b.members.length > 1)

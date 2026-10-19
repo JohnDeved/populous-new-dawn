@@ -1,3 +1,4 @@
+import { publishLiveCombatPosition } from './live-combat-index.ts'
 import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
 import { sound } from './world-effects.ts'
 import { nativePosition, browserPosition, type World, type Unit, type Shrine } from './model.ts'
@@ -87,7 +88,7 @@ export function stepLiveWorship(w: World, u: Unit) {
     anchor: point => setPersonAnchor(p, point),
     relocate: point => {
       moveObjectInCells(w.objectCells, p, { ...point, h: terrainPointHeight(w.land, point) })
-      Object.assign(u, browserPosition(p))
+      publishLiveCombatPosition(w, u, browserPosition(p))
     },
     releaseRoute: () => {
       releasePersonRoute(w.motionRoutes, p)

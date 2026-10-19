@@ -1,3 +1,4 @@
+import { publishLiveCombatPosition } from './live-combat-index.ts'
 import { vehicleOrdinaryVisitDeferred } from './vehicle-allocation.ts'
 import { seatVehiclePassenger, vehicleSeat } from './vehicle-seats.ts'
 import type { LivePerson } from './live-people.ts'
@@ -139,7 +140,7 @@ export function leaveLiveVehicle(
     speed: rules.personSpeeds[p.physics],
   })
   const unit = w.units.find(u => u.id === p.id)
-  if (unit) Object.assign(unit, browserPosition(p))
+  if (unit) publishLiveCombatPosition(w, unit, browserPosition(p))
 }
 
 export function syncLiveVehiclePassengers(w: World, v: Vehicle) {
@@ -149,7 +150,7 @@ export function syncLiveVehiclePassengers(w: World, v: Vehicle) {
       p = w.pathfinding.people.get(id) ?? unit?.native
     if (p) seatVehiclePassenger(p, v, slot, point => relocateLivePerson(w, p, point))
     if (unit) {
-      Object.assign(unit, browserPosition(p ?? vehicleSeat(v, slot)))
+      publishLiveCombatPosition(w, unit, browserPosition(p ?? vehicleSeat(v, slot)))
       if (p) unit.heading = Math.PI - (p.angle * Math.PI) / 1024
     }
   }
