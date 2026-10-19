@@ -1,5 +1,6 @@
 import { ownBodyLayer } from './body-layer-submission.ts'
 import { templeWorldMaterial } from './temple-art.ts'
+import { unitRenderAnimationSource } from './unit-animation-source.ts'
 import { hutSmokeState } from './hut-smoke-runtime.ts'
 import type { SecondaryEffect } from './secondary-effects.ts'
 import type { GameScene } from './scene.ts'
@@ -24,7 +25,6 @@ import {
   maxHp,
   buildingHp,
   unitAnimation,
-  unitAnimationSource,
   unitInvisibleToPlayer,
   unitInvisibilityRenderFlag,
   canPickUnit,
@@ -617,7 +617,7 @@ export function updateUnitsFrame(scene: GameScene) {
     const bloodlust = g.userData.bloodlust as THREE.Mesh
     bloodlust.visible = !!u.bloodlust && (u.bloodlust >= 16 * 8 || !(scene.world.turn & 2))
     if (bloodlust.visible) bloodlust.rotation.z = scene.world.time * 4
-    const animationSource = unitAnimationSource(u),
+    const animationSource = unitRenderAnimationSource(u),
       person = animationSource ?? u.native ?? u.entry?.person ?? u.builder?.person,
       owner = tribeForTeam(u.team),
       disguise = u.kind === 'spy' ? (person?.disguise ?? owner << 6) : owner << 6,
