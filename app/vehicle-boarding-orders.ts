@@ -19,8 +19,6 @@ export function clearFollowingBoardingOrders(
     if (vehicleModel(order.a) !== boardedModel) continue
     const released = releasePersonOrderReference(pool, order)
     person.commands[slot] = 0
-    if (released) {
-      if (order.object) deleteObject(order.object)
-    }
+    if (released && order.object) deleteObject(order.object)
   }
 }

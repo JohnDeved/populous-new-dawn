@@ -259,9 +259,7 @@ export function removePersonOrder(
     const order = pool.records[id]
     if (order.model === 7) person.assignment |= 0x8000
     else if (order.model === 30) effects.releaseSpell(person)
-    if (releasePersonOrderReference(pool, order)) {
-      if (order.object) effects.deleteObject(order.object)
-    }
+    if (releasePersonOrderReference(pool, order) && order.object) effects.deleteObject(order.object)
     if (slot < 0) person.immediateCommand = 0
     else person.commands[slot] = 0
   }
