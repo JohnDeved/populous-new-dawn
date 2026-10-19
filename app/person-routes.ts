@@ -61,7 +61,7 @@ export function motionRouteReferences(w: MotionRoutes, id: number) {
 }
 
 function changedRouteCount(w: MotionRoutes, count: number, delta: number) {
-  if (!w.references) return short(count + delta)
+  if (!w.references) return delta ? short(count + delta) : count
   if (
     !Number.isSafeInteger(count) ||
     count < 0 ||
@@ -99,6 +99,7 @@ function growMotionRoutes(w: MotionRoutes) {
 // an omitted/damaged sidecar is an incompatible checkpoint, not an old-save path.
 export function validateScalableMotionRoutes(w: MotionRoutes, people: Iterable<unknown>) {
   if (
+    !w ||
     !(w.records instanceof Uint8Array) ||
     w.records.length < 401 * 109 ||
     w.records.length % 109 ||
@@ -119,6 +120,11 @@ export function validateScalableMotionRoutes(w: MotionRoutes, people: Iterable<u
     w.last > motionRouteCapacity(w)
   )
     throw new RangeError('Invalid scalable checkpoint motion-route pool')
+  if (
+    new Set([w.records.buffer, w.references.buffer, w.failedSearches.buffer, w.pathResult.buffer])
+      .size !== 4
+  )
+    throw new RangeError('Aliased scalable checkpoint motion-route storage')
   const counts = new Map<number, number>()
   for (const person of new Set(people)) {
     if (!person || typeof person !== 'object' || !('commands' in person || 'motionGroup' in person))
@@ -178,7 +184,7 @@ export function releasePersonRoute(
   const a = id * 109,
     count = motionRouteReferences(w, id)
   if (w.references && !count) throw new RangeError('Unowned scalable motion-route release')
-  const active = count === 1 ? changedRouteCount(w, w.active, -1) : w.active
+  const active = changedRouteCount(w, w.active, count === 1 ? -1 : 0)
   p.motionGroup = 0
   p.motionIndex = 0
   if (count > 0) {
@@ -198,10 +204,21 @@ export function attachPersonRoute(
   id: number,
   reserved = false
 ) {
+  if (w.references && p.motionGroup)
+    throw new RangeError('Scalable motion-route attachment must release prior ownership')
+  // Boarding may adopt a driver's no-route sentinel. Native 0x4657d0 still
+  // calls 0x4ea3b0 for zero, creating a phantom raw count. Scalable ownership
+  // keeps the same last/index/person outcome without owning sentinel storage.
+  if (w.references && id === 0) {
+    w.last = 0
+    p.motionGroup = 0
+    p.motionIndex = 0
+    return
+  }
   const a = id * 109,
     count = motionRouteReferences(w, id),
     references = changedRouteCount(w, count, 1),
-    active = count < 1 ? changedRouteCount(w, w.active, 1) : w.active
+    active = changedRouteCount(w, w.active, count < 1 ? 1 : 0)
   w.last = id
   w.active = active
   setRouteReferences(w, id, references)

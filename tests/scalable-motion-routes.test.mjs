@@ -111,7 +111,7 @@ test('wide shared counts release exactly once per real person and preserve reser
 
 test('scalable count and handle failures are explicit and do not alter owner, counters or cursor', () => {
   const w = createMotionRoutes(true), p = person(1)
-  for (const id of [0, -1, 0.5, 400, 65536, NaN, Number.MAX_SAFE_INTEGER]) {
+  for (const id of [-1, 0.5, 400, 65536, NaN, Number.MAX_SAFE_INTEGER]) {
     const before = structuredClone({ w, p })
     assert.throws(() => attachPersonRoute(w, p, id), /handle/)
     assert.deepEqual({ w, p }, before)
@@ -126,6 +126,10 @@ test('scalable count and handle failures are explicit and do not alter owner, co
   const unowned = structuredClone({ w, p })
   assert.throws(() => releasePersonRoute(w, p), /Unowned/)
   assert.deepEqual({ w, p }, unowned)
+  w.references[1] = 1
+  const owned = structuredClone({ w, p })
+  assert.throws(() => attachPersonRoute(w, p, 2), /release prior/)
+  assert.deepEqual({ w, p }, owned)
 })
 
 test('scalable allocation failure does not publish either replacement array or move cursor', () => {
@@ -168,7 +172,9 @@ test('current scalable route validation rejects damaged shape, refs, counts, own
   attachPersonRoute(valid, p, id)
   const mutations = [
     w => { delete w.references }, w => { w.references = new Uint16Array(401) },
-    w => { w.references = new Float64Array(400) }, w => { w.records = new Uint8Array(400 * 109) },
+    w => { w.references = new Float64Array(400) },
+    w => { w.references = new Float64Array(w.records.buffer, 0, 401) },
+    w => { w.pathResult = w.records.subarray(0, 1033) }, w => { w.records = new Uint8Array(400 * 109) },
     w => { w.references[id] = NaN }, w => { w.references[id] = -1 }, w => { w.references[id] = 2 },
     w => { w.references[0] = 1 }, w => { w.references[400] = 1 }, w => { w.references[id] = Number.MAX_SAFE_INTEGER + 1 },
     w => { w.active = 0 }, w => { w.last = 400 }, w => { w.cursor = 400 },
@@ -185,4 +191,20 @@ test('current scalable route validation rejects damaged shape, refs, counts, own
     assert.throws(() => validateScalableMotionRoutes(valid, [{ ...p, motionGroup }]), RangeError)
   assert.doesNotThrow(() => validateScalableMotionRoutes(valid, [p, p, p]))
   assert.throws(() => validateScalableMotionRoutes(valid, [p, { ...p }]), /ownership/)
+})
+
+test('zero adoption preserves native classic bookkeeping but scalable sentinel is never owned', () => {
+  for (const scalable of [false, true]) {
+    const routes = createMotionRoutes(scalable), p = person(1)
+    attachPersonRoute(routes, p, 1)
+    releasePersonRoute(routes, p)
+    p.motionIndex = 7
+    attachPersonRoute(routes, p, 0)
+    assert.equal(p.motionGroup, 0)
+    assert.equal(p.motionIndex, 0)
+    assert.equal(routes.last, 0)
+    assert.equal(routes.active, scalable ? 0 : 1)
+    assert.equal(scalable ? routes.references[0] : new DataView(routes.records.buffer).getInt16(0, true), scalable ? 0 : 1)
+    if (scalable) validateScalableMotionRoutes(routes, [p])
+  }
 })

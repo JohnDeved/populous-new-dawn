@@ -206,3 +206,26 @@ test('generated current snapshot is admitted by a fresh real store without rewri
     assert.deepEqual(writes, [])
   })
 })
+
+test('snapshot admission validates current route sidecars even when transport hashes are recomputed', async () => {
+  const f = await getFixture()
+  for (const change of [
+    r => { r.version = 2 },
+    r => { delete r.world.motionRoutes.references },
+    r => { r.world.motionRoutes.references = new Uint16Array(401) },
+    r => { r.world.motionRoutes.references = new Float64Array(400) },
+    r => { r.world.motionRoutes.references[1]++ },
+    r => { r.world.motionRoutes.references[1] = Number.MAX_SAFE_INTEGER },
+    r => { r.world.motionRoutes.references = new Float64Array(r.world.motionRoutes.records.buffer, 0, 401) },
+  ]) {
+    const r = checkpointCodec(f.transfer, true)
+    change(r)
+    const transfer = checkpointCodec(r)
+    assert.throws(() => validateSnapshotFixture({ ...f, transfer, receipt: { ...f.receipt,
+      snapshotSha256: sha(JSON.stringify(transfer)) } }))
+  }
+  const w = checkpointCodec(f.expected, true), before = JSON.stringify(checkpointCodec(snapshotSimulationIdentity(w)))
+  w.motionRoutes.references[1]++
+  assert.notEqual(JSON.stringify(checkpointCodec(snapshotSimulationIdentity(w))), before,
+    'admission identity binds authoritative route ownership, not only actor handles')
+})

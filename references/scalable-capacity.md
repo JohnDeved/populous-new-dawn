@@ -52,6 +52,10 @@ pool modes, invalid reference counts/active totals, mismatched queue ownership
 (deduplicating registry/controller aliases), bad order handles and stale or
 unsafe general-ID reservations fail validation. No load remaps IDs or resets RNG.
 
+Demand-grown motion-route ownership is described separately in
+[scalable motion routes](scalable-motion-routes.md). Its v3 checkpoint sidecar is
+required for current shipping saves; missing ownership is rejected, not rebuilt.
+
 ## What is and is not established
 
 Focused tests cover classic/scalable boundaries, actual store start/restart and

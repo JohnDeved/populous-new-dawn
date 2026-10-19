@@ -111,10 +111,12 @@ for (const [version, mode, missingPolicy] of [[1, 'classic', false], [1, 'classi
     })
   })
 
-for (const invalid of ['missing policy', 'missing current secondary state', 'hidden stale shrine ID', 'unknown mode', 'stale reservation', 'negative references', 'undercounted owners', 'overcounted owners'])
+for (const invalid of ['missing policy', 'missing route sidecar', 'invalid route sidecar', 'missing current secondary state', 'hidden stale shrine ID', 'unknown mode', 'stale reservation', 'negative references', 'undercounted owners', 'overcounted owners'])
   test(`v3 ${invalid} rejects without suppressing campaign progress or rewriting storage`, async () => {
     const world = createWorld(1, 'scalable')
     if (invalid === 'missing policy') delete world.capacityPolicy
+    if (invalid === 'missing route sidecar') delete world.motionRoutes.references
+    if (invalid === 'invalid route sidecar') world.motionRoutes.references[1] = 1
     if (invalid === 'missing current secondary state') delete world.secondaryEffects
     if (invalid === 'hidden stale shrine ID') world.shrines[0].linkedShrine = { ...world.shrines[1], id: world.nextId }
     if (invalid === 'unknown mode') world.capacityPolicy.mode = 'unknown'
