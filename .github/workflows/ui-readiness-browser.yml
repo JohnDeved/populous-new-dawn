@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
-      CANDIDATE_SHA: 'SOURCE_COMMIT_PENDING'
+      CANDIDATE_SHA: 'd17459ebc178809225b267934cbc303c550f7e7d'
       RUNTIME_SOURCE_SHA: '64daadcc5fefcaa8b19f07021d15fd3eb8ce40ed'
       UI_DIAGNOSTIC_SUITE: ${{ matrix.suite }}
       PR_BASE_SHA: 'fa67ce0a56c680efc785d5125186af887a51efe8'
