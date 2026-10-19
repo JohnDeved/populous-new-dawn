@@ -263,7 +263,10 @@ export function initializePersonState(
   p.flags4 = (p.flags4 & 0xfffefff8) >>> 0
   if (p.assignment & 1 && stateFlags & 4 && !(model.flags & 0x400)) {
     p.assignment &= ~1
-    if (p.state !== 10 || p.commands[p.commandCursor] & 255)
+    // Native low-byte truthiness is a compatibility quirk, not the scalable
+    // handle domain: a live index such as 1024 still owns a formation command.
+    const command = p.commands[p.commandCursor]
+    if (p.state !== 10 || (w.orders.scalable ? command : command & 255))
       effects.rebuildFormation(p.formationCell)
   }
   const oldSpeed = p.speed

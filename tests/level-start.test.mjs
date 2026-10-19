@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
@@ -63,7 +64,7 @@ test('checkpoint restore resumes every opening stage without replaying terrain/c
     assert.equal(restored.levelStart.find(s=>s.tribe===0).stoneTurns.filter(t=>t!==null).length,8)
   }
   const old=createWorld(2);advance(old,75);delete old.levelStart;delete old.levelStartStoneSound
-  const restored=migrateCheckpoint(old), land=hash(Array.from(restored.land.heights)), ids=restored.units.map(u=>u.id)
+  const restored=normalizeHistoricalFixture(old), land=hash(Array.from(restored.land.heights)), ids=restored.units.map(u=>u.id)
   advance(restored,3);assert.deepEqual(restored.levelStart,[]);assert.equal(hash(Array.from(restored.land.heights)),land);assert.deepEqual(restored.units.map(u=>u.id),ids)
 })
 

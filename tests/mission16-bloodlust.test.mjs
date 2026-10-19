@@ -12,6 +12,7 @@ import {
 } from '../app/model.ts'
 import { applyUnitDamage, meleeDamage } from '../app/combat-runtime.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import { createLivePerson, syncLivePersonCells } from '../app/live-people.ts'
 import { launchFirewarrior, stepFirewarriorShots } from '../app/firewarrior.ts'
 import { randomPersonSpeed } from '../app/person-state.ts'
@@ -130,11 +131,11 @@ test('Mission 16 worship grants Bloodlust and live combat consumes its status', 
   assert.equal(expiring.bloodlust, 0)
 })
 
-test('old checkpoints default Bloodlust stock without disturbing their world', () => {
+test('historical fixtures default Bloodlust stock without disturbing their world', () => {
   const world = createWorld()
   delete world.shots.bloodlust
   delete world.giftCounts.bloodlust
-  assert.equal(migrateCheckpoint(world), world)
+  assert.equal(normalizeHistoricalFixture(world), world)
   assert.equal(world.shots.bloodlust, 0)
   assert.equal(world.giftCounts.bloodlust, 0)
 })

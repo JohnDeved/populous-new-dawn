@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 // Actual full unit-frame/Scene animation and UnitMotion consumers. Imported
 // tables remain untouched; controlled poses/populations are Node diagnostics.
 import assert from 'node:assert/strict'
@@ -287,7 +288,7 @@ test('current/legacy checkpoint worlds, independent Scenes, empty refill and rep
     delete legacy.drawMode
     delete legacy.levelStart
     delete legacy.vehicles
-    fixture.scene.world = api.migrateCheckpoint(legacy)
+    fixture.scene.world = normalizeHistoricalFixture(legacy)
     for (let frame = 0; frame < 3; frame++) {
       fixture.scene.world.units[0].native.f2 = frame
       pureFrame(fixture)

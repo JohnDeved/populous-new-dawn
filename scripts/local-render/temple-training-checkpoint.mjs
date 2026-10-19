@@ -149,9 +149,12 @@ export function armTempleCheckpoint({ kind, store, button, snapshot }) {
       if (kind === 'load' && world === prior) return
       finishWindow()
       if (kind === 'save' && world !== prior) throw Error('Save replaced the Temple World')
-      // Save publishes after its normalization/clone; Load publishes the migrated
+      // Save publishes after its normalization/clone; Load publishes the normalized
       // replacement before Page's separate unpause. Freeze exactly that boundary.
-      record = { version: 1, world: structuredClone(world) }
+      // Current-world observations use the writer's v2 envelope, including a
+      // Current-format Load after normalization. The committed record below
+      // retains its actual stored version for the separate storage digest.
+      record = { version: 2, world: structuredClone(world) }
       evidence.publication = readTarget('publication', world)
       evidence.captured = true
     } catch (value) {
@@ -214,8 +217,8 @@ export function armTempleCheckpoint({ kind, store, button, snapshot }) {
   }
 }
 
-// Fresh-page restore migrates the committed record once, then public Load
-// migrates its private checkpoint again. Both expected Worlds stay in this call.
+// Fresh-page restore normalizes the current record once, then public Load
+// normalizes its private checkpoint again. Both expected Worlds stay in this call.
 export async function readTempleCommittedLoad() {
   if (!(await indexedDB.databases()).some(db => db.name === 'populous-new-dawn'))
     throw Error('Genuine committed Temple checkpoint database required')
@@ -237,13 +240,13 @@ export async function readTempleCommittedLoad() {
       transaction.onabort = () =>
         reject(transaction.error ?? Error('Temple checkpoint read aborted'))
     })
-    if (record?.version !== 1 || record.world?.outcome?.level !== 3)
+    if (record?.version !== 2 || record.world?.capacityPolicy?.mode !== 'scalable' || record.world.capacityPolicy.version !== 1 || record.world.outcome?.level !== 3)
       throw Error('Committed Mission 3 checkpoint required')
     const restored = migrateCheckpoint(structuredClone(record.world))
     const loaded = migrateCheckpoint(structuredClone(restored))
     return {
       committed: await observePrivate(record),
-      expectedLoad: await observePrivate({ version: record.version, world: loaded }),
+      expectedLoad: await observePrivate({ version: 2, world: loaded }),
     }
   } finally {
     db.close()

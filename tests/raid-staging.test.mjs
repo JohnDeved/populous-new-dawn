@@ -52,6 +52,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   const { stepComputerTasks } = await import('../app/computer-runtime.ts')
   const { createWorld } = await import('../app/world-initialization.ts')
   const { migrateCheckpoint } = await import('../app/game-store.ts')
+  const { normalizeHistoricalFixture } = await import('./helpers/historical-checkpoint.ts')
   const cases = [
     { name: 'established base precedes enabled defence', base: 0x8436, expected: 0x8436 },
     { name: 'established base precedes live Shaman', base: 0x8436, defence: false, expected: 0x8436 },
@@ -150,7 +151,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
         assert.equal(Object.hasOwn(saved, 'activeCampaignTribe'), false)
         assert.ok(saved.units.some(u => u.team === 'red'))
       }
-      world = migrateCheckpoint(saved)
+      world = c.checkpoint === 'legacy' ? normalizeHistoricalFixture(saved) : migrateCheckpoint(saved)
     }
     const ai = world.ai
     assert.equal(world.activeCampaignTribe, tribe)

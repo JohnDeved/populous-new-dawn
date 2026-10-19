@@ -13,8 +13,7 @@ import {
 import { tick, selectUnit, command, createWorld, addUnit, browserPosition } from '../app/model.ts'
 import { boardLiveVehicle } from '../app/live-vehicles.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
-import { withStorage } from './support/profile-storage.mjs'
+import { normalizeHistoricalFixture, createHistoricalFixtureHarness } from './helpers/historical-checkpoint.ts'
 
 // Historical ordinary browser checkpoint, not a native oracle fixture.
 const checkpoint = () => {
@@ -29,7 +28,7 @@ const checkpoint = () => {
   )
   const w = deserialize(bytes)
   assert.equal(w.turn, 1066)
-  return w
+  return normalizeHistoricalFixture(w)
 }
 const shaman = w => w.units.find(u => u.id === 63)
 
@@ -86,12 +85,15 @@ test('seated impulse preparation precedes native airborne-bit cleanup', () => {
   assert.equal(p.motionMode, 0)
 })
 
-test('historical no-order passenger keeps its seat, health and single clock through public Save/Load twins', async () => {
-  await withStorage({}, async ({ freshStore }) => {
-    const store = await freshStore()
+test('historical no-order passenger keeps its seat, health and single clock through historical clone/normalization twins', async () => {
+  {
+    const store = createHistoricalFixtureHarness()
     store.startMission(10)
     const w = store.getWorld()
-    Object.assign(w, migrateCheckpoint(checkpoint()))
+    const historical = checkpoint()
+    for (const key of Object.keys(w)) if (!Object.hasOwn(historical, key)) delete w[key]
+    Object.assign(w, historical)
+    assert.deepEqual(w, historical, 'no fresh-world fields may leak into the archive')
     await store.saveCheckpoint()
     assert.ok(store.loadCheckpoint())
     const twin = store.getWorld(),
@@ -115,7 +117,7 @@ test('historical no-order passenger keeps its seat, health and single clock thro
       assert.deepEqual({ x: p.x, y: p.y, h: p.h }, seat)
       assert.equal(currentPersonOrder(w.buildingOrders, p), undefined)
     }
-  })
+  }
 })
 
 test('historical seated flight resumes a public movement order without losing a clock visit', () => {

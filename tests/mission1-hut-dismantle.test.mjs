@@ -70,7 +70,7 @@ function pageLoad(store) {
 }
 
 test('authored Hut resident reaches shipped dismantle input, partial Save/Load and exact recovery', async t => {
-  const { scene, world, hut, api, frame } = await tooltipCallerFixture(t),
+  const { scene, world, hut, api, frame } = await tooltipCallerFixture(t, { capacityMode: 'scalable' }),
     { renderBuildingPanels } = await import('../app/building-panels.ts'),
     { createGameStore } = await import('../app/game-store.ts'),
     { armTempleCheckpoint } = await import('../scripts/local-render/temple-training-checkpoint.mjs')

@@ -52,7 +52,7 @@ function bindTooltipPaint(scene, bindings) {
   ).call(scene)
 }
 
-export async function tooltipCallerFixture(t, { level = 1, prepareTarget } = {}) {
+export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capacityMode = 'classic' } = {}) {
   const api = await loadSceneFixture(),
     { GameScene } = await import('../../app/scene.ts'),
     { ScenePicking } = await import('../../app/scene-picking.ts'),
@@ -61,7 +61,7 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget } = {})
     tooltipApi = await import('../../app/tooltips.ts'),
     { pointerMove } = await import('../../app/scene-input-runtime.ts'),
     { syncSecondaryReservations } = await import('../../app/scene-secondary-effects.ts'),
-    world = api.createWorld(level),
+    world = api.createWorld(level, capacityMode),
     fixture = await makeHutSmokeScene(world),
     { scene } = fixture,
     globals = new Map()

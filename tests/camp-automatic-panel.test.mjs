@@ -415,7 +415,7 @@ test('replacement binding survives stale Scene disposal and headless Worlds crea
 })
 
 test('Save preserves the current owner; Load clears transient ownership and stale bit23 cannot suppress the next request', async t => {
-  const fixture = await campPanelFixture(t),
+  const fixture = await campPanelFixture(t, 'scalable'),
     { scene } = fixture,
     { createGameStore } = await import('../app/game-store.ts'),
     { stepLiveTraining } = await import('../app/live-building-entry.ts'),

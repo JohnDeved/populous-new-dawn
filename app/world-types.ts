@@ -1,4 +1,5 @@
 import type { SecondaryEffects } from './secondary-effects.ts'
+import type { CapacityPolicy } from './capacity-policy.ts'
 import type { LevelStartSite, StartPoint, StartWave } from './level-start.ts'
 import type { LiveFormation } from './live-movement.ts'
 import type { Footprints } from './footprints.ts'
@@ -443,6 +444,7 @@ export type CampaignAI = ScriptState &
   }
 
 export type World = {
+  capacityPolicy: CapacityPolicy
   objectCells: ObjectCells
   marching: LiveFormation[]
   combatMarches: CombatMarch[]

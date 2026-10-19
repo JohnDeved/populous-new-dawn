@@ -33,6 +33,7 @@ export function stepConvertWild(
   game: { randomState: number },
   effects: {
     population: () => number
+    populationCeiling?: number
     people: (cell: number) => Iterable<ConvertWildTarget>
     unsupported: (person: ConvertWildTarget) => boolean
     strand: (person: ConvertWildTarget) => void
@@ -42,7 +43,7 @@ export function stepConvertWild(
   }
 ) {
   if (spell.remaining) spell.remaining--
-  if (effects.population() < 200 && !(spell.counter & 7)) {
+  if (effects.population() < (effects.populationCeiling ?? 200) && !(spell.counter & 7)) {
     const center = ((spell.center.x >>> 8) & 254) | (spell.center.y & 0xfe00)
     let nearest: ConvertWildTarget | undefined,
       distance = 0xffffffff

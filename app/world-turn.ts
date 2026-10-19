@@ -98,7 +98,7 @@ import {
   unitInvisibleToPlayer,
 } from './spell-effects-runtime.ts'
 import { meleeDamage, joinBattle, cleanBattles, processBattles } from './combat-runtime.ts'
-import { release, releaseTasks } from './world-tasks.ts'
+import { clearRetiredPersonOrders, release, releaseTasks } from './world-tasks.ts'
 import {
   sound,
   effect,
@@ -1813,10 +1813,21 @@ function stepTurn(w: World, metrics?: { steps: number }) {
   removeDeadLiveRoutes(w)
   for (const u of w.units)
     if (u.hp <= 0 && !u.flight && u.native?.state !== 44) {
-      if (u.inside !== null) leaveLiveBuilding(w, u)
+      // Capture physical owners before ordinary cancellation detaches their roles.
+      // Those cancellation whitelists intentionally retain patrols, but a person
+      // removed below cannot keep owning any queued or immediate command.
+      const retiredPeople = new Set([
+        u.native,
+        u.fight?.motion,
+        u.entry?.person,
+        u.builder?.person,
+        residentPerson(w, u),
+      ])
+      if (u.inside !== null) retiredPeople.add(leaveLiveBuilding(w, u))
       cancelLiveBuildingAttack(w, u)
       cancelLiveOrder(w, u)
       cancelBuildingEntry(w, u)
+      clearRetiredPersonOrders(w, retiredPeople)
     }
   w.units = w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44)
   removeMissingVehiclePassengers(w)

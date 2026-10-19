@@ -224,10 +224,22 @@ function buildingId(w: World) {
   // have unbounded IDs, so they must not push new buildings out of that range.
   // Full native allocation/list ownership remains separate from this adapter.
   const used = new Set(
-    [w.units, w.buildings, w.trees, w.shrines, w.effects, w.fights, w.projectiles].flatMap(
-      objects => objects.map(o => o.id)
-    )
+    [
+      w.units,
+      w.buildings,
+      w.vehicles,
+      w.trees,
+      w.shrines,
+      w.effects,
+      w.fights,
+      w.projectiles,
+    ].flatMap(objects => objects.map(o => o.id))
   )
+  const reserveLinkedHeads = (head: World['shrines'][number]) => {
+    used.add(head.id)
+    if (head.linkedShrine) reserveLinkedHeads(head.linkedShrine)
+  }
+  for (const head of w.shrines) reserveLinkedHeads(head)
   for (let id = 1023; id > 0; id--) if (!used.has(id)) return id
   throw new Error('No free terrain building handles')
 }

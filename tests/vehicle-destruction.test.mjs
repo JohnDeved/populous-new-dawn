@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
@@ -135,7 +136,7 @@ test('vehicle life and destruction survive checkpoint migration and reload', asy
     legacyBoat = legacy.vehicles[0]
   delete legacyBoat.life
   delete legacyBoat.destructionState
-  migrateCheckpoint(legacy)
+  normalizeHistoricalFixture(legacy)
   assert.deepEqual([legacyBoat.life, legacyBoat.destructionState], [5000, 0])
 
   const store = createGameStore()

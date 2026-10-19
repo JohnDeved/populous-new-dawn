@@ -513,7 +513,7 @@ test('Vault Save/Load and replacement Scene rebuild only on the next live reques
   const { createGameStore } = await import('../app/game-store.ts')
   const { trainingPanelRequestOwner } = await import('../app/training-panel-requests.ts')
   const store = createGameStore()
-  const original = createWorld(3)
+  const original = createWorld(3, 'scalable')
   finishLevelStart(original)
   select(original, 'shaman')
   assert.equal(command(original, original.shrines.find(shrine => shrine.kind === 'vault')), true)

@@ -76,8 +76,8 @@ export function supplyPanelDom(t, scene) {
   })
 }
 
-export async function campPanelFixture(t) {
-  const fixture = await tooltipCallerFixture(t, { level: 2, prepareTarget: buildEmptyCamp }),
+export async function campPanelFixture(t, capacityMode = 'classic') {
+  const fixture = await tooltipCallerFixture(t, { level: 2, prepareTarget: buildEmptyCamp, capacityMode }),
     { renderBuildingPanels } = await import('../../app/building-panels.ts')
   supplyPanelDom(t, fixture.scene)
   const paint = () => renderBuildingPanels(fixture.scene, { complete: true, naturalWidth: 2048 })

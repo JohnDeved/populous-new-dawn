@@ -1,25 +1,9 @@
 import { worldEnvironment } from './world-environment.ts'
+import { restoreCapacityPolicy } from './capacity-policy.ts'
 import { rebuildSecondaryLists } from './secondary-effects.ts'
 import { restoreSecondaryEffects } from './hut-smoke-runtime.ts'
-import {
-  campaignCommand,
-  createGift,
-  createWorld,
-  syncLandscapeObjects,
-  type Gift,
-  type World,
-} from './model.ts'
-import { missionData, missionEnemyTribe, missionNumbers } from './mission-data.ts'
-import { teamForTribe, type Point } from './world-types.ts'
-import { createComputerProducers } from './computer.ts'
-import rules from './original-rules.json' with { type: 'json' }
-import {
-  WORSHIP_STONE_HEAD_MODEL,
-  authoredWorshipMode,
-  worshipAppearanceModel,
-} from './worship-appearance.ts'
-import { restoreOrdinaryWorshipSource } from './worship-acquisition-source.ts'
-import { createWorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
+import { createWorld, syncLandscapeObjects, type World } from './model.ts'
+import { missionNumbers } from './mission-data.ts'
 import { initializeVaultKnowledge } from './vault-appearance.ts'
 import { discardInvalidResident } from './building-resident.ts'
 import { initializeVaultKnowledgeGift } from './world-effects.ts'
@@ -27,219 +11,26 @@ import { createSharedAniblResource, type PresentationBinding } from './shared-an
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
-  CHECKPOINT_VERSION = 1,
+  // Development saves support this format only; incompatible records stay intact.
+  CHECKPOINT_VERSION = 2,
   PROFILE_VERSION = 1
 let checkpointDatabase: Promise<IDBDatabase | null> | null = null
 
-export type CheckpointReadStatus = 'idle' | 'pending' | 'read' | 'unavailable' | 'failed'
+export type CheckpointReadStatus =
+  | 'idle'
+  | 'pending'
+  | 'read'
+  | 'unavailable'
+  | 'failed'
+  | 'incompatible'
 
-type LegacyGift = {
-  x: number
-  z: number
-  kind: 'vault' | 'lightning' | 'bridge'
-  remaining: number
-}
-
-export function migrateLegacyWorshipAppearance(world: World) {
-  const migrate = (shrine: World['shrines'][number]) => {
-    if (shrine.mode === undefined && shrine.model === WORSHIP_STONE_HEAD_MODEL) {
-      const mode = authoredWorshipMode(world.outcome.level, shrine)
-      if (mode !== undefined) {
-        shrine.mode = mode
-        if (mode === 3) shrine.model = worshipAppearanceModel(mode)
-      }
-    }
-    if (shrine.mode === 5 && shrine.model === WORSHIP_STONE_HEAD_MODEL)
-      shrine.model = worshipAppearanceModel(shrine.mode)
-    if (shrine.linkedShrine) migrate(shrine.linkedShrine)
-  }
-  for (const shrine of world.shrines) migrate(shrine)
-}
-
-function migrateLegacyComputerTeam(world: World, tribe: number) {
-  const team = teamForTribe(tribe),
-    retag = (owner?: { tribe: number; damageAttacker?: number }) => {
-      if (owner?.tribe === 1) owner.tribe = tribe
-      if (owner?.damageAttacker === 1) owner.damageAttacker = tribe
-    },
-    retagEffect = (effect: World['effects'][number]) => {
-      if (effect.team === 'red') effect.team = team
-      if (effect.unit?.team === 'red') effect.unit.team = team
-      if (effect.reincarnation?.team === 'red') effect.reincarnation.team = team
-      for (const owner of [
-        effect.lightning,
-        effect.wave,
-        effect.swamp,
-        effect.firestorm,
-        effect.earthquake,
-        effect.volcano,
-        effect.convertWild,
-        effect.tornado,
-        effect.swarm,
-      ])
-        retag(owner)
-    }
-  for (const unit of world.units) {
-    if (unit.hypnotise?.originalTeam === 'red') unit.hypnotise.originalTeam = team
-    if (unit.team === 'red') unit.team = team
-    for (const person of [
-      unit.native,
-      unit.flight,
-      unit.entry?.person,
-      unit.builder?.person,
-      unit.fight?.motion,
-      unit.resident?.person,
-    ])
-      retag(person ?? undefined)
-  }
-  for (const building of world.buildings) {
-    if (building.team === 'red') building.team = team
-    if (building.damageState?.attacker === 1) building.damageState.attacker = tribe
-    if (building.damageState?.plan.attacker === 1) building.damageState.plan.attacker = tribe
-  }
-  for (const vehicle of world.vehicles) if (vehicle.team === 'red') vehicle.team = team
-  for (const effect of world.effects) retagEffect(effect)
-  for (const projectile of world.projectiles) {
-    if (projectile.team === 'red') projectile.team = team
-    for (const effect of projectile.visuals) retagEffect(effect)
-  }
-  for (const formation of world.marching) retag(formation)
-  for (const fight of world.fights)
-    if (fight.tribes) fight.tribes = fight.tribes.map(id => (id === 1 ? tribe : id))
-  for (const footprint of world.buildingFootprints.values()) retag(footprint)
-  for (let index = 0; index < world.land.regions.length; index++)
-    if (world.land.regions[index] & 0x20)
-      world.land.regions[index] = (world.land.regions[index] & ~0x20) | (1 << (tribe + 4))
-}
-
-function migrateLegacyBridgeOrigins(world: World) {
-  const { objects } = missionData(world.outcome.level).level
-  for (const shrine of world.shrines) {
-    if (shrine.kind !== 'bridgeEffect' || shrine.bridgeStart || !shrine.bridgeTarget) continue
-    const heading = Math.round((shrine.angle * 2048) / (Math.PI * 2)) & 2047,
-      starts = objects
-        .filter(
-          object =>
-            object.type === 6 &&
-            object.model === 6 &&
-            object.x === shrine.x &&
-            object.z === shrine.z &&
-            object.settings?.[1] === shrine.range &&
-            (object.angle & 2047) === heading
-        )
-        .flatMap(head =>
-          Array.from({ length: 10 }, (_, slot) => {
-            const token = head.settings![6 + slot * 2] | (head.settings![7 + slot * 2] << 8)
-            return objects.find(object => object.index === token - 1)
-          })
-        )
-        .flatMap(object => {
-          if (object?.type !== 7 || object.model !== 24 || !('target' in object)) return []
-          const target = object.target as Point
-          return target.x === shrine.bridgeTarget!.x && target.z === shrine.bridgeTarget!.z
-            ? [{ x: object.x, z: object.z }]
-            : []
-        })
-    const [start] = starts
-    if (start && starts.every(other => other.x === start.x && other.z === start.z))
-      shrine.bridgeStart = start
-  }
-}
-
+// Normalize current runtime ownership/presentation after cloning. Despite the
+// established function name, this is not an older-save upgrader. Shipping store
+// boundaries require the current envelope and scalable schema before calling it.
 export function migrateCheckpoint(world: World) {
-  // Preserve intact legacy cell order. This cannot recover a chain that an older
-  // runtime already truncated after allocating a person handle above 0xffff.
-  if (world.objectCells.heads instanceof Uint16Array)
-    world.objectCells.heads = new Float64Array(world.objectCells.heads)
+  restoreCapacityPolicy(world)
   for (const unit of world.units) discardInvalidResident(world, unit)
-  world.worshipAcquisition ??= createWorshipAcquisitionRuntime()
-  world.worshipAcquisition.controllers.building ??= null
   restoreSecondaryEffects(world)
-  world.outcome.level ??= 1
-  world.drawMode ??= 0
-  // An old checkpoint has already passed startup. Never replay terrain or conversion.
-  world.levelStart ??= []
-  world.levelStartStoneSound ??= 0
-  world.reincarnationSites ??= []
-  const computerTribe = missionEnemyTribe(world.outcome.level),
-    legacySingleAI = !world.campaignAIs
-  world.vehicles ??= []
-  if (legacySingleAI && computerTribe !== 1) migrateLegacyComputerTeam(world, computerTribe)
-  world.activeCampaignTribe ??= computerTribe
-  world.campaignAIs ??= Array(4).fill(null)
-  world.campaignAIs[computerTribe] ??= world.ai
-  for (const ai of new Set([world.ai, ...world.campaignAIs]))
-    if (ai) {
-      ai.producers ??= createComputerProducers()
-      // Compatibility only: an unestablished old owner has no accumulated
-      // radius. Established or malformed history stays unknown. Membership is
-      // retained by full-graph cloning, or waits for the next real object turn.
-      if (
-        [1, 2, 3].includes(world.outcome.level) &&
-        ai.constructionBase === undefined &&
-        !Object.hasOwn(ai, 'constructionRadius')
-      )
-        ai.constructionRadius = 0
-    }
-  world.spellScans ??= Array.from({ length: 4 }, (_, id) =>
-    id === computerTribe
-      ? world.spellScan
-      : { cursor: 0, limit: 0, paused: 0, targets: [0, 0, 0, 0] }
-  )
-  world.respawns ??= Array.from({ length: 4 }, (_, id) =>
-    id === 0 ? (world.respawn ?? 0) : id === computerTribe ? (world.redRespawn ?? 0) : 0
-  )
-  world.respawnPoints ??= Array.from({ length: 4 }, (_, id) =>
-    id === 0 ? world.respawnPoint : id === computerTribe ? world.redRespawnPoint : undefined
-  )
-  if (legacySingleAI && computerTribe !== 1) {
-    world.redRespawn = 0
-    delete world.redRespawnPoint
-  }
-  for (const vehicle of world.vehicles) {
-    vehicle.active ??= true
-    vehicle.life ??= rules.vehicleLife[vehicle.model]
-    vehicle.destructionState ??= 0
-  }
-  world.unlockedTower ??= false
-  world.unlockedTemple ??= false
-  world.unlockedSpyHut ??= false
-  world.unlockedFirewarriorHut ??= false
-  world.unlockedBoatHouse ??= false
-  world.unlockedBalloonHut ??= false
-  world.buildingDirections.balloonHut ??= 0
-  if (!Object.hasOwn(world, 'campaignTimer')) world.campaignTimer = null
-  const oldMissionTwo = world.outcome.level === 2 && !Object.hasOwn(world.ai, 'coordinateLatch')
-  world.ai.coordinateLatch ??= 0
-  if (oldMissionTwo) {
-    world.manaTribes[3] = structuredClone(world.manaTribes[1])
-    world.castingTribes[3] = structuredClone(world.castingTribes[1])
-    world.manaWorld.spells[3] = structuredClone(world.manaWorld.spells[1])
-    world.spellCasts[3] = [...world.spellCasts[1]]
-    world.killCredits[3] = [...world.killCredits[1]]
-    for (const row of world.killCredits) row[3] = row[1]
-    world.tribeCount = 4
-    world.manaTribes[1].active = false
-    Object.assign(world.manaTribes[3], { id: 3, spellOwner: 3, active: true })
-    world.ai.pendingCommands = world.ai.pendingCommands.filter(command => {
-      if (![1069, 1097].includes(command.opcode)) return true
-      campaignCommand(world, command.opcode, command.args)
-      return false
-    })
-  }
-  if (world.outcome.level === 2) {
-    world.killCredits[0][3] = Math.max(world.killCredits[0][3], world.killCredits[0][1])
-    world.killCredits[3][0] = Math.max(world.killCredits[3][0], world.killCredits[1][0])
-  }
-  migrateLegacyWorshipAppearance(world)
-  for (const shrine of world.shrines)
-    shrine.ordinarySpellReward ??= restoreOrdinaryWorshipSource(world.outcome.level, shrine)
-  // Only recover immutable authored endpoints. Keep active effects and terrain intact.
-  migrateLegacyBridgeOrigins(world)
-  if (world.outcome.level === 5 && !world.shrines.some(shrine => shrine.kind === 'angel')) {
-    const angel = createWorld(5).shrines.find(shrine => shrine.kind === 'angel')!
-    world.shrines.push({ ...structuredClone(angel), id: world.nextId++ })
-  }
   for (const shrine of world.shrines)
     if (
       !shrine.reward &&
@@ -253,7 +44,6 @@ export function migrateCheckpoint(world: World) {
       !(shrine.kind === 'angel' && shrine.angelTarget)
     )
       shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind
-  for (const gift of world.gifts) if ((gift.reward as string) === 'vault') gift.reward = 'camp'
   for (const unit of world.units)
     for (const person of [
       unit.native,
@@ -263,54 +53,31 @@ export function migrateCheckpoint(world: World) {
       unit.fight?.motion,
       unit.resident?.person,
     ])
-      if (person) {
-        // Legacy checkpoints predate the native ordinary-person animation gate.
-        // Preserve the saved frame/stamp and every active controller alias.
-        if (person.class === 1 && person.model >= 2 && person.model <= 7)
-          person.flags3 = ((person.flags3 ?? 0) | 0x40000) >>> 0
-        if (unit.shield && !unit.bloodlust && (person.flags3 ?? 0) & 0x80000)
-          person.flags3 = (((person.flags3 ?? 0) & ~0x80000) | 0x8000) >>> 0
-      }
-  world.shots.convertWild ??= 0
-  world.giftCounts.convertWild ??= 0
-  world.shots.hypnotise ??= 0
-  world.giftCounts.hypnotise ??= 0
-  world.shots.ghostArmy ??= 0
-  world.giftCounts.ghostArmy ??= 0
-  world.shots.shield ??= 0
-  world.giftCounts.shield ??= 0
-  world.shots.swarm ??= 0
-  world.giftCounts.swarm ??= 0
-  world.shots.invisibility ??= 0
-  world.giftCounts.invisibility ??= 0
-  world.shots.bloodlust ??= 0
-  world.giftCounts.bloodlust ??= 0
-  world.shots.teleport ??= 0
-  world.giftCounts.teleport ??= 0
-  world.shots.armageddon ??= 0
-  world.giftCounts.armageddon ??= 0
-  world.shots.volcano ??= 0
-  world.giftCounts.volcano ??= 0
-  world.shots.angel ??= 0
-  world.giftCounts.angel ??= 0
-  // Retire stored legacy bank2 poses through their original shape before
-  // registering the world's selected shape, before any restored scene draws.
+      if (person?.class === 1 && person.model >= 2 && person.model <= 7)
+        person.flags3 = (person.flags3 | 0x40000) >>> 0
   syncLandscapeObjects(world)
-  const gifts = world.gifts as unknown as (Gift | LegacyGift)[]
   for (const shrine of world.shrines) initializeVaultKnowledge(shrine, world.outcome.level)
-  for (const gift of gifts) if (gift.kind === 'gift') initializeVaultKnowledgeGift(world, gift)
-  if (!gifts.some(gift => gift.kind !== 'gift')) return world
-  world.gifts = []
-  for (const saved of gifts) {
-    if (saved.kind === 'gift') {
-      world.gifts.push(saved)
-      continue
-    }
-    const gift = createGift(world, saved.kind === 'vault' ? 'camp' : saved.kind, saved)
-    gift.remaining = saved.remaining
-    gift.phase = Math.max(0, Math.min(6, saved.remaining - 76))
-  }
+  for (const gift of world.gifts) initializeVaultKnowledgeGift(world, gift)
   return world
+}
+
+function requireCurrentCheckpoint(world: World) {
+  if (world.capacityPolicy?.version !== 1 || world.capacityPolicy.mode !== 'scalable')
+    throw new RangeError('Checkpoint is incompatible with this development version')
+  restoreCapacityPolicy(world)
+  if (
+    !(world.objectCells.heads instanceof Float64Array) ||
+    !world.secondaryEffects ||
+    !world.worshipAcquisition ||
+    !Array.isArray(world.campaignAIs) ||
+    !Array.isArray(world.vehicles) ||
+    !Array.isArray(world.levelStart) ||
+    !Array.isArray(world.spellScans) ||
+    !Array.isArray(world.respawns) ||
+    !Array.isArray(world.respawnPoints) ||
+    !Number.isInteger(world.outcome.level)
+  )
+    throw new RangeError('Checkpoint is incompatible with this development version')
 }
 
 function openCheckpointDatabase() {
@@ -336,29 +103,44 @@ function openCheckpointDatabase() {
 async function readStoredState() {
   const database = await openCheckpointDatabase()
   if (!database) return null
-  return new Promise<{ checkpoint: World | null; completed: number[] }>((resolve, reject) => {
-    const transaction = database.transaction(CHECKPOINT_STORE),
-      store = transaction.objectStore(CHECKPOINT_STORE),
-      checkpointRequest = store.get('latest'),
-      profileRequest = store.get('profile')
-    transaction.addEventListener('complete', () => {
-      const saved = checkpointRequest.result as { version?: number; world?: World } | undefined,
-        profile = profileRequest.result as { version?: number; completed?: unknown } | undefined
-      resolve({
-        checkpoint: saved?.version === CHECKPOINT_VERSION && saved.world ? saved.world : null,
-        completed:
-          profile?.version === PROFILE_VERSION && Array.isArray(profile.completed)
-            ? profile.completed.filter(
-                (mission): mission is number =>
-                  Number.isInteger(mission) && missionNumbers.some(number => number === mission)
-              )
-            : [],
+  return new Promise<{ checkpoint: World | null; completed: number[]; incompatible: boolean }>(
+    (resolve, reject) => {
+      const transaction = database.transaction(CHECKPOINT_STORE),
+        store = transaction.objectStore(CHECKPOINT_STORE),
+        checkpointRequest = store.get('latest'),
+        profileRequest = store.get('profile')
+      transaction.addEventListener('complete', () => {
+        const saved = checkpointRequest.result as { version?: number; world?: World } | undefined,
+          profile = profileRequest.result as { version?: number; completed?: unknown } | undefined
+        resolve({
+          checkpoint:
+            saved?.world &&
+            saved.version === CHECKPOINT_VERSION &&
+            saved.world.capacityPolicy?.version === 1 &&
+            saved.world.capacityPolicy.mode === 'scalable'
+              ? saved.world
+              : null,
+          incompatible:
+            saved !== undefined &&
+            !(
+              saved?.version === CHECKPOINT_VERSION &&
+              saved.world?.capacityPolicy?.version === 1 &&
+              saved.world.capacityPolicy.mode === 'scalable'
+            ),
+          completed:
+            profile?.version === PROFILE_VERSION && Array.isArray(profile.completed)
+              ? profile.completed.filter(
+                  (mission): mission is number =>
+                    Number.isInteger(mission) && missionNumbers.some(number => number === mission)
+                )
+              : [],
+        })
       })
-    })
-    const fail = () => reject(transaction.error)
-    transaction.addEventListener('error', fail)
-    transaction.addEventListener('abort', fail)
-  })
+      const fail = () => reject(transaction.error)
+      transaction.addEventListener('error', fail)
+      transaction.addEventListener('abort', fail)
+    }
+  )
 }
 
 async function writeStoredValue(key: 'latest', value: unknown) {
@@ -425,7 +207,8 @@ async function writeCompletedMissions(completed: number[]) {
 export function createGameStore() {
   let checkpointReadStatus: CheckpointReadStatus = 'idle'
   let checkpointRestore: Promise<boolean> | null = null
-  let world = createWorld(),
+  let committedCheckpointRevision = 0
+  let world = createWorld(1, 'scalable'),
     checkpoint: World | null = null,
     observedCompletion = world.outcome.completedLevel,
     revision = 0
@@ -497,23 +280,32 @@ export function createGameStore() {
     restoreCheckpoint: () => {
       if (checkpointRestore) return checkpointRestore
       checkpointReadStatus = 'pending'
+      const readRevision = committedCheckpointRevision
       checkpointRestore = (async () => {
         try {
           const saved = await readStoredState()
           if (saved) {
             if (!checkpoint && saved.checkpoint) {
               try {
+                requireCurrentCheckpoint(saved.checkpoint)
                 checkpoint = migrateCheckpoint(structuredClone(saved.checkpoint))
               } catch {
-                // A malformed checkpoint must not suppress the independent campaign profile.
+                saved.incompatible = true
+                // Invalid saves do not suppress the independent campaign profile.
               }
             }
             for (const mission of saved.completed) completedMissions.add(mission)
           }
-          checkpointReadStatus = saved ? 'read' : 'unavailable'
+          // A successful explicit Save supersedes any older storage-read snapshot.
+          if (readRevision === committedCheckpointRevision)
+            checkpointReadStatus = saved
+              ? saved.incompatible
+                ? 'incompatible'
+                : 'read'
+              : 'unavailable'
         } catch {
           // Browser storage is optional; retain any in-session checkpoint.
-          checkpointReadStatus = 'failed'
+          if (readRevision === committedCheckpointRevision) checkpointReadStatus = 'failed'
         } finally {
           checkpointRestore = null
           update()
@@ -524,28 +316,39 @@ export function createGameStore() {
       return checkpointRestore
     },
     saveCheckpoint: async (paused = world.paused) => {
+      requireCurrentCheckpoint(world)
       rebuildSecondaryLists(world.secondaryEffects)
       const saved = structuredClone(world)
       saved.paused = paused
       checkpoint = saved
       update()
       try {
-        return await writeStoredValue('latest', { version: CHECKPOINT_VERSION, world: saved })
+        const written = await writeStoredValue('latest', {
+          version: CHECKPOINT_VERSION,
+          world: saved,
+        })
+        if (written) {
+          committedCheckpointRevision++
+          checkpointReadStatus = 'read'
+          update()
+        }
+        return written
       } catch {
         return false
       }
     },
     loadCheckpoint: () => {
       if (!checkpoint) return false
+      requireCurrentCheckpoint(checkpoint)
       replaceWorld(migrateCheckpoint(structuredClone(checkpoint)))
       return true
     },
     restart: () => {
       const retainResource = !(world.land.landFlags & 8)
-      replaceWorld(createWorld(world.outcome.level), retainResource)
+      replaceWorld(createWorld(world.outcome.level, 'scalable'), retainResource)
     },
     startMission: (mission: number) => {
-      replaceWorld(createWorld(mission))
+      replaceWorld(createWorld(mission, 'scalable'))
     },
   }
 }

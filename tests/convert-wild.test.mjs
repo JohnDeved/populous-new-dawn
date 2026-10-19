@@ -4,7 +4,7 @@ import { createConvertWild, stepConvertWild } from '../app/convert-wild.ts'
 import { processComputerSpells } from '../app/computer-spells.ts'
 import { createTribeCasting } from '../app/spell-casting.ts'
 import { addUnit, cast, command, createWorld, population, selectUnit, tick } from '../app/model.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 
 test('Convert Wild scans, converts, animates, and casts through player and computer paths', () => {
   const center = { x: 0x8000, y: 0x8000, h: 100 },
@@ -122,7 +122,7 @@ test('Convert Wild scans, converts, animates, and casts through player and compu
 
   delete w.shots.convertWild
   delete w.giftCounts.convertWild
-  migrateCheckpoint(w)
+  normalizeHistoricalFixture(w)
   assert.equal(w.shots.convertWild, 0)
   assert.equal(w.giftCounts.convertWild, 0)
 })

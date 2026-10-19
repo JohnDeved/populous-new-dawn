@@ -100,7 +100,7 @@ Prefer modern, measurably better algorithms and data structures when they preser
 required behavior. A slow ray-cast path can be replaced with a better spatial query
 or acceleration method; optimization need not retain the existing algorithm.
 Validate actual gameplay semantics, including hit/occlusion, boundary, wrap and
-tie behavior where relevant. Keep native comparisons and compatibility regressions;
+tie behavior where relevant. Keep native comparisons and supported-behavior regressions;
 do not delete tests blindly or weaken correctness requirements to admit a faster
 implementation. If a test constrains only an incidental internal detail, establish
 and retain coverage of the required behavior before changing that assertion.
@@ -110,6 +110,20 @@ including setup, updates, invalidation, deferred work and allocation pressure as
 applicable. Moving work outside a timing bucket or renaming it does not establish
 a speedup. Separate microbenchmark results from complete gameplay performance;
 follow the [measurement rules](references/modern-performance.md#measurement-rules).
+
+### Development save contract
+
+The game is still in development. Only the current save format is supported;
+backwards compatibility with obsolete development saves is not required. Do not
+add or retain migrations, adapters, or fallback paths solely to load them unless
+the owner explicitly requests that support.
+
+Reject incompatible saves with a clear explanation, without deleting, overwriting,
+or silently resetting stored data. Current-format durability, malformed-input
+checks, new-game/restart behavior, and deterministic save/load continuation remain
+required. Explicit classic/native fixtures may remain as research/test evidence,
+not a promise to load old application saves. This policy concerns development
+saves only, not unrelated platform or API compatibility.
 
 | Change | Start here |
 | --- | --- |
