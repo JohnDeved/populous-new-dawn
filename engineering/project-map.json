@@ -1651,51 +1651,6 @@
   ],
   "crossCutting": [
     {
-      "path": "app/scene-tooltip-runtime.ts",
-      "subsystemIds": ["selection", "camera-clocks"],
-      "checkIds": ["snapshot-drag-portable"]
-    },
-    {
-      "path": "app/scene-picking.ts",
-      "subsystemIds": ["selection"],
-      "checkIds": ["snapshot-drag-portable"]
-    },
-    {
-      "path": "app/scene-camera-runtime.ts",
-      "subsystemIds": ["camera-clocks", "terrain-performance"],
-      "checkIds": ["snapshot-drag-portable"]
-    },
-    {
-      "path": "app/scene-terrain-runtime.ts",
-      "subsystemIds": ["terrain-performance"],
-      "checkIds": ["snapshot-drag-portable"]
-    },
-    {
-      "path": "app/runtime-terrain-picking.ts",
-      "subsystemIds": ["selection", "terrain-performance"],
-      "checkIds": ["snapshot-drag-portable"]
-    },
-    {
-      "path": "app/neutral-cursor.ts",
-      "subsystemIds": ["neutral-canvas-cursor", "selection"],
-      "checkIds": ["snapshot-drag-portable"]
-    },
-    {
-      "path": "scripts/browser-performance/snapshot-drag-contract.mjs",
-      "subsystemIds": ["selection", "terrain-performance"],
-      "checkIds": ["snapshot-drag-portable", "repository-check"]
-    },
-    {
-      "path": "scripts/browser-performance/snapshot-drag-observer.mjs",
-      "subsystemIds": ["selection", "terrain-performance"],
-      "checkIds": ["snapshot-drag-portable", "repository-check"]
-    },
-    {
-      "path": "tests/browser-snapshot-drag.test.mjs",
-      "subsystemIds": ["selection", "terrain-performance"],
-      "checkIds": ["snapshot-drag-portable", "repository-check"]
-    },
-    {
       "path": "app/world-state.ts",
       "subsystemIds": ["campaign", "movement-orders", "persistence"],
       "checkIds": ["orders-portable", "orders-browser", "checkpoint-browser", "mission9-browser", "repository-check", "production-build"]
@@ -1750,7 +1705,7 @@
         "terrain-performance",
         "campaign"
       ],
-      "checkIds": ["snapshot-drag-portable", "repository-check", "production-build"]
+      "checkIds": ["repository-check", "production-build"]
     },
     {
       "path": "app/scene-input-runtime.ts",
@@ -1760,7 +1715,7 @@
         "construction-resources",
         "camera-clocks"
       ],
-      "checkIds": ["snapshot-drag-portable", "repository-check", "production-build"]
+      "checkIds": ["repository-check", "production-build"]
     },
     {
       "path": "app/scene-entities.ts",
@@ -1790,7 +1745,7 @@
     {
       "path": "app/render-view.ts",
       "subsystemIds": ["selection", "camera-clocks", "terrain-performance"],
-      "checkIds": ["snapshot-drag-portable", "production-build"]
+      "checkIds": ["production-build"]
     }
   ],
   "unmappedAreas": [

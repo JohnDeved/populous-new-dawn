@@ -906,11 +906,11 @@ test('plan handles cross-cutting edits, renames, deletions, untracked and unsafe
     assert.throws(() => planChanges(repo, { base: '--help' }), /Unsafe base ref/)
   }))
 
-// Use the live reviewed routes, not a second hand-maintained list of source owners.
-// Synthetic repositories isolate Git changes; no source-profile data is altered.
-test('protected held-drag owners explicitly select the cheap regression without replacing full gates', () =>
+// Exercise the real source-owner trigger list against both narrow and conservative
+// fixture routing. Adding a cheap check must not remove gates or broaden feedback.
+test('protected held-drag owners add the cheap regression without changing existing routing', () =>
   withRepo(repo => {
-    const { project, checks } = validateRepository(ROOT)
+    const { checks } = validateRepository(ROOT)
     const check = checks.checks.find(item => item.id === 'snapshot-drag-portable')
     assert.ok(check)
     assert.equal(check.automation, 'safe')
@@ -918,40 +918,61 @@ test('protected held-drag owners explicitly select the cheap regression without 
     const owners = [...new Set(dragSourceProfiles.flatMap(profile => profile.slices.map(slice => slice.path)))]
     const paths = [...owners, 'scripts/browser-performance/snapshot-drag-contract.mjs',
       'scripts/browser-performance/snapshot-drag-observer.mjs', 'tests/browser-snapshot-drag.test.mjs']
+    assert.deepEqual([...check.triggerPaths].sort(), [...paths].sort())
+    for (const path of [...paths, 'tests/support/tooltip-scene.mjs', 'tests/support/bloodlust-scene.mjs',
+      'tests/support/hut-smoke-scene.mjs', 'scripts/browser-performance/snapshot-capture.mjs', 'scripts/browser-game.mjs'])
+      assert.ok(check.inputs.some(input => path === input || path.startsWith(`${input}/`)), `Missing check input: ${path}`)
+    for (const path of ['scripts', 'tests/support']) mkdirSync(join(repo, path), { recursive: true })
+    put(repo, 'package-lock.json', '{}\n')
+    for (const path of paths) put(repo, path, '// fixture\n')
+    // One explicit narrow owner and one shared owner; all other owners stay
+    // unknown here so their conservative fallback is checked independently too.
+    const mapping = JSON.parse(readFileSync(join(repo, 'engineering/project-map.json')))
+    mapping.subsystems[0].implementationPaths.push('app/neutral-cursor.ts')
+    mapping.subsystems[0].sharedPaths.push('app/scene-input-runtime.ts')
+    put(repo, 'engineering/project-map.json', mapping)
+    run(repo, 'git', 'add', '.')
+    run(repo, 'git', 'commit', '-qm', 'source owner fixtures')
+    const baseline = new Map()
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      baseline.set(path, planChanges(repo))
+      put(repo, path, '// fixture\n')
+    }
     const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
     manifest.checks.push(check)
     put(repo, 'engineering/checks.json', manifest)
-    for (const path of check.inputs.filter(path => !['app', 'package.json'].includes(path))) put(repo, path, '// fixture\n')
-    const mapping = JSON.parse(readFileSync(join(repo, 'engineering/project-map.json')))
-    for (const path of paths) {
-      const route = project.crossCutting.find(entry => entry.path === path)
-      assert.ok(route?.checkIds.includes(check.id), `Missing portable source-owner route: ${path}`)
-      assert.ok(check.inputs.some(input => path === input || path.startsWith(`${input}/`)), `Missing check input: ${path}`)
-      // Preserve the real route's checks; fixture subsystems are deliberately minimal.
-      mapping.crossCutting.push({ ...route, subsystemIds: ['selection'] })
-      put(repo, path, '// fixture\n')
-    }
-    put(repo, 'engineering/project-map.json', mapping)
     run(repo, 'git', 'add', '.')
-    run(repo, 'git', 'commit', '-qm', 'protected source routes')
-    const base = run(repo, 'git', 'rev-parse', 'HEAD').trim()
+    run(repo, 'git', 'commit', '-qm', 'add portable triggers')
     for (const path of paths) {
       appendFileSync(join(repo, path), '// changed\n')
-      const plan = planChanges(repo, { base })
+      const plan = planChanges(repo), previous = baseline.get(path)
       assert.deepEqual(plan.checks.find(item => item.id === check.id)?.command, [check.executable, ...check.args], path)
-      assert.equal(plan.executesChecks, false)
-      assert.deepEqual(plan.feedback.command, ['npm', 'test'], path)
+      assert.deepEqual(plan.checks.filter(item => item.id !== check.id), previous.checks, path)
+      assert.deepEqual(plan.unknownPaths, previous.unknownPaths, path)
+      assert.deepEqual(plan.affectedSubsystems, previous.affectedSubsystems, path)
+      assert.equal(plan.feedback.scope, previous.feedback.scope, path)
       assert.equal(plan.feedback.finalGate, false)
       assert.equal(plan.feedback.fullVerificationRequired, true)
-      assert.ok(plan.checks.some(item => item.id === 'repository-check'), path)
-      if (path.startsWith('app/')) assert.ok(plan.checks.some(item => item.id === 'production-build'), path)
+      assert.equal(plan.executesChecks, false)
+      if (plan.feedback.scope === 'focused') assert.ok(plan.feedback.command.includes('tests/browser-snapshot-drag.test.mjs'))
       put(repo, path, '// fixture\n')
     }
     put(repo, 'app/unmapped.ts', '// unrelated\n')
-    const unrelated = planChanges(repo, { base })
+    const unrelated = planChanges(repo)
     assert.ok(!unrelated.checks.some(item => item.id === check.id))
     assert.ok(unrelated.unknownPaths.includes('app/unmapped.ts'))
     assert.deepEqual(unrelated.feedback.command, ['npm', 'test'])
+  }))
+
+test('explicit check triggers reject unsafe, malformed and empty routes', () =>
+  withRepo(repo => {
+    const checks = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    for (const triggerPaths of [[], 'app/a.ts', ['../escape'], ['/absolute']]) {
+      checks.checks[0].triggerPaths = triggerPaths
+      put(repo, 'engineering/checks.json', checks)
+      assert.throws(() => validateRepository(repo), /triggerPaths|Non-canonical|Unsafe repository path/)
+    }
   }))
 
 test('context-index mapping changes already require behavioral orchestration tests as well as structure', () =>

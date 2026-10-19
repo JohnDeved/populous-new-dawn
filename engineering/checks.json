@@ -862,14 +862,21 @@
       "args": ["--test", "tests/browser-snapshot-drag.test.mjs"],
       "cwd": ".",
       "env": [],
-      "inputs": [
-        "app",
+      "triggerPaths": [
+        "app/scene-input-runtime.ts",
+        "app/scene-tooltip-runtime.ts",
+        "app/scene.ts",
+        "app/scene-picking.ts",
+        "app/render-view.ts",
+        "app/scene-camera-runtime.ts",
+        "app/scene-terrain-runtime.ts",
+        "app/runtime-terrain-picking.ts",
+        "app/neutral-cursor.ts",
         "scripts/browser-performance/snapshot-drag-contract.mjs",
         "scripts/browser-performance/snapshot-drag-observer.mjs",
-        "tests/browser-snapshot-drag.test.mjs",
-        "package.json",
-        "package-lock.json"
+        "tests/browser-snapshot-drag.test.mjs"
       ],
+      "inputs": ["app", "scripts", "tests/support", "tests/browser-snapshot-drag.test.mjs", "package.json", "package-lock.json"],
       "prerequisites": ["Node.js >=22.13.0", "Installed project dependencies"],
       "sideEffects": [],
       "resources": [],
