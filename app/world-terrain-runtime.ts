@@ -34,6 +34,8 @@ import {
 import rules from './original-rules.json' with { type: 'json' }
 import levelOne from './level-one.ts'
 import { terrainSupportsPerson } from './person-collision.ts'
+import { vaultShapePose } from './vault-geometry.ts'
+import { liveBuildingModel } from './live-building-shapes.ts'
 
 export function createMissionLand(level: typeof levelOne) {
   const land = createNativeTerrain(new Int16Array(16384))
@@ -130,7 +132,9 @@ function cellShade(w: World, i: number) {
           flags2: b.hp > 0 ? 0 : 1,
           stage: buildingStage(b),
         }
-      : undefined,
+      : liveBuildingModel(w, w.land.buildingIds[i] & 1023) === 18
+        ? { class: 2, model: 18, state: 2, flags2: 0, stage: 3 }
+        : undefined,
     scenery
   )
 }
@@ -146,6 +150,9 @@ export function syncLandscapeObjects(w: World) {
         { ...buildingPose(b), id: b.id, tribe: tribeForTeam(b.team), plan: !!b.preparation },
       ])
   )
+  for (const shrine of w.shrines)
+    if (shrine.kind === 'vault' && shrine.model)
+      current.set(shrine.id, { ...vaultShapePose(shrine), id: shrine.id, tribe: 255, plan: false })
   const shade = (i: number) => cellShade(w, i)
   const update = (b: RegisteredBuilding & { plan: boolean }, mode: number) => {
     if (!b.plan) return registerBuildingFootprint(w.land, b, mode, shade, () => {})

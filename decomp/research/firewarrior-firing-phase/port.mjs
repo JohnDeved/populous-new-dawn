@@ -7,9 +7,10 @@ import { fileURLToPath } from 'node:url'
 
 const root = new URL('../../../', import.meta.url)
 const caller = new URL('app/live-building-combat.ts', root).href
-// Damaged-building defender lookup changed this file; the ranged/postvisit body
-// and all sixteen model6, vehicle0, command21 cases remain byte-identical.
-const expectedCaller = 'dd73e0970d7e3f404d563c6d2a566e285d461c39208a1f3bec8268eb24173d4d'
+// Vault outside-point lookup changed this file, outside the firing substates.
+// The ranged/postvisit body and all sixteen model6, vehicle0, command21 cases
+// remain byte-identical; keep the whole-caller guard and unchanged native data.
+const expectedCaller = '79d9c5f4d1108ab7223ae356ee11552b23b6d95a13d24b0b9ee7a0ce36febe3b'
 const raw = readFileSync(fileURLToPath(caller))
 assert.equal(createHash('sha256').update(raw).digest('hex'), expectedCaller)
 let exposures = 0

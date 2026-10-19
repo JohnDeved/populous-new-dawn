@@ -6,10 +6,11 @@ import { currentPersonOrder, hasFollowingPersonOrder } from '../app/person-order
 import { unitAnimationSource } from '../app/unit-animation-source.ts'
 import { acquireNaturalPreacher } from '../scripts/mission3-natural-preacher-scenario.mjs'
 
-// Authored acquisition and ordinary commands only. Waiting changes the genuine
-// conversion retry history; no timer, listener, phase, RNG or actor is supplied.
-// This CPU witness does not establish rendered or original-executable parity.
-test('ordinary automatic sermon reaches 840, retires its identity and resumes the retained route', async () => {
+// Genuine acquisition and automatic sermon, then ONE explicitly supplied timer
+// boundary. This tests current live ownership/Save/Load composition, not 840
+// naturally elapsed sermon turns, rendered or original-runtime acceptance.
+// No listener, phase, RNG, HP, actor or queued order is supplied or frozen.
+test('controlled sermon timer 839 preserves current cutoff, order identities and queued route', async () => {
   const store = createGameStore()
   store.startMission(3)
   const journey = acquireNaturalPreacher(store.getWorld())
@@ -21,6 +22,13 @@ test('ordinary automatic sermon reaches 840, retires its identity and resumes th
     assert.deepEqual(restored.objectCells, w.objectCells)
     assert.equal(restored.randomState, w.randomState)
     assert.equal(restored.cosmeticRandom.randomState, w.cosmeticRandom.randomState)
+    assert.deepEqual(restored, w)
+    assert.equal(unitAnimationSource(preacher), person)
+    assert.equal(w.objectCells.objects.get(preacher.id), person)
+    assert.equal(preacher.hp, 55)
+    assert.ok(!preacher.fight)
+    const twin = restored.units.find(unit => unit.id === preacher.id)
+    assert.equal(restored.objectCells.objects.get(preacher.id), unitAnimationSource(twin))
   }
   const step = () => {
     journey.step()
@@ -33,8 +41,6 @@ test('ordinary automatic sermon reaches 840, retires its identity and resumes th
     for (let i = 0; i < limit && !predicate(); i++) step()
     assert.ok(predicate(), label)
   }
-  assert.equal(w.turn, 2012)
-  for (let i = 0; i < 56; i++) step()
   setSelection(w, [shaman.id])
   assert.ok(command(w, { x: -20, z: -105 }))
   setSelection(w, [preacher.id])
@@ -42,41 +48,51 @@ test('ordinary automatic sermon reaches 840, retires its identity and resumes th
   assert.ok(command(w, { x: -25, z: -100 }))
   const person = unitAnimationSource(preacher)
   until('automatic sermon', () => currentPersonOrder(w.buildingOrders, person)?.model === 32, 1000)
-  assert.equal(w.turn, 2540)
   const first = person.immediateCommand
+  assert.ok(first)
+  assert.equal(w.buildingOrders.records[first].references, 1)
   const slots = person.commands.filter(Boolean)
   const records = slots.map(id => structuredClone(w.buildingOrders.records[id]))
   assert.equal(slots.length, 2)
   until('uninterrupted phase 3', () => person.substate === 3, 20)
-  assert.equal(w.turn, 2549)
   assert.equal(person.timer, 0)
-  for (let timer = 1; timer <= 840; timer++) {
-    step()
-    assert.equal(unitAnimationSource(preacher), person)
-    assert.equal(preacher.hp, 55)
-    assert.ok(!preacher.fight)
-    assert.equal(person.immediateCommand, first)
-    assert.equal(person.timer, timer)
-    assert.equal(person.speed, 0)
-    assert.equal(person.substate, timer === 840 ? 4 : 3)
-    const listener = w.units.find(u => u.id === journey.authoredVictimId)
-    assert.equal(listener.native.state, 23)
-    assert.equal(listener.native.workTarget, preacher.id)
-    if (timer === 839) {
-      // Public in-memory Save/Load immediately before expiry. Compare gameplay
-      // ownership/RNG, not browser storage, rendering or full checkpoint schema.
-      await store.saveCheckpoint()
-      assert.ok(store.loadCheckpoint())
-      restored = store.getWorld()
-      compareCheckpoint()
-    }
-  }
-  assert.equal(w.turn, 3389)
+  // Let the real phase-entry initializer clear its own entry flag first.
+  step()
+  assert.equal(person.timer, 1)
+  assert.equal(person.substate, 3)
+  assert.equal(person.immediateCommand, first)
+  const listener = w.units.find(unit => unit.id === journey.authoredVictimId)
+  assert.ok(listener && listener.hp > 0)
+  assert.equal(listener.team, 'yellow')
+  assert.equal(listener.native.state, 23)
+  assert.equal(listener.native.workTarget, preacher.id)
+  assert.equal(w.objectCells.objects.get(preacher.id), person)
+  assert.equal(preacher.native, person)
+  const expectedBoundary = structuredClone(w)
+  expectedBoundary.objectCells.objects.get(preacher.id).timer = 839
+  person.timer = 839 // The sole supplied live-state field in this controlled test.
+  assert.deepEqual(w, expectedBoundary, 'only the approved sermon timer changes at setup')
+  await store.saveCheckpoint()
+  assert.ok(store.loadCheckpoint())
+  restored = store.getWorld()
+  assert.deepEqual(restored, w)
+  compareCheckpoint()
+  step()
+  assert.equal(unitAnimationSource(preacher), person)
+  assert.equal(preacher.hp, 55)
+  assert.ok(!preacher.fight)
+  assert.equal(person.immediateCommand, first)
+  assert.equal(person.timer, 840)
+  assert.equal(person.speed, 0)
+  assert.equal(person.substate, 4)
+  assert.equal(listener.native.state, 23)
+  assert.equal(listener.native.workTarget, preacher.id)
   assert.equal(person.commandCursor, 0)
   assert.equal(hasFollowingPersonOrder(w.buildingOrders, person), true)
   step()
-  assert.equal(w.turn, 3390)
   assert.equal(w.buildingOrders.records[first].references, 0)
+  assert.ok(!person.commands.includes(first))
+  assert.notEqual(person.immediateCommand, first)
   assert.equal(person.commandCursor, 1)
   assert.deepEqual(person.commands.filter(Boolean), slots)
   assert.deepEqual(
@@ -89,12 +105,14 @@ test('ordinary automatic sermon reaches 840, retires its identity and resumes th
   assert.ok(second && second !== first)
   assert.equal(currentPersonOrder(w.buildingOrders, person).model, 32)
   assert.equal(person.substate, 0)
+  assert.equal(w.buildingOrders.records[second].references, 1)
   const released = w.units.find(u => u.id === journey.authoredVictimId)
   assert.notEqual(released.native.state, 23)
   assert.equal(released.native.workTarget, 0)
   until('second sermon ends', () => person.immediateCommand === 0, 150)
-  assert.equal(w.turn, 3493)
   assert.equal(w.buildingOrders.records[second].references, 0)
+  assert.equal(w.buildingOrders.records[first].references, 0)
+  assert.ok(!person.commands.includes(first) && !person.commands.includes(second))
   assert.ok(
     journey
       .observation()
@@ -105,7 +123,9 @@ test('ordinary automatic sermon reaches 840, retires its identity and resumes th
     () => slots.every(id => w.buildingOrders.records[id].references === 0),
     200
   )
-  assert.equal(w.turn, 3565)
+  assert.equal(w.buildingOrders.records[first].references, 0)
+  assert.equal(w.buildingOrders.records[second].references, 0)
+  assert.equal(w.objectCells.objects.get(preacher.id), person)
   assert.equal(unitAnimationSource(preacher), person)
   assert.equal(preacher.hp, 55)
   assert.ok(!preacher.fight)

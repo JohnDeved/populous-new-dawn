@@ -898,6 +898,14 @@ export function updateShrinesFrame(scene: GameScene) {
     const entry = scene.shrineMeshes.get(shrine.id)
     if (!entry) continue
     scene.locate(entry.g, shrine)
+    if (shrine.kind === 'vault')
+      updateWaveShake(
+        entry.g,
+        shrine,
+        nativePosition(scene.world, shrine),
+        scene.gameClock.animationFrame,
+        scene.waveFrames
+      )
     scene.orientModel(entry.g, stoneHeadAngle(shrine, scene.world.outcome.level))
     const marker = entry.g.userData.vaultKnowledgeMarker as THREE.Group | undefined
     if (marker) {
