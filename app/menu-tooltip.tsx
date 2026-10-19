@@ -84,6 +84,31 @@ export function useMenuTooltip(container: RefObject<HTMLElement | null>, attribu
 const glyphs = provenance.fonts.tooltip.glyphs
 const atlas = '/original/world-selector/text/tooltip-font-c.png'
 
+function MenuTooltipText({ text, ready }: { text: string; ready: boolean }) {
+  // Freeze typography for this visible tooltip. A late decode can improve the
+  // next hover, but must never replace fallback text under the user's pointer.
+  const [useArtwork] = useState(ready)
+  if (!useArtwork) return <>{text}</>
+  return (
+    <>
+      {Array.from(text, (letter, index) => {
+        const glyph = glyphs[letter.charCodeAt(0) - 32] ?? glyphs[31]
+        return (
+          <i
+            key={index}
+            style={{
+              width: glyph.width,
+              height: glyph.height,
+              backgroundImage: `url('${atlas}')`,
+              backgroundPosition: `-${glyph.x}px -${glyph.y}px`,
+            }}
+          />
+        )
+      })}
+    </>
+  )
+}
+
 export function MenuTooltip({ container }: { container: RefObject<HTMLElement | null> }) {
   const state = useMenuTooltip(container, 'data-menu-tooltip')
   const [ready, setReady] = useState(false)
@@ -121,19 +146,7 @@ export function MenuTooltip({ container }: { container: RefObject<HTMLElement | 
       aria-hidden="true"
       style={{ ...position, width, height }}
     >
-      {ready
-        ? letters.map((glyph, index) => (
-            <i
-              key={index}
-              style={{
-                width: glyph.width,
-                height: glyph.height,
-                backgroundImage: `url('${atlas}')`,
-                backgroundPosition: `-${glyph.x}px -${glyph.y}px`,
-              }}
-            />
-          ))
-        : state.value}
+      <MenuTooltipText key={state.started} text={state.value} ready={ready} />
     </span>
   )
 }

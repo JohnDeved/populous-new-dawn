@@ -104,3 +104,55 @@ test('changed availability and detached owner cannot leave a stale tooltip', () 
     change(a); assert.equal(f.render(),undefined); f.unmount()
   }
 })
+
+test('visible tooltip typography is settled across late decode success and failure', () => {
+  const component = source.slice(source.indexOf('function MenuTooltipText'), source.indexOf('export function MenuTooltip({'))
+  const js = ts.transpileModule(component, { compilerOptions: { target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React } }).outputText
+  const React = { Fragment: 'fragment', createElement: (type, props, ...children) => ({ type, props, children }) }
+  function mount(initialReady) {
+    let settled
+    const useState = value => { if (settled === undefined) settled = value; return [settled] }
+    const render = Function('useState', 'React', 'glyphs', 'atlas', js + '\nreturn MenuTooltipText')(useState,React,provenance.fonts.tooltip.glyphs,'atlas')
+    return { initial: render({ text: 'Unavailable', ready: initialReady }), render }
+  }
+  const pending = mount(false)
+  assert.deepEqual(pending.initial.children, ['Unavailable'])
+  assert.deepEqual(pending.render({ text: 'Unavailable', ready: true }), pending.initial, 'late successful decode cannot swap a visible tooltip')
+  assert.deepEqual(pending.render({ text: 'Unavailable', ready: false }), pending.initial, 'failed decode keeps fallback available')
+  const nextHover = mount(true)
+  assert.equal(nextHover.initial.children[0].length, 'Unavailable'.length)
+  assert.ok(nextHover.initial.children[0].every(glyph => glyph.type === 'i'))
+  assert.deepEqual(nextHover.render({ text: 'Unavailable', ready: false }), nextHover.initial, 'visible native tooltip remains settled')
+  assert.match(source,/MenuTooltipText key=\{state.started\}/, 'new hover owns a fresh typography decision')
+})
+
+test('rendered native glyph widths equal advances and longest unavailable reason fits with padding', () => {
+  for (const glyph of provenance.fonts.tooltip.glyphs) assert.equal(glyph.width, glyph.advance)
+  const rows = main.slice(main.indexOf('  const rows = ['), main.indexOf('  return (\n    <dialog'))
+  const reasons = [...rows.matchAll(/(?:unavailable: |\? |: )'([^'\n]*(?:available|restored|storage|checkpoint)[^'\n]*)'/g)].map(match => match[1])
+  const measured = reasons.map(text => ({ text, width: [...text].reduce((sum,c)=>sum+provenance.fonts.tooltip.glyphs[c.charCodeAt(0)-32].width,0) }))
+  const longest = measured.sort((a,b)=>b.width-a.width)[0]
+  assert.deepEqual(longest, { text:'Multiplayer is not available in this single-player remake', width:298 })
+  assert.equal(4*(Math.floor(longest.width/4)+3),308)
+  assert.ok(308 < 640)
+})
+
+test('atlas decoder failure does not block navigation and late completion cannot publish after unmount', async () => {
+  const component = source.slice(source.indexOf('export function MenuTooltip({')).replace('export function','function')
+  const js = ts.transpileModule(component, { compilerOptions: { target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React } }).outputText
+  for (const outcome of ['success', 'failure', 'unmounted-success', 'unmounted-failure']) {
+    let resolve, reject, effect
+    const publications = []
+    const promise = new Promise((yes,no)=>{resolve=yes;reject=no})
+    class Image { decode() { return promise } }
+    const render = Function('useMenuTooltip','useState','useEffect','Image','atlas',js+'\nreturn MenuTooltip')(
+      ()=>undefined, ()=>[false,value=>publications.push(value)], fn=>{effect=fn},Image,'atlas')
+    assert.equal(render({container:{current:null}}),null,'pending art never blocks menu render')
+    const cleanup=effect()
+    if (outcome.startsWith('unmounted')) cleanup()
+    if (outcome.endsWith('success')) resolve(); else reject(new Error('Missing atlas'))
+    await Promise.resolve(); await Promise.resolve()
+    assert.deepEqual(publications,outcome==='success'?[true]:[])
+    cleanup()
+  }
+})
