@@ -496,6 +496,7 @@ export class GitHubReader {
       const main = this.get(`${root}/git/ref/heads/main`).object.sha
       Object.assign(result, {
         head: pr.head.sha,
+        headRef: pr.head.ref,
         base: main,
         advertisedBase: { sha: pr.base.sha, ref: pr.base.ref, repo: pr.base.repo.full_name },
         draft: pr.draft,
@@ -564,7 +565,26 @@ export class GitHubReader {
           .filter(Boolean)
         if (!result.upToDate && pr.head.sha === entry.sourceHead)
           result.refresh = this.refresh(entry, pr.head.sha, main)
-        if (pr.base.sha !== main) {
+        if (pr.base.sha !== main && result.upToDate) {
+          // Metadata-only reconciliation is distinct from merging main into a
+          // stale source. Admission-only callers have no authority for this effect.
+          ensure(
+            !admissionOnly && pr.state === 'open' && pr.draft === true &&
+              pr.mergeable === true && main === entry.reviewBase &&
+              pr.head.sha === entry.sourceHead && result.headCommit.tree === entry.sourceTree &&
+              sha(pr.base.sha) && this.git('merge-base', pr.base.sha, main) === pr.base.sha,
+            'Stale PR base metadata lacks exact reviewed current-main draft proof'
+          )
+          result.synthetic = this.commit(pr.merge_commit_sha)
+          ensure(
+            result.synthetic.parents.length === 2 &&
+              result.synthetic.parents[0] === main && result.synthetic.parents[1] === pr.head.sha &&
+              result.synthetic.tree === entry.sourceTree,
+            'Stale PR base metadata has unexpected synthetic parents or tree'
+          )
+          result.baseMetadataRefreshOnly = true
+          result.workflows.push(...GATES.map(g => this.workflow(g.workflow, result.synthetic.sha)))
+        } else if (pr.base.sha !== main) {
           ensure(
             pr.state === 'open' &&
               pr.draft === true &&
@@ -612,6 +632,7 @@ export class GitHubReader {
       const endMain = this.get(`${root}/git/ref/heads/main`).object.sha
       result.consistent =
         endPr.head.sha === result.head &&
+        endPr.head.ref === pr.head.ref &&
         endPr.base.sha === pr.base.sha &&
         endPr.base.ref === pr.base.ref &&
         endPr.base.repo.full_name === pr.base.repo.full_name &&

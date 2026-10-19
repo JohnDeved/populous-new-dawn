@@ -82,6 +82,10 @@ export function validateEntry(entry) {
     'Refresh and browser policy must be explicit'
   )
   requireThat(
+    entry.allowBaseMetadataRefresh === undefined || typeof entry.allowBaseMetadataRefresh === 'boolean',
+    'Base metadata refresh policy must be boolean when supplied'
+  )
+  requireThat(
     entry.approvedBy?.trim() &&
       entry.review?.reviewer?.trim() &&
       entry.review.decision === 'ACCEPT' &&
@@ -265,6 +269,34 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
         state.head === entry.sourceHead && o.headCommit?.tree === entry.sourceTree,
         'Reviewed source content differs'
       )
+    if (state.pending?.kind === 'refresh-base') {
+      const p = state.pending
+      requireThat(
+        o.state === 'open' && o.merged === false && o.draft === true &&
+          o.mergeable === true && o.upToDate === true &&
+          o.head === p.head && o.headRef === p.headRef && o.base === p.base &&
+          o.headCommit?.tree === p.tree && o.synthetic?.sha === p.merge &&
+          o.synthetic?.tree === p.tree && same(o.synthetic?.parents, [p.base, p.head]) &&
+          o.advertisedBase?.ref === 'main' && o.advertisedBase.repo === REPO,
+        'Base metadata refresh changed source, refs, draft, base or synthetic; reconcile manually'
+      )
+      if (o.advertisedBase.sha !== p.base)
+        return stop('Base metadata refresh outcome uncertain; inspect PR before any retry')
+      state.baseMetadataRefresh = p
+      state.pending = null
+      state.quiet = null
+    }
+    if (state.baseMetadataRefresh && !o.merged) {
+      const p = state.baseMetadataRefresh
+      requireThat(
+        o.head === p.head && o.headRef === p.headRef && o.base === p.base &&
+          o.synthetic?.sha === p.merge && o.synthetic?.tree === p.tree &&
+          same(o.synthetic?.parents, [p.base, p.head]) &&
+          o.advertisedBase?.sha === p.base && o.advertisedBase.ref === 'main' &&
+          o.advertisedBase.repo === REPO,
+        'Reconciled base metadata identity changed; obtain new review'
+      )
+    }
     if (state.pending?.kind === 'draft') {
       requireThat(
         o.base === state.pending.base,
@@ -392,10 +424,12 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
     }
     const fingerprint = digest({
       head: o.head,
+      headRef: o.headRef,
       base: o.base,
       draft: o.draft,
       merge: o.synthetic,
       refreshOnly: o.refreshOnly,
+      baseMetadataRefreshOnly: o.baseMetadataRefreshOnly,
       staleSynthetic: o.staleSynthetic,
       advertisedBase: o.advertisedBase,
       currentChecks: o.currentChecks
@@ -459,6 +493,23 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
         o.resource.tree === o.synthetic.tree,
       'Resource preflight needs a clean exact synthetic candidate checkout and installed dependencies'
     )
+    if (o.baseMetadataRefreshOnly || (o.advertisedBase && o.advertisedBase.sha !== o.base)) {
+      requireThat(
+        entry.allowBaseMetadataRefresh === true && !state.baseMetadataRefresh &&
+          !state.readyAdmission && !state.refreshed && o.baseMetadataRefreshOnly === true &&
+          o.state === 'open' && o.merged === false && o.draft === true && o.mergeable === true &&
+          o.head === entry.sourceHead && o.base === entry.reviewBase &&
+          typeof o.headRef === 'string' && o.headRef.trim() &&
+          o.synthetic.tree === entry.sourceTree && o.headCommit?.tree === entry.sourceTree &&
+          sha(o.advertisedBase?.sha) && o.advertisedBase.sha !== o.base &&
+          o.advertisedBase.ref === 'main' && o.advertisedBase.repo === REPO,
+        'Base metadata refresh is not authorized or lacks exact reviewed draft identity'
+      )
+      validateBeforeDraft(entry, o, required, true)
+      return propose({ kind: 'refresh-base', head: o.head, headRef: o.headRef,
+        base: o.base, baseRef: 'main', previousBase: o.advertisedBase.sha,
+        merge: o.synthetic.sha, tree: o.synthetic.tree })
+    }
     if (o.draft === true) {
       requireThat(!state.readyAdmission, 'Ready transition already used; obtain new review')
       validateBeforeDraft(entry, o, required, true)
