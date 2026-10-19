@@ -20,9 +20,13 @@ export function syncSecondaryReservations(scene: GameScene) {
       !scene.world.buildings.some(b => b.id === id && b.kind === 'hut' && b.progress >= 1)
     )
       buildingOwners.add(id)
-  scene.world.secondaryEffects.reservations = [
-    ...[...(scene.objectPanels?.panels.keys() ?? [])].map(id => `object-panel:${id}`),
-    ...[...buildingOwners].map(id => `building-panel:${id}`),
-    ...(scene.cursor?.visible ? ['placement-preview'] : []),
-  ]
+  // Capture the assignment target before reading panel/cursor owners, just as
+  // the original assignment did. Publish a fresh array only after all reads;
+  // observers and reentrant calls must not see or overwrite a partial result.
+  const effects = scene.world.secondaryEffects,
+    reservations: string[] = []
+  for (const id of scene.objectPanels?.panels.keys() ?? []) reservations.push(`object-panel:${id}`)
+  for (const id of buildingOwners) reservations.push(`building-panel:${id}`)
+  if (scene.cursor?.visible) reservations.push('placement-preview')
+  effects.reservations = reservations
 }
