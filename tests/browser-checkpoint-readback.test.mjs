@@ -151,3 +151,23 @@ for (const [file, variable, field] of [
     assert.equal(check(value, isDeepStrictEqual), false, 'Envelope compatibility cannot mask state drift')
   }
 })
+
+// Supplied browser setup is current-format data, not an obsolete-save adapter.
+test('Mission 2 supplied browser checkpoint uses current scalable schema and normalization', async t => {
+  const { mkdtempSync, rmSync } = await import('node:fs'),
+    { tmpdir } = await import('node:os'),
+    { join } = await import('node:path'),
+    { createM2Checkpoint } = await import('../scripts/tutorial-browser/m2-checkpoint.mjs'),
+    { checkpointCodec } = await import('../scripts/tutorial-browser/checkpoint-codec.mjs'),
+    { createGameStore } = await import('../app/game-store.ts'),
+    output = mkdtempSync(join(tmpdir(), 'pnd-current-m2-'))
+  t.after(() => rmSync(output, { recursive: true, force: true }))
+  const fixture = await createM2Checkpoint(output, { commit: 'controlled-current-source', files: [] }),
+    record = checkpointCodec(fixture.transfer, true), store = createGameStore()
+  assert.equal(record.version, 2)
+  assert.deepEqual(record.world.capacityPolicy, { version: 1, mode: 'scalable' })
+  Object.assign(store.getWorld(), record.world)
+  await store.saveCheckpoint()
+  assert.equal(store.loadCheckpoint(), true)
+  assert.deepEqual(store.getWorld(), checkpointCodec(fixture.expected, true))
+})
