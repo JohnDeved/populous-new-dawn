@@ -20,6 +20,7 @@ const selectorScenario = resolve(root, 'scripts/tutorial-browser/selector-inspec
 const sceneryScenario = resolve(root, 'scripts/tutorial-browser/scenery-placement.mjs')
 const spellProjectionScenario = resolve(root, 'scripts/tutorial-browser/spell-projection.mjs')
 const buildingIdentityScenario = resolve(root, 'scripts/tutorial-browser/building-panel-identity.mjs')
+const spellIconScenario = resolve(root, 'scripts/tutorial-browser/spell-icon-states.mjs')
 const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
 const frontendEscapeScenario = resolve(root, 'scripts/local-render/frontend-held-escape.mjs')
 const recoveryScenario = resolve(root, 'scripts/local-render/campaign-profile-recovery.mjs')
@@ -84,6 +85,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   browserConfigSha256: hash(resolve(dirname(import.meta.filename), 'browser-config.mjs')),
   scenarioSha256: hash(scenario), fixtureSha256: hash(resolve(fixture, 'main.tsx')),
   selectorScenarioSha256: hash(selectorScenario), sceneryScenarioSha256: hash(sceneryScenario),
+  spellIconScenarioSha256: hash(spellIconScenario),
   spellProjectionScenarioSha256: hash(spellProjectionScenario), spellProjectionCoverageSha256: hash(resolve(root, 'scripts/tutorial-browser/spell-projection-coverage.mjs')),
   buildingIdentityScenarioSha256: hash(buildingIdentityScenario), buildingIdentityFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-fixture.mjs')),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
@@ -94,7 +96,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   limits: [...source.limits, 'Production Vite bundle of actual Home; excludes Vinext/Cloudflare/RSC hosting. No causal claim about prior development-server crashes.'], errors: [], warnings: [] }
 const save = () => writeFileSync(resolve(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
 const abort = new AbortController()
-let browser, context, page, server, timer, m2Fixture
+let browser, context, page, server, timer, m2Fixture, browserStartedAt
 const before = metadata(dependencies)
 receipt.dependenciesBeforeSha256 = createHash('sha256').update(JSON.stringify(before)).digest('hex')
 try {
@@ -129,6 +131,7 @@ try {
   server = await preview({ configFile: false, root: fixture, build: { outDir: dist }, preview: { host: '127.0.0.1', port, strictPort: true } })
   browser = await chromium.launch(browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
+  browserStartedAt = performance.now()
   receipt.browserCapMs = browserCapMs(selectedScenario)
   if (selectedScenario === 'snapshot-protocol') receipt.browserBudget = snapshotSmokeBudget
   else
@@ -169,6 +172,12 @@ try {
   }
   if (selectedScenario === 'tutorial') receipt.spellProjection = await (await import(pathToFileURL(spellProjectionScenario).href)).default({ browser, url, output: out, root, dist })
   if (selectedScenario === 'tutorial') receipt.buildingPanelIdentity = await (await import(pathToFileURL(buildingIdentityScenario).href)).default({ browser, url, output: out })
+  if (selectedScenario === 'tutorial' || selectedScenario === 'frontend-held-escape') {
+    const elapsedMs = performance.now() - browserStartedAt
+    receipt.spellIconBudgetBefore = { elapsedMs, remainingMs: Math.max(0, receipt.browserCapMs - elapsedMs) }
+    save()
+    receipt.spellIconStates = await (await import(pathToFileURL(spellIconScenario).href)).default({ browser, url, output: out, root, episode: selectedScenario })
+  }
   assert.equal(receipt.browserTimedOut, undefined)
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
   receipt.status = 'passed'
