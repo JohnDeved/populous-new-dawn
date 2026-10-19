@@ -191,6 +191,7 @@ import { recordWorshipPanelActivity } from './worship-panel-activity.ts'
 import { requestVaultPanel } from './training-panel-requests.ts'
 import {
   cancelLiveOrder,
+  orderEffects,
   stepLiveConversionVictim,
   stepLiveMovement,
   stepLivePreaching,
@@ -219,7 +220,12 @@ import { firewarriorRange, launchFirewarrior, stepFirewarriorShots } from './fir
 import { buildingDoor, entrance, findPath, route, tell } from './live-command.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
-import { currentPersonOrder, emptyPersonOrder, type OrderPool } from './person-orders.ts'
+import {
+  clearPersonOrders,
+  currentPersonOrder,
+  emptyPersonOrder,
+  type OrderPool,
+} from './person-orders.ts'
 import {
   clickPersonSelection,
   markPersonSelected,
@@ -1813,10 +1819,23 @@ function stepTurn(w: World, metrics?: { steps: number }) {
   removeDeadLiveRoutes(w)
   for (const u of w.units)
     if (u.hp <= 0 && !u.flight && u.native?.state !== 44) {
-      if (u.inside !== null) leaveLiveBuilding(w, u)
+      // Capture physical owners before ordinary cancellation detaches their roles.
+      // Those cancellation whitelists intentionally retain patrols, but a person
+      // removed below cannot keep owning any queued or immediate command.
+      const retiredPeople = new Set([
+        u.native,
+        u.fight?.motion,
+        u.entry?.person,
+        u.builder?.person,
+        residentPerson(w, u),
+      ])
+      if (u.inside !== null) retiredPeople.add(leaveLiveBuilding(w, u))
       cancelLiveBuildingAttack(w, u)
       cancelLiveOrder(w, u)
       cancelBuildingEntry(w, u)
+      const effects = orderEffects(w)
+      for (const person of retiredPeople)
+        if (person) clearPersonOrders(w.buildingOrders, person, effects)
     }
   w.units = w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44)
   removeMissingVehiclePassengers(w)
