@@ -404,10 +404,6 @@ function issueLiveOrders(
               b: y,
               flags: order.flags | commandFlags,
             })
-          if (model === 22) {
-            if (command.boardingOriginKnown === true) order.boardingOriginKnown = true
-            else delete order.boardingOriginKnown
-          }
           return
         }
         if (model !== 3) unsupported()

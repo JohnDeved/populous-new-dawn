@@ -3,12 +3,11 @@ import type { OrderedPerson, OrderPool, PersonOrder } from './person-orders.ts'
 
 // 0x435197–0x4351cc -> 0x450590: only the current craft cell is even-masked.
 // Unlike 0x49c720, these wrapped byte deltas are not halved before squaring.
-// Legacy unmarked records retain unknown origins rather than inventing a click.
 export function boardingTargetLeftOrigin(
-  order: Pick<PersonOrder, 'model' | 'b' | 'boardingOriginKnown'>,
+  order: Pick<PersonOrder, 'model' | 'b'>,
   vehicle: { x: number; y: number }
 ) {
-  if (order.model !== 22 || order.boardingOriginKnown !== true) return false
+  if (order.model !== 22) return false
   const x = cellDelta(order.b, (vehicle.x >>> 8) & 254),
     y = cellDelta(order.b >>> 8, (vehicle.y >>> 8) & 254)
   return x * x + y * y >= 100

@@ -527,7 +527,6 @@ export function command(
         model: 22,
         a: context.vehicle.id,
         b: ((context.vehicle.x >>> 8) & 255) | (context.vehicle.y & 0xff00),
-        boardingOriginKnown: true,
       })
     let count = 0
     for (const u of units) {
@@ -650,7 +649,6 @@ export function command(
       ((to.x >>> 8) & 255) | (to.y & 0xff00),
       input.flags
     )
-    if (model === 22) order.boardingOriginKnown = true
     const result = appendLivePlayerOrders(w, units, order, slot === 0)
     if (model === 15 && result.accepted && context.building)
       for (const u of units) {

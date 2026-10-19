@@ -3,11 +3,10 @@ import assert from 'node:assert/strict'
 import * as boarding from '../app/vehicle-boarding-orders.ts'
 import { allocatePersonOrder, emptyPersonOrder } from '../app/person-orders.ts'
 
-const order = (b, known = true) => ({
+const order = b => ({
   ...emptyPersonOrder(),
   model: 22,
   b,
-  ...(known ? { boardingOriginKnown: true } : {}),
 })
 const target = (x, y) => ({ x: x * 256, y: y * 256 })
 
@@ -29,27 +28,26 @@ test('boarding origin limit uses wrapped unhalved byte distances and cancels at 
   )
 })
 
-test('captured origin zero is distinct from unmarked legacy payloads', () => {
-  assert.equal(boarding.boardingTargetLeftOrigin(order(0), target(10, 0)), true)
+test('every boarding origin expires without browser metadata, including zero', () => {
   for (const b of [0, 0x1234]) {
-    const legacy = order(b, false),
-      before = structuredClone(legacy)
-    assert.equal(boarding.boardingTargetLeftOrigin(legacy, target(128, 128)), false)
-    assert.deepEqual(legacy, before, 'unknown origin is not inferred or mutated')
+    const command = { model: 22, b },
+      before = structuredClone(command)
+    assert.equal(boarding.boardingTargetLeftOrigin(command, target(128, 128)), true)
+    assert.deepEqual(command, before, 'testing the origin does not mutate its payload')
   }
   assert.equal(
     boarding.boardingTargetLeftOrigin({ ...order(0), model: 3 }, target(10, 0)),
     false,
-    'the browser marker does not reinterpret another native command model'
+    'the origin limit does not reinterpret another native command model'
   )
 })
 
-test('reusing a zero-reference command slot clears captured-origin provenance', () => {
-  const record = order(0),
+test('reusing a zero-reference command slot clears identity and retains native payloads', () => {
+  const record = { ...order(0x1234), a: 62, flags: 128, object: 91 },
     pool = { cursor: 1, active: 0, records: Array.from({ length: 800 }, emptyPersonOrder) }
   pool.records[1] = record
   assert.equal(allocatePersonOrder(pool), 1)
-  assert.equal(Object.hasOwn(record, 'boardingOriginKnown'), false)
-  assert.equal(record.b, 0, 'native payload preservation remains unchanged')
+  assert.deepEqual([record.model, record.flags, record.object], [0, 0, 0])
+  assert.deepEqual([record.a, record.b], [62, 0x1234], 'native payloads survive allocation')
   assert.equal(boarding.boardingTargetLeftOrigin(record, target(10, 0)), false)
 })

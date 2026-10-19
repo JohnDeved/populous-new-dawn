@@ -33,27 +33,25 @@ The checked-in 00450590 export has SHA-256
 `4fb818c75935bb1d48527222cdc8b05984e22039b1191e46d18d656eb62554c4`.
 Raw local disassembly and failed/passing receipts remain outside Git.
 
-## Live integration and compatibility
+## Live integration
 
 Both command-22 producers in `live-command.ts` capture the actual packed point:
-the fallback boarding path and the shared player queue. Their new optional
-`boardingOriginKnown` flag is browser provenance, not an original native field.
-Shared preparation copies it, and allocation clears it before record reuse.
-No current computer/worship/guard producer emits command 22.
+the alternate live boarding path and the shared player queue. Both are required
+for current live states; neither is an old-save compatibility path. Shared
+preparation preserves the native payload. No current computer/worship/guard
+producer emits command 22.
 
-Zero is a legitimate captured point. Old checkpoints are therefore not classified
-by `b == 0`, nor is an original click reconstructed from the craft's current
-position. Unmarked records keep their previous adapter behavior; newly marked
-records, including origin zero, take the native limit. The existing full-world
-structured-clone Save/Load and IndexedDB serialization preserve this optional
-field. Migration does not add it. This is a deliberate compatibility boundary,
-not native-equivalence credit for unknown historical origins.
+Every command-22 record uses its packed `b` origin directly, including the valid
+origin zero. No browser provenance flag, zero sentinel, or inferred click is
+needed. Current full-world Save/Load preserves the command and its native payload;
+historical browser-checkpoint compatibility is not supported by this change.
+Allocation still clears native command identity while retaining payload bytes.
 
 ## Verification and limits
 
 Focused controls cover reachable distance 98 and exact cancellation at 100,
 odd clicked coordinates versus current even-cell masking, byte and signed-short
-seams, real origin zero, unknown legacy records, and pooled reuse. Distance 99
+seams, zero and nonzero origins without metadata, and pooled reuse. Distance 99
 cannot be a sum of two integer squares, so no fictitious coordinate case is used.
 The live control issues a real public M10 boarding command, supplies only a
 craft displacement to another untouched ready shoreline, and checks completion,
@@ -61,8 +59,9 @@ owner identity, empty seats, unchanged health and exact public Save/Load replay.
 A separate full-world control verifies equivalence to the existing missing-target
 completion path, including physics, idle initialization and RNG.
 
-The old grounded queue test's legacy checkpoint removes the new flag as well as
-restoring its historical zero payload; all existing outcomes remain asserted.
+The grounded queue test retains its ordinary boarding, current Save/Load replay,
+lethal contrast, ownership, and reference-retirement assertions. Its obsolete
+historical-checkpoint clone is removed rather than supported by a fallback.
 No acquisition, ordinary sailed moving-target trajectory, rendered-input,
 native steering/collision, full campaign or real-browser persistence claim is
 made by these supplied-state tests. Mission 5's previously repaired boarding

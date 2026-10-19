@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createGameStore, migrateCheckpoint } from '../app/game-store.ts'
+import { createGameStore } from '../app/game-store.ts'
 import { browserPosition, command, selectUnit } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { stepLiveMovement } from '../app/live-movement.ts'
@@ -61,42 +61,29 @@ test('a public captured boarding order retires after its target leaves the origi
   assert.equal(order.b, originalPayload, 'completion does not rewrite the original click')
 })
 
-test('public Save/Load preserves capture provenance; old checkpoints keep it absent', async () => {
-  const { store, world, unit, person, order } = fixture()
-  assert.equal(order.boardingOriginKnown, true)
+test('public Save/Load preserves the captured boarding origin and full current world', async () => {
+  const { store, world, unit, order } = fixture()
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
   const restored = store.getWorld(),
     p = restored.units.find(u => u.id === unit.id).native
-  assert.equal(currentPersonOrder(restored.buildingOrders, p).boardingOriginKnown, true)
-  for (const b of [0, order.b]) {
-    const legacy = structuredClone(world),
-      actor = legacy.units.find(u => u.id === unit.id),
-      oldOrder = currentPersonOrder(legacy.buildingOrders, actor.native)
-    delete oldOrder.boardingOriginKnown
-    oldOrder.b = b
-    migrateCheckpoint(legacy)
-    assert.equal(Object.hasOwn(oldOrder, 'boardingOriginKnown'), false)
-    stepLiveMovement(legacy, actor)
-    assert.equal(oldOrder.references, 1, 'unknown legacy click retains prior adapter behavior')
-    assert.equal(actor.native.vehicle, person.vehicle)
-  }
+  assert.deepEqual(restored, world)
+  assert.deepEqual(currentPersonOrder(restored.buildingOrders, p), order)
 })
 
-test('a new public boarding click at packed origin zero is captured, not treated as legacy', async () => {
+test('a public boarding click at packed origin zero retains the native distance limit', async () => {
   const store = createGameStore()
   store.startMission(10)
   const world = store.getWorld(),
     boat = world.vehicles.find(v => v.id === 62),
     unit = world.units.find(u => u.id === 111)
-  // Supplied origin-zero craft position tests packet provenance, not navigation.
+  // Supplied origin-zero craft position tests the public producer, not navigation.
   Object.assign(boat, { x: 128, y: 128 })
   selectUnit(world, unit.id, false)
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   const order = currentPersonOrder(world.buildingOrders, unit.native)
   assert.equal(order.model, 22)
   assert.equal(order.b, 0)
-  assert.equal(order.boardingOriginKnown, true)
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
   const restored = store.getWorld(),

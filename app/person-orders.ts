@@ -10,9 +10,6 @@ export type PersonOrder = {
   object: number
   a: number
   b: number
-  // Browser provenance only: old checkpoints may not contain the clicked cell.
-  // Zero is a valid captured origin, so the native payload cannot be a sentinel.
-  boardingOriginKnown?: true
 }
 export type OrderPool = { records: PersonOrder[]; cursor: number; active: number }
 export type OrderGroup = { records: PersonOrder[]; count: number; cursor: number }
@@ -150,7 +147,6 @@ export function allocatePersonOrder(pool: OrderPool) {
     order.model = 0
     order.flags = 0
     order.object = 0
-    delete order.boardingOriginKnown
     pool.cursor = index < 799 ? index + 1 : 1
     return index
   }
