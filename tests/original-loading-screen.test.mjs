@@ -40,6 +40,79 @@ test('restore and actual resource loading share the imported mask and readable l
   }
 })
 
+test('first server paint exposes eager native art without a visible generic text or hydration gate', () => {
+  for (const phase of ['restore', 'loading']) {
+    const html = render(phase)
+    assert.match(html, /<link rel="preload" as="image" href="\/original\/loading-mask.png" fetchPriority="high"\/>/)
+    assert.match(html, /<link rel="preload" as="image" href="\/original\/loading-label.png" fetchPriority="high"\/>/)
+    assert.match(html, /<span class="loading-text-hidden">Loading\.\.\.<\/span>/)
+    assert.ok(!/<img[^>]*hidden/.test(html), 'native art must not wait for hydration/onLoad')
+    assert.equal((html.match(/loading="eager"/g) ?? []).length, 2)
+    if (phase === 'restore') assert.match(html, /<p class="loading-text-hidden">Checking/)
+  }
+  const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
+  assert.match(css, /\.loading-text-hidden\{[^}]*clip-path:inset\(50%\)/)
+  assert.match(css, /\.loading-world\{[^}]*background:#000/)
+  assert.match(css, /\.loading-original-art\{[^}]*width:130px;height:161px/)
+})
+
+function inspectState() {
+  const states = [], refs = [], effects = []
+  let stateIndex = 0, refIndex = 0
+  const inspect = load({
+    useState(initial) {
+      const index = stateIndex++
+      if (!(index in states)) states[index] = initial
+      return [states[index], value => { states[index] = value }]
+    },
+    useRef(initial) {
+      const index = refIndex++
+      return refs[index] ??= {current: initial}
+    },
+    useEffect(callback) { effects.push(callback) },
+  })
+  return {
+    effects,
+    render(phase = 'loading') {
+      stateIndex = 0; refIndex = 0; effects.length = 0
+      return tree(inspect({phase, error: 'terrain failed', onRetry() {}}))
+    },
+  }
+}
+
+test('only a real label failure reveals readable fallback; mask failure cannot remove the status', () => {
+  const harness = inspectState()
+  let nodes = harness.render()
+  const image = name => nodes.find(node => node?.type === 'img' && node.props.src.endsWith(name))
+  assert.equal(image('loading-label.png').props.hidden, false)
+  image('loading-mask.png').props.onError()
+  nodes = harness.render()
+  assert.equal(image('loading-mask.png'), undefined)
+  assert.equal(image('loading-label.png').props.hidden, false)
+  image('loading-label.png').props.onError()
+  nodes = harness.render()
+  assert.equal(image('loading-label.png').props.hidden, true)
+  const status = nodes.find(node => node?.type === 'span' && node.props.children === 'Loading...')
+  assert.equal(status.props.className, undefined)
+  assert.equal(nodes[0].props.role, 'status')
+})
+
+test('image completion before hydration is reconciled for both successful and failed requests', () => {
+  for (const naturalWidth of [0, 130]) {
+    const harness = inspectState()
+    let nodes = harness.render()
+    for (const node of nodes.filter(node => node?.type === 'img')) {
+      node.props.ref.current = {complete: true, naturalWidth}
+    }
+    harness.effects[0]()
+    nodes = harness.render()
+    assert.equal(nodes[0].props['data-mask-failed'], naturalWidth === 0)
+    assert.equal(nodes[0].props['data-label-ready'], naturalWidth > 0)
+    const label = nodes.find(node => node?.type === 'img' && node.props.src.endsWith('loading-label.png'))
+    assert.equal(label.props.hidden, naturalWidth === 0)
+  }
+})
+
 test('failure keeps original identity but explicitly labels the browser recovery controls', () => {
   const html = render('failed')
   assert.match(html, /src="\/original\/loading-mask.png"/)

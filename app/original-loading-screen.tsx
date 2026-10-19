@@ -14,6 +14,17 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
   const retried = useRef(false)
   const [maskFailed, setMaskFailed] = useState(false)
   const [labelReady, setLabelReady] = useState(false)
+  const [labelFailed, setLabelFailed] = useState(false)
+  const maskImage = useRef<HTMLImageElement>(null)
+  const labelImage = useRef<HTMLImageElement>(null)
+  useEffect(() => {
+    // Image events can precede hydration. Recover their actual state, not a timer.
+    if (maskImage.current?.complete && !maskImage.current.naturalWidth) setMaskFailed(true)
+    if (labelImage.current?.complete) {
+      setLabelReady(labelImage.current.naturalWidth > 0)
+      setLabelFailed(!labelImage.current.naturalWidth)
+    }
+  }, [])
   useEffect(() => {
     if (phase === 'failed') retry.current?.focus()
     else screen.current?.focus()
@@ -44,30 +55,39 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
       <div className="loading-original-art">
         {!maskFailed && (
           <img
+            ref={maskImage}
             src="/original/loading-mask.png"
             width={130}
             height={161}
             alt=""
+            loading="eager"
+            fetchPriority="high"
             onError={() => setMaskFailed(true)}
           />
         )}
         {phase !== 'failed' && (
           <span className="loading-original-label">
-            <span className={labelReady ? 'loading-text-hidden' : undefined}>Loading...</span>
+            <span className={labelFailed ? undefined : 'loading-text-hidden'}>Loading...</span>
             <img
+              ref={labelImage}
               src="/original/loading-label.png"
               width={82}
               height={20}
               alt=""
-              hidden={!labelReady}
+              loading="eager"
+              fetchPriority="high"
+              hidden={labelFailed}
               onLoad={() => setLabelReady(true)}
-              onError={() => setLabelReady(false)}
+              onError={() => {
+                setLabelReady(false)
+                setLabelFailed(true)
+              }}
             />
           </span>
         )}
       </div>
       {phase === 'restore' && (
-        <p className="loading-browser-note">Checking for a saved checkpoint in this browser.</p>
+        <p className="loading-text-hidden">Checking for a saved checkpoint in this browser.</p>
       )}
       {phase === 'failed' && (
         <section className="loading-recovery">
