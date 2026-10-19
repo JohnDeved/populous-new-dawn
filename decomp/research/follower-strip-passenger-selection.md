@@ -217,3 +217,32 @@ also routes native and browser gates; those were not executed in this restricted
 worker. The parent owns the standard exact-head check/build and hosted rendered
 acceptance. No UI artwork, layout, generated fixtures, original mechanics tables,
 parity ledger, natural crew acquisition or full issue #60 completion is claimed.
+
+### Escape-history witness correction (2026-10-19)
+
+Hosted Profile run 39340173546 at `c9a31b9b` failed before the boarded
+Total+Shift click, after Total+Ctrl correctly selected the five occupants plus
+Blue IDs 116, 118, 120 and 122. At paused turn 385, the next ordinary Escape
+changed those four native selection bytes from 128 to 1. The initial strip
+snapshot had byte 0, so comparing every clear to that initial baseline rejected
+legitimate previous-selection history. All 56 captured people otherwise match the
+exact adjacent cancellation transition. The retained native `00435c10` and caller
+`00444f60` copy selection bit 7 to bit 0 before clearing selection; the shipped
+`cancelInteraction` body is unchanged from the accepted main base.
+
+The witness now compares each Escape with the immediately preceding selected
+observation. Its independent transition oracle normalizes selection from the
+observed selected IDs, validates exact history/work-flag cleanup for retained Blue
+owners, and preserves all other fields and tribes. Empty-selection Escape leaves
+owner flags untouched. Canonical role aliases are captured by actual object
+identity, so a route record changes only when it shares a retained owner, not
+because two records have equal values. Ordinary selection still preserves bit 0
+exactly; it is not globally masked. Producer and trusted raw-artifact replay use
+the same reviewed transition contract while retaining independent class/Total
+selection computation, all 18 controls, world/order/RNG equality, and the existing
+artifact, profile, cleanup and deadline bounds.
+
+This is a witness repair, not a gameplay change or a retroactive hosted pass.
+The failed run's original nine Profile cases and first five M10 control inputs
+passed, but its M10 phase, fresh-process Save/Load, unloaded controls and complete
+180-second fit remain unproved. Raw failure artifacts are retained unchanged.

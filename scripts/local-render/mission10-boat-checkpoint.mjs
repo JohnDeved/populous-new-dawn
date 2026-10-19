@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { readMission10Selection } from '../tutorial-browser/mission10-input.mjs'
-import { mission10SelectionQuery, mission10ExpectedSelection, mission10SelectionPreserved } from './mission10-selection.mjs'
+import { mission10SelectionQuery, mission10ExpectedSelection, mission10SelectionPreserved, mission10EscapePreserved } from './mission10-selection.mjs'
 import { checkpointObservation } from './checkpoint-observer.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { bindGame } from '../browser-game.mjs'
@@ -21,6 +21,7 @@ export async function checkMission10FollowerStrip({ page, input, state, phase, o
   assert.ok(before.party.every(person => person && person.hp > 0))
   assert.ok(before.party.every(person => occupied ? person.vehicle === boatId : !person.vehicle))
   const result = { phase, occupied, occupants: before.party.map(({ id, hp, vehicle }) => ({ id, hp, vehicle })), checks: [] }
+  let previous = before
   for (const name of ['Select warrior', 'Select follower']) {
     for (const modifiers of [[], ['Control'], ['Shift']]) {
       const label = `${phase}: ${name} ${modifiers[0] ?? 'single'}`
@@ -30,7 +31,9 @@ export async function checkMission10FollowerStrip({ page, input, state, phase, o
       const query = mission10SelectionQuery(cleared.selectionState)
       if (!result.query) result.query = query
       else assert.deepEqual(query, result.query, 'Paused pre-action selection query changed')
-      mission10SelectionPreserved(before.selectionState, cleared.selectionState)
+      mission10EscapePreserved(previous.selectionState, cleared.selectionState)
+      for (const key of ['turn', 'orders', 'randomState', 'boat', 'party'])
+        assert.deepEqual(cleared[key], before[key], `Escape preserves ${key}`)
       const expected = mission10ExpectedSelection(query, name, modifiers[0] ?? 'single')
       await input.action(label, () => page.getByRole('button', { name, exact: true }).click({ modifiers }))
       const after = await state(`${label} selected`)
@@ -44,6 +47,7 @@ export async function checkMission10FollowerStrip({ page, input, state, phase, o
       assert.deepEqual(after.randomState, before.randomState, 'HUD selection preserves RNG')
       assert.deepEqual(after.boat, before.boat, 'HUD selection preserves craft and passenger slots')
       assert.deepEqual(after.party, before.party, 'HUD selection preserves live passenger activity')
+      previous = after
       result.checks.push({ name, modifier: modifiers[0] ?? 'single', cleared: cleared.selected, selected, primary: expected.primary, preserved: true })
     }
   }

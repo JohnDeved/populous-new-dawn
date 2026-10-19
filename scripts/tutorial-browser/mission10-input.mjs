@@ -109,7 +109,7 @@ export const readMission10Selection = new Function(`
   const scene = window.testSceneRef.current, w = scene.world;
   const model = { brave: 2, warrior: 3, preacher: 4, spy: 5, firewarrior: 6, shaman: 7 };
   const fields = p => p && Object.fromEntries(['x','y','vehicle','state','assignment','flags2','flags3','flags4','selectionFlags','commands','commandStatus'].map(k => [k, p[k]]));
-  return { turn: w.turn, paused: w.paused, point: { ...scene.cameraPosition },
+  return { turn: w.turn, paused: w.paused, mode: w.mode, orderCursor: w.orderCursor, point: { ...scene.cameraPosition },
     nearby: !!(w.castingTribes[0].flags & 128), selected: [...w.selected],
     people: w.units.map(u => {
       const snapshot = hudPersonSource(w, u), active = snapshot.active ?? u.native ?? u.entry?.person;
@@ -124,6 +124,9 @@ export const readMission10Selection = new Function(`
         assignment: source?.assignment ?? 0, flags4: source?.flags4 ?? 0,
         vehicle: source?.vehicle ?? 0,
         owner: Object.keys(owners).find(key => owners[key] && owners[key] === source) ?? null,
+        // Role aliases are observed by object identity, never inferred from equal fields.
+        ownerAliases: Object.fromEntries(Object.entries(owners).map(([key, value]) =>
+          [key, value ? Object.keys(owners).find(role => owners[role] === value) : null])),
         owners: Object.fromEntries(Object.entries(owners).map(([key, value]) => [key, fields(value) ?? null])) };
     }),
     vehicles: w.vehicles.map(v => ({ id: v.id, team: v.team, model: v.model, active: v.active,

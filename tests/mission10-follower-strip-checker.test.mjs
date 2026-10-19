@@ -15,11 +15,12 @@ function fixture(occupied, fault) {
     party: party.map(id => ({ id, hp: 100, vehicle: occupied ? 62 : 0 })),
   }
   const query = mission10QueryFixture(occupied)
-  const selectionState = () => ({ paused: live.paused, turn: live.turn, selected: live.selected,
+  const selectionState = () => ({ paused: live.paused, turn: live.turn, mode: null, orderCursor: 0, selected: live.selected,
     point: { x: query.point[0], y: query.point[1] }, nearby: query.nearby,
     vehicles: [{ id: 62, team: 'blue', model: 1, active: true, passengerCount: query.boat[0], passengers: query.boat.slice(1) }],
     people: query.people.map(([id, model, x, y, priority, flags4, vehicle]) => ({ id, model, team: 'blue', hp: 100,
-      x, y, assignment: priority << 12, flags4, vehicle, owners: {} })) })
+      x, y, assignment: priority << 12, flags4, vehicle, owners: { native: null, flight: null, fight: null, entry: null, builder: null, route: null },
+      ownerAliases: { native: null, flight: null, fight: null, entry: null, builder: null, route: null } })) })
   return {
     live, calls, observations,
     page: {

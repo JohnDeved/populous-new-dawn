@@ -18,7 +18,8 @@ const captured = { point: [8920, 4893], nearby: false, boat: [5,111,63,112,114,1
 const raw = q => ({ paused: true, selected: [], point: { x: q.point[0], y: q.point[1] }, nearby: q.nearby,
   vehicles: [{ id: 62, active: true, model: 1, passengerCount: q.boat[0], passengers: q.boat.slice(1) }],
   people: q.people.map(([id, model, x, y, priority, flags4, vehicle]) => ({ id, model, x, y,
-    assignment: priority << 12, flags4, vehicle, team: 'blue', hp: 50, owners: {} })) })
+    assignment: priority << 12, flags4, vehicle, team: 'blue', hp: 50, owners: { native: null, flight: null, fight: null, entry: null, builder: null, route: null },
+      ownerAliases: { native: null, flight: null, fight: null, entry: null, builder: null, route: null } })) })
 test('observed nineteen-person roster retains all rows and every eligible extra in exact selections', () => {
   assert.deepEqual(mission10SelectionQuery(raw(captured)), captured)
   assert.deepEqual(decodeMission10Query(encodeMission10Query(captured)), captured)

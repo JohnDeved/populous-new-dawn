@@ -50,11 +50,12 @@ export function mission10EvidenceFixture(value) {
       })), actions: p.publicActions.map(label => ({ label, phase: 'after' })) }
     for (const row of result.selection) {
       const q = row.query
-      const state = selected => ({ paused: true, turn: 100, selected,
+      const state = selected => ({ paused: true, turn: 100, mode: null, orderCursor: 0, selected,
         point: { x: q.point[0], y: q.point[1] }, nearby: q.nearby,
         vehicles: [{ id: 62, active: true, model: 1, passengerCount: q.boat[0], passengers: q.boat.slice(1) }],
         people: q.people.map(([id, model, x, y, priority, flags4, vehicle]) => ({ id, model, x, y, assignment: priority << 12,
-          flags4, vehicle, team: 'blue', hp: row.occupants.find(p => p.id === id)?.hp ?? 100, owners: {} })) })
+          flags4, vehicle, team: 'blue', hp: row.occupants.find(p => p.id === id)?.hp ?? 100, owners: { native: null, flight: null, fight: null, entry: null, builder: null, route: null },
+      ownerAliases: { native: null, flight: null, fight: null, entry: null, builder: null, route: null } })) })
       const observe = (label, selected) => ({ label, paused: true, turn: 100, selected,
         party: row.occupants, boat: { passengers: q.boat.slice(1) }, orders: {}, randomState: 19, selectionState: state(selected) })
       result.observations.push(observe(`${row.phase}-strip-paused`, []))
