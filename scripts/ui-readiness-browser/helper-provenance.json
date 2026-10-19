@@ -1,0 +1,10 @@
+{
+  "runtimeSource": "ed10471b77b05853df46082c3b286676195d6a9a",
+  "baselineSource": "ed10471b77b05853df46082c3b286676195d6a9a",
+  "expectedVectors": false,
+  "helpers": {
+    "badge-sampling.mjs": "aa3aebb84d4e41f1400fea63ed9f00aeb3ccbd0f6160e209702592c7bea4dc43"
+  },
+  "currentRuntimeProbeSha256": "5c4892d18dae7bfec80a01f862c9830ebb4deec436a1776b088ff2ddd0fa27ba",
+  "scope": "Two actual-source vector badge viewport cases; candidate additionally three routed pending/failure/late-decode cases with actual main-menu remount."
+}
