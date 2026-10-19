@@ -144,6 +144,9 @@ export function validateChecks(repo, manifest) {
     safeRepoPath(repo, check.cwd)
     array(check.env, `${check.id} env`).forEach((x, i) => string(x, `${check.id} env[${i}]`))
     array(check.inputs, `${check.id} inputs`).forEach(path => safeRepoPath(repo, path))
+    if (check.triggerPaths !== undefined)
+      array(check.triggerPaths, `${check.id} triggerPaths`, { nonempty: true })
+        .forEach(path => safeRepoPath(repo, path, { mustExist: false }))
     array(check.prerequisites, `${check.id} prerequisites`).forEach((x, i) =>
       string(x, `${check.id} prerequisites[${i}]`)
     )
@@ -1259,6 +1262,11 @@ export function planChanges(repo = ROOT, { base = 'HEAD' } = {}) {
   }
   for (const change of changes.records) {
     const matched = new Set()
+    // Explicit cheap checks supplement routing, never classify an unknown path or
+    // turn a narrow source into a shared path that forces full editing feedback.
+    for (const check of checks.checks)
+      if (check.triggerPaths?.some(path => pathMatches(change.path, path)))
+        addCheck(check.id, `explicit check trigger changed: ${change.path}`)
     if (workflowPath(change.path)) {
       matched.add('workflow')
       addCheck('orchestration-tests', `workflow path changed: ${change.path}`)
