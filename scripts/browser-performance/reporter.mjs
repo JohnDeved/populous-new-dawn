@@ -137,8 +137,9 @@ export async function reportRun({ api, download, runId, expectedPrNumber, truste
   assert.ok(Number.isSafeInteger(completed.total_count) && completed.total_count >= 0 && completed.total_count <= 100 &&
     completed.workflow_runs.length === completed.total_count, 'Unbounded/incomplete completed run inventory')
   for (const candidate of completed.workflow_runs) {
-    assert.ok(positive(candidate.id) && digest(candidate.head_sha) && Array.isArray(candidate.pull_requests), 'Invalid completed run identity')
-    if (candidate.id > runId && candidate.head_sha === identity.headSha && candidate.path === workflowPath &&
+    assert.ok(positive(candidate.id) && positive(candidate.run_attempt) && digest(candidate.head_sha) && Array.isArray(candidate.pull_requests), 'Invalid completed run identity')
+    const newer = candidate.id > runId || (candidate.id === runId && candidate.run_attempt > identity.runAttempt)
+    if (newer && candidate.head_sha === identity.headSha && candidate.path === workflowPath &&
       candidate.event === 'pull_request' && candidate.status === 'completed' &&
       candidate.pull_requests.some(pr => pr.number === identity.prNumber)) return { status: 'skipped-newer-run' }
   }

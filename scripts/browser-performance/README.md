@@ -252,7 +252,7 @@ for this one-time supersession; legacy routine comments are left alone.
 The reporter updates one marker-identified comment authored by the immutable
 GitHub Actions bot identity. It refuses ambiguous duplicate bot comments and older
 runs/attempts. Before writes, a bounded completed-run inventory also rejects
-delayed runs superseded by a newer completed run for the same PR/head, even when
+delayed runs superseded by a newer completed run or same-run attempt for the same PR/head, even when
 that newer quiet run left no comment marker. A fresh PR/head/base check immediately precedes the sole POST/PATCH;
 per-PR reporter concurrency serializes upserts without displacing other PRs. Closed or stale PRs are skipped. Artifact
 links are constructed from validated GitHub run IDs, not report URLs. No reviews,

@@ -652,3 +652,22 @@ test('newer unrelated runs do not suppress eligible signals; incomplete run inve
     } else assert.equal((await reportRun(mock.arguments)).status, 'created')
   }
 })
+
+
+test('newer quiet attempt of the same run suppresses delayed signals without advancing a sticky marker', async () => {
+  for (const prior of [null, `${commentMarker}\n<!-- populous-browser-performance-run:1234:1 -->\n<!-- populous-browser-performance-finding:superseded -->`]) {
+    const mock = apiFixture()
+    if (prior) mock.state.comments = [ownedComment(prior)]
+    mock.state.completedRuns = { total_count: 1, workflow_runs: [{ ...mock.state.run, run_attempt: 2 }] }
+    assert.equal((await reportRun(mock.arguments)).status, 'skipped-newer-run')
+    assert.equal(mock.state.calls.some(c => c.method), false)
+  }
+})
+test('completed-run attempts must be positive safe integers before any comment write', async () => {
+  for (const run_attempt of [undefined, 0, -1, 1.5, '2', Number.MAX_SAFE_INTEGER + 1]) {
+    const mock = apiFixture()
+    mock.state.completedRuns = { total_count: 1, workflow_runs: [{ ...mock.state.run, run_attempt }] }
+    await assert.rejects(reportRun(mock.arguments), /Invalid completed run identity/)
+    assert.equal(mock.state.calls.some(c => c.method), false)
+  }
+})
