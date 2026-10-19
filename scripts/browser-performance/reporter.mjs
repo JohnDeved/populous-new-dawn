@@ -130,6 +130,18 @@ export async function reportRun({ api, download, runId, expectedPrNumber, truste
   }
   assert.ok(Buffer.byteLength(body) < 60000, 'Comment too large')
   if (existing[0]?.body === body) return { status: 'skipped-unchanged', complete: comparison.complete, missing: comparison.missing }
+  // Quiet runs intentionally leave no comment marker. Consult GitHub's run
+  // inventory so a delayed actionable run cannot overwrite newer quiet evidence
+  // for the same PR/head merely because the last published marker is older.
+  const completed = await api(`${prefix}/actions/workflows/${run.workflow_id}/runs?event=pull_request&status=completed&head_sha=${identity.headSha}&per_page=100`)
+  assert.ok(Number.isSafeInteger(completed.total_count) && completed.total_count >= 0 && completed.total_count <= 100 &&
+    completed.workflow_runs.length === completed.total_count, 'Unbounded/incomplete completed run inventory')
+  for (const candidate of completed.workflow_runs) {
+    assert.ok(positive(candidate.id) && digest(candidate.head_sha) && Array.isArray(candidate.pull_requests), 'Invalid completed run identity')
+    if (candidate.id > runId && candidate.head_sha === identity.headSha && candidate.path === workflowPath &&
+      candidate.event === 'pull_request' && candidate.status === 'completed' &&
+      candidate.pull_requests.some(pr => pr.number === identity.prNumber)) return { status: 'skipped-newer-run' }
+  }
   // Recheck immediately before the only mutation. Never turn a benchmark into a
   // review, label, check result, commit status, ready transition or merge action.
   if (!await current()) return { status: 'skipped-stale' }

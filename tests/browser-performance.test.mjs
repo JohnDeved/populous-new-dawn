@@ -146,6 +146,7 @@ function apiFixture(reports = [fixture(), fixture('recovery')]) {
     calls.push({ path, ...options })
     if (options.method) return { id: 99 }
     if (path.endsWith('/actions/runs/1234')) return run
+    if (path.includes('/actions/workflows/44/runs?')) return state.completedRuns ?? { total_count: 1, workflow_runs: [run] }
     if (path.endsWith('/actions/workflows/44')) return { path: workflowPath, name: 'Browser performance comparison' }
     if (path.endsWith('/pulls/42')) { state.currentChecks++; if (state.changeBeforeWrite && state.currentChecks === 2) return { ...pr, state: 'closed' }; return pr }
     if (path.includes('/contents/')) return { type: 'file', encoding: 'base64', size: state.workflowText.length, content: Buffer.from(state.workflowText).toString('base64') }
@@ -626,5 +627,28 @@ test('supersession uses the same stale head, older-run, and attempt protections 
     else assert.ok((await reportRun(mock.arguments)).status.startsWith('skipped-'))
     assert.equal(mock.state.calls.some(c => c.method), false)
     assert.equal(mock.summaries.length, 1)
+  }
+})
+
+
+test('newer completed quiet runs suppress delayed signals even without a current sticky marker', async () => {
+  for (const prior of [null, `${commentMarker}\n<!-- populous-browser-performance-run:1232:1 -->\nLegacy routine report`, `${commentMarker}\n<!-- populous-browser-performance-run:1232:1 -->\n<!-- populous-browser-performance-finding:superseded -->`]) {
+    const mock = apiFixture()
+    if (prior) mock.state.comments = [ownedComment(prior)]
+    mock.state.completedRuns = { total_count: 2, workflow_runs: [mock.state.run, { ...mock.state.run, id: 1235 }] }
+    assert.equal((await reportRun(mock.arguments)).status, 'skipped-newer-run')
+    assert.equal(mock.state.calls.some(c => c.method), false)
+  }
+})
+test('newer unrelated runs do not suppress eligible signals; incomplete run inventories fail closed', async () => {
+  for (const mode of ['other-pr', 'other-head', 'unbounded', 'partial']) {
+    const mock = apiFixture(), newer = { ...mock.state.run, id: 1235 }
+    if (mode === 'other-pr') newer.pull_requests = [{ number: 43 }]
+    if (mode === 'other-head') newer.head_sha = 'f'.repeat(40)
+    mock.state.completedRuns = { total_count: mode === 'unbounded' ? 101 : mode === 'partial' ? 3 : 2, workflow_runs: [mock.state.run, newer] }
+    if (['unbounded', 'partial'].includes(mode)) {
+      await assert.rejects(reportRun(mock.arguments), /completed run inventory/)
+      assert.equal(mock.state.calls.some(c => c.method), false)
+    } else assert.equal((await reportRun(mock.arguments)).status, 'created')
   }
 })
