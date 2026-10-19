@@ -151,6 +151,8 @@ export async function runLocalBrowser(options, scenario) {
   let launchAttempted = false,
     cleanupVerified = false,
     checkpointIdentityVerified = false
+  // Diagnostic-branch-only startup evidence; not part of the feature PR.
+  const serverOutputChunks = { stdout: [], stderr: [] }
   const log = createWriteStream(resolve(output, 'server.log'))
   const abort = new AbortController()
   const onSignal = () => abort.abort(Error('Interrupted'))
@@ -247,6 +249,21 @@ export async function runLocalBrowser(options, scenario) {
         },
       }
     )
+    receipt.serverProcess = {
+      pid: server.pid ?? null, spawnObserved: false, spawnError: null, exit: null, close: null,
+      color: { CI: !!process.env.CI, NO_COLOR: !!process.env.NO_COLOR, FORCE_COLOR: !!process.env.FORCE_COLOR },
+      output: { stdout: { totalBytes: 0, retainedBytes: 0 }, stderr: { totalBytes: 0, retainedBytes: 0 } },
+    }
+    server.once('spawn', () => { receipt.serverProcess.spawnObserved = true; receipt.serverProcess.spawnedAt = new Date().toISOString() })
+    server.once('exit', (code, signal) => { receipt.serverProcess.exit = { code, signal, at: new Date().toISOString() } })
+    server.once('close', (code, signal) => { receipt.serverProcess.close = { code, signal, at: new Date().toISOString() } })
+    for (const stream of ['stdout', 'stderr']) server[stream].on('data', chunk => {
+      const facts = receipt.serverProcess.output[stream], bytes = Buffer.from(chunk)
+      facts.totalBytes += bytes.length
+      const retained = bytes.subarray(0, Math.max(0, 262144 - facts.retainedBytes))
+      if (retained.length) serverOutputChunks[stream].push(retained)
+      facts.retainedBytes += retained.length
+    })
     server.stdout.pipe(log)
     server.stderr.pipe(log)
     let listening = false
@@ -259,6 +276,7 @@ export async function runLocalBrowser(options, scenario) {
     let spawnError
     server.once('error', error => {
       spawnError = error
+      receipt.serverProcess.spawnError = { name: error.name, code: error.code ?? null, message: error.message, at: new Date().toISOString() }
     })
     try {
       for (;;) {
@@ -487,6 +505,14 @@ export async function runLocalBrowser(options, scenario) {
       await stopServer(server)
     } catch (error) {
       outcome = { status: 'failed', failure: String(error), previousFailure: outcome.failure }
+    }
+    if (receipt.serverProcess) {
+      receipt.serverProcess.afterStop = { exitCode: server.exitCode, signalCode: server.signalCode, at: new Date().toISOString() }
+      for (const stream of ['stdout', 'stderr']) {
+        const facts = receipt.serverProcess.output[stream]
+        facts.truncated = facts.totalBytes > facts.retainedBytes
+        writeFileSync(resolve(output, `server.${stream}.log`), Buffer.concat(serverOutputChunks[stream]))
+      }
     }
     log.end()
     process.removeListener('SIGINT', onSignal)
