@@ -9,6 +9,7 @@ import {
 import { m2FunctionalLimitMs } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import { hudScale } from '../app/hud-layout.ts'
+import { pickingPathMetricIds, pickingPathViewports } from '../scripts/tutorial-browser/picking-path-readout.mjs'
 
 const box = (left, top, right, bottom) => ({ left, top, right, bottom })
 const text = (bounds, value) => ({
@@ -281,10 +282,43 @@ test('separate compact hosted scenario retains old bounds and existing groups', 
   assert.ok(scenario.indexOf('await page.goto') < scenario.indexOf('if (compactMessages)'))
 })
 
-test('diagnostic inventory covers every shipped F8 metric, not a subset', () => {
+test('collapsed and optional diagnostic inventories cover every shipped F8 metric without hiding missing fields', () => {
   const graph = readFileSync(new URL('../app/fps-graph.ts', import.meta.url), 'utf8')
+  const optional = graph.match(/<section class="fps-picking"[^>]*hidden>[\s\S]*?<\/section>/)?.[0]
+  assert.ok(optional, 'optional fields must be explicitly collapsed by default')
   assert.deepEqual(
-    [...graph.matchAll(/data-metric="([^"]+)"/g)].map(match => match[1]),
+    [...graph.replace(optional, '').matchAll(/data-metric="([^"]+)"/g)].map(match => match[1]),
     diagnosticMetricIds
   )
+  assert.deepEqual([...optional.matchAll(/data-metric="([^"]+)"/g)].map(match => match[1]), pickingPathMetricIds)
+  assert.equal(new Set([...diagnosticMetricIds, ...pickingPathMetricIds]).size, diagnosticMetricIds.length + pickingPathMetricIds.length)
+})
+
+test('existing compact hosted job invokes shared expanded picking cases against the bundled app and retains artifacts', () => {
+  assert.deepEqual(pickingPathViewports, [[640, 480], [1280, 799], [1280, 800], [1280, 801], [1280, 820]])
+  const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
+  const compact = read('scripts/tutorial-browser/compact-message-layout.mjs')
+  const shared = read('scripts/tutorial-browser/picking-path-readout.mjs')
+  const standalone = read('scripts/check-browser-fps.mjs')
+  assert.match(compact, /import \{ checkPickingPathReadout, pickingPathMetricIds \} from '\.\/picking-path-readout\.mjs'/)
+  assert.match(compact, /report\.pickingPaths = await checkPickingPathReadout\(\{ page, output \}\)/)
+  assert.match(standalone, /await checkPickingPathReadout\(\{ page, output \}\)/)
+  assert.ok(compact.indexOf('report.pickingPaths = await') > compact.indexOf('compact-${preference}-${width}x${height}-captured-and-restored'))
+  assert.match(compact, /await toggle\.focus\(\)\s+await page\.keyboard\.press\('F8'\)/)
+  assert.match(compact, /await toggle\.click\(\)\s+await graph\.focus\(\)\s+await page\.keyboard\.press\('F8'\)/)
+  assert.match(compact, /report\.pickingPaths\.focusedF8Reset = true/)
+  assert.match(compact, /cancelAnimationFrame\(scene\.frame\)/)
+  assert.match(compact, /scene\.frame = requestAnimationFrame\(scene\.animate\)/)
+  for (const interaction of ["press('Space')", "press('End')", "press('Home')", 'page.mouse.wheel', 'target.scrollIntoViewIfNeeded'])
+    assert.ok(shared.includes(interaction), interaction)
+  assert.match(shared, /assert\.deepEqual\(inputEvents, \[\]/)
+  assert.match(shared, /performance-picking-layout-fixture-\$\{width\}x\$\{height\}-top\.png/)
+  assert.match(shared, /performance-picking-layout-fixture-\$\{width\}x\$\{height\}-bottom\.png/)
+  assert.doesNotMatch(shared, /chromium\.launch|newContext|createServer|preview\(|no-sandbox/)
+  const workflow = read('.github/workflows/tutorial-browser.yml')
+  assert.match(workflow, /scenario: compact-message-layout\n +timeoutMinutes: 15\n +name: Compact message layout browser\n +artifact: compact-message-layout-browser/)
+  assert.match(workflow, /outputs\/tutorial-browser\/\*\.png/)
+  assert.match(workflow, /outputs\/tutorial-browser\/\*\.json/)
+  assert.match(read('scripts/tutorial-browser/fixture/main.tsx'), /import Home from '\.\.\/\.\.\/\.\.\/app\/page'/)
+  assert.match(read('scripts/tutorial-browser/build-home.mjs'), /mode: 'production'/)
 })

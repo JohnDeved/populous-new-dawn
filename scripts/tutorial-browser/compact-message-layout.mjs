@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
+import { checkPickingPathReadout, pickingPathMetricIds } from './picking-path-readout.mjs'
 import {
   assertM2DiagnosticLayout,
   m2DiagnosticLayout,
@@ -225,7 +226,7 @@ export async function checkCompactMessages({ page, output, stage, report }) {
   const graph = page.locator('.fps-graph')
   const button = name => page.getByRole('button', { name, exact: true })
   report.limits = [
-    'Automatic and 400% at 900x360 and 640x480 only; not universal viewport support or performance acceptance',
+    'Collapsed coexistence: Automatic and 400% at 900x360 and 640x480. Expanded picking: separate bounded viewport cases with campaign text closed; not universal viewport support or performance acceptance.',
   ]
   const settle = () =>
     page.evaluate(
@@ -298,6 +299,57 @@ export async function checkCompactMessages({ page, output, stage, report }) {
       )
       stage(`compact-${preference}-${width}x${height}-captured-and-restored`)
     }
+  }
+  // Reuse this job's real bundled scene after the original coexistence cases.
+  // Close campaign text through its public control for the separate expanded
+  // diagnostic episode; restore it afterward. Do not replace the existing cases.
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  const openCampaignDetails = []
+  for (const detail of await page.locator('.campaign-messages details').all())
+    if (await detail.getAttribute('open') !== null) {
+      openCampaignDetails.push(detail)
+      await detail.locator('summary').click()
+    }
+  await page.keyboard.press('F8')
+  await graph.waitFor({ state: 'visible' })
+  await page.waitForFunction(() => /^\d+\.\d{2}$/.test(document.querySelector('[data-metric="pick-numeric"]')?.textContent ?? ''))
+  const beforePicking = await page.evaluate(() => {
+    const scene = window.testSceneRef.current, world = scene.world
+    if (!world.paused || scene !== window.testScene) throw Error('Expected the existing paused scene')
+    cancelAnimationFrame(scene.frame)
+    return { turn: world.turn, randomState: world.randomState, cosmeticRandom: world.cosmeticRandom, selected: [...world.selected] }
+  })
+  try {
+    report.pickingPaths = await checkPickingPathReadout({ page, output })
+    const toggle = graph.getByRole('button', { name: 'Picking paths', exact: true })
+    await toggle.click()
+    await graph.focus()
+    await page.keyboard.press('F8')
+    await graph.waitFor({ state: 'hidden' })
+    await page.keyboard.press('F8')
+    await graph.waitFor({ state: 'visible' })
+    assert.equal(await toggle.getAttribute('aria-expanded'), 'false', 're-enabled F8 starts collapsed')
+    for (const name of pickingPathMetricIds.slice(1))
+      assert.equal(await graph.locator(`[data-metric="${name}"]`).textContent(), '--', 're-enable cannot revive old counters')
+    assert.equal(await graph.locator('[data-metric="picking-window"]').textContent(), 'No samples yet')
+    await toggle.focus()
+    await page.keyboard.press('F8')
+    await graph.waitFor({ state: 'hidden' })
+    const afterPicking = await page.evaluate(() => {
+      const world = window.testSceneRef.current.world
+      return { turn: world.turn, randomState: world.randomState, cosmeticRandom: world.cosmeticRandom, selected: [...world.selected] }
+    })
+    assert.deepEqual(afterPicking, beforePicking, 'expanded diagnostics and focused F8 preserve the paused world')
+    report.pickingPaths.focusedF8Reset = true
+    stage('expanded-picking-boundaries-input-and-reset')
+  } finally {
+    await page.evaluate(() => {
+      const scene = window.testSceneRef.current
+      if (scene.fpsGraph) scene.togglePerformance()
+      scene.frame = requestAnimationFrame(scene.animate)
+    })
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    for (const detail of openCampaignDetails) await detail.locator('summary').click()
   }
   return report
 }
