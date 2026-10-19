@@ -2,6 +2,15 @@
   "version": 1,
   "owners": [
     {
+      "id": "frontend-badge-vectors",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/sanitize-frontend-badge-vectors.py", "<reviewed-local-input-directory>"] },
+      "callers": ["scripts/sanitize-frontend-badge-vectors.py"],
+      "inputs": ["references/frontend-badge-vectors.json"],
+      "outputs": [{ "path": "public/frontend-badges", "type": "directory", "tracked": true, "protected": true }],
+      "recording": "Only the two hash-identified reviewed SVG inputs; retain accurate provenance and rights caveats. Never overwrite native imported artwork."
+    },
+    {
       "id": "parity-report",
       "kind": "bookkeeping",
       "generator": {

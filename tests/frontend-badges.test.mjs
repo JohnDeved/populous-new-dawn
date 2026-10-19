@@ -41,7 +41,7 @@ test('only badge overlay uses sharp filtering; surrounding background remains un
   const css = readFileSync(new URL('../app/original-main-menu.module.css', import.meta.url), 'utf8')
   assert.match(css, /\.badge\s*\{[^}]*pointer-events: none;[^}]*image-rendering: pixelated; image-rendering: crisp-edges;/)
   const body = readFileSync(new URL('../app/original-main-menu.tsx', import.meta.url), 'utf8')
-  assert.match(body, /frontendBadgePixels\(rgba, canvasWidth, index\)/)
+  assert.match(body, /frontendBadgePixels\(\s*rgba,\s*canvasWidth,\s*index,/)
   assert.match(body, /badgeContext\.putImageData/)
   assert.match(body, /prepared\.composition &&/)
   assert.equal((body.match(/setInterval\(/g) ?? []).length, 1, 'no extra animation scheduling')
@@ -58,16 +58,16 @@ test('live menu draw uploads badge snapshots from the same composition and owns 
   }
   visit(parsed)
   const code = ts.transpileModule(`return ${callback.getText(parsed)}`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText
-  for (const canvasWidth of [640, 972]) for (const glow of [null, 3]) {
+  for (const canvasWidth of [640, 972]) for (const glow of [null, 3]) for (const ready of [false, true]) for (const failed of [false, true]) {
     const images = [[], [], []]
     const context = index => ({ getContext: () => ({ putImageData: image => images[index].push(image) }) })
     let compositions = 0
     const args = {
       canvas: { current: context(0) }, badges: { current: [context(1), context(2)] },
-      prepared: { composition: source }, pointer: { current: { x: 600, y: 440 } }, panel: 'main',
+      prepared: { composition: source, badgeVectors: ready ? [{}, {}] : [null, null] }, pointer: { current: { x: 600, y: 440 } }, panel: 'main',
       pointerMode: { current: glow !== null }, glowFrame: { current: glow }, optionRows: [], canvasWidth,
       tutorialRecommendationRows: [], tutorialParagraphRows: [], frontendQuitRows: [],
-      questionReady: true, artReady: true, logoReady: true, frontendBadgePixels,
+      vectorFailures: [failed, false], questionReady: true, artReady: true, logoReady: true, frontendBadgePixels,
       frontendBackground: (...values) => { compositions++; return frontendBackground(...values) },
       ImageData: class { constructor(data, width, height) { Object.assign(this, { data, width, height }) } },
     }
@@ -75,8 +75,38 @@ test('live menu draw uploads badge snapshots from the same composition and owns 
     assert.equal(compositions, 1)
     assert.deepEqual(images.map(items => items.length), [1, 1, 1])
     for (const index of [0, 1]) {
-      const expected = frontendBadgePixels(images[0][0].data, canvasWidth, index)
+      const expected = frontendBadgePixels(images[0][0].data, canvasWidth, index, ready && !(index === 0 && failed) ? { source, pointer: args.pointer.current, frame: glow } : undefined)
       assert.deepEqual(images[index + 1][0], new args.ImageData(expected.pixels, expected.width, expected.height))
+    }
+  }
+})
+
+test('vector mode removes all native lettering while preserving original guard and trademark', () => {
+  for (const [index, badge] of frontendBadges.entries()) {
+    const frame = frontendBackground(source, { x: 320, y: 240 }, true, null, [], 972)
+    const native = frontendBadgePixels(frame, 972, index)
+    const vector = frontendBadgePixels(frame, 972, index, { source, pointer: { x: 320, y: 240 }, frame: null })
+    for (let y = 0; y < vector.height; y++) for (let x = 0; x < vector.width; x++) {
+      const at = (y * vector.width + x) * 4
+      if (x >= 1 && x <= badge.width && y >= 1 && y <= badge.height)
+        assert.deepEqual(vector.pixels.subarray(at, at + 4), new Uint8ClampedArray(4))
+      else assert.deepEqual(vector.pixels.subarray(at, at + 4), native.pixels.subarray(at, at + 4))
+    }
+  }
+})
+
+test('vector glow is bounded by the original cursor mask, animated and absent in keyboard mode', () => {
+  for (const [index, badge] of frontendBadges.entries()) {
+    const pointer = { x: badge.x + 25, y: badge.y + 25 }
+    const frame = frontendBackground(source, pointer, true, null, [], 640)
+    const draw = (pointer, phase) => frontendBadgePixels(frame, 640, index, { source, pointer, frame: phase })
+    const unlit = draw(pointer, null), lit = draw(pointer, 0)
+    assert.notDeepEqual(lit.pixels, unlit.pixels)
+    assert.notDeepEqual(lit.pixels, draw(pointer, 7).pixels)
+    assert.deepEqual(draw({ x: 320, y: 240 }, 0).pixels, draw({ x: 320, y: 240 }, null).pixels)
+    for (let row = 1; row <= badge.height; row++) for (let col = 1; col <= badge.width; col++) {
+      const alpha = lit.pixels[(row * lit.width + col) * 4 + 3]
+      assert.ok(alpha >= 0 && alpha <= 255)
     }
   }
 })

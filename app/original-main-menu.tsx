@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import assets from './original-frontend.json'
-import { frontendBadgeBounds, frontendBadgePixels } from './frontend-badges'
+import { frontendBadges, frontendBadgeBounds, frontendBadgePixels } from './frontend-badges'
 import { MenuTooltip } from './menu-tooltip'
 import type { FrontendAssets } from './frontend-assets'
 import styles from './original-main-menu.module.css'
@@ -42,6 +42,54 @@ interface Props {
     onBack: () => void,
     onTextRowsChange: (rows: FrontendTextRow[]) => void
   ) => ReactNode
+}
+
+const failedBadgeVectors = new WeakSet<HTMLImageElement>()
+
+// Reuse the decoded image object itself, not a second <img src> request on each
+// menu mount. This isolated host has no React children; cleanup never touches
+// another owner. SVG rasterization remains browser/display-resolution managed.
+function BadgeVector({
+  image,
+  index,
+  onError,
+}: {
+  image: HTMLImageElement
+  index: number
+  onError: (index: number) => void
+}) {
+  const host = useRef<HTMLSpanElement>(null)
+  useLayoutEffect(() => {
+    const container = host.current
+    if (!container) return
+    image.alt = ''
+    image.setAttribute('aria-hidden', 'true')
+    image.style.cssText =
+      'display:block;width:100%;height:100%;object-fit:contain;image-rendering:auto'
+    const failed = () => onError(index)
+    image.addEventListener('error', failed)
+    container.appendChild(image)
+    return () => {
+      image.removeEventListener('error', failed)
+      if (image.parentNode === container) container.removeChild(image)
+    }
+  }, [image, index, onError])
+  const badge = frontendBadges[index]
+  return (
+    <span
+      ref={host}
+      className={styles.badgeVector}
+      data-frontend-badge-vector={index === 0 ? 'bullfrog' : 'qsound'}
+      aria-hidden="true"
+      style={{
+        left: badge.x,
+        top: badge.y,
+        width: badge.width,
+        height: badge.height,
+        background: index === 0 ? '#fff' : '#000',
+      }}
+    />
+  )
 }
 
 function MenuText({
@@ -112,6 +160,20 @@ export function OriginalMainMenu({
   )
   const [optionRows, setOptionRows] = useState<FrontendTextRow[]>([])
   const [{ scale, canvasWidth }, setViewport] = useState({ scale: 1, canvasWidth: 640 })
+  const [vectorFailures, setVectorFailures] = useState(
+    prepared.badgeVectors?.map(image => (image ? failedBadgeVectors.has(image) : false)) ?? [
+      false,
+      false,
+    ]
+  )
+  const failVector = useCallback(
+    (index: number) => {
+      const image = prepared.badgeVectors?.[index]
+      if (image) failedBadgeVectors.add(image)
+      setVectorFailures(previous => previous.map((failed, at) => at === index || failed))
+    },
+    [prepared]
+  )
   const artReady = prepared.fonts
   const questionReady = prepared.lowFont
   const logoReady = prepared.logo
@@ -154,11 +216,22 @@ export function OriginalMainMenu({
       for (const [index, canvas] of badges.current.entries()) {
         const badgeContext = canvas?.getContext('2d')
         if (!badgeContext) continue
-        const { pixels, width, height } = frontendBadgePixels(rgba, canvasWidth, index)
+        const { pixels, width, height } = frontendBadgePixels(
+          rgba,
+          canvasWidth,
+          index,
+          prepared.badgeVectors?.[index] && !vectorFailures[index]
+            ? {
+                source: prepared.composition,
+                pointer: pointer.current,
+                frame: pointerMode.current ? glowFrame.current : null,
+              }
+            : undefined
+        )
         badgeContext.putImageData(new ImageData(pixels, width, height), 0, 0)
       }
     }
-  }, [panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared])
+  }, [panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared, vectorFailures])
   useLayoutEffect(() => {
     draw()
   }, [draw])
@@ -312,6 +385,13 @@ export function OriginalMainMenu({
           style={{ width: canvasWidth, left: (640 - canvasWidth) / 2 }}
           aria-hidden="true"
         />
+        {prepared.composition &&
+          frontendBadges.map((badge, index) => {
+            const image = prepared.badgeVectors?.[index]
+            return image && !vectorFailures[index] ? (
+              <BadgeVector key={badge.x} image={image} index={index} onError={failVector} />
+            ) : null
+          })}
         {prepared.composition &&
           frontendBadgeBounds.map((badge, index) => (
             <canvas

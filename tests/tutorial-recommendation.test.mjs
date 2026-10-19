@@ -92,7 +92,7 @@ test('production recommendation and Quit draws omit shadows only for HTML-fallba
   visit(parsed)
   assert.ok(draw)
   const body = ts.transpileModule(`return ${draw.getText(parsed)};`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText
-  const make = new Function('canvas', 'prepared', 'pointer', 'panel', 'pointerMode', 'glowFrame', 'optionRows', 'canvasWidth', 'tutorialRecommendationRows', 'frontendQuitRows', 'tutorialParagraphRows', 'questionReady', 'artReady', 'logoReady', 'frontendBackground', 'ImageData', 'badges', 'frontendBadgePixels', body)
+  const make = new Function('canvas', 'prepared', 'pointer', 'panel', 'pointerMode', 'glowFrame', 'optionRows', 'canvasWidth', 'tutorialRecommendationRows', 'frontendQuitRows', 'tutorialParagraphRows', 'questionReady', 'artReady', 'logoReady', 'frontendBackground', 'ImageData', 'badges', 'frontendBadgePixels', 'vectorFailures', body)
   const allRows = [...tutorialParagraphRows, ...tutorialChoiceRows]
   for (const [panel, questionRows, choiceRows] of [
     ['tutorial-recommendation', tutorialParagraphRows, tutorialChoiceRows],
@@ -112,7 +112,7 @@ test('production recommendation and Quit draws omit shadows only for HTML-fallba
       [], 640, allRows, frontendQuitRows, tutorialParagraphRows, questionReady, artReady, true,
       (...args) => { captured = args[4]; return new Uint8ClampedArray(640 * 480 * 4) },
       class { constructor(data, width, height) { Object.assign(this, { data, width, height }) } },
-      badges, frontendBadgePixels,
+      badges, frontendBadgePixels, [false, false],
     )
     draw()
     assert.deepEqual(captured, expected)
@@ -120,5 +120,5 @@ test('production recommendation and Quit draws omit shadows only for HTML-fallba
       frontendBadgeBounds.map(({ width, height }) => ({ width, height })),
       'recommendation and Quit draw both real badge crops without bypassing their new dependency')
   }
-  assert.match(source, /\[panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared\]/)
+  assert.match(source, /\[panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared, vectorFailures\]/)
 })
