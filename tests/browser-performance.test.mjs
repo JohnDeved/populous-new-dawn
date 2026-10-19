@@ -181,7 +181,7 @@ test('trusted reporter verifies metadata, creates once and updates only its iden
 })
 
 test('pin and browser provisioner changes retain the trusted-base harness warning', async () => {
-  for (const name of ['run-live.mjs', 'browser-runtime.json', 'browser-runtime.mjs', 'install-browser.mjs']) {
+  for (const name of ['run-live.mjs', 'run-pinned.mjs', 'run-live-pinned.mjs', 'browser-runtime.json', 'browser-runtime.mjs', 'install-browser.mjs']) {
     const mock = apiFixture(), original = mock.arguments.api
     mock.arguments.api = async (path, options) => {
       const result = await original(path, options)

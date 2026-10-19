@@ -51,11 +51,12 @@ Those failed raw captures remain historical evidence. The revision-2 stable-hove
 repair subsequently passed [candidate smoke 39150561670](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39150561670)
 and the PR593 paired control. Neither result qualifies the new held-drag phase.
 
-## Proposed pinned browser runtime (issue #654)
+## Passive pinned browser support (issue #654)
 
-The benchmark now requires an explicit reviewed official `google-chrome-stable`
-Debian package pin from `browser-runtime.json`, not whichever Chrome patch the
-runner image happens to contain. Version `155.0.8059.84-1`, package size and SHA-256
+This support-only stage does not change the active workflow or its existing
+runner-image browser behavior. The new passive `run-pinned.mjs` and
+`run-live-pinned.mjs` entrypoints explicitly require a reviewed official
+`google-chrome-stable` Debian package pin from `browser-runtime.json`. Version `155.0.8059.84-1`, package size and SHA-256
 were read from [Google's package index](https://dl.google.com/linux/chrome/deb/dists/stable/main/binary-amd64/Packages)
 on 2026-10-19. The download URL is derived only from that version at Google's
 fixed repository. This is HTTPS repository provenance and a reviewed content pin,
@@ -71,8 +72,8 @@ or system-browser fallback. Missing downloads, dependencies, package failures or
 wrong/corrupt executables fail closed and retain an installation receipt/log in
 the existing evidence artifact. Only the owned temporary download is removed.
 
-The launcher remains `/opt/google/chrome/chrome`, now supplied explicitly to
-Playwright. Full Chrome, `chromiumSandbox: true`, `ignoreDefaultArgs: true`, existing
+In pinned mode the launcher remains `/opt/google/chrome/chrome`, supplied
+explicitly to Playwright. Full Chrome, `chromiumSandbox: true`, `ignoreDefaultArgs: true`, existing
 arguments and all session/build/job limits are unchanged. No AppArmor/sysctl
 change, new helper configuration, headless-shell substitution or `--no-sandbox`
 is permitted. [Chromium's sandbox documentation](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md)
@@ -90,9 +91,9 @@ so this proposal pins the normal stable package instead. Actual installed
 Playwright version must match the trusted lock; lock and manifest hashes are
 recorded and rechecked, not duplicated into browser release constants.
 
-Each execution receipt binds the exact official package pin, package source,
+Each pinned execution receipt binds the exact official package pin, package source,
 actual executable version/hash, absolute launcher path and installed Playwright
-identity. The executable is reverified before and after each arm and at final
+identity. In pinned mode the executable is reverified before and after each arm and at final
 admission; the launched browser's reported version must also match. Browser pin
 identity joins the existing runtime hash. Kernel, runner image/version, CPU and
 renderer/GPU provenance and all comparison guards remain intact. Even identical
@@ -106,13 +107,29 @@ refresh a pin merely to turn a failed run green. Package withdrawal is a visible
 blocker, not permission to substitute a release. Dependency-lock upgrades still
 require their normal review and fresh runtime qualification.
 
-Rollout limitation: this source-only draft has not installed or launched a browser.
-The first PR's comparison uses its old exact base and cannot execute its own new
-installer/harness; the changed workflow is also rejected by the existing trusted
-reporter admission. Review and land support before activating/qualifying the
-new path against a trusted base. Keep #654 open until a fresh complete matched
-hosted run proves the selected package installation and sandboxed launch. Old
-run 39303586009 remains refused, and pinning alone does not fix host drift or the
+Rollout is deliberately staged; no package installation or browser launch has
+been performed for this source-only support change:
+
+1. Merge reviewed passive support. Both workflow copies stay byte-identical to
+   the original base. Direct `run.mjs`/`run-live.mjs` invocations retain their
+   original browser configuration, version/hash receipt fields and no installation
+   receipt requirement. Their exported runners default to `pinned: false`.
+2. Review the separate dependent activation change against that merged support
+   base. In the same existing job, replace the existence probe with
+   `node scripts/browser-performance/install-browser.mjs`, select
+   `node scripts/browser-performance/run-pinned.mjs`, and retain the installation
+   receipt/log in the existing raw-evidence artifact. Both commands already exist
+   on the trusted exact base. Only the explicit pinned entrypoints select
+   `pinned: true`; they accept no CLI/environment override or legacy fallback.
+3. Inspect installation, package/executable/Playwright provenance and sandboxed
+   capture receipts from the activation run. Its deliberately changed workflow
+   still fails the trusted reporter's exact workflow-byte guard; that refusal is
+   not a reporting pass and the guard must not be relaxed.
+4. After reviewed activation merges, obtain a fresh complete matched run with
+   unchanged trusted workflow bytes before claiming complete rollout or closing
+   #654. A passed legacy run from stage 1 does not qualify the pinned runtime.
+
+Old run 39303586009 remains refused. Pinning alone does not fix host drift or the
 separate live-melee observation failure.
 
 Portable coverage: `npm run test:focus -- tests/browser-runtime.test.mjs

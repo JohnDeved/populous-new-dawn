@@ -15,7 +15,8 @@ const snapshotPaths = ['scripts/browser-performance/snapshot-readers.mjs', 'scri
   'scripts/browser-performance/snapshot-capture.mjs', 'scripts/browser-performance/snapshot-setup.mjs',
   'scripts/tutorial-browser/checkpoint-codec.mjs', 'tests/support/bloodlust-scene.mjs']
 const harnessPaths = ['scripts/browser-performance/protocol.mjs', 'scripts/browser-performance/run.mjs',
-  'scripts/browser-performance/run-live.mjs', 'scripts/browser-performance/browser-runtime.json',
+  'scripts/browser-performance/run-live.mjs', 'scripts/browser-performance/run-pinned.mjs',
+  'scripts/browser-performance/run-live-pinned.mjs', 'scripts/browser-performance/browser-runtime.json',
   'scripts/browser-performance/browser-runtime.mjs', 'scripts/browser-performance/install-browser.mjs',
   'scripts/browser-performance/build.mjs', 'scripts/tutorial-browser/gameplay-frames.mjs',
   'scripts/tutorial-browser/gameplay-frame-evidence.mjs', 'scripts/tutorial-browser/browser-config.mjs',

@@ -137,17 +137,42 @@ test('both benchmark entry points bind pin, launcher, live version and before/af
     ignoreDefaultArgs: true, args: ['--headless', '--remote-debugging-pipe'], timeout: 30000 })
   for (const name of ['run.mjs', 'run-live.mjs']) {
     const source = readFileSync(resolve(root, 'scripts/browser-performance', name), 'utf8')
-    assert.match(source, /const pinnedBrowser = benchmarkBrowser\(root\)/)
+    assert.match(source, /const pinnedBrowser = pinned \? benchmarkBrowser\(root\) : null/)
+    assert.match(source, /pinned = false/)
+    assert.match(source, /const config = pinnedBrowser\?\.config \?\? browserConfiguration\(\)/)
     assert.match(source, /receipt.browser = provenance/)
-    assert.equal((source.match(/pinnedBrowser.verify\(\)/g) ?? []).length, 3)
+    assert.equal((source.match(/pinnedBrowser\?\.verify\(\)/g) ?? []).length, 3)
     assert.match(source, /pinnedBrowser.verifyLaunched\(session.browserVersion\)/)
     assert.match(source, /runnerVersion: process.env.ImageVersion/); assert.match(source, /release: release\(\)/)
     assert.doesNotMatch(source, /--no-sandbox|CHROME_DEVEL_SANDBOX/)
   }
   const active = readFileSync(resolve(root, '.github/workflows/browser-performance.yml'), 'utf8')
   const template = readFileSync(resolve(root, 'scripts/browser-performance/workflows/browser-performance.yml'), 'utf8')
-  assert.equal(active, template); assert.match(active, /node scripts\/browser-performance\/install-browser.mjs/)
-  assert.match(active, /outputs\/browser-runtime\/receipt.json/); assert.match(active, /outputs\/browser-runtime\/install.log/)
-  assert.doesNotMatch(active, /test -x \/opt\/google\/chrome\/chrome|--no-sandbox|install-deps|actions\/cache/)
+  assert.equal(active, template); assert.match(active, /test -x \/opt\/google\/chrome\/chrome/)
+  assert.match(active, /run: node scripts\/browser-performance\/run.mjs/)
+  assert.doesNotMatch(active, /install-browser|run-pinned|outputs\/browser-runtime|--no-sandbox|install-deps|actions\/cache/)
   assert.match(active, /max-parallel: 2/); assert.match(active, /timeout-minutes: 15/); assert.match(active, /contents: read/)
+})
+
+
+test('passive pinned entrypoints require explicit source selection and cannot choose legacy fallback', () => {
+  for (const [name, runner] of [['run-pinned.mjs', 'runBenchmark'], ['run-live-pinned.mjs', 'runLiveBenchmark']]) {
+    const source = readFileSync(resolve(root, 'scripts/browser-performance', name), 'utf8')
+    assert.ok(source.includes(`await ${runner}({ pinned: true })`))
+    assert.match(source, /assert.equal\(process.argv.length, 2/)
+    assert.doesNotMatch(source, /process.env|browserConfiguration|catch\s*\(/)
+  }
+})
+
+test('shared benchmark runners can be imported without initializing outputs or selecting a browser', () => {
+  const source = `
+    import assert from 'node:assert/strict'
+    const { runBenchmark } = await import('./scripts/browser-performance/run.mjs')
+    const { runLiveBenchmark } = await import('./scripts/browser-performance/run-live.mjs')
+    assert.equal(typeof runBenchmark, 'function')
+    assert.equal(typeof runLiveBenchmark, 'function')
+  `
+  execFileSync(process.execPath, ['--input-type=module', '-e', source], {
+    cwd: root, env: { ...process.env, BENCHMARK_SHARD: 'invalid-import-must-not-run' }, timeout: 15000, stdio: 'pipe',
+  })
 })
