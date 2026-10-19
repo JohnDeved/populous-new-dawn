@@ -194,6 +194,11 @@ Leave `.openai/hosting.json` untouched.
 
 ## Verification
 
+For save changes, follow [the development save contract](../README.md#development-save-contract).
+Verify current-format durability, new-game/restart/save/load continuation, malformed
+input checks, and clear incompatible-save rejection without stored-data changes.
+Classic/native fixtures are scoped research evidence, not an old-save obligation.
+
 Standard code-change gates are `npm run check` and `npm run build`, plus affected
 native/browser/performance checks. Maintained TypeScript also follows
 [README's quality workflow](../README.md#typescript-quality-workflow). Focused checks

@@ -36,6 +36,9 @@ behavior, evidence quality, and existing user work. Read `GOAL.md` for direction
 
 - Trace the shipped UI/campaign/system entry point through changed code and tests.
   Isolated helpers and injected entities do not complete a playable feature.
+- Follow [the development save contract](README.md#development-save-contract):
+  current-format saves only, clear incompatible-save rejection without stored-data
+  changes, and correct current new-game/restart/save/load continuation.
 - Reuse `decomp/research/`, `decomp/exports.json`, reviewed exports, and native probes.
   Follow `engineering/native-research.md` for executable hashes, tool provenance,
   local input recovery, scoped exports, intercepted boundaries, and durable findings.
