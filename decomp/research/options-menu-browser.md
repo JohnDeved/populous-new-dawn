@@ -116,3 +116,25 @@ storage-failure notices, Escape/Back navigation and audio retry are unchanged.
 This is presentation cleanup, not a native option implementation or new parity claim.
 Source/fixture tests cover both skins and all categories; current rendered evidence
 must come from the parent's hosted checks because local browser execution is blocked.
+
+
+## October 19, 2026: browser help belongs in Game
+
+The user's later direction supersedes the separate browser-help link described
+above. Browser compatibility and help is now a normal selectable sixth Game row,
+at (320,289), following the existing 30-pixel row interval. The explicit Browser
+label remains a compatibility adaptation, not a newly claimed original option.
+Sound, Graphics and Direct3D have no duplicate help link. The row uses the same
+native text, highlight, focus and indexed-shadow inventory as the supported Game
+choices; its 448-pixel glyph string fits the existing 540-pixel choice hit target.
+The row clears the storage notice at338 and category navigation at420. Both skins
+retain the exact accessible label and separate destination. Back/Escape returns
+focus to that Game row. Existing public browser helpers now select Game before
+opening help where they previously entered from Sound.
+
+Focused source/interaction fixtures check row inventory, highlight/activation,
+Back focus, native glyph bounds and uniform standard/wide/high-DPI scaling. The
+hosted helper adds actual Enter/Escape and row-geometry witnesses but is not local
+rendered evidence until executed. Gameplay, settings values and storage semantics
+are unchanged. The independent tooltip startup-readiness patch is composed by the
+parent, not duplicated in this change.

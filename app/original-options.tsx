@@ -137,6 +137,7 @@ export function OriginalOptions({
       },
       { id: 'staySelected', text: 'Stay Selected : <Unavailable>', x: 320, y: 229 },
       { id: 'autocastSpell', text: 'Autocast Spell : <Unavailable>', x: 320, y: 259 },
+      { id: 'compatibility', text: 'Browser compatibility and help', x: 320, y: 289 },
     ],
     [gamePreferences.rotation, gamePreferences.flipRotation]
   )
@@ -266,6 +267,7 @@ export function OriginalOptions({
         style={position}
         aria-label={text}
         data-option-key={id}
+        data-compatibility={id === 'compatibility' || undefined}
         data-panel-back={text === 'Back' || undefined}
         data-menu-tooltip={options.help}
         aria-description={options.help}
@@ -306,7 +308,12 @@ export function OriginalOptions({
           {category === 'Game' && (
             <>
               {gameRows.map(row =>
-                row.id === 'rotation' || row.id === 'flipRotation' ? (
+                row.id === 'compatibility' ? (
+                  choice(row.text, row.x, row.y, () => setBrowser(true), false, {
+                    id: row.id,
+                    wide: true,
+                  })
+                ) : row.id === 'rotation' || row.id === 'flipRotation' ? (
                   choice(
                     row.text,
                     row.x,
@@ -435,13 +442,6 @@ export function OriginalOptions({
               ))}
             </>
           )}
-          <button
-            className={styles.browserLink}
-            data-compatibility
-            onClick={() => setBrowser(true)}
-          >
-            Browser compatibility and help
-          </button>
           <nav aria-label="Options categories">
             {categories.map((text, index) =>
               choice(text, 170 + index * 150, 420, () => select(text), category === text)
