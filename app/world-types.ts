@@ -108,6 +108,8 @@ export type Fight = {
   knockback?: boolean
   // Only attacks entered with a native pose own it; legacy active saves keep fallback.
   nativeAttackAnimation?: boolean
+  // A processed recoil entry owns its phase through the following push/approach.
+  nativeRecoilAnimation?: boolean
   motion?: LivePerson
 }
 export type NativePoint = { x: number; y: number; h: number }
