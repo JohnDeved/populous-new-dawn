@@ -35,7 +35,8 @@ checkpoint twins, Unit identity and HP remain equal. Strict native/registered
 ownership and no current order are required at phase23 and immediately after task
 inactivity. Later ordinary construction may transfer the SAME person to
 `builder.person` through `adoptLiveOrders`/`processBuilderWork`; its genuine new
-command6/building target is checked, not mistaken for a stranded raid. A missing
-registry entry is admitted only for that explicit builder/native-null path; any
-present entry must still be the captured person. Other retained owner slots must
-keep their registry alias. No generic missing-owner fallback is added.
+command6/building target is checked, not mistaken for a stranded raid. The actual
+caller adopts the builder owner and clears native before processBuilderWork;
+its conditional registry deletion is not entered. Registry identity therefore
+remains strict for every tail owner, including the replay. The isolated callee's
+deletion branch is not used to admit unobserved missing-owner cases.

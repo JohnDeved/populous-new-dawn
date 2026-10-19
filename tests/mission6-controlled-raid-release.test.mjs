@@ -84,15 +84,14 @@ test('current controlled Mission6 raid releases blocked owners and checkpoint re
       assert.ok(state.buildings.some(building => building.id === current.a && building.hp > 0))
       if (state === world) builderHandoffSeen = true
     }
-    if (registered) assert.equal(registered, person)
-    // processBuilderWork can detach the registered native slot while keeping
-    // this exact person in builder.person; no other absent-owner case is admitted.
-    else assertBuilderHandoff()
+    // The actual model6 caller adopts the builder owner before processBuilderWork,
+    // so its native-null handoff must retain this exact registered person.
+    assert.equal(registered, person)
     if (unit.native === null && unit.builder?.person === person) assertBuilderHandoff()
     assert.ok(!person.commands.includes(orderId))
     assert.notEqual(person.immediateCommand, orderId)
     if (current) {
-      assert.notEqual(current, order)
+      assert.notEqual(current, state.buildingOrders.records[orderId])
       assert.ok(current.references > 0)
     }
   }
