@@ -15,10 +15,14 @@ const integer = (n, min, max) => Number.isInteger(n) && n >= min && n <= max
 export function mission10SelectionQuery(state) {
   assert.equal(state.paused, true)
   assert.deepEqual(state.selected, [])
+  assert.ok(Array.isArray(state.people) && state.people.every(p => integer(p.id, 1, 65535)))
+  assert.equal(new Set(state.people.map(p => p.id)).size, state.people.length, 'Duplicate observed person ID')
   const people = state.people.filter(p => p.team === 'blue' && p.hp > 0)
   assert.deepEqual(people.map(p => p.id), mission10OwnedIds, 'Complete authored Blue roster changed')
   assert.deepEqual(people.map(p => p.model), models, 'Authored Blue classes changed')
-  assert.ok(people.every(p => Number.isFinite(p.hp)))
+  assert.ok(people.every(p => Number.isFinite(p.hp) && integer(p.x, -32768, 65535) &&
+    integer(p.y, -32768, 65535) && integer(p.assignment, -2147483648, 4294967295) &&
+    integer(p.flags4, -2147483648, 4294967295) && integer(p.vehicle, 0, 65535)), 'Malformed raw native selection facts')
   const boat = state.vehicles.find(v => v.id === 62)
   assert.ok(boat?.active && boat.model === 1)
   assert.ok(state.vehicles.every(v => v.id === 62 || !people.some(p => p.vehicle === v.id)), 'Unexpected occupied craft')
