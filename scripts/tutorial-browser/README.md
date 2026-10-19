@@ -361,12 +361,27 @@ Repeated same-pose renders do not consume slots. A missing or obstructed planned
 crop fails acceptance and cannot be replaced by a later eligible duplicate.
 All planned crops are required, with at least two forming a same-direction,
 same-sequence pair whose logical turn, native f2 and actual mapped frame advance.
-The observed fight must retain the same actor, original physical person, group
-and actual opponent; natural interception is not forced to target 20. A later
-sequence cannot substitute for either endpoint of the advancing pair. A fixed
+The observed fight must retain the same actor, original physical person and group.
+One attack entry (actor/group/start turn) must retain its action and actual
+opponent; natural interception is not forced to target 20. A later entry may
+select a different roster opponent, but its start must advance and be at least
+the previous start plus that attack's original mapped duration. This follows
+`combat-runtime.ts`: `processBattles` continues after the expiry turn before
+selecting a fresh target, and `meleeExchange` writes opponent/action/start
+together while retaining the physical person and group. An altered action or
+opponent cannot silently split one entry into several valid sequences. Sequence
+and crop identities still include the opponent, and a later sequence cannot
+substitute for either endpoint of the advancing pair. A fixed
 window may contain multiple sequences; it is not extended or restarted to seek
 one that passes. Sparse rendering that never supplies a cropped advancing pair
 still fails. This is not a guarantee against arbitrary scheduler starvation.
+
+The earlier global-opponent assertion rejected the normal special entry at turn
+395 against person 13 followed by an attack entry at turn 400 against person
+1207, both in group 1252. The first entry expires at turn 399. An ordinary M2
+CPU command/clock regression reproduces these entries without editing positions,
+health, RNG or AI. This corrects a witness contract, not gameplay, and does not
+retroactively turn the failed hosted receipt into a browser pass.
 
 Independent original tables determine each attack's object/draw, descriptor
 step, native frame count and duration, and directional frame/flip. Exact native

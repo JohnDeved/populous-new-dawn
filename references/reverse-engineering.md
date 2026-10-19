@@ -74,7 +74,7 @@ Eight regression tests now include native slot geometry, three-against-one forma
 python3 scripts/import-original.py /path/to/extracted/game
 python3 scripts/inspect-executable.py /path/to/D3DPopTB.exe app/original-constants.json app/original-rules.json > references/executable-tables.json
 npm test
-npx tsc --noEmit
+npm run typecheck
 npm run build
 # With npm run dev in another terminal:
 node qa/browser-check.mjs

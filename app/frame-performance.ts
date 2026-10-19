@@ -111,6 +111,27 @@ export class FramePerformance {
   callbackMs = 0
   renderMs = 0
   drawCalls = 0
+  // Optional counts use the same short publication window as the CPU means.
+  // A partially observed window is unknown, never a measured zero.
+  readonly picking = {
+    frames: 0,
+    milliseconds: 0,
+    numeric: null as number | null,
+    packedVector: null as number | null,
+    sparseVector: null as number | null,
+    representationChanged: null as number | null,
+  }
+  private readonly pickPathSums = createOrdinaryPickPaths()
+  private pickPathFrames = 0
+  private representationSum = 0
+  private representationFrames = 0
+
+  private resetPickingWindow() {
+    for (const key of ORDINARY_PICK_PATH_FIELDS) this.pickPathSums[key] = 0
+    this.pickPathFrames = 0
+    this.representationSum = 0
+    this.representationFrames = 0
+  }
 
   reserveGpuFrame(): GpuFrameToken {
     return { generation: this.gpuGeneration, serial: ++this.gpuSerial }
@@ -161,6 +182,11 @@ export class FramePerformance {
     this.callbackMs = 0
     this.renderMs = 0
     this.drawCalls = 0
+    this.resetPickingWindow()
+    this.picking.frames = 0
+    this.picking.milliseconds = 0
+    for (const key of ORDINARY_PICK_PATH_FIELDS) this.picking[key] = null
+    this.picking.representationChanged = null
   }
 
   sample(
@@ -322,6 +348,14 @@ export class FramePerformance {
     this.callback += callback
     this.render += render
     this.calls += calls
+    if (paths) {
+      this.pickPathFrames++
+      for (const key of ORDINARY_PICK_PATH_FIELDS) this.pickPathSums[key] += paths[key]
+    }
+    if (representationChanged !== undefined) {
+      this.representationFrames++
+      this.representationSum += representationChanged
+    }
     if (this.elapsed < 250) return false
     this.fps = (this.frames * 1000) / this.elapsed
     this.frameMs = this.elapsed / this.frames
@@ -330,6 +364,14 @@ export class FramePerformance {
     this.renderMs = this.render / this.frames
     this.drawCalls = this.calls / this.frames
     this.pointerMs = this.pointer / this.frames
+    this.picking.frames = this.frames
+    this.picking.milliseconds = this.elapsed
+    for (const key of ORDINARY_PICK_PATH_FIELDS)
+      this.picking[key] =
+        this.pickPathFrames === this.frames ? this.pickPathSums[key] / this.frames : null
+    this.picking.representationChanged =
+      this.representationFrames === this.frames ? this.representationSum / this.frames : null
+    this.resetPickingWindow()
     // Keep signed remainder: a negative value exposes invalid timing ownership.
     this.otherMs = this.callbackMs - this.simulationMs - this.renderMs - this.pointerMs
     this.summarize(this.history, this.rafPercentiles)

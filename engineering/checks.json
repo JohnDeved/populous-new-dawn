@@ -852,6 +852,37 @@
       ]
     },
     {
+      "id": "snapshot-drag-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Catch protected held-drag source-route drift before expensive verification.",
+      "coveredBehavior": ["Exact source-owner admission", "Held-drag observer contract"],
+      "knownLimits": ["Node-only regression; does not run a browser, admit new source profiles or establish rendering or hardware performance."],
+      "executable": "node",
+      "args": ["--test", "tests/browser-snapshot-drag.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "app/scene-input-runtime.ts",
+        "app/scene-tooltip-runtime.ts",
+        "app/scene.ts",
+        "app/scene-picking.ts",
+        "app/render-view.ts",
+        "app/scene-camera-runtime.ts",
+        "app/scene-terrain-runtime.ts",
+        "app/runtime-terrain-picking.ts",
+        "app/neutral-cursor.ts",
+        "scripts/browser-performance/snapshot-drag-contract.mjs",
+        "scripts/browser-performance/snapshot-drag-observer.mjs",
+        "tests/browser-snapshot-drag.test.mjs"
+      ],
+      "inputs": ["app", "scripts", "tests/support", "tests/browser-snapshot-drag.test.mjs", "package.json", "package-lock.json"],
+      "prerequisites": ["Node.js >=22.13.0", "Installed project dependencies"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "orchestration-tests",
       "kind": "metadata",
       "automation": "safe",

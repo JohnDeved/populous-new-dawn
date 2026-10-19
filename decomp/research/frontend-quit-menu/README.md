@@ -72,3 +72,19 @@ UI behavior, fallback, focus and display fit.
 ## Rendered restoration evidence
 
 [Source-bound before/after captures and final validation](../../../evidence/frontend-quit-20261016/README.md) retain actual Home behavior, explicit browser adaptations, failed attempts and repaired Escape/disabled-label checks. Original-byte presentation proof and rendered browser evidence remain distinct.
+
+## Browser guidance typography
+
+The browser-only warning uses two centered `felo33we` bitmap lines, reusing the
+prepared low-font bank that renders the native Quit question. Their measured
+advances are 464 and 442 pixels within the 640-pixel frame, at y=278 and y=308.
+These lines are an explicitly modern browser adaptation, not recovered native
+wording. They replace the unrelated sans-serif paragraph without changing native
+row coordinates or creating another asset-loading path. Missing font preparation
+retains the existing readable `MenuText` fallback.
+
+The accessible description retains the reason Yes is disabled, unsaved-progress
+loss, and the distinction between a session-only checkpoint and one successfully
+persisted to browser storage. Yes remains disabled and has no close/save handler;
+No, Back and Escape keep their existing return route. Focused source tests verify
+these boundaries; rendered browser screenshots must separately verify appearance.

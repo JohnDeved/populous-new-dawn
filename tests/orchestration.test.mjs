@@ -33,6 +33,7 @@ import {
 } from '../scripts/orchestration/cli.mjs'
 import { checkAutomation, startGameServer, verifyContract } from '../scripts/orchestration/verify.mjs'
 import { main as prepareMain, prepareContract } from '../scripts/orchestration/prepare.mjs'
+import { dragSourceProfiles } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
 
 const sha = value => createHash('sha256').update(value).digest('hex')
 const put = (repo, path, value) => {
@@ -903,6 +904,101 @@ test('plan handles cross-cutting edits, renames, deletions, untracked and unsafe
     assert.ok(plan.unknownPaths.includes('mystery/new.ts'))
     assert.equal(plan.checks.find(check => check.id === 'native').status, 'blocked')
     assert.throws(() => planChanges(repo, { base: '--help' }), /Unsafe base ref/)
+  }))
+
+// Exercise the real source-owner trigger list against both narrow and conservative
+// fixture routing. Adding a cheap check must not remove gates or broaden feedback.
+test('protected held-drag owners add the cheap regression without changing existing routing', () =>
+  withRepo(repo => {
+    const { checks } = validateRepository(ROOT)
+    const check = checks.checks.find(item => item.id === 'snapshot-drag-portable')
+    assert.ok(check)
+    assert.equal(check.automation, 'safe')
+    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/browser-snapshot-drag.test.mjs'])
+    const owners = [...new Set(dragSourceProfiles.flatMap(profile => profile.slices.map(slice => slice.path)))]
+    const paths = [...owners, 'scripts/browser-performance/snapshot-drag-contract.mjs',
+      'scripts/browser-performance/snapshot-drag-observer.mjs', 'tests/browser-snapshot-drag.test.mjs']
+    assert.deepEqual([...check.triggerPaths].sort(), [...paths].sort())
+    for (const path of [...paths, 'tests/support/tooltip-scene.mjs', 'tests/support/bloodlust-scene.mjs',
+      'tests/support/hut-smoke-scene.mjs', 'scripts/browser-performance/snapshot-capture.mjs', 'scripts/browser-game.mjs'])
+      assert.ok(check.inputs.some(input => path === input || path.startsWith(`${input}/`)), `Missing check input: ${path}`)
+    for (const path of ['scripts', 'tests/support']) mkdirSync(join(repo, path), { recursive: true })
+    put(repo, 'package-lock.json', '{}\n')
+    for (const path of paths) put(repo, path, '// fixture\n')
+    // One explicit narrow owner and one shared owner; all other owners stay
+    // unknown here so their conservative fallback is checked independently too.
+    const mapping = JSON.parse(readFileSync(join(repo, 'engineering/project-map.json')))
+    mapping.subsystems[0].implementationPaths.push('app/neutral-cursor.ts')
+    mapping.subsystems[0].sharedPaths.push('app/scene-input-runtime.ts')
+    put(repo, 'engineering/project-map.json', mapping)
+    run(repo, 'git', 'add', '.')
+    run(repo, 'git', 'commit', '-qm', 'source owner fixtures')
+    const baseline = new Map()
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      baseline.set(path, planChanges(repo))
+      put(repo, path, '// fixture\n')
+    }
+    const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    manifest.checks.push(check)
+    put(repo, 'engineering/checks.json', manifest)
+    run(repo, 'git', 'add', '.')
+    run(repo, 'git', 'commit', '-qm', 'add portable triggers')
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      const plan = planChanges(repo), previous = baseline.get(path)
+      assert.deepEqual(plan.checks.find(item => item.id === check.id)?.command, [check.executable, ...check.args], path)
+      assert.deepEqual(plan.checks.filter(item => item.id !== check.id), previous.checks, path)
+      assert.deepEqual(plan.unknownPaths, previous.unknownPaths, path)
+      assert.deepEqual(plan.affectedSubsystems, previous.affectedSubsystems, path)
+      assert.equal(plan.feedback.scope, previous.feedback.scope, path)
+      assert.equal(plan.feedback.finalGate, false)
+      assert.equal(plan.feedback.fullVerificationRequired, true)
+      assert.equal(plan.executesChecks, false)
+      if (plan.feedback.scope === 'focused') assert.ok(plan.feedback.command.includes('tests/browser-snapshot-drag.test.mjs'))
+      put(repo, path, '// fixture\n')
+    }
+    put(repo, 'app/unmapped.ts', '// unrelated\n')
+    const unrelated = planChanges(repo)
+    assert.ok(!unrelated.checks.some(item => item.id === check.id))
+    assert.ok(unrelated.unknownPaths.includes('app/unmapped.ts'))
+    assert.deepEqual(unrelated.feedback.command, ['npm', 'test'])
+  }))
+
+test('explicit check triggers reject unsafe, malformed and empty routes', () =>
+  withRepo(repo => {
+    const checks = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    for (const triggerPaths of [[], 'app/a.ts', ['../escape'], ['/absolute']]) {
+      checks.checks[0].triggerPaths = triggerPaths
+      put(repo, 'engineering/checks.json', checks)
+      assert.throws(() => validateRepository(repo), /triggerPaths|Non-canonical|Unsafe repository path/)
+    }
+  }))
+
+test('context-index mapping changes already require behavioral orchestration tests as well as structure', () =>
+  withRepo(repo => {
+    const { checks } = validateRepository(ROOT)
+    const original = checks.checks.find(check => check.id === 'orchestration-tests')
+    assert.ok(original.args.includes('tests/orchestration.test.mjs'))
+    const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    Object.assign(manifest.checks.find(check => check.id === original.id), {
+      executable: original.executable, args: original.args,
+    })
+    put(repo, 'engineering/checks.json', manifest)
+    run(repo, 'git', 'add', '.')
+    run(repo, 'git', 'commit', '-qm', 'real orchestration command')
+    const base = run(repo, 'git', 'rev-parse', 'HEAD').trim()
+    for (const path of ['engineering/project-map.json', 'engineering/README.md']) {
+      const previous = readFileSync(join(repo, path), 'utf8')
+      appendFileSync(join(repo, path), '\n')
+      const plan = planChanges(repo, { base })
+      assert.ok(plan.checks.find(check => check.id === 'orchestration-tests').command.includes('tests/orchestration.test.mjs'))
+      assert.ok(plan.checks.some(check => check.id === 'orchestration-structural'))
+      assert.ok(plan.checks.some(check => check.id === 'repository-check'))
+      assert.deepEqual(plan.feedback.command, ['npm', 'test'])
+      assert.equal(plan.executesChecks, false)
+      put(repo, path, previous)
+    }
   }))
 
 function contract(repo, base) {

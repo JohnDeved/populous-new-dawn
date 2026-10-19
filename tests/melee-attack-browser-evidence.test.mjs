@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
   readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
+import { validateMeleeRunningFrames } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
 import { spriteDirection } from '../app/projection.ts'
 import { minimapPick } from '../app/minimap.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
@@ -182,6 +183,40 @@ test('ordinary M2 startup rejects hidden Warrior13 and admits the visible author
   assert.ok(world.units.some(unit => unit.id === actor.fight.opponent && unit.team === 'green'))
 })
 
+test('ordinary M2 center fighter keeps each attack entry but can choose a different opponent after expiry', async () => {
+  const { createWorld, select, command } = await import('../app/model.ts')
+  const { finishLevelStart } = await import('./level-start-fixture.mjs')
+  const { advanceGame } = await import('../app/game-clock.ts')
+  const world = finishLevelStart(createWorld(2)), clock = { animationTime: 0, animationFrame: 0 }
+  while (world.turn < 134) advanceGame(world, clock, 1 / 12)
+  select(world, 'shaman'); assert.equal(command(world, world.units.find(unit => unit.id === 20)), true)
+  const actor = world.units.find(unit => unit.id === 54), entries = []
+  let person, previous, firstTurn
+  // Ordinary simulation only: no World/position/health/RNG/AI edits or browser claim.
+  for (let turn = 0; turn < 450; turn++) {
+    advanceGame(world, clock, 1 / 12)
+    if (firstTurn !== undefined && world.turn >= firstTurn + 10) break
+    const fight = actor.fight
+    if (!['attack', 'strike', 'special'].includes(fight?.action)) continue
+    firstTurn ??= world.turn; person ??= fight.motion
+    assert.equal(fight.motion, person)
+    const entry = { started: fight.started, action: fight.action, opponent: fight.opponent, group: fight.group }
+    const duration = mapping[`shaman:${fight.action}`].duration
+    assert.equal(fight.remaining, duration - 1 - (world.turn - fight.started))
+    if (previous) {
+      assert.equal(entry.group, previous.group)
+      if (entry.started === previous.started) assert.deepEqual(entry, previous)
+      else assert.ok(entry.started >= previous.started + mapping[`shaman:${previous.action}`].duration)
+    }
+    if (!previous || entry.started !== previous.started) entries.push(entry)
+    previous = entry
+  }
+  assert.deepEqual(entries, [
+    { started: 395, action: 'special', opponent: 13, group: 1252 },
+    { started: 400, action: 'attack', opponent: 1207, group: 1252 },
+  ])
+})
+
 // Explicit supplied World/canvas/RAF diagnostic. No browser, actual game method,
 // rendering, screenshot pixels, original-game timing or live campaign claim.
 function withObserverFixture(run) {
@@ -317,6 +352,38 @@ test('running observer captures first four distinct poses and terminates on the 
     world.turn = 50; scene.renderer.info.render.frame++; next()
     assert.equal(observation.result.done, true); assert.equal(observation.result.samples.length, 6)
     assert.deepEqual([...pending.keys()], [unrelated])
+  })
+})
+
+test('real observer retains both supplied attack entries in one fixed window for strict validation', () => {
+  withObserverFixture(({ world, scene, group, next, observation }) => {
+    const unit = world.units[0], person = unit.fight.motion
+    Object.assign(person, { id: 54, state: 25, speed: 0, class: 1, model: 7,
+      workFlags: 1252, flags2: 0x1080, flags4: 0 })
+    world.fights = [{ id: 1252, members: [54, 1207, 19, 13] }]
+    for (const turn of [395, 396, 398, 400, 402]) {
+      const action = turn < 400 ? 'special' : 'attack', started = turn < 400 ? 395 : 400
+      const m = mapping[`shaman:${action}`], f2 = turn - started
+      world.turn = turn
+      Object.assign(unit.fight, { action, animation: action, started, group: 1252,
+        opponent: turn < 400 ? 13 : 1207, remaining: m.duration - 1 - f2 })
+      Object.assign(person, { object: m.object, draw: m.draw, f1: 0, f2, stamp: turn })
+      const direction = spriteDirection(0, 0), artwork = m.directions[direction]
+      Object.assign(group.userData, { draw: m.draw, frame: artwork.frames[f2], frameFlip: artwork.flip })
+      scene.renderer.info.render.frame++; scene.gameClock.animationFrame = turn * 2
+      next()
+      assert.equal(observation.result.done, false, 'neither an advancing pair nor a new entry can end the window')
+    }
+    world.turn = 405; scene.renderer.info.render.frame++; next()
+    const { result } = observation
+    assert.equal(result.done, true); assert.equal(result.error, null); assert.equal(result.firstAttackTurn, 395)
+    assert.deepEqual(result.samples.map(s => [s.turn, s.started, s.opponent]),
+      [[395, 395, 13], [396, 395, 13], [398, 395, 13], [400, 400, 1207], [402, 400, 1207]])
+    assert.deepEqual(result.samples.map(s => s.cropPlanned), [true, true, true, true, false])
+    assert.equal(result.crops.length, 4)
+    assert.equal(validateMeleeRunningFrames(result.samples, mapping).sampleCount, 5)
+    result.samples[4].opponent = 13
+    assert.throws(() => validateMeleeRunningFrames(result.samples, mapping), /same opponent/)
   })
 })
 

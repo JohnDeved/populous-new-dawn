@@ -11,6 +11,7 @@ export interface IngameMenuAssets {
 }
 
 export interface FrontendAssets {
+  badgeVectors: readonly (HTMLImageElement | null)[]
   ingame: IngameMenuAssets
   composition: Uint8Array | null
   fonts: boolean
@@ -44,6 +45,8 @@ export async function prepareFrontendAssets(): Promise<FrontendAssets> {
       pauseFont,
       ingameSliders,
       tooltip,
+      bullfrogVector,
+      qsoundVector,
     ] = await Promise.all([
       settle(
         fetch('/original/frontend/composition.bin', { signal: controller.signal })
@@ -67,8 +70,11 @@ export async function prepareFrontendAssets(): Promise<FrontendAssets> {
       settle(images([0, 1, 2].map(frame => `options/ingame-${frame}`))),
       // One decoded atlas is shared by both skins and every menu/category mount.
       settle(images(['world-selector/text/tooltip-font-c'])),
+      settle(image('/frontend-badges/bullfrog.svg')),
+      settle(image('/frontend-badges/qsound.svg')),
     ])
     return Object.freeze({
+      badgeVectors: Object.freeze([bullfrogVector, qsoundVector]),
       ingame: Object.freeze({
         fonts: pauseFont !== null,
         sliders: ingameSliders !== null,
@@ -93,13 +99,13 @@ export async function prepareFrontendAssets(): Promise<FrontendAssets> {
   }
 }
 
+async function image(src: string) {
+  const image = new Image()
+  image.src = src
+  await image.decode()
+  return image
+}
+
 function images(names: string[]) {
-  return Promise.all(
-    names.map(async name => {
-      const image = new Image()
-      image.src = `/original/${name}.png`
-      await image.decode()
-      return image
-    })
-  )
+  return Promise.all(names.map(name => image(`/original/${name}.png`)))
 }

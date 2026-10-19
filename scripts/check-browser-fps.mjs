@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
 import { validGpuFrameTiming } from '../app/gpu-frame-timing.ts'
+import { checkPickingPathReadout } from './tutorial-browser/picking-path-readout.mjs'
 
 // Shared with the owned local-render harness; ordinary entry and actual Scene.
 export async function checkPerformancePage(page, { output } = {}) {
@@ -19,20 +20,22 @@ export async function checkPerformancePage(page, { output } = {}) {
   assert.equal(facts.clickThrough, true)
   assert.match(facts.label, /performance/i)
   assert.notEqual(facts.live, 'assertive')
-  assert.equal(facts.focusables, 1)
+  assert.equal(facts.focusables, 2)
   assert.ok(facts.x >= 0 && facts.y >= 0 && facts.x + facts.width <= 640 && facts.y + facts.height <= 480)
   assert.match(facts.text, /CPU excludes overlay\/GPU\. Async GPU: export only/)
   assert.equal(await overlay.evaluate(el => { const r = el.getBoundingClientRect(); return !el.contains(document.elementFromPoint(r.x + 10, r.y + 10)) }), true)
   if (output) await page.screenshot({ path: resolve(output, 'performance-640x480.png') })
   const exportButton = overlay.getByRole('button', { name: 'Export recent frames', exact: true })
+  const pickingToggle = overlay.getByRole('button', { name: 'Picking paths', exact: true })
   assert.equal(await exportButton.evaluate(el => getComputedStyle(el).pointerEvents), 'auto')
   await page.evaluate(() => {
     cancelAnimationFrame(window.testScene.frame)
     window.exportInputEvents = []
     window.exportInputListener = event => window.exportInputEvents.push(event.type)
-    for (const type of ['pointerdown', 'pointerup', 'click', 'keydown', 'keyup'])
+    for (const type of ['pointerdown', 'pointerup', 'click', 'wheel', 'keydown', 'keyup'])
       window.addEventListener(type, window.exportInputListener)
   })
+  const { expandedLayouts } = await checkPickingPathReadout({ page, output })
   for (const keyboard of [false, true]) {
     const pending = page.waitForEvent('download')
     if (keyboard) { await exportButton.focus(); await page.keyboard.press('Space') }
@@ -52,13 +55,13 @@ export async function checkPerformancePage(page, { output } = {}) {
   }
   assert.deepEqual(await page.evaluate(() => window.exportInputEvents), [], 'button activation does not reach game input handlers')
   await page.evaluate(() => {
-    for (const type of ['pointerdown', 'pointerup', 'click', 'keydown', 'keyup'])
+    for (const type of ['pointerdown', 'pointerup', 'click', 'wheel', 'keydown', 'keyup'])
       window.removeEventListener(type, window.exportInputListener)
     window.testScene.frame = requestAnimationFrame(window.testScene.animate)
   })
-  await page.evaluate(() => document.activeElement?.blur())
+  await pickingToggle.focus()
   await page.keyboard.press('F8')
-  assert.equal(await overlay.count(), 0, 'trusted F8 disables overlay')
+  assert.equal(await overlay.count(), 0, 'trusted F8 disables overlay while its picking control is focused')
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   await page.getByRole('button', { name: 'Options', exact: true }).click()
   await page.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
@@ -167,7 +170,7 @@ export async function checkPerformancePage(page, { output } = {}) {
   assert.ok(!/NaN|Infinity/.test(liveText))
   await page.evaluate(() => window.testScene.dispose())
   assert.equal(await overlay.count(), 0)
-  const report = { status: 'passed', facts, lifecycle, overhead, liveText, limitation: 'Headless software renderer; CPU callback observations include browser scheduling/noise. No GPU timing, hardware FPS certification, or broad performance claim.' }
+  const report = { status: 'passed', facts, expandedLayouts, lifecycle, overhead, liveText, limitation: 'Headless software renderer; CPU callback observations include browser scheduling/noise. No GPU timing, hardware FPS certification, or broad performance claim.' }
   if (output) writeFileSync(resolve(output, 'performance.json'), JSON.stringify(report, null, 2))
   return report
 }
