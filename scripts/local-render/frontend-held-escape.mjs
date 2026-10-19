@@ -5,7 +5,9 @@ import { writeFileSync } from 'node:fs'
 // Opt-in bounded scenario: one Home load, one 1280x960 viewport, two Help/Options
 // episodes and one Quit control, one screenshot. No campaign, storage setup,
 // navigation reload, or additions to the existing broad Options/pause scenarios.
-export default async function ({ page, output }) {
+export const frontendHeldEscapeLimitMs = 60000
+
+async function episode({ page, output, url }) {
   const main = page.getByRole('dialog', { name: 'Main menu', exact: true })
   const button = name => main.getByRole('button', { name, exact: true })
   const options = main.locator('[data-original-options]')
@@ -19,6 +21,7 @@ export default async function ({ page, output }) {
     scenes: document.querySelectorAll('.world-viewport canvas').length,
   }))
   await page.setViewportSize({ width: 1280, height: 960 })
+  if (url) await page.goto(url, { waitUntil: 'domcontentloaded' })
   await main.waitFor()
   const initial = await state()
   await page.evaluate(() => {
@@ -84,7 +87,30 @@ export default async function ({ page, output }) {
       'One viewport and screenshot; not comprehensive display or performance acceptance',
     ] }
   } finally {
-    await page.keyboard.up('Escape')
-    await page.evaluate(() => window.removeFrontendEscapeObservers())
+    if (!page.isClosed()) {
+      await page.keyboard.up('Escape')
+      await page.evaluate(() => window.removeFrontendEscapeObservers())
+    }
+  }
+}
+
+// Nested episode bound, independent of the unchanged runner-wide 180s allowance.
+// Closing this runner-owned page interrupts pending Playwright actions; the runner
+// still owns context/browser/server cleanup and the terminal failure receipt.
+export default async function frontendHeldEscape(input) {
+  let timedOut = false
+  const timer = setTimeout(() => {
+    timedOut = true
+    void input.page.close().catch(() => {})
+  }, frontendHeldEscapeLimitMs)
+  try {
+    const result = await episode(input)
+    assert.equal(timedOut, false, 'Frontend held Escape exceeded its 60-second bound')
+    return { ...result, episodeLimitMs: frontendHeldEscapeLimitMs }
+  } catch (error) {
+    if (timedOut) throw new Error('Frontend held Escape exceeded its 60-second bound', { cause: error })
+    throw error
+  } finally {
+    clearTimeout(timer)
   }
 }
