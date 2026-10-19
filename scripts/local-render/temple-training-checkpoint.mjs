@@ -240,7 +240,7 @@ export async function readTempleCommittedLoad() {
       transaction.onabort = () =>
         reject(transaction.error ?? Error('Temple checkpoint read aborted'))
     })
-    if (![1, 2].includes(record?.version) || record.world?.outcome?.level !== 3)
+    if (record?.version !== 2 || record.world?.capacityPolicy?.mode !== 'scalable' || record.world.capacityPolicy.version !== 1 || record.world.outcome?.level !== 3)
       throw Error('Committed Mission 3 checkpoint required')
     const restored = migrateCheckpoint(structuredClone(record.world))
     const loaded = migrateCheckpoint(structuredClone(restored))

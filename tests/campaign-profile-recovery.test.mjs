@@ -89,46 +89,33 @@ for (const [name, latest] of [
   })
 }
 
-for (const legacy of [false, true]) {
-  test(`${legacy ? 'legacy' : 'current'} valid checkpoint still restores and loads`, async () => {
-    const world = createWorld()
+for (const [version, mode, missingPolicy] of [[1, 'classic', false], [1, 'classic', true], [2, 'classic', false], [2, 'scalable', false]])
+  test(`v${version}/${mode}/missing=${missingPolicy} accepts only the current scalable contract`, async () => {
+    const world = createWorld(1, mode), accepted = version === 2 && mode === 'scalable'
     world.turn = 217
     world.randomState = 0x12345678
-    if (legacy) { delete world.drawMode; delete world.capacityPolicy }
-    await withStorage({ latest: { version: 1, world }, profile }, async ({ createGameStore, records, writes }) => {
+    if (missingPolicy) delete world.capacityPolicy
+    await withStorage({ latest: { version, world }, profile }, async ({ createGameStore, records, writes }) => {
       const store = createGameStore(), active = store.getWorld(), before = structuredClone(records)
-      assert.equal(await store.restoreCheckpoint(), true)
+      assert.equal(await store.restoreCheckpoint(), accepted)
+      assert.equal(store.getCheckpointReadStatus(), accepted ? 'read' : 'incompatible')
       assert.equal(store.getWorld(), active)
       assert.deepEqual(store.getCompletedMissions(), [1, 2])
-      assert.equal(store.loadCheckpoint(), true)
-      assert.equal(store.getWorld().turn, 217)
-      assert.equal(store.getWorld().randomState, 0x12345678)
-      assert.equal(store.getWorld().drawMode, world.drawMode ?? 0)
-      assert.equal(store.getWorld().capacityPolicy.mode, 'classic')
+      assert.equal(store.loadCheckpoint(), accepted)
+      if (accepted) assert.deepEqual(store.getWorld(), world)
+      else assert.equal(store.getWorld(), active)
       store.restart()
-      assert.equal(store.getWorld().capacityPolicy.mode, 'classic')
+      assert.equal(store.getWorld().capacityPolicy.mode, 'scalable')
       assert.deepEqual(records, before)
       assert.deepEqual(writes, [])
     })
   })
-}
 
-for (const mode of ['classic', 'scalable']) test(`v2 ${mode} checkpoint restores its own policy`, async () => {
-  const world = createWorld(1, mode)
-  await withStorage({ latest: { version: 2, world }, profile }, async ({ createGameStore, records, writes }) => {
-    const store = createGameStore(), before = structuredClone(records)
-    assert.equal(await store.restoreCheckpoint(), true)
-    assert.equal(store.loadCheckpoint(), true)
-    assert.deepEqual(store.getWorld(), world)
-    assert.deepEqual(records, before)
-    assert.deepEqual(writes, [])
-  })
-})
-
-for (const invalid of ['missing policy', 'unknown mode', 'stale reservation', 'negative references', 'undercounted owners', 'overcounted owners'])
+for (const invalid of ['missing policy', 'missing current secondary state', 'unknown mode', 'stale reservation', 'negative references', 'undercounted owners', 'overcounted owners'])
   test(`v2 ${invalid} rejects without suppressing campaign progress or rewriting storage`, async () => {
     const world = createWorld(1, 'scalable')
     if (invalid === 'missing policy') delete world.capacityPolicy
+    if (invalid === 'missing current secondary state') delete world.secondaryEffects
     if (invalid === 'unknown mode') world.capacityPolicy.mode = 'unknown'
     if (invalid === 'stale reservation') world.nextId = 20
     if (invalid === 'negative references') world.buildingOrders.records[1].references = -1
@@ -138,6 +125,7 @@ for (const invalid of ['missing policy', 'unknown mode', 'stale reservation', 'n
     await withStorage({ latest: { version: 2, world }, profile }, async ({ createGameStore, records, writes }) => {
       const store = createGameStore(), active = store.getWorld(), before = structuredClone(records)
       assert.equal(await store.restoreCheckpoint(), false)
+      assert.equal(store.getCheckpointReadStatus(), 'incompatible')
       assert.equal(store.loadCheckpoint(), false)
       assert.equal(store.getWorld(), active)
       assert.deepEqual(store.getCompletedMissions(), [1, 2])

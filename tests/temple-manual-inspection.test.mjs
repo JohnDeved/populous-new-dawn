@@ -358,7 +358,7 @@ test('Temple phase2 manual-to-automatic reuse exits without restarting and held 
 })
 
 test('typed Save and first Load publication preserve gameplay and discard manual Temple ownership', async t => {
-  const fixture = await templePanelFixture(t),
+  const fixture = await templePanelFixture(t, 'scalable'),
     { scene, temple, paint } = fixture,
     { createGameStore, migrateCheckpoint } = await import('../app/game-store.ts'),
     { ObjectPanels } = await import('../app/object-panels.ts'),

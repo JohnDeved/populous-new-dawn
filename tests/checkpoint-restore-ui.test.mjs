@@ -122,7 +122,7 @@ async function withStorage(run, initial = {}) {
 }
 
 for (const failure of ['open', 'abort']) test(`actual Home ${failure} failure exposes retry and enables Load after a recovered read`, async () => {
-  const saved = createWorld(); saved.turn = 217
+  const saved = createWorld(1, 'scalable'); saved.turn = 217
   await withStorage(async ({ store, open, read, writes, records, transactions }) => {
     const active = store.getWorld(), before = structuredClone(records), home = startup(store)
     await open(failure === 'open')
@@ -156,7 +156,7 @@ for (const failure of ['open', 'abort']) test(`actual Home ${failure} failure ex
     assert.notEqual(store.getWorld(), active)
     assert.deepEqual(home.states, ['choice', 'playing'], 'only deliberate Load invokes actual Home beginLoad')
     home.cleanup()
-  }, { latest: { version: 1, world: saved }, profile: { version: 1, completed: [1, 2] } })
+  }, { latest: { version: 2, world: saved }, profile: { version: 1, completed: [1, 2] } })
 })
 
 test('genuine empty and unusable records are read results, not a failed lookup or proof of empty disk', async () => {
@@ -164,9 +164,10 @@ test('genuine empty and unusable records are read results, not a failed lookup o
     await withStorage(async ({ store, open, read, writes }) => {
       const home = startup(store)
       await open(); await read()
-      assert.equal(store.getCheckpointReadStatus(), 'read')
+      assert.equal(store.getCheckpointReadStatus(), latest ? 'incompatible' : 'read')
       assert.equal(store.hasCheckpoint(), false)
-      assert.equal(button(menu(store), 'Load Game').props['aria-description'], 'No usable saved checkpoint')
+      assert.equal(button(menu(store), 'Load Game').props['aria-description'], latest ? 'Checkpoint is incompatible with this development version' : 'No usable saved checkpoint')
+      if (latest) assert.match(text(menu(store)), /incompatible.*stored save has not been changed/)
       assert.equal(button(menu(store), 'Retry checkpoint lookup'), undefined)
       assert.deepEqual(writes, [])
       home.cleanup()
@@ -191,7 +192,7 @@ test('repeated failed retries preserve the world and remain retryable', async ()
 })
 
 test('late read keeps a newer memory save and current world after navigation', async () => {
-  const saved = createWorld(); saved.turn = 217
+  const saved = createWorld(1, 'scalable'); saved.turn = 217
   await withStorage(async ({ store, open, read }) => {
     const home = startup(store)
     await open(true)
@@ -207,7 +208,7 @@ test('late read keeps a newer memory save and current world after navigation', a
     home.navigation.loadCheckpoint()
     assert.equal(store.getWorld().turn, 999, 'post-await memory checkpoint wins over old read')
     home.cleanup()
-  }, { latest: { version: 1, world: saved } })
+  }, { latest: { version: 2, world: saved } })
 })
 
 for (const interruption of ['unmount', 'world replacement']) test(`initial restore completion cannot navigate after ${interruption}`, async () => {

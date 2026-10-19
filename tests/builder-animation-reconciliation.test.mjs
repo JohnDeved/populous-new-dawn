@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 // Construction animation through the actual full unit frame/Scene wrapper.
 // Controlled transitions/cloned worker populations are explicitly diagnostic.
 import assert from 'node:assert/strict'
@@ -264,7 +265,7 @@ test('loaded/current and legacy worlds, empty refill and independent Scenes rebu
     delete legacy.vehicles
     delete legacy.levelStart
     delete legacy.drawMode
-    left.scene.world = api.migrateCheckpoint(legacy)
+    left.scene.world = normalizeHistoricalFixture(legacy)
     assertFrame(left, left.scene.world)
     assert.equal(left.scene.unitMeshes.get(worker.id), originalGroup)
     const empty = structuredClone(current)

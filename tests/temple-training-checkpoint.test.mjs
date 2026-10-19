@@ -157,8 +157,8 @@ async function storage(t) {
   }
 }
 
-function activeFixture(createGameStore, mode = 'scalable') {
-  const store = createGameStore(mode)
+function activeFixture(createGameStore) {
+  const store = createGameStore()
   store.startMission(3)
   const world = store.getWorld(),
     temple = addBuilding(world, 'blue', 'temple', { x: -2, z: 32 }, true),
@@ -381,16 +381,12 @@ test('active Temple Save observes post-normalization publication, committed IDB 
   assert.equal(db.closed, 2, 'both readback database handles close')
 })
 
-for (const version of [1, 2]) test(`fresh store restores v${version} active Temple and public Load Game publishes before Page unpause`, async t => {
+for (const version of [2]) test(`fresh store restores v${version} active Temple and public Load Game publishes before Page unpause`, async t => {
   const db = await storage(t),
-    f = activeFixture(db.createGameStore, version === 1 ? 'classic' : 'scalable'),
+    f = activeFixture(db.createGameStore),
     saved = f.store.saveCheckpoint()
   ;(await db.transaction('readwrite')).complete()
   assert.equal(await saved, true)
-  if (version === 1) {
-    db.records.get('latest').version = 1
-    delete db.records.get('latest').world.capacityPolicy
-  }
   const committedBefore = await db.read(),
     recordsBefore = structuredClone(db.records),
     read = readTempleCommittedLoad()
@@ -803,4 +799,18 @@ test('aborted Save cannot claim committed IDB even though its synchronous in-ses
   })
   t.after(() => load.close())
   await assert.rejects(load.expectedLoadDigest(), /requires a Save/)
+})
+
+for (const mode of ['obsolete-envelope', 'classic']) test(`Temple committed observer rejects ${mode} without changing storage`, async t => {
+  const db = await storage(t), f = activeFixture(db.createGameStore), saved = f.store.saveCheckpoint()
+  ;(await db.transaction('readwrite')).complete()
+  assert.equal(await saved, true)
+  if (mode === 'obsolete-envelope') {
+    db.records.get('latest').version = 1
+    delete db.records.get('latest').world.capacityPolicy
+  } else db.records.get('latest').world.capacityPolicy.mode = 'classic'
+  const before = structuredClone(db.records), rejected = assert.rejects(readTempleCommittedLoad(), /Committed Mission 3 checkpoint required/)
+  ;(await db.transaction('readonly')).complete()
+  await rejected
+  assert.deepEqual(db.records, before)
 })

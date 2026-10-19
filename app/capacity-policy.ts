@@ -1,5 +1,5 @@
 // This is a gameplay/save contract, not a measured performance tier. Native
-// fixtures and legacy saves retain classic limits; new browser games use scalable.
+// fixtures retain classic limits; all new browser games use scalable.
 import type { World } from './world-types.ts'
 
 export type CapacityMode = 'classic' | 'scalable'
@@ -22,9 +22,7 @@ export function populationCeiling(policy: CapacityPolicy) {
 export function restoreCapacityPolicy(world: World) {
   const policy = world.capacityPolicy,
     pool = world.buildingOrders
-  if (policy === undefined && pool.scalable === undefined)
-    world.capacityPolicy = createCapacityPolicy('classic')
-  else if (!policy || policy.version !== 1 || !['classic', 'scalable'].includes(policy.mode))
+  if (!policy || policy.version !== 1 || !['classic', 'scalable'].includes(policy.mode))
     throw new RangeError('Unsupported checkpoint capacity policy')
   if (world.capacityPolicy.mode === 'classic') {
     if (pool.scalable !== undefined)

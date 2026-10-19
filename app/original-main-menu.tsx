@@ -285,11 +285,13 @@ export function OriginalMainMenu({
         ? undefined
         : checkpointReadStatus === 'failed'
           ? 'Saved checkpoint could not be read'
-          : checkpointReadStatus === 'unavailable'
-            ? 'Browser storage is unavailable'
-            : checkpointReadStatus === 'pending' || checkpointReadStatus === 'idle'
-              ? 'Checking browser storage'
-              : 'No usable saved checkpoint',
+          : checkpointReadStatus === 'incompatible'
+            ? 'Checkpoint is incompatible with this development version'
+            : checkpointReadStatus === 'unavailable'
+              ? 'Browser storage is unavailable'
+              : checkpointReadStatus === 'pending' || checkpointReadStatus === 'idle'
+                ? 'Checking browser storage'
+                : 'No usable saved checkpoint',
     },
     {
       label: 'Multiplayer',
@@ -460,11 +462,13 @@ export function OriginalMainMenu({
             <p role="status">
               {checkpointReadStatus === 'failed'
                 ? 'Could not read browser storage. Your saved checkpoint may still be available.'
-                : checkpointReadStatus === 'pending'
-                  ? 'Checking browser storage…'
-                  : 'Browser storage is unavailable. You can still play and save for this session.'}
+                : checkpointReadStatus === 'incompatible'
+                  ? 'This checkpoint is incompatible with the current development version. The stored save has not been changed.'
+                  : checkpointReadStatus === 'pending'
+                    ? 'Checking browser storage…'
+                    : 'Browser storage is unavailable. You can still play and save for this session.'}
             </p>
-            {checkpointReadStatus !== 'unavailable' && (
+            {!['unavailable', 'incompatible'].includes(checkpointReadStatus) && (
               <button
                 type="button"
                 disabled={checkpointReadStatus === 'pending'}

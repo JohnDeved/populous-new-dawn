@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { deserialize } from 'node:v8'
 import { gunzipSync } from 'node:zlib'
-import { createGameStore, migrateCheckpoint } from '../app/game-store.ts'
+import {  createHistoricalFixtureHarness, normalizeHistoricalFixture  } from './helpers/historical-checkpoint.ts'
 import { tick } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { computerPhase } from '../app/computer.ts'
@@ -12,7 +12,7 @@ import { buildingModel } from '../app/building-shapes.ts'
 const sha = value => createHash('sha256').update(value).digest('hex')
 // Complete historical world produced from exact9f7a4758 before the newborn scheduler.
 // The producer receipt retains the unchanged original8016→8702 natural witness.
-test('historical pre-newborn M6 whole checkpoint retains casualty and slot reuse through public Save Load', async () => {
+test('historical pre-newborn M6 whole checkpoint retains casualty and slot reuse through research clone continuation', async () => {
   const provenanceBytes=readFileSync(new URL('./fixtures/mission6-historical/provenance.json',import.meta.url))
   assert.equal(sha(provenanceBytes),'2d68f961a06f902f41bc01b4d1a3889898ee5b8be5c7f16d5409f5b03c917652')
   const provenance=JSON.parse(provenanceBytes)
@@ -27,14 +27,14 @@ test('historical pre-newborn M6 whole checkpoint retains casualty and slot reuse
   assert.equal(sha(compressed),'5dffbaa507061aac80e3ca7da5aed06f189c54103a816e7b3054fae9c8564aff')
   const serialized=gunzipSync(compressed)
   assert.equal(sha(serialized),'f7fd8ab133ae00a02d43b296fd714148a28faae2d3733ef87b4446f17922557c')
-  const historical=deserialize(serialized),store=createGameStore()
+  const historical=deserialize(serialized),store=createHistoricalFixtureHarness()
   store.startMission(6)
   for (const key of Object.keys(store.getWorld()))
     if (!Object.hasOwn(historical, key)) delete store.getWorld()[key]
   Object.assign(store.getWorld(),historical)
   assert.deepEqual(store.getWorld(),historical)
   await store.saveCheckpoint()
-  const replay=migrateCheckpoint(structuredClone(store.getWorld()))
+  const replay=normalizeHistoricalFixture(structuredClone(store.getWorld()))
   assert.ok(store.loadCheckpoint())
   const raiding=store.getWorld()
   assert.deepEqual(raiding,replay)

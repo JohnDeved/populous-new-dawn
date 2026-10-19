@@ -33,7 +33,6 @@ test('new browser games are scalable; authored IDs and classic creation remain u
   assert.equal(store.getWorld().capacityPolicy.mode, 'scalable')
   store.startMission(2)
   assert.equal(store.getWorld().capacityPolicy.mode, 'scalable')
-  assert.equal(createGameStore('classic').getWorld().capacityPolicy.mode, 'classic')
   assert.throws(() => createCapacityPolicy('unknown'), RangeError)
 })
 
@@ -136,12 +135,12 @@ test('scalable stores save and restore mode, expanded pool and exact continuatio
   assert.equal(store.getWorld().buildingOrders.cursor, 900)
 })
 
-test('missing legacy policy stays classic; malformed scalable modes, counts and reservations reject', () => {
+test('missing policy rejects; malformed scalable modes, counts and reservations reject', () => {
   const legacy = createWorld()
   delete legacy.capacityPolicy
   const ids = legacy.units.map(u => u.id), nextId = legacy.nextId
-  migrateCheckpoint(legacy)
-  assert.equal(legacy.capacityPolicy.mode, 'classic')
+  assert.throws(() => migrateCheckpoint(legacy), RangeError)
+  assert.equal(legacy.capacityPolicy, undefined)
   assert.equal(legacy.buildingOrders.scalable, undefined)
   assert.deepEqual(legacy.units.map(u => u.id), ids)
   assert.equal(legacy.nextId, nextId)

@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture, createHistoricalFixtureHarness } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, select, command, tick } from '../app/model.ts'
@@ -38,7 +39,7 @@ test('authored origins survive initialization for all five currently live campai
     assert.deepEqual(shrine.bridgeStart, { x: sx, z: sz })
     const legacy = createWorld(mission)
     for (const head of legacy.shrines) delete head.bridgeStart
-    migrateCheckpoint(legacy)
+    normalizeHistoricalFixture(legacy)
     assert.deepEqual(legacy.shrines.find(h => h.x === x && h.z === z).bridgeStart, { x: sx, z: sz })
   }
   for (const mission of [1, 3]) assert.equal(createWorld(mission).shrines.some(h => h.kind === 'bridgeEffect'), false)
@@ -85,21 +86,21 @@ test('ordinary Mission 2 worship creates the authored crossing and every live te
   assert.equal(world.stats.bridges, 1, 'A consumed head must not replay')
 })
 
-test('legacy migration recovers only missing immutable origins without replaying active terrain', () => {
+test('historical research reconstruction recovers only missing immutable origins without replaying active terrain', () => {
   const world = createWorld(2), effect = worshipBridge(world), head = bridgeHead(world)
   for (let turn = 0; turn < 12; turn++) tick(world, 1 / 12)
   delete head.bridgeStart
   const before = structuredClone(world)
-  migrateCheckpoint(world)
+  normalizeHistoricalFixture(world)
   assert.deepEqual(head.bridgeStart, { x: -77, z: -105 })
   delete head.bridgeStart
   assert.deepEqual(world, before, 'Migration changes no running effect, terrain, RNG or worship work')
   head.bridgeStart = { x: 3, z: 4 }
-  migrateCheckpoint(world)
+  normalizeHistoricalFixture(world)
   assert.deepEqual(head.bridgeStart, { x: 3, z: 4 }, 'Existing checkpoint origin remains authoritative')
   delete head.bridgeStart
   head.bridgeTarget = { x: 99, z: 98 }
-  migrateCheckpoint(world)
+  normalizeHistoricalFixture(world)
   assert.equal(head.bridgeStart, undefined, 'Unrecognized target is not guessed')
   assert.equal(effect.bridge.turn, 13)
 })
@@ -132,8 +133,8 @@ test('component checkpoint preserves authored birth caches when sampled terrain 
   assert.deepEqual(world.land.heights, land.heights)
 })
 
-test('pre-activation legacy save and mid-bridge checkpoint continue once at the authored origin', async () => {
-  const store = createGameStore()
+test('historical pre-activation input and mid-bridge research clone continue once at the authored origin', async () => {
+  const store = createHistoricalFixtureHarness()
   store.startMission(2)
   const legacy = store.getWorld()
   delete bridgeHead(legacy).bridgeStart

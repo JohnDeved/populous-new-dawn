@@ -106,7 +106,7 @@ function fixture(values) {
   }
 }
 
-for (const version of [1, 2]) test(`maintained checkpoint callsite waits for delayed v${version} reads before reloading`, async () => {
+for (const version of [2]) test(`maintained checkpoint callsite waits for delayed v${version} reads before reloading`, async () => {
   const f = fixture([undefined, { version: 0 }, { version }])
   await f.run()
   assert.equal(f.reads, 3)
@@ -136,17 +136,17 @@ test('maintained checkpoint callsite closes rejected reads without reloading', a
 for (const [file, variable, field] of [
   ['mission3-building-screen.mjs', 'saved', 'snapshot'],
   ['mission3-temple-checkpoint.mjs', 'entry', 'summary'],
-]) test(`${file} committed predicate accepts both envelopes only with matching full state`, async () => {
+]) test(`${file} committed predicate accepts the current envelope only with matching full state`, async () => {
   const { isDeepStrictEqual } = await import('node:util')
   const script = readFileSync(new URL(`../scripts/local-render/${file}`, import.meta.url), 'utf8'),
-    predicate = script.match(/return \(\s*\[1, 2\]\.includes\([\s\S]*?\n\s*\)/)?.[0]
+    predicate = script.match(/return \(\s*\w+\.committed\?\.version === 2[\s\S]*?\n\s*\)/)?.[0]
   assert.ok(predicate, 'Exercise the maintained committed-readback predicate')
   const check = new Function(variable, 'isDeepStrictEqual', predicate)
   for (const version of [0, 1, 2, 3]) {
     const snapshot = { turn: 73, owner: 1024, commands: [0, 1024] },
       boundary = variable === 'saved' ? { snapshot } : { saved: snapshot },
       value = { committed: { version, [field]: structuredClone(snapshot) }, boundary }
-    assert.equal(check(value, isDeepStrictEqual), [1, 2].includes(version))
+    assert.equal(check(value, isDeepStrictEqual), version === 2)
     value.committed[field].commands[1]++
     assert.equal(check(value, isDeepStrictEqual), false, 'Envelope compatibility cannot mask state drift')
   }

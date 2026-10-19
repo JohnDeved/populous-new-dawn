@@ -104,6 +104,8 @@ function checkpointNotice(status: CheckpointReadStatus, hasCheckpoint: boolean) 
   switch (status) {
     case 'failed':
       return 'Could not read browser storage. Your saved checkpoint may still be available.'
+    case 'incompatible':
+      return 'This checkpoint is incompatible with the current development version. The stored save has not been changed.'
     case 'pending':
       return 'Checking browser storage…'
     case 'unavailable':
@@ -130,7 +132,8 @@ export function OriginalPauseMenu(props: Props) {
   const returnFocus = useRef('Continue Game')
   const rootFocus = useRef('Continue Game')
   const lookupAvailable = ['idle', 'pending', 'failed'].includes(props.checkpointReadStatus)
-  const loadDisabled = !props.hasCheckpoint && !lookupAvailable
+  const loadDisabled =
+    !props.hasCheckpoint && !lookupAvailable && props.checkpointReadStatus !== 'incompatible'
   useEffect(() => {
     const resize = () => setScale(frontendScale(window.innerWidth, window.innerHeight))
     resize()

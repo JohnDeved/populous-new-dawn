@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
+import {  createHistoricalFixtureHarness  } from './helpers/historical-checkpoint.ts'
 import { cast, command, selectUnit, cancelInteraction, tick } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { spellInRange } from '../app/spell-casting.ts'
@@ -13,7 +13,7 @@ import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 test('legacy markerless Mission6 task releases its blocked raid without stranded owners', async () => {
   await loadSceneFixture()
   const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
-  const store = createGameStore('classic')
+  const store = createHistoricalFixtureHarness()
   store.startMission(6)
   const world = store.getWorld(),
     shaman = world.units.find(u => u.team === 'blue' && u.kind === 'shaman'),

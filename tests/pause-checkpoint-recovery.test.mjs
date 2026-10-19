@@ -100,7 +100,7 @@ for (const [state, reason] of [
 }
 
 test('an available memory checkpoint stays loadable through every storage-read state', () => {
-  for (const checkpointReadStatus of ['idle', 'pending', 'failed', 'read', 'unavailable']) {
+  for (const checkpointReadStatus of ['idle', 'pending', 'failed', 'read', 'unavailable', 'incompatible']) {
     const ui = fixture({ checkpointReadStatus, hasCheckpoint: true })
     ui.click('Load Game')
     assert.equal(ui.button('Load checkpoint').props.disabled, false)
@@ -184,9 +184,9 @@ function homeProps(store) {
 }
 
 test('actual Home retry binding recovers a stored checkpoint without replacing the active world', async () => {
-  const saved = createWorld(2)
+  const saved = createWorld(2, 'scalable')
   saved.turn = 217
-  await withStorage({ latest: { version: 1, world: saved } }, async ({ freshStore, writes, drain }) => {
+  await withStorage({ latest: { version: 2, world: saved } }, async ({ freshStore, writes, drain }) => {
     const store = await freshStore()
     assert.equal(await store.restoreCheckpoint(), false)
     store.startMission(1)
@@ -215,9 +215,9 @@ test('actual Home retry binding recovers a stored checkpoint without replacing t
 })
 
 test('a newer in-session Save wins over a delayed lookup started through the pause UI', async () => {
-  const saved = createWorld(2)
+  const saved = createWorld(2, 'scalable')
   saved.turn = 217
-  await withStorage({ latest: { version: 1, world: saved } }, async ({ freshStore, drain }) => {
+  await withStorage({ latest: { version: 2, world: saved } }, async ({ freshStore, drain }) => {
     const store = await freshStore()
     await store.restoreCheckpoint()
     const ui = fixture(homeProps(store))
@@ -419,4 +419,16 @@ test('actual Home quit callbacks retain different destinations and clear obsolet
     assert.equal(menuSession.current, null); assert.deepEqual(pendingMenuCamera.current, [])
     assert.equal(loadRequest.current, null); assert.equal(cancelled, 1); assert.equal(reset, 1)
   }
+})
+
+// Rejection is visible without pretending that an incompatible record is absent.
+test('incompatible checkpoint remains inspectable in Load panel without enabling load or retry', () => {
+  const ui = fixture({ checkpointReadStatus: 'incompatible' })
+  ui.click('Load Game')
+  assert.equal(ui.render().props['data-panel'], 'load')
+  assert.equal(ui.button('Load checkpoint').props.disabled, true)
+  assert.match(ui.statuses()[0], /incompatible.*stored save has not been changed/)
+  assert.throws(() => ui.button('Retry checkpoint lookup'), /Button/)
+  assert.equal(ui.loads(), 0)
+  assert.equal(ui.retries(), 0)
 })
