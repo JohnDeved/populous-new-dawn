@@ -322,104 +322,103 @@ phases and captured no synchronized successor artwork. Its first failure was
 missing running-after-resume evidence, not wrong artwork or a timeout. Existing
 gameplay exports, source identity, runtime-error and cleanup guards passed.
 
-The original attack duration is four turns: entry retains three countdown turns,
-so start 514 expires at turn 517. Pausing at 516 leaves only one inferred turn;
-normal resume can expire it before another attack render. That inference is not a
-recorded countdown or successor crop and cannot retroactively pass this artifact.
-The revised protocol records the actual remaining count and physical source
-fields. It requires `remaining = started + duration - 1 - turn` during the attack,
-with original-table duration, and retains the same actor, physical person, fight
-and actual opponent. Same-attack resume must advance before expiry. Exact-expiry
-approach must retain the final native attack pose; later approach/ready must map
-original walk or idle rows while retaining the original action start/marker.
-A narrow uninitialized recoil requires its same-turn, original-mapped Shaman
-opponent producer and actor-before-producer roster order, and must occur before
-the earliest possible intervening complete attack. Initialized fallback recoil,
-an unknown producer, changed fight/person/opponent, early expiry, a future attack
-or missing source/crop evidence fails closed. This is source-qualified existing
-successor-render consistency, not new recoil-entry/reset/cadence parity.
+The later `public-pause-transition-v1` protocol recorded actual countdown and
+physical-source fields and accepted only a same-attack resume or a tightly
+source-qualified expired successor. Run 39179935993 passed that historical
+contract: running special turns 515→517 advanced f2 1→3 and frames 1029→1031;
+its resumed sample at 518 was exact-expiry approach. Run 39180912617 separately
+passed with running special turns 504→506, f2 0→2, frames 1033→1035 and a resumed
+same-attack sample at 507. These are historical successes, not evidence for the
+replacement protocol below: only their first running sample had a running crop.
 
-The observed raw source fields admit only the reviewed visual-source branches;
-that is an explicit source-contract inference, not direct observation of a private
-getter return. Retained physical-reference identity, logical stamp and actual
-rendered draw/frame/flip/layers are independently checked. No production hook or
-runtime change is added. Both prior failed runs and their strict validators remain
-preserved, alongside the new transition-specific negative tests.
+Run 39181971639 remains failed under that same transition contract. Its only
+running attack sample was turn 491, started 490, remaining 2, f2 1/frame 1007.
+One trusted Space landed at turn 493, exactly when the native attack expired to
+approach. The first failure was the post-pause attack predicate, not incorrect
+artwork, missing source identity or a timeout. Its actual fight opponent was
+1207 in group 1254, despite the original public order to target 20. One sample
+cannot establish running advancement, and this run is not retroactively passed.
 
-The separate 75-second case fits inside, not in addition to, the unchanged
-180-second aggregate browser cap. The browser case adds no new workflow/job, browser route,
-dependency or cap increase. Current-main composition refreshes only the reviewed
-combined production fingerprint; the helper hash and existing per-test resource
-classifications remain unchanged. A separately reviewed one-job diagnostic is not
-a readiness/full-gate run. Hosted execution must
-actually meet that budget. The existing complete frame exports remain separate
-from this functional case and retain their original assertions and interpretation.
+#### Maintained running-artwork contract
 
-A read-only post-render RAF observer keeps the same maximum ten-turn window from
-the first Shaman attack. The separately named `public-pause-transition-v1` protocol has three explicit
-phases: `running-before-pause`, `public-paused-hold`, and `running-after-resume`.
-After the first natural attack signal, one public Space pause requires actual
-canvas keyboard focus, no dialog, mode, modifier or input mask, and a live attack.
-The actual paused action/start/turn is recorded; it is not assumed to be the first
-observed sequence. Final acceptance explicitly binds the validator's paused anchor
-to both paused input receipts, and brackets paused/resumed renderer stamps with
-the public input receipts. Two distinct real renderer stamps must retain identical turn,
-animation clock, action/start, object/draw/f1/f2, direction/frame/flip and opponent.
-One public Space resume must then produce the first logical-clock-advanced render
-of either that same attack or its source-proved legal expired successor. The observer
-retains same-turn resumed renders, then stops at that first advanced render even
-if its phase or crop is invalid. It never waits for a later attack. Both Space keys
-are released in `finally`. Landing outside an attack or missing evidence fails
-closed; there is no retry to seek another attack and no World/clock rewrite.
+The only maintained browser acceptance is `running-original-artwork-v1` in
+`melee-attack.mjs` and `validateMeleeRunningFrames` in
+`melee-attack-running-evidence.mjs`. It removes the timing-sensitive in-attack
+Space round trip rather than broadening legal pause/successor predicates.
+Public setup Pause/Resume and the real command route above remain unchanged.
+After the attack command, no input interrupts observation. A read-only ordinary
+post-render RAF observes the half-open logical interval
+`[firstObservedAttackTurn, firstObservedAttackTurn + 10)`. It terminates on the
+first visit reaching the boundary, even outside an attack, never upon finding a
+passing pair. Attack/strike/special samples throughout that interval are retained
+and all must pass; successor artwork is not an acceptance claim. Unexpected pause,
+Scene/world replacement, document hiding or actor death fails closed.
 
-The viewport remains 1440×1000 at DPR 1, with the 200-pixel HUD leaving a 1240×1000
-game canvas. Camera, target, startup route, game speed and all budgets remain
-unchanged. Exactly four small canvas crops are reserved: first running attack,
-first two paused render stamps, and first logical-clock-advanced resumed render. Each binds
-physical native object/draw/f1/f2, original directional frame/flip, visible
-body-layer submission and the actual renderer stamp. Full body bounds must fit
-the canvas; actual DOM ownership at the body center and non-overlap with the
-shipped HUD/pause/message/dialog rectangles are recorded and required. This
-guard matters because canvas readback excludes HTML overlays. Crops are copied
-synchronously with those samples, with
-their PNG hashes, source/frame/turn/renderer stamps and crop coordinates retained
-in `melee-attack.json`. No hidden-body redraw or replacement rendering method is
-used. A later paused context screenshot is labeled separately, not substituted
-for those same-frame crops. Terminal acceptance includes observer/context cleanup
-and runtime errors; available partial observations survive ordinary failures.
-The observer does not mutate World or issue hit-selection queries, but reading
-crop bounds may touch renderer/picker metadata. Readback perturbs rendering.
-The retained crops require visual review; metadata
-matching alone does not prove pixel-perfect composition or hardware performance.
+The first four distinct native poses reserve the only crop slots, before
+visibility or bounds eligibility is decided. Pose identity includes actor,
+action/start, fight/opponent, native object/draw/f1/f2 and sprite direction.
+Repeated same-pose renders do not consume slots. A missing or obstructed planned
+crop fails acceptance and cannot be replaced by a later eligible duplicate.
+All planned crops are required, with at least two forming a same-direction,
+same-sequence pair whose logical turn, native f2 and actual mapped frame advance.
+The observed fight must retain the same actor, original physical person, group
+and actual opponent; natural interception is not forced to target 20. A later
+sequence cannot substitute for either endpoint of the advancing pair. A fixed
+window may contain multiple sequences; it is not extended or restarted to seek
+one that passes. Sparse rendering that never supplies a cropped advancing pair
+still fails. This is not a guarantee against arbitrary scheduler starvation.
 
-The original table mapping is independent of observed artwork. Idle source 424
-cannot satisfy Shaman strike source 456, even if an ownership marker is forged;
-the pure validator's baseline-shaped fixture is an explicit negative test of this
-same predicate. Running this same browser case against the old runtime is a
-failure-first route, not an already executed browser-baseline claim. The retained
-ordinary CPU baseline separately observed that exact idle-pose failure.
+Independent original tables determine each attack's object/draw, descriptor
+step, native frame count and duration, and directional frame/flip. Exact native
+phase/countdown, physical state/model/class, fight roster, logical animation
+stamp, no flight/airborne override and submitted renderer draw are required.
+Every sample must show a connected canvas, live Scene/store, visible body and
+submitted layers. Idle object 424 cannot satisfy attack object 456 even with a
+forged ownership marker. Source ownership remains a reviewed-source inference
+plus independent mapped artwork, not a private getter-return observation.
 
-Coverage is deliberately layered, not a generic `paused=true` exemption:
+The viewport remains 1440×1000 at DPR 1. Full cropped body bounds must fit the
+canvas; actual DOM ownership at its center and non-overlap with shipped
+HUD/pause/message/dialog rectangles remain required. Canvas readback excludes
+HTML overlays, so these checks cannot be inferred from nonblank PNGs. Copies
+are synchronous with samples, with source/frame/turn/renderer binding, crop
+coordinates and PNG hashes retained in `melee-attack.json`. No hidden-body redraw,
+replacement rendering method or game-state mutation is used. Bounds reads may
+touch renderer/picker metadata; readback perturbs rendering. Crops require visual
+review and are not pixel-perfect or hardware-performance evidence. A later
+paused context screenshot is separate, not an advancing-pose substitute.
 
-- Running browser samples must prove original mapped artwork and advancing logical
-  phase/frame in the paused attack sequence before the public pause.
-- Public-paused browser samples prove native-pose hold across real renders.
-  `page.tsx` toggles ordinary pause; `scene.ts` still updates/render-submits people,
-  while `game-clock.ts` and `live-people.ts` freeze native animation. Retained
-  `004ee770.c` gates animation lists on the pause flag; this is not a newly
-  verified original-game Space-key/UI mapping.
-- The actual Scene CPU regression explicitly asserts unpaused equal-turn/equal
-  native-phase/equal-artwork pairs around a one-turn advancement. It executes the
-  real frame-selection caller with supplied texture/projection/motion boundaries,
-  not a GPU render. The 30/60/120/144 Hz/irregular CPU schedule checks remain separate.
+The case retains its 75-second bound, 1,200-sample storage bound and the unchanged
+180-second aggregate browser cap. No workflow, dependency, browser route, game
+speed or budget increases are introduced. Existing full gameplay frame exports
+remain separate with their assertions unchanged. Runtime errors and observer/
+context cleanup still participate in terminal acceptance; partial failure data
+is retained. A diagnostic is not a full-gate/readiness pass.
 
-Both prior validators remain byte-identical: `validateMeleeAttackFrames` rejects
-paused evidence or absent running same-turn hold; `validateMeleePauseFrames` requires
-same-attack resumed advancement. The separately named `validateMeleeTransitionFrames`
-does not retroactively pass either failed run or claim running same-turn browser
-behavior. Missing observations fail closed. No protocol proves original absolute FPS, hardware
-smoothness, Firewarrior browser behavior or pixel-perfect composition. Broad issue
-#214 and recoil/knockback remain outside this acceptance.
+Coverage is explicitly layered:
+
+- Browser: real public order, visible original attack artwork and cropped
+  same-direction/same-sequence logical advancement only. No browser in-attack
+  pause/hold/resume or running same-turn hold is claimed.
+- `tests/melee-attack-animation.test.mjs`: deterministic actual Scene unpaused
+  same-turn hold/advance and pause-to-exact-expiry rendering, executing the real
+  frame-selection caller with supplied texture/projection/motion boundaries,
+  not GPU rendering or trusted keyboard input.
+- Its separate 30/60/120/144 Hz and irregular schedule checks compare simulation
+  World states with pause/speed changes; they do not render Scene artwork at each
+  schedule. Public pause-control coverage is separate and does not reconstitute
+  the removed end-to-end attack/Space claim.
+
+Superseded validators/tests remain in Git, not as alternate executable acceptance:
+[strict running-hold at `0da6bcb9`](https://github.com/JohnDeved/populous-new-dawn/blob/0da6bcb9d5adb970fde6b91d0e42623184c1eea1/scripts/tutorial-browser/melee-attack-evidence.mjs),
+[same-attack pause/resume at `ac72f1de`](https://github.com/JohnDeved/populous-new-dawn/blob/ac72f1de622cec56094189d2a73b70de76b2c827/scripts/tutorial-browser/melee-attack-pause-evidence.mjs),
+and [transition acceptance at `2b27d4a33`](https://github.com/JohnDeved/populous-new-dawn/blob/2b27d4a33fd8db4dd3fd8651fcda350c337c1d20/scripts/tutorial-browser/melee-attack-transition-evidence.mjs).
+All earlier successes and failures keep their original scope and raw artifacts.
+The earlier running-only diagnostic lacks current DOM/source fields; neither it
+nor old transition receipts can establish an exact-head running-artwork pass.
+Fresh source-bound browser evidence is required. No protocol proves original
+absolute FPS, hardware smoothness, Firewarrior browser behavior or pixel-perfect
+composition. Broad issue #214 and recoil/knockback remain outside this acceptance.
 
 ## Compact campaign/status message layout (#538)
 

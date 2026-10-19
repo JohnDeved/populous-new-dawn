@@ -68,7 +68,8 @@ export class ObjectPanels {
       building.hp > 0 &&
       building.admission?.class === 2 &&
       ((building.kind === 'camp' && building.admission.model === 7) ||
-        (building.kind === 'temple' && building.admission.model === 5))
+        (building.kind === 'temple' && building.admission.model === 5) ||
+        (building.kind === 'firewarriorHut' && building.admission.model === 8))
     )
   }
   private trainingActive(building: Building | undefined) {
@@ -219,6 +220,7 @@ export class ObjectPanels {
         record.automatic &&
         (building?.kind === 'camp' ||
           building?.kind === 'temple' ||
+          building?.kind === 'firewarriorHut' ||
           this.automaticTrainingLatches.has(id))
       if (training && !this.trainingIdentity(building)) building = undefined
       const element = scene.buildingPanels.get(id),
@@ -246,8 +248,12 @@ export class ObjectPanels {
           !building ||
           !(
             dismantlingCampPanel(building) ||
-            (building.kind === 'temple' && (building.admission?.activity ?? 0) & 0x8000) ||
-            ((building.kind === 'camp' || building.kind === 'temple') && panelInteraction)
+            ((building.kind === 'temple' || building.kind === 'firewarriorHut') &&
+              (building.admission?.activity ?? 0) & 0x8000) ||
+            ((building.kind === 'camp' ||
+              building.kind === 'temple' ||
+              building.kind === 'firewarriorHut') &&
+              panelInteraction)
           )
         ) {
           element?.remove()

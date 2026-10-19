@@ -66,11 +66,11 @@ export function dismantlingCampPanel(b: Pick<Building, 'kind' | 'admission'>) {
   return b.kind === 'camp' && !!((b.admission?.activity ?? 0) & 0x8000)
 }
 
-// Active Temple training and its exiting automatic record take precedence over
+// Active Temple/Firewarrior training and its exiting automatic record take precedence over
 // the independent held-controls adapter, including failed/fresh allocation.
-function templeTrainingOwnsPanel(b: Building, record: { automatic: boolean } | undefined) {
+function trainingOwnsPanel(b: Building, record: { automatic: boolean } | undefined) {
   return (
-    b.kind === 'temple' &&
+    (b.kind === 'temple' || b.kind === 'firewarriorHut') &&
     b.progress >= 1 &&
     (!!((b.admission?.activity ?? 0) & 0x80) || !!record?.automatic)
   )
@@ -155,7 +155,7 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       panel.remove()
       scene.buildingPanels.delete(id)
     } else if (
-      (templeTrainingOwnsPanel(building, record) &&
+      (trainingOwnsPanel(building, record) &&
         !((building.admission?.activity ?? 0) & 0x8000) &&
         (modal || !record || record.phase < 0)) ||
       (retainedBuildingPanel(building, world.manaWorld.playerTribe) &&
@@ -187,19 +187,26 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
     if ((!plan && !profile) || b.team !== 'blue' || b.hp <= 0 || !scene.visible(b)) continue
     const record = scene.objectPanels.buildingRecords.get(b.id),
       retained =
-        retainedBuildingPanel(b, world.manaWorld.playerTribe) || templeTrainingOwnsPanel(b, record),
+        retainedBuildingPanel(b, world.manaWorld.playerTribe) || trainingOwnsPanel(b, record),
       existing = scene.buildingPanels.get(b.id),
       trainingHeld =
-        (b.kind === 'camp' || b.kind === 'temple') &&
+        (b.kind === 'camp' || b.kind === 'temple' || b.kind === 'firewarriorHut') &&
         !modal &&
         existing &&
         !existing.hidden &&
         (existing.matches(':hover') || existing.contains(document.activeElement)),
       independentControls =
-        dismantlingCampPanel(b) || trainingHeld || (b.kind === 'temple' && !!(activity & 0x8000)),
+        dismantlingCampPanel(b) ||
+        trainingHeld ||
+        ((b.kind === 'temple' || b.kind === 'firewarriorHut') && !!(activity & 0x8000)),
       paintable =
         record &&
-        !((b.kind === 'temple' || (b.kind === 'camp' && record.automatic)) && record.phase < 0)
+        !(
+          (b.kind === 'temple' ||
+            b.kind === 'firewarriorHut' ||
+            (b.kind === 'camp' && record.automatic)) &&
+          record.phase < 0
+        )
     if (retained && !independentControls && (!paintable || modal)) continue
     // Other building types retain the existing visibility adapter.
     if (

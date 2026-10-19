@@ -538,7 +538,7 @@ export default function Home() {
       const s =
         !e.code.startsWith('Numpad') &&
         SPELLS.find(s => s.key === e.key && spellHudVisibility(world, s) === 'visible')
-      if (s) {
+      if (s && !e.repeat) {
         store.change(w => {
           w.mode = w.mode === s.id ? null : s.id
         })
