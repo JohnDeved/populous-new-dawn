@@ -38,6 +38,8 @@ function fixture(overrides = {}) {
     if (name === 'react') return react
     if (name === 'react/jsx-runtime') return require(name)
     if (name === './original-frontend.json') return {}
+    // Tooltip lifecycle has its own production-hook tests; this fixture owns recovery.
+    if (name === './menu-tooltip') return { MenuTooltip: () => null }
     if (name === './frontend-composition.ts') return {
       frontendScale: () => 1, frontendRowY: index => index * 30,
       frontendTextWidth: text => text.length * 10, frontendQuitRows: [],
@@ -179,4 +181,24 @@ test('frontend native cancel retains its fresh back action', () => {
   output.props.onCancel({ preventDefault() { prevented = true } })
   assert.equal(prevented, true)
   assert.ok(tree(ui.render()).some(node => node.props?.['aria-label'] === 'Main menu choices'))
+})
+
+test('availability publication replaces tooltip ownership before row DOM attributes commit', () => {
+  const ui = fixture({ checkpointReadStatus: 'pending' })
+  const tooltipKey = output => {
+    const tooltip = tree(output).find(node => node.type?.name === 'MenuTooltip')
+    assert.ok(tooltip)
+    return tooltip.key
+  }
+  // Production JSX renders against unchanged ref/DOM stubs. A new React key
+  // disposes the old hook state at commit rather than trusting stale attributes.
+  const pending = tooltipKey(ui.render())
+  assert.equal(tooltipKey(ui.render()), pending)
+  for (const checkpointReadStatus of ['read', 'failed', 'unavailable']) {
+    for (const hasCheckpoint of [false, true]) {
+      const next = tooltipKey(ui.render({ checkpointReadStatus, hasCheckpoint }))
+      assert.notEqual(next, pending)
+      assert.equal(next, `${hasCheckpoint}:${checkpointReadStatus}`)
+    }
+  }
 })

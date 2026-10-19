@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import assets from './original-frontend.json'
+import { MenuTooltip } from './menu-tooltip'
 import type { FrontendAssets } from './frontend-assets'
 import styles from './original-main-menu.module.css'
 import type { CheckpointReadStatus } from './game-store.ts'
@@ -328,7 +329,8 @@ export function OriginalMainMenu({
                 onPointerLeave={() => setHovered(null)}
                 onFocus={() => setFocused(row.label)}
                 onBlur={() => setFocused(null)}
-                title={row.unavailable}
+                data-menu-tooltip={row.unavailable}
+                aria-description={row.unavailable}
                 style={{
                   top: frontendRowY(index),
                   width: Math.max(200, 2 * Math.ceil((frontendTextWidth(row.label) + 16) / 2)),
@@ -344,10 +346,12 @@ export function OriginalMainMenu({
                   text={row.label}
                   highlighted={!row.unavailable && (hovered === row.label || focused === row.label)}
                 />
-                {row.unavailable && <span className={styles.reason}>{row.unavailable}</span>}
               </button>
             ))}
           </nav>
+        )}
+        {panel === 'main' && (
+          <MenuTooltip key={`${hasCheckpoint}:${checkpointReadStatus}`} container={frame} />
         )}
         {panel === 'options' && renderOptions(back, setOptionRows)}
         {panel === 'main' && checkpointReadStatus !== 'read' && checkpointReadStatus !== 'idle' && (
