@@ -1,0 +1,49 @@
+{
+  "mode": "static PE reading/disassembly; no native/app/browser execution",
+  "inspectedMain": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "python": "3.12.14",
+  "capstone": "5.0.7",
+  "ranges": [
+    {
+      "start": "004da0f0",
+      "endExclusive": "004da16e",
+      "sha256": "8db25664ad063938be4998a292af4e66e71c95a763449faf1e11454870022b2e"
+    },
+    {
+      "start": "00502d03",
+      "endExclusive": "00502e8a",
+      "sha256": "5fa1b99acbbbd28e669b0aa95e8c4eff52bc48b549d00a953135b475fca5745a"
+    },
+    {
+      "start": "0050ccd0",
+      "endExclusive": "0050ce98",
+      "sha256": "975f619a7cfbfa408547f04ce3041e5fdf910772ea73530d09f959ed28be7212"
+    }
+  ],
+  "nativeStaticSha256": "1037d35b9600fd1a6bed85d8db9d1aa92758a0064e84993fe53acd75a5c0475a",
+  "extractorSha256": "03bb2db5785d33aa6b3d3f78eefbc0d323a566910279e13d10c22a8dee1cd276",
+  "sources": {
+    "app/world-turn.ts": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+    "app/reincarnation.ts": "d361f22db204184515e63c2dc134c78f42110a1a49e7d071b26223993eb1d182",
+    "app/reincarnation-wave-runtime.ts": "2fd81857a0abdb0b12c8d6e48b7c2990950bb3eb51a29271a3a6f62458f81535",
+    "app/world-state.ts": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+    "app/world-effects.ts": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+    "app/level-start-runtime.ts": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b",
+    "app/level-start.ts": "987b88e203cc863df79ca1afddb602329f9b68f29be715b6ddb1c4fd48c29948",
+    "app/spell-trails.ts": "884319866f64247e81d6ec2f5aeda1be57ea2c306b2c5f57d7b1e9562bd0fa67",
+    "app/game-store.ts": "1bb66bc1db93af5bff36c54f2c32630b71000bc5c0085595e6c7f2bc3cf95565",
+    "app/world-initialization.ts": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+    "scripts/check-native-reincarnation.py": "506127e98cd0564fe8ab4bc75c0a55adcb224135e38edac6f50e21bf7d9f26a2",
+    "scripts/check-native-reincarnation-wave.py": "a14dad04230853d0ecd941d204f6603c7e68c36b6b750cfdbd7a3bf55344fc32",
+    "scripts/check-native-level-start.py": "9227c7676e59c3f8477fc3d560d599ecbc7de553eb9155b1359a4100c04d6a88",
+    "scripts/check-browser-reincarnation-wave.mjs": "b52cd9475e6fcc00e15d3e7c9cca0d6056e5ed8d7cb86c61ec4efed589d1d314",
+    "decomp/generated/004ec6f0.c": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+    "decomp/generated/004ed8a0.c": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+    "decomp/generated/004ed580.c": "30f96739bcd6f1703d38d8937b3a5890bffaaf282be069067360bd7a1da118c8",
+    "decomp/generated/00509c10.c": "a0a2c32a6880db40bd55984cf55e8be386d9c3e56967362f46811eb83e8d3a13",
+    "decomp/generated/0050bcd0.c": "36fffb0674cbcdf4351bc9b5fd1ad6f198ef9455fbc5b38a3ad6229e306fac46",
+    "decomp/generated/0050ccd0.c": "be2da2a13d821668426dbcd24c098bbc6a46059743822c9cea8817499779e44c",
+    "decomp/generated/0050bf60.c": "2b526f2d55ff31b711ea2c50298e1d74e33e042e6d798f036787a6710a089c77"
+  }
+}
