@@ -1,7 +1,7 @@
 {
   "version": 1,
   "helpersSha256": "4eac04c015dcf3d4a6d9feebf6a8f39bffad46b609a32620682f5ae346f9f2b3",
-  "productionSha256": "a5a941090cecc5b07bdf0c95f6be885078deddc3ec62afc19fa20ccbaa2f500e",
+  "productionSha256": "81c9c2e49b1ed97eaf4e90761913ce7a877e63722941c771e0821af30a10ea83",
   "parallel": {
     "tests/ai-producer-schedule.test.mjs": "e9c41f775b53064b5d27f26c5aee66a62afdb1cfee0f5fe1a02f5002d67a1489",
     "tests/ai-response-task.test.mjs": "a616ec84ec3f7ce1a681d608b66972b702c4af5b727ca6ceb4d176b568014809",
@@ -19,7 +19,7 @@
     "tests/authored-bridges.test.mjs": "e5bd0491d4947964ca782bc6affa66f69bf0a6c8224f2d4b6de5b4e576d6e26e",
     "tests/automatic-boat-crossing.test.mjs": "6aa52e360204c295d8951cfefbfa8ec4ac9d11f95da85d179138391bbd1ee35c",
     "tests/background-audio.test.mjs": "60d68a5f2bd07212a2799784d25dd799fab8c5466114dfaf2ae443799baf9c92",
-    "tests/balloon-attack-replacement.test.mjs": "8551ab352fde75a42e5816c07b503161533076aa47866e364bb7ef75d1dfbaeb",
+    "tests/balloon-attack-replacement.test.mjs": "2d74a2b1f76deb1fdc8831599e3116a14c50706d55442dc4cd0a166901e48fb1",
     "tests/balloon-attack.test.mjs": "02b333c612a4b2b6b629ac060218cdd4ea0d1924f1303f38ecd71122ba44014f",
     "tests/balloon-driver-selection.test.mjs": "4e4da69dcb2f2593e7df83829be42987fb29c6f7a96908804c1b7fbdcba8bfd7",
     "tests/balloon-hut-models.test.mjs": "3ab56627860754f9beac859591eec85f3988824c1f607f8e6df8a5dbe2d31fb8",
