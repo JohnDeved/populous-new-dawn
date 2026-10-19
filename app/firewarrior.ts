@@ -13,6 +13,7 @@ import { stepFirewarriorPoint } from './firewarrior-point.ts'
 import { automaticTowerFirewarriorTarget } from './live-combat.ts'
 import { engagementRange } from './melee-engagement.ts'
 import constants from './original-constants.json' with { type: 'json' }
+import { firewarriorTerrainClear } from './firewarrior-clearance.ts'
 
 export const firewarriorRange = rules.personModels[6].idleRange
 export const firewarriorCooldown = 25 / TURNS_PER_SECOND
@@ -85,10 +86,27 @@ export function firewarriorReady(w: World, source: Unit, target: Unit | Building
       inTower
     ),
     threshold = range * 256 + 56
-  return (
-    Math.abs(short(destination.x - origin.x)) < threshold &&
-    Math.abs(short(destination.y - origin.y)) < threshold
+  if (
+    Math.abs(short(destination.x - origin.x)) >= threshold ||
+    Math.abs(short(destination.y - origin.y)) >= threshold
   )
+    return false
+  // Use the live motion owner's stored height, without changing the established
+  // range calculation. Tower support (+0x1c) is not part of native +0x41.
+  origin.h = firewarriorObjectHeight(source) ?? origin.h
+  destination.h = firewarriorObjectHeight(target) ?? destination.h
+  return firewarriorTerrainClear(w.land, origin, destination)
+}
+
+function firewarriorObjectHeight(object: Unit | Building) {
+  if ('foundation' in object) return Math.round(object.foundation * 45)
+  return (
+    object.flight ??
+    object.fight?.motion ??
+    object.native ??
+    object.entry?.person ??
+    object.builder?.person
+  )?.h
 }
 
 export const towerFirewarriorReady = (w: World, source: Unit, target: Unit) =>
