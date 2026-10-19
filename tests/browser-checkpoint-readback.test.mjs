@@ -106,8 +106,8 @@ function fixture(values) {
   }
 }
 
-test('maintained checkpoint callsite waits for delayed false reads before reloading', async () => {
-  const f = fixture([undefined, { version: 0 }, { version: 1 }])
+for (const version of [1, 2]) test(`maintained checkpoint callsite waits for delayed v${version} reads before reloading`, async () => {
+  const f = fixture([undefined, { version: 0 }, { version }])
   await f.run()
   assert.equal(f.reads, 3)
   assert.equal(f.closes, 3)

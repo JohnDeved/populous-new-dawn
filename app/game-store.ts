@@ -28,7 +28,8 @@ import { createSharedAniblResource, type PresentationBinding } from './shared-an
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
-  CHECKPOINT_VERSION = 1,
+  // Older clients reject v2 rather than applying classic limits to scalable data.
+  CHECKPOINT_VERSION = 2,
   PROFILE_VERSION = 1
 let checkpointDatabase: Promise<IDBDatabase | null> | null = null
 
@@ -347,7 +348,12 @@ async function readStoredState() {
       const saved = checkpointRequest.result as { version?: number; world?: World } | undefined,
         profile = profileRequest.result as { version?: number; completed?: unknown } | undefined
       resolve({
-        checkpoint: saved?.version === CHECKPOINT_VERSION && saved.world ? saved.world : null,
+        checkpoint:
+          saved?.world &&
+          (saved.version === 1 ||
+            (saved.version === CHECKPOINT_VERSION && saved.world.capacityPolicy))
+            ? saved.world
+            : null,
         completed:
           profile?.version === PROFILE_VERSION && Array.isArray(profile.completed)
             ? profile.completed.filter(

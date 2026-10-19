@@ -600,7 +600,7 @@ const unsignedAttackField = (value: number, maximum: number) =>
 // empty order initializer. Hold malformed fields and still-uncomposed cleanup
 // leaves before changing either native admission or the port member list.
 function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: LivePerson) {
-  const maximumOrder = w.buildingOrders.records.length - 1,
+  const maximumOrder = w.buildingOrders.scalable ? w.buildingOrders.records.length - 1 : 799,
     maximumReferences = w.buildingOrders.scalable ? Number.MAX_SAFE_INTEGER : 65535
   if (
     !unsignedAttackField(p.id, Number.MAX_SAFE_INTEGER) ||

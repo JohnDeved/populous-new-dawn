@@ -94,7 +94,7 @@ for (const legacy of [false, true]) {
     const world = createWorld()
     world.turn = 217
     world.randomState = 0x12345678
-    if (legacy) delete world.drawMode
+    if (legacy) { delete world.drawMode; delete world.capacityPolicy }
     await withStorage({ latest: { version: 1, world }, profile }, async ({ createGameStore, records, writes }) => {
       const store = createGameStore(), active = store.getWorld(), before = structuredClone(records)
       assert.equal(await store.restoreCheckpoint(), true)
@@ -104,11 +104,60 @@ for (const legacy of [false, true]) {
       assert.equal(store.getWorld().turn, 217)
       assert.equal(store.getWorld().randomState, 0x12345678)
       assert.equal(store.getWorld().drawMode, world.drawMode ?? 0)
+      assert.equal(store.getWorld().capacityPolicy.mode, 'classic')
+      store.restart()
+      assert.equal(store.getWorld().capacityPolicy.mode, 'classic')
       assert.deepEqual(records, before)
       assert.deepEqual(writes, [])
     })
   })
 }
+
+for (const mode of ['classic', 'scalable']) test(`v2 ${mode} checkpoint restores its own policy`, async () => {
+  const world = createWorld(1, mode)
+  await withStorage({ latest: { version: 2, world }, profile }, async ({ createGameStore, records, writes }) => {
+    const store = createGameStore(), before = structuredClone(records)
+    assert.equal(await store.restoreCheckpoint(), true)
+    assert.equal(store.loadCheckpoint(), true)
+    assert.deepEqual(store.getWorld(), world)
+    assert.deepEqual(records, before)
+    assert.deepEqual(writes, [])
+  })
+})
+
+for (const invalid of ['missing policy', 'unknown mode', 'stale reservation', 'negative references'])
+  test(`v2 ${invalid} rejects without suppressing campaign progress or rewriting storage`, async () => {
+    const world = createWorld(1, 'scalable')
+    if (invalid === 'missing policy') delete world.capacityPolicy
+    if (invalid === 'unknown mode') world.capacityPolicy.mode = 'unknown'
+    if (invalid === 'stale reservation') world.nextId = 20
+    if (invalid === 'negative references') world.buildingOrders.records[1].references = -1
+    await withStorage({ latest: { version: 2, world }, profile }, async ({ createGameStore, records, writes }) => {
+      const store = createGameStore(), active = store.getWorld(), before = structuredClone(records)
+      assert.equal(await store.restoreCheckpoint(), false)
+      assert.equal(store.loadCheckpoint(), false)
+      assert.equal(store.getWorld(), active)
+      assert.deepEqual(store.getCompletedMissions(), [1, 2])
+      assert.deepEqual(records, before)
+      assert.deepEqual(writes, [])
+    })
+  })
+
+test('new checkpoints write v2 while database/profile stay v1; invalid saves do not replace a good record', async () => {
+  await withStorage({ profile }, async ({ createGameStore, records, writes }) => {
+    const store = createGameStore()
+    assert.equal(await store.saveCheckpoint(), true)
+    assert.equal(records.get('latest').version, 2)
+    assert.equal(records.get('latest').world.capacityPolicy.mode, 'scalable')
+    assert.equal(records.get('profile').version, 1)
+    const before = structuredClone(records), writeCount = writes.length
+    store.getWorld().buildingOrders.records[1].references = -1
+    await assert.rejects(store.saveCheckpoint(), RangeError)
+    assert.deepEqual(records, before)
+    assert.equal(writes.length, writeCount)
+    assert.equal(store.loadCheckpoint(), true, 'previous good in-session checkpoint is still usable')
+  })
+})
 
 test('malformed stored checkpoint preserves usable session checkpoint and merges completion', async () => {
   await withStorage({}, async ({ createGameStore, records, writes }) => {

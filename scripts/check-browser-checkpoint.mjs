@@ -407,7 +407,7 @@ try {
       try {
         const request = database.transaction('checkpoints').objectStore('checkpoints').get('latest')
         return await new Promise((resolve, reject) => {
-          request.addEventListener('success', () => resolve(request.result?.version === 1))
+          request.addEventListener('success', () => resolve([1, 2].includes(request.result?.version)))
           request.addEventListener('error', () => reject(request.error))
         })
       } finally {
