@@ -207,6 +207,7 @@ async function writeCompletedMissions(completed: number[]) {
 export function createGameStore() {
   let checkpointReadStatus: CheckpointReadStatus = 'idle'
   let checkpointRestore: Promise<boolean> | null = null
+  let committedCheckpointRevision = 0
   let world = createWorld(1, 'scalable'),
     checkpoint: World | null = null,
     observedCompletion = world.outcome.completedLevel,
@@ -279,6 +280,7 @@ export function createGameStore() {
     restoreCheckpoint: () => {
       if (checkpointRestore) return checkpointRestore
       checkpointReadStatus = 'pending'
+      const readRevision = committedCheckpointRevision
       checkpointRestore = (async () => {
         try {
           const saved = await readStoredState()
@@ -294,14 +296,16 @@ export function createGameStore() {
             }
             for (const mission of saved.completed) completedMissions.add(mission)
           }
-          checkpointReadStatus = saved
-            ? saved.incompatible
-              ? 'incompatible'
-              : 'read'
-            : 'unavailable'
+          // A successful explicit Save supersedes any older storage-read snapshot.
+          if (readRevision === committedCheckpointRevision)
+            checkpointReadStatus = saved
+              ? saved.incompatible
+                ? 'incompatible'
+                : 'read'
+              : 'unavailable'
         } catch {
           // Browser storage is optional; retain any in-session checkpoint.
-          checkpointReadStatus = 'failed'
+          if (readRevision === committedCheckpointRevision) checkpointReadStatus = 'failed'
         } finally {
           checkpointRestore = null
           update()
@@ -319,7 +323,16 @@ export function createGameStore() {
       checkpoint = saved
       update()
       try {
-        return await writeStoredValue('latest', { version: CHECKPOINT_VERSION, world: saved })
+        const written = await writeStoredValue('latest', {
+          version: CHECKPOINT_VERSION,
+          world: saved,
+        })
+        if (written) {
+          committedCheckpointRevision++
+          checkpointReadStatus = 'read'
+          update()
+        }
+        return written
       } catch {
         return false
       }

@@ -76,7 +76,7 @@ function startup(store) {
 }
 const settle = () => new Promise(resolve => setImmediate(resolve))
 let session = 0
-async function withStorage(run, initial = {}) {
+async function withStorage(run, initial = {}, { failWrite = false } = {}) {
   const previous = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB')
   const records = new Map(Object.entries(initial)), opens = [], reads = [], writes = []
   let transactions = 0
@@ -84,13 +84,16 @@ async function withStorage(run, initial = {}) {
     transaction(name, mode = 'readonly') {
       assert.equal(name, 'checkpoints')
       transactions++
-      const transaction = new EventTarget()
+      const transaction = new EventTarget(), staged = []
       transaction.objectStore = () => ({
         get: key => ({ result: structuredClone(records.get(key)) }),
-        put: (value, key) => { writes.push(key); records.set(key, structuredClone(value)) },
+        put: (value, key) => { writes.push(key); staged.push([key, structuredClone(value)]) },
       })
       if (mode === 'readonly') reads.push(transaction)
-      else queueMicrotask(() => transaction.dispatchEvent(new Event('complete')))
+      else queueMicrotask(() => {
+        if (failWrite) { transaction.error = new Error('Synthetic write abort'); transaction.dispatchEvent(new Event('abort')) }
+        else { for (const entry of staged) records.set(...entry); transaction.dispatchEvent(new Event('complete')) }
+      })
       return transaction
     },
   }
@@ -266,4 +269,44 @@ test('checkpoint menu retains real tooltip identity, current availability key an
       else assert.equal(typeof load.props['aria-description'], 'string')
     }
   }
+})
+
+for (const failWrite of [false, true]) test(`explicit Save after incompatible restore reports committed storage truth (fail=${failWrite})`, async () => {
+  const latest = { version: 1, world: createWorld() }
+  await withStorage(async ({ store, open, read, records }) => {
+    const home = startup(store)
+    await open(); await read()
+    assert.equal(store.getCheckpointReadStatus(), 'incompatible')
+    assert.match(text(menu(store)), /incompatible.*stored save has not been changed/)
+    const before = structuredClone(records)
+    store.getWorld().turn = 217
+    assert.equal(await store.saveCheckpoint(), !failWrite)
+    assert.equal(store.getCheckpointReadStatus(), failWrite ? 'incompatible' : 'read')
+    assert.equal(text(menu(store)).includes('stored save has not been changed'), failWrite)
+    assert.equal(button(menu(store), 'Load Game').props['aria-disabled'], false)
+    if (failWrite) assert.deepEqual(records, before)
+    else assert.equal(records.get('latest').version, 2)
+    assert.equal(store.loadCheckpoint(), true, 'even a failed disk write retains an explicit session checkpoint')
+    assert.equal(store.getWorld().turn, 217)
+    home.cleanup()
+  }, { latest }, { failWrite })
+})
+
+test('successful explicit Save supersedes an older pending incompatible read snapshot', async () => {
+  await withStorage(async ({ store, open, read, records }) => {
+    const restoring = store.restoreCheckpoint()
+    await open() // The pending read now owns a snapshot of the old v1 record.
+    assert.equal(store.getCheckpointReadStatus(), 'pending')
+    store.getWorld().turn = 217
+    assert.equal(await store.saveCheckpoint(), true)
+    assert.equal(store.getCheckpointReadStatus(), 'read')
+    assert.equal(records.get('latest').version, 2)
+    await read()
+    assert.equal(await restoring, true)
+    assert.equal(store.getCheckpointReadStatus(), 'read')
+    assert.equal(text(menu(store)).includes('incompatible'), false)
+    assert.equal(store.loadCheckpoint(), true)
+    assert.equal(store.getWorld().turn, 217)
+    assert.deepEqual(store.getCompletedMissions(), [1, 2])
+  }, { latest: { version: 1, world: createWorld() }, profile: { version: 1, completed: [1, 2] } })
 })
