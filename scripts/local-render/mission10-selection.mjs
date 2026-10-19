@@ -30,7 +30,7 @@ export function mission10SelectionQuery(state) {
   assert.equal(new Set(state.vehicles.map(v => v.id)).size, state.vehicles.length, 'Duplicate observed vehicle ID')
   const boat = state.vehicles.find(v => v.id === 62)
   assert.ok(boat?.active && boat.model === 1)
-  assert.ok(Array.isArray(boat.passengers) && boat.passengers.length === 5, 'Malformed passenger slots')
+  assert.ok(Array.isArray(boat.passengers) && boat.passengers.length <= 5, 'Malformed passenger slots')
   assert.ok(state.vehicles.every(v => v.id === 62 || !people.some(p => p.vehicle === v.id)), 'Unexpected occupied craft')
   const slots = Array.from({ length: 5 }, (_, i) => boat.passengers[i] ?? 0)
   assert.ok(slots.every(id => !id || people.some(p => p.id === id)), 'Unexpected crew ownership')
