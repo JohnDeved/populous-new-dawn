@@ -4,18 +4,18 @@ import { resolve } from 'node:path'
 import { bindGame } from '../browser-game.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 
-export default async function ({ page, context, output, url }) {
+export default async function ({ page, context, output, url, servingDescription }) {
   const paths = ['/original/pause-font.png', ...[0, 1, 2].map(n => `/original/options/ingame-${n}.png`), '/original/world-selector/text/tooltip-font-c.png']
   const mode = process.env.POPULOUS_INGAME_MODE ?? 'healthy'
   assert.ok(['healthy', 'font-failure', 'slider-failure', 'late-font', 'late-sliders'].includes(mode))
   const failed = mode === 'font-failure' ? paths[0] : mode === 'slider-failure' ? paths[2] : null
   const held = mode === 'healthy' ? paths : mode === 'late-font' ? [paths[0]] : mode === 'late-sliders' ? paths.slice(1, 4) : []
   const report = { status: 'running', mode, phases: [], requests: [], releases: [], frozen: [], errors: [], warnings: [],
-    limits: ['Actual Home/GameScene via plain React/Vite, not hosted serving/hydration.',
+    limits: [servingDescription ?? 'Actual Home/GameScene via plain React/Vite, not hosted serving/hydration.',
       'Only pause font, ingame sliders and the shared tooltip atlas have held real responses. No state/readiness/clock injection.',
       'Routing disables HTTP cache; warm reopen is same-document reuse. Native decode promises are forwarded.',
       'DOM changes do not alone establish painted frames; separate animation-frame samples are retained.',
-      'No original executable, hardware performance, unrelated asset, or CI work.'] }
+      'No original executable, hardware performance, or unrelated asset claim.'] }
   const save = () => writeFileSync(resolve(output, 'prepared.json'), JSON.stringify(report, null, 2) + '\n')
   const start = performance.now(), now = () => Math.round(performance.now() - start)
   const gates = new Map(held.map(path => { let release;const promise = new Promise(resolve => { release = resolve });return [path, { promise, release }] }))

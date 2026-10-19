@@ -1,0 +1,41 @@
+{
+  "runtimeSource": "5330457fba0ae1cda79b95eed4ed695808d3b30e",
+  "helpers": {
+    "settings-presentation.mjs": {
+      "reviewedInputSha256": "152e0e3bf49f5bc557a1dc88a120893785900314e66a1a5499ee19487a2849b4",
+      "composedSha256": "152e0e3bf49f5bc557a1dc88a120893785900314e66a1a5499ee19487a2849b4"
+    },
+    "fullscreen.mjs": {
+      "reviewedInputSha256": "d56953b75ec403ceaad514cef782debd22e2e2dc789b7ab21ce7a2d4bc702f42",
+      "composedSha256": "d56953b75ec403ceaad514cef782debd22e2e2dc789b7ab21ce7a2d4bc702f42"
+    },
+    "quit-warning.mjs": {
+      "reviewedInputSha256": "c61582069f2ad0dd16416be55873dd03ccbb54ae94d369cb0a01b5e1b4b22b05",
+      "composedSha256": "66ab55dc9ef8efbb4aaa951b1253aeabb0c497f3b2e5b83f11731877fa376c33"
+    },
+    "contextual-help.mjs": {
+      "reviewedInputSha256": "6167303b5ff0e375f54b6849df81ce13f70c344b3c8f58d87e25ce42e344e494",
+      "composedSha256": "6167303b5ff0e375f54b6849df81ce13f70c344b3c8f58d87e25ce42e344e494"
+    },
+    "menu-feedback.mjs": {
+      "reviewedInputSha256": "72c1e312c10c29d3591cd65311e636b6ee27fdcbab822003c98055881a42ccbf",
+      "composedSha256": "56c1eb5e1998667fa3b225ad8837582c9454f81842619440375a2f0a3d5205e5"
+    },
+    "neutral-cursor-decode-failure.mjs": {
+      "reviewedInputSha256": "bbede1c53ab1893d65b0205eb67cdb6275eb8678305eb2199494337c2fa30f4a",
+      "composedSha256": "bbede1c53ab1893d65b0205eb67cdb6275eb8678305eb2199494337c2fa30f4a"
+    },
+    "neutral-cursor-dpr2.mjs": {
+      "reviewedInputSha256": "048929209699af5cfad480ae55e73297baa8127fc8ed2e2d548f6ddcc2c32221",
+      "composedSha256": "048929209699af5cfad480ae55e73297baa8127fc8ed2e2d548f6ddcc2c32221"
+    },
+    "neutral-cursor.mjs": {
+      "reviewedInputSha256": "95ce6a0382a6a11cb2fb87d4b45785010a8bb01a42527a9207adaf20bb0d3397",
+      "composedSha256": "95ce6a0382a6a11cb2fb87d4b45785010a8bb01a42527a9207adaf20bb0d3397"
+    },
+    "neutral-cursor-dpr1.mjs": {
+      "reviewedInputSha256": "44e1415d9dea7e266bece1c801085f85bc22ae7e6580de746b0e6204ab7bdf38",
+      "composedSha256": "44e1415d9dea7e266bece1c801085f85bc22ae7e6580de746b0e6204ab7bdf38"
+    }
+  }
+}
