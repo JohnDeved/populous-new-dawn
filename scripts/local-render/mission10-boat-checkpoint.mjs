@@ -8,6 +8,44 @@ import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 
 const party = [63, 111, 112, 113, 114]
 const boatId = 62
+
+// Executed only after this scenario has observed genuine boarding/restoration or
+// completed public unload. The helper never creates people or edits live World.
+export async function checkMission10FollowerStrip({ page, input, state, phase, occupied }) {
+  const entering = await state(`${phase}-before-strip`)
+  if (!entering.paused) await input.pause()
+  const before = await state(`${phase}-strip-paused`)
+  assert.equal(before.paused, true)
+  assert.ok(before.party.every(person => person && person.hp > 0))
+  assert.ok(before.party.every(person => occupied ? person.vehicle === boatId : !person.vehicle))
+  const warriors = party.filter(id => id !== 63)
+  for (const name of ['Select warrior', 'Select follower']) {
+    for (const modifiers of [[], ['Control'], ['Shift']]) {
+      const label = `${phase}: ${name} ${modifiers[0] ?? 'single'}`
+      await input.action(`${label} Escape-clear`, () => page.keyboard.press('Escape'))
+      const cleared = await state(`${label} cleared`)
+      assert.deepEqual(cleared.selected, [], 'Escape must clear the existing crew first')
+      await input.action(label, () => page.getByRole('button', { name, exact: true }).click({ modifiers }))
+      const after = await state(`${label} selected`)
+      const selected = [...after.selected].sort((a, b) => a - b)
+      if (occupied) assert.deepEqual(selected, party, 'Class/Total must acquire all five occupants, including Shaman')
+      else if (name === 'Select follower' && modifiers[0] === 'Control')
+        assert.deepEqual(selected, party, 'On-foot Total Ctrl can acquire Shaman after all four Warriors')
+      else if (modifiers.length) assert.deepEqual(selected, warriors, 'On-foot class Ctrl/Shift and Total Shift exclude Shaman')
+      else {
+        assert.equal(selected.length, 1, 'On-foot single click acquires one follower')
+        assert.ok(warriors.includes(selected[0]))
+      }
+      assert.equal(after.paused, true)
+      assert.equal(after.turn, before.turn)
+      assert.deepEqual(after.orders, before.orders, 'HUD selection preserves commands')
+      assert.deepEqual(after.randomState, before.randomState, 'HUD selection preserves RNG')
+      assert.deepEqual(after.boat, before.boat, 'HUD selection preserves craft and passenger slots')
+      assert.deepEqual(after.party, before.party, 'HUD selection preserves live passenger activity')
+    }
+  }
+  if (!entering.paused) await input.resume()
+}
 // Two separate harness processes with one task-owned profile. Public inputs and
 // real RAF only; no CPU checkpoint import, world writes, tick calls or seeded win.
 export default async function ({ page, openMission, output, receipt, observeCheckpoint, signal }) {
@@ -24,8 +62,9 @@ export default async function ({ page, openMission, output, receipt, observeChec
         renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER), contextLost: gl.isContextLost(),
         counts: { units: w.units.length, vehicles: w.vehicles.length, buildings: w.buildings.length, secondary: w.secondaryEffects.slots.length },
         paused: w.paused, inputMask: w.inputMask, selected: [...w.selected], status: w.status,
+        orders: structuredClone(w.buildingOrders), randomState: w.randomState,
         boat: boat && { id: boat.id, x: boat.x, y: boat.y, active: boat.active, passengers: [...boat.passengers] },
-        party: party.map(id => { const u = w.units.find(u => u.id === id); return u && { id, kind: u.kind, hp: u.hp, x: u.x, z: u.z, vehicle: u.native?.vehicle, state: u.native?.state, flags2: u.native?.flags2, flags4: u.native?.flags4 } }),
+        party: party.map(id => { const u = w.units.find(u => u.id === id); return u && { id, kind: u.kind, hp: u.hp, x: u.x, z: u.z, vehicle: u.native?.vehicle, state: u.native?.state, flags2: u.native?.flags2, flags4: u.native?.flags4, path: u.path, work: u.work, commands: u.native?.commands, commandStatus: u.native?.commandStatus } }),
         panels: [...document.querySelectorAll('.vehicle-panel')].map(e => ({ text: e.textContent, visible: !!e.getClientRects().length })) }
     }, { label, party, boatId })
     report.observations.push(row); save(); return row
@@ -70,6 +109,8 @@ export default async function ({ page, openMission, output, receipt, observeChec
       await input.action('ordinary Boat boarding click', () => page.mouse.click(hit.x, hit.y))
       await page.waitForFunction(({ party, boatId }) => { const w = window.testSceneRef.current.world, v = w.vehicles.find(v => v.id === boatId); return party.every(id => v.passengers.includes(id) && w.units.find(u => u.id === id)?.native?.vehicle === boatId) }, { party, boatId }, { timeout: 60000 })
       await state('boarded'); await capture('boarded')
+      await checkMission10FollowerStrip({ page, input, state, phase: 'boarded', occupied: true })
+      await capture('boarded-class-selected')
       await page.getByRole('button', { name: 'Game settings', exact: true }).click()
       const menu = page.locator('dialog.game-dialog'); await menu.waitFor({ state: 'visible' })
       const before = await state('save-menu')
@@ -107,6 +148,8 @@ export default async function ({ page, openMission, output, receipt, observeChec
     await page.waitForFunction(turn => window.testSceneRef.current.world.turn > turn, saved.turn)
     await input.view({ x: 27, z: -27 })
     await capture('restored-occupied-boat')
+    await checkMission10FollowerStrip({ page, input, state, phase: 'loaded', occupied: true })
+    await capture('loaded-class-selected')
     await page.keyboard.press('Escape')
     assert.deepEqual(await page.evaluate(() => window.testSceneRef.current.world.selected), [])
     const hit = await boatPoint()
@@ -117,6 +160,8 @@ export default async function ({ page, openMission, output, receipt, observeChec
     await unload.click()
     await page.waitForFunction(({ party, boatId }) => { const w=window.testSceneRef.current.world, v=w.vehicles.find(v=>v.id===boatId); return !v.passengers.some(Boolean) && party.every(id=>{const u=w.units.find(u=>u.id===id);return u&&u.hp>0&&u.native&&!u.native.vehicle&&!(u.native.flags2&0x80000)&&!(u.native.flags4&0x400)}) }, { party, boatId }, { timeout: 60000 })
     report.landed = await state('unloaded-alive'); await capture('unloaded-alive')
+    await checkMission10FollowerStrip({ page, input, state, phase: 'unloaded', occupied: false })
+    await capture('unloaded-class-selected')
     report.loaded = loaded; report.saved = saved
     const stored = await observeCheckpoint('After genuine Load and unload')
     assert.equal(stored.checkpoint.checkpointSha256, saved.checkpointSha256)

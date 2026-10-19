@@ -5,7 +5,7 @@ Bounded issue #60 correction on base
 
 ## Demonstrated gap
 
-The persistent Total/class/Shaman controls call `page.tsx::followerControl` →
+The mounted persistent Total/class controls call `page.tsx::followerControl` →
 `GameScene.chooseFollowers` → `scene-input-runtime.ts::chooseFollowers` →
 `selection-runtime.ts::selectFollowers`. The lower task and transport rows already
 propagate selection through an occupied craft; the persistent strip did not.
@@ -68,12 +68,32 @@ passenger selection.
 ## Checks and limits
 
 `tests/hud-passenger-selection.test.mjs` covers both Boat/Balloon models, mixed
-classes, single/Ctrl/Shift/Total/Shaman, immediate propagation during repeated
+classes, single/Ctrl/Shift/Total and unmounted model-7 helper cases, immediate propagation during repeated
 nearest search, empty/enemy recipients, the distinct crew reservation rule,
 read-only focus/seat positioning, voluntary departure and checkpoint restoration.
-It also executes the actual Page pointer/keyboard handlers and Scene method with
-supplied DOM/camera/panel leaves, including Ctrl dispatch-once and focus feedback.
+It also executes the mounted Total/class Page pointer/keyboard controls and Scene
+method from their actual JSX with supplied DOM/camera/panel leaves, including Ctrl dispatch-once and
+focus feedback. Model-7 helper cases do not establish a mounted Shaman control:
+the Page portrait instead calls `select(world, 'shaman')` → `setSelection` and
+focuses the Shaman directly. That separate path is unchanged and a dedicated
+mounted-portrait regression preserves it. Its distinct original selection/focus
+semantics remain a separate #60 gap. The earlier combined Shaman Page-path claim
+was incorrect; no mounted `followerControl(7)` exists.
 These are portable integration fixtures, not rendered-browser evidence.
+
+The existing `scripts/local-render/mission10-boat-checkpoint.mjs` now checks the
+mounted Total/class controls after its real authored boarding, after public Load,
+and after ordinary unload. It clears selection with Escape before single/Ctrl/Shift
+clicks, requires all five original occupants (including the Shaman) while aboard,
+and checks restored independent on-foot selection after unload. Public pause
+isolates order/RNG/crew preservation from normal simulation advancement. This
+scenario is NOT RUN for this PR until a supported runner executes both phases;
+a generic Mission 2 browser pass does not establish these assertions. The current
+hosted Tutorial runner neither imports nor admits this scenario and lacks the
+persistent-profile/restart/observation contract. Its existing profile-recovery
+case explicitly covers fresh-page reload, not process-restart persistence. No
+workflow, timeout or browser restriction is changed here; targeted rendered
+acceptance remains blocked pending an approved compatible runner route.
 
 The focused existing HUD/class/task/transport checks remain required. The planner
 also routes native and browser gates; those were not executed in this restricted

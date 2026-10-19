@@ -54,9 +54,9 @@ test('persistent strip reads the occupied route owner without touching dormant n
   }
 })
 
-test('single, Ctrl and Shift class/Total/Shaman commands preserve native crew propagation', () => {
+test('selection helper preserves class/Total and unmounted model-7 crew propagation', () => {
   for (const kind of [1, 3]) for (const model of [0, 2, 7]) for (const mode of ['single', 'five', 'all']) {
-    if (model === 7 && mode === 'five') continue // The Page/Scene maps Shaman Ctrl to single.
+    if (model === 7 && mode === 'five') continue // Scene maps model-7 Ctrl to single; the mounted portrait does not use this path.
     const { world, vehicle, add } = occupiedCrew(kind, true)
     const first = add(model === 7 ? 'shaman' : 'brave'), other = add(model === 7 ? 'warrior' : 'shaman')
     selectFollowers(world, model, vehicle, mode)
@@ -131,15 +131,21 @@ test('unload and checkpoint restoration retain persistent crew selection semanti
   }
 })
 
-test('actual Page pointer/keyboard handlers reach Scene crew selection once and focus its seat', async () => {
+test('mounted Total/class Page controls reach Scene crew selection once and focus its seat', async () => {
   const { loadSceneFixture } = await import('./support/bloodlust-scene.mjs')
-  const { pageSource, pageNode, evaluatePage, nearbyEvent } = await import('./support/follower-nearby-page.mjs')
+  const { pageSource, pageNode, pageButton, evaluatePage, nearbyEvent } = await import('./support/follower-nearby-page.mjs')
+  const { followerClassControls } = await import('../app/hud-population.ts')
+  const { nativeUnitModel } = await import('../app/unit-kinds.ts')
   const { default: ts } = await import('typescript')
   await loadSceneFixture()
   const { GameScene } = await import('../app/scene.ts')
-  for (const kind of [1, 3]) for (const input of ['pointer', 'ctrl', 'shift', 'keyboard', 'shaman-ctrl']) {
+  const classButton = pageNode(node => ts.isJsxElement(node) &&
+    node.openingElement.attributes.properties.some(attribute =>
+      attribute.name?.getText(pageSource) === 'aria-label' &&
+      attribute.initializer?.getText(pageSource) === '{`Select ${u.kind}`}'))
+  for (const kind of [1, 3]) for (const model of [0, 2]) for (const input of ['pointer', 'ctrl', 'shift', 'keyboard']) {
     const { world, vehicle, add } = occupiedCrew(kind, true)
-    const first = add(input === 'shaman-ctrl' ? 'shaman' : 'brave'), second = add('warrior')
+    const first = add('brave'), second = add('warrior')
     world.manaWorld.gameFlags &= ~32
     world.inputMask = 0
     let changes = 0
@@ -155,9 +161,16 @@ test('actual Page pointer/keyboard handlers reach Scene crew selection once and 
     const makeControl = evaluatePage(pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === 'followerControl').getText(pageSource), {
       engine: { current: scene }, followerPress,
     })
-    const control = makeControl(input === 'shaman-ctrl' ? 7 : 2)
+    const mounted = model === 0 ? pageButton(['population-button']) : classButton
+    const control = evaluatePage(mounted.getText(pageSource), {
+      world, followerControl: makeControl, nativeUnitModel,
+      u: followerClassControls(world.units).find(control => control.kind === 'brave'),
+      selected: [], nearby: false, followerCounts: { displayTotals: [2] },
+      population: () => 2, populationLimit: () => 6,
+      PopulationMeter: 'PopulationMeter', FollowerNumber: 'FollowerNumber', FollowerIcon: 'FollowerIcon',
+    }).props
     const event = nearbyEvent({
-      ctrlKey: input === 'ctrl' || input === 'shaman-ctrl',
+      ctrlKey: input === 'ctrl',
       shiftKey: input === 'shift', detail: input === 'keyboard' ? 0 : 1,
     })
     if (input !== 'keyboard') {
@@ -166,13 +179,33 @@ test('actual Page pointer/keyboard handlers reach Scene crew selection once and 
       control.onPointerUp(event)
     }
     control.onClick(event)
-    assert.deepEqual(world.selected, [first.unit.id, second.unit.id], `${kind}/${input}`)
+    assert.deepEqual(world.selected, [first.unit.id, second.unit.id], `${kind}/${model}/${input}`)
     assert.equal(changes, 1, 'Ctrl pointer-up and click do not dispatch twice')
     const before = structuredClone(world)
     control.onContextMenu(nearbyEvent({ button: 2 }))
-    assert.equal(panels.at(-1), first.unit.id)
-    assert.deepEqual(focused.at(-1)[0], browserPosition(first.source))
+    const target = [first, second].find(entry => entry.unit.id === panels.at(-1))
+    assert.ok(target, 'Total focus targets an actual occupant')
+    if (model === 2) assert.equal(target.unit.id, first.unit.id)
+    assert.deepEqual(focused.at(-1)[0], browserPosition(target.source))
     assert.deepEqual(world.units, before.units)
     assert.deepEqual(world.selected, before.selected)
   }
+})
+
+
+test('mounted Shaman portrait retains its separate select-and-focus path, not crew propagation', async () => {
+  const { pageSource, pageButton, evaluatePage } = await import('./support/follower-nearby-page.mjs')
+  const { select } = await import('../app/model.ts')
+  const { world, add } = occupiedCrew()
+  const shaman = add('shaman'), warrior = add('warrior'), focuses = [], cues = []
+  const portrait = evaluatePage(pageButton(['portrait']).getText(pageSource), {
+    world, shaman: shaman.unit, select, portrait: { current: null }, HOME: {},
+    audio: { current: { cue: cue => cues.push(cue) } }, update() {},
+    engine: { current: { focus: (...args) => focuses.push(args) } },
+  })
+  portrait.props.onClick()
+  assert.deepEqual(world.selected, [shaman.unit.id])
+  assert.equal(warrior.source.selectionFlags & 128, 0)
+  assert.deepEqual(focuses, [[shaman.unit, { animate: true }]])
+  assert.deepEqual(cues, [0x18])
 })
