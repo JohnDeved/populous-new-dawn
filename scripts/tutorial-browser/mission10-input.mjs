@@ -76,10 +76,12 @@ export function createMission10Input(options) {
       signal.throwIfAborted()
       // One browser task captures geometry and World at the same simulation
       // boundary. No RAF visit can intervene between the two observations.
-      const { hit, transfer } = await page.evaluate(`target => {
+      // Pass a function: Playwright evaluates a string without invoking it.
+      // Only source-owned helpers are embedded; target remains a normal argument.
+      const { hit, transfer } = await page.evaluate(new Function('target', `
         const hit = (${readMission10Ground.toString()})(target)
         return { hit, transfer: (${checkpointCodec.toString()})(window.testSceneRef.current.world) }
-      }`, target)
+      `), target)
       // Decode and synchronizing command validation occur in Node on a detached
       // World, never in the live browser. Maps and typed arrays are preserved.
       signal.throwIfAborted()

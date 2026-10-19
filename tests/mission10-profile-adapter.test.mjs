@@ -1,11 +1,16 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { dirname, resolve } from 'node:path'
+import { createContext, runInContext, runInNewContext } from 'node:vm'
 import { withMission10Context } from '../scripts/tutorial-browser/mission10-profile.mjs'
 import { browserConfiguration } from '../scripts/tutorial-browser/browser-config.mjs'
 import { validateMission10Profile } from '../scripts/integration-queue/profile-recovery.mjs'
 import { mission10ReceiptFixture } from './support/mission10-profile-receipt.mjs'
-import { readMission10Ground, readMission10Minimap, mission10BoatPoint } from '../scripts/tutorial-browser/mission10-input.mjs'
+import { createMission10Input, readMission10Ground, readMission10Minimap, mission10BoatPoint } from '../scripts/tutorial-browser/mission10-input.mjs'
+import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mjs'
+import { createWorld } from '../app/world-initialization.ts'
 const sha = '1'.repeat(40)
 
 test('M10 companion requires complete source-bound Save/Load, all public selections and cleanup', () => {
@@ -110,6 +115,70 @@ test('production helpers keep native coordinate/minimap math and strict canvas/g
     globalThis.document.elementFromPoint = () => canvas
     await assert.rejects(mission10BoatPoint({ evaluate: (fn, arg) => fn(arg) }, 62), /exposed/)
   } finally { globalThis.window = priorWindow; globalThis.document = priorDocument }
+})
+
+test('fixedGround invokes the actual serialized callback in one task under supported Playwright evaluation semantics', async () => {
+  // Run the installed, lock-bound evaluator/serializers, not a canned evaluate
+  // result or fn(arg) mock. This is a Node VM boundary test, not rendered QA.
+  const packagePath = createRequire(import.meta.url).resolve('playwright-core/package.json')
+  const bundle = readFileSync(resolve(dirname(packagePath), 'lib/coreBundle.js'), 'utf8')
+  assert.match(bundle, /isFunction: typeof pageFunction === "function"/)
+  const generated = bundle.slice(bundle.indexOf('// packages/playwright-core/src/generated/utilityScriptSource.ts'))
+  const literal = generated.match(/\bsource\d* = ('(?:\\.|[^'\\])*');/)?.[1]
+  assert.ok(literal, 'Installed Playwright must expose its supported injected evaluator')
+  const realm = createContext({ module: { exports: {} } })
+  runInContext(runInNewContext(literal), realm)
+  runInContext(`globalThis.utility = new UtilityScript(globalThis, false);
+    globalThis.codec = (${checkpointCodec.toString()});
+    globalThis.world = codec(${JSON.stringify(checkpointCodec(createWorld(10)))}, true);
+    globalThis.inspections = [];
+    globalThis.canvas = { getBoundingClientRect: () => ({ left: 0, top: 0, width: 100, height: 100 }) };
+    globalThis.scene = { world, renderer: { domElement: canvas },
+      screen: target => { inspections.push(['screen', target, world.turn]); return { x: 0, y: 0 } },
+      pickUnit: () => null, picking: { pickPerson: () => null }, pickWorldObject: () => null,
+      pick: () => ({ x: 27, z: -27 }) };
+    globalThis.window = { testSceneRef: { current: scene } };
+    globalThis.document = { elementFromPoint: () => canvas };`, realm)
+  const before = runInContext('JSON.stringify(codec(world))', realm), controller = new AbortController()
+  let calls = 0, returned, callbackType
+  const page = { async evaluate(fn, arg) {
+    calls++; callbackType = typeof fn
+    // Playwright marks strings isFunction:false, and functions true. Its
+    // injected evaluator also performs real argument and return serialization.
+    realm.isFunction = typeof fn === 'function'
+    realm.expression = typeof fn === 'function' ? `(${fn.toString()})` : fn
+    realm.argument = structuredClone(arg)
+    const value = runInContext(`parseEvaluationResultValue(utility.evaluate(isFunction, true, expression, 1,
+      serializeAsCallArgument(argument, value => ({ fallThrough: value }))))`, realm)
+    assert.notEqual(typeof value?.then, 'function', 'Geometry and World capture must be synchronous')
+    returned = structuredClone(value)
+    return returned
+  } }
+  assert.equal(await page.evaluate('target => ({ target })', { x: 27, z: -27 }), undefined,
+    'The old arrow-string is not invoked and reproduces the hosted undefined result')
+  const input = createMission10Input({ page, signal: controller.signal, report: { actions: [] }, save() {}, originalShamanId: null })
+  calls = 0
+  const ground = await input.fixedGround({ x: 27, z: -27 })
+  assert.equal(callbackType, 'function'); assert.equal(calls, 1)
+  assert.deepEqual(ground.point, { x: 27, z: -27 })
+  assert.equal(ground.inspected, 1); assert.equal(ground.context.model, 3); assert.equal(ground.context.enabled, true)
+  const snapshot = checkpointCodec(returned.transfer, true)
+  assert.equal(snapshot.turn, ground.turn)
+  assert.ok(snapshot.land.heights instanceof Int16Array)
+  assert.ok(snapshot.buildingFootprints instanceof Map)
+  assert.deepEqual(structuredClone(realm.inspections), [['screen', { x: 27, z: -27 }, ground.turn]])
+  assert.equal(runInContext('JSON.stringify(codec(world))', realm), before,
+    'Geometry observation and detached Node command validation must not mutate the live World')
+  for (const change of ['document.elementFromPoint = () => null', 'scene.pick = () => ({ x: 27.351, z: -27 })']) {
+    runInContext('document.elementFromPoint = () => canvas', realm); runInContext(change, realm)
+    await assert.rejects(input.fixedGround({ x: 27, z: -27 }), /0.35/)
+  }
+  runInContext('scene.pick = () => ({ x: -67, z: 45 })', realm)
+  await assert.rejects(input.fixedGround({ x: -67, z: 45 }), /ordinary ground command/)
+  assert.equal(runInContext('JSON.stringify(codec(world))', realm), before)
+  controller.abort(Error('outer deadline')); calls = 0
+  await assert.rejects(input.fixedGround({ x: 27, z: -27 }), /outer deadline/)
+  assert.equal(calls, 0)
 })
 
 test('hosted adapter never admits dev-server imports or a seeded checkpoint and retains public Save submenu', () => {

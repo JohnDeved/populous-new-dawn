@@ -142,6 +142,19 @@ Hosted budget fit and real rendered execution remain unverified. Review must
 precede activation; a timeout or missing rendered evidence blocks acceptance
 rather than authorizing a larger cap.
 
+The first hosted adapter attempt, [run 39312991346](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39312991346),
+passed the nine existing recovery cases but stopped before rally/boarding. The
+production ground observer passed an arrow-function **string** to Playwright
+1.63; strings are evaluated but not invoked, so its by-value result was undefined.
+The repair passes a real self-contained function containing the same source-owned
+geometry and checkpoint helpers. Target remains a serialized argument, and both
+observations still occur in one synchronous browser task before detached Node
+command validation. A Node VM regression executes the installed Playwright
+evaluator and serializers: it reproduces the original TypeError, then verifies
+the repaired production boundary, typed-array/Map transport, unchanged live World,
+strict ownership/aim/context guards and abort admission. This is not a rendered
+pass, and the failed run provides no boarding, crew-selection or Save/Load proof.
+
 The focused existing HUD/class/task/transport checks remain required. The planner
 also routes native and browser gates; those were not executed in this restricted
 worker. The parent owns the standard exact-head check/build and hosted rendered
