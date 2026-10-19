@@ -71,6 +71,7 @@ try {
   assert.equal(process.env.GITHUB_ACTIONS, 'true', 'Only the reviewed GitHub runner is supported')
   receipt.commit = git('rev-parse', 'HEAD')
   receipt.candidate = process.env.CANDIDATE_SHA
+  receipt.runtimeHelp = process.env.RUNTIME_HELP_SHA
   receipt.base = process.env.PR_BASE_SHA
   assert.equal(receipt.commit, process.env.GITHUB_SHA, 'Require exact diagnostic push commit, not a PR merge')
   assert.equal(git('status', '--porcelain', '--untracked-files=no'), '', 'Require clean tracked source')

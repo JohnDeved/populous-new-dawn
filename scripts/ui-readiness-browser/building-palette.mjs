@@ -6,6 +6,7 @@ import { resolve } from 'node:path'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 
 export default async function ({ page, context, output, url }) {
+  let timedOut = false
   const report = { status: 'running', observations: [], errors: [], limits: [
     'Baseline only at 1280x800/DPR1, using public Mission 1 startup and building controls.',
     'No native mapping proof, unlock injection, simulation mutation, or frame replacement.',
@@ -23,7 +24,7 @@ export default async function ({ page, context, output, url }) {
     await page.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
     await page.locator('.battlefield').waitFor({ state: 'visible' })
     await page.locator('.loading-world').waitFor({ state: 'hidden' })
-    cap = setTimeout(() => { report.status = 'timed-out'; save(); void context.close() }, 30_000)
+    cap = setTimeout(() => { timedOut = true; report.status = 'timed-out'; save(); void context.close() }, 30_000)
     const skip = page.getByRole('button', { name: /Skip introduction/ })
     await skip.click()
     await skip.waitFor({ state: 'hidden' })
@@ -76,8 +77,8 @@ export default async function ({ page, context, output, url }) {
     assert.ok(after.cards.every(card => card.pressed === 'false'), 'Disabled click selected a plan')
     assert.deepEqual(after.cards.map(card => card.disabled), normal.cards.map(card => card.disabled))
     assert.deepEqual(report.errors, [])
-    report.status = 'passed'
+    report.status = timedOut ? 'timed-out' : 'passed'
     return report
-  } catch (error) { report.status = 'failed'; report.error = String(error.stack); throw error }
+  } catch (error) { report.status = timedOut ? 'timed-out' : 'failed'; report.error = String(error.stack); throw error }
   finally { clearTimeout(cap); save() }
 }

@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 
 export default async function ({ page, context, output, url }) {
+  let timedOut = false
   const report = { status: 'running', cases: [], limits: [
     'Browser compatibility help, not native message-body layout or pixel parity.',
     'Public direct-mission selector exercises content context, not earned campaign progression.',
@@ -13,7 +14,7 @@ export default async function ({ page, context, output, url }) {
   const save = () => writeFileSync(resolve(output, 'contextual-help.json'), JSON.stringify(report, null, 2) + '\n')
   const owned = []
   const timer = setTimeout(() => {
-    report.status = 'timed-out'; save()
+    timedOut = true; report.status = 'timed-out'; save()
     void context.close()
     for (const scope of owned) void scope.close()
   }, 85_000)
@@ -77,8 +78,8 @@ export default async function ({ page, context, output, url }) {
       assert.deepEqual(row.errors, [])
       row.status = 'passed'; save()
     }
-    report.status = 'passed'
+    report.status = timedOut ? 'timed-out' : 'passed'
     return report
-  } catch (error) { report.status = 'failed'; report.error = String(error.stack); throw error }
+  } catch (error) { report.status = timedOut ? 'timed-out' : 'failed'; report.error = String(error.stack); throw error }
   finally { clearTimeout(timer); for (const scope of owned) await scope.close(); save() }
 }
