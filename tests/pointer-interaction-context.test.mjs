@@ -66,6 +66,13 @@ test('real pointer caller publishes movement, routed HUD/world and actual sharin
   const { GameScene } = await import('../app/scene.ts')
   const { updatePointerFrame, pointerMove } = await import('../app/scene-input-runtime.ts')
   const metrics = createPointerFrameMetrics(true)
+  const { FpsGraph } = await import('../app/fps-graph.ts')
+  const makeGraph = () => Object.assign(Object.create(FpsGraph.prototype), {
+    samples: new FramePerformance(), cleared: false, interactionEpoch: {}, text() {},
+    element: { remove() {} }, line: { setAttribute() {} }, budget: { setAttribute() {} },
+  })
+  const graph = makeGraph()
+  scene.fpsGraph = graph
   scene.navigationPointer = null
   scene.pointerScreen = { ...point }
   scene.pointerState = ''
@@ -78,7 +85,28 @@ test('real pointer caller publishes movement, routed HUD/world and actual sharin
   }
   assert.equal(sample().route, 'world')
   assert.equal(sample().pointerMoved, false)
-  pointerMove(scene, { ...point, clientX: point.clientX + 1, buttons: 0 })
+  for (const state of ['Paused · warming up', 'Hidden tab · sampling stopped', 'Warming up']) {
+    const oldRecording = graph.interactionRecording
+    graph.cleared = false // A resumed callback reactivates this same overlay.
+    graph.reset(state) // The blur/visibility handlers keep the graph instance.
+    assert.notEqual(graph.interactionRecording, oldRecording)
+    const resetRecording = graph.interactionRecording
+    graph.reset(state)
+    assert.equal(graph.interactionRecording, resetRecording, 'repeated hidden resets allocate no epochs')
+    scene.cameraBearing += 0.1
+    scene.pointerScreen.clientX += 1
+    const resumed = sample()
+    assert.equal(resumed.pointerMoved, null, 'first pointer after reset has no earlier recording baseline')
+    assert.equal(resumed.viewChanged, null)
+    assert.equal(sample().pointerMoved, false)
+    assert.equal(sample().viewChanged, false)
+  }
+  graph.dispose()
+  scene.fpsGraph = makeGraph()
+  const reopened = sample()
+  assert.equal(reopened.pointerMoved, null, 'F8 reopening cannot reuse the disposed recording')
+  assert.equal(reopened.viewChanged, null)
+  pointerMove(scene, { ...point, clientX: point.clientX + 2, buttons: 0 })
   assert.equal(sample().pointerMoved, true)
   scene.cameraBearing += 0.1
   assert.equal(sample().viewChanged, true)
