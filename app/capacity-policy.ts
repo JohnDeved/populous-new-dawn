@@ -2,6 +2,7 @@
 // fixtures retain classic limits; all new browser games use scalable.
 import type { World } from './world-types.ts'
 import { validateScalableMotionRoutes } from './person-routes.ts'
+import { residentPerson } from './building-resident.ts'
 
 export type CapacityMode = 'classic' | 'scalable'
 export interface CapacityPolicy {
@@ -59,7 +60,7 @@ export function restoreCapacityPolicy(world: World) {
         unit.flight,
         unit.entry?.person,
         unit.builder?.person,
-        unit.resident?.person,
+        residentPerson(world, unit),
         unit.fight?.motion,
       ]),
     ]),

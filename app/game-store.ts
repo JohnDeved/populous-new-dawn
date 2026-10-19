@@ -59,6 +59,8 @@ export function migrateCheckpoint(world: World) {
   syncLandscapeObjects(world)
   for (const shrine of world.shrines) initializeVaultKnowledge(shrine, world.outcome.level)
   for (const gift of world.gifts) initializeVaultKnowledgeGift(world, gift)
+  // Normalization must not orphan authoritative current-format pool ownership.
+  restoreCapacityPolicy(world)
   return world
 }
 

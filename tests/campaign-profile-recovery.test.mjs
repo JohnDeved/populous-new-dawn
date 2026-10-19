@@ -2,6 +2,9 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import { createWorld } from '../app/world-initialization.ts'
+import { createLivePerson } from '../app/live-people.ts'
+import { attachPersonRoute } from '../app/person-routes.ts'
+import { restoreCapacityPolicy } from '../app/capacity-policy.ts'
 
 // Synthetic IndexedDB boundary only: actual browser transaction behavior is a
 // separate integration gate. Clone reads like IndexedDB and record every write.
@@ -111,9 +114,14 @@ for (const [version, mode, missingPolicy] of [[1, 'classic', false], [1, 'classi
     })
   })
 
-for (const invalid of ['missing policy', 'missing route sidecar', 'invalid route sidecar', 'missing current secondary state', 'hidden stale shrine ID', 'unknown mode', 'stale reservation', 'negative references', 'undercounted owners', 'overcounted owners'])
+for (const invalid of ['detached resident route owner', 'missing policy', 'missing route sidecar', 'invalid route sidecar', 'missing current secondary state', 'hidden stale shrine ID', 'unknown mode', 'stale reservation', 'negative references', 'undercounted owners', 'overcounted owners'])
   test(`v3 ${invalid} rejects without suppressing campaign progress or rewriting storage`, async () => {
     const world = createWorld(1, 'scalable')
+    if (invalid === 'detached resident route owner') {
+      const unit = world.units.find(u => u.native), person = createLivePerson(world, unit)
+      attachPersonRoute(world.motionRoutes, person, 1)
+      unit.resident = { building: -1, slot: 0, person }
+    }
     if (invalid === 'missing policy') delete world.capacityPolicy
     if (invalid === 'missing route sidecar') delete world.motionRoutes.references
     if (invalid === 'invalid route sidecar') world.motionRoutes.references[1] = 1
@@ -186,4 +194,32 @@ test('storage read failure retains in-session progress and checkpoint', async ()
     assert.deepEqual(records, before)
     assert.equal(writes.length, writeCount)
   }, { failRead: true })
+})
+
+
+test('Save rejects detached invalid resident ownership before mutation; a live same-object alias remains valid', async () => {
+  await withStorage({ profile }, async ({ createGameStore, records, writes }) => {
+    const store = createGameStore()
+    assert.equal(await store.saveCheckpoint(), true)
+    const world = store.getWorld(), unit = world.units.find(u => u.native), person = createLivePerson(world, unit)
+    attachPersonRoute(world.motionRoutes, person, 1)
+    unit.resident = { building: -1, slot: 0, person }
+    const beforeWorld = structuredClone(world), beforeRecords = structuredClone(records), writeCount = writes.length
+    await assert.rejects(store.saveCheckpoint(), /motion-route ownership/)
+    assert.deepEqual(world, beforeWorld, 'reject before normalization, release or count reconstruction')
+    assert.deepEqual(records, beforeRecords)
+    assert.equal(writes.length, writeCount)
+    assert.equal(store.loadCheckpoint(), true, 'prior committed checkpoint remains usable')
+
+    const restored = store.getWorld(), liveUnit = restored.units.find(u => u.native), live = liveUnit.native
+    attachPersonRoute(restored.motionRoutes, live, 1)
+    liveUnit.resident = { building: -1, slot: 0, person: live }
+    assert.doesNotThrow(() => restoreCapacityPolicy(restored), 'native/registry aliases still own the route')
+    assert.equal(await store.saveCheckpoint(), true)
+    assert.equal(store.loadCheckpoint(), true)
+    const loaded = store.getWorld()
+    assert.equal(loaded.units.find(u => u.id === liveUnit.id).resident, undefined)
+    assert.equal(loaded.motionRoutes.references[1], 1)
+    assert.doesNotThrow(() => restoreCapacityPolicy(loaded))
+  })
 })
