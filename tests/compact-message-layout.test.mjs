@@ -1,12 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { runInNewContext } from 'node:vm'
 import {
   assertCompactMessageWitness,
   compactMessageCases,
   diagnosticMetricIds,
 } from '../scripts/tutorial-browser/compact-message-layout.mjs'
-import { m2FunctionalLimitMs } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
+import { m2DiagnosticLayout, m2FunctionalLimitMs } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import { hudScale } from '../app/hud-layout.ts'
 import { pickingPathMetricIds, pickingPathViewports } from '../scripts/tutorial-browser/picking-path-readout.mjs'
@@ -64,6 +65,84 @@ function clearWitness() {
     },
   }
 }
+
+test('serialized diagnostic layout excludes only explicitly collapsed picking rows', () => {
+  const good = clearWitness()
+  const node = bounds => ({
+    bounds,
+    clientWidth: bounds.right - bounds.left,
+    clientHeight: bounds.bottom - bounds.top,
+    scrollWidth: bounds.right - bounds.left,
+    scrollHeight: bounds.bottom - bounds.top,
+    getBoundingClientRect() { return this.bounds },
+    getClientRects() { return this.bounds.right > this.bounds.left ? [this.bounds] : [] },
+  })
+  const zero = box(0, 0, 0, 0), rowBounds = box(435, 140, 654, 157)
+  const picking = { hidden: true }
+  const mandatory = Array.from({ length: 15 }, () => ({ ...node(rowBounds), closest: () => null }))
+  const optional = pickingPathMetricIds.slice(1).map(() => ({
+    ...node(zero),
+    closest(selector) {
+      assert.equal(selector, '.fps-picking[hidden]')
+      return picking.hidden ? picking : null
+    },
+  }))
+  const pause = { ...node(good.layout.pause), textContent: good.layout.pauseText }
+  pause.closest = selector => selector === '.paused-badge' ? pause : null
+  const exportButton = node(box(435, 270, 550, 290))
+  const exportStatus = node(box(435, 294, 550, 310))
+  const close = node(box(380, 245, 405, 265))
+  const campaign = {
+    ...node(good.layout.campaignPanels[0]),
+    querySelector: selector => selector === 'p' ? { textContent: 'Authored campaign text' } : close,
+  }
+  const overlay = {
+    ...node(good.layout),
+    querySelector: selector => ({
+      '.fps-export': exportButton,
+      '[data-metric="export-status"]': exportStatus,
+      '[data-metric="pointer-tail"]': { textContent: good.layout.pointerTail },
+    })[selector],
+    querySelectorAll: selector => {
+      assert.equal(selector, 'dl > div')
+      return [...mandatory, ...optional]
+    },
+  }
+  // Execute the actual page-serialized witness, not a fixture's rowsFit result.
+  // DOM geometry is controlled here; rendered CSS remains a separate browser gate.
+  const readLayout = runInNewContext(`(${m2DiagnosticLayout.toString()})`, {
+    innerWidth: 900,
+    getComputedStyle: () => ({ visibility: 'visible', pointerEvents: 'none' }),
+    document: {
+      documentElement: { scrollWidth: 900 },
+      querySelector: selector => selector === 'button.paused-badge' ? pause : null,
+      querySelectorAll: selector => selector === '.campaign-messages details[open]>div' ? [campaign] : [],
+      elementFromPoint: (x, y) => [pause, exportButton, close].find(({ bounds: r }) =>
+        x >= r.left && x <= r.right && y >= r.top && y <= r.bottom),
+    },
+  })
+  const layout = () => readLayout(overlay)
+  assert.equal(optional.length, 4)
+  assertCompactMessageWitness(layout(), good.witness, 900, 360)
+  for (const damaged of [zero, box(427, 140, 654, 157), box(435, 140, 893, 157),
+    box(435, 7, 654, 157), box(435, 140, 654, 318)]) {
+    mandatory[0].bounds = damaged
+    assert.equal(layout().rowsFit, false, 'mandatory hidden or out-of-panel rows cannot be skipped')
+  }
+  mandatory[0].bounds = rowBounds
+  mandatory[0].scrollWidth++
+  assert.equal(layout().rowsFit, false, 'mandatory horizontal clipping must still fail')
+  mandatory[0].scrollWidth--
+  picking.hidden = false
+  assert.equal(layout().rowsFit, false, 'unhidden optional rows must have visible in-panel geometry')
+  for (const row of optional) Object.assign(row, node(rowBounds))
+  assert.equal(layout().rowsFit, true, 'expanded optional rows are measured too')
+  optional[0].bounds = box(435, 140, 893, 157)
+  assert.equal(layout().rowsFit, false, 'expanded optional rows cannot escape panel bounds')
+  optional[0].bounds = rowBounds
+  optional[0].scrollWidth++
+  assert.equal(layout().rowsFit, false, 'expanded optional horizontal clipping must still fail')
+})
 
 test('compact message acceptance rejects status occlusion, clipping, missing content and unreachable controls', () => {
   const good = clearWitness()

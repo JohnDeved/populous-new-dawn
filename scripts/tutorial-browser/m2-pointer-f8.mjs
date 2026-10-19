@@ -594,6 +594,9 @@ export function m2DiagnosticLayout(el) {
     overflow: document.documentElement.scrollWidth > innerWidth,
     events: getComputedStyle(el).pointerEvents,
     rowsFit: [...el.querySelectorAll('dl > div')].every(row => {
+      // Optional picking rows remain in the DOM while explicitly collapsed.
+      // Do not skip other hidden rows: mandatory diagnostics must still fit.
+      if (row.closest('.fps-picking[hidden]')) return true
       const bounds = row.getBoundingClientRect()
       return (
         bounds.left >= r.left &&
