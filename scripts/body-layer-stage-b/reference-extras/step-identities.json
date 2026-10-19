@@ -1,0 +1,906 @@
+{
+  "camera-baseline": [
+    {
+      "previous": 100000,
+      "preTurn": 70,
+      "preStep": 0,
+      "turn": 70,
+      "step": 1,
+      "now": 100016.66666666667
+    },
+    {
+      "previous": 100016.66666666667,
+      "preTurn": 70,
+      "preStep": 1,
+      "turn": 70,
+      "step": 2,
+      "now": 100033.33333333333
+    },
+    {
+      "previous": 100033.33333333333,
+      "preTurn": 70,
+      "preStep": 2,
+      "turn": 70,
+      "step": 3,
+      "now": 100050
+    },
+    {
+      "previous": 100050,
+      "preTurn": 70,
+      "preStep": 3,
+      "turn": 70,
+      "step": 4,
+      "now": 100066.66666666667
+    },
+    {
+      "previous": 100066.66666666667,
+      "preTurn": 70,
+      "preStep": 4,
+      "turn": 70,
+      "step": 5,
+      "now": 100083.33333333333
+    },
+    {
+      "previous": 100083.33333333333,
+      "preTurn": 70,
+      "preStep": 5,
+      "turn": 70,
+      "step": 6,
+      "now": 100100
+    },
+    {
+      "previous": 100100,
+      "preTurn": 70,
+      "preStep": 6,
+      "turn": 70,
+      "step": 7,
+      "now": 100116.66666666667
+    },
+    {
+      "previous": 100116.66666666667,
+      "preTurn": 70,
+      "preStep": 7,
+      "turn": 70,
+      "step": 8,
+      "now": 100133.33333333333
+    },
+    {
+      "previous": 100133.33333333333,
+      "preTurn": 70,
+      "preStep": 8,
+      "turn": 70,
+      "step": 9,
+      "now": 100150
+    },
+    {
+      "previous": 100150,
+      "preTurn": 70,
+      "preStep": 9,
+      "turn": 70,
+      "step": 10,
+      "now": 100166.66666666667
+    },
+    {
+      "previous": 100166.66666666667,
+      "preTurn": 70,
+      "preStep": 10,
+      "turn": 70,
+      "step": 11,
+      "now": 100183.33333333333
+    },
+    {
+      "previous": 100183.33333333333,
+      "preTurn": 70,
+      "preStep": 11,
+      "turn": 70,
+      "step": 12,
+      "now": 100200
+    },
+    {
+      "previous": 100200,
+      "preTurn": 70,
+      "preStep": 12,
+      "turn": 70,
+      "step": 13,
+      "now": 100216.66666666667
+    },
+    {
+      "previous": 100216.66666666667,
+      "preTurn": 70,
+      "preStep": 13,
+      "turn": 70,
+      "step": 14,
+      "now": 100233.33333333333
+    },
+    {
+      "previous": 100233.33333333333,
+      "preTurn": 70,
+      "preStep": 14,
+      "turn": 70,
+      "step": 15,
+      "now": 100250
+    },
+    {
+      "previous": 100250,
+      "preTurn": 70,
+      "preStep": 15,
+      "turn": 70,
+      "step": 16,
+      "now": 100266.66666666667
+    },
+    {
+      "previous": 100266.66666666667,
+      "preTurn": 70,
+      "preStep": 16,
+      "turn": 70,
+      "step": 17,
+      "now": 100283.33333333333
+    },
+    {
+      "previous": 100283.33333333333,
+      "preTurn": 70,
+      "preStep": 17,
+      "turn": 70,
+      "step": 18,
+      "now": 100300
+    },
+    {
+      "previous": 100300,
+      "preTurn": 70,
+      "preStep": 18,
+      "turn": 70,
+      "step": 19,
+      "now": 100316.66666666667
+    },
+    {
+      "previous": 100316.66666666667,
+      "preTurn": 70,
+      "preStep": 19,
+      "turn": 70,
+      "step": 20,
+      "now": 100333.33333333333
+    },
+    {
+      "previous": 100333.33333333333,
+      "preTurn": 70,
+      "preStep": 20,
+      "turn": 70,
+      "step": 21,
+      "now": 100350
+    },
+    {
+      "previous": 100350,
+      "preTurn": 70,
+      "preStep": 21,
+      "turn": 70,
+      "step": 22,
+      "now": 100366.66666666667
+    },
+    {
+      "previous": 100366.66666666667,
+      "preTurn": 70,
+      "preStep": 22,
+      "turn": 70,
+      "step": 23,
+      "now": 100383.33333333333
+    },
+    {
+      "previous": 100383.33333333333,
+      "preTurn": 70,
+      "preStep": 23,
+      "turn": 70,
+      "step": 24,
+      "now": 100400
+    },
+    {
+      "previous": 100400,
+      "preTurn": 70,
+      "preStep": 24,
+      "turn": 70,
+      "step": 25,
+      "now": 100416.66666666667
+    },
+    {
+      "previous": 100416.66666666667,
+      "preTurn": 70,
+      "preStep": 25,
+      "turn": 70,
+      "step": 26,
+      "now": 100433.33333333333
+    },
+    {
+      "previous": 100433.33333333333,
+      "preTurn": 70,
+      "preStep": 26,
+      "turn": 70,
+      "step": 27,
+      "now": 100450
+    },
+    {
+      "previous": 100450,
+      "preTurn": 70,
+      "preStep": 27,
+      "turn": 70,
+      "step": 28,
+      "now": 100466.66666666667
+    }
+  ],
+  "camera-candidate": [
+    {
+      "previous": 100000,
+      "preTurn": 70,
+      "preStep": 0,
+      "turn": 70,
+      "step": 1,
+      "now": 100016.66666666667
+    },
+    {
+      "previous": 100016.66666666667,
+      "preTurn": 70,
+      "preStep": 1,
+      "turn": 70,
+      "step": 2,
+      "now": 100033.33333333333
+    },
+    {
+      "previous": 100033.33333333333,
+      "preTurn": 70,
+      "preStep": 2,
+      "turn": 70,
+      "step": 3,
+      "now": 100050
+    },
+    {
+      "previous": 100050,
+      "preTurn": 70,
+      "preStep": 3,
+      "turn": 70,
+      "step": 4,
+      "now": 100066.66666666667
+    },
+    {
+      "previous": 100066.66666666667,
+      "preTurn": 70,
+      "preStep": 4,
+      "turn": 70,
+      "step": 5,
+      "now": 100083.33333333333
+    },
+    {
+      "previous": 100083.33333333333,
+      "preTurn": 70,
+      "preStep": 5,
+      "turn": 70,
+      "step": 6,
+      "now": 100100
+    },
+    {
+      "previous": 100100,
+      "preTurn": 70,
+      "preStep": 6,
+      "turn": 70,
+      "step": 7,
+      "now": 100116.66666666667
+    },
+    {
+      "previous": 100116.66666666667,
+      "preTurn": 70,
+      "preStep": 7,
+      "turn": 70,
+      "step": 8,
+      "now": 100133.33333333333
+    },
+    {
+      "previous": 100133.33333333333,
+      "preTurn": 70,
+      "preStep": 8,
+      "turn": 70,
+      "step": 9,
+      "now": 100150
+    },
+    {
+      "previous": 100150,
+      "preTurn": 70,
+      "preStep": 9,
+      "turn": 70,
+      "step": 10,
+      "now": 100166.66666666667
+    },
+    {
+      "previous": 100166.66666666667,
+      "preTurn": 70,
+      "preStep": 10,
+      "turn": 70,
+      "step": 11,
+      "now": 100183.33333333333
+    },
+    {
+      "previous": 100183.33333333333,
+      "preTurn": 70,
+      "preStep": 11,
+      "turn": 70,
+      "step": 12,
+      "now": 100200
+    },
+    {
+      "previous": 100200,
+      "preTurn": 70,
+      "preStep": 12,
+      "turn": 70,
+      "step": 13,
+      "now": 100216.66666666667
+    },
+    {
+      "previous": 100216.66666666667,
+      "preTurn": 70,
+      "preStep": 13,
+      "turn": 70,
+      "step": 14,
+      "now": 100233.33333333333
+    },
+    {
+      "previous": 100233.33333333333,
+      "preTurn": 70,
+      "preStep": 14,
+      "turn": 70,
+      "step": 15,
+      "now": 100250
+    },
+    {
+      "previous": 100250,
+      "preTurn": 70,
+      "preStep": 15,
+      "turn": 70,
+      "step": 16,
+      "now": 100266.66666666667
+    },
+    {
+      "previous": 100266.66666666667,
+      "preTurn": 70,
+      "preStep": 16,
+      "turn": 70,
+      "step": 17,
+      "now": 100283.33333333333
+    },
+    {
+      "previous": 100283.33333333333,
+      "preTurn": 70,
+      "preStep": 17,
+      "turn": 70,
+      "step": 18,
+      "now": 100300
+    },
+    {
+      "previous": 100300,
+      "preTurn": 70,
+      "preStep": 18,
+      "turn": 70,
+      "step": 19,
+      "now": 100316.66666666667
+    },
+    {
+      "previous": 100316.66666666667,
+      "preTurn": 70,
+      "preStep": 19,
+      "turn": 70,
+      "step": 20,
+      "now": 100333.33333333333
+    },
+    {
+      "previous": 100333.33333333333,
+      "preTurn": 70,
+      "preStep": 20,
+      "turn": 70,
+      "step": 21,
+      "now": 100350
+    },
+    {
+      "previous": 100350,
+      "preTurn": 70,
+      "preStep": 21,
+      "turn": 70,
+      "step": 22,
+      "now": 100366.66666666667
+    },
+    {
+      "previous": 100366.66666666667,
+      "preTurn": 70,
+      "preStep": 22,
+      "turn": 70,
+      "step": 23,
+      "now": 100383.33333333333
+    },
+    {
+      "previous": 100383.33333333333,
+      "preTurn": 70,
+      "preStep": 23,
+      "turn": 70,
+      "step": 24,
+      "now": 100400
+    },
+    {
+      "previous": 100400,
+      "preTurn": 70,
+      "preStep": 24,
+      "turn": 70,
+      "step": 25,
+      "now": 100416.66666666667
+    },
+    {
+      "previous": 100416.66666666667,
+      "preTurn": 70,
+      "preStep": 25,
+      "turn": 70,
+      "step": 26,
+      "now": 100433.33333333333
+    },
+    {
+      "previous": 100433.33333333333,
+      "preTurn": 70,
+      "preStep": 26,
+      "turn": 70,
+      "step": 27,
+      "now": 100450
+    },
+    {
+      "previous": 100450,
+      "preTurn": 70,
+      "preStep": 27,
+      "turn": 70,
+      "step": 28,
+      "now": 100466.66666666667
+    }
+  ],
+  "animation-baseline": [
+    {
+      "previous": 100000,
+      "preTurn": 70,
+      "preStep": 0,
+      "turn": 70,
+      "step": 1,
+      "now": 100016.66666666667
+    },
+    {
+      "previous": 100016.66666666667,
+      "preTurn": 70,
+      "preStep": 1,
+      "turn": 70,
+      "step": 2,
+      "now": 100033.33333333333
+    },
+    {
+      "previous": 100033.33333333333,
+      "preTurn": 70,
+      "preStep": 2,
+      "turn": 70,
+      "step": 3,
+      "now": 100050
+    },
+    {
+      "previous": 100050,
+      "preTurn": 70,
+      "preStep": 3,
+      "turn": 70,
+      "step": 4,
+      "now": 100066.66666666667
+    },
+    {
+      "previous": 100066.66666666667,
+      "preTurn": 70,
+      "preStep": 4,
+      "turn": 71,
+      "step": 5,
+      "now": 100083.33333333333
+    },
+    {
+      "previous": 100083.33333333333,
+      "preTurn": 71,
+      "preStep": 5,
+      "turn": 71,
+      "step": 6,
+      "now": 100100
+    },
+    {
+      "previous": 100100,
+      "preTurn": 71,
+      "preStep": 6,
+      "turn": 71,
+      "step": 7,
+      "now": 100116.66666666667
+    },
+    {
+      "previous": 100116.66666666667,
+      "preTurn": 71,
+      "preStep": 7,
+      "turn": 71,
+      "step": 8,
+      "now": 100133.33333333333
+    },
+    {
+      "previous": 100133.33333333333,
+      "preTurn": 71,
+      "preStep": 8,
+      "turn": 71,
+      "step": 9,
+      "now": 100150
+    },
+    {
+      "previous": 100150,
+      "preTurn": 71,
+      "preStep": 9,
+      "turn": 72,
+      "step": 10,
+      "now": 100166.66666666667
+    },
+    {
+      "previous": 100166.66666666667,
+      "preTurn": 72,
+      "preStep": 10,
+      "turn": 72,
+      "step": 11,
+      "now": 100183.33333333333
+    },
+    {
+      "previous": 100183.33333333333,
+      "preTurn": 72,
+      "preStep": 11,
+      "turn": 72,
+      "step": 12,
+      "now": 100200
+    },
+    {
+      "previous": 100200,
+      "preTurn": 72,
+      "preStep": 12,
+      "turn": 72,
+      "step": 13,
+      "now": 100216.66666666667
+    },
+    {
+      "previous": 100216.66666666667,
+      "preTurn": 72,
+      "preStep": 13,
+      "turn": 72,
+      "step": 14,
+      "now": 100233.33333333333
+    },
+    {
+      "previous": 100233.33333333333,
+      "preTurn": 72,
+      "preStep": 14,
+      "turn": 73,
+      "step": 15,
+      "now": 100250
+    },
+    {
+      "previous": 100250,
+      "preTurn": 73,
+      "preStep": 15,
+      "turn": 73,
+      "step": 16,
+      "now": 100266.66666666667
+    },
+    {
+      "previous": 100266.66666666667,
+      "preTurn": 73,
+      "preStep": 16,
+      "turn": 73,
+      "step": 17,
+      "now": 100283.33333333333
+    },
+    {
+      "previous": 100283.33333333333,
+      "preTurn": 73,
+      "preStep": 17,
+      "turn": 73,
+      "step": 18,
+      "now": 100300
+    },
+    {
+      "previous": 100300,
+      "preTurn": 73,
+      "preStep": 18,
+      "turn": 73,
+      "step": 19,
+      "now": 100316.66666666667
+    },
+    {
+      "previous": 100316.66666666667,
+      "preTurn": 73,
+      "preStep": 19,
+      "turn": 74,
+      "step": 20,
+      "now": 100333.33333333333
+    },
+    {
+      "previous": 100333.33333333333,
+      "preTurn": 74,
+      "preStep": 20,
+      "turn": 74,
+      "step": 21,
+      "now": 100350
+    },
+    {
+      "previous": 100350,
+      "preTurn": 74,
+      "preStep": 21,
+      "turn": 74,
+      "step": 22,
+      "now": 100366.66666666667
+    },
+    {
+      "previous": 100366.66666666667,
+      "preTurn": 74,
+      "preStep": 22,
+      "turn": 74,
+      "step": 23,
+      "now": 100383.33333333333
+    },
+    {
+      "previous": 100383.33333333333,
+      "preTurn": 74,
+      "preStep": 23,
+      "turn": 74,
+      "step": 24,
+      "now": 100400
+    },
+    {
+      "previous": 100400,
+      "preTurn": 74,
+      "preStep": 24,
+      "turn": 75,
+      "step": 25,
+      "now": 100416.66666666667
+    },
+    {
+      "previous": 100416.66666666667,
+      "preTurn": 75,
+      "preStep": 25,
+      "turn": 75,
+      "step": 26,
+      "now": 100433.33333333333
+    },
+    {
+      "previous": 100433.33333333333,
+      "preTurn": 75,
+      "preStep": 26,
+      "turn": 75,
+      "step": 27,
+      "now": 100450
+    },
+    {
+      "previous": 100450,
+      "preTurn": 75,
+      "preStep": 27,
+      "turn": 75,
+      "step": 28,
+      "now": 100466.66666666667
+    }
+  ],
+  "animation-candidate": [
+    {
+      "previous": 100000,
+      "preTurn": 70,
+      "preStep": 0,
+      "turn": 70,
+      "step": 1,
+      "now": 100016.66666666667
+    },
+    {
+      "previous": 100016.66666666667,
+      "preTurn": 70,
+      "preStep": 1,
+      "turn": 70,
+      "step": 2,
+      "now": 100033.33333333333
+    },
+    {
+      "previous": 100033.33333333333,
+      "preTurn": 70,
+      "preStep": 2,
+      "turn": 70,
+      "step": 3,
+      "now": 100050
+    },
+    {
+      "previous": 100050,
+      "preTurn": 70,
+      "preStep": 3,
+      "turn": 70,
+      "step": 4,
+      "now": 100066.66666666667
+    },
+    {
+      "previous": 100066.66666666667,
+      "preTurn": 70,
+      "preStep": 4,
+      "turn": 71,
+      "step": 5,
+      "now": 100083.33333333333
+    },
+    {
+      "previous": 100083.33333333333,
+      "preTurn": 71,
+      "preStep": 5,
+      "turn": 71,
+      "step": 6,
+      "now": 100100
+    },
+    {
+      "previous": 100100,
+      "preTurn": 71,
+      "preStep": 6,
+      "turn": 71,
+      "step": 7,
+      "now": 100116.66666666667
+    },
+    {
+      "previous": 100116.66666666667,
+      "preTurn": 71,
+      "preStep": 7,
+      "turn": 71,
+      "step": 8,
+      "now": 100133.33333333333
+    },
+    {
+      "previous": 100133.33333333333,
+      "preTurn": 71,
+      "preStep": 8,
+      "turn": 71,
+      "step": 9,
+      "now": 100150
+    },
+    {
+      "previous": 100150,
+      "preTurn": 71,
+      "preStep": 9,
+      "turn": 72,
+      "step": 10,
+      "now": 100166.66666666667
+    },
+    {
+      "previous": 100166.66666666667,
+      "preTurn": 72,
+      "preStep": 10,
+      "turn": 72,
+      "step": 11,
+      "now": 100183.33333333333
+    },
+    {
+      "previous": 100183.33333333333,
+      "preTurn": 72,
+      "preStep": 11,
+      "turn": 72,
+      "step": 12,
+      "now": 100200
+    },
+    {
+      "previous": 100200,
+      "preTurn": 72,
+      "preStep": 12,
+      "turn": 72,
+      "step": 13,
+      "now": 100216.66666666667
+    },
+    {
+      "previous": 100216.66666666667,
+      "preTurn": 72,
+      "preStep": 13,
+      "turn": 72,
+      "step": 14,
+      "now": 100233.33333333333
+    },
+    {
+      "previous": 100233.33333333333,
+      "preTurn": 72,
+      "preStep": 14,
+      "turn": 73,
+      "step": 15,
+      "now": 100250
+    },
+    {
+      "previous": 100250,
+      "preTurn": 73,
+      "preStep": 15,
+      "turn": 73,
+      "step": 16,
+      "now": 100266.66666666667
+    },
+    {
+      "previous": 100266.66666666667,
+      "preTurn": 73,
+      "preStep": 16,
+      "turn": 73,
+      "step": 17,
+      "now": 100283.33333333333
+    },
+    {
+      "previous": 100283.33333333333,
+      "preTurn": 73,
+      "preStep": 17,
+      "turn": 73,
+      "step": 18,
+      "now": 100300
+    },
+    {
+      "previous": 100300,
+      "preTurn": 73,
+      "preStep": 18,
+      "turn": 73,
+      "step": 19,
+      "now": 100316.66666666667
+    },
+    {
+      "previous": 100316.66666666667,
+      "preTurn": 73,
+      "preStep": 19,
+      "turn": 74,
+      "step": 20,
+      "now": 100333.33333333333
+    },
+    {
+      "previous": 100333.33333333333,
+      "preTurn": 74,
+      "preStep": 20,
+      "turn": 74,
+      "step": 21,
+      "now": 100350
+    },
+    {
+      "previous": 100350,
+      "preTurn": 74,
+      "preStep": 21,
+      "turn": 74,
+      "step": 22,
+      "now": 100366.66666666667
+    },
+    {
+      "previous": 100366.66666666667,
+      "preTurn": 74,
+      "preStep": 22,
+      "turn": 74,
+      "step": 23,
+      "now": 100383.33333333333
+    },
+    {
+      "previous": 100383.33333333333,
+      "preTurn": 74,
+      "preStep": 23,
+      "turn": 74,
+      "step": 24,
+      "now": 100400
+    },
+    {
+      "previous": 100400,
+      "preTurn": 74,
+      "preStep": 24,
+      "turn": 75,
+      "step": 25,
+      "now": 100416.66666666667
+    },
+    {
+      "previous": 100416.66666666667,
+      "preTurn": 75,
+      "preStep": 25,
+      "turn": 75,
+      "step": 26,
+      "now": 100433.33333333333
+    },
+    {
+      "previous": 100433.33333333333,
+      "preTurn": 75,
+      "preStep": 26,
+      "turn": 75,
+      "step": 27,
+      "now": 100450
+    },
+    {
+      "previous": 100450,
+      "preTurn": 75,
+      "preStep": 27,
+      "turn": 75,
+      "step": 28,
+      "now": 100466.66666666667
+    }
+  ]
+}

@@ -1,0 +1,1170 @@
+{
+  "rows": [
+    {
+      "index": 0,
+      "name": "step-0",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 1,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33009
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 1,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 1,
+      "name": "step-1",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 2,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33009
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 2,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 2,
+      "name": "step-2",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 3,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33009
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 3,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 3,
+      "name": "step-3",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 4,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33009
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 4,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 4,
+      "name": "step-4",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 5,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33009
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 5,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 5,
+      "name": "step-5",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 6,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33009
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 6,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 6,
+      "name": "step-6",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 7,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33009
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 7,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 7,
+      "name": "step-7",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 8,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33009
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 8,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 8,
+      "name": "step-8",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 9,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33009
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 9,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 9,
+      "name": "step-9",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 10,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33009
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 10,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 10,
+      "name": "step-10",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 11,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 11,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 11,
+      "name": "step-11",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 12,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 12,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 12,
+      "name": "step-12",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 13,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 13,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 13,
+      "name": "step-13",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 14,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 14,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 14,
+      "name": "step-14",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 15,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 15,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 15,
+      "name": "step-15",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 16,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 16,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 16,
+      "name": "step-16",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 17,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 17,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 17,
+      "name": "step-17",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 18,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 18,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 18,
+      "name": "step-18",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 19,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 19,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 19,
+      "name": "step-19",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 20,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 20,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 20,
+      "name": "step-20",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 21,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 21,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 21,
+      "name": "step-21",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 22,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 22,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 22,
+      "name": "step-22",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 23,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 23,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 23,
+      "name": "step-23",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 24,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 24,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 24,
+      "name": "step-24",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 25,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 25,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 25,
+      "name": "step-25",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 26,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 26,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 26,
+      "name": "step-26",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 27,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 27,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 27,
+      "name": "step-27",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 28,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 28,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 28,
+      "name": "step-28",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 29,
+          "lines": 0,
+          "points": 0,
+          "triangles": 33015
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 29,
+          "lines": 0,
+          "points": 0,
+          "triangles": 32939
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 29,
+      "name": "overview",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 124,
+          "frame": 30,
+          "lines": 0,
+          "points": 0,
+          "triangles": 298551
+        },
+        "candidate": {
+          "calls": 124,
+          "frame": 30,
+          "lines": 0,
+          "points": 0,
+          "triangles": 298551
+        }
+      },
+      "actualCallReduction": 0
+    },
+    {
+      "index": 30,
+      "name": "return",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 31,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28087
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 31,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28011
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 31,
+      "name": "blended",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 32,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28087
+        },
+        "candidate": {
+          "calls": 91,
+          "frame": 32,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28017
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 32,
+      "name": "opaque-return",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 33,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28087
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 33,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28011
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 33,
+      "name": "hidden",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 34,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28081
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 34,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28011
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 34,
+      "name": "shown",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 35,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28087
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 35,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28011
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 35,
+      "name": "removed",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 36,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28081
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 36,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28011
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 36,
+      "name": "recreated",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 37,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28087
+        },
+        "candidate": {
+          "calls": 88,
+          "frame": 37,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28011
+        }
+      },
+      "actualCallReduction": 38
+    },
+    {
+      "index": 37,
+      "name": "override",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 124,
+          "frame": 38,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28085
+        },
+        "candidate": {
+          "calls": 124,
+          "frame": 38,
+          "lines": 0,
+          "points": 0,
+          "triangles": 28085
+        }
+      },
+      "actualCallReduction": 0
+    },
+    {
+      "index": 38,
+      "name": "shared-points",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 127,
+          "frame": 39,
+          "lines": 0,
+          "points": 1,
+          "triangles": 28087
+        },
+        "candidate": {
+          "calls": 90,
+          "frame": 39,
+          "lines": 0,
+          "points": 1,
+          "triangles": 28013
+        }
+      },
+      "actualCallReduction": 37
+    },
+    {
+      "index": 39,
+      "name": "ignored-points",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 127,
+          "frame": 40,
+          "lines": 0,
+          "points": 1,
+          "triangles": 28087
+        },
+        "candidate": {
+          "calls": 90,
+          "frame": 40,
+          "lines": 0,
+          "points": 1,
+          "triangles": 28013
+        }
+      },
+      "actualCallReduction": 37
+    },
+    {
+      "index": 40,
+      "name": "points-hook",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 127,
+          "frame": 41,
+          "lines": 0,
+          "points": 1,
+          "triangles": 28087
+        },
+        "candidate": {
+          "calls": 127,
+          "frame": 41,
+          "lines": 0,
+          "points": 1,
+          "triangles": 28087
+        }
+      },
+      "actualCallReduction": 0
+    },
+    {
+      "index": 41,
+      "name": "overview",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 124,
+          "frame": 42,
+          "lines": 0,
+          "points": 0,
+          "triangles": 298551
+        },
+        "candidate": {
+          "calls": 124,
+          "frame": 42,
+          "lines": 0,
+          "points": 0,
+          "triangles": 298551
+        }
+      },
+      "actualCallReduction": 0
+    },
+    {
+      "index": 42,
+      "name": "return",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 43,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36615
+        },
+        "candidate": {
+          "calls": 91,
+          "frame": 43,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36545
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 43,
+      "name": "blended",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 44,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36615
+        },
+        "candidate": {
+          "calls": 94,
+          "frame": 44,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36551
+        }
+      },
+      "actualCallReduction": 32
+    },
+    {
+      "index": 44,
+      "name": "opaque-return",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 45,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36615
+        },
+        "candidate": {
+          "calls": 91,
+          "frame": 45,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36545
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 45,
+      "name": "hidden",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 46,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36609
+        },
+        "candidate": {
+          "calls": 91,
+          "frame": 46,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36545
+        }
+      },
+      "actualCallReduction": 32
+    },
+    {
+      "index": 46,
+      "name": "shown",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 47,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36615
+        },
+        "candidate": {
+          "calls": 91,
+          "frame": 47,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36545
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 47,
+      "name": "removed",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 123,
+          "frame": 48,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36609
+        },
+        "candidate": {
+          "calls": 91,
+          "frame": 48,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36545
+        }
+      },
+      "actualCallReduction": 32
+    },
+    {
+      "index": 48,
+      "name": "recreated",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 126,
+          "frame": 49,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36615
+        },
+        "candidate": {
+          "calls": 91,
+          "frame": 49,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36545
+        }
+      },
+      "actualCallReduction": 35
+    },
+    {
+      "index": 49,
+      "name": "override",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 124,
+          "frame": 50,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36613
+        },
+        "candidate": {
+          "calls": 124,
+          "frame": 50,
+          "lines": 0,
+          "points": 0,
+          "triangles": 36613
+        }
+      },
+      "actualCallReduction": 0
+    },
+    {
+      "index": 50,
+      "name": "shared-points",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 127,
+          "frame": 51,
+          "lines": 0,
+          "points": 1,
+          "triangles": 36615
+        },
+        "candidate": {
+          "calls": 93,
+          "frame": 51,
+          "lines": 0,
+          "points": 1,
+          "triangles": 36547
+        }
+      },
+      "actualCallReduction": 34
+    },
+    {
+      "index": 51,
+      "name": "ignored-points",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 127,
+          "frame": 52,
+          "lines": 0,
+          "points": 1,
+          "triangles": 36615
+        },
+        "candidate": {
+          "calls": 93,
+          "frame": 52,
+          "lines": 0,
+          "points": 1,
+          "triangles": 36547
+        }
+      },
+      "actualCallReduction": 34
+    },
+    {
+      "index": 52,
+      "name": "points-hook",
+      "status": "passed",
+      "counters": {
+        "baseline": {
+          "calls": 127,
+          "frame": 53,
+          "lines": 0,
+          "points": 1,
+          "triangles": 36615
+        },
+        "candidate": {
+          "calls": 127,
+          "frame": 53,
+          "lines": 0,
+          "points": 1,
+          "triangles": 36615
+        }
+      },
+      "actualCallReduction": 0
+    }
+  ]
+}

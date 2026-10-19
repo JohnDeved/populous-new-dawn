@@ -1,0 +1,12 @@
+{
+  "status": "qualified-offline-proof",
+  "hostedWorkflowPassed": false,
+  "finalDriverDriftCheck": "not-executed",
+  "run": 39179366443,
+  "protocol": {
+    "baseline": "e1b468a9b8a355bd46fb149a1100b43442898b1e",
+    "candidate": "0d9ae8b299b613fc729e3c7d05c5e9a06fd4c36f"
+  },
+  "observations": "All four children completed; unchanged offline comparator passed 53 camera and 53 animation rows. All four actual served-file postchecks recorded.",
+  "limitation": "Final Git/clean-tree/source/Node/browser/installed-lock drift checks did not execute. Hosted workflow failed at launcher timeout during postprocessing."
+}

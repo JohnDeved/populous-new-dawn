@@ -1,0 +1,74 @@
+# Proposed Stage B workflow, NOT installed or published. Root execution admission required.
+name: Body layer Stage B CPU (exploratory)
+on:
+  push:
+    branches: [diagnostic/body-layer-stage-b-e1-0d9]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  pixels:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Check out reviewed diagnostic harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          path: diagnostic
+          persist-credentials: false
+      - name: Check out exact baseline
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: e1b468a9b8a355bd46fb149a1100b43442898b1e
+          path: baseline
+          persist-credentials: false
+      - name: Check out exact accepted candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 0d9ae8b299b613fc729e3c7d05c5e9a06fd4c36f
+          path: candidate
+          persist-credentials: false
+      - name: Set up pinned Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Use common locked baseline dependencies and existing Chrome
+        working-directory: baseline
+        run: |
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+          npm ci --ignore-scripts --no-audit --no-fund
+          test -x /opt/google/chrome/chrome
+          ln -s "$PWD/node_modules" ../candidate/node_modules
+          ln -s "$PWD/node_modules" ../diagnostic/node_modules
+      - name: Run one fixed eight-child whole-callback CPU attempt
+        working-directory: diagnostic
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/body-layer-stage-b/run-once.mjs ../baseline ../candidate outputs/body-layer-stage-b /opt/google/chrome/chrome outputs/body-layer-stage-b-references
+      - name: Retain partial and terminal proof, including failure pixels
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: body-layer-stage-b-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            diagnostic/outputs/body-layer-stage-b/**/*.json
+            diagnostic/outputs/body-layer-stage-b/**/*.gz
+            diagnostic/outputs/body-layer-stage-b/**/*.png
+            diagnostic/outputs/body-layer-stage-b/**/*.log
+            diagnostic/outputs/body-layer-stage-b-references/acquisition.json
+            diagnostic/outputs/body-layer-stage-b-references/qualified-admission.json
+            diagnostic/outputs/body-layer-stage-b-references/stage-b-reference-manifest.json
+            !diagnostic/outputs/body-layer-stage-b/run/*/camera-*/*.gz
+            !diagnostic/outputs/body-layer-stage-b/run/*/animation-*/*.gz
+          if-no-files-found: warn
+          retention-days: 7
