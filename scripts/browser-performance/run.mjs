@@ -74,7 +74,7 @@ export async function runBenchmark({ pinned = false } = {}) {
     assert.ok(!existsSync(resolve(head, 'node_modules')), 'Candidate install must be absent')
     symlinkSync(resolve(root, 'node_modules'), resolve(head, 'node_modules'), 'dir')
     const pinnedBrowser = pinned ? benchmarkBrowser(root) : null
-    const config = pinnedBrowser?.config ?? browserConfiguration()
+    const config = pinned ? pinnedBrowser.config : browserConfiguration()
     if (pinnedBrowser) {
       const { provenance } = pinnedBrowser
       receipt.browser = provenance

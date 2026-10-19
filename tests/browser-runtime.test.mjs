@@ -139,7 +139,7 @@ test('both benchmark entry points bind pin, launcher, live version and before/af
     const source = readFileSync(resolve(root, 'scripts/browser-performance', name), 'utf8')
     assert.match(source, /const pinnedBrowser = pinned \? benchmarkBrowser\(root\) : null/)
     assert.match(source, /pinned = false/)
-    assert.match(source, /const config = pinnedBrowser\?\.config \?\? browserConfiguration\(\)/)
+    assert.match(source, /const config = pinned \? pinnedBrowser.config : browserConfiguration\(\)/)
     assert.match(source, /receipt.browser = provenance/)
     assert.equal((source.match(/pinnedBrowser\?\.verify\(\)/g) ?? []).length, 3)
     assert.match(source, /pinnedBrowser.verifyLaunched\(session.browserVersion\)/)
