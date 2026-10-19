@@ -114,6 +114,10 @@ export function OriginalOptions({
     : textSkin === skin
   const slidersReady = prepared ? prepared.sliders : sliderSkin === skin
   const root = useRef<HTMLElement>(null)
+  const audioHelp =
+    skin === 'frontend'
+      ? 'Enable audio from the battlefield menu.'
+      : 'Enable audio in Browser compatibility and help.'
   const masterText = `Master volume : <${Math.round(volume * 100)}%>`
   const musicText = `Music volume : <${Math.round(musicVolume * 100)}%>`
   const gameRows = useMemo(
@@ -364,8 +368,8 @@ export function OriginalOptions({
                 style={{ top: 169 }}
                 id={`${skin}-master`}
                 aria-label="Master volume"
-                data-menu-tooltip="Master volume also affects music. Enable audio in Browser compatibility and help."
-                aria-description="Master volume also affects music. Enable audio in Browser compatibility and help."
+                data-menu-tooltip={`Master volume also affects music. ${audioHelp}`}
+                aria-description={`Master volume also affects music. ${audioHelp}`}
                 type="range"
                 min="0"
                 max="1"
@@ -386,8 +390,8 @@ export function OriginalOptions({
                 style={{ top: 229 }}
                 id={`${skin}-music`}
                 aria-label="Music volume"
-                data-menu-tooltip="Enable audio in Browser compatibility and help."
-                aria-description="Enable audio in Browser compatibility and help."
+                data-menu-tooltip={audioHelp}
+                aria-description={audioHelp}
                 type="range"
                 min="0"
                 max="1"

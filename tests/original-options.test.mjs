@@ -237,6 +237,11 @@ test('Options keeps explanatory copy on keyboard-accessible selector tooltips, n
       const sliders = nodes.filter(node => node.props.type === 'range')
       assert.deepEqual(sliders.map(node => node.props.value), [.35, .65])
       assert.ok(sliders.every(node => typeof node.props.onChange === 'function'))
+      const destination = skin === 'frontend'
+        ? 'Enable audio from the battlefield menu.'
+        : 'Enable audio in Browser compatibility and help.'
+      assert.equal(sliders[0].props['data-menu-tooltip'], `Master volume also affects music. ${destination}`)
+      assert.equal(sliders[1].props['data-menu-tooltip'], destination)
     }
   }
   const css = readFileSync(new URL('../app/original-options.module.css', import.meta.url), 'utf8')
