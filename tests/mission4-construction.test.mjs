@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld } from '../app/world-initialization.ts'
-import { stepComputerTasks } from '../app/computer-runtime.ts'
+import { availableTrainingPeople } from '../app/computer-selection.ts'
+import { stepComputerTasks, computerSelectionWorld } from '../app/computer-runtime.ts'
 import { requestConstruction } from '../app/computer.ts'
 import { addBuilding } from '../app/construction-runtime.ts'
 import { buildingOutsidePoint, buildingPose } from '../app/building-shapes.ts'
@@ -92,4 +93,38 @@ for (const mode of ['ordinary', 'exact', 'existingZero'])
     assert.equal(t.phase, 4)
     assert.equal(w.randomState, rng)
     assert.equal(b.progress, 0, 'accepted plan, not injected completion')
+  })
+
+for (const housingOnly of [false, true])
+  test(`Mission4 requires two idle people, housing double-count=${housingOnly}`, () => {
+    const w = fixture(), braves = w.units.filter(u => u.team === 'green' && u.kind === 'brave')
+    for (const u of braves.slice(housingOnly ? 1 : 2)) u.hp = 0
+    if (housingOnly) {
+      // Controlled command-pool boundary: one idle Brave also has order6.
+      const p = braves[0].native
+      Object.assign(p, { state: 10, commandStatus: 6, immediateCommand: 1 })
+      Object.assign(w.buildingOrders.records[1], { model: 6, flags: 0 })
+      assert.equal(availableTrainingPeople(computerSelectionWorld(w, 3).world), 2)
+    }
+    stepComputerTasks(w, 3)
+    assert.equal(active(w).length, housingOnly ? 0 : 1)
+  })
+
+for (const established of [false, true])
+  test(`Mission4 existing Tower with established base=${established}`, () => {
+    const w = fixture()
+    addBuilding(w, 'green', 'tower', { x: -48, z: -64 }, true)
+    if (established) w.ai.constructionBase = 0x34da
+    stepComputerTasks(w, 3)
+    assert.deepEqual(active(w).map(t => t.requested), established ? [] : [4])
+  })
+
+for (const phase of [3, 8])
+  test(`Mission4 lost plan preserves first Tower branch despite pending phase${phase}`, () => {
+    const w = fixture()
+    w.ai.attributes[9] = 2
+    requestConstruction(w.ai, 4, 0x36b6)
+    w.ai.tasks[0].phase = phase
+    stepComputerTasks(w, 3)
+    assert.equal(active(w).length, 2)
   })
