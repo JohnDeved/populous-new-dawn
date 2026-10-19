@@ -7,7 +7,7 @@ import { m2StartupReady } from './m2-pointer-f8.mjs'
 import { minimapInput } from '../../qa/erosion-ordinary/minimap-input.mjs'
 import { minimapPick } from '../../app/minimap.ts'
 import { spriteDirection } from '../../app/projection.ts'
-import { validateMeleeRunningFrames } from './melee-attack-running-evidence.mjs'
+import { validateMeleeRunningObservation } from './melee-attack-running-evidence.mjs'
 
 export const meleeAttackLimitMs = 75000
 const root = resolve(import.meta.dirname, '../..')
@@ -128,10 +128,13 @@ export function meleeAttackMapping() {
 export function installMeleeFrameObserver() {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   const canvas = scene.renderer.domElement
-  const result = { samples: [], crops: [], error: null, done: false, firstAttackTurn: null }
+  const result = { samples: [], crops: [], error: null, done: false, firstAttackTurn: null, terminal: null }
   let raf, stopped = false, firstPerson = null
   const cropKeys = new Set()
-  const stop = () => { stopped = true; cancelAnimationFrame(raf); return result }
+  const stop = (reason = 'stopped') => {
+    if (!stopped) result.terminal = { turn: world.turn, stamp: scene.renderer.info.render.frame, reason }
+    stopped = true; cancelAnimationFrame(raf); return result
+  }
   window.__pndMeleeObservation = { result, stop }
   const visit = () => {
     if (stopped) return
@@ -140,14 +143,15 @@ export function installMeleeFrameObserver() {
         throw Error('Melee observation lost its original Scene/world')
       if (!canvas.isConnected || document.visibilityState !== 'visible')
         throw Error('Melee canvas disconnected or document hidden')
+      if (result.firstAttackTurn !== null && world.paused) throw Error('Running melee observation unexpectedly paused')
+      // The half-open window excludes the boundary visit's actor/attack state.
+      // Keep Scene/world/canvas and uninterrupted-running guards above it.
+      if (result.firstAttackTurn !== null && world.turn >= result.firstAttackTurn + 10) {
+        result.done = true; stop('window-complete'); return
+      }
       const unit = world.units.find(unit => unit.id === 54), fight = unit?.fight
       if (!unit || unit.kind !== 'shaman' || unit.team !== 'blue' || unit.hp <= 0)
         throw Error('Authored Shaman54 disappeared or died')
-      if (result.firstAttackTurn !== null && world.paused) throw Error('Running melee observation unexpectedly paused')
-      // The half-open window excludes the boundary visit, including an attack there.
-      if (result.firstAttackTurn !== null && world.turn >= result.firstAttackTurn + 10) {
-        result.done = true; stop(); return
-      }
       if (fight && ['attack', 'strike', 'special'].includes(fight.action)) {
         result.firstAttackTurn ??= world.turn
         const person = fight.motion, group = scene.unitMeshes.get(54)
@@ -236,7 +240,7 @@ export function installMeleeFrameObserver() {
         result.samples.push(sample)
         if (result.samples.length > 1200) throw Error('Melee observation exceeded bounded sample storage')
       }
-    } catch (error) { result.error = String(error); result.done = true; stop(); return }
+    } catch (error) { result.error = String(error); result.done = true; stop('error'); return }
     raf = requestAnimationFrame(visit)
   }
   raf = requestAnimationFrame(visit)
@@ -391,7 +395,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assert.equal(report.observation.error, null)
     assert.equal(report.observation.done, true)
     report.mapping = meleeAttackMapping()
-    report.acceptance = validateMeleeRunningFrames(report.observation.samples, report.mapping)
+    report.acceptance = validateMeleeRunningObservation(report.observation, report.mapping)
     await button('Pause game')
     await page.screenshot({ path: resolve(output, 'melee-attack-context.png') })
   } catch (error) {

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
   readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
-import { validateMeleeRunningFrames } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
+import { validateMeleeRunningFrames, validateMeleeRunningObservation } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
 import { spriteDirection } from '../app/projection.ts'
 import { minimapPick } from '../app/minimap.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
@@ -355,6 +355,110 @@ test('running observer captures first four distinct poses and terminates on the 
   })
 })
 
+function retainValidObserverPair({ world, scene, group, next }) {
+  const unit = world.units[0], person = unit.fight.motion, m = mapping['shaman:special']
+  Object.assign(person, { id: 54, state: 25, speed: 0, class: 1, model: 7,
+    workFlags: 1252, flags2: 0x1080, flags4: 0 })
+  world.fights = [{ id: 1252, members: [54, 13] }]
+  for (const turn of [40, 41]) {
+    world.turn = turn
+    Object.assign(unit.fight, { action: 'special', animation: 'special', started: 40,
+      group: 1252, opponent: 13, remaining: m.duration - 1 - (turn - 40) })
+    Object.assign(person, { object: m.object, draw: m.draw, f1: 0, f2: turn - 40, stamp: turn })
+    const artwork = m.directions[spriteDirection(0, 0)]
+    Object.assign(group.userData, { draw: m.draw, frame: artwork.frames[turn - 40], frameFlip: artwork.flip })
+    scene.renderer.info.render.frame++; scene.gameClock.animationFrame = turn * 2
+    next()
+  }
+}
+
+test('real observer rejects death inside the half-open window but excludes actor state at or beyond its cutoff', () => {
+  for (const turn of [49, 50, 51]) for (const actor of ['live', 'dead', 'missing']) {
+    withObserverFixture(fixture => {
+      const { world, scene, next, observation, pending, unrelated } = fixture
+      retainValidObserverPair(fixture)
+      const { result } = observation, samples = structuredClone(result.samples), crops = structuredClone(result.crops)
+      world.units[0].fight.action = 'approach'
+      if (actor === 'dead') world.units[0].hp = 0
+      if (actor === 'missing') world.units.length = 0
+      world.turn = turn; scene.renderer.info.render.frame = 110; next()
+      assert.deepEqual(result.samples, samples, 'no boundary/successor artwork substitutes for the retained attacks')
+      assert.deepEqual(result.crops, crops)
+      if (turn === 49 && actor === 'live') {
+        assert.equal(result.done, false); assert.equal(result.terminal, null)
+        world.turn = 50; scene.renderer.info.render.frame = 111; next()
+        assert.deepEqual(result.terminal, { turn: 50, stamp: 111, reason: 'window-complete' })
+      } else {
+        assert.deepEqual(result.terminal, { turn, stamp: 110,
+          reason: turn === 49 ? 'error' : 'window-complete' })
+      }
+      assert.equal(result.done, true)
+      assert.deepEqual([...pending.keys()], [unrelated])
+      if (turn === 49 && actor !== 'live') {
+        assert.match(result.error, /Shaman54 disappeared or died/)
+        assert.throws(() => validateMeleeRunningObservation(result, mapping), /must not fail/)
+      } else {
+        assert.equal(result.error, null)
+        const accepted = validateMeleeRunningObservation(result, mapping)
+        assert.deepEqual(accepted.obligations.fixedWindow, { status: 'passed', firstAttackTurn: 40,
+          endExclusive: 50, terminal: result.terminal })
+        assert.equal(accepted.obligations.runningAdvancement.status, 'passed')
+      }
+      const terminal = structuredClone(result.terminal)
+      world.turn = 60; scene.renderer.info.render.frame = 120
+      observation.stop()
+      assert.deepEqual(result.terminal, terminal, 'later retention cannot rewrite the exact terminal callback')
+    })
+  }
+})
+
+test('real observer still rejects an invalid actor before any first attack establishes a window', () => {
+  for (const actor of ['dead', 'missing', 'wrong-kind', 'wrong-team']) {
+    withObserverFixture(({ world, scene, next, observation }) => {
+      world.units[0].fight = null
+      if (actor === 'dead') world.units[0].hp = 0
+      if (actor === 'missing') world.units.length = 0
+      if (actor === 'wrong-kind') world.units[0].kind = 'warrior'
+      if (actor === 'wrong-team') world.units[0].team = 'green'
+      world.turn = 60; scene.renderer.info.render.frame = 120; next()
+      assert.equal(observation.result.firstAttackTurn, null)
+      assert.equal(observation.result.samples.length, 0)
+      assert.match(observation.result.error, /Shaman54 disappeared or died/)
+      assert.deepEqual(observation.result.terminal, { turn: 60, stamp: 120, reason: 'error' })
+    })
+  }
+})
+
+test('fixed boundary cannot excuse Scene/world/canvas/visibility replacement or an unexpected pause', () => {
+  for (const invalid of ['scene', 'store', 'scene-world', 'canvas', 'hidden', 'paused']) {
+    withObserverFixture(({ world, scene, window, next, observation }) => {
+      next(); world.turn = 50; scene.renderer.info.render.frame = 110
+      if (invalid === 'scene') window.testSceneRef.current = { ...scene }
+      if (invalid === 'store') window.testStore.getWorld = () => ({ ...world })
+      if (invalid === 'scene-world') scene.world = { ...world }
+      if (invalid === 'canvas') scene.renderer.domElement.isConnected = false
+      if (invalid === 'hidden') document.visibilityState = 'hidden'
+      if (invalid === 'paused') world.paused = true
+      next()
+      assert.equal(observation.result.done, true)
+      assert.match(observation.result.error, /lost its original Scene\/world|disconnected or document hidden|unexpectedly paused/)
+      assert.deepEqual(observation.result.terminal, { turn: 50, stamp: 110, reason: 'error' })
+    })
+  }
+})
+
+test('external observer stop retains an incomplete terminal reason, never successful window completion', () => {
+  withObserverFixture(fixture => {
+    const { world, scene, observation } = fixture
+    retainValidObserverPair(fixture)
+    world.turn = 42; scene.renderer.info.render.frame = 110
+    const result = observation.stop()
+    assert.equal(result.done, false)
+    assert.deepEqual(result.terminal, { turn: 42, stamp: 110, reason: 'stopped' })
+    assert.throws(() => validateMeleeRunningObservation(result, mapping), /must finish/)
+  })
+})
+
 test('real observer retains both supplied attack entries in one fixed window for strict validation', () => {
   withObserverFixture(({ world, scene, group, next, observation }) => {
     const unit = world.units[0], person = unit.fight.motion
@@ -381,7 +485,7 @@ test('real observer retains both supplied attack entries in one fixed window for
       [[395, 395, 13], [396, 395, 13], [398, 395, 13], [400, 400, 1207], [402, 400, 1207]])
     assert.deepEqual(result.samples.map(s => s.cropPlanned), [true, true, true, true, false])
     assert.equal(result.crops.length, 4)
-    assert.equal(validateMeleeRunningFrames(result.samples, mapping).sampleCount, 5)
+    assert.equal(validateMeleeRunningObservation(result, mapping).sampleCount, 5)
     result.samples[4].opponent = 13
     assert.throws(() => validateMeleeRunningFrames(result.samples, mapping), /same opponent/)
   })
