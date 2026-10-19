@@ -409,9 +409,55 @@ HTML overlays, so these checks cannot be inferred from nonblank PNGs. Copies
 are synchronous with samples, with source/frame/turn/renderer binding, crop
 coordinates and PNG hashes retained in `melee-attack.json`. No hidden-body redraw,
 replacement rendering method or game-state mutation is used. Bounds reads may
-touch renderer/picker metadata; readback perturbs rendering. Crops require visual
+touch renderer/picker metadata; copying perturbs rendering. Crops require visual
 review and are not pixel-perfect or hardware-performance evidence. A later
 paused context screenshot is separate, not an advancing-pose substitute.
+
+The observer now draws each eligible crop exactly once into a private 2D canvas
+in the same sample callback. At most four copies, each at most 256×256 pixels,
+are retained. Neither pixel readback/color scanning nor PNG encoding runs during
+any observer RAF, including the terminal callback. Explicit `retain()` stops the
+observer if necessary and processes only those immutable copies, never the live
+game canvas. Retention releases all copied backing stores even after a readback
+or encoding failure. Failed crops and their timing remain in the report, other
+copies are still retained, and repeated stop/retention cannot change the terminal
+record, retry a failed crop or replace a missing slot. An early stop remains an
+incomplete witness; a retention failure cannot pass acceptance.
+
+Every observer RAF records its performance timestamp, supplied RAF timestamp,
+logical turn, renderer stamp, animation clock, pause state, action/entry, actor
+life and observed pose, including pre-attack approach, held and non-attack visits.
+Boundary and pre-inspection error rows explicitly set `actorInspected: false`
+with null actor/action fields: diagnostics do not move actor inspection ahead of
+the reviewed half-open cutoff. Each row records observer-body and synchronous
+copy elapsed milliseconds separately. Copies record later readback/color-scan
+and encoding elapsed milliseconds, with the retention timestamp/duration kept
+separately. These measurements include their own perturbation and do not measure
+GPU completion, full Scene cost, original-game timing or hardware smoothness.
+The all-visit diagnostic bound is 18,000 rows (75 seconds at 240 callbacks/second),
+separate from the unchanged 1,200 attack-sample bound. Exhaustion fails explicitly
+at its terminal row, without silently dropping visits or extending the case cap.
+
+The union hosted run [39303586144](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39303586144)
+retained only attack turn 491, entry 490, renderer stamp 304, native f2=1,
+direction 6 and frame 1007, followed by a window-complete terminal at turn 502,
+stamp 310. It correctly failed the advancing-pair requirement. Its absent
+non-attack visits and copy/encoding timings cannot establish why intermediate
+attack frames were missed. `scene.ts` advances the elapsed game clock before
+rendering, and `game-clock.ts` consumes chronological fixed turns; a rendered
+frame can therefore legitimately follow several logical turns. Deferred work is
+a candidate reduction of in-window observer work, not proof of the earlier
+failure's cause or a performance improvement. Historical failures remain failed.
+
+Paused target-hover preparation is source-feasible: ordinary paused Scene frames
+still call `updatePointerFrame`, and public `pointerMove`/hover are not blocked by
+ordinary pause. That is distinct from a suspended modal. However, the current
+public Resume button moves the pointer, so a paused hover cannot replace a fresh
+post-Resume public hover check. This candidate leaves setup unchanged to avoid
+confounding the sampling diagnosis. In the failed union receipt, paused setup
+was turn 125, after Resume 133, before attack 148, and the public order turn 152.
+No gameplay/RNG/health edit, private hit query or setup-timing guarantee follows
+from those source observations.
 
 The case retains its 75-second bound, 1,200-sample storage bound and the unchanged
 180-second aggregate browser cap. No workflow, dependency, browser route, game

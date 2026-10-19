@@ -231,6 +231,7 @@ function withObserverFixture(run) {
     { visible: false, userData: { piece: 92 } },
   ]
   const submitted = new Set([layers[0], layers[2]]), sourceCalls = [], drawCalls = [], cancellations = []
+  const copies = [], operations = [], faults = { copy: null, readback: null, encoding: null }
   const rect = { width: 720, height: 500, left: 15, top: 25 }
   const canvas = { tagName: 'CANVAS', className: 'battlefield', width: 1440, height: 1000,
     isConnected: true, getBoundingClientRect: () => rect }
@@ -245,24 +246,32 @@ function withObserverFixture(run) {
       return { x: 100, y: 80, width: 30, height: 45 }
     } } }
   const pending = new Map(), window = { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }
-  let nextRaf = 1000
+  let nextRaf = 1000, inCallback = false, clockMs = 1234
   const request = callback => { const id = ++nextRaf; pending.set(id, callback); return id }
   const unrelated = request(() => assert.fail('observer must not run an unrelated RAF'))
   const document = { visibilityState: 'visible', elementFromPoint: () => canvas, querySelectorAll: () => [], createElement(tag) {
     assert.equal(tag, 'canvas')
+    const index = copies.length
     let captured
     const copy = { width: 0, height: 0,
       getContext(type) {
         assert.equal(type, '2d')
         return {
           drawImage(...args) {
+            assert.equal(inCallback, true, 'copying is synchronous with the observer callback')
+            assert.equal(captured, undefined, 'a private crop canvas is drawn exactly once')
+            if (faults.copy === index) throw Error('supplied copy failure')
             assert.equal(args[0], canvas)
-            assert.deepEqual(args.slice(1), [176, 136, 108, 138, 0, 0, 108, 138])
+            assert.deepEqual(args.slice(1), [176, 136, copy.width, copy.height, 0, 0, copy.width, copy.height])
             captured = { stamp: scene.renderer.info.render.frame, turn: world.turn,
               frame: group.userData.frame, f2: world.units[0].fight.motion.f2 }
             drawCalls.push(captured)
+            operations.push(['copy', index])
           },
           getImageData(...args) {
+            assert.equal(inCallback, false, 'pixel readback/scan must wait until after the observation')
+            operations.push(['readback', index])
+            if (faults.readback === index) throw Error('supplied readback failure')
             assert.ok(captured, 'copy must be read after the same callback draws it')
             assert.deepEqual(args, [0, 0, copy.width, copy.height])
             return { data: new Uint8ClampedArray([0, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 0]) }
@@ -270,38 +279,49 @@ function withObserverFixture(run) {
         }
       },
       toDataURL(type) {
+        assert.equal(inCallback, false, 'encoding must wait until after the observation')
+        operations.push(['encoding', index])
+        if (faults.encoding === index) throw Error('supplied encoding failure')
         assert.equal(type, 'image/png'); assert.ok(captured)
         return `data:image/png;base64,${Buffer.from(JSON.stringify(captured)).toString('base64')}`
       },
     }
+    copies.push(copy)
     return copy
   } }
   const replacements = { window, document, requestAnimationFrame: request,
     cancelAnimationFrame(id) { cancellations.push(id); pending.delete(id) },
-    performance: { now: () => 1234 }, getComputedStyle: () => ({ display: 'block', visibility: 'visible', opacity: '1' }) }
+    performance: { now: () => ++clockMs }, getComputedStyle: () => ({ display: 'block', visibility: 'visible', opacity: '1' }) }
   const descriptors = new Map(Object.keys(replacements).map(key =>
     [key, Object.getOwnPropertyDescriptor(globalThis, key)]))
   try {
     for (const [key, value] of Object.entries(replacements))
       Object.defineProperty(globalThis, key, { configurable: true, writable: true, value })
     const before = structuredClone(world)
-    installMeleeFrameObserver()
+    // Match page.evaluate's serialization boundary: no module closure/import
+    // may accidentally satisfy an undeclared browser dependency in this fixture.
+    new Function(`return (${installMeleeFrameObserver.toString()})`)()()
     assert.deepEqual(world, before, 'installation preserves the supplied World')
     const observation = window.__pndMeleeObservation
-    const next = () => {
+    const next = (timestamp = 1234) => {
       const entries = [...pending].filter(([id]) => id !== unrelated)
       assert.equal(entries.length, 1, 'only one observer RAF may be pending')
       const [id, callback] = entries[0]
       pending.delete(id)
       const before = structuredClone(world)
-      callback(1234)
+      inCallback = true
+      try { callback(timestamp) } finally { inCallback = false }
       assert.deepEqual(world, before, 'each read/crop callback preserves the complete supplied World')
       return { id, callback }
     }
     return run({ world, scene, group, layers, window, next, pending, unrelated,
-      observation, sourceCalls, drawCalls, cancellations })
+      observation, sourceCalls, drawCalls, cancellations, copies, operations, faults })
   } finally {
-    try { window.__pndMeleeObservation?.stop() }
+    try {
+      const before = structuredClone(world)
+      window.__pndMeleeObservation?.retain()
+      assert.deepEqual(world, before, 'stopping/retaining crops preserves the complete supplied World')
+    }
     finally {
       for (const [key, descriptor] of descriptors)
         if (descriptor) Object.defineProperty(globalThis, key, descriptor)
@@ -321,9 +341,7 @@ test('supplied observer keeps same-frame crop metadata and counts only visible s
     assert.equal(first.cropFile, crop.filename)
     assert.deepEqual([crop.turn, crop.stamp, crop.frame, crop.object, crop.f2], [40, 100, 998, 456, 0])
     assert.deepEqual(crop.clip, { x: 176, y: 136, width: 108, height: 138 })
-    assert.equal(crop.opaqueColors, 2)
-    assert.deepEqual(JSON.parse(Buffer.from(crop.png.split(',')[1], 'base64').toString()), drawCalls[0],
-      'supplied readback metadata belongs to the exact observed render stamp')
+    assert.equal(crop.opaqueColors, undefined); assert.equal(crop.png, undefined)
     scene.renderer.info.render.frame = 101; scene.gameClock.animationFrame = 81
     next()
     assert.equal(result.samples.length, 2); assert.equal(result.crops.length, 1)
@@ -336,6 +354,12 @@ test('supplied observer keeps same-frame crop metadata and counts only visible s
     assert.equal(result.samples.length, 3); assert.equal(result.crops.length, 2)
     assert.equal(result.samples[2].cropFile, 'melee-attack-frame-1.png')
     assert.deepEqual(drawCalls, [{ stamp: 100, turn: 40, frame: 998, f2: 0 }, { stamp: 102, turn: 41, frame: 999, f2: 1 }])
+    const before = structuredClone(world)
+    observation.retain()
+    assert.deepEqual(world, before)
+    assert.equal(crop.opaqueColors, 2)
+    assert.deepEqual(JSON.parse(Buffer.from(crop.png.split(',')[1], 'base64').toString()), drawCalls[0],
+      'deferred encoding belongs to the exact earlier observed render stamp')
   })
 })
 
@@ -352,6 +376,131 @@ test('running observer captures first four distinct poses and terminates on the 
     world.turn = 50; scene.renderer.info.render.frame++; next()
     assert.equal(observation.result.done, true); assert.equal(observation.result.samples.length, 6)
     assert.deepEqual([...pending.keys()], [unrelated])
+  })
+})
+
+test('every observer visit retains timing and state, including approach, held poses and the uninspected cutoff', () => {
+  withObserverFixture(({ world, scene, next, observation }) => {
+    const fight = world.units[0].fight
+    world.turn = 39; world.paused = true; fight.action = 'approach'; next(100)
+    world.turn = 40; world.paused = false; fight.action = 'strike'; scene.renderer.info.render.frame++; next(120)
+    scene.renderer.info.render.frame++; next(140)
+    world.turn = 42; fight.action = 'approach'; scene.renderer.info.render.frame++; next(160)
+    world.turn = 50; world.units.length = 0; scene.renderer.info.render.frame++; next(180)
+    const { result } = observation
+    assert.deepEqual(result.visits.map(v => [v.turn, v.stamp, v.action, v.started, v.alive, v.stage]), [
+      [39, 100, 'approach', 40, true, 'observed'], [40, 101, 'strike', 40, true, 'attack'],
+      [40, 102, 'strike', 40, true, 'attack'], [42, 103, 'approach', 40, true, 'observed'],
+      [50, 104, null, null, null, 'window-complete'],
+    ])
+    assert.deepEqual(result.visits.map(v => v.rafTimestampMs), [100, 120, 140, 160, 180])
+    assert.deepEqual(result.visits.map(v => v.actorInspected), [true, true, true, true, false])
+    assert.deepEqual(result.visits.map(v => v.cropCopyMs > 0), [false, true, false, false, false])
+    assert.ok(result.visits.every(v => v.observerMs > 0 && v.observerMs >= v.cropCopyMs))
+    assert.ok(result.visits.slice(1).every((v, index) => v.timestampMs > result.visits[index].timestampMs))
+    assert.equal(result.samples.length, 2); assert.equal(result.retention, null)
+    assert.equal(result.crops[0].png, undefined)
+  })
+})
+
+test('retention encodes only the first four immutable copies after the window and releases every backing store', () => {
+  withObserverFixture(({ world, scene, group, next, observation, copies, operations, drawCalls, cancellations }) => {
+    for (let index = 0; index < 6; index++) {
+      world.turn = 40 + index; world.units[0].fight.motion.f2 = index
+      scene.renderer.info.render.frame++; group.userData.frame = 998 + index; next()
+    }
+    world.turn = 50; scene.renderer.info.render.frame++; next()
+    const { result } = observation, samples = structuredClone(result.samples), terminal = structuredClone(result.terminal)
+    assert.deepEqual(operations, [['copy', 0], ['copy', 1], ['copy', 2], ['copy', 3]])
+    assert.equal(copies.length, 4)
+    assert.ok(copies.every(copy => copy.width === 108 && copy.height === 138))
+    assert.equal(result.retention, null, 'even the terminal RAF does not scan or encode')
+    world.turn = 70; world.units[0].fight.motion.f2 = 99
+    scene.renderer.info.render.frame = 900; group.userData.frame = 777
+    const before = structuredClone(world)
+    assert.equal(observation.retain(), result)
+    assert.deepEqual(world, before); assert.deepEqual(result.samples, samples); assert.deepEqual(result.terminal, terminal)
+    assert.deepEqual(result.crops.map(crop => JSON.parse(Buffer.from(crop.png.split(',')[1], 'base64').toString())), drawCalls)
+    assert.deepEqual(result.crops.map(crop => [crop.turn, crop.stamp, crop.frame, crop.f2]),
+      drawCalls.map(copy => [copy.turn, copy.stamp, copy.frame, copy.f2]))
+    assert.ok(result.crops.every(crop => crop.opaqueColors === 2 && crop.copyMs > 0 && crop.readbackScanMs > 0 && crop.encodingMs > 0))
+    assert.deepEqual(operations, [['copy', 0], ['copy', 1], ['copy', 2], ['copy', 3],
+      ['readback', 0], ['encoding', 0], ['readback', 1], ['encoding', 1],
+      ['readback', 2], ['encoding', 2], ['readback', 3], ['encoding', 3]])
+    assert.ok(copies.every(copy => copy.width === 0 && copy.height === 0))
+    assert.deepEqual([result.retention.copyCount, result.retention.done], [4, true])
+    assert.ok(result.retention.durationMs > 0)
+    const retained = structuredClone(result), calls = structuredClone(operations), cancelled = [...cancellations]
+    observation.stop(); observation.retain(); observation.retain()
+    assert.deepEqual(result, retained); assert.deepEqual(operations, calls); assert.deepEqual(cancellations, cancelled)
+  })
+})
+
+test('deferred readback and encoding failures retain timeline and other crops, release copies and never retry', () => {
+  for (const stage of ['readback', 'encoding']) withObserverFixture(fixture => {
+    const { world, scene, observation, next, copies, operations, faults } = fixture
+    retainValidObserverPair(fixture)
+    world.turn = 50; scene.renderer.info.render.frame = 110; next()
+    const { result } = observation, terminal = structuredClone(result.terminal), visits = structuredClone(result.visits)
+    faults[stage] = 0
+    observation.retain()
+    assert.match(result.error, /Melee crop retention failed: Error: supplied .* failure/)
+    assert.match(result.crops[0].error, /supplied .* failure/)
+    assert.equal(result.crops[0].png, undefined)
+    assert.match(result.crops[1].png, /^data:image\/png;base64,/)
+    assert.equal(result.crops[0].encodingMs === null, stage === 'readback')
+    assert.ok(copies.every(copy => copy.width === 0 && copy.height === 0))
+    assert.equal(result.retention.done, true)
+    assert.deepEqual(result.terminal, terminal); assert.deepEqual(result.visits, visits)
+    assert.throws(() => validateMeleeRunningObservation(result, mapping), /must not fail/)
+    const calls = structuredClone(operations), retained = structuredClone(result)
+    faults[stage] = null; observation.retain()
+    assert.deepEqual(operations, calls); assert.deepEqual(result, retained)
+  })
+})
+
+test('private copy dimensions remain capped and out-of-canvas bodies still fail their visibility contract', () => {
+  withObserverFixture(({ scene, next, observation, copies }) => {
+    scene.picking.personBounds = () => ({ x: 100, y: 80, width: 1000, height: 1000 })
+    next()
+    assert.deepEqual(copies.map(copy => [copy.width, copy.height]), [[256, 256]])
+    assert.deepEqual(observation.result.crops[0].clip, { x: 176, y: 136, width: 256, height: 256 })
+    assert.equal(observation.result.samples[0].bodyInCanvas, false)
+    observation.retain()
+    assert.deepEqual(copies.map(copy => [copy.width, copy.height]), [[0, 0]])
+  })
+})
+
+test('failed synchronous copy releases its buffer and records the error visit without encoding', () => {
+  withObserverFixture(({ next, observation, copies, operations, faults, pending, unrelated }) => {
+    faults.copy = 0; next()
+    const { result } = observation
+    assert.match(result.error, /supplied copy failure/)
+    assert.equal(result.visits.length, 1); assert.equal(result.visits[0].stage, 'error')
+    assert.ok(result.visits[0].observerMs >= result.visits[0].cropCopyMs && result.visits[0].cropCopyMs > 0)
+    assert.deepEqual([result.samples.length, result.crops.length], [0, 0])
+    assert.deepEqual(copies.map(copy => [copy.width, copy.height]), [[0, 0]])
+    assert.deepEqual([...pending.keys()], [unrelated])
+    observation.retain()
+    assert.deepEqual(operations, []); assert.equal(result.retention.copyCount, 0)
+  })
+})
+
+test('all-visit storage fails explicitly at its independent bound and never changes the attack sample cap', () => {
+  withObserverFixture(({ world, scene, next, observation, pending, unrelated }) => {
+    world.units[0].fight.action = 'approach'
+    const { result } = observation
+    assert.equal(result.visitLimit, 75 * 240)
+    for (let index = 0; index < result.visitLimit; index++) { scene.renderer.info.render.frame++; next() }
+    assert.equal(result.visits.length, result.visitLimit)
+    assert.equal(result.visits.at(-1).stage, 'error'); assert.equal(result.visits.at(-1).actorInspected, false)
+    assert.match(result.error, /bounded visit storage/)
+    assert.equal(result.samples.length, 0); assert.deepEqual([...pending.keys()], [unrelated])
+  })
+  withObserverFixture(({ scene, next, observation }) => {
+    for (let index = 0; index < 1201; index++) { scene.renderer.info.render.frame++; next() }
+    assert.equal(observation.result.visits.length, 1201)
+    assert.match(observation.result.error, /bounded sample storage/)
   })
 })
 
