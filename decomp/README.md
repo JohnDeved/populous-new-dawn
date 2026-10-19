@@ -2344,8 +2344,8 @@ compares 82,780 coloured GPU pixels at 1:1 resolution (RGB rounding tolerance 1)
 Native-resolution comparison avoids driver-dependent nearest-sampling decisions
 at scaled texel boundaries; it does not certify bit-identical scaled rasterization.
 A deliberate wrong-atlas UV mutation was rejected by this check. Existing live
-selection and real Blast shadow/landing checks also pass. Broader animation-state
-ownership and all original tribes/classes are not certified by these fixtures.
+selection and real Blast shadow/landing checks also pass.
+Broader animation-state ownership and all original tribes/classes remain unverified by these fixtures.
 
 
 ## Focus commands preserve the current camera
@@ -5024,6 +5024,8 @@ ordinary corpse pixels, frames, rise, hidden wait and deletion. Static-site timi
 relocation, particles/audio, general class-10 scheduling and unplayable follower
 models remain open.
 
+[Support audit](research/shaman-death-support.md) and [burst reconciliation](research/reincarnation-final-burst.md) retain bounded static/supplied-state evidence, not runtime/parity proof.
+
 ### 2026-10-05 — grounded Shaman spirit follows changing terrain
 
 [Bounded phase1 height evidence](research/shaman-death-vfx.md#phase1-ground)
@@ -5034,30 +5036,6 @@ rises from it. Four-owner comparisons cover raising/lowering and unchanged phase
 direct unsupported entry. Constants and mapped search bytes are guarded. Supplied
 post-death terrain fixtures, rendered shipped-spell acceptance and native raster
 remain distinct evidence boundaries; this does not complete issue #30.
-
-### 2026-10-09 — Shaman death support caller audit
-
-[The static caller/field audit](research/shaman-death-support.md) establishes that
-the model12 initializer queries the linked source person's complete drowning
-predicate, while phase2 queries only the corpse death-point coastal support.
-The complete predicate already exists as `personIsDrowning`; the app's phase2
-mapping agrees at its coordinate-only boundary. Death-entry differences remain
-conditional on actual source-person exemptions, with no ordinary Mission1–3
-counterexample established. Pinned byte excerpts close the operand ambiguity;
-no original execution, runtime change or parity credit is claimed.
-
-### 2026-10-06 — final Shaman burst remains uncomposed
-
-The [historical final-burst assessment](research/reincarnation-final-burst.md)
-records that accepted mode2 and phase1-ground fixes survive inspected main
-`1c7e6b05`, then isolates a different missing edge: phase5's `004da0f0`
-requests a class7/model9 burst after its person allocation; current live spawn
-only adds the Shaman. Retained static PE bytes establish the call and distinguish
-person retry from the earlier one-shot wave. Its 2026-10-19 reconciliation links
-later accepted creation, allocation-control and scheduling results at immutable
-commits, preserving their supplied-state limits and the original static packet.
-Shared allocator/visit ownership and live composition remain unresolved, not
-missing initializer bytes. No runtime repair or new execution/parity claim is added.
 
 ## 2026-09-17 — Mission 17 Armageddon
 
