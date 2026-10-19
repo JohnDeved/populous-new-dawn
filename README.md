@@ -140,14 +140,16 @@ worker to limit parallelism on memory-constrained runners. `npm run check` and t
 command. It checks the unchanged `tsconfig.json`; it does not replace Vite/Oxc's
 JavaScript transpilation or change gameplay performance.
 
-We install [Microsoft's side-by-side packages](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6-0):
-`@typescript/native` aliases `typescript@7.0.2`, while `typescript` aliases
-`@typescript/typescript6@6.0.2` (wrapping compiler 6.0.3 in the lockfile).
-Existing `import ts from 'typescript'` consumers
-and typescript-eslint keep the JavaScript compiler API, including AST inspection
-and `transpileModule`. Native TypeScript is not a drop-in replacement for that API.
-Both npm scripts invoke exact package entrypoints instead of relying on PATH or
-an ambiguous `tsc` binary. `npm run typecheck:legacy` runs the compatibility checker
+`@typescript/native` aliases Microsoft's stable [TypeScript 7.0.2](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/) package.
+The existing `typescript@5.9.3` stays pinned for `import ts from 'typescript'`
+consumers and typescript-eslint, preserving AST and `transpileModule` behavior.
+Native TypeScript is not a drop-in replacement for the JavaScript compiler API.
+A separate TypeScript 6 API migration would need to account for its changed emit
+defaults, including strict-mode directives in expression-based test fixtures.
+
+Both packages declare a `tsc` binary, so do not use bare `tsc` or `npx tsc`.
+The npm scripts invoke exact package entrypoints rather than depending on npm's
+bin-link ordering. `npm run typecheck:legacy` explicitly runs TypeScript 5.9.3
 for diagnosis, not as a replacement for the native gate.
 
 Use `npm ci` with optional dependencies enabled: the native compiler's

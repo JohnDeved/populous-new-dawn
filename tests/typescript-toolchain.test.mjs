@@ -11,32 +11,30 @@ import tseslint from 'typescript-eslint'
 const root = fileURLToPath(new URL('../', import.meta.url))
 const readJson = path => JSON.parse(readFileSync(join(root, path), 'utf8'))
 const native = join(root, 'node_modules/@typescript/native/bin/tsc')
-const legacy = join(root, 'node_modules/typescript/bin/tsc6')
+const legacy = join(root, 'node_modules/typescript/bin/tsc')
 
 test('pinned native checking and JavaScript API have explicit, distinct entrypoints', () => {
   const manifest = readJson('package.json')
   const lock = readJson('package-lock.json')
   assert.equal(manifest.devDependencies['@typescript/native'], 'npm:typescript@7.0.2')
-  assert.equal(manifest.devDependencies.typescript, 'npm:@typescript/typescript6@6.0.2')
+  assert.equal(manifest.devDependencies.typescript, '5.9.3')
   assert.equal(manifest.scripts.typecheck, 'node node_modules/@typescript/native/bin/tsc --noEmit --checkers 1')
-  assert.equal(manifest.scripts['typecheck:legacy'], 'node node_modules/typescript/bin/tsc6 --noEmit')
+  assert.equal(manifest.scripts['typecheck:legacy'], 'node node_modules/typescript/bin/tsc --noEmit')
   assert.equal(manifest.scripts.check, 'npm run typecheck && npm test && npm run parity:check && npm run orchestration:check')
   for (const [path, name, version, bin] of [
-    ['@typescript/native', 'typescript', '7.0.2', 'tsc'],
-    ['typescript', '@typescript/typescript6', '6.0.2', 'tsc6'],
+    ['@typescript/native', 'typescript', '7.0.2', ['tsc']],
+    ['typescript', 'typescript', '5.9.3', ['tsc', 'tsserver']],
   ]) {
     const installed = readJson(`node_modules/${path}/package.json`)
     const locked = lock.packages[`node_modules/${path}`]
     assert.equal(installed.name, name)
     assert.equal(installed.version, version)
-    assert.equal(locked.name, name)
+    assert.equal(locked.name ?? path, name)
     assert.equal(locked.version, version)
-    assert.deepEqual(Object.keys(installed.bin), [bin])
+    assert.deepEqual(Object.keys(installed.bin), bin)
   }
-  // The compatibility package is a wrapper; its locked compiler has its own version.
-  assert.equal(lock.packages['node_modules/@typescript/old'].version, '6.0.3')
-  assert.equal(ts.version, '6.0.3')
-  for (const [entrypoint, version] of [[native, '7.0.2'], [legacy, '6.0.3']]) {
+  assert.equal(ts.version, '5.9.3')
+  for (const [entrypoint, version] of [[native, '7.0.2'], [legacy, '5.9.3']]) {
     const result = spawnSync(process.execPath, [entrypoint, '--version'], { cwd: root, encoding: 'utf8' })
     assert.equal(result.error, undefined)
     assert.equal(result.signal, null)
@@ -45,7 +43,7 @@ test('pinned native checking and JavaScript API have explicit, distinct entrypoi
   }
 })
 
-test('compatibility package preserves AST, transpile and ESLint parser APIs', async () => {
+test('retained JavaScript compiler preserves AST, transpile and ESLint parser APIs', async () => {
   const source = `import { type Missing } from './type-only.ts'
     import { unused } from './unused.ts'
     export default class Fixture {
@@ -69,6 +67,14 @@ test('compatibility package preserves AST, transpile and ESLint parser APIs', as
   assert.equal(instance.count, 7)
   assert.equal(Object.hasOwn(instance, 'value'), true)
   assert.equal(Object.hasOwn(instance, 'absent'), false)
+  // Existing scene fixtures evaluate transpiled expressions this way. A compiler
+  // upgrade that prepends a directive changes the returned value and must fail.
+  const expression = ts.transpileModule('(function(){return () => 42})', {
+    compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
+  }).outputText
+  const factory = new Function(`return ${expression}`)()
+  assert.equal(typeof factory, 'function')
+  assert.equal(factory()(), 42)
   const parsed = tseslint.parser.parseForESLint('export const answer: number = 42', {
     filePath: 'fixture.ts', sourceType: 'module',
   })
