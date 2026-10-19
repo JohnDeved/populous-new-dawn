@@ -1,5 +1,6 @@
 import { assignVehicleAllocationCounter } from './vehicle-allocation.ts'
 import { createCapacityPolicy, type CapacityMode } from './capacity-policy.ts'
+import { createMotionRoutes } from './person-routes.ts'
 import { initializeAuthoredBoat } from './vehicle-initialization.ts'
 import { initializeLevelStart } from './level-start-runtime.ts'
 import type { Point, Shrine, Vehicle, World } from './world-types.ts'
@@ -73,6 +74,9 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
         .filter(object => object.type === 6 && object.model === 6)
         .flatMap(object => linkedObjects(object).map(linked => linked.index + 1))
     )
+  // Select route storage before any authored command can acquire ownership.
+  // Keep classic initialization IDs/RNG; this is new-world setup, not save repair.
+  if (capacityMode === 'scalable') w.motionRoutes = createMotionRoutes(true)
   function missionTwentyShrine(object: (typeof level.objects)[number]): Shrine {
     const settings = object.settings!,
       links = linkedObjects(object),

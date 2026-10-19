@@ -1,6 +1,7 @@
 // This is a gameplay/save contract, not a measured performance tier. Native
 // fixtures retain classic limits; all new browser games use scalable.
 import type { World } from './world-types.ts'
+import { validateScalableMotionRoutes } from './person-routes.ts'
 
 export type CapacityMode = 'classic' | 'scalable'
 export interface CapacityPolicy {
@@ -27,6 +28,8 @@ export function restoreCapacityPolicy(world: World) {
   if (world.capacityPolicy.mode === 'classic') {
     if (pool.scalable !== undefined)
       throw new RangeError('Classic checkpoint has a scalable order pool')
+    if (world.motionRoutes.references !== undefined)
+      throw new RangeError('Classic checkpoint has scalable motion routes')
     return
   }
   if (
@@ -61,6 +64,7 @@ export function restoreCapacityPolicy(world: World) {
       ]),
     ]),
     references = new Map<number, number>()
+  validateScalableMotionRoutes(world.motionRoutes, people)
   // Registries and controllers alias the same live person. Count that object
   // once, but every occupied queue/immediate slot is an independently released
   // reference. Never accept an undercount that can free a still-owned record.

@@ -228,7 +228,7 @@ function activeFixture(createGameStore) {
 
 async function typed(world) {
   const key = Symbol('test-only checkpoint'),
-    record = { version: 2, world }
+    record = { version: 3, world }
   Object.defineProperty(globalThis, key, { configurable: true, value: record })
   try {
     return await checkpointObservation({ observationName: key })
@@ -393,7 +393,7 @@ for (const version of [2]) test(`fresh store restores v${version} active Temple 
   ;(await db.transaction('readonly')).complete()
   const expected = await read
   assert.equal(expected.committed.version, version)
-  assert.equal(expected.expectedLoad.version, 2)
+  assert.equal(expected.expectedLoad.version, 3)
   assert.deepEqual(expected.committed, committedBefore)
   assert.deepEqual(db.records, recordsBefore, 'detached restore/Load prediction cannot alter IDB')
   assert.notEqual(expected.expectedLoad.checkpointSha256, committedBefore.checkpointSha256)
