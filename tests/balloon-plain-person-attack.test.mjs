@@ -179,6 +179,32 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
     assert.equal(full.buildingOrders.records.length, 1600)
     assert.equal(full.buildingOrders.active, 800)
     assert.doesNotMatch(full.message, /No command slots/)
+    // Successful growth must behave like the same attack with free order slots,
+    // not like the classic exhausted branch which never allocates a new route.
+    const control = structuredClone(world),
+      controlPerson = control.units.find(u => u.id === shaman.id).native
+    selectUnit(control, shaman.id, false)
+    assert.ok(command(control, { ...target, id: target.id }))
+    assert.deepEqual(full.motionRoutes, control.motionRoutes)
+    assert.deepEqual(routeReferences(full.motionRoutes), routeReferences(control.motionRoutes))
+    const fullRouteOwner = full.pathfinding.people.get(shaman.id),
+      controlRouteOwner = control.pathfinding.people.get(shaman.id)
+    // This seated attack plans through a separate query owner, not the physical
+    // passenger. It must retain the same identity and empty order queue as control.
+    assert.notEqual(fullRouteOwner, fullPerson)
+    assert.notEqual(controlRouteOwner, controlPerson)
+    assert.equal(fullRouteOwner.id, shaman.id)
+    assert.deepEqual(fullRouteOwner.commands, Array(8).fill(0))
+    assert.deepEqual(fullRouteOwner, controlRouteOwner)
+    const routeFields = person => Object.fromEntries([
+      'vehicle', 'flags2', 'flags4', 'motionGroup', 'motionIndex', 'recoveryCounter',
+      'goalX', 'goalY', 'destinationX', 'destinationY', 'turnAngle', 'turnY',
+    ].map(key => [key, person[key]]))
+    assert.deepEqual(routeFields(fullPerson), routeFields(controlPerson))
+    release(full, fullUnit)
+    assert.deepEqual(fullPerson.commands, Array(8).fill(0))
+    assert.equal(full.buildingOrders.records[800].references, 0)
+    assert.equal(full.buildingOrders.active, 799)
   }
   assert.equal(full.buildingOrders.records[heldOrder].references, 1)
   assert.equal(full.motionRoutes.active, released.motionRoutes.active)
