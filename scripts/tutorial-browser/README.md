@@ -347,9 +347,11 @@ runtime change is added. Both prior failed runs and their strict validators rema
 preserved, alongside the new transition-specific negative tests.
 
 The separate 75-second case fits inside, not in addition to, the unchanged
-180-second aggregate browser cap. The PR adds no new workflow/job, browser route,
-dependency, cap increase or resource-policy refresh. A separately reviewed one-job
-diagnostic is not a readiness/full-gate run. Hosted execution must
+180-second aggregate browser cap. The browser case adds no new workflow/job, browser route,
+dependency or cap increase. Current-main composition refreshes only the reviewed
+combined production fingerprint; the helper hash and existing per-test resource
+classifications remain unchanged. A separately reviewed one-job diagnostic is not
+a readiness/full-gate run. Hosted execution must
 actually meet that budget. The existing complete frame exports remain separate
 from this functional case and retain their original assertions and interpretation.
 
