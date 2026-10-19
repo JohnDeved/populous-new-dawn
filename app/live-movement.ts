@@ -1,4 +1,5 @@
 import { departVehiclePerson } from './vehicle-unload.ts'
+import { populationCeiling } from './capacity-policy.ts'
 import { buildingPose } from './building-shapes.ts'
 import { clearTaskBindings, releaseTasks } from './world-tasks.ts'
 import {
@@ -567,7 +568,7 @@ function eligiblePreacherVictim(w: World, preacher: LivePerson, victim: LivePers
 function acquirePreacherVictims(w: World, preacher: LivePerson, radius: number) {
   let count = 0,
     first: LivePerson | undefined
-  // ponytail: the game caps tribes at 200 people; a direct scan avoids a second index.
+  // Preserve roster order. A spatial index remains separate scaling work.
   for (const u of w.units) {
     if (u.hp <= 0 || u.inside !== null || u.flight) continue
     let victim = u.native ?? u.entry?.person ?? u.fight?.motion
@@ -685,7 +686,10 @@ export function stepLiveConversionVictim(w: World, u: Unit) {
       return
     }
     const team = teamForTribe(preacher!.tribe)
-    if (population(w, team) <= 199 || w.manaTribes[victim.tribe].flags2 & 64)
+    if (
+      population(w, team) < populationCeiling(w.capacityPolicy) ||
+      w.manaTribes[victim.tribe].flags2 & 64
+    )
       replaceConvertedVictim(w, u, preacher!)
   } else u.heading = Math.PI - (victim.turnAngle * Math.PI) / 1024
 }

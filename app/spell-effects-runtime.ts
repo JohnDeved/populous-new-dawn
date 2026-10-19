@@ -1,4 +1,5 @@
 import constants from './original-constants.json' with { type: 'json' }
+import { populationCeiling } from './capacity-policy.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import modelAssets from './original-models.json' with { type: 'json' }
 import type { NativeModel } from './model-faces.ts'
@@ -19,7 +20,12 @@ import {
   short,
   spiralCell,
 } from './native-math.ts'
-import { deleteCellObject, moveObjectInCells, objectsInCell, removeObjectFromCell } from './object-cells.ts'
+import {
+  deleteCellObject,
+  moveObjectInCells,
+  objectsInCell,
+  removeObjectFromCell,
+} from './object-cells.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
 import {
   createFire,
@@ -1104,6 +1110,7 @@ export function stepLiveConvertWild(w: World, fx: Effect) {
   spell.counter = (spell.counter + 1) & 255
   return stepConvertWild(spell, w, {
     population: () => population(w, team),
+    populationCeiling: populationCeiling(w.capacityPolicy),
     people: cell => cells.get(cell) ?? [],
     unsupported: p => {
       const index = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)

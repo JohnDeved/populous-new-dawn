@@ -600,6 +600,8 @@ const unsignedAttackField = (value: number, maximum: number) =>
 // empty order initializer. Hold malformed fields and still-uncomposed cleanup
 // leaves before changing either native admission or the port member list.
 function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: LivePerson) {
+  const maximumOrder = w.buildingOrders.records.length - 1,
+    maximumReferences = w.buildingOrders.scalable ? Number.MAX_SAFE_INTEGER : 65535
   if (
     !unsignedAttackField(p.id, Number.MAX_SAFE_INTEGER) ||
     p.id !== u.id ||
@@ -632,9 +634,9 @@ function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: Liv
     w.land.flags[(p.y >>> 9) * 128 + (p.x >>> 9)] & 512 ||
     !Array.isArray(p.commands) ||
     p.commands.length !== 8 ||
-    !unsignedAttackField(p.immediateCommand, 799) ||
-    ![...p.commands].every(id => unsignedAttackField(id, 799)) ||
-    !unsignedAttackField(w.buildingOrders.active, 799)
+    !unsignedAttackField(p.immediateCommand, maximumOrder) ||
+    ![...p.commands].every(id => unsignedAttackField(id, maximumOrder)) ||
+    !unsignedAttackField(w.buildingOrders.active, maximumOrder)
   )
     return false
   const releases = new Map<number, number>()
@@ -647,7 +649,7 @@ function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: Liv
       !order ||
       !unsignedAttackField(order.model, 255) ||
       !unsignedAttackField(order.flags, 255) ||
-      !unsignedAttackField(order.references, 65535) ||
+      !unsignedAttackField(order.references, maximumReferences) ||
       order.references < count ||
       !unsignedAttackField(order.object, 65535) ||
       order.model === 30 ||
@@ -713,7 +715,8 @@ function computerAttackOutbound(w: World, index: number, target: number, radius:
 // 0x4d14f0: task.members supplies the port's admitted-member ownership. Inspect
 // the registered person, including a fight owner that shadows stale u.native.
 function computerAttackSettled(w: World, index: number) {
-  const units = computerAttackUnits(w, index)
+  const units = computerAttackUnits(w, index),
+    maximumOrder = w.buildingOrders.scalable ? w.buildingOrders.records.length - 1 : 65535
   if (!units.length) return null
   let settled = true
   for (const u of units) {
@@ -749,11 +752,11 @@ function computerAttackSettled(w: World, index: number) {
     if (rules.personStateFlags[p.state] & 8 || p.state === 25 || p.state === 29) continue
     if (
       (p.state !== 10 && p.state !== 33) ||
-      !unsignedAttackField(p.immediateCommand, 65535) ||
+      !unsignedAttackField(p.immediateCommand, maximumOrder) ||
       (!p.immediateCommand &&
         (!unsignedAttackField(p.commandCursor, 255) ||
           !Array.isArray(p.commands) ||
-          !unsignedAttackField(p.commands[p.commandCursor], 65535)))
+          !unsignedAttackField(p.commands[p.commandCursor], maximumOrder)))
     ) {
       settled = false
       continue
@@ -863,14 +866,16 @@ function produceMissionBuilding(w: World, tribe: number) {
         )
       }, 0)
   if (
-    (![2, 3, 6, 11, 12, 23].includes(w.outcome.level) && !missionFourTower && !(w.outcome.level === 7 && tribe === 2)) ||
+    (![2, 3, 6, 11, 12, 23].includes(w.outcome.level) &&
+      !missionFourTower &&
+      !(w.outcome.level === 7 && tribe === 2)) ||
     !(w.ai.states & 1) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
     return false
   const selection = computerSelectionWorld(w, tribe)
   const available =
-    (w.outcome.level === 2 || missionFourTower)
+    w.outcome.level === 2 || missionFourTower
       ? selection.world.people.filter(
           person => rules.personStateFlags[person.state] & 8 && !person.busy && person.model !== 7
         ).length
@@ -879,7 +884,9 @@ function produceMissionBuilding(w: World, tribe: number) {
   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
     // 0x4e5580 captures the loaded origin before an ordinary base is established.
     position =
-      (w.outcome.level === 2 || missionFourTower) && tribe === 3 && w.ai.constructionBase === undefined
+      (w.outcome.level === 2 || missionFourTower) &&
+      tribe === 3 &&
+      w.ai.constructionBase === undefined
         ? nativePosition(w, campaignPosition(w, 'green'))
         : shaman && nativePosition(w, shaman),
     origin =

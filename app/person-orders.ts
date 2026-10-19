@@ -11,7 +11,14 @@ export type PersonOrder = {
   a: number
   b: number
 }
-export type OrderPool = { records: PersonOrder[]; cursor: number; active: number }
+export type OrderPool = {
+  records: PersonOrder[]
+  cursor: number
+  active: number
+  // Absent in native fixtures and old checkpoints: retain their fixed pool and
+  // ushort arithmetic. The scalable world/save policy explicitly opts in.
+  scalable?: true
+}
 export type OrderGroup = { records: PersonOrder[]; count: number; cursor: number }
 export type OrderedPerson = {
   id: number
@@ -59,6 +66,36 @@ export const emptyPersonOrder = (): PersonOrder => ({
   a: 0,
   b: 0,
 })
+export function createPersonOrderPool(scalable = false): OrderPool {
+  return {
+    records: Array.from({ length: 800 }, emptyPersonOrder),
+    cursor: 1,
+    active: 0,
+    ...(scalable ? { scalable: true as const } : {}),
+  }
+}
+
+function changedOrderCount(pool: OrderPool, count: number, delta: number) {
+  if (!pool.scalable) return (count + delta) & 65535
+  if (
+    !Number.isSafeInteger(count) ||
+    count < 0 ||
+    !Number.isSafeInteger(count + delta) ||
+    count + delta < 0
+  )
+    throw new RangeError('Invalid scalable person-order count')
+  return count + delta
+}
+
+// Shared by ordinary cancellation and the boarding-only queue cleanup. Check
+// both counters before mutating either; malformed saves must not wrap to zero.
+export function releasePersonOrderReference(pool: OrderPool, order: PersonOrder) {
+  const references = changedOrderCount(pool, order.references, -1),
+    active = references ? pool.active : changedOrderCount(pool, pool.active, -1)
+  order.references = references
+  pool.active = active
+  return references === 0
+}
 // Raw command lookup: callers apply their own state/cancellation rules.
 export function currentPersonOrder(
   pool: OrderPool,
@@ -138,17 +175,26 @@ export function queuePersonOrder(group: OrderGroup, model: number, first: number
 
 // 0x436c20 and allocator in 0x4359b0. Clears identity but does not reserve a slot:
 // until attached, its zero-reference record can be allocated again after wrap.
-export function allocatePersonOrder(pool: OrderPool) {
+export function allocatePersonOrder(pool: OrderPool, reserved?: ReadonlySet<number>) {
+  const capacity = pool.scalable ? pool.records.length : 800
   let index = pool.cursor
-  for (let scanned = 0; scanned < 800; scanned++, index++) {
-    if (index >= 800) index = 1
+  for (let scanned = 0; scanned < capacity; scanned++, index++) {
+    if (index >= capacity) index = 1
     const order = pool.records[index]
-    if (order.references) continue
+    if (order.references || (pool.scalable && reserved?.has(index))) continue
     order.model = 0
     order.flags = 0
     order.object = 0
-    pool.cursor = index < 799 ? index + 1 : 1
+    pool.cursor = index < capacity - 1 ? index + 1 : 1
     return index
+  }
+  if (pool.scalable && capacity < 0xffffffff) {
+    // Grow only on real exhaustion, not once per follower. A shared group order
+    // still owns one record. Array indexes and references stay exact integers.
+    const count = Math.min(800, 0xffffffff - capacity)
+    for (let i = 0; i < count; i++) pool.records.push(emptyPersonOrder())
+    pool.cursor = capacity + 1 < pool.records.length ? capacity + 1 : 1
+    return capacity
   }
   return 0
 }
@@ -213,9 +259,7 @@ export function removePersonOrder(
     const order = pool.records[id]
     if (order.model === 7) person.assignment |= 0x8000
     else if (order.model === 30) effects.releaseSpell(person)
-    order.references = (order.references - 1) & 65535
-    if (!order.references) {
-      pool.active = (pool.active - 1) & 65535
+    if (releasePersonOrderReference(pool, order)) {
       if (order.object) effects.deleteObject(order.object)
     }
     if (slot < 0) person.immediateCommand = 0
@@ -237,8 +281,10 @@ export function attachPersonOrder(
   effects: OrderEffects
 ) {
   const order = pool.records[id]
-  if (!order.references) pool.active = (pool.active + 1) & 65535
-  order.references = (order.references + 1) & 65535
+  const references = changedOrderCount(pool, order.references, 1),
+    active = order.references ? pool.active : changedOrderCount(pool, pool.active, 1)
+  pool.active = active
+  order.references = references
   if (slot >= 0) {
     person.flags3 = (person.flags3 & ~0x2000000) >>> 0
     person.orderLocation = 0
@@ -316,10 +362,12 @@ export function commitPersonOrders(
   effects: OrderEffects
 ) {
   const ids: number[] = []
+  const reserved = pool.scalable ? new Set<number>() : undefined
   let success = true
   for (let i = 0; i < group.count; i++) {
-    const id = allocatePersonOrder(pool)
+    const id = allocatePersonOrder(pool, reserved)
     ids.push(id)
+    reserved?.add(id)
     if (!id) {
       success = false
       break

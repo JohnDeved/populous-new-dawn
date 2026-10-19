@@ -1,4 +1,5 @@
 import { worldEnvironment } from './world-environment.ts'
+import { restoreCapacityPolicy, type CapacityMode } from './capacity-policy.ts'
 import { rebuildSecondaryLists } from './secondary-effects.ts'
 import { restoreSecondaryEffects } from './hut-smoke-runtime.ts'
 import {
@@ -147,6 +148,7 @@ function migrateLegacyBridgeOrigins(world: World) {
 }
 
 export function migrateCheckpoint(world: World) {
+  restoreCapacityPolicy(world)
   // Preserve intact legacy cell order. This cannot recover a chain that an older
   // runtime already truncated after allocating a person handle above 0xffff.
   if (world.objectCells.heads instanceof Uint16Array)
@@ -422,10 +424,10 @@ async function writeCompletedMissions(completed: number[]) {
 
 // The simulation owns its mutable world. React subscribes to published revisions
 // instead of treating that world as immutable component state.
-export function createGameStore() {
+export function createGameStore(capacityMode: CapacityMode = 'scalable') {
   let checkpointReadStatus: CheckpointReadStatus = 'idle'
   let checkpointRestore: Promise<boolean> | null = null
-  let world = createWorld(),
+  let world = createWorld(1, capacityMode),
     checkpoint: World | null = null,
     observedCompletion = world.outcome.completedLevel,
     revision = 0
@@ -524,6 +526,7 @@ export function createGameStore() {
       return checkpointRestore
     },
     saveCheckpoint: async (paused = world.paused) => {
+      restoreCapacityPolicy(world)
       rebuildSecondaryLists(world.secondaryEffects)
       const saved = structuredClone(world)
       saved.paused = paused
@@ -542,10 +545,10 @@ export function createGameStore() {
     },
     restart: () => {
       const retainResource = !(world.land.landFlags & 8)
-      replaceWorld(createWorld(world.outcome.level), retainResource)
+      replaceWorld(createWorld(world.outcome.level, world.capacityPolicy.mode), retainResource)
     },
     startMission: (mission: number) => {
-      replaceWorld(createWorld(mission))
+      replaceWorld(createWorld(mission, capacityMode))
     },
   }
 }
