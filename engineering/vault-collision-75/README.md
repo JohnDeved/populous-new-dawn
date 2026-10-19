@@ -16,7 +16,9 @@ golden regeneration, browser run or rendered before/after pair was performed.
   owner, neutral tribe ownership and shade. All Vault frames 152–155 use shape59.
 - `0043c7a0`: phase1 plans the outside point; phase4 clears `0x10007`, sets bit2
   and dispatches direct inside movement; phase7 clears that mask and dispatches
-  direct outside movement; phase9 directly dispatches the existing leave point.
+  direct outside movement; phase9 recovers first, outside-corrects and snaps the
+  idle anchor for an occupied leave cell, then directly dispatches the unchanged
+  leave point. Exact phase-entry tests retain one recovery RNG draw.
 - `004e9dd0`: direct destination releases the route. Shared obstacle recovery may
   later replan; a permanent route-free assertion would be wrong.
 - `00517f10`/`005178d0`: bit2 only permits the completed building named by

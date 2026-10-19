@@ -11,6 +11,8 @@ import { syncLandscapeObjects } from '../app/world-terrain-runtime.ts'
 import { emitBlastWave, stepLiveBlastWave } from '../app/spell-effects-runtime.ts'
 import { liveBuildingAttackTarget } from '../app/live-building-combat.ts'
 import { liveBuildingModel, liveBuildingShape } from '../app/live-building-shapes.ts'
+import { processVaultTask } from '../app/vault.ts'
+import { randomPersonSpeed } from '../app/person-state.ts'
 import { short } from '../app/native-math.ts'
 import { finishLevelStart } from './level-start-fixture.mjs'
 
@@ -138,9 +140,12 @@ test('Vault footprint registration follows the modeled top-level body, not trigg
 test('ordinary open entry, current in-session Load, exit/departure and interrupted inside owners retain collision lifecycle', async t => {
   const state = approach(3), { world, shaman, vault, points } = state
   reachPrayer(state)
-  const mask = footprint(vault), observed = new Set()
+  const mask = footprint(vault), observed = new Set(), phaseEntries = new Map()
   let insideWorld, restored, completed = false
   for (let turns = 0; turns < 3000; turns++) {
+    const entering = shaman.native
+    if ([4, 7, 9].includes(entering.commandPhase) && entering.flags2 & 0x40000000 && !phaseEntries.has(entering.commandPhase))
+      phaseEntries.set(entering.commandPhase, structuredClone(world))
     step(world)
     if (restored) step(restored)
     const p = shaman.native, order = p && currentPersonOrder(world.buildingOrders, p)
@@ -153,6 +158,8 @@ test('ordinary open entry, current in-session Load, exit/departure and interrupt
         assert.equal(p.motionGroup, 0, `phase ${p.commandPhase} dispatches direct movement`)
       assert.equal(p.flags4 & 0x10007, p.commandPhase === 4 ? 2 : 0)
       assert.deepEqual({ x: p.goalX, y: p.goalY }, p.commandPhase === 4 ? points.inside : p.commandPhase === 7 ? points.outside : points.leave)
+      if (p.commandPhase === 9)
+        assert.deepEqual([p.anchorX, p.anchorY, p.anchorFlags], [(points.leave.x & 0xfe00) + 256, (points.leave.y & 0xfe00) + 256, 0])
       observed.add(p.commandPhase)
     }
     if (!insideWorld && p.commandPhase === 4 && mask.has(cell(p))) {
@@ -181,7 +188,67 @@ test('ordinary open entry, current in-session Load, exit/departure and interrupt
   assert.equal(restored.randomState, world.randomState)
   assert.deepEqual(restored.buildingOrders, world.buildingOrders)
 
-  await t.test('replacement while inside clears access and recovers outside without crossing another body', () => {
+  function assertEntryDispatch(w, phase, expectedAnchor) {
+    const u = person(w), p = u.native, beforeRng = w.randomState
+    const rng = { randomState: beforeRng }, speed = randomPersonSpeed(rng, p)
+    const expectedGoal = phase === 4 ? points.inside : phase === 7 ? points.outside : points.leave
+    const writes = []
+    let goalX = p.goalX
+    Object.defineProperty(p, 'goalX', {
+      configurable: true, enumerable: true,
+      get: () => goalX,
+      set: value => {
+        goalX = value
+        writes.push({ rng: w.randomState, access: p.flags4 & 0x10007,
+          anchor: [p.anchorX, p.anchorY, p.anchorFlags] })
+      },
+    })
+    assert.equal(processVaultTask(w, u), 0)
+    Object.defineProperty(p, 'goalX', { value: goalX, writable: true, enumerable: true, configurable: true })
+    assert.equal(writes.length, 1, 'one direct destination, not a planned route')
+    assert.equal(writes[0].rng, phase === 9 ? rng.randomState : beforeRng,
+      'phase9 recovers before dispatch; phase4/7 dispatch before recovery')
+    assert.equal(writes[0].access, phase === 4 ? 2 : 0)
+    assert.equal(w.randomState, rng.randomState, 'one recovery speed draw, no extra RNG')
+    assert.equal(p.speed, speed)
+    assert.equal(p.motionGroup, 0)
+    assert.deepEqual([p.goalX, p.goalY], [expectedGoal.x, expectedGoal.y])
+    if (expectedAnchor)
+      assert.deepEqual(writes[0].anchor, [(expectedAnchor.x & 0xfe00) + 256, (expectedAnchor.y & 0xfe00) + 256, 0])
+  }
+  await t.test('earned phase entries retain exact direct/recovery ordering and departure anchor', () => {
+    assert.deepEqual([...phaseEntries.keys()], [4, 7, 9])
+    for (const [phase, entry] of phaseEntries)
+      assertEntryDispatch(structuredClone(entry), phase, phase === 9 ? points.leave : undefined)
+  })
+  await t.test('supplied occupied leave cell corrects only the idle anchor and survives current Load', async () => {
+    const w = structuredClone(phaseEntries.get(9)), h = head(w)
+    const id = 900
+    assert.equal([...w.units, ...w.buildings, ...w.shrines].some(o => o.id === id), false)
+    // Supplied physical body at the already-earned leave point, not a naturally
+    // constructed second Vault. Keep its unique packed handle and actual mask.
+    const other = { ...structuredClone(h), ...browserPosition(points.leave), id, model: 154, active: false }
+    w.shrines.push(other)
+    syncLandscapeObjects(w)
+    assert.equal(w.land.buildingIds[cell(points.leave)] & 1023, id)
+    const outside = vaultPoints(other).outside
+    const store = createGameStore()
+    store.change(target => Object.assign(target, structuredClone(w)))
+    await store.saveCheckpoint()
+    assert.equal(store.loadCheckpoint(), true)
+    const loaded = store.getWorld()
+    assertEntryDispatch(w, 9, outside)
+    assertEntryDispatch(loaded, 9, outside)
+    assert.deepEqual(person(loaded), person(w))
+    assert.deepEqual(loaded.buildingOrders, w.buildingOrders)
+    assert.equal(loaded.randomState, w.randomState)
+    for (let turns = 0; turns < 12; turns++) { step(w); step(loaded) }
+    assert.deepEqual(person(loaded), person(w))
+    assert.deepEqual(head(loaded), head(w))
+    assert.equal(loaded.randomState, w.randomState)
+  })
+
+  await t.test('replacement while inside clears access and recovers outside', () => {
     const w = structuredClone(insideWorld), u = person(w), h = head(w)
     select(w, 'shaman')
     assert.equal(command(w, browserPosition(points.leave)), true)

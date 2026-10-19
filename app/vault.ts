@@ -10,6 +10,9 @@ import { samePersonCell } from './person-idle.ts'
 import { unitAnimationSource } from './unit-animation-source.ts'
 import { vaultAtPersonCell, vaultPoints } from './vault-geometry.ts'
 import { setDirectPersonDestination } from './person-routes.ts'
+import { setPersonAnchor } from './person-order-update.ts'
+import { liveBuildingShape } from './live-building-shapes.ts'
+import { buildingOutsidePoint } from './building-shapes.ts'
 
 export function vaultWorkEligible(w: World, shaman: Unit | undefined, head: Shrine) {
   if (!shaman || shaman.hp <= 0 || shaman.lift || shaman.fight || shaman.casting) return false
@@ -179,14 +182,18 @@ export function processVaultTask(w: World, u: Unit) {
     head = w.shrines.find(s => s.id === target && s.kind === 'vault' && s.model),
     points = head && vaultPoints(head)
   const previous = task.phase
-  const destination = (goal: { x: number; y: number }, direct = false) => {
-    if (direct) {
-      clearLivePath(w, u)
-      setDirectPersonDestination(w.motionRoutes, p, goal)
-    } else replanLivePath(w, u, p, goal)
+  const recover = () =>
     recoverPersonMovement(w, p, (person, object) =>
       setLivePersonAnimation(w, person as LivePerson, object)
     )
+  const directDestination = (goal: { x: number; y: number }) => {
+    clearLivePath(w, u)
+    setDirectPersonDestination(w.motionRoutes, p, goal)
+  }
+  const destination = (goal: { x: number; y: number }, direct = false) => {
+    if (direct) directDestination(goal)
+    else replanLivePath(w, u, p, goal)
+    recover()
   }
   const { done } = stepVaultTask(
     task,
@@ -217,7 +224,20 @@ export function processVaultTask(w: World, u: Unit) {
         p.flags4 = (p.flags4 & ~0x10007) >>> 0
         destination(points.outside, true)
       }
-      if (action === 'leave') destination(points.leave, true)
+      if (action === 'leave') {
+        // 0043c7a0 case9 recovers first, corrects only the idle anchor for an
+        // occupied leave cell, then directly dispatches the unchanged leave goal.
+        recover()
+        const cell = (points.leave.y >>> 9) * 128 + (points.leave.x >>> 9)
+        let anchor = points.leave
+        if (w.land.flags[cell] & 512) {
+          const shape = liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
+          if (!shape) throw new Error('Missing building at Vault departure anchor')
+          anchor = buildingOutsidePoint(shape)
+        }
+        setPersonAnchor(p, anchor)
+        directDestination(points.leave)
+      }
       if (action === 'open' || action === 'close') {
         sound(w, 0x9f, head)
         head.model = 152
