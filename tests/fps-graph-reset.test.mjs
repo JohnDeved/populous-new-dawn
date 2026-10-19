@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { FpsGraph } from '../app/fps-graph.ts'
 import { FramePerformance } from '../app/frame-performance.ts'
+import { createPointerFrameMetrics } from '../app/pointer-frame-metrics.ts'
 
 function fixture() {
   const writes = []
@@ -18,7 +19,8 @@ function fixture() {
   Object.assign(graph, {
     cleared: false, previous: null, samples: new FramePerformance(),
     fields: Object.fromEntries(['state', 'fps', 'frame', 'peak', 'callback', 'simulation',
-      'render', 'calls', 'heap', 'export-status', 'renderer', 'cores', 'memory', 'scale', 'pointer', 'pointer-tail', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak'].map(name => [name, sink(name)])),
+      'render', 'calls', 'heap', 'export-status', 'renderer', 'cores', 'memory', 'scale', 'pointer', 'pointer-tail', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak',
+      'picking-window', 'pick-numeric', 'pick-packed', 'pick-sparse', 'pick-representation'].map(name => [name, sink(name)])),
     line: sink('line'), budget: sink('budget'),
   })
   const update = now => graph.update(now, 1, 2, 3, 'Live', 4)
@@ -153,4 +155,88 @@ test('capture reset clears stale heap and export feedback without clearing hardw
   assert.match(graph.fields['export-status'].textContent, /No frames yet/)
   graph.reset()
   assert.equal(graph.fields['export-status'].textContent, '', 'warmup-only capture also invalidates reset guard')
+})
+
+test('picking readouts publish per-frame means at the existing cadence and distinguish zero, unknown and reset', () => {
+  const { graph, writes } = fixture(), metrics = createPointerFrameMetrics(true)
+  const update = (now, detail = metrics) => graph.update(now, 0, 0, 0, 'Live', 0, 0, detail)
+  graph.reset()
+  update(0)
+  metrics.ordinaryTerrain.paths.numeric = 2
+  for (let i = 1; i <= 24; i++) update(i * 10)
+  assert.equal(graph.fields['pick-numeric'].textContent, '--', 'no early DOM publication')
+  metrics.ordinaryTerrain.paths.numeric = 27
+  metrics.nativeOcclusion.cacheRepresentationChanged = 1
+  update(250)
+  assert.equal(graph.fields['picking-window'].textContent, 'Means/frame · 25 frames / 250 ms')
+  assert.equal(graph.fields['pick-numeric'].textContent, '3.00', 'not just the latest frame')
+  assert.equal(graph.fields['pick-packed'].textContent, '0.00')
+  assert.equal(graph.fields['pick-sparse'].textContent, '0.00')
+  assert.equal(graph.fields['pick-representation'].textContent, '0.04')
+  writes.length = 0
+  update(260)
+  assert.deepEqual(writes, [], 'unpublished samples do not render the details')
+  update(500, createPointerFrameMetrics())
+  for (const name of ['pick-numeric', 'pick-packed', 'pick-sparse', 'pick-representation'])
+    assert.equal(graph.fields[name].textContent, 'Unknown', name)
+  graph.reset('Hidden tab · sampling stopped')
+  for (const name of ['pick-numeric', 'pick-packed', 'pick-sparse', 'pick-representation'])
+    assert.equal(graph.fields[name].textContent, '--', name)
+  assert.equal(graph.fields['picking-window'].textContent, 'No samples yet')
+  update(10000)
+  assert.equal(graph.fields['pick-numeric'].textContent, '--', 'warmup cannot revive old counts')
+})
+
+test('picking details use an initially collapsed header control without relabeling paths as query or vertex counts', async () => {
+  const { readFileSync } = await import('node:fs')
+  const source = readFileSync(new URL('../app/fps-graph.ts', import.meta.url), 'utf8')
+  const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
+  assert.match(source, /<header>[^\n]*class="fps-picking-toggle" aria-expanded="false"/)
+  assert.match(source, /<section class="fps-picking" aria-label="Picking path details" hidden>/)
+  for (const label of ['Numeric instances', 'Packed-vector instances', 'Sparse-vector instances', 'Native repr.-only misses'])
+    assert.ok(source.includes(`<dt>${label}</dt>`), label)
+  assert.match(source, /Ordinary terrain instance paths after culling, not query or vertex counts/)
+  assert.match(source, /Unknown = incomplete sampling/)
+  assert.match(css, /\.fps-picking-toggle\{pointer-events:auto/)
+  assert.match(css, /\.fps-picking\[hidden\]\{display:none\}/)
+})
+
+test('actual picking toggle preserves native activation, isolates game input and lets F8 through', t => {
+  class Element extends EventTarget {
+    hidden = true
+    attributes = new Map()
+    setAttribute(key, value) { this.attributes.set(key, value) }
+  }
+  const fields = new Map(), controls = new Map(['.fps-export', '.fps-picking-toggle', '.fps-picking', 'polyline', '.fps-budget'].map(name => [name, new Element()]))
+  const aside = Object.assign(new Element(), {
+    querySelector: selector => controls.get(selector),
+    querySelectorAll() {
+      for (const match of this.innerHTML.matchAll(/data-metric="([^"]+)"/g))
+        fields.set(match[1], Object.assign(new Element(), { dataset: { metric: match[1] }, textContent: '' }))
+      return fields.values()
+    },
+  })
+  for (const [name, value] of [['document', { createElement: () => aside }], ['KeyboardEvent', class extends Event {
+    constructor(type, init) { super(type, init); this.key = init.key }
+  }]]) {
+    const original = Object.getOwnPropertyDescriptor(globalThis, name)
+    Object.defineProperty(globalThis, name, { configurable: true, value })
+    t.after(() => original ? Object.defineProperty(globalThis, name, original) : delete globalThis[name])
+  }
+  new FpsGraph({ getExtension: () => null, getParameter: () => null })
+  const toggle = controls.get('.fps-picking-toggle'), details = controls.get('.fps-picking')
+  for (const expected of [true, false, true]) {
+    toggle.dispatchEvent(new Event('click'))
+    assert.equal(toggle.attributes.get('aria-expanded'), String(expected))
+    assert.equal(details.hidden, !expected)
+  }
+  for (const button of [toggle, controls.get('.fps-export')])
+    for (const [type, key] of [['click'], ['pointerdown'], ['pointermove'], ['pointerup'], ['wheel'], ['keydown', 'Enter'], ['keyup', ' '], ['keydown', 'F8']]) {
+      const event = key === undefined ? new Event(type, { cancelable: true }) : new KeyboardEvent(type, { key, cancelable: true })
+      let stopped = false
+      event.stopPropagation = () => { stopped = true }
+      button.dispatchEvent(event)
+      assert.equal(stopped, key !== 'F8', `${type} ${key ?? ''}`)
+      assert.equal(event.defaultPrevented, false, 'do not prevent native button activation')
+    }
 })

@@ -19,6 +19,54 @@ test('frame telemetry computes time-weighted cadence and per-frame CPU/call mean
   assert.equal(sample.frames, 0)
 })
 
+test('picking path means share the publication window and exclude rejected samples', () => {
+  const frames = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+  const sample = (ms = 10) => frames.sample(ms, 0, 0, 0, 0, 0, undefined, 'live', metrics)
+  metrics.ordinaryTerrain.paths.numeric = 2
+  metrics.ordinaryTerrain.paths.packedVector = 3
+  metrics.ordinaryTerrain.paths.sparseVector = 4
+  metrics.nativeOcclusion.cacheRepresentationChanged = 1
+  for (let i = 0; i < 24; i++) assert.equal(sample(), false)
+  assert.equal(frames.picking.frames, 0)
+  metrics.ordinaryTerrain.paths.numeric = -1
+  assert.equal(sample(), false)
+  metrics.ordinaryTerrain.paths.numeric = 27
+  assert.equal(sample(), true)
+  assert.deepEqual(frames.picking, { frames: 25, milliseconds: 250, numeric: 3, packedVector: 3, sparseVector: 4, representationChanged: 1 })
+  resetPointerFrameMetrics(metrics)
+  assert.equal(sample(250), true)
+  assert.deepEqual(frames.picking, { frames: 1, milliseconds: 250, numeric: 0, packedVector: 0, sparseVector: 0, representationChanged: 0 })
+})
+
+test('missing or partial optional counters remain independently unknown instead of becoming zero', () => {
+  const frames = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+  const sample = detail => frames.sample(125, 0, 0, 0, 0, 0, undefined, 'live', detail)
+  sample(metrics); sample(undefined)
+  assert.deepEqual(frames.picking, { frames: 2, milliseconds: 250, numeric: null, packedVector: null, sparseVector: null, representationChanged: null })
+  sample(metrics)
+  delete metrics.ordinaryTerrain.paths
+  sample(metrics)
+  assert.deepEqual(frames.picking, { frames: 2, milliseconds: 250, numeric: null, packedVector: null, sparseVector: null, representationChanged: 0 })
+  const pathsOnly = createPointerFrameMetrics(true)
+  delete pathsOnly.nativeOcclusion.cacheRepresentationChanged
+  sample(pathsOnly); sample(pathsOnly)
+  assert.deepEqual(frames.picking, { frames: 2, milliseconds: 250, numeric: 0, packedVector: 0, sparseVector: 0, representationChanged: null })
+})
+
+test('picking reset clears both published and unfinished window counters', () => {
+  const frames = new FramePerformance(), metrics = createPointerFrameMetrics(true), published = frames.picking
+  metrics.ordinaryTerrain.paths.numeric = 50
+  metrics.nativeOcclusion.cacheRepresentationChanged = 10
+  const sample = ms => frames.sample(ms, 0, 0, 0, 0, 0, undefined, 'live', metrics)
+  sample(250); sample(100)
+  frames.reset()
+  assert.equal(frames.picking, published, 'fixed aggregate storage')
+  assert.deepEqual(frames.picking, { frames: 0, milliseconds: 0, numeric: null, packedVector: null, sparseVector: null, representationChanged: null })
+  resetPointerFrameMetrics(metrics)
+  sample(250)
+  assert.deepEqual(frames.picking, { frames: 1, milliseconds: 250, numeric: 0, packedVector: 0, sparseVector: 0, representationChanged: 0 })
+})
+
 test('a slow frame remains visible and affects cadence rather than being clamped away', () => {
   const sample = new FramePerformance()
   for (let i = 0; i < 10; i++) sample.sample(10, 1, 2, 3, 6)
@@ -193,7 +241,8 @@ test('actual graph keeps a startup spike, auto scale and 120 FPS guide consisten
     previous: null,
     samples: new FramePerformance(),
     fields: Object.fromEntries(['state', 'fps', 'frame', 'peak', 'callback', 'simulation',
-      'render', 'calls', 'heap', 'scale', 'pointer', 'pointer-tail', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak'].map(name => [name, sink()])),
+      'render', 'calls', 'heap', 'scale', 'pointer', 'pointer-tail', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak',
+      'picking-window', 'pick-numeric', 'pick-packed', 'pick-sparse', 'pick-representation'].map(name => [name, sink()])),
     line: sink(),
     budget: sink(),
   })
