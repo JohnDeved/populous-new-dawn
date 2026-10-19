@@ -1,3 +1,4 @@
+import type { OrdinaryProjectionCache } from './ordinary-projection-cache.ts'
 import { projectPoint, type Projection } from './projection.ts'
 
 const capacity = 128 * 128 * 6
@@ -7,8 +8,9 @@ const capacity = 128 * 128 * 6
 export class OrdinaryNumericProjection {
   values = new Float64Array(0)
   length = 0
+  projected = false
   private relative = { x: 0, y: 0, z: 0 }
-  private projected = { x: 0, y: 0, z: 0, screenX: 0, screenY: 0, flags: 0 }
+  private projectedPoint = { x: 0, y: 0, z: 0, screenX: 0, screenY: 0, flags: 0 }
 
   reset() {
     this.length = 0
@@ -22,7 +24,8 @@ export class OrdinaryNumericProjection {
     centerX: number,
     centerY: number,
     projection: Projection,
-    configDepth: number
+    configDepth: number,
+    cache?: OrdinaryProjectionCache
   ) {
     if (this.length >= capacity) throw new RangeError('Ordinary terrain working capacity exceeded')
     if (this.length * 6 === this.values.length) {
@@ -30,6 +33,10 @@ export class OrdinaryNumericProjection {
       next.set(this.values)
       this.values = next
     }
+    const slot = this.length++,
+      offset = slot * 6
+    this.projected = !cache?.restore(x, y, z, this.values, offset)
+    if (!this.projected) return slot
     // Same full expression order as Vector3.applyMatrix4, even for translation.
     const w = 1 / (matrix[3] * x + matrix[7] * y + matrix[11] * z + matrix[15])
     const wx = (matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12]) * w,
@@ -39,15 +46,14 @@ export class OrdinaryNumericProjection {
     p.x = (Math.round((wx + 8) * 256) - centerX) >> 1
     p.y = Math.round(((wy * 128) / 45) * 45)
     p.z = (Math.round((-wz - 8) * 256) - centerY) >> 1
-    const projected = projectPoint(p, projection, true, this.projected)
-    const slot = this.length++,
-      offset = slot * 6
+    const projected = projectPoint(p, projection, true, this.projectedPoint)
     this.values[offset] = wx
     this.values[offset + 1] = wy
     this.values[offset + 2] = wz
     this.values[offset + 3] = (projected.screenX * 2) / projection.width - 1
     this.values[offset + 4] = 1 - (projected.screenY * 2) / projection.height
     this.values[offset + 5] = (projected.z + configDepth) / 16384 - 1
+    cache?.save(x, y, z, this.values, offset)
     return slot
   }
 }

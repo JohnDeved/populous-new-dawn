@@ -1,3 +1,4 @@
+import { OrdinaryProjectionCache } from './ordinary-projection-cache.ts'
 import { OrdinaryNumericProjection } from './ordinary-numeric-projection.ts'
 import { runtimeTerrainPicking, releaseRuntimeTerrainPicking } from './runtime-terrain-picking.ts'
 import type {
@@ -183,8 +184,8 @@ interface PickSubmissionState {
   cells: Uint32Array
 }
 
-// Fixed shipped-grid capacity. These are working buffers, never a geometry cache:
-// every ordinary query recomputes current positions and projections.
+// Fixed shipped-grid working buffers. Current-query aliases are always rebuilt;
+// owned arithmetic reuse lives separately in OrdinaryProjectionCache.
 class OrdinaryPickScratch {
   corners = new Uint32Array(129 * 129)
   slots = new Uint32Array(128 * 128 * 6)
@@ -204,6 +205,7 @@ class OrdinaryPickScratch {
 }
 
 export class RenderView {
+  private ordinaryProjectionCache: OrdinaryProjectionCache | null = null
   private ordinaryNumericProjection: OrdinaryNumericProjection | null = null
   private ordinaryPickScratch: OrdinaryPickScratch | null = null
   private ordinaryPickDepth = 0
@@ -548,6 +550,13 @@ export class RenderView {
           ]
         : []
     }
+    // A single aggregate lease spans all instances. Nested/generic/native queries
+    // never reset or touch it; disposal only detaches the owner's reference.
+    const projectionCache =
+      owned && this.ordinaryPickDepth === 1 && !this.ordinaryPickDisposed
+        ? (this.ordinaryProjectionCache ??= new OrdinaryProjectionCache())
+        : undefined
+    projectionCache?.beginQuery()
     const candidates: ViewPickCandidate[] = []
     for (const root of objects)
       root.traverseVisible(object => {
@@ -672,6 +681,14 @@ export class RenderView {
               ? (this.ordinaryNumericProjection ??= new OrdinaryNumericProjection())
               : null
           numeric?.reset()
+          if (numeric)
+            projectionCache?.beginInstance(
+              transform.elements,
+              this.rawCenter.x,
+              this.rawCenter.y,
+              this.projection,
+              this.config.depth
+            )
           const world: THREE.Vector3[] = reuse ? cache.world : (scratch?.world ?? []),
             screen: THREE.Vector4[] = reuse ? cache.screen : (scratch?.screen ?? []),
             terrainSlots = packedTerrain
@@ -731,11 +748,12 @@ export class RenderView {
                 this.rawCenter.x,
                 this.rawCenter.y,
                 this.projection,
-                this.config.depth
+                this.config.depth,
+                projectionCache
               )
               terrainSlots![i] = slot + 1
               if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
-              if (projectionMetrics) projectionMetrics.projectedVertices++
+              if (projectionMetrics && numeric.projected) projectionMetrics.projectedVertices++
               continue
             }
             let p = new THREE.Vector3().fromBufferAttribute(position, i)
@@ -889,6 +907,7 @@ export class RenderView {
   releaseOrdinaryNumericProjection() {
     // An active query owns its local reference until completion. Detach only.
     this.ordinaryNumericProjection = null
+    this.ordinaryProjectionCache = null
   }
 
   private scanOrdinaryNumeric(
