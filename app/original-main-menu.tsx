@@ -249,10 +249,11 @@ export function OriginalMainMenu({
           event.preventDefault()
           return
         }
-        // Keep the fullscreen frontend open across repeated native close requests.
+        // Help consumes the first Escape before revealing Options. Its held-key
+        // repeats must not cross that newly revealed panel into the main menu.
         if (event.key === 'Escape') {
           event.preventDefault()
-          back()
+          if (!event.repeat) back()
           return
         }
         if (

@@ -78,7 +78,7 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
   )
   assert.match(workflow, /name: \$\{\{ matrix\.buildStep \}\}/)
   assert.match(workflow, /timeout-minutes: \$\{\{ matrix\.timeoutMinutes \}\}/)
-  assert.equal((workflow.match(/timeoutMinutes: 15/g) ?? []).length, 5)
+  assert.equal((workflow.match(/timeoutMinutes: 15/g) ?? []).length, 6)
   assert.match(workflow, /fail-fast: false/)
   assert.match(workflow, /scripts\/local-render\/original-pause-checkpoint-recovery\.mjs/)
   const runner = readFileSync(
@@ -117,7 +117,7 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
 test('candidate snapshot smoke is one read-only bounded functional case, never a trusted comparison', () => {
   const workflow = read('tutorial-browser.yml')
   assert.match(workflow, /scenario: snapshot-protocol\n +timeoutMinutes: 6\n +name: Controlled snapshot functional smoke\n +artifact: candidate-snapshot-functional-smoke/)
-  assert.equal((workflow.match(/- scenario:/g) ?? []).length, 6)
+  assert.equal((workflow.match(/- scenario:/g) ?? []).length, 7)
   assert.match(workflow, /scripts\/browser-performance\/\*\*/)
   assert.match(workflow, /outputs\/tutorial-browser\/snapshot-\*\/\*\.json/)
   assert.doesNotMatch(workflow, /: write|secrets\.|pull_request_target|workflow_dispatch|continue-on-error/)
@@ -143,4 +143,23 @@ test('parsed hosted matrix and actual pure policy preserve every existing cap an
   for (const name of browserScenarios) assert.equal(browserCapMs(name), name === 'snapshot-protocol' ? 90000 : 180000)
   for (const item of items) assert.equal(item.timeoutMinutes, item.scenario === 'snapshot-protocol' ? 6 : 15)
   for (const invalid of ['', 'unknown', null, 900000]) assert.throws(() => browserCapMs(invalid), /Unknown browser scenario/)
+})
+
+
+test('frontend held Escape is one separate hosted job, not added work inside Tutorial', async () => {
+  const workflow = yaml.load(read('tutorial-browser.yml'))
+  const items = workflow.jobs['tutorial-browser'].strategy.matrix.include
+  const selected = items.filter(item => item.scenario === 'frontend-held-escape')
+  assert.deepEqual(selected, [{ scenario: 'frontend-held-escape', timeoutMinutes: 15,
+    name: 'Frontend held Escape browser', artifact: 'frontend-held-escape-browser',
+    buildStep: 'Build plain production Home and validate bounded frontend Escape navigation' }])
+  assert.equal(browserCapMs('frontend-held-escape'), 180000)
+  const { frontendHeldEscapeLimitMs } = await import('../scripts/local-render/frontend-held-escape.mjs')
+  assert.equal(frontendHeldEscapeLimitMs, 60000)
+  const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
+  assert.match(runner, /frontendEscapeScenarioSha256: hash\(frontendEscapeScenario\)/)
+  assert.match(runner, /else if \(selectedScenario === 'frontend-held-escape'\) \{\s+receipt\.frontendHeldEscape = await .*frontendEscapeScenario.*page, url, output: out/)
+  assert.equal((runner.match(/receipt\.frontendHeldEscape =/g) ?? []).length, 1)
+  assert.match(runner, /capMs: 120000/)
+  assert.ok(workflow.on.pull_request.paths.includes('scripts/local-render/frontend-held-escape.mjs'))
 })
