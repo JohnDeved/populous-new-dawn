@@ -272,9 +272,11 @@ export class FpsGraph {
       'raf-tail',
       'cpu-tail',
       'cpu-peak',
+      'heap',
     ])
       this.text(name, '--')
     this.text('state', state)
+    this.text('export-status', '')
     this.text('window', '0 samples')
     this.text('scale', 'ms')
     this.line.setAttribute('points', '')
