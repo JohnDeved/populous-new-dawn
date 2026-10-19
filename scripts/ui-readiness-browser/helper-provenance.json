@@ -1,0 +1,20 @@
+{
+  "runtimeSource": "f275d6c403a06cfb2ac76489a667c81f680d6439",
+  "base": "fa67ce0a56c680efc785d5125186af887a51efe8",
+  "helpers": {
+    "quit-warning.mjs": "190d3adfe5aaf5929b99d30efe36f545184d24ab09c174f725a0974bdcc72d6f",
+    "startup-paint.mjs": "3e39cc399d3cd68468b7a24ec17ebc9f01fb78e55e2bce36c2c9b30644168cd9"
+  },
+  "suites": {
+    "quit": [
+      "quit-compact",
+      "quit-wide"
+    ],
+    "startup": [
+      "startup-ssr",
+      "startup-label-held",
+      "startup-art-failure"
+    ]
+  },
+  "startupAdapter": "Owner08f4d2ea plus bounded actual-route-observation promises for first script and composition; no sleeps or relaxed assertions."
+}
