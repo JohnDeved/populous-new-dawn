@@ -34,15 +34,13 @@ export function migrateCheckpoint(world: World) {
   for (const shrine of world.shrines)
     if (
       !shrine.reward &&
-      ![
-        'bridgeEffect',
-        'erosionEffect',
-        'flattenEffect',
-        'volcanoEffect',
-        'linkedEffects',
-        'boat',
-        'inert',
-      ].includes(shrine.kind) &&
+      shrine.kind !== 'bridgeEffect' &&
+      shrine.kind !== 'erosionEffect' &&
+      shrine.kind !== 'flattenEffect' &&
+      shrine.kind !== 'volcanoEffect' &&
+      shrine.kind !== 'linkedEffects' &&
+      shrine.kind !== 'boat' &&
+      shrine.kind !== 'inert' &&
       !(shrine.kind === 'angel' && shrine.angelTarget)
     )
       shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind
