@@ -1,0 +1,1 @@
+Actual badge source before/after comparison only. Runtimeae5a767cc35a447cbc50ff1c1bdf0c644b208fd0. Two serial cases2560x1267DPR1 and1280x800DPR2. Static/glowcrossings/resized croppedbadge joins, currentRGBA equality, transparency, backgroundauto, pointer-hit/layout checks. Existing90s/7min/Chrome/cleanup/128MiB bounds retained. No performance/native-art replacement claims.
