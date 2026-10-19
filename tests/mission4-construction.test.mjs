@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { createLivePerson } from '../app/live-people.ts'
 import { createWorld } from '../app/world-initialization.ts'
 import { availableTrainingPeople } from '../app/computer-selection.ts'
 import { stepComputerTasks, computerSelectionWorld } from '../app/computer-runtime.ts'
@@ -101,7 +102,7 @@ for (const housingOnly of [false, true])
     for (const u of braves.slice(housingOnly ? 1 : 2)) u.hp = 0
     if (housingOnly) {
       // Controlled command-pool boundary: one idle Brave also has order6.
-      const p = braves[0].native
+      const p = braves[0].native ??= createLivePerson(w, braves[0])
       Object.assign(p, { state: 10, commandStatus: 6, immediateCommand: 1 })
       Object.assign(w.buildingOrders.records[1], { model: 6, flags: 0 })
       assert.equal(availableTrainingPeople(computerSelectionWorld(w, 3).world), 2)
