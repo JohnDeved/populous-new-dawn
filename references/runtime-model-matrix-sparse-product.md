@@ -86,9 +86,8 @@ and unchanged before/after.
 - Candidate projection SHA-256: `d11a4e091915d1943dc244edfa1d02360f70cda281d8ba9ecccf042d3116bcd5`.
 - Benchmark script SHA-256: `924b44e660d7aedaafa94e792d53837f5859284e6388401655d120fd609c6753`.
 
-Owned draw-stage medians are lower in every pair. Inclusive effects-stress and
-moving-pose medians/totals are also lower in both orders, and custom setters no
-longer need a slower cache fallback. However, ordinary opening and crowd results
+Draw-stage medians are lower in every pair. Inclusive effects-stress and
+moving-pose medians/totals are also lower in both orders, and custom-setter draw medians improve without any special fallback. However, ordinary opening and crowd results
 are mixed, with adverse candidate outliers and sums retained below. The cause of
 those spikes is not diagnosed by this benchmark. Two process pairs do not justify
 a universal performance or tail-latency conclusion. This supports a simple bounded
@@ -173,3 +172,48 @@ git show 55770f1a03478883e8d0b00a1fd518e222782c3b:app/projection.ts > /tmp/proje
 PND_MODEL_MATRIX_BASELINE=/tmp/projection-baseline.ts node --test --test-concurrency=1 tests/model-matrix-sparse-product.test.mjs
 node scripts/benchmark-model-matrix.mjs "$PWD" /tmp/projection-baseline.ts
 ```
+
+### Retained-log settling diagnosis (no rerun)
+
+Sixteen warmups did **not** establish a steady-state measurement. Several arms
+continue declining across the measured window; others rise or have late spikes.
+The table below retains all five fixed 16-cycle windows, including warmup, to
+show that limitation without changing the declared 64-sample analysis. Values
+are inclusive CPU medians in milliseconds; frame indices are zero-based.
+
+| Cohort | Order | Arm | Frames 0–15 (warmup) | 16–31 | 32–47 | 48–63 | 64–79 | Largest measured frame: ms |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| opening | AB | base | 0.7693 | 0.2649 | 0.3811 | 0.2220 | 0.2296 | 18: 1.2187 |
+| opening | AB | head | 0.6501 | 0.4241 | 0.2403 | 0.1870 | 0.1959 | 28: 11.2093 |
+| opening | BA | base | 0.7740 | 0.2778 | 0.2878 | 0.2217 | 0.2273 | 20: 0.8514 |
+| opening | BA | head | 0.6384 | 0.2219 | 0.3156 | 0.1861 | 0.2869 | 61: 10.0235 |
+| crowd256 | AB | base | 4.6225 | 2.3112 | 1.9817 | 1.7801 | 1.8083 | 21: 4.4169 |
+| crowd256 | AB | head | 3.8585 | 3.1415 | 1.7700 | 1.5227 | 1.4578 | 19: 17.1791 |
+| crowd256 | BA | base | 3.4995 | 2.0519 | 1.8374 | 1.6726 | 1.7005 | 34: 6.0854 |
+| crowd256 | BA | head | 3.3949 | 2.5581 | 1.9719 | 2.1490 | 2.0643 | 22: 13.1309 |
+| effects128 | AB | base | 28.0265 | 24.4931 | 28.6063 | 26.8254 | 28.7551 | 28: 83.3733 |
+| effects128 | AB | head | 24.1653 | 22.6123 | 17.1381 | 19.7008 | 28.7498 | 77: 64.3111 |
+| effects128 | BA | base | 30.3109 | 25.2083 | 25.5253 | 26.2909 | 25.3574 | 58: 31.0888 |
+| effects128 | BA | head | 26.9340 | 25.2008 | 19.7214 | 19.4567 | 19.3608 | 18: 46.4520 |
+| moving-pose | AB | base | 4.3456 | 4.1044 | 2.6752 | 2.3126 | 2.2286 | 23: 5.6856 |
+| moving-pose | AB | head | 3.5766 | 2.4150 | 2.2407 | 2.0129 | 1.9797 | 32: 5.3291 |
+| moving-pose | BA | base | 5.5592 | 3.4011 | 2.7819 | 2.5467 | 3.7398 | 75: 6.1809 |
+| moving-pose | BA | head | 4.4235 | 2.8742 | 2.4284 | 2.0934 | 2.0765 | 32: 6.0540 |
+| custom-setter | AB | base | 2.8464 | 2.0000 | 1.6511 | 1.5801 | 1.5531 | 35: 4.8448 |
+| custom-setter | AB | head | 2.9486 | 2.5099 | 1.4228 | 1.3690 | 1.3758 | 19: 15.6569 |
+| custom-setter | BA | base | 3.4058 | 2.4339 | 2.1308 | 1.6861 | 1.6979 | 37: 5.2445 |
+| custom-setter | BA | head | 2.6112 | 2.2681 | 1.5928 | 1.3968 | 1.3257 | 18: 11.8043 |
+
+For example, crowd AB falls from 2.3112 to 1.8083 ms (baseline) and 3.1415 to
+1.4578 ms (candidate) between the first and last measured blocks. Conversely,
+the opening BA candidate spike at frame 61 is 10.0235 ms, with 9.8544 ms inside
+draw; the effects AB candidate peaks at frame 77 with 64.3111 ms. A startup-only
+explanation therefore does not cover all observed tails. Work counts are constant
+and paired, and the fixtures substitute texture IO; no actual asynchronous asset
+download or GPU upload settling was measured.
+
+This is a fixed transient CPU workload comparison, not demonstrated steady-state
+throughput or stable tail latency. No retained data identifies JIT, GC, scheduling
+or another cause for the spikes, and none is asserted. No samples are removed,
+no alternative warmup cutoff is adopted and no additional trial was run. Hosted
+whole-frame/browser qualification with the actual renderer remains required.
