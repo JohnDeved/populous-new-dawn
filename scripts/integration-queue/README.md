@@ -176,7 +176,9 @@ An optional `allowBaseMetadataRefresh: true` entry admits one separately reviewe
 `refresh-base` pilot, never an implicit addition to Ready. This is only for an
 unchanged reviewed Draft head whose current main equals `reviewBase`, already lies
 in the head's ancestry, and has synthetic parents `[main, head]` and the reviewed
-tree. The old advertised base must be an ancestor of main. Review, workflow,
+tree, before Ready admission for the current explicitly reviewed candidate/journal.
+This does not assert that the PR has never been Ready in its lifetime. The old
+advertised base must be an ancestor of main. Review, workflow,
 resource, drained-run and existing validation guards still apply; absent hosted
 gates do not block the Ready event that starts them. Genuine failed gates remain
 failures, not metadata exceptions. Admission-only mode has no refresh authority.
