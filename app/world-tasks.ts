@@ -1,8 +1,9 @@
 import { type Unit, type World } from './world-types.ts'
-import { leaveLiveBuilding, cancelBuildingEntry } from './live-people.ts'
+import { leaveLiveBuilding, cancelBuildingEntry, type LivePerson } from './live-people.ts'
 import { cancelLiveResting } from './live-resting.ts'
 import { cancelLiveBuildingAttack } from './live-building-combat.ts'
-import { cancelLiveOrder } from './live-movement.ts'
+import { cancelLiveOrder, orderEffects } from './live-movement.ts'
+import { clearPersonOrders } from './person-orders.ts'
 import { clearLivePath } from './live-pathfinding.ts'
 
 export function clearFightAssignment(u: Unit) {
@@ -13,6 +14,14 @@ export function clearFightAssignment(u: Unit) {
     if (p.immediateCommand || p.commands.some(Boolean)) u.native = p
   }
   u.fight = null
+}
+
+// Call only after terminal task cancellation, with the captured unique physical
+// owners. Ordinary cancellation deliberately preserves some queues for handoffs.
+export function clearRetiredPersonOrders(w: World, people: Iterable<LivePerson | undefined>) {
+  const effects = orderEffects(w)
+  for (const person of people)
+    if (person) clearPersonOrders(w.buildingOrders, person, effects)
 }
 
 export function release(w: World, u: Unit, preserveOrders = false, preserveResting = false) {

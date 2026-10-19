@@ -12,8 +12,6 @@ import {
   type LivePerson,
 } from './live-people.ts'
 import { nativePersonModel } from './live-combat.ts'
-import { orderEffects } from './live-movement.ts'
-import { clearPersonOrders } from './person-orders.ts'
 import {
   cellDistanceSquared,
   nativeAngle,
@@ -41,7 +39,7 @@ import {
 import { addUnit, population } from './world-state.ts'
 import { nativePosition, syncLandscapeObjects } from './world-terrain-runtime.ts'
 import { browserPosition, nativeDistance, nativeStep3D, shotAngles } from './world-coordinates.ts'
-import { release, releaseTasks } from './world-tasks.ts'
+import { clearRetiredPersonOrders, release, releaseTasks } from './world-tasks.ts'
 import {
   teamForTribe,
   tribeForTeam,
@@ -124,8 +122,7 @@ function releaseRetiredPeople(w: World, source: Unit) {
   if (occupant && !people.includes(occupant)) people.push(occupant)
   // Ordinary cancellation deliberately preserves AI patrol orders. Terminal
   // removal retires these people, so every remaining queue owner must release.
-  const effects = orderEffects(w)
-  for (const person of people) clearPersonOrders(w.buildingOrders, person, effects)
+  clearRetiredPersonOrders(w, people)
   return people
 }
 

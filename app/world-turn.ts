@@ -98,7 +98,7 @@ import {
   unitInvisibleToPlayer,
 } from './spell-effects-runtime.ts'
 import { meleeDamage, joinBattle, cleanBattles, processBattles } from './combat-runtime.ts'
-import { release, releaseTasks } from './world-tasks.ts'
+import { clearRetiredPersonOrders, release, releaseTasks } from './world-tasks.ts'
 import {
   sound,
   effect,
@@ -191,7 +191,6 @@ import { recordWorshipPanelActivity } from './worship-panel-activity.ts'
 import { requestVaultPanel } from './training-panel-requests.ts'
 import {
   cancelLiveOrder,
-  orderEffects,
   stepLiveConversionVictim,
   stepLiveMovement,
   stepLivePreaching,
@@ -220,12 +219,7 @@ import { firewarriorRange, launchFirewarrior, stepFirewarriorShots } from './fir
 import { buildingDoor, entrance, findPath, route, tell } from './live-command.ts'
 import { pursuitDestinationChanged } from './person-routes.ts'
 import { stepAttackReservation, type AttackReservation } from './combat-targets.ts'
-import {
-  clearPersonOrders,
-  currentPersonOrder,
-  emptyPersonOrder,
-  type OrderPool,
-} from './person-orders.ts'
+import { currentPersonOrder, emptyPersonOrder, type OrderPool } from './person-orders.ts'
 import {
   clickPersonSelection,
   markPersonSelected,
@@ -1833,9 +1827,7 @@ function stepTurn(w: World, metrics?: { steps: number }) {
       cancelLiveBuildingAttack(w, u)
       cancelLiveOrder(w, u)
       cancelBuildingEntry(w, u)
-      const effects = orderEffects(w)
-      for (const person of retiredPeople)
-        if (person) clearPersonOrders(w.buildingOrders, person, effects)
+      clearRetiredPersonOrders(w, retiredPeople)
     }
   w.units = w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44)
   removeMissingVehiclePassengers(w)
