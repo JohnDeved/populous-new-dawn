@@ -4,6 +4,7 @@ import { discardInvalidResident, residentPerson } from './building-resident.ts'
 import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
 import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
 import { buildingPose } from './building-shapes.ts'
+import { liveBuildingModel, liveBuildingShape } from './live-building-shapes.ts'
 import { effect, emitGroundSpark, requestTutorial, sound } from './world-effects.ts'
 import { releaseTasks } from './world-tasks.ts'
 import { initializeRouteRecovery, stepRouteRecovery } from './person-route-recovery.ts'
@@ -346,9 +347,8 @@ export function syncLivePersonCells(w: World) {
       const point = nativePosition(w, u),
         cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9),
         flags = w.land.flags[cell]
-      const b =
-        flags & 512 ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023)) : undefined
-      const value = personSupportHeight(offset, flags, b ? buildingModel(b) : 0)
+      const model = flags & 512 ? liveBuildingModel(w, w.land.buildingIds[cell] & 1023) : 0
+      const value = personSupportHeight(offset, flags, model)
       if (p) p.supportHeight = value
       u.supportHeight = value || undefined
     }
@@ -780,6 +780,16 @@ export function collisionWorld(w: World): CollisionWorld {
           tribe: tribeForTeam(b.team),
           related: 0,
         })
+      for (const shrine of w.shrines)
+        if (shrine.kind === 'vault' && shrine.model)
+          objects.set(shrine.id, {
+            ...nativePosition(w, shrine),
+            class: 2,
+            state: 2,
+            flags2: 0,
+            tribe: 255,
+            related: 0,
+          })
       for (const u of w.units)
         objects.set(u.id, {
           ...nativePosition(w, u),
@@ -985,13 +995,15 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
       gameFlags: w.manaWorld.gameFlags,
       levelFlags: w.manaWorld.levelFlags,
       playerTribe: w.manaWorld.playerTribe,
-      buildingModel: id => buildingModel(w.buildings.find(b => b.id === id)!),
+      buildingModel: id => {
+        const model = liveBuildingModel(w, id)
+        if (!model) throw new Error('Missing building during impulse recovery')
+        return model
+      },
       route: outside => {
-        const b = w.buildings.find(b => b.id === (collision.cell(p).building & 1023))
-        if (!b) throw new Error('Missing building during impulse recovery')
-        return outside
-          ? buildingOutsidePoint(buildingPose(b))
-          : buildingApproachPoint(buildingPose(b), p)
+        const shape = liveBuildingShape(w, collision.cell(p).building & 1023)
+        if (!shape) throw new Error('Missing building during impulse recovery')
+        return outside ? buildingOutsidePoint(shape) : buildingApproachPoint(shape, p)
       },
     },
     p,
@@ -1143,8 +1155,8 @@ function updateLivePanic(w: World, u: Unit, ctx: ReturnType<typeof context>, p: 
     outside: point => {
       const cell = (point.y >> 9) * 128 + (point.x >> 9)
       if (!(w.land.flags[cell] & 512)) return point
-      const building = w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
-      return building ? { ...point, ...buildingOutsidePoint(buildingPose(building)) } : point
+      const shape = liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
+      return shape ? { ...point, ...buildingOutsidePoint(shape) } : point
     },
   })
   if (next && !(p.flags2 & 0x100000)) {
@@ -1169,8 +1181,8 @@ function updateLiveVolcanoPanic(w: World, u: Unit, ctx: ReturnType<typeof contex
     outside: point => {
       const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
       if (!(w.land.flags[cell] & 512)) return point
-      const building = w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
-      return building ? { ...point, ...buildingOutsidePoint(buildingPose(building)) } : point
+      const shape = liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
+      return shape ? { ...point, ...buildingOutsidePoint(shape) } : point
     },
   })
   u.burnTrail = p.burnTrail
@@ -1189,20 +1201,19 @@ export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
     if (p.flags2 & 0x200 && !(p.flags2 & 128) && positionsOverlap(p, 56, destination, 1024))
       speed = Math.min(speed, positionDistance(p, destination))
     const collision = collisionWorld(w)
-    const building =
+    const shape =
       collision.cell(p).flags & 0x200
-        ? w.buildings.find(b => b.id === (collision.cell(p).building & 1023))
+        ? liveBuildingShape(w, collision.cell(p).building & 1023)
         : undefined
     const blocked = (to: { x: number; y: number }) => personStepCollision(collision, p, to)
     if (speed)
       stepMotionRecovery(
         p,
-        !!building,
+        !!shape,
         () => !!buildingBlocksPerson(collision, p, collision.cell(p)),
         outside => {
-          if (!building) throw new Error('Missing building during native exit recovery')
-          const pose = buildingPose(building)
-          return outside ? buildingOutsidePoint(pose) : buildingApproachPoint(pose, p)
+          if (!shape) throw new Error('Missing building during native exit recovery')
+          return outside ? buildingOutsidePoint(shape) : buildingApproachPoint(shape, p)
         }
       )
     const velocity = { x: 0, y: Math.max(0, short(p.velocity.y)), z: 0 }
@@ -1213,7 +1224,7 @@ export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
     if (speed && blocked(next)) {
       if (turning) Object.assign(next, { x: p.x, y: p.y, h: terrain(p.x, p.y) })
       else if (
-        !recoverGroundObstacle(p, next, !!building, terrain, blocked) &&
+        !recoverGroundObstacle(p, next, !!shape, terrain, blocked) &&
         unsupportedGround(w.land, p, p.physics)
       ) {
         // 0x4e7193: retain this ground step's limited velocity, not an old combat
@@ -1283,9 +1294,9 @@ export function stepLivePerson(w: World, u: Unit) {
         outside: to => {
           const cell = ((to.y & 65535) >> 9) * 128 + ((to.x & 65535) >> 9)
           if (!(w.land.flags[cell] & 512)) return to
-          const b = w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
-          if (!b) return unowned()
-          return buildingOutsidePoint(buildingPose(b))
+          const shape = liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
+          if (!shape) return unowned()
+          return buildingOutsidePoint(shape)
         },
         destination: to => effects.destination(p, to),
         arrival: unowned,

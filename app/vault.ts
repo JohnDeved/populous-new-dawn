@@ -9,6 +9,7 @@ import { currentPersonOrder } from './person-orders.ts'
 import { samePersonCell } from './person-idle.ts'
 import { unitAnimationSource } from './unit-animation-source.ts'
 import { vaultAtPersonCell, vaultPoints } from './vault-geometry.ts'
+import { setDirectPersonDestination } from './person-routes.ts'
 
 export function vaultWorkEligible(w: World, shaman: Unit | undefined, head: Shrine) {
   if (!shaman || shaman.hp <= 0 || shaman.lift || shaman.fight || shaman.casting) return false
@@ -178,8 +179,11 @@ export function processVaultTask(w: World, u: Unit) {
     head = w.shrines.find(s => s.id === target && s.kind === 'vault' && s.model),
     points = head && vaultPoints(head)
   const previous = task.phase
-  const destination = (goal: { x: number; y: number }) => {
-    replanLivePath(w, u, p, goal)
+  const destination = (goal: { x: number; y: number }, direct = false) => {
+    if (direct) {
+      clearLivePath(w, u)
+      setDirectPersonDestination(w.motionRoutes, p, goal)
+    } else replanLivePath(w, u, p, goal)
     recoverPersonMovement(w, p, (person, object) =>
       setLivePersonAnimation(w, person as LivePerson, object)
     )
@@ -203,9 +207,17 @@ export function processVaultTask(w: World, u: Unit) {
     },
     action => {
       if (!head || !points) return
-      if (action === 'approach' || action === 'exit') destination(points.outside)
-      if (action === 'enter') destination(points.inside)
-      if (action === 'leave') destination(points.leave)
+      if (action === 'approach') destination(points.outside)
+      if (action === 'enter') {
+        // 0043c7a0 grants only the linked building, then uses 004e9dd0.
+        p.flags4 = ((p.flags4 & ~0x10007) | 2) >>> 0
+        destination(points.inside, true)
+      }
+      if (action === 'exit') {
+        p.flags4 = (p.flags4 & ~0x10007) >>> 0
+        destination(points.outside, true)
+      }
+      if (action === 'leave') destination(points.leave, true)
       if (action === 'open' || action === 'close') {
         sound(w, 0x9f, head)
         head.model = 152

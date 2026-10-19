@@ -588,7 +588,11 @@ test('Vault sampler rejects invalid local task owners and requests the sampled l
   const vault = world.shrines.find(shrine => shrine.kind === 'vault')
   // Explicit supplied second linked-body seam, not an authored second M3 Vault
   // or proof of the original separate class2/model18 physical object identity.
-  const second = { ...structuredClone(vault), id: world.nextId++, x: vault.x + 64 }
+  // A supplied physical body needs a unique ten-bit handle, not the unbounded
+  // general allocator used by current development saves.
+  const id = 900
+  assert.equal([...world.units, ...world.buildings, ...world.shrines].some(o => o.id === id), false)
+  const second = { ...structuredClone(vault), id, x: vault.x + 64 }
   world.shrines.push(second)
   const requests = []
   const release = bindTrainingPanelRequests(world, {
