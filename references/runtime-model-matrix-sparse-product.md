@@ -87,8 +87,10 @@ and unchanged before/after.
 - Benchmark script SHA-256: `924b44e660d7aedaafa94e792d53837f5859284e6388401655d120fd609c6753`.
 
 Draw-stage medians are lower in every pair. Inclusive effects-stress and
-moving-pose medians/totals are also lower in both orders, and custom-setter draw medians improve without any special fallback. However, ordinary opening and crowd results
-are mixed, with adverse candidate outliers and sums retained below. The cause of
+moving-pose medians/totals are also lower in both orders. Custom setters use the
+same scalar path; their inclusive totals remain mixed (+4.1% / -6.0%). Ordinary
+opening and crowd results are mixed, with adverse candidate outliers and sums
+retained below. The cause of
 those spikes is not diagnosed by this benchmark. Two process pairs do not justify
 a universal performance or tail-latency conclusion. This supports a simple bounded
 algorithm candidate, not completion of #143, browser FPS/GPU gains or a full-frame
