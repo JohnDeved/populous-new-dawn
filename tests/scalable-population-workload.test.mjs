@@ -5,7 +5,7 @@ import { createWorldState, addUnit, breedingWork, population, populationLimit } 
 import { addBuilding, command, tick } from '../app/model.ts'
 import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
 import { stepLiveConversionVictim } from '../app/live-movement.ts'
-import { allocatePersonOrder, attachPersonOrder, currentPersonOrder } from '../app/person-orders.ts'
+import { allocatePersonOrder, attachPersonOrder, createPersonOrderPool, currentPersonOrder } from '../app/person-orders.ts'
 
 // Bounded semantic stress only. Authored missions, economy resources and AI are
 // not the producer of these supplied populations. No timing/FPS tier is inferred.
@@ -22,6 +22,7 @@ function flat(world) {
   world.objectCells.objects.clear()
   world.objectCells.heads.fill(0)
   world.pathfinding.people.clear()
+  world.buildingOrders = createPersonOrderPool(world.capacityPolicy.mode === 'scalable')
   world.selected = []
   return world
 }
