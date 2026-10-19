@@ -1,4 +1,58 @@
-# Final reincarnated-Shaman burst: source-only assessment (#30)
+# Final reincarnated-Shaman burst: historical evidence (#30)
+
+## Reconciliation on 2026-10-19
+
+The original source-only assessment below records inspected main `1c7e6b05`
+on 2026-10-06. Its proposed proof stages are historical, not instructions to
+repeat work already accepted. The static packet is preserved unchanged; later
+results remain at their exact evidence commits rather than being copied here.
+
+- **Creation:** the [fixed success result](https://github.com/JohnDeved/populous-new-dawn/blob/72a18e461a9c3ffaf71815e5a22afb77f549d7dc/references/verification/reincarnation-phase5-success-2026-10-06/attempt-01/README.md)
+  and [independent ACCEPT](https://github.com/JohnDeved/populous-new-dawn/blob/72a18e461a9c3ffaf71815e5a22afb77f549d7dc/references/verification/reincarnation-phase5-success-2026-10-06/attempt-01/result-review.md)
+  bind executed source `dbec147f4aae79a40a917b195f7d8d3b58d63bf8`.
+  One supplied phase5 call made 34 successful allocations and consumed 98
+  gameplay / 32 cosmetic advances, including the person's two gameplay draws.
+- **Allocation controls:** the [three results](https://github.com/JohnDeved/populous-new-dawn/blob/06345b16e8bbc4bba01ce1e49ded79d9b8291940/references/verification/reincarnation-phase5-controls-2026-10-06/results-01/README.md)
+  and [independent ACCEPT](https://github.com/JohnDeved/populous-new-dawn/blob/06345b16e8bbc4bba01ce1e49ded79d9b8291940/references/verification/reincarnation-phase5-controls-2026-10-06/results-01/result-review.md)
+  bind source `b970c05e933ab286e888e717773297f72fa5e3c1`: person failure
+  with low-pool burst success, person success with burst failure, and both
+  exhausted. These were single calls, not a later retry or capacity restoration.
+- **Scheduling:** the [eleven-call result](https://github.com/JohnDeved/populous-new-dawn/blob/5732cc327cadde206d00f92a58291ef5f5040208/references/verification/reincarnation-scheduled-burst-observer-2026-10-06/attempt-02/README.md)
+  and [independent ACCEPT](https://github.com/JohnDeved/populous-new-dawn/blob/5732cc327cadde206d00f92a58291ef5f5040208/references/verification/reincarnation-scheduled-burst-observer-2026-10-06/attempt-02/result-review.json)
+  bind source `b48519e0bf7a39bd9ea7b401e01e3fbe731441c9`. Creation occurs
+  on call 6, first birth visits on 7, root retirement on 8, root free on 10,
+  and root-handle reuse on 11. All 32 birth children retire by call 11, but
+  their free completion is beyond the stop. The older wave remains alive.
+  The [failed/inconclusive first attempt](https://github.com/JohnDeved/populous-new-dawn/blob/b48519e0bf7a39bd9ea7b401e01e3fbe731441c9/references/verification/reincarnation-scheduled-burst-2026-10-06/attempt-01/README.md)
+  remains preserved; the later pass does not reclassify it.
+
+These are accepted supplied-state original-component results, not complete
+mission/death history or application equality. Body, pools, terrain, tribe and
+RNG context were supplied; the scheduling result also supplies later ordinary
+Shaman and outside-world/presentation consumers. The linked reviews retain
+the exact limits and raw receipts. No native or browser execution was repeated
+for this reconciliation, and no gameplay repair or parity claim is added.
+
+The [2026-10-11 issue correction](https://github.com/JohnDeved/populous-new-dawn/issues/30#issuecomment-6110102097)
+identifies the remaining boundary as shared allocator/visit ownership and live
+composition, **not missing initializer bytes**. The full end-exclusive ranges
+`004d23d0..004d2717` and `004d5920..004d5b5c` are retained in the
+[phase5 preparation packet](https://github.com/JohnDeved/populous-new-dawn/blob/dbec147f4aae79a40a917b195f7d8d3b58d63bf8/references/verification/reincarnation-phase5-preparation-2026-10-06/native-boundaries.txt).
+
+Source inspection at main `eb69ebd3c9ccef7c7739d61bc7f8eaa2c162fc44`
+still finds the spawn edge calling `addUnit` without model9 in
+`app/world-turn.ts`; `app/world-state.ts:addUnit` creates `native: null`, and
+`app/live-people.ts:createLivePerson` derives its counter from `(w.turn - 1) & 255`,
+not the supplied shared class1 allocation seed. Native mixed person/wave visits
+are not established by the separate live passes. Copying observed counters,
+flags or object IDs would not resolve those owners. The [later live proposal](https://github.com/JohnDeved/populous-new-dawn/blob/5732cc327cadde206d00f92a58291ef5f5040208/references/verification/reincarnation-phase5-live-proposal-2026-10-06/README.md)
+is a historical proposal with these limits, not accepted runtime implementation.
+An ordinary public-input, elapsed-clock Mission2 witness remains separate from
+the fixed-step diagnostic described below. Issue #30 is not completed here.
+
+## Original source-only assessment (2026-10-06)
+
+The following assessment and proof plan are retained as written at that time.
 
 ## Finding and bound
 

@@ -5037,14 +5037,16 @@ remain distinct evidence boundaries; this does not complete issue #30.
 
 ### 2026-10-06 — final Shaman burst remains uncomposed
 
-The [source-only final-burst assessment](research/reincarnation-final-burst.md)
-verifies that accepted mode2 and phase1-ground fixes survive inspected main
+The [historical final-burst assessment](research/reincarnation-final-burst.md)
+records that accepted mode2 and phase1-ground fixes survive inspected main
 `1c7e6b05`, then isolates a different missing edge: phase5's `004da0f0`
 requests a class7/model9 burst after its person allocation; current live spawn
 only adds the Shaman. Retained static PE bytes establish the call and distinguish
-person retry from the earlier one-shot wave. The note bounds the required real
-allocator/initializer/order proof and ordinary Mission2 witness before runtime
-changes. No native/application/browser execution or new parity claim was made.
+person retry from the earlier one-shot wave. Its 2026-10-19 reconciliation links
+later accepted creation, allocation-control and scheduling results at immutable
+commits, preserving their supplied-state limits and the original static packet.
+Shared allocator/visit ownership and live composition remain unresolved, not
+missing initializer bytes. No runtime repair or new execution/parity claim is added.
 
 ## 2026-09-17 — Mission 17 Armageddon
 
