@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { chromium } from '@playwright/test'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
@@ -125,22 +125,25 @@ try {
     const cap = setTimeout(() => { caseTimedOut = true; row.status = 'timed-out'; void context.close() }, 90_000)
     try {
       row.result = await run({ page, context, output: directory, url, servingDescription })
+      if (row.result?.status === 'timed-out') caseTimedOut = true
+      assert.equal(row.result?.status, 'passed', 'Helper must explicitly report passed')
       row.status = caseTimedOut || globalTimedOut ? 'timed-out' : 'passed'
-    } catch (error) { row.status = caseTimedOut || globalTimedOut ? 'timed-out' : 'failed'; row.error = String(error.stack) }
+    } catch (error) { row.status = caseTimedOut || globalTimedOut || receipt.caseTimedOut ? 'timed-out' : 'failed'; row.error = String(error.stack) }
     finally { clearTimeout(cap); await context.close(); save() }
+    if (caseTimedOut) { receipt.caseTimedOut = true; throw Error(`Case deadline expired: ${name}; later cases not started`) }
   }
   assert.ok(!globalTimedOut, 'Global diagnostic deadline expired')
   assert.equal(receipt.cases.length, 11, 'All bounded cases must run')
   assert.ok(receipt.cases.every(row => row.status === 'passed'), 'One or more diagnostic cases failed')
   receipt.status = 'passed'
-} catch (error) { receipt.status = globalTimedOut ? 'timed-out' : 'failed'; receipt.error = String(error.stack); process.exitCode = 1 }
+} catch (error) { receipt.status = globalTimedOut || receipt.caseTimedOut ? 'timed-out' : 'failed'; receipt.error = String(error.stack); process.exitCode = 1 }
 finally {
   clearTimeout(timer)
-  try { await closeBrowser() } catch (error) { receipt.status = globalTimedOut ? 'timed-out' : 'failed'; receipt.browserCleanupError = String(error); process.exitCode = 1 }
+  try { await closeBrowser() } catch (error) { receipt.status = globalTimedOut || receipt.caseTimedOut ? 'timed-out' : 'failed'; receipt.browserCleanupError = String(error); process.exitCode = 1 }
   try {
     receipt.serverCleanup = await stopServer()
     assert.notEqual(receipt.serverCleanup.status, 'failed', 'Owned server process group survived cleanup')
-  } catch (error) { receipt.status = globalTimedOut ? 'timed-out' : 'failed'; receipt.cleanupError = String(error); process.exitCode = 1 }
+  } catch (error) { receipt.status = globalTimedOut || receipt.caseTimedOut ? 'timed-out' : 'failed'; receipt.cleanupError = String(error); process.exitCode = 1 }
   writeFileSync(resolve(output, 'server.log'), serverLog)
   receipt.serverLogTruncated = logTruncated
   try {
@@ -148,12 +151,12 @@ finally {
     receipt.sourceUnchanged = !!source
     receipt.artifacts = artifacts(output)
 
-  } catch (error) { receipt.status = globalTimedOut ? 'timed-out' : 'failed'; receipt.finalizationError = String(error); process.exitCode = 1 }
+  } catch (error) { receipt.status = globalTimedOut || receipt.caseTimedOut ? 'timed-out' : 'failed'; receipt.finalizationError = String(error); process.exitCode = 1 }
   const artifactBytes = Object.values(receipt.artifacts ?? {}).reduce((sum, file) => sum + file.bytes, 0)
   receipt.upload = { limitBytes: 128 * 1024 * 1024, artifactBytes, excluded: false }
   const serialized = JSON.stringify(receipt, null, 2) + '\n'
   if (artifactBytes + Buffer.byteLength(serialized) > receipt.upload.limitBytes) {
-    receipt.status = globalTimedOut ? 'timed-out' : 'failed'; process.exitCode = 1
+    receipt.status = globalTimedOut || receipt.caseTimedOut ? 'timed-out' : 'failed'; process.exitCode = 1
     receipt.upload.excluded = true
     receipt.upload.reason = 'Artifact set plus receipt exceeds 128 MiB; upload contains failure receipt only.'
   } else try {
@@ -161,10 +164,17 @@ finally {
       const target = resolve(upload, name); mkdirSync(dirname(target), { recursive: true })
       copyFileSync(resolve(output, name), target)
     }
-  } catch (error) { receipt.status = globalTimedOut ? 'timed-out' : 'failed'; receipt.upload.error = String(error); process.exitCode = 1 }
+  } catch (error) { receipt.status = globalTimedOut || receipt.caseTimedOut ? 'timed-out' : 'failed'; receipt.upload.error = String(error); process.exitCode = 1 }
   save()
-  if (statSync(resolve(upload, 'receipt.json')).size > 128 * 1024 * 1024) {
-    writeFileSync(resolve(upload, 'receipt.json'), JSON.stringify({ status: 'failed', reason: 'Receipt itself exceeded 128 MiB', commit: receipt.commit }))
+  // Account for the final receipt and any late error metadata, not a pre-copy estimate.
+  const stagedBytes = Object.values(artifacts(upload)).reduce((sum, file) => sum + file.bytes, 0) + statSync(resolve(upload, 'receipt.json')).size
+  if (stagedBytes > 128 * 1024 * 1024) {
+    receipt.status = globalTimedOut || receipt.caseTimedOut ? 'timed-out' : 'failed'
+    receipt.upload = { ...receipt.upload, excluded: true, stagedBytes, reason: 'Final staged total exceeds 128 MiB; failure receipt only.' }
+    writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
+    rmSync(upload, { recursive: true, force: true }) // Only this run's generated upload staging.
+    mkdirSync(upload)
+    writeFileSync(resolve(upload, 'receipt.json'), JSON.stringify({ status: receipt.status, commit: receipt.commit, upload: receipt.upload }))
     process.exitCode = 1
   }
 }
