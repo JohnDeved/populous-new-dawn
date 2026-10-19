@@ -166,6 +166,36 @@ test('actual Scene attack frames consume the retained native phase without mutat
   }
 })
 
+test('actual Scene preserves the final native pose when public-style pause resumes into legal attack expiry', async () => {
+  const { makeBuilderAnimationScene } = await import('./support/builder-animation-scene.mjs')
+  const { shamanNativeDirections } = await import('../app/shaman-appearance.ts')
+  const { spriteDirection } = await import('../app/projection.ts')
+  const { world, timing, id } = ordinaryAttack(), unit = world.units.find(unit => unit.id === id)
+  const fixture = await makeBuilderAnimationScene(world, { clock: timing })
+  try {
+    while (unit.fight.remaining > 1) fixture.advance(1 / 12)
+    const fight = unit.fight, person = fight.motion, started = fight.started
+    const duration = meleeDuration(unit.kind, fight.action), expiry = started + duration - 1
+    assert.equal(world.turn, expiry - 1); assert.equal(fight.remaining, 1)
+    const before = structuredClone({ person, clock: fixture.clock.animationFrame, turn: world.turn })
+    // Explicit CPU pause input, not a browser-key or renderer performance claim.
+    world.paused = true; fixture.advance(1); fixture.render()
+    assert.deepEqual({ person, clock: fixture.clock.animationFrame, turn: world.turn }, before)
+    world.paused = false; fixture.advance(1 / 12)
+    assert.equal(world.turn, expiry); assert.equal(unit.fight, fight)
+    assert.equal(fight.action, 'approach'); assert.equal(fight.started, started)
+    assert.equal(fight.remaining, undefined); assert.equal(fight.nativeAttackAnimation, true)
+    assert.equal(unitRenderAnimationSource(unit), person)
+    assert.equal(person.f2, duration - 1); assert.equal(person.stamp, world.turn)
+    const snapshot = structuredClone(world); fixture.render(); assert.deepEqual(world, snapshot)
+    const group = fixture.scene.unitMeshes.get(id), direction = spriteDirection(
+      Math.round(fixture.scene.cameraBearing * 1024 / Math.PI),
+      Math.round((Math.PI - unit.heading) * 1024 / Math.PI))
+    assert.equal(group.userData.draw, person.draw)
+    assert.equal(group.userData.frame, shamanNativeDirections(unit.team, person.object)[direction].frames[person.f2])
+  } finally { fixture.close() }
+})
+
 test('ordinary combat remains frame-schedule independent with pause and speed changes', () => {
   function run(schedule) {
     const { world, timing } = ordinaryAttack()

@@ -312,6 +312,40 @@ run remains failed, not relabeled as a cadence pass. A preceding diagnostic
 failed Chrome admission before build/browser; the reviewed normalization repair
 kept exact version/bytes pinned and retained raw output before comparing.
 
+The subsequent layered diagnostic at `ac72f1de` (run 39178423583) also remains
+failed under its unchanged contract. It delivered target 20 at turn 145, observed
+attack object 456/frame 1006 at turn 514 and frame 1008 at turn 516, then eight real
+paused render stamps at turn 516/clock 1032. The two held PNGs are byte-identical,
+with complete canvas-owned bodies and no overlay intersection. Public Resume was
+observed unpaused at turn 522 in recoil, but that observer omitted non-attack
+phases and captured no synchronized successor artwork. Its first failure was
+missing running-after-resume evidence, not wrong artwork or a timeout. Existing
+gameplay exports, source identity, runtime-error and cleanup guards passed.
+
+The original attack duration is four turns: entry retains three countdown turns,
+so start 514 expires at turn 517. Pausing at 516 leaves only one inferred turn;
+normal resume can expire it before another attack render. That inference is not a
+recorded countdown or successor crop and cannot retroactively pass this artifact.
+The revised protocol records the actual remaining count and physical source
+fields. It requires `remaining = started + duration - 1 - turn` during the attack,
+with original-table duration, and retains the same actor, physical person, fight
+and actual opponent. Same-attack resume must advance before expiry. Exact-expiry
+approach must retain the final native attack pose; later approach/ready must map
+original walk or idle rows while retaining the original action start/marker.
+A narrow uninitialized recoil requires its same-turn, original-mapped Shaman
+opponent producer and actor-before-producer roster order, and must occur before
+the earliest possible intervening complete attack. Initialized fallback recoil,
+an unknown producer, changed fight/person/opponent, early expiry, a future attack
+or missing source/crop evidence fails closed. This is source-qualified existing
+successor-render consistency, not new recoil-entry/reset/cadence parity.
+
+The observed raw source fields admit only the reviewed visual-source branches;
+that is an explicit source-contract inference, not direct observation of a private
+getter return. Retained physical-reference identity, logical stamp and actual
+rendered draw/frame/flip/layers are independently checked. No production hook or
+runtime change is added. Both prior failed runs and their strict validators remain
+preserved, alongside the new transition-specific negative tests.
+
 The separate 75-second case fits inside, not in addition to, the unchanged
 180-second aggregate browser cap. The PR adds no new workflow/job, browser route,
 dependency, cap increase or resource-policy refresh. A separately reviewed one-job
@@ -319,8 +353,8 @@ diagnostic is not a readiness/full-gate run. Hosted execution must
 actually meet that budget. The existing complete frame exports remain separate
 from this functional case and retain their original assertions and interpretation.
 
-A read-only post-render RAF observer samples a fixed ten-turn window from the first
-Shaman attack. The separately named `public-pause-v1` protocol has three explicit
+A read-only post-render RAF observer keeps the same maximum ten-turn window from
+the first Shaman attack. The separately named `public-pause-transition-v1` protocol has three explicit
 phases: `running-before-pause`, `public-paused-hold`, and `running-after-resume`.
 After the first natural attack signal, one public Space pause requires actual
 canvas keyboard focus, no dialog, mode, modifier or input mask, and a live attack.
@@ -329,15 +363,17 @@ observed sequence. Final acceptance explicitly binds the validator's paused anch
 to both paused input receipts, and brackets paused/resumed renderer stamps with
 the public input receipts. Two distinct real renderer stamps must retain identical turn,
 animation clock, action/start, object/draw/f1/f2, direction/frame/flip and opponent.
-One public Space resume must then produce advancing logical phase and artwork in
-that same attack sequence. Both Space keys are released in `finally`. Landing
-outside an attack, expiring before a resumed advance, or missing evidence fails
+One public Space resume must then produce the first logical-clock-advanced render
+of either that same attack or its source-proved legal expired successor. The observer
+retains same-turn resumed renders, then stops at that first advanced render even
+if its phase or crop is invalid. It never waits for a later attack. Both Space keys
+are released in `finally`. Landing outside an attack or missing evidence fails
 closed; there is no retry to seek another attack and no World/clock rewrite.
 
 The viewport remains 1440×1000 at DPR 1, with the 200-pixel HUD leaving a 1240×1000
 game canvas. Camera, target, startup route, game speed and all budgets remain
 unchanged. Exactly four small canvas crops are reserved: first running attack,
-first two paused render stamps, and first advancing resumed frame. Each binds
+first two paused render stamps, and first logical-clock-advanced resumed render. Each binds
 physical native object/draw/f1/f2, original directional frame/flip, visible
 body-layer submission and the actual renderer stamp. Full body bounds must fit
 the canvas; actual DOM ownership at the body center and non-overlap with the
@@ -363,8 +399,8 @@ ordinary CPU baseline separately observed that exact idle-pose failure.
 
 Coverage is deliberately layered, not a generic `paused=true` exemption:
 
-- Running browser samples prove original mapped artwork and advancing logical
-  phase/frame before and after the public pause, within the same attack.
+- Running browser samples must prove original mapped artwork and advancing logical
+  phase/frame in the paused attack sequence before the public pause.
 - Public-paused browser samples prove native-pose hold across real renders.
   `page.tsx` toggles ordinary pause; `scene.ts` still updates/render-submits people,
   while `game-clock.ts` and `live-people.ts` freeze native animation. Retained
@@ -375,9 +411,10 @@ Coverage is deliberately layered, not a generic `paused=true` exemption:
   real frame-selection caller with supplied texture/projection/motion boundaries,
   not a GPU render. The 30/60/120/144 Hz/irregular CPU schedule checks remain separate.
 
-The original `validateMeleeAttackFrames` contract remains unchanged and rejects
-paused evidence or absent running same-turn hold. The new separately named
-`validateMeleePauseFrames` cannot claim running same-turn browser behavior. Missing
-observations fail closed. Neither protocol proves original absolute FPS, hardware
+Both prior validators remain byte-identical: `validateMeleeAttackFrames` rejects
+paused evidence or absent running same-turn hold; `validateMeleePauseFrames` requires
+same-attack resumed advancement. The separately named `validateMeleeTransitionFrames`
+does not retroactively pass either failed run or claim running same-turn browser
+behavior. Missing observations fail closed. No protocol proves original absolute FPS, hardware
 smoothness, Firewarrior browser behavior or pixel-perfect composition. Broad issue
 #214 and recoil/knockback remain outside this acceptance.
