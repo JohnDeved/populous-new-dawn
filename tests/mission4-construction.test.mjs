@@ -99,10 +99,10 @@ for (const mode of ['ordinary', 'exact', 'existingZero'])
 for (const housingOnly of [false, true])
   test(`Mission4 requires two idle people, housing double-count=${housingOnly}`, () => {
     const w = fixture(), braves = w.units.filter(u => u.team === 'green' && u.kind === 'brave')
-    for (const u of braves.slice(housingOnly ? 1 : 2)) u.hp = 0
+    for (const u of braves.slice(2)) u.hp = 0
     if (housingOnly) {
-      // Controlled command-pool boundary: one idle Brave also has order6.
-      const p = braves[0].native ??= createLivePerson(w, braves[0])
+      // Controlled command-pool boundary: one idle Brave plus a second with order6.
+      const p = braves[1].native ??= createLivePerson(w, braves[1])
       Object.assign(p, { state: 10, commandStatus: 6, immediateCommand: 1 })
       Object.assign(w.buildingOrders.records[1], { model: 6, flags: 0 })
       assert.equal(availableTrainingPeople(computerSelectionWorld(w, 3).world), 2)
