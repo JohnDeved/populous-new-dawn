@@ -1,8 +1,8 @@
 // Diagnostic-only first-selection admission. Never writes gameplay or cancels events.
-const require = (value, message) => { if (!value) throw Error(message) }
+const requireSelection = (value, message) => { if (!value) throw Error(message) }
 export function selectionRoute(unit) {
-  require(unit?.id === 121 && unit.kind === 'brave' && unit.team === 'blue' && unit.hp > 0 && unit.identityMatches !== false, 'Exact living authored Brave identity required')
-  require(unit.inside === null || Number.isInteger(unit.inside), 'Valid current occupancy required')
+  requireSelection(unit?.id === 121 && unit.kind === 'brave' && unit.team === 'blue' && unit.hp > 0 && unit.identityMatches !== false, 'Exact living authored Brave identity required')
+  requireSelection(unit.inside === null || Number.isInteger(unit.inside), 'Valid current occupancy required')
   return { kind: unit.inside === null ? 'unit' : 'occupant', id: 121, buildingId: unit.inside }
 }
 export function selectionAdmission(expected, unit, hit) {
@@ -12,21 +12,21 @@ export function selectionAdmission(expected, unit, hit) {
   return { ready: true, current }
 }
 export function assertSelectionReceipt(receipt) {
-  require(receipt.restored && !receipt.errors.length, 'Selection observer restoration failed')
-  require(JSON.stringify(receipt.events.map(e=>e.type)) === JSON.stringify(['pointerdown','pointerup','click']), 'Exactly one trusted selection click required')
+  requireSelection(receipt.restored && !receipt.errors.length, 'Selection observer restoration failed')
+  requireSelection(JSON.stringify(receipt.events.map(e=>e.type)) === JSON.stringify(['pointerdown','pointerup','click']), 'Exactly one trusted selection click required')
   for (const event of receipt.events) {
-    require(event.trusted && event.button === 0 && !event.modified && event.before.owned && event.after?.owned, 'Delivered selection owner changed')
-    require(event.before.identityMatches && event.after.identityMatches, 'Authored person identity/location changed during selection')
+    requireSelection(event.trusted && event.button === 0 && !event.modified && event.before.owned && event.after?.owned, 'Delivered selection owner changed')
+    requireSelection(event.before.identityMatches && event.after.identityMatches, 'Authored person identity/location changed during selection')
   }
-  require(JSON.stringify(receipt.final.selected) === '[121]', 'Exact authored Brave was not selected')
+  requireSelection(JSON.stringify(receipt.final.selected) === '[121]', 'Exact authored Brave was not selected')
   if (receipt.route.kind === 'unit') {
     const pointer = receipt.pointer
-    require(pointer?.restored && !pointer.errors.length && pointer.events.length === 2, 'Real picker evidence missing')
+    requireSelection(pointer?.restored && !pointer.errors.length && pointer.events.length === 2, 'Real picker evidence missing')
     for (const [index,name] of ['pickUnit','pickPerson'].entries()) {
       const event=pointer.events[index]
-      require(event.type === ['pointerdown','pointerup'][index] && event.trusted && event.canvasOwned && event.canvasTarget, 'Real canvas event missing')
-      require(event.picks.some(p=>p.name===name && p.id===121 && p.receiverMatches && !p.threw), 'Final real picker did not own authored Brave')
-      require(!event.picks.some(p=>p.name===name && p.id!==121), 'Conflicting real picker ownership')
+      requireSelection(event.type === ['pointerdown','pointerup'][index] && event.trusted && event.canvasOwned && event.canvasTarget, 'Real canvas event missing')
+      requireSelection(event.picks.some(p=>p.name===name && p.id===121 && p.receiverMatches && !p.threw), 'Final real picker did not own authored Brave')
+      requireSelection(!event.picks.some(p=>p.name===name && p.id!==121), 'Conflicting real picker ownership')
     }
   }
   return receipt

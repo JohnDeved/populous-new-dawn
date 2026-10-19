@@ -41,3 +41,14 @@ test('actual indoor observer sees button handler before panel stops pointer bubb
  assertSelectionReceipt(observer.finish());assert.equal(doc.map.size,0);assert.equal(button.map.size,0)
  }finally{if(prior===undefined)delete globalThis.window;else globalThis.window=prior}
 })
+
+test('pinned CommonJS transform rejects old local require name but leaves renamed ES module unchanged',async()=>{
+ const {default:commonjs}=await import('vite-plugin-commonjs')
+ const plugin=commonjs()
+ plugin.configResolved({resolve:{alias:[]},optimizeDeps:{},createResolver:()=>async()=>undefined})
+ const id=new URL('./firewarrior-selection.mjs',import.meta.url).pathname,source=readFileSync(id,'utf8')
+ assert(source.includes('const requireSelection ='))
+ const legacy=source.replace(/\brequireSelection\b/g,'require')
+ await assert.rejects(plugin.transform(legacy,id),/invalid import.*require\(unit/)
+ assert.equal(await plugin.transform(source,id),undefined)
+})
