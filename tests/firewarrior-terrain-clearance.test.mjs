@@ -4,6 +4,7 @@ import { createWorld, addUnit, addBuilding } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { firewarriorReady, stepTowerFirewarrior } from '../app/firewarrior.ts'
 import { firewarriorTerrainClear } from '../app/firewarrior-clearance.ts'
+import { terrainPointHeight } from '../app/native-terrain.ts'
 
 function fixture() {
   const world = createWorld()
@@ -127,4 +128,21 @@ test('actual tower firing caller withholds its volley behind a ridge and resumes
   stepTowerFirewarrior(world, source)
   assert.equal(world.effects.filter(effect => effect.firewarriorShot).length, 2)
   assert.ok(source.cooldown > 0)
+})
+
+
+test('authored M22 tower sight line clears only after the Shaman passes the ridge', () => {
+  const world = createWorld(22), source = point(4460, 3736, 432)
+  // Independently translated 0051f990 with original EXE sine/atan tables agrees
+  // with every sampled point. These are captured pre-readiness coordinates,
+  // not supplied replacements for actors in the ordinary route regression.
+  for (const [turn, target, clear, sample, terrain] of [
+    [1336, point(7711, 7912, 156), false, point(6452, 6304, 264), 434],
+    [1340, point(7827, 7670, 143), false, point(6782, 6454, 234), 410],
+    [1344, point(7962, 7389, 101), true, point(7140, 6546, 182), 319],
+  ]) {
+    assert.equal(terrainPointHeight(world.land, sample), terrain, `turn${turn} terrain`)
+    assert.equal(firewarriorTerrainClear(world.land, source, target), clear, `turn${turn} readiness`)
+    assert.equal(sample.h + 140 >= terrain, clear, `turn${turn} decisive clearance`)
+  }
 })

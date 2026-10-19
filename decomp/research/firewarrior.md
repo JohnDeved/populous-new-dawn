@@ -250,3 +250,32 @@ ridge comparison. No new native execution, rendered scene acceptance, ordinary
 acquisition episode, whole-suite/build result or hardware performance measurement
 is claimed by this note. Existing flat native probe and tower/impact tests retain
 their original narrower evidence scope.
+
+### M22 delayed-shot regression qualification
+
+The first full candidate gate failed the unchanged supplied-focus Boat route:
+turn 1378 still boarded successfully, but Shaman HP was 79.8 rather than 81.4.
+A frozen baseline/candidate comparison preserves that failure and isolates the
+change to authored tower 96 firing at Shaman 89. All 1,378 per-turn RNG before/after
+values and Shaman positions match. Baseline fires at 1336 and impacts at 1347;
+clearance rejects 1336/1340 and first permits firing at 1344, impacting at 1355.
+Both impacts deal exactly 25 HP. The later impact misses the 1352 healing visit;
+subsequent visits 1360/1368/1376 each restore 1.6 HP. No RNG or damage-law repair
+is involved.
+
+An independent Python translation of retained 0051f990/00586074/004503f0/004e6a70/
+0044e940, reading sine/atan tables directly from the hash-verified original EXE,
+compared every executed sample with an observational hook in the actual port:
+
+- 1336: sample 8 `(6452,6304,h264)`, terrain 434, rejects above clearance 404.
+- 1340: sample 9 `(6782,6454,h234)`, terrain 410, rejects above clearance 374.
+- 1344: all 13 samples pass; tight sample 10 `(7140,6546,h182)` has terrain 319
+  against clearance 322. Final sample `(7944,7389,h107)` has terrain 103.
+
+Source/target stored heights and motion ownership were checked separately against
+captured native records; tower support is not added. This is a source-qualified
+comparison with original table bytes, **not original instruction execution**:
+available Python environments lacked Unicorn and no installation was attempted.
+The route expectation now includes the exact volley/impact/healing chain rather
+than merely lowering HP, alongside the authored-terrain three-state regression.
+The historical CI failure remains evidence, not a pass or an altered baseline.

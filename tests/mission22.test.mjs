@@ -13,9 +13,10 @@ import { supportsFollower } from '../app/world-terrain-runtime.ts'
 import { vehicleCanDisembark } from '../app/vehicle-routing.ts'
 import { createWorld } from '../app/world-initialization.ts'
 
-const stepUntil = (world, done, limit) => {
+const stepUntil = (world, done, limit, afterTurn) => {
   for (let turn = 0; turn < limit; turn++) {
     tick(world, 1 / 12)
+    afterTurn?.()
     if (done()) return turn + 1
   }
   assert.fail(`condition timed out at turn ${world.turn}`)
@@ -178,13 +179,29 @@ test('Mission 22 supplied-focus Shaman can steal, checkpoint and sail the author
 
   world.selected = [shaman.id]
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
-  stepUntil(world, () => boat.passengerCount === 1, 500)
+  const volleys = [], health = [], seen = new Set()
+  let lastHp = shaman.hp
+  stepUntil(world, () => boat.passengerCount === 1, 500, () => {
+    for (const effect of world.effects) {
+      const shot = effect.firewarriorShot
+      if (!shot?.impact || shot.target !== shaman.id || seen.has(effect.id)) continue
+      seen.add(effect.id)
+      volleys.push([world.turn, shot.source, shot.target])
+    }
+    if (shaman.hp !== lastHp) health.push([world.turn, shaman.hp])
+    lastHp = shaman.hp
+  })
   assert.deepEqual(
     [boat.team, boat.passengers, shaman.native.vehicle],
     ['blue', [shaman.id], boat.id]
   )
 
-  assert.deepEqual([world.turn, shaman.hp], [1378, 81.4])
+  // Original 0051f990 terrain clearance blocks tower 96 at 1336/1340. The first
+  // clear volley is 1344, impacting 1355 for 25 HP. Unlike the old through-ridge
+  // impact at 1347, this misses the 1352 healing tick; every later heal remains 1.6 HP.
+  assert.deepEqual(volleys, [[1344, 96, shaman.id]])
+  assert.deepEqual(health, [[1355, 75], [1360, 76.6], [1368, 78.2], [1376, 79.8]])
+  assert.deepEqual([world.turn, shaman.hp], [1378, 79.8])
 
   world = migrateCheckpoint(structuredClone(world))
   shaman = world.units.find(unit => unit.id === shaman.id)
@@ -226,7 +243,7 @@ test('Mission 22 supplied-focus Shaman can steal, checkpoint and sail the author
   assert.equal(sail.references, 0)
   assert.equal(shaman.native.vehicle, boat.id)
   assert.deepEqual(boat.passengers, [shaman.id])
-  assert.ok(shaman.hp >= 81.4)
+  assert.ok(shaman.hp >= 79.8)
   // Coastal suitability is not a dry ground destination. Plain completion stays
   // aboard; the separate dry route below performs actual ground-leg departure.
   const dry = { x: -25, z: -61 }
