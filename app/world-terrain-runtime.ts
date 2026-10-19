@@ -1,3 +1,5 @@
+import { worldEnvironment } from './world-environment.ts'
+import { nativeModelResource } from './model-resources.ts'
 import {
   tribeForTeam,
   type World,
@@ -7,6 +9,7 @@ import {
 } from './world-types.ts'
 import { GRID } from './world-rules.ts'
 import { height, nativeTerrainHeight } from './world-coordinates.ts'
+import { resampleTerrainSurface } from './terrain-surface.ts'
 import { short } from './native-math.ts'
 import {
   terrainPointHeight,
@@ -76,12 +79,23 @@ export function supportsFollower(w: World, p: Point & { inside?: number | null }
 export function refreshTerrainSurface(w: World) {
   // Resample the compatibility grid after native writes; keep collision, picking
   // and the rendered native terrain on the same surface.
-  for (let i = 0; i < w.terrain.length; i++) {
-    const x = (i % GRID) - 48,
-      z = Math.floor(i / GRID) - 48
-    const h = terrainPointHeight(w.land, { x: (x + 8) * 256, y: (-z - 8) * 256 }) / 45
-    w.terrain[i] = h || -0.35
-  }
+  if (
+    GRID === 97 &&
+    Array.isArray(w.terrain) &&
+    w.terrain.length === 9409 &&
+    w.land.heights instanceof Int16Array &&
+    w.land.heights.length === 16384 &&
+    w.land.flags instanceof Uint32Array &&
+    w.land.flags.length === 16384
+  )
+    resampleTerrainSurface(w.land.heights, w.land.flags, w.terrain)
+  else
+    for (let i = 0; i < w.terrain.length; i++) {
+      const x = (i % GRID) - 48,
+        z = Math.floor(i / GRID) - 48
+      const h = terrainPointHeight(w.land, { x: (x + 8) * 256, y: (-z - 8) * 256 }) / 45
+      w.terrain[i] = h || -0.35
+    }
   w.terrainVersion++
   w.landVersion = w.terrainVersion
 }
@@ -172,6 +186,10 @@ export function syncLandscapeObjects(w: World) {
     const p = nativePosition(w, tree)
     scenery.set(tree.id, {
       object: rules.sceneryObjects[tree.model],
+      shapeIndex: nativeModelResource(
+        rules.sceneryObjects[tree.model],
+        worldEnvironment(w).objects.bank
+      ).shapeIndices[0],
       anchorX: p.x & 0xfe00,
       anchorY: p.y & 0xfe00,
     })
@@ -182,6 +200,7 @@ export function syncLandscapeObjects(w: World) {
     if (
       !next ||
       old.object !== next.object ||
+      old.shapeIndex !== next.shapeIndex ||
       old.anchorX !== next.anchorX ||
       old.anchorY !== next.anchorY
     ) {
@@ -228,6 +247,7 @@ export function notifyHeightChanges(w: World, changes: Iterable<{ cell: number; 
         if (b?.damageState) b.damageState.flags2 |= 4
         const u = w.units.find(u => u.id === id)
         if (u?.native) u.native.flags2 |= 4
+        if (u?.flight) u.flight.flags2 |= 4
         if (u?.builder?.person) u.builder.person.flags2 |= 4
         const fx = w.effects.find(fx => fx.id === id)
         if (fx?.fire) fx.fire.groundDirty = true

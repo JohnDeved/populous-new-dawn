@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b5fdb129-a8b4-42b7-9519-5daebe213d5f",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "5c7867be5aa0ff847da805fa3006d82561d63882",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m16-clock-route/balloon-hut-crash-probe.mjs": "70c81d6a0262e2b4058f878e753c6203905384f0a8b4c5dcfd987dc12d43582d",
+      "work/m16-clock-route/yellow-final-terminal.v8": "47a887f51011e65fa7bd6be8ff70f719c5b62653de29304e5c2be9996a0f770d",
+      "work/m16-clock-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64"
+    }
+  },
+  "command": [
+    "node",
+    "work/m16-clock-route/balloon-hut-crash-probe.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m16-cast-audit",
+  "startedAt": "2026-10-14T13:20:25.407Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m16-cast-audit/work/orchestration/m16-clock-route/balloon-hut-crash-probe.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m16-cast-audit/work/orchestration/m16-clock-route/balloon-hut-crash-probe.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T13:20:30.232Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "{\"event\":\"input\",\"turn\":40406}\n{\"event\":\"complete-frame\",\"turn\":40407}\n{\"event\":\"complete-frame\",\"turn\":40408}\n{\"event\":\"complete-frame\",\"turn\":40409}\n{\"event\":\"complete-frame\",\"turn\":40410}\n{\"event\":\"complete-frame\",\"turn\":40411}\n{\"event\":\"complete-frame\",\"turn\":40412}\n{\"event\":\"complete-frame\",\"turn\":40413}\n{\"event\":\"complete-frame\",\"turn\":40414}\n{\"event\":\"complete-frame\",\"turn\":40415}\n{\"event\":\"complete-frame\",\"turn\":40416}\n",
+  "stderr": "file:///workspace/scratch/69fd8163d94e/populous-m16-cast-audit/app/building-debris.ts:58\n  for (let face = 0; face < model.faces.length / 2; face++) {\n                                  ^\n\nTypeError: Cannot read properties of undefined (reading 'faces')\n    at collapseBuildingFaces (file:///workspace/scratch/69fd8163d94e/populous-m16-cast-audit/app/building-debris.ts:58:35)\n    at collapseBuildingFaces.next (<anonymous>)\n    at emitBuildingDebris (file:///workspace/scratch/69fd8163d94e/populous-m16-cast-audit/app/building-runtime.ts:71:14)\n    at Object.debris (file:///workspace/scratch/69fd8163d94e/populous-m16-cast-audit/app/building-runtime.ts:323:32)\n    at processBuildingDamage (file:///workspace/scratch/69fd8163d94e/populous-m16-cast-audit/app/building-damage.ts:302:13)\n    at stepDamagedBuilding (file:///workspace/scratch/69fd8163d94e/populous-m16-cast-audit/app/building-runtime.ts:306:3)\n    at stepTurn (file:///workspace/scratch/69fd8163d94e/populous-m16-cast-audit/app/world-turn.ts:1143:7)\n    at tick (file:///workspace/scratch/69fd8163d94e/populous-m16-cast-audit/app/world-turn.ts:469:5)\n    at advanceGame (file:///workspace/scratch/69fd8163d94e/populous-m16-cast-audit/app/game-clock.ts:82:19)\n    at frame (file:///workspace/scratch/69fd8163d94e/populous-m16-cast-audit/work/m16-clock-route/clock-driver.mjs:20:164)\n\nNode.js v24.19.0\n",
+  "stdoutSha256": "273f5db6644586dcb2ccb93a8f62e856418af4193df42b1504239e2b6530cce3",
+  "stderrSha256": "bb45ce94f26025995cdb6b29709f9404e7f1d99c39ee5a5feda97ba37ad7a2a2",
+  "sourceAfter": {
+    "headOid": "5c7867be5aa0ff847da805fa3006d82561d63882",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m16-clock-route/balloon-hut-crash-probe.mjs": "70c81d6a0262e2b4058f878e753c6203905384f0a8b4c5dcfd987dc12d43582d",
+      "work/m16-clock-route/yellow-final-terminal.v8": "47a887f51011e65fa7bd6be8ff70f719c5b62653de29304e5c2be9996a0f770d",
+      "work/m16-clock-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64"
+    }
+  }
+}

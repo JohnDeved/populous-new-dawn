@@ -30,7 +30,7 @@ import {
 import { shamanDeathVfx } from './shaman-death-vfx.ts'
 import { short } from './native-math.ts'
 import { SWARM_INSECT_COUNT, hasSwarmRuntime, swarmState } from './swarm.ts'
-import { isTempleKnowledgeGift } from './vault-appearance.ts'
+import { vaultKnowledgeGiftAppearance } from './vault-appearance.ts'
 import { makeVaultWorldPresentation, drawVaultWorldPresentation } from './scene-vault-knowledge.ts'
 
 export function makeVaultKnowledgeMarker(frame: number) {
@@ -50,8 +50,9 @@ export function animateVaultKnowledgeMarker(scene: GameScene, g: THREE.Group, vi
 }
 
 export function makeFx(scene: GameScene, f: Effect) {
-  if (f.kind === 'gift' && isTempleKnowledgeGift(f as Gift)) {
-    const presentation = makeVaultWorldPresentation(false)
+  const knowledge = f.kind === 'gift' && vaultKnowledgeGiftAppearance(scene.world, f as Gift)
+  if (knowledge) {
+    const presentation = makeVaultWorldPresentation(knowledge, false)
     scene.locate(presentation, f, f.height)
     return presentation
   }
@@ -120,13 +121,13 @@ export function makeFx(scene: GameScene, f: Effect) {
   )
     return g
   if (f.sinking) {
-    const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage)
+    const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage, false, scene.environment)
     mesh.name = 'sinking-building'
     g.add(mesh)
     return g
   }
   if (f.fire) {
-    const mesh = nativeModel(5)
+    const mesh = nativeModel(5, 2, 4, false, scene.environment)
     mesh.material.transparent = true
     mesh.material.alphaTest = 0
     mesh.material.depthWrite = false
@@ -143,7 +144,7 @@ export function makeFx(scene: GameScene, f: Effect) {
       new THREE.Mesh(
         geometry,
         new THREE.MeshBasicMaterial({
-          map: texture('atlas'),
+          map: texture(scene.environment.landscape.modelAtlas),
           side: THREE.DoubleSide,
           alphaTest: 0.5,
         })
@@ -277,7 +278,7 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     for (let i = 0; i < g.children.length; i++) {
       const sprite = g.children[i] as THREE.Sprite,
         insect = swarm.insects[i]
-      sprite.visible = !!insect
+      sprite.visible = !!insect && !insect.hidden
       if (!insect) continue
       sprite.position.set(
         short(insect.x - swarm.x) / 256,
@@ -353,8 +354,9 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     return
   }
   if (f.kind === 'gift') {
-    if (isTempleKnowledgeGift(f as Gift)) {
-      drawVaultWorldPresentation(scene, g, f.sprite!.frame, (f as Gift).phase > 0)
+    const knowledge = vaultKnowledgeGiftAppearance(scene.world, f as Gift)
+    if (knowledge) {
+      drawVaultWorldPresentation(scene, g, knowledge, f.sprite!.frame, (f as Gift).phase > 0)
       return
     }
     g.visible = (f as Gift).phase > 0
@@ -572,9 +574,15 @@ export function updateSpellHalo(scene: GameScene, frame: number) {
   }
 }
 
+const effectFrameIds = new WeakMap<GameScene, Set<number>>()
+
 export function updateEffectsFrame(scene: GameScene) {
+  let ids = effectFrameIds.get(scene)
+  if (!ids) effectFrameIds.set(scene, (ids = new Set()))
+  ids.clear()
+  for (const f of scene.world.effects) ids.add(f.id)
   for (const [id, g] of scene.fxMeshes)
-    if (!scene.world.effects.some(f => f.id === id)) {
+    if (Number.isNaN(id) || !ids.has(id)) {
       g.removeFromParent()
       scene.releaseGroup(g)
       scene.fxMeshes.delete(id)

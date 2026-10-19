@@ -94,7 +94,11 @@ test('ordinary Stone Head completion creates the original six-visit acquisition 
   assert.equal(world.giftCounts.bridge, 0)
   assert.ok(world.gifts.includes(gift))
 
+  world.message = 'Existing compatibility notice'
+  world.messageUntil = 12345
   tick(world, 1 / 12)
+  assert.equal(world.message, 'Existing compatibility notice')
+  assert.equal(world.messageUntil, 12345)
   assert.equal(world.shots.bridge, 1)
   assert.equal(world.giftCounts.bridge, 1)
   assert.equal(world.gifts.includes(gift), false)

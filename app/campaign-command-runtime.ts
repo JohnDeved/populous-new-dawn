@@ -1,3 +1,4 @@
+import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
 import type { World } from './world-types.ts'
 import {
   headAt,
@@ -28,7 +29,7 @@ import {
 } from './computer.ts'
 import { release } from './world-tasks.ts'
 import { isShaman, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
-import { cellsNear, random } from './native-math.ts'
+import { cellsNear, random, short } from './native-math.ts'
 import { sound } from './world-effects.ts'
 import { flybyCommand } from './flyby.ts'
 import { addMessage, messageStringId } from './messages.ts'
@@ -39,7 +40,7 @@ import { nativePersonModel } from './live-combat.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
 import { buildingCounterattack } from './live-building-combat.ts'
 import { appendLiveOrders } from './live-movement.ts'
-import { emptyPersonOrder, writePersonOrder } from './person-orders.ts'
+import { emptyPersonOrder } from './person-orders.ts'
 import { route } from './live-command.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { nativeCellPoint } from './world-coordinates.ts'
@@ -149,6 +150,7 @@ export function campaignCommand(
       1180: 0,
       1187: 0,
       1190: 3,
+      1192: 2,
       1197: 0,
       1200: 1,
       1201: 0,
@@ -423,7 +425,8 @@ export function campaignCommand(
       enabled,
       maximum,
       target.id,
-      taskSpells
+      taskSpells,
+      missionSixAttack ? { staging: level.markers[options[1]], spell: options[2] } : {}
     )
     return
   }
@@ -608,6 +611,22 @@ export function campaignCommand(
     writeVariable(
       args[1],
       w.units.filter(unit => unit.team === team && unitAnimationSource(unit)?.state === 23).length
+    )
+    return
+  }
+
+  if (opcode === 1192) {
+    const tribe = args[0] >= 1118 && args[0] <= 1121 ? args[0] - 1118 : read(args[0])
+    if (!Number.isInteger(tribe) || tribe < 0 || tribe > 3)
+      throw new RangeError('Invalid Angel-count tribe')
+    const team = campaignTeam(w, tribe)
+    // 0x490e40 reads the signed model8 counter rebuilt by 0x4ecac0. The browser
+    // represents initialized Angel payloads as owned effects, including their
+    // dying phase until actual end-of-pass retirement. Stock/presentation is not
+    // a payload, and no HP or substate gate belongs to this count.
+    writeVariable(
+      args[1],
+      short(w.effects.filter(effect => effect.angel && effect.team === team).length)
     )
     return
   }
@@ -828,7 +847,8 @@ export function campaignRules(w: World) {
                     ? [
                         12,
                         1003,
-                        ...script.codes.slice(529, 546),
+                        // Complete original Angel-present/Shaman-absent delayed victory latch.
+                        ...script.codes.slice(529, 599),
                         ...script.codes.slice(599, 706),
                         1004,
                         ...script.codes.slice(707, 744),
@@ -844,6 +864,10 @@ export function campaignRules(w: World) {
                           12,
                           1003,
                           ...script.codes.slice(254, 259),
+                          // Chumara's original EVERY255 settlement and training targets.
+                          // Later tower, patrol, raid and message branches remain unbound.
+                          ...script.codes.slice(447, 595),
+                          1004,
                           ...script.codes.slice(1892, 1978),
                           1004,
                           1019,
@@ -940,7 +964,27 @@ export function campaignRules(w: World) {
                                         ]
                                       : [12, 1003, 1004, 1019],
   }
-  // ponytail: bind only complete delivered blocks; add later AI commands with their real hosts.
+  if (w.outcome.level === 16 && tribe === 1) {
+    // Original Red EVERY255/offset127: six Tower requests precede both patrol groups.
+    // Separate expansion, nearby-count, training and guard siblings remain unbound.
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(655, 729), 1004, 1004, 1019]
+  }
+  if (w.outcome.level === 16 && tribe === 2) {
+    // Original Yellow EVERY255/offset127 and both population-gated Tower groups.
+    // Later patrol, guard and expansion siblings remain outside this projection.
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(570, 613), 1004, 1004, 1019]
+  }
+  if (w.outcome.level === 18 && tribe === 1) {
+    // Complete first patrol/Preacher block and the following original kill-count
+    // guard transition. Later attack phases never reopen its zero-valued gate.
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(624, 663), 1004, 1004, 1019]
+  }
+  if (w.outcome.level === 22 && tribe === 1) {
+    // Authored EVERY255 Tower staffing followed by marker-route staffing.
+    // The later conditional emergency sibling remains unbound.
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(227, 241), 1004, 1004, 1019]
+  }
+  // ponytail: bind reviewed statements with their original enclosing conditions and real hosts.
   runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
     tribe,

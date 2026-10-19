@@ -1,0 +1,26 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00403227 <.text+0x2227>:
+  403227:	66 8b 86 92 00 00 00 	mov    ax,WORD PTR [esi+0x92]
+  40322e:	66 85 c0             	test   ax,ax
+  403231:	74 2d                	je     0x403260
+  403233:	80 7e 2c 02          	cmp    BYTE PTR [esi+0x2c],0x2
+  403237:	75 0b                	jne    0x403244
+  403239:	8a 0d f0 c6 89 00    	mov    cl,BYTE PTR ds:0x89c6f0
+  40323f:	38 4e 2f             	cmp    BYTE PTR [esi+0x2f],cl
+  403242:	74 1c                	je     0x403260
+  403244:	0f bf c0             	movsx  eax,ax
+  403247:	8b 0c 85 90 03 89 00 	mov    ecx,DWORD PTR [eax*4+0x890390]
+  40324e:	51                   	push   ecx
+  40324f:	e8 2c bf 0e 00       	call   0x4ef180
+  403254:	66 c7 86 92 00 00 00 	mov    WORD PTR [esi+0x92],0x0
+  40325b:	00 00
+  40325d:	83 c4 04             	add    esp,0x4
+  403260:	5f                   	pop    edi
+  403261:	5e                   	pop    esi
+  403262:	5b                   	pop    ebx
+  403263:	c3                   	ret

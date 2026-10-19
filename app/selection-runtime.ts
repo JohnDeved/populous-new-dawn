@@ -1,4 +1,4 @@
-import { type Unit, type World } from './world-types.ts'
+import { type Building, type Shrine, type Unit, type World } from './world-types.ts'
 import { BuilderTask } from './building-workers.ts'
 import { SceneryPhase } from './building-clearing.ts'
 import { buildingModel } from './building-shapes.ts'
@@ -24,37 +24,16 @@ import {
   inDragSelection,
 } from './drag-selection.ts'
 import { currentPersonOrder, deselectPerson } from './person-orders.ts'
+import { builderActivity, unitAnimationSource } from './unit-animation-source.ts'
+export { builderActivity, unitAnimationSource } from './unit-animation-source.ts'
 
-export function builderActivity(u: Unit) {
-  const task = u.builder?.task
-  return (
-    task === BuilderTask.Approach ||
-    task === BuilderTask.Work ||
-    task === BuilderTask.Fetch ||
-    task === BuilderTask.Level ||
-    task === BuilderTask.ClearScenery ||
-    task === BuilderTask.ClearPeople ||
-    task === BuilderTask.Leave
-  )
-}
-export function unitAnimationSource(u: Unit) {
-  if (u.flight) return u.flight
-  if (u.fight?.action === 'encounter') return u.fight.motion!
-  if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
-  if (
-    u.native &&
-    (u.native.guardInputPending ||
-      u.native.state !== 10 ||
-      [3, 6, 15, 16, 17, 18, 19, 21, 27, 30, 31, 32, 33].includes(u.native.commandStatus))
-  )
-    return u.native
-  if (u.entry) return u.entry.person
-  return builderActivity(u) && !u.fight && !u.fighting && !u.casting && !u.lift
-    ? (u.builder?.person ?? null)
-    : null
-}
-
-export function unitAnimation(w: World, u: Unit) {
+export function unitAnimation(
+  w: World,
+  u: Unit,
+  selectedIds?: ReadonlySet<number>,
+  buildingsById?: ReadonlyMap<Unit['work'], Building>,
+  shrinesById?: ReadonlyMap<Unit['work'], readonly Shrine[]>
+) {
   if (u.lift > 0) return 'airborne'
   if (u.casting) return 'cast'
   if (u.fight?.animation) return u.fight.animation
@@ -82,15 +61,24 @@ export function unitAnimation(w: World, u: Unit) {
     if (u.builder.task === BuilderTask.Level && u.builder.phase === 28) return 'dance'
     if (u.builder.task === BuilderTask.ClearScenery && u.builder.phase === SceneryPhase.Harvest)
       return 'work'
-    if (u.builder.task === BuilderTask.Work && !w.buildings.find(b => b.id === u.work)?.preparation)
-      return 'work'
+    if (u.builder.task === BuilderTask.Work) {
+      let building: Building | undefined
+      if (buildingsById === undefined) building = w.buildings.find(b => b.id === u.work)
+      else if (!Number.isNaN(u.work)) building = buildingsById.get(u.work)
+      if (!building?.preparation) return 'work'
+    }
     return u.cargo ? 'carryIdle' : 'idle'
   }
   if (u.path.length) return u.cargo ? 'carry' : 'walk'
   if (u.cargo) return 'carryIdle'
   if (u.harvest) return 'work'
+  let shrines: readonly Shrine[] | undefined
+  if (shrinesById === undefined) {
+    const { shrines: liveShrines } = w
+    shrines = liveShrines
+  } else if (!Number.isNaN(u.work)) shrines = shrinesById.get(u.work)
   if (
-    w.shrines.some(
+    shrines?.some(
       s =>
         s.id === u.work &&
         s.active &&
@@ -99,7 +87,7 @@ export function unitAnimation(w: World, u: Unit) {
     )
   )
     return 'pray'
-  return w.selected.includes(u.id) ? 'selected' : 'idle'
+  return (selectedIds?.has(u.id) ?? w.selected.includes(u.id)) ? 'selected' : 'idle'
 }
 
 export function selectionBuilding(w: World, point: { x: number; y: number }) {

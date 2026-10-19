@@ -1,3 +1,4 @@
+import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
 import {
   tribeForTeam,
   type Building,
@@ -30,20 +31,21 @@ import {
   currentPersonOrder,
   emptyPersonOrder,
   playerOrderInput,
-  writePersonOrder,
 } from './person-orders.ts'
 import {
   appendLiveOrders,
+  appendLivePlayerOrders,
   anchorLiveShamanGuard,
   cancelLiveOrder,
   movementOrder,
   orderEffects,
+  replaceLiveTrainingOrders,
   startLiveConstructionOrder,
   startLiveOrder,
 } from './live-movement.ts'
 import { canOrder, cancelInteraction, selectionPeople } from './selection-runtime.ts'
 import { release } from './world-tasks.ts'
-import { attachPersonRoute, releasePersonRoute } from './person-routes.ts'
+import { releasePersonRoute } from './person-routes.ts'
 import {
   addBuilding,
   buildingPlanPose,
@@ -54,6 +56,7 @@ import { assignBuilder, BuilderTask } from './building-workers.ts'
 import { worshipHeadPose, worshipOrder } from './live-worship.ts'
 import { worshipApproach } from './worship.ts'
 import { canShamanCast, spellInRange, beginCast } from './spell-casting.ts'
+import { blastPersonPosition, blastPersonTargeting } from './blast-targeting.ts'
 import { BUILDINGS, isShaman, SPELLS } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import { randomPersonSpeed } from './person-state.ts'
@@ -262,7 +265,8 @@ export function guardShaman(w: World) {
       people,
       shaman.id,
       orderEffects(w),
-      (p, order) => anchorLiveShamanGuard(w, p, order)
+      (p, order) => anchorLiveShamanGuard(w, p, order),
+      id => id
     )
     for (const p of changed) {
       p.guardInputPending = true
@@ -381,7 +385,7 @@ export function spellTargetError(w: World, spell: Spell, p: Point) {
     shaman.lift > 0 ||
     shaman.casting ||
     !canShamanCast(w.castingTribes[0], w.manaTribes[0].playerType, {
-      state: 0,
+      state: shaman.native?.vehicle && shaman.native.state === 22 ? 22 : 0,
       flags2: 0,
       flags4: 0,
     })
@@ -399,8 +403,13 @@ export function spellTargetError(w: World, spell: Spell, p: Point) {
   return null
 }
 
-export function cast(w: World, spell: Spell, p: Point) {
+export function cast(w: World, spell: Spell, p: Point, personId?: number) {
   if (w.paused || w.status !== 'playing') return false
+  const direct =
+    personId !== undefined && blastPersonTargeting(spell, w.manaWorld.gameFlags)
+      ? blastPersonPosition(w, personId, nativePosition)
+      : null
+  if (direct) p = browserPosition(direct)
   const error = spellTargetError(w, spell, p)
   if (error?.code === -1) {
     if (error.message) tell(w, error.message)
@@ -436,7 +445,7 @@ export function cast(w: World, spell: Spell, p: Point) {
   const shaman = w.units.find(u => u.team === 'blue' && isShaman(u))!
   release(w, shaman)
   shaman.heading = Math.atan2(p.x - shaman.x, p.z - shaman.z)
-  beginCast(w, shaman, spell, p)
+  beginCast(w, shaman, spell, p, direct ? personId : undefined)
   w.mode = null
   return true
 }
@@ -474,74 +483,40 @@ export function command(
   if (!context?.enabled) return false
   const { model } = context
   w.lastOrderTurn = w.turn
-  if (model === 3) {
-    const vehicles = new Set(
-      w.units
-        .filter(u => w.selected.includes(u.id) && u.native?.vehicle)
-        .map(u => u.native!.vehicle)
+  const sharedVehicleMovement =
+    model === 3 &&
+    w.units.some(
+      u =>
+        w.selected.includes(u.id) &&
+        u.native?.vehicle &&
+        w.vehicles.some(v => v.id === u.native!.vehicle && v.active && [1, 3].includes(v.model))
     )
-    if (vehicles.size) {
-      const to = nativePosition(w, p),
-        landingReservations = {
-          search: w.indexedSearch,
-          records: new Uint8Array(48),
-          count: 0,
-        }
-      let count = 0
-      for (const id of vehicles) {
-        const vehicle = w.vehicles.find(v => v.id === id && v.active),
-          driver = vehicle && w.units.find(u => u.id === vehicle.passengers[0]),
-          person = driver?.native
-        if (!vehicle || !driver || !person) continue
-        cancelLiveOrder(w, driver)
-        const order = allocatePersonOrder(w.buildingOrders)
-        if (!order) continue
-        Object.assign(w.buildingOrders.records[order], {
-          model: 3,
-          a: to.x & 65535,
-          b: to.y & 65535,
-        })
-        attachPersonOrder(w.buildingOrders, person, order, 0, orderEffects(w))
-        const path = planLivePath(w, driver, p, person, false, true, landingReservations)
-        if (!path) {
-          cancelLiveOrder(w, driver)
-          continue
-        }
-        Object.assign(w.buildingOrders.records[order], {
-          a: path.goalX & 65535,
-          b: path.goalY & 65535,
-        })
-        path.commandStatus = 3
-        path.state = 10
-        acceptLivePath(w, driver, path)
-        for (const passengerId of vehicle.passengers.slice(1)) {
-          const passengerUnit = w.units.find(u => u.id === passengerId),
-            passenger = passengerUnit?.native
-          if (!passengerUnit || !passenger) continue
-          cancelLiveOrder(w, passengerUnit)
-          if (!path.motionGroup) continue
-          attachPersonOrder(w.buildingOrders, passenger, order, 0, orderEffects(w))
-          attachPersonRoute(w.motionRoutes, passenger, path.motionGroup)
-          Object.assign(passenger, {
-            commandStatus: 3,
-            state: 10,
-            motionIndex: path.motionIndex,
-            goalX: path.goalX,
-            goalY: path.goalY,
-            destinationX: path.destinationX,
-            destinationY: path.destinationY,
-            turnAngle: path.turnAngle,
-            turnY: path.turnY,
-          })
-          acceptLivePath(w, passengerUnit, passenger)
-        }
-        count++
-      }
-      tell(w, count ? 'Your transport is on the move.' : 'The transport cannot reach that point.')
-      return true
-    }
-  }
-  if (model === 22 && context.vehicle) {
+  const sharedBoarding =
+    model === 22 &&
+    context.vehicle &&
+    w.units
+      .filter(u => canOrder(u) && w.selected.includes(u.id))
+      .every(u => {
+        const person = u.native ?? u.entry?.person ?? u.builder?.person
+        if (!person?.vehicle) return true
+        // Native player input retains an existing passenger. Only an exact,
+        // living registered seat owner enters this already-supported controller.
+        const vehicle = w.vehicles.find(v => v.id === person.vehicle && v.active),
+          slot = vehicle?.passengers.indexOf(u.id) ?? -1
+        return (
+          u.hp > 0 &&
+          u.native === person &&
+          person.id === u.id &&
+          person.class === 1 &&
+          !(person.flags2 & 1) &&
+          vehicle &&
+          person.vehicle === vehicle.id &&
+          slot !== -1 &&
+          slot < rules.vehicleCapacity[vehicle.model] &&
+          w.objectCells.objects.get(u.id) === person
+        )
+      })
+  if (model === 22 && context.vehicle && !sharedBoarding) {
     const point = browserPosition(vehicleExitTarget(w, context.vehicle)),
       units = w.units.filter(
         u => canOrder(u) && w.selected.includes(u.id) && acceptsPersonOrder(combatPerson(u), 22)
@@ -551,7 +526,7 @@ export function command(
       Object.assign(w.buildingOrders.records[order], {
         model: 22,
         a: context.vehicle.id,
-        b: 0,
+        b: ((context.vehicle.x >>> 8) & 255) | (context.vehicle.y & 0xff00),
       })
     let count = 0
     for (const u of units) {
@@ -591,9 +566,41 @@ export function command(
   const queuedTree =
     model === 7 && context.tree && context.tree.model >= 1 && context.tree.model <= 6
   if (
+    model === 8 &&
+    context.building &&
+    ['camp', 'temple', 'spyHut', 'firewarriorHut'].includes(context.building.kind) &&
+    !modifiers.ctrlKey &&
+    !w.orderCursor
+  ) {
+    const units = w.units.filter(u => u.hp > 0 && w.selected.includes(u.id)),
+      input = playerOrderInput(8, 0, false, modifiers.shiftKey, modifiers.altKey),
+      order = emptyPersonOrder()
+    writePersonOrder(order, 8, context.building.id, 0, input.flags)
+    const result = replaceLiveTrainingOrders(w, units, order)
+    for (const person of selectionPeople(w))
+      person.selectionFlags = (person.selectionFlags & ~1) | (person.selectionFlags >>> 7)
+    if (input.deselect) cancelInteraction(w)
+    const trained = {
+      camp: 'warriors',
+      temple: 'preachers',
+      spyHut: 'spies',
+      firewarriorHut: 'firewarriors',
+    }
+    let message = 'No command slots available.'
+    if (result.accepted) {
+      message = 'No selected followers can take this order.'
+      if (result.count)
+        message = `Braves sent to train as ${trained[context.building.kind as keyof typeof trained]}.`
+    }
+    tell(w, message)
+    return true
+  }
+  if (
     model === 15 ||
     model === 19 ||
     model === 33 ||
+    sharedBoarding ||
+    sharedVehicleMovement ||
     ((model === 3 || model === 27 || model === 28 || queuedBuilding || queuedTree) &&
       (modifiers.ctrlKey || w.orderCursor))
   ) {
@@ -619,7 +626,7 @@ export function command(
         active = person ? (currentPersonOrder(w.buildingOrders, person)?.model ?? 0) : 0
       if (
         ![17, 31, 32].includes(active) &&
-        (!slot || !person || ![3, 6, 7, 8, 10, 15, 19, 27, 28].includes(active))
+        (!slot || !person || ![3, 6, 7, 8, 10, 15, 19, 22, 27, 28].includes(active))
       ) {
         release(w, u, model === 33)
         if (model === 33 && person) u.native = person
@@ -634,18 +641,20 @@ export function command(
         ? 0
         : model === 7
           ? 1
-          : (context.person?.id ?? context.building?.id ?? context.shrine?.id ?? 0),
+          : (context.person?.id ??
+            context.building?.id ??
+            context.shrine?.id ??
+            context.vehicle?.id ??
+            0),
       ((to.x >>> 8) & 255) | (to.y & 0xff00),
       input.flags
     )
-    const result = appendLiveOrders(w, units, order, slot === 0)
+    const result = appendLivePlayerOrders(w, units, order, slot === 0)
     if (model === 15 && result.accepted && context.building)
       for (const u of units) {
         const person = u.native ?? u.entry?.person ?? u.builder?.person
         if (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 15) continue
         u.target = context.building.id
-        const path = planLivePath(w, u, entrance(w, context.building), person)
-        if (path) acceptLivePath(w, u, path)
       }
     if (model === 28 && result.accepted)
       for (const u of units) {
@@ -685,8 +694,10 @@ export function command(
     tell(w, 'No command slots available.')
     return true
   }
+  const aboardAttack: Unit[] = []
   let count = 0,
-    constructionFull = false
+    constructionFull = false,
+    attackOrdersFull = false
   if (friendly && friendly.progress < 1 && !dismantling) constructionWorkers(w, friendly)
   for (const u of w.units.filter(u => canOrder(u) && w.selected.includes(u.id))) {
     if (!acceptsPersonOrder(combatPerson(u), model)) continue
@@ -728,6 +739,20 @@ export function command(
     const order = moveOrder || headOrder,
       path = moveOrder ? null : planLivePath(w, u, goal)
     if (!moveOrder && !path) continue
+    const person = u.native
+    if (
+      enemy &&
+      person?.vehicle &&
+      ![4, 6].includes(person.model) &&
+      w.objectCells.objects.get(u.id) === person &&
+      w.vehicles.some(v => v.id === person.vehicle && v.active && v.passengers.includes(u.id))
+    ) {
+      // Admission is unchanged. Plain and staged packets both own command 28;
+      // only the player-input staging bit differs (0x444f60/0x435cb0).
+      releasePersonRoute(w.motionRoutes, path!)
+      aboardAttack.push(u)
+      continue
+    }
     if (friendly && friendly.progress < 1 && !dismantling) assignBuilder(friendly.builders!, u.id)
     release(w, u)
     if (order) {
@@ -743,13 +768,38 @@ export function command(
       u.vault = { head: shrine.id, phase: 1, entering: true, remaining: 0 }
     count++
   }
+  if (enemy && aboardAttack.length) {
+    const input = playerOrderInput(28, 0, false, modifiers.shiftKey, modifiers.altKey),
+      order = emptyPersonOrder(),
+      to = nativePosition(w, enemy)
+    for (const u of aboardAttack) release(w, u)
+    writePersonOrder(order, 28, enemy.id, ((to.x >>> 8) & 255) | (to.y & 0xff00), input.flags)
+    const result = appendLiveOrders(w, aboardAttack, order, true)
+    attackOrdersFull = !result.accepted
+    if (result.accepted)
+      for (const u of aboardAttack) {
+        if (!u.native || currentPersonOrder(w.buildingOrders, u.native)?.model !== 28) continue
+        u.target = enemy.id
+        route(w, u, enemy, true)
+        count++
+      }
+    for (const u of aboardAttack)
+      if (u.native)
+        u.native.selectionFlags = (u.native.selectionFlags & ~1) | (u.native.selectionFlags >>> 7)
+    if (input.deselect) cancelInteraction(w)
+  }
   let message = 'No land route. Bring your shaman to the shore and make a Land Bridge.'
   if (count) {
     message = 'Your followers are on the move.'
     if (dismantling) message = 'Braves assigned to dismantle the building and recover timber.'
-    else if (shrine)
-      message = `Worshipping ${shrine.name}. ${shrine.kind === 'vault' ? 'Only your shaman can learn its secrets.' : 'One follower is enough.'}`
-    else if (friendly) {
+    else if (shrine) {
+      let requirement: string
+      if (shrine.kind === 'vault') requirement = 'Only your shaman can learn its secrets.'
+      else if (shrine.mode === 3) requirement = 'Only your shaman can worship here.'
+      else if (shrine.required === 1) requirement = 'One follower is enough.'
+      else requirement = `${shrine.required} followers are required.`
+      message = `Worshipping ${shrine.name}. ${requirement}`
+    } else if (friendly) {
       if (friendly.progress < 1) message = 'Braves assigned to construction.'
       else if (friendly.kind === 'camp') message = 'Braves sent to train as warriors.'
       else if (friendly.kind === 'temple') message = 'Braves sent to train as preachers.'
@@ -760,7 +810,8 @@ export function command(
       else if (friendly.kind === 'tower') message = 'Followers sent to occupy the guard tower.'
       else message = 'Braves sent to live in the hut.'
     } else if (enemy) message = 'Your followers march to battle.'
-  } else if (constructionFull) message = 'This building already has its full construction crew.'
+  } else if (attackOrdersFull) message = 'No command slots available.'
+  else if (constructionFull) message = 'This building already has its full construction crew.'
   else if (shrine?.kind === 'vault')
     message = 'Select your shaman to worship the Vault of Knowledge.'
   tell(w, message)

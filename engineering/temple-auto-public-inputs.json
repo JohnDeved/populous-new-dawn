@@ -1,0 +1,146 @@
+{
+  "status": "historical-feasibility-inputs",
+  "scope": "Original b2990fe5 proposal inputs; not a current execution manifest.",
+  "base": "b2990fe5312b0a0da7e9dc1c23bb3bc071bb0d13",
+  "paths": [
+    {
+      "path": "scripts/local-render/mission3-temple-checkpoint.mjs",
+      "bytes": 15943,
+      "sha256": "cba34008a00a0a58b377ba24d09e92f19a7bf4884e139fef38b3cc1a7ada4182",
+      "gitBlob": "b15e1ba657f8edd91a5a11f164721cc27261f0ab"
+    },
+    {
+      "path": "scripts/local-render/mission3-temple-witness.mjs",
+      "bytes": 11026,
+      "sha256": "7d07df4ba1c098beb2f8c6ce73c4949d2ba9faa7a9648cd490426eae519b126e",
+      "gitBlob": "d396db07a59ff3407b6a0873eb2667fece0bda9b"
+    },
+    {
+      "path": "scripts/local-render/mission1-vault-input.mjs",
+      "bytes": 39873,
+      "sha256": "f11a2c71bc4430cafbbbf1fdccc3168a6061e77ef937d59825e416b1add0e414",
+      "gitBlob": "76d13fea6d1225905136889ffee4098d5e34c10a"
+    },
+    {
+      "path": "scripts/local-render/mission1-vault-arrival.mjs",
+      "bytes": 7219,
+      "sha256": "4ef7d2f1acf079f1d49ae87a9ba3bc2cff09f88cfa6b5b1e176e5fac4faaab99",
+      "gitBlob": "eca330dc8e63fd060f3e670ff2c07ec2c86ec133"
+    },
+    {
+      "path": "scripts/local-render/mission3-building-lifecycle.mjs",
+      "bytes": 11410,
+      "sha256": "86d1a3b65965e77887422a4125d994d45abc39589dfadced16710c4109cfa711",
+      "gitBlob": "e48307f78d2f0ce22dfc5207d2f39048f44e4e65"
+    },
+    {
+      "path": "scripts/local-render/checkpoint-observer.mjs",
+      "bytes": 4583,
+      "sha256": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "gitBlob": "a53f74c08539d99c82720b95894f4e63ac4e1663"
+    },
+    {
+      "path": "scripts/local-render/owned-profile.mjs",
+      "bytes": 10316,
+      "sha256": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
+      "gitBlob": "13f1f46a325f6ab9b5d57af8c2527c4df34cdbe4"
+    },
+    {
+      "path": "scripts/local-render/harness.mjs",
+      "bytes": 21920,
+      "sha256": "19212b8b57d8f1ec47583ec12a3b33152832c103b91a266aa4a774bf0043a021",
+      "gitBlob": "616a749ab274a4b31533d6309b6c8470cf7d6178"
+    },
+    {
+      "path": "scripts/browser-game.mjs",
+      "bytes": 6633,
+      "sha256": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+      "gitBlob": "2e8559fe11f1f7dfddad39dabca59c6749d0e50b"
+    },
+    {
+      "path": "scripts/checkpoint-readback.mjs",
+      "bytes": 568,
+      "sha256": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80",
+      "gitBlob": "1d75197cd96402d1e5d72106d47027a83ff874a1"
+    },
+    {
+      "path": "qa/erosion-ordinary/input.mjs",
+      "bytes": 9472,
+      "sha256": "29afe98c0e35e79fc25b6f9f6f0782de072ef9276d56bd8304ab9b72a99a8e19",
+      "gitBlob": "d0fb12514c515b18151b69855303c13770cd4f11"
+    },
+    {
+      "path": "qa/erosion-ordinary/minimap-input.mjs",
+      "bytes": 772,
+      "sha256": "acf622d6277bae5ec3cf734c03cea7a4a8637f1dde9c710c8be6e2234ebd30e5",
+      "gitBlob": "29bc7b991352bb833feb077b308a83843c67333a"
+    },
+    {
+      "path": "app/object-panels.ts",
+      "bytes": 25948,
+      "sha256": "247c27e63e3753dd3065bb299c9001535e34253d800c5ba238ce7d875194bdcf",
+      "gitBlob": "e562ced6061d3bd9561e264b69114e119d16821e"
+    },
+    {
+      "path": "app/building-panels.ts",
+      "bytes": 13864,
+      "sha256": "c18385ea0297adcc6ba0a7ccdd32e672bff1dcfe86d7a08cada35f5e22b85629",
+      "gitBlob": "f0037f15fe9ad3d0c0aa767a19e862f5f937dbdd"
+    },
+    {
+      "path": "app/scene-tooltip-runtime.ts",
+      "bytes": 12555,
+      "sha256": "b2a53279069a5fccf2b3760c81672390720045c4bd0970d7cd61bc86a1d4b261",
+      "gitBlob": "bb15f76b5bffe121156a8d1efb02bf0c22212c35"
+    },
+    {
+      "path": "app/training-panel-requests.ts",
+      "bytes": 813,
+      "sha256": "63c518faf90272876594a896c387360d08264e1d1904ae38b86cdb075e240bba",
+      "gitBlob": "fd996f62e702f01c1f0736e63366184a1ba180b7"
+    },
+    {
+      "path": "app/live-building-entry.ts",
+      "bytes": 24651,
+      "sha256": "e09c7d00e3b32438e9634e2e21b0a11ce79bf38e9d7d547e342fda1011124404",
+      "gitBlob": "98cdee0ef0869b86319a060212812a66af77a0b7"
+    },
+    {
+      "path": "app/live-movement.ts",
+      "bytes": 38281,
+      "sha256": "9baf56d21547beebeb063e99de94502303a2de15391caf360b03621e8bee488f",
+      "gitBlob": "6df8f5f7c8c408a4faf23202f308d039fa66063c"
+    },
+    {
+      "path": "app/game-store.ts",
+      "bytes": 18440,
+      "sha256": "300cc63a292b79057bc64457dcfd087b2f7162194e2108d753e899c35861c675",
+      "gitBlob": "a42a88072b2600c2c27141b5fd436da03e381673"
+    },
+    {
+      "path": "app/page.tsx",
+      "bytes": 64347,
+      "sha256": "af95be6e48354ffec34046eb0c265612ef460d612d69c91e56825c9ce7948765",
+      "gitBlob": "c2bb5ddfe16e0952dc48dd1271acc1c15e59855d"
+    },
+    {
+      "path": "app/hut-smoke-runtime.ts",
+      "bytes": 5429,
+      "sha256": "8652d3c33cc2c195344c62a7a9d2aba572620742c0dd89458634f576853ac834",
+      "gitBlob": "49eb8ec6c656dfbac2bd57db53596af68a318bf6"
+    },
+    {
+      "path": "app/training-conversion.ts",
+      "bytes": 5626,
+      "sha256": "6c8cade2447474f1d966cdfad22e9098d2fd4a5535891fe8c942ba7266806bf7",
+      "gitBlob": "a587d40c25b052cf82190c3bad42732db19131e3"
+    },
+    {
+      "path": "app/mana.ts",
+      "bytes": 11937,
+      "sha256": "2db351005682c765353c834cff06e0eea0c8c9e20bd0ca536207fa9e81c77d33",
+      "gitBlob": "103f4c6c4b13e58b74851412d5681d06130dd935"
+    }
+  ],
+  "policy": "Exact merged public source only; no held QA files are imported, copied or linked."
+}

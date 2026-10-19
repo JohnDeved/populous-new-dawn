@@ -236,14 +236,13 @@ export function stepPreachingOrder(
     }
   }
 
-  let targets = p.assignment & 64 ? 1 : 0
   if (scans && !(p.counter & 1)) {
-    targets = effects.acquire(p.commandAux)
+    const targets = effects.acquire(p.commandAux)
     p.assignment = targets ? p.assignment | 64 : p.assignment & ~64
-  }
-  if (p.commandStatus === 32 && p.timer > 32 && !targets) {
-    effects.release(p.commandAux)
-    return 1
+    if (p.commandStatus === 32 && p.timer > 32 && !targets) {
+      effects.release(p.commandAux)
+      return 1
+    }
   }
   return 0
 }

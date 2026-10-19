@@ -17,7 +17,7 @@ import {
 } from './person-orders.ts'
 import { orderEffects } from './live-movement.ts'
 import { startPersonOrders } from './person-order-start.ts'
-import { removeObjectFromCell } from './object-cells.ts'
+import { deleteCellObject, removeObjectFromCell } from './object-cells.ts'
 import { effect, sound, shotVisual, moveVisual } from './world-effects.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { browserPosition } from './world-coordinates.ts'
@@ -48,9 +48,13 @@ import {
 function stoneBurst(w: World, point: StartPoint, tribe: number) {
   const team = teamForTribe(tribe)
   w.effectCounter = (w.effectCounter + 1) & 255 // effect9, 0x50ccd0
+  // The burst root is grounded before its offset; each child retains its own clamp.
+  const position = {
+    ...point,
+    h: short(Math.max(short(point.h), terrainPointHeight(w.land, point)) + 90),
+  }
   for (let particle = 0; particle < 32; particle++) {
-    const position = { ...point, h: short(point.h + 90) },
-      burst = effect(w, 'trail', browserPosition(position)),
+    const burst = effect(w, 'trail', browserPosition(position)),
       trail = createSpellTrail(w.land, position, 3, (w.effectCounter - 1) & 255, w.cosmeticRandom)
     trail.flags4 &= ~0x100
     Object.assign(trail, levelStartBurstParticle(w))
@@ -176,7 +180,7 @@ function convertStartingWildman(w: World, u: Unit, tribe: number) {
     slot = w.units.indexOf(u)
   releaseTasks(w, u)
   if (u.native?.flags2 && u.native.flags2 & 0x20000) removeObjectFromCell(w.objectCells, u.native)
-  w.objectCells.objects.delete(u.id)
+  deleteCellObject(w.objectCells, u.id)
   const replacement = addUnit(w, teamForTribe(tribe), 'brave', browserPosition(point))
   w.units[slot] = replacement
   w.units.pop()

@@ -44,8 +44,8 @@ test('Tornado replays native initialization, lifetime, carry and throw', () => {
   person.substate = 18
   assert.equal(stepTornadoPerson(w, person, tornado, 0), false)
   assert.deepEqual(
-    [person.state, person.flags2, person.flags3, person.velocity, person.damageAttacker, w.randomState],
-    [8, 0x82000, 0x400, { x: -204, y: 230, z: -2 }, 2, 0x52d595fe]
+    [person.state, person.flags2, person.flags3, person.flags4, person.velocity, person.damageAttacker, w.randomState],
+    [8, 0x82000, 0, 0x400, { x: -204, y: 230, z: -2 }, 2, 0x52d595fe]
   )
 
   let visits = 0

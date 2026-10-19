@@ -66,7 +66,7 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
       window.requestAnimationFrame = window.combinedHeldRAF
     })
     await page.goto(url, { waitUntil: 'domcontentloaded' })
-    await page.getByRole('button', { name: 'Select Mission 1', exact: true }).click()
+    await page.getByRole('button', { name: /^Panel Mission 1(?:, completed)?$/, exact: true }).click()
     await page.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
     await bindGame(pollingPage)
     await page.waitForFunction(() => window.testSceneRef.current.started &&

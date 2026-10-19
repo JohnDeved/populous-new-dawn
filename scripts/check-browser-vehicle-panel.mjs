@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {writeFileSync} from 'node:fs'
@@ -147,7 +148,7 @@ export default async function vehiclePanels({browser,page,openMission,output,rec
  }
  const dpr=await browser.newContext({viewport:{width:1280,height:720},deviceScaleFactor:2}),dp=await dpr.newPage()
  dp.setDefaultTimeout(45000);dp.on('pageerror',error=>receipt.errors.push(String(error)))
- await dp.goto(url,{waitUntil:'domcontentloaded'});await dp.getByRole('dialog',{name:'Start game',exact:true}).waitFor({state:'visible'})
+ await dp.goto(url,{waitUntil:'domcontentloaded'});await openCampaignFromMainMenu(dp)
  await dp.getByRole('button',{name:'All missions',exact:true}).click();await dp.getByRole('button',{name:'Mission 22',exact:true}).focus();await dp.keyboard.press('Enter');await bindGame(dp)
  const skip=dp.locator('.skip-introduction');await skip.waitFor({state:'visible',timeout:45000}).catch(()=>{});if(await skip.isVisible())await skip.click()
  await dp.waitForFunction(()=>!window.testStore.getWorld().inputMask)

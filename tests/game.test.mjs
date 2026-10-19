@@ -981,6 +981,13 @@ test('campaign attack commitment follows living warrior counts on its original t
  }
 });
 
+function registeredRaidPerson(w,id){
+ const unit=w.units.find(unit=>unit.id===id),person=w.objectCells.objects.get(id);
+ assert.ok(unit&&unit.hp>0&&person&&person.id===unit.id,'raid order observation requires its living intended unit');
+ assert.ok([unit.flight,unit.fight?.motion,unit.native,unit.entry?.person,unit.builder?.person].includes(person),'raid order observation requires its actual registered owner');
+ return person;
+}
+
 test('mission-one Dakini launches its native attack route when Blue enters marker three',async()=>{
  const {joinBattle}=await import('../app/model.ts');
  const {currentPersonOrder}=await import('../app/person-orders.ts');
@@ -992,6 +999,8 @@ test('mission-one Dakini launches its native attack route when Blue enters marke
  addUnit(w,'blue','warrior',{x:marker.x,z:marker.z+12});
  const redStart=nativeCellPoint(staging);
  for(const unit of w.units.filter(u=>u.team==='red'&&u.kind!=='shaman'))Object.assign(unit,redStart);
+ // This relocated roster has an established base: native +5b4/+36a shadows the loaded Shaman cell.
+ w.ai.constructionBase=staging;
  w.ai.defencePosition=staging;w.ai.variables[50]=1;w.ai.variables[2]=0;w.turn=201;tick(w,1/12);
  const task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);
  assert.deepEqual(task&&{phase:task.phase,target:task.target,requested:task.requested,damage:task.extra,marker:task.mode,retreatPercent:task.retreatPercent,quotas:task.quotas},{phase:3,target:level.markers[3],requested:3,damage:999,marker:3,retreatPercent:50,quotas:[11,12,13,16,17,19].map(index=>w.ai.attributes[index])});
@@ -1007,15 +1016,15 @@ test('mission-one Dakini launches its native attack route when Blue enters marke
  assert.ok(radiusDistance>1.5,'native radius advances before exact marker arrival');assert.deepEqual(phases.slice(-5),[10,11,12,6,14]);
  assert.equal(w.ai.selectionOwner,10);assert.equal(w.ai.flags&2,0);
  const members=[...task.members],victim=addUnit(w,'blue','warrior',marker),hp=victim.hp;
- until(w,()=>members.every(id=>currentPersonOrder(w.buildingOrders,w.units.find(u=>u.id===id).native)?.model===19),20);
- const attackIds=members.map(id=>w.units.find(u=>u.id===id).native.commands.find(Boolean));
+ until(w,()=>members.every(id=>currentPersonOrder(w.buildingOrders,registeredRaidPerson(w,id))?.model===19),20);
+ const attackIds=members.map(id=>registeredRaidPerson(w,id).commands.find(Boolean));
  assert.equal(new Set(attackIds).size,1,'the attack area order is shared by the whole group');
  assert.equal(w.buildingOrders.records[attackIds[0]].references,3);
  until(w,()=>victim.hp<hp,30);assert.equal(task.damage,0,'ordinary wounds do not credit the native task threshold');
  until(w,()=>victim.hp===0,30);assert.equal(task.damage,2,'a warrior death credits its native model score once');
  task.damage=task.extra;
  until(w,()=>!(task.flags&1),60);
- assert.ok(members.every(id=>currentPersonOrder(w.buildingOrders,w.units.find(u=>u.id===id).native)?.model!==19));
+ assert.ok(members.every(id=>currentPersonOrder(w.buildingOrders,registeredRaidPerson(w,id))?.model!==19));
  requestAttack(w.ai,task.origin,3,1,999,w.ai.attributes.slice(11,17),0,true,1);
  assert.equal(task.flags&1,1,'phase 23 releases the same queue slot for the next wave');
 });
@@ -1037,16 +1046,33 @@ test('mission-one Dakini launches its later building attack when Blue overwhelms
  assert.equal(fallback.randomState,1896349699,'person-only fallback consumes one native draw');
 
  const w=createWorld();until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===24),2);w.units=[];
- const target=w.buildings.filter(b=>b.team==='blue')[1],near={x:target.x+4,z:target.z};
+ const target=w.buildings.filter(b=>b.team==='blue')[1],near={x:target.x+12,z:target.z};
  addUnit(w,'red','shaman',near);for(let i=0;i<3;i++)addUnit(w,'red','brave',near);
  addUnit(w,'blue','shaman',ENEMY);for(let i=0;i<8;i++)addUnit(w,'blue','brave',ENEMY);
- w.randomState=2;w.ai.variables[50]=1;w.turn=81;tick(w,1/12);
+ // This relocated roster has an established base: native +5b4/+36a shadows the loaded Shaman cell.
+ const staging=packed(nativePosition(w,near)),stagingCell=(staging>>>9)*128+((staging&255)>>>1);
+ assert.equal(w.land.categories[stagingCell]&15,0);assert.equal(w.land.flags[stagingCell]&512,0);assert.equal(w.land.buildingIds[stagingCell]&1023,0);
+ const {engagementRange,inEngagementArea}=await import('../app/melee-engagement.ts'),{areaCells,detectCombatThreat,eligibleCombatPerson}=await import('../app/combat-targets.ts'),{combatPerson,combatWorld}=await import('../app/live-combat.ts');
+ const goal={x:((staging&255)<<8)+128,y:(staging&0xff00)+128};
+ for(const unit of w.units.filter(unit=>unit.team==='red'))for(const point of [nativePosition(w,unit),goal]){
+  const person={...combatPerson(unit),x:point.x&65535,y:point.y&65535,state:17},range=engagementRange({...person,commandStatus:0,h:0},undefined,false),radius=Math.trunc(range/2)*2;
+  const area={a:packed(person),b:radius*257},{world}=combatWorld(w,person,range);
+  for(const cell of areaCells(area))assert.equal(w.land.flags[cell]&0x600,0,'staging must not start an automatic building response before the raid order');
+  assert.equal(detectCombatThreat(world,person,area,true,false),0,'injected and quantized staging points must start without an eligible idle threat');
+  for(const other of w.units.filter(other=>other.team!=='red')){
+   const enemy={...combatPerson(other),state:17},enemyRange=engagementRange({...enemy,commandStatus:0,h:0},undefined,false),{world:enemyWorld}=combatWorld(w,enemy,enemyRange);
+   assert.ok(!inEngagementArea(enemy,person,enemyRange)||!eligibleCombatPerson(enemyWorld,enemy,person),'staging must also avoid a hostile person starting the encounter');
+  }
+ }
+ w.ai.constructionBase=staging;w.ai.defencePosition=staging;
+ const assertStaging=()=>{assert.equal(w.ai.constructionBase,staging);assert.equal(w.ai.defencePosition,staging);assert.equal(w.ai.flags&0x100,0x100);};
+ w.randomState=2;w.ai.variables[50]=1;w.turn=81;tick(w,1/12);assertStaging();
  task=w.ai.tasks.find(t=>t.flags&1&&t.type===20);
  assert.deepEqual([11,12,13,16,17,19].map(i=>w.ai.attributes[i]),[100,100,0,0,0,1]);
  assert.deepEqual(task&&{phase:task.phase,target:task.target,entity:task.entity,requested:task.requested,marker:task.mode,retreatPercent:task.retreatPercent,quotas:task.quotas},{phase:3,target:packed(buildingPosition(buildingPose(target))),entity:target.id,requested:4,marker:0,retreatPercent:50,quotas:[11,12,13,16,17,19].map(i=>w.ai.attributes[i])});
  assert.equal(w.ai.variables[3],1,'the original one-shot attack latch closes');
  until(w,()=>task.members.length===3,2);
- until(w,()=>task.members.every(id=>currentPersonOrder(w.buildingOrders,w.units.find(u=>u.id===id).native)?.model===19),30);
+ until(w,()=>{assertStaging();return !!(task.flags&1)&&task.members.length>=3&&task.members.every(id=>currentPersonOrder(w.buildingOrders,registeredRaidPerson(w,id))?.model===19);},30);
  task.flags=0;task.members=[];w.turn=337;tick(w,1/12);
  assert.ok(!w.ai.tasks.some(t=>t.flags&1&&t.type===20),'the latched script does not launch another attack');
 
@@ -1103,18 +1129,44 @@ test('computer attack exhausts native scans and retreats below its surviving-mem
  stepAttackTask(ai,0,input);assert.equal(task.flags&1,0);
 });
 
-test('computer attack pool exhaustion skips hostile dispatch and retires through native empty scans',async()=>{
+test('computer attack pool exhaustion preserves live targets, then retires only after genuinely empty scans',async()=>{
  const {requestAttack}=await import('../app/computer.ts');
  const {currentPersonOrder}=await import('../app/person-orders.ts');
+ const {stepComputerTasks}=await import('../app/computer-runtime.ts');
  const w=createWorld(),members=w.units.filter(u=>u.team==='red'&&u.kind!=='shaman').slice(0,3);
  requestAttack(w.ai,level.markers[3],3,3,999,[100,0,0,0,0,0],0,true,1);
- const task=w.ai.tasks.find(t=>t.type===20);task.phase=15;task.members=members.map(u=>u.id);w.ai.cursor=w.ai.tasks.indexOf(task);
+ const task=w.ai.tasks.find(t=>t.type===20),index=w.ai.tasks.indexOf(task);
+ task.phase=15;task.members=members.map(u=>u.id);w.ai.cursor=index;
  for(let id=1;id<w.buildingOrders.records.length;id++)w.buildingOrders.records[id].references=1;
  w.buildingOrders.active=799;tick(w,1/12);
  assert.equal(task.phase,16);assert.ok(members.every(u=>currentPersonOrder(w.buildingOrders,u.native)?.model!==19));
- until(w,()=>!(task.flags&1),10);assert.equal(task.retries,33);
+ // Supplied phase16 inputs isolate target collection from failed order allocation.
+ // Static 0x4cc14a collects targets before member processing at 0x4cc172.
+ const enemy=w.units.find(u=>u.team==='blue'&&u.kind==='shaman'),position=nativePosition(w,enemy);
+ assert.ok(enemy.hp>0&&enemy.inside===null&&!enemy.flight&&enemy.native?.state!==23);
+ task.entity=0;task.target=((position.x>>>8)&254)|(position.y&0xfe00);
+ const target=task.target,random=w.randomState;
+ const visit=()=>{w.ai.cursor=index;stepComputerTasks(w,w.activeCampaignTribe);};
+ for(let n=0;n<40;n++)visit();
+ assert.deepEqual([task.phase,task.retries,task.target,w.randomState],[16,0,target,random]);
+ assert.ok(members.every(u=>currentPersonOrder(w.buildingOrders,u.native)?.model!==19));
+ // Preserve ordinary member evolution before testing staging cleanup.
+ for(let n=0;n<40;n++){tick(w,1/12);assert.deepEqual([task.phase,task.retries],[16,0]);}
+ // Make every possible target genuinely ineligible, rather than treating a full
+ // order pool as an empty target area. These are supplied inputs, not live deaths.
+ const emptyRandom=w.randomState;
+ const targets=[...w.units,...w.buildings].filter(o=>o.team==='blue').map(o=>[o,o.hp]);
+ for(const [object] of targets)object.hp=0;
+ for(let retry=1;retry<=32;retry++){visit();assert.deepEqual([task.phase,task.retries],[16,retry]);}
+ visit();assert.deepEqual([task.phase,task.fallback,task.retries],[6,23,33]);
+ assert.notEqual(w.randomState,emptyRandom);
+ // Restore supplied health before ordinary ticks so this control cannot trigger
+ // victory/defeat instead of exercising the original bounded cleanup path.
+ for(const [object,hp] of targets)object.hp=hp;
+ until(w,()=>!(task.flags&1),10);
+ assert.equal(task.retries,33);
  requestAttack(w.ai,task.origin,3,1,999,w.ai.attributes.slice(11,17),0,true,1);
- assert.ok(w.ai.tasks.some(t=>t.flags&1&&t.type===20),'the exhausted command pool does not leak a task slot');
+ assert.ok(w.ai.tasks.some(t=>t.flags&1&&t.type===20),'the retired task slot is reusable');
 });
 
 test('queued training keeps its selection lock until issuing the order and frees its slot after arrival', async () => {
@@ -1868,7 +1920,7 @@ test('live blocked followers retain native detour steering and recovery timers',
  assert.equal(p.heading,heading,'normal facing cannot overwrite active recovery steering');
 });
 
-test('live celebrants obey native walk masks and survive the legacy ground-height cutoff', async () => {
+test('live celebrants hand unsupported recovery to physics and supported ground permits movement', async () => {
  const {createLivePerson}=await import('../app/live-people.ts');
  const {default:rules}=await import('../app/original-rules.json',{with:{type:'json'}});
  const w=createWorld(),u=w.units.find(u=>u.team==='blue'&&u.kind==='brave');
@@ -1877,11 +1929,21 @@ test('live celebrants obey native walk masks and survive the legacy ground-heigh
  w.land.categories.fill(rules.terrainCategoryFlags.findIndex(f=>f&1));
  Object.assign(u,{x:7,z:33,inside:null,work:null});u.native=createLivePerson(w,u);
  Object.assign(u.native,{state:41,substate:1,flags2:128,counter:0,heading:512,angle:512,turnAngle:512,speed:20,assignment:0,animationMode:0,commandPhase:100,timer:100});
+ const p=u.native,supported=structuredClone(w),open=supported.units[0];
  w.land.walkMasks[0].fill(0);tick(w,1/12);
  assert.ok(w.units.includes(u)&&u.hp>0,'native support replaces the legacy height death guard');
  assert.deepEqual({x:u.x,z:u.z},{x:7,z:33},'blocked native mask rejects every detour');
+ assert.equal(u.flight,p);assert.equal(p.counter,1);
  w.land.walkMasks[0].fill(255);tick(w,1/12);
- assert.notDeepEqual({x:u.x,z:u.z},{x:7,z:33},'native mask update allows the next grounded step');
+ assert.equal(u.flight,undefined);assert.equal(p.state,10);assert.equal(p.counter,2);
+ assert.equal(u.hp,50);
+ assert.deepEqual({x:u.x,z:u.z},{x:7,z:33},'the next visit settles before another grounded step');
+ // Independent supported-current-cell control, not a forced reset of flight.
+ supported.land.walkMasks[0].fill(255);tick(supported,1/12);
+ assert.ok(supported.units.includes(open)&&open.hp>0);
+ assert.notDeepEqual({x:open.x,z:open.z},{x:7,z:33},'initially supported ground permits motion');
+ assert.equal(open.native.state,41);assert.equal(open.native.counter,1);
+ assert.equal(open.flight,undefined);
 });
 
 
@@ -1925,7 +1987,8 @@ test('live cell insertion repairs a stale head left by a removed person',async()
 test('dead vehicle passengers release their slots and driver position',async()=>{
  const {removeMissingVehiclePassengers}=await import('../app/live-vehicles.ts');
  const w=createWorld(5),boat=w.vehicles[0],survivor=w.units[0];
- Object.assign(boat,{passengers:[999,survivor.id],passengerCount:2,speed:100});
+ // Supplied active craft: the authored Mission5 source is detached and must not be cleaned.
+ Object.assign(boat,{active:true,passengers:[999,survivor.id],passengerCount:2,speed:100});
  removeMissingVehiclePassengers(w);
  assert.deepEqual(boat.passengers,[survivor.id]);assert.equal(boat.passengerCount,1);assert.equal(boat.speed,100);
  w.units=[];removeMissingVehiclePassengers(w);
@@ -2307,23 +2370,179 @@ test('shaman escort uses native pursuit cadence and strict boundaries',async()=>
 
 test('Mission 5 Boat worship emits its original one-shot tutorial',async()=>{
  const {createGameStore}=await import('../app/game-store.ts'),store=createGameStore();store.startMission(5);const w=store.getWorld(),boat=w.vehicles[0],head=w.shrines.find(s=>s.kind==='boat'),warrior=w.units.find(u=>u.team==='blue'&&u.kind==='warrior');
- standAtHead(w,warrior,head);until(w,()=>boat.active,10);assert.equal(head.active,false);until(w,()=>w.messages.slots.some(message=>message?.stringId===662),20);
+ standAtHead(w,warrior,head);until(w,()=>w.vehicles.some(v=>v.active&&v.model===1&&v.id!==boat.id),10);assert.equal(head.active,false);assert.equal(w.vehicles.includes(boat),false);assert.equal(w.shrines.includes(head),false);until(w,()=>w.messages.slots.some(message=>message?.stringId===662),20);
  const tutorial=w.messages.slots.find(message=>message?.stringId===662);assert.deepEqual({text:messageText(tutorial.stringId),flags:tutorial.flags,lifetime:tutorial.lifetime,view:tutorial.view,latch:w.ai.variables[15]},{text:'The Ancients have granted you a Boat, Shaman.',flags:14065,lifetime:512,view:{cell:13022,payload:1800},latch:1});
  const serial=tutorial.serial;for(let turn=0;turn<32;turn++)tick(w,1/12);assert.deepEqual(w.messages.slots.filter(message=>message?.stringId===662).map(message=>message.serial),[serial]);
 });
 
-test('Mission 5 grants, boards, sails, lands and checkpoints its original Boat',async()=>{
- const {vehicleCanDisembark,vehicleReady}=await import('../app/vehicle-routing.ts'),{createGameStore}=await import('../app/game-store.ts');
- const store=createGameStore();store.startMission(5);let w=store.getWorld(),boat=w.vehicles[0],followers=w.units.filter(u=>u.team==='blue'&&u.kind==='warrior').slice(0,2);const ids=followers.map(u=>u.id),head=w.shrines.find(s=>s.kind==='boat');
- assert.deepEqual([boat.model,boat.x,boat.y,boat.active],[1,-7084,12197,false]);assert.equal(head.rewardVehicle,boat.id);
- head.forced=true;head.reset=false;until(w,()=>boat.active,10);assert.equal(head.active,false);
- const shores=[],vehicleWorld=()=>({flags:w.land.flags,categories:w.land.categories,cellObjects:()=>[]});
- for(let y=0;y<256;y+=2)for(let x=0;x<256;x+=2){const p={x:(x+1)*256,y:(y+1)*256};if(vehicleCanDisembark(vehicleWorld(),boat,p))shores.push(p);}
- const start=shores.find(p=>{const q=browserPosition(p);return Math.hypot(q.x-followers[0].x,q.z-followers[0].z)<10});Object.assign(boat,start,{h:0,speed:-1});followers.forEach((u,i)=>Object.assign(u,browserPosition(boat),{x:browserPosition(boat).x-1-i/10}));w.selected=ids;
- assert.ok(command(w,{...browserPosition(boat),id:boat.id}));until(w,()=>boat.passengers.length===2,3);assert.deepEqual(boat.passengers,ids);
- await store.saveCheckpoint();assert.ok(store.loadCheckpoint());w=store.getWorld();boat=w.vehicles[0];followers=ids.map(id=>w.units.find(u=>u.id===id));assert.deepEqual(boat.passengers,ids);assert.ok(followers.every(u=>u.native?.vehicle===boat.id));
- const target=shores.map(p=>[Math.hypot(((p.x-boat.x)<<16>>16),((p.y-boat.y)<<16>>16)),p]).filter(([d])=>d>3000&&d<10000).sort((a,b)=>a[0]-b[0])[0][1];
- const before=[boat.x,boat.y];assert.ok(command(w,browserPosition(target)));until(w,()=>boat.x!==before[0]||boat.y!==before[1],3);assert.ok(followers.every(u=>u.native?.vehicle===boat.id));assert.ok(followers[0].native.motionGroup);assert.ok(followers.every(u=>u.native.motionGroup===followers[0].native.motionGroup));assert.notDeepEqual([boat.x,boat.y],[target.x,target.y]);
- until(w,()=>followers.every(u=>!u.native?.vehicle),20);assert.deepEqual(boat.passengers,[]);assert.equal(boat.speed,-1);assert.ok(vehicleReady(vehicleWorld(),boat));assert.ok(followers.every(u=>vehicleCanDisembark(vehicleWorld(),boat,u.native)));
- await store.saveCheckpoint();assert.ok(store.loadCheckpoint());w=store.getWorld();assert.deepEqual(w.vehicles[0].passengers,[]);assert.ok(ids.every(id=>!w.units.find(u=>u.id===id).native?.vehicle));
-});
+test('supplied Mission 5 reward and relocated Boat support boarding, sailing and checkpoints', async () => {
+  const { vehicleCanDisembark, vehicleReady } = await import('../app/vehicle-routing.ts'),
+    { createGameStore } = await import('../app/game-store.ts'),
+    { supportsFollower } = await import('../app/model.ts')
+  const store = createGameStore()
+  store.startMission(5)
+  let w = store.getWorld(),
+    boat = w.vehicles[0],
+    followers = w.units.filter(u => u.team === 'blue' && u.kind === 'warrior').slice(0, 2)
+  const ids = followers.map(u => u.id),
+    head = w.shrines.find(s => s.kind === 'boat')
+  // Browser-prepared template; forced reward and relocated Boat/followers below
+  // are supplied controls, not ordinary reward allocation/copy acceptance.
+  assert.deepEqual([boat.model, boat.x, boat.y, boat.active], [1, 58226, 12429, false])
+  assert.equal(head.rewardVehicle, boat.id)
+  const source = boat
+  head.forced = true
+  head.reset = false
+  until(w, () => w.vehicles.some(v => v.active && v.model === 1 && v.id !== source.id), 10)
+  assert.equal(head.active, false)
+  boat = w.vehicles.find(v => v.active && v.model === 1 && v.id !== source.id)
+  assert.ok(boat)
+  assert.equal(w.vehicles.includes(source), false)
+  assert.equal(w.shrines.includes(head), false)
+  const shores = [],
+    vehicleWorld = () => ({
+      flags: w.land.flags,
+      categories: w.land.categories,
+      cellObjects: () => [],
+    })
+  for (let y = 0; y < 256; y += 2)
+    for (let x = 0; x < 256; x += 2) {
+      const p = { x: (x + 1) * 256, y: (y + 1) * 256 }
+      if (vehicleCanDisembark(vehicleWorld(), boat, p)) shores.push(p)
+    }
+  const start = shores.find(p => {
+    const q = browserPosition(p)
+    return Math.hypot(q.x - followers[0].x, q.z - followers[0].z) < 10
+  })
+  Object.assign(boat, start, { h: 0, speed: -1 })
+  followers.forEach((u, i) =>
+    Object.assign(u, browserPosition(boat), { x: browserPosition(boat).x - 1 - i / 10 })
+  )
+  syncLivePersonCells(w)
+  w.selected = ids
+  assert.ok(command(w, { ...browserPosition(boat), id: boat.id }))
+  until(w, () => boat.passengers.length === 2, 3)
+  assert.deepEqual(boat.passengers, ids)
+  await store.saveCheckpoint()
+  assert.ok(store.loadCheckpoint())
+  w = store.getWorld()
+  boat = w.vehicles[0]
+  followers = ids.map(id => w.units.find(u => u.id === id))
+  assert.deepEqual(boat.passengers, ids)
+  assert.ok(followers.every(u => u.native?.vehicle === boat.id))
+  const target = shores
+    .map(p => [Math.hypot(((p.x - boat.x) << 16) >> 16, ((p.y - boat.y) << 16) >> 16), p])
+    .filter(([d]) => d > 3000 && d < 10000)
+    .sort((a, b) => a[0] - b[0])[0][1]
+  const owners = followers.map(u => u.native),
+    before = [boat.x, boat.y]
+  assert.ok(command(w, browserPosition(target)))
+  const sail = currentPersonOrder(w.buildingOrders, owners[0])
+  assert.equal(sail.flags, 0)
+  assert.equal(sail.references, 2)
+  assert.equal(currentPersonOrder(w.buildingOrders, owners[1]), sail)
+  until(w, () => boat.x !== before[0] || boat.y !== before[1], 3)
+  assert.ok(followers.every(u => u.native?.vehicle === boat.id))
+  assert.ok(followers[0].native.motionGroup)
+  assert.ok(followers.every(u => u.native.motionGroup === followers[0].native.motionGroup))
+  assert.notDeepEqual([boat.x, boat.y], [target.x, target.y])
+  // Plain native completion releases each person's order and route, keeping the
+  // crew aboard through the Boat's settling tail rather than ejecting everyone.
+  until(
+    w,
+    () => followers.every(u => !currentPersonOrder(w.buildingOrders, u.native)) && boat.speed === 0,
+    20
+  )
+  assert.equal(sail.references, 0)
+  assert.deepEqual(boat.passengers, ids)
+  assert.equal(boat.passengerCount, 2)
+  assert.deepEqual(
+    followers.map(u => u.hp),
+    [90, 90]
+  )
+  for (const [i, u] of followers.entries()) {
+    assert.equal(u.native, owners[i])
+    assert.equal(w.objectCells.objects.get(u.id), owners[i])
+    assert.deepEqual(
+      [u.native.state, u.native.commandStatus, u.native.motionGroup, u.native.vehicle],
+      [30, 0, 0, boat.id]
+    )
+  }
+  // A new public dry-land order takes the real route-ground-leg departure.
+  // Its dry endpoint is beyond the shoreline, so check the empty Boat's shore
+  // eligibility separately from the living followers' actual ground support.
+  const land = { x: -9, z: -15 }
+  assert.ok(supportsFollower(w, land))
+  assert.ok(command(w, land))
+  const landing = currentPersonOrder(w.buildingOrders, owners[0])
+  assert.equal(landing.model, 3)
+  assert.equal(landing.references, 2)
+  until(w, () => followers.every(u => !u.native?.vehicle), 20)
+  assert.deepEqual(
+    followers.map(u => u.hp),
+    [90, 90]
+  )
+  assert.deepEqual(boat.passengers, [])
+  assert.equal(boat.passengerCount, 0)
+  assert.equal(boat.speed, -1)
+  assert.ok(vehicleReady(vehicleWorld(), boat))
+  assert.ok(vehicleCanDisembark(vehicleWorld(), boat, boat))
+  assert.ok(followers.every(u => u.flight === u.native && u.lift === 1))
+  for (let count = 0; count < 64 && followers.some(u => u.flight); count++) {
+    const before = followers.map(u => ({ x: u.x, z: u.z, counter: u.native.counter }))
+    tick(w, 1 / 12)
+    for (const [index, u] of followers.entries()) {
+      assert.equal(u.native.counter, (before[index].counter + 1) & 255)
+      assert.ok(Math.hypot(u.x - before[index].x, u.z - before[index].z) < 2)
+    }
+  }
+  assert.ok(followers.every(u => !u.flight && supportsFollower(w, u)))
+  until(w, () => followers.every(u => !currentPersonOrder(w.buildingOrders, u.native)), 64)
+  assert.equal(landing.references, 0)
+  for (const [i, u] of followers.entries()) {
+    assert.ok(w.units.includes(u))
+    assert.equal(u.hp, 90)
+    assert.equal(u.native, owners[i])
+    assert.equal(w.objectCells.objects.get(u.id), owners[i])
+    assert.equal(u.native.motionGroup, 0)
+    assert.ok(supportsFollower(w, u))
+  }
+  await store.saveCheckpoint()
+  assert.ok(store.loadCheckpoint())
+  w = store.getWorld()
+  assert.deepEqual(w.vehicles[0].passengers, [])
+  assert.ok(ids.every(id => !w.units.find(u => u.id === id).native?.vehicle))
+  boat = w.vehicles[0]
+  followers = ids.map(id => w.units.find(u => u.id === id))
+  assert.deepEqual(
+    followers.map(u => u.hp),
+    [90, 90]
+  )
+  assert.ok(followers.every(u => supportsFollower(w, u)))
+  assert.ok(command(w, { ...browserPosition(boat), id: boat.id }))
+  until(w, () => boat.passengers.length === 2, 3)
+  assert.deepEqual(boat.passengers, ids)
+  assert.deepEqual(
+    followers.map(u => u.hp),
+    [90, 90]
+  )
+  assert.ok(
+    followers.every(
+      u => u.native?.vehicle === boat.id && w.objectCells.objects.get(u.id) === u.native
+    )
+  )
+  await store.saveCheckpoint()
+  assert.ok(store.loadCheckpoint())
+  w = store.getWorld()
+  boat = w.vehicles[0]
+  assert.deepEqual(boat.passengers, ids)
+  assert.equal(boat.passengerCount, 2)
+  assert.ok(
+    ids.every(id => {
+      const u = w.units.find(u => u.id === id)
+      return (
+        u.hp === 90 && u.native?.vehicle === boat.id && w.objectCells.objects.get(id) === u.native
+      )
+    })
+  )
+})

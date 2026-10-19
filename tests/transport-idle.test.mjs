@@ -1,11 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { addUnit, browserPosition, command, createWorld, disguiseSelectedSpies, nativePosition, tick } from '../app/model.ts'
+import { addUnit, browserPosition, command, createWorld, disguiseSelectedSpies, nativePosition, supportsFollower, tick } from '../app/model.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { changeLivePersonState } from '../app/live-people.ts'
-import { cancelLiveOrder, startLiveOrders } from '../app/live-movement.ts'
-import { leaveLiveVehicle } from '../app/live-vehicles.ts'
-import { currentPersonOrder } from '../app/person-orders.ts'
+import { cancelLiveOrder, startLiveOrders, orderEffects } from '../app/live-movement.ts'
+import { leaveLiveVehicle, vehicleExit } from '../app/live-vehicles.ts'
+import { currentPersonOrder, allocatePersonOrder, attachPersonOrder } from '../app/person-orders.ts'
 
 // Staged Spy population/location, authored Mission22 transports, real command/boarding.
 function aboard(model = 1) {
@@ -13,7 +13,10 @@ function aboard(model = 1) {
  const landing = nativePosition(w, w.units.find(u => u.team === 'blue'))
  w.manaWorld.gameFlags = 32
  w.units = []; w.pathfinding.people.clear()
- const spy = addUnit(w, 'blue', 'spy', browserPosition(v))
+ // Supplied grounded setup: deferred boarding must not spawn a person in water.
+ const exit = vehicleExit(w, v), point = browserPosition(exit.point)
+ assert.ok(exit.found && supportsFollower(w, point))
+ const spy = addUnit(w, 'blue', 'spy', point)
  w.selected = [spy.id]
  assert.ok(command(w, { ...browserPosition(v), id: v.id }))
  for (let i = 0; i < 24 && !spy.native?.vehicle; i++) tick(w, 1 / 12)
@@ -65,25 +68,52 @@ test('shipped Balloon disguise configures its command position and completes abo
  assert.equal(spy.native.state, 30)
  assert.equal(spy.native.vehicle, v.id)
  assert.equal(spy.native.disguise, (2 << 6) | 63)
- const position = [v.x, v.y]
- for (let i = 0; i < 63; i++) tick(w, 1 / 12)
+ const owner = spy.native, counter = owner.counter
+ assert.equal(v.speed, 32)
+ assert.equal(owner.speed, 0)
+ // The retained active adapter moved once before disguise completed. Native
+ // zero-speed craft visits now decay and center it instead of freezing speed32.
+ const decay = [22, 15, 10, 6, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+ for (let i = 0; i < 63; i++) {
+  tick(w, 1 / 12)
+  assert.equal(v.speed, decay[i] ?? 0)
+  assert.equal(spy.native, owner)
+  assert.equal(w.objectCells.objects.get(spy.id), owner)
+  assert.equal(owner.counter, counter)
+  assert.equal(owner.disguise, (2 << 6) | (62 - i))
+  assert.deepEqual([owner.tribe, v.team, v.apparentTribe], [0, 'blue', 2])
+ }
  assert.equal(spy.native.disguise, 2 << 6)
- assert.deepEqual([v.x, v.y], position)
+ assert.deepEqual([v.x, v.y], [46336, 14592])
+ for (let i = 0; i < 8; i++) tick(w, 1 / 12)
+ assert.deepEqual([v.x, v.y, v.speed], [46336, 14592, 0])
+ assert.equal(spy.native, owner)
+ assert.equal(owner.disguise, 2 << 6)
  assert.equal(disguiseSelectedSpies(w, 1), true)
  tick(w, 1 / 12)
  assert.equal(spy.native.state, 30)
  assert.equal(spy.native.disguise, (1 << 6) | 63)
 })
 
-test('Balloon raw-coordinate startup wraps payload words and retains unported encodings', () => {
+test('Balloon startup resolves raw and attack-cell payloads while retaining unsupported targets', () => {
  const { w, spy } = aboard(3), p = spy.native
- const order = currentPersonOrder(w.buildingOrders, p)
+ assert.equal(currentPersonOrder(w.buildingOrders, p), undefined)
+ // Supplied raw payload fixture, independent of the completed boarding record.
+ const id = allocatePersonOrder(w.buildingOrders)
+ assert.ok(id)
+ attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(w))
+ const order = w.buildingOrders.records[id]
  // Command15 has direct coordinate payloads and suppresses ground path setup.
  Object.assign(order, { model: 15, flags: 0, a: -32768, b: -1 })
  startLiveOrders(w, p, w)
  assert.deepEqual([p.destinationX, p.destinationY], [32768, 65535])
- for (const model of [6, 19, 27]) {
-  // Packed order.b, packed order.a, and object lookup remain explicit boundaries.
+ Object.assign(order, { model: 19, flags: 0, a: -32768, b: -1 })
+ startLiveOrders(w, p, w)
+ // The resolver's centered point is followed by configurePersonOrder's existing
+ // packed-cell setDestination, which retains the cell-corner route destination.
+ assert.deepEqual([p.destinationX, p.destinationY], [0, 32768])
+ for (const model of [6, 27]) {
+  // Packed order.b and a missing head remain explicit unsupported boundaries.
   Object.assign(order, { model, flags: 0 })
   assert.throws(() => startLiveOrders(w, p, w), /Unported live movement order consumer/)
  }

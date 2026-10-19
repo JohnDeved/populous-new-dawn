@@ -43,3 +43,14 @@ test('reading the follower strip does not mutate simulation or selection state',
     assert.deepEqual(world, before)
   }
 })
+
+test('nearby displayed zero keeps a globally present class enabled and in its original position', () => {
+  const totals = [8, 0, 5, 0, 1, 0, 2, 1, 0],
+    displayTotals = [1, 0, 0, 0, 1, 0, 0, 0, 0],
+    counts = { totals, displayTotals }, before = structuredClone(counts),
+    controls = followerClassControls([], counts)
+  assert.deepEqual(controls.map(({ kind, count, enabled }) => [kind, count, enabled]), [
+    ['brave', 0, true], ['warrior', 0, false], ['firewarrior', 0, true], ['preacher', 1, true], ['spy', 0, false],
+  ])
+  assert.deepEqual(counts, before)
+})

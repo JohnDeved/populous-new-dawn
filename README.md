@@ -23,7 +23,7 @@ The first mission opens with its original camera tour. Press Escape/Space or cli
 
 Click to select/order; drag to select groups; Shift adds followers. Up/down arrows move forward/back; left/right arrows rotate, Ctrl+left/right pan sideways, and Shift speeds up panning. The outer screen edges scroll, including beside the sidebar. WASD pans, Q/E or right drag rotates, middle drag pans, scroll or = / − switches view, and the minimap moves smoothly to a place on its surface. Focus commands preserve rotation and zoom; panning or dragging takes over from an active journey. Enter or ◎ shows the planet overview.
 
-`1–3`: Blast / Land Bridge / Lightning. `B`: buildings. `H`: shaman. `F`: focus. `G`: guard shaman. `Space`: pause. `Esc`: cancel targeting. Hold the apostrophe/Quote key to show damaged friendly followers’ health. Right-click Blast's card to toggle charging and redirect mana to training.
+`1–3`: Blast / Land Bridge / Lightning. `B`: buildings. `H`: shaman. `F`: focus. `G`: guard shaman. `Space`: pause. `F8`: toggle the optional performance overlay (also in battlefield menu); `?fps` enables it on load. `Esc`: cancel targeting. Hold the apostrophe/Quote key to show damaged friendly followers’ health. Right-click Blast's card to toggle charging and redirect mana to training.
 
 Send braves inside huts to increase mana flow and breeding. Builders collect actual timber; there is no automatic global wood income. Buildings need a dry, level footprint near the settlement. Followers drown in water, and Blast can knock them off a shore. A shaman reincarnates while followers survive.
 
@@ -87,6 +87,30 @@ coverage from qualifying for final parity review.
 
 Maintainability is a standing [main priority](GOAL.md#main-priority-clean-readable-and-maintainable-typescript). The current stack is TypeScript, React 19, Three.js, Web Audio and Vite 8 through vinext. Keep the simulation runnable without a browser; UI and rendering consume its state. [Three.js](https://threejs.org/manual/en/fundamentals.html) supplies scene/rendering primitives while our engine retains control of original simulation rules.
 
+### Gameplay parity and performance
+
+Gameplay parity preserves observable gameplay and relevant deterministic outcomes:
+rules, intended timing, targeting/selection results, and RNG progression or
+checkpoint continuation where they affect required behavior. Historical code
+structure, algorithms, architecture, incidental allocations and internal
+representation are not parity requirements. Do not sacrifice performance merely
+to imitate the original implementation.
+
+Prefer modern, measurably better algorithms and data structures when they preserve
+required behavior. A slow ray-cast path can be replaced with a better spatial query
+or acceleration method; optimization need not retain the existing algorithm.
+Validate actual gameplay semantics, including hit/occlusion, boundary, wrap and
+tie behavior where relevant. Keep native comparisons and compatibility regressions;
+do not delete tests blindly or weaken correctness requirements to admit a faster
+implementation. If a test constrains only an incidental internal detail, establish
+and retain coverage of the required behavior before changing that assertion.
+
+Use comparable before/after workloads and measure full-frame or end-to-end cost,
+including setup, updates, invalidation, deferred work and allocation pressure as
+applicable. Moving work outside a timing bucket or renaming it does not establish
+a speedup. Separate microbenchmark results from complete gameplay performance;
+follow the [measurement rules](references/modern-performance.md#measurement-rules).
+
 | Change | Start here |
 | --- | --- |
 | Spell identity, behavior or engine state | `app/model.ts`; use the shared `SPELLS` definitions, including native model IDs |
@@ -123,7 +147,10 @@ Keep `npm run lint` for the existing correctness and accessibility checks during
 `npm run quality:health` ranks complexity hotspots and refactoring targets,
 `npm run quality:dupes` finds duplication, and `npm run quality:unused` finds
 unused-code candidates. These commands are advisory: exit 1 means findings,
-exit 2 means an execution/configuration error. Python native-comparison scripts
+exit 2 means an execution/configuration error. For a deliberately time-bounded
+advisory attempt, use the opt-in [foreground supervisor](engineering/performance-queue.md#optional-bounded-foreground-advisories)
+with a command receipt; timeout is a non-pass, never an advisory success.
+Python native-comparison scripts
 import engine exports indirectly, so investigate callers before deleting anything.
 The initial complexity hotspots are `stepTurn`, `stepCelebration` and
 `stepTrainingPerson`; simplify coherent pieces while preserving native comparisons.

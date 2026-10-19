@@ -1,10 +1,17 @@
+import { launchFirewarriorPoint } from './firewarrior-point.ts'
+import { unitRenderAnimationSource } from './unit-animation-source.ts'
+import { discardInvalidResident, residentPerson } from './building-resident.ts'
 import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
 import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
 import { buildingPose } from './building-shapes.ts'
 import { effect, emitGroundSpark, requestTutorial, sound } from './world-effects.ts'
 import { releaseTasks } from './world-tasks.ts'
 import { initializeRouteRecovery, stepRouteRecovery } from './person-route-recovery.ts'
-import { initializeLiveIdleApproach, rebuildLiveRestingSlots } from './live-resting.ts'
+import {
+  initializeLiveIdleApproach,
+  rebuildLiveRestingSlots,
+  stepLiveRestingState,
+} from './live-resting.ts'
 import { initializeRestingPerson } from './person-idle.ts'
 import { stampFootprints } from './footprints.ts'
 import { adoptLiveOrders, startLiveOrders } from './live-movement.ts'
@@ -101,6 +108,8 @@ import {
 } from './person-physics.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import {
+  setCellObject,
+  deleteCellObject,
   insertObjectIntoCell,
   removeObjectFromCell,
   moveObjectInCells,
@@ -148,9 +157,8 @@ export type LivePerson = StatefulPerson &
 const short = (n: number) => (n << 16) >> 16
 // Bootstrap the existing browser follower at the handoff to native controllers.
 // Legacy orders/physics are not native records; their full migration is pending.
-export function createLivePerson(w: World, u: Unit): LivePerson {
-  const pos = nativePosition(w, u),
-    model = nativePersonModel(u)
+export function createLivePerson(w: World, u: Unit, pos = nativePosition(w, u)): LivePerson {
+  const model = nativePersonModel(u)
   const selected = w.selected.includes(u.id),
     angle = Math.round(((Math.PI - u.heading) * 1024) / Math.PI) & 2047
   return {
@@ -255,19 +263,22 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
 // Share native exit placement without allocating a synthetic occupancy world.
 // ponytail: ordinary occupants still belong to the browser unit list; native
 // six-slot admission, training repricing and order ownership remain to be wired.
-export function stepLivePersonHealth(w: World) {
+export function stepLivePersonHealth(w: World, deferred?: ReadonlySet<Unit>) {
   for (const u of w.units) {
+    if (deferred?.has(u)) continue
+    discardInvalidResident(w, u)
     if (u.hp <= 0) continue
     const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
     if (p && (rules.personStateFlags[p.state] & 1 || p.flags2 & 0x80000)) continue
 
-    const maxLife = short(Math.round(maxHp(u.kind) * 20)),
+    const resident = residentPerson(w, u),
+      maxLife = short(Math.round(maxHp(u.kind) * 20)),
       health = {
         model: p?.model ?? nativePersonModel(u),
         life: short(Math.round(u.hp * 20)),
         maxLife,
         healthMarker: 0,
-        flags3: p?.flags3 ?? 0,
+        flags3: p?.flags3 ?? resident?.flags3 ?? 0,
       }
     if (w.manaWorld.gameFlags & 128) health.life = maxLife
     else regeneratePersonHealth(health, w.turn)
@@ -276,6 +287,10 @@ export function stepLivePersonHealth(w: World) {
     if (p) {
       p.life = health.life
       p.flags3 = health.flags3
+    }
+    if (resident) {
+      resident.life = health.life
+      resident.flags3 = ((resident.flags3 & ~0x1000) | (health.flags3 & 0x1000)) >>> 0
     }
   }
 }
@@ -291,7 +306,7 @@ export function leaveLiveBuilding(w: World, u: Unit) {
     (x, y) => terrainPointHeight(w.land, { x, y }),
     () => {
       if (u.native === p || u.flight === p) {
-        w.objectCells.objects.set(p.id, p)
+        setCellObject(w.objectCells, p.id, p)
         insertObjectIntoCell(w.objectCells, p, p)
       }
     }
@@ -320,7 +335,7 @@ export function syncLivePersonCells(w: World) {
   for (const [id, p] of w.objectCells.objects)
     if (people.get(id) !== p) {
       if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
-      w.objectCells.objects.delete(id)
+      deleteCellObject(w.objectCells, id)
     }
   for (const u of w.units) {
     // Preserve the native display offset across ordinary browser order handoff.
@@ -339,22 +354,28 @@ export function syncLivePersonCells(w: World) {
     }
     if (!p) continue
     if (!w.objectCells.objects.has(p.id)) {
-      w.objectCells.objects.set(p.id, p)
+      setCellObject(w.objectCells, p.id, p)
       insertObjectIntoCell(w.objectCells, p, p)
     }
     // Vehicle attachment owns seated height/position independently of the
     // animation-source projection (command22 is not an on-foot pose owner).
     if (u.flight || u.fight?.motion || p.vehicle) continue
-    const to = nativePosition(w, u)
-    to.x &= 65535
-    to.y &= 65535
-    // Native physics owns height. Re-rounding the browser surface can hold a
-    // grounded follower one unit above native terrain, restarting gravity forever.
-    if (unitAnimationSource(u) === p)
-      to.h = to.x === p.x && to.y === p.y ? p.h : terrainPointHeight(w.land, to)
-    if (to.x !== p.x || to.y !== p.y || to.h !== p.h) moveObjectInCells(w.objectCells, p, to)
+    syncBrowserPersonPosition(w, u, p)
   }
   return people
+}
+
+// Publish an ordinary browser-owned step before a later controller can adopt
+// this same physical person. Flight, combat and seats already own native poses.
+export function syncBrowserPersonPosition(w: World, u: Unit, p: LivePerson) {
+  if (u.flight || u.fight?.motion || p.vehicle) return
+  const to = nativePosition(w, u)
+  to.x &= 65535
+  to.y &= 65535
+  // Keep the existing epilogue's native-height ownership on unchanged XY.
+  if (unitAnimationSource(u) === p)
+    to.h = to.x === p.x && to.y === p.y ? p.h : terrainPointHeight(w.land, to)
+  if (to.x !== p.x || to.y !== p.y || to.h !== p.h) moveObjectInCells(w.objectCells, p, to)
 }
 
 export function setLivePersonAnimation(w: World, p: LivePerson, object: number) {
@@ -429,8 +450,10 @@ function context(w: World) {
         w.units.find(u => u.id === person.id)!
       )
     },
-    projectile: () => {
-      throw new Error('Live firewarriors are not yet implemented')
+    projectile: (person, to) => {
+      const source = w.units.find(u => u.id === person.id)!
+      revealUnitInvisibility(w, source)
+      launchFirewarriorPoint(w, source, person as LivePerson, to, { effect, sound })
     },
   }
   return { state, effects }
@@ -438,11 +461,19 @@ function context(w: World) {
 
 function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>, p = u.native!) {
   const { state, effects } = ctx
+  // Only state-14 entry/exit reads its own tribe's selection count. Capture it
+  // before initialization callbacks can deselect passengers or start new states.
+  let selectedCount = 0
+  if (w.selected.length && (p.state === 14 || p.previousState === 14)) {
+    const selected = new Set(w.selected)
+    for (const unit of w.units)
+      if (unit.native?.tribe === p.tribe && selected.has(unit.id)) selectedCount++
+  }
   const tribes = w.manaTribes.map((t, i) => ({
     x: 0,
     y: 0,
     angle: 0,
-    selectedCount: w.units.filter(u => u.native?.tribe === i && w.selected.includes(u.id)).length,
+    selectedCount: i === p.tribe ? selectedCount : 0,
     flags: t.flags2,
   }))
   const initWorld = Object.assign(state, {
@@ -627,28 +658,32 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
           u.kind === 'shaman' &&
           u.hp > 0
       )
-  if (captive) {
-    const p = leaveLiveBuilding(w, captive)
-    if (p) {
-      p.previousState = p.state
-      p.state = 3
-      captive.native = p
-    }
-  }
   const units = new Map<number, Unit>()
   const people: LivePerson[] = []
-  // Ordinary allocation still supplies cell order, as in the live Blast adapter.
+  // Retain legacy placement until exact native ownership is available.
   for (const u of w.units) {
     if (u.inside !== null || (u.hp <= 0 && !u.flight && u.native?.state !== 44)) continue
     const existing = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
     const position = existing ?? nativePosition(w, u)
-    if (u !== captive && ((position.y & 65535) >> 9) * 128 + ((position.x & 65535) >> 9) !== cell)
-      continue
+    if (((position.y & 65535) >> 9) * 128 + ((position.x & 65535) >> 9) !== cell) continue
     const p = existing ?? createLivePerson(w, u)
     p.life = Math.round(u.hp * 20)
     units.set(p.id, u)
     people.unshift(p)
   }
+  // 00511f70 consumes the retained person chain before its inclusive kill cap.
+  // Project only exact owned objects into existing slots; snapshot before release.
+  const linked: LivePerson[] = []
+  for (const object of objectsInCell(w.objectCells, ((point.x >>> 8) & 254) | (point.y & 0xfe00))) {
+    const person = people.find(candidate => candidate === object)
+    if (person) linked.push(person)
+  }
+  const owned = new Set(linked)
+  let next = 0
+  // Ambiguous duplicate roster owners retain the previous fallback unchanged.
+  if (people.filter(person => owned.has(person)).length === linked.length)
+    for (const [index, person] of people.entries())
+      if (owned.has(person)) people[index] = linked[next++]
   strikeLightning(people, tribe, p => {
     const u = units.get(p.id)!
     releaseTasks(w, u)
@@ -659,6 +694,24 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
     w.selected = w.selected.filter(id => id !== u.id)
   })
   for (const p of people) units.get(p.id)!.hp = p.life / 20
+  // 00511f70 handles the state-42 captive after the capped cell traversal.
+  // This forced state-3 consequence bypasses the ordinary immunity/kill budget.
+  if (captive) {
+    const p = leaveLiveBuilding(w, captive)
+    if (p) {
+      releaseTasks(w, captive)
+      p.flags2 = (p.flags2 & ~0x100000) >>> 0
+      p.previousState = 42 // Prison occupancy is the live adapter for native state 42.
+      p.state = 3
+      captive.native = p
+      if (p.tribe !== -1 && tribe !== -1) p.damageAttacker = tribe
+      // Hand state 3 to existing live death cleanup, as electrocution does.
+      // This is an adapter handoff, not a life write by native 004da0d0.
+      p.life = 0
+      captive.hp = 0
+      w.selected = w.selected.filter(id => id !== captive.id)
+    }
+  }
 }
 
 // Existing ordinary allocation order is also used by Blast's cell adapter.
@@ -674,6 +727,21 @@ export function buildingFirePeople(w: World) {
     people.unshift(p)
     cells.set(cell, people)
     units.set(p.id, u)
+  }
+  // 00408840 assigns panic/trail RNG in each socket's retained cell order.
+  // Preserve this adapter's snapshot and legacy slots across repeated sockets.
+  for (const [cell, people] of cells) {
+    const linked: LivePerson[] = []
+    for (const object of objectsInCell(w.objectCells, ((cell & 127) << 1) | ((cell >>> 7) << 9))) {
+      const person = people.find(candidate => candidate === object)
+      if (person) linked.push(person)
+    }
+    const owned = new Set(linked)
+    let next = 0
+    // Ambiguous duplicate owners retain the prior fallback unchanged.
+    if (people.filter(person => owned.has(person)).length === linked.length)
+      for (const [index, person] of people.entries())
+        if (owned.has(person)) people[index] = linked[next++]
   }
   return (point: { x: number; y: number }, tribe: number) => {
     const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
@@ -761,6 +829,10 @@ export function enterLiveCombat(w: World, u: Unit, state: 25 | 29, p?: LivePerso
   p ??= u.fight?.motion ?? u.native ?? u.entry?.person ?? createLivePerson(w, u)
   const flags = p.flags4 & 0x10007
   if (!(p.flags2 & 0x100000)) {
+    // 0x51e150 adopts the person's current physical position. Legacy walking
+    // publishes browser XY before the final cell epilogue; reconcile only that
+    // ordinary owner here, without changing route advancement or native owners.
+    if (p === u.native && !u.entry && !u.builder?.person) syncBrowserPersonPosition(w, u, p)
     p.previousState = p.state
     p.state = state
     const ctx = context(w)
@@ -876,7 +948,7 @@ export function registerLivePerson(w: World, p: LivePerson) {
   const previous = w.objectCells.objects.get(p.id)
   if (previous !== p) {
     if (previous && previous.flags2 & 0x20000) removeObjectFromCell(w.objectCells, previous)
-    w.objectCells.objects.set(p.id, p)
+    setCellObject(w.objectCells, p.id, p)
     insertObjectIntoCell(w.objectCells, p, p)
   }
 }
@@ -942,6 +1014,12 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
       readyToFight: () => false,
     }
   )
+  // 0x4d32de: seated ownership clears these bits after preparation/physics,
+  // before ordinary person-state dispatch. The falling-animation bit survives.
+  if (p.vehicle) p.flags2 = (p.flags2 & ~0x82000) >>> 0
+  // Native dispatch selects the current state once after physics. A state
+  // controller transition must not cause another controller visit this turn.
+  const resting = p.state === 1 || p.state === 17 || p.state === 19
   if (p.state === 25 || p.state === 29) {
     const group = p.workFlags && w.fights.some(b => b.id === p.workFlags)
     const next = stateAfterFight(
@@ -988,12 +1066,45 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
   }
   if (p.state === 26) updateLivePanic(w, u, stateContext(), p)
   if ((fighting || recovering) && p.state === 10) adoptLiveOrders(w, u, p)
+  if (ctx) w.randomState = ctx.state.randomState
+  if (resting) {
+    stepLiveRestingState(w, u, p)
+    u.cargo = p.cargo / 100
+  }
   p.flags2 = (p.flags2 & ~0x2004) >>> 0
   Object.assign(u, browserPosition(p))
   u.heading = Math.PI - (p.angle * Math.PI) / 1024
   u.hp = p.life / 20
   u.supportHeight = p.supportHeight || undefined
-  if (ctx) w.randomState = ctx.state.randomState
+}
+
+// Publish the existing voluntary vehicle-launch physics/animation owner.
+export function publishLiveVehicleLaunch(w: World, p: LivePerson) {
+  const unit = w.units.find(u => u.id === p.id)
+  if (!unit) return
+  // Expose the ordinary physics owner without destruction's extra flags.
+  unit.flight = p
+  unit.lift = 1
+  setLivePersonAnimation(w, p, rules.personAnimationObjects[(p.cargo ? 4 : 7) * 9 + p.model])
+  if (!p.cargo) {
+    p.f2 = 0
+    p.f1 = rules.animationDescriptors[p.draw].hold
+  }
+  p.assignment |= 128
+  p.slowTurn =
+    ((sprites.frameCounts[p.object] * (rules.animationDescriptors[p.draw].step + 1)) << 24) >> 24
+}
+
+// 0x4d32de clears impulse/airborne flags for a seated person and continues
+// state dispatch. A retained departure wrapper must not steal that visit.
+export function resumeLiveSeatedFlight(u: Unit) {
+  const p = u.flight
+  // Settled seats freeze physics (0x4e6d00). Other flight owners keep their
+  // ordinary physics visit, including a vehicle transition not yet seated.
+  if (!p || u.native !== p || p.state !== 10 || !p.vehicle || !(p.flags2 & 0x4000)) return false
+  u.flight = undefined
+  u.lift = 0
+  return true
 }
 
 export function stepLiveImpulse(w: World, u: Unit) {
@@ -1094,15 +1205,23 @@ export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
           return outside ? buildingOutsidePoint(pose) : buildingApproachPoint(pose, p)
         }
       )
-    const velocity = { x: 0, y: 0, z: 0 }
+    const velocity = { x: 0, y: Math.max(0, short(p.velocity.y)), z: 0 }
     groundVelocity(velocity, p, speed, p.heading, terrain)
     limitPersonVelocity(p.physics, velocity)
     const next = { x: (p.x + velocity.x) & 65535, y: (p.y + velocity.z) & 65535, h: 0 }
     next.h = terrain(next.x, next.y)
     if (speed && blocked(next)) {
       if (turning) Object.assign(next, { x: p.x, y: p.y, h: terrain(p.x, p.y) })
-      else recoverGroundObstacle(p, next, !!building, terrain, blocked)
-      // Native failed-recovery airborne dispatch remains in the physics work.
+      else if (
+        !recoverGroundObstacle(p, next, !!building, terrain, blocked) &&
+        unsupportedGround(w.land, p, p.physics)
+      ) {
+        // 0x4e7193: retain this ground step's limited velocity, not an old combat
+        // impulse. Shared physics owns the next visit; do not visit it twice.
+        Object.assign(p.velocity, velocity)
+        p.flags2 = (p.flags2 | 0x80000) >>> 0
+        u.flight = p
+      }
     }
     moveObjectInCells(w.objectCells, p, next)
     Object.assign(u, browserPosition(next))
@@ -1206,7 +1325,7 @@ export function animateLiveObjects(w: World, phase: 'logical' | 'presentation' =
       )
     }
   for (const u of w.units) {
-    const source = unitAnimationSource(u)
+    const source = unitRenderAnimationSource(u)
     if (source) {
       const logical = source.model >= 2 && source.model <= 7 && animationUsesLogicalVisits(source)
       if (logical !== (phase === 'logical')) continue

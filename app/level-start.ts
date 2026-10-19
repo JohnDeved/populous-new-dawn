@@ -158,11 +158,11 @@ export function levelStartStoneHeading(center: StartPoint, stone: StartPoint) {
   return nativeAngle(short(stone.x - center.x), -short(stone.y - center.y))
 }
 
-// 0x50ccd0 default effect9: gameplay draws are lifetime, yaw, then pitch.
+// Default stone-burst gameplay draws are lifetime, pitch, then yaw.
 export function levelStartBurstParticle(rng: { randomState: number }) {
   const remaining = (random(rng) % 2) + 1,
-    yaw = random(rng) & 2047,
-    pitch = random(rng) & 2047
+    pitch = random(rng) & 2047,
+    yaw = random(rng) & 2047
   return { remaining, speed: 60, pitch, yaw }
 }
 

@@ -1,0 +1,11 @@
+# Optional model picking work counts
+
+This follow-on adds work evidence only, not an index or optimization. Existing objectModelsMs is inclusive elapsed time; nativeOcclusion counts terrain, not model-face work.
+
+Optional pointerBreakdown.modelWork is a compact three-element tuple: [cache builds, faces visited, faces accepted]. A build is a newly published model cache record during this model query, detected by record identity before/after the existing two-argument model dispatch. In the shipped implementation this occurs on a completed cache miss, not a hit. Custom model overrides that do not publish cache records report zero builds; arbitrary replacements of the public cache are not distinguished from builds. Failed queries are not completed build evidence. Faces visited counts existing model triangle tests after whole-model bounds admission; accepted counts successful tests, not final winning picks. Rejected = visited - accepted, including no separate stored field. Whole-model bounds rejection is not a face visit. No total model count or build duration is inferred.
+
+The offline cohort report exposes named modelCacheBuilds/modelFacesVisited/modelFacesAccepted/modelFacesRejected distributions. Missing tuples remain unavailable, never zero-filled. A present tuple of zeroes means no observed work. The tuple is fixed length, nonnegative safe integers with accepted <= visited. Old captures without the optional field remain valid.
+
+The fixed GameScene diagnostics object includes one tuple even when F8 is off. Disabled picking passes no sink, adds no clock reads, cache inspection or face scans; enabled collection uses only existing traversal and two cache-record identity reads per model query. Original model dispatch arity, command sequence, triangle tests and candidate sorting are unchanged. No gameplay decisions consume counters.
+
+The ring adds four Float64 slots per frame (presence plus three values), 38,400 bytes at 1,200 frames. Full production Blob regression uses MAX_SAFE_INTEGER counts alongside all visibility/context/water fields under the unchanged 2 MiB bound. This is work-count instrumentation, not a claim of speedup or proof that an index will amortize its construction.

@@ -1,0 +1,13 @@
+	0090c670  <none>  00d4  GetCurrentThread
+	0090c674  <none>  0140  GetThreadPriority
+	0090c678  <none>  022e  SetThreadPriority
+	0090c6a8  <none>  016d  HeapFree
+	0090c6e0  <none>  023a  Sleep
+	0090c724  <none>  017b  InterlockedExchange
+	0090c784  <none>  0144  GetTickCount
+	DLL Name: WINMM.dll
+	0090c934  <none>  007a  mmioClose
+	0090c938  <none>  0081  mmioOpenA
+ 0090c104	0090c168 00000000 00000000 0090de7e 0090c5a8
+	DLL Name: DINPUT.dll
+	0090c5a8  <none>  0000  DirectInputCreateA

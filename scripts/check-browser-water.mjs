@@ -126,7 +126,7 @@ try {
       changedHeights,
       changedWater,
       wrapped,
-      scroll: s.waterScroll.value,
+      spatialWater: !Object.hasOwn(s.terrain.material.uniforms, 'scroll'),
       cracks,
       south,
       triangles: g.index.count / 3,
@@ -141,7 +141,7 @@ try {
   assert.ok(result.changedHeights)
   assert.ok(result.changedWater > 1000)
   assert.ok(result.wrapped)
-  assert.equal(result.scroll, 0)
+  assert.equal(result.spatialWater, true)
   assert.equal(result.cracks, 0)
   assert.ok(result.south > 0)
   assert.equal(result.triangles, 32768)

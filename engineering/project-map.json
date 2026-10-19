@@ -2,6 +2,61 @@
   "version": 1,
   "subsystems": [
     {
+      "id": "neutral-canvas-cursor",
+      "title": "Original POINT14 neutral canvas adaptation",
+      "mappingStatus": "inferred",
+      "implementationPaths": [
+        "app/neutral-cursor.ts",
+        "scripts/import-neutral-cursor.py",
+        "public/original/cursor-point14.png",
+        "public/original/cursor-point14.json"
+      ],
+      "researchPaths": [
+        "decomp/research/neutral-canvas-cursor.md",
+        "tests/neutral-cursor.test.mjs"
+      ],
+      "sharedPaths": [
+        "app/scene.ts",
+        "app/scene-entities.ts",
+        "app/unit-animation-source.ts"
+      ],
+      "entrySymbols": [
+        {
+          "path": "app/neutral-cursor.ts",
+          "symbol": "NeutralCanvasCursor"
+        },
+        {
+          "path": "app/neutral-cursor.ts",
+          "symbol": "neutralCanvasState"
+        }
+      ],
+      "parityIds": ["interface.selection"],
+      "evidence": [
+        {
+          "path": "decomp/research/neutral-canvas-cursor.md",
+          "heading": "Original POINT14 in the neutral browser canvas"
+        }
+      ],
+      "nativeAddresses": [
+        "0x47a550",
+        "0x47a8b0",
+        "0x4fca00"
+      ],
+      "checkIds": [
+        "neutral-canvas-cursor"
+      ],
+      "generatedInputIds": [
+        "imported-runtime-data"
+      ],
+      "risks": [
+        "Scoped mouse-cursor ownership must not intercept input or add another roster scan."
+      ],
+      "unresolved": [
+        "Exact native physical override bindings and complete contextual cursor parity.",
+        "Hosted computed-cursor, picking and DPR verification remains parent-owned."
+      ]
+    },
+    {
       "id": "vehicle-passenger-panel",
       "title": "Native vehicle passenger panel and unload",
       "mappingStatus": "inferred",
@@ -88,10 +143,20 @@
         "app/person-selection.ts",
         "app/scene-picking.ts",
         "app/selection-mesh.ts",
-        "app/world-picking.ts"
+        "app/world-picking.ts",
+        "app/blast-targeting.ts",
+        "app/unit-animation-source.ts"
       ],
-      "researchPaths": ["tests/painter-order.test.mjs"],
-      "sharedPaths": ["app/model.ts", "app/scene.ts", "app/render-view.ts"],
+      "researchPaths": [
+        "tests/painter-order.test.mjs",
+        "tests/blast-targeting.test.mjs",
+        "decomp/research/blast-targeting.md"
+      ],
+      "sharedPaths": [
+        "app/model.ts", "app/scene.ts", "app/render-view.ts",
+        "app/scene-input-runtime.ts", "app/live-command.ts", "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts", "app/world-types.ts"
+      ],
       "entrySymbols": [
         { "path": "app/scene.ts", "symbol": "pointerUp" },
         { "path": "app/model.ts", "symbol": "selectArea" },
@@ -110,6 +175,7 @@
         "graphics.raster.queue"
       ],
       "evidence": [
+        { "path": "decomp/research/blast-targeting.md", "heading": "Blast person targeting" },
         { "path": "decomp/research/follower-frame-alpha.md", "heading": "Disabled follower frames" },
         { "path": "decomp/research/follower-task-panel.md", "heading": "Native Followers task panel" },
         { "path": "decomp/README.md", "heading": "Native follower selection" },
@@ -291,6 +357,7 @@
         { "path": "decomp/research/mission9-boat-house.md", "heading": "Mission 9 Boat House production" },
         { "path": "decomp/research/vehicle-destruction.md", "heading": "Vehicle damage and destruction" },
         { "path": "decomp/research/transport-idle-state.md", "heading": "Native behavior" },
+        { "path": "decomp/research/resting-slot-layout.md", "heading": "Native contract" },
         { "path": "decomp/research/balloon-command-position.md", "heading": "Finding" },
         { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Terrain changes do not invalidate active person routes" },
         { "path": "decomp/README.md", "heading": "State-10 order dispatch and resumption" },
@@ -367,6 +434,7 @@
       ],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Construction command wrapper" },
+        { "path": "decomp/research/building-completion-feedback.md", "heading": "Building-completion feedback ownership" },
         { "path": "decomp/README.md", "heading": "Construction timber hauling" },
         { "path": "decomp/README.md", "heading": "Shared construction resource searches" },
         { "path": "decomp/research/mission9-boat-house.md", "heading": "Mission 9 Boat House production" },
@@ -410,9 +478,11 @@
         "app/camera-motion.ts",
         "app/camera-view.ts",
         "app/game-clock.ts",
-        "app/unit-motion.ts"
+        "app/unit-motion.ts",
+        "app/tooltip-controller.ts",
+        "app/scene-tooltip-runtime.ts"
       ],
-      "sharedPaths": ["app/flyby.ts", "app/model.ts", "app/render-view.ts", "app/scene.ts"],
+      "sharedPaths": ["app/flyby.ts", "app/model.ts", "app/render-view.ts", "app/scene.ts", "app/scene-camera-runtime.ts", "app/scene-input-runtime.ts", "app/object-panels.ts", "app/building-panels.ts", "app/scene-secondary-effects.ts", "app/page.tsx"],
       "entrySymbols": [
         { "path": "app/scene.ts", "symbol": "animate" },
         { "path": "app/game-clock.ts", "symbol": "GameClock" },
@@ -429,6 +499,7 @@
       ],
       "evidence": [
         { "path": "references/modern-performance.md", "heading": "Chronological game clock" },
+        { "path": "decomp/research/game-options-static/findings.md", "heading": "Original Game options: bounded keyboard adapter" },
         { "path": "decomp/research/camera-bookmarks.md", "heading": "Camera bookmarks" },
         { "path": "decomp/research/minimap-frame.md", "heading": "Minimap frame composition" },
         {
@@ -521,6 +592,10 @@
         {
           "path": "decomp/research/hut-smoke-secondary-owner.md",
           "heading": "Runtime contract"
+        },
+        {
+          "path": "decomp/research/hut-smoke-state-exit.md",
+          "heading": "Original producer and consumer"
         },
         { "path": "decomp/research/early-mission-skies.md", "heading": "Original selection and bounded correction" }
       ],
@@ -767,6 +842,7 @@
         "app/worship.ts"
       ],
       "researchPaths": [
+        "decomp/research/world-selector-globes.md",
         "tests/worship-acquisition-controller.test.mjs",
         "tests/worship-acquisition-runtime.test.mjs",
         "tests/worship-acquisition-source.test.mjs",
@@ -819,6 +895,11 @@
       "decomp/research/mission3-preaching-message.md",
       "decomp/research/preacher-spell-retaliation.md",
       "decomp/research/preacher-sermon-gestures.md",
+      "decomp/research/automatic-preacher-and-raid-ownership.md",
+      "tests/preacher-automatic-response.test.mjs",
+      "tests/live-order-owner.test.mjs",
+      "tests/raid-phase6-settlement.test.mjs",
+      "tests/raid-state33-release.test.mjs",
       "tests/preacher-gestures.test.mjs",
       "scripts/check-preacher-gesture-assets.py",
       "scripts/check-preacher-gesture-replay.py",
@@ -1051,6 +1132,8 @@
         "tests/melee.test.mjs",
         "tests/mission5-angel.test.mjs",
         "tests/shield-spell.test.mjs",
+        "tests/housing-entry.test.mjs",
+        "tests/human-training-orders.test.mjs",
         "decomp/research/loading-art.md",
         "scripts/check-static-loading-art.py",
         "decomp/research/vault-side-fire.md"
@@ -1061,6 +1144,7 @@
         "app/game-store.ts",
         "app/firewarrior.ts",
         "app/live-building-entry.ts",
+        "app/building-resident.ts",
         "app/building-panels.ts",
         "app/building-shapes.ts",
         "app/building-validity.ts",
@@ -1102,10 +1186,12 @@
         "effects.reincarnation"
       ],
       "evidence": [
+        { "path": "decomp/research/world-selector-globes.md", "heading": "Ordinary selector globes" },
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
         { "path": "decomp/research/worship-grant-handoff.md", "heading": "Three findings" },
         { "path": "decomp/research/worship-grant-presentation.md", "heading": "Three findings" },
         { "path": "decomp/research/worship-grant-replacement.md", "heading": "Dynamic result" },
+        { "path": "decomp/research/ordinary-reward-feedback.md", "heading": "Ordinary spell reward payout feedback" },
         { "path": "decomp/research/authored-bridge-origins.md", "heading": "Executable composition proof" },
         { "path": "decomp/research/erosion-activation.md", "heading": "Reviewed native boundary" },
         {
@@ -1249,7 +1335,8 @@
         {"path": "decomp/research/loading-art.md", "heading": "Resource descriptor and failure propagation"},
         {"path": "decomp/research/vault-side-fire.md", "heading": "Model-18 Vault excludes generic attached fire"},
         {"path": "decomp/research/vault-side-fire.md", "heading": "Known / unknown boundary"},
-        {"path": "decomp/research/vault-knowledge-world-assets.md", "heading": "Owned assets and live integration"}
+        {"path": "decomp/research/vault-knowledge-world-assets.md", "heading": "Owned assets and live integration"},
+        {"path": "decomp/research/vault-prayer-panel-anchor.md", "heading": "Static source contract"}
       ],
       "nativeAddresses": [
         "0x40bce0",
@@ -1433,14 +1520,15 @@
       "mappingStatus": "reviewed",
       "implementationPaths": ["app/game-store.ts"],
       "sharedPaths": ["app/page.tsx"],
-      "researchPaths": ["engineering/single-player-feasibility.md"],
+      "researchPaths": ["engineering/single-player-feasibility.md", "decomp/research/frontend-quit-menu/README.md"],
       "entrySymbols": [
         { "path": "app/game-store.ts", "symbol": "createGameStore" },
         { "path": "app/page.tsx", "symbol": "Home" }
       ],
       "parityIds": ["persistence.save", "persistence.load", "persistence.profile", "interface.menus"],
       "evidence": [
-        { "path": "decomp/README.md", "heading": "Defeat and victory decisions" }
+        { "path": "decomp/README.md", "heading": "Defeat and victory decisions" },
+        { "path": "decomp/research/frontend-quit-menu/README.md", "heading": "Exact menu1 evidence" }
       ],
       "nativeAddresses": [],
       "checkIds": [

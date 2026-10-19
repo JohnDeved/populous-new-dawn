@@ -59,20 +59,47 @@
       },
       "callers": [
         "scripts/import-original.py",
+        "scripts/import-loading-art.py",
+        "scripts/import-loading-label.py",
+        "scripts/import-frontend.py",
+        "scripts/import-neutral-cursor.py",
+        "scripts/import-options.py",
+        "scripts/import-world-selector-panel.py",
+        "scripts/import-world-selector-text.py",
+        "scripts/import-result-ui.py",
         "scripts/import-level.py",
         "scripts/import-messages.py",
         "scripts/import-script.py",
         "scripts/import-hud.py",
         "scripts/import-worship-acquisition.py",
         "scripts/import-vault-knowledge.py",
+        "scripts/import-temple-acquisition.py",
         "scripts/import-vehicle-panel-icons.py",
         "scripts/import-follower-tasks.py",
+        "scripts/import-follower-nearby.py",
         "scripts/import-minimap-frame.py",
         "scripts/import-sound.py",
         "scripts/import-music.py"
       ],
       "inputs": ["references/native-assets.md", "decomp/sections.tsv"],
       "outputs": [
+        { "path": "public/original/loading-mask.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-art.py" },
+        { "path": "public/original/loading-label.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-label.py" },
+        { "path": "public/original/loading-label.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-label.py" },
+        { "path": "app/original-result-ui.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-result-ui.py" },
+        { "path": "public/original/result-panel.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-result-ui.py" },
+        { "path": "public/original/result-font.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-result-ui.py" },
+        { "path": "public/original/world-selector/text", "type": "directory", "tracked": true, "protected": true, "producer": "scripts/import-world-selector-text.py" },
+        { "path": "public/original/world-selector/panel", "type": "directory", "tracked": true, "protected": true, "producer": "scripts/import-world-selector-panel.py" },
+        { "path": "app/original-options-art.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-options.py" },
+        { "path": "public/original/options", "type": "directory", "tracked": true, "protected": true, "producer": "scripts/import-options.py" },
+        { "path": "public/original/cursor-point14.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-neutral-cursor.py" },
+        { "path": "public/original/cursor-point14.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-neutral-cursor.py" },
+        { "path": "app/original-frontend.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-frontend.py" },
+        { "path": "public/original/frontend", "type": "directory", "tracked": true, "protected": true, "producer": "scripts/import-frontend.py" },
+        { "path": "app/original-temple-acquisition.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
+        { "path": "public/original/temple-model-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
+        { "path": "public/original/temple-sparkles-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
         {
           "path": "app/level-one.ts",
           "type": "file",
@@ -186,6 +213,13 @@
           "producer": "scripts/import-level.py"
         },
         {
+          "path": "app/level-seventeen.ts",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-level.py"
+        },
+        {
           "path": "app/level-eighteen.ts",
           "type": "file",
           "tracked": true,
@@ -279,6 +313,10 @@
             {
               "producer": "scripts/import-worship-acquisition.py",
               "scope": "Only HFX1059/1060/1068 ordinary-palette body rectangles; preserve every existing rectangle and metadata value except total atlas height."
+            },
+            {
+              "producer": "scripts/import-follower-nearby.py",
+              "scope": "Only HFX876/877/878 ordinary-palette rectangles; preserve every existing rectangle and metadata value except total atlas height."
             }
           ]
         },
@@ -304,6 +342,20 @@
           "producer": "scripts/import-vault-knowledge.py"
         },
         {
+          "path": "app/original-vault-knowledge-camp.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-vault-knowledge.py"
+        },
+        {
+          "path": "public/original/vault-knowledge-camp.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-vault-knowledge.py"
+        },
+        {
           "path": "public/original/hud.png",
           "type": "file",
           "tracked": true,
@@ -313,6 +365,10 @@
             {
               "producer": "scripts/import-worship-acquisition.py",
               "scope": "Append only ordinary-palette HFX1059/1060/1068 beneath the current image without repacking or changing any existing pixels."
+            },
+            {
+              "producer": "scripts/import-follower-nearby.py",
+              "scope": "Append only ordinary-palette HFX876/877/878 beneath the current image without repacking or changing any existing pixels."
             }
           ]
         },
@@ -561,8 +617,17 @@
           "protected": true,
           "producer": "scripts/import-original.py"
         },
+        { "path": "app/original-pause-font.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-pause-font.py" },
+        { "path": "public/original/pause-font.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-pause-font.py" },
         { "path": "app/original-minimap-frame.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-minimap-frame.py" },
         { "path": "public/original/minimap-frame.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-minimap-frame.py" },
+        { "path": "public/original/landscape-s.bin", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/landscape-p.bin", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/atlas-s.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/atlas-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "app/original-models-bank6.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/world-environments.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-world-environments.py" },
+        { "path": "public/original/world-selector/globes", "type": "directory", "tracked": true, "protected": true, "producer": "scripts/import-world-selector-globes.py" },
         { "path": "public/original", "type": "directory", "tracked": true, "protected": true }
       ],
       "recording": "Only the documented importer owns each app/original-*.json or public/original asset; do not infer one producer from an original-* name."
@@ -581,14 +646,64 @@
       ],
       "inputs": ["references/modern-performance.md"],
       "outputs": [
-        {
-          "path": "references/performance",
-          "type": "directory",
-          "tracked": true,
-          "protected": true
-        }
+        { "path": "references/performance", "type": "directory", "tracked": false, "protected": true },
+        {"path": "references/performance/2026-09-09-early-projection.patch", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-09-person-panic.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-background-audio.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-blast-impact.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-building-combat.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-building-exits.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-combat-approach.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-construction-panels.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-dismantling.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-drag-border.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-drag-selection.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-fight-cleanup.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-housing-entry.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-land-bridge.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-lightning-strike.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-marching-browser.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-marching.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-melee-approach.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-melee-decisions.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-melee-engagement.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-melee-placement.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-melee-recovery.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-person-panels.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-resting.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-selection-raster.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-terrain-ambience-ultrawide.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-terrain-ambience.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-tower-entry.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-tower-panels.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-training-panels.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-training-selection.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-10-training.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-area-attack-cpu.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-area-attack.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-combat-queues.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-command-context.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-command-feedback.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-drag-occupants.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-failed-route-recovery.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-formation-phase.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-ground-waypoints.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-hud-selection.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-mixed-building-orders.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-mixed-orders-ground-regression.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-move-eligibility-initial.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-move-eligibility.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-pointer-brackets.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-queued-dismantling-cpu.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-queued-dismantling.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-route-recovery-cpu.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-route-recovery.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-selection-audio.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-world-height.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-world-picking.json", "type": "file", "tracked": true, "protected": true},
+        {"path": "references/performance/2026-09-11-worship-waypoints.json", "type": "file", "tracked": true, "protected": true}
       ],
-      "recording": "Record baseline/candidate fingerprints, workload, renderer identity, hardware, runtime, resolution, warmup, samples, order, raw data, and limitations."
+      "recording": "Record baseline/candidate fingerprints, workload, renderer identity, hardware, runtime, resolution, warmup, samples, order, raw data, and limitations. The directory remains protected for all outputs, including future files. Explicit tracked entries retain the 54 local parity receipts and the early-projection reproduction patch; only the exact ignored historical outputs are archived at bc9cabf404240ad99b2aab8c26e9b0137cdd7702. Re-running a producer does not authorize replacing historical evidence or committing its outputs."
     },
     {
       "id": "orchestration-cache",

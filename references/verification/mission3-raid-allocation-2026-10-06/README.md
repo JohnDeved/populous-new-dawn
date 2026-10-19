@@ -1,5 +1,7 @@
 # Mission3 ATTACK allocation gate acceptance
 
+> Historical run output is [archived at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/mission3-raid-allocation-2026-10-06). Current regressions use [intentional native-reference fixtures](../../../tests/fixtures/native-reference-fixtures.md), not these old run logs.
+
 Issue: https://github.com/JohnDeved/populous-new-dawn/issues/227
 
 The Mission3 adapter now checks native state20, the authored attribute25 raid cap

@@ -99,7 +99,7 @@ test('ordinary Mission 3 Vault collection preserves payout while changing only w
 })
 
 test('unrelated Vault and ordinary spell families retain their existing presentation owners', () => {
-  for (const mission of [1, 2, 4, 7]) {
+  for (const mission of [2, 4, 7]) {
     const world = createWorld(mission)
     assert.ok(world.shrines.every(shrine => shrine.knowledgeGlow === undefined))
   }

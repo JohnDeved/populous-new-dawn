@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "fcae4ea3-7d16-48f6-b0bb-3eacf5dfc9e9",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "8b842e87382cf5c772db82bcd27a0904bfe0e2dc",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m17-source-support/encounter-trace.mjs": "8ffd3a79bcc13b21f2bdfbabfdc0d2ea7d89c44477a1ef213f9d1b4b720db9e3",
+      "work/m17-clock-route/arena-admission-terminal.v8": "908e458d89e5bfcff568b7b36254e4da3e688d9928b4f980ec05933e3948fe5f"
+    }
+  },
+  "command": [
+    "node",
+    "work/m17-source-support/encounter-trace.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m17-clock-audit",
+  "startedAt": "2026-10-14T14:24:39.678Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m17-clock-audit/work/orchestration/m17-source-support/encounter-trace.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m17-clock-audit/work/orchestration/m17-source-support/encounter-trace.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T14:24:39.809Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "file:///workspace/scratch/69fd8163d94e/populous-m17-clock-audit/work/m17-source-support/encounter-trace.mjs:5\n\n\n\nSyntaxError: Unexpected end of input\n    at compileSourceTextModule (node:internal/modules/esm/utils:318:16)\n    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)\n    at #translate (node:internal/modules/esm/loader:434:20)\n    at afterLoad (node:internal/modules/esm/loader:502:29)\n    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:507:12)\n    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:560:36)\n    at afterResolve (node:internal/modules/esm/loader:607:52)\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:613:12)\n    at node:internal/modules/esm/loader:632:32\n    at TracingChannel.tracePromise (node:diagnostics_channel:362:14)\n\nNode.js v24.19.0\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "bd50c1abc547656175e015702896b601d983f9e03db9e2b3e64c793b13f9c038",
+  "sourceAfter": {
+    "headOid": "8b842e87382cf5c772db82bcd27a0904bfe0e2dc",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m17-source-support/encounter-trace.mjs": "8ffd3a79bcc13b21f2bdfbabfdc0d2ea7d89c44477a1ef213f9d1b4b720db9e3",
+      "work/m17-clock-route/arena-admission-terminal.v8": "908e458d89e5bfcff568b7b36254e4da3e688d9928b4f980ec05933e3948fe5f"
+    }
+  }
+}

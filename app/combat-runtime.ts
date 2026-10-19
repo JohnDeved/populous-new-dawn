@@ -2,7 +2,12 @@ import { tribeForTeam, type Unit, type World, type Battle, type Building } from 
 import constants from './original-constants.json' with { type: 'json' }
 import { maxHp } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
-import { type MeleeAttack, meleeDuration, chooseMeleeAttack } from './melee.ts'
+import {
+  type MeleeAttack,
+  meleeDuration,
+  chooseMeleeAttack,
+  startMeleeAttackAnimation,
+} from './melee.ts'
 import { nativeAngle, nativeStep, random, short } from './native-math.ts'
 import { nativePersonTribe, nativePersonModel } from './live-combat.ts'
 import { creditCampaignAttackTask } from './campaign-runtime.ts'
@@ -53,10 +58,20 @@ export function applyUnitDamage(u: Unit, damage: number, mode = 0) {
   u.hp = Math.max(0, (Math.round(u.hp * 20) - amount) / 20)
   return true
 }
+function startAttackAnimation(w: World, u: Unit, action: MeleeAttack) {
+  const person = u.fight?.motion
+  if (!person) return false
+  startMeleeAttackAnimation(person, action, (_, object) =>
+    setLivePersonAnimation(w, person, object)
+  )
+  return true
+}
+
 function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
   // 0x518fb0 states 2/3/4; 0x4a39c0 calculates both damages before applying either.
   const damage = meleeDamage(u),
-    counter = meleeDamage(target)
+    counter = meleeDamage(target),
+    nativeAttackAnimation = startAttackAnimation(w, u, action)
   u.heading =
     Math.PI -
     (nativeAngle(Math.round((target.x - u.x) * 256), Math.round((target.z - u.z) * 256)) *
@@ -68,6 +83,7 @@ function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
     opponent: target.id,
     action,
     animation: action,
+    nativeAttackAnimation,
     started: w.turn,
     remaining: meleeDuration(u.kind, action) - 1,
   }
@@ -384,7 +400,7 @@ export function cleanBattles(w: World) {
       count: b.members.length,
       winner: b.winner ?? 255,
     }
-    const result = cleanFightRoster(group, people)
+    const result = cleanFightRoster(group, people, id => id)
     b.slots = group.members
     b.tribes = group.tribes
     b.winner = group.winner
@@ -500,6 +516,7 @@ export function processBattles(w: World) {
           f.remaining = meleeDuration(u.kind, f.action, f.knockback)
           f.started = w.turn
           f.animation = f.action
+          if (f.action !== 'recoil') f.nativeAttackAnimation = startAttackAnimation(w, u, f.action)
         }
         f.remaining = short(f.remaining - 1)
         if (f.remaining > 0) continue

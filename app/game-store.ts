@@ -1,6 +1,14 @@
+import { worldEnvironment } from './world-environment.ts'
 import { rebuildSecondaryLists } from './secondary-effects.ts'
 import { restoreSecondaryEffects } from './hut-smoke-runtime.ts'
-import { campaignCommand, createGift, createWorld, type Gift, type World } from './model.ts'
+import {
+  campaignCommand,
+  createGift,
+  createWorld,
+  syncLandscapeObjects,
+  type Gift,
+  type World,
+} from './model.ts'
 import { missionData, missionEnemyTribe, missionNumbers } from './mission-data.ts'
 import { teamForTribe, type Point } from './world-types.ts'
 import { createComputerProducers } from './computer.ts'
@@ -13,13 +21,17 @@ import {
 import { restoreOrdinaryWorshipSource } from './worship-acquisition-source.ts'
 import { createWorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
 import { initializeVaultKnowledge } from './vault-appearance.ts'
+import { discardInvalidResident } from './building-resident.ts'
 import { initializeVaultKnowledgeGift } from './world-effects.ts'
+import { createSharedAniblResource, type PresentationBinding } from './shared-anibl.ts'
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
   CHECKPOINT_VERSION = 1,
   PROFILE_VERSION = 1
 let checkpointDatabase: Promise<IDBDatabase | null> | null = null
+
+export type CheckpointReadStatus = 'idle' | 'pending' | 'read' | 'unavailable' | 'failed'
 
 type LegacyGift = {
   x: number
@@ -76,6 +88,7 @@ function migrateLegacyComputerTeam(world: World, tribe: number) {
       unit.entry?.person,
       unit.builder?.person,
       unit.fight?.motion,
+      unit.resident?.person,
     ])
       retag(person ?? undefined)
   }
@@ -134,7 +147,13 @@ function migrateLegacyBridgeOrigins(world: World) {
 }
 
 export function migrateCheckpoint(world: World) {
+  // Preserve intact legacy cell order. This cannot recover a chain that an older
+  // runtime already truncated after allocating a person handle above 0xffff.
+  if (world.objectCells.heads instanceof Uint16Array)
+    world.objectCells.heads = new Float64Array(world.objectCells.heads)
+  for (const unit of world.units) discardInvalidResident(world, unit)
   world.worshipAcquisition ??= createWorshipAcquisitionRuntime()
+  world.worshipAcquisition.controllers.building ??= null
   restoreSecondaryEffects(world)
   world.outcome.level ??= 1
   world.drawMode ??= 0
@@ -150,7 +169,18 @@ export function migrateCheckpoint(world: World) {
   world.campaignAIs ??= Array(4).fill(null)
   world.campaignAIs[computerTribe] ??= world.ai
   for (const ai of new Set([world.ai, ...world.campaignAIs]))
-    if (ai) ai.producers ??= createComputerProducers()
+    if (ai) {
+      ai.producers ??= createComputerProducers()
+      // Compatibility only: an unestablished old owner has no accumulated
+      // radius. Established or malformed history stays unknown. Membership is
+      // retained by full-graph cloning, or waits for the next real object turn.
+      if (
+        [1, 2, 3].includes(world.outcome.level) &&
+        ai.constructionBase === undefined &&
+        !Object.hasOwn(ai, 'constructionRadius')
+      )
+        ai.constructionRadius = 0
+    }
   world.spellScans ??= Array.from({ length: 4 }, (_, id) =>
     id === computerTribe
       ? world.spellScan
@@ -231,6 +261,7 @@ export function migrateCheckpoint(world: World) {
       unit.entry?.person,
       unit.builder?.person,
       unit.fight?.motion,
+      unit.resident?.person,
     ])
       if (person) {
         // Legacy checkpoints predate the native ordinary-person animation gate.
@@ -262,6 +293,9 @@ export function migrateCheckpoint(world: World) {
   world.giftCounts.volcano ??= 0
   world.shots.angel ??= 0
   world.giftCounts.angel ??= 0
+  // Retire stored legacy bank2 poses through their original shape before
+  // registering the world's selected shape, before any restored scene draws.
+  syncLandscapeObjects(world)
   const gifts = world.gifts as unknown as (Gift | LegacyGift)[]
   for (const shrine of world.shrines) initializeVaultKnowledge(shrine, world.outcome.level)
   for (const gift of gifts) if (gift.kind === 'gift') initializeVaultKnowledgeGift(world, gift)
@@ -281,19 +315,27 @@ export function migrateCheckpoint(world: World) {
 
 function openCheckpointDatabase() {
   if (typeof indexedDB === 'undefined') return Promise.resolve(null)
-  return (checkpointDatabase ??= new Promise((resolve, reject) => {
+  if (checkpointDatabase) return checkpointDatabase
+  const pending = new Promise<IDBDatabase>((resolve, reject) => {
     const request = indexedDB.open(CHECKPOINT_DATABASE, 1)
     request.addEventListener('upgradeneeded', () =>
       request.result.createObjectStore(CHECKPOINT_STORE)
     )
     request.addEventListener('success', () => resolve(request.result))
     request.addEventListener('error', () => reject(request.error))
-  }))
+  })
+  checkpointDatabase = pending
+  // A transient open failure must not disable persistence for the whole session.
+  // Keep the original rejection for callers and only release this attempt's cache.
+  void pending.catch(() => {
+    if (checkpointDatabase === pending) checkpointDatabase = null
+  })
+  return pending
 }
 
 async function readStoredState() {
   const database = await openCheckpointDatabase()
-  if (!database) return { checkpoint: null, completed: [] }
+  if (!database) return null
   return new Promise<{ checkpoint: World | null; completed: number[] }>((resolve, reject) => {
     const transaction = database.transaction(CHECKPOINT_STORE),
       store = transaction.objectStore(CHECKPOINT_STORE),
@@ -319,7 +361,7 @@ async function readStoredState() {
   })
 }
 
-async function writeStoredValue(key: 'latest' | 'profile', value: unknown) {
+async function writeStoredValue(key: 'latest', value: unknown) {
   const database = await openCheckpointDatabase()
   if (!database) return false
   return new Promise<boolean>((resolve, reject) => {
@@ -332,13 +374,64 @@ async function writeStoredValue(key: 'latest' | 'profile', value: unknown) {
   })
 }
 
+async function writeCompletedMissions(completed: number[]) {
+  const database = await openCheckpointDatabase()
+  if (!database) return false
+  return new Promise<boolean>((resolve, reject) => {
+    const transaction = database.transaction(CHECKPOINT_STORE, 'readwrite'),
+      store = transaction.objectStore(CHECKPOINT_STORE),
+      request = store.get('profile')
+    let written = false
+    request.addEventListener('success', () => {
+      const saved = request.result
+      // Preserve unknown or damaged records for recovery instead of overwriting
+      // them with this session's incomplete view of campaign progress.
+      if (
+        saved !== undefined &&
+        (saved === null ||
+          typeof saved !== 'object' ||
+          Array.isArray(saved) ||
+          saved.version !== PROFILE_VERSION ||
+          !Array.isArray(saved.completed) ||
+          !Array.from(saved.completed).every(
+            (mission: unknown) =>
+              Number.isInteger(mission) && missionNumbers.some(number => number === mission)
+          ))
+      )
+        return
+      // Read and merge in the same active transaction so another tab's completed
+      // missions cannot be replaced by a stale in-memory snapshot.
+      store.put(
+        {
+          ...saved,
+          version: PROFILE_VERSION,
+          completed: [...new Set<number>([...(saved?.completed ?? []), ...completed])].sort(
+            (a, b) => a - b
+          ),
+        },
+        'profile'
+      )
+      written = true
+    })
+    transaction.addEventListener('complete', () => resolve(written))
+    const fail = () => reject(transaction.error)
+    transaction.addEventListener('error', fail)
+    transaction.addEventListener('abort', fail)
+  })
+}
+
 // The simulation owns its mutable world. React subscribes to published revisions
 // instead of treating that world as immutable component state.
 export function createGameStore() {
+  let checkpointReadStatus: CheckpointReadStatus = 'idle'
+  let checkpointRestore: Promise<boolean> | null = null
   let world = createWorld(),
     checkpoint: World | null = null,
     observedCompletion = world.outcome.completedLevel,
     revision = 0
+  const presentation = createSharedAniblResource()
+  presentation.transition(worldEnvironment(world).landscape)
+  let presentationToken: symbol | null = null
   const completedMissions = new Set<number>()
   const listeners = new Set<() => void>()
   const update = () => {
@@ -351,22 +444,41 @@ export function createGameStore() {
         !completedMissions.has(mission)
       ) {
         completedMissions.add(mission)
-        void writeStoredValue('profile', {
-          version: PROFILE_VERSION,
-          completed: [...completedMissions].sort((a, b) => a - b),
-        }).catch(() => {})
+        void writeCompletedMissions([...completedMissions]).catch(() => {})
       }
     }
     revision++
     for (const listener of listeners) listener()
   }
-  const replaceWorld = (next: World) => {
+  const replaceWorld = (next: World, retainResource = false) => {
+    // Preparation has already succeeded. Commit both owners before publication;
+    // old Scene callbacks lose authority even when Restart retains the resource.
+    presentation.transition(worldEnvironment(next).landscape, retainResource)
     world = next
+    presentationToken = null
     observedCompletion = world.outcome.completedLevel
     update()
   }
   return {
     getWorld: () => world,
+    getPresentationSnapshot: presentation.snapshot,
+    bindPresentation: (boundWorld: World): PresentationBinding => {
+      const token = Symbol()
+      let released = false
+      if (boundWorld === world) presentationToken = token
+      const isCurrent = () => !released && presentationToken === token && boundWorld === world
+      return {
+        isCurrent,
+        snapshot: () => (isCurrent() ? presentation.snapshot() : null),
+        advance: () => {
+          if (isCurrent()) presentation.advance()
+        },
+        release: () => {
+          released = true
+          if (presentationToken === token) presentationToken = null
+        },
+      }
+    },
     getSnapshot: () => revision,
     subscribe: (listener: () => void) => {
       listeners.add(listener)
@@ -380,27 +492,41 @@ export function createGameStore() {
       update()
     },
     hasCheckpoint: () => !!checkpoint,
+    getCheckpointReadStatus: () => checkpointReadStatus,
     getCompletedMissions: () => [...completedMissions].sort((a, b) => a - b),
-    restoreCheckpoint: async () => {
-      try {
-        const saved = await readStoredState()
-        if (!checkpoint && saved.checkpoint) {
-          try {
-            checkpoint = migrateCheckpoint(structuredClone(saved.checkpoint))
-          } catch {
-            // A malformed checkpoint must not suppress the independent campaign profile.
+    restoreCheckpoint: () => {
+      if (checkpointRestore) return checkpointRestore
+      checkpointReadStatus = 'pending'
+      checkpointRestore = (async () => {
+        try {
+          const saved = await readStoredState()
+          if (saved) {
+            if (!checkpoint && saved.checkpoint) {
+              try {
+                checkpoint = migrateCheckpoint(structuredClone(saved.checkpoint))
+              } catch {
+                // A malformed checkpoint must not suppress the independent campaign profile.
+              }
+            }
+            for (const mission of saved.completed) completedMissions.add(mission)
           }
+          checkpointReadStatus = saved ? 'read' : 'unavailable'
+        } catch {
+          // Browser storage is optional; retain any in-session checkpoint.
+          checkpointReadStatus = 'failed'
+        } finally {
+          checkpointRestore = null
+          update()
         }
-        for (const mission of saved.completed) completedMissions.add(mission)
-        update()
-      } catch {
-        // Browser storage is optional; retain any in-session checkpoint.
-      }
-      return !!checkpoint
+        return !!checkpoint
+      })()
+      update()
+      return checkpointRestore
     },
-    saveCheckpoint: async () => {
+    saveCheckpoint: async (paused = world.paused) => {
       rebuildSecondaryLists(world.secondaryEffects)
       const saved = structuredClone(world)
+      saved.paused = paused
       checkpoint = saved
       update()
       try {
@@ -415,7 +541,8 @@ export function createGameStore() {
       return true
     },
     restart: () => {
-      replaceWorld(createWorld(world.outcome.level))
+      const retainResource = !(world.land.landFlags & 8)
+      replaceWorld(createWorld(world.outcome.level), retainResource)
     },
     startMission: (mission: number) => {
       replaceWorld(createWorld(mission))

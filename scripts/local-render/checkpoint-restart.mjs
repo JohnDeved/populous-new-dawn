@@ -15,9 +15,10 @@ export default async function ({ page, root, output, receipt, openMission, obser
     await openMission(1)
     const readiness = await waitForShamanReadiness(page)
     await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-    const menu = page.locator('dialog.game-dialog')
+    const menu = page.locator('dialog[data-original-pause-menu]')
     await menu.waitFor({ state: 'visible' })
     const savedTurn = await page.evaluate(() => window.testStore.getWorld().turn)
+    await menu.getByRole('button', { name: 'Save Game', exact: true }).click()
     await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
     let observed
     assert.equal(await waitForCheckpointReadback(async () => {
@@ -52,7 +53,7 @@ export default async function ({ page, root, output, receipt, openMission, obser
       finally { unsubscribe() }
     })
   })
-  await page.getByRole('dialog', { name: 'Start game', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
+  await page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
   assert.equal(await page.evaluate(() => window.restartCheckpointObservationError), null, 'Load-boundary observer must not interfere with shipped resume')
   const loaded = await page.evaluate(checkpointObservation, { observationName: 'restartCheckpointBoundary' })
   for (const key of ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']) assert.deepEqual(loaded[key], saved[key], `Load boundary ${key} must match the committed save`)

@@ -211,8 +211,10 @@ mode3 object8: 534). [005090f0](../generated/005090f0.c) attaches the UI object 
 the inspected object position plus that offset. Vaults are buildings: their anchor
 uses **their own building descriptor's `+0x33` attachment socket**, with original
 building-coordinate/terrain fallback, not the scenery model-height path and not
-a guessed Hut-capacity socket. Current `ObjectPanels` uses model panelHeight for
-all Shrine records, so complete Vault building-anchor parity remains separate.
+a guessed Hut-capacity socket. The later
+[Vault anchor correction](vault-prayer-panel-anchor.md) establishes descriptor
+socket0 and the live completed authored M1/M3 consumer. General construction,
+modified-body binding and terminal lifecycle remain separate.
 
 [00504920](../generated/00504920.c) rechecks activity only for automatic records in
 phase 1. Nonzero activity refreshes the configured hold; zero clears the object's

@@ -8,6 +8,12 @@ behavior, evidence quality, and existing user work. Read `GOAL.md` for direction
 
 - Record HEAD and `git status --short` before editing. Never reset, clean, or
   overwrite pre-existing work. Verify the actual executor, tools, and paths.
+- For native research, automatically restore missing tools and original inputs
+  using [native environment setup](engineering/native-setup.md). Reuse verified
+  local files first; otherwise download from the documented sources and verify
+  hashes. This setup is authorized: do not ask the user to repeat setup instructions
+  or upload files before trying the documented recovery. Report actual download,
+  access, extraction, or identity failures; never bypass denied access.
 - GitHub issues, labels, and linked draft PRs own priorities, ownership, blockers,
   and delivery status. Continue the assigned issue; do not duplicate that board in
   local timers, chat watchers, or status files. `parity.json` measures verified
@@ -37,7 +43,8 @@ behavior, evidence quality, and existing user work. Read `GOAL.md` for direction
 - Preserve source ownership in `engineering/generated-files.json`. Do not
   mass-regenerate evidence, casually append `--record`, or hand-edit imported assets.
   Leave `.openai/hosting.json` untouched. Deployment, parity recording, credentials,
-  paid services, and new GitHub Actions need explicit authorization.
+  paid services, and additional GitHub Actions need explicit authorization. The
+  approved ready-PR full gate is documented in `engineering/continuous-integration.md`.
 - Select checks with `orchestration:plan -- --base <actual-base>` and inspect their
   commands/side effects. Unknown changed paths require explicit review, never an
   empty check set. Context/contract/audit helpers are optional aids, not a second

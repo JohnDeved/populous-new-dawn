@@ -1,5 +1,7 @@
 # Mission 3 raid recruitment origin
 
+> Historical run output is [archived at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/mission3-raid-recruitment-origin-2026-10-06). Current regressions use [intentional native-reference fixtures](../../../tests/fixtures/native-reference-fixtures.md), not these old run logs.
+
 Issue [228](https://github.com/JohnDeved/populous-new-dawn/issues/228) repairs only
 Mission 3 type20 recruitment origin. A present construction base, including cell
 zero, wins; otherwise the immutable loaded Shaman record supplies its native even
@@ -8,7 +10,7 @@ movement staging, selection-world radius/base mapping and other missions are
 unchanged. No new save field is introduced.
 
 [Exact independent review](final-review.md) accepts runtime source
-`0e94469658cf1ab3ad6e3cf795072182b77012b2`. The [source package manifest](source-package.json)
+`0e94469658cf1ab3ad6e3cf795072182b77012b2`. The [source package manifest](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/mission3-raid-recruitment-origin-2026-10-06/source-package.json)
 records byte equality for all eleven maintained implementation/probe/adapter/test/
 fixture files and the two original native witnesses required by the tests.
 
@@ -34,10 +36,10 @@ evidence ref when independently inspecting the archived frozen experiments.
 The native probe requires an explicit matching manifest; the old frozen manifest
 is not a claim that current source can be replayed unchanged under old hashes.
 
-Only `attempt1/stdout.log` and `established-attempt1/stdout.log` are retained on
-this source ref because the unchanged regression tests consume their exact native
-records. Their combined size is 170,679 bytes. Larger archives stay off the
-main-bound change. The evidence ref is for preservation, not a merge into main.
+The former `attempt1/stdout.log` and `established-attempt1/stdout.log` transports
+are now archived, not required by the tests. Their exact native `id` and
+`comparison` records are projected into the versioned fixture linked above;
+portable output, full input dumps, and run bookkeeping are not copied.
 
 Native claims stop before 004cb6da, with actual selector leaves and complete
 supplied records. All five state17 cases skip the radius helper; radius/input

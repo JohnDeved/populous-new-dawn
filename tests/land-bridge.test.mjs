@@ -72,3 +72,42 @@ test('live bridge terrain and particle cleanup are identical across refresh rate
   ])
     assert.deepEqual(run(schedule), expected)
 })
+
+test('supplied Bridge cast acknowledges effect allocation before terrain work', async () => {
+  const { createWorld, cast, tick } = await import('../app/model.ts')
+  const w = createWorld(),
+    shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+  // Component fixture: supply the established cast position and one shot, not
+  // an ordinary worship or browser-input claim. Use the production cast path.
+  Object.assign(shaman, { x: 0, z: 20, path: [], casting: null })
+  w.selected = [shaman.id]
+  w.shots.bridge = 1
+  const priorMessage = w.message,
+    priorDeadline = w.messageUntil
+  assert.ok(cast(w, 'bridge', { x: 0, z: 4 }))
+  assert.equal(w.shots.bridge, 0)
+  assert.equal(w.projectiles.length, 1)
+  assert.equal(w.projectiles[0].spell, 'bridge')
+  assert.equal(w.projectiles[0].phase, 'windup')
+  assert.equal(w.message, priorMessage, 'projectile allocation is not effect completion')
+  assert.equal(w.messageUntil, priorDeadline)
+
+  for (let turn = 0; turn < 128 && !w.effects.some(f => f.bridge); turn++) tick(w, 1 / 12)
+  const effect = w.effects.find(f => f.bridge)
+  assert.ok(effect, 'the real projectile must reach the effect allocator')
+  assert.equal(w.projectiles.length, 0)
+  assert.equal(effect.bridge.turn, 0)
+  assert.equal(w.message, 'Land Bridge cast.')
+  const deadline = w.time + 9
+  assert.equal(w.messageUntil, deadline)
+  const initialHeights = Array.from(w.land.heights)
+
+  tick(w, 1 / 12)
+  assert.equal(effect.bridge.turn, 1)
+  assert.deepEqual(Array.from(w.land.heights), initialHeights, 'first visit only initializes')
+  assert.equal(w.messageUntil, deadline, 'initialization does not repeat the acknowledgment')
+  tick(w, 1 / 12)
+  assert.equal(effect.bridge.turn, 2)
+  assert.notDeepEqual(Array.from(w.land.heights), initialHeights, 'later visit deforms terrain')
+  assert.equal(w.messageUntil, deadline)
+})

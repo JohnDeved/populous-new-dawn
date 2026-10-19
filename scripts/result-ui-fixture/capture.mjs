@@ -1,0 +1,82 @@
+import assert from 'node:assert/strict'
+import {createServer} from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/postcss'
+import {chromium} from '@playwright/test'
+import {mkdirSync,writeFileSync,readFileSync,existsSync} from 'node:fs'
+import {resolve} from 'node:path'
+import {createHash} from 'node:crypto'
+const repo=resolve(process.env.POPULOUS_GAME_ROOT??process.cwd())
+const root=resolve(process.env.POPULOUS_FIXTURE_ROOT??resolve(repo,'work/result-ui-fixture'))
+const output=resolve(process.env.POPULOUS_RESULT_OUTPUT??resolve(repo,'work/result-ui-fixture-output'))
+const port=Number(process.env.POPULOUS_RESULT_PORT??4190)
+const browserPath=process.env.POPULOUS_BROWSER
+if(!browserPath)throw Error('Set POPULOUS_BROWSER to an installed official Chrome Headless Shell')
+if(!Number.isInteger(port)||port<1024||port>65535)throw Error('POPULOUS_RESULT_PORT must be an unprivileged port')
+const hash=path=>createHash('sha256').update(readFileSync(path)).digest('hex')
+const source=JSON.parse(readFileSync(resolve(root,'source.json'),'utf8'))
+if(existsSync(resolve(output,'receipt.json')))throw Error('Use a fresh POPULOUS_RESULT_OUTPUT to preserve earlier evidence')
+const receipt={command:{cwd:process.cwd(),repo,fixtureRoot:root,output,port,browserPath:resolve(browserPath),node:process.version},startedAt:new Date().toISOString(),source,scenarioSha256:hash(import.meta.filename),fixtureSha256:hash(resolve(root,'main.tsx')),status:'running',checks:[],captures:[],errors:[],limits:source.limits}
+const save=()=>writeFileSync(resolve(output,'receipt.json'),JSON.stringify(receipt,null,2)+'\n')
+const stage=name=>writeFileSync(resolve(output,'stage.json'),JSON.stringify({name,time:new Date().toISOString()})+'\n')
+let server,browser,page
+const settle=async()=>page.evaluate(()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done))))
+const configure=async patch=>{await page.evaluate(p=>window.fixture.configure(p),patch);await settle()}
+const counts=()=>page.evaluate(()=>window.fixture.read().counts)
+const open=async(patch={})=>{await page.goto(`http://127.0.0.1:${port}/`,{waitUntil:'networkidle'});await page.waitForFunction(()=>window.fixture);if(Object.keys(patch).length)await configure(patch);await settle()}
+const check=async(name,fn)=>{stage(name);try{const details=await fn();receipt.checks.push({name,status:'passed',details})}catch(e){receipt.checks.push({name,status:'failed',error:String(e),stack:e.stack});}save()}
+async function layout(){return page.locator('[data-original-result]').evaluate(node=>{const box=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom}},panel=node.querySelector('section'),controls=node.querySelector('[aria-label="Browser result controls"]');return{viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio},overlay:box(node),panel:box(panel),controls:box(controls),buttons:Array.from(controls.querySelectorAll('button'),el=>({label:el.textContent,...box(el)})),hudScale:document.querySelector('main').style.getPropertyValue('--hud-scale'),resultScale:node.style.getPropertyValue('--result-scale'),panelBackground:getComputedStyle(panel).backgroundColor,overlayBackground:getComputedStyle(node).backgroundColor,fontReady:node.dataset.fontReady,panelFailed:node.dataset.panelFailed,text:node.innerText}})}
+function assertFit(l){assert.ok(l.panel.x>=l.overlay.x-1);assert.ok(l.panel.right<=l.overlay.right+1);assert.ok(l.panel.y>=-1);assert.ok(l.panel.bottom<=l.controls.y+1);assert.ok(Math.abs((l.panel.x+l.panel.width/2)-(l.overlay.x+l.overlay.width/2))<1);assert.ok(Math.abs((l.panel.y+l.panel.height/2)-l.viewport.height/2)<1);for(const b of l.buttons){assert.ok(b.x>=l.overlay.x-1);assert.ok(b.right<=l.overlay.right+1);assert.ok(b.y>=0);assert.ok(b.bottom<=l.viewport.height)}assert.ok(Math.abs(l.panel.width/l.panel.height-384/368)<0.0001)}
+async function capture(name){const details=await layout();assertFit(details);await page.screenshot({path:resolve(output,name+'.png')});receipt.captures.push({screenshot:name+'.png',layout:details});return details}
+try{
+ mkdirSync(output,{recursive:true});save();stage('starting-isolated-fixture')
+ server=await createServer({configFile:false,root,publicDir:resolve(repo,'public'),cacheDir:resolve(root,'.vite'),plugins:[react()],css:{postcss:{plugins:[tailwindcss({base:root})]}},server:{host:'127.0.0.1',port,strictPort:true,fs:{allow:[root,repo]}},logLevel:'warn'})
+ stage('vite-created'); await server.listen();stage('vite-listening')
+ browser=await chromium.launch({executablePath:resolve(browserPath),headless:true,chromiumSandbox:true,ignoreDefaultArgs:true,args:['--remote-debugging-pipe'],timeout:30000})
+ stage('browser-launched'); receipt.browser=browser.version()
+ page=await browser.newPage({viewport:{width:640,height:480}})
+ page.on('pageerror',e=>receipt.errors.push(String(e)))
+ stage('page-created'); await open();stage('page-loaded')
+ receipt.renderer=await page.evaluate(()=>{const c=document.createElement('canvas'),g=c.getContext('webgl2');if(!g)return null;const d=g.getExtension('WEBGL_debug_renderer_info');return{renderer:d?g.getParameter(d.UNMASKED_RENDERER_WEBGL):g.getParameter(g.RENDERER),version:g.getParameter(g.VERSION)}})
+ await check('healthy asset decode, native labels, player mapping, time, ten unavailable counters',async()=>{
+  await page.waitForFunction(()=>document.querySelector('[data-original-result]')?.dataset.fontReady==='true')
+  assert.equal(await page.getByRole('heading',{name:'Level Won',exact:true}).count(),1)
+  for(const label of ['01 : The Journey Begins','Player 1.','Level Status: Completed','00:02:05'])assert.equal(await page.getByRole('img',{name:label,exact:true}).count(),1,label)
+  assert.equal(await page.getByRole('group',{name:/.*: unavailable$/}).count(),10)
+  assert.equal(await page.getByRole('img',{name:'Unavailable',exact:true}).count(),10)
+  const alpha=await page.locator('section img').evaluate(img=>{const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);const d=ctx.getImageData(0,0,canvas.width,canvas.height).data;let transparent=0;for(let i=3;i<d.length;i+=4)if(d[i]===0)transparent++;return{width:canvas.width,height:canvas.height,transparent}})
+  assert.deepEqual(alpha,{width:384,height:368,transparent:3405})
+  const l=await layout();assert.equal(l.panelBackground,'rgba(0, 0, 0, 0)');assert.equal(l.overlayBackground,'rgba(0, 0, 0, 0)');return{alpha,layout:l}
+ })
+ for(const status of ['won','lost'])for(const [width,height]of [[640,480],[1280,960],[1920,1080]])await check(`paired ${status} ${width}x${height}`,async()=>{await configure({status});await page.setViewportSize({width,height});await settle();return capture(`after-${status}-${width}x${height}`)})
+ for(const [width,height]of [[960,540],[900,500],[3440,1440]])await check(`resize ${width}x${height}`,async()=>{await configure({status:'won'});await page.setViewportSize({width,height});await settle();return capture(`after-won-${width}x${height}`)})
+ await check('real DPR2 1440x1000',async()=>{await page.close();page=await browser.newPage({viewport:{width:1440,height:1000},deviceScaleFactor:2});page.on('pageerror',e=>receipt.errors.push(String(e)));await open();assert.equal(await page.evaluate(()=>devicePixelRatio),2);return capture('after-won-1440x1000-dpr2')})
+ await check('won/lost/playing camera gate, exact source root input-mask allowlist',async()=>{
+  for(const status of ['won','lost','playing']){await configure({status,cameraPlaying:true});assert.equal(await page.locator('[data-original-result]').count(),0)}
+  await configure({status:'playing',cameraPlaying:false});assert.equal(await page.locator('[data-original-result]').count(),0)
+  await page.locator('.world-viewport').click({position:{x:15,y:15}});assert.equal((await counts()).outside,0)
+  await configure({inputMask:0});await page.locator('.world-viewport').click({position:{x:15,y:15}});assert.equal((await counts()).outside,1)
+  await configure({status:'lost',cameraPlaying:false,inputMask:65535});assert.equal(await page.getByRole('heading',{name:'Level Lost',exact:true}).count(),1);await page.getByRole('button',{name:'Restart Level',exact:true}).click();assert.equal((await counts()).restart,1);return await counts()
+ })
+ await check('terminal Mission23, Tutorial79, actual tribe+1, unknown-title and time fallbacks',async()=>{
+  await open({level:23,status:'won',nextMission:null,playerTribe:3});assert.equal(await page.getByRole('button',{name:'Restart Level',exact:true}).count(),1);assert.equal(await page.getByRole('button',{name:/Continue to Mission/}).count(),0);assert.equal(await page.getByRole('img',{name:'Player 4.',exact:true}).count(),1)
+  await configure({level:79});assert.equal(await page.getByRole('img',{name:'Tutorial',exact:true}).count(),1);assert.equal(await page.getByRole('button',{name:'Restart Level',exact:true}).count(),1);await capture('after-tutorial-1440x1000-dpr2')
+  await configure({level:999,time:-3});assert.equal(await page.getByRole('img',{name:'Mission 999',exact:true}).count(),1);assert.equal(await page.getByRole('img',{name:'00:00:00',exact:true}).count(),1)
+  await page.evaluate(()=>window.fixture.configure({time:NaN}));await settle();assert.equal(await page.getByRole('img',{name:'--:--:--',exact:true}).count(),1);return {terminalRestart:true,tutorialFallback:true,unknownMissionFallback:true,nonfiniteTime:true}
+ })
+ await check('primary double click and detail-zero dispatch exactly once; selector blocked afterward',async()=>{await open();await page.getByRole('button',{name:'Continue to Mission 2',exact:true}).dblclick();await page.getByRole('button',{name:'Continue to Mission 2',exact:true}).evaluate(el=>{el.click();el.click()});await page.getByRole('button',{name:'Select Level',exact:true}).click();const c=await counts();assert.equal(c.primary,1);assert.equal(c.continue,1);assert.equal(c.selector,0);return c})
+ await check('selector repeated dispatch stays usable, then primary works',async()=>{await open();await page.getByRole('button',{name:'Select Level',exact:true}).dblclick();assert.equal((await counts()).selector,2);await page.getByRole('button',{name:'Continue to Mission 2',exact:true}).click();assert.equal((await counts()).primary,1);return counts()})
+ for(const key of ['Enter','Space'])await check(`keyboard ${key}, repeated keydown, no global pause/overview`,async()=>{await open({inputMask:0});const button=page.getByRole('button',{name:'Continue to Mission 2',exact:true});await button.focus();await page.keyboard.down(key);await page.keyboard.down(key);await page.keyboard.up(key);await page.keyboard.press(key);const state=await page.evaluate(()=>window.fixture.read());assert.equal(state.counts.primary,1);assert.equal(state.counts.overview,0);assert.equal(state.world.paused,false);assert.equal(await button.evaluate(el=>getComputedStyle(el).outlineStyle),'solid');await capture(`after-primary-keyboard-${key.toLowerCase()}`);return state.counts})
+ await check('fresh mount resets primary guard while same mount props do not',async()=>{await open();await page.getByRole('button',{name:'Continue to Mission 2',exact:true}).click();await configure({status:'lost'});await page.getByRole('button',{name:'Restart Level',exact:true}).click();assert.equal((await counts()).primary,1);await configure({status:'playing'});await configure({status:'lost'});await page.getByRole('button',{name:'Restart Level',exact:true}).click();assert.equal((await counts()).primary,2);return counts()})
+ for(const mode of ['missing','corrupt'])for(const asset of ['panel','font','both'])await check(`${mode} ${asset} fallback stays readable and actionable`,async()=>{
+  await page.route('**/original/result-*.png',route=>{const name=route.request().url().includes('result-font')?'font':'panel';if(asset!=='both'&&asset!==name)return route.continue();return mode==='missing'?route.abort('failed'):route.fulfill({status:200,contentType:'image/png',body:'broken PNG test fixture'})})
+  await open();const expectedPanel=asset==='panel'||asset==='both',expectedFont=asset==='font'||asset==='both';await page.waitForFunction(({expectedPanel,expectedFont})=>{const n=document.querySelector('[data-original-result]');return n&&n.dataset.panelFailed===String(expectedPanel)&&(expectedFont?n.dataset.fontReady==='false':n.dataset.fontReady==='true')},{expectedPanel,expectedFont})
+  assert.equal(await page.getByRole('img',{name:'Level Status: Completed',exact:true}).count(),1);assert.equal(await page.getByRole('group',{name:/.*: unavailable$/}).count(),10)
+  if(expectedFont)assert.ok(await page.getByRole('img',{name:'Level Status: Completed',exact:true}).innerText()==='Level Status: Completed')
+  const l=await capture(`after-${mode}-${asset}`);await page.getByRole('button',{name:'Continue to Mission 2',exact:true}).click();assert.equal((await counts()).primary,1);await page.unroute('**/original/result-*.png');return l
+ })
+ for(const [file,sha]of Object.entries(source.files))assert.equal(hash(resolve(repo,file)),sha,`Source changed while checking: ${file}`)
+ if(receipt.errors.length)throw Error(receipt.errors.join('\n'))
+ receipt.status=receipt.checks.every(c=>c.status==='passed')?'passed':'failed';if(receipt.status==='failed')process.exitCode=1
+}catch(e){receipt.status='failed';receipt.failure=String(e);receipt.stack=e.stack;process.exitCode=1}
+finally{await browser?.close();await server?.close();receipt.finishedAt=new Date().toISOString();save();console.log(JSON.stringify({status:receipt.status,checks:receipt.checks.map(c=>({name:c.name,status:c.status,error:c.error})),failure:receipt.failure,captures:receipt.captures.length,receipt:resolve(output,'receipt.json')},null,2))}

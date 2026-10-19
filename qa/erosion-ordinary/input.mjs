@@ -18,6 +18,10 @@ export function createMoveContextProbe(world) {
 
 export const isOrdinaryMoveContext = context => context?.model === 3 && context.enabled === true
 
+// Choose once before canvas, picking and source validation; retain this point for
+// dispatch and exact delivered-event comparisons. Never round observed events.
+export const integerInputPoint = point => ({ x: Math.round(point.x), y: Math.round(point.y) })
+
 // Integer pixels and a 5x5 same-object neighborhood avoid choosing the first
 // fractional silhouette edge. This is picking evidence, not command acceptance.
 export function findEntityInput(candidates, id, inspect) {
@@ -28,7 +32,7 @@ export function findEntityInput(candidates, id, inspect) {
     return cache.get(key)
   }
   for (const candidate of candidates) {
-    const x = Math.round(candidate.x), y = Math.round(candidate.y), key = `${x},${y}`
+    const { x, y } = integerInputPoint(candidate), key = `${x},${y}`
     if (!Number.isFinite(x) || !Number.isFinite(y) || visited.has(key)) continue
     visited.add(key)
     let interior = true

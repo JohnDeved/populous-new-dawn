@@ -95,6 +95,8 @@ interface TerrainAtlas {
   pixels: Uint8Array
   cells: Uint32Array
   updated: number
+  // Pixel bounds [left, top, right, bottom] of all rebuilt tiles, or no change.
+  updatedBounds: [number, number, number, number] | null
 }
 export function terrainAtlas(
   land: Terrain,
@@ -111,7 +113,11 @@ export function terrainAtlas(
     brightness[i] = terrainBrightness(land, i, [147, 147, 147])
     cells[i] = (land.heights[i] & 65535) | (land.cliffs[i] << 16) | (brightness[i] << 24)
   }
-  let updated = 0
+  let updated = 0,
+    left = 128,
+    top = 128,
+    right = 0,
+    bottom = 0
   for (let z = 0; z < 128; z++)
     for (let x = 0; x < 128; x++) {
       const cell = ((68 + x) & 127) | (((59 - z) & 127) << 7)
@@ -132,6 +138,10 @@ export function terrainAtlas(
         size
       )
       updated++
+      left = Math.min(left, x)
+      top = Math.min(top, z)
+      right = Math.max(right, x + 1)
+      bottom = Math.max(bottom, z + 1)
       for (let y = 0; y < size; y++)
         for (let px = 0; px < size; px++) {
           const at = ((z * size + size - 1 - y) * width + x * size + px) * 4,
@@ -142,7 +152,12 @@ export function terrainAtlas(
           out[at + 3] = 255
         }
     }
-  return { pixels: out, cells, updated }
+  return {
+    pixels: out,
+    cells,
+    updated,
+    updatedBounds: updated ? [left * size, top * size, right * size, bottom * size] : null,
+  }
 }
 
 // 0x4673b0: close terrain samples texel centers with the original smooth filter.

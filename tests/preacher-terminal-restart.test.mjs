@@ -107,7 +107,7 @@ test('phase4 pure stop preserves route ownership and cached-path state', () => {
 
 // Shared operations are supported by the original branch instructions. These
 // supplied port regressions do not establish ordinary31/32 or Tower/vehicle parity.
-test('shared phase4 stop retains queue/building fields and the known command32 expiry behavior', () => {
+test('shared phase4 stop retains queue/building fields without command32 expiry', () => {
   for (const model of [17, 31, 32]) {
     const state = setup(proof.native.rows[1].beforeController.fields, model)
     if (model === 31) Object.assign(state.p, { building: 99, workTarget: 99,
@@ -115,14 +115,13 @@ test('shared phase4 stop retains queue/building fields and the known command32 e
     const before = { building: state.p.building, workTarget: state.p.workTarget,
       flags4: state.p.flags4, cargo: state.p.cargo, vehicle: state.p.vehicle,
       commands: [...state.p.commands], order: { ...state.order } }
-    assert.equal(controller(state), model === 32 ? 1 : 0,
-      'command32 still has the existing post-switch expiry/release residual')
+    assert.equal(controller(state), 0, 'phase4 does not admit the acquisition/expiry block')
     assert.deepEqual([state.p.speed, state.p.object, state.p.draw, state.p.substate], [0, 48, 16, 2])
     assert.ok(state.p.flags2 & 0x40000000)
     assert.deepEqual({ building: state.p.building, workTarget: state.p.workTarget,
       flags4: state.p.flags4, cargo: state.p.cargo, vehicle: state.p.vehicle,
       commands: state.p.commands, order: state.order }, before)
-    assert.deepEqual(state.calls, model === 32 ? [['animate', 17], ['release', 3]] : [['animate', 17]])
+    assert.deepEqual(state.calls, [['animate', 17]])
     assert.equal(state.world.randomState, proof.input.simulationRandom)
     assert.equal(state.world.poseRandom.randomState, proof.input.cosmeticRandom)
   }

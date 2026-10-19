@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import type { GameScene } from './scene.ts'
 import { texture } from './scene-assets.ts'
 import { spriteBucket, spriteCoordinate } from './projection.ts'
-import knowledge from './original-vault-knowledge.json'
+import type { VaultKnowledgeAppearance } from './vault-appearance.ts'
 
 interface Frame {
   source: number
@@ -12,7 +12,7 @@ interface Frame {
   h: number
 }
 
-function sprite(translucent: boolean) {
+function sprite(knowledge: VaultKnowledgeAppearance, translucent: boolean) {
   const body = new THREE.Sprite(
     new THREE.SpriteMaterial({
       map: texture(knowledge.atlas),
@@ -26,16 +26,16 @@ function sprite(translucent: boolean) {
   return body
 }
 
-export function makeVaultWorldPresentation(marker: boolean) {
+export function makeVaultWorldPresentation(knowledge: VaultKnowledgeAppearance, marker: boolean) {
   const group = new THREE.Group(),
-    body = sprite(false),
+    body = sprite(knowledge, false),
     glow = new THREE.Group(),
-    halo = sprite(true)
+    halo = sprite(knowledge, true)
   group.name = marker ? 'vault-knowledge-reward' : 'worship-reward'
   group.userData.resourceFamily = 'hfx'
   group.userData.frame = knowledge.body.source
   group.userData.layers = [body]
-  body.name = 'temple-knowledge-hfx'
+  body.name = `${knowledge.reward}-knowledge-hfx`
   glow.name = marker ? 'vault-marker-glow' : 'worship-reward-glow'
   glow.position.y = -80 / 128
   glow.userData.depthBias = 16 // Native flags3 bit0x400 and morph1.
@@ -50,6 +50,7 @@ export function makeVaultWorldPresentation(marker: boolean) {
 
 function drawFrame(
   scene: GameScene,
+  knowledge: VaultKnowledgeAppearance,
   layer: THREE.Sprite,
   frame: Frame,
   point: THREE.Vector3,
@@ -76,6 +77,7 @@ function drawFrame(
 export function drawVaultWorldPresentation(
   scene: GameScene,
   group: THREE.Group,
+  knowledge: VaultKnowledgeAppearance,
   displayedFrame: number,
   visible: boolean
 ) {
@@ -84,8 +86,8 @@ export function drawVaultWorldPresentation(
   const glow = group.userData.glow as THREE.Group,
     frame = knowledge.glow.frames[displayedFrame],
     point = group.position.clone()
-  drawFrame(scene, group.children[0] as THREE.Sprite, knowledge.body, point, -300)
+  drawFrame(scene, knowledge, group.children[0] as THREE.Sprite, knowledge.body, point, -300)
   point.y += glow.position.y
-  drawFrame(scene, glow.children[0] as THREE.Sprite, frame, point, 16)
+  drawFrame(scene, knowledge, glow.children[0] as THREE.Sprite, frame, point, 16)
   glow.userData.frame = frame.source
 }

@@ -1,0 +1,164 @@
+
+populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00466a20 <.text+0x65a20>:
+  466a20:	53                   	push   ebx
+  466a21:	33 c9                	xor    ecx,ecx
+  466a23:	56                   	push   esi
+  466a24:	57                   	push   edi
+  466a25:	8b 74 24 10          	mov    esi,DWORD PTR [esp+0x10]
+  466a29:	8a 4e 30             	mov    cl,BYTE PTR [esi+0x30]
+  466a2c:	8b c1                	mov    eax,ecx
+  466a2e:	8d 14 89             	lea    edx,[ecx+ecx*4]
+  466a31:	8d 0c 92             	lea    ecx,[edx+edx*4]
+  466a34:	03 c1                	add    eax,ecx
+  466a36:	80 be 9f 00 00 00 00 	cmp    BYTE PTR [esi+0x9f],0x0
+  466a3d:	0f bf b8 94 7b 5a 00 	movsx  edi,WORD PTR [eax+0x5a7b94]
+  466a44:	0f bf 98 96 7b 5a 00 	movsx  ebx,WORD PTR [eax+0x5a7b96]
+  466a4b:	0f 85 5d 01 00 00    	jne    0x466bae
+  466a51:	83 7c 24 18 00       	cmp    DWORD PTR [esp+0x18],0x0
+  466a56:	0f 84 1b 01 00 00    	je     0x466b77
+  466a5c:	33 c9                	xor    ecx,ecx
+  466a5e:	8a 4e 2b             	mov    cl,BYTE PTR [esi+0x2b]
+  466a61:	8b c1                	mov    eax,ecx
+  466a63:	8d 0c 49             	lea    ecx,[ecx+ecx*2]
+  466a66:	c1 e1 03             	shl    ecx,0x3
+  466a69:	2b c8                	sub    ecx,eax
+  466a6b:	f6 81 4d 79 5a 00 01 	test   BYTE PTR [ecx+0x5a794d],0x1
+  466a72:	0f 84 8c 00 00 00    	je     0x466b04
+  466a78:	8b 44 24 14          	mov    eax,DWORD PTR [esp+0x14]
+  466a7c:	85 c0                	test   eax,eax
+  466a7e:	0f 84 80 00 00 00    	je     0x466b04
+  466a84:	66 8b 48 53          	mov    cx,WORD PTR [eax+0x53]
+  466a88:	66 2b 4e 3d          	sub    cx,WORD PTR [esi+0x3d]
+  466a8c:	0f b7 d1             	movzx  edx,cx
+  466a8f:	66 8b 40 55          	mov    ax,WORD PTR [eax+0x55]
+  466a93:	8b ca                	mov    ecx,edx
+  466a95:	66 2b 46 3f          	sub    ax,WORD PTR [esi+0x3f]
+  466a99:	85 d2                	test   edx,edx
+  466a9b:	0f b7 c0             	movzx  eax,ax
+  466a9e:	7d 04                	jge    0x466aa4
+  466aa0:	8b ca                	mov    ecx,edx
+  466aa2:	f7 d9                	neg    ecx
+  466aa4:	8b d8                	mov    ebx,eax
+  466aa6:	85 c0                	test   eax,eax
+  466aa8:	7d 04                	jge    0x466aae
+  466aaa:	8b d8                	mov    ebx,eax
+  466aac:	f7 db                	neg    ebx
+  466aae:	81 f9 00 80 00 00    	cmp    ecx,0x8000
+  466ab4:	7c 06                	jl     0x466abc
+  466ab6:	8d 91 00 00 ff ff    	lea    edx,[ecx-0x10000]
+  466abc:	81 fb 00 80 00 00    	cmp    ebx,0x8000
+  466ac2:	7c 06                	jl     0x466aca
+  466ac4:	8d 83 00 00 ff ff    	lea    eax,[ebx-0x10000]
+  466aca:	f7 d8                	neg    eax
+  466acc:	50                   	push   eax
+  466acd:	52                   	push   edx
+  466ace:	e8 a1 f5 11 00       	call   0x586074
+  466ad3:	83 c4 08             	add    esp,0x8
+  466ad6:	33 c9                	xor    ecx,ecx
+  466ad8:	66 8b c8             	mov    cx,ax
+  466adb:	66 8b 46 26          	mov    ax,WORD PTR [esi+0x26]
+  466adf:	81 e1 ff 07 00 00    	and    ecx,0x7ff
+  466ae5:	50                   	push   eax
+  466ae6:	51                   	push   ecx
+  466ae7:	e8 84 30 08 00       	call   0x4e9b70
+  466aec:	0f bf c8             	movsx  ecx,ax
+  466aef:	83 c4 08             	add    esp,0x8
+  466af2:	83 f9 38             	cmp    ecx,0x38
+  466af5:	7c 0d                	jl     0x466b04
+  466af7:	8b c7                	mov    eax,edi
+  466af9:	99                   	cdq
+  466afa:	83 e2 03             	and    edx,0x3
+  466afd:	03 c2                	add    eax,edx
+  466aff:	c1 f8 02             	sar    eax,0x2
+  466b02:	8b f8                	mov    edi,eax
+  466b04:	66 8b 46 5f          	mov    ax,WORD PTR [esi+0x5f]
+  466b08:	0f bf c8             	movsx  ecx,ax
+  466b0b:	3b f9                	cmp    edi,ecx
+  466b0d:	0f 84 c8 00 00 00    	je     0x466bdb
+  466b13:	66 3d 0a 00          	cmp    ax,0xa
+  466b17:	7c 54                	jl     0x466b6d
+  466b19:	3b f9                	cmp    edi,ecx
+  466b1b:	7e 2c                	jle    0x466b49
+  466b1d:	8d 04 cd 00 00 00 00 	lea    eax,[ecx*8+0x0]
+  466b24:	2b c1                	sub    eax,ecx
+  466b26:	c1 e0 03             	shl    eax,0x3
+  466b29:	99                   	cdq
+  466b2a:	83 e2 1f             	and    edx,0x1f
+  466b2d:	03 c2                	add    eax,edx
+  466b2f:	c1 f8 05             	sar    eax,0x5
+  466b32:	0f bf c8             	movsx  ecx,ax
+  466b35:	66 89 46 5f          	mov    WORD PTR [esi+0x5f],ax
+  466b39:	3b cf                	cmp    ecx,edi
+  466b3b:	0f 8e 9a 00 00 00    	jle    0x466bdb
+  466b41:	66 89 7e 5f          	mov    WORD PTR [esi+0x5f],di
+  466b45:	5f                   	pop    edi
+  466b46:	5e                   	pop    esi
+  466b47:	5b                   	pop    ebx
+  466b48:	c3                   	ret
+  466b49:	8d 04 89             	lea    eax,[ecx+ecx*4]
+  466b4c:	8d 04 41             	lea    eax,[ecx+eax*2]
+  466b4f:	03 c0                	add    eax,eax
+  466b51:	99                   	cdq
+  466b52:	83 e2 1f             	and    edx,0x1f
+  466b55:	03 c2                	add    eax,edx
+  466b57:	c1 f8 05             	sar    eax,0x5
+  466b5a:	0f bf c8             	movsx  ecx,ax
+  466b5d:	66 89 46 5f          	mov    WORD PTR [esi+0x5f],ax
+  466b61:	3b cf                	cmp    ecx,edi
+  466b63:	7d 76                	jge    0x466bdb
+  466b65:	66 89 7e 5f          	mov    WORD PTR [esi+0x5f],di
+  466b69:	5f                   	pop    edi
+  466b6a:	5e                   	pop    esi
+  466b6b:	5b                   	pop    ebx
+  466b6c:	c3                   	ret
+  466b6d:	66 c7 46 5f 0a 00    	mov    WORD PTR [esi+0x5f],0xa
+  466b73:	5f                   	pop    edi
+  466b74:	5e                   	pop    esi
+  466b75:	5b                   	pop    ebx
+  466b76:	c3                   	ret
+  466b77:	66 8b 46 5f          	mov    ax,WORD PTR [esi+0x5f]
+  466b7b:	66 3d 01 00          	cmp    ax,0x1
+  466b7f:	7e 5a                	jle    0x466bdb
+  466b81:	0f bf c8             	movsx  ecx,ax
+  466b84:	8d 14 89             	lea    edx,[ecx+ecx*4]
+  466b87:	8d 0c 51             	lea    ecx,[ecx+edx*2]
+  466b8a:	8d 04 4d 00 00 00 00 	lea    eax,[ecx*2+0x0]
+  466b91:	99                   	cdq
+  466b92:	83 e2 1f             	and    edx,0x1f
+  466b95:	03 c2                	add    eax,edx
+  466b97:	c1 f8 05             	sar    eax,0x5
+  466b9a:	66 89 46 5f          	mov    WORD PTR [esi+0x5f],ax
+  466b9e:	66 3d 06 00          	cmp    ax,0x6
+  466ba2:	7d 37                	jge    0x466bdb
+  466ba4:	66 c7 46 5f 01 00    	mov    WORD PTR [esi+0x5f],0x1
+  466baa:	5f                   	pop    edi
+  466bab:	5e                   	pop    esi
+  466bac:	5b                   	pop    ebx
+  466bad:	c3                   	ret
+  466bae:	0f bf 46 5f          	movsx  eax,WORD PTR [esi+0x5f]
+  466bb2:	8d 04 40             	lea    eax,[eax+eax*2]
+  466bb5:	c1 e0 03             	shl    eax,0x3
+  466bb8:	99                   	cdq
+  466bb9:	83 e2 1f             	and    edx,0x1f
+  466bbc:	03 c2                	add    eax,edx
+  466bbe:	c1 f8 05             	sar    eax,0x5
+  466bc1:	66 89 46 5f          	mov    WORD PTR [esi+0x5f],ax
+  466bc5:	66 8b c8             	mov    cx,ax
+  466bc8:	8b c3                	mov    eax,ebx
+  466bca:	99                   	cdq
+  466bcb:	2b c2                	sub    eax,edx
+  466bcd:	0f bf d1             	movsx  edx,cx
+  466bd0:	c1 f8 01             	sar    eax,0x1
+  466bd3:	3b d0                	cmp    edx,eax
+  466bd5:	7d 04                	jge    0x466bdb
+  466bd7:	66 89 46 5f          	mov    WORD PTR [esi+0x5f],ax
+  466bdb:	5f                   	pop    edi
+  466bdc:	5e                   	pop    esi
+  466bdd:	5b                   	pop    ebx
+  466bde:	c3                   	ret
+  466bdf:	cc                   	int3

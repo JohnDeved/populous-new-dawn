@@ -21,6 +21,10 @@ export type ComputerTask = {
   responseScan?: { category: number; tribe: number; entity: number; cell: number }
   defense?: { center: number; recenter: boolean; cursor: number; fallback: boolean }
   spells?: number[]
+  attackVisits?: number
+  stagingMarker?: number
+  spellMarker?: number
+  markerDelay?: number
   quotas: number[]
   members: number[]
   route: MarkerEntry[]
@@ -39,6 +43,8 @@ export type ComputerQueue = {
   coordinateLatch: number
   // Native construction base (tribe +0x36a), present only after +0x5b4 is set.
   constructionBase?: number
+  // Native historical radius byte (+0x36c); absent means an unknown legacy history.
+  constructionRadius?: number
   selectionOwner: number
   commandDelay: number
   markerValue: number
@@ -122,7 +128,8 @@ export function requestPreacherTask(
   person: number,
   marker: number,
   states: number,
-  preachers: number
+  preachers: number,
+  personId?: (stored: number) => number
 ) {
   const free = ai.tasks.filter(task => !(task.flags & 1))
   if (
@@ -136,7 +143,7 @@ export function requestPreacherTask(
     flags: ((free[0].flags & ~2) | 1) >>> 0,
     type: 11,
     phase: 4,
-    entity: person & 65535,
+    entity: personId?.(person) ?? person & 65535,
     target: marker & 65535,
     extra: 0,
     mode: 0,
@@ -428,7 +435,8 @@ export function requestAttack(
   enabled: boolean,
   maximum: number,
   entity = 0,
-  spells: number[] = []
+  spells: number[] = [],
+  markers: { staging?: number; spell?: number } = {}
 ) {
   if (!enabled || ai.tasks.filter(t => t.flags & 1 && t.type === 20).length >= maximum) return
   const task = ai.tasks.find(t => !(t.flags & 1))
@@ -452,6 +460,10 @@ export function requestAttack(
     retries: 0,
     retreatPercent: retreatPercent & 255,
     spells: Array.from({ length: 3 }, (_, index) => (spells[index] ?? 0) & 255),
+    attackVisits: 0,
+    stagingMarker: markers.staging ?? -1,
+    spellMarker: markers.spell ?? -1,
+    markerDelay: 0,
     quotas: quotas.slice(0, 6).map(n => n & 255),
     members: [],
   })
@@ -592,11 +604,17 @@ export type AttackInput = {
   ready: () => boolean
   activeMembers: () => number
   targetsRemain: (target: number) => boolean
+  attackOrdersCurrent?: (target: number) => boolean
   random: () => number
   entity?: (id: number) => AttackTarget | null
   tracking?: (id: number) => boolean
   reacquire?: () => AttackTarget | null
+  markerSpell?: () => 'absent' | 'pending' | 'finished'
   taskSpell?: (models: readonly number[], target: number) => number | null
+  outbound?: (
+    target: number,
+    radius: number
+  ) => { kind: 'empty' | 'attack' | 'pending' } | { kind: 'regroup'; cell: number }
 }
 export type AttackTarget = { id: number; target: number; direct?: boolean; contained?: boolean }
 export type AttackAction =
@@ -619,7 +637,11 @@ export function stepAttackTask(
 ): AttackAction[] {
   const task = ai.tasks[index],
     actions: AttackAction[] = []
+  // 0x4cb549: the per-task visit counter precedes every phase body.
+  // Old markerless checkpoints retain their existing task shape.
+  if (task.attackVisits !== undefined) task.attackVisits = (task.attackVisits + 1) | 0
   if (task.phase === 0) {
+    if (task.attackVisits !== undefined) task.attackVisits = 0
     task.selected = 0
     task.remaining = 0
     task.elapsed = 0
@@ -671,6 +693,9 @@ export function stepAttackTask(
     return [{ kind: 'move', target: input.staging, replace: true }]
   }
   if (task.phase === 6) {
+    // 0x4d14f0 advances the task clock before casting; every spell outcome
+    // still reaches member settlement and the fallback transition.
+    task.elapsed += ai.tasks.filter(t => t.flags & 1).length
     const spells = task.spells ?? []
     if (spells.some(Boolean) && input.taskSpell) {
       const model = input.taskSpell(spells, task.target)
@@ -678,9 +703,7 @@ export function stepAttackTask(
         const slot = spells.indexOf(model)
         if (slot >= 0) spells[slot] = 0
       }
-      return actions
     }
-    task.elapsed += ai.tasks.filter(t => t.flags & 1).length
     const settled = input.settled()
     if (settled === null) {
       releaseSelection(ai, index)
@@ -696,8 +719,41 @@ export function stepAttackTask(
     return actions
   }
   if (task.phase === 7) {
+    if (
+      (task.stagingMarker ?? -1) === -1 &&
+      (task.spellMarker ?? -1) !== -1 &&
+      (task.spells?.[0] ?? 0) >= 2 &&
+      (task.spells?.[0] ?? 0) <= 17
+    ) {
+      task.phase = 21
+      task.fallback = 7
+      return actions
+    }
     if (!input.ready()) return actions
-    if (acquireSelection(ai, index)) task.phase = 9
+    if (acquireSelection(ai, index)) task.phase = (task.stagingMarker ?? -1) === -1 ? 9 : 8
+    return actions
+  }
+  if (task.phase === 8) {
+    const target = task.stagingMarker!
+    task.stagingMarker = -1
+    releaseSelection(ai, index)
+    task.phase = 6
+    task.fallback = 7
+    task.elapsed = 0
+    return [{ kind: 'move', target, replace: true }]
+  }
+  if (task.phase === 21) {
+    const result = input.markerSpell?.() ?? 'pending'
+    if (result === 'absent') task.phase = task.fallback
+    else if (result === 'finished') {
+      task.phase = 22
+      task.markerDelay = 32
+    }
+    return actions
+  }
+  if (task.phase === 22) {
+    task.markerDelay = ((task.markerDelay ?? 0) - 1) & 255
+    if (!task.markerDelay) task.phase = task.fallback
     return actions
   }
   if (task.phase === 9) {
@@ -718,11 +774,22 @@ export function stepAttackTask(
     return [{ kind: 'move', target: task.target, replace: true }]
   }
   if (task.phase === 10) {
-    const regroup = input.memberWithin(task.target, 20)
+    task.elapsed += ai.tasks.filter(t => t.flags & 1).length
+    const outbound = input.outbound?.(task.target, 20)
+    if (outbound?.kind === 'empty' || outbound?.kind === 'attack') {
+      task.phase = outbound.kind === 'empty' ? 23 : 15
+      return actions
+    }
+    const regroup = outbound
+      ? outbound.kind === 'regroup'
+        ? outbound.cell
+        : null
+      : input.memberWithin(task.target, 20)
     if (regroup !== null) {
       task.regroup = regroup
       task.phase = 11
     }
+    if (task.elapsed > 1800) task.phase = 11
     return actions
   }
   if (task.phase === 11) {
@@ -768,7 +835,11 @@ export function stepAttackTask(
     if (task.damage < task.extra && target) {
       const moved = task.target !== target.target
       task.target = target.target
-      if (moved || !input.targetsRemain(task.target))
+      if (
+        moved ||
+        !input.targetsRemain(task.target) ||
+        input.attackOrdersCurrent?.(task.target) === false
+      )
         return [{ kind: 'attack', target: task.target, replace: true }]
       return actions
     }

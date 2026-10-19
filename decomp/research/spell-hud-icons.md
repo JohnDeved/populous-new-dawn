@@ -204,3 +204,98 @@ both sizes and compares the exact prefix and word, without changing source data.
 A missing obsolete `import-rules.py` path and blocked handler reads are retained
 as limitations, not used to justify broad discovery or retries. The default149
 research commit and unresolved original cadence boundary are preserved.
+
+## October 12, 2026: current spell-icon reconciliation
+
+Assessment source: `81c05c16897f58a46171d165cb8f8ec5e75fb763`, with unchanged
+runtime and artwork from `e25f1a1e3eeeac7a03eac88704680aa8249c2a1a`. Preserve the
+historical tables, blocked reads and failed results above as source-labelled
+evidence, rather than interpreting their missing-art rows as current defects.
+
+[PR #82](https://github.com/JohnDeved/populous-new-dawn/pull/82), merged as
+`73b98a9f72c0a8e94d765d2d006df857e0177a23`, delivered Shield 408–410 and Bloodlust
+411–413 and removed their Unicode fallbacks. The retained audit binds all 20
+descriptor triples and 54 original crop comparisons; the six-frame append supplies
+the remaining artwork. Read-only reconciliation found all 20 current triples equal
+to that retained table and all 60 atlas rectangles present. This is metadata/source
+correspondence, not a fresh original-pixel comparison or an all-state browser pass.
+
+Current [spellButton](../../app/spell-button.ts) chooses ready artwork for charging
+or nonzero stock, with hover taking precedence; selection changes the border.
+HFX 1056 and [spell-visibility.ts](../../app/spell-visibility.ts) are also installed.
+The [visibility note](spell-hud-visibility.md) separates the mission-load discovery
+snapshot, ownership/stock precedence and casting permission, and preserves the
+historical implementation and result boundaries.
+
+Complete rendered coverage across the shipped spells and normal, inactive,
+selected, charging, disabled and undiscovered states remains open. The three
+historical visibility-check failures remain failed, including the question-mark
+CSS comparison that did not retain the actual serialized position. Source and
+rectangle availability do not replace that rendering obligation. No new browser,
+native-raster or hardware evidence is claimed; no further artwork replacement or
+building-icon decision is justified by this reconciliation. Issue #76 stays open.
+
+## October 16, 2026: rendered state regression matrix
+
+The isolated Mac worker starts from main
+`c9e3cbc8003be7c9b3fc489d794297679476d2b9` (including PR #490).
+[The independent fixture](../../tests/fixtures/spell-icon-states.json) transcribes
+the retained 20-model descriptor table above. It pins all 60 icon identities rather
+than deriving expected icon IDs from the runtime descriptors under test.
+[Focused source tests](../../tests/spell-icon-states.test.mjs) cover each model's
+normal, inactive, selected, selected-inactive, charging, hover, disabled and
+disabled-inactive presentation, plus the dedicated undiscovered branch.
+
+[The rendered checker](../../scripts/check-browser-spell-icon-states.mjs) runs
+the shipped page after public Mission 1/16 startup, observes four authored
+undiscovered controls, then injects a bounded presentation matrix for all 20 spells.
+It checks actual selected/click-disabled behavior, icon geometry, border image,
+stock-marker count and charge-fill presence/half-charge width. Every observed icon
+is screenshot-compared byte-for-byte with an independently drawn canvas crop at
+the same location and scale. The served atlas SHA-256 must match the checkout.
+The independent crop does not reuse CSS background positioning. Each screenshot,
+its hash, observed geometry and the browser/renderer identity are retained in a
+fresh output directory. Invoke against a task-owned local server:
+
+```sh
+POPULOUS_URL=http://localhost:4356 node scripts/check-browser-spell-icon-states.mjs \
+  --output-dir work/orchestration/spell-icon-states/new-attempt
+```
+
+The first completed Mac rendering run passed 164 observations (160 matrix cases
+and four authored placeholders), with no browser errors. It used Chromium
+153.0.8010.12 and ANGLE SwiftShader; the checker enables Chromium's sandbox.
+The first connection attempt failed before any state observation because the
+server bound IPv6 localhost while the checker requested IPv4 127.0.0.1. That failed
+attempt is retained separately and earns no rendering credit. Final source-bound
+command receipts and exact candidate identities belong in the linked PR handoff.
+
+No artwork or runtime discrepancy was demonstrated, so this change adds coverage
+without modifying the game. The matrix uses synthetic availability, stock,
+charging progress and permission flags; it proves rendered presentation, not
+earned-stock acquisition, normal campaign mode-2 charging or full native disabled
+semantics. Flag-32 cases preserve the existing alternate-mode UI policy. Original
+pixel identity relies on the retained audit, not a new original-game extraction.
+No original executable, blocked popup/building mapping, parity record, full local
+suite or build was run. Full check/build remain the ready-PR GitHub gates. Issue
+#76 remains open for its broader original-game acceptance.
+
+### Review corrections and recovered interrupted attempt
+
+After the Mac reconnected, the first committed-head attempt at
+`6a0a1b23f4b65ee5a764acbe09244934914b137b` was recovered as **failed**: Mission 16
+navigation timed out after two Mission 1 observations. Its failed command receipt
+and browser evidence are preserved, rather than promoting the precommit run.
+
+The checker now closes Mission 1's context before opening Mission 16 and observes
+every context's page/console errors before navigation, including failed startup.
+Browser launch and cleanup are inside the terminal-report handling. It requires
+exactly two authored placeholders per mission and the exact 160 named matrix
+observations, rejecting duplicates, omissions and extra states. Both actual and
+reference PNGs are retained. The source snapshot binds HEAD, tracked diff, every
+tracked app source/original asset, the browser/setup/evidence helpers, fixture,
+dependency locks, installed package identities and runtime before/after execution;
+drift invalidates the result. Focused tests cover launch failure, failed later
+navigation, errors despite completed execution, cleanup failure, dependency drift
+and corrupted observation inventories. Exact passing source and accessible evidence
+are recorded in PR #491 after committed-source verification.

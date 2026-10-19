@@ -56,7 +56,6 @@ def snapshot_delta(native, port, case, phase, fields):
     expected_fields = {}
     expected_other = {}
     # Terminal entry and turning now match the original: every field/byte is equal.
-    # The separately retained odd32 completion/release residual is checked below.
     same(field_delta,expected_fields,f'{case}/{phase}: unexpected field differences')
     other = {key:[value,port[key]] for key,value in native.items() if key not in ['raw','fields']
              and json.dumps(value,sort_keys=True)!=json.dumps(port[key],sort_keys=True)}
@@ -88,12 +87,12 @@ def compare(native, port, fields):
             for phase in ['beforeController','afterController','beforeUpdater','afterUpdater']:
                 delta=snapshot_delta(n[phase],p[phase],case,phase,fields)
                 if any(delta.values()):record['stateResiduals'][phase]=delta
-            expected_result=[0,1] if case=='command32-expiry-odd-known-difference' else [n['result'],n['result']]
+            expected_result=[n['result'],n['result']]
             same([n['result'],p['result']],expected_result,'Unexpected completion return')
             if n['result']!=p['result']:record['returnResidual']=expected_result
             if record['stateResiduals'] or 'returnResidual' in record:state_rows+=1
             # Preserve the full raw event inventory. Two supplied native no-op
-            # leaves and one known odd32 release are matched only at exact cells.
+            # leaves are matched only at their exact declared cells.
             native_events=[]
             native_adapter_events=[]
             for event in n['events']:
@@ -105,11 +104,6 @@ def compare(native, port, fields):
                 same([e['kind'] for e in native_adapter_events],['reveal-check','registration'],
                      'Positive acquisition leaf order differs')
             port_events=list(p['events'])
-            if case=='command32-expiry-odd-known-difference':
-                same(len(port_events),1,'Unexpected odd32 event count')
-                event=port_events.pop()
-                same([event['kind'],event['args']],['release',[0x2000000,3]],'Unexpected odd32 release')
-                snapshot_delta(n['afterController'],event['state'],case,'odd32-release',fields)
             same(len(port_events),len(native_events),'Request sequence length differs: '+case)
             for ne,pe in zip(native_events,port_events,strict=True):
                 kind='lower-setter' if pe['kind']=='lower-setter-intent' else pe['kind']
@@ -122,7 +116,9 @@ def compare(native, port, fields):
             if record['stateResiduals'] or 'returnResidual' in record or 'rawEventResiduals' in record:
                 inventory.append(record)
     same(sum(len(c['rows']) for c in port['cases']),63,'Candidate visit count differs')
-    same(state_rows,1,'Known residual row set changed')
+    same(state_rows,0,'State/return differences remain')
+    same(semantic_requests,73,'Semantic request count changed')
+    same(len(inventory),43,'Raw adapter-event inventory changed')
     return inventory,semantic_requests
 
 
@@ -163,7 +159,7 @@ def main():
         inventory,requests=compare(native,port,payload['fields'])
         (output/'differences.json').write_text(json.dumps(inventory,indent=2)+'\n')
         summary={'status':'passed','scope':'Candidate port against unchanged accepted supplied-state native rows',
-                 'pairs':63,'knownStateOrReturnResidualRows':1,'comparedRequests':requests,
+                 'pairs':63,'knownStateOrReturnResidualRows':0,'comparedRequests':requests,
                  'rawResidualRows':len(inventory),'wholeSermonEquality':'not-claimed',
                  'audio':'request-only interception; live owner flag tested separately',
                  'newNativeExecution':False,'nodeVersion':port['nodeVersion']}

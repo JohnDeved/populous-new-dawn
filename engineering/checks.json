@@ -2,6 +2,281 @@
   "version": 1,
   "checks": [
     {
+      "id": "neutral-canvas-cursor",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate the bounded POINT14 browser cursor adaptation, readiness and scene ownership.",
+      "coveredBehavior": [
+        "Exact source asset dimensions/hash and hotspot",
+        "Neutral-state exclusions, stationary transitions and original inline-style restoration",
+        "Decode failure, timeout, cancellation, blur and disposal; actual scene constructor/readiness/lifecycle statements"
+      ],
+      "knownLimits": [
+        "Mock DOM and image decode; parent-owned hosted cursor/picking/DPR verification remains required.",
+        "Browser adaptation, not complete native contextual cursor-state parity."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/neutral-cursor.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/neutral-cursor.ts",
+        "app/scene.ts",
+        "app/scene-entities.ts",
+        "app/unit-animation-source.ts",
+        "tests/neutral-cursor.test.mjs",
+        "public/original/cursor-point14.png",
+        "public/original/cursor-point14.json",
+        "scripts/import-neutral-cursor.py",
+        "scripts/import-original.py",
+        "decomp/research/neutral-canvas-cursor.md"
+      ],
+      "prerequisites": [
+        "Installed project dependencies",
+        "Node.js >=22.13.0"
+      ],
+      "sideEffects": [
+        "In-process mocked DOM/Image/timers only; reads source and asset files. No network, ports or filesystem writes."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "blast-impact-original-reference",
+      "kind": "portable",
+      "automation": "manual",
+      "receiptAdapter": "historical-blast-impact",
+      "purpose": "Interpret the reviewed port comparison against six historical original-reference Blast snapshots; never execute the original or comparator.",
+      "coveredBehavior": [
+        "Six compared arrival/head-retirement and first enemy/friendly impulse snapshots"
+      ],
+      "knownLimits": [
+        "Historical-reference provenance; raw native execution attestation is missing and original execution remains unknown, including on a matching port source tree.",
+        "Supplied gameFlags32 and a ground cast do not validate the ordinary bit-clear person-selection path. Native allocation, deletion and person bodies are supplied; the full fixture event log is not port-compared.",
+        "Unscored check detail only. No complete Blast, native whole-game, native timing, matched-frame or hardware-performance credit."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/parity-measure.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/parity-measure.mjs",
+        "scripts/parity-owned-blast.mjs",
+        "scripts/parity-owned-checkpoint.mjs",
+        "scripts/orchestration/cli.mjs",
+        "tests/blast-impact.test.mjs",
+        "tests/fixtures/blast-impact.json",
+        "scripts/check-native-blast-impact.py",
+        "decomp/exports.json",
+        "app",
+        "package.json",
+        "package-lock.json",
+        "engineering/checks.json"
+      ],
+      "prerequisites": [
+        "Existing explicit comparator receipt and reviewed manifest/runner Git identities; historical fixture origin available as Git data"
+      ],
+      "sideEffects": [
+        "Reads existing receipts and Git objects; writes generated report.json, index.html and history.json under work/orchestration/parity-measure. Does not launch tests, browser or native work."
+      ],
+      "resources": [
+        "No runtime resources for receipt projection"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "blast-controls-ordinary",
+      "kind": "browser",
+      "automation": "manual",
+      "receiptAdapter": "ordinary-blast-controls",
+      "purpose": "Read the reviewed owned Blast controls receipt and sidecar; never run the harness.",
+      "coveredBehavior": [
+        "Evidence-only ordinary Blast controls observation"
+      ],
+      "knownLimits": [
+        "Six public Mission 2 control stages including active-cast Save and fresh-page Load. Equality covers the bounded saved/loaded projection; the recorded digest is not an independent full-World recomputation. No original execution, save-format or paired parity claim."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/parity-measure.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/parity-measure.mjs",
+        "scripts/parity-owned-blast.mjs",
+        "scripts/parity-owned-checkpoint.mjs",
+        "engineering/parity-capabilities.json"
+      ],
+      "prerequisites": [
+        "Existing raw outer receipt, owned harness receipt and scenario sidecar with reviewed checker Git objects"
+      ],
+      "sideEffects": [
+        "Reads existing receipts; writes generated report.json, index.html and history.json under work/orchestration/parity-measure. Does not launch browser/native work."
+      ],
+      "resources": [
+        "No runtime resources for receipt projection"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "blast-person-ordinary",
+      "kind": "browser",
+      "automation": "manual",
+      "receiptAdapter": "ordinary-blast-person",
+      "purpose": "Read the reviewed owned Blast person receipt and sidecar; never run the harness.",
+      "coveredBehavior": [
+        "Evidence-only ordinary Blast person observation"
+      ],
+      "knownLimits": [
+        "Owned public Mission 2 person release, real windup move and friendly Blue Brave tracking through arrival/impact. Historical browser observations only when source differs; no enemy-target, native execution, paired-frame, hardware-performance or whole-spell claim."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/parity-measure.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/parity-measure.mjs",
+        "scripts/parity-owned-blast.mjs",
+        "scripts/parity-owned-checkpoint.mjs",
+        "engineering/parity-capabilities.json"
+      ],
+      "prerequisites": [
+        "Existing raw outer receipt, owned harness receipt and scenario sidecar with reviewed checker Git objects"
+      ],
+      "sideEffects": [
+        "Reads existing receipts; writes generated report.json, index.html and history.json under work/orchestration/parity-measure. Does not launch browser/native work."
+      ],
+      "resources": [
+        "No runtime resources for receipt projection"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "mission-two-checkpoint-ordinary",
+      "kind": "browser",
+      "automation": "manual",
+      "receiptAdapter": "ordinary-m2-checkpoint",
+      "purpose": "Read the owned early-missions harness witness for ordinary Mission 2 checkpoint restoration.",
+      "coveredBehavior": [
+        "Public Save checkpoint, fresh reload, public Load, retained turn/roster/stats and real-clock resumption"
+      ],
+      "knownLimits": [
+        "Only the exact reviewed ordinary scenario and source-bound owned harness are accepted. This is browser checkpoint modernization, not original save compatibility or full mission parity. Historical source changes produce stale evidence."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/local-render/early-missions.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/local-render/early-missions.mjs",
+        "scripts/local-render/harness.mjs",
+        "scripts/local-render/owned-profile.mjs",
+        "scripts/local-render/checkpoint-observer.mjs",
+        "scripts/local-render/vite.config.mjs",
+        "scripts/checkpoint-readback.mjs",
+        "scripts/browser-game.mjs",
+        "app",
+        "public/original",
+        "package.json",
+        "package-lock.json"
+      ],
+      "prerequisites": [
+        "Existing source-bound owned harness receipt, matching journey and raw outer receipt"
+      ],
+      "sideEffects": [
+        "Report adapter reads only; harness execution requires separate lane and runtime setup"
+      ],
+      "resources": [
+        "No runtime resources for receipt projection"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "parity-measure-tests",
+      "kind": "metadata",
+      "automation": "safe",
+      "purpose": "Validate receipt-derived automatic parity measurement without executing game checks.",
+      "coveredBehavior": [
+        "Evidence freshness, failure precedence, unknown scope, deterministic history and report escaping",
+        "Bounded sequential JSON reads, conservative cache exclusion and malformed/interrupted candidate retention"
+      ],
+      "knownLimits": [
+        "Synthetic evidence validates measurement, not actual game parity."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/parity-measure.test.mjs",
+        "tests/parity-owned-checkpoint.test.mjs",
+        "tests/parity-owned-blast.test.mjs",
+        "tests/parity-discovery.test.mjs",
+        "tests/parity-discovery-reader.test.mjs",
+        "tests/parity-streaming-discovery.test.mjs",
+        "tests/parity-json-metadata.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/parity-measure.mjs",
+        "scripts/parity-owned-checkpoint.mjs",
+        "scripts/parity-owned-blast.mjs",
+        "tests/parity-owned-blast.test.mjs",
+        "tests/parity-owned-checkpoint.test.mjs",
+        "scripts/orchestration/command-receipt.mjs",
+        "scripts/orchestration/verify.mjs",
+        "scripts/orchestration/cli.mjs",
+        "tests/parity-measure.test.mjs",
+        "engineering/parity-capabilities.json",
+        "engineering/checks.json",
+        "parity.json",
+        "scripts/parity-discovery.mjs",
+        "scripts/parity-json-metadata.mjs",
+        "tests/parity-discovery.test.mjs",
+        "tests/parity-discovery-reader.test.mjs",
+        "tests/parity-streaming-discovery.test.mjs",
+        "tests/parity-json-metadata.test.mjs"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Git"
+      ],
+      "sideEffects": [
+        "Task-owned temporary fixture repositories only"
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "cwd": ".",
       "env": [
         "POPULOUS_EXE"
@@ -587,17 +862,19 @@
         "Git change routing",
         "Contract audit",
         "Portable review bundle integrity",
-        "Source-bound raw command receipts"
+        "Source-bound raw command receipts",
+        "Hash-linked research navigation and finite claim bindings"
       ],
       "knownLimits": [
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
       ],
       "executable": "node",
-      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs"],
+      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
         ".codex/config.toml",
+        ".github/workflows/ready-pr-check.yml",
         ".agents/skills/populous-engineering/SKILL.md",
         "AGENTS.md",
         "GOAL.md",
@@ -673,6 +950,7 @@
       "env": [],
       "inputs": [
         ".codex/config.toml",
+        ".github/workflows/ready-pr-check.yml",
         "package.json",
         "app",
         "engineering",
@@ -683,7 +961,7 @@
         "PARITY.md"
       ],
       "prerequisites": ["Installed npm dependencies"],
-      "sideEffects": ["May update ignored tool caches"],
+      "sideEffects": ["May update ignored tool caches", "Runs every top-level tests/*.test.mjs file through the bounded Node runner; resource-sensitive/unreviewed files are serial."],
       "resources": ["Serialize with other full test runs"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
@@ -1156,8 +1434,8 @@
       "coveredBehavior": [
         "First visit offers Missions 1 through 4 before scene creation",
         "Mission 1 mouse and Mission 4 keyboard selection",
-        "Normal Mission 1 victory continues through the shipped result UI into Mission 2",
-        "Normal Mission 1 victory persists a completion mark and Mission 2 recommendation",
+        "Injected Mission 1 enemy removal and one simulation tick reach the result UI; Continue then starts Mission 2",
+        "The injected Mission 1 outcome persists a completion mark and Mission 2 recommendation",
         "Mission 2 Totem route and one-shot Tornado-use instruction",
         "Mission 2 marker-triggered Matak tower counterattack",
         "Returning-player mission and Load Game choice before scene creation",
@@ -1165,7 +1443,7 @@
         "Fresh-world isolation and in-session completion/checkpoint fallback when storage is unavailable"
       ],
       "knownLimits": [
-        "Uses browser-native IndexedDB and one latest checkpoint; it does not prove original save-format, slot, broader profile, or front-end parity."
+        "Removes enemy units and ticks to seed Mission 1 victory; later diagnostics use direct commands/ticks and injected state. This is not natural Mission 1 victory. Uses browser-native IndexedDB and one latest checkpoint; it does not prove original save-format, slot, broader profile, or front-end parity."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-checkpoint.mjs"],
@@ -4090,21 +4368,43 @@
         "12 Hz simulation",
         "pause",
         "long frames",
-        "5-240 Hz schedules"
+        "5-240 Hz schedules",
+        "Shared tooltip visits and retained Hut records on the existing flyby opportunity"
       ],
       "knownLimits": [
         "Does not prove browser RAF, input, GPU presentation, or complete native outer scheduling."
       ],
       "executable": "node",
-      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-interpolation.test.mjs"],
+      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-motion.test.mjs", "tests/hut-tooltip-controller.test.mjs", "tests/camp-inspection.test.mjs", "tests/import-tooltip-string.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
         "app/game-clock.ts",
         "app/unit-motion.ts",
+        "app/projection.ts",
+        "app/original-camera.json",
         "app/model.ts",
         "app/world-turn.ts",
-        "tests/game-clock.test.mjs"
+        "tests/game-clock.test.mjs",
+        "tests/unit-motion.test.mjs",
+        "tests/fixtures/unit-interpolation.json",
+        "tests/hut-tooltip-controller.test.mjs",
+        "tests/camp-inspection.test.mjs",
+        "tests/support/tooltip-scene.mjs",
+        "tests/import-tooltip-string.test.mjs",
+        "tests/support/bloodlust-scene.mjs",
+        "tests/support/hut-smoke-scene.mjs",
+        "app/tooltip-controller.ts",
+        "app/scene-tooltip-runtime.ts",
+        "app/scene.ts",
+        "app/scene-camera-runtime.ts",
+        "app/scene-input-runtime.ts",
+        "app/object-panels.ts",
+        "app/building-panels.ts",
+        "app/scene-secondary-effects.ts",
+        "app/tooltips.ts",
+        "app/original-tooltips.json",
+        "scripts/import-messages.py"
       ],
       "prerequisites": ["Installed npm dependencies"],
       "sideEffects": [],
@@ -4680,17 +4980,16 @@
         "Authored startup gates",
         "Real terrain and replacement braves",
         "Persisted staged sequence and no replay",
-        "Native Shaman pose clock and command18 input ownership"
+        "Native Shaman pose clock and command18 input ownership",
+        "Actual startup burst pitch/yaw ownership and retained native child trajectories"
       ],
       "knownLimits": [
         "Browser pixels and native instruction comparisons run separately."
       ],
-      "executable": "node",
-      "args": [
-        "--test",
-        "tests/level-start.test.mjs"
-      ],
+      "executable": "npm",
+      "args": ["run", "test:level-start"],
       "inputs": [
+        "package.json",
         "app/level-start.ts",
         "app/level-start-runtime.ts",
         "app/world-initialization.ts",
@@ -4707,7 +5006,14 @@
         "app/scene-camera-runtime.ts",
         "app/spell-casting.ts",
         "app/live-people.ts",
-        "app/live-movement.ts"
+        "app/live-movement.ts",
+        "tests/startup-burst-angles.test.mjs",
+        "tests/fixtures/startup-burst-native.json",
+        "app/spell-trails.ts",
+        "app/effect-motion.ts",
+        "tests/startup-burst-observer.test.mjs",
+        "scripts/local-render/startup-burst.mjs",
+        "scripts/local-render/startup-burst-observer.mjs"
       ],
       "prerequisites": [
         "Node.js with TypeScript stripping"

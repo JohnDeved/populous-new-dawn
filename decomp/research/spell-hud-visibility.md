@@ -207,3 +207,50 @@ Canonical browser attempts are retained under the shared performance queue:
 
 All three cleanup receipts report `resourcesReleased=true`. The bounded changed-checker
 budget is exhausted; no further browser retry is claimed here.
+
+## 2026-10-14 correction: selection is not charging permission
+
+The earlier “Casting permission is separate” conclusion incorrectly treated the
+right-click charging callback as the left-click selection callback. It must not
+be used to disable earned Armageddon, Bloodlust, or Teleport stock.
+
+Static evidence was re-read with GNU objdump 2.44 (`-d -Mintel`) from the supplied
+D3DPopTB.exe, SHA-256
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
+No original executable code was run or emulated. Retained disassembly:
+[callbacks](earned-spell-hud/callbacks.asm),
+[initialization](earned-spell-hud/initialization.asm), and
+[ownership/charging](earned-spell-hud/ownership-and-charging.asm).
+
+- The first packed spell row is VA `005cb830`, file offset `001c9630`, length 66.
+  Its left callback at +13 is `0049e5c0`, right callback at +17 is `0049e650`,
+  hover +21 is `0049e7d0`, renderer +41 is `0049daf0`, refresh +59 is `0049e800`.
+  The same descriptor layout is independently established by
+  `scripts/check-native-followers-panel.py`.
+- `0049e5c0` selects the model through `004c30d0`/`004c30e0`. There is no mode-2
+  charging-permission test. `0049e800` enables an owned/stocked control through
+  `004c3110`, also without that test.
+- `0049e650` is the right-click charging callback. It checks `004c2ca0` before
+  sending charging commands 0x56/0x74/0x75. The existing mana mode-2/0x100 gate is
+  correct and remains unchanged. The browser now also gates its charging action
+  and charging tooltip separately from selection.
+- Normal campaign startup `0042ca00` copies the HDR record at `0042ca12`, then
+  clears descriptor modes 0 and 2 via `004c2c60` at `0042cac8`–`0042caea`.
+  The normal branch jumps at `0042caf6` past the special-spell 0x100 producer.
+  `004c2c60` clears both permanent availability and packed stock; browser fresh
+  stock is already zero. Fresh-world initialization now filters the permanent
+  mask. Restart/startMission reconstruct that world before authored gameplay.
+
+Checkpoint policy is deliberately creation-only. Existing checkpoint availability,
+stock, gifts, turn, RNG, actors and outcomes are not rewritten. An old checkpoint
+may therefore retain an unearned mode-2 icon from its historical overbroad HDR
+mask, and selection is allowed as native ownership would imply. Zero stock still
+rejects casting, and charging remains forbidden without 0x100. Earned stock from
+such a checkpoint is selectable and spendable without injecting any flags.
+This limitation is preferable to erasing potentially legitimate later ownership.
+
+The correction preserves the existing alternate-mode bit-0x20 UI policy; it does
+not claim complete alternate-mode control parity. Normal stock/discovery precedence
+and mission-load question-mark masks remain unchanged. Earlier helper/direct-cast
+M16–M19 results do not prove their formerly blocked public HUD entry path. Public
+selection and a real earned-stock cast require separate rendered verification.
