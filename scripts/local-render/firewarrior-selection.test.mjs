@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
-import {selectionRoute,selectionAdmission,assertSelectionReceipt,observeFirstSelection} from './firewarrior-selection.mjs'
+import {selectionRoute,selectionAdmission,assertSelectionReceipt,observeFirstSelection,observeDeselection,assertDeselectionReceipt} from './firewarrior-selection.mjs'
 const brave={id:121,kind:'brave',team:'blue',hp:50,inside:null,identityMatches:true}
 test('outside to indoor transition invalidates stale branch and admits actual occupant owner',()=>{
  const outside=selectionRoute(brave),indoors={...brave,inside:100}
@@ -51,4 +51,31 @@ test('pinned CommonJS transform rejects old local require name but leaves rename
  const legacy=source.replace(/\brequireSelection\b/g,'require')
  await assert.rejects(plugin.transform(legacy,id),/invalid import.*require\(unit/)
  assert.equal(await plugin.transform(source,id),undefined)
+})
+
+test('actual Home Escape caller deselects real authored M10 World without clock, pause, orders or modal changes',async()=>{
+ const {default:ts}=await import('typescript'),api=await import('../../app/model.ts'),{advanceGame}=await import('../../app/game-clock.ts'),{tutorialLevel}=await import('../../app/mission-data.ts')
+ const source=ts.createSourceFile('page.tsx',readFileSync(new URL('../../app/page.tsx',import.meta.url),'utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX)
+ let node
+ const visit=n=>{if(ts.isVariableDeclaration(n)&&n.name.getText(source)==='key'&&n.initializer?.getText(source).includes('store.change(cancelInteraction)'))node=n.initializer;ts.forEachChild(n,visit)};visit(source);assert(node)
+ const world=api.createWorld(10),clock={animationTime:0,animationFrame:0};advanceGame(world,clock,1/12)
+ assert.equal(world.mode,null);assert.equal(world.inputMask,0);assert(world.selected.length);assert.notEqual(world.outcome.level,tutorialLevel)
+ const before=structuredClone(world),expected=structuredClone(world);api.cancelInteraction(expected)
+ let calls=0,updates=0
+ const bindings={ready:true,menu:false,world,store:{getWorld:()=>world,change:fn=>{assert.equal(fn,api.cancelInteraction);calls++;fn(world)}},SPELLS:api.SPELLS,spellHudVisibility:()=>{throw Error('unexpected spell path')},tutorialLevel,openMenu:()=>{throw Error('unexpected menu')},cancelInteraction:api.cancelInteraction,update:()=>updates++}
+ const expression=ts.transpileModule(`(${node.getText(source)})`,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText
+ const key=Function(...Object.keys(bindings),`return ${expression}`)(...Object.values(bindings))
+ const listeners=[],win={addEventListener:(type,fn,capture)=>listeners.push({type,fn,capture}),removeEventListener:(type,fn,capture)=>{const index=listeners.findIndex(l=>l.type===type&&l.fn===fn&&l.capture===capture);assert(index>=0);listeners.splice(index,1)}}
+ const observer=observeDeselection({scene:{world,gameClock:clock,isCurrent:()=>true},store:bindings.store,win,doc:{querySelector:()=>null}})
+ const event={key:'Escape',code:'Escape',isTrusted:true,ctrlKey:false,metaKey:false,altKey:false,target:{closest:()=>null},preventDefault(){throw Error('unexpected modal/flyby path')}}
+ listeners.find(l=>l.capture).fn(event);key(event);listeners.find(l=>!l.capture).fn(event)
+ const receipt=observer.finish();assert.equal(listeners.length,0);assertDeselectionReceipt(receipt)
+ const changed=structuredClone(receipt);changed.events[0].after.turn++;assert.throws(()=>assertDeselectionReceipt(changed),/clock/)
+ const ignored=structuredClone(receipt);ignored.events[0].after.selected=[63];assert.throws(()=>assertDeselectionReceipt(ignored),/clear selection/)
+ const untrusted=structuredClone(receipt);untrusted.events[0].trusted=false;assert.throws(()=>assertDeselectionReceipt(untrusted),/trusted/)
+ assert.throws(()=>observeDeselection({scene:{world,gameClock:clock,isCurrent:()=>true},store:bindings.store,win,doc:{querySelector:()=>null}}),/prerequisite/)
+ assert.equal(listeners.length,0)
+ assert.equal(calls,1);assert.equal(updates,1);assert.deepEqual(world,expected)
+ assert.deepEqual(world.selected,[]);assert.equal(world.mode,null);assert.equal(world.paused,before.paused);assert.equal(world.turn,before.turn);assert.equal(world.pendingTime,before.pendingTime)
+ assert.deepEqual(world.buildingOrders,before.buildingOrders);assert.equal(clock.animationFrame,2)
 })

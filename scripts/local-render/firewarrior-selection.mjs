@@ -53,8 +53,28 @@ export function observeFirstSelection({scene,store,route,button=null,observeEnti
   }
   return {finish(){for(const remove of removers)remove();return {route,events,errors,restored:true,pointer:pointer?.finish()??null,final:{turn:world.turn,selected:[...world.selected],inside:world.units.find(u=>u.id===121)?.inside}}}}
 }
+export function observeDeselection({scene,store,win=window,doc=document}) {
+  const world=scene.world,events=[]
+  const sample=()=>({current:scene.isCurrent()&&scene.world===world&&store.getWorld()===world,level:world.outcome.level,selected:[...world.selected],mode:world.mode,paused:world.paused,inputMask:world.inputMask,turn:world.turn,pendingTime:world.pendingTime,animationFrame:scene.gameClock.animationFrame,animationTime:scene.gameClock.animationTime,dialog:!!doc.querySelector('dialog[open]')})
+  const initial=sample()
+  requireSelection(initial.current&&initial.level===10&&initial.selected.length&&!initial.mode&&!initial.paused&&!initial.inputMask&&!initial.dialog,'Ordinary M10 deselection prerequisite changed')
+  const before=event=>events.push({key:event.key,trusted:event.isTrusted,modified:!!(event.ctrlKey||event.shiftKey||event.altKey||event.metaKey),editable:!!event.target.closest('input,dialog'),before:sample()})
+  const after=()=>{if(events.length)events.at(-1).after=sample()}
+  win.addEventListener('keydown',before,true);win.addEventListener('keydown',after,false)
+  return {finish(){win.removeEventListener('keydown',before,true);win.removeEventListener('keydown',after,false);return {initial,events,restored:true}}}
+}
+export function assertDeselectionReceipt(receipt) {
+  requireSelection(receipt.restored&&receipt.events.length===1,'Exactly one deselection keydown required')
+  const event=receipt.events[0],before=event.before,after=event.after
+  requireSelection(event.key==='Escape'&&event.trusted&&!event.modified&&!event.editable,'Ordinary trusted Escape required')
+  requireSelection(before.current&&before.level===10&&before.selected.length&&before.mode===null&&!before.paused&&!before.inputMask&&!before.dialog,'Deselection delivery prerequisite changed')
+  requireSelection(after&&after.selected.length===0,'Escape did not clear selection')
+  const {selected:_before,...stableBefore}=before,{selected:_after,...stableAfter}=after
+  requireSelection(JSON.stringify(stableBefore)===JSON.stringify(stableAfter),'Escape changed clock, mode, pause, dialog or World ownership')
+  return receipt
+}
 export async function selectAuthoredBrave({page,input,guard,report,save}) {
-  report.firstSelection={probes:[],inputAttempted:false,receipt:null}
+  report.firstSelection={probes:[],inputAttempted:false,receipt:null,deselection:null}
   const readRoute=()=>page.evaluate(async()=>{const {selectionRoute}=await import('/scripts/local-render/firewarrior-selection.mjs'),scene=window.testSceneRef.current,u=scene.world.units.find(u=>u.id===121);return selectionRoute({...u,identityMatches:u===window.firewarriorPublicEpoch.traineeObject})})
   for(;;) {
     await guard()
@@ -71,6 +91,24 @@ export async function selectAuthoredBrave({page,input,guard,report,save}) {
     probe.admission=admission;save()
     if(!admission.ready)continue
     if(route.kind==='occupant') {
+      const needsDeselect=await page.evaluate(()=>window.testStore.getWorld().selected.length>0)
+      if(needsDeselect) {
+        requireSelection(!report.firstSelection.deselection,'No second deselection attempt allowed')
+        report.firstSelection.deselection={attempted:false,receipt:null};save()
+        await page.evaluate(async()=>{
+          const {observeDeselection}=await import('/scripts/local-render/firewarrior-selection.mjs')
+          if(window.firewarriorDeselection)throw Error('Foreign deselection observer exists')
+          window.firewarriorDeselection=observeDeselection({scene:window.testSceneRef.current,store:window.testStore})
+        })
+        report.firstSelection.deselection.attempted=true;save()
+        try {await page.keyboard.press('Escape')}
+        finally {
+          report.firstSelection.deselection.receipt=await page.evaluate(()=>{const observer=window.firewarriorDeselection;if(!observer)throw Error('Deselection observer disappeared');const result=observer.finish();delete window.firewarriorDeselection;return result})
+          save()
+        }
+        assertDeselectionReceipt(report.firstSelection.deselection.receipt)
+        await guard()
+      }
       await page.mouse.move(hit.x,hit.y)
       await guard()
     }
