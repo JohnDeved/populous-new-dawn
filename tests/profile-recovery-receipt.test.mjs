@@ -1,4 +1,4 @@
-import { resolveProfileArtifact } from '../scripts/integration-queue/profile-artifact.mjs'
+import { resolveProfileArtifact, profileArchiveLimit } from '../scripts/integration-queue/profile-artifact.mjs'
 import { artifactZip } from './support/artifact-zip.mjs'
 import { decodeMission10Query, encodeMission10Query, mission10ExpectedSelection, mission10Controls, mission10Modifiers } from '../scripts/local-render/mission10-selection.mjs'
 import assert from 'node:assert/strict'
@@ -14,9 +14,21 @@ import {
   profileRecoveryReceiptLog,
 } from '../scripts/tutorial-browser/profile-recovery-receipt.mjs'
 
-function resolveEvidence(output, envelope) {
+function resolveEvidence(output, envelope, { wide = false, diagnostic = () => {} } = {}) {
   const files = readdirSync(output).filter(name => statSync(join(output, name)).isFile()).map(name => [name, readFileSync(join(output, name))])
-  const archive = artifactZip(files)
+  // The hosted upload uses method8 DEFLATE, not the STORE-only test transport.
+  // Keep the complete wide raw roster/aliases and all unchanged inflated caps.
+  const total = files.reduce((sum, [, bytes]) => sum + bytes.length, 0)
+  assert.ok(files.every(([, bytes]) => bytes.length <= 32 * 1024 * 1024))
+  assert.ok(total <= 128 * 1024 * 1024)
+  const archive = artifactZip(files, { compress: true })
+  if (wide) {
+    const stored = artifactZip(files)
+    assert.ok(stored.length > profileArchiveLimit, 'Wide fixture must retain the oversized STORE regression')
+    assert.throws(() => resolveProfileArtifact(stored,
+      { bytes: stored.length, sha256: createHash('sha256').update(stored).digest('hex') }, envelope), /archive size/)
+    diagnostic(`Full wide roster: ${files.length} files, ${total} raw bytes, max file ${Math.max(...files.map(([, bytes]) => bytes.length))}, STORE ${stored.length} rejected, DEFLATE ${archive.length} bytes`)
+  }
   return resolveProfileArtifact(archive, { bytes: archive.length, sha256: createHash('sha256').update(archive).digest('hex') }, envelope)
 }
 
@@ -128,7 +140,7 @@ test('complete producer, trusted tuple decoder and serializer retain ordinary an
       writeFileSync(join(output, 'receipt.json'), JSON.stringify(receipt))
       writeFileSync(join(output, 'profile-recovery.json'), JSON.stringify(receipt.profileRecovery))
       const envelope = profileRecoveryReceipt(receipt, output, env)
-      assert.equal(validateProfileRecovery(envelope, { identity: envelope.identity, inputs, mission10Evidence: resolveEvidence(output, envelope) }), true)
+      assert.equal(validateProfileRecovery(envelope, { identity: envelope.identity, inputs, mission10Evidence: resolveEvidence(output, envelope, { wide: !!numeric.count, diagnostic: message => t.diagnostic(message) }) }), true)
       for (const phase of envelope.mission10.phases) {
         assert.equal(phase.binding.length, 8)
         for (const checkpoint of [phase.saved, phase.loaded].filter(Array.isArray)) {

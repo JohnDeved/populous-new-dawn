@@ -29,6 +29,18 @@ test('bounded multi-file ZIP rejects traversal, duplicate, links, corruption, ov
   assert.throws(() => read(good.subarray(0, good.length - 1)))
   assert.throws(() => read(Buffer.concat([good, Buffer.alloc(1024)])))
 })
+test('DEFLATE upload fixtures retain exact bytes and all compressed/inflated size guards', () => {
+  const files = [['a.json', 'a'.repeat(80)], ['b.json', 'b'.repeat(60)]]
+  const compressed = artifactZip(files, { compress: true }), stored = artifactZip(files)
+  assert.ok(compressed.length < stored.length)
+  assert.deepEqual([...read(compressed)].map(([name, bytes]) => [name, bytes.toString()]), files)
+  assert.equal(compressed.readUInt16LE(8), 8)
+  for (const oversized of [[['a.json', 'a'.repeat(101)]], [['a.json', 'a'.repeat(80)], ['b.json', 'b'.repeat(80)]]])
+    assert.throws(() => read(artifactZip(oversized, { compress: true })))
+  assert.throws(() => readArtifactZip(compressed, { ...options, maxArchiveBytes: compressed.length - 1 }))
+  const corrupt = Buffer.from(compressed); corrupt[14] ^= 1
+  assert.throws(() => read(corrupt))
+})
 test('streamed zero local fields require a consistent bounded data descriptor', () => {
   const original = artifactZip([['a.json', '{}']]), central = original.readUInt32LE(original.length - 6)
   const descriptor = Buffer.alloc(16); descriptor.writeUInt32LE(0x08074b50)
