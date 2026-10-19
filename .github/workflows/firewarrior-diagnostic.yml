@@ -17,7 +17,7 @@ jobs:
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-          fetch-depth: 9
+          fetch-depth: 11
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24.19.0'
@@ -34,11 +34,11 @@ jobs:
         run: |
           unset NODE_PATH NODE_COMPILE_CACHE NODE_V8_COVERAGE NODE_OPTIONS
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse HEAD^)" = 20ea296cd419c77e53e9afb56b58af15e386a1f8
-          test "$(git rev-parse HEAD^^)" = b6db7d51bd6659528e52d74f3b2a30fbb6e06c7b
-          test "$(git rev-parse HEAD^^^^^^^^)" = bab9aa4ea8f228a5884528982cce71231cbb8bfd
-          test "$(git rev-parse HEAD^'^{tree}')" = 1979a3a9b3012226592a90904b0cf0d07abe73fa
-          test "$(git rev-parse HEAD^^^^^^^^'^{tree}')" = d76fe1cd227286ed150fc1e8a33b4e1a3eb8d481
+          test "$(git rev-parse HEAD^)" = ae2f802714c3564d6c37600b3c81107acf6720f3
+          test "$(git rev-parse HEAD^^)" = 404d643b004fad6d4d8543dec4a23b8672425ee7
+          test "$(git rev-parse HEAD^^^^^^^^^^)" = bab9aa4ea8f228a5884528982cce71231cbb8bfd
+          test "$(git rev-parse HEAD^'^{tree}')" = 576dfbb751b836558111fbc589fb594c8a4e388f
+          test "$(git rev-parse HEAD^^^^^^^^^^'^{tree}')" = d76fe1cd227286ed150fc1e8a33b4e1a3eb8d481
           test "$(git diff-tree --no-commit-id --name-only -r HEAD)" = .github/workflows/firewarrior-diagnostic.yml
           mkdir -p outputs/firewarrior-diagnostic
           { printf 'Diagnostic-only scenario and workflow; source-hosted Vite, not production preview.\n'; git rev-parse HEAD HEAD^{tree} HEAD^ HEAD^'^{tree}' HEAD^^ HEAD^^'^{tree}'; node --version; npm --version; sha256sum package-lock.json node_modules/playwright-core/browsers.json /opt/google/chrome/chrome scripts/local-render/firewarrior-public-witness.mjs scripts/local-render/harness.mjs scripts/local-render/firewarrior-selection.mjs scripts/local-render/firewarrior-selection.test.mjs node_modules/vite/dist/node/chunks/logger.js node_modules/vite-plugin-commonjs/dist/index.mjs; } > outputs/firewarrior-diagnostic/inputs.txt
