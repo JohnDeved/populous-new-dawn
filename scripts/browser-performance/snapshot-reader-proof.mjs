@@ -2,11 +2,12 @@
 import assert from 'node:assert/strict'
 import { sha256 } from './protocol.mjs'
 import { dragSourceProfiles } from './snapshot-drag-contract.mjs'
-import { recognizeReaderSources, readerContract } from './snapshot-readers.mjs'
+import { recognizeReaderSources, readerContract, inactiveHelperReaderSha256 } from './snapshot-readers.mjs'
 export const readerImportSha256 = sha256("import * as THREE from 'three'")
-export const readerProofContract = Object.freeze({ version: 1, readers: readerContract,
+export const readerProofContract = Object.freeze({ version: 2, readers: readerContract,
   comparison: 'exact-original-fingerprint-first; otherwise admitted-source-and-reader-equivalence-only',
   inputs: 'unchanged-metadata-position-index-instances', withinArm: 'same-reader-and-runtime-bundle-every-session',
+  stableFallback: 'five-stable-cohorts-only; exact-reader-tokens-except-inactive-normalization-helper; strict-data-import-and-provenance-required',
   limitation: 'No retrospective equivalence for artifacts without complete raw reader and provenance evidence' })
 const keys = (object, names) => { assert.ok(object && typeof object === 'object' && !Array.isArray(object)); assert.deepEqual(Object.keys(object).sort(), [...names].sort()) }
 const digest = value => assert.ok(typeof value === 'string' && /^[a-f0-9]{64}$/.test(value))
@@ -70,6 +71,25 @@ export function equivalentReaderEvidence(contexts) {
       if (!Object.hasOwn(bySide, side) || !evidence.source.profile || evidence.source.importSha256 !== readerImportSha256) return false
       const { bundleSha256, ...shared } = evidence.provenance
       common.push(JSON.stringify([shared, evidence.semanticSha256]))
+      bySide[side].push(JSON.stringify([evidence.allSourcesSha256, bundleSha256, evidence.source]))
+    }
+    return raw.size === 2 && new Set(common).size === 1 && Object.values(bySide).every(values => values.length === 3 && new Set(values).size === 1)
+  } catch { return false }
+}
+
+// Independent of held-drag source admission only for this strictly narrower
+// substitution proof. The import digest attests the AST-owned reviewed query
+// input prefix, not merely an import string (see readerImportAdmission).
+export function equivalentInactiveHelperEvidence(contexts) {
+  if (!Array.isArray(contexts) || contexts.length !== 6 || contexts.some(context => !context?.evidence)) return false
+  try {
+    const raw = new Set(), common = [], bySide = { base: [], head: [] }
+    for (const { side, evidence } of contexts) {
+      validateReaderEvidence(evidence)
+      raw.add(evidence.rawSha256)
+      if (!Object.hasOwn(bySide, side) || evidence.source.importSha256 !== readerImportSha256) return false
+      const { bundleSha256, ...shared } = evidence.provenance
+      common.push(JSON.stringify([shared, inactiveHelperReaderSha256(evidence.sources)]))
       bySide[side].push(JSON.stringify([evidence.allSourcesSha256, bundleSha256, evidence.source]))
     }
     return raw.size === 2 && new Set(common).size === 1 && Object.values(bySide).every(values => values.length === 3 && new Set(values).size === 1)
