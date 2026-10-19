@@ -238,9 +238,22 @@ performed honest work. The design prevents their data from becoming privileged
 code or arbitrary communications; it cannot prove the PR did not falsify its own
 runtime metrics. Suspicious instrumentation/source changes require review.
 
+Every validated comparison is retained in the reporter's Actions step summary;
+raw captures and report artifacts are unchanged. PR notifications are reserved for
+existing eligible `possible-improvement` or `possible-regression` classifications
+in session p50 or p95. No thresholds or workload admission rules change. Routine
+within-noise, noisy, incomplete, mismatched, unknown and observation-only results
+do not create comments. If an earlier actionable comment exists, one short update
+supersedes that finding without claiming it was fixed; subsequent quiet runs do
+not repeat it. A returning signal updates the same comment. Identical report
+bodies are not rewritten. Legacy actionable table classifications are recognized
+for this one-time supersession; legacy routine comments are left alone.
+
 The reporter updates one marker-identified comment authored by the immutable
 GitHub Actions bot identity. It refuses ambiguous duplicate bot comments and older
-runs/attempts. A fresh PR/head/base check immediately precedes the sole POST/PATCH;
+runs/attempts. Before writes, a bounded completed-run inventory also rejects
+delayed runs superseded by a newer completed run or same-run attempt for the same PR/head, even when
+that newer quiet run left no comment marker. A fresh PR/head/base check immediately precedes the sole POST/PATCH;
 per-PR reporter concurrency serializes upserts without displacing other PRs. Closed or stale PRs are skipped. Artifact
 links are constructed from validated GitHub run IDs, not report URLs. No reviews,
 labels, statuses, ready transitions, merges or repository settings are written.
