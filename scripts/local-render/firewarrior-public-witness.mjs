@@ -1,27 +1,39 @@
-// UNEXECUTED proposal: use only through the existing owned local-render harness.
+// Diagnostic-only source witness: use only through the existing owned local-render harness.
 // No standalone browser launch, World writes, forced clocks or actor relocation.
 // REVIEW BEFORE EXECUTION: turn/wall checks are admission bounds, not cancellation
 // of already in-flight Playwright operations. A separate post-entry wall watchdog
 // closes this owned page at 60 seconds. The turn watchdog closes it at the first
-// observed turn >=300; sampling/closure latency is reported, not called exact cancellation.
+// observed phase deadline; sampling/closure latency is reported, not called exact cancellation.
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
 
+export function initialTrainingBudget() {
+  return {phase:'setup',turnLimit:300,setupLimit:300,afterInputTurns:300,absoluteLimit:600,deliveredTurn:null}
+}
+export function admitTrainingBudget(budget,turn,verify) {
+  verify() // A rejected delivered command can never extend the setup budget.
+  assert.equal(budget.phase,'setup')
+  assert(Number.isInteger(turn)&&turn>=0&&turn<budget.setupLimit,'Training input must be delivered before setup limit')
+  return {...budget,phase:'natural-conversion',deliveredTurn:turn,turnLimit:Math.min(budget.absoluteLimit,turn+budget.afterInputTurns)}
+}
+export const trainingBudgetExceeded=(budget,turn)=>turn>=budget.turnLimit
+
 export default async function firewarriorPublicWitness({ page, root, output, signal, receipt }) {
   const { showAllMissions, bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')))
   const { createMission1VaultInput } = await import(pathToFileURL(resolve(root, 'scripts/local-render/mission1-vault-input.mjs')))
   const { selectAuthoredBrave } = await import(pathToFileURL(resolve(root, 'scripts/local-render/firewarrior-selection.mjs')))
   const { assertTempleTrainInput } = await import(pathToFileURL(resolve(root, 'scripts/local-render/temple-training-contract.mjs')))
-  const report = { status: 'running', source: receipt.source, limits: { turns: 300, wallMs: 60000, records: 4096 }, actions: [], captures: [], cleanupErrors: [] }
+  let turnBudget=initialTrainingBudget()
+  const report = { status: 'running', source: receipt.source, limits: { protocol:'prospective setup + verified-input conversion allowance', turnBudget, wallMs: 60000, records: 4096 }, actions: [], captures: [], cleanupErrors: [] }
   const save = () => writeFileSync(resolve(output, 'firewarrior-public.json'), JSON.stringify(report, null, 2) + '\n')
   let enteredAt = null, epochInstalled = false, deadline = null, wallTimer = null, turnTimer = null, turnPoll = null, boundClose = null, lastTurnSample = null
   const closeAtBound = async detail => {
     if (boundClose) return boundClose
     const requestedAt = Date.now()
-    report.boundExceeded = { ...detail, requestedAt, entryElapsedMs: requestedAt-enteredAt }
+    report.boundExceeded = { ...detail, turnBudget:{...turnBudget}, requestedAt, entryElapsedMs: requestedAt-enteredAt }
     boundClose = page.close().then(() => {
       report.boundExceeded.completedAt=Date.now()
       report.boundExceeded.closeLatencyMs=report.boundExceeded.completedAt-requestedAt
@@ -36,7 +48,7 @@ export default async function firewarriorPublicWitness({ page, root, output, sig
       return { turn: w.turn, level: w.outcome.level, speed: w.speed, paused: w.paused, status: w.status, current: scene.isCurrent() && w === window.testStore.getWorld() }
     })
     assert(state.current && state.level === 10 && state.speed === 1 && !state.paused && state.status === 'playing')
-    if(state.turn>=300){await closeAtBound({kind:'turn-guard',turn:state.turn,overshootTurns:state.turn-300,observedAt:Date.now(),previousSample:lastTurnSample});throw Error('300-turn absolute mission limit reached')}
+    if(trainingBudgetExceeded(turnBudget,state.turn)){await closeAtBound({kind:'turn-guard',turn:state.turn,overshootTurns:state.turn-turnBudget.turnLimit,observedAt:Date.now(),previousSample:lastTurnSample});throw Error('Prospective phase turn limit reached')}
     return state
   }
   const waitFor = async (label, predicate) => {
@@ -89,7 +101,7 @@ export default async function firewarriorPublicWitness({ page, root, output, sig
     turnTimer=setInterval(()=>{
       if(turnPoll)return
       turnPoll=(async()=>{
-      try{const sampledAt=Date.now(),turn=await page.evaluate(()=>window.testSceneRef.current.world.turn),observedAt=Date.now();if(turn>=300)await closeAtBound({kind:'turn',turn,overshootTurns:turn-300,sampledAt,observedAt,previousSample:lastTurnSample,pollIntervalMs:50});lastTurnSample={sampledAt,observedAt,turn}}
+      try{const sampledAt=Date.now(),turn=await page.evaluate(()=>window.testSceneRef.current.world.turn),observedAt=Date.now();if(trainingBudgetExceeded(turnBudget,turn))await closeAtBound({kind:'turn',turn,overshootTurns:turn-turnBudget.turnLimit,sampledAt,observedAt,previousSample:lastTurnSample,pollIntervalMs:50});lastTurnSample={sampledAt,observedAt,turn}}
       catch(error){if(!page.isClosed())report.cleanupErrors.push(String(error))}
       })().finally(()=>{turnPoll=null})
     },50)
@@ -122,8 +134,11 @@ export default async function firewarriorPublicWitness({ page, root, output, sig
     await guard()
     report.trainingInput=await input.dispatch(schoolHit,8,[121])
     const delivered=await page.evaluate(()=>window.firewarriorPublicEpoch.finishInput())
-    assertTempleTrainInput(delivered,98,121)
-    report.delivered=delivered
+    await guard() // Setup cannot expire while delivery verification is pending.
+    assert(!boundClose,'Expired setup cannot gain a new budget')
+    turnBudget=admitTrainingBudget(turnBudget,report.trainingInput.after.turn,()=>assertTempleTrainInput(delivered,98,121))
+    report.limits.turnBudget=turnBudget
+    report.delivered=delivered;save()
     // A real UI-owned point clears battlefield hover; no forced hover fields.
     const hud=page.getByRole('button',{name:'Pause game',exact:true}), box=await hud.boundingBox()
     assert(box)
