@@ -25,7 +25,6 @@ class SpatialRoster<T extends Point & { id: number }> {
   add(owner: T, rank: number) {
     const cell = combatCell(owner)
     this.entries.set(owner, { cell, rank })
-    // Malformed duplicate IDs disable retention below; cold queries stay live.
     if (!this.byId.has(owner.id)) this.byId.set(owner.id, owner)
     let row = this.rows.get(cell)
     if (!row) this.rows.set(cell, (row = new Set()))
@@ -60,15 +59,15 @@ class SpatialRoster<T extends Point & { id: number }> {
 type QuerySession = {
   units?: SpatialRoster<Unit>
   fights?: SpatialRoster<Battle>
-  disabled?: boolean
-  checked?: boolean
 }
 const sessions = new WeakMap<World, QuerySession>()
 const suspended = new WeakSet<World>()
 
 // Internal ownership boundary: visit must be synchronous engine code mutating
 // ordinary factory/current-load data through the publishers below, not an external
-// callback. Nested exotic accessors/Proxies are not supported simulation state.
+// callback. Accessors/Proxies/custom iterators are not supported in this owned
+// plain-data scope; it is not a public fixture compatibility wrapper. No repeated
+// descriptor audit is needed for game-owned records. Public queries stay cold.
 // Only the synchronous simulation body retains an index. Public commands,
 // snapshots and standalone queries keep their exhaustive live view between calls.
 // Nothing is serialized: a loaded current-format world starts with fresh buckets.
@@ -104,109 +103,15 @@ function invalidateLiveCombatQueries(w: World) {
   if (sessions.has(w)) sessions.set(w, {})
 }
 
-function plainData(value: object) {
-  return (
-    Object.getPrototypeOf(value) === Object.prototype &&
-    Object.values(Object.getOwnPropertyDescriptors(value)).every(field => 'value' in field)
-  )
-}
-
-function plainArray(value: unknown[]) {
-  return (
-    Object.getPrototypeOf(value) === Array.prototype &&
-    !Object.getOwnPropertySymbols(value).length &&
-    Object.entries(Object.getOwnPropertyDescriptors(value)).every(
-      ([key, field]) => 'value' in field && (key === 'length' || /^(0|[1-9][0-9]*)$/.test(key))
-    )
-  )
-}
-
-function querySession(w: World) {
-  const session = sessions.get(w)
-  if (!session || session.disabled) return
-  if (!session.checked) {
-    session.checked = true
-    // Bounded guards preserve existing projection-fixture accessor behavior.
-    // They are not a recursive validator of arbitrary nested simulation state;
-    // that state is ordinary data under the ownership contract above.
-    if (
-      !plainData(w) ||
-      !plainData(w.outcome) ||
-      !plainData(w.manaWorld) ||
-      !plainData(w.land) ||
-      !plainArray(w.manaTribes) ||
-      !w.manaTribes.every(plainData) ||
-      !plainArray(w.outcome.alliances) ||
-      !plainData(w.objectCells) ||
-      Object.getPrototypeOf(w.objectCells.objects) !== Map.prototype ||
-      Reflect.ownKeys(w.objectCells.objects).length ||
-      ![...w.objectCells.objects.values()].every(plainData) ||
-      !plainArray(w.buildings) ||
-      !w.buildings.every(
-        building =>
-          plainData(building) &&
-          (!building.attackReservation || plainData(building.attackReservation)) &&
-          (!building.admission || plainData(building.admission))
-      )
-    )
-      session.disabled = true
-  }
-  return session.disabled ? undefined : session
-}
-
-function plainUnit(unit: Unit) {
-  if (!plainData(unit)) return false
-  for (const owner of [
-    unit.native,
-    unit.flight,
-    unit.builder,
-    unit.entry,
-    unit.fight,
-    unit.attackReservation,
-  ])
-    if (owner && !plainData(owner)) return false
-  for (const person of [unit.builder?.person, unit.entry?.person, unit.fight?.motion])
-    if (person && !plainData(person)) return false
-  return true
-}
-
 function unitIndex(w: World, session: QuerySession) {
-  if (session.disabled) return
-  if (session.units?.roster !== w.units || session.units.length !== w.units.length) {
-    // Supported simulation records are plain data. Custom accessor-backed test
-    // actors retain exhaustive evaluation, not a snapshot of side-effectful reads.
-    if (!plainArray(w.units) || !w.units.every(plainUnit)) {
-      session.disabled = true
-      return
-    }
+  if (session.units?.roster !== w.units || session.units.length !== w.units.length)
     session.units = new SpatialRoster(w.units)
-    if (session.units.byId.size !== w.units.length) {
-      session.disabled = true
-      return
-    }
-  }
   return session.units
 }
 
 function fightIndex(w: World, session: QuerySession) {
-  if (session.disabled) return
-  if (session.fights?.roster !== w.fights || session.fights.length !== w.fights.length) {
-    if (
-      !plainArray(w.fights) ||
-      !w.fights.every(
-        fight =>
-          plainData(fight) &&
-          plainArray(fight.members) &&
-          (!fight.slots || plainArray(fight.slots)) &&
-          (!fight.tribes || plainArray(fight.tribes)) &&
-          (!fight.attackReservation || plainData(fight.attackReservation))
-      )
-    ) {
-      session.disabled = true
-      return
-    }
+  if (session.fights?.roster !== w.fights || session.fights.length !== w.fights.length)
     session.fights = new SpatialRoster(w.fights)
-  }
   return session.fights
 }
 
@@ -227,7 +132,6 @@ export function publishLiveCombatPosition<T extends Unit | Battle>(w: World, own
 
 export function refreshLiveCombatPosition(w: World, owner: Unit | Battle) {
   const session = sessions.get(w)
-  if (session?.disabled) return
   if ('members' in owner) session?.fights?.move(owner)
   else session?.units?.move(owner)
 }
@@ -235,18 +139,28 @@ export function refreshLiveCombatPosition(w: World, owner: Unit | Battle) {
 export function appendLiveCombatUnit(w: World, unit: Unit) {
   const session = sessions.get(w),
     index = session?.units
-  if (session?.disabled || !index) return
+  if (!index) return
   if (index.roster !== w.units || index.length + 1 !== w.units.length) {
     // An earlier removal can be hidden when this append restores the old length.
     // Do not leave that stale roster reusable by the next same-turn query.
     session.units = undefined
     return
   }
-  if (!plainUnit(unit)) {
-    sessions.get(w)!.disabled = true
+  index.add(unit, index.length)
+  index.length++
+}
+
+// Both ordinary fight factories append in roster order. Publish after push so
+// later same-turn queries include the new fight without rebuilding older fights.
+export function appendLiveCombatFight(w: World, fight: Battle) {
+  const session = sessions.get(w),
+    index = session?.fights
+  if (!index) return
+  if (index.roster !== w.fights || index.length + 1 !== w.fights.length) {
+    session.fights = undefined
     return
   }
-  index.add(unit, index.length)
+  index.add(fight, index.length)
   index.length++
 }
 
@@ -273,11 +187,10 @@ function* neighborhood(source: { x: number; y: number }, range: number) {
 }
 
 export function liveCombatNeighborhood(w: World, source: { x: number; y: number }, range: number) {
-  const session = querySession(w)
+  const session = sessions.get(w)
   if (!session) return
   const units = unitIndex(w, session),
     fights = fightIndex(w, session)
-  if (!units || !fights) return
   return {
     units: units.inCells(neighborhood(source, range)),
     fights: fights.inCells(neighborhood(source, range)),
@@ -286,6 +199,6 @@ export function liveCombatNeighborhood(w: World, source: { x: number; y: number 
 }
 
 export function liveCombatPeopleInCell(w: World, cell: number) {
-  const session = querySession(w)
+  const session = sessions.get(w)
   return session && unitIndex(w, session)?.inCells([cell])
 }

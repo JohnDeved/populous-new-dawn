@@ -57,8 +57,10 @@ pop the temporary append; their explicit invalidation catches this same-length,
 same-array mutation. Hypnotise and Swamp ghost removals explicitly invalidate too:
 a later birth could restore the old roster length before the next query. Append
 precondition mismatch also invalidates conservatively. Compaction and Armageddon
-reset replace the array and rebuild the affected index before the next query. Fight creation and
-filtering use the same identity/length boundary. There are no other production
+reset replace the array and rebuild the affected index before the next query. Both
+ordinary fight creation sites publish an O(1) append, retaining insertion rank and
+current cell without rebuilding existing fights. Append precondition mismatch
+invalidates conservatively; filtering/reset still use the identity/length boundary. There are no other production
 same-length roster replacements in this base.
 
 ## Callbacks, custom records and teardown
@@ -67,12 +69,15 @@ The retained scope is the synchronous, engine-owned turn body operating on ordin
 plain-data World state from `createWorldState`/`createWorld`, internal factories and
 current-format checkpoint loading. Nested records such as casting, campaign AI,
 orders and effects are simulation data, not a supported extension callback API.
-External callers must not insert side-effectful nested accessors, Proxies, custom
-iterators or replaced ECMAScript intrinsics into that owned simulation body. The
-bounded descriptor guards preserve existing top-level/projection-owner accessor
-fixtures without evaluating those accessors; they do not claim to detect every
-exotic object anywhere in World. Standalone queries and commands remain exhaustive
-and do not rely on this ownership contract. New records within a turn come from
+External callers must not insert accessors, Proxies, custom iterators or replaced
+ECMAScript intrinsics into that owned simulation body. The internal
+`withLiveCombatQueries` helper is not a public fixture compatibility wrapper and
+does not perform recurring descriptor/array audits of ordinary engine data. The
+first candidate added such guards and an internal-wrapper accessor promise beyond
+the pre-existing public contract; that extra promise was removed after measured
+maintenance costs rejected the candidate. Actual public standalone queries and
+commands remain exhaustive, including side-effectful projection getters, and do
+not rely on the owned-turn contract. New records within a turn come from
 controlled factories and the mutation publishers above. This is an execution/input
 contract, not a save-version fallback or a recursively audited whole-world graph.
 
@@ -95,8 +100,8 @@ then rethrows the original error. No cached turn ID is used as a freshness claim
   distant/dead fight members, stable ties and >64 candidates. Query → mutation →
   query covers births, death, roster removal, fight IDs/relocation, actual Boat and
   Balloon multi-passenger publishers, Hypnotise and Preacher replacement, nested
-  sessions, observer/metrics getter reentrancy, thrown ticks, projection-owner
-  getters and remove-then-birth sequences that restore the original roster length.
+  sessions, observer/metrics getter reentrancy, thrown ticks, public standalone
+  projection-owner getters, ordinary encounter/split publication and remove-then-birth sequences that restore the original roster length.
 - `tests/live-combat-index-replay.test.mjs` runs independent indexed/exhaustive
   module graphs. It compares all enumerable world fields, typed values, collection
   order, symbol fields and object/backing-buffer aliases after each turn, including
@@ -113,7 +118,24 @@ These are correctness evidence, not hardware performance or full campaign parity
 Raw command/source receipts belong in ignored work directories and the linked PR.
 No parity scope or fixture recording changes are requested.
 
-## Controlled end-to-end benchmark protocol (pending lane/review)
+## Rejected first candidate
+
+The first eligible 200-follower diagnostic rejected candidate
+`c7f1c9bf32e8b615480d47d0246cc2c88c5b995b`: moving hostile fronts took 2.413×
+baseline total time across five predetermined pairs. Distributed no-match (1.014×)
+and dense adverse (0.994×) cases were mixed, not convincing gains. Source correctness
+acceptance is separate from this failed performance gate. All attempts, all samples,
+late-phase drift and exact runtime/source identities are retained in the
+[PR result](https://github.com/JohnDeved/populous-new-dawn/pull/657#issuecomment-6277718093).
+
+Accounting found 74,821 full record descriptor checks, 22,097 array checks and
+204 whole fight builds in the hostile run. These counts are not causal profiling,
+but identify avoidable maintenance in the owned plain-data scope. The next candidate
+removes those audits and publishes incremental fight creation. It is unmeasured
+until fresh source review and the same complete paired protocol pass. No timing
+cost is moved outside `advanceGame`, and the rejected samples are not rerun unchanged.
+
+## Controlled end-to-end benchmark protocol
 
 First compare the actual baseline and candidate, under the same runtime/CPU,
 locked dependencies, inputs, seeds, source fingerprints and serialized foreground
@@ -129,7 +151,7 @@ Keep campaign workloads beside stress fixtures. Compare exact per-turn semantic
 state/RNG/orders/cell chains and current-save continuation before interpreting time.
 
 For each scenario/tier, separately record startup/setup and repeated whole-tick
-samples, not just selector inner loops. Account for descriptor eligibility checks,
+samples, not just selector inner loops. Account for all eligibility/session work,
 unit/fight bucket construction, ID/rank maps, append/move updates, conversion and
 array invalidation/rebuilds, local gather/sort/projection, native-chain ordering,
 allocations/GC and disposal. Record global/local candidate visits, actual scanners,
@@ -141,7 +163,7 @@ After warmup, alternate baseline/candidate order over at least five paired runs;
 retain per-tick samples and report p50/p95/p99, worst tick, total wall time, memory
 and observed GC limitations. A smaller combat bucket alone is not an improvement.
 The fixed map can make neighborhoods dense, so no universal linear-complexity or
-speedup claim follows from the algorithm. Descriptor/setup costs may dominate
+speedup claim follows from the algorithm. Setup/maintenance costs may dominate
 small populations. Unrelated remaining per-building/idle-hut/full-roster work is
 not removed here. Follow with separately reserved browser-frame measurements on
 matched renderer/resolution/hardware; cloud CPU or software-GPU results are not

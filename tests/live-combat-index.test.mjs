@@ -13,12 +13,14 @@ import { createSwamp } from '../app/swamp.ts'
 import { tribeForTeam } from '../app/world-types.ts'
 import { applyHypnotise, stepLiveSwamp } from '../app/spell-effects-runtime.ts'
 import { tick } from '../app/world-turn.ts'
+import { command } from '../app/model.ts'
+import { joinBattle, processBattles } from '../app/combat-runtime.ts'
 import { stepLiveConversionVictim, appendLiveOrders } from '../app/live-movement.ts'
 import { currentPersonOrder, emptyPersonOrder, writePersonOrder } from '../app/person-orders.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import {
   liveCombatNeighborhood, liveCombatPeopleInCell, publishLiveCombatPosition,
-  refreshLiveCombatPosition, withLiveCombatQueries,
+  refreshLiveCombatPosition, appendLiveCombatFight, withLiveCombatQueries,
 } from '../app/live-combat-index.ts'
 import { exhaustiveCombatWorld } from './helpers/exhaustive-live-combat.mjs'
 
@@ -177,19 +179,22 @@ test('nested sessions preserve updates; exceptions and outside raw mutations can
   assert.equal(liveCombatNeighborhood(w, { x: 0, y: 0 }, 1), undefined)
 })
 
-test('accessor-backed public fixtures stay exhaustive without eligibility checks invoking getters', () => {
+test('standalone public queries keep accessor short-circuiting and retained aliases live', () => {
   const w = createWorldState(1), u = addUnit(w, 'red', 'warrior', { x: 64, z: 0 })
   Object.defineProperty(u, 'z', { get() { assert.fail('distant first axis must short-circuit') } })
-  withLiveCombatQueries(w, () => compare(w, { x: 0, y: 0 }, 3))
+  compare(w, { x: 0, y: 0 }, 3)
   const w2 = createWorldState(1), a = addUnit(w2, 'red', 'warrior', point(0, 0)), b = addUnit(w2, 'blue', 'brave', point(32768, 0))
   let reads = 0
   Object.defineProperty(a, 'hp', { get() { reads++; b.x = -8; return 10 } })
-  withLiveCombatQueries(w2, () => {
-    assert.equal(liveCombatNeighborhood(w2, { x: 0, y: 0 }, 1), undefined)
-    assert.equal(reads, 0)
-    compare(w2, { x: 0, y: 0 }, 1)
-    assert.ok(reads > 0)
-  })
+  assert.equal(liveCombatNeighborhood(w2, { x: 0, y: 0 }, 1), undefined)
+  assert.equal(reads, 0)
+  compare(w2, { x: 0, y: 0 }, 1)
+  assert.ok(reads > 0)
+  b.x = 120
+  compare(w2, { x: 0, y: 0 }, 1)
+  const replacement = addUnit(w2, 'blue', 'brave', point(0, 0))
+  w2.units.splice(0, w2.units.length, replacement)
+  compare(w2, { x: 0, y: 0 }, 1)
 })
 
 
@@ -350,5 +355,63 @@ test('an append with an unexpected roster length invalidates instead of retainin
     const newborn = addUnit(w, 'blue', 'brave', point(0, 0))
     const result = compare(w, { x: 0, y: 0 }, 1)
     assert.ok(!result.owners.has(old.id)); assert.equal(result.owners.get(newborn.id), newborn)
+  })
+})
+
+
+test('ordinary encounter creation and reinforcement splits publish insertion order in the same session', () => {
+  const w = createWorld()
+  w.units = []; w.buildings = []; w.shrines = []; w.fights = []
+  w.terrain.fill(3); w.terrainVersion++; w.manaWorld.gameFlags |= 64
+  const defender = addUnit(w, 'red', 'warrior', { x: 0, z: 0 })
+  const attacker = addUnit(w, 'blue', 'brave', { x: 1, z: 0 })
+  const origin = combatPerson(defender)
+  withLiveCombatQueries(w, () => {
+    compare(w, origin, 7)
+    w.selected = [attacker.id]
+    command(w, defender)
+    tick(w, 1 / 12)
+    assert.equal(w.fights.length, 1)
+    const original = w.fights[0]
+    assert.equal(original.encounter, undefined, 'ordinary encounter reaches the group transition')
+    compare(w, origin, 7)
+    const blue = addUnit(w, 'blue', 'warrior', { x: defender.x + .5, z: defender.z })
+    joinBattle(w, blue, defender)
+    compare(w, origin, 7)
+    const red = addUnit(w, 'red', 'warrior', { x: attacker.x + .5, z: attacker.z })
+    joinBattle(w, red, attacker)
+    assert.equal(w.fights.length, 2)
+    const split = w.fights[1]
+    assert.deepEqual(original.slots, [defender.id, attacker.id, 0, 0, 0, 0])
+    assert.deepEqual(split.slots, [red.id, blue.id, 0, 0, 0, 0])
+    assert.deepEqual(liveCombatNeighborhood(w, origin, 255).fights, [original, split])
+    compare(w, origin, 7)
+    processBattles(w)
+    compare(w, origin, 7)
+    for (const battle of w.fights) compare(w, combatPerson(w.units.find(u => u.id === battle.members[0])), 3)
+  })
+})
+
+test('fight append mismatch invalidates a hidden removal and preserves current insertion ties', () => {
+  const w = createWorldState(1), origin = { x: 0, y: 0 }
+  const a = addUnit(w, 'red', 'warrior', point(0, 0)), b = addUnit(w, 'blue', 'warrior', point(0, 0))
+  const battle = () => ({ id: w.nextId++, ...point(0, 0), angle: 0, members: [a.id, b.id] })
+  const old = battle(), retained = battle()
+  w.fights.push(old, retained)
+  withLiveCombatQueries(w, () => {
+    compare(w, origin, 1)
+    // Defensive mismatch: omit removal publication, then restore the old length.
+    w.fights.splice(0, 1)
+    const appended = battle()
+    w.fights.push(appended)
+    appendLiveCombatFight(w, appended)
+    const result = compare(w, origin, 1)
+    assert.ok(!result.owners.has(old.id))
+    assert.deepEqual(liveCombatNeighborhood(w, origin, 1).fights, [retained, appended])
+    const moved = point(4096, 4096)
+    publishLiveCombatPosition(w, retained, moved)
+    publishLiveCombatPosition(w, retained, point(0, 0))
+    assert.deepEqual(liveCombatNeighborhood(w, origin, 1).fights, [retained, appended])
+    compare(w, origin, 1)
   })
 })

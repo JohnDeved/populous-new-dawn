@@ -1,4 +1,8 @@
-import { publishLiveCombatPosition, refreshLiveCombatPosition } from './live-combat-index.ts'
+import {
+  appendLiveCombatFight,
+  publishLiveCombatPosition,
+  refreshLiveCombatPosition,
+} from './live-combat-index.ts'
 import { tribeForTeam, type Unit, type World, type Battle, type Building } from './world-types.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import { maxHp } from './world-rules.ts'
@@ -203,6 +207,7 @@ export function joinBattle(
       angle: 0,
     }
     w.fights.push(b)
+    appendLiveCombatFight(w, b)
     for (const [person, opponent, phase] of [
       [u, target, EncounterPhase.Approach],
       [target, u, EncounterPhase.Wait],
@@ -283,8 +288,8 @@ function reinforceBattle(w: World, b: Battle, recruit: Unit) {
   w.randomState = state.randomState
   b.center = group.center
   b.members = group.members.filter(Boolean)
-  if (created)
-    w.fights.push({
+  if (created) {
+    const battle: Battle = {
       id: created.id,
       x: b.x,
       z: b.z,
@@ -293,7 +298,10 @@ function reinforceBattle(w: World, b: Battle, recruit: Unit) {
       members: created.members.filter(Boolean),
       slots: created.members,
       tribes: created.tribes,
-    })
+    }
+    w.fights.push(battle)
+    appendLiveCombatFight(w, battle)
+  }
   for (const [id, p] of people) {
     const u = units.get(id)!
     if (!p.workFlags) {
