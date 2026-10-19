@@ -1,0 +1,130 @@
+{
+  "runtimeSource": "4fe8c2762937fbc3af9f88329ff78847f96c4b09",
+  "equalGitObjects": {
+    "app": {
+      "5330457fba0ae1cda79b95eed4ed695808d3b30e": "746d099736142d8fce8d00ef2d75cf463f4b5007",
+      "3264c6cfe3331fd48bc1bdc592fb79a1e90e289b": "746d099736142d8fce8d00ef2d75cf463f4b5007",
+      "4fe8c2762937fbc3af9f88329ff78847f96c4b09": "746d099736142d8fce8d00ef2d75cf463f4b5007"
+    },
+    "public": {
+      "5330457fba0ae1cda79b95eed4ed695808d3b30e": "9ed3f00707978d4447c6984aa6b8b3dc322fd798",
+      "3264c6cfe3331fd48bc1bdc592fb79a1e90e289b": "9ed3f00707978d4447c6984aa6b8b3dc322fd798",
+      "4fe8c2762937fbc3af9f88329ff78847f96c4b09": "9ed3f00707978d4447c6984aa6b8b3dc322fd798"
+    },
+    "package.json": {
+      "5330457fba0ae1cda79b95eed4ed695808d3b30e": "4f9c16f0752053538d7c60e9c223ee85599b0181",
+      "3264c6cfe3331fd48bc1bdc592fb79a1e90e289b": "4f9c16f0752053538d7c60e9c223ee85599b0181",
+      "4fe8c2762937fbc3af9f88329ff78847f96c4b09": "4f9c16f0752053538d7c60e9c223ee85599b0181"
+    },
+    "package-lock.json": {
+      "5330457fba0ae1cda79b95eed4ed695808d3b30e": "97cd9ade0190af96e99b389c93d4ee20bef5065c",
+      "3264c6cfe3331fd48bc1bdc592fb79a1e90e289b": "97cd9ade0190af96e99b389c93d4ee20bef5065c",
+      "4fe8c2762937fbc3af9f88329ff78847f96c4b09": "97cd9ade0190af96e99b389c93d4ee20bef5065c"
+    },
+    "vite.config.ts": {
+      "5330457fba0ae1cda79b95eed4ed695808d3b30e": "09c2a51b0013c6f1388117b573d0efb1b84989c2",
+      "3264c6cfe3331fd48bc1bdc592fb79a1e90e289b": "09c2a51b0013c6f1388117b573d0efb1b84989c2",
+      "4fe8c2762937fbc3af9f88329ff78847f96c4b09": "09c2a51b0013c6f1388117b573d0efb1b84989c2"
+    },
+    "wrangler.cloudflare.jsonc": {
+      "5330457fba0ae1cda79b95eed4ed695808d3b30e": "6280db8db7afe28829a639416af34f9afad2b1cf",
+      "3264c6cfe3331fd48bc1bdc592fb79a1e90e289b": "6280db8db7afe28829a639416af34f9afad2b1cf",
+      "4fe8c2762937fbc3af9f88329ff78847f96c4b09": "6280db8db7afe28829a639416af34f9afad2b1cf"
+    },
+    "next.config.ts": {
+      "5330457fba0ae1cda79b95eed4ed695808d3b30e": "e9ffa3083ad279ecf95fd8eae59cb253e9a539c4",
+      "3264c6cfe3331fd48bc1bdc592fb79a1e90e289b": "e9ffa3083ad279ecf95fd8eae59cb253e9a539c4",
+      "4fe8c2762937fbc3af9f88329ff78847f96c4b09": "e9ffa3083ad279ecf95fd8eae59cb253e9a539c4"
+    },
+    "postcss.config.mjs": {
+      "5330457fba0ae1cda79b95eed4ed695808d3b30e": "61e36849cf7cfa9f1f71b4a3964a4953e3e243d3",
+      "3264c6cfe3331fd48bc1bdc592fb79a1e90e289b": "61e36849cf7cfa9f1f71b4a3964a4953e3e243d3",
+      "4fe8c2762937fbc3af9f88329ff78847f96c4b09": "61e36849cf7cfa9f1f71b4a3964a4953e3e243d3"
+    },
+    "tsconfig.json": {
+      "5330457fba0ae1cda79b95eed4ed695808d3b30e": "76481812c25a92deb97ca2e5ad91f120751a848e",
+      "3264c6cfe3331fd48bc1bdc592fb79a1e90e289b": "76481812c25a92deb97ca2e5ad91f120751a848e",
+      "4fe8c2762937fbc3af9f88329ff78847f96c4b09": "76481812c25a92deb97ca2e5ad91f120751a848e"
+    }
+  },
+  "priorReceipts": [
+    {
+      "run": 39219199654,
+      "suite": "frontend",
+      "receiptSha256": "b270c146696bdf00500653ef20bd185f06657f87fb09acd86975a131b6acada5",
+      "diagnosticCommit": "bc4d923cfd1f2d4b3bf204bafb6c1997147b7878",
+      "runtimeSource": "5330457fba0ae1cda79b95eed4ed695808d3b30e",
+      "passedCases": [
+        "settings-frontend",
+        "menu-feedback",
+        "quit-standard"
+      ]
+    },
+    {
+      "run": 39219199654,
+      "suite": "ingame",
+      "receiptSha256": "84328e86919a1b51aa43c3347a06ac09535ce2ade7ab4478dbc138907423ed08",
+      "diagnosticCommit": "bc4d923cfd1f2d4b3bf204bafb6c1997147b7878",
+      "runtimeSource": "5330457fba0ae1cda79b95eed4ed695808d3b30e",
+      "passedCases": [
+        "settings-ingame",
+        "ingame-healthy",
+        "ingame-font-failure",
+        "ingame-slider-failure",
+        "ingame-late-font",
+        "ingame-late-sliders"
+      ]
+    },
+    {
+      "run": 39219199654,
+      "suite": "cursor",
+      "receiptSha256": "dfce9a8f124d731a5e37a0bd3ac97fa23bb4ae2f25846e16bf1f1cc118a5c805",
+      "diagnosticCommit": "bc4d923cfd1f2d4b3bf204bafb6c1997147b7878",
+      "runtimeSource": "5330457fba0ae1cda79b95eed4ed695808d3b30e",
+      "passedCases": [
+        "cursor-dpr1",
+        "cursor-dpr2",
+        "cursor-decode-failure",
+        "help-contextual"
+      ]
+    },
+    {
+      "run": 39219199654,
+      "suite": "fullscreen",
+      "receiptSha256": "be7e5ff59389843d06ef304c4b4ce106650a48f6df7821139aa24348f734ef40",
+      "diagnosticCommit": "bc4d923cfd1f2d4b3bf204bafb6c1997147b7878",
+      "runtimeSource": "5330457fba0ae1cda79b95eed4ed695808d3b30e",
+      "passedCases": [
+        "fullscreen-frontend",
+        "fullscreen-placement"
+      ]
+    },
+    {
+      "run": 39221118030,
+      "suite": "frontend",
+      "receiptSha256": "4720e9467c7a9b241496788fc19327bced4a62dc75b7927a19da36b180f1672d",
+      "diagnosticCommit": "e871b610fbc29af97b874a95b83b7c53e8735716",
+      "runtimeSource": "3264c6cfe3331fd48bc1bdc592fb79a1e90e289b",
+      "passedCases": [
+        "frontend-healthy",
+        "frontend-font-failure",
+        "frontend-slider-failure",
+        "frontend-late-success"
+      ]
+    },
+    {
+      "run": 39221118030,
+      "suite": "quit",
+      "receiptSha256": "4221d7c867b6d25e59161559feb698fd0d637e3d18353edae765a05b1171e523",
+      "diagnosticCommit": "e871b610fbc29af97b874a95b83b7c53e8735716",
+      "runtimeSource": "3264c6cfe3331fd48bc1bdc592fb79a1e90e289b",
+      "passedCases": [
+        "quit-compact"
+      ]
+    }
+  ],
+  "limits": [
+    "20priorcase passes retained against identical app/public/package/build-config objects. Prior failures remain failures. Reporter scripts changed only.",
+    "One missing gameplay fullscreen case only; no performance or physical OS keyboard claim."
+  ]
+}
