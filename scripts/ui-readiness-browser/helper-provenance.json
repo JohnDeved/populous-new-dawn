@@ -1,0 +1,25 @@
+{
+  "runtimeSource": "ec646b9506fff0f2e67efea080bd22b8e6aa72f5",
+  "helpers": {
+    "selector-display.mjs": {
+      "reviewedInputSha256": "f17813dc11b1c7699e75f2de4192433ff1ef39014f19053b95a5f600334663bb",
+      "composedSha256": "f17813dc11b1c7699e75f2de4192433ff1ef39014f19053b95a5f600334663bb"
+    },
+    "menu-feedback.mjs": {
+      "reviewedInputSha256": "72c1e312c10c29d3591cd65311e636b6ee27fdcbab822003c98055881a42ccbf",
+      "composedSha256": "56c1eb5e1998667fa3b225ad8837582c9454f81842619440375a2f0a3d5205e5"
+    },
+    "neutral-cursor.mjs": {
+      "reviewedInputSha256": "d6af6f94f06b75029faca3b8cf335b0b4b339a0a54ddaf94f43bfd26f4fd52d4",
+      "composedSha256": "d6af6f94f06b75029faca3b8cf335b0b4b339a0a54ddaf94f43bfd26f4fd52d4"
+    },
+    "fullscreen.mjs": {
+      "reviewedInputSha256": "682fb8dce43efcd58b337cc033e849e9be93f709f488cc077c8576452af46b4b",
+      "composedSha256": "682fb8dce43efcd58b337cc033e849e9be93f709f488cc077c8576452af46b4b"
+    },
+    "contextual-help.mjs": {
+      "reviewedInputSha256": "6167303b5ff0e375f54b6849df81ce13f70c344b3c8f58d87e25ce42e344e494",
+      "composedSha256": "6167303b5ff0e375f54b6849df81ce13f70c344b3c8f58d87e25ce42e344e494"
+    }
+  }
+}
