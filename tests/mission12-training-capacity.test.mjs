@@ -9,7 +9,10 @@ import { availableTrainingPeople } from '../app/computer-selection.ts'
 import { random } from '../app/native-math.ts'
 import { withCampaignTribe } from '../app/campaign-runtime.ts'
 
-const referenceId = scalableReferenceIds(12)
+// The paired producer trace pins classic Tower allocations234/235/236 at turns
+// 62/63/64. Scalable construction uses reserved low handles instead, consuming
+// no general IDs. All later training ordinals and gameplay assertions stay exact.
+const referenceId = scalableReferenceIds(12, [234, 235, 236])
 
 const training = w => w.campaignAIs[1].tasks.filter(t => t.flags & 1 && t.type === 6)
 const person = u => u?.entry?.person ?? u?.native ?? u?.flight ?? u?.fight?.motion
@@ -17,8 +20,21 @@ const person = u => u?.entry?.person ?? u?.native ?? u?.flight ?? u?.fight?.moti
 test('ordinary M12 capacity admission produces real Warriors and replays the training lifecycle', async () => {
   const store = createGameStore()
   store.startMission(12)
-  const w = store.getWorld()
-  while (w.turn < 126) tick(w, 1 / 12)
+  const w = store.getWorld(),
+    authoredBuildings = new Set(w.buildings.map(b => b.id)),
+    built = []
+  while (w.turn < 126) {
+    tick(w, 1 / 12)
+    for (const b of w.buildings) if (!authoredBuildings.has(b.id)) {
+      authoredBuildings.add(b.id)
+      built.push([w.turn, b.id, b.team, b.kind, b.x, b.z])
+    }
+  }
+  assert.deepEqual(built, [
+    [62, 1023, 'green', 'tower', 9.11328125, 65.12890625],
+    [63, 1022, 'yellow', 'tower', 0.87109375, -28.88671875],
+    [64, 1021, 'red', 'tower', -43.12890625, 45.11328125],
+  ])
   assert.equal(training(w).length, 0)
   withCampaignTribe(w, 1, () =>
     assert.equal(availableTrainingPeople(computerSelectionWorld(w, 1).world), 7)
