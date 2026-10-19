@@ -1,0 +1,104 @@
+name: Built-worker selector baseline diagnostic
+
+# One explicitly reviewed diagnostic branch, never product PR readiness.
+on:
+  push:
+    branches: [diagnostic/ui-selector-baseline-20261019]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ui-selector-baseline-diagnostic
+  cancel-in-progress: false
+
+jobs:
+  ui-readiness-browser:
+    name: Built worker UI (${{ matrix.suite }})
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        suite: [baseline]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CANDIDATE_SHA: '39bb87121df19a3eab3a5298cd256462919e1673'
+      RUNTIME_SOURCE_SHA: 'ce0c4f7e4415366f3f63807311b3d97d30952750'
+      UI_DIAGNOSTIC_SUITE: ${{ matrix.suite }}
+      PR_BASE_SHA: 'ce0c4f7e4415366f3f63807311b3d97d30952750'
+      EXPECTED_CHROME_VERSION: 'Google Chrome 155.0.8059.39'
+      EXPECTED_CHROME_SHA256: '9bfb381296dffe75f3419d07b6cc64525105ed117d1453a4ef3b291cb97d2b58'
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Check out exact diagnostic commit
+        id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 3
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Initialize receipt and verify diagnostic-only provenance
+        run: |
+          mkdir -p outputs/ui-readiness-upload
+          node --input-type=module <<'NODE'
+          import { writeFileSync } from 'node:fs'
+          writeFileSync('outputs/ui-readiness-upload/receipt.json', JSON.stringify({
+            status: 'setup-pending', diagnosticCommit: process.env.GITHUB_SHA,
+            candidate: process.env.CANDIDATE_SHA, suite: process.env.UI_DIAGNOSTIC_SUITE,
+            runtimeSource: process.env.RUNTIME_SOURCE_SHA,
+            base: process.env.PR_BASE_SHA, runId: process.env.GITHUB_RUN_ID,
+            attempt: process.env.GITHUB_RUN_ATTEMPT,
+            limits: ['Diagnostic push, not a product PR merge or readiness gate.'],
+          }, null, 2))
+          NODE
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD^)" = "$CANDIDATE_SHA"
+          test "$(git rev-parse HEAD^^)" = "$RUNTIME_SOURCE_SHA"
+          test "$(git diff --name-only "$CANDIDATE_SHA" HEAD)" = '.github/workflows/ui-readiness-browser.yml'
+          printf 'Diagnostic: %s\nCandidate: %s\nRuntime integration: %s\nBase: %s\n' "$GITHUB_SHA" "$CANDIDATE_SHA" "$RUNTIME_SOURCE_SHA" "$PR_BASE_SHA" >> "$GITHUB_STEP_SUMMARY"
+      - name: Install locked dependencies (never install a browser)
+        run: |
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+          npm ci --no-audit --no-fund
+      - name: Build current Vinext worker (no deployment)
+        timeout-minutes: 10
+        run: npm run build
+      - name: Exercise built worker and original UI assets
+        timeout-minutes: 8
+        run: timeout --signal=TERM --kill-after=10s 8m node scripts/ui-readiness-browser/run.mjs
+      - name: Reject tracked input mutation
+        if: ${{ always() && steps.checkout.outcome == 'success' }}
+        run: git diff --exit-code HEAD --
+      - name: Finalize failure before runner setup
+        if: ${{ always() && steps.checkout.outcome == 'success' }}
+        run: |
+          if [ ! -f outputs/ui-readiness-browser/receipt.json ]; then
+            mkdir -p outputs/ui-readiness-upload
+            node --input-type=module <<'NODE'
+          import { writeFileSync } from 'node:fs'
+          writeFileSync('outputs/ui-readiness-upload/receipt.json', JSON.stringify({ status: 'failed', diagnosticCommit: process.env.GITHUB_SHA, candidate: process.env.CANDIDATE_SHA, reason: 'Setup or build failed before runner receipt; inspect bounded workflow step logs.' }))
+          NODE
+          fi
+      - name: Retain bounded validation receipts and screenshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ui-readiness-browser-${{ github.sha }}-${{ matrix.suite }}
+          path: |
+            outputs/ui-readiness-upload/**/*.json
+            outputs/ui-readiness-upload/**/*.log
+            outputs/ui-readiness-upload/**/*.png
+          if-no-files-found: warn
+          retention-days: 7
