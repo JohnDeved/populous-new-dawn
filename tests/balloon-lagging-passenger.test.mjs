@@ -1,3 +1,7 @@
+import {
+  stagedCheckpointComparisonView as comparable,
+  assertStagedCheckpointComparisonDomain,
+} from './helpers/staged-checkpoint-comparison-view.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createWorld, addUnit, browserPosition, tick } from '../app/model.ts'
@@ -79,18 +83,9 @@ test('lagging Balloon passenger becomes driver and returns to both retained shar
     ids.map(id => w.buildingOrders.records[id].references),
     [1, 1]
   )
-  const restored = migrateCheckpoint(structuredClone(w)),
-    comparable = world => {
-      const copy = structuredClone(world)
-      for (const [index, id] of [
-        [0, 102],
-        [2, 120],
-      ]) {
-        assert.equal(copy.shrines[index].id, id)
-        if (copy.shrines[index].reward === undefined) copy.shrines[index].reward = 'mana'
-      }
-      return copy
-    }
+  const restored = migrateCheckpoint(structuredClone(w))
+  assertStagedCheckpointComparisonDomain(w)
+  assertStagedCheckpointComparisonDomain(restored)
   assert.deepEqual(
     w.shrines.flatMap((head, index) =>
       head.reward !== restored.shrines[index].reward ? [index] : []
