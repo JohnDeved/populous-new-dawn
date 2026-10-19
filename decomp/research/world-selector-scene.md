@@ -103,3 +103,37 @@ remain BLOCKED/NOT VERIFIED after retained browser/server failures. A remote-onl
 browser attempt failed before loading UI. Accepted evidence and limits are indexed
 in evidence/selector-scene-validation-20261015. Root owns final merge; this does not
 close the full original UI or campaign issues.
+
+## Widescreen compatibility correction (2026-10-19)
+
+The former CSS restricted the entire rendered scene to the panel's centered 4:3
+frame. On 1920×1080 it rendered only 1440×1080, leaving two 240-pixel unused
+bands; 3440×1440 left two 760-pixel bands. This is a modern display defect, not
+an original-art constraint. The scene now uses the full available width while
+retaining the original height and bottom anchor. The GPU maps native projected
+coordinates around (320,240) with a uniform CSS scale of
+`min(sceneWidth / 640, sceneHeight / 480)`, exposing more horizontal scene instead
+of stretching it. Star clipping expands by half the extra logical width on each
+side. The default/native 640×480 star bounds and all original projection, motion,
+mesh, texture, lighting, and depth math remain unchanged. Backing allocation stays
+capped at 4096 per axis independently of CSS geometry and DPR.
+
+The panel, title, glyph positions, tooltips, and their original common art scale
+are unchanged. There is no celestial picking handler in the shipped selector:
+the canvas is aria-hidden inside a pointer-events:none scene, and mission input
+uses the existing DOM panel buttons and keyboard handler. Therefore enlarging the
+scene does not translate or stretch an interactive hit target. No cursor/help
+sources, imported assets, profile rules, or gameplay parity credit change.
+
+Portable regressions cover native/16:9/ultrawide/4K frames, repeated resize back to
+4:3, DPR1/1.25/2, bounded backing allocation, circular screen geometry, native
+panel/title relationships, and stars in both newly exposed margins. These do not
+establish rendered acceptance. Required hosted acceptance is a comparable before
+(base ce0c4f7e4415366f3f63807311b3d97d30952750) and candidate capture at 640×480,
+1920×1080, 3440×1440 and 1920×1080 DPR2, opening Campaign from the shipped main
+menu and waiting for the same settled Mission 1 scene. Inspect native center and
+planet proportions, lateral stars/orbits, unchanged bottom art and glyph hitboxes,
+hover tooltip and Start highlight. Repeat selection Mission 2 (locked), ArrowRight
+back to Mission 1, resize 4:3→wide→4:3, and ordinary Mission 1 launch. Local browser
+execution is blocked in this task; the parent coordinates hosted captures and full
+check/build gates. Until those run, visual acceptance remains pending.
