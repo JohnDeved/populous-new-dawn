@@ -88,6 +88,8 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
   // boundary without fabricating the original click or claiming distance parity.
   const legacy = structuredClone(world)
   legacy.buildingOrders.records[second].b = 0
+  delete legacy.buildingOrders.records[second].boardingOriginKnown
+  assert.equal(Object.hasOwn(legacy.buildingOrders.records[second], 'boardingOriginKnown'), false)
   let closest = Infinity,
     controlRetirements = 0,
     boarded = null

@@ -304,6 +304,7 @@
         "app/person-orders.ts",
         "app/person-routes.ts",
         "app/shaman-guard.ts",
+        "app/vehicle-boarding-orders.ts",
         "app/route-advance.ts",
         "app/world-rules.ts"
       ],
@@ -317,6 +318,8 @@
         "scripts/extract-shaman-guard-vectors.mjs",
         "tests/shaman-guard-native.test.mjs",
         "tests/shaman-guard-input.test.mjs",
+        "tests/boarding-origin-lifetime.test.mjs",
+        "tests/boarding-origin-runtime.test.mjs",
         "tests/automatic-boat-crossing.test.mjs",
         "tests/game.test.mjs"
       ],
@@ -359,6 +362,7 @@
         { "path": "decomp/research/transport-idle-state.md", "heading": "Native behavior" },
         { "path": "decomp/research/resting-slot-layout.md", "heading": "Native contract" },
         { "path": "decomp/research/balloon-command-position.md", "heading": "Finding" },
+        { "path": "decomp/research/boarding-origin-lifetime.md", "heading": "Native contract" },
         { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Terrain changes do not invalidate active person routes" },
         { "path": "decomp/README.md", "heading": "State-10 order dispatch and resumption" },
         {

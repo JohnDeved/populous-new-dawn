@@ -659,6 +659,12 @@ Balloon raw-payload startup is documented in
 Its native probe executes the real configuration/position composition; packed
 cell and object position branches remain explicit live boundaries.
 
+Command-22 clicked-origin lifetime is documented in
+[`research/boarding-origin-lifetime.md`](research/boarding-origin-lifetime.md).
+Static original bytes establish the wrapped, unhalved distance cutoff; focused
+live controls cover completion and checkpoint provenance without claiming an
+ordinary sailed trajectory or rendered campaign acceptance.
+
 ## Person initialization and training handoff
 
 ```sh
