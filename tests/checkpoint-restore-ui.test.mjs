@@ -159,7 +159,7 @@ for (const failure of ['open', 'abort']) test(`actual Home ${failure} failure ex
     assert.notEqual(store.getWorld(), active)
     assert.deepEqual(home.states, ['choice', 'playing'], 'only deliberate Load invokes actual Home beginLoad')
     home.cleanup()
-  }, { latest: { version: 2, world: saved }, profile: { version: 1, completed: [1, 2] } })
+  }, { latest: { version: 3, world: saved }, profile: { version: 1, completed: [1, 2] } })
 })
 
 test('genuine empty and unusable records are read results, not a failed lookup or proof of empty disk', async () => {
@@ -211,7 +211,7 @@ test('late read keeps a newer memory save and current world after navigation', a
     home.navigation.loadCheckpoint()
     assert.equal(store.getWorld().turn, 999, 'post-await memory checkpoint wins over old read')
     home.cleanup()
-  }, { latest: { version: 2, world: saved } })
+  }, { latest: { version: 3, world: saved } })
 })
 
 for (const interruption of ['unmount', 'world replacement']) test(`initial restore completion cannot navigate after ${interruption}`, async () => {
@@ -285,7 +285,7 @@ for (const failWrite of [false, true]) test(`explicit Save after incompatible re
     assert.equal(text(menu(store)).includes('stored save has not been changed'), failWrite)
     assert.equal(button(menu(store), 'Load Game').props['aria-disabled'], false)
     if (failWrite) assert.deepEqual(records, before)
-    else assert.equal(records.get('latest').version, 2)
+    else assert.equal(records.get('latest').version, 3)
     assert.equal(store.loadCheckpoint(), true, 'even a failed disk write retains an explicit session checkpoint')
     assert.equal(store.getWorld().turn, 217)
     home.cleanup()
@@ -300,7 +300,7 @@ test('successful explicit Save supersedes an older pending incompatible read sna
     store.getWorld().turn = 217
     assert.equal(await store.saveCheckpoint(), true)
     assert.equal(store.getCheckpointReadStatus(), 'read')
-    assert.equal(records.get('latest').version, 2)
+    assert.equal(records.get('latest').version, 3)
     await read()
     assert.equal(await restoring, true)
     assert.equal(store.getCheckpointReadStatus(), 'read')

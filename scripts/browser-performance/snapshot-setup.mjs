@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 // Test-only authored snapshot transport and public-Load setup. Never imported by app/.
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
@@ -38,7 +39,7 @@ export function validateSnapshotFixture(fixture) {
   const record = checkpointCodec(fixture.transfer, true), world = checkpointCodec(fixture.expected, true)
   assert.equal(encoded(record), text, 'Snapshot transport is not canonical/lossless')
   assert.equal(encoded(world), expectedText, 'Expected transport is not canonical/lossless')
-  assert.equal(record.version, 2)
+  assert.equal(record.version, CHECKPOINT_VERSION)
   for (const w of [record.world, world]) {
     assert.deepEqual(w.capacityPolicy, { version: 1, mode: 'scalable' })
     assert.equal(w.outcome.level, 2); assert.equal(w.turn, 70); assert.equal(w.inputMask, 0)
@@ -74,7 +75,7 @@ export async function createSnapshotFixture({ output, source }) {
   let changed = 0
   skipIntroduction({ world, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() { changed++ } })
   assert.equal(changed, 1); assert.equal(world.inputMask, 0); assert.equal(world.flyby.flags, 20)
-  const checkpoint = { version: 2, world }
+  const checkpoint = { version: CHECKPOINT_VERSION, world }
   const expectedWorld = migrateCheckpoint(migrateCheckpoint(structuredClone(world)))
   const admittedWorld = structuredClone(expectedWorld)
   cancelInteraction(admittedWorld)

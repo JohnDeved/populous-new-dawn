@@ -9,10 +9,11 @@ import { discardInvalidResident } from './building-resident.ts'
 import { initializeVaultKnowledgeGift } from './world-effects.ts'
 import { createSharedAniblResource, type PresentationBinding } from './shared-anibl.ts'
 
+import { CHECKPOINT_VERSION } from './checkpoint-format.ts'
+export { CHECKPOINT_VERSION } from './checkpoint-format.ts'
+
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
-  // Development saves support this format only; incompatible records stay intact.
-  CHECKPOINT_VERSION = 2,
   PROFILE_VERSION = 1
 let checkpointDatabase: Promise<IDBDatabase | null> | null = null
 

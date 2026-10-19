@@ -18,7 +18,7 @@ tier or completion of the many-thousand-follower goal.
   reference path, not a shipping old-save or game-store option.
   Normal browser game creation calls `createGameStore()` and is scalable.
 - New games, mission starts and restarts always use scalable policy. The shipping
-  store accepts only the current v2 envelope with explicit scalable policy.
+  store accepts only the current v3 envelope with explicit scalable policy.
   Missing-policy, classic, and obsolete envelopes are incompatible: the UI
   explains this without deleting or overwriting the record. Campaign progress
   is read independently. See the [development save contract](../README.md#development-save-contract).
@@ -43,7 +43,7 @@ building handles. Building allocation searches those low handles, including live
 vehicles and linked heads in collision checks, and throws before changing the
 world on exhaustion. The packed terrain/light representation is not widened.
 
-New checkpoint writes use envelope version **2**, while the IndexedDB database
+New checkpoint writes use envelope version **3**, while the IndexedDB database
 and campaign profile remain version 1. Obsolete development saves are rejected,
 not migrated. Historical reconstruction lives only in the explicit test/research
 fixture harness, never in the shipping reader. Full-graph cloning retains pool indices,
