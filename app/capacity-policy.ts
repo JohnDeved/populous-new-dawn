@@ -96,12 +96,16 @@ export function restoreCapacityPolicy(world: World) {
     world.nextId >= Number.MAX_SAFE_INTEGER
   )
     throw new RangeError('Invalid scalable checkpoint object-ID reservation')
+  // Linked shrine owners are unpublished until triggered, but already reserve IDs.
+  // Set iteration includes descendants while deduplicating aliases and cycles.
+  const shrines = new Set(world.shrines)
+  for (const shrine of shrines) if (shrine.linkedShrine) shrines.add(shrine.linkedShrine)
   for (const objects of [
     world.units,
     world.buildings,
     world.vehicles,
     world.trees,
-    world.shrines,
+    [...shrines],
     world.effects,
     world.fights,
     world.projectiles,

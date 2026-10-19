@@ -299,3 +299,17 @@ test('scalable formation release tests the entire queue handle; classic retains 
     assert.deepEqual(formations, (mode === 'scalable' ? handle : handle & 255) ? [123] : [], `${mode}/${handle}`)
   }
 })
+
+test('scalable reservation validation includes recursively linked shrine owners without alias loops', () => {
+  for (const id of [1024, Number.MAX_SAFE_INTEGER + 1, -1]) {
+    const world = createWorld(1, 'scalable'), root = world.shrines[0]
+    root.linkedShrine = { ...root, id, linkedShrine: root }
+    const before = structuredClone(world)
+    assert.throws(() => restoreCapacityPolicy(world), /object ID/)
+    assert.deepEqual(world, before, 'invalid hidden ownership is rejected without rewriting the graph')
+  }
+  const world = createWorld(1, 'scalable'), root = world.shrines[0]
+  root.linkedShrine = world.shrines[1]
+  root.linkedShrine.linkedShrine = root
+  assert.doesNotThrow(() => restoreCapacityPolicy(world), 'each identity is validated once')
+})
