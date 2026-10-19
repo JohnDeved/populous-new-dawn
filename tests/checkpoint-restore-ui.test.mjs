@@ -24,7 +24,7 @@ new Function('require', 'exports', tooltipJavascript)(name => {
   if (name === 'react' || name === 'react/jsx-runtime') return require(name)
   if (name === '../public/original/world-selector/text/provenance.json') return require(name)
   if (name === './menu-tooltip-layout') return { menuTooltipPosition }
-  if (name === './menu-tooltip.module.css') return new Proxy({}, { get: (_, name) => name })
+  if (name === './menu-tooltip.module.css') return { tooltip: 'tooltip' }
   throw new Error(`Unexpected tooltip dependency: ${name}`)
 }, tooltipModule.exports)
 const { MenuTooltip } = tooltipModule.exports
