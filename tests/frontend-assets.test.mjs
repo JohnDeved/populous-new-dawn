@@ -198,3 +198,11 @@ test('actual main menu and both Options skins consume settled startup tooltip re
   }
   assert.equal(tooltip(options,{prepared:undefined,category:'Game',root:{}}).props.ready,false)
 })
+
+test('ingame prepared probe binds strict cold/warm decode and request counts to its five-asset inventory', () => {
+  const probe = readFileSync(new URL('../scripts/local-render/ingame-prepared-assets.mjs', import.meta.url), 'utf8')
+  assert.match(probe, /const paths = \['\/original\/pause-font\.png', \.\.\.\[0, 1, 2\]\.map\(n => `\/original\/options\/ingame-\$\{n\}\.png`\), '\/original\/world-selector\/text\/tooltip-font-c\.png'\]/)
+  assert.equal([...probe.matchAll(/assert\.equal\(await decodeCount\(\),paths\.length/g)].length, 2)
+  assert.match(probe, /assert\.equal\(report\.requests\.filter\(r=>r\.event==='request'\)\.length,paths\.length,'each menu asset is requested once'\)/)
+  assert.match(probe, /paths\.slice\(1, 4\)/)
+})
