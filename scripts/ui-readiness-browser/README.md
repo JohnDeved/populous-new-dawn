@@ -1,0 +1,1 @@
+Actual source build bitmap comparison. Runtime 2048a88a17983a4de619a649426b7f9554a7d319; expected auto. Three serial cases: frontend2560x1267DPR1, frontend1280x800DPR2, pause1280x800DPR2. Full source screenshots and compact pixelated experimental crops only. Existing90s case/7min global/Chrome155pin/cleanup/128MiB limits preserved. No native-art upscale or performance claim.
