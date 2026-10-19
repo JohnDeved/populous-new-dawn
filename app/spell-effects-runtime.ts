@@ -12,6 +12,8 @@ import {
   type LivePerson,
 } from './live-people.ts'
 import { nativePersonModel } from './live-combat.ts'
+import { orderEffects } from './live-movement.ts'
+import { clearPersonOrders } from './person-orders.ts'
 import {
   cellDistanceSquared,
   nativeAngle,
@@ -115,16 +117,24 @@ function retainedPeople(u: Unit) {
   ].filter(Boolean) as LivePerson[]
 }
 
+function releaseHypnotisedPeople(w: World, source: Unit) {
+  const people = retainedPeople(source)
+  // Release the physical building slot before task cleanup discards its owner.
+  const occupant = release(w, source)
+  if (occupant && !people.includes(occupant)) people.push(occupant)
+  // Ordinary cancellation deliberately preserves AI patrol orders. Hypnotise
+  // retires these people instead, so every remaining queue owner must release.
+  const effects = orderEffects(w)
+  for (const person of people) clearPersonOrders(w.buildingOrders, person, effects)
+  return people
+}
+
 function replaceHypnotisedUnit(w: World, source: Unit, team: Team, originalTeam?: Team) {
   const slot = w.units.indexOf(source)
   if (slot < 0) return
   const position = { x: source.x, z: source.z },
     { hp, cargo, heading, kind } = source,
-    people = retainedPeople(source)
-  // Release the physical building slot while its passive resident still exists.
-  // Generic task cleanup alone discards that owner and leaves a deleted occupant.
-  const occupant = release(w, source)
-  if (occupant && !people.includes(occupant)) people.push(occupant)
+    people = releaseHypnotisedPeople(w, source)
   for (const p of people) if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
   deleteCellObject(w.objectCells, source.id)
   w.selected = w.selected.filter(id => id !== source.id)
@@ -247,9 +257,8 @@ export function applyHypnotise(w: World, point: Point, team: Team) {
   for (const { u } of targets) {
     const p = unitAnimationSource(u)
     if ((p?.flags4 ?? 0) & 0x800) {
-      if (u.inside === null) releaseTasks(w, u)
-      else release(w, u)
-      if ((p?.flags2 ?? 0) & 0x20000) removeObjectFromCell(w.objectCells, p as LivePerson)
+      for (const person of releaseHypnotisedPeople(w, u))
+        if (person.flags2 & 0x20000) removeObjectFromCell(w.objectCells, person)
       deleteCellObject(w.objectCells, u.id)
       w.selected = w.selected.filter(id => id !== u.id)
       w.units.splice(w.units.indexOf(u), 1)
