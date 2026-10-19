@@ -73,7 +73,7 @@ function selectorFixture(completed) {
       if (name) {
         const key = /^(?:Start|Replay) Mission/.test(name) ? 'start' : name
         if (!buttons.has(key)) buttons.set(key, {
-          focus() {active = this},
+          focus() {active = buttons.get(key)},
           hasAttribute(attribute) {return this.props[attribute] !== undefined},
         })
         buttons.get(key).props = node.props

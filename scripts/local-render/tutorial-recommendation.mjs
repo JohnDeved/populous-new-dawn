@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { writeFileSync } from 'node:fs'
+import { checkSelectorKeyboardFocus } from '../check-browser-world-selector.mjs'
 
 // Actual Home scenario. Fresh contexts test first visit rather than seeding the
 // answered flag. No game state or scene internals are injected.
@@ -51,6 +52,9 @@ export default async function ({ page, browser, url, root, output }) {
   await button(page, 'No').click()
   await page.getByRole('dialog', { name: 'Start game', exact: true }).waitFor()
   assert.equal(await stored(page), 'answered')
+  const selectorKeyboard = await checkSelectorKeyboardFocus({ page, output })
+  writeFileSync(resolve(output, 'selector-keyboard.json'), JSON.stringify(selectorKeyboard, null, 2) + '\n')
+  passed('selector-arrow-focus-enter-space-at-standard-and-wide-sizes')
   await page.keyboard.press('Escape')
   await button(page, 'New Game').waitFor()
   await page.reload({ waitUntil: 'domcontentloaded' })
