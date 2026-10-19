@@ -18,8 +18,11 @@ behavior, evidence quality, and existing user work. Read `GOAL.md` for direction
   and delivery status. Continue the assigned issue; do not duplicate that board in
   local timers, chat watchers, or status files. `parity.json` measures verified
   gameplay coverage, not task status; `PARITY.md` is generated, never hand-edited.
-- Use one writer per isolated branch/worktree. The parent coordinates up to six
-  workers, reviews finished PRs, and owns integration and authorized main merges.
+- Use one writer per isolated branch/worktree. The current operating budget is at
+  most four active AI workers across the entire delegation tree, including nested
+  workers and reviewers, plus the coordinating parent (five active agents total).
+  This is a usage budget, not a platform ceiling. The parent reviews finished PRs
+  and owns integration and authorized main merges.
   Workers push their feature branches and open draft PRs; never push main directly.
 - Give specialists a bounded question, exact base/head, relevant sources, permitted
   writes, acceptance, and a stop condition. Use an internal fresh reviewer for
