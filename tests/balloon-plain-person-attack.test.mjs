@@ -156,6 +156,7 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
   const routeReferences = routes => {
     const slots = routes.records.length / 109
     assert.ok(Number.isInteger(slots))
+    assert.equal(routes.references !== undefined, !historical)
     if (routes.references !== undefined) {
       assert.ok(routes.references instanceof Float64Array)
       assert.equal(routes.references.length, slots)
