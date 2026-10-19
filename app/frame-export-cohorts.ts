@@ -1,6 +1,10 @@
 // Offline only: never import into the frame loop.
 import { analyzeFrameExport } from './frame-export-analysis.ts'
-import { ORDINARY_TERRAIN_FIELDS, TERRAIN_VISIBILITY_FIELDS } from './ordinary-terrain-metrics.ts'
+import {
+  ORDINARY_TERRAIN_FIELDS,
+  TERRAIN_VISIBILITY_FIELDS,
+  ORDINARY_PICK_PATH_FIELDS,
+} from './ordinary-terrain-metrics.ts'
 import { NATIVE_OCCLUSION_FIELDS } from './native-occlusion-metrics.ts'
 import type { PointerInteractionContext } from './pointer-interaction-context.ts'
 
@@ -40,6 +44,8 @@ const METRICS = [
   ...POINTER_METRICS.map(key => `pointerBreakdown.${key}`),
   ...ORDINARY_TERRAIN_FIELDS.map(key => `pointerBreakdown.ordinaryTerrain.${key}`),
   ...TERRAIN_VISIBILITY_FIELDS.map(key => `pointerBreakdown.ordinaryTerrain.visibility.${key}`),
+  ...ORDINARY_PICK_PATH_FIELDS.map(key => `pointerBreakdown.ordinaryTerrain.paths.${key}`),
+  'pointerBreakdown.nativeOcclusion.cacheRepresentationChanged',
   ...NATIVE_OCCLUSION_FIELDS.map(key => `pointerBreakdown.nativeOcclusion.${key}`),
 ]
 const GROUPS = {

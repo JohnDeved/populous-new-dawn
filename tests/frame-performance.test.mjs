@@ -416,8 +416,11 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
         Number.MAX_SAFE_INTEGER, 4938281.560493827, 1234567.8901234567, i * 16.666666666666668, 'live', metrics, 127, Number.MAX_SAFE_INTEGER)
     graph.exportRecentFrames()
     const downloaded = await blob.text()
-    const downloadedFrames = JSON.parse(downloaded).frames
-    assert.equal(downloadedFrames.length, 1200)
+    const boundedDownload = JSON.parse(downloaded), downloadedFrames = boundedDownload.frames
+    assert.ok(downloadedFrames.length > 0 && downloadedFrames.length <= 1200)
+    assert.deepEqual(downloadedFrames, graph.samples.recentFrames().slice(-downloadedFrames.length))
+    if (downloadedFrames.length < 1200)
+      assert.deepEqual(boundedDownload.retention, { availableFrames: 1200, droppedOldestFrames: 1200 - downloadedFrames.length, reason: 'serialized-size-limit' })
     assert.deepEqual(downloadedFrames[0].pointerBreakdown.modelWork, Array(3).fill(Number.MAX_SAFE_INTEGER))
     assert.equal(downloadedFrames[0].waterUpdateReasons, 127)
     assert.equal(downloadedFrames[0].simulationSteps, Number.MAX_SAFE_INTEGER)
@@ -426,9 +429,9 @@ test('explicit export produces bounded parser-compatible local JSON with actual 
     assert.ok(blob.size <= 2 * 1024 * 1024, 'actual download obeys CLI byte bound')
     assert.ok(downloaded.length <= 2 * 1024 * 1024, 'actual download obeys parser code-unit bound')
     const { analyzeFrameExport } = await import('../app/frame-export-analysis.ts')
-    assert.equal(analyzeFrameExport(downloaded).sampleCount, 1200)
+    assert.equal(analyzeFrameExport(downloaded).sampleCount, downloadedFrames.length)
     const cohorts = summarizeFrameExportCohorts(downloaded)
-    assert.equal(cohorts.sampleCount, 1200)
+    assert.equal(cohorts.sampleCount, downloadedFrames.length)
     assert.equal(cohorts.cohorts.find(group => group.name === 'all').metrics['pointerBreakdown.ordinaryTerrain.visibility.indexEntriesWritten'].max, Number.MAX_SAFE_INTEGER)
     assert.equal(cohorts.cohorts.find(group => group.name === 'all').metrics.waterUpdateReasons, undefined, 'water is a separate scalar, not an inferred metric or grouping')
     const fullDetailBytes = blob.size
@@ -717,4 +720,55 @@ test('actual live/modal render callers invoke GPU seam only with active visible 
   assert.equal(runCallback({modal,hidden:true}).gpuCalls,0)
   assert.equal(runCallback({modal,current:false}).gpuCalls,0)
  }
+})
+
+test('optional actual pick paths and native representation misses survive export, reset and ring reuse', () => {
+  const frames = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+  const paths = metrics.ordinaryTerrain.paths
+  assert.deepEqual(paths, { version: 1, numeric: 0, packedVector: 0, sparseVector: 0 })
+  for (let i = 1; i <= 1202; i++) {
+    paths.numeric = i
+    paths.packedVector = 2
+    paths.sparseVector = 3
+    metrics.nativeOcclusion.cacheRepresentationChanged = i
+    frames.sample(10, 0, 0, 0, 1, 1, i * 10, 'live', metrics)
+  }
+  const exported = frames.recentFrames()
+  assert.equal(exported.length, 1200)
+  assert.deepEqual(exported[0].pointerBreakdown.ordinaryTerrain.paths, { version: 1, numeric: 3, packedVector: 2, sparseVector: 3 })
+  assert.equal(exported.at(-1).pointerBreakdown.nativeOcclusion.cacheRepresentationChanged, 1202)
+  exported[0].pointerBreakdown.ordinaryTerrain.paths.numeric = 999
+  assert.equal(frames.recentFrames()[0].pointerBreakdown.ordinaryTerrain.paths.numeric, 3)
+  resetPointerFrameMetrics(metrics)
+  assert.equal(metrics.ordinaryTerrain.paths, paths)
+  assert.deepEqual(paths, { version: 1, numeric: 0, packedVector: 0, sparseVector: 0 })
+  assert.equal(metrics.nativeOcclusion.cacheRepresentationChanged, 0)
+  // Historical metrics do not gain a fabricated zero when slots wrap around.
+  delete metrics.ordinaryTerrain.paths
+  delete metrics.nativeOcclusion.cacheRepresentationChanged
+  frames.sample(10, 0, 0, 0, 1, 1, 12030, 'live', metrics)
+  const historical = frames.recentFrames().at(-1).pointerBreakdown
+  assert.equal(historical.ordinaryTerrain.paths, undefined)
+  assert.equal(historical.nativeOcclusion.cacheRepresentationChanged, undefined)
+  frames.reset()
+  assert.equal(frames.recentFrames().length, 0)
+})
+
+test('invalid optional path counts and versions reject the frame rather than fabricating evidence', () => {
+  for (const key of ['numeric', 'packedVector', 'sparseVector', 'cacheRepresentationChanged']) {
+    for (const value of [-1, 0.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1, undefined]) {
+      if (key === 'cacheRepresentationChanged' && value === undefined) continue
+      const frames = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+      if (key === 'cacheRepresentationChanged') metrics.nativeOcclusion[key] = value
+      else metrics.ordinaryTerrain.paths[key] = value
+      frames.sample(10, 0, 0, 0, 1, 1, 10, 'live', metrics)
+      assert.equal(frames.recentFrames().length, 0, key + ':' + value)
+    }
+  }
+  for (const paths of [null, { version: 2, numeric: 0, packedVector: 0, sparseVector: 0 }]) {
+    const frames = new FramePerformance(), metrics = createPointerFrameMetrics(true)
+    metrics.ordinaryTerrain.paths = paths
+    frames.sample(10, 0, 0, 0, 1, 1, 10, 'live', metrics)
+    assert.equal(frames.recentFrames().length, 0)
+  }
 })

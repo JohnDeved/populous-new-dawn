@@ -9,10 +9,60 @@ All counters are per callback. Timers are milliseconds. The entire extension is 
 - `projectionMs`: per-instance projection preparation, cached-vertex lookup/fill and cache publication. Includes array preparation and loop overhead, not solely mathematical projection.
 - `triangleScanMs`: per-instance triangle scan, pixel-edge tests and candidate creation. Counts elapsed synchronous work, not isolated allocation or GC time.
 - `cacheHits`: retained per-instance projection-cache entries. A hit can still project previously unsubmitted original vertex IDs.
-- `cacheCold`, `cachePositionChanged`, `cacheKeyChanged`: mutually exclusive rebuild reasons per instance. Missing prior entry, changed position-attribute identity, or otherwise a changed existing key. `cacheKeyChanged` intentionally does not guess whether camera, transform or position version changed. If identity and key both change, identity takes precedence. These reasons are not exhaustive: a packed/sparse representation-only rebuild with unchanged position identity and key has no reason field in version 1. It still contributes projection time and projected vertices, and is not a cache hit.
+- `cacheCold`, `cachePositionChanged`, `cacheKeyChanged`: mutually exclusive rebuild reasons per instance. Missing prior entry, changed position-attribute identity, or otherwise a changed existing key. `cacheKeyChanged` intentionally does not guess whether camera, transform or position version changed. If identity and key both change, identity takes precedence. New F8 recordings additionally include optional `cacheRepresentationChanged`: a packed/sparse representation-only rebuild with unchanged position identity and key. It is the final mutually exclusive reason, after cold/identity/key checks. Historical version-1 recordings omit it, so their reasons remain non-exhaustive. Absence means unknown; do not infer zero from a missing field.
 - `projectedVertices`: actual calls to the screen-projection function, including retained-cache fills.
 - `submittedTriangles`: triangles visited by the scan, before rejection; not successful hits.
 
 An enabled frame without this native route (including overview, no object hit, empty roots or same-frame object-cache hit) has zero native counters/timers. Pixel-cache hits do not enter RenderView, so they have no per-instance projection or triangle work. Uninstrumented/old frames omit the extension. Invalid geometry still propagates the existing error behavior; diagnostics do not repair or suppress errors.
 
 Storage is created once per GameScene and reset in place while F8 diagnostics are enabled. Export snapshots use fixed ring slots. Disabled picking takes no new clock readings; no per-vertex clock reads, extra projection calls, scene traversals or serialization are introduced. Diagnostic timers and counters have observer overhead, so this is attribution evidence, not a benchmark improvement or a GC/GPU diagnosis. Export/analyzer retain the existing 1200-frame and 2 MiB limits.
+
+
+## Actual ordinary instance paths
+
+New F8 exports include optional
+`pointerBreakdown.ordinaryTerrain.paths = { version: 1, numeric, packedVector, sparseVector }`.
+These are counts of actual selected instance representations after culling, not
+query counts, vertex counts, timings, or eligibility guesses. Packed vector includes
+both scratch-backed and independently allocated storage; it does not distinguish
+why numeric was unavailable. Overview, empty roots and culled instances do not
+increment these counters. One query can visit multiple instances; callback totals
+do not preserve individual query order.
+
+The selection is observed once after the existing numeric decision. No eligibility
+predicate, geometry getter, or runtime ownership check is repeated, and neither
+vertex nor triangle loops gain operations. Native-edge queries never increment
+ordinary path counts. The optional native representation miss counter observes
+the existing final cache-miss branch, without changing cache selection.
+
+F8 enables these fields through its existing pointer metrics sink. No additional
+menu rows, controls, hover behavior or recording epochs change. Frame rings retain
+1,200 entries using five additional Float64 slots per frame (48,000 bytes total).
+Export preserves exact newest contiguous frames under the unchanged 2 MiB bound;
+additional fields can reduce the retained export span, explicitly reported by the
+existing retention metadata. Offline worst-frame and cohort reports validate and
+retain the new values. Missing fields remain unknown and are excluded from numeric
+cohort coverage, while measured zero remains zero.
+
+These counters establish path selection, not a cause for a timing difference,
+cost equivalence, GC behavior, or hardware frame performance. They cannot recover
+missing path observations in old captures.
+
+### Strict benchmark source admission
+
+This instrumentation changes only the `query-inputs` protected slice of the
+`owned-numeric-terrain-neutral-cursor-v1` profile:
+- file: `app/render-view.ts`, from `  private collectPickCandidates(` to
+  `          for (let vertex = 0; vertex < count; vertex++) {`;
+- historical reviewed SHA-256:
+  `766eeb9c4c381ce38f1e718e13f8ba9cf79ae912bd1b0031fae36dbcb10c2a0e`;
+- instrumented SHA-256:
+  `c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c`.
+
+No source profiles or historical hashes are updated here. The unchanged
+`readerImportAdmission` requires an exact reviewed query-inputs slice and therefore
+rejects this candidate. A later independent review must inspect the precise delta
+and decide any narrowly named additive profile. Broad hashes, relaxed matching,
+or automatic blessing would hide workload drift and are not permitted.
+Changed source/build fingerprints require new exact-head evidence; previous
+captures and acceptance results remain tied to their original identities.

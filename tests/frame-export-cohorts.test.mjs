@@ -149,3 +149,19 @@ test('finite CPU regions cannot overflow the derived residual into null JSON qua
   assert.equal(residual.p50, value.frames[0].otherCallbackCpuMs - 300)
   assert.ok(Number.isFinite(residual.p50) && residual.p50 < 0)
 })
+
+test('actual path cohorts preserve optional coverage rather than treating missing as zero', () => {
+  const value = capture([{}, {}, {}])
+  const [first, second, third] = value.frames.map(f => f.pointerBreakdown)
+  first.ordinaryTerrain.paths.numeric = 4
+  first.nativeOcclusion.cacheRepresentationChanged = 2
+  delete third.ordinaryTerrain.paths
+  delete third.nativeOcclusion.cacheRepresentationChanged
+  const result = summarizeFrameExportCohorts(JSON.stringify(value))
+  const all = result.cohorts.find(c => c.name === 'all')
+  assert.equal(all.metrics['pointerBreakdown.ordinaryTerrain.paths.numeric'].sampleCount, 2)
+  assert.equal(all.metrics['pointerBreakdown.ordinaryTerrain.paths.numeric'].mean, 2)
+  assert.equal(all.metrics['pointerBreakdown.nativeOcclusion.cacheRepresentationChanged'].sampleCount, 2)
+  assert.equal(all.metrics['pointerBreakdown.nativeOcclusion.cacheRepresentationChanged'].mean, 1)
+  assert.equal(second.ordinaryTerrain.paths.numeric, 0)
+})
