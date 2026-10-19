@@ -186,7 +186,11 @@ test('frontend native cancel retains its fresh back action', () => {
 test('availability publication replaces tooltip ownership before row DOM attributes commit', () => {
   const ui = fixture({ checkpointReadStatus: 'pending' })
   const tooltipKey = output => {
-    const tooltip = tree(output).find(node => node.type?.name === 'MenuTooltip')
+    function jsxNodes(node) {
+      if (!node || typeof node !== 'object') return []
+      return [node, ...[node.props?.children].flat(Infinity).flatMap(jsxNodes)]
+    }
+    const tooltip = jsxNodes(output).find(node => node.type?.name === 'MenuTooltip')
     assert.ok(tooltip)
     return tooltip.key
   }
