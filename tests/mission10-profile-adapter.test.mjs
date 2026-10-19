@@ -22,7 +22,8 @@ test('M10 companion requires complete source-bound Save/Load, all public selecti
     v => { v.phases[1].binding.push(true) }, v => { v.phases[1].binding.reverse() },
     v => { delete v.phases[0].saved }, v => { v.phases[0].saved.pop() },
     v => { delete v.phases[1].loaded }, v => { v.phases[1].loaded.push('extra') }, v => { v.phases[1].loaded.reverse() },
-    v => { v.phases[0].saved[0] = 2 }, v => { v.phases[1].saved = [...v.phases[0].saved] }, v => { v.phases[1].loaded[0] = 2 },
+    v => { v.phases[0].saved[0] = 1 }, v => { v.phases[1].saved = [...v.phases[0].saved] }, v => { v.phases[1].loaded[0] = 1 },
+    v => { v.phases[0].saved[0] = 3 }, v => { v.phases[1].loaded[0] = 3 },
     v => { delete v.artifacts }, v => { v.artifacts.path = 'mission10-created/private.json' },
     v => { v.artifacts.bytes = 0 }, v => { v.phases[0].receiptName = 'mission10-created/receipt.json' },
     v => { v.phases[1].resultName = 'unretained.json' },
@@ -138,7 +139,7 @@ test('fixedGround invokes the actual serialized callback in one task under suppo
   runInContext(runInNewContext(literal), realm)
   runInContext(`globalThis.utility = new UtilityScript(globalThis, false);
     globalThis.codec = (${checkpointCodec.toString()});
-    globalThis.world = codec(${JSON.stringify(checkpointCodec(createWorld(10)))}, true);
+    globalThis.world = codec(${JSON.stringify(checkpointCodec(createWorld(10, 'scalable')))}, true);
     globalThis.inspections = [];
     globalThis.canvas = { getBoundingClientRect: () => ({ left: 0, top: 0, width: 100, height: 100 }) };
     globalThis.scene = { world, renderer: { domElement: canvas },
@@ -171,6 +172,7 @@ test('fixedGround invokes the actual serialized callback in one task under suppo
   assert.deepEqual(ground.point, { x: 27, z: -27 })
   assert.equal(ground.inspected, 1); assert.equal(ground.context.model, 3); assert.equal(ground.context.enabled, true)
   const snapshot = checkpointCodec(returned.transfer, true)
+  assert.deepEqual(snapshot.capacityPolicy, { version: 1, mode: 'scalable' })
   assert.equal(snapshot.turn, ground.turn)
   assert.ok(snapshot.land.heights instanceof Int16Array)
   assert.ok(snapshot.buildingFootprints instanceof Map)

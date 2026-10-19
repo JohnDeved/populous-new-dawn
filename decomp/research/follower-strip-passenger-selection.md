@@ -246,3 +246,21 @@ This is a witness repair, not a gameplay change or a retroactive hosted pass.
 The failed run's original nine Profile cases and first five M10 control inputs
 passed, but its M10 phase, fresh-process Save/Load, unloaded controls and complete
 180-second fit remain unproved. Raw failure artifacts are retained unchanged.
+
+## Current capacity-main integration
+
+The reviewed Escape-history repair is preserved on current main `322499f3`,
+which ships scalable worlds and version-2 public saves. The existing M10 Load
+subscription now labels its captured current envelope as version 2, and trusted
+M10 admission requires version 2 for both the committed Save and public Load
+observations. Obsolete version 1 and unknown versions remain rejected. This is
+not a compatibility conversion. The compact receipt and artifact-manifest format
+versions remain 1; those are independent evidence schemas.
+
+The serialized ground evaluator, full selection oracle, and adjacent Escape
+history fixtures now construct explicit scalable Mission 10 worlds. No gameplay,
+public input, selection obligation, archive/receipt cap, browser deadline, or
+workflow is relaxed. The earlier hosted failures remain failures on their original
+heads. Fresh integrated focused checks and exact hosted full/browser acceptance
+are required; complete M10 runtime within the unchanged 180-second cap is still
+unproved.

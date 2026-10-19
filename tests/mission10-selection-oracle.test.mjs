@@ -51,7 +51,7 @@ test('oracle preserves assignment priority, availability, nearby cutoff, wrap an
 })
 test('serialized read-only observer preserves all authored identities/controllers and matches source readers without live adoption', () => {
   for (const occupied of [false, true]) {
-    const w = createWorld(10), boat = w.vehicles.find(v => v.id === 62)
+    const w = createWorld(10, 'scalable'), boat = w.vehicles.find(v => v.id === 62)
     w.paused = true; w.selected = []
     if (occupied) for (const id of [63, 111, 112, 113, 114]) {
       const u = w.units.find(u => u.id === id); u.native = createLivePerson(w, u); u.native.state = 19

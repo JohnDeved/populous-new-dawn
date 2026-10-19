@@ -208,7 +208,7 @@ export function validateMission10Profile(value, mergeSha, rawPhases) {
       phase.cleanupVerified === true && phase.continuationVerified === true &&
       isHash(phase.receiptSha256) && isHash(phase.resultSha256) && uuid(phase.profileId) && uuid(phase.runId),
       'Mission 10 phase source/runtime/cleanup is invalid')
-    ensure(phase.saved?.version === 1 && phase.saved.level === 10 && Number.isInteger(phase.saved.turn) && phase.saved.turn > 0 &&
+    ensure(phase.saved?.version === 2 && phase.saved.level === 10 && Number.isInteger(phase.saved.turn) && phase.saved.turn > 0 &&
       Number.isFinite(phase.saved.time) && ['checkpointSha256', 'actorsSha256', 'terrainSha256', 'stockSha256'].every(key => isHash(phase.saved[key])) &&
       phase.checkpointAtEnd === phase.saved.checkpointSha256, 'Mission 10 committed checkpoint is incomplete')
     ensure(phase.receiptName === `mission10-${phase.mode}--receipt.json` &&
@@ -251,7 +251,7 @@ export function validateMission10Profile(value, mergeSha, rawPhases) {
     loaded.profileId === saved.profileId && loaded.runId !== saved.runId && loaded.previousRunId === saved.runId &&
     loaded.checkpointAtStart === saved.checkpointAtEnd && same(loaded.saved, saved.saved),
     'Mission 10 process/profile/checkpoint continuation differs')
-  ensure(loaded.loaded?.version === 1 && ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']
+  ensure(loaded.loaded?.version === 2 && ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']
     .every(key => loaded.loaded[key] === saved.saved[key]), 'Mission 10 public Load boundary differs')
   return true
 }

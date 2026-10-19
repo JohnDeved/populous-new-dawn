@@ -12,7 +12,7 @@ import { validateMission10SelectionEvidence } from '../scripts/local-render/miss
 
 const party = [63, 111, 112, 113, 114], capturedExtra = [116, 118, 120, 122]
 function world() {
-  const w = createWorld(10); w.paused = true; w.mode = null; w.selected = []
+  const w = createWorld(10, 'scalable'); w.paused = true; w.mode = null; w.selected = []
   for (const u of w.units) if (u.team !== 'wild') u.native ??= createLivePerson(w, u)
   return w
 }
