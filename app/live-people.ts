@@ -1,4 +1,5 @@
 import { launchFirewarriorPoint } from './firewarrior-point.ts'
+import { unitRenderAnimationSource } from './unit-animation-source.ts'
 import { discardInvalidResident, residentPerson } from './building-resident.ts'
 import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
 import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
@@ -1324,7 +1325,7 @@ export function animateLiveObjects(w: World, phase: 'logical' | 'presentation' =
       )
     }
   for (const u of w.units) {
-    const source = unitAnimationSource(u)
+    const source = unitRenderAnimationSource(u)
     if (source) {
       const logical = source.model >= 2 && source.model <= 7 && animationUsesLogicalVisits(source)
       if (logical !== (phase === 'logical')) continue
