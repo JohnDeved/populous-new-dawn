@@ -18,7 +18,7 @@ function fixture() {
   Object.assign(graph, {
     cleared: false, previous: null, samples: new FramePerformance(),
     fields: Object.fromEntries(['state', 'fps', 'frame', 'peak', 'callback', 'simulation',
-      'render', 'calls', 'heap', 'scale', 'pointer', 'pointer-tail', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak'].map(name => [name, sink(name)])),
+      'render', 'calls', 'heap', 'export-status', 'renderer', 'cores', 'memory', 'scale', 'pointer', 'pointer-tail', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak'].map(name => [name, sink(name)])),
     line: sink('line'), budget: sink('budget'),
   })
   const update = now => graph.update(now, 1, 2, 3, 'Live', 4)
@@ -119,4 +119,38 @@ test('pointer tails expose spikes separately from the mean and clear on reset', 
   graph.reset('Hidden tab · sampling stopped')
   assert.equal(graph.fields['pointer-tail'].textContent, '--')
   assert.equal(graph.samples.pointerPercentiles.max, 0)
+})
+
+
+test('capture reset clears stale heap and export feedback without clearing hardware identity', t => {
+  const original = Object.getOwnPropertyDescriptor(globalThis, 'performance')
+  Object.defineProperty(globalThis, 'performance', {
+    configurable: true, value: { memory: { usedJSHeapSize: 64 * 1048576 } },
+  })
+  t.after(() => Object.defineProperty(globalThis, 'performance', original))
+  const { graph, writes, update } = fixture()
+  for (const [name, value] of [['renderer', 'Test renderer'], ['cores', '8'], ['memory', '~8 GiB']])
+    graph.fields[name].textContent = value
+  graph.exportRecentFrames()
+  assert.match(graph.fields['export-status'].textContent, /No frames yet/)
+  update(0); update(250)
+  assert.equal(graph.fields.heap.textContent, '~64 MiB')
+  graph.reset('Hidden tab · sampling stopped')
+  assert.equal(graph.fields.heap.textContent, '--', 'the old estimate is not a current sample')
+  assert.equal(graph.fields['export-status'].textContent, '', 'feedback from the old capture is cleared')
+  assert.deepEqual(['renderer', 'cores', 'memory'].map(name => graph.fields[name].textContent),
+    ['Test renderer', '8', '~8 GiB'])
+  writes.length = 0
+  graph.reset('Hidden tab · sampling stopped')
+  assert.deepEqual(writes, [], 'repeated stopped frames do not rewrite readouts')
+  update(10000)
+  assert.equal(graph.fields.heap.textContent, '--', 'warmup does not revive the old estimate')
+  update(10250)
+  assert.equal(graph.fields.heap.textContent, '~64 MiB', 'the next publication samples heap again')
+  graph.reset()
+  update(20000)
+  graph.exportRecentFrames()
+  assert.match(graph.fields['export-status'].textContent, /No frames yet/)
+  graph.reset()
+  assert.equal(graph.fields['export-status'].textContent, '', 'warmup-only capture also invalidates reset guard')
 })

@@ -1,4 +1,8 @@
 import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
+import {
+  checkpointComparisonView,
+  assertCheckpointComparisonDomain,
+} from './helpers/checkpoint-comparison-view.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { supportsFollower } from '../app/model.ts'
 // Public attack-to-worship replacement preserves the original seated owner.
@@ -139,20 +143,15 @@ test('supplied-focus current Mission22 airborne attack replacement retains its p
   assert.equal(currentPersonOrder(world.buildingOrders, person).model, 27)
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
-  const restored = store.getWorld(),
-    comparable = w => {
-      const copy = structuredClone(w)
-      // Existing Save/Load schema defaults, applied only to comparison copies.
-      for (const head of copy.shrines)
-        if (head.reward === undefined && head.rewardMana) head.reward = 'mana'
-      return copy
-    }
+  const restored = store.getWorld()
+  assertCheckpointComparisonDomain(world)
+  assertCheckpointComparisonDomain(restored)
   let departed = 0,
     rewarded = 0
   for (let i = 0; i < 600; i++) {
     tick(world, 1 / 12)
     tick(restored, 1 / 12)
-    assert.deepEqual(comparable(restored), comparable(world))
+    assert.deepEqual(checkpointComparisonView(restored), checkpointComparisonView(world))
     if (!person.vehicle && !departed) departed = world.turn
     if (north.uses && !rewarded) rewarded = world.turn
     assert.equal(balloon.passengers.includes(shaman.id), person.vehicle === balloon.id)
