@@ -5,7 +5,7 @@ import { advanceGame } from '../app/game-clock.ts'
 import { processBattles } from '../app/combat-runtime.ts'
 import { createMeleePerson, startMeleeKnockback, animateLiveObjects } from '../app/live-people.ts'
 import { unitAnimationSource, unitRenderAnimationSource } from '../app/unit-animation-source.ts'
-import { meleeAnimationObject, meleeDuration, startMeleeActionAnimation } from '../app/melee.ts'
+import { meleeAnimationObject, meleeDuration } from '../app/melee.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { stepObjectAnimation } from '../app/animation.ts'
 import { finishLevelStart } from './level-start-fixture.mjs'
@@ -121,14 +121,13 @@ test('push initialization retains the owned recoil pose and both frame counters'
 
 test('recoil uses the direct native row even with airborne flags, and later controller visits do not reset entry', () => {
   const { world, unit } = suppliedRecoil('firewarrior', false), person = unit.fight.motion,
-    rows = []
+    [object, draw] = rules.animationObjects[meleeAnimationObject('firewarrior', 'recoil')]
   person.flags2 |= 0x80000
   person.flags4 |= 0x400
-  startMeleeActionAnimation(person, 'recoil', (_, object) => rows.push(object))
-  assert.deepEqual(rows, [meleeAnimationObject('firewarrior', 'recoil')], 'native cases5/6 bypass the attack airborne-row substitution')
+  processBattles(world)
+  assert.deepEqual(phase(person), [object, draw, 1, 0], 'native cases5/6 bypass the attack airborne-row substitution')
   person.flags2 &= ~0x80000
   person.flags4 &= ~0x400
-  processBattles(world)
   person.f1 = 1
   person.f2 = 3
   const remaining = unit.fight.remaining
