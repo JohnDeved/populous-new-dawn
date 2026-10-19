@@ -888,7 +888,7 @@ export function updatePointerFrame(scene: GameScene, now: number, metrics?: Poin
   if (metrics?.interaction)
     capturePointerInteraction(
       metrics.interaction,
-      scene.fpsGraph,
+      scene.fpsGraph?.interactionRecording,
       scene.tooltipInput?.pointer ?? null,
       pointerInputs,
       scene.tooltipInput?.route

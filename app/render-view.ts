@@ -654,8 +654,8 @@ export class RenderView {
             else if (!cache) nativeMetrics.cacheCold++
             else if (cache.position !== position) nativeMetrics.cachePositionChanged++
             else if (cache.key !== cacheKey) nativeMetrics.cacheKeyChanged++
-            // Version 1 has no representation-only reason; do not report a
-            // changed key when only packed/sparse storage eligibility changed.
+            else if (nativeMetrics.cacheRepresentationChanged !== undefined)
+              nativeMetrics.cacheRepresentationChanged++
           }
           // Only ordinary outer queries lease scratch. Native packed buffers are
           // retained by the native cache, never reset or shared with that lease.
@@ -672,6 +672,10 @@ export class RenderView {
               ? (this.ordinaryNumericProjection ??= new OrdinaryNumericProjection())
               : null
           numeric?.reset()
+          // Observe the selected representation once per admitted instance, never
+          // re-read eligibility inputs or add work inside vertex/triangle loops.
+          const paths = ordinary?.paths
+          if (paths) paths[numeric ? 'numeric' : packedTerrain ? 'packedVector' : 'sparseVector']++
           const world: THREE.Vector3[] = reuse ? cache.world : (scratch?.world ?? []),
             screen: THREE.Vector4[] = reuse ? cache.screen : (scratch?.screen ?? []),
             terrainSlots = packedTerrain

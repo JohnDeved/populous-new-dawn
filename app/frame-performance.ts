@@ -21,6 +21,8 @@ import {
 } from './pointer-interaction-context.ts'
 import {
   ORDINARY_TERRAIN_FIELDS,
+  ORDINARY_PICK_PATH_FIELDS,
+  createOrdinaryPickPaths,
   TERRAIN_VISIBILITY_FIELDS,
   createTerrainVisibilityMetrics,
   createOrdinaryTerrainMetrics,
@@ -53,7 +55,9 @@ const MODEL_WORK_OFFSET = WATER_OFFSET + 1
 const SIMULATION_STEPS_OFFSET = MODEL_WORK_OFFSET + 4
 const GPU_OFFSET = SIMULATION_STEPS_OFFSET + 1
 const SCENE_UPDATE_OFFSET = GPU_OFFSET + 3
-const RAW_WIDTH = SCENE_UPDATE_OFFSET + 4
+const PICK_PATH_OFFSET = SCENE_UPDATE_OFFSET + 4
+const NATIVE_REPRESENTATION_OFFSET = PICK_PATH_OFFSET + 1 + ORDINARY_PICK_PATH_FIELDS.length
+const RAW_WIDTH = NATIVE_REPRESENTATION_OFFSET + 1
 
 export interface RecentFrame {
   sceneUpdateCpu?: SceneUpdateMetrics
@@ -205,6 +209,12 @@ export class FramePerformance {
         )
           return false
     }
+    const representationChanged = native?.cacheRepresentationChanged
+    if (
+      representationChanged !== undefined &&
+      (!Number.isSafeInteger(representationChanged) || representationChanged < 0)
+    )
+      return false
     const modelWork = metrics?.modelWork
     if (modelWork !== undefined && !validModelPickWork(modelWork)) return false
     const ordinary = metrics?.ordinaryTerrain
@@ -217,6 +227,12 @@ export class FramePerformance {
           (!key.endsWith('Ms') && !Number.isSafeInteger(ordinary[key]))
         )
           return false
+    }
+    const paths = ordinary?.paths
+    if (paths !== undefined) {
+      if (!paths || paths.version !== 1) return false
+      for (const key of ORDINARY_PICK_PATH_FIELDS)
+        if (!Number.isSafeInteger(paths[key]) || paths[key] < 0) return false
     }
     const visibility = ordinary?.visibility
     if (visibility !== undefined) {
@@ -285,6 +301,10 @@ export class FramePerformance {
     for (let i = 0; i < TERRAIN_VISIBILITY_FIELDS.length; i++)
       this.recent[offset + VISIBILITY_OFFSET + 1 + i] =
         visibility?.[TERRAIN_VISIBILITY_FIELDS[i]] ?? 0
+    this.recent[offset + PICK_PATH_OFFSET] = paths ? 1 : 0
+    for (let i = 0; i < ORDINARY_PICK_PATH_FIELDS.length; i++)
+      this.recent[offset + PICK_PATH_OFFSET + 1 + i] = paths?.[ORDINARY_PICK_PATH_FIELDS[i]] ?? 0
+    this.recent[offset + NATIVE_REPRESENTATION_OFFSET] = representationChanged ?? -1
     this.recent[offset + MODEL_WORK_OFFSET] = modelWork ? 1 : 0
     for (let i = 0; i < 3; i++)
       this.recent[offset + MODEL_WORK_OFFSET + 1 + i] = modelWork?.[i] ?? 0
@@ -354,6 +374,8 @@ export class FramePerformance {
         const native = createNativeOcclusionMetrics()
         for (let i = 0; i < NATIVE_OCCLUSION_FIELDS.length; i++)
           native[NATIVE_OCCLUSION_FIELDS[i]] = this.recent[offset + NATIVE_OFFSET + 1 + i]
+        const representationChanged = this.recent[offset + NATIVE_REPRESENTATION_OFFSET]
+        if (representationChanged >= 0) native.cacheRepresentationChanged = representationChanged
         pointerBreakdown.nativeOcclusion = native
       }
       if (pointerBreakdown && this.recent[offset + ORDINARY_OFFSET]) {
@@ -366,6 +388,12 @@ export class FramePerformance {
             visibility[TERRAIN_VISIBILITY_FIELDS[i]] =
               this.recent[offset + VISIBILITY_OFFSET + 1 + i]
           ordinary.visibility = visibility
+        }
+        if (this.recent[offset + PICK_PATH_OFFSET]) {
+          const paths = createOrdinaryPickPaths()
+          for (let i = 0; i < ORDINARY_PICK_PATH_FIELDS.length; i++)
+            paths[ORDINARY_PICK_PATH_FIELDS[i]] = this.recent[offset + PICK_PATH_OFFSET + 1 + i]
+          ordinary.paths = paths
         }
         pointerBreakdown.ordinaryTerrain = ordinary
       }

@@ -17,6 +17,11 @@ export class FpsGraph {
   private readonly gl: WebGLRenderingContext | WebGL2RenderingContext
   private readonly hardware: ReturnType<typeof readHardwareInfo>
   private exportButton: HTMLButtonElement
+  private interactionEpoch: object = {}
+  // A lightweight identity for pointer baselines; never retain this graph in metrics.
+  get interactionRecording() {
+    return this.interactionEpoch
+  }
   private cleared = false
   private previous: number | null = null
   private gpuRendering = false
@@ -256,6 +261,7 @@ export class FpsGraph {
       return
     }
     this.cleared = true
+    this.interactionEpoch = {}
     this.previous = null
     this.samples.reset()
     for (const name of [
