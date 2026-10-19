@@ -4,6 +4,34 @@ import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 
+// Shared with the existing hosted Tutorial path after it opens a fresh campaign.
+// Use real key defaults, without injecting progress or launching a world.
+export async function checkSelectorKeyboardFocus({ page, output }) {
+  const viewport = page.viewportSize()
+  const select = mission => page.getByRole('button', {name: `Panel Mission ${mission}`, exact: true})
+  const launch = page.getByRole('button', {name: 'Start Mission 1', exact: true})
+  const checks = []
+  try {
+    for (const size of [{width: 640, height: 480}, {width: 1920, height: 1080}]) {
+      await page.setViewportSize(size)
+      for (const activation of ['Enter', 'Space']) {
+        await select(2).click()
+        assert.equal(await page.getByRole('button', {name: 'Start Mission 2', exact: true}).isDisabled(), true)
+        await page.keyboard.press('ArrowRight')
+        await launch.waitFor()
+        assert.equal(await select(1).evaluate(button => button === document.activeElement), true)
+        await page.keyboard.press(activation)
+        assert.equal(await select(1).getAttribute('aria-pressed'), 'true')
+        assert.equal(await launch.isEnabled(), true)
+        assert.equal(await page.locator('.world-viewport canvas').count(), 0, 'inspection cannot launch a world')
+        checks.push({...size, activation, selected: 1, focused: 1})
+      }
+      await page.screenshot({path: resolve(output, `selector-keyboard-${size.width}x${size.height}.png`)})
+    }
+    return checks
+  } finally { await page.setViewportSize(viewport) }
+}
+
 // Scenario for scripts/local-render/harness.mjs. Campaign actions deliberately
 // do not use the direct-access openMission helper.
 export default async function checkWorldSelector({ page, context, url, root, output, receipt }) {
@@ -39,8 +67,7 @@ export default async function checkWorldSelector({ page, context, url, root, out
   await select(2).click()
   assert.equal(await page.getByRole('button', { name: 'Start Mission 2', exact: true }).isDisabled(), true)
   await page.screenshot({path:resolve(output,'locked-mission2.png')})
-  await page.keyboard.press('ArrowRight')
-  await page.getByRole('button', { name: 'Start Mission 1', exact: true }).waitFor()
+  await checkSelectorKeyboardFocus({ page, output })
   await page.screenshot({ path: resolve(output, 'fresh-campaign.png') })
 
   for (const viewport of [{width:640,height:480},{width:1024,height:768},{width:390,height:844},{width:1920,height:1080},{width:3440,height:1440}]) {
@@ -73,8 +100,19 @@ export default async function checkWorldSelector({ page, context, url, root, out
   await select(3).focus()
   await page.keyboard.press('ArrowLeft')
   await page.getByRole('button',{name:'Replay Mission 2',exact:true}).waitFor()
+  assert.equal(await select(2).evaluate(button => button === document.activeElement), true)
+  await page.keyboard.press('Enter')
+  assert.equal(await select(2).getAttribute('aria-pressed'), 'true')
   await page.keyboard.press('ArrowRight')
   await page.getByRole('button',{name:'Start Mission 3',exact:true}).waitFor()
+  assert.equal(await select(3).evaluate(button => button === document.activeElement), true)
+  await page.keyboard.press('Space')
+  assert.equal(await select(3).getAttribute('aria-pressed'), 'true')
+  await page.getByRole('button',{name:'Start Mission 3',exact:true}).focus()
+  await page.keyboard.press('ArrowRight')
+  const replayOne = page.getByRole('button',{name:'Replay Mission 1',exact:true})
+  await replayOne.waitFor()
+  assert.equal(await replayOne.evaluate(button => button === document.activeElement), true)
   await select(1).click()
   await page.getByRole('button',{name:'Replay Mission 1',exact:true}).waitFor({state:'visible'})
   await page.screenshot({path:resolve(output,'restored-progress.png')})
@@ -96,5 +134,5 @@ export default async function checkWorldSelector({ page, context, url, root, out
   writeFileSync(resolve(output,'selector-dpr2.png'),png)
   await cdp.send('Emulation.clearDeviceMetricsOverride');await cdp.detach()
   assert.deepEqual(receipt.errors,[])
-  return {renderer:'Chromium frontend compositor; no battlefield scene initialized',geometry,checks:['source strip/glyph geometry at640x480','repeated startup Escape and reopen','panel glyph pointer selection','DPR2 keyboard and rendered capture','fresh locked/unlocked state','left/right selection','responsive overflow','all23 missions retained','persisted completion restoration and replay'],limits:['Completion profile fixture; not natural campaign victory','Native strip and source-derived shared GPU scene; browser adaptation, not original GPU pixel parity']}
+  return {renderer:'Chromium frontend compositor; no battlefield scene initialized',geometry,checks:['source strip/glyph geometry at640x480','repeated startup Escape and reopen','panel glyph pointer selection','DPR2 keyboard and rendered capture','fresh locked/unlocked state','left/right selection with synchronized focus and Enter/Space activation','Start keeps focus across arrow wrapping','responsive overflow','all23 missions retained','persisted completion restoration and replay'],limits:['Completion profile fixture; not natural campaign victory','Native strip and source-derived shared GPU scene; browser adaptation, not original GPU pixel parity']}
 }
