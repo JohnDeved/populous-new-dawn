@@ -54,24 +54,33 @@ writes retain their original order and notify only afterward.
 `world-state.ts:addUnit` appends to an already-built unit index in O(1). Preacher,
 Convert Wild, startup conversion and Hypnotise replace an earlier roster slot and
 pop the temporary append; their explicit invalidation catches this same-length,
-same-array mutation. Splices, compaction and Armageddon reset change array identity
-or length and rebuild the affected index before the next query. Fight creation and
+same-array mutation. Hypnotise and Swamp ghost removals explicitly invalidate too:
+a later birth could restore the old roster length before the next query. Append
+precondition mismatch also invalidates conservatively. Compaction and Armageddon
+reset replace the array and rebuild the affected index before the next query. Fight creation and
 filtering use the same identity/length boundary. There are no other production
 same-length roster replacements in this base.
 
 ## Callbacks, custom records and teardown
 
-World and query-owned record/array descriptors are checked without evaluating
-accessors. Plain World/outcome/mana/terrain records, plain unit/native projection
-owners, building projection owners, unique person IDs, ordinary arrays and the
-ordinary object-cell registry qualify. Accessor-backed/custom records retain the
-exhaustive path; this is public-input behavior, not save-version compatibility.
-The supported live model is ordinary data, not Proxies or replaced ECMAScript
-intrinsics. New records created during a turn use the same factories/publishers.
+The retained scope is the synchronous, engine-owned turn body operating on ordinary
+plain-data World state from `createWorldState`/`createWorld`, internal factories and
+current-format checkpoint loading. Nested records such as casting, campaign AI,
+orders and effects are simulation data, not a supported extension callback API.
+External callers must not insert side-effectful nested accessors, Proxies, custom
+iterators or replaced ECMAScript intrinsics into that owned simulation body. The
+bounded descriptor guards preserve existing top-level/projection-owner accessor
+fixtures without evaluating those accessors; they do not claim to detect every
+exotic object anywhere in World. Standalone queries and commands remain exhaustive
+and do not rely on this ownership contract. New records within a turn come from
+controlled factories and the mutation publishers above. This is an execution/input
+contract, not a save-version fallback or a recursively audited whole-world graph.
 
-Observer callbacks run outside the session. The optional metrics.steps accessor
-can itself query/reenter the engine or mutate retained aliases, so completing that
-read/write invalidates every retained view before simulation continues. Ordinary
+Observer getter/invocation and the complete optional metrics.steps read/write
+run with retention suspended. These callbacks can query/reenter the engine or
+mutate retained aliases before returning, so nested ticks also remain exhaustive
+for the full callback scope. Finally restores a fresh outer session, never the
+old possibly stale view, including when the callback throws. Ordinary
 in-engine callbacks are synchronous game-owned closures and use the publishers
 listed above. Nested owned visits share the session; outer try/finally destroys
 it on success or throw. A caught partial Object.assign failure invalidates first,
@@ -86,10 +95,13 @@ then rethrows the original error. No cached turn ID is used as a freshness claim
   distant/dead fight members, stable ties and >64 candidates. Query → mutation →
   query covers births, death, roster removal, fight IDs/relocation, actual Boat and
   Balloon multi-passenger publishers, Hypnotise and Preacher replacement, nested
-  sessions, metrics reentrancy, thrown ticks and custom getters.
+  sessions, observer/metrics getter reentrancy, thrown ticks, projection-owner
+  getters and remove-then-birth sequences that restore the original roster length.
 - `tests/live-combat-index-replay.test.mjs` runs independent indexed/exhaustive
   module graphs. It compares all enumerable world fields, typed values, collection
-  order and object aliases after each turn, including current checkpoint reloads.
+  order, symbol fields and object/backing-buffer aliases after each turn, including
+  current checkpoint reloads. The graph encoder has independent self-tests for
+  shared/overlapping typed views, byte offsets and collection extension properties.
   Workloads cover Missions 1/5/22 and a hostile front that must move, create fights
   and cause actual damage. Source transformation affects only the test subprocess,
   never production or shared dependencies.

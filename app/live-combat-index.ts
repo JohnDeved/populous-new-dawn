@@ -64,14 +64,18 @@ type QuerySession = {
   checked?: boolean
 }
 const sessions = new WeakMap<World, QuerySession>()
+const suspended = new WeakSet<World>()
 
+// Internal ownership boundary: visit must be synchronous engine code mutating
+// ordinary factory/current-load data through the publishers below, not an external
+// callback. Nested exotic accessors/Proxies are not supported simulation state.
 // Only the synchronous simulation body retains an index. Public commands,
 // snapshots and standalone queries keep their exhaustive live view between calls.
 // Nothing is serialized: a loaded current-format world starts with fresh buckets.
 // Observers run outside this scope. Nested owned visits share mutation publishers;
 // throws always end the outer scope rather than leaving a reusable stale index.
 export function withLiveCombatQueries<T>(w: World, visit: () => T): T {
-  if (sessions.has(w)) return visit()
+  if (suspended.has(w) || sessions.has(w)) return visit()
   sessions.set(w, {})
   try {
     return visit()
@@ -80,9 +84,23 @@ export function withLiveCombatQueries<T>(w: World, visit: () => T): T {
   }
 }
 
-// Instrumentation can have getters/setters and can reenter a query or tick.
-// Its ordinary read/write runs first, then all retained views are discarded.
-export function invalidateLiveCombatQueries(w: World) {
+// Supported external callbacks may query, mutate retained aliases, or reenter
+// tick before returning. They must stay exhaustive for their entire execution,
+// including nested ticks; invalidating only after the callback is too late.
+export function withoutLiveCombatQueries<T>(w: World, visit: () => T): T {
+  const retained = sessions.has(w),
+    nested = suspended.has(w)
+  sessions.delete(w)
+  suspended.add(w)
+  try {
+    return visit()
+  } finally {
+    if (!nested) suspended.delete(w)
+    if (retained) sessions.set(w, {})
+  }
+}
+
+function invalidateLiveCombatQueries(w: World) {
   if (sessions.has(w)) sessions.set(w, {})
 }
 
@@ -108,8 +126,9 @@ function querySession(w: World) {
   if (!session || session.disabled) return
   if (!session.checked) {
     session.checked = true
-    // Descriptor checks never evaluate user accessors. The normal World/rosters
-    // and the scalar projection owners are data, not arbitrary callbacks.
+    // Bounded guards preserve existing projection-fixture accessor behavior.
+    // They are not a recursive validator of arbitrary nested simulation state;
+    // that state is ordinary data under the ownership contract above.
     if (
       !plainData(w) ||
       !plainData(w.outcome) ||
@@ -216,13 +235,13 @@ export function refreshLiveCombatPosition(w: World, owner: Unit | Battle) {
 export function appendLiveCombatUnit(w: World, unit: Unit) {
   const session = sessions.get(w),
     index = session?.units
-  if (
-    session?.disabled ||
-    !index ||
-    index.roster !== w.units ||
-    index.length + 1 !== w.units.length
-  )
+  if (session?.disabled || !index) return
+  if (index.roster !== w.units || index.length + 1 !== w.units.length) {
+    // An earlier removal can be hidden when this append restores the old length.
+    // Do not leave that stale roster reusable by the next same-turn query.
+    session.units = undefined
     return
+  }
   if (!plainUnit(unit)) {
     sessions.get(w)!.disabled = true
     return

@@ -1,3 +1,4 @@
+import { semanticWorldGraph } from './semantic-world-graph.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { createWorld } from '../../app/world-initialization.ts'
@@ -6,31 +7,8 @@ import { tick } from '../../app/world-turn.ts'
 import { command } from '../../app/live-command.ts'
 import { migrateCheckpoint } from '../../app/game-store.ts'
 
-// V8 serialization bytes depend on incidental object representations (e.g.
-// integer/double fields), even when deserialized worlds are deeply equal. Encode
-// every enumerable state field, collection order, typed value and object alias
-// deterministically instead; do not whitelist or omit simulation fields.
-function hash(world) {
-  const seen = new Map()
-  const encode = value => {
-    if (value === undefined) return ['undefined']
-    if (typeof value === 'number' && !Number.isFinite(value)) return ['number', String(value)]
-    if (Object.is(value, -0)) return ['number', '-0']
-    if (value === null || typeof value !== 'object') return value
-    if (seen.has(value)) return ['ref', seen.get(value)]
-    const id = seen.size
-    seen.set(value, id)
-    if (ArrayBuffer.isView(value)) return ['view', id, value.constructor.name,
-      Buffer.from(value.buffer, value.byteOffset, value.byteLength).toString('base64')]
-    if (value instanceof ArrayBuffer) return ['buffer', id, Buffer.from(value).toString('base64')]
-    if (value instanceof Map) return ['map', id, [...value].map(([k, v]) => [encode(k), encode(v)])]
-    if (value instanceof Set) return ['set', id, [...value].map(encode)]
-    if (Array.isArray(value)) return ['array', id, Array.from({ length: value.length }, (_, i) =>
-      i in value ? encode(value[i]) : ['hole'])]
-    return ['object', id, Object.keys(value).sort().map(key => [key, encode(value[key])])]
-  }
-  return createHash('sha256').update(JSON.stringify(encode(world))).digest('hex')
-}
+// Do not whitelist simulation fields or omit aliases to make replay pass.
+const hash = world => createHash('sha256').update(JSON.stringify(semanticWorldGraph(world))).digest('hex')
 const traces = []
 for (const mission of [1, 5, 22]) {
   let w = createWorld(mission)

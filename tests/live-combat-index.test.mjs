@@ -7,10 +7,14 @@ import { createWorld } from '../app/world-initialization.ts'
 import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
 import { boardLiveVehicle, leaveLiveVehicle, syncLiveVehiclePassengers } from '../app/live-vehicles.ts'
 import { browserPosition } from '../app/world-coordinates.ts'
-import { applyHypnotise } from '../app/spell-effects-runtime.ts'
+import { addBuilding } from '../app/construction-runtime.ts'
+import { campaignCommand } from '../app/campaign-command-runtime.ts'
+import { createSwamp } from '../app/swamp.ts'
+import { tribeForTeam } from '../app/world-types.ts'
+import { applyHypnotise, stepLiveSwamp } from '../app/spell-effects-runtime.ts'
 import { tick } from '../app/world-turn.ts'
 import { stepLiveConversionVictim, appendLiveOrders } from '../app/live-movement.ts'
-import { emptyPersonOrder, writePersonOrder } from '../app/person-orders.ts'
+import { currentPersonOrder, emptyPersonOrder, writePersonOrder } from '../app/person-orders.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import {
   liveCombatNeighborhood, liveCombatPeopleInCell, publishLiveCombatPosition,
@@ -23,7 +27,8 @@ const cell = p => ((p.y >> 9) << 7) | (p.x >> 9)
 function compare(w, source, range) {
   const indexed = combatWorld(w, source, range), exhaustive = exhaustiveCombatWorld(w, source, range)
   assert.deepEqual([...indexed.world.objects], [...exhaustive.world.objects])
-  assert.deepEqual([...indexed.owners], [...exhaustive.owners])
+  assert.deepEqual([...indexed.owners.keys()], [...exhaustive.owners.keys()])
+  for (const [id, owner] of exhaustive.owners) assert.equal(indexed.owners.get(id), owner)
   const cells = new Set([cell(source), ...[...exhaustive.world.objects.values()].map(cell)])
   for (const i of cells)
     assert.deepEqual([...indexed.world.cellObjects(i)], [...exhaustive.world.cellObjects(i)], `cell ${i}`)
@@ -50,6 +55,7 @@ test('indexed owned queries match the independent exhaustive adapter over seams,
   })
   const before = structuredClone(w)
   withLiveCombatQueries(w, () => {
+    assert.ok(liveCombatNeighborhood(w, { x: 0, y: 0 }, 1), 'ordinary data actually uses the index')
     for (const source of [{ x: 0, y: 0 }, { x: 65535, y: 65535 }, { x: 32768, y: 511 }])
       for (const range of [0, 1, 2, 3, 7, 16, 127, 128, 129, 255]) compare(w, source, range)
   })
@@ -217,8 +223,10 @@ test('tick instrumentation reentrancy is invalidated and a thrown tick tears dow
   let observed = false
   const metrics = {
     get steps() {
-      assert.ok(liveCombatNeighborhood(w, origin, 1))
+      assert.equal(liveCombatNeighborhood(w, origin, 1), undefined)
+      compare(w, origin, 1)
       unit.x = 48
+      compare(w, combatPerson(unit), 1)
       return 0
     },
     set steps(value) {
@@ -241,4 +249,106 @@ test('tick instrumentation reentrancy is invalidated and a thrown tick tears dow
     afterTurn() { assert.equal(liveCombatNeighborhood(w, origin, 1), undefined) },
   }, continuing)
   compare(w, combatPerson(unit), 1)
+})
+
+
+test('metrics and nested observer getters remain exhaustive throughout alias mutations', () => {
+  const w = createWorldState(1), unit = addUnit(w, 'red', 'warrior', point(0, 0))
+  const origin = { x: 0, y: 0 }, other = { x: 8192, y: 0 }
+  const visits = []
+  assert.throws(() => tick(w, 1 / 12, undefined, {
+    get steps() {
+      visits.push('metrics:get')
+      compare(w, origin, 1)
+      unit.x = 24
+      assert.equal(combatWorld(w, other, 1).world.objects.has(unit.id), true)
+      compare(w, other, 1)
+      tick(w, 1 / 12, {
+        get beforeTurn() {
+          visits.push('observer:get')
+          assert.equal(liveCombatNeighborhood(w, other, 1), undefined)
+          compare(w, other, 1)
+          unit.x = -8
+          compare(w, origin, 1)
+          return () => {
+            visits.push('observer:call')
+            compare(w, origin, 1)
+            unit.x = 24
+            compare(w, other, 1)
+          }
+        },
+        afterTurn() { assert.equal(liveCombatNeighborhood(w, other, 1), undefined) },
+      })
+      compare(w, combatPerson(unit), 1)
+      return 0
+    },
+    set steps(value) { visits.push('metrics:set'); assert.equal(value, 1); throw Error('end probe') },
+  }), /end probe/)
+  assert.deepEqual(visits, ['metrics:get', 'observer:get', 'observer:call', 'metrics:set'])
+  assert.equal(liveCombatNeighborhood(w, origin, 1), undefined)
+})
+
+test('nested tick observers suspend an existing outer session and restore a fresh view after a throw', () => {
+  const w = createWorldState(1), unit = addUnit(w, 'red', 'warrior', point(0, 0))
+  const origin = { x: 0, y: 0 }, other = { x: 8192, y: 0 }
+  withLiveCombatQueries(w, () => {
+    compare(w, origin, 1)
+    assert.throws(() => tick(w, 1 / 12, {
+      get beforeTurn() {
+        compare(w, origin, 1)
+        unit.x = 24
+        compare(w, other, 1)
+        return () => { throw Error('nested observer failed') }
+      },
+    }), /nested observer failed/)
+    assert.ok(liveCombatNeighborhood(w, other, 1))
+    compare(w, other, 1)
+  })
+})
+
+for (const removal of ['Hypnotise', 'Swamp'])
+  test(`campaign counterattack query → ${removal} ghost removal → birth preserves a restored roster length`, () => {
+    const w = createWorldState(1)
+    w.terrain.fill(3); w.terrainVersion++
+    const tower = addBuilding(w, 'green', 'tower', { x: 0, z: 0 })
+    w.land.categories.fill(3)
+    const resident = addUnit(w, 'green', 'warrior', tower)
+    resident.inside = tower.id
+    const defender = addUnit(w, 'green', 'warrior', { x: tower.x + 2, z: tower.z })
+    const hostile = addUnit(w, 'blue', 'shaman', { x: tower.x + 1, z: tower.z })
+    for (const u of [resident, defender, hostile]) {
+      u.native = createLivePerson(w, u); u.native.state = 17
+      registerLivePerson(w, u.native)
+    }
+    const ghost = addUnit(w, 'red', 'brave', point(0, 0))
+    ghost.ghost = true; ghost.native = createLivePerson(w, ghost); ghost.native.state = 17
+    w.activeCampaignTribe = tribeForTeam('green')
+    const length = w.units.length
+    withLiveCombatQueries(w, () => {
+      // This real pre-effects campaign command reaches combatWorld via an
+      // occupied Tower and marks a defender. No test query builds the index first.
+      campaignCommand(w, 1198, [])
+      assert.equal(currentPersonOrder(w.buildingOrders, defender.native)?.model, 19)
+      if (removal === 'Hypnotise') applyHypnotise(w, ghost, 'blue')
+      else stepLiveSwamp(w, createSwamp({ x: 0, y: 0, h: 0 }, 0, 3, w))
+      assert.equal(w.units.length, length - 1)
+      assert.ok(!w.units.includes(ghost))
+      const newborn = addUnit(w, 'blue', 'brave', point(0, 0))
+      assert.equal(w.units.length, length, 'no intervening query observes the shorter array')
+      const projected = compare(w, { x: 0, y: 0 }, 1)
+      assert.deepEqual([...projected.owners.keys()], [newborn.id])
+      assert.ok(!projected.world.objects.has(ghost.id))
+    })
+  })
+
+test('an append with an unexpected roster length invalidates instead of retaining stale owners', () => {
+  const w = createWorldState(1), old = addUnit(w, 'red', 'brave', point(0, 0))
+  withLiveCombatQueries(w, () => {
+    compare(w, { x: 0, y: 0 }, 1)
+    // Deliberately omit a removal notification to exercise append's defensive boundary.
+    w.units.splice(0, 1)
+    const newborn = addUnit(w, 'blue', 'brave', point(0, 0))
+    const result = compare(w, { x: 0, y: 0 }, 1)
+    assert.ok(!result.owners.has(old.id)); assert.equal(result.owners.get(newborn.id), newborn)
+  })
 })

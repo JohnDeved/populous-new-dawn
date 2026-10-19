@@ -254,6 +254,7 @@ export function applyHypnotise(w: World, point: Point, team: Team) {
       deleteCellObject(w.objectCells, u.id)
       w.selected = w.selected.filter(id => id !== u.id)
       w.units.splice(w.units.indexOf(u), 1)
+      invalidateLiveCombatUnits(w)
       continue
     }
     replaceHypnotisedUnit(w, u, team, u.hypnotise?.originalTeam ?? u.team)
@@ -1087,7 +1088,10 @@ export function stepLiveSwamp(w: World, swamp: Swamp) {
       if (u.inside === null) releaseTasks(w, u)
       else release(w, u)
       const index = w.units.indexOf(u)
-      if (index !== -1) w.units.splice(index, 1)
+      if (index !== -1) {
+        w.units.splice(index, 1)
+        invalidateLiveCombatUnits(w)
+      }
       w.selected = w.selected.filter(id => id !== u.id)
     },
     sound: () => sound(w, 0xaa, browserPosition(swamp.center)),

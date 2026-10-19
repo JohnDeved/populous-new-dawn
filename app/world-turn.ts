@@ -2,7 +2,7 @@ import {
   publishLiveCombatPosition,
   refreshLiveCombatPosition,
   withLiveCombatQueries,
-  invalidateLiveCombatQueries,
+  withoutLiveCombatQueries,
 } from './live-combat-index.ts'
 import { grantLinkedBoatReward } from './vehicle-reward.ts'
 import {
@@ -471,9 +471,9 @@ export function tick(w: World, dt: number, observer?: TurnObserver, metrics?: { 
   while (w.pendingTime + 1e-9 >= 1 / TURNS_PER_SECOND) {
     w.pendingTime = Math.max(0, w.pendingTime - 1 / TURNS_PER_SECOND)
     if (w.pendingTime < 1e-9) w.pendingTime = 0
-    observer?.beforeTurn?.()
+    if (observer) withoutLiveCombatQueries(w, () => observer.beforeTurn?.())
     withLiveCombatQueries(w, () => stepTurn(w, metrics))
-    observer?.afterTurn?.()
+    if (observer) withoutLiveCombatQueries(w, () => observer.afterTurn?.())
   }
 }
 function stepTurn(w: World, metrics?: { steps: number }) {
@@ -510,10 +510,7 @@ function stepTurn(w: World, metrics?: { steps: number }) {
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
   // Count actual logical advances, independent of wrapping/resettable turn IDs.
-  if (metrics) {
-    metrics.steps++
-    invalidateLiveCombatQueries(w)
-  }
+  if (metrics) withoutLiveCombatQueries(w, () => metrics.steps++)
   if (!(w.manaWorld.gameFlags & 2))
     for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
       if (w.campaignAIs[tribe]) withCampaignTribe(w, tribe, () => stepForcedCampaignAttack(w))
