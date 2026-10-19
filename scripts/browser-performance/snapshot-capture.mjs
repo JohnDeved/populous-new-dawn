@@ -39,7 +39,7 @@ export function observeNativePixelAdmission({ x, y }) {
   const pixel = [Math.trunc(x - rect.left), Math.trunc(y - rect.top)]
   return { pixel, cached: s.picking.groundHits.has(pixel.join(',')), timestampMs: performance.now() }
 }
-export async function exportSnapshotRaw({ page, output, record }) {
+export async function exportSnapshotRaw({ page, output, record, diagnostic = null }) {
   assert.equal(record.exportAttempted, undefined, 'Never retry an uncertain export action')
   record.exportAttempted = true
   const button = page.getByRole('button', { name: 'Export recent frames', exact: true })
@@ -47,7 +47,8 @@ export async function exportSnapshotRaw({ page, output, record }) {
   const [download] = await Promise.all([page.waitForEvent('download'), page.keyboard.press('Space')])
   assert.match(download.suggestedFilename(), /^populous-frames-.*\.json$/)
   record.rawFile = `snapshot-frame-${record.name}.json`
-  await download.saveAs(resolve(output, record.rawFile))
+  if (diagnostic) await diagnostic.download(download, resolve(output, record.rawFile))
+  else await download.saveAs(resolve(output, record.rawFile))
 }
 // This opt-in belongs only to the comparative runner. Functional smoke never
 // converts an admitted new-cohort failure into a passed candidate scenario.
@@ -128,14 +129,15 @@ export function finalizeSnapshotReaderSummaries(report, summarize, write) {
     return false
   }
 }
-export default async function capture({ page, url, output, expectedRevision, fixture, shard, dragSource, readerSource, readerProvenance, allowDragFailure = false, getErrorCount = () => 0 }) {
+export default async function capture({ page, url, output, expectedRevision, fixture, shard, dragSource, readerSource, readerProvenance, allowDragFailure = false, getErrorCount = () => 0, diagnostic = null }) {
   assert.ok(Object.hasOwn(shards, shard))
   const report = { version: 2, kind: plan.kind, plan, shard, expectedRevision, status: 'incomplete', phases: [] }
-  const save = () => writeFileSync(resolve(output, 'snapshot-frames.json'), JSON.stringify(report, null, 2) + '\n')
+  const write = diagnostic ? diagnostic.write : writeFileSync
+  const save = () => write(resolve(output, 'snapshot-frames.json'), JSON.stringify(report, null, 2) + '\n')
   const observe = () => page.evaluate(observeSnapshotState), graph = page.locator('.fps-graph')
   const finalizeReaderSummaries = () => finalizeSnapshotReaderSummaries(report,
     record => summarizeSnapshotPhase(readFileSync(resolve(output, record.rawFile), 'utf8'), record, expectedRevision, report.readers),
-    (name, summary) => writeFileSync(resolve(output, name), JSON.stringify(summary, null, 2) + '\n'))
+    (name, summary) => write(resolve(output, name), JSON.stringify(summary, null, 2) + '\n'))
 
   save()
   try {
@@ -153,7 +155,8 @@ export default async function capture({ page, url, output, expectedRevision, fix
     assert.equal(invariant(report.warmupBefore), invariant(report.warmupAfter))
     // Shards have independent explicit v2 prerequisites. Recovery performs the
     // HUD episode before returning to world; no v1 live camera hold is implied.
-    for (const name of shards[shard]) {
+    for (const name of diagnostic ? ['native-hover', 'ordinary-hover'] : shards[shard]) {
+      if (diagnostic) await diagnostic.boundary(`before-${name}`)
       const record = { name, status: 'incomplete', preparation: [], blocks: [] }
       report.phases.push(record); save()
       const viewChange = name === dragContract.phase
@@ -223,14 +226,15 @@ export default async function capture({ page, url, output, expectedRevision, fix
         await page.mouse.up({ button: 'right' })
         save()
       }
-      await exportSnapshotRaw({ page, output, record }); save()
+      await exportSnapshotRaw({ page, output, record, diagnostic }); save()
       // Keep downloaded bytes even if strict attribution/work admission fails.
       const summary = summarizeSnapshotPhase(readFileSync(resolve(output, record.rawFile), 'utf8'), record, expectedRevision)
       record.summaryFile = `snapshot-summary-${name}.json`
-      writeFileSync(resolve(output, record.summaryFile), JSON.stringify(summary, null, 2) + '\n')
+      write(resolve(output, record.summaryFile), JSON.stringify(summary, null, 2) + '\n')
       assert.equal(getErrorCount(), 0, 'Browser errors before completed phase admission')
       record.status = 'passed'; save()
       await page.keyboard.press('F8'); await graph.waitFor({ state: 'hidden' })
+      if (diagnostic) await diagnostic.boundary(`after-${name}`)
     }
     finalizeReaderSummaries()
     report.status = 'passed'; return report
@@ -240,7 +244,7 @@ export default async function capture({ page, url, output, expectedRevision, fix
     // Preserve an available recorder even when attribution fails. This is one
     // diagnostic export, never a retry or a replacement successful measurement.
     if (record && !record.exportAttempted && !page.isClosed()) {
-      try { if (await graph.isVisible()) await exportSnapshotRaw({ page, output, record }) }
+      try { if (await graph.isVisible()) await exportSnapshotRaw({ page, output, record, diagnostic }) }
       catch (exportError) { record.exportFailure = String(exportError) }
     }
     if (retainStablePhasesAfterDragFailure(report, allowDragFailure)) {

@@ -1,0 +1,74 @@
+name: Current-candidate causal diagnostic (not performance acceptance)
+on:
+  push:
+    branches: [diagnostic/current-causal-profile-20261019]
+permissions:
+  contents: read
+concurrency:
+  group: current-causal-diagnostic
+  cancel-in-progress: false
+jobs:
+  causal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PR_NUMBER: '638'
+      PR_BASE_SHA: '2048a88a17983a4de619a649426b7f9554a7d319'
+      PR_HEAD_SHA: '64daadcc5fefcaa8b19f07021d15fd3eb8ce40ed'
+      EXPECTED_CHROME_VERSION: 'Google Chrome 155.0.8059.39'
+      EXPECTED_CHROME_SHA256: '9bfb381296dffe75f3419d07b6cc64525105ed117d1453a4ef3b291cb97d2b58'
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Check out reviewed diagnostic source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          path: diagnostic
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Check out exact base
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: '2048a88a17983a4de619a649426b7f9554a7d319'
+          path: base
+          persist-credentials: false
+      - name: Check out exact candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: '64daadcc5fefcaa8b19f07021d15fd3eb8ce40ed'
+          path: candidate
+          persist-credentials: false
+      - name: Set up pinned Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Verify diagnostic scope and install common locked dependencies
+        working-directory: diagnostic
+        run: |
+          test "$(git rev-parse HEAD^)" = "$PR_BASE_SHA"
+          node scripts/browser-performance/causal-scope.mjs
+          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+          npm ci --ignore-scripts --no-audit --no-fund
+          test -x /opt/google/chrome/chrome
+      - name: Capture one diagnostic base/head pair
+        working-directory: diagnostic
+        run: node scripts/browser-performance/causal-run.mjs
+      - name: Stage byte-bounded evidence, including failures
+        if: ${{ always() }}
+        working-directory: diagnostic
+        run: node scripts/browser-performance/causal-stage.mjs
+      - name: Retain diagnostic evidence (never benchmark acceptance)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: current-causal-${{ github.run_id }}-${{ github.run_attempt }}
+          path: diagnostic/outputs/causal-upload/
+          if-no-files-found: warn
+          retention-days: 7
