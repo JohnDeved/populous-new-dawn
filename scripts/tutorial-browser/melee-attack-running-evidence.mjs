@@ -113,8 +113,18 @@ export function validateMeleeRunningFrames(samples, originalMapping) {
       assert.ok(sample.stamp > previous.stamp, `${label}: distinct chronological renderer stamps required`)
       for (const key of ['turn', 'animationFrame'])
         assert.ok(sample[key] >= previous[key], `${label}: ${key} observations must be chronological`)
-      for (const key of ['fightGroup', 'opponent'])
-        assert.equal(sample[key], previous[key], `${label}: observations must retain the same ${key}`)
+      assert.equal(sample.fightGroup, previous.fightGroup, `${label}: observations must retain the same fightGroup`)
+      if (sample.started === previous.started) {
+        for (const key of ['action', 'opponent'])
+          assert.equal(sample[key], previous[key], `${label}: one attack entry must retain the same ${key}`)
+      } else {
+        // processBattles may choose another opponent only on a later entry.
+        // Expiry returns to approach and continues; entry cannot occur that turn.
+        assert.ok(sample.started > previous.started, `${label}: attack entry starts must be chronological`)
+        const duration = originalMapping[`${previous.kind}:${previous.action}`].duration
+        assert.ok(sample.started >= previous.started + duration,
+          `${label}: a new attack entry must follow the prior native expiry turn`)
+      }
     }
     assert.ok(attacks.has(sample.action), `${label}: attack, strike or special required`)
     const mappingKey = `${sample.kind}:${sample.action}`
