@@ -6,7 +6,7 @@ import { spawn } from 'node:child_process'
 import { finalizeEvidence } from './observation-store.mjs'
 import { protocol } from './protocol.mjs'
 import { sha, fileSha, save } from './io.mjs'
-const expectedBinding = '7b2867b1c56b341a58ae3efd0ac268c438ea1dca9da21f6d6b5df74fda812f5b'
+const expectedBinding = '2fa2a41987541ef217829ad3861a3f73dfef2bb95f8ca5850a2582d1da7c80d5'
 const here = import.meta.dirname,
   bindingPath = join(here, 'binding.json')
 const [base, candidate, output, browser] = process.argv.slice(2),

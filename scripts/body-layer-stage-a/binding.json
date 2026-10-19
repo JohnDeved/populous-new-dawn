@@ -15,7 +15,7 @@
     "protocol.mjs": "b685841cd984f6b2d1db92f8f5a5586b27f705a074734aaf85001e2c02cd7c83",
     "rejected-controls.fixture.mjs": "192cde733fabeb8a76b9e160648705972ca41dbcdcb1d79b2651ec0e73662f35",
     "setup-adapter.mjs": "dce62fb7212172ff8cd42ff75c73c0ec5deb1ed0a4bf719888924d54317b8f6d",
-    "start-latch.mjs": "d21f378a8c393b5d97337fd5f5834a3e6aa5edbf7d370c5ed9cb3fcc251217e8",
+    "start-latch.mjs": "c3139488663d464536fb11b909b8129bcb9477d5586c866608cbf3363dafc97f",
     "start-transform-bindings.json": "daef5f7a0da2664c5e3d2bba09a47e1208b13a34b6ea96d30963670b1a679102",
     "worker.mjs": "feae8acc78c2bc777e90e7ed66654063894b20e667e672160515407395b51e74",
     "focus-constructor.test.mjs": "0aa50f81ed4e0df8312d10e0066e59611e8f819e8044cd0cd9a67847c245700a",

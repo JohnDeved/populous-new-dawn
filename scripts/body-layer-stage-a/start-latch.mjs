@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 export const originalSceneHashes = {
-  'e1b468a9b8a355bd46fb149a1100b43442898b1e':
+  e1b468a9b8a355bd46fb149a1100b43442898b1e:
     'ebb5b53ad1e2fdcf32eaa639aeac29ab2bd2ea1ce3835bcfa734a2cb001899da',
   '0d9ae8b299b613fc729e3c7d05c5e9a06fd4c36f':
     'abe62552685ed0c8a90da4dd585635dbf448da966fdff25c66cf446a0065a86d',
