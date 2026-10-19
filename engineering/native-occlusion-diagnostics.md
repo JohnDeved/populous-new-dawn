@@ -90,3 +90,30 @@ pre-profile evidence; the additive profile resolves that specific blocker only.
 Source/build fingerprints still require new exact-head evidence. Admission is
 not a performance-equivalence finding, and previous captures and acceptance
 results remain tied to their original identities.
+
+### F8 recording-epoch source admission
+
+The independent F8 reset fix passes `scene.fpsGraph?.interactionRecording` instead
+of `scene.fpsGraph` to the pointer diagnostic baseline. Relative to the reviewed
+pick-path profile above, only the `pointer-callback` protected slice changes:
+- file: `app/scene-input-runtime.ts`, from `export function updatePointerFrame(`
+  to `export function updateSpellPointerFrame(`;
+- historical reviewed SHA-256:
+  `8f0549696e9474b1573436a41a7040e553e44c79c7b3bb8e4c2a18a060518c0c`;
+- recording-epoch SHA-256:
+  `741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895`.
+
+The fifth atomic profile,
+`owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1`, binds all 17 slices
+with that single hash difference from the pick-path profile. All four historical
+profiles, hashes, boundaries, and inspection logic remain unchanged. There is no
+source normalization or independent per-slice alternative selection.
+
+Tests mutate all 17 current slices and retain owned-terrain lifecycle checks.
+Reversing exactly one epoch argument uniquely admits the prior pick-path profile;
+also reversing the existing counter delta uniquely admits the older neutral-cursor
+profile. An unreviewed interaction argument and a mixture of new epoch input with
+pre-counter query inputs are rejected. This admission repair changes no runtime
+code and does not establish browser correctness or performance equivalence.
+The failed hosted checks on `4f1a79126570496d26b7c1f59ae4e58d7ce3bfdc` remain
+failed historical evidence; the repaired head requires fresh verification.

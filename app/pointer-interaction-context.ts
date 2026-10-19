@@ -51,7 +51,8 @@ const previous = new WeakMap<
 >()
 
 // Called only with F8 diagnostics enabled. Compare to the last recorded pointer
-// sample, not input-event counts; a new F8 graph starts an unknown baseline.
+// sample, not input-event counts; each recording epoch starts an unknown baseline.
+// Pass only the lightweight epoch identity, not a graph or scene reference.
 export function capturePointerInteraction(
   context: PointerInteractionContext,
   recording: object | null | undefined,
