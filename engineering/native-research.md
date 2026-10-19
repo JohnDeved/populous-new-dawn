@@ -7,6 +7,11 @@ assume a model number alone identifies a playable person.
 
 ## Current cloud setup example (verified 2026-10-03)
 
+For a fresh or incomplete executor, follow [native environment setup](native-setup.md)
+automatically. It includes the retained original archive URL, Linux JDK/Ghidra
+installation, full base-game extraction, and verification. Missing local paths are
+a setup task, not a request for the user to supply the files again.
+
 On the current shared Linux executor, use the existing environment rather than
 re-downloading tools or treating an unset variable as a missing game:
 

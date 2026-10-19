@@ -29,6 +29,9 @@ timing bucket alone does not demonstrate an improvement.
    helpful; follow omissions or contradictions. For native work, use
    `engineering/native-research.md`, verify local inputs/tools, and preserve useful
    exports/probes in indexed durable evidence.
+   Restore missing native prerequisites automatically using
+   `engineering/native-setup.md`; try its verified download/extraction path before
+   asking the user for files or setup instructions.
 3. Implement a playable live path. Keep acceptance and limits in the linked issue/PR.
    Optional contracts and role packets in `engineering/contracts.md` help complex
    scope; they are not required for every assignment.
