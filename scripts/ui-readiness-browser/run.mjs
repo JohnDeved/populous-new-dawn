@@ -128,7 +128,9 @@ try {
       if (row.result?.status === 'timed-out') caseTimedOut = true
       assert.equal(row.result?.status, 'passed', 'Helper must explicitly report passed')
       row.status = caseTimedOut || globalTimedOut ? 'timed-out' : 'passed'
-    } catch (error) { row.status = caseTimedOut || globalTimedOut || receipt.caseTimedOut ? 'timed-out' : 'failed'; row.error = String(error.stack) }
+    } catch (error) {
+      if (error.name === 'DiagnosticTimeoutError') caseTimedOut = true
+      row.status = caseTimedOut || globalTimedOut || receipt.caseTimedOut ? 'timed-out' : 'failed'; row.error = String(error.stack) }
     finally { clearTimeout(cap); await context.close(); save() }
     if (caseTimedOut) { receipt.caseTimedOut = true; throw Error(`Case deadline expired: ${name}; later cases not started`) }
   }

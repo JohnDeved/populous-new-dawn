@@ -79,6 +79,8 @@ export default async function ({ page, context, output, url }) {
     assert.deepEqual(report.errors, [])
     report.status = timedOut ? 'timed-out' : 'passed'
     return report
-  } catch (error) { report.status = timedOut ? 'timed-out' : 'failed'; report.error = String(error.stack); throw error }
+  } catch (error) { report.status = timedOut ? 'timed-out' : 'failed'; report.error = String(error.stack);
+    if (timedOut) throw Object.assign(new Error('Helper diagnostic deadline expired', { cause: error }), { name: 'DiagnosticTimeoutError' })
+    throw error }
   finally { clearTimeout(cap); save() }
 }
