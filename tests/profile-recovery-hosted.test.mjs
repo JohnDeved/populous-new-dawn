@@ -28,7 +28,7 @@ test('recovery selects only the existing nine-case matrix and skips M2 fixture g
   const runner = read('scripts/tutorial-browser/run.mjs')
   assert.match(
     runner,
-    /if \(selectedScenario === 'tutorial' \|\| selectedScenario === 'm2-pointer-f8'\)/
+    /if \(selectedScenario === 'tutorial' \|\| selectedScenario === 'm2-pointer-f8' \|\| selectedScenario === 'compact-message-layout'\)/
   )
   assert.match(runner, /recoveryScenarioSha256: hash\(recoveryScenario\)/)
   assert.match(runner, /signal: abort.signal/)

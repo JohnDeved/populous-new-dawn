@@ -41,6 +41,11 @@ jobs:
             name: Tutorial browser
             artifact: tutorial-browser
             buildStep: Build plain production Home and validate Tutorial interactions
+          - scenario: compact-message-layout
+            timeoutMinutes: 15
+            name: Compact message layout browser
+            artifact: compact-message-layout-browser
+            buildStep: Validate compact messages and F8 under public HUD preferences
           - scenario: pause-checkpoint-recovery
             timeoutMinutes: 15
             name: Pause checkpoint recovery browser

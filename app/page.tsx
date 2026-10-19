@@ -1050,35 +1050,6 @@ export default function Home() {
           </button>
         </aside>
       )}
-      {ready && routeNotice && (
-        <div
-          key={routeNotice.serial}
-          className="world-message route-notice"
-          style={{
-            visibility: menu ? 'hidden' : undefined,
-            animationPlayState: menu || selectorOpen ? 'paused' : undefined,
-          }}
-          role="status"
-          onAnimationEnd={() =>
-            store.change(w => {
-              if (w === world && w.routeNotice === routeNotice) w.routeNotice = null
-            })
-          }
-        >
-          <span>✧</span>
-          {ROUTE_FAILURE_TEXT}
-        </div>
-      )}
-      {ready && !routeNotice && world.messageUntil > world.time && (
-        <div
-          className="world-message"
-          role="status"
-          style={{ visibility: menu ? 'hidden' : undefined }}
-        >
-          <span>✧</span>
-          {world.message}
-        </div>
-      )}
       <aside
         className="campaign-messages"
         aria-label="Campaign messages"
@@ -1138,19 +1109,50 @@ export default function Home() {
           Skip introduction <kbd>ESC</kbd>
         </button>
       )}
-      {ready && world.paused && !menu && world.status === 'playing' && (
-        <button
-          className="paused-badge"
-          onClick={() => {
-            store.change(w => {
-              w.paused = false
-            })
-          }}
-        >
-          Ⅱ <span>WORLD PAUSED</span>
-          <small>Click to resume</small>
-        </button>
-      )}
+      <div className="game-status">
+        {ready && routeNotice && (
+          <div
+            key={routeNotice.serial}
+            className="world-message route-notice"
+            style={{
+              visibility: menu ? 'hidden' : undefined,
+              animationPlayState: menu || selectorOpen ? 'paused' : undefined,
+            }}
+            role="status"
+            onAnimationEnd={() =>
+              store.change(w => {
+                if (w === world && w.routeNotice === routeNotice) w.routeNotice = null
+              })
+            }
+          >
+            <span>✧</span>
+            {ROUTE_FAILURE_TEXT}
+          </div>
+        )}
+        {ready && !routeNotice && world.messageUntil > world.time && (
+          <div
+            className="world-message"
+            role="status"
+            style={{ visibility: menu ? 'hidden' : undefined }}
+          >
+            <span>✧</span>
+            {world.message}
+          </div>
+        )}
+        {ready && world.paused && !menu && world.status === 'playing' && (
+          <button
+            className="paused-badge"
+            onClick={() => {
+              store.change(w => {
+                w.paused = false
+              })
+            }}
+          >
+            Ⅱ <span>WORLD PAUSED</span>
+            <small>Click to resume</small>
+          </button>
+        )}
+      </div>
       {world.mode && (
         <div className="target-prompt">
           <span>◎</span> Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'}{' '}

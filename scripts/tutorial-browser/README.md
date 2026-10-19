@@ -418,3 +418,30 @@ does not retroactively pass either failed run or claim running same-turn browser
 behavior. Missing observations fail closed. No protocol proves original absolute FPS, hardware
 smoothness, Firewarrior browser behavior or pixel-perfect composition. Broad issue
 #214 and recoil/knockback remain outside this acceptance.
+
+## Compact campaign/status message layout (#538)
+
+The additional `Compact message layout browser` matrix job selects
+`compact-message-layout`. It reuses the exact imported authored Mission 2
+checkpoint, public Load/Skip/Continue/Pause admission and read-only scene observers
+from the existing M2 scenario. It does not append work to the pointer/camera/export
+episode or replace any existing job. The new episode has the same explicit
+45-second cap from before navigation through public settings, all captures and
+restoration; the existing 120-second build, 180-second outer browser and 15-minute
+job caps remain unchanged. This is one additional hosted job, not free coverage.
+
+The public Game settings → Options → Browser compatibility and help → HUD size
+control selects Automatic and 400%. Each preference covers 900×360 and 640×480
+with authored campaign and objective/status messages active. Receipts retain
+individual wrapped text-fragment bounds, scroll dimensions via fit checks,
+F8/pause/campaign rectangles and close/export/pause hit testing. Every case toggles
+F8 off again and requires exact restoration of ordinary text geometry and fonts.
+Screenshots are `compact-message-{auto,4}-{900x360,640x480}.png`; terminal results
+and partial failure witnesses are in `compact-message-layout.json`.
+
+Only these preferences/sizes are browser acceptance targets. Other supported
+manual preferences have equal source-derived clamping at these two sizes, not
+separate browser captures. This layout correction neither hides messages nor
+reduces font sizes, and does not claim universal small-window or hardware
+performance support. #538 remains open until exact-source hosted receipts and
+actual screenshots are reviewed successfully.
