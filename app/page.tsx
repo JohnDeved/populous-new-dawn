@@ -1246,13 +1246,9 @@ export default function Home() {
           <button
             className="portrait"
             aria-label="Select and focus shaman"
-            title="Shaman · H"
-            onClick={() => {
-              select(world, 'shaman')
-              audio.current?.cue(0x18)
-              update()
-              engine.current?.focus(shaman ?? HOME, { animate: true })
-            }}
+            title="Shaman · Click: add to selection · Right-click: focus · H: select"
+            disabled={!shaman || shaman.hp <= 0}
+            {...followerControl(7)}
           >
             <canvas ref={portrait} width={100} height={480} aria-hidden="true" />
           </button>
