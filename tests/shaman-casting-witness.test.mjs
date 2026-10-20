@@ -4,7 +4,7 @@ import { installShamanCastingObserver } from '../scripts/tutorial-browser/shaman
 import { castingArtworkReference as reference, validateShamanCastingEvidence } from '../scripts/tutorial-browser/shaman-casting-evidence.mjs'
 import native from './fixtures/shaman-casting-native.json' with { type: 'json' }
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
-import { addUnit } from '../app/model.ts'
+import { addUnit, createWorld, select } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { cast } from '../app/live-command.ts'
 import { advanceGame } from '../app/game-clock.ts'
@@ -15,7 +15,7 @@ import { beginOrdinaryCastingWitness } from '../scripts/tutorial-browser/shaman-
 function evidence() {
   const casts = ['ordinary', 'subsequent'].map((label, index) => {
     const turn = 100 + index * 30, f2 = index ? 11 : 3, shot = 200 + index
-    const person = { id: 4, hp: 100, state: 10, previousState: 0, object: 424, draw: 14,
+    const person = { id: 4, hp: 100, state: 19, previousState: 17, object: 424, draw: 14,
       f1: 0, f2, timer: 0, counter: 254, stamp: turn, vehicle: 0, flags2: 0, flags4: 0,
       flight: false, lift: 0, casting: false, orderModel: 0, sameOwner: true }
     const before = { turn, paused: false, suspended: false, speed: 1, level: 1, inputMask: 0,
@@ -34,7 +34,7 @@ function evidence() {
         projectiles: visit < 6 ? [{ id: shot, caster: 4, phase: 'windup', remaining: 6 - visit }]
           : visit === 6 ? [{ id: shot, caster: 4, phase: 'flying', remaining: 0 }] : [] })
       Object.assign(state.person, { timer: visit < 10 ? 10 - visit : 0,
-        state: visit < 10 ? 22 : 10, object: visit < 10 ? 520 : 424,
+        state: visit < 10 ? 22 : visit === 10 ? 10 : 19, object: visit < 10 ? 520 : 424,
         f2: (f2 + visit - 1) % 12, counter: (254 + visit) & 255, casting: visit < 6 })
       return state
     })
@@ -88,6 +88,9 @@ test('rejects contaminated ordinary stock, duplicate allocations, missing expiry
     r => { r.closed = false }, r => { r.restored = false }, r => { r.errors.push('observer failed') },
     r => { r.casts.reverse() }, r => { r.casts[0].trusted = false },
     r => { r.casts[0].before.cheatsUsed = true }, r => { r.casts[0].before.stock = 0 },
+    r => { r.casts[0].before.person.state = 10 },
+    r => { r.casts[0].before.person.state = 17 },
+    r => { r.casts[1].before.person.state = 10 },
     r => { r.casts[0].before.person.orderModel = 18 },
     r => { r.casts[0].before.storedStock-- },
     r => { r.casts[0].after.stock++ }, r => { r.casts[0].after.storedStock++ },
@@ -416,6 +419,78 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
   assert.match(actions.find(([kind]) => kind === 'wait')[2], /order\?\.model !== 18/)
   assert.match(actions.filter(([kind]) => kind === 'wait').at(-1)[2], /cast\.done/)
   assert.equal(actions.filter(([kind]) => kind === 'wait').at(-1)[1], 'ordinary')
+})
+
+test('actual ordinary-readiness callback admits naturally resting Mission 1, not opening state 10', async t => {
+  const { loadSceneFixture } = await import('./support/bloodlust-scene.mjs')
+  await loadSceneFixture()
+  const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'window'),
+    authored = createWorld(1), clock = { animationTime: 0, animationFrame: 0 },
+    scene = { world: authored, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} },
+    stop = new Error('Captured production readiness callback')
+  let world = authored, ready
+  globalThis.window = { testStore: { getWorld: () => world, hasUsedCheats: () => false } }
+  t.after(() => {
+    if (descriptor) Object.defineProperty(globalThis, 'window', descriptor)
+    else delete globalThis.window
+  })
+  await assert.rejects(beginOrdinaryCastingWitness({
+    getByRole: () => ({ click: async () => {} }),
+    evaluate: async callback => callback(),
+    waitForFunction: async callback => { ready = callback; throw stop },
+  }), error => error === stop)
+  const u = authored.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'), p = u.native,
+    openingOrder = p.immediateCommand || p.commands[p.commandCursor]
+  assert.equal(p.state, 10)
+  assert.equal(authored.buildingOrders.records[openingOrder].model, 18)
+  assert.equal(ready(), false)
+  // CPU caller regression: the real clock and public Skip implementation finish
+  // startup. No entity, stock, state, order, input mask or readiness is injected.
+  while (!(authored.flyby.flags & 1) && authored.turn < 144) advanceGame(authored, clock, 1 / 12)
+  assert.ok(authored.flyby.flags & 1, 'Authored camera introduction must start')
+  assert.equal(authored.levelStart.find(site => site.shaman === u.id).phase, 4)
+  assert.equal(p.state, 19)
+  assert.equal(ready(), false, 'The live introduction still owns input')
+  skipIntroduction(scene)
+  assert.equal(authored.inputMask, 0)
+  const before = structuredClone(authored)
+  assert.equal(ready(), true)
+  assert.deepEqual(authored, before, 'Readiness only observes the actual World')
+
+  for (const mutate of [
+    w => { w.status = 'won' }, w => { w.paused = true }, w => { w.inputMask = 64 },
+    w => { w.shots.blast = 0 }, w => { w.castingTribes[0].cooldown = 1 },
+    w => { w.units = [] },
+    ...[
+      u => { u.hp = 0 }, u => { u.flight = u.native }, u => { u.lift = 1 },
+      u => { u.native.state = 10 }, u => { u.native.state = 17 }, u => { u.native.state = 22 },
+      u => { u.native.vehicle = 1 }, u => { u.native.flags2 |= 0x100000 },
+      u => { u.native.flags4 |= 128 },
+      u => { u.native.immediateCommand = openingOrder },
+    ].map(change => w => change(w.units.find(unit => unit.id === u.id))),
+  ]) {
+    world = structuredClone(authored)
+    mutate(world)
+    const unchanged = structuredClone(world)
+    assert.equal(!!ready(), false, String(mutate))
+    assert.deepEqual(world, unchanged)
+  }
+  world = authored
+  select(authored, 'shaman')
+  assert.deepEqual(authored.selected, [u.id])
+  for (let index = 0; index < 2; index++) {
+    assert.equal(ready(), true, 'Both the pre-grant cast and recovered caster rest in 19')
+    assert.equal(p.state, evidence().casts[index].before.person.state)
+    assert.equal(cast(authored, 'blast', { x: u.x + 5, z: u.z + 5 }), true)
+    assert.equal(p.previousState, 10, 'Public cast cancels resting before admitting state22')
+    for (let visit = 1; visit <= 12; visit++) {
+      advanceGame(authored, clock, 1 / 12)
+      assert.equal(!!ready(), visit === 12, 'Wait for both native pose recovery and cooldown')
+      if (visit === 10) assert.equal(p.state, 10, 'Default state10 is only the expiry transition')
+      if (visit >= 11) assert.equal(p.state, 19)
+    }
+  }
 })
 
 test('actual F9 episode retains grant/input/hold/refill/save order and existing episode bounds', () => {

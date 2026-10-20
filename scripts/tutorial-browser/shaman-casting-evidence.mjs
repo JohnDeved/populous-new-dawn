@@ -58,7 +58,9 @@ export function validateShamanCastingEvidence(result, reference = castingArtwork
         (before.nativeCasts + 1) & 255], 'Synchronous normal one-charge allocation')
     assert.equal(before.cooldown, 0)
     assert.equal(after.cooldown, 12)
-    assert.equal(before.person.state, 10, 'Ordinary resting entry, not combat/seated/opening cast')
+    // Authored startup settles in 19. Cast expiry briefly enters default state
+    // 10, then returns to 19 before the twelve-visit cooldown has completed.
+    assert.equal(before.person.state, 19, 'Ordinary resting entry, not combat/seated/opening cast')
     assert.notEqual(before.person.orderModel, 18, 'Opening-order compatibility guard is not the witness')
     equal([entry.state, entry.object, entry.draw, entry.f1, entry.timer, entry.casting],
       [22, reference.object, reference.draw, 0, 10, true])

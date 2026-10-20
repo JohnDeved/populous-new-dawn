@@ -10,14 +10,15 @@ import { castingArtworkReference, validateShamanCastingEvidence } from './shaman
 export async function beginOrdinaryCastingWitness(page) {
   const button = name => page.getByRole('button', { name, exact: true })
   assert.equal(await page.evaluate(() => window.testStore.hasUsedCheats()), false)
-  // An early Skip can finish the flyby before native reincarnation. Let the
-  // ordinary clock finish it, never fake readiness or use the order18 exception.
+  // Let the ordinary clock finish reincarnation. finishStart enters idle
+  // approach (17), which settles into resting state 19. State 10 here still
+  // owns opening command18; it is not the authored idle caster.
   await button('Resume game').click()
   await page.waitForFunction(() => {
     const w = window.testStore.getWorld(), u = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
       p = u?.native, order = p && w.buildingOrders.records[p.immediateCommand || p.commands[p.commandCursor]]
     return w.status === 'playing' && !w.paused && !w.inputMask && w.shots.blast > 0 &&
-      !w.castingTribes[0].cooldown && u?.hp > 0 && !u.flight && !u.lift && p?.state === 10 &&
+      !w.castingTribes[0].cooldown && u?.hp > 0 && !u.flight && !u.lift && p?.state === 19 &&
       !p.vehicle && !(p.flags2 & 0x100000) && !(p.flags4 & 128) && order?.model !== 18
   })
   await button('Pause game').click()
