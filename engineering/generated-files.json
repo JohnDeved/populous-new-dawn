@@ -2,6 +2,18 @@
   "version": 1,
   "owners": [
     {
+      "id": "result-statistics-static-evidence",
+      "kind": "native-evidence",
+      "generator": { "executable": "python3", "args": ["scripts/research-result-statistics.py", "<hash-verified-original-exe>"] },
+      "callers": ["scripts/research-result-statistics.py"],
+      "inputs": ["decomp/tools.json"],
+      "outputs": [
+        { "path": "decomp/research/result-statistics/native.json", "type": "file", "tracked": true, "protected": true },
+        { "path": "decomp/research/result-statistics/native.asm", "type": "file", "tracked": true, "protected": true }
+      ],
+      "recording": "Read-only hash-pinned PE extraction emits JSON to stdout; compare scratch output before replacing retained spans. Assembly is objdump 2.44 disassembly of those same bounded ranges, documented in the adjacent README. No original execution or emulation."
+    },
+    {
       "id": "frontend-badge-vectors",
       "kind": "imported-assets",
       "generator": { "executable": "python3", "args": ["scripts/sanitize-frontend-badge-vectors.py", "<reviewed-local-input-directory>"] },

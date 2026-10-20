@@ -1520,7 +1520,7 @@
       "mappingStatus": "reviewed",
       "implementationPaths": ["app/game-store.ts"],
       "sharedPaths": ["app/page.tsx"],
-      "researchPaths": ["engineering/single-player-feasibility.md", "decomp/research/frontend-quit-menu/README.md"],
+      "researchPaths": ["engineering/single-player-feasibility.md", "decomp/research/frontend-quit-menu/README.md", "decomp/research/original-credits/README.md"],
       "entrySymbols": [
         { "path": "app/game-store.ts", "symbol": "createGameStore" },
         { "path": "app/page.tsx", "symbol": "Home" }
@@ -1528,7 +1528,8 @@
       "parityIds": ["persistence.save", "persistence.load", "persistence.profile", "interface.menus"],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Defeat and victory decisions" },
-        { "path": "decomp/research/frontend-quit-menu/README.md", "heading": "Exact menu1 evidence" }
+        { "path": "decomp/research/frontend-quit-menu/README.md", "heading": "Exact menu1 evidence" },
+        { "path": "decomp/research/original-credits/README.md", "heading": "Recovered source" }
       ],
       "nativeAddresses": [],
       "checkIds": [
@@ -1765,6 +1766,10 @@
       "id": "combat",
       "mappingStatus": "inferred",
       "paths": ["app/combat-orders.ts", "app/melee.ts"],
+      "researchPaths": ["decomp/research/result-statistics/README.md"],
+      "evidence": [
+        { "path": "decomp/research/result-statistics/README.md", "heading": "Result statistic producers" }
+      ],
       "note": "Known shared-order consumers, but full combat evidence/check routing was not reviewed for this infrastructure delivery."
     },
     {

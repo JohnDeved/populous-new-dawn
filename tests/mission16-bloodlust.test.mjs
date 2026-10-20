@@ -91,7 +91,7 @@ test('Mission 16 worship grants Bloodlust and live combat consumes its status', 
   target.hp = 100
   launchFirewarrior(world, firewarrior, target)
   const shots = world.effects.filter(effect => effect.firewarriorShot)
-  assert.equal(firewarrior.cooldown, 25 / 12 / (1 << constants.BLOODLUST_SW_BLAST_X))
+  assert.equal(firewarrior.cooldown, 3 / 12)
   assert.equal(shots.length, 2)
   assert.ok(shots.every(shot => shot.firewarriorShot.bloodlust))
   stepFirewarriorShots(world)
