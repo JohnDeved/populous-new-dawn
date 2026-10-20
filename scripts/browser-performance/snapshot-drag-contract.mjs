@@ -222,7 +222,7 @@ const historicalDragSourceProfiles = Object.freeze([
 const chronologicalCameraHashes = {
   "input-move": "dd414900157c8598d7357390ba18c9d4a2d135bdb3aef9c35a8557c04db4871b",
   "frame-order": "6f40d04fb51b6b92bcf5ddb400f76da26cbc0635f48a53bfbf47d1a3edb9d79b",
-  "camera-producers": "6fe77e24d1a9ae35025bb58876968132cc09e1cda7ba03c9187d32f6c15ba09f"
+  "camera-producers": "0238ab16f54f0aaba1f05e8b06de89c2eaf603c61a8f2bcde05854f68093418e"
 }
 export const dragSourceProfiles = Object.freeze([
   ...historicalDragSourceProfiles,
