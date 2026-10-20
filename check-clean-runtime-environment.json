@@ -1,0 +1,10 @@
+{
+  "sourceHead": "252dc89f59fc1afada67b06c24e3e1af0435fd0e",
+  "command": "NODE_PATH= NODE_OPTIONS= NODE_COMPILE_CACHE= NODE_V8_COVERAGE= npm run orchestration:receipt -- --output work/orchestration/issue16-startup/check-clean-runtime.json -- npm run check",
+  "scope": "per-process overrides only; persistent environment unchanged",
+  "verifiedLocalDependencies": [
+    "/workspace/populous-new-dawn/node_modules/typescript/lib/typescript.js",
+    "/workspace/populous-new-dawn/node_modules/react/index.js"
+  ],
+  "reason": "engineering/README.md documented inherited global module path handling; default run failed three integration-queue fixture expectations, 54/54 passed after clearing these overrides"
+}

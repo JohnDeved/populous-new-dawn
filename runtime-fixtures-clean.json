@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e54bd08e-0e58-4ba1-b84c-0b0d88d5b7d9",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "252dc89f59fc1afada67b06c24e3e1af0435fd0e",
+    "branch": "fix/issue16-startup-flow-20261020",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/integration-queue.test.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-20T13:20:50.588Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/issue16-startup/runtime-fixtures-clean.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/issue16-startup/runtime-fixtures-clean.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-20T13:20:54.891Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ allowlist binds fixed repository, exact content and independent source review (3.054875ms)\n✔ dry-run has no effects, waits for drain and gives a bounded ready proposal (2.665075ms)\n✔ fake GitHub sequence survives restart after each intent and verifies merge/deployment (3.499902ms)\n✔ a delayed old draft run resets the quiet window; reordering does not change identity (1.064904ms)\n✔ current canceled or failed rerun cannot fall back to an older green result (2.067549ms)\n✔ missing browser coverage cannot be disabled by allowlist for changed UI paths (0.867181ms)\n✔ mandatory job/stage, app and source identity are all required (2.744344ms)\n✔ source/base/workflow/protection/review drift fails closed (1.282995ms)\n✔ refresh needs disjoint clean Git tree proof, exact parents and one-refresh bound (1.058679ms)\n✔ overlap and uncertain ready/merge never retry a mutation (1.01845ms)\n✔ uncertain merge can reconcile success, but rejects wrong tree, parents or deployment (1.405085ms)\n✔ checkpoint cannot silently extend authorization or replace the reviewed head (0.351843ms)\n✔ checkout proof needs exactly one real checkout hash, not arbitrary log text (0.510341ms)\n✔ real Git merge-tree proof preserves contents and modes; path overlap stops refresh (191.729379ms)\n✔ stale advertised base admits only the original reviewed draft refresh (1357.833884ms)\n✔ GitHub adapter uses only hostname-pinned GET argv and rejects incomplete pages (1.22878ms)\n✔ escape opt-in is restricted to captured numeric job logs, never other GETs (0.696989ms)\n✔ production log transport captures escape bytes without rendering child output (268.81176ms)\n✔ apply is disabled before any GitHub call; candidate approval files are rejected (92.675347ms)\n✔ resource preflight reports serial fallback without changing policy or running tests (56.433586ms)\n✔ log source identities cannot be borrowed from a mutable PR association (0.789333ms)\n✔ fake Actions adapter binds workflow/run/attempt/check/app and actual checkout logs (5.614537ms)\n✔ CLI fixture executes the full read-only path, reports preflight, and resumes its quiet checkpoint (739.763941ms)\n✔ transport arguments pin GitHub host, refresh expected_head_sha and merge sha without bypass (0.725593ms)\n✔ dry-run never observes again, persists an intent, or calls the write transport (2.28797ms)\n✔ arming rejects expired, mismatched, dirty, fixture, reused and unreviewed pilots before transport (1.819024ms)\n✔ source drift or a newly queued stale event during final recheck prevents submission (1.981418ms)\n✔ write intent is durable before transport; uncertain merge resumes without a second submission (2.203215ms)\n✔ journal failure prevents a write; non-confirming merge response remains uncertain (2.182163ms)\n✔ armed fake transport sequences refresh, drain, ready, exact checks and merge across restarts (2.920718ms)\n✔ Cloudflare observation pins exact commit/app/name/project and never promotes preview or older success (0.65193ms)\n✔ confirmed merge reports Cloudflare build success separately from serving deployment (0.744209ms)\n✔ source-bound non-required draft admission cannot replace or poison a genuine ready validation (0.7825ms)\n✔ later failed rerun of an older run blocks an earlier green higher run ID (0.350278ms)\n✔ gate selection stops on ambiguous chronology or disagreeing current required check (1.508306ms)\n✔ pagination rejects short incomplete responses, changing counts and duplicate entries (0.59898ms)\n✔ custom clean filter is rejected before resource preflight or any Git status can execute it (38.701581ms)\n✔ ready-only initial admission proposes one reviewed draft conversion; matching pass is reused (1.00586ms)\n✔ draft conversion cannot retry failed, canceled, ambiguous or orphaned validation (2.480203ms)\n✔ stale ready candidate requires refresh proof and verified earlier validation before draft (0.715666ms)\n✔ draft intent reconciles exact head/base and never retries uncertain conversion (0.368765ms)\n✔ submitted ready admission waits boundedly without another toggle, then accepts exact pass (0.758572ms)\n✔ draft transport persists before effect, rejects changed plan/state, and defaults to dry-run (1.517834ms)\n✔ preexisting draft cannot retry real Full failure from a fresh checkpoint (1.33265ms)\n✔ preexisting draft cannot retry real Full cancelled from a fresh checkpoint (0.403253ms)\n✔ preexisting draft rejects ambiguous Full history and orphaned failed current check (0.470022ms)\n✔ pre-ready Full guard allows missing admission and verified cheap draft history, including Tutorial draft failures (0.512383ms)\n✔ preexisting draft cannot retry required Tutorial failure (0.571621ms)\n✔ preexisting draft cannot retry required Tutorial cancelled (0.443288ms)\n✔ pre-ready Tutorial qualification rejects ambiguous and unproven guard history only when required (1.292496ms)\n✔ cheap Tutorial guard does not hide an earlier real failure before ready (0.566686ms)\n✔ new Tutorial guard proof restarts the stable observation window (0.278052ms)\n✔ disposable Git fixtures remain hermetic under inherited global, system and injected filters (1209.483205ms)\n✔ production reader rejects inherited clean filters before status can invoke them (94.586866ms)\nℹ tests 54\nℹ suites 0\nℹ pass 54\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4251.117613\n",
+  "stderr": "",
+  "stdoutSha256": "14b5d8588d57e4e96ba9ab53d0b0bb1b12455926c6ae06ab9db21848856f216d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "252dc89f59fc1afada67b06c24e3e1af0435fd0e",
+    "branch": "fix/issue16-startup-flow-20261020",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

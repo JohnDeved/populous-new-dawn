@@ -1,0 +1,60 @@
+{
+  "startedAt": "2026-10-20T12:58:36.993Z",
+  "source": {
+    "root": "/workspace/populous-new-dawn",
+    "commit": "f0fe01faaaff1beaf2fc9a4d002f734b97f6603a",
+    "tree": "c78b8feb244b7f0f98382ac8183d4063e930394c",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "f69ec95d40d8c9739afcd6e311a3601fd5a5877e12554f616abb893a24716474"
+  },
+  "launch": {
+    "executablePath": "/workspace/pnd-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [],
+  "status": "failed",
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 7,
+    "first": {
+      "elapsedMs": 17049,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 27503,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 27503,
+    "listening": true,
+    "ready": true
+  },
+  "browserVersion": "153.0.8010.12",
+  "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nfalse !== true\n\n    at startupLogo (file:///workspace/populous-new-dawn/scripts/local-render/startup-logo.mjs:78:12)\n    at async runLocalBrowser (file:///workspace/populous-new-dawn/scripts/local-render/harness.mjs:401:20)\n    at async file:///workspace/populous-new-dawn/scripts/local-render/harness.mjs:594:21",
+  "finishedAt": "2026-10-20T12:59:42.285Z",
+  "sourceAfter": {
+    "root": "/workspace/populous-new-dawn",
+    "commit": "f0fe01faaaff1beaf2fc9a4d002f734b97f6603a",
+    "tree": "c78b8feb244b7f0f98382ac8183d4063e930394c",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "f69ec95d40d8c9739afcd6e311a3601fd5a5877e12554f616abb893a24716474"
+  }
+}

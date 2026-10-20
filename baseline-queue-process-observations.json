@@ -1,0 +1,48 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "orchestration:receipt",
+    "--",
+    "--output",
+    "work/orchestration/issue16-startup/baseline-queue.json",
+    "--",
+    "node",
+    "--test",
+    "--test-name-pattern=live detached child prevents next test|controller crash retains lock",
+    "tests/performance-queue.test.mjs"
+  ],
+  "source": "96becd8826afc5a4256a12ccebf3caa61729e24b",
+  "exitCode": 1,
+  "method": "Read-only /proc sampling of PIDs explicitly named by newly-created queue-test fixture jobs/cleanup receipts; no signals sent",
+  "observations": [
+    {
+      "pid": 21472,
+      "state": "R",
+      "ppid": 21452,
+      "jobId": "8880fcfc-3d80-411d-a35a-3802b90faec3",
+      "fixture": "pnd-queue-5qllGI"
+    },
+    {
+      "pid": 21523,
+      "state": "R",
+      "ppid": 21503,
+      "jobId": "48859cc1-5102-47fd-9bf5-dd03d5f9ebb4",
+      "fixture": "pnd-queue-Ee6VtK"
+    },
+    {
+      "pid": 21523,
+      "state": "S",
+      "ppid": 1,
+      "jobId": "48859cc1-5102-47fd-9bf5-dd03d5f9ebb4",
+      "fixture": "pnd-queue-Ee6VtK"
+    },
+    {
+      "pid": 21523,
+      "state": "Z",
+      "ppid": 1,
+      "jobId": "48859cc1-5102-47fd-9bf5-dd03d5f9ebb4",
+      "fixture": "pnd-queue-Ee6VtK"
+    }
+  ]
+}

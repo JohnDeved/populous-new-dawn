@@ -1,0 +1,24 @@
+{
+  "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "method": "GNU objdump bounded static disassembly, no subject execution",
+  "credits": {
+    "callback": "004c5af0",
+    "argument": 12,
+    "queueCall": "00442a60",
+    "limit": "No content/draw implementation inferred from this callback"
+  },
+  "rollingDemo": {
+    "callback": "004c5a80",
+    "call": "004b36e0(1,2)",
+    "montageSha256": "b947d85037945626b58bd085d8bd3996ca2be3ea0072c88eee6621bcc2485f91",
+    "limit": "Recording IDs are not campaign level IDs; replay adapter belongs to another owner"
+  },
+  "comingSoon": {
+    "callback": "004c3540",
+    "wrapper": "0049cc80",
+    "filenamePointer": "005d4720",
+    "filename": "FMV\\trailer.tgq",
+    "movieSha256": "ee3d455f715a9b35a1d974c3918bc3600e98d43d64ec87124a3460e2848b9dfe",
+    "limit": "Media available; not wired in this startup-logo change"
+  }
+}

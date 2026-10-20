@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "3e09fd14-94db-491a-afb3-8e4de0f53d7c",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "252dc89f59fc1afada67b06c24e3e1af0435fd0e",
+    "branch": "fix/issue16-startup-flow-20261020",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-20T13:51:48.202Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/issue16-startup/build-final.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/issue16-startup/build-final.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-20T13:52:36.687Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 7.02s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 481 modules transformed.\nrendering chunks...\n✓ built in 2.66s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 9.85s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 522 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 10.91s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 487 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 14.37s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (26%)\n  - vinext:og-inline-fetch-assets (19%)\n  - vinext:css-data-url (11%)\n  - vinext:middleware-server-only (7%)\n  - alias (6%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:load-environment-module (29%)\n  - vinext:css-data-url (29%)\n  - rsc:virtual-client-package (11%)\n  - alias (6%)\n  - vinext:og-inline-fetch-assets (5%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:css-data-url (24%)\n  - vinext:middleware-server-only (14%)\n  - alias (13%)\n  - rsc:virtual-client-package (10%)\n  - vinext:og-inline-fetch-assets (8%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:css-data-url (41%)\n  - vinext:validate-middleware-exports (14%)\n  - rsc:virtual-client-package (9%)\n  - alias (9%)\n  - vinext:og-inline-fetch-assets (8%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n",
+  "stdoutSha256": "c3e788bd9d260bd64a3875b63d4c089044e6f1401a1b98da91477ab9bebb3216",
+  "stderrSha256": "16b115d0460049f084532cef5a718902792cc8c7942fd1b6b60b0ce473b669be",
+  "sourceAfter": {
+    "headOid": "252dc89f59fc1afada67b06c24e3e1af0435fd0e",
+    "branch": "fix/issue16-startup-flow-20261020",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "status": "passed",
+  "headOid": "252dc89f59fc1afada67b06c24e3e1af0435fd0e",
+  "sources": 21,
+  "receipts": 12,
+  "diffSha256": "efebb812e0462b161e0145a50ef90d5ab4beb6e47519f84d18a5c5ac894cb17d"
+}

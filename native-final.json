@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "85ce59c4-52ba-49fa-808f-ee4242b8e88a",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "252dc89f59fc1afada67b06c24e3e1af0435fd0e",
+    "branch": "fix/issue16-startup-flow-20261020",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/shared/populous-prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/shared/populous-prerequisites/game/fmv/blogo.tgq": "65602921453014c11b079b95f664a29c89727fb0b2d0dce4c40fee94665a80fa"
+    }
+  },
+  "command": [
+    "python3",
+    "scripts/check-static-startup-logo.py",
+    "/workspace/shared/populous-prerequisites/game",
+    "work/orchestration/issue16-startup/native-final"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-20T13:05:09.693Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/issue16-startup/native-final.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/issue16-startup/native-final.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-20T13:05:09.788Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"exeSha256\": \"3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f\",\n  \"movieSha256\": \"65602921453014c11b079b95f664a29c89727fb0b2d0dce4c40fee94665a80fa\",\n  \"codedSize\": [\n    320,\n    352\n  ],\n  \"frameCount\": 188,\n  \"wrapperFlags\": \"0x0ba4264c\",\n  \"surfaceSize\": [\n    640,\n    480\n  ],\n  \"movieRect\": [\n    0,\n    64,\n    640,\n    352\n  ],\n  \"ranges\": {\n    \"geometry\": [\n      \"0x57c750\",\n      \"0x57c7df\"\n    ],\n    \"geometry-caller\": [\n      \"0x57c1e0\",\n      \"0x57c221\"\n    ],\n    \"packet-dimensions\": [\n      \"0x57d000\",\n      \"0x57d02e\"\n    ],\n    \"packet-type\": [\n      \"0x579f49\",\n      \"0x579f5d\"\n    ],\n    \"packet-type-call\": [\n      \"0x579fcd\",\n      \"0x579fe2\"\n    ],\n    \"dimension-dispatch\": [\n      \"0x57cf90\",\n      \"0x57cfb8\"\n    ],\n    \"surface-dimensions\": [\n      \"0x57bb30\",\n      \"0x57bb74\"\n    ]\n  },\n  \"limits\": \"Static geometry for this wrapper configuration, not observed native display/driver output.\"\n}\n",
+  "stderr": "",
+  "stdoutSha256": "e22588e31635db5dc9ea1e0e53efb44d25105e3f81b204fc613635e2501e6a95",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "252dc89f59fc1afada67b06c24e3e1af0435fd0e",
+    "branch": "fix/issue16-startup-flow-20261020",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/shared/populous-prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/shared/populous-prerequisites/game/fmv/blogo.tgq": "65602921453014c11b079b95f664a29c89727fb0b2d0dce4c40fee94665a80fa"
+    }
+  }
+}

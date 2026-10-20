@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ff473e5c-04db-4d28-a8c2-b9c0a9cdd2a6",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "96becd8826afc5a4256a12ccebf3caa61729e24b",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern=live detached child prevents next test|controller crash retains lock",
+    "tests/performance-queue.test.mjs"
+  ],
+  "cwd": "/workspace/issue16-before",
+  "startedAt": "2026-10-20T13:51:18.203Z",
+  "artifacts": {
+    "stdout": "/workspace/issue16-before/work/orchestration/issue16-startup/baseline-queue.json.artifacts/stdout.log",
+    "stderr": "/workspace/issue16-before/work/orchestration/issue16-startup/baseline-queue.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-20T13:51:28.189Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ live detached child prevents next test and is never killed by the queue (8801.310361ms)\n✖ controller crash retains lock; recovery refuses live owner or job (990.283395ms)\nℹ tests 2\nℹ suites 0\nℹ pass 0\nℹ fail 2\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 9924.567681\n\n✖ failing tests:\n\ntest at tests/performance-queue.test.mjs:376:1\n✖ live detached child prevents next test and is never killed by the queue (8801.310361ms)\n  AssertionError [ERR_ASSERTION]: Timed out: fixture child exit\n      at until (file:///workspace/issue16-before/tests/performance-queue.test.mjs:106:10)\n      at async TestContext.<anonymous> (file:///workspace/issue16-before/tests/performance-queue.test.mjs:387:3)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: undefined,\n    operator: 'fail',\n    diff: 'simple'\n  }\n\ntest at tests/performance-queue.test.mjs:399:1\n✖ controller crash retains lock; recovery refuses live owner or job (990.283395ms)\n  AssertionError [ERR_ASSERTION]: Command process group is still alive\n      at recoverLocked (file:///workspace/issue16-before/scripts/performance-queue.mjs:789:5)\n      at async recover (file:///workspace/issue16-before/scripts/performance-queue.mjs:763:5)\n      at async TestContext.<anonymous> (file:///workspace/issue16-before/tests/performance-queue.test.mjs:412:3)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "89c53da3128d741ff7b6080445d874a8106fb7b73e3c4a4674027afd33888b1d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "96becd8826afc5a4256a12ccebf3caa61729e24b",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

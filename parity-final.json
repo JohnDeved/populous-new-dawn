@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e1beb34c-f27e-4b5f-96db-37bfc75bb46e",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "252dc89f59fc1afada67b06c24e3e1af0435fd0e",
+    "branch": "fix/issue16-startup-flow-20261020",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "parity:check"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-20T13:53:18.295Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/issue16-startup/parity-final.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/issue16-startup/parity-final.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-20T13:53:18.893Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 parity:check\n> node scripts/parity.mjs check\n\nParity ledger, evidence paths, revision and generated report are consistent.\n",
+  "stderr": "",
+  "stdoutSha256": "f39c8ad20b8013f4e4e4ade55ff5d63ab1c8df3729611db56c2d25cf734b48a9",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "252dc89f59fc1afada67b06c24e3e1af0435fd0e",
+    "branch": "fix/issue16-startup-flow-20261020",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
