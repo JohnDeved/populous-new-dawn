@@ -9,8 +9,10 @@ native, rendered-browser or hardware-performance acceptance.
 
 1. While editing, run affected focused checks and complete substantive review and
    any native/browser/performance evidence. Push a coherent candidate as a draft.
-2. Mark the PR ready when its candidate is ready for the full gate. `Full check`
-   requires typecheck, every discovered top-level test across four shards, parity and
+2. Mark the PR ready when its candidate is ready for the full gate, including the
+   [PR visual-evidence requirement](README.md#visual-evidence-before-review).
+   `Full check` does not detect or validate screenshot attachments. It requires
+   typecheck, every discovered top-level test across four shards, parity and
    orchestration checks, and a production build of the exact synthetic candidate. Do not launch a duplicate local full gate while this
    one is pending; continue independent work in another branch or review/research.
 3. Repair failures with focused feedback and push. After review of the exact new
