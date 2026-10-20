@@ -55,7 +55,8 @@ import {
 import { assignBuilder, BuilderTask } from './building-workers.ts'
 import { worshipHeadPose, worshipOrder } from './live-worship.ts'
 import { worshipApproach } from './worship.ts'
-import { canShamanCast, spellInRange, beginCast } from './spell-casting.ts'
+import { canShamanCast, spellInRange, beginCast, landBridgeTargetAllowed } from './spell-casting.ts'
+import { unitAnimationSource } from './unit-animation-source.ts'
 import { blastPersonPosition, blastPersonTargeting } from './blast-targeting.ts'
 import { BUILDINGS, isShaman, SPELLS } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
@@ -395,11 +396,20 @@ export function spellTargetError(w: World, spell: Spell, p: Point) {
     return { code: -2, message: 'Beyond your reach. Move your shaman closer.' }
   const target = nativePosition(w, p),
     targetCell = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
-  if (spell === 'bridge' && rules.terrainCategoryFlags[w.land.categories[targetCell] & 15] & 2)
-    return {
-      code: -3,
-      message: 'Land Bridge must target dry terrain.',
-    }
+  if (spell === 'bridge') {
+    const terrainFlags = rules.terrainCategoryFlags[w.land.categories[targetCell] & 15],
+      owner = unitAnimationSource(shaman) ?? shaman.native,
+      // Alternate-mode origin ownership is separate; preserve its current path.
+      vehicle = w.manaWorld.gameFlags & 32 ? 0 : (owner?.vehicle ?? 0)
+    if (!landBridgeTargetAllowed(w.castingTribes[0].flags, vehicle, terrainFlags))
+      return {
+        code: -3,
+        message:
+          terrainFlags & 2
+            ? 'Land Bridge must target dry terrain.'
+            : 'Your shaman must leave her vehicle to cast Land Bridge.',
+      }
+  }
   return null
 }
 
