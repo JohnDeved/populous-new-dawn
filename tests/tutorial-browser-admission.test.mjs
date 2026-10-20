@@ -117,7 +117,7 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
 test('candidate snapshot smoke is one read-only bounded functional case, never a trusted comparison', () => {
   const workflow = read('tutorial-browser.yml')
   assert.match(workflow, /scenario: snapshot-protocol\n +timeoutMinutes: 6\n +name: Controlled snapshot functional smoke\n +artifact: candidate-snapshot-functional-smoke/)
-  assert.equal((workflow.match(/- scenario:/g) ?? []).length, 8)
+  assert.equal((workflow.match(/- scenario:/g) ?? []).length, 9)
   assert.match(workflow, /scripts\/browser-performance\/\*\*/)
   assert.match(workflow, /outputs\/tutorial-browser\/snapshot-\*\/\*\.json/)
   assert.doesNotMatch(workflow, /: write|secrets\.|pull_request_target|workflow_dispatch|continue-on-error/)

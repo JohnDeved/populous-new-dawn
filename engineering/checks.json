@@ -2,6 +2,76 @@
   "version": 1,
   "checks": [
     {
+      "id": "angel-visual-witness-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate the supplied current-v4 Angel visual witness, data-only source/pixel receipt contract and explicit ninth hosted shard without a browser or build.",
+      "coveredBehavior": [
+        "Inclusive context/deadline ownership, lossless v4 fixture and actual ordinary continuation.",
+        "Independent morph positions, sampled UVs, same-render crop ownership and bounded PNG decoding.",
+        "Exact nine-job opt-in, unchanged eight-job contract, negative admission/source/artifact cases."
+      ],
+      "knownLimits": [
+        "Synthetic DOM/GPU evidence and CPU trajectory are not a browser pass. Actual source-bound Chrome crops and independent visual review remain required.",
+        "No parent trusted-reader activation, earned acquisition, native-controller or original-framebuffer claim."
+      ],
+      "executable": "node",
+      "args": [
+        "--max-old-space-size=384",
+        "--test",
+        "--test-concurrency=1",
+        "tests/angel-visuals-budget.test.mjs",
+        "tests/angel-visuals-fixture.test.mjs",
+        "tests/angel-visuals-observer.test.mjs",
+        "tests/angel-visuals-evidence.test.mjs",
+        "tests/spell-visuals-policy.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/tutorial-browser/angel-visuals.mjs",
+        "scripts/tutorial-browser/angel-visuals-budget.mjs",
+        "scripts/tutorial-browser/angel-visuals-fixture.mjs",
+        "scripts/tutorial-browser/angel-visuals-observer.mjs",
+        "scripts/tutorial-browser/angel-visuals-evidence.mjs",
+        "scripts/tutorial-browser/spell-visuals.mjs",
+        "scripts/tutorial-browser/spell-visuals-receipt.mjs",
+        "scripts/tutorial-browser/run.mjs",
+        "scripts/tutorial-browser/scenario-policy.mjs",
+        "scripts/tutorial-browser/checkpoint-codec.mjs",
+        "scripts/integration-queue/spell-visuals-policy.mjs",
+        "scripts/integration-queue/spell-visuals-render-evidence.mjs",
+        "scripts/integration-queue/browser-jobs.mjs",
+        "scripts/artifact-zip.mjs",
+        ".github/workflows/tutorial-browser.yml",
+        "tests/angel-visuals-budget.test.mjs",
+        "tests/angel-visuals-fixture.test.mjs",
+        "tests/angel-visuals-observer.test.mjs",
+        "tests/angel-visuals-evidence.test.mjs",
+        "tests/spell-visuals-policy.test.mjs",
+        "tests/angel-render.test.mjs",
+        "app/scene-angel.ts",
+        "app/original-angel.json",
+        "app/angel-presentation.ts",
+        "engineering/angel-spell-visual-witness.md"
+      ],
+      "prerequisites": [
+        "Installed project dependencies",
+        "Node.js >=22.13.0",
+        "Clean committed application inputs for exact-head fixture generation"
+      ],
+      "sideEffects": [
+        "In-memory supplied worlds/PNG/ZIP objects and synthetic DOM only. Does not launch browsers/builds, write source assets or run original game code."
+      ],
+      "resources": [
+        "Serial Node file isolation, 384 MiB heap and process-tree watchdog on shared executors."
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "id": "angel-presentation-portable",
       "kind": "portable",
       "automation": "safe",

@@ -20,7 +20,22 @@
         "tests/angel-import.test.mjs",
         "tests/angel-presentation.test.mjs",
         "tests/angel-render.test.mjs",
-        "tests/angel-runtime.test.mjs"
+        "tests/angel-runtime.test.mjs",
+        "scripts/tutorial-browser/angel-visuals.mjs",
+        "scripts/tutorial-browser/angel-visuals-budget.mjs",
+        "scripts/tutorial-browser/angel-visuals-fixture.mjs",
+        "scripts/tutorial-browser/angel-visuals-observer.mjs",
+        "scripts/tutorial-browser/angel-visuals-evidence.mjs",
+        "scripts/tutorial-browser/spell-visuals.mjs",
+        "scripts/tutorial-browser/spell-visuals-receipt.mjs",
+        "scripts/integration-queue/spell-visuals-policy.mjs",
+        "scripts/integration-queue/spell-visuals-render-evidence.mjs",
+        "engineering/angel-spell-visual-witness.md",
+        "tests/angel-visuals-budget.test.mjs",
+        "tests/angel-visuals-fixture.test.mjs",
+        "tests/angel-visuals-observer.test.mjs",
+        "tests/angel-visuals-evidence.test.mjs",
+        "tests/spell-visuals-policy.test.mjs"
       ],
       "sharedPaths": [
         "app/angel.ts",
@@ -65,6 +80,7 @@
       ],
       "checkIds": [
         "angel-presentation-portable",
+        "angel-visual-witness-portable",
         "mission5-angel-portable",
         "mission14-rewards-portable"
       ],
