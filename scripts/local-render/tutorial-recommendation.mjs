@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { writeFileSync } from 'node:fs'
 import { checkSelectorKeyboardFocus } from '../check-browser-world-selector.mjs'
+import { waitForStartupMenu } from '../browser-new-game.mjs'
 
 // Actual Home scenario. Fresh contexts test first visit rather than seeding the
 // answered flag. No game state or scene internals are injected.
@@ -18,11 +19,11 @@ export default async function ({ page, browser, url, root, output }) {
   const button = (p, name) => p.getByRole('button', { name, exact: true })
   const stored = p => p.evaluate(key => localStorage.getItem(key), key)
   const open = async p => {
-    await main(p).waitFor()
+    await waitForStartupMenu(p)
     await button(p, 'New Game').click()
     await prompt(p).waitFor()
   }
-  await main(page).waitFor()
+  await waitForStartupMenu(page)
   assert.equal(await stored(page), null)
   assert.equal(await prompt(page).count(), 0, 'No automatic startup prompt')
   for (const [width, height] of [[640, 480], [1920, 1080], [900, 360]]) {
@@ -58,7 +59,7 @@ export default async function ({ page, browser, url, root, output }) {
   await page.keyboard.press('Escape')
   await button(page, 'New Game').waitFor()
   await page.reload({ waitUntil: 'domcontentloaded' })
-  await main(page).waitFor()
+  await waitForStartupMenu(page)
   await button(page, 'New Game').click()
   await page.getByRole('dialog', { name: 'Start game', exact: true }).waitFor()
   assert.equal(await prompt(page).count(), 0)

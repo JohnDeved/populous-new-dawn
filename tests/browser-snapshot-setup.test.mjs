@@ -130,11 +130,16 @@ test('load exception after forced-unpause cleans the setup latch in finally', as
     store.replace(checkpointCodec(f.expected, true)); store.change(w => { w.paused = false })
     throw Error('public click failed after replacement')
   } }
+  let menuWaits = 0
+  const menu = { getByRole: () => button, waitFor: async () => { menuWaits++ },
+    or: () => menu, filter: () => menu, first: () => menu }
   const page = { goto: async () => {}, reload: async () => {}, waitForFunction: async () => {},
-    getByRole: () => ({ getByRole: () => button }), isClosed: () => false,
+    getByRole: (_role, { name }) => name === 'Opening logo' ? { isVisible: async () => false } : menu,
+    isClosed: () => false,
     evaluate: async (fn, arg) => ++evaluations === 1 ? JSON.stringify(f.transfer) : fn(arg) }
   try {
     await assert.rejects(loadSnapshot({ page, url: 'http://localhost', fixture: f, expectedRevision: source.commit }), /public click failed/)
+    assert.equal(menuWaits, 2, 'public Load follows observed menu readiness')
     assert.equal(store.listeners(), 0); assert.equal(window.__snapshotPauseLatch, undefined)
     assert.deepEqual(Object.getOwnPropertyDescriptor(store.getWorld(), 'paused'), { value: true, writable: true, enumerable: true, configurable: true })
   } finally {
