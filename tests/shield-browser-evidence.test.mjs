@@ -176,3 +176,40 @@ test('visible-frame public pause waits for arrivals, skips stale Scene frames an
     for (const key of keys) saved[key] ? Object.defineProperty(globalThis, key, saved[key]) : delete globalThis[key]
   }
 })
+
+test('public DOM activation rejects hidden, disabled, disconnected and obscured controls without clicking', async () => {
+  const { activateVisiblePublicButton } = await import('../scripts/tutorial-browser/shield-observer.mjs')
+  const keys = ['HTMLButtonElement', 'document', 'getComputedStyle', 'innerWidth', 'innerHeight']
+  const saved = Object.fromEntries(keys.map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]))
+  class Button {
+    isConnected = true; disabledByFieldset = false; parentElement = null; clicks = 0
+    style = { visibility: 'visible', display: 'block', opacity: '1' }
+    rect = { left: 10, top: 10, width: 100, height: 40 }
+    matches(selector) { assert.equal(selector, ':disabled'); return this.disabledByFieldset }
+    getAttribute() { return null }
+    getClientRects() { return [this.rect] }
+    getBoundingClientRect() { return this.rect }
+    contains(element) { return element === this }
+    click() { this.clicks++ }
+  }
+  try {
+    globalThis.HTMLButtonElement = Button
+    globalThis.getComputedStyle = element => element.style
+    globalThis.innerWidth = 1280; globalThis.innerHeight = 900
+    for (const mutate of [
+      b => { b.isConnected = false }, b => { b.disabledByFieldset = true },
+      b => { b.style.visibility = 'hidden' }, b => { b.parentElement = { style: { visibility: 'visible', display: 'block', opacity: '0' }, parentElement: null } },
+      b => { b.rect.left = -200 }, b => { b.getClientRects = () => [] },
+      b => { b.getAttribute = () => 'true' }, b => { globalThis.document.elementFromPoint = () => ({}) },
+    ]) {
+      const button = new Button()
+      globalThis.document = { elementFromPoint: () => button }
+      mutate(button)
+      assert.throws(() => activateVisiblePublicButton(button)); assert.equal(button.clicks, 0)
+    }
+    const button = new Button(); globalThis.document = { elementFromPoint: () => button }
+    activateVisiblePublicButton(button); assert.equal(button.clicks, 1)
+  } finally {
+    for (const key of keys) saved[key] ? Object.defineProperty(globalThis, key, saved[key]) : delete globalThis[key]
+  }
+})

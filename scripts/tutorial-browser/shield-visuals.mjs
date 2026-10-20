@@ -12,7 +12,7 @@ import { createShieldCheckpoint } from './shield-checkpoint.mjs'
 import { runShieldEpisode } from './shield-budget.mjs'
 import { validateShieldCapture, validateShieldPng } from './shield-evidence.mjs'
 import {
-  readShieldState, shieldCastPoint, shieldTextureReady, captureShieldFrame, pauseVisibleShields,
+  readShieldState, shieldCastPoint, shieldTextureReady, captureShieldFrame, pauseVisibleShields, activateVisiblePublicButton,
   watchShieldDisposal, readShieldDisposal, watchShieldLoad, bindShieldHomeStore,
   writeShieldFixture, readCommittedShieldCheckpoint, installShieldExpiryObserver,
 } from './shield-observer.mjs'
@@ -29,7 +29,7 @@ export default async function spellShield({ browser, url, output, source, expect
     limits: ['Supplied stock and controlled allied population, terrain and foreign status, not earned acquisition or ordinary campaign progression.',
       'Native table/rectangle/palette source coverage is separate from browser GPU consistency. This is not pixel-perfect original executable/GPU equivalence.',
       'Foreign remaining status is declared in the offline checkpoint. The browser never rewrites live status, clocks, actors or ownership.',
-      'Pause uses observer-timed DOM activation of the public button; physical-pointer pause timing is not covered.',
+      'Menu controls use guarded DOM activation of shipped public buttons; pause is observer-timed. Physical menu-input usability is not covered. Shield hotkey and canvas click remain actual keyboard/pointer inputs.',
       'Near-expiry adapter continuation is covered, not the complete native lifetime or original allocation/index ownership.',
       'Actual current in-session Save/Load is covered, not fresh-process persistence or historical save upgrading.',
       'Old-scene removal and Shield material disposal are covered through public Load. Live per-unit deletion is not manufactured or claimed.',
@@ -58,9 +58,8 @@ export default async function spellShield({ browser, url, output, source, expect
       report.actions.push({ name, at: new Date().toISOString() })
       return operation()
     })
-    // Keyboard activation uses the same public button without pointer-stability
-    // latency consuming the short natural Shield visibility window.
-    const button = name => action(name, () => page.getByRole('button', { name, exact: true }).press('Enter'))
+    // Exact locator is strict/unique; the guard rejects hidden, disabled or obscured controls.
+    const button = name => action(name, () => page.getByRole('button', { name, exact: true }).evaluate(activateVisiblePublicButton))
     const state = () => page.evaluate(readShieldState, allIds)
     const settle = () => page.waitForFunction(() => {
       const s = window.testSceneRef.current

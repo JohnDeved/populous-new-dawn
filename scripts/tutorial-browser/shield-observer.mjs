@@ -352,3 +352,22 @@ export function installShieldExpiryObserver(ids) {
   window.shieldExpiry = { result, stop }
   visit()
 }
+
+// Guarded DOM activation of shipped public controls; not physical-input coverage.
+export function activateVisiblePublicButton(button) {
+  if (!(button instanceof HTMLButtonElement) || !button.isConnected ||
+      button.matches(':disabled') || button.getAttribute('aria-disabled') === 'true')
+    throw Error('Public button is disconnected or disabled')
+  for (let element = button; element; element = element.parentElement) {
+    const style = getComputedStyle(element)
+    if (style.visibility !== 'visible' || style.display === 'none' || Number(style.opacity) === 0)
+      throw Error('Public button or ancestor is hidden')
+  }
+  const rect = button.getBoundingClientRect()
+  if (!button.getClientRects().length || rect.width <= 0 || rect.height <= 0)
+    throw Error('Public button has no visible layout')
+  const x = rect.left + rect.width / 2, y = rect.top + rect.height / 2
+  if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight || !button.contains(document.elementFromPoint(x, y)))
+    throw Error('Public button is outside the viewport or obscured')
+  button.click()
+}
