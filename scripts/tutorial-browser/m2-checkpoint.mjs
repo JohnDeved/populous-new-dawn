@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { writeFileSync } from 'node:fs'
@@ -8,7 +9,7 @@ import { checkpointCodec } from './checkpoint-codec.mjs'
 export async function createM2Checkpoint(output, source) {
   const { loadSceneFixture } = await import('../../tests/support/bloodlust-scene.mjs')
   const { createWorld, migrateCheckpoint } = await loadSceneFixture()
-  const checkpoint = { version: 2, world: createWorld(2, 'scalable') }
+  const checkpoint = { version: CHECKPOINT_VERSION, world: createWorld(2, 'scalable') }
   assert.equal(checkpoint.world.outcome.level, 2)
   const transfer = checkpointCodec(checkpoint)
   assert.deepEqual(checkpointCodec(transfer, true), checkpoint)
