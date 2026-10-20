@@ -267,3 +267,29 @@ latter it hashes the reporter from the exact proposed merge's Git bytes and
 requires the receipt's reporter hash to match. It never imports executable
 candidate policy, accepts arbitrary reporter flags, or uses timing rows as gate
 proof. Legacy baseline command validation remains unchanged.
+
+## Independent recovery and Mission 10 browser budgets
+
+The existing Tutorial browser matrix now separates the original nine-case Profile
+recovery scenario from Mission 10 crew persistence. Each has its own fixed
+180-second browser deadline, a 120-second production build cap and a 15-minute
+hosted safety timeout. This intentionally increases their combined maximum browser
+allowance from 180 to 360 seconds and adds one standard hosted VM/install/build;
+it is not the former shared budget or a measured speedup. The other six browser
+scenarios, permissions, ready-only event and sandboxed official Chrome remain.
+
+Mission 10 retains natural boarding, all eighteen exact Total/class/modifier
+checks, public current-v3 Save/Load across two task-owned browser processes, unload,
+public Resume, final screenshots and persistence readback. One deadline spans both
+M10 processes, without resetting between them. No profile or runtime state is
+shared across jobs. Both independent source/attempt-bound receipts are mandatory.
+
+The explicit `profile-split-v1` trusted policy requires the exact eight-job matrix,
+current official checks, separate compact envelopes (each still at most 12 KB),
+and the M10 job's own bounded hash-verified raw ZIP/manifest before recomputing its
+complete roster and owner/history invariants. Old composite receipts cannot stand
+in for either new receipt. Failed/partial evidence and unknown final actions do
+not pass. Existing ZIP/expanded-file caps and all nine original recovery cases stay
+unchanged. The intentional workflow change requires independent source review and
+an exact pinned `browserWorkflowTransition`; automatic mechanical refresh is not
+allowed for activation. Hosted fit is unproved until both full scenarios pass.

@@ -124,8 +124,8 @@ test('artifact reader accepts only one bounded regular report.json and rejects c
   for (const name of ['../report.json', 'report.mjs', '/report.json', 'report.json\0']) assert.throws(() => readReportArchive(zip('{}', { name })))
   assert.throws(() => readReportArchive(zip('{}', { mode: 0xa1ff })))
   assert.throws(() => readReportArchive(zip('x'.repeat(maxReportBytes + 1))))
-  const corrupt = zip('{}'); corrupt[14] ^= 1 // local CRC is not authoritative; central remains valid
-  assert.equal(readReportArchive(corrupt), '{}')
+  const corrupt = zip('{}'); corrupt[14] ^= 1 // Both headers must bind the same CRC.
+  assert.throws(() => readReportArchive(corrupt))
   corrupt[corrupt.length - 22 - 10 - 46 + 16] ^= 1
   assert.throws(() => readReportArchive(corrupt))
   const extra = Buffer.concat([zip('{}'), Buffer.from('comment')]); assert.throws(() => readReportArchive(extra))

@@ -78,7 +78,7 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
   )
   assert.match(workflow, /name: \$\{\{ matrix\.buildStep \}\}/)
   assert.match(workflow, /timeout-minutes: \$\{\{ matrix\.timeoutMinutes \}\}/)
-  assert.equal((workflow.match(/timeoutMinutes: 15/g) ?? []).length, 6)
+  assert.equal((workflow.match(/timeoutMinutes: 15/g) ?? []).length, 7)
   assert.match(workflow, /fail-fast: false/)
   assert.match(workflow, /scripts\/local-render\/original-pause-checkpoint-recovery\.mjs/)
   const runner = readFileSync(
@@ -117,7 +117,7 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
 test('candidate snapshot smoke is one read-only bounded functional case, never a trusted comparison', () => {
   const workflow = read('tutorial-browser.yml')
   assert.match(workflow, /scenario: snapshot-protocol\n +timeoutMinutes: 6\n +name: Controlled snapshot functional smoke\n +artifact: candidate-snapshot-functional-smoke/)
-  assert.equal((workflow.match(/- scenario:/g) ?? []).length, 7)
+  assert.equal((workflow.match(/- scenario:/g) ?? []).length, 8)
   assert.match(workflow, /scripts\/browser-performance\/\*\*/)
   assert.match(workflow, /outputs\/tutorial-browser\/snapshot-\*\/\*\.json/)
   assert.doesNotMatch(workflow, /: write|secrets\.|pull_request_target|workflow_dispatch|continue-on-error/)
