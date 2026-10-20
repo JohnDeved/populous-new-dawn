@@ -120,7 +120,7 @@ The existing interruption, completion and Save/Load tests remain unchanged.
 The remaining post-cast differences must not be treated as arbitrary new native
 oracles. A paired Mission22 acquisition trace was replayed from main `440598b0`
 and this candidate using the same ordinary commands and supplied focus mask.
-Both worlds are identical immediately before Swarm at turn1289 (RNG208323085,
+The recorded Shaman/RNG fields are identical immediately before Swarm at turn1289 (RNG208323085,
 position18.62109375,-46.30078125, counter9). The first changed operation is cast
 admission: old state10/object616 remains versus native state22/object520/timer10.
 Both projectiles still launch after six visits. At visit7 old code has initialized
