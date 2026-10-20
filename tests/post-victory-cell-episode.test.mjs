@@ -279,7 +279,8 @@ test('a retained context sees its original membership after nested synchronizati
           if (!entered) {
             entered = true
             const unit = original[2]
-            unit.x += 20
+            // Old owner is due east (bearing 512); replacement is due north (bearing 0).
+            Object.assign(unit, browserPosition({ x: 2816, y: 5120 }))
             unit.native = createLivePerson(world, unit)
             world.units = [...original]
             syncLivePersonCells(world)
@@ -300,7 +301,18 @@ test('a retained context sees its original membership after nested synchronizati
         assert.throws(() => pass.step(w.units[0]), /nested observer exit/)
         assert.throws(() => stepLivePerson(reference, reference.units[0]), /nested observer exit/)
         parity(w, reference)
-      } else visitPair(w, reference, pass, 0)
+      } else {
+        visitPair(w, reference, pass, 0)
+        assert.equal(w.units[2].native.x, 2816)
+        assert.equal(w.units[2].native.y, 5120)
+        // faceShaman schedules a turn rather than updating heading immediately.
+        assert.equal(w.units[0].native.turnAngle, 512, 'retained Map faces the original east owner')
+        assert.notEqual(
+          w.units[0].native.turnAngle,
+          0,
+          'refreshed membership would face the replacement north owner'
+        )
+      }
       removeActual()
       removeReference()
       visitPair(w, reference, pass, 1)
