@@ -19,17 +19,19 @@ test('each Home Retry restores the retained checkpoint, not the mutated failed w
   original.time = 217 / 12
   await store.saveCheckpoint(false)
   assert.equal(store.hasCheckpoint(), true, 'in-memory checkpoint exists even without browser storage')
-  const loadRequest = { current: null }, state = { ready: true, error: '', startup: 'choice' }
+  const loadRequest = { current: null }, state = { cheatsOpen: true, ready: true, error: '', startup: 'choice' }
   const bindings = {
     store, loadRequest, OriginalLoadingScreen: 'OriginalLoadingScreen',
     menuSession: { current: null }, pendingMenuCamera: { current: [] },
     engine: { current: null }, audio: { current: null }, cancelNearbyInput() {},
+    setCheatsOpen(value) { state.cheatsOpen = value },
     setSelectorOpen() {}, setMenu() {}, setTab() {},
     setReady(value) { state.ready = value }, setError(value) { state.error = value },
     setStartup(value) { state.startup = value },
   }
   const handlers = evaluatePage(`function(){${declarations};return {${names.join(',')}}}`, bindings)()
   handlers.loadCheckpoint()
+  assert.equal(state.cheatsOpen, false)
   const expected = structuredClone(store.getWorld()), worlds = [original, store.getWorld()]
   assert.equal(expected.shots.blast, 17)
   assert.equal(expected.turn, 217)
@@ -42,6 +44,7 @@ test('each Home Retry restores the retained checkpoint, not the mutated failed w
     failed.turn += 100 * failure
     failed.time = failed.turn / 12
     failed.units[0].hp = 1
+    state.cheatsOpen = true
     state.error = `Synthetic terrain failure ${failure}`
     const screen = evaluatePage(loading.getText(pageSource), {
       ...bindings, ...handlers, ...state, pendingLoadingPhase: 'loading',
@@ -54,6 +57,6 @@ test('each Home Retry restores the retained checkpoint, not the mutated failed w
     assert.deepEqual(restored, expected, 'all checkpoint fields survive both failed-world mutations')
     assert.equal(failed.shots.blast, failure, 'replacement does not mutate the discarded world')
     assert.equal(loadRequest.current, request, 'the saved request remains owned by Home')
-    assert.deepEqual(state, { ready: false, error: '', startup: 'playing' })
+    assert.deepEqual(state, { cheatsOpen: false, ready: false, error: '', startup: 'playing' })
   }
 })
