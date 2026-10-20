@@ -87,6 +87,58 @@ test('changed tests, helper drift and newly added helpers fall back to serial', 
   assert.equal(planTestRun(third.repo, 'all').groups[0].concurrency, 1)
 })
 
+test('shared helper code and data edits or additions invalidate only the shared resource boundary', t => {
+  const paths = [
+    'tests/helpers/checkpoint.ts', 'tests/helpers/helper.mts', 'tests/helpers/helper.cts',
+    'tests/helpers/helper.js', 'tests/helpers/helper.cjs', 'tests/fixtures/input.json',
+    'tests/fixtures/input.bin', 'tests/support/README.md', 'tests/nested/extra.test.mjs',
+    'tests/.hidden.test.mjs',
+  ]
+  for (const path of paths) for (const added of [false, true]) {
+    const { repo, put, policy } = fixture(t)
+    if (!added) put(path, 'original shared input\n')
+    policy.helpersSha256 = helperFingerprint(repo)
+    put('engineering/test-resources.json', JSON.stringify(policy))
+    const files = discoverTests(repo),
+      testHashes = files.map(file => digest(readFileSync(join(repo, file)))),
+      production = productionFingerprint(repo)
+    assert.equal(planTestRun(repo, 'all').parallelEligibility, 'reviewed')
+    assert.equal(planTestRun(repo, 'all').groups[0].concurrency, 2)
+
+    put(path, 'changed shared input\n')
+    assert.notEqual(helperFingerprint(repo), policy.helpersSha256, path)
+    assert.equal(productionFingerprint(repo), production, path)
+    assert.deepEqual(files.map(file => digest(readFileSync(join(repo, file)))), testHashes, path)
+    const plan = planTestRun(repo, 'all')
+    assert.equal(plan.parallelEligibility, 'shared-helper-drift', path)
+    assert.deepEqual(plan.files, files, path)
+    assert.deepEqual(plan.groups, [{ concurrency: 1, files }], path)
+    assert.deepEqual(plan.groups.flatMap(group => group.files).sort(), files, path)
+  }
+})
+
+test('top-level test changes retain individual classification without shared helper drift', t => {
+  const { repo, put, policy } = fixture(t)
+  policy.parallel['tests/b.test.mjs'] = digest(readFileSync(join(repo, 'tests/b.test.mjs')))
+  put('engineering/test-resources.json', JSON.stringify(policy))
+  const helpers = helperFingerprint(repo), production = productionFingerprint(repo)
+  assert.deepEqual(planTestRun(repo, 'all').groups,
+    [{ concurrency: 2, files: ['tests/a.test.mjs', 'tests/b.test.mjs'] }])
+
+  put('tests/a.test.mjs', '// changed individually reviewed test\n')
+  put('tests/c.test.mjs', '// new unclassified test\n')
+  assert.equal(helperFingerprint(repo), helpers)
+  assert.equal(productionFingerprint(repo), production)
+  const plan = planTestRun(repo, 'all'), files = discoverTests(repo)
+  assert.equal(plan.parallelEligibility, 'reviewed')
+  assert.deepEqual(plan.groups, [
+    { concurrency: 2, files: ['tests/b.test.mjs'] },
+    { concurrency: 1, files: ['tests/a.test.mjs', 'tests/c.test.mjs'] },
+  ])
+  assert.deepEqual(plan.files, files)
+  assert.deepEqual(plan.groups.flatMap(group => group.files).sort(), files)
+})
+
 test('empty discovery, malformed policy and test symlinks fail closed', t => {
   const { repo, put, policy } = fixture(t)
   put('engineering/test-resources.json', JSON.stringify({ ...policy, parallel: { '--test-only': 'a'.repeat(64) } }))
