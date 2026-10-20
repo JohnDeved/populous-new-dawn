@@ -8,6 +8,8 @@ import { addUnit } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { cast } from '../app/live-command.ts'
 import { advanceGame } from '../app/game-clock.ts'
+import { readFileSync } from 'node:fs'
+import { beginOrdinaryCastingWitness } from '../scripts/tutorial-browser/shaman-casting.mjs'
 
 // Supplied observations exercise the evidence contract, not a browser pass.
 function evidence() {
@@ -36,13 +38,15 @@ function evidence() {
         f2: (f2 + visit - 1) % 12, counter: (254 + visit) & 255, casting: visit < 6 })
       return state
     })
-    const frames = [1, 2, 2, 7, 10].map((visit, i) => {
+    const frames = [1, 2, 2, 2, 7, 10].map((visit, i) => {
       const frame = structuredClone(logical[visit - 1])
       const phase = (f2 + visit) % 12, direction = reference.directions[2],
         raw = direction.frames[phase % direction.frames.length],
         imported = Number(Object.keys(reference.renderSources).find(key => reference.renderSources[key] === raw))
       Object.assign(frame.person, { f2: phase })
-      return { ...frame, stamp: turn + i, direction: 2, visible: true, submittedLayers: 2,
+      return { ...frame, at: [100, 150, 200, 450, 600, 700][i],
+        suspended: !!index && (i === 2 || i === 3),
+        stamp: turn + i, direction: 2, visible: true, submittedLayers: 2,
         frame: imported, flip: direction.flip, renderedDraw: 14,
         cropPlanned: i < 2, ...(i < 2 ? { cropFile: `shaman-casting-${label}-${i}.png`,
           bodyCanvasOwned: true, bodyInCanvas: true, cropOverlayClear: true } : {}) }
@@ -52,7 +56,12 @@ function evidence() {
     return { label, trusted: true, button: 0, before, after, shot, logical, frames, crops,
       done: true, terminal: { turn: turn + 12, reason: 'twelve-natural-visits' } }
   })
-  return { casts, closed: true, restored: true, errors: [] }
+  const frozen = structuredClone(casts[1].logical[1])
+  frozen.suspended = true
+  frozen.person.f2 = casts[1].frames[2].person.f2
+  return { casts, closed: true, restored: true, errors: [],
+    holds: [{ label: 'subsequent', before: { at: 160, stamp: 131, state: frozen },
+      after: { at: 510, stamp: 133, state: structuredClone(frozen) } }] }
 }
 
 test('casting browser expectations retain original object and VFRA evidence, not live helper output', () => {
@@ -69,8 +78,8 @@ test('two complete observations distinguish logical callbacks from submitted ren
   const result = validateShamanCastingEvidence(supplied)
   assert.deepEqual(result.casts.map(c => [c.label, c.projectileVisits, c.personVisits, c.cooldownVisits]),
     [['ordinary', 6, 10, 12], ['subsequent', 6, 10, 12]])
-  assert.equal(result.activeCastPauseHold.status, 'pending',
-    'No paused frames means no browser pause/freeze proof')
+  assert.deepEqual(result.activeCastPauseHold, { status: 'passed', kind: 'F9 presentation suspension',
+    durationMs: 350, renderedFrames: 2 })
   assert.deepEqual(supplied, before)
 })
 
@@ -127,6 +136,29 @@ test('rejects stale/wrong rendered source, render-clock drift, obscured or swapp
   }
 })
 
+test('active-cast hold requires timed suspended renders, exact frozen state and rendered resume', () => {
+  const corruptions = [
+    r => { delete r.holds }, r => { r.holds = [] }, r => { r.holds[0].label = 'ordinary' },
+    r => { r.holds[0].after = null }, r => { r.holds[0].after.at-- },
+    r => { r.holds[0].after.state.turn++ }, r => { r.holds[0].after.state.person.f2++ },
+    r => { r.holds[0].after.state.projectiles[0].remaining-- },
+    r => { for (const edge of ['before', 'after']) r.holds[0][edge].state.person.state = 10 },
+    r => { for (const edge of ['before', 'after']) r.holds[0][edge].state.person.casting = false },
+    r => { r.casts[1].frames = r.casts[1].frames.filter(f => !f.suspended) },
+    r => { r.casts[1].frames.splice(3, 1) },
+    r => { r.casts[1].frames[2].suspended = false },
+    r => { r.casts[1].frames[2].person.state = 10 },
+    r => { r.casts[1].frames[2].person.timer-- },
+    r => { r.casts[1].frames[3].at = 511 },
+    r => { r.casts[1].frames[4].suspended = true },
+    r => { r.casts[1].frames.splice(4, 1) },
+  ]
+  for (const mutate of corruptions) {
+    const invalid = evidence(); mutate(invalid)
+    assert.throws(() => validateShamanCastingEvidence(invalid), undefined, String(mutate))
+  }
+})
+
 // This fake browser checks observer transparency and cleanup, not real pixels.
 function observerFixture({ ownRender = false, installFailure = false } = {}) {
   const names = ['window', 'document', 'getComputedStyle'],
@@ -179,8 +211,8 @@ function observerFixture({ ownRender = false, installFailure = false } = {}) {
   const dispatch = (capture, trusted = true) => listeners.find(row => row.capture === capture)?.callback({
     target: canvas, button: 0, isTrusted: trusted, clientX: 110, clientY: 120,
   })
-  const allocate = () => {
-    win.shamanCastingObserver.arm('ordinary'); dispatch(true)
+  const allocate = (label = 'ordinary') => {
+    win.shamanCastingObserver.arm(label); dispatch(true)
     Object.assign(world, { mode: null }); world.stats.cast++; world.spellCasts[0][2]++
     world.shots.blast--; world.manaWorld.spells[0].stocks[2]--
     world.castingTribes[0].cooldown = 12
@@ -284,6 +316,34 @@ test('second callback assignment failure restores the first callback and both fu
   } finally { f.cleanup() }
 })
 
+test('active-cast hold markers observe existing suspension without changing World or driving draws', () => {
+  const f = observerFixture()
+  try {
+    installShamanCastingObserver()
+    const observer = f.win.shamanCastingObserver
+    assert.throws(() => observer.beginHold(), /subsequent-cast/)
+    f.allocate()
+    for (let i = 0; i < 12; i++) { f.world.turn++; f.scene.gameClock.afterTurn() }
+    f.world.mode = 'blast'; f.person.state = 10; f.world.projectiles = []
+    f.allocate('subsequent')
+    assert.throws(() => observer.beginHold(), /F9 must suspend/)
+    f.scene.modalSuspended = true
+    const world = structuredClone(f.world), calls = f.calls.length
+    observer.beginHold()
+    assert.equal(f.calls.length, calls, 'Starting a hold cannot drive callbacks')
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    observer.endHold()
+    assert.throws(() => observer.endHold(), /must be open/)
+    const result = observer.finish()
+    assert.deepEqual(result.errors, [])
+    assert.equal(result.holds.length, 1)
+    assert.deepEqual(result.holds[0].before.state, result.holds[0].after.state)
+    assert.equal(result.holds[0].after.stamp - result.holds[0].before.stamp, 2)
+    assert.deepEqual(f.world, world)
+  } finally { f.cleanup() }
+})
+
 test('actual game-clock callbacks are observed before logical animation, with no duplicated controller visits', () => {
   const f = observerFixture()
   try {
@@ -321,4 +381,102 @@ test('actual game-clock callbacks are observed before logical animation, with no
     assert.equal(f.calls.filter(call => call[0] === 'turn').length, 12)
     assert.equal(f.world.stats.cast, 1)
   } finally { f.cleanup() }
+})
+
+test('ordinary cast driver uses only public controls/pointer and stops after its existing natural clock window', async () => {
+  const actions = [], page = {
+    getByRole(role, { name }) {
+      assert.equal(role, 'button')
+      return { click: async () => actions.push(['button', String(name)]) }
+    },
+    getByTitle(title, options) {
+      assert.deepEqual(options, { exact: true })
+      return { click: async () => actions.push(['title', title]) }
+    },
+    async evaluate(fn) {
+      const source = fn.toString()
+      if (fn === installShamanCastingObserver) { actions.push(['install']); return }
+      if (source.includes('hasUsedCheats()')) return false
+      if (source.includes(".arm('ordinary')")) { actions.push(['arm']); return { stock: 4, cheatsUsed: false } }
+      if (source.includes('getWorld().mode')) return 'blast'
+      assert.match(source, /s\.screen\(point/)
+      return { x: 500, y: 300 }
+    },
+    async waitForFunction(fn, argument) { actions.push(['wait', argument ?? null, fn.toString()]) },
+    mouse: { move: async (...point) => actions.push(['move', ...point]),
+      click: async (...point) => actions.push(['pointer', ...point]) },
+  }
+  const result = await beginOrdinaryCastingWitness(page)
+  assert.deepEqual(result, { target: { x: 500, y: 300 }, before: { stock: 4, cheatsUsed: false } })
+  assert.deepEqual(actions.filter(([kind]) => kind !== 'wait'), [
+    ['button', 'Resume game'], ['button', 'Pause game'], ['button', 'Select and focus shaman'],
+    ['install'], ['arm'], ['title', 'spells'], ['button', '/^Blast, [1-9][0-9]* shots$/'],
+    ['button', 'Resume game'], ['move', 500, 300], ['pointer', 500, 300], ['button', 'Pause game'],
+  ])
+  assert.match(actions.find(([kind]) => kind === 'wait')[2], /order\?\.model !== 18/)
+  assert.match(actions.filter(([kind]) => kind === 'wait').at(-1)[2], /cast\.done/)
+  assert.equal(actions.filter(([kind]) => kind === 'wait').at(-1)[1], 'ordinary')
+})
+
+test('actual F9 episode retains grant/input/hold/refill/save order and existing episode bounds', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/spell-test-menu.mjs', import.meta.url), 'utf8'),
+    runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8'),
+    sequence = [
+      'report.unpausedHoldAndResume = true', 'await beginOrdinaryCastingWitness(page)',
+      "await button('Unlock + refill all spells').click()", "await button('Refill mana').click()",
+      'await button(`Test Blast, ${unlocked.shots.blast} shots`).click()',
+      "window.shamanCastingObserver.arm('subsequent')", 'await page.mouse.click(target.x, target.y)',
+      'const casting = await snapshot()', 'window.shamanCastingObserver.beginHold()',
+      'await page.waitForTimeout(350)', 'window.shamanCastingObserver.endHold()',
+      "await button('Refill available charges').click()", 'const refilled = await snapshot()',
+      'report.refillPreservesLiveCasting = true', "await page.keyboard.press('F9')",
+      "await waitForCastingWitness(page, 'subsequent')", 'castingRetentionAttempted = true',
+      'await retainCastingWitness(page, output)', "await button('Menu').click()",
+      "await button('Save Game').click()", 'existing save/profile are unchanged',
+    ]
+  let position = 0
+  for (const snippet of sequence) {
+    const next = source.indexOf(snippet, position)
+    assert.ok(next >= position, snippet); position = next + snippet.length
+  }
+  assert.equal((source.match(/browser\.newContext\(/g) ?? []).length, 1)
+  assert.match(source, /setTimeout\([\s\S]*?\}, 55000\)/)
+  assert.match(source, /assert\.deepEqual\(refilled\.projectiles, casting\.projectiles\)/)
+  assert.match(source, /assert\.deepEqual\(refilled\.shaman, casting\.shaman\)/)
+  assert.match(source, /assert\.deepEqual\(refilled\.castingTribes, casting\.castingTribes\)/)
+  assert.match(source, /actual Shaman windup must still be active/)
+  assert.match(source, /normal cast spent one real charge/)
+  assert.doesNotMatch(source, /world\.[a-zA-Z]+\s*=|\.tick\(|advanceGame\(|--no-sandbox/)
+  assert.equal((runner.match(/receipt\.spellTestMenu =/g) ?? []).length, 1)
+})
+
+test('actual F9 failure cleanup retains at most once and closes context even if retention fails', async () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/spell-test-menu.mjs', import.meta.url), 'utf8'),
+    start = source.lastIndexOf('    clearTimeout(timer)'),
+    end = source.indexOf('\n  if (failure) throw failure', start),
+    body = source.slice(start, end).replace(/\n {2}}\s*$/, '')
+  assert.ok(start > 0 && end > start)
+  for (const attempted of [false, true]) for (const retentionFails of [false, true]) {
+    const calls = [], original = new Error('original F9 failure'), report = { status: 'failed' },
+      page = { isClosed: () => false },
+      bindings = { clearTimeout: () => calls.push('clearTimer'), timer: 1, page, output: 'output', report,
+        context: { close: async () => calls.push('closeContext') },
+        retainCastingWitness: async (actualPage, output, options) => {
+          calls.push('retain')
+          assert.equal(actualPage, page); assert.equal(output, 'output')
+          assert.deepEqual(options, { validate: false })
+          if (retentionFails) throw Error('retention failed')
+          return { status: 'incomplete' }
+        },
+        resolve: (...args) => args.join('/'),
+        writeFileSync: (path, bytes) => { assert.equal(path, 'output/f9-cheats.json'); assert.ok(JSON.parse(bytes).contextClosed); calls.push('writeReceipt') },
+      }
+    const run = new Function(...Object.keys(bindings), 'failure', 'castingRetentionAttempted',
+      `return (async () => { ${body}\nreturn { failure, castingRetentionAttempted } })()`)
+    const result = await run(...Object.values(bindings), original, attempted)
+    assert.equal(result.failure, original)
+    assert.equal(result.castingRetentionAttempted, true)
+    assert.deepEqual(calls, ['clearTimer', ...(!attempted ? ['retain'] : []), 'closeContext', 'writeReceipt'])
+    assert.equal(report.castingRetentionError?.includes('retention failed'), !attempted && retentionFails ? true : undefined)
+  }
 })

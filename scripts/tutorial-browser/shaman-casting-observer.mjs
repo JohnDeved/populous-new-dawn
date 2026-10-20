@@ -8,7 +8,7 @@ export function installShamanCastingObserver() {
     originalTurn = clock.afterTurn, originalRender = renderer.render,
     turnDescriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn'),
     renderDescriptor = Object.getOwnPropertyDescriptor(renderer, 'render')
-  const result = { casts: [], errors: [], closed: false, restored: false }, copies = []
+  const result = { casts: [], holds: [], errors: [], closed: false, restored: false }, copies = []
   let armed = null, pending = null, active = null, closed = false
   const check = (condition, message) => { if (!condition) throw Error(message) }
   const observe = callback => {
@@ -92,7 +92,7 @@ export function installShamanCastingObserver() {
         heading = Math.round((Math.PI - u.heading) * 1024 / Math.PI),
         direction = ((((camera << 16) >> 16) - ((heading << 16) >> 16) - 0x380) & 0x700) >> 8,
         layers = (group?.userData.layers ?? []).filter(layer => layer.visible),
-        frame = { ...state, stamp, direction, visible: group?.visible === true,
+        frame = { ...state, at: performance.now(), stamp, direction, visible: group?.visible === true,
           submittedLayers: layers.filter(layer => scene.view.painter.source(layer)).length,
           frame: group?.userData.frame, flip: group?.userData.frameFlip,
           renderedDraw: group?.userData.draw, cropPlanned: false }
@@ -172,6 +172,22 @@ export function installShamanCastingObserver() {
       return { errors: [...result.errors], casts: result.casts.map(record => ({
         label: record.label, done: record.done, turn: record.after.turn, visits: record.logical.length,
       })) }
+    },
+    beginHold() {
+      owner()
+      check(!closed && !result.errors.length && active?.record.label === 'subsequent' &&
+        !active.record.done && !result.holds.length, 'One active subsequent-cast hold required')
+      const state = read()
+      check(state.person.state === 22 && state.person.casting && !state.paused && state.suspended,
+        'F9 must suspend an active, otherwise unpaused cast')
+      result.holds.push({ label: active.record.label,
+        before: { at: performance.now(), stamp: renderer.info.render.frame, state }, after: null })
+    },
+    endHold() {
+      owner()
+      const hold = result.holds[0]
+      check(!closed && hold && !hold.after, 'Active cast hold must be open')
+      hold.after = { at: performance.now(), stamp: renderer.info.render.frame, state: read() }
     },
     finish() {
       if (!closed) {

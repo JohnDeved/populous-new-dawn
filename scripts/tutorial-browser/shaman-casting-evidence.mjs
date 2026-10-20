@@ -135,14 +135,40 @@ export function validateShamanCastingEvidence(result, reference = castingArtwork
   assert.equal(result.casts[1].before.person.id, result.casts[0].after.person.id)
   assert.ok(result.casts[1].before.turn >= result.casts[0].terminal.turn)
   assert.equal(result.casts[1].before.casts, result.casts[0].after.casts)
+  assert.equal(result.holds?.length, 1, 'One bounded active-cast hold is required')
+  const hold = result.holds[0], record = result.casts[1]
+  assert.equal(hold.label, 'subsequent')
+  assert.ok(hold.before && hold.after)
+  assert.ok(Number.isFinite(hold.before.at) && Number.isFinite(hold.after.at) &&
+    hold.after.at - hold.before.at >= 350, 'Active cast must remain suspended for at least 350ms')
+  equal(hold.after.state, hold.before.state, 'F9 hold freezes the same native person, payment and projectile state')
+  const frozen = hold.before.state
+  grounded(frozen)
+  equal([frozen.paused, frozen.suspended, frozen.person.state, frozen.person.casting],
+    [false, true, 22, true])
+  assert.equal(frozen.person.id, record.after.person.id)
+  assert.ok(frozen.person.timer > 4 && frozen.person.timer <= 10)
+  assert.ok(frozen.projectiles.some(shot => shot.id === record.shot && shot.phase === 'windup' && shot.remaining > 0))
+  const heldFrames = record.frames.filter(frame => frame.stamp > hold.before.stamp &&
+    frame.stamp <= hold.after.stamp && frame.at >= hold.before.at && frame.at <= hold.after.at)
+  assert.ok(heldFrames.length >= 2, 'Empty/single paused-frame coverage cannot prove freezing')
+  for (const frame of heldFrames) {
+    equal([frame.paused, frame.suspended, frame.turn, frame.person, frame.projectiles, frame.cooldown],
+      [false, true, frozen.turn, frozen.person, frozen.projectiles, frozen.cooldown],
+      'Each actual suspended render must retain the frozen native pose and windup')
+  }
+  assert.ok(record.frames.some(frame => frame.stamp > hold.after.stamp && !frame.paused && !frame.suspended &&
+    frame.person.state === 22 && frame.turn > frozen.turn && frame.person.f2 !== frozen.person.f2),
+  'Actual rendered native cast phase must advance after public F9 close')
   return { casts: accepted,
-    activeCastPauseHold: { status: 'pending', reason: 'No bounded active-cast UI hold is wired or required by this validator yet.' },
+    activeCastPauseHold: { status: 'passed', kind: 'F9 presentation suspension',
+      durationMs: hold.after.at - hold.before.at, renderedFrames: heldFrames.length },
     limits: [
     'Original static tables plus actual browser rendering, not original executable execution or pixel-perfect composition.',
     'Logical callbacks observe before logical animation; completed-render samples observe after it. Neither is a driven clock.',
     'Second cast uses public F9-refilled stock; only the first proves pre-grant ordinary stock. Both use normal payment/cooldown.',
     'Two blue grounded casts in one Mission 1 Scene; other tribes, directions, movement/combat entry and interruptions have separate CPU coverage.',
-    'Active-cast pause/hold/resume rendering is pending; absent paused frames do not prove freezing.',
+    'Active-cast hold uses public F9 presentation suspension, not the separate ordinary world-pause control.',
     'Canvas copies and observer callbacks perturb timing; no performance or hardware-smoothness claim.',
   ] }
 }

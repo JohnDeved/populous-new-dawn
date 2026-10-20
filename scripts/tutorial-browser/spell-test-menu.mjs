@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import { bindGame } from '../browser-game.mjs'
 import { SPELLS } from '../../app/world-rules.ts'
 import rules from '../../app/original-rules.json' with { type: 'json' }
+import { beginOrdinaryCastingWitness, waitForCastingWitness, retainCastingWitness } from './shaman-casting.mjs'
 
 // Public controls perform every change. Fiber aliases are read-only observers.
 export default async function spellTestMenu({ browser, url, output }) {
@@ -13,7 +14,7 @@ export default async function spellTestMenu({ browser, url, output }) {
       'No injected spells, forced simulation turns, altered casting state or direct store mutations.',
       'Functional/rendered menu coverage, not proof of every spell effect or hardware performance.',
     ] }
-  let failure
+  let failure, castingRetentionAttempted = false
   const timer = setTimeout(() => { report.timedOut = true; void context.close() }, 55000)
   page.setDefaultTimeout(12000)
   page.on('pageerror', error => report.errors.push(String(error)))
@@ -105,6 +106,10 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Pause game').click()
     report.unpausedHoldAndResume = true
 
+    // Reuse this authored Scene before any testing grant. No extra context,
+    // injected spell, driven clock, or increase to this episode's 55s bound.
+    report.ordinaryCasting = await beginOrdinaryCastingWitness(page)
+
     await page.keyboard.press('F9')
     await button('Unlock + refill all spells').click()
     const unlocked = await snapshot()
@@ -125,6 +130,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button(`Test Blast, ${unlocked.shots.blast} shots`).click()
     await menu.waitFor({ state: 'detached' })
     assert.equal((await snapshot()).mode, 'blast')
+    await page.evaluate(() => window.shamanCastingObserver.arm('subsequent'))
     await button('Resume game').click()
     const target = await page.evaluate(() => {
       const scene = window.testSceneRef.current, w = window.testStore.getWorld(),
@@ -142,6 +148,10 @@ export default async function spellTestMenu({ browser, url, output }) {
     assert.ok(casting.projectiles.some(projectile => projectile.spell === 'blast' &&
       projectile.phase === 'windup' && projectile.remaining > 0), 'an actual live windup projectile is required')
     assert.ok(casting.castingTribes[0].cooldown > 0, 'native cooldown remains active')
+    await page.evaluate(() => window.shamanCastingObserver.beginHold())
+    await page.waitForTimeout(350)
+    await page.evaluate(() => window.shamanCastingObserver.endHold())
+    assert.deepEqual(await snapshot(), casting, 'active cast and its windup freeze while F9 is open')
     await button('Refill available charges').click()
     const refilled = await snapshot()
     assert.deepEqual(refilled.projectiles, casting.projectiles)
@@ -150,6 +160,10 @@ export default async function spellTestMenu({ browser, url, output }) {
     report.realPointerCast = { before: target.before, after: casting.casts, spent: 1 }
     report.refillPreservesLiveCasting = true
     await page.keyboard.press('F9')
+    await menu.waitFor({ state: 'detached' })
+    await waitForCastingWitness(page, 'subsequent')
+    castingRetentionAttempted = true
+    report.shamanCasting = await retainCastingWitness(page, output)
     await button('Menu').click()
     await button('Save Game').click()
     assert.equal(await button('Save checkpoint').isDisabled(), true)
@@ -179,12 +193,26 @@ export default async function spellTestMenu({ browser, url, output }) {
     report.failure = String(error)
     report.stack = error.stack
     report.status = 'failed'
-    try { await page.screenshot({ path: resolve(output, 'f9-cheats-failure.png') }) } catch {}
+    try { await page.screenshot({ path: resolve(output, 'f9-cheats-failure.png') }) }
+    catch (error) { report.screenshotError = String(error) }
   } finally {
     clearTimeout(timer)
-    await context.close()
-    report.contextClosed = true
-    writeFileSync(resolve(output, 'f9-cheats.json'), JSON.stringify(report, null, 2) + '\n')
+    // Failed partial observations still restore callbacks and retain raw data
+    // before the existing context closes. Never mask the original F9 failure.
+    try {
+      if (!castingRetentionAttempted && !page.isClosed()) {
+        castingRetentionAttempted = true
+        report.shamanCasting = await retainCastingWitness(page, output, { validate: false })
+      }
+    } catch (error) {
+      report.castingRetentionError = String(error)
+      failure ??= error
+      report.status = 'failed'
+    } finally {
+      await context.close()
+      report.contextClosed = true
+      writeFileSync(resolve(output, 'f9-cheats.json'), JSON.stringify(report, null, 2) + '\n')
+    }
   }
   if (failure) throw failure
   return report
