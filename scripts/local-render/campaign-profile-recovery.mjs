@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import { pauseStartupReady, skipPauseIntroduction, recoverVisibleIntroduction } from './original-pause-checkpoint-recovery.mjs'
 import { waitRecoveryReadiness } from '../tutorial-browser/profile-readiness.mjs'
-import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
+import { openCampaignFromMainMenu, waitForStartupMenu } from '../browser-new-game.mjs'
 import { showSelectorControls } from '../browser-game.mjs'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -13,7 +13,7 @@ import { pathToFileURL } from 'node:url'
 // Named local-render scenario. All seeded records are explicit browser-storage
 // fixtures; public startup/Save/Load assertions are recorded separately.
 async function bindStartupStore(page) {
-  await page.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor()
+  await waitForStartupMenu(page)
   await page.waitForFunction(() => {
     const main = document.querySelector('main')
     let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
