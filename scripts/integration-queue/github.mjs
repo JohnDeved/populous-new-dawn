@@ -1,6 +1,6 @@
 import { validateSplitBrowserJobs } from './browser-jobs.mjs'
 import { MISSION10_JOB, MISSION10_STEPS, MISSION10_INPUTS, mission10CrewLog, validateMission10Crew } from './mission10-recovery.mjs'
-import { profileArtifactUpload, mission10ArtifactUpload, validateProfileArtifactMetadata, resolveProfileArtifact, resolveMission10Artifact, profileArchiveLimit } from './profile-artifact.mjs'
+import { profileArtifactUpload, mission10ArtifactUpload, validateProfileArtifactMetadata, resolveProfileArtifact, resolveProfileCasesArtifact, resolveMission10Artifact, profileArchiveLimit } from './profile-artifact.mjs'
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -356,7 +356,7 @@ export class GitHubReader {
     row.pauseRecoveryReceiptSha256 = receipt.receiptSha256
     row.pauseRecoveryCheckId = check.id
   }
-  profileEvidence(log, receipt, identity) {
+  profileEvidence(log, receipt, identity, recoveryOnly = false) {
     const upload = profileArtifactUpload(log, identity.mergeSha)
     const artifacts = this.pages(`repos/${REPO}/actions/runs/${identity.runId}/artifacts`, 'artifacts')
     const matchesArtifact = artifacts.filter(artifact => artifact.name === upload.name)
@@ -364,7 +364,8 @@ export class GitHubReader {
     validateProfileArtifactMetadata(matchesArtifact[0], upload, identity)
     const metadata = this.get(`repos/${REPO}/actions/artifacts/${upload.id}`)
     validateProfileArtifactMetadata(metadata, upload, identity)
-    return resolveProfileArtifact(this.artifactArchive(upload.id), upload, receipt)
+    const archive = this.artifactArchive(upload.id)
+    return recoveryOnly ? resolveProfileCasesArtifact(archive, upload, receipt) : resolveProfileArtifact(archive, upload, receipt)
   }
   verifyProfileRecoveryRun(entry, pr, synthetic, exact, jobs, row) {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
@@ -407,8 +408,10 @@ export class GitHubReader {
       inputs: Object.fromEntries(PROFILE_INPUTS.map(path =>
         [path, sha256(this.gitOutput('show', `${synthetic.sha}:${path}`))])),
     }
-    if (split) validateProfileCases(receipt, expected)
-    else {
+    if (split) {
+      validateProfileCases(receipt, expected)
+      this.profileEvidence(log, receipt, expected.identity, true)
+    } else {
       expected.mission10Evidence = this.profileEvidence(log, receipt, expected.identity)
       validateProfileRecovery(receipt, expected)
     }

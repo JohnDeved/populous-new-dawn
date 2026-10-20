@@ -56,7 +56,7 @@ test('trusted raw admission rejects omitted extras, changed observations, unknow
   for (const mutate of [
     r => r.selection[0].query.people.pop(), r => r.selection[0].checks[5].selected.pop(),
     r => r.selection[0].checks[0].selected.push(999), r => r.observations.pop(),
-    r => r.observations.push(structuredClone(r.observations[0])), r => { r.observations[1].paused = false },
+    r => r.observations.push(structuredClone(r.observations.find(o => o.label === 'boarded-strip-paused'))), r => { r.observations[1].paused = false },
     r => { r.observations[2].orders.changed = true }, r => { r.observations[2].selectionState.people.at(-1).owners = { native: { flags4: 1 } } },
     r => { r.selection[0].checks[0].preserved = false }, r => { r.observations[2].selectionState.people.at(-1).team = 'red' },
   ]) { const bad = structuredClone(good); mutate(bad); assert.throws(() => validateMission10SelectionEvidence(bad, ['boarded'])) }

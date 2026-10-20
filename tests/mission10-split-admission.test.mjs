@@ -11,7 +11,7 @@ import { profileCasesReceipt, profileCasesReceiptLog } from '../scripts/tutorial
 import { mission10CrewReceipt, mission10CrewReceiptLog } from '../scripts/tutorial-browser/mission10-crew-receipt.mjs'
 import { PROFILE_INPUTS, PROFILE_CASES, PROFILE_SCREENSHOTS, profileCasesLog, validateProfileCases, validateProfileRecovery } from '../scripts/integration-queue/profile-recovery.mjs'
 import { MISSION10_JOB, mission10CrewLog, validateMission10Crew, validateMission10Resumption } from '../scripts/integration-queue/mission10-recovery.mjs'
-import { mission10ArtifactUpload, profileArtifactUpload, resolveMission10Artifact, resolveProfileArtifact, validateProfileArtifactMetadata } from '../scripts/integration-queue/profile-artifact.mjs'
+import { mission10ArtifactUpload, profileArtifactUpload, resolveMission10Artifact, resolveProfileArtifact, resolveProfileCasesArtifact, validateProfileArtifactMetadata } from '../scripts/integration-queue/profile-artifact.mjs'
 import { SPLIT_BROWSER_JOBS, validateSplitBrowserJobs } from '../scripts/integration-queue/browser-jobs.mjs'
 import { GATES, SPLIT_PROFILE_BROWSER_GATE, gatesFor, validateEntry, reviewedWorkflows, validatePassedGate } from '../scripts/integration-queue/policy.mjs'
 import { GitHubReader } from '../scripts/integration-queue/github.mjs'
@@ -41,9 +41,10 @@ function fixture(scenario) {
   const receipt = scenario === 'profile-recovery' ? profileCasesReceipt(host, dir, env) : mission10CrewReceipt(host, dir, env)
   const files = readdirSync(dir).filter(name => statSync(join(dir, name)).isFile()).map(name => [name, readFileSync(join(dir, name))])
   rmSync(dir, { recursive: true, force: true })
-  const archive = artifactZip(files, { compress: true }), upload = { id: 200, name: `mission10-crew-persistence-browser-${oid(1)}`, bytes: archive.length, sha256: hash(archive) }
-  const url = 'https://api.github.com/repos/JohnDeved/populous-new-dawn/actions/artifacts/200'
-  const metadata = { id: 200, name: upload.name, expired: false, size_in_bytes: archive.length, digest: `sha256:${upload.sha256}`,
+  const id = scenario === 'profile-recovery' ? 201 : 200, prefix = scenario === 'profile-recovery' ? 'profile-recovery-browser' : 'mission10-crew-persistence-browser'
+  const archive = artifactZip(files, { compress: true }), upload = { id, name: `${prefix}-${oid(1)}`, bytes: archive.length, sha256: hash(archive) }
+  const url = `https://api.github.com/repos/JohnDeved/populous-new-dawn/actions/artifacts/${id}`
+  const metadata = { id, name: upload.name, expired: false, size_in_bytes: archive.length, digest: `sha256:${upload.sha256}`,
     url, archive_download_url: `${url}/zip`, workflow_run: { id: 100, head_sha: oid(2) } }
   const uploadLog = `SHA256 digest of uploaded artifact zip is ${upload.sha256}\nArtifact ${upload.name}.zip successfully finalized. Artifact ID ${upload.id}\nArtifact ${upload.name} has been successfully uploaded! Final size is ${upload.bytes} bytes. Artifact ID is ${upload.id}`
   return { host, receipt, expected: { identity: receipt.identity, inputs }, files, archive, upload, metadata, uploadLog }
@@ -100,6 +101,27 @@ test('actual episode dispatcher never combines scenarios or resets the supplied 
 test('independent recovery receipt retains all nine cases and cannot stand in for M10 or old composite admission', () => {
   const f = fixture('profile-recovery'), encoded = profileCasesReceiptLog(f.receipt)
   assert.equal(validateProfileCases(profileCasesLog(encoded), f.expected), true)
+  assert.deepEqual(profileArtifactUpload(f.uploadLog, oid(1)), f.upload)
+  validateProfileArtifactMetadata(f.metadata, f.upload, f.expected.identity)
+  assert.deepEqual(resolveProfileCasesArtifact(f.archive, f.upload, f.receipt), f.host.profileRecovery)
+  for (const name of ['receipt.json', 'profile-recovery.json', ...PROFILE_SCREENSHOTS.map(([name]) => name)]) {
+    for (const mode of ['missing', 'corrupt']) {
+      const files = f.files.flatMap(([path, bytes]) => path !== name ? [[path, bytes]] : mode === 'missing' ? [] : [[path, Buffer.from('tampered')]])
+      const archive = artifactZip(files, { compress: true })
+      assert.throws(() => resolveProfileCasesArtifact(archive, { ...f.upload, bytes: archive.length, sha256: hash(archive) }, f.receipt))
+    }
+  }
+  // A new hash cannot excuse disagreement with the current compact identity.
+  for (const mutate of [host => { host.github.runAttempt = '1' }, host => { host.github.base = oid(9) },
+    host => { host.source.files[PROFILE_INPUTS[0]] = h }, host => { host.profileRecovery.cases.pop() },
+    host => { host.profileRecovery.screenshots[0].viewport.width++ }, host => { host.mission10Profile = {} }]) {
+    const host = structuredClone(f.host); mutate(host)
+    const bytes = Buffer.from(JSON.stringify(host)), files = f.files.map(([name, data]) => [name, name === 'receipt.json' ? bytes : data])
+    const archive = artifactZip(files, { compress: true }), receipt = { ...f.receipt, receiptSha256: hash(bytes) }
+    assert.throws(() => resolveProfileCasesArtifact(archive, { ...f.upload, bytes: archive.length, sha256: hash(archive) }, receipt))
+  }
+  const mixed = artifactZip([...f.files, ['mission10-profile.json', '{}']], { compress: true })
+  assert.throws(() => resolveProfileCasesArtifact(mixed, { ...f.upload, bytes: mixed.length, sha256: hash(mixed) }, f.receipt))
   assert.equal(f.receipt.cases.length, 9); assert.equal(f.receipt.mission10, undefined)
   assert.ok(Buffer.byteLength(JSON.stringify(f.receipt)) < 12000)
   assert.throws(() => validateProfileRecovery(f.receipt, f.expected))
@@ -158,14 +180,14 @@ test('new split policy retains pinned workflow transition and rejects one-job-on
     pauseRecoveryVerified: true, pauseRecoveryCheckId: 303, profileRecoveryVerified: true, profileRecoveryCheckId: 304,
     mission10Verified: true, mission10CheckId: 305, checkId: 300, steps: GATES[1].steps.map(name => ({ name, conclusion: 'success' })) }
   const o = { head: oid(2), base: oid(3), synthetic: { sha: oid(1) }, currentChecks: completeJobs().map((j, i) => ({ name: j.name, id: 300 + i,
-    appId: 15368, head: oid(2), status: 'completed', conclusion: 'success' })) }
+    appId: 15368, head: oid(2), status: 'completed', conclusion: 'success', startedAt: '2026-10-20T00:00:00Z' })) }
   validatePassedGate(o, SPLIT_PROFILE_BROWSER_GATE, latest)
   for (const key of ['profileRecoveryVerified', 'mission10Verified', 'pauseRecoveryVerified']) assert.throws(() => validatePassedGate(o, SPLIT_PROFILE_BROWSER_GATE, { ...latest, [key]: false }))
   for (const id of [304, 305]) assert.throws(() => validatePassedGate({ ...o, currentChecks: o.currentChecks.filter(c => c.id !== id) }, SPLIT_PROFILE_BROWSER_GATE, latest))
   assert.throws(() => validatePassedGate(o, SPLIT_PROFILE_BROWSER_GATE, { ...latest, mission10CheckId: 999 }))
 })
 
-test('real trusted adapter requires both exact current official jobs and resolves only the M10-owned artifact', () => {
+test('real trusted adapter requires both exact current official jobs and independently resolves both owned artifacts', () => {
   function adapter() {
     const recovery = fixture('profile-recovery'), mission = fixture('mission10-profile'), jobs = completeJobs(), e = entry()
     const reader = new GitHubReader(), exact = { id: 100, run_attempt: 2, check_suite_id: 500, status: 'completed', conclusion: 'success',
@@ -173,25 +195,26 @@ test('real trusted adapter requires both exact current official jobs and resolve
     const prefix = `PR_HEAD_SHA: ${oid(2)}\nPR_BASE_SHA: ${oid(3)}\n[command]/usr/bin/git log -1 --format=%H\n${oid(1)}\n`
     let downloads = 0
     reader.get = endpoint => {
-      if (endpoint.endsWith('/actions/jobs/204/logs')) return prefix + profileCasesReceiptLog(recovery.receipt)
+      if (endpoint.endsWith('/actions/jobs/204/logs')) return prefix + profileCasesReceiptLog(recovery.receipt) + '\n' + recovery.uploadLog
       if (endpoint.endsWith('/actions/jobs/205/logs')) return prefix + mission10CrewReceiptLog(mission.receipt) + '\n' + mission.uploadLog
       if (endpoint.endsWith('/actions/artifacts/200')) return structuredClone(mission.metadata)
+      if (endpoint.endsWith('/actions/artifacts/201')) return structuredClone(recovery.metadata)
       const match = endpoint.match(/\/check-runs\/(304|305)$/)
       if (!match) throw Error(`Unexpected API request: ${endpoint}`)
       const id = Number(match[1])
       return { id, name: id === 304 ? 'Profile recovery browser' : MISSION10_JOB, check_suite: { id: 500 },
         head_sha: oid(2), app: { id: 15368, slug: 'github-actions' }, status: 'completed', conclusion: 'success' }
     }
-    reader.pages = (endpoint, key) => { assert.equal(endpoint, 'repos/JohnDeved/populous-new-dawn/actions/runs/100/artifacts'); assert.equal(key, 'artifacts'); return [mission.metadata] }
-    reader.artifactArchive = id => { assert.equal(id, 200); downloads++; return mission.archive }
+    reader.pages = (endpoint, key) => { assert.equal(endpoint, 'repos/JohnDeved/populous-new-dawn/actions/runs/100/artifacts'); assert.equal(key, 'artifacts'); return [recovery.metadata, mission.metadata] }
+    reader.artifactArchive = id => { assert.ok([200, 201].includes(id)); downloads++; return id === 200 ? mission.archive : recovery.archive }
     reader.workflow = () => ({ sha256: h })
     reader.gitOutput = (_, ref) => ref.slice(ref.indexOf(':') + 1)
     const row = { job: 'Tutorial browser', merge: oid(1) }
-    return { reader, mission, args: [e, { head: { sha: oid(2) }, base: { sha: oid(3) } }, { sha: oid(1) }, exact, jobs, row], downloads: () => downloads }
+    return { reader, mission, recovery, args: [e, { head: { sha: oid(2) }, base: { sha: oid(3) } }, { sha: oid(1) }, exact, jobs, row], downloads: () => downloads }
   }
   const good = adapter()
-  good.reader.verifyProfileRecoveryRun(...good.args); assert.equal(good.downloads(), 0)
-  good.reader.verifyMission10Run(...good.args); assert.equal(good.downloads(), 1)
+  good.reader.verifyProfileRecoveryRun(...good.args); assert.equal(good.downloads(), 1)
+  good.reader.verifyMission10Run(...good.args); assert.equal(good.downloads(), 2)
   assert.equal(good.args[5].profileRecoveryVerified, true); assert.equal(good.args[5].mission10Verified, true)
   assert.equal(good.args[5].profileRecoveryCheckId, 304); assert.equal(good.args[5].mission10CheckId, 305)
   for (const mutate of [a => { a[0].browserPolicy = 'profile-recovery-v1' }, a => { a[3].run_attempt = 3 },
@@ -208,6 +231,14 @@ test('real trusted adapter requires both exact current official jobs and resolve
     f => { f.reader.gitOutput = () => 'wrong' }, f => { f.mission.metadata.workflow_run.id = 99 },
     f => { f.reader.artifactArchive = () => Buffer.from('corrupt') }]) {
     const f = adapter(); mutate(f); assert.throws(() => f.reader.verifyMission10Run(...f.args))
+  }
+  for (const mutate of [f => { f.recovery.metadata.workflow_run.id = 99 },
+    f => { f.recovery.metadata.workflow_run.head_sha = oid(9) }, f => { f.recovery.metadata.expired = true },
+    f => { f.reader.pages = () => [f.mission.metadata] },
+    f => { f.reader.pages = () => [f.recovery.metadata, f.recovery.metadata, f.mission.metadata] },
+    f => { f.reader.artifactArchive = () => f.mission.archive },
+    f => { f.reader.artifactArchive = () => Buffer.from('corrupt') }]) {
+    const f = adapter(); mutate(f); assert.throws(() => f.reader.verifyProfileRecoveryRun(...f.args))
   }
   assert.equal(validateMission10Resumption(resolveMission10Artifact(good.mission.archive, good.mission.upload, good.mission.receipt)), true)
 })

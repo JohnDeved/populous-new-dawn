@@ -78,7 +78,7 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
   )
   assert.match(workflow, /name: \$\{\{ matrix\.buildStep \}\}/)
   assert.match(workflow, /timeout-minutes: \$\{\{ matrix\.timeoutMinutes \}\}/)
-  assert.equal((workflow.match(/timeoutMinutes: 15/g) ?? []).length, 6)
+  assert.equal((workflow.match(/timeoutMinutes: 15/g) ?? []).length, 7)
   assert.match(workflow, /fail-fast: false/)
   assert.match(workflow, /scripts\/local-render\/original-pause-checkpoint-recovery\.mjs/)
   const runner = readFileSync(

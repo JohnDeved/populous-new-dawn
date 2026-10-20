@@ -34,11 +34,8 @@ export function validateProfileArtifactMetadata(metadata, upload, identity) {
   assert.equal(String(metadata.workflow_run?.id), identity.runId)
   assert.equal(metadata.workflow_run?.head_sha, identity.headSha)
 }
-function resolveArtifact(archive, upload, receipt, standalone) {
+function boundArchive(archive, upload, allowed) {
   assert.equal(archive.length, upload.bytes); assert.equal(hash(archive), upload.sha256)
-  const allowed = new Set(['receipt.json', 'build.log', 'mission10-profile.json', 'mission10-artifacts.json',
-    ...(standalone ? [] : ['profile-recovery.json', 'malformed-profile-selector.png', 'ordinary-fresh-load.png']),
-    ...Object.entries(required).flatMap(([mode, names]) => names.map(name => `mission10-${mode}--${name}`))])
   const files = readArtifactZip(archive, { maxArchiveBytes: profileArchiveLimit, maxFileBytes: 32 * 1024 * 1024,
     maxTotalBytes: 128 * 1024 * 1024, maxEntries: 128,
     allowName: name => allowed.has(name) })
@@ -48,7 +45,9 @@ function resolveArtifact(archive, upload, receipt, standalone) {
     return bytes
   }
   const json = bytes => JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes))
-  const value = receipt.mission10
+  return { files, read, json }
+}
+function boundHost(read, json, receipt) {
   const host = json(read('receipt.json', receipt.receiptSha256))
   assert.equal(host.source.commit, receipt.identity.mergeSha); assert.equal(host.status, 'passed')
   for (const [raw, compact] of [['head','headSha'], ['base','baseSha'], ['merge','mergeSha'], ['runId','runId'], ['runAttempt','runAttempt']])
@@ -58,18 +57,42 @@ function resolveArtifact(archive, upload, receipt, standalone) {
     'dependenciesBeforeSha256', 'dependenciesAfterSha256', 'browserCapMs', 'browserPath', 'launch'])
     assert.deepEqual(host[key], receipt[key], `Raw host ${key} differs`)
   assert.equal(host.browserTimedOut ?? false, receipt.browserTimedOut)
+  return host
+}
+function boundRecovery(files, read, json, host, receipt) {
+  assert.equal(host.profileRecovery.status, receipt.scenarioStatus)
+  assert.deepEqual(host.profileRecovery.cases.map(({ kind, status, fixture }) => ({ kind, status, fixture })), receipt.cases)
+  assert.equal(!!host.profileRecovery.runtime && !!host.profileRecovery.runtimeAfter &&
+    isDeepStrictEqual(host.profileRecovery.runtime, host.profileRecovery.runtimeAfter), receipt.runtimeUnchanged)
+  assert.ok(files.has('profile-recovery.json'), 'Missing profile recovery raw report')
+  assert.deepEqual(json(files.get('profile-recovery.json')), host.profileRecovery)
+  assert.deepEqual(receipt.screenshots.map(({ sha256, ...shot }) => { assert.match(sha256, /^[a-f0-9]{64}$/); return shot }), host.profileRecovery.screenshots)
+  for (const shot of receipt.screenshots) read(shot.name, shot.sha256)
+  return host.profileRecovery
+}
+export function resolveProfileCasesArtifact(archive, upload, receipt) {
+  const allowed = new Set(['receipt.json', 'build.log', 'profile-recovery.json',
+    'malformed-profile-selector.png', 'ordinary-fresh-load.png'])
+  const { files, read, json } = boundArchive(archive, upload, allowed)
+  const host = boundHost(read, json, receipt)
+  assert.equal(receipt.kind, 'profile-recovery-cases-browser')
+  assert.equal(host.selectedScenario, 'profile-recovery')
+  assert.equal(receipt.mission10, undefined, 'Recovery artifact cannot claim M10')
+  assert.equal(host.mission10Profile, undefined, 'Recovery artifact cannot claim M10')
+  return boundRecovery(files, read, json, host, receipt)
+}
+function resolveArtifact(archive, upload, receipt, standalone) {
+  const allowed = new Set(['receipt.json', 'build.log', 'mission10-profile.json', 'mission10-artifacts.json',
+    ...(standalone ? [] : ['profile-recovery.json', 'malformed-profile-selector.png', 'ordinary-fresh-load.png']),
+    ...Object.entries(required).flatMap(([mode, names]) => names.map(name => `mission10-${mode}--${name}`))])
+  const { files, read, json } = boundArchive(archive, upload, allowed)
+  const host = boundHost(read, json, receipt), value = receipt.mission10
   if (standalone) {
     assert.equal(receipt.kind, 'mission10-crew-persistence-browser')
     assert.equal(host.selectedScenario, 'mission10-profile')
     assert.equal(host.profileRecovery, undefined, 'Separate M10 artifact cannot claim recovery cases')
-  } else {
-    assert.equal(host.profileRecovery.status, receipt.scenarioStatus)
-    assert.deepEqual(host.profileRecovery.cases.map(({ kind, status, fixture }) => ({ kind, status, fixture })), receipt.cases)
-    assert.equal(!!host.profileRecovery.runtime && !!host.profileRecovery.runtimeAfter &&
-      isDeepStrictEqual(host.profileRecovery.runtime, host.profileRecovery.runtimeAfter), receipt.runtimeUnchanged)
-    assert.ok(files.has('profile-recovery.json'), 'Missing profile recovery raw report')
-    assert.deepEqual(json(files.get('profile-recovery.json')), host.profileRecovery)
-  }
+    assert.equal(receipt.screenshots, undefined, 'M10 screenshot ownership is phase-specific')
+  } else boundRecovery(files, read, json, host, receipt)
   const report = json(read('mission10-profile.json', value.reportSha256))
   assert.deepEqual(host.mission10Profile, report)
   assert.equal(report.phases.length, 2)
@@ -117,7 +140,6 @@ function resolveArtifact(archive, upload, receipt, standalone) {
     for (const shot of phase.screenshots) read(shot.name, shot.sha256)
     return result
   })
-  for (const shot of receipt.screenshots) read(shot.name, shot.sha256)
   return rawPhases
 }
 
