@@ -133,7 +133,7 @@ function evidence(){
  for(const name of ['angel-paused-context.png','angel-loop-context.png','angel-death-context.png'])files[name]=context
  const state=fixture.state
  const angel={schema:'populous-new-dawn/angel-visuals',schemaVersion:1,status:'passed',sourceCommit:source.commit,expectedRevision:source.commit,
- source:Object.fromEntries(SPELL_VISUAL_INPUTS.slice(12,34).map(name=>[name,inputs[name]])),admission:'admitted',budget:{episode:50000,admission:60000,outerReserve:10000,outerDeadlineAt:180000,remainingAtAdmissionMs:180000},
+ source:Object.fromEntries(SPELL_VISUAL_INPUTS.slice(12,35).map(name=>[name,inputs[name]])),admission:'admitted',budget:{episode:50000,admission:60000,outerReserve:10000,outerDeadlineAt:180000,remainingAtAdmissionMs:180000},
  presentation:{testedCommit:source.commit,contextual:['angel-paused-context.png','angel-loop-context.png','angel-death-context.png']},
  elapsedMs:12000,contextClosed:true,contextCreationPending:false,cleanupPending:false,errors:[],fixture,setupCommittedReadback:true,setupLoadBoundaryMatched:true,
  pausedBefore:state,pausedAfter:state,publicSave:{version:4,state,sha256:hash(files['angel-public-save.json'])},publicLoad:{fullBoundaryMatched:true,state,sha256:hash(files['angel-public-load-boundary.json'])},paused,running}
@@ -228,4 +228,10 @@ test('mandatory Shield contract fails closed for missing sources, old versions, 
  assert.equal(SPELL_VISUAL_FILES.length+22+1,50);assert.equal(new Set(SPELL_VISUAL_INPUTS).size,SPELL_VISUAL_INPUTS.length)
  for(const name of SHIELD_VISUAL_INPUTS)assert.ok(SPELL_VISUAL_INPUTS.includes(name))
  for(const name of SPELL_VISUAL_INPUTS)assert.ok(readFileSync(new URL('../'+name,import.meta.url)).length>0)
+})
+
+test('strict Angel source inventory matches every producer input including PNG transport', async () => {
+ const { ANGEL_VISUAL_INPUTS } = await import('../scripts/tutorial-browser/angel-visuals.mjs')
+ assert.deepEqual(ANGEL_VISUAL_INPUTS, SPELL_VISUAL_INPUTS.slice(12,35))
+ assert.equal(SPELL_VISUAL_INPUTS.filter(name=>name==='scripts/tutorial-browser/compact-png.mjs').length,1)
 })

@@ -24,6 +24,7 @@ export const SPELL_VISUAL_INPUTS = Object.freeze([
   'app/game-clock.ts', 'app/game-store.ts', 'app/checkpoint-format.ts', 'app/world-turn.ts',
   'scripts/tutorial-browser/angel-visuals.mjs', 'scripts/tutorial-browser/angel-visuals-budget.mjs',
   'scripts/tutorial-browser/angel-visuals-fixture.mjs', 'scripts/tutorial-browser/angel-visuals-observer.mjs',
+  'scripts/tutorial-browser/compact-png.mjs',
   'scripts/tutorial-browser/angel-visuals-evidence.mjs', 'scripts/tutorial-browser/checkpoint-codec.mjs',
   'scripts/browser-performance/snapshot-setup.mjs', 'scripts/browser-game.mjs',
   'scripts/tutorial-browser/m2-pointer-f8.mjs', 'tests/level-start-fixture.mjs',
@@ -31,6 +32,7 @@ export const SPELL_VISUAL_INPUTS = Object.freeze([
   'app/page.tsx', 'app/original-pause-menu.tsx', 'public/original/atlas.png', 'package.json', 'package-lock.json',
   'scripts/integration-queue/shield-visuals-receipt.mjs',
   ...SHIELD_VISUAL_INPUTS.filter(name => ![
+    'scripts/tutorial-browser/compact-png.mjs',
     'scripts/tutorial-browser/checkpoint-codec.mjs', 'scripts/tutorial-browser/m2-pointer-f8.mjs',
     'scripts/browser-game.mjs', 'tests/level-start-fixture.mjs', 'app/scene-assets.ts',
     'app/checkpoint-format.ts', 'app/game-store.ts', 'app/game-clock.ts',
@@ -118,7 +120,7 @@ export async function validateSpellVisualReceipt(receipt, expected) {
   assert.equal(angel.expectedRevision, expected.identity.mergeSha)
   assert.equal(angel.presentation.testedCommit, expected.identity.mergeSha)
   assert.deepEqual(angel.presentation.contextual, ['angel-paused-context.png', 'angel-loop-context.png', 'angel-death-context.png'])
-  assert.deepEqual(Object.keys(angel.source), SPELL_VISUAL_INPUTS.slice(12, 34))
+  assert.deepEqual(Object.keys(angel.source), SPELL_VISUAL_INPUTS.slice(12, 35))
   for (const [name, digest] of Object.entries(angel.source)) assert.equal(digest, expected.inputs[name])
   assert.equal(angel.admission, 'admitted'); assert.ok(Number.isFinite(angel.budget.remainingAtAdmissionMs) && angel.budget.remainingAtAdmissionMs >= 60000 && angel.budget.remainingAtAdmissionMs <= 180000)
   assert.equal(angel.budget.episode, 50000); assert.equal(angel.budget.admission, 60000); assert.equal(angel.budget.outerReserve, 10000)
