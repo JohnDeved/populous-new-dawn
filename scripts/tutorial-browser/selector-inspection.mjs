@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
 import { bindGame } from '../browser-game.mjs'
 
-export async function finishInspection({ context, observation, output, episodes, errors, failure, diagnostics }) {
+export async function finishInspection({ context, observation, output, episodes, helpEntry, errors, failure, diagnostics }) {
   const cleanup = { observationDisconnected: false, contextClosed: false, errors: [] }
   const failures = failure ? [failure] : []
   for (const [phase, action] of [
@@ -16,7 +16,7 @@ export async function finishInspection({ context, observation, output, episodes,
     }
   }
   if (errors.length) failures.push(new Error(`Selector runtime/console errors: ${JSON.stringify(errors)}`))
-  const terminal = { status: failures.length ? 'failed' : 'passed', episodes, errors, cleanup,
+  const terminal = { status: failures.length ? 'failed' : 'passed', episodes, ...(helpEntry ? { helpEntry } : {}), errors, cleanup,
     failure: failure ? { message: String(failure), stack: failure.stack, ...diagnostics } : null }
   writeFileSync(resolve(output, 'selector-inspection.json'), JSON.stringify(terminal, null, 2) + '\n')
   if (failures.length) throw new AggregateError(failures, 'Selector inspection failed; see selector-inspection.json')
@@ -83,7 +83,7 @@ async function observeGame(page) {
 
 export default async function ({ browser, url, output }) {
   const context = await browser.newContext({ viewport: { width: 960, height: 720 } })
-  const episodes = [], errors = []
+  const episodes = [], helpEntry = [], errors = []
   let page, observation, failure, result
   const diagnostics = {}
   try {
@@ -115,11 +115,48 @@ export default async function ({ browser, url, output }) {
       for (const key of ['sameSession', 'paused', 'modalSuspended', 'frozen']) assert.equal(state[key], true, key)
       return state
     }
+    let checkedHelpEntry = false
+    const checkHelpEntry = async () => {
+      const help = menu.getByRole('region', { name: 'Browser compatibility and help', exact: true })
+      for (const exit of ['Back', 'Escape', 'continue']) {
+        await page.waitForFunction(() => document.activeElement?.hasAttribute('data-browser-help-heading'))
+        const layout = await help.evaluate(element => {
+          const heading = element.querySelector('[data-browser-help-heading]')
+          const bounds = element.getBoundingClientRect(), title = heading.getBoundingClientRect()
+          return { scrollTop: element.scrollTop, scrollHeight: element.scrollHeight,
+            clientHeight: element.clientHeight, headingTop: title.top, headingBottom: title.bottom,
+            panelTop: bounds.top, panelBottom: bounds.bottom, focused: document.activeElement === heading }
+        })
+        helpEntry.push({ exit, ...layout })
+        assert.equal(layout.focused, true)
+        assert.ok(layout.scrollHeight > layout.clientHeight, 'Use the real overflowing in-game help')
+        assert.ok(layout.scrollTop <= 1, 'Opening and reopening help must start at the top')
+        assert.ok(layout.headingTop >= layout.panelTop && layout.headingBottom <= layout.panelBottom,
+          'The complete heading must be visible before any scrolling action')
+        await frozen()
+        if (exit === 'continue') break
+        if (exit === 'Back') {
+          await page.screenshot({ path: resolve(output, 'options-help-entry.png') })
+          await help.getByRole('button', { name: 'Back to Options', exact: true }).click()
+        } else {
+          await help.getByRole('button', { name: 'Back to Options', exact: true }).focus()
+          assert.ok(await help.evaluate(element => element.scrollTop > 0), 'Exercise Escape after scrolling down')
+          await page.keyboard.press('Escape')
+        }
+        await help.waitFor({ state: 'hidden' })
+        await page.waitForFunction(() => document.activeElement?.hasAttribute('data-compatibility'))
+        assert.equal(await menu.locator('[data-original-options]').getAttribute('data-category'), 'Game')
+        await frozen()
+        await button('Browser compatibility and help').click()
+      }
+      checkedHelpEntry = true
+    }
     const inspect = async () => {
       await button('Options').click()
       await frozen()
       await button('Browser compatibility and help').click()
       await frozen()
+      if (!checkedHelpEntry) await checkHelpEntry()
       await page.getByRole('region', { name: 'Browser compatibility and help', exact: true })
         .getByRole('button', { name: 'Select Level', exact: true }).click()
       await selector.getByRole('button', { name: 'Browser controls', exact: true }).click()
@@ -178,7 +215,8 @@ export default async function ({ browser, url, output }) {
       await restored(paused, repeated)
       episodes.push({ initiallyPaused: paused, captured, afterBack, afterEscape, repeatedEscape: await read() })
     }
-    result = { checks: ['selector-inspection-same-live-world-back-escape-repeat-and-pause-policy'], episodes,
+    result = { checks: ['selector-inspection-same-live-world-back-escape-repeat-and-pause-policy',
+      'options-help-heading-focus-scroll-back-escape-and-reopen'], episodes, helpEntry,
       limits: ['Browser regression only; no new native campaign rules or original-executable evidence', 'Actual Home through plain Vite; no Vinext/Cloudflare/RSC or hardware performance claim'] }
   } catch (error) {
     failure = error
@@ -187,6 +225,6 @@ export default async function ({ browser, url, output }) {
       await page?.screenshot({ path: resolve(output, 'selector-inspection-failure.png'), timeout: 10000 })
     } catch (diagnosticError) { diagnostics.error = String(diagnosticError) }
   }
-  const terminal = await finishInspection({ context, observation, output, episodes, errors, failure, diagnostics })
+  const terminal = await finishInspection({ context, observation, output, episodes, helpEntry, errors, failure, diagnostics })
   return { ...result, cleanup: terminal.cleanup }
 }
