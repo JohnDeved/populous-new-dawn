@@ -29,7 +29,8 @@ try{
  });
  assert.ok(pixels.total>0,JSON.stringify(pixels));assert.match(pixels.source,/selection.png$/);
  await page.screenshot({path:'/private/tmp/populous-selection-braves.png'});
- await page.getByRole('button',{name:'Select and focus shaman',exact:true}).click();
+ await page.keyboard.press('Escape');
+ await page.getByRole('button',{name:'Select shaman',exact:true}).click();
  await page.waitForFunction(()=>{const s=window.testScene,v=[...s.unitMeshes.values()].filter(g=>g.userData.selection.visible);return v.length===1&&v[0].userData.signature==='blue-shaman';});
  // Exercise real walk-frame poses with different native header heights.
  const poses=await page.evaluate(directions=>{

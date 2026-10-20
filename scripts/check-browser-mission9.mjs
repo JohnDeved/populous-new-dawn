@@ -552,7 +552,7 @@ try {
   }, { boatId: launchedMission10.boatId, driverId: launchedMission10.driverId })
 
   await page.keyboard.press('Escape')
-  await page.getByLabel('Select and focus shaman').click()
+  await page.getByLabel('Select shaman').click()
   await page.getByLabel('Select warrior').click()
   await page.getByLabel('Select warrior').click()
   await page.getByLabel('Select warrior').click()

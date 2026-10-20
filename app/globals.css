@@ -47,8 +47,12 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .dock-tabs button.active{border-image-source:url('/original/hud-tab-active.png')}
 .shaman-controls{position:absolute;left:0;top:112px;width:100px;height:39px}
 .shaman-controls button{padding:0}.nearby-followers-button{position:absolute;left:6px;top:10px;width:24px;height:18px;display:grid;place-content:center}
-.portrait{position:absolute;left:33px;top:2px;width:30px;height:35px;background:url('/original/hud-portrait.png')}
-.portrait:hover,.portrait:active{background-image:url('/original/hud-portrait-hover.png')}
+.portrait{position:absolute;left:33px;top:2px;width:30px;height:35px}
+.portrait::before{content:"";position:absolute;inset:0;background:url('/original/hud-portrait.png');pointer-events:none}
+/* 004a1dd0 fades only the frame; 0049fe70 fills the interior after clearing flag8. */
+.portrait:disabled{opacity:1}
+.portrait:disabled::before{opacity:calc(85 / 255)}
+.portrait:enabled:is(:hover,:active)::before{background-image:url('/original/hud-portrait-hover.png')}
 .portrait canvas{position:absolute;left:-33px;top:-114px;width:100px;height:480px;pointer-events:none;image-rendering:pixelated}
 .help-button{position:absolute;left:64px;top:1px;width:12px;height:12px;border:1px outset #edb654;font-size:10px}
 .health-bar{position:absolute;left:64px;top:14px;width:10px;height:22px;background:url('/original/hud-health.png')}.health-bar>span{position:absolute;inset:2px;display:flex;align-items:flex-end}.health-bar i{display:block;width:100%}

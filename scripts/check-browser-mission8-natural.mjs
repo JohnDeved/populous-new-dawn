@@ -238,7 +238,7 @@ async function clear() {
 async function selectParty(includeShaman) {
   await clear()
   if (includeShaman)
-    await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+    await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
   await page
     .getByRole('button', { name: 'Select brave', exact: true })
     .click({ modifiers: ['Shift'] })
