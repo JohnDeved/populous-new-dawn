@@ -97,7 +97,12 @@ import {
   stepUnitShields,
   unitInvisibleToPlayer,
 } from './spell-effects-runtime.ts'
-import { meleeDamage, joinBattle, cleanBattles, processBattles } from './combat-runtime.ts'
+import {
+  meleeDamage,
+  joinBattle,
+  cleanBattles,
+  processOwnedBattles,
+} from './combat-runtime.ts'
 import { clearRetiredPersonOrders, release, releaseTasks } from './world-tasks.ts'
 import {
   sound,
@@ -1302,7 +1307,7 @@ function stepTurn(w: World, metrics?: { steps: number }) {
     }
   }
 
-  processBattles(w)
+  processOwnedBattles(w)
   const contacts: [Unit, Unit][] = []
   const burningPeople = w.units
     .filter(u => !hutNewborns.has(u) && u.burnTrail && u.hp > 0)
