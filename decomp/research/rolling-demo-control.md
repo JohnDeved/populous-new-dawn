@@ -51,8 +51,11 @@ have earlier special handling for `0089bb81==2/3`. After those guards:
 - Pointer/button `004aa1c0` instead tests `0089c669 & 0x10000000` at `004aa338`,
   then the same down/flag 4/mode gates. This does not prove pointer movement exits.
   Activation calls `004af0a0(0x20)` at `004b3578`; that function sets the pointer
-  guard and clears input arrays when handler-active byte `005cdb78==0`. If already
-  in a handler it sets `0x08000000` and queues the mask at `0089c6b5` instead.
+  guard and clears input arrays only on the immediate unlocked-to-locked
+  transition: handler-active byte `005cdb78==0` and the existing
+  `0089c669 & 0x10000000` lock is clear. `004af0d5` tests that lock;
+  `004af0db→004af1ac` skips the resets when it is already set. If already in a
+  handler it sets `0x08000000` and queues the mask at `0089c6b5` instead.
   The later deferred service is outside this proof; immediate and deferred entry
   must not be silently conflated.
 - Both accepted interruption paths clear `0059d110`, call cleanup `004b2700`,

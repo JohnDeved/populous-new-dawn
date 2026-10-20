@@ -335,6 +335,7 @@ EXPECTED = [
     (0x004af0ca, 'or', 'dword ptr [0x89c6b1], eax'),
     (0x004af0d0, 'mov', 'eax, 0x10000000'),
     (0x004af0d5, 'test', 'dword ptr [0x89c669], eax'),
+    (0x004af0db, 'jne', '0x4af1ac'),
     (0x004af0e1, 'or', 'dword ptr [0x89c669], eax'),
     (0x004af0ec, 'call', '0x526c10'),
     (0x004af0f8, 'mov', 'edi, 0x98e928'),
