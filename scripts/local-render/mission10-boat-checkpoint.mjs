@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -125,15 +126,15 @@ export default async function ({ page, openMission, output, receipt, observeChec
     const saved = receipt.profile.checkpointAtStart
     assert.equal(saved?.level, 10)
     assert.ok(receipt.profile.previousRun.cleanupVerified)
-    await page.evaluate(() => {
+    await page.evaluate(currentVersion => {
       const main = document.querySelector('main'); let fiber = main[Object.keys(main).find(k => k.startsWith('__reactFiber'))], store
       for (; fiber && !store; fiber = fiber.return) for (let h = fiber.memoizedState; h; h = h.next) if (h.memoizedState?.getWorld && h.memoizedState?.subscribe) { store = h.memoizedState; break }
       if (!store) throw Error('Store unavailable before public Load')
       const before = store.getWorld(); window.boatLoadBoundary = null; window.boatLoadError = null
       const unsubscribe = store.subscribe(() => { const world = store.getWorld(); if (world === before) return
-        try { window.boatLoadBoundary = { version: 3, world: structuredClone(world) } } catch (e) { window.boatLoadError = String(e) } finally { unsubscribe() }
+        try { window.boatLoadBoundary = { version: currentVersion, world: structuredClone(world) } } catch (e) { window.boatLoadError = String(e) } finally { unsubscribe() }
       })
-    })
+    }, CHECKPOINT_VERSION)
     report.actions.push({ label: 'public Load Game', phase: 'before', at: new Date().toISOString() }); save()
     await page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
     report.actions.push({ label: 'public Load Game', phase: 'after', at: new Date().toISOString() }); save()

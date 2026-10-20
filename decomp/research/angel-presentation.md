@@ -87,7 +87,10 @@ previous countdown indiscriminately would duplicate the entry scale.
 
 Checkpoint format 4 stores both displayed pose and next counters. Missing or
 malformed current state is rejected; old development envelopes are not migrated,
-deleted or overwritten. No age-based reconstruction is used.
+deleted or overwritten. No age-based reconstruction is used. Current-save test
+fixtures and browser witnesses consume the exported current version; the trusted
+Mission 10 receipt validator independently pins version 4. Obsolete v3 and unknown
+future envelopes still fail. Previously retained browser profiles are not migrated.
 
 ## Acceptance and limits
 

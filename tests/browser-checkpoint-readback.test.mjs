@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
@@ -48,11 +49,11 @@ function fixture(values) {
     },
   }
   const page = {
-    async evaluate(read) {
+    async evaluate(read, argument) {
       assert.equal(pending, false, 'Storage reads must not overlap')
       pending = true
       try {
-        return await read()
+        return await read(argument)
       } finally {
         pending = false
       }
@@ -80,6 +81,7 @@ function fixture(values) {
   }
   const sandbox = {
     assert,
+    CHECKPOINT_VERSION,
     page,
     testScene: {
       world: { outcome: { level: 2 }, turn: 707, land: { heights: [17] }, units: [{ hp: 23 }] },
@@ -106,7 +108,7 @@ function fixture(values) {
   }
 }
 
-for (const version of [3]) test(`maintained checkpoint callsite waits for delayed v${version} reads before reloading`, async () => {
+for (const version of [CHECKPOINT_VERSION]) test(`maintained checkpoint callsite waits for delayed v${version} reads before reloading`, async () => {
   const f = fixture([undefined, { version: 0 }, { version }])
   await f.run()
   assert.equal(f.reads, 3)
@@ -115,8 +117,9 @@ for (const version of [3]) test(`maintained checkpoint callsite waits for delaye
   assert.deepEqual(f.events, ['read', 'close', 'pause', 'read', 'close', 'pause', 'read', 'close', 'reload'])
 })
 
-test('maintained checkpoint callsite rejects exhausted false reads without reloading', async () => {
-  const f = fixture([undefined])
+for (const unavailable of [undefined, { version: 3 }])
+test(`maintained checkpoint callsite rejects ${unavailable ? 'obsolete v3' : 'exhausted false'} reads without reloading`, async () => {
+  const f = fixture([unavailable])
   await assert.rejects(f.run(), /must commit/)
   assert.equal(f.reads, 300)
   assert.equal(f.closes, 300)
@@ -139,16 +142,16 @@ for (const [file, variable, field] of [
 ]) test(`${file} committed predicate accepts the current envelope only with matching full state`, async () => {
   const { isDeepStrictEqual } = await import('node:util')
   const script = readFileSync(new URL(`../scripts/local-render/${file}`, import.meta.url), 'utf8'),
-    predicate = script.match(/return \(\s*\w+\.committed\?\.version === 3[\s\S]*?\n\s*\)/)?.[0]
+    predicate = script.match(/return \(\s*\w+\.committed\?\.version === CHECKPOINT_VERSION[\s\S]*?\n\s*\)/)?.[0]
   assert.ok(predicate, 'Exercise the maintained committed-readback predicate')
-  const check = new Function(variable, 'isDeepStrictEqual', predicate)
-  for (const version of [0, 1, 2, 3, 4]) {
+  const check = new Function(variable, 'isDeepStrictEqual', 'CHECKPOINT_VERSION', predicate)
+  for (const version of [0, 1, 2, 3, CHECKPOINT_VERSION, CHECKPOINT_VERSION + 1]) {
     const snapshot = { turn: 73, owner: 1024, commands: [0, 1024] },
       boundary = variable === 'saved' ? { snapshot } : { saved: snapshot },
       value = { committed: { version, [field]: structuredClone(snapshot) }, boundary }
-    assert.equal(check(value, isDeepStrictEqual), version === 3)
+    assert.equal(check(value, isDeepStrictEqual, CHECKPOINT_VERSION), version === CHECKPOINT_VERSION)
     value.committed[field].commands[1]++
-    assert.equal(check(value, isDeepStrictEqual), false, 'Envelope compatibility cannot mask state drift')
+    assert.equal(check(value, isDeepStrictEqual, CHECKPOINT_VERSION), false, 'Envelope compatibility cannot mask state drift')
   }
 })
 
@@ -164,7 +167,7 @@ test('Mission 2 supplied browser checkpoint uses current scalable schema and nor
   t.after(() => rmSync(output, { recursive: true, force: true }))
   const fixture = await createM2Checkpoint(output, { commit: 'controlled-current-source', files: [] }),
     record = checkpointCodec(fixture.transfer, true), store = createGameStore()
-  assert.equal(record.version, 3)
+  assert.equal(record.version, CHECKPOINT_VERSION)
   assert.deepEqual(record.world.capacityPolicy, { version: 1, mode: 'scalable' })
   Object.assign(store.getWorld(), record.world)
   await store.saveCheckpoint()

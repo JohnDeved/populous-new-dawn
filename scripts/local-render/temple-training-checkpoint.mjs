@@ -151,7 +151,7 @@ export function armTempleCheckpoint({ kind, store, button, snapshot }) {
       if (kind === 'save' && world !== prior) throw Error('Save replaced the Temple World')
       // Save publishes after its normalization/clone; Load publishes the normalized
       // replacement before Page's separate unpause. Freeze exactly that boundary.
-      // Current-world observations use the writer's v3 envelope, including a
+      // Current-world observations use the writer's current envelope, including a
       // Current-format Load after normalization. The committed record below
       // retains its actual stored version for the separate storage digest.
       record = { version: CHECKPOINT_VERSION, world: structuredClone(world) }

@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -35,7 +36,7 @@ export default async function ({ page, root, output, receipt, openMission, obser
   // Capture the replacement synchronously, before normal Load auto-resume and
   // asynchronous scene readiness can advance real turns. Only observe, never pause
   // or replace the world through the model/store API.
-  await page.evaluate(() => {
+  await page.evaluate(currentVersion => {
     const main = document.querySelector('main')
     let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))], store
     for (; fiber && !store; fiber = fiber.return)
@@ -48,11 +49,11 @@ export default async function ({ page, root, output, receipt, openMission, obser
     const unsubscribe = store.subscribe(() => {
       const w = store.getWorld()
       if (w === before) return
-      try { window.restartCheckpointBoundary = { version: 3, world: structuredClone(w) } }
+      try { window.restartCheckpointBoundary = { version: currentVersion, world: structuredClone(w) } }
       catch (error) { window.restartCheckpointObservationError = String(error) }
       finally { unsubscribe() }
     })
-  })
+  }, CHECKPOINT_VERSION)
   await page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
   assert.equal(await page.evaluate(() => window.restartCheckpointObservationError), null, 'Load-boundary observer must not interfere with shipped resume')
   const loaded = await page.evaluate(checkpointObservation, { observationName: 'restartCheckpointBoundary' })

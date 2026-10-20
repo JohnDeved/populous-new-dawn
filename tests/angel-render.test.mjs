@@ -24,7 +24,7 @@ const { GameScene } = await import('../app/scene.ts')
 const environment = environmentForHeader({ landscapeBank: 12, objectBank: 2 })
 test.after(() => { THREE.TextureLoader.prototype.load = originalLoad })
 
-test('all1640 existing native-model outputs are byte-identical to the pre-refactor baseline', () => {
+test('all 1640 existing native-model outputs are byte-identical to the pre-refactor baseline', () => {
   // Captured BEFORE extraction of the resource-taking factory, from
   // 80dfb6f7e689110a091707c765f35d36c2bcff39. Includes every existing model,
   // bank2/6, stage0..4, ordinary/Temple material, transformed native lighting,

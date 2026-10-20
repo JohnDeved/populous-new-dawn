@@ -8,8 +8,8 @@
       "purpose": "Validate original Angel import, morph protocol, mesh ownership and current-checkpoint integration without browser or original-code execution.",
       "coveredBehavior": [
         "Two textured bases and seventeen raw point sets; exact source-derived morph counter/selector vectors.",
-        "All1640 existing native-model outputs match the pre-refactor baseline; owner UV translation and per-instance geometry/disposal.",
-        "Live presentation cadence, pause, current save/load, non-destructive obsolete-save rejection and16 visible death scales."
+        "All 1640 existing native-model outputs match the pre-refactor baseline; owner UV translation and per-instance geometry/disposal.",
+        "Live presentation cadence, pause, current save/load, non-destructive obsolete-save rejection and 16 visible death scales."
       ],
       "knownLimits": [
         "DOM/texture/GPU leaves are supplied. This is not rendered pixel or full native controller evidence.",

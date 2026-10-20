@@ -1,6 +1,7 @@
 import { validateMission10SelectionEvidence } from '../local-render/mission10-selection-evidence.mjs'
 import { mission10ExpectedSelection, mission10Controls, mission10Modifiers } from '../local-render/mission10-selection.mjs'
 // Trusted read-only policy: never import this module from candidate Git source.
+// Checkpoint envelope 4 is deliberately pinned here, not loaded from candidate code.
 import { createHash } from 'node:crypto'
 const ensure = (value, message) => {
   if (!value) throw Error(`Profile recovery: ${message}`)
@@ -231,7 +232,7 @@ export function validateMission10Profile(value, mergeSha, rawPhases) {
       phase.cleanupVerified === true && phase.continuationVerified === true &&
       isHash(phase.receiptSha256) && isHash(phase.resultSha256) && uuid(phase.profileId) && uuid(phase.runId),
       'Mission 10 phase source/runtime/cleanup is invalid')
-    ensure(phase.saved?.version === 3 && phase.saved.level === 10 && Number.isInteger(phase.saved.turn) && phase.saved.turn > 0 &&
+    ensure(phase.saved?.version === 4 && phase.saved.level === 10 && Number.isInteger(phase.saved.turn) && phase.saved.turn > 0 &&
       Number.isFinite(phase.saved.time) && ['checkpointSha256', 'actorsSha256', 'terrainSha256', 'stockSha256'].every(key => isHash(phase.saved[key])) &&
       phase.checkpointAtEnd === phase.saved.checkpointSha256, 'Mission 10 committed checkpoint is incomplete')
     ensure(phase.receiptName === `mission10-${phase.mode}--receipt.json` &&
@@ -274,7 +275,7 @@ export function validateMission10Profile(value, mergeSha, rawPhases) {
     loaded.profileId === saved.profileId && loaded.runId !== saved.runId && loaded.previousRunId === saved.runId &&
     loaded.checkpointAtStart === saved.checkpointAtEnd && same(loaded.saved, saved.saved),
     'Mission 10 process/profile/checkpoint continuation differs')
-  ensure(loaded.loaded?.version === 3 && ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']
+  ensure(loaded.loaded?.version === 4 && ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']
     .every(key => loaded.loaded[key] === saved.saved[key]), 'Mission 10 public Load boundary differs')
   return true
 }

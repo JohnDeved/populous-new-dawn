@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import { encodeMission10Query, decodeMission10Query, mission10ExpectedSelection, mission10Controls, mission10Modifiers, mission10OwnedIds } from '../../scripts/local-render/mission10-selection.mjs'
 // Synthetic evidence for validator tests only, never rendered acceptance.
 export function mission10QueryFixture(occupied) {
@@ -8,7 +9,7 @@ export function mission10QueryFixture(occupied) {
 export function mission10ReceiptFixture(mergeSha) {
   const h = 'a'.repeat(64), party = [63, 111, 112, 113, 114]
   // version, level, turn, time, checkpoint/actors/terrain/stock SHA-256.
-  const saved = [3, 10, 100, 4, h, h, h, h]
+  const saved = [CHECKPOINT_VERSION, 10, 100, 4, h, h, h, h]
   return { status: 'passed', sourceCommit: mergeSha, sourceFingerprint: h, runtimeSha256: h, reportSha256: h,
     artifacts: { path: 'mission10-artifacts.json', bytes: 4000, sha256: h },
     phases: ['created', 'reused'].map((mode, index) => ({
