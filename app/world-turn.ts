@@ -13,6 +13,7 @@ import {
   stepLevelStartConversion,
 } from './level-start-runtime.ts'
 import { setShamanDeathPhase } from './shaman-death-vfx.ts'
+import { setFollowerCorpsePhase } from './follower-corpse-animation.ts'
 import { syncStoneHeadPresentation } from './stone-head-animation.ts'
 import {
   changedBuildingGround,
@@ -618,8 +619,12 @@ function stepTurn(w: World, metrics?: { steps: number }) {
     if (fx.corpse) {
       const step = stepReincarnation(fx.corpse.remaining, true, false)
       fx.corpse.remaining = step.remaining
-      fx.corpse.phase = step.phase
+      setFollowerCorpsePhase(fx, step.phase)
       fx.height = (fx.corpse.ground + step.height) / 45
+      if (step.phase === 3 && fx.unit?.team === 'wild') {
+        const angle = Math.round(((Math.PI - fx.unit.heading) * 1024) / Math.PI)
+        fx.unit.heading = Math.PI - (((angle + 91) & 2047) * Math.PI) / 1024
+      }
       if (!step.remaining) fx.duration = fx.age
     }
     if (fx.turnsRemaining !== undefined && --fx.turnsRemaining === 0) fx.duration = fx.age
@@ -1811,7 +1816,13 @@ function stepTurn(w: World, metrics?: { steps: number }) {
         const position = nativePosition(w, u)
         f.duration = Infinity
         f.height = position.h / 45
-        f.corpse = { remaining: reincarnationTurns(false), phase: 0, ground: position.h }
+        const wild = u.team === 'wild'
+        f.corpse = {
+          remaining: reincarnationTurns(wild),
+          phase: wild ? 3 : 0,
+          ground: position.h,
+        }
+        setFollowerCorpsePhase(f, f.corpse.phase)
       }
     }
   }
