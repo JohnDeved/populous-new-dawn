@@ -7,20 +7,14 @@ import { scaledEffectSize } from './projection.ts'
 import { short } from './native-math.ts'
 import { browserPosition } from './world-coordinates.ts'
 import { tornadoColor } from './tornado-appearance.ts'
+import { tornadoMaterial } from './tornado-material.ts'
 
 export function makeTornado(tornado: Tornado) {
   const group = new THREE.Group()
   group.name = 'tornado'
   group.userData.depthBias = -128
   for (const particle of tornado.particles) {
-    const sprite = new THREE.Sprite(
-      new THREE.SpriteMaterial({
-        map: texture('tornado'),
-        transparent: true,
-        depthWrite: false,
-        toneMapped: false,
-      })
-    )
+    const sprite = new THREE.Sprite(tornadoMaterial(texture('tornado')))
     sprite.name = 'tornado-column'
     const anchor = new THREE.Group()
     anchor.userData.ordinal = particle.ordinal
@@ -65,6 +59,6 @@ export function drawTornado(scene: GameScene, group: THREE.Group, tornado: Torna
     sprite.userData.palette = particle.palette
     sprite.scale.set(size.width, size.height, 1)
     sprite.center.set(size.width ? Math.trunc(size.width / 2) / size.width : 0.5, 0)
-    sprite.material.color.setStyle(`rgb(${color.join(',')})`)
+    sprite.material.userData.tornadoTint.value.set(color[0] / 255, color[1] / 255, color[2] / 255)
   }
 }

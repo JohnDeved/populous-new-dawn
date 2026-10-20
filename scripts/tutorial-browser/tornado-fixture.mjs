@@ -8,3 +8,4 @@ export { tornadoCell } from '../../app/tornado-appearance.ts'
 export { advanceGame } from '../../app/game-clock.ts'
 export { default as rules } from '../../app/original-rules.json' with { type: 'json' }
 export { tornadoGraphicsMetadata } from '../lib/tornado-browser-evidence.mjs'
+export { renderTornadoMaterialPalettes } from './tornado-material-fixture.mjs'
