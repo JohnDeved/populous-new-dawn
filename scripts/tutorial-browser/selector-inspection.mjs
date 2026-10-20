@@ -115,11 +115,50 @@ export default async function ({ browser, url, output }) {
       for (const key of ['sameSession', 'paused', 'modalSuspended', 'frozen']) assert.equal(state[key], true, key)
       return state
     }
+    let checkedHelpEntry = false
+    const checkHelpEntry = async () => {
+      const help = menu.getByRole('region', { name: 'Browser compatibility and help', exact: true })
+      const records = []
+      for (const exit of ['Back', 'Escape', 'continue']) {
+        await page.waitForFunction(() => document.activeElement?.hasAttribute('data-browser-help-heading'))
+        const layout = await help.evaluate(element => {
+          const heading = element.querySelector('[data-browser-help-heading]')
+          const bounds = element.getBoundingClientRect(), title = heading.getBoundingClientRect()
+          return { scrollTop: element.scrollTop, scrollHeight: element.scrollHeight,
+            clientHeight: element.clientHeight, headingTop: title.top, headingBottom: title.bottom,
+            panelTop: bounds.top, panelBottom: bounds.bottom, focused: document.activeElement === heading }
+        })
+        records.push({ exit, ...layout })
+        assert.equal(layout.focused, true)
+        assert.ok(layout.scrollHeight > layout.clientHeight, 'Use the real overflowing in-game help')
+        assert.ok(layout.scrollTop <= 1, 'Opening and reopening help must start at the top')
+        assert.ok(layout.headingTop >= layout.panelTop && layout.headingBottom <= layout.panelBottom,
+          'The complete heading must be visible before any scrolling action')
+        await frozen()
+        if (exit === 'continue') break
+        if (exit === 'Back') {
+          await page.screenshot({ path: resolve(output, 'options-help-entry.png') })
+          await help.getByRole('button', { name: 'Back to Options', exact: true }).click()
+        } else {
+          await help.getByRole('button', { name: 'Back to Options', exact: true }).focus()
+          assert.ok(await help.evaluate(element => element.scrollTop > 0), 'Exercise Escape after scrolling down')
+          await page.keyboard.press('Escape')
+        }
+        await help.waitFor({ state: 'hidden' })
+        await page.waitForFunction(() => document.activeElement?.hasAttribute('data-compatibility'))
+        assert.equal(await menu.locator('[data-original-options]').getAttribute('data-category'), 'Game')
+        await frozen()
+        await button('Browser compatibility and help').click()
+      }
+      episodes.push({ optionsHelpEntry: records })
+      checkedHelpEntry = true
+    }
     const inspect = async () => {
       await button('Options').click()
       await frozen()
       await button('Browser compatibility and help').click()
       await frozen()
+      if (!checkedHelpEntry) await checkHelpEntry()
       await page.getByRole('region', { name: 'Browser compatibility and help', exact: true })
         .getByRole('button', { name: 'Select Level', exact: true }).click()
       await selector.getByRole('button', { name: 'Browser controls', exact: true }).click()
