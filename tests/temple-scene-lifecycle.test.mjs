@@ -250,6 +250,7 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       pendingMenuCamera: { current: [] },
       cancelNearbyInput: nop,
       engine: { current: null },
+      setCheatsOpen: value => pageEvents.push(['cheatsOpen', value]),
       setSelectorOpen: nop,
       setMenu: nop,
       setReady: value => pageEvents.push(['ready', value]),
@@ -275,7 +276,9 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
   assert.notEqual(store.getWorld(), firstLoad)
   assert.equal(store.getPresentationSnapshot().epoch, epoch + 1)
   assert.deepEqual(pageEvents, [
+    ['cheatsOpen', false],
     ['ready', false],
+    ['cheatsOpen', false],
     ['ready', false],
   ])
 

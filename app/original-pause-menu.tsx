@@ -94,6 +94,7 @@ interface Props {
   onRetryCheckpoint: () => void
   renderOptions: (onBack: () => void) => ReactNode
   onContinue: () => void
+  saveDisabledReason?: string
   onSave: () => Promise<boolean>
   onLoad: () => void
   onRestart: () => void
@@ -377,8 +378,8 @@ export function OriginalPauseMenu(props: Props) {
             </p>
             {panel === 'save' ? (
               <>
-                <p>Saving replaces the previous checkpoint.</p>
-                <button disabled={saving} onClick={() => void save()}>
+                <p>{props.saveDisabledReason ?? 'Saving replaces the previous checkpoint.'}</p>
+                <button disabled={saving || !!props.saveDisabledReason} onClick={() => void save()}>
                   {saving ? 'Saving…' : 'Save checkpoint'}
                 </button>
               </>
