@@ -83,3 +83,23 @@ population/Warrior gates without changing runtime behavior or raising the existi
 per-assault turn ceiling. Each selected target must actually die. The completed
 AI home Tower assertion keeps this proof composed with the construction feature;
 no construction, combat, training, or replacement producer is disabled.
+
+## Physical Vault collision and the ordinary request gate
+
+On Vault collision source `cfe8f508`, the unchanged sixteen-Warrior assault
+finishes at turn 7284 with ten Matak people, so the previous pre-withdrawal
+population assertion fails. The paired base/candidate diagnostic first differs
+at turn 6670: a Blue Warrior enters closed Vault cell 8625 on the base, while
+the candidate remains outside. Both lack linked-building entry authorization.
+Subsequent panic/combat RNG and five additional Brave deaths change the assault,
+not the script's strictly-greater-than-ten condition. The old failure and exact
+paired trace remain retained outside Git; these turns are port observations,
+not original-runtime measurements.
+
+The maintained witness uses the same ordinary withdrawal, then allows at most
+4096 turns for genuine occupied-Hut births. It explicitly rechecks population
+above ten and Warriors below two at the actual training-request boundary. The
+reviewed diagnostic regrows from ten to eleven by turn 7560, observes the request
+by 7624 and produces new Warriors at 8073. Those observed turns are not new
+goldens. No population, health, mana, script, actor or completion is injected;
+the existing request, admission, conversion and zero-preference checks remain.

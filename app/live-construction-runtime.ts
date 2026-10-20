@@ -1,3 +1,4 @@
+import { liveBuildingShape } from './live-building-shapes.ts'
 import { timberPhaseObjects } from './timber-phase-index.ts'
 import { tribeForTeam, type Building, type Point, type Unit, type World } from './world-types.ts'
 import { buildingHp, unitSpeed } from './world-rules.ts'
@@ -373,9 +374,9 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
         outsideBuilding: point => {
           const index = (point.y >> 9) * 128 + (point.x >> 9)
           if (!(w.land.flags[index] & 512)) return point
-          const building = w.buildings.find(b => b.id === (w.land.buildingIds[index] & 1023))
-          if (!building) throw new Error('Missing building at construction resting anchor')
-          return buildingOutsidePoint(buildingPose(building))
+          const shape = liveBuildingShape(w, w.land.buildingIds[index] & 1023)
+          if (!shape) throw new Error('Missing building at construction resting anchor')
+          return buildingOutsidePoint(shape)
         },
         allocateLog,
         sound: cue => sound(w, cue, u),
