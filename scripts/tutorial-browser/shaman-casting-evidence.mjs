@@ -105,6 +105,16 @@ export function validateShamanCastingEvidence(result, reference = castingArtwork
         [520, 14, 14, 0, (entry.f2 + elapsed) % 12, 10 - elapsed],
         'Rendered phase advances only on logical visits, not render or presentation callbacks')
       assert.ok(integer(frame.direction) && frame.direction < 8)
+      assert.ok(Number.isFinite(frame.cameraBearing) && Number.isFinite(frame.heading),
+        'Each completed render must retain its actual camera and unit heading')
+      assert.ok(integer(p.angle) && p.angle < 2048, 'Actual native render angle required')
+      const camera = Math.round(frame.cameraBearing * 1024 / Math.PI),
+        heading = Math.round((Math.PI - frame.heading) * 1024 / Math.PI)
+      assert.equal(heading & 2047, p.angle, 'Rendered heading must track the native person angle')
+      // Independent original004673b0 signed-short VSTART bucket. Do not import
+      // spriteDirection or assume a cast freezes native turning/camera motion.
+      const expectedDirection = ((((camera << 16) >> 16) - ((heading << 16) >> 16) - 0x380) & 0x700) >> 8
+      assert.equal(frame.direction, expectedDirection, 'Original camera-relative direction bucket')
       const direction = reference.directions.find(c => c.direction === frame.direction)
       equal([reference.renderSources[frame.frame], frame.flip],
         [direction.frames[p.f2 % direction.frames.length], direction.flip], 'Original VFRA frame/flip')
@@ -126,7 +136,8 @@ export function validateShamanCastingEvidence(result, reference = castingArtwork
       assert.equal(crop.error, undefined)
       assert.match(crop.file, new RegExp(`^shaman-casting-${record.label}-[01]\\.png$`))
     }
-    assert.equal(cropped[0].direction, cropped[1].direction)
+    // Each crop independently passed camera/native-heading projection and its
+    // original directional VFRA chain; ordinary physics may turn between them.
     assert.ok(cropped[1].turn > cropped[0].turn)
     assert.notEqual(cropped[0].person.f2, cropped[1].person.f2)
     assert.notEqual(cropped[0].frame, cropped[1].frame)

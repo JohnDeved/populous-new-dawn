@@ -38,6 +38,7 @@ export function installShamanCastingObserver() {
       gameFlags: world.manaWorld.gameFlags, mana: world.manaTribes[0].available,
       person: { id: u.id, hp: u.hp, state: p.state, previousState: p.previousState,
         object: p.object, draw: p.draw, f1: p.f1, f2: p.f2, timer: p.timer,
+        angle: p.angle, heading: p.heading, turnAngle: p.turnAngle, turnY: p.turnY,
         counter: p.counter, stamp: p.stamp, vehicle: p.vehicle, flags2: p.flags2,
         flags4: p.flags4, flight: !!u.flight, lift: u.lift, casting: !!u.casting,
         orderModel: order?.model ?? 0, sameOwner: !active || active.person === p },
@@ -92,7 +93,8 @@ export function installShamanCastingObserver() {
         heading = Math.round((Math.PI - u.heading) * 1024 / Math.PI),
         direction = ((((camera << 16) >> 16) - ((heading << 16) >> 16) - 0x380) & 0x700) >> 8,
         layers = (group?.userData.layers ?? []).filter(layer => layer.visible),
-        frame = { ...state, at: performance.now(), stamp, direction, visible: group?.visible === true,
+        frame = { ...state, at: performance.now(), stamp, direction,
+          cameraBearing: scene.cameraBearing, heading: u.heading, visible: group?.visible === true,
           submittedLayers: layers.filter(layer => scene.view.painter.source(layer)).length,
           frame: group?.userData.frame, flip: group?.userData.frameFlip,
           renderedDraw: group?.userData.draw, cropPlanned: false }

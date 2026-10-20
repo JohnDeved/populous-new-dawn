@@ -16,6 +16,7 @@ function evidence() {
   const casts = ['ordinary', 'subsequent'].map((label, index) => {
     const turn = 100 + index * 30, f2 = index ? 11 : 3, shot = 200 + index
     const person = { id: 4, hp: 100, state: 19, previousState: 17, object: 424, draw: 14,
+      angle: 0, heading: 0, turnAngle: 0, turnY: 0,
       f1: 0, f2, timer: 0, counter: 254, stamp: turn, vehicle: 0, flags2: 0, flags4: 0,
       flight: false, lift: 0, casting: false, orderModel: 0, sameOwner: true }
     const before = { turn, paused: false, suspended: false, speed: 1, level: 1, inputMask: 0,
@@ -46,7 +47,8 @@ function evidence() {
       Object.assign(frame.person, { f2: phase })
       return { ...frame, at: [100, 150, 200, 450, 600, 700][i],
         suspended: !!index && (i === 2 || i === 3),
-        stamp: turn + i, direction: 2, visible: true, submittedLayers: 2,
+        stamp: turn + i, direction: 2, cameraBearing: (0x380 + 2 * 256) * Math.PI / 1024,
+        heading: Math.PI, visible: true, submittedLayers: 2,
         frame: imported, flip: direction.flip, renderedDraw: 14,
         cropPlanned: i < 2, ...(i < 2 ? { cropFile: `shaman-casting-${label}-${i}.png`,
           bodyCanvasOwned: true, bodyInCanvas: true, cropOverlayClear: true } : {}) }
@@ -81,6 +83,51 @@ test('two complete observations distinguish logical callbacks from submitted ren
   assert.deepEqual(result.activeCastPauseHold, { status: 'passed', kind: 'F9 presentation suspension',
     durationMs: 350, renderedFrames: 2 })
   assert.deepEqual(supplied, before)
+})
+
+function renderedHeading(record, frame, camera, angle, direction) {
+  frame.cameraBearing = camera * Math.PI / 1024
+  frame.heading = Math.PI - angle * Math.PI / 1024
+  frame.person.angle = angle & 2047
+  frame.direction = direction
+  const expected = reference.directions[direction],
+    source = expected.frames[frame.person.f2 % expected.frames.length]
+  frame.frame = Number(Object.keys(reference.renderSources).find(key => reference.renderSources[key] === source))
+  frame.flip = expected.flip
+  const crop = record.crops.find(crop => crop.stamp === frame.stamp)
+  if (crop) crop.frame = frame.frame
+}
+
+test('each moving heading/camera crop must independently project to its original directional chain', () => {
+  for (const kind of ['native turn', 'camera turn']) {
+    const supplied = evidence(), record = supplied.casts[0]
+    if (kind === 'native turn') {
+      renderedHeading(record, record.frames[0], 1408, 512, 0)
+      renderedHeading(record, record.frames[1], 1408, 256, 1)
+    } else renderedHeading(record, record.frames[1], 1664, 0, 3)
+    assert.notEqual(record.frames[0].direction, record.frames[1].direction)
+    assert.doesNotThrow(() => validateShamanCastingEvidence(supplied))
+
+    // Internally consistent artwork/direction alone is not evidence that the
+    // renderer chose the right heading bucket. Keep the other inputs stale.
+    record.frames[1].cameraBearing += Math.PI / 4
+    assert.throws(() => validateShamanCastingEvidence(supplied), /camera-relative direction/)
+  }
+})
+
+test('original signed-short direction buckets cover all directions, seams and native-angle ownership', () => {
+  const cases = [
+    ...Array.from({ length: 8 }, (_, direction) => [896 + direction * 256, 0, direction]),
+    [1151, 0, 0], [1152, 0, 1], [-1, 0, 4], [32767, 0, 4],
+    [32768, 0, 4], [0, 32768, 4], [65536 + 896, 0, 0],
+  ]
+  for (const [camera, angle, direction] of cases) {
+    const supplied = evidence(), record = supplied.casts[0]
+    renderedHeading(record, record.frames[0], camera, angle, direction)
+    assert.doesNotThrow(() => validateShamanCastingEvidence(supplied), `${camera}/${angle}/${direction}`)
+    record.frames[0].person.angle = (angle + 256) & 2047
+    assert.throws(() => validateShamanCastingEvidence(supplied), /native person angle/)
+  }
 })
 
 test('rejects contaminated ordinary stock, duplicate allocations, missing expiry and invalid subsequent casts', () => {
@@ -127,6 +174,10 @@ test('rejects stale/wrong rendered source, render-clock drift, obscured or swapp
     r => { r.frames[0].visible = false }, r => { r.frames[0].submittedLayers = 0 },
     r => { r.frames[2].person.f2++ }, r => { r.frames[1].stamp = r.frames[0].stamp },
     r => { r.frames[1].direction = 3 }, r => { r.frames[1].cropPlanned = false },
+    r => { delete r.frames[0].cameraBearing }, r => { r.frames[0].heading = NaN },
+    r => { r.frames[0].cameraBearing += Math.PI / 4 },
+    r => { r.frames[0].heading += Math.PI / 4 },
+    r => { r.frames[0].person.angle = 256 },
     r => { r.frames[0].bodyCanvasOwned = false }, r => { r.frames[0].bodyInCanvas = false },
     r => { r.frames[0].cropOverlayClear = false }, r => { r.frames[0].suspended = true },
     r => { r.crops.reverse() }, r => { r.crops[0].opaqueColors = 1 },
@@ -272,6 +323,10 @@ test('a live allocation is observed synchronously and readback waits until detac
     assert.equal(result.casts[0].before.stock, 4)
     assert.equal(result.casts[0].after.stock, 3)
     assert.equal(result.casts[0].shot, 200)
+    assert.deepEqual(result.casts[0].frames.map(frame =>
+      [frame.cameraBearing, frame.heading, frame.person.angle, frame.person.heading]),
+    [[f.scene.cameraBearing, f.world.units[0].heading, f.person.angle, f.person.heading],
+      [f.scene.cameraBearing, f.world.units[0].heading, f.person.angle, f.person.heading]])
     assert.equal(result.casts[0].crops.length, 2)
     assert.equal(f.readbacks(), 2); assert.deepEqual(f.world, before)
     assert.equal(f.win.shamanCastingObserver.finish(), result)
@@ -493,6 +548,43 @@ test('actual ordinary-readiness callback admits naturally resting Mission 1, not
   }
 })
 
+test('ordinary Mission 1 casting retains native ground turning rather than a fixed render direction', async () => {
+  const { loadSceneFixture } = await import('./support/bloodlust-scene.mjs')
+  await loadSceneFixture()
+  const { skipIntroduction } = await import('../app/scene-camera-runtime.ts'),
+    w = createWorld(1), clock = { animationTime: 0, animationFrame: 0 },
+    scene = { world: w, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} }
+  while (!(w.flyby.flags & 1) && w.turn < 144) advanceGame(w, clock, 1 / 12)
+  skipIntroduction(scene)
+  while (w.turn < 164) advanceGame(w, clock, 1 / 12)
+  select(w, 'shaman')
+  const u = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'), p = u.native,
+    target = p.heading, retainedDestination = [p.turnAngle, p.turnY], counter = p.counter
+  assert.equal(p.state, 19)
+  assert.equal(p.flags2 & 128, 0)
+  assert.equal(cast(w, 'blast', { x: u.x + 5, z: u.z + 5 }), true)
+  assert.deepEqual([p.turnAngle, p.turnY], retainedDestination,
+    'Original004c1b80 updates the direct turn target only when flags2 bit128 is set')
+  let expected = p.heading, turning = false
+  const angles = new Set([expected])
+  for (let visit = 1; visit < 10; visit++) {
+    // Original004e6d00 requests turning every fourth class-counter visit.
+    // Verified executable005a7d64 (physics18 field0) is signed-short256.
+    if (!((counter + visit) & 3)) turning = true
+    if (turning) {
+      const delta = ((target - expected + 1024) & 2047) - 1024
+      expected = (expected + Math.sign(delta) * Math.min(Math.abs(delta), 256)) & 2047
+      turning = Math.abs(delta) > 256
+    }
+    advanceGame(w, clock, 1 / 12)
+    assert.deepEqual([p.state, p.angle, p.heading], [22, expected, expected])
+    assert.equal(Math.round((Math.PI - u.heading) * 1024 / Math.PI) & 2047, expected)
+    angles.add(p.angle)
+  }
+  assert.ok(angles.size > 1, 'Natural physics turns while the native cast pose remains active')
+  assert.equal(p.heading, target)
+})
+
 test('actual F9 episode retains grant/input/hold/refill/save order and existing episode bounds', () => {
   const source = readFileSync(new URL('../scripts/tutorial-browser/spell-test-menu.mjs', import.meta.url), 'utf8'),
     runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8'),
@@ -535,6 +627,7 @@ test('actual F9 failure cleanup retains at most once and closes context even if 
     const calls = [], original = new Error('original F9 failure'), report = { status: 'failed' },
       page = { isClosed: () => false },
       bindings = { clearTimeout: () => calls.push('clearTimer'), timer: 1, page, output: 'output', report,
+        diagnostics: { stop: () => calls.push('stopDiagnostics') },
         context: { close: async () => calls.push('closeContext') },
         retainCastingWitness: async (actualPage, output, options) => {
           calls.push('retain')
@@ -551,7 +644,7 @@ test('actual F9 failure cleanup retains at most once and closes context even if 
     const result = await run(...Object.values(bindings), original, attempted)
     assert.equal(result.failure, original)
     assert.equal(result.castingRetentionAttempted, true)
-    assert.deepEqual(calls, ['clearTimer', ...(!attempted ? ['retain'] : []), 'closeContext', 'writeReceipt'])
+    assert.deepEqual(calls, ['clearTimer', 'stopDiagnostics', ...(!attempted ? ['retain'] : []), 'closeContext', 'writeReceipt'])
     assert.equal(report.castingRetentionError?.includes('retention failed'), !attempted && retentionFails ? true : undefined)
   }
 })

@@ -110,6 +110,35 @@ No browser visual inspection or original executable execution is claimed.
 
 ## Hosted-failure repair and causal boundaries (2026-10-20)
 
+### Camera-relative cast direction follow-up
+
+Hosted candidate `11447bf4` reached both real casts but rejected ordinary crop
+directions0/1 at turns166/167. Every recorded active frame already matched its
+reported direction's original VFRA/flip. The old observer did not retain camera
+bearing or native/unit heading, so that artifact alone cannot identify which
+projection input changed, nor independently prove its reported direction.
+
+A bounded ordinary Mission1 CPU replay, using the natural opening, public Skip,
+selection and cast at turn164, demonstrates native turning during state22:
+entry angle703 remains on visit1, then447/191/1983/1921 on visits2–5 while the
+original ground destination remains0,0. This is not an original-game execution
+or a reconstruction of the browser's missing heading samples. Original `004c1b80`
+only replaces the direct turn target when flags2 bit128 is set. Ground physics
+`004e6d00` requests a turn every fourth class-counter visit and retains the
+destination during casting. The verified executable's physics18 turning field
+at `005a7d64` is `00 01`, signed-short256. The regression independently applies
+that bounded turning rule rather than calling the production turn helper.
+
+The observer now retains actual camera bearing, unit heading, native angle,
+native heading and destination. Each active rendered frame must independently
+match `004673b0`'s signed-short camera-relative bucket, match the native person's
+angle, and resolve the original directional VFRA/flip. Thus two crop directions
+may differ only while each has the correct projection and artwork. Missing input,
+stale native angle, wrong camera bucket, wrong source/flip, and internally
+consistent but incorrectly projected artwork fail closed. All original stock,
+source520/draw14, retained phase, logical cadence, two distinct crop phases,
+visibility, pause-hold and twelve-visit completion assertions remain.
+
 The hosted candidate at `c811fcc5` exposed one real double-visit bug: command18's
 suspended opening controller still incremented `site.counter`/`p.counter` before
 the newly active state22 physics visitor. Original `004ec6f0` increments the
