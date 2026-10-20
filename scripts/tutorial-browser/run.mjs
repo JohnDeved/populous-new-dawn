@@ -22,6 +22,7 @@ const selectorScenario = resolve(root, 'scripts/tutorial-browser/selector-inspec
 const sceneryScenario = resolve(root, 'scripts/tutorial-browser/scenery-placement.mjs')
 const spellProjectionScenario = resolve(root, 'scripts/tutorial-browser/spell-projection.mjs')
 const spellTestScenario = resolve(root, 'scripts/tutorial-browser/spell-test-menu.mjs')
+const spellConversionScenario = resolve(root, 'scripts/tutorial-browser/spell-conversion.mjs')
 const buildingIdentityScenario = resolve(root, 'scripts/tutorial-browser/building-panel-identity.mjs')
 const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
 const frontendEscapeScenario = resolve(root, 'scripts/local-render/frontend-held-escape.mjs')
@@ -90,6 +91,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   selectorScenarioSha256: hash(selectorScenario), sceneryScenarioSha256: hash(sceneryScenario),
   spellProjectionScenarioSha256: hash(spellProjectionScenario), spellProjectionCoverageSha256: hash(resolve(root, 'scripts/tutorial-browser/spell-projection-coverage.mjs')),
   spellTestScenarioSha256: hash(spellTestScenario),
+  spellConversionScenarioSha256: hash(spellConversionScenario),
   buildingIdentityScenarioSha256: hash(buildingIdentityScenario), buildingIdentityFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-fixture.mjs')),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),
@@ -155,6 +157,8 @@ try {
     // for F9. Both retain their own bounds inside the unchanged shared 180s cap.
     await context.close(); context = undefined; page = undefined
     receipt.spellTestMenu = await (await import(pathToFileURL(spellTestScenario).href)).default({ browser, url, output: out })
+    // Separate natural Mission3 context, after F9, within the unchanged global cap.
+    receipt.spellConversion = await (await import(pathToFileURL(spellConversionScenario).href)).default({ browser, url, output: out })
   } else if (selectedScenario === 'gameplay-frames') {
     receipt.gameplayFrames = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision })
     // Keep all original exports/assertions, then release their live world before
