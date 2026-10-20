@@ -159,7 +159,7 @@ function prepareFreshFlightPoint() {
   return { store, world, shaman, balloon }
 }
 
-async function assertStagedTransport({ store, world, shaman, balloon }, pins) {
+async function assertStagedTransport({ store, world, shaman, balloon, createContinuationStore = createGameStore }, pins) {
   assert.deepEqual([world.turn, shaman.native.counter], pins.input)
   const departureWorld = structuredClone(world),
     person = shaman.native,
@@ -258,7 +258,7 @@ async function assertStagedTransport({ store, world, shaman, balloon }, pins) {
   assert.deepEqual([balloon.x & 511, balloon.y & 511], [256, 256])
 
   // Independent ordinary rest -> Ctrl28 input. No state/counter/terrain injection.
-  const idleStore = createGameStore()
+  const idleStore = createContinuationStore()
   idleStore.startMission(22)
   const idle = idleStore.getWorld()
   Object.assign(idle, structuredClone(departureWorld))
@@ -369,7 +369,7 @@ async function assertStagedTransport({ store, world, shaman, balloon }, pins) {
 
   // Independent public Shift departure from the same genuinely acquired state.
   // The destination is ordinary dry land; no terrain or passenger fields change.
-  const departureStore = createGameStore()
+  const departureStore = createContinuationStore()
   departureStore.startMission(22)
   const departing = departureStore.getWorld()
   Object.assign(departing, structuredClone(departureWorld))
@@ -417,7 +417,7 @@ async function assertStagedTransport({ store, world, shaman, balloon }, pins) {
   // Supplied second Brave/+71 phase on the genuine acquisition clone. This
   // successor handoff fills a vacated driver seat; the separate historical
   // regression proves the eligible-queue selector's physical seat swap.
-  const successorStore = createGameStore()
+  const successorStore = createContinuationStore()
   successorStore.startMission(22)
   const successor = successorStore.getWorld()
   Object.assign(successor, structuredClone(departureWorld))
@@ -612,6 +612,6 @@ test('fresh supplied-focus Mission22 staged transport retains queue, idle combat
   await assertStagedTransport(prepareFreshFlightPoint(), freshPins)
 })
 
-test('historical complete3566 staged input retains exact transport branches and selected-target acquisition through Save/Load', async () => {
+test('historical complete3566 research clone retains exact transport branches and selected-target acquisition', async () => {
   await assertStagedTransport(await loadHistoricalStaged(), historicalPins)
 })

@@ -116,8 +116,52 @@ export function decodeMission10Query(tuple) {
       bytes.readUInt16LE(at + 3), bytes.readUInt16LE(at + 5), bytes.readUInt8(at + 7), bytes.readUInt16LE(at + 8), bytes.readUInt16LE(at + 10)] }) }
   validateMission10Query(q); return q
 }
+const ownerRoles = ['native', 'flight', 'fight', 'entry', 'builder', 'route']
+function validateOwnerAliases(state) {
+  for (const person of state.people) {
+    assert.deepEqual(Object.keys(person.owners), ownerRoles, 'Missing observed controller roles')
+    assert.deepEqual(Object.keys(person.ownerAliases), ownerRoles, 'Missing observed controller aliases')
+    for (const [index, role] of ownerRoles.entries()) {
+      const owner = person.owners[role], alias = person.ownerAliases[role]
+      if (owner === null) { assert.equal(alias, null); continue }
+      assert.ok(owner && typeof owner === 'object')
+      assert.ok(ownerRoles.indexOf(alias) >= 0 && ownerRoles.indexOf(alias) <= index, 'Noncanonical controller alias')
+      assert.equal(person.ownerAliases[alias], alias)
+      assert.deepEqual(owner, person.owners[alias], 'Aliased controller observations differ')
+    }
+  }
+}
+
+// Native command 0x1e: 00444f60 calls 00435c10 to copy selected bit 7 to
+// history bit 0, then clears selected/work bit 7. The live cancellation adapter
+// first normalizes bit 7 from the displayed selection for each retained Blue
+// representation. A route alias changes only if it is that same object.
+export function mission10EscapePreserved(before, after) {
+  validateOwnerAliases(before); validateOwnerAliases(after)
+  assert.equal(before.paused, true); assert.equal(after.paused, true)
+  assert.equal(before.mode, null, 'Selection-clear witness must not target a mode')
+  assert.equal(new Set(before.selected).size, before.selected.length)
+  const expected = structuredClone(before)
+  expected.selected = []; expected.orderCursor = 0
+  if (before.selected.length) for (const person of expected.people) {
+    if (person.team !== 'blue') continue
+    const touched = new Set(ownerRoles.slice(0, -1).map(role => person.ownerAliases[role]).filter(Boolean))
+    for (const role of ownerRoles) {
+      if (!touched.has(person.ownerAliases[role])) continue
+      const owner = person.owners[role]
+      assert.ok(integer(owner.selectionFlags, 0, 255), 'Missing native selection byte')
+      assert.ok(integer(owner.flags3, -2147483648, 4294967295), 'Missing native work flags')
+      owner.selectionFlags = (owner.selectionFlags & ~129) | (before.selected.includes(person.id) ? 1 : 0)
+      owner.flags3 = (owner.flags3 & ~128) >>> 0
+    }
+  }
+  assert.deepEqual(after, expected, 'Mission 10 Escape changed exact selection history/controller/ownership')
+}
+
 export function mission10SelectionPreserved(before, after) {
-  // Escape/selection may only change their documented selected/work bits. Every
+  validateOwnerAliases(before); validateOwnerAliases(after)
+  // Ordinary selection may only change documented selected/work bits. History
+  // bit 0 stays exact here; Escape is validated separately as a transition. Every
   // other captured person, controller, ownership, camera and craft fact is exact.
   const stable = value => {
     const copy = structuredClone(value); delete copy.selected

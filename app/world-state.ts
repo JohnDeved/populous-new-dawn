@@ -18,7 +18,8 @@ import rules from './original-rules.json' with { type: 'json' }
 import { createFlyby } from './flyby.ts'
 import { missionAI } from './campaign-runtime.ts'
 import { createMessages } from './messages.ts'
-import { emptyPersonOrder } from './person-orders.ts'
+import { createPersonOrderPool } from './person-orders.ts'
+import { createCapacityPolicy, populationCeiling, type CapacityMode } from './capacity-policy.ts'
 import { createMotionRoutes } from './person-routes.ts'
 import { createTimberSearches } from './timber-search.ts'
 import { makeTerrain } from './world-terrain-runtime.ts'
@@ -69,7 +70,7 @@ export function createLivePathfinding() {
   }
 }
 
-export function createWorldState(missionNumber = 1): World {
+export function createWorldState(missionNumber = 1, capacityMode: CapacityMode = 'classic'): World {
   const mission = missionData(missionNumber),
     land = createMissionLand(mission.level),
     objectTribes = new Set(
@@ -98,6 +99,7 @@ export function createWorldState(missionNumber = 1): World {
         0
       )
   return {
+    capacityPolicy: createCapacityPolicy(capacityMode),
     flyby: createFlyby(),
     drawMode: missionNumber === tutorialLevel ? 2 : 0,
     inputMask: 0,
@@ -136,12 +138,8 @@ export function createWorldState(missionNumber = 1): World {
     marching: [],
     combatMarches: [],
     lastOrderTurn: 0,
-    buildingOrders: {
-      records: Array.from({ length: 800 }, emptyPersonOrder),
-      cursor: 1,
-      active: 0,
-    },
-    motionRoutes: createMotionRoutes(),
+    buildingOrders: createPersonOrderPool(capacityMode === 'scalable'),
+    motionRoutes: createMotionRoutes(capacityMode === 'scalable'),
     pathfinding: createLivePathfinding(),
     timberSearches: createTimberSearches(),
     land: {
@@ -269,7 +267,7 @@ export function createWorldState(missionNumber = 1): World {
     worshipAcquisition: createWorshipAcquisitionRuntime(),
     effectCounter: 0,
     secondaryEffects: createSecondaryEffects(),
-    nextId: 1,
+    nextId: capacityMode === 'scalable' ? 1024 : 1,
     footprints: createFootprints(),
     selected: [],
     orderCursor: 0,
@@ -339,7 +337,7 @@ export function population(w: World, team: Team) {
 }
 export function populationLimit(w: World, team: Team) {
   return Math.min(
-    200,
+    populationCeiling(w.capacityPolicy),
     6 +
       w.buildings
         .filter(b => b.team === team && b.kind === 'hut' && b.progress === 1 && b.hp > 0)

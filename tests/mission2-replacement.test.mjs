@@ -63,13 +63,17 @@ test('Mission 2 explicitly trains replacement Warriors after natural combat desp
     assert.ok(target.hp <= 0, `Warrior ${target.id} survived the assault at turn ${world.turn}`)
   }
   assert.ok(warriors('green').length < 2)
-  assert.ok(people('green').length > 10)
   assert.deepEqual(world.ai.attributes.slice(5, 9), [0, 0, 0, 0])
   const originalWarriors = new Set(warriors('green').map(unit => unit.id))
   setSelection(world, warriors('blue').map(unit => unit.id))
   assert.ok(command(world, { x: -108, z: -105 }))
+  // Physical Vault collision changes the assault's collateral losses. Let the
+  // surviving occupied Huts regrow naturally; do not lower the script's gate.
+  until(() => people('green').length > 10, 4096)
   until(() => world.ai.tasks.some(task => task.flags & 1 && task.type === 6 && task.target === matakCamp.id), 64)
   const request = world.ai.tasks.find(task => task.flags & 1 && task.type === 6 && task.target === matakCamp.id)
+  assert.ok(people('green').length > 10)
+  assert.ok(warriors('green').length < 2)
   assert.ok(request.requested > 0 && request.requested <= 2)
   until(() => people('green').some(unit => {
     const person = unit.native ?? unit.entry?.person

@@ -1,7 +1,7 @@
 // Independent revalidation of retained browser observations. Hashes bind bytes;
 // they never substitute for recomputing the original-contract selected sets.
 import assert from 'node:assert/strict'
-import { mission10SelectionQuery, mission10SelectionPreserved, mission10ExpectedSelection,
+import { mission10SelectionQuery, mission10SelectionPreserved, mission10EscapePreserved, mission10ExpectedSelection,
   mission10Controls, mission10Modifiers } from './mission10-selection.mjs'
 
 export function validateMission10SelectionEvidence(result, names) {
@@ -24,6 +24,7 @@ export function validateMission10SelectionEvidence(result, names) {
       assert.equal(observed?.team, 'blue'); assert.equal(observed.hp, person.hp); assert.equal(observed.vehicle, person.vehicle)
     }
     assert.equal(row.checks.length, 6)
+    let previous = before
     for (const [i, check] of row.checks.entries()) {
       const name = mission10Controls[Math.floor(i / 3)], modifier = mission10Modifiers[i % 3]
       assert.equal(check.name, name); assert.equal(check.modifier, modifier); assert.equal(check.preserved, true)
@@ -32,13 +33,16 @@ export function validateMission10SelectionEvidence(result, names) {
       assert.deepEqual(check.cleared, []); assert.deepEqual(cleared.selected, [])
       const query = mission10SelectionQuery(cleared.selectionState)
       assert.deepEqual(row.query, query, 'Raw M10 query omitted or changed observed people')
-      mission10SelectionPreserved(before.selectionState, cleared.selectionState)
+      mission10EscapePreserved(previous.selectionState, cleared.selectionState)
       mission10SelectionPreserved(cleared.selectionState, after.selectionState)
       const expected = mission10ExpectedSelection(query, name, modifier)
       assert.deepEqual(check.selected, expected.selected, 'Raw M10 exact selected set differs')
       assert.deepEqual([...after.selected].sort((a, b) => a - b), expected.selected)
       assert.deepEqual(check.primary, expected.primary)
-      for (const key of ['turn', 'orders', 'randomState', 'boat', 'party']) assert.deepEqual(after[key], before[key])
+      for (const key of ['turn', 'orders', 'randomState', 'boat', 'party']) {
+        assert.deepEqual(cleared[key], before[key]); assert.deepEqual(after[key], before[key])
+      }
+      previous = after
     }
   }
   return result.selection

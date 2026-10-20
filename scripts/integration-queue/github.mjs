@@ -1,11 +1,13 @@
-import { profileArtifactUpload, validateProfileArtifactMetadata, resolveProfileArtifact, profileArchiveLimit } from './profile-artifact.mjs'
+import { validateSplitBrowserJobs } from './browser-jobs.mjs'
+import { MISSION10_JOB, MISSION10_STEPS, MISSION10_INPUTS, mission10CrewLog, validateMission10Crew } from './mission10-recovery.mjs'
+import { profileArtifactUpload, mission10ArtifactUpload, validateProfileArtifactMetadata, resolveProfileArtifact, resolveProfileCasesArtifact, resolveMission10Artifact, profileArchiveLimit } from './profile-artifact.mjs'
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
 import { CLOUDFLARE, GATES, REPO, sha256, validateEntry, gatesFor, SHARDED_FULL_GATE } from './policy.mjs'
 
-import { PROFILE_JOB, PROFILE_STEPS, PROFILE_INPUTS, profileRecoveryLog, validateProfileRecovery } from './profile-recovery.mjs'
+import { PROFILE_JOB, PROFILE_STEPS, PROFILE_INPUTS, profileRecoveryLog, validateProfileRecovery, profileCasesLog, validateProfileCases } from './profile-recovery.mjs'
 
 import { RECOVERY_JOB, RECOVERY_STEPS, RECOVERY_INPUTS, pauseRecoveryLog, validatePauseRecovery } from './pause-recovery.mjs'
 
@@ -294,6 +296,8 @@ export class GitHubReader {
             this.verifyPauseRecoveryRun(entry, pr, synthetic, exact, jobs, row)
           if (gate.profileRequired && exact.conclusion === 'success')
             this.verifyProfileRecoveryRun(entry, pr, synthetic, exact, jobs, row)
+          if (gate.mission10Required && exact.conclusion === 'success')
+            this.verifyMission10Run(entry, pr, synthetic, exact, jobs, row)
           row.identityVerified =
             identity.head === pr.head.sha &&
             identity.base === pr.base.sha &&
@@ -311,9 +315,11 @@ export class GitHubReader {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
       exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
       'Recovery workflow is not the successful current PR run')
-    ensure(['pause-recovery-v1', 'profile-recovery-v1'].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
+    ensure(['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1'].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
       'Pause recovery requires explicit trusted policy and current synthetic source')
-    const expectedJobs = entry.browserPolicy === 'profile-recovery-v1' ? 3 : 2
+    const split = entry.browserPolicy === 'profile-split-v1'
+    if (split) validateSplitBrowserJobs(jobs, exact)
+    const expectedJobs = split ? 8 : entry.browserPolicy === 'profile-recovery-v1' ? 3 : 2
     ensure(jobs.length === expectedJobs && new Set(jobs.map(j => j.id)).size === expectedJobs &&
       (expectedJobs === 2 || jobs.filter(j => j.name === PROFILE_JOB).length === 1) &&
       jobs.filter(j => j.name === 'Tutorial browser').length === 1,
@@ -350,7 +356,7 @@ export class GitHubReader {
     row.pauseRecoveryReceiptSha256 = receipt.receiptSha256
     row.pauseRecoveryCheckId = check.id
   }
-  profileEvidence(log, receipt, identity) {
+  profileEvidence(log, receipt, identity, recoveryOnly = false) {
     const upload = profileArtifactUpload(log, identity.mergeSha)
     const artifacts = this.pages(`repos/${REPO}/actions/runs/${identity.runId}/artifacts`, 'artifacts')
     const matchesArtifact = artifacts.filter(artifact => artifact.name === upload.name)
@@ -358,15 +364,18 @@ export class GitHubReader {
     validateProfileArtifactMetadata(matchesArtifact[0], upload, identity)
     const metadata = this.get(`repos/${REPO}/actions/artifacts/${upload.id}`)
     validateProfileArtifactMetadata(metadata, upload, identity)
-    return resolveProfileArtifact(this.artifactArchive(upload.id), upload, receipt)
+    const archive = this.artifactArchive(upload.id)
+    return recoveryOnly ? resolveProfileCasesArtifact(archive, upload, receipt) : resolveProfileArtifact(archive, upload, receipt)
   }
   verifyProfileRecoveryRun(entry, pr, synthetic, exact, jobs, row) {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
       exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
       'Profile recovery workflow is not the successful current PR run')
-    ensure(entry.browserPolicy === 'profile-recovery-v1' && synthetic && row.merge === synthetic.sha,
+    ensure(['profile-recovery-v1', 'profile-split-v1'].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
       'Profile recovery requires explicit trusted policy and current synthetic source')
-    const expectedJobs = 3
+    const split = entry.browserPolicy === 'profile-split-v1'
+    if (split) validateSplitBrowserJobs(jobs, exact)
+    const expectedJobs = split ? 8 : 3
     ensure(jobs.length === expectedJobs && new Set(jobs.map(j => j.id)).size === expectedJobs &&
       jobs.filter(j => j.name === RECOVERY_JOB).length === 1 &&
       jobs.filter(j => j.name === 'Tutorial browser').length === 1,
@@ -391,7 +400,7 @@ export class GitHubReader {
       'Profile recovery worker tested a different candidate')
     ensure(this.workflow(GATES[1].workflow, synthetic.sha).sha256 === entry.workflowHashes[GATES[1].workflow],
       'Profile recovery workflow source differs')
-    const receipt = profileRecoveryLog(log)
+    const receipt = split ? profileCasesLog(log) : profileRecoveryLog(log)
     const expected = {
       identity: { repository: REPO, runId: String(exact.id), runAttempt: String(exact.run_attempt),
         workflowRef: `${REPO}/${GATES[1].workflow}@refs/pull/${entry.pr}/merge`,
@@ -399,12 +408,75 @@ export class GitHubReader {
       inputs: Object.fromEntries(PROFILE_INPUTS.map(path =>
         [path, sha256(this.gitOutput('show', `${synthetic.sha}:${path}`))])),
     }
-    expected.mission10Evidence = this.profileEvidence(log, receipt, expected.identity)
-    validateProfileRecovery(receipt, expected)
+    if (split) {
+      validateProfileCases(receipt, expected)
+      this.profileEvidence(log, receipt, expected.identity, true)
+    } else {
+      expected.mission10Evidence = this.profileEvidence(log, receipt, expected.identity)
+      validateProfileRecovery(receipt, expected)
+    }
 
     row.profileRecoveryVerified = true
     row.profileRecoveryReceiptSha256 = receipt.receiptSha256
     row.profileRecoveryCheckId = check.id
+  }
+  mission10Evidence(log, receipt, identity) {
+    const upload = mission10ArtifactUpload(log, identity.mergeSha)
+    const artifacts = this.pages(`repos/${REPO}/actions/runs/${identity.runId}/artifacts`, 'artifacts')
+    const matchesArtifact = artifacts.filter(artifact => artifact.name === upload.name)
+    ensure(matchesArtifact.length === 1, 'Missing or duplicate Mission 10 artifact')
+    validateProfileArtifactMetadata(matchesArtifact[0], upload, identity)
+    const metadata = this.get(`repos/${REPO}/actions/artifacts/${upload.id}`)
+    validateProfileArtifactMetadata(metadata, upload, identity)
+    return resolveMission10Artifact(this.artifactArchive(upload.id), upload, receipt)
+  }
+  verifyMission10Run(entry, pr, synthetic, exact, jobs, row) {
+    ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
+      exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
+      'Mission 10 workflow is not the successful current PR run')
+    ensure(entry.browserPolicy === 'profile-split-v1' && synthetic && row.merge === synthetic.sha,
+      'Mission 10 requires explicit trusted policy and current synthetic source')
+    validateSplitBrowserJobs(jobs, exact)
+    const expectedJobs = 8
+    ensure(jobs.length === expectedJobs && new Set(jobs.map(j => j.id)).size === expectedJobs &&
+      jobs.filter(j => j.name === RECOVERY_JOB).length === 1 &&
+      jobs.filter(j => j.name === PROFILE_JOB).length === 1 &&
+      jobs.filter(j => j.name === 'Tutorial browser').length === 1,
+      'Missing, duplicate or extra browser jobs')
+    const matches = jobs.filter(j => j.name === MISSION10_JOB)
+    ensure(matches.length === 1, 'Missing or duplicate recovery job')
+    const job = matches[0]
+    ensure(job.run_id === exact.id && job.run_attempt === exact.run_attempt &&
+      job.status === 'completed' && job.conclusion === 'success' &&
+      MISSION10_STEPS.every(name => job.steps?.filter(s => s.name === name).length === 1 &&
+        job.steps.find(s => s.name === name).conclusion === 'success'), 'Mission 10 job did not genuinely succeed')
+    ensure(new RegExp(`^https://api\\.github\\.com/repos/${REPO}/check-runs/[1-9][0-9]*$`).test(job.check_run_url),
+      'Unexpected recovery check URL')
+    const check = this.get(job.check_run_url.slice('https://api.github.com/'.length))
+    ensure(check.id === Number(job.check_run_url.split('/').at(-1)) &&
+      check.check_suite?.id === exact.check_suite_id && check.head_sha === pr.head.sha &&
+      check.name === MISSION10_JOB && check.app?.id === 15368 && check.app?.slug === 'github-actions' &&
+      check.status === 'completed' && check.conclusion === 'success', 'Mission 10 check identity/result mismatch')
+    const log = stripVTControlCharacters(this.get(`repos/${REPO}/actions/jobs/${job.id}/logs`, true))
+    const identity = logIdentity(log)
+    ensure(identity.head === pr.head.sha && identity.base === pr.base.sha && identity.merge === synthetic.sha,
+      'Mission 10 worker tested a different candidate')
+    ensure(this.workflow(GATES[1].workflow, synthetic.sha).sha256 === entry.workflowHashes[GATES[1].workflow],
+      'Mission 10 workflow source differs')
+    const receipt = mission10CrewLog(log)
+    const expected = {
+      identity: { repository: REPO, runId: String(exact.id), runAttempt: String(exact.run_attempt),
+        workflowRef: `${REPO}/${GATES[1].workflow}@refs/pull/${entry.pr}/merge`,
+        mergeSha: synthetic.sha, headSha: pr.head.sha, baseSha: pr.base.sha },
+      inputs: Object.fromEntries(MISSION10_INPUTS.map(path =>
+        [path, sha256(this.gitOutput('show', `${synthetic.sha}:${path}`))])),
+    }
+    expected.mission10Evidence = this.mission10Evidence(log, receipt, expected.identity)
+    validateMission10Crew(receipt, expected)
+
+    row.mission10Verified = true
+    row.mission10ReceiptSha256 = receipt.receiptSha256
+    row.mission10CheckId = check.id
   }
   verifyShardedRun(entry, pr, synthetic, exact, jobs, row, log) {
     ensure(synthetic && row.merge === synthetic.sha, 'Sharded run lacks current synthetic source')

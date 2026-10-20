@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 // Actual unit-frame/Scene/UnitMotion consumers. Natural command owners support
 // the route; supplied near-head states and cloned populations are diagnostics.
 import assert from 'node:assert/strict'
@@ -464,7 +465,7 @@ test('current legacy replacement and independent Scenes rebuild all current shri
     delete legacy.vehicles
     delete legacy.levelStart
     delete legacy.drawMode
-    fixture.scene.world = api.migrateCheckpoint(legacy)
+    fixture.scene.world = normalizeHistoricalFixture(legacy)
     pureFrame(input, fixture)
     assert.equal(fixture.scene.unitMeshes.get(unit.id), original)
     fixture.scene.world.shrines = []

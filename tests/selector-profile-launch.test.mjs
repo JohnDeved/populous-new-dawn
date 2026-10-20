@@ -43,11 +43,11 @@ function button(tree, name) {
 }
 
 test('fresh Home restores independent progress and selector Start launches Mission 3 instead of the older checkpoint', async () => {
-  const saved = createWorld(1)
+  const saved = createWorld(1, 'scalable')
   saved.turn = 217
   saved.time = 217 / 12
   saved.randomState = 0x12345678
-  await withStorage({ profile: { version: 1, completed: [1, 2] }, latest: { version: 1, world: saved } },
+  await withStorage({ profile: { version: 1, completed: [1, 2] }, latest: { version: 3, world: saved } },
     async ({ freshStore, records, writes, drain }) => {
       const store = await freshStore(), initialWorld = store.getWorld(), before = structuredClone(records)
       const states = [], presentation = {}, loadRequest = { current: null }

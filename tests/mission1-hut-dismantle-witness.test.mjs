@@ -96,7 +96,7 @@ function ownGlobal(t, name, value) {
 }
 
 test('Hut witness follows real input, partial Save/Load and a fresh Scene before its first RAF', async t => {
-  const fixture = await tooltipCallerFixture(t),
+  const fixture = await tooltipCallerFixture(t, { capacityMode: 'scalable' }),
     { scene, hut, api, frame } = fixture,
     { GameScene } = await import('../app/scene.ts'),
     { ObjectPanels } = await import('../app/object-panels.ts'),

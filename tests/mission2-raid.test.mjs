@@ -9,7 +9,7 @@ import {
   setSelection,
   tick,
 } from '../app/model.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import { campaignAttackTarget } from '../app/campaign-runtime.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 
@@ -186,7 +186,7 @@ test('Mission 2 checkpoints retain kill ownership from the old red slot', () => 
   saved.killCredits[0][3] = 2
   saved.killCredits[1][0] = 5
   saved.killCredits[3][0] = 1
-  migrateCheckpoint(saved)
+  normalizeHistoricalFixture(saved)
   assert.equal(saved.killCredits[0][3], 6)
   assert.equal(saved.killCredits[3][0], 5)
 })

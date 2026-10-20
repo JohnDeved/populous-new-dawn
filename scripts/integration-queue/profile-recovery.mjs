@@ -65,6 +65,12 @@ export const PROFILE_INPUTS = [
   'app/selection-runtime.ts',
   'app/hud-selection.ts',
   'app/hud-person-source.ts',
+  'scripts/tutorial-browser/profile-host-receipt.mjs',
+  'scripts/tutorial-browser/profile-episodes.mjs',
+  'scripts/tutorial-browser/mission10-crew-receipt.mjs',
+  'scripts/integration-queue/mission10-recovery.mjs',
+  'scripts/integration-queue/browser-jobs.mjs',
+  'scripts/tutorial-browser/scenario-policy.mjs',
 ]
 export const PROFILE_CASES = [
   ['empty', 'passed', true],
@@ -103,12 +109,12 @@ export function profileRecoveryLog(log) {
   )
   return JSON.parse(bytes.toString('utf8'))
 }
-export function validateProfileRecovery(receipt, expected) {
+export function validateProfileHost(receipt, expected, kind, scenario) {
   ensure(
     receipt?.version === 1 &&
-      receipt.kind === 'profile-recovery-browser' &&
+      receipt.kind === kind &&
       receipt.status === 'passed' &&
-      receipt.selectedScenario === 'profile-recovery',
+      receipt.selectedScenario === scenario,
     'scenario did not pass'
   )
   ensure(same(receipt.identity, expected.identity), 'run/attempt/source identity differs')
@@ -149,6 +155,10 @@ export function validateProfileRecovery(receipt, expected) {
       }),
     'official sandboxed Chrome required'
   )
+  return true
+}
+function validateProfileCasesCore(receipt, expected, kind) {
+  validateProfileHost(receipt, expected, kind, 'profile-recovery')
   ensure(
     receipt.scenarioStatus === 'passed' &&
       receipt.runtimeUnchanged === true &&
@@ -168,8 +178,21 @@ export function validateProfileRecovery(receipt, expected) {
       receipt.screenshots.every(s => isHash(s.sha256)),
     'visual evidence inventory incomplete'
   )
+  return true
+}
+export function validateProfileRecovery(receipt, expected) {
+  validateProfileCasesCore(receipt, expected, 'profile-recovery-browser')
   validateMission10Profile(receipt.mission10, expected.identity.mergeSha, expected.mission10Evidence)
   return true
+}
+export function validateProfileCases(receipt, expected) {
+  validateProfileCasesCore(receipt, expected, 'profile-recovery-cases-browser')
+  ensure(receipt.mission10 === undefined, 'Separate M10 job cannot be claimed by recovery receipt')
+  return true
+}
+export const profileCasesLog = log => {
+  ensure(!log.includes('PND_PROFILE_RECOVERY_'), 'Composite receipt cannot replace split recovery evidence')
+  return profileRecoveryLog(log.replaceAll('PND_PROFILE_CASES_', 'PND_PROFILE_RECOVERY_'))
 }
 
 
@@ -208,7 +231,7 @@ export function validateMission10Profile(value, mergeSha, rawPhases) {
       phase.cleanupVerified === true && phase.continuationVerified === true &&
       isHash(phase.receiptSha256) && isHash(phase.resultSha256) && uuid(phase.profileId) && uuid(phase.runId),
       'Mission 10 phase source/runtime/cleanup is invalid')
-    ensure(phase.saved?.version === 1 && phase.saved.level === 10 && Number.isInteger(phase.saved.turn) && phase.saved.turn > 0 &&
+    ensure(phase.saved?.version === 3 && phase.saved.level === 10 && Number.isInteger(phase.saved.turn) && phase.saved.turn > 0 &&
       Number.isFinite(phase.saved.time) && ['checkpointSha256', 'actorsSha256', 'terrainSha256', 'stockSha256'].every(key => isHash(phase.saved[key])) &&
       phase.checkpointAtEnd === phase.saved.checkpointSha256, 'Mission 10 committed checkpoint is incomplete')
     ensure(phase.receiptName === `mission10-${phase.mode}--receipt.json` &&
@@ -251,7 +274,7 @@ export function validateMission10Profile(value, mergeSha, rawPhases) {
     loaded.profileId === saved.profileId && loaded.runId !== saved.runId && loaded.previousRunId === saved.runId &&
     loaded.checkpointAtStart === saved.checkpointAtEnd && same(loaded.saved, saved.saved),
     'Mission 10 process/profile/checkpoint continuation differs')
-  ensure(loaded.loaded?.version === 1 && ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']
+  ensure(loaded.loaded?.version === 3 && ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']
     .every(key => loaded.loaded[key] === saved.saved[key]), 'Mission 10 public Load boundary differs')
   return true
 }

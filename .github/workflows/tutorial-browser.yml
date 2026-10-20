@@ -62,6 +62,11 @@ jobs:
             name: Profile recovery browser
             artifact: profile-recovery-browser
             buildStep: Build plain production Home and validate IndexedDB recovery
+          - scenario: mission10-profile
+            timeoutMinutes: 15
+            name: Mission 10 crew persistence browser
+            artifact: mission10-crew-persistence-browser
+            buildStep: Build plain production Home and validate Mission 10 crew persistence
           - scenario: gameplay-frames
             timeoutMinutes: 15
             name: Gameplay frame recording browser

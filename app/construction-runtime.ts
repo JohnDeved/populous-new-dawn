@@ -108,18 +108,7 @@ export function prepareBuildingSiteCheck(w: World, team: Team) {
       add(nativePosition(w, shrine), 9)
       continue
     }
-    const p = nativePosition(w, shrine),
-      id = shrine.id & 1023
-    buildings.set(id, { model: 18, tribe: 255 })
-    for (const i of buildingFootprintCells({
-      object: rules.buildingObjects[18],
-      angle: Math.round((shrine.angle * 1024) / Math.PI) & 2047,
-      anchorX: p.x & 0xfe00,
-      anchorY: p.y & 0xfe00,
-    })) {
-      land.flags[i] |= 512
-      land.buildingIds[i] = (land.buildingIds[i] & 0xfc00) | id
-    }
+    if (shrine.model) buildings.set(shrine.id, { model: 18, tribe: 255 })
   }
   for (const team of campaignShamanTeams(w)) {
     const center = campaignPosition(w, team)
@@ -224,10 +213,22 @@ function buildingId(w: World) {
   // have unbounded IDs, so they must not push new buildings out of that range.
   // Full native allocation/list ownership remains separate from this adapter.
   const used = new Set(
-    [w.units, w.buildings, w.trees, w.shrines, w.effects, w.fights, w.projectiles].flatMap(
-      objects => objects.map(o => o.id)
-    )
+    [
+      w.units,
+      w.buildings,
+      w.vehicles,
+      w.trees,
+      w.shrines,
+      w.effects,
+      w.fights,
+      w.projectiles,
+    ].flatMap(objects => objects.map(o => o.id))
   )
+  const reserveLinkedHeads = (head: World['shrines'][number]) => {
+    used.add(head.id)
+    if (head.linkedShrine) reserveLinkedHeads(head.linkedShrine)
+  }
+  for (const head of w.shrines) reserveLinkedHeads(head)
   for (let id = 1023; id > 0; id--) if (!used.has(id)) return id
   throw new Error('No free terrain building handles')
 }

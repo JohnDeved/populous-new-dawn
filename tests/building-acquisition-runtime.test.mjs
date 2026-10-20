@@ -7,6 +7,7 @@ import {
   visitWorshipAcquisition,
 } from '../app/worship-acquisition-runtime.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import { missionData } from '../app/mission-data.ts'
 import { AUDIO_CUES, cueVariant } from '../app/audio.ts'
 
@@ -92,7 +93,7 @@ test('unrelated, nonlocal and legacy gifts never gain M1 screen eligibility', ()
   assert.equal(world.worshipAcquisition.requests.includes(gift.id), false)
   delete gift.buildingAcquisition
   delete world.worshipAcquisition.controllers.building
-  const restored = migrateCheckpoint(structuredClone(world))
+  const restored = normalizeHistoricalFixture(structuredClone(world))
   assert.equal(
     restored.gifts.find(candidate => candidate.id === gift.id).buildingAcquisition,
     undefined

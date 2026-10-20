@@ -8,9 +8,10 @@ import { withMission10Context } from '../scripts/tutorial-browser/mission10-prof
 import { browserConfiguration } from '../scripts/tutorial-browser/browser-config.mjs'
 import { validateMission10Profile } from '../scripts/integration-queue/profile-recovery.mjs'
 import { mission10ReceiptFixture, compactMission10Fixture, mission10EvidenceFixture } from './support/mission10-profile-receipt.mjs'
-import { createMission10Input, readMission10Ground, readMission10Minimap, mission10BoatPoint } from '../scripts/tutorial-browser/mission10-input.mjs'
+import { createMission10Input, readMission10Ground, readMission10Minimap, mission10BoatPoint, readMission10Selection, readMission10Observation } from '../scripts/tutorial-browser/mission10-input.mjs'
 import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mjs'
 import { createWorld } from '../app/world-initialization.ts'
+import { createLivePerson } from '../app/live-people.ts'
 const sha = '1'.repeat(40)
 
 test('M10 companion requires complete source-bound Save/Load, all public selections and cleanup', () => {
@@ -22,7 +23,9 @@ test('M10 companion requires complete source-bound Save/Load, all public selecti
     v => { v.phases[1].binding.push(true) }, v => { v.phases[1].binding.reverse() },
     v => { delete v.phases[0].saved }, v => { v.phases[0].saved.pop() },
     v => { delete v.phases[1].loaded }, v => { v.phases[1].loaded.push('extra') }, v => { v.phases[1].loaded.reverse() },
-    v => { v.phases[0].saved[0] = 2 }, v => { v.phases[1].saved = [...v.phases[0].saved] }, v => { v.phases[1].loaded[0] = 2 },
+    v => { v.phases[0].saved[0] = 1 }, v => { v.phases[1].saved = [...v.phases[0].saved] }, v => { v.phases[1].loaded[0] = 1 },
+    v => { v.phases[0].saved[0] = 4 }, v => { v.phases[1].loaded[0] = 4 },
+    v => { v.phases[0].saved[0] = 2 }, v => { v.phases[1].loaded[0] = 2 },
     v => { delete v.artifacts }, v => { v.artifacts.path = 'mission10-created/private.json' },
     v => { v.artifacts.bytes = 0 }, v => { v.phases[0].receiptName = 'mission10-created/receipt.json' },
     v => { v.phases[1].resultName = 'unretained.json' },
@@ -125,20 +128,25 @@ test('production helpers keep native coordinate/minimap math and strict canvas/g
   } finally { globalThis.window = priorWindow; globalThis.document = priorDocument }
 })
 
-test('fixedGround invokes the actual serialized callback in one task under supported Playwright evaluation semantics', async () => {
-  // Run the installed, lock-bound evaluator/serializers, not a canned evaluate
-  // result or fn(arg) mock. This is a Node VM boundary test, not rendered QA.
+function installedPlaywrightRealm() {
   const packagePath = createRequire(import.meta.url).resolve('playwright-core/package.json')
   const bundle = readFileSync(resolve(dirname(packagePath), 'lib/coreBundle.js'), 'utf8')
   assert.match(bundle, /isFunction: typeof pageFunction === "function"/)
   const generated = bundle.slice(bundle.indexOf('// packages/playwright-core/src/generated/utilityScriptSource.ts'))
   const literal = generated.match(/\bsource\d* = ('(?:\\.|[^'\\])*');/)?.[1]
   assert.ok(literal, 'Installed Playwright must expose its supported injected evaluator')
-  const realm = createContext({ module: { exports: {} } })
+  const realm = createContext({ module: { exports: {} }, structuredClone })
   runInContext(runInNewContext(literal), realm)
+  return realm
+}
+
+test('fixedGround invokes the actual serialized callback in one task under supported Playwright evaluation semantics', async () => {
+  // Run the installed, lock-bound evaluator/serializers, not a canned evaluate
+  // result or fn(arg) mock. This is a Node VM boundary test, not rendered QA.
+  const realm = installedPlaywrightRealm()
   runInContext(`globalThis.utility = new UtilityScript(globalThis, false);
     globalThis.codec = (${checkpointCodec.toString()});
-    globalThis.world = codec(${JSON.stringify(checkpointCodec(createWorld(10)))}, true);
+    globalThis.world = codec(${JSON.stringify(checkpointCodec(createWorld(10, 'scalable')))}, true);
     globalThis.inspections = [];
     globalThis.canvas = { getBoundingClientRect: () => ({ left: 0, top: 0, width: 100, height: 100 }) };
     globalThis.scene = { world, renderer: { domElement: canvas },
@@ -171,6 +179,7 @@ test('fixedGround invokes the actual serialized callback in one task under suppo
   assert.deepEqual(ground.point, { x: 27, z: -27 })
   assert.equal(ground.inspected, 1); assert.equal(ground.context.model, 3); assert.equal(ground.context.enabled, true)
   const snapshot = checkpointCodec(returned.transfer, true)
+  assert.deepEqual(snapshot.capacityPolicy, { version: 1, mode: 'scalable' })
   assert.equal(snapshot.turn, ground.turn)
   assert.ok(snapshot.land.heights instanceof Int16Array)
   assert.ok(snapshot.buildingFootprints instanceof Map)
@@ -199,4 +208,65 @@ test('hosted adapter never admits dev-server imports or a seeded checkpoint and 
   assert.match(adapter, /source\.status, ''/)
   assert.match(adapter, /lease\.finish\(phase, cleanup\.verified\)/)
   assert.match(read('scripts/local-render/mission10-boat-checkpoint.mjs'), /name: 'Save Game'/)
+})
+
+
+test('fused observation retains all fields and owner aliases in one synchronous installed-Playwright evaluation', async () => {
+  const w = createWorld(10, 'scalable'), party = [63, 111, 112, 113, 114]
+  w.paused = true; w.selected = [111]; w.turn = 379
+  const u = w.units.find(p => p.id === 111), owner = u.native ??= createLivePerson(w, u)
+  u.flight = owner; u.entry = { person: owner }; u.builder = { person: owner }
+  w.pathfinding.people.set(u.id, owner)
+  const separate = w.units.find(p => p.id === 112)
+  separate.native ??= createLivePerson(w, separate)
+  w.pathfinding.people.set(separate.id, structuredClone(separate.native))
+  const realm = installedPlaywrightRealm()
+  runInContext(`globalThis.utility = new UtilityScript(globalThis, false);
+    globalThis.codec = (${checkpointCodec.toString()});
+    globalThis.world = codec(${JSON.stringify(checkpointCodec(w))}, true);
+    globalThis.scene = { world, cameraPosition: { x: 1, y: 2, angle: 0 }, renderer: { getContext: () => ({
+      RENDERER: 1, getExtension: () => null, getParameter: () => 'fixture renderer', isContextLost: () => false }) } };
+    globalThis.window = { testSceneRef: { current: scene } };
+    globalThis.document = { querySelectorAll: () => [{ textContent: 'Boat', getClientRects: () => [{}] }] };`, realm)
+  const before = runInContext('JSON.stringify(codec(world))', realm)
+  const reference = structuredClone(runInContext(`(${readMission10Selection.toString()})()`, realm))
+  let calls = 0
+  const page = { async evaluate(fn, arg) {
+    calls++; assert.equal(typeof fn, 'function')
+    realm.expression = `(${fn.toString()})`; realm.argument = structuredClone(arg)
+    const value = runInContext(`parseEvaluationResultValue(utility.evaluate(true, true, expression, 1,
+      serializeAsCallArgument(argument, value => ({ fallThrough: value }))))`, realm)
+    assert.notEqual(typeof value?.then, 'function', 'No await or intervening RAF task inside the snapshot')
+    return structuredClone(value)
+  } }
+  for (const label of ['boarded-strip-paused', 'loaded: Select warrior single cleared', 'unloaded: Select follower Shift selected']) {
+    calls = 0
+    const row = await readMission10Observation(page, { label, party, boatId: 62 })
+    assert.equal(calls, 1); assert.deepEqual(row.selectionState, reference)
+    assert.deepEqual(Object.keys(row), ['label', 'wallTime', 'turn', 'time', 'level', 'renderer', 'contextLost',
+      'counts', 'paused', 'inputMask', 'selected', 'status', 'orders', 'randomState', 'boat', 'party', 'panels', 'selectionState'])
+    assert.equal(row.turn, w.turn); assert.equal(row.time, w.time); assert.equal(row.level, 10)
+    assert.equal(row.paused, true); assert.equal(row.inputMask, w.inputMask); assert.equal(row.status, w.status)
+    assert.deepEqual(row.selected, w.selected); assert.deepEqual(row.orders, w.buildingOrders); assert.equal(row.randomState, w.randomState)
+    assert.deepEqual(row.counts, { units: w.units.length, vehicles: w.vehicles.length, buildings: w.buildings.length, secondary: w.secondaryEffects.slots.length })
+    const boat = w.vehicles.find(v => v.id === 62)
+    assert.deepEqual(row.boat, { id: boat.id, x: boat.x, y: boat.y, active: boat.active, passengers: [...boat.passengers] })
+    assert.deepEqual(row.party, party.map(id => { const u = w.units.find(u => u.id === id); return { id, kind: u.kind, hp: u.hp, x: u.x, z: u.z,
+      vehicle: u.native?.vehicle, state: u.native?.state, flags2: u.native?.flags2, flags4: u.native?.flags4, path: u.path, work: u.work, commands: u.native?.commands, commandStatus: u.native?.commandStatus } }))
+    assert.deepEqual(row.panels, [{ text: 'Boat', visible: true }]); assert.equal(row.renderer, 'fixture renderer'); assert.equal(row.contextLost, false)
+    assert.deepEqual(row.selectionState.people.find(p => p.id === 111).ownerAliases,
+      { native: 'native', flight: 'native', fight: null, entry: 'native', builder: 'native', route: 'native' })
+    assert.equal(row.selectionState.people.find(p => p.id === 112).ownerAliases.route, 'route')
+    assert.equal(runInContext('JSON.stringify(codec(world))', realm), before, 'Capture must not mutate or adopt live state')
+  }
+  calls = 0
+  const ordinary = await readMission10Observation(page, { label: 'authored-start', party, boatId: 62 })
+  assert.equal(calls, 1); assert.equal(Object.hasOwn(ordinary, 'selectionState'), false)
+  runInContext('world.paused = false', realm)
+  await assert.rejects(readMission10Observation(page, { label: 'boarded-strip-paused', party, boatId: 62 }))
+  for (const mutate of [r => { delete r.selectionState }, r => { r.selectionState.turn++ }, r => { r.selectionState.selected = [] }]) {
+    runInContext('world.paused = true', realm)
+    const corrupt = { evaluate: async (...args) => { const row = await page.evaluate(...args); mutate(row); return row } }
+    await assert.rejects(readMission10Observation(corrupt, { label: 'boarded-strip-paused', party, boatId: 62 }))
+  }
 })

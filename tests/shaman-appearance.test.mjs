@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
@@ -175,7 +176,7 @@ test('real Mission 23 Shaman identity and death heading survive checkpoint recon
   assert.equal(checkpoint.nextId, world.nextId)
   const old = structuredClone(world)
   old.effects.filter(f => f.reincarnation).forEach(f => { delete f.unit })
-  const compatible = migrateCheckpoint(old)
+  const compatible = normalizeHistoricalFixture(old)
   compatible.effects.filter(f => f.reincarnation).forEach(effect => {
     assert.ok(shamanReincarnationPose(effect.reincarnation.team, effect.reincarnation.phase))
     assert.equal(effect.unit?.heading ?? 0, 0, 'old checkpoints retain safe heading fallback')

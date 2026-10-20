@@ -34,6 +34,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   const { stepComputerTasks, computerSelectionWorld } = await import('../app/computer-runtime.ts')
   const { createWorld } = await import('../app/world-initialization.ts')
   const { migrateCheckpoint } = await import('../app/game-store.ts')
+  const { normalizeHistoricalFixture } = await import('./helpers/historical-checkpoint.ts')
   const { browserPosition } = await import('../app/world-coordinates.ts')
   const { moveObjectInCells, removeObjectFromCell } = await import('../app/object-cells.ts')
   const { clearPersonOrders } = await import('../app/person-orders.ts')
@@ -114,7 +115,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
         // Keep coordinateLatch: this is single-AI ownership migration, not the
         // separate older-M2 branch that replays missing startup command metadata.
       }
-      world = migrateCheckpoint(saved)
+      world = checkpoint === 'legacy' ? normalizeHistoricalFixture(saved) : migrateCheckpoint(saved)
     }
     assert.equal(world.ai, world.campaignAIs[3])
     assert.equal(world.activeCampaignTribe, 3)

@@ -217,3 +217,98 @@ also routes native and browser gates; those were not executed in this restricted
 worker. The parent owns the standard exact-head check/build and hosted rendered
 acceptance. No UI artwork, layout, generated fixtures, original mechanics tables,
 parity ledger, natural crew acquisition or full issue #60 completion is claimed.
+
+### Escape-history witness correction (2026-10-19)
+
+Hosted Profile run 39340173546 at `c9a31b9b` failed before the boarded
+Total+Shift click, after Total+Ctrl correctly selected the five occupants plus
+Blue IDs 116, 118, 120 and 122. At paused turn 385, the next ordinary Escape
+changed those four native selection bytes from 128 to 1. The initial strip
+snapshot had byte 0, so comparing every clear to that initial baseline rejected
+legitimate previous-selection history. All 56 captured people otherwise match the
+exact adjacent cancellation transition. The retained native `00435c10` and caller
+`00444f60` copy selection bit 7 to bit 0 before clearing selection; the shipped
+`cancelInteraction` body is unchanged from the accepted main base.
+
+The witness now compares each Escape with the immediately preceding selected
+observation. Its independent transition oracle normalizes selection from the
+observed selected IDs, validates exact history/work-flag cleanup for retained Blue
+owners, and preserves all other fields and tribes. Empty-selection Escape leaves
+owner flags untouched. Canonical role aliases are captured by actual object
+identity, so a route record changes only when it shares a retained owner, not
+because two records have equal values. Ordinary selection still preserves bit 0
+exactly; it is not globally masked. Producer and trusted raw-artifact replay use
+the same reviewed transition contract while retaining independent class/Total
+selection computation, all 18 controls, world/order/RNG equality, and the existing
+artifact, profile, cleanup and deadline bounds.
+
+This is a witness repair, not a gameplay change or a retroactive hosted pass.
+The failed run's original nine Profile cases and first five M10 control inputs
+passed, but its M10 phase, fresh-process Save/Load, unloaded controls and complete
+180-second fit remain unproved. Raw failure artifacts are retained unchanged.
+
+## Current capacity-main integration
+
+The reviewed Escape-history repair is preserved on current main `322499f3`,
+which ships scalable worlds and version-2 public saves. The existing M10 Load
+subscription now labels its captured current envelope as version 2, and trusted
+M10 admission requires version 2 for both the committed Save and public Load
+observations. Obsolete version 1 and unknown versions remain rejected. This is
+not a compatibility conversion. The compact receipt and artifact-manifest format
+versions remain 1; those are independent evidence schemas.
+
+The serialized ground evaluator, full selection oracle, and adjacent Escape
+history fixtures now construct explicit scalable Mission 10 worlds. No gameplay,
+public input, selection obligation, archive/receipt cap, browser deadline, or
+workflow is relaxed. The earlier hosted failures remain failures on their original
+heads. Fresh integrated focused checks and exact hosted full/browser acceptance
+are required; complete M10 runtime within the unchanged 180-second cap is still
+unproved.
+
+## Atomic observation transport after the current-main deadline failure
+
+Hosted browser run `39344305071`, attempt 1, on `ec6e4081` retained a failed
+Profile result with `browserTimedOut: true` at the unchanged 180,000 ms bound.
+All nine original recovery cases passed. Created M10 took 58.612 seconds; reused
+M10 took 46.529 seconds before abort. The version-2 Save and Load full checkpoint
+hashes matched. Independent raw replay validates six boarded, six loaded and five
+unloaded controls, with exact ownership, aliases, history, orders, RNG and complete
+selection sets. The final unloaded Shift click has no post-observation. It is not
+passing evidence, even though the preceding seventeen observations are valid.
+
+Each paused strip snapshot previously made two separate browser evaluations: the
+world facts, then the complete selection/owner view. The source-owned callback now
+captures both synchronously in one evaluation. All fields, public inputs, guard
+checks, screenshots and independent validation remain; no receipt/archive or time
+bound changes. This removes 39 browser round trips across the three complete
+13-observation strips. That is a structural count, not measured time savings or
+proof that the complete route now fits. The regression uses the installed
+Playwright evaluator/serializers in a Node VM, verifies one synchronous call,
+exact fields and actual owner aliases, rejects missing/inconsistent/unpaused views,
+and verifies that capture does not mutate the live World. No local browser is run.
+
+The next coherent union includes main `50541d92`, whose current route-capacity
+store envelope is version 3. M10 Save/Load admission and synthetic tuples therefore
+require version 3 and explicitly reject obsolete versions 1 and 2 and unknown 4.
+The main-owned Load observer label is preserved. The failed `ec6e4081` hosted
+observations above remain version-2 evidence on their original source; they are
+not relabeled as a successful current-version run. Evidence schema versions,
+all eighteen control obligations and all existing caps remain unchanged.
+
+### Independent hosted scenario split after atomic-observation deadline failure
+
+Candidate `edb7c9db` on current-v3 main retained a second deadline failure. The nine
+recovery cases passed and all eighteen M10 control post-states independently
+replayed, but the final public Resume click began with only 347 ms remaining.
+Final Resume, screenshot and persistence completion remain unknown, not passed.
+The source-bound report measured 76.911 seconds before M10, 57.964 seconds for the
+created phase and 45.653 seconds in the failed reused phase. Runner image changes
+prevent attributing timing differences to the atomic observation repair.
+
+The reviewed architectural direction separates the two complete scenarios in the
+existing matrix, with explicitly independent 180-second allowances (360 seconds
+combined maximum, one additional standard VM/build). It does not omit a control,
+raise an existing scenario cap, reset M10's timer between processes, or change game
+state. Separate exact current checks, compact kinds and artifact ownership must
+all bind the same run/attempt/head/base/merge. Source/focused and hosted acceptance
+of this implementation remain pending; earlier failed evidence is preserved.

@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { readMission10Selection } from '../tutorial-browser/mission10-input.mjs'
-import { mission10SelectionQuery, mission10ExpectedSelection, mission10SelectionPreserved } from './mission10-selection.mjs'
+import { readMission10Observation } from '../tutorial-browser/mission10-input.mjs'
+import { mission10SelectionQuery, mission10ExpectedSelection, mission10SelectionPreserved, mission10EscapePreserved } from './mission10-selection.mjs'
 import { checkpointObservation } from './checkpoint-observer.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { bindGame } from '../browser-game.mjs'
@@ -21,6 +21,7 @@ export async function checkMission10FollowerStrip({ page, input, state, phase, o
   assert.ok(before.party.every(person => person && person.hp > 0))
   assert.ok(before.party.every(person => occupied ? person.vehicle === boatId : !person.vehicle))
   const result = { phase, occupied, occupants: before.party.map(({ id, hp, vehicle }) => ({ id, hp, vehicle })), checks: [] }
+  let previous = before
   for (const name of ['Select warrior', 'Select follower']) {
     for (const modifiers of [[], ['Control'], ['Shift']]) {
       const label = `${phase}: ${name} ${modifiers[0] ?? 'single'}`
@@ -30,7 +31,9 @@ export async function checkMission10FollowerStrip({ page, input, state, phase, o
       const query = mission10SelectionQuery(cleared.selectionState)
       if (!result.query) result.query = query
       else assert.deepEqual(query, result.query, 'Paused pre-action selection query changed')
-      mission10SelectionPreserved(before.selectionState, cleared.selectionState)
+      mission10EscapePreserved(previous.selectionState, cleared.selectionState)
+      for (const key of ['turn', 'orders', 'randomState', 'boat', 'party'])
+        assert.deepEqual(cleared[key], before[key], `Escape preserves ${key}`)
       const expected = mission10ExpectedSelection(query, name, modifiers[0] ?? 'single')
       await input.action(label, () => page.getByRole('button', { name, exact: true }).click({ modifiers }))
       const after = await state(`${label} selected`)
@@ -44,6 +47,7 @@ export async function checkMission10FollowerStrip({ page, input, state, phase, o
       assert.deepEqual(after.randomState, before.randomState, 'HUD selection preserves RNG')
       assert.deepEqual(after.boat, before.boat, 'HUD selection preserves craft and passenger slots')
       assert.deepEqual(after.party, before.party, 'HUD selection preserves live passenger activity')
+      previous = after
       result.checks.push({ name, modifier: modifiers[0] ?? 'single', cleared: cleared.selected, selected, primary: expected.primary, preserved: true })
     }
   }
@@ -59,24 +63,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
     source: receipt.source, phase: receipt.profile.mode, actions: [], observations: [], selection: [] }
   const save = () => writeFileSync(resolve(output, 'boat-checkpoint.json'), JSON.stringify(report, null, 2) + '\n')
   const state = async label => {
-    const row = await page.evaluate(({ label, party, boatId }) => {
-      const s = window.testSceneRef.current, w = s.world, boat = w.vehicles.find(v => v.id === boatId)
-      const gl = s.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
-      return { label, wallTime: Date.now(), turn: w.turn, time: w.time, level: w.outcome.level,
-        renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER), contextLost: gl.isContextLost(),
-        counts: { units: w.units.length, vehicles: w.vehicles.length, buildings: w.buildings.length, secondary: w.secondaryEffects.slots.length },
-        paused: w.paused, inputMask: w.inputMask, selected: [...w.selected], status: w.status,
-        orders: structuredClone(w.buildingOrders), randomState: w.randomState,
-        boat: boat && { id: boat.id, x: boat.x, y: boat.y, active: boat.active, passengers: [...boat.passengers] },
-        party: party.map(id => { const u = w.units.find(u => u.id === id); return u && { id, kind: u.kind, hp: u.hp, x: u.x, z: u.z, vehicle: u.native?.vehicle, state: u.native?.state, flags2: u.native?.flags2, flags4: u.native?.flags4, path: u.path, work: u.work, commands: u.native?.commands, commandStatus: u.native?.commandStatus } }),
-        panels: [...document.querySelectorAll('.vehicle-panel')].map(e => ({ text: e.textContent, visible: !!e.getClientRects().length })) }
-    }, { label, party, boatId })
-    if (label.endsWith('-strip-paused') || label.endsWith(' cleared') || label.endsWith(' selected')) {
-      row.selectionState = await page.evaluate(readMission10Selection)
-      assert.equal(row.selectionState.turn, row.turn)
-      assert.equal(row.selectionState.paused, true)
-      assert.deepEqual(row.selectionState.selected, row.selected)
-    }
+    const row = await readMission10Observation(page, { label, party, boatId })
     report.observations.push(row); save(); return row
   }
   const input = createInput({ page, signal, report, save, originalShamanId: 63, deadlineAt })
@@ -144,7 +131,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
       if (!store) throw Error('Store unavailable before public Load')
       const before = store.getWorld(); window.boatLoadBoundary = null; window.boatLoadError = null
       const unsubscribe = store.subscribe(() => { const world = store.getWorld(); if (world === before) return
-        try { window.boatLoadBoundary = { version: 1, world: structuredClone(world) } } catch (e) { window.boatLoadError = String(e) } finally { unsubscribe() }
+        try { window.boatLoadBoundary = { version: 3, world: structuredClone(world) } } catch (e) { window.boatLoadError = String(e) } finally { unsubscribe() }
       })
     })
     report.actions.push({ label: 'public Load Game', phase: 'before', at: new Date().toISOString() }); save()

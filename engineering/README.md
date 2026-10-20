@@ -12,7 +12,9 @@ coverage. Historical research and acceptance records remain evidence, not live q
    Prefer playable impact and unblock value, then evidence, effort, and risk. An issue
    names the live entry point, acceptance, owner, and concrete dependencies.
 2. **Isolate the writer.** Record the base/head and dirty status. Use one writer per
-   branch/worktree, with up to six workers coordinated by the parent. Commit coherent
+   branch/worktree. The current usage budget is four active workers across the whole
+   delegation tree, including nested workers and reviewers, plus the coordinating
+   parent (five active agents total), not a platform ceiling. Commit coherent
    checkpoints as Johann Berger <johann@objekt.stream>. Never overwrite another
    worker's work or push directly to main. Parent integration may use an explicitly
    supplied reviewed base; disclose dependencies in the PR.
@@ -193,6 +195,11 @@ updates require appropriate proof and review, committed with generated history.
 Leave `.openai/hosting.json` untouched.
 
 ## Verification
+
+For save changes, follow [the development save contract](../README.md#development-save-contract).
+Verify current-format durability, new-game/restart/save/load continuation, malformed
+input checks, and clear incompatible-save rejection without stored-data changes.
+Classic/native fixtures are scoped research evidence, not an old-save obligation.
 
 Standard code-change gates are `npm run check` and `npm run build`, plus affected
 native/browser/performance checks. Maintained TypeScript also follows

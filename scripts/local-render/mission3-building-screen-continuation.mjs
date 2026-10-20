@@ -172,7 +172,7 @@ export function readMission3Continuation(root, receipt) {
     birth: acquisition.epochs.fresh.birth,
     activeSave: acquisition.activeSave,
     validateSaved(committed) {
-      assert.equal(committed?.version, 1)
+      assert.equal(committed?.version, 3, 'Current checkpoint required; obsolete profile saves are not migrated')
       assertMission3SerializedCheckpoint(
         committed.snapshot,
         acquisition.activeSave.boundary.snapshot

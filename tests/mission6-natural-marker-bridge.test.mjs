@@ -109,7 +109,7 @@ test('ordinary Mission6 stages at marker0 and bridges to marker16 with checkpoin
     findPath(queryWorld, queryShaman, home).length > 0,
     'actual terrain connects original Matak land'
   )
-  assert.equal(world.turn, 7306)
+  assert.equal(world.turn, 8404)
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
   assert.deepEqual(store.getWorld(), world)

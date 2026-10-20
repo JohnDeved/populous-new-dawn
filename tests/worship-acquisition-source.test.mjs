@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, createGift, tick } from '../app/model.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import { ordinaryWorshipSource } from '../app/worship-acquisition-source.ts'
 
 test('authored ordinary sources exclude the spell-valued Vault and other missions', () => {
@@ -43,11 +44,11 @@ test('legacy head identity may recover eligibility but an existing gift cannot',
   gift.phase = 0
   delete head.ordinarySpellReward
   delete head.mode
-  const restored = migrateCheckpoint(structuredClone(w)),
+  const restored = normalizeHistoricalFixture(structuredClone(w)),
     restoredHead = restored.shrines.find(s => s.id === head.id)
   assert.deepEqual(restoredHead.ordinarySpellReward, expected)
   assert.equal(restored.gifts.find(g => g.id === gift.id).ordinaryWorship, undefined)
   const once = structuredClone(restored)
-  migrateCheckpoint(restored)
+  normalizeHistoricalFixture(restored)
   assert.deepEqual(restored, once)
 })

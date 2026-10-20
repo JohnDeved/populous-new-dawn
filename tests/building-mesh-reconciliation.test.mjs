@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 // Actual completed-building frame/factory/Scene transforms and resource cleanup.
 // Controlled populations/transitions; fullHutScene retains actual command8 admission.
 // No ordinary browser gameplay, native raster or hardware timing claim.
@@ -156,7 +157,7 @@ test('completed stage and resource signatures retain replacement, health materia
     // Accepted missing secondary-history legacy default, not invented native saves.
     const legacy = structuredClone(restored)
     delete legacy.secondaryEffects
-    assert.ok(api.migrateCheckpoint(legacy))
+    assert.ok(normalizeHistoricalFixture(legacy))
     fixture.scene.world = legacy
     const legacyBefore = structuredClone(legacy)
     fixture.render()

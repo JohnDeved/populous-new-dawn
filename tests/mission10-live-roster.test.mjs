@@ -18,7 +18,8 @@ const captured = { point: [8920, 4893], nearby: false, boat: [5,111,63,112,114,1
 const raw = q => ({ paused: true, selected: [], point: { x: q.point[0], y: q.point[1] }, nearby: q.nearby,
   vehicles: [{ id: 62, active: true, model: 1, passengerCount: q.boat[0], passengers: q.boat.slice(1) }],
   people: q.people.map(([id, model, x, y, priority, flags4, vehicle]) => ({ id, model, x, y,
-    assignment: priority << 12, flags4, vehicle, team: 'blue', hp: 50, owners: {} })) })
+    assignment: priority << 12, flags4, vehicle, team: 'blue', hp: 50, owners: { native: null, flight: null, fight: null, entry: null, builder: null, route: null },
+      ownerAliases: { native: null, flight: null, fight: null, entry: null, builder: null, route: null } })) })
 test('observed nineteen-person roster retains all rows and every eligible extra in exact selections', () => {
   assert.deepEqual(mission10SelectionQuery(raw(captured)), captured)
   assert.deepEqual(decodeMission10Query(encodeMission10Query(captured)), captured)
@@ -55,7 +56,7 @@ test('trusted raw admission rejects omitted extras, changed observations, unknow
   for (const mutate of [
     r => r.selection[0].query.people.pop(), r => r.selection[0].checks[5].selected.pop(),
     r => r.selection[0].checks[0].selected.push(999), r => r.observations.pop(),
-    r => r.observations.push(structuredClone(r.observations[0])), r => { r.observations[1].paused = false },
+    r => r.observations.push(structuredClone(r.observations.find(o => o.label === 'boarded-strip-paused'))), r => { r.observations[1].paused = false },
     r => { r.observations[2].orders.changed = true }, r => { r.observations[2].selectionState.people.at(-1).owners = { native: { flags4: 1 } } },
     r => { r.selection[0].checks[0].preserved = false }, r => { r.observations[2].selectionState.people.at(-1).team = 'red' },
   ]) { const bad = structuredClone(good); mutate(bad); assert.throws(() => validateMission10SelectionEvidence(bad, ['boarded'])) }
