@@ -38,6 +38,7 @@ import { commandMarkerPoint } from './command-context.ts'
 import { dragCamera, cameraCommand, cameraEdgeButtons, mergeCameraInput } from './camera-input.ts'
 import { beginGlobeDrag } from './globe.ts'
 import { cameraBookmark } from './scene-camera-runtime.ts'
+import { withSimulationCamera } from './tribe-camera.ts'
 import {
   dragEndpoint,
   dragCommand,
@@ -306,8 +307,8 @@ export function pointerMove(scene: GameScene, event: PointerEvent) {
   ) {
     const dx = event.clientX - scene.dragLast.x,
       dy = event.clientY - scene.dragLast.y
+    scene.captureCamera(true)
     scene.cameraMotion.active = 0
-    scene.captureCamera()
     if (event.buttons === 4) {
       scene.world.mode = null
       scene.tooltip.draw = 0
@@ -318,9 +319,12 @@ export function pointerMove(scene: GameScene, event: PointerEvent) {
         x: Math.trunc(event.clientX - rect.left),
         y: Math.trunc(event.clientY - rect.top),
       }
-    } else dragCamera(scene.cameraPosition, scene.cameraVelocity, event.buttons === 2, dx, dy)
-    scene.viewPoint = browserPosition(scene.cameraPosition)
-    scene.cameraBearing = (scene.cameraPosition.angle * Math.PI) / 1024
+    } else
+      withSimulationCamera(scene.world.cameras, () => {
+        dragCamera(scene.cameraPosition, scene.cameraVelocity, event.buttons === 2, dx, dy)
+        scene.viewPoint = browserPosition(scene.cameraPosition)
+        scene.cameraBearing = (scene.cameraPosition.angle * Math.PI) / 1024
+      })
     scene.dragLast = { x: event.clientX, y: event.clientY }
     scene.updateView()
   }

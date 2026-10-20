@@ -452,6 +452,7 @@ import {
 import rules from './original-rules.json' with { type: 'json' }
 import type { UnitKind } from './unit-kinds.ts'
 import { stepArmageddon } from './armageddon.ts'
+import { withSimulationCamera, requestCameraShake } from './tribe-camera.ts'
 
 export interface TurnObserver {
   beforeTurn?: () => void
@@ -467,9 +468,11 @@ export function tick(w: World, dt: number, observer?: TurnObserver, metrics?: { 
   while (w.pendingTime + 1e-9 >= 1 / TURNS_PER_SECOND) {
     w.pendingTime = Math.max(0, w.pendingTime - 1 / TURNS_PER_SECOND)
     if (w.pendingTime < 1e-9) w.pendingTime = 0
-    observer?.beforeTurn?.()
-    stepTurn(w, metrics)
-    observer?.afterTurn?.()
+    withSimulationCamera(w.cameras, () => {
+      observer?.beforeTurn?.()
+      stepTurn(w, metrics)
+      observer?.afterTurn?.()
+    })
   }
 }
 function stepTurn(w: World, metrics?: { steps: number }) {
@@ -720,7 +723,7 @@ function stepTurn(w: World, metrics?: { steps: number }) {
     if (fx.earthquake) {
       const alive = stepEarthquake(w.land, fx.earthquake, w, {
         sound: cue => sound(w, cue, fx),
-        shake: () => {},
+        shake: amount => requestCameraShake(w.cameras, amount),
         buildings: cell =>
           w.buildings.filter(b => {
             if (b.hp <= 0) return false
@@ -760,7 +763,7 @@ function stepTurn(w: World, metrics?: { steps: number }) {
       // rock, fireball, lava-gloop and camera-shake controllers are recovered.
       const alive = stepVolcano(w.land, fx.volcano, w, {
         sound: cue => sound(w, cue, fx),
-        shake: () => {},
+        shake: amount => requestCameraShake(w.cameras, amount),
         people: cell => w.units.filter(u => u.hp > 0 && u.inside === null && cellOf(u) === cell),
         exempt: u => u.kind === 'shaman' && u.team === fx.team,
         disturb: (u, tribe) => disturbLiveVolcanoPerson(w, u, tribe),

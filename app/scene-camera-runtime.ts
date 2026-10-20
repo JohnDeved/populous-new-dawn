@@ -30,6 +30,7 @@ import {
 import { stepGlobeMotion } from './globe.ts'
 import { teamForTribe, type TribeTeam } from './world-types.ts'
 import { missionData } from './mission-data.ts'
+import { displayedTribeCamera, withSimulationCamera } from './tribe-camera.ts'
 
 export function makeSky(scene: GameScene) {
   const environment = skyEnvironment(missionData(scene.world.outcome.level).level.landscapeBank)
@@ -219,50 +220,90 @@ export function currentPreset(scene: GameScene) {
   )
 }
 
-export function captureCamera(scene: GameScene) {
-  // A changed input, mouse drag or focus request starts at the displayed view.
-  if (scene.cameraPreviewButtons !== null) {
-    scene.cameraTime = 0
-    Object.assign(scene.skyOwned, scene.skyMotion)
-    scene.skyRemainder = 0
-  }
+// Timestamped input can rebase the fractional navigation sample. Compute it
+// from owned state; a displayed renderer pose is never an authority source.
+export function captureCamera(scene: GameScene, interruptMotion = false) {
+  const c = scene.world.cameras
+  if (c.phase !== 'idle') return
+  withSimulationCamera(c, () => {
+    const sampled = sampleCamera(scene, c.input.buttons, interruptMotion)
+    if (sampled)
+      Object.assign(scene.cameraPosition, {
+        x: Math.round(sampled.x) & 65535,
+        y: Math.round(sampled.y) & 65535,
+        angle: Math.round(sampled.angle) & 2047,
+      })
+    if (interruptMotion) scene.cameraMotion.active = 0
+    scene.commitSky(scene.cameraPosition, 0)
+  })
+  // An input starts a new navigation segment even when the old buttons were
+  // zero. Camera, focus, animation and independent zoom deadlines do not move.
+  c.navigationTime = 0
   scene.cameraPreviewButtons = null
-  scene.cameraPosition = {
-    x: Math.round((scene.viewPoint.x + 8) * 256) & 65535,
-    y: Math.round((-scene.viewPoint.z - 8) * 256) & 65535,
-    angle: Math.round((scene.cameraBearing * 1024) / Math.PI) & 2047,
-  }
 }
 
 export function skipIntroduction(scene: GameScene) {
-  interruptFlyby(scene.world.flyby, scene.flybyCamera)
+  scene.advanceInputTime?.()
+  withSimulationCamera(scene.world.cameras, () =>
+    interruptFlyby(scene.world.flyby, scene.flybyCamera)
+  )
   if (!(scene.world.flyby.flags & 1)) scene.world.inputMask &= ~64
   scene.onChange()
 }
 
-export function updateCameraMotion(scene: GameScene, dt: number) {
+// Input belongs to the pre-simulation phase. Result/focus/heading controllers
+// belong to the post phase, with one shared mutable tribe pose between them.
+export function preCameraVisit(scene: GameScene) {
+  const w = scene.world,
+    buttons = w.cameras.input.buttons,
+    fraction = Math.min(1, w.cameras.navigationTime * 24)
+  w.cameras.navigationTime = 0
+  if (w.inputMask || scene.overviewStage) return
+  if (buttons || Object.values(scene.cameraVelocity).some(Boolean)) {
+    if (buttons & 15) {
+      scene.cameraMotion.active = 0
+      w.mode = null
+      scene.tooltip.draw = 0
+    }
+    const angle = scene.cameraPosition.angle
+    if (scene.overviewActive) scene.cameraPosition.angle = 0
+    const next = { ...scene.cameraPosition }
+    stepCameraInput(next, scene.cameraVelocity, buttons, 24)
+    const moved = interpolateCamera(scene.cameraPosition, next, fraction)
+    Object.assign(scene.cameraPosition, {
+      x: Math.round(moved.x) & 65535,
+      y: Math.round(moved.y) & 65535,
+      angle: Math.round(moved.angle) & 2047,
+    })
+    if (scene.overviewActive) {
+      scene.cameraPosition.angle = angle
+      if (buttons & 15) {
+        const drag = scene.globeMotion
+        drag.position.x += ((scene.cameraPosition.x - drag.position.x) << 16) >> 16
+        drag.position.y += ((scene.cameraPosition.y - drag.position.y) << 16) >> 16
+        drag.velocity = { x: 0, y: 0 }
+        scene.globe.moveStars(scene.cameraPosition)
+      }
+    }
+  }
+  if (scene.overviewActive && !scene.resultCamera.active) {
+    const drag = scene.globeMotion
+    if (drag.dragging || drag.velocity.x || drag.velocity.y) {
+      const delta = stepGlobeMotion(drag, scene.globePointer, scene.container.clientHeight)
+      scene.cameraPosition.x = drag.position.x & 65535
+      scene.cameraPosition.y = drag.position.y & 65535
+      scene.globe.moveStars(scene.cameraPosition, delta)
+    }
+  }
+}
+
+export function postCameraVisit(scene: GameScene) {
   const w = scene.world,
     s = scene.resultCamera,
     motion = scene.cameraMotion
-  let buttons = scene.navigationButtons()
-  if (scene.cameraPreviewButtons !== null) {
-    if (buttons !== scene.cameraPreviewButtons || scene.resultRequest !== w.outcome.cameraRequest)
-      scene.captureCamera()
-    else {
-      // Do not feed a rendered fraction back into the next native step.
-      scene.viewPoint = browserPosition(scene.cameraPosition)
-      scene.cameraBearing = (scene.cameraPosition.angle * Math.PI) / 1024
-      scene.cameraPreviewButtons = null
-    }
-  }
   if (scene.resultRequest !== w.outcome.cameraRequest) {
     scene.resultRequest = w.outcome.cameraRequest
-    if (!s.active) {
-      scene.cancelOverview()
-      scene.captureCamera()
-    }
-    // ponytail: first-mission tribe origins and no replay file mode; the
-    // shared native tribe/camera store replaces this presentation adapter.
+    if (!s.active) scene.cancelOverview()
     beginResultCamera(
       s,
       w.manaWorld.gameFlags,
@@ -271,141 +312,79 @@ export function updateCameraMotion(scene: GameScene, dt: number) {
       nativePosition(w, campaignPosition(w, teamForTribe(w.outcome.cameraTribe ?? 0) as TribeTeam))
     )
   }
-  // Ordinary zoom has the same native cadence, but keeps its own remainder:
-  // capturing a fractional pan/turn must not restart the zoom's timer. World
-  // view and result-camera choreography retain the existing shared ordering.
-  const zoomTransition =
-    !scene.overviewActive && !scene.overviewStage && !scene.viewTransition?.angle
-      ? scene.viewTransition
-      : null
-  const zoomDue = () =>
-    zoomTransition !== null &&
-    zoomTransition === scene.viewTransition &&
-    zoomTransition.time + 1e-9 >= 1 / 24
-  let active = !!(s.active || motion.active)
-  if (!active) scene.captureCamera()
-  if (buttons & 15) {
-    motion.active = 0
-    w.mode = null
-    scene.tooltip.draw = 0
-  }
-  scene.skyRemainder += dt
-  // Use the existing 24 Hz presentation convention until draw_main's frame
-  // throttling and its shared camera/flyby ordering are fully integrated.
-  if (!w.paused || !s.active) {
-    scene.cameraTime += dt
-    if (zoomTransition) zoomTransition.time += dt
-    while (scene.cameraTime + 1e-9 >= 1 / 24 || zoomDue()) {
-      if (zoomDue() && zoomTransition!.time + 1e-9 >= scene.cameraTime) {
-        // Process the earlier boundary first after a navigation capture has
-        // separated the two remainders. Coincident ticks keep zoom-before-input.
-        const beforeCamera = zoomTransition!.time > scene.cameraTime + 1e-9
-        scene.stepViewChange()
-        zoomTransition!.time = Math.max(0, zoomTransition!.time - 1 / 24)
-        if (beforeCamera) continue
-      } else if (!zoomTransition) scene.stepViewChange()
-      buttons = scene.navigationButtons()
-      if (!w.inputMask && !scene.overviewStage && !document.querySelector('dialog[open]')) {
-        if (buttons || Object.values(scene.cameraVelocity).some(Boolean)) {
-          if (buttons & 15) {
-            motion.active = 0
-            w.mode = null
-            scene.tooltip.draw = 0
-          }
-          // Native momentum-off mode. The original settings menu and
-          // frame-rate/input scaling lifecycle are still presentation adapters.
-          const angle = scene.cameraPosition.angle
-          if (scene.overviewActive) scene.cameraPosition.angle = 0
-          stepCameraInput(scene.cameraPosition, scene.cameraVelocity, buttons, 24)
-          if (scene.overviewActive) {
-            scene.cameraPosition.angle = angle
-            if (buttons & 15) {
-              const drag = scene.globeMotion
-              drag.position.x += ((scene.cameraPosition.x - drag.position.x) << 16) >> 16
-              drag.position.y += ((scene.cameraPosition.y - drag.position.y) << 16) >> 16
-              drag.velocity = { x: 0, y: 0 }
-              scene.globe.moveStars(scene.cameraPosition)
-            }
-          }
-          active = true
-        }
-        if (scene.overviewActive && !s.active) {
-          const drag = scene.globeMotion
-          if (drag.dragging || drag.velocity.x || drag.velocity.y) {
-            const delta = stepGlobeMotion(drag, scene.globePointer, scene.container.clientHeight)
-            scene.cameraPosition.x = drag.position.x & 65535
-            scene.cameraPosition.y = drag.position.y & 65535
-            scene.globe.moveStars(scene.cameraPosition, delta)
-            active = true
-          }
-        }
+  if (scene.overviewActive || scene.overviewStage || scene.viewTransition?.angle)
+    scene.stepViewChange()
+  const context = { skyCounter: w.outcome.skyCounter, newTurn: scene.resultTurn !== w.turn }
+  scene.resultTurn = w.turn
+  stepResultCamera(s, motion, scene.cameraPosition, context, {
+    lock: () => {
+      w.inputMask |= 4
+      scene.keys.clear()
+      w.cameras.input.buttons = 0
+    },
+    unlock: () => {
+      w.inputMask &= ~4
+    },
+    clearInteraction: () => {
+      if (w.flyby.flags & 1) {
+        w.flyby.flags &= ~1
+        scene.flybyCamera.zoom = 0
+        scene.viewZoom = 0
+        w.inputMask &= ~64
+        scene.wasFlying = false
       }
-      const context = { skyCounter: w.outcome.skyCounter, newTurn: scene.resultTurn !== w.turn }
-      scene.resultTurn = w.turn
-      stepResultCamera(s, motion, scene.cameraPosition, context, {
-        lock: () => {
-          w.inputMask |= 4
-          scene.keys.clear()
-        },
-        unlock: () => {
-          w.inputMask &= ~4
-        },
-        clearInteraction: () => {
-          if (w.flyby.flags & 1) {
-            w.flyby.flags &= ~1
-            scene.flybyCamera.zoom = 0
-            scene.viewZoom = 0
-            w.inputMask &= ~64
-            scene.wasFlying = false
-          }
-          w.mode = null
-          scene.tooltip.draw = 0
-        },
-        sound: () => sound(w, 0xa2, browserPosition(scene.cameraPosition)),
-      })
-      w.outcome.skyCounter = context.skyCounter
-      stepCameraMotion(motion, scene.cameraPosition, scene.overviewActive ? 2 : 0, {
-        rotate: () => {},
-        globe: () => {},
-      })
-      scene.cameraTime = Math.max(0, scene.cameraTime - 1 / 24)
-      if (!(w.flyby.flags & 1)) scene.commitSky(scene.cameraPosition, scene.cameraTime)
-    }
-  }
+      w.mode = null
+      scene.tooltip.draw = 0
+    },
+    sound: () => sound(w, 0xa2, browserPosition(scene.cameraPosition)),
+  })
+  w.outcome.skyCounter = context.skyCounter
+  const motionOwned = !!(s.active || motion.active)
+  stepCameraMotion(motion, scene.cameraPosition, scene.overviewActive ? 2 : 0, {
+    rotate: () => {},
+    globe: () => {},
+  })
   w.outcome.cameraPlaying = !!s.active
-  if (active) {
-    if (s.active) {
-      scene.overviewActive = false
-    }
-    scene.viewPoint = browserPosition(scene.cameraPosition)
-    scene.cameraBearing = (scene.cameraPosition.angle * Math.PI) / 1024
-  }
-  if (scene.previewCamera(buttons)) active = true
-  if (dt > 0 && previewGroundZoom(scene)) active = true
-  if (active) scene.updateView()
-  return active
+  if (s.active) scene.overviewActive = false
+  if (!motionOwned && !w.paused) updateFlyby(scene, 1 / 24)
+  scene.commitSky(scene.cameraPosition, 0)
 }
 
-export function previewCamera(scene: GameScene, buttons: number) {
+function sampleCamera(scene: GameScene, buttons: number, includeMotion = true) {
   if (
-    (!buttons && !scene.cameraMotion.active) ||
-    buttons !== scene.navigationButtons() ||
-    scene.cameraTime <= 1e-9 ||
+    (!buttons && !(includeMotion && scene.cameraMotion.active)) ||
+    scene.world.inputMask ||
     scene.resultCamera.active ||
     scene.overviewActive ||
     scene.overviewStage ||
     scene.viewTransition?.angle ||
     scene.world.flyby.flags & 1
   )
-    return false
-  // Preview one native step without advancing its state or side effects.
-  // The focus controller replaces schedules but does not mutate their rows,
-  // so a shallow copy is sufficient; no per-frame deep clone is needed.
-  const next = { ...scene.cameraPosition }
+    return null
+  const current = displayedTribeCamera(scene.world.cameras, scene.world.manaWorld.playerTribe),
+    next = { ...current }
   stepCameraInput(next, { ...scene.cameraVelocity }, buttons, 24)
-  stepCameraMotion({ ...scene.cameraMotion }, next, 0, { rotate: () => {}, globe: () => {} })
-  const preview = interpolateCamera(scene.cameraPosition, next, scene.cameraTime * 24)
-  // Keep browserPosition's canonical map copy without truncating the fraction.
+  const navigation = interpolateCamera(
+    current,
+    next,
+    Math.min(1, scene.world.cameras.navigationTime * 24)
+  )
+  if (!includeMotion || !scene.cameraMotion.active) return navigation
+  const focused = { ...navigation }
+  // Completion can write target.angle. Schedules are replaced, but the target
+  // itself must be copied or a render preview changes the next controller turn.
+  stepCameraMotion(
+    { ...scene.cameraMotion, target: { ...scene.cameraMotion.target } },
+    focused,
+    0,
+    { rotate: () => {}, globe: () => {} }
+  )
+  return interpolateCamera(navigation, focused, scene.cameraTime * 24)
+}
+
+export function previewCamera(scene: GameScene, buttons: number) {
+  const preview = sampleCamera(scene, buttons)
+  if (!preview) return false
   const wrap = (n: number) => THREE.MathUtils.euclideanModulo(n + 128, 256) - 128
   scene.viewPoint = { x: wrap(preview.x / 256 - 8), z: -wrap(preview.y / 256 + 8) }
   scene.cameraBearing = (preview.angle * Math.PI) / 1024
@@ -413,53 +392,45 @@ export function previewCamera(scene: GameScene, buttons: number) {
   return true
 }
 
+// Rendering is uncapped. It only samples the committed logical result and a
+// prediction on copies; dt is retained in the public adapter signature.
+export function updateCameraMotion(scene: GameScene, _dt: number) {
+  const c = scene.world.cameras,
+    pose = displayedTribeCamera(c, scene.world.manaWorld.playerTribe)
+  scene.viewPoint = browserPosition(pose)
+  scene.cameraBearing = (pose.angle * Math.PI) / 1024
+  scene.cameraPreviewButtons = null
+  const preview = scene.previewCamera(c.input.buttons),
+    zoom = previewGroundZoom(scene)
+  scene.updateView()
+  return !!(preview || zoom || c.result.active || c.motion.active || c.wasFlying || c.input.buttons)
+}
+
+// One logical post-phase visit, never a second elapsed-time accumulator.
 export function updateFlyby(scene: GameScene, dt: number) {
+  if (dt <= 0 || scene.world.paused) return false
   const state = scene.world.flyby,
     active = !!(state.flags & 1)
   if (active && !scene.wasFlying) {
     scene.cancelOverview()
     scene.viewPreset = 0
     scene.viewTransition = null
-    scene.flybyCamera = {
-      x: Math.round((scene.viewPoint.x + 8) * 256),
-      y: Math.round((-scene.viewPoint.z - 8) * 256),
-      // 0x448ee0/0x449320 retain the fresh tribe camera through all six warmup frames.
-      angle: scene.levelStartCameraSeeded
-        ? Math.round((scene.cameraBearing * 1024) / Math.PI) & 2047
-        : 0,
-      zoom: 0,
-    }
+    scene.flybyCamera.zoom = 0
     scene.levelStartCameraSeeded = false
-    scene.flybyTime = 0
     scene.keys.clear()
+    scene.world.cameras.input.buttons = 0
   }
-  // ponytail: a 24 Hz presentation clock drives the recovered native timeline;
-  // original frame throttling remains unported.
-  if (!scene.world.paused) {
-    scene.flybyTime += dt
-    while (scene.flybyTime + 1e-9 >= 1 / 24) {
-      for (const event of stepFlyby(state, scene.flybyCamera, 24)) {
-        if (event.kind === 5)
-          scene.acquireForcedTooltip(
-            forcedTooltipObject(scene.world, event.flags, event.value),
-            event.duration
-          )
-      }
-      // One composed compatibility visit per existing tick. Catch-up visits use
-      // the actual outer RAF observation time, never invented earlier timestamps.
-      scene.updateTooltipController(scene.previous ?? performance.now())
-      scene.flybyTime = Math.max(0, scene.flybyTime - 1 / 24)
-      if (active) scene.commitSky(scene.flybyCamera, scene.flybyTime)
-    }
+  for (const event of stepFlyby(state, scene.flybyCamera, 24)) {
+    if (event.kind === 5)
+      scene.acquireForcedTooltip(
+        forcedTooltipObject(scene.world, event.flags, event.value),
+        event.duration
+      )
   }
+  scene.updateTooltipController(scene.previous ?? performance.now())
   if (!active && !scene.wasFlying) return false
-  const c = scene.flybyCamera
-  const p = { x: c.x / 256 - 8, z: -c.y / 256 - 8 }
   scene.overviewActive = false
-  scene.cameraBearing = (c.angle * Math.PI) / 1024
-  scene.viewZoom = c.zoom
-  scene.viewPoint = p
-  scene.updateView()
+  scene.viewZoom = scene.flybyCamera.zoom
   scene.wasFlying = !!(state.flags & 1)
   if (!scene.wasFlying) {
     scene.world.inputMask &= ~64
@@ -471,53 +442,66 @@ export function updateFlyby(scene: GameScene, dt: number) {
 export function cancelOverview(scene: GameScene) {
   if (!scene.overviewActive && !scene.overviewStage) return
   scene.cameraBearing = scene.overviewReturn.bearing
+  scene.cameraPosition.angle = Math.round((scene.overviewReturn.bearing * 1024) / Math.PI) & 2047
   scene.viewPreset = scene.overviewReturn.preset
   scene.viewTransition = null
   scene.overviewStage = null
   scene.overviewActive = false
+  scene.world.drawMode = 0
   scene.globeMorph.active = false
 }
 
 export function focus(scene: GameScene, p: Point = HOME, { animate = false } = {}) {
+  scene.advanceInputTime()
   if (animate && scene.world.inputMask) return
-  scene.cancelOverview()
-  scene.captureCamera()
-  requestCameraFocus(
-    scene.cameraMotion,
-    scene.cameraPosition,
-    {
-      ...nativePosition(scene.world, p),
-      angle: -1,
-    },
-    !animate
-  )
-  scene.world.mode = null
-  scene.tooltip.draw = 0
-  if (!animate) {
-    scene.viewPoint = browserPosition(scene.cameraPosition)
-    scene.updateView()
-  }
+  scene.captureCamera(true)
+  withSimulationCamera(scene.world.cameras, () => {
+    scene.cancelOverview()
+    requestCameraFocus(
+      scene.cameraMotion,
+      scene.cameraPosition,
+      { ...nativePosition(scene.world, p), angle: -1 },
+      !animate
+    )
+    scene.world.mode = null
+    scene.tooltip.draw = 0
+    if (!animate) {
+      scene.viewPoint = browserPosition(scene.cameraPosition)
+      scene.cameraBearing = (scene.cameraPosition.angle * Math.PI) / 1024
+      scene.updateView()
+    }
+  })
 }
 
 export function cameraBookmark(scene: GameScene, slot: number, set: boolean) {
+  scene.advanceInputTime()
   if (set) {
-    scene.captureCamera()
-    scene.cameraBookmarks[slot] = { ...scene.cameraPosition }
+    // Reading a bookmark must not commit a predicted focus step twice.
+    const sample =
+      sampleCamera(scene, scene.world.cameras.input.buttons) ??
+      displayedTribeCamera(scene.world.cameras, scene.world.manaWorld.playerTribe)
+    scene.cameraBookmarks[slot] = {
+      x: Math.round(sample.x) & 65535,
+      y: Math.round(sample.y) & 65535,
+      angle: Math.round(sample.angle) & 2047,
+    }
     scene.onSound(221)
     return
   }
   const target = scene.cameraBookmarks[slot]
   if (!target) return
-  scene.cancelOverview()
-  scene.captureCamera()
-  scene.onSound(222)
-  requestCameraFocus(scene.cameraMotion, scene.cameraPosition, {
-    x: (target.x & 0xfe00) | 0x100,
-    y: (target.y & 0xfe00) | 0x100,
-    angle: target.angle,
+  scene.captureCamera(true)
+  withSimulationCamera(scene.world.cameras, () => {
+    scene.cancelOverview()
+    scene.onSound(222)
+    requestCameraFocus(scene.cameraMotion, scene.cameraPosition, {
+      x: (target.x & 0xfe00) | 0x100,
+      y: (target.y & 0xfe00) | 0x100,
+      angle: target.angle,
+    })
+    scene.world.mode = null
+    scene.tooltip.draw = 0
   })
-  scene.world.mode = null
-  scene.tooltip.draw = 0
 }
 
 // Only ordinary ground zoom is previewed; globe/heading choreography is not
@@ -602,6 +586,7 @@ export function stepViewChange(scene: GameScene) {
 
 export function startGroundView(scene: GameScene, preset: number, bearing?: number) {
   const previousTime = scene.viewTransition?.time
+  if (previewGroundZoom(scene)) scene.updateView()
   if (scene.cameraPreviewButtons !== null) scene.captureCamera()
   const frames = viewTransitionFrames(24),
     time = previousTime ?? scene.cameraTime
@@ -624,17 +609,24 @@ export function startGroundView(scene: GameScene, preset: number, bearing?: numb
 }
 
 export function overview(scene: GameScene) {
+  scene.advanceInputTime()
   if (scene.world.inputMask || scene.overviewStage) return
   if (scene.overviewActive) {
     scene.leaveOverview(scene.overviewReturn.preset)
     return
   }
-  scene.captureCamera()
-  scene.overviewReturn = { preset: scene.viewPreset, bearing: scene.cameraBearing }
+  scene.captureCamera(true)
+  scene.overviewReturn = {
+    preset: scene.viewPreset,
+    bearing:
+      (displayedTribeCamera(scene.world.cameras, scene.world.manaWorld.playerTribe).angle *
+        Math.PI) /
+      1024,
+  }
   scene.overviewStage = 'enter'
   scene.globeMotion.dragging = false
   scene.globeMotion.velocity = { x: 0, y: 0 }
-  scene.globeMotion.position = { ...scene.view.center }
+  scene.globeMotion.position = { x: scene.cameraPosition.x, y: scene.cameraPosition.y }
   scene.world.mode = null
   scene.cameraMotion.active = 0
   scene.startGroundView(4, 0)
@@ -650,6 +642,7 @@ export function leaveOverview(scene: GameScene, preset: number) {
 }
 
 export function zoom(scene: GameScene, inward: boolean) {
+  scene.advanceInputTime()
   if (scene.world.inputMask || scene.overviewStage) return
   const preset = zoomPreset(scene.overviewActive ? 4 : scene.viewPreset, inward)
   if (preset === 4) {

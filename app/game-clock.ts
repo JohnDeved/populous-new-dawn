@@ -3,12 +3,19 @@ import { animateLiveObjects } from './live-people.ts'
 import { stepMessages } from './messages.ts'
 import { animateStoneHeads } from './stone-head-animation.ts'
 import { worshipDeadline } from './worship-acquisition-runtime.ts'
+import { beginCameraVisit, applyCameraShake, endCameraVisit } from './tribe-camera.ts'
 
 export interface GameClock extends TurnObserver {
   animationTime: number
   animationFrame: number
   worshipVisit?: () => void
   presentationHidden?: () => boolean
+  camera?: {
+    pre: () => void
+    post: () => void
+    zoom: () => void
+    elapsed: (seconds: number) => void
+  }
 }
 
 interface TurnPhase {
@@ -65,11 +72,19 @@ export function advanceGame(
 ) {
   if (!Number.isFinite(seconds) || seconds < 0) throw new RangeError('Invalid elapsed game time')
   const presentation = clock.worshipVisit && !clock.presentationHidden?.()
-  if (w.paused && !presentation) return
+  if (w.paused && !presentation && !clock.camera) return
   const interval = 1 / 24,
     phase = turnPhase(clock)
   while (seconds > 0) {
     const active = !w.paused,
+      camera = !!clock.camera && (!w.paused || !w.cameras.result.active),
+      zoom =
+        camera &&
+        !w.cameras.overviewActive &&
+        !w.cameras.overviewStage &&
+        !w.cameras.viewTransition?.angle
+          ? w.cameras.viewTransition
+          : null,
       ui = w.worshipAcquisition.clock,
       untilUi = presentation ? Math.max(0, (ui.nextVisit - ui.elapsed) / 1000) : Infinity,
       untilTurn =
@@ -79,13 +94,48 @@ export function advanceGame(
       elapsed = Math.min(
         seconds,
         active ? interval - clock.animationTime : Infinity,
+        camera ? Math.max(0, interval - w.cameras.time) : Infinity,
+        zoom ? Math.max(0, interval - zoom.time) : Infinity,
         untilUi,
         untilTurn
       )
     const previousTurn = w.turn
+    if (clock.camera) {
+      w.cameras.elapsed += elapsed
+      clock.camera.elapsed(elapsed)
+      if (camera) {
+        w.cameras.time += elapsed
+        w.cameras.navigationTime += elapsed
+        if (zoom) zoom.time += elapsed
+      }
+    }
+    const cameraDue = camera && w.cameras.time + 1e-9 >= interval,
+      zoomDue = zoom && zoom.time + 1e-9 >= interval
     try {
+      if (cameraDue) {
+        beginCameraVisit(w.cameras)
+        clock.camera!.pre()
+        applyCameraShake(w.cameras, w.manaWorld.playerTribe, w.drawMode, w.randomState)
+      }
       if (active) tick(w, elapsed * w.speed, phase.observer, metrics)
+      // Camera post-work sees all synchronous simulation writes. Ordinary zoom
+      // retains its own deadline when timestamped input rebases navigation.
+      if (
+        zoomDue &&
+        zoom === w.cameras.viewTransition &&
+        !w.cameras.overviewActive &&
+        !w.cameras.overviewStage &&
+        !zoom!.angle
+      ) {
+        clock.camera!.zoom()
+        zoom!.time = Math.max(0, zoom!.time - interval)
+      }
+      if (cameraDue) {
+        clock.camera!.post()
+        w.cameras.time = Math.max(0, w.cameras.time - interval)
+      }
     } finally {
+      if (w.cameras.phase === 'camera') endCameraVisit(w.cameras, w.manaWorld.playerTribe)
       // A failing beforeTurn/body must not leave a later UI event inside a turn.
       phase.active = false
       phase.callbacks.length = 0

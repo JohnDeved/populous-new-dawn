@@ -13,15 +13,13 @@ import * as THREE from 'three'
 import type { SoundEnvironment } from './ambient-sound.ts'
 import { orderSound, playWorldSounds, soundEnvironment } from './audio'
 import { renderBuildingPanels } from './building-panels.ts'
-import { createCameraMotion, createResultCamera } from './camera-motion.ts'
-import { type FlybyCamera } from './flyby.ts'
 import {
   createPointerFrameMetrics,
   resetPointerFrameMetrics,
   type PointerFrameMetrics,
 } from './pointer-frame-metrics.ts'
 import { FpsGraph } from './fps-graph.ts'
-import { levelStartCamera } from './level-start.ts'
+import { displayedTribeCamera, flybyCamera } from './tribe-camera.ts'
 import { advanceGame } from './game-clock.ts'
 import { FollowerNearbyMode } from './follower-nearby.ts'
 import { bindTrainingPanelRequests } from './training-panel-requests.ts'
@@ -70,16 +68,15 @@ import {
 import { UnitMotion } from './unit-motion.ts'
 
 import { type BuildingShapePose } from './building-shapes.ts'
-import { type GlobeMorph } from './camera-view.ts'
 import { SelectionOverlay } from './drag-overlay.ts'
 import { GlobeRenderer } from './globe-renderer.ts'
-import { type GlobeMotion } from './globe.ts'
 import { type Lightning } from './lightning.ts'
-import { type CameraConfig } from './projection.ts'
 import { RenderView } from './render-view.ts'
 import {
   cancelOverview,
   captureCamera,
+  preCameraVisit,
+  postCameraVisit,
   commitSky,
   currentPreset,
   focus,
@@ -190,38 +187,61 @@ export class GameScene {
       toneMapped: false,
     })
   )
-  overviewActive = false
-  viewZoom = 0
-  viewPreset = 0
-  viewTransition: {
-    config: CameraConfig
-    remaining: number
-    time: number
-    previewStartTime: number
-    previewFraction: number
-    preview?: CameraConfig
-    angle?: { target: number; increment: number }
-  } | null = null
-  overviewStage: 'enter' | 'exit' | null = null
-  overviewReturn = { preset: 0, bearing: 0 }
-  globeMorph: GlobeMorph = {
-    value: 0,
-    source: 0,
-    target: 0,
-    increment: 0,
-    frame: 0,
-    duration: 6,
-    active: false,
+  get overviewActive() {
+    return this.world.cameras.overviewActive
+  }
+  set overviewActive(value: World['cameras']['overviewActive']) {
+    this.world.cameras.overviewActive = value
+  }
+  get viewZoom() {
+    return this.world.cameras.viewZoom
+  }
+  set viewZoom(value: World['cameras']['viewZoom']) {
+    this.world.cameras.viewZoom = value
+  }
+  get viewPreset() {
+    return this.world.cameras.viewPreset
+  }
+  set viewPreset(value: World['cameras']['viewPreset']) {
+    this.world.cameras.viewPreset = value
+  }
+  get viewTransition() {
+    return this.world.cameras.viewTransition
+  }
+  set viewTransition(value: World['cameras']['viewTransition']) {
+    this.world.cameras.viewTransition = value
+  }
+  get overviewStage() {
+    return this.world.cameras.overviewStage
+  }
+  set overviewStage(value: World['cameras']['overviewStage']) {
+    this.world.cameras.overviewStage = value
+  }
+  get overviewReturn() {
+    return this.world.cameras.overviewReturn
+  }
+  set overviewReturn(value: World['cameras']['overviewReturn']) {
+    this.world.cameras.overviewReturn = value
+  }
+  get globeMorph() {
+    return this.world.cameras.globeMorph
+  }
+  set globeMorph(value: World['cameras']['globeMorph']) {
+    this.world.cameras.globeMorph = value
+  }
+  get globePointer() {
+    return this.world.cameras.globePointer
+  }
+  set globePointer(value: World['cameras']['globePointer']) {
+    this.world.cameras.globePointer = value
+  }
+  get globeMotion() {
+    return this.world.cameras.globeMotion
+  }
+  set globeMotion(value: World['cameras']['globeMotion']) {
+    this.world.cameras.globeMotion = value
   }
   dragLast = { x: 0, y: 0 }
-  globePointer = { x: 0, y: 0 }
-  globeMotion: GlobeMotion = {
-    position: { x: 0, y: 0 },
-    origin: { x: 0, y: 0 },
-    press: { x: 0, y: 0 },
-    velocity: { x: 0, y: 0 },
-    dragging: false,
-  }
   scene = new THREE.Scene()
   camera = new THREE.PerspectiveCamera(38, 1, 0.2, 1000)
   renderer: THREE.WebGLRenderer
@@ -265,20 +285,74 @@ export class GameScene {
   navigationPointer: { x: number; y: number; buttons: number } | null = null
   spellPointer = document.createElement('div')
   viewPoint: Point = HOME
-  flybyCamera: FlybyCamera = { x: 17 * 256, y: -41 * 256, angle: 0, zoom: 0 }
   cameraBearing = 0
-  levelStartCameraSeeded = false
-  flybyTime = 0
-  wasFlying = false
-  resultCamera = createResultCamera()
-  cameraMotion = createCameraMotion()
-  cameraVelocity = { turn: 0, forward: 0, side: 0 }
-  cameraPosition = { x: 0, y: 0, angle: 0 }
-  cameraBookmarks: ({ x: number; y: number; angle: number } | null)[] = Array(4).fill(null)
-  resultRequest = 0
-  cameraTime = 0
+  get flybyCamera() {
+    return flybyCamera(this.world.cameras, this.world.manaWorld.playerTribe)
+  }
+  set flybyCamera(value: ReturnType<typeof flybyCamera>) {
+    Object.assign(this.flybyCamera, value)
+  }
+  get levelStartCameraSeeded() {
+    return this.world.cameras.levelStartSeeded
+  }
+  set levelStartCameraSeeded(value: World['cameras']['levelStartSeeded']) {
+    this.world.cameras.levelStartSeeded = value
+  }
+  get wasFlying() {
+    return this.world.cameras.wasFlying
+  }
+  set wasFlying(value: World['cameras']['wasFlying']) {
+    this.world.cameras.wasFlying = value
+  }
+  get resultCamera() {
+    return this.world.cameras.result
+  }
+  set resultCamera(value: World['cameras']['result']) {
+    this.world.cameras.result = value
+  }
+  get cameraMotion() {
+    return this.world.cameras.motion
+  }
+  set cameraMotion(value: World['cameras']['motion']) {
+    this.world.cameras.motion = value
+  }
+  get cameraVelocity() {
+    return this.world.cameras.velocity
+  }
+  set cameraVelocity(value: World['cameras']['velocity']) {
+    this.world.cameras.velocity = value
+  }
+  get cameraBookmarks() {
+    return this.world.cameras.bookmarks
+  }
+  set cameraBookmarks(value: World['cameras']['bookmarks']) {
+    this.world.cameras.bookmarks = value
+  }
+  get resultRequest() {
+    return this.world.cameras.resultRequest
+  }
+  set resultRequest(value: World['cameras']['resultRequest']) {
+    this.world.cameras.resultRequest = value
+  }
+  get cameraTime() {
+    return this.world.cameras.time
+  }
+  set cameraTime(value: World['cameras']['time']) {
+    this.world.cameras.time = value
+  }
+  get resultTurn() {
+    return this.world.cameras.resultTurn
+  }
+  set resultTurn(value: World['cameras']['resultTurn']) {
+    this.world.cameras.resultTurn = value
+  }
+  get cameraPosition() {
+    return this.world.cameras.tribes[this.world.manaWorld.playerTribe]
+  }
+  set cameraPosition(value: { x: number; y: number; angle: number }) {
+    Object.assign(this.cameraPosition, value)
+  }
   cameraPreviewButtons: number | null = null
-  resultTurn = 0
   tooltip = createTooltip()
   tooltipSession = createTooltipSession()
   tooltipController = createTooltipController(this.tooltip, this.tooltipSession)
@@ -300,7 +374,12 @@ export class GameScene {
     null
   selectionOverlay: SelectionOverlay
   dragActive = { value: false }
-  keys = new Set<string>()
+  get keys() {
+    return this.world.cameras.keys
+  }
+  set keys(value: Set<string>) {
+    this.world.cameras.keys = value
+  }
   resize: ResizeObserver
   frame = 0
   started = false
@@ -327,15 +406,36 @@ export class GameScene {
     }
   }
   previous: number | null = null
+  private inputDepth = 0
+  // Drain elapsed work before mutating an input. Input callbacks therefore
+  // cannot retroactively affect earlier catch-up turns in the next RAF.
+  advanceInputTime(timestamp = performance.now()) {
+    if (!this.started || this.inputDepth || this.world.cameras.phase !== 'idle') return
+    if (this.previous === null || this.modalSuspended) return
+    const now = Math.max(this.previous, timestamp)
+    const seconds = (now - this.previous) / 1000
+    this.previous = now
+    advanceGame(this.world, this.gameClock, seconds)
+  }
+  private publishCameraInput() {
+    const input = this.world.cameras.input,
+      buttons = this.navigationButtons()
+    if (buttons !== input.buttons) this.captureCamera(!!(buttons & 15))
+    input.buttons = buttons
+    input.time = this.world.cameras.elapsed
+    input.cursor++
+  }
   private neutralCursor: NeutralCanvasCursor | null = null
   neutralCursorRosterSelected = true
   cursorFrameBlocked = true
   modalSuspended = false
   setModalSuspended(suspended: boolean) {
+    if (suspended && !this.modalSuspended) this.advanceInputTime()
     this.modalSuspended = suspended
     this.neutralCursor?.reset()
     this.previous = null
     this.keys.clear()
+    this.world.cameras.input.buttons = 0
     const pointerId = this.pointerGesture?.pointerId
     if (pointerId !== undefined && this.renderer.domElement.hasPointerCapture(pointerId))
       this.renderer.domElement.releasePointerCapture(pointerId)
@@ -349,6 +449,14 @@ export class GameScene {
   gameClock = {
     animationTime: 0,
     animationFrame: 0,
+    camera: {
+      pre: () => preCameraVisit(this),
+      post: () => postCameraVisit(this),
+      zoom: () => this.stepViewChange(),
+      elapsed: (seconds: number) => {
+        this.skyRemainder += seconds
+      },
+    },
     beforeTurn: () => {
       this.unitMotion.beforeTurn(this.world)
       this.projectileMotion.beforeTurn(this.world)
@@ -416,6 +524,21 @@ export class GameScene {
     this.mini = minimap
     this.portrait = portrait
     this.world = world
+    presentationBinding?.bindInputClock?.(() => this.advanceInputTime())
+    Object.defineProperties(this.gameClock, {
+      animationTime: {
+        get: () => world.cameras.animationTime,
+        set: (n: number) => {
+          world.cameras.animationTime = n
+        },
+      },
+      animationFrame: {
+        get: () => world.cameras.animationFrame,
+        set: (n: number) => {
+          world.cameras.animationFrame = n
+        },
+      },
+    })
     this.environment = worldEnvironment(world)
     this.soundSerial = world.soundSerial
     for (const effect of world.effects) if (effect.fire) effect.fire.soundPlaying = false
@@ -567,16 +690,12 @@ export class GameScene {
     createRuntimeTerrainPicking(this)
     this.makeDecorations()
     this.makeShrines()
-    const shaman = this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
-    if (shaman && this.world.turn === 0 && this.world.levelStart?.some(site => site.tribe === 0)) {
-      const camera = levelStartCamera(
-        nativePosition(this.world, shaman),
-        this.world.manaWorld.gameFlags
-      )
-      this.cameraBearing = (camera.angle * Math.PI) / 1024
-      this.levelStartCameraSeeded = true
-      this.focus(browserPosition(camera))
-    } else this.focus(shaman ?? HOME)
+    // World creation owns initialization. Scene construction (including Load)
+    // only projects the saved pose, even when the tribe currently has no Shaman.
+    const initialCamera = displayedTribeCamera(world.cameras, world.manaWorld.playerTribe)
+    this.viewPoint = browserPosition(initialCamera)
+    this.cameraBearing = (initialCamera.angle * Math.PI) / 1024
+    this.updateView()
     this.drawMinimap()
     this.resize = new ResizeObserver(() => this.setSize())
     this.resize.observe(container)
@@ -645,8 +764,21 @@ export class GameScene {
     updateSky(this)
   }
   listen(target: EventTarget, name: string, handler: EventListener) {
-    target.addEventListener(name, handler)
-    this.disposeListeners.push(() => target.removeEventListener(name, handler))
+    const ordered: EventListener = event => {
+      // Modern DOM event timestamps share performance.now()'s monotonic origin.
+      // A synthetic event without that origin is observed at delivery time.
+      const timestamp = event.timeStamp > 1e12 ? performance.now() : event.timeStamp
+      this.advanceInputTime(timestamp)
+      this.inputDepth++
+      try {
+        handler(event)
+      } finally {
+        this.inputDepth--
+        this.publishCameraInput()
+      }
+    }
+    target.addEventListener(name, ordered)
+    this.disposeListeners.push(() => target.removeEventListener(name, ordered))
   }
   setSize() {
     const { width, height } = this.container.getBoundingClientRect()
@@ -743,8 +875,8 @@ export class GameScene {
   keyDown = ((event: KeyboardEvent) => {
     keyDown(this, event)
   }) as EventListener
-  captureCamera() {
-    captureCamera(this)
+  captureCamera(interruptMotion = false) {
+    captureCamera(this, interruptMotion)
   }
   skipIntroduction() {
     skipIntroduction(this)
@@ -929,7 +1061,7 @@ export class GameScene {
     this.updateTerrainFrame()
     if (sceneUpdates) sceneUpdates.terrainCpuMs = performance.now() - terrainStart
     this.updateDecorationsFrame()
-    const cameraOwnsFrame = this.updateCameraMotion(dt)
+    const cameraOwnsFrame = this.updateCameraMotion(0)
     this.cursorFrameBlocked = !!(
       cameraOwnsFrame ||
       this.world.paused ||
@@ -942,7 +1074,7 @@ export class GameScene {
       document.querySelector('dialog[open]')
     )
     if (this.cursorFrameBlocked) this.cancelTooltipInspection()
-    if (!cameraOwnsFrame && !this.updateFlyby(dt)) this.updateView()
+    if (!cameraOwnsFrame) this.updateView()
     this.updateUnitsFrame()
     updateVehiclesFrame(this)
     this.renderTooltip(pointerMetrics)

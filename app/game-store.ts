@@ -11,6 +11,7 @@ import { initializeVaultKnowledgeGift } from './world-effects.ts'
 import { createSharedAniblResource, type PresentationBinding } from './shared-anibl.ts'
 
 import { CHECKPOINT_VERSION } from './checkpoint-format.ts'
+import { requireCameraContinuation } from './tribe-camera.ts'
 export { CHECKPOINT_VERSION } from './checkpoint-format.ts'
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
@@ -66,6 +67,7 @@ export function migrateCheckpoint(world: World) {
 }
 
 function requireCurrentCheckpoint(world: World) {
+  requireCameraContinuation(world.cameras)
   if (world.capacityPolicy?.version !== 1 || world.capacityPolicy.mode !== 'scalable')
     throw new RangeError('Checkpoint is incompatible with this development version')
   restoreCapacityPolicy(world)
@@ -220,6 +222,7 @@ export function createGameStore() {
   const presentation = createSharedAniblResource()
   presentation.transition(worldEnvironment(world).landscape)
   let presentationToken: symbol | null = null
+  let inputClock: { token: symbol; advance: () => void } | null = null
   const completedMissions = new Set<number>()
   const listeners = new Set<() => void>()
   const update = () => {
@@ -246,6 +249,7 @@ export function createGameStore() {
     world = next
     cheatsUsed = false
     presentationToken = null
+    inputClock = null
     observedCompletion = world.outcome.completedLevel
     update()
   }
@@ -270,8 +274,12 @@ export function createGameStore() {
         advance: () => {
           if (isCurrent()) presentation.advance()
         },
+        bindInputClock: advance => {
+          if (isCurrent()) inputClock = { token, advance }
+        },
         release: () => {
           released = true
+          if (inputClock?.token === token) inputClock = null
           if (presentationToken === token) presentationToken = null
         },
       }
@@ -285,6 +293,9 @@ export function createGameStore() {
     },
     update,
     change: (action: (world: World) => void) => {
+      // HUD pause/speed/commands share the same input-time boundary as canvas
+      // events. Retired Scene bindings cannot advance a replacement world.
+      if (inputClock?.token === presentationToken) inputClock?.advance()
       action(world)
       update()
     },

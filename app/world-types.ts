@@ -44,6 +44,7 @@ import type { TribeCasting } from './spell-casting.ts'
 import type { SpellTargetScan } from './computer-spells.ts'
 import type { ComputerQueue } from './computer.ts'
 import type { Flyby } from './flyby.ts'
+import type { TribeCameras } from './tribe-camera.ts'
 import type { ScriptState } from './popscript.ts'
 import type { WorshipState } from './worship.ts'
 import type { ModelMorph } from './morph.ts'
@@ -460,6 +461,7 @@ export type World = {
   activeCampaignTribe: number
   messages: MessageState
   flyby: Flyby
+  cameras: TribeCameras
   drawMode: number
   inputMask: number
   lastMessage: number
