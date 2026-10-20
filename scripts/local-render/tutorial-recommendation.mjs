@@ -113,14 +113,72 @@ export default async function ({ page, browser, url, root, output }) {
     const p = await tutorial.newPage()
     const errors = []
     p.on('pageerror', error => errors.push(String(error)))
-    let failures = 0
-    await p.route('**/original/landscape.bin', route => { failures++; return route.abort('failed') })
+    let failures = 0, holdFailure = false, releaseFailure
+    await p.route('**/original/landscape.bin', async route => {
+      failures++
+      if (holdFailure) await new Promise(resolve => { releaseFailure = resolve })
+      await route.abort('failed')
+    })
+    const waitHeldFailure = async () => {
+      const deadline = Date.now() + 10000
+      while (!releaseFailure && Date.now() < deadline) await p.waitForTimeout(20)
+      assert.equal(typeof releaseFailure, 'function', 'Retry must reach the real landscape request')
+    }
+    const failHeld = async () => {
+      await waitHeldFailure()
+      const release = releaseFailure
+      releaseFailure = undefined
+      release()
+      await p.getByRole('heading', { name: 'Loading failed', exact: true }).waitFor()
+      await p.waitForFunction(() => document.activeElement?.textContent?.trim() === 'Try again')
+    }
     await p.goto(url, { waitUntil: 'domcontentloaded' })
     await open(p)
     await button(p, 'Yes').click()
     await p.getByRole('heading', { name: 'Loading failed', exact: true }).waitFor()
     assert.ok(failures > 0)
     assert.equal(await stored(p), 'answered', 'Choice persists even when subsequent loading fails')
+    const initialFailures = failures
+    holdFailure = true
+    await p.keyboard.down('Enter')
+    await failHeld()
+    assert.equal(failures, initialFailures + 1)
+    for (let repeat = 0; repeat < 3; repeat++) await p.keyboard.down('Enter')
+    await p.keyboard.up('Enter')
+    assert.equal(await p.locator('[data-loading-phase="failed"]').count(), 1)
+    assert.equal(failures, initialFailures + 1, 'held Enter must not retry a replacement failure')
+    await p.screenshot({ path: resolve(output, 'loading-retry-held-Enter-640x480.png') })
+
+    // A deliberate fresh Enter is allowed. Space starts while this retry is
+    // loading, then remains held as a new failed presentation focuses Retry.
+    await p.setViewportSize({ width: 1920, height: 1080 })
+    await p.keyboard.press('Enter')
+    await p.locator('[data-loading-phase="loading"]').waitFor()
+    await p.keyboard.down('Space')
+    await failHeld()
+    assert.equal(failures, initialFailures + 2)
+    for (let repeat = 0; repeat < 3; repeat++) await p.keyboard.down('Space')
+    await p.keyboard.up('Space')
+    assert.equal(await p.locator('[data-loading-phase="failed"]').count(), 1)
+    assert.equal(failures, initialFailures + 2, 'unowned Space release must not retry')
+    await p.screenshot({ path: resolve(output, 'loading-retry-held-Space-1920x1080.png') })
+    await p.keyboard.press('Tab')
+    assert.equal(await p.locator('.loading-recovery summary').evaluate(node => document.activeElement === node), true)
+    await p.keyboard.press('Shift+Tab')
+    assert.equal(await button(p, 'Try again').evaluate(node => document.activeElement === node), true)
+    await p.keyboard.down('Space')
+    assert.equal(failures, initialFailures + 2, 'fresh Space waits for release')
+    await p.keyboard.up('Space')
+    await failHeld()
+    assert.equal(failures, initialFailures + 3, 'fresh Space release permits one retry')
+    writeFileSync(resolve(output, 'loading-retry-keyboard.json'), JSON.stringify({
+      status: 'passed', initialFailures, failures,
+      checks: ['Enter held across failed remount rejected', 'fresh Enter permits retry',
+        'Space held from loading across failed remount and keyup rejected',
+        'fresh Space activates on keyup once', 'Tab and Shift-Tab recovery cycle retained'],
+    }, null, 2) + '\n')
+    passed('loading-recovery-held-key-remount-ownership')
+    await p.setViewportSize({ width: 640, height: 480 })
     await p.unroute('**/original/landscape.bin')
     await button(p, 'Try again').click()
     const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
