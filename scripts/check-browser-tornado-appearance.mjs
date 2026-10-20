@@ -7,6 +7,7 @@ import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { openGame, bindGame, waitForShamanReadiness } from './browser-game.mjs'
 import { originalTornadoPairs, checkTornadoReadback } from './lib/tornado-pixel-oracle.mjs'
+import { finishTornadoAcceptance } from './lib/tornado-browser-evidence.mjs'
 
 const fixture = JSON.parse(
   readFileSync(new URL('../tests/fixtures/tornado-original.json', import.meta.url))
@@ -24,6 +25,7 @@ export async function runTornadoAppearance(browser, { artifactDir, budgetMs = 90
     report = {
       head: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
       status: 'RUNNING',
+      browserVersion: browser.version(),
       stock:
         'Two fresh sessions, one actual F9 Unlock + refill grant and one genuine HUD cast each. Supplied testing stock, not campaign acquisition.',
       limits:
@@ -265,6 +267,12 @@ export async function runTornadoAppearance(browser, { artifactDir, budgetMs = 90
         const spawn = await capture('spawn')
         const selected = spawn.samples[0],
           pairs = originalTornadoPairs(fixture, selected.frame, selected.palette)
+        episode.graphics = await page.evaluate(async () => {
+          const { tornadoGraphicsMetadata } =
+            await import('/scripts/lib/tornado-browser-evidence.mjs')
+          return tornadoGraphicsMetadata(globalThis.testScene, globalThis.devicePixelRatio)
+        })
+        persist()
         // Diagnostic is implemented separately below; it never edits simulation state.
         const gpu = await isolateColumn(page)
         for (const [name, data] of Object.entries(gpu.pngs))
@@ -368,15 +376,24 @@ export async function runTornadoAppearance(browser, { artifactDir, budgetMs = 90
         await page.context().close()
       }
     }
-    report.status = 'PASS'
+    await finishTornadoAcceptance(report, {
+      close: async () => {
+        for (const context of browser.contexts())
+          if (!priorContexts.has(context)) await context.close()
+      },
+      elapsed: () => performance.now() - started,
+      expired: () => expired,
+      budgetMs,
+    })
   } catch (error) {
     report.status = 'FAIL'
     report.error = String(error.stack ?? error)
     throw error
   } finally {
     clearTimeout(deadline)
-    for (const context of browser.contexts())
-      if (!priorContexts.has(context)) await context.close().catch(() => {})
+    if (report.status !== 'PASS')
+      for (const context of browser.contexts())
+        if (!priorContexts.has(context)) await context.close().catch(() => {})
     persist()
   }
   return report

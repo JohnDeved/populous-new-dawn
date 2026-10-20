@@ -25,3 +25,9 @@ Hard aggregate episode deadline: 90 seconds across both contexts, including cold
 One newly owned page/context at a time, existing browser reused by host. Two full RGBA readback buffers per diagnostic (about 11.5 MB at 1440×1000/DPR1), at most eight normal screenshots and four diagnostic PNGs; no parallel browsers or full builds. Overall Chromium/WebGL RSS is not yet measured and is not claimed bounded by the CPU buffer estimate. First execution must be coordinator-authorized and observed; failure or budget exhaustion remains failure, without relaxed assertions or extra casts.
 
 Prepared-source gates: Node syntax; independent decoder/oracle tests and existing Tornado appearance tests (8 pass); scoped lint has no errors (style warnings retained); formatting and orchestration structural check pass. No browser was launched while authoring.
+
+## Review hardening
+
+Success now passes through `finishTornadoAcceptance`: all owned contexts must finish closing, the watchdog must remain unexpired, and elapsed time must be within the same aggregate budget immediately before PASS. A delayed-final-close fake-clock regression crosses 90 seconds while close is pending and proves FAIL; a second regression catches deadline overrun before the timer callback runs. No outer-cap or workflow changes.
+
+Reports retain actual Playwright browser version and, before each diagnostic, WebGL vendor/renderer/version/GLSL, drawing-buffer and canvas dimensions, device/renderer DPR, output color space, tone mapping/exposure, renderer precision and context attributes/loss state. `WEBGL_debug_renderer_info` availability is explicit; absent unmasked identifiers are null, not inferred. CPU fixtures cover both supported and missing extension cases. The strict encoded-byte color/alpha oracle is unchanged.
