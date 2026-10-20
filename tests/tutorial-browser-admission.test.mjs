@@ -135,12 +135,22 @@ test('candidate snapshot smoke is one read-only bounded functional case, never a
 })
 
 
-test('parsed hosted matrix and actual pure policy preserve every existing cap and bound candidate smoke', () => {
+test('parsed hosted matrix grants only Tutorial aggregate headroom and preserves other caps', () => {
   const workflow = readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8')
   const job = yaml.load(workflow).jobs['tutorial-browser'], items = job.strategy.matrix.include
   assert.equal(job['timeout-minutes'], '${{ matrix.timeoutMinutes }}')
   assert.deepEqual(items.map(item => item.scenario).sort(), browserScenarios.filter(name => name !== 'm2-pointer-f8').sort())
-  for (const name of browserScenarios) assert.equal(browserCapMs(name), name === 'snapshot-protocol' ? 90000 : 180000)
+  assert.deepEqual(Object.fromEntries(browserScenarios.map(name => [name, browserCapMs(name)])), {
+    tutorial: 240000, 'm2-pointer-f8': 180000, 'pause-checkpoint-recovery': 180000,
+    'profile-recovery': 180000, 'mission10-profile': 180000, 'gameplay-frames': 180000,
+    'snapshot-protocol': 90000, 'compact-message-layout': 180000, 'frontend-held-escape': 180000,
+  })
+  const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
+  assert.equal((runner.match(/browserDeadlineAt = Date\.now\(\) \+ receipt\.browserCapMs/g) ?? []).length, 1)
+  assert.equal((runner.match(/timer = setTimeout\(/g) ?? []).length, 1)
+  assert.match(runner, /assert\.equal\(receipt\.browserTimedOut, undefined\)/)
+  assert.match(runner, /abort\.abort\(new Error\('Browser deadline exceeded'\)\); void browser\.close\(\)/)
+
   for (const item of items) assert.equal(item.timeoutMinutes, item.scenario === 'snapshot-protocol' ? 6 : 15)
   for (const invalid of ['', 'unknown', null, 900000]) assert.throws(() => browserCapMs(invalid), /Unknown browser scenario/)
 })

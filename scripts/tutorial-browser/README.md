@@ -341,28 +341,48 @@ cannot establish running advancement, and this run is not retroactively passed.
 
 #### Maintained running-artwork contract
 
-The only maintained browser acceptance is `running-original-artwork-v1` in
+The maintained browser acceptance is `running-original-entry-v2` in
 `melee-attack.mjs` and `validateMeleeRunningObservation` in
-`melee-attack-running-evidence.mjs`. It removes the timing-sensitive in-attack
-Space round trip rather than broadening legal pause/successor predicates.
-Public setup Pause/Resume and the real command route above remain unchanged.
-After the attack command, no input interrupts observation. A read-only ordinary
-post-render RAF observes the half-open logical interval
-`[firstObservedAttackTurn, firstObservedAttackTurn + 10)`. It terminates on the
-first visit reaching the boundary, even outside an attack, never upon finding a
-passing pair. The cutoff is checked before actor-life or attack state, so death or
-disappearance strictly within the interval fails, but actor state on or after its
-exclusive end does not extend the witness. Every stop retains its exact observed
-turn, renderer stamp and reason. Acceptance requires a `window-complete` terminal
-record at or after the cutoff, later than every sample's renderer stamp; an early
-stop or error cannot pass merely because an earlier pair advanced. The separate
-frame validator retains all existing artwork, identity, entry and crop obligations.
-Attack/strike/special samples throughout that interval are retained
-and all must pass; successor artwork is not an acceptance claim. Unexpected pause,
-Scene/world replacement, document hiding or disconnected canvas still fails closed,
-including on the terminal visit. Supplied real-observer boundary tests are not
-browser evidence and do not retroactively pass historical failed runs whose exact
-terminal callback was not retained.
+`melee-attack-running-evidence.mjs`. This is an explicit correction of the former
+v1 ten-turn survival contract, not a retroactive pass for its failed receipts.
+Public setup Pause/Resume, real command delivery, all per-render attack artwork
+and crop checks remain unchanged. After the attack command no input interrupts
+observation. The first observed attack/strike/special anchors one immutable
+actor/action/start/group/opponent entry and the original physical person.
+Independent original tables, passed to the observer before Resume, set duration
+`D = (descriptor.step + 1) * nativeFrameCount`; the endpoint is
+`entry.started + D - 1`, never first-observed-turn plus a chosen grace period.
+The observer retains every attack render before that endpoint and must observe
+its exact logical turn while the same actor is still alive. Neither an advancing
+pair nor the fourth crop ends the episode. A missing/changed entry, early action
+change, death, or skipped endpoint fails even after a valid cropped pair. A later
+entry cannot replace the first or provide more favorable evidence.
+
+The endpoint follows `melee.ts` and `combat-runtime.ts`, both now source-hashed:
+entry initializes `remaining = D - 1`; later visits decrement it, and expiry
+changes to `approach`, clears the countdown and continues without same-turn
+re-entry. For Shaman special, object 552/draw 14 has step 0 and five mapped
+frames. An entry at turn 402 therefore has four live attack poses at 402–405,
+remaining 4/3/2/1, f2 0/1/2/3. At 406, f2 4 is the fifth native frame but the
+action is already `approach`, not a fifth live attack sample. The v2 endpoint
+records that exact transition, retained entry/person identity and native phase,
+not a successor-artwork or extended combat-survival claim.
+
+The separately named `entry`, `endpoint`, protocol and schema-version fields
+prevent old ten-turn receipts from being interpreted as v2. Acceptance requires
+an `entry-complete` terminal with the exact endpoint turn/stamp, later than every
+retained sample, plus alive actor, physical state/phase and unchanged running,
+Scene/world/canvas/document guards. Deferred crop failures still fail acceptance.
+Later death cannot alter an already completed episode, but actor loss before or
+at its endpoint fails. Supplied-observer tests are not browser evidence; fresh
+source-bound hosted evidence is required for this revised contract.
+
+Run [39406765707](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39406765707)
+remains failed under v1. It retained valid-looking special crops at 402–405 and a
+diagnostic alive `approach` visit at 406, then Shaman54 disappeared at 411 inside
+its [402,412) window. Its failure screenshot shows the reincarnation message.
+That diagnostic supports the endpoint rationale but is not a v2 terminal receipt;
+no stored failure, HP, enemy setup, game timing or runtime code is changed.
 
 The first four distinct native poses reserve the only crop slots, before
 visibility or bounds eligibility is decided. Pose identity includes actor,
@@ -372,19 +392,14 @@ crop fails acceptance and cannot be replaced by a later eligible duplicate.
 All planned crops are required, with at least two forming a same-direction,
 same-sequence pair whose logical turn, native f2 and actual mapped frame advance.
 The observed fight must retain the same actor, original physical person and group.
-One attack entry (actor/group/start turn) must retain its action and actual
-opponent; natural interception is not forced to target 20. A later entry may
-select a different roster opponent, but its start must advance and be at least
-the previous start plus that attack's original mapped duration. This follows
-`combat-runtime.ts`: `processBattles` continues after the expiry turn before
-selecting a fresh target, and `meleeExchange` writes opponent/action/start
-together while retaining the physical person and group. An altered action or
-opponent cannot silently split one entry into several valid sequences. Sequence
-and crop identities still include the opponent, and a later sequence cannot
-substitute for either endpoint of the advancing pair. A fixed
-window may contain multiple sequences; it is not extended or restarted to seek
-one that passes. Sparse rendering that never supplies a cropped advancing pair
+The first entry retains its action and actual opponent; natural interception
+is not forced to target 20. Sequence and crop identities include that opponent,
+and no later sequence can substitute for either endpoint of the advancing pair.
+Sparse rendering that supplies only one pose or misses the exact native endpoint
 still fails. This is not a guarantee against arbitrary scheduler starvation.
+The standalone supplied-frame validator still exercises historical multi-entry
+identity constraints; maintained browser acceptance additionally requires that
+all retained samples belong to its immutable first entry.
 
 The earlier global-opponent assertion rejected the normal special entry at turn
 395 against person 13 followed by an attack entry at turn 400 against person
@@ -405,7 +420,7 @@ plus independent mapped artwork, not a private getter-return observation.
 This functional artwork context uses a fixed 960×720 viewport at DPR 1;
 the separate performance frame-recording context remains 1440×1000. The smaller
 raster workload is intended to improve acquisition of short native attack poses,
-not to slow gameplay, extend the ten-turn window or relax evidence requirements.
+not to slow gameplay, extend the native entry or relax artwork/crop requirements.
 The failed PR #666 1440×1000 attempt retained only one attack pose and remains a
 failure. Actual viewport, canvas and WebGL drawing-buffer sizes are recorded,
 alongside every observer/RAF timestamp and crop-copy cost; improved acquisition
@@ -434,9 +449,9 @@ incomplete witness; a retention failure cannot pass acceptance.
 Every observer RAF records its performance timestamp, supplied RAF timestamp,
 logical turn, renderer stamp, animation clock, pause state, action/entry, actor
 life and observed pose, including pre-attack approach, held and non-attack visits.
-Boundary and pre-inspection error rows explicitly set `actorInspected: false`
-with null actor/action fields: diagnostics do not move actor inspection ahead of
-the reviewed half-open cutoff. Each row records observer-body and synchronous
+Pre-inspection error rows set `actorInspected: false` with null actor/action
+fields. The exact native endpoint is inspected and retains its alive actor,
+entry and phase evidence before completion. Each row records observer-body and synchronous
 copy elapsed milliseconds separately. Copies record later readback/color-scan
 and encoding elapsed milliseconds, with the retention timestamp/duration kept
 separately. These measurements include their own perturbation and do not measure
