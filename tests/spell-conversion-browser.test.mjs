@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { isDeepStrictEqual } from 'node:util'
 import { conversionLimitMs, conversionObservationMs, validateConversionObservation,
   installConversionObserver, closeConversionContext, readConversionStartup,
-  waitForConversionIntroduction, setupConversionCamera } from '../scripts/tutorial-browser/spell-conversion.mjs'
+  waitForConversionIntroduction, setupConversionCamera, resumeArmedConversion } from '../scripts/tutorial-browser/spell-conversion.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import { spellTestLimitMs } from '../scripts/tutorial-browser/spell-test-menu.mjs'
 import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mjs'
@@ -291,11 +291,11 @@ test('conversion final cleanup cannot certify a late or watchdog-expired episode
 
 // Controlled callback/RAF fixture exercises the installed observer itself. It is
 // not gameplay or GPU evidence; the browser episode supplies those observations.
-function observerFixture(t, { expiry = 165, callback } = {}) {
+function observerFixture(t, { expiry = 165, callback, armed = false } = {}) {
   const target = { id: 10, team: 'yellow', kind: 'brave', x: -45, z: -91 },
     flash = { id: 9, startConversionLink: 10, turnsRemaining: 8, x: -45, z: -91,
       animation: { object: 0x650, f1: 0 } },
-    world = { turn: 156, paused: false, speed: 1, effects: [], units: [target],
+    world = { turn: armed ? 0 : 156, paused: armed, speed: 1, effects: [], units: [target],
       spellCasts: [[], [], { 17: 0 }], manaWorld: { spells: [null, null, { stocks: { 17: 1 } }] }, sounds: [] },
     calls = [], original = function (...args) {
       calls.push({ receiver: this, args, turn: world.turn })
@@ -319,7 +319,7 @@ function observerFixture(t, { expiry = 165, callback } = {}) {
     cancelAnimationFrame: id => pending.delete(id),
   })
   const descriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn')
-  installConversionObserver({ observationMs: 30000 })
+  installConversionObserver({ observationMs: 30000, armed })
   const observer = window.__pndConversionObservation
   t.after(() => observer.retain())
   return { world, scene, clock, original, descriptor, calls, observer, flash, pending,
@@ -454,4 +454,94 @@ test('real Mission 3 catch-up observes expiry at165 while RAF next sees166 witho
   assert.equal(clock.afterTurn, original)
   assert.equal(clock.animationFrame, controlClock.animationFrame)
   assert.deepEqual(world, control, 'observation must preserve the complete production world')
+})
+
+
+test('armed Convert observer stays read-only at paused turn zero and covers the first running turn', t => {
+  const f = observerFixture(t, { armed: true }), before = structuredClone(f.world)
+  f.frame(); f.frame()
+  assert.equal(f.observer.result.error, null)
+  assert.equal(f.observer.result.phase, 'armed')
+  assert.equal(f.observer.result.firstRunningTurn, null)
+  assert.deepEqual(f.world, before)
+  // Supplied test input models the public Resume action, not observer mutation.
+  f.world.paused = false
+  f.frame()
+  assert.equal(f.observer.result.phase, 'armed', 'RAF cannot invent a fixed-turn transition')
+  for (let turn = 1; turn <= 164; turn++) { f.turn(turn); f.frame() }
+  f.turn(165); f.turn(166); f.frame()
+  const result = f.observer.retain()
+  assert.equal(result.error, null)
+  assert.deepEqual(result.armedAt, { turn: 0, paused: true })
+  assert.equal(result.firstRunningTurn, 1)
+  assert.equal(result.observedTurns, 166)
+  assert.equal(result.lastObservedTurn, 166)
+  assert.equal(result.removal.turn, 165)
+  assert.equal(result.terminal.turn, 166)
+  assert.equal(result.restored, true)
+})
+
+test('armed observer rejects an unobserved first turn and later pause without overwriting callbacks', async t => {
+  await t.test('skipped first callback', t => {
+    const f = observerFixture(t, { armed: true })
+    f.world.paused = false; f.turn(2)
+    assert.match(f.observer.result.error, /missed an ordinary turn/)
+    assert.equal(f.clock.afterTurn, f.original)
+  })
+  await t.test('pause after running begins', t => {
+    const f = observerFixture(t, { armed: true })
+    f.world.paused = false; f.turn(1)
+    f.world.paused = true; f.frame()
+    assert.match(f.observer.result.error, /must remain running/)
+    assert.equal(f.clock.afterTurn, f.original)
+  })
+  await t.test('arming must start actually paused at zero', t => {
+    const f = observerFixture(t)
+    f.observer.retain()
+    assert.throws(() => installConversionObserver({ observationMs: 30000, armed: true }), /paused turn-zero/)
+    assert.equal(f.clock.afterTurn, f.original)
+  })
+})
+
+test('public armed resume observes advisory behavior instead of assuming dismissal resumes', async t => {
+  for (const [visible, dismissResumes] of [[true, true], [true, false], [false, false]]) {
+    await t.test(`visible=${visible}, dismissal resumes=${dismissResumes}`, async t => {
+      const scene = startupScene(), world = scene.world, actions = [], report = {}
+      world.paused = true
+      browserGlobals(t, { window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
+        document: { visibilityState: 'visible', querySelector: () => null } })
+      const page = {
+        evaluate: async fn => fn(),
+        locator(selector) {
+          assert.equal(selector, '.desktop-recommendation')
+          return { isVisible: async () => visible,
+            getByRole(role, options) {
+              assert.equal(role, 'button'); assert.match('Continue anyway ↗', options.name)
+              return { click: async () => { actions.push('advisory'); if (dismissResumes) world.paused = false } }
+            } }
+        },
+        getByRole(role, options) {
+          assert.equal(role, 'button'); assert.deepEqual(options, { name: 'Resume game', exact: true })
+          return { click: async () => { assert.equal(world.paused, true); actions.push('resume'); world.paused = false } }
+        },
+        waitForFunction: async fn => { assert.equal(fn(), true) },
+      }
+      await resumeArmedConversion(page, report)
+      assert.deepEqual(actions, visible ? dismissResumes ? ['advisory'] : ['advisory', 'resume'] : ['resume'])
+      assert.equal(report.resume.after.paused, false)
+      assert.equal(world.turn, 0, 'helper does not drive simulation')
+    })
+  }
+})
+
+test('narrow-start witness arms before public resume and retains post-flyby camera focus', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/spell-conversion.mjs', import.meta.url), 'utf8')
+  const flow = source.slice(source.indexOf('export default async function'))
+  assert.match(flow, /width: 899, height: 720/)
+  assert.match(flow, /setViewportSize\(\{ width: 960, height: 720 \}\)/)
+  assert.ok(flow.indexOf('await page.evaluate(installConversionObserver') < flow.indexOf('await resumeArmedConversion'))
+  assert.ok(flow.indexOf('await resumeArmedConversion') < flow.indexOf('await waitForConversionIntroduction'))
+  assert.ok(flow.indexOf('await waitForConversionIntroduction') < flow.indexOf('report.setup ='))
+  assert.doesNotMatch(flow, /name: 'Pause game'/)
+  assert.match(flow, /assert.equal\(report.setup.casts, 0\)/)
 })

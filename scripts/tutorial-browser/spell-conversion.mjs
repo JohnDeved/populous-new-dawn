@@ -39,6 +39,25 @@ export async function waitForConversionIntroduction(page, report) {
   report.startup.afterSkip = await page.evaluate(readConversionStartup)
 }
 
+// Observe advisory behavior instead of assuming whether dismissal resumes.
+// This helper is called only after the turn-zero observer has been armed.
+export async function resumeArmedConversion(page, report) {
+  report.phase = 'public-resume'
+  const advisory = page.locator('.desktop-recommendation')
+  report.resume = { before: await page.evaluate(readConversionStartup), actions: [] }
+  if (await advisory.isVisible()) {
+    await advisory.getByRole('button', { name: /Continue anyway/ }).click()
+    report.resume.actions.push('dismiss-visible-advisory')
+  }
+  report.resume.afterAdvisory = await page.evaluate(readConversionStartup)
+  if (report.resume.afterAdvisory.paused) {
+    await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+    report.resume.actions.push('visible-resume-game')
+  }
+  await page.waitForFunction(() => !window.testStore.getWorld().paused)
+  report.resume.after = await page.evaluate(readConversionStartup)
+}
+
 export function setupConversionCamera(codec) {
   const scene = window.testSceneRef.current, w = window.testStore.getWorld(),
     camera = { x: -45, z: -91 }, encode = value => JSON.stringify(codec(value)),
@@ -66,13 +85,15 @@ export function setupConversionCamera(codec) {
 
 // Logical records use the existing fixed-turn boundary; RAF owns only artwork
 // and rendered cleanup. The original callback is chained without driving time.
-export function installConversionObserver({ observationMs }) {
+export function installConversionObserver({ observationMs, armed = false }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld(),
     clock = scene.gameClock, originalTurn = clock.afterTurn,
     turnDescriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn'),
     canvas = scene.renderer.domElement, started = performance.now(), copies = [], keys = new Set(),
     result = { done: false, error: null, visits: 0, samples: [], logical: [], crops: [],
-      bornTurn: null, removal: null, terminal: null, restored: false }
+      bornTurn: null, removal: null, terminal: null, restored: false,
+      phase: armed ? 'armed' : 'observing', armedAt: armed ? { turn: world.turn, paused: world.paused } : null,
+      firstRunningTurn: null, lastObservedTurn: world.turn, observedTurns: 0 }
   let raf, flash, target, stopped = false, lastKey
   const restore = () => {
     if (clock.afterTurn === turnWrapper) {
@@ -92,19 +113,29 @@ export function installConversionObserver({ observationMs }) {
       elapsedMs: performance.now() - started, present: !!flash && world.effects.includes(flash),
       meshPresent: !!flash && scene.fxMeshes.has(flash.id), remaining: flash?.turnsRemaining }
   }
-  const check = () => {
+  const check = (logical = false) => {
     if (performance.now() - started > observationMs || result.visits > 7200)
       throw Error('Conversion observation exceeded its fixed bound')
     if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world ||
       scene.world !== world || scene.gameClock !== clock)
       throw Error('Conversion observer lost its original Scene/world/clock')
     if (clock.afterTurn !== turnWrapper) throw Error('Conversion observer callback ownership changed')
-    if (!canvas.isConnected || document.visibilityState !== 'visible' || world.paused || world.speed !== 1)
-      throw Error('Conversion observation must remain connected, visible and running at normal speed')
+    if (!canvas.isConnected || document.visibilityState !== 'visible' || world.speed !== 1)
+      throw Error('Conversion observation must remain connected, visible and at normal speed')
+    if (result.phase === 'armed') {
+      if (world.turn !== 0 && !(logical && world.turn === 1))
+        throw Error('Conversion armed phase missed an ordinary turn')
+      if (logical && world.paused) throw Error('Conversion fixed turn occurred while paused')
+    } else if (world.paused) throw Error('Conversion observation must remain running')
     if (scene.renderer.getContext().isContextLost()) throw Error('Conversion WebGL context lost')
   }
   const logicalVisit = () => {
-    check()
+    check(true)
+    if (world.turn !== result.lastObservedTurn + 1) throw Error('Conversion missed a fixed turn')
+    result.lastObservedTurn = world.turn
+    result.observedTurns++
+    result.firstRunningTurn ??= world.turn
+    result.phase = 'observing'
     if (result.removal) return
     if (!flash) {
       flash = world.effects.find(f => f.startConversionLink !== undefined &&
@@ -217,6 +248,8 @@ export function installConversionObserver({ observationMs }) {
     },
   }
   try {
+    if (armed && (!world.paused || world.turn !== 0))
+      throw Error('Conversion must arm in the actual paused turn-zero world')
     if (world.spellCasts[2][17] !== 0 || world.effects.some(f => f.startConversionLink !== undefined))
       throw Error('Conversion observer must precede the first conversion')
     clock.afterTurn = turnWrapper
@@ -228,6 +261,11 @@ export function installConversionObserver({ observationMs }) {
 export function validateConversionObservation(observation, atlas) {
   assert.equal(observation.error, null)
   assert.equal(observation.restored, true)
+  if (observation.armedAt) {
+    assert.deepEqual(observation.armedAt, { turn: 0, paused: true })
+    assert.equal(observation.firstRunningTurn, 1)
+    assert.equal(observation.observedTurns, observation.lastObservedTurn)
+  }
   assert.equal(observation.terminal.reason, 'rendered-expiry')
   assert.equal(observation.birth.turn, observation.bornTurn)
   assert.equal(observation.removal.turn - observation.bornTurn, 8)
@@ -288,9 +326,10 @@ export async function closeConversionContext(context, report, started, now = () 
 
 export default async function spellConversion({ browser, url, output }) {
   const started = performance.now(), context = await browser.newContext({
-    viewport: { width: 960, height: 720 }, deviceScaleFactor: 1 }), page = await context.newPage(),
+    viewport: { width: 899, height: 720 }, deviceScaleFactor: 1 }), page = await context.newPage(),
     report = { status: 'running', capMs: conversionLimitMs, observationCapMs: conversionObservationMs,
       errors: [], limits: ['Public direct Mission 3 access, not earned campaign unlock.',
+        'Declared 899px narrow start invokes production turn-zero pause; resize to960px before public resume. No World pause assignment.',
         'One fixed diagnostic camera focus; no stock/entity injection, forced ticks or replaced render paths.',
         'Same-frame canvas crops are real browser pixels, not original-game framebuffer equivalence.',
         'Native depth/blend composition and wall-clock ratio remain existing adapters; no hardware performance claim.',
@@ -323,21 +362,23 @@ export default async function spellConversion({ browser, url, output }) {
     await page.getByRole('button', { name: 'Mission 3', exact: true }).click()
     report.phase = 'bind-game'
     await bindGame(page)
+    report.phase = 'verify-narrow-start'
+    report.narrowStart = await page.evaluate(readConversionStartup)
+    assert.equal(report.narrowStart.level, 3); assert.equal(report.narrowStart.turn, 0)
+    assert.equal(report.narrowStart.paused, true); assert.equal(report.narrowStart.casts, 0)
+    assert.equal(report.narrowStart.stock, 1)
+    await page.setViewportSize({ width: 960, height: 720 })
+    report.phase = 'arm-observer'
+    await page.evaluate(installConversionObserver, { observationMs: conversionObservationMs, armed: true })
+    await resumeArmedConversion(page, report)
     await waitForConversionIntroduction(page, report)
-    report.phase = 'pause-for-camera'
-    await page.getByRole('button', { name: 'Pause game', exact: true }).click()
     report.phase = 'camera-setup'
-    // Evaluate the same tested helper and lossless codec without installing either
-    // on the page or replacing any game method.
+    // Synchronous camera-only focus after public flyby/input completion. The
+    // armed observer already covers every turn; no extra Pause/Resume interval.
     report.setup = await page.evaluate(`(${setupConversionCamera.toString()})(${checkpointCodec.toString()})`)
     assert.equal(report.setup.level, 3); assert.equal(report.setup.casts, 0)
-    assert.equal(report.setup.stock, 1); assert.equal(report.setup.paused, true)
+    assert.equal(report.setup.stock, 1); assert.equal(report.setup.paused, false)
     assert.equal(report.setup.speed, 1)
-    // Resume before installing observation so the observer never changes pause state.
-    report.phase = 'resume'
-    await page.getByRole('button', { name: 'Resume game', exact: true }).click()
-    report.phase = 'install-observer'
-    await page.evaluate(installConversionObserver, { observationMs: conversionObservationMs })
     report.phase = 'observe-conversion'
     await page.waitForFunction(() => window.__pndConversionObservation.result.done, null,
       { timeout: conversionObservationMs + 1000, polling: 50 })
