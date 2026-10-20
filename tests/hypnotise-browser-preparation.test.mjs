@@ -2,19 +2,37 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
 import { prepareEarnedHypnotise, hypnotiseTarget } from '../scripts/tutorial-browser/hypnotise-fixture.mjs'
+import { tick } from '../app/model.ts'
+import { hypnotiseChargingVisitLimit } from '../scripts/tutorial-browser/hypnotise-fixture.mjs'
 import { spellTargetError } from '../app/live-command.ts'
 import { readFileSync } from 'node:fs'
 
-test('opt-in Hypnotise setup earns stock and walks the authored M22 Shaman without casting', async () => {
+for (const initialVisits of [0, 1, 20, 60]) test(`opt-in Hypnotise earns stock after ${initialVisits} ordinary startup visits`, async () => {
   const store = createGameStore()
   store.startMission(22)
   const world = store.getWorld()
+  world.paused = false
+  for (let i = 0; i < initialVisits; i++) tick(world, 1 / 12)
+  const initialProgress = [...world.manaTribes[0].spellProgress]
   world.paused = true
   let focus, changes = 0
   const result = await prepareEarnedHypnotise({ world, isCurrent: () => true,
     focus: point => { focus = point }, onChange: () => { changes++ } })
-  assert.equal(result.readyTurn, 6172)
-  assert.equal(result.chargingVisits, 5948)
+  assert.equal(result.startedTurn, initialVisits)
+  assert.deepEqual(result.initialState.spellProgress, initialProgress)
+  assert.equal(hypnotiseChargingVisitLimit, 9195)
+  assert.ok(result.chargingVisits <= hypnotiseChargingVisitLimit)
+  assert.equal(result.chargedTurn, initialVisits + result.chargingVisits)
+  assert.ok(result.readyTurn > result.chargedTurn)
+  if (!initialVisits) {
+    assert.equal(result.readyTurn, 6172)
+    assert.equal(result.chargingVisits, 5948)
+    assert.equal(result.initialState.availableMana, 30000)
+  } else {
+    assert.ok(result.chargingVisits > 6100)
+    assert.ok(initialProgress[7] >= 2142 && initialProgress[7] < 3000)
+  }
+  assert.equal(world.manaTribes[0].previousRate, 37)
   assert.equal(world.shots.hypnotise, 1)
   assert.equal(world.paused, true)
   assert.equal(world.effects.some(f => f.kind === 'hypnotise'), false)

@@ -577,3 +577,18 @@ the existing artifact root, covered by its unchanged JSON/PNG upload globs. No
 hidden subgroup, recreated artwork, raw production `/app/*.ts` import, new output
 subdirectory or second checkpoint allowance is used. Any timeout is a failed
 witness; a late-created context is closed without admitting the episode.
+
+Hypnotise preparation preserves the public startup's initial mana allocation.
+At turn zero M22 has 30,000 unallocated mana; after one ordinary turn it has
+2,142 progress in each of 14 enabled spells. The old turn-zero-only test focused
+before that allocation and earned stock in 5,948 visits (6,172 including walking),
+which did not justify the former 6,100 charging ceiling after public startup.
+The bounded charging ceiling is now 9,195 visits: ceil(85,000 / 37) * 4 + 3,
+using the native model-7 charge cost, this authored idle cohort's observed
+37 mana per four-turn scan, and at most three alignment visits. No credit is
+assumed for the initial allocation; no mana/stock or actors are injected. The
+initial turn, available mana, all spell progress, mask, actual charged turn and
+visit count are retained. Failure retains the initial state and includes final
+state in its error. CPU regressions include 0, 1, 20 and 60 ordinary startup
+visits. The unchanged 25s preparation, 75s episode and remaining 180s outer
+wall deadlines still reject overruns regardless of visit budget.

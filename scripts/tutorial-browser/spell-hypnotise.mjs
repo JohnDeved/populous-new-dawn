@@ -79,6 +79,10 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
           await page.locator('.skip-introduction').click()
         await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
         await button('Pause game').click()
+        report.preparationStart = await page.evaluate(() =>
+          window.__pndHypnotiseFixture.hypnotisePreparationState(window.testSceneRef.current.world)
+        )
+        save()
         report.preparation = await page.evaluate(() =>
           window.__pndHypnotiseFixture.prepareEarnedHypnotise(window.testSceneRef.current)
         )

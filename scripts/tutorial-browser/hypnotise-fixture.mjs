@@ -2,6 +2,19 @@
 // Accelerated ordinary simulation preparation, NOT real-time earned gameplay.
 import { tick, command, selectUnit } from '../../app/model.ts'
 import { spellTargetError } from '../../app/live-command.ts'
+import rules from '../../app/original-rules.json' with { type: 'json' }
+
+// M22's authored idle cohort generates 37 per four-turn mana scan. Budget
+// the full cost without crediting any initial allocation, plus scan alignment.
+export const hypnotiseChargingVisitLimit =
+  Math.ceil(rules.spellCharging[7].cost / 37) * (rules.manaUpdateMask + 1) + rules.manaUpdateMask
+export const hypnotisePreparationState = world => ({
+  turn: world.turn,
+  availableMana: world.manaTribes[0].available,
+  spellProgress: [...world.manaTribes[0].spellProgress],
+  disabled: world.manaWorld.spells[0].disabled,
+  stock: world.shots.hypnotise,
+})
 
 export const hypnotiseTarget = Object.freeze({ x: 15, z: -31 })
 const requireState = (condition, message) => {
@@ -14,6 +27,7 @@ export async function prepareEarnedHypnotise(scene, clock = {}) {
     world = scene.world,
     start = now(),
     startedTurn = world.turn,
+    initialState = hypnotisePreparationState(world),
     shaman = world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
   requireState(
     scene.isCurrent() && world.paused && world.outcome.level === 22 && shaman?.hp > 0,
@@ -45,13 +59,19 @@ export async function prepareEarnedHypnotise(scene, clock = {}) {
       checkTime()
     }
     checkTime()
-    requireState(ready(), `Ordinary simulation did not reach its boundary within ${limit} visits`)
+    requireState(
+      ready(),
+      `Ordinary simulation did not reach its boundary within ${limit} visits: ${JSON.stringify({ initialState, finalState: hypnotisePreparationState(world) })}`
+    )
     return visits
   }
   // Existing deterministic mana-focus adapter; no mana, stock, actors or effect
   // states are supplied. The actual mana/charging consumer earns the one charge.
   world.manaWorld.spells[0].disabled = 0xffffffff & ~(1 << 6)
-  const chargingVisits = await advanceUntil(() => world.shots.hypnotise > 0, 6100)
+  const chargingVisits = await advanceUntil(
+      () => world.shots.hypnotise > 0, hypnotiseChargingVisitLimit
+    ),
+    chargedTurn = world.turn
   requireState(world.shots.hypnotise === 1, 'Require exactly one earned charge')
   const move = goal => {
     world.paused = false
@@ -80,6 +100,9 @@ export async function prepareEarnedHypnotise(scene, clock = {}) {
   checkTime()
   return {
     startedTurn,
+    initialState,
+    chargingVisitLimit: hypnotiseChargingVisitLimit,
+    chargedTurn,
     readyTurn: world.turn,
     chargingVisits,
     elapsedMs: now() - start,
