@@ -225,7 +225,7 @@ test('mandatory Shield contract fails closed for missing sources, old versions, 
  const old=evidence(),saved=JSON.parse(old.files['shield-public-save.json']);saved.version=3;old.files['shield-public-save.json']=Buffer.from(JSON.stringify(saved));old.rebind();await assert.rejects(()=>validateSpellVisualReceipt(old.receipt,old.expected))
  const f=evidence();await assert.rejects(()=>validateSpellVisualReceipt(f.receipt,{...f.expected,originalUnits:Buffer.from('{}')}))
  await assert.rejects(()=>validateSpellVisualReceipt(f.receipt,{...f.expected,policy:'spell-visuals-nine-v1'}))
- assert.equal(SPELL_VISUAL_FILES.length+40+1,67);assert.equal(new Set(SPELL_VISUAL_INPUTS).size,SPELL_VISUAL_INPUTS.length)
+ assert.equal(SPELL_VISUAL_FILES.length+22+1,50);assert.equal(new Set(SPELL_VISUAL_INPUTS).size,SPELL_VISUAL_INPUTS.length)
  for(const name of SHIELD_VISUAL_INPUTS)assert.ok(SPELL_VISUAL_INPUTS.includes(name))
  for(const name of SPELL_VISUAL_INPUTS)assert.ok(readFileSync(new URL('../'+name,import.meta.url)).length>0)
 })

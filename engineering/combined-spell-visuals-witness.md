@@ -34,7 +34,7 @@ checks the merged current version4 explicitly; there is no version3 fallback.
 Crops keep strict body-height, source, UV, palette, painter, canvas ownership,
 causal removal/restoration and decoded PNG/framebuffer equality checks.
 
-There are26 fixed files, up to40 Angel crops and one optional build log: at most67
+There are 27 fixed files, exactly 22 required Angel crops and one optional build log: at most 50
 archive entries. File/archive/decoded-total ceilings remain32/48/96MiB. The compact
 base64 receipt is bounded to24,000 decoded bytes to bind both inventories. Every
 required artifact is hashed; unexpected artifacts and duplicate crop identities

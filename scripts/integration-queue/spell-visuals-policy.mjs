@@ -83,7 +83,7 @@ export async function validateSpellVisualReceipt(receipt, expected) {
   assert.deepEqual(Object.keys(receipt.inputs), SPELL_VISUAL_INPUTS); assert.deepEqual(receipt.inputs, expected.inputs)
   for (const value of Object.values(receipt.inputs)) sha(value)
   assert.ok(expected.files && typeof expected.files === 'object', 'Verified exact-attempt artifact files are required')
-  assert.ok(Object.keys(expected.files).length <= 67)
+  assert.ok(Object.keys(expected.files).length <= 50)
   assert.ok(Object.values(expected.files).every(Buffer.isBuffer))
   assert.ok(Object.values(expected.files).reduce((sum, bytes) => sum + bytes.length, 0) <= 96 * 1024 * 1024)
   const read = name => { const bytes = expected.files[name]; assert.ok(Buffer.isBuffer(bytes), `Missing artifact ${name}`); assert.ok(bytes.length <= 32 * 1024 * 1024); return bytes }
@@ -186,9 +186,9 @@ export async function resolveSpellVisualArtifact(archive, upload, receipt, expec
   assert.equal(hash(archive), upload.sha256)
   const { readArtifactZip } = await import('../artifact-zip.mjs')
   const allowed = new Set([...Object.keys(receipt.artifacts), 'build.log'])
-  assert.ok(allowed.size <= 67)
+  assert.ok(allowed.size <= 50)
   const files = Object.fromEntries(readArtifactZip(archive, { maxArchiveBytes: 48 * 1024 * 1024,
-    maxFileBytes: 32 * 1024 * 1024, maxTotalBytes: 96 * 1024 * 1024, maxEntries: 67,
+    maxFileBytes: 32 * 1024 * 1024, maxTotalBytes: 96 * 1024 * 1024, maxEntries: 50,
     allowName: name => allowed.has(name) }))
   await validateSpellVisualReceipt(receipt, { ...expected, files })
   return { files, angel: JSON.parse(files['angel-visuals.json']), shield: JSON.parse(files['shield-visuals.json']), visualReview: 'required' }
