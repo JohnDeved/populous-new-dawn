@@ -2,6 +2,7 @@
 // These are the same production functions used by the real cast/controller path;
 // the checker controls the existing fixed clock, not Tornado state or artwork.
 export { nativePosition } from '../../app/model.ts'
+export { spellTargetError } from '../../app/live-command.ts'
 export { spellInRange } from '../../app/spell-casting.ts'
 export { tornadoCell } from '../../app/tornado-appearance.ts'
 export { advanceGame } from '../../app/game-clock.ts'

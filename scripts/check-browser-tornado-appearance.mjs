@@ -46,7 +46,7 @@ export async function runTornadoAppearance(
   }, budgetMs)
   const persist = () =>
     writeFileSync(
-      resolve(dir, 'report.json'),
+      resolve(dir, 'tornado-appearance.json'),
       JSON.stringify({ ...report, elapsedMs: performance.now() - started }, null, 2)
     )
   try {
@@ -63,15 +63,13 @@ export async function runTornadoAppearance(
         await page.keyboard.press('F9')
         await page.getByRole('button', { name: 'Unlock + refill all spells', exact: true }).click()
         await page.getByRole('button', { name: 'Close · F9', exact: true }).click()
-        await page.getByRole('button', { name: /^Tornado, \d+ shots$/ }).click()
         episode.target = await page.evaluate(async kind => {
           const s = globalThis.testScene,
             w = s.world,
             { nativePosition, spellInRange, tornadoCell } = globalThis.__pndTornadoFixture,
             shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
             candidates = []
-          if (w.mode !== 'tornado' || !w.selected.includes(shaman.id))
-            throw new Error('HUD did not select ready Tornado caster')
+          if (!w.selected.includes(shaman.id)) throw new Error('HUD did not select ready Shaman')
           // Read-only bounded nearby target search; no teleport, terrain or range changes.
           for (let dz = -24; dz <= 24; dz += 2)
             for (let dx = -24; dx <= 24; dx += 2) {
@@ -107,7 +105,35 @@ export async function runTornadoAppearance(
             },
           }
         }, kind)
+        // focus() intentionally cancels spell mode. Select through the real HUD
+        // only AFTER camera placement; never restore mode by assigning it.
+        await page.getByRole('button', { name: /^Tornado, \d+ shots$/ }).click()
+        episode.cast = { before: await readCastState(page, episode.target.pointer) }
+        persist()
+        assert.equal(
+          episode.cast.before.mode,
+          'tornado',
+          'Tornado mode must survive until pointer input'
+        )
+        assert.equal(episode.cast.before.targetError, null, 'actual picked target must be castable')
+        assert.ok(episode.cast.before.canvasHit, 'canvas must own the planned pointer target')
         await page.mouse.click(episode.target.pointer.x, episode.target.pointer.y)
+        episode.cast.after = await readCastState(page, episode.target.pointer)
+        persist()
+        assert.equal(
+          episode.cast.after.casts,
+          episode.cast.before.casts + 1,
+          'real pointer must submit exactly one cast'
+        )
+        assert.equal(
+          episode.cast.after.shots,
+          episode.cast.before.shots - 1,
+          'real pointer must spend exactly one charge'
+        )
+        assert.ok(
+          episode.cast.after.projectiles.some(p => p.spell === 'tornado'),
+          'real pointer must allocate the Tornado projectile'
+        )
         await page.evaluate(async () => {
           const s = globalThis.testScene,
             w = s.world,
@@ -261,7 +287,7 @@ export async function runTornadoAppearance(
           }
           episode.stages.push({ stage, ...result })
           // Normal composition, before any visibility/clear-color isolation.
-          await page.screenshot({ path: resolve(dir, `${kind}-${stage}-normal.png`) })
+          await page.screenshot({ path: resolve(dir, `tornado-${kind}-${stage}-normal.png`) })
           persist()
           return result
         }
@@ -277,7 +303,7 @@ export async function runTornadoAppearance(
         const gpu = await isolateColumn(page)
         for (const [name, data] of Object.entries(gpu.pngs))
           writeFileSync(
-            resolve(dir, `${kind}-diagnostic-${name}.png`),
+            resolve(dir, `tornado-${kind}-diagnostic-${name}.png`),
             Buffer.from(data.split(',')[1], 'base64')
           )
         const loadedAtlasSHA256 = createHash('sha256')
@@ -370,8 +396,18 @@ export async function runTornadoAppearance(
         assert.ok(episode.cleanup.differentScene && episode.cleanup.oldSceneDisposed)
         assert.equal(episode.cleanup.disposed, 16)
         assert.equal(episode.cleanup.remainingColumns, 0)
-        await page.screenshot({ path: resolve(dir, `${kind}-restart-normal.png`) })
+        await page.screenshot({ path: resolve(dir, `tornado-${kind}-restart-normal.png`) })
         assert.deepEqual(errors, [])
+      } catch (error) {
+        episode.failure = String(error.stack ?? error)
+        episode.failureState = await readCastState(page, episode.target?.pointer).catch(error => ({
+          observationError: String(error),
+        }))
+        await page
+          .screenshot({ path: resolve(dir, `tornado-${kind}-failure.png`), timeout: 3000 })
+          .catch(() => {})
+        persist()
+        throw error
       } finally {
         await page.context().close()
       }
@@ -397,6 +433,59 @@ export async function runTornadoAppearance(
     persist()
   }
   return report
+}
+
+async function readCastState(page, pointer) {
+  return page.evaluate(pointer => {
+    const s = globalThis.testScene,
+      w = s.world,
+      shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
+      event = pointer && { clientX: pointer.x, clientY: pointer.y },
+      picked = event && s.pick(event),
+      hit = pointer && document.elementFromPoint(pointer.x, pointer.y),
+      targetError = picked
+        ? globalThis.__pndTornadoFixture.spellTargetError(w, 'tornado', picked)
+        : { message: 'No picked world target' }
+    return {
+      turn: w.turn,
+      mode: w.mode,
+      paused: w.paused,
+      speed: w.speed,
+      status: w.status,
+      inputMask: w.inputMask,
+      modalSuspended: s.modalSuspended,
+      overviewStage: s.overviewStage,
+      selected: [...w.selected],
+      casts: w.stats.cast,
+      shots: w.shots.tornado,
+      pointer: pointer ?? null,
+      picked: picked ?? null,
+      targetError: targetError ?? null,
+      canvasHit: hit === s.renderer.domElement,
+      hit: hit ? { tag: hit.tagName, class: hit.className, role: hit.getAttribute('role') } : null,
+      shaman: shaman && {
+        id: shaman.id,
+        x: shaman.x,
+        z: shaman.z,
+        hp: shaman.hp,
+        casting: shaman.casting,
+        nativeState: shaman.native?.state,
+        flags2: shaman.native?.flags2,
+        flags4: shaman.native?.flags4,
+      },
+      cooldown: w.castingTribes[0].cooldown,
+      projectiles: w.projectiles.map(p => ({
+        id: p.id,
+        spell: p.spell,
+        phase: p.phase,
+        remaining: p.remaining,
+        target: p.target,
+      })),
+      tornadoes: w.effects
+        .filter(f => f.tornado)
+        .map(f => ({ id: f.id, phase: f.tornado.phase, remaining: f.tornado.remaining })),
+    }
+  }, pointer ?? null)
 }
 
 async function openTornadoGame(browser, url) {
