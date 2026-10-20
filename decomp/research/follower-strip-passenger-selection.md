@@ -286,3 +286,11 @@ proof that the complete route now fits. The regression uses the installed
 Playwright evaluator/serializers in a Node VM, verifies one synchronous call,
 exact fields and actual owner aliases, rejects missing/inconsistent/unpaused views,
 and verifies that capture does not mutate the live World. No local browser is run.
+
+The next coherent union includes main `50541d92`, whose current route-capacity
+store envelope is version 3. M10 Save/Load admission and synthetic tuples therefore
+require version 3 and explicitly reject obsolete versions 1 and 2 and unknown 4.
+The main-owned Load observer label is preserved. The failed `ec6e4081` hosted
+observations above remain version-2 evidence on their original source; they are
+not relabeled as a successful current-version run. Evidence schema versions,
+all eighteen control obligations and all existing caps remain unchanged.
