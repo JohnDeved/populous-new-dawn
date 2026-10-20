@@ -323,7 +323,7 @@ import {
   cancelBuildingEntry,
   leaveLiveBuilding,
   stepLivePerson,
-  stepLiveImpulse,
+  stepOwnedLiveImpulse,
   resumeLiveSeatedFlight,
   registerLivePerson,
   changeLivePersonState,
@@ -1333,7 +1333,7 @@ function stepTurn(w: World, metrics?: { steps: number }) {
       continue
     }
     if (u.flight && !resumeLiveSeatedFlight(u)) {
-      stepLiveImpulse(w, u)
+      stepOwnedLiveImpulse(w, u)
       continue
     }
     if (u.hp <= 0) continue
