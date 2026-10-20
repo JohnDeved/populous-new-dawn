@@ -9,13 +9,15 @@ import fixtures from './fixtures/unit-sprites.json' with { type: 'json' }
 import provenance from '../public/original/provenance.json' with { type: 'json' }
 import firingArtwork from './fixtures/firewarrior-firing-artwork.json' with { type: 'json' }
 import preacherArtwork from './fixtures/preacher-gesture-artwork.json' with { type: 'json' }
+import followerArtwork from './fixtures/follower-source-artwork.json' with { type: 'json' }
 
 test('unit atlas retains reviewed tribe/state/direction layers when new models append', () => {
   const atlas = readFileSync(new URL(`../public/original/${units.atlas}.png`, import.meta.url))
   const digest = bytes => createHash('sha256').update(bytes).digest('hex')
   assert.equal(digest(atlas), provenance.unitAtlasSha256)
   // The entire old PNG is identified here; its decoded-pixel witness is pinned
-  // independently from b020. Only the 80 firing and 48 Preacher rectangles differ.
+  // independently from b020. Only the 80 firing, 48 Preacher and independently
+  // measured 492 follower-source rectangles differ.
   assert.equal(firingArtwork.historical.pngSha256,
     '9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd')
   assert.equal(atlas.subarray(0, 8).toString('hex'), '89504e470d0a1a0a')
@@ -42,8 +44,15 @@ test('unit atlas retains reviewed tribe/state/direction layers when new models a
   assert.equal(preacherArtwork.measurementSha256, 'f9a471e8472bd54f460d8cfc900d6fe970dea8c1d16614b604e2300b6fe81953')
   assert.equal(preacherArtwork.checkerSha256, digest(readFileSync(new URL('../scripts/check-preacher-gesture-assets.py', import.meta.url))))
   assert.equal(preacherArtwork.pieces.length, 48)
-  assert.deepEqual(units.pieces.slice(4122), preacherArtwork.pieces.map(({ rgbaSha256, ...piece }) => piece),
-    'Only the 48 measured Preacher rectangles append after the fixed firing prefix')
+  assert.deepEqual(units.pieces.slice(4122, 4170), preacherArtwork.pieces.map(({ rgbaSha256, ...piece }) => piece),
+    'The 48 measured Preacher rectangles retain their fixed prefix after later appends')
+  assert.equal(followerArtwork.measurementSha256, '919895d36d211b93234578cd8d84c3ba0ddb817c2b31bd0375ce6fe26151e130')
+  assert.equal(followerArtwork.historical.pieceCount, 4170)
+  assert.equal(digest(JSON.stringify(units.pieces.slice(0, 4170))), followerArtwork.historical.pieceMetadataSha256,
+    'Every accepted piece index and metadata record before the follower append remains unchanged')
+  assert.equal(followerArtwork.pieces.length, 492)
+  assert.deepEqual(units.pieces.slice(4170), followerArtwork.pieces.map(({ packedIndex, rgbaSha256, ...piece }) => piece),
+    'Only the 492 independently measured follower source records append after the fixed Preacher prefix')
   for (const [offset, piece] of preacherArtwork.pieces.entries()) {
     const cell = 4062 + Math.floor(offset / 4)
     assert.deepEqual([piece.atlasX, piece.atlasY],
@@ -54,6 +63,37 @@ test('unit atlas retains reviewed tribe/state/direction layers when new models a
   const pixels = inflateSync(Buffer.concat(blocks)), stride = width * 4 + 1
   assert.equal(pixels.length, stride * height)
   for (let row = 0; row < height; row++) assert.equal(pixels[row * stride], 0)
+  const occupied = units.pieces.slice(0, 4170).map((piece, index) => ({
+    x: piece.atlasX ?? index % units.columns * units.cell,
+    y: piece.atlasY ?? Math.floor(index / units.columns) * units.cell,
+    w: piece.w, h: piece.h,
+  }))
+  for (const [offset, piece] of followerArtwork.pieces.entries()) {
+    const { atlasX: x, atlasY: y, w, h } = piece
+    assert.equal(piece.packedIndex, 4170 + offset)
+    assert.ok([x, y, w, h].every(Number.isInteger) && w > 0 && h > 0)
+    assert.ok(x >= 0 && y >= 0 && x + w <= width && y + h <= height)
+    assert.ok(occupied.every(old => x + w <= old.x || old.x + old.w <= x ||
+      y + h <= old.y || old.y + old.h <= y), `Follower rectangle ${piece.source} cannot overlap any prior piece`)
+    occupied.push({ x, y, w, h })
+    const originalPixels = createHash('sha256')
+    for (let row = 0; row < h; row++) {
+      const at = (y + row) * stride + 1 + x * 4
+      originalPixels.update(pixels.subarray(at, at + w * 4))
+    }
+    assert.equal(originalPixels.digest('hex'), piece.rgbaSha256, `Original follower piece ${piece.source}`)
+    // The independent original-data audit proved these exact destinations
+    // transparent before append. Never clear a whole cell or candidate-led mask.
+    for (let row = 0; row < h; row++) {
+      const at = (y + row) * stride + 1 + x * 4
+      pixels.fill(0, at, at + w * 4)
+    }
+  }
+  const acceptedPixels = createHash('sha256')
+  for (let row = 0; row < height; row++)
+    acceptedPixels.update(pixels.subarray(row * stride + 1, (row + 1) * stride))
+  assert.equal(acceptedPixels.digest('hex'), followerArtwork.historical.rgbaSha256,
+    'Clearing only independently verified follower rectangles restores every accepted atlas byte')
   for (const piece of [...firingArtwork.pieces, ...preacherArtwork.pieces]) {
     const { atlasX: x, atlasY: y, w, h } = piece
     assert.ok(x >= 0 && y >= 0 && x + w <= width && y + h <= height)

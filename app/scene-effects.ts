@@ -29,6 +29,7 @@ import {
   shamanReincarnationPose,
 } from './shaman-appearance.ts'
 import { shamanDeathVfx } from './shaman-death-vfx.ts'
+import { followerCorpseFrame, followerCorpsePose } from './follower-corpse-animation.ts'
 import { short } from './native-math.ts'
 import { SWARM_INSECT_COUNT, hasSwarmRuntime, swarmState } from './swarm.ts'
 import { vaultKnowledgeGiftAppearance } from './vault-appearance.ts'
@@ -185,8 +186,7 @@ export function makeFx(scene: GameScene, f: Effect) {
     g.userData.draw = nativeUnitDraw(f.unit.kind)
     g.userData.drawFlags = f.corpse ? 0 : 2
     g.userData.shaman = f.unit.kind === 'shaman'
-    if (f.corpse)
-      g.userData.directions = Array.from({ length: 8 }, () => ({ frames: [304], flip: false }))
+    if (f.corpse) g.userData.directions = followerCorpsePose(f.unit, f.corpse.phase).directions
     return g
   }
   const sequence =
@@ -357,14 +357,13 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
   }
   if (f.unit) {
     if (f.corpse) {
-      const frame = f.corpse.phase === 0 ? 304 : f.corpse.phase === 1 ? 312 : 320,
-        directions = g.userData.directions as { frames: number[]; flip: boolean }[]
       g.visible = f.corpse.phase < 4
       if (!g.visible) return
-      if (g.userData.frame !== frame)
-        for (const direction of directions) direction.frames[0] = frame
+      const pose = followerCorpsePose(f.unit, f.corpse.phase)
+      g.userData.draw = pose.draw
+      g.userData.directions = pose.directions
       g.userData.drawFlags = f.corpse.phase >= 3 ? 6 : 0
-      scene.animatePerson(g, f.unit.heading, directions, 0)
+      scene.animatePerson(g, f.unit.heading, pose.directions, 0, false, followerCorpseFrame(f))
       return
     }
     // The model-12 effect already draws this Shaman's body/spirit. Keep the
