@@ -1,3 +1,4 @@
+import { liveBuildingShape } from './live-building-shapes.ts'
 import {
   buildingFirePoints,
   buildingFootprintCells,
@@ -555,8 +556,7 @@ export function stepLiveAboardPersonAttack(w: World, u: Unit) {
       const target = combatPerson(owner)
       if (target.flags2 & 1) return 1
       const { world } = combatWorld(w, target, 128),
-        outside = (id: number) =>
-          buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!)),
+        outside = (id: number) => buildingOutsidePoint(liveBuildingShape(w, id)!),
         search = {
           randomState: w.randomState,
           playerTribe: w.manaWorld.playerTribe,
@@ -653,11 +653,9 @@ export function leaveLiveAttackVehicle(w: World, p: LivePerson, to: { x: number;
   // Existing departure adapter retains its simplified ground physics/RNG.
   leaveLiveVehicle(w, vehicle, p, exit)
   const index = (exit.y >> 9) * 128 + (exit.x >> 9),
-    building =
-      w.land.flags[index] & 512
-        ? w.buildings.find(b => b.id === (w.land.buildingIds[index] & 1023))
-        : undefined
-  setPersonAnchor(p, building ? buildingOutsidePoint(buildingPose(building)) : exit)
+    shape =
+      w.land.flags[index] & 512 ? liveBuildingShape(w, w.land.buildingIds[index] & 1023) : undefined
+  setPersonAnchor(p, shape ? buildingOutsidePoint(shape) : exit)
 }
 
 function stepAreaAttack(
@@ -673,8 +671,7 @@ function stepAreaAttack(
     const cell = (point.y >> 9) * 128 + (point.x >> 9)
     return { flags: w.land.flags[cell], id: w.land.buildingIds[cell] & 1023 }
   }
-  const outside = (id: number) =>
-    buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
+  const outside = (id: number) => buildingOutsidePoint(liveBuildingShape(w, id)!)
   const search = {
     randomState: w.randomState,
     playerTribe: w.manaWorld.playerTribe,

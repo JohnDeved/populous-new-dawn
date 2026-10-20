@@ -1,5 +1,4 @@
 import {
-  buildingFootprintCells,
   buildingInsidePoint,
   buildingOutsidePoint,
   buildingSocketPoint,
@@ -35,19 +34,11 @@ export function vaultPoints(vault: VaultPose) {
 }
 
 // 0040a3f0 reads the current cell's building owner, not distance to a doorway.
-// Vaults still live outside the building registry; reuse their shape masks here
-// without changing the shared collision/navigation map or its registered owners.
+// The shared mask is authoritative, including registered non-Vault precedence.
 export function vaultAtPersonCell(w: World, point: { x: number; y: number }) {
   const cell = ((point.y & 65535) >>> 9) * 128 + ((point.x & 65535) >>> 9)
-  if (
-    w.land.flags[cell] & 512 &&
-    w.buildings.some(building => building.id === (w.land.buildingIds[cell] & 1023))
-  )
-    return undefined
-  return w.shrines.find(
-    shrine =>
-      shrine.kind === 'vault' &&
-      shrine.model &&
-      buildingFootprintCells(vaultShapePose(shrine)).includes(cell)
-  )
+  if (!(w.land.flags[cell] & 512)) return undefined
+  const id = w.land.buildingIds[cell] & 1023
+  if (w.buildings.some(building => building.id === id)) return undefined
+  return w.shrines.find(shrine => shrine.id === id && shrine.kind === 'vault' && shrine.model)
 }

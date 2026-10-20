@@ -1,3 +1,4 @@
+import { liveBuildingShape } from './live-building-shapes.ts'
 import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
 import { TRIBE_TEAMS, tribeForTeam, type Unit, type World } from './world-types.ts'
 import {
@@ -284,11 +285,11 @@ function finishComputerPerson(
   if (!retainOwner) adoptLiveOrders(w, u, p)
   if (cleanup) {
     const cell = (p.y >>> 9) * 128 + (p.x >>> 9),
-      building =
+      shape =
         w.land.flags[cell] & 512
-          ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
+          ? liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
           : undefined,
-      point = building ? buildingOutsidePoint(buildingPose(building)) : p
+      point = shape ? buildingOutsidePoint(shape) : p
     //0x405090 snaps the idle anchor, not the active goal/route fields.
     p.anchorX = (point.x & 0xfe00) + 0x100
     p.anchorY = (point.y & 0xfe00) + 0x100
