@@ -41,7 +41,7 @@ export function createAngelVisualFixture(source) {
   shaman.invisibility = 1000 // Declared target exclusion keeps the camera anchor alive.
   const owners = ['blue', 'red', 'yellow', 'green'], ids = []
   for (const [owner, team] of owners.entries()) {
-    const point = { x: owner % 2 ? 5 : -5, z: owner < 2 ? -5 : 5 }
+    const point = { x: owner % 2 ? 9 : -9, z: owner < 2 ? -5 : 5 }
     const victim = addUnit(world, owners[(owner + 1) % 4], 'brave', { x: point.x + 0.5, z: point.z })
     victim.native = createLivePerson(world, victim); victim.native.state = 14
     const effect = createAngel(world, team, point)
@@ -65,5 +65,5 @@ export function createAngelVisualFixture(source) {
     transferSha256: sha(JSON.stringify(transfer)), expectedSha256: sha(JSON.stringify(expected)),
     ids, owners, shamanId: shaman.id, neighbourId: neighbour.id, focus: { x: 0, z: 0 },
     state: angelCheckpointState(expectedWorld),
-    supplied: 'Mission1 world; flat dry full-map terrain135; isolated-controller loadFlags0x200; input/flyby unlocked; four Angels/nearby reserved victims; invisible camera-anchor Shaman excluded from targets; finite lifetime80; native tree neighbour; four actual24Hz preparation visits; paused current-format checkpoint. No earned acquisition or original framebuffer claim.' } }
+    supplied: 'Mission1 world; flat dry full-map terrain135; isolated-controller loadFlags0x200; input/flyby unlocked; four Angels at x±9,z±5 clear of the public pause badge/nearby reserved victims; invisible camera-anchor Shaman excluded from targets; finite lifetime80; native tree neighbour; four actual24Hz preparation visits; paused current-format checkpoint. No earned acquisition or original framebuffer claim.' } }
 }
