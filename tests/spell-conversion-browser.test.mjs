@@ -6,6 +6,7 @@ import { conversionLimitMs, conversionObservationMs, validateConversionObservati
   installConversionObserver, closeConversionContext, readConversionStartup,
   waitForConversionIntroduction, setupConversionCamera } from '../scripts/tutorial-browser/spell-conversion.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
+import { spellTestLimitMs } from '../scripts/tutorial-browser/spell-test-menu.mjs'
 import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mjs'
 import { createWorld, tick, nativePosition } from '../app/model.ts'
 import { createCameraMotion } from '../app/camera-motion.ts'
@@ -259,8 +260,7 @@ test('conversion observation and existing F9/global deadlines stay finite and in
   assert.equal(conversionLimitMs, 75000)
   assert.equal(conversionObservationMs, 30000)
   assert.equal(browserCapMs('frontend-held-escape'), 180000)
-  const f9 = readFileSync(new URL('../scripts/tutorial-browser/spell-test-menu.mjs', import.meta.url), 'utf8')
-  assert.match(f9, /55000/)
+  assert.equal(spellTestLimitMs, 75000)
   const source = installConversionObserver.toString()
   assert.match(source, /keys\.size < 8/)
   assert.match(source, /world\.turn > result\.bornTurn \+ 8/)

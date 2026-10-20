@@ -5,6 +5,25 @@ import { bindGame } from '../browser-game.mjs'
 import { SPELLS } from '../../app/world-rules.ts'
 import rules from '../../app/original-rules.json' with { type: 'json' }
 
+// Same-source hosted passes took 49.356s/50.327s; a 55s run still reached a
+// normal, connected restart flyby. Allow the three world loads, interactions and
+// cleanup one absolute 75s episode, inside the unchanged shared 180s browser cap.
+export const spellTestLimitMs = 75000
+
+export function assertSpellTestDeadline(report, started, now = () => performance.now()) {
+  report.elapsedMs = now() - started
+  assert.ok(!report.timedOut && Number.isFinite(report.elapsedMs) &&
+    report.elapsedMs >= 0 && report.elapsedMs < spellTestLimitMs,
+  'F9 episode exceeded its absolute deadline')
+  return spellTestLimitMs - report.elapsedMs
+}
+
+export async function closeSpellTestContext(context, report, started, now = () => performance.now()) {
+  await context.close()
+  report.contextClosed = true
+  assertSpellTestDeadline(report, started, now)
+}
+
 export function spellTestDiagnosticSnapshot() {
   const world = window.testStore?.getWorld(), scene = window.testSceneRef?.current
   return {
@@ -56,15 +75,18 @@ export function startSpellTestDiagnostics(page, report) {
 
 // Public controls perform every change. Fiber aliases are read-only observers.
 export default async function spellTestMenu({ browser, url, output }) {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 }),
-    page = await context.newPage(), report = { status: 'running', errors: [], limits: [
+  const started = performance.now(),
+    context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 }),
+    page = await context.newPage(), report = { status: 'running', capMs: spellTestLimitMs, errors: [], limits: [
       'Actual production Home and normal pointer cast through plain Vite; not Vinext/Cloudflare hosting.',
       'No injected spells, forced simulation turns, altered casting state or direct store mutations.',
       'Functional/rendered menu coverage, not proof of every spell effect or hardware performance.',
     ] }
   let failure
   const diagnostics = startSpellTestDiagnostics(page, report)
-  const timer = setTimeout(() => { report.timedOut = true; diagnostics.stop(); void context.close() }, 55000)
+  const timer = setTimeout(() => {
+    report.timedOut = true; diagnostics.stop(); void context.close().catch(() => {})
+  }, Math.max(0, spellTestLimitMs - (performance.now() - started)))
   page.setDefaultTimeout(12000)
   page.on('pageerror', error => report.errors.push(String(error)))
   page.on('console', message => { if (message.type() === 'error') report.errors.push(message.text()) })
@@ -103,6 +125,7 @@ export default async function spellTestMenu({ browser, url, output }) {
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     }
   try {
+    assertSpellTestDeadline(report, started)
     diagnostics.stage('start mission')
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await button('New Game').click()
@@ -234,7 +257,6 @@ export default async function spellTestMenu({ browser, url, output }) {
     assert.equal((await snapshot()).shots.teleport, 0)
     report.savePreservedAndLoadRestartReset = true
     assert.deepEqual(report.errors, [])
-    report.status = 'passed'
     diagnostics.stage('completed')
   } catch (error) {
     failure = error
@@ -243,11 +265,16 @@ export default async function spellTestMenu({ browser, url, output }) {
     report.status = 'failed'
     try { await page.screenshot({ path: resolve(output, 'f9-cheats-failure.png') }) } catch {}
   } finally {
-    clearTimeout(timer)
-    diagnostics.stop()
-    await context.close()
-    report.contextClosed = true
-    writeFileSync(resolve(output, 'f9-cheats.json'), JSON.stringify(report, null, 2) + '\n')
+    try { await closeSpellTestContext(context, report, started) }
+    catch (error) { failure ??= error; report.failure ??= String(error); report.stack ??= error.stack }
+    finally {
+      clearTimeout(timer)
+      diagnostics.stop()
+      try { assertSpellTestDeadline(report, started) }
+      catch (error) { failure ??= error; report.failure ??= String(error); report.stack ??= error.stack }
+      report.status = failure ? 'failed' : 'passed'
+      writeFileSync(resolve(output, 'f9-cheats.json'), JSON.stringify(report, null, 2) + '\n')
+    }
   }
   if (failure) throw failure
   return report

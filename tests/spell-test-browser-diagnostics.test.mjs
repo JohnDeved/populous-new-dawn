@@ -1,8 +1,12 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import vm from 'node:vm'
-import { spellTestDiagnosticSnapshot, startSpellTestDiagnostics } from '../scripts/tutorial-browser/spell-test-menu.mjs'
+import spellTestMenu, { spellTestDiagnosticSnapshot, startSpellTestDiagnostics, spellTestLimitMs,
+  assertSpellTestDeadline, closeSpellTestContext } from '../scripts/tutorial-browser/spell-test-menu.mjs'
+import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 
 test('F9 diagnostics read current readiness and modal state without mutating the game', () => {
   const world = { turn: 4, inputMask: 192, paused: false, flyby: { flags: 16 }, status: 'playing' },
@@ -62,12 +66,65 @@ test('diagnostic read errors are retained without rejecting the scenario', async
   assert.equal(report.diagnostics.observationError, 'Error: read interrupted')
 })
 
-test('F9 timeout closes immediately with the same cap and final cleanup stops observations', () => {
+test('F9 uses one absolute measured-headroom cap without changing readiness or the shared deadline', () => {
   const source = readFileSync(new URL('../scripts/tutorial-browser/spell-test-menu.mjs', import.meta.url), 'utf8')
-  assert.match(source, /setTimeout\(\(\) => \{ report\.timedOut = true; diagnostics\.stop\(\); void context\.close\(\) \}, 55000\)/)
-  assert.match(source, /finally \{\s+clearTimeout\(timer\)\s+diagnostics\.stop\(\)\s+await context\.close\(\)/)
+  assert.equal(spellTestLimitMs, 75000)
+  assert.equal(browserCapMs('frontend-held-escape'), 180000)
+  assert.equal((source.match(/setTimeout\(/g) ?? []).length, 1, 'never restart the watchdog per stage')
+  assert.match(source, /report\.timedOut = true; diagnostics\.stop\(\); void context\.close\(\)\.catch/)
+  assert.match(source, /Math\.max\(0, spellTestLimitMs - \(performance\.now\(\) - started\)\)/)
+  assert.match(source, /try \{ await closeSpellTestContext\(context, report, started\) \}[\s\S]+clearTimeout\(timer\)/,
+    'the existing watchdog remains active throughout final cleanup')
+  assert.match(source, /page\.setDefaultTimeout\(12000\)/)
+  assert.match(source, /report\.status = failure \? 'failed' : 'passed'/)
+  assert.doesNotMatch(source, /report\.status = 'passed'/, 'no success before final cleanup validation')
   for (const phase of ['new game', 'checkpoint load', 'restart'])
     assert.ok(source.includes(`await waitReady('${phase}')`))
   assert.equal((source.match(/await page\.waitForFunction\(\(\) => !window\.testStore\.getWorld\(\)\.inputMask/g) ?? []).length, 2,
     'both original readiness waits remain')
+})
+
+test('F9 absolute deadline admits measured slow progress but never resets elapsed time', () => {
+  const report = { capMs: spellTestLimitMs }, started = 1000
+  assert.equal(assertSpellTestDeadline(report, started, () => started + 50327), 24673)
+  assert.equal(assertSpellTestDeadline(report, started, () => started + 57040), 17960)
+  assert.equal(report.elapsedMs, 57040)
+  for (const elapsed of [75000, 75001, Infinity, NaN, -1])
+    assert.throws(() => assertSpellTestDeadline({}, started, () => started + elapsed), /absolute deadline/)
+  assert.throws(() => assertSpellTestDeadline({ timedOut: true }, started, () => started + 70000),
+    /absolute deadline/, 'a fired watchdog cannot be certified by an earlier clock reading')
+})
+
+test('F9 cleanup rejects late resolution and watchdog expiry, retaining explicit elapsed evidence', async () => {
+  let now = 74000, release
+  const report = {}, context = { close: () => new Promise(resolve => { release = resolve }) },
+    pending = closeSpellTestContext(context, report, 0, () => now)
+  now = 75001
+  release()
+  await assert.rejects(pending, /absolute deadline/)
+  assert.equal(report.elapsedMs, 75001)
+  assert.equal(report.contextClosed, true)
+  await assert.rejects(closeSpellTestContext({ close: async () => {} },
+    { timedOut: true }, 0, () => 74000), /absolute deadline/)
+  const passed = {}
+  await closeSpellTestContext({ close: async () => {} }, passed, 0, () => 74999)
+  assert.deepEqual(passed, { contextClosed: true, elapsedMs: 74999 })
+})
+
+test('F9 expired setup cannot enter gameplay or write a passing report', async t => {
+  const output = mkdtempSync(join(tmpdir(), 'pnd-f9-deadline-'))
+  t.after(() => rmSync(output, { recursive: true, force: true }))
+  let now = 0, navigation = 0
+  t.mock.method(performance, 'now', () => now)
+  const page = { setDefaultTimeout() {}, on() {}, getByRole: () => ({}), evaluate: async () => ({}),
+    goto: async () => { navigation++ }, screenshot: async () => {} },
+    context = { newPage: async () => page, close: async () => {} },
+    browser = { newContext: async () => { now = spellTestLimitMs; return context } }
+  await assert.rejects(spellTestMenu({ browser, url: 'http://unused.invalid', output }), /absolute deadline/)
+  assert.equal(navigation, 0)
+  const report = JSON.parse(readFileSync(join(output, 'f9-cheats.json'), 'utf8'))
+  assert.equal(report.status, 'failed')
+  assert.equal(report.capMs, 75000)
+  assert.equal(report.elapsedMs, 75000)
+  assert.equal(report.contextClosed, true)
 })
