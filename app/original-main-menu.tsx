@@ -371,12 +371,15 @@ export function OriginalMainMenu({
           ...(dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []),
         ]
         const current = buttons.indexOf(document.activeElement as HTMLButtonElement)
-        const next =
-          event.key === 'Home'
-            ? 0
-            : event.key === 'End'
+        // Recovery controls sit outside nav. Enter the row list at its nearest end.
+        let next =
+          current < 0
+            ? event.key === 'ArrowUp'
               ? buttons.length - 1
-              : (current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length
+              : 0
+            : (current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length
+        if (event.key === 'Home') next = 0
+        else if (event.key === 'End') next = buttons.length - 1
         buttons[next]?.focus()
       }}
       onCancel={event => {
