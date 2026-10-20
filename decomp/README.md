@@ -5285,3 +5285,12 @@ Mixed-raid target availability versus member-order refresh: see
 Quit?/Yes/No/Back descriptors, font flags, native positions, shadows and navigation.
 The browser preserves that presentation with an explicitly unavailable Yes and
 conditional checkpoint guidance; this is not native exit-behavior parity.
+
+## Original Credits source and controller
+
+[Bounded Credits recovery](research/original-credits/README.md) links menu label445
+to state12, the supplied Credits text and language headings, and static scrolling,
+looping and exit-request boundaries. Hash-locked source windows and a reproducible
+data-only check are retained. Exact art/font/palette, full input delivery and focus
+return remain unresolved; the live Credits entry stays disabled. No original
+execution, runtime restoration, generated browser assets or parity credit.
