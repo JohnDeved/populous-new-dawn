@@ -109,7 +109,19 @@ export function profileRecoveryLog(log) {
   )
   return JSON.parse(bytes.toString('utf8'))
 }
+// Caller-owned contract, never inferred from receipt checkpoint versions.
+export function profileCheckpointVersion(expected = {}) {
+  if (expected.policy === 'spell-visuals-nine-v2') {
+    ensure(expected.checkpointVersion === 4, 'nine-job policy requires explicit current-v4 contract')
+    return 4
+  }
+  ensure(expected.policy === undefined || ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1'].includes(expected.policy),
+    'unsupported checkpoint policy')
+  ensure(expected.checkpointVersion === undefined || expected.checkpointVersion === 3, 'older policies require v3')
+  return 3
+}
 export function validateProfileHost(receipt, expected, kind, scenario) {
+  profileCheckpointVersion(expected)
   ensure(
     receipt?.version === 1 &&
       receipt.kind === kind &&
@@ -182,7 +194,7 @@ function validateProfileCasesCore(receipt, expected, kind) {
 }
 export function validateProfileRecovery(receipt, expected) {
   validateProfileCasesCore(receipt, expected, 'profile-recovery-browser')
-  validateMission10Profile(receipt.mission10, expected.identity.mergeSha, expected.mission10Evidence)
+  validateMission10Profile(receipt.mission10, expected.identity.mergeSha, expected.mission10Evidence, expected)
   return true
 }
 export function validateProfileCases(receipt, expected) {
@@ -197,7 +209,8 @@ export const profileCasesLog = log => {
 
 
 // Required companion, not a substitute for any of the nine recovery cases.
-export function validateMission10Profile(value, mergeSha, rawPhases) {
+export function validateMission10Profile(value, mergeSha, rawPhases, expected = {}) {
+  const checkpointVersion = profileCheckpointVersion(expected)
   ensure(Array.isArray(rawPhases) && rawPhases.length === 2, 'Mission 10 bound raw evidence missing')
   ensure(value?.status === 'passed' && value.sourceCommit === mergeSha &&
     isHash(value.sourceFingerprint) && isHash(value.runtimeSha256) && isHash(value.reportSha256),
@@ -231,7 +244,7 @@ export function validateMission10Profile(value, mergeSha, rawPhases) {
       phase.cleanupVerified === true && phase.continuationVerified === true &&
       isHash(phase.receiptSha256) && isHash(phase.resultSha256) && uuid(phase.profileId) && uuid(phase.runId),
       'Mission 10 phase source/runtime/cleanup is invalid')
-    ensure(phase.saved?.version === 3 && phase.saved.level === 10 && Number.isInteger(phase.saved.turn) && phase.saved.turn > 0 &&
+    ensure(phase.saved?.version === checkpointVersion && phase.saved.level === 10 && Number.isInteger(phase.saved.turn) && phase.saved.turn > 0 &&
       Number.isFinite(phase.saved.time) && ['checkpointSha256', 'actorsSha256', 'terrainSha256', 'stockSha256'].every(key => isHash(phase.saved[key])) &&
       phase.checkpointAtEnd === phase.saved.checkpointSha256, 'Mission 10 committed checkpoint is incomplete')
     ensure(phase.receiptName === `mission10-${phase.mode}--receipt.json` &&
@@ -274,7 +287,7 @@ export function validateMission10Profile(value, mergeSha, rawPhases) {
     loaded.profileId === saved.profileId && loaded.runId !== saved.runId && loaded.previousRunId === saved.runId &&
     loaded.checkpointAtStart === saved.checkpointAtEnd && same(loaded.saved, saved.saved),
     'Mission 10 process/profile/checkpoint continuation differs')
-  ensure(loaded.loaded?.version === 3 && ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']
+  ensure(loaded.loaded?.version === checkpointVersion && ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']
     .every(key => loaded.loaded[key] === saved.saved[key]), 'Mission 10 public Load boundary differs')
   return true
 }
