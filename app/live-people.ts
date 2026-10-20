@@ -325,6 +325,11 @@ export function leaveLiveBuilding(w: World, u: Unit) {
 // ponytail: victory bootstrap supplies initial order; full native allocation
 // must establish membership for ordinary units and the remaining object classes.
 export function syncLivePersonCells(w: World) {
+  invalidateLivePersonPass(w)
+  return reconcileLivePersonCells(w)
+}
+
+function reconcileLivePersonCells(w: World) {
   const units = w.units.filter(
     u =>
       (u.flight || u.fight?.motion || u.native || u.entry) &&
@@ -340,31 +345,209 @@ export function syncLivePersonCells(w: World) {
       if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
       deleteCellObject(w.objectCells, id)
     }
-  for (const u of w.units) {
-    // Preserve the native display offset across ordinary browser order handoff.
-    // Occupancy freezes physics; ordinary movement resumes the native support check.
-    const p = people.get(u.id)
-    const offset = p?.supportHeight ?? u.supportHeight
-    if (offset && !((p?.flags2 ?? 0) & 0x4000)) {
-      const point = nativePosition(w, u),
-        cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9),
-        flags = w.land.flags[cell]
-      const model = flags & 512 ? liveBuildingModel(w, w.land.buildingIds[cell] & 1023) : 0
-      const value = personSupportHeight(offset, flags, model)
-      if (p) p.supportHeight = value
-      u.supportHeight = value || undefined
-    }
-    if (!p) continue
-    if (!w.objectCells.objects.has(p.id)) {
-      setCellObject(w.objectCells, p.id, p)
-      insertObjectIntoCell(w.objectCells, p, p)
-    }
-    // Vehicle attachment owns seated height/position independently of the
-    // animation-source projection (command22 is not an on-foot pose owner).
-    if (u.flight || u.fight?.motion || p.vehicle) continue
-    syncBrowserPersonPosition(w, u, p)
-  }
+  for (const u of w.units) publishLivePersonCell(w, u, people.get(u.id))
   return people
+}
+
+function publishLivePersonCell(w: World, u: Unit, p: LivePerson | undefined) {
+  // Preserve the native display offset across ordinary browser order handoff.
+  // Occupancy freezes physics; ordinary movement resumes the native support check.
+  const offset = p?.supportHeight ?? u.supportHeight
+  if (offset && !((p?.flags2 ?? 0) & 0x4000)) {
+    const point = nativePosition(w, u),
+      cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9),
+      flags = w.land.flags[cell]
+    const model = flags & 512 ? liveBuildingModel(w, w.land.buildingIds[cell] & 1023) : 0
+    const value = personSupportHeight(offset, flags, model)
+    if (p) p.supportHeight = value
+    u.supportHeight = value || undefined
+  }
+  if (!p) return
+  if (!w.objectCells.objects.has(p.id)) {
+    setCellObject(w.objectCells, p.id, p)
+    insertObjectIntoCell(w.objectCells, p, p)
+  }
+  // Vehicle attachment owns seated height/position independently of the
+  // animation-source projection (command22 is not an on-foot pose owner).
+  if (u.flight || u.fight?.motion || p.vehicle) return
+  syncBrowserPersonPosition(w, u, p)
+}
+
+interface PersonEpisode {
+  people: Map<number, LivePerson>
+  units: World['units']
+  unitCount: number
+  turn: number
+  cells: World['objectCells']
+  objects: World['objectCells']['objects']
+  heads: World['objectCells']['heads']
+  land: World['land']
+  heights: World['land']['heights']
+  flags: World['land']['flags']
+  buildingIds: World['land']['buildingIds']
+  terrain: World['terrain']
+  terrainVersion: number
+  landVersion: number
+  buildings: World['buildings']
+  shrines: World['shrines']
+  pending?: Unit
+}
+interface PersonPass {
+  generation: number
+  busy: boolean
+  episode?: PersonEpisode
+}
+const livePersonPasses = new WeakMap<World, PersonPass>()
+
+function invalidateLivePersonPass(w: World) {
+  const pass = livePersonPasses.get(w)
+  if (pass) {
+    pass.generation++
+    pass.episode = undefined
+  }
+}
+
+// Only the ordinary on-foot, unrouted celebration body is owned here. These
+// guards exclude preparation/occupancy callbacks BEFORE they can mutate other
+// people. Other states and callers retain the unconditional public reconciler.
+function ownsCelebrationVisit(w: World, u: Unit) {
+  const p = u.native
+  return !!(
+    w.land.landFlags & 0x2000000 &&
+    u.hp > 0 &&
+    p?.state === 41 &&
+    !u.flight &&
+    !u.fight &&
+    !u.entry &&
+    !u.builder &&
+    !p.vehicle &&
+    !w.pathfinding.people.has(u.id) &&
+    !(p.flags2 & 16) &&
+    !(p.flags2 & 0x80000000 && !(p.flags2 & 128)) &&
+    !(p.substate === 0 && p.flags2 & 0x40000000 && p.flags2 & 0x800000)
+  )
+}
+
+function episodeIsCurrent(w: World, episode: PersonEpisode) {
+  return (
+    episode.units === w.units &&
+    episode.unitCount === w.units.length &&
+    episode.turn === w.turn &&
+    episode.cells === w.objectCells &&
+    episode.objects === w.objectCells.objects &&
+    episode.heads === w.objectCells.heads &&
+    episode.land === w.land &&
+    episode.terrain === w.terrain &&
+    episode.heights === w.land.heights &&
+    episode.flags === w.land.flags &&
+    episode.buildingIds === w.land.buildingIds &&
+    episode.terrainVersion === w.terrainVersion &&
+    episode.landVersion === w.landVersion &&
+    episode.buildings === w.buildings &&
+    episode.shrines === w.shrines
+  )
+}
+
+// A synchronous scheduler capability, never serialized or reused across turns.
+// next() ends a run before another controller; close() deliberately does NOT
+// publish pending changes. Publication stays at the old previsit/lazy-read sites.
+export function beginLivePersonPass(w: World) {
+  invalidateLivePersonPass(w)
+  const pass: PersonPass = { generation: 0, busy: false }
+  livePersonPasses.set(w, pass)
+  const current = () => livePersonPasses.get(w) === pass
+  const stop = () => {
+    if (current()) invalidateLivePersonPass(w)
+  }
+  return {
+    next(u: Unit) {
+      if (!ownsCelebrationVisit(w, u)) stop()
+    },
+    stop,
+    close() {
+      if (current()) {
+        stop()
+        livePersonPasses.delete(w)
+      }
+    },
+    step(u: Unit) {
+      if (!current() || pass.busy || !ownsCelebrationVisit(w, u)) {
+        stop()
+        stepLivePerson(w, u)
+        return
+      }
+      pass.busy = true
+      const { generation } = pass
+      let first = true
+      const synchronize = () => {
+        if (!current() || pass.generation !== generation || !ownsCelebrationVisit(w, u))
+          return syncLivePersonCells(w)
+        let { episode } = pass
+        if (
+          episode &&
+          (!episodeIsCurrent(w, episode) ||
+            episode.people.get(u.id) !== u.native ||
+            (episode.pending &&
+              (!ownsCelebrationVisit(w, episode.pending) ||
+                episode.people.get(episode.pending.id) !== episode.pending.native)))
+        ) {
+          stop()
+          return syncLivePersonCells(w)
+        }
+        if (episode) {
+          // Earlier roster visits publish before this visit's lazy read. The
+          // immutable membership Map is private; its values remain live aliases.
+          if (episode.pending && episode.pending !== u)
+            publishLivePersonCell(w, episode.pending, episode.people.get(episode.pending.id))
+          publishLivePersonCell(w, u, episode.people.get(u.id))
+        } else {
+          const people = reconcileLivePersonCells(w)
+          // Reentry during initialization cannot reactivate the outer run.
+          if (!first || !current() || pass.generation !== generation) return people
+          const ids = new Set<number>()
+          for (const unit of w.units) {
+            if (ids.has(unit.id) || (people.has(unit.id) && people.get(unit.id)!.id !== unit.id)) {
+              stop()
+              return people
+            }
+            ids.add(unit.id)
+          }
+          if (!current() || pass.generation !== generation) return people
+          episode = {
+            people,
+            units: w.units,
+            unitCount: w.units.length,
+            turn: w.turn,
+            cells: w.objectCells,
+            objects: w.objectCells.objects,
+            heads: w.objectCells.heads,
+            land: w.land,
+            terrain: w.terrain,
+            heights: w.land.heights,
+            flags: w.land.flags,
+            buildingIds: w.land.buildingIds,
+            terrainVersion: w.terrainVersion,
+            landVersion: w.landVersion,
+            buildings: w.buildings,
+            shrines: w.shrines,
+          }
+          pass.episode = episode
+        }
+        episode.pending = undefined
+        first = false
+        return episode.people
+      }
+      try {
+        stepLivePersonBody(w, u, synchronize)
+        if (current() && pass.generation === generation && pass.episode) pass.episode.pending = u
+      } catch (error) {
+        stop()
+        throw error
+      } finally {
+        pass.busy = false
+      }
+    },
+  }
 }
 
 // Publish an ordinary browser-owned step before a later controller can adopt
@@ -398,12 +581,12 @@ export function setLivePersonAnimation(w: World, p: LivePerson, object: number) 
   )
 }
 
-function context(w: World) {
+function context(w: World, synchronize = () => syncLivePersonCells(w)) {
   let people: Map<number, LivePerson> | undefined
   const state = {
     randomState: w.randomState,
     get people() {
-      return (people ??= syncLivePersonCells(w))
+      return (people ??= synchronize())
     },
     get shamans() {
       return w.manaTribes.map(
@@ -1267,9 +1450,13 @@ export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
 }
 
 export function stepLivePerson(w: World, u: Unit) {
+  stepLivePersonBody(w, u, () => syncLivePersonCells(w))
+}
+
+function stepLivePersonBody(w: World, u: Unit, synchronize: () => Map<number, LivePerson>) {
   // Celebration/panic still accept legacy placement before their physics visit.
-  syncLivePersonCells(w)
-  const ctx = context(w),
+  synchronize()
+  const ctx = context(w, synchronize),
     { state, effects } = ctx
   const p = u.native!
   p.counter = (p.counter + 1) & 255
