@@ -37,7 +37,7 @@ export function installSpySourceObserver({ spyId, targetId }) {
       owners: Object.fromEntries(Object.entries(owners).map(([name, p]) => [name, p ? {
         id: p.id, state: p.state, substate: p.substate, object: p.object, disguise: p.disguise,
         timer: p.timer, flags2: p.flags2, registered: world.objectCells.objects.get(spyId) === p,
-        orders: [p.immediateCommand, ...p.commands].map(id => ({ id, record: world.buildingOrders.records[id] })) } : null])),
+        orders: [p.immediateCommand, ...p.commands].map(id => ({ id, record: structuredClone(world.buildingOrders.records[id]) })) } : null])),
       nearbyActors: origin ? world.units.filter(u => u.hp > 0 && u.inside === null &&
         ['blue', 'red', 'yellow', 'green'].indexOf(u.team) === tribe &&
         near(cell(u).x, origin.x) && near(cell(u).y, origin.y)).map(u => ({ id: u.id,

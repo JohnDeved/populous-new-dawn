@@ -15,7 +15,7 @@ test('observer distinguishes living fight ownership from absent native and retai
     objectCells: { objects: new Map([[2170, person]]) }, buildingOrders: { records: { 13: { model: 15 } } } },
     scene = { world, unitMeshes: new Map([[2170, {}]]), renderer: { domElement: {} } }
   let callback
-  const context = { window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
+  const context = { structuredClone, window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
     requestAnimationFrame: fn => { callback = fn; return 1 }, cancelAnimationFrame() {} }
   const before = structuredClone(world)
   runInNewContext(`(${installSpySourceObserver.toString()})({spyId:2170,targetId:1022})`, context)
@@ -29,4 +29,6 @@ test('observer distinguishes living fight ownership from absent native and retai
   assert.deepEqual(Array.from(runtime.nearbyActors, u => u.id), [2178])
   assert.equal(runtime.target.team, 'red'); assert.equal(runtime.target.progress, 1)
   assert.deepEqual(world, before)
+  world.buildingOrders.records[13].model = 3
+  assert.equal(runtime.owners.fight.orders[1].record.model, 15, 'retained historical order cannot change with the live queue')
 })
