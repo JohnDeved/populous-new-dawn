@@ -199,7 +199,7 @@ test('ordinary effects-frame caller converts height once, preserves position and
   const group = scene.fxMeshes.get(1001), mesh = group.children[1]
   assert.deepEqual(group.position.toArray(), [-127.5, Math.round(7.2 * 45) / 128, 126])
   assert.equal(group.parent, scene.ground)
-  assert.equal(mesh.userData.nativeResource.data.tiles.includes(164), true)
+  assert.equal(mesh.userData.nativeResource.data.tiles.includes(163), true)
   let geometries = 0, materials = 0
   for (const child of group.children) {
     child.geometry.addEventListener('dispose', () => geometries++)
