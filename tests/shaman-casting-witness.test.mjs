@@ -69,6 +69,8 @@ test('two complete observations distinguish logical callbacks from submitted ren
   const result = validateShamanCastingEvidence(supplied)
   assert.deepEqual(result.casts.map(c => [c.label, c.projectileVisits, c.personVisits, c.cooldownVisits]),
     [['ordinary', 6, 10, 12], ['subsequent', 6, 10, 12]])
+  assert.equal(result.activeCastPauseHold.status, 'pending',
+    'No paused frames means no browser pause/freeze proof')
   assert.deepEqual(supplied, before)
 })
 
@@ -78,6 +80,7 @@ test('rejects contaminated ordinary stock, duplicate allocations, missing expiry
     r => { r.casts.reverse() }, r => { r.casts[0].trusted = false },
     r => { r.casts[0].before.cheatsUsed = true }, r => { r.casts[0].before.stock = 0 },
     r => { r.casts[0].before.person.orderModel = 18 },
+    r => { r.casts[0].before.storedStock-- },
     r => { r.casts[0].after.stock++ }, r => { r.casts[0].after.storedStock++ },
     r => { r.casts[0].after.mana-- }, r => { r.casts[0].after.casts++ },
     r => { r.casts[0].after.nativeCasts++ }, r => { r.casts[0].after.cooldown = 0 },
@@ -104,6 +107,9 @@ test('rejects contaminated ordinary stock, duplicate allocations, missing expiry
 
 test('rejects stale/wrong rendered source, render-clock drift, obscured or swapped crop evidence', () => {
   const corruptions = [
+    r => { r.frames[0].person.state = 10 },
+    r => { r.frames[1].person.state = 10 },
+    r => { for (const frame of r.frames) frame.person.state = 10 },
     r => { r.frames[0].person.object = 648 }, r => { r.frames[0].frame = 0 },
     r => { r.frames[0].flip = !r.frames[0].flip }, r => { r.frames[0].renderedDraw = 13 },
     r => { r.frames[0].visible = false }, r => { r.frames[0].submittedLayers = 0 },
@@ -253,6 +259,28 @@ test('observer failures preserve originals and fail closed on owner replacement 
     const result = f.win.shamanCastingObserver.finish()
     assert.match(result.errors[0], /Scene\/World/)
     assert.equal(result.restored, true)
+  } finally { f.cleanup() }
+})
+
+test('second callback assignment failure restores the first callback and both full property descriptors', () => {
+  const f = observerFixture()
+  try {
+    Object.defineProperty(f.scene.gameClock, 'afterTurn', {
+      value: f.turn, writable: true, configurable: true, enumerable: false,
+    })
+    Object.defineProperty(f.renderer, 'render', {
+      value: f.render, writable: false, configurable: false, enumerable: false,
+    })
+    const turnDescriptor = Object.getOwnPropertyDescriptor(f.scene.gameClock, 'afterTurn'),
+      renderDescriptor = Object.getOwnPropertyDescriptor(f.renderer, 'render'),
+      world = structuredClone(f.world)
+    assert.throws(installShamanCastingObserver, TypeError)
+    assert.deepEqual(Object.getOwnPropertyDescriptor(f.scene.gameClock, 'afterTurn'), turnDescriptor)
+    assert.deepEqual(Object.getOwnPropertyDescriptor(f.renderer, 'render'), renderDescriptor)
+    assert.equal(f.win.shamanCastingObserver, undefined)
+    assert.equal(f.listeners.length, 0)
+    assert.deepEqual(f.calls, [])
+    assert.deepEqual(f.world, world)
   } finally { f.cleanup() }
 })
 

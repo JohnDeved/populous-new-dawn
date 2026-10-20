@@ -152,8 +152,9 @@ export function installShamanCastingObserver() {
     window.removeEventListener('pointerup', afterInput, false)
     result.restored = clock.afterTurn === originalTurn && renderer.render === originalRender
   }
-  clock.afterTurn = turnWrapper; renderer.render = renderWrapper
   try {
+    clock.afterTurn = turnWrapper
+    renderer.render = renderWrapper
     owner()
     window.addEventListener('pointerup', beforeInput, true)
     window.addEventListener('pointerup', afterInput, false)

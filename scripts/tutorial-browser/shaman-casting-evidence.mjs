@@ -52,6 +52,7 @@ export function validateShamanCastingEvidence(result, reference = castingArtwork
     assert.equal(after.cheatsUsed, before.cheatsUsed)
     assert.equal(before.mode, 'blast'); assert.equal(after.mode, null)
     assert.ok(before.stock > 0, 'Naturally available initial Blast stock required')
+    assert.equal(before.storedStock, before.stock, 'HUD stock must match the native payment owner before input')
     equal([after.turn, after.stock, after.storedStock, after.mana, after.casts, after.nativeCasts],
       [before.turn, before.stock - 1, before.stock - 1, before.mana, before.casts + 1,
         (before.nativeCasts + 1) & 255], 'Synchronous normal one-charge allocation')
@@ -89,6 +90,7 @@ export function validateShamanCastingEvidence(result, reference = castingArtwork
     }
     assert.equal(waves.size, 1, 'One effect dispatch across the entire natural cast window')
     assert.ok(frames.length > 1)
+    const validatedCastFrames = new Set()
     let previousStamp = -1
     for (const frame of frames) {
       grounded(frame)
@@ -105,12 +107,15 @@ export function validateShamanCastingEvidence(result, reference = castingArtwork
       equal([reference.renderSources[frame.frame], frame.flip],
         [direction.frames[p.f2 % direction.frames.length], direction.flip], 'Original VFRA frame/flip')
       assert.equal(frame.visible, true); assert.ok(frame.submittedLayers > 0)
+      validatedCastFrames.add(frame)
     }
     equal(crops.length, 2)
     const cropped = frames.filter(frame => frame.cropPlanned)
     equal(cropped.length, 2)
     for (const [i, frame] of cropped.entries()) {
       const crop = crops[i]
+      assert.equal(frame.person.state, 22, 'Reserved crops must show the active native cast pose')
+      assert.ok(validatedCastFrames.has(frame), 'Every reserved crop must pass original artwork and visibility validation')
       equal([frame.paused, frame.suspended, frame.bodyCanvasOwned, frame.bodyInCanvas, frame.cropOverlayClear],
         [false, false, true, true, true])
       equal([crop.file, crop.turn, crop.stamp, crop.f2, crop.frame],
@@ -130,11 +135,14 @@ export function validateShamanCastingEvidence(result, reference = castingArtwork
   assert.equal(result.casts[1].before.person.id, result.casts[0].after.person.id)
   assert.ok(result.casts[1].before.turn >= result.casts[0].terminal.turn)
   assert.equal(result.casts[1].before.casts, result.casts[0].after.casts)
-  return { casts: accepted, limits: [
+  return { casts: accepted,
+    activeCastPauseHold: { status: 'pending', reason: 'No bounded active-cast UI hold is wired or required by this validator yet.' },
+    limits: [
     'Original static tables plus actual browser rendering, not original executable execution or pixel-perfect composition.',
     'Logical callbacks observe before logical animation; completed-render samples observe after it. Neither is a driven clock.',
     'Second cast uses public F9-refilled stock; only the first proves pre-grant ordinary stock. Both use normal payment/cooldown.',
     'Two blue grounded casts in one Mission 1 Scene; other tribes, directions, movement/combat entry and interruptions have separate CPU coverage.',
+    'Active-cast pause/hold/resume rendering is pending; absent paused frames do not prove freezing.',
     'Canvas copies and observer callbacks perturb timing; no performance or hardware-smoothness claim.',
   ] }
 }
