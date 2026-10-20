@@ -453,7 +453,10 @@ test('actual runner footer preserves browser failure and records malformed succe
     'utf8'
   )
   const footer = source.slice(source.indexOf('  receipt.endedAt ='), source.lastIndexOf('\n}'))
-  const finish = new Function(
+  // The spell-visuals producer validates bounded decoded PNG evidence before
+  // logging; execute the actual async footer rather than rewriting away awaits.
+  const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
+  const finish = new AsyncFunction(
     'receipt',
     'selectedScenario',
     'save',
@@ -469,7 +472,7 @@ test('actual runner footer preserves browser failure and records malformed succe
     let attempts = 0
     const saved = [],
       runtime = {}
-    finish(
+    await finish(
       receipt,
       'pause-checkpoint-recovery',
       () => saved.push(structuredClone(receipt)),
