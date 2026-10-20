@@ -28,10 +28,22 @@ function group(w, count = 2, x = 0, action = 'strike') {
 function pair(w) {
   return [structuredClone(w), structuredClone(w)]
 }
+function physicalOwnerLinks(w) {
+  return w.units.map(u => {
+    const owners = [u.native, u.flight, u.fight?.motion, u.entry?.person, u.builder?.person]
+    return owners.map(p => p ? {
+      sameOwner: owners.map(other => p === other),
+      cellRegistry: w.objectCells.objects.get(p.id) === p,
+      pathRegistry: w.pathfinding.people.get(p.id) === p,
+    } : null)
+  })
+}
 function visit(eager, owned) {
   processBattles(eager)
   processOwnedBattles(owned)
-  assert.deepEqual(owned, eager, 'entire world graph, including RNG and physical owner aliases')
+  assert.deepEqual(owned, eager, 'complete world values, including RNG')
+  assert.deepEqual(physicalOwnerLinks(owned), physicalOwnerLinks(eager),
+    'per-unit physical-owner and cell/path registry relationships')
 }
 
 test('owned scheduler lookup matches eager resolution for every group size and live action', () => {
