@@ -300,17 +300,17 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
   } else {
     // First contact retains selected Preacher17; guard reinforcement and actual
     // melee opponent writes yield this exact existing grounded-adapter outcome.
-    assert.equal(departure, 3840)
-    assert.equal(firstFight, 3845)
+    assert.equal(departure, 3844)
+    assert.equal(firstFight, 3849)
     assert.equal(firstOpponent, 17)
     assert.equal(firstOpponentTeam, 'green')
     assert.deepEqual(encounters, [
-      [3845, 17],
-      [3858, 10],
-      [3863, 11],
-      [3871, 12],
+      [3849, 17],
+      [3866, 10],
+      [3870, 12],
+      [3878, 10],
     ])
-    assert.equal(death, 3872)
+    assert.equal(death, 3886)
     assert.equal(targetDeath, 0)
     assert.equal(shaman.hp, 0)
     assert.equal(world.objectCells.objects.has(shaman.id), false)

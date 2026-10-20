@@ -13,6 +13,7 @@ import {
   setLivePersonAnimation, stepLiveCasting,
 } from '../app/live-people.ts'
 import { clearLivePath } from '../app/live-pathfinding.ts'
+import { stepLiveResting } from '../app/live-resting.ts'
 import { nativeCellPoint } from '../app/world-coordinates.ts'
 import { SPELLS } from '../app/world-rules.ts'
 import {
@@ -295,6 +296,36 @@ test('AI combat admission initializes once, without a replacement person or spee
   assert.equal(p.counter, counter, 'allocation is not a person update')
   assert.equal(w.randomState, randomState, 'state22 flags 0x241 suppress speed RNG')
   assert.equal(w.projectiles.length, 1)
+})
+
+test('ground casting defers idle speed draws until after all ten native person visits', () => {
+  // 004d2740 reads state flags before drawing speed: state22=0x241 and
+  // state10=0x1b04 suppress the draw; states17/19=0x180a each consume one.
+  // The formula is taken directly from the original initializer, not random().
+  const next = seed => {
+    const value = (Math.imul(seed, 0x24a1) + 0x24df) >>> 0
+    return ((value >>> 13) | (value << 19)) >>> 0
+  }
+  const { w, u, p, target } = scenario()
+  assert.deepEqual([22, 10, 17, 19].map(state => rules.personStateFlags[state]),
+    [0x241, 0x1b04, 0x180a, 0x180a])
+  const seed = w.randomState, counter = p.counter
+  assert.ok(cast(w, 'blast', target))
+  assert.equal(w.randomState, seed)
+  for (let visit = 1; visit <= 10; visit++) {
+    stepLiveCasting(w, u, p)
+    assert.equal(w.randomState, seed, `cast visit ${visit} cannot initialize idle speed`)
+    assert.equal(p.counter, (counter + visit) & 255)
+    assert.equal(p.state, visit < 10 ? 22 : 10)
+    assert.equal(p.timer, visit < 10 ? 10 - visit : 0)
+  }
+  stepLiveResting(w, u)
+  assert.equal(p.state, 19)
+  assert.equal(w.randomState, next(next(seed)),
+    '004d6f90 reaches same-cell rest on entry: approach and rest draw only after cast expiry')
+  stepLiveResting(w, u)
+  assert.equal(w.randomState, next(next(seed)), 'another ordinary rest visit does not repeat initialization')
+  assert.equal(p.state, 19)
 })
 
 test('a preparation transition does not also decrement the replacement state timer', () => {

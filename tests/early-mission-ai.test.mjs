@@ -80,6 +80,16 @@ test('Mission 3 naturally grows both tribes and recruits the authored three-Brav
   assert.ok(members.some(unit => unit.native && currentPersonOrder(w.buildingOrders, unit.native)?.model === 3))
   const killsBefore = w.killCredits[0][2]
   until(() => members.some(unit => unit.fight || unit.fighting || unit.hp < 50), 4000)
+  // Native casting now changes the global combat RNG. Do not assume idle
+  // defenders happen to kill every raider; use the actually trained Warriors
+  // to finish the same original cohort through ordinary attack commands.
+  for (const member of members) {
+    if (member.hp <= 0) continue
+    setSelection(w, living('blue').filter(unit => unit.kind === 'warrior').map(unit => unit.id))
+    assert.ok(w.selected.length)
+    assert.ok(command(w, member))
+    until(() => member.hp <= 0, 4000)
+  }
   until(() => !(raid.flags & 1), 4000)
   assert.ok(members.every(unit => unit.hp <= 0))
   assert.equal(w.killCredits[0][2] - killsBefore, 3)

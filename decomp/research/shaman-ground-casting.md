@@ -107,3 +107,67 @@ guessed here. Current-cell lookup uses the live building/Vault registry, not a
 claim of complete native unit-land-array coverage for every object class.
 Controlled regression actors are not an ordinary campaign acquisition witness.
 No browser visual inspection or original executable execution is claimed.
+
+## Hosted-failure repair and causal boundaries (2026-10-20)
+
+The hosted candidate at `c811fcc5` exposed one real double-visit bug: command18's
+suspended opening controller still incremented `site.counter`/`p.counter` before
+the newly active state22 physics visitor. Original `004ec6f0` increments the
+person's class counter once before dispatch. `level-start-runtime.ts` now leaves
+suspended visits to the actual person and resumes its snapshot from `p.counter`.
+The existing interruption, completion and Save/Load tests remain unchanged.
+
+The remaining post-cast differences must not be treated as arbitrary new native
+oracles. A paired Mission22 acquisition trace was replayed from main `440598b0`
+and this candidate using the same ordinary commands and supplied focus mask.
+Both worlds are identical immediately before Swarm at turn1289 (RNG208323085,
+position18.62109375,-46.30078125, counter9). The first changed operation is cast
+admission: old state10/object616 remains versus native state22/object520/timer10.
+Both projectiles still launch after six visits. At visit7 old code has initialized
+idle19 and consumed its two speed draws; corrected state22 remains timer3. RNG
+therefore differs at1296 (old3096154387 versus corrected1604970295). At1300 the
+aggregate RNG converges again, but draws were consumed by different actors/effects
+on intervening turns, and native facing retains674 rather than old675. Equal final
+seeds do not imply equal per-actor outcomes. The raw paired trace and exact replay
+script are retained under `work/orchestration/shaman-casting/diagnostic/`.
+
+Independent source explains that divergence, not the observed output alone:
+`004d2740` suppresses speed draws for flags0x200; original state22 flags0x241 and
+state10 flags0x1b04 suppress them, while states17/19 flags0x180a consume one each.
+`004d6f90` can initialize19 immediately from17 in the same cell. The new bounded
+regression checks no RNG/counter drift across all ten actual cast visits and the
+two original-formula idle draws only after expiry. `game.test.mjs` now expects
+only the enemy's two idle draws during projectile travel, preserving exact flight,
+particle counts, impact and presentation assertions. Its isolated population-scan
+fixture now resets the actual native cast owner rather than only `u.casting`.
+
+The supplied-focus Balloon flows retain exact current-state timelines, physical
+ownership, all arrival/boarding/departure, target acquisition, death/retirement,
+reference counts and checkpoint assertions. Acquisition's later Bridge idle
+release shifts their flight inputs by four turns; combat participants/damage can
+change because of the earlier RNG-consumer order. Historical checkpoint controls
+are not rebased. Mission22 Boat damage now lands at1354, queued safe boarding at1376,
+and the lethal contrast still dies with full queue/registry cleanup. These are
+strict reproducible port-continuation traces, not newly claimed original-game
+combat or full-campaign timing parity.
+
+Mission2's old single Brave defender now loses, so waiting longer cannot witness
+an enemy casualty. The test instead sends an already trained Warrior by the same
+public attack command and retains the exact original recruited cohort, one actual
+death tick, exclusive cleanup and Blue kill credit. The observed cohort is already
+in fallback14 after regroup, not the previously assumed first-launch fallback18.
+Mission3's raid recruits and engages correctly but leaves one original Brave alive
+at the attacked settlement; the trained Blue Warriors now receive ordinary attack
+orders to finish each surviving original member. Neither test injects health,
+entities, fight state or outcome, and neither accepts survival instead of death.
+Mission6 retains authored staging, marker16 Bridge allocation, real terrain
+connectivity and every-tick checkpoint equality; its end-to-end deterministic
+trace is now turn7339 rather than8404 after the global AI RNG-consumer change.
+
+The flame-cell full-campaign snapshot changes with cast timing, but now has a
+separate local original-formula oracle: `004d2740` state26 consumes speed and
+panic-direction draws, then `00408840` consumes a burn-trail draw per retained
+person in actual cell-list order. This checks each person's exact outcome and the
+aggregate RNG from the pre-ignition seed, independent of production RNG helpers.
+No native executable was run/emulated, no imported sprites were rewritten, and
+no original-source timing was shortened to preserve old browser-only snapshots.
