@@ -563,7 +563,7 @@ deployed hydration, exhaustive display acceptance or a performance measurement.
 
 The same `frontend-held-escape` job already runs the independent F9 Mission 1
 episode after its frontend context closes. Casting coverage reuses that F9 Scene
-and its unchanged 55-second bound, inside the unchanged 180-second browser cap.
+and its current absolute 75-second bound, inside the unchanged 180-second browser cap.
 It adds no world, context, workflow, grant, driven simulation turn or production
 test hook. All existing F9 input, grant, charge, cooldown, save/load and restart
 assertions remain in order.
@@ -597,3 +597,52 @@ observations, original-input hashes and source identities. Partial failures are
 retained before the existing context closes; a failed retention is never retried.
 These are functional browser/artwork checks, not original executable execution,
 pixel-perfect composition, every-tribe/direction coverage or hardware performance.
+
+## Hypnotise artwork in the compact lane
+
+After the unchanged compact-message layout and picking-path episodes, the existing
+`compact-message-layout` lane runs one independent Hypnotise context. Its absolute
+allowance is the smaller of 75 seconds and the remaining existing 180-second outer
+browser deadline, including context creation and cleanup. No job, workflow or cap
+is added. PR680's exact compact receipt at merge `5136c6f2` completed in88.520s
+including preparation/build/cleanup; adding the full75s conservatively totals
+163.520s. This is prior budget evidence, not a guarantee that the new run passes.
+
+The test-only Vite entry imports `hypnotise-fixture.mjs` only with query
+`hypnotise-fixture=1`. The production Home entry does not import it. Preparation
+uses accelerated ordinary Mission22 mana charging and movement with the existing
+mana-focus adapter, not real-time earning or campaign-unlock proof. It does not
+supply stock, actors, callbacks or animation state. Preparation itself is bounded
+by25s and checks elapsed time after batches/yields and before returning.
+
+The episode saves the earned pre-cast state through the public menu and loads it
+normally. A read-only subscription checks exact saved content at the synchronous
+resumed notification; the public Pause button then allows reframing before the
+HUD/pointer cast. Normal-speed RAF observation binds actual source frames,
+materials/UVs and painter submission to synchronous canvas crops, checks the
+fifth-visit target replacement and16-visit expiry, and records terminal hiding.
+Display callbacks can skip frames; exhaustive16-frame proof remains in the
+independent original-byte/pixel oracle and CPU tests. In-progress effect checkpoint
+continuation remains separate CPU coverage, not a claim of this pre-cast episode.
+
+The runner retains all five helper hashes and the opt-in fixture entry hash.
+`spell-hypnotise.json` and `spell-hypnotise-frame-*.png` are written directly into
+the existing artifact root, covered by its unchanged JSON/PNG upload globs. No
+hidden subgroup, recreated artwork, raw production `/app/*.ts` import, new output
+subdirectory or second checkpoint allowance is used. Any timeout is a failed
+witness; a late-created context is closed without admitting the episode.
+
+Hypnotise preparation preserves the public startup's initial mana allocation.
+At turn zero M22 has 30,000 unallocated mana; after one ordinary turn it has
+2,142 progress in each of 14 enabled spells. The old turn-zero-only test focused
+before that allocation and earned stock in 5,948 visits (6,172 including walking),
+which did not justify the former 6,100 charging ceiling after public startup.
+The bounded charging ceiling is now 9,195 visits: ceil(85,000 / 37) * 4 + 3,
+using the native model-7 charge cost, this authored idle cohort's observed
+37 mana per four-turn scan, and at most three alignment visits. No credit is
+assumed for the initial allocation; no mana/stock or actors are injected. The
+initial turn, available mana, all spell progress, mask, actual charged turn and
+visit count are retained. Failure retains the initial state and includes final
+state in its error. CPU regressions include 0, 1, 20 and 60 ordinary startup
+visits. The unchanged 25s preparation, 75s episode and remaining 180s outer
+wall deadlines still reject overruns regardless of visit budget.

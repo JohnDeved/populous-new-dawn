@@ -78,6 +78,7 @@
       "callers": [
         "scripts/import-original.py",
         "scripts/import-tornado.py",
+        "scripts/import-hypnotise.py",
         "scripts/import-loading-art.py",
         "scripts/import-loading-label.py",
         "scripts/import-frontend.py",

@@ -1450,8 +1450,6 @@ function finishCast(
       fx.team = shaman.team
       fx.turnsRemaining = 16
       fx.duration = Infinity
-      // ponytail: reuse the packed sparkle until the native effect-17 initializer is recovered.
-      fx.sprite = { sequence: 'sparkle', frame: 0 }
     } else if (spell === 'ghostArmy') {
       fx.team = shaman.team
       fx.ghostArmy = true
