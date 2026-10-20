@@ -166,3 +166,47 @@ test('the bounded imported label retains exact source hashes, independent center
   assert.equal(createHash('sha256').update(png).digest('hex'),meta.outputSha256)
   assert.equal(meta.outputSha256,'9b5344c17384895329eea031ab56c0243600022970bdfb814ed7ce25feb625c9')
 })
+
+
+test('retry rejects held Enter and unowned Space releases across replacement, but permits fresh activation', () => {
+  let requests = 0
+  const inspect = load({useEffect() {}, useRef: current => ({current}), useState: value => [value, () => {}]})
+  const mount = () => tree(inspect({phase:'failed',error:'request failed',onRetry(){requests++}})).find(node => node?.type === 'button')
+  const key = (button, type, value, repeat = false) => {
+    let prevented = false
+    button.props[type]({key:value,repeat,preventDefault(){prevented = true}})
+    return prevented
+  }
+  let button = mount()
+  assert.equal(key(button, 'onKeyDown', 'Enter'), false)
+  button.props.onClick() // Native Enter default activation.
+  assert.equal(requests, 1)
+  button = mount() // The retry failed while Enter remained held.
+  assert.equal(key(button, 'onKeyDown', 'Enter', true), true)
+  assert.equal(requests, 1)
+  assert.equal(key(button, 'onKeyDown', 'Enter'), false)
+  button.props.onClick()
+  assert.equal(requests, 2)
+
+  button = mount()
+  assert.equal(key(button, 'onKeyDown', ' ', true), true)
+  assert.equal(key(button, 'onKeyUp', ' '), true)
+  assert.equal(requests, 2, 'a Space press begun before this failure cannot retry it')
+  assert.equal(key(button, 'onKeyDown', ' '), true)
+  key(button, 'onKeyDown', ' ', true)
+  assert.equal(requests, 2, 'Space waits for release')
+  key(button, 'onKeyUp', ' ')
+  assert.equal(requests, 3)
+  key(button, 'onKeyUp', ' ')
+  button.props.onClick()
+  assert.equal(requests, 3, 'keyboard and click share the single-flight guard')
+
+  button = mount()
+  key(button, 'onKeyDown', ' ')
+  button.props.onBlur()
+  key(button, 'onKeyUp', ' ')
+  assert.equal(requests, 3, 'blur cancels Space ownership')
+  button.props.onClick() // Mouse or assistive detail-zero click remains supported.
+  assert.equal(requests, 4)
+  assert.equal(key(mount(), 'onKeyDown', 'Tab'), false, 'Tab still bubbles to the existing focus trap')
+})
