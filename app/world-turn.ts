@@ -323,6 +323,7 @@ import {
   cancelBuildingEntry,
   leaveLiveBuilding,
   beginLivePersonPass,
+  stepLivePerson,
   stepLiveImpulse,
   resumeLiveSeatedFlight,
   registerLivePerson,
@@ -1317,12 +1318,20 @@ function stepTurn(w: World, metrics?: { steps: number }) {
   stepLevelStarts(w)
   const armageddon = w.effects.find(fx => fx.armageddon)?.armageddon
   beginLiveVehiclePass(w)
-  const personPass = beginLivePersonPass(w)
+  // Active gameplay keeps the original visitor without episode eligibility or
+  // generation work. A later victory can opt in on the following object pass.
+  let personPass = w.land.landFlags & 0x2000000 ? beginLivePersonPass(w) : undefined
   try {
     for (const u of w.units) {
-      personPass.next(u)
+      if (personPass) {
+        if (w.land.landFlags & 0x2000000) personPass.next(u)
+        else {
+          personPass.close()
+          personPass = undefined
+        }
+      }
       if (hutNewborns.has(u) || startingPeople.has(u.id)) {
-        personPass.stop()
+        personPass?.stop()
         continue
       }
       if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
@@ -1344,7 +1353,7 @@ function stepTurn(w: World, metrics?: { steps: number }) {
       }
       if (u.hp <= 0) continue
       if (armageddon && (armageddon.phase < 2 || u.native?.state === 39)) {
-        personPass.stop()
+        personPass?.stop()
         continue
       }
       if (u.native?.state === 14) continue
@@ -1355,7 +1364,8 @@ function stepTurn(w: World, metrics?: { steps: number }) {
       }
       u.cooldown = Math.max(0, u.cooldown - dt)
       if (u.native?.state === 41 || u.native?.state === 26 || u.native?.state === 31) {
-        personPass.step(u)
+        if (personPass) personPass.step(u)
+        else stepLivePerson(w, u)
         continue
       }
       if (!u.native?.vehicle && !supportsFollower(w, u)) {
@@ -1708,7 +1718,7 @@ function stepTurn(w: World, metrics?: { steps: number }) {
       } else u.idleTurns = 0
     }
   } finally {
-    personPass.close()
+    personPass?.close()
   }
   stepLivePersonHealth(w, hutNewborns)
   for (const { unit: u, previous } of burningPeople) {
