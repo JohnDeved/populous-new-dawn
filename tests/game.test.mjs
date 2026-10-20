@@ -439,8 +439,8 @@ test('native spell allocation, discrete flight, RNG trails and delayed impact',(
  assert.deepEqual(nativeStep3D({x:32760,y:-32760,h:32760},2047,511,-321),{x:32760,y:32455,h:32759},'negative odd length and short wrapping verified against x86');
  const w=make(),startTurn=w.turn;cast(w,'blast',{x:10,z:0});assert.equal(w.shots.blast,3);assert.deepEqual(w.projectiles[0].target,{x:11,z:-1});tick(w,6/12);
  assert.equal(w.projectiles[0].phase,'flying');assert.equal(w.effects.some(e=>e.kind==='blast'),false);assert.equal(w.projectiles[0].visuals.length,5);
- tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:3041,y:-1960,h:198});assert.equal(w.randomState,rngAfter(4),'two shamans initialize approach and rest (four speed draws); no first-turn Blast jitter');
- tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:4034,y:-1872,h:165});assert.equal(w.randomState,rngAfter(4+8),'four trailing particles consume eight draws after the four idle initialization draws');
+ tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:3041,y:-1960,h:198});assert.equal(w.randomState,rngAfter(2),'only the idle enemy initializes approach/rest; native state22 suppresses caster speed RNG for ten visits');
+ tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:4034,y:-1872,h:165});assert.equal(w.randomState,rngAfter(2+8),'four trailing particles consume eight draws after the two enemy idle initialization draws');
  const spark=w.effects.find(e=>e.sprite?.sequence==='blastTrail'),sparkHeight=spark.animation.h;
  assert.equal(spark.animation.remaining,0);assert.notEqual(w.cosmeticRandom.randomState,1);
  tick(w,1/12);assert.equal(w.projectiles[0].phase,'arrived');assert.equal(w.effects.some(e=>e.kind==='blast'),false);tick(w,1/12);assert.equal(w.projectiles.length,0);assert.equal(w.effects.find(e=>e.kind==='blast').age,0);assert.deepEqual(w.sounds.map(e=>e.turn-startTurn),[0,6,10,10]);
@@ -448,7 +448,7 @@ test('native spell allocation, discrete flight, RNG trails and delayed impact',(
  assert.equal(spark.animation.state,4);assert.equal(spark.animation.object,318);assert.equal(spark.animation.h,sparkHeight+20,'jitter sparks rise on both processing turns');
  tick(w,8/12);assert.ok(w.effects.includes(flash));w.paused=true;tick(w,1);assert.ok(w.effects.includes(flash));
  w.paused=false;tick(w,1/12);assert.ok(!w.effects.includes(flash),'native flash removed on its ninth active turn');
- const lightning=make();lightning.shots.lightning=1;cast(lightning,'lightning',{x:10,z:0});tick(lightning,6/12);assert.deepEqual(lightning.projectiles[0].destination,{x:3334,y:-1929,h:1159});tick(lightning,1/12);assert.equal(lightning.randomState,rngAfter(4+40));assert.deepEqual(lightning.projectiles[0].position,{x:2814,y:-1985,h:791});assert.equal(lightning.effects.filter(e=>e.sprite?.sequence==='spellTrail').length,20);
+ const lightning=make();lightning.shots.lightning=1;cast(lightning,'lightning',{x:10,z:0});tick(lightning,6/12);assert.deepEqual(lightning.projectiles[0].destination,{x:3334,y:-1929,h:1159});tick(lightning,1/12);assert.equal(lightning.randomState,rngAfter(2+40));assert.deepEqual(lightning.projectiles[0].position,{x:2814,y:-1985,h:791});assert.equal(lightning.effects.filter(e=>e.sprite?.sequence==='spellTrail').length,20);
  const trails=lightning.effects.filter(e=>e.sprite?.sequence==='spellTrail');assert.equal(new Set(trails.map(e=>e.animation.f1)).size,4,'native class counter staggers initial poses');
  tick(lightning,4/12);assert.equal(trails[0].animation.state,4);assert.equal(trails[0].animation.object,326);assert.ok(lightning.effects.includes(trails[0]));
  tick(lightning,3/12);assert.ok(trails.every(e=>!lightning.effects.includes(e)),'four initial turns plus three second-phase turns');
@@ -916,9 +916,12 @@ test('mission-one AI casting uses the live shaman state and cast-block flags', (
 
 test('live spell scans use population thresholds and building territory with delayed overlap recovery', async () => {
  const {addBuilding}=await import('../app/model.ts');
+ const {changeLivePersonState}=await import('../app/live-people.ts');
  const w=createWorld(),red=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),blue=w.units.filter(u=>u.team==='blue'&&u.kind==='brave'),shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
  w.terrain.fill(3);w.terrainVersion++;w.inputMask=0;w.ai.variables[57]=1;
  const reset=()=>{
+  // This threshold fixture resets the actual cast owner, not only its six-turn wrapper.
+  if(red.native?.state===22)changeLivePersonState(w,red,10);
   Object.assign(red,{x:0,z:0,path:[],target:null,work:null,inside:null,fight:null,lift:0,casting:null});
   Object.assign(shaman,{x:30,z:30,path:[],work:null,inside:null});
   for(const p of blue)Object.assign(p,{x:6,z:0,path:[],target:null,work:null,inside:null,fight:null,lift:0,hp:10000});

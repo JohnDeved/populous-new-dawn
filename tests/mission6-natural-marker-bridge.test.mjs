@@ -109,7 +109,10 @@ test('ordinary Mission6 stages at marker0 and bridges to marker16 with checkpoin
     findPath(queryWorld, queryShaman, home).length > 0,
     'actual terrain connects original Matak land'
   )
-  assert.equal(world.turn, 8404)
+  // Current deterministic campaign trace after native ground-cast ownership.
+  // The original-source contract is staging/marker16 allocation and real terrain
+  // connectivity above, not the former browser-only cast's global RNG schedule.
+  assert.equal(world.turn, 7339)
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
   assert.deepEqual(store.getWorld(), world)

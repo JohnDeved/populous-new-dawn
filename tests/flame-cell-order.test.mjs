@@ -66,6 +66,23 @@ function igniteReference(world, people) {
   })
 }
 
+// Independent 004d2740 state26 + 00408840 body: speed, direction, trail.
+// Keep this local oracle independent of the preceding campaign's global RNG,
+// whose native cast ownership deliberately no longer runs idle after six visits.
+function nativeIgnition(seed, orderedIds) {
+  let randomState = seed
+  const draw = () => {
+    const value = (Math.imul(randomState, 0x24a1) + 0x24df) >>> 0
+    return randomState = ((value >>> 13) | (value << 19)) >>> 0
+  }
+  const people = orderedIds.map(id => {
+    draw()
+    const angle = draw() & 2047, trail = (draw() & 7) + 8
+    return { id, angle, trail, state: 26 }
+  })
+  return { randomState, people: people.sort((a, b) => a.id - b.id) }
+}
+
 test('ordinary Mission 3 fire assigns panic directions in retained person order and survives Save/Load', async () => {
   const { world, store, hutId } = pendingIgnition()
   await store.saveCheckpoint()
@@ -74,10 +91,12 @@ test('ordinary Mission 3 fire assigns panic directions in retained person order 
   for (const candidate of [world, restored]) {
     tick(candidate, 1 / 12)
     assert.ok(candidate.buildings.find(building => building.id === hutId).burn)
-    assert.equal(candidate.randomState, 1286605328)
+    // Current full-campaign trace. The independent local draw/order oracle below
+    // guards the native behavior rather than blessing this new seed by itself.
+    assert.equal(candidate.randomState, 3347046661)
     assert.deepEqual(personOutcomes(candidate), [
-      { id: referenceId(309), angle: 1506, trail: 13, state: 26 },
-      { id: referenceId(312), angle: 1652, trail: 13, state: 26 },
+      { id: referenceId(309), angle: 1629, trail: 9, state: 26 },
+      { id: referenceId(312), angle: 1545, trail: 11, state: 26 },
     ])
   }
   assert.deepEqual(restored, world)
@@ -94,12 +113,14 @@ test('source-ordered snapshot matches per-person panic draws without changing ag
     expected = structuredClone(world),
     linked = [...objectsInCell(expected.objectCells, packed)].filter(person =>
       ids.includes(person.id)
-    )
+    ),
+    native = nativeIgnition(world.randomState, linked.map(person => person.id))
   igniteReference(expected, linked)
   buildingFirePeople(world)(point, 0)
   assert.deepEqual(personOutcomes(world), personOutcomes(expected))
   assert.equal(world.randomState, expected.randomState)
-  assert.equal(world.randomState, 3222226918)
+  assert.equal(world.randomState, native.randomState)
+  assert.deepEqual(personOutcomes(world), native.people)
 })
 
 test('unregistered, partial and same-ID alias slots retain their previous fallback', () => {
