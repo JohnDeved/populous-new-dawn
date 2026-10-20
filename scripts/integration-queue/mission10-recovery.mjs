@@ -12,7 +12,7 @@ export function mission10CrewLog(log) {
 export function validateMission10Crew(receipt, expected) {
   validateProfileHost(receipt, expected, 'mission10-crew-persistence-browser', 'mission10-profile')
   if (receipt.cases !== undefined || receipt.scenarioStatus !== undefined) throw Error('Mission 10 cannot claim independent recovery cases')
-  validateMission10Profile(receipt.mission10, expected.identity.mergeSha, expected.mission10Evidence)
+  validateMission10Profile(receipt.mission10, expected.identity.mergeSha, expected.mission10Evidence, expected)
   validateMission10Resumption(expected.mission10Evidence)
   return true
 }

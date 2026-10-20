@@ -1,3 +1,6 @@
+import { SPELL_VISUAL_POLICY, SPELL_VISUAL_JOB, SPELL_VISUAL_INPUTS, validateSpellVisualBrowserJobs,
+  readSpellVisualReceiptLog, resolveSpellVisualArtifact } from './spell-visuals-policy.mjs'
+import { spellVisualArtifactUpload, validateSpellVisualArtifactMetadata, spellVisualArchiveLimit } from './spell-visuals-artifact.mjs'
 import { validateSplitBrowserJobs } from './browser-jobs.mjs'
 import { MISSION10_JOB, MISSION10_STEPS, MISSION10_INPUTS, mission10CrewLog, validateMission10Crew } from './mission10-recovery.mjs'
 import { profileArtifactUpload, mission10ArtifactUpload, validateProfileArtifactMetadata, resolveProfileArtifact, resolveProfileCasesArtifact, resolveMission10Artifact, profileArchiveLimit } from './profile-artifact.mjs'
@@ -63,6 +66,32 @@ export class GitHubReader {
       cwd: this.cwd, stdio: 'pipe', timeout: 30_000, maxBuffer: profileArchiveLimit,
       env: { ...process.env, GH_PROMPT_DISABLED: '1', GH_PAGER: 'cat' },
     })
+  }
+  spellVisualArchive(id) {
+    ensure(Number.isSafeInteger(id) && id > 0, 'Invalid numeric spell visuals artifact ID')
+    ensure(typeof this.executeBinary === 'function', 'Binary spell visuals transport must be explicitly injected')
+    const bytes = this.executeBinary('gh', ['api', '--hostname', 'github.com', '--method', 'GET',
+      `repos/${REPO}/actions/artifacts/${id}/zip`], {
+      cwd: this.cwd, stdio: 'pipe', timeout: 30_000, maxBuffer: spellVisualArchiveLimit,
+      env: { ...process.env, GH_PROMPT_DISABLED: '1', GH_PAGER: 'cat' },
+    })
+    ensure(Buffer.isBuffer(bytes) && bytes.length <= spellVisualArchiveLimit, 'Invalid synchronous spell visuals archive bytes')
+    return bytes
+  }
+  // Immutable data-only blob read: no checkout, filters, text conversion or imports.
+  // Explicitly bounded and byte-exact, including PNGs that cannot round-trip UTF-8.
+  spellVisualBlob(commit, path) {
+    ensure(sha(commit) && SPELL_VISUAL_INPUTS.includes(path), 'Unreviewed spell visuals input')
+    ensure(typeof this.executeBinary === 'function', 'Binary Git transport must be explicitly injected')
+    const prefix = ['--no-replace-objects', '-c', 'core.hooksPath=/dev/null',
+      '-c', 'core.fsmonitor=false', '-c', 'core.attributesFile=/dev/null']
+    assertSafeGitConfiguration(this.execute('git', [...prefix, 'config', '--null', '--list'], this.cwd))
+    const bytes = this.executeBinary('git', [...prefix, 'cat-file', 'blob', `${commit}:${path}`], {
+      cwd: this.cwd, stdio: 'pipe', timeout: 30_000, maxBuffer: 32 * 1024 * 1024,
+      env: { ...process.env, GIT_NO_REPLACE_OBJECTS: '1', GIT_NO_LAZY_FETCH: '1' },
+    })
+    ensure(Buffer.isBuffer(bytes) && bytes.length <= 32 * 1024 * 1024, 'Invalid synchronous Git blob bytes')
+    return bytes
   }
   pages(endpoint, key = null) {
     const values = []
@@ -298,6 +327,8 @@ export class GitHubReader {
             this.verifyProfileRecoveryRun(entry, pr, synthetic, exact, jobs, row)
           if (gate.mission10Required && exact.conclusion === 'success')
             this.verifyMission10Run(entry, pr, synthetic, exact, jobs, row)
+          if (gate.spellVisualsRequired && exact.conclusion === 'success')
+            ensure(this.verifySpellVisualRun(entry, pr, synthetic, exact, jobs, row) === true, 'Unresolved spell visuals verification')
           row.identityVerified =
             identity.head === pr.head.sha &&
             identity.base === pr.base.sha &&
@@ -311,15 +342,71 @@ export class GitHubReader {
     }
     return runs
   }
+  validateBrowserJobs(entry, pr, exact, jobs) {
+    if (entry.browserPolicy === SPELL_VISUAL_POLICY) {
+      ensure(entry.browserCheckpointVersion === 4, 'Nine-job policy requires explicit current-v4 contract')
+      ensure(validateSpellVisualBrowserJobs(jobs, exact, { policy: SPELL_VISUAL_POLICY, headSha: pr.head.sha }) === true,
+        'Unresolved nine-job inventory')
+    } else validateSplitBrowserJobs(jobs, exact)
+  }
+  verifySpellVisualRun(entry, pr, synthetic, exact, jobs, row) {
+    ensure(entry.browserPolicy === SPELL_VISUAL_POLICY && entry.browserCheckpointVersion === 4,
+      'Spell visuals requires explicit nine-job/current-v4 contract')
+    ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
+      exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha &&
+      synthetic && row.merge === synthetic.sha, 'Spell visuals workflow/candidate identity differs')
+    this.validateBrowserJobs(entry, pr, exact, jobs)
+    const job = jobs.find(j => j.name === SPELL_VISUAL_JOB[1])
+    ensure(Number.isSafeInteger(job.id) && job.id > 0 &&
+      new RegExp(`^https://api\\.github\\.com/repos/${REPO}/check-runs/[1-9][0-9]*$`).test(job.check_run_url),
+      'Unexpected spell visuals job/check identity')
+    const check = this.get(job.check_run_url.slice('https://api.github.com/'.length))
+    ensure(check.id === Number(job.check_run_url.split('/').at(-1)) &&
+      check.check_suite?.id === exact.check_suite_id && check.head_sha === pr.head.sha &&
+      check.name === SPELL_VISUAL_JOB[1] && check.app?.id === 15368 && check.app?.slug === 'github-actions' &&
+      check.status === 'completed' && check.conclusion === 'success', 'Spell visuals check identity/result mismatch')
+    const rawLog = this.get(`repos/${REPO}/actions/jobs/${job.id}/logs`, true)
+    const log = stripVTControlCharacters(rawLog), identity = logIdentity(log)
+    ensure(identity.head === pr.head.sha && identity.base === pr.base.sha && identity.merge === synthetic.sha,
+      'Spell visuals worker tested a different candidate')
+    ensure(this.workflow(GATES[1].workflow, synthetic.sha).sha256 === entry.workflowHashes[GATES[1].workflow],
+      'Spell visuals workflow source differs')
+    const receipt = readSpellVisualReceiptLog(log)
+    const inputs = Object.fromEntries(SPELL_VISUAL_INPUTS.map(path => [path, this.spellVisualBlob(synthetic.sha, path)]))
+    const expected = { policy: SPELL_VISUAL_POLICY,
+      identity: { repository: REPO, runId: String(exact.id), runAttempt: String(exact.run_attempt),
+        workflowRef: `${REPO}/${GATES[1].workflow}@refs/pull/${entry.pr}/merge`,
+        mergeSha: synthetic.sha, headSha: pr.head.sha, baseSha: pr.base.sha },
+      inputs: Object.fromEntries(Object.entries(inputs).map(([path, bytes]) => [path, sha256(bytes)])),
+      originalAngel: inputs['app/original-angel.json'],
+      originalUnits: inputs['app/original-units.json'],
+    }
+    const upload = spellVisualArtifactUpload(log, synthetic.sha)
+    const artifacts = this.pages(`repos/${REPO}/actions/runs/${exact.id}/artifacts`, 'artifacts')
+    const matches = artifacts.filter(a => a.name === upload.name || a.id === upload.id)
+    ensure(matches.length === 1, 'Missing, duplicate or reuploaded spell visuals artifact')
+    validateSpellVisualArtifactMetadata(matches[0], upload, expected.identity)
+    validateSpellVisualArtifactMetadata(this.get(`repos/${REPO}/actions/artifacts/${upload.id}`), upload, expected.identity)
+    const evidence = resolveSpellVisualArtifact(this.spellVisualArchive(upload.id), upload, receipt, expected)
+    ensure(evidence && typeof evidence.then !== 'function' && evidence.visualReview === 'required',
+      'Unresolved spell visuals artifact evidence')
+    row.spellVisualsVerified = true
+    row.spellVisualsCheckId = check.id
+    row.spellVisualsLogSha256 = sha256(rawLog)
+    row.spellVisualsArtifactId = upload.id
+    row.spellVisualsArtifactSha256 = upload.sha256
+    return true
+  }
   verifyPauseRecoveryRun(entry, pr, synthetic, exact, jobs, row) {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
       exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
       'Recovery workflow is not the successful current PR run')
-    ensure(['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1'].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
+    ensure(['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', SPELL_VISUAL_POLICY].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
       'Pause recovery requires explicit trusted policy and current synthetic source')
-    const split = entry.browserPolicy === 'profile-split-v1'
-    if (split) validateSplitBrowserJobs(jobs, exact)
-    const expectedJobs = split ? 8 : entry.browserPolicy === 'profile-recovery-v1' ? 3 : 2
+    const nine = entry.browserPolicy === SPELL_VISUAL_POLICY
+    const split = entry.browserPolicy === 'profile-split-v1' || nine
+    if (split) this.validateBrowserJobs(entry, pr, exact, jobs)
+    const expectedJobs = nine ? 9 : split ? 8 : entry.browserPolicy === 'profile-recovery-v1' ? 3 : 2
     ensure(jobs.length === expectedJobs && new Set(jobs.map(j => j.id)).size === expectedJobs &&
       (expectedJobs === 2 || jobs.filter(j => j.name === PROFILE_JOB).length === 1) &&
       jobs.filter(j => j.name === 'Tutorial browser').length === 1,
@@ -371,11 +458,12 @@ export class GitHubReader {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
       exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
       'Profile recovery workflow is not the successful current PR run')
-    ensure(['profile-recovery-v1', 'profile-split-v1'].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
+    ensure(['profile-recovery-v1', 'profile-split-v1', SPELL_VISUAL_POLICY].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
       'Profile recovery requires explicit trusted policy and current synthetic source')
-    const split = entry.browserPolicy === 'profile-split-v1'
-    if (split) validateSplitBrowserJobs(jobs, exact)
-    const expectedJobs = split ? 8 : 3
+    const nine = entry.browserPolicy === SPELL_VISUAL_POLICY
+    const split = entry.browserPolicy === 'profile-split-v1' || nine
+    if (split) this.validateBrowserJobs(entry, pr, exact, jobs)
+    const expectedJobs = nine ? 9 : split ? 8 : 3
     ensure(jobs.length === expectedJobs && new Set(jobs.map(j => j.id)).size === expectedJobs &&
       jobs.filter(j => j.name === RECOVERY_JOB).length === 1 &&
       jobs.filter(j => j.name === 'Tutorial browser').length === 1,
@@ -402,6 +490,7 @@ export class GitHubReader {
       'Profile recovery workflow source differs')
     const receipt = split ? profileCasesLog(log) : profileRecoveryLog(log)
     const expected = {
+      ...(entry.browserPolicy === SPELL_VISUAL_POLICY ? { policy: SPELL_VISUAL_POLICY, checkpointVersion: entry.browserCheckpointVersion } : {}),
       identity: { repository: REPO, runId: String(exact.id), runAttempt: String(exact.run_attempt),
         workflowRef: `${REPO}/${GATES[1].workflow}@refs/pull/${entry.pr}/merge`,
         mergeSha: synthetic.sha, headSha: pr.head.sha, baseSha: pr.base.sha },
@@ -434,10 +523,10 @@ export class GitHubReader {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
       exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
       'Mission 10 workflow is not the successful current PR run')
-    ensure(entry.browserPolicy === 'profile-split-v1' && synthetic && row.merge === synthetic.sha,
+    ensure(['profile-split-v1', SPELL_VISUAL_POLICY].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
       'Mission 10 requires explicit trusted policy and current synthetic source')
-    validateSplitBrowserJobs(jobs, exact)
-    const expectedJobs = 8
+    this.validateBrowserJobs(entry, pr, exact, jobs)
+    const expectedJobs = entry.browserPolicy === SPELL_VISUAL_POLICY ? 9 : 8
     ensure(jobs.length === expectedJobs && new Set(jobs.map(j => j.id)).size === expectedJobs &&
       jobs.filter(j => j.name === RECOVERY_JOB).length === 1 &&
       jobs.filter(j => j.name === PROFILE_JOB).length === 1 &&
@@ -465,6 +554,7 @@ export class GitHubReader {
       'Mission 10 workflow source differs')
     const receipt = mission10CrewLog(log)
     const expected = {
+      ...(entry.browserPolicy === SPELL_VISUAL_POLICY ? { policy: SPELL_VISUAL_POLICY, checkpointVersion: entry.browserCheckpointVersion } : {}),
       identity: { repository: REPO, runId: String(exact.id), runAttempt: String(exact.run_attempt),
         workflowRef: `${REPO}/${GATES[1].workflow}@refs/pull/${entry.pr}/merge`,
         mergeSha: synthetic.sha, headSha: pr.head.sha, baseSha: pr.base.sha },
@@ -689,7 +779,8 @@ export class GitHubReader {
           `${root}/commits/${pr.head.sha}/check-runs?filter=all`,
           'check_runs'
         )
-          .filter(c => c.app?.id === 15368 && GATES.some(g => g.job === c.name))
+          .filter(c => c.app?.id === 15368 && gatesFor(entry).some(g =>
+            [g.job, g.recoveryJob, g.profileJob, g.mission10Job, g.spellVisualsJob].includes(c.name)))
           .map(c => ({
             id: c.id,
             name: c.name,

@@ -361,3 +361,22 @@ completed every individual episode report but correctly failed the terminal
 The new cap remains one non-resetting timer, aborts/closes the browser on expiry,
 and cannot turn an expired run into a pass. Historical receipts retain their
 original source hashes and caps; they are not acceptance for this new policy.
+
+## Staged spell visuals reader (no activation)
+
+Passive integration-reader support recognizes a separately approved
+`spell-visuals-nine-v2` policy only with an explicit `browserCheckpointVersion: 4`.
+The existing eight-job workflow and v3 checkpoint writer remain unchanged.
+Older policies still demand exact old job inventories and v3 checkpoints; v4 is
+never inferred from candidate data. No ninth job, runner, credentials, protection
+change, persistent controller or external trusted-pin update is included.
+
+A later parent decision must independently review and pin the entire data-only
+reader closure, approve the bounded ninth hosted job and exact workflow transition,
+and separately authorize feature activation. Prior eleven-file reader approval,
+PR687, and PR655/658 staging precedent do not grant that authority. No automatic
+policy selection, old-green fallback, timing expansion, receipt splicing or
+mechanical/weighted refresh is introduced. Source-bound synthetic negative tests
+support the reader only; actual hosted Chrome and both episode results remain
+mandatory for future admission. See the [passive support contract](../scripts/integration-queue/README.md#passive-nine-job-spell-visuals-reader-support)
+for exact transport, binary Git hashing, version and lifecycle bounds.
