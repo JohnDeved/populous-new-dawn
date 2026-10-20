@@ -148,22 +148,23 @@ export function validateAngelResourceObservation(observation, fixture, segment, 
 export function validateAngelPng(bytes, width, height, inspectPixels = true) {
   assert.ok(Buffer.isBuffer(bytes) && bytes.length > 64 && bytes.length <= 16 * 1024 * 1024)
   assert.equal(bytes.subarray(0, 8).toString('hex'), '89504e470d0a1a0a')
-  let at = 8, channels, ended = false, chunks = 0
+  let at = 8, channels, ended = false, dataEnded = false, chunks = 0
   const compressed = []
   while (at < bytes.length) {
     assert.ok(++chunks <= 128 && at + 12 <= bytes.length)
     const length = bytes.readUInt32BE(at), end = at + 8 + length
     assert.ok(end + 4 <= bytes.length)
-    const type = bytes.toString('ascii', at + 4, at + 8), data = bytes.subarray(at + 8, end)
+    const type = bytes.toString('latin1', at + 4, at + 8), data = bytes.subarray(at + 8, end)
     let crc = 0xffffffff
     for (const b of bytes.subarray(at + 4, end)) { crc ^= b; for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0) }
     assert.equal((crc ^ 0xffffffff) >>> 0, bytes.readUInt32BE(end), 'PNG chunk CRC mismatch')
-    assert.match(type, /^[A-Za-z]{4}$/)
+    assert.match(type, /^[A-Za-z]{2}[A-Z][A-Za-z]$/, 'Invalid PNG chunk type/reserved bit')
+    if (compressed.length && type !== 'IDAT') dataEnded = true
     if (type === 'IHDR') {
       assert.equal(at, 8); assert.equal(length, 13); assert.equal(data.readUInt32BE(0), width); assert.equal(data.readUInt32BE(4), height)
       assert.equal(data[8], 8); assert.ok([2, 6].includes(data[9])); channels = data[9] === 6 ? 4 : 3
       assert.deepEqual([...data.subarray(10)], [0, 0, 0])
-    } else if (type === 'IDAT') { assert.ok(channels); compressed.push(data) }
+    } else if (type === 'IDAT') { assert.ok(channels && !dataEnded, 'Nonconsecutive PNG image data'); compressed.push(data) }
     else if (type === 'IEND') { assert.equal(length, 0); assert.equal(end + 4, bytes.length); ended = true }
     else assert.equal(type[0], type[0].toLowerCase(), 'Unexpected critical PNG chunk')
     at = end + 4

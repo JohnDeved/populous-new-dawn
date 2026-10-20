@@ -105,7 +105,7 @@ test('mandatory Shield contract fails closed for missing sources, old versions, 
 
 function pngChunk(name, data) {
   const chunk = Buffer.alloc(data.length + 12)
-  chunk.writeUInt32BE(data.length); chunk.write(name, 4); data.copy(chunk, 8)
+  chunk.writeUInt32BE(data.length); chunk.write(name, 4, 'latin1'); data.copy(chunk, 8)
   let crc = 0xffffffff
   for (const byte of chunk.subarray(4, -4)) {
     crc ^= byte
@@ -114,14 +114,16 @@ function pngChunk(name, data) {
   chunk.writeUInt32BE((crc ^ 0xffffffff) >>> 0, chunk.length - 4)
   return chunk
 }
-function customPng({ filter = 0, extra = [], trailingCompressed = false } = {}) {
+function customPng({ filter = 0, extra = [], trailingCompressed = false, idatType = 'IDAT', split = false, between = [] } = {}) {
   const header = Buffer.alloc(13)
   header.writeUInt32BE(4); header.writeUInt32BE(4, 4); header[8] = 8; header[9] = 6
   const raw = Buffer.alloc(4 * 17, 255)
   for (let row = 0; row < 4; row++) raw[row * 17] = filter
   const packed = deflateSync(raw)
+  const image = trailingCompressed ? Buffer.concat([packed, Buffer.from([0])]) : packed
+  const data = split ? [pngChunk(idatType, image.subarray(0, 5)), ...between, pngChunk(idatType, image.subarray(5))] : [pngChunk(idatType, image)]
   return Buffer.concat([Buffer.from('89504e470d0a1a0a', 'hex'), pngChunk('IHDR', header), ...extra,
-    pngChunk('IDAT', trailingCompressed ? Buffer.concat([packed, Buffer.from([0])]) : packed), pngChunk('IEND', Buffer.alloc(0))])
+    ...data, pngChunk('IEND', Buffer.alloc(0))])
 }
 
 test('bounded PNG readers reject CRC, critical chunks, invalid filters, chunk floods and compressed suffixes', () => {
@@ -129,11 +131,15 @@ test('bounded PNG readers reject CRC, critical chunks, invalid filters, chunk fl
   const good = customPng()
   assert.deepEqual(validateAngelPng(good, 4, 4, false), { width: 4, height: 4 })
   assert.equal(validateShieldPng(good, sample).retainedRgbaSha256, sample.framebufferRgbaSha256)
+  assert.deepEqual(validateAngelPng(customPng({split:true}), 4, 4, false), {width:4,height:4})
+  assert.equal(validateShieldPng(customPng({split:true}), sample).retainedRgbaSha256, sample.framebufferRgbaSha256)
   const badCrc = Buffer.from(good); badCrc[29] ^= 1
   const invalid = [Buffer.from('not a PNG'), badCrc, good.subarray(0, -1),
     customPng({ filter: 5 }), customPng({ extra: [pngChunk('ABCD', Buffer.alloc(0))] }),
     customPng({ extra: Array.from({ length: 126 }, () => pngChunk('tEXt', Buffer.alloc(0))) }),
-    customPng({ trailingCompressed: true })]
+    customPng({ trailingCompressed: true }), customPng({idatType:'\u00c9DAT'}),
+    customPng({extra:[pngChunk('texT',Buffer.alloc(0))]}),
+    customPng({split:true,between:[pngChunk('tEXt',Buffer.from('key\0value'))]})]
   for (const bytes of invalid) {
     assert.throws(() => validateAngelPng(bytes, 4, 4, false))
     assert.throws(() => validateShieldPng(bytes, sample))

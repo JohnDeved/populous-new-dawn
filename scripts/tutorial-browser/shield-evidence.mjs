@@ -106,15 +106,16 @@ export function validateShieldPng(bytes, sample) {
   }
   assert.ok(Buffer.isBuffer(bytes) && bytes.length > 64 && bytes.length < 512 * 1024)
   assert.equal(bytes.subarray(0, 8).toString('hex'), '89504e470d0a1a0a')
-  let width, height, channels, ended = false, count = 0
+  let width, height, channels, ended = false, dataEnded = false, count = 0
   const chunks = []
   for (let at = 8; at < bytes.length;) {
     assert.ok(++count <= 128 && at + 12 <= bytes.length)
     const length = bytes.readUInt32BE(at), end = at + 8 + length
     assert.ok(end + 4 <= bytes.length)
-    const kind = bytes.toString('ascii', at + 4, at + 8), data = bytes.subarray(at + 8, end)
+    const kind = bytes.toString('latin1', at + 4, at + 8), data = bytes.subarray(at + 8, end)
     assert.equal(bytes.readUInt32BE(end), crc(bytes.subarray(at + 4, end)), 'Retained PNG CRC')
-    assert.match(kind, /^[A-Za-z]{4}$/)
+    assert.match(kind, /^[A-Za-z]{2}[A-Z][A-Za-z]$/, 'Invalid PNG chunk type/reserved bit')
+    if (chunks.length && kind !== 'IDAT') dataEnded = true
     if (kind === 'IHDR') {
       assert.equal(at, 8); assert.equal(width, undefined); assert.equal(length, 13)
       width = data.readUInt32BE(0); height = data.readUInt32BE(4)
@@ -123,7 +124,7 @@ export function validateShieldPng(bytes, sample) {
       assert.equal(data[8], 8); assert.ok(data[9] === 2 || data[9] === 6)
       assert.deepEqual([...data.subarray(10)], [0, 0, 0])
       channels = data[9] === 6 ? 4 : 3
-    } else if (kind === 'IDAT') { assert.ok(channels); chunks.push(data) }
+    } else if (kind === 'IDAT') { assert.ok(channels && !dataEnded, 'Nonconsecutive PNG image data'); chunks.push(data) }
     else if (kind === 'IEND') {
       assert.equal(length, 0); assert.equal(end + 4, bytes.length)
       ended = true
