@@ -1463,7 +1463,8 @@ function finishCast(
         endpoint ?? nativePosition(w, p),
         nativePosition(w, shaman),
         tribeForTeam(shaman.team),
-        w
+        w,
+        w.secondaryEffects.animationFrame
       )
       fx.team = shaman.team
       fx.duration = Infinity

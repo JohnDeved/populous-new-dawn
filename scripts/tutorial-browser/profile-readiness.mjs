@@ -12,9 +12,16 @@ export function recoveryReadinessSnapshot() {
     document.querySelector('.loading-world')
   )
     return null
-  const world = scene.world
+  const world = scene.world,
+    skip = document.querySelector('button.skip-introduction')
   return {
     units: world.units.filter(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0),
+    flyby: { flags: world.flyby?.flags ?? null },
+    introductionSkipVisible:
+      !!skip &&
+      skip.getClientRects().length > 0 &&
+      getComputedStyle(skip).visibility !== 'hidden' &&
+      !skip.disabled,
     status: world.status,
     paused: world.paused,
     inputMask: world.inputMask,
@@ -27,12 +34,18 @@ export function recoveryReadinessSnapshot() {
 
 export function recoveryReadiness(snapshot) {
   return snapshot
-    ? { ...campaignShamanReadiness(snapshot), level: snapshot.outcome.level }
+    ? {
+        ...campaignShamanReadiness(snapshot),
+        level: snapshot.outcome.level,
+        flybyFlags: snapshot.flyby?.flags ?? null,
+        introductionSkipVisible: snapshot.introductionSkipVisible === true,
+      }
     : { ready: false, reason: 'Scene/store changed during readiness observation' }
 }
 
-export async function waitRecoveryReadiness(page, { timeout = 30000, signal } = {}) {
+export async function waitRecoveryReadiness(page, { timeout = 30000, signal, onBlocked } = {}) {
   const deadline = performance.now() + timeout
+  const publicActions = []
   let before,
     samples = 0
   for (;;) {
@@ -42,8 +55,18 @@ export async function waitRecoveryReadiness(page, { timeout = 30000, signal } = 
     samples++
     const remaining = deadline - performance.now()
     if (remaining <= 0)
-      throw Error(`Profile recovery readiness timed out: ${JSON.stringify(after)}`)
-    if (after.ready) return { before, after, samples }
-    await page.waitForTimeout(Math.min(100, remaining))
+      throw new Error(
+        `Profile recovery readiness timed out: ${JSON.stringify({ ...after, publicActions })}`
+      )
+    if (after.ready) return { before, after, samples, publicActions }
+    const action = await onBlocked?.({ after, remainingMs: remaining })
+    if (action) publicActions.push({ sample: samples, ...action })
+    signal?.throwIfAborted()
+    const afterActionRemaining = deadline - performance.now()
+    if (afterActionRemaining <= 0)
+      throw new Error(
+        `Profile recovery readiness timed out: ${JSON.stringify({ ...after, publicActions })}`
+      )
+    await page.waitForTimeout(Math.min(100, afterActionRemaining))
   }
 }

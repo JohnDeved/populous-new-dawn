@@ -556,8 +556,14 @@ test('retained current nine-check thirteen-shot capture passes the real producer
   assert.equal(receipt.receiptSha256, captured.provenance.rawHostSha256)
   assert.equal(receipt.checks.length, 9); assert.equal(receipt.screenshots.length, 13)
   assert.equal(Object.keys(receipt.inputs).length, 14)
-  assert.equal(sha256(readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-recovery.mjs', import.meta.url))),
-    receipt.inputs['scripts/local-render/original-pause-checkpoint-recovery.mjs'])
+  // This is immutable historical evidence, not acceptance for today's helper.
+  const helper = 'scripts/local-render/original-pause-checkpoint-recovery.mjs'
+  assert.equal(receipt.inputs[helper], '465bb051df0a8892ed46a0f1ebc2d384f31129213e86185f7554c74705f33681')
+  const currentInputs = { ...receipt.inputs,
+    [helper]: sha256(readFileSync(new URL(`../${helper}`, import.meta.url))) }
+  assert.notEqual(currentInputs[helper], receipt.inputs[helper])
+  assert.throws(() => validatePauseRecovery(pauseRecoveryLog(recoveryReceiptLog(receipt)),
+    { ...expected, inputs: currentInputs }), /source|input|digest/i)
   assert.equal(validatePauseRecovery(pauseRecoveryLog(recoveryReceiptLog(receipt)), expected), true)
   // Captured facts, not policy constants, feed the actual compact producer.
   // Temporary pixel bytes exercise hashing only; they are not browser evidence.
