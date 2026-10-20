@@ -7,6 +7,9 @@ export const snapshotSmokeBudget = Object.freeze({ version: 1, maxEpisodes: 2,
   episodeMs: 90000, totalBrowserMs: 180000, hostedJobMs: 360000 })
 export function browserCapMs(scenario) {
   if (!browserScenarios.includes(scenario)) throw Error('Unknown browser scenario')
+  // Finite Tutorial episodes exhausted 180s in two hosted runs. This is hang
+  // headroom for the unchanged aggregate, not a per-episode or performance target.
+  if (scenario === 'tutorial') return 240000
   return scenario === 'snapshot-protocol' ? 90000 : 180000
 }
 

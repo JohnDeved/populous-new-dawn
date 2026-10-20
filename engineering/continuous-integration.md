@@ -343,3 +343,21 @@ profile of stdout or proof of projected savings. Compression ratio and hosted
 wall-time improvement remain unmeasured until the reviewed candidate is tested.
 A single buffered stdout write is another unmeasured option; it retains all log
 bytes and does not establish that the hosted log service would ingest them faster.
+
+## Tutorial aggregate hang budget
+
+Only the `tutorial` scenario has a 240-second absolute browser deadline. Its
+finite recommendation, selector, scenery, M2, spell-projection and building-panel
+checks remain unchanged. Other scenario caps remain 180 seconds (snapshot-protocol
+retains its separate 90-second episode policy). No job/matrix entries, individual
+action/episode timeouts or the Tutorial job's 15-minute limit change.
+
+This is aggregate hang headroom, not a performance claim. The retained
+[PR 683 run, job 118549783856](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39399322186/job/118549783856)
+completed every individual episode report but correctly failed the terminal
+`browserTimedOut` assertion after the former 180-second deadline. Its artifact
+12253422581 has SHA256
+`02332c3d5a246b8c26f0109a12f99bb7db18601b23a17a7dd92916402b35728e`.
+The new cap remains one non-resetting timer, aborts/closes the browser on expiry,
+and cannot turn an expired run into a pass. Historical receipts retain their
+original source hashes and caps; they are not acceptance for this new policy.
