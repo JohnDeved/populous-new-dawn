@@ -26,6 +26,7 @@ const buildingIdentityScenario = resolve(root, 'scripts/tutorial-browser/buildin
 const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
 const frontendEscapeScenario = resolve(root, 'scripts/local-render/frontend-held-escape.mjs')
 const recoveryScenario = resolve(root, 'scripts/local-render/campaign-profile-recovery.mjs')
+const tornadoScenario = resolve(root, 'scripts/check-browser-tornado-appearance.mjs')
 const mission10ProfileScenario = resolve(root, 'scripts/tutorial-browser/mission10-profile.mjs')
 const selectedScenario = process.env.POPULOUS_BROWSER_SCENARIO || 'tutorial'
 assert.ok(browserScenarios.includes(selectedScenario), 'Unknown browser scenario')
@@ -166,6 +167,15 @@ try {
     Object.assign(receipt, await runProfileEpisode(selectedScenario, {
       signal: abort.signal, deadlineAt: browserDeadlineAt,
       runRecovery: async () => (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal }),
+      // Recovery assertions/receipts are unchanged; only then run a fresh-context
+      // Tornado episode inside the existing outer deadline (never a new timer).
+      closeRecoveryProbe: async () => { await context.close(); context = undefined; page = undefined },
+      runTornado: async ({ signal, deadlineAt }) => {
+        signal.throwIfAborted()
+        return (await import(pathToFileURL(tornadoScenario).href)).runTornadoAppearance(browser, {
+          url, artifactDir: resolve(out, 'tornado-appearance'), budgetMs: Math.min(90000, deadlineAt - Date.now()),
+        })
+      },
       closeProbe: async () => { await context.close(); context = undefined; page = undefined; await browser.close() },
       runMission10: async ({ signal, deadlineAt }) => (await import(pathToFileURL(mission10ProfileScenario).href)).default({ chromium, launch: browserConfig.launch, url, root, output: out, receipt, signal, verifySource, deadlineAt }),
     }))

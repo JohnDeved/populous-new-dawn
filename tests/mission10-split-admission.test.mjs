@@ -82,22 +82,32 @@ test('parsed eight-job matrix explicitly spends two independent180s allowances w
     const jobs = completeJobs(); mutate(jobs); assert.throws(() => validateSplitBrowserJobs(jobs, { id: 100, run_attempt: 2 }))
   }
 })
-test('actual episode dispatcher never combines scenarios or resets the supplied deadline', async () => {
+test('episode dispatcher appends bounded Tornado only after recovery without resetting the supplied deadline', async () => {
   const calls = [], signal = new AbortController().signal, deadlineAt = 123456789
   const options = { signal, deadlineAt, runRecovery: async () => { calls.push('recovery'); return { cases: 9 } },
+    closeRecoveryProbe: async () => { calls.push('recovery-closed') },
+    runTornado: async args => { calls.push('tornado'); assert.equal(args.signal, signal); assert.equal(args.deadlineAt, deadlineAt); return { casts: 2 } },
     closeProbe: async () => { calls.push('closed') }, runMission10: async args => { calls.push('M10'); assert.equal(args.signal, signal); assert.equal(args.deadlineAt, deadlineAt); return { phases: 2 } } }
-  assert.deepEqual(await runProfileEpisode('profile-recovery', options), { profileRecovery: { cases: 9 } }); assert.deepEqual(calls, ['recovery'])
+  assert.deepEqual(await runProfileEpisode('profile-recovery', options), { profileRecovery: { cases: 9 }, tornadoAppearance: { casts: 2 } }); assert.deepEqual(calls, ['recovery', 'recovery-closed', 'tornado'])
   calls.length = 0
   assert.deepEqual(await runProfileEpisode('mission10-profile', options), { mission10Profile: { phases: 2 } }); assert.deepEqual(calls, ['closed', 'M10'])
-  for (const step of ['closeProbe', 'runMission10', 'runRecovery']) {
+  for (const step of ['closeProbe', 'runMission10', 'runRecovery', 'closeRecoveryProbe', 'runTornado']) {
     const bad = { ...options, [step]: async () => { throw Error(step) } }
-    await assert.rejects(runProfileEpisode(step === 'runRecovery' ? 'profile-recovery' : 'mission10-profile', bad), new RegExp(step))
+    await assert.rejects(runProfileEpisode(['runRecovery', 'closeRecoveryProbe', 'runTornado'].includes(step) ? 'profile-recovery' : 'mission10-profile', bad), new RegExp(step))
   }
   const aborted = new AbortController(); aborted.abort(Error('deadline')); calls.length = 0
   await assert.rejects(runProfileEpisode('mission10-profile', { ...options, signal: aborted.signal }), /deadline/); assert.deepEqual(calls, [])
   const duringClose = new AbortController(); calls.length = 0
   await assert.rejects(runProfileEpisode('mission10-profile', { ...options, signal: duringClose.signal,
     closeProbe: async () => duringClose.abort(Error('deadline')) }), /deadline/); assert.deepEqual(calls, [])
+  const duringRecoveryClose = new AbortController(); calls.length = 0
+  await assert.rejects(runProfileEpisode('profile-recovery', { ...options, signal: duringRecoveryClose.signal,
+    closeRecoveryProbe: async () => duringRecoveryClose.abort(Error('deadline')) }), /deadline/)
+  assert.deepEqual(calls, ['recovery'], 'Tornado cannot start after outer deadline expires during cleanup')
+  const duringTornado = new AbortController(); calls.length = 0
+  await assert.rejects(runProfileEpisode('profile-recovery', { ...options, signal: duringTornado.signal,
+    runTornado: async () => duringTornado.abort(Error('deadline')) }), /deadline/)
+  assert.deepEqual(calls, ['recovery', 'recovery-closed'], 'outer deadline remains authoritative after appended episode')
   await assert.rejects(runProfileEpisode('unknown', options), /Unknown/)
 })
 test('independent recovery receipt retains all nine cases and cannot stand in for M10 or old composite admission', () => {

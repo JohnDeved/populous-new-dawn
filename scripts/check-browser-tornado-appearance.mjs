@@ -5,7 +5,8 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { openGame, bindGame, waitForShamanReadiness } from './browser-game.mjs'
+import { bindGame, showAllMissions } from './browser-game.mjs'
+import { waitRecoveryReadiness } from './tutorial-browser/profile-readiness.mjs'
 import { originalTornadoPairs, checkTornadoReadback } from './lib/tornado-pixel-oracle.mjs'
 import { finishTornadoAcceptance } from './lib/tornado-browser-evidence.mjs'
 
@@ -17,7 +18,10 @@ const expectedPngSHA256 = createHash('sha256')
   .digest('hex')
 const widths = [160, 80, 53, 40, 31, 26, 22, 20, 17, 15, 14, 13, 12, 11, 10, 10]
 
-export async function runTornadoAppearance(browser, { artifactDir, budgetMs = 90000 } = {}) {
+export async function runTornadoAppearance(
+  browser,
+  { artifactDir, budgetMs = 90000, url = process.env.POPULOUS_URL ?? 'http://localhost:3000' } = {}
+) {
   assert.ok(budgetMs > 0 && budgetMs <= 90000)
   const dir = resolve(artifactDir ?? 'work/orchestration/tornado-appearance-browser'),
     started = performance.now(),
@@ -51,10 +55,10 @@ export async function runTornadoAppearance(browser, { artifactDir, budgetMs = 90
       const episode = { kind, stages: [], observedPalettes: [] }
       report.episodes.push(episode)
       persist()
-      const { page, errors } = await openGame(browser, 1)
+      const { page, errors } = await openTornadoGame(browser, url)
       page.setDefaultTimeout(8000)
       try {
-        episode.readiness = await waitForShamanReadiness(page, { timeout: 12000 })
+        episode.readiness = await waitRecoveryReadiness(page, { timeout: 12000 })
         await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
         await page.keyboard.press('F9')
         await page.getByRole('button', { name: 'Unlock + refill all spells', exact: true }).click()
@@ -63,9 +67,7 @@ export async function runTornadoAppearance(browser, { artifactDir, budgetMs = 90
         episode.target = await page.evaluate(async kind => {
           const s = globalThis.testScene,
             w = s.world,
-            { nativePosition } = await import('/app/model.ts'),
-            { spellInRange } = await import('/app/spell-casting.ts'),
-            { tornadoCell } = await import('/app/tornado-appearance.ts'),
+            { nativePosition, spellInRange, tornadoCell } = globalThis.__pndTornadoFixture,
             shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
             candidates = []
           if (w.mode !== 'tornado' || !w.selected.includes(shaman.id))
@@ -110,8 +112,7 @@ export async function runTornadoAppearance(browser, { artifactDir, budgetMs = 90
           const s = globalThis.testScene,
             w = s.world,
             probe = globalThis.tornadoProbe,
-            { advanceGame } = await import('/app/game-clock.ts'),
-            rules = (await import('/app/original-rules.json')).default
+            { advanceGame, rules } = globalThis.__pndTornadoFixture
           w.speed = 1
           w.pendingTime = 0
           s.gameClock.animationTime = 0
@@ -268,8 +269,7 @@ export async function runTornadoAppearance(browser, { artifactDir, budgetMs = 90
         const selected = spawn.samples[0],
           pairs = originalTornadoPairs(fixture, selected.frame, selected.palette)
         episode.graphics = await page.evaluate(async () => {
-          const { tornadoGraphicsMetadata } =
-            await import('/scripts/lib/tornado-browser-evidence.mjs')
+          const { tornadoGraphicsMetadata } = globalThis.__pndTornadoFixture
           return tornadoGraphicsMetadata(globalThis.testScene, globalThis.devicePixelRatio)
         })
         persist()
@@ -358,7 +358,7 @@ export async function runTornadoAppearance(browser, { artifactDir, budgetMs = 90
             !document.querySelector('.loading-world')
         )
         await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
-        episode.restartReadiness = await waitForShamanReadiness(page, { timeout: 12000 })
+        episode.restartReadiness = await waitRecoveryReadiness(page, { timeout: 12000 })
         episode.cleanup = await page.evaluate(() => ({
           differentScene: globalThis.testScene !== globalThis.tornadoProbe.oldScene,
           disposed: globalThis.tornadoProbe.disposed,
@@ -397,6 +397,34 @@ export async function runTornadoAppearance(browser, { artifactDir, budgetMs = 90
     persist()
   }
   return report
+}
+
+async function openTornadoGame(browser, url) {
+  const context = await browser.newContext({
+      viewport: { width: 1440, height: 1000 },
+      deviceScaleFactor: 1,
+    }),
+    page = await context.newPage(),
+    errors = [],
+    target = new URL(url)
+  target.searchParams.set('tornado-appearance', '1')
+  page.on('pageerror', error => errors.push(String(error.stack ?? error)))
+  page.on('console', message => {
+    if (message.type() === 'error') errors.push(message.text())
+  })
+  page.on('crash', () => errors.push('Page crashed'))
+  await page.goto(target.href, { waitUntil: 'domcontentloaded' })
+  await page.waitForFunction(() => !!globalThis.__pndTornadoFixture)
+  await showAllMissions(page)
+  await page.getByRole('button', { name: 'Mission 1', exact: true }).focus()
+  await page.keyboard.press('Enter')
+  await bindGame(page)
+  await page.waitForFunction(
+    () => globalThis.testScene.world.flyby.flags & 1 || !globalThis.testScene.world.inputMask
+  )
+  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
+  return { page, errors }
 }
 
 async function isolateColumn(page) {
