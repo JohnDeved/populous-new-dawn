@@ -45,7 +45,10 @@ function treeFingerprint(repo, root, include = () => true) {
 }
 
 export function helperFingerprint(repo) {
-  return treeFingerprint(repo, 'tests', file => file.endsWith('.mjs') && !testPath(file))
+  // Only discovered top-level test files have individual policy fingerprints.
+  // All other regular files are shared inputs, regardless of extension: helper
+  // code, fixtures and even documentation drift require deliberate review.
+  return treeFingerprint(repo, 'tests', file => !testPath(file))
 }
 
 export function productionFingerprint(repo) {
