@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
@@ -48,11 +49,11 @@ function fixture(values) {
     },
   }
   const page = {
-    async evaluate(read) {
+    async evaluate(read, argument) {
       assert.equal(pending, false, 'Storage reads must not overlap')
       pending = true
       try {
-        return await read()
+        return await read(argument)
       } finally {
         pending = false
       }
@@ -94,6 +95,7 @@ function fixture(values) {
       },
     },
     waitForCheckpointReadback,
+    CHECKPOINT_VERSION,
   }
   const run = () => vm.runInNewContext(`(async () => { ${source} })()`, sandbox)
   return {
@@ -106,7 +108,7 @@ function fixture(values) {
   }
 }
 
-for (const version of [3]) test(`maintained checkpoint callsite waits for delayed v${version} reads before reloading`, async () => {
+for (const version of [CHECKPOINT_VERSION]) test(`maintained checkpoint callsite waits for delayed v${version} reads before reloading`, async () => {
   const f = fixture([undefined, { version: 0 }, { version }])
   await f.run()
   assert.equal(f.reads, 3)
@@ -164,7 +166,7 @@ test('Mission 2 supplied browser checkpoint uses current scalable schema and nor
   t.after(() => rmSync(output, { recursive: true, force: true }))
   const fixture = await createM2Checkpoint(output, { commit: 'controlled-current-source', files: [] }),
     record = checkpointCodec(fixture.transfer, true), store = createGameStore()
-  assert.equal(record.version, 3)
+  assert.equal(record.version, CHECKPOINT_VERSION)
   assert.deepEqual(record.world.capacityPolicy, { version: 1, mode: 'scalable' })
   Object.assign(store.getWorld(), record.world)
   await store.saveCheckpoint()

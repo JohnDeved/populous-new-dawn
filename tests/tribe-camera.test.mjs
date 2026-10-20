@@ -140,7 +140,9 @@ test('current checkpoint retains camera continuation and rejects malformed owner
     x => { x.motion.moves.pop() }, x => { x.result.phase = 9 },
     x => { x.tribes[0].x = NaN }, x => { x.navigationTime = -1 },
     x => { x.phase = 'simulation' }, x => { x.input = {} },
-    x => { x.viewTransition = {} },
+    x => { x.viewTransition = {} }, x => { x.viewPreset = 9 },
+    x => { x.overviewReturn.preset = 9 }, x => { x.motion.frame = 4 },
+    x => { x.globeMorph.duration = 0 }, x => { x.globeMorph.frame = 8 },
   ]) {
     const invalid = structuredClone(before)
     damage(invalid)
@@ -194,14 +196,16 @@ async function cameraScene(world = createWorld()) {
   Object.defineProperty(scene, 'flybyCamera', { get: () => flybyCamera(world.cameras, 0) })
   for (const method of ['captureCamera', 'cancelOverview', 'previewCamera', 'stepViewChange'])
     scene[method] = (...args) => runtime[method](scene, ...args)
+  scene.advanceInputTime = () => runtime.previewGroundZoom(scene)
   const clock = {
     get animationTime() { return world.cameras.animationTime },
     set animationTime(n) { world.cameras.animationTime = n },
     get animationFrame() { return world.cameras.animationFrame },
     set animationFrame(n) { world.cameras.animationFrame = n },
     camera: {
-    pre: () => runtime.preCameraVisit(scene), post: () => runtime.postCameraVisit(scene),
+    pre: () => runtime.preCameraVisit(scene), post: zoom => runtime.postCameraVisit(scene, zoom),
     zoom: () => scene.stepViewChange(), elapsed: nop,
+    sampleZoom: () => runtime.previewGroundZoom(scene),
   } }
   return { scene, clock, runtime }
 }
@@ -216,7 +220,7 @@ test('one millisecond key press consumes only its timestamped duration and appea
   scene.captureCamera()
   c.input.buttons = 1
   advanceGame(w, clock, 0.001)
-  runtime.updateCameraMotion(scene, 0)
+  runtime.updateCameraMotion(scene)
   assert.notDeepEqual(scene.viewPoint, { x: 10000 / 256 - 8, z: -10000 / 256 - 8 })
   scene.captureCamera()
   c.input.buttons = 0
@@ -298,7 +302,7 @@ test('timestamped camera/simulation results survive refresh grouping, off-grid s
       }
       if (now === nextFrame) {
         const before = structuredClone(w.cameras)
-        fixture.runtime.updateCameraMotion(fixture.scene, 0)
+        fixture.runtime.updateCameraMotion(fixture.scene)
         // Display prediction may retain zoom preview bookkeeping, but this
         // scenario has no zoom: authoritative state must be wholly unchanged.
         assert.deepEqual(w.cameras, before)
@@ -314,4 +318,196 @@ test('timestamped camera/simulation results survive refresh grouping, off-grid s
   for (const result of results) assert.deepEqual(result, results[0])
   assert.ok(results[0].turns.some(([time]) => Math.abs(time * 24 - Math.round(time * 24)) > 1e-6),
     'exercise actual off-grid simulation deadlines')
+})
+
+
+test('moving flyby precedes shaken simulation; same-visit focus survives cleanup', async () => {
+  const { scene, clock } = await cameraScene(), w = scene.world, c = w.cameras
+  const { requestCameraFocus } = await import('../app/camera-motion.ts')
+  w.speed = 0
+  w.inputMask = 0
+  Object.assign(c.tribes[0], { x: 10000, y: 10000, angle: 0 })
+  flybyCommand(w.flyby, 1205, [])
+  flybyCommand(w.flyby, 1209, [60, 60, 0, 18])
+  flybyCommand(w.flyby, 1206, [])
+  advanceGame(w, clock, 8 / 24)
+  const previous = c.tribes[0].x
+  assert.equal(w.flyby.flags & 1, 1)
+  const expected = { ...scene.flybyCamera }, timeline = structuredClone(w.flyby)
+  stepFlyby(timeline, expected, 24)
+  assert.notEqual(expected.x & 65535, previous, 'exercise a nonzero moving track')
+  w.randomState = 75
+  Object.assign(c.shake, { active: true, amplitude: 8 })
+  w.pendingTime = 1 / 24
+  w.speed = 1
+  const seen = []
+  clock.beforeTurn = () => {
+    seen.push(c.tribes[0].x)
+    c.tribes[0].x = 197
+    requestCameraFocus(c.motion, c.tribes[0], { ...c.tribes[0], x: 200 })
+  }
+  clock.afterTurn = () => { seen.push(c.tribes[0].x) }
+  advanceGame(w, clock, 1 / 24)
+  assert.deepEqual(seen, [((expected.x & 65535) + 3) & 65535, 197])
+  assert.equal(c.tribes[0].x, 197, 'post-phase focus200 minus retained shake3')
+  assert.equal(displayedTribeCamera(c, 0).x, 200)
+  assert.equal(c.motion.active, 0)
+  assert.equal(w.flyby.frame, timeline.frame, 'exactly one flyby controller visit')
+  const beforePause = structuredClone(w.flyby)
+  w.paused = true
+  advanceGame(w, clock, 1 / 24)
+  assert.deepEqual(w.flyby, beforePause, 'ordinary pause retains flyby continuation')
+})
+
+test('zoom and overview continuation retain their deadlines across frame grouping and a fresh owner', async () => {
+  const { cameraPreset } = await import('../app/projection.ts')
+  const schedules = [[1 / 30], [1 / 144], [0.107, 0.003, 0.237, 0.011]], results = []
+  for (const restore of [false, true]) for (const schedule of schedules) {
+    const attach = async world => {
+      const f = await cameraScene(world), { scene, runtime } = f
+      scene.view = { config: cameraPreset(0) }
+      scene.currentPreset = () => cameraPreset(0, scene.viewPreset)
+      scene.updateView = () => {
+        scene.view.config = scene.viewTransition?.preview ?? scene.viewTransition?.config ?? scene.currentPreset()
+      }
+      for (const method of ['startGroundView', 'overview', 'leaveOverview'])
+        scene[method] = (...args) => runtime[method](scene, ...args)
+      scene.updateView()
+      return f
+    }
+    let f = await attach(createWorld()), w = f.scene.world
+    w.flyby.flags = 0; w.inputMask = 0; w.speed = 0
+    f.runtime.zoom(f.scene, false)
+    const events = [[0.35, 'reverse'], [0.52, 'overview'], [1.8, 'leave'], [2.2, 'save']]
+    let now = 0, event = 0, frame = 0, nextFrame = schedule[0]
+    const visits = []
+    while (now < 3.3 - 1e-10) {
+      const nextEvent = events[event]?.[0] ?? Infinity, target = Math.min(3.3, nextFrame, nextEvent)
+      advanceGame(w, f.clock, target - now); now = target
+      if (now === nextEvent) {
+        const kind = events[event++][1]
+        if (kind === 'reverse') f.runtime.zoom(f.scene, true)
+        if (kind === 'overview') {
+          if (restore) { w = structuredClone(w); f = await attach(w) }
+          // A replacement Scene and a delayed paint both start with a stale cache.
+          f.scene.view.config = cameraPreset(0, 3)
+          f.runtime.overview(f.scene)
+        }
+        if (kind === 'leave') {
+          assert.equal(w.cameras.overviewActive, true)
+          f.runtime.leaveOverview(f.scene, 0)
+        }
+        if (kind === 'save') {
+          assert.equal(w.cameras.overviewStage, 'exit')
+          assert.ok(w.cameras.viewTransition?.angle, 'restore mid return-heading transition')
+          requireCameraContinuation(w.cameras)
+          if (restore) { w = structuredClone(w); f = await attach(w) }
+        }
+        visits.push(structuredClone(w.cameras))
+      }
+      if (now === nextFrame) {
+        f.runtime.updateCameraMotion(f.scene)
+        nextFrame += schedule[++frame % schedule.length]
+      }
+    }
+    assert.equal(w.cameras.viewTransition, null)
+    assert.equal(w.cameras.overviewStage, null)
+    assert.equal(w.cameras.overviewActive, false)
+    const canonical = c => {
+      c = structuredClone(c)
+      for (const key of ['elapsed', 'time', 'navigationTime', 'animationTime']) c[key] = Number(c[key].toFixed(9))
+      // A rendered prediction is not the transition's authoritative config.
+      if (c.viewTransition) {
+        c.viewTransition.time = Number(c.viewTransition.time.toFixed(9))
+        c.viewTransition.previewStartTime = Number(c.viewTransition.previewStartTime.toFixed(9))
+        delete c.viewTransition.preview
+        delete c.viewTransition.previewFraction
+      }
+      return c
+    }
+    results.push({ visits: visits.map(canonical), final: canonical(w.cameras), drawMode: w.drawMode })
+  }
+  for (const result of results) assert.deepEqual(result, results[0])
+})
+
+test('view retargeting samples the old owner and result selection precedes a coincident zoom visit', async () => {
+  const { cameraPreset } = await import('../app/projection.ts')
+  const { scene, clock, runtime } = await cameraScene(), w = scene.world
+  w.flyby.flags = 0; w.inputMask = 0; w.speed = 0
+  scene.currentPreset = () => cameraPreset(0, scene.viewPreset)
+  scene.view = { config: cameraPreset(0) }
+  scene.updateView = () => {
+    scene.view.config = scene.viewTransition?.preview ?? scene.viewTransition?.config ?? scene.currentPreset()
+  }
+  scene.viewPreset = 2
+  runtime.startGroundView(scene, 0)
+  assert.deepEqual(scene.viewTransition.config, cameraPreset(0, 2), 'old preset, not stale renderer config')
+  const config = structuredClone(scene.viewTransition.config)
+  w.outcome.cameraRequest++
+  advanceGame(w, clock, 1 / 24)
+  assert.ok(w.inputMask & 4)
+  assert.equal(scene.viewTransition.remaining, 18, 'result lock precedes this deadline’s zoom')
+  assert.deepEqual(scene.viewTransition.config, config)
+})
+
+test('input, off-grid simulation and paused-result locks freeze the same zoom across paints and restore', async () => {
+  const { cameraPreset } = await import('../app/projection.ts')
+  for (const mode of ['input', 'simulation', 'paused-result']) {
+    const results = []
+    for (const restore of [false, true]) for (const schedule of [[1 / 30], [1 / 144], [0.107, 0.003, 0.237, 0.011]]) {
+      const attach = async world => {
+        const f = await cameraScene(world), { scene, runtime } = f
+        scene.currentPreset = () => cameraPreset(0, scene.viewPreset)
+        scene.view = { config: cameraPreset(0, 3) }
+        scene.updateView = () => {
+          scene.view.config = scene.viewTransition?.preview ?? scene.viewTransition?.config ?? scene.currentPreset()
+        }
+        scene.startGroundView = (...args) => runtime.startGroundView(scene, ...args)
+        if (mode === 'simulation') f.clock.beforeTurn = () => {
+          if (world.cameras.elapsed >= 0.5 && world.cameras.elapsed < 0.6) world.inputMask |= 128
+        }
+        return f
+      }
+      let f = await attach(createWorld()), w = f.scene.world
+      w.flyby.flags = 0; w.inputMask = 0; w.speed = mode === 'simulation' ? 1.3 : 0
+      f.runtime.zoom(f.scene, false)
+      const events = [[0.35, 'reverse'], [0.517, 'lock'], [0.6, 'save'], [0.689, 'retarget']]
+      let now = 0, event = 0, frame = 0, nextFrame = schedule[0]
+      const snapshots = []
+      while (event < events.length) {
+        const target = Math.min(nextFrame, events[event][0])
+        advanceGame(w, f.clock, target - now); now = target
+        if (now === events[event][0]) {
+          const kind = events[event++][1]
+          // The production input clock samples even when elapsed time is zero.
+          f.scene.advanceInputTime()
+          if (kind === 'reverse') f.runtime.zoom(f.scene, true)
+          if (kind === 'lock') {
+            if (mode === 'input') w.inputMask |= 128
+            if (mode === 'paused-result') { w.paused = true; w.outcome.cameraRequest++ }
+          }
+          if (kind === 'save') {
+            assert.ok(w.inputMask & (mode === 'paused-result' ? 4 : 128))
+            requireCameraContinuation(w.cameras)
+            if (restore) { w = structuredClone(w); f = await attach(w) }
+          }
+          if (kind === 'retarget') {
+            w.inputMask = 0; w.paused = false; w.cameras.result.active = 0
+            f.scene.view.config = cameraPreset(0, 3)
+            f.runtime.zoom(f.scene, false)
+          }
+          const transition = structuredClone(w.cameras.viewTransition)
+          for (const key of ['time', 'previewStartTime', 'previewFraction'])
+            transition[key] = Number(transition[key].toFixed(9))
+          snapshots.push(transition)
+        }
+        if (now === nextFrame) {
+          f.runtime.updateCameraMotion(f.scene)
+          nextFrame += schedule[++frame % schedule.length]
+        }
+      }
+      results.push(snapshots)
+    }
+    for (const result of results) assert.deepEqual(result, results[0], mode)
+  }
 })

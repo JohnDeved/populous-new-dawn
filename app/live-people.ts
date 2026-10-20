@@ -656,15 +656,9 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
       if (unit.native?.tribe === p.tribe && selected.has(unit.id)) selectedCount++
   }
   const tribes = w.manaTribes.map((t, i) => ({
-    get x() {
-      return w.cameras.tribes[i].x
-    },
-    get y() {
-      return w.cameras.tribes[i].y
-    },
-    get angle() {
-      return w.cameras.tribes[i].angle
-    },
+    x: 0,
+    y: 0,
+    angle: 0,
     selectedCount: i === p.tribe ? selectedCount : 0,
     flags: t.flags2,
   }))

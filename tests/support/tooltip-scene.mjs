@@ -60,6 +60,8 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capaci
     { ObjectPanels } = await import('../../app/object-panels.ts'),
     tooltipApi = await import('../../app/tooltips.ts'),
     { pointerMove } = await import('../../app/scene-input-runtime.ts'),
+    { preCameraVisit, postCameraVisit } = await import('../../app/scene-camera-runtime.ts'),
+    { requestCameraFocus } = await import('../../app/camera-motion.ts'),
     { syncSecondaryReservations } = await import('../../app/scene-secondary-effects.ts'),
     world = api.createWorld(level, capacityMode),
     fixture = await makeHutSmokeScene(world),
@@ -67,7 +69,22 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capaci
     globals = new Map()
   let frameSerial = 0,
     cameraOwnsFrame = false
+  // This fixture bypasses the constructor. Retain its real persisted owners
+  // instead of shadowing the prototype adapters with old presentation fields.
+  delete scene.keys
+  delete scene.overviewStage
   Object.setPrototypeOf(scene, GameScene.prototype)
+  for (const field of ['animationTime', 'animationFrame'])
+    Object.defineProperty(scene.gameClock, field, {
+      get: () => world.cameras[field], set: value => { world.cameras[field] = value },
+    })
+  scene.skyRemainder = 0
+  scene.gameClock.camera = {
+    pre: () => preCameraVisit(scene),
+    post: zoom => postCameraVisit(scene, zoom),
+    zoom: () => scene.stepViewChange(),
+    elapsed: seconds => { scene.skyRemainder += seconds },
+  }
   for (const [name, value] of Object.entries({
     devicePixelRatio: 1,
     requestAnimationFrame: () => ++frameSerial,
@@ -80,9 +97,6 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capaci
     view: new RenderView(),
     viewPoint: { x: 0, z: 0 },
     overviewActive: false,
-    overviewStage: 0,
-    flybyTime: 0,
-    flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
     tooltip: tooltipApi.createTooltip(),
     renderer: {
       getPixelRatio: () => 1,
@@ -97,7 +111,6 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capaci
       getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 600 }),
     },
     selectionOverlay: {},
-    globeMotion: { dragging: false },
     onChange: nop,
     onSound: nop,
     dragActive: { value: false },
@@ -260,6 +273,15 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capaci
     api,
     cameraOwns: value => {
       cameraOwnsFrame = value
+      // The render stub retains the supplied Hut projection. Logical camera
+      // ownership must still pass through the actual pre-phase focus gate.
+      if (value) {
+        requestCameraFocus(scene.cameraMotion, scene.cameraPosition, {
+          x: (scene.cameraPosition.x + 30000) & 65535,
+          y: scene.cameraPosition.y, angle: scene.cameraPosition.angle,
+        })
+        assert.equal(scene.cameraMotion.active, 1)
+      } else scene.cameraMotion.active = 0
     },
   }
 }

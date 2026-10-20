@@ -43,7 +43,7 @@ async function fixture(t) {
       world, presentationBinding: store.bindPresentation(world), started: true, disposed: false,
       nearbyFollowersHudActive: true, previous: null, fpsGraph: null,
       gameClock: { animationTime: 0, animationFrame: 0 }, overviewActive: false, overviewStage: null,
-      keys: new Set(), dragActive: { value: false }, selectionOverlay: { visible: false }, globeMotion: { velocity: { x: 0, y: 0 } },
+      keys: new Set(), dragActive: { value: false }, selectionOverlay: { visible: false }, globeMotion: world.cameras.globeMotion,
       renderer: { getPixelRatio: () => 1, render: noOp }, hoveredObject: null, buildingPanels: new Map(),
       onSound: (...args) => logs.push(['cue', ...args]),
       onChange: () => logs.push(['change', world.castingTribes[0].flags]),

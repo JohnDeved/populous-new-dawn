@@ -254,6 +254,10 @@ export function skipIntroduction(scene: GameScene) {
 // Input belongs to the pre-simulation phase. Result/focus/heading controllers
 // belong to the post phase, with one shared mutable tribe pose between them.
 export function preCameraVisit(scene: GameScene) {
+  // 004a4960 visits the flyby before shake and person processing. Keep the
+  // existing pause/focus gates, but never let its absolute writes follow a turn.
+  if (!scene.resultCamera.active && !scene.cameraMotion.active && !scene.world.paused)
+    updateFlyby(scene, 1 / 24)
   const w = scene.world,
     buttons = w.cameras.input.buttons,
     fraction = Math.min(1, w.cameras.navigationTime * 24)
@@ -297,7 +301,7 @@ export function preCameraVisit(scene: GameScene) {
   }
 }
 
-export function postCameraVisit(scene: GameScene) {
+export function postCameraVisit(scene: GameScene, ordinaryZoom?: () => void) {
   const w = scene.world,
     s = scene.resultCamera,
     motion = scene.cameraMotion
@@ -312,8 +316,6 @@ export function postCameraVisit(scene: GameScene) {
       nativePosition(w, campaignPosition(w, teamForTribe(w.outcome.cameraTribe ?? 0) as TribeTeam))
     )
   }
-  if (scene.overviewActive || scene.overviewStage || scene.viewTransition?.angle)
-    scene.stepViewChange()
   const context = { skyCounter: w.outcome.skyCounter, newTurn: scene.resultTurn !== w.turn }
   scene.resultTurn = w.turn
   stepResultCamera(s, motion, scene.cameraPosition, context, {
@@ -339,14 +341,17 @@ export function postCameraVisit(scene: GameScene) {
     sound: () => sound(w, 0xa2, browserPosition(scene.cameraPosition)),
   })
   w.outcome.skyCounter = context.skyCounter
-  const motionOwned = !!(s.active || motion.active)
+  // Native result/focus selection precedes view/heading transitions, then
+  // motion consumes their resulting shared pose (004a4960, 0041b6d0 onward).
+  if (scene.overviewActive || scene.overviewStage || scene.viewTransition?.angle)
+    scene.stepViewChange()
+  else ordinaryZoom?.()
   stepCameraMotion(motion, scene.cameraPosition, scene.overviewActive ? 2 : 0, {
     rotate: () => {},
     globe: () => {},
   })
   w.outcome.cameraPlaying = !!s.active
   if (s.active) scene.overviewActive = false
-  if (!motionOwned && !w.paused) updateFlyby(scene, 1 / 24)
   scene.commitSky(scene.cameraPosition, 0)
 }
 
@@ -393,8 +398,8 @@ export function previewCamera(scene: GameScene, buttons: number) {
 }
 
 // Rendering is uncapped. It only samples the committed logical result and a
-// prediction on copies; dt is retained in the public adapter signature.
-export function updateCameraMotion(scene: GameScene, _dt: number) {
+// prediction on copies; controller time belongs to advanceGame.
+export function updateCameraMotion(scene: GameScene) {
   const c = scene.world.cameras,
     pose = displayedTribeCamera(c, scene.world.manaWorld.playerTribe)
   scene.viewPoint = browserPosition(pose)
@@ -406,7 +411,7 @@ export function updateCameraMotion(scene: GameScene, _dt: number) {
   return !!(preview || zoom || c.result.active || c.motion.active || c.wasFlying || c.input.buttons)
 }
 
-// One logical post-phase visit, never a second elapsed-time accumulator.
+// One logical pre-phase visit, never a second elapsed-time accumulator.
 export function updateFlyby(scene: GameScene, dt: number) {
   if (dt <= 0 || scene.world.paused) return false
   const state = scene.world.flyby,
@@ -586,7 +591,10 @@ export function stepViewChange(scene: GameScene) {
 
 export function startGroundView(scene: GameScene, preset: number, bearing?: number) {
   const previousTime = scene.viewTransition?.time
-  if (previewGroundZoom(scene)) scene.updateView()
+  previewGroundZoom(scene)
+  // Rebuild from the old owned transition/preset before capturing its config.
+  // A new Scene or an input between paints need not have a current renderer cache.
+  scene.updateView()
   if (scene.cameraPreviewButtons !== null) scene.captureCamera()
   const frames = viewTransitionFrames(24),
     time = previousTime ?? scene.cameraTime
@@ -616,6 +624,9 @@ export function overview(scene: GameScene) {
     return
   }
   scene.captureCamera(true)
+  // Capture the event-time ground view before entering overview disables its
+  // fractional prediction. The last rendered frame may be older than this input.
+  if (previewGroundZoom(scene)) scene.updateView()
   scene.overviewReturn = {
     preset: scene.viewPreset,
     bearing:

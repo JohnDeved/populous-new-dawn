@@ -77,6 +77,7 @@ import {
   captureCamera,
   preCameraVisit,
   postCameraVisit,
+  previewGroundZoom,
   commitSky,
   currentPreset,
   focus,
@@ -416,6 +417,7 @@ export class GameScene {
     const seconds = (now - this.previous) / 1000
     this.previous = now
     advanceGame(this.world, this.gameClock, seconds)
+    previewGroundZoom(this)
   }
   private publishCameraInput() {
     const input = this.world.cameras.input,
@@ -451,8 +453,11 @@ export class GameScene {
     animationFrame: 0,
     camera: {
       pre: () => preCameraVisit(this),
-      post: () => postCameraVisit(this),
+      post: (ordinaryZoom: () => void) => postCameraVisit(this, ordinaryZoom),
       zoom: () => this.stepViewChange(),
+      sampleZoom: () => {
+        previewGroundZoom(this)
+      },
       elapsed: (seconds: number) => {
         this.skyRemainder += seconds
       },
@@ -884,8 +889,8 @@ export class GameScene {
   navigationButtons() {
     return navigationButtons(this)
   }
-  updateCameraMotion(dt: number) {
-    return updateCameraMotion(this, dt)
+  updateCameraMotion() {
+    return updateCameraMotion(this)
   }
   previewCamera(buttons: number) {
     return previewCamera(this, buttons)
@@ -1061,7 +1066,7 @@ export class GameScene {
     this.updateTerrainFrame()
     if (sceneUpdates) sceneUpdates.terrainCpuMs = performance.now() - terrainStart
     this.updateDecorationsFrame()
-    const cameraOwnsFrame = this.updateCameraMotion(0)
+    const cameraOwnsFrame = this.updateCameraMotion()
     this.cursorFrameBlocked = !!(
       cameraOwnsFrame ||
       this.world.paused ||

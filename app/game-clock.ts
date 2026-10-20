@@ -12,9 +12,10 @@ export interface GameClock extends TurnObserver {
   presentationHidden?: () => boolean
   camera?: {
     pre: () => void
-    post: () => void
+    post: (ordinaryZoom: () => void) => void
     zoom: () => void
     elapsed: (seconds: number) => void
+    sampleZoom?: () => void
   }
 }
 
@@ -111,6 +112,9 @@ export function advanceGame(
     }
     const cameraDue = camera && w.cameras.time + 1e-9 >= interval,
       zoomDue = zoom && zoom.time + 1e-9 >= interval
+    // Simulation and result selection can lock zoom at this boundary. Retain
+    // its exact pre-lock sample, independent of the last rendered frame.
+    if (cameraDue || untilTurn <= elapsed + 1e-9) clock.camera?.sampleZoom?.()
     try {
       if (cameraDue) {
         beginCameraVisit(w.cameras)
@@ -118,22 +122,24 @@ export function advanceGame(
         applyCameraShake(w.cameras, w.manaWorld.playerTribe, w.drawMode, w.randomState)
       }
       if (active) tick(w, elapsed * w.speed, phase.observer, metrics)
-      // Camera post-work sees all synchronous simulation writes. Ordinary zoom
-      // retains its own deadline when timestamped input rebases navigation.
-      if (
-        zoomDue &&
-        zoom === w.cameras.viewTransition &&
-        !w.cameras.overviewActive &&
-        !w.cameras.overviewStage &&
-        !zoom!.angle
-      ) {
-        clock.camera!.zoom()
-        zoom!.time = Math.max(0, zoom!.time - interval)
+      // At a shared deadline, result selection precedes ordinary zoom and
+      // focus movement. Zoom also retains its own off-grid deadline.
+      const advanceZoom = () => {
+        if (
+          zoomDue &&
+          zoom === w.cameras.viewTransition &&
+          !w.cameras.overviewActive &&
+          !w.cameras.overviewStage &&
+          !zoom!.angle
+        ) {
+          clock.camera!.zoom()
+          zoom!.time = Math.max(0, zoom!.time - interval)
+        }
       }
       if (cameraDue) {
-        clock.camera!.post()
+        clock.camera!.post(advanceZoom)
         w.cameras.time = Math.max(0, w.cameras.time - interval)
-      }
+      } else advanceZoom()
     } finally {
       if (w.cameras.phase === 'camera') endCameraVisit(w.cameras, w.manaWorld.playerTribe)
       // A failing beforeTurn/body must not leave a later UI event inside a turn.

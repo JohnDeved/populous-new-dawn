@@ -192,7 +192,7 @@ export function requireCameraContinuation(c: TribeCameras | undefined) {
     !integer(c.animationFrame, 0, Number.MAX_SAFE_INTEGER) ||
     !integer(c.motion.active, 0, 1) ||
     !integer(c.motion.phase, 0, 1) ||
-    !integer(c.motion.frame, 0, 255) ||
+    !integer(c.motion.frame, 0, c.motion.phase === 0 ? 3 : 255) ||
     !integer(c.motion.moveIndex, 0, 10) ||
     !integer(c.motion.turnIndex, 0, 10) ||
     !validPose(c.motion.source) ||
@@ -203,6 +203,15 @@ export function requireCameraContinuation(c: TribeCameras | undefined) {
     !validPose(c.result.saved) ||
     !validPose(c.result.target) ||
     !integer(c.flybyZoom, -16384, 16384) ||
+    !integer(c.viewPreset, 0, 4) ||
+    !integer(c.overviewReturn.preset, 0, 4) ||
+    !integer(c.resultRequest, 0, Number.MAX_SAFE_INTEGER) ||
+    !integer(c.resultTurn, 0, Number.MAX_SAFE_INTEGER) ||
+    !integer(c.globeMorph.duration, 1, Number.MAX_SAFE_INTEGER - 1) ||
+    !integer(c.globeMorph.frame, 0, c.globeMorph.duration + 1) ||
+    ![c.globeMorph.value, c.globeMorph.source, c.globeMorph.target].every(n =>
+      integer(n, 0, 256)
+    ) ||
     ![null, 'enter', 'exit'].includes(c.overviewStage) ||
     !validTransition
   )

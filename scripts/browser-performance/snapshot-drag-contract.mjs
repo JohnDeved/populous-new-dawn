@@ -177,7 +177,7 @@ const ownedRouteOverrides = {
     "sha256": "c69ef62767a9417c736a1cc6636fdfba48ee81e305a995d0001d06d760741e86"
   }
 }
-export const dragSourceProfiles = Object.freeze([
+const historicalDragSourceProfiles = Object.freeze([
   Object.freeze({ id: 'generic-terrain-v1', slices: dragSourceSlices }),
   Object.freeze({ id: 'owned-numeric-terrain-v1', slices: Object.freeze(dragSourceSlices.map(
     slice => Object.freeze(ownedRouteOverrides[slice.id] ?? slice))) }),
@@ -214,6 +214,45 @@ export const dragSourceProfiles = Object.freeze([
           : ownedRouteOverrides[slice.id] ?? slice)),
     Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
       sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
+  ]) }),
+])
+// Chronological camera ownership changes three prior slices and delegates to
+// persisted owners, the shared clock and Scene event wiring. Bind that complete
+// route; historical profiles above remain exact and separately admissible.
+const chronologicalCameraHashes = {
+  "input-move": "dd414900157c8598d7357390ba18c9d4a2d135bdb3aef9c35a8557c04db4871b",
+  "frame-order": "25e57defc75b09fe56ff6b673cd3c13e5cc0cb6d6661aee3ead051417d8f587e",
+  "camera-producers": "90274c902968d2b57bd222b568d2871e64620e6da32eda87d8cc69107b937dbf"
+}
+export const dragSourceProfiles = Object.freeze([
+  ...historicalDragSourceProfiles,
+  Object.freeze({ id: 'owned-numeric-terrain-chronological-camera-v1', slices: Object.freeze([
+    ...historicalDragSourceProfiles.at(-1).slices.map(slice => Object.freeze({
+      ...slice, sha256: chronologicalCameraHashes[slice.id] ?? slice.sha256,
+    })),
+    ...[
+  {
+    "id": "tribe-camera-owner",
+    "path": "app/tribe-camera.ts",
+    "start": null,
+    "end": null,
+    "sha256": "b4be25c5bc31cb8a442d47988514b860e243f0ddb8690f6610140b5fe6fd5701"
+  },
+  {
+    "id": "chronological-game-clock",
+    "path": "app/game-clock.ts",
+    "start": null,
+    "end": null,
+    "sha256": "524ed36f8d2b1d9d3d6dc8ec00ca102195cb4f034d58a22052f3a1e063e557c5"
+  },
+  {
+    "id": "scene-camera-wiring",
+    "path": "app/scene.ts",
+    "start": null,
+    "end": null,
+    "sha256": "3e7952750aa1988c9fbceab87c3123f9d01cc574835d015ab85e8065635fdc1f"
+  }
+].map(slice => Object.freeze(slice)),
   ]) }),
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')

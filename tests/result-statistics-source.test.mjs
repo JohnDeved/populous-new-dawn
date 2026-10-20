@@ -111,7 +111,7 @@ test('existing browser statistics are retained as their own metrics', () => {
 
 test('current-format Save/Load clones stored metric data without aliasing or resetting it', async () => {
   const store = createGameStore(), world = store.getWorld()
-  assert.equal(CHECKPOINT_VERSION, 3)
+  assert.equal(CHECKPOINT_VERSION, 4) // Provisional camera branch; integration owns the final schema.
   assert.equal(world.capacityPolicy.mode, 'scalable')
   const values = { built: 17, cast: 29, bridges: 3, trained: 11, battlesWon: [0, 7, -2147483648, 2147483647] }
   Object.assign(world.stats, structuredClone(values))

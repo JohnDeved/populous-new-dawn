@@ -2,11 +2,27 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import vm from 'node:vm'
 import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { resolve } from 'node:path'
 import { inspectDragSource, dragSourceProfiles } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
 import { installSnapshotDragObserver } from '../scripts/browser-performance/snapshot-drag-observer.mjs'
 import { RenderView } from '../app/render-view.ts'
 const root = resolve(import.meta.dirname, '..')
+const chronologicalId = 'owned-numeric-terrain-chronological-camera-v1'
+const retainedCameraSource = JSON.parse(readFileSync(new URL('./fixtures/camera-source-before-chronological.json', import.meta.url)))
+function historicalCameraRead(path) {
+  let text = readFileSync(resolve(root, path), 'utf8')
+  for (const slice of retainedCameraSource.slices.filter(slice => slice.path === path)) {
+    assert.equal(createHash('sha256').update(slice.text).digest('hex'), slice.sha256)
+    if (slice.start === null) text = slice.text
+    else {
+      const start = text.indexOf(slice.start), end = text.indexOf(slice.end)
+      assert.ok(start >= 0 && end > start)
+      text = text.slice(0, start) + slice.text + text.slice(end)
+    }
+  }
+  return text
+}
 
 test('source-owner admission selects one exact bounded route; projection kernel remains changeable', () => {
   const read = path => readFileSync(resolve(root, path), 'utf8')
@@ -14,7 +30,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
-  assert.ok(profile); assert.equal(profile.slices.length, ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'].includes(profile.id) ? 17 : 16)
+  assert.ok(profile); assert.equal(profile.slices.length, profile.id === chronologicalId ? 20 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'].includes(profile.id) ? 17 : 16)
   for (const slice of profile.slices) {
     const changed = inspectDragSource(root, path => {
       if (path !== slice.path) return read(path)
@@ -59,6 +75,7 @@ test('atomic route profiles cache both source reads and failures; only ENOENT es
 })
 
 test('route admission binds numeric lease gates, actual constructor order and helper lifecycle, not just query signatures', () => {
+  assert.equal(inspectDragSource(root).status, 'admitted', 'mutations require an admitted baseline')
   const read = path => readFileSync(resolve(root, path), 'utf8')
   const checks = [
     ['app/render-view.ts', '          const scratch =\n            !nativeEdges &&', '          const scratch =\n            nativeEdges &&'],
@@ -67,7 +84,7 @@ test('route admission binds numeric lease gates, actual constructor order and he
     ['app/neutral-cursor.ts', '!scene.pointerButtons &&', 'true &&'],
     ['app/scene.ts', '    this.updatePointerFrame(now, pointerMetrics)\n    this.neutralCursor?.update()', '    this.neutralCursor?.update()\n    this.updatePointerFrame(now, pointerMetrics)'],
   ]
-  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'].includes(inspectDragSource(root).profile)) checks.push(
+  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', chronologicalId].includes(inspectDragSource(root).profile)) checks.push(
     ['app/render-view.ts', 'owned && scratch && runtimeTerrainPicking(this, object)', 'owned && scratch'],
     ['app/runtime-terrain-picking.ts', 'if (released.has(scene.view)) return', 'if (false) return'],
     ['app/scene-terrain-runtime.ts', '    rebindRuntimeTerrainPicking(scene)', '    /* omitted rebind */'])
@@ -87,12 +104,14 @@ test('pick-path and recording-epoch admission preserve exact historical source c
   const historical = dragSourceProfiles.find(profile => profile.id === oldId)
   const candidate = dragSourceProfiles.find(profile => profile.id === newId)
   const epoch = dragSourceProfiles.find(profile => profile.id === epochId)
+  const chronological = dragSourceProfiles.find(profile => profile.id === chronologicalId)
   assert.deepEqual(dragSourceProfiles.map(profile => profile.id), [
-    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId,
+    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, chronologicalId,
   ])
   assert.equal(historical.slices.length, 17)
   assert.equal(candidate.slices.length, 17)
   assert.equal(epoch.slices.length, 17)
+  assert.equal(chronological.slices.length, 20)
   for (let i = 0; i < historical.slices.length; i++) {
     const previous = historical.slices[i], next = candidate.slices[i]
     if (previous.id !== 'query-inputs') assert.deepEqual(next, previous)
@@ -112,14 +131,17 @@ test('pick-path and recording-epoch admission preserve exact historical source c
     }
   }
   const current = inspectDragSource(root)
-  assert.equal(current.profile, epochId)
+  assert.equal(current.profile, chronologicalId)
+  const retained = inspectDragSource(root, historicalCameraRead)
+  assert.equal(retained.profile, epochId)
+  assert.equal(retained.profiles.filter(profile => profile.status === 'admitted').length, 1)
   assert.equal(current.profiles.filter(profile => profile.status === 'admitted').length, 1)
   // Undo exactly the reviewed recording argument to recover PR640's full route.
   const inputPath = 'app/scene-input-runtime.ts'
   const epochArgument = '      scene.fpsGraph?.interactionRecording,\n'
   assert.equal(read(inputPath).split(epochArgument).length, 2)
-  const preEpochInput = read(inputPath).replace(epochArgument, '      scene.fpsGraph,\n')
-  const preEpochRead = path => path === inputPath ? preEpochInput : read(path)
+  const preEpochInput = historicalCameraRead(inputPath).replace(epochArgument, '      scene.fpsGraph,\n')
+  const preEpochRead = path => path === inputPath ? preEpochInput : historicalCameraRead(path)
   const preEpoch = inspectDragSource(root, preEpochRead)
   assert.equal(preEpoch.profile, newId)
   assert.equal(preEpoch.profiles.filter(profile => profile.status === 'admitted').length, 1)

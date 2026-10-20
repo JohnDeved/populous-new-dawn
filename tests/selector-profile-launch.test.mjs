@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
@@ -48,7 +49,7 @@ test('fresh Home restores independent progress and selector Start launches Missi
   saved.turn = 217
   saved.time = 217 / 12
   saved.randomState = 0x12345678
-  await withStorage({ profile: { version: 1, completed: [1, 2] }, latest: { version: 3, world: saved } },
+  await withStorage({ profile: { version: 1, completed: [1, 2] }, latest: { version: CHECKPOINT_VERSION, world: saved } },
     async ({ freshStore, records, writes, drain }) => {
       const store = await freshStore(), initialWorld = store.getWorld(), before = structuredClone(records)
       const states = [], presentation = {}, loadRequest = { current: null }
