@@ -9,6 +9,7 @@ import { initializeVaultKnowledge } from './vault-appearance.ts'
 import { discardInvalidResident } from './building-resident.ts'
 import { initializeVaultKnowledgeGift } from './world-effects.ts'
 import { createSharedAniblResource, type PresentationBinding } from './shared-anibl.ts'
+import { validAngelPresentation } from './angel-presentation.ts'
 
 import { CHECKPOINT_VERSION } from './checkpoint-format.ts'
 export { CHECKPOINT_VERSION } from './checkpoint-format.ts'
@@ -79,6 +80,10 @@ function requireCurrentCheckpoint(world: World) {
     !Array.isArray(world.spellScans) ||
     !Array.isArray(world.respawns) ||
     !Array.isArray(world.respawnPoints) ||
+    !Array.isArray(world.effects) ||
+    world.effects.some(
+      effect => effect.angel && !validAngelPresentation(effect.angel.presentation)
+    ) ||
     !Number.isInteger(world.outcome.level)
   )
     throw new RangeError('Checkpoint is incompatible with this development version')

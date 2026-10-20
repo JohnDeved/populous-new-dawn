@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { writeFileSync } from 'node:fs'
@@ -195,7 +196,7 @@ export default async function mission3BuildingScreen(context, continuation = nul
             await import('/scripts/local-render/mission3-building-lifecycle.mjs')
           await prepareM3Replacement(options)
         },
-        { kind, shamanId, birth, startup }
+        { kind, shamanId, birth, startup, checkpointVersion: CHECKPOINT_VERSION }
       )
       armed = true
       const name = kind === 'load' ? 'Load checkpoint' : 'Restart world'
@@ -326,7 +327,7 @@ export default async function mission3BuildingScreen(context, continuation = nul
         signal.throwIfAborted()
         saved.committed = await page.evaluate(readM3Committed)
         return (
-          saved.committed?.version === 3 &&
+          saved.committed?.version === CHECKPOINT_VERSION &&
           isDeepStrictEqual(saved.committed.snapshot, saved.boundary.snapshot)
         )
       })

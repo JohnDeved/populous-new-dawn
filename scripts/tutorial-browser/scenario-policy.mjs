@@ -1,6 +1,6 @@
 // Fixed read-only browser episode policy. No environment-selected cap overrides.
 export const browserScenarios = Object.freeze(['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery',
-  'profile-recovery', 'mission10-profile', 'gameplay-frames', 'snapshot-protocol', 'compact-message-layout', 'frontend-held-escape'])
+  'profile-recovery', 'mission10-profile', 'gameplay-frames', 'snapshot-protocol', 'compact-message-layout', 'frontend-held-escape', 'spell-visuals'])
 // This expands smoke from one shared 90s allowance to at most two 90s
 // episodes (180s combined), still inside the unchanged six-minute hosted job.
 export const snapshotSmokeBudget = Object.freeze({ version: 1, maxEpisodes: 2,
@@ -16,3 +16,7 @@ export function browserCapMs(scenario) {
 // Independent jobs, explicitly 360s combined instead of the former shared180s.
 export const profileSplitBudget = Object.freeze({ version: 1, recoveryMs: 180000,
   mission10Ms: 180000, totalBrowserMs: 360000, buildMsPerJob: 120000, hostedJobMs: 900000 })
+
+// Explicitly authorized ninth shard; existing eight job envelopes are unchanged.
+export const spellVisualBudget = Object.freeze({ browserMs: 180000, buildMs: 120000, hostedJobMs: 900000,
+  angelEpisodeMs: 50000, angelAdmissionMs: 60000, shieldEpisodeMs: 45000, shieldAdmissionMs: 55000 })

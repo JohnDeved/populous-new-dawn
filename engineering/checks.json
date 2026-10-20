@@ -2,6 +2,155 @@
   "version": 1,
   "checks": [
     {
+      "id": "angel-visual-witness-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate mandatory supplied current-v4 Angel and Shield episodes, strict source/pixel receipts and explicit ninth hosted shard without a browser or build.",
+      "coveredBehavior": [
+        "Inclusive context/deadline ownership, lossless v4 fixture and actual ordinary continuation.",
+        "Independent morph positions, sampled UVs, same-render crop ownership and bounded PNG decoding.",
+        "Exact nine-job opt-in, unchanged eight-job contract, negative admission/source/artifact cases.",
+        "Mandatory ordered Angel and Shield episodes, bounded artifacts, independent Shield rectangle/palette/painter and actual retained framebuffer identity."
+      ],
+      "knownLimits": [
+        "Synthetic DOM/GPU evidence and CPU trajectory are not a browser pass. Actual source-bound Chrome crops and independent visual review remain required.",
+        "No parent trusted-reader activation, earned acquisition, native-controller or original-framebuffer claim."
+      ],
+      "executable": "node",
+      "args": [
+        "--max-old-space-size=384",
+        "--test",
+        "--test-concurrency=1",
+        "tests/angel-visuals-budget.test.mjs",
+        "tests/angel-visuals-fixture.test.mjs",
+        "tests/angel-visuals-observer.test.mjs",
+        "tests/angel-visuals-evidence.test.mjs",
+        "tests/spell-visuals-policy.test.mjs",
+        "tests/shield-browser-budget.test.mjs",
+        "tests/shield-browser-checkpoint.test.mjs",
+        "tests/shield-browser-evidence.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/tutorial-browser/angel-visuals.mjs",
+        "scripts/tutorial-browser/angel-visuals-budget.mjs",
+        "scripts/tutorial-browser/angel-visuals-fixture.mjs",
+        "scripts/tutorial-browser/angel-visuals-observer.mjs",
+        "scripts/tutorial-browser/angel-visuals-evidence.mjs",
+        "scripts/tutorial-browser/spell-visuals.mjs",
+        "scripts/tutorial-browser/spell-visuals-receipt.mjs",
+        "scripts/tutorial-browser/run.mjs",
+        "scripts/tutorial-browser/scenario-policy.mjs",
+        "scripts/tutorial-browser/checkpoint-codec.mjs",
+        "scripts/integration-queue/spell-visuals-policy.mjs",
+        "scripts/integration-queue/spell-visuals-render-evidence.mjs",
+        "scripts/integration-queue/browser-jobs.mjs",
+        "scripts/artifact-zip.mjs",
+        ".github/workflows/tutorial-browser.yml",
+        "tests/angel-visuals-budget.test.mjs",
+        "tests/angel-visuals-fixture.test.mjs",
+        "tests/angel-visuals-observer.test.mjs",
+        "tests/angel-visuals-evidence.test.mjs",
+        "tests/spell-visuals-policy.test.mjs",
+        "tests/angel-render.test.mjs",
+        "app/scene-angel.ts",
+        "app/original-angel.json",
+        "app/angel-presentation.ts",
+        "engineering/angel-spell-visual-witness.md",
+        "scripts/tutorial-browser/shield-visuals.mjs",
+        "scripts/tutorial-browser/shield-visuals-inputs.mjs",
+        "scripts/tutorial-browser/shield-budget.mjs",
+        "scripts/tutorial-browser/shield-checkpoint.mjs",
+        "scripts/tutorial-browser/shield-evidence.mjs",
+        "scripts/tutorial-browser/shield-observer.mjs",
+        "scripts/integration-queue/shield-visuals-receipt.mjs",
+        "tests/support/shield-visuals-receipt.mjs",
+        "tests/shield-browser-budget.test.mjs",
+        "tests/shield-browser-checkpoint.test.mjs",
+        "tests/shield-browser-evidence.test.mjs",
+        "engineering/combined-spell-visuals-witness.md"
+      ],
+      "prerequisites": [
+        "Installed project dependencies",
+        "Node.js >=22.13.0",
+        "Clean committed application inputs for exact-head fixture generation"
+      ],
+      "sideEffects": [
+        "In-memory supplied worlds/PNG/ZIP objects and synthetic DOM only. Does not launch browsers/builds, write source assets or run original game code."
+      ],
+      "resources": [
+        "Serial Node file isolation, 384 MiB heap and process-tree watchdog on shared executors."
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "angel-presentation-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate original Angel import, morph protocol, mesh ownership and current-checkpoint integration without browser or original-code execution.",
+      "coveredBehavior": [
+        "Two textured bases and seventeen raw point sets; exact source-derived morph counter/selector vectors.",
+        "All 1640 existing native-model outputs match the pre-refactor baseline; owner UV translation and per-instance geometry/disposal.",
+        "Live presentation cadence, pause, current save/load, non-destructive obsolete-save rejection and 16 visible death scales."
+      ],
+      "knownLimits": [
+        "DOM/texture/GPU leaves are supplied. This is not rendered pixel or full native controller evidence.",
+        "Independent raw-byte import and complete-world baseline comparisons require the separate documented commands."
+      ],
+      "executable": "node",
+      "args": [
+        "--max-old-space-size=512",
+        "--test",
+        "--test-concurrency=1",
+        "tests/angel-import.test.mjs",
+        "tests/angel-presentation.test.mjs",
+        "tests/angel-render.test.mjs",
+        "tests/angel-runtime.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/angel-presentation.ts",
+        "app/scene-angel.ts",
+        "app/original-angel.json",
+        "scripts/import-angel.py",
+        "scripts/angel-inputs.json",
+        "app/angel.ts",
+        "app/world-turn.ts",
+        "app/live-people.ts",
+        "app/world-types.ts",
+        "app/scene-assets.ts",
+        "app/scene-effects.ts",
+        "app/game-store.ts",
+        "app/checkpoint-format.ts",
+        "scripts/check-angel-import.py",
+        "tests/angel-import.test.mjs",
+        "tests/angel-presentation.test.mjs",
+        "tests/angel-render.test.mjs",
+        "tests/angel-runtime.test.mjs",
+        "tests/support/bloodlust-scene.mjs"
+      ],
+      "prerequisites": [
+        "Installed project dependencies",
+        "Node.js >=22.13.0",
+        "Python3 for source-refusal test"
+      ],
+      "sideEffects": [
+        "Creates and removes a private temporary invalid-input directory for importer refusal; does not write tracked outputs. Mock texture loading; no browser, network or original game execution."
+      ],
+      "resources": [
+        "Serial Node file isolation; bounded process-tree watchdog when sharing an executor."
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "id": "neutral-canvas-cursor",
       "kind": "portable",
       "automation": "safe",

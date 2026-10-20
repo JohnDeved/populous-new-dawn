@@ -1,4 +1,5 @@
 import { launchFirewarriorPoint } from './firewarrior-point.ts'
+import { advanceAngelPresentation } from './angel-presentation.ts'
 import { unitRenderAnimationSource } from './unit-animation-source.ts'
 import { discardInvalidResident, residentPerson } from './building-resident.ts'
 import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
@@ -1598,6 +1599,7 @@ export function animateLiveObjects(w: World, phase: 'logical' | 'presentation' =
       animationUsesLogicalVisits(f.animation)
     )
     if (logical !== (phase === 'logical')) continue
+    if (f.angel) advanceAngelPresentation(f.angel.presentation)
     if (f.reincarnation) latchShamanDeathFrame(f)
     if (f.corpse) latchFollowerCorpseFrame(f)
     const knowledgeGlow = f.sprite?.sequence === 'vault-knowledge-glow' ? f.sprite : undefined,

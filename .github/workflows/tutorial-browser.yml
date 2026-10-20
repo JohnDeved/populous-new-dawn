@@ -77,6 +77,11 @@ jobs:
             name: Controlled snapshot functional smoke
             artifact: candidate-snapshot-functional-smoke
             buildStep: Validate candidate snapshot setup and F8 attribution, not a comparison
+          - scenario: spell-visuals
+            timeoutMinutes: 15
+            name: Spell visuals browser
+            artifact: spell-visuals-browser
+            buildStep: Build plain production Home and validate bounded supplied spell visuals
     env:
       PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}

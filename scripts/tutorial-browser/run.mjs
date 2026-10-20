@@ -12,6 +12,8 @@ import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
 import { profileCasesReceipt, profileCasesReceiptLog } from './profile-recovery-receipt.mjs'
 import { mission10CrewReceipt, mission10CrewReceiptLog } from './mission10-crew-receipt.mjs'
 import { runProfileEpisode } from './profile-episodes.mjs'
+import { spellVisualReceipt } from './spell-visuals-receipt.mjs'
+import { spellVisualReceiptLog } from '../integration-queue/spell-visuals-policy.mjs'
 import { buildRevision } from './build-provenance.mjs'
 import { arch, cpus, platform, release } from 'node:os'
 const root = resolve(dirname(import.meta.filename), '../..')
@@ -34,6 +36,7 @@ const gameplayScenario = resolve(root, 'scripts/tutorial-browser/gameplay-frames
 const meleeScenario = resolve(root, 'scripts/tutorial-browser/melee-attack.mjs')
 const followerCorpseScenario = resolve(root, 'scripts/tutorial-browser/follower-corpse.mjs')
 const m2Scenario = resolve(root, 'scripts/tutorial-browser/m2-pointer-f8.mjs')
+const spellVisualScenario = resolve(root, 'scripts/tutorial-browser/spell-visuals.mjs')
 const port = 5198
 if (existsSync(out)) throw Error('Output must be fresh')
 mkdirSync(out, { recursive: true })
@@ -73,7 +76,7 @@ function outputManifest(path, prefix = '') {
   }
   return result
 }
-const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision: buildRevision(root), gameplayScenarioSha256: hash(gameplayScenario), meleeScenarioSha256: hash(meleeScenario), followerCorpseScenarioSha256: hash(followerCorpseScenario),
+const receipt = { spellVisualEpisodeSha256: { angel: hash(resolve(root, 'scripts/tutorial-browser/angel-visuals.mjs')), shield: hash(resolve(root, 'scripts/tutorial-browser/shield-visuals.mjs')) }, spellVisualScenarioSha256: hash(spellVisualScenario), snapshotScenarioSha256: hash(snapshotScenario), buildRevision: buildRevision(root), gameplayScenarioSha256: hash(gameplayScenario), meleeScenarioSha256: hash(meleeScenario), followerCorpseScenarioSha256: hash(followerCorpseScenario),
   host: { platform: platform(), arch: arch(), release: release(), logicalCpus: cpus().length,
     cpuModels: [...new Set(cpus().map(cpu => cpu.model))] },
   github: { head: process.env.PR_HEAD_SHA ?? null, base: process.env.PR_BASE_SHA ?? null,
@@ -136,11 +139,11 @@ try {
   browser = await chromium.launch(browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
   receipt.browserCapMs = browserCapMs(selectedScenario)
-  browserDeadlineAt = Date.now() + receipt.browserCapMs
+  receipt.browserDeadlineAt = browserDeadlineAt = Date.now() + receipt.browserCapMs
   if (selectedScenario === 'snapshot-protocol') receipt.browserBudget = snapshotSmokeBudget
   else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
-  if (selectedScenario !== 'snapshot-protocol') {
+  if (!['snapshot-protocol', 'spell-visuals'].includes(selectedScenario)) {
   context = await browser.newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
@@ -150,6 +153,8 @@ try {
   const url = `http://127.0.0.1:${port}`
   if (selectedScenario === 'snapshot-protocol') {
     receipt.snapshotSmoke = await (await import(pathToFileURL(snapshotScenario).href)).default({ browser, url, output: out, source, expectedRevision: receipt.buildRevision, dist })
+  } else if (selectedScenario === 'spell-visuals') {
+    receipt.spellVisuals = await (await import(pathToFileURL(spellVisualScenario).href)).default({ browser, url, output: out, source, expectedRevision: receipt.buildRevision, deadlineAt: browserDeadlineAt })
   } else if (selectedScenario === 'frontend-held-escape') {
     receipt.frontendHeldEscape = await (await import(pathToFileURL(frontendEscapeScenario).href)).default({ page, url, output: out })
     // Preserve the completed frontend episode, then use an independent context
@@ -198,6 +203,7 @@ try {
   if (page) {
     try { receipt.failureState = await page.evaluate(() => ({ active: document.activeElement?.outerHTML?.slice(0, 500), body: document.body.innerText.slice(0, 2500) })); await page.screenshot({ path: resolve(out, 'failure.png'), timeout: 10000 }) } catch (e) { receipt.diagnosticError = String(e) }
   } else if (selectedScenario === 'snapshot-protocol') receipt.failureEvidence = 'candidate-snapshot-smoke.json'
+  else if (selectedScenario === 'spell-visuals') receipt.failureEvidence = ['angel-visuals.json', 'shield-visuals.json']
 } finally {
   clearTimeout(timer)
   try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
@@ -234,6 +240,10 @@ try {
       receipt.evidenceError = String(error); receipt.failure ??= receipt.evidenceError
       receipt.status = 'failed'; process.exitCode = 1; save()
     }
+  }
+  if (selectedScenario === 'spell-visuals' && receipt.status === 'passed') {
+    try { console.log(spellVisualReceiptLog(await spellVisualReceipt(receipt, out))) }
+    catch (error) { receipt.evidenceError = String(error); receipt.status = 'failed'; process.exitCode = 1; save() }
   }
   console.log(JSON.stringify({ status: receipt.status, failure: receipt.failure, cleanupVerified: receipt.cleanupVerified, output: out }))
 }

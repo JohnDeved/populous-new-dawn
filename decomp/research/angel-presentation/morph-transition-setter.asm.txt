@@ -1,0 +1,27 @@
+
+/workspace/scratch/69fd8163d94e/populous-original-inputs-20261020/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+0040cc30 <.text+0xbc30>:
+  40cc30:	8b 4c 24 04          	mov    ecx,DWORD PTR [esp+0x4]
+  40cc34:	8b 44 24 08          	mov    eax,DWORD PTR [esp+0x8]
+  40cc38:	66 89 41 74          	mov    WORD PTR [ecx+0x74],ax
+  40cc3c:	8b 54 24 0c          	mov    edx,DWORD PTR [esp+0xc]
+  40cc40:	66 c7 41 72 00 00    	mov    WORD PTR [ecx+0x72],0x0
+  40cc46:	80 49 36 10          	or     BYTE PTR [ecx+0x36],0x10
+  40cc4a:	66 89 51 76          	mov    WORD PTR [ecx+0x76],dx
+  40cc4e:	8a 44 24 10          	mov    al,BYTE PTR [esp+0x10]
+  40cc52:	88 41 71             	mov    BYTE PTR [ecx+0x71],al
+  40cc55:	c3                   	ret
+  40cc56:	cc                   	int3
+  40cc57:	cc                   	int3
+  40cc58:	cc                   	int3
+  40cc59:	cc                   	int3
+  40cc5a:	cc                   	int3
+  40cc5b:	cc                   	int3
+  40cc5c:	cc                   	int3
+  40cc5d:	cc                   	int3
+  40cc5e:	cc                   	int3
+  40cc5f:	cc                   	int3

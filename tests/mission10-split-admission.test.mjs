@@ -67,11 +67,12 @@ function entry() {
 test('parsed eight-job matrix explicitly spends two independent180s allowances without changing other caps or permissions', () => {
   const workflow = yaml.load(readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8'))
   const items = workflow.jobs['tutorial-browser'].strategy.matrix.include
-  assert.deepEqual(items.map(x => [x.scenario, x.name, x.artifact, x.buildStep, x.timeoutMinutes]), SPLIT_BROWSER_JOBS)
+  assert.deepEqual(items.slice(0, 8).map(x => [x.scenario, x.name, x.artifact, x.buildStep, x.timeoutMinutes]), SPLIT_BROWSER_JOBS)
   assert.deepEqual(workflow.on.pull_request.types, ['ready_for_review'])
   assert.deepEqual(workflow.permissions, { contents: 'read' })
   assert.equal(workflow.jobs['tutorial-browser']['runs-on'], 'ubuntu-24.04')
-  assert.equal(new Set(items.map(x => x.artifact)).size, 8)
+  assert.equal(new Set(items.slice(0, 8).map(x => x.artifact)).size, 8)
+  assert.equal(items.length, 9, 'Ninth spell-visuals contract is independently tested; original eight stay byte-identical')
   assert.deepEqual(profileSplitBudget, { version: 1, recoveryMs: 180000, mission10Ms: 180000, totalBrowserMs: 360000, buildMsPerJob: 120000, hostedJobMs: 900000 })
   assert.equal(browserCapMs('profile-recovery'), profileSplitBudget.recoveryMs)
   assert.equal(browserCapMs('mission10-profile'), profileSplitBudget.mission10Ms)

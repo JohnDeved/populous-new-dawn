@@ -33,6 +33,7 @@ import { short } from './native-math.ts'
 import { SWARM_INSECT_COUNT, hasSwarmRuntime, swarmState } from './swarm.ts'
 import { vaultKnowledgeGiftAppearance } from './vault-appearance.ts'
 import { makeVaultWorldPresentation, drawVaultWorldPresentation } from './scene-vault-knowledge.ts'
+import { makeAngelMeshes, drawAngelMeshes } from './scene-angel.ts'
 
 export function makeVaultKnowledgeMarker(frame: number) {
   const g = new THREE.Group()
@@ -187,13 +188,7 @@ export function makeFx(scene: GameScene, f: Effect) {
     return g
   }
   if (f.angel) {
-    g.name = 'angel-of-death'
-    g.userData.layers = []
-    g.userData.owner = tribeForTeam(f.team!)
-    g.userData.draw = 15
-    g.userData.drawFlags = 2
-    g.userData.directions = nativeUnits.animations['blue-warrior'].stagger
-    return g
+    return makeAngelMeshes(tribeForTeam(f.team!), scene.environment)
   }
   if (f.unit) {
     g.userData.layers = []
@@ -379,9 +374,7 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     return
   }
   if (f.angel) {
-    scene.animatePerson(g, f.angel.heading, g.userData.directions, f.age)
-    const scale = f.angel.phase === 'dying' ? Math.max(0, f.angel.timer / 16) : 1
-    g.scale.setScalar(scale)
+    drawAngelMeshes(g, f.angel, tribeForTeam(f.team!), scene.environment)
     return
   }
   if (f.unit) {

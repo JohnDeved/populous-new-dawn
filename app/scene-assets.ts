@@ -79,6 +79,7 @@ export function loadTexture(kind: string) {
   if (
     kind === nativeUnits.atlas ||
     kind === 'effects' ||
+    kind === 'shield' ||
     kind === templeArt.sparkleAtlas ||
     kind === 'vault-knowledge' ||
     kind === 'vault-knowledge-camp' ||
@@ -120,9 +121,29 @@ export function nativeModel(
   animatedTemple = false,
   environment: WorldEnvironment = compatibilityEnvironment
 ) {
-  const resource = nativeModelResource(id, environment.objects.bank),
-    { data } = resource
-  const geo = geometry(`original-${resource.bank}-${id}-${stage}`, () => {
+  const resource = nativeModelResource(id, environment.objects.bank)
+  return nativeModelFromResource(
+    resource,
+    `original-${resource.bank}-${id}-${stage}`,
+    scale,
+    stage,
+    animatedTemple,
+    environment
+  )
+}
+
+// Supplied resources share the established material/lighting contract, but own
+// an explicit cache identity. Every returned mesh owns a mutable geometry clone.
+export function nativeModelFromResource(
+  resource: NativeModelResource,
+  cacheKey: string,
+  scale = 2,
+  stage = 4,
+  animatedTemple = false,
+  environment: WorldEnvironment = compatibilityEnvironment
+) {
+  const { data } = resource
+  const geo = geometry(cacheKey, () => {
     const { p, uv } = modelStage(data, stage),
       g = new THREE.BufferGeometry()
     g.setAttribute('position', new THREE.Float32BufferAttribute(p, 3))
@@ -151,7 +172,7 @@ export function nativeModel(
   )
   mesh.scale.setScalar(scale)
   mesh.material.defines = { USE_MODEL_WAVE: '' }
-  mesh.userData.nativeModel = id
+  mesh.userData.nativeModel = resource.id
   mesh.userData.nativeResource = resource
   mesh.userData.stage = stage
   mesh.userData.nativeScale = data.scale

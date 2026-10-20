@@ -199,7 +199,7 @@ export async function readM3Committed() {
 
 // Same replacement subscription and early-start mechanism as PR274. Resource
 // snapshots are observed separately: only World/UI state belongs to the save.
-export async function prepareM3Replacement({ kind, shamanId, birth, startup = false }) {
+export async function prepareM3Replacement({ kind, shamanId, birth, startup = false, checkpointVersion }) {
   if (!['load', 'restart'].includes(kind) || window.m3Replacement)
     throw new Error('One declared replacement at a time')
   const { GameScene } = kind === 'load' ? await import('/app/scene.ts') : {}
@@ -246,7 +246,7 @@ export async function prepareM3Replacement({ kind, shamanId, birth, startup = fa
     try {
       loaded = next
       evidence.after = read(next)
-      if (kind === 'load') window.m3LoadedBoundary = { version: 3, world: structuredClone(next) }
+      if (kind === 'load') window.m3LoadedBoundary = { version: checkpointVersion, world: structuredClone(next) }
     } catch (error) {
       evidence.errors.push(String(error))
     } finally {
