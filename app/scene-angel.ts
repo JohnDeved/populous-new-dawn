@@ -17,7 +17,7 @@ export function angelModelResource(base: AngelBase, owner: number, bank: 2 | 6) 
     const source = angelBases[base].model,
       uv = [...source.uv],
       tiles = source.tiles.map(tile =>
-        original.tribeTiles.includes(tile) ? tile + owner + 1 : tile
+        original.tribeTiles.includes(tile) ? tile + owner : tile
       )
     let vertex = 0
     for (let face = 0; face < tiles.length; face++) {

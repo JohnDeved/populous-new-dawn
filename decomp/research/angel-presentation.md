@@ -20,11 +20,19 @@ is regenerated. Original ownership/licensing is unchanged.
   the native source-key fallback.
 - Cycles 4/5 have six two-visit segments: 12 visits. The generic animation helper
   consumes final frame 11, not count 12.
-- The original table 005aa218 marks tiles 162/170 for `tile + tribe + 1`.
-  Blue/Red/Yellow/Green therefore use 163–166 and 171–174; 73 faces per base change.
-  Neutral owner −1 retains 162/170. Unflagged tiles and local UVs remain unchanged.
+- The original table 005aa218 marks tiles 162/170 for tribe selection. The
+  polygon encoders at 004718c0 (unflagged) and 00471a80 (tribal) both add one
+  before the type-6 consumer 004673b0 indexes `bank1[tex_index + 0xff]`.
+  That shared encoding is already accounted for by the imported atlas. The
+  relative atlas offset is therefore `tile + owner`, not `tile + owner + 1`.
+  Blue/Red/Yellow/Green use 162–165 and 170–173. Neutral owner −1 uses 161/169:
+  the neutral condition in 004708d0 changes lighting, not helper selection.
+  The 73 flagged faces per base retain local UVs; unflagged tiles are unchanged.
+  Static disassembly of the pinned executable confirms `inc al` at 004719d0
+  and owner addition followed by `inc dl` at 00471b8e/00471b92. This corrects
+  the previous off-by-one interpretation; no original code was executed.
 - Existing compatibility-c atlas pixels match the original palette, alpha-table,
-  ARGB4444 quantization and transparent-edge expansion. All 16 required tiles are
+  ARGB4444 quantization and transparent-edge expansion. All 18 covered tiles are
   independently reconstructed by the checker. Mission 5/14 currently fall back
   to c, not their authored landscape 22/10 palettes.
 

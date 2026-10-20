@@ -149,7 +149,7 @@ assert pixels == atlas
 # Independently reconstruct each used tile from palette data, including alpha and
 # ordered transparent-edge expansion. No atlas or other tracked file is written.
 used = sorted({tile for base in dataset["bases"].values() for tile in base["model"]["tiles"]}
-              | set(range(163, 167)) | set(range(171, 175)))
+              | set(range(161, 167)) | set(range(169, 175)))
 tile_hashes = {}
 for tile in used:
     raw_tile = bytearray()

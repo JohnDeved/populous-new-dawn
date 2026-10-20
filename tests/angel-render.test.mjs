@@ -71,7 +71,7 @@ test('owner resources translate only flagged tiles and preserve every local UV c
         let vertex = 0
         for (let face = 0; face < source.tiles.length; face++) {
           const from = source.tiles[face], to = resource.data.tiles[face]
-          assert.equal(to, original.tribeTiles.includes(from) ? from + owner + 1 : from)
+          assert.equal(to, original.tribeTiles.includes(from) ? from + owner : from)
           const count = source.faces[face * 2] === 3 ? 3 : 6
           for (let corner = 0; corner < count; corner++) {
             const i = (vertex + corner) * 2
@@ -81,6 +81,20 @@ test('owner resources translate only flagged tiles and preserve every local UV c
           vertex += count
         }
       }
+})
+
+test('native polygon encoding selects neutral and four tribe atlas tiles without a second +1', () => {
+  // 004718c0 and 00471a80 both encode tile + 1; only the latter adds owner.
+  const pairs = [[161, 169], [162, 170], [163, 171], [164, 172], [165, 173]]
+  for (const base of [62, 69])
+    for (const owner of [-1, 0, 1, 2, 3]) {
+      const source = original.bases[base].model
+      const actual = angelModelResource(base, owner, 2).data.tiles
+      for (const [index, tile] of source.tiles.entries()) {
+        if (tile === 162) assert.equal(actual[index], pairs[owner + 1][0])
+        if (tile === 170) assert.equal(actual[index], pairs[owner + 1][1])
+      }
+    }
 })
 
 test('two Angels own independent mutable geometry and consume only displayed pose state', () => {
@@ -133,7 +147,7 @@ test('owner changes and removal dispose owned resources but never cached atlas t
     drawAngelMeshes(group, state, 3, environment)
     assert.deepEqual(counts, { geometry: 2, material: 2, texture: 0 })
     assert.equal(group.userData.owner, 3)
-    assert.ok(group.children[0].userData.nativeResource.data.tiles.includes(166))
+    assert.ok(group.children[0].userData.nativeResource.data.tiles.includes(165))
     assert.equal(group.children[0].material.map, texture)
     releaseGroup(group)
     assert.equal(counts.texture, 0)

@@ -21,7 +21,7 @@ export function expectedAngelResourceUV(original, base, owner) {
   const source = original.bases[base].model, uv = [...source.uv]
   let vertex = 0
   const tiles = source.tiles.map((from, face) => {
-    const to = original.tribeTiles.includes(from) ? from + owner + 1 : from
+    const to = original.tribeTiles.includes(from) ? from + owner : from
     const count = source.faces[face * 2] === 3 ? 3 : 6
     for (let corner = 0; corner < count; corner++) {
       const at = (vertex + corner) * 2, x = to & 7, y = to >> 3
