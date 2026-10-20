@@ -132,3 +132,40 @@ export function readFollowerCorpseHold(effectId) {
     animationTime: scene.gameClock.animationTime,
     effect: structuredClone(world.effects.find(f => f.id === effectId)) }
 }
+
+// Observe the ready Scene separately from the synchronous store-replacement
+// notification: Home deliberately resumes a checkpoint after that notification.
+export function readFollowerCorpseReady(effectId) {
+  const scene = window.testSceneRef.current, world = window.testStore.getWorld()
+  return { turn: world.turn, paused: world.paused,
+    sceneReplaced: scene !== window.__pndCorpsePreviousScene,
+    worldReplaced: world !== window.__pndCorpsePreviousWorld,
+    sceneStoreMatch: scene.world === world, canvasConnected: scene.renderer.domElement.isConnected,
+    effect: structuredClone(world.effects.find(f => f.id === effectId)) }
+}
+
+// Read the actual committed record's corpse, not the in-memory store checkpoint.
+// Opening a missing database is aborted; this observer never creates or writes it.
+export async function readCommittedFollowerCorpse(effectId) {
+  if (!(await indexedDB.databases()).some(db => db.name === 'populous-new-dawn'))
+    throw Error('Committed corpse checkpoint database is missing')
+  const db = await new Promise((resolve, reject) => {
+    const request = indexedDB.open('populous-new-dawn')
+    request.onupgradeneeded = () => { request.transaction.abort(); reject(Error('Checkpoint database unexpectedly missing')) }
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+  })
+  try {
+    const record = await new Promise((resolve, reject) => {
+      const transaction = db.transaction('checkpoints', 'readonly')
+      const request = transaction.objectStore('checkpoints').get('latest')
+      transaction.oncomplete = () => resolve(request.result)
+      transaction.onerror = () => reject(transaction.error)
+      transaction.onabort = () => reject(transaction.error ?? Error('Corpse checkpoint read aborted'))
+    })
+    const effects = record?.world?.effects?.filter(f => f.id === effectId) ?? []
+    if (effects.length !== 1 || !effects[0].corpse) throw Error('Committed follower corpse is missing or ambiguous')
+    return { version: record.version, level: record.world.outcome.level, turn: record.world.turn,
+      effect: structuredClone(effects[0]) }
+  } finally { db.close() }
+}

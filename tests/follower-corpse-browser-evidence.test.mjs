@@ -4,9 +4,10 @@ import { readFileSync } from 'node:fs'
 import native from './fixtures/follower-corpse-native.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
 import { validateFollowerCorpseSample, validateFollowerCorpseObservation } from '../scripts/tutorial-browser/follower-corpse-evidence.mjs'
-import { installFollowerCorpseObserver } from '../scripts/tutorial-browser/follower-corpse-observer.mjs'
-import followerCorpse, { followerCorpseLimitMs } from '../scripts/tutorial-browser/follower-corpse.mjs'
+import { installFollowerCorpseObserver, readCommittedFollowerCorpse, readFollowerCorpseReady } from '../scripts/tutorial-browser/follower-corpse-observer.mjs'
+import followerCorpse, { followerCorpseLimitMs, pauseLoadedFollowerCorpse } from '../scripts/tutorial-browser/follower-corpse.mjs'
 import { meleeAttackLimitMs } from '../scripts/tutorial-browser/melee-attack.mjs'
+import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 
 // Supplied evidence only. Expected native chains below come from the independent
@@ -57,8 +58,11 @@ function observation() {
   return { actorId: 1, effectId: 2, error: null, order: { actorId: 1, target: 20, lastOrderTurn: 80 },
     death: { before, absent: true, newEffect: true, phase: 0, effectId: 2 },
     segments: [segment([0, 1]), segment([1, 2, 3])],
-    checkpoint: { committed: { checkpointSha256: 'b'.repeat(64) },
-      saved: { turn: 111, effect }, loaded: { worldReplaced: true, turn: 111, effect: structuredClone(effect), paused: true },
+    checkpoint: { committed: { checkpointSha256: 'b'.repeat(64), version: CHECKPOINT_VERSION, level: 2, turn: 111 },
+      committedCorpse: { version: CHECKPOINT_VERSION, level: 2, turn: 111, effect: structuredClone(effect) },
+      saved: { turn: 111, effect }, restoredSnapshot: { worldReplaced: true, turn: 111, effect: structuredClone(effect), paused: true },
+      ...Object.fromEntries([['readyBeforePause', false], ['readyPaused', true], ['readyResumed', false]].map(([key, paused]) =>
+        [key, { turn: 112, paused, sceneReplaced: true, worldReplaced: true, sceneStoreMatch: true, canvasConnected: true, effect: structuredClone(effect) }])),
       holdBefore: { turn: 111, animationFrame: 222, effect }, holdAfter: { turn: 111, animationFrame: 222, effect: structuredClone(effect) } } }
 }
 
@@ -68,10 +72,93 @@ test('complete synthetic evidence requires combat death, four visible phase crop
     r => { r.order.lastOrderTurn = 100 }, r => { r.order.target = 13 }, r => { r.death.absent = false }, r => { r.death.newEffect = false },
     r => { r.segments[0].samples[0].cropFile = null }, r => { r.segments[1].samples.at(-1).bodyCanvasOwned = false },
     r => { r.segments[0].crops[0].frame++ }, r => { r.segments[1].crops.at(-1).opaqueColors = 1 },
-    r => { r.checkpoint.loaded.worldReplaced = false }, r => { r.checkpoint.loaded.effect.corpse.displayedFrame++ },
+    r => { r.checkpoint.restoredSnapshot.worldReplaced = false }, r => { r.checkpoint.restoredSnapshot.effect.corpse.displayedFrame++ },
     r => { r.checkpoint.holdAfter.animationFrame++ }, r => { r.segments[1].samples.forEach(s => { s.paused = true }) },
     r => { r.segments[1].done = false }]) {
     const r = observation(); mutate(r); assert.throws(() => validateFollowerCorpseObservation(r))
+  }
+})
+
+test('same-turn wrong committed corpse and transient-only pause evidence cannot pass', () => {
+  for (const mutate of [r => { r.checkpoint.committedCorpse.effect.corpse.displayedFrame = 1 },
+    r => { r.checkpoint.committedCorpse.effect.animation.object = 304 },
+    r => { delete r.checkpoint.committedCorpse }, r => { r.checkpoint.committedCorpse.version++ },
+    r => { r.checkpoint.readyBeforePause.paused = true }, r => { r.checkpoint.readyPaused.paused = false },
+    r => { r.checkpoint.readyPaused.sceneReplaced = false }, r => { r.checkpoint.readyPaused.worldReplaced = false },
+    r => { r.checkpoint.readyResumed.sceneStoreMatch = false }]) {
+    const r = observation(); mutate(r)
+    assert.equal(r.checkpoint.restoredSnapshot.paused, true, 'The old transient snapshot still looks paused')
+    assert.equal(r.checkpoint.committed.turn, r.checkpoint.saved.turn, 'Turn equality alone still passes')
+    assert.throws(() => validateFollowerCorpseObservation(r))
+  }
+  assert.match(validateFollowerCorpseObservation(observation()).cadence, /^Not established by browser sampling/)
+})
+
+test('ready-scene helper publicly pauses after Home resumes the transient restored snapshot', async () => {
+  const oldWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  const original = { turn: 111, paused: true }, originalScene = { world: original }
+  const effect = { id: 2, corpse: { phase: 1 } }, restored = { turn: 111, paused: true, effects: [effect] }
+  const transient = structuredClone(restored)
+  // Supplied lifecycle ordering matches beginLoad: subscription first, then
+  // Home's explicit unpause, then a new ready Scene. This is not browser proof.
+  restored.paused = false
+  const scene = { world: restored, renderer: { domElement: { isConnected: true } } }, calls = []
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: {
+    __pndCorpsePreviousWorld: original, __pndCorpsePreviousScene: originalScene,
+    testSceneRef: { current: scene }, testStore: { getWorld: () => restored } } })
+  const page = { evaluate: async (fn, arg) => fn(arg), waitForFunction: async fn => assert.equal(fn(), true) }
+  try {
+    const result = await pauseLoadedFollowerCorpse(page, 2, async name => {
+      calls.push(name); assert.equal(name, 'Pause game'); restored.paused = true
+    })
+    assert.equal(transient.paused, true)
+    assert.equal(result.readyBeforePause.paused, false); assert.equal(result.readyPaused.paused, true)
+    assert.equal(result.readyPaused.sceneReplaced, true); assert.deepEqual(calls, ['Pause game'])
+    restored.paused = false; window.__pndCorpsePreviousScene = scene
+    await assert.rejects(pauseLoadedFollowerCorpse(page, 2, async () => assert.fail('Stale Scene must not accept setup input')), /new ready Scene/)
+    window.__pndCorpsePreviousScene = originalScene
+    await assert.rejects(pauseLoadedFollowerCorpse(page, 2, async () => {}), /strictly equal/)
+    assert.equal(readFollowerCorpseReady(2).paused, false)
+  } finally {
+    if (oldWindow) Object.defineProperty(globalThis, 'window', oldWindow)
+    else delete globalThis.window
+  }
+})
+
+test('committed corpse observer reads only actual IDB bytes and retains an independent snapshot', async () => {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB')
+  const effect = { id: 2, duration: Infinity, corpse: { phase: 1, displayedFrame: 0 }, animation: { object: 312, draw: 14 } }
+  const record = { version: CHECKPOINT_VERSION, world: { turn: 111, outcome: { level: 2 }, effects: [effect] } }
+  let closed = 0, opened = 0, databasePresent = true
+  const db = { close: () => { closed++ }, transaction: (store, mode) => {
+    assert.equal(store, 'checkpoints'); assert.equal(mode, 'readonly')
+    const transaction = { objectStore: name => {
+      assert.equal(name, 'checkpoints')
+      return { get: key => { assert.equal(key, 'latest'); queueMicrotask(() => transaction.oncomplete()); return { result: record } } }
+    } }
+    return transaction
+  } }
+  Object.defineProperty(globalThis, 'indexedDB', { configurable: true, value: {
+    databases: async () => databasePresent ? [{ name: 'populous-new-dawn' }] : [],
+    open: name => { opened++; assert.equal(name, 'populous-new-dawn')
+      const request = { result: db }; queueMicrotask(() => request.onsuccess()); return request }
+  } })
+  try {
+    const observed = await readCommittedFollowerCorpse(2)
+    assert.deepEqual(observed, { version: CHECKPOINT_VERSION, level: 2, turn: 111, effect })
+    observed.effect.corpse.displayedFrame = 7
+    assert.equal(record.world.effects[0].corpse.displayedFrame, 0, 'Readback must not alias the record')
+    record.world.effects[0].corpse.displayedFrame = 1
+    const wrongSameTurn = await readCommittedFollowerCorpse(2)
+    assert.equal(wrongSameTurn.turn, 111); assert.equal(wrongSameTurn.effect.corpse.displayedFrame, 1)
+    await assert.rejects(readCommittedFollowerCorpse(3), /missing or ambiguous/)
+    assert.equal(closed, 3)
+    databasePresent = false
+    await assert.rejects(readCommittedFollowerCorpse(2), /database is missing/)
+    assert.equal(opened, 3, 'Missing database must not be created')
+  } finally {
+    if (descriptor) Object.defineProperty(globalThis, 'indexedDB', descriptor)
+    else delete globalThis.indexedDB
   }
 })
 

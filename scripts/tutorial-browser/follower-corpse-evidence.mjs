@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import native from '../../tests/fixtures/follower-corpse-native.json' with { type: 'json' }
 import units from '../../app/original-units.json' with { type: 'json' }
+import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 
 const draws = { brave: 14, warrior: 15, preacher: 16, spy: 17, firewarrior: 18 }
 const directionFor = ({ cameraBearing, heading }) => {
@@ -85,13 +86,29 @@ export function validateFollowerCorpseObservation(report) {
     'Current loaded checkpoint must resume through the natural transition/rise controller')
   const checkpoint = report.checkpoint
   assert.ok(checkpoint?.committed?.checkpointSha256, 'Actual committed current checkpoint required')
-  assert.equal(checkpoint.loaded.worldReplaced, true, 'Public Load checkpoint must replace the store world')
-  assert.equal(checkpoint.loaded.turn, checkpoint.saved.turn)
-  assert.deepEqual(checkpoint.loaded.effect, checkpoint.saved.effect)
+  assert.equal(checkpoint.committed.version, CHECKPOINT_VERSION)
+  assert.equal(checkpoint.committed.turn, checkpoint.saved.turn)
+  assert.equal(checkpoint.committedCorpse.version, CHECKPOINT_VERSION)
+  assert.equal(checkpoint.committedCorpse.level, checkpoint.committed.level)
+  assert.equal(checkpoint.committedCorpse.turn, checkpoint.saved.turn)
+  assert.deepEqual(checkpoint.committedCorpse.effect, checkpoint.saved.effect, 'Committed IDB corpse must equal saved corpse')
+  assert.equal(checkpoint.restoredSnapshot.worldReplaced, true, 'Public Load checkpoint must replace the store world')
+  assert.equal(checkpoint.restoredSnapshot.turn, checkpoint.saved.turn)
+  assert.deepEqual(checkpoint.restoredSnapshot.effect, checkpoint.saved.effect)
+  assert.deepEqual(checkpoint.restoredSnapshot.effect, checkpoint.committedCorpse.effect)
   assert.deepEqual(checkpoint.holdBefore, checkpoint.holdAfter, 'Public pause must freeze effect, logical turn and animation clock')
-  assert.equal(checkpoint.loaded.paused, true)
+  assert.equal(checkpoint.restoredSnapshot.paused, true, 'This is only the transient replacement snapshot')
+  for (const [key, paused] of [['readyBeforePause', false], ['readyPaused', true], ['readyResumed', false]]) {
+    const state = checkpoint[key]
+    assert.equal(state.sceneReplaced, true, `${key}: the actual ready Scene must be new`)
+    assert.equal(state.worldReplaced, true); assert.equal(state.sceneStoreMatch, true)
+    assert.equal(state.canvasConnected, true); assert.equal(state.paused, paused)
+    assert.equal(state.effect?.id, report.effectId)
+    assert.ok(state.turn >= checkpoint.saved.turn)
+  }
+  assert.equal(checkpoint.readyPaused.effect.corpse.phase, 1)
   assert.equal(segments[1].done, true)
   return { effectId: report.effectId, victimId: report.actorId,
     originalSources: [304, 312, 320], phases: [0, 1, 2, 3],
-    sampleCount: samples.length, currentCheckpoint: checkpoint.committed.checkpointSha256 }
+    sampleCount: samples.length, cadence: 'Not established by browser sampling; separate native unit evidence only', currentCheckpoint: checkpoint.committed.checkpointSha256 }
 }

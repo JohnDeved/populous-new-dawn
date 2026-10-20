@@ -8,7 +8,8 @@ import { readCommittedCheckpoint } from '../local-render/checkpoint-observer.mjs
 import { m2StartupReady } from './m2-pointer-f8.mjs'
 import { meleeCameraInput, meleeTargetPoint, readMeleeRouteState, assertMeleeRouteReady,
   shiftClickMeleeTarget } from './melee-attack.mjs'
-import { installFollowerCorpseObserver, readFollowerCorpseHold } from './follower-corpse-observer.mjs'
+import { installFollowerCorpseObserver, readFollowerCorpseHold,
+  readFollowerCorpseReady, readCommittedFollowerCorpse } from './follower-corpse-observer.mjs'
 import { validateFollowerCorpseObservation } from './follower-corpse-evidence.mjs'
 
 export const followerCorpseLimitMs = 75000
@@ -27,6 +28,25 @@ export function readCorpseMinimap(effectId = null) {
     target: { x: Math.round((target.x + 8) * 256), y: Math.round((-target.z - 8) * 256) } }
 }
 
+// A restored paused snapshot is transient: beginLoad resumes it before the new
+// Scene becomes ready. Only a new public Pause action establishes the setup hold.
+export async function pauseLoadedFollowerCorpse(page, effectId, button) {
+  const readyBeforePause = await page.evaluate(readFollowerCorpseReady, effectId)
+  const assertReady = state => {
+    assert.equal(state.sceneReplaced, true, 'Load checkpoint must create a new ready Scene')
+    assert.equal(state.worldReplaced, true, 'The ready Scene must use the replacement World')
+    assert.equal(state.sceneStoreMatch, true); assert.equal(state.canvasConnected, true)
+    assert.equal(state.effect?.id, effectId)
+  }
+  assertReady(readyBeforePause)
+  assert.equal(readyBeforePause.paused, false, 'Home resumes the loaded World after its transient store notification')
+  await button('Pause game')
+  await page.waitForFunction(() => window.testStore.getWorld().paused)
+  const readyPaused = await page.evaluate(readFollowerCorpseReady, effectId)
+  assertReady(readyPaused); assert.equal(readyPaused.paused, true)
+  return { readyBeforePause, readyPaused }
+}
+
 export default async function followerCorpse({ browser, url, output, expectedRevision }) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 }), page = await context.newPage()
   page.setDefaultTimeout(10000)
@@ -37,7 +57,8 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     limits: ['Direct mission access, not campaign unlock. No native/synthetic scene, health, source, phase, clock, victim or target assignment.',
       'Independent original VSTART/VFRA fixture validates displayed native source and heading; packed frame identity comes from imported atlas metadata independently audited outside this browser check.',
       'Canvas copies and read-only observations perturb rendering; no performance or hardware smoothness claim. Crops require visual review and are not pixel-perfect composition evidence.',
-      'The saved in-session current checkpoint is actually loaded and rendered. This is not a fresh browser/process persistence test.'],
+      'The saved in-session current checkpoint is actually loaded and rendered. This is not a fresh browser/process persistence test.',
+      'Browser sampling establishes observed source/frame/heading/visibility and continuation, not exact animation cadence. Cadence remains the separate native follower-corpse-animation unit-test claim.'],
     source: Object.fromEntries(['scripts/tutorial-browser/follower-corpse.mjs',
       'scripts/tutorial-browser/follower-corpse-observer.mjs', 'scripts/tutorial-browser/follower-corpse-evidence.mjs',
       'tests/fixtures/follower-corpse-native.json', 'app/original-units.json', 'app/follower-corpse-animation.ts',
@@ -153,29 +174,42 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.equal(report.checkpoint.committed.version, CHECKPOINT_VERSION)
     report.checkpoint.saved = await page.evaluate(readFollowerCorpseHold, report.effectId)
     assert.equal(report.checkpoint.committed.turn, report.checkpoint.saved.turn)
+    report.checkpoint.committedCorpse = await page.evaluate(readCommittedFollowerCorpse, report.effectId)
+    assert.equal(report.checkpoint.committedCorpse.version, CHECKPOINT_VERSION)
+    assert.equal(report.checkpoint.committedCorpse.turn, report.checkpoint.saved.turn)
+    assert.deepEqual(report.checkpoint.committedCorpse.effect, report.checkpoint.saved.effect,
+      'The committed IDB record must contain this exact saved corpse, not merely the same turn')
     await retain()
     await page.evaluate(effectId => {
       const store = window.testStore, original = store.getWorld()
+      window.__pndCorpsePreviousWorld = original
+      window.__pndCorpsePreviousScene = window.testSceneRef.current
       const unsubscribe = store.subscribe(() => {
         const world = store.getWorld()
         if (world === original) return
-        window.__pndCorpseLoaded = { worldReplaced: true, turn: world.turn, paused: world.paused,
+        window.__pndCorpseRestored = { worldReplaced: true, turn: world.turn, paused: world.paused,
           effect: structuredClone(world.effects.find(f => f.id === effectId)) }
         unsubscribe()
       })
     }, report.effectId)
     await button('Back'); await button('Load Game'); await button('Load checkpoint')
-    await page.waitForFunction(() => !!window.__pndCorpseLoaded)
-    report.checkpoint.loaded = await page.evaluate(() => window.__pndCorpseLoaded); save()
-    assert.deepEqual(report.checkpoint.loaded.effect, report.checkpoint.saved.effect)
-    assert.equal(report.checkpoint.loaded.turn, report.checkpoint.saved.turn)
-    assert.equal(report.checkpoint.loaded.paused, true)
-    await menu.waitFor({ state: 'hidden' }); await bindGame(page); await settle()
+    await page.waitForFunction(() => !!window.__pndCorpseRestored)
+    report.checkpoint.restoredSnapshot = await page.evaluate(() => window.__pndCorpseRestored); save()
+    assert.deepEqual(report.checkpoint.restoredSnapshot.effect, report.checkpoint.saved.effect)
+    assert.equal(report.checkpoint.restoredSnapshot.turn, report.checkpoint.saved.turn)
+    assert.equal(report.checkpoint.restoredSnapshot.paused, true)
+    assert.deepEqual(report.checkpoint.restoredSnapshot.effect, report.checkpoint.committedCorpse.effect)
+    await menu.waitFor({ state: 'hidden' }); await bindGame(page)
+    Object.assign(report.checkpoint, await pauseLoadedFollowerCorpse(page, report.effectId, button)); save()
+    assert.equal(report.checkpoint.readyPaused.effect.corpse.phase, 1, 'Ready-scene setup must remain within the saved corpse phase')
+    await settle()
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
     await action('One public - zoom-out after actual Load checkpoint', () => page.keyboard.press('-')); await settle()
     await focus(report.effectId)
     await page.evaluate(installFollowerCorpseObserver, { actorId: report.actorId, effectId: report.effectId, segment: 'loaded' })
     await button('Resume game')
+    report.checkpoint.readyResumed = await page.evaluate(readFollowerCorpseReady, report.effectId); save()
+    assert.equal(report.checkpoint.readyResumed.paused, false)
     await page.waitForFunction(() => {
       const r = window.__pndCorpseObservation.result; return r.error || r.done
     }, null, { timeout: followerCorpseLimitMs })
