@@ -16,6 +16,33 @@ export const followerCorpseLimitMs = 75000
 const root = resolve(import.meta.dirname, '../..'), viewport = { width: 960, height: 720 }
 const sha = bytes => createHash('sha256').update(bytes).digest('hex')
 
+// Native keyboard activation avoids pointer-stability waits on the animated HUD.
+// This is still a public input: no click(), dispatchEvent() or application handler
+// is invoked from evaluate. The actual hosted key/click events must be trusted.
+export async function activateFollowerCorpseButton(page, name) {
+  const button = page.getByRole('button', { name, exact: typeof name === 'string', disabled: false })
+  await button.waitFor({ state: 'visible' })
+  await button.focus()
+  await button.evaluate(button => {
+    if (!button.isConnected || button.disabled || button.getAttribute('aria-disabled') === 'true' ||
+      !button.checkVisibility() || document.activeElement !== button)
+      throw Error('Public corpse control must be visible, enabled and focused')
+    window.__pndCorpseButtonInput = []
+    for (const type of ['keydown', 'click']) button.addEventListener(type, event => {
+      window.__pndCorpseButtonInput.push({ type, trusted: event.isTrusted,
+        target: event.target === button, focused: document.activeElement === button,
+        key: event.key ?? null, detail: event.detail })
+    }, { once: true, capture: true })
+  })
+  await page.keyboard.press('Enter')
+  const input = await page.evaluate(() => window.__pndCorpseButtonInput)
+  assert.deepEqual(input, [
+    { type: 'keydown', trusted: true, target: true, focused: true, key: 'Enter', detail: 0 },
+    { type: 'click', trusted: true, target: true, focused: true, key: null, detail: 0 },
+  ], 'The focused native button must receive genuine keyboard activation')
+  return { method: 'focused-native-button/Enter', events: input }
+}
+
 export function readCorpseMinimap(effectId = null) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   const target = effectId === null ? world.units.find(u => u.id === 20) : world.effects.find(f => f.id === effectId)
@@ -52,8 +79,8 @@ export default async function followerCorpse({ browser, url, output, expectedRev
   page.setDefaultTimeout(10000)
   const report = { schema: 'populous-new-dawn/ordinary-follower-corpse', schemaVersion: 1,
     status: 'running', expectedRevision, capMs: followerCorpseLimitMs, actions: [], errors: [],
-    actorId: null, effectId: null, death: null, segments: [], error: null,
-    method: 'Fresh authored M2 through public startup. Existing public bird’s-eye/minimap target route, Escape, one plain Select brave, Resume, actual rendered hover and Shift+left attack on eligible Green Shaman20. Natural combat/death and same-frame corpse observation; public pause, committed current Save checkpoint, actual Load checkpoint, public camera reframing and Resume.',
+    actorId: null, effectId: null, death: null, segments: [], error: null, phases: [],
+    method: 'Fresh authored M2 through public startup. This episode activates visible/enabled native buttons with focus and Enter, retaining trusted keyboard/click evidence. Existing public bird’s-eye/minimap target route, Escape, one plain Select brave, Resume, actual rendered hover and Shift+left attack on eligible Green Shaman20. Natural combat/death and same-frame corpse observation; public pause, committed current Save checkpoint, actual Load checkpoint, public camera reframing and Resume.',
     limits: ['Direct mission access, not campaign unlock. No native/synthetic scene, health, source, phase, clock, victim or target assignment.',
       'Independent original VSTART/VFRA fixture validates displayed native source and heading; packed frame identity comes from imported atlas metadata independently audited outside this browser check.',
       'Canvas copies and read-only observations perturb rendering; no performance or hardware smoothness claim. Crops require visual review and are not pixel-perfect composition evidence.',
@@ -62,29 +89,54 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     source: Object.fromEntries(['scripts/tutorial-browser/follower-corpse.mjs',
       'scripts/tutorial-browser/follower-corpse-observer.mjs', 'scripts/tutorial-browser/follower-corpse-evidence.mjs',
       'tests/fixtures/follower-corpse-native.json', 'app/original-units.json', 'app/follower-corpse-animation.ts',
-      'app/scene-effects.ts', 'app/world-turn.ts', 'app/game-store.ts', 'app/checkpoint-format.ts']
+      'app/scene-effects.ts', 'app/world-turn.ts', 'app/game-store.ts', 'app/checkpoint-format.ts',
+      'app/page.tsx', 'app/original-pause-menu.tsx']
       .map(path => [path, sha(readFileSync(resolve(root, path)))])) }
   const save = () => writeFileSync(resolve(output, 'follower-corpse.json'), JSON.stringify(report, null, 2) + '\n')
-  const action = async (name, perform) => {
-    report.actions.push({ name, startedAt: new Date().toISOString() }); save()
-    await perform(); report.actions.at(-1).finishedAt = new Date().toISOString(); save()
+  const started = performance.now()
+  report.startedAt = new Date().toISOString()
+  const elapsed = () => performance.now() - started
+  const finishPhase = completed => {
+    const phase = report.phases.at(-1)
+    if (!phase || phase.finishedElapsedMs !== undefined) return
+    phase.finishedElapsedMs = elapsed()
+    phase.durationMs = phase.finishedElapsedMs - phase.startedElapsedMs
+    phase.remainingMs = Math.max(0, followerCorpseLimitMs - phase.finishedElapsedMs)
+    phase.completed = completed
   }
-  const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())
+  const phase = name => {
+    finishPhase(true)
+    report.phases.push({ name, startedElapsedMs: elapsed() }); save()
+  }
+  const action = async (name, perform) => {
+    const record = { name, startedAt: new Date().toISOString(), startedElapsedMs: elapsed() }
+    report.actions.push(record); save()
+    const input = await perform()
+    if (input) record.input = input
+    record.finishedAt = new Date().toISOString(); record.finishedElapsedMs = elapsed()
+    record.durationMs = record.finishedElapsedMs - record.startedElapsedMs; save()
+  }
+  const button = name => action(name, () => activateFollowerCorpseButton(page, name))
   const settle = () => page.waitForFunction(() => {
     const s = window.testSceneRef.current
     return !s.cameraMotion.active && !s.resultCamera.active && !s.viewTransition
   })
   const focus = async effectId => {
     const geometry = await page.evaluate(readCorpseMinimap, effectId), input = meleeCameraInput(geometry)
-    report.actions.push({ name: 'Public minimap target framing with fixed (0,+12) backing-pixel offset', geometry, input }); save()
-    assert.equal(await page.evaluate(p => document.elementFromPoint(p.x, p.y) === window.testSceneRef.current.mini, input), true)
-    await page.mouse.click(input.x, input.y); await settle()
+    await action('Public minimap target framing with fixed (0,+12) backing-pixel offset', async () => {
+      assert.equal(await page.evaluate(p => document.elementFromPoint(p.x, p.y) === window.testSceneRef.current.mini, input), true)
+      await page.mouse.click(input.x, input.y); await settle()
+      return { geometry, point: input }
+    })
   }
   const errors = error => { if (report.errors.length < 20) report.errors.push(String(error).slice(0, 2000)) }
   page.on('pageerror', errors)
   page.on('console', message => { if (message.type() === 'error') errors(message.text()) })
   page.on('crash', () => errors('Page crashed'))
-  const timer = setTimeout(() => { report.timedOut = true; void context.close().catch(() => {}) }, followerCorpseLimitMs)
+  const timer = setTimeout(() => {
+    report.timedOut = true; report.deadlineElapsedMs = elapsed(); save()
+    void context.close().catch(() => {})
+  }, followerCorpseLimitMs)
   let failure
   const retain = async () => {
     if (page.isClosed()) return
@@ -103,6 +155,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
   }
   save()
   try {
+    phase('startup')
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await action('New Game / No / Browser controls / All missions', () => showAllMissions(page))
     await button('Mission 2'); await bindGame(page)
@@ -110,10 +163,11 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     report.startup = await startup.jsonValue(); await startup.dispose()
     assert.equal(report.startup.level, 2)
     if (report.startup.action === 'skip')
-      await action('Skip introduction', () => page.getByRole('button', { name: /^Skip introduction/ }).click())
+      await action('Skip introduction', () => activateFollowerCorpseButton(page, /^Skip introduction/))
     await page.waitForFunction(() => {
       const w = window.testStore.getWorld(); return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
     })
+    phase('public-combat-setup')
     await button('Pause game'); await button('Select and focus shaman'); await settle()
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
     await action('One public - zoom-out', () => page.keyboard.press('-')); await settle()
@@ -154,12 +208,14 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.deepEqual(report.order.selected, [report.actorId]); assert.equal(report.order.target, 20); assert.equal(report.order.paused, false)
     assert.ok(report.order.lastOrderTurn >= report.beforeAttack.turn && report.order.lastOrderTurn <= report.order.turn,
       'The actual public attack must issue an order on this observed logical timeline'); save()
+    phase('ordinary-combat')
     await page.waitForFunction(() => {
       const r = window.__pndCorpseObservation.result
       return r.error || r.samples.some(s => s.phase === 1 && !s.paused && s.cropFile)
     }, null, { timeout: followerCorpseLimitMs })
     assert.equal(await page.evaluate(() => window.__pndCorpseObservation.result.error), null)
     report.effectId = await page.evaluate(() => window.__pndCorpseObservation.result.effectId)
+    phase('pause-and-save')
     await button('Pause game')
     report.checkpoint = { holdBefore: await page.evaluate(readFollowerCorpseHold, report.effectId) }
     assert.equal(report.checkpoint.holdBefore.paused, true)
@@ -180,6 +236,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.deepEqual(report.checkpoint.committedCorpse.effect, report.checkpoint.saved.effect,
       'The committed IDB record must contain this exact saved corpse, not merely the same turn')
     await retain()
+    phase('load-and-reframe')
     await page.evaluate(effectId => {
       const store = window.testStore, original = store.getWorld()
       window.__pndCorpsePreviousWorld = original
@@ -210,9 +267,11 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     await button('Resume game')
     report.checkpoint.readyResumed = await page.evaluate(readFollowerCorpseReady, report.effectId); save()
     assert.equal(report.checkpoint.readyResumed.paused, false)
+    phase('loaded-continuation')
     await page.waitForFunction(() => {
       const r = window.__pndCorpseObservation.result; return r.error || r.done
     }, null, { timeout: followerCorpseLimitMs })
+    phase('acceptance-and-capture')
     await retain()
     report.acceptance = validateFollowerCorpseObservation(report)
     await button('Pause game')
@@ -223,9 +282,11 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     catch (error) { report.failureScreenshotError = String(error) }
   } finally {
     clearTimeout(timer)
+    finishPhase(!failure && !report.timedOut)
     try { await retain() } catch (error) { report.errors.push(`Corpse retention: ${error}`) }
     try { await context.close(); report.contextClosed = true } catch (error) { report.errors.push(`Corpse cleanup: ${error}`) }
-    report.status = failure || report.errors.length || report.timedOut ? 'failed' : 'passed'; save()
+    report.status = failure || report.errors.length || report.timedOut ? 'failed' : 'passed'
+    report.finishedAt = new Date().toISOString(); report.elapsedMs = elapsed(); save()
   }
   assert.equal(report.status, 'passed', 'Follower corpse browser case failed; see follower-corpse.json')
   return report

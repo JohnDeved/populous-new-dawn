@@ -5,10 +5,81 @@ import native from './fixtures/follower-corpse-native.json' with { type: 'json' 
 import units from '../app/original-units.json' with { type: 'json' }
 import { validateFollowerCorpseSample, validateFollowerCorpseObservation } from '../scripts/tutorial-browser/follower-corpse-evidence.mjs'
 import { installFollowerCorpseObserver, readCommittedFollowerCorpse, readFollowerCorpseReady } from '../scripts/tutorial-browser/follower-corpse-observer.mjs'
-import followerCorpse, { followerCorpseLimitMs, pauseLoadedFollowerCorpse } from '../scripts/tutorial-browser/follower-corpse.mjs'
+import followerCorpse, { activateFollowerCorpseButton, followerCorpseLimitMs, pauseLoadedFollowerCorpse } from '../scripts/tutorial-browser/follower-corpse.mjs'
 import { meleeAttackLimitMs } from '../scripts/tutorial-browser/melee-attack.mjs'
 import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
+
+// Supplied DOM/input records exercise the helper's guards, not a browser result.
+// A hosted run must additionally produce the trusted key/click receipt itself.
+async function withButtonInput(change, run) {
+  const descriptors = new Map(['window', 'document'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]))
+  const calls = [], listeners = new Map()
+  const state = { visible: true, enabled: true, ariaDisabled: null, focusWorks: true,
+    trusted: true, clickDetail: 0, sendClick: true, ...change }
+  const button = { isConnected: true, get disabled() { return !state.enabled },
+    getAttribute: () => state.ariaDisabled, checkVisibility: () => state.visible,
+    addEventListener(type, fn, options) {
+      assert.deepEqual(options, { once: true, capture: true }); listeners.set(type, fn)
+    } }
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: {} })
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: { activeElement: null } })
+  const locator = {
+    async waitFor(options) {
+      calls.push('visible'); assert.deepEqual(options, { state: 'visible' })
+      assert.ok(state.visible && state.enabled, 'Locator must resolve a visible enabled button')
+    },
+    async focus() { calls.push('focus'); if (state.focusWorks) document.activeElement = button },
+    async evaluate(fn) { calls.push('observe-control'); return fn(button) },
+    async click() { assert.fail('The keyboard route must not call locator.click') },
+  }
+  const page = {
+    getByRole(role, options) {
+      assert.equal(role, 'button'); assert.equal(options.disabled, false)
+      assert.equal(options.exact, typeof options.name === 'string'); return locator
+    },
+    async evaluate(fn) { calls.push('read-input'); return fn() },
+    keyboard: { async press(key) {
+      calls.push(`key:${key}`); assert.equal(key, 'Enter')
+      listeners.get('keydown')({ isTrusted: state.trusted, target: button, key, detail: 0 })
+      if (state.sendClick) listeners.get('click')({ isTrusted: state.trusted, target: button, detail: state.clickDetail })
+    } },
+  }
+  try { await run({ page, calls }) } finally {
+    for (const [key, descriptor] of descriptors) if (descriptor) Object.defineProperty(globalThis, key, descriptor)
+    else delete globalThis[key]
+  }
+}
+
+test('corpse buttons use visible enabled focus and Enter, retaining genuine native-key evidence', async () => {
+  for (const name of ['Select brave', /^Skip introduction/]) await withButtonInput({}, async ({ page, calls }) => {
+    const input = await activateFollowerCorpseButton(page, name)
+    assert.equal(input.method, 'focused-native-button/Enter')
+    assert.deepEqual(calls, ['visible', 'focus', 'observe-control', 'key:Enter', 'read-input'])
+    assert.equal(input.events[0].key, 'Enter'); assert.equal(input.events[1].detail, 0)
+    assert.ok(input.events.every(event => event.trusted && event.target && event.focused))
+  })
+  const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
+  assert.match(home, /e\.key === 'Enter' && !\(e\.target as HTMLElement\)\.closest\('button'\)/,
+    'Native button Enter must not also invoke the game overview shortcut')
+  assert.match(home, /if \(!event\.ctrlKey \|\| !event\.detail\) choose\(event\)/,
+    'The ordinary follower control must continue to support keyboard clicks')
+})
+
+test('hidden, disabled or unfocused controls cannot receive the corpse test activation', async () => {
+  for (const change of [{ visible: false }, { enabled: false }, { ariaDisabled: 'true' }, { focusWorks: false }])
+    await withButtonInput(change, async ({ page, calls }) => {
+      await assert.rejects(activateFollowerCorpseButton(page, 'Select brave'))
+      assert.equal(calls.includes('key:Enter'), false)
+    })
+})
+
+test('synthetic click, pointer click or missing native activation cannot masquerade as keyboard input', async () => {
+  for (const change of [{ trusted: false }, { clickDetail: 1 }, { sendClick: false }])
+    await withButtonInput(change, async ({ page }) => {
+      await assert.rejects(activateFollowerCorpseButton(page, 'Resume game'), /genuine keyboard activation/)
+    })
+})
 
 // Supplied evidence only. Expected native chains below come from the independent
 // original witness. These tests do not establish a browser or pixel result.
