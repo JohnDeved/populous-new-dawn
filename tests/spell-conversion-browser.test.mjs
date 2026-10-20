@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { conversionLimitMs, conversionObservationMs, validateConversionObservation,
-  installConversionObserver } from '../scripts/tutorial-browser/spell-conversion.mjs'
+  installConversionObserver, closeConversionContext } from '../scripts/tutorial-browser/spell-conversion.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import atlas from '../app/original-effects.json' with { type: 'json' }
 
@@ -58,4 +58,18 @@ test('conversion observation and existing F9/global deadlines stay finite and in
   assert.match(source, /world\.turn > result\.bornTurn \+ 8/)
   assert.doesNotMatch(source, /\.render\(|\.animate\(|\btick\(|\.focus\(/)
   assert.doesNotMatch(source, /world\.(?:paused|speed|units|effects|shots)\s*=/)
+})
+
+test('conversion final cleanup cannot certify a late or watchdog-expired episode', async () => {
+  let now = 74000, release
+  const context = { close: () => new Promise(resolve => { release = resolve }) }
+  const pending = closeConversionContext(context, {}, 0, () => now)
+  now = 75001
+  release()
+  await assert.rejects(pending, /deadline/)
+  await assert.rejects(closeConversionContext({ close: async () => {} },
+    { timedOut: true }, 0, () => 74000), /deadline/)
+  const report = {}
+  await closeConversionContext({ close: async () => {} }, report, 0, () => 74000)
+  assert.equal(report.elapsedMs, 74000)
 })

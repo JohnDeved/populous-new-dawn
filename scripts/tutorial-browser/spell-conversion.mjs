@@ -157,6 +157,13 @@ export function validateConversionObservation(observation, atlas) {
   }
 }
 
+export async function closeConversionContext(context, report, started, now = () => performance.now()) {
+  await context.close()
+  report.elapsedMs = now() - started
+  assert.ok(!report.timedOut && report.elapsedMs <= conversionLimitMs,
+    'Conversion episode exceeded its deadline during final cleanup')
+}
+
 export default async function spellConversion({ browser, url, output }) {
   const started = performance.now(), context = await browser.newContext({
     viewport: { width: 960, height: 720 }, deviceScaleFactor: 1 }), page = await context.newPage(),
@@ -215,12 +222,20 @@ export default async function spellConversion({ browser, url, output }) {
     const atlas = JSON.parse(readFileSync(resolve(root, 'app/original-effects.json'), 'utf8'))
     validateConversionObservation(report.observation, atlas)
     assert.deepEqual(report.errors, [])
-    report.status = 'passed'
   } catch (error) {
     failure = error; report.status = 'failed'; report.error = String(error)
     try { await retain() } catch (retentionError) { report.retentionError = String(retentionError) }
   }
-  finally { clearTimeout(timer); report.elapsedMs = performance.now() - started; save(); await context.close() }
+  finally {
+    try { await closeConversionContext(context, report, started) }
+    catch (error) { failure ??= error; report.error ??= String(error) }
+    finally {
+      clearTimeout(timer)
+      report.elapsedMs = performance.now() - started
+      report.status = failure ? 'failed' : 'passed'
+      save()
+    }
+  }
   if (failure) throw failure
   return report
 }
