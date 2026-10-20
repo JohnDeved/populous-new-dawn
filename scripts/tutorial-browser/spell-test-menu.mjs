@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { bindGame } from '../browser-game.mjs'
+import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { SPELLS } from '../../app/world-rules.ts'
 import rules from '../../app/original-rules.json' with { type: 'json' }
 import { beginOrdinaryCastingWitness, waitForCastingWitness, retainCastingWitness } from './shaman-casting.mjs'
@@ -129,6 +130,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     assertSpellTestDeadline(report, started)
     diagnostics.stage('start mission')
     await page.goto(url, { waitUntil: 'domcontentloaded' })
+    await waitForStartupMenu(page)
     await button('New Game').click()
     await page.locator('[data-original-tutorial-recommendation]').waitFor()
     await button('No').click()

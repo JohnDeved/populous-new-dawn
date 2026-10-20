@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { bindGame } from '../browser-game.mjs'
+import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { checkpointCodec } from './checkpoint-codec.mjs'
 import { m2LoadReady } from './m2-pointer-f8.mjs'
 import { createSpySourceFixture } from './spy-source-fixture.mjs'
@@ -85,6 +86,7 @@ export default async function spySource(options) {
         report.checkpointReadbackSha256 = hash(readback)
         assert.equal(report.checkpointReadbackSha256, fixture.receipt.transferSha256)
         await page.reload({ waitUntil: 'domcontentloaded' })
+        await waitForStartupMenu(page)
         await page.waitForFunction(m2LoadReady)
         await page.evaluate(() => {
           const main = document.querySelector('main')
