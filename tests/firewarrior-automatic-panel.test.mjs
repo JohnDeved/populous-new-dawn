@@ -363,9 +363,12 @@ function disposeScene(t, scene) {
 
 async function replacementScene(t, scene, world) {
   const { ObjectPanels } = await import('../app/object-panels.ts'),
+    { createTooltipFrame } = await import('../app/scene-tooltip-runtime.ts'),
     { createTooltip } = await import('../app/tooltips.ts'),
     next = Object.assign(Object.create(Object.getPrototypeOf(scene)), scene, {
       world,
+      tooltipFrame: createTooltipFrame(world.cameras.elapsed),
+      tooltipCameraActive: false,
       tooltip: createTooltip(),
       tooltipController: undefined,
       tooltipInput: null,

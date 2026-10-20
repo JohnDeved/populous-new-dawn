@@ -10,6 +10,7 @@ import { spellInRange } from '../../../app/spell-casting.ts'
 import { loadSceneFixture } from '../../../tests/support/bloodlust-scene.mjs'
 await loadSceneFixture()
 const { skipIntroduction } = await import('../../../app/scene-camera-runtime.ts')
+const { createTooltipFrame } = await import('../../../app/scene-tooltip-runtime.ts')
 const store = createGameStore()
 store.startMission(6)
 const w = store.getWorld()
@@ -57,7 +58,7 @@ function selectShaman() {
 }
 for (let i = 0; i < 40 && !(w.flyby.flags & 1); i++) step()
 if (w.flyby.flags & 1 && w.flyby.warmup > 0)
-  skipIntroduction({ world: w, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} })
+  skipIntroduction({ world: w, tooltipFrame: createTooltipFrame(w.cameras.elapsed), flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} })
 assert.equal(w.inputMask, 0)
 const vault = w.shrines.find(s => s.reward === 'convertWild')
 selectShaman()

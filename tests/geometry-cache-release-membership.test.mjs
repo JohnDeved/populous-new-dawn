@@ -236,6 +236,7 @@ test('nativeModel owns independent geometry/material clones while its cache and 
 
 test('GameScene.dispose delegates real resource ownership once and preserves the World', async () => {
   const { GameScene } = await import('../app/scene.ts'),
+    { createTooltipFrame } = await import('../app/scene-tooltip-runtime.ts'),
     { FpsGraph } = await import('../app/fps-graph.ts'),
     { FramePerformance } = await import('../app/frame-performance.ts'),
     world = api.createWorld(1),
@@ -279,6 +280,8 @@ test('GameScene.dispose delegates real resource ownership once and preserves the
   // endpoints are observed leaves, without constructing a WebGL renderer.
   const receiver = {
     world,
+    tooltipFrame: createTooltipFrame(world.cameras.elapsed),
+    tooltipCameraActive: false,
     disposed: false,
     scene,
     globe,

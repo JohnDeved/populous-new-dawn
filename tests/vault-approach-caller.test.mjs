@@ -173,6 +173,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
   const { loadSceneFixture } = await import('./support/bloodlust-scene.mjs')
   await loadSceneFixture()
   const { GameScene } = await import('../app/scene.ts')
+  const { createTooltipFrame } = await import('../app/scene-tooltip-runtime.ts')
   const { ObjectPanels } = await import('../app/object-panels.ts')
   const projections = []
   const draws = []
@@ -198,6 +199,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
   }
   const scene = Object.assign(Object.create(GameScene.prototype), {
     world, started: false, disposed: false,
+    tooltipFrame: createTooltipFrame(world.cameras.elapsed), tooltipCameraActive: false,
     flybyCamera: { zoom: 0 }, onChange: nop,
     terrainLoad: { signal: { aborted: false }, abort: nop },
     drawMinimap: nop, listen: nop, mini: {}, animate: nop,

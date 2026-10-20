@@ -7,6 +7,7 @@ const api = await loadSceneFixture()
 const { pointerDown, pointerUp, pointerMove, updateDrag, installInputListeners } =
   await import('../app/scene-input-runtime.ts')
 const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
+const { createTooltipFrame } = await import('../app/scene-tooltip-runtime.ts')
 
 function fixture(t) {
   const world = createStartedWorld(),
@@ -28,6 +29,7 @@ function fixture(t) {
   let hovered = unit
   const scene = {
     world,
+    tooltipFrame: createTooltipFrame(world.cameras.elapsed),
     renderer: {
       domElement: {
         setPointerCapture(id) {
