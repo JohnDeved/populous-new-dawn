@@ -96,7 +96,19 @@ export default async function spellAngel({ browser, url, output, source, expecte
       // receives no latch, pause injection, simulated tick or renderer replacement.
       window.__angelSetupLatch = Function(`return (${latchSource})`)()(store, window.angelCodec)
     }, armSnapshotPauseLatch.toString())
-    await button('Load Game'); await bindGame(page)
+    await button('Load Game')
+    await action('Bind supplied loaded Scene', async () => {
+      try { await bindGame(page) }
+      catch (error) {
+        report.startupFailure = await page.evaluate(() => ({
+          body: document.body.innerText.slice(0, 4000),
+          loading: document.querySelector('.loading-world')?.textContent,
+          latch: window.__angelSetupLatch?.read(),
+        }))
+        await page.screenshot({ path: resolve(output, 'angel-startup-failure.png'), timeout: 2000 }).catch(() => {})
+        save(); throw error
+      }
+    })
     const latch = await page.evaluate(() => {
       const read = window.__angelSetupLatch.read(); window.__angelSetupLatch.release(); delete window.__angelSetupLatch
       return read
