@@ -11,7 +11,7 @@ export default async function ({ page, output, openMission }) {
       { changeLivePersonState, createLivePerson } = await import('/app/live-people.ts'),
       shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
     Object.assign(shaman, { x: 6, z: 30, path: [], casting: null })
-    w.units = [shaman]
+    // Retain mission people and their order/route ownership for current checkpoints.
     const victim = addUnit(w, 'red', 'brave', { x: 13, z: 31 })
     victim.native = createLivePerson(w, victim)
     changeLivePersonState(w, victim, 14)
@@ -72,16 +72,35 @@ export default async function ({ page, output, openMission }) {
   await page.evaluate(() => { window.testScene.animate(window.testScene.previous); cancelAnimationFrame(window.testScene.frame) })
   const pixels = await effectPixels(page, [initial.id])
   assert.ok(pixels > 20, `Swamp must contribute pixels: ${pixels}`)
+  await page.evaluate(() => { window.testScene.animate(window.testScene.previous); cancelAnimationFrame(window.testScene.frame) })
   await page.screenshot({ path: `${output}/swamp-a.png` })
   const animation = await page.evaluate(() => {
     const s = window.testScene, group = s.fxMeshes.get(window.swampId),
+      gl = s.renderer.getContext(),
+      capture = () => {
+        s.view.painter.render(s.renderer, s.scene, s.camera)
+        const data = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4)
+        gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, data)
+        return data
+      },
       read = () => group.children.map(child => ({
         visible: child.visible, source: child.userData.source,
         position: child.position.toArray(), size: child.scale.toArray(),
       })),
-      before = read()
+      before = read(), beforePixels = capture()
+    // Change only presentation time for the pixel comparison: no world turn,
+    // camera motion, corpse animation, or water update can explain this delta.
+    const clock = s.world.secondaryEffects.animationFrame
+    s.world.secondaryEffects.animationFrame++
+    s.animate(s.previous)
+    cancelAnimationFrame(s.frame)
+    const afterPixels = capture()
+    let changedPixels = 0
+    for (let i = 0; i < beforePixels.length; i += 4)
+      if (beforePixels[i] !== afterPixels[i] || beforePixels[i + 1] !== afterPixels[i + 1] || beforePixels[i + 2] !== afterPixels[i + 2]) changedPixels++
+    s.world.secondaryEffects.animationFrame = clock
     window.swampStep()
-    return { before, after: read() }
+    return { before, after: read(), changedPixels }
   })
   await page.screenshot({ path: `${output}/swamp-b.png` })
   const paused = await page.evaluate(() => {
@@ -101,6 +120,7 @@ export default async function ({ page, output, openMission }) {
   })
   assert.ok(paused.preserved, 'Paused render must preserve Swamp, animation clock, turn and RNG')
   if (initial.layers === 14) {
+    assert.ok(animation.changedPixels > 0, 'Advancing only Swamp presentation time must change rendered pixels')
     assert.notDeepEqual(animation.before.slice(0, 9).map(s => s.source), animation.after.slice(0, 9).map(s => s.source))
     assert.deepEqual(animation.before.slice(9), animation.after.slice(9))
   }
@@ -162,6 +182,21 @@ export default async function ({ page, output, openMission }) {
     assert.equal(result.multiple.effects.length, 4)
     assert.ok(result.multiple.effects.every(f => f.sprites.length === 14 && f.sprites.some(s => s.visible)))
     await page.screenshot({ path: `${output}/swamp-four-variants.png` })
+    result.rotated = await page.evaluate(() => {
+      const s = window.testScene, bearing = s.cameraBearing
+      s.cameraBearing += Math.PI / 2
+      s.animate(s.previous)
+      cancelAnimationFrame(s.frame)
+      return { bearing, rotatedBearing: s.cameraBearing, snapshot: window.swampSnapshot() }
+    })
+    assert.deepEqual(result.rotated.snapshot, result.multiple, 'Camera rotation must preserve world anchors and variants')
+    await page.screenshot({ path: `${output}/swamp-rotated.png` })
+    await page.evaluate(bearing => {
+      const s = window.testScene
+      s.cameraBearing = bearing
+      s.animate(s.previous)
+      cancelAnimationFrame(s.frame)
+    }, result.rotated.bearing)
     await page.evaluate(async () => {
       await window.testStore.saveCheckpoint()
       if (!window.testStore.loadCheckpoint()) throw Error('Current Save/Load rejected')
