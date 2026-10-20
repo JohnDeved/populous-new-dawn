@@ -543,3 +543,37 @@ On deadline it closes only its runner-owned page to interrupt pending actions;
 the existing runner owns final context/browser/server cleanup and failure receipts.
 This is frontend navigation regression coverage, not native-game input parity,
 deployed hydration, exhaustive display acceptance or a performance measurement.
+
+## Hypnotise artwork in the compact lane
+
+After the unchanged compact-message layout and picking-path episodes, the existing
+`compact-message-layout` lane runs one independent Hypnotise context. Its absolute
+allowance is the smaller of 75 seconds and the remaining existing 180-second outer
+browser deadline, including context creation and cleanup. No job, workflow or cap
+is added. PR680's exact compact receipt at merge `5136c6f2` completed in88.520s
+including preparation/build/cleanup; adding the full75s conservatively totals
+163.520s. This is prior budget evidence, not a guarantee that the new run passes.
+
+The test-only Vite entry imports `hypnotise-fixture.mjs` only with query
+`hypnotise-fixture=1`. The production Home entry does not import it. Preparation
+uses accelerated ordinary Mission22 mana charging and movement with the existing
+mana-focus adapter, not real-time earning or campaign-unlock proof. It does not
+supply stock, actors, callbacks or animation state. Preparation itself is bounded
+by25s and checks elapsed time after batches/yields and before returning.
+
+The episode saves the earned pre-cast state through the public menu and loads it
+normally. A read-only subscription checks exact saved content at the synchronous
+resumed notification; the public Pause button then allows reframing before the
+HUD/pointer cast. Normal-speed RAF observation binds actual source frames,
+materials/UVs and painter submission to synchronous canvas crops, checks the
+fifth-visit target replacement and16-visit expiry, and records terminal hiding.
+Display callbacks can skip frames; exhaustive16-frame proof remains in the
+independent original-byte/pixel oracle and CPU tests. In-progress effect checkpoint
+continuation remains separate CPU coverage, not a claim of this pre-cast episode.
+
+The runner retains all five helper hashes and the opt-in fixture entry hash.
+`spell-hypnotise.json` and `spell-hypnotise-frame-*.png` are written directly into
+the existing artifact root, covered by its unchanged JSON/PNG upload globs. No
+hidden subgroup, recreated artwork, raw production `/app/*.ts` import, new output
+subdirectory or second checkpoint allowance is used. Any timeout is a failed
+witness; a late-created context is closed without admitting the episode.

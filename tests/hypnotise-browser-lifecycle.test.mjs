@@ -230,3 +230,51 @@ test('successful and failed operations both close their owned context exactly on
     assert.equal(report.status, fails ? 'failed' : 'passed')
   }
 })
+
+test('Hypnotise uses only the remaining outer budget and never starts after expiry', async () => {
+  for (const remaining of [5000, 0]) {
+    let time = 0,
+      timer,
+      created = 0,
+      closes = 0
+    const report = {},
+      timing = {
+        now: () => time,
+        wallNow: () => 100000,
+        schedule: (callback, ms) => {
+          assert.equal(ms, remaining)
+          timer = callback
+          return 1
+        },
+        cancel: () => {},
+      }
+    const pending = withHypnotiseContext(
+      {
+        newContext: async () => {
+          created++
+          return {
+            close: async () => {
+              closes++
+            },
+          }
+        },
+      },
+      report,
+      () => {},
+      () => new Promise(() => {}),
+      timing,
+      100000 + remaining
+    )
+    await flush()
+    if (remaining) {
+      time = remaining
+      timer()
+    }
+    await assert.rejects(pending, /remaining outer deadline/)
+    await flush()
+    assert.equal(report.capMs, remaining)
+    assert.equal(report.status, 'failed')
+    assert.equal(created, remaining ? 1 : 0)
+    assert.equal(closes, remaining ? 1 : 0)
+  }
+})

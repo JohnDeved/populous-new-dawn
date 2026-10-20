@@ -2,18 +2,31 @@ import { hypnotiseLimitMs } from './hypnotise-observer.mjs'
 
 // One absolute allowance covers context creation, the episode and closure.
 // A context resolving after timeout is still owned and closed, never admitted.
-export async function withHypnotiseContext(browser, report, save, operation, clock = {}) {
+export async function withHypnotiseContext(
+  browser,
+  report,
+  save,
+  operation,
+  clock = {},
+  outerDeadlineAt = Infinity
+) {
   const now = clock.now ?? (() => performance.now()),
     schedule = clock.schedule ?? setTimeout,
     cancel = clock.cancel ?? clearTimeout,
     started = now(),
-    deadlineAt = started + hypnotiseLimitMs,
-    timeoutError = Error('Hypnotise exceeded its 75s allowance')
+    capMs = Math.max(
+      0,
+      Math.min(hypnotiseLimitMs, outerDeadlineAt - (clock.wallNow ?? Date.now)())
+    ),
+    deadlineAt = started + capMs,
+    timeoutError = Error('Hypnotise exceeded its 75s allowance or remaining outer deadline')
   let context,
     closing,
     expired = false,
     rejectDeadline
   report.deadlineAt = deadlineAt
+  report.capMs = capMs
+  report.outerDeadlineAt = Number.isFinite(outerDeadlineAt) ? outerDeadlineAt : null
   report.contextCreationPending = true
   const deadline = new Promise((_, reject) => {
     rejectDeadline = reject
@@ -48,7 +61,7 @@ export async function withHypnotiseContext(browser, report, save, operation, clo
     if (now() >= deadlineAt) expire()
     if (expired) throw timeoutError
   }
-  const timer = schedule(expire, hypnotiseLimitMs)
+  const timer = schedule(expire, capMs)
   try {
     const created = Promise.resolve()
       .then(() => {

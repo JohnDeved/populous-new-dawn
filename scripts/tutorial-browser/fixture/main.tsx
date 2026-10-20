@@ -8,6 +8,14 @@ if (new URLSearchParams(location.search).get('building-panel-identity') === '1')
     })
   })
 }
+// Query-gated test-host bundle only; production Home never imports this fixture.
+if (new URLSearchParams(location.search).get('hypnotise-fixture') === '1') {
+  void import('../hypnotise-fixture.mjs').then(fixture => {
+    Object.defineProperty(globalThis, '__pndHypnotiseFixture', {
+      value: Object.freeze({ ...fixture }), writable: false, configurable: false,
+    })
+  })
+}
 import { createRoot } from 'react-dom/client'
 import Home from '../../../app/page'
 import '../../../app/globals.css'

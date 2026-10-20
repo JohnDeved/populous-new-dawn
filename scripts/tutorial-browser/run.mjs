@@ -21,6 +21,7 @@ const scenario = resolve(root, 'scripts/local-render/tutorial-recommendation.mjs
 const selectorScenario = resolve(root, 'scripts/tutorial-browser/selector-inspection.mjs')
 const sceneryScenario = resolve(root, 'scripts/tutorial-browser/scenery-placement.mjs')
 const spellProjectionScenario = resolve(root, 'scripts/tutorial-browser/spell-projection.mjs')
+const hypnotiseScenario = resolve(root, 'scripts/tutorial-browser/spell-hypnotise.mjs')
 const spellTestScenario = resolve(root, 'scripts/tutorial-browser/spell-test-menu.mjs')
 const buildingIdentityScenario = resolve(root, 'scripts/tutorial-browser/building-panel-identity.mjs')
 const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
@@ -91,6 +92,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   selectorScenarioSha256: hash(selectorScenario), sceneryScenarioSha256: hash(sceneryScenario),
   spellProjectionScenarioSha256: hash(spellProjectionScenario), spellProjectionCoverageSha256: hash(resolve(root, 'scripts/tutorial-browser/spell-projection-coverage.mjs')),
   spellTestScenarioSha256: hash(spellTestScenario),
+  hypnotiseSources: Object.fromEntries(['spell-hypnotise', 'hypnotise-fixture', 'hypnotise-observer', 'hypnotise-budget', 'hypnotise-checkpoint'].map(name => [name, hash(resolve(root, `scripts/tutorial-browser/${name}.mjs`))])),
   buildingIdentityScenarioSha256: hash(buildingIdentityScenario), buildingIdentityFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-fixture.mjs')),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),
@@ -175,6 +177,9 @@ try {
     }))
   } else if (selectedScenario === 'compact-message-layout') {
     await (await import(pathToFileURL(m2Scenario).href)).runCompactDiagnosticEpisodes({ browser, url, output: out, fixture: m2Fixture, report: receipt })
+    // Existing compact layout and picking assertions finish unchanged first.
+    await context.close(); context = undefined; page = undefined
+    receipt.hypnotise = await (await import(pathToFileURL(hypnotiseScenario).href)).default({ browser, url, output: out, deadlineAt: browserDeadlineAt })
   } else if (selectedScenario === 'm2-pointer-f8') {
     receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
   } else if (selectedScenario === 'pause-checkpoint-recovery') {

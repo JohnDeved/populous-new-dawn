@@ -24,9 +24,16 @@ test('opt-in Hypnotise setup earns stock and walks the authored M22 Shaman witho
   assert.equal(changes, 1)
 })
 
-test('prepared episode is not activated and contains no production raw-source imports', () => {
-  for (const path of ['scripts/tutorial-browser/run.mjs', 'scripts/tutorial-browser/fixture/main.tsx'])
-    assert.ok(!readFileSync(path, 'utf8').includes('hypnotise'))
+test('Hypnotise is opt-in bundled after unchanged compact witnesses with existing deadline and output root', () => {
+  const runner = readFileSync('scripts/tutorial-browser/run.mjs', 'utf8')
+  const branch = runner.slice(runner.indexOf("} else if (selectedScenario === 'compact-message-layout')"), runner.indexOf("} else if (selectedScenario === 'm2-pointer-f8')"))
+  assert.ok(branch.indexOf('runCompactDiagnosticEpisodes') < branch.indexOf('receipt.hypnotise'))
+  assert.match(branch, /output: out, deadlineAt: browserDeadlineAt/)
+  const fixture = readFileSync('scripts/tutorial-browser/fixture/main.tsx', 'utf8')
+  assert.match(fixture, /get\('hypnotise-fixture'\) === '1'/)
+  assert.match(fixture, /import\('\.\.\/hypnotise-fixture\.mjs'\)/)
+  assert.match(fixture, /__pndHypnotiseFixture/)
+  assert.ok(!readFileSync('app/page.tsx', 'utf8').includes('hypnotise-fixture'))
   const text = readFileSync('scripts/tutorial-browser/spell-hypnotise.mjs', 'utf8')
   assert.ok(!text.includes("import('/app/") && !text.includes('import("/app/'))
   assert.ok(text.includes("button('Save checkpoint').click()"))
