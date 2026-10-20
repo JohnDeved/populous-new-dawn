@@ -90,6 +90,9 @@ export default async function ({ page, openMission, output, signal }) {
     // Separate supplied presentation fixtures after ordinary acceptance:
     // flat HUD backgrounds and live -> hp0 -> absent -> live. These are not
     // naturally reached death/reincarnation episodes.
+    // The compact viewport deliberately caps HUD scale below 2; restore enough
+    // vertical space for both exact integer-scale pixel comparisons.
+    await page.setViewportSize({ width: 1440, height: 1000 })
     report.pixelChecks = []
     const originalBackground = await page.locator('.native-hud').evaluate(element => ({
       image: element.style.backgroundImage, color: element.style.backgroundColor,
