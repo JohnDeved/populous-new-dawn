@@ -81,7 +81,7 @@ const freshPins = {
     retainedLife: 179, // Qualified browser-owned lethal damage retains last positive native life.
   },
   successor: {
-    references: [[3616, [1, 2]], [3617, [0, 2]], [3673, [0, 1]], [3866, [0, 0]]],
+    references: [[3616, [1, 2]], [3617, [0, 2]], [3673, [0, 1]], [3862, [0, 0]]],
     firstRetirementTurn: 3616,
     firstRetirementCounters: [32, 103],
     firstRetirementModels: [27, 3],
