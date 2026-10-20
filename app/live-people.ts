@@ -511,7 +511,7 @@ export function beginLivePersonPass(w: World) {
             ids.add(unit.id)
           }
           if (!current() || pass.generation !== generation) return people
-          pass.episode = {
+          episode = {
             people,
             units: w.units,
             unitCount: w.units.length,
@@ -529,7 +529,7 @@ export function beginLivePersonPass(w: World) {
             buildings: w.buildings,
             shrines: w.shrines,
           }
-          episode = pass.episode
+          pass.episode = episode
         }
         episode.pending = undefined
         first = false
