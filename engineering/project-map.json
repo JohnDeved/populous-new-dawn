@@ -1765,6 +1765,10 @@
       "id": "combat",
       "mappingStatus": "inferred",
       "paths": ["app/combat-orders.ts", "app/melee.ts"],
+      "researchPaths": ["decomp/research/result-statistics/README.md"],
+      "evidence": [
+        { "path": "decomp/research/result-statistics/README.md", "heading": "Result statistic producers" }
+      ],
       "note": "Known shared-order consumers, but full combat evidence/check routing was not reviewed for this infrastructure delivery."
     },
     {
