@@ -1,6 +1,7 @@
 import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { createHash } from 'node:crypto'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
@@ -549,19 +550,33 @@ test('producer hashes actual evidence files and forwards real child close/build 
 })
 
 
-test('retained current nine-check thirteen-shot capture passes the real producer and strict reader without legacy inventory fallback', () => {
+test('retained historical capture validates captured source and rejects the current scenario', () => {
   const captured = JSON.parse(readFileSync(new URL('./fixtures/pause-recovery-current-receipt.json', import.meta.url))),
     { receipt } = captured, expected = { identity: receipt.identity, inputs: receipt.inputs }
   assert.equal(sha256(JSON.stringify(receipt)), captured.provenance.compactJsonSha256)
   assert.equal(receipt.receiptSha256, captured.provenance.rawHostSha256)
   assert.equal(receipt.checks.length, 9); assert.equal(receipt.screenshots.length, 13)
   assert.equal(Object.keys(receipt.inputs).length, 14)
-  assert.equal(sha256(readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-recovery.mjs', import.meta.url))),
-    receipt.inputs['scripts/local-render/original-pause-checkpoint-recovery.mjs'])
+  const source = JSON.parse(readFileSync(new URL('./fixtures/pause-recovery-historical/source.json', import.meta.url))),
+    snapshot = readFileSync(new URL('./fixtures/pause-recovery-historical/scenario.mjs.txt', import.meta.url))
+  assert.equal(source.commit, receipt.identity.mergeSha)
+  assert.equal(source.captureRunId, receipt.identity.runId)
+  assert.equal(source.path, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
+  assert.equal(snapshot.length, source.bytes)
+  assert.equal(createHash('sha1').update(`blob ${snapshot.length}\0`).update(snapshot).digest('hex'), source.blob)
+  assert.equal(sha256(snapshot), source.sha256)
+  assert.equal(source.sha256, receipt.inputs[source.path])
   assert.equal(validatePauseRecovery(pauseRecoveryLog(recoveryReceiptLog(receipt)), expected), true)
+  // Keep the historical run identity fixed so only today's changed scenario
+  // input can cause rejection. Historical success is never current admission.
+  const currentHash = sha256(readFileSync(new URL(`../${source.path}`, import.meta.url))),
+    currentScenario = { ...expected, inputs: { ...expected.inputs, [source.path]: currentHash } }
+  assert.notEqual(currentHash, source.sha256)
+  assert.throws(() => validatePauseRecovery(pauseRecoveryLog(recoveryReceiptLog(receipt)), currentScenario),
+    /Git input hashes differ/)
   // Captured facts, not policy constants, feed the actual compact producer.
   // Temporary pixel bytes exercise hashing only; they are not browser evidence.
-  const output = mkdtempSync(join(tmpdir(), 'current-pause-receipt-'))
+  const output = mkdtempSync(join(tmpdir(), 'historical-pause-receipt-'))
   try {
     const { identity, inputs, checks, screenshots, ...hostFields } = receipt
     const host = { ...hostFields, source: { commit: identity.mergeSha, files: inputs },
