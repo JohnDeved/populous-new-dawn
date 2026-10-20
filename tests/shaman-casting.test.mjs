@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { readFileSync } from 'node:fs'
+import { stripTypeScriptTypes } from 'node:module'
 import { addBuilding, addUnit, nativePosition } from '../app/model.ts'
 import { cast, command, spellTargetError } from '../app/live-command.ts'
 import { cancelInteraction, setSelection } from '../app/selection-runtime.ts'
@@ -7,8 +9,12 @@ import { beginCast } from '../app/spell-casting.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import {
-  animateLiveObjects, beginLiveCasting, createLivePerson, setLivePersonAnimation, stepLiveCasting,
+  animateLiveObjects, beginLiveCasting, changeLivePersonState, createLivePerson,
+  setLivePersonAnimation, stepLiveCasting,
 } from '../app/live-people.ts'
+import { clearLivePath } from '../app/live-pathfinding.ts'
+import { nativeCellPoint } from '../app/world-coordinates.ts'
+import { SPELLS } from '../app/world-rules.ts'
 import {
   facePersonCasting, initializePersonCasting, stepPersonCasting,
 } from '../app/person-casting.ts'
@@ -268,12 +274,21 @@ test('logical visits separate the six-turn spell windup from the ten-turn cast p
 })
 
 test('AI combat admission initializes once, without a replacement person or speed RNG draw', () => {
-  const { w, u, p, target } = scenario('red')
+  // Execute the exact private shipping caller, as in computer-spell-projection.
+  // Binding changeLivePersonState deliberately catches a restored second init.
+  const source = readFileSync(new URL('../app/computer-runtime.ts', import.meta.url), 'utf8'),
+    start = source.indexOf('function allocateComputerSpell('),
+    end = source.indexOf('// 0x4cc7d7:', start)
+  assert.ok(start >= 0 && end > start)
+  const bindings = { SPELLS, clearLivePath, beginCast, nativeCellPoint, changeLivePersonState },
+    allocate = new Function(...Object.keys(bindings),
+      `${stripTypeScriptTypes(source.slice(start, end))}\nreturn allocateComputerSpell`)(...Object.values(bindings))
+  const { w, u, p } = scenario('red')
   p.state = 25; p.f2 = 5
   u.fight = { group: 0, opponent: 0, started: w.turn, action: 'attack',
     nativeAttackAnimation: true, motion: p }
   const randomState = w.randomState, counter = p.counter
-  beginCast(w, u, 'blast', target)
+  allocate(w, u, 2, 0x2010)
   assert.equal(u.native, p)
   assert.equal(u.fight, null)
   assert.deepEqual([p.previousState, p.state, p.timer, p.f2], [25, 22, 10, 5])
