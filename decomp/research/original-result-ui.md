@@ -30,6 +30,10 @@ Destroyed; Own Shaman Deaths; Vaults of Knowledge Raided. Native signed counters
 are read from per-player display storage. Their event producers and browser
 counter equivalents are not established by this presentation research.
 
+The later [producer trace](result-statistics/README.md) resolves the live storage,
+reset and bounded increment owners separately for all ten rows, with remaining
+death/building/reward admission and final-snapshot limits. It does not enable UI rows.
+
 ## Bounded browser implementation
 
 `OriginalResultScreen` accepts scalar presentation values and existing callbacks.
