@@ -30,7 +30,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
-  assert.ok(profile); assert.equal(profile.slices.length, profile.id === chronologicalId ? 20 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'].includes(profile.id) ? 17 : 16)
+  assert.ok(profile); assert.equal(profile.slices.length, profile.id === chronologicalId ? 21 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'].includes(profile.id) ? 17 : 16)
   for (const slice of profile.slices) {
     const changed = inspectDragSource(root, path => {
       if (path !== slice.path) return read(path)
@@ -111,7 +111,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
   assert.equal(historical.slices.length, 17)
   assert.equal(candidate.slices.length, 17)
   assert.equal(epoch.slices.length, 17)
-  assert.equal(chronological.slices.length, 20)
+  assert.equal(chronological.slices.length, 21)
   for (let i = 0; i < historical.slices.length; i++) {
     const previous = historical.slices[i], next = candidate.slices[i]
     if (previous.id !== 'query-inputs') assert.deepEqual(next, previous)

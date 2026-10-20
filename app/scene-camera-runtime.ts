@@ -18,7 +18,7 @@ import {
   stepCameraMotion,
   interpolateCamera,
 } from './camera-motion.ts'
-import { forcedTooltipObject } from './tooltips.ts'
+import { forcedTooltipObject, type TooltipObject } from './tooltips.ts'
 import {
   zoomPreset,
   viewTransitionFrames,
@@ -244,9 +244,12 @@ export function captureCamera(scene: GameScene, interruptMotion = false) {
 
 export function skipIntroduction(scene: GameScene) {
   scene.advanceInputTime?.()
+  const state = scene.world.flyby,
+    skipping = (state.flags & 17) === 17 && (!!state.warmup || !(state.flags & 64))
   withSimulationCamera(scene.world.cameras, () =>
     interruptFlyby(scene.world.flyby, scene.flybyCamera)
   )
+  if (skipping) scene.tooltipFrame.cueGroups.length = 0
   if (!(scene.world.flyby.flags & 1)) scene.world.inputMask &= ~64
   scene.onChange()
 }
@@ -254,6 +257,7 @@ export function skipIntroduction(scene: GameScene) {
 // Input belongs to the pre-simulation phase. Result/focus/heading controllers
 // belong to the post phase, with one shared mutable tribe pose between them.
 export function preCameraVisit(scene: GameScene) {
+  scene.tooltipCameraActive ||= !!(scene.resultCamera.active || scene.cameraMotion.active)
   // 004a4960 visits the flyby before shake and person processing. Keep the
   // existing pause/focus gates, but never let its absolute writes follow a turn.
   if (!scene.resultCamera.active && !scene.cameraMotion.active && !scene.world.paused)
@@ -264,6 +268,7 @@ export function preCameraVisit(scene: GameScene) {
   w.cameras.navigationTime = 0
   if (w.inputMask || scene.overviewStage) return
   if (buttons || Object.values(scene.cameraVelocity).some(Boolean)) {
+    scene.tooltipCameraActive = true
     if (buttons & 15) {
       scene.cameraMotion.active = 0
       w.mode = null
@@ -293,6 +298,7 @@ export function preCameraVisit(scene: GameScene) {
   if (scene.overviewActive && !scene.resultCamera.active) {
     const drag = scene.globeMotion
     if (drag.dragging || drag.velocity.x || drag.velocity.y) {
+      scene.tooltipCameraActive = true
       const delta = stepGlobeMotion(drag, scene.globePointer, scene.container.clientHeight)
       scene.cameraPosition.x = drag.position.x & 65535
       scene.cameraPosition.y = drag.position.y & 65535
@@ -318,6 +324,7 @@ export function postCameraVisit(scene: GameScene, ordinaryZoom?: () => void) {
   }
   const context = { skyCounter: w.outcome.skyCounter, newTurn: scene.resultTurn !== w.turn }
   scene.resultTurn = w.turn
+  scene.tooltipCameraActive ||= !!(s.active || motion.active)
   stepResultCamera(s, motion, scene.cameraPosition, context, {
     lock: () => {
       w.inputMask |= 4
@@ -341,6 +348,7 @@ export function postCameraVisit(scene: GameScene, ordinaryZoom?: () => void) {
     sound: () => sound(w, 0xa2, browserPosition(scene.cameraPosition)),
   })
   w.outcome.skyCounter = context.skyCounter
+  scene.tooltipCameraActive ||= !!(s.active || motion.active)
   // Native result/focus selection precedes view/heading transitions, then
   // motion consumes their resulting shared pose (004a4960, 0041b6d0 onward).
   if (scene.overviewActive || scene.overviewStage || scene.viewTransition?.angle)
@@ -407,6 +415,13 @@ export function updateCameraMotion(scene: GameScene) {
   scene.cameraPreviewButtons = null
   const preview = scene.previewCamera(c.input.buttons),
     zoom = previewGroundZoom(scene)
+  scene.tooltipCameraActive ||= !!(
+    preview ||
+    (zoom && scene.tooltipFrame.elapsed > scene.tooltipFrame.lastElapsed) ||
+    c.result.active ||
+    c.motion.active ||
+    c.input.buttons
+  )
   scene.updateView()
   return !!(preview || zoom || c.result.active || c.motion.active || c.wasFlying || c.input.buttons)
 }
@@ -425,14 +440,28 @@ export function updateFlyby(scene: GameScene, dt: number) {
     scene.keys.clear()
     scene.world.cameras.input.buttons = 0
   }
+  const cues: { object: TooltipObject | null; duration: number }[] = []
   for (const event of stepFlyby(state, scene.flybyCamera, 24)) {
-    if (event.kind === 5)
-      scene.acquireForcedTooltip(
-        forcedTooltipObject(scene.world, event.flags, event.value),
-        event.duration
-      )
+    if (event.kind !== 5) continue
+    const object = forcedTooltipObject(scene.world, event.flags, event.value)
+    cues.push({
+      object: object
+        ? {
+            id: object.id,
+            x: object.x,
+            z: object.z,
+            type: object.type,
+            model: object.model,
+            owner: object.owner,
+            tutorial: object.tutorial,
+            head: object.head ? { ...object.head } : null,
+          }
+        : null,
+      duration: event.duration,
+    })
   }
-  scene.updateTooltipController(scene.previous ?? performance.now())
+  if (cues.length)
+    scene.tooltipFrame.cueGroups.push({ emittedElapsed: scene.tooltipFrame.elapsed, cues })
   if (!active && !scene.wasFlying) return false
   scene.overviewActive = false
   scene.viewZoom = scene.flybyCamera.zoom

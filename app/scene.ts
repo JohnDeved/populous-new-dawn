@@ -60,7 +60,10 @@ import {
 } from './tooltip-controller.ts'
 import {
   acquireForcedTooltip,
+  advanceTooltipTime,
   cancelTooltipInspection,
+  createTooltipFrame,
+  updateTooltipFrame,
   updateTooltipController,
   type TooltipInputSample,
   type TooltipInspectionInput,
@@ -355,6 +358,8 @@ export class GameScene {
   }
   cameraPreviewButtons: number | null = null
   tooltip = createTooltip()
+  tooltipFrame = createTooltipFrame(0)
+  tooltipCameraActive = false
   tooltipSession = createTooltipSession()
   tooltipController = createTooltipController(this.tooltip, this.tooltipSession)
   tooltipInput: TooltipInputSample | null = null
@@ -432,7 +437,10 @@ export class GameScene {
   cursorFrameBlocked = true
   modalSuspended = false
   setModalSuspended(suspended: boolean) {
-    if (suspended && !this.modalSuspended) this.advanceInputTime()
+    if (suspended && !this.modalSuspended) {
+      this.advanceInputTime()
+      this.updateTooltipFrame(this.previous ?? performance.now(), true)
+    }
     this.modalSuspended = suspended
     this.neutralCursor?.reset()
     this.previous = null
@@ -460,6 +468,7 @@ export class GameScene {
       },
       elapsed: (seconds: number) => {
         this.skyRemainder += seconds
+        advanceTooltipTime(this, seconds)
       },
     },
     beforeTurn: () => {
@@ -529,6 +538,7 @@ export class GameScene {
     this.mini = minimap
     this.portrait = portrait
     this.world = world
+    this.tooltipFrame = createTooltipFrame(world.cameras.elapsed)
     presentationBinding?.bindInputClock?.(() => this.advanceInputTime())
     Object.defineProperties(this.gameClock, {
       animationTime: {
@@ -901,6 +911,9 @@ export class GameScene {
   updateTooltipController(now: number) {
     updateTooltipController(this, now)
   }
+  updateTooltipFrame(now: number, suspended = false) {
+    updateTooltipFrame(this, now, suspended)
+  }
   cancelTooltipInspection() {
     cancelTooltipInspection(this)
   }
@@ -1033,6 +1046,7 @@ export class GameScene {
     // Pause menus freeze the entire presentation, not ordinary Space pause.
     // Keep sampling timestamps so resuming never catches up suspended wall time.
     if (this.modalSuspended) {
+      this.updateTooltipFrame(now, true)
       this.neutralCursor?.reset()
       const renderStart = diagnostic ? performance.now() : 0
       if (diagnostic)
@@ -1080,6 +1094,7 @@ export class GameScene {
     )
     if (this.cursorFrameBlocked) this.cancelTooltipInspection()
     if (!cameraOwnsFrame) this.updateView()
+    this.updateTooltipFrame(now)
     this.updateUnitsFrame()
     updateVehiclesFrame(this)
     this.renderTooltip(pointerMetrics)
@@ -1210,6 +1225,8 @@ export class GameScene {
     this.fpsGraph = null
     this.cancelTooltipInspection()
     this.tooltipInput = null
+    this.tooltipFrame.cueGroups.length = 0
+    this.tooltipCameraActive = false
     this.tooltipElement.remove()
     this.pointerOutline.remove()
     for (const canvas of this.buildingPanels.values()) canvas.remove()

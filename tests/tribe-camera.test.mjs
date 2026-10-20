@@ -175,7 +175,9 @@ test('HUD changes drain old timing before mutation; saving and stale bindings ca
 async function cameraScene(world = createWorld()) {
   await loadSceneFixture()
   const runtime = await import('../app/scene-camera-runtime.ts')
+  const frontend = await import('../app/scene-tooltip-runtime.ts')
   const scene = { world, tooltip: { draw: 0 }, previous: 0,
+    tooltipFrame: frontend.createTooltipFrame(world.cameras.elapsed), tooltipCameraActive: false,
     skyRemainder: 0, cameraPreviewButtons: null, viewPoint: { x: 0, z: 0 }, cameraBearing: 0,
     updateView: nop, commitSky: nop, updateTooltipController: nop,
     advanceInputTime: nop, onSound: nop, onChange: nop,
@@ -204,10 +206,10 @@ async function cameraScene(world = createWorld()) {
     set animationFrame(n) { world.cameras.animationFrame = n },
     camera: {
     pre: () => runtime.preCameraVisit(scene), post: zoom => runtime.postCameraVisit(scene, zoom),
-    zoom: () => scene.stepViewChange(), elapsed: nop,
+    zoom: () => scene.stepViewChange(), elapsed: seconds => frontend.advanceTooltipTime(scene, seconds),
     sampleZoom: () => runtime.previewGroundZoom(scene),
   } }
-  return { scene, clock, runtime }
+  return { scene, clock, runtime, frontend }
 }
 
 test('one millisecond key press consumes only its timestamped duration and appears before a camera tick', async () => {
@@ -230,6 +232,41 @@ test('one millisecond key press consumes only its timestamped duration and appea
   const afterInput = { ...c.tribes[0] }
   advanceGame(w, clock, 1 / 24 - 0.036)
   assert.deepEqual(c.tribes[0], afterInput)
+})
+
+test('frontend zoom gating observes the final preview and permits exact-boundary completion', async () => {
+  const { cameraPreset } = await import('../app/projection.ts')
+  const { scene, clock, runtime, frontend } = await cameraScene(), w = scene.world, visits = []
+  w.speed = 0; w.inputMask = 0; w.flyby.flags = 0
+  scene.view = { config: cameraPreset(0) }
+  scene.currentPreset = () => cameraPreset(0, scene.viewPreset)
+  scene.updateView = () => {
+    scene.view.config = scene.viewTransition?.preview ?? scene.viewTransition?.config ?? scene.currentPreset()
+  }
+  scene.updateTooltipController = now => visits.push(now)
+  runtime.startGroundView(scene, 1)
+  advanceGame(w, clock, 1 / 48)
+  runtime.updateCameraMotion(scene)
+  frontend.updateTooltipFrame(scene, 100)
+  assert.deepEqual(visits, [], 'fractional zoom preview suppresses frontend lifetime')
+  // Reach the last boundary with the real transition controller.
+  let now = 100
+  while (scene.viewTransition.remaining > 1) {
+    advanceGame(w, clock, 1 / 24)
+    runtime.updateCameraMotion(scene)
+    frontend.updateTooltipFrame(scene, ++now)
+  }
+  // Internal sampling sees the final pre-lock config, but must not latch UI
+  // suppression once the resulting transition has completed.
+  advanceGame(w, clock, 1 / 48)
+  runtime.updateCameraMotion(scene)
+  frontend.updateTooltipFrame(scene, ++now)
+  assert.equal(scene.viewTransition, null)
+  assert.equal(scene.tooltipCameraActive, false)
+  advanceGame(w, clock, 1 / 48)
+  runtime.updateCameraMotion(scene)
+  frontend.updateTooltipFrame(scene, ++now)
+  assert.deepEqual(visits, [now], 'the completing half-visit is retained for the next half')
 })
 
 test('bookmark reads do not advance focus; cancelling overview restores authoritative heading and draw mode', async () => {

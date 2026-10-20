@@ -60,7 +60,8 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capaci
     { ObjectPanels } = await import('../../app/object-panels.ts'),
     tooltipApi = await import('../../app/tooltips.ts'),
     { pointerMove } = await import('../../app/scene-input-runtime.ts'),
-    { preCameraVisit, postCameraVisit } = await import('../../app/scene-camera-runtime.ts'),
+    { preCameraVisit, postCameraVisit, previewGroundZoom } = await import('../../app/scene-camera-runtime.ts'),
+    { createTooltipFrame, advanceTooltipTime } = await import('../../app/scene-tooltip-runtime.ts'),
     { requestCameraFocus } = await import('../../app/camera-motion.ts'),
     { syncSecondaryReservations } = await import('../../app/scene-secondary-effects.ts'),
     world = api.createWorld(level, capacityMode),
@@ -79,11 +80,14 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capaci
       get: () => world.cameras[field], set: value => { world.cameras[field] = value },
     })
   scene.skyRemainder = 0
+  scene.tooltipFrame = createTooltipFrame(world.cameras.elapsed)
+  scene.tooltipCameraActive = false
   scene.gameClock.camera = {
     pre: () => preCameraVisit(scene),
     post: zoom => postCameraVisit(scene, zoom),
     zoom: () => scene.stepViewChange(),
-    elapsed: seconds => { scene.skyRemainder += seconds },
+    sampleZoom: () => previewGroundZoom(scene),
+    elapsed: seconds => { scene.skyRemainder += seconds; advanceTooltipTime(scene, seconds) },
   }
   for (const [name, value] of Object.entries({
     devicePixelRatio: 1,

@@ -863,6 +863,8 @@
       "cwd": ".",
       "env": [],
       "triggerPaths": [
+        "app/game-clock.ts",
+        "app/tribe-camera.ts",
         "app/scene-input-runtime.ts",
         "app/scene-tooltip-runtime.ts",
         "app/scene.ts",

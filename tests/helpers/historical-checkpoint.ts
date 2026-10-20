@@ -151,7 +151,7 @@ function migrateLegacyBridgeOrigins(world: World) {
   }
 }
 
-export function normalizeHistoricalFixture(world: World) {
+export function initializeHistoricalCameras(world: World) {
   if (!world.cameras) {
     // Historical fixtures recorded no camera pose. Their port supplied neutral
     // tribe inputs; preserve that deterministic research context, without
@@ -159,6 +159,10 @@ export function normalizeHistoricalFixture(world: World) {
     world.cameras = createTribeCameras()
     for (const camera of world.cameras.tribes) camera.initialized = true
   }
+}
+
+export function normalizeHistoricalFixture(world: World) {
+  initializeHistoricalCameras(world)
   world.capacityPolicy ??= createCapacityPolicy('classic')
   restoreCapacityPolicy(world)
   // Preserve intact legacy cell order. This cannot recover a chain that an older

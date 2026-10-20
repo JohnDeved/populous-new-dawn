@@ -221,8 +221,8 @@ const historicalDragSourceProfiles = Object.freeze([
 // route; historical profiles above remain exact and separately admissible.
 const chronologicalCameraHashes = {
   "input-move": "dd414900157c8598d7357390ba18c9d4a2d135bdb3aef9c35a8557c04db4871b",
-  "frame-order": "25e57defc75b09fe56ff6b673cd3c13e5cc0cb6d6661aee3ead051417d8f587e",
-  "camera-producers": "90274c902968d2b57bd222b568d2871e64620e6da32eda87d8cc69107b937dbf"
+  "frame-order": "6f40d04fb51b6b92bcf5ddb400f76da26cbc0635f48a53bfbf47d1a3edb9d79b",
+  "camera-producers": "6fe77e24d1a9ae35025bb58876968132cc09e1cda7ba03c9187d32f6c15ba09f"
 }
 export const dragSourceProfiles = Object.freeze([
   ...historicalDragSourceProfiles,
@@ -250,8 +250,10 @@ export const dragSourceProfiles = Object.freeze([
     "path": "app/scene.ts",
     "start": null,
     "end": null,
-    "sha256": "3e7952750aa1988c9fbceab87c3123f9d01cc574835d015ab85e8065635fdc1f"
+    "sha256": "89672196471830860426ffd51b7b4e64b929c62de3d0b2a8548404c856df01d1"
   }
+,
+  {"id":"tooltip-frame-owner","path":"app/scene-tooltip-runtime.ts","start":null,"end":null,"sha256":"ad67e80f8232e4440bd2da53dad3979aa16834b18e282e1bf2d901b2df1d5cfb"}
 ].map(slice => Object.freeze(slice)),
   ]) }),
 ])

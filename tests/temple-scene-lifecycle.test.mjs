@@ -73,6 +73,7 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
     { loadTexture, retryFailedTexture } = await import('../app/scene-assets.ts'),
     { vaultKnowledgeAtlas } = await import('../app/vault-appearance.ts'),
     { templeArt } = await import('../app/temple-art.ts'),
+    { createTooltipFrame, advanceTooltipTime } = await import('../app/scene-tooltip-runtime.ts'),
     { default: nativeUnits } = await import('../app/original-units.json'),
     { syncSecondaryReservations } = await import('../app/scene-secondary-effects.ts')
   const originalLoad = THREE.TextureLoader.prototype.load,
@@ -175,7 +176,14 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       { world, presentationBinding },
       scene
     )
-    scene.gameClock = execute(`return ${field('gameClock')}`, {}, scene)
+    // Camera/flyby/tooltip behavior remains outside this resource lifecycle
+    // fixture, as in its existing camera-owned-frame rendering stub.
+    scene.tooltipFrame = createTooltipFrame(world.cameras.elapsed)
+    scene.tooltipCameraActive = false
+    scene.skyRemainder = 0
+    scene.gameClock = execute(`return ${field('gameClock')}`, {
+      preCameraVisit: nop, postCameraVisit: nop, previewGroundZoom: nop, advanceTooltipTime,
+    }, scene)
     scene.animate = execute(
       `return ${field('animate')}`,
       {
@@ -202,7 +210,10 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       'updateEnvironmentFrame',
     ])
       scene[name] = nop
-    scene.updateCameraMotion = () => true
+    scene.updateCameraMotion = () => {
+      scene.tooltipCameraActive = true
+      return true
+    }
     scene.updateBuildingsFrame = () => calls.push(['world', scene.templeResourceSnapshot])
     scene.renderSceneFrame = () => calls.push(['screen', scene.templeResourceSnapshot])
     scene.updateHudFrame = nop
