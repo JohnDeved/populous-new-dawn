@@ -19,6 +19,7 @@ const selectorFunction = selectorSource.statements.find(node =>
 assert.ok(selectorFunction, 'actual selector component exists')
 const renderSelector = evaluatePage(selectorFunction.getText(selectorSource).replace(/^export /, ''), {
   ...campaign, useRef: current => ({ current }), useId: () => 'selector-profile',
+  useLayoutEffect() {},
   useState: initial => [typeof initial === 'function' ? initial() : initial,
     () => assert.fail('this route must launch the restored recommendation without changing selection')],
   styles: new Proxy({}, { get: (_, name) => name }),
