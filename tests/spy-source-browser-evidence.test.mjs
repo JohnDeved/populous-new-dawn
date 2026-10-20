@@ -7,6 +7,7 @@ import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mj
 import { createSpySourceFixture } from '../scripts/tutorial-browser/spy-source-fixture.mjs'
 import { admitSpySourceEpisode, withSpySourceBrowser, spySourceBudgetMs } from '../scripts/tutorial-browser/spy-source-budget.mjs'
 import { validateSpySourceObservation, validateSpySourceSample } from '../scripts/tutorial-browser/spy-source-evidence.mjs'
+import { awaitSpySourceReadiness, readSpySourceReadiness, spySourceReadinessMs } from '../scripts/tutorial-browser/spy-source-readiness.mjs'
 import { runProfileEpisode } from '../scripts/tutorial-browser/profile-episodes.mjs'
 import { browserCapMs, browserScenarios } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import units from '../app/original-units.json' with { type: 'json' }
@@ -126,6 +127,10 @@ test('current checkpoint supplies a truly trained Spy but never seeds disguise o
   assert.equal(spy.native?.disguise ?? 0, 0)
   assert.deepEqual(world.selected, [])
   assert.equal(world.paused, true)
+  assert.equal(world.inputMask, 64, 'simulation-only training does not finish the presentation-owned introduction')
+  assert.equal(world.flyby.flags & 17, 17, 'the saved original flyby is active and interruptible')
+  assert.equal(world.flyby.frame, 0)
+  assert.equal(world.flyby.warmup, 6)
   assert.equal(target.team, 'red')
   assert.equal(fixture.receipt.stages.map(stage => stage.stage).join(','), 'admitted,trained,departed')
   const { loadSceneFixture } = await import('./support/bloodlust-scene.mjs')
@@ -152,6 +157,104 @@ test('current checkpoint supplies a truly trained Spy but never seeds disguise o
   assert.equal(spy.native.f2, 0)
   assert.equal(spy.native.timer, 23)
   assert.equal(world.turn, armed.turn + 1)
+})
+
+test('the exact Spy checkpoint introduction outlasts 8s but the production public Skip releases its own input bit', async () => {
+  const fixture = await createSpySourceFixture('a'.repeat(40)),
+    world = checkpointCodec(fixture.transfer, true).world,
+    { skipIntroduction, updateFlyby } = await import('../app/scene-camera-runtime.ts'),
+    spy = world.units.find(unit => unit.id === fixture.spyId)
+  // The actual public Load sets paused=false. Presentation visits, unlike the
+  // fixture's simulation ticks, own this preserved timeline.
+  world.paused = false
+  let notifications = 0
+  const scene = { world, wasFlying: true, flybyTime: 0,
+    flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
+    onChange: () => notifications++,
+    updateTooltipController() {}, acquireForcedTooltip() {}, commitSky() {}, updateView() {},
+    camera: { up: { set() {} } } }
+  for (let frame = 0; frame < 8 * 24; frame++) updateFlyby(scene, 1 / 24)
+  assert.equal(world.flyby.flags & 1, 1, 'eight seconds cannot naturally finish this introduction')
+  assert.equal(world.inputMask, 64)
+  const before = structuredClone(spy), turn = world.turn
+  skipIntroduction(scene)
+  assert.equal(notifications, 1)
+  for (let frame = 0; frame < 3 * 24 && world.inputMask; frame++)
+    updateFlyby(scene, 1 / 24)
+  assert.equal(world.flyby.flags & 1, 0, 'native interruption finishes within the existing readiness budget')
+  assert.equal(world.inputMask, 0, 'the real Scene consumer releases the presentation mask')
+  assert.equal(notifications, 1, 'no second Skip or direct mask write is required')
+  assert.deepEqual(spy, before, 'Skip cannot seed or advance the animation under test')
+  assert.equal(world.turn, turn)
+})
+
+test('Spy readiness observes actual owners and clicks only the public interruptible introduction within the same 8s cap', async () => {
+  await assert.rejects(awaitSpySourceReadiness({ deadlineAt: NaN }), /Original Spy episode deadline/)
+  const original = { window: globalThis.window, document: globalThis.document,
+    getComputedStyle: globalThis.getComputedStyle }
+  try {
+    for (const mode of ['skip', 'ready', 'short-host', 'blocked', 'wrong-scene', 'loading', 'disconnected',
+      'disabled', 'hidden', 'uninterruptible', 'already-skipping', 'skip-failed']) {
+      const world = { outcome: { level: 1 }, turn: 116, paused: false,
+        inputMask: ['ready', 'short-host'].includes(mode) ? 0 : mode === 'blocked' ? 4 : 64,
+        flyby: { flags: mode === 'uninterruptible' ? 1 : mode === 'already-skipping' ? 85 : 21,
+          frame: 0, warmup: 6 } },
+        before = structuredClone(world),
+        button = { disabled: mode === 'disabled', getClientRects: () => [1] },
+        scene = { world: mode === 'wrong-scene' ? {} : world,
+          renderer: { domElement: { isConnected: mode !== 'disconnected' } } },
+        report = {}, calls = []
+      globalThis.window = { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }
+      globalThis.document = { querySelector: selector => selector === '.loading-world'
+        ? (mode === 'loading' ? {} : null) : button }
+      globalThis.getComputedStyle = () => ({ visibility: mode === 'hidden' ? 'hidden' : 'visible' })
+      const snapshot = readSpySourceReadiness()
+      assert.deepEqual(world, before, 'observation is read-only')
+      const page = {
+        evaluate: async fn => fn(),
+        waitForFunction: async (fn, arg, options) => {
+          assert.ok(options.timeout > 0 && options.timeout <= 8000)
+          const result = fn(arg)
+          if (!result) throw Error('readiness predicate blocked')
+          return { jsonValue: async () => result, dispose: async () => calls.push('dispose') }
+        },
+        getByRole: (role, options) => {
+          assert.equal(role, 'button')
+          assert.equal(options.name.source, '^Skip introduction')
+          return { click: async options => {
+            calls.push('click')
+            assert.ok(options.timeout > 0 && options.timeout <= 8000)
+            if (mode === 'skip-failed') throw Error('public click failed')
+            // Browser double only. Real execution uses the button, never a world write.
+            world.inputMask = 0; world.flyby.flags &= ~1
+          } }
+        },
+      }
+      const deadlineAt = Date.now() + (mode === 'short-host' ? 500 : 45000),
+        run = awaitSpySourceReadiness({ page, report,
+        action: async (name, run) => { calls.push(name); await run() },
+        save: () => calls.push('save'), deadlineAt })
+      if (['skip', 'ready', 'short-host'].includes(mode)) {
+        await run
+        assert.equal(report.readiness.after.action, 'ready')
+        assert.equal(report.readiness.after.sceneStoreMatch, true)
+        assert.equal(calls.filter(call => call === 'click').length, mode === 'skip' ? 1 : 0)
+      } else {
+        await assert.rejects(run, mode === 'skip-failed' ? /public click failed/ : /predicate blocked/)
+        assert.deepEqual(report.readiness.failed, snapshot, 'failure retains bounded owner diagnostics')
+        assert.equal(report.readiness.after, undefined)
+        assert.equal(calls.filter(call => call === 'click').length, mode === 'skip-failed' ? 1 : 0)
+      }
+      assert.equal(report.readiness.capMs, spySourceReadinessMs)
+      assert.equal(report.readiness.deadlineAt, Math.min(report.readiness.startedAt + 8000, deadlineAt))
+      assert.deepEqual(report.readiness.before, snapshot)
+      assert.ok(report.readiness.endedAt)
+    }
+  } finally {
+    for (const [key, value] of Object.entries(original))
+      if (value === undefined) delete globalThis[key]
+      else globalThis[key] = value
+  }
 })
 
 test('M10 dispatch refuses a short Spy budget before launch, without skipping either episode', async () => {

@@ -9,6 +9,7 @@ import { createSpySourceFixture } from './spy-source-fixture.mjs'
 import { withSpySourceBrowser } from './spy-source-budget.mjs'
 import { installSpySourceObserver, readSpySourceHold } from './spy-source-observer.mjs'
 import { validateSpySourceObservation } from './spy-source-evidence.mjs'
+import { awaitSpySourceReadiness } from './spy-source-readiness.mjs'
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 
@@ -18,7 +19,7 @@ export default async function spySource(options) {
   const { output, url, source } = options
   const report = { status: 'running', errors: [], actions: [], sourceCommit: source.commit,
     sources: Object.fromEntries(['spy-source.mjs', 'spy-source-fixture.mjs', 'spy-source-budget.mjs',
-      'spy-source-observer.mjs', 'spy-source-evidence.mjs', 'checkpoint-codec.mjs']
+      'spy-source-observer.mjs', 'spy-source-evidence.mjs', 'spy-source-readiness.mjs', 'checkpoint-codec.mjs']
       .map(file => [file, hash(readFileSync(new URL(file, import.meta.url)))])),
     inputs: Object.fromEntries(['app/follower-appearance.ts', 'app/scene-entities.ts',
       'app/live-building-combat.ts', 'app/original-units.json', 'app/checkpoint-format.ts',
@@ -26,7 +27,7 @@ export default async function spySource(options) {
       .map(file => [file, hash(readFileSync(new URL(`../../${file}`, import.meta.url)))])),
     limits: [
       'Supplied current-format checkpoint with flat terrain, school, Brave, training funding and hostile hut; real training controller, not natural Mission12/campaign acquisition.',
-      'Public Load Game, Select spy, right-click focus, disguise, canvas sabotage command, Pause and Resume; ordinary live clocks and actual production Home renderer.',
+      'Public Load Game, Skip introduction when the restored flyby owns input, Select spy, right-click focus, disguise, canvas sabotage command, Pause and Resume; ordinary live clocks and actual production Home renderer.',
       'Read-only RAF samples and immutable same-frame canvas crops perturb rendering. No hardware performance, original-game execution, all-sprite sweep or pixel-perfect native raster claim.',
       'Exact entry must be observed. A missed frame, short budget or absent crop is failure, not a skip or substituted later sample.',
     ] }
@@ -96,10 +97,7 @@ export default async function spySource(options) {
           'Public Load admits the exact full current checkpoint')
         report.loadBoundaryMatched = true
         await bindGame(page)
-        await page.waitForFunction(() => {
-          const scene = window.testSceneRef.current, world = window.testStore.getWorld()
-          return scene?.world === world && !world.inputMask && scene.renderer.domElement.isConnected
-        })
+        await awaitSpySourceReadiness({ page, report, action, save, deadlineAt: budget.deadlineAt })
         report.renderer = await page.evaluate(() => {
           const gl = window.testSceneRef.current.renderer.getContext()
           const debug = gl.getExtension('WEBGL_debug_renderer_info')
