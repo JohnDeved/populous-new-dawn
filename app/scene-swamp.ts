@@ -10,7 +10,8 @@ import art from './original-swamp.json'
 export function makeSwampPresentation() {
   const group = new THREE.Group(),
     map = texture('swamp')
-  map.minFilter = map.magFilter = THREE.NearestFilter
+  map.minFilter = THREE.NearestFilter
+  map.magFilter = THREE.NearestFilter
   map.generateMipmaps = false
   group.name = 'swamp'
   for (let i = 0; i < 14; i++) {

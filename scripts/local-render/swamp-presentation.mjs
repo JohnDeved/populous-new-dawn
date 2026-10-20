@@ -9,9 +9,20 @@ export default async function ({ page, output, openMission }) {
     const s = window.testScene, w = s.world,
       { addUnit } = await import('/app/model.ts'),
       { changeLivePersonState, createLivePerson } = await import('/app/live-people.ts'),
+      { release, clearRetiredPersonOrders } = await import('/app/world-tasks.ts'),
+      { deleteCellObject } = await import('/app/object-cells.ts'),
       shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
     Object.assign(shaman, { x: 6, z: 30, path: [], casting: null })
-    // Retain mission people and their order/route ownership for current checkpoints.
+    // Supplied isolated cast fixture: retire other people through their ownership
+    // cleanup before removing them. Dropping units alone leaves stale order refs.
+    for (const unit of w.units) {
+      if (unit === shaman) continue
+      const people = new Set([unit.native, unit.flight, unit.fight?.motion, unit.entry?.person, unit.builder?.person])
+      people.add(release(w, unit))
+      clearRetiredPersonOrders(w, people)
+      deleteCellObject(w.objectCells, unit.id)
+    }
+    w.units = [shaman]
     const victim = addUnit(w, 'red', 'brave', { x: 13, z: 31 })
     victim.native = createLivePerson(w, victim)
     changeLivePersonState(w, victim, 14)
@@ -88,6 +99,9 @@ export default async function ({ page, output, openMission }) {
         position: child.position.toArray(), size: child.scale.toArray(),
       })),
       before = read(), beforePixels = capture()
+    group.visible = false
+    const beforeHidden = capture()
+    group.visible = true
     // Change only presentation time for the pixel comparison: no world turn,
     // camera motion, corpse animation, or water update can explain this delta.
     const clock = s.world.secondaryEffects.animationFrame
@@ -95,9 +109,15 @@ export default async function ({ page, output, openMission }) {
     s.animate(s.previous)
     cancelAnimationFrame(s.frame)
     const afterPixels = capture()
+    group.visible = false
+    const afterHidden = capture()
+    group.visible = true
     let changedPixels = 0
-    for (let i = 0; i < beforePixels.length; i += 4)
-      if (beforePixels[i] !== afterPixels[i] || beforePixels[i + 1] !== afterPixels[i + 1] || beforePixels[i + 2] !== afterPixels[i + 2]) changedPixels++
+    for (let i = 0; i < beforePixels.length; i += 4) {
+      const contributionChanged = [0, 1, 2].some(c =>
+        beforePixels[i + c] - beforeHidden[i + c] !== afterPixels[i + c] - afterHidden[i + c])
+      if (contributionChanged) changedPixels++
+    }
     s.world.secondaryEffects.animationFrame = clock
     window.swampStep()
     return { before, after: read(), changedPixels }
@@ -189,7 +209,11 @@ export default async function ({ page, output, openMission }) {
       cancelAnimationFrame(s.frame)
       return { bearing, rotatedBearing: s.cameraBearing, snapshot: window.swampSnapshot() }
     })
-    assert.deepEqual(result.rotated.snapshot, result.multiple, 'Camera rotation must preserve world anchors and variants')
+    const anchors = snapshot => snapshot.effects.map(f => ({
+      id: f.id, state: f.state, sprites: f.sprites.map(({ source, visible, p }) => ({ source, visible, p })),
+    }))
+    assert.notEqual(result.rotated.bearing, result.rotated.rotatedBearing)
+    assert.deepEqual(anchors(result.rotated.snapshot), anchors(result.multiple), 'Camera rotation must preserve world anchors and variants')
     await page.screenshot({ path: `${output}/swamp-rotated.png` })
     await page.evaluate(bearing => {
       const s = window.testScene
@@ -213,7 +237,7 @@ export default async function ({ page, output, openMission }) {
     assert.deepEqual(result.loaded, result.multiple, 'Current checkpoint must restore exact Swamp art/state/clock/RNG')
     await page.screenshot({ path: `${output}/swamp-loaded.png` })
     // Preserve full lifetimes: no remaining/kill/expiry writes. Drive normal world turns
-    // without rendering every intermediate frame. The supplied fixture has no orders.
+    // without rendering every intermediate frame.
     await page.evaluate(() => {
       window.expiringSwamps = window.swampVariantIds.map(id => window.testScene.world.effects.find(f => f.id === id))
     })
