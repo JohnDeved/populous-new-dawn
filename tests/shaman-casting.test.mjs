@@ -25,7 +25,7 @@ function scenario(team = 'blue') {
   retainFixtureUnits(w, () => false)
   w.buildings = []; w.trees = []; w.shrines = []
   w.terrain.fill(3); w.terrainVersion++
-  w.manaWorld.gameFlags = 32
+  w.manaWorld.gameFlags = 0 // Ordinary stock payment, not alternate-mode unlimited Blast.
   const u = addUnit(w, team, 'shaman', { x: 1, z: -1 })
   u.native = createLivePerson(w, u)
   w.shots.blast = 3
@@ -346,7 +346,10 @@ test('public airborne and protected exclusions do not spend stock or create proj
   for (const excluded of ['airborne', 'protected']) {
     const { w, u, p, target } = scenario()
     if (excluded === 'airborne') { u.flight = p; u.lift = 1 }
-    else p.flags2 |= 0x100000
+    else {
+      p.state = 19 // Existing public eligibility reads the active resting owner.
+      p.flags2 |= 0x100000
+    }
     assert.equal(cast(w, 'blast', target), false)
     assert.equal(w.shots.blast, 3)
     assert.equal(w.projectiles.length, 0)
