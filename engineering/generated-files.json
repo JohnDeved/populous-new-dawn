@@ -11,6 +11,18 @@
       "recording": "Only hash-pinned bank2/6 Angel bases, raw morph points and cycles. Never writes shared atlases or model catalogs; --check is read-only. The independent byte verifier also checks unchanged compatibility-c texture pixels."
     },
     {
+      "id": "shield-original-art",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-shield.py", "<verified-game-directory>"] },
+      "callers": ["scripts/import-shield.py"],
+      "inputs": ["decomp/tools.json", "scripts/import-original.py"],
+      "outputs": [
+        { "path": "app/original-shield.json", "type": "file", "tracked": true, "protected": true },
+        { "path": "public/original/shield.png", "type": "file", "tracked": true, "protected": true }
+      ],
+      "recording": "Shield-only HFX1538..1552 plus raw PE phase/owner tables and PAL/AL diffuse colors. All four input hashes are pinned. --check is read-only; no shared effects or Bloodlust output is written."
+    },
+    {
       "id": "frontend-badge-vectors",
       "kind": "imported-assets",
       "generator": { "executable": "python3", "args": ["scripts/sanitize-frontend-badge-vectors.py", "<reviewed-local-input-directory>"] },

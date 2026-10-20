@@ -82,6 +82,7 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Mission 13 Balloon transport](research/mission13-balloon.md),
 [Mission 14 linked rewards and generic Angel](research/mission14-linked-angel.md),
 [Mission 15 Prison rescue and timed failure](research/mission15-prison.md),
+[Shield original person overlay and rendering boundaries](research/shield-appearance.md),
 [Mission 16 Bloodlust acquisition and status](research/mission16-bloodlust.md),
 [Mission 18 authored patrol and projected sky](research/mission18.md),
 [Mission 18 sky filename and image-load conditions](research/mission18-sky.md),

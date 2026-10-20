@@ -79,6 +79,7 @@ export function loadTexture(kind: string) {
   if (
     kind === nativeUnits.atlas ||
     kind === 'effects' ||
+    kind === 'shield' ||
     kind === templeArt.sparkleAtlas ||
     kind === 'vault-knowledge' ||
     kind === 'vault-knowledge-camp' ||
