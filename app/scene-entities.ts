@@ -11,7 +11,6 @@ import {
   effectFrame,
   nativeModel,
   nativeModels,
-  material,
   updateModelLighting,
 } from './scene-assets.ts'
 import {
