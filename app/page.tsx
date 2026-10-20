@@ -837,7 +837,7 @@ export default function Home() {
     if (
       ready ||
       (event.target as Element).closest(
-        '.loading-world,[data-world-selector],[data-original-main-menu],[data-fullscreen-control]'
+        '.loading-world,[data-world-selector],[data-original-main-menu],[data-startup-logo],[data-fullscreen-control]'
       )
     )
       return false
@@ -1050,7 +1050,7 @@ export default function Home() {
         if (
           world.inputMask &&
           !(e.target as Element).closest(
-            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu]'
+            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
           )
         ) {
           e.preventDefault()

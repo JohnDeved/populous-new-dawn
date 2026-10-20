@@ -117,6 +117,27 @@ test('fresh keyboard downs stop only the logo once; releases and repeats cannot 
   }
 })
 
+test('Home capture permits logo controls during loading and with a restored input mask', () => {
+  const loading = pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === 'blockLoadingInteraction')
+  const main = pageNode(node => ts.isJsxOpeningElement(node) && node.tagName.getText(pageSource) === 'main')
+  const click = main.attributes.properties.find(node => node.name?.text === 'onClickCapture')
+  for (const ready of [false, true]) for (const inputMask of [0, 64]) {
+    const blockLoadingInteraction = evaluatePage(`(${loading.getText(pageSource)})`, { ready })
+    const capture = evaluatePage(click.initializer.expression.getText(pageSource), {
+      blockLoadingInteraction, world: { inputMask },
+    })
+    const logo = event({ detail: 1, target: {
+      closest: selector => selector.includes('[data-startup-logo]') ? {} : null,
+    } })
+    assert.equal(blockLoadingInteraction(logo), false)
+    capture(logo)
+    assert.equal(logo.prevented || logo.stopped, false, `ready=${ready}, inputMask=${inputMask}`)
+    const outside = event({ detail: 1, target: { closest: () => null } })
+    capture(outside)
+    assert.equal(outside.prevented && outside.stopped, !ready || !!inputMask)
+  }
+})
+
 test('pointer down pauses immediately and matching release/cancel consumes the transition', () => {
   for (const button of [0, 1, 2, 3]) for (const terminal of ['onPointerUp', 'onPointerCancel']) {
     const f = fixture(), captured = []
