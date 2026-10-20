@@ -558,3 +558,42 @@ On deadline it closes only its runner-owned page to interrupt pending actions;
 the existing runner owns final context/browser/server cleanup and failure receipts.
 This is frontend navigation regression coverage, not native-game input parity,
 deployed hydration, exhaustive display acceptance or a performance measurement.
+
+### Grounded Shaman casting artwork in the existing F9 episode
+
+The same `frontend-held-escape` job already runs the independent F9 Mission 1
+episode after its frontend context closes. Casting coverage reuses that F9 Scene
+and its unchanged 55-second bound, inside the unchanged 180-second browser cap.
+It adds no world, context, workflow, grant, driven simulation turn or production
+test hook. All existing F9 input, grant, charge, cooldown, save/load and restart
+assertions remain in order.
+
+Before any testing grant, ordinary public Resume waits for the authored Shaman's
+native rest state and completion of opening order18. Public Pause, Select and
+focus shaman, the ordinary HUD Blast card, Resume and a real terrain pointer
+click spend naturally available stock. The existing post-grant F9 Blast is the
+subsequent cast, not a second claim of naturally acquired stock. Both allocations
+must synchronously debit one charge, preserve the mana pool and set cooldown12.
+
+Pass-through callbacks preserve their original receiver, return and exception.
+`afterTurn` observes each completed controller visit before that visit's logical
+animation: projectile launch6, native pose expiry10 and cooldown expiry12 are
+separate obligations. After the real `renderer.render` returns, the observer
+records submitted frame, draw, flip, direction and person phase. The raw original
+PE/VSTART/VFRA fixture supplies expected source520/frame identities; imported
+indices are only bridged back to their original VFRA identities. Two reserved,
+unobscured same-direction crops per cast must positively pass original artwork
+validation. Readback and PNG encoding happen only after observers are detached.
+
+During the existing second cast's active windup, public F9 suspends presentation
+for 350ms before its original refill-preservation assertions. At least two actual
+suspended renders must retain identical person, projectile, cooldown and turn
+state, followed by a running rendered native-phase advance after public F9 close.
+This proves modal suspension, not the separate world-pause control. Empty paused
+coverage, static screenshots or only advancing logical samples cannot substitute.
+
+`shaman-casting.json` and at most four `shaman-casting-*.png` files retain the
+observations, original-input hashes and source identities. Partial failures are
+retained before the existing context closes; a failed retention is never retried.
+These are functional browser/artwork checks, not original executable execution,
+pixel-perfect composition, every-tribe/direction coverage or hardware performance.

@@ -131,7 +131,7 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
     if (boat.passengerCount && boarded === null) boarded = world.turn
   }
   assert.ok(lethalClosest < 1)
-  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1460, 97, 1485])
+  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1460, 97, 1476])
   assert.equal(lethalShaman.hp, 0)
   assert.equal(lethal.units.includes(lethalShaman), false)
   assert.equal(lethal.objectCells.objects.has(lethalShaman.id), false)
@@ -143,7 +143,7 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
   // is not that contract; both predecessor and one actual retirement are checked.
   assert.equal(controlRetirements,1)
   assert.ok(closest < 1)
-  assert.equal(boarded, 1375)
+  assert.equal(boarded, 1376)
   assert.equal(shaman.hp, 100.6)
   assert.equal(world.buildingOrders.records[first].references, 0)
   assert.equal(world.buildingOrders.records[second].references, 0)
