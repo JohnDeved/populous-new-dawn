@@ -27,6 +27,26 @@ export async function checkSelectorKeyboardFocus({ page, output }) {
         checks.push({...size, activation, selected: 1, focused: 1})
       }
       await page.screenshot({path: resolve(output, `selector-keyboard-${size.width}x${size.height}.png`)})
+      for (const activation of ['Enter', 'Space']) {
+        const controls = page.getByRole('button', {name: 'Browser controls', exact: true})
+        await controls.click()
+        await page.getByRole('button', {name: 'All missions', exact: true}).focus()
+        await page.keyboard.press(activation)
+        const heading = page.getByRole('heading', {name: 'Choose any playable mission', exact: true})
+        assert.equal(await heading.evaluate(element => element === document.activeElement), true)
+        await page.keyboard.down(activation)
+        await page.keyboard.down(activation)
+        await page.keyboard.up(activation)
+        assert.equal(await page.locator('.world-viewport canvas').count(), 0, 'held activation cannot launch a direct mission')
+        await page.keyboard.press('Tab')
+        const firstMission = page.getByRole('button', {name: /^Mission \d+(, completed)?$/}).first()
+        assert.equal(await firstMission.evaluate(element => element === document.activeElement), true)
+        await page.screenshot({path: resolve(output, `selector-direct-focus-${activation}-${size.width}x${size.height}.png`)})
+        checks.push({...size, activation, directHeadingFocus: true, directTabFocus: true, noLaunch: true})
+        await controls.click()
+        await page.getByRole('button', {name: 'Campaign worlds', exact: true}).click()
+        assert.equal(await select(1).getAttribute('aria-pressed'), 'true')
+      }
     }
     return checks
   } finally { await page.setViewportSize(viewport) }
