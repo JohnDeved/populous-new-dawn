@@ -55,6 +55,13 @@ test('recovery and M10 retain independent bounded dispatch without M2 fixtures',
     const result = await runProfileEpisode(selected, {
       signal, deadlineAt,
       runRecovery: async () => { calls.push('recovery'); return { status: 'passed', cases: 9 } },
+      closeRecoveryProbe: async () => { calls.push('close-recovery') },
+      runTornado: async options => {
+        calls.push('tornado')
+        assert.equal(options.signal, signal)
+        assert.equal(options.deadlineAt, deadlineAt)
+        return { status: 'passed', episodes: 2 }
+      },
       closeProbe: async () => { calls.push('close-probe') },
       runMission10: async options => {
         calls.push('mission10')
@@ -63,9 +70,11 @@ test('recovery and M10 retain independent bounded dispatch without M2 fixtures',
         return { status: 'passed', phases: 2 }
       },
     })
-    assert.deepEqual(calls, selected === 'profile-recovery' ? ['recovery'] : ['close-probe', 'mission10'])
+    assert.deepEqual(calls, selected === 'profile-recovery'
+      ? ['recovery', 'close-recovery', 'tornado'] : ['close-probe', 'mission10'])
     assert.deepEqual(result, selected === 'profile-recovery'
-      ? { profileRecovery: { status: 'passed', cases: 9 } }
+      ? { profileRecovery: { status: 'passed', cases: 9 },
+        tornadoAppearance: { status: 'passed', episodes: 2 } }
       : { mission10Profile: { status: 'passed', phases: 2 } })
   }
   assert.match(runner, /if \(selectedScenario === 'tutorial'\) receipt\.spellProjection =/)
