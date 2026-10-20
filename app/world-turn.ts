@@ -97,12 +97,7 @@ import {
   stepUnitShields,
   unitInvisibleToPlayer,
 } from './spell-effects-runtime.ts'
-import {
-  meleeDamage,
-  joinBattle,
-  cleanBattles,
-  processOwnedBattles,
-} from './combat-runtime.ts'
+import { meleeDamage, joinBattle, cleanBattles, processOwnedBattles } from './combat-runtime.ts'
 import { clearRetiredPersonOrders, release, releaseTasks } from './world-tasks.ts'
 import {
   sound,
