@@ -1,0 +1,31 @@
+{
+  "checks": [
+    "initial Home reaches the main menu after natural logo completion",
+    "188-frame original logo plays naturally; source-derived 640x352 in 640x480 framing",
+    "Enter skips once and its repeats/release cannot activate a menu row",
+    "Space skips once and its repeats/release cannot activate a menu row",
+    "Escape skips once and its repeats/release cannot activate a menu row",
+    "a skips once and its repeats/release cannot activate a menu row",
+    "held-at-entry browser repeat is ignored until a fresh press",
+    "left button stops on down; release cannot click through to New Game",
+    "middle button stops on down; release cannot click through to New Game",
+    "right button stops on down; release cannot click through to New Game",
+    "keyboard-accessible user activation enables original audio without skipping or restarting",
+    "return from Options does not replay logo or write storage",
+    "injected 404 retains truthful failure and working exit"
+  ],
+  "geometry": {
+    "x": 0,
+    "y": 128,
+    "width": 1280,
+    "height": 704
+  },
+  "expectedFailureErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "limits": [
+    "Local Chromium compositor; not original native runtime or hardware performance",
+    "Full initial timed page, New Game intro, and non-English logos remain unimplemented",
+    "Autoplay-refusal and visibility lifecycle have component tests; audio was unmuted but not acoustically measured"
+  ]
+}

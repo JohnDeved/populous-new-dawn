@@ -1,0 +1,65 @@
+{
+  "startedAt": "2026-10-20T13:05:31.081Z",
+  "source": {
+    "root": "/workspace/issue16-before",
+    "commit": "96becd8826afc5a4256a12ccebf3caa61729e24b",
+    "tree": "d398652b769530cd89909fcad8889d9c5ca9f80e",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "7b6670b7346adbda159693709c009b49ec7d8acac45a19cddd7ae4063cf15fe8"
+  },
+  "launch": {
+    "executablePath": "/workspace/pnd-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [],
+  "status": "passed",
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 8,
+    "first": {
+      "elapsedMs": 16619,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 27600,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 27600,
+    "listening": true,
+    "ready": true
+  },
+  "browserVersion": "153.0.8010.12",
+  "result": {
+    "baseline": true,
+    "checks": [
+      "Actual baseline Home opens the main menu without a logo stage"
+    ]
+  },
+  "finishedAt": "2026-10-20T13:06:09.689Z",
+  "sourceAfter": {
+    "root": "/workspace/issue16-before",
+    "commit": "96becd8826afc5a4256a12ccebf3caa61729e24b",
+    "tree": "d398652b769530cd89909fcad8889d9c5ca9f80e",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "7b6670b7346adbda159693709c009b49ec7d8acac45a19cddd7ae4063cf15fe8"
+  }
+}
