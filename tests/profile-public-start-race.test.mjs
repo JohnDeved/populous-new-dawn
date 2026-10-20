@@ -67,8 +67,9 @@ function fixture() {
       assert.equal(role, 'button')
       assert.ok(options.name.test('Skip introduction ESC'))
       return {
-        click: async ({ timeout }) => {
+        click: async ({ timeout, noWaitAfter }) => {
           assert.ok(timeout > 0 && timeout <= 2500)
+          assert.equal(noWaitAfter, true)
           assert.ok(skip && skip.getClientRects().length && !skip.disabled)
           clicks++
           publicSkip(scene)
@@ -129,6 +130,7 @@ test('visible-introduction callback never bypasses non-flyby or hidden-control b
       click: async options => {
         clicks++
         timeout = options.timeout
+        assert.equal(options.noWaitAfter, true)
       },
     }),
   })
@@ -160,6 +162,23 @@ test('blocked callback cannot turn an expired original 30-second deadline into s
     /Profile recovery readiness timed out/
   )
   assert.equal(f.clicks, 0)
+})
+
+test('a completed setup click cannot admit a still-blocked world or repeat input', async t => {
+  let now = 0, clicks = 0
+  t.mock.method(performance, 'now', () => now)
+  const f = fixture(), wait = f.page.waitForTimeout
+  f.page.waitForTimeout = async () => { await wait(); now += 100 }
+  f.page.getByRole = () => ({ click: async options => {
+    assert.equal(options.noWaitAfter, true)
+    assert.ok(options.timeout > 0 && options.timeout <= 500)
+    clicks++ // Deliberately no accepted public Skip: the input mask stays set.
+  } })
+  await assert.rejects(waitRecoveryReadiness(f.page, {
+    timeout: 500, onBlocked: recoverVisibleIntroduction(f.page),
+  }), /Profile recovery readiness timed out/)
+  assert.equal(clicks, 1)
+  assert.equal(f.world.inputMask & 64, 64)
 })
 
 test('profile and Tornado callers recheck public introduction while preserving eligibility and caps', () => {

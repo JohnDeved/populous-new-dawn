@@ -41,7 +41,9 @@ export function pauseStartupReady() {
 export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
   if (await page.evaluate(() => !window.testStore.getWorld().inputMask)) return
   try {
-    await page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout })
+    // The caller re-observes actual input/native readiness. This setup action
+    // need not wait for Playwright's post-click navigation/interceptor work.
+    await page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout, noWaitAfter: true })
   } catch (error) {
     if (await page.evaluate(() => !!window.testStore.getWorld().inputMask)) throw error
   }
