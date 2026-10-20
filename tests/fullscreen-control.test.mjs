@@ -1,7 +1,39 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import ts from 'typescript'
 import { createFullscreenSession, placeFullscreenHost, promoteFullscreenDialogs, fullscreenHostNeedsPlacement } from '../app/fullscreen-session.ts'
+
+function nativeCloseBindings(text) {
+  const source = ts.createSourceFile('modal.tsx', text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX),
+    found = []
+  const member = node => ts.isPropertyAccessExpression(node) ? node.name.text
+    : ts.isElementAccessExpression(node) && ts.isStringLiteral(node.argumentExpression) ? node.argumentExpression.text
+      : ts.isIdentifier(node) ? node.text : undefined
+  function visit(node) {
+    if ((ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+      /^[a-z]/.test(node.tagName.getText(source)) &&
+      node.attributes.properties.some(attribute => ts.isJsxAttribute(attribute) && attribute.name.getText(source) === 'onClose'))
+      found.push('native JSX onClose')
+    if (ts.isCallExpression(node) && member(node.expression) === 'addEventListener' &&
+      node.arguments[0] && ts.isStringLiteral(node.arguments[0]) && node.arguments[0].text === 'close')
+      found.push('close event listener')
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+      member(node.left) === 'onclose') found.push('onclose assignment')
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+  return found
+}
+
+test('modal close-binding audit distinguishes custom callbacks from native close handlers', () => {
+  assert.deepEqual(nativeCloseBindings('<SpellTestMenu onClose={closeMenu} />'), [])
+  assert.deepEqual(nativeCloseBindings('<dialog onCancel={cancel} onKeyDown={key} />'), [])
+  assert.deepEqual(nativeCloseBindings('<dialog onClose={closeMenu} />'), ['native JSX onClose'])
+  assert.deepEqual(nativeCloseBindings('<div onClose={closeMenu}><dialog /></div>'), ['native JSX onClose'])
+  assert.deepEqual(nativeCloseBindings('dialog.addEventListener("close", closeMenu)'), ['close event listener'])
+  assert.deepEqual(nativeCloseBindings('dialog.onclose = closeMenu'), ['onclose assignment'])
+})
 
 function setup({ supported = true, reject = false } = {}) {
   const doc = new EventTarget(), win = new EventTarget(), states = []
@@ -174,9 +206,9 @@ test('entry re-promotes existing modals above fullscreen without replacing panel
   f.session.dispose()
   promoteFullscreenDialogs({ querySelectorAll: () => [], activeElement: focused })
   assert.deepEqual(events, [], 'gameplay entry never steals focus')
-  for (const file of ['original-main-menu.tsx', 'original-pause-menu.tsx', 'page.tsx']) {
+  for (const file of ['original-main-menu.tsx', 'original-pause-menu.tsx', 'page.tsx', 'spell-test-menu.tsx']) {
     const source = readFileSync(new URL('../app/' + file, import.meta.url), 'utf8')
-    assert.doesNotMatch(source, /onClose=|addEventListener\(['"]close['"]/, 'promotion must not trigger app close/back handlers')
+    assert.deepEqual(nativeCloseBindings(source), [], `${file}: promotion must not trigger app close/back handlers`)
   }
 })
 

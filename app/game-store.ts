@@ -1,3 +1,4 @@
+import { applySpellTestCheat, CHEAT_SAVE_NOTICE, type SpellTestCheat } from './spell-test-cheats.ts'
 import { worldEnvironment } from './world-environment.ts'
 import { restoreCapacityPolicy } from './capacity-policy.ts'
 import { rebuildSecondaryLists } from './secondary-effects.ts'
@@ -208,6 +209,7 @@ async function writeCompletedMissions(completed: number[]) {
 // The simulation owns its mutable world. React subscribes to published revisions
 // instead of treating that world as immutable component state.
 export function createGameStore() {
+  let cheatsUsed = false
   let checkpointReadStatus: CheckpointReadStatus = 'idle'
   let checkpointRestore: Promise<boolean> | null = null
   let committedCheckpointRevision = 0
@@ -225,6 +227,7 @@ export function createGameStore() {
       observedCompletion = world.outcome.completedLevel
       const mission = observedCompletion === null ? null : observedCompletion + 1
       if (
+        !cheatsUsed &&
         mission !== null &&
         missionNumbers.some(number => number === mission) &&
         !completedMissions.has(mission)
@@ -241,12 +244,20 @@ export function createGameStore() {
     // old Scene callbacks lose authority even when Restart retains the resource.
     presentation.transition(worldEnvironment(next).landscape, retainResource)
     world = next
+    cheatsUsed = false
     presentationToken = null
     observedCompletion = world.outcome.completedLevel
     update()
   }
   return {
     getWorld: () => world,
+    hasUsedCheats: () => cheatsUsed,
+    applySpellTestCheat: (action: SpellTestCheat) => {
+      if (!applySpellTestCheat(world, action)) return false
+      cheatsUsed = true
+      update()
+      return true
+    },
     getPresentationSnapshot: presentation.snapshot,
     bindPresentation: (boundWorld: World): PresentationBinding => {
       const token = Symbol()
@@ -319,6 +330,7 @@ export function createGameStore() {
       return checkpointRestore
     },
     saveCheckpoint: async (paused = world.paused) => {
+      if (cheatsUsed) throw new Error(CHEAT_SAVE_NOTICE)
       requireCurrentCheckpoint(world)
       rebuildSecondaryLists(world.secondaryEffects)
       const saved = structuredClone(world)
