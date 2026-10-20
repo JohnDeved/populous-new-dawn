@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
+import { openCampaignFromMainMenu, waitForStartupMenu } from '../browser-new-game.mjs'
 import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
 import { checkPauseHeldEscape } from './pause-held-escape.mjs'
 
@@ -128,6 +128,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
   async function frontendRetry(key, leaveForOptions = false) {
     signal.throwIfAborted()
     await page.reload({ waitUntil: 'domcontentloaded' })
+    await waitForStartupMenu(page)
     const main = page.getByRole('dialog', { name: 'Main menu', exact: true })
     await main.getByRole('status').filter({ hasText: 'Could not read browser storage.' }).waitFor()
     await page.evaluate(() => {

@@ -7,6 +7,7 @@ import { acquireProfile, sourceReceipt, profileInputReceipt, persistentLaunchOpt
 import { readCommittedCheckpoint } from '../local-render/checkpoint-observer.mjs'
 import scenario from '../local-render/mission10-boat-checkpoint.mjs'
 import { bindGame, showAllMissions } from '../browser-game.mjs'
+import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { pauseStartupReady, skipPauseIntroduction } from '../local-render/original-pause-checkpoint-recovery.mjs'
 import { createMission10Input, mission10BoatPoint } from './mission10-input.mjs'
 import { retainMission10Artifacts, mission10RetainedName } from './mission10-artifacts.mjs'
@@ -105,7 +106,7 @@ export default async function runMission10Profile({ chromium, launch, url, root,
           context.on('page', watch); context.pages().forEach(watch)
           const page = context.pages()[0] ?? await context.newPage(); page.setDefaultTimeout(15000)
           await page.goto(url, { waitUntil: 'domcontentloaded' })
-          await page.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor({ state: 'visible' })
+          await waitForStartupMenu(page)
           phase.profile.checkpointAtStart = await readCommittedCheckpoint(page)
           assert.deepEqual(phase.profile.checkpointAtStart, phase.profile.previousRun?.checkpointAtEnd ?? null,
             'The new process must observe exactly the previous committed checkpoint')
