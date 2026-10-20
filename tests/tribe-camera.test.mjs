@@ -177,6 +177,9 @@ async function cameraScene(world = createWorld()) {
   const runtime = await import('../app/scene-camera-runtime.ts')
   const frontend = await import('../app/scene-tooltip-runtime.ts')
   const scene = { world, tooltip: { draw: 0 }, previous: 0,
+    // These clock-only cases supply logical button events. Gate regressions
+    // below replace this boundary with the actual Scene navigation reader.
+    navigationButtons: () => world.cameras.input.buttons,
     tooltipFrame: frontend.createTooltipFrame(world.cameras.elapsed), tooltipCameraActive: false,
     skyRemainder: 0, cameraPreviewButtons: null, viewPoint: { x: 0, z: 0 }, cameraBearing: 0,
     updateView: nop, commitSky: nop, updateTooltipController: nop,
@@ -210,6 +213,137 @@ async function cameraScene(world = createWorld()) {
     sampleZoom: () => runtime.previewGroundZoom(scene),
   } }
   return { scene, clock, runtime, frontend }
+}
+
+async function heldNavigationScene(t) {
+  const f = await cameraScene(), { scene, runtime } = f
+  const { GameScene } = await import('../app/scene.ts')
+  const { cameraPreset } = await import('../app/projection.ts')
+  const previousDocument = Object.getOwnPropertyDescriptor(globalThis, 'document')
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: {
+    querySelector: () => null,
+    documentElement: { clientWidth: 1200, clientHeight: 800 },
+  } })
+  Object.assign(scene, {
+    gamePreferences: { rotation: 'cursor', flipRotation: false },
+    navigationPointer: null, inputDepth: 0, disposeListeners: [],
+    navigationButtons: GameScene.prototype.navigationButtons,
+    publishCameraInput: GameScene.prototype.publishCameraInput,
+    listen: GameScene.prototype.listen,
+    view: { config: cameraPreset(0) },
+    currentPreset: () => cameraPreset(0, scene.viewPreset),
+    updateView: () => {
+      scene.view.config = scene.viewTransition?.preview ?? scene.viewTransition?.config ?? scene.currentPreset()
+    },
+  })
+  for (const name of ['startGroundView', 'overview', 'leaveOverview'])
+    scene[name] = (...args) => runtime[name](scene, ...args)
+  const target = new EventTarget()
+  let mutation = nop
+  scene.listen(target, 'camera-input', () => mutation())
+  f.input = change => {
+    mutation = change
+    target.dispatchEvent(new Event('camera-input'))
+  }
+  t.after(() => {
+    for (const release of scene.disposeListeners) release()
+    if (previousDocument) Object.defineProperty(globalThis, 'document', previousDocument)
+    else delete globalThis.document
+  })
+  scene.world.speed = 0; scene.world.inputMask = 0; scene.world.flyby.flags = 0
+  Object.assign(scene.cameraPosition, { x: 10000, y: 10000, angle: 256 })
+  return f
+}
+
+function finishCameraGate(f, blocked) {
+  for (let visits = 0; blocked() && visits < 80; visits++)
+    advanceGame(f.scene.world, f.clock, 1 / 24)
+  assert.equal(blocked(), false, 'real controller must finish its gate')
+}
+
+for (const source of ['key', 'edge']) {
+  test(`held ${source} resumes through overview entry and exit without another DOM event`, async t => {
+    const f = await heldNavigationScene(t), { scene } = f, w = scene.world, c = w.cameras
+    f.input(() => {
+      if (source === 'key') scene.keys.add('arrowleft')
+      else scene.navigationPointer = { x: 0, y: 400, buttons: 0 }
+    })
+    const groundButtons = source === 'key' ? 16 : 4
+    assert.equal(c.input.buttons, groundButtons)
+    f.input(() => scene.overview())
+    assert.equal(c.input.buttons, 0, 'entry event is gated')
+    const entryCursor = c.input.cursor, entryTime = c.input.time
+    finishCameraGate(f, () => scene.overviewStage !== null)
+    assert.equal(scene.overviewActive, true)
+    assert.equal(c.input.buttons, 4, 'held rotation remaps to globe pan at gate completion')
+    assert.deepEqual([c.input.cursor, c.input.time], [entryCursor, entryTime],
+      'controller reconciliation must not invent an input event')
+    const globe = { ...scene.cameraPosition }
+    advanceGame(w, f.clock, 1 / 24)
+    assert.notEqual(scene.cameraPosition.x, globe.x, 'stationary held input pans the globe')
+    f.input(() => scene.leaveOverview(0))
+    assert.equal(c.input.buttons, 0, 'exit event is gated')
+    const exitCursor = c.input.cursor
+    finishCameraGate(f, () => scene.overviewStage !== null)
+    assert.equal(scene.overviewActive, false)
+    assert.equal(c.input.buttons, groundButtons, 'held input regains its ground mapping')
+    assert.equal(c.input.cursor, exitCursor)
+    const ground = { ...scene.cameraPosition }
+    advanceGame(w, f.clock, 1 / 48)
+    f.runtime.updateCameraMotion(scene)
+    assert.notDeepEqual([scene.viewPoint, scene.cameraBearing],
+      [{ x: ground.x / 256 - 8, z: -ground.y / 256 - 8 }, ground.angle * Math.PI / 1024],
+      'fractional rendering resumes immediately after the gate')
+    assert.deepEqual(scene.cameraPosition, ground, 'prediction cannot write the shared pose')
+    advanceGame(w, f.clock, 1 / 48)
+    assert.notDeepEqual(scene.cameraPosition, ground, 'next logical visit consumes the held input')
+    assert.equal(c.input.cursor, exitCursor)
+  })
+
+  test(`held ${source} resumes after natural flyby mask release without another DOM event`, async t => {
+    const f = await heldNavigationScene(t), { scene } = f, w = scene.world, c = w.cameras
+    f.input(() => {
+      scene.keys.add('arrowleft')
+      if (source === 'edge') scene.navigationPointer = { x: 0, y: 400, buttons: 0 }
+    })
+    flybyCommand(w.flyby, 1205, [])
+    flybyCommand(w.flyby, 1209, [60, 60, 0, 6])
+    flybyCommand(w.flyby, 1206, [])
+    w.inputMask = 64
+    advanceGame(w, f.clock, 1 / 24)
+    assert.equal(scene.keys.size, 0, 'flyby entry retains its intentional key reset')
+    if (source === 'key') f.input(() => scene.keys.add('arrowup'))
+    assert.equal(c.input.buttons, 0, 'navigation remains suppressed during the flyby')
+    const cursor = c.input.cursor, inputTime = c.input.time
+    finishCameraGate(f, () => !!(w.flyby.flags & 1))
+    assert.equal(w.inputMask & 64, 0)
+    assert.equal(c.input.buttons, source === 'key' ? 1 : 4)
+    const afterFlyby = { ...scene.cameraPosition }
+    advanceGame(w, f.clock, 2 / 24)
+    assert.notDeepEqual(scene.cameraPosition, afterFlyby, 'held input moves after automatic unlock')
+    assert.deepEqual([c.input.cursor, c.input.time], [cursor, inputTime])
+    if (source === 'edge') assert.equal(scene.keys.size, 0, 'cleared keys must not be resurrected')
+  })
+
+  test(`released ${source} is not resurrected when an overview gate completes`, async t => {
+    const f = await heldNavigationScene(t), { scene } = f
+    f.input(() => {
+      if (source === 'key') scene.keys.add('arrowup')
+      else scene.navigationPointer = { x: 0, y: 400, buttons: 0 }
+    })
+    f.input(() => scene.overview())
+    advanceGame(scene.world, f.clock, 1 / 24)
+    f.input(() => {
+      if (source === 'key') scene.keys.clear()
+      else scene.navigationPointer = { x: 600, y: 400, buttons: 0 }
+    })
+    finishCameraGate(f, () => scene.overviewStage !== null)
+    const pose = { ...scene.cameraPosition }, cursor = scene.world.cameras.input.cursor
+    advanceGame(scene.world, f.clock, 2 / 24)
+    assert.equal(scene.world.cameras.input.buttons, 0)
+    assert.deepEqual(scene.cameraPosition, pose)
+    assert.equal(scene.world.cameras.input.cursor, cursor)
+  })
 }
 
 test('one millisecond key press consumes only its timestamped duration and appears before a camera tick', async () => {

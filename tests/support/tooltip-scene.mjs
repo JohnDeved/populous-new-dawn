@@ -80,6 +80,8 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capaci
       get: () => world.cameras[field], set: value => { world.cameras[field] = value },
     })
   scene.skyRemainder = 0
+  scene.gamePreferences = { rotation: 'cursor', flipRotation: false }
+  document.documentElement = { clientWidth: 800, clientHeight: 600 }
   scene.tooltipFrame = createTooltipFrame(world.cameras.elapsed)
   scene.tooltipCameraActive = false
   scene.gameClock.camera = {

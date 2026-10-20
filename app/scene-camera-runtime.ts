@@ -263,8 +263,11 @@ export function preCameraVisit(scene: GameScene) {
   if (!scene.resultCamera.active && !scene.cameraMotion.active && !scene.world.paused)
     updateFlyby(scene, 1 / 24)
   const w = scene.world,
-    buttons = w.cameras.input.buttons,
+    buttons = scene.navigationButtons(),
     fraction = Math.min(1, w.cameras.navigationTime * 24)
+  // A flyby can release its mask without a DOM event. Reconcile held input at
+  // the controller boundary without rebasing time or publishing another event.
+  w.cameras.input.buttons = buttons
   w.cameras.navigationTime = 0
   if (w.inputMask || scene.overviewStage) return
   if (buttons || Object.values(scene.cameraVelocity).some(Boolean)) {
@@ -360,6 +363,9 @@ export function postCameraVisit(scene: GameScene, ordinaryZoom?: () => void) {
   })
   w.outcome.cameraPlaying = !!s.active
   if (s.active) scene.overviewActive = false
+  // Result/view gates can also change in this phase. The next fractional
+  // preview must already use the newly permitted input and overview mapping.
+  w.cameras.input.buttons = scene.navigationButtons()
   scene.commitSky(scene.cameraPosition, 0)
 }
 
