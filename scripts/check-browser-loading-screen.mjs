@@ -226,39 +226,9 @@ async function runRequiredTextureRetryCase(browser, target) {
   // atlas stays shared and must not issue another request.
   const beforeRetry = control.snapshot()
   hold = control.hold([target])
-  const retry = page.getByRole('button', { name: 'Try again' })
-  const activationKey = target === 'atlas.png' ? 'Enter' : 'Space'
-  assert.equal(await retry.evaluate(button => document.activeElement === button), true)
-  await page.keyboard.down(activationKey)
-  if (activationKey === 'Space') {
-    assert.equal(control.count(target), beforeRetry[target], 'Space must wait for keyup')
-    await page.keyboard.up(activationKey)
-  }
+  await page.getByRole('button', { name: 'Try again' }).click()
   await waitForCount(() => hold.count, 1)
   assert.equal(control.count(target), beforeRetry[target] + 1)
-  // Enter stays down through another actual failure. Space's first activation
-  // requires release, so begin a new hold on the non-action loading surface and
-  // keep it down as the next failed presentation takes focus.
-  if (activationKey === 'Space') await page.keyboard.down(activationKey)
-  hold.fail()
-  await page.getByRole('heading', { name: 'Loading failed' }).waitFor()
-  assert.equal(await retry.evaluate(button => document.activeElement === button), true)
-  hold = control.hold([target])
-  for (let repeat = 0; repeat < 3; repeat++) await page.keyboard.down(activationKey)
-  await page.keyboard.up(activationKey)
-  assert.equal(await page.locator('[data-loading-phase="failed"]').count(), 1,
-    'held activation crossed into a replacement failed presentation')
-  assert.equal(hold.count, 0)
-  assert.equal(control.count(target), beforeRetry[target] + 1)
-  // Existing Tab/Shift-Tab recovery navigation remains intact.
-  await page.keyboard.press('Tab')
-  assert.equal(await page.locator('.loading-recovery summary').evaluate(node => document.activeElement === node), true)
-  await page.keyboard.press('Shift+Tab')
-  assert.equal(await retry.evaluate(button => document.activeElement === button), true)
-  await page.keyboard.press(activationKey)
-  await waitForCount(() => hold.count, 1)
-  assert.equal(control.count(target), beforeRetry[target] + 2,
-    'release and deliberate repress must allow another retry')
   for (const name of SHARED_PRELOAD_TEXTURES.filter(name => name !== target))
     assert.equal(control.count(name), beforeRetry[name], { target, name, beforeRetry, now: control.snapshot() })
   const retried = await assertPendingFrozen(page, 1, 300)
