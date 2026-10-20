@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import units from '../../app/original-units.json' with { type: 'json' }
+import { SHIELD_VISUAL_INPUTS } from './shield-visuals-inputs.mjs'
 import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import { bindGame } from '../browser-game.mjs'
 import { m2LoadReady } from './m2-pointer-f8.mjs'
@@ -21,7 +23,7 @@ const sha = bytes => createHash('sha256').update(bytes).digest('hex')
 // episode owns its fresh context, admitted against the unchanged outer deadline.
 export default async function spellShield({ browser, url, output, source, expectedRevision, deadlineAt }) {
   const report = { schema: 'populous-new-dawn/shield-visuals', schemaVersion: 1,
-    status: 'running', source, expectedRevision, currentCheckpointVersion: CHECKPOINT_VERSION,
+    status: 'running', source: { commit: source.commit, files: {} }, expectedRevision, currentCheckpointVersion: CHECKPOINT_VERSION,
     errors: [], captures: [], actions: [], startedAt: new Date().toISOString(),
     method: 'Supplied current-format field checkpoint, actual public Load Game, Shield hotkey 0 and world click, public pause/zoom, current Save/Load and ordinary elapsed-turn expiry of declared near-expiry foreign status.',
     limits: ['Supplied stock and controlled allied population, terrain and foreign status, not earned acquisition or ordinary campaign progression.',
@@ -34,7 +36,14 @@ export default async function spellShield({ browser, url, output, source, expect
   }
   const save = () => writeFileSync(resolve(output, 'shield-visuals.json'), JSON.stringify(report, null, 2) + '\n')
   return runShieldEpisode({ browser, deadlineAt, report, save, perform: async ({ context, step, remaining }) => {
-    const fixture = await step('prepare declared current checkpoint', () => createShieldCheckpoint(output, source))
+    assert.equal(CHECKPOINT_VERSION, 4, 'Combined visuals require the merged current-v4 format')
+    assert.equal(expectedRevision, source.commit)
+    for (const name of SHIELD_VISUAL_INPUTS) {
+      const digest = sha(readFileSync(new URL(`../../${name}`, import.meta.url)))
+      assert.equal(source.files[name], digest, `Shield source input ${name} must match exact checkout`)
+      report.source.files[name] = digest
+    }
+    const fixture = await step('prepare declared current checkpoint', () => createShieldCheckpoint(output, report.source))
     report.setup = fixture.receipt
     const allIds = [...fixture.ids.blue, ...fixture.ids.foreign]
     const ownerIds = [fixture.ids.blue[0], ...fixture.ids.foreign]
@@ -70,7 +79,7 @@ export default async function spellShield({ browser, url, output, source, expect
         Object.assign(sample, validateShieldPng(readFileSync(resolve(output, sample.filename)), sample))
       }
       save()
-      retained.acceptance = validateShieldCapture(retained, { owners, scaled })
+      retained.acceptance = validateShieldCapture(retained, { owners, scaled, units })
       save()
     }
     await step('install lossless checkpoint transport', () => page.addInitScript({
@@ -87,6 +96,7 @@ export default async function spellShield({ browser, url, output, source, expect
     await step('bind real ready Scene', () => bindGame(page))
     const initialBoundary = await page.evaluate(() => window.shieldRestored)
     assert.deepEqual(JSON.parse(initialBoundary), fixture.expected, 'Current public Load restores the entire expected World')
+    writeFileSync(resolve(output, 'shield-initial-load-boundary.json'), initialBoundary, { flag: 'wx' })
     report.initialLoad = { completeWorldMatched: true, sha256: sha(initialBoundary) }
     await button('Pause game')
     await page.waitForFunction(() => window.testStore.getWorld().paused)
@@ -159,6 +169,8 @@ export default async function spellShield({ browser, url, output, source, expect
     const { loadSceneFixture } = await import('../../tests/support/bloodlust-scene.mjs')
     const { migrateCheckpoint } = await loadSceneFixture()
     const expectedLoad = checkpointCodec(migrateCheckpoint(checkpointCodec(JSON.parse(committed.world), true)))
+    writeFileSync(resolve(output, 'shield-public-save.json'), JSON.stringify({ version: committed.version, world: JSON.parse(committed.world) }), { flag: 'wx' })
+    writeFileSync(resolve(output, 'shield-public-load-expected.json'), JSON.stringify(expectedLoad), { flag: 'wx' })
     report.saved = { version: committed.version, worldSha256: sha(committed.world),
       people: (await state()).people }
     await page.evaluate(watchShieldLoad)
@@ -166,6 +178,7 @@ export default async function spellShield({ browser, url, output, source, expect
     await step('bind current loaded Scene', () => bindGame(page))
     const restored = await page.evaluate(() => window.shieldRestored)
     assert.deepEqual(JSON.parse(restored), expectedLoad, 'Current public Save/Load preserves the full normalized World')
+    writeFileSync(resolve(output, 'shield-public-load-boundary.json'), restored, { flag: 'wx' })
     report.loaded = { version: CHECKPOINT_VERSION, completeWorldMatched: true, worldSha256: sha(restored) }
     report.disposal = await page.evaluate(readShieldDisposal)
     assert.equal(report.disposal.materials, allIds.length * 3)

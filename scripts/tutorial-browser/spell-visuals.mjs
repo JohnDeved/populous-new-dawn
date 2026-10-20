@@ -1,9 +1,12 @@
 import spellAngel from './angel-visuals.mjs'
-// One fixed180s hosted shard. Future Shield wiring belongs immediately after the
-// awaited Angel closure and must use its own45s inclusive /55s admission guard.
-// Until separately integrated there is no skipped/fake Shield success entry.
-export default async function spellVisuals(options, runAngel = spellAngel) {
+import spellShield from './shield-visuals.mjs'
+// Both episodes are mandatory under one unmodified outer deadline. Never start
+// Shield until Angel has passed and its context closure has been observed.
+export default async function spellVisuals(options, runAngel = spellAngel, runShield = spellShield) {
   const angel = await runAngel(options)
   if (angel.status !== 'passed' || !angel.contextClosed) throw Error('Angel episode did not pass and close')
-  return { episodes: ['angel'], angel }
+  const shield = await runShield(options)
+  if (shield.status !== 'passed' || !shield.cleanup?.contextClosed || !shield.cleanup?.closedWithinBudget)
+    throw Error('Shield episode did not pass and close')
+  return { episodes: ['angel', 'shield'], angel, shield }
 }

@@ -11,6 +11,6 @@ export async function spellVisualReceipt(raw, output, env = process.env) {
   const inputs = Object.fromEntries(SPELL_VISUAL_INPUTS.map(name => [name, raw.source.files[name]]))
   const receipt = { version: 1, kind: 'spell-visuals-browser', status: raw.status, identity, inputs, github: raw.github,
     artifacts: Object.fromEntries(names.map(name => [name, createHash('sha256').update(files[name]).digest('hex')])), visualReview: 'required' }
-  await validateSpellVisualReceipt(receipt, { policy: SPELL_VISUAL_POLICY, identity, inputs, files, originalAngel: readFileSync(new URL('../../app/original-angel.json', import.meta.url)) })
+  await validateSpellVisualReceipt(receipt, { policy: SPELL_VISUAL_POLICY, identity, inputs, files, originalAngel: readFileSync(new URL('../../app/original-angel.json', import.meta.url)), originalUnits: readFileSync(new URL('../../app/original-units.json', import.meta.url)) })
   return receipt
 }

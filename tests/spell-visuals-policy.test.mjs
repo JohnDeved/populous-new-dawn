@@ -15,6 +15,12 @@ import { SPELL_VISUAL_POLICY, SPELL_VISUAL_JOB, SPELL_VISUAL_BROWSER_JOBS, SPELL
  validateSpellVisualBrowserJobs, spellVisualReceiptLog, readSpellVisualReceiptLog, validateSpellVisualReceipt, resolveSpellVisualArtifact } from '../scripts/integration-queue/spell-visuals-policy.mjs'
 import { browserCapMs, spellVisualBudget } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import spellVisuals from '../scripts/tutorial-browser/spell-visuals.mjs'
+import { SHIELD_VISUAL_INPUTS } from '../scripts/tutorial-browser/shield-visuals-inputs.mjs'
+import { shieldReceiptEvidence } from './support/shield-visuals-receipt.mjs'
+import { spellVisualReceipt } from '../scripts/tutorial-browser/spell-visuals-receipt.mjs'
+import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { artifactZip } from './support/artifact-zip.mjs'
 const source = { commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim() }
 const hash = value => createHash('sha256').update(value).digest('hex'), oid = n => String(n).repeat(40)
@@ -63,7 +69,7 @@ test('ninth hosted row is exact and preserves the eight existing rows, caps, tri
  const rows=workflow.jobs['tutorial-browser'].strategy.matrix.include.map(x=>[x.scenario,x.name,x.artifact,x.buildStep,x.timeoutMinutes])
  assert.deepEqual(rows,SPELL_VISUAL_BROWSER_JOBS);assert.deepEqual(rows.slice(0,8),SPLIT_BROWSER_JOBS);assert.deepEqual(rows.at(-1),SPELL_VISUAL_JOB)
  assert.deepEqual(workflow.permissions,{contents:'read'});assert.deepEqual(workflow.on.pull_request.types,['ready_for_review'])
- assert.equal(browserCapMs('spell-visuals'),180000);assert.deepEqual(spellVisualBudget,{browserMs:180000,buildMs:120000,hostedJobMs:900000,angelEpisodeMs:50000,angelAdmissionMs:60000,reservedShieldEpisodeMs:45000,reservedShieldAdmissionMs:55000})
+ assert.equal(browserCapMs('spell-visuals'),180000);assert.deepEqual(spellVisualBudget,{browserMs:180000,buildMs:120000,hostedJobMs:900000,angelEpisodeMs:50000,angelAdmissionMs:60000,shieldEpisodeMs:45000,shieldAdmissionMs:55000})
  const runner=readFileSync(new URL('../scripts/tutorial-browser/run.mjs',import.meta.url),'utf8')
  assert.match(runner,/deadlineAt: browserDeadlineAt/);assert.match(runner,/!\['snapshot-protocol', 'spell-visuals'\]\.includes/)
  assert.match(runner,/120000/);assert.doesNotMatch(runner,/no-sandbox|disable-web-security/)
@@ -80,9 +86,13 @@ test('explicit nine-job policy rejects missing, duplicate, wrong-name, wrong-hea
 })
 test('shared shard awaits successful context closure and forwards the unmodified absolute deadline',async()=>{
  const options={browser:{},url:'http://127.0.0.1',output:'/tmp/example',source,expectedRevision:source.commit,deadlineAt:12345}
- const result=await spellVisuals(options,async value=>{assert.equal(value,options);return{status:'passed',contextClosed:true}})
- assert.deepEqual(result.episodes,['angel']);assert.equal(result.shield,undefined)
- for(const result of [{status:'failed',contextClosed:true},{status:'passed',contextClosed:false}])await assert.rejects(spellVisuals(options,async()=>result))
+ let closed=false, calls=0
+ const shield=async value=>{assert.equal(value,options);assert.equal(closed,true);calls++;return{status:'passed',cleanup:{contextClosed:true,closedWithinBudget:true}}}
+ const result=await spellVisuals(options,async value=>{assert.equal(value,options);closed=true;return{status:'passed',contextClosed:true}},shield)
+ assert.deepEqual(result.episodes,['angel','shield']);assert.equal(calls,1)
+ for(const result of [{status:'failed',contextClosed:true},{status:'passed',contextClosed:false}])await assert.rejects(spellVisuals(options,async()=>result,shield))
+ assert.equal(calls,1)
+ for(const result of [{status:'failed',cleanup:{contextClosed:true,closedWithinBudget:true}},{status:'passed',cleanup:{contextClosed:false,closedWithinBudget:true}},{status:'passed',cleanup:{contextClosed:true,closedWithinBudget:false}}])await assert.rejects(spellVisuals(options,async()=>({status:'passed',contextClosed:true}),async()=>result))
 })
 function png(width,height,seed=0){
  const rgba=Buffer.alloc(width*height*4),raw=Buffer.alloc(height*(width*4+1))
@@ -92,12 +102,21 @@ function png(width,height,seed=0){
  const chunk=(name,data)=>{const bytes=Buffer.alloc(data.length+12);bytes.writeUInt32BE(data.length);bytes.write(name,4);data.copy(bytes,8);let crc=0xffffffff
   for(const b of bytes.subarray(4,-4)){crc^=b;for(let i=0;i<8;i++)crc=(crc>>>1)^(crc&1?0xedb88320:0)}bytes.writeUInt32BE((crc^0xffffffff)>>>0,bytes.length-4);return bytes}
  const header=Buffer.alloc(13);header.writeUInt32BE(width);header.writeUInt32BE(height,4);header[8]=8;header[9]=6
- return {bytes:Buffer.concat([Buffer.from('89504e470d0a1a0a','hex'),chunk('IHDR',header),chunk('IDAT',deflateSync(raw)),chunk('IEND',Buffer.alloc(0))]),pixelChecksum:angelAttributeChecksum(rgba),opaqueColors:16}
+ return {bytes:Buffer.concat([Buffer.from('89504e470d0a1a0a','hex'),chunk('IHDR',header),chunk('IDAT',deflateSync(raw)),chunk('IEND',Buffer.alloc(0))]),pixelChecksum:angelAttributeChecksum(rgba),opaqueColors:16,rgbaSha256:hash(rgba)}
+}
+let evidenceCache
+function copyEvidence(f) {
+ const receipt=structuredClone(f.receipt),raw=structuredClone(f.raw),files=Object.fromEntries(Object.entries(f.files).map(([name,bytes])=>[name,Buffer.from(bytes)])),angel=raw.spellVisuals.angel,shield=raw.spellVisuals.shield
+ const expected={...f.expected,files}
+ const rebind=()=>{files['shield-visuals.json']=Buffer.from(JSON.stringify(shield));files['angel-visuals.json']=Buffer.from(JSON.stringify(angel));files['receipt.json']=Buffer.from(JSON.stringify(raw));receipt.artifacts=Object.fromEntries([...SPELL_VISUAL_FILES,...[angel.paused,angel.running].flatMap(r=>r.crops.map(c=>c.filename))].map(name=>[name,hash(files[name])]))}
+ return {receipt,raw,angel,shield,files,expected,rebind}
 }
 function evidence(){
+ if(evidenceCache)return copyEvidence(evidenceCache)
  const {r:paused,fixture}=observation('paused'),{r:running}=observation('running')
  const originalAngel=readFileSync(new URL('../app/original-angel.json',import.meta.url))
- const inputs=Object.fromEntries(SPELL_VISUAL_INPUTS.map(name=>[name,hash(name)]));inputs['app/original-angel.json']=hash(originalAngel)
+ const originalUnits=readFileSync(new URL('../app/original-units.json',import.meta.url))
+ const inputs=Object.fromEntries(SPELL_VISUAL_INPUTS.map(name=>[name,hash(name)]));inputs['app/original-angel.json']=hash(originalAngel);inputs['app/original-units.json']=hash(originalUnits)
  const identity={repository:'JohnDeved/populous-new-dawn',runId:'100',runAttempt:'2',workflowRef:'test',mergeSha:source.commit,headSha:oid(2),baseSha:oid(3)}
  const github={head:oid(2),base:oid(3),merge:source.commit,runId:'100',runAttempt:'2'}
  const files=Object.fromEntries(SPELL_VISUAL_FILES.map(name=>[name,Buffer.from(name)]))
@@ -109,19 +128,20 @@ function evidence(){
  for(const name of ['angel-paused-context.png','angel-loop-context.png','angel-death-context.png'])files[name]=context
  const state=fixture.state
  const angel={schema:'populous-new-dawn/angel-visuals',schemaVersion:1,status:'passed',sourceCommit:source.commit,expectedRevision:source.commit,
- source:Object.fromEntries(SPELL_VISUAL_INPUTS.slice(12,34).map(name=>[name,inputs[name]])),admission:'admitted',budget:{episode:50000,admission:60000,outerReserve:10000,remainingAtAdmissionMs:180000},
+ source:Object.fromEntries(SPELL_VISUAL_INPUTS.slice(12,34).map(name=>[name,inputs[name]])),admission:'admitted',budget:{episode:50000,admission:60000,outerReserve:10000,outerDeadlineAt:180000,remainingAtAdmissionMs:180000},
  presentation:{testedCommit:source.commit,contextual:['angel-paused-context.png','angel-loop-context.png','angel-death-context.png']},
  elapsedMs:12000,contextClosed:true,contextCreationPending:false,cleanupPending:false,errors:[],fixture,setupCommittedReadback:true,setupLoadBoundaryMatched:true,
  pausedBefore:state,pausedAfter:state,publicSave:{version:4,state,sha256:hash(files['angel-public-save.json'])},publicLoad:{fullBoundaryMatched:true,state,sha256:hash(files['angel-public-load-boundary.json'])},paused,running}
  for(const r of [paused,running])for(const crop of r.crops){const image=png(crop.clip.width,crop.clip.height,crop.cleared?64:0);files[crop.filename]=image.bytes;crop.sha256=hash(image.bytes);crop.pixelChecksum=image.pixelChecksum;crop.opaqueColors=image.opaqueColors}
  for(const frame of running.contextFrames){const image=png(frame.clip.width,frame.clip.height,frame.label==='loop'?0:64);files[frame.filename]=image.bytes;frame.sha256=hash(image.bytes);frame.opaqueColors=image.opaqueColors;frame.pixelChecksum=image.pixelChecksum}
- const raw={status:'passed',selectedScenario:'spell-visuals',source:{commit:source.commit,files:inputs},buildRevision:source.commit,github,
+ const shield=shieldReceiptEvidence({source,inputs,files,png,units:JSON.parse(originalUnits)})
+ const raw={browserDeadlineAt:180000,spellVisualEpisodeSha256:{angel:inputs['scripts/tutorial-browser/angel-visuals.mjs'],shield:inputs['scripts/tutorial-browser/shield-visuals.mjs']},status:'passed',selectedScenario:'spell-visuals',source:{commit:source.commit,files:inputs},buildRevision:source.commit,github,
  build:{exitCode:0,signal:null,timedOut:false,capMs:120000},browserCapMs:180000,sourceAfter:'identical',cleanupVerified:true,errors:[],dependencyChanges:[],
  dependenciesBeforeSha256:'a'.repeat(64),dependenciesAfterSha256:'a'.repeat(64),browserPath:'/opt/google/chrome/chrome',
- launch:{channel:'chrome',headless:true,chromiumSandbox:true,ignoreDefaultArgs:true,args:['--headless','--remote-debugging-pipe'],timeout:30000},spellVisuals:{episodes:['angel'],angel}}
+ launch:{channel:'chrome',headless:true,chromiumSandbox:true,ignoreDefaultArgs:true,args:['--headless','--remote-debugging-pipe'],timeout:30000},spellVisuals:{episodes:['angel','shield'],angel,shield}}
  const receipt={version:1,kind:'spell-visuals-browser',status:'passed',identity,inputs,github,artifacts:{},visualReview:'required'}
- const rebind=()=>{files['angel-visuals.json']=Buffer.from(JSON.stringify(angel));files['receipt.json']=Buffer.from(JSON.stringify(raw));receipt.artifacts=Object.fromEntries([...SPELL_VISUAL_FILES,...[paused,running].flatMap(r=>r.crops.map(c=>c.filename))].map(name=>[name,hash(files[name])]))}
- rebind();return{receipt,raw,angel,files,rebind,expected:{policy:SPELL_VISUAL_POLICY,identity,inputs,files,originalAngel}}
+ const rebind=()=>{files['shield-visuals.json']=Buffer.from(JSON.stringify(shield));files['angel-visuals.json']=Buffer.from(JSON.stringify(angel));files['receipt.json']=Buffer.from(JSON.stringify(raw));receipt.artifacts=Object.fromEntries([...SPELL_VISUAL_FILES,...[paused,running].flatMap(r=>r.crops.map(c=>c.filename))].map(name=>[name,hash(files[name])]))}
+ rebind();evidenceCache={receipt,raw,angel,shield,files,rebind,expected:{policy:SPELL_VISUAL_POLICY,identity,inputs,files,originalAngel,originalUnits}};return copyEvidence(evidenceCache)
 }
 test('source/receipt contract independently recomputes actual geometry/UV/height/scale evidence and hashes every retained byte',async()=>{
  const f=evidence();assert.equal(await validateSpellVisualReceipt(f.receipt,f.expected),true)
@@ -147,4 +167,56 @@ test('data-only exact numeric artifact resolver rejects wrong digest/name, missi
  for(const entries of [Object.entries(f.files).slice(1),[...Object.entries(f.files),['unexpected.json','{}']]]){
   const archive=artifactZip(entries,{compress:true});await assert.rejects(resolveSpellVisualArtifact(archive,{...upload,bytes:archive.length,sha256:hash(archive)},f.receipt,f.expected))
  }
+})
+
+test('combined producer retains both mandatory episodes and round-trips the complete compact receipt',async()=>{
+ const f=evidence(),dir=mkdtempSync(join(tmpdir(),'spell-visuals-producer-'))
+ try {
+  for(const [name,bytes] of Object.entries(f.files))writeFileSync(join(dir,name),bytes)
+  const env={GITHUB_REPOSITORY:f.receipt.identity.repository,GITHUB_RUN_ID:'100',GITHUB_RUN_ATTEMPT:'2',GITHUB_WORKFLOW_REF:'test',PR_HEAD_SHA:oid(2),PR_BASE_SHA:oid(3)}
+  assert.deepEqual(await spellVisualReceipt(f.raw,dir,env),f.receipt)
+  assert.deepEqual(readSpellVisualReceiptLog(spellVisualReceiptLog(f.receipt)),f.receipt)
+  assert.throws(()=>spellVisualReceiptLog({...f.receipt,padding:'x'.repeat(24000)}))
+ } finally {rmSync(dir,{recursive:true,force:true})}
+})
+test('mandatory Shield contract fails closed for missing sources, old versions, lifecycle, pixel and expiry forgeries',async()=>{
+ const mutations=[
+  f=>{f.raw.spellVisuals.episodes=['angel']},f=>{delete f.raw.spellVisuals.shield},
+  f=>{f.shield.source.files={}},f=>{f.shield.source.commit=oid(4)},f=>{f.shield.expectedRevision=oid(4)},
+  f=>{f.raw.spellVisualEpisodeSha256.shield='a'.repeat(64)},f=>{f.shield.currentCheckpointVersion=3},
+  f=>{f.shield.status='skipped'},f=>{f.shield.admission='skipped'},f=>{f.shield.timedOut=true},
+  f=>{f.shield.budget.runnerDeadlineAt++},f=>{f.shield.budget.remainingAtAdmissionMs=180001},f=>{f.shield.budget.capMs=45001},f=>{f.shield.budget.remainingAtAdmissionMs=54999},
+  f=>{f.shield.budget.elapsedMs=45000},f=>{f.shield.budget.deadlineMonotonicMs++},
+  f=>{f.shield.cleanup.contextClosed=false},f=>{f.shield.cleanup.closedWithinBudget=false},
+  f=>{f.shield.cleanup.lateCreation=true},f=>{f.shield.cleanup.creationPendingOrFailed=true},
+  f=>{f.shield.cleanup.closedElapsedMs=45000},f=>{f.shield.errors=['page error']},
+  f=>{f.shield.setup.version=3},f=>{f.shield.saved.version=3},f=>{f.shield.loaded.version=3},
+  f=>{f.shield.initialLoad.completeWorldMatched=false},f=>{f.shield.loaded.completeWorldMatched=false},
+  f=>{f.shield.beforeCast.shots=0},f=>{f.shield.afterCast.shots=1},
+  f=>{f.shield.pauseAfter.people[0].shield--},f=>{f.shield.atlas.sha256='0'.repeat(64)},
+  f=>{f.shield.buildIdentity.revision=oid(4)},f=>{f.shield.captures.pop()},
+  f=>{f.shield.captures[0].samples.pop()},f=>{f.shield.captures[0].samples[0].pieces[0].source++},
+  f=>{f.shield.captures[0].samples[0].pieces[1].color=0x00ffff},
+  f=>{f.shield.captures[0].samples[0].pieces[2].depth=1},
+  f=>{f.shield.captures[0].samples[0].overlays=['HUD']},
+  f=>{f.shield.captures[0].samples[0].causal.changedInsideShield=0},
+  f=>{f.shield.captures[0].samples[0].retainedRgbaSha256='0'.repeat(64)},
+  f=>{f.shield.disposal.disposedAtlas=1},f=>{f.shield.expiry.samples=[]},
+  f=>{f.shield.expiry.samples.at(-1).people[0].remaining=1},
+  f=>{f.shield.expiry.samples.at(-1).people[0].visible[0]=true},
+  f=>{f.shield.expiry.samples.at(-1).turn=179},f=>{f.shield.terminal.people[0].shield=0},
+ ]
+ for(const mutate of mutations){const f=evidence();mutate(f);f.rebind();await assert.rejects(()=>validateSpellVisualReceipt(f.receipt,f.expected))}
+ for(const name of ['shield-visuals.json','shield-context.png','shield-original-3.png','shield-public-save.json']){
+  const f=evidence();delete f.files[name];await assert.rejects(()=>validateSpellVisualReceipt(f.receipt,f.expected))
+ }
+ for(const name of ['shield-original-0.png','shield-context.png']){
+  const f=evidence();f.files[name]=Buffer.from('not a PNG');f.rebind();await assert.rejects(()=>validateSpellVisualReceipt(f.receipt,f.expected))
+ }
+ const old=evidence(),saved=JSON.parse(old.files['shield-public-save.json']);saved.version=3;old.files['shield-public-save.json']=Buffer.from(JSON.stringify(saved));old.rebind();await assert.rejects(()=>validateSpellVisualReceipt(old.receipt,old.expected))
+ const f=evidence();await assert.rejects(()=>validateSpellVisualReceipt(f.receipt,{...f.expected,originalUnits:Buffer.from('{}')}))
+ await assert.rejects(()=>validateSpellVisualReceipt(f.receipt,{...f.expected,policy:'spell-visuals-nine-v1'}))
+ assert.equal(SPELL_VISUAL_FILES.length+40+1,67);assert.equal(new Set(SPELL_VISUAL_INPUTS).size,SPELL_VISUAL_INPUTS.length)
+ for(const name of SHIELD_VISUAL_INPUTS)assert.ok(SPELL_VISUAL_INPUTS.includes(name))
+ for(const name of SPELL_VISUAL_INPUTS)assert.ok(readFileSync(new URL('../'+name,import.meta.url)).length>0)
 })

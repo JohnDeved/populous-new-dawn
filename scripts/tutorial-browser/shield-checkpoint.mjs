@@ -98,6 +98,7 @@ export async function createShieldCheckpoint(output, source) {
       'No original executable is run. No browser-side gameplay/status/clock assignment is permitted.'],
   }
   writeFileSync(resolve(output, 'shield-checkpoint-transfer.json'), json, { flag: 'wx' })
+  writeFileSync(resolve(output, 'shield-checkpoint-expected.json'), JSON.stringify(expected), { flag: 'wx' })
   writeFileSync(resolve(output, 'shield-checkpoint-source.json'), JSON.stringify(receipt, null, 2) + '\n', { flag: 'wx' })
   return { transfer, expected, receipt, ids: fixture.ids, target: fixture.target }
 }

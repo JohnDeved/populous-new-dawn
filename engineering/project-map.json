@@ -35,7 +35,19 @@
         "tests/angel-visuals-fixture.test.mjs",
         "tests/angel-visuals-observer.test.mjs",
         "tests/angel-visuals-evidence.test.mjs",
-        "tests/spell-visuals-policy.test.mjs"
+        "tests/spell-visuals-policy.test.mjs",
+        "scripts/tutorial-browser/shield-visuals.mjs",
+        "scripts/tutorial-browser/shield-visuals-inputs.mjs",
+        "scripts/tutorial-browser/shield-budget.mjs",
+        "scripts/tutorial-browser/shield-checkpoint.mjs",
+        "scripts/tutorial-browser/shield-evidence.mjs",
+        "scripts/tutorial-browser/shield-observer.mjs",
+        "scripts/integration-queue/shield-visuals-receipt.mjs",
+        "tests/support/shield-visuals-receipt.mjs",
+        "tests/shield-browser-budget.test.mjs",
+        "tests/shield-browser-checkpoint.test.mjs",
+        "tests/shield-browser-evidence.test.mjs",
+        "engineering/combined-spell-visuals-witness.md"
       ],
       "sharedPaths": [
         "app/angel.ts",

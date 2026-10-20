@@ -5,8 +5,10 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { checkpointCodec } from '../tutorial-browser/checkpoint-codec.mjs'
 import { validateAngelResourceObservation, validateAngelPng } from './spell-visuals-render-evidence.mjs'
+import { SHIELD_VISUAL_INPUTS, SHIELD_VISUAL_FILES } from '../tutorial-browser/shield-visuals-inputs.mjs'
+import { validateShieldReceipt } from './shield-visuals-receipt.mjs'
 import { SPLIT_BROWSER_JOBS, validateSplitBrowserJobs } from './browser-jobs.mjs'
-export const SPELL_VISUAL_POLICY = 'spell-visuals-nine-v1'
+export const SPELL_VISUAL_POLICY = 'spell-visuals-nine-v2'
 export const SPELL_VISUAL_JOB = Object.freeze(['spell-visuals', 'Spell visuals browser', 'spell-visuals-browser',
   'Build plain production Home and validate bounded supplied spell visuals', 15])
 export const SPELL_VISUAL_BROWSER_JOBS = Object.freeze([...SPLIT_BROWSER_JOBS, SPELL_VISUAL_JOB])
@@ -27,11 +29,17 @@ export const SPELL_VISUAL_INPUTS = Object.freeze([
   'scripts/tutorial-browser/m2-pointer-f8.mjs', 'tests/level-start-fixture.mjs',
   'scripts/integration-queue/spell-visuals-render-evidence.mjs', 'scripts/artifact-zip.mjs',
   'app/page.tsx', 'app/original-pause-menu.tsx', 'public/original/atlas.png', 'package.json', 'package-lock.json',
+  'scripts/integration-queue/shield-visuals-receipt.mjs',
+  ...SHIELD_VISUAL_INPUTS.filter(name => ![
+    'scripts/tutorial-browser/checkpoint-codec.mjs', 'scripts/tutorial-browser/m2-pointer-f8.mjs',
+    'scripts/browser-game.mjs', 'tests/level-start-fixture.mjs', 'app/scene-assets.ts',
+    'app/checkpoint-format.ts', 'app/game-store.ts', 'app/game-clock.ts',
+  ].includes(name)),
 ])
 export const SPELL_VISUAL_FILES = Object.freeze(['receipt.json', 'angel-visuals.json',
   'angel-supplied-checkpoint.json', 'angel-supplied-expected.json', 'angel-fixture-source.json',
   'angel-public-save.json', 'angel-public-load-boundary.json',
-  'angel-paused-context.png', 'angel-loop-context.png', 'angel-death-context.png'])
+  'angel-paused-context.png', 'angel-loop-context.png', 'angel-death-context.png', ...SHIELD_VISUAL_FILES])
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const sha = value => assert.match(value, /^[a-f0-9]{64}$/)
 export function validateSpellVisualBrowserJobs(jobs, run, expected) {
@@ -56,7 +64,7 @@ export function validateSpellVisualBrowserJobs(jobs, run, expected) {
 }
 export function spellVisualReceiptLog(receipt) {
   const json = JSON.stringify(receipt)
-  assert.ok(Buffer.byteLength(json) <= 12000, 'Spell visuals receipt exceeds log bound')
+  assert.ok(Buffer.byteLength(json) <= 24000, 'Spell visuals receipt exceeds log bound')
   return `PND_SPELL_VISUALS_RECEIPT=${Buffer.from(json).toString('base64')}\nPND_SPELL_VISUALS_SHA256=${hash(json)}`
 }
 export function readSpellVisualReceiptLog(log) {
@@ -64,7 +72,7 @@ export function readSpellVisualReceiptLog(log) {
   assert.equal(lines.length, 2); assert.match(lines[0], /^PND_SPELL_VISUALS_RECEIPT=[A-Za-z0-9+/=]+$/)
   assert.match(lines[1], /^PND_SPELL_VISUALS_SHA256=[a-f0-9]{64}$/)
   const encoded = lines[0].slice('PND_SPELL_VISUALS_RECEIPT='.length), bytes = Buffer.from(encoded, 'base64')
-  assert.ok(bytes.length <= 12000); assert.equal(bytes.toString('base64'), encoded)
+  assert.ok(bytes.length <= 24000); assert.equal(bytes.toString('base64'), encoded)
   assert.equal(hash(bytes), lines[1].slice('PND_SPELL_VISUALS_SHA256='.length))
   return JSON.parse(bytes.toString('utf8'))
 }
@@ -75,14 +83,14 @@ export async function validateSpellVisualReceipt(receipt, expected) {
   assert.deepEqual(Object.keys(receipt.inputs), SPELL_VISUAL_INPUTS); assert.deepEqual(receipt.inputs, expected.inputs)
   for (const value of Object.values(receipt.inputs)) sha(value)
   assert.ok(expected.files && typeof expected.files === 'object', 'Verified exact-attempt artifact files are required')
-  assert.ok(Object.keys(expected.files).length <= 52)
+  assert.ok(Object.keys(expected.files).length <= 67)
   assert.ok(Object.values(expected.files).every(Buffer.isBuffer))
   assert.ok(Object.values(expected.files).reduce((sum, bytes) => sum + bytes.length, 0) <= 96 * 1024 * 1024)
   const read = name => { const bytes = expected.files[name]; assert.ok(Buffer.isBuffer(bytes), `Missing artifact ${name}`); assert.ok(bytes.length <= 32 * 1024 * 1024); return bytes }
   assert.ok(Buffer.isBuffer(expected.originalAngel), 'Pinned original-angel JSON bytes are required, never candidate code')
   assert.equal(hash(expected.originalAngel), expected.inputs['app/original-angel.json'])
   const originalAngel = JSON.parse(expected.originalAngel)
-  const raw = JSON.parse(read('receipt.json')), angel = JSON.parse(read('angel-visuals.json'))
+  const raw = JSON.parse(read('receipt.json')), angel = JSON.parse(read('angel-visuals.json')), shield = JSON.parse(read('shield-visuals.json'))
   assert.equal(raw.status, 'passed'); assert.equal(raw.selectedScenario, 'spell-visuals')
   assert.equal(raw.source.commit, expected.identity.mergeSha); assert.equal(raw.buildRevision, expected.identity.mergeSha)
   for (const [name, digest] of Object.entries(expected.inputs)) assert.equal(raw.source.files[name], digest)
@@ -98,7 +106,13 @@ export async function validateSpellVisualReceipt(receipt, expected) {
   assert.equal(raw.browserPath, '/opt/google/chrome/chrome')
   assert.deepEqual(raw.launch, { channel: 'chrome', headless: true, chromiumSandbox: true, ignoreDefaultArgs: true,
     args: ['--headless', '--remote-debugging-pipe'], timeout: 30000 })
-  assert.deepEqual(raw.spellVisuals?.episodes, ['angel']); assert.deepEqual(raw.spellVisuals?.angel, angel)
+  assert.deepEqual(raw.spellVisualEpisodeSha256, { angel: expected.inputs['scripts/tutorial-browser/angel-visuals.mjs'], shield: expected.inputs['scripts/tutorial-browser/shield-visuals.mjs'] })
+  assert.deepEqual(raw.spellVisuals?.episodes, ['angel', 'shield']); assert.deepEqual(raw.spellVisuals?.angel, angel)
+  assert.deepEqual(raw.spellVisuals?.shield, shield)
+  assert.ok(Number.isFinite(raw.browserDeadlineAt) && raw.browserDeadlineAt > 0)
+  assert.equal(angel.budget.outerDeadlineAt, raw.browserDeadlineAt)
+  assert.equal(shield.budget.runnerDeadlineAt, raw.browserDeadlineAt)
+  await validateShieldReceipt(shield, read, expected)
   assert.equal(angel.schema, 'populous-new-dawn/angel-visuals'); assert.equal(angel.schemaVersion, 1)
   assert.equal(angel.status, 'passed'); assert.equal(angel.sourceCommit, expected.identity.mergeSha)
   assert.equal(angel.expectedRevision, expected.identity.mergeSha)
@@ -106,9 +120,9 @@ export async function validateSpellVisualReceipt(receipt, expected) {
   assert.deepEqual(angel.presentation.contextual, ['angel-paused-context.png', 'angel-loop-context.png', 'angel-death-context.png'])
   assert.deepEqual(Object.keys(angel.source), SPELL_VISUAL_INPUTS.slice(12, 34))
   for (const [name, digest] of Object.entries(angel.source)) assert.equal(digest, expected.inputs[name])
-  assert.equal(angel.admission, 'admitted'); assert.ok(angel.budget.remainingAtAdmissionMs >= 60000)
+  assert.equal(angel.admission, 'admitted'); assert.ok(Number.isFinite(angel.budget.remainingAtAdmissionMs) && angel.budget.remainingAtAdmissionMs >= 60000 && angel.budget.remainingAtAdmissionMs <= 180000)
   assert.equal(angel.budget.episode, 50000); assert.equal(angel.budget.admission, 60000); assert.equal(angel.budget.outerReserve, 10000)
-  assert.ok(angel.elapsedMs >= 0 && angel.elapsedMs < 50000); assert.ok(!angel.timedOut && !angel.cleanupFailure)
+  assert.ok(Number.isFinite(angel.elapsedMs) && angel.elapsedMs >= 0 && angel.elapsedMs < 50000); assert.ok(!angel.timedOut && !angel.cleanupFailure)
   assert.equal(angel.contextClosed, true); assert.equal(angel.contextCreationPending, false); assert.equal(angel.cleanupPending, false)
   assert.deepEqual(angel.errors, []); assert.equal(angel.fixture.version, 4); assert.equal(angel.publicSave.version, 4)
   assert.equal(angel.fixture.sourceCommit, expected.identity.mergeSha)
@@ -154,6 +168,7 @@ export async function validateSpellVisualReceipt(receipt, expected) {
   for (const key of ['effectsRemoved', 'groupsRemoved', 'allOwnedDetached', 'neighbourSubmitted', 'neighbourAtlasUnchanged']) assert.equal(angel.running.cleanup[key], true)
   const names = [...SPELL_VISUAL_FILES, ...crops]
   assert.equal(new Set(names).size, names.length)
+  assert.deepEqual(Object.keys(expected.files).filter(name => name !== 'build.log').sort(), [...names].sort())
   assert.deepEqual(Object.keys(receipt.artifacts), names)
   for (const name of names) assert.equal(hash(read(name)), receipt.artifacts[name], `Artifact hash mismatch ${name}`)
   assert.equal(receipt.visualReview, 'required', 'Automated contract must not claim pixel/native-framebuffer acceptance')
@@ -171,10 +186,10 @@ export async function resolveSpellVisualArtifact(archive, upload, receipt, expec
   assert.equal(hash(archive), upload.sha256)
   const { readArtifactZip } = await import('../artifact-zip.mjs')
   const allowed = new Set([...Object.keys(receipt.artifacts), 'build.log'])
-  assert.ok(allowed.size <= 52)
+  assert.ok(allowed.size <= 67)
   const files = Object.fromEntries(readArtifactZip(archive, { maxArchiveBytes: 48 * 1024 * 1024,
-    maxFileBytes: 32 * 1024 * 1024, maxTotalBytes: 96 * 1024 * 1024, maxEntries: 52,
+    maxFileBytes: 32 * 1024 * 1024, maxTotalBytes: 96 * 1024 * 1024, maxEntries: 67,
     allowName: name => allowed.has(name) }))
   await validateSpellVisualReceipt(receipt, { ...expected, files })
-  return { files, angel: JSON.parse(files['angel-visuals.json']), visualReview: 'required' }
+  return { files, angel: JSON.parse(files['angel-visuals.json']), shield: JSON.parse(files['shield-visuals.json']), visualReview: 'required' }
 }

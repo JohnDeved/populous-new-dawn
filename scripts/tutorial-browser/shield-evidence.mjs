@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { inflateSync } from 'node:zlib'
-import units from '../../app/original-units.json' with { type: 'json' }
 
 // Independent constants transcribed from 0059d9d8's source/lift pairs and owner palette
 // lookup, not imported from shieldRectangles or original-shield.json.
@@ -21,7 +20,8 @@ export function shieldExpectedSize(value, sample) {
   return Math.max(-256, Math.min(256, size >> 4))
 }
 
-export function validateShieldCapture(capture, { owners, scaled }) {
+export function validateShieldCapture(capture, { owners, scaled, units }) {
+  assert.ok(units?.frames, 'Pinned original unit-frame data is required')
   assert.equal(capture.worldUnchanged, true, 'Pixel diagnostics must preserve the entire World')
   assert.equal(capture.cameraClockUnchanged, true, 'Camera and logical animation clock must be identical')
   assert.match(capture.worldBeforeSha256, /^[0-9a-f]{64}$/)

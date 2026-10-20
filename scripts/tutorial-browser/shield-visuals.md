@@ -70,3 +70,13 @@ Focused Node tests are `shield-browser-budget.test.mjs`,
 They exercise deadline/late-cleanup failures, the actual cast/timer route,
 lossless current checkpoint data and negative evidence mutations. Synthetic
 validator inputs are never browser receipts.
+
+## Combined ninth-shard contract
+
+The mandatory integration is now `spell-visuals-nine-v2`, with ordered Angel then
+Shield and unchanged180s/120s/15min outer/build/job caps. See
+[the combined contract](../../engineering/combined-spell-visuals-witness.md).
+Current-v4 fixture/source/expected/actual initial Load and public Save/Load graphs
+are retained and hashed alongside the six crops, context image and build readout.
+The standalone pixel oracle takes explicitly supplied original unit-frame data;
+the trusted reader requires caller-pinned bytes and never imports app code.

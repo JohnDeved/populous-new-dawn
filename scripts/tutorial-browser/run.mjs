@@ -76,7 +76,7 @@ function outputManifest(path, prefix = '') {
   }
   return result
 }
-const receipt = { spellVisualScenarioSha256: hash(spellVisualScenario), snapshotScenarioSha256: hash(snapshotScenario), buildRevision: buildRevision(root), gameplayScenarioSha256: hash(gameplayScenario), meleeScenarioSha256: hash(meleeScenario), followerCorpseScenarioSha256: hash(followerCorpseScenario),
+const receipt = { spellVisualEpisodeSha256: { angel: hash(resolve(root, 'scripts/tutorial-browser/angel-visuals.mjs')), shield: hash(resolve(root, 'scripts/tutorial-browser/shield-visuals.mjs')) }, spellVisualScenarioSha256: hash(spellVisualScenario), snapshotScenarioSha256: hash(snapshotScenario), buildRevision: buildRevision(root), gameplayScenarioSha256: hash(gameplayScenario), meleeScenarioSha256: hash(meleeScenario), followerCorpseScenarioSha256: hash(followerCorpseScenario),
   host: { platform: platform(), arch: arch(), release: release(), logicalCpus: cpus().length,
     cpuModels: [...new Set(cpus().map(cpu => cpu.model))] },
   github: { head: process.env.PR_HEAD_SHA ?? null, base: process.env.PR_BASE_SHA ?? null,
@@ -139,7 +139,7 @@ try {
   browser = await chromium.launch(browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
   receipt.browserCapMs = browserCapMs(selectedScenario)
-  browserDeadlineAt = Date.now() + receipt.browserCapMs
+  receipt.browserDeadlineAt = browserDeadlineAt = Date.now() + receipt.browserCapMs
   if (selectedScenario === 'snapshot-protocol') receipt.browserBudget = snapshotSmokeBudget
   else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
@@ -203,7 +203,7 @@ try {
   if (page) {
     try { receipt.failureState = await page.evaluate(() => ({ active: document.activeElement?.outerHTML?.slice(0, 500), body: document.body.innerText.slice(0, 2500) })); await page.screenshot({ path: resolve(out, 'failure.png'), timeout: 10000 }) } catch (e) { receipt.diagnosticError = String(e) }
   } else if (selectedScenario === 'snapshot-protocol') receipt.failureEvidence = 'candidate-snapshot-smoke.json'
-  else if (selectedScenario === 'spell-visuals') receipt.failureEvidence = 'angel-visuals.json'
+  else if (selectedScenario === 'spell-visuals') receipt.failureEvidence = ['angel-visuals.json', 'shield-visuals.json']
 } finally {
   clearTimeout(timer)
   try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }

@@ -33,7 +33,7 @@ function fixture() {
         changed: 100, changedInsideShield: 99, exactRestoredPixels: true },
       filename: 'shield-original-0.png' }] }
 }
-const validate = value => validateShieldCapture(value, { owners: [0], scaled: false })
+const validate = value => validateShieldCapture(value, { owners: [0], scaled: false, units })
 
 test('independent fixed native rectangle/UV/palette vector is accepted by browser validator', () => {
   assert.deepEqual(validate(fixture()), { owners: [0], scaled: false, actors: 1, visiblePixels: 99 })

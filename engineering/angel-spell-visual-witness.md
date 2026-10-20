@@ -1,6 +1,7 @@
 # Supplied original-Angel browser witness
 
-This is a source/CPU-reviewed witness implementation, not a retained browser pass.
+This is a source/CPU-tested witness implementation awaiting combined independent
+review, not a retained browser pass.
 Do not grant original-framebuffer, native-controller, earned acquisition or hosted
 performance credit from these scripts or their synthetic tests.
 
@@ -53,15 +54,13 @@ adds no permissions, secrets, unsafe browser options or new trigger types. The
 runner owns the browser/server; the episode owns only its fresh context. There is
 no F9 work and no compact/picking/Hypnotise contention.
 
-Currently the exact required episode inventory is `['angel']`. The insertion
-point for a separately accepted Shield episode is after successful awaited Angel
-closure. A future45s Shield episode with55s admission fits after the worst-case
-50s Angel episode, leaving85s of the180s browser allowance. It must be integrated
-by updating the explicit source/artifact/episode contract, never by treating an
-absent or failed Shield episode as optional success.
+The exact required episode inventory is `['angel', 'shield']`, in that order.
+Shield starts only after successful awaited Angel closure. Its inclusive45s and
+55s admission guard share the original absolute180s runner deadline; absent,
+failed or late episodes fail the shard. See [the combined witness contract](combined-spell-visuals-witness.md).
 
 The existing eight-job validator and parent trusted reader remain unchanged.
-`spell-visuals-nine-v1` is a **new explicit opt-in** contract in
+`spell-visuals-nine-v2` is a **new explicit opt-in** contract in
 `scripts/integration-queue/spell-visuals-policy.mjs`. It requires all nine named
 successful jobs, exact attempt/head, every required step and source pins. It never
 chooses a weaker policy by job count or candidate-reported success. Parent admission

@@ -5,11 +5,12 @@
       "id": "angel-visual-witness-portable",
       "kind": "portable",
       "automation": "safe",
-      "purpose": "Validate the supplied current-v4 Angel visual witness, data-only source/pixel receipt contract and explicit ninth hosted shard without a browser or build.",
+      "purpose": "Validate mandatory supplied current-v4 Angel and Shield episodes, strict source/pixel receipts and explicit ninth hosted shard without a browser or build.",
       "coveredBehavior": [
         "Inclusive context/deadline ownership, lossless v4 fixture and actual ordinary continuation.",
         "Independent morph positions, sampled UVs, same-render crop ownership and bounded PNG decoding.",
-        "Exact nine-job opt-in, unchanged eight-job contract, negative admission/source/artifact cases."
+        "Exact nine-job opt-in, unchanged eight-job contract, negative admission/source/artifact cases.",
+        "Mandatory ordered Angel and Shield episodes, bounded artifacts, independent Shield rectangle/palette/painter and actual retained framebuffer identity."
       ],
       "knownLimits": [
         "Synthetic DOM/GPU evidence and CPU trajectory are not a browser pass. Actual source-bound Chrome crops and independent visual review remain required.",
@@ -24,7 +25,10 @@
         "tests/angel-visuals-fixture.test.mjs",
         "tests/angel-visuals-observer.test.mjs",
         "tests/angel-visuals-evidence.test.mjs",
-        "tests/spell-visuals-policy.test.mjs"
+        "tests/spell-visuals-policy.test.mjs",
+        "tests/shield-browser-budget.test.mjs",
+        "tests/shield-browser-checkpoint.test.mjs",
+        "tests/shield-browser-evidence.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -53,7 +57,19 @@
         "app/scene-angel.ts",
         "app/original-angel.json",
         "app/angel-presentation.ts",
-        "engineering/angel-spell-visual-witness.md"
+        "engineering/angel-spell-visual-witness.md",
+        "scripts/tutorial-browser/shield-visuals.mjs",
+        "scripts/tutorial-browser/shield-visuals-inputs.mjs",
+        "scripts/tutorial-browser/shield-budget.mjs",
+        "scripts/tutorial-browser/shield-checkpoint.mjs",
+        "scripts/tutorial-browser/shield-evidence.mjs",
+        "scripts/tutorial-browser/shield-observer.mjs",
+        "scripts/integration-queue/shield-visuals-receipt.mjs",
+        "tests/support/shield-visuals-receipt.mjs",
+        "tests/shield-browser-budget.test.mjs",
+        "tests/shield-browser-checkpoint.test.mjs",
+        "tests/shield-browser-evidence.test.mjs",
+        "engineering/combined-spell-visuals-witness.md"
       ],
       "prerequisites": [
         "Installed project dependencies",

@@ -16,4 +16,4 @@ export const profileSplitBudget = Object.freeze({ version: 1, recoveryMs: 180000
 
 // Explicitly authorized ninth shard; existing eight job envelopes are unchanged.
 export const spellVisualBudget = Object.freeze({ browserMs: 180000, buildMs: 120000, hostedJobMs: 900000,
-  angelEpisodeMs: 50000, angelAdmissionMs: 60000, reservedShieldEpisodeMs: 45000, reservedShieldAdmissionMs: 55000 })
+  angelEpisodeMs: 50000, angelAdmissionMs: 60000, shieldEpisodeMs: 45000, shieldAdmissionMs: 55000 })
