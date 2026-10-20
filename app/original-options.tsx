@@ -201,7 +201,10 @@ export function OriginalOptions({
       ?.focus()
   }, [category])
   useEffect(() => {
-    if (browser) root.current?.querySelector<HTMLButtonElement>('[data-return-options]')?.focus()
+    // Help can overflow. Focusing its trailing Back button scrolls past the
+    // heading and first controls before the player has had a chance to read them.
+    if (browser)
+      root.current?.querySelector<HTMLHeadingElement>('[data-browser-help-heading]')?.focus()
   }, [browser])
   useEffect(() => {
     if (!browser) return
@@ -293,7 +296,9 @@ export function OriginalOptions({
     >
       {browser ? (
         <section className={styles.compatibility} aria-label="Browser compatibility and help">
-          <h2>Browser compatibility and help</h2>
+          <h2 tabIndex={-1} data-browser-help-heading>
+            Browser compatibility and help
+          </h2>
           {compatibility ?? (
             <p>
               In-game HUD size, camera controls and help are available from the battlefield menu.
