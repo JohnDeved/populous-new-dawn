@@ -12,6 +12,11 @@ import { profileCheckpointVersion, validateMission10Profile } from '../scripts/i
 import { mission10ReceiptFixture, compactMission10Fixture, mission10EvidenceFixture } from './support/mission10-profile-receipt.mjs'
 import { passiveBrowserFixture } from './support/passive-browser-reader.mjs'
 const badHash = 'f'.repeat(40)
+// Disposable fixtures own their config; production readers still reject inherited drivers.
+const gitFixtureEnv = ambient => ({
+  ...Object.fromEntries(Object.entries(ambient).filter(([key])=>!/^GIT_CONFIG(?:_|$)/.test(key))),
+  GIT_CONFIG_GLOBAL:'/dev/null',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_COUNT:'0',
+})
 const checkView = f => ({ head:f.pr.head.sha,base:f.pr.base.sha,synthetic:f.synthetic,
   currentChecks:f.checks.map(c=>({id:c.id,name:c.name,appId:c.app.id,head:c.head_sha,startedAt:c.started_at,status:c.status,conclusion:c.conclusion})) })
 test('real synchronous reader accepts complete explicit nine/v4 and unchanged eight/v3 fixtures', () => {
@@ -111,7 +116,7 @@ test('ninth archive transport is numeric repository-only 48MiB; existing profile
 })
 test('immutable safe Git blob read preserves invalid UTF-8 PNG bytes and rejects filters/Promises', () => {
   const dir=mkdtempSync(join(tmpdir(),'passive-git-'))
-  const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>!/^GIT_CONFIG(?:_|$)/.test(key)))
+  const env=gitFixtureEnv(process.env)
   const git=(...args)=>execFileSync('git',args,{cwd:dir,env,encoding:'utf8'})
   try {
     git('init','--quiet');git('config','user.name','Synthetic');git('config','user.email','synthetic@example.invalid')
@@ -136,6 +141,40 @@ test('immutable safe Git blob read preserves invalid UTF-8 PNG bytes and rejects
     reader.executeBinary=()=>Promise.resolve(bytes)
     assert.throws(()=>reader.spellVisualBlob(head,'public/original/shield.png'),/synchronous/)
   } finally {rmSync(dir,{recursive:true,force:true})}
+})
+test('Git fixture isolates controlled global/system drivers while production still rejects them', () => {
+  const root=mkdtempSync(join(tmpdir(),'passive-git-config-')),dir=join(root,'repo')
+  mkdirSync(dir)
+  const clean=gitFixtureEnv(process.env)
+  const execute=env=>(cmd,args,cwd)=>execFileSync(cmd,args,{cwd,env,encoding:'utf8'})
+  const git=(...args)=>execute(clean)('git',args,dir)
+  const reader=(env,systemConfig)=>{
+    // Substitute only this child process's system file, so NOSYSTEM is exercised
+    // against a controlled driver without touching the machine's Git settings.
+    const transportEnv=systemConfig?{...env,GIT_CONFIG_SYSTEM:systemConfig}:env
+    return new GitHubReader({cwd:dir,execute:execute(transportEnv),
+      executeBinary:(cmd,args,options)=>execFileSync(cmd,args,{...options,env:{...transportEnv,GIT_NO_REPLACE_OBJECTS:'1',GIT_NO_LAZY_FETCH:'1'}})})
+  }
+  try {
+    git('init','--quiet');git('config','user.name','Synthetic');git('config','user.email','synthetic@example.invalid')
+    mkdirSync(join(dir,'public/original'),{recursive:true})
+    const bytes=Buffer.from([0x89,0x50,0x4e,0x47,0xff,0x80,0x00])
+    writeFileSync(join(dir,'public/original/shield.png'),bytes)
+    git('add','.');git('commit','--quiet','-m','synthetic config isolation')
+    const head=git('rev-parse','HEAD').trim()
+    for(const scope of ['global','system']) {
+      const home=join(root,scope),xdg=join(home,'xdg')
+      mkdirSync(xdg,{recursive:true})
+      const config=join(home,scope==='global'?'.gitconfig':'system.gitconfig')
+      writeFileSync(config,scope==='global'?'[merge "synthetic"]\n driver = false\n':'[filter "synthetic"]\n clean = false\n')
+      const ambient={...clean,HOME:home,XDG_CONFIG_HOME:xdg,GIT_CONFIG_NOSYSTEM:'0',
+        GIT_CONFIG_SYSTEM:scope==='system'?config:'/dev/null',
+        GIT_CONFIG_GLOBAL:scope==='global'?config:'/dev/null'}
+      const systemConfig=scope==='system'?config:undefined
+      assert.throws(()=>reader(ambient,systemConfig).spellVisualBlob(head,'public/original/shield.png'),/Custom Git/,scope)
+      assert.deepEqual(reader(gitFixtureEnv(ambient),systemConfig).spellVisualBlob(head,'public/original/shield.png'),bytes,scope)
+    }
+  } finally {rmSync(root,{recursive:true,force:true})}
 })
 test('inspectMode retains the exact current check for every selected subgate', () => {
   const f=passiveBrowserFixture(),dir=mkdtempSync(join(tmpdir(),'passive-inspect-'))
