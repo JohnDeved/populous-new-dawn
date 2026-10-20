@@ -13,6 +13,8 @@ import { queueTerrain, updateWalkMasks } from '../app/native-terrain.ts'
 import { refreshTerrainSurface, terrainTextures } from '../app/world-terrain-runtime.ts'
 import { objectsInCell } from '../app/object-cells.ts'
 import { tick } from '../app/world-turn.ts'
+import { createWorld } from '../app/world-initialization.ts'
+import { vehicleSeat } from '../app/vehicle-seats.ts'
 
 // The reference deliberately calls the public, unconditional full-sync visitor.
 // No timing assertions, transform loader, production counters or cached oracle.
@@ -257,6 +259,146 @@ test('exceptions and stale/reentrant pass capabilities do not retain ownership',
   } finally {
     second.close()
     third.close()
+  }
+})
+
+test('a retained context sees its original membership after nested synchronization replaces the roster', () => {
+  for (const throws of [false, true]) {
+    const w = fixture(2)
+    const shaman = addUnit(w, 'blue', 'shaman', browserPosition({ x: 4096, y: 3840 }))
+    shaman.native = createLivePerson(w, shaman)
+    Object.assign(shaman.native, { state: 41, substate: 8, flags2: 0, speed: 0, timer: 100 })
+    w.units[0].native.counter = 3 // faceShaman actually consumes the captured Map.
+    const reference = structuredClone(w)
+    const install = world => {
+      const original = world.units
+      let entered = false
+      Object.defineProperty(original, 'find', {
+        configurable: true,
+        value(predicate, thisArg) {
+          if (!entered) {
+            entered = true
+            const unit = original[2]
+            unit.x += 20
+            unit.native = createLivePerson(world, unit)
+            world.units = [...original]
+            syncLivePersonCells(world)
+            if (throws) throw new Error('nested observer exit')
+          }
+          return Array.prototype.find.call(original, predicate, thisArg)
+        },
+      })
+      return () => {
+        delete original.find
+      }
+    }
+    const removeActual = install(w),
+      removeReference = install(reference)
+    const pass = beginLivePersonPass(w)
+    try {
+      if (throws) {
+        assert.throws(() => pass.step(w.units[0]), /nested observer exit/)
+        assert.throws(() => stepLivePerson(reference, reference.units[0]), /nested observer exit/)
+        parity(w, reference)
+      } else visitPair(w, reference, pass, 0)
+      removeActual()
+      removeReference()
+      visitPair(w, reference, pass, 1)
+    } finally {
+      pass.close()
+      removeActual()
+      removeReference()
+    }
+  }
+})
+
+test('an excluded live route really boards and relocates another passenger before the next visit', () => {
+  const w = fixture(4),
+    boarding = w.units[1],
+    passenger = w.units[2]
+  const boat = structuredClone(createWorld(5).vehicles.find(v => v.model === 1))
+  assert.ok(boat, 'authored Mission5 Boat template')
+  const p = boarding.native,
+    q = passenger.native
+  Object.assign(boat, {
+    id: w.nextId++,
+    x: (p.x & 0xfe00) + 256,
+    y: (p.y & 0xfe00) + 256,
+    h: p.h,
+    active: true,
+    speed: -1,
+    navigationFlags: 0,
+    reservation: 0,
+    passengers: [q.id],
+    passengerCount: 1,
+  })
+  w.vehicles.push(boat)
+  q.vehicle = boat.id
+  q.x += 1024
+  Object.assign(passenger, browserPosition(q))
+  w.pathfinding.people.set(q.id, q)
+  w.pathfinding.people.set(p.id, p)
+  w.land.flags.fill(0)
+  w.land.categories.fill(2)
+  const a = 109,
+    records = w.motionRoutes.records
+  new DataView(records.buffer).setInt16(a, 1, true)
+  records[a + 2] = 1
+  records[a + 108] = 1
+  records[a + 12] = (boat.x >> 8) & 254
+  records[a + 13] = (boat.y >> 8) & 254
+  records[a + 14] = 1 // Water waypoint makes route-advance invoke actual boarding.
+  w.motionRoutes.active = w.motionRoutes.last = 1
+  Object.assign(p, { motionGroup: 1, motionIndex: 0, goalX: boat.x, goalY: boat.y })
+  const reference = structuredClone(w),
+    pass = beginLivePersonPass(w)
+  const oldPassengerX = q.x
+  try {
+    visitPair(w, reference, pass, 0)
+    visitPair(w, reference, pass, 1)
+    assert.equal(p.vehicle, boat.id)
+    assert.equal(boat.passengerCount, 2)
+    assert.notEqual(q.x, oldPassengerX, 'boarding projects the earlier passenger as well')
+    assert.deepEqual({ x: q.x, y: q.y, h: q.h }, vehicleSeat(boat, 0))
+    visitPair(w, reference, pass, 3)
+  } finally {
+    pass.close()
+  }
+})
+
+test('the actual scheduler ends an episode before a controller kills an intervening person', () => {
+  const w = fixture(3),
+    doomed = w.units[1],
+    later = w.units[2]
+  Object.assign(doomed, browserPosition({ x: 8192, y: 8192 }))
+  doomed.native = createLivePerson(w, doomed)
+  // The ordinary unsupported-ground branch kills this living owner AFTER the
+  // first celebrant's sync. The next celebrant must not retain its membership.
+  w.land.categories[(8192 >> 9) * 128 + (8192 >> 9)] = 2
+  const p = later.native
+  let counter = p.counter,
+    observed = false
+  Object.defineProperty(p, 'counter', {
+    configurable: true,
+    enumerable: true,
+    get: () => counter,
+    set(value) {
+      counter = value
+      observed = true
+      assert.equal(doomed.hp, 0)
+      assert.equal(w.objectCells.objects.has(doomed.id), false)
+    },
+  })
+  try {
+    tick(w, 1 / 12)
+    assert.ok(observed, 'observed the next actual person visit before its controller')
+  } finally {
+    Object.defineProperty(p, 'counter', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: counter,
+    })
   }
 })
 
