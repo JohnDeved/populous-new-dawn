@@ -3,6 +3,7 @@ import { unitRenderAnimationSource } from './unit-animation-source.ts'
 import { discardInvalidResident, residentPerson } from './building-resident.ts'
 import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
 import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
+import { latchFollowerCorpseFrame } from './follower-corpse-animation.ts'
 import { buildingPose } from './building-shapes.ts'
 import { liveBuildingModel, liveBuildingShape } from './live-building-shapes.ts'
 import { effect, emitGroundSpark, requestTutorial, sound } from './world-effects.ts'
@@ -1598,6 +1599,7 @@ export function animateLiveObjects(w: World, phase: 'logical' | 'presentation' =
     )
     if (logical !== (phase === 'logical')) continue
     if (f.reincarnation) latchShamanDeathFrame(f)
+    if (f.corpse) latchFollowerCorpseFrame(f)
     const knowledgeGlow = f.sprite?.sequence === 'vault-knowledge-glow' ? f.sprite : undefined,
       retired = knowledgeGlow && f.kind === 'gift' && 'phase' in f && !f.phase
     if (f.animation && knowledgeGlow && !retired)
