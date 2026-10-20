@@ -8,6 +8,36 @@ export const conversionLimitMs = 75000
 export const conversionObservationMs = 30000
 const root = resolve(import.meta.dirname, '../..')
 
+// Read-only failure evidence, including failures before bindGame installs aliases.
+export function readConversionStartup() {
+  const scene = window.testSceneRef?.current, world = window.testStore?.getWorld(),
+    skip = document.querySelector('.skip-introduction')
+  return { level: world?.outcome.level, turn: world?.turn, paused: world?.paused, speed: world?.speed,
+    inputMask: world?.inputMask, flybyFlags: world?.flyby.flags, flybyFrame: world?.flyby.frame,
+    flybyWarmup: world?.flyby.warmup, casts: world?.spellCasts[2][17],
+    stock: world?.manaWorld.spells[2].stocks[17], sameWorld: !!scene && scene.world === world,
+    canvasConnected: !!scene?.renderer.domElement.isConnected,
+    loading: !!document.querySelector('.loading-world'), visibility: document.visibilityState,
+    skipMounted: !!skip, skipVisible: !!skip && skip.getClientRects().length > 0 &&
+      getComputedStyle(skip).visibility !== 'hidden' }
+}
+
+export async function waitForConversionIntroduction(page, report) {
+  report.phase = 'wait-introduction-control'
+  report.startup = { bound: await page.evaluate(readConversionStartup) }
+  // Mission 3 starts its authored flyby at turn 16, not at world creation.
+  // Input is initially unlocked, and the live flyby flag can precede React's
+  // 0.2s HUD publication. Neither is evidence that the public Skip control exists.
+  const skip = page.locator('.skip-introduction')
+  await skip.waitFor({ state: 'visible' })
+  report.startup.beforeSkip = await page.evaluate(readConversionStartup)
+  report.phase = 'skip-introduction'
+  await skip.click()
+  report.phase = 'wait-input-ready'
+  await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+  report.startup.afterSkip = await page.evaluate(readConversionStartup)
+}
+
 // Read-only RAF observation. No game method replacement, forced ticks, hidden
 // groups, changed frame/UV, stock injection or repeated camera pursuit.
 export function installConversionObserver({ observationMs }) {
@@ -193,14 +223,18 @@ export default async function spellConversion({ browser, url, output }) {
   page.on('pageerror', error => report.errors.push(String(error)))
   page.on('console', message => { if (message.type() === 'error') report.errors.push(message.text()) })
   try {
+    report.phase = 'navigation'
     await page.goto(url, { waitUntil: 'domcontentloaded' })
+    report.phase = 'mission-selector'
     await showAllMissions(page)
+    report.phase = 'mission-start'
     await page.getByRole('button', { name: 'Mission 3', exact: true }).click()
+    report.phase = 'bind-game'
     await bindGame(page)
-    await page.waitForFunction(() => window.testSceneRef.current.world.flyby.flags & 1 || !window.testStore.getWorld().inputMask)
-    if (await page.locator('.skip-introduction').isVisible()) await page.locator('.skip-introduction').click()
-    await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+    await waitForConversionIntroduction(page, report)
+    report.phase = 'pause-for-camera'
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+    report.phase = 'camera-setup'
     report.setup = await page.evaluate(() => {
       const scene = window.testSceneRef.current, w = window.testStore.getWorld(),
         before = JSON.stringify(w)
@@ -214,16 +248,24 @@ export default async function spellConversion({ browser, url, output }) {
     assert.equal(report.setup.stock, 1); assert.equal(report.setup.paused, true)
     assert.equal(report.setup.speed, 1)
     // Resume before installing RAF so the observer never changes pause state.
+    report.phase = 'resume'
     await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+    report.phase = 'install-observer'
     await page.evaluate(installConversionObserver, { observationMs: conversionObservationMs })
+    report.phase = 'observe-conversion'
     await page.waitForFunction(() => window.__pndConversionObservation.result.done, null,
       { timeout: conversionObservationMs + 1000, polling: 50 })
+    report.phase = 'retain-observation'
     await retain()
+    report.phase = 'validate-observation'
     const atlas = JSON.parse(readFileSync(resolve(root, 'app/original-effects.json'), 'utf8'))
     validateConversionObservation(report.observation, atlas)
     assert.deepEqual(report.errors, [])
   } catch (error) {
     failure = error; report.status = 'failed'; report.error = String(error)
+    report.errorStack = error.stack
+    try { report.failureState = await page.evaluate(readConversionStartup) }
+    catch (diagnosticError) { report.diagnosticError = String(diagnosticError) }
     try { await retain() } catch (retentionError) { report.retentionError = String(retentionError) }
   }
   finally {

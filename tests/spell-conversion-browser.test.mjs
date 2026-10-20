@@ -2,9 +2,134 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { conversionLimitMs, conversionObservationMs, validateConversionObservation,
-  installConversionObserver, closeConversionContext } from '../scripts/tutorial-browser/spell-conversion.mjs'
+  installConversionObserver, closeConversionContext, readConversionStartup,
+  waitForConversionIntroduction } from '../scripts/tutorial-browser/spell-conversion.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
+import { createWorld, tick } from '../app/model.ts'
+import { stepFlyby } from '../app/flyby.ts'
+import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 import atlas from '../app/original-effects.json' with { type: 'json' }
+
+await loadSceneFixture()
+const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
+
+function startupScene() {
+  return { world: createWorld(3, 'scalable'), flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
+    renderer: { domElement: { isConnected: true } }, onChange() {} }
+}
+
+function advanceStartup(scene) {
+  tick(scene.world, 1 / 12)
+  for (let draw = 0; draw < 2; draw++) stepFlyby(scene.world.flyby, scene.flybyCamera, 24)
+  if (!(scene.world.flyby.flags & 1)) scene.world.inputMask &= ~64
+}
+
+function browserGlobals(t, values) {
+  for (const [key, value] of Object.entries(values)) {
+    const previous = Object.getOwnPropertyDescriptor(globalThis, key)
+    Object.defineProperty(globalThis, key, { configurable: true, writable: true, value })
+    t.after(() => {
+      if (previous) Object.defineProperty(globalThis, key, previous)
+      else delete globalThis[key]
+    })
+  }
+}
+
+test('Mission 3 pre-introduction unlock and unpublished flyby flags are not startup readiness', () => {
+  const scene = startupScene(), world = scene.world
+  assert.equal(world.inputMask, 0, 'old unlocked-input alternative accepts turn zero')
+  for (let turn = 0; turn < 15; turn++) advanceStartup(scene)
+  assert.equal(world.flyby.flags & 1, 0)
+  advanceStartup(scene)
+  assert.equal(world.turn, 16)
+  assert.equal(world.flyby.flags & 1, 1)
+  assert.equal(world.inputMask, 64)
+  let firstFlash
+  for (let turn = world.turn; turn < 190; turn++) {
+    advanceStartup(scene)
+    if (!firstFlash && world.effects.some(effect => effect.startConversionLink !== undefined &&
+      world.units.some(unit => unit.id === effect.startConversionLink && unit.team === 'yellow')))
+      firstFlash = { turn: world.turn, inputMask: world.inputMask, flybyFlags: world.flyby.flags }
+  }
+  assert.ok(firstFlash, 'ordinary first conversion occurs before the unskipped introduction ends')
+  assert.equal(firstFlash.inputMask, 64)
+  assert.equal(firstFlash.flybyFlags & 1, 1)
+  assert.equal(world.inputMask, 64, 'a longer input-clear wait would miss the first conversion')
+})
+
+test('conversion startup waits for the public Skip control before testing input readiness', async t => {
+  for (const initialTurn of [0, 16, 20]) {
+    await t.test(`bind at turn ${initialTurn}`, async t => {
+      const scene = startupScene(), world = scene.world, calls = [], report = {}
+      for (let turn = 0; turn < initialTurn; turn++) advanceStartup(scene)
+      let mounted = false, publish, entered
+      const reachedWait = new Promise(resolve => { entered = resolve }),
+        button = { getClientRects: () => mounted ? [{}] : [] }
+      browserGlobals(t, {
+        window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
+        document: { visibilityState: 'visible',
+          querySelector: selector => selector === '.skip-introduction' && mounted ? button : null },
+        getComputedStyle: () => ({ visibility: 'visible' }),
+      })
+      const page = {
+        evaluate: async read => read(),
+        locator(selector) {
+          assert.equal(selector, '.skip-introduction')
+          return {
+            async waitFor(options) {
+              assert.deepEqual(options, { state: 'visible' })
+              calls.push('wait-visible')
+              entered()
+              await new Promise(resolve => { publish = resolve })
+            },
+            async click() {
+              assert.equal(mounted, true)
+              calls.push('click')
+              skipIntroduction(scene)
+            },
+          }
+        },
+        async waitForFunction(predicate) {
+          calls.push('wait-input')
+          for (let turn = 0; turn < 60 && !predicate(); turn++) advanceStartup(scene)
+          assert.equal(predicate(), true, 'ordinary presentation completes the public Skip')
+        },
+      }
+      const pending = waitForConversionIntroduction(page, report)
+      await reachedWait
+      assert.deepEqual(calls, ['wait-visible'], 'neither unlocked input nor raw flags bypass DOM readiness')
+      assert.equal(report.startup.bound.skipMounted, false)
+      while (world.turn < 16) advanceStartup(scene)
+      mounted = true
+      publish()
+      await pending
+      assert.deepEqual(calls, ['wait-visible', 'click', 'wait-input'])
+      assert.equal(report.startup.beforeSkip.flybyFlags & 1, 1)
+      assert.equal(report.startup.beforeSkip.skipVisible, true)
+      assert.equal(report.startup.afterSkip.inputMask, 0)
+      assert.equal(report.startup.afterSkip.casts, 0)
+      assert.equal(report.startup.afterSkip.stock, 1)
+    })
+  }
+})
+
+test('conversion startup diagnostics tolerate missing bind aliases and do not mutate the world', t => {
+  browserGlobals(t, {
+    window: {},
+    document: { visibilityState: 'visible', querySelector: () => null },
+  })
+  assert.equal(readConversionStartup().sameWorld, false)
+  const scene = startupScene(), before = JSON.stringify(scene.world)
+  window.testSceneRef = { current: scene }
+  window.testStore = { getWorld: () => scene.world }
+  const snapshot = readConversionStartup()
+  assert.equal(snapshot.level, 3)
+  assert.equal(snapshot.turn, 0)
+  assert.equal(snapshot.inputMask, 0)
+  assert.equal(snapshot.sameWorld, true)
+  assert.equal(snapshot.skipVisible, false)
+  assert.equal(JSON.stringify(scene.world), before)
+})
 
 function observation() {
   const sample = (turn, frame, x, targetX) => {
