@@ -144,7 +144,7 @@ test('profile load and new mission reuse reviewed public introduction readiness'
   const scenario = read('scripts/local-render/campaign-profile-recovery.mjs')
   assert.match(
     scenario,
-    /import \{ pauseStartupReady, skipPauseIntroduction \} from '.\/original-pause-checkpoint-recovery.mjs'/
+    /import \{ pauseStartupReady, skipPauseIntroduction, recoverVisibleIntroduction \} from '.\/original-pause-checkpoint-recovery.mjs'/
   )
   assert.equal((scenario.match(/waitForFunction\(pauseStartupReady\)/g) || []).length, 2)
   assert.equal((scenario.match(/await skipPauseIntroduction\(page\)/g) || []).length, 2)

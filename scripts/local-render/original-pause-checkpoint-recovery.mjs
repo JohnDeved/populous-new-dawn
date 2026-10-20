@@ -38,12 +38,25 @@ export function pauseStartupReady() {
 
 // The introduction may finish between readiness and activation. Always await the
 // bounded public click, and forgive its failure only if input is already unlocked.
-export async function skipPauseIntroduction(page) {
+export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
   if (await page.evaluate(() => !window.testStore.getWorld().inputMask)) return
   try {
-    await page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout: 2500 })
+    await page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout })
   } catch (error) {
     if (await page.evaluate(() => !!window.testStore.getWorld().inputMask)) throw error
+  }
+}
+
+// A later authored flyby can begin after the initial input-unlocked sample.
+// This callback only operates an observed public control, once per readiness
+// wait. It never changes eligibility or resets the caller's existing deadline.
+export function recoverVisibleIntroduction(page) {
+  let attempted = false
+  return async ({ after, remainingMs }) => {
+    if (attempted || remainingMs <= 0 || !(after.inputMask & 64) || !after.introductionSkipVisible) return null
+    await skipPauseIntroduction(page, { timeout: Math.min(2500, remainingMs) })
+    attempted = true
+    return { action: 'public-skip-introduction' }
   }
 }
 

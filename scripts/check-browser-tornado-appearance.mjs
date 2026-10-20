@@ -7,6 +7,7 @@ import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { bindGame, showAllMissions } from './browser-game.mjs'
 import { waitRecoveryReadiness } from './tutorial-browser/profile-readiness.mjs'
+import { recoverVisibleIntroduction } from './local-render/original-pause-checkpoint-recovery.mjs'
 import { originalTornadoPairs, checkTornadoReadback } from './lib/tornado-pixel-oracle.mjs'
 import { finishTornadoAcceptance } from './lib/tornado-browser-evidence.mjs'
 
@@ -58,7 +59,10 @@ export async function runTornadoAppearance(
       const { page, errors } = await openTornadoGame(browser, url)
       page.setDefaultTimeout(8000)
       try {
-        episode.readiness = await waitRecoveryReadiness(page, { timeout: 12000 })
+        episode.readiness = await waitRecoveryReadiness(page, {
+          timeout: 12000,
+          onBlocked: recoverVisibleIntroduction(page),
+        })
         await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
         await page.keyboard.press('F9')
         await page.getByRole('button', { name: 'Unlock + refill all spells', exact: true }).click()
@@ -383,8 +387,10 @@ export async function runTornadoAppearance(
             globalThis.testScene.world !== globalThis.tornadoProbe.oldWorld &&
             !document.querySelector('.loading-world')
         )
-        await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
-        episode.restartReadiness = await waitRecoveryReadiness(page, { timeout: 12000 })
+        episode.restartReadiness = await waitRecoveryReadiness(page, {
+          timeout: 12000,
+          onBlocked: recoverVisibleIntroduction(page),
+        })
         episode.cleanup = await page.evaluate(() => ({
           differentScene: globalThis.testScene !== globalThis.tornadoProbe.oldScene,
           disposed: globalThis.tornadoProbe.disposed,
@@ -508,11 +514,6 @@ async function openTornadoGame(browser, url) {
   await page.getByRole('button', { name: 'Mission 1', exact: true }).focus()
   await page.keyboard.press('Enter')
   await bindGame(page)
-  await page.waitForFunction(
-    () => globalThis.testScene.world.flyby.flags & 1 || !globalThis.testScene.world.inputMask
-  )
-  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
-  await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
   return { page, errors }
 }
 
