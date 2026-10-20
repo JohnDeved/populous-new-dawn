@@ -10,6 +10,9 @@ import { spriteDirection } from '../../app/projection.ts'
 import { validateMeleeRunningObservation } from './melee-attack-running-evidence.mjs'
 
 export const meleeAttackLimitMs = 75000
+// A fixed functional artwork workload, separate from performance frame recording.
+// Keep normal game time and the same evidence window; reduce only raster area.
+const meleeArtworkViewport = { width: 960, height: 720 }
 const root = resolve(import.meta.dirname, '../..')
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 
@@ -310,7 +313,7 @@ export function installMeleeFrameObserver() {
 }
 
 export default async function meleeAttack({ browser, url, output, expectedRevision }) {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 })
+  const context = await browser.newContext({ viewport: meleeArtworkViewport, deviceScaleFactor: 1 })
   const page = await context.newPage()
   page.setDefaultTimeout(10000)
   const report = { schema: 'populous-new-dawn/ordinary-melee-artwork', schemaVersion: 1,
@@ -318,6 +321,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     protocol: 'running-original-artwork-v1',
     method: 'Public authored M2 startup, Shaman54 selection, one public bird’s-eye zoom-out, nearest-target minimap input plus one fixed (0,+12) backing-pixel corridor offset, public Resume and real Shift+left attack on eligible Green Shaman20; uninterrupted normal RAF through a fixed ten-logical-turn attack window with same-frame canvas observation.',
     limits: ['Direct mission access, not earned campaign unlock.', 'No original-game FPS calibration, hardware smoothness or Firewarrior browser claim.',
+      'Fixed 960x720/DPR1 functional artwork capture; performance recording keeps its separate viewport. No improvement in frame cadence is assumed.',
       'Running samples prove mapped artwork and cropped same-direction same-sequence logical advancement. No browser pause/hold/resume or running same-turn hold is claimed; deterministic CPU contracts remain separate.',
       'Marker is recorded, not represented as direct observation of a private getter return. Native object and actual directional frame are independently compared.',
       'Same-frame canvas copies and visit diagnostics perturb rendering; pixel scanning and PNG encoding are deferred until retention after stop. Timings are diagnostic, not a cause attribution or performance proof.',
@@ -394,12 +398,14 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       const scene = window.testSceneRef.current, w = scene.world, target = w.units.find(unit => unit.id === 20)
       if (!target || target.kind !== 'shaman' || target.team !== 'green' || target.hp <= 0) throw Error('Authored Green Shaman20 unavailable')
       const rect = scene.mini.getBoundingClientRect()
+      const gl = scene.renderer.getContext()
       return { turn: w.turn, selected: [...w.selected], paused: w.paused, speed: w.speed,
         environment: { viewport: { width: innerWidth, height: innerHeight }, dpr: devicePixelRatio,
           canvas: { width: scene.renderer.domElement.width, height: scene.renderer.domElement.height },
-          renderer: scene.renderer.getContext().getParameter(scene.renderer.getContext().RENDERER),
-          vendor: scene.renderer.getContext().getParameter(scene.renderer.getContext().VENDOR),
-          version: scene.renderer.getContext().getParameter(scene.renderer.getContext().VERSION) },
+          drawingBuffer: { width: gl.drawingBufferWidth, height: gl.drawingBufferHeight },
+          renderer: gl.getParameter(gl.RENDERER),
+          vendor: gl.getParameter(gl.VENDOR),
+          version: gl.getParameter(gl.VERSION) },
         target: { id: target.id, kind: target.kind, team: target.team, x: target.x, z: target.z, hp: target.hp },
         minimap: { width: scene.mini.width, height: scene.mini.height,
           rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
@@ -409,7 +415,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     })
     report.setup = setup
     assert.deepEqual(setup.selected, [54]); assert.equal(setup.paused, true); assert.equal(setup.speed, 1)
-    assert.deepEqual(setup.environment.viewport, { width: 1440, height: 1000 })
+    assert.deepEqual(setup.environment.viewport, meleeArtworkViewport)
     assert.equal(setup.environment.dpr, 1)
     const camera = report.cameraInput = meleeCameraInput(setup.minimap)
     save()
