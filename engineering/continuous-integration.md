@@ -110,7 +110,9 @@ aggregate rejects missing/extra directories, extra files, wrong labels, old
 attempts, differing source/runtime/install identities, duplicate/missing test
 coverage, nonzero/signal/error results or any mismatch with freshly derived plans.
 The aggregate executes no tests or build again. It emits the validated
-`PND_FULL_CHECK_RECEIPT_CHUNK=` records and a decoded-JSON SHA-256 only after all checks pass. This is evidence for
+`PND_FULL_CHECK_RECEIPT_TRANSPORT=2:gzip-base64`, bounded
+`PND_FULL_CHECK_RECEIPT_CHUNK=` records and the original decoded-JSON SHA-256
+only after all checks pass. This is evidence for
 the trusted integration driver, not permission to merge an unreviewed candidate.
 
 Re-running only failed jobs is intentionally insufficient when it mixes attempts:
@@ -293,3 +295,49 @@ not pass. Existing ZIP/expanded-file caps and all nine original recovery cases s
 unchanged. The intentional workflow change requires independent source review and
 an exact pinned `browserWorkflowTransition`; automatic mechanical refresh is not
 allowed for activation. Hosted fit is unproved until both full scenarios pass.
+
+
+### Versioned aggregate receipt transport (review required before activation)
+
+The report's JSON bytes, schema, complete worker receipts, inventory and SHA-256
+are unchanged. Only their log transport changes: a single exact
+`PND_FULL_CHECK_RECEIPT_TRANSPORT=2:gzip-base64` header, canonical base64 chunks
+of 16,000 characters (except the nonempty final chunk), then one original-JSON
+`PND_FULL_CHECK_RECEIPT_SHA256=` line. Chunk indexes start at zero and their total
+must match the actual count. No duplicate, mixed or unknown receipt records are
+accepted. Gzip uses a fixed `1f8b0800000000000003` header, one DEFLATE stream and
+the original CRC32/ISIZE trailer. Optional headers, concatenated members, trailing
+bytes, truncated streams and invalid CRC32/ISIZE are rejected. The trusted reader
+checks raw-stream consumption, not merely successful gzip decompression.
+
+The trusted parser bounds the whole UTF-8 log to 32 MiB, compressed input to
+8 MiB, base64 input to 4*ceil(8 MiB/3) characters, and decoded JSON to strictly
+less than 8 MiB. Decompression enforces the output ceiling during inflation,
+not after allocating arbitrary output. Decoded bytes must be valid UTF-8 and
+match the original JSON checksum before parsing. Existing unversioned plain-base64
+logs remain intentionally supported for historical accepted runs. A present or
+malformed transport declaration never falls back to the legacy decoder.
+
+Activation is NOT self-authorizing: before accepting the first compressed
+candidate, independently source-review and hash-pin the exact read-only trusted
+parser transition (including its dependencies), recording base/candidate source,
+review identity and parser hashes in the review evidence. Run that reviewed
+parser from trusted isolated code, never import an unreviewed candidate parser
+because its workflow requests a codec. The previous trusted parser deliberately
+rejects the new header; if an independently approved transition cannot be supplied,
+keep publication/acceptance held. All existing workflow/source, quality, receipt,
+runtime, inventory and mandatory-check policies remain in force.
+
+This change does not alter the four-shard assignment policy. Draft #672 also
+changes `scripts/integration-queue/sharded.mjs`; later integration must resolve
+that source overlap explicitly and rerun independent transport and shard-policy
+fixtures against the combined reviewed tree. It is not permission to combine
+untested candidate evidence or change its policy automatically.
+
+Measured motivation is PR669 run 39362546368, Full check job 118433922359:
+first log receipt chunk at 03:15:09.071 and checksum at 03:15:28.939 UTC, inside
+a 21-second aggregate step. This is an observed log-output interval, not a
+profile of stdout or proof of projected savings. Compression ratio and hosted
+wall-time improvement remain unmeasured until the reviewed candidate is tested.
+A single buffered stdout write is another unmeasured option; it retains all log
+bytes and does not establish that the hosted log service would ingest them faster.

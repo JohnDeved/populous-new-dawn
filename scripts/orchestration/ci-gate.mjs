@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto'
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { gzipSync } from 'node:zlib'
 import { discoverTests, planTestShard, testGroupCommand, TIMING_REPORTER } from './test-runner.mjs'
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url))
@@ -88,11 +89,17 @@ export function validateGate(snapshot, envelopes, plans, needs) {
 
 // Bound log lines without weakening the independently verifiable raw receipt.
 export function reportLines(report) {
-  const json = JSON.stringify(report), encoded = Buffer.from(json).toString('base64')
-  const count = Math.ceil(encoded.length / 16000)
-  return [...Array.from({ length: count }, (_, index) =>
-    `PND_FULL_CHECK_RECEIPT_CHUNK=${index}/${count}:${encoded.slice(index * 16000, (index + 1) * 16000)}`),
-  `PND_FULL_CHECK_RECEIPT_SHA256=${hash(json)}`]
+  const json = JSON.stringify(report), bytes = Buffer.from(json)
+  assert(bytes.length < 8 * 1024 * 1024, 'Aggregate receipt exceeds decoded byte limit')
+  const compressed = gzipSync(bytes, { level: 6 })
+  // Fixed no-option gzip header, independent of host OS metadata.
+  Buffer.from('1f8b0800000000000003', 'hex').copy(compressed, 0)
+  assert(compressed.length <= 8 * 1024 * 1024, 'Aggregate receipt exceeds encoded byte limit')
+  const encoded = compressed.toString('base64'), count = Math.ceil(encoded.length / 16000)
+  return ['PND_FULL_CHECK_RECEIPT_TRANSPORT=2:gzip-base64',
+    ...Array.from({ length: count }, (_, index) =>
+      `PND_FULL_CHECK_RECEIPT_CHUNK=${index}/${count}:${encoded.slice(index * 16000, (index + 1) * 16000)}`),
+    `PND_FULL_CHECK_RECEIPT_SHA256=${hash(json)}`]
 }
 
 export function readEnvelopes(directory, env = process.env) {
