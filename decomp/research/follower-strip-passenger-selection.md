@@ -264,3 +264,25 @@ workflow is relaxed. The earlier hosted failures remain failures on their origin
 heads. Fresh integrated focused checks and exact hosted full/browser acceptance
 are required; complete M10 runtime within the unchanged 180-second cap is still
 unproved.
+
+## Atomic observation transport after the current-main deadline failure
+
+Hosted browser run `39344305071`, attempt 1, on `ec6e4081` retained a failed
+Profile result with `browserTimedOut: true` at the unchanged 180,000 ms bound.
+All nine original recovery cases passed. Created M10 took 58.612 seconds; reused
+M10 took 46.529 seconds before abort. The version-2 Save and Load full checkpoint
+hashes matched. Independent raw replay validates six boarded, six loaded and five
+unloaded controls, with exact ownership, aliases, history, orders, RNG and complete
+selection sets. The final unloaded Shift click has no post-observation. It is not
+passing evidence, even though the preceding seventeen observations are valid.
+
+Each paused strip snapshot previously made two separate browser evaluations: the
+world facts, then the complete selection/owner view. The source-owned callback now
+captures both synchronously in one evaluation. All fields, public inputs, guard
+checks, screenshots and independent validation remain; no receipt/archive or time
+bound changes. This removes 39 browser round trips across the three complete
+13-observation strips. That is a structural count, not measured time savings or
+proof that the complete route now fits. The regression uses the installed
+Playwright evaluator/serializers in a Node VM, verifies one synchronous call,
+exact fields and actual owner aliases, rejects missing/inconsistent/unpaused views,
+and verifies that capture does not mutate the live World. No local browser is run.

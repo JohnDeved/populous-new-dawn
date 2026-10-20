@@ -132,3 +132,35 @@ export const readMission10Selection = new Function(`
     vehicles: w.vehicles.map(v => ({ id: v.id, team: v.team, model: v.model, active: v.active,
       passengerCount: v.passengerCount, passengers: [...v.passengers] })) };
 `)
+
+// Both views of a strip observation share one synchronous browser task. Never
+// remove fields or skip owner aliases to save time: transport the complete row.
+function mission10ObservationState({ label, party, boatId }, readSelection) {
+  const s = window.testSceneRef.current, w = s.world, boat = w.vehicles.find(v => v.id === boatId)
+  const gl = s.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
+  const row = { label, wallTime: Date.now(), turn: w.turn, time: w.time, level: w.outcome.level,
+    renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER), contextLost: gl.isContextLost(),
+    counts: { units: w.units.length, vehicles: w.vehicles.length, buildings: w.buildings.length, secondary: w.secondaryEffects.slots.length },
+    paused: w.paused, inputMask: w.inputMask, selected: [...w.selected], status: w.status,
+    orders: structuredClone(w.buildingOrders), randomState: w.randomState,
+    boat: boat && { id: boat.id, x: boat.x, y: boat.y, active: boat.active, passengers: [...boat.passengers] },
+    party: party.map(id => { const u = w.units.find(u => u.id === id); return u && { id, kind: u.kind, hp: u.hp, x: u.x, z: u.z, vehicle: u.native?.vehicle, state: u.native?.state, flags2: u.native?.flags2, flags4: u.native?.flags4, path: u.path, work: u.work, commands: u.native?.commands, commandStatus: u.native?.commandStatus } }),
+    panels: [...document.querySelectorAll('.vehicle-panel')].map(e => ({ text: e.textContent, visible: !!e.getClientRects().length })) }
+  if (label.endsWith('-strip-paused') || label.endsWith(' cleared') || label.endsWith(' selected'))
+    row.selectionState = readSelection()
+  return row
+}
+// Compile only source-owned helpers in Node. Playwright receives a function, not
+// an arrow-string or artifact-supplied code, and performs one evaluate invocation.
+const mission10ObservationCallback = new Function('args',
+  `return (${mission10ObservationState.toString()})(args, (${readMission10Selection.toString()}))`)
+
+export async function readMission10Observation(page, args) {
+  const row = await page.evaluate(mission10ObservationCallback, args)
+  if (args.label.endsWith('-strip-paused') || args.label.endsWith(' cleared') || args.label.endsWith(' selected')) {
+    assert.equal(row.selectionState.turn, row.turn)
+    assert.equal(row.selectionState.paused, true)
+    assert.deepEqual(row.selectionState.selected, row.selected)
+  }
+  return row
+}
