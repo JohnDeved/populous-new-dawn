@@ -304,7 +304,8 @@ selects it for this shell without replacing the system CLI:
 
 ```bash
 set -euo pipefail
-[ "$(uname -s)" = Linux ] && [ "$(uname -m)" = x86_64 ]
+[ "$(uname -s)" = Linux ]
+[ "$(uname -m)" = x86_64 ]
 gh_version=2.102.0
 gh_asset="gh_${gh_version}_linux_amd64.tar.gz"
 gh_tools=$(mktemp -d)
