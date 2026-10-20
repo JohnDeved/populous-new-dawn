@@ -8,7 +8,9 @@ export function decodeComposedPng(bytes, { width, height, maxWidth = 1440, maxHe
   let at = 8, w, h, channels, ended = false, count = 0
   const packed = [], metadata = new Set()
   while (at < bytes.length) {
-    assert.ok(++count <= 128 && at + 12 <= bytes.length, 'PNG chunk bound')
+    // Hosted Chrome screenshots have up to 445 IDAT chunks. Bound all chunks,
+    // including IHDR/IEND and the three permitted metadata chunks, at 512.
+    assert.ok(++count <= 512 && at + 12 <= bytes.length, 'PNG chunk bound')
     const length = bytes.readUInt32BE(at), end = at + 8 + length
     assert.ok(end + 4 <= bytes.length)
     const type = bytes.toString('latin1', at + 4, at + 8), data = bytes.subarray(at + 8, end)

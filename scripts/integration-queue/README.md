@@ -559,7 +559,10 @@ counts, paused actor/clock equality, resumed advance, cleanup and the original
 receipts. Crop bytes stay below 256 KiB and dimensions at most 256×256. Transfer
 bytes are not retained; the claim is source-bound producer/load digest agreement,
 not an independently reconstructed checkpoint. The context image is 1440×1000.
-All images retain the 16 MiB/128-chunk bound. The composed RGB8/RGBA8 parser checks
+Composed images retain the 16 MiB bound and permit at most 512 total chunks,
+including IHDR, IEND and metadata. This covers measured hosted Chrome output with
+346–365 IDAT chunks in normal screenshots and 445 in the Spy context image.
+The separate Angel/Shield 128-chunk limit is unchanged. The composed RGB8/RGBA8 parser checks
 CRC, chunk order, dimensions, DEFLATE length and filters; rejects APNG and tRNS;
 and permits only singleton pre-IDAT sRGB, standard sRGB gAMA and valid pHYs
 metadata. No arbitrary pixel-interpretation chunks are ignored.
