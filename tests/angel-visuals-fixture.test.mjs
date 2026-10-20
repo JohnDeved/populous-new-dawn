@@ -7,6 +7,8 @@ import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mj
 import { createGameStore, migrateCheckpoint } from '../app/game-store.ts'
 import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import { advanceGame } from '../app/game-clock.ts'
+import rules from '../app/original-rules.json' with { type: 'json' }
+import { nativeModelResource } from '../app/model-resources.ts'
 import { validAngelPresentation } from '../app/angel-presentation.ts'
 const commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
 const sha = value => createHash('sha256').update(value).digest('hex')
@@ -25,7 +27,8 @@ test('supplied fixture is lossless current-v4 with every owner in a genuine prep
     assert.ok(validAngelPresentation(effect.angel.presentation))
     assert.equal(effect.angel.presentation.displayed.to, 77)
   }
-  assert.ok(w.trees.find(t => t.id === f.receipt.neighbourId && t.model === 0))
+  assert.ok(w.trees.find(t => t.id === f.receipt.neighbourId && t.model === 1))
+  assert.equal(nativeModelResource(rules.sceneryObjects[w.trees.find(t => t.id === f.receipt.neighbourId).model], 2).id, 13)
   assert.ok(w.units.find(u => u.id === f.receipt.shamanId && u.invisibility > 0))
   assert.throws(() => createAngelVisualFixture({ commit: '0'.repeat(40) }))
 })

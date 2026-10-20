@@ -103,7 +103,7 @@ export default async function spellAngel({ browser, url, output, source, expecte
         report.startupFailure = await page.evaluate(() => ({
           body: document.body.innerText.slice(0, 4000),
           loading: document.querySelector('.loading-world')?.textContent,
-          latch: window.__angelSetupLatch?.read(),
+          latch: (() => { const r = window.__angelSetupLatch?.read(); return r && { loaded: r.loaded, failure: r.failure, forcedUnpauses: r.forcedUnpauses } })(),
         }))
         await page.screenshot({ path: resolve(output, 'angel-startup-failure.png'), timeout: 2000 }).catch(() => {})
         save(); throw error
