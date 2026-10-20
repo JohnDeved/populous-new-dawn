@@ -5,6 +5,7 @@ import { matchesGlob } from 'node:path'
 import yaml from 'js-yaml'
 import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mjs'
 import { createSpySourceFixture } from '../scripts/tutorial-browser/spy-source-fixture.mjs'
+import { resumeSpySourceInput } from '../scripts/tutorial-browser/spy-source.mjs'
 import { admitSpySourceEpisode, withSpySourceBrowser, spySourceBudgetMs } from '../scripts/tutorial-browser/spy-source-budget.mjs'
 import { validateSpySourceObservation, validateSpySourceSample } from '../scripts/tutorial-browser/spy-source-evidence.mjs'
 import { awaitSpySourceReadiness, readSpySourceReadiness, spySourceReadinessMs } from '../scripts/tutorial-browser/spy-source-readiness.mjs'
@@ -136,12 +137,26 @@ test('current checkpoint supplies a truly trained Spy but never seeds disguise o
   const { loadSceneFixture } = await import('./support/bloodlust-scene.mjs')
   const api = await loadSceneFixture()
   const { currentPersonOrder } = await import('../app/person-orders.ts')
-  world.paused = false
   api.select(world, 'spy')
-  assert.equal(api.disguiseSelectedSpies(world, 1), true)
+  const actions = [], page = {
+    getByRole(role, { name, exact }) {
+      assert.equal(role, 'button'); assert.equal(name, 'Resume game'); assert.equal(exact, true)
+      return { click: async () => { world.paused = false; actions.push('resume') } }
+    },
+    waitForFunction: async () => { assert.equal(world.paused, false); actions.push('running') },
+  }, action = async (_name, run) => run()
+  assert.equal(api.disguiseSelectedSpies(world, 1), false, 'the actual shipped command rejects paused input')
+  await resumeSpySourceInput(page, action, 'Disguise as Dakini', async () => {
+    assert.equal(api.disguiseSelectedSpies(world, 1), true); actions.push('disguise')
+  })
   for (let n = 0; spy.native?.disguise !== 0x40 && n < 100; n++) api.tick(world, 1 / 12)
   assert.equal(spy.native.disguise, 0x40)
-  assert.equal(api.command(world, target), true)
+  world.paused = true
+  assert.equal(api.command(world, target), false, 'sabotage also rejects paused input')
+  await resumeSpySourceInput(page, action, 'Canvas sabotage command', async () => {
+    assert.equal(api.command(world, target), true); actions.push('sabotage')
+  })
+  assert.deepEqual(actions, ['resume', 'running', 'disguise', 'resume', 'running', 'sabotage'])
   assert.equal(spy.target, target.id, 'Canvas command exposes its target before the next ordinary turn')
   assert.equal(currentPersonOrder(world.buildingOrders, spy.native).model, 15)
   const clock = { animationTime: 0, animationFrame: 0 }, stages = []

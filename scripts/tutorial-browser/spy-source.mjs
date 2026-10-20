@@ -13,6 +13,14 @@ import { awaitSpySourceReadiness } from './spy-source-readiness.mjs'
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 
+// These shipped commands reject paused worlds. Resume through the same public
+// control before input, then observe the running state before submitting it.
+export async function resumeSpySourceInput(page, action, name, run) {
+  await action(`Resume before ${name}`, () => page.getByRole('button', { name: 'Resume game', exact: true }).click())
+  await page.waitForFunction(() => !window.testStore.getWorld().paused)
+  await action(name, run)
+}
+
 // Standalone supplied-fixture presentation witness. It may run only after the
 // complete existing M10 episode, never as a substitute for either of its phases.
 export default async function spySource(options) {
@@ -110,8 +118,7 @@ export default async function spySource(options) {
         await page.waitForFunction(() => !window.testSceneRef.current.cameraMotion.active && !window.testSceneRef.current.viewTransition)
         assert.deepEqual(await page.evaluate(() => window.testStore.getWorld().selected), [fixture.spyId])
         await action('Open followers', () => page.getByTitle('followers', { exact: true }).click())
-        await action('Disguise as Dakini', () => button('Disguise selected spies as Dakini').click())
-        await action('Resume disguise', () => button('Resume game').click())
+        await resumeSpySourceInput(page, action, 'Disguise as Dakini', () => button('Disguise selected spies as Dakini').click())
         await page.waitForFunction(id => window.testStore.getWorld().units.find(unit => unit.id === id)?.native?.disguise === 0x40, fixture.spyId)
         await action('Pause before sabotage', () => button('Pause game').click())
         await page.waitForFunction(() => window.testStore.getWorld().paused)
@@ -128,13 +135,12 @@ export default async function spySource(options) {
           throw Error('Supplied hostile hut lacks a genuine exposed canvas hit')
         }, fixture.targetId)
         await page.evaluate(installSpySourceObserver, { spyId: fixture.spyId, targetId: fixture.targetId })
-        await action('Canvas sabotage command', () => page.mouse.click(target.x, target.y))
+        await resumeSpySourceInput(page, action, 'Canvas sabotage command', () => page.mouse.click(target.x, target.y))
         report.order = await page.evaluate(id => {
           const world = window.testStore.getWorld(), spy = world.units.find(unit => unit.id === id)
           return { target: spy.target, selected: [...world.selected], lastOrderTurn: world.lastOrderTurn }
         }, fixture.spyId)
         assert.equal(report.order.target, fixture.targetId)
-        await action('Resume sabotage', () => button('Resume game').click())
         await page.waitForFunction(() => {
           const result = window.__pndSpySourceObservation.result
           if (result.error) throw Error(result.error)
