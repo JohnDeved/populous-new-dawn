@@ -48,6 +48,8 @@ without changing stored data. Explicit classic/native research fixtures are sepa
 5. Commit coherent checkpoints, push the feature branch, and open/update a linked
    draft PR. Capture exact source/input-bound raw receipts; use
    `engineering/worker-handoff.md` for portable bundles when needed.
+   Complete the PR template and [visual-evidence requirement](../../../engineering/README.md#visual-evidence-before-review)
+   before marking ready for review; nonvisual changes need a brief non-applicability reason.
 6. Give a fresh internal reviewer the full diff, acceptance, and completed evidence.
    Repair findings on the same branch; the parent reviews/integrates and performs
    authorized main merges. Workers never push main. Report useful results and

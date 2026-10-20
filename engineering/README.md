@@ -33,12 +33,9 @@ coverage. Historical research and acceptance records remain evidence, not live q
 6. **Open/update a draft PR.** Link the issue; include outcome, scope, base/head,
    acceptance, check statuses, evidence, and remaining limits. For partial or dependent
    PRs, use `Refs #N`; use `Closes #N` only when the complete issue acceptance is met.
-   For visual changes, include before/after images in the PR and relevant issue
-   whenever possible (or link the same retained pair from both). Use comparable
-   scenarios/viewports and caption each with its exact commit SHA, what it shows,
-   and renderer/capture limitations. Distinguish original-game references; never
-   fabricate a before image. If a pair is unavailable, state why. Docs/tooling-only
-   changes need no images. Workers own repairs and evidence publication through review.
+   Complete the [PR template](../.github/pull_request_template.md), including
+   [visual evidence](#visual-evidence-before-review), before marking ready for review.
+   Workers own repairs and evidence publication through review.
 7. **Review and integrate.** A fresh internal reviewer inspects the actual full diff
    and evidence, returning findings plus ACCEPT/REJECT. The parent reviews the PR,
    resolves findings, validates the combined tree, and performs authorized main
@@ -58,6 +55,29 @@ separate authorization. The approved ready-PR workflow is described in
 For narrow read-only research or a small docs fix, a compact issue/PR brief is enough.
 Do not create another contract just to delegate. An optional contract helps when scope,
 generated ownership, or multi-step verification needs mechanical checks.
+
+## Visual evidence before review
+
+- Any UI or game visual change requires actual rendered screenshots attached or
+  embedded in the PR body or a PR comment before marking it ready for review.
+  Keep the PR draft if capture or publication is blocked, and state the blocker.
+- Include comparable before/after views when useful; label both commits and explain
+  an unavailable before view. Never fabricate one. For animation changes, also
+  include a short ordered screenshot sequence or recording showing the changed motion.
+- Caption captures with the exact tested commit SHA, scene/scenario, viewport,
+  renderer, and what they demonstrate. Disclose supplied fixtures, seeded/injected
+  state, crops, and other capture limitations. Distinguish original-game references.
+  Refresh affected captures after visual changes; old-head images are not new-head proof.
+- Inspect actual pixels before publication. Generated mockups are not validation
+  evidence, and screenshots do not replace native, behavioral, or performance checks.
+  Use the existing [media attachment workflow](local-render-harness.md#put-visual-evidence-directly-in-github-reviews);
+  link relevant issues to the PR evidence rather than duplicating uploads.
+- Keep raw screenshots, recordings, and logs out of main when they exist only as
+  review evidence; retain them in ignored `work/` or outside the checkout and publish
+  on the PR. Preserve intentional fixtures under [artifact retention](artifact-retention.md).
+- Nonvisual PRs may mark visual evidence `not-applicable` with a brief reason.
+  This is a reviewer readiness requirement, not automated CI screenshot detection
+  or permission to bypass existing capture, publication, or verification safeguards.
 
 ## Useful local commands
 
