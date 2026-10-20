@@ -537,8 +537,8 @@ export default function Home() {
       if (!cheatsOpen) cancelNearbyInput()
       setCheatsOpen(open => !open)
     }
-    window.addEventListener('keydown', toggle, true)
-    return () => window.removeEventListener('keydown', toggle, true)
+    globalThis.addEventListener('keydown', toggle, true)
+    return () => globalThis.removeEventListener('keydown', toggle, true)
   }, [ready, startup, menu, selectorOpen, world, cheatsOpen, cancelNearbyInput])
   useEffect(() => {
     const key = (e: KeyboardEvent) => {

@@ -155,8 +155,8 @@ test('actual Home F9 owner toggles once without mutating world and respects star
     world = { status: 'playing' }, before = structuredClone(world)
   for (const [ready, menu, selectorOpen, startup] of [[true, false, false, 'playing'], [false, false, false, 'playing'], [true, true, false, 'playing'], [true, false, true, 'playing'], [true, false, false, 'choice']]) {
     opened = false
-    const cleanup = pageEffect("window.addEventListener('keydown', toggle, true)", {
-      window, ready, menu, selectorOpen, startup, world, cheatsOpen: false, spellTestShortcut,
+    const cleanup = pageEffect("globalThis.addEventListener('keydown', toggle, true)", {
+      globalThis: window, ready, menu, selectorOpen, startup, world, cheatsOpen: false, spellTestShortcut,
       cancelNearbyInput: () => cancelled++, setCheatsOpen: action => { opened = action(opened) },
     })()
     const event = { key: 'F9', target: { closest: () => null }, preventDefault() {}, stopImmediatePropagation() {} }
