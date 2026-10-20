@@ -377,7 +377,7 @@ export type Effect = Point & {
   age: number
   duration: number
   unit?: Pick<Unit, 'team' | 'kind' | 'heading'>
-  corpse?: { remaining: number; phase: number; ground: number }
+  corpse?: { remaining: number; phase: number; ground: number; displayedFrame?: number }
   bridge?: LandBridge
   flatten?: Flatten
   erosion?: Erosion
