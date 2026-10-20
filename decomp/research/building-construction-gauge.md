@@ -82,3 +82,41 @@ The construction visibility correction must leave simulation, stage geometry,
 construction panels and the separate completed-building damage gauge unchanged.
 The latter remains unproved by this narrow research. Do not infer its shape or
 visibility from the person-health gauge, and do not invent a building-height offset.
+
+## Completed-building placeholder correction (2026-10-20)
+
+At accepted main `2a2fed506fa061d9e0d7afd63f3900e5656849c4`,
+`makeBuilding` still attached two generic Three.js box meshes to every building.
+`updateBuildingsFrame` showed them for any completed building below its browser
+maximum HP, regardless of owner, hover or selection, and billboarded the group
+above the model. Their dimensions, tribal fill and height offset had no recovered
+native evidence. This is distinct from the person-only native overhead gauge
+branch described above.
+
+The correction removes only that unsupported completed-building placeholder and
+its frame updates. It leaves staged model geometry, fire/damage presentation,
+construction worker/timber panels, training charge indicators, workshop work
+icons, and the original person health sprite unchanged. It does not claim that
+all native building condition indicators have been exhaustively ruled out.
+`tests/building-health-overlay.test.mjs` exercises the actual building factory
+through its frame updater for all four tribes and nine building kinds in healthy,
+damaged, construction and repaired states; it also guards the live person gauge.
+The controlled Node render fixture is not original gameplay or browser pixel proof.
+
+A renderer/UI sweep at the same base found no other copy of the generic horizontal
+box/fill bar: vehicles, scenery, shrines and effects do not allocate that overlay.
+After the removal there are no `box()`/`part()` callers or `healthFill` assignments
+in `app/`. The remaining indicators are independent native-backed paths, not copies:
+
+- `unit-health.ts` / `scene-entities.ts`: original vertical person-health sprite.
+- `person-panel.ts`: kind-2 inspection-panel health fill (`00504bc0`).
+- `hud-health.ts` / `hud.tsx`: Shaman HUD meter (`004a0050`).
+- `hud-charge.ts`: spell/training charge bands (`0049daf0` / `00504bc0`).
+- `hud-mana.ts` and `hud-population.ts`: HUD production/population indicators.
+- `construction-panel.ts`, `workshop-panel.ts`, `training-panel.ts` and
+  `worship-panel.ts`: worker/timber, vehicle-work, training and worship artwork.
+- `vehicle-panel.ts`: native passenger slots and unload control, no health bar.
+
+These paths remain unchanged. The accepted main Tutorial screenshot
+`building-identity-dismantling.png` is an available before-view for rendered
+comparison; the new controlled Node test alone does not establish visual acceptance.
