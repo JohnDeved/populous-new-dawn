@@ -30,6 +30,7 @@ const frontendEscapeScenario = resolve(root, 'scripts/local-render/frontend-held
 const recoveryScenario = resolve(root, 'scripts/local-render/campaign-profile-recovery.mjs')
 const tornadoScenario = resolve(root, 'scripts/check-browser-tornado-appearance.mjs')
 const mission10ProfileScenario = resolve(root, 'scripts/tutorial-browser/mission10-profile.mjs')
+const spySourceScenario = resolve(root, 'scripts/tutorial-browser/spy-source.mjs')
 const selectedScenario = process.env.POPULOUS_BROWSER_SCENARIO || 'tutorial'
 assert.ok(browserScenarios.includes(selectedScenario), 'Unknown browser scenario')
 const snapshotScenario = resolve(root, 'scripts/browser-performance/snapshot-smoke.mjs')
@@ -173,7 +174,8 @@ try {
     // performance window or existing 75-second/ten-turn melee assertion changes.
     receipt.followerCorpse = await (await import(pathToFileURL(followerCorpseScenario).href)).default({ browser, url, output: out, expectedRevision: receipt.buildRevision })
   } else if (['profile-recovery', 'mission10-profile'].includes(selectedScenario)) {
-    // Independent jobs; the two persistent M10 processes share one fixed timer.
+    // Independent jobs. Both persistent M10 phases finish before the separate
+    // Spy witness is admitted; all three retain this same fixed 180s timer.
     Object.assign(receipt, await runProfileEpisode(selectedScenario, {
       signal: abort.signal, deadlineAt: browserDeadlineAt,
       runRecovery: async () => (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal }),
@@ -187,7 +189,12 @@ try {
         })
       },
       closeProbe: async () => { await context.close(); context = undefined; page = undefined; await browser.close() },
-      runMission10: async ({ signal, deadlineAt }) => (await import(pathToFileURL(mission10ProfileScenario).href)).default({ chromium, launch: browserConfig.launch, url, root, output: out, receipt, signal, verifySource, deadlineAt }),
+      runMission10: async ({ signal, deadlineAt }) => {
+        receipt.mission10Profile = await (await import(pathToFileURL(mission10ProfileScenario).href)).default({ chromium, launch: browserConfig.launch, url, root, output: out, receipt, signal, verifySource, deadlineAt })
+        save() // Retain both completed phases even if the later Spy witness fails.
+        return receipt.mission10Profile
+      },
+      runSpySource: async ({ signal, deadlineAt }) => (await import(pathToFileURL(spySourceScenario).href)).default({ chromium, launch: browserConfig.launch, url, output: out, source, signal, deadlineAt }),
     }))
   } else if (selectedScenario === 'compact-message-layout') {
     await (await import(pathToFileURL(m2Scenario).href)).runCompactDiagnosticEpisodes({ browser, url, output: out, fixture: m2Fixture, report: receipt })

@@ -3,6 +3,7 @@ import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 // the route; supplied near-head states and cloned populations are diagnostics.
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import followerWitness from './fixtures/follower-source-witness.json' with { type: 'json' }
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 import { makeBuilderAnimationScene } from './support/builder-animation-scene.mjs'
 
@@ -12,6 +13,10 @@ async function inputs() {
     { currentPersonOrder } = await import('../app/person-orders.ts'),
     { liveWorshippers } = await import('../app/live-worship.ts'),
     { default: units } = await import('../app/original-units.json'),
+    // Historical setup loads native JSON before the Scene fixture installs its
+    // module hook. The attributed catalog and legacy render table can therefore
+    // be separate module identities despite retaining the same packed frames.
+    { default: nativeUnits } = await import('../app/original-units.json', { with: { type: 'json' } }),
     { shamanAppearance, shamanNativeDirections } = await import('../app/shaman-appearance.ts'),
     { animationTeam, teamForTribe } = await import('../app/world-types.ts'),
     { spriteDirection } = await import('../app/projection.ts')
@@ -21,6 +26,7 @@ async function inputs() {
     currentPersonOrder,
     liveWorshippers,
     units,
+    nativeUnits,
     shamanAppearance,
     shamanNativeDirections,
     animationTeam,
@@ -78,7 +84,8 @@ function assertPerson(
         ? undefined
         : unit.kind === 'shaman'
           ? input.shamanNativeDirections(unit.team, source.object)
-          : Object.values(table).find(
+          : input.nativeUnits.followerSources[source.object] ??
+            Object.values(table).find(
               direction => 'source' in direction[0] && direction[0].source === source.object
             ),
     directions = native || table[expected] || table.idle,
@@ -99,10 +106,22 @@ function assertPerson(
   assert.equal(group.userData.state, expected)
   assert.equal(group.userData.cellPosition, unit)
   assert.equal(call[1], unit.heading)
+  if (unit.kind !== 'shaman' && input.nativeUnits.followerSources[source?.object]) {
+    assert.ok(followerWitness.sources[source.object], 'every consumed catalog source has original-byte evidence')
+    assert.deepEqual(
+      native.map(cycle => ({
+        source: cycle.source,
+        frames: cycle.frames.map(index => input.units.frames[index].source),
+        flip: cycle.flip,
+      })),
+      followerWitness.sources[source.object],
+      'every actual follower cycle retains independently read original VSTART/VFRA identity'
+    )
+  }
   assert.equal(
     call[2],
     directions,
-    'original native/fallback direction references reach the real wrapper'
+    'catalog/native/fallback direction references reach the real wrapper'
   )
   assert.equal(call[3], age)
   assert.equal(call[4], once)

@@ -200,7 +200,6 @@ function stepSpySabotage(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
     )
   if (!b) return 1
   u.target = b.id
-  u.heading = Math.atan2(b.x - u.x, b.z - u.z)
   if (p.substate === 0) {
     if (p.flags2 & 0x40000000) {
       p.flags2 = (p.flags2 & ~0x40000000) >>> 0
@@ -226,11 +225,26 @@ function stepSpySabotage(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
     if (spyDetected(w, p)) revealSpy(p)
     if (--p.timer < 1) {
       p.substate = 2
+      p.flags2 = (p.flags2 | 0x40000000) >>> 0
+    }
+  } else if (p.substate === 2) {
+    if (p.flags2 & 0x40000000) {
+      // 00439fb5: animation and 0040a980 facing belong to this next visit.
+      p.flags2 = (p.flags2 & ~0x40000000) >>> 0
+      const inside = buildingInsidePoint(buildingPose(b)),
+        angle = nativeAngle(short(inside.x - p.x), -short(inside.y - p.y))
+      p.heading = angle
+      p.angle = p.flags2 & 0x8000 ? (angle + 1024) & 2047 : angle
+      releasePersonRoute(w.motionRoutes, p)
+      clearLivePath(w, u)
+      p.turnAngle = angle
+      p.flags2 = (p.flags2 | 0x1080) >>> 0
       setLivePersonAnimation(w, p, 0x65)
+      p.f2 = 0
+      p.f1 = 1
       p.timer =
         ((rules.animationDescriptors[p.draw]?.step ?? 0) + 1) * sprites.frameCounts[p.object]
     }
-  } else if (p.substate === 2) {
     if (spyDetected(w, p)) revealSpy(p)
     if (--p.timer < 1) {
       effect(w, 'hit', u)
