@@ -197,3 +197,19 @@ test('ordinary effects-frame caller converts height once, preserves position and
   assert.equal(group.parent, null)
   assert.deepEqual([geometries, materials], [2, 2])
 })
+
+
+test('browser evidence UV oracle matches actual native mesh sampling, not raw imported UV coordinates', async () => {
+  const { expectedAngelUV } = await import('../scripts/tutorial-browser/angel-visuals-evidence.mjs')
+  for (const owner of [0, 1, 2, 3]) {
+    const group = makeAngelMeshes(owner, environment)
+    try {
+      for (const mesh of group.children) {
+        const expected = expectedAngelUV(mesh.userData.nativeModel, owner)
+        assert.deepEqual([...mesh.geometry.getAttribute('uv').array], expected.uv)
+        assert.deepEqual(mesh.userData.nativeResource.data.tiles, expected.tiles)
+        assert.notDeepEqual(expected.uv, [...new Float32Array(mesh.userData.nativeResource.data.uv)])
+      }
+    } finally { releaseGroup(group) }
+  }
+})
