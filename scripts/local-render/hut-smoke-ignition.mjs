@@ -470,6 +470,10 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
         scene.buildingMeshes.get(id)?.userData.hutOccupancySmoke?.group.visible
     }, { id: hut.id, actorId: shamanId }, { timeout: 180000 })
     await pause()
+    await action('clear-housing-cohort-before-Shaman', () => page.keyboard.press('Escape'))
+    report.clearedHousingSelection = await read(); save()
+    assert.deepEqual(report.clearedHousingSelection.selected, [])
+    assert.equal(report.clearedHousingSelection.mode, null)
     await button('Select shaman')
     await view(hut)
     report.beforeLightningSelection = await read(); save()

@@ -37,7 +37,7 @@ try {
     await portrait.hover()
     const hover=await page.evaluate(()=>{const s=window.testScene;s.animate(s.previous);cancelAnimationFrame(s.frame);return [...s.portrait.getContext('2d').getImageData(35,116,1,1).data]})
     assert.deepEqual(hover,[255,255,255,255])
-    assert.ok((await portrait.evaluate(b=>getComputedStyle(b).backgroundImage)).endsWith('/hud-portrait-hover.png")'))
+    assert.ok((await portrait.evaluate(b=>getComputedStyle(b,'::before').backgroundImage)).endsWith('/hud-portrait-hover.png")'))
     await page.mouse.move(1000,600)
   }
   await portrait.click()

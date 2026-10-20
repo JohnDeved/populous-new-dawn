@@ -116,8 +116,12 @@ export default async function ({ page, openMission, output, signal }) {
     })
     for (const scale of [1, 2]) {
       await page.getByRole('button', { name: 'Menu', exact: true }).click()
+      await page.getByRole('button', { name: 'Options', exact: true }).click()
+      await page.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
       await page.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption(String(scale))
-      await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+      await page.getByRole('button', { name: 'Back to Options', exact: true }).click()
+      await page.getByRole('button', { name: 'Back', exact: true }).click()
+      await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
       for (const state of ['alive', 'dead', 'absent', 'returned']) {
         await page.evaluate(state => window.testStore.change(world => {
           const fixture = window.portraitFixture

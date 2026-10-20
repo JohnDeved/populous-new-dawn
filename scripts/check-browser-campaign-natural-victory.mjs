@@ -466,7 +466,13 @@ async function dismissFlyby(page) {
 
 async function selectClass(page, kind, modifier = 'Shift') {
   await dismissFlyby(page)
-  if (kind === 'shaman') await page.getByLabel('followers', { exact: true }).click()
+  if (kind === 'shaman') {
+    await page.getByLabel('followers', { exact: true }).click()
+    // Escape cancels an active target before a subsequent Escape clears people.
+    if (await page.evaluate(() => !!globalThis.testScene.world.mode)) await page.keyboard.press('Escape')
+    await page.keyboard.press('Escape')
+    await page.waitForFunction(() => !globalThis.testScene.world.mode && !globalThis.testScene.world.selected.length)
+  }
   const button = page.getByLabel(kind === 'shaman' ? 'Select shaman' : `Select ${kind}`, { exact: true })
   if (kind === 'shaman') await button.click()
   else await button.click({ modifiers: [modifier] })
