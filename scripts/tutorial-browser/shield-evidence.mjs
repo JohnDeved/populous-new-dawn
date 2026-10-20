@@ -115,6 +115,8 @@ export function validateShieldPng(bytes, sample) {
     const kind = bytes.toString('latin1', at + 4, at + 8), data = bytes.subarray(at + 8, end)
     assert.equal(bytes.readUInt32BE(end), crc(bytes.subarray(at + 4, end)), 'Retained PNG CRC')
     assert.match(kind, /^[A-Za-z]{2}[A-Z][A-Za-z]$/, 'Invalid PNG chunk type/reserved bit')
+    // RGB samples are opaque; RGBA carries explicit alpha. Do not ignore tRNS.
+    assert.notEqual(kind, 'tRNS', 'Unsupported PNG transparency')
     if (chunks.length && kind !== 'IDAT') dataEnded = true
     if (kind === 'IHDR') {
       assert.equal(at, 8); assert.equal(width, undefined); assert.equal(length, 13)

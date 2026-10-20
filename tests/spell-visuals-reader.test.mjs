@@ -114,11 +114,15 @@ function pngChunk(name, data) {
   chunk.writeUInt32BE((crc ^ 0xffffffff) >>> 0, chunk.length - 4)
   return chunk
 }
-function customPng({ filter = 0, extra = [], trailingCompressed = false, idatType = 'IDAT', split = false, between = [] } = {}) {
+function customPng({ filter = 0, extra = [], trailingCompressed = false, idatType = 'IDAT', split = false, between = [], colorType = 6, alpha = 255 } = {}) {
   const header = Buffer.alloc(13)
-  header.writeUInt32BE(4); header.writeUInt32BE(4, 4); header[8] = 8; header[9] = 6
-  const raw = Buffer.alloc(4 * 17, 255)
-  for (let row = 0; row < 4; row++) raw[row * 17] = filter
+  header.writeUInt32BE(4); header.writeUInt32BE(4, 4); header[8] = 8; header[9] = colorType
+  const channels = colorType === 6 ? 4 : 3, stride = 4 * channels + 1
+  const raw = Buffer.alloc(4 * stride, 255)
+  for (let row = 0; row < 4; row++) {
+    raw[row * stride] = filter
+    if (channels === 4) for (let pixel = 0; pixel < 4; pixel++) raw[row * stride + 1 + pixel * 4 + 3] = alpha
+  }
   const packed = deflateSync(raw)
   const image = trailingCompressed ? Buffer.concat([packed, Buffer.from([0])]) : packed
   const data = split ? [pngChunk(idatType, image.subarray(0, 5)), ...between, pngChunk(idatType, image.subarray(5))] : [pngChunk(idatType, image)]
@@ -146,6 +150,36 @@ test('bounded PNG readers reject CRC, critical chunks, invalid filters, chunk fl
   }
   assert.throws(() => validateAngelPng(good, 1441, 4))
   assert.throws(() => validateShieldPng(good, { ...sample, clip: { width: 5, height: 4 } }))
+})
+
+
+test('RGB transparency chunks cannot impersonate opaque framebuffer pixels; ordinary RGB/RGBA stay exact', () => {
+  const opaque = Buffer.alloc(64, 255), transparent = Buffer.from(opaque)
+  for (let i = 3; i < transparent.length; i += 4) transparent[i] = 0
+  const checksum = pixels => {
+    let result = 2166136261
+    for (const byte of pixels) result = Math.imul(result ^ byte, 16777619) >>> 0
+    return result.toString(16).padStart(8, '0')
+  }
+  const sample = pixels => ({ clip: { width: 4, height: 4 }, framebufferRgbaSha256: hash(pixels) })
+  for (const [options, pixels, colors] of [
+    [{colorType:2}, opaque, 1], [{colorType:6}, opaque, 1], [{colorType:6,alpha:0}, transparent, 0],
+  ]) {
+    const bytes = customPng(options)
+    assert.deepEqual(validateAngelPng(bytes,4,4), {width:4,height:4,opaqueColors:colors,pixelChecksum:checksum(pixels)})
+    assert.deepEqual(validateShieldPng(bytes,sample(pixels)), {pngSha256:hash(bytes),retainedRgbaSha256:hash(pixels)})
+  }
+  // Correctly encoded RGB8 tRNS: each white RGB sample is transparent. The former
+  // readers ignored this CRC-valid chunk and authenticated the opaque RGBA hash.
+  const transparency = pngChunk('tRNS', Buffer.from([0,255,0,255,0,255]))
+  const rgb = customPng({colorType:2,extra:[transparency]})
+  assert.notEqual(hash(opaque),hash(transparent))
+  for (const inspectPixels of [false,true]) assert.throws(()=>validateAngelPng(rgb,4,4,inspectPixels),/Unsupported PNG transparency/)
+  for (const pixels of [opaque,transparent]) assert.throws(()=>validateShieldPng(rgb,sample(pixels)),/Unsupported PNG transparency/)
+  // tRNS is invalid for RGBA; reject instead of silently treating it as metadata.
+  const rgba = customPng({colorType:6,extra:[transparency]})
+  assert.throws(()=>validateAngelPng(rgba,4,4),/Unsupported PNG transparency/)
+  assert.throws(()=>validateShieldPng(rgba,sample(opaque)),/Unsupported PNG transparency/)
 })
 
 test('strict bounded log/ZIP transport is synchronous and rejects unresolved async values', () => {

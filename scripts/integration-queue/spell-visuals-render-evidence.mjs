@@ -159,6 +159,8 @@ export function validateAngelPng(bytes, width, height, inspectPixels = true) {
     for (const b of bytes.subarray(at + 4, end)) { crc ^= b; for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0) }
     assert.equal((crc ^ 0xffffffff) >>> 0, bytes.readUInt32BE(end), 'PNG chunk CRC mismatch')
     assert.match(type, /^[A-Za-z]{2}[A-Z][A-Za-z]$/, 'Invalid PNG chunk type/reserved bit')
+    // RGB samples are opaque; RGBA carries explicit alpha. Do not ignore tRNS.
+    assert.notEqual(type, 'tRNS', 'Unsupported PNG transparency')
     if (compressed.length && type !== 'IDAT') dataEnded = true
     if (type === 'IHDR') {
       assert.equal(at, 8); assert.equal(length, 13); assert.equal(data.readUInt32BE(0), width); assert.equal(data.readUInt32BE(4), height)
