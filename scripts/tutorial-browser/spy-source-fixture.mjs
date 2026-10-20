@@ -34,6 +34,11 @@ export async function createSpySourceFixture(sourceCommit) {
   const spy = world.units.find(unit => unit.team === 'blue' && unit.kind === 'spy')
   until('departed', () => spy.inside === null && !spy.entry && !spy.path.length)
   const target = api.addBuilding(world, 'red', 'hut', { x: spy.x + 5, z: spy.z }, true)
+  // addBuilding seeds completed huts only 54 work short of a birth. This
+  // isolated supplied target starts with no accumulated breeding work; the
+  // ordinary birth/detection/combat controllers remain active after Load.
+  const acceleratedBreedingWork = target.timer
+  target.timer = 0
   world.selected = []
   world.paused = true
   assert.notEqual(spy.native?.object, 136, 'Never seed the animation under test')
@@ -46,8 +51,9 @@ export async function createSpySourceFixture(sourceCommit) {
   return { transfer, expected, spyId: spy.id, targetId: target.id, receipt: {
     sourceCommit, version: CHECKPOINT_VERSION, level: 1, turn: world.turn, stages,
     spyId: spy.id, targetId: target.id, schoolId: school.id,
+    targetBreeding: { initialWork: target.timer, helperSeededWork: acceleratedBreedingWork },
     transferSha256: createHash('sha256').update(encoded).digest('hex'),
-    setup: 'Supplied flat terrain, school, Brave, training funding and nearby hostile hut. Real public command trains and releases the Spy. Browser must issue disguise and sabotage through shipped controls.',
+    setup: 'Supplied flat terrain, school, Brave, training funding and nearby hostile hut with zero accumulated breeding work. Real public command trains and releases the Spy. Browser must issue disguise and sabotage through shipped controls.',
     limits: 'Current-format test checkpoint, not natural Mission 12 acquisition, campaign unlock, original-game runtime or original raster evidence.',
   } }
 }

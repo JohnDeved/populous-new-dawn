@@ -54,7 +54,9 @@ export function readSpyCommandFailure({ spyId, targetId, commandPick }) {
     observed = window.__pndSpySourceObservation?.retain()
   return { turn: world?.turn, paused: world?.paused, inputMask: world?.inputMask,
     selected: world?.selected.slice(0, 20), lastOrderTurn: world?.lastOrderTurn,
-    targetId, spy: spy && { id: spy.id, target: spy.target, x: spy.x, z: spy.z, native: { ...native } },
+    runtime: window.__pndSpySourceObservation?.readRuntime?.(),
+    targetId, spy: spy && { id: spy.id, hp: spy.hp, target: spy.target, x: spy.x, z: spy.z, native: { ...native },
+      fight: spy.fight, flight: spy.flight, entry: spy.entry },
     orders: orderIds.map(id => ({ id, record: world.buildingOrders.records[id] })),
     camera: scene && { ...scene.cameraPosition }, pointer: scene?.pointerScreen,
     navigationPointer: scene?.navigationPointer,

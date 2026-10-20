@@ -3,7 +3,7 @@
 export function installSpySourceObserver({ spyId, targetId }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   const canvas = scene.renderer.domElement
-  const result = { spyId, targetId, samples: [], crops: [], error: null, done: false }
+  const result = { spyId, targetId, samples: [], crops: [], runtime: [], error: null, done: false }
   const copies = [], copied = new Set()
   let raf, stopped = false, visits = 0, lastKey
   const stop = () => { stopped = true; cancelAnimationFrame(raf); return result }
@@ -20,6 +20,29 @@ export function installSpySourceObserver({ spyId, targetId }) {
     copies.length = 0
     return result
   }
+  const readRuntime = () => {
+    const spy = world.units.find(unit => unit.id === spyId), g = scene.unitMeshes.get(spyId),
+      owners = { native: spy?.native, fight: spy?.fight?.motion, flight: spy?.flight,
+        entry: spy?.entry?.person, builder: spy?.builder?.person },
+      person = owners.fight ?? owners.native ?? owners.flight ?? owners.entry ?? owners.builder,
+      target = world.buildings.find(b => b.id === targetId),
+      tribe = ['blue', 'red', 'yellow', 'green'].indexOf(target?.team),
+      cell = unit => ({ x: (Math.round((unit.x + 8) * 256) & 65535) >> 9,
+        y: (Math.round((-unit.z - 8) * 256) & 65535) >> 9 }),
+      origin = person ? { x: (person.x & 65535) >> 9, y: (person.y & 65535) >> 9 } : spy && cell(spy),
+      near = (a, b) => Math.abs(((a - b + 64) & 127) - 64) <= 1
+    return { turn: world.turn, unitExists: !!spy, meshExists: !!g, hp: spy?.hp,
+      target: target && { id: target.id, hp: target.hp, progress: target.progress, team: target.team },
+      disguise: person?.disguise, origin, detectorTribe: tribe,
+      owners: Object.fromEntries(Object.entries(owners).map(([name, p]) => [name, p ? {
+        id: p.id, state: p.state, substate: p.substate, object: p.object, disguise: p.disguise,
+        timer: p.timer, flags2: p.flags2, registered: world.objectCells.objects.get(spyId) === p,
+        orders: [p.immediateCommand, ...p.commands].map(id => ({ id, record: world.buildingOrders.records[id] })) } : null])),
+      nearbyActors: origin ? world.units.filter(u => u.hp > 0 && u.inside === null &&
+        ['blue', 'red', 'yellow', 'green'].indexOf(u.team) === tribe &&
+        near(cell(u).x, origin.x) && near(cell(u).y, origin.y)).map(u => ({ id: u.id,
+        team: u.team, kind: u.kind, hp: u.hp, cell: cell(u) })) : [] }
+  }
   const visit = () => {
     if (stopped) return
     try {
@@ -28,6 +51,10 @@ export function installSpySourceObserver({ spyId, targetId }) {
         throw Error('Spy observer lost the loaded Scene/world')
       const spy = world.units.find(unit => unit.id === spyId), p = spy?.native
       const g = scene.unitMeshes.get(spyId)
+      if (result.runtime.at(-1)?.turn !== world.turn) {
+        result.runtime.push(readRuntime())
+        if (result.runtime.length > 64) result.runtime.shift()
+      }
       if (!p || !g || spy.hp <= 0) throw Error('Trained Spy or actual mesh missing')
       const key = JSON.stringify([world.turn, p.substate, p.object, p.f2, world.paused])
       if (key !== lastKey) {
@@ -84,7 +111,7 @@ export function installSpySourceObserver({ spyId, targetId }) {
     } catch (error) { result.error = String(error); stop(); return }
     raf = requestAnimationFrame(visit)
   }
-  window.__pndSpySourceObservation = { result, stop, retain }
+  window.__pndSpySourceObservation = { result, stop, retain, readRuntime }
   raf = requestAnimationFrame(visit)
 }
 
