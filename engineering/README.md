@@ -113,11 +113,14 @@ partial; they do not establish dependency completeness or reuse a previous pass.
 `npm test` discovers the same top-level `tests/*.test.mjs` set as before. It runs
 content-reviewed, in-memory/read-only files with at most two isolated Node workers,
 then every other file serially. `engineering/test-resources.json` binds each
-parallel file, all non-test `.mjs` helpers under `tests/`, the whole `app/` tree,
+parallel file, all other regular files under `tests/`, the whole `app/` tree,
 package/installed-lock/TypeScript configuration, and Node version/platform/architecture
 to a reviewed resource inventory. New/changed/unclassified tests run serially;
 shared-helper, production/config/runtime drift makes the whole suite serial until
-reviewed. Any nonempty `NODE_OPTIONS`, `NODE_PATH`, `NODE_COMPILE_CACHE`, or
+reviewed. The shared boundary includes helper code of any extension, fixtures and
+documentation; even data/docs-only changes deliberately require renewed review.
+Only discovered top-level test files retain individual classification.
+Any nonempty `NODE_OPTIONS`, `NODE_PATH`, `NODE_COMPILE_CACHE`, or
 `NODE_V8_COVERAGE` also forces serial execution;
 test-selection/isolation options in `NODE_OPTIONS` are rejected. The inventory never excludes a discovered test. Review
 transitive production/runtime resource changes too: this classification is not a
