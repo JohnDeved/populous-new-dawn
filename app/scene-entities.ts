@@ -69,6 +69,7 @@ import {
 } from './vault-appearance.ts'
 import { makeVaultWorldPresentation, drawVaultWorldPresentation } from './scene-vault-knowledge.ts'
 import { animateVaultKnowledgeMarker, makeVaultKnowledgeMarker } from './scene-effects.ts'
+import { updateShieldSprites } from './scene-shield.ts'
 
 const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
   spriteAtlasOrigin(piece, index, nativeUnits)
@@ -114,20 +115,7 @@ const hutPuffFrames = new WeakMap<
 
 function makeUnit(u: Unit) {
   const g = new THREE.Group()
-  const shield = new THREE.Mesh(
-    geometry('magic-shield', () => new THREE.SphereGeometry(1, 12, 8)),
-    new THREE.MeshBasicMaterial({
-      color: 0x8fd7ff,
-      transparent: true,
-      opacity: 0.22,
-      depthWrite: false,
-      wireframe: true,
-    })
-  )
-  shield.name = 'magic-shield'
-  shield.position.y = 0.9
-  shield.visible = false
-  g.add(shield)
+  const shield: THREE.Sprite[] = []
   const bloodlust = new THREE.Mesh(
     geometry('bloodlust-aura', () => new THREE.TorusGeometry(0.48, 0.08, 6, 12)),
     new THREE.MeshBasicMaterial({
@@ -593,13 +581,6 @@ export function updateUnitsFrame(scene: GameScene) {
     g.visible =
       (u.inside === null || (!!u.entry && !(u.entry.person.renderFlags & 16))) &&
       !unitInvisibleToPlayer(scene.world, u)
-    const shield = g.userData.shield as THREE.Mesh
-    shield.visible = !!u.shield
-    if (shield.visible) {
-      shield.rotation.y = scene.world.time * 2
-      ;(shield.material as THREE.MeshBasicMaterial).opacity =
-        0.18 + Math.sin(scene.world.time * 6) * 0.04
-    }
     const bloodlust = g.userData.bloodlust as THREE.Mesh
     bloodlust.visible = !!u.bloodlust && (u.bloodlust >= 16 * 8 || !(scene.world.turn & 2))
     if (bloodlust.visible) bloodlust.rotation.z = scene.world.time * 4
@@ -673,6 +654,21 @@ export function updateUnitsFrame(scene: GameScene) {
       !nativeDirections && !!u.fight && ['attack', 'strike', 'special', 'recoil'].includes(state),
       nativeDirections ? animationSource!.f2 : undefined,
       selectedIds
+    )
+    updateShieldSprites(
+      g,
+      {
+        remaining: u.shield ?? 0,
+        counter: person?.counter ?? 0,
+        unitIndex: u.id,
+        animationFrame: scene.gameClock.animationFrame,
+        owner: g.userData.owner,
+        frameHeight: g.userData.frameHeight,
+        scaled: u.kind === 'shaman' || !!scene.view.config.scaledSprites,
+        bucket: g.userData.spriteBucket,
+        flags: scene.view.config.scaledSprites ? 0x100 : 0,
+      },
+      scene.view.config
     )
     const gauge = unitHealthGauge({
       enabled: !!showHealth,
