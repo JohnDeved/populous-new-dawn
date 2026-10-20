@@ -22,6 +22,63 @@ export async function resumeSpySourceInput(page, action, name, run) {
   await action(name, run)
 }
 
+// Read-only qualification follows both production pointerDown selection and
+// pointerUp command resolution, after public Resume. Raw model hits alone can
+// lose to a person or nearby vehicle in the actual command path.
+export function readSpySabotageTarget(id) {
+  const scene = window.testSceneRef.current, world = scene.world,
+    building = world.buildings.find(b => b.id === id)
+  if (world.paused) throw Error('Sabotage target must be observed after public Resume')
+  const p = scene.screen(building), rect = scene.renderer.domElement.getBoundingClientRect(),
+    center = { x: rect.left + (p.x + 1) * rect.width / 2, y: rect.top + (1 - p.y) * rect.height / 2 },
+    candidates = []
+  for (const dy of [-30, -50, -10, -70, 10, -90])
+    for (const dx of [0, -10, 10, -25, 25, -40, 40]) {
+      const event = { clientX: Math.trunc(center.x + dx), clientY: Math.trunc(center.y + dy) },
+        canvasOwned = document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement,
+        rawId = scene.picking.pick(event), downPerson = scene.pickUnit(event)?.id ?? null,
+        upPerson = scene.picking.pickPerson(event), commandObject = scene.pickWorldObject(event)?.id ?? null
+      candidates.push({ x: event.clientX, y: event.clientY, canvasOwned, rawId, downPerson, upPerson, commandObject })
+      if (canvasOwned && rawId === id && downPerson === null && upPerson == null && commandObject === id)
+        return { ...candidates.at(-1), id, turn: world.turn, paused: world.paused,
+          camera: { ...scene.cameraPosition }, candidates }
+    }
+  throw Error('Supplied hostile hut lacks a genuine exposed production command hit: ' + JSON.stringify(candidates))
+}
+
+export function readSpyCommandFailure({ spyId, targetId, commandPick }) {
+  const scene = window.testSceneRef?.current, world = scene?.world,
+    spy = world?.units.find(unit => unit.id === spyId), native = spy?.native,
+    event = commandPick && { clientX: commandPick.x, clientY: commandPick.y },
+    orderIds = native ? [native.immediateCommand, ...native.commands] : [],
+    observed = window.__pndSpySourceObservation?.retain()
+  return { turn: world?.turn, paused: world?.paused, inputMask: world?.inputMask,
+    selected: world?.selected.slice(0, 20), lastOrderTurn: world?.lastOrderTurn,
+    targetId, spy: spy && { id: spy.id, target: spy.target, x: spy.x, z: spy.z, native: { ...native } },
+    orders: orderIds.map(id => ({ id, record: world.buildingOrders.records[id] })),
+    camera: scene && { ...scene.cameraPosition }, pointer: scene?.pointerScreen,
+    navigationPointer: scene?.navigationPointer,
+    pick: event && { rawId: scene.picking.pick(event), person: scene.picking.pickPerson(event),
+      downPerson: scene.pickUnit(event)?.id ?? null, commandObject: scene.pickWorldObject(event)?.id ?? null,
+      canvasOwned: document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement },
+    observation: observed && { ...observed, samples: observed.samples.slice(-64), crops: observed.crops.slice(0, 2) } }
+}
+
+// Diagnostic collection gets only a bounded part of the existing episode time.
+// It cannot replace the original failure or delay closure beyond that deadline.
+export async function retainSpyCommandFailure(page, report, fixture, deadlineAt, now = Date.now) {
+  const remaining = Math.min(500, deadlineAt - now())
+  if (remaining <= 0) { report.failureDiagnostics = { status: 'deadline-exhausted' }; return }
+  let timer
+  try {
+    report.failureDiagnostics = await Promise.race([
+      page.evaluate(readSpyCommandFailure, { spyId: fixture.spyId, targetId: fixture.targetId, commandPick: report.commandPick }),
+      new Promise((_, reject) => { timer = setTimeout(() => reject(Error('Failure diagnostics budget exhausted')), remaining) }),
+    ])
+  } catch (error) { report.failureDiagnostics = { status: 'unavailable', error: String(error) } }
+  finally { clearTimeout(timer) }
+}
+
 // Standalone supplied-fixture presentation witness. It may run only after the
 // complete existing M10 episode, never as a substitute for either of its phases.
 export default async function spySource(options) {
@@ -124,20 +181,12 @@ export default async function spySource(options) {
         await page.waitForFunction(id => window.testStore.getWorld().units.find(unit => unit.id === id)?.native?.disguise === 0x40, fixture.spyId)
         await action('Pause before sabotage', () => button('Pause game').click())
         await page.waitForFunction(() => window.testStore.getWorld().paused)
-        const target = await page.evaluate(id => {
-          const scene = window.testSceneRef.current, building = scene.world.buildings.find(b => b.id === id)
-          const p = scene.screen(building), rect = scene.renderer.domElement.getBoundingClientRect()
-          const center = { x: rect.left + (p.x + 1) * rect.width / 2, y: rect.top + (1 - p.y) * rect.height / 2 }
-          for (const dy of [-30, -50, -10, -70, 10, -90])
-            for (const dx of [0, -10, 10, -25, 25, -40, 40]) {
-              const event = { clientX: center.x + dx, clientY: center.y + dy }
-              if (document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement && scene.picking.pick(event) === id)
-                return { x: event.clientX, y: event.clientY, id }
-            }
-          throw Error('Supplied hostile hut lacks a genuine exposed canvas hit')
-        }, fixture.targetId)
         await page.evaluate(installSpySourceObserver, { spyId: fixture.spyId, targetId: fixture.targetId })
-        await resumeSpySourceInput(page, action, 'Canvas sabotage command', () => page.mouse.click(target.x, target.y))
+        await resumeSpySourceInput(page, action, 'Canvas sabotage command', async () => {
+          const target = await page.evaluate(readSpySabotageTarget, fixture.targetId)
+          report.commandPick = target; save()
+          await page.mouse.click(target.x, target.y)
+        })
         report.order = await page.evaluate(id => {
           const world = window.testStore.getWorld(), spy = world.units.find(unit => unit.id === id)
           return { target: spy.target, selected: [...world.selected], lastOrderTurn: world.lastOrderTurn }
@@ -169,6 +218,10 @@ export default async function spySource(options) {
         report.resumed = await page.evaluate(readSpySourceHold, fixture.spyId)
         report.validation = validateSpySourceObservation(report)
         assert.deepEqual(report.errors, [])
+      } catch (error) {
+        await retainSpyCommandFailure(page, report, fixture, budget.deadlineAt)
+        save()
+        throw error
       } finally {
         // Browser ownership wrapper also closes any context if this fails.
         await context.close()
