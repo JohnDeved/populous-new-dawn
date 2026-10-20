@@ -5,6 +5,7 @@ import { OriginalOptions } from './original-options'
 import { BrowserHelpTips } from './browser-help-tips'
 import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
 import { OriginalLoadingScreen } from './original-loading-screen'
+import { StartupLogo } from './startup-logo'
 
 import { hudScale } from './hud-layout.ts'
 import { OriginalResultScreen } from './original-result-screen'
@@ -138,6 +139,8 @@ export default function Home() {
   const frontendPreparation = useRef<Promise<FrontendAssets> | null>(null)
   const [frontendAssets, setFrontendAssets] = useState<FrontendAssets | null>(null)
   const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
+  const [startupLogoDone, setStartupLogoDone] = useState(false)
+  const finishStartupLogo = useCallback(() => setStartupLogoDone(true), [])
   useEffect(() => {
     try {
       const saved = localStorage.getItem('hud-size')
@@ -1494,7 +1497,8 @@ export default function Home() {
         </div>
       )}
 
-      {startup === 'choice' && !startupCampaign && frontendAssets && (
+      {startup === 'choice' && !startupLogoDone && <StartupLogo onComplete={finishStartupLogo} />}
+      {startup === 'choice' && startupLogoDone && !startupCampaign && frontendAssets && (
         <OriginalMainMenu
           prepared={frontendAssets}
           hasCheckpoint={store.hasCheckpoint()}

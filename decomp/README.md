@@ -5285,3 +5285,11 @@ Mixed-raid target availability versus member-order refresh: see
 Quit?/Yes/No/Back descriptors, font flags, native positions, shadows and navigation.
 The browser preserves that presentation with an explicitly unavailable Yes and
 conditional checkpoint guidance; this is not native exit-behavior parity.
+
+## Original boot logo
+
+[Boot-logo source and browser boundaries](research/startup-logo/README.md) bind
+the guarded startup call, fresh-down clip interruption, recovered BLOGO bytes,
+640×352 centered display geometry and full decoded-frame conversion equality.
+This bounded restoration does not establish the initial timed page, New Game
+intro, held-input native behavior, or complete startup parity.

@@ -1518,9 +1518,9 @@
       "id": "persistence",
       "title": "Checkpoints and startup",
       "mappingStatus": "reviewed",
-      "implementationPaths": ["app/game-store.ts"],
+      "implementationPaths": ["app/game-store.ts", "app/startup-logo.tsx", "app/startup-logo.module.css"],
       "sharedPaths": ["app/page.tsx"],
-      "researchPaths": ["engineering/single-player-feasibility.md", "decomp/research/frontend-quit-menu/README.md"],
+      "researchPaths": ["engineering/single-player-feasibility.md", "decomp/research/frontend-quit-menu/README.md", "decomp/research/startup-logo/README.md"],
       "entrySymbols": [
         { "path": "app/game-store.ts", "symbol": "createGameStore" },
         { "path": "app/page.tsx", "symbol": "Home" }
@@ -1528,7 +1528,8 @@
       "parityIds": ["persistence.save", "persistence.load", "persistence.profile", "interface.menus"],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Defeat and victory decisions" },
-        { "path": "decomp/research/frontend-quit-menu/README.md", "heading": "Exact menu1 evidence" }
+        { "path": "decomp/research/frontend-quit-menu/README.md", "heading": "Exact menu1 evidence" },
+        { "path": "decomp/research/startup-logo/README.md", "heading": "Source facts" }
       ],
       "nativeAddresses": [],
       "checkIds": [

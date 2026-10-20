@@ -2,6 +2,15 @@
   "version": 1,
   "owners": [
     {
+      "id": "startup-logo",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-startup-logo.py", "<verified-game-root>", "<new-output-directory>"] },
+      "callers": ["scripts/import-startup-logo.py", "app/startup-logo.tsx"],
+      "inputs": ["decomp/research/startup-logo/conversion.json"],
+      "outputs": [{ "path": "public/original/startup", "type": "directory", "tracked": true, "protected": true }],
+      "recording": "Only verified BLOGO.TGQ; decoded lossless video equality and output identity required. Never regenerate other movie or menu assets."
+    },
+    {
       "id": "frontend-badge-vectors",
       "kind": "imported-assets",
       "generator": { "executable": "python3", "args": ["scripts/sanitize-frontend-badge-vectors.py", "<reviewed-local-input-directory>"] },
