@@ -26,6 +26,7 @@ import { approachMeleeSlot, meleeAnimationObject } from './melee.ts'
 import { stepMeleeEncounter } from './melee-encounter.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { teamForTribe, tribeForTeam } from './world-types.ts'
+import { ownedSettlementObjects } from './live-settlement.ts'
 export { cancelBuildingEntry } from './live-building-entry.ts'
 import {
   type World,
@@ -104,6 +105,7 @@ import {
   markPersonAirborne,
   unsupportedGround,
   stepPersonPhysics,
+  stepOwnedPersonPhysics,
   type PhysicsPerson,
 } from './person-physics.ts'
 import { terrainPointHeight } from './native-terrain.ts'
@@ -1148,6 +1150,10 @@ export function registerLivePerson(w: World, p: LivePerson) {
 
 // Grounded combat and airborne impulses share the original person physics.
 export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
+  stepLivePhysicsImpl(w, u, p)
+}
+
+function stepLivePhysicsImpl(w: World, u: Unit, p: LivePerson, ownedImpulse = false) {
   const fighting = p.state === 25 || p.state === 29,
     recovering = p.state === 33
   registerLivePerson(w, p)
@@ -1171,7 +1177,17 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
   stepPersonReaction(p)
   markPersonAirborne(w.land, p)
   const collision = collisionWorld(w)
-  stepPersonPhysics(
+  const stepPhysics: typeof stepPersonPhysics = ownedImpulse
+    ? (world, person, effects, mask) =>
+        stepOwnedPersonPhysics(
+          world,
+          person,
+          effects,
+          () => ownedSettlementObjects(w, p, collision),
+          mask
+        )
+    : stepPersonPhysics
+  stepPhysics(
     {
       land: w.land,
       collision,
@@ -1303,8 +1319,18 @@ export function resumeLiveSeatedFlight(u: Unit) {
 }
 
 export function stepLiveImpulse(w: World, u: Unit) {
+  stepLiveImpulseImpl(w, u)
+}
+
+// Scheduler-owned plain records only. Direct/exotic callers keep the public
+// eager path. No snapshot or permission to skip escapes this one physics visit.
+export function stepOwnedLiveImpulse(w: World, u: Unit) {
+  stepLiveImpulseImpl(w, u, true)
+}
+
+function stepLiveImpulseImpl(w: World, u: Unit, owned = false) {
   const p = u.flight!
-  stepLivePhysics(w, u, p)
+  stepLivePhysicsImpl(w, u, p, owned)
   // Voluntary vehicle exits can be airborne through the live impulse flag
   // without destruction's forced-airborne bit. Keep their physics owner to landing.
   if (!(p.flags2 & 0x80000) && !(p.flags4 & 0x400) && u.fight?.action !== 'push') {
