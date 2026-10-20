@@ -12,8 +12,6 @@ import {
   nativeModel,
   nativeModels,
   material,
-  part,
-  box,
   updateModelLighting,
 } from './scene-assets.ts'
 import {
@@ -23,7 +21,6 @@ import {
   buildingStage,
   nativePosition,
   maxHp,
-  buildingHp,
   unitAnimation,
   unitInvisibleToPlayer,
   unitInvisibilityRenderFlag,
@@ -116,14 +113,6 @@ const hutPuffFrames = new WeakMap<
   GameScene,
   { puffs: Extract<SecondaryEffect, { kind: 'hutPuff' }>[]; serials: Set<number> }
 >()
-
-const teamColor = {
-  blue: 0x303fc1,
-  red: 0xb92720,
-  yellow: 0xd1aa22,
-  green: 0x29864a,
-  wild: 0x9f9170,
-}
 
 function makeUnit(u: Unit) {
   const g = new THREE.Group()
@@ -221,16 +210,9 @@ function makeBuilding(scene: GameScene, b: Building, stage: number, temple = fal
     scene.environment
   )
   g.add(model)
-  const health = new THREE.Group(),
-    top = b.kind === 'tower' ? 6 : 4.8
-  part(health, box(2.5, 0.09, 0.05), material(0x201d16), 0, top)
-  const healthFill = part(health, box(2.5, 0.09, 0.06), material(teamColor[b.team]), 0, top, 0.01)
-  g.add(health)
   g.userData = {
     building: b.id,
     signature: `${id}-${stage}`,
-    health,
-    healthFill,
   }
   if (temple) g.userData.signature += '-animated'
   return g
@@ -878,13 +860,6 @@ export function updateBuildingsFrame(scene: GameScene) {
     )
     g.userData.nativeTilt = b.damageState?.tilt ?? 0
     g.userData.nativeRoll = b.damageState?.roll ?? 0
-    // Original staged models carry construction progress in their geometry;
-    // the always-on horizontal construction box was a browser placeholder.
-    g.userData.health.visible = b.progress >= 1 && b.hp < buildingHp(b.kind)
-    g.userData.health.quaternion.copy(
-      g.quaternion.clone().invert().multiply(scene.camera.quaternion)
-    )
-    g.userData.healthFill.scale.x = Math.max(0.001, b.hp / buildingHp(b.kind))
   }
   updateHutSmokePuffs(scene)
 }
