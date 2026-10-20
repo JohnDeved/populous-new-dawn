@@ -26,6 +26,7 @@ import { approachMeleeSlot, meleeAnimationObject } from './melee.ts'
 import { stepMeleeEncounter } from './melee-encounter.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { teamForTribe, tribeForTeam } from './world-types.ts'
+import { ownedSettlementObjects } from './live-settlement.ts'
 export { cancelBuildingEntry } from './live-building-entry.ts'
 import {
   type World,
@@ -108,7 +109,6 @@ import {
   type PhysicsPerson,
 } from './person-physics.ts'
 import { terrainPointHeight } from './native-terrain.ts'
-import { ownedSettlementObjects } from './live-settlement.ts'
 import {
   setCellObject,
   deleteCellObject,
