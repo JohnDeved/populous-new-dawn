@@ -79,7 +79,7 @@ export default async function spellAngel({ browser, url, output, source, expecte
       const result = await perform(); check()
       report.actions.at(-1).finishedAt = new Date().toISOString(); save(); return result
     }
-    const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())
+    const button = name => action(name, () => page.getByRole('button', { name, exact: true }).press('Enter'))
     await page.addInitScript({ content: `window.angelCodec = ${checkpointCodec.toString()}; window.angelStateOf = ${angelCheckpointState.toString()};` })
     await action('Open fresh isolated context', () => page.goto(url, { waitUntil: 'domcontentloaded' }))
     assert.equal(await page.evaluate(angelCheckpointStorage, JSON.stringify(fixture.transfer)), JSON.stringify(fixture.transfer))

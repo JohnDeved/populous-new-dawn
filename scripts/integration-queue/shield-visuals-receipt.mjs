@@ -59,6 +59,13 @@ export async function validateShieldReceipt(shield, read, expected) {
   assert.ok(shield.beforeCast.people.slice(6).every(person => person.shield > 0))
   assert.ok(shield.afterCast.people.every(person => person.shield > 0 && person.flags3 & 0x8000 && !person.fight))
   const pause = shield.visiblePause
+  assert.ok(pause && typeof pause === 'object')
+  for (const key of ['timestamp', 'sceneTimestamp']) assert.ok(Number.isFinite(pause[key]) && pause[key] >= 0)
+  for (const key of ['clockBefore', 'clockAfter']) {
+    assert.ok(pause[key] && typeof pause[key] === 'object')
+    assert.ok(Number.isSafeInteger(pause[key].animationFrame) && pause[key].animationFrame >= 0)
+    assert.ok(Number.isFinite(pause[key].animationTime) && pause[key].animationTime >= 0)
+  }
   assert.equal(pause.timestamp, pause.sceneTimestamp)
   assert.equal(pause.beforeSha256, hash(pause.before)); assert.equal(pause.afterSha256, hash(pause.after))
   const beforePause = checkpointCodec(JSON.parse(pause.before), true), afterPause = checkpointCodec(JSON.parse(pause.after), true)
