@@ -607,7 +607,9 @@ test('actual F9 episode retains grant/input/hold/refill/save order and existing 
     assert.ok(next >= position, snippet); position = next + snippet.length
   }
   assert.equal((source.match(/browser\.newContext\(/g) ?? []).length, 1)
-  assert.match(source, /setTimeout\([\s\S]*?\}, 55000\)/)
+  assert.match(source, /export const spellTestLimitMs = 75000/)
+  assert.equal((source.match(/setTimeout\(/g) ?? []).length, 1)
+  assert.match(source, /Math\.max\(0, spellTestLimitMs - \(performance\.now\(\) - started\)\)/)
   assert.match(source, /assert\.deepEqual\(refilled\.projectiles, casting\.projectiles\)/)
   assert.match(source, /assert\.deepEqual\(refilled\.shaman, casting\.shaman\)/)
   assert.match(source, /assert\.deepEqual\(refilled\.castingTribes, casting\.castingTribes\)/)
@@ -619,14 +621,16 @@ test('actual F9 episode retains grant/input/hold/refill/save order and existing 
 
 test('actual F9 failure cleanup retains at most once and closes context even if retention fails', async () => {
   const source = readFileSync(new URL('../scripts/tutorial-browser/spell-test-menu.mjs', import.meta.url), 'utf8'),
-    start = source.lastIndexOf('    clearTimeout(timer)'),
+    marker = '\n  } finally {\n',
+    start = source.lastIndexOf(marker) + marker.length,
     end = source.indexOf('\n  if (failure) throw failure', start),
     body = source.slice(start, end).replace(/\n {2}}\s*$/, '')
   assert.ok(start > 0 && end > start)
-  for (const attempted of [false, true]) for (const retentionFails of [false, true]) {
+  const { assertSpellTestDeadline, closeSpellTestContext } = await import('../scripts/tutorial-browser/spell-test-menu.mjs')
+  for (const expired of [false, true]) for (const attempted of [false, true]) for (const retentionFails of [false, true]) {
     const calls = [], original = new Error('original F9 failure'), report = { status: 'failed' },
       page = { isClosed: () => false },
-      bindings = { clearTimeout: () => calls.push('clearTimer'), timer: 1, page, output: 'output', report,
+      bindings = { started: performance.now() - (expired ? 75001 : 0), assertSpellTestDeadline, closeSpellTestContext, clearTimeout: () => calls.push('clearTimer'), timer: 1, page, output: 'output', report,
         diagnostics: { stop: () => calls.push('stopDiagnostics') },
         context: { close: async () => calls.push('closeContext') },
         retainCastingWitness: async (actualPage, output, options) => {
@@ -643,8 +647,9 @@ test('actual F9 failure cleanup retains at most once and closes context even if 
       `return (async () => { ${body}\nreturn { failure, castingRetentionAttempted } })()`)
     const result = await run(...Object.values(bindings), original, attempted)
     assert.equal(result.failure, original)
-    assert.equal(result.castingRetentionAttempted, true)
-    assert.deepEqual(calls, ['clearTimer', 'stopDiagnostics', ...(!attempted ? ['retain'] : []), 'closeContext', 'writeReceipt'])
-    assert.equal(report.castingRetentionError?.includes('retention failed'), !attempted && retentionFails ? true : undefined)
+    assert.equal(result.castingRetentionAttempted, attempted || !expired)
+    assert.deepEqual(calls, [...(!attempted && !expired ? ['retain'] : []), 'closeContext', 'clearTimer', 'stopDiagnostics', 'writeReceipt'])
+    if (expired && !attempted) assert.match(report.castingRetentionError, /absolute deadline/)
+    else assert.equal(report.castingRetentionError?.includes('retention failed'), !attempted && retentionFails ? true : undefined)
   }
 })

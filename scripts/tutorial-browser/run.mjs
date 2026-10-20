@@ -171,7 +171,7 @@ try {
     await context.close(); context = undefined; page = undefined
     receipt.meleeAttack = await (await import(pathToFileURL(meleeScenario).href)).default({ browser, url, output: out, expectedRevision: receipt.buildRevision })
     // Separate ordinary follower combat and actual checkpoint continuation. No
-    // performance window or existing 75-second/ten-turn melee assertion changes.
+    // performance window or existing 75-second, first-observed-entry melee assertions change.
     receipt.followerCorpse = await (await import(pathToFileURL(followerCorpseScenario).href)).default({ browser, url, output: out, expectedRevision: receipt.buildRevision })
   } else if (['profile-recovery', 'mission10-profile'].includes(selectedScenario)) {
     // Independent jobs. Both persistent M10 phases finish before the separate
