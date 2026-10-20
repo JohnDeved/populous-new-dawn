@@ -323,15 +323,16 @@ export function leaveLiveBuilding(w: World, u: Unit) {
 // ponytail: victory bootstrap supplies initial order; full native allocation
 // must establish membership for ordinary units and the remaining object classes.
 export function syncLivePersonCells(w: World) {
-  const people = new Map(
-    w.units
-      .filter(
-        u =>
-          (u.flight || u.fight?.motion || u.native || u.entry) &&
-          (u.hp > 0 || u.flight || u.native?.state === 44)
-      )
-      .map(u => [u.id, (u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person)!])
+  const units = w.units.filter(
+    u =>
+      (u.flight || u.fight?.motion || u.native || u.entry) &&
+      (u.hp > 0 || u.flight || u.native?.state === 44)
   )
+  // Finish eligibility before reading owners, as in the legacy filter/map boundary.
+  // The snapshot stays fresh without allocating a temporary entry tuple per person.
+  const people = new Map<number, LivePerson>()
+  for (const u of units)
+    people.set(u.id, (u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person)!)
   for (const [id, p] of w.objectCells.objects)
     if (people.get(id) !== p) {
       if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)

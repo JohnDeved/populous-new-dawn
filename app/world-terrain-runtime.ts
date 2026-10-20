@@ -66,8 +66,10 @@ export function nativePosition(w: World, p: Point): NativePoint {
   const position = {
     x: short(Math.round((p.x + 8) * 256)),
     y: short(Math.round((-p.z - 8) * 256)),
+    h: 0,
   }
-  return { ...position, h: terrainPointHeight(w.land, position) }
+  position.h = terrainPointHeight(w.land, position)
+  return position
 }
 // Terrain support follows the original coastal mask, including low dry shore.
 export function supportsFollower(w: World, p: Point & { inside?: number | null }) {
