@@ -114,7 +114,7 @@ test('completed cleanup preserves ordered disposal, shared atlas, survivor ident
   }
 })
 
-test('completed stage and resource signatures retain replacement, health material and cached output', async () => {
+test('completed stage and resource signatures retain replacement and cached output without added health bars', async () => {
   const { api, world } = await worldWithBuildings(1),
     building = world.buildings[0],
     fixture = await makePlanScene(world)
@@ -145,7 +145,9 @@ test('completed stage and resource signatures retain replacement, health materia
     assert.equal(second.parent, null)
     assert.equal(third.children[0].userData.nativeModel, 105)
     assert.equal(third.userData.signature, '105-4')
-    assert.equal(third.userData.healthFill.material.color.getHex(), 0xd1aa22)
+    assert.equal(third.userData.health, undefined)
+    assert.equal(third.userData.healthFill, undefined)
+    assert.equal(third.children.length, 1, 'replacement keeps only its native building model')
     assert.deepEqual(world, changed)
     const restored = api.migrateCheckpoint(structuredClone(world))
     assert.ok(restored)
