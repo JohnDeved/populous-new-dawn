@@ -1780,6 +1780,8 @@
         "app/tornado-runtime.ts"
       ],
       "researchPaths": [
+        "decomp/research/hypnotise-artwork.md",
+        "scripts/check-hypnotise-source.py",
         "decomp/research/erosion-actual-capture.md",
         "scripts/check-native-erosion-capture.py",
         "tests/erosion-observation.test.mjs",
