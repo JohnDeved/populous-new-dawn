@@ -1,12 +1,21 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
+import meleeAttack, { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
   readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
 import { validateMeleeRunningFrames, validateMeleeRunningObservation } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
 import { spriteDirection } from '../app/projection.ts'
 import { minimapPick } from '../app/minimap.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
+
+test('functional melee artwork context uses a fixed 960x720 viewport at DPR1', async () => {
+  const stop = new Error('stop before browser creation')
+  const browser = { async newContext(options) {
+    assert.deepEqual(options, { viewport: { width: 960, height: 720 }, deviceScaleFactor: 1 })
+    throw stop
+  } }
+  await assert.rejects(meleeAttack({ browser }), error => error === stop)
+})
 
 // Independent original data, not the production melee pose selector. Synthetic
 // observations exercise evidence rejection; they do not claim a rendered run.
