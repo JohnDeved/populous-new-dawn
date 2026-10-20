@@ -72,6 +72,7 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Original acquisition body raster and palette](research/worship-acquisition-body-raster.md),
 [Ordinary M1/M2 browser adapter](research/worship-acquisition-adapter.md),
 [Early-mission producer scheduling and the type9 boundary](research/early-mission-producer-schedule.md),
+[Rolling Demo control and stream framing](research/rolling-demo-control.md),
 [Recorded-demo raw state and unresolved source-map provenance](research/recorded-demo-provenance.md),
 [LEVL2131 Face Off selector and conditional script requirement](research/demo131-entry.md),
 [Tutorial conditional entry and script loading](research/tutorial-entry.md),
@@ -5299,3 +5300,11 @@ looping and exit-request boundaries. Hash-locked source windows and a reproducib
 data-only check are retained. Exact art/font/palette, full input delivery and focus
 return remain unresolved; the live Credits entry stays disabled. No original
 execution, runtime restoration, generated browser assets or parity credit.
+
+## Original boot logo
+
+[Boot-logo source and browser boundaries](research/startup-logo/README.md) bind
+the guarded startup call, fresh-down clip interruption, recovered BLOGO bytes,
+640×352 centered display geometry and full decoded-frame conversion equality.
+This bounded restoration does not establish the initial timed page, New Game
+intro, held-input native behavior, or complete startup parity.
