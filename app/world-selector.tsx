@@ -1,4 +1,11 @@
-import { useId, useRef, useState, type KeyboardEvent, type CSSProperties } from 'react'
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type CSSProperties,
+} from 'react'
 import {
   openingCampaignMissions,
   openingMissionAvailable,
@@ -30,11 +37,20 @@ export function WorldSelector({
   replacingWorld = false,
 }: Props) {
   const container = useRef<HTMLElement>(null)
+  const directHeading = useRef<HTMLHeadingElement>(null)
+  const focusDirectHeading = useRef(false)
   const descriptionId = useId()
   const [selected, setSelected] = useState(() => openingRecommendedMission(completed))
   const [allMissions, setAllMissions] = useState(false)
   const [compatibility, setCompatibility] = useState(false)
   const [failedArt, setFailedArt] = useState<string[]>([])
+  useLayoutEffect(() => {
+    if (!focusDirectHeading.current || compatibility || !allMissions) return
+    focusDirectHeading.current = false
+    // The activated switch disappears. Focus a non-action heading so a held
+    // Enter/Space cannot follow it into a mission launch; Tab reaches the grid.
+    directHeading.current?.focus({ preventScroll: true })
+  }, [allMissions, compatibility])
   const panelArt = `/original/world-selector/panel/${selected}-`
   const artFailed = failedArt.includes(panelArt)
   const failArt = () =>
@@ -108,6 +124,7 @@ export function WorldSelector({
             <button
               aria-pressed={allMissions}
               onClick={() => {
+                focusDirectHeading.current = true
                 setAllMissions(true)
                 setCompatibility(false)
               }}
@@ -151,7 +168,9 @@ export function WorldSelector({
       )}
       {allMissions ? (
         <section className={styles.direct} aria-label="All missions">
-          <h3>Choose any playable mission</h3>
+          <h3 ref={directHeading} tabIndex={-1}>
+            Choose any playable mission
+          </h3>
           <p>Direct access is available here, independently of campaign progress.</p>
           <div className={styles.missions}>
             {missions.map(mission => (

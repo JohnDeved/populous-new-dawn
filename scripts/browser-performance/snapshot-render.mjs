@@ -11,7 +11,7 @@ export function renderSnapshotComment(comparison, identity, reports, { harnessCh
   const lines = [commentMarker, '## Informational controlled browser CPU comparison (v2)',
     `Base \`${identity.baseSha}\` → PR \`${identity.headSha}\`. [Raw F8 downloads, exact snapshot, sidecars and summaries](${runUrl}).`,
     `${comparison.complete ? 'Both capture shards completed.' : 'Incomplete/incompatible shards; no overall comparison.'} Not a required check, review approval, or permission to merge.`,
-    'Two parallel runner shards, each with three sequential fresh-browser pairs (B/H, H/B, B/H). No cross-runner timing comparison or summed speedup.',
+    'Two parallel runner shards, each with three sequential fresh-browser pairs (B/H, H/B, B/H). Runtime equality is required across all six sessions within each shard; independent shards may use different runtimes. No cross-runner timing comparison or summed speedup.',
     'Explicit test setup: exact-base production-authored Level 2 turn-70 snapshot loaded through the public Load path, ordinarily paused, public focus and integer-pixel right-drag normalization. Same snapshot bytes in both arms. Not live-gameplay, campaign progression, simulation or water-advance performance.',
     'Loaded checkpoint cells can take ownership-sensitive fallback paths. This cohort does not cover fresh-world factory-ownership optimizations; no effect here is not no effect everywhere. Ownership is never injected to manufacture a win.',
     '1440×1000, DPR 1, 2-second warmup. Six discrete inputs per phase. Each input requires the exact next four contiguous recorded callbacks: first 1 and settled 3 separately. No favorable-frame search. Raw extra callbacks are retained, not pooled into the comparison.',
