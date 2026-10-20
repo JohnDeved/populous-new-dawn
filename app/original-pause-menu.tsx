@@ -308,8 +308,13 @@ export function OriginalPauseMenu(props: Props) {
         if (!buttons.length) return
         event.preventDefault()
         const current = buttons.indexOf(document.activeElement as HTMLButtonElement)
+        // Save/load panel controls are outside nav, not the row before its first item.
         let next =
-          (current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length
+          current < 0
+            ? event.key === 'ArrowUp'
+              ? buttons.length - 1
+              : 0
+            : (current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length
         if (event.key === 'Home') next = 0
         else if (event.key === 'End') next = buttons.length - 1
         buttons[next]?.focus()
