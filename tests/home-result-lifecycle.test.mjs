@@ -19,7 +19,7 @@ function fixture() {
   world.status = 'lost'
   world.paused = true
   world.outcome.cameraPlaying = false
-  const state = { menu: false, selectorOpen: false, ready: true, error: 'old error', tab: 'buildings', startup: 'playing' }
+  const state = { cheatsOpen: true, menu: false, selectorOpen: false, ready: true, error: 'old error', tab: 'buildings', startup: 'playing' }
   let menuOpened = 0, audioResets = 0
   const bindings = {
     store, world, nextMission: 2, OriginalResultScreen: 'OriginalResultScreen', WorldSelector: 'WorldSelector',
@@ -83,6 +83,6 @@ test('Home result Restart replaces the paused terminal world and clears stale me
   assert.equal(ui.bindings.menuSession.current, null)
   assert.deepEqual(ui.bindings.pendingMenuCamera.current, [])
   assert.deepEqual(ui.bindings.loadRequest.current, { kind: 'restart' })
-  assert.deepEqual(ui.state, { menu: false, selectorOpen: false, ready: false, error: '', tab: 'spells', startup: 'playing' })
+  assert.deepEqual(ui.state, { cheatsOpen: false, menu: false, selectorOpen: false, ready: false, error: '', tab: 'spells', startup: 'playing' })
   assert.equal(ui.counts().audioResets, 1)
 })

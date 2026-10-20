@@ -53,6 +53,7 @@ function pageLoad(store) {
       pendingMenuCamera: { current: [] },
       cancelNearbyInput: noop,
       engine: { current: null },
+      setCheatsOpen: value => assert.equal(value, false, 'actual Page Load closes the testing menu'),
       setSelectorOpen: noop,
       audio: { current: { reset: noop } },
       setMenu: noop,
