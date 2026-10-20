@@ -1,3 +1,4 @@
+import { liveBuildingShape } from './live-building-shapes.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import { populationCeiling } from './capacity-policy.ts'
 import rules from './original-rules.json' with { type: 'json' }
@@ -49,6 +50,7 @@ import {
   type NativePoint,
   type Point,
   type Spell,
+  type Shrine,
   type Team,
   type Tree,
   type Unit,
@@ -762,7 +764,7 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
   const cells = new Map<number, BlastTarget[]>()
   const records = new Map<number, BlastTarget>()
   const people = new Map<number, LivePerson & BlastTarget>()
-  const shaken = new Map<number, Building | Tree>()
+  const shaken = new Map<number, Building | Tree | Shrine>()
   const add = (p: BlastTarget) => {
     records.set(p.id, p)
     const index = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
@@ -780,16 +782,17 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
     add(target)
   }
   const addShaken = (
-    source: Building | Tree,
+    source: Building | Tree | Shrine,
     objectClass: 2 | 5,
     model: number,
     tribe: number,
     state: number,
     flags2 = 0,
-    flags3 = 0
+    flags3 = 0,
+    cellMember = true
   ) => {
     shaken.set(source.id, source)
-    add({
+    const target: BlastTarget = {
       ...nativePosition(w, source),
       id: source.id,
       class: objectClass,
@@ -806,7 +809,9 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
       life: 0,
       shake: source.shake ?? 0,
       shakeOrigin: source.shakeOrigin ?? 0,
-    })
+    }
+    if (cellMember) add(target)
+    else records.set(target.id, target)
   }
   for (const b of buildings.values())
     addShaken(
@@ -818,6 +823,10 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
       b.damageState?.flags2,
       b.damageState?.flags3
     )
+  // Resolve neutral model-18 footprint owners without inserting invented slots
+  // into the still-incomplete mixed-class cell chains. 00416d70 prevents damage.
+  for (const vault of w.shrines)
+    if (vault.kind === 'vault' && vault.model) addShaken(vault, 2, 18, 255, 2, 0, 0, false)
   for (const tree of w.trees)
     if (tree.logs > 0 && rules.sceneryResourceFlags[tree.model] & 0x40000)
       addShaken(tree, 5, tree.model, -1, 0)
@@ -1303,14 +1312,12 @@ export function stepTeleport(w: World, fx: Effect) {
   release(w, shaman)
   shaman.flight = undefined
   shaman.native = person
-  let target = teleport.target,
-    cell = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
+  let target = teleport.target
+  const cell = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
   if (w.land.flags[cell] & 512) {
-    const building = w.buildings.find(
-      candidate => candidate.id === (w.land.buildingIds[cell] & 1023)
-    )
-    if (building) {
-      const outside = buildingOutsidePoint(buildingPose(building))
+    const shape = liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
+    if (shape) {
+      const outside = buildingOutsidePoint(shape)
       target = { ...outside, h: terrainPointHeight(w.land, outside) }
     }
   }

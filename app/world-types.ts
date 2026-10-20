@@ -318,6 +318,8 @@ export type Shrine = Point &
     stoneHead?: StoneHeadAnimation | null
     knowledgeGlow?: AnimatedUnit & { displayedFrame: number }
     angle: number
+    shake?: number
+    shakeOrigin?: number
   }
 export type Tree = Point & {
   id: number
