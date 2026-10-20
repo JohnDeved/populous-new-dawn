@@ -12,9 +12,65 @@ import { installFollowerCorpseObserver, readFollowerCorpseHold,
   readFollowerCorpseReady, readCommittedFollowerCorpse } from './follower-corpse-observer.mjs'
 import { validateFollowerCorpseObservation } from './follower-corpse-evidence.mjs'
 
-export const followerCorpseLimitMs = 75000
+export const followerCorpseBudgetMs = Object.freeze({ deathAndSave: 75000, loadAndVerify: 25000 })
 const root = resolve(import.meta.dirname, '../..'), viewport = { width: 960, height: 720 }
 const sha = bytes => createHash('sha256').update(bytes).digest('hex')
+
+// These are distinct functional phases, not a retry or a refreshable timeout.
+// The runner's existing global 180-second deadline remains authoritative.
+export function followerCorpseDeadline({ onExpire, now = () => performance.now(),
+  schedule = setTimeout, cancel = clearTimeout }) {
+  const records = []
+  let timer, disposed = false
+  const expire = record => {
+    if (disposed || record !== records.at(-1) || record.timedOut) return
+    record.timedOut = true; record.expiredElapsedMs = now(); onExpire(record)
+  }
+  const start = (name, capMs) => {
+    const startedElapsedMs = now(), record = { name, capMs, startedElapsedMs, deadlineElapsedMs: startedElapsedMs + capMs }
+    records.push(record); timer = schedule(() => expire(record), capMs)
+  }
+  const remaining = () => {
+    assert.equal(disposed, false, 'Corpse budget is already closed')
+    const record = records.at(-1), left = record.deadlineElapsedMs - now()
+    if (left <= 0) expire(record)
+    assert.equal(record.timedOut, undefined, `Corpse ${record.name} deadline exceeded`)
+    return left
+  }
+  const finish = () => {
+    const left = remaining()
+    cancel(timer)
+    const record = records.at(-1)
+    record.completedElapsedMs = record.deadlineElapsedMs - left
+    record.durationMs = record.completedElapsedMs - record.startedElapsedMs
+  }
+  start('death-through-committed-save', followerCorpseBudgetMs.deathAndSave)
+  return { records, remaining,
+    beginLoad(checkpoint) {
+      assert.equal(records.length, 1, 'Only one committed-save budget transition is permitted')
+      remaining()
+      assert.equal(checkpoint?.committed?.version, CHECKPOINT_VERSION)
+      assert.match(checkpoint.committed.checkpointSha256, /^[a-f0-9]{64}$/)
+      assert.equal(checkpoint.committedCorpse.version, CHECKPOINT_VERSION)
+      assert.equal(checkpoint.committedCorpse.level, checkpoint.committed.level)
+      assert.equal(checkpoint.committed.turn, checkpoint.saved.turn)
+      assert.equal(checkpoint.committedCorpse.turn, checkpoint.saved.turn)
+      assert.equal(checkpoint.saved.paused, true)
+      assert.equal(checkpoint.saved.effect.corpse.phase, 1)
+      assert.deepEqual(checkpoint.committedCorpse.effect, checkpoint.saved.effect,
+        'The load budget requires this exact successfully committed corpse')
+      finish()
+      records[0].committedSave = { checkpointSha256: checkpoint.committed.checkpointSha256,
+        turn: checkpoint.saved.turn, effectId: checkpoint.saved.effect.id }
+      start('load-reframe-resume-and-terminal-verification', followerCorpseBudgetMs.loadAndVerify)
+    },
+    complete() {
+      assert.equal(records.length, 2, 'Both corpse phases must complete')
+      finish(); disposed = true
+    },
+    dispose() { cancel(timer); disposed = true },
+  }
+}
 
 export function readCorpseMinimap(effectId = null) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
@@ -50,24 +106,46 @@ export async function pauseLoadedFollowerCorpse(page, effectId, button) {
 export default async function followerCorpse({ browser, url, output, expectedRevision }) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 }), page = await context.newPage()
   page.setDefaultTimeout(10000)
-  const report = { schema: 'populous-new-dawn/ordinary-follower-corpse', schemaVersion: 1,
-    status: 'running', expectedRevision, capMs: followerCorpseLimitMs, actions: [], errors: [],
-    actorId: null, effectId: null, death: null, segments: [], error: null,
+  const report = { schema: 'populous-new-dawn/ordinary-follower-corpse', schemaVersion: 2,
+    status: 'running', expectedRevision, budgetCapsMs: followerCorpseBudgetMs, actions: [], errors: [],
+    actorId: null, effectId: null, death: null, segments: [], error: null, phases: [],
     method: 'Fresh authored M2 through public startup. Existing public bird’s-eye/minimap target route, Escape, one plain Select brave, Resume, actual rendered hover and Shift+left attack on eligible Green Shaman20. Natural combat/death and same-frame corpse observation; public pause, committed current Save checkpoint, actual Load checkpoint, public camera reframing and Resume.',
     limits: ['Direct mission access, not campaign unlock. No native/synthetic scene, health, source, phase, clock, victim or target assignment.',
       'Independent original VSTART/VFRA fixture validates displayed native source and heading; packed frame identity comes from imported atlas metadata independently audited outside this browser check.',
       'Canvas copies and read-only observations perturb rendering; no performance or hardware smoothness claim. Crops require visual review and are not pixel-perfect composition evidence.',
       'The saved in-session current checkpoint is actually loaded and rendered. This is not a fresh browser/process persistence test.',
+      'Death through verified committed save has 75 seconds; only successful committed-save proof starts the separate 25-second load/reframe/continuation/verification budget. Both remain inside the runner’s unchanged shared 180-second browser cap.',
       'Browser sampling establishes observed source/frame/heading/visibility and continuation, not exact animation cadence. Cadence remains the separate native follower-corpse-animation unit-test claim.'],
     source: Object.fromEntries(['scripts/tutorial-browser/follower-corpse.mjs',
       'scripts/tutorial-browser/follower-corpse-observer.mjs', 'scripts/tutorial-browser/follower-corpse-evidence.mjs',
       'tests/fixtures/follower-corpse-native.json', 'app/original-units.json', 'app/follower-corpse-animation.ts',
-      'app/scene-effects.ts', 'app/world-turn.ts', 'app/game-store.ts', 'app/checkpoint-format.ts']
+      'app/scene-effects.ts', 'app/world-turn.ts', 'app/game-store.ts', 'app/checkpoint-format.ts',
+      'app/page.tsx', 'app/original-pause-menu.tsx']
       .map(path => [path, sha(readFileSync(resolve(root, path)))])) }
   const save = () => writeFileSync(resolve(output, 'follower-corpse.json'), JSON.stringify(report, null, 2) + '\n')
+  const started = performance.now()
+  report.startedAt = new Date().toISOString()
+  const elapsed = () => performance.now() - started
+  const finishPhase = completed => {
+    const phase = report.phases.at(-1)
+    if (!phase || phase.finishedElapsedMs !== undefined) return
+    phase.finishedElapsedMs = elapsed()
+    phase.durationMs = phase.finishedElapsedMs - phase.startedElapsedMs
+    phase.budget = budget.records.at(-1).name
+    phase.remainingMs = Math.max(0, budget.records.at(-1).deadlineElapsedMs - phase.finishedElapsedMs)
+    phase.completed = completed
+  }
+  const phase = name => {
+    finishPhase(true)
+    report.phases.push({ name, startedElapsedMs: elapsed() }); save()
+  }
   const action = async (name, perform) => {
-    report.actions.push({ name, startedAt: new Date().toISOString() }); save()
-    await perform(); report.actions.at(-1).finishedAt = new Date().toISOString(); save()
+    const record = { name, startedAt: new Date().toISOString(), startedElapsedMs: elapsed() }
+    report.actions.push(record); save()
+    const input = await perform()
+    if (input) record.input = input
+    record.finishedAt = new Date().toISOString(); record.finishedElapsedMs = elapsed()
+    record.durationMs = record.finishedElapsedMs - record.startedElapsedMs; save()
   }
   const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())
   const settle = () => page.waitForFunction(() => {
@@ -76,15 +154,21 @@ export default async function followerCorpse({ browser, url, output, expectedRev
   })
   const focus = async effectId => {
     const geometry = await page.evaluate(readCorpseMinimap, effectId), input = meleeCameraInput(geometry)
-    report.actions.push({ name: 'Public minimap target framing with fixed (0,+12) backing-pixel offset', geometry, input }); save()
-    assert.equal(await page.evaluate(p => document.elementFromPoint(p.x, p.y) === window.testSceneRef.current.mini, input), true)
-    await page.mouse.click(input.x, input.y); await settle()
+    await action('Public minimap target framing with fixed (0,+12) backing-pixel offset', async () => {
+      assert.equal(await page.evaluate(p => document.elementFromPoint(p.x, p.y) === window.testSceneRef.current.mini, input), true)
+      await page.mouse.click(input.x, input.y); await settle()
+      return { geometry, point: input }
+    })
   }
   const errors = error => { if (report.errors.length < 20) report.errors.push(String(error).slice(0, 2000)) }
   page.on('pageerror', errors)
   page.on('console', message => { if (message.type() === 'error') errors(message.text()) })
   page.on('crash', () => errors('Page crashed'))
-  const timer = setTimeout(() => { report.timedOut = true; void context.close().catch(() => {}) }, followerCorpseLimitMs)
+  const budget = followerCorpseDeadline({ now: elapsed, onExpire: record => {
+    report.timedOut = true; report.expiredBudget = record.name; report.deadlineElapsedMs = elapsed(); save()
+    void context.close().catch(() => {})
+  } })
+  report.budgets = budget.records
   let failure
   const retain = async () => {
     if (page.isClosed()) return
@@ -103,6 +187,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
   }
   save()
   try {
+    phase('startup')
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await action('New Game / No / Browser controls / All missions', () => showAllMissions(page))
     await button('Mission 2'); await bindGame(page)
@@ -114,6 +199,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     await page.waitForFunction(() => {
       const w = window.testStore.getWorld(); return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
     })
+    phase('public-combat-setup')
     await button('Pause game'); await button('Select and focus shaman'); await settle()
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
     await action('One public - zoom-out', () => page.keyboard.press('-')); await settle()
@@ -154,12 +240,14 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.deepEqual(report.order.selected, [report.actorId]); assert.equal(report.order.target, 20); assert.equal(report.order.paused, false)
     assert.ok(report.order.lastOrderTurn >= report.beforeAttack.turn && report.order.lastOrderTurn <= report.order.turn,
       'The actual public attack must issue an order on this observed logical timeline'); save()
+    phase('ordinary-combat')
     await page.waitForFunction(() => {
       const r = window.__pndCorpseObservation.result
       return r.error || r.samples.some(s => s.phase === 1 && !s.paused && s.cropFile)
-    }, null, { timeout: followerCorpseLimitMs })
+    }, null, { timeout: budget.remaining() })
     assert.equal(await page.evaluate(() => window.__pndCorpseObservation.result.error), null)
     report.effectId = await page.evaluate(() => window.__pndCorpseObservation.result.effectId)
+    phase('pause-and-save')
     await button('Pause game')
     report.checkpoint = { holdBefore: await page.evaluate(readFollowerCorpseHold, report.effectId) }
     assert.equal(report.checkpoint.holdBefore.paused, true)
@@ -180,6 +268,9 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.deepEqual(report.checkpoint.committedCorpse.effect, report.checkpoint.saved.effect,
       'The committed IDB record must contain this exact saved corpse, not merely the same turn')
     await retain()
+    finishPhase(true)
+    budget.beginLoad(report.checkpoint)
+    phase('load-and-reframe')
     await page.evaluate(effectId => {
       const store = window.testStore, original = store.getWorld()
       window.__pndCorpsePreviousWorld = original
@@ -210,22 +301,27 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     await button('Resume game')
     report.checkpoint.readyResumed = await page.evaluate(readFollowerCorpseReady, report.effectId); save()
     assert.equal(report.checkpoint.readyResumed.paused, false)
+    phase('loaded-continuation')
     await page.waitForFunction(() => {
       const r = window.__pndCorpseObservation.result; return r.error || r.done
-    }, null, { timeout: followerCorpseLimitMs })
+    }, null, { timeout: budget.remaining() })
+    phase('acceptance-and-capture')
     await retain()
     report.acceptance = validateFollowerCorpseObservation(report)
     await button('Pause game')
     await page.screenshot({ path: resolve(output, 'follower-corpse-context.png') })
+    budget.complete()
   } catch (error) {
     failure = error; report.failure = { message: String(error), stack: error.stack }; save()
     if (!page.isClosed()) try { await page.screenshot({ path: resolve(output, 'follower-corpse-failure.png'), timeout: 2000 }) }
     catch (error) { report.failureScreenshotError = String(error) }
   } finally {
-    clearTimeout(timer)
+    budget.dispose()
+    finishPhase(!failure && !report.timedOut)
     try { await retain() } catch (error) { report.errors.push(`Corpse retention: ${error}`) }
     try { await context.close(); report.contextClosed = true } catch (error) { report.errors.push(`Corpse cleanup: ${error}`) }
-    report.status = failure || report.errors.length || report.timedOut ? 'failed' : 'passed'; save()
+    report.status = failure || report.errors.length || report.timedOut ? 'failed' : 'passed'
+    report.finishedAt = new Date().toISOString(); report.elapsedMs = elapsed(); save()
   }
   assert.equal(report.status, 'passed', 'Follower corpse browser case failed; see follower-corpse.json')
   return report

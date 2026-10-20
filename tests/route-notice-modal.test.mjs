@@ -13,16 +13,17 @@ const notice = pageNode(node => ts.isJsxElement(node) &&
 function fixture(paused = false) {
   const makeWorld = () => ({ paused, routeNotice: { serial: 1 }, castingTribes: [{ flags: 0 }],
     manaWorld: { gameFlags: 0 }, inputMask: 0 })
-  let world = makeWorld(), menu = false, selectorOpen = false
+  let world = makeWorld(), menu = false, selectorOpen = false, cheatsOpen = false
   const scene = { world, cancelNearbyFollowers() {}, setModalSuspended(value) { this.modalSuspended = value } }
   const store = { getWorld: () => world, change: action => action(world) }
   const page = pageNearby(scene, { store, setMenu(value) { menu = value; if (value) selectorOpen = false },
     setSelectorOpen(value) { selectorOpen = value } })
   const render = () => evaluatePage(notice.getText(pageSource), {
-    store, world, routeNotice: world.routeNotice, menu, selectorOpen,
+    store, world, routeNotice: world.routeNotice, menu, selectorOpen, cheatsOpen,
     menuSession: page.bindings.menuSession, ROUTE_FAILURE_TEXT: 'Route failure',
   })
   return { page, scene, render, world: () => world,
+    cheats(open) { cheatsOpen = open },
     inspect() { menu = false; page.openSelector() },
     replace() { world = makeWorld(); return world },
   }
@@ -89,4 +90,22 @@ test('actual producer serial reuse does not give an old callback ownership of a 
   assert.notEqual(next, first)
   complete()
   assert.equal(ui.world().routeNotice, next)
+})
+
+
+test('F9 freezes an existing route notice without changing World and resumes its presentation on close', () => {
+  for (const paused of [false, true]) {
+    const ui = fixture(paused), before = structuredClone(ui.world()), original = ui.world().routeNotice
+    for (let i = 0; i < 3; i++) {
+      ui.cheats(true)
+      assert.equal(ui.render().props.style.animationPlayState, 'paused')
+      assert.equal(ui.world().routeNotice, original)
+      assert.deepEqual(ui.world(), before)
+      ui.cheats(false)
+      assert.notEqual(ui.render().props.style.animationPlayState, 'paused')
+      assert.equal(ui.world().routeNotice, original)
+    }
+    ui.render().props.onAnimationEnd()
+    assert.equal(ui.world().routeNotice, null, 'normal animation completion resumes after F9 closes')
+  }
 })

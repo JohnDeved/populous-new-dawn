@@ -191,6 +191,12 @@ export type TargetCaster = SpellCaster & {
   casting: TribeCasting
   playerType: number
 }
+// Normal-mode 0x4c24f0: any vehicle link blocks Land Bridge unless the
+// tribe has unlimited casting. The destination must remain dry in either case.
+export function landBridgeTargetAllowed(tribeFlags: number, vehicle: number, terrainFlags: number) {
+  return !(terrainFlags & 2) && (!!(tribeFlags & 0x80000) || !vehicle)
+}
+
 // 0x4c24f0. Results: 1 valid, -1 unavailable, -2 range, -3 bridge placement.
 // Cursor blocking and the alternate-mode bridge anchor are native UI inputs.
 export function validateSpellTarget(
@@ -224,13 +230,13 @@ export function validateSpellTarget(
       return -2
   }
   if (model !== 12) return 1
-  if (tribeFlags & 0x80000) return terrainFlags & 2 ? -3 : 1
+  if (tribeFlags & 0x80000) return landBridgeTargetAllowed(tribeFlags, 0, terrainFlags) ? 1 : -3
   // A valid normal-mode shaman is guaranteed by the checks above.
   if (notify) {
     if (terrainFlags & 2) effects.notify(0x8000, 0x255)
     if (caster!.landIndex && caster!.flags4 & 0x2000000) effects.notify(0x8000000, 0x261)
   }
-  return !caster!.landIndex && !(terrainFlags & 2) ? 1 : -3
+  return landBridgeTargetAllowed(tribeFlags, caster!.landIndex, terrainFlags) ? 1 : -3
 }
 
 // 0x4d1340. Entry mode selects defense (nonzero) or offense (zero). The
