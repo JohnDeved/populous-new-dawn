@@ -177,7 +177,6 @@
       "evidence": [
         { "path": "decomp/research/blast-targeting.md", "heading": "Blast person targeting" },
         { "path": "decomp/research/follower-frame-alpha.md", "heading": "Disabled follower frames" },
-        { "path": "decomp/research/shaman-portrait.md", "heading": "Shaman portrait selection and focus" },
         { "path": "decomp/research/follower-task-panel.md", "heading": "Native Followers task panel" },
         { "path": "decomp/README.md", "heading": "Native follower selection" },
         {

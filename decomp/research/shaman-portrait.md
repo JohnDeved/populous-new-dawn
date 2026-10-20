@@ -62,13 +62,35 @@ reused without regeneration or claiming a new native executable run.
 ## Live change and scope
 
 The existing portrait now mounts `followerControl(7)` and is disabled when its
-live Shaman is absent/dead. Its disabled frame retains full opacity, matching
-`0049fe70` rather than inheriting the generic button fade.
+live Shaman is absent/dead. Disabled rendering has **separate frame and interior
+layers**: `0049fe70` calls `004a1dd0`, which sets vertex flag8 from `control+8`.
+`004a1f50` passes it through the tiled/corner frame consumers to `004f95a0`;
+ordinary ghost state selects ARGB `55ffffff`, alpha **85/255**, as traced in
+[follower frame alpha](follower-frame-alpha.md). `004a1dd0` clears flag8 before
+`0049fe70` fills the interior through `00516890` → `00516a00`, whose ordinary
+fill has alpha255. The frame tables are independent of this alpha state; their
+exact PE bytes and initial alpha85 are retained in `descriptor.json`. At30×35,
+each exposed frame pixel belongs to one piece; geometric overlaps lie inside
+the later opaque fill. A separate geometry regression checks this distinction
+against the recovered tables, so fading the imported composite once is equivalent
+for the exposed frame (`scripts/import-hud.py`).
+
+The frame is therefore a separate CSS `::before` layer, dimmed only when disabled.
+The button and its existing canvas remain full-opacity; the canvas fills local
+(2,2,25,30) with color172 and suppresses the sprite for absent/dead Shamans.
+The actual runtime caller excludes hp0 even if its cached mesh remains. Enabled
+hover artwork stays full-strength, and disabled hover keeps the normal frame.
+The previous blanket full-strength-frame conclusion was incorrect and is
+superseded by this consumer trace. `check-native-hud-portrait.py` sets `control+8=1`
+even for a null Shaman and intercepts the frame consumers; its retained fixtures
+prove interior/sprite facts, not disabled-frame alpha. Those fixtures are unchanged.
 Page pointer/keyboard → GameScene → `chooseFollowers`
 reuses the already shipped selectors, voices, tutorial flags, input gates and
 passenger owner reads. Ctrl primary release still dispatches once, including
-macOS context-menu delivery. The existing accessible name is retained; the tooltip
-explicitly separates click selection and right-click focus. H and F keyboard
+macOS context-menu delivery. The accessible name is now `Select shaman`, with a
+separate accessible description and tooltip for right-click focus. Active browser
+selectors use the new name; historical producer fixtures retain their original bytes.
+H and F keyboard
 shortcuts, Total/class/task/transport controls, sprites and panel design are unchanged.
 
 The previous regression deliberately asserted the excluded old behavior. It is
@@ -84,11 +106,16 @@ These fixtures are not natural crew acquisition or native death timing evidence.
 Brave selection, the actual portrait, keyboard activation and right-click focus.
 It retains before/after observations and actual screenshots at normal/compact
 viewports. Rendered results are reported separately in the PR; the existence of
-the scenario is not a pass. An explicitly supplied absent-Shaman fixture at the
-end checks the disabled frame; it is not a natural death episode.
+the scenario is not a pass. Supplied live → hp0 → absent → live fixtures follow
+ordinary interactions. The pixel oracle compares the native frame asset at85/255
+outside the interior, and independently requires opaque color172 inside it, over
+black/sand at1×/2×, including hover and re-enabling. Enabled cases composite the
+observed sprite foreground over the full-strength frame; they do not independently
+prove sprite pixels. The oracle's own regressions reject both the old full-strength
+frame and an incorrectly faded interior. These are not natural death episodes.
 Camera-specific melee/corpse setup and the legacy
 camera-focus checker now request right-focus explicitly; their assertions remain.
-Other historical scenario references keep their accessible selector. Scenarios
+Other active scenario references receive only the accessible-name migration. Scenarios
 that depended on implicit group replacement require their own explicit public
 selection setup and fresh acceptance; no prior browser pass transfers to this head.
 

@@ -171,7 +171,7 @@ try {
   const originalSurface = await rosterSnapshot(page)
   assert.deepEqual(originalSurface.labels, rosterLabels)
   assert.equal(
-    await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).count(),
+    await page.getByRole('button', { name: 'Select shaman', exact: true }).count(),
     1
   )
   assert.equal(
@@ -370,7 +370,7 @@ try {
   assert.deepEqual(wide.labels, rosterLabels)
   assert.equal(await page.locator('.command-dock button[aria-label^="Select "]').count(), 0)
   assert.equal(
-    await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).isVisible(),
+    await page.getByRole('button', { name: 'Select shaman', exact: true }).isVisible(),
     true
   )
 
@@ -388,7 +388,7 @@ try {
   assert.deepEqual(dprSurface.labels, rosterLabels)
   assert.equal(await dprPage.locator('.command-dock button[aria-label^="Select "]').count(), 0)
   assert.equal(
-    await dprPage.getByRole('button', { name: 'Select and focus shaman', exact: true }).isVisible(),
+    await dprPage.getByRole('button', { name: 'Select shaman', exact: true }).isVisible(),
     true
   )
   assert.deepEqual(dprErrors, [])

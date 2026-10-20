@@ -467,7 +467,7 @@ async function dismissFlyby(page) {
 async function selectClass(page, kind, modifier = 'Shift') {
   await dismissFlyby(page)
   if (kind === 'shaman') await page.getByLabel('followers', { exact: true }).click()
-  const button = page.getByLabel(kind === 'shaman' ? 'Select and focus shaman' : `Select ${kind}`, { exact: true })
+  const button = page.getByLabel(kind === 'shaman' ? 'Select shaman' : `Select ${kind}`, { exact: true })
   if (kind === 'shaman') await button.click()
   else await button.click({ modifiers: [modifier] })
   return page.evaluate(kind => {

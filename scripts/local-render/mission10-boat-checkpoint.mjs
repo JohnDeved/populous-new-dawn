@@ -89,7 +89,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
       await state('authored-start')
       await input.view({ x: 27, z: -27 })
       await page.keyboard.press('Escape')
-      await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+      await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
       await page.getByRole('button', { name: 'Select warrior', exact: true }).click({ modifiers: ['Shift'] })
       const selected = await state('HUD-selected')
       assert.deepEqual([...selected.selected].sort((a,b)=>a-b), party)

@@ -52,5 +52,57 @@
       "value": 4854128,
       "bytes": "70114a00"
     }
+  },
+  "frameTables": {
+    "normal": {
+      "address": "0x5cac38",
+      "bytes": "c902cd02ca02cf02d102d002cb02ce02cc02",
+      "values": [
+        713,
+        717,
+        714,
+        719,
+        721,
+        720,
+        715,
+        718,
+        716
+      ]
+    },
+    "hover": {
+      "address": "0x5cac50",
+      "bytes": "db02df02dc02e102e302e202dd02e002de02",
+      "values": [
+        731,
+        735,
+        732,
+        737,
+        739,
+        738,
+        733,
+        736,
+        734
+      ]
+    },
+    "selected": {
+      "address": "0x5cac68",
+      "bytes": "d202d602d302d802da02d902d402d702d502",
+      "values": [
+        722,
+        726,
+        723,
+        728,
+        730,
+        729,
+        724,
+        727,
+        725
+      ]
+    }
+  },
+  "ordinaryGhostAlpha": {
+    "address": "0x5d570c",
+    "bytes": "55000000",
+    "value": 85
   }
 }

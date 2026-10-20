@@ -79,7 +79,7 @@ export default async function mission3VaultPrayer({ page, openMission, output, s
     targetId = route.target.id
     input = createMission1VaultInput({ page, signal, report, save, originalShamanId: shamanId, deadlineAt: deadline })
     await input.action('clear-selection', () => page.keyboard.press('Escape'))
-    await input.button('Select and focus shaman')
+    await input.button('Select shaman')
     await input.view(route.target)
     await input.prepareDispatch()
     // Both exact helper interfaces and the cancellation pixel are admitted before walking.

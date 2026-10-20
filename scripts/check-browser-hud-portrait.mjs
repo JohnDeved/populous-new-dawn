@@ -6,7 +6,7 @@ import fixture from '../tests/fixtures/hud-portrait.json' with {type:'json'}
 const browser=await chromium.launch({headless:true})
 try {
   const {page,errors}=await openGame(browser)
-  const portrait=page.getByRole('button',{name:'Select and focus shaman',exact:true})
+  const portrait=page.getByRole('button',{name:'Select shaman',exact:true})
   await page.mouse.move(1000,700)
   await page.waitForFunction(()=>[...window.testScene.unitMeshes.values()].some(g=>g.userData.layers?.[0]?.material.map.image?.complete))
   const count=await page.evaluate(async({units,cases})=>{

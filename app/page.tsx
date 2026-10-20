@@ -1245,11 +1245,15 @@ export default function Home() {
           </button>
           <button
             className="portrait"
-            aria-label="Select and focus shaman"
+            aria-label="Select shaman"
+            aria-describedby="shaman-portrait-instructions"
             title="Shaman · Click: add to selection · Right-click: focus · H: select"
             disabled={!shaman || shaman.hp <= 0}
             {...followerControl(7)}
           >
+            <span id="shaman-portrait-instructions" className="sr-only">
+              Right-click to focus the camera on the Shaman.
+            </span>
             <canvas ref={portrait} width={100} height={480} aria-hidden="true" />
           </button>
           <button

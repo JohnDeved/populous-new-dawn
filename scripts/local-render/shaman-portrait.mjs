@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { inspectPortraitPixels } from './shaman-portrait-pixels.mjs'
 
 // The ordinary Mission 1 phase uses public inputs and read-only observations,
 // with no world writes, forced steps, clock override or private selection.
@@ -9,7 +10,7 @@ export default async function ({ page, openMission, output, signal }) {
   const report = { method: 'Ordinary M1, public pause/selection/focus; actual rendered pixels', checks: [],
     limits: 'On-foot portrait acceptance. Occupied/dead/reincarnating edge cases have separate portable fixtures. No native execution, shared-ring cadence or hardware-performance claim.' }
   const save = () => writeFileSync(resolve(output, 'shaman-portrait.json'), JSON.stringify(report, null, 2) + '\n')
-  const portrait = page.getByRole('button', { name: 'Select and focus shaman', exact: true })
+  const portrait = page.getByRole('button', { name: 'Select shaman', exact: true })
   const snapshot = () => page.evaluate(async () => {
     const { hudPersonSource } = await import('/app/hud-person-source.ts')
     const s = window.testSceneRef.current, w = s.world
@@ -86,18 +87,58 @@ export default async function ({ page, openMission, output, signal }) {
     const box = await portrait.boundingBox()
     assert.ok(box && box.x >= 0 && box.y >= 0 && box.x + box.width <= 1280 && box.y + box.height <= 720)
     await page.screenshot({ path: resolve(output, 'portrait-compact.png') })
-    // Separate supplied absent-Shaman presentation fixture, after ordinary
-    // acceptance. This is not a natural death/reincarnation episode.
-    await page.evaluate(() => window.testStore.change(w => {
-      w.units = w.units.filter(u => !(u.team === 'blue' && u.kind === 'shaman'))
+    // Separate supplied presentation fixtures after ordinary acceptance:
+    // flat HUD backgrounds and live -> hp0 -> absent -> live. These are not
+    // naturally reached death/reincarnation episodes.
+    report.pixelChecks = []
+    const originalBackground = await page.locator('.native-hud').evaluate(element => ({
+      image: element.style.backgroundImage, color: element.style.backgroundColor,
     }))
-    await page.waitForFunction(() => document.querySelector('button.portrait')?.disabled)
-    report.absentFixture = await portrait.evaluate(button => ({
-      disabled: button.disabled, opacity: getComputedStyle(button).opacity,
-      background: getComputedStyle(button).backgroundImage,
-    }))
-    assert.equal(report.absentFixture.opacity, '1', 'absent frame must not inherit global disabled dimming')
-    await page.screenshot({ path: resolve(output, 'portrait-absent-fixture.png') })
+    const restoreBackground = () => page.locator('.native-hud').evaluate((element, original) => {
+      element.style.backgroundImage = original.image; element.style.backgroundColor = original.color
+    }, originalBackground)
+    const pixels = async (state, enabled, scale) => {
+      for (const hover of [false, true]) for (const [color, background] of [
+        ['black', [0, 0, 0]], ['sand', [219, 184, 133]],
+      ]) {
+        const observation = await inspectPortraitPixels(page, portrait, output, {
+          name: `portrait-${state}-${scale}x-${hover ? 'hover' : 'normal'}-${color}`,
+          background, enabled, hover,
+        })
+        report.pixelChecks.push(observation); save()
+      }
+      await restoreBackground()
+    }
+    await page.evaluate(() => {
+      const world = window.testStore.getWorld()
+      const shaman = world.units.find(u => u.team === 'blue' && u.kind === 'shaman' && !u.ghost)
+      window.portraitFixture = { units: [...world.units], shaman, health: shaman.hp }
+    })
+    for (const scale of [1, 2]) {
+      await page.getByRole('button', { name: 'Menu', exact: true }).click()
+      await page.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption(String(scale))
+      await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+      for (const state of ['alive', 'dead', 'absent', 'returned']) {
+        await page.evaluate(state => window.testStore.change(world => {
+          const fixture = window.portraitFixture
+          world.units = state === 'absent' ? fixture.units.filter(u => u !== fixture.shaman) : [...fixture.units]
+          fixture.shaman.hp = state === 'dead' ? 0 : fixture.health
+        }), state)
+        const enabled = state === 'alive' || state === 'returned'
+        await page.waitForFunction(enabled => document.querySelector('button.portrait')?.disabled === !enabled, enabled)
+        await pixels(state, enabled, scale)
+        if (scale === 2) {
+          await page.mouse.move(1000, 600)
+          await page.screenshot({ path: resolve(output, `portrait-${state}-fixture.png`) })
+        }
+      }
+    }
+    const failures = report.pixelChecks.filter(check => check.mismatches)
+    assert.deepEqual(failures, [], 'frame alpha and opaque interior must match independent native expectations')
+    report.renderer = await page.evaluate(() => {
+      const gl = window.testSceneRef.current.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
+      return { version: gl.getParameter(gl.VERSION), renderer: gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER) }
+    })
     report.status = 'passed'; save(); return report
   } catch (error) { report.status = 'failed'; report.error = error.stack; save(); throw error }
 }

@@ -1,11 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import ts from 'typescript'
+import { readFileSync } from 'node:fs'
 import { createWorld, addUnit, browserPosition, select } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { boardLiveVehicle } from '../app/live-vehicles.ts'
 import { hudPersonSource } from '../app/hud-person-source.ts'
 import { isShaman } from '../app/world-rules.ts'
+import { portraitBackground } from '../app/hud-portrait.ts'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 import { pageSource, pageNode, pageButton, evaluatePage, nearbyEvent } from './support/follower-nearby-page.mjs'
 
@@ -78,6 +80,48 @@ function commandState(world) {
     })]
   })
 }
+
+test('portrait accessible name describes primary selection and separately describes secondary focus', () => {
+  const control = setup().render()
+  assert.equal(control['aria-label'], 'Select shaman')
+  assert.equal(control['aria-describedby'], 'shaman-portrait-instructions')
+  const description = pageNode(node => ts.isJsxElement(node) &&
+    node.openingElement.attributes.properties.some(attribute =>
+      attribute.name?.getText(pageSource) === 'id' &&
+      attribute.initializer?.text === 'shaman-portrait-instructions'))
+  assert.equal(description.children.filter(ts.isJsxText).map(node => node.text).join('').trim(),
+    'Right-click to focus the camera on the Shaman.')
+})
+
+test('actual HUD runtime clears disabled portrait interior despite a retained mesh and hover, then recovers', () => {
+  const source = ts.createSourceFile('scene-hud-runtime.ts',
+    readFileSync(new URL('../app/scene-hud-runtime.ts', import.meta.url), 'utf8'), ts.ScriptTarget.Latest, true)
+  const caller = source.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'updateHudFrame')
+  const draws = [], noop = () => {}
+  const updateHudFrame = evaluatePage(caller.getText(source).replace(/^export\s+/, ''), {
+    publishTooltipStatus: noop, syncCampaignMessagePresentation: noop,
+    texture: () => ({ image: {} }), populationMeter: () => ({ color: 0 }),
+    nativeHud: { colors: ['#000000'] }, nativeUnits: { atlas: 'unit-atlas' },
+    drawPortrait: (...args) => draws.push(args), portraitBackground, isShaman, maxHp: () => 100,
+  })
+  const shaman = { id: 7, team: 'blue', kind: 'shaman', hp: 100, native: { state: 19 } }
+  const scene = {
+    world: { units: [shaman] }, unitMeshes: new Map([[7, { userData: { frame: 42, frameFlip: true } }]]),
+    portrait: { parentElement: { matches: () => true } }, gameClock: { animationFrame: 0 },
+    view: { config: {} }, container: { parentElement: { style: { setProperty: noop } } },
+    objectPanels: { update: noop }, worshipPresentation: { draw: noop }, uiTimer: 0,
+    drawPointer: noop, renderBuildingPanels: noop, drawMinimap: noop,
+  }
+  for (const state of ['alive', 'dead', 'alive', 'ghost', 'absent', 'alive']) {
+    shaman.hp = state === 'dead' ? 0 : 100
+    shaman.ghost = state === 'ghost'
+    scene.world.units = state === 'absent' ? [] : [shaman]
+    updateHudFrame(scene, 0, 0)
+    const draw = draws.at(-1), enabled = state === 'alive'
+    assert.equal(draw[2], enabled ? 42 : undefined, state)
+    assert.equal(draw[4], enabled ? 130 : 172, state)
+  }
+})
 
 test('mounted portrait adds Shaman/crew, preserves the current group and never focuses on left input', () => {
   for (const vehicle of [undefined, 1, 3]) for (const keys of modifiers) for (const keyboard of [false, true]) {
