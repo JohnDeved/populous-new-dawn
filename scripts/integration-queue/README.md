@@ -6,7 +6,7 @@ preserved merge ancestry. It does not declare the integration PR's constituent P
 tested. GitHub remains the task/status surface; the local checkpoint only records
 observation continuity and uncertain effects.
 
-**Dry-run is the default.** The writer can submit one draft conversion, refresh, ready transition or
+**Dry-run is the default.** The writer can submit one draft conversion, source or base-metadata refresh, ready transition or
 exact-head merge only with an explicit parent-approved, independently reviewed
 plan and short-lived pilot. It has no background polling, workflow rerun, new
 credential, protection change, deploy, squash, rebase or automatic approval.
@@ -169,6 +169,32 @@ this tool verifies CI coverage, not the meaning of external browser/native claim
    and be main's current tip. Deployment observation follows the explicitly
    approved mode below. No deployment is triggered and no serving-production claim
    is inferred from a build check.
+
+### Stale base metadata before Ready
+
+An optional `allowBaseMetadataRefresh: true` entry admits one separately reviewed
+`refresh-base` pilot, never an implicit addition to Ready. This is only for an
+unchanged reviewed Draft head whose current main equals `reviewBase`, already lies
+in the head's ancestry, and has synthetic parents `[main, head]` and the reviewed
+tree, before Ready admission for the current explicitly reviewed candidate/journal.
+This does not assert that the PR has never been Ready in its lifetime. The old
+advertised base must be an ancestor of main. Review, workflow,
+resource, drained-run and existing validation guards still apply; absent hosted
+gates do not block the Ready event that starts them. Genuine failed gates remain
+failures, not metadata exceptions. Admission-only mode has no refresh authority.
+An already-failed Ready, including a stale-event parent-identity preflight that
+ran no tests, needs separate explicit recovery review. This prevention path does
+not retroactively accept, exempt or replay failed attempts.
+
+The fixed PATCH updates only the same PR's already-intended `base=main`. It cannot
+retarget another branch and has no head/base CAS, so serialize the integration
+lane. Persist intent before submission; an independent subsequent GET observation
+must prove the same head/ref, main, Draft state, synthetic commit/parents/tree and
+refreshed advertised base. A response body alone is not confirmation. Stale or
+changed readback stops without another PATCH. Ready still needs its own pilot and
+new quiet observation window. Do not reset the journal to replenish the allowance.
+This refresh repaired observed stale metadata, not a guaranteed GitHub behavior;
+CI's exact parent checks remain unchanged.
 
 Checkpoints are atomically replaced and fsynced under an exclusive `.lock` file.
 An interrupted process leaves the lock: inspect the process and checkpoint before
