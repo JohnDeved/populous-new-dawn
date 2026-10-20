@@ -64,49 +64,96 @@ export function setupConversionCamera(codec) {
     renderer: scene.renderer.getContext().getParameter(scene.renderer.getContext().RENDERER) }
 }
 
-// Read-only RAF observation. No game method replacement, forced ticks, hidden
-// groups, changed frame/UV, stock injection or repeated camera pursuit.
+// Logical records use the existing fixed-turn boundary; RAF owns only artwork
+// and rendered cleanup. The original callback is chained without driving time.
 export function installConversionObserver({ observationMs }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld(),
+    clock = scene.gameClock, originalTurn = clock.afterTurn,
+    turnDescriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn'),
     canvas = scene.renderer.domElement, started = performance.now(), copies = [], keys = new Set(),
-    result = { done: false, error: null, visits: 0, samples: [], crops: [], bornTurn: null, terminal: null }
+    result = { done: false, error: null, visits: 0, samples: [], logical: [], crops: [],
+      bornTurn: null, removal: null, terminal: null, restored: false }
   let raf, flash, target, stopped = false, lastKey
+  const restore = () => {
+    if (clock.afterTurn === turnWrapper) {
+      if (turnDescriptor) Object.defineProperty(clock, 'afterTurn', turnDescriptor)
+      else delete clock.afterTurn
+    }
+    result.restored = clock.afterTurn === originalTurn
+    if (!result.restored) result.error ??= 'Conversion observer callback ownership changed'
+  }
   const stop = reason => {
     if (stopped) return
     stopped = true
     cancelAnimationFrame(raf)
+    restore()
     result.done = true
     result.terminal = { reason, turn: world.turn, stamp: scene.renderer.info.render.frame,
       elapsedMs: performance.now() - started, present: !!flash && world.effects.includes(flash),
       meshPresent: !!flash && scene.fxMeshes.has(flash.id), remaining: flash?.turnsRemaining }
   }
+  const check = () => {
+    if (performance.now() - started > observationMs || result.visits > 7200)
+      throw Error('Conversion observation exceeded its fixed bound')
+    if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world ||
+      scene.world !== world || scene.gameClock !== clock)
+      throw Error('Conversion observer lost its original Scene/world/clock')
+    if (clock.afterTurn !== turnWrapper) throw Error('Conversion observer callback ownership changed')
+    if (!canvas.isConnected || document.visibilityState !== 'visible' || world.paused || world.speed !== 1)
+      throw Error('Conversion observation must remain connected, visible and running at normal speed')
+    if (scene.renderer.getContext().isContextLost()) throw Error('Conversion WebGL context lost')
+  }
+  const logicalVisit = () => {
+    check()
+    if (result.removal) return
+    if (!flash) {
+      flash = world.effects.find(f => f.startConversionLink !== undefined &&
+        world.units.some(u => u.id === f.startConversionLink && u.team === 'yellow'))
+      if (!flash) {
+        if (world.spellCasts[2][17] > 1) throw Error('Missed the first natural AI conversion')
+        return
+      }
+      target = world.units.find(u => u.id === flash.startConversionLink)
+      result.bornTurn = world.turn
+      result.birth = { turn: world.turn, id: flash.id, targetId: target.id, team: target.team, kind: target.kind,
+        casts: world.spellCasts[2][17], stock: world.manaWorld.spells[2].stocks[17],
+        remaining: flash.turnsRemaining, linkedCount: world.effects.filter(f => f.startConversionLink === target.id).length,
+        birthSubstitute: world.effects.some(f => f.kind === 'birth' && f.x === flash.x && f.z === flash.z),
+        cue5: world.sounds.some(s => s.cue === 5 && s.turn === world.turn), x: flash.x, z: flash.z }
+    }
+    const sample = { turn: world.turn, present: world.effects.includes(flash), remaining: flash.turnsRemaining,
+      id: flash.id, targetId: target.id, x: flash.x, z: flash.z, targetX: target.x, targetZ: target.z }
+    if (result.logical.length >= 10) throw Error('Conversion logical storage exceeded')
+    result.logical.push(sample)
+    if (!sample.present) result.removal = { ...sample }
+    if (world.turn > result.bornTurn + 8) throw Error('Conversion owner exceeded eight logical visits')
+  }
+  function turnWrapper(...args) {
+    let returned
+    try { returned = originalTurn?.apply(this, args) }
+    catch (error) {
+      result.error ??= String(error)
+      stop('callback-error')
+      throw error
+    }
+    if (!stopped) {
+      try { logicalVisit() }
+      catch (error) { result.error ??= String(error); stop('error') }
+    }
+    return returned
+  }
   const visit = () => {
     if (stopped) return
     try {
       result.visits++
-      if (performance.now() - started > observationMs || result.visits > 7200)
-        throw Error('Conversion observation exceeded its fixed bound')
-      if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world || scene.world !== world)
-        throw Error('Conversion observer lost its original Scene/world')
-      if (!canvas.isConnected || document.visibilityState !== 'visible' || world.paused || world.speed !== 1)
-        throw Error('Conversion observation must remain connected, visible and running at normal speed')
-      if (scene.renderer.getContext().isContextLost()) throw Error('Conversion WebGL context lost')
-      if (!flash) {
-        flash = world.effects.find(f => f.startConversionLink !== undefined &&
-          world.units.some(u => u.id === f.startConversionLink && u.team === 'yellow'))
-        if (!flash) {
-          if (world.spellCasts[2][17] > 1) throw Error('Missed the first natural AI conversion')
-          raf = requestAnimationFrame(visit); return
-        }
-        target = world.units.find(u => u.id === flash.startConversionLink)
-        result.bornTurn = world.turn
-        result.birth = { id: flash.id, targetId: target.id, team: target.team, kind: target.kind,
-          casts: world.spellCasts[2][17], stock: world.manaWorld.spells[2].stocks[17],
-          remaining: flash.turnsRemaining, linkedCount: world.effects.filter(f => f.startConversionLink === target.id).length,
-          birthSubstitute: world.effects.some(f => f.kind === 'birth' && f.x === flash.x && f.z === flash.z),
-          cue5: world.sounds.some(s => s.cue === 5 && s.turn === world.turn), x: flash.x, z: flash.z }
+      check()
+      if (!flash) { raf = requestAnimationFrame(visit); return }
+      if (!world.effects.includes(flash)) {
+        if (!result.removal) throw Error('Conversion removal missed fixed-turn observation')
+        // Scene updates meshes after advanceGame, not inside afterTurn.
+        if (!scene.fxMeshes.has(flash.id)) { stop('rendered-expiry'); return }
+        raf = requestAnimationFrame(visit); return
       }
-      if (!world.effects.includes(flash)) { stop('logical-expiry'); return }
       const group = scene.fxMeshes.get(flash.id), sprite = group?.userData.sprite,
         animation = flash.animation, stamp = scene.renderer.info.render.frame,
         key = `${world.turn}:${animation.object}:${animation.f1}:${stamp}`
@@ -148,7 +195,6 @@ export function installConversionObserver({ observationMs }) {
           result.crops.push(crop); copies.push({ copy, context, crop })
         }
       }
-      if (world.turn > result.bornTurn + 8) throw Error('Conversion owner exceeded eight logical visits')
       raf = requestAnimationFrame(visit)
     } catch (error) { result.error = String(error); stop('error') }
   }
@@ -170,13 +216,33 @@ export function installConversionObserver({ observationMs }) {
       return result
     },
   }
-  raf = requestAnimationFrame(visit)
+  try {
+    if (world.spellCasts[2][17] !== 0 || world.effects.some(f => f.startConversionLink !== undefined))
+      throw Error('Conversion observer must precede the first conversion')
+    clock.afterTurn = turnWrapper
+    check()
+    raf = requestAnimationFrame(visit)
+  } catch (error) { result.error ??= String(error); stop('installation-error'); throw error }
 }
 
 export function validateConversionObservation(observation, atlas) {
   assert.equal(observation.error, null)
-  assert.equal(observation.terminal.reason, 'logical-expiry')
-  assert.equal(observation.terminal.turn - observation.bornTurn, 8)
+  assert.equal(observation.restored, true)
+  assert.equal(observation.terminal.reason, 'rendered-expiry')
+  assert.equal(observation.birth.turn, observation.bornTurn)
+  assert.equal(observation.removal.turn - observation.bornTurn, 8)
+  assert.equal(observation.removal.present, false)
+  assert.equal(observation.removal.remaining, 0)
+  assert.ok(observation.terminal.turn >= observation.removal.turn)
+  assert.equal(observation.logical.length, 9)
+  for (const [index, sample] of observation.logical.entries()) {
+    assert.equal(sample.turn, observation.bornTurn + index)
+    assert.equal(sample.remaining, 8 - index)
+    assert.equal(sample.present, index < 8)
+    assert.equal(sample.id, observation.birth.id)
+    assert.equal(sample.targetId, observation.birth.targetId)
+  }
+  assert.deepEqual(observation.removal, observation.logical.at(-1))
   assert.equal(observation.terminal.present, false)
   assert.equal(observation.terminal.meshPresent, false)
   assert.equal(observation.terminal.remaining, 0)
@@ -189,8 +255,8 @@ export function validateConversionObservation(observation, atlas) {
   assert.ok(new Set(visible.map(s => s.frame)).size >= 2, 'Observe actual artwork phase advancement')
   assert.ok(observation.crops.length >= 2 && observation.crops.length <= 8)
   assert.ok(observation.samples.some(s => s.object === 0x650 && !s.visible), 'Observe visual termination before removal')
-  assert.ok(observation.samples.some(s => s.x !== birth.x || s.z !== birth.z), 'Observe natural linked movement')
-  assert.ok(observation.samples.some(s => observation.samples.some(previous => previous.turn === s.turn - 1 &&
+  assert.ok(observation.logical.some(s => s.present && (s.x !== birth.x || s.z !== birth.z)), 'Observe natural linked movement')
+  assert.ok(observation.logical.some(s => s.present && observation.logical.some(previous => previous.turn === s.turn - 1 &&
     (s.x !== birth.x || s.z !== birth.z) && s.x === previous.targetX && s.z === previous.targetZ)),
   'Moving flash follows the replacement position from the preceding logical visit')
   for (const sample of visible) {
@@ -267,7 +333,7 @@ export default async function spellConversion({ browser, url, output }) {
     assert.equal(report.setup.level, 3); assert.equal(report.setup.casts, 0)
     assert.equal(report.setup.stock, 1); assert.equal(report.setup.paused, true)
     assert.equal(report.setup.speed, 1)
-    // Resume before installing RAF so the observer never changes pause state.
+    // Resume before installing observation so the observer never changes pause state.
     report.phase = 'resume'
     await page.getByRole('button', { name: 'Resume game', exact: true }).click()
     report.phase = 'install-observer'

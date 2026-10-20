@@ -9,6 +9,7 @@ import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import { spellTestLimitMs } from '../scripts/tutorial-browser/spell-test-menu.mjs'
 import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mjs'
 import { createWorld, tick, nativePosition } from '../app/model.ts'
+import { advanceGame } from '../app/game-clock.ts'
 import { createCameraMotion } from '../app/camera-motion.ts'
 import { stepFlyby } from '../app/flyby.ts'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
@@ -228,10 +229,12 @@ function observation() {
   const first = sample(157, 1240, -45, -44.75), second = sample(158, 1242, -44.75, -44.75)
   first.cropFile = 'spell-conversion-frame-0.png'
   second.cropFile = 'spell-conversion-frame-1.png'
-  return { error: null, bornTurn: 157,
-    birth: { id: 9, targetId: 10, casts: 1, stock: 0, team: 'yellow', kind: 'brave',
+  const logical = Array.from({ length: 9 }, (_, i) => ({ turn: 157 + i, present: i < 8,
+    remaining: 8 - i, id: 9, targetId: 10, x: i ? -44.75 : -45, z: -91, targetX: -44.75, targetZ: -91 }))
+  return { error: null, restored: true, bornTurn: 157, logical, removal: { ...logical.at(-1) },
+    birth: { turn: 157, id: 9, targetId: 10, casts: 1, stock: 0, team: 'yellow', kind: 'brave',
       remaining: 8, linkedCount: 1, birthSubstitute: false, cue5: true, x: -45, z: -91 },
-    terminal: { reason: 'logical-expiry', turn: 165, present: false, meshPresent: false, remaining: 0 },
+    terminal: { reason: 'rendered-expiry', turn: 166, present: false, meshPresent: false, remaining: 0 },
     samples: [first, second, { ...second, turn: 161, object: 0x650, visible: false }],
     crops: [first, second].map(s => ({ filename: s.cropFile, frame: s.frame, turn: s.turn, stamp: s.stamp, colors: 10 })) }
 }
@@ -242,8 +245,12 @@ test('bounded conversion validator rejects wrong art, stale crops, missed motion
     o => { o.samples[0].object = 1441 },
     o => { o.samples[0].uv[2] = 0 },
     o => { o.crops[0].stamp++ },
-    o => { o.samples[1].x = -45 },
-    o => { o.terminal.turn++ },
+    o => { for (const s of o.logical) s.x = -45 },
+    o => { o.removal.turn++ },
+    o => { o.logical.splice(3, 1) },
+    o => { o.restored = false },
+    o => { o.terminal.turn = 164 },
+    o => { o.terminal.meshPresent = true },
     o => { o.samples[0].submitted = false },
     o => { o.samples[0].texture = '/original/unit-layers.png' },
     o => { o.birth.birthSubstitute = true },
@@ -280,4 +287,171 @@ test('conversion final cleanup cannot certify a late or watchdog-expired episode
   const report = {}
   await closeConversionContext({ close: async () => {} }, report, 0, () => 74000)
   assert.equal(report.elapsedMs, 74000)
+})
+
+// Controlled callback/RAF fixture exercises the installed observer itself. It is
+// not gameplay or GPU evidence; the browser episode supplies those observations.
+function observerFixture(t, { expiry = 165, callback } = {}) {
+  const target = { id: 10, team: 'yellow', kind: 'brave', x: -45, z: -91 },
+    flash = { id: 9, startConversionLink: 10, turnsRemaining: 8, x: -45, z: -91,
+      animation: { object: 0x650, f1: 0 } },
+    world = { turn: 156, paused: false, speed: 1, effects: [], units: [target],
+      spellCasts: [[], [], { 17: 0 }], manaWorld: { spells: [null, null, { stocks: { 17: 1 } }] }, sounds: [] },
+    calls = [], original = function (...args) {
+      calls.push({ receiver: this, args, turn: world.turn })
+      if (callback) return callback.apply(this, args)
+      if (world.turn === 157) {
+        world.effects.push(flash); world.spellCasts[2][17] = 1
+        world.manaWorld.spells[2].stocks[17] = 0; world.sounds.push({ cue: 5, turn: 157 })
+      }
+      if (world.turn > 157 && world.turn < expiry) flash.turnsRemaining = Math.max(1, 165 - world.turn)
+      if (world.turn === expiry) { flash.turnsRemaining = 0; world.effects.length = 0 }
+      return 'original-result'
+    }, clock = { afterTurn: original },
+    scene = { world, gameClock: clock, fxMeshes: new Map(),
+      renderer: { domElement: { isConnected: true }, info: { render: { frame: 0 } },
+        getContext: () => ({ isContextLost: () => false }) } }, pending = new Map()
+  let serial = 0
+  browserGlobals(t, {
+    window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
+    document: { visibilityState: 'visible' },
+    requestAnimationFrame: fn => { pending.set(++serial, fn); return serial },
+    cancelAnimationFrame: id => pending.delete(id),
+  })
+  const descriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn')
+  installConversionObserver({ observationMs: 30000 })
+  const observer = window.__pndConversionObservation
+  t.after(() => observer.retain())
+  return { world, scene, clock, original, descriptor, calls, observer, flash, pending,
+    turn(turn) { world.turn = turn; return clock.afterTurn.call(clock, 'argument') },
+    frame() {
+      scene.renderer.info.render.frame++
+      const callbacks = [...pending.values()]; pending.clear()
+      for (const fn of callbacks) fn()
+    } }
+}
+
+test('actual Convert observer separates catch-up expiry165 from rendered absence166', t => {
+  const f = observerFixture(t)
+  for (let turn = 157; turn <= 164; turn++) {
+    assert.equal(f.turn(turn), 'original-result')
+    if ([157, 158, 159, 161, 162, 164].includes(turn)) f.frame()
+  }
+  // Keep the stale mesh until display synchronization, as Scene does after the
+  // fixed-turn loop. No RAF runs between these two actual callback invocations.
+  f.scene.fxMeshes.set(9, { visible: false, userData: {} })
+  f.turn(165)
+  assert.equal(f.observer.result.removal.turn, 165)
+  assert.equal(f.observer.result.done, false, 'logical removal does not require mesh removal')
+  f.turn(166)
+  f.scene.fxMeshes.delete(9)
+  f.frame()
+  const result = f.observer.retain()
+  assert.equal(result.error, null)
+  assert.equal(result.birth.turn, 157)
+  assert.equal(result.removal.turn - result.birth.turn, 8)
+  assert.deepEqual(result.logical.map(s => [s.turn, s.remaining, s.present]),
+    Array.from({ length: 9 }, (_, i) => [157 + i, 8 - i, i < 8]))
+  assert.equal(result.terminal.turn, 166)
+  assert.equal(result.terminal.reason, 'rendered-expiry')
+  assert.equal(result.terminal.meshPresent, false)
+  assert.deepEqual(result.samples.map(s => s.turn), [157, 158, 159, 161, 162, 164])
+  assert.equal(result.restored, true)
+  assert.deepEqual(Object.getOwnPropertyDescriptor(f.clock, 'afterTurn'), f.descriptor)
+  assert.equal(f.calls.length, 10)
+  assert.ok(f.calls.every(c => c.receiver === f.clock && c.args[0] === 'argument'))
+  assert.equal(f.pending.size, 0)
+})
+
+test('actual Convert observer still rejects genuine logical expiry166', t => {
+  const f = observerFixture(t, { expiry: 166 })
+  for (let turn = 157; turn <= 164; turn++) { f.turn(turn); f.frame() }
+  f.turn(165); f.turn(166); f.frame()
+  const result = f.observer.retain()
+  assert.equal(result.birth.turn, 157)
+  assert.equal(result.removal.turn, 166)
+  assert.match(result.error, /exceeded eight logical visits/)
+  assert.equal(result.restored, true)
+  assert.throws(() => validateConversionObservation(result, atlas))
+})
+
+test('Convert observer preserves original thrown identity and restores its descriptor', t => {
+  const failure = new Error('existing callback failed'),
+    f = observerFixture(t, { callback() { throw failure } })
+  assert.throws(() => f.turn(157), error => error === failure)
+  assert.equal(f.calls.length, 1)
+  assert.equal(f.calls[0].receiver, f.clock)
+  assert.deepEqual(f.calls[0].args, ['argument'])
+  assert.equal(f.observer.result.terminal.reason, 'callback-error')
+  assert.equal(f.observer.result.restored, true)
+  assert.deepEqual(Object.getOwnPropertyDescriptor(f.clock, 'afterTurn'), f.descriptor)
+  assert.equal(f.pending.size, 0)
+})
+
+test('Convert retention restores early and refuses to overwrite a foreign callback', async t => {
+  await t.test('early retention', t => {
+    const f = observerFixture(t), result = f.observer.retain()
+    assert.equal(result.terminal.reason, 'retained-before-completion')
+    assert.equal(result.restored, true)
+    assert.equal(f.clock.afterTurn, f.original)
+    assert.equal(f.pending.size, 0)
+  })
+  await t.test('foreign callback', t => {
+    const f = observerFixture(t), foreign = () => {}
+    f.clock.afterTurn = foreign; f.frame()
+    assert.match(f.observer.result.error, /callback ownership changed/)
+    assert.equal(f.observer.result.restored, false)
+    assert.equal(f.clock.afterTurn, foreign)
+    assert.equal(f.pending.size, 0)
+  })
+})
+
+
+test('real Mission 3 catch-up observes expiry at165 while RAF next sees166 without world changes', t => {
+  const world = createWorld(3, 'scalable'), control = structuredClone(world), pending = new Map(),
+    original = () => {}, clock = { animationTime: 0, animationFrame: 0, afterTurn: original },
+    controlClock = { animationTime: 0, animationFrame: 0 },
+    scene = { world, gameClock: clock, fxMeshes: new Map(), renderer: {
+      domElement: { isConnected: true }, info: { render: { frame: 0 } },
+      getContext: () => ({ isContextLost: () => false }) } }
+  let serial = 0
+  browserGlobals(t, {
+    window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
+    document: { visibilityState: 'visible' },
+    requestAnimationFrame: fn => { pending.set(++serial, fn); return serial },
+    cancelAnimationFrame: id => pending.delete(id),
+  })
+  installConversionObserver({ observationMs: 30000 })
+  const observer = window.__pndConversionObservation
+  t.after(() => observer.retain())
+  const display = () => {
+    scene.renderer.info.render.frame++
+    const callbacks = [...pending.values()]; pending.clear()
+    for (const fn of callbacks) fn()
+  }
+  for (let i = 0; i < 164; i++) {
+    advanceGame(world, clock, 1 / 12)
+    advanceGame(control, controlClock, 1 / 12)
+    display()
+  }
+  assert.equal(world.turn, 164)
+  assert.equal(observer.result.birth.turn, 157)
+  scene.fxMeshes.set(observer.result.birth.id, { visible: false, userData: {} })
+  advanceGame(world, clock, 2 / 12)
+  advanceGame(control, controlClock, 2 / 12)
+  assert.equal(world.turn, 166)
+  assert.equal(observer.result.removal.turn, 165)
+  assert.equal(observer.result.done, false)
+  scene.fxMeshes.clear()
+  display()
+  const result = observer.retain()
+  assert.equal(result.error, null)
+  assert.equal(result.terminal.turn, 166)
+  assert.equal(result.terminal.reason, 'rendered-expiry')
+  assert.equal(result.removal.turn - result.birth.turn, 8)
+  assert.deepEqual(result.logical.map(s => s.turn), [157, 158, 159, 160, 161, 162, 163, 164, 165])
+  assert.equal(result.restored, true)
+  assert.equal(clock.afterTurn, original)
+  assert.equal(clock.animationFrame, controlClock.animationFrame)
+  assert.deepEqual(world, control, 'observation must preserve the complete production world')
 })
