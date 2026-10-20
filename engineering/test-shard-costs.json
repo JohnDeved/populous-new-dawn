@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "algorithm": "duration-lpt-v1",
+  "source": {
+    "runId": "39362546368",
+    "headSha": "2de965c973f07c4d353ad7a5ec4f4402e86ef5ab",
+    "mergeSha": "8bb188faca8afd4e101211a7494c14d2180e86b7"
+  },
+  "defaultMs": 1000,
+  "overheadMs": 400,
+  "costs": [
+    ["tests/balloon-attack.test.mjs", 42000],
+    ["tests/balloon-person-attack.test.mjs", 12000],
+    ["tests/balloon-plain-person-attack.test.mjs", 15000],
+    ["tests/balloon-staged-movement.test.mjs", 18000],
+    ["tests/hypnotise-registered-occupants.test.mjs", 13000],
+    ["tests/mission16-training-capacity.test.mjs", 13000],
+    ["tests/mission16-yellow-staffing.test.mjs", 14000],
+    ["tests/mission18-recurring-preacher.test.mjs", 15000],
+    ["tests/mission22-marker-patrol.test.mjs", 14000],
+    ["tests/mission22-tower-staffing.test.mjs", 11000],
+    ["tests/mission6-natural-marker-bridge.test.mjs", 23000],
+    ["tests/mission6.test.mjs", 25000],
+    ["tests/orchestration.test.mjs", 12000],
+    ["tests/performance-queue-protocol.test.mjs", 12000],
+    ["tests/performance-queue.test.mjs", 18000],
+    ["tests/repeat-boat-production.test.mjs", 13000],
+    ["tests/temple-manual-inspection.test.mjs", 12000]
+  ]
+}

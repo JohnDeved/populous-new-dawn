@@ -91,7 +91,10 @@ timeout is a safety bound; a timeout is a failure, not partial acceptance.
 ## Four-shard receipt contract
 
 The fixed matrix uses zero-based indices 0–3 internally and visible labels 1–4.
-Sorted top-level test paths are assigned round-robin. `fail-fast: false` allows all
+Top-level tests are assigned by the deterministic `duration-lpt-v1` policy in
+`engineering/test-shard-costs.json`: descending estimated duration plus fixed
+per-file overhead, then lexical path; each file goes to the lightest shard, ties
+to the lowest shard index. Each resulting shard’s file list and each execution group are lexically ordered. `fail-fast: false` allows all
 four isolated workers to finish; `max-parallel: 4` caps the matrix. Each shard
 retains reviewed C2 execution and conservative C1 fallback within its own VM.
 Shard child processes disable Python bytecode writes, avoiding incidental
@@ -293,3 +296,71 @@ not pass. Existing ZIP/expanded-file caps and all nine original recovery cases s
 unchanged. The intentional workflow change requires independent source review and
 an exact pinned `browserWorkflowTransition`; automatic mechanical refresh is not
 allowed for activation. Hosted fit is unproved until both full scenarios pass.
+
+
+## Duration-weighted scheduling and reviewed transition
+
+The cost manifest is scheduling data, not a test-result cache or resource review.
+Its 17 initial entries are the files whose summary durations exceeded ten seconds
+in [Full run 39362546368](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39362546368),
+rounded up to whole seconds. The manifest records that run's head and tested merge,
+not a claim that those old observations describe the current source exactly.
+All other/new/renamed files receive a positive 1000ms estimate; every file adds
+400ms overhead, rounding that run's pooled 378ms/file subprocess residual.
+Removed entries do not add files to discovery. Stale estimates affect balance only.
+Updates are deliberate reviewed source changes; never download or rewrite weights
+in CI or refresh resource eligibility hashes to regain C2 execution.
+
+Schema version 1 requires exactly `version`, `algorithm`, `source`, `defaultMs`,
+`overheadMs`, and `costs`. `source` contains exactly a positive decimal-string run
+ID and lowercase 40-hex head/merge SHAs. Costs are at most 256 unique `[testPath,
+integerMilliseconds]` pairs; every duration/default/overhead is a positive safe
+integer no greater than 3,600,000ms. The JSON is at most 65,536 bytes. Unknown keys,
+invalid paths, duplicates, malformed or missing data fail closed. A symlink is not
+a valid local manifest. The exact bytes, including whitespace, enter the shard
+fingerprint and `plan.shard.costsSha256`. All tests, scripts and existing resource,
+runtime and production bindings remain in force. Local full/focus commands do not
+read this scheduling manifest.
+
+The runner and trusted external validator share one pure implementation in
+`scripts/orchestration/test-shard-policy.mjs`. Independent validation means the
+validator executes its own reviewed local closure, not code imported from the
+candidate, and reads inventory and manifest bytes independently from the exact
+synthetic merge in Git. The worker cannot choose the expected algorithm. That
+reviewed source's manifest presence/version selects weighted scheduling; absence
+selects historical round-robin only for reviewed legacy source. A present invalid
+manifest never downgrades, and weighted source rejects round-robin receipts. The
+source review must explicitly confirm this presence/version and the unchanged
+workflow expectations. A scheduling hash copied from a receipt is not evidence.
+
+The first weighted PR cannot be certified by the old main validator, which knows
+only round-robin. Do not suppress that rejection or treat its failure as a pass:
+1. Review the full candidate diff, algorithm, data, tests, and complete read-only
+   validation closure separately. Pin the reviewed closure's file hashes and exact
+   candidate head/base/merge; no dynamic candidate imports or auto-update path.
+2. Run focused scheduling, runner, aggregate, integration-reader and workflow tests
+   after the execution lane is released. The existing required hosted workflow
+   then runs all tests and quality/build stages on the reviewed candidate.
+3. Reconstruct that hosted receipt using the independently reviewed, hash-pinned
+   local validator closure with the expected source manifest read from Git. Record
+   the closure identity and all five source-bound receipts. Legacy parsing remains
+   available only for exact reviewed source without the manifest, not as a fallback
+   for this candidate. A stale source, changed closure, absent evidence or failed
+   required gate blocks merge.
+4. After review and authorized merge, ordinary validation uses the accepted new
+   main closure. Never weaken a required check or change the ready-only trigger.
+
+The bounded pilot is one reviewed candidate run of the existing required workflow,
+not a new Action or extra benchmark. Compare per-shard subprocess and job wall
+measurements, coverage, eligibility and aggregate overhead with the retained
+baseline. Its 578 baseline file summaries sum to 159.55/307.65/165.67/191.72 seconds.
+A metadata-only replay using this exact 17-entry rounded policy assigns
+146/148/142/142 baseline files, whose recorded summaries total
+220.63/198.58/189.57/215.80 seconds. The maximum falls from 307.65 to 220.63 seconds
+in that retrospective arithmetic; this is not a measured runtime improvement.
+Tests added by this PR will use the default cost. Different machines, source drift,
+process startup and C1/C2 behavior can change the result. Actual baseline subprocess
+walls were 204.88/382.67/216.57/239.09 seconds; aggregate setup took another 86 seconds
+and is not reduced by sharding. Stop at a verified candidate gate plus measured
+wall-time report; do not run repeated ready transitions simply to seek a faster
+sample. If the pilot fails or is materially worse, diagnose before proceeding.

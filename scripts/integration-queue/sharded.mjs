@@ -1,5 +1,6 @@
 // Trusted, read-only validation. Never import executable policy from the candidate.
 import { createHash } from 'node:crypto'
+import { parseShardCosts, partitionTestFiles, LEGACY_SHARD_ALGORITHM } from '../orchestration/test-shard-policy.mjs'
 
 const ensure = (value, message) => { if (!value) throw new Error(`Sharded Full check: ${message}`) }
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
@@ -75,6 +76,11 @@ export function validateShardedReceipt(receipt, expected) {
   ensure(same(receipt.quality.stages, ['typecheck', 'parity', 'orchestration', 'build']),
     'missing quality/build stages')
   ensure(Array.isArray(receipt.shards) && receipt.shards.length === 4, 'need exactly four shard receipts')
+  // The caller selects policy from exact reviewed Git source, never receipt claims.
+  ensure(Object.hasOwn(expected, 'shardCostBytes'), 'missing independently selected scheduling policy')
+  const costs = expected.shardCostBytes === null ? null : parseShardCosts(expected.shardCostBytes)
+  const algorithm = costs?.algorithm ?? LEGACY_SHARD_ALGORITHM
+  const costsSha256 = costs ? createHash('sha256').update(expected.shardCostBytes).digest('hex') : null
   const indexes = new Set(), coverage = []
   for (const value of receipt.shards) {
     envelope(value, 'shard')
@@ -83,9 +89,10 @@ export function validateShardedReceipt(receipt, expected) {
     const index = plan?.shard?.index
     ensure(Number.isInteger(index) && index >= 0 && index < 4 && !indexes.has(index), 'duplicate or invalid shard index')
     indexes.add(index)
-    const files = inventory.filter((_, i) => i % 4 === index).map(i => i.file)
+    const files = partitionTestFiles(inventory.map(i => i.file), index, 4, costs)
+    const descriptor = { index, count: 4, algorithm, ...(costs ? { costsSha256 } : {}) }
     ensure(plan.mode === 'shard' && plan.fullSuite === false && plan.shard.count === 4 &&
-      plan.shard.algorithm === 'sorted-round-robin-v1' &&
+      same(plan.shard, descriptor) &&
       same(plan.discovered, inventory.map(i => i.file)) && same(plan.files, files),
       'missing/duplicate/altered shard coverage')
     ensure(inputsBefore === plan.inputFingerprint && inputsAfter === plan.inputFingerprint &&

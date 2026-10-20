@@ -9,6 +9,9 @@ import { lstatSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { SHARD_COST_PATH, parseShardCosts, partitionTestFiles } from './test-shard-policy.mjs'
+export { partitionTestFiles } from './test-shard-policy.mjs'
+
 const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const customRuntime = () => ['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE'].some(key => process.env[key])
@@ -91,13 +94,6 @@ export function planTestRun(repo, mode, requested = [], { concurrency = '2' } = 
 // Shards are separate CI machines, not extra local concurrency. Every shard keeps
 // the reviewed C2/C1 policy, and only their validated aggregate is a full suite.
 export const TEST_SHARD_COUNT = 4
-export function partitionTestFiles(files, index, count = TEST_SHARD_COUNT) {
-  assert(count === TEST_SHARD_COUNT, 'Shard count must be exactly 4')
-  assert(Number.isInteger(index) && index >= 0 && index < count, 'Shard index must be an integer from 0 to 3')
-  assert(Array.isArray(files) && files.length >= count && files.every(testPath), 'Sharding needs at least four valid test files')
-  assert(new Set(files).size === files.length, 'Duplicate discovered test file')
-  return [...files].sort().filter((_, offset) => offset % count === index)
-}
 
 export function shardInputFingerprint(repo) {
   // Include all tests and scripts, not just selected files: drift in discovery,
@@ -108,7 +104,12 @@ export function shardInputFingerprint(repo) {
   assert(tests && scripts && production, 'Shard inputs must be regular files/directories without symlinks')
   const policyPath = join(repo, 'engineering/test-resources.json')
   assert(lstatSync(policyPath).isFile(), 'Shard policy must be a regular file')
+  const costPath = join(repo, SHARD_COST_PATH)
+  assert(lstatSync(costPath).isFile(), 'Shard costs must be a regular file')
+  const costs = readFileSync(costPath)
+  parseShardCosts(costs)
   return hash(JSON.stringify({ tests, scripts, production, policy: hash(readFileSync(policyPath)),
+    shardCosts: hash(costs),
     runtime: { node: process.versions.node, platform: process.platform, arch: process.arch },
     childEnvironment: { PYTHONDONTWRITEBYTECODE: '1' },
     environment: Object.fromEntries(['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE', 'PND_TEST_CONCURRENCY']
@@ -125,9 +126,12 @@ function freeze(value) {
 
 export function planTestShard(repo, index, count = TEST_SHARD_COUNT, options = {}) {
   const all = planTestRun(repo, 'all', [], options)
-  const files = partitionTestFiles(all.files, index, count), selected = new Set(files)
+  const costPath = join(repo, SHARD_COST_PATH)
+  assert(lstatSync(costPath).isFile(), 'Shard costs must be a regular file')
+  const costBytes = readFileSync(costPath), costs = parseShardCosts(costBytes)
+  const files = partitionTestFiles(all.files, index, count, costs), selected = new Set(files)
   return freeze({ ...all, mode: 'shard', fullSuite: false,
-    shard: { index, count, algorithm: 'sorted-round-robin-v1' }, discovered: all.files,
+    shard: { index, count, algorithm: costs.algorithm, costsSha256: hash(costBytes) }, discovered: all.files,
     files, groups: all.groups.map(group => ({ ...group, files: group.files.filter(file => selected.has(file)) }))
       .filter(group => group.files.length), inputFingerprint: shardInputFingerprint(repo) })
 }

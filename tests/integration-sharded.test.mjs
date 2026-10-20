@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { GATES, SHARDED_FULL_GATE, gatesFor, reviewedWorkflows, validateEntry, decide, sha256 } from '../scripts/integration-queue/policy.mjs'
 import { BASELINE_DIAGNOSTIC, SHARDED_JOBS, shardedLogReceipt, validateShardedReceipt, validateBaselineLog } from '../scripts/integration-queue/sharded.mjs'
+import { SHARD_COST_PATH, parseShardCosts, partitionTestFiles } from '../scripts/orchestration/test-shard-policy.mjs'
 import { GitHubReader } from '../scripts/integration-queue/github.mjs'
 
 const oid = n => String(n).repeat(40)
@@ -25,7 +26,7 @@ function fixture() {
         results: [{ files, concurrency: 1, exitCode: 0, signal: null, error: null, status: 'passed',
           command: ['/usr/bin/node', '--test', '--test-concurrency=1', '--test-reporter=tap', ...files] }] } } }
   })
-  return { receipt: { ...envelope('full-check'), quality, shards }, expected: { identity, inventory, lockSha256: runtime.lockSha256 } }
+  return { receipt: { ...envelope('full-check'), quality, shards }, expected: { identity, inventory, lockSha256: runtime.lockSha256, shardCostBytes: null } }
 }
 
 function receiptLog(receipt) {
@@ -155,7 +156,7 @@ function adapterFixture() {
       app: { id: 15368, slug: 'github-actions' }, status: 'completed', conclusion: 'success' }
   }
   reader.workflow = () => ({ sha256: h })
-  reader.git = () => expected.inventory.map(i => i.file).join('\n')
+  reader.git = (...args) => args.at(-1) === SHARD_COST_PATH ? '' : expected.inventory.map(i => i.file).join('\n')
   reader.gitOutput = (_, ref) => ref.endsWith('package-lock.json') ? 'lock\n' : `test ${ref.match(/a(\d)\.test/)[1]}\n`
   return { reader, args: [e, pr, synthetic, exact, jobs, row, log] }
 }
@@ -335,5 +336,73 @@ test('reader obtains diagnostic reporter hash from exact merge Git bytes, not re
       assert.equal(args[5].shardedVerified, true)
     }
     assert.deepEqual(seen, [`${oid(4)}:scripts/orchestration/test-timing-reporter.mjs`])
+  }
+})
+
+
+const weightedBytes = JSON.stringify({ version: 1, algorithm: 'duration-lpt-v1',
+  source: { runId: '100', headSha: oid(1), mergeSha: oid(4) },
+  defaultMs: 1000, overheadMs: 400, costs: [['tests/a0.test.mjs', 10000], ['tests/a4.test.mjs', 9000]] })
+function enableWeighted(receipt) {
+  const costs = parseShardCosts(weightedBytes)
+  for (const { shard } of receipt.shards) {
+    const files = partitionTestFiles(receipt.inventory.map(i => i.file), shard.plan.shard.index, 4, costs)
+    shard.plan.shard = { index: shard.plan.shard.index, count: 4, algorithm: costs.algorithm, costsSha256: sha256(weightedBytes) }
+    shard.plan.files = files
+    shard.plan.groups = [{ concurrency: 1, files }]
+    shard.result.results = [{ files, concurrency: 1, exitCode: 0, signal: null, error: null, status: 'passed',
+      command: ['/usr/bin/node', '--test', '--test-concurrency=1', '--test-reporter=tap', ...files] }]
+  }
+}
+
+test('weighted receipt reconstruction requires independently selected exact policy and rejects downgrade', () => {
+  const { receipt, expected } = fixture(), legacy = structuredClone(receipt)
+  enableWeighted(receipt)
+  const weighted = { ...expected, shardCostBytes: weightedBytes }
+  assert.equal(validateShardedReceipt(receipt, weighted), true)
+  assert.throws(() => validateShardedReceipt(receipt, expected), /coverage/)
+  assert.throws(() => validateShardedReceipt(legacy, weighted), /coverage/)
+  const missing = { ...expected }; delete missing.shardCostBytes
+  assert.throws(() => validateShardedReceipt(legacy, missing), /independently selected/)
+  for (const bytes of ['{}', undefined, weightedBytes + ' ', weightedBytes.replace('10000', '20000')])
+    assert.throws(() => validateShardedReceipt(receipt, { ...expected, shardCostBytes: bytes }))
+  for (const mutate of [
+    r => { r.shards[0].shard.plan.shard.costsSha256 = h },
+    r => { r.shards[0].shard.plan.shard.algorithm = 'sorted-round-robin-v1' },
+    r => { r.shards[0].shard.plan.files.push(r.shards[1].shard.plan.files[0]) },
+    r => { [r.shards[0].shard.plan.files, r.shards[1].shard.plan.files] = [r.shards[1].shard.plan.files, r.shards[0].shard.plan.files] },
+    r => { r.shards[0].shard.plan.shard.extra = true },
+  ]) {
+    const copy = structuredClone(receipt); mutate(copy)
+    assert.throws(() => validateShardedReceipt(copy, weighted), /coverage/)
+  }
+})
+
+test('reader selects weighted policy from exact Git source, not receipt algorithm or hash claims', () => {
+  for (const variant of ['valid', 'downgrade', 'missing', 'changed', 'malformed']) {
+    const { reader, args } = adapterFixture()
+    const receipt = shardedLogReceipt(args[6])
+    if (variant !== 'downgrade') enableWeighted(receipt)
+    args[6] = args[6].slice(0, args[6].indexOf('PND_FULL_CHECK_RECEIPT')) + receiptLog(receipt)
+    const git = reader.git.bind(reader), gitOutput = reader.gitOutput.bind(reader), seen = []
+    reader.git = (...values) => {
+      if (values.at(-1) === SHARD_COST_PATH) {
+        assert.deepEqual(values, ['ls-tree', '-r', '--name-only', oid(4), '--', SHARD_COST_PATH])
+        return variant === 'missing' ? '' : SHARD_COST_PATH
+      }
+      return git(...values)
+    }
+    reader.gitOutput = (command, ref) => {
+      if (ref.endsWith(`:${SHARD_COST_PATH}`)) {
+        seen.push(ref)
+        return variant === 'changed' ? weightedBytes + ' ' : variant === 'malformed' ? '{}' : weightedBytes
+      }
+      return gitOutput(command, ref)
+    }
+    if (variant === 'valid') {
+      reader.verifyShardedRun(...args)
+      assert.equal(args[5].shardedVerified, true)
+    } else assert.throws(() => reader.verifyShardedRun(...args))
+    assert.deepEqual(seen, variant === 'missing' ? [] : [`${oid(4)}:${SHARD_COST_PATH}`])
   }
 })

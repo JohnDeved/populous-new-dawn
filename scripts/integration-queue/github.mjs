@@ -11,6 +11,8 @@ import { PROFILE_JOB, PROFILE_STEPS, PROFILE_INPUTS, profileRecoveryLog, validat
 
 import { RECOVERY_JOB, RECOVERY_STEPS, RECOVERY_INPUTS, pauseRecoveryLog, validatePauseRecovery } from './pause-recovery.mjs'
 
+import { SHARD_COST_PATH } from '../orchestration/test-shard-policy.mjs'
+
 import { BASELINE_DIAGNOSTIC, SHARDED_JOBS, shardedLogReceipt, validateShardedReceipt, validateBaselineLog } from './sharded.mjs'
 
 const sha = value => /^[0-9a-f]{40}$/.test(value ?? '')
@@ -524,7 +526,12 @@ export class GitHubReader {
     const files = this.git('ls-tree', '-r', '--name-only', synthetic.sha, '--', 'tests').split('\n')
       .filter(file => /^tests\/[^./\0\r\n][^/\0\r\n]*\.test\.mjs$/.test(file)).sort()
     const inventory = files.map(file => ({ file, sha256: sha256(this.gitOutput('show', `${synthetic.sha}:${file}`)) }))
-    validateShardedReceipt(receipt, { identity, inventory,
+    // Manifest presence/version in exact Git source selects policy; malformed or
+    // unreadable data never falls back to legacy. Never execute candidate code.
+    const costFiles = this.git('ls-tree', '-r', '--name-only', synthetic.sha, '--', SHARD_COST_PATH).trim()
+    ensure(costFiles === '' || costFiles === SHARD_COST_PATH, 'Unexpected shard cost source path')
+    const shardCostBytes = costFiles ? this.gitOutput('show', `${synthetic.sha}:${SHARD_COST_PATH}`) : null
+    validateShardedReceipt(receipt, { identity, inventory, shardCostBytes,
       lockSha256: sha256(this.gitOutput('show', `${synthetic.sha}:package-lock.json`)),
       ...(receipt.runtime?.timingReporterSha256 !== undefined ? {
         timingReporterSha256: sha256(this.gitOutput('show', `${synthetic.sha}:scripts/orchestration/test-timing-reporter.mjs`)),

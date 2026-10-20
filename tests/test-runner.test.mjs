@@ -8,6 +8,12 @@ import { join } from 'node:path'
 import test, { after } from 'node:test'
 import { discoverTests, helperFingerprint, productionFingerprint, planTestRun, runTestPlan, partitionTestFiles, planTestShard, shardInputFingerprint, runTestShard, parseShardArguments } from '../scripts/orchestration/test-runner.mjs'
 
+import { SHARD_COST_PATH, parseShardCosts } from '../scripts/orchestration/test-shard-policy.mjs'
+
+const costBytes = JSON.stringify({ version: 1, algorithm: 'duration-lpt-v1',
+  source: { runId: '1', headSha: 'a'.repeat(40), mergeSha: 'b'.repeat(40) },
+  defaultMs: 1000, overheadMs: 400, costs: [] })
+
 // These synthetic inventories explicitly model an uncustomized Node runtime.
 // The environment-fallback regression below supplies customizations separately.
 const inheritedRuntime = Object.fromEntries(['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE'].map(key => [key, process.env[key]]))
@@ -228,6 +234,7 @@ function shardFixture(t) {
   for (const name of ['c', 'd', 'e', 'f', 'g', 'h', 'i'])
     result.put(`tests/${name}.test.mjs`, `import test from 'node:test'; test('${name}', () => {})\n`)
   result.put('scripts/runner.mjs', 'export {}\n')
+  result.put(SHARD_COST_PATH, costBytes)
   return result
 }
 
@@ -240,6 +247,8 @@ test('fixed four-way shards partition every discovered file exactly once without
   for (const [index, plan] of plans.entries()) {
     assert.equal(plan.fullSuite, false)
     assert.equal(plan.mode, 'shard')
+    assert.equal(plan.shard.algorithm, 'duration-lpt-v1')
+    assert.equal(plan.shard.costsSha256, digest(costBytes))
     assert.deepEqual(plan.discovered, all.files)
     assert.deepEqual(plan.files, all.files.filter((_, offset) => offset % 4 === index))
     assert.equal(plan.parallelEligibility, all.parallelEligibility)
@@ -319,6 +328,7 @@ test('shard signals, failed groups and inherited test-selection flags cannot cer
 test('real native shard execution writes a source-bound terminal receipt and refuses an existing receipt', async t => {
   const { repo, put } = shardFixture(t)
   put('scripts/orchestration/test-runner.mjs', readFileSync(new URL('../scripts/orchestration/test-runner.mjs', import.meta.url)))
+  put('scripts/orchestration/test-shard-policy.mjs', readFileSync(new URL('../scripts/orchestration/test-shard-policy.mjs', import.meta.url)))
   const output = join(repo, 'shard.json')
   const cli = () => new Promise(resolve => {
     const child = spawn(process.execPath, [join(repo, 'scripts/orchestration/test-runner.mjs'), 'shard',
@@ -416,4 +426,43 @@ test('timing diagnostics reject directory symlinks without touching their target
   const result = await runTestShard(repo, plan, { ...quiet, timings: 'summary-v1' })
   assert.equal(result.result.status, 'passed')
   assert.deepEqual(readdirSync(join(repo, 'external')), [])
+})
+
+
+test('weighted shards preserve resource groups and bind exact cost bytes before and after execution', async t => {
+  const { repo, put } = shardFixture(t)
+  const policy = parseShardCosts(costBytes)
+  policy.costs = [['tests/a.test.mjs', 10000], ['tests/e.test.mjs', 9000]]
+  put(SHARD_COST_PATH, JSON.stringify(policy))
+  const all = planTestRun(repo, 'all'), plans = [0, 1, 2, 3].map(i => planTestShard(repo, i))
+  assert.deepEqual(plans.flatMap(p => p.files).sort(), all.files)
+  assert.notEqual(plans.findIndex(p => p.files.includes('tests/a.test.mjs')), plans.findIndex(p => p.files.includes('tests/e.test.mjs')))
+  for (const plan of plans) {
+    assert.equal(plan.parallelEligibility, all.parallelEligibility)
+    assert.deepEqual(plan.groups, all.groups.map(g => ({ ...g, files: g.files.filter(f => plan.files.includes(f)) })).filter(g => g.files.length))
+  }
+  const before = plans[0].inputFingerprint
+  put(SHARD_COST_PATH, JSON.stringify(policy) + '\n')
+  assert.notEqual(shardInputFingerprint(repo), before)
+  await assert.rejects(runTestShard(repo, plans[0], quiet), /drift/)
+  const plan = planTestShard(repo, 0)
+  const receipt = await runTestShard(repo, plan, { ...quiet, launch(...args) {
+    put(SHARD_COST_PATH, JSON.stringify(policy) + '\n\n')
+    return fakeLaunch()(...args)
+  } })
+  assert.equal(receipt.result.status, 'failed')
+  assert.equal(receipt.result.shardComplete, false)
+})
+
+test('malformed or symlinked costs fail shards closed but cannot affect local full/focus planning', t => {
+  const { repo, put } = shardFixture(t)
+  const all = planTestRun(repo, 'all'), focus = planTestRun(repo, 'focus', ['tests/a.test.mjs'])
+  put(SHARD_COST_PATH, '{}')
+  assert.throws(() => planTestShard(repo, 0), /cost schema/)
+  assert.deepEqual(planTestRun(repo, 'all'), all)
+  assert.deepEqual(planTestRun(repo, 'focus', ['tests/a.test.mjs']), focus)
+  rmSync(join(repo, SHARD_COST_PATH))
+  put('engineering/other-costs.json', costBytes)
+  symlinkSync('other-costs.json', join(repo, SHARD_COST_PATH))
+  assert.throws(() => planTestShard(repo, 0), /regular file/)
 })
