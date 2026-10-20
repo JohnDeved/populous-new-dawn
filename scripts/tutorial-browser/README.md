@@ -402,7 +402,14 @@ submitted layers. Idle object 424 cannot satisfy attack object 456 even with a
 forged ownership marker. Source ownership remains a reviewed-source inference
 plus independent mapped artwork, not a private getter-return observation.
 
-The viewport remains 1440×1000 at DPR 1. Full cropped body bounds must fit the
+This functional artwork context uses a fixed 960×720 viewport at DPR 1;
+the separate performance frame-recording context remains 1440×1000. The smaller
+raster workload is intended to improve acquisition of short native attack poses,
+not to slow gameplay, extend the ten-turn window or relax evidence requirements.
+The failed PR #666 1440×1000 attempt retained only one attack pose and remains a
+failure. Actual viewport, canvas and WebGL drawing-buffer sizes are recorded,
+alongside every observer/RAF timestamp and crop-copy cost; improved acquisition
+must be verified in the hosted run, not assumed. Full cropped body bounds must fit the
 canvas; actual DOM ownership at its center and non-overlap with shipped
 HUD/pause/message/dialog rectangles remain required. Canvas readback excludes
 HTML overlays, so these checks cannot be inferred from nonblank PNGs. Copies
