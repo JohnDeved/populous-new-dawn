@@ -5,6 +5,7 @@ import { createRequire } from 'node:module'
 import test from 'node:test'
 import ts from 'typescript'
 import { createWorld } from '../app/model.ts'
+import { CHEAT_SAVE_NOTICE } from '../app/spell-test-cheats.ts'
 import { withStorage } from './support/profile-storage.mjs'
 import { evaluatePage, pageNode, pageSource } from './support/follower-nearby-page.mjs'
 
@@ -176,7 +177,7 @@ test('holding an activation key cannot follow retry focus into Back; fresh press
 const pauseUse = pageNode(node => ts.isJsxSelfClosingElement(node) && node.tagName.getText(pageSource) === 'OriginalPauseMenu')
 function homeProps(store) {
   return evaluatePage(pauseUse.getText(pageSource), {
-    OriginalPauseMenu: 'OriginalPauseMenu', frontendAssets: undefined,
+    OriginalPauseMenu: 'OriginalPauseMenu', frontendAssets: undefined, CHEAT_SAVE_NOTICE,
     world: store.getWorld(), tutorialLevel: 0, store,
     closeMenu() {}, saveCheckpoint: () => store.saveCheckpoint(),
     loadCheckpoint: () => store.loadCheckpoint(), restart() {}, quitLevel() {}, exitTutorial() {},
@@ -402,18 +403,20 @@ test('actual Home quit callbacks retain different destinations and clear obsolet
     let cancelled = 0, reset = 0
     const bindings = { menuSession, pendingMenuCamera, loadRequest,
       cancelNearbyInput() { cancelled++ }, engine: { current: {} }, audio: { current: { reset() { reset++ } } },
-      ...Object.fromEntries(['Menu', 'Ready', 'Error', 'StartupCampaign', 'Startup', 'SelectorOpen'].map(key => [`set${key}`, value => { states[key] = value }])) }
+      ...Object.fromEntries(['CheatsOpen', 'Menu', 'Ready', 'Error', 'StartupCampaign', 'Startup', 'SelectorOpen'].map(key => [`set${key}`, value => { states[key] = value }])) }
     const node = pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === name)
     const action = evaluatePage(node.getText(pageSource), bindings)
     const props = evaluatePage(pauseUse.getText(pageSource), {
-      OriginalPauseMenu: 'OriginalPauseMenu', frontendAssets: undefined, world: { outcome: { level: 1 } }, tutorialLevel: 0,
-      store: { hasCheckpoint: () => true, getCheckpointReadStatus: () => 'read' },
+      OriginalPauseMenu: 'OriginalPauseMenu', frontendAssets: undefined, CHEAT_SAVE_NOTICE, world: { outcome: { level: 1 } }, tutorialLevel: 0,
+      store: { hasCheckpoint: () => true, getCheckpointReadStatus: () => 'read', hasUsedCheats: () => false },
       closeMenu() {}, saveCheckpoint() {}, loadCheckpoint() {}, restart() {}, quitLevel: action, exitTutorial: action,
     }).props
     const ui = fixture(props)
     ui.click(callback === 'onQuitGame' ? 'Quit Game' : 'Quit Level')
     assert.equal(cancelled, 0)
+    assert.equal(states.CheatsOpen, undefined, 'confirmation alone does not close the testing menu')
     ui.click('Yes')
+    assert.equal(states.CheatsOpen, false)
     assert.equal(states.Startup, 'choice'); assert.equal(states.StartupCampaign, campaign)
     assert.equal(states.Menu, false); assert.equal(states.Ready, false)
     assert.equal(menuSession.current, null); assert.deepEqual(pendingMenuCamera.current, [])

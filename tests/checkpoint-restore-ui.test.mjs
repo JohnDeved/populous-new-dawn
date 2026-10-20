@@ -55,13 +55,14 @@ function nodes(tree) {
 const button = (tree, name) => nodes(tree).find(node => node.type === 'button' && (node.props['aria-label'] === name || node.children.includes(name)))
 const text = tree => nodes(tree).flatMap(node => node.children.filter(child => typeof child === 'string')).join(' ')
 function startup(store) {
-  const states = []
+  const states = [], cheatClosures = []
   const names = ['beginLoad', 'startMission', 'loadCheckpoint']
   const declarations = names.map(name => pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === name).getText(pageSource)).join('\n')
   const navigation = evaluatePage(`function(){${declarations}; return {${names.join(',')}}}`, {
     store, setStartup: state => states.push(state),
     menuSession: { current: null }, pendingMenuCamera: { current: [] },
     engine: { current: null }, audio: { current: null }, loadRequest: { current: null },
+    setCheatsOpen: value => cheatClosures.push(value),
     cancelNearbyInput: () => {}, setSelectorOpen: () => {}, setMenu: () => {},
     setReady: () => {}, setError: () => {}, setTab: () => {},
   })()
@@ -72,7 +73,7 @@ function startup(store) {
     gamePreferencesRef: { current: null }, setGamePreferences: () => {},
     setStartup: state => states.push(state),
   })()
-  return { states, cleanup, navigation }
+  return { states, cheatClosures, cleanup, navigation }
 }
 const settle = () => new Promise(resolve => setImmediate(resolve))
 let session = 0
@@ -149,6 +150,7 @@ for (const failure of ['open', 'abort']) test(`actual Home ${failure} failure ex
     assert.equal(transactions(), failure === 'open' ? 1 : 2, 'one transaction per attempt')
     assert.equal(store.getWorld(), active, 'retry refreshes availability only')
     assert.deepEqual(home.states, ['choice'], 'retry never navigates')
+    assert.deepEqual(home.cheatClosures, [], 'lookup does not change testing-menu state')
     assert.deepEqual(records, before)
     assert.deepEqual(writes, [])
     assert.deepEqual(store.getCompletedMissions(), [1, 2])
@@ -158,6 +160,7 @@ for (const failure of ['open', 'abort']) test(`actual Home ${failure} failure ex
     assert.equal(store.getWorld().turn, 217)
     assert.notEqual(store.getWorld(), active)
     assert.deepEqual(home.states, ['choice', 'playing'], 'only deliberate Load invokes actual Home beginLoad')
+    assert.deepEqual(home.cheatClosures, [false], 'deliberate Load closes the testing menu once')
     home.cleanup()
   }, { latest: { version: 3, world: saved }, profile: { version: 1, completed: [1, 2] } })
 })
