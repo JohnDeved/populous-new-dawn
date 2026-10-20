@@ -15,7 +15,7 @@ export const SHIELD_VISUAL_FILES = Object.freeze([
   'shield-visuals.json', 'shield-checkpoint-transfer.json', 'shield-checkpoint-source.json',
   'shield-checkpoint-expected.json', 'shield-initial-load-boundary.json',
   'shield-public-save.json', 'shield-public-load-expected.json', 'shield-public-load-boundary.json',
-  'shield-build-frames.json', 'shield-context.png',
+  'shield-build-frames.json', 'shield-context.png', 'shield-visible-pause.json',
   'shield-original-0.png', 'shield-original-1.png', 'shield-original-2.png', 'shield-original-3.png',
   'shield-scaled-0.png', 'shield-loaded-0.png',
 ])

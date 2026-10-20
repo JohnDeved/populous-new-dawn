@@ -125,7 +125,9 @@ export default async function spellShield({ browser, url, output, source, expect
     assert.equal(beforePause.paused, false); assert.equal(afterPause.paused, true)
     assert.deepEqual({ ...beforePause, paused: true }, afterPause, 'Only public pause changes the complete World')
     assert.deepEqual(pause.clockBefore, pause.clockAfter)
-    report.visiblePause = { ...pause,
+    const pauseBoundary = JSON.stringify({ before: pause.before, after: pause.after })
+    writeFileSync(resolve(output, 'shield-visible-pause.json'), pauseBoundary, { flag: 'wx' })
+    report.visiblePause = { ...pause, before: undefined, after: undefined, boundarySha256: sha(pauseBoundary),
       beforeSha256: sha(pause.before), afterSha256: sha(pause.after), onlyPausedChanged: true }
     assert.equal(pause.timestamp, pause.sceneTimestamp)
     report.afterCast = await state()

@@ -67,8 +67,10 @@ export async function validateShieldReceipt(shield, read, expected) {
     assert.ok(Number.isFinite(pause[key].animationTime) && pause[key].animationTime >= 0)
   }
   assert.equal(pause.timestamp, pause.sceneTimestamp)
-  assert.equal(pause.beforeSha256, hash(pause.before)); assert.equal(pause.afterSha256, hash(pause.after))
-  const beforePause = checkpointCodec(JSON.parse(pause.before), true), afterPause = checkpointCodec(JSON.parse(pause.after), true)
+  const boundaryBytes = read('shield-visible-pause.json'), boundary = JSON.parse(boundaryBytes)
+  assert.equal(pause.boundarySha256, hash(boundaryBytes))
+  assert.equal(pause.beforeSha256, hash(boundary.before)); assert.equal(pause.afterSha256, hash(boundary.after))
+  const beforePause = checkpointCodec(JSON.parse(boundary.before), true), afterPause = checkpointCodec(JSON.parse(boundary.after), true)
   assert.equal(beforePause.paused, false); assert.equal(afterPause.paused, true)
   assert.deepEqual({ ...beforePause, paused: true }, afterPause)
   assert.deepEqual(pause.clockBefore, pause.clockAfter)
