@@ -216,6 +216,29 @@ export function stepPersonPhysics(
   effects: PhysicsEffects,
   mask = 0
 ) {
+  stepPhysics(w, p, effects, mask)
+}
+
+// Internal live-scheduler boundary. Public callers retain eager objects access.
+// The selector runs at the original argument point, after bounce callbacks and
+// before settlePerson clears flags. It must preserve any required snapshot.
+export function stepOwnedPersonPhysics(
+  w: PhysicsWorld,
+  p: PhysicsPerson,
+  effects: PhysicsEffects,
+  settlementObjects: () => CollisionWorld['objects'],
+  mask = 0
+) {
+  stepPhysics(w, p, effects, mask, settlementObjects)
+}
+
+function stepPhysics(
+  w: PhysicsWorld,
+  p: PhysicsPerson,
+  effects: PhysicsEffects,
+  mask: number,
+  settlementObjects?: () => CollisionWorld['objects']
+) {
   if (p.flags2 & 0x4000) return
   const to = { x: p.x, y: p.y, h: p.h },
     v = p.velocity,
@@ -337,7 +360,15 @@ export function stepPersonPhysics(
       p.angle = p.flags2 & 0x8000 ? (p.heading + 1024) & 2047 : p.heading
     }
     bouncePerson(w.collision, p, to, true)
-    settlePerson(w.land, p, to, w.gameFlags, w.collision.objects, effects, mask)
+    settlePerson(
+      w.land,
+      p,
+      to,
+      w.gameFlags,
+      settlementObjects ? settlementObjects() : w.collision.objects,
+      effects,
+      mask
+    )
   }
   if (!(p.flags2 & 2)) clampHeight()
   const moved = effects.insert(to)
