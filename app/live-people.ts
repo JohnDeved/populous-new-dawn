@@ -371,7 +371,7 @@ function publishLivePersonCell(w: World, u: Unit, p: LivePerson | undefined) {
   syncBrowserPersonPosition(w, u, p)
 }
 
-type PersonEpisode = {
+interface PersonEpisode {
   people: Map<number, LivePerson>
   units: World['units']
   unitCount: number
@@ -390,7 +390,11 @@ type PersonEpisode = {
   shrines: World['shrines']
   pending?: Unit
 }
-type PersonPass = { generation: number; busy: boolean; episode?: PersonEpisode }
+interface PersonPass {
+  generation: number
+  busy: boolean
+  episode?: PersonEpisode
+}
 const livePersonPasses = new WeakMap<World, PersonPass>()
 
 function invalidateLivePersonPass(w: World) {
@@ -471,12 +475,12 @@ export function beginLivePersonPass(w: World) {
         return
       }
       pass.busy = true
-      const generation = pass.generation
+      const { generation } = pass
       let first = true
       const synchronize = () => {
         if (!current() || pass.generation !== generation || !ownsCelebrationVisit(w, u))
           return syncLivePersonCells(w)
-        let episode = pass.episode
+        let { episode } = pass
         if (
           episode &&
           (!episodeIsCurrent(w, episode) ||
@@ -488,7 +492,13 @@ export function beginLivePersonPass(w: World) {
           stop()
           return syncLivePersonCells(w)
         }
-        if (!episode) {
+        if (episode) {
+          // Earlier roster visits publish before this visit's lazy read. The
+          // immutable membership Map is private; its values remain live aliases.
+          if (episode.pending && episode.pending !== u)
+            publishLivePersonCell(w, episode.pending, episode.people.get(episode.pending.id))
+          publishLivePersonCell(w, u, episode.people.get(u.id))
+        } else {
           const people = reconcileLivePersonCells(w)
           // Reentry during initialization cannot reactivate the outer run.
           if (!first || !current() || pass.generation !== generation) return people
@@ -501,7 +511,7 @@ export function beginLivePersonPass(w: World) {
             ids.add(unit.id)
           }
           if (!current() || pass.generation !== generation) return people
-          episode = pass.episode = {
+          pass.episode = {
             people,
             units: w.units,
             unitCount: w.units.length,
@@ -519,12 +529,7 @@ export function beginLivePersonPass(w: World) {
             buildings: w.buildings,
             shrines: w.shrines,
           }
-        } else {
-          // Earlier roster visits publish before this visit's lazy read. The
-          // immutable membership Map is private; its values remain live aliases.
-          if (episode.pending && episode.pending !== u)
-            publishLivePersonCell(w, episode.pending, episode.people.get(episode.pending.id))
-          publishLivePersonCell(w, u, episode.people.get(u.id))
+          episode = pass.episode
         }
         episode.pending = undefined
         first = false
