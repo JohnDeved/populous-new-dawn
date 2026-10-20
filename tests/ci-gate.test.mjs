@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
+import { gunzipSync } from 'node:zlib'
 import { testGroupCommand } from '../scripts/orchestration/test-runner.mjs'
 import { candidateSnapshot, reportLines, QUALITY_STAGES, readEnvelopes, validateGate, validateShard } from '../scripts/orchestration/ci-gate.mjs'
 
@@ -103,16 +104,18 @@ for (const mutation of ['missing', 'extra', 'old-attempt', 'extra-file', 'wrong-
   assert.throws(() => readEnvelopes(root, env))
 })
 
-test('full raw report survives bounded log chunks with exact JSON checksum', () => {
+test('full raw report survives versioned gzip log chunks with exact JSON checksum', () => {
   const report = { ...validate(fixture()), padding: 'unicode é test '.repeat(4000) }
-  const lines = reportLines(report), chunks = lines.slice(0, -1)
-  assert.ok(chunks.length > 1)
+  const lines = reportLines(report), chunks = lines.slice(1, -1)
+  assert.equal(lines[0], 'PND_FULL_CHECK_RECEIPT_TRANSPORT=2:gzip-base64')
+  assert.ok(chunks.length >= 1)
   const encoded = chunks.map((line, index) => {
     const prefix = `PND_FULL_CHECK_RECEIPT_CHUNK=${index}/${chunks.length}:`
     assert.ok(line.startsWith(prefix)); assert.ok(line.length <= prefix.length + 16000)
     return line.slice(prefix.length)
   }).join('')
-  const json = Buffer.from(encoded, 'base64').toString('utf8')
+  const json = gunzipSync(Buffer.from(encoded, 'base64')).toString('utf8')
+  assert.equal(json, JSON.stringify(report))
   assert.deepEqual(JSON.parse(json), report)
   assert.equal(lines.at(-1), `PND_FULL_CHECK_RECEIPT_SHA256=${createHash('sha256').update(json).digest('hex')}`)
 })
