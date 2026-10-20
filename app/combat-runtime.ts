@@ -352,9 +352,9 @@ function processEncounter(w: World, b: Battle) {
   b.angle = random(w) % 360
   relocateBattle(w, b, true)
 }
-export function cleanBattles(w: World) {
+function cleanBattleState(w: World, owned = false) {
   const rosters = new Map<number, number[]>()
-  if (!w.fights.length) return rosters
+  if (!w.fights.length) return { rosters, units: undefined }
   const units = new Map(w.units.map(u => [u.id, u])),
     people = new Map<number, FightParticipant>()
   for (const u of w.units) {
@@ -439,10 +439,30 @@ export function cleanBattles(w: World) {
     b.members = []
   }
   w.fights = w.fights.filter(b => b.members.length > 1)
-  return rosters
+  // Cleanup uses the last duplicate owner; processing historically uses the
+  // first. Only a unique roster can share this map without changing that rule.
+  return { rosters, units: owned && units.size === w.units.length ? units : undefined }
+}
+export function cleanBattles(w: World) {
+  return cleanBattleState(w).rosters
 }
 export function processBattles(w: World) {
-  const rosters = cleanBattles(w)
+  processBattleRosters(w, cleanBattles(w))
+}
+
+// Scheduler-only plain-data ownership boundary. No callback or async handoff
+// occurs in this pass, and person removal runs later in world-turn. Retain live
+// Unit references only for this call, never snapshots of their mutable fields.
+// Direct/public callers keep the eager lookup path above (including accessors).
+export function processOwnedBattles(w: World) {
+  const { rosters, units } = cleanBattleState(w, true)
+  processBattleRosters(w, rosters, units)
+}
+function processBattleRosters(
+  w: World,
+  rosters: Map<number, number[]>,
+  units?: ReadonlyMap<number, Unit>
+) {
   for (const b of w.fights) {
     if (b.encounter) {
       processEncounter(w, b)
@@ -456,7 +476,10 @@ export function processBattles(w: World) {
         (w.manaTribes[w.manaWorld.playerTribe].flags2 | 0x8000) >>> 0
     }
     const ids = rosters.get(b.id)!,
-      members = ids.map(id => w.units.find(u => u.id === id)!)
+      members = ids.map(id =>
+        // Map uses SameValueZero; the original strict-equality search cannot find NaN.
+        units && !Number.isNaN(id) ? units.get(id)! : w.units.find(u => u.id === id)!
+      )
     const center = fightCenter(
       { members: b.slots!, tribes: b.tribes!, count: members.length },
       ids,
