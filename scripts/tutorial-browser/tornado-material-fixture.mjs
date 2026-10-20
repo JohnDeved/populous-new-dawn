@@ -38,12 +38,13 @@ export async function renderTornadoMaterialPalettes(palettes) {
   try {
     for (const [palette, tint] of Object.entries(palettes)) {
       material.userData.tornadoTint.value.set(...tint.map(channel => channel / 255))
-      const sample = { palette: +palette, black: [], white: [] }
+      const sample = { palette: +palette, black: [], white: [], pngs: {} }
       for (const [name, color] of [['black', 0], ['white', 0xffffff]]) {
         renderer.setClearColor(color, 1)
         renderer.render(scene, camera)
         const pixels = new Uint8Array(80 * 50 * 4)
         gl.readPixels(0, 0, 80, 50, gl.RGBA, gl.UNSIGNED_BYTE, pixels)
+        if (+palette < 0) sample.pngs[name] = renderer.domElement.toDataURL('image/png')
         // Original retained PSFB rows run top-to-bottom; readPixels runs bottom-up.
         for (let y = 49; y >= 0; y--)
           sample[name].push(...pixels.subarray(y * 80 * 4, (y + 1) * 80 * 4))

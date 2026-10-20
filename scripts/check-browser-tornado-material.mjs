@@ -37,7 +37,15 @@ export async function runTornadoMaterialCheck(browser, { url, output }) {
     assert.equal(captured.graphics.colorManagement, true)
     for (const sample of captured.results) {
       const tint = fixture.paletteTints[sample.palette],
-        result = { palette: sample.palette, opaque: 0, fractional: 0, transparent: 0, mismatches: 0, counterexample: null, examples: [] }
+        result = { palette: sample.palette, opaque: 0, fractional: 0, transparent: 0, mismatches: 0, counterexample: null, examples: [], screenshots: [] }
+      for (const [background, png] of Object.entries(sample.pngs)) {
+        assert.ok(sample.palette === -1 || sample.palette === -2)
+        assert.ok(background === 'black' || background === 'white')
+        const file = `tornado-material-palette${sample.palette}-${background}.png`,
+          bytes = Buffer.from(png.split(',')[1], 'base64')
+        writeFileSync(resolve(output, file), bytes, { flag: 'wx' })
+        result.screenshots.push({ file, width: 80, height: 50, sha256: createHash('sha256').update(bytes).digest('hex') })
+      }
       assert.equal(sample.black.length, original.length)
       assert.equal(sample.white.length, original.length)
       for (let at = 0; at < original.length; at += 4) {
