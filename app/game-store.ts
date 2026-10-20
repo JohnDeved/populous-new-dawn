@@ -1,3 +1,4 @@
+import { validTornadoAppearance } from './tornado-appearance.ts'
 import { worldEnvironment } from './world-environment.ts'
 import { restoreCapacityPolicy } from './capacity-policy.ts'
 import { rebuildSecondaryLists } from './secondary-effects.ts'
@@ -78,7 +79,10 @@ function requireCurrentCheckpoint(world: World) {
     !Array.isArray(world.spellScans) ||
     !Array.isArray(world.respawns) ||
     !Array.isArray(world.respawnPoints) ||
-    !Number.isInteger(world.outcome.level)
+    !Number.isInteger(world.outcome.level) ||
+    world.effects.some(
+      effect => effect.tornado && !effect.tornado.particles.every(validTornadoAppearance)
+    )
   )
     throw new RangeError('Checkpoint is incompatible with this development version')
 }
