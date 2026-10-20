@@ -56,7 +56,7 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
       media.load()
       modal.close()
     }
-  }, [complete])
+  }, [])
 
   function playFromControl() {
     const media = video.current
@@ -67,6 +67,15 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
     void media.play().catch(() => {
       if (!completed.current) setPlayback(media.error ? 'failed' : 'blocked')
     })
+  }
+
+  let status = muted ? 'Opening logo · sound off' : 'Opening logo'
+  let playbackAction = muted ? 'Enable logo sound' : 'Mute logo'
+  if (playback === 'failed')
+    status = 'The opening logo could not be played. You can continue to the menu.'
+  else if (playback === 'blocked') {
+    status = 'Your browser paused the opening logo.'
+    playbackAction = 'Play logo'
   }
 
   return (
@@ -122,15 +131,7 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
         />
       </div>
       <div className={styles.controls}>
-        <p role="status">
-          {playback === 'failed'
-            ? 'The opening logo could not be played. You can continue to the menu.'
-            : playback === 'blocked'
-              ? 'Your browser paused the opening logo.'
-              : muted
-                ? 'Opening logo · sound off'
-                : 'Opening logo'}
-        </p>
+        <p role="status">{status}</p>
         {playback !== 'failed' && (
           <button
             onPointerDown={event => event.stopPropagation()}
@@ -149,7 +150,7 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
               }
             }}
           >
-            {playback === 'blocked' ? 'Play logo' : muted ? 'Enable logo sound' : 'Mute logo'}
+            {playbackAction}
           </button>
         )}
         <button onClick={complete}>Skip logo</button>
