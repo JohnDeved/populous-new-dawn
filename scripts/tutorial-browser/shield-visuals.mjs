@@ -57,7 +57,9 @@ export default async function spellShield({ browser, url, output, source, expect
       report.actions.push({ name, at: new Date().toISOString() })
       return operation()
     })
-    const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())
+    // Keyboard activation uses the same public button without pointer-stability
+    // latency consuming the short natural Shield visibility window.
+    const button = name => action(name, () => page.getByRole('button', { name, exact: true }).press('Enter'))
     const state = () => page.evaluate(readShieldState, allIds)
     const settle = () => page.waitForFunction(() => {
       const s = window.testSceneRef.current
