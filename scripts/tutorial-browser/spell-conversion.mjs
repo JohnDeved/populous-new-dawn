@@ -48,7 +48,7 @@ export function setupConversionCamera(codec) {
     },
     before = encode(identity()), beforeMode = w.mode, beforeLightView = structuredClone(w.lightView),
     expectedLightView = { x: (Math.round((camera.x + 8) * 256) << 16) >> 16,
-      y: (Math.round((-camera.z - 8) * 256) << 16) >> 16, h: Math.round(scene.height(camera) * 45) }
+      y: (Math.round((-camera.z - 8) * 256) << 16) >> 16, h: Math.round(scene.y(camera) * 45) }
   // Ordinary focus cancels UI mode; updateView stores its exact camera position
   // for dynamic terrain lighting. Every other World field stays losslessly equal,
   // including Map/Set contents, typed arrays, undefined values and shared references.

@@ -144,7 +144,7 @@ function cameraScene(world) {
       renderer: { getContext: () => context },
       cancelOverview: () => cancelOverview(scene), captureCamera: () => captureCamera(scene),
       updateView: () => updateView(scene), focus: point => focus(scene, point),
-      height: point => nativePosition(world, point).h / 45 }
+      y: point => nativePosition(world, point).h / 45 }
   return scene
 }
 
