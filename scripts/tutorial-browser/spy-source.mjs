@@ -1,0 +1,176 @@
+import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
+import { readFileSync, writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { bindGame } from '../browser-game.mjs'
+import { checkpointCodec } from './checkpoint-codec.mjs'
+import { m2LoadReady } from './m2-pointer-f8.mjs'
+import { createSpySourceFixture } from './spy-source-fixture.mjs'
+import { withSpySourceBrowser } from './spy-source-budget.mjs'
+import { installSpySourceObserver, readSpySourceHold } from './spy-source-observer.mjs'
+import { validateSpySourceObservation } from './spy-source-evidence.mjs'
+
+const hash = bytes => createHash('sha256').update(bytes).digest('hex')
+
+// Standalone supplied-fixture presentation witness. It may run only after the
+// complete existing M10 episode, never as a substitute for either of its phases.
+export default async function spySource(options) {
+  const { output, url, source } = options
+  const report = { status: 'running', errors: [], actions: [], sourceCommit: source.commit,
+    sources: Object.fromEntries(['spy-source.mjs', 'spy-source-fixture.mjs', 'spy-source-budget.mjs',
+      'spy-source-observer.mjs', 'spy-source-evidence.mjs', 'checkpoint-codec.mjs']
+      .map(file => [file, hash(readFileSync(new URL(file, import.meta.url)))])),
+    inputs: Object.fromEntries(['app/follower-appearance.ts', 'app/scene-entities.ts',
+      'app/live-building-combat.ts', 'app/original-units.json', 'app/checkpoint-format.ts',
+      'tests/fixtures/follower-source-witness.json', 'tests/fixtures/follower-source-artwork.json']
+      .map(file => [file, hash(readFileSync(new URL(`../../${file}`, import.meta.url)))])),
+    limits: [
+      'Supplied current-format checkpoint with flat terrain, school, Brave, training funding and hostile hut; real training controller, not natural Mission12/campaign acquisition.',
+      'Public Load Game, Select spy, right-click focus, disguise, canvas sabotage command, Pause and Resume; ordinary live clocks and actual production Home renderer.',
+      'Read-only RAF samples and immutable same-frame canvas crops perturb rendering. No hardware performance, original-game execution, all-sprite sweep or pixel-perfect native raster claim.',
+      'Exact entry must be observed. A missed frame, short budget or absent crop is failure, not a skip or substituted later sample.',
+    ] }
+  const save = () => writeFileSync(resolve(output, 'spy-source.json'), JSON.stringify(report, null, 2) + '\n')
+  save()
+  try {
+    await withSpySourceBrowser({ ...options, report }, async (browser, budget) => {
+      report.browserVersion = browser.version()
+      const fixture = await createSpySourceFixture(source.commit)
+      report.fixture = fixture.receipt; report.spyId = fixture.spyId; report.targetId = fixture.targetId; save()
+      const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 })
+      const page = await context.newPage()
+      page.setDefaultTimeout(8000)
+      const errors = error => { if (report.errors.length < 20) report.errors.push(String(error).slice(0, 2000)) }
+      page.on('pageerror', errors)
+      page.on('console', message => { if (message.type() === 'error') errors(message.text()) })
+      page.on('crash', () => errors('Spy page crashed'))
+      const button = name => page.getByRole('button', { name, exact: true })
+      const action = async (name, run) => {
+        const item = { name, startedAt: Date.now() }; report.actions.push(item); save()
+        await run(); item.endedAt = Date.now(); save()
+      }
+      try {
+        await page.addInitScript({ content: `window.spyCheckpointCodec = ${checkpointCodec.toString()};` })
+        await page.goto(url, { waitUntil: 'domcontentloaded' })
+        const readback = await page.evaluate(async encoded => {
+          const checkpoint = window.spyCheckpointCodec(JSON.parse(encoded), true)
+          const db = await new Promise((resolve, reject) => {
+            const request = indexedDB.open('populous-new-dawn', 1)
+            request.onupgradeneeded = () => request.result.createObjectStore('checkpoints')
+            request.onerror = () => reject(request.error); request.onsuccess = () => resolve(request.result)
+          })
+          try {
+            await new Promise((resolve, reject) => {
+              const tx = db.transaction('checkpoints', 'readwrite')
+              tx.objectStore('checkpoints').put(checkpoint, 'latest')
+              tx.oncomplete = resolve; tx.onerror = tx.onabort = () => reject(tx.error)
+            })
+            return await new Promise((resolve, reject) => {
+              const tx = db.transaction('checkpoints', 'readonly'), request = tx.objectStore('checkpoints').get('latest')
+              tx.oncomplete = () => resolve(JSON.stringify(window.spyCheckpointCodec(request.result)))
+              tx.onerror = tx.onabort = () => reject(tx.error)
+            })
+          } finally { db.close() }
+        }, JSON.stringify(fixture.transfer))
+        assert.deepEqual(JSON.parse(readback), fixture.transfer, 'Full structured checkpoint survives actual IDB')
+        report.checkpointReadbackSha256 = hash(readback)
+        assert.equal(report.checkpointReadbackSha256, fixture.receipt.transferSha256)
+        await page.reload({ waitUntil: 'domcontentloaded' })
+        await page.waitForFunction(m2LoadReady)
+        await page.evaluate(() => {
+          const main = document.querySelector('main')
+          let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))], store
+          for (; fiber && !store; fiber = fiber.return)
+            for (let hook = fiber.memoizedState; hook; hook = hook.next)
+              if (hook.memoizedState?.getWorld && hook.memoizedState?.subscribe) { store = hook.memoizedState; break }
+          if (!store) throw Error('Store unavailable before public Load')
+          const before = store.getWorld()
+          const unsubscribe = store.subscribe(() => {
+            if (store.getWorld() === before) return
+            window.spyLoadBoundary = JSON.stringify(window.spyCheckpointCodec(store.getWorld()))
+            unsubscribe()
+          })
+        })
+        await action('Public Load Game', () => button('Load Game').click())
+        assert.deepEqual(JSON.parse(await page.evaluate(() => window.spyLoadBoundary)), fixture.expected,
+          'Public Load admits the exact full current checkpoint')
+        report.loadBoundaryMatched = true
+        await bindGame(page)
+        await page.waitForFunction(() => {
+          const scene = window.testSceneRef.current, world = window.testStore.getWorld()
+          return scene?.world === world && !world.inputMask && scene.renderer.domElement.isConnected
+        })
+        report.renderer = await page.evaluate(() => {
+          const gl = window.testSceneRef.current.renderer.getContext()
+          const debug = gl.getExtension('WEBGL_debug_renderer_info')
+          return { version: gl.getParameter(gl.VERSION), renderer: gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER) }
+        })
+        await action('Public Pause', () => button('Pause game').click())
+        await page.waitForFunction(() => window.testStore.getWorld().paused)
+        await action('Select trained Spy', () => button('Select spy').click())
+        await action('Public Spy focus', () => button('Select spy').click({ button: 'right' }))
+        await page.waitForFunction(() => !window.testSceneRef.current.cameraMotion.active && !window.testSceneRef.current.viewTransition)
+        assert.deepEqual(await page.evaluate(() => window.testStore.getWorld().selected), [fixture.spyId])
+        await action('Open followers', () => page.getByTitle('followers', { exact: true }).click())
+        await action('Disguise as Dakini', () => button('Disguise selected spies as Dakini').click())
+        await action('Resume disguise', () => button('Resume game').click())
+        await page.waitForFunction(id => window.testStore.getWorld().units.find(unit => unit.id === id)?.native?.disguise === 0x40, fixture.spyId)
+        await action('Pause before sabotage', () => button('Pause game').click())
+        await page.waitForFunction(() => window.testStore.getWorld().paused)
+        const target = await page.evaluate(id => {
+          const scene = window.testSceneRef.current, building = scene.world.buildings.find(b => b.id === id)
+          const p = scene.screen(building), rect = scene.renderer.domElement.getBoundingClientRect()
+          const center = { x: rect.left + (p.x + 1) * rect.width / 2, y: rect.top + (1 - p.y) * rect.height / 2 }
+          for (const dy of [-30, -50, -10, -70, 10, -90])
+            for (const dx of [0, -10, 10, -25, 25, -40, 40]) {
+              const event = { clientX: center.x + dx, clientY: center.y + dy }
+              if (document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement && scene.picking.pick(event) === id)
+                return { x: event.clientX, y: event.clientY, id }
+            }
+          throw Error('Supplied hostile hut lacks a genuine exposed canvas hit')
+        }, fixture.targetId)
+        await page.evaluate(installSpySourceObserver, { spyId: fixture.spyId, targetId: fixture.targetId })
+        await action('Canvas sabotage command', () => page.mouse.click(target.x, target.y))
+        report.order = await page.evaluate(id => {
+          const world = window.testStore.getWorld(), spy = world.units.find(unit => unit.id === id)
+          return { target: spy.target, selected: [...world.selected], lastOrderTurn: world.lastOrderTurn }
+        }, fixture.spyId)
+        assert.equal(report.order.target, fixture.targetId)
+        await action('Resume sabotage', () => button('Resume game').click())
+        await page.waitForFunction(() => {
+          const result = window.__pndSpySourceObservation.result
+          if (result.error) throw Error(result.error)
+          return result.done
+        }, null, { timeout: Math.max(1, Math.min(16000, budget.deadlineAt - Date.now())) })
+        await action('Pause real source136', () => button('Pause game').click())
+        await page.waitForFunction(() => window.testStore.getWorld().paused)
+        report.holdBefore = await page.evaluate(readSpySourceHold, fixture.spyId)
+        assert.equal(report.holdBefore.spy.native.object, 136)
+        await page.waitForTimeout(180)
+        report.holdAfter = await page.evaluate(readSpySourceHold, fixture.spyId)
+        report.observation = await page.evaluate(() => window.__pndSpySourceObservation.retain())
+        for (const crop of report.observation.crops) {
+          assert.match(crop.filename, /^spy-source-frame-\d+\.png$/)
+          assert.ok(crop.png.startsWith('data:image/png;base64,'))
+          const bytes = Buffer.from(crop.png.slice('data:image/png;base64,'.length), 'base64')
+          assert.ok(bytes.length > 0 && bytes.length < 256 * 1024)
+          crop.sha256 = hash(bytes); delete crop.png
+          writeFileSync(resolve(output, crop.filename), bytes, { flag: 'wx' })
+        }
+        await page.screenshot({ path: resolve(output, 'spy-source-context.png'), timeout: 3000 })
+        await action('Public Resume continuation', () => button('Resume game').click())
+        await page.waitForFunction(turn => window.testStore.getWorld().turn > turn, report.holdAfter.turn)
+        report.resumed = await page.evaluate(readSpySourceHold, fixture.spyId)
+        report.validation = validateSpySourceObservation(report)
+        assert.deepEqual(report.errors, [])
+      } finally {
+        // Browser ownership wrapper also closes any context if this fails.
+        await context.close()
+      }
+    })
+    report.status = 'passed'
+  } catch (error) {
+    report.status = 'failed'; report.failure = String(error); throw error
+  } finally { save() }
+  return report
+}

@@ -1,0 +1,159 @@
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { readFileSync } from 'node:fs'
+import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mjs'
+import { createSpySourceFixture } from '../scripts/tutorial-browser/spy-source-fixture.mjs'
+import { admitSpySourceEpisode, withSpySourceBrowser, spySourceBudgetMs } from '../scripts/tutorial-browser/spy-source-budget.mjs'
+import { validateSpySourceObservation, validateSpySourceSample } from '../scripts/tutorial-browser/spy-source-evidence.mjs'
+import units from '../app/original-units.json' with { type: 'json' }
+import witness from './fixtures/follower-source-witness.json' with { type: 'json' }
+
+function sample(f2 = 0) {
+  const frame = units.frames.findIndex(frame => frame.source === witness.sources[136][0].frames[f2])
+  return { spyId: 100, targetId: 101, target: 101, turn: 20 + f2 * 2, stamp: 30 + f2 * 4,
+    object: 136, draw: 22, renderedDraw: 22, owner: 1, disguise: 0x40, substate: 2, timer: 23 - f2 * 2,
+    f2, entryArmed: false, heading: Math.PI, cameraBearing: 0x380 * Math.PI / 1024, direction: 0,
+    frame, flip: false, missingNativeSource: null,
+    pieces: units.frames[frame].layers.filter(layer => {
+      const type = layer.flags >> 4 & 31, choice = layer.flags >> 9
+      return !type || (type === 1 ? choice === 1 : type === 2 && choice === 3)
+    }).map(layer => layer.piece),
+    visible: true, canvasConnected: true, documentVisible: true, sceneStoreMatch: true, speed: 1,
+    bodyInCanvas: true, bodyCanvasOwned: true, cropOverlayClear: true,
+    cropFile: `spy-source-frame-${f2}.png` }
+}
+function report() {
+  const samples = [sample(), sample(1)]
+  samples.forEach(row => { row.submittedLayers = row.pieces.length })
+  return { spyId: 100, targetId: 101, order: { target: 101, selected: [100], lastOrderTurn: 10 },
+    holdBefore: { paused: true, turn: 22 },
+    holdAfter: { paused: true, turn: 22 }, resumed: { paused: false, turn: 23 },
+    observation: { error: null, done: true, samples: [
+      { substate: 1, target: 101 },
+      { substate: 2, entryArmed: true, object: 48, timer: 0, turn: 19 }, ...samples],
+    crops: samples.map(row => ({ filename: row.cropFile, spyId: row.spyId,
+      turn: row.turn, stamp: row.stamp, frame: row.frame, f2: row.f2, opaqueColors: 3, sha256: 'a'.repeat(64) })) } }
+}
+
+test('Spy browser evidence admits actual source136 identity and rejects substituted or incomplete render observations', () => {
+  assert.deepEqual(validateSpySourceObservation(report()).croppedFrames, [0, 1])
+  for (const change of [
+    r => { r.observation.error = 'Page failed' },
+    r => { r.order.target = 102 },
+    r => { r.order.selected = [102] },
+    r => { r.observation.samples[2].spyId++ },
+    r => { r.observation.done = false },
+    r => { r.observation.samples = r.observation.samples.filter(row => row.substate !== 1) },
+    r => { r.observation.samples.splice(1, 1) },
+    r => { r.observation.samples[1].object = 136 },
+    r => { r.observation.samples[2].timer = 24 },
+    r => { r.observation.samples[2].turn++ },
+    r => { r.observation.samples[2].frame = 0 },
+    r => { r.observation.samples[2].draw = 17 },
+    r => { r.observation.samples[2].owner = 0 },
+    r => { r.observation.samples[2].flip = true },
+    r => { r.observation.samples[2].submittedLayers = 0 },
+    r => { r.observation.samples[2].pieces.pop() },
+    r => { r.observation.samples[2].missingNativeSource = 136 },
+    r => { r.observation.samples[2].cropOverlayClear = false },
+    r => { r.observation.crops.pop() },
+    r => { r.observation.crops[0].stamp++ },
+    r => { r.observation.crops[0].opaqueColors = 1 },
+    r => { r.observation.crops[0].sha256 = 'missing' },
+    r => { r.holdAfter.turn++ },
+    r => { r.resumed.paused = true },
+  ]) {
+    const candidate = report(); change(candidate)
+    assert.throws(() => validateSpySourceObservation(candidate))
+  }
+  const malformed = sample(); malformed.submittedLayers = malformed.pieces.length; malformed.f2 = 999
+  assert.throws(() => validateSpySourceSample(malformed))
+})
+
+test('Spy45s admission retains the original180s host deadline and never skips short budgets', () => {
+  const signal = new AbortController().signal
+  assert.equal(spySourceBudgetMs, 45000)
+  assert.deepEqual(admitSpySourceEpisode({ signal, deadlineAt: 180000, now: 135000 }),
+    { startedAt: 135000, deadlineAt: 180000, hostDeadlineAt: 180000, capMs: 45000 })
+  assert.throws(() => admitSpySourceEpisode({ signal, deadlineAt: 180000, now: 135001 }), /Full 45-second/)
+  assert.throws(() => admitSpySourceEpisode({ signal, deadlineAt: NaN, now: 0 }), /Original/)
+  const controller = new AbortController(); controller.abort(Error('host deadline'))
+  assert.throws(() => admitSpySourceEpisode({ signal: controller.signal, deadlineAt: 180000, now: 0 }), /host deadline/)
+})
+
+test('owned Spy browser closes on success, scenario failure and abort during launch without replacement', async () => {
+  for (const mode of ['success', 'scenario-failed', 'launch-aborted', 'cleanup-failed']) {
+    const calls = [], controller = new AbortController(), report = {}
+    let connected = true
+    const browser = { isConnected: () => connected, close: async () => {
+      calls.push('close')
+      if (mode === 'cleanup-failed') throw Error('cleanup-failed')
+      connected = false
+    } }
+    const chromium = { launch: async options => {
+      calls.push('launch')
+      assert.equal(options.chromiumSandbox, true)
+      assert.ok(options.timeout > 0 && options.timeout <= 45000)
+      if (mode === 'launch-aborted') controller.abort(Error('launch-aborted'))
+      return browser
+    } }
+    const run = withSpySourceBrowser({ chromium, launch: { chromiumSandbox: true },
+      signal: controller.signal, deadlineAt: Date.now() + 180000, report }, async () => {
+      calls.push('scenario')
+      if (mode === 'scenario-failed') throw Error('scenario-failed')
+      return 'passed'
+    })
+    if (mode === 'success') assert.equal(await run, 'passed')
+    else await assert.rejects(run, new RegExp(mode))
+    assert.equal(calls.filter(value => value === 'launch').length, 1)
+    assert.equal(calls.filter(value => value === 'close').length, 1)
+    assert.equal(report.cleanupVerified, mode === 'cleanup-failed' ? undefined : true)
+    assert.equal(report.budget.capMs, 45000)
+  }
+})
+
+test('current checkpoint supplies a truly trained Spy but never seeds disguise or the source136 animation', async () => {
+  const fixture = await createSpySourceFixture('a'.repeat(40))
+  const { world } = checkpointCodec(fixture.transfer, true)
+  const spy = world.units.find(unit => unit.id === fixture.spyId)
+  const target = world.buildings.find(building => building.id === fixture.targetId)
+  assert.equal(spy.kind, 'spy'); assert.equal(spy.inside, null)
+  assert.notEqual(spy.native?.object, 136)
+  assert.equal(spy.native?.disguise ?? 0, 0)
+  assert.deepEqual(world.selected, [])
+  assert.equal(world.paused, true)
+  assert.equal(target.team, 'red')
+  assert.equal(fixture.receipt.stages.map(stage => stage.stage).join(','), 'admitted,trained,departed')
+  const { loadSceneFixture } = await import('./support/bloodlust-scene.mjs')
+  const api = await loadSceneFixture()
+  const { currentPersonOrder } = await import('../app/person-orders.ts')
+  world.paused = false
+  api.select(world, 'spy')
+  assert.equal(api.disguiseSelectedSpies(world, 1), true)
+  for (let n = 0; spy.native?.disguise !== 0x40 && n < 100; n++) api.tick(world, 1 / 12)
+  assert.equal(spy.native.disguise, 0x40)
+  assert.equal(api.command(world, target), true)
+  assert.equal(spy.target, target.id, 'Canvas command exposes its target before the next ordinary turn')
+  assert.equal(currentPersonOrder(world.buildingOrders, spy.native).model, 15)
+  const clock = { animationTime: 0, animationFrame: 0 }, stages = []
+  for (let visit = 0; spy.native.object !== 136 && visit < 180; visit++) {
+    api.advanceGame(world, clock, 1 / 24)
+    stages.push({ turn: world.turn, substate: spy.native.substate, armed: !!(spy.native.flags2 & 0x40000000),
+      timer: spy.native.timer, object: spy.native.object, f2: spy.native.f2 })
+  }
+  const armed = stages.find(stage => stage.substate === 2 && stage.armed)
+  assert.ok(armed)
+  assert.notEqual(armed.object, 136)
+  assert.equal(spy.native.object, 136)
+  assert.equal(spy.native.f2, 0)
+  assert.equal(spy.native.timer, 23)
+  assert.equal(world.turn, armed.turn + 1)
+})
+
+test('the browser witness leaves existing M10 workflow, phase dispatch and budgets untouched before activation', () => {
+  const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
+  assert.doesNotMatch(runner, /spy-source/)
+  const observer = readFileSync(new URL('../scripts/tutorial-browser/spy-source-observer.mjs', import.meta.url), 'utf8')
+  assert.doesNotMatch(observer, /(?:world|p|spy)\.(?:paused|substate|timer|object|f1|f2)\s*=(?!=)/)
+  assert.doesNotMatch(observer, /scene\.animate|tick\(|advanceGame|stepLiveBuildingAttack/)
+})
