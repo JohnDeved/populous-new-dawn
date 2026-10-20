@@ -82,14 +82,17 @@ test('parsed eight-job matrix explicitly spends two independent180s allowances w
     const jobs = completeJobs(); mutate(jobs); assert.throws(() => validateSplitBrowserJobs(jobs, { id: 100, run_attempt: 2 }))
   }
 })
-test('actual episode dispatcher never combines scenarios or resets the supplied deadline', async () => {
+test('actual episode dispatcher separates recovery, then runs Spy only after both M10 phases without resetting the deadline', async () => {
   const calls = [], signal = new AbortController().signal, deadlineAt = 123456789
+  const mission10 = { status: 'passed', phases: ['created', 'reused'].map(mode => ({ mode, status: 'passed', cleanupVerified: true })) }
+  assert.equal(mission10.phases.length, 2)
   const options = { signal, deadlineAt, runRecovery: async () => { calls.push('recovery'); return { cases: 9 } },
-    closeProbe: async () => { calls.push('closed') }, runMission10: async args => { calls.push('M10'); assert.equal(args.signal, signal); assert.equal(args.deadlineAt, deadlineAt); return { phases: 2 } } }
+    closeProbe: async () => { calls.push('closed') }, runMission10: async args => { calls.push('M10'); assert.equal(args.signal, signal); assert.equal(args.deadlineAt, deadlineAt); return mission10 },
+    runSpySource: async args => { calls.push('Spy'); assert.equal(args.signal, signal); assert.equal(args.deadlineAt, deadlineAt); return { status: 'passed' } } }
   assert.deepEqual(await runProfileEpisode('profile-recovery', options), { profileRecovery: { cases: 9 } }); assert.deepEqual(calls, ['recovery'])
   calls.length = 0
-  assert.deepEqual(await runProfileEpisode('mission10-profile', options), { mission10Profile: { phases: 2 } }); assert.deepEqual(calls, ['closed', 'M10'])
-  for (const step of ['closeProbe', 'runMission10', 'runRecovery']) {
+  assert.deepEqual(await runProfileEpisode('mission10-profile', options), { mission10Profile: mission10, spySource: { status: 'passed' } }); assert.deepEqual(calls, ['closed', 'M10', 'Spy'])
+  for (const step of ['closeProbe', 'runMission10', 'runRecovery', 'runSpySource']) {
     const bad = { ...options, [step]: async () => { throw Error(step) } }
     await assert.rejects(runProfileEpisode(step === 'runRecovery' ? 'profile-recovery' : 'mission10-profile', bad), new RegExp(step))
   }
@@ -98,6 +101,22 @@ test('actual episode dispatcher never combines scenarios or resets the supplied 
   const duringClose = new AbortController(); calls.length = 0
   await assert.rejects(runProfileEpisode('mission10-profile', { ...options, signal: duringClose.signal,
     closeProbe: async () => duringClose.abort(Error('deadline')) }), /deadline/); assert.deepEqual(calls, [])
+  const duringMission10 = new AbortController(); calls.length = 0
+  await assert.rejects(runProfileEpisode('mission10-profile', { ...options, signal: duringMission10.signal,
+    runMission10: async () => { duringMission10.abort(Error('deadline')); return mission10 } }), /deadline/)
+  assert.deepEqual(calls, ['closed'], 'Spy must not start after the shared deadline')
+  for (const mutate of [
+    r => { r.status = 'failed' },
+    r => { r.phases.pop() },
+    r => { r.phases[1].status = 'failed' },
+    r => { r.phases[1].cleanupVerified = false },
+    r => { r.phases.reverse() },
+  ]) {
+    const incomplete = structuredClone(mission10); mutate(incomplete); calls.length = 0
+    await assert.rejects(runProfileEpisode('mission10-profile', { ...options, runMission10: async () => incomplete }))
+    assert.deepEqual(calls, ['closed'], 'No substitute for either M10 phase')
+  }
+  await assert.rejects(runProfileEpisode('mission10-profile', { ...options, runSpySource: async () => ({ status: 'skipped' }) }))
   await assert.rejects(runProfileEpisode('unknown', options), /Unknown/)
 })
 test('independent recovery receipt retains all nine cases and cannot stand in for M10 or old composite admission', () => {

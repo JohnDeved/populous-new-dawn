@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
+import { matchesGlob } from 'node:path'
+import yaml from 'js-yaml'
 import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mjs'
 import { createSpySourceFixture } from '../scripts/tutorial-browser/spy-source-fixture.mjs'
 import { admitSpySourceEpisode, withSpySourceBrowser, spySourceBudgetMs } from '../scripts/tutorial-browser/spy-source-budget.mjs'
 import { validateSpySourceObservation, validateSpySourceSample } from '../scripts/tutorial-browser/spy-source-evidence.mjs'
+import { runProfileEpisode } from '../scripts/tutorial-browser/profile-episodes.mjs'
+import { browserCapMs, browserScenarios } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import units from '../app/original-units.json' with { type: 'json' }
 import witness from './fixtures/follower-source-witness.json' with { type: 'json' }
 
@@ -150,9 +154,32 @@ test('current checkpoint supplies a truly trained Spy but never seeds disguise o
   assert.equal(world.turn, armed.turn + 1)
 })
 
-test('the browser witness leaves existing M10 workflow, phase dispatch and budgets untouched before activation', () => {
+test('M10 dispatch refuses a short Spy budget before launch, without skipping either episode', async () => {
+  const calls = [], signal = new AbortController().signal
+  const mission10 = { status: 'passed', phases: ['created', 'reused'].map(mode => ({ mode, status: 'passed', cleanupVerified: true })) }
+  await assert.rejects(runProfileEpisode('mission10-profile', {
+    signal, deadlineAt: Date.now() + 44999,
+    closeProbe: async () => { calls.push('close') },
+    runMission10: async () => { calls.push('created', 'reused'); return mission10 },
+    runSpySource: options => withSpySourceBrowser({ ...options, report: {}, launch: {},
+      chromium: { launch: () => assert.fail('No launch after failed full-budget admission') } }, () => assert.fail('No reduced episode')),
+    runRecovery: () => assert.fail('No unrelated recovery'),
+  }), /Full 45-second/)
+  assert.deepEqual(calls, ['close', 'created', 'reused'])
+})
+
+test('the wired Spy witness retains the M10 artifact root and existing job cap with read-only observation', () => {
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
-  assert.doesNotMatch(runner, /spy-source/)
+  assert.match(runner, /const spySourceScenario = resolve\(root, 'scripts\/tutorial-browser\/spy-source.mjs'\)/)
+  assert.equal(browserCapMs('mission10-profile'), 180000)
+  assert.equal(browserScenarios.includes('spy-source'), false, 'No new scenario or workflow job')
+  const workflow = yaml.load(readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8'))
+  const job = workflow.jobs['tutorial-browser']
+  assert.equal(job.strategy.matrix.include.filter(item => item.scenario === 'mission10-profile').length, 1)
+  assert.equal(job.strategy.matrix.include.find(item => item.scenario === 'mission10-profile').artifact, 'mission10-crew-persistence-browser')
+  const globs = job.steps.find(step => step.name === 'Retain bounded validation receipts and screenshots').with.path.trim().split(/\s+/)
+  for (const name of ['spy-source.json', 'spy-source-context.png', 'spy-source-frame-0.png', 'spy-source-frame-1.png'])
+    assert.ok(globs.some(glob => matchesGlob(`outputs/tutorial-browser/${name}`, glob)), name)
   const observer = readFileSync(new URL('../scripts/tutorial-browser/spy-source-observer.mjs', import.meta.url), 'utf8')
   assert.doesNotMatch(observer, /(?:world|p|spy)\.(?:paused|substate|timer|object|f1|f2)\s*=(?!=)/)
   assert.doesNotMatch(observer, /scene\.animate|tick\(|advanceGame|stepLiveBuildingAttack/)

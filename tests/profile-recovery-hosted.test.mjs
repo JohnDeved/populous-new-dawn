@@ -43,13 +43,18 @@ test('recovery and M10 retain independent bounded dispatch without M2 fixtures',
   )
   assert.match(branch, /Object.assign\(receipt, await runProfileEpisode\(selectedScenario,/)
   assert.match(branch, /runRecovery: async \(\) => .*pathToFileURL\(recoveryScenario\)/)
-  assert.match(branch, /runMission10: async \(\{ signal, deadlineAt \}\) => .*pathToFileURL\(mission10ProfileScenario\)/)
+  assert.match(branch, /runMission10: async \(\{ signal, deadlineAt \}\) => \{\s+receipt.mission10Profile = await .*pathToFileURL\(mission10ProfileScenario\)/)
+  assert.match(branch, /save\(\).*Retain both completed phases[\s\S]*return receipt.mission10Profile/)
+  assert.match(branch, /runSpySource: async \(\{ signal, deadlineAt \}\) => .*pathToFileURL\(spySourceScenario\)/)
+  assert.match(branch, /spySourceScenario\).href\)\).default\(\{ chromium, launch: browserConfig.launch, url, output: out, source, signal, deadlineAt \}\)/)
   assert.match(branch, /deadlineAt: browserDeadlineAt/)
   assert.match(branch, /signal: abort.signal/)
   assert.match(branch, /closeProbe: async \(\) => \{ await context.close\(\); context = undefined; page = undefined; await browser.close\(\) \}/)
   assert.doesNotMatch(branch, /selectorInspection|sceneryPlacement|m2PointerF8|m2Fixture|spellProjection|setTimeout/)
   const signal = new AbortController().signal
   const deadlineAt = 180000
+  const mission10 = { status: 'passed', phases: ['created', 'reused'].map(mode => ({ mode, status: 'passed', cleanupVerified: true })) }
+  assert.equal(mission10.phases.length, 2)
   for (const selected of ['profile-recovery', 'mission10-profile']) {
     const calls = []
     const result = await runProfileEpisode(selected, {
@@ -60,13 +65,19 @@ test('recovery and M10 retain independent bounded dispatch without M2 fixtures',
         calls.push('mission10')
         assert.equal(options.signal, signal)
         assert.equal(options.deadlineAt, deadlineAt)
-        return { status: 'passed', phases: 2 }
+        return mission10
+      },
+      runSpySource: async options => {
+        calls.push('spy')
+        assert.equal(options.signal, signal)
+        assert.equal(options.deadlineAt, deadlineAt)
+        return { status: 'passed' }
       },
     })
-    assert.deepEqual(calls, selected === 'profile-recovery' ? ['recovery'] : ['close-probe', 'mission10'])
+    assert.deepEqual(calls, selected === 'profile-recovery' ? ['recovery'] : ['close-probe', 'mission10', 'spy'])
     assert.deepEqual(result, selected === 'profile-recovery'
       ? { profileRecovery: { status: 'passed', cases: 9 } }
-      : { mission10Profile: { status: 'passed', phases: 2 } })
+      : { mission10Profile: mission10, spySource: { status: 'passed' } })
   }
   assert.match(runner, /if \(selectedScenario === 'tutorial'\) receipt\.spellProjection =/)
   const scenario = read('scripts/local-render/campaign-profile-recovery.mjs')
