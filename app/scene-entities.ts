@@ -61,6 +61,7 @@ import { stoneHeadAngle } from './stone-head-orientation.ts'
 import { stoneHead149Model } from './stone-head-149.ts'
 import { originalTrainingHutObject } from './training-hut-appearance.ts'
 import { shamanAppearance, shamanNativeDirections } from './shaman-appearance.ts'
+import { followerNativeDirections, nativeSpriteHidden } from './follower-appearance.ts'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
 import { animationTeam, teamForTribe, tribeForTeam, vehicleApparentTribe } from './world-types.ts'
@@ -80,13 +81,14 @@ const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
 type UnitDirections = { frames: number[]; flip: boolean; source?: number }[]
 type UnitAnimationTable = Record<string, UnitDirections>
 
+// Preserve a matching legacy source only when the native catalog has no entry.
 // Imported animation tables have no runtime writers; retain their first source match.
 const unitDirectionsBySource = new WeakMap<
   UnitAnimationTable,
   Map<number | undefined, UnitDirections>
 >()
 
-function followerDirections(animations: UnitAnimationTable, source: number) {
+function legacyFollowerDirections(animations: UnitAnimationTable, source: number) {
   if (Number.isNaN(source)) return undefined
   let sources = unitDirectionsBySource.get(animations)
   if (!sources) {
@@ -604,13 +606,20 @@ export function updateUnitsFrame(scene: GameScene) {
     g.quaternion.identity()
     g.userData.nativeHeading = 0
     g.userData.cellPosition = u
-    if (u.native?.vehicle) {
+    const animationSource = unitRenderAnimationSource(u)
+    g.userData.missingNativeSource = undefined
+    g.userData.nativeSpriteHidden = nativeSpriteHidden(
+      animationSource?.object,
+      animationSource?.renderFlags ?? 0
+    )
+    if (u.native?.vehicle || g.userData.nativeSpriteHidden) {
       g.visible = false
       continue
     }
     g.visible =
       (u.inside === null || (!!u.entry && !(u.entry.person.renderFlags & 16))) &&
       !unitInvisibleToPlayer(scene.world, u)
+    if (!g.visible) continue
     const shield = g.userData.shield as THREE.Mesh
     shield.visible = !!u.shield
     if (shield.visible) {
@@ -621,8 +630,7 @@ export function updateUnitsFrame(scene: GameScene) {
     const bloodlust = g.userData.bloodlust as THREE.Mesh
     bloodlust.visible = !!u.bloodlust && (u.bloodlust >= 16 * 8 || !(scene.world.turn & 2))
     if (bloodlust.visible) bloodlust.rotation.z = scene.world.time * 4
-    const animationSource = unitRenderAnimationSource(u),
-      person = animationSource ?? u.native ?? u.entry?.person ?? u.builder?.person,
+    const person = animationSource ?? u.native ?? u.entry?.person ?? u.builder?.person,
       owner = tribeForTeam(u.team),
       disguise = u.kind === 'spy' ? (person?.disguise ?? owner << 6) : owner << 6,
       target = disguise >>> 6,
@@ -676,13 +684,21 @@ export function updateUnitsFrame(scene: GameScene) {
       g.userData.since = scene.world.time
     }
     const source = animationSource?.object,
-      nativeDirections =
+      catalogDirections =
         source === undefined
           ? undefined
           : u.kind === 'shaman'
             ? shamanNativeDirections(u.team, source)
-            : followerDirections(animations, source),
+            : followerNativeDirections(source),
+      nativeDirections =
+        catalogDirections ??
+        (source !== undefined && u.kind !== 'shaman'
+          ? legacyFollowerDirections(animations, source)
+          : undefined),
       directions = nativeDirections || animations[state] || animations.idle
+    // Presentation-only diagnostic: unknown native sources remain observable
+    // without logging/allocating per frame or hiding a still-live legacy unit.
+    if (source !== undefined && !catalogDirections) g.userData.missingNativeSource = source
     scene.animatePerson(
       g,
       u.heading,
