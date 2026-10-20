@@ -101,7 +101,9 @@ test('current controlled Mission6 raid releases blocked owners and checkpoint re
   }
   const released = new Set(), releaseLimit = world.turn + 512
   const advance = (tail = false) => {
-    const before = task.members.map(id => {
+    // The inactive task slot may be reused. Observe only the original raid;
+    // the post-cleanup tail checks its captured owners and retired order below.
+    const before = tail ? [] : task.members.map(id => {
       const person = world.objectCells.objects.get(id)
       return { id, state: person.state, substate: person.substate, animationMode: person.animationMode }
     })

@@ -48,3 +48,9 @@ transition must occur; all other present registry entries must equal the capture
 person. Replay aliases follow the same checks. The prior failure is retained,
 and strict registered/native/empty-order checks at phase23 and immediate task
 inactivity remain unchanged. This is not a generic registry fallback.
+
+The retained d51bebe3 failure exposed an observer lifetime mistake: after task
+inactivity, the scheduler reused the same task slot for construction. Raid-release
+transition sampling now ends at inactivity; the full 145-turn captured-cohort,
+health, replay, queue and retired-order reference checks continue independently
+of that reusable slot. No gameplay path or release assertion is removed.
