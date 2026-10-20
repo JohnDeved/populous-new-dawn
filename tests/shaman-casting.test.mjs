@@ -27,6 +27,8 @@ function scenario(team = 'blue') {
   w.terrain.fill(3); w.terrainVersion++
   w.manaWorld.gameFlags = 0 // Ordinary stock payment, not alternate-mode unlimited Blast.
   const u = addUnit(w, team, 'shaman', { x: 1, z: -1 })
+  // Keep an opposing tribe alive rather than disabling outcome/payment rules.
+  addUnit(w, team === 'blue' ? 'red' : 'blue', 'brave', { x: 40, z: -40 })
   u.native = createLivePerson(w, u)
   w.shots.blast = 3
   return { w, u, p: u.native, target: { x: 9, z: -1 } }
