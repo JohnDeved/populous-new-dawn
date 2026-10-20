@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -217,7 +218,7 @@ export async function saveTempleCheckpoint({
       signal.throwIfAborted()
       entry.committed = await page.evaluate(readCommittedTempleSummary)
       return (
-        entry.committed?.version === 3 &&
+        entry.committed?.version === CHECKPOINT_VERSION &&
         JSON.stringify(entry.committed.summary) === JSON.stringify(entry.boundary.saved)
       )
     })

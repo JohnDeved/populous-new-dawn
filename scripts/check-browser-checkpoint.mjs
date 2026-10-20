@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
@@ -398,7 +399,7 @@ try {
     hp: globalThis.testScene.world.units[0].hp,
   }))
   const committed = await waitForCheckpointReadback(
-    () => page.evaluate(async () => {
+    () => page.evaluate(async currentVersion => {
       const database = await new Promise((resolve, reject) => {
         const request = indexedDB.open('populous-new-dawn', 1)
         request.addEventListener('success', () => resolve(request.result))
@@ -407,13 +408,13 @@ try {
       try {
         const request = database.transaction('checkpoints').objectStore('checkpoints').get('latest')
         return await new Promise((resolve, reject) => {
-          request.addEventListener('success', () => resolve(request.result?.version === 3))
+          request.addEventListener('success', () => resolve(request.result?.version === currentVersion))
           request.addEventListener('error', () => reject(request.error))
         })
       } finally {
         database.close()
       }
-    }),
+    }, CHECKPOINT_VERSION),
     { attempts: 300, pause: () => page.waitForTimeout(100) }
   )
   assert.equal(committed, true, 'Checkpoint must commit before reloading')

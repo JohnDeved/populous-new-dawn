@@ -13,6 +13,7 @@ import type { TerrainLights } from './terrain-light.ts'
 import type { Replant } from './tree-growth.ts'
 import type { createTimberSearches } from './timber-search.ts'
 import type { AnimatedUnit } from './animation.ts'
+import type { AngelPresentation } from './angel-presentation.ts'
 import type { SpellTrail } from './spell-trails.ts'
 import type { BuildingSmoke } from './building-smoke.ts'
 import type { SceneryFire, BurningTree } from './scenery-fire.ts'
@@ -164,6 +165,7 @@ export type AngelState = {
   heading: number
   timer: number
   lifetime: number
+  presentation: AngelPresentation
 }
 export type Battle = Point & {
   id: number

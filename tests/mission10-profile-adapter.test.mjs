@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -24,7 +25,8 @@ test('M10 companion requires complete source-bound Save/Load, all public selecti
     v => { delete v.phases[0].saved }, v => { v.phases[0].saved.pop() },
     v => { delete v.phases[1].loaded }, v => { v.phases[1].loaded.push('extra') }, v => { v.phases[1].loaded.reverse() },
     v => { v.phases[0].saved[0] = 1 }, v => { v.phases[1].saved = [...v.phases[0].saved] }, v => { v.phases[1].loaded[0] = 1 },
-    v => { v.phases[0].saved[0] = 4 }, v => { v.phases[1].loaded[0] = 4 },
+    v => { v.phases[0].saved[0] = CHECKPOINT_VERSION + 1 }, v => { v.phases[1].loaded[0] = CHECKPOINT_VERSION + 1 },
+    v => { v.phases[0].saved[0] = 3 }, v => { v.phases[1].loaded[0] = 3 },
     v => { v.phases[0].saved[0] = 2 }, v => { v.phases[1].loaded[0] = 2 },
     v => { delete v.artifacts }, v => { v.artifacts.path = 'mission10-created/private.json' },
     v => { v.artifacts.bytes = 0 }, v => { v.phases[0].receiptName = 'mission10-created/receipt.json' },

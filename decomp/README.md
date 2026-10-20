@@ -624,6 +624,10 @@ fate, audio, and source artwork remain open. See the
 
 ## Mission 14 linked rewards and generic Angel
 
+The [original Angel presentation adapter](research/angel-presentation.md) documents
+the scoped mesh/morph import, source-derived display protocol, unchanged gameplay
+boundary and remaining native controller/palette/rendered acceptance limits.
+
 ```sh
 .tools/decomp/oracle/bin/python scripts/check-native-mission14-rewards.py /path/to/d3dpoptb.exe
 ```

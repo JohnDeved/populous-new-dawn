@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
@@ -162,7 +163,7 @@ for (const failure of ['open', 'abort']) test(`actual Home ${failure} failure ex
     assert.deepEqual(home.states, ['choice', 'playing'], 'only deliberate Load invokes actual Home beginLoad')
     assert.deepEqual(home.cheatClosures, [false], 'deliberate Load closes the testing menu once')
     home.cleanup()
-  }, { latest: { version: 3, world: saved }, profile: { version: 1, completed: [1, 2] } })
+  }, { latest: { version: CHECKPOINT_VERSION, world: saved }, profile: { version: 1, completed: [1, 2] } })
 })
 
 test('genuine empty and unusable records are read results, not a failed lookup or proof of empty disk', async () => {
@@ -214,7 +215,7 @@ test('late read keeps a newer memory save and current world after navigation', a
     home.navigation.loadCheckpoint()
     assert.equal(store.getWorld().turn, 999, 'post-await memory checkpoint wins over old read')
     home.cleanup()
-  }, { latest: { version: 3, world: saved } })
+  }, { latest: { version: CHECKPOINT_VERSION, world: saved } })
 })
 
 for (const interruption of ['unmount', 'world replacement']) test(`initial restore completion cannot navigate after ${interruption}`, async () => {
@@ -288,7 +289,7 @@ for (const failWrite of [false, true]) test(`explicit Save after incompatible re
     assert.equal(text(menu(store)).includes('stored save has not been changed'), failWrite)
     assert.equal(button(menu(store), 'Load Game').props['aria-disabled'], false)
     if (failWrite) assert.deepEqual(records, before)
-    else assert.equal(records.get('latest').version, 3)
+    else assert.equal(records.get('latest').version, CHECKPOINT_VERSION)
     assert.equal(store.loadCheckpoint(), true, 'even a failed disk write retains an explicit session checkpoint')
     assert.equal(store.getWorld().turn, 217)
     home.cleanup()
@@ -303,7 +304,7 @@ test('successful explicit Save supersedes an older pending incompatible read sna
     store.getWorld().turn = 217
     assert.equal(await store.saveCheckpoint(), true)
     assert.equal(store.getCheckpointReadStatus(), 'read')
-    assert.equal(records.get('latest').version, 3)
+    assert.equal(records.get('latest').version, CHECKPOINT_VERSION)
     await read()
     assert.equal(await restoring, true)
     assert.equal(store.getCheckpointReadStatus(), 'read')

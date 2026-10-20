@@ -1,0 +1,26 @@
+{
+  "kind": "static objdump evidence; original instructions never executed",
+  "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "files": {
+    "004de440.asm.txt": "b9ff371ec4994ebf3baaf24ec50ee475b40ced4a1cfa8b351d9d6c0a323d3636",
+    "morph-sample.asm.txt": "c370b450ddd96d39505fc5c2ec95b22c672b041ba50681e0ba8f465f62ef0069",
+    "morph-transition-setter.asm.txt": "f527e203a2d34908fe6681476f97f78c7ef57c347b892634e69c5dc8f3ae6705"
+  },
+  "ranges": {
+    "004de440.asm.txt": [
+      "004de440",
+      "004de569"
+    ],
+    "morph-sample.asm.txt": [
+      "0040c9f0",
+      "0040cc30"
+    ],
+    "morph-transition-setter.asm.txt": [
+      "0040cc30",
+      "0040cc60"
+    ]
+  },
+  "toolVersion": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "toolSha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "verification": "All retained instruction bodies match fresh bounded static objdump ranges against the pinned EXE; no original instructions executed."
+}

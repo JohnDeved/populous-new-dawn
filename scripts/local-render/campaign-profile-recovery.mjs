@@ -145,16 +145,16 @@ async function expectProfileUi(page, completed) {
 }
 
 async function installLoadObserver(page) {
-  await page.evaluate(() => {
+  await page.evaluate(currentVersion => {
     const store = window.testStore, before = store.getWorld()
     window.recoveryLoadBoundary = null
     const unsubscribe = store.subscribe(() => {
       const world = store.getWorld()
       if (world === before) return
-      window.recoveryLoadBoundary = { version: 3, world: structuredClone(world) }
+      window.recoveryLoadBoundary = { version: currentVersion, world: structuredClone(world) }
       unsubscribe()
     })
-  })
+  }, CHECKPOINT_VERSION)
 }
 
 export default async function ({ browser, context: initialContext, page: initialPage, url, root, output, receipt, signal }) {

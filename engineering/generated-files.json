@@ -2,6 +2,15 @@
   "version": 1,
   "owners": [
     {
+      "id": "original-angel-data",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-angel.py", "<verified-game-path>"] },
+      "callers": ["scripts/import-angel.py", "scripts/check-angel-import.py"],
+      "inputs": ["scripts/angel-inputs.json", "scripts/import-original.py"],
+      "outputs": [{ "path": "app/original-angel.json", "type": "file", "tracked": true, "protected": true }],
+      "recording": "Only hash-pinned bank2/6 Angel bases, raw morph points and cycles. Never writes shared atlases or model catalogs; --check is read-only. The independent byte verifier also checks unchanged compatibility-c texture pixels."
+    },
+    {
       "id": "frontend-badge-vectors",
       "kind": "imported-assets",
       "generator": { "executable": "python3", "args": ["scripts/sanitize-frontend-badge-vectors.py", "<reviewed-local-input-directory>"] },
