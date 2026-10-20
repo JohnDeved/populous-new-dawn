@@ -2,6 +2,69 @@
   "version": 1,
   "checks": [
     {
+      "id": "angel-presentation-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate original Angel import, morph protocol, mesh ownership and current-checkpoint integration without browser or original-code execution.",
+      "coveredBehavior": [
+        "Two textured bases and seventeen raw point sets; exact source-derived morph counter/selector vectors.",
+        "All1640 existing native-model outputs match the pre-refactor baseline; owner UV translation and per-instance geometry/disposal.",
+        "Live presentation cadence, pause, current save/load, non-destructive obsolete-save rejection and16 visible death scales."
+      ],
+      "knownLimits": [
+        "DOM/texture/GPU leaves are supplied. This is not rendered pixel or full native controller evidence.",
+        "Independent raw-byte import and complete-world baseline comparisons require the separate documented commands."
+      ],
+      "executable": "node",
+      "args": [
+        "--max-old-space-size=512",
+        "--test",
+        "--test-concurrency=1",
+        "tests/angel-import.test.mjs",
+        "tests/angel-presentation.test.mjs",
+        "tests/angel-render.test.mjs",
+        "tests/angel-runtime.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/angel-presentation.ts",
+        "app/scene-angel.ts",
+        "app/original-angel.json",
+        "scripts/import-angel.py",
+        "scripts/angel-inputs.json",
+        "app/angel.ts",
+        "app/world-turn.ts",
+        "app/live-people.ts",
+        "app/world-types.ts",
+        "app/scene-assets.ts",
+        "app/scene-effects.ts",
+        "app/game-store.ts",
+        "app/checkpoint-format.ts",
+        "scripts/check-angel-import.py",
+        "tests/angel-import.test.mjs",
+        "tests/angel-presentation.test.mjs",
+        "tests/angel-render.test.mjs",
+        "tests/angel-runtime.test.mjs",
+        "tests/support/bloodlust-scene.mjs"
+      ],
+      "prerequisites": [
+        "Installed project dependencies",
+        "Node.js >=22.13.0",
+        "Python3 for source-refusal test"
+      ],
+      "sideEffects": [
+        "Creates and removes a private temporary invalid-input directory for importer refusal; does not write tracked outputs. Mock texture loading; no browser, network or original game execution."
+      ],
+      "resources": [
+        "Serial Node file isolation; bounded process-tree watchdog when sharing an executor."
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "id": "neutral-canvas-cursor",
       "kind": "portable",
       "automation": "safe",

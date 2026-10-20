@@ -187,6 +187,13 @@ metadata = actual.pop("provenance")
 assert actual == dataset, "Imported Angel data differs from independent byte decoding"
 assert metadata["inputSha256"] == PINS["inputSha256"]
 assert metadata["exeSha256"] == sha(exe)
+assert metadata["decoderSha256"] == sha((REPO / "scripts/import-original.py").read_bytes())
+assert metadata["textureFlags"] == {"address": "005aa218", "sha256": sha(tile_table)}
+assert metadata["resourceSha256"] == {
+    str(model["id"]): {"object": model["semanticObjectSha256"],
+                       "faces": model["facesSha256"], "points": model["pointsSha256"]}
+    for model in models if model["bank"] == 2
+}
 assert sha((REPO / "public/original/atlas.png").read_bytes()) == PINS["modelAtlasSha256"]
 assert sha(atlas) == PINS["modelAtlasRgbaSha256"]
 assert tile_hashes == PINS["tileRgbaSha256"]

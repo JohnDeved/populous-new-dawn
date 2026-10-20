@@ -4,7 +4,7 @@ import { morphCoordinate } from './morph.ts'
 import type { NativeModel } from './model-faces.ts'
 
 export type AngelBase = 62 | 69
-export type AngelPose = {
+export interface AngelPose {
   base: AngelBase
   from: number
   to: number
@@ -38,11 +38,11 @@ const cycles: Record<
 const animationData = {
   frameCounts: [],
   modelFrames: [],
-  morphDurations: Object.assign([], { 4: cycles[4].lastFrame, 5: cycles[5].lastFrame }),
+  morphDurations: [0, 0, 0, 0, cycles[4].lastFrame, cycles[5].lastFrame],
 }
 
 export function createAngelPresentation(base: AngelBase = 69): AngelPresentation {
-  const first = cycles[angelBases[base].morph].segments[0]
+  const [first] = cycles[angelBases[base].morph].segments
   const state: AngelPresentation = {
     object: base,
     draw: 4,
@@ -101,24 +101,34 @@ export function requestAngelBase(state: AngelPresentation, base: AngelBase, imme
 // not only native-visible objects; GPU renders are strictly read-only consumers.
 export function latchAngelPose(state: AngelPresentation) {
   const base = state.object as AngelBase
-  let from = state.sourceKey,
-    to = state.destinationKey,
-    duration = state.morphFrames,
-    frame = state.renderFlags & 0x400 ? duration : state.morphTimer >> 2
-  if (!(state.renderFlags & 0x1000)) {
-    const cycle = cycles[state.morph]
-    let phase = ((state.f1 & 65535) >>> 2) % (cycle.lastFrame + 1)
-    if (state.renderFlags & 0x800) {
-      if (state.holdFrame - phase === 1) state.renderFlags &= ~0x800
-    } else if (state.renderFlags & 0x400) phase = state.holdFrame
-    const segment = cycle.segments.find(s => s.first <= phase && phase <= s.last)
-    if (!segment) throw new RangeError('Invalid Angel morph phase')
-    from = state.sourceKey = segment.from
-    to = segment.to
-    frame = phase - segment.first
-    duration = segment.duration
+  if (state.renderFlags & 0x1000) {
+    state.displayed = {
+      base,
+      from: state.sourceKey,
+      to: state.destinationKey,
+      frame: state.renderFlags & 0x400 ? state.morphFrames : state.morphTimer >> 2,
+      duration: state.morphFrames,
+      scale: state.scale,
+    }
+    return
   }
-  state.displayed = { base, from, to, frame, duration, scale: state.scale }
+  const cycle = cycles[state.morph]
+  let phase = ((state.f1 & 65535) >>> 2) % (cycle.lastFrame + 1)
+  if (state.renderFlags & 0x800) {
+    if (state.holdFrame - phase === 1) state.renderFlags &= ~0x800
+  } else if (state.renderFlags & 0x400) phase = state.holdFrame
+  const segment = cycle.segments.find(s => s.first <= phase && phase <= s.last)
+  if (!segment) throw new RangeError('Invalid Angel morph phase')
+  const { from, to, duration } = segment
+  state.sourceKey = from
+  state.displayed = {
+    base,
+    from,
+    to,
+    frame: phase - segment.first,
+    duration,
+    scale: state.scale,
+  }
 }
 
 export function advanceAngelPresentation(state: AngelPresentation) {
@@ -152,4 +162,45 @@ export function angelPosePositions(pose: AngelPose) {
         (base.model.scale * (axis === 2 ? -3 : 3))
   }
   return positions
+}
+
+const integer = (n: unknown, min: number, max: number): n is number =>
+  typeof n === 'number' && Number.isInteger(n) && min <= n && n <= max
+const isAngelBase = (n: unknown): n is AngelBase => n === 62 || n === 69
+
+// Current-format checkpoints must carry the next counters and last displayed
+// pose. Reject missing/malformed state; never reconstruct obsolete draw history.
+export function validAngelPresentation(value: unknown) {
+  if (!value || typeof value !== 'object') return false
+  const state = value as Partial<AngelPresentation>,
+    pose = state.displayed
+  if (!pose || typeof pose !== 'object') return false
+  if (!isAngelBase(state.object) || !isAngelBase(state.pendingBase) || !isAngelBase(pose.base))
+    return false
+  return (
+    state.draw === 4 &&
+    state.morph === angelBases[state.object].morph &&
+    integer(state.palette, 0, 255) &&
+    integer(state.renderFlags, 0, 65535) &&
+    integer(state.flags3, 0, 0xffffffff) &&
+    integer(state.stamp, 0, 0xffffffff) &&
+    integer(state.f1, -32768, 32767) &&
+    integer(state.f2, 0, 255) &&
+    integer(state.morphTimer, -32768, 32767) &&
+    (state.morphFrames === 0 || state.morphFrames === 2) &&
+    integer(state.stage, 0, 5) &&
+    (state.sourceKey === 0 || integer(state.sourceKey, 62, 78)) &&
+    (state.destinationKey === 0 || integer(state.destinationKey, 62, 78)) &&
+    (!(state.renderFlags & 0x1000) ||
+      (state.morphFrames === 2 &&
+        integer(state.sourceKey, 62, 78) &&
+        integer(state.destinationKey, 62, 78))) &&
+    integer(state.holdFrame, 0, 11) &&
+    integer(state.scale, 0, 160) &&
+    integer(pose.from, 62, 78) &&
+    integer(pose.to, 62, 78) &&
+    integer(pose.frame, -8192, 8191) &&
+    pose.duration === 2 &&
+    integer(pose.scale, 0, 160)
+  )
 }

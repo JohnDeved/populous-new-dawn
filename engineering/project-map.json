@@ -2,6 +2,85 @@
   "version": 1,
   "subsystems": [
     {
+      "id": "angel-presentation",
+      "title": "Original Angel meshes with explicit three-phase compatibility producer",
+      "mappingStatus": "inferred",
+      "implementationPaths": [
+        "app/angel-presentation.ts",
+        "app/scene-angel.ts",
+        "app/original-angel.json",
+        "scripts/import-angel.py",
+        "scripts/angel-inputs.json"
+      ],
+      "researchPaths": [
+        "decomp/research/angel-presentation.md",
+        "decomp/research/angel-presentation",
+        "scripts/check-angel-import.py",
+        "scripts/check-angel-gameplay.mjs",
+        "tests/angel-import.test.mjs",
+        "tests/angel-presentation.test.mjs",
+        "tests/angel-render.test.mjs",
+        "tests/angel-runtime.test.mjs"
+      ],
+      "sharedPaths": [
+        "app/angel.ts",
+        "app/world-turn.ts",
+        "app/live-people.ts",
+        "app/world-types.ts",
+        "app/scene-assets.ts",
+        "app/scene-effects.ts",
+        "app/game-store.ts",
+        "app/checkpoint-format.ts"
+      ],
+      "entrySymbols": [
+        {
+          "path": "app/world-effects.ts",
+          "symbol": "createAngel"
+        },
+        {
+          "path": "app/angel-presentation.ts",
+          "symbol": "advanceAngelPresentation"
+        },
+        {
+          "path": "app/scene-angel.ts",
+          "symbol": "drawAngelMeshes"
+        }
+      ],
+      "parityIds": [
+        "spells.summons"
+      ],
+      "evidence": [
+        {
+          "path": "decomp/research/angel-presentation.md",
+          "heading": "Original Angel presentation adapter"
+        }
+      ],
+      "nativeAddresses": [
+        "0x4de440",
+        "0x40c9f0",
+        "0x40cc30",
+        "0x40cc60",
+        "0x4ee7b0",
+        "0x4708d0"
+      ],
+      "checkIds": [
+        "angel-presentation-portable",
+        "mission5-angel-portable",
+        "mission14-rewards-portable"
+      ],
+      "generatedInputIds": [
+        "original-angel-data"
+      ],
+      "risks": [
+        "Shared model factory must preserve all previous outputs. Geometry is mutable per Angel; atlas textures remain shared.",
+        "Only current-format v4 checkpoints may supply required displayed/next presentation state."
+      ],
+      "unresolved": [
+        "Full native approach, spawn, encounter, pitch/bank and visibility-dependent producer parity.",
+        "Mission5/14 authored palettes and ordinary browser/GPU validation remain separate gates."
+      ]
+    },
+    {
       "id": "neutral-canvas-cursor",
       "title": "Original POINT14 neutral canvas adaptation",
       "mappingStatus": "inferred",
