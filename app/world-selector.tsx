@@ -1,4 +1,11 @@
-import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type CSSProperties } from 'react'
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type CSSProperties,
+} from 'react'
 import {
   openingCampaignMissions,
   openingMissionAvailable,
