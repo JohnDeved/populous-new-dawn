@@ -35,12 +35,19 @@ export const RECOVERY_INPUTS = [
 ]
 export const RECOVERY_CHECKS = [
   'checkpoint created and persisted by ordinary Save Game UI',
+  'native held Escape cancels each subpanel once without resuming; a fresh press resumes',
+  'frontend Retry preserves keyboard focus through Enter repeats/release and successful lookup',
+  'frontend Retry preserves keyboard focus through Space repeats/release and successful lookup',
+  'frontend Retry preserves keyboard focus through Enter repeats/release and late Options completion',
   'retry ignores held/repeated activation, freezes world and clock, and cannot steal focus or navigate from Save',
   'only explicit Load checkpoint replaces the world with the persisted checkpoint',
   'empty retry restores usable root focus when completion occurs in Load panel',
   'empty retry restores usable root focus when completion occurs in root',
 ]
 export const RECOVERY_SCREENSHOTS = [
+  ['frontend-retry-enter.png', 800, 600, 1],
+  ['frontend-retry-space.png', 800, 600, 1],
+  ['frontend-retry-enter-options.png', 800, 600, 1],
   ['failed-root-640x480.png', 640, 480, 1],
   ['failed-root-1920x1080.png', 1920, 1080, 1],
   ['failed-load-640x480.png', 640, 480, 1],

@@ -14,6 +14,8 @@ import { MISSION10_JOB, mission10CrewLog, validateMission10Crew, validateMission
 import { mission10ArtifactUpload, profileArtifactUpload, resolveMission10Artifact, resolveProfileArtifact, resolveProfileCasesArtifact, validateProfileArtifactMetadata } from '../scripts/integration-queue/profile-artifact.mjs'
 import { SPLIT_BROWSER_JOBS, validateSplitBrowserJobs } from '../scripts/integration-queue/browser-jobs.mjs'
 import { GATES, SPLIT_PROFILE_BROWSER_GATE, gatesFor, validateEntry, reviewedWorkflows, validatePassedGate } from '../scripts/integration-queue/policy.mjs'
+import { RECOVERY_INPUTS } from '../scripts/integration-queue/pause-recovery.mjs'
+import { recoveryReceiptLog } from '../scripts/tutorial-browser/recovery-receipt.mjs'
 import { GitHubReader } from '../scripts/integration-queue/github.mjs'
 import { writeMission10Fixture } from './support/mission10-profile-receipt.mjs'
 import { artifactZip } from './support/artifact-zip.mjs'
@@ -192,17 +194,21 @@ test('real trusted adapter requires both exact current official jobs and indepen
     const recovery = fixture('profile-recovery'), mission = fixture('mission10-profile'), jobs = completeJobs(), e = entry()
     const reader = new GitHubReader(), exact = { id: 100, run_attempt: 2, check_suite_id: 500, status: 'completed', conclusion: 'success',
       event: 'pull_request', path: GATES[1].workflow, head_sha: oid(2) }
+    const pause = structuredClone(JSON.parse(readFileSync(new URL('./fixtures/pause-recovery-current-receipt.json', import.meta.url))).receipt)
+    pause.identity = recovery.receipt.identity
+    pause.inputs = Object.fromEntries(RECOVERY_INPUTS.map(path => [path, hash(path)]))
     const prefix = `PR_HEAD_SHA: ${oid(2)}\nPR_BASE_SHA: ${oid(3)}\n[command]/usr/bin/git log -1 --format=%H\n${oid(1)}\n`
     let downloads = 0
     reader.get = endpoint => {
+      if (endpoint.endsWith('/actions/jobs/203/logs')) return prefix + recoveryReceiptLog(pause)
       if (endpoint.endsWith('/actions/jobs/204/logs')) return prefix + profileCasesReceiptLog(recovery.receipt) + '\n' + recovery.uploadLog
       if (endpoint.endsWith('/actions/jobs/205/logs')) return prefix + mission10CrewReceiptLog(mission.receipt) + '\n' + mission.uploadLog
       if (endpoint.endsWith('/actions/artifacts/200')) return structuredClone(mission.metadata)
       if (endpoint.endsWith('/actions/artifacts/201')) return structuredClone(recovery.metadata)
-      const match = endpoint.match(/\/check-runs\/(304|305)$/)
+      const match = endpoint.match(/\/check-runs\/(303|304|305)$/)
       if (!match) throw Error(`Unexpected API request: ${endpoint}`)
       const id = Number(match[1])
-      return { id, name: id === 304 ? 'Profile recovery browser' : MISSION10_JOB, check_suite: { id: 500 },
+      return { id, name: id === 303 ? 'Pause checkpoint recovery browser' : id === 304 ? 'Profile recovery browser' : MISSION10_JOB, check_suite: { id: 500 },
         head_sha: oid(2), app: { id: 15368, slug: 'github-actions' }, status: 'completed', conclusion: 'success' }
     }
     reader.pages = (endpoint, key) => { assert.equal(endpoint, 'repos/JohnDeved/populous-new-dawn/actions/runs/100/artifacts'); assert.equal(key, 'artifacts'); return [recovery.metadata, mission.metadata] }
@@ -210,9 +216,11 @@ test('real trusted adapter requires both exact current official jobs and indepen
     reader.workflow = () => ({ sha256: h })
     reader.gitOutput = (_, ref) => ref.slice(ref.indexOf(':') + 1)
     const row = { job: 'Tutorial browser', merge: oid(1) }
-    return { reader, mission, recovery, args: [e, { head: { sha: oid(2) }, base: { sha: oid(3) } }, { sha: oid(1) }, exact, jobs, row], downloads: () => downloads }
+    return { reader, mission, recovery, pause, args: [e, { head: { sha: oid(2) }, base: { sha: oid(3) } }, { sha: oid(1) }, exact, jobs, row], downloads: () => downloads }
   }
   const good = adapter()
+  good.reader.verifyPauseRecoveryRun(...good.args); assert.equal(good.args[5].pauseRecoveryVerified, true)
+  assert.equal(good.args[5].pauseRecoveryCheckId, 303)
   good.reader.verifyProfileRecoveryRun(...good.args); assert.equal(good.downloads(), 1)
   good.reader.verifyMission10Run(...good.args); assert.equal(good.downloads(), 2)
   assert.equal(good.args[5].profileRecoveryVerified, true); assert.equal(good.args[5].mission10Verified, true)
@@ -231,6 +239,11 @@ test('real trusted adapter requires both exact current official jobs and indepen
     f => { f.reader.gitOutput = () => 'wrong' }, f => { f.mission.metadata.workflow_run.id = 99 },
     f => { f.reader.artifactArchive = () => Buffer.from('corrupt') }]) {
     const f = adapter(); mutate(f); assert.throws(() => f.reader.verifyMission10Run(...f.args))
+  }
+  for (const mutate of [p => p.checks.pop(), p => p.screenshots.pop(),
+    p => p.checks.push(p.checks[0]), p => p.screenshots.push(p.screenshots[0]),
+    p => { p.checks.splice(1, 4); p.screenshots.splice(0, 3) }]) {
+    const f = adapter(); mutate(f.pause); assert.throws(() => f.reader.verifyPauseRecoveryRun(...f.args))
   }
   for (const mutate of [f => { f.recovery.metadata.workflow_run.id = 99 },
     f => { f.recovery.metadata.workflow_run.head_sha = oid(9) }, f => { f.recovery.metadata.expired = true },
