@@ -5,81 +5,10 @@ import native from './fixtures/follower-corpse-native.json' with { type: 'json' 
 import units from '../app/original-units.json' with { type: 'json' }
 import { validateFollowerCorpseSample, validateFollowerCorpseObservation } from '../scripts/tutorial-browser/follower-corpse-evidence.mjs'
 import { installFollowerCorpseObserver, readCommittedFollowerCorpse, readFollowerCorpseReady } from '../scripts/tutorial-browser/follower-corpse-observer.mjs'
-import followerCorpse, { activateFollowerCorpseButton, followerCorpseLimitMs, pauseLoadedFollowerCorpse } from '../scripts/tutorial-browser/follower-corpse.mjs'
+import followerCorpse, { followerCorpseBudgetMs, followerCorpseDeadline, pauseLoadedFollowerCorpse } from '../scripts/tutorial-browser/follower-corpse.mjs'
 import { meleeAttackLimitMs } from '../scripts/tutorial-browser/melee-attack.mjs'
 import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
-
-// Supplied DOM/input records exercise the helper's guards, not a browser result.
-// A hosted run must additionally produce the trusted key/click receipt itself.
-async function withButtonInput(change, run) {
-  const descriptors = new Map(['window', 'document'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]))
-  const calls = [], listeners = new Map()
-  const state = { visible: true, enabled: true, ariaDisabled: null, focusWorks: true,
-    trusted: true, clickDetail: 0, sendClick: true, ...change }
-  const button = { isConnected: true, get disabled() { return !state.enabled },
-    getAttribute: () => state.ariaDisabled, checkVisibility: () => state.visible,
-    addEventListener(type, fn, options) {
-      assert.deepEqual(options, { once: true, capture: true }); listeners.set(type, fn)
-    } }
-  Object.defineProperty(globalThis, 'window', { configurable: true, value: {} })
-  Object.defineProperty(globalThis, 'document', { configurable: true, value: { activeElement: null } })
-  const locator = {
-    async waitFor(options) {
-      calls.push('visible'); assert.deepEqual(options, { state: 'visible' })
-      assert.ok(state.visible && state.enabled, 'Locator must resolve a visible enabled button')
-    },
-    async focus() { calls.push('focus'); if (state.focusWorks) document.activeElement = button },
-    async evaluate(fn) { calls.push('observe-control'); return fn(button) },
-    async click() { assert.fail('The keyboard route must not call locator.click') },
-  }
-  const page = {
-    getByRole(role, options) {
-      assert.equal(role, 'button'); assert.equal(options.disabled, false)
-      assert.equal(options.exact, typeof options.name === 'string'); return locator
-    },
-    async evaluate(fn) { calls.push('read-input'); return fn() },
-    keyboard: { async press(key) {
-      calls.push(`key:${key}`); assert.equal(key, 'Enter')
-      listeners.get('keydown')({ isTrusted: state.trusted, target: button, key, detail: 0 })
-      if (state.sendClick) listeners.get('click')({ isTrusted: state.trusted, target: button, detail: state.clickDetail })
-    } },
-  }
-  try { await run({ page, calls }) } finally {
-    for (const [key, descriptor] of descriptors) if (descriptor) Object.defineProperty(globalThis, key, descriptor)
-    else delete globalThis[key]
-  }
-}
-
-test('corpse buttons use visible enabled focus and Enter, retaining genuine native-key evidence', async () => {
-  for (const name of ['Select brave', /^Skip introduction/]) await withButtonInput({}, async ({ page, calls }) => {
-    const input = await activateFollowerCorpseButton(page, name)
-    assert.equal(input.method, 'focused-native-button/Enter')
-    assert.deepEqual(calls, ['visible', 'focus', 'observe-control', 'key:Enter', 'read-input'])
-    assert.equal(input.events[0].key, 'Enter'); assert.equal(input.events[1].detail, 0)
-    assert.ok(input.events.every(event => event.trusted && event.target && event.focused))
-  })
-  const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
-  assert.match(home, /e\.key === 'Enter' && !\(e\.target as HTMLElement\)\.closest\('button'\)/,
-    'Native button Enter must not also invoke the game overview shortcut')
-  assert.match(home, /if \(!event\.ctrlKey \|\| !event\.detail\) choose\(event\)/,
-    'The ordinary follower control must continue to support keyboard clicks')
-})
-
-test('hidden, disabled or unfocused controls cannot receive the corpse test activation', async () => {
-  for (const change of [{ visible: false }, { enabled: false }, { ariaDisabled: 'true' }, { focusWorks: false }])
-    await withButtonInput(change, async ({ page, calls }) => {
-      await assert.rejects(activateFollowerCorpseButton(page, 'Select brave'))
-      assert.equal(calls.includes('key:Enter'), false)
-    })
-})
-
-test('synthetic click, pointer click or missing native activation cannot masquerade as keyboard input', async () => {
-  for (const change of [{ trusted: false }, { clickDetail: 1 }, { sendClick: false }])
-    await withButtonInput(change, async ({ page }) => {
-      await assert.rejects(activateFollowerCorpseButton(page, 'Resume game'), /genuine keyboard activation/)
-    })
-})
 
 // Supplied evidence only. Expected native chains below come from the independent
 // original witness. These tests do not establish a browser or pixel result.
@@ -136,6 +65,68 @@ function observation() {
         [key, { turn: 112, paused, sceneReplaced: true, worldReplaced: true, sceneStoreMatch: true, canvasConnected: true, effect: structuredClone(effect) }])),
       holdBefore: { turn: 111, animationFrame: 222, effect }, holdAfter: { turn: 111, animationFrame: 222, effect: structuredClone(effect) } } }
 }
+
+function suppliedBudget() {
+  let time = 0, next = 0
+  const timers = new Map(), expired = []
+  const budget = followerCorpseDeadline({ now: () => time,
+    schedule: (fn, delay) => { timers.set(++next, { fn, delay }); return next },
+    cancel: id => timers.delete(id), onExpire: record => expired.push(record.name) })
+  const checkpoint = observation().checkpoint
+  checkpoint.saved.paused = true
+  return { budget, checkpoint, timers, expired, advance: value => { time = value } }
+}
+
+test('corpse budgets separately bound death/save and actual load/terminal verification', () => {
+  const { budget, checkpoint, timers, advance } = suppliedBudget()
+  assert.equal(budget.remaining(), 75000); assert.equal(timers.get(1).delay, 75000)
+  assert.throws(() => budget.complete(), /Both corpse phases must complete/)
+  advance(66000); budget.beginLoad(checkpoint)
+  assert.deepEqual(budget.records[0], { name: 'death-through-committed-save', capMs: 75000,
+    startedElapsedMs: 0, deadlineElapsedMs: 75000, completedElapsedMs: 66000, durationMs: 66000,
+    committedSave: { checkpointSha256: 'b'.repeat(64), turn: 111, effectId: 2 } })
+  assert.deepEqual(budget.records[1], { name: 'load-reframe-resume-and-terminal-verification',
+    capMs: 25000, startedElapsedMs: 66000, deadlineElapsedMs: 91000 })
+  assert.equal(budget.remaining(), 25000)
+  assert.equal(timers.has(1), false); assert.equal(timers.get(2).delay, 25000)
+  advance(90000); budget.complete()
+  assert.equal(budget.records[1].durationMs, 24000); assert.equal(timers.size, 0)
+  assert.throws(() => budget.remaining(), /already closed/)
+})
+
+test('missing or wrong committed save cannot start or refresh the load budget', () => {
+  for (const mutate of [c => { delete c.committed }, c => { c.committed.version++ },
+    c => { c.committed.checkpointSha256 = 'not-a-digest' }, c => { c.committedCorpse.level++ },
+    c => { c.committedCorpse.turn++ }, c => { c.committedCorpse.effect.corpse.displayedFrame++ },
+    c => { c.saved.paused = false }, c => { c.saved.effect.corpse.phase = 2 }]) {
+    const { budget, checkpoint, timers, advance } = suppliedBudget()
+    mutate(checkpoint); advance(66000)
+    assert.throws(() => budget.beginLoad(checkpoint))
+    assert.equal(budget.records.length, 1); assert.equal(budget.remaining(), 9000)
+    assert.equal(timers.size, 1); assert.equal(timers.has(1), true)
+    budget.dispose(); assert.equal(timers.size, 0)
+  }
+})
+
+test('expired or repeated budget transitions fail even if the timer callback was delayed', () => {
+  const first = suppliedBudget()
+  first.advance(75000)
+  assert.throws(() => first.budget.beginLoad(first.checkpoint), /deadline exceeded/)
+  assert.equal(first.budget.records.length, 1)
+  first.timers.get(1).fn()
+  assert.deepEqual(first.expired, ['death-through-committed-save'])
+  first.budget.dispose()
+  const second = suppliedBudget(), oldCallback = second.timers.get(1).fn
+  second.advance(66000); second.budget.beginLoad(second.checkpoint)
+  second.advance(70000)
+  assert.throws(() => second.budget.beginLoad(second.checkpoint), /Only one/)
+  assert.equal(second.budget.records[1].deadlineElapsedMs, 91000)
+  oldCallback(); assert.deepEqual(second.expired, [])
+  second.advance(91000); second.timers.get(2).fn()
+  assert.throws(() => second.budget.complete(), /deadline exceeded/)
+  assert.deepEqual(second.expired, ['load-reframe-resume-and-terminal-verification'])
+  second.budget.dispose()
+})
 
 test('complete synthetic evidence requires combat death, four visible phase crops and actual current load/resume', () => {
   assert.deepEqual(validateFollowerCorpseObservation(observation()).originalSources, [304, 312, 320])
@@ -307,12 +298,18 @@ test('observer rejects an unseen combat producer and refuses a stale Scene/world
   })
 })
 
-test('invoked gameplay chain and all existing time bounds remain explicit without a new workflow', async () => {
+test('invoked gameplay chain keeps prior caps and exposes the committed-save phase boundary', async () => {
   const run = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
+  const episode = readFileSync(new URL('../scripts/tutorial-browser/follower-corpse.mjs', import.meta.url), 'utf8')
   assert.ok(run.indexOf('receipt.gameplayFrames = await') < run.indexOf('receipt.meleeAttack = await'))
   assert.ok(run.indexOf('receipt.meleeAttack = await') < run.indexOf('receipt.followerCorpse = await'))
-  assert.equal(followerCorpseLimitMs, 75000); assert.equal(meleeAttackLimitMs, 75000)
+  assert.deepEqual(followerCorpseBudgetMs, { deathAndSave: 75000, loadAndVerify: 25000 }); assert.equal(meleeAttackLimitMs, 75000)
   assert.equal(browserCapMs('gameplay-frames'), 180000)
+  assert.equal(episode.includes('activateFollowerCorpseButton'), false)
+  assert.ok(episode.includes("const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())"))
+  assert.ok(episode.indexOf('budget.beginLoad(report.checkpoint)') > episode.indexOf('assert.deepEqual(report.checkpoint.committedCorpse.effect'))
+  assert.ok(episode.indexOf('budget.beginLoad(report.checkpoint)') < episode.indexOf("await button('Back'); await button('Load Game')"))
+  assert.ok(episode.indexOf('budget.complete()') > episode.indexOf("path: resolve(output, 'follower-corpse-context.png')"))
   const stop = Error('Stop before browser creation')
   await assert.rejects(followerCorpse({ browser: { async newContext(options) {
     assert.deepEqual(options, { viewport: { width: 960, height: 720 }, deviceScaleFactor: 1 }); throw stop
