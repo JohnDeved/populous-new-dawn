@@ -36,32 +36,92 @@ export async function awaitSpySourceReadiness({ page, report, action, save, dead
   if (!Number.isFinite(deadlineAt)) throw Error('Original Spy episode deadline required')
   const startedAt = Date.now(),
     deadline = Math.min(startedAt + spySourceReadinessMs, deadlineAt),
+    timeout = Error('Spy public Load readiness exhausted its original 8000ms budget'),
+    observation = report.readiness = { startedAt, deadlineAt: deadline, capMs: spySourceReadinessMs },
+    disposals = new WeakMap()
+  let expired = false, closed = false, primaryError, timer
+  const outOfTime = () => expired || closed || Date.now() >= deadline,
     remaining = () => {
-      const ms = deadline - Date.now()
-      if (ms <= 0) throw Error('Spy public Load readiness exhausted its original 8000ms budget')
-      return ms
+      if (outOfTime()) throw timeout
+      return deadline - Date.now()
     },
-    observation = report.readiness = { startedAt, deadlineAt: deadline, capMs: spySourceReadinessMs }
+    expiry = new Promise((_, reject) => {
+      timer = setTimeout(() => { expired = true; reject(timeout) }, Math.max(0, deadline - Date.now()))
+    })
+  // Keep the single expiry owned even when a synchronous operation fails first.
+  expiry.catch(() => {})
+  const dispose = handle => {
+    let pending = disposals.get(handle)
+    if (!pending) {
+      pending = Promise.resolve().then(() => handle.dispose())
+      disposals.set(handle, pending)
+    }
+    return pending
+  }
+  // An already-issued Playwright operation cannot be cancelled individually.
+  // Consume late failures and release late handles without awaiting past expiry.
+  // The episode's existing context/browser owner remains responsible for closure.
+  const disposeDetached = handle => { void dispose(handle).catch(() => {}) }
+  const within = async (run, lateValue) => {
+    remaining()
+    const pending = Promise.resolve().then(() => { remaining(); return run() })
+    pending.then(value => {
+      if (outOfTime()) lateValue?.(value)
+    }, () => {}).catch(() => {})
+    const value = await Promise.race([pending, expiry])
+    try { remaining() }
+    catch (error) { lateValue?.(value); throw error }
+    return value
+  }
   const wait = async mode => {
-    const result = await page.waitForFunction(readSpySourceReadiness, mode, { timeout: remaining() })
-    try { return await result.jsonValue() } finally { await result.dispose() }
+    const result = await within(
+      () => page.waitForFunction(readSpySourceReadiness, mode, { timeout: remaining() }),
+      disposeDetached
+    )
+    let failure
+    try { return await within(() => result.jsonValue()) }
+    catch (error) { failure = error; throw error }
+    finally {
+      try { await within(() => dispose(result)) }
+      catch (error) {
+        disposeDetached(result)
+        if (!failure) throw error
+        observation.disposalFailure = String(error)
+      }
+    }
   }
   try {
-    observation.before = await page.evaluate(readSpySourceReadiness)
+    observation.before = await within(() => page.evaluate(readSpySourceReadiness))
     save()
     observation.actionable = await wait('actionable')
     save()
     if (observation.actionable.action === 'skip')
-      await action('Public Skip introduction', () =>
-        page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout: remaining() }))
+      await within(() => action('Public Skip introduction', () => within(() =>
+        page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout: remaining() }))))
     observation.after = await wait('ready')
+    remaining()
   } catch (error) {
+    primaryError = error
     observation.failure = String(error)
-    try { observation.failed = await page.evaluate(readSpySourceReadiness) }
-    catch (diagnosticError) { observation.diagnosticFailure = String(diagnosticError) }
+    if (outOfTime()) observation.diagnosticsSkipped = 'readiness deadline expired'
+    else {
+      try { observation.failed = await within(() => page.evaluate(readSpySourceReadiness)) }
+      catch (diagnosticError) { observation.diagnosticFailure = String(diagnosticError) }
+    }
     throw error
   } finally {
+    closed = true
+    clearTimeout(timer)
     observation.endedAt = Date.now()
-    save()
+    // Saving is synchronous receipt IO. It cannot turn a late completion into
+    // success or replace the original browser error if persistence also fails.
+    try { save() }
+    catch (error) { if (!primaryError) throw error }
+    if (!primaryError && (expired || Date.now() >= deadline)) {
+      observation.failure = String(timeout)
+      delete observation.after
+      try { save() } catch {}
+      throw timeout
+    }
   }
 }
