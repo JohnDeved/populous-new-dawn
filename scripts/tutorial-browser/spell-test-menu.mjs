@@ -246,8 +246,10 @@ export default async function spellTestMenu({ browser, url, output }) {
     await page.keyboard.press('F9')
     await menu.waitFor({ state: 'detached' })
     await waitForCastingWitness(page, 'subsequent')
+    assertSpellTestDeadline(report, started)
     castingRetentionAttempted = true
     report.shamanCasting = await retainCastingWitness(page, output)
+    assertSpellTestDeadline(report, started)
     diagnostics.stage('blocked save and checkpoint load')
     await button('Menu').click()
     await button('Save Game').click()

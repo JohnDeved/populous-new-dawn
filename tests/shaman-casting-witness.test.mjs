@@ -653,3 +653,35 @@ test('actual F9 failure cleanup retains at most once and closes context even if 
     else assert.equal(report.castingRetentionError?.includes('retention failed'), !attempted && retentionFails ? true : undefined)
   }
 })
+
+
+test('successful casting retention checks the same absolute deadline before admission and after completion', async () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/spell-test-menu.mjs', import.meta.url), 'utf8'),
+    start = source.indexOf("    await waitForCastingWitness(page, 'subsequent')"),
+    end = source.indexOf("    diagnostics.stage('blocked save and checkpoint load')", start),
+    body = source.slice(start, end),
+    { assertSpellTestDeadline: actualDeadline } = await import('../scripts/tutorial-browser/spell-test-menu.mjs')
+  assert.ok(start >= 0 && end > start)
+  for (const [afterWait, afterRetention, expectedCalls, fails] of [
+    [74999, 74999, 1, false], [75000, 75000, 0, true], [75001, 75001, 0, true],
+    [74999, 75000, 1, true], [74999, 75001, 1, true],
+  ]) {
+    let now = 74998, calls = 0
+    const report = {}, retained = { status: 'passed' },
+      bindings = { page: {}, output: 'output', report, started: 0,
+        waitForCastingWitness: async () => { now = afterWait },
+        assertSpellTestDeadline: (report, started) => actualDeadline(report, started, () => now),
+        retainCastingWitness: async () => { calls++; now = afterRetention; return retained },
+      },
+      run = new Function(...Object.keys(bindings), `return (async () => {
+        let castingRetentionAttempted = false;
+        try { ${body}; return { castingRetentionAttempted }; }
+        catch (error) { return { castingRetentionAttempted, error }; }
+      })()`),
+      result = await run(...Object.values(bindings))
+    assert.equal(calls, expectedCalls)
+    assert.equal(result.castingRetentionAttempted, expectedCalls === 1)
+    if (fails) assert.match(String(result.error), /absolute deadline/)
+    else { assert.equal(result.error, undefined); assert.equal(report.shamanCasting, retained) }
+  }
+})
