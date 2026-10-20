@@ -84,6 +84,10 @@ runtime write.
   expiry and unchanged Bloodlust behavior.
 - Existing Shield selection/spell and animation/clock tests remain separate
   gameplay regression coverage.
+- The existing `check-browser-shield-spell.mjs` observer now reads the actual
+  three-sprite array, exact UV/source/color, correct Shield flag and resource
+  teardown. It retains its supplied-stock/population setup and controlled
+  last-turn expiry diagnostic. It was not launched for this delivery.
 
 Node texture IO/projection fixtures and CPU painter checks are not browser/GPU
 pixels. Ordinary earned Shield acquisition, full shipped cast-to-render
