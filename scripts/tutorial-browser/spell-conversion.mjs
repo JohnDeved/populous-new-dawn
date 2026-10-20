@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { bindGame, showAllMissions } from '../browser-game.mjs'
+import { checkpointCodec } from './checkpoint-codec.mjs'
 
 export const conversionLimitMs = 75000
 export const conversionObservationMs = 30000
@@ -36,6 +37,31 @@ export async function waitForConversionIntroduction(page, report) {
   report.phase = 'wait-input-ready'
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
   report.startup.afterSkip = await page.evaluate(readConversionStartup)
+}
+
+export function setupConversionCamera(codec) {
+  const scene = window.testSceneRef.current, w = window.testStore.getWorld(),
+    camera = { x: -45, z: -91 }, encode = value => JSON.stringify(codec(value)),
+    identity = () => {
+      const { mode, lightView, ...rest } = w
+      return rest
+    },
+    before = encode(identity()), beforeMode = w.mode, beforeLightView = structuredClone(w.lightView),
+    expectedLightView = { x: (Math.round((camera.x + 8) * 256) << 16) >> 16,
+      y: (Math.round((-camera.z - 8) * 256) << 16) >> 16, h: Math.round(scene.height(camera) * 45) }
+  // Ordinary focus cancels UI mode; updateView stores its exact camera position
+  // for dynamic terrain lighting. Every other World field stays losslessly equal,
+  // including Map/Set contents, typed arrays, undefined values and shared references.
+  scene.focus(camera) // One fixed first-conversion point, not actor pursuit.
+  if (w.mode !== null || encode(w.lightView) !== encode(expectedLightView))
+    throw Error('Diagnostic camera did not apply only its expected mode/light-view changes')
+  if (scene.world !== w || window.testStore.getWorld() !== w || encode(identity()) !== before)
+    throw Error('Diagnostic camera changed non-camera world state')
+  return { level: w.outcome.level, turn: w.turn, paused: w.paused, speed: w.speed,
+    casts: w.spellCasts[2][17], stock: w.manaWorld.spells[2].stocks[17], camera,
+    cameraWorldChanges: { mode: { before: beforeMode, after: w.mode },
+      lightView: { before: beforeLightView, after: w.lightView } },
+    renderer: scene.renderer.getContext().getParameter(scene.renderer.getContext().RENDERER) }
 }
 
 // Read-only RAF observation. No game method replacement, forced ticks, hidden
@@ -235,15 +261,9 @@ export default async function spellConversion({ browser, url, output }) {
     report.phase = 'pause-for-camera'
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
     report.phase = 'camera-setup'
-    report.setup = await page.evaluate(() => {
-      const scene = window.testSceneRef.current, w = window.testStore.getWorld(),
-        before = JSON.stringify(w)
-      scene.focus({ x: -45, z: -91 }) // Fixed ordinary first-conversion point, not actor pursuit.
-      if (JSON.stringify(w) !== before) throw Error('Diagnostic camera changed world state')
-      return { level: w.outcome.level, turn: w.turn, paused: w.paused, speed: w.speed,
-        casts: w.spellCasts[2][17], stock: w.manaWorld.spells[2].stocks[17], camera: { x: -45, z: -91 },
-        renderer: scene.renderer.getContext().getParameter(scene.renderer.getContext().RENDERER) }
-    })
+    // Evaluate the same tested helper and lossless codec without installing either
+    // on the page or replacing any game method.
+    report.setup = await page.evaluate(`(${setupConversionCamera.toString()})(${checkpointCodec.toString()})`)
     assert.equal(report.setup.level, 3); assert.equal(report.setup.casts, 0)
     assert.equal(report.setup.stock, 1); assert.equal(report.setup.paused, true)
     assert.equal(report.setup.speed, 1)

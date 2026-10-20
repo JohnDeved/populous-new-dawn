@@ -1,17 +1,21 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
+import { isDeepStrictEqual } from 'node:util'
 import { conversionLimitMs, conversionObservationMs, validateConversionObservation,
   installConversionObserver, closeConversionContext, readConversionStartup,
-  waitForConversionIntroduction } from '../scripts/tutorial-browser/spell-conversion.mjs'
+  waitForConversionIntroduction, setupConversionCamera } from '../scripts/tutorial-browser/spell-conversion.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
-import { createWorld, tick } from '../app/model.ts'
+import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mjs'
+import { createWorld, tick, nativePosition } from '../app/model.ts'
+import { createCameraMotion } from '../app/camera-motion.ts'
 import { stepFlyby } from '../app/flyby.ts'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 import atlas from '../app/original-effects.json' with { type: 'json' }
 
 await loadSceneFixture()
-const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
+const { skipIntroduction, focus, captureCamera, cancelOverview, updateView } =
+  await import('../app/scene-camera-runtime.ts')
 
 function startupScene() {
   return { world: createWorld(3, 'scalable'), flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
@@ -129,6 +133,85 @@ test('conversion startup diagnostics tolerate missing bind aliases and do not mu
   assert.equal(snapshot.sameWorld, true)
   assert.equal(snapshot.skipVisible, false)
   assert.equal(JSON.stringify(scene.world), before)
+})
+
+function cameraScene(world) {
+  const context = { RENDERER: 1, getParameter: () => 'CPU camera-owner fixture, no GPU' },
+    scene = { world, cameraMotion: createCameraMotion(), cameraPreviewButtons: null,
+      viewPoint: { x: 34, z: 82 }, cameraBearing: 1144 * Math.PI / 1024, viewZoom: 0,
+      overviewActive: false, overviewStage: null, tooltip: { draw: 5 },
+      container: { clientWidth: 960, clientHeight: 720 }, view: { update() {} },
+      renderer: { getContext: () => context },
+      cancelOverview: () => cancelOverview(scene), captureCamera: () => captureCamera(scene),
+      updateView: () => updateView(scene), focus: point => focus(scene, point),
+      height: point => nativePosition(world, point).h / 45 }
+  return scene
+}
+
+function pausedStartupWorld() {
+  const scene = startupScene()
+  for (let turn = 0; turn < 71; turn++) {
+    advanceStartup(scene)
+    if (scene.world.turn === 22) skipIntroduction(scene)
+  }
+  scene.world.paused = true
+  return scene.world
+}
+
+test('actual focus changes only camera lightView at the failed Mission 3 startup boundary', t => {
+  browserGlobals(t, { document: { documentElement: { clientWidth: 960 } } })
+  const world = pausedStartupWorld(), scene = cameraScene(world)
+  scene.updateView()
+  const before = structuredClone(world)
+  scene.focus({ x: -45, z: -91 })
+  assert.equal(before.mode, null, 'world creation already initializes mode; undefined is not the defect')
+  assert.equal(world.mode, null)
+  assert.deepEqual(Object.keys(world).filter(key => !isDeepStrictEqual(before[key], world[key])), ['lightView'])
+  assert.deepEqual(before.lightView, { x: 10752, y: -23040, h: 128 })
+  assert.deepEqual(world.lightView, { x: -9472, y: 21248, h: 116 })
+  assert.deepEqual(scene.viewPoint, { x: -45, z: -91 })
+  assert.equal(world.turn, 71)
+  assert.equal(world.spellCasts[2][17], 0)
+})
+
+test('conversion camera permits exact focus-owned changes and rejects every other World mutation', t => {
+  browserGlobals(t, { window: {}, document: { documentElement: { clientWidth: 960 } } })
+  const baseline = pausedStartupWorld()
+  const run = (afterFocus = () => {}, mode = null) => {
+    const world = structuredClone(baseline), scene = cameraScene(world)
+    world.mode = mode
+    scene.updateView()
+    scene.focus = point => { focus(scene, point); afterFocus(world) }
+    window.testSceneRef = { current: scene }
+    window.testStore = { getWorld: () => world }
+    return setupConversionCamera(checkpointCodec)
+  }
+  const report = run()
+  assert.equal(report.turn, 71)
+  assert.equal(report.casts, 0)
+  assert.equal(report.stock, 1)
+  assert.deepEqual(report.cameraWorldChanges.mode, { before: null, after: null })
+  assert.deepEqual(report.cameraWorldChanges.lightView.after, { x: -9472, y: 21248, h: 116 })
+  assert.deepEqual(run(undefined, 'blast').cameraWorldChanges.mode, { before: 'blast', after: null },
+    'ordinary focus may cancel a selected UI mode, never restore or inject it afterward')
+  for (const mutate of [
+    w => { w.turn++ },
+    w => { w.randomState++ },
+    w => { w.cosmeticRandom.randomState++ },
+    w => { w.units[0].hp-- },
+    w => { w.land.heights[0]++ },
+    w => { w.manaWorld.spells[2].stocks[17]++ },
+    w => { w.buildingFootprints.set(-1, { cells: new Set([123]) }) },
+    w => { w.addedUndefined = undefined },
+  ]) assert.throws(() => run(mutate), /non-camera world state/)
+  for (const mutate of [
+    w => { w.mode = 'blast' },
+    w => { w.lightView.x++ },
+    w => { w.lightView.h++ },
+    w => { w.lightView.unexpected = undefined },
+  ]) assert.throws(() => run(mutate), /expected mode\/light-view changes/)
+  assert.doesNotMatch(setupConversionCamera.toString(), /w\.(?:mode|lightView)\s*=(?!=)/,
+    'the checker cannot repair or hide a production camera mutation')
 })
 
 function observation() {
