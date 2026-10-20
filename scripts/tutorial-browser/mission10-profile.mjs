@@ -1,4 +1,4 @@
-// Existing profile-job companion, not a new scenario/job or an alternate cap.
+// Dedicated M10 matrix episode. One fixed deadline spans both owned processes.
 import assert from 'node:assert/strict'
 import { randomUUID, createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'

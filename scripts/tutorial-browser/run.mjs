@@ -9,7 +9,9 @@ import assert from 'node:assert/strict'
 import { browserConfiguration } from './browser-config.mjs'
 import { browserScenarios, browserCapMs, snapshotSmokeBudget } from './scenario-policy.mjs'
 import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
-import { profileRecoveryReceipt, profileRecoveryReceiptLog } from './profile-recovery-receipt.mjs'
+import { profileCasesReceipt, profileCasesReceiptLog } from './profile-recovery-receipt.mjs'
+import { mission10CrewReceipt, mission10CrewReceiptLog } from './mission10-crew-receipt.mjs'
+import { runProfileEpisode } from './profile-episodes.mjs'
 import { buildRevision } from './build-provenance.mjs'
 import { arch, cpus, platform, release } from 'node:os'
 const root = resolve(dirname(import.meta.filename), '../..')
@@ -136,7 +138,7 @@ try {
   else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
   if (selectedScenario !== 'snapshot-protocol') {
-  context = await browser.newContext({ viewport: selectedScenario === 'profile-recovery' ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
+  context = await browser.newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
   page.on('console', m => { if (m.type() === 'error') receipt.errors.push(m.text()); if (m.type() === 'warning') receipt.warnings.push(m.text()) })
@@ -153,13 +155,14 @@ try {
     // the independent ordinary-combat artwork episode. One browser, same cap.
     await context.close(); context = undefined; page = undefined
     receipt.meleeAttack = await (await import(pathToFileURL(meleeScenario).href)).default({ browser, url, output: out, expectedRevision: receipt.buildRevision })
-  } else if (selectedScenario === 'profile-recovery') {
-    receipt.profileRecovery = await (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal })
-    // Retain all nine cases above. The same deadline covers both subsequent
-    // task-profile processes; no new timer, job, fixture checkpoint or local route.
-    await context.close(); context = undefined; page = undefined
-    await browser.close()
-    receipt.mission10Profile = await (await import(pathToFileURL(mission10ProfileScenario).href)).default({ chromium, launch: browserConfig.launch, url, root, output: out, receipt, signal: abort.signal, verifySource, deadlineAt: browserDeadlineAt })
+  } else if (['profile-recovery', 'mission10-profile'].includes(selectedScenario)) {
+    // Independent jobs; the two persistent M10 processes share one fixed timer.
+    Object.assign(receipt, await runProfileEpisode(selectedScenario, {
+      signal: abort.signal, deadlineAt: browserDeadlineAt,
+      runRecovery: async () => (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal }),
+      closeProbe: async () => { await context.close(); context = undefined; page = undefined; await browser.close() },
+      runMission10: async ({ signal, deadlineAt }) => (await import(pathToFileURL(mission10ProfileScenario).href)).default({ chromium, launch: browserConfig.launch, url, root, output: out, receipt, signal, verifySource, deadlineAt }),
+    }))
   } else if (selectedScenario === 'compact-message-layout') {
     await (await import(pathToFileURL(m2Scenario).href)).runCompactDiagnosticEpisodes({ browser, url, output: out, fixture: m2Fixture, report: receipt })
   } else if (selectedScenario === 'm2-pointer-f8') {
@@ -209,7 +212,14 @@ try {
     }
   }
   if (selectedScenario === 'profile-recovery' && receipt.status === 'passed') {
-    try { console.log(profileRecoveryReceiptLog(profileRecoveryReceipt(receipt, out))) }
+    try { console.log(profileCasesReceiptLog(profileCasesReceipt(receipt, out))) }
+    catch (error) {
+      receipt.evidenceError = String(error); receipt.failure ??= receipt.evidenceError
+      receipt.status = 'failed'; process.exitCode = 1; save()
+    }
+  }
+  if (selectedScenario === 'mission10-profile' && receipt.status === 'passed') {
+    try { console.log(mission10CrewReceiptLog(mission10CrewReceipt(receipt, out))) }
     catch (error) {
       receipt.evidenceError = String(error); receipt.failure ??= receipt.evidenceError
       receipt.status = 'failed'; process.exitCode = 1; save()

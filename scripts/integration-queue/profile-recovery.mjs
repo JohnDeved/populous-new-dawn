@@ -65,6 +65,12 @@ export const PROFILE_INPUTS = [
   'app/selection-runtime.ts',
   'app/hud-selection.ts',
   'app/hud-person-source.ts',
+  'scripts/tutorial-browser/profile-host-receipt.mjs',
+  'scripts/tutorial-browser/profile-episodes.mjs',
+  'scripts/tutorial-browser/mission10-crew-receipt.mjs',
+  'scripts/integration-queue/mission10-recovery.mjs',
+  'scripts/integration-queue/browser-jobs.mjs',
+  'scripts/tutorial-browser/scenario-policy.mjs',
 ]
 export const PROFILE_CASES = [
   ['empty', 'passed', true],
@@ -103,12 +109,12 @@ export function profileRecoveryLog(log) {
   )
   return JSON.parse(bytes.toString('utf8'))
 }
-export function validateProfileRecovery(receipt, expected) {
+export function validateProfileHost(receipt, expected, kind, scenario) {
   ensure(
     receipt?.version === 1 &&
-      receipt.kind === 'profile-recovery-browser' &&
+      receipt.kind === kind &&
       receipt.status === 'passed' &&
-      receipt.selectedScenario === 'profile-recovery',
+      receipt.selectedScenario === scenario,
     'scenario did not pass'
   )
   ensure(same(receipt.identity, expected.identity), 'run/attempt/source identity differs')
@@ -149,6 +155,10 @@ export function validateProfileRecovery(receipt, expected) {
       }),
     'official sandboxed Chrome required'
   )
+  return true
+}
+function validateProfileCasesCore(receipt, expected, kind) {
+  validateProfileHost(receipt, expected, kind, 'profile-recovery')
   ensure(
     receipt.scenarioStatus === 'passed' &&
       receipt.runtimeUnchanged === true &&
@@ -168,8 +178,21 @@ export function validateProfileRecovery(receipt, expected) {
       receipt.screenshots.every(s => isHash(s.sha256)),
     'visual evidence inventory incomplete'
   )
+  return true
+}
+export function validateProfileRecovery(receipt, expected) {
+  validateProfileCasesCore(receipt, expected, 'profile-recovery-browser')
   validateMission10Profile(receipt.mission10, expected.identity.mergeSha, expected.mission10Evidence)
   return true
+}
+export function validateProfileCases(receipt, expected) {
+  validateProfileCasesCore(receipt, expected, 'profile-recovery-cases-browser')
+  ensure(receipt.mission10 === undefined, 'Separate M10 job cannot be claimed by recovery receipt')
+  return true
+}
+export const profileCasesLog = log => {
+  ensure(!log.includes('PND_PROFILE_RECOVERY_'), 'Composite receipt cannot replace split recovery evidence')
+  return profileRecoveryLog(log.replaceAll('PND_PROFILE_CASES_', 'PND_PROFILE_RECOVERY_'))
 }
 
 

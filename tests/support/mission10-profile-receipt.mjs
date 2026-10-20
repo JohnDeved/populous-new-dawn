@@ -58,11 +58,13 @@ export function mission10EvidenceFixture(value) {
       ownerAliases: { native: null, flight: null, fight: null, entry: null, builder: null, route: null } })) })
       const observe = (label, selected) => ({ label, paused: true, turn: 100, selected,
         party: row.occupants, boat: { passengers: q.boat.slice(1) }, orders: {}, randomState: 19, selectionState: state(selected) })
-      result.observations.push(observe(`${row.phase}-strip-paused`, []))
+      result.observations.push({ ...observe(`${row.phase}-before-strip`, []), paused: false }, observe(`${row.phase}-strip-paused`, []))
       for (const check of row.checks) {
         const label = `${row.phase}: ${check.name} ${check.modifier}`
         result.observations.push(observe(`${label} cleared`, []), observe(`${label} selected`, check.selected))
+        result.actions.push({ label, phase: 'before' }, { label, phase: 'after' })
       }
+      result.actions.push({ label: 'Resume game', phase: 'before' }, { label: 'Resume game', phase: 'after' })
     }
     return result
   })

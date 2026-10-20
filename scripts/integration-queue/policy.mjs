@@ -35,6 +35,7 @@ export const GATES = [
 ]
 export const RECOVERY_BROWSER_GATE = { ...GATES[1], recoveryRequired: true, recoveryJob: 'Pause checkpoint recovery browser' }
 export const PROFILE_BROWSER_GATE = { ...RECOVERY_BROWSER_GATE, profileRequired: true, profileJob: 'Profile recovery browser' }
+export const SPLIT_PROFILE_BROWSER_GATE = { ...PROFILE_BROWSER_GATE, mission10Required: true, mission10Job: 'Mission 10 crew persistence browser' }
 export const SHARDED_FULL_GATE = {
   ...GATES[0],
   steps: [
@@ -52,6 +53,7 @@ export const SHARDED_FULL_GATE = {
 }
 export const gatesFor = entry => [
   entry.fullCheckPolicy === 'sharded-v1' ? SHARDED_FULL_GATE : GATES[0],
+  entry.browserPolicy === 'profile-split-v1' ? SPLIT_PROFILE_BROWSER_GATE :
   entry.browserPolicy === 'profile-recovery-v1' ? PROFILE_BROWSER_GATE :
     entry.browserPolicy === 'pause-recovery-v1' ? RECOVERY_BROWSER_GATE : GATES[1],
 ]
@@ -118,14 +120,14 @@ export function validateEntry(entry) {
       Object.keys(d).length === 1 && Number.isSafeInteger(d.activationPr) && d.activationPr > 0,
       'Diagnostic policy must pin one literal activation PR under sharded-v1')
   }
-  requireThat(entry.browserPolicy === undefined || ['pause-recovery-v1', 'profile-recovery-v1'].includes(entry.browserPolicy),
+  requireThat(entry.browserPolicy === undefined || ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1'].includes(entry.browserPolicy),
     'Unsupported browser evidence policy')
   if (entry.browserWorkflowTransition !== undefined) {
     const t = entry.browserWorkflowTransition
     requireThat(t?.version === 1 && t.workflow === GATES[1].workflow &&
       t.sourceHead === entry.sourceHead && t.base === entry.reviewBase &&
       hash(t.baseSha256) && t.candidateSha256 === entry.workflowHashes[t.workflow] &&
-      t.baseSha256 !== t.candidateSha256 && ['pause-recovery-v1', 'profile-recovery-v1'].includes(entry.browserPolicy) &&
+      t.baseSha256 !== t.candidateSha256 && ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1'].includes(entry.browserPolicy) &&
       entry.allowMechanicalRefresh === false,
     'Browser workflow transition must pin reviewed base/head and both digests without refresh')
   }
@@ -573,6 +575,7 @@ export function validatePassedGate(o, gate, latest) {
       (gate !== SHARDED_FULL_GATE || latest.shardedVerified === true) &&
       (!gate.recoveryRequired || latest.pauseRecoveryVerified === true) &&
       (!gate.profileRequired || latest.profileRecoveryVerified === true) &&
+      (!gate.mission10Required || latest.mission10Verified === true) &&
       gate.steps.every(
         name =>
           latest.steps?.filter(s => s.name === name).length === 1 &&
@@ -592,6 +595,12 @@ export function validatePassedGate(o, gate, latest) {
       c.name === gate.profileJob && c.appId === 15368 && c.head === o.head), 'Profile recovery current checks')
     requireThat(profile.id === latest.profileRecoveryCheckId && profile.status === 'completed' &&
       profile.conclusion === 'success', 'Current Profile recovery check disagrees with exact tested attempt')
+  }
+  if (gate.mission10Required) {
+    const mission10 = latestChronological(o.currentChecks.filter(c =>
+      c.name === gate.mission10Job && c.appId === 15368 && c.head === o.head), 'Mission 10 current checks')
+    requireThat(mission10.id === latest.mission10CheckId && mission10.status === 'completed' &&
+      mission10.conclusion === 'success', 'Current Mission 10 check disagrees with exact tested attempt')
   }
   const current = latestChronological(
     o.currentChecks.filter(c => c.name === gate.job && c.appId === 15368 && c.head === o.head),

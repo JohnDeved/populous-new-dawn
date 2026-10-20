@@ -294,3 +294,21 @@ The main-owned Load observer label is preserved. The failed `ec6e4081` hosted
 observations above remain version-2 evidence on their original source; they are
 not relabeled as a successful current-version run. Evidence schema versions,
 all eighteen control obligations and all existing caps remain unchanged.
+
+### Independent hosted scenario split after atomic-observation deadline failure
+
+Candidate `edb7c9db` on current-v3 main retained a second deadline failure. The nine
+recovery cases passed and all eighteen M10 control post-states independently
+replayed, but the final public Resume click began with only 347 ms remaining.
+Final Resume, screenshot and persistence completion remain unknown, not passed.
+The source-bound report measured 76.911 seconds before M10, 57.964 seconds for the
+created phase and 45.653 seconds in the failed reused phase. Runner image changes
+prevent attributing timing differences to the atomic observation repair.
+
+The reviewed architectural direction separates the two complete scenarios in the
+existing matrix, with explicitly independent 180-second allowances (360 seconds
+combined maximum, one additional standard VM/build). It does not omit a control,
+raise an existing scenario cap, reset M10's timer between processes, or change game
+state. Separate exact current checks, compact kinds and artifact ownership must
+all bind the same run/attempt/head/base/merge. Source/focused and hosted acceptance
+of this implementation remain pending; earlier failed evidence is preserved.
