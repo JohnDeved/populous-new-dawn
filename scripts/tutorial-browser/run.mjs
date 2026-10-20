@@ -151,6 +151,10 @@ try {
     receipt.snapshotSmoke = await (await import(pathToFileURL(snapshotScenario).href)).default({ browser, url, output: out, source, expectedRevision: receipt.buildRevision, dist })
   } else if (selectedScenario === 'frontend-held-escape') {
     receipt.frontendHeldEscape = await (await import(pathToFileURL(frontendEscapeScenario).href)).default({ page, url, output: out })
+    // Preserve the completed frontend episode, then use an independent context
+    // for F9. Both retain their own bounds inside the unchanged shared 180s cap.
+    await context.close(); context = undefined; page = undefined
+    receipt.spellTestMenu = await (await import(pathToFileURL(spellTestScenario).href)).default({ browser, url, output: out })
   } else if (selectedScenario === 'gameplay-frames') {
     receipt.gameplayFrames = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision })
     // Keep all original exports/assertions, then release their live world before
@@ -181,7 +185,6 @@ try {
   }
   if (selectedScenario === 'tutorial') receipt.spellProjection = await (await import(pathToFileURL(spellProjectionScenario).href)).default({ browser, url, output: out, root, dist })
   if (selectedScenario === 'tutorial') receipt.buildingPanelIdentity = await (await import(pathToFileURL(buildingIdentityScenario).href)).default({ browser, url, output: out })
-  if (selectedScenario === 'tutorial') receipt.spellTestMenu = await (await import(pathToFileURL(spellTestScenario).href)).default({ browser, url, output: out })
   assert.equal(receipt.browserTimedOut, undefined)
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
   receipt.status = 'passed'

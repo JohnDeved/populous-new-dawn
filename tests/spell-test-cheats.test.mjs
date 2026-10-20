@@ -181,12 +181,50 @@ test('actual Home selection only sets ordinary mode and closes the menu; it cann
   assert.deepEqual(calls, ['spells', false])
 })
 
-test('rendered F9 witness is actually included in the existing hosted tutorial path', () => {
+test('actual runner invokes F9 once after held Escape, never inside the tutorial aggregate', async () => {
   const run = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8'),
-    workflow = readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8')
-  assert.match(run, /if \(selectedScenario === 'tutorial'\) receipt\.spellTestMenu = await/)
-  assert.match(workflow, /scenario: tutorial/)
+    workflow = readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8'),
+    source = ts.createSourceFile('run.mjs', run, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS),
+    statements = source.statements.find(ts.isTryStatement).tryBlock.statements,
+    start = statements.findIndex(node => ts.isIfStatement(node) &&
+      node.expression.getText(source) === "selectedScenario === 'snapshot-protocol'" &&
+      ts.isBlock(node.thenStatement)),
+    routing = []
+  assert.ok(start >= 0)
+  for (let index = start; ts.isIfStatement(statements[index]); index++) routing.push(statements[index].getText(source))
+  assert.equal((run.match(/receipt\.spellTestMenu =/g) ?? []).length, 1)
+  assert.match(workflow, /scenario: frontend-held-escape/)
   assert.match(workflow, /node scripts\/tutorial-browser\/run\.mjs/)
+  const scenarios = ['snapshotScenario', 'frontendEscapeScenario', 'spellTestScenario', 'gameplayScenario',
+    'meleeScenario', 'm2Scenario', 'pauseRecoveryScenario', 'scenario', 'selectorScenario', 'sceneryScenario',
+    'spellProjectionScenario', 'buildingIdentityScenario']
+  for (const selectedScenario of ['frontend-held-escape', 'tutorial']) {
+    const calls = [], receipt = {}, page = { goto: async () => calls.push('goto') },
+      context = { close: async () => calls.push('closeFrontendContext') },
+      browser = {}, bindings = {
+        selectedScenario, receipt, page, context, browser, url: 'test-url', root: 'test-root',
+        out: 'test-output', dist: 'test-dist', m2Fixture: {},
+        ...Object.fromEntries(scenarios.map(name => [name, name])),
+        pathToFileURL: value => ({ href: value }),
+        importScenario: async name => ({ default: async input => {
+          calls.push(name)
+          assert.equal(input.output, 'test-output')
+          if (name === 'spellTestScenario') assert.deepEqual(input, { browser, url: 'test-url', output: 'test-output' })
+          return { completed: name }
+        } }),
+      }
+    await new Function(...Object.keys(bindings),
+      `return (async () => { ${routing.join('\n').replaceAll('import(', 'importScenario(')} })()`)(...Object.values(bindings))
+    if (selectedScenario === 'frontend-held-escape') {
+      assert.deepEqual(calls, ['frontendEscapeScenario', 'closeFrontendContext', 'spellTestScenario'])
+      assert.deepEqual(receipt, { frontendHeldEscape: { completed: 'frontendEscapeScenario' },
+        spellTestMenu: { completed: 'spellTestScenario' } })
+    } else {
+      assert.deepEqual(calls, ['goto', 'scenario', 'selectorScenario', 'sceneryScenario', 'm2Scenario',
+        'spellProjectionScenario', 'buildingIdentityScenario'])
+      assert.equal('spellTestMenu' in receipt, false)
+    }
+  }
 })
 
 test('actual testing dialog suspends only the scene, owns focus/Escape/F8 and never mutates the world on open', () => {
