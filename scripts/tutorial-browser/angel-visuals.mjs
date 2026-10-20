@@ -11,6 +11,7 @@ import { m2LoadReady } from './m2-pointer-f8.mjs'
 import { withAngelVisualContext } from './angel-visuals-budget.mjs'
 import { createAngelVisualFixture, angelCheckpointState } from './angel-visuals-fixture.mjs'
 import { installAngelVisualObserver } from './angel-visuals-observer.mjs'
+import { compactPngChunks } from './compact-png.mjs'
 import { retainedAngelCrop, retainedAngelContext, validateAngelObservation } from './angel-visuals-evidence.mjs'
 
 const root = resolve(import.meta.dirname, '../..'), sha = value => createHash('sha256').update(value).digest('hex')
@@ -20,6 +21,7 @@ export const ANGEL_VISUAL_INPUTS = Object.freeze([
   'app/game-clock.ts', 'app/game-store.ts', 'app/checkpoint-format.ts', 'app/world-turn.ts',
   'scripts/tutorial-browser/angel-visuals.mjs', 'scripts/tutorial-browser/angel-visuals-budget.mjs',
   'scripts/tutorial-browser/angel-visuals-fixture.mjs', 'scripts/tutorial-browser/angel-visuals-observer.mjs',
+  'scripts/tutorial-browser/compact-png.mjs',
   'scripts/tutorial-browser/angel-visuals-evidence.mjs', 'scripts/tutorial-browser/checkpoint-codec.mjs',
   'scripts/browser-performance/snapshot-setup.mjs', 'scripts/browser-game.mjs',
   'scripts/tutorial-browser/m2-pointer-f8.mjs', 'tests/level-start-fixture.mjs',
@@ -131,7 +133,8 @@ export default async function spellAngel({ browser, url, output, source, expecte
       }
       for (const frame of observation.contextFrames) {
         if (frame.error || !frame.png) continue
-        const { bytes, sha256 } = retainedAngelContext(frame)
+        const { bytes, sha256, encoding } = retainedAngelContext(frame)
+        frame.pngEncoding = encoding
         writeFileSync(resolve(output, frame.filename), bytes, { flag: 'wx' }); frame.sha256 = sha256; delete frame.png
       }
       save(); validateAngelObservation(observation, fixture.receipt, segment); check()
@@ -139,7 +142,9 @@ export default async function spellAngel({ browser, url, output, source, expecte
     await page.waitForFunction(() => window.__pndAngelObservation.result.done)
     await retain('paused')
     report.pausedAfter = await readState(); assert.deepEqual(report.pausedAfter, report.pausedBefore)
-    await page.screenshot({ path: resolve(output, 'angel-paused-context.png') }); check()
+    const pausedContext = compactPngChunks(await page.screenshot())
+    writeFileSync(resolve(output, 'angel-paused-context.png'), pausedContext.bytes, { flag: 'wx' })
+    report.pausedContextEncoding = pausedContext.encoding; check()
     await button('Game settings'); await button('Save Game'); await button('Save checkpoint')
     const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
     await menu.getByRole('status').filter({ hasText: 'Checkpoint saved in this browser.' }).waitFor()

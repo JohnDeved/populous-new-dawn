@@ -1,6 +1,7 @@
 // Data-only exact source inventory shared by the producer and separately pinned
 // nine-job reader. No optional episode and no old-save-format fallback.
 export const SHIELD_VISUAL_INPUTS = Object.freeze([
+  'scripts/tutorial-browser/compact-png.mjs',
   'scripts/tutorial-browser/shield-visuals.mjs', 'scripts/tutorial-browser/shield-visuals-inputs.mjs',
   'scripts/tutorial-browser/shield-budget.mjs', 'scripts/tutorial-browser/shield-checkpoint.mjs',
   'scripts/tutorial-browser/shield-evidence.mjs', 'scripts/tutorial-browser/shield-observer.mjs',

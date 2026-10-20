@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { compactPngChunks } from './compact-png.mjs'
 import units from '../../app/original-units.json' with { type: 'json' }
 import { SHIELD_VISUAL_INPUTS } from './shield-visuals-inputs.mjs'
 import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
@@ -148,7 +149,11 @@ export default async function spellShield({ browser, url, output, source, expect
     assert.equal(report.atlas.sha256, sha(atlasBytes))
     assert.equal(report.atlas.bytes, atlasBytes.length)
     await capture(ownerIds, 'original', [0, 1, 2, 3], false)
-    await step('retain four-owner viewport context', () => page.screenshot({ path: resolve(output, 'shield-context.png') }))
+    await step('retain four-owner viewport context', async () => {
+      const retained = compactPngChunks(await page.screenshot())
+      writeFileSync(resolve(output, 'shield-context.png'), retained.bytes, { flag: 'wx' })
+      report.contextEncoding = retained.encoding
+    })
     report.pauseBefore = await state()
     await step('public pause remains stable', () => page.waitForTimeout(160))
     report.pauseAfter = await state()

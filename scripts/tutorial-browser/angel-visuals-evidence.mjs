@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
+import { compactPngChunks } from './compact-png.mjs'
 import original from '../../app/original-angel.json' with { type: 'json' }
 import { expectedAngelResourceUV, validateAngelResourceObservation } from '../integration-queue/spell-visuals-render-evidence.mjs'
 export { angelAttributeChecksum } from '../integration-queue/spell-visuals-render-evidence.mjs'
@@ -15,4 +16,7 @@ function retainedAngelImage(crop, width, height) {
 }
 
 export const retainedAngelCrop = crop => retainedAngelImage(crop, 256, 256)
-export const retainedAngelContext = frame => retainedAngelImage(frame, 1440, 1000)
+export const retainedAngelContext = frame => {
+  const raw = retainedAngelImage(frame, 1440, 1000), retained = compactPngChunks(raw.bytes)
+  return { ...retained, sha256: retained.encoding.retainedSha256 }
+}
