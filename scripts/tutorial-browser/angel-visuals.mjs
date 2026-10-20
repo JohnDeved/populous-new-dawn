@@ -123,6 +123,7 @@ export default async function spellAngel({ browser, url, output, source, expecte
     const retain = async segment => {
       const observation = await page.evaluate(() => window.__pndAngelObservation.retain())
       report[segment] = observation
+      if (observation.error) await page.screenshot({ path: resolve(output, `angel-${segment}-failure.png`), timeout: 2000 }).catch(() => {})
       for (const crop of observation.crops) {
         if (crop.error || !crop.png) continue
         const { bytes, sha256 } = retainedAngelCrop(crop)

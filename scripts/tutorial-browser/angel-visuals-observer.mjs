@@ -58,7 +58,10 @@ export function installAngelVisualObserver({ ids, neighbourId, segment, waitForR
       .filter(element => { const style = getComputedStyle(element); return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0 })
       .map(element => { const r = element.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height, className: element.className } })
       .filter(r => r.width > 0 && r.height > 0 && r.x < css.x + css.width && r.x + r.width > css.x && r.y < css.y + css.height && r.y + r.height > css.y)
-    if (owner !== canvas || overlays.length) throw Error(`Angel ${label} crop is obscured by HTML`)
+    if (owner !== canvas || overlays.length) {
+      result.occlusion = { id: sample.id, label, bounds, css, ownerTag: owner?.tagName, ownerClass: owner?.className, overlays }
+      throw Error(`Angel ${label} crop is obscured by HTML`)
+    }
     const copy = document.createElement('canvas'); copy.width = clip.width; copy.height = clip.height
     const context = copy.getContext('2d')
     if (!context) throw Error('Angel crop copy context unavailable')
