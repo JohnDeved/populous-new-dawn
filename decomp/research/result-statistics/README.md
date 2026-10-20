@@ -25,6 +25,7 @@ cmp /tmp/result-statistics.json decomp/research/result-statistics/native.json
 
 `native.asm` is GNU objdump 2.44 Intel disassembly of those same half-open spans:
 `objdump -d -Mintel --start-address=0xSTART --stop-address=0xEND EXE`.
+Only instruction/continuation lines are retained; trailing whitespace is stripped.
 Existing exports below are Ghidra 12.1.3 pseudocode indexed in `decomp/exports.json`.
 Use bytes/assembly where the decompiler drops arguments. No new Ghidra project was
 needed. Direct-call discovery is not an exhaustive indirect-call or write analysis.
@@ -129,8 +130,9 @@ Proposed runtime work, **not implemented**:
 2. Reuse the proven ordinary row0 event boundary (avoid a second increment).
    Add row1 at the lethal melee exchange only. Add rows3/5/6/8 at one proved
    finalized death boundary with victim/model/stored-attacker captured before
-   removal or hypnosis restoration; resolve ghost, retry and all damage writers
-   first. Rows4/7 require a separate staged-building lifecycle patch.
+   retirement, on the source-proved side of hypnosis restoration; resolve that
+   ownership ordering, ghost admission, retries and all damage writers first.
+   Rows4/7 require a separate staged-building lifecycle patch.
 3. Add row2 at the matched once-only tribe elimination latch. Add row9 at mode1
    delivery with both masks, after proving how native mode reaches each browser
    Gift. Keep unsupported rows unavailable until their lifecycle is accepted.

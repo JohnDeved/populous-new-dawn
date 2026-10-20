@@ -271,7 +271,7 @@
   4fb0de:	8d 2c d7             	lea    ebp,[edi+edx*8]
   4fb0e1:	e8 1a f4 f1 ff       	call   0x41a500
   4fb0e6:	66 c7 84 af cd db 89 	mov    WORD PTR [edi+ebp*4+0x89dbcd],0x0
-  4fb0ed:	00 00 00 
+  4fb0ed:	00 00 00
   4fb0f0:	83 c4 08             	add    esp,0x8
   4fb0f3:	e9 5c ff ff ff       	jmp    0x4fb054
   4fb0f8:	bf 0a 00 00 00       	mov    edi,0xa
@@ -281,7 +281,7 @@
   4fb105:	2b c8                	sub    ecx,eax
   4fb107:	2b c8                	sub    ecx,eax
   4fb109:	66 83 b9 d0 80 5a 00 	cmp    WORD PTR [ecx+0x5a80d0],0x2
-  4fb110:	02 
+  4fb110:	02
   4fb111:	75 09                	jne    0x4fb11c
   4fb113:	50                   	push   eax
   4fb114:	e8 a7 7e fc ff       	call   0x4c2fc0
@@ -324,7 +324,7 @@
   418f2c:	41                   	inc    ecx
   418f2d:	53                   	push   ebx
   418f2e:	c7 44 24 14 01 00 00 	mov    DWORD PTR [esp+0x14],0x1
-  418f35:	00 
+  418f35:	00
   418f36:	89 8f 49 09 00 00    	mov    DWORD PTR [edi+0x949],ecx
   418f3c:	e8 6f 29 00 00       	call   0x41b8b0
   418f41:	83 c4 04             	add    esp,0x4
