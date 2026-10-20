@@ -35,8 +35,16 @@ checkpoint twins, Unit identity and HP remain equal. Strict native/registered
 ownership and no current order are required at phase23 and immediately after task
 inactivity. Later ordinary construction may transfer the SAME person to
 `builder.person` through `adoptLiveOrders`/`processBuilderWork`; its genuine new
-command6/building target is checked, not mistaken for a stranded raid. The actual
-caller adopts the builder owner and clears native before processBuilderWork;
-its conditional registry deletion is not entered. Registry identity therefore
-remains strict for every tail owner, including the replay. The isolated callee's
-deletion branch is not used to admit unobserved missing-owner cases.
+command6/building target is checked, not mistaken for a stranded raid.
+
+The retained run at25314eb6 disproved an assumed always-registered caller order:
+actual person4 at counter134 had new command6 targeting living building1021,
+with no registry entry. `processBuilderWork` can retain that exact person in the
+builder owner while detaching native registration. The tail therefore admits an
+absent registry ONLY with captured `builder.person`, `native===null`, current
+model6, matching Unit work/person workTarget/order target, an actual living
+building and a positive new order reference count. The concrete detached builder
+transition must occur; all other present registry entries must equal the captured
+person. Replay aliases follow the same checks. The prior failure is retained,
+and strict registered/native/empty-order checks at phase23 and immediate task
+inactivity remain unchanged. This is not a generic registry fallback.

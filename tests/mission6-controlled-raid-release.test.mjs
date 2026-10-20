@@ -69,7 +69,7 @@ test('current controlled Mission6 raid releases blocked owners and checkpoint re
     unit: replay.units.find(candidate => candidate.id === id),
     person: replay.objectCells.objects.get(id),
   }]))
-  let builderHandoffSeen = false
+  let builderHandoffSeen = false, detachedBuilderSeen = false
   const assertTailOwner = (state, unit, person, hp) => {
     assert.equal(unit.hp, hp)
     assert.ok([unit.native, unit.builder?.person, unit.entry?.person, unit.flight,
@@ -81,12 +81,16 @@ test('current controlled Mission6 raid releases blocked owners and checkpoint re
       assert.equal(unit.builder?.person, person)
       assert.equal(current?.model, 6)
       assert.equal(unit.work, current.a)
+      assert.equal(person.workTarget, current.a)
       assert.ok(state.buildings.some(building => building.id === current.a && building.hp > 0))
       if (state === world) builderHandoffSeen = true
     }
-    // The actual model6 caller adopts the builder owner before processBuilderWork,
-    // so its native-null handoff must retain this exact registered person.
-    assert.equal(registered, person)
+    // The retained25314eb6 failure observes processBuilderWork's detached native
+    // slot on this real new command6. Admit only its explicitly bound builder owner.
+    if (registered === undefined) {
+      assertBuilderHandoff()
+      if (state === world) detachedBuilderSeen = true
+    } else assert.equal(registered, person)
     if (unit.native === null && unit.builder?.person === person) assertBuilderHandoff()
     assert.ok(!person.commands.includes(orderId))
     assert.notEqual(person.immediateCommand, orderId)
@@ -151,6 +155,7 @@ test('current controlled Mission6 raid releases blocked owners and checkpoint re
   // This is a controlled-world tail, not a claim about an authored raid schedule.
   for (let turn = 0; turn < 145; turn++) advance(true)
   assert.ok(builderHandoffSeen, 'ordinary new construction owns the same released person')
+  assert.ok(detachedBuilderSeen, 'the actual builder transition exercises detached registration')
   assert.equal(order.references, 0)
   assert.equal(world.stats.bridges, 0, 'this controlled failed route does not create a land connection')
 })
