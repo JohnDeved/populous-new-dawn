@@ -9,10 +9,11 @@ import { discardInvalidResident } from './building-resident.ts'
 import { initializeVaultKnowledgeGift } from './world-effects.ts'
 import { createSharedAniblResource, type PresentationBinding } from './shared-anibl.ts'
 
+import { CHECKPOINT_VERSION } from './checkpoint-format.ts'
+export { CHECKPOINT_VERSION } from './checkpoint-format.ts'
+
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
-  // Development saves support this format only; incompatible records stay intact.
-  CHECKPOINT_VERSION = 2,
   PROFILE_VERSION = 1
 let checkpointDatabase: Promise<IDBDatabase | null> | null = null
 
@@ -58,6 +59,8 @@ export function migrateCheckpoint(world: World) {
   syncLandscapeObjects(world)
   for (const shrine of world.shrines) initializeVaultKnowledge(shrine, world.outcome.level)
   for (const gift of world.gifts) initializeVaultKnowledgeGift(world, gift)
+  // Normalization must not orphan authoritative current-format pool ownership.
+  restoreCapacityPolicy(world)
   return world
 }
 

@@ -139,7 +139,7 @@ export function createWorldState(missionNumber = 1, capacityMode: CapacityMode =
     combatMarches: [],
     lastOrderTurn: 0,
     buildingOrders: createPersonOrderPool(capacityMode === 'scalable'),
-    motionRoutes: createMotionRoutes(),
+    motionRoutes: createMotionRoutes(capacityMode === 'scalable'),
     pathfinding: createLivePathfinding(),
     timberSearches: createTimberSearches(),
     land: {

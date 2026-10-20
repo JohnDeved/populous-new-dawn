@@ -131,7 +131,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
       if (!store) throw Error('Store unavailable before public Load')
       const before = store.getWorld(); window.boatLoadBoundary = null; window.boatLoadError = null
       const unsubscribe = store.subscribe(() => { const world = store.getWorld(); if (world === before) return
-        try { window.boatLoadBoundary = { version: 2, world: structuredClone(world) } } catch (e) { window.boatLoadError = String(e) } finally { unsubscribe() }
+        try { window.boatLoadBoundary = { version: 3, world: structuredClone(world) } } catch (e) { window.boatLoadError = String(e) } finally { unsubscribe() }
       })
     })
     report.actions.push({ label: 'public Load Game', phase: 'before', at: new Date().toISOString() }); save()
