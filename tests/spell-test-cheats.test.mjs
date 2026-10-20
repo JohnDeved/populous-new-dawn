@@ -205,7 +205,7 @@ test('actual testing dialog suspends only the scene, owns focus/Escape/F8 and ne
       useState: () => ['', () => {}], document: { activeElement: new Element() }, HTMLElement: Element,
       SPELLS: [], styles: {}, CHEAT_SAVE_NOTICE: 'Testing',
     }),
-    view = render({ store, scene, onClose: () => { closed++ }, onSelect() {} }), cleanup = setup()
+    view = render({ store, sceneRef: { current: scene }, onClose: () => { closed++ }, onSelect() {} }), cleanup = setup()
   assert.equal(suspended, true)
   assert.equal(modal.open, true)
   assert.equal(focus, 'close')

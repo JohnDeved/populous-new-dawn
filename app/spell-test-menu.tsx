@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 import type { createGameStore } from './game-store'
 import type { GameScene } from './scene'
 import { SPELLS } from './world-rules'
@@ -10,12 +10,12 @@ import styles from './spell-test-menu.module.css'
 
 export function SpellTestMenu({
   store,
-  scene,
+  sceneRef,
   onClose,
   onSelect,
 }: {
   store: ReturnType<typeof createGameStore>
-  scene: GameScene
+  sceneRef: RefObject<GameScene | null>
   onClose: () => void
   onSelect: (spell: Spell) => void
 }) {
@@ -25,6 +25,8 @@ export function SpellTestMenu({
   )
   const world = store.getWorld()
   useEffect(() => {
+    const scene = sceneRef.current
+    if (!scene) return
     const modal = dialog.current,
       previousFocus = document.activeElement
     scene.setModalSuspended(true)
@@ -38,19 +40,18 @@ export function SpellTestMenu({
       }
       if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus()
     }
-  }, [scene, store, world])
+  }, [sceneRef, store, world])
   function grant(action: SpellTestCheat) {
     if (!store.applySpellTestCheat(action)) {
       setNotice('Cheats are unavailable while mission controls are locked.')
       return
     }
-    setNotice(
-      action === 'unlock'
-        ? 'All implemented spells unlocked and refilled.'
-        : action === 'refill'
-          ? 'Available spell charges refilled.'
-          : 'Incoming mana refilled to at least 1,000,000. It follows normal distribution when play resumes.'
-    )
+    const messages: Record<SpellTestCheat, string> = {
+      unlock: 'All implemented spells unlocked and refilled.',
+      refill: 'Available spell charges refilled.',
+      mana: 'Incoming mana refilled to at least 1,000,000. It follows normal distribution when play resumes.',
+    }
+    setNotice(messages[action])
   }
   return (
     <dialog
@@ -71,7 +72,7 @@ export function SpellTestMenu({
           event.preventDefault()
           event.stopPropagation()
           if (!event.repeat && !event.ctrlKey && !event.altKey && !event.metaKey && !event.shiftKey)
-            scene.togglePerformance()
+            sceneRef.current?.togglePerformance()
         } else if (event.repeat && ['Enter', ' '].includes(event.key)) event.preventDefault()
       }}
     >

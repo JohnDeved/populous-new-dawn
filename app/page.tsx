@@ -1583,10 +1583,10 @@ export default function Home() {
           onSelectLevel={openSelector}
         />
       )}
-      {cheatsOpen && engine.current && (
+      {cheatsOpen && (
         <SpellTestMenu
           store={store}
-          scene={engine.current}
+          sceneRef={engine}
           onClose={() => setCheatsOpen(false)}
           onSelect={spell => {
             store.change(w => {
