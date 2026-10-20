@@ -19,7 +19,7 @@ function fixture(segment) {
   const callbacks=new Map(), copies=[], originals=new Map(), canvas={width:1440,height:1000,isConnected:true,
     getBoundingClientRect:()=>({left:0,top:0,width:1440,height:1000})}
   const texture={...eventObject('atlas'),image:{src:'http://127.0.0.1/original/atlas.png'}}
-  const scene={world,renderer:{domElement:canvas,info:{render:{frame:1}}},gameClock:clock,fxMeshes:new Map(),decorations:{children:[]},
+  const scene={world,previous:1,renderer:{domElement:canvas,info:{render:{frame:1}}},gameClock:clock,fxMeshes:new Map(),decorations:{children:[]},
     view:{painter:{source:()=>({})}},picking:{model:()=>[{kind:'bounds',bounds:{x:30,y:30,width:40,height:40}}]}}
   scene.decorations.children.push({userData:{point:{id:f.receipt.neighbourId}},children:[{isMesh:true,userData:{nativeModel:0},material:{map:texture}}]})
   for(const [owner,id]of f.receipt.ids.entries()) {
@@ -41,7 +41,7 @@ function fixture(segment) {
       toDataURL:()=>{encodes++;const bytes=Buffer.alloc(100);Buffer.from('89504e470d0a1a0a','hex').copy(bytes);bytes.writeUInt32BE(copy.width,16);bytes.writeUInt32BE(copy.height,20);return`data:image/png;base64,${bytes.toString('base64')}`}}
       copies.push(copy);return copy}})
   const render=()=>{
-    scene.renderer.info.render.frame++
+    scene.renderer.info.render.frame++;scene.previous=scene.renderer.info.render.frame
     for(const id of f.receipt.ids){
       const effect=world.effects.find(e=>e.id===id),group=scene.fxMeshes.get(id)
       if(!effect){if(group){for(const mesh of group.children){mesh.geometry.dispose();mesh.material.dispose()}group.parent=null;scene.fxMeshes.delete(id)}continue}
@@ -53,7 +53,7 @@ function fixture(segment) {
   }
   return {f,world,scene,clock,texture,copies,counts:()=>({reads,encodes,draws}),start(){
     installAngelVisualObserver({...f.receipt,segment,waitForReplacement:segment==='running'});activeWorld=world;world.paused=segment==='paused';render()},
-    visit(){const queue=[...callbacks.values()];callbacks.clear();for(const fn of queue)fn()},render,
+    visit(timestamp=scene.previous){const queue=[...callbacks.values()];callbacks.clear();for(const fn of queue)fn(timestamp)},render,
     restore(){for(const[name,value]of originals){if(value)Object.defineProperty(globalThis,name,value);else delete globalThis[name]}}}
 }
 test('paused observer reads actual arrays and snapshots same callback; encoding waits for retain and copies are released',()=>{
@@ -91,4 +91,19 @@ test('first crop slot fails immediately on occlusion; it cannot be replaced with
     const r=window.__pndAngelObservation.result;assert.equal(r.done,true);assert.match(r.error,/obscured/);assert.equal(r.crops.length,0)
     document.elementFromPoint=()=>f.scene.renderer.domElement;f.visit();assert.equal(r.crops.length,0)
   }finally{f.restore()}
+})
+
+test('observer before Scene RAF defers without copying stale canvas pixels', async()=>{
+  const f=fixture('paused')
+  try {
+    f.start(); f.visit(f.scene.previous+1)
+    assert.equal(window.__pndAngelObservation.result.orderingDeferrals,1)
+    assert.equal(window.__pndAngelObservation.result.samples.length,0)
+    assert.equal(f.counts().draws,0)
+    await new Promise(resolve=>setTimeout(resolve,5))
+    f.render(); f.visit()
+    const r=window.__pndAngelObservation.result
+    assert.equal(r.done,true); assert.equal(r.error,null)
+    assert.ok(r.samples.every(s=>s.rafTimestamp===s.sceneTimestamp))
+  } finally { f.restore() }
 })

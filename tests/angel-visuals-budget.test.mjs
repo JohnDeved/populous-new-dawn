@@ -66,3 +66,13 @@ test('cleanup rejection is explicit failure and a body timeout closes only once'
   const rejected = assert.rejects(pending, /50-second/); await turn(); g.expire(); await rejected; await turn()
   assert.equal(g.counts().closes, 1); assert.equal(g.report.status, 'failed')
 })
+test('final synchronous receipt retention is inside the inclusive deadline', async () => {
+  for (const elapsed of [50000, 50001]) {
+    const f = fixture()
+    const save = () => { if (f.report.status === 'passed') f.advance(elapsed); f.save() }
+    await assert.rejects(withAngelVisualContext({ ...f, save, operation: async () => {} }), /50-second/)
+    assert.equal(f.report.status, 'failed'); assert.equal(f.report.timedOut, true)
+    assert.equal(f.report.elapsedMs, elapsed); assert.equal(f.saves.at(-1).status, 'failed')
+    assert.equal(f.counts().cancelled, 1)
+  }
+})

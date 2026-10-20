@@ -3,7 +3,7 @@
 export function installAngelVisualObserver({ ids, neighbourId, segment, waitForReplacement = false }) {
   const priorWorld = window.testStore.getWorld(), result = { segment, samples: [], crops: [], contextFrames: [], resources: [],
     visits: 0, maxVisits: 12000, maxSamples: 1200, maxCrops: 20, error: null, done: false, cleanup: null }
-  let scene, world, raf, stopped = false, initialized = false, lastStamp = -1
+  let scene, world, raf, reorderTimer, stopped = false, initialized = false, lastStamp = -1
   const copies = [], listeners = [], seen = new Map(), cropKeys = new Set(), latestClips = new Map()
   const owned = [], textures = new Set(), disposed = { geometry: 0, material: 0, texture: 0 }
   const checksum = array => {
@@ -18,7 +18,7 @@ export function installAngelVisualObserver({ ids, neighbourId, segment, waitForR
   }
   const stop = reason => {
     if (!stopped) {
-      stopped = true; cancelAnimationFrame(raf)
+      stopped = true; cancelAnimationFrame(raf); clearTimeout(reorderTimer)
       result.terminal = { reason, turn: world?.turn ?? null, stamp: scene?.renderer.info.render.frame ?? null }
       for (const [object, callback] of listeners) object.removeEventListener('dispose', callback)
     }
@@ -86,7 +86,8 @@ export function installAngelVisualObserver({ ids, neighbourId, segment, waitForR
     const mesh = group?.children.find(child => child.isMesh && child.userData.nativeModel !== undefined)
     return { group, mesh }
   }
-  const visit = () => {
+  const visit = rafTimestamp => {
+    let reorder = false
     if (stopped) return
     result.visits++
     try {
@@ -100,6 +101,10 @@ export function installAngelVisualObserver({ ids, neighbourId, segment, waitForR
       }
       if (scene !== window.testSceneRef.current || world !== window.testStore.getWorld() || scene.world !== world)
         throw Error('Angel observation lost Scene/world identity')
+      // Scene.animate stores the shared RAF timestamp and completes its render
+      // synchronously. A different timestamp means this observer ran first.
+      // Register after this RAF batch so the Scene owns the next callback first.
+      if (scene.previous !== rafTimestamp) { result.orderingDeferrals = (result.orderingDeferrals ?? 0) + 1; reorder = true; return }
       const canvas = scene.renderer.domElement, stamp = scene.renderer.info.render.frame
       if (!canvas.isConnected || document.visibilityState !== 'visible') throw Error('Angel canvas disconnected or hidden')
       if (stamp === lastStamp) return
@@ -147,7 +152,7 @@ export function installAngelVisualObserver({ ids, neighbourId, segment, waitForR
         seen.set(effect.id, key)
         const position = mesh.geometry.getAttribute('position').array
         const bounds = scene.picking.model(mesh, `angel-witness-${stamp}`).find(command => command.kind === 'bounds')?.bounds
-        const sample = { id: effect.id, owner, turn: world.turn, stamp, animationFrame: scene.gameClock.animationFrame,
+        const sample = { rafTimestamp, sceneTimestamp: scene.previous, id: effect.id, owner, turn: world.turn, stamp, animationFrame: scene.gameClock.animationFrame,
           phase: state.phase, timer: state.timer, pose: { ...pose }, presentation: structuredClone(state.presentation),
           paused: world.paused, x: effect.x, z: effect.z, height: effect.height, groupY: group.position.y,
           base: mesh.userData.nativeModel, scale: mesh.userData.nativeSize,
@@ -172,7 +177,10 @@ export function installAngelVisualObserver({ ids, neighbourId, segment, waitForR
       }
       if (segment === 'paused' && result.samples.length === ids.length) { result.done = true; stop('paused-transition') }
     } catch (error) { result.error = String(error); result.done = true; stop('error') }
-    finally { if (!stopped) raf = requestAnimationFrame(visit) }
+    finally { if (!stopped) {
+      if (reorder) reorderTimer = setTimeout(() => { if (!stopped) raf = requestAnimationFrame(visit) }, 0)
+      else raf = requestAnimationFrame(visit)
+    } }
   }
   window.__pndAngelObservation = { result, stop, retain }
   raf = requestAnimationFrame(visit)

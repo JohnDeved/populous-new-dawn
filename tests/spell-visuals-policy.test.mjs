@@ -35,7 +35,7 @@ function observation(segment) {
     for (const [owner,id] of f.receipt.ids.entries()) {
       const e=w.effects.find(e=>e.id===id); if(!e) continue
       const pose=e.angel.presentation.displayed, positions=angelPosePositions(pose)
-      r.samples.push({ id,owner,base:pose.base,pose:structuredClone(pose),presentation:structuredClone(e.angel.presentation),
+      r.samples.push({ rafTimestamp:r.samples.length+1,sceneTimestamp:r.samples.length+1,id,owner,base:pose.base,pose:structuredClone(pose),presentation:structuredClone(e.angel.presentation),
         turn:w.turn,stamp:r.samples.length+1,phase:e.angel.phase,timer:e.angel.timer,paused:segment==='paused',
         height:e.height,groupY:Math.round(e.height*45)/128,nativeTilt:0,nativeRoll:0,visible:true,submitted:true,
         scale:pose.scale,shaderScale:pose.scale,positionCount:positions.length,positionChecksum:angelAttributeChecksum(positions),...(r.samples.length < 4 ? {positions:[...positions]} : {}),bounds:{x:20,y:20,width:40,height:40} })
@@ -46,11 +46,16 @@ function observation(segment) {
     w.paused=false; const clock={animationTime:0,animationFrame:0}
     for(let i=0;i<188;i++){advanceGame(w,clock,1/24);append()}
   }
-  for(const id of f.receipt.ids) {
-    const sample=r.samples.find(s=>s.id===id), filename=`angel-${segment}-${r.crops.length}.png`; sample.cropFile=filename
-    r.crops.push({filename,id,stamp:sample.stamp,turn:sample.turn,pose:sample.pose,bounds:sample.bounds,
-      canvasOwned:true,overlays:[],clip:{width:56,height:56},opaqueColors:10,sha256:'a'.repeat(64),pixelChecksum:'body'})
-    if(segment==='running')r.crops.push({filename:`angel-${segment}-${r.crops.length}.png`,id,cleared:true,canvasOwned:true,
+  for(const [owner,id] of f.receipt.ids.entries()) {
+    const labels=segment==='paused'?['paused-transition']:['transition','base-62','base-69',...(owner===0?['death-large','death-small']:[])]
+    const labelOf=s=>segment==='paused'?'paused-transition':s.pose.to>=76?'transition':s.phase==='dying'?s.scale>80?'death-large':'death-small':`base-${s.base}`
+    for(const label of labels){
+      const sample=r.samples.find(s=>s.id===id&&labelOf(s)===label), filename=`angel-${segment}-${r.crops.length}.png`
+      sample.cropFile=filename; sample.positions=[...angelPosePositions(sample.pose)]
+      r.crops.push({filename,label,id,stamp:sample.stamp,turn:sample.turn,pose:sample.pose,bounds:sample.bounds,
+        canvasOwned:true,overlays:[],clip:{width:56,height:56},opaqueColors:10,sha256:'a'.repeat(64),pixelChecksum:'body'})
+    }
+    if(segment==='running')r.crops.push({filename:`angel-${segment}-${r.crops.length}.png`,label:'cleared-footprint',id,cleared:true,canvasOwned:true,
       overlays:[],clip:{width:56,height:56},opaqueColors:5,sha256:'b'.repeat(64),pixelChecksum:'clear'})
   }
   if(segment==='running')for(const label of ['loop','death']) {

@@ -48,6 +48,7 @@ export async function withAngelVisualContext({ browser, deadlineAt, report, save
     await Promise.race([Promise.resolve().then(() => operation(context, check)), deadline]); check()
     await Promise.race([close(), deadline]); check()
     report.status = 'passed'
+    report.elapsedMs = now() - started; save(); check()
   } catch (error) {
     report.status = 'failed'; report.failure = String(error)
     if (!expired) {
@@ -56,6 +57,13 @@ export async function withAngelVisualContext({ browser, deadlineAt, report, save
     }
     throw error
   } finally {
-    cancel(timer); report.elapsedMs = now() - started; save()
+    try {
+      report.elapsedMs = now() - started; save()
+      check()
+    } catch (error) {
+      report.status = 'failed'; report.failure = String(error)
+      report.elapsedMs = now() - started; save()
+      throw error
+    } finally { cancel(timer) }
   }
 }

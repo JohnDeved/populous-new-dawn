@@ -59,6 +59,7 @@ export function validateAngelResourceObservation(observation, fixture, segment, 
     }
   }
   for (const s of r.samples) {
+    assert.ok(Number.isFinite(s.rafTimestamp)); assert.equal(s.sceneTimestamp, s.rafTimestamp, 'Capture must follow Scene render in the same RAF cycle')
     assert.equal(s.id, fixture.ids[s.owner]); assert.equal(s.base, s.pose.base)
     assert.equal(s.positionCount, 1413)
     const expected = expectedAngelResourcePositions(original, s.pose)
@@ -73,6 +74,22 @@ export function validateAngelResourceObservation(observation, fixture, segment, 
     assert.deepEqual(s.pose, s.presentation.displayed)
     if (s.phase === 'dying') assert.ok(s.scale <= 160 && s.scale >= 10)
   }
+  // Inventory is independent of the producer's labels: bind every required
+  // crop to the first eligible retained sample, never a later substitution.
+  const labelOf = s => segment === 'paused' ? 'paused-transition' : s.pose.to >= 76 ? 'transition' :
+    s.phase === 'dying' ? s.scale > 80 ? 'death-large' : 'death-small' : `base-${s.base}`
+  const required = fixture.ids.flatMap((id, owner) => (segment === 'paused' ? ['paused-transition'] :
+    ['transition', 'base-62', 'base-69', ...(owner === 0 ? ['death-large', 'death-small'] : [])]).map(label => ({ id, label })))
+  assert.equal(r.crops.length, required.length + (segment === 'running' ? fixture.ids.length : 0))
+  assert.equal(new Set(r.crops.map(c => c.filename)).size, r.crops.length)
+  for (const { id, label } of required) {
+    const sample = r.samples.find(s => s.id === id && labelOf(s) === label)
+    assert.ok(sample, `Missing first eligible ${id}/${label} sample`)
+    const crops = r.crops.filter(c => !c.cleared && c.id === id && c.label === label)
+    assert.equal(crops.length, 1, `Required crop ${id}/${label}`)
+    assert.equal(crops[0].filename, sample.cropFile, `First eligible crop ${id}/${label}`)
+    assert.equal(crops[0].stamp, sample.stamp)
+  }
   for (const crop of r.crops) {
     assert.match(crop.filename, new RegExp(`^angel-${segment}-[0-9]+\\.png$`))
     assert.equal(crop.error, undefined); assert.equal(crop.canvasOwned, true); assert.deepEqual(crop.overlays, [])
@@ -81,7 +98,7 @@ export function validateAngelResourceObservation(observation, fixture, segment, 
     assert.match(crop.sha256, /^[a-f0-9]{64}$/)
     if (!crop.cleared) {
       const sample = r.samples.find(s => s.cropFile === crop.filename)
-      assert.ok(sample); assert.equal(sample.stamp, crop.stamp); assert.equal(sample.turn, crop.turn)
+      assert.ok(sample); assert.equal(sample.id, crop.id); assert.equal(labelOf(sample), crop.label); assert.equal(sample.stamp, crop.stamp); assert.equal(sample.turn, crop.turn)
       assert.deepEqual(sample.pose, crop.pose); assert.deepEqual(sample.bounds, crop.bounds)
       assert.ok(sample.positions)
     }
