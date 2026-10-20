@@ -14,6 +14,11 @@ import {
   stepLiveRestingState,
 } from './live-resting.ts'
 import { initializeRestingPerson } from './person-idle.ts'
+import {
+  facePersonCasting,
+  initializePersonCasting,
+  stepPersonCasting,
+} from './person-casting.ts'
 import { stampFootprints } from './footprints.ts'
 import { adoptLiveOrders, startLiveOrders } from './live-movement.ts'
 import { currentPersonOrder } from './person-orders.ts'
@@ -671,6 +676,10 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
     throw new Error('Legacy handoff contains an unowned native assignment')
   }
   initializePersonState(initWorld, p, {
+    casting: () =>
+      initializePersonCasting(p, !!castingCellObject(w, p), (person, object) =>
+        setLivePersonAnimation(w, person as LivePerson, object)
+      ),
     routeRecovery: () => initializeLiveRouteRecovery(w, p),
     encounter: () => initializeGroundCombat(w, p),
     fight: () => initializeGroundCombat(w, p),
@@ -785,6 +794,44 @@ export function changeLivePersonState(w: World, u: Unit, next?: number, source =
   const ctx = context(w)
   initializeLivePerson(w, u, ctx, p)
   w.randomState = ctx.state.randomState
+}
+
+function castingCellObject(w: World, point: { x: number; y: number }) {
+  const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+  return w.land.flags[cell] & 512
+    ? liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
+    : undefined
+}
+
+// Share the actual physical/animation owner rather than creating a new cast
+// pose or reinitializing the AI's combat owner a second time.
+export function beginLiveCasting(w: World, u: Unit, target: { x: number; y: number }) {
+  const p =
+    u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person ?? createLivePerson(w, u)
+  u.native = p
+  registerLivePerson(w, p)
+  syncBrowserPersonPosition(w, u, p)
+  changeLivePersonState(w, u, 22, p)
+  if (p.state === 22 && u.fight?.motion === p) u.fight = null
+  facePersonCasting(p, target)
+  u.heading = Math.PI - (p.angle * Math.PI) / 1024
+}
+
+export function stepLiveCasting(w: World, u: Unit, p: LivePerson) {
+  stepLivePhysics(w, u, p)
+  // Preparation can replace state 22. Do not tick the replacement state's
+  // timer a second time or finish a cast that no longer owns this visit.
+  if (p.state !== 22) return
+  stepPersonCasting(p, w.manaWorld.gameFlags, {
+    animation: (person, object) => setLivePersonAnimation(w, person as LivePerson, object),
+    destination: point => setDirectPersonDestination(w.motionRoutes, p, point),
+    outside: point => {
+      const shape = castingCellObject(w, point)
+      return shape ? buildingOutsidePoint(shape) : point
+    },
+    release: () => releasePersonRoute(w.motionRoutes, p),
+    initialize: next => changeLivePersonState(w, u, next, p),
+  })
 }
 
 export function initializeLivePanic(

@@ -385,7 +385,7 @@ export function spellTargetError(w: World, spell: Spell, p: Point) {
     shaman.lift > 0 ||
     shaman.casting ||
     !canShamanCast(w.castingTribes[0], w.manaTribes[0].playerType, {
-      state: shaman.native?.vehicle && shaman.native.state === 22 ? 22 : 0,
+      state: shaman.native?.state === 22 ? 22 : 0,
       flags2: 0,
       flags4: 0,
     })
@@ -443,8 +443,11 @@ export function cast(w: World, spell: Spell, p: Point, personId?: number) {
     return false
   }
   const shaman = w.units.find(u => u.team === 'blue' && isShaman(u))!
+  const person =
+    shaman.fight?.motion ?? shaman.native ?? shaman.entry?.person ?? shaman.builder?.person
   release(w, shaman)
-  shaman.heading = Math.atan2(p.x - shaman.x, p.z - shaman.z)
+  // Releasing a browser fight/task must not discard its native animation phase.
+  if (person) shaman.native = person
   beginCast(w, shaman, spell, p, direct ? personId : undefined)
   w.mode = null
   return true

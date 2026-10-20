@@ -243,7 +243,6 @@ import { stepBuildingWork, stepBuildingDeparture, stepBuildingApproach } from '.
 import { stepBuildingFetch } from './building-fetch.ts'
 import { stepBuildingLevel } from './building-preparation.ts'
 import {
-  defaultPersonState,
   faceTribe,
   personAnimationObject,
   recoverPersonMovement,
@@ -311,6 +310,7 @@ import {
   collisionWorld,
   enterLiveCombat,
   stepLivePhysics,
+  stepLiveCasting,
   stepLivePersonHealth,
   stepLiveEncounter,
   createLivePerson,
@@ -1417,13 +1417,7 @@ function stepTurn(w: World, metrics?: { steps: number }) {
         continue
       }
       const castingState = u.native?.state === 22
-      if (castingState) {
-        // Native person preparation precedes the cast-state timer, including aboard.
-        if (u.native!.vehicle) stepLivePhysics(w, u, u.native!)
-        u.native!.timer = short(u.native!.timer - 1)
-        if (u.native!.timer < 1)
-          changeLivePersonState(w, u, defaultPersonState(u.native!, w.manaWorld.gameFlags))
-      }
+      if (castingState) stepLiveCasting(w, u, u.native!)
       if (u.casting) {
         u.casting.remaining -= dt
         if (u.casting.remaining <= 1e-8) u.casting = null
