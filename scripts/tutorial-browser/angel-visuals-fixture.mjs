@@ -49,7 +49,7 @@ export function createAngelVisualFixture(source) {
     ids.push(effect.id)
   }
   // Persistent original native model provides a shared-atlas cleanup neighbour.
-  const neighbour = { id: world.nextId++, x: 9, z: -5, logs: 4, model: 1 }
+  const neighbour = { id: world.nextId++, x: 14, z: -5, logs: 4, model: 1 }
   world.trees.push(neighbour); syncLandscapeObjects(world); syncLivePersonCells(world)
   const clock = { animationTime: 0, animationFrame: 0 }
   for (let frame = 0; frame < 4; frame++) advanceGame(world, clock, 1 / 24)
