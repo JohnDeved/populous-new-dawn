@@ -14,11 +14,7 @@ import {
   stepLiveRestingState,
 } from './live-resting.ts'
 import { initializeRestingPerson } from './person-idle.ts'
-import {
-  facePersonCasting,
-  initializePersonCasting,
-  stepPersonCasting,
-} from './person-casting.ts'
+import { facePersonCasting, initializePersonCasting, stepPersonCasting } from './person-casting.ts'
 import { stampFootprints } from './footprints.ts'
 import { adoptLiveOrders, startLiveOrders } from './live-movement.ts'
 import { currentPersonOrder } from './person-orders.ts'

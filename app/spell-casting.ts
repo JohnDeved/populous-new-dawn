@@ -463,8 +463,7 @@ export function beginCast(w: World, u: Unit, spell: Spell, p: Point, personId?: 
   // their interruption/landing ownership has not yet been traced.
   if (
     (!u.flight && !u.lift) ||
-    (u.native &&
-      (u.native.vehicle || currentPersonOrder(w.buildingOrders, u.native)?.model === 18))
+    (u.native && (u.native.vehicle || currentPersonOrder(w.buildingOrders, u.native)?.model === 18))
   )
     beginLiveCasting(w, u, nativePosition(w, target))
 }

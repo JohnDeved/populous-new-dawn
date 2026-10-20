@@ -8,7 +8,10 @@ import {
   type StatefulPerson,
 } from './person-state.ts'
 
-type Point = { x: number; y: number }
+interface Point {
+  x: number
+  y: number
+}
 type CastingPerson = StatefulPerson & {
   heading: number
   velocity: { x: number; y: number; z: number }
@@ -20,7 +23,8 @@ const short = (n: number) => (n << 16) >> 16
 
 // 0x4e96f0 / 0x4e96d0: stop horizontal motion, retaining only upward velocity.
 function stopCastingVelocity(p: CastingPerson) {
-  p.velocity.x = p.velocity.z = 0
+  p.velocity.x = 0
+  p.velocity.z = 0
   if (short(p.velocity.y) < 0) p.velocity.y = 0
 }
 

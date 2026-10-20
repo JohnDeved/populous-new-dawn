@@ -84,18 +84,22 @@ not a claim that all surrounding AI/gameplay is unchanged.
 
 ## Regression plan and limits
 
-Authored, not yet executed: `tests/shaman-casting.test.mjs` checks raw table/link
+`tests/shaman-casting.test.mjs` checks raw table/link
 identity for all tribes/directions; retained/out-of-range phase; wrapped facing;
 current versus adjacent cell; velocity and expiry order; public rest/move/combat
 handoffs; AI single initialization; six-versus-ten visits; checkpoint clone;
 presentation-only visits; 30/60/120/144 Hz, irregular frames, catch-up, pause and
 speed; admitted-projectile survival under replacement commands; recast stock
-and distinct effect counts; airborne/protected exclusions.
+and distinct effect counts; airborne/protected exclusions. Explicit expiry
+controls cover cargo, airborne rows 2/12 and reverse-facing-bit clearing. Live
+controls mask high building-ID bits and verify physical owner/cell linkage.
 
 Retain `tests/seated-casting.test.mjs` as the separately sourced historical seat
 control. Required next review selects focused state/cast/clock/Blast/AI tests,
 then standard check/build and the affected original-source and rendered browser
-checks. No test/build/browser gate has been run for this draft.
+checks. Source-bound execution receipts, including failed fixture attempts, are
+retained under `work/orchestration/shaman-casting/`. Full hosted verification and
+rendered-browser acceptance are separate from the bounded portable/TS7 checks.
 
 Known gaps: forced/script airborne casting and incoming impulse/landing
 interruption ownership are not established by this investigation; they are not
