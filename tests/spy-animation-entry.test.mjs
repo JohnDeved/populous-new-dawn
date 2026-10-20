@@ -3,7 +3,7 @@ import test from 'node:test'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 import { makeBuilderAnimationScene } from './support/builder-animation-scene.mjs'
 
-let baseline
+const baselines = new Map()
 async function inputs() {
   const api = await loadSceneFixture(),
     { stepLiveBuildingAttack } = await import('../app/live-building-combat.ts'),
@@ -17,12 +17,13 @@ function until(api, w, label, condition, limit = 2000) {
   assert.ok(condition(), `${label} at ${w.turn}`)
 }
 
-async function scenario() {
+async function scenario(mode = 'classic') {
   const input = await inputs()
+  let baseline = baselines.get(mode)
   if (!baseline) {
     const { createStartedWorld, retainFixtureUnits } = await import('./level-start-fixture.mjs'),
       { api } = input,
-      w = createStartedWorld()
+      w = createStartedWorld(1, mode)
     // Supplied school, terrain and funding; public training, disguise and
     // command15 own the Spy and phase1 arrival. This is not a campaign/browser run.
     w.manaWorld.gameFlags = 32
@@ -49,6 +50,7 @@ async function scenario() {
     until(api, w, 'last phase1 wait visit',
       () => spy.native.substate === 1 && spy.native.timer === 1, 600)
     baseline = { w, spyId: spy.id, targetId: target.id }
+    baselines.set(mode, baseline)
   }
   const { w, spyId, targetId } = structuredClone(baseline),
     spy = w.units.find(unit => unit.id === spyId),
@@ -91,7 +93,7 @@ test('00439f86 only arms phase2; 00439fb5 next visit selects object101 and reset
   assert.equal(p.disguise, 0x40)
 })
 
-test('later phase2 visits and restored current checkpoints never replay entry or reset animation', async () => {
+test('later phase2 visits and classic fixture clone normalization never replay entry or reset animation', async () => {
   for (const pending of [true, false]) {
     const input = await scenario(),
       { w, spy, p, target, api, stepLiveBuildingAttack } = input
@@ -119,6 +121,67 @@ test('later phase2 visits and restored current checkpoints never replay entry or
     }
   }
 })
+
+for (const pending of [true, false])
+  test(`current scalable store Save/Load preserves ${pending ? 'pending entry' : 'entered phase2'} and its continuation`, async () => {
+    const input = await scenario('scalable'),
+      { w, spy, p, api, stepLiveBuildingAttack } = input,
+      { createGameStore } = await import('../app/game-store.ts'),
+      store = createGameStore(),
+      clock = { animationTime: 0, animationFrame: 0 }
+    arm(input)
+    if (!pending) {
+      stepLiveBuildingAttack(w, spy)
+      for (let visit = 0; visit < 6; visit++) api.advanceGame(w, clock, 1 / 24)
+      assert.equal(p.object, 136)
+      assert.equal(p.draw, 22)
+      assert.ok(p.timer > 0 && p.timer < 23)
+      assert.ok(p.f2 > 0, 'save an ordinarily advanced frame, not just frame zero')
+    }
+    assert.deepEqual(w.capacityPolicy, { version: 1, mode: 'scalable' })
+    assert.ok(w.objectCells.heads instanceof Float64Array)
+    assert.equal(!!(p.flags2 & 0x40000000), pending)
+    assert.equal(p.substate, 2)
+    assert.equal(p.disguise, 0x40)
+    if (pending) {
+      assert.notEqual(p.object, 136)
+      assert.equal(p.timer, 0)
+    }
+    const savedPerson = structuredClone(p), savedOrder = structuredClone(input.currentPersonOrder(w.buildingOrders, p))
+    // Use the shipping store's current-schema Save and Load boundaries. Node has
+    // no IndexedDB here: this is a genuine session save, not disk persistence.
+    assert.equal(typeof globalThis.indexedDB, 'undefined')
+    store.change(world => Object.assign(world, w))
+    assert.equal(await store.saveCheckpoint(), false, 'no disk write is claimed')
+    assert.equal(store.hasCheckpoint(), true)
+    store.restart()
+    assert.equal(store.loadCheckpoint(), true)
+    const restored = store.getWorld(), copy = restored.units.find(unit => unit.id === spy.id)
+    assert.notEqual(restored, w)
+    assert.notEqual(copy.native, p)
+    assert.deepEqual(restored.capacityPolicy, w.capacityPolicy)
+    assert.ok(restored.objectCells.heads instanceof Float64Array)
+    assert.equal(restored.objectCells.objects.get(spy.id), copy.native)
+    assert.deepEqual(pose(copy.native), pose(savedPerson))
+    for (const field of ['substate', 'flags2', 'disguise', 'state', 'commands', 'commandCursor', 'immediateCommand', 'motionGroup']) {
+      assert.ok(Object.hasOwn(savedPerson, field), `actual person field: ${field}`)
+      assert.deepEqual(copy.native[field], savedPerson[field], field)
+    }
+    assert.deepEqual(input.currentPersonOrder(restored.buildingOrders, copy.native), savedOrder)
+    const restoredClock = { ...clock }
+    for (let visit = 0; visit < 8; visit++) {
+      api.advanceGame(w, clock, 1 / 24)
+      api.advanceGame(restored, restoredClock, 1 / 24)
+      assert.deepEqual(copy.native, p, `same ordinary animation/controller visit ${visit}`)
+      assert.deepEqual(restored.buildingOrders, w.buildingOrders)
+      assert.equal(restored.randomState, w.randomState)
+      assert.equal(restored.turn, w.turn)
+    }
+    assert.equal(copy.native.object, 136)
+    assert.equal(copy.native.flags2 & 0x40000000, 0)
+    assert.ok(copy.native.timer < (pending ? 24 : savedPerson.timer))
+    assert.ok(copy.native.f2 > (pending ? 0 : savedPerson.f2))
+  })
 
 test('0040a980 faces raw rotated INSIDE coordinates across octants, wrap and reverse-facing', async () => {
   const input = await scenario(),
