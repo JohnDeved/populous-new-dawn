@@ -12,7 +12,7 @@ import { createShieldCheckpoint } from './shield-checkpoint.mjs'
 import { runShieldEpisode } from './shield-budget.mjs'
 import { validateShieldCapture, validateShieldPng } from './shield-evidence.mjs'
 import {
-  readShieldState, shieldCastPoint, shieldTextureReady, captureShieldFrame,
+  readShieldState, shieldCastPoint, shieldTextureReady, captureShieldFrame, pauseVisibleShields,
   watchShieldDisposal, readShieldDisposal, watchShieldLoad, bindShieldHomeStore,
   writeShieldFixture, readCommittedShieldCheckpoint, installShieldExpiryObserver,
 } from './shield-observer.mjs'
@@ -29,6 +29,7 @@ export default async function spellShield({ browser, url, output, source, expect
     limits: ['Supplied stock and controlled allied population, terrain and foreign status, not earned acquisition or ordinary campaign progression.',
       'Native table/rectangle/palette source coverage is separate from browser GPU consistency. This is not pixel-perfect original executable/GPU equivalence.',
       'Foreign remaining status is declared in the offline checkpoint. The browser never rewrites live status, clocks, actors or ownership.',
+      'Pause uses observer-timed DOM activation of the public button; physical-pointer pause timing is not covered.',
       'Near-expiry adapter continuation is covered, not the complete native lifetime or original allocation/index ownership.',
       'Actual current in-session Save/Load is covered, not fresh-process persistence or historical save upgrading.',
       'Old-scene removal and Shield material disposal are covered through public Load. Live per-unit deletion is not manufactured or claimed.',
@@ -113,13 +114,20 @@ export default async function spellShield({ browser, url, output, source, expect
     await action('Public Shield hotkey 0', () => page.keyboard.press('0'))
     assert.equal((await state()).mode, 'shield')
     await button('Resume game')
-    await action('Public left click on canvas-owned Shield target', () => page.mouse.click(point.x, point.y))
-    await step('wait for six ordinary Shield arrivals', () => page.waitForFunction(ids => {
-      const world = window.testStore.getWorld()
-      return world.shots.shield === 0 && ids.every(id => world.units.find(unit => unit.id === id)?.shield > 0)
-    }, fixture.ids.blue, { timeout: Math.min(8000, remaining()) }))
-    await button('Pause game')
-    await page.waitForFunction(() => window.testStore.getWorld().paused)
+    // Arm before the real pointer cast; the one-shot observer activates only the shipped Pause handler.
+    const [pause] = await Promise.all([
+      action('Observer-timed DOM activation of public Pause handler', () =>
+        page.evaluate(pauseVisibleShields, { blueIds: fixture.ids.blue, ownerIds, timeoutMs: Math.min(8000, remaining()) })),
+      action('Public left click on canvas-owned Shield target', () => page.mouse.click(point.x, point.y)),
+    ])
+    const beforePause = checkpointCodec(JSON.parse(pause.before), true)
+    const afterPause = checkpointCodec(JSON.parse(pause.after), true)
+    assert.equal(beforePause.paused, false); assert.equal(afterPause.paused, true)
+    assert.deepEqual({ ...beforePause, paused: true }, afterPause, 'Only public pause changes the complete World')
+    assert.deepEqual(pause.clockBefore, pause.clockAfter)
+    report.visiblePause = { ...pause,
+      beforeSha256: sha(pause.before), afterSha256: sha(pause.after), onlyPausedChanged: true }
+    assert.equal(pause.timestamp, pause.sceneTimestamp)
     report.afterCast = await state()
     assert.equal(report.afterCast.shots, 0)
     assert.ok(report.afterCast.people.every(unit => unit.shield > 0 && unit.flags3 & 0x8000 && !unit.fight))

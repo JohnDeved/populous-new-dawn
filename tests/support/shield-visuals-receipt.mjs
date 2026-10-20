@@ -48,6 +48,7 @@ export function shieldReceiptEvidence({ source, inputs, files, png, units }) {
     const capture={label,samples,worldUnchanged:true,cameraClockUnchanged:true,worldBeforeSha256:'a'.repeat(64),worldAfterSha256:'a'.repeat(64)}
     capture.acceptance=validateShieldCapture(capture,{owners,scaled:index===1,units});return capture
   })
+  const before = JSON.stringify(checkpointCodec({ ...world, paused: false })), after = JSON.stringify(checkpointCodec({ ...world, paused: true }))
   return {schema:'populous-new-dawn/shield-visuals',schemaVersion:1,status:'passed',admission:'admitted',
     source:{commit:source.commit,files:pins},expectedRevision:source.commit,currentCheckpointVersion:4,errors:[],
     budget:{capMs:45000,outerReserveMs:10000,runnerDeadlineAt:180000,remainingAtAdmissionMs:120000,
@@ -58,6 +59,8 @@ export function shieldReceiptEvidence({ source, inputs, files, png, units }) {
     saved:{version:4,worldSha256:hash(JSON.stringify(checkpointCodec(world))),people:structuredClone(people)},
     loaded:{version:4,completeWorldMatched:true,worldSha256:loadedHash},beforeCast,afterCast:{...state(),shots:0},
     pauseBefore:state(),pauseAfter:state(),beforeExpiry:state(),terminal,
+    visiblePause:{timestamp:123,sceneTimestamp:123,before,after,beforeSha256:hash(before),afterSha256:hash(after),
+      clockBefore:{animationFrame:1,animationTime:0},clockAfter:{animationFrame:1,animationTime:0},onlyPausedChanged:true},
     atlas:{sha256:inputs['public/original/shield.png'],bytes:1024},buildIdentity:{revision:source.commit,sha256:buildHash},captures,
     disposal:{materials:27,disposedMaterials:27,disposedAtlas:0,sceneReplaced:true,worldReplaced:true,disposed:true,canvasRemoved:true},
     expiry:{done:true,error:null,samples:[0,180].map(turn=>({turn,stamp:turn+1,

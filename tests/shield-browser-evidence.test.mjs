@@ -139,3 +139,40 @@ test('retained PNG reader proves exact top-left RGBA identity and rejects wrong 
     assert.throws(() => validateShieldPng(bytes.subarray(0, bytes.length - 5), sample))
   }
 })
+
+test('visible-frame public pause waits for arrivals, skips stale Scene frames and preserves observed world', async () => {
+  const { pauseVisibleShields } = await import('../scripts/tutorial-browser/shield-observer.mjs')
+  const keys = ['window', 'document', 'requestAnimationFrame', 'setTimeout']
+  const saved = Object.fromEntries(keys.map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]))
+  const frames = [], deferred = [], world = { paused: false, shots: { shield: 1 }, units: [{ id: 1, shield: 0 }], turn: 155 }
+  const sprite = { visible: false, material: { map: { image: { complete: true, naturalWidth: 512 } } } }
+  const scene = { world, previous: 0, gameClock: { animationFrame: 42, animationTime: 0.01 }, renderer: { info: { render: { frame: 9 } } },
+    unitMeshes: new Map([1, 2, 3, 4].map(id => [id, { visible: true, userData: { shield: [sprite, sprite, sprite] } }])) }
+  let clicks = 0
+  try {
+    globalThis.window = { testSceneRef: { current: scene }, testStore: { getWorld: () => world }, shieldCheckpointCodec: structuredClone }
+    globalThis.document = { querySelector: selector => {
+      assert.equal(selector, 'button[aria-label="Pause game"]')
+      return { isConnected: true, disabled: false, click() { clicks++; world.paused = !world.paused } }
+    } }
+    globalThis.requestAnimationFrame = callback => frames.push(callback)
+    globalThis.setTimeout = callback => deferred.push(callback)
+    const result = pauseVisibleShields({ blueIds: [1], ownerIds: [1, 2, 3, 4], timeoutMs: 8000 })
+    frames.shift()(1)
+    assert.equal(clicks, 0); assert.equal(deferred.length, 1)
+    deferred.shift()(); scene.previous = 2; frames.shift()(2)
+    assert.equal(clicks, 0, 'unarrived cast must not pause')
+    world.shots.shield = 0; world.units[0].shield = 100
+    scene.previous = 3; frames.shift()(3)
+    assert.equal(clicks, 0, 'natural blink-off must keep running')
+    sprite.visible = true; scene.previous = 4; frames.shift()(4)
+    const retained = await result
+    assert.equal(clicks, 1); assert.equal(frames.length, 0); assert.equal(retained.orderingDeferrals, 1)
+    assert.equal(retained.timestamp, retained.sceneTimestamp)
+    assert.deepEqual(retained.clockBefore, retained.clockAfter)
+    assert.deepEqual({ ...JSON.parse(retained.before), paused: true }, JSON.parse(retained.after))
+    assert.equal(world.units[0].shield, 100)
+  } finally {
+    for (const key of keys) saved[key] ? Object.defineProperty(globalThis, key, saved[key]) : delete globalThis[key]
+  }
+})

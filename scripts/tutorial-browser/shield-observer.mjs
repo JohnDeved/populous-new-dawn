@@ -34,6 +34,46 @@ export function shieldTextureReady(ids) {
   })
 }
 
+// Public UI activation at an observed, completed ordinary render. Playwright's
+// cross-process pause can otherwise land in a blink-off interval and freeze it.
+// No gameplay field, status timer, callback or render method is assigned here.
+export function pauseVisibleShields({ blueIds, ownerIds, timeoutMs }) {
+  return new Promise((resolve, reject) => {
+    const started = performance.now()
+    let visits = 0, orderingDeferrals = 0
+    const visit = timestamp => {
+      try {
+        if (performance.now() - started >= timeoutMs) throw Error('Visible Shield pause deadline exceeded')
+        visits++
+        const scene = window.testSceneRef.current, world = window.testStore.getWorld()
+        if (scene.world !== world || world.paused) throw Error('Visible Shield pause requires the running current scene')
+        if (scene.previous !== timestamp) {
+          orderingDeferrals++
+          setTimeout(() => requestAnimationFrame(visit), 0)
+          return
+        }
+        const arrived = world.shots.shield === 0 && blueIds.every(id => world.units.find(u => u.id === id)?.shield > 0)
+        const visible = ownerIds.every(id => {
+          const group = scene.unitMeshes.get(id), sprites = group?.userData.shield
+          return group?.visible && sprites?.length === 3 && sprites.every(sprite => sprite.visible &&
+            sprite.material.map?.image?.complete && sprite.material.map.image.naturalWidth > 0)
+        })
+        if (!arrived || !visible) { requestAnimationFrame(visit); return }
+        const button = document.querySelector('button[aria-label="Pause game"]')
+        if (!button?.isConnected || button.disabled) throw Error('Public Pause game button unavailable')
+        const before = JSON.stringify(window.shieldCheckpointCodec(world)), turn = world.turn
+        const clockBefore = { ...scene.gameClock }
+        button.click()
+        if (!world.paused) throw Error('Public Pause game handler did not pause')
+        const after = JSON.stringify(window.shieldCheckpointCodec(world)), clockAfter = { ...scene.gameClock }
+        resolve({ turn, timestamp, sceneTimestamp: scene.previous, stamp: scene.renderer.info.render.frame,
+          visits, orderingDeferrals, before, after, clockBefore, clockAfter })
+      } catch (error) { reject(error) }
+    }
+    requestAnimationFrame(visit)
+  })
+}
+
 // Read exactly the pixels from the render whose body, UV uniforms and painter
 // commands are retained. The diagnostic second draw removes only this actor's
 // Shield presentation, then restores visibility and redraws in finally.
