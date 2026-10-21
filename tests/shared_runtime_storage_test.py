@@ -214,6 +214,139 @@ class SharedRuntimeTests(unittest.TestCase):
         self.assertEqual(result['status'], 'passed')
         self.assertEqual(result['sourceBefore']['revision'], self.revision)
         self.assertEqual((self.root / 'receipt.json.stdout').read_text(), 'executed\n')
+        self.assertEqual(result['logs']['stdout']['sha256'], storage.digest(b'executed\n'))
+        self.assertEqual(result['logs']['stderr']['sha256'], storage.digest(b''))
+        self.assertEqual(json.loads((self.root / 'receipt.json').read_text()), result)
+
+    def test_command_failure_keeps_trustworthy_receipt_and_logs(self):
+        self.prepare()
+        receipt = self.root / 'failed.json'
+        code = "import sys; print('out'); print('err', file=sys.stderr); sys.exit(7)"
+        result = storage.execute(self.source, self.revision, self.pool, self.runtime, receipt,
+                                 [sys.executable, '-c', code])
+        self.assertEqual(result['status'], 'failed')
+        self.assertEqual(result['exitCode'], 7)
+        self.assertEqual(json.loads(receipt.read_text()), result)
+        for name, data in [('stdout', b'out\n'), ('stderr', b'err\n')]:
+            self.assertEqual(Path(str(receipt) + '.' + name).read_bytes(), data)
+            self.assertEqual(result['logs'][name]['sha256'], storage.digest(data))
+
+    def test_receipt_and_log_replacements_never_overwrite_source_or_finalize(self):
+        self.prepare()
+        source = self.source / 'app/main.js'
+        original_source = source.read_bytes()
+        code = """
+import os, sys
+from pathlib import Path
+target, saved, source = map(Path, sys.argv[1:4])
+print('owned stdout', flush=True)
+print('owned stderr', file=sys.stderr, flush=True)
+target.rename(saved)
+if sys.argv[4] == 'regular':
+    target.write_bytes(b'replacement bytes')
+elif sys.argv[4] == 'symlink':
+    target.symlink_to(source)
+else:
+    os.link(source, target)
+"""
+        for suffix in ('', '.stdout', '.stderr'):
+            for kind in ('regular', 'symlink', 'hardlink'):
+                with self.subTest(output=suffix or 'receipt', kind=kind):
+                    receipt = self.root / f'replaced-{suffix}-{kind}.json'
+                    target = Path(str(receipt) + suffix)
+                    saved = Path(str(target) + '.original')
+                    with self.assertRaisesRegex(ValueError, 'Evidence .* identity/link'):
+                        storage.execute(self.source, self.revision, self.pool, self.runtime, receipt,
+                                        [sys.executable, '-c', code, str(target), str(saved), str(source), kind])
+                    self.assertEqual(source.read_bytes(), original_source)
+                    self.assertEqual((self.runtime / 'app/main.js').read_bytes(), original_source)
+                    expected = b'replacement bytes' if kind == 'regular' else original_source
+                    self.assertEqual(target.read_bytes(), expected)
+                    owned_receipt = saved if not suffix else receipt
+                    self.assertEqual(json.loads(owned_receipt.read_text())['status'], 'unknown')
+                    for name in ('stdout', 'stderr'):
+                        path = saved if suffix == '.' + name else Path(str(receipt) + '.' + name)
+                        self.assertEqual(path.read_bytes(), ('owned ' + name + '\n').encode())
+        self.assertEqual(self.git('status', '--porcelain'), '')
+
+    def test_extra_hardlinks_to_owned_receipt_or_logs_refuse_finalization(self):
+        self.prepare()
+        for suffix in ('', '.stdout', '.stderr'):
+            with self.subTest(output=suffix or 'receipt'):
+                receipt = self.root / f'linked-{suffix}.json'
+                target = Path(str(receipt) + suffix)
+                alias = Path(str(target) + '.alias')
+                code = "import os,sys; print('out'); print('err',file=sys.stderr); os.link(sys.argv[1],sys.argv[2])"
+                with self.assertRaisesRegex(ValueError, 'Evidence .* identity/link'):
+                    storage.execute(self.source, self.revision, self.pool, self.runtime, receipt,
+                                    [sys.executable, '-c', code, str(target), str(alias)])
+                self.assertEqual(alias.read_bytes(), target.read_bytes())
+                self.assertEqual(json.loads(receipt.read_text())['status'], 'unknown')
+                self.assertEqual(Path(str(receipt) + '.stdout').read_bytes(), b'out\n')
+                self.assertEqual(Path(str(receipt) + '.stderr').read_bytes(), b'err\n')
+
+    def test_parent_and_ancestor_substitution_never_finalizes_or_writes_replacement(self):
+        self.prepare()
+        source = self.source / 'app/main.js'
+        original_source = source.read_bytes()
+        code = """
+import os, sys
+from pathlib import Path
+parent, saved, replacement, source = map(Path, sys.argv[1:5])
+print('owned stdout', flush=True)
+print('owned stderr', file=sys.stderr, flush=True)
+parent.rename(saved)
+if sys.argv[5] == 'symlink':
+    replacement.mkdir()
+    parent.symlink_to(replacement, target_is_directory=True)
+else:
+    parent.mkdir()
+leaf_parent = parent / sys.argv[6]
+leaf_parent.mkdir(exist_ok=True)
+for suffix in ('', '.stdout', '.stderr'):
+    os.link(source, leaf_parent / ('receipt.json' + suffix))
+"""
+        for level in ('parent', 'ancestor'):
+            for kind in ('directory', 'symlink'):
+                with self.subTest(level=level, kind=kind):
+                    parent = self.root / f'evidence-{level}-{kind}'
+                    nested = 'nested' if level == 'ancestor' else '.'
+                    (parent / nested).mkdir(parents=True)
+                    receipt = parent / nested / 'receipt.json'
+                    saved = self.root / f'original-{level}-{kind}'
+                    replacement = self.root / f'replacement-{level}-{kind}'
+                    with self.assertRaisesRegex(ValueError, 'Evidence parent'):
+                        storage.execute(self.source, self.revision, self.pool, self.runtime, receipt,
+                                        [sys.executable, '-c', code, str(parent), str(saved), str(replacement),
+                                         str(source), kind, nested])
+                    self.assertEqual(source.read_bytes(), original_source)
+                    self.assertEqual((self.runtime / 'app/main.js').read_bytes(), original_source)
+                    for suffix in ('', '.stdout', '.stderr'):
+                        self.assertEqual(Path(str(receipt) + suffix).read_bytes(), original_source)
+                    self.assertEqual(json.loads((saved / nested / 'receipt.json').read_text())['status'], 'unknown')
+                    self.assertEqual((saved / nested / 'receipt.json.stdout').read_bytes(), b'owned stdout\n')
+                    self.assertEqual((saved / nested / 'receipt.json.stderr').read_bytes(), b'owned stderr\n')
+
+    def test_preexisting_receipt_and_log_paths_never_overwritten(self):
+        self.prepare()
+        for suffix in ('', '.stdout', '.stderr'):
+            for kind in ('regular', 'symlink', 'hardlink'):
+                with self.subTest(output=suffix or 'receipt', kind=kind):
+                    receipt = self.root / f'preexisting-{suffix}-{kind}.json'
+                    target = Path(str(receipt) + suffix)
+                    source = self.source / 'app/main.js'
+                    original_source = source.read_bytes()
+                    if kind == 'regular':
+                        target.write_bytes(b'existing evidence')
+                    elif kind == 'symlink':
+                        target.symlink_to(source)
+                    else:
+                        os.link(source, target)
+                    with self.assertRaises(FileExistsError):
+                        storage.execute(self.source, self.revision, self.pool, self.runtime, receipt,
+                                        [sys.executable, '-c', "raise AssertionError('must not launch')"])
+                    self.assertEqual(source.read_bytes(), original_source)
+                    self.assertEqual(target.read_bytes(), b'existing evidence' if kind == 'regular' else original_source)
 
     def test_pnpm_directory_links_inside_private_virtual_store_supported(self):
         self.prepare()
@@ -260,6 +393,8 @@ class SharedRuntimeTests(unittest.TestCase):
                 root = modules / name
                 root.symlink_to(self.source, target_is_directory=True)
                 with self.assertRaises(ValueError):
+                    self.verify()
+                with self.assertRaises(ValueError):
                     storage.dependency_identity(self.runtime)
                 root.unlink()
             with self.subTest(cache=name, level='nested'):
@@ -267,8 +402,23 @@ class SharedRuntimeTests(unittest.TestCase):
                 nested = root / 'escape'
                 nested.symlink_to(self.source, target_is_directory=True)
                 with self.assertRaises(ValueError):
+                    self.verify()
+                with self.assertRaises(ValueError):
                     storage.dependency_identity(self.runtime)
                 nested.unlink(); root.rmdir()
+
+    def test_dependency_cache_hardlinks_are_refused_by_standalone_verification(self):
+        self.prepare()
+        for name in ('.vite', '.vite-temp', '.cache'):
+            with self.subTest(cache=name):
+                root = self.runtime / 'node_modules' / name
+                root.mkdir(parents=True)
+                os.link(self.source / 'app/main.js', root / 'shared')
+                with self.assertRaisesRegex(ValueError, 'Dependency cache'):
+                    self.verify()
+                with self.assertRaisesRegex(ValueError, 'Dependency cache'):
+                    storage.dependency_identity(self.runtime)
+                (root / 'shared').unlink()
 
     def test_local_output_and_lock_symlinks_refused_without_dependencies(self):
         self.prepare()

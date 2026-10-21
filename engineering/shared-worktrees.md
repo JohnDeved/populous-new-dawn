@@ -55,8 +55,10 @@ Verification derives identity from Git, not the mutable runtime manifest. It che
 all materialized bytes/modes, rejects changed source HEAD, dirty or masked source,
 undeclared runtime inputs, asset extras/missing data, pool/root symlinks, target swaps
 and links escaping the exact declared CAS object. Every permitted mutable cache or
-output must be private and physical. `node_modules` itself must remain a real local
-directory; declared pnpm dependency links may only resolve within that directory.
+output must be private and physical, including `node_modules/.vite`, `.vite-temp`
+and `.cache`. `node_modules` itself must remain a real local directory. Standalone
+`verify`/`revision` checks these mutable caches, not the installed package inventory;
+`run` additionally binds package bytes and restricts dependency links to that directory.
 
 ## Execution and receipts
 
@@ -77,8 +79,16 @@ is `unknown`, not success. One exclusive run lock owns each view's caches. Concu
 views have separate `node_modules/.pnpm`, `.vite-temp`, `work`, `.wrangler`, `dist`,
 profiles and captures. Unknown stale locks are retained, never stolen automatically.
 
-The Vite config's opt-in runtime revision path independently invokes full verification
-before embedding the revision; an environment string alone cannot establish identity.
+The wrapper holds the exclusively created receipt and log files open, pins their
+device/inode and single-link identity, and pins their physical parent directories.
+Hashes and receipt updates use those owned descriptors, never reopened output paths.
+Receipt/log replacement, added hardlinks or parent substitution refuse finalization;
+retained original receipts remain `unknown`, not passed. This is evidence-integrity
+checking, not a sandbox for hostile commands or concurrently running descendants.
+
+The Vite config's opt-in runtime revision path independently invokes source, asset
+and mutable-cache verification before embedding the revision; an environment string
+alone cannot establish identity. Package inventory binding belongs to `run` above.
 Invalid runtime identity aborts the build. Ordinary Git checkout behavior is unchanged.
 
 ## pnpm without a premature repository migration

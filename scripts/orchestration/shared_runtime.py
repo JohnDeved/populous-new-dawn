@@ -5,6 +5,7 @@ Never changes the source checkout, Git's index, existing dependencies or permiss
 The runtime view is not a source checkout or a replacement for canonical CI receipts.
 """
 import argparse
+from contextlib import ExitStack
 import hashlib
 import json
 import os
@@ -303,6 +304,7 @@ def verify(source, revision, pool, runtime):
     for name in MUTABLE_ROOTS:
         if (runtime / name).exists() or (runtime / name).is_symlink():
             physical(runtime / name)
+    check_dependency_caches(runtime / 'node_modules')
     for name in MUTABLE_ROOTS - {'node_modules'}:
         root = runtime / name
         if root.exists():
@@ -328,11 +330,8 @@ def verify(source, revision, pool, runtime):
             'sourceSparseOmittedFiles': state['sparseOmittedFiles'], 'budget': manifest['budget']}
 
 
-def dependency_identity(runtime):
-    """Bind npm or pnpm files and links without reusing npm-only receipt semantics."""
-    runtime = Path(runtime)
-    modules = runtime / 'node_modules'
-    entries = []
+def check_dependency_caches(modules):
+    """Mutable package caches must also be safe for standalone verify/revision."""
     if modules.exists() or modules.is_symlink():
         physical(modules)
         for cache in ('.vite', '.vite-temp', '.cache'):
@@ -344,6 +343,14 @@ def dependency_identity(runtime):
                     require(not stat.S_ISLNK(info.st_mode) and
                             (stat.S_ISDIR(info.st_mode) or (stat.S_ISREG(info.st_mode) and info.st_nlink == 1)),
                             f'Dependency cache must be private/physical: {path}')
+
+
+def dependency_identity(runtime):
+    """Bind npm or pnpm files and links without reusing npm-only receipt semantics."""
+    runtime = Path(runtime)
+    modules = runtime / 'node_modules'
+    entries = []
+    check_dependency_caches(modules)
     cache_prefixes = ('.vite/', '.vite-temp/', '.cache/')
     for rel, path in sorted(file_inventory(modules).items()):
         if rel in ('.vite', '.vite-temp', '.cache') or rel.startswith(cache_prefixes):
@@ -395,42 +402,115 @@ def toolchain_identity(command):
     return result
 
 
+class OwnedEvidence:
+    """Keep new outputs open; never reopen a child-controlled path for writing/hash."""
+    def __init__(self, receipt):
+        self.receipt = Path(os.path.abspath(receipt))
+        self.stack = ExitStack()
+        self.parents = []
+        self.files = {}
+
+    @staticmethod
+    def identity(info):
+        return info.st_dev, info.st_ino
+
+    def __enter__(self):
+        try:
+            # Open every ancestor relative to its pinned parent, without following links.
+            flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+            parent = os.open(self.receipt.anchor, flags)
+            self.stack.callback(os.close, parent)
+            for name in self.receipt.parent.parts[1:]:
+                child = os.open(name, flags, dir_fd=parent)
+                self.stack.callback(os.close, child)
+                self.parents.append((parent, name, child, self.identity(os.fstat(child))))
+                parent = child
+            self.directory = parent
+            for name, suffix in (('receipt', ''), ('stdout', '.stdout'), ('stderr', '.stderr')):
+                leaf = self.receipt.name + suffix
+                fd = os.open(leaf, os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                             0o666, dir_fd=self.directory)
+                stream = self.stack.enter_context(os.fdopen(fd, 'w+b'))
+                self.files[name] = (leaf, stream, self.identity(os.fstat(fd)))
+            self.validate()
+            return self
+        except BaseException:
+            self.stack.close()
+            raise
+
+    def __exit__(self, *args):
+        return self.stack.__exit__(*args)
+
+    def validate(self):
+        for parent, name, child, identity in self.parents:
+            current = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            require(stat.S_ISDIR(current.st_mode) and self.identity(current) == identity and
+                    self.identity(os.fstat(child)) == identity, 'Evidence parent changed during execution')
+        for name, (leaf, stream, identity) in self.files.items():
+            held = os.fstat(stream.fileno())
+            current = os.stat(leaf, dir_fd=self.directory, follow_symlinks=False)
+            require(stat.S_ISREG(held.st_mode) and stat.S_ISREG(current.st_mode) and
+                    held.st_nlink == current.st_nlink == 1 and
+                    self.identity(held) == self.identity(current) == identity,
+                    f'Evidence {name} identity/link changed during execution')
+
+    def stream(self, name):
+        return self.files[name][1]
+
+    def write_receipt(self, payload):
+        self.validate()
+        stream = self.stream('receipt')
+        stream.seek(0)
+        stream.write(encoded(payload))
+        stream.truncate()
+        stream.flush()
+        self.validate()
+
+    def logs(self):
+        self.validate()
+        result = {}
+        for name in ('stdout', 'stderr'):
+            leaf, stream, _ = self.files[name]
+            stream.seek(0)
+            h = hashlib.sha256()
+            for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                h.update(chunk)
+            result[name] = {'path': str(self.receipt.parent / leaf), 'sha256': h.hexdigest()}
+        self.validate()
+        return result
+
+
 def execute_locked(source, revision, pool, runtime, receipt, command):
     require(command, 'A command is required')
     before = verify(source, revision, pool, runtime)
     dependencies = dependency_identity(runtime)
-    receipt = Path(receipt)
-    for path in [receipt, Path(str(receipt) + '.stdout'), Path(str(receipt) + '.stderr')]:
-        require(not path.exists() and not path.is_symlink(), 'Receipt and raw-log paths must be new')
-    physical(receipt.parent)
     payload = {'version': 1, 'kind': 'shared-runtime-command', 'status': 'unknown',
                'sourceBefore': before, 'dependenciesBefore': dependencies, 'command': command,
                'startedAt': time.time(), 'toolchain': toolchain_identity(command),
                'resourceEnvironment': {k: os.environ.get(k) for k in ('NODE_OPTIONS', 'PND_TEST_CONCURRENCY',
                  'ROLLDOWN_WORKER_THREADS', 'RAYON_NUM_THREADS', 'ROLLDOWN_MAX_BLOCKING_THREADS')}}
-    with receipt.open('xb') as out:
-        out.write(encoded(payload))
     env = dict(os.environ)
     # Only the verifier-owned wrapper grants this configuration path. revision command
     # independently rechecks Git, every runtime source and all external asset bytes.
     env.update({'PND_RUNTIME_SOURCE': before['source'], 'PND_RUNTIME_REVISION': revision,
                 'PND_RUNTIME_POOL': before['pool'], 'PND_RUNTIME_ROOT': before['runtime']})
-    with Path(str(receipt) + '.stdout').open('xb') as stdout, Path(str(receipt) + '.stderr').open('xb') as stderr:
-        result = subprocess.run(command, cwd=before['runtime'], env=env, stdout=stdout, stderr=stderr)
-    payload.update({'exitCode': result.returncode, 'finishedAt': time.time()})
-    try:
-        payload['sourceAfter'] = verify(source, revision, pool, runtime)
-        payload['dependenciesAfter'] = dependency_identity(runtime)
-        require(payload['sourceAfter'] == before and payload['dependenciesAfter'] == dependencies,
-                'Source/assets/dependencies changed during command')
-        payload['status'] = 'passed' if result.returncode == 0 else 'failed'
-    except (ValueError, OSError, subprocess.CalledProcessError) as error:
-        payload.update({'status': 'invalidated', 'error': str(error)})
-    payload['logs'] = {name: {'path': str(Path(str(receipt) + '.' + name).absolute()),
-                             'sha256': hash_file(Path(str(receipt) + '.' + name))}
-                       for name in ('stdout', 'stderr')}
-    require(receipt.is_file() and not receipt.is_symlink(), 'Receipt target changed during execution')
-    receipt.write_bytes(encoded(payload))
+    with OwnedEvidence(receipt) as evidence:
+        evidence.write_receipt(payload)
+        result = subprocess.run(command, cwd=before['runtime'], env=env,
+                                stdout=evidence.stream('stdout'), stderr=evidence.stream('stderr'))
+        # Tampered output paths cannot receive a terminal receipt, even on exit zero.
+        evidence.validate()
+        payload.update({'exitCode': result.returncode, 'finishedAt': time.time()})
+        try:
+            payload['sourceAfter'] = verify(source, revision, pool, runtime)
+            payload['dependenciesAfter'] = dependency_identity(runtime)
+            require(payload['sourceAfter'] == before and payload['dependenciesAfter'] == dependencies,
+                    'Source/assets/dependencies changed during command')
+            payload['status'] = 'passed' if result.returncode == 0 else 'failed'
+        except (ValueError, OSError, subprocess.CalledProcessError) as error:
+            payload.update({'status': 'invalidated', 'error': str(error)})
+        payload['logs'] = evidence.logs()
+        evidence.write_receipt(payload)
     return payload
 
 
