@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
-import { bindGame, openGame } from './browser-game.mjs'
+import { bindGame, openCampaignGame } from './browser-game.mjs'
 
 const report = {
   stages: [],
@@ -388,7 +388,7 @@ async function observe(hutId, phase) {
   )
 }
 try {
-  ;({ page, errors } = await openGame(browser, 1))
+  ;({ page, errors } = await openCampaignGame(browser, 1))
   await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
   await page.waitForFunction(() => !window.testScene.cameraMotion.active)
   await pause()

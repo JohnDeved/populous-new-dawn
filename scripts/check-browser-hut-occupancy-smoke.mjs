@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
-import { bindGame, openGame } from './browser-game.mjs'
+import { bindGame, openCampaignGame } from './browser-game.mjs'
 import effects from '../app/original-effects.json' with { type: 'json' }
 import rules from '../app/original-rules.json' with { type: 'json' }
 
@@ -898,7 +898,7 @@ const browser = await chromium.launch({ headless: !process.argv.includes('--head
 let page, errors
 try {
   stage('construction')
-  ;({ page, errors } = await openGame(browser, 1))
+  ;({ page, errors } = await openCampaignGame(browser, 1))
   page.setDefaultTimeout(30_000)
   report.environment = await page.evaluate(() => {
     const gl = window.testScene.renderer.getContext(),
