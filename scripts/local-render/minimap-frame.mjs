@@ -1,3 +1,4 @@
+import { chooseHudSize } from '../browser-native-options.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 // Actual shipped frame pixels and lifecycle; existing map regression assertions run unchanged.
@@ -85,9 +86,9 @@ export default async function minimapFrameScenario({ browser, page, context, roo
   await menu.waitFor({ state: 'visible' })
   await menu.getByRole('button', { name: 'Options', exact: true }).click()
   await menu.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
-  await menu.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('1')
+  await chooseHudSize(menu, '1')
   frames.push(await capture(page, output, 'preference-1'))
-  await menu.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('2')
+  await chooseHudSize(menu, '2')
   frames.push(await capture(page, output, 'preference-2'))
   await menu.getByRole('button', { name: 'Back to Options', exact: true }).click()
   await menu.getByRole('button', { name: 'Back', exact: true }).click()

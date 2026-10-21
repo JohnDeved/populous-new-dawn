@@ -63,7 +63,7 @@ export default async function({page,output,root}) {
  passed('pointer-keyboard-close-preserves-running-and-already-paused')
  await page.locator('.world-viewport').press('Space');await button('Menu').click()
  await button('Options').click();await button('Browser compatibility and help').click();await page.getByRole('region',{name:'Browser compatibility and help'}).waitFor()
- assert.equal(await page.getByRole('combobox',{name:'HUD size'}).isVisible(),true)
+ assert.equal(await page.getByRole('button', { name: /^HUD size : </ }).isVisible(),true)
  await button('Select Level').click();await button('Back').click();assert.equal(await paused(),true)
  await button('Back').click();assert.equal(await paused(),false)
  passed('secondary-help-options-and-selector-return-preserve-original-pause')

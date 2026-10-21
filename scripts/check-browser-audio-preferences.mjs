@@ -198,7 +198,7 @@ try {
   await page.getByRole('button', { name: 'Game', exact: true }).click()
   await page.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
   await page.locator('.audio-settings button').click()
-  await expect(page.locator('.audio-settings button')).toHaveText('♪ Sound on', { timeout: 90000 })
+  await expect(page.locator('.audio-settings button')).toHaveAccessibleName('♪ Sound on', { timeout: 90000 })
   await page.getByRole('button', { name: 'Back to Options', exact: true }).click()
   await page.getByRole('button', { name: 'Sound', exact: true }).click()
   const enabled = await assertValues(page, 0.2, 0.4, 'real-audio-gains')

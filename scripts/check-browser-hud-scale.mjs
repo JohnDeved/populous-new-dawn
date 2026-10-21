@@ -1,3 +1,4 @@
+import { chooseHudSize } from './browser-native-options.mjs'
 // Modern sizing deliberately replaces native X/Y stretching. Original artwork
 // coordinates, live controls and renderer/minimap hit regions must still agree.
 import assert from 'node:assert/strict'
@@ -56,12 +57,11 @@ try {
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   await page.getByRole('button', { name: 'Options', exact: true }).click()
   await page.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
-  const size = page.getByLabel('HUD size', { exact: true })
-  await size.selectOption('4')
+  await chooseHudSize(page, '4')
   await check(3440, 1440, 3) // User size is bounded to fit all original controls.
   await check(3840, 2160, 4)
   assert.equal(await page.evaluate(() => localStorage.getItem('hud-size')), '4')
-  await size.selectOption('1.5')
+  await chooseHudSize(page, '1.5')
   await check(3840, 2160, 1.5)
   await page.reload({ waitUntil: 'networkidle' })
   await page.waitForFunction(() => document.querySelector('.native-hud').getBoundingClientRect().width === 150)
@@ -70,7 +70,7 @@ try {
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   await page.getByRole('button', { name: 'Options', exact: true }).click()
   await page.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
-  await size.selectOption('auto')
+  await chooseHudSize(page, 'auto')
   await page.waitForFunction(() => document.querySelector('.native-hud').getBoundingClientRect().width === 250)
   assert.deepEqual(errors, [])
   console.log('PASS: uniform original HUD geometry at ten desktop/window sizes, full-height panel, live renderer resize, reachable settings, saved size and disabled-storage fallback')

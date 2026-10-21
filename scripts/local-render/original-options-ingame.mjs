@@ -35,7 +35,7 @@ export default async function({page,output,root,receipt}) {
  passed('shared-volumes-world-camera-frozen-and-audio-context-suspended')
  assert.equal(await page.evaluate(()=>window.optionsAudio.context.state),'suspended')
  await page.screenshot({path:resolve(output,'ingame-sound-1280x960.png')})
- await category('Game');await button('Browser compatibility and help').click();assert.equal(await page.getByRole('combobox',{name:'HUD size'}).isVisible(),true)
+ await category('Game');await button('Browser compatibility and help').click();assert.equal(await page.getByRole('button', { name: /^HUD size : </ }).isVisible(),true)
  for(const label of ['Zoom in','Zoom out','Focus settlement']) assert.equal(await button(label).count(),0)
  assert.equal(await options.locator('.menu-objectives,.help-grid,.help-tip,.reference-details').count(),0)
  assert.deepEqual(await frozen(),before)

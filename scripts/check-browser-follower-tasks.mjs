@@ -1,3 +1,4 @@
+import { changeHudSize } from './browser-native-options.mjs'
 import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
@@ -272,9 +273,7 @@ export default async function followerTasks({ browser, page, url, output, openMi
   for (const viewport of [{width:1280,height:720},{width:1920,height:1080},{width:3440,height:1440}]) {
     await page.setViewportSize(viewport)
     for (const size of ['auto','1','2','4']) {
-      await page.getByRole('button',{name:'Menu',exact:true}).click()
-      await page.getByRole('combobox',{name:'HUD size',exact:true}).selectOption(size)
-      await page.getByRole('button',{name:'Close menu',exact:true}).click()
+      await changeHudSize(page, size)
       const rects=await page.locator('.follower-tasks button').evaluateAll(buttons=>buttons.map(b=>{const r=b.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}}))
       for(const r of rects){assert.ok(r.x>=0&&r.y>=0&&r.x+r.w<=viewport.width&&r.y+r.h<=viewport.height);assert.ok(Math.abs(r.w/r.h-15/34)<0.001)}
       assert.equal(rects.length,24);layouts.push({viewport,size,first:rects[0],last:rects.at(-1)})

@@ -1377,77 +1377,36 @@ export default function Home() {
               onMusicVolume={nextVolume =>
                 changeAudioPreferences({ ...audioPreferences, musicVolume: nextVolume })
               }
-              compatibility={
-                <>
-                  <div className="menu-actions">
-                    <button
-                      className="secondary-button"
-                      onClick={() => {
-                        setMenu(false)
-                        openSelector()
-                      }}
-                    >
-                      Select Level
-                    </button>
-                  </div>
-                  <div className="menu-utilities">
-                    <button
-                      onClick={() => {
-                        store.change(w => {
-                          w.speed = w.speed === 1 ? 2 : 1
-                        })
-                      }}
-                    >
-                      {world.speed}× game speed
-                    </button>
-                  </div>
-                  <button
-                    className="secondary-button"
-                    aria-pressed={!!engine.current?.fpsGraph}
-                    onClick={() => {
-                      engine.current?.togglePerformance()
-                      update()
-                    }}
-                  >
-                    Toggle performance overlay · F8
-                  </button>
-                  <label className="hud-settings">
-                    HUD size
-                    <select
-                      aria-label="HUD size"
-                      value={hudSize}
-                      onChange={e => {
-                        setHudSize(e.target.value)
-                        try {
-                          localStorage.setItem('hud-size', e.target.value)
-                        } catch {
-                          // Keep the session preference when storage is unavailable.
-                        }
-                      }}
-                    >
-                      <option value="auto">Automatic</option>
-                      {[1, 1.5, 2, 2.5, 3, 4].map(size => (
-                        <option key={size} value={size}>
-                          {size * 100}%
-                        </option>
-                      ))}
-                    </select>
-                    <span>Fits your window without stretching.</span>
-                  </label>
-                  <div className="audio-settings">
-                    <button
-                      className="secondary-button"
-                      onClick={toggleSound}
-                      disabled={soundPending}
-                      aria-busy={soundPending}
-                    >
-                      {sound ? '♪ Sound on' : '♫ Enable sound'}
-                    </button>
-                  </div>
-                  {audioStorageNotice && <p role="status">{audioStorageNotice}</p>}
-                  {audioStartNotice && <p role="status">{audioStartNotice}</p>}
-                </>
-              }
+              compatibility={{
+                onSelectLevel: () => {
+                  setMenu(false)
+                  openSelector()
+                },
+                speed: world.speed,
+                onSpeed: () => {
+                  store.change(w => {
+                    w.speed = w.speed === 1 ? 2 : 1
+                  })
+                },
+                performance: !!engine.current?.fpsGraph,
+                onPerformance: () => {
+                  engine.current?.togglePerformance()
+                  update()
+                },
+                hudSize,
+                onHudSize: value => {
+                  setHudSize(value)
+                  try {
+                    localStorage.setItem('hud-size', value)
+                  } catch {
+                    // Keep the session preference when storage is unavailable.
+                  }
+                },
+                sound,
+                soundPending,
+                onSound: toggleSound,
+                audioStartNotice,
+              }}
             />
           )}
         />
