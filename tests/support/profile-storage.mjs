@@ -112,7 +112,7 @@ export async function withStorage(initial, run, { failFirstRestore = false } = {
     return createGameStore()
   }
   try {
-    await run({
+    return await run({
       freshStore,
       records,
       writes,
