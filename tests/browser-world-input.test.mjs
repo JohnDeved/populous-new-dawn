@@ -6,7 +6,7 @@ import { campaignPopupState, prepareWorldInput, pressWorldSpace, setCampaignPopu
 import { skipIntroductionWithSpace } from '../scripts/browser-introduction.mjs'
 import { skipPauseIntroduction } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
 
-function fixture({ intro = false, onFocus, swallow = false } = {}) {
+function fixture({ intro = false, onFocus, onClose, swallow = false } = {}) {
   const messages = { slots: [{ serial: 7, flags: 0, stringId: 641 }], queue: [{ serial: 8, flags: 2 }] }
   const world = { paused: false, inputMask: intro ? 64 : 0, flyby: { flags: intro ? 21 : 0 }, levelStart: [{ phase: 4 }], messages }
   const details = new Map([['7', true]]), calls = []
@@ -40,6 +40,7 @@ function fixture({ intro = false, onFocus, swallow = false } = {}) {
         locator(child) {
           if (child === 'summary') return { click: async () => {
             calls.push(`summary:${serial}`); details.set(serial, !details.get(serial)); focus = 'summary'
+            if (!details.get(serial)) onClose?.({ details, serial })
           } }
           assert.equal(child, '[data-native-campaign-panel]')
           return { waitFor: async ({ state }) => {
@@ -76,6 +77,24 @@ test('a popup auto-opened during focus is reobserved and collapsed before input'
   assert.equal(f.calls.filter(call => call === 'Space').length, 1)
   assert.equal(f.world.paused, true)
   assert.ok(f.calls.lastIndexOf('focus-world') > f.calls.indexOf('summary:8'))
+})
+
+test('a different notification auto-opened during the public close is collapsed, not rejected globally', async () => {
+  const f = fixture({ onClose({ details, serial }) { if (serial === '7') details.set('8', true) } })
+  assert.deepEqual(await pressWorldSpace(f.page), [{ serial: '7' }, { serial: '8' }])
+  assert.equal(f.world.paused, true)
+  assert.equal(f.calls.filter(call => call === 'Space').length, 1)
+  assert.ok(f.calls.indexOf('summary:8') > f.calls.indexOf('summary:7'))
+})
+
+test('repeated close-time auto-open cannot reset the original preparation deadline', async t => {
+  let now = 0
+  t.mock.method(performance, 'now', () => now)
+  const f = fixture({ onClose({ details, serial }) { now += 100; details.set(String(Number(serial) + 1), true) } })
+  await assert.rejects(pressWorldSpace(f.page, { timeout: 500 }), /timed out/)
+  assert.equal(now, 500)
+  assert.equal(f.calls.includes('Space'), false)
+  assert.equal(f.world.paused, false)
 })
 
 test('already closed notifications still require viewport focus, without a summary click', async () => {

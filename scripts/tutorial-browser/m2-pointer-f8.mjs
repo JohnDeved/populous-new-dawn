@@ -1,5 +1,4 @@
-import { prepareWorldInput, pressWorldSpace, setCampaignPopupOpen as setM2CampaignPopupOpen } from '../browser-world-input.mjs'
-export { setM2CampaignPopupOpen }
+import { prepareWorldInput, pressWorldSpace, setCampaignPopupOpen } from '../browser-world-input.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
@@ -8,6 +7,11 @@ import { bindGame } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { checkFrameExport, m2NativePointerTarget } from './frame-export.mjs'
 import { checkpointCodec } from './checkpoint-codec.mjs'
+
+export async function setM2CampaignPopupOpen(page, serial, open) {
+  await setCampaignPopupOpen(page, serial, open)
+  assert.equal(await page.locator('.campaign-messages details[open]').count(), open ? 1 : 0)
+}
 
 export const m2FunctionalLimitMs = 45000
 export function assertM2Input(before, after) {

@@ -37,8 +37,8 @@ export async function setCampaignPopupOpen(page, serial, open, { timeout = 2500 
     remaining()
     assert.equal(await detail.getAttribute('open') !== null, open)
     remaining()
-    assert.equal(await page.locator('.campaign-messages details[open]').count(), open ? 1 : 0)
-    remaining()
+    // Another authored notification may open during this close. Its ownership
+    // is reobserved by prepareWorldInput, not mistaken for failure of this serial.
   })
 }
 
