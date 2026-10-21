@@ -48,9 +48,11 @@ export async function skipPauseIntroduction(page, {
   const separateSetup = setupTimeout !== undefined
   if (separateSetup && (!Number.isFinite(setupTimeout) || setupTimeout <= 0 || !Number.isFinite(deadlineAt)))
     throw new RangeError('Public recovery setup requires its existing UI allowance and outer deadline')
+  if (separateSetup && timeout > 2500) throw new RangeError('Recovery response cap cannot exceed 2500ms')
   const started = performance.now(),
     actionMs = separateSetup ? Math.min(setupTimeout, deadlineAt - Date.now()) : timeout,
     actionDeadline = started + actionMs
+  const cancellation = new AbortController(), actionSignal = cancellation.signal
   let responseDeadline = separateSetup ? null : actionDeadline
   Object.assign(trace, { phase: 'start', preparation: {}, completed: [],
     contract: separateSetup ? 'public-setup-then-response-v1' : 'shared-input-v1',
@@ -59,13 +61,17 @@ export async function skipPauseIntroduction(page, {
   let closed = false, timer, deliveryError, rejectExpiry
   const remaining = () => {
     signal?.throwIfAborted()
+    actionSignal.throwIfAborted()
     const budget = (responseDeadline ?? actionDeadline) - performance.now()
-    if (closed || budget <= 0) throw deliveryError ?? timedOut()
+    if (closed || budget <= 0) {
+      const error = deliveryError ?? timedOut(); cancellation.abort(error); throw error
+    }
     return budget
   }
   const expiry = new Promise((_, reject) => { rejectExpiry = reject })
-  const expire = () => { closed = true; rejectExpiry(deliveryError ?? timedOut()) }
-  const aborted = () => { closed = true; rejectExpiry(signal.reason ?? new Error('Recovery input aborted')) }
+  const cancel = error => { closed = true; cancellation.abort(error); rejectExpiry(error) }
+  const expire = () => cancel(deliveryError ?? timedOut())
+  const aborted = () => cancel(signal.reason ?? new Error('Recovery input aborted'))
   const arm = () => {
     clearTimeout(timer)
     timer = setTimeout(expire, Math.max(0, (responseDeadline ?? actionDeadline) - performance.now()))
@@ -78,7 +84,7 @@ export async function skipPauseIntroduction(page, {
     finally { trace.completed.push({ phase: name, startedMs, finishedMs: performance.now() - started }) }
   }
   const prepare = () => phase('prepare-world-input', () =>
-    prepareWorldInput(page, { timeout: remaining(), trace: trace.preparation, signal }))
+    prepareWorldInput(page, { timeout: remaining(), trace: trace.preparation, signal: actionSignal }))
   const run = async () => {
     if (separateSetup) {
       await prepare()
@@ -103,7 +109,7 @@ export async function skipPauseIntroduction(page, {
       if (before.action !== 'skip') throw new Error('Recovery introduction is no longer interruptible')
       let delivery
       await phase('observed-space-dispatch', async () => {
-        try { delivery = await pressObservedSpace(page, { timeout: remaining(), signal }) }
+        try { delivery = await pressObservedSpace(page, { timeout: remaining(), signal: actionSignal }) }
         catch (error) { deliveryError = error }
       })
       remaining()
@@ -127,6 +133,7 @@ export async function skipPauseIntroduction(page, {
     closed = true
     clearTimeout(timer)
     signal?.removeEventListener('abort', aborted)
+    if (!actionSignal.aborted) cancellation.abort(new Error('Recovery input action settled'))
     trace.elapsedMs = performance.now() - started
   }
 }

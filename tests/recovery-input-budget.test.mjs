@@ -175,3 +175,36 @@ test('only explicit hosted setup callers receive original UI allowances and the 
   assert.match(late, /timeout: Math.min\(2500, remainingMs\)/)
   assert.doesNotMatch(late, /setupTimeout/)
 })
+
+test('opted-in response cannot exceed2500ms while the unconverted API remains configurable', async t => {
+  const f = fixture(t)
+  await assert.rejects(skipPauseIntroduction(f.page, migrated({}, { timeout: 2501 })), /cannot exceed 2500ms/)
+  assert.equal(f.presses, 0)
+  await skipPauseIntroduction(f.page, { timeout: 3000 })
+  assert.equal(f.presses, 1)
+})
+
+test('local response expiry aborts a pending witness before its independent timer fires', async t => {
+  const f = fixture(t), timers = new Map()
+  let serial = 0, release, pendingWitness = false
+  t.mock.method(globalThis, 'setTimeout', (callback, delay) => {
+    const id = ++serial; timers.set(id, { callback, delay }); return id
+  })
+  t.mock.method(globalThis, 'clearTimeout', id => timers.delete(id))
+  const pending = new Promise(resolve => { release = resolve }), evaluate = f.page.evaluate
+  f.page.evaluate = async fn => {
+    if (fn === beginSpaceOwnership) { pendingWitness = true; return pending }
+    return evaluate(fn)
+  }
+  const run = skipPauseIntroduction(f.page, migrated({}))
+  for (let i = 0; i < 80 && !pendingWitness; i++) await Promise.resolve()
+  assert.equal(pendingWitness, true)
+  const responseTimers = [...timers.values()].filter(timer => timer.delay === 20)
+  assert.equal(responseTimers.length, 2, 'Parent response and child ownership timers are separately scheduled')
+  responseTimers[0].callback() // Parent expires; deliberately do not fire the child's timer.
+  await assert.rejects(run, /Recovery introduction input timed out/)
+  release()
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(f.presses, 0, 'A late-installed witness must not release trusted Space')
+  assert.ok(f.calls.includes('cleanup-witness'), 'The passive witness is still cleaned')
+})
