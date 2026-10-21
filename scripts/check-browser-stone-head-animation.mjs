@@ -37,7 +37,7 @@ try {
   await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 1', exact: true }).press('Enter')
   await bindGame(page)
-  await skipIntroductionWithSpace(page)
+  await skipIntroductionWithSpace(page, { timeout: 20000 })
   await bindGame(page)
   await page.waitForFunction(() => !window.testScene.world.inputMask)
   await page.evaluate(async () => {

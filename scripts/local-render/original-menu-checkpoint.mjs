@@ -17,7 +17,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await openCampaignFromMainMenu(page)
  await button('Start Mission 1').click();await bindGame(page)
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
- await skipIntroductionWithSpace(page)
+ await skipIntroductionWithSpace(page, { timeout: 45000 })
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  const snapshot=()=>page.evaluate(()=>{
   const w=window.testStore.getWorld()

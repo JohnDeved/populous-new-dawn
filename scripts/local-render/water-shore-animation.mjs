@@ -67,7 +67,7 @@ export default async function waterShoreAnimation({ page, openMission, output, s
     const restartMenu = await settings()
     await restartMenu.getByRole('button', { name: 'Restart world', exact: true }).click()
     await bindGame(page)
-    await skipIntroductionWithSpace(page)
+    await skipIntroductionWithSpace(page, { timeout: 15000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await sequence(`m${mission}-restarted`)
   }

@@ -40,8 +40,7 @@ try {
     await button.waitFor({ state: 'attached' })
     await button.click()
     await bindGame(page)
-    await skipIntroductionWithSpace(page)
-    await bindGame(page)
+    if (await skipIntroductionWithSpace(page, { timeout: 20000 }) === 'skip') await bindGame(page)
     await page.waitForFunction(() => window.testScene.terrainTextures && window.testScene.ground)
     await page.evaluate(async () => {
       const { browserPosition } = await import('/app/world-coordinates.ts')

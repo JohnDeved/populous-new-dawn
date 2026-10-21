@@ -43,7 +43,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
     await startup.dispose()
     assert.equal(report.startup.level, 2)
     if (report.startup.action === 'skip')
-      await skipIntroductionWithSpace(page)
+      await skipIntroductionWithSpace(page, { timeout: 25000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask && !window.testStore.getWorld().paused)
     await page.mouse.move(900, 400)
     report.warmupBefore = await observe()

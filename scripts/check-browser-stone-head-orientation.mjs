@@ -55,7 +55,7 @@ async function run() {
       await showAllMissions(page)
       await page.getByRole('button',{name:`Mission ${item.mission}`,exact:true}).press('Enter')
       await bindGame(page)
-      await skipIntroductionWithSpace(page)
+      await skipIntroductionWithSpace(page, { timeout: 15000 })
       await page.waitForFunction(()=>!window.testScene.world.inputMask)
       await page.evaluate(async item=>{
         const {advanceGame}=await import('/app/game-clock.ts'),{stoneHeadFrame}=await import('/app/stone-head-animation.ts')

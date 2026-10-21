@@ -1,3 +1,4 @@
+import { pressIntroductionSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -33,7 +34,7 @@ export async function waitForConversionIntroduction(page, report) {
   })
   report.startup.beforeSkip = await page.evaluate(readConversionStartup)
   report.phase = 'skip-introduction'
-  await page.keyboard.press('Space')
+  await pressIntroductionSpace(page, { timeout: 12000 })
   report.phase = 'wait-input-ready'
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
   report.startup.afterSkip = await page.evaluate(readConversionStartup)

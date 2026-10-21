@@ -254,7 +254,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     await startup.dispose()
     assert.equal(report.startup.level, 2)
     if (report.startup.action === 'skip')
-      await skipIntroductionWithSpace(page)
+      await skipIntroductionWithSpace(page, { timeout: 10000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     stage('introduction-ready')
     // Compact viewports no longer add a browser-authored blocking advisory.

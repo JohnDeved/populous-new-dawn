@@ -291,7 +291,7 @@ export default async function followerTasks({ browser, page, url, output, openMi
   await dprPage.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
   await bindGame(dprPage)
   await dprPage.waitForFunction(() => window.testSceneRef.current && (window.testSceneRef.current.world.flyby.flags & 1 || !window.testSceneRef.current.world.inputMask))
-  await skipIntroductionWithSpace(dprPage)
+  await skipIntroductionWithSpace(dprPage, { timeout: 45000 })
   await dprPage.waitForFunction(() => !window.testSceneRef.current.world.inputMask)
   await freeze(dprPage)
   await dprPage.getByTitle('followers', { exact: true }).click()

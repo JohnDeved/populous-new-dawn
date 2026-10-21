@@ -17,7 +17,7 @@ export default async function({page,root,output}) {
  await bindGame(page)
  if(mode!=='tutorial'){
   await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
-  await skipIntroductionWithSpace(page)
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  }
  if(mode==='tutorial'){

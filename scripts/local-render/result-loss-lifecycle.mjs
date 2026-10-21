@@ -16,7 +16,7 @@ export default async function ({ page, output }) {
   await openCampaignFromMainMenu(page)
   await button('Start Mission 1').click()
   await bindGame(page)
-  await skipIntroductionWithSpace(page)
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
   await button('Pause game').click()
   assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true)
@@ -54,7 +54,7 @@ export default async function ({ page, output }) {
   await page.waitForFunction(() => window.testStore.getWorld() !== window.resultLossFixture.world)
   await bindGame(page)
   await result.waitFor({ state: 'detached' })
-  await skipIntroductionWithSpace(page)
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
   const restarted = await page.evaluate(() => {
     const fixture = window.resultLossFixture, world = window.testStore.getWorld(), scene = window.testSceneRef.current

@@ -37,7 +37,7 @@ try {
   await page
     .getByText('The Chumara will use the spell of Invisibility to attack us.', { exact: false })
     .waitFor()
-  await skipIntroductionWithSpace(page)
+  await skipIntroductionWithSpace(page, { timeout: 10000 })
   await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
   await page.getByRole('button', { name: 'Convert Wild, 1 shots' }).click()
   const convertPoint = await page.evaluate(() => {

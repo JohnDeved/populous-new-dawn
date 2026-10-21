@@ -111,7 +111,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
       return (world.inputMask & 64) && (world.flyby.flags & 0x51) === 0x11 ? 'skip' : false
     })
     if ((await startup.jsonValue()) === 'skip')
-      await skipIntroductionWithSpace(page)
+      await skipIntroductionWithSpace(page, { timeout: 10000 })
     await page.waitForFunction(() => {
       const world = window.testStore.getWorld()
       return (

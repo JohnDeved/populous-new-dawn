@@ -1213,7 +1213,7 @@ try {
   await stage('normal-opening', async () => {
     await until('authored opening', { kind: 'opening' }, 64)
     await holdRaf(false)
-    await skipIntroductionWithSpace(page)
+    await skipIntroductionWithSpace(page, { timeout: 15000 })
     await page.waitForFunction(
       () =>
         !(window.testStore.getWorld().inputMask & 64) &&

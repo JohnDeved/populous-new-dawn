@@ -82,7 +82,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await page.unroute('**/original/landscape.bin');await button('Try again').click();await bindGame(page)
  passed('retry-load-ready')
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
- await skipIntroductionWithSpace(page)
+ await skipIntroductionWithSpace(page, { timeout: 45000 })
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  await button('Game settings').click();await button('Save Game').click();await button('Save checkpoint').click()
  await page.getByRole('status').filter({hasText:'Checkpoint saved in this browser.'}).waitFor()

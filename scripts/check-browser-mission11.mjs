@@ -690,7 +690,7 @@ try {
       ) > 0.5,
     missionTwelve.camera
   )
-  await skipIntroductionWithSpace(page)
+  await skipIntroductionWithSpace(page, { timeout: 20000 })
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !(world.inputMask & 64)
@@ -1327,7 +1327,7 @@ try {
       ) > 0.5,
     missionThirteen.camera
   )
-  await skipIntroductionWithSpace(page)
+  await skipIntroductionWithSpace(page, { timeout: 20000 })
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !(world.inputMask & 64)

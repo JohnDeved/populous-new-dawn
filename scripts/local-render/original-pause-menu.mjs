@@ -19,7 +19,7 @@ export default async function({page,output,root}) {
  await bind(page)
 
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
- await skipIntroductionWithSpace(page)
+ await skipIntroductionWithSpace(page, { timeout: 45000 })
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  await button('Menu').click();await modal.waitFor()
  assert.deepEqual(await modal.locator('nav button').evaluateAll(bs=>bs.map(b=>b.getAttribute('aria-label'))),['Continue Game','Load Game','Save Game','Options','Restart Level','Quit Level','Quit Game','Back'])
@@ -92,7 +92,7 @@ export default async function({page,output,root}) {
  await button('Yes').evaluate(b=>{b.click();b.click()});assert.equal(await page.evaluate(()=>window.restartCalls),1)
  await bindGame(page);passed('restart-confirm-yes-exactly-once')
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
- await skipIntroductionWithSpace(page)
+ await skipIntroductionWithSpace(page, { timeout: 45000 })
  await button('Menu').click();await button('Quit Level').click();await button('Yes').click()
  await page.getByRole('dialog',{name:'Start game',exact:true}).waitFor();assert.equal(await page.locator('.world-viewport canvas').count(),0)
  await button('Back').click();await page.getByRole('dialog',{name:'Main menu',exact:true}).waitFor()

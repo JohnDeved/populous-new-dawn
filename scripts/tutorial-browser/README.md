@@ -73,7 +73,7 @@ runtime errors. Scenario failures and each cleanup failure remain in the termina
 receipt; cleanup still attempts to close the context if observer teardown fails.
 
 The final bounded Mission 1 scenery/placement episode follows the actual New Game
-Start Mission 1, press Space to skip the introduction, Pause, Brave selection and Hut
+recommendation, Start Mission 1, press Space to skip the introduction, Pause, Brave selection and Hut
 controls. Read-only observers project authored settlement points into the viewport;
 real pointer events exercise valid, invalid and scenery-overlapping footprints.
 Repeated paused previews must leave building IDs and retained scenery poses unchanged.

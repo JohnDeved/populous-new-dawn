@@ -49,7 +49,7 @@ export default async function ({ page, root, output, receipt, signal }) {
   const readyAfterOrdinaryIntroduction = async expectedLevel => {
     await bindGame(page)
     await page.waitForFunction(() => !!(window.testSceneRef.current.world.flyby.flags & 1) || !window.testSceneRef.current.world.inputMask)
-    await skipIntroductionWithSpace(page)
+    await skipIntroductionWithSpace(page, { timeout: 45000 })
     const readiness = await waitForShamanReadiness(page, { timeout: 60000 })
     assert.equal(readiness.after.level, expectedLevel)
     await page.keyboard.press('Escape')

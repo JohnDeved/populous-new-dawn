@@ -121,7 +121,7 @@ export default async function spellTestMenu({ browser, url, output }) {
       diagnostics.stage(`${phase}: bind scene`)
       await bindGame(page)
       diagnostics.stage(`${phase}: await input or introduction`)
-      await skipIntroductionWithSpace(page)
+      await skipIntroductionWithSpace(page, { timeout: 12000 })
       diagnostics.stage(`${phase}: await unlocked input`)
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     }

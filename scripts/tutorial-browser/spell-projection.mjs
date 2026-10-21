@@ -110,7 +110,7 @@ export default async function spellProjection({ browser, url, output, root, dist
       return (world.inputMask & 64) && (world.flyby.flags & 0x51) === 0x11 ? 'skip' : false
     })
     if ((await startup.jsonValue()) === 'skip')
-      await skipIntroductionWithSpace(page)
+      await skipIntroductionWithSpace(page, { timeout: 10000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await button('Pause game').click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)

@@ -21,7 +21,7 @@ export default async function ({ page, output }) {
   await openCampaignFromMainMenu(page)
   await button('Start Mission 1').click()
   await bindGame(page)
-  await skipIntroductionWithSpace(page)
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
   for (const initiallyPaused of [false, true]) {
     if (initiallyPaused) await button('Pause game').click()

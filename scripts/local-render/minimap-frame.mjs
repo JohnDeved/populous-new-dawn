@@ -97,7 +97,7 @@ export default async function minimapFrameScenario({ browser, page, context, roo
   await page.getByRole('button', { name: 'Game settings', exact: true }).click()
   await menu.getByRole('button', { name: 'Restart world', exact: true }).click()
   await bindGame(page)
-  await skipIntroductionWithSpace(page)
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.evaluate(() => { window.testScene = window.testSceneRef.current; window.testScene.world.speed = 0; cancelAnimationFrame(window.testScene.frame) })
   frames.push(await capture(page, output, 'restarted'))
   writeFileSync(resolve(output, 'frame-pixels.json'), JSON.stringify(frames, null, 2))

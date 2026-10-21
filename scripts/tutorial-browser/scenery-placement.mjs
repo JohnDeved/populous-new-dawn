@@ -80,7 +80,7 @@ export default async function sceneryPlacement({ browser, url, output }) {
     await button('No').click()
     await button('Start Mission 1').click()
     await bindGame(page)
-    await skipIntroductionWithSpace(page)
+    await skipIntroductionWithSpace(page, { timeout: 15000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await button('Pause game').click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)

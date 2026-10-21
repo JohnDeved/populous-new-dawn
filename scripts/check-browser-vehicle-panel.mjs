@@ -151,7 +151,7 @@ export default async function vehiclePanels({browser,page,openMission,output,rec
  dp.setDefaultTimeout(45000);dp.on('pageerror',error=>receipt.errors.push(String(error)))
  await dp.goto(url,{waitUntil:'domcontentloaded'});await openCampaignFromMainMenu(dp)
  await dp.getByRole('button',{name:'All missions',exact:true}).click();await dp.getByRole('button',{name:'Mission 22',exact:true}).focus();await dp.keyboard.press('Enter');await bindGame(dp)
- await skipIntroductionWithSpace(dp)
+ await skipIntroductionWithSpace(dp, { timeout: 45000 })
  await dp.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  const did=await dp.evaluate(()=>{const s=window.testSceneRef.current;s.world.speed=0;cancelAnimationFrame(s.frame);return s.world.vehicles.find(v=>v.model===1).id})
  await dp.keyboard.press('Escape');const dpoint=await vehiclePoint(dp,did);await dp.mouse.click(dpoint.x,dpoint.y,{button:'right'});await render(dp)

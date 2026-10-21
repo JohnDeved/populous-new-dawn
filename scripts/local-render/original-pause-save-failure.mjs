@@ -9,7 +9,7 @@ export default async function({page,root,output}) {
  await page.setViewportSize({width:800,height:600})
  await openCampaignFromMainMenu(page);await button('Start Mission 1').click();await bindGame(page)
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
- await skipIntroductionWithSpace(page)
+ await skipIntroductionWithSpace(page, { timeout: 45000 })
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  await button('Pause game').click();assert.equal(await page.evaluate(()=>window.testStore.getWorld().paused),true)
  await button('Game settings').click();await button('Save Game').click()

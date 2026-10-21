@@ -14,7 +14,7 @@ export default async function({page,root,output,receipt}) {
   await bindGame(page)
   assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),1)
 
-  await skipIntroductionWithSpace(page)
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
   const renderer = await page.evaluate(()=> {
     const gl=window.testScene.renderer.getContext(), debug=gl.getExtension('WEBGL_debug_renderer_info')

@@ -101,7 +101,7 @@ export default async function ({ browser, url, output }) {
     await button('No').click()
     await selector.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
     await bindGame(page)
-    await skipIntroductionWithSpace(page)
+    await skipIntroductionWithSpace(page, { timeout: 25000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     observation = await observeGame(page)
     const read = () => page.evaluate(observer => observer.read(), observation)

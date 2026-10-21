@@ -160,7 +160,7 @@ export default async function ({ page, context, output, url }) {
     }
     await openCampaignFromMainMenu(page);await button('Start Mission 1').click()
     await bindGame(page)
-    await skipIntroductionWithSpace(page)
+    await skipIntroductionWithSpace(page, { timeout: 45000 })
     await page.waitForFunction(()=>!window.testStore.getWorld().inputMask&&window.testStore.getWorld().turn>0)
     assert.equal(await decodeCount(),paths.length)
     await button('Game settings').click();await twoFrames()

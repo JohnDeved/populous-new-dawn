@@ -30,7 +30,7 @@ export default async function({page,url,root,output,receipt}) {
   assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),1)
 
   await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
-  await skipIntroductionWithSpace(page)
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
   await button('Game settings').click();await button('Save Game').click();await button('Save checkpoint').click()
   await page.getByText('Checkpoint saved in this browser.',{exact:true}).waitFor()

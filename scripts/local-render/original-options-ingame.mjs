@@ -16,7 +16,7 @@ export default async function({page,output,root,receipt}) {
  await page.setViewportSize({width:800,height:600});await openCampaignFromMainMenu(page);await button('Start Mission 1').click();await bindGame(page)
  await page.setViewportSize({width:1280,height:960})
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
- await skipIntroductionWithSpace(page)
+ await skipIntroductionWithSpace(page, { timeout: 45000 })
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  await button('Enable sound').click();await button('Mute sound').waitFor()
  await button('Game settings').click();await button('Options').click();assert.equal(await button('Back').evaluate(button=>button===document.activeElement),true);await category('Sound')

@@ -377,7 +377,7 @@ export async function runLocalBrowser(options, scenario) {
       await button.focus()
       await page.keyboard.press('Enter')
       await bindGame(page)
-      await skipIntroductionWithSpace(page)
+      await skipIntroductionWithSpace(page, { timeout: 45000 })
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
       await page.evaluate(() => {
         window.testScene = window.testSceneRef.current

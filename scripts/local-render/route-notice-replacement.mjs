@@ -14,7 +14,7 @@ export default async function ({ page, output }) {
   await page.setViewportSize({ width: 960, height: 720 })
   await openCampaignFromMainMenu(page)
   await button('Start Mission 1').click(); await bindGame(page)
-  await skipIntroductionWithSpace(page)
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
   await page.evaluate(() => window.testStore.change(w => {
     w.routeNotice = { flags: 0x200000, message: 603, serial: 77 }
@@ -29,7 +29,7 @@ export default async function ({ page, output }) {
   })
   await button('Game settings').click(); await button('Restart Level').click(); await button('Yes').click()
   await page.waitForFunction(() => window.testStore.getWorld() !== window.staleRouteNoticeFixture.world)
-  await bindGame(page); await skipIntroductionWithSpace(page)
+  await bindGame(page); await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
   await page.evaluate(() => window.testStore.change(w => {
     w.routeNotice = { flags: 0x200000, message: 603, serial: 77 }

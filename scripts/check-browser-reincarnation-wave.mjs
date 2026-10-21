@@ -1,4 +1,4 @@
-import { introductionInputState } from './browser-introduction.mjs'
+import { introductionInputState, pressIntroductionSpace } from './browser-introduction.mjs'
 // Natural Mission2 combat death and complete ordinary reincarnation, followed
 // by a separately labeled staged cell-consumer fixture. No state injection in
 // the natural phase; pacing, camera and read-only observations are controlled.
@@ -40,7 +40,7 @@ try {
     await page.waitForTimeout(25)
     if (await page.evaluate(introductionInputState) === 'skip') {
       report.startup.skipTurns.push(await page.evaluate(() => window.testSceneRef.current.world.turn))
-      await page.keyboard.press('Space')
+      await pressIntroductionSpace(page, { timeout: 60000 })
     }
     const readiness = await readShamanReadiness(page)
     report.startup.samples.push(readiness)

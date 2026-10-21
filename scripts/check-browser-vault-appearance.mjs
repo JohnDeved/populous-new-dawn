@@ -103,7 +103,7 @@ try {
     () => !!(globalThis.testScene.world.flyby.flags & 1) && !!globalThis.testStore.getWorld().inputMask,
     { timeout: 30_000 }
   )
-  await skipIntroductionWithSpace(page)
+  await skipIntroductionWithSpace(page, { timeout: 10000 })
   await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
 
   evidence.before = await page.evaluate(() => {
