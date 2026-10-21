@@ -17,7 +17,6 @@ const select = (page, mission) => page.getByRole('button', {name:new RegExp(`^Pa
 const scene = page => page.locator(sceneSelector)
 const ready = page => page.locator(`${sceneSelector}[data-ready="true"]`).waitFor()
 const open = async page => {
-  await page.getByRole('dialog', {name:'Main menu', exact:true}).waitFor()
   await openCampaignFromMainMenu(page)
   await page.getByRole('dialog', {name:'Start game', exact:true}).waitFor()
 }
@@ -262,23 +261,106 @@ export async function lifecycleEpisode({page,output,receipt}) {
 
 export async function failureEpisode({page,output,receipt}) {
   await observe(page)
+  await page.setViewportSize({width:800,height:600})
   const pattern='**/original/world-selector/globes/sun.png'
   const invalidPng='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGP4DwQACfsD/fteaysAAAAASUVORK5CYII='
   assert.deepEqual(await page.evaluate(async base64=>{const image=new Image();image.src='data:image/png;base64,'+base64;await image.decode();return [image.naturalWidth,image.naturalHeight]},invalidPng),[1,1],'Dimension fixture must decode as an actual 1x1 image')
-  const failure=()=>page.getByText('Star-system image unavailable. Mission controls still work.',{exact:true}).waitFor()
+  const retry=()=>button(page,'Retry scene')
+  const recovery=()=>retry().locator('..')
+  const failure=async()=>{
+    await retry().waitFor({state:'visible'})
+    assert.equal(await recovery().getByRole('status').count(),1)
+    assert.match(await recovery().getByRole('status').textContent(),/Star-system image unavailable\. Mission controls still work\./)
+    assert.equal(await scene(page).getAttribute('data-ready'),null)
+    assert.equal(await button(page,'Browser controls').count(),0,'Use the shipped native campaign selector, not the debug compatibility branch')
+  }
+  const bitmapReady=async()=>{
+    await retry().locator('i').first().waitFor({state:'visible'})
+    await recovery().getByRole('status').locator('i').first().waitFor({state:'visible'})
+  }
+  const styles=()=>retry().evaluate(button=>{
+    const style=getComputedStyle(button), box=button.getBoundingClientRect()
+    const glyph=button.querySelector('i'), notice=button.parentElement.querySelector('[role="status"] i')
+    const bounds=[...button.parentElement.querySelectorAll('i')].map(node=>{
+      const b=node.getBoundingClientRect();return {left:b.left,right:b.right,top:b.top,bottom:b.bottom}
+    })
+    return {background:style.backgroundColor,border:style.borderTopWidth,radius:style.borderTopLeftRadius,
+      outline:style.outlineWidth,font:glyph&&getComputedStyle(glyph).backgroundImage,
+      noticeFont:notice&&getComputedStyle(notice).backgroundImage,height:box.height,bounds,
+      viewport:{width:innerWidth,height:innerHeight},scrollWidth:document.documentElement.scrollWidth}
+  })
+  const dismiss=async()=>{
+    await page.keyboard.press('Escape')
+    await noSceneWork(page)
+    await button(page,'New Game').focus();await page.keyboard.press('ArrowDown')
+    assert.equal(await button(page,'Tutorial').evaluate(b=>b===document.activeElement),true,
+      'Dismissal restores main-menu keyboard ownership')
+  }
+  const noLaunch=async()=>{
+    assert.equal(await page.getByRole('dialog',{name:'Start game',exact:true}).isVisible(),true)
+    assert.equal(await page.getByRole('heading',{name:'Loading failed',exact:true}).count(),0)
+    assert.equal(await scene(page).count(),1,'Recovery input must retain the selector, never launch gameplay')
+  }
+  const keyboardRetry=async(key,{repeat=false,blocked=false}={})=>{
+    const generation=Number(await scene(page).getAttribute('data-generation'))
+    await retry().focus()
+    if(repeat) {
+      await page.keyboard.down(key)
+      if(key==='Enter') await page.waitForFunction(previous=>Number(document.querySelector('canvas[data-world-scene]')?.dataset.generation)>previous,generation)
+      await page.keyboard.down(key) // Playwright emits a real repeated keydown.
+      if(key==='Space') assert.equal(Number(await scene(page).getAttribute('data-generation')),generation,'Space activates on keyup, not keydown or repeat')
+      await page.keyboard.up(key)
+    } else await page.keyboard.press(key)
+    await page.waitForFunction(previous=>Number(document.querySelector('canvas[data-world-scene]')?.dataset.generation)>previous,generation)
+    if(blocked) await failure()
+    else await ready(page)
+    await noLaunch()
+  }
+  const samples=[],observations=[]
   for(const mode of ['network','dimensions']) {
     await page.route(pattern,route=>mode==='network' ? route.abort('failed') : route.fulfill({status:200,contentType:'image/png',body:Buffer.from(invalidPng,'base64')}))
-    await open(page); await failure()
-    assert.equal(await scene(page).getAttribute('data-ready'),null)
+    await open(page);await failure();await bitmapReady()
     await select(page,2).click()
     assert.equal(await button(page,'Start Mission 2').isDisabled(),true)
     await select(page,1).click()
     assert.equal(await button(page,'Start Mission 1').isEnabled(),true)
-    await page.screenshot({path:resolve(output,`scene-${mode}-fallback.png`)})
-    await page.unroute(pattern); await button(page,'Retry scene').click(); await ready(page);await selected(page,24,24)
-    await click(page,'Back'); await noSceneWork(page)
+    if(mode==='network') {
+      for(const [width,height] of [[640,480],[1280,720],[390,844]]) {
+        await page.setViewportSize({width,height});await page.mouse.move(0,0)
+        await select(page,1).focus()
+        const sample=await styles()
+        assert.equal(sample.background,'rgba(0, 0, 0, 0)');assert.equal(sample.border,'0px');assert.equal(sample.radius,'0px')
+        assert.match(sample.font,/frontend\/feft33we\.png/);assert.match(sample.noticeFont,/frontend\/felo33we\.png/)
+        assert.ok(sample.height>=44);assert.ok(sample.scrollWidth<=width)
+        assert.ok(sample.bounds.every(b=>b.left>=0&&b.right<=width+.5&&b.top>=0&&b.bottom<=height+.5),'Native glyphs remain within the viewport')
+        samples.push(sample)
+        await page.screenshot({path:resolve(output,`scene-recovery-${width}x${height}.png`)})
+      }
+      await page.setViewportSize({width:800,height:600});await retry().hover()
+      assert.match((await styles()).font,/frontend\/fehi33we\.png/)
+      await page.screenshot({path:resolve(output,'scene-recovery-hover.png')})
+      await page.mouse.move(0,0)
+      // Genuine Tab navigation makes :focus-visible observable without a fixture.
+      await page.keyboard.press('Tab')
+      const count=await page.getByRole('dialog',{name:'Start game',exact:true}).getByRole('button').count()
+      for(let i=0;i<count+1&&!await retry().evaluate(b=>b===document.activeElement);i++) await page.keyboard.press('Tab')
+      assert.equal(await retry().evaluate(b=>b===document.activeElement),true)
+      assert.match((await styles()).font,/frontend\/fehi33we\.png/)
+      assert.equal((await styles()).outline,'1px')
+      await page.screenshot({path:resolve(output,'scene-recovery-focus.png')})
+      for(const key of ['Enter','Space']) await keyboardRetry(key,{repeat:true,blocked:true})
+    } else await page.screenshot({path:resolve(output,'scene-dimensions-fallback.png')})
+    await page.unroute(pattern)
+    await keyboardRetry(mode==='network'?'Enter':'Space')
+    await selected(page,24,24)
+    await dismiss()
+    observations.push({episode:mode,...await observation(page)})
   }
-  await open(page); await ready(page)
+  await open(page);await ready(page)
+  const renderer=await scene(page).evaluate(c=>{
+    const gl=c.getContext('webgl2'), debug=gl.getExtension('WEBGL_debug_renderer_info')
+    return debug?gl.getParameter(debug.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)
+  })
   const supported=await scene(page).evaluate(c=>{
     const extension=c.getContext('webgl2').getExtension('WEBGL_lose_context')
     window.selectorLoseContext=extension
@@ -286,16 +368,45 @@ export async function failureEpisode({page,output,receipt}) {
     return Boolean(extension)
   })
   assert.equal(supported,true,'Context loss test requires WEBGL_lose_context; missing extension is blocked coverage')
-  await failure()
+  await failure();await bitmapReady()
   await page.screenshot({path:resolve(output,'scene-context-lost.png')})
   await page.evaluate(()=>window.selectorLoseContext.restoreContext())
-  await ready(page);await selected(page,24,24)
-  await click(page,'Back'); await noSceneWork(page)
-  const observed=await observation(page);save(output,'scene-failure-observation.json',observed)
+  await ready(page);await selected(page,24,24);await noLaunch()
+  await dismiss()
+  observations.push({episode:'context-restored',...await observation(page)})
+  // Reload so a decoded frontend font cannot conceal the actual failed request.
+  for(const font of ['feft33we','fehi33we','felo33we']) {
+    const fontPattern=`**/original/frontend/${font}.png`
+    let failures=0
+    await page.route(fontPattern,route=>{failures++;return route.abort('failed')})
+    await page.route(pattern,route=>route.abort('failed'))
+    try {
+      await page.reload({waitUntil:'domcontentloaded'});await open(page);await failure()
+      assert.ok(failures>0,'Font fallback must follow an observed failed request')
+      if(font==='felo33we') {
+        await retry().locator('i').first().waitFor({state:'visible'})
+        assert.equal(await recovery().getByRole('status').locator('i').count(),0)
+        assert.match(await recovery().getByRole('status').locator('[aria-hidden="true"]').first().evaluate(n=>getComputedStyle(n).fontFamily),/Georgia/)
+      } else {
+        await recovery().getByRole('status').locator('i').first().waitFor({state:'visible'})
+        assert.equal(await retry().locator('i').count(),0)
+        assert.equal(await retry().innerText(),'Retry scene')
+        assert.match(await retry().locator('[aria-hidden="true"]').evaluate(n=>getComputedStyle(n).fontFamily),/Georgia/)
+      }
+      await page.screenshot({path:resolve(output,`scene-recovery-${font}-failed.png`)})
+      await dismiss() // Failed scenes also cancel draws/listeners on ordinary Escape.
+      await open(page);await failure()
+      await page.unroute(pattern);await keyboardRetry('Space');await selected(page,24,24)
+      await dismiss()
+      observations.push({episode:`font-failure-${font}`,failures,...await observation(page)})
+    } finally {await page.unroute(fontPattern);await page.unroute(pattern)}
+  }
+  save(output,'scene-recovery-styles.json',{renderer,samples})
+  save(output,'scene-failure-observation.json',observations)
   const expected=receipt.errors.filter(e=>e==='Failed to load resource: net::ERR_FAILED')
   assert.ok(expected.length>0,'Network injection must produce an observed failed resource')
   assert.deepEqual(receipt.errors.filter(e=>e!=='Failed to load resource: net::ERR_FAILED'),[])
-  return {checks:['real texture network failure','invalid texture dimensions','enabled/locked controls during fallback','Retry scene recovery','real WEBGL_lose_context loss/restoration','no draws after failed scene dismissal'],observed,expectedResourceErrors:expected,limits}
+  return {checks:['native campaign UI entry and Escape/main-menu ownership','real texture network failure','invalid texture dimensions','enabled/locked controls during fallback','original frontend bitmap layout and hover/focus','all three font-failure fallbacks','Enter/Space including held keys retry without mission launch','real WEBGL_lose_context loss/restoration','no draws after ready or failed scene dismissal'],renderer,samples,observations,expectedResourceErrors:expected,limits:['Explicit resource/context failures, not native failure-screen equivalence','Headless renderer observations, not hardware performance','No debug selector or injected campaign progression']}
 }
 
 
