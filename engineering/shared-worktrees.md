@@ -10,9 +10,26 @@ symlinks change Git identity and bypass neither evidence nor path validation.
 `scripts/orchestration/shared_runtime.py` creates an explicitly **non-Git runtime
 view** from an exact clean source commit. Ordinary source files are copied from
 Git objects. `public/original` links to a content-addressed asset tree outside the
-view; the tree's links select SHA-256-addressed blobs shared across asset versions.
+view; its regular files hardlink SHA-256-addressed blobs shared across asset versions.
 A different commit can reuse unchanged asset blobs without sharing mutable output.
 This is a local execution adapter, not a repository asset-format or CI migration.
+
+New manifests are version 2 with `assetLayout: filename-hardlinks-v2`. The shared
+tree is `trees-v2/<Git-asset-tree>/<original-relative-filename>`; the outer runtime
+directory symlink is retained. Realpath stops at the original filename, preserving
+JSON/module/CSS loader selection and relative imports or stylesheet URLs. No asset
+bytes are copied for a second filename, tree or view. Each leaf must be a regular
+file with the exact declared CAS device/inode, content and mode, beneath physical
+tree directories. Assets are non-executable data (`100644`); executable assets are
+rejected before preparation rather than chmodding shared inodes.
+
+Version 1 manifests and their `trees/<Git-asset-tree>` symlink leaves remain
+verification-only compatibility. They are never rewritten, relabeled or reused as
+v2 acceptance. Extensionless CAS leaf symlinks made real Vite JSON imports parse as
+JavaScript. Typed CAS aliases would retain extensions but still lose the relative
+directory layout for module/CSS references, so they are not the chosen repair.
+Global `preserveSymlinks` is deliberately unchanged: it would also change pnpm
+dependency identity. Keep old pools, views, receipts and failed outputs untouched.
 
 The source checkout may be an ordinary sparse checkout for editing. An absent
 tracked file is accepted only when Git marks it sparse; any present file is checked
@@ -54,7 +71,9 @@ python3 scripts/orchestration/shared_runtime.py verify \
 Verification derives identity from Git, not the mutable runtime manifest. It checks
 all materialized bytes/modes, rejects changed source HEAD, dirty or masked source,
 undeclared runtime inputs, asset extras/missing data, pool/root symlinks, target swaps
-and links escaping the exact declared CAS object. Every permitted mutable cache or
+and leaves not identifying the exact declared CAS object. V1 keeps its original
+declared-symlink checks; v2 rejects symlinks and equal-byte copies at tree leaves.
+Every permitted mutable cache or
 output must be private and physical, including `node_modules/.vite`, `.vite-temp`
 and `.cache`. `node_modules` itself must remain a real local directory. Standalone
 `verify`/`revision` checks these mutable caches, not the installed package inventory;
@@ -154,3 +173,15 @@ Focused portable acceptance:
 ```sh
 PYTHONDONTWRITEBYTECODE=1 node --test tests/shared-runtime-storage.test.mjs
 ```
+
+The suite uses the installed Vite, not a mocked extension lookup. Its tiny isolated
+fixture bundles two JSON imports, a module's relative JSON import, nested CSS and
+its relative PNG URL, same-byte JSON/raw text, and every currently committed binary
+asset extension (`bin`, `png`, `wav`, `m4a`, `webm`). It checks evaluated values and
+emitted types/bytes, and requires the retained v1 JSON layout to fail. These binary
+fixtures test bundling, not media decoder validity. It also re-verifies both views.
+For an explicitly bound external installation, set `PND_SHARED_RUNTIME_VITE_ENTRY`
+to that installation's absolute `vite/dist/node/index.js` path and bind its actual
+dependency bytes in the run evidence. Missing Vite fails the test, never skips it.
+Use private disk-backed `TMPDIR` and the serialized lane even for this small check;
+the normal default resolves Vite from this checkout's `node_modules`.

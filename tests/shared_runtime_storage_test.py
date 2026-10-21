@@ -47,7 +47,27 @@ class SharedRuntimeTests(unittest.TestCase):
         return storage.verify(self.source, self.revision, self.pool, self.runtime)
 
     def asset_blob(self):
-        return (self.runtime / 'public/original/sub/game.bin').resolve()
+        return self.pool / 'blobs' / storage.digest(b'verified original game asset\x00\xff')
+
+    def legacy_view(self):
+        """Construct the retired v1 layout only inside an isolated test fixture."""
+        self.prepare()
+        manifest_path = self.runtime / storage.MANIFEST
+        manifest = json.loads(manifest_path.read_bytes())
+        tree = self.pool / 'trees' / manifest['assetTree']
+        tree.mkdir(parents=True)
+        for entry in manifest['entries']:
+            if entry['path'].startswith(storage.ASSETS + '/'):
+                target = tree / entry['path'][len(storage.ASSETS) + 1:]
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.symlink_to(os.path.relpath(self.pool / 'blobs' / entry['sha256'], target.parent))
+        link = self.runtime / storage.ASSETS
+        link.unlink()
+        link.symlink_to(os.path.relpath(tree, link.parent), target_is_directory=True)
+        manifest['version'] = 1
+        del manifest['assetLayout']
+        manifest_path.write_bytes(storage.encoded(manifest))
+        return tree
 
     def test_two_views_share_assets_but_not_mutable_caches_or_git_state(self):
         before = self.git('status', '--porcelain')
@@ -56,7 +76,13 @@ class SharedRuntimeTests(unittest.TestCase):
         b = self.prepare(other)
         self.assertEqual(a['sharedAssetBytes'], 30)
         self.assertEqual(a['assetTree'], b['assetTree'])
-        self.assertEqual(self.asset_blob(), (other / 'public/original/sub/game.bin').resolve())
+        asset = self.runtime / 'public/original/sub/game.bin'
+        self.assertEqual(asset.resolve(), (other / 'public/original/sub/game.bin').resolve())
+        self.assertEqual(asset.resolve().name, 'game.bin')
+        self.assertFalse(asset.is_symlink())
+        self.assertTrue(asset.samefile(self.asset_blob()))
+        self.assertTrue((self.runtime / storage.ASSETS).is_symlink())
+        self.assertEqual(a['assetLayout'], storage.ASSET_LAYOUT)
         self.assertEqual(len(list((self.pool / 'blobs').iterdir())), 1)
         for runtime in [self.runtime, other]:
             (runtime / 'work/build-cache/node_modules/.vite').mkdir(parents=True)
@@ -121,15 +147,133 @@ class SharedRuntimeTests(unittest.TestCase):
 
     def test_asset_link_escape_refused(self):
         result = self.prepare()
-        link = self.pool / 'trees' / result['assetTree'] / 'sub/game.bin'
+        link = self.pool / storage.ASSET_TREES / result['assetTree'] / 'sub/game.bin'
         link.unlink()
         link.symlink_to(self.source / 'public/original/sub/game.bin')
+        with self.assertRaisesRegex(ValueError, 'regular hardlink'):
+            self.verify()
+
+    def test_asset_copied_bytes_are_not_shared_cas_identity(self):
+        self.prepare()
+        target = self.runtime / 'public/original/sub/game.bin'
+        target.unlink()
+        target.write_bytes(self.asset_blob().read_bytes())
+        with self.assertRaisesRegex(ValueError, 'declared CAS hardlink'):
+            self.verify()
+
+    def test_asset_symlink_to_correct_cas_is_not_loader_safe(self):
+        self.prepare()
+        target = (self.runtime / 'public/original/sub/game.bin').resolve()
+        target.unlink()
+        target.symlink_to(os.path.relpath(self.asset_blob(), target.parent))
+        with self.assertRaisesRegex(ValueError, 'regular hardlink'):
+            self.verify()
+
+    def test_asset_cas_execute_mode_change_refused_without_repair(self):
+        self.prepare()
+        self.asset_blob().chmod(0o755)
+        with self.assertRaisesRegex(ValueError, 'mode changed'):
+            self.verify()
+        self.assertEqual(self.asset_blob().stat().st_mode & 0o777, 0o755)
+
+    def test_executable_asset_refused_before_materialization(self):
+        (self.source / 'public/original/sub/game.bin').chmod(0o755)
+        self.git('add', '.'); self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        with self.assertRaisesRegex(ValueError, 'non-executable data'):
+            self.prepare()
+        self.assertFalse(self.runtime.exists())
+        self.assertFalse(self.pool.exists())
+
+    def test_v1_is_verification_only_and_is_not_rewritten_by_v2(self):
+        tree = self.legacy_view()
+        manifest = (self.runtime / storage.MANIFEST).read_bytes()
+        target = tree / 'sub/game.bin'
+        legacy_target = os.readlink(target)
+        legacy_inode = target.lstat().st_ino
+        self.assertEqual(self.verify()['status'], 'verified')
+        other = self.root / 'v2-runtime'
+        result = self.prepare(other)
+        self.assertEqual(result['assetLayout'], storage.ASSET_LAYOUT)
+        self.assertEqual((self.runtime / storage.MANIFEST).read_bytes(), manifest)
+        self.assertEqual(target.lstat().st_ino, legacy_inode)
+        self.assertEqual(os.readlink(target), legacy_target)
+        self.assertEqual(self.verify()['status'], 'verified')
+        target.unlink(); target.symlink_to(self.source / 'public/original/sub/game.bin')
         with self.assertRaisesRegex(ValueError, 'target changed'):
             self.verify()
 
+    def test_unknown_asset_layout_refused(self):
+        self.prepare()
+        path = self.runtime / storage.MANIFEST
+        manifest = json.loads(path.read_bytes())
+        manifest['assetLayout'] = 'extensionless-aliases'
+        path.write_bytes(storage.encoded(manifest))
+        with self.assertRaisesRegex(ValueError, 'Unknown asset layout'):
+            self.verify()
+
+    def test_real_vite_resolves_json_modules_css_and_declared_binary_types(self):
+        assets = self.source / 'public/original/sub'
+        (assets / 'nested').mkdir()
+        selector = self.source / 'public/original/world-selector/text'
+        selector.mkdir(parents=True)
+        (selector / 'runtime.json').write_bytes(b'{"version":1,"name":"runtime"}\n')
+        (selector / 'provenance.json').write_bytes(b'{"version":2,"name":"provenance"}\n')
+        files = {
+            'same-bytes.txt': b'{"version":1,"name":"runtime"}\n',
+            'nested/label.json': b'{"label":"relative-json"}\n',
+            'module.mjs': b'import value from "./nested/label.json"; export default value.label;\n',
+            'style.css': b'@import "./nested/theme.css"; .image { background: url("./pixel.png"); }\n',
+            'nested/theme.css': b'.nested { color: rgb(11, 22, 33); }\n',
+            # The bundler must emit these bytes with their declared types, not decode them.
+            'pixel.png': b'\x89PNG\r\n\x1a\nfixture-png',
+            'sound.wav': b'RIFFfixture-wav',
+            'sound.m4a': b'fixture-m4a',
+            'movie.webm': b'\x1a\x45\xdf\xa3fixture-webm',
+        }
+        for name, data in files.items():
+            (assets / name).write_bytes(data)
+        (self.source / 'app/main.js').write_text('''
+import runtime from '../public/original/world-selector/text/runtime.json';
+import provenance from '../public/original/world-selector/text/provenance.json';
+import label from '../public/original/sub/module.mjs';
+import raw from '../public/original/sub/same-bytes.txt?raw';
+import '../public/original/sub/style.css';
+import png from '../public/original/sub/pixel.png';
+import wav from '../public/original/sub/sound.wav';
+import m4a from '../public/original/sub/sound.m4a';
+import webm from '../public/original/sub/movie.webm';
+import bin from '../public/original/sub/game.bin?url';
+globalThis.sharedAssetResult = { runtime, provenance, label, raw, png, wav, m4a, webm, bin };
+''')
+        (self.source / 'app/legacy.js').write_text('''
+import runtime from '../public/original/world-selector/text/runtime.json';
+import provenance from '../public/original/world-selector/text/provenance.json';
+globalThis.sharedAssetResult = { runtime, provenance };
+''')
+        self.git('add', '.'); self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        self.legacy_view()
+        candidate = self.root / 'v2-runtime'
+        self.prepare(candidate)
+        root = candidate / 'public/original/sub'
+        json_asset = candidate / 'public/original/world-selector/text/runtime.json'
+        self.assertTrue(json_asset.samefile(root / 'same-bytes.txt'))
+        self.assertNotEqual(json_asset.resolve(), (root / 'same-bytes.txt').resolve())
+        before = storage.verify(self.source, self.revision, self.pool, candidate)
+        fixture = Path(__file__).with_name('shared-runtime-bundler-fixture.mjs')
+        vite = os.environ.get('PND_SHARED_RUNTIME_VITE_ENTRY',
+                              str(HELPER.parents[2] / 'node_modules/vite/dist/node/index.js'))
+        result = subprocess.run(['node', str(fixture), str(candidate), str(self.runtime), vite],
+                                capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(json.loads(result.stdout)['status'], 'passed')
+        self.assertEqual(before, storage.verify(self.source, self.revision, self.pool, candidate))
+        self.assertEqual(self.verify()['status'], 'verified')
+
     def test_asset_undeclared_file_refused(self):
         result = self.prepare()
-        (self.pool / 'trees' / result['assetTree'] / 'extra').write_text('not declared')
+        (self.pool / storage.ASSET_TREES / result['assetTree'] / 'extra').write_text('not declared')
         with self.assertRaisesRegex(ValueError, 'undeclared'):
             self.verify()
 

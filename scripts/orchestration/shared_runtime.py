@@ -18,6 +18,8 @@ import time
 
 ASSETS = 'public/original'
 MANIFEST = '.pnd-runtime.json'
+ASSET_LAYOUT = 'filename-hardlinks-v2'
+ASSET_TREES = 'trees-v2'
 BUILD_EXCLUDES = {'.agents', '.codex', '.github', '.serena', 'decomp', 'docs',
                   'engineering', 'evidence', 'qa', 'references', 'tests', 'tools', 'work'}
 MUTABLE_ROOTS = {'node_modules', 'work', 'dist', '.next', '.vinext', '.wrangler', '.fallow'}
@@ -164,21 +166,35 @@ def parent_names(paths):
     return {str(p) for name in paths for p in PurePosixPath(name).parents if str(p) != '.'}
 
 
-def check_tree(pool, asset_tree, assets):
-    tree = physical(pool / 'trees' / asset_tree)
+def check_tree(pool, asset_tree, assets, version=2):
+    # v1 is verification-only compatibility for retained views/receipts. New views
+    # must keep filenames after realpath: extensionless CAS symlinks break loaders.
+    require(version in (1, 2), 'Unknown asset tree version')
+    physical(pool / 'blobs')
+    tree = physical(pool / ('trees' if version == 1 else ASSET_TREES) / asset_tree)
     expected = {entry['path'][len(ASSETS) + 1:]: entry for entry in assets}
     actual = file_inventory(tree)
     require(set(actual) == set(expected) | parent_names(expected), 'Asset tree has undeclared or missing paths')
     for rel in parent_names(expected):
         physical(tree / rel)
     for rel, entry in expected.items():
-        link = tree / rel
-        require(link.is_symlink(), f'Asset tree entry must be a declared symlink: {rel}')
+        target = tree / rel
         blob = pool / 'blobs' / entry['sha256']
-        require(os.readlink(link) == os.path.relpath(blob, link.parent), f'Asset symlink target changed: {rel}')
-        require(link.resolve(strict=True) == blob, f'Asset symlink escaped declared store: {rel}')
         data = regular_bytes(blob, entry)
         require(digest(data) == entry['sha256'], f'Asset digest changed: {rel}')
+        if version == 1:
+            require(target.is_symlink(), f'Asset tree entry must be a declared symlink: {rel}')
+            require(os.readlink(target) == os.path.relpath(blob, target.parent), f'Asset symlink target changed: {rel}')
+            require(target.resolve(strict=True) == blob, f'Asset symlink escaped declared store: {rel}')
+        else:
+            info, content = target.lstat(), blob.lstat()
+            require(stat.S_ISREG(info.st_mode), f'Asset tree entry must be a regular hardlink: {rel}')
+            require((info.st_dev, info.st_ino) == (content.st_dev, content.st_ino),
+                    f'Asset tree entry is not the declared CAS hardlink: {rel}')
+            require(entry['mode'] == '100644' and not content.st_mode & 0o111 and
+                    stat.S_IMODE(info.st_mode) == stat.S_IMODE(content.st_mode),
+                    f'Asset tree/CAS mode changed: {rel}')
+            require(target.resolve(strict=True) == target, f'Asset hardlink path changed: {rel}')
     return tree
 
 
@@ -194,6 +210,8 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
     require(scope in ('build', 'full'), 'Unknown runtime scope')
     require(reserve_bytes > 0, 'A positive explicit scratch/output reserve is required')
     entries = [e for e in state['entries'] if selected(e, scope)]
+    require(all(e['mode'] == '100644' for e in entries if e['path'].startswith(ASSETS + '/')),
+            'Shared asset layout requires non-executable data files')
     # Budget conservatively counts every asset, even if CAS reuse will save it.
     copy_bytes = sum(((e['bytes'] + 4095) // 4096 + 1) * 4096 for e in entries)
     target_parent = runtime.parent
@@ -213,8 +231,8 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
     blobs = None
     try:
         (pool / 'blobs').mkdir(exist_ok=True)
-        (pool / 'trees').mkdir(exist_ok=True)
-        physical(pool / 'blobs'); physical(pool / 'trees')
+        (pool / ASSET_TREES).mkdir(exist_ok=True)
+        physical(pool / 'blobs'); physical(pool / ASSET_TREES)
         runtime.mkdir()
         blobs = Blobs(source)
         materialized = []
@@ -240,19 +258,21 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
                 if entry['mode'] == '100755':
                     target.chmod(0o755)
         blobs.close(); blobs = None
-        tree = pool / 'trees' / state['assetTree']
+        tree = pool / ASSET_TREES / state['assetTree']
         if not tree.exists() and not tree.is_symlink():
             tree.mkdir()
             for entry in assets:
                 target = tree / entry['path'][len(ASSETS) + 1:]
                 target.parent.mkdir(parents=True, exist_ok=True)
-                target.symlink_to(os.path.relpath(pool / 'blobs' / entry['sha256'], target.parent))
+                # Never chmod/copy shared content or change an existing v1 tree.
+                os.link(pool / 'blobs' / entry['sha256'], target, follow_symlinks=False)
         check_tree(pool, state['assetTree'], assets)
         link = runtime / ASSETS
         link.parent.mkdir(parents=True, exist_ok=True)
         link.symlink_to(os.path.relpath(tree, link.parent), target_is_directory=True)
         manifest = {k: state[k] for k in ('source', 'revision', 'tree', 'assetTree')}
-        manifest.update({'version': 1, 'kind': 'non-git-runtime-view', 'scope': scope,
+        manifest.update({'version': 2, 'assetLayout': ASSET_LAYOUT,
+                         'kind': 'non-git-runtime-view', 'scope': scope,
                          'pool': str(pool), 'runtime': str(runtime), 'entries': materialized,
                          'budget': budget})
         (runtime / MANIFEST).write_bytes(encoded(manifest))
@@ -273,7 +293,11 @@ def verify(source, revision, pool, runtime):
     require(manifest_path.is_file() and not manifest_path.is_symlink(), 'Missing physical runtime manifest')
     manifest_bytes = manifest_path.read_bytes()
     manifest = json.loads(manifest_bytes)
-    require(manifest.get('version') == 1 and manifest.get('kind') == 'non-git-runtime-view', 'Unknown runtime manifest')
+    version = manifest.get('version')
+    require(type(version) is int and version in (1, 2) and
+            manifest.get('kind') == 'non-git-runtime-view', 'Unknown runtime manifest')
+    if version == 2:
+        require(manifest.get('assetLayout') == ASSET_LAYOUT, 'Unknown asset layout')
     require(manifest.get('source') == state['source'] and manifest.get('revision') == revision and
             manifest.get('tree') == state['tree'] and manifest.get('assetTree') == state['assetTree'],
             'Runtime/source identity mismatch')
@@ -287,7 +311,7 @@ def verify(source, revision, pool, runtime):
         require(isinstance(record.get('sha256'), str) and len(record['sha256']) == 64 and
                 all(x in '0123456789abcdef' for x in record['sha256']), 'Invalid asset/content digest')
     assets = [e for e in records if e['path'].startswith(ASSETS + '/')]
-    tree = check_tree(pool, state['assetTree'], assets)
+    tree = check_tree(pool, state['assetTree'], assets, version)
     asset_link = runtime / ASSETS
     require(asset_link.is_symlink() and os.readlink(asset_link) == os.path.relpath(tree, asset_link.parent) and
             asset_link.resolve(strict=True) == tree, 'Runtime asset link changed')
@@ -325,6 +349,7 @@ def verify(source, revision, pool, runtime):
         require(name in expected_paths or name in parents, f'Undeclared runtime input: {name}')
     return {'status': 'verified', 'source': state['source'], 'revision': revision, 'tree': state['tree'],
             'assetTree': state['assetTree'], 'scope': manifest['scope'], 'runtime': str(runtime), 'pool': str(pool),
+            **({'assetLayout': ASSET_LAYOUT} if version == 2 else {}),
             'manifestSha256': digest(manifest_bytes), 'trackedFiles': len(records), 'assetFiles': len(assets),
             'sharedAssetBytes': sum(e['bytes'] for e in assets),
             'sourceSparseOmittedFiles': state['sparseOmittedFiles'], 'budget': manifest['budget']}
