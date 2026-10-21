@@ -49,7 +49,7 @@ export function popupRejectedSpace(records) {
 // Install before trusted input and remove even on delivery rejection. A stalled
 // browser cannot certify cleanup; the in-page expiry and owning context teardown
 // also release the passive listener. No cleanup wait extends the input deadline.
-export async function pressObservedSpace(page, { timeout }) {
+export async function pressObservedSpace(page, { timeout, signal }) {
   if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid Space ownership timeout')
   const id = `__pndSpaceOwnership_${randomUUID()}`, deadline = performance.now() + timeout
   let timer, records, installed = false, primary
@@ -63,8 +63,10 @@ export async function pressObservedSpace(page, { timeout }) {
     } finally { clearTimeout(timer) }
   }
   try {
+    signal?.throwIfAborted()
     installed = true
     await bounded(page.evaluate(beginSpaceOwnership, { id, timeout }))
+    signal?.throwIfAborted()
     if (!remaining()) throw Error('Space ownership input timed out')
     await bounded(page.keyboard.press('Space'))
   } catch (error) { primary = error }

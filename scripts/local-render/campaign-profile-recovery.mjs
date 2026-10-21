@@ -159,7 +159,7 @@ async function installLoadObserver(page) {
   })
 }
 
-export default async function ({ browser, context: initialContext, page: initialPage, url, root, output, receipt, signal }) {
+export default async function ({ browser, context: initialContext, page: initialPage, url, root, output, receipt, signal, deadlineAt }) {
   const require = createRequire(resolve(root, 'package.json'))
   const digest = file => createHash('sha256').update(readFileSync(file)).digest('hex')
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
@@ -180,6 +180,7 @@ export default async function ({ browser, context: initialContext, page: initial
     limits: 'Browser checkpoint failure isolation only. Page reload within one browser context is not browser-process restart persistence. Complete stored-record digests do not establish full loaded-world equality. Load-boundary version is a supplied wrapper value, not an independent observation. No authentic original-save interoperability, naturally earned campaign completion, deployment behavior, hardware performance, or full PND-07 claim.',
     cases: [],
     screenshots: [],
+    inputBudgets: [],
   }
   const capture = async (page, name) => {
     const viewport = page.viewportSize()
@@ -210,6 +211,13 @@ export default async function ({ browser, context: initialContext, page: initial
       throw error
     }
   }
+  const skipInput = async page => {
+    const trace = {}; report.inputBudgets.push(trace)
+    try {
+      await skipPauseIntroduction(page, Number.isFinite(deadlineAt)
+        ? { setupTimeout: 15000, deadlineAt, signal, trace } : { trace })
+    } finally { save() }
+  }
   const loadThroughUi = async (page, button) => {
     await installLoadObserver(page)
     await button.click()
@@ -224,8 +232,8 @@ export default async function ({ browser, context: initialContext, page: initial
     await startup.dispose()
     if (action === 'skip') {
       if (!report.inputActionTrace)
-        await traceProfileInput(page.context(), report, output, () => skipPauseIntroduction(page))
-      else await skipPauseIntroduction(page)
+        await traceProfileInput(page.context(), report, output, () => skipInput(page))
+      else await skipInput(page)
     }
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await setWorldPaused(page, true, { timeout: 2500 })
@@ -314,7 +322,7 @@ export default async function ({ browser, context: initialContext, page: initial
       const startupReady = await page.waitForFunction(pauseStartupReady)
       const action = await startupReady.jsonValue()
       await startupReady.dispose()
-      if (action === 'skip') await skipPauseIntroduction(page)
+      if (action === 'skip') await skipInput(page)
       entry.readiness = await waitRecoveryReadiness(page, { signal, onBlocked: recoverVisibleIntroduction(page) })
       await page.getByRole('button', { name: 'Menu', exact: true }).click()
       const menu = page.locator('dialog[data-original-pause-menu]')

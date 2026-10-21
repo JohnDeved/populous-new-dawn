@@ -178,7 +178,7 @@ try {
     // Spy witness is admitted; all three retain this same fixed 180s timer.
     Object.assign(receipt, await runProfileEpisode(selectedScenario, {
       signal: abort.signal, deadlineAt: browserDeadlineAt,
-      runRecovery: async () => (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal }),
+      runRecovery: async () => (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal, deadlineAt: browserDeadlineAt }),
       // Recovery assertions/receipts are unchanged; only then run a fresh-context
       // Tornado episode inside the existing outer deadline (never a new timer).
       closeRecoveryProbe: async () => { await context.close(); context = undefined; page = undefined },
@@ -205,7 +205,7 @@ try {
     receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
   } else if (selectedScenario === 'pause-checkpoint-recovery') {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
-    receipt.pauseCheckpointRecovery = await (await import(pathToFileURL(pauseRecoveryScenario).href)).default({ browser, page, url, root, output: out, receipt, signal: abort.signal })
+    receipt.pauseCheckpointRecovery = await (await import(pathToFileURL(pauseRecoveryScenario).href)).default({ browser, page, url, root, output: out, receipt, signal: abort.signal, deadlineAt: browserDeadlineAt })
   } else {
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
   receipt.result = await (await import(pathToFileURL(scenario).href)).default({ page, context, browser, url, root, output: out, receipt })

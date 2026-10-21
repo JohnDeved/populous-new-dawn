@@ -264,7 +264,7 @@ test('recovery scenario awaits actionable startup and uses native Space before u
   const entry = source.slice(source.indexOf('  async function enterMission'), source.indexOf('  async function openFailedLoad'))
   assert.match(entry, /await page.waitForFunction\(pauseStartupReady\)/)
   assert.match(entry, /await startup.dispose\(\)/)
-  assert.match(entry, /if \(action === 'skip'\) await skipPauseIntroduction\(page\)/)
+  assert.match(entry, /if \(action === 'skip'\) \{[\s\S]*?await skipPauseIntroduction\(page, Number.isFinite\(deadlineAt\)/)
   assert.ok(entry.indexOf("if (action === 'skip')") < entry.indexOf('await page.waitForFunction(() => !window.testStore.getWorld().inputMask)'))
   assert.doesNotMatch(entry, /skip\.isVisible|waitForTimeout|skipIntroduction\(|store\.change|\.inputMask\s*=/)
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')

@@ -158,6 +158,8 @@ test('profile load and new mission reuse reviewed public introduction readiness'
     /import \{ pauseStartupReady, skipPauseIntroduction, recoverVisibleIntroduction \} from '.\/original-pause-checkpoint-recovery.mjs'/
   )
   assert.equal((scenario.match(/waitForFunction\(pauseStartupReady\)/g) || []).length, 2)
-  assert.equal((scenario.match(/await skipPauseIntroduction\(page\)/g) || []).length, 2)
+  assert.equal((scenario.match(/await skipInput\(page\)/g) || []).length, 2)
+  assert.match(scenario, /traceProfileInput\(page.context\(\), report, output, \(\) => skipInput\(page\)\)/)
+  assert.match(scenario, /setupTimeout: 15000, deadlineAt, signal, trace/)
   assert.doesNotMatch(scenario, /skip.isVisible|skip.click/)
 })

@@ -101,10 +101,10 @@ test('a stalled trace start cannot dispatch late gameplay input', async t => {
   assert.equal(report.inputActionTrace.inputStartedMs, undefined)
 })
 
-test('profile scenario keeps original skip budget and owned context closure around the diagnostic', () => {
+test('profile diagnostic does not alter the explicit setup/response contract and owned context closure around the diagnostic', () => {
   const source = readFileSync(new URL('../scripts/local-render/campaign-profile-recovery.mjs', import.meta.url), 'utf8')
-  assert.match(source, /if \(!report\.inputActionTrace\)[\s\S]*?traceProfileInput\(page\.context\(\), report, output, \(\) => skipPauseIntroduction\(page\)\)/)
-  assert.match(source, /else await skipPauseIntroduction\(page\)/)
+  assert.match(source, /if \(!report\.inputActionTrace\)[\s\S]*?traceProfileInput\(page\.context\(\), report, output, \(\) => skipInput\(page\)\)/)
+  assert.match(source, /else await skipInput\(page\)/)
   assert.match(source, /finally \{ await context\.close\(\) \}/)
-  assert.doesNotMatch(source, /skipPauseIntroduction\(page, \{ timeout:/, 'Trace does not extend or restart the original skip budget')
+  assert.doesNotMatch(source, /skipPauseIntroduction\(page, \{ timeout:/, 'Trace does not extend or restart the response budget')
 })

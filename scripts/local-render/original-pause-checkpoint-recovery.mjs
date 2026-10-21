@@ -36,36 +36,78 @@ export function pauseStartupReady(snapshot = false) {
   return snapshot ? { action, paused: world.paused, inputMask: world.inputMask, flybyFlags: world.flyby.flags } : action
 }
 
-// Keep the original recovery cap over observation and real input delivery. A
-// failed delivery is forgivable only after native completion with unchanged pause.
-export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
+// Default callers retain the original shared 2500ms preparation/input bound.
+// Explicit hosted setup callers may instead spend their EXISTING public UI
+// allowance on initial popup/focus preparation, with a fresh <=2500ms response
+// phase clipped to the SAME absolute action/episode deadline. See the contract
+// note in engineering/recovery-input-budget.md. This is not a latency SLA.
+export async function skipPauseIntroduction(page, {
+  timeout = 2500, setupTimeout, deadlineAt, signal, trace = {},
+} = {}) {
   if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid recovery input timeout')
-  const started = performance.now(), deadline = started + timeout
-  const trace = { phase: 'start', preparation: {} }
+  const separateSetup = setupTimeout !== undefined
+  if (separateSetup && (!Number.isFinite(setupTimeout) || setupTimeout <= 0 || !Number.isFinite(deadlineAt)))
+    throw new RangeError('Public recovery setup requires its existing UI allowance and outer deadline')
+  const started = performance.now(),
+    actionMs = separateSetup ? Math.min(setupTimeout, deadlineAt - Date.now()) : timeout,
+    actionDeadline = started + actionMs
+  let responseDeadline = separateSetup ? null : actionDeadline
+  Object.assign(trace, { phase: 'start', preparation: {}, completed: [],
+    contract: separateSetup ? 'public-setup-then-response-v1' : 'shared-input-v1',
+    actionCapMs: actionMs, responseCapMs: timeout })
   const timedOut = () => new Error(`Recovery introduction input timed out: ${JSON.stringify({ ...trace, elapsedMs: performance.now() - started })}`)
-  let closed = false, timer, deliveryError
+  let closed = false, timer, deliveryError, rejectExpiry
   const remaining = () => {
-    const budget = deadline - performance.now()
-    if (closed || budget <= 0) throw timedOut()
+    signal?.throwIfAborted()
+    const budget = (responseDeadline ?? actionDeadline) - performance.now()
+    if (closed || budget <= 0) throw deliveryError ?? timedOut()
     return budget
   }
+  const expiry = new Promise((_, reject) => { rejectExpiry = reject })
+  const expire = () => { closed = true; rejectExpiry(deliveryError ?? timedOut()) }
+  const aborted = () => { closed = true; rejectExpiry(signal.reason ?? new Error('Recovery input aborted')) }
+  const arm = () => {
+    clearTimeout(timer)
+    timer = setTimeout(expire, Math.max(0, (responseDeadline ?? actionDeadline) - performance.now()))
+  }
+  const phase = async (name, action) => {
+    remaining()
+    trace.phase = name
+    const startedMs = performance.now() - started
+    try { return await action() }
+    finally { trace.completed.push({ phase: name, startedMs, finishedMs: performance.now() - started }) }
+  }
+  const prepare = () => phase('prepare-world-input', () =>
+    prepareWorldInput(page, { timeout: remaining(), trace: trace.preparation, signal }))
   const run = async () => {
-    for (;;) {
-      trace.phase = 'prepare-world-input'
-      await prepareWorldInput(page, { timeout: remaining(), trace: trace.preparation })
+    if (separateSetup) {
+      await prepare()
       remaining()
-      trace.phase = 'read-before-skip'
-      const before = await page.evaluate(pauseStartupReady, true)
+      trace.setupFinishedMs = performance.now() - started
+      // Starts before the fresh native-state read, not merely before key dispatch.
+      responseDeadline = Math.min(actionDeadline, performance.now() + timeout)
+      trace.responseStartedMs = performance.now() - started
+      trace.responseDeadlineMs = responseDeadline - started
+      arm()
+    }
+    let prepared = separateSetup
+    for (;;) {
+      // A rejected popup may require preparation again, but it never resets the
+      // already-running response deadline or the absolute action/episode cap.
+      if (!prepared) await prepare()
+      prepared = false
+      remaining()
+      const before = await phase('read-before-skip', () => page.evaluate(pauseStartupReady, true))
       remaining()
       if (before.action === 'ready') return
       if (before.action !== 'skip') throw new Error('Recovery introduction is no longer interruptible')
       let delivery
-      trace.phase = 'observed-space-dispatch'
-      try { delivery = await pressObservedSpace(page, { timeout: remaining() }) }
-      catch (error) { deliveryError = error }
+      await phase('observed-space-dispatch', async () => {
+        try { delivery = await pressObservedSpace(page, { timeout: remaining(), signal }) }
+        catch (error) { deliveryError = error }
+      })
       remaining()
-      trace.phase = 'read-after-skip'
-      const after = await page.evaluate(pauseStartupReady, true)
+      const after = await phase('read-after-skip', () => page.evaluate(pauseStartupReady, true))
       remaining()
       if (after.paused !== before.paused) throw new Error('Recovery Space changed pause state; retry the episode')
       if (deliveryError && after.action !== 'ready') throw deliveryError
@@ -77,10 +119,16 @@ export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
     }
   }
   try {
-    await Promise.race([run(), new Promise((_, reject) => {
-      timer = setTimeout(() => { closed = true; reject(deliveryError ?? timedOut()) }, remaining())
-    })])
-  } finally { closed = true; clearTimeout(timer) }
+    signal?.throwIfAborted()
+    signal?.addEventListener('abort', aborted, { once: true })
+    arm()
+    await Promise.race([run(), expiry])
+  } finally {
+    closed = true
+    clearTimeout(timer)
+    signal?.removeEventListener('abort', aborted)
+    trace.elapsedMs = performance.now() - started
+  }
 }
 
 // A later authored flyby can begin after the initial input-unlocked sample.
@@ -96,9 +144,10 @@ export function recoverVisibleIntroduction(page) {
   }
 }
 
-export default async function ({ browser, page, url, root, output, receipt, signal }) {
+export default async function ({ browser, page, url, root, output, receipt, signal, deadlineAt }) {
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
-  const checks = [], screenshots = [], renderers = [], frontendKeyboard = []
+  const checks = [], screenshots = [], renderers = [], frontendKeyboard = [], inputBudgets = []
+  receipt.pauseInputBudgets = inputBudgets
   const passed = name => {
     checks.push(name)
     writeFileSync(resolve(output, 'progress.json'), JSON.stringify({ checks, screenshots }, null, 2))
@@ -127,7 +176,11 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     const startup = await page.waitForFunction(pauseStartupReady)
     const action = await startup.jsonValue()
     await startup.dispose()
-    if (action === 'skip') await skipPauseIntroduction(page)
+    if (action === 'skip') {
+      const trace = {}; inputBudgets.push(trace)
+      await skipPauseIntroduction(page, Number.isFinite(deadlineAt)
+        ? { setupTimeout: 25000, deadlineAt, signal, trace } : { trace })
+    }
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     renderers.push(await page.evaluate(() => {
       const gl = window.testSceneRef.current.renderer.getContext()
@@ -369,7 +422,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     await emptyContext.close()
   }
   return {
-    checks, screenshots, saved, renderers, frontendKeyboard, heldEscape,
+    checks, screenshots, saved, renderers, frontendKeyboard, heldEscape, inputBudgets,
     limits: [
       'Controlled cold IndexedDB open failure and delayed success delivery; all checkpoint contents, storage transactions, world transitions and UI handlers are real.',
       'Repeated disabled-button clicks are synthetic activation probes; mission entry, saving, retry, Back and loading use rendered controls.',

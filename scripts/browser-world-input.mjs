@@ -15,7 +15,7 @@ export function campaignPopupSnapshot() {
     .map(detail => ({ serial: detail.getAttribute('data-message-serial'), open: detail.open }))
 }
 
-async function withinInputDeadline(timeout, run, trace = {}) {
+async function withinInputDeadline(timeout, run, trace = {}, signal) {
   if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid world input timeout')
   const started = performance.now(), deadline = started + timeout
   Object.assign(trace, { phase: 'start', pending: false, elapsedMs: 0, completed: [] })
@@ -23,8 +23,11 @@ async function withinInputDeadline(timeout, run, trace = {}) {
     trace.elapsedMs = performance.now() - started
     return new Error(`World input preparation timed out: ${JSON.stringify(trace)}`)
   }
-  let expired = false, timer
+  let expired = false, timer, rejectAbort
+  const abort = () => { expired = true; rejectAbort(signal.reason ?? new Error('World input aborted')) }
+  const aborted = new Promise((_, reject) => { rejectAbort = reject })
   const remaining = () => {
+    signal?.throwIfAborted()
     const budget = deadline - performance.now()
     if (expired || budget <= 0) throw timedOut()
     return budget
@@ -41,10 +44,12 @@ async function withinInputDeadline(timeout, run, trace = {}) {
     return value
   }
   try {
-    return await Promise.race([run(remaining, phase), new Promise((_, reject) => {
+    signal?.throwIfAborted()
+    signal?.addEventListener('abort', abort, { once: true })
+    return await Promise.race([run(remaining, phase), aborted, new Promise((_, reject) => {
       timer = setTimeout(() => { expired = true; reject(timedOut()) }, remaining())
     })])
-  } finally { expired = true; clearTimeout(timer) }
+  } finally { expired = true; clearTimeout(timer); signal?.removeEventListener('abort', abort) }
 }
 
 async function observePopups(page, phase, trace, name) {
@@ -85,7 +90,7 @@ export async function setCampaignPopupOpen(page, serial, open, { timeout = 2500,
   }, trace)
 }
 
-export async function prepareWorldInput(page, { timeout = 2500, keyboardFocus = true, trace = {} } = {}) {
+export async function prepareWorldInput(page, { timeout = 2500, keyboardFocus = true, trace = {}, signal } = {}) {
   assert.equal(typeof keyboardFocus, 'boolean')
   return withinInputDeadline(timeout, async (remaining, phase) => {
     const collapsed = []
@@ -104,7 +109,7 @@ export async function prepareWorldInput(page, { timeout = 2500, keyboardFocus = 
       snapshot = await observePopups(page, phase, trace, 'reobserve-popup-owners')
       if (!snapshot.some(detail => detail.open)) return collapsed
     }
-  }, trace)
+  }, trace, signal)
 }
 
 export async function pressWorldSpace(page, { timeout = 2500 } = {}) {
