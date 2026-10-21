@@ -361,16 +361,16 @@ test('real FPS font overhang is allowed only inside actual clipping and non-over
 test('compact preferences use public controls with genuine text geometry and F8-off restoration', () => {
   assert.deepEqual(compactMessageCases, [
     {
-      preference: 'auto',
-      label: 'Automatic',
+      preference: '4',
+      label: '400%',
       sizes: [
         [900, 360],
         [640, 480],
       ],
     },
     {
-      preference: '4',
-      label: '400%',
+      preference: 'auto',
+      label: 'Automatic',
       sizes: [
         [900, 360],
         [640, 480],

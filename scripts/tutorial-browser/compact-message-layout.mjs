@@ -11,16 +11,16 @@ import {
 
 export const compactMessageCases = Object.freeze([
   {
-    preference: 'auto',
-    label: 'Automatic',
+    preference: '4',
+    label: '400%',
     sizes: [
       [900, 360],
       [640, 480],
     ],
   },
   {
-    preference: '4',
-    label: '400%',
+    preference: 'auto',
+    label: 'Automatic',
     sizes: [
       [900, 360],
       [640, 480],
@@ -321,11 +321,12 @@ async function selectHudPreference(page, preference) {
   await button('Options').click()
   await button('Browser compatibility and help').click()
   const setting = page.getByRole('button', { name: /^HUD size : </ })
-  // A fresh profile displays Automatic without a stored preference. Exercise a
-  // real public change before the strict persistence witness, even for Automatic.
-  await chooseHudSize(page, preference === 'auto' ? '1' : 'auto')
+  // Start with 400%, then wrap once to Automatic: both values are persisted by
+  // real public changes without cycling through the same six settings twice.
   await chooseHudSize(page, preference)
   assert.equal(await setting.getAttribute('data-hud-size'), preference)
+  assert.equal(await page.evaluate(() => localStorage.getItem('hud-size')), preference,
+    'The displayed preference must be persisted by its public setting action')
   await button('Back to Options').click()
   await button('Back').click()
   await button('Continue Game').click()
