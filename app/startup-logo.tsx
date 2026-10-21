@@ -112,8 +112,8 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
     playback === 'failed'
       ? 'The opening logo could not be played. You can continue to the menu.'
       : 'Your browser paused the opening logo.'
-  const playbackAction =
-    playback === 'blocked' ? 'Play logo' : muted ? 'Enable logo sound' : 'Mute logo'
+  let playbackAction = muted ? 'Enable logo sound' : 'Mute logo'
+  if (playback === 'blocked') playbackAction = 'Play logo'
 
   return (
     <dialog
@@ -207,7 +207,7 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
         )}
         <button
           type="button"
-          className={!recovery ? styles.focusOnly : undefined}
+          className={recovery ? undefined : styles.focusOnly}
           aria-label="Skip logo"
           onClick={complete}
         >
