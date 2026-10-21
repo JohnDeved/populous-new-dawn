@@ -1,0 +1,1178 @@
+{
+  "version": 1,
+  "sourceManifestSha256": "a126375d5702fdeb524e6d3d9cde1f2a0ae090d5a78634bdbac7ce1a5e4ccdbf",
+  "decoderFunctionsSha256": {
+    "png": "109f4d27182a34ec7f2c4d5b2e0686787b748a02656b6e3719a57e78889eecef",
+    "sprites": "d1c1ec8830fbf0e4339288d6514350b852e73c67c2361e580bae699766bf6892"
+  },
+  "nativeViewport": [
+    640,
+    480
+  ],
+  "panel": {
+    "source": "data/plspanel.spr",
+    "frame": 0,
+    "width": 638,
+    "height": 61,
+    "nativeOrigin": [
+      1,
+      419
+    ],
+    "profileSelectableMask": 5,
+    "drawCompletedRegardlessOfAvailability": true,
+    "hitEdges": "exclusive-left-top-inclusive-right-bottom",
+    "pressedOffset": [
+      1,
+      1
+    ],
+    "pressedDuration": "one draw",
+    "launch": {
+      "nativeXY": [
+        577,
+        430
+      ],
+      "highlightFrame": 10,
+      "hitDimensionsFrame": 11,
+      "width": 37,
+      "height": 37
+    }
+  },
+  "title": {
+    "fontSource": "data/fenew/felo20we.spr",
+    "fontSlot": 3,
+    "format": "%02d : %s",
+    "nativeY": 400,
+    "alignment": "screen-center"
+  },
+  "tooltip": {
+    "fontSource": "data/fenew/fettwe.spr",
+    "fontSlot": 11,
+    "delayMs": 500,
+    "delayComparison": "strictly-greater",
+    "languageIds": {
+      "launch": 978,
+      "available": 979,
+      "completed": 980
+    },
+    "strings": {
+      "978": {
+        "text": "Begin World: {}start",
+        "width": 109,
+        "height": 10
+      },
+      "979": {
+        "text": "An unconquered world: {}select",
+        "width": 167,
+        "height": 10
+      },
+      "980": {
+        "text": "You have conquered this world: {}select",
+        "width": 218,
+        "height": 10
+      }
+    }
+  },
+  "cursor": {
+    "source": "data/plspanel.spr",
+    "frame": 12,
+    "hotspot": [
+      0,
+      0
+    ],
+    "width": 26,
+    "height": 27,
+    "paletteBinding": "unresolved; source-palette reconstruction only"
+  },
+  "paletteBanks": {
+    "1": {
+      "index": 1,
+      "source": "data/plspl0-1.dat"
+    },
+    "4": {
+      "index": 4,
+      "source": "data/plspl0-4.dat"
+    },
+    "5": {
+      "index": 5,
+      "source": "data/plspl0-5.dat"
+    },
+    "6": {
+      "index": 6,
+      "source": "data/plspl0-6.dat"
+    },
+    "9": {
+      "index": 9,
+      "source": "data/plspl0-9.dat"
+    },
+    "a": {
+      "index": 10,
+      "source": "data/plspl0-a.dat"
+    },
+    "b": {
+      "index": 11,
+      "source": "data/plspl0-b.dat"
+    },
+    "c": {
+      "index": 12,
+      "source": "data/plspl0-c.dat"
+    },
+    "d": {
+      "index": 13,
+      "source": "data/plspl0-d.dat"
+    },
+    "g": {
+      "index": 16,
+      "source": "data/plspl0-g.dat"
+    },
+    "h": {
+      "index": 17,
+      "source": "data/plspl0-h.dat"
+    },
+    "i": {
+      "index": 18,
+      "source": "data/plspl0-i.dat"
+    },
+    "l": {
+      "index": 21,
+      "source": "data/plspl0-l.dat"
+    },
+    "m": {
+      "index": 22,
+      "source": "data/plspl0-m.dat"
+    },
+    "n": {
+      "index": 23,
+      "source": "data/plspl0-n.dat"
+    },
+    "o": {
+      "index": 24,
+      "source": "data/plspl0-o.dat"
+    },
+    "p": {
+      "index": 25,
+      "source": "data/plspl0-p.dat"
+    },
+    "s": {
+      "index": 28,
+      "source": "data/plspl0-s.dat"
+    },
+    "t": {
+      "index": 29,
+      "source": "data/plspl0-t.dat"
+    },
+    "u": {
+      "index": 30,
+      "source": "data/plspl0-u.dat"
+    }
+  },
+  "worlds": [
+    {
+      "mission": 1,
+      "body": {
+        "index": 24,
+        "radius": 8.0,
+        "parent": 20,
+        "orbitRadius": 150.0,
+        "startAngle": 90.0,
+        "angularVelocity": 1.3,
+        "mission": 1
+      },
+      "header": "levels/levl2001.hdr",
+      "palette": "c",
+      "panel": {
+        "kind": 0,
+        "sourceXY": [
+          34,
+          27
+        ],
+        "localXY": [
+          33,
+          26
+        ],
+        "nativeXY": [
+          34,
+          445
+        ],
+        "availableFrame": 5,
+        "completedFrame": 6,
+        "width": 10,
+        "height": 12
+      },
+      "title": {
+        "languageId": 610,
+        "text": "01 : The Journey Begins",
+        "width": 200,
+        "height": 19,
+        "rgbaSha256": "3b477ce80f0876d92cefdbdb679b89d2088e827b671a51a359f28c61748562a9"
+      }
+    },
+    {
+      "mission": 2,
+      "body": {
+        "index": 23,
+        "radius": 8.0,
+        "parent": 20,
+        "orbitRadius": 110.0,
+        "startAngle": 90.0,
+        "angularVelocity": 2.7,
+        "mission": 2
+      },
+      "header": "levels/levl2002.hdr",
+      "palette": "s",
+      "panel": {
+        "kind": 0,
+        "sourceXY": [
+          54,
+          27
+        ],
+        "localXY": [
+          53,
+          26
+        ],
+        "nativeXY": [
+          54,
+          445
+        ],
+        "availableFrame": 5,
+        "completedFrame": 6,
+        "width": 10,
+        "height": 12
+      },
+      "title": {
+        "languageId": 640,
+        "text": "02 : Night Falls",
+        "width": 139,
+        "height": 19,
+        "rgbaSha256": "87649755d1d6bc8d7a7b5f8a5e1d62cbe6165bd8a81863a553f3e81690fa0b16"
+      }
+    },
+    {
+      "mission": 3,
+      "body": {
+        "index": 22,
+        "radius": 8.0,
+        "parent": 20,
+        "orbitRadius": 70.0,
+        "startAngle": 90.0,
+        "angularVelocity": 2.5,
+        "mission": 3
+      },
+      "header": "levels/levl2003.hdr",
+      "palette": "p",
+      "panel": {
+        "kind": 0,
+        "sourceXY": [
+          74,
+          27
+        ],
+        "localXY": [
+          73,
+          26
+        ],
+        "nativeXY": [
+          74,
+          445
+        ],
+        "availableFrame": 5,
+        "completedFrame": 6,
+        "width": 10,
+        "height": 12
+      },
+      "title": {
+        "languageId": 647,
+        "text": "03 : Crisis of Faith",
+        "width": 170,
+        "height": 19,
+        "rgbaSha256": "4fcbab8917c0a9af8426d2b999cc21824d9ccb824a183a6ca1fc785b02d22b74"
+      }
+    },
+    {
+      "mission": 4,
+      "body": {
+        "index": 21,
+        "radius": 8.0,
+        "parent": 20,
+        "orbitRadius": 35.0,
+        "startAngle": 90.0,
+        "angularVelocity": 2.3,
+        "mission": 4
+      },
+      "header": "levels/levl2004.hdr",
+      "palette": "d",
+      "panel": {
+        "kind": 0,
+        "sourceXY": [
+          94,
+          27
+        ],
+        "localXY": [
+          93,
+          26
+        ],
+        "nativeXY": [
+          94,
+          445
+        ],
+        "availableFrame": 5,
+        "completedFrame": 6,
+        "width": 10,
+        "height": 12
+      },
+      "title": {
+        "languageId": 653,
+        "text": "04 : Combined Forces",
+        "width": 193,
+        "height": 19,
+        "rgbaSha256": "f96bee31e9dca9ca5df3e8a1fdabd4682757e0984b33e74fc57a5f7930dc3416"
+      }
+    },
+    {
+      "mission": 5,
+      "body": {
+        "index": 20,
+        "radius": 10.0,
+        "parent": 0,
+        "orbitRadius": 1400.0,
+        "startAngle": 270.0,
+        "angularVelocity": 0.8,
+        "mission": 5
+      },
+      "header": "levels/levl2005.hdr",
+      "palette": "m",
+      "panel": {
+        "kind": 1,
+        "sourceXY": [
+          114,
+          25
+        ],
+        "localXY": [
+          113,
+          24
+        ],
+        "nativeXY": [
+          114,
+          443
+        ],
+        "availableFrame": 3,
+        "completedFrame": 4,
+        "width": 13,
+        "height": 15
+      },
+      "title": {
+        "languageId": 660,
+        "text": "05 : Death From Above",
+        "width": 205,
+        "height": 19,
+        "rgbaSha256": "395d4c970a118a96b924ba72b03545c86701c460f06162ff208cff506f916766"
+      }
+    },
+    {
+      "mission": 6,
+      "body": {
+        "index": 19,
+        "radius": 20.0,
+        "parent": 15,
+        "orbitRadius": 150.0,
+        "startAngle": 180.0,
+        "angularVelocity": 3.0,
+        "mission": 6
+      },
+      "header": "levels/levl2006.hdr",
+      "palette": "c",
+      "panel": {
+        "kind": 2,
+        "sourceXY": [
+          137,
+          23
+        ],
+        "localXY": [
+          135,
+          21
+        ],
+        "nativeXY": [
+          136,
+          440
+        ],
+        "availableFrame": 1,
+        "completedFrame": 2,
+        "width": 21,
+        "height": 21
+      },
+      "title": {
+        "languageId": 663,
+        "text": "06 : Building Bridges",
+        "width": 182,
+        "height": 19,
+        "rgbaSha256": "0bc1671232e028a10618691fad1cf59d192c47c2d052dcb2f3dee4f462224c20"
+      }
+    },
+    {
+      "mission": 7,
+      "body": {
+        "index": 18,
+        "radius": 10.0,
+        "parent": 15,
+        "orbitRadius": 110.0,
+        "startAngle": 180.0,
+        "angularVelocity": 1.4,
+        "mission": 7
+      },
+      "header": "levels/levl2007.hdr",
+      "palette": "6",
+      "panel": {
+        "kind": 1,
+        "sourceXY": [
+          168,
+          25
+        ],
+        "localXY": [
+          167,
+          24
+        ],
+        "nativeXY": [
+          168,
+          443
+        ],
+        "availableFrame": 3,
+        "completedFrame": 4,
+        "width": 13,
+        "height": 15
+      },
+      "title": {
+        "languageId": 667,
+        "text": "07 : Unseen Enemy",
+        "width": 158,
+        "height": 19,
+        "rgbaSha256": "6483c3fd63e7aeb6c0ce467e258af2971f188a109d05c69619a735638883f5ff"
+      }
+    },
+    {
+      "mission": 8,
+      "body": {
+        "index": 17,
+        "radius": 20.0,
+        "parent": 15,
+        "orbitRadius": 70.0,
+        "startAngle": 180.0,
+        "angularVelocity": 2.1,
+        "mission": 8
+      },
+      "header": "levels/levl2008.hdr",
+      "palette": "b",
+      "panel": {
+        "kind": 2,
+        "sourceXY": [
+          191,
+          23
+        ],
+        "localXY": [
+          189,
+          21
+        ],
+        "nativeXY": [
+          190,
+          440
+        ],
+        "availableFrame": 1,
+        "completedFrame": 2,
+        "width": 21,
+        "height": 21
+      },
+      "title": {
+        "languageId": 671,
+        "text": "08 : Continental Divide",
+        "width": 206,
+        "height": 19,
+        "rgbaSha256": "2f6c1aa8b1bb7d29267d88c591f859a5e273eeb4a01cb45648ac5bf87058008a"
+      }
+    },
+    {
+      "mission": 9,
+      "body": {
+        "index": 16,
+        "radius": 10.0,
+        "parent": 15,
+        "orbitRadius": 35.0,
+        "startAngle": 180.0,
+        "angularVelocity": 2.5,
+        "mission": 9
+      },
+      "header": "levels/levl2009.hdr",
+      "palette": "5",
+      "panel": {
+        "kind": 1,
+        "sourceXY": [
+          224,
+          25
+        ],
+        "localXY": [
+          223,
+          24
+        ],
+        "nativeXY": [
+          224,
+          443
+        ],
+        "availableFrame": 3,
+        "completedFrame": 4,
+        "width": 13,
+        "height": 15
+      },
+      "title": {
+        "languageId": 674,
+        "text": "09 : Fire in the Mist",
+        "width": 175,
+        "height": 19,
+        "rgbaSha256": "ca9aaf6e6be09bf3dd256771eb377cabf937bb0c22c11f7a0b404fb66c23b03d"
+      }
+    },
+    {
+      "mission": 10,
+      "body": {
+        "index": 15,
+        "radius": 10.0,
+        "parent": 0,
+        "orbitRadius": 1100.0,
+        "startAngle": 0.0,
+        "angularVelocity": 0.8,
+        "mission": 10
+      },
+      "header": "levels/levl2010.hdr",
+      "palette": "p",
+      "panel": {
+        "kind": 1,
+        "sourceXY": [
+          249,
+          25
+        ],
+        "localXY": [
+          248,
+          24
+        ],
+        "nativeXY": [
+          249,
+          443
+        ],
+        "availableFrame": 3,
+        "completedFrame": 4,
+        "width": 13,
+        "height": 15
+      },
+      "title": {
+        "languageId": 678,
+        "text": "10 : From the Depths",
+        "width": 182,
+        "height": 19,
+        "rgbaSha256": "e586d86045ef2c1b26230bc61caf58c5078026d99ba8e4890d83e3a6956fad7f"
+      }
+    },
+    {
+      "mission": 11,
+      "body": {
+        "index": 14,
+        "radius": 20.0,
+        "parent": 10,
+        "orbitRadius": 150.0,
+        "startAngle": 270.0,
+        "angularVelocity": 3.0,
+        "mission": 11
+      },
+      "header": "levels/levl2011.hdr",
+      "palette": "6",
+      "panel": {
+        "kind": 2,
+        "sourceXY": [
+          270,
+          23
+        ],
+        "localXY": [
+          268,
+          21
+        ],
+        "nativeXY": [
+          269,
+          440
+        ],
+        "availableFrame": 1,
+        "completedFrame": 2,
+        "width": 21,
+        "height": 21
+      },
+      "title": {
+        "languageId": 683,
+        "text": "11 : Treacherous Souls",
+        "width": 199,
+        "height": 19,
+        "rgbaSha256": "06c861f9236033ad0098868a1c90ff3fa79f7dde08ad4e5d26e0b463e63dacee"
+      }
+    },
+    {
+      "mission": 12,
+      "body": {
+        "index": 13,
+        "radius": 20.0,
+        "parent": 10,
+        "orbitRadius": 110.0,
+        "startAngle": 270.0,
+        "angularVelocity": 1.4,
+        "mission": 12
+      },
+      "header": "levels/levl2012.hdr",
+      "palette": "h",
+      "panel": {
+        "kind": 2,
+        "sourceXY": [
+          298,
+          23
+        ],
+        "localXY": [
+          296,
+          21
+        ],
+        "nativeXY": [
+          297,
+          440
+        ],
+        "availableFrame": 1,
+        "completedFrame": 2,
+        "width": 21,
+        "height": 21
+      },
+      "title": {
+        "languageId": 685,
+        "text": "12 : An Easy Target",
+        "width": 170,
+        "height": 19,
+        "rgbaSha256": "7501454437784e45c23ade4c3de119ec69ff49e01846f77d57c76ca065598c9c"
+      }
+    },
+    {
+      "mission": 13,
+      "body": {
+        "index": 12,
+        "radius": 10.0,
+        "parent": 10,
+        "orbitRadius": 70.0,
+        "startAngle": 270.0,
+        "angularVelocity": 2.1,
+        "mission": 13
+      },
+      "header": "levels/levl2013.hdr",
+      "palette": "1",
+      "panel": {
+        "kind": 1,
+        "sourceXY": [
+          329,
+          25
+        ],
+        "localXY": [
+          328,
+          24
+        ],
+        "nativeXY": [
+          329,
+          443
+        ],
+        "availableFrame": 3,
+        "completedFrame": 4,
+        "width": 13,
+        "height": 15
+      },
+      "title": {
+        "languageId": 687,
+        "text": "13 : Aerial Bombardment",
+        "width": 212,
+        "height": 19,
+        "rgbaSha256": "f09e526237102288230e6efa5f0ca771459bd010fe5c3ec6c54988e84c7f738e"
+      }
+    },
+    {
+      "mission": 14,
+      "body": {
+        "index": 11,
+        "radius": 10.0,
+        "parent": 10,
+        "orbitRadius": 35.0,
+        "startAngle": 270.0,
+        "angularVelocity": 2.5,
+        "mission": 14
+      },
+      "header": "levels/levl2014.hdr",
+      "palette": "a",
+      "panel": {
+        "kind": 1,
+        "sourceXY": [
+          354,
+          25
+        ],
+        "localXY": [
+          353,
+          24
+        ],
+        "nativeXY": [
+          354,
+          443
+        ],
+        "availableFrame": 3,
+        "completedFrame": 4,
+        "width": 13,
+        "height": 15
+      },
+      "title": {
+        "languageId": 689,
+        "text": "14 : Attacked From All Sides",
+        "width": 253,
+        "height": 19,
+        "rgbaSha256": "2fc93af0c4962bdf2e59770250e008441f0fd015f0eca2de7465dca61a555325"
+      }
+    },
+    {
+      "mission": 15,
+      "body": {
+        "index": 10,
+        "radius": 10.0,
+        "parent": 0,
+        "orbitRadius": 800.0,
+        "startAngle": 90.0,
+        "angularVelocity": 0.8,
+        "mission": 15
+      },
+      "header": "levels/levl2015.hdr",
+      "palette": "o",
+      "panel": {
+        "kind": 1,
+        "sourceXY": [
+          379,
+          25
+        ],
+        "localXY": [
+          378,
+          24
+        ],
+        "nativeXY": [
+          379,
+          443
+        ],
+        "availableFrame": 3,
+        "completedFrame": 4,
+        "width": 13,
+        "height": 15
+      },
+      "title": {
+        "languageId": 691,
+        "text": "15 : Incarcerated",
+        "width": 150,
+        "height": 19,
+        "rgbaSha256": "60e503757b447a2930bb37427ab49d5ab7b9b25c372aeb948241f39e338ac189"
+      }
+    },
+    {
+      "mission": 16,
+      "body": {
+        "index": 9,
+        "radius": 20.0,
+        "parent": 7,
+        "orbitRadius": 80.0,
+        "startAngle": 315.0,
+        "angularVelocity": 3.0,
+        "mission": 16
+      },
+      "header": "levels/levl2016.hdr",
+      "palette": "l",
+      "panel": {
+        "kind": 1,
+        "sourceXY": [
+          408,
+          8
+        ],
+        "localXY": [
+          407,
+          7
+        ],
+        "nativeXY": [
+          408,
+          426
+        ],
+        "availableFrame": 3,
+        "completedFrame": 4,
+        "width": 13,
+        "height": 15
+      },
+      "title": {
+        "languageId": 693,
+        "text": "16 : Bloodlust",
+        "width": 129,
+        "height": 19,
+        "rgbaSha256": "e4f0a5caf97e2343536916c66668b52ca7eb8970986d78a8e888cc3bfb044fc1"
+      }
+    },
+    {
+      "mission": 17,
+      "body": {
+        "index": 8,
+        "radius": 20.0,
+        "parent": 7,
+        "orbitRadius": 80.0,
+        "startAngle": 135.0,
+        "angularVelocity": 3.0,
+        "mission": 17
+      },
+      "header": "levels/levl2017.hdr",
+      "palette": "c",
+      "panel": {
+        "kind": 1,
+        "sourceXY": [
+          412,
+          19
+        ],
+        "localXY": [
+          411,
+          18
+        ],
+        "nativeXY": [
+          412,
+          437
+        ],
+        "availableFrame": 3,
+        "completedFrame": 4,
+        "width": 13,
+        "height": 15
+      },
+      "title": {
+        "languageId": 696,
+        "text": "17 : Middle Ground",
+        "width": 167,
+        "height": 19,
+        "rgbaSha256": "b6f5bba0a9e13c7e723f1b17c517cd88e7ed207d023d407f67bd404d020c9a4c"
+      }
+    },
+    {
+      "mission": 18,
+      "body": {
+        "index": 5,
+        "radius": 20.0,
+        "parent": 4,
+        "orbitRadius": 80.0,
+        "startAngle": 225.0,
+        "angularVelocity": 3.0,
+        "mission": 18
+      },
+      "header": "levels/levl2018.hdr",
+      "palette": "g",
+      "panel": {
+        "kind": 1,
+        "sourceXY": [
+          412,
+          30
+        ],
+        "localXY": [
+          411,
+          29
+        ],
+        "nativeXY": [
+          412,
+          448
+        ],
+        "availableFrame": 3,
+        "completedFrame": 4,
+        "width": 13,
+        "height": 15
+      },
+      "title": {
+        "languageId": 698,
+        "text": "18 : Head Hunter",
+        "width": 142,
+        "height": 19,
+        "rgbaSha256": "837448359deb8ed785985e62c92dee6ab640f589968d51e31ba4f79049668048"
+      }
+    },
+    {
+      "mission": 19,
+      "body": {
+        "index": 6,
+        "radius": 20.0,
+        "parent": 4,
+        "orbitRadius": 80.0,
+        "startAngle": 45.0,
+        "angularVelocity": 3.0,
+        "mission": 19
+      },
+      "header": "levels/levl2019.hdr",
+      "palette": "d",
+      "panel": {
+        "kind": 1,
+        "sourceXY": [
+          408,
+          41
+        ],
+        "localXY": [
+          407,
+          40
+        ],
+        "nativeXY": [
+          408,
+          459
+        ],
+        "availableFrame": 3,
+        "completedFrame": 4,
+        "width": 13,
+        "height": 15
+      },
+      "title": {
+        "languageId": 700,
+        "text": "19 : Unlikely Allies",
+        "width": 161,
+        "height": 19,
+        "rgbaSha256": "b11679949d41896f7f38c62b4741259d1e0d4e6a5755a0c6fe2722a3f0e4f0ab"
+      }
+    },
+    {
+      "mission": 20,
+      "body": {
+        "index": 7,
+        "radius": 10.0,
+        "parent": 0,
+        "orbitRadius": 500.0,
+        "startAngle": 270.0,
+        "angularVelocity": 1.1,
+        "mission": 20
+      },
+      "header": "levels/levl2020.hdr",
+      "palette": "9",
+      "panel": {
+        "kind": 1,
+        "sourceXY": [
+          442,
+          12
+        ],
+        "localXY": [
+          441,
+          11
+        ],
+        "nativeXY": [
+          442,
+          430
+        ],
+        "availableFrame": 3,
+        "completedFrame": 4,
+        "width": 13,
+        "height": 15
+      },
+      "title": {
+        "languageId": 706,
+        "text": "20 : Archipelago",
+        "width": 149,
+        "height": 19,
+        "rgbaSha256": "ed04e17a95fba0f2e48a877ed3f46cb4ec084c7630cbda51d329f68ddfd397a9"
+      }
+    },
+    {
+      "mission": 21,
+      "body": {
+        "index": 4,
+        "radius": 10.0,
+        "parent": 0,
+        "orbitRadius": 500.0,
+        "startAngle": 90.0,
+        "angularVelocity": 1.1,
+        "mission": 21
+      },
+      "header": "levels/levl2021.hdr",
+      "palette": "t",
+      "panel": {
+        "kind": 1,
+        "sourceXY": [
+          442,
+          38
+        ],
+        "localXY": [
+          441,
+          37
+        ],
+        "nativeXY": [
+          442,
+          456
+        ],
+        "availableFrame": 3,
+        "completedFrame": 4,
+        "width": 13,
+        "height": 15
+      },
+      "title": {
+        "languageId": 708,
+        "text": "21 : Fractured Earth",
+        "width": 181,
+        "height": 19,
+        "rgbaSha256": "ef0328596a7d2a1c93b0c0bfc6bd7cd522e7c7d0919bac182cc0e1c1588d949c"
+      }
+    },
+    {
+      "mission": 22,
+      "body": {
+        "index": 3,
+        "radius": 20.0,
+        "parent": 0,
+        "orbitRadius": 360.0,
+        "startAngle": 0.0,
+        "angularVelocity": 1.2,
+        "mission": 22
+      },
+      "header": "levels/levl2022.hdr",
+      "palette": "4",
+      "panel": {
+        "kind": 2,
+        "sourceXY": [
+          466,
+          23
+        ],
+        "localXY": [
+          464,
+          21
+        ],
+        "nativeXY": [
+          465,
+          440
+        ],
+        "availableFrame": 1,
+        "completedFrame": 2,
+        "width": 21,
+        "height": 21
+      },
+      "title": {
+        "languageId": 712,
+        "text": "22 : Solo",
+        "width": 87,
+        "height": 19,
+        "rgbaSha256": "25b5853d49fb4662b2fccfe1025bd56abeb5255631d490e28f750622cde20869"
+      }
+    },
+    {
+      "mission": 23,
+      "body": {
+        "index": 2,
+        "radius": 20.0,
+        "parent": 0,
+        "orbitRadius": 290.0,
+        "startAngle": 95.0,
+        "angularVelocity": 1.5,
+        "mission": 23
+      },
+      "header": "levels/levl2023.hdr",
+      "palette": "u",
+      "panel": {
+        "kind": 2,
+        "sourceXY": [
+          495,
+          23
+        ],
+        "localXY": [
+          493,
+          21
+        ],
+        "nativeXY": [
+          494,
+          440
+        ],
+        "availableFrame": 1,
+        "completedFrame": 2,
+        "width": 21,
+        "height": 21
+      },
+      "title": {
+        "languageId": 714,
+        "text": "23 : Inferno",
+        "width": 106,
+        "height": 19,
+        "rgbaSha256": "d19dfeb3595f6ab36ce2ea6a6ea093b2b763b3ca8d930a7c1a54c15a698ac72d"
+      }
+    },
+    {
+      "mission": 24,
+      "body": {
+        "index": 1,
+        "radius": 20.0,
+        "parent": 0,
+        "orbitRadius": 220.0,
+        "startAngle": 90.0,
+        "angularVelocity": 1.6,
+        "mission": 24
+      },
+      "header": "levels/levl2024.hdr",
+      "palette": "n",
+      "panel": {
+        "kind": 2,
+        "sourceXY": [
+          523,
+          23
+        ],
+        "localXY": [
+          521,
+          21
+        ],
+        "nativeXY": [
+          522,
+          440
+        ],
+        "availableFrame": 1,
+        "completedFrame": 2,
+        "width": 21,
+        "height": 21
+      },
+      "title": {
+        "languageId": 716,
+        "text": "24 : Journey's End",
+        "width": 162,
+        "height": 19,
+        "rgbaSha256": "6d322bb41c242ec3a5ca5d4706090716280389dcf45f7704ab9e0787bbe3e202"
+      }
+    },
+    {
+      "mission": 25,
+      "body": {
+        "index": 0,
+        "radius": 150.0,
+        "parent": -1,
+        "orbitRadius": 0.0,
+        "startAngle": 0.0,
+        "angularVelocity": 0.0,
+        "mission": 25
+      },
+      "header": "levels/levl2025.hdr",
+      "palette": "i",
+      "panel": {
+        "kind": 2,
+        "sourceXY": [
+          551,
+          23
+        ],
+        "localXY": [
+          549,
+          21
+        ],
+        "nativeXY": [
+          550,
+          440
+        ],
+        "availableFrame": 1,
+        "completedFrame": 2,
+        "width": 21,
+        "height": 21
+      },
+      "title": {
+        "languageId": 718,
+        "text": "25 : The Beginning",
+        "width": 157,
+        "height": 19,
+        "rgbaSha256": "320b5d4759920f891ff1025abd75fcb3afa62dc5a5a676e4d36779ebe397ac38"
+      }
+    }
+  ],
+  "limits": [
+    "Inactive source-data prerequisite; does not unlock, select or launch missions.",
+    "No profile migration, campaign activation, new PNGs or existing art replacement.",
+    "Header palettes and source RGBA are not original device-rendered RGB parity.",
+    "Western title/tooltip glyphs only; braces in tooltip strings denote mouse glyphs.",
+    "Native hit geometry is evidence, not an approved browser accessibility layout.",
+    "Mission 25 is the sun body; no ordinary mission-25 globe texture is implied."
+  ]
+}
