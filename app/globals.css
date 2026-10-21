@@ -184,3 +184,6 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 
 .debug-mission-picker { max-width: 40rem; max-height: 85vh; overflow: auto; }
 .debug-mission-picker > div { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+.game-shell[data-result-statistics='true'] { --side: 0px; }
+.game-shell[data-result-statistics='true'] .native-hud { visibility: hidden; pointer-events: none; }

@@ -577,6 +577,7 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
     scene.previous = null
     scene.fpsGraph?.reset(document.hidden ? 'Hidden tab · sampling stopped' : 'Paused · warming up')
     scene.keys.clear()
+    if (!scene.world.paused) scene.focusPauseOwned = true
     scene.world.paused = true
     scene.onChange()
   }

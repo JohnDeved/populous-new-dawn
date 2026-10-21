@@ -11,8 +11,10 @@ export function DebugMissionPicker({
 }) {
   const dialog = useRef<HTMLDialogElement>(null)
   useEffect(() => {
-    dialog.current?.showModal()
-    return () => dialog.current?.close()
+    const element = dialog.current
+    element?.showModal()
+    element?.querySelector<HTMLElement>('h2')?.focus()
+    return () => element?.close()
   }, [])
   return (
     <dialog
@@ -25,9 +27,7 @@ export function DebugMissionPicker({
         onClose()
       }}
     >
-      <h2 tabIndex={-1} autoFocus>
-        Debug missions
-      </h2>
+      <h2 tabIndex={-1}>Debug missions</h2>
       <p>Diagnostic runs do not award campaign progress and cannot be saved.</p>
       <div>
         {missionNumbers.map(mission => (
