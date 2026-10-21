@@ -175,6 +175,19 @@ export function OriginalOptions({
     ],
     [gamePreferences.rotation, gamePreferences.flipRotation]
   )
+  const activeStorageNotice =
+    category === 'Game' ? gameStorageNotice : category === 'Sound' ? storageNotice : ''
+  const storageRows = useMemo<FrontendTextRow[]>(
+    () =>
+      activeStorageNotice
+        ? noticeLines(activeStorageNotice).map((text, index) => ({
+            text,
+            x: 320,
+            y: 338 + index * 30,
+          }))
+        : [],
+    [activeStorageNotice]
+  )
   const rows = useMemo<FrontendTextRow[]>(
     () =>
       browser
@@ -204,8 +217,9 @@ export function OriginalOptions({
                   { text: 'Sound quality : <Unavailable>', x: 320, y: 259 },
                 ]
               : []),
+            ...storageRows,
           ],
-    [browser, category, masterText, musicText, gameRows, compatibility, skin]
+    [browser, category, masterText, musicText, gameRows, compatibility, skin, storageRows]
   )
   useLayoutEffect(() => {
     onTextRowsChange?.(textReady ? rows : [])
@@ -512,11 +526,6 @@ export function OriginalOptions({
                   </div>
                 )
               })}
-              {gameStorageNotice && (
-                <p className={styles.storage} role="status">
-                  {gameStorageNotice}
-                </p>
-              )}
             </>
           )}
           {category === 'Sound' && (
@@ -576,11 +585,6 @@ export function OriginalOptions({
               >
                 {label('Sound quality : <Unavailable>')}
               </div>
-              {storageNotice && (
-                <p className={styles.storage} role="status">
-                  {storageNotice}
-                </p>
-              )}
             </>
           )}
           {unavailableRows[category] && (
@@ -600,6 +604,16 @@ export function OriginalOptions({
                 </div>
               ))}
             </>
+          )}
+          {activeStorageNotice && (
+            <p className={styles.storage} role="status" aria-label={activeStorageNotice}>
+              <span className="game-a11y-status">{activeStorageNotice}</span>
+              {storageRows.map((row, index) => (
+                <span key={index} className={styles.noticeLine} aria-hidden="true">
+                  {label(row.text)}
+                </span>
+              ))}
+            </p>
           )}
           <nav aria-label="Options categories">
             {categories.map((text, index) =>
