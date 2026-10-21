@@ -49,9 +49,9 @@ configure this Tokio pool; an explicit
 also overrides `TOKIO_WORKER_THREADS`. Do not infer the actual pool size from CPU
 affinity, a generic concurrency flag or total CPU count.
 
-The incident changed `ROLLDOWN_WORKER_THREADS` to 4, retained the default blocking
-pool, `RAYON_NUM_THREADS=1` and `NODE_OPTIONS=--max-old-space-size=768`. This is a
-recorded experiment, **not a recommended universal build profile**. Node's
+Build 03 used `ROLLDOWN_WORKER_THREADS=2`, `ROLLDOWN_MAX_BLOCKING_THREADS=2`,
+`RAYON_NUM_THREADS=1` and `NODE_OPTIONS=--max-old-space-size=768`, as recorded in
+`build-03-guard.json`. This is **not a recommended universal build profile**. Node's
 [old-space setting](https://nodejs.org/api/cli.html#--max-old-space-sizesize-in-mib)
 limits part of the V8 heap, not all native allocations or aggregate process RSS.
 Observe owned descendants and actual thread/RSS peaks; the named-thread count is
