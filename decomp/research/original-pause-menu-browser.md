@@ -202,3 +202,14 @@ and a proven session-only save. Save completion still reports its own persistenc
 outcome. Storage lookup, explicit load/save ownership, pending guards and pause
 restoration are unchanged. Rendered acceptance and source-bound check results
 must be established separately; this source note makes no pixel-parity claim.
+
+The authored `scripts/local-render/original-pause-checkpoint-style.mjs` supplement
+uses ordinary Mission 1 Save/Load controls with deliberately unavailable IndexedDB,
+then repeats with a blocked pause-font request at DPR2. It checks the real
+session-only disclosure, 640×480 / 1920×1080 / 800×450 layout, atlas rows or readable
+fallback, independently scrollable copy, fixed reachable actions, frozen world and
+Back/Continue focus/ownership. It retains screenshots and a geometry/text record.
+The existing recovery and save-failure scenarios still own durable save/load,
+lookup races and asynchronous failures. This authored supplement has not yet run;
+the current cloud runtime blocks local browser execution, so rendered acceptance
+remains pending in a supported environment. No existing hosted gate is changed.
