@@ -238,6 +238,19 @@ test('sound activation consumes repeats and release, without dismissing the logo
   }
 })
 
+test('logo framing keeps exact native ratios instead of truncated percentages', () => {
+  const css = readFileSync(new URL('../app/startup-logo.module.css', import.meta.url), 'utf8')
+  assert.match(css, /width: min\(100vw, calc\(100dvh \* 4 \/ 3\)\)/)
+  assert.match(css, /top: calc\(100% \* 64 \/ 480\)/)
+  assert.match(css, /height: calc\(100% \* 352 \/ 480\)/)
+  assert.doesNotMatch(css, /133\.333333|13\.333333|73\.333333/)
+  // At the rendered regression viewport, these source ratios give exactly
+  // x=0, y=128, width=1280, height=704. The browser checker retains that oracle.
+  assert.equal(960 * 4 / 3, 1280)
+  assert.equal(960 * 64 / 480, 128)
+  assert.equal(960 * 352 / 480, 704)
+})
+
 test('compatibility controls use original FONT0 and HUD frames, with an artwork-load fallback', async () => {
   const f = fixture()
   assert.equal(f.states[2], false)
