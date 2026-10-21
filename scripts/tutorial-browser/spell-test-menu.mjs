@@ -1,3 +1,4 @@
+import { pressWorldSpace } from '../browser-world-input.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
@@ -136,7 +137,8 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Start Mission 1').click()
     await waitReady('new game')
     diagnostics.stage('save ordinary checkpoint')
-    await page.locator('.world-viewport').press('Space')
+    await pressWorldSpace(page)
+    assert.equal((await snapshot()).paused, true, 'Public Space pauses before saving and read-only F9 checks')
     await button('Menu').click()
     await button('Save Game').click()
     await button('Save checkpoint').click()
@@ -172,7 +174,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     // Opening from live play must freeze turns without altering the user's pause
     // state, then resume the same world without catching up suspended wall time.
     diagnostics.stage('live hold and resume')
-    await page.locator('.world-viewport').press('Space')
+    await pressWorldSpace(page)
     await page.waitForFunction(turn => window.testStore.getWorld().turn >= turn + 2, beforeOpen.turn)
     await page.keyboard.press('F9')
     await menu.waitFor()
@@ -184,7 +186,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await menu.waitFor({ state: 'detached' })
     await page.waitForFunction(turn => window.testStore.getWorld().turn > turn, liveHold.turn)
     assert.equal((await snapshot()).paused, false)
-    await page.locator('.world-viewport').press('Space')
+    await pressWorldSpace(page)
     report.unpausedHoldAndResume = true
 
     // Reuse this authored Scene before any testing grant. No extra context,
@@ -215,7 +217,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await menu.waitFor({ state: 'detached' })
     assert.equal((await snapshot()).mode, 'blast')
     await page.evaluate(() => window.shamanCastingObserver.arm('subsequent'))
-    await page.locator('.world-viewport').press('Space')
+    await pressWorldSpace(page)
     const target = await page.evaluate(() => {
       const scene = window.testSceneRef.current, w = window.testStore.getWorld(),
         shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),

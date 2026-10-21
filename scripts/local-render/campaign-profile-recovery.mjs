@@ -1,3 +1,4 @@
+import { pressWorldSpace } from '../browser-world-input.mjs'
 import assert from 'node:assert/strict'
 import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import { pauseStartupReady, skipPauseIntroduction, recoverVisibleIntroduction } from './original-pause-checkpoint-recovery.mjs'
@@ -168,7 +169,7 @@ export default async function ({ browser, context: initialContext, page: initial
       browserVersion: receipt.browserVersion, browserSha256: digest(receipt.browserPath ?? receipt.launch.executablePath),
       launch: receipt.launch, playwright: require('@playwright/test/package.json').version,
       installedLockSha256: digest(resolve(root, 'node_modules/.package-lock.json')),
-      helpers: Object.fromEntries(['scripts/tutorial-browser/profile-readiness.mjs', 'scripts/campaign-start-readiness.mjs', 'scripts/local-render/harness.mjs', 'scripts/local-render/vite.config.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/browser-game.mjs', 'scripts/checkpoint-readback.mjs'].map(file => [file, digest(resolve(root, file))])),
+      helpers: Object.fromEntries(['scripts/tutorial-browser/profile-readiness.mjs', 'scripts/campaign-start-readiness.mjs', 'scripts/local-render/harness.mjs', 'scripts/local-render/vite.config.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/browser-game.mjs', 'scripts/browser-world-input.mjs', 'scripts/browser-introduction.mjs', 'scripts/local-render/original-pause-checkpoint-recovery.mjs', 'scripts/checkpoint-readback.mjs'].map(file => [file, digest(resolve(root, file))])),
   })
   const report = {
     status: 'running',
@@ -222,7 +223,7 @@ export default async function ({ browser, context: initialContext, page: initial
     await startup.dispose()
     if (action === 'skip') await skipPauseIntroduction(page)
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-    await page.locator('.world-viewport').press('Space')
+    await pressWorldSpace(page)
     assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true)
     const renderer = await page.evaluate(() => {
       const gl = window.testSceneRef.current.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')

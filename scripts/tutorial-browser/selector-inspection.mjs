@@ -1,3 +1,4 @@
+import { pressWorldSpace } from '../browser-world-input.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
@@ -193,7 +194,8 @@ export default async function ({ browser, url, output }) {
       }
     }
     for (const paused of [true, false]) {
-      await page.locator('.world-viewport').press('Space')
+      await pressWorldSpace(page)
+      assert.equal((await read()).paused, paused, 'Public Space established the requested pause state')
       const captured = await openMenu(paused)
       await inspect()
       await page.screenshot({ path: resolve(output, `selector-inspection-${paused ? 'paused' : 'running'}.png`) })

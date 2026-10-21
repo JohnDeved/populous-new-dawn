@@ -1,3 +1,4 @@
+import { withoutCampaignPopup } from './support/world-input-page.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { runInNewContext } from 'node:vm'
@@ -5,9 +6,11 @@ import { readFileSync } from 'node:fs'
 import { createFlyby, flybyCommand, interruptFlyby } from '../app/flyby.ts'
 import {
   pauseStartupReady,
-  recoverVisibleIntroduction,
+  recoverVisibleIntroduction as recoverIntroduction,
 } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
 import { waitRecoveryReadiness } from '../scripts/tutorial-browser/profile-readiness.mjs'
+
+const recoverVisibleIntroduction = page => recoverIntroduction(withoutCampaignPopup(page))
 
 function fixture() {
   const world = {
@@ -125,7 +128,7 @@ test('introduction callback never bypasses unrelated or uninterruptible blockers
     return setTimer(callback, delay)
   })
   const action = recoverVisibleIntroduction({
-    evaluate: async () => { now += 10; return { action: 'skip', paused: false } },
+    evaluate: async () => { now += 10; return { action: presses ? 'ready' : 'skip', paused: false } },
     keyboard: { press: async key => { assert.equal(key, 'Space'); presses++ } },
   })
   for (const after of [
@@ -139,8 +142,9 @@ test('introduction callback never bypasses unrelated or uninterruptible blockers
   assert.equal(presses, 0)
   assert.deepEqual(await action(blocked), { action: 'public-skip-introduction' })
   assert.ok(timeouts.length >= 2)
-  assert.ok(timeouts.every(timeout => timeout > 0 && timeout <= 490),
-    'Both delivery and outer expiry consume the native pre-read within the original500ms budget')
+  assert.ok(timeouts.every(timeout => timeout > 0 && timeout <= 500),
+    'Preparation, native pre-read, delivery and outer expiry share the original 500ms budget')
+  assert.ok(timeouts.at(-1) <= 490, 'Space delivery still consumes the native pre-read budget')
   assert.equal(await action(blocked), null)
   assert.equal(presses, 1)
 })
@@ -172,7 +176,7 @@ test('a completed Space input cannot admit a still-blocked world or repeat input
   }
   await assert.rejects(waitRecoveryReadiness(f.page, {
     timeout: 500, onBlocked: recoverVisibleIntroduction(f.page),
-  }), /Profile recovery readiness timed out/)
+  }), /Recovery Space was not accepted/)
   assert.equal(presses, 1)
   assert.equal(f.world.inputMask & 64, 64)
 })

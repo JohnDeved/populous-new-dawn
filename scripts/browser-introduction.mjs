@@ -1,3 +1,5 @@
+import { prepareWorldInput } from './browser-world-input.mjs'
+
 // Observe the presentation state, then use the same Space key as the player.
 // Do not expose a test-only game control or call the scene controller directly.
 export function introductionInputState(snapshot = false) {
@@ -40,6 +42,8 @@ export async function skipIntroductionWithSpace(page, { timeout = 30000 } = {}) 
       if (action !== 'skip') return action
       // The presentation may finish during the handle round-trip. Never turn that
       // stale observation into a fresh Space pause/resume command.
+      await prepareWorldInput(page, { timeout: remaining() })
+      remaining()
       const before = await page.evaluate(introductionInputState, true)
       remaining()
       if (before.action === 'ready') return 'ready'
@@ -51,6 +55,7 @@ export async function skipIntroductionWithSpace(page, { timeout = 30000 } = {}) 
       // Observation and real keyboard delivery are not atomic. Fail the owning
       // episode if Space raced completion; do not guess a compensating pause toggle.
       if (after.paused !== before.paused) throw new Error('Introduction Space changed pause state; retry the episode')
+      if (after.action === 'skip') throw new Error('Introduction Space was not accepted; retry the episode')
       return 'skip'
     }
   }

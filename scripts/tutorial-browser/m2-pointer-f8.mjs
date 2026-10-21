@@ -1,3 +1,5 @@
+import { prepareWorldInput, pressWorldSpace, setCampaignPopupOpen as setM2CampaignPopupOpen } from '../browser-world-input.mjs'
+export { setM2CampaignPopupOpen }
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
@@ -14,18 +16,6 @@ export function assertM2Input(before, after) {
   assert.deepEqual(after.selected, before.selected, 'Pointer/camera inputs must not select units')
   assert.deepEqual(after.orders, before.orders, 'Pointer/camera inputs must not issue orders')
   assert.equal(after.turn, before.turn, 'Paused diagnostic must preserve the simulation turn')
-}
-
-// Use the retained notification's public summary, never ACK/Delete or DOM writes.
-export async function setM2CampaignPopupOpen(page, serial, open) {
-  assert.match(serial, /^\d+$/, 'A real retained campaign notification serial is required')
-  const detail = page.locator(`.campaign-messages details[data-message-serial="${serial}"]`)
-  assert.equal(await detail.count(), 1, 'The same campaign notification remains present')
-  if ((await detail.getAttribute('open') !== null) !== open)
-    await detail.locator('summary').click()
-  await detail.locator('[data-native-campaign-panel]').waitFor({ state: open ? 'visible' : 'hidden' })
-  assert.equal(await detail.getAttribute('open') !== null, open)
-  assert.equal(await page.locator('.campaign-messages details[open]').count(), open ? 1 : 0)
 }
 
 export async function finishM2Functional({
@@ -265,6 +255,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     report.startup = await startup.jsonValue()
     await startup.dispose()
     assert.equal(report.startup.level, 2)
+    report.inputPopups = await prepareWorldInput(page, { timeout: 10000 })
     if (report.startup.action === 'skip')
       await skipIntroductionWithSpace(page, { timeout: 10000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
@@ -275,8 +266,11 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     report.compactViewportReady = true
     stage('compact-admitted')
     await page.setViewportSize({ width: 1440, height: 1000 })
-    await page.locator('.world-viewport').press('Space')
+    report.inputPopups.push(...await pressWorldSpace(page))
     await page.waitForFunction(() => window.testStore.getWorld().paused)
+    // Restore the same retained notification for compact and F8 layout subjects.
+    const retainedPopup = report.inputPopups.at(-1)
+    if (retainedPopup) await setM2CampaignPopupOpen(page, retainedPopup.serial, true)
     const observe = () =>
       page.evaluate(() => {
         const s = window.testSceneRef.current,
@@ -474,7 +468,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
         report.campaignMessagesBefore, 'Public close/reopen retains the complete paused notification state')
       stage('f8-reset-matched')
       assertM2Input(report.before, report.after)
-      await page.locator('.world-viewport').press('Space')
+      await pressWorldSpace(page)
       await page.waitForFunction(
         turn => window.testStore.getWorld().turn > turn,
         report.before.turn

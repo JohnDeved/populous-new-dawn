@@ -1,3 +1,4 @@
+import { prepareWorldInput } from '../browser-world-input.mjs'
 import { pressIntroductionSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
@@ -47,6 +48,8 @@ export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
     return budget
   }
   const run = async () => {
+    await prepareWorldInput(page, { timeout: remaining() })
+    remaining()
     const before = await page.evaluate(pauseStartupReady, true)
     remaining()
     if (before.action === 'ready') return
@@ -58,6 +61,7 @@ export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
     remaining()
     if (after.paused !== before.paused) throw new Error('Recovery Space changed pause state; retry the episode')
     if (deliveryError && after.action !== 'ready') throw deliveryError
+    if (after.action === 'skip') throw new Error('Recovery Space was not accepted; retry the episode')
   }
   try {
     await Promise.race([run(), new Promise((_, reject) => {

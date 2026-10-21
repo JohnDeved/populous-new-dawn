@@ -1,3 +1,4 @@
+import { withoutCampaignPopup } from './support/world-input-page.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -272,7 +273,8 @@ test('recovery scenario awaits actionable startup and uses native Space before u
 })
 
 test('natural completion during native Space delivery is accepted only after delivery settles', async () => {
-  const { skipPauseIntroduction } = await import('../scripts/local-render/original-pause-checkpoint-recovery.mjs')
+  const { skipPauseIntroduction: skipPause } = await import('../scripts/local-render/original-pause-checkpoint-recovery.mjs')
+  const skipPauseIntroduction = page => skipPause(withoutCampaignPopup(page))
   for (const mode of ['already-unlocked', 'press-success', 'unlocks-during-press', 'still-locked']) {
     let reads = 0, presses = 0, settled = false
     const failure = new Error('Space delivery failed')

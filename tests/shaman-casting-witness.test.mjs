@@ -1,3 +1,4 @@
+import { withoutCampaignPopup } from './support/world-input-page.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { installShamanCastingObserver } from '../scripts/tutorial-browser/shaman-casting-observer.mjs'
@@ -443,10 +444,7 @@ test('actual game-clock callbacks are observed before logical animation, with no
 
 test('ordinary cast driver uses only public controls/pointer and stops after its existing natural clock window', async () => {
   const actions = [], page = {
-    locator(selector) {
-      assert.equal(selector, '.world-viewport')
-      return { press: async key => { assert.equal(key, 'Space'); actions.push(['key', key]) } }
-    },
+    keyboard: { press: async key => { assert.equal(key, 'Space'); actions.push(['key', key]) } },
     getByRole(role, { name }) {
       assert.equal(role, 'button')
       return { click: async () => actions.push(['button', String(name)]) }
@@ -468,7 +466,7 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
     mouse: { move: async (...point) => actions.push(['move', ...point]),
       click: async (...point) => actions.push(['pointer', ...point]) },
   }
-  const result = await beginOrdinaryCastingWitness(page)
+  const result = await beginOrdinaryCastingWitness(withoutCampaignPopup(page))
   assert.deepEqual(result, { target: { x: 500, y: 300 }, before: { stock: 4, cheatsUsed: false } })
   assert.deepEqual(actions.filter(([kind]) => kind !== 'wait'), [
     ['key', 'Space'], ['key', 'Space'], ['button', 'Select and focus shaman'],
@@ -494,12 +492,12 @@ test('actual ordinary-readiness callback admits naturally resting Mission 1, not
     if (descriptor) Object.defineProperty(globalThis, 'window', descriptor)
     else delete globalThis.window
   })
-  await assert.rejects(beginOrdinaryCastingWitness({
+  await assert.rejects(beginOrdinaryCastingWitness(withoutCampaignPopup({
     getByRole: () => ({ click: async () => {} }),
-    locator: () => ({ press: async () => {} }),
+    keyboard: { press: async () => {} },
     evaluate: async callback => callback(),
     waitForFunction: async callback => { ready = callback; throw stop },
-  }), error => error === stop)
+  })), error => error === stop)
   const u = authored.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'), p = u.native,
     openingOrder = p.immediateCommand || p.commands[p.commandCursor]
   assert.equal(p.state, 10)
