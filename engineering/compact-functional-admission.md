@@ -68,3 +68,25 @@ again on settlement, without extending the deadline or awaiting a new grace
 period. Pending cleanup is not verified cleanup. Persistence failure is recorded
 and fails admission; it cannot overwrite the original input error. Hypnotise's
 reported cap may remain below 75 seconds when its existing outer clipping applies.
+
+## Ordinary M2 read-only observation batching
+
+The ordinary M2 episode still has its original single 45-second bound. At
+`7e33f7d9`, Tutorial run 39694511098, it completed all four viewport layouts,
+both real frame exports and F8 reset, then expired during real popup preparation
+for the final resume at 45.000 seconds. This is an incomplete episode, not a
+geometry failure or a passed companion. The compact four-case episode and its
+picking/Hypnotise companions passed separately under the explicit policy above;
+that does not imply a speed improvement.
+
+Normal M2 now consumes the public popup helper's already-completed atomic
+retained-identity/open-state/all-owner observation instead of issuing an immediate
+extra owner count with no intervening action. The exact requested serial and
+exactly one or zero owners remain mandatory. The F8 text/style entry checks are
+read together. Frame export combines its original before-state and passive
+observer installation, then reads the post-export world state, bubbled events,
+button/status geometry and button hit test together. The real hover/focus,
+keyboard or pointer activation, download and native-work assertions are unchanged.
+No viewport, scroll, export, popup restoration, resume or final menu assertion is
+removed, and no input, action timeout or episode budget is changed. Any elapsed
+time benefit requires new hosted evidence.

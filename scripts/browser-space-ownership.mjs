@@ -39,6 +39,16 @@ export function endSpaceOwnership(id) {
   return window[id]?.() ?? []
 }
 
+// Optional atomic post-dispatch observation for reviewed recovery callers. The
+// listener is finalized first; the fresh native state is read in the same task,
+// with no intervening public input or game/DOM write.
+export function endSpaceOwnershipSnapshot(id) {
+  const witness = window[id], records = witness?.() ?? []
+  const world = window.testStore?.getWorld() ?? window.testSceneRef?.current?.world
+  return { observationId: id, witnessPresent: typeof witness === 'function', records,
+    state: world ? { paused: world.paused, inputMask: world.inputMask, flybyFlags: world.flyby.flags } : null }
+}
+
 export function popupRejectedSpace(records) {
   if (records.length !== 1) return false
   const { trusted, repeat, prevented, owners, before, after, sameWorld } = records[0]
@@ -49,7 +59,8 @@ export function popupRejectedSpace(records) {
 // Install before trusted input and remove even on delivery rejection. A stalled
 // browser cannot certify cleanup; the in-page expiry and owning context teardown
 // also release the passive listener. No cleanup wait extends the input deadline.
-export async function pressObservedSpace(page, { timeout, signal }) {
+export async function pressObservedSpace(page, { timeout, signal, snapshot = false }) {
+  if (typeof snapshot !== 'boolean') throw new RangeError('Invalid Space snapshot option')
   if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid Space ownership timeout')
   const id = `__pndSpaceOwnership_${randomUUID()}`, deadline = performance.now() + timeout
   let timer, records, installed = false, primary
@@ -73,7 +84,7 @@ export async function pressObservedSpace(page, { timeout, signal }) {
   finally {
     clearTimeout(timer)
     if (installed) {
-      const cleanup = page.evaluate(endSpaceOwnership, id)
+      const cleanup = page.evaluate(snapshot ? endSpaceOwnershipSnapshot : endSpaceOwnership, id)
       if (!remaining()) { void cleanup.catch(() => {}); primary ??= Error('Space ownership input timed out') }
       else try {
         records = await bounded(cleanup)
@@ -82,5 +93,5 @@ export async function pressObservedSpace(page, { timeout, signal }) {
     }
   }
   if (primary) throw primary
-  return records
+  return snapshot ? { ...records, witnessId: id } : records
 }

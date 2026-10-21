@@ -8,9 +8,21 @@ import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { checkFrameExport, m2NativePointerTarget } from './frame-export.mjs'
 import { checkpointCodec } from './checkpoint-codec.mjs'
 
+export function assertM2PopupOwnership(trace, serial, open) {
+  assert.equal(trace.phase, 'verify-retained-popup-and-owners', 'Use the completed post-action owner snapshot')
+  assert.equal(trace.pending, false)
+  assert.equal(trace.serial, serial)
+  assert.equal(trace.observedOpen, open)
+  assert.ok(Array.isArray(trace.owners), 'Current popup owners are required')
+  assert.deepEqual(trace.owners, open ? [{ serial }] : [], 'Exactly the requested authored popup may own input')
+}
+
 export async function setM2CampaignPopupOpen(page, serial, open) {
-  await setCampaignPopupOpen(page, serial, open)
-  assert.equal(await page.locator('.campaign-messages details[open]').count(), open ? 1 : 0)
+  const trace = {}
+  await setCampaignPopupOpen(page, serial, open, { trace })
+  // No intervening action: the helper already read retained identity/open state
+  // and every current owner atomically after the real summary/body wait.
+  assertM2PopupOwnership(trace, serial, open)
 }
 
 export const m2FunctionalLimitMs = 45000
@@ -369,9 +381,10 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       await graph.waitFor({ state: 'hidden' })
       await page.keyboard.press('F8')
       await graph.waitFor({ state: 'visible' })
-      assert.match(await graph.innerText(), /Pointer \+ tooltip CPU/)
-      assert.match(await graph.innerText(), /CPU excludes overlay\/GPU\. Async GPU: export only/)
-      assert.equal(await graph.evaluate(el => getComputedStyle(el).pointerEvents), 'none')
+      const graphEntry = await graph.evaluate(el => ({ text: el.innerText, pointerEvents: getComputedStyle(el).pointerEvents }))
+      assert.match(graphEntry.text, /Pointer \+ tooltip CPU/)
+      assert.match(graphEntry.text, /CPU excludes overlay\/GPU\. Async GPU: export only/)
+      assert.equal(graphEntry.pointerEvents, 'none')
       const moveAndObserve = async (x, y, world) => {
         await page.mouse.move(x, y)
         await page.waitForFunction(m2RouteReady, { x, y, world })

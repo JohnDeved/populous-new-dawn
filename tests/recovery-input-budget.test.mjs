@@ -1,20 +1,27 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { skipPauseIntroduction, pauseStartupReady, recoverVisibleIntroduction } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
+import { skipPauseIntroduction, pauseStartupReady, recoverVisibleIntroduction, recoveryStateFromSpaceSnapshot } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
 import { campaignPopupSnapshot } from '../scripts/browser-world-input.mjs'
-import { beginSpaceOwnership, endSpaceOwnership } from '../scripts/browser-space-ownership.mjs'
+import { beginSpaceOwnership, endSpaceOwnership, endSpaceOwnershipSnapshot } from '../scripts/browser-space-ownership.mjs'
 
-function fixture(t, { setupMs = 60, readMs = 0, keyMs = 0, reject = false, natural = false, deliveryError, pauseRace = false } = {}) {
+function fixture(t, { setupMs = 60, readMs = 0, keyMs = 0, reject = false, natural = false, deliveryError, pauseRace = false, snapshotChange } = {}) {
   let now = 0, open = true, presses = 0, reads = 0, records = []
   const calls = [], state = { action: 'skip', paused: false, inputMask: 64, flybyFlags: 17 }
   t.mock.method(performance, 'now', () => now)
   t.mock.method(Date, 'now', () => now)
   const page = {
-    evaluate: async fn => {
+    evaluate: async (fn, id) => {
       if (fn === campaignPopupSnapshot) return [{ serial: '0', open }]
       if (fn === beginSpaceOwnership) { calls.push('install-witness'); return }
       if (fn === endSpaceOwnership) { calls.push('cleanup-witness'); return records }
+      if (fn === endSpaceOwnershipSnapshot) {
+        calls.push('cleanup-witness-and-native')
+        const snapshot = { observationId: id, witnessPresent: true, records,
+          state: { paused: state.paused, inputMask: state.inputMask, flybyFlags: state.flybyFlags } }
+        snapshotChange?.(snapshot)
+        return snapshot
+      }
       assert.equal(fn, pauseStartupReady)
       reads++; now += readMs; calls.push('read-native')
       return { ...state }
@@ -56,7 +63,7 @@ test('opt-in separates initial public preparation from response without adding a
   assert.equal(trace.responseDeadlineMs, 80)
   assert.equal(trace.actionCapMs, 100)
   assert.equal(trace.elapsedMs, 60)
-  assert.deepEqual(f.calls, ['summary-click', 'hidden-body', 'focus', 'read-native', 'install-witness', 'Space', 'cleanup-witness', 'read-native'])
+  assert.deepEqual(f.calls, ['summary-click', 'hidden-body', 'focus', 'read-native', 'install-witness', 'Space', 'cleanup-witness-and-native'])
 })
 
 test('unconverted default retains its original shared preparation/response timeout', async t => {
@@ -268,5 +275,65 @@ test('local response expiry aborts a pending witness before its independent time
   release()
   await new Promise(resolve => setImmediate(resolve))
   assert.equal(f.presses, 0, 'A late-installed witness must not release trusted Space')
-  assert.ok(f.calls.includes('cleanup-witness'), 'The passive witness is still cleaned')
+  assert.ok(f.calls.includes('cleanup-witness-and-native'), 'The passive witness is still cleaned')
+})
+
+
+test('atomic recovery after-state rejects absent, stale and expired witness payloads without fallback', () => {
+  const good = { observationId: 'owned', witnessId: 'owned', witnessPresent: true, records: [],
+    state: { paused: false, inputMask: 0, flybyFlags: 16 } }
+  assert.deepEqual(recoveryStateFromSpaceSnapshot(good), { action: 'ready', paused: false, inputMask: 0, flybyFlags: 16 })
+  for (const change of [v => { v.observationId = 'previous' }, v => { delete v.witnessId },
+    v => { v.witnessPresent = false }, v => { delete v.records }, v => { delete v.state },
+    v => { v.state.paused = undefined }, v => { v.state.inputMask = null }, v => { v.state.flybyFlags = NaN }]) {
+    const value = structuredClone(good); change(value)
+    assert.throws(() => recoveryStateFromSpaceSnapshot(value))
+  }
+})
+
+test('each actual recovery attempt retains the original observations and unchanged retry deadline', async t => {
+  const f = fixture(t, { setupMs: 5, keyMs: 6, reject: true }), trace = {}
+  await assert.rejects(skipPauseIntroduction(f.page, migrated(trace)), /timed out/)
+  assert.equal(trace.attempts.length, 2)
+  assert.equal(trace.responseDeadlineMs, 25)
+  for (const attempt of trace.attempts) {
+    assert.equal(attempt.before.inputMask, 64)
+    assert.equal(attempt.after.inputMask, 64)
+    assert.equal(attempt.afterSource, 'atomic-post-dispatch-witness')
+    assert.equal(attempt.ownership.length, 1)
+    assert.deepEqual(attempt.ownership[0].owners, ['0'])
+    assert.equal(attempt.ownership[0].trusted, true)
+    assert.equal(attempt.ownership[0].prevented, true)
+    assert.equal(attempt.outcome, 'popup-owned-unchanged-retry')
+  }
+  assert.equal(f.reads, 2, 'Only the two required fresh pre-dispatch RPCs; post-state is captured with cleanup')
+})
+
+
+test('opted-in recovery never falls back from a stale or missing atomic after-state', async t => {
+  for (const [name, snapshotChange] of [
+    ['stale identity', value => { value.observationId = 'previous-attempt' }],
+    ['expired witness', value => { value.witnessPresent = false }],
+    ['missing native state', value => { delete value.state }],
+    ['missing ownership records', value => { delete value.records }],
+  ]) await t.test(name, async t => {
+    const f = fixture(t, { setupMs: 5, snapshotChange }), trace = {}
+    await assert.rejects(skipPauseIntroduction(f.page, migrated(trace)))
+    assert.equal(f.presses, 1, 'Malformed evidence must never produce another Space')
+    assert.equal(f.reads, 1, 'A missing atomic observation cannot fall back to a later read')
+    assert.equal(trace.attempts.length, 1)
+    assert.equal(trace.attempts[0].outcome, undefined)
+    assert.equal(trace.responseDeadlineMs, 25)
+  })
+})
+
+test('unchanged native state without actual popup ownership cannot retry', async t => {
+  const f = fixture(t, { setupMs: 5, reject: true,
+    snapshotChange: value => { value.records[0].owners = [] } }), trace = {}
+  await assert.rejects(skipPauseIntroduction(f.page, migrated(trace)), /Space was not accepted/)
+  assert.equal(f.presses, 1)
+  assert.equal(f.reads, 1)
+  assert.equal(f.calls.filter(value => value === 'summary-click').length, 1)
+  assert.deepEqual(trace.attempts[0].ownership[0].owners, [])
+  assert.equal(trace.responseDeadlineMs, 25)
 })

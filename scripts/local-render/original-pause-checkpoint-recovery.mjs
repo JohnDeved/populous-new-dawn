@@ -36,6 +36,19 @@ export function pauseStartupReady(snapshot = false) {
   return snapshot ? { action, paused: world.paused, inputMask: world.inputMask, flybyFlags: world.flyby.flags } : action
 }
 
+export function recoveryStateFromSpaceSnapshot(delivery) {
+  assert.equal(delivery?.observationId, delivery?.witnessId, 'Fresh Space observation identity is required')
+  assert.equal(typeof delivery?.witnessId, 'string')
+  assert.equal(delivery.witnessPresent, true, 'A settled live passive witness is required')
+  assert.ok(Array.isArray(delivery.records), 'Actual ownership records are required')
+  const state = delivery.state
+  assert.ok(state && typeof state.paused === 'boolean' && Number.isInteger(state.inputMask) && Number.isInteger(state.flybyFlags),
+    'Fresh native state is required; no stale fallback')
+  const action = !state.inputMask ? 'ready'
+    : (state.inputMask & 64) && (state.flybyFlags & 0x51) === 0x11 ? 'skip' : false
+  return { action, paused: state.paused, inputMask: state.inputMask, flybyFlags: state.flybyFlags }
+}
+
 // Default callers retain the original shared 2500ms preparation/input bound.
 // Explicit hosted setup callers may instead spend their EXISTING public UI
 // allowance on initial popup/focus preparation, with a fresh <=2500ms response
@@ -54,7 +67,7 @@ export async function skipPauseIntroduction(page, {
     actionDeadline = started + actionMs
   const cancellation = new AbortController(), actionSignal = cancellation.signal
   let responseDeadline = separateSetup ? null : actionDeadline
-  Object.assign(trace, { phase: 'start', preparation: {}, completed: [],
+  Object.assign(trace, { phase: 'start', preparation: {}, completed: [], attempts: [],
     contract: separateSetup ? 'public-setup-then-response-v1' : 'shared-input-v1',
     actionCapMs: actionMs, responseCapMs: timeout })
   const timedOut = () => new Error(`Recovery introduction input timed out: ${JSON.stringify({ ...trace, elapsedMs: performance.now() - started })}`)
@@ -105,22 +118,33 @@ export async function skipPauseIntroduction(page, {
       remaining()
       const before = await phase('read-before-skip', () => page.evaluate(pauseStartupReady, true))
       remaining()
-      if (before.action === 'ready') return
+      const attempt = { before: { ...before } }; trace.attempts.push(attempt)
+      if (before.action === 'ready') { attempt.outcome = 'natural-completion'; return }
       if (before.action !== 'skip') throw new Error('Recovery introduction is no longer interruptible')
       let delivery
       await phase('observed-space-dispatch', async () => {
-        try { delivery = await pressObservedSpace(page, { timeout: remaining(), signal: actionSignal }) }
-        catch (error) { deliveryError = error }
+        try {
+          delivery = await pressObservedSpace(page, { timeout: remaining(), signal: actionSignal, snapshot: separateSetup })
+          attempt.ownership = structuredClone(separateSetup ? delivery.records : delivery)
+          if (separateSetup) attempt.atomicAfter = structuredClone(delivery)
+        } catch (error) { deliveryError = error; attempt.deliveryError = String(error) }
       })
       remaining()
-      const after = await phase('read-after-skip', () => page.evaluate(pauseStartupReady, true))
+      const after = await phase('read-after-skip', () => separateSetup && !deliveryError
+        ? Promise.resolve(recoveryStateFromSpaceSnapshot(delivery)) : page.evaluate(pauseStartupReady, true))
+      attempt.after = { ...after }
+      attempt.afterSource = separateSetup && !deliveryError ? 'atomic-post-dispatch-witness' : 'fresh-native-read'
       remaining()
       if (after.paused !== before.paused) throw new Error('Recovery Space changed pause state; retry the episode')
       if (deliveryError && after.action !== 'ready') throw deliveryError
       if (after.action === 'skip') {
-        if (!deliveryError && popupRejectedSpace(delivery) && after.inputMask === before.inputMask && after.flybyFlags === before.flybyFlags) continue
+        if (!deliveryError && popupRejectedSpace(attempt.ownership) && after.inputMask === before.inputMask && after.flybyFlags === before.flybyFlags) {
+          attempt.outcome = 'popup-owned-unchanged-retry'
+          continue
+        }
         throw new Error('Recovery Space was not accepted; retry the episode')
       }
+      attempt.outcome = 'completed'
       return
     }
   }

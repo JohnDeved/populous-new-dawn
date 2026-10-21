@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { runInNewContext } from 'node:vm'
-import { beginSpaceOwnership, endSpaceOwnership, popupRejectedSpace, pressObservedSpace } from '../scripts/browser-space-ownership.mjs'
+import { beginSpaceOwnership, endSpaceOwnership, endSpaceOwnershipSnapshot, popupRejectedSpace, pressObservedSpace } from '../scripts/browser-space-ownership.mjs'
 
 test('retry admission requires one trusted nonrepeated popup-owned unchanged dispatch', () => {
   const record={trusted:true,repeat:false,prevented:true,owners:['7'],sameWorld:true,
@@ -69,4 +69,20 @@ test('ownership expiry removes both its passive listener and telemetry closure',
   assert.equal(f.listeners.size, 0)
   assert.equal(Object.hasOwn(f.window, f.id), false)
   assert.equal(f.evaluate(endSpaceOwnership, f.id).length, 0)
+})
+
+
+test('atomic finalizer reads native effect after dispatch and releases the same private observer', t => {
+  const f = ownershipFixture(t), event = { code: 'Space', isTrusted: true, repeat: false, defaultPrevented: false }
+  for (const listener of f.listeners) listener(event)
+  event.defaultPrevented = true
+  f.world.inputMask = 0; f.world.flyby.flags = 16
+  const result = f.evaluate(endSpaceOwnershipSnapshot, f.id)
+  assert.equal(result.observationId, f.id); assert.equal(result.witnessPresent, true)
+  assert.equal(result.state.inputMask, 0); assert.equal(result.state.flybyFlags, 16)
+  assert.equal(result.records[0].after.inputMask, 0)
+  assert.equal(popupRejectedSpace(result.records), false, 'An accepted native transition cannot retry')
+  assert.equal(f.listeners.size, 0); assert.equal(Object.hasOwn(f.window, f.id), false)
+  const stale = f.evaluate(endSpaceOwnershipSnapshot, f.id)
+  assert.equal(stale.witnessPresent, false, 'A missing/expired observer cannot certify fresh delivery')
 })
