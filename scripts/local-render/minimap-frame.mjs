@@ -67,7 +67,7 @@ async function existingRegression(root, output, url) {
 }
 
 export default async function minimapFrameScenario({ browser, page, context, root, output, url, openMission, receipt }) {
-  await openMission(1)
+  await openMission(1, { nativeCampaign: true })
   await page.evaluate(() => {
     const scene = window.testScene
     scene.world.speed = 0
