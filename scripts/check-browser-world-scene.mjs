@@ -28,7 +28,18 @@ const limits = ['Browser lifecycle/renderer observations, not native GPU pixel e
 async function observe(page) {
   await page.addInitScript(() => {
     const records = [], seen = new WeakMap()
-    window.selectorObservation = {records, callbacks:[], geometry:{}, inspectGeometry:true, probeRibbons:false, ribbonPixels:[]}
+    window.selectorObservation = {records, callbacks:[], geometry:{}, inspectGeometry:true, probeRibbons:false, ribbonPixels:[], imageLoads:[]}
+    const NativeImage=window.Image
+    window.Image=new Proxy(NativeImage,{construct(target,args,newTarget){
+      const image=Reflect.construct(target,args,newTarget)
+      for(const type of ['load','error']) image.addEventListener(type,()=>{
+        if(!image.src.includes('/original/world-selector/globes/')) return
+        const loads=window.selectorObservation.imageLoads
+        loads.push({type,url:new URL(image.src).pathname,width:image.naturalWidth,height:image.naturalHeight})
+        if(loads.length>64) loads.shift()
+      },{once:true})
+      return image
+    }})
     const getContext = HTMLCanvasElement.prototype.getContext
     HTMLCanvasElement.prototype.getContext = function(...args) {
       const gl = getContext.apply(this,args)
@@ -99,6 +110,7 @@ async function observation(page) {
     records:window.selectorObservation.records.map(r=>({draws:r.draws,detachedDraws:r.detachedDraws,connected:r.canvas.isConnected,ready:r.canvas.dataset.ready})),
     callbacks:window.selectorObservation.callbacks,
     geometry:window.selectorObservation.geometry, ribbonPixels:window.selectorObservation.ribbonPixels,
+    imageLoads:window.selectorObservation.imageLoads,
   }))
 }
 async function noSceneWork(page) {
@@ -379,6 +391,8 @@ export async function failureEpisode({page,output,receipt}) {
   }
   const samples=[],observations=[]
   for(const mode of ['network','dimensions']) {
+    textureRequests.length=0
+    await page.evaluate(()=>{window.selectorObservation.imageLoads.length=0})
     await page.route(pattern,route=>mode==='network' ? route.abort('failed') : route.fulfill({status:200,contentType:'image/png',body:Buffer.from(invalidPng,'base64')}))
     await open(page);await failure();await bitmapReady()
     await assertNativeLockedMissionRejected(page)
