@@ -42,6 +42,11 @@ coverage. Historical research and acceptance records remain evidence, not live q
    merges. A changed head requires review of substantive repairs and affected checks.
    Stop or clean only processes owned by this task; retain useful evidence.
 
+Before expensive preparation or validation, apply the [resource budget](resource-budget.md):
+one heavy execution owner, measured disk/tmpfs/memory admission, preserve-before-cleanup,
+and source-bound outcomes. Recover capacity before retrying; a blocked launch is not
+a failed build or permission to weaken acceptance.
+
 Use existing labels: `release-gate`, `overdue`, `unblocks`, `priority:critical`, and
 one applicable `status:in-progress`, `status:needs-review`, or `status:blocked`.
 Record the worker owner honestly in an issue/PR note; do not impersonate a GitHub
