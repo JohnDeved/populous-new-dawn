@@ -61,3 +61,12 @@ export function portablePnpmRuntime(receipt) {
 export function validPnpmInstallation(value) {
   return value && Object.keys(value).length === 1 && /^[a-f0-9]{64}$/.test(value.modulesMetadataSha256)
 }
+
+// Paths for bounded command receipts. Genuine installed metadata is always
+// captured; declared pnpm source additionally captures its committed policy.
+export function dependencyInputPaths(repo) {
+  const receipt = dependencyReceipt(repo)
+  if (!receipt.dependencyFormat) return ['node_modules/.package-lock.json']
+  return ['node_modules/.modules.yaml', 'node_modules/.pnpm/lock.yaml',
+    ...(sourcePackageManager(repo) === PNPM_MANAGER ? ['pnpm-lock.yaml', 'pnpm-workspace.yaml'] : [])]
+}

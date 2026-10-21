@@ -435,3 +435,17 @@ Full failure/cancellation rules are relaxed. Tutorial's existing dependency path
 filter also includes the new lock/profile/helper files. Resource-policy fingerprints
 are not automatically refreshed: conservative C1 remains until a separate explicit
 resource approval, and old npm-only resource-renewal receipts cannot authorize pnpm.
+
+
+Version-2 shard plans also use the portable lock/config identity, so a fresh
+aggregate installation can rederive each worker's exact plan. Each actual shard
+separately captures its raw installation metadata before and after child execution;
+the aggregate and trusted reader require those hashes to agree with that worker's
+envelope. A local dependency mutation cannot be hidden by portable plan equality.
+
+Active Mission 6, spell-icon, local-render and tutorial receipt writers select
+real installed metadata for either source policy. Historical native-erosion and
+owned-Blast npm-v1 receipt validators remain unchanged because they validate old
+immutable evidence, not new pnpm execution. No historical receipt is relabeled.
+Npm remains only the pinned historical installer and the Node-provided bootstrap
+for pnpm itself; new project installs and package commands use pnpm.

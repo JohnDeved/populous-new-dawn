@@ -44,7 +44,7 @@
       "id": "parity-report",
       "kind": "bookkeeping",
       "generator": {
-        "executable": "npm",
+        "executable": "pnpm",
         "args": ["run", "parity:record", "--", "<authorized-note>"]
       },
       "callers": ["scripts/parity.mjs", "package.json"],
@@ -751,7 +751,7 @@
     {
       "id": "orchestration-cache",
       "kind": "disposable",
-      "generator": { "executable": "npm", "args": ["run", "orchestration:index"] },
+      "generator": { "executable": "pnpm", "args": ["run", "orchestration:index"] },
       "callers": ["scripts/orchestration/cli.mjs"],
       "inputs": ["engineering/project-map.json", "engineering/checks.json", "parity.json"],
       "outputs": [

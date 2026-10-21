@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // One local measurement lane with an optional owner for browser-check descendants.
+import { sourcePackageManager } from './orchestration/dependency-profile.mjs'
 import assert from 'node:assert/strict'
 import { spawn, spawnSync, execFileSync } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
@@ -288,7 +289,7 @@ export async function superviseBrowserCheck({
   assert(Number.isInteger(port) && port > 0 && port < 65536, 'POPULOUS_URL has an invalid port')
   assert.deepEqual(declaredPorts, [port], 'Queue job must declare the POPULOUS_URL port only')
   serverCommand ??= [
-    'npm',
+    sourcePackageManager(cwd).split('@')[0],
     'run',
     'dev',
     '--',

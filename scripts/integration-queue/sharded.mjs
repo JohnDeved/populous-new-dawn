@@ -126,7 +126,10 @@ export function validateShardedReceipt(receipt, expected) {
   for (const value of receipt.shards) {
     envelope(value, 'shard')
     const { plan, result, inputsBefore, inputsAfter } = value.shard ?? {}
-    ensure(value.shard?.version === 1 && value.shard.kind === 'pnd-test-shard-receipt', 'invalid shard schema')
+    ensure(value.shard?.version === version && value.shard.kind === 'pnd-test-shard-receipt', 'invalid shard schema')
+    if (pnpm) ensure(plan?.dependencyFormat === 'pnpm-isolated-v1' && installed(value.shard.installationBefore) &&
+      same(value.shard.installationBefore, value.shard.installationAfter) && same(value.shard.installationBefore, value.installation),
+      'pnpm shard local metadata changed or differs from its worker')
     const index = plan?.shard?.index
     ensure(Number.isInteger(index) && index >= 0 && index < 4 && !indexes.has(index), 'duplicate or invalid shard index')
     indexes.add(index)

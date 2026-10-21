@@ -1,3 +1,4 @@
+import { sourcePackageManager } from './orchestration/dependency-profile.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import fs from 'node:fs'
@@ -138,7 +139,7 @@ try {
   const serverLog = fs.openSync(path.join(output, 'server.log'), 'wx', 0o600)
   try {
     server = spawn(
-      'npm',
+      sourcePackageManager(process.cwd()).split('@')[0],
       ['run', 'dev', '--', '--port', String(port), '--hostname', url.hostname],
       {
         cwd: process.cwd(),

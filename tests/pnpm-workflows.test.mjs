@@ -10,7 +10,7 @@ function installer(name) {
   const text = source(`.github/workflows/${name}.yml`)
   const start = text.indexOf('          manager="$('), end = text.indexOf("          printf 'Candidate package manager:", start)
   assert(start > 0 && end > start)
-  return text.slice(start, text.indexOf('\n', end)).split('\n').map(line => line.slice(10)).join('\n')
+  return text.slice(start, text.indexOf('\n', text.indexOf('PND_PACKAGE_MANAGER=', end))).split('\n').map(line => line.slice(10)).join('\n')
 }
 for (const family of ['ready-pr-check', 'tutorial-browser', 'native-ui-evidence', 'browser-performance']) {
   for (const manager of [undefined, 'pnpm@11.25.0', 'unsupported@9']) test(`${family} installer follows exact source policy ${manager ?? 'historical npm'}`, t => {
@@ -24,9 +24,10 @@ for (const family of ['ready-pr-check', 'tutorial-browser', 'native-ui-evidence'
       writeFileSync(path, `#!/bin/sh\nprintf '%s\\n' '${command}'\" $*\" >> "$PND_INSTALL_CALLS"\n`); chmodSync(path, 0o755)
     }
     const calls = join(repo, 'calls'), result = spawnSync('bash', ['-e', '-c', installer(family)], { cwd: repo, encoding: 'utf8',
-      env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, PND_INSTALL_CALLS: calls } })
+      env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, PND_INSTALL_CALLS: calls, GITHUB_ENV: join(repo, 'github-env') } })
     if (manager === 'unsupported@9') { assert.notEqual(result.status, 0); assert.equal(existsSync(calls), false); return }
     assert.equal(result.status, 0, result.stderr)
+    assert.equal(readFileSync(join(repo, 'github-env'), 'utf8'), `PND_PACKAGE_MANAGER=${manager ? 'pnpm' : 'npm'}\n`)
     const commands = readFileSync(calls, 'utf8').trim().split('\n')
     assert.deepEqual(commands, manager ? [
       'npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0', 'pnpm install --frozen-lockfile --ignore-scripts',
@@ -38,7 +39,7 @@ for (const family of ['ready-pr-check', 'tutorial-browser', 'native-ui-evidence'
 }
 test('existing hosted Full stages and four shards remain intact under pnpm', () => {
   const text = source('.github/workflows/ready-pr-check.yml')
-  for (const command of ['pnpm run typecheck', 'pnpm run parity:check', 'pnpm run orchestration:check', 'pnpm run build', 'ci-gate.mjs aggregate']) assert.ok(text.includes(command))
+  for (const command of ['$PND_PACKAGE_MANAGER run typecheck', '$PND_PACKAGE_MANAGER run parity:check', '$PND_PACKAGE_MANAGER run orchestration:check', '$PND_PACKAGE_MANAGER run build', 'ci-gate.mjs aggregate']) assert.ok(text.includes(command))
   assert.match(text, /max-parallel: 4/); assert.match(text, /needs: \[quality, test-shards\]/)
   assert.match(text, /if: \$\{\{ always\(\) \}\}/); assert.match(text, /types: \[ready_for_review\]/)
   assert.match(text, /permissions:\n  contents: read\n/)

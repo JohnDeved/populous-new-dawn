@@ -76,6 +76,7 @@ jobs:
               ;;
           esac
           printf 'Candidate package manager: %s\n' "$manager"
+          printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
           test -x /opt/google/chrome/chrome
           /opt/google/chrome/chrome --version
           node --version

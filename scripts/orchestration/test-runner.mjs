@@ -8,6 +8,7 @@ import { createHash } from 'node:crypto'
 import { lstatSync, readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { dependencyReceipt, portablePnpmRuntime } from './dependency-profile.mjs'
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
@@ -55,7 +56,7 @@ function regularFile(path) {
   return lstatSync(path, { throwIfNoEntry: false })?.isFile() ?? false
 }
 
-export function productionFingerprint(repo) {
+export function productionFingerprint(repo, { portable = false } = {}) {
   const app = treeFingerprint(repo, 'app')
   const paths = ['package.json', 'package-lock.json', 'tsconfig.json']
   if (!app || paths.some(path => !regularFile(join(repo, path)))) return null
@@ -80,6 +81,11 @@ export function productionFingerprint(repo) {
     'node_modules/.modules.yaml', 'node_modules/.pnpm/lock.yaml']
   if (profilePaths.some(path => !regularFile(join(profile, path)))) return null
   if (!readFileSync(join(profile, 'pnpm-lock.yaml')).equals(readFileSync(join(profile, 'node_modules/.pnpm/lock.yaml')))) return null
+  if (portable) {
+    const { runtime } = portablePnpmRuntime(dependencyReceipt(repo))
+    return hash(JSON.stringify({ app, packages: paths.map(path => [path, hash(readFileSync(join(repo, path)))]),
+      dependencies: runtime, runtime: { node: process.versions.node, platform: process.platform, arch: process.arch } }))
+  }
   return hash(JSON.stringify({ app, packageManager: 'pnpm',
     packages: paths.map(path => [path, hash(readFileSync(join(repo, path)))]),
     profile: profilePaths.map(path => [path, hash(readFileSync(join(profile, path)))]),
@@ -134,7 +140,7 @@ export function shardInputFingerprint(repo) {
   // helpers or the runner invalidates the run. The CI envelope additionally binds
   // the complete tracked source tree, git/workflow identity and installed lock.
   const tests = treeFingerprint(repo, 'tests'), scripts = treeFingerprint(repo, 'scripts')
-  const production = productionFingerprint(repo)
+  const production = productionFingerprint(repo, { portable: true })
   assert(tests && scripts && production, 'Shard inputs must be regular files/directories without symlinks')
   const policyPath = join(repo, 'engineering/test-resources.json')
   assert(lstatSync(policyPath).isFile(), 'Shard policy must be a regular file')
@@ -159,7 +165,8 @@ export function planTestShard(repo, index, count = TEST_SHARD_COUNT, options = {
   return freeze({ ...all, mode: 'shard', fullSuite: false,
     shard: { index, count, algorithm: 'sorted-round-robin-v1' }, discovered: all.files,
     files, groups: all.groups.map(group => ({ ...group, files: group.files.filter(file => selected.has(file)) }))
-      .filter(group => group.files.length), inputFingerprint: shardInputFingerprint(repo) })
+      .filter(group => group.files.length), inputFingerprint: shardInputFingerprint(repo),
+    ...(regularFile(join(repo, 'node_modules/.modules.yaml')) ? { dependencyFormat: 'pnpm-isolated-v1' } : {}) })
 }
 
 export async function runTestShard(repo, plan, options = {}) {
@@ -169,14 +176,20 @@ export async function runTestShard(repo, plan, options = {}) {
   assert(frozen.mode === 'shard' && frozen.fullSuite === false, 'Expected a shard plan')
   const concurrency = frozen.groups.some(group => group.concurrency === 2) ? '2' : '1'
   assert.deepEqual(frozen, planTestShard(repo, frozen.shard?.index, frozen.shard?.count, { concurrency }), 'Shard plan or discovery drift before execution')
+  const pnpm = frozen.dependencyFormat === 'pnpm-isolated-v1'
+  const installationBefore = pnpm ? portablePnpmRuntime(dependencyReceipt(repo)).installation : null
   const inputsBefore = shardInputFingerprint(repo)
   const result = await runTestPlan(repo, frozen, options)
-  let inputsAfter = null, inputError = null
-  try { inputsAfter = shardInputFingerprint(repo) } catch (error) { inputError = error.message }
-  const stable = inputsBefore === inputsAfter
+  let inputsAfter = null, inputError = null, installationAfter = null
+  try {
+    inputsAfter = shardInputFingerprint(repo)
+    if (pnpm) installationAfter = portablePnpmRuntime(dependencyReceipt(repo)).installation
+  } catch (error) { inputError = error.message }
+  const stable = inputsBefore === inputsAfter && (!pnpm || JSON.stringify(installationBefore) === JSON.stringify(installationAfter))
   result.shardComplete = stable && result.complete
   if (!stable) result.status = 'failed'
-  return { version: 1, kind: 'pnd-test-shard-receipt', plan: frozen, inputsBefore, inputsAfter, inputError, result }
+  return { version: pnpm ? 2 : 1, kind: 'pnd-test-shard-receipt', plan: frozen, inputsBefore, inputsAfter, inputError, result,
+    ...(pnpm ? { installationBefore, installationAfter } : {}) }
 }
 
 export function parseShardArguments(args) {

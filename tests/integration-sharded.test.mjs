@@ -215,7 +215,7 @@ test('reader rejects foreign worker checkout, workflow source, ref and altered G
     [({ args }) => { const log = shardedLogReceipt(args[6]); log.identity.workflowSha = oid(9); args[6] = args[6].slice(0, args[6].indexOf('PND_FULL_CHECK_RECEIPT')) + receiptLog(log) }, /workflow source\/ref differs/],
     [({ args }) => { const log = shardedLogReceipt(args[6]); log.identity.workflowRef = 'wrong'; args[6] = args[6].slice(0, args[6].indexOf('PND_FULL_CHECK_RECEIPT')) + receiptLog(log) }, /workflow source\/ref differs/],
     [({ reader }) => { reader.workflow = () => ({ sha256: 'b'.repeat(64) }) }, /workflow source\/ref differs/],
-    [({ reader }) => { reader.gitOutput = () => 'altered source' }, /test inventory differs/],
+    [({ reader }) => { const get = reader.gitOutput.bind(reader); reader.gitOutput = (command, ref) => ref.includes(':tests/') ? 'altered source' : get(command, ref) }, /test inventory differs/],
   ]) { const f = adapterFixture(); mutate(f); assert.throws(() => f.reader.verifyShardedRun(...f.args), reason) }
 })
 
@@ -476,6 +476,10 @@ test('trusted pnpm Full schema binds exact source locks without accepting an npm
   delete runtime.npm; delete runtime.installedLockSha256
   for (const [i, envelope] of [f.receipt, f.receipt.quality, ...f.receipt.shards].entries()) {
     envelope.version = 2; envelope.runtime = { ...runtime }; envelope.installation = { modulesMetadataSha256: String(i).repeat(64) }
+    if (envelope.shard) {
+      envelope.shard.version = 2; envelope.shard.plan.dependencyFormat = 'pnpm-isolated-v1'
+      envelope.shard.installationBefore = { ...envelope.installation }; envelope.shard.installationAfter = { ...envelope.installation }
+    }
   }
   assert.equal(validateShardedReceipt(f.receipt, f.expected), true)
   for (const mutate of [
@@ -484,7 +488,8 @@ test('trusted pnpm Full schema binds exact source locks without accepting an npm
     r => { r.runtime.packageJsonSha256 = h }, r => { r.runtime.sourceNpmLockSha256 = h },
     r => { r.runtime.npm = '11.9.0' }, r => { delete r.quality.installation },
     r => { r.shards[0].installation = { modulesMetadataSha256: 'bad' } },
-    r => { r.shards[1].version = 1 },
+    r => { r.shards[1].version = 1 }, r => { r.shards[1].shard.version = 1 },
+    r => { r.shards[1].shard.installationAfter = { modulesMetadataSha256: h } },
   ]) { const copy = structuredClone(f.receipt); mutate(copy); assert.throws(() => validateShardedReceipt(copy, f.expected)) }
   assert.throws(() => validateShardedReceipt(fixture().receipt, f.expected), /aggregate did not pass/)
 })

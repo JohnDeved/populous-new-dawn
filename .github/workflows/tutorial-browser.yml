@@ -126,6 +126,7 @@ jobs:
               ;;
           esac
           printf 'Candidate package manager: %s\n' "$manager"
+          printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
           test -x /opt/google/chrome/chrome
           /opt/google/chrome/chrome --version
       - name: Record exact tested source
@@ -136,8 +137,12 @@ jobs:
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           printf 'PR head: %s\nBase: %s\nTested merge: %s\n' "$PR_HEAD_SHA" "$PR_BASE_SHA" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
           node --version
-          pnpm --version
-          sha256sum package-lock.json pnpm-lock.yaml pnpm-workspace.yaml node_modules/.modules.yaml node_modules/.pnpm/lock.yaml node_modules/playwright-core/browsers.json
+          "$PND_PACKAGE_MANAGER" --version
+          if [ "$PND_PACKAGE_MANAGER" = pnpm ]; then
+            sha256sum package-lock.json pnpm-lock.yaml pnpm-workspace.yaml node_modules/.modules.yaml node_modules/.pnpm/lock.yaml node_modules/playwright-core/browsers.json
+          else
+            sha256sum package-lock.json node_modules/.package-lock.json node_modules/playwright-core/browsers.json
+          fi
       - name: ${{ matrix.buildStep }}
         run: node scripts/tutorial-browser/run.mjs
       - name: Reject tracked input mutation

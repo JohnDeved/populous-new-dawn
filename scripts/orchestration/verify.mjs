@@ -1,3 +1,4 @@
+import { sourcePackageManager } from './dependency-profile.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
@@ -115,7 +116,7 @@ export async function startGameServer(repo, env, logPath) {
   } catch {}
   if (occupied) throw new Error(`refusing to reuse an unidentified server at ${url}`)
   const ownedSourceFingerprint = existsSync(join(repo, 'engineering/parity-capabilities.json')) ? browserSourceFingerprint(repo) : null
-  const child = spawn('npm', ['run', 'dev', '--', '--port', String(port)], { cwd: repo, env, shell: false }),
+  const child = spawn(sourcePackageManager(repo).split('@')[0], ['run', 'dev', '--', '--port', String(port)], { cwd: repo, env, shell: false }),
     output = []
   child.stdout.on('data', chunk => output.push(chunk))
   child.stderr.on('data', chunk => output.push(chunk))

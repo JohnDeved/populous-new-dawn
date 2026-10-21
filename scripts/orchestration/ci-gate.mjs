@@ -56,8 +56,15 @@ export function candidateSnapshot(repo, env = process.env) {
   return { identity, runtime, inventory, ...(pnpm ? { installation: installed.installation } : {}) }
 }
 
-export function validateShard(receipt, plan) {
-  assert.equal(receipt?.version, 1); assert.equal(receipt.kind, 'pnd-test-shard-receipt')
+export function validateShard(receipt, plan, installation) {
+  const pnpm = plan.dependencyFormat === 'pnpm-isolated-v1'
+  assert.equal(receipt?.version, pnpm ? 2 : 1);
+  if (pnpm) {
+    assert(validPnpmInstallation(receipt.installationBefore), 'Missing shard local dependency metadata')
+    assert.deepEqual(receipt.installationBefore, receipt.installationAfter, 'Shard local dependency metadata mutated')
+    assert.deepEqual(receipt.installationBefore, installation, 'Shard and worker dependency metadata differ')
+  }
+  assert.equal(receipt.kind, 'pnd-test-shard-receipt')
   assert.deepEqual(receipt.plan, plan, 'Shard plan differs from exact candidate')
   assert.equal(receipt.inputsBefore, plan.inputFingerprint, 'Shard starting inputs differ')
   assert.equal(receipt.inputsAfter, plan.inputFingerprint, 'Shard inputs mutated')
@@ -89,7 +96,8 @@ export function validateGate(snapshot, envelopes, plans, needs) {
   assert.deepEqual(quality[0].stages, QUALITY_STAGES)
   shards.forEach((envelope, index) => {
     assert.equal(envelope.shard.plan.shard.index, index, 'Missing or duplicate shard')
-    validateShard(envelope.shard, plans[index])
+    assert.equal(envelope.shard.plan.dependencyFormat === 'pnpm-isolated-v1', snapshot.runtime.dependencyFormat === 'pnpm-isolated-v1', 'Shard dependency format differs')
+    validateShard(envelope.shard, plans[index], envelope.installation)
   })
   assert.deepEqual(shards.flatMap(item => item.shard.plan.files).sort(), snapshot.inventory.map(item => item.file), 'Shard coverage must include every test exactly once')
   if (snapshot.runtime.dependencyFormat === 'pnpm-isolated-v1') assert(validPnpmInstallation(snapshot.installation))
@@ -142,7 +150,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       else if (mode === 'baseline') receipt.stages = ['tests']
       else {
         receipt.shard = read(payload)
-        validateShard(receipt.shard, planTestShard(ROOT, receipt.shard.plan.shard.index, 4))
+        validateShard(receipt.shard, planTestShard(ROOT, receipt.shard.plan.shard.index, 4), snapshot.installation)
       }
       write(output, receipt)
     } else if (mode === 'aggregate') {

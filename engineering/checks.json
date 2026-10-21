@@ -980,6 +980,9 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml",
+        "package-lock.json",
         ".codex/config.toml",
         ".github/workflows/ready-pr-check.yml",
         "package.json",
@@ -1007,7 +1010,10 @@
       "args": ["run", "build"],
       "cwd": ".",
       "env": [],
-      "inputs": ["package.json", "app", "build"],
+      "inputs": [
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml",
+        "package-lock.json", "package.json", "app", "build"],
       "prerequisites": ["Installed locked dependencies"],
       "sideEffects": ["Writes ignored dist/ and Wrangler logs"],
       "resources": ["Shared build directories; run serially"],
