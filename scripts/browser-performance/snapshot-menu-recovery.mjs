@@ -106,7 +106,12 @@ export async function recoverSnapshotMenu({ page, record, observe, assertAdmissi
     closing.after = await observe(); closing.identity = await identity.evaluate(observeMenuIdentity); save()
     assertIdentity(closing.identity); assertRestoredState(closing.after, before, false)
     assertAdmission(closing.after) // Preserve original paused-scene/input readiness.
-  } catch (error) { failure = error }
+  } catch (error) {
+    failure = error
+    // capture's outer receipt serializes String(error), not AggregateError.errors.
+    // Preserve the primary failure independently before cleanup can also fail.
+    record.menuRecoveryFailure = String(error)
+  }
   const cleanupErrors = []
   for (const handle of [dialog, identity]) {
     try { await handle?.dispose() } catch (error) { cleanupErrors.push(error) }

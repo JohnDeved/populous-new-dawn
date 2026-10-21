@@ -185,6 +185,9 @@ for (const cleanup of ['dialogDisposeError', 'identityDisposeError'])
     })
     assert.deepEqual(f.disposed, ['dialog', 'identity'])
     assert.equal(f.record.menuRecoveryCleanupFailures.length, 1)
+    const persisted = JSON.parse(JSON.stringify(f.record))
+    assert.match(persisted.menuRecoveryFailure, /Original dialog is not hidden/)
+    assert.match(persisted.menuRecoveryCleanupFailures[0], /disposal failed/)
   })
 
 test('cleanup failures alone cannot pass and both failures remain recorded', async () => {
