@@ -43,6 +43,8 @@ export default async function ({ browser, url, output, signal }) {
   const retry = page => main(page).getByRole('button', { name: 'Retry checkpoint lookup', exact: true })
   const region = page => main(page).getByRole('region', { name: 'Browser checkpoint recovery', exact: true })
   async function capture(page, state, { fallback = false } = {}) {
+    await page.waitForFunction(firstLine => document.querySelector('[data-checkpoint-notice-line]')
+      ?.getAttribute('data-checkpoint-notice-line') === firstLine, expectedLines[state][0])
     for (const [width, height] of [[320, 240], [640, 480], [1280, 720]]) {
       signal.throwIfAborted()
       await page.setViewportSize({ width, height })
