@@ -55,7 +55,7 @@ function fixture(overrides = {}) {
       hasAnsweredTutorialRecommendation: () => true,
       wrapTutorialRecommendation,
     }
-    if (name.endsWith('.module.css')) return new Proxy({}, { get: (_, name) => name })
+    if (name.endsWith('.module.css')) return new Proxy({}, { get: (_, name) => name === '__esModule' ? false : name })
     throw new Error(`Unexpected component dependency: ${name}`)
   }, component, component.exports, class ImageData {})
   const props = {
