@@ -192,7 +192,7 @@ try {
 
   report.stage = 'real-audio-enable-gains'
   await page.locator('.audio-settings button').click()
-  await expect(page.locator('.audio-settings button')).toHaveText('♪ Sound on', { timeout: 90000 })
+  await expect(page.locator('.audio-settings button')).toHaveAccessibleName('♪ Sound on', { timeout: 90000 })
   const enabled = await assertValues(page, 0.2, 0.4, 'real-audio-gains')
   assert.equal(enabled.enabled, true)
   assert.ok(enabled.buffers > 30)

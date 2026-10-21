@@ -1,3 +1,4 @@
+import { changeHudSize } from './browser-native-options.mjs'
 import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
@@ -176,10 +177,6 @@ async function assertComposedRect(page, stringId, width, height) {
     'campaign message position remains unsmoothed while animation-cadence diagnosis is open'
   )
   return { details, message, layout, expected }
-}
-
-async function closeMenu(page) {
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
 }
 
 async function freezePresentation(page) {
@@ -388,9 +385,7 @@ try {
       .evaluate(node => node.getBoundingClientRect().width)
   assert.equal(automatic1440.layout.summary.left, hudAutomatic1440)
 
-  await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('1')
-  await closeMenu(page)
+  await changeHudSize(page, '1')
   await page.waitForFunction(
     width => document.querySelector('.native-hud').getBoundingClientRect().width === width,
     100
@@ -427,9 +422,7 @@ try {
   const hud1003440 = await assertComposedRect(page, 641, 3440, 1440)
   assert.equal(hud1003440.layout.summary.left, 100)
 
-  await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('auto')
-  await closeMenu(page)
+  await changeHudSize(page, 'auto')
   await page.waitForFunction(
     width => document.querySelector('.native-hud').getBoundingClientRect().width === width,
     250

@@ -192,7 +192,7 @@ export default async function ({
           await menu.getByRole('button', { name: 'Options', exact: true }).click()
           await menu.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
           assert.equal(await menu.locator('.menu-objectives,.help-grid,.help-tip,.reference-details').count(), 0)
-          await menu.getByRole('combobox', { name: 'HUD size', exact: true }).waitFor()
+          await menu.getByRole('button', { name: /^HUD size : </ }).waitFor()
         }
         await compatibility()
         const before = await snap(page)

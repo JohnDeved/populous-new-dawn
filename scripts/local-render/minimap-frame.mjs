@@ -1,3 +1,4 @@
+import { chooseHudSize } from '../browser-native-options.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 // Actual shipped frame pixels and lifecycle; existing map regression assertions run unchanged.
@@ -83,9 +84,9 @@ export default async function minimapFrameScenario({ browser, page, context, roo
   await page.getByRole('button', { name: 'Game settings', exact: true }).click()
   const menu = page.locator('dialog.game-dialog')
   await menu.waitFor({ state: 'visible' })
-  await menu.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('1')
+  await chooseHudSize(menu, '1')
   frames.push(await capture(page, output, 'preference-1'))
-  await menu.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('2')
+  await chooseHudSize(menu, '2')
   frames.push(await capture(page, output, 'preference-2'))
   await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => !document.querySelector('dialog.game-dialog button')?.disabled && [...document.querySelectorAll('dialog.game-dialog button')].some(b => b.textContent.trim() === 'Load checkpoint' && !b.disabled))
