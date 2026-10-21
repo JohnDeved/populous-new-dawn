@@ -64,7 +64,15 @@ import {
   saveGamePreferences,
   type GamePreferences,
 } from './game-preferences'
-import { messageIcon, messageText, messageViewPoint, removeMessage } from './messages'
+import {
+  acknowledgeMessage,
+  messageHasDelete,
+  messageIcon,
+  messageText,
+  messageViewPoint,
+} from './messages'
+import { OriginalCampaignPopup } from './original-campaign-popup'
+import { showCampaignPopup } from './campaign-popup-session'
 import {
   HudSprite,
   FollowerNumber,
@@ -203,7 +211,7 @@ export default function Home() {
       if (!message || !(message.flags & 2)) continue
       const details = messageDetails.current.get(message.serial)
       if (!details) continue
-      details.open = true
+      showCampaignPopup(details, messageDetails.current.values())
       opened.push(message.serial)
     }
     if (!opened.length) return
@@ -1068,6 +1076,12 @@ export default function Home() {
         className="campaign-messages"
         aria-label="Campaign messages"
         style={{ visibility: menu ? 'hidden' : undefined }}
+        onKeyDown={event => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.stopPropagation()
+            if (event.repeat) event.preventDefault()
+          }
+        }}
       >
         {world.messages.slots
           .map((message, slot) => ({ message, slot }))
@@ -1084,10 +1098,10 @@ export default function Home() {
                   if (element) messageDetails.current.set(message!.serial, element)
                   else messageDetails.current.delete(message!.serial)
                 }}
-                data-lower={top > Math.trunc(messageViewportHeight / 2) || undefined}
                 style={
                   {
                     '--message-height': `${height}px`,
+                    '--message-top': `${top}px`,
                     top: `${top}px`,
                   } as CSSProperties
                 }
@@ -1097,23 +1111,34 @@ export default function Home() {
                   onClick={event => {
                     const target = messageViewPoint(message!),
                       details = event.currentTarget.parentElement as HTMLDetailsElement
-                    if (!details.open && target) engine.current?.focus(target, { animate: true })
+                    event.preventDefault()
+                    if (details.open) details.open = false
+                    else {
+                      if (target) engine.current?.focus(target, { animate: true })
+                      showCampaignPopup(details, messageDetails.current.values())
+                    }
                   }}
                 >
                   <img src={messageIcon(message!)} alt="" />
                 </summary>
-                <div>
-                  <p>{messageText(message!.stringId)}</p>
-                  <button
-                    onClick={() => {
-                      removeMessage(world.messages, slot)
-                      update()
-                    }}
-                    aria-label="Dismiss campaign message"
-                  >
-                    ×
-                  </button>
-                </div>
+                <OriginalCampaignPopup
+                  text={messageText(message!.stringId)}
+                  onAcknowledge={() => {
+                    const details = messageDetails.current.get(message!.serial)
+                    if (details) details.open = false
+                    acknowledgeMessage(world.messages, slot)
+                    update()
+                    if (world.messages.slots[slot]) details?.querySelector('summary')?.focus()
+                  }}
+                  onDelete={
+                    messageHasDelete(message!)
+                      ? () => {
+                          acknowledgeMessage(world.messages, slot, true)
+                          update()
+                        }
+                      : undefined
+                  }
+                />
               </details>
             )
           })}

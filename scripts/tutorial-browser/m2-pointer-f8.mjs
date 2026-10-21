@@ -545,20 +545,20 @@ export function m2DiagnosticLayout(el) {
     pausePointerEvents: badge && getComputedStyle(badge).pointerEvents,
     pauseText: badge?.getAttribute('aria-label'),
     pointerTail: el.querySelector('[data-metric="pointer-tail"]')?.textContent,
-    campaignPanels: [...document.querySelectorAll('.campaign-messages details[open]>div')]
+    campaignPanels: [...document.querySelectorAll('.campaign-messages details[open] [data-native-campaign-panel]')]
       .filter(
         node => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
       )
       .map(node => {
         const r = node.getBoundingClientRect()
-        const close = node.querySelector('button[aria-label="Dismiss campaign message"]')
+        const close = node.querySelector('button[aria-label="Acknowledge campaign message"]')
         const c = close?.getBoundingClientRect()
         return {
           left: r.left,
           top: r.top,
           right: r.right,
           bottom: r.bottom,
-          text: node.querySelector('p')?.textContent,
+          text: node.querySelector('[data-campaign-text]')?.getAttribute('aria-label'),
           contentFits:
             node.scrollWidth <= node.clientWidth && node.scrollHeight <= node.clientHeight,
           closeActionable:
@@ -570,7 +570,7 @@ export function m2DiagnosticLayout(el) {
       }),
     interactiveUi: [
       ...document.querySelectorAll(
-        '.native-hud,.top-actions,.campaign-messages summary,.campaign-messages details[open]>div'
+        '.native-hud,.top-actions,.campaign-messages summary,.campaign-messages details[open] [data-native-campaign-panel]'
       ),
     ]
       .filter(

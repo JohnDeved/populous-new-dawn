@@ -118,7 +118,7 @@ export function installShamanCastingObserver() {
         height = Math.min(256, canvas.height - y, Math.ceil((bounds.height + 16) * sy)),
         clip = { x: rect.left + x / sx, y: rect.top + y / sy, width: width / sx, height: height / sy }
       const overlays = [...document.querySelectorAll(
-        '.native-hud,.paused-badge,.campaign-messages summary,.campaign-messages details[open]>div,.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
+        '.native-hud,[data-original-pause-status],.campaign-messages summary,.campaign-messages details[open] [data-native-campaign-panel],.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
         .filter(element => {
           const style = getComputedStyle(element), r = element.getBoundingClientRect()
           return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0 &&
