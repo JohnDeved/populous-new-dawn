@@ -6,7 +6,7 @@ const before = new URLSearchParams(location.search).has('before')
 if (before) {
   const style = document.createElement('style')
   style.textContent = await (await fetch('/before.css')).text()
-  document.head.append(style)
+  document.head.appendChild(style)
 }
 createRoot(document.getElementById('root')!).render(
   <main
