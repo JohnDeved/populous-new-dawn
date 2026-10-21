@@ -31,7 +31,7 @@ export async function finishM2Functional({
   admission,
 }) {
   try {
-    if (admission) await admission.wait(context.close())
+    if (admission) await admission.close('compact-context', context)
     else await context.close()
     report.contextClosed = true
   } catch (error) {

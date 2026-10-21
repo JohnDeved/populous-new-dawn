@@ -156,7 +156,7 @@ try {
     receipt.gameplayAdmission = gameplayAdmission.report
     gameplayBrowser = guardGameplayBrowser(browser, gameplayAdmission)
   } else if (selectedScenario === 'compact-message-layout') {
-    compactAdmission = createCompactAdmission({ deadlineAt: browserDeadlineAt, signal: abort.signal, onExpire: error => {
+    compactAdmission = createCompactAdmission({ deadlineAt: browserDeadlineAt, signal: abort.signal, onUpdate: save, onExpire: error => {
       if (error.code === 'COMPACT_ADMISSION_TIMEOUT') receipt.browserTimedOut = true
       abort.abort(error); return browser.close()
     } })
@@ -225,7 +225,7 @@ try {
       browser: compactBrowser, url, output: out, fixture: m2Fixture, report: receipt, admission: compactAdmission,
     }))
     // All four compact cases and the independent picking episode remain required.
-    await compactAdmission.wait(context.close()); context = undefined; page = undefined
+    await compactAdmission.close('initial-context', context); context = undefined; page = undefined
     receipt.hypnotise = await compactAdmission.wait((await import(pathToFileURL(hypnotiseScenario).href)).default({ browser: compactBrowser, url, output: out, deadlineAt: browserDeadlineAt }))
     compactAdmission.finishCompanion('hypnotise', receipt.hypnotise)
   } else if (selectedScenario === 'm2-pointer-f8') {

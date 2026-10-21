@@ -60,3 +60,11 @@ if another rejects or stalls. Original failures remain primary and cleanup error
 are separately recorded. A promise race bounds pending acquisition/read/cleanup;
 late completion cannot publish a passed admission. Earlier failed receipts remain
 failed. New source/focused acceptance is not rendered acceptance.
+
+Owned close operations are explicitly recorded as pending before dispatch and
+closed/failed on settlement. Late acquisition, deadline-browser closure, inner
+compact context closure and final cleanup invoke the existing receipt writer
+again on settlement, without extending the deadline or awaiting a new grace
+period. Pending cleanup is not verified cleanup. Persistence failure is recorded
+and fails admission; it cannot overwrite the original input error. Hypnotise's
+reported cap may remain below 75 seconds when its existing outer clipping applies.

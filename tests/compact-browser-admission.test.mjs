@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { readFileSync } from 'node:fs'
+import { readFileSync, mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { finishM2Functional } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
 import { createCompactAdmission } from '../scripts/tutorial-browser/compact-admission.mjs'
 import { guardBrowserAdmission } from '../scripts/browser-admission-guard.mjs'
 import { guardGameplayBrowser } from '../scripts/tutorial-browser/gameplay-admission.mjs'
@@ -177,5 +180,92 @@ test('runner and M2 wire only explicit compact admission, with cleanup inside bo
   assert.ok(m2.indexOf('admission?.beginCompact()') < m2.indexOf('report.compactMessageLayout = await runEpisode'))
   assert.ok(m2.indexOf('report.before = await observe()') < m2.indexOf('admission.beginLayouts('))
   assert.ok(m2.indexOf('admission.beginLayouts(') < m2.indexOf('await checkCompactMessages('))
-  assert.ok(m2.indexOf('await admission.wait(context.close())') < m2.indexOf('admission.finishCompact(report)'))
+  assert.ok(m2.indexOf("await admission.close('compact-context', context)") < m2.indexOf('admission.finishCompact(report)'))
+})
+
+test('Hypnotise completion accepts its existing shorter outer-clipped cap and rejects invalid expansion', () => {
+  for (const capMs of [1, 74000, 75000]) {
+    const f = fixture(); begin(f); layouts(f); finish(f)
+    f.admission.finishCompanion('picking', { status: 'passed', contextClosed: true })
+    f.admission.finishCompanion('hypnotise', { status: 'passed', contextClosed: true, capMs })
+    f.admission.dispose()
+  }
+  for (const capMs of [0, -1, NaN, Infinity, 75001, undefined]) {
+    const f = fixture(); begin(f); layouts(f); finish(f)
+    f.admission.finishCompanion('picking', { status: 'passed', contextClosed: true })
+    assert.throws(() => f.admission.finishCompanion('hypnotise', { status: 'passed', contextClosed: true, capMs }), /75s maximum/)
+    f.admission.dispose()
+  }
+})
+
+test('primary failure and pending inner-context close preserve actual late rejection durably', async () => {
+  const saves = [], closing = pending(), f = fixture({ onUpdate: r => saves.push(structuredClone(r)) })
+  begin(f); const original = new Error('original public action failure'); f.admission.fail(original)
+  const close = f.admission.close('compact-context', { close: () => closing.promise })
+  assert.equal(saves.at(-1).closes[0].status, 'pending')
+  f.at(45000); f.timers[2].fn(); await assert.rejects(close, error => error === original)
+  f.admission.dispose(); closing.reject(new Error('actual late inner close rejection'))
+  await new Promise(resolve => setImmediate(resolve))
+  const saved = saves.at(-1)
+  assert.equal(saved.status, 'failed'); assert.equal(saved.failure, String(original))
+  assert.equal(saved.closes.find(c => c.name === 'compact-context').status, 'failed')
+  assert.deepEqual(saved.cleanupErrors, ['Error: actual late inner close rejection'])
+})
+
+test('late acquisition and shutdown-browser settlements remain durable without extending expiry', async () => {
+  const saves = [], creation = pending(), closing = pending(), f = fixture({ close: () => closing.promise,
+    onUpdate: r => saves.push(structuredClone(r)) })
+  begin(f)
+  const acquired = f.admission.acquire('context', () => creation.promise, c => c.close())
+  await Promise.resolve(); f.at(45000); f.timers[2].fn(); await assert.rejects(acquired, /preparation deadline/)
+  assert.equal(saves.at(-1).resources[0].status, 'pending')
+  assert.equal(saves.at(-1).closes[0].status, 'pending')
+  f.admission.dispose()
+  creation.resolve({ async close() { throw new Error('late acquired close rejected') } })
+  closing.reject(new Error('deadline browser close rejected'))
+  await new Promise(resolve => setImmediate(resolve))
+  const saved = saves.at(-1)
+  assert.equal(saved.status, 'failed'); assert.equal(saved.resources[0].status, 'late-close-failed')
+  assert.match(saved.failure, /preparation deadline/)
+  assert.deepEqual(saved.cleanupErrors.toSorted(), ['Error: deadline browser close rejected', 'Error: late acquired close rejected'].toSorted())
+})
+
+test('final pending cleanup is recorded at expiry and later closure persists as failed admission', async () => {
+  const saves = [], closing = pending(), f = fixture({ onUpdate: r => saves.push(structuredClone(r)) })
+  begin(f); layouts(f); finish(f); companions(f)
+  const cleanup = f.admission.cleanup({ server: { close: () => closing.promise } })
+  f.at(225000); f.timers[0].fn(); assert.equal(await cleanup, false)
+  f.admission.dispose(); closing.resolve(); await new Promise(resolve => setImmediate(resolve))
+  assert.equal(saves.at(-1).cleanup[0].status, 'closed')
+  assert.equal(saves.at(-1).status, 'failed'); assert.equal(saves.at(-1).timedOut, 'aggregate')
+})
+
+test('settlement persistence failure is fail-closed and cannot replace an original input failure', async () => {
+  const original = new Error('original input'), f = fixture({ onUpdate() { throw new Error('receipt write failed') } })
+  begin(f); f.admission.fail(original)
+  await f.admission.close('compact-context', { async close() {} })
+  assert.equal(f.admission.report.failure, String(original))
+  assert.ok(f.admission.report.persistenceErrors.every(e => e === 'Error: receipt write failed'))
+  assert.ok(f.admission.report.persistenceErrors.length > 0)
+  assert.throws(() => f.admission.complete(), error => error === original); f.admission.dispose()
+})
+
+
+test('actual M2 finalizer records a late inner close rejection after its bounded failed receipt', async t => {
+  const output = mkdtempSync(join(tmpdir(), 'compact-close-evidence-'))
+  t.after(() => rmSync(output, { recursive: true, force: true }))
+  const saves = [], closing = pending(), f = fixture({ onUpdate: r => saves.push(structuredClone(r)) })
+  begin(f)
+  const original = new Error('original navigation failure'), report = { status: 'running', errors: [] }
+  f.admission.fail(original)
+  const completed = assert.rejects(finishM2Functional({ context: { close: () => closing.promise }, report,
+    output, failure: original, admission: f.admission }), /M2 functional scenario failed/)
+  f.at(45000); f.timers[2].fn(); await completed
+  const receipt = JSON.parse(readFileSync(join(output, 'm2-pointer-f8.json'), 'utf8'))
+  assert.equal(receipt.status, 'failed'); assert.equal(receipt.failure.message, String(original))
+  closing.reject(new Error('late inner context close failed')); await new Promise(resolve => setImmediate(resolve))
+  assert.equal(saves.at(-1).failure, String(original))
+  assert.deepEqual(saves.at(-1).cleanupErrors, ['Error: late inner context close failed'])
+  assert.equal(saves.at(-1).closes.find(c => c.name === 'compact-context').status, 'failed')
+  f.admission.dispose()
 })

@@ -3,25 +3,43 @@ import { compactAggregateBudget as budget } from './scenario-policy.mjs'
 
 // New functional admission policy, not a latency or rendering-performance SLA.
 // A timer wakes cancellation; monotonic checks make late success impossible.
-export function createCompactAdmission({ deadlineAt, onExpire, signal,
+export function createCompactAdmission({ deadlineAt, onExpire, signal, onUpdate = () => {},
   now = () => performance.now(), wallNow = Date.now, schedule = setTimeout, cancel = clearTimeout }) {
   assert.ok(Number.isFinite(deadlineAt), 'An absolute host deadline is required')
   const started = now(), allowance = Math.min(budget.totalBrowserMs, deadlineAt - wallNow())
   const aggregateDeadline = started + allowance
   const report = { version: 1, status: 'running', budget, allowanceMs: allowance,
-    episodes: [], resources: [], cleanupErrors: [] }
+    episodes: [], resources: [], closes: [], cleanupErrors: [], persistenceErrors: [] }
   let failure, disposed = false, closeRequested = false, phaseTimer, compactTimer, compactDeadline, phaseDeadline
   let rejectExpiry
   const expired = new Promise((_, reject) => { rejectExpiry = reject })
   void expired.catch(() => {})
   const elapsed = () => now() - started
   const fail = error => { failure ??= error; report.status = 'failed'; report.failure = String(failure); return failure }
+  const publish = () => {
+    try { onUpdate(report) }
+    catch (error) { report.persistenceErrors.push(String(error)); fail(error) }
+  }
   const cleanupFailed = error => { report.cleanupErrors.push(String(error)); return fail(error) }
+  const trackClose = (name, close) => {
+    const record = { name, status: 'pending', startedMs: elapsed() }; report.closes.push(record)
+    let closing
+    try { closing = close() } catch (error) { closing = Promise.reject(error) }
+    const settled = Promise.resolve(closing).then(() => {
+      record.status = 'closed'; record.finishedMs = elapsed(); publish()
+    }, error => {
+      record.status = 'failed'; record.error = String(error); record.finishedMs = elapsed()
+      cleanupFailed(error); publish(); throw error
+    })
+    void settled.catch(() => {})
+    publish()
+    return { record, settled }
+  }
   const shutdown = error => {
     fail(error); rejectExpiry(failure)
     if (closeRequested) return
     closeRequested = true
-    try { Promise.resolve(onExpire(error)).catch(cleanupFailed) } catch (cleanup) { cleanupFailed(cleanup) }
+    trackClose('deadline-browser', () => onExpire(error))
   }
   const expire = scope => {
     if (disposed) return failure
@@ -54,17 +72,32 @@ export function createCompactAdmission({ deadlineAt, onExpire, signal,
   }
   const acquire = async (kind, create, close, active = check) => {
     active()
-    const record = { kind, startedMs: elapsed() }; report.resources.push(record)
+    const record = { kind, status: 'pending', startedMs: elapsed() }; report.resources.push(record)
     const creation = Promise.resolve().then(() => { active(); return create() }).then(async resource => {
       record.createdMs = elapsed()
-      try { active(); return resource } catch (error) {
-        record.lateCloseAttempted = true
-        try { await close(resource); record.lateClosed = true }
-        catch (cleanup) { record.cleanupError = String(cleanup); cleanupFailed(cleanup) }
-        throw fail(error)
+      try { active(); record.status = 'acquired'; return resource } catch (error) {
+        record.status = 'late-cleanup-pending'; record.lateCloseAttempted = true
+        const closing = trackClose(`late-${kind}`, () => close(resource))
+        try { await closing.settled; record.lateClosed = true; record.status = 'late-closed' }
+        catch (cleanup) { record.cleanupError = String(cleanup); record.status = 'late-close-failed' }
+        publish(); throw fail(error)
       }
+    }, error => {
+      record.status = 'failed'; record.error = String(error); fail(error); publish(); throw error
     })
     return wait(creation)
+  }
+  const waitCleanup = async promise => {
+    // Cleanup is allowed after a primary failure, but never receives extra time.
+    // Its actual rejection is independently retained by trackClose's handler.
+    if (disposed) throw failure ?? new Error('Compact admission is closed')
+    deadlines()
+    const result = await Promise.race([promise, expired])
+    deadlines(); return result
+  }
+  const close = async (name, resource) => {
+    const operation = trackClose(name, () => resource.close())
+    await waitCleanup(operation.settled)
   }
   const armPhase = (name, allowanceMs) => {
     phaseDeadline = Math.min(compactDeadline, now() + allowanceMs)
@@ -114,20 +147,17 @@ export function createCompactAdmission({ deadlineAt, onExpire, signal,
     assert.equal(report.episodes.at(-1)?.status, 'passed')
     assert.equal(name, report.episodes.length === 1 ? 'picking' : report.episodes.length === 2 ? 'hypnotise' : null)
     assert.equal(result.status, 'passed'); assert.equal(result.contextClosed, true)
-    if (name === 'hypnotise') assert.equal(result.capMs, budget.hypnotiseMs)
+    if (name === 'hypnotise') assert.ok(Number.isFinite(result.capMs) && result.capMs > 0 && result.capMs <= budget.hypnotiseMs,
+      'Hypnotise retains its 75s maximum clipped by the existing outer deadline')
     report.episodes.push({ name, status: 'passed', finishedMs: elapsed() })
   }
   const cleanup = async resources => {
     // Start every close before awaiting one. A rejecting or stalled first close
     // cannot suppress the remaining cleanup, and no cleanup grace is granted.
-    report.cleanup = []
-    const operations = Object.entries(resources).filter(([, resource]) => resource).map(([name, resource]) => {
-      const record = { name, status: 'running' }; report.cleanup.push(record)
-      return Promise.resolve().then(() => resource.close()).then(() => { record.status = 'closed' }, error => {
-        record.status = 'failed'; record.error = String(error); cleanupFailed(error)
-      })
-    })
-    try { deadlines(); await Promise.race([Promise.all(operations), expired]); deadlines() }
+    const operations = Object.entries(resources).filter(([, resource]) => resource)
+      .map(([name, resource]) => trackClose(name, () => resource.close()))
+    report.cleanup = operations.map(operation => operation.record)
+    try { await waitCleanup(Promise.all(operations.map(operation => operation.settled.catch(() => {})))) }
     catch (error) { fail(error) }
     return report.cleanup.every(record => record.status === 'closed') && !report.timedOut
   }
@@ -137,11 +167,14 @@ export function createCompactAdmission({ deadlineAt, onExpire, signal,
     cancel(aggregateTimer); cancel(phaseTimer); cancel(compactTimer)
     signal?.removeEventListener('abort', abort); disposed = true
   }
-  return { report, check, wait, acquire, beginCompact, beginLayouts, finishCompact, finishCompanion, fail, cleanupFailed, cleanup, dispose,
+  return { report, check, wait, acquire, beginCompact, beginLayouts, finishCompact, finishCompanion, fail, cleanupFailed, close, cleanup, dispose,
     complete() {
       check()
       assert.deepEqual(report.episodes.map(e => [e.name, e.status]), [['compact', 'passed'], ['picking', 'passed'], ['hypnotise', 'passed']])
-      assert.deepEqual(report.cleanupErrors, []); assert.ok(report.cleanup?.every(r => r.status === 'closed'))
+      assert.deepEqual(report.cleanupErrors, []); assert.deepEqual(report.persistenceErrors, [])
+      assert.ok(report.cleanup?.every(r => r.status === 'closed'))
+      assert.ok(report.closes.every(r => r.status === 'closed'), 'No pending or failed owned cleanup can pass')
+      assert.ok(report.resources.every(r => r.status === 'acquired'), 'No pending or late acquisition can pass')
       report.finishedMs = elapsed(); report.status = 'passed'; dispose()
     },
   }
