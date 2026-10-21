@@ -200,10 +200,7 @@ export function OriginalMainMenu({
       failed: ['Lookup failed; save unchanged.'],
       incompatible: ['Incompatible with this build.', 'Stored save unchanged.'],
       pending: ['Checking browser storage...'],
-      unavailable: [
-        'Browser storage is unavailable.',
-        'Play and save this session only.',
-      ],
+      unavailable: ['Browser storage is unavailable.', 'Play and save this session only.'],
     }
     const noticeRows = paragraphs[checkpointReadStatus]
       .flatMap(wrapTutorialRecommendation)
