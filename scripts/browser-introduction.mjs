@@ -28,13 +28,14 @@ export async function skipIntroductionWithSpace(page, { timeout = 30000 } = {}) 
   const run = async () => {
     for (;;) {
       const state = await page.waitForFunction(introductionInputState, undefined, { timeout: remaining() })
-      let action, readFailed = false
+      let action, readFailed = false, readError
       try { remaining(); action = await state.jsonValue() }
-      catch (error) { readFailed = failed = true; failure = error; throw error }
-      finally {
-        try { await state.dispose() }
-        catch (error) { if (!readFailed) throw error }
-      }
+      catch (error) { readFailed = failed = true; failure = readError = error }
+      // Always release the handle, retaining the original read failure if both
+      // operations fail. Keep throws outside finally so cleanup cannot mask it.
+      try { await state.dispose() }
+      catch (error) { if (!readFailed) throw error }
+      if (readFailed) throw readError
       remaining()
       if (action !== 'skip') return action
       // The presentation may finish during the handle round-trip. Never turn that
