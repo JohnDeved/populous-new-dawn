@@ -303,6 +303,7 @@ test('actual compact scroll driver uses public wheel input and rejects world or 
     else {
       await run
       assertCompactMessageWitness(sample.layout, sample.witness, 900, 360, sample.scrollSamples)
+      assert.equal(sample.beforeScrollReset?.layout.scroll.top, fromBottom ? 91 : undefined)
     }
     assert.deepEqual(calls, ['move', 'settle', ...(fromBottom ? ['wheel-top', 'wait-scroll', 'settle'] : []), 'wheel', 'wait-scroll', 'settle'])
     assert.equal(reads, 2)
@@ -398,7 +399,7 @@ test('compact preferences use public controls with genuine text geometry and F8-
   assert.match(source, /parent\.clientLeft \+ parent\.clientWidth/)
   assert.match(source, /parent\.clientTop \+ parent\.clientHeight/)
   assert.ok(source.indexOf('await page.screenshot({ path: resolve(output, screenshot) })') <
-    source.indexOf('assertCompactMessageWitness(layout, witness, width, height, sample.scrollSamples)', source.indexOf('report.cases.push(sample)')))
+    source.indexOf('assertCompactMessageWitness(sample.layout, sample.witness, width, height, sample.scrollSamples)', source.indexOf('report.cases.push(sample)')))
   assert.match(
     source,
     /node\.scrollWidth <= node\.clientWidth && node\.scrollHeight <= node\.clientHeight/

@@ -294,6 +294,7 @@ export async function scrollCompactDiagnostics(page, sample, width, height, sett
   // A preceding real export or viewport resize may retain a scroll offset.
   // Restore the header through the same native wheel input, never scrollTop writes.
   if (layout.scroll.top > 0) {
+    sample.beforeScrollReset = { layout: sample.layout, witness: sample.witness }
     await page.mouse.wheel(0, -layout.scroll.height)
     await page.waitForFunction(() => document.querySelector('.fps-graph').scrollTop === 0)
     await settle()
@@ -384,7 +385,7 @@ export async function checkCompactMessages({ page, output, stage, report }) {
         sample.scrolledScreenshot = `compact-message-${preference}-${width}x${height}-scrolled.png`
         await page.screenshot({ path: resolve(output, sample.scrolledScreenshot) })
       }
-      assertCompactMessageWitness(layout, witness, width, height, sample.scrollSamples)
+      assertCompactMessageWitness(sample.layout, sample.witness, width, height, sample.scrollSamples)
       await page.keyboard.press('F8')
       await graph.waitFor({ state: 'hidden' })
       await settle()
