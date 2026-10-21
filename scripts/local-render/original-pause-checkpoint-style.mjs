@@ -71,14 +71,22 @@ export default async function ({ browser, page, url, root, output, receipt, sign
               const rect = node.getBoundingClientRect()
               return { x: rect.x, y: rect.y, width: rect.width, height: rect.height, bottom: rect.bottom }
             }
-            const text = node => ({
-              glyphs: node.querySelectorAll('i').length,
-              images: [...new Set([...node.querySelectorAll('i')].map(glyph => getComputedStyle(glyph).backgroundImage))],
-            })
+            const text = node => {
+              const glyphs = node.querySelectorAll('i').length
+              const visible = node.matches('p') ? node.lastElementChild : node.firstElementChild
+              const style = getComputedStyle(visible)
+              return {
+                glyphs,
+                images: [...new Set([...node.querySelectorAll('i')].map(glyph => getComputedStyle(glyph).backgroundImage))],
+                fallback: glyphs ? null : { text: visible.textContent, box: box(visible),
+                  display: style.display, visibility: style.visibility, opacity: Number(style.opacity) },
+              }
+            }
             return {
               panel: dialog.dataset.panel, dpr: devicePixelRatio,
               background: getComputedStyle(panel).backgroundColor, border: getComputedStyle(panel).borderTopWidth,
-              titleTop: panel.querySelector('h2').offsetTop, title: text(panel.querySelector('h2')),
+              titleTop: panel.querySelector('h2').offsetTop,
+              title: { copy: panel.querySelector('h2').getAttribute('aria-label'), ...text(panel.querySelector('h2')) },
               body: { top: body.offsetTop, height: body.offsetHeight, width: body.offsetWidth,
                 overflow: body.scrollHeight > body.clientHeight, horizontalOverflow: body.scrollWidth > body.clientWidth,
                 box: box(body), paragraphs: [...body.querySelectorAll('p')].map(node => ({
@@ -105,7 +113,14 @@ export default async function ({ browser, page, url, root, output, receipt, sign
           if (panel === 'load') assert.ok(layout.body.paragraphs.some(paragraph => paragraph.copy === 'Checkpoint available in this session.'))
           for (const text of [layout.title, ...layout.body.paragraphs, ...layout.buttons]) {
             assert.equal(text.glyphs > 0, !fallback)
-            if (!fallback) assert.ok(text.images.every(image => image.includes('/original/pause-font.png')))
+            if (fallback) {
+              assert.equal(text.fallback.text, text.copy ?? text.label)
+              assert.notEqual(text.fallback.display, 'none')
+              assert.equal(text.fallback.visibility, 'visible')
+              assert.ok(text.fallback.opacity > 0)
+              assert.ok(text.fallback.box.width > 0 && text.fallback.box.height > 0)
+              assert.ok(text.fallback.box.x >= -1 && text.fallback.box.x + text.fallback.box.width <= width + 1)
+            } else assert.ok(text.images.every(image => image.includes('/original/pause-font.png')))
           }
           for (const paragraph of layout.body.paragraphs) assert.ok(paragraph.pitches.every(pitch => pitch === 30))
           for (const control of layout.buttons) {
