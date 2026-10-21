@@ -201,7 +201,16 @@ try {
      if(expanded){
        const bounds=await page.locator('.fps-graph').evaluate(n=>({graph:n.getBoundingClientRect().toJSON(),panel:document.querySelector('[data-native-campaign-panel]').getBoundingClientRect().toJSON(),scrollable:n.scrollHeight>n.clientHeight,overflow:getComputedStyle(n).overflowY}))
        assert.ok(bounds.graph.top>=bounds.panel.bottom+3,'Expanded F8 scrolls below native popup rather than painting over it');assert.equal(bounds.overflow,'auto')
-       await page.screenshot({path:resolve(output,`after-diagnostics-expanded-${width}x${height}.png`)});await page.getByRole('button',{name:'Picking paths'}).click()
+       await page.screenshot({path:resolve(output,`after-diagnostics-expanded-${width}x${height}.png`)})
+       const graph=page.locator('.fps-graph')
+       await page.getByRole('button',{name:'Picking paths'}).focus();await page.keyboard.press('End');await page.waitForTimeout(150)
+       assert.ok(await graph.evaluate(n=>n.scrollTop>0),'Expanded compact diagnostics support isolated keyboard scrolling')
+       await graph.evaluate(n=>n.scrollTop=0);await graph.hover();await page.mouse.wheel(0,2000);await page.waitForTimeout(150)
+       const last=await graph.evaluate(n=>{const g=n.getBoundingClientRect(),last=n.querySelector('.fps-picking p').getBoundingClientRect();return{end:n.scrollTop+n.clientHeight>=n.scrollHeight-2,visible:last.top>=g.top&&last.bottom<=g.bottom}})
+       assert.deepEqual(last,{end:true,visible:true},'Last optional picking explanation is visibly reachable, not merely clipped in the DOM')
+       receipt.checks.push({compactExpandedLastField:[width,height],...last});save()
+       await page.screenshot({path:resolve(output,`after-diagnostics-expanded-${width}x${height}-last-fields.png`)})
+       await graph.evaluate(n=>n.scrollTop=0);await page.getByRole('button',{name:'Picking paths'}).click()
      }
    }
 
