@@ -2,6 +2,15 @@
   "version": 1,
   "owners": [
     {
+      "id": "world-selector-manifest",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-world-selector-manifest.py", "<verified-game-root>"] },
+      "callers": ["scripts/import-world-selector-manifest.py"],
+      "inputs": ["decomp/research/world-selector-manifest/sources.json", "scripts/import-world-selector-text.py", "scripts/check-static-world-selector.py", "scripts/check-static-mission18-sky.py", "scripts/import-original.py"],
+      "outputs": [{ "path": "app/original-world-selector.json", "type": "file", "tracked": true, "protected": true }],
+      "recording": "Inactive all-25-world data prerequisite only. Validate every pinned source first; --check is read-only. Generate a differing candidate to a new --output path for review. No original execution, profile writes, PNG regeneration or selector activation."
+    },
+    {
       "id": "startup-logo",
       "kind": "imported-assets",
       "generator": { "executable": "python3", "args": ["scripts/import-startup-logo.py", "<verified-game-root>", "<new-output-directory>"] },
