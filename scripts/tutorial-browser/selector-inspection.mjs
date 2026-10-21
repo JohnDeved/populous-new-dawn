@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
 import { bindGame } from '../browser-game.mjs'
+import { readNativeHelpInk, applyNativeHelpInk } from './native-help-ink.mjs'
 
 export async function finishInspection({ context, observation, output, episodes, helpEntry, errors, failure, diagnostics }) {
   const cleanup = { observationDisconnected: false, contextClosed: false, errors: [] }
@@ -86,8 +87,12 @@ async function observeGame(page) {
 // The shipped help is a fixed native menu, not the removed long web document.
 // Inspect actual controls/glyphs inside the scaled viewport without creating
 // artificial overflow or changing its scroll position.
-export function nativeHelpLayout(element) {
+export async function nativeHelpLayout(element, fontPath) {
   const bounds = element.getBoundingClientRect()
+  const fontBytes = await (await fetch(fontPath)).arrayBuffer()
+  const sha256 = [...new Uint8Array(await crypto.subtle.digest('SHA-256', fontBytes))]
+    .map(value => value.toString(16).padStart(2, '0')).join('')
+  const rectangle = rect => ({ left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height })
   const fits = rect => rect.width > 0 && rect.height > 0 && rect.left >= bounds.left &&
     rect.right <= bounds.right && rect.top >= bounds.top && rect.bottom <= bounds.bottom &&
     rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight
@@ -95,10 +100,18 @@ export function nativeHelpLayout(element) {
   const fields = [heading, ...element.querySelectorAll('button, [role="status"]')].map(node => {
     const rect = node.getBoundingClientRect(), owner = document.elementFromPoint((rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2)
     return { label: node.getAttribute('aria-label') ?? node.textContent.trim(),
-      fits: fits(rect), glyphsFit: [...node.querySelectorAll('i')].every(glyph => fits(glyph.getBoundingClientRect())),
+      fits: fits(rect), glyphCellsFit: [...node.querySelectorAll('i')].every(glyph => fits(glyph.getBoundingClientRect())),
+      glyphs: [...node.querySelectorAll('i')].map(glyph => {
+        const style = getComputedStyle(glyph)
+        return { image: style.backgroundImage, size: style.backgroundSize, transform: style.transform,
+          x: parseFloat(style.backgroundPositionX), y: parseFloat(style.backgroundPositionY),
+          width: parseFloat(style.width), height: parseFloat(style.height), rect: rectangle(glyph.getBoundingClientRect()) }
+      }),
       actionable: node.tagName !== 'BUTTON' || (!node.disabled && node.contains(owner)) }
   })
   return { scrollTop: element.scrollTop, scrollHeight: element.scrollHeight, clientHeight: element.clientHeight,
+    bounds: rectangle(bounds), viewport: { width: innerWidth, height: innerHeight },
+    font: { path: fontPath, origin: location.origin, sha256 },
     focused: document.activeElement === heading, fields,
     documentOverflow: document.documentElement.scrollWidth > innerWidth || document.documentElement.scrollHeight > innerHeight }
 }
@@ -153,11 +166,12 @@ export default async function ({ browser, url, output }) {
       return state
     }
     let checkedHelpEntry = false
+    const helpFont = readNativeHelpInk()
     const checkHelpEntry = async () => {
       const help = menu.getByRole('region', { name: 'Browser compatibility and help', exact: true })
       for (const exit of ['Back', 'Escape', 'continue']) {
         await page.waitForFunction(() => document.activeElement?.hasAttribute('data-browser-help-heading'))
-        const layout = await help.evaluate(nativeHelpLayout)
+        const layout = applyNativeHelpInk(await help.evaluate(nativeHelpLayout, helpFont.url), helpFont)
         helpEntry.push({ exit, ...layout })
         assertNativeHelpLayout(layout)
         const held = await frozen()
