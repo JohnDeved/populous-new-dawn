@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -13,7 +14,7 @@ export default async function ({ page, output }) {
   await page.setViewportSize({ width: 960, height: 720 })
   await openCampaignFromMainMenu(page)
   await button('Start Mission 1').click(); await bindGame(page)
-  await page.locator('.skip-introduction').click()
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
   await page.evaluate(() => window.testStore.change(w => {
     w.routeNotice = { flags: 0x200000, message: 603, serial: 77 }
@@ -28,7 +29,7 @@ export default async function ({ page, output }) {
   })
   await button('Game settings').click(); await button('Restart Level').click(); await button('Yes').click()
   await page.waitForFunction(() => window.testStore.getWorld() !== window.staleRouteNoticeFixture.world)
-  await bindGame(page); await page.locator('.skip-introduction').click()
+  await bindGame(page); await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
   await page.evaluate(() => window.testStore.change(w => {
     w.routeNotice = { flags: 0x200000, message: 603, serial: 77 }

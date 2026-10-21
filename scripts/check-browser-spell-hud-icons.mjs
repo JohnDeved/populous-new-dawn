@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 // Focused authored HUD validation. Execute only inside the canonical queue.
 import assert from 'node:assert/strict'
@@ -38,7 +39,7 @@ try{
   await showAllMissions(page)
   await page.getByRole('button',{name:'Mission 16',exact:true}).press('Enter')
   await bindGame(page)
-  await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
+  await skipIntroductionWithSpace(page, { timeout: 20000 })
   await bindGame(page)
   await page.waitForFunction(()=>window.testScene.world.outcome.level===16&&!window.testScene.world.inputMask)
   report.initial=await page.evaluate(()=>{

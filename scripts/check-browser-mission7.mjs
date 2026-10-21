@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
@@ -36,7 +37,7 @@ try {
   await page
     .getByText('The Chumara will use the spell of Invisibility to attack us.', { exact: false })
     .waitFor()
-  await page.getByRole('button', { name: 'Skip introduction', exact: false }).click()
+  await skipIntroductionWithSpace(page, { timeout: 10000 })
   await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
   await page.getByRole('button', { name: 'Convert Wild, 1 shots' }).click()
   const convertPoint = await page.evaluate(() => {

@@ -122,7 +122,8 @@ export function compactMessageWitness() {
     preference: localStorage.getItem('hud-size'),
     scale: getComputedStyle(document.querySelector('.game-shell')).getPropertyValue('--hud-scale'),
     viewport: [innerWidth, innerHeight],
-    worldMessages: [...document.querySelectorAll('.world-message')].filter(visible).map(text),
+    worldMessages: [...document.querySelectorAll('.route-notice')].filter(visible).map(text),
+    inventedMessageCards: document.querySelectorAll('.world-message:not(.route-notice)').length,
     campaignText: [...document.querySelectorAll('.campaign-messages details[open]>div p')]
       .filter(visible)
       .map(text),
@@ -132,7 +133,7 @@ export function compactMessageWitness() {
       .map(node => ({ metric: node.dataset.metric, ...text(node) })),
     diagnosticTextRuns: document.querySelector('.fps-graph')
       ? textRuns(document.querySelector('.fps-graph')) : [],
-    pause: document.querySelector('.paused-badge') && rect(document.querySelector('.paused-badge')),
+    pause: document.querySelector('[data-original-pause-status]') && rect(document.querySelector('[data-original-pause-status]')),
     overflow:
       document.documentElement.scrollWidth > innerWidth ||
       document.documentElement.scrollHeight > innerHeight,
@@ -143,7 +144,7 @@ export function compactMessageWitness() {
 export function assertCompactMessageWitness(layout, witness, width, height) {
   assertM2DiagnosticLayout(layout, width, height)
   assert.equal(witness.overflow, false, 'No document scroll overflow in either dimension')
-  assert.ok(witness.worldMessages.length > 0, 'Authored active status text must be present')
+  assert.equal(witness.inventedMessageCards, 0, 'Browser-authored world-message cards must be absent')
   assert.ok(witness.campaignText.length > 0, 'Authored campaign text must be present')
   assert.equal(witness.diagnosticRows.length, 15, 'Every shipped diagnostic row must be observed')
   assert.deepEqual(

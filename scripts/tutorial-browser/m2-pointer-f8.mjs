@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -97,19 +98,14 @@ export function m2LoadReady() {
 
 export function m2StartupReady() {
   const world = window.testStore.getWorld()
-  const button = document.querySelector('button.skip-introduction')
-  const skipVisible =
-    !!button &&
-    button.getClientRects().length > 0 &&
-    getComputedStyle(button).visibility !== 'hidden' &&
-    !button.disabled
-  if (world.inputMask && !skipVisible) return false
+  const skipAvailable = (world.inputMask & 64) !== 0 && (world.flyby.flags & 0x51) === 0x11
+  if (world.inputMask && !skipAvailable) return false
   return {
     action: world.inputMask ? 'skip' : 'ready',
     inputMask: world.inputMask,
     flybyFlags: world.flyby.flags,
     level: world.outcome.level,
-    skipVisible,
+    skipAvailable,
   }
 }
 
@@ -258,17 +254,13 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     await startup.dispose()
     assert.equal(report.startup.level, 2)
     if (report.startup.action === 'skip')
-      await page.getByRole('button', { name: /^Skip introduction/ }).click()
+      await skipIntroductionWithSpace(page, { timeout: 10000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     stage('introduction-ready')
-    // Admit the compact viewport through its shipped public notice before the
-    // paused no-orders baseline: Continue intentionally resumes the simulation.
+    // Compact viewports no longer add a browser-authored blocking advisory.
     await page.setViewportSize({ width: 640, height: 480 })
-    const desktopNotice = page.locator('.desktop-recommendation')
-    await desktopNotice.waitFor({ state: 'visible' })
-    await desktopNotice.getByRole('button', { name: /^Continue anyway/ }).click()
-    await desktopNotice.waitFor({ state: 'hidden' })
-    report.compactNoticeDismissed = true
+    assert.equal(await page.locator('.desktop-recommendation').count(), 0)
+    report.compactViewportReady = true
     stage('compact-admitted')
     await page.setViewportSize({ width: 1440, height: 1000 })
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
@@ -479,8 +471,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     failure = error
     try {
       report.failureState = await page.evaluate(() => {
-        const w = window.testStore?.getWorld(),
-          button = document.querySelector('button.skip-introduction')
+        const w = window.testStore?.getWorld()
         return {
           level: w?.outcome.level,
           turn: w?.turn,
@@ -494,8 +485,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
             transitionRemaining: window.testSceneRef.current.viewTransition?.remaining ?? null,
             config: window.testSceneRef.current.view.config,
           },
-          skipVisible: !!button && button.getClientRects().length > 0,
-          skipText: button?.textContent,
+          skipAvailable: !!w && (w.inputMask & 64) !== 0 && (w.flyby.flags & 0x51) === 0x11,
           body: document.body.innerText.slice(0, 2000),
         }
       })
@@ -528,7 +518,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
 // Shared read-only DOM witness for pointer and compact-preference episodes.
 export function m2DiagnosticLayout(el) {
   const r = el.getBoundingClientRect()
-  const badge = document.querySelector('button.paused-badge')
+  const badge = document.querySelector('[data-original-pause-status]')
   const b = badge?.getBoundingClientRect()
   const exportButton = el.querySelector('.fps-export')
   const exportStatus = el.querySelector('[data-metric="export-status"]')
@@ -552,14 +542,8 @@ export function m2DiagnosticLayout(el) {
       !exportButton.disabled &&
       document.elementFromPoint((e.left + e.right) / 2, (e.top + e.bottom) / 2) === exportButton,
     pause: b && { left: b.left, top: b.top, right: b.right, bottom: b.bottom },
-    pauseActionable:
-      !!badge &&
-      !badge.disabled &&
-      !!b &&
-      document
-        .elementFromPoint((b.left + b.right) / 2, (b.top + b.bottom) / 2)
-        ?.closest('.paused-badge') === badge,
-    pauseText: badge?.textContent,
+    pausePointerEvents: badge && getComputedStyle(badge).pointerEvents,
+    pauseText: badge?.getAttribute('aria-label'),
     pointerTail: el.querySelector('[data-metric="pointer-tail"]')?.textContent,
     campaignPanels: [...document.querySelectorAll('.campaign-messages details[open]>div')]
       .filter(
@@ -653,18 +637,19 @@ export function assertM2DiagnosticLayout(layout, width, height) {
     )
   }
   assert.ok(layout.pause, 'Public pause indicator must remain present')
-  assert.equal(layout.pauseActionable, true, 'Public resume control must remain hit-testable')
-  assert.match(layout.pauseText, /WORLD PAUSED/)
-  assert.match(layout.pauseText, /Click to resume/)
+  assert.equal(layout.pausePointerEvents, 'none', 'Native pause text must not intercept gameplay input')
+  assert.equal(layout.pauseText, 'Paused')
+  assert.equal(layout.pause.right, width - 2, 'Native pause text stays two pixels from the screen edge')
+  assert.equal(layout.pause.bottom, height, 'Native pause text uses the bottom A-height line')
   assert.equal(
     m2RectanglesOverlap(layout, layout.pause),
     false,
-    'Paused badge must not obscure F8 diagnostics'
+    'Native pause text must not obscure F8 diagnostics'
   )
   for (const ui of layout.interactiveUi)
     assert.equal(
       m2RectanglesOverlap(layout.pause, ui),
       false,
-      `Pause control must not cover interactive UI: ${ui.name}`
+      `Native pause text must not cover interactive UI: ${ui.name}`
     )
 }

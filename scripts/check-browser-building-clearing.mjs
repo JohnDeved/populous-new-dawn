@@ -159,9 +159,6 @@ try {
   )
   assert.equal(pose.flip, directions[direction].flip)
   assert.ok(pose.pixels > 0 && pose.heard && pose.preparing)
-  await page.locator('.paused-badge').evaluate(el => {
-    el.style.visibility = 'hidden'
-  })
   await page.screenshot({ path: '/private/tmp/populous-clearing-harvest.png' })
   await page.evaluate(() => {
     window.testScene.world.paused = false

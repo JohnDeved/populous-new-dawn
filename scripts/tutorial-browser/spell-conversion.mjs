@@ -1,3 +1,4 @@
+import { pressIntroductionSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -11,46 +12,39 @@ const root = resolve(import.meta.dirname, '../..')
 
 // Read-only failure evidence, including failures before bindGame installs aliases.
 export function readConversionStartup() {
-  const scene = window.testSceneRef?.current, world = window.testStore?.getWorld(),
-    skip = document.querySelector('.skip-introduction')
+  const scene = window.testSceneRef?.current, world = window.testStore?.getWorld()
   return { level: world?.outcome.level, turn: world?.turn, paused: world?.paused, speed: world?.speed,
     inputMask: world?.inputMask, flybyFlags: world?.flyby.flags, flybyFrame: world?.flyby.frame,
     flybyWarmup: world?.flyby.warmup, casts: world?.spellCasts[2][17],
     stock: world?.manaWorld.spells[2].stocks[17], sameWorld: !!scene && scene.world === world,
     canvasConnected: !!scene?.renderer.domElement.isConnected,
     loading: !!document.querySelector('.loading-world'), visibility: document.visibilityState,
-    skipMounted: !!skip, skipVisible: !!skip && skip.getClientRects().length > 0 &&
-      getComputedStyle(skip).visibility !== 'hidden' }
+    skipAvailable: !!world && (world.inputMask & 64) !== 0 && (world.flyby.flags & 0x51) === 0x11 }
 }
 
 export async function waitForConversionIntroduction(page, report) {
   report.phase = 'wait-introduction-control'
   report.startup = { bound: await page.evaluate(readConversionStartup) }
   // Mission 3 starts its authored flyby at turn 16, not at world creation.
-  // Input is initially unlocked, and the live flyby flag can precede React's
-  // 0.2s HUD publication. Neither is evidence that the public Skip control exists.
-  const skip = page.locator('.skip-introduction')
-  await skip.waitFor({ state: 'visible' })
+  // Wait for its native input gate instead of accepting the initial unlocked state.
+  await page.waitForFunction(() => {
+    const world = window.testStore.getWorld()
+    return !document.querySelector('.loading-world') && (world.inputMask & 64) !== 0 &&
+      (world.flyby.flags & 0x51) === 0x11
+  })
   report.startup.beforeSkip = await page.evaluate(readConversionStartup)
   report.phase = 'skip-introduction'
-  await skip.click()
+  await pressIntroductionSpace(page, { timeout: 12000 })
   report.phase = 'wait-input-ready'
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
   report.startup.afterSkip = await page.evaluate(readConversionStartup)
 }
 
-// Observe advisory behavior instead of assuming whether dismissal resumes.
-// This helper is called only after the turn-zero observer has been armed.
+// Resume only after the turn-zero observer has been armed.
 export async function resumeArmedConversion(page, report) {
   report.phase = 'public-resume'
-  const advisory = page.locator('.desktop-recommendation')
   report.resume = { before: await page.evaluate(readConversionStartup), actions: [] }
-  if (await advisory.isVisible()) {
-    await advisory.getByRole('button', { name: /Continue anyway/ }).click()
-    report.resume.actions.push('dismiss-visible-advisory')
-  }
-  report.resume.afterAdvisory = await page.evaluate(readConversionStartup)
-  if (report.resume.afterAdvisory.paused) {
+  if (report.resume.before.paused) {
     await page.getByRole('button', { name: 'Resume game', exact: true }).click()
     report.resume.actions.push('visible-resume-game')
   }

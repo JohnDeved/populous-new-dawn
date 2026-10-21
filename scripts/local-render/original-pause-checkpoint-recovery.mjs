@@ -1,3 +1,4 @@
+import { pressIntroductionSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -26,36 +27,52 @@ function coldLookupFailure() {
   }
 }
 
-// Store/Scene binding and flyby flags may precede React's ready-gated Skip
-// control. Poll for a public actionable state rather than sampling visibility once.
-export function pauseStartupReady() {
+// Only the native interruptible flyby input gate admits a Space skip.
+export function pauseStartupReady(snapshot = false) {
   const world = window.testStore.getWorld()
-  if (!world.inputMask) return 'ready'
-  const skip = document.querySelector('button.skip-introduction')
-  return skip && skip.getClientRects().length > 0 &&
-    getComputedStyle(skip).visibility !== 'hidden' && !skip.disabled ? 'skip' : false
+  const action = !world.inputMask ? 'ready'
+    : (world.inputMask & 64) && (world.flyby.flags & 0x51) === 0x11 ? 'skip' : false
+  return snapshot ? { action, paused: world.paused } : action
 }
 
-// The introduction may finish between readiness and activation. Always await the
-// bounded public click, and forgive its failure only if input is already unlocked.
+// Keep the original recovery cap over observation and real input delivery. A
+// failed delivery is forgivable only after native completion with unchanged pause.
 export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
-  if (await page.evaluate(() => !window.testStore.getWorld().inputMask)) return
-  try {
-    // The caller re-observes actual input/native readiness. This setup action
-    // need not wait for Playwright's post-click navigation/interceptor work.
-    await page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout, noWaitAfter: true })
-  } catch (error) {
-    if (await page.evaluate(() => !!window.testStore.getWorld().inputMask)) throw error
+  if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid recovery input timeout')
+  const deadline = performance.now() + timeout, timedOut = new Error('Recovery introduction input timed out')
+  let closed = false, timer, deliveryError
+  const remaining = () => {
+    const budget = deadline - performance.now()
+    if (closed || budget <= 0) throw timedOut
+    return budget
   }
+  const run = async () => {
+    const before = await page.evaluate(pauseStartupReady, true)
+    remaining()
+    if (before.action === 'ready') return
+    if (before.action !== 'skip') throw new Error('Recovery introduction is no longer interruptible')
+    try { await pressIntroductionSpace(page, { timeout: remaining() }) }
+    catch (error) { deliveryError = error }
+    remaining()
+    const after = await page.evaluate(pauseStartupReady, true)
+    remaining()
+    if (after.paused !== before.paused) throw new Error('Recovery Space changed pause state; retry the episode')
+    if (deliveryError && after.action !== 'ready') throw deliveryError
+  }
+  try {
+    await Promise.race([run(), new Promise((_, reject) => {
+      timer = setTimeout(() => { closed = true; reject(deliveryError ?? timedOut) }, remaining())
+    })])
+  } finally { closed = true; clearTimeout(timer) }
 }
 
 // A later authored flyby can begin after the initial input-unlocked sample.
-// This callback only operates an observed public control, once per readiness
+// This callback only operates an observed interruptible flyby, once per readiness
 // wait. It never changes eligibility or resets the caller's existing deadline.
 export function recoverVisibleIntroduction(page) {
   let attempted = false
   return async ({ after, remainingMs }) => {
-    if (attempted || remainingMs <= 0 || !(after.inputMask & 64) || !after.introductionSkipVisible) return null
+    if (attempted || remainingMs <= 0 || !(after.inputMask & 64) || !after.introductionSkipAvailable) return null
     await skipPauseIntroduction(page, { timeout: Math.min(2500, remainingMs) })
     attempted = true
     return { action: 'public-skip-introduction' }

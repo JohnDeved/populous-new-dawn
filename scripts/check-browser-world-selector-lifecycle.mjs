@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
@@ -12,10 +13,8 @@ export default async function({page,root,output,receipt}) {
   const { bindGame } = await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
   await bindGame(page)
   assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),1)
-  const guard=page.getByRole('button',{name:'Continue anyway',exact:false});if(await guard.isVisible())await guard.click()
-  const skip=page.locator('.skip-introduction')
-  await skip.waitFor({state:'visible',timeout:45000}).catch(()=>{})
-  if(await skip.isVisible()) await skip.click()
+
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
   const renderer = await page.evaluate(()=> {
     const gl=window.testScene.renderer.getContext(), debug=gl.getExtension('WEBGL_debug_renderer_info')

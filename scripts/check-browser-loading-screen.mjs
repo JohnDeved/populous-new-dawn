@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -92,9 +93,7 @@ async function selectMission(page, mission) {
 }
 
 async function skipIntroduction(page) {
-  const button = page.getByRole('button', { name: /Skip introduction/ })
-  await button.waitFor()
-  await button.click()
+  await skipIntroductionWithSpace(page)
   await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
 }
 

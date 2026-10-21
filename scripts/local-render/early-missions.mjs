@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -134,9 +135,7 @@ export default async function ({
         await page.waitForFunction(
           () => !!(window.testScene.world.flyby.flags & 1) || !window.testScene.world.inputMask
         )
-        const skip = page.locator('.skip-introduction'),
-          introductionSkipped = await skip.isVisible()
-        if (introductionSkipped) await skip.click()
+        const introductionSkipped = (await skipIntroductionWithSpace(page)) === 'skip'
         await page.waitForFunction(() => !window.testScene.world.inputMask)
         const before = await snap(page)
         assert.equal(before.level, level)

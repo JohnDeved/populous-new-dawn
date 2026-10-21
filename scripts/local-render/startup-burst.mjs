@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 // One ordinary Mission1 startup, using the existing sandbox/profile/cleanup harness.
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
@@ -33,8 +34,8 @@ export default async function startupBurst({ page, output, signal, receipt }) {
     save()
     await page.getByRole('button', { name: 'Mission 1', exact: true }).focus()
     await page.keyboard.press('Enter')
-    await page.locator('.skip-introduction').click({ noWaitAfter: true })
-    report.skip = 'one delivered public click'
+    const introduction = await skipIntroductionWithSpace(page, { timeout: 45000 })
+    report.skip = introduction === 'skip' ? 'one delivered public Space key' : 'native introduction completed without input'
     report.initial = await page.evaluate(() => {
       const status = window.startupBurstFrames.status()
       const scene = window.testSceneRef?.current

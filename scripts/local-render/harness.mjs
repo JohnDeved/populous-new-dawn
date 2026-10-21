@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import { spawn } from 'node:child_process'
 import { mkdirSync, writeFileSync, createWriteStream, existsSync, readFileSync } from 'node:fs'
@@ -376,9 +377,7 @@ export async function runLocalBrowser(options, scenario) {
       await button.focus()
       await page.keyboard.press('Enter')
       await bindGame(page)
-      const skip = page.locator('.skip-introduction')
-      await skip.waitFor({ state: 'visible', timeout: 45000 }).catch(() => {})
-      if (await skip.isVisible()) await skip.click()
+      await skipIntroductionWithSpace(page, { timeout: 45000 })
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
       await page.evaluate(() => {
         window.testScene = window.testSceneRef.current

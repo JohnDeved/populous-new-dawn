@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 // Focused original-vehicle acceptance. Run only through the shared queue with
 // --output-dir; capture inputs are original Mission22 actors and a labelled
@@ -39,8 +40,7 @@ try {
     await button.waitFor({ state: 'attached' })
     await button.click()
     await bindGame(page)
-    const skip = page.getByRole('button', { name: /Skip introduction/ })
-    if (await skip.isVisible()) { await skip.click(); await bindGame(page) }
+    if (await skipIntroductionWithSpace(page, { timeout: 20000 }) === 'skip') await bindGame(page)
     await page.waitForFunction(() => window.testScene.terrainTextures && window.testScene.ground)
     await page.evaluate(async () => {
       const { browserPosition } = await import('/app/world-coordinates.ts')
