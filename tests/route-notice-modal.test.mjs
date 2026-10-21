@@ -1,111 +1,127 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import ts from 'typescript'
-import { requestTutorial } from '../app/model.ts'
-import { pageNode, pageSource, evaluatePage, pageNearby } from './support/follower-nearby-page.mjs'
+import { tooltipCallerFixture } from './support/tooltip-scene.mjs'
+import { pageNearby } from './support/follower-nearby-page.mjs'
 
-const notice = pageNode(node => ts.isJsxElement(node) &&
-  node.openingElement.attributes.properties.some(attribute =>
-    attribute.name?.getText(pageSource) === 'className' &&
-    attribute.initializer?.text === 'world-message route-notice'))
-
-// Execute Home's shipped JSX and menu handlers; this does not simulate CSS time.
-function fixture(paused = false) {
-  const makeWorld = () => ({ paused, routeNotice: { serial: 1 }, castingTribes: [{ flags: 0 }],
-    manaWorld: { gameFlags: 0 }, inputMask: 0 })
-  let world = makeWorld(), menu = false, selectorOpen = false, cheatsOpen = false
-  const scene = { world, cancelNearbyFollowers() {}, setModalSuspended(value) { this.modalSuspended = value } }
-  const store = { getWorld: () => world, change: action => action(world) }
-  const page = pageNearby(scene, { store, setMenu(value) { menu = value; if (value) selectorOpen = false },
-    setSelectorOpen(value) { selectorOpen = value } })
-  const render = () => evaluatePage(notice.getText(pageSource), {
-    store, world, routeNotice: world.routeNotice, menu, selectorOpen, cheatsOpen,
-    menuSession: page.bindings.menuSession, ROUTE_FAILURE_TEXT: 'Route failure',
-  })
-  return { page, scene, render, world: () => world,
-    cheats(open) { cheatsOpen = open },
-    inspect() { menu = false; page.openSelector() },
-    replace() { world = makeWorld(); return world },
-  }
+// Execute actual Home handlers, scene animate, updateFlyby and shared tooltip
+// controller. Glyph submission/DOM/projection are supplied by the controlled
+// caller fixture; separate browser captures cover actual canvas pixels.
+async function fixture(t, paused=false) {
+  const f=await tooltipCallerFixture(t), {scene,world,hut,api}=f
+  scene.view.painter.render=()=>{} // supplied GPU leaf, including the frozen modal render branch
+  const native=api.nativePosition(world,hut)
+  world.lastOrderCell=((native.x>>>8)&255)|(native.y&0xff00)
+  world.paused=paused
+  api.requestTutorial(world,0x200000,603)
+  f.frame()
+  assert.equal(scene.tooltip.remaining,71)
+  assert.equal(scene.tooltip.flags,8)
+  assert.equal(scene.tooltipElement.hidden,false)
+  return {...f,page:pageNearby(scene)}
 }
 
-for (const paused of [false, true]) {
-  test(`Home keeps the notice through menu/selector/reopen and restores prior pause=${paused}`, () => {
-    const ui = fixture(paused), original = ui.world().routeNotice
-    ui.page.openMenu()
-    const session = ui.page.bindings.menuSession.current
-    for (const action of [() => {}, () => ui.inspect(), () => ui.page.openMenu()]) {
-      action()
-      assert.equal(ui.page.bindings.menuSession.current, session)
-      assert.equal(ui.scene.modalSuspended, true)
-      const element = ui.render()
-      assert.equal(element.props.style.animationPlayState, 'paused')
-      assert.equal(ui.world().routeNotice, original)
+for(const paused of [false,true]) {
+  test(`shared route lifetime survives menu/selector/reopen with prior pause=${paused}`,async t=>{
+    const f=await fixture(t,paused), {scene,world,page,frame}=f,
+      notice=world.routeNotice, remaining=scene.tooltip.remaining
+    page.openMenu()
+    const session=page.bindings.menuSession.current
+    for(const transition of [()=>{},()=>page.openSelector(),()=>page.openMenu()]) {
+      transition(); frame(4)
+      assert.equal(page.bindings.menuSession.current,session)
+      assert.equal(scene.modalSuspended,true)
+      assert.equal(scene.tooltipElement.hidden,true)
+      assert.equal(scene.tooltip.remaining,remaining)
+      assert.equal(world.routeNotice,notice)
     }
-    ui.page.closeMenu()
-    assert.equal(ui.world().paused, paused)
-    assert.equal(ui.scene.modalSuspended, false)
-    assert.notEqual(ui.render().props.style.animationPlayState, 'paused')
-    ui.page.openMenu()
-    assert.equal(ui.render().props.style.animationPlayState, 'paused')
-    ui.page.closeMenu()
-    ui.render().props.onAnimationEnd()
-    assert.equal(ui.world().routeNotice, null)
+    page.closeMenu()
+    assert.equal(world.paused,paused)
+    assert.equal(scene.modalSuspended,false)
+    frame(0) // reset previous timestamp is not suspended wall-time catch-up
+    assert.equal(scene.tooltip.remaining,remaining)
+    for(let i=0;i<remaining;i++) frame()
+    assert.equal(scene.tooltip.remaining,0)
+    assert.equal(world.routeNotice,null)
+    assert.equal(scene.tooltipElement.hidden,true)
   })
 }
 
-test('ordinary game pause without a menu retains the presentation timer', () => {
-  const ui = fixture(true)
-  assert.equal(ui.page.bindings.menuSession.current, null)
-  assert.notEqual(ui.render().props.style.animationPlayState, 'paused')
-  ui.render().props.onAnimationEnd()
-  assert.equal(ui.world().routeNotice, null)
+test('zero-tick repaints do not decrement and ordinary pause uses eligible route visits',async t=>{
+  const {scene,world,frame}=await fixture(t,true), before=world.turn
+  for(let i=0;i<20;i++) frame(0)
+  assert.equal(scene.tooltip.remaining,71)
+  frame(); assert.equal(scene.tooltip.remaining,70)
+  assert.equal(world.turn,before,'presentation visits never advance paused simulation')
 })
 
-test('an obsolete animation callback cannot consume a replacement world notice with the same serial', () => {
-  const ui = fixture(), expired = ui.render().props.onAnimationEnd
-  const replacement = ui.replace(), retained = replacement.routeNotice
-  expired()
-  assert.equal(replacement.routeNotice, retained)
+test('repeated requests replace the shared owner without stale expiry or serial aliasing',async t=>{
+  const {scene,world,api,frame}=await fixture(t), first=world.routeNotice
+  frame(1)
+  assert.ok(scene.tooltip.remaining<71)
+  world.lastOrderCell=first.cell+2
+  api.requestTutorial(world,0x200000,603)
+  const second=world.routeNotice
+  frame()
+  assert.equal(scene.tooltip.remaining,71)
+  assert.equal(scene.tooltip.target,second.cell)
+  assert.notEqual(second,first)
+  for(let i=0;i<71;i++) frame()
+  assert.equal(world.routeNotice,null)
+  api.requestTutorial(world,0x200000,603)
+  assert.equal(world.routeNotice.serial,1)
+  frame()
+  assert.equal(scene.tooltip.remaining,71,'object identity, not reused serial, owns acquisition')
 })
 
-test('a canceled notice callback cannot consume a newly issued notice', () => {
-  const ui = fixture(), expired = ui.render().props.onAnimationEnd
-  ui.world().routeNotice = { serial: 2 }
-  expired()
-  assert.equal(ui.world().routeNotice.serial, 2)
+test('route suppresses HUD/object hover and a new forced request replaces it',async t=>{
+  const {scene,world,tooltipApi,hut,frame}=await fixture(t)
+  scene.tooltipInput={pointer:{clientX:10,clientY:10},object:null,picked:null,cell:null,
+    inspectionTarget:null,route:'hud',message:0,
+    hud:{owner:'test-blast',text:'Not route text',repeatable:true,enabled:true}}
+  scene.tooltipController.category='hud';scene.tooltipController.key='test-blast'
+  scene.tooltipController.dwell=999
+  scene.updateTooltipController(10000)
+  assert.equal(scene.tooltip.text,"One or more of your people can't get to this point.")
+  const object=tooltipApi.worldTooltipObject(world,hut.id)
+  scene.acquireForcedTooltip(object,3)
+  assert.equal(world.routeNotice,null)
+  assert.equal(scene.tooltipController.routeNotice,null)
+  frame()
+  assert.equal(scene.tooltip.flags,6)
+  assert.equal(scene.tooltip.remaining,2)
 })
 
-test('actual producer serial reuse does not give an old callback ownership of a new notice', () => {
-  const ui = fixture()
-  ui.world().routeNotice = null
-  requestTutorial(ui.world(), 0x200000, 603)
-  const first = ui.world().routeNotice, complete = ui.render().props.onAnimationEnd
-  assert.equal(first.serial, 1)
-  complete()
-  assert.equal(ui.world().routeNotice, null)
-  requestTutorial(ui.world(), 0x200000, 603)
-  const next = ui.world().routeNotice
-  assert.equal(next.serial, first.serial)
-  assert.notEqual(next, first)
-  complete()
-  assert.equal(ui.world().routeNotice, next)
-})
-
-
-test('F9 freezes an existing route notice without changing World and resumes its presentation on close', () => {
-  for (const paused of [false, true]) {
-    const ui = fixture(paused), before = structuredClone(ui.world()), original = ui.world().routeNotice
-    for (let i = 0; i < 3; i++) {
-      ui.cheats(true)
-      assert.equal(ui.render().props.style.animationPlayState, 'paused')
-      assert.equal(ui.world().routeNotice, original)
-      assert.deepEqual(ui.world(), before)
-      ui.cheats(false)
-      assert.notEqual(ui.render().props.style.animationPlayState, 'paused')
-      assert.equal(ui.world().routeNotice, original)
-    }
-    ui.render().props.onAnimationEnd()
-    assert.equal(ui.world().routeNotice, null, 'normal animation completion resumes after F9 closes')
+test('F9-style modal suspension freezes route ownership without mutating its countdown',async t=>{
+  const {scene,world,frame}=await fixture(t), notice=world.routeNotice
+  for(let i=0;i<3;i++) {
+    scene.setModalSuspended(true);frame(4)
+    assert.equal(scene.tooltip.remaining,71)
+    assert.equal(world.routeNotice,notice)
+    scene.setModalSuspended(false);frame(0)
+    assert.equal(scene.tooltip.remaining,71)
   }
+  frame();assert.equal(scene.tooltip.remaining,70)
+})
+
+
+test('paused route expiry cannot turn catch-up visits into ordinary tooltip or flyby advancement',async t=>{
+  const {scene,world,frame}=await fixture(t,true)
+  scene.tooltip.remaining=1
+  const visits=scene.tooltipController.session.visits, flyby=structuredClone(world.flyby)
+  frame(1)
+  assert.equal(scene.tooltip.remaining,0)
+  assert.equal(scene.tooltipController.session.visits,visits+1)
+  assert.deepEqual(world.flyby,flyby)
+})
+
+
+test('a later forced request replaces even a pending route before its first visit',async t=>{
+  const {scene,world,api,tooltipApi,hut,frame}=await tooltipCallerFixture(t)
+  world.lastOrderCell=0x1234
+  api.requestTutorial(world,0x200000,603)
+  scene.acquireForcedTooltip(tooltipApi.worldTooltipObject(world,hut.id),3)
+  assert.equal(world.routeNotice,null)
+  frame()
+  assert.equal(scene.tooltip.flags,6)
+  assert.equal(scene.tooltip.remaining,2)
 })

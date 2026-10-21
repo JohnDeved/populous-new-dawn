@@ -3,7 +3,13 @@ import type { GameScene } from './scene.ts'
 import { buildingInsidePoint, buildingPose } from './building-shapes.ts'
 import { browserPosition, effect, nativePosition, type Point } from './model.ts'
 import { retainedBuildingPanel } from './building-panels.ts'
-import { stepTooltip, tooltipPalette, worldTooltipObject, type TooltipObject } from './tooltips.ts'
+import {
+  stepTooltip,
+  showRouteTooltip,
+  tooltipPalette,
+  worldTooltipObject,
+  type TooltipObject,
+} from './tooltips.ts'
 import {
   acquireForcedTooltip as acquireForced,
   createTooltipController,
@@ -249,12 +255,22 @@ export function acquireForcedTooltip(
   object: TooltipObject | null,
   duration: number
 ) {
-  acquireForced(getTooltipController(scene), scene.tooltip, object, duration)
+  const owner = getTooltipController(scene)
+  // A later forced request also replaces a route request not yet visited.
+  scene.world.routeNotice = null
+  owner.routeNotice = null
+  acquireForced(owner, scene.tooltip, object, duration)
 }
 
 export function updateTooltipController(scene: GameScene, now: number) {
   const owner = getTooltipController(scene),
-    state = scene.tooltip,
+    state = scene.tooltip
+  if (scene.world.routeNotice && owner.routeNotice !== scene.world.routeNotice) {
+    resetTooltipController(owner, state)
+    owner.routeNotice = scene.world.routeNotice
+    showRouteTooltip(state, owner.routeNotice.cell ?? 0, 24)
+  }
+  const routeActive = !!owner.routeNotice,
     sample = scene.tooltipInput,
     picked = sample?.picked,
     object = picked === null || picked === undefined ? null : tooltipObject(scene, picked),
@@ -279,14 +295,18 @@ export function updateTooltipController(scene: GameScene, now: number) {
   sampleTooltipFrontend(owner, now)
   if (!blocked) {
     owner.owners.message = sample?.message ?? 0
-    visitHudTooltip(owner, state, sample?.hud ?? null)
+    if (!routeActive) visitHudTooltip(owner, state, sample?.hud ?? null)
   }
   const handled = stepTooltip(state, !!worldTooltipObject(scene.world, state.target), 24)
   let route: string = sample?.route ?? 'outside'
   if (blocked) route = 'blocked'
   if (handled) route = 'forced'
   let firstDisplay: number | null = null
-  if (handled && !state.remaining) resetTooltipController(owner, state)
+  if (handled && !state.remaining) {
+    if (owner.routeNotice === scene.world.routeNotice) scene.world.routeNotice = null
+    owner.routeNotice = null
+    resetTooltipController(owner, state)
+  }
   if (!handled && ordinary && !sample?.hud) {
     const worldRoute =
       sample && ['world', 'unmapped-cell', 'unmapped-object'].includes(sample.route)

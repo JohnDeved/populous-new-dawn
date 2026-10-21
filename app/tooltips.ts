@@ -1,4 +1,5 @@
 import native from './original-tooltips.json' with { type: 'json' }
+import { ROUTE_FAILURE_TEXT } from './world-rules.ts'
 import { missionData } from './mission-data.ts'
 import {
   nativeCellPoint,
@@ -91,6 +92,18 @@ export function showObjectTooltip(
   state.text = (native.strings as Record<number, string>)[name.stringId]
   if (name.tribe && object.owner !== -1)
     state.text = state.text.replace('%s', ['Blue', 'Dakini', 'Chumara', 'Matak'][object.owner])
+}
+
+// Mode 9 shares the forced tooltip owner, but target is a packed map cell.
+export function showRouteTooltip(state: TooltipState, cell: number, frameRate: number) {
+  clearTooltip(state)
+  Object.assign(state, {
+    target: cell & 65535,
+    flags: 8,
+    fixed: 1,
+    remaining: (Math.imul(frameRate, 3) << 16) >> 16,
+    text: ROUTE_FAILURE_TEXT,
+  })
 }
 
 // 0x44db60; called from 0x4aa4e0 after flyby events, once per presentation frame.

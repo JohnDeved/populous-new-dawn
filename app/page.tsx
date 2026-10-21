@@ -40,7 +40,6 @@ import {
   population,
   populationLimit,
   isShaman,
-  ROUTE_FAILURE_TEXT,
 } from './model'
 import { createGameStore } from './game-store'
 import { WorldSelector } from './world-selector'
@@ -120,7 +119,6 @@ export default function Home() {
     update = store.update
   const completedMissions = store.getCompletedMissions()
   const spellRoster = spellHudRoster(world)
-  const { routeNotice } = world
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
   const [sound, setSound] = useState(false)
   const [audioPreferences, setAudioPreferences] =
@@ -1142,26 +1140,7 @@ export default function Home() {
         </button>
       )}
       <div className="game-status">
-        {ready && routeNotice && (
-          <div
-            key={routeNotice.serial}
-            className="world-message route-notice"
-            style={{
-              visibility: menu ? 'hidden' : undefined,
-              animationPlayState: menu || selectorOpen || cheatsOpen ? 'paused' : undefined,
-            }}
-            role="status"
-            onAnimationEnd={() =>
-              store.change(w => {
-                if (w === world && w.routeNotice === routeNotice) w.routeNotice = null
-              })
-            }
-          >
-            <span>✧</span>
-            {ROUTE_FAILURE_TEXT}
-          </div>
-        )}
-        {ready && !routeNotice && world.messageUntil > world.time && (
+        {ready && world.messageUntil > world.time && (
           <div
             className="world-message"
             role="status"
