@@ -70,7 +70,7 @@ function fixture(overrides = {}) {
     render()
   }
   function back() { output.props.onCancel({ preventDefault() {} }); render() }
-  function statuses() { return nodes.filter(node => node.props?.role === 'status').map(node => node.props.children) }
+  function statuses() { return nodes.filter(node => node.props?.role === 'status').map(node => node.props.children[0].props.children) }
   render()
   return { render, button, click, back, statuses, keyDown: event => output.props.onKeyDown(event), retries: () => retries, loads: () => loads }
 }
@@ -428,4 +428,143 @@ test('incompatible checkpoint remains inspectable in Load panel without enabling
   assert.throws(() => ui.button('Retry checkpoint lookup'), /Button/)
   assert.equal(ui.loads(), 0)
   assert.equal(ui.retries(), 0)
+})
+
+
+function checkpointParagraphs(ui) {
+  const section = tree(ui.render()).find(node => node.type === 'section')
+  return tree(section).filter(node => node.type === 'p')
+}
+
+function assertCheckpointCopy(paragraph, fonts) {
+  const [accessible, visible] = paragraph.props.children
+  const text = accessible.props.children
+  if (fonts) {
+    const font = JSON.parse(readFileSync(new URL('../app/original-pause-font.json', import.meta.url)))
+    const lines = visible.map(line => {
+      assert.equal(line.props['aria-hidden'], 'true')
+      assert.equal(line.props.children.props.ready, true)
+      const text = line.props.children.props.text
+      const glyphs = tree(line).filter(node => node.type === 'i')
+      assert.equal(glyphs.length, text.length)
+      assert.ok(glyphs.every(node => node.props.style.backgroundImage === "url('/original/pause-font.png')"))
+      assert.ok([...text].reduce((sum, c) => sum + font.rects[c.charCodeAt(0) - 32].w, 0) <= 544)
+      return text
+    })
+    assert.equal(lines.join(' '), text.replaceAll('…', '...').replace(/\s+/g, ' ').trim())
+  } else {
+    assert.equal(visible.props['aria-hidden'], 'true')
+    assert.equal(visible.props.children, text)
+    assert.equal(tree(visible).some(node => node.type === 'i'), false)
+  }
+  return text
+}
+
+test('checkpoint panels use native font rows and retain all browser-only disclosures', () => {
+  for (const fonts of [true, false]) {
+    for (const checkpointReadStatus of ['idle', 'pending', 'failed', 'read', 'unavailable', 'incompatible']) {
+      for (const hasCheckpoint of [true, false]) {
+        const ui = fixture({ prepared: { fonts }, checkpointReadStatus, hasCheckpoint })
+        // Reach Load before a lookup settles to unavailable/empty, as in the real panel.
+        ui.render({ checkpointReadStatus: 'idle' })
+        ui.click('Load Game')
+        ui.render({ checkpointReadStatus })
+        const paragraphs = checkpointParagraphs(ui)
+        const copy = paragraphs.map(paragraph => assertCheckpointCopy(paragraph, fonts))
+        assert.equal(copy[0], 'One browser checkpoint. No original multi-slot saves.')
+        assert.ok(copy.includes('Loading replaces the current world and discards unsaved progress.'))
+        assert.equal(copy.includes('Checkpoint available in this session.'), hasCheckpoint && checkpointReadStatus !== 'read')
+        assert.equal(ui.button('Load checkpoint').props.style.top, 399)
+        assert.equal(ui.button('Back').props.style.top, 454)
+        if (['idle', 'pending', 'failed'].includes(checkpointReadStatus))
+          assert.equal(ui.button('Retry checkpoint lookup').props.style.top, 369)
+        for (const label of ['Load checkpoint', 'Back']) {
+          const button = ui.button(label)
+          assert.equal(tree(button).some(node => node.type === 'i'), fonts)
+        }
+      }
+    }
+    const ui = fixture({ prepared: { fonts }, saveDisabledReason: CHEAT_SAVE_NOTICE })
+    ui.click('Save Game')
+    const paragraphs = checkpointParagraphs(ui)
+    assert.equal(assertCheckpointCopy(paragraphs[1], fonts), CHEAT_SAVE_NOTICE)
+    assert.equal(ui.button('Save checkpoint').props.disabled, true)
+    assert.equal(ui.button('Save checkpoint').props.style.top, 399)
+    const title = tree(ui.render()).find(node => node.type === 'h2')
+    assert.equal(title.props['aria-label'], 'Save Game')
+    assert.equal(tree(title).some(node => node.type === 'i'), fonts)
+  }
+})
+
+test('long checkpoint reasons wrap without losing characters and unsupported glyphs use readable fallback', () => {
+  for (const reason of ['X'.repeat(160), 'Storage says: Ω ' + 'X'.repeat(160)]) {
+    const ui = fixture({ prepared: { fonts: true }, saveDisabledReason: reason })
+    ui.click('Save Game')
+    const paragraph = checkpointParagraphs(ui)[1]
+    assert.equal(paragraph.props.children[0].props.children, reason)
+    const visible = paragraph.props.children[1]
+    if (reason.includes('Ω')) assertCheckpointCopy(paragraph, false)
+    else {
+      const lines = visible.map(line => line.props.children.props.text)
+      assert.equal(lines.join(''), reason)
+      assert.ok(lines.length > 1)
+      const font = JSON.parse(readFileSync(new URL('../app/original-pause-font.json', import.meta.url)))
+      assert.ok(lines.every(line => [...line].reduce((sum, c) => sum + font.rects[c.charCodeAt(0) - 32].w, 0) <= 544))
+    }
+  }
+})
+
+test('checkpoint details retain native scrolling keys without turning them into Back navigation', () => {
+  const ui = fixture()
+  ui.click('Load Game')
+  const details = tree(ui.render()).find(node => node.props?.['aria-label'] === 'Checkpoint details')
+  assert.equal(details.props.tabIndex, 0)
+  for (const key of ['ArrowUp', 'ArrowDown', 'Home', 'End']) {
+    let prevented = false
+    ui.keyDown({ key, repeat: false,
+      target: { closest: selector => selector.includes('[tabindex="0"]') ? details : null },
+      preventDefault() { prevented = true },
+    })
+    assert.equal(prevented, false)
+    assert.equal(ui.render().props['data-panel'], 'load')
+  }
+})
+
+for (const [outcome, text] of [
+  [true, 'Checkpoint saved in this browser.'],
+  [false, 'Checkpoint saved for this session only; browser storage is unavailable.'],
+  ['failed', 'The checkpoint could not be saved. Your current world is still open.'],
+]) {
+  test(`native-font save retains pending protection and ${outcome} disclosure`, async () => {
+    let finish, saves = 0
+    const pending = new Promise((resolve, reject) => { finish = outcome === 'failed' ? reject : resolve })
+    const ui = fixture({ prepared: { fonts: true }, onSave() { saves++; return pending } })
+    ui.click('Save Game')
+    ui.click('Save checkpoint')
+    const saving = ui.button('Saving…')
+    assert.equal(saving.props.disabled, true)
+    assert.ok(tree(saving).some(node => node.type === 'i'), 'ellipsis must use supported dot glyphs')
+    saving.props.onClick()
+    assert.equal(saves, 1)
+    finish(outcome)
+    await pending.catch(() => {})
+    ui.render()
+    assert.deepEqual(ui.statuses(), [text])
+    const status = checkpointParagraphs(ui).find(node => node.props.role === 'status')
+    assert.equal(assertCheckpointCopy(status, true), text)
+    assert.equal(ui.button('Save checkpoint').props.disabled, false)
+  })
+}
+
+test('checkpoint copy is independently scrollable and cannot cover fixed actions or Back', () => {
+  const css = readFileSync(new URL('../app/original-pause-menu.module.css', import.meta.url), 'utf8')
+  const panel = css.match(/\.panel \{([^}]+)\}/)[1]
+  assert.doesNotMatch(panel, /background|border|font|padding/)
+  const body = css.match(/\.checkpointBody \{([^}]+)\}/)[1]
+  assert.match(body, /top: 81px/)
+  assert.match(body, /height: 270px/)
+  assert.match(body, /overflow: auto/)
+  assert.ok(81 + 270 < 369)
+  assert.match(css, /\.checkpointText \{[^}]*overflow-wrap: anywhere/)
+  assert.doesNotMatch(css, /\.panel h2|\.panel button \{[^}]*background|font: 15px/)
 })
