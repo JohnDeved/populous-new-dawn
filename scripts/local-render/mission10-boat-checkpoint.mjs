@@ -8,6 +8,30 @@ import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { bindGame } from '../browser-game.mjs'
 import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 
+// Failure evidence uses only time left in the original episode. It never delays
+// abort/cleanup, retries a screenshot, or replaces the scenario's primary error.
+export async function retainMission10FailureScreenshot({ page, output, signal, deadlineAt }) {
+  const unavailable = () => signal.aborted || !Number.isFinite(deadlineAt) || Date.now() >= deadlineAt
+  if (unavailable()) return { status: 'not-attempted', reason: 'No remaining episode budget' }
+  const timeout = Math.min(1000, deadlineAt - Date.now())
+  let timer, onAbort
+  try {
+    const result = await Promise.race([
+      page.screenshot({ path: resolve(output, 'failure.png'), timeout })
+        .then(() => ({ status: 'captured', file: 'failure.png' })),
+      new Promise(resolve => { timer = setTimeout(() => resolve({ status: 'failed', reason: 'Screenshot budget expired' }), timeout) }),
+      new Promise(resolve => {
+        onAbort = () => resolve({ status: 'failed', reason: 'Episode aborted' })
+        signal.addEventListener('abort', onAbort, { once: true })
+        if (signal.aborted) onAbort()
+      }),
+    ])
+    return result.status === 'captured' && unavailable()
+      ? { status: 'failed', reason: 'Screenshot completed after the episode deadline' } : result
+  } catch (error) { return { status: 'failed', error: String(error) } }
+  finally { clearTimeout(timer); if (onAbort) signal.removeEventListener('abort', onAbort) }
+}
+
 const party = [63, 111, 112, 113, 114]
 const boatId = 62
 
@@ -166,5 +190,9 @@ export default async function ({ page, openMission, output, receipt, observeChec
     const stored = await observeCheckpoint('After genuine Load and unload')
     assert.equal(stored.checkpoint.checkpointSha256, saved.checkpointSha256)
     report.status = 'passed'; save(); return report
-  } catch (error) { report.status='failed'; report.error=String(error); save(); throw error }
+  } catch (error) {
+    report.status='failed'; report.error=String(error); save()
+    report.failureScreenshot = await retainMission10FailureScreenshot({ page, output, signal, deadlineAt })
+    save(); throw error
+  }
 }
