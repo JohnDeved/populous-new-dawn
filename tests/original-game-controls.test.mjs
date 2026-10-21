@@ -104,3 +104,41 @@ test('placement fixture releases the native rotation owner before resume and res
     previous = index
   }
 })
+
+test('actual audio preference enable path leaves Sound for Game help and returns to Sound before reading sliders', async () => {
+  const source = readFileSync(new URL('../scripts/check-browser-audio-preferences.mjs', import.meta.url), 'utf8')
+  const start = source.indexOf("report.stage = 'real-audio-enable-gains'")
+  const flow = source.slice(start, source.indexOf('assert.equal(enabled.enabled', start))
+  assert.ok(flow.includes('const enabled = await assertValues'))
+  let category = 'Sound', help = false, enabled = false
+  const actions = [], page = {
+    getByRole(role, { name, exact }) {
+      assert.equal(role, 'button'); assert.equal(exact, true)
+      return { async click() {
+        actions.push(name)
+        if (name === 'Browser compatibility and help') {
+          assert.equal(category, 'Game'); assert.equal(help, false); help = true
+        } else if (name === 'Back to Options') {
+          assert.equal(help, true); help = false
+        } else {
+          assert.equal(help, false); assert.ok(['Game', 'Sound'].includes(name)); category = name
+        }
+      } }
+    },
+    locator(selector) {
+      assert.equal(selector, '.audio-settings button'); assert.equal(help, true)
+      return { async click() { enabled = true; actions.push('Enable sound') } }
+    },
+  }
+  const expect = () => ({ async toHaveText(text, options) {
+    assert.equal(enabled, true); assert.equal(text, '♪ Sound on'); assert.deepEqual(options, { timeout: 90000 })
+  } })
+  const assertValues = async (actualPage, master, music, label) => {
+    assert.equal(actualPage, page); assert.equal(help, false); assert.equal(category, 'Sound')
+    assert.deepEqual([master, music, label], [0.2, 0.4, 'real-audio-gains']); actions.push('Read Sound sliders')
+    return { enabled }
+  }
+  await new Function('report', 'page', 'expect', 'assertValues', `return (async () => {${flow}})()`)(
+    {}, page, expect, assertValues)
+  assert.deepEqual(actions, ['Game', 'Browser compatibility and help', 'Enable sound', 'Back to Options', 'Sound', 'Read Sound sliders'])
+})
