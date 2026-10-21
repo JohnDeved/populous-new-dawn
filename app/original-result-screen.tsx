@@ -179,7 +179,7 @@ export function OriginalResultScreen({ status, level, player, time, stage, input
           style={{ width: layout.panelWidth, height: layout.panelHeight }}
         >
           {!panelFailed &&
-            (layout.font === 3 ? (
+            (layout.panelHeight === art.layout640.panelHeight ? (
               <img
                 className={styles.panelArt}
                 src="/original/result-panel.png"

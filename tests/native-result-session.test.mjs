@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createResultSession, createResultKeys, createResultClock, advanceResultClock, resultBlink, resultSpaceEligible } from '../app/result-session.ts'
 import { resultLayout, resultTextWidth } from '../app/original-result-layout.ts'
+import sourceCases from '../decomp/research/result-presentation/cases.json' with {type:'json'}
 import { pageEffect } from './support/follower-nearby-page.mjs'
 
 const terminal = (level = 1) => ({turn:20,status: 'won', paused: false, inputMask: 0, outcome: {level}, manaWorld: {loadFlags: 0}})
@@ -155,4 +156,15 @@ test('terminal Space from a native HUD button is captured instead of activating 
   const f=inputFixture({hudButton:true})
   try{assert.equal(f.key(),true);assert.equal(f.session.stage(f.world),'statistics');f.up();f.key();assert.equal(f.admissions,1)}
   finally{f.cleanup()}
+})
+
+test('runtime result geometry matches every retained source font/height branch before compatibility scaling',()=>{
+  for(const {screen,expected} of sourceCases.layouts){
+    const actual=resultLayout(...screen)
+    for(const key of ['font','panelWidth','panelHeight','contentWidth','contentHeight','contentInset','headingY','playerY','statusY','timeY','labelX','valueColonX','lineHeight','groupGap','counterValueStartX','counterReserveWidth'])
+      assert.deepEqual(actual[key],expected[key],`${screen}: ${key}`)
+    assert.deepEqual(actual.rows.map(row=>row.y),expected.rowYs)
+  }
+  const wideShort=resultLayout(3840,200)
+  assert.deepEqual([wideShort.font,wideShort.panelHeight,wideShort.lineHeight],[3,336,17])
 })
