@@ -13,12 +13,24 @@ export function introductionInputState() {
 }
 
 export async function skipIntroductionWithSpace(page, { timeout = 30000 } = {}) {
-  const started = performance.now()
+  if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid introduction timeout')
+  const deadline = performance.now() + timeout
+  const remaining = () => {
+    const budget = deadline - performance.now()
+    if (budget <= 0) throw new Error('Introduction readiness timed out')
+    return budget
+  }
   const state = await page.waitForFunction(introductionInputState, undefined, { timeout })
-  let action
+  let action, failed = false
   try { action = await state.jsonValue() }
-  finally { await state.dispose() }
-  if (action === 'skip') await pressIntroductionSpace(page, { timeout: timeout - (performance.now() - started) })
+  catch (error) { failed = true; throw error }
+  finally {
+    try { await state.dispose() }
+    catch (error) { if (!failed) throw error }
+  }
+  const budget = remaining()
+  if (action === 'skip') await pressIntroductionSpace(page, { timeout: budget })
+  remaining()
   return action
 }
 
