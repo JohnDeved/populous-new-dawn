@@ -3824,15 +3824,16 @@
       "id": "mission21-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise Mission 20-to-21 continuation, focused charging, HUD Convert Wild, linked-totem worship, the unsealed eruption, and both checkpoint paths through the shipped browser.",
+      "purpose": "Exercise declared-profile Mission 20-to-21 continuation, focused charging, HUD Convert Wild, linked-totem worship, the unsealed eruption, and both checkpoint paths through the shipped browser.",
       "coveredBehavior": [
-        "Mission 21 chooser, Mission 20 continuation, and original opening message",
+        "Native Mission 21 entry and original opening message; isolated declared Mission 20 branch continuation with missing-18/19 rejection",
         "Per-spell charging controls fund HUD Convert Wild without injected stock",
         "Converted nearby Wildmen worship the authored three-person Flatten totem and cancel the eruption",
         "Turn-1951 warning and linked Volcano world effect",
         "Sealed and erupted checkpoint restoration without duplicate effects"
       ],
       "knownLimits": [
+        "Standalone Mission 21 entry declares availability only. Separate empty-context branch fixtures declare completed prerequisites 16-19 and Mission 20 availability, then supply the Mission 20 terminal outcome; none proves naturally earned earlier campaign progress.",
         "The browser check advances ordinary fixed turns between player actions; it does not record a native route-timing playthrough.",
         "Exact class-7/model-39 presentation, later faults, AI, and mission outcome remain open."
       ],
@@ -3843,9 +3844,21 @@
       "inputs": [
         "scripts/check-browser-mission21.mjs",
         "scripts/browser-game.mjs",
+        "scripts/mission21-declared-campaign-fixture.mjs",
+        "scripts/browser-new-game.mjs",
+        "scripts/browser-introduction.mjs",
+        "scripts/browser-result-navigation.mjs",
         "app/campaign-command-runtime.ts",
         "app/campaign-runtime.ts",
         "app/game-store.ts",
+        "app/campaign-profile.ts",
+        "app/native-campaign-progression.ts",
+        "app/result-session.ts",
+        "app/original-result-screen.tsx",
+        "app/original-result-layout.ts",
+        "app/world-selector.tsx",
+        "app/world-selector-data.ts",
+        "app/scene.ts",
         "app/level-twenty-one.ts",
         "app/mission-data.ts",
         "app/original-messages.json",
@@ -3856,7 +3869,7 @@
         "app/world-types.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": [],
+      "sideEffects": ["Writes declared campaign profiles and current checkpoints only in new isolated browser contexts"],
       "resources": ["Fixed server and browser resources; run serially"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
