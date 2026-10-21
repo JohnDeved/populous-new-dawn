@@ -103,6 +103,18 @@ test('explicit texture retries use fresh bounded URLs while normal first loads r
  }finally{f.cleanup()}
 })
 
+test('fresh retry URLs do not bypass malformed texture rejection',async()=>{
+ const f=fixture()
+ try{
+  const renderer=new SelectorRenderer(f.canvas),pending=renderer.load(true)
+  f.images[0].naturalWidth=f.images[0].naturalHeight=1
+  f.images[0].onload()
+  await assert.rejects(pending,/Invalid scene texture dimensions/)
+  renderer.dispose()
+  assert.ok(f.images.slice(1).every(image=>image.onload===null&&image.src===''))
+ }finally{f.cleanup()}
+})
+
 test('shader compilation/linking and texture allocation failures release all owned GPU handles',()=>{
  for(const failure of ['compile','link','createTexture']){
   const f=fixture(failure)
