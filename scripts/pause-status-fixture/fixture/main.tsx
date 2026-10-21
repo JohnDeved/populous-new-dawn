@@ -9,7 +9,17 @@ if (before) {
   document.head.append(style)
 }
 createRoot(document.getElementById('root')!).render(
-  <main className="game-shell" style={{ position: 'relative', width: '100vw', height: '100vh', background: '#163030' }}>
-    {before ? <button className="paused-badge">Ⅱ WORLD PAUSED<small>Click to resume</small></button> : <OriginalPauseStatus />}
+  <main
+    className="game-shell"
+    style={{ position: 'relative', width: '100vw', height: '100vh', background: '#163030' }}
+  >
+    {before ? (
+      <button className="paused-badge">
+        Ⅱ <span>WORLD PAUSED</span>
+        <small>Click to resume</small>
+      </button>
+    ) : (
+      <OriginalPauseStatus />
+    )}
   </main>
 )
