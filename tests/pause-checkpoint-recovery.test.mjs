@@ -279,9 +279,9 @@ test('natural completion during native Space delivery is accepted only after del
     const page = {
       evaluate: async () => {
         reads++
-        if (reads === 1) return mode === 'already-unlocked'
+        if (reads === 1) return { action: mode === 'already-unlocked' ? 'ready' : 'skip', paused: false }
         assert.equal(settled, true, 'cannot inspect completion while abandoned keyboard delivery is pending')
-        return mode === 'still-locked'
+        return { action: mode === 'still-locked' ? 'skip' : 'ready', paused: false }
       },
       keyboard: { press: async key => {
         assert.equal(key, 'Space')

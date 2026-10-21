@@ -28,21 +28,42 @@ function coldLookupFailure() {
 }
 
 // Only the native interruptible flyby input gate admits a Space skip.
-export function pauseStartupReady() {
+export function pauseStartupReady(snapshot = false) {
   const world = window.testStore.getWorld()
-  if (!world.inputMask) return 'ready'
-  return (world.inputMask & 64) && (world.flyby.flags & 0x51) === 0x11 ? 'skip' : false
+  const action = !world.inputMask ? 'ready'
+    : (world.inputMask & 64) && (world.flyby.flags & 0x51) === 0x11 ? 'skip' : false
+  return snapshot ? { action, paused: world.paused } : action
 }
 
-// The introduction may finish between readiness and activation. Always await the
-// bounded public Space input, and forgive its failure only if input is already unlocked.
+// Keep the original recovery cap over observation and real input delivery. A
+// failed delivery is forgivable only after native completion with unchanged pause.
 export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
-  if (await page.evaluate(() => !window.testStore.getWorld().inputMask)) return
-  try {
-    await pressIntroductionSpace(page, { timeout })
-  } catch (error) {
-    if (await page.evaluate(() => !!window.testStore.getWorld().inputMask)) throw error
+  if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid recovery input timeout')
+  const deadline = performance.now() + timeout, timedOut = new Error('Recovery introduction input timed out')
+  let closed = false, timer, deliveryError
+  const remaining = () => {
+    const budget = deadline - performance.now()
+    if (closed || budget <= 0) throw timedOut
+    return budget
   }
+  const run = async () => {
+    const before = await page.evaluate(pauseStartupReady, true)
+    remaining()
+    if (before.action === 'ready') return
+    if (before.action !== 'skip') throw new Error('Recovery introduction is no longer interruptible')
+    try { await pressIntroductionSpace(page, { timeout: remaining() }) }
+    catch (error) { deliveryError = error }
+    remaining()
+    const after = await page.evaluate(pauseStartupReady, true)
+    remaining()
+    if (after.paused !== before.paused) throw new Error('Recovery Space changed pause state; retry the episode')
+    if (deliveryError && after.action !== 'ready') throw deliveryError
+  }
+  try {
+    await Promise.race([run(), new Promise((_, reject) => {
+      timer = setTimeout(() => { closed = true; reject(deliveryError ?? timedOut) }, remaining())
+    })])
+  } finally { closed = true; clearTimeout(timer) }
 }
 
 // A later authored flyby can begin after the initial input-unlocked sample.

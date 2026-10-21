@@ -63,7 +63,7 @@ try {
   const d=spriteDirection(Math.round(leveling.bearing*1024/Math.PI),Math.round((Math.PI-leveling.heading)*1024/Math.PI)),animation=sprites.animations['blue-brave'].dance[d]
   assert.equal(pose.frame,animation.frames[leveling.step%animation.frames.length]);assert.equal(pose.flip,animation.flip)
   const workerPixels=await visiblePixels(page,'unitMeshes',leveling.id);assert.ok(workerPixels>0,'native leveling pose must reach the GPU')
-  if(!direction){await page.locator('.paused-badge').evaluate(el=>el.style.visibility='hidden');await page.screenshot({path:'/private/tmp/populous-preparation-leveling.png'})}
+  if(!direction){await page.screenshot({path:'/private/tmp/populous-preparation-leveling.png'})}
 
   await page.evaluate(()=>{const w=window.testScene.world;w.paused=false;w.speed=4})
   await page.waitForFunction(()=>{

@@ -91,9 +91,18 @@ export async function awaitSpySourceReadiness({ page, report, action, save, dead
     save()
     observation.actionable = await wait('actionable')
     save()
-    if (observation.actionable.action === 'skip')
-      await within(() => action('Public Space skip', () => within(() =>
-        page.keyboard.press('Space'))))
+    if (observation.actionable.action === 'skip') {
+      // The readiness handle can become stale during extraction/disposal. Read
+      // the current native gate inside the same absolute deadline before input.
+      observation.beforeSkip = await within(() => page.evaluate(readSpySourceReadiness))
+      if (observation.beforeSkip.action === 'skip') {
+        await within(() => action('Public Space skip', () => within(() =>
+          page.keyboard.press('Space'))))
+        observation.afterSkip = await within(() => page.evaluate(readSpySourceReadiness))
+        if (observation.afterSkip.paused !== observation.beforeSkip.paused)
+          throw new Error('Spy Space changed pause state; retry the episode')
+      }
+    }
     observation.after = await wait('ready')
     remaining()
   } catch (error) {

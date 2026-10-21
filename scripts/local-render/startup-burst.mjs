@@ -34,8 +34,8 @@ export default async function startupBurst({ page, output, signal, receipt }) {
     save()
     await page.getByRole('button', { name: 'Mission 1', exact: true }).focus()
     await page.keyboard.press('Enter')
-    await skipIntroductionWithSpace(page, { timeout: 45000 })
-    report.skip = 'one delivered public Space key'
+    const introduction = await skipIntroductionWithSpace(page, { timeout: 45000 })
+    report.skip = introduction === 'skip' ? 'one delivered public Space key' : 'native introduction completed without input'
     report.initial = await page.evaluate(() => {
       const status = window.startupBurstFrames.status()
       const scene = window.testSceneRef?.current
