@@ -130,7 +130,7 @@ test('actual audio preference enable path leaves Sound for Game help and returns
       return { async click() { enabled = true; actions.push('Enable sound') } }
     },
   }
-  const expect = () => ({ async toHaveText(text, options) {
+  const expect = () => ({ async toHaveAccessibleName(text, options) {
     assert.equal(enabled, true); assert.equal(text, '♪ Sound on'); assert.deepEqual(options, { timeout: 90000 })
   } })
   const assertValues = async (actualPage, master, music, label) => {

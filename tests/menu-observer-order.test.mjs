@@ -105,3 +105,55 @@ test('actual replacement callsite opens its final native panel before installing
     assert.equal(called, true)
   }
 })
+
+
+test('merged HUD-scale flows enter the native compatibility panel before cycling either preference', async () => {
+  const source = read('scripts/check-browser-hud-scale.mjs')
+  const marker = "await page.getByRole('button', { name: 'Menu', exact: true }).click()"
+  let from = 0
+  for (const value of ['4', 'auto']) {
+    const end = `await chooseHudSize(page, '${value}')`
+    const flow = sequence('scripts/check-browser-hud-scale.mjs', marker, end, from)
+    from = source.indexOf(end, from) + end.length
+    const calls = [], page = { getByRole(role, { name, exact }) {
+      assert.equal(role, 'button'); assert.equal(exact, true)
+      return { async click() { calls.push(name) } }
+    } }
+    await vm.runInNewContext(`(async () => {${flow}})()`, { page,
+      chooseHudSize: async (owner, target) => {
+        assert.equal(owner, page); assert.equal(target, value)
+        assert.deepEqual(calls, ['Menu', 'Options', 'Browser compatibility and help'])
+        calls.push(`HUD ${target}`)
+      },
+    })
+    assert.equal(calls.at(-1), `HUD ${value}`)
+  }
+})
+
+test('merged minimap preferences retain nested menu exits before the genuine Save action', async () => {
+  const flow = sequence('scripts/local-render/minimap-frame.mjs',
+    "await page.getByRole('button', { name: 'Menu', exact: true }).click()",
+    "await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()")
+  const calls = [], frames = [], output = 'supplied-output'
+  const menu = { getByRole(role, { name, exact }) {
+    assert.equal(role, 'button'); assert.equal(exact, true)
+    return { async click() { calls.push(name) } }
+  }, async waitFor(options) { assert.equal(options.state, 'visible'); calls.push('visible') } }
+  const page = { getByRole: menu.getByRole, locator(selector) {
+    assert.equal(selector, 'dialog[data-original-pause-menu]'); return menu
+  } }
+  await vm.runInNewContext(`(async () => {${flow}})()`, { page, frames, output,
+    chooseHudSize: async (owner, value) => {
+      assert.equal(owner, menu)
+      assert.deepEqual(calls.slice(0, 4), ['Menu', 'visible', 'Options', 'Browser compatibility and help'])
+      calls.push(`HUD ${value}`)
+    },
+    capture: async (owner, destination, label) => {
+      assert.equal(owner, page); assert.equal(destination, output)
+      calls.push(label); return label
+    },
+  })
+  assert.deepEqual(calls, ['Menu', 'visible', 'Options', 'Browser compatibility and help',
+    'HUD 1', 'preference-1', 'HUD 2', 'preference-2', 'Back to Options', 'Back', 'Save Game', 'Save checkpoint'])
+  assert.deepEqual(frames, ['preference-1', 'preference-2'])
+})
