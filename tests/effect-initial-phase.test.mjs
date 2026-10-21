@@ -1,8 +1,8 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, tick } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
-import { createGameStore } from '../app/game-store.ts'
 
 for (const [level, phase] of [[1, 0], [2, 1], [3, 1]]) {
   test(`Mission ${level} counts authored primary effects before the opening`, () => {
@@ -17,8 +17,8 @@ for (const [level, phase] of [[1, 0], [2, 1], [3, 1]]) {
   })
 
   test(`Mission ${level} keeps the allocation phase across pause, checkpoint and restart`, async () => {
-    const store = createGameStore()
-    store.startMission(level)
+    const store = await createCampaignFixtureStore([level])
+    assert.equal(store.startMission(level), true)
     let w = store.getWorld()
     tick(w, 4)
     const phaseAtSave = w.effectCounter

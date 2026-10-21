@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -113,7 +114,8 @@ test('cheats preserve ordinary range, busy-cast admission, charge spending and p
 })
 
 test('cheat sessions cannot overwrite checkpoints or record campaign completion; world replacement resets them', async () => {
-  const { store, world } = readyStore(), normal = structuredClone(world)
+  const store = await createCampaignFixtureStore([2]), world = store.getWorld(), normal = structuredClone(world)
+  world.inputMask = 0
   await store.saveCheckpoint()
   store.applySpellTestCheat('unlock')
   world.outcome.completedLevel = 0
@@ -155,7 +157,7 @@ test('actual Home F9 owner toggles once without mutating world and respects star
     world = { status: 'playing' }, before = structuredClone(world)
   for (const [ready, menu, selectorOpen, startup] of [[true, false, false, 'playing'], [false, false, false, 'playing'], [true, true, false, 'playing'], [true, false, true, 'playing'], [true, false, false, 'choice']]) {
     opened = false
-    const cleanup = pageEffect("globalThis.addEventListener('keydown', toggle, true)", {
+    const cleanup = pageEffect('spellTestShortcut(event, cheatsOpen)', {
       globalThis: window, ready, menu, selectorOpen, startup, world, cheatsOpen: false, spellTestShortcut,
       cancelNearbyInput: () => cancelled++, setCheatsOpen: action => { opened = action(opened) },
     })()

@@ -1,11 +1,11 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { visitWorshipAcquisition } from '../app/worship-acquisition-runtime.ts'
 
-test('M3 resources publish atomically with World and expose immutable shared selections', () => {
-  const store = createGameStore()
+test('M3 resources publish atomically with World and expose immutable shared selections', async () => {
+  const store = await createCampaignFixtureStore([3])
   assert.equal(store.getPresentationSnapshot()?.bank, 'c', 'initial World activates its c resource')
   const published = []
   store.subscribe(() =>
@@ -14,7 +14,7 @@ test('M3 resources publish atomically with World and expose immutable shared sel
       resource: store.getPresentationSnapshot(),
     })
   )
-  store.startMission(3)
+  assert.equal(store.startMission(3), true)
   const first = store.getPresentationSnapshot()
   assert.equal(published[0].world, store.getWorld())
   assert.deepEqual(published[0].resource, first)
@@ -33,7 +33,7 @@ test('M3 resources publish atomically with World and expose immutable shared sel
   assert.equal(first.counter, 0, 'previous frame snapshots never mutate')
   const beforeReads = binding.snapshot()
   for (let i = 0; i < 5; i++) assert.deepEqual(binding.snapshot(), beforeReads)
-  store.startMission(1)
+  assert.equal(store.startMission(1), true)
   assert.equal(published.at(-1).world.outcome.level, 1)
   assert.equal(published.at(-1).resource.bank, 'c', 'new bank is selected before publication')
   assert.equal(published.at(-1).resource.counter, 0)
@@ -42,8 +42,8 @@ test('M3 resources publish atomically with World and expose immutable shared sel
 })
 
 test('Save and storage restore preserve the bank; Load atomically resets it while restoring the World clock', async () => {
-  const store = createGameStore()
-  store.startMission(3)
+  const store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   const world = store.getWorld(),
     old = store.bindPresentation(world)
   old.advance()
@@ -84,9 +84,9 @@ test('Save and storage restore preserve the bank; Load atomically resets it whil
   assert.equal(store.getPresentationSnapshot().counter, 0)
 })
 
-test('same-resource Restart retains phase and epoch, replaces the World clock, and rejects the old binding', () => {
-  const store = createGameStore()
-  store.startMission(3)
+test('same-resource Restart retains phase and epoch, replaces the World clock, and rejects the old binding', async () => {
+  const store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   const previousWorld = store.getWorld(),
     old = store.bindPresentation(previousWorld)
   old.advance()
@@ -122,9 +122,9 @@ test('same-resource Restart retains phase and epoch, replaces the World clock, a
   assert.equal(current.snapshot().counter, 3)
 })
 
-test('same-World Scene replacement revokes only the superseded binding and disposal retains phase', () => {
-  const store = createGameStore()
-  store.startMission(3)
+test('same-World Scene replacement revokes only the superseded binding and disposal retains phase', async () => {
+  const store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   const world = store.getWorld(),
     old = store.bindPresentation(world)
   old.advance()
@@ -151,8 +151,8 @@ test('same-World Scene replacement revokes only the superseded binding and dispo
 })
 
 test('missing checkpoints and failed preparation preserve World, resource, and live binding', async t => {
-  const store = createGameStore()
-  store.startMission(3)
+  const store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   const world = store.getWorld(),
     binding = store.bindPresentation(world)
   binding.advance()
@@ -173,13 +173,13 @@ test('missing checkpoints and failed preparation preserve World, resource, and l
   assert.equal(binding.isCurrent(), true)
 })
 
-test('fresh starts, bank changes, and non-normal Restart cannot retain the old epoch', () => {
-  const store = createGameStore()
-  store.startMission(3)
+test('fresh starts, bank changes, and non-normal Restart cannot retain the old epoch', async () => {
+  const store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   const first = store.bindPresentation(store.getWorld())
   first.advance()
   let { epoch } = first.snapshot()
-  store.startMission(3)
+  assert.equal(store.startMission(3), true)
   assert.ok(store.getPresentationSnapshot().epoch > epoch)
   assert.equal(store.getPresentationSnapshot().counter, 0)
   ;({ epoch } = store.getPresentationSnapshot())
@@ -187,14 +187,14 @@ test('fresh starts, bank changes, and non-normal Restart cannot retain the old e
   store.restart()
   assert.ok(store.getPresentationSnapshot().epoch > epoch)
   ;({ epoch } = store.getPresentationSnapshot())
-  store.startMission(1)
+  assert.equal(store.startMission(1), true)
   const current = store.bindPresentation(store.getWorld())
   assert.equal(current.isCurrent(), true)
   assert.equal(current.snapshot()?.bank, 'c', 'M1 owns a live c resource')
   assert.ok(current.snapshot().epoch > epoch)
   current.advance()
   assert.equal(current.snapshot().counter, 1)
-  store.startMission(3)
+  assert.equal(store.startMission(3), true)
   assert.ok(store.getPresentationSnapshot().epoch > epoch)
   assert.equal(store.getPresentationSnapshot().counter, 0)
 })
@@ -208,8 +208,8 @@ for (const [mission, bank, modelAtlas] of [
   [4, 'c', 'atlas'], // Authored d retains the explicit c compatibility resource.
 ]) {
   test(`M${mission} ${bank} resource survives normal Restart and resets on Load`, async () => {
-    const store = createGameStore()
-    if (mission !== 1) store.startMission(mission)
+    const store = await createCampaignFixtureStore([mission])
+    if (mission !== 1) assert.equal(store.startMission(mission), true)
     const world = store.getWorld(),
       binding = store.bindPresentation(world),
       first = binding.snapshot()
@@ -256,9 +256,9 @@ for (const [mission, bank, modelAtlas] of [
   })
 }
 
-test('the existing nominal clock owns catch-up and visible-pause visits, not draw reads or 24-Hz animation', () => {
-  const store = createGameStore()
-  store.startMission(3)
+test('the existing nominal clock owns catch-up and visible-pause visits, not draw reads or 24-Hz animation', async () => {
+  const store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   const world = store.getWorld(),
     binding = store.bindPresentation(world)
   world.paused = true
