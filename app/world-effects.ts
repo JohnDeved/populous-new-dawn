@@ -19,6 +19,7 @@ import { SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { browserPosition } from './world-coordinates.ts'
 import { terrainPointHeight } from './native-terrain.ts'
+import { short } from './native-math.ts'
 import { setAnimationObject } from './animation.ts'
 import { addTerrainLight, updateTerrainLights } from './terrain-light.ts'
 import { createSpellTrail } from './spell-trails.ts'
@@ -94,6 +95,7 @@ export function effect(w: World, kind: Effect['kind'], p: Point, silent = false)
     kind === 'blast' ||
     kind === 'lightning' ||
     kind === 'splash' ||
+    kind === 'hypnotise' ||
     kind === 'birth' ||
     kind === 'orderMarker'
   ) {
@@ -101,8 +103,13 @@ export function effect(w: World, kind: Effect['kind'], p: Point, silent = false)
     // state 0x24 in 0x50a750 removes its object after nine simulation turns.
     // Lightning starts hidden: one pending turn, then eight turns of upper flash.
     const position = nativePosition(w, p)
+    if (kind === 'hypnotise') {
+      position.x = short((position.x & 0xfe00) + 0x100)
+      position.y = short((position.y & 0xfe00) + 0x100)
+      Object.assign(f, browserPosition(position))
+    }
     f.height = (terrainPointHeight(w.land, position) + (kind === 'lightning' ? 1024 : 0)) / 45
-    f.turnsRemaining = kind === 'splash' || kind === 'birth' ? 16 : 9
+    f.turnsRemaining = kind === 'splash' || kind === 'birth' || kind === 'hypnotise' ? 16 : 9
     f.duration = f.turnsRemaining / TURNS_PER_SECOND
     f.animation = {
       object: 0,
@@ -125,6 +132,10 @@ export function effect(w: World, kind: Effect['kind'], p: Point, silent = false)
       f.duration = 4 / TURNS_PER_SECOND
       f.sprite = { sequence: 'hit', frame: 0 }
       setAnimationObject(f.animation, 46, 1294)
+    } else if (kind === 'hypnotise') {
+      f.sprite = { sequence: 'hypnotise', frame: 0 }
+      setAnimationObject(f.animation, 44, 1264)
+      if (!silent) sound(w, 0x2a, f)
     } else if (kind === 'birth') {
       // 0x404c80 overrides effect 60's initial draw 44/HFX1288 with 41/HFX1441.
       setAnimationObject(f.animation, 44, 1288)

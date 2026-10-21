@@ -98,6 +98,8 @@
       },
       "callers": [
         "scripts/import-original.py",
+        "scripts/import-tornado.py",
+        "scripts/import-hypnotise.py",
         "scripts/import-loading-art.py",
         "scripts/import-loading-label.py",
         "scripts/import-frontend.py",
@@ -122,6 +124,8 @@
       ],
       "inputs": ["references/native-assets.md", "decomp/sections.tsv"],
       "outputs": [
+        { "path": "app/original-tornado.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-tornado.py" },
+        { "path": "public/original/tornado.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-tornado.py" },
         { "path": "public/original/loading-mask.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-art.py" },
         { "path": "public/original/loading-label.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-label.py" },
         { "path": "public/original/loading-label.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-label.py" },

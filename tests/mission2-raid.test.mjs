@@ -139,14 +139,16 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
 
 test('Mission 2 combat casualty removes only the dead original owner and credits its death tick', () => {
   const { w, raid, originalMembers, originalUnits, registeredOwner } = launchObservedRaid()
-  // Keep the uncontrolled surrounding combat here, separate from the bounded
-  // live encounter. Death is permitted only with its actual cleanup and credit.
-  select(w, 'brave')
+  // Use a genuinely trained Warrior rather than assuming a lone Brave wins
+  // the changed post-cast RNG sequence. No health, cohort or combat is injected.
+  // Death is permitted only with its actual cleanup and credit.
+  select(w, 'warrior')
   const defender = w.units.find(unit => unit.id === w.selected[0])
   assert.ok(defender)
   setSelection(w, [defender.id])
   assert.ok(command(w, originalUnits.get(originalMembers[0])))
   let casualty = null
+  const fallbacks = [raid.fallback]
   for (let turns = 0; !casualty && turns < 5000; turns++) {
     const before = new Map(originalMembers.map(id => [id, {
       hp: originalUnits.get(id).hp,
@@ -155,6 +157,7 @@ test('Mission 2 combat casualty removes only the dead original owner and credits
     const credits = w.killCredits[0][3]
     const livingGreen = w.units.filter(unit => unit.team === 'green' && unit.hp > 0)
     tick(w, 1 / 12)
+    if (raid.fallback !== fallbacks.at(-1)) fallbacks.push(raid.fallback)
     assert.deepEqual(raid.members, originalMembers, 'no substitute cohort is accepted')
     for (const id of originalMembers) {
       const original = originalUnits.get(id)
@@ -176,7 +179,7 @@ test('Mission 2 combat casualty removes only the dead original owner and credits
   }
   assert.notEqual(casualty, null, 'a real original-cohort casualty must be observed')
   assert.equal(raid.phase, 16)
-  assert.equal(raid.fallback, 18, 'first-launch casualty precedes a regroup/fallback-14 cycle')
+  assert.deepEqual(fallbacks, [14], 'the original cohort has regrouped before this encounter; casualty does not regroup it again')
   assert.ok(raid.flags & 1)
 })
 

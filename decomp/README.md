@@ -16,6 +16,12 @@ separates completed geometry/audio/terrain/timer work from the removed generic
 status toast. Other reward/reincarnation decisions and original campaign feedback
 remain separate.
 
+## Hypnotise artwork
+
+[Hypnotise source artwork and cell-center origin](research/hypnotise-artwork.md)
+records model16, draw44/HFX1264–1279, callback/lifetime timing and the bounded
+nearest-target change from using its original snapped origin.
+
 ## Setup and reproduce
 
 On the Linux cloud executor, use [native environment setup](../engineering/native-setup.md).

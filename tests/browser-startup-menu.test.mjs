@@ -1,4 +1,5 @@
 import test from 'node:test'
+import { readFileSync } from 'node:fs'
 import assert from 'node:assert/strict'
 import { waitForStartupMenu } from '../scripts/browser-new-game.mjs'
 
@@ -113,3 +114,43 @@ test('each reload observes the new logo and reacquires actual menu readiness', a
   assert.equal(f.events.filter(e => e[0] === 'click').length, 2)
   assert.deepEqual(f.events.at(-1), ['wait', ['Main menu']])
 })
+
+// Execute the actual entry-driver statements with the real public helper. The
+// logo never finishes playback in this fixture: only its public Skip advances it.
+for (const scenario of ['spy-source', 'spell-test-menu']) {
+  const source = readFileSync(new URL(`../scripts/tutorial-browser/${scenario}.mjs`, import.meta.url), 'utf8'),
+    spy = scenario === 'spy-source',
+    start = spy ? "await page.reload({ waitUntil: 'domcontentloaded' })" : "await page.goto(url, { waitUntil: 'domcontentloaded' })",
+    end = spy ? 'await page.waitForFunction(m2LoadReady)' : "await button('New Game').click()",
+    from = source.indexOf(start), to = source.indexOf(end, from)
+  assert.ok(from >= 0 && to > from, 'actual driver entry boundaries exist')
+  const drive = new (Object.getPrototypeOf(async function () {}).constructor)(
+    'page', 'waitForStartupMenu', 'm2LoadReady', 'button', 'url', source.slice(from, to + end.length))
+
+  for (const initial of ['Opening logo', 'Main menu']) {
+    test(`${scenario} observes public startup readiness before its next action (${initial})`, async () => {
+      const f = fixture({ initial: 'loading', appears: initial }), ready = () => true
+      f.page.reload = f.page.goto = async () => { f.events.push(['navigation']) }
+      const downstream = () => {
+        assert.deepEqual(f.events.at(-1), ['wait', ['Main menu']], 'destination readiness precedes load/new game')
+        f.events.push(['downstream'])
+      }
+      f.page.waitForFunction = async fn => { assert.equal(fn, ready); downstream() }
+      const button = name => { assert.equal(name, 'New Game'); return { click: async () => downstream() } }
+      await drive(f.page, waitForStartupMenu, ready, button, 'http://fixture.invalid')
+      assert.equal(f.events[0][0], 'navigation')
+      assert.equal(f.events.at(-1)[0], 'downstream')
+      assert.equal(f.events.filter(e => e[0] === 'click').length, initial === 'Opening logo' ? 1 : 0)
+    })
+  }
+
+  test(`${scenario} propagates failed logo Skip without starting load/new game`, async () => {
+    const failure = Object.assign(new Error('Skip inaccessible'), { name: 'TimeoutError' }),
+      f = fixture({ clickError: failure })
+    f.page.reload = f.page.goto = async () => {}
+    f.page.waitForFunction = async () => assert.fail('load readiness must not begin')
+    await assert.rejects(drive(f.page, waitForStartupMenu, () => true,
+      () => assert.fail('New Game must not begin'), 'http://fixture.invalid'), error => error === failure)
+    assert.equal(f.events.filter(e => e[0] === 'click').length, 1)
+  })
+}
