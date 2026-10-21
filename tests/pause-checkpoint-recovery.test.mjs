@@ -386,24 +386,32 @@ for (const [label, callback, destination] of [
 test('actual Home quit callbacks retain different destinations and clear obsolete menu ownership', () => {
   for (const [name, campaign, callback] of [['exitTutorial', false, 'onQuitGame'], ['quitLevel', true, 'onQuitLevel']]) {
     const states = {}, menuSession = { current: {} }, loadRequest = { current: {} }
-    let cancelled = 0, reset = 0
-    const bindings = { menuSession, loadRequest,
+    let cancelled = 0, reset = 0, selectorReturns = 0
+    const store = { hasCheckpoint: () => true, getCheckpointReadStatus: () => 'read', canSave: () => true,
+      enterCampaignSelector(...args) { assert.deepEqual(args, []); selectorReturns++ } }
+    const bindings = { menuSession, loadRequest, store,
       cancelNearbyInput() { cancelled++ }, engine: { current: {} }, audio: { current: { reset() { reset++ } } },
       ...Object.fromEntries(['CheatsOpen', 'Menu', 'Ready', 'Error', 'StartupCampaign', 'Startup', 'SelectorOpen'].map(key => [`set${key}`, value => { states[key] = value }])) }
     const node = pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === name)
     const action = evaluatePage(node.getText(pageSource), bindings)
     const props = evaluatePage(pauseUse.getText(pageSource), {
       OriginalPauseMenu: 'OriginalPauseMenu', frontendAssets: undefined, CHEAT_SAVE_NOTICE, world: { outcome: { level: 1 } }, tutorialLevel: 0,
-      store: { hasCheckpoint: () => true, getCheckpointReadStatus: () => 'read', hasUsedCheats: () => false },
-      closeMenu() {}, saveCheckpoint() {}, loadCheckpoint() {}, restart() {}, quitLevel: action, exitTutorial: action,
+      store, closeMenu() {}, saveCheckpoint() {}, loadCheckpoint() {}, restart() {},
+      quitLevel() { assert.fail('Quit Game must not use the Quit Level callback') },
+      exitTutorial() { assert.fail('Quit Level must not use the Quit Game callback') },
+      [name]: action,
     }).props
+    assert.equal(props.saveDisabledReason, undefined, 'a clean campaign retains Save availability')
     const ui = fixture(props)
     ui.click(callback === 'onQuitGame' ? 'Quit Game' : 'Quit Level')
     assert.equal(cancelled, 0)
+    assert.equal(selectorReturns, 0, 'the confirmation panel must not enter campaign selection')
     assert.equal(states.CheatsOpen, undefined, 'confirmation alone does not close the testing menu')
     ui.click('Yes')
     assert.equal(states.CheatsOpen, false)
     assert.equal(states.Startup, 'choice'); assert.equal(states.StartupCampaign, campaign)
+    assert.equal(selectorReturns, campaign ? 1 : 0, 'only Quit Level enters the native campaign return transition')
+    assert.equal(states.SelectorOpen, campaign ? false : undefined)
     assert.equal(states.Menu, false); assert.equal(states.Ready, false)
     assert.equal(menuSession.current, null)
     assert.equal(loadRequest.current, null); assert.equal(cancelled, 1); assert.equal(reset, 1)
