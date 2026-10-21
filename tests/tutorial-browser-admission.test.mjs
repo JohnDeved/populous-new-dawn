@@ -142,7 +142,7 @@ test('parsed hosted matrix grants only Tutorial aggregate headroom and preserves
   assert.deepEqual(items.map(item => item.scenario).sort(), browserScenarios.filter(name => name !== 'm2-pointer-f8').sort())
   assert.deepEqual(Object.fromEntries(browserScenarios.map(name => [name, browserCapMs(name)])), {
     tutorial: 240000, 'm2-pointer-f8': 180000, 'pause-checkpoint-recovery': 180000,
-    'profile-recovery': 180000, 'mission10-profile': 180000, 'gameplay-frames': 180000,
+    'profile-recovery': 180000, 'mission10-profile': 180000, 'gameplay-frames': 355000,
     'snapshot-protocol': 90000, 'compact-message-layout': 180000, 'frontend-held-escape': 180000,
   })
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')

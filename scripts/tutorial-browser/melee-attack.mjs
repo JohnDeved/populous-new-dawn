@@ -351,7 +351,7 @@ export function installMeleeFrameObserver(originalMapping) {
   raf = requestAnimationFrame(visit)
 }
 
-export default async function meleeAttack({ browser, url, output, expectedRevision }) {
+export default async function meleeAttack({ browser, url, output, expectedRevision, admission }) {
   const context = await browser.newContext({ viewport: meleeArtworkViewport, deviceScaleFactor: 1 })
   const page = await context.newPage()
   page.setDefaultTimeout(10000)
@@ -383,7 +383,14 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   page.on('pageerror', runtimeError)
   page.on('console', message => { if (message.type() === 'error') runtimeError(message.text()) })
   page.on('crash', () => runtimeError('Page crashed'))
-  const timer = setTimeout(() => { report.timedOut = true; void context.close().catch(() => {}) }, meleeAttackLimitMs)
+  const localStarted = performance.now()
+  const expireLocal = () => { report.timedOut = true; void context.close().catch(() => {}) }
+  const timer = setTimeout(expireLocal, meleeAttackLimitMs)
+  const checkLocal = () => {
+    report.localElapsedMs = performance.now() - localStarted
+    if (report.localElapsedMs >= meleeAttackLimitMs) expireLocal()
+    assert.equal(report.timedOut, undefined, 'Ordinary melee deadline exceeded')
+  }
   let failure
   const retainObservation = async () => {
     if (report.observation || page.isClosed()) return
@@ -409,6 +416,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   }
   save()
   try {
+    admission?.setLocalCheck(checkLocal)
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await action('New Game / No / Browser controls / All missions', () => showAllMissions(page))
     await button('Mission 2')
@@ -523,6 +531,8 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   }
   finally {
     clearTimeout(timer)
+    try { checkLocal() } catch (error) { failure ??= error; report.failure ??= { message: String(error), stack: error.stack } }
+    admission?.clearLocalCheck()
     try { await retainObservation() }
     catch (error) { report.errors.push(`Observer cleanup: ${error}`) }
     try { await context.close(); report.contextClosed = true }

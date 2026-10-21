@@ -12,6 +12,7 @@ import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
 import { profileCasesReceipt, profileCasesReceiptLog } from './profile-recovery-receipt.mjs'
 import { mission10CrewReceipt, mission10CrewReceiptLog } from './mission10-crew-receipt.mjs'
 import { runProfileEpisode } from './profile-episodes.mjs'
+import { createGameplayAdmission, guardGameplayBrowser } from './gameplay-admission.mjs'
 import { buildRevision } from './build-provenance.mjs'
 import { arch, cpus, platform, release } from 'node:os'
 const root = resolve(dirname(import.meta.filename), '../..')
@@ -106,7 +107,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   limits: [...source.limits, 'Production Vite bundle of actual Home; excludes Vinext/Cloudflare/RSC hosting. No causal claim about prior development-server crashes.'], errors: [], warnings: [] }
 const save = () => writeFileSync(resolve(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
 const abort = new AbortController()
-let browser, context, page, server, timer, m2Fixture, browserDeadlineAt
+let browser, context, page, server, timer, m2Fixture, browserDeadlineAt, gameplayAdmission, gameplayBrowser
 const before = metadata(dependencies)
 receipt.dependenciesBeforeSha256 = createHash('sha256').update(JSON.stringify(before)).digest('hex')
 try {
@@ -144,10 +145,17 @@ try {
   receipt.browserCapMs = browserCapMs(selectedScenario)
   browserDeadlineAt = Date.now() + receipt.browserCapMs
   if (selectedScenario === 'snapshot-protocol') receipt.browserBudget = snapshotSmokeBudget
-  else
+  else if (selectedScenario === 'gameplay-frames') {
+    gameplayAdmission = createGameplayAdmission({ deadlineAt: browserDeadlineAt, expectedRevision: receipt.buildRevision,
+      signal: abort.signal, onExpire: error => {
+        receipt.browserTimedOut = true; abort.abort(error); void browser.close().catch(() => {})
+      } })
+    receipt.gameplayAdmission = gameplayAdmission.report
+    gameplayBrowser = guardGameplayBrowser(browser, gameplayAdmission)
+  } else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
   if (selectedScenario !== 'snapshot-protocol') {
-  context = await browser.newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
+  context = await (gameplayBrowser ?? browser).newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
   page.on('console', m => { if (m.type() === 'error') receipt.errors.push(m.text()); if (m.type() === 'warning') receipt.warnings.push(m.text()) })
@@ -167,12 +175,17 @@ try {
   } else if (selectedScenario === 'gameplay-frames') {
     receipt.gameplayFrames = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision })
     // Keep all original exports/assertions, then release their live world before
-    // the independent ordinary-combat artwork episode. One browser, same cap.
+    // the independent ordinary-combat artwork episode. Frame180 includes close.
     await context.close(); context = undefined; page = undefined
-    receipt.meleeAttack = await (await import(pathToFileURL(meleeScenario).href)).default({ browser, url, output: out, expectedRevision: receipt.buildRevision })
+    gameplayAdmission.finishEpisode('frames', receipt.gameplayFrames)
+    gameplayAdmission.begin('melee')
+    receipt.meleeAttack = await (await import(pathToFileURL(meleeScenario).href)).default({ browser: gameplayBrowser, url, output: out, expectedRevision: receipt.buildRevision, admission: gameplayAdmission })
+    gameplayAdmission.finishEpisode('melee', receipt.meleeAttack)
+    gameplayAdmission.begin('corpse')
     // Separate ordinary follower combat and actual checkpoint continuation. No
     // performance window or existing 75-second, first-observed-entry melee assertions change.
-    receipt.followerCorpse = await (await import(pathToFileURL(followerCorpseScenario).href)).default({ browser, url, output: out, expectedRevision: receipt.buildRevision })
+    receipt.followerCorpse = await (await import(pathToFileURL(followerCorpseScenario).href)).default({ browser: gameplayBrowser, url, output: out, expectedRevision: receipt.buildRevision, admission: gameplayAdmission })
+    gameplayAdmission.finishEpisode('corpse', receipt.followerCorpse)
   } else if (['profile-recovery', 'mission10-profile'].includes(selectedScenario)) {
     // Independent jobs. Both persistent M10 phases finish before the separate
     // Spy witness is admitted; all three retain this same fixed 180s timer.
@@ -219,6 +232,7 @@ try {
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
   receipt.status = 'passed'
 } catch (error) {
+  gameplayAdmission?.fail(error)
   if (error.code === 'SNAPSHOT_EPISODE_TIMEOUT') receipt.browserTimedOut = true
   receipt.status = 'failed'; receipt.failure = String(error); receipt.stack = error.stack; process.exitCode = 1
   if (page) {
@@ -227,6 +241,11 @@ try {
 } finally {
   clearTimeout(timer)
   try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+  if (gameplayAdmission) {
+    try { if (receipt.status === 'passed') gameplayAdmission.complete() }
+    catch (error) { gameplayAdmission.fail(error); receipt.failure ??= String(error); receipt.status = 'failed'; process.exitCode = 1 }
+    finally { gameplayAdmission.dispose() }
+  }
   try { verifySource(); receipt.sourceAfter = 'identical'; if (receipt.outputManifest) assert.deepEqual(outputManifest(dist), receipt.outputManifest) } catch (e) { receipt.sourceAfter = String(e); receipt.status = 'failed'; process.exitCode = 1 }
   if (m2Fixture) {
     try {

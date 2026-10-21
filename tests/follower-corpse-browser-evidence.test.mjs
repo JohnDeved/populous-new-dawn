@@ -304,7 +304,7 @@ test('invoked gameplay chain keeps prior caps and exposes the committed-save pha
   assert.ok(run.indexOf('receipt.gameplayFrames = await') < run.indexOf('receipt.meleeAttack = await'))
   assert.ok(run.indexOf('receipt.meleeAttack = await') < run.indexOf('receipt.followerCorpse = await'))
   assert.deepEqual(followerCorpseBudgetMs, { deathAndSave: 75000, loadAndVerify: 25000 }); assert.equal(meleeAttackLimitMs, 75000)
-  assert.equal(browserCapMs('gameplay-frames'), 180000)
+  assert.equal(browserCapMs('gameplay-frames'), 355000)
   assert.equal(episode.includes('activateFollowerCorpseButton'), false)
   assert.ok(episode.includes("const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())"))
   assert.ok(episode.indexOf('budget.beginLoad(report.checkpoint)') > episode.indexOf('assert.deepEqual(report.checkpoint.committedCorpse.effect'))

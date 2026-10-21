@@ -19,7 +19,7 @@ const root = resolve(import.meta.dirname, '../..'), viewport = { width: 960, hei
 const sha = bytes => createHash('sha256').update(bytes).digest('hex')
 
 // These are distinct functional phases, not a retry or a refreshable timeout.
-// The runner's existing global 180-second deadline remains authoritative.
+// The runner's explicit aggregate deadline remains authoritative; these phase caps are unchanged.
 export function followerCorpseDeadline({ onExpire, now = () => performance.now(),
   schedule = setTimeout, cancel = clearTimeout }) {
   const records = []
@@ -105,7 +105,7 @@ export async function pauseLoadedFollowerCorpse(page, effectId, pause) {
   return { readyBeforePause, readyPaused }
 }
 
-export default async function followerCorpse({ browser, url, output, expectedRevision }) {
+export default async function followerCorpse({ browser, url, output, expectedRevision, admission }) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 }), page = await context.newPage()
   page.setDefaultTimeout(10000)
   const report = { schema: 'populous-new-dawn/ordinary-follower-corpse', schemaVersion: 2,
@@ -116,7 +116,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
       'Independent original VSTART/VFRA fixture validates displayed native source and heading; packed frame identity comes from imported atlas metadata independently audited outside this browser check.',
       'Canvas copies and read-only observations perturb rendering; no performance or hardware smoothness claim. Crops require visual review and are not pixel-perfect composition evidence.',
       'The saved in-session current checkpoint is actually loaded and rendered. This is not a fresh browser/process persistence test.',
-      'Death through verified committed save has 75 seconds; only successful committed-save proof starts the separate 25-second load/reframe/continuation/verification budget. Both remain inside the runner’s unchanged shared 180-second browser cap.',
+      'Death through verified committed save has 75 seconds; only successful committed-save proof starts the separate 25-second load/reframe/continuation/verification budget. Both remain inside the runner’s explicit shared 355-second three-episode browser cap.',
       'Browser sampling establishes observed source/frame/heading/visibility and continuation, not exact animation cadence. Cadence remains the separate native follower-corpse-animation unit-test claim.'],
     source: Object.fromEntries(['scripts/tutorial-browser/follower-corpse.mjs',
       'scripts/tutorial-browser/follower-corpse-observer.mjs', 'scripts/tutorial-browser/follower-corpse-evidence.mjs',
@@ -190,6 +190,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
   save()
   try {
     phase('startup')
+    admission?.setLocalCheck(() => budget.remaining())
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await action('New Game / No / Browser controls / All missions', () => showAllMissions(page))
     await button('Mission 2'); await bindGame(page)
@@ -318,6 +319,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     if (!page.isClosed()) try { await page.screenshot({ path: resolve(output, 'follower-corpse-failure.png'), timeout: 2000 }) }
     catch (error) { report.failureScreenshotError = String(error) }
   } finally {
+    admission?.clearLocalCheck()
     budget.dispose()
     finishPhase(!failure && !report.timedOut)
     try { await retain() } catch (error) { report.errors.push(`Corpse retention: ${error}`) }
