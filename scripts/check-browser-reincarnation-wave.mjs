@@ -5,7 +5,7 @@ import { introductionInputState, pressIntroductionSpace } from './browser-introd
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
-import { bindGame, showAllMissions, effectPixels, readShamanReadiness } from './browser-game.mjs'
+import { bindGame, prepareCampaignFixture, launchCampaignMission, effectPixels, readShamanReadiness } from './browser-game.mjs'
 
 export default async function checkReincarnationWave({ page, url, root, output, signal }) {
 const baseline = process.env.POPULOUS_REINCARNATION_BASELINE === '1'
@@ -24,8 +24,9 @@ try {
   page.setDefaultTimeout(60000)
   await page.addInitScript(() => { window.requestAnimationFrame = () => 0 })
   await page.goto(url, { waitUntil: 'domcontentloaded' })
-  await showAllMissions(page)
-  await page.getByRole('button', { name: 'Mission 2', exact: true }).click()
+  // Declared mission availability only, not naturally earned campaign history.
+  await prepareCampaignFixture(page, 2)
+  await launchCampaignMission(page, 2)
   await bindGame(page)
   report.startup = { initial: await readShamanReadiness(page), samples: [], skipTurns: [], batches: 0 }
   for (let batch = 0; batch < 80; batch++) {

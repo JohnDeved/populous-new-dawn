@@ -1,4 +1,4 @@
-import { showAllMissions } from './browser-game.mjs'
+import { prepareCampaignFixture, launchCampaignMission } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
@@ -11,8 +11,9 @@ try {
   page.on('pageerror', error => errors.push(error.stack ?? error.message))
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
-  await showAllMissions(page)
-  await page.getByRole('button', { name: 'Mission 10', exact: true }).click()
+  // Declared mission availability only, not naturally earned campaign history.
+  await prepareCampaignFixture(page, 10)
+  await launchCampaignMission(page, 10)
   await bindGame(page)
   page.setDefaultTimeout(20_000)
   const setup = await page.evaluate(async () => {

@@ -1,4 +1,4 @@
-import { showAllMissions } from './browser-game.mjs'
+import { prepareCampaignFixture, launchCampaignMission } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
@@ -13,8 +13,9 @@ try {
     if (message.type() === 'error') errors.push(message.text())
   })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
-  await showAllMissions(page)
-  await page.getByRole('button', { name: 'Mission 16', exact: true }).click()
+  // Declared mission availability only, not naturally earned campaign history.
+  await prepareCampaignFixture(page, 16)
+  await launchCampaignMission(page, 16)
   await bindGame(page)
   await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
   await page.getByText(/Find Bloodlust in the desert/).waitFor()
