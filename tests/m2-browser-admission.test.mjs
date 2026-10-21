@@ -334,7 +334,7 @@ test('campaign popup regression retains collision, content, export and native pa
   // artwork/layout is independently tested; F8 must retain every existing oracle.
   const layout = {
     left: 108, top: 180, right: 892, bottom: 330, rowsFit: true,
-    pointerTail: '1.0 / 2.0 ms', overflow: false, events: 'none',
+    pointerTail: '1.0 / 2.0 ms', overflow: false, events: 'auto', overflowY: 'auto',
     exportFits: true, exportActionable: true,
     campaignPanels: [{ left: 330, top: 16, right: 568, bottom: 150,
       text: 'Authored campaign text', contentFits: true, closeActionable: true }],
@@ -359,6 +359,8 @@ test('campaign popup regression retains collision, content, export and native pa
     value => { value.campaignPanels[0].closeActionable = false },
     value => { value.pause = null },
     value => { value.pausePointerEvents = 'auto' },
+    value => { value.events = 'none' },
+    value => { value.overflowY = 'hidden' },
     value => { value.pauseText = 'Click to resume' },
     value => { value.pause.right-- },
     value => { value.pause.bottom-- },

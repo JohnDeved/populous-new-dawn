@@ -319,6 +319,7 @@ function homeSpaceFixture() {
   let handler, changes = 0
   const cleanup = pageEffect('engine.current?.skipIntroduction()', {
     ready: true, menu: false, cheatsOpen: false, world, engine: { current: { skipIntroduction: () => skip(scene) } },
+    messageDetails: { current: new Map() },
     SPELLS: [], rotateBuildingPlan: () => false, audio: { current: null }, update() {},
     store: { change(fn) { changes++; fn(world) } },
     window: {

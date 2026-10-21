@@ -38,7 +38,8 @@ function clearWitness() {
       rowsFit: true,
       pointerTail: '1.0 / 2.0 ms',
       overflow: false,
-      events: 'none',
+      events: 'auto',
+      overflowY: 'auto',
       exportFits: true,
       exportActionable: true,
       pausePointerEvents: 'none',
@@ -114,7 +115,7 @@ test('serialized diagnostic layout excludes only explicitly collapsed picking ro
   // DOM geometry is controlled here; rendered CSS remains a separate browser gate.
   const readLayout = runInNewContext(`(${m2DiagnosticLayout.toString()})`, {
     innerWidth: 900,
-    getComputedStyle: () => ({ visibility: 'visible', pointerEvents: 'none' }),
+    getComputedStyle: node => ({ visibility: 'visible', pointerEvents: node === overlay ? 'auto' : 'none', overflowY: 'auto' }),
     document: {
       documentElement: { scrollWidth: 900 },
       querySelector: selector => selector === '[data-original-pause-status]' ? pause : null,
@@ -194,6 +195,12 @@ test('compact message acceptance rejects status occlusion, clipping, missing con
     },
     ({ layout }) => {
       layout.pausePointerEvents = 'auto'
+    },
+    ({ layout }) => {
+      layout.events = 'none'
+    },
+    ({ layout }) => {
+      layout.overflowY = 'hidden'
     },
     ({ layout }) => {
       layout.rowsFit = false

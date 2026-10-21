@@ -12,6 +12,7 @@ function fixture({ paused, race, kind }) {
   const finish=()=>{world.inputMask=0;world.flyby.flags&=~1}
   const cleanup=pageEffect('engine.current?.skipIntroduction()',{
     ready:true,menu:false,cheatsOpen:false,world,engine:{current:{skipIntroduction(){calls.push('native-skip');finish()}}},
+    messageDetails:{current:new Map()},
     SPELLS:[],rotateBuildingPlan:()=>false,audio:{current:null},update(){},
     store:{change(fn){calls.push('world-change');fn(world)}},
     window:{addEventListener(_name,fn){handler=fn},removeEventListener(){}},

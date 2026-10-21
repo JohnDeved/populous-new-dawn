@@ -592,6 +592,7 @@ export function m2DiagnosticLayout(el) {
     bottom: r.bottom,
     overflow: document.documentElement.scrollWidth > innerWidth,
     events: getComputedStyle(el).pointerEvents,
+    overflowY: getComputedStyle(el).overflowY,
     rowsFit: [...el.querySelectorAll('dl > div')].every(row => {
       // Optional picking rows remain in the DOM while explicitly collapsed.
       // Do not skip other hidden rows: mandatory diagnostics must still fit.
@@ -617,7 +618,8 @@ export function assertM2DiagnosticLayout(layout, width, height) {
     'Recent pointer p95 and peak must be visible'
   )
   assert.equal(layout.overflow, false)
-  assert.equal(layout.events, 'none')
+  assert.equal(layout.events, 'auto', 'Open native popup retains the diagnostic scroll owner')
+  assert.equal(layout.overflowY, 'auto', 'Diagnostic overflow remains reachable, not clipped')
   assert.equal(layout.exportFits, true, 'Export button and status must fit at every viewport')
   assert.equal(layout.exportActionable, true, 'Export must remain reachable beside campaign text')
   assert.ok(layout.campaignPanels.length > 0, 'Authored open campaign message must be observed')
