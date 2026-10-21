@@ -4,6 +4,7 @@ import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 import { createStartedWorld } from './level-start-fixture.mjs'
 
 const api = await loadSceneFixture()
+const { GameScene } = await import('../app/scene.ts')
 const { pointerDown, pointerUp, pointerMove, updateDrag, installInputListeners } =
   await import('../app/scene-input-runtime.ts')
 const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
@@ -56,6 +57,8 @@ function fixture(t) {
     orderSound() {},
     objectPanels: { releaseBuildingInspection() {} },
   }
+  Object.defineProperty(scene, 'navigationPointer',
+    Object.getOwnPropertyDescriptor(GameScene.prototype, 'navigationPointer'))
   scene.pointerDown = e => pointerDown(scene, e)
   scene.pointerUp = e => pointerUp(scene, e)
   scene.updateDrag = e => updateDrag(scene, e)
@@ -118,6 +121,7 @@ for (const reason of ['blur', 'hidden', 'pointercancel']) {
     assert.equal(scene.globeMotion.dragging, false)
     assert.deepEqual(scene.globeMotion.velocity, { x: 0, y: 0 })
     assert.equal(scene.navigationPointer, null)
+    assert.equal(world.cameras.input.pointer, null, 'interruption clears the persisted raw sample')
     if (reason !== 'pointercancel') {
       assert.equal(scene.keys.size, 0)
       assert.equal(world.paused, true)
@@ -276,6 +280,7 @@ for (const [first, last] of [
       assert.equal(scene.pointerGesture, null)
       assert.equal(scene.pointerButtons, 0)
       assert.equal(scene.navigationPointer, null)
+      assert.equal(world.cameras.input.pointer, null, 'interruption clears the persisted raw sample')
       assert.deepEqual(scene.tooltipInspectionInputs, [])
       assert.equal(scene.drag, null)
       assert.equal(scene.dragActive.value, false)

@@ -286,7 +286,12 @@ export class GameScene {
   pointerScreen: { clientX: number; clientY: number } | null = null
   pointerState = ''
   pointerButtons = 0
-  navigationPointer: { x: number; y: number; buttons: number } | null = null
+  get navigationPointer() {
+    return this.world.cameras.input.pointer
+  }
+  set navigationPointer(value: World['cameras']['input']['pointer']) {
+    this.world.cameras.input.pointer = value
+  }
   spellPointer = document.createElement('div')
   viewPoint: Point = HOME
   cameraBearing = 0

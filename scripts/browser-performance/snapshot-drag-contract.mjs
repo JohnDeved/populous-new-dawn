@@ -236,7 +236,7 @@ export const dragSourceProfiles = Object.freeze([
     "path": "app/tribe-camera.ts",
     "start": null,
     "end": null,
-    "sha256": "b4be25c5bc31cb8a442d47988514b860e243f0ddb8690f6610140b5fe6fd5701"
+    "sha256": "47bc2f2f4a92fa01a4e8245880a635581e929d4bf8ae49a6583efb1bcf1b68a9"
   },
   {
     "id": "chronological-game-clock",
@@ -250,7 +250,7 @@ export const dragSourceProfiles = Object.freeze([
     "path": "app/scene.ts",
     "start": null,
     "end": null,
-    "sha256": "89672196471830860426ffd51b7b4e64b929c62de3d0b2a8548404c856df01d1"
+    "sha256": "b408e79ef082911297096b85718669c62dc9cb234f19f9d39a1b76b1be5fa040"
   }
 ,
   {"id":"tooltip-frame-owner","path":"app/scene-tooltip-runtime.ts","start":null,"end":null,"sha256":"ad67e80f8232e4440bd2da53dad3979aa16834b18e282e1bf2d901b2df1d5cfb"}

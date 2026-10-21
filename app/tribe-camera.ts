@@ -47,7 +47,13 @@ export function createTribeCameras() {
     animationFrame: 0,
     // Inputs are consumed synchronously in timestamp order, before their handler
     // can change held buttons. No DOM event or callback survives a checkpoint.
-    input: { time: 0, cursor: 0, buttons: 0 },
+    input: {
+      time: 0,
+      cursor: 0,
+      buttons: 0,
+      // Raw held input survives Scene replacement; buttons is its gated mapping.
+      pointer: null as { x: number; y: number; buttons: number } | null,
+    },
     keys: new Set<string>(),
     motion: createCameraMotion(),
     result: createResultCamera(),
@@ -149,7 +155,11 @@ export function requireCameraContinuation(c: TribeCameras | undefined) {
     throw new RangeError(
       'Checkpoint camera continuation is incompatible with this development version'
     )
-  const transition = c.viewTransition,
+  const pointer = c.input.pointer,
+    validPointer =
+      pointer === null ||
+      (hasCameraShape(pointer, { x: 0, y: 0, buttons: 0 }) && integer(pointer.buttons, 0, 31)),
+    transition = c.viewTransition,
     validTransition =
       transition === null ||
       (hasCameraShape(transition, {
@@ -185,6 +195,7 @@ export function requireCameraContinuation(c: TribeCameras | undefined) {
     !c.bookmarks.every(p => p === null || validPose(p)) ||
     !integer(c.input.cursor, 0, Number.MAX_SAFE_INTEGER) ||
     !integer(c.input.buttons, 0, 255) ||
+    !validPointer ||
     ![c.time, c.navigationTime, c.animationTime].every(n => n >= 0 && n < 1 / 24 + 1e-9) ||
     c.elapsed < 0 ||
     c.input.time < 0 ||

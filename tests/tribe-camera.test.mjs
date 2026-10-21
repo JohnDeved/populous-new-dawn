@@ -127,7 +127,7 @@ test('current checkpoint retains camera continuation and rejects malformed owner
   c.time = 0.017
   c.navigationTime = 0.003
   c.elapsed = 0.5
-  c.input = { time: 0.497, cursor: 8, buttons: 1 }
+  c.input = { time: 0.497, cursor: 8, buttons: 1, pointer: { x: -0.5, y: 799.25, buttons: 0 } }
   c.keys.add('w')
   requestCameraShake(c, 48)
   const before = structuredClone(c)
@@ -143,6 +143,10 @@ test('current checkpoint retains camera continuation and rejects malformed owner
     x => { x.viewTransition = {} }, x => { x.viewPreset = 9 },
     x => { x.overviewReturn.preset = 9 }, x => { x.motion.frame = 4 },
     x => { x.globeMorph.duration = 0 }, x => { x.globeMorph.frame = 8 },
+    x => { delete x.input.pointer }, x => { x.input.pointer = undefined },
+    x => { x.input.pointer = {} }, x => { x.input.pointer.x = NaN },
+    x => { x.input.pointer.y = Infinity }, x => { x.input.pointer.buttons = -1 },
+    x => { x.input.pointer.buttons = 32 }, x => { x.input.pointer.buttons = 0.5 },
   ]) {
     const invalid = structuredClone(before)
     damage(invalid)
@@ -215,8 +219,8 @@ async function cameraScene(world = createWorld()) {
   return { scene, clock, runtime, frontend }
 }
 
-async function heldNavigationScene(t) {
-  const f = await cameraScene(), { scene, runtime } = f
+async function heldNavigationScene(t, world) {
+  const f = await cameraScene(world), { scene, runtime } = f
   const { GameScene } = await import('../app/scene.ts')
   const { cameraPreset } = await import('../app/projection.ts')
   const previousDocument = Object.getOwnPropertyDescriptor(globalThis, 'document')
@@ -226,7 +230,7 @@ async function heldNavigationScene(t) {
   } })
   Object.assign(scene, {
     gamePreferences: { rotation: 'cursor', flipRotation: false },
-    navigationPointer: null, inputDepth: 0, disposeListeners: [],
+    inputDepth: 0, disposeListeners: [],
     navigationButtons: GameScene.prototype.navigationButtons,
     publishCameraInput: GameScene.prototype.publishCameraInput,
     listen: GameScene.prototype.listen,
@@ -236,6 +240,9 @@ async function heldNavigationScene(t) {
       scene.view.config = scene.viewTransition?.preview ?? scene.viewTransition?.config ?? scene.currentPreset()
     },
   })
+  const pointerOwner = Object.getOwnPropertyDescriptor(GameScene.prototype, 'navigationPointer')
+  assert.ok(pointerOwner?.get && pointerOwner?.set, 'fresh Scene must use the saved pointer owner')
+  Object.defineProperty(scene, 'navigationPointer', pointerOwner)
   for (const name of ['startGroundView', 'overview', 'leaveOverview'])
     scene[name] = (...args) => runtime[name](scene, ...args)
   const target = new EventTarget()
@@ -250,8 +257,10 @@ async function heldNavigationScene(t) {
     if (previousDocument) Object.defineProperty(globalThis, 'document', previousDocument)
     else delete globalThis.document
   })
-  scene.world.speed = 0; scene.world.inputMask = 0; scene.world.flyby.flags = 0
-  Object.assign(scene.cameraPosition, { x: 10000, y: 10000, angle: 256 })
+  if (!world) {
+    scene.world.speed = 0; scene.world.inputMask = 0; scene.world.flyby.flags = 0
+    Object.assign(scene.cameraPosition, { x: 10000, y: 10000, angle: 256 })
+  }
   return f
 }
 
@@ -343,6 +352,69 @@ for (const source of ['key', 'edge']) {
     assert.equal(scene.world.cameras.input.buttons, 0)
     assert.deepEqual(scene.cameraPosition, pose)
     assert.equal(scene.world.cameras.input.cursor, cursor)
+  })
+}
+
+// Save through the current game store, then attach a fresh Scene input adapter.
+// Render/GPU leaves are supplied; the raw pointer accessor and controllers are real.
+for (const scenario of ['edge', 'no-pointer', 'released', 'right-button', 'middle-button', 'overview', 'flyby']) {
+  test(`fresh Scene checkpoint continues ${scenario} navigation from the same raw input`, async t => {
+    const store = createGameStore(), world = store.getWorld()
+    world.speed = 0; world.inputMask = 0; world.flyby.flags = 0
+    Object.assign(world.cameras.tribes[0], { x: 10000, y: 10000, angle: 256 })
+    const live = await heldNavigationScene(t, world)
+    if (scenario !== 'no-pointer') live.input(() => {
+      live.scene.navigationPointer = { x: 0, y: 400, buttons: scenario === 'right-button' ? 2 : scenario === 'middle-button' ? 4 : 0 }
+    })
+    if (scenario === 'released') live.input(() => { live.scene.navigationPointer = null })
+    if (scenario === 'overview') {
+      live.input(() => { live.scene.keys.add('arrowleft'); live.scene.overview() })
+      advanceGame(world, live.clock, 2 / 24)
+      assert.equal(world.cameras.input.buttons, 0)
+    }
+    if (scenario === 'flyby') {
+      flybyCommand(world.flyby, 1205, [])
+      flybyCommand(world.flyby, 1209, [60, 60, 0, 6])
+      flybyCommand(world.flyby, 1206, [])
+      world.inputMask = 64
+      advanceGame(world, live.clock, 1 / 24)
+      assert.equal(world.cameras.input.buttons, 0)
+    }
+    advanceGame(world, live.clock, 1 / 48)
+    await store.saveCheckpoint()
+    const saved = structuredClone(world.cameras)
+    const continueInput = f => {
+      const w = f.scene.world, c = w.cameras, cursor = c.input.cursor, time = c.input.time
+      if (scenario === 'overview') finishCameraGate(f, () => f.scene.overviewStage !== null)
+      if (scenario === 'flyby') finishCameraGate(f, () => !!(w.flyby.flags & 1))
+      advanceGame(w, f.clock, 1 / 24)
+      assert.deepEqual([c.input.cursor, c.input.time], [cursor, time], 'restore/controller visits cannot invent events')
+      const active = !['no-pointer', 'released', 'right-button', 'middle-button'].includes(scenario)
+      assert.equal(c.input.buttons, scenario === 'overview' ? 68 : active ? 4 : 0,
+        'duplicate key/edge direction enables native fast pan; other samples preserve their mapping')
+      const resumed = structuredClone(c)
+      // A real subsequent release replaces the retained sample. Ground/globe
+      // mapping and right-button suppression must use current input, not its old mask.
+      f.input(() => { f.scene.navigationPointer = { x: 600, y: 400, buttons: 0 }; f.scene.keys.clear() })
+      advanceGame(w, f.clock, 1 / 24)
+      assert.equal(c.input.buttons, 0)
+      f.input(() => { f.scene.navigationPointer = { x: 0, y: 400, buttons: 2 } })
+      advanceGame(w, f.clock, 1 / 24)
+      assert.equal(c.input.buttons, 0)
+      if (scenario === 'overview') {
+        f.input(() => { f.scene.keys.add('arrowleft'); f.scene.leaveOverview(0) })
+        finishCameraGate(f, () => f.scene.overviewStage !== null)
+        assert.equal(c.input.buttons, 16, 'suppressed edge and held key remap after overview exit')
+      }
+      return { resumed, final: structuredClone(c) }
+    }
+    const uninterrupted = continueInput(live)
+    assert.equal(store.loadCheckpoint(), true)
+    const fresh = await heldNavigationScene(t, store.getWorld())
+    assert.deepEqual(fresh.scene.world.cameras, saved, 'Scene attachment must not reset the loaded owner')
+    assert.notEqual(fresh.scene.world.cameras.input, world.cameras.input)
+    if (saved.input.pointer) assert.notEqual(fresh.scene.navigationPointer, saved.input.pointer)
+    assert.deepEqual(continueInput(fresh), uninterrupted)
   })
 }
 
