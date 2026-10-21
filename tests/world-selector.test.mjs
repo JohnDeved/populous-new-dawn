@@ -329,22 +329,103 @@ function sceneRecoveryFixture() {
   const code = ts.transpileModule(component.getText(source).replace(/^export /, ''), {
     compilerOptions: {target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React},
   }).outputText
-  let state = 0, generation = 0
+  let state = 0, generation = 0, recoveryFonts = []
   const bindings = {
     React: {createElement: (type, props, ...children) => ({type, props: props ?? {}, children})},
     useRef: current => ({current}), useEffect() {},
     useState() {
-      return state++ === 0 ? [true, () => assert.fail('render does not change failure state')]
-        : [generation, update => {generation = update(generation)}]
+      const index = state++
+      return index === 0 ? [true, () => assert.fail('render does not change failure state')]
+        : index === 1 ? [generation, update => {generation = update(generation)}]
+          : [recoveryFonts, update => {recoveryFonts = update(recoveryFonts)}]
     },
+    SceneRecoveryText: 'SceneRecoveryText',
     styles: new Proxy({}, {get: (_, name) => name}),
   }
   const render = Function(...Object.keys(bindings), `${code}\nreturn WorldSelectorScene`)(...Object.values(bindings))
-  const buttons = nodes(render({mission: 1, progressionMission: 1}), node => node.type === 'button')
+  const tree = () => {state = 0; return render({mission: 1, progressionMission: 1})}
+  const buttons = nodes(tree(), node => node.type === 'button')
   assert.equal(buttons.length, 1)
-  assert.equal(buttons[0].children.join('').trim(), 'Retry scene')
-  return {button: buttons[0], get generation() {return generation}}
+  assert.equal(buttons[0].props['aria-label'], 'Retry scene')
+  assert.equal(buttons[0].props.type, 'button')
+  assert.equal(buttons[0].children[0].props.text, 'Retry scene')
+  return {button: buttons[0], tree, get generation() {return generation}}
 }
+
+test('scene recovery retains accessible disclosure and independent native font failure fallbacks', () => {
+  const f = sceneRecoveryFixture()
+  const text = label => nodes(f.tree(), node => node.type === 'SceneRecoveryText' && node.props.text === label)[0]
+  const font = name => nodes(f.tree(), node => node.type === 'img' && node.props.src === `/original/frontend/${name}.png`)[0]
+  const status = nodes(f.tree(), node => node.props.role === 'status')
+  assert.equal(status.length, 1)
+  assert.equal(status[0].children[0].children.join('').trim(),
+    'Star-system image unavailable. Mission controls still work.')
+  for (const name of ['feft33we', 'fehi33we', 'felo33we']) {
+    assert.equal(font(name).props.hidden, true)
+    assert.equal(font(name).props.alt, '')
+  }
+  assert.equal(text('Retry scene').props.ready, false)
+  assert.equal(text('Star-system image unavailable.').props.ready, false)
+  font('feft33we').props.onLoad()
+  assert.equal(text('Retry scene').props.ready, false, 'normal-only decoding must not hide hover text')
+  font('fehi33we').props.onLoad()
+  assert.equal(text('Retry scene').props.ready, true)
+  assert.equal(text('Mission controls still work.').props.ready, false)
+  font('felo33we').props.onLoad()
+  for (const label of ['Star-system image unavailable.', 'Mission controls still work.']) {
+    assert.equal(text(label).props.ready, true)
+    assert.equal(text(label).props.low, true)
+  }
+  font('fehi33we').props.onError()
+  assert.equal(text('Retry scene').props.ready, false, 'failed artwork keeps the readable action fallback')
+  assert.equal(text('Star-system image unavailable.').props.ready, true)
+  font('felo33we').props.onError()
+  assert.equal(text('Star-system image unavailable.').props.ready, false)
+  f.button.props.onClick()
+  assert.equal(f.generation, 1, 'font failure does not disable Retry')
+})
+
+test('scene recovery draws the imported frontend glyph advances without a system-font substitute', () => {
+  const source = ts.createSourceFile('world-selector-scene.tsx',
+    readFileSync(new URL('../app/world-selector-scene.tsx', import.meta.url), 'utf8'),
+    ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const component = source.statements.find(node =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'SceneRecoveryText')
+  const code = ts.transpileModule(component.getText(source), {
+    compilerOptions: {target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React},
+  }).outputText
+  const frontend = JSON.parse(readFileSync(new URL('../app/original-frontend.json', import.meta.url), 'utf8'))
+  const React = {createElement: (type, props, ...children) => ({type, props: props ?? {}, children})}
+  const styles = new Proxy({}, {get: (_, name) => name})
+  const text = Function('React', 'styles', 'frontend', `${code}\nreturn SceneRecoveryText`)(React, styles, frontend)
+  const scaled = pixels => `calc(var(--panel-width) * ${pixels} / 640)`
+  for (const [label, low] of [['Star-system image unavailable.', true], ['Mission controls still work.', true], ['Retry scene', false]]) {
+    const fallback = text({text: label, ready: false, low})
+    assert.equal(fallback.props['aria-hidden'], 'true')
+    assert.equal(fallback.props.className, 'sceneRecoveryFallback')
+    assert.deepEqual(fallback.children, [label])
+    const bitmap = text({text: label, ready: true, low})
+    assert.equal(bitmap.props['aria-hidden'], 'true')
+    const glyphs = nodes(bitmap, node => node.type === 'i')
+    const bank = frontend.banks[low ? 'felo33we' : 'feft33we']
+    assert.equal(glyphs.length, label.length)
+    assert.ok([...label].reduce((width, letter) => width + bank.rects[letter.charCodeAt(0) - 32].w, 0) <= 600,
+      'each line fits the original frontend logical width')
+    for (const [index, letter] of [...label].entries()) {
+      const glyph = bank.rects[letter.charCodeAt(0) - 32]
+      assert.deepEqual(glyphs[index].props.style, {
+        width: scaled(glyph.w), height: scaled(glyph.h),
+        backgroundPosition: `${scaled(-glyph.x)} ${scaled(-glyph.y)}`,
+        backgroundSize: `${scaled(bank.width)} ${scaled(bank.height)}`,
+        backgroundImage: low ? "url('/original/frontend/felo33we.png')" : 'var(--selector-recovery-font)',
+      })
+      if (!low) assert.deepEqual(frontend.banks.fehi33we.rects[letter.charCodeAt(0) - 32], glyph,
+        'highlight changes native pixels without shifting the menu row')
+    }
+    assert.equal(frontend.banks.fehi33we.width, frontend.banks.feft33we.width)
+    assert.equal(frontend.banks.fehi33we.height, frontend.banks.feft33we.height)
+  }
+})
 
 function keyTarget(tag, props = {}, parent = null) {
   return {tag, props, parent, closest(selector) {
