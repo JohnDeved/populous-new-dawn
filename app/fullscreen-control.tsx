@@ -117,6 +117,16 @@ export function FullscreenControl() {
         title={state.available || state.active ? label : 'Fullscreen availability'}
         onClick={() => void session.current?.toggle()}
       >
+        {/* Native compact frame: top/bottom strips, then TL/TR/BL/BR. The full
+            8px corners overlap vertically, with the lower tiles painted last. */}
+        <span className={styles.compactFrame} aria-hidden="true">
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+        </span>
         {/* New browser-only symbol, not an original-game sprite. Integer pixel
             geometry fits the 17×14 footer without resizing any native artwork. */}
         <svg

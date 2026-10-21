@@ -1,14 +1,15 @@
-/* Browser-only adaptation, not a claimed native fullscreen asset. Roomy controls
-   repeat the original 8px HUD frame tiles at their original size. Only the compact
-   footer rebuilds the bevel from PAL0-C; its 14px height cannot fit 8px corners. */
+/* Browser-only adaptation, not a claimed native fullscreen asset. Both sizes use
+   original 8px HUD frame tiles. Native corners overlap on buttons shorter than
+   16px; the compact frame preserves that draw order instead of CSS compression. */
 .control { position: fixed; right: 12px; bottom: 12px; z-index: 40; color: #16242e; }
-.control button { display: flex; align-items: center; justify-content: center; gap: 5px; box-sizing: border-box; min-height: 32px; padding: 0 1px; border: 8px solid transparent; border-image: url('/original/hud-button.png') 8 fill repeat; border-radius: 0; background: #e7b33f; color: inherit; cursor: pointer; }
+.control button { --fullscreen-frame: url('/original/hud-button.png'); position: relative; display: flex; align-items: center; justify-content: center; gap: 5px; box-sizing: border-box; min-height: 32px; padding: 0 1px; border: 8px solid transparent; border-image: url('/original/hud-button.png') 8 fill repeat; border-radius: 0; background: #e7b33f; color: inherit; cursor: pointer; }
 /* HFX banks: 821 normal, 830 hover (selected filename), 839 pressed (hover filename). */
-.control button:hover, .control button:focus-visible { border-image-source: url('/original/hud-button-selected.png'); }
+.control button:hover, .control button:focus-visible { --fullscreen-frame: url('/original/hud-button-selected.png'); border-image-source: url('/original/hud-button-selected.png'); }
 .control button:focus-visible { outline: 1px solid #fff7bb; outline-offset: 2px; }
-.control button[aria-pressed='true'], .control button:active { border-image-source: url('/original/hud-button-hover.png'); }
+.control button[aria-pressed='true'], .control button:active { --fullscreen-frame: url('/original/hud-button-hover.png'); border-image-source: url('/original/hud-button-hover.png'); }
 .control button[aria-disabled='true'] { opacity: .65; cursor: wait; }
-.icon { display: block; flex: none; fill: currentColor; shape-rendering: crispEdges; }
+.compactFrame { display: none; }
+.icon { position: relative; display: block; flex: none; fill: currentColor; shape-rendering: crispEdges; }
 .bitmap { display: inline; image-rendering: pixelated; }
 .word { display: inline-flex; vertical-align: top; }
 .word i { display: block; flex: none; background: url('/original/hud.png') no-repeat; }
@@ -25,8 +26,16 @@
 /* Preserve the four-action native-coordinate footer and its reserved space below
    the dock. No glyph, frame or texture is rescaled to fit the compact control. */
 :global(.top-actions) > .control { position: relative; inset: auto; }
-:global(.top-actions) > .control button { display: flex; width: 17px; height: 14px; min-height: 0; padding: 0; border: 1px solid; border-color: #f7d77b #874b27 #874b27 #f7d77b; border-image: none; box-shadow: inset 0 0 0 1px #df9b1f; }
-:global(.top-actions) > .control button:hover, :global(.top-actions) > .control button:focus-visible { background: #f7d77b; box-shadow: inset 0 0 0 1px #ffeb9f; }
-:global(.top-actions) > .control button[aria-pressed='true'], :global(.top-actions) > .control button:active { background: #f7d77b; border-color: #bf6f17 #874b27 #874b27 #bf6f17; box-shadow: inset 1px 1px #df9b1f; }
+:global(.top-actions) > .control button { display: flex; width: 17px; height: 14px; min-height: 0; padding: 0; border: 0; border-image: none; background: none; }
+/* 004a1f50: 1px-wide horizontal strips first, then full 8px corners TL/TR/BL/BR.
+   At 14px high the bottom tiles overlap the top by 2px; there are no side strips. */
+:global(.top-actions) > .control .compactFrame { display: block; position: absolute; inset: 0; pointer-events: none; image-rendering: pixelated; }
+.compactFrame i { position: absolute; width: 8px; height: 8px; background-image: var(--fullscreen-frame); background-repeat: no-repeat; }
+.compactFrame i:nth-child(1) { left: 8px; top: 0; width: 1px; background-position: -8px 0; }
+.compactFrame i:nth-child(2) { left: 8px; top: 6px; width: 1px; background-position: -8px -16px; }
+.compactFrame i:nth-child(3) { left: 0; top: 0; background-position: 0 0; }
+.compactFrame i:nth-child(4) { left: 9px; top: 0; background-position: -16px 0; }
+.compactFrame i:nth-child(5) { left: 0; top: 6px; background-position: 0 -16px; }
+.compactFrame i:nth-child(6) { left: 9px; top: 6px; background-position: -16px -16px; }
 :global(.top-actions) > .control .label { display: none; }
 :global(.top-actions) > .control p { left: 0; right: auto; bottom: 20px; }

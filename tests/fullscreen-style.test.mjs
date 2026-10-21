@@ -15,7 +15,7 @@ test('fullscreen uses original unscaled HUD bitmap metrics and a documented new 
   assert.match(component, /New browser-only symbol, not an original-game sprite/)
   assert.match(component, /width="11"[\s\S]*height="10"[\s\S]*viewBox="0 0 11 10"/)
   assert.doesNotMatch(component, /[⛶↙]/)
-  assert.doesNotMatch(css, /Arial|background-size|scale\(/)
+  assert.doesNotMatch(css, /Arial|background-size|scale\(|box-shadow|border-color/)
   assert.match(css, /border-image: url\('\/original\/hud-button\.png'\) 8 fill repeat/)
   assert.match(css, /:global\(\.top-actions\) > \.control button \{[^}]*border-image: none/)
   for (const color of css.match(/#[\da-f]{6}/g)) assert.ok(hud.colors.includes(color), `${color} is from PAL0-C`)
@@ -40,4 +40,24 @@ test('fullscreen keeps an accessible atlas-failure fallback, status and focus tr
   assert.match(css, /button:focus-visible \{ outline: 1px solid #fff7bb; outline-offset: 2px/)
   assert.match(css, /button\[aria-pressed='true'\]/)
   assert.match(css, /button\[aria-disabled='true'\]/)
+})
+
+
+test('compact fullscreen repeats exact native crops with uncompressed overlapping corners', () => {
+  assert.match(component, /className=\{styles\.compactFrame\} aria-hidden="true"/)
+  const frame = component.split('className={styles.compactFrame}')[1].split('</span>')[0]
+  assert.equal(frame.match(/<i \/>/g)?.length, 6, 'top/bottom strips, then TL/TR/BL/BR')
+  assert.match(css, /\.compactFrame i \{[^}]*width: 8px; height: 8px/)
+  const crops = [
+    ['8px', '0', '-8px 0'], ['8px', '6px', '-8px -16px'],
+    ['0', '0', '0 0'], ['9px', '0', '-16px 0'],
+    ['0', '6px', '0 -16px'], ['9px', '6px', '-16px -16px'],
+  ]
+  for (const [index, [left, top, source]] of crops.entries()) {
+    const rule = css.split(`.compactFrame i:nth-child(${index + 1}) {`)[1].split('}')[0]
+    assert.ok(rule.includes(`left: ${left};`))
+    assert.ok(rule.includes(`top: ${top};`))
+    assert.ok(rule.includes(`background-position: ${source};`))
+    assert.equal(rule.includes('width: 1px;'), index < 2)
+  }
 })
