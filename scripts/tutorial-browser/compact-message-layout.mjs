@@ -169,10 +169,14 @@ function settledCompactSnapshot(options, readLayout, readText, readWorld) {
     throw Error('Invalid compact snapshot condition')
   return new Promise((resolve, reject) => {
     let frame, settledFrames = 0
+    const deadline = performance.now() + timeout
+    const timeoutError = () => Error(`Compact snapshot timed out waiting for ${JSON.stringify(options)}`)
+    const withinDeadline = () => { if (performance.now() >= deadline) throw timeoutError() }
     const fail = error => { clearTimeout(timer); cancelAnimationFrame(frame); reject(error) }
-    const timer = setTimeout(() => fail(Error(`Compact snapshot timed out waiting for ${JSON.stringify(options)}`)), timeout)
+    const timer = setTimeout(() => fail(timeoutError()), timeout)
     const sample = () => {
       try {
+        withinDeadline()
         const graph = document.querySelector('.fps-graph'), bounds = graph?.getBoundingClientRect()
         const visible = !!bounds && bounds.width > 0 && bounds.height > 0 &&
           !['hidden', 'collapse'].includes(getComputedStyle(graph).visibility)
@@ -185,6 +189,7 @@ function settledCompactSnapshot(options, readLayout, readText, readWorld) {
         if (!ready) settledFrames = 0
         else if (settledFrames++ === 2) {
           const result = { layout: visible ? readLayout(graph) : null, witness: readText(), world: readWorld() }
+          withinDeadline()
           clearTimeout(timer)
           resolve(result)
           return

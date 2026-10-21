@@ -8,6 +8,7 @@ import {
   assertCompactMessageWitness,
   compactMessageCases,
   compactMessageWitness,
+  compactMessageSnapshotSource,
   scrollCompactDiagnostics,
   diagnosticMetricIds,
 } from '../scripts/tutorial-browser/compact-message-layout.mjs'
@@ -269,13 +270,10 @@ test('overflowing F8 requires actual complete scroll coverage, strict horizontal
 test('actual compact scroll driver uses public wheel input and rejects world or camera movement', async () => {
   for (const fromBottom of [false, true]) for (const damage of [null, 'camera', 'turn']) {
     const { initial, bottom } = scrollingWitness(), calls = []
-    let current = fromBottom ? bottom : initial, reads = 0
+    let current = fromBottom ? bottom : initial, reads = 0, advanced = false
+    const conditions = [{}, ...(fromBottom ? [{ scrollTop: 0 }] : []), { scrollAfter: 0 }]
     const sample = structuredClone(current)
     const page = {
-      locator(selector) {
-        assert.equal(selector, '.fps-graph')
-        return { evaluate: async read => { assert.equal(read, m2DiagnosticLayout); return structuredClone(current.layout) } }
-      },
       mouse: {
         move: async () => calls.push('move'),
         wheel: async (x, y) => {
@@ -283,31 +281,218 @@ test('actual compact scroll driver uses public wheel input and rejects world or 
           if (y > 0) assert.ok(y <= initial.layout.scroll.clientHeight / 2)
           else assert.equal(y, -initial.layout.scroll.height)
           current = y > 0 ? bottom : initial
+          advanced = y > 0
           calls.push(y > 0 ? 'wheel' : 'wheel-top')
         },
       },
-      waitForFunction: async (_read, previous) => {
-        if (previous === undefined) assert.equal(current.layout.scroll.top, 0)
-        else { assert.equal(previous, 0); assert.ok(current.layout.scroll.top > previous) }
-        calls.push('wait-scroll')
-      },
       evaluate: async read => {
-        if (read === compactMessageWitness) return structuredClone(current.witness)
+        assert.equal(read, compactMessageSnapshotSource(conditions[reads]))
+        calls.push('atomic-snapshot')
         reads++
-        return { paused: true, turn: 10 + Number(reads === 2 && damage === 'turn'),
-          camera: { x: Number(reads === 2 && damage === 'camera') } }
+        return { ...structuredClone(current), world: { paused: true, sameScene: true,
+          turn: 10 + Number(advanced && damage === 'turn'),
+          camera: { x: Number(advanced && damage === 'camera') } } }
       },
     }
-    const run = scrollCompactDiagnostics(page, sample, 900, 360, async () => calls.push('settle'))
+    const run = scrollCompactDiagnostics(page, sample, 900, 360)
     if (damage) await assert.rejects(run, /preserves world/)
     else {
       await run
       assertCompactMessageWitness(sample.layout, sample.witness, 900, 360, sample.scrollSamples)
       assert.equal(sample.beforeScrollReset?.layout.scroll.top, fromBottom ? 91 : undefined)
     }
-    assert.deepEqual(calls, ['move', 'settle', ...(fromBottom ? ['wheel-top', 'wait-scroll', 'settle'] : []), 'wheel', 'wait-scroll', 'settle'])
-    assert.equal(reads, 2)
+    assert.deepEqual(calls, ['move', 'atomic-snapshot', ...(fromBottom ? ['wheel-top', 'atomic-snapshot'] : []), 'wheel', 'atomic-snapshot'])
+    assert.equal(reads, fromBottom ? 3 : 2, 'each settle/layout/text/world observation uses one RPC')
   }
+})
+
+// Execute the full composed browser source with deterministic frame/timer queues.
+// No observer is stubbed: geometry below supports the real layout/text readers.
+function snapshotPage() {
+  let visible = true, now = 0, nextId = 0, overrun = false
+  const frames = new Map(), timers = new Map(), observations = []
+  const world = { paused: true, turn: 10, selected: [], mode: 'select', randomState: 1,
+    cosmeticRandom: 2, messages: [] }
+  const scene = { world, cameraPosition: { x: 1 }, cameraBearing: 0, viewZoom: 1,
+    viewPoint: { x: 2 } }
+  const graph = {
+    scrollTop: 0, scrollLeft: 0, clientWidth: 100, clientHeight: 100, scrollWidth: 100, scrollHeight: 200,
+    pointerTail: '1.0 / 2.0 ms',
+    getBoundingClientRect: () => ({ ...box(0, 0, 100, 100), width: 100, height: visible ? 100 : 0 }),
+    querySelector(selector) {
+      if (selector === '.fps-export') observations.push('layout')
+      return selector === '[data-metric="pointer-tail"]' ? { textContent: this.pointerTail } : null
+    },
+    querySelectorAll: () => [],
+  }
+  const globals = {
+    innerWidth: 900, innerHeight: 360, structuredClone,
+    performance: { now: () => now },
+    requestAnimationFrame: callback => { frames.set(++nextId, callback); return nextId },
+    cancelAnimationFrame: id => frames.delete(id),
+    setTimeout: callback => { timers.set(++nextId, callback); return nextId },
+    clearTimeout: id => timers.delete(id),
+    window: { testScene: scene, testStore: { getWorld: () => world },
+      testSceneRef: { get current() { observations.push('world'); if (overrun) now = 10001; return scene } } },
+    NodeFilter: { SHOW_TEXT: 4 },
+    localStorage: { getItem: () => { observations.push('text'); return '4' } },
+    getComputedStyle: () => ({ visibility: visible ? 'visible' : 'hidden', pointerEvents: 'auto',
+      overflowY: 'auto', display: 'contents', getPropertyValue: () => '1' }),
+    document: {
+      documentElement: { scrollWidth: 900, scrollHeight: 360 },
+      querySelector: selector => selector === '.fps-graph' ? graph : null,
+      querySelectorAll: () => [],
+      createTreeWalker: () => ({ nextNode: () => null }),
+    },
+  }
+  return {
+    graph, world, observations,
+    read: options => runInNewContext(compactMessageSnapshotSource(options), globals),
+    visible: value => { visible = value },
+    now: value => { now = value },
+    overrun: () => { overrun = true },
+    frame: () => { const pending = [...frames.values()]; frames.clear(); for (const callback of pending) callback() },
+    expire: () => { for (const callback of [...timers.values()]) callback() },
+    pending: () => [frames.size, timers.size],
+  }
+}
+
+test('composed snapshot retains two RAF frames and atomically reads actual layout, text and world', async () => {
+  const ui = snapshotPage(), result = ui.read()
+  assert.deepEqual(ui.observations, [])
+  ui.frame()
+  assert.deepEqual(ui.observations, [], 'one RAF is insufficient')
+  ui.world.turn = 11
+  ui.frame()
+  const sample = await result
+  assert.deepEqual(ui.observations, ['layout', 'text', 'world'])
+  assert.equal(sample.layout.scroll.top, 0)
+  assert.equal(sample.witness.preference, '4')
+  assert.equal(sample.world.turn, 11)
+  assert.equal(sample.world.storeTurn, 11)
+  assert.equal(sample.world.sameScene, true)
+  assert.deepEqual(ui.pending(), [0, 0])
+  const source = compactMessageSnapshotSource()
+  assert.ok(source.includes(m2DiagnosticLayout.toString()))
+  assert.ok(source.includes(compactMessageWitness.toString()))
+  assert.doesNotMatch(source, /localStorage\.setItem|\.scrollTop\s*=(?!=)|\.scrollTo\(|dispatchEvent|\.setWorld\(/)
+})
+
+test('composed snapshot rejects stale F8 hiding, absent pointer readiness and non-progressing scroll', async () => {
+  for (const mode of ['hidden-stale', 'pointer-missing', 'scroll-stuck', 'scroll-stale', 'reset-stuck']) {
+    const ui = snapshotPage()
+    const options = mode === 'hidden-stale' ? { state: 'hidden' } :
+      mode === 'reset-stuck' ? { scrollTop: 0 } : mode.startsWith('scroll') ? { scrollAfter: 0 } : {}
+    if (mode === 'hidden-stale') ui.visible(false)
+    if (mode === 'pointer-missing') ui.graph.pointerTail = '--'
+    if (mode === 'scroll-stale' || mode === 'reset-stuck') ui.graph.scrollTop = 1
+    const result = ui.read(options), rejection = assert.rejects(result, /snapshot timed out/)
+    ui.frame()
+    if (mode === 'hidden-stale') ui.visible(true)
+    if (mode === 'scroll-stale') ui.graph.scrollTop = 0
+    ui.frame()
+    assert.deepEqual(ui.observations, [], mode)
+    ui.expire()
+    await rejection
+    assert.deepEqual(ui.pending(), [0, 0])
+  }
+})
+
+test('composed hidden and scroll observations require their live precondition through both settling frames', async () => {
+  for (const options of [{ state: 'hidden' }, { scrollAfter: 0 }, { scrollTop: 0 }]) {
+    const ui = snapshotPage()
+    if (options.scrollTop === 0) ui.graph.scrollTop = 20
+    const result = ui.read(options)
+    ui.frame()
+    assert.deepEqual(ui.observations, [])
+    if (options.state === 'hidden') ui.visible(false)
+    else ui.graph.scrollTop = options.scrollAfter === 0 ? 1 : 0
+    ui.frame() // First live readiness observation, then the same two frames.
+    ui.frame()
+    assert.deepEqual(ui.observations, [])
+    ui.frame()
+    const sample = await result
+    assert.equal(sample.layout === null, options.state === 'hidden')
+    assert.deepEqual(ui.observations, options.state === 'hidden' ? ['text', 'world'] : ['layout', 'text', 'world'])
+    assert.deepEqual(ui.pending(), [0, 0])
+  }
+})
+
+test('composed snapshot rejects delayed RAF and synchronous read overruns before a timer can report success', async () => {
+  for (const mode of ['delayed-raf', 'read-overrun']) {
+    const ui = snapshotPage(), result = ui.read(), rejection = assert.rejects(result, /snapshot timed out/)
+    ui.frame()
+    if (mode === 'delayed-raf') ui.now(10000)
+    else ui.overrun()
+    ui.frame()
+    await rejection
+    assert.deepEqual(ui.observations, mode === 'delayed-raf' ? [] : ['layout', 'text', 'world'])
+    assert.deepEqual(ui.pending(), [0, 0])
+  }
+})
+
+test('actual compact episode keeps all four public F8 round trips and rejects restored-text or paused-turn changes', async () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/compact-message-layout.mjs', import.meta.url), 'utf8')
+  const body = source.slice(source.indexOf('export async function checkCompactMessages'),
+    source.indexOf('export async function checkExpandedPickingPaths')).replace('export async', 'async')
+  for (const damage of [null, 'text', 'turn']) {
+    const calls = [], report = { cases: [] }
+    let preference, visible = false, viewport, snapshots = 0, baselineReads = 0
+    const page = {
+      evaluate: async () => { baselineReads++; return { world: 10, scene: true } },
+      setViewportSize: async size => { viewport = [size.width, size.height] },
+      keyboard: { press: async key => { assert.equal(key, 'F8'); visible = !visible; calls.push(['F8', visible]) } },
+      screenshot: async () => calls.push(['capture']),
+    }
+    const read = async (owner, options) => {
+      assert.equal(owner, page)
+      assert.equal(options?.state === 'hidden', !visible)
+      snapshots++
+      const restored = !visible && snapshots % 3 === 0
+      return { layout: { tag: snapshots }, witness: { preference, statusLayout: 'contents',
+        text: restored && damage === 'text' ? 'changed' : 'original' },
+        world: { storeTurn: restored && damage === 'turn' ? 11 : 10, sameScene: true } }
+    }
+    const check = new Function('assert', 'compactMessageCases', 'selectHudPreference', 'readCompactMessageSnapshot',
+      'scrollCompactDiagnostics', 'assertCompactMessageWitness', 'resolve', body + '\nreturn checkCompactMessages;')(
+      assert, compactMessageCases,
+      async (owner, value) => { assert.equal(owner, page); preference = value; calls.push(['preference', value]) },
+      read,
+      async (owner, sample, width, height) => {
+        assert.equal(owner, page); assert.deepEqual(viewport, [width, height]); sample.scrollSamples = []
+      },
+      (layout, witness, width, height, scrollSamples) => {
+        assert.equal(layout.tag, snapshots); assert.equal(witness.preference, preference)
+        assert.deepEqual(viewport, [width, height]); assert.deepEqual(scrollSamples, [])
+        calls.push(['assert', preference, width, height])
+      }, join)
+    const run = check({ page, output: 'fixture-output', stage: () => {}, report })
+    if (damage) await assert.rejects(run, damage === 'turn' ? /preserve the paused world/ : /restore ordinary text/)
+    else {
+      await run
+      assert.equal(snapshots, 12, 'three atomic observations per preference/viewport case')
+      assert.equal(report.cases.length, 4)
+      assert.deepEqual(calls.filter(([name]) => name === 'assert'), [
+        ['assert', '4', 900, 360], ['assert', '4', 640, 480],
+        ['assert', 'auto', 900, 360], ['assert', 'auto', 640, 480],
+      ])
+      assert.equal(calls.filter(([name]) => name === 'F8').length, 8)
+      assert.equal(calls.filter(([name]) => name === 'capture').length, 4)
+      assert.deepEqual(calls.filter(([name]) => name === 'preference'), [['preference', '4'], ['preference', 'auto']])
+    }
+    assert.equal(baselineReads, 1, 'restored world turn comes from the same snapshot as restored text')
+  }
+})
+
+test('retained 1440x1000 campaign bitmap overhang remains a real own-box failure', () => {
+  const { initial, bottom } = scrollingWitness()
+  // Hosted dbb9 M2 receipt: client388/scroll391 at2x, glyph right1214
+  // outside its text box right1208. RPC consolidation must not forgive this.
+  for (const sample of [initial, bottom]) Object.assign(sample.witness.campaignText[0], {
+    clientSize: [388, 95], scrollSize: [391, 95], contentFits: false,
+  })
+  assert.throws(() => assertCompactMessageWitness(initial.layout, initial.witness, 900, 360, [bottom]),
+    /Text must not overflow its own box/)
 })
 
 test('real FPS font overhang is allowed only inside actual clipping and non-overlap boundaries', () => {
