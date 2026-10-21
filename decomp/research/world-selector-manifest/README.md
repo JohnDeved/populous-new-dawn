@@ -2,10 +2,11 @@
 
 Refs #17 / #457. Inactive data/import prerequisite based on
 `5757d591cf0f5b266d17a81037e2b4179d9230c5`; no campaign or UI restoration claim.
-`app/original-world-selector.json` is generated, not imported by the live app.
+`app/original-world-selector.json` is generated. The initial data-only PR did not
+import it into the live app; the opt-in renderer below now consumes its metadata.
 It joins the original 25 bodies, panel socket records, selected-world palette
 banks and Western title strings. It does not change profiles, enable Missions
-4–25, remove All missions, or produce/replace any PNG.
+4–25 or remove All missions. The manifest importer itself produces no PNG.
 
 ## Sources and extraction
 
@@ -100,3 +101,61 @@ Full check/build and browser rendering are not run in this disk-constrained,
 data-only task. Visual screenshots are not applicable because no consumer or
 image changes. Existing unknown native device quantization/filtering and cursor
 palette behavior remain unknown; no gameplay parity credit is added.
+
+## Opt-in all-world artwork and rendering prerequisite
+
+The follow-on `scripts/import-world-selector-art.py` uses the same 51 pinned
+inputs, re-derives and checks the complete manifest, and decodes only panel frames
+0–6/10, cursor frame 12, Western titles and the three existing tooltips. Font slot
+3 titles and slot 11 tooltips retain separate source sprite banks. It reuses the
+unchanged `sprites`/`png` decoder functions and `compose` glyph assembly. Existing
+opening art is reused only when dimensions, raw RGBA and PNG bytes all match;
+the original opening URLs stay unchanged. No font atlases or globe art are added.
+All 20 palette bindings remain explicit even when their relevant pixels match.
+
+The added output is 102 PNGs plus runtime/provenance JSON, 98,713 bytes total.
+Provenance binds every reused/new image to its decoded dimensions, RGBA hash and
+PNG hash. The importer validates inputs and destinations before writing; `--check`
+only compares, and a differing existing result requires a new output directory.
+The existing archive was SHA-256-verified again, and only its missing
+`language/lang00.dat` member was extracted as data. No original code was executed,
+no network download performed, and no dependency tree copied.
+
+`WorldSelector.nativeSelection` is an optional, controlled rendering input:
+`selected`, `available`, `progressionMission` and `onSelect`. `completed` remains a
+separate input. The caller owns all state and availability decisions. With the
+optional state, all 25 sockets use their exact source coordinates and 10×12,
+13×15 or 21×21 sizes. Every socket uses the selected world's palette. Completed
+glyphs render independently of availability. Titles, tooltip artwork and cursor
+switch by selected world; the existing scene already owns the 24 globes and sun.
+Keyboard arrows skip unavailable records, wrap, and safely handle an empty list;
+browser controls also expose all 25 inspectable entries. Start checks both
+availability and the existing caller-provided playable mission list.
+
+No shipped caller supplies `nativeSelection`. The default still uses Missions
+1–3, existing progress/recommendation helpers, artwork URLs and enlarged opening
+hit targets. All missions and direct access through Mission 23 are retained.
+There is no profile migration, progression-model import, new mission launch,
+local-storage change or parity credit. This does not complete the All missions
+replacement.
+
+The opt-in preserves the shared 640×480 art scale, including the clustered branch
+coordinates and title y400 at smaller viewports. Browser focus outlines, button
+edge/press-duration semantics and missing-art text fallbacks remain browser
+adaptations, not native UI parity claims. Cursor palette backend, original device
+RGB quantization/filtering and live all-world integration remain unproved.
+
+Reproduction adds:
+
+```sh
+python3 -B scripts/import-world-selector-art.py GAME_ROOT \
+  --executable VERIFIED_EXE --language-root LANGUAGE_ROOT --check
+npm run test:focus -- tests/world-selector-art.test.mjs \
+  tests/world-selector.test.mjs tests/world-selector-panel.test.mjs \
+  tests/world-selector-text.test.mjs tests/world-selector-manifest.test.mjs
+```
+
+Source/data tests are bounded verification only. Full check/build and actual
+rendered before/after captures are deliberately deferred while the shared
+integration lane is occupied. The renderer PR must stay draft until these gates
+and independent review are complete; no screenshot claim is made by PNG hashes.

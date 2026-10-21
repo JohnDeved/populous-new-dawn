@@ -73,3 +73,13 @@
 .tabs, .compatibilityActions { display: flex; flex-wrap: wrap; gap: 6px; }
 .compatibility .tabs { margin-bottom: 12px; }
 .lockedStatus { color: #ead6a3; text-shadow: 0 1px 2px black; }
+
+/* All-world opt-in: draw each source socket at its own native size, without
+   enlarging the close-packed branch clusters. Browser controls remain available
+   for keyboard/accessibility selection. The opening default is unchanged. */
+.nativeGlyph img { left: 0; top: 0; width: 100%; height: 100%; }
+.nativeSelector .selectedTitle { bottom: calc(var(--panel-width) * 61 / 640); }
+.nativeSelector .selectedTitle h3 { min-height: 0; }
+.selector .nativePanel .start { left: calc(576 / 638 * 100%); top: calc(11 / 61 * 100%); right: auto; bottom: auto; min-width: 0; min-height: 0; }
+.nativePanel .start img { left: 0; top: 0; transform: none; }
+.nativeGlyph:active img, .nativePanel .start:active:not(:disabled) img { transform: translate(calc(var(--panel-width) / 640), calc(var(--panel-width) / 640)); }

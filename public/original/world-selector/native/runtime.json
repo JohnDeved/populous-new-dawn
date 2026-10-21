@@ -1,0 +1,392 @@
+{
+  "version": 1,
+  "banks": {
+    "1": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-1-1.png",
+        "2": "/original/world-selector/native/panel-1-2.png",
+        "3": "/original/world-selector/native/panel-1-3.png",
+        "4": "/original/world-selector/native/panel-1-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "4": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-4-1.png",
+        "2": "/original/world-selector/native/panel-4-2.png",
+        "3": "/original/world-selector/native/panel-4-3.png",
+        "4": "/original/world-selector/native/panel-4-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "5": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-5-1.png",
+        "2": "/original/world-selector/native/panel-5-2.png",
+        "3": "/original/world-selector/native/panel-5-3.png",
+        "4": "/original/world-selector/native/panel-5-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "6": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-6-1.png",
+        "2": "/original/world-selector/native/panel-6-2.png",
+        "3": "/original/world-selector/native/panel-6-3.png",
+        "4": "/original/world-selector/native/panel-6-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "9": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-9-1.png",
+        "2": "/original/world-selector/native/panel-9-2.png",
+        "3": "/original/world-selector/native/panel-9-3.png",
+        "4": "/original/world-selector/native/panel-9-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "a": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-a-1.png",
+        "2": "/original/world-selector/native/panel-a-2.png",
+        "3": "/original/world-selector/native/panel-a-3.png",
+        "4": "/original/world-selector/native/panel-a-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "b": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-b-1.png",
+        "2": "/original/world-selector/native/panel-b-2.png",
+        "3": "/original/world-selector/native/panel-b-3.png",
+        "4": "/original/world-selector/native/panel-b-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "c": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-c-1.png",
+        "2": "/original/world-selector/native/panel-c-2.png",
+        "3": "/original/world-selector/native/panel-c-3.png",
+        "4": "/original/world-selector/native/panel-c-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "d": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-d-1.png",
+        "2": "/original/world-selector/native/panel-d-2.png",
+        "3": "/original/world-selector/native/panel-d-3.png",
+        "4": "/original/world-selector/native/panel-d-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "g": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-g-1.png",
+        "2": "/original/world-selector/native/panel-g-2.png",
+        "3": "/original/world-selector/native/panel-g-3.png",
+        "4": "/original/world-selector/native/panel-g-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "h": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-h-1.png",
+        "2": "/original/world-selector/native/panel-h-2.png",
+        "3": "/original/world-selector/native/panel-h-3.png",
+        "4": "/original/world-selector/native/panel-h-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "i": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-i-1.png",
+        "2": "/original/world-selector/native/panel-i-2.png",
+        "3": "/original/world-selector/native/panel-i-3.png",
+        "4": "/original/world-selector/native/panel-i-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "l": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-l-1.png",
+        "2": "/original/world-selector/native/panel-l-2.png",
+        "3": "/original/world-selector/native/panel-l-3.png",
+        "4": "/original/world-selector/native/panel-l-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "m": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-m-1.png",
+        "2": "/original/world-selector/native/panel-m-2.png",
+        "3": "/original/world-selector/native/panel-m-3.png",
+        "4": "/original/world-selector/native/panel-m-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "n": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-n-1.png",
+        "2": "/original/world-selector/native/panel-n-2.png",
+        "3": "/original/world-selector/native/panel-n-3.png",
+        "4": "/original/world-selector/native/panel-n-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "o": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-o-1.png",
+        "2": "/original/world-selector/native/panel-o-2.png",
+        "3": "/original/world-selector/native/panel-o-3.png",
+        "4": "/original/world-selector/native/panel-o-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "p": {
+      "panel": {
+        "0": "/original/world-selector/panel/3-0.png",
+        "1": "/original/world-selector/native/panel-p-1.png",
+        "2": "/original/world-selector/native/panel-p-2.png",
+        "3": "/original/world-selector/native/panel-p-3.png",
+        "4": "/original/world-selector/native/panel-p-4.png",
+        "5": "/original/world-selector/panel/3-5.png",
+        "6": "/original/world-selector/panel/3-6.png",
+        "10": "/original/world-selector/panel/3-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-3-978.png",
+        "979": "/original/world-selector/text/tooltip-3-979.png",
+        "980": "/original/world-selector/text/tooltip-3-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-3.png"
+    },
+    "s": {
+      "panel": {
+        "0": "/original/world-selector/panel/2-0.png",
+        "1": "/original/world-selector/native/panel-s-1.png",
+        "2": "/original/world-selector/native/panel-s-2.png",
+        "3": "/original/world-selector/native/panel-s-3.png",
+        "4": "/original/world-selector/native/panel-s-4.png",
+        "5": "/original/world-selector/panel/2-5.png",
+        "6": "/original/world-selector/panel/2-6.png",
+        "10": "/original/world-selector/panel/2-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-2-978.png",
+        "979": "/original/world-selector/text/tooltip-2-979.png",
+        "980": "/original/world-selector/text/tooltip-2-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-2.png"
+    },
+    "t": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-t-1.png",
+        "2": "/original/world-selector/native/panel-t-2.png",
+        "3": "/original/world-selector/native/panel-t-3.png",
+        "4": "/original/world-selector/native/panel-t-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    },
+    "u": {
+      "panel": {
+        "0": "/original/world-selector/panel/1-0.png",
+        "1": "/original/world-selector/native/panel-u-1.png",
+        "2": "/original/world-selector/native/panel-u-2.png",
+        "3": "/original/world-selector/native/panel-u-3.png",
+        "4": "/original/world-selector/native/panel-u-4.png",
+        "5": "/original/world-selector/panel/1-5.png",
+        "6": "/original/world-selector/panel/1-6.png",
+        "10": "/original/world-selector/panel/1-10.png"
+      },
+      "tooltips": {
+        "978": "/original/world-selector/text/tooltip-1-978.png",
+        "979": "/original/world-selector/text/tooltip-1-979.png",
+        "980": "/original/world-selector/text/tooltip-1-980.png"
+      },
+      "cursor": "/original/world-selector/text/cursor-1.png"
+    }
+  },
+  "titles": {
+    "1": "/original/world-selector/text/title-1.png",
+    "2": "/original/world-selector/text/title-2.png",
+    "3": "/original/world-selector/text/title-3.png",
+    "4": "/original/world-selector/native/title-4.png",
+    "5": "/original/world-selector/native/title-5.png",
+    "6": "/original/world-selector/native/title-6.png",
+    "7": "/original/world-selector/native/title-7.png",
+    "8": "/original/world-selector/native/title-8.png",
+    "9": "/original/world-selector/native/title-9.png",
+    "10": "/original/world-selector/native/title-10.png",
+    "11": "/original/world-selector/native/title-11.png",
+    "12": "/original/world-selector/native/title-12.png",
+    "13": "/original/world-selector/native/title-13.png",
+    "14": "/original/world-selector/native/title-14.png",
+    "15": "/original/world-selector/native/title-15.png",
+    "16": "/original/world-selector/native/title-16.png",
+    "17": "/original/world-selector/native/title-17.png",
+    "18": "/original/world-selector/native/title-18.png",
+    "19": "/original/world-selector/native/title-19.png",
+    "20": "/original/world-selector/native/title-20.png",
+    "21": "/original/world-selector/native/title-21.png",
+    "22": "/original/world-selector/native/title-22.png",
+    "23": "/original/world-selector/native/title-23.png",
+    "24": "/original/world-selector/native/title-24.png",
+    "25": "/original/world-selector/native/title-25.png"
+  }
+}
