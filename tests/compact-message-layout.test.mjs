@@ -34,15 +34,15 @@ function clearWitness() {
   return {
     layout: {
       ...box(428, 8, 892, 317),
-      pause: box(80, 135, 240, 188),
+      pause: box(844, 341, 898, 360),
       rowsFit: true,
       pointerTail: '1.0 / 2.0 ms',
       overflow: false,
       events: 'none',
       exportFits: true,
       exportActionable: true,
-      pauseActionable: true,
-      pauseText: 'WORLD PAUSED Click to resume',
+      pausePointerEvents: 'none',
+      pauseText: 'Paused',
       campaignPanels: [panel],
       interactiveUi: [
         { ...box(0, 0, 72, 360), name: 'native-hud' },
@@ -51,7 +51,8 @@ function clearWitness() {
     },
     witness: {
       overflow: false,
-      worldMessages: [text(box(80, 8, 412, 78), 'Authored active objective')],
+      inventedMessageCards: 0,
+      worldMessages: [text(box(80, 8, 412, 78), 'Native route-failure notice')],
       campaignText: [text(box(86, 255, 398, 327), 'Authored campaign text')],
       diagnosticRows: Array.from({ length: 15 }, () =>
         text(box(435, 140, 654, 157), 'Diagnostic label/value')
@@ -89,8 +90,7 @@ test('serialized diagnostic layout excludes only explicitly collapsed picking ro
       return picking.hidden ? picking : null
     },
   }))
-  const pause = { ...node(good.layout.pause), textContent: good.layout.pauseText }
-  pause.closest = selector => selector === '.paused-badge' ? pause : null
+  const pause = { ...node(good.layout.pause), getAttribute: () => good.layout.pauseText }
   const exportButton = node(box(435, 270, 550, 290))
   const exportStatus = node(box(435, 294, 550, 310))
   const close = node(box(380, 245, 405, 265))
@@ -117,7 +117,7 @@ test('serialized diagnostic layout excludes only explicitly collapsed picking ro
     getComputedStyle: () => ({ visibility: 'visible', pointerEvents: 'none' }),
     document: {
       documentElement: { scrollWidth: 900 },
-      querySelector: selector => selector === 'button.paused-badge' ? pause : null,
+      querySelector: selector => selector === '[data-original-pause-status]' ? pause : null,
       querySelectorAll: selector => selector === '.campaign-messages details[open]>div' ? [campaign] : [],
       elementFromPoint: (x, y) => [pause, exportButton, close].find(({ bounds: r }) =>
         x >= r.left && x <= r.right && y >= r.top && y <= r.bottom),
@@ -151,7 +151,7 @@ test('compact message acceptance rejects status occlusion, clipping, missing con
   assertCompactMessageWitness(good.layout, good.witness, 900, 360)
   for (const damage of [
     ({ witness }) => {
-      witness.worldMessages = []
+      witness.inventedMessageCards = 1
     },
     ({ witness }) => {
       witness.campaignText = []
@@ -166,7 +166,7 @@ test('compact message acceptance rejects status occlusion, clipping, missing con
       witness.diagnosticFields.find(node => node.metric === 'renderer').contentFits = false
     },
     ({ witness }) => {
-      witness.worldMessages[0] = text(box(309, 296, 693, 348), 'Old overlapping objective')
+      witness.worldMessages[0] = text(box(309, 296, 693, 348), 'Overlapping route-failure notice')
     },
     ({ witness }) => {
       witness.worldMessages[0].contentFits = false
@@ -193,7 +193,7 @@ test('compact message acceptance rejects status occlusion, clipping, missing con
       layout.campaignPanels[0].closeActionable = false
     },
     ({ layout }) => {
-      layout.pauseActionable = false
+      layout.pausePointerEvents = 'auto'
     },
     ({ layout }) => {
       layout.rowsFit = false

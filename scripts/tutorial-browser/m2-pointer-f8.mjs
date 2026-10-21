@@ -518,7 +518,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
 // Shared read-only DOM witness for pointer and compact-preference episodes.
 export function m2DiagnosticLayout(el) {
   const r = el.getBoundingClientRect()
-  const badge = document.querySelector('button.paused-badge')
+  const badge = document.querySelector('[data-original-pause-status]')
   const b = badge?.getBoundingClientRect()
   const exportButton = el.querySelector('.fps-export')
   const exportStatus = el.querySelector('[data-metric="export-status"]')
@@ -542,14 +542,8 @@ export function m2DiagnosticLayout(el) {
       !exportButton.disabled &&
       document.elementFromPoint((e.left + e.right) / 2, (e.top + e.bottom) / 2) === exportButton,
     pause: b && { left: b.left, top: b.top, right: b.right, bottom: b.bottom },
-    pauseActionable:
-      !!badge &&
-      !badge.disabled &&
-      !!b &&
-      document
-        .elementFromPoint((b.left + b.right) / 2, (b.top + b.bottom) / 2)
-        ?.closest('.paused-badge') === badge,
-    pauseText: badge?.textContent,
+    pausePointerEvents: badge && getComputedStyle(badge).pointerEvents,
+    pauseText: badge?.getAttribute('aria-label'),
     pointerTail: el.querySelector('[data-metric="pointer-tail"]')?.textContent,
     campaignPanels: [...document.querySelectorAll('.campaign-messages details[open]>div')]
       .filter(
@@ -643,18 +637,19 @@ export function assertM2DiagnosticLayout(layout, width, height) {
     )
   }
   assert.ok(layout.pause, 'Public pause indicator must remain present')
-  assert.equal(layout.pauseActionable, true, 'Public resume control must remain hit-testable')
-  assert.match(layout.pauseText, /WORLD PAUSED/)
-  assert.match(layout.pauseText, /Click to resume/)
+  assert.equal(layout.pausePointerEvents, 'none', 'Native pause text must not intercept gameplay input')
+  assert.equal(layout.pauseText, 'Paused')
+  assert.equal(layout.pause.right, width - 2, 'Native pause text stays two pixels from the screen edge')
+  assert.equal(layout.pause.bottom, height, 'Native pause text uses the bottom A-height line')
   assert.equal(
     m2RectanglesOverlap(layout, layout.pause),
     false,
-    'Paused badge must not obscure F8 diagnostics'
+    'Native pause text must not obscure F8 diagnostics'
   )
   for (const ui of layout.interactiveUi)
     assert.equal(
       m2RectanglesOverlap(layout.pause, ui),
       false,
-      `Pause control must not cover interactive UI: ${ui.name}`
+      `Native pause text must not cover interactive UI: ${ui.name}`
     )
 }

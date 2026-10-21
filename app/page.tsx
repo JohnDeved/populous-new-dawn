@@ -1,6 +1,7 @@
 'use client'
 
 import { FullscreenControl } from './fullscreen-control'
+import { OriginalPauseStatus } from './original-pause-status'
 import { OriginalOptions } from './original-options'
 import { BrowserHelpTips } from './browser-help-tips'
 import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
@@ -1049,7 +1050,7 @@ export default function Home() {
         if (
           world.inputMask &&
           !(e.target as Element).closest(
-            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.paused-badge,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
+            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
           )
         ) {
           e.preventDefault()
@@ -1138,29 +1139,13 @@ export default function Home() {
           </div>
         )}
         {ready && !routeNotice && world.messageUntil > world.time && (
-          <div
-            className="world-message"
-            role="status"
-            style={{ visibility: menu ? 'hidden' : undefined }}
-          >
-            <span>✧</span>
+          <p className="game-a11y-status" role="status">
             {world.message}
-          </div>
-        )}
-        {ready && world.paused && !menu && world.status === 'playing' && (
-          <button
-            className="paused-badge"
-            onClick={() => {
-              store.change(w => {
-                w.paused = false
-              })
-            }}
-          >
-            Ⅱ <span>WORLD PAUSED</span>
-            <small>Click to resume</small>
-          </button>
+          </p>
         )}
       </div>
+      {ready && world.paused && !menu && world.status === 'playing' && <OriginalPauseStatus />}
+
       {world.mode && (
         <p className="game-a11y-status" role="status">
           Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'} {modeName}.
