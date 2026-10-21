@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict'
-import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, lstatSync, readlinkSync } from 'node:fs'
 import { resolve, relative } from 'node:path'
 import { manualIdentity, separateRoots, sourceManifest, verifyManifest, infrastructureInput, sha256 } from './identity.mjs'

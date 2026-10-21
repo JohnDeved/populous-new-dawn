@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
-import { readFileSync, readdirSync, lstatSync, symlinkSync, accessSync, constants } from 'node:fs'
+import { readdirSync, lstatSync, symlinkSync, accessSync, constants } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
 import { candidateDependency, manualIdentity, separateRoots, git, sha256 } from './identity.mjs'

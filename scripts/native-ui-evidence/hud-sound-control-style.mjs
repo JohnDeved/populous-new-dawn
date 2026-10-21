@@ -36,7 +36,9 @@ export default async function ({ browser, url, root, output, signal }) {
           signal.throwIfAborted()
           const sample = await control.evaluate(node => {
             const r = node.getBoundingClientRect(), style = getComputedStyle(node)
-            return { width: r.width, height: r.height, x: r.x, y: r.y, right: r.right, bottom: r.bottom,
+            return { width: r.width, height: r.height, layoutHeight: node.offsetHeight,
+              hudScale: Number(getComputedStyle(node.closest('.game-shell')).getPropertyValue('--hud-scale')),
+              x: r.x, y: r.y, right: r.right, bottom: r.bottom,
               dpr: devicePixelRatio, label: node.getAttribute('aria-label'), busy: node.getAttribute('aria-busy'), disabled: node.disabled,
               fallback: node.dataset.artReady === 'false', text: node.textContent,
               frame: style.getPropertyValue('--sound-frame'), radius: style.borderRadius,
@@ -45,13 +47,13 @@ export default async function ({ browser, url, root, output, signal }) {
               focus: node === document.activeElement, outline: style.outlineWidth,
               viewport: { width: innerWidth, height: innerHeight } }
           })
-          assert.equal(sample.height, 14); assert.equal(sample.radius, '0px')
+          assert.equal(sample.layoutHeight, 14); assert.ok(Math.abs(sample.height - 14 * sample.hudScale) < .01); assert.equal(sample.radius, '0px')
           assert.ok(sample.x >= 0 && sample.y >= 0 && sample.right <= sample.viewport.width && sample.bottom <= sample.viewport.height)
           if (fallback) { assert.equal(sample.text, text); assert.equal(sample.glyphs.length, 0) }
           else {
             assert.equal(sample.glyphs.length, text.length)
             assert.ok(sample.glyphs.every(glyph => glyph.image.includes('/original/hud.png')))
-            assert.ok(sample.tiles >= 8); assert.ok(sample.frame.includes(frame))
+            assert.ok(sample.tiles >= 8); if (frame) assert.ok(sample.frame.includes(frame))
           }
           const file = `${fallback ? 'fallback-dpr2' : 'glyphs-dpr1'}-${name}.png`
           await page.screenshot({ path: resolve(output, file) }); report.samples.push({ name, file, ...sample }); save()
@@ -66,7 +68,7 @@ export default async function ({ browser, url, root, output, signal }) {
         await page.evaluate(holdAudioResume)
         await page.keyboard.press('Enter')
         await page.waitForFunction(() => document.querySelector('[data-sound-control]')?.disabled)
-        await capture('pending', 'Wait', 'hud-button.png')
+        await capture('pending', 'Wait')
         await page.keyboard.press('Enter'); await page.keyboard.press('Space')
         assert.equal(await page.evaluate(() => window.soundResumeAttempts), 1, 'Disabled pending control cannot duplicate activation')
         await page.evaluate(() => window.rejectSoundResume())

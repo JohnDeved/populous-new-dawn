@@ -50,9 +50,9 @@ export default async function ({ browser, url, root, output, signal }) {
               const bounds = element => { const r = element.getBoundingClientRect(); return { x: r.x, y: r.y, right: r.right, bottom: r.bottom } }
               const options = node.closest('[data-original-options]')
               return { copy: node.getAttribute('aria-label'), glyphs: node.querySelectorAll('i').length,
-                lines: [...node.querySelectorAll(':scope > [aria-hidden]')].map(line => ({ box: bounds(line), pitch: line.offsetHeight,
+                lines: [...node.querySelectorAll(':scope > [aria-hidden]')].map(line => ({ box: bounds(line.firstElementChild), pitch: line.offsetHeight,
                   text: line.textContent, glyphs: line.querySelectorAll('i').length })),
-                navigation: bounds(options.querySelector('nav')), background: getComputedStyle(node).backgroundColor,
+                navigation: bounds(options.querySelector('nav [data-option-key]')), background: getComputedStyle(node).backgroundColor,
                 images: [...new Set([...node.querySelectorAll('i')].map(glyph => getComputedStyle(glyph).backgroundImage))] }
             })
             assert.equal(sample.background, 'rgba(0, 0, 0, 0)')

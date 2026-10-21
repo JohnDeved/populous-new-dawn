@@ -29,14 +29,15 @@ export function artifactInventory(root) {
 // text filters. Runtime errors always fail, including inside fallback contexts.
 export function ownBrowser(browser, output, report) {
   const active = new Set(), expected = new Map(), routeHandlers = new WeakMap()
-  let closed = false
+  let closed = false, admitting = false
   function instrumentRoutes(target) {
     const original = target.route.bind(target), unroute = target.unroute.bind(target)
     target.route = async (pattern, handler, options) => {
       const wrapped = async (route, request) => {
         const record = (kind, detail) => {
           const event = { url: route.request().url(), kind, detail }
-          expected.set(event.url, event); report.injectedRequests.push(event)
+          const pending = expected.get(event.url) ?? []
+          pending.push(event); expected.set(event.url, pending); report.injectedRequests.push(event)
         }
         const proxy = new Proxy(route, { get(object, key) {
           if (key === 'abort') return reason => { record('abort', reason ?? 'failed'); return object.abort(reason) }
@@ -63,13 +64,13 @@ export function ownBrowser(browser, output, report) {
       if (!['error', 'warning'].includes(message.type())) return
       const event = { kind: message.type(), text: message.text(), url: message.location().url }
       if (message.type() === 'warning') report.warnings.push(event)
-      else if (expected.has(event.url) && /^Failed to load resource: (net::ERR_FAILED|the server responded with a status of (404|500)\b)/.test(event.text)) {
-        report.expectedErrors.push({ ...event, injection: expected.get(event.url) })
+      else if (expected.get(event.url)?.length && /^Failed to load resource: (net::ERR_FAILED|the server responded with a status of (404|500)\b)/.test(event.text)) {
+        report.expectedErrors.push({ ...event, injection: expected.get(event.url).shift() })
       } else report.errors.push(event)
     })
     const screenshot = page.screenshot.bind(page)
     page.screenshot = async options => {
-      assert.ok(!closed, 'No screenshot after cleanup')
+      assert.ok(!closed && admitting, 'No screenshot after cleanup')
       assert.ok(options?.path && resolve(options.path).startsWith(resolve(output) + '/'), 'Screenshot must remain in evidence output')
       assert.ok(artifactInventory(output).screenshots < limits.screenshots, 'Screenshot budget exceeded')
       const result = await screenshot({ ...options, timeout: Math.min(options.timeout ?? 10000, 10000) })
@@ -80,7 +81,7 @@ export function ownBrowser(browser, output, report) {
   const create = browser.newContext.bind(browser)
   const owned = new Proxy(browser, { get(target, key) {
     if (key === 'newContext') return async options => {
-      assert.equal(closed, false, 'Browser owner already closed')
+      assert.ok(!closed && admitting, 'Browser owner is not admitting resources')
       assert.ok(active.size < limits.maxContexts, 'Context budget exceeded')
       const context = await create(options)
       active.add(context); instrumentRoutes(context)
@@ -92,7 +93,8 @@ export function ownBrowser(browser, output, report) {
     const value = target[key]; return typeof value === 'function' ? value.bind(target) : value
   } })
   return { browser: owned,
-    async closeContexts() { for (const context of [...active]) await context.close(); assert.equal(active.size, 0) },
+    beginEpisode() { assert.equal(active.size, 0); assert.equal(closed, false); expected.clear(); admitting = true },
+    async closeContexts() { admitting = false; for (const context of [...active]) await context.close(); assert.equal(active.size, 0) },
     async close() { closed = true; for (const context of [...active]) await context.close(); await browser.close() },
   }
 }

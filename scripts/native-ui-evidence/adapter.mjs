@@ -12,6 +12,7 @@ export async function runNativeUiEvidence({ browser, candidateRoot, infrastructu
   try {
     for (const episode of episodes) {
       signal.throwIfAborted()
+      owner.beginEpisode()
       const record = { id: episode.id, owner: episode.owner, path: episode.path, capMs: episode.capMs,
         status: 'running', timedOut: false, cleanupVerified: false, startedAt: new Date().toISOString() }
       report.episodes.push(record); save()
