@@ -87,7 +87,7 @@ export function createMission10Input(options) {
   const prepare = async phase => {
     signal.throwIfAborted()
     const timeout = deadlineAt == null ? 2500 : Math.min(2500, deadlineAt - Date.now())
-    const popups = await prepareWorldInput(page, { timeout })
+    const popups = await prepareWorldInput(page, { timeout, keyboardFocus: false })
     signal.throwIfAborted()
     report.actions.push({ label: 'native-popup-input', phase, popups }); save()
   }

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
-import { campaignPopupState, prepareWorldInput, pressWorldSpace, setCampaignPopupOpen } from '../scripts/browser-world-input.mjs'
+import { campaignPopupSnapshot, prepareWorldInput, pressWorldSpace, setCampaignPopupOpen } from '../scripts/browser-world-input.mjs'
 import { beginSpaceOwnership, endSpaceOwnership } from '../scripts/browser-space-ownership.mjs'
 import { skipIntroductionWithSpace } from '../scripts/browser-introduction.mjs'
 import { skipPauseIntroduction } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
@@ -17,8 +17,8 @@ function fixture({ intro = false, onFocus, onClose, swallow = false } = {}) {
     document: {
       querySelector: selector => { assert.equal(selector, '.loading-world'); return null },
       querySelectorAll: selector => {
-        assert.equal(selector, '.campaign-messages details[open]')
-        return [...details].filter(([, open]) => open).map(([serial]) => ({
+        assert.equal(selector, '.campaign-messages details')
+        return [...details].map(([serial, open]) => ({ open,
           getAttribute: name => { assert.equal(name, 'data-message-serial'); return serial },
         }))
       },
@@ -26,7 +26,7 @@ function fixture({ intro = false, onFocus, onClose, swallow = false } = {}) {
   }
   const read = (fn, arg) => runInNewContext(`(${fn.toString()})(arg)`, { ...context, arg })
   const page = {
-    evaluate: async (fn, arg) => { if ([beginSpaceOwnership, endSpaceOwnership].includes(fn)) return []; calls.push(fn === campaignPopupState ? 'observe-popups' : 'observe-intro'); return read(fn, arg) },
+    evaluate: async (fn, arg) => { if ([beginSpaceOwnership, endSpaceOwnership].includes(fn)) return []; calls.push(fn === campaignPopupSnapshot ? 'observe-popups' : 'observe-intro'); return read(fn, arg) },
     waitForFunction: async (fn, arg) => ({ jsonValue: async () => read(fn, arg), dispose: async () => {} }),
     locator(selector) {
       if (selector === '.world-viewport') return { focus: async () => {
@@ -64,7 +64,7 @@ function fixture({ intro = false, onFocus, onClose, swallow = false } = {}) {
 test('public summary collapse waits for hidden body, focuses the world, and preserves notification queue', async () => {
   const f = fixture(), original = structuredClone(f.world.messages)
   assert.deepEqual(await pressWorldSpace(f.page), [{ serial: '7' }])
-  assert.deepEqual(f.calls, ['observe-popups', 'summary:7', 'panel:hidden', 'focus-world', 'observe-popups', 'Space'])
+  assert.deepEqual(f.calls, ['observe-popups', 'summary:7', 'panel:hidden', 'observe-popups', 'focus-world', 'observe-popups', 'Space'])
   assert.equal(f.world.paused, true)
   assert.deepEqual(f.world.messages, original, 'No acknowledgement or queue deletion is permitted')
   await setCampaignPopupOpen(f.page, '7', true)
@@ -103,6 +103,70 @@ test('already closed notifications still require viewport focus, without a summa
   assert.deepEqual(await prepareWorldInput(f.page), [])
   assert.equal(f.focus, 'world')
   assert.deepEqual(f.calls, ['observe-popups', 'focus-world', 'observe-popups'])
+})
+
+test('pointer-only preparation batches retained identity and final owners without keyboard focus', async () => {
+  const f = fixture(), before = structuredClone(f.world.messages), trace = {}
+  assert.deepEqual(await prepareWorldInput(f.page, { keyboardFocus: false, trace }), [{ serial: '7' }])
+  assert.deepEqual(f.calls, ['observe-popups', 'summary:7', 'panel:hidden', 'observe-popups'])
+  assert.equal(f.focus, 'summary', 'Pointer callers do not claim keyboard preparation')
+  assert.deepEqual(f.world.messages, before)
+  assert.equal(trace.pending, false)
+  assert.equal(trace.phase, 'verify-retained-popup-and-owners')
+  assert.deepEqual(trace.owners, [])
+  assert.equal(trace.observedOpen, false)
+  assert.equal(trace.completed.length, 4)
+  for (const phase of trace.completed) assert.ok(phase.finishedMs >= phase.startedMs)
+})
+
+test('pointer-only preparation observes and closes a new owner during the prior close', async () => {
+  const f = fixture({ onClose({ details, serial }) { if (serial === '7') details.set('8', true) } })
+  assert.deepEqual(await prepareWorldInput(f.page, { keyboardFocus: false }), [{ serial: '7' }, { serial: '8' }])
+  assert.equal(f.calls.filter(call => call === 'observe-popups').length, 3)
+  assert.equal(f.calls.includes('focus-world'), false)
+  assert.equal(f.calls.includes('Space'), false)
+})
+
+test('batched post-close observation still rejects a removed retained serial', async () => {
+  const f = fixture({ onClose({ details, serial }) { details.delete(serial) } })
+  await assert.rejects(prepareWorldInput(f.page), /same campaign notification remains present/)
+  assert.equal(f.calls.includes('Space'), false)
+})
+
+test('batched post-close observation still rejects an incorrectly open retained serial', async () => {
+  const f = fixture(), evaluate = f.page.evaluate
+  let samples = 0
+  f.page.evaluate = async (fn, arg) => {
+    if (fn === campaignPopupSnapshot && ++samples === 2) f.details.set('7', true)
+    return evaluate(fn, arg)
+  }
+  await assert.rejects(prepareWorldInput(f.page), /true !== false/)
+  assert.equal(f.calls.includes('Space'), false)
+})
+
+test('timeout trace distinguishes completed close from pending final owner observation', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  const f = fixture(), evaluate = f.page.evaluate, trace = {}
+  let samples = 0, entered, release
+  const pending = new Promise(resolve => { entered = resolve }), blocked = new Promise(resolve => { release = resolve })
+  f.page.evaluate = async (fn, arg) => {
+    if (fn === campaignPopupSnapshot && ++samples === 3) { entered(); await blocked }
+    return evaluate(fn, arg)
+  }
+  const rejected = assert.rejects(prepareWorldInput(f.page, { timeout: 500, trace }), error => {
+    const record = JSON.parse(error.message.slice(error.message.indexOf('{')))
+    assert.equal(record.phase, 'reobserve-popup-owners')
+    assert.equal(record.pending, true)
+    assert.equal(record.observedOpen, false)
+    assert.deepEqual(record.owners, [])
+    assert.ok(record.completed.some(item => item.phase === 'wait-body-hidden'))
+    assert.ok(record.completed.some(item => item.phase === 'focus-world-viewport'))
+    assert.ok(record.phaseStartedMs >= record.ownersObservedMs)
+    return true
+  })
+  await pending; t.mock.timers.tick(500); await rejected; release()
+  for (let i = 0; i < 12; i++) await Promise.resolve()
+  assert.equal(f.calls.includes('Space'), false)
 })
 
 for (const [name, skip] of [['shared', skipIntroductionWithSpace], ['recovery', skipPauseIntroduction]]) {

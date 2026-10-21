@@ -40,25 +40,31 @@ export function pauseStartupReady(snapshot = false) {
 // failed delivery is forgivable only after native completion with unchanged pause.
 export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
   if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid recovery input timeout')
-  const deadline = performance.now() + timeout, timedOut = new Error('Recovery introduction input timed out')
+  const started = performance.now(), deadline = started + timeout
+  const trace = { phase: 'start', preparation: {} }
+  const timedOut = () => new Error(`Recovery introduction input timed out: ${JSON.stringify({ ...trace, elapsedMs: performance.now() - started })}`)
   let closed = false, timer, deliveryError
   const remaining = () => {
     const budget = deadline - performance.now()
-    if (closed || budget <= 0) throw timedOut
+    if (closed || budget <= 0) throw timedOut()
     return budget
   }
   const run = async () => {
     for (;;) {
-      await prepareWorldInput(page, { timeout: remaining() })
+      trace.phase = 'prepare-world-input'
+      await prepareWorldInput(page, { timeout: remaining(), trace: trace.preparation })
       remaining()
+      trace.phase = 'read-before-skip'
       const before = await page.evaluate(pauseStartupReady, true)
       remaining()
       if (before.action === 'ready') return
       if (before.action !== 'skip') throw new Error('Recovery introduction is no longer interruptible')
       let delivery
+      trace.phase = 'observed-space-dispatch'
       try { delivery = await pressObservedSpace(page, { timeout: remaining() }) }
       catch (error) { deliveryError = error }
       remaining()
+      trace.phase = 'read-after-skip'
       const after = await page.evaluate(pauseStartupReady, true)
       remaining()
       if (after.paused !== before.paused) throw new Error('Recovery Space changed pause state; retry the episode')
@@ -72,7 +78,7 @@ export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
   }
   try {
     await Promise.race([run(), new Promise((_, reject) => {
-      timer = setTimeout(() => { closed = true; reject(deliveryError ?? timedOut) }, remaining())
+      timer = setTimeout(() => { closed = true; reject(deliveryError ?? timedOut()) }, remaining())
     })])
   } finally { closed = true; clearTimeout(timer) }
 }

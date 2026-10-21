@@ -8,69 +8,101 @@ export function campaignPopupState() {
     .map(detail => ({ serial: detail.getAttribute('data-message-serial') }))
 }
 
-async function withinInputDeadline(timeout, run, trace = { phase: 'start' }) {
+// One read captures both retained identity/count and current ownership. Closed
+// records are retained so public close/reopen never silently acknowledges them.
+export function campaignPopupSnapshot() {
+  return [...document.querySelectorAll('.campaign-messages details')]
+    .map(detail => ({ serial: detail.getAttribute('data-message-serial'), open: detail.open }))
+}
+
+async function withinInputDeadline(timeout, run, trace = {}) {
   if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid world input timeout')
-  const deadline = performance.now() + timeout
-  const timedOut = () => new Error(`World input preparation timed out: ${JSON.stringify(trace)}`)
+  const started = performance.now(), deadline = started + timeout
+  Object.assign(trace, { phase: 'start', pending: false, elapsedMs: 0, completed: [] })
+  const timedOut = () => {
+    trace.elapsedMs = performance.now() - started
+    return new Error(`World input preparation timed out: ${JSON.stringify(trace)}`)
+  }
   let expired = false, timer
   const remaining = () => {
     const budget = deadline - performance.now()
     if (expired || budget <= 0) throw timedOut()
     return budget
   }
+  const phase = async (name, action) => {
+    remaining()
+    Object.assign(trace, { phase: name, pending: true, phaseStartedMs: performance.now() - started })
+    const value = await action()
+    const elapsedMs = performance.now() - started
+    Object.assign(trace, { pending: false, elapsedMs })
+    trace.completed.push({ phase: name, startedMs: trace.phaseStartedMs, finishedMs: elapsedMs })
+    if (trace.completed.length > 32) trace.completed.shift()
+    remaining()
+    return value
+  }
   try {
-    return await Promise.race([run(remaining), new Promise((_, reject) => {
+    return await Promise.race([run(remaining, phase), new Promise((_, reject) => {
       timer = setTimeout(() => { expired = true; reject(timedOut()) }, remaining())
     })])
   } finally { expired = true; clearTimeout(timer) }
 }
 
+async function observePopups(page, phase, trace, name) {
+  const snapshot = await phase(name, () => page.evaluate(campaignPopupSnapshot))
+  trace.owners = Array.from(snapshot).filter(detail => detail.open).map(({ serial }) => ({ serial }))
+  trace.ownersObservedMs = trace.elapsedMs
+  return snapshot
+}
+
+function retainedPopup(snapshot, serial) {
+  assert.match(serial, /^\d+$/, 'A real retained campaign notification serial is required')
+  const retained = snapshot.filter(detail => detail.serial === serial)
+  assert.equal(retained.length, 1, 'The same campaign notification remains present')
+  return retained[0]
+}
+
+async function applyPopupOpen(page, serial, open, snapshot, remaining, phase, trace) {
+  const retained = retainedPopup(snapshot, serial)
+  Object.assign(trace, { serial, requestedOpen: open, observedOpen: retained.open })
+  const detail = page.locator(`.campaign-messages details[data-message-serial="${serial}"]`)
+  if (retained.open !== open)
+    await phase('public-summary-click', () => detail.locator('summary').click({ timeout: remaining() }))
+  await phase(open ? 'wait-body-visible' : 'wait-body-hidden', () =>
+    detail.locator('[data-native-campaign-panel]').waitFor({ state: open ? 'visible' : 'hidden', timeout: remaining() }))
+  const after = await observePopups(page, phase, trace, 'verify-retained-popup-and-owners')
+  trace.observedOpen = retainedPopup(after, serial).open
+  assert.equal(trace.observedOpen, open)
+  // This same read observes any different authored owner opened during the close.
+  return after
+}
+
 // Public summary clicks only, including when restoring a popup for layout/F8 QA.
 export async function setCampaignPopupOpen(page, serial, open, { timeout = 2500, trace = {} } = {}) {
   assert.match(serial, /^\d+$/, 'A real retained campaign notification serial is required')
-  return withinInputDeadline(timeout, async remaining => {
-    Object.assign(trace, { phase: 'retained-serial-count', serial, requestedOpen: open })
-    const detail = page.locator(`.campaign-messages details[data-message-serial="${serial}"]`)
-    assert.equal(await detail.count(), 1, 'The same campaign notification remains present')
-    remaining()
-    trace.phase = 'read-open-state'
-    const isOpen = trace.observedOpen = await detail.getAttribute('open') !== null
-    remaining()
-    trace.phase = 'public-summary-click'
-    if (isOpen !== open) await detail.locator('summary').click({ timeout: remaining() })
-    trace.phase = open ? 'wait-body-visible' : 'wait-body-hidden'
-    await detail.locator('[data-native-campaign-panel]').waitFor({ state: open ? 'visible' : 'hidden', timeout: remaining() })
-    remaining()
-    trace.phase = 'verify-open-state'
-    assert.equal(await detail.getAttribute('open') !== null, open)
-    remaining()
-    // Another authored notification may open during this close. Its ownership
-    // is reobserved by prepareWorldInput, not mistaken for failure of this serial.
+  return withinInputDeadline(timeout, async (remaining, phase) => {
+    const snapshot = await observePopups(page, phase, trace, 'observe-retained-popups')
+    await applyPopupOpen(page, serial, open, snapshot, remaining, phase, trace)
   }, trace)
 }
 
-export async function prepareWorldInput(page, { timeout = 2500 } = {}) {
-  const trace = { phase: 'observe-popup-owners' }
-  return withinInputDeadline(timeout, async remaining => {
+export async function prepareWorldInput(page, { timeout = 2500, keyboardFocus = true, trace = {} } = {}) {
+  assert.equal(typeof keyboardFocus, 'boolean')
+  return withinInputDeadline(timeout, async (remaining, phase) => {
     const collapsed = []
+    let snapshot = await observePopups(page, phase, trace, 'observe-popup-owners')
     for (;;) {
-      trace.phase = 'observe-popup-owners'
-      const popups = trace.owners = await page.evaluate(campaignPopupState)
-      remaining()
-      for (const { serial } of popups) {
-        await setCampaignPopupOpen(page, serial, false, { timeout: remaining(), trace })
-        collapsed.push({ serial })
+      const owner = snapshot.find(detail => detail.open)
+      if (owner) {
+        snapshot = await applyPopupOpen(page, owner.serial, false, snapshot, remaining, phase, trace)
+        collapsed.push({ serial: owner.serial })
+        continue
       }
-      // A summary keeps keyboard focus after a click. Space there reopens it,
-      // so explicitly focus the shipped viewport before any world keyboard input.
-      trace.phase = 'focus-world-viewport'
-      await page.locator('.world-viewport').focus({ timeout: remaining() })
-      remaining()
-      // Authored notifications can auto-open during the browser round trips.
-      trace.phase = 'reobserve-popup-owners'
-      const reopened = trace.owners = await page.evaluate(campaignPopupState)
-      remaining()
-      if (!reopened.length) return collapsed
+      // Pointer-only callers use the completed post-close observation above.
+      // Keyboard callers must move summary focus before sending world input.
+      if (!keyboardFocus) return collapsed
+      await phase('focus-world-viewport', () => page.locator('.world-viewport').focus({ timeout: remaining() }))
+      snapshot = await observePopups(page, phase, trace, 'reobserve-popup-owners')
+      if (!snapshot.some(detail => detail.open)) return collapsed
     }
   }, trace)
 }

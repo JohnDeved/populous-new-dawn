@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
 import { createFlyby, flybyCommand, interruptFlyby } from '../app/flyby.ts'
-import { pressWorldSpace, setCampaignPopupOpen, setWorldPaused } from '../scripts/browser-world-input.mjs'
+import { prepareWorldInput, pressWorldSpace, setCampaignPopupOpen, setWorldPaused } from '../scripts/browser-world-input.mjs'
 import { skipIntroductionWithSpace } from '../scripts/browser-introduction.mjs'
 import { skipPauseIntroduction } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
 import test from 'node:test'
@@ -90,8 +90,8 @@ test('actual scene keyup cannot retain modifiers from exempt Tab/F8/F9 releases'
 function inputPage(f, { beforePress, afterPress } = {}) {
   f.document.querySelector = selector => { assert.equal(selector, '.loading-world'); return null }
   f.document.querySelectorAll = selector => {
-    assert.equal(selector, '.campaign-messages details[open]')
-    return f.details.open ? [f.details] : []
+    assert.ok(['.campaign-messages details', '.campaign-messages details[open]'].includes(selector))
+    return selector.endsWith('[open]') && !f.details.open ? [] : [f.details]
   }
   const click = () => f.element.children[0].props.onClick({ preventDefault() {}, currentTarget: { parentElement: f.details } })
   const window = { testStore: { getWorld: () => f.world },
@@ -145,6 +145,21 @@ test('world Space helper crosses actual Home popup/summary/aside ownership, neve
     assert.equal(f.world.paused,true,'Only the actual Home Space handler changes pause')
     assert.deepEqual(f.world.messages,before)
   } finally {f.close();globalThis.Element=old}
+})
+
+test('pointer-only helper closes the actual Home summary without changing focus or retained world state', async () => {
+  const f = fixture()
+  try {
+    f.auto()
+    const before = structuredClone(f.world), trace = {}
+    assert.deepEqual(await prepareWorldInput(inputPage(f), { keyboardFocus: false, trace }), [{ serial: '0' }])
+    assert.equal(f.details.open, false)
+    assert.equal(f.document.activeElement, f.summary)
+    assert.deepEqual(f.world, before)
+    assert.equal(trace.completed.length, 4)
+    assert.equal(trace.observedOpen, false)
+    assert.equal(trace.pending, false)
+  } finally { f.close() }
 })
 
 for(const [name,skip,late] of [['shared',skipIntroductionWithSpace,false],['recovery',skipPauseIntroduction,false],
