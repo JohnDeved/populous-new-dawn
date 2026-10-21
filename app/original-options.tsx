@@ -176,7 +176,7 @@ export function OriginalOptions({
     [gamePreferences.rotation, gamePreferences.flipRotation]
   )
   const activeStorageNotice =
-    category === 'Game' ? gameStorageNotice : category === 'Sound' ? storageNotice : ''
+    (category === 'Game' && gameStorageNotice) || (category === 'Sound' && storageNotice) || ''
   const storageRows = useMemo<FrontendTextRow[]>(
     () =>
       activeStorageNotice
