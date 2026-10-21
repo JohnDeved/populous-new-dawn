@@ -1,6 +1,7 @@
 'use client'
 
 import { FullscreenControl } from './fullscreen-control'
+import { SoundControl } from './sound-control'
 import { OriginalPauseStatus } from './original-pause-status'
 import { OriginalOptions } from './original-options'
 import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
@@ -1395,15 +1396,7 @@ export default function Home() {
           )}
         </section>
         <div className="top-actions">
-          <button
-            aria-label={sound ? 'Mute sound' : 'Enable sound'}
-            title={sound ? 'Mute sound' : 'Enable sound'}
-            onClick={toggleSound}
-            disabled={soundPending}
-            aria-busy={soundPending}
-          >
-            {sound ? '♪' : '♫'}
-          </button>
+          <SoundControl sound={sound} pending={soundPending} onToggle={toggleSound} />
         </div>
       </aside>
       {startup === 'choice' && !startupLogoDone && <StartupLogo onComplete={finishStartupLogo} />}
