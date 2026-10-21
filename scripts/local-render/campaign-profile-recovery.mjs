@@ -92,6 +92,45 @@ async function storedRecords() {
   } finally { db.close() }
 }
 
+// Read the profile itself as well as retaining complete-record digests. This
+// observer never writes and does not consult the store's in-memory projection.
+export async function storedRecoveryProfile() {
+  const db = await new Promise((resolve, reject) => {
+    const request = indexedDB.open('populous-new-dawn', 1)
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+  })
+  try {
+    return await new Promise((resolve, reject) => {
+      const transaction = db.transaction('checkpoints', 'readonly')
+      const request = transaction.objectStore('checkpoints').get('profile')
+      transaction.oncomplete = () => resolve(request.result)
+      transaction.onerror = () => reject(transaction.error)
+      transaction.onabort = () => reject(transaction.error ?? Error('Profile observation aborted'))
+    })
+  } finally { db.close() }
+}
+
+// Independent oracle for only this scenario's two declared legacy/fresh inputs.
+// Do not call the implementation's merge/transition helper to bless its output.
+export function assertRecoverySelectorProfile(before, after, completed) {
+  const fresh = before === undefined
+  assert.deepEqual(completed, fresh ? [] : [1, 2], 'Recovery fixture completion ledger')
+  if (!fresh) {
+    assert.equal(before.version, 1)
+    assert.deepEqual(before.completed, [1, 2])
+    assert.equal(Object.hasOwn(before, 'nativeCampaign'), false, 'Expected the declared completed-only fixture')
+  }
+  const flags = Array(25).fill(0)
+  flags[0] = fresh ? 4 : 5
+  if (!fresh) { flags[1] = 1; flags[2] = 4 }
+  const expected = { ...before, version: 1, completed: [...completed], nativeCampaign: {
+    version: 1, flags, history: fresh ? 'native-model' : 'legacy-completed-only',
+  } }
+  assert.deepEqual(after, expected, 'Selector must persist exactly the allowed native return transition and preserve every other profile field')
+  return expected
+}
+
 async function seedRecords(page, { kind, completed = [1, 2] }) {
   await page.evaluate(async ({ kind, completed, currentVersion }) => {
     let latest
@@ -264,6 +303,8 @@ export default async function ({ browser, context: initialContext, page: initial
       assert.deepEqual(entry.startup.writes, [])
       entry.afterRestore = await page.evaluate(storedRecords)
       assert.deepEqual(entry.afterRestore, entry.beforeStartup, 'Restore alone preserves every record')
+      entry.profileBeforeSelector = await page.evaluate(storedRecoveryProfile)
+      assert.deepEqual(entry.profileBeforeSelector, kind === 'empty' ? undefined : { version: 1, completed: expected })
       entry.selector = await expectProfileUi(page, expected)
       if (kind === 'malformed') await capture(page, 'malformed-profile-selector.png')
       // Native selection returns through its dialog owner, not removed compatibility controls.
@@ -274,7 +315,10 @@ export default async function ({ browser, context: initialContext, page: initial
       entry.afterSelector = await page.evaluate(storedRecords)
       assert.deepEqual(entry.afterSelector.filter(record => record.key !== 'profile'),
         entry.beforeStartup.filter(record => record.key !== 'profile'), 'Selector entry never replaces checkpoint data')
-      assert.deepEqual(await page.evaluate(() => window.testStore.getCompletedMissions()), expected)
+      const sessionCompleted = await page.evaluate(() => window.testStore.getCompletedMissions())
+      assert.deepEqual(sessionCompleted, expected)
+      entry.profileAfterSelector = await page.evaluate(storedRecoveryProfile)
+      assertRecoverySelectorProfile(entry.profileBeforeSelector, entry.profileAfterSelector, sessionCompleted)
       const writesBeforeLoad = await page.evaluate(() => [...window.recoveryStorageWrites])
       assert.ok(writesBeforeLoad.every(write => write.method === 'put' && write.key === 'profile'), 'Only the explicit selector transition may write')
       const load = page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'Load Game', exact: true })
