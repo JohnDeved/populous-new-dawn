@@ -33,7 +33,7 @@ function measured(source, cell, scale = 1) {
     font: { path: source.url, origin: 'https://game.test', sha256: source.sha256 },
     fields: [{ label: 'Back to Options', glyphCellsFit: false, glyphs: [{
       image: 'url("https://game.test/original/pause-font.png")', size: 'auto', transform: 'none',
-      x: -cell.x, y: -cell.y, width: cell.w, height: cell.h,
+      positionX: `${-cell.x}px`, positionY: `${-cell.y}px`, width: cell.w, height: cell.h,
       rect: { left: 300 * scale, top: 454 * scale, width: cell.w * scale, height: cell.h * scale },
     }] }] }
 }
@@ -84,7 +84,9 @@ test('ink witness rejects wrong asset bytes, path, displayed crop, size and abse
     row => { row.font.sha256 = '0'.repeat(64) },
     row => { row.font.path = '/wrong.png' },
     row => { row.fields[0].glyphs[0].image = 'url("https://game.test/wrong.png")' },
-    row => { row.fields[0].glyphs[0].x -= 0.5 },
+    row => { row.fields[0].glyphs[0].positionX = `${-cell.x - 0.5}px` },
+    row => { row.fields[0].glyphs[0].positionX = `${-cell.x}%` },
+    row => { row.fields[0].glyphs[0].positionY = `${-cell.y}em` },
     row => { row.fields[0].glyphs[0].width++ },
     row => { row.fields[0].glyphs[0].size = '100% 100%' },
     row => { row.fields[0].glyphs[0].transform = 'scale(2)' },

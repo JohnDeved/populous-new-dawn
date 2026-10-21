@@ -104,7 +104,7 @@ export async function nativeHelpLayout(element, fontPath) {
       glyphs: [...node.querySelectorAll('i')].map(glyph => {
         const style = getComputedStyle(glyph)
         return { image: style.backgroundImage, size: style.backgroundSize, transform: style.transform,
-          x: parseFloat(style.backgroundPositionX), y: parseFloat(style.backgroundPositionY),
+          positionX: style.backgroundPositionX, positionY: style.backgroundPositionY,
           width: parseFloat(style.width), height: parseFloat(style.height), rect: rectangle(glyph.getBoundingClientRect()) }
       }),
       actionable: node.tagName !== 'BUTTON' || (!node.disabled && node.contains(owner)) }

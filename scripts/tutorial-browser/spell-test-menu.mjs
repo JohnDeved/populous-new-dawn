@@ -48,7 +48,12 @@ export function spellTestDiagnosticSnapshot() {
 export function spellTestControlsReady(names) {
   const menus = [...document.querySelectorAll('dialog[data-spell-test-menu][open]')]
   if (menus.length !== 1 || !names.length || new Set(names).size !== names.length) return false
-  const buttons = [...menus[0].querySelectorAll('button')]
+  const buttons = [...menus[0].querySelectorAll('button')].filter(button => {
+    const style = getComputedStyle(button)
+    return !button.closest('[hidden], [inert], [aria-hidden="true"]') &&
+      style.display !== 'none' && style.visibility === 'visible' &&
+      [...button.getClientRects()].some(rect => rect.width > 0 && rect.height > 0)
+  })
   const controls = names.map(name => {
     const matches = buttons.filter(button => button.getAttribute('aria-label') === name)
     return { name, count: matches.length, enabled: matches.length === 1 &&

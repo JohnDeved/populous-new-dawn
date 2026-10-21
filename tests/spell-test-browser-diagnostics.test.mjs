@@ -12,14 +12,19 @@ import { SPELLS } from '../app/world-rules.ts'
 test('batched F9 observation retains every exact spell and rejects missing, duplicate or disabled controls', () => {
   const names = SPELLS.map(spell => `Test ${spell.name}, 4 shots`)
   const read = rows => vm.runInNewContext(`(${spellTestControlsReady})(names)`, {
-    names, document: { querySelectorAll: selector => {
+    names, getComputedStyle: button => button.style, document: { querySelectorAll: selector => {
       assert.equal(selector, 'dialog[data-spell-test-menu][open]')
       return [{ querySelectorAll: selector => {
         assert.equal(selector, 'button')
         return rows.map(row => ({
+          style: { display: row.displayNone ? 'none' : 'block', visibility: row.visibilityHidden ? 'hidden' : 'visible' },
+          getClientRects: () => row.zeroLayout ? [] : [{ width: 100, height: 25 }],
           getAttribute: name => { assert.equal(name, 'aria-label'); return row.name },
           matches: selector => { assert.equal(selector, ':disabled'); return !!row.disabled },
-          closest: selector => { assert.equal(selector, '[aria-disabled="true"]'); return row.ariaDisabled ? {} : null },
+          closest: selector => {
+            if (selector === '[hidden], [inert], [aria-hidden="true"]') return row.hidden ? {} : null
+            assert.equal(selector, '[aria-disabled="true"]'); return row.ariaDisabled ? {} : null
+          },
         }))
       } }]
     } },
@@ -30,7 +35,7 @@ test('batched F9 observation retains every exact spell and rejects missing, dupl
   for (const index of [0, Math.floor(rows.length / 2), rows.length - 1]) {
     assert.equal(read(rows.filter((_, i) => i !== index)), false)
     assert.equal(read([...rows, rows[index]]), false)
-    for (const field of ['disabled', 'ariaDisabled']) {
+    for (const field of ['disabled', 'ariaDisabled', 'hidden', 'displayNone', 'visibilityHidden', 'zeroLayout']) {
       const changed = structuredClone(rows); changed[index][field] = true
       assert.equal(read(changed), false)
     }

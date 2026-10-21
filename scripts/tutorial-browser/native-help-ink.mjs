@@ -42,7 +42,9 @@ export function applyNativeHelpInk(layout, source) {
       assert.equal(glyph.image, `url("${url}")`, 'Displayed glyph uses the verified atlas')
       assert.equal(glyph.size, 'auto', 'Native glyph keeps the atlas source scale')
       assert.equal(glyph.transform, 'none', 'Native glyph has no independent transform')
-      const cell = source.cells.find(cell => glyph.x === -cell.x && glyph.y === -cell.y &&
+      for (const position of [glyph.positionX, glyph.positionY])
+        assert.match(position, /^-?\d+(?:\.\d+)?px$/, 'Native glyph crop position uses exact pixel units')
+      const cell = source.cells.find(cell => parseFloat(glyph.positionX) === -cell.x && parseFloat(glyph.positionY) === -cell.y &&
         glyph.width === cell.w && glyph.height === cell.h)
       assert.ok(cell, 'Displayed native glyph crop matches the source metadata')
       const sx = glyph.rect.width / cell.w, sy = glyph.rect.height / cell.h
