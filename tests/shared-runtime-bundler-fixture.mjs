@@ -24,7 +24,7 @@ const config = (root, entry) => ({
     cssMinify: false,
     rolldownOptions: {
       input: path.join(root, 'app', entry),
-      output: { format: 'iife', inlineDynamicImports: true },
+      output: { format: 'es' },
     },
   },
 });
