@@ -51,11 +51,10 @@
 .quitGuidance { position: absolute; left: 0; top: 278px; width: 640px; margin: 0; text-align: center; }
 .warningLine { position: relative; display: block; height: 30px; }
 .visuallyHidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.checkpointRecovery { position: absolute; bottom: 6px; left: 32px; width: 576px; padding: 6px; background: #201a08ee; color: #fff1bb; font: 13px/1.3 sans-serif; text-align: center; }
-.checkpointRecovery p { margin: 0 0 4px; }
-.checkpointRecovery button { padding: 4px 10px; border: 1px solid #fff1bb; background: #30270f; color: inherit; font: inherit; }
-.checkpointRecovery button:focus-visible { outline: 2px solid #fff1bb; outline-offset: 2px; }
-.checkpointRecovery button:disabled { opacity: .65; }
+.checkpointRecovery { position: absolute; inset: 0; pointer-events: none; }
+.checkpointRecovery p { margin: 0; }
+.checkpointRecovery button { pointer-events: auto; }
+.checkpointRecovery button:disabled { opacity: 1; }
 
 .fallback { color: #fff1bb; font: 22px/28px Georgia, serif; text-shadow: 1px 2px #000; }
 .fallbackTitle { position: absolute; top: 30px; width: 100%; text-align: center; font: 32px Georgia, serif; color: #fff1bb; }
