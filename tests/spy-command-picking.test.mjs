@@ -49,7 +49,12 @@ test('actual driver resumes before selecting a current production hit and clicki
   scene.world.paused = true
   assert.throws(() => readSpySabotageTarget(1022), /after public Resume/)
   const page = {
-    getByRole: () => ({ click: async () => { events.push('resume'); scene.world.paused = false } }),
+    locator: selector => {
+      assert.equal(selector, '.world-viewport')
+      return { press: async key => {
+        assert.equal(key, 'Space'); events.push('resume'); scene.world.paused = false
+      } }
+    },
     waitForFunction: async () => { assert.equal(scene.world.paused, false); events.push('running') },
     evaluate: async (fn, id) => { events.push('qualify'); return fn(id) },
     mouse: { click: async (x, y) => { assert.equal(scene.pickWorldObject({ clientX: x, clientY: y }).id, 1022); events.push('click') } } },
