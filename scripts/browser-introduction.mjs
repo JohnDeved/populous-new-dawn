@@ -19,8 +19,9 @@ export function introductionInputState(snapshot = false) {
     flybyFlags: world?.flyby.flags } : action
 }
 
-export async function skipIntroductionWithSpace(page, { timeout = 30000 } = {}) {
+export async function skipIntroductionWithSpace(page, { timeout = 30000, closedPopups } = {}) {
   if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid introduction timeout')
+  if (closedPopups !== undefined && !Array.isArray(closedPopups)) throw new TypeError('Closed popup evidence must be an array')
   const deadline = performance.now() + timeout
   const timedOut = new Error('Introduction readiness timed out')
   let expired = false, failed = false, failure, timer
@@ -44,7 +45,10 @@ export async function skipIntroductionWithSpace(page, { timeout = 30000 } = {}) 
       if (action !== 'skip') return action
       // The presentation may finish during the handle round-trip. Never turn that
       // stale observation into a fresh Space pause/resume command.
-      await prepareWorldInput(page, { timeout: remaining() })
+      const collapsed = await prepareWorldInput(page, { timeout: remaining() })
+      // Optional evidence collection does not change the existing skip/ready
+      // return contract. These IDs came from completed real summary closures.
+      closedPopups?.push(...collapsed)
       remaining()
       const before = await page.evaluate(introductionInputState, true)
       remaining()

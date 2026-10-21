@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
-import { campaignPopupSnapshot, prepareWorldInput, pressWorldSpace, setCampaignPopupOpen } from '../scripts/browser-world-input.mjs'
+import { campaignPopupSnapshot, prepareWorldInput, pressWorldSpace, setCampaignPopupOpen, setWorldPaused } from '../scripts/browser-world-input.mjs'
 import { beginSpaceOwnership, endSpaceOwnership } from '../scripts/browser-space-ownership.mjs'
 import { skipIntroductionWithSpace } from '../scripts/browser-introduction.mjs'
 import { skipPauseIntroduction } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
@@ -70,6 +70,38 @@ test('public summary collapse waits for hidden body, focuses the world, and pres
   await setCampaignPopupOpen(f.page, '7', true)
   assert.equal(f.details.get('7'), true)
   assert.deepEqual(f.world.messages, original, 'Reopening restores the same retained notification')
+})
+
+test('M2 collects a late popup closed inside introduction and restores that exact record after pause', async () => {
+  const { setM2CampaignPopupOpen } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  const f = fixture({ intro: true }), original = structuredClone(f.world.messages)
+  f.details.set('7', false)
+  f.details.set('99', false) // Unrelated retained record must not become the restored subject.
+  const closedPopups = await prepareWorldInput(f.page)
+  assert.deepEqual(closedPopups, [])
+  const wait = f.page.waitForFunction
+  f.page.waitForFunction = async (...args) => {
+    f.details.set('7', true) // The authored popup arrives after outer preparation.
+    return wait(...args)
+  }
+  assert.equal(await skipIntroductionWithSpace(f.page, { timeout: 10000, closedPopups }), 'skip',
+    'The helper retains its original return contract')
+  assert.deepEqual(closedPopups, [{ serial: '7' }])
+  assert.deepEqual(await setWorldPaused(f.page, true), [], 'The later pause preparation also sees no open owner')
+  assert.equal(f.world.paused, true)
+  await setM2CampaignPopupOpen(f.page, closedPopups.at(-1).serial, true)
+  assert.equal(f.details.get('7'), true)
+  assert.equal(f.details.get('99'), false)
+  assert.deepEqual(f.world.messages, original, 'Actual summary close/reopen retains the complete authored message and queue')
+  assert.equal(f.calls.filter(call => call === 'summary:7').length, 2)
+  assert.equal(f.calls.includes('summary:99'), false)
+  f.details.delete('7')
+  await assert.rejects(setM2CampaignPopupOpen(f.page, closedPopups.at(-1).serial, true), /same campaign notification/)
+  assert.equal(f.calls.includes('summary:99'), false, 'Missing intended record cannot fall back to an unrelated retained record')
+})
+
+test('introduction evidence collection rejects a malformed sink without polling or input', async () => {
+  await assert.rejects(skipIntroductionWithSpace({ waitForFunction: () => assert.fail('No polling') }, { closedPopups: {} }), /evidence must be an array/)
 })
 
 test('a popup auto-opened during focus is reobserved and collapsed before input', async () => {
@@ -240,6 +272,7 @@ test('harness integration preserves strict state oracles and prepares each gamep
   assert.match(spell, /assert.deepEqual\(await storage\(\), saved, 'existing save\/profile are unchanged'\)/)
   const m2 = read('tutorial-browser/m2-pointer-f8.mjs')
   assert.match(m2, /report.inputPopups = await prepareWorldInput[\s\S]*?skipIntroductionWithSpace/)
+  assert.match(m2, /skipIntroductionWithSpace\(page, \{ timeout: 10000, closedPopups: report.inputPopups \}\)/)
   assert.match(m2, /report.inputPopups.push\(\.\.\.await setWorldPaused\(page, true\)\)[\s\S]*?setM2CampaignPopupOpen\(page, retainedPopup.serial, true\)[\s\S]*?if \(pickingPaths\)/)
   const spy = read('tutorial-browser/spy-source-readiness.mjs')
   assert.match(spy, /skipIntroductionWithSpace\(page, \{ timeout: remaining\(\) \}\)/)

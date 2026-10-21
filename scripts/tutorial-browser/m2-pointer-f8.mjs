@@ -261,7 +261,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     assert.equal(report.startup.level, 2)
     report.inputPopups = await prepareWorldInput(page, { timeout: 10000 })
     if (report.startup.action === 'skip')
-      await skipIntroductionWithSpace(page, { timeout: 10000 })
+      await skipIntroductionWithSpace(page, { timeout: 10000, closedPopups: report.inputPopups })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     stage('introduction-ready')
     // Compact viewports no longer add a browser-authored blocking advisory.
@@ -272,7 +272,9 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     await page.setViewportSize({ width: 1440, height: 1000 })
     report.inputPopups.push(...await setWorldPaused(page, true))
     await page.waitForFunction(() => window.testStore.getWorld().paused)
-    // Restore the same retained notification for compact and F8 layout subjects.
+    // Restore the same retained notification for compact and F8 layout subjects,
+    // including an authored owner that appeared and closed inside introduction
+    // preparation rather than either surrounding preparation call.
     const retainedPopup = report.inputPopups.at(-1)
     if (retainedPopup) await setM2CampaignPopupOpen(page, retainedPopup.serial, true)
     const observe = () =>
