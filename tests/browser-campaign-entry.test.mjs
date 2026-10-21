@@ -100,3 +100,41 @@ test('restart and Temple consumers explicitly opt in without reseeding continuat
   for (const source of [adapter, restart, temple])
     assert.doesNotMatch(source, /\.startMission\(|\.startDebugMission\(/)
 })
+
+test('checkpoint gate uses native progression and keeps its debug interruption non-saving', () => {
+  const source = read('scripts/check-browser-checkpoint.mjs')
+  assert.match(source, /await openCampaignGame\(browser\)/)
+  assert.match(source, /await openCampaignGame\(\{ newContext: async \(\) => context \}\)/)
+  assert.match(source, /await continueThroughNativeSelector\(page, 2\)/)
+  assert.match(source, /await launchCampaignMission\(page, 1\)/)
+  assert.doesNotMatch(source, /await openGame\(|Continue to Mission|Select Mission|newPage:|\.startMission\(/)
+  assert.match(source, /name: 'Panel Mission 1, completed'/)
+  const begin = source.indexOf('  await showDebugMissions(page)')
+  const end = source.indexOf('  await page.reload(', begin)
+  assert.ok(begin > 0 && end > begin)
+  const interruption = source.slice(begin, end)
+  assert.match(interruption, /debug: true, savable: false, completed: \[1\]/)
+  assert.doesNotMatch(interruption, /Save checkpoint|saveCheckpoint\(/)
+  assert.match(source, /not naturally earned campaign completion/)
+})
+
+test('checkpoint gate enters the final Save panel and returns before testing root Load availability', async () => {
+  const source = read('scripts/check-browser-checkpoint.mjs')
+  const begin = source.indexOf("  await menu.getByRole('button', { name: 'Save Game'")
+  const end = source.indexOf('  const saved = ', begin)
+  assert.ok(begin > 0 && end > begin)
+  let panel = 'root', committed = false
+  const events = [], menu = { getByRole(role, { name, exact }) {
+    assert.equal(role, 'button'); assert.equal(exact, true)
+    return { async click() {
+      events.push(name)
+      if (name === 'Save Game') { assert.equal(panel, 'root'); panel = 'save' }
+      else if (name === 'Save checkpoint') { assert.equal(panel, 'save'); committed = true }
+      else { assert.equal(name, 'Back'); assert.equal(panel, 'save'); panel = 'root' }
+    } }
+  } }
+  await vm.runInNewContext(`(async () => { ${source.slice(begin, end)} })()`, {
+    assert, menu, load: { async isEnabled() { assert.equal(panel, 'root'); return committed } },
+  })
+  assert.deepEqual(events, ['Save Game', 'Save checkpoint', 'Back'])
+})
