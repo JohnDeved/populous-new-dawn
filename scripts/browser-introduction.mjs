@@ -1,4 +1,5 @@
 import { prepareWorldInput } from './browser-world-input.mjs'
+import { popupRejectedSpace, pressObservedSpace } from './browser-space-ownership.mjs'
 
 // Observe the presentation state, then use the same Space key as the player.
 // Do not expose a test-only game control or call the scene controller directly.
@@ -14,7 +15,8 @@ export function introductionInputState(snapshot = false) {
     // Active and interruptible, but not already interrupted/completing.
     else if ((world.inputMask & 64) && (world.flyby.flags & 0x51) === 0x11) action = 'skip'
   }
-  return snapshot ? { action, paused: world?.paused ?? null } : action
+  return snapshot ? { action, paused: world?.paused ?? null, inputMask: world?.inputMask,
+    flybyFlags: world?.flyby.flags } : action
 }
 
 export async function skipIntroductionWithSpace(page, { timeout = 30000 } = {}) {
@@ -48,14 +50,17 @@ export async function skipIntroductionWithSpace(page, { timeout = 30000 } = {}) 
       remaining()
       if (before.action === 'ready') return 'ready'
       if (before.action !== 'skip') continue
-      await pressIntroductionSpace(page, { timeout: remaining() })
+      const delivery = await pressObservedSpace(page, { timeout: remaining() })
       remaining()
       const after = await page.evaluate(introductionInputState, true)
       remaining()
       // Observation and real keyboard delivery are not atomic. Fail the owning
       // episode if Space raced completion; do not guess a compensating pause toggle.
       if (after.paused !== before.paused) throw new Error('Introduction Space changed pause state; retry the episode')
-      if (after.action === 'skip') throw new Error('Introduction Space was not accepted; retry the episode')
+      if (after.action === 'skip') {
+        if (popupRejectedSpace(delivery) && after.inputMask === before.inputMask && after.flybyFlags === before.flybyFlags) continue
+        throw new Error('Introduction Space was not accepted; retry the episode')
+      }
       return 'skip'
     }
   }

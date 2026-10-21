@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
 import { createFlyby, flybyCommand, interruptFlyby } from '../app/flyby.ts'
-import { pressWorldSpace, setCampaignPopupOpen } from '../scripts/browser-world-input.mjs'
+import { pressWorldSpace, setCampaignPopupOpen, setWorldPaused } from '../scripts/browser-world-input.mjs'
 import { skipIntroductionWithSpace } from '../scripts/browser-introduction.mjs'
 import { skipPauseIntroduction } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
 import test from 'node:test'
@@ -15,7 +15,7 @@ import { pageEffect, pageNode, pageSource, evaluatePage } from './support/follow
 // Real Home effects + JSX callbacks, with a supplied document and scene boundary.
 // Browser propagation/default activation is checked separately in the rendered fixture.
 function fixture() {
-  const listeners=new Map(), calls={overview:0,skip:0,focus:0,cancel:0}, world={messages:createMessages(),paused:true,inputMask:0,flyby:{flags:0},outcome:{level:2},units:[],selected:[]}
+  const captures=new Set(), listeners=new Map(), calls={overview:0,skip:0,focus:0,cancel:0}, world={messages:createMessages(),paused:true,inputMask:0,flyby:{flags:0},outcome:{level:2},units:[],selected:[]}
   addMessage(world.messages,641,()=>0);world.messages.slots[0].flags|=2
   class Element { constructor(kind='outside'){this.kind=kind} closest(selector){return this.kind==='summary'&&selector.includes('.campaign-messages summary')?this:null} }
   const outside=new Element(), document={activeElement:outside,addEventListener(type,fn,capture){assert.equal(capture,true);listeners.set(type,fn)},removeEventListener(type){listeners.delete(type)}}
@@ -29,8 +29,8 @@ function fixture() {
   const close=pageEffect('return captureCampaignPopupKeys',bindings)()
   const auto=()=>pageEffect('const opened: number[]',bindings)()
   let sceneUp;evaluatePage(homePopupSources(new URL('..',import.meta.url).pathname).sceneUp,{window:{},scene:{keys:engine.current.keys,listen(_target,_type,fn){sceneUp=fn}}})
-  const key=(key,type='keydown',repeat=false,modifiers={})=>{let stopped=false,prevented=false;const event={key,code:key===' '?'Space':key,type,repeat,target:outside,...modifiers,preventDefault(){prevented=true},stopImmediatePropagation(){stopped=true},stopPropagation(){stopped=true}};listeners.get(type)?.(event);if(!stopped&&event.target===summary)rendered.props[type==='keydown'?'onKeyDown':'onKeyUp'](event);if(!stopped&&type==='keydown')game(event);if(!stopped&&type==='keyup')sceneUp(event);return {stopped,prevented}}
-  return {auto,key,close,world,calls,document,outside,details,engine,popup,summary,view,Element,element}
+  const key=(key,type='keydown',repeat=false,modifiers={})=>{let stopped=false,prevented=false;const event={key,code:key===' '?'Space':key,type,repeat,isTrusted:true,target:outside,...modifiers,get defaultPrevented(){return prevented},preventDefault(){prevented=true},stopImmediatePropagation(){stopped=true},stopPropagation(){stopped=true}};if(type==='keydown')for(const capture of captures)capture(event);listeners.get(type)?.(event);if(!stopped&&event.target===summary)rendered.props[type==='keydown'?'onKeyDown':'onKeyUp'](event);if(!stopped&&type==='keydown')game(event);if(!stopped&&type==='keyup')sceneUp(event);return {stopped,prevented}}
+  return {auto,key,close,world,calls,document,outside,details,engine,popup,summary,view,Element,element,captures}
 }
 
 test('actual Home auto-open captures Enter/Space/Escape and scene keys from outside focus before gameplay',()=>{
@@ -87,15 +87,18 @@ test('actual scene keyup cannot retain modifiers from exempt Tab/F8/F9 releases'
 // Playwright boundary adapter only: real Home summary/aside callbacks, popup
 // capture and gameplay handlers perform the mutations. Browser focus/default
 // activation is modeled here; only rendered QA can verify real DOM propagation.
-function inputPage(f) {
+function inputPage(f, { beforePress, afterPress } = {}) {
   f.document.querySelector = selector => { assert.equal(selector, '.loading-world'); return null }
   f.document.querySelectorAll = selector => {
     assert.equal(selector, '.campaign-messages details[open]')
     return f.details.open ? [f.details] : []
   }
   const click = () => f.element.children[0].props.onClick({ preventDefault() {}, currentTarget: { parentElement: f.details } })
+  const window = { testStore: { getWorld: () => f.world },
+    addEventListener(type, fn, capture) { assert.equal(type, 'keydown'); assert.equal(capture, true); f.captures.add(fn) },
+    removeEventListener(type, fn, capture) { assert.equal(type, 'keydown'); assert.equal(capture, true); f.captures.delete(fn) } }
   const evaluate = (fn, arg) => runInNewContext(`(${fn.toString()})(arg)`, {
-    window: { testStore: { getWorld: () => f.world } }, document: f.document, arg,
+    window, document: f.document, arg, queueMicrotask, setTimeout, clearTimeout,
   })
   return {
     evaluate: async (fn, arg) => evaluate(fn, arg),
@@ -115,9 +118,11 @@ function inputPage(f) {
     },
     keyboard: { press: async name => {
       assert.equal(name, 'Space')
+      beforePress?.()
       const target = f.document.activeElement
       const down = f.key(' ', 'keydown', false, { target }), up = f.key(' ', 'keyup', false, { target })
       if (target === f.summary && !down.prevented && !up.prevented) click()
+      afterPress?.()
     } },
   }
 }
@@ -142,7 +147,8 @@ test('world Space helper crosses actual Home popup/summary/aside ownership, neve
   } finally {f.close();globalThis.Element=old}
 })
 
-for(const [name,skip] of [['shared',skipIntroductionWithSpace],['recovery',skipPauseIntroduction]])
+for(const [name,skip,late] of [['shared',skipIntroductionWithSpace,false],['recovery',skipPauseIntroduction,false],
+  ['shared late owner',skipIntroductionWithSpace,true],['recovery late owner',skipPauseIntroduction,true]])
   test(`${name} popup-aware skip reaches actual Home and native flyby interruption without a pause toggle`,async()=>{
     const f=fixture(),old=globalThis.Element;globalThis.Element=f.Element
     try {
@@ -158,7 +164,15 @@ for(const [name,skip] of [['shared',skipIntroductionWithSpace],['recovery',skipP
       const before=structuredClone(f.world.messages),page=inputPage(f)
       await page.keyboard.press('Space')
       assert.equal(f.calls.skip,0,'Actual native popup retains key ownership before preparation')
+      let deliveries=0
+      const press=page.keyboard.press
+      page.keyboard.press=async key=>{
+        if(late && ++deliveries===1){f.world.messages.slots[0].flags|=2;f.auto()}
+        return press(key)
+      }
       await skip(page)
+      if(late)assert.equal(deliveries,2,'Only the witnessed popup-rejected first key may be retried')
+      assert.equal(f.captures.size,0)
       assert.equal(f.calls.skip,1)
       assert.equal(f.world.inputMask,0)
       assert.equal(f.world.flyby.flags&1,0)
@@ -166,3 +180,42 @@ for(const [name,skip] of [['shared',skipIntroductionWithSpace],['recovery',skipP
       assert.deepEqual(f.world.messages,before)
     } finally {f.close();globalThis.Element=old}
   })
+
+for (const paused of [true, false]) test(`late popup ownership retries only the rejected public pause=${paused} dispatch`, async () => {
+  const f=fixture(), old=globalThis.Element;globalThis.Element=f.Element
+  try {
+    f.world.paused=!paused; f.world.turn=7
+    let presses=0
+    const page=inputPage(f,{beforePress(){if(++presses===1)f.auto()}}), before=structuredClone(f.world.messages)
+    await setWorldPaused(page,paused)
+    assert.equal(presses,2,'First actual document popup capture rejects; second Home handler changes pause')
+    assert.equal(f.world.paused,paused)
+    assert.equal(f.world.turn,7)
+    // Auto-open clears its presentation flag, never acknowledges/deletes a record.
+    before.slots[0].flags &= ~2
+    assert.deepEqual(f.world.messages,before)
+    assert.equal(f.captures.size,0,'Passive dispatch witness must be removed')
+  } finally {f.close();globalThis.Element=old}
+})
+
+test('accepted Home pause is never repeated when a new popup opens after its key dispatch', async () => {
+  const f=fixture(),old=globalThis.Element;globalThis.Element=f.Element
+  try {
+    f.world.paused=false;let presses=0
+    const page=inputPage(f,{afterPress(){presses++;f.auto()}})
+    await setWorldPaused(page,true)
+    assert.equal(presses,1);assert.equal(f.world.paused,true)
+    assert.equal(f.details.open,true,'Accepted input does not consume a later authored notification')
+    assert.equal(f.captures.size,0)
+  } finally {f.close();globalThis.Element=old}
+})
+
+test('rejected keyboard delivery removes the passive witness and never retries', async () => {
+  const f=fixture(),old=globalThis.Element;globalThis.Element=f.Element
+  try {
+    f.world.paused=false;let presses=0;const failure=Error('supplied keyboard rejection')
+    const page=inputPage(f,{beforePress(){presses++;throw failure}})
+    await assert.rejects(setWorldPaused(page,true),error=>error===failure)
+    assert.equal(presses,1);assert.equal(f.world.paused,false);assert.equal(f.captures.size,0)
+  } finally {f.close();globalThis.Element=old}
+})

@@ -1,4 +1,5 @@
-import { pressIntroductionSpace } from '../browser-introduction.mjs'
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
+import { setWorldPaused } from '../browser-world-input.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -415,12 +416,13 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     const startup = await page.waitForFunction(m2StartupReady)
     report.startup = await startup.jsonValue(); await startup.dispose()
     assert.equal(report.startup.level, 2)
-    if (report.startup.action === 'skip') await action('Skip introduction', () => pressIntroductionSpace(page, { timeout: 10000 }))
+    if (report.startup.action === 'skip') await action('Skip introduction', () => skipIntroductionWithSpace(page, { timeout: 10000 }))
     await page.waitForFunction(() => {
       const w = window.testStore.getWorld()
       return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
     })
-    await action('Pause with Space', () => page.locator('.world-viewport').press('Space'))
+    await action('Pause with Space', () => setWorldPaused(page, true, { timeout: 10000 }))
+    assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true, 'Public Space must establish paused setup')
     await button('Select and focus shaman')
     const settle = () => page.waitForFunction(() => {
       const scene = window.testSceneRef.current
@@ -464,7 +466,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assertMeleeRouteReady(report.afterFocus)
     report.mapping = meleeAttackMapping(); save()
     await page.evaluate(installMeleeFrameObserver, report.mapping)
-    await action('Resume with Space', () => page.locator('.world-viewport').press('Space'))
+    await action('Resume with Space', () => setWorldPaused(page, false, { timeout: 10000 }))
     await page.waitForFunction(() => !window.testStore.getWorld().paused)
     report.afterResume = await page.evaluate(readMeleeRouteState); save()
     assertMeleeRouteReady(report.afterResume, false)
@@ -505,7 +507,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       assert.ok(crop.opaqueColors > 1, 'Same-frame canvas crop must not be blank')
     assert.equal(report.observation.done, true)
     report.acceptance = validateMeleeRunningObservation(report.observation, report.mapping)
-    await action('Pause with Space', () => page.locator('.world-viewport').press('Space'))
+    await action('Pause with Space', () => setWorldPaused(page, true, { timeout: 10000 }))
     await page.screenshot({ path: resolve(output, 'melee-attack-context.png') })
   } catch (error) {
     failure = error; report.failure = { message: String(error), stack: error.stack }; save()

@@ -1,4 +1,5 @@
-import { pressIntroductionSpace } from '../browser-introduction.mjs'
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
+import { setWorldPaused } from '../browser-world-input.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -34,18 +35,30 @@ export async function waitForConversionIntroduction(page, report) {
   })
   report.startup.beforeSkip = await page.evaluate(readConversionStartup)
   report.phase = 'skip-introduction'
-  await pressIntroductionSpace(page, { timeout: 12000 })
+  await skipIntroductionWithSpace(page, { timeout: 12000 })
   report.phase = 'wait-input-ready'
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
   report.startup.afterSkip = await page.evaluate(readConversionStartup)
 }
 
-// Resume only after the turn-zero observer has been armed.
+export async function pauseConversionBaseline(page, report) {
+  await setWorldPaused(page, true, { timeout: 12000 })
+  const baseline = report.pausedBaseline = await page.evaluate(readConversionStartup)
+  assert.equal(baseline.level, 3)
+  assert.ok(Number.isSafeInteger(baseline.turn) && baseline.turn >= 0)
+  assert.equal(baseline.inputMask, 0)
+  assert.equal(baseline.paused, true)
+  assert.equal(baseline.sameWorld, true)
+  assert.equal(baseline.casts, 0, 'Public setup must precede the first natural conversion')
+  assert.equal(baseline.stock, 1)
+}
+
+// Resume only after the measured paused-baseline observer has been armed.
 export async function resumeArmedConversion(page, report) {
   report.phase = 'public-resume'
   report.resume = { before: await page.evaluate(readConversionStartup), actions: [] }
   if (report.resume.before.paused) {
-    await page.locator('.world-viewport').press('Space')
+    await setWorldPaused(page, false, { timeout: 12000 })
     report.resume.actions.push('native-space-resume')
   }
   await page.waitForFunction(() => !window.testStore.getWorld().paused)
@@ -79,7 +92,7 @@ export function setupConversionCamera(codec) {
 
 // Logical records use the existing fixed-turn boundary; RAF owns only artwork
 // and rendered cleanup. The original callback is chained without driving time.
-export function installConversionObserver({ observationMs, armed = false }) {
+export function installConversionObserver({ observationMs, armed = false, baselineTurn = null }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld(),
     clock = scene.gameClock, originalTurn = clock.afterTurn,
     turnDescriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn'),
@@ -117,7 +130,7 @@ export function installConversionObserver({ observationMs, armed = false }) {
     if (!canvas.isConnected || document.visibilityState !== 'visible' || world.speed !== 1)
       throw Error('Conversion observation must remain connected, visible and at normal speed')
     if (result.phase === 'armed') {
-      if (world.turn !== 0 && !(logical && world.turn === 1))
+      if (world.turn !== baselineTurn && !(logical && world.turn === baselineTurn + 1))
         throw Error('Conversion armed phase missed an ordinary turn')
       if (logical && world.paused) throw Error('Conversion fixed turn occurred while paused')
     } else if (world.paused) throw Error('Conversion observation must remain running')
@@ -242,8 +255,8 @@ export function installConversionObserver({ observationMs, armed = false }) {
     },
   }
   try {
-    if (armed && (!world.paused || world.turn !== 0))
-      throw Error('Conversion must arm in the actual paused turn-zero world')
+    if (armed && (!world.paused || !Number.isSafeInteger(baselineTurn) || baselineTurn < 0 || world.turn !== baselineTurn))
+      throw Error('Conversion must arm at the unchanged measured paused baseline')
     if (world.spellCasts[2][17] !== 0 || world.effects.some(f => f.startConversionLink !== undefined))
       throw Error('Conversion observer must precede the first conversion')
     clock.afterTurn = turnWrapper
@@ -256,9 +269,10 @@ export function validateConversionObservation(observation, atlas) {
   assert.equal(observation.error, null)
   assert.equal(observation.restored, true)
   if (observation.armedAt) {
-    assert.deepEqual(observation.armedAt, { turn: 0, paused: true })
-    assert.equal(observation.firstRunningTurn, 1)
-    assert.equal(observation.observedTurns, observation.lastObservedTurn)
+    assert.equal(observation.armedAt.paused, true)
+    assert.ok(Number.isSafeInteger(observation.armedAt.turn) && observation.armedAt.turn >= 0)
+    assert.equal(observation.firstRunningTurn, observation.armedAt.turn + 1)
+    assert.equal(observation.observedTurns, observation.lastObservedTurn - observation.armedAt.turn)
   }
   assert.equal(observation.terminal.reason, 'rendered-expiry')
   assert.equal(observation.birth.turn, observation.bornTurn)
@@ -320,10 +334,10 @@ export async function closeConversionContext(context, report, started, now = () 
 
 export default async function spellConversion({ browser, url, output }) {
   const started = performance.now(), context = await browser.newContext({
-    viewport: { width: 899, height: 720 }, deviceScaleFactor: 1 }), page = await context.newPage(),
+    viewport: { width: 960, height: 720 }, deviceScaleFactor: 1 }), page = await context.newPage(),
     report = { status: 'running', capMs: conversionLimitMs, observationCapMs: conversionObservationMs,
       errors: [], limits: ['Public direct Mission 3 access, not earned campaign unlock.',
-        'Declared 899px narrow start invokes production turn-zero pause; resize to960px before public resume. No World pause assignment.',
+        'Native introduction skip and public Space establish a measured paused baseline before the first natural conversion. No turn-zero or width-dependent pause claim; no World pause assignment.',
         'One fixed diagnostic camera focus; no stock/entity injection, forced ticks or replaced render paths.',
         'Same-frame canvas crops are real browser pixels, not original-game framebuffer equivalence.',
         'Native depth/blend composition and wall-clock ratio remain existing adapters; no hardware performance claim.',
@@ -356,23 +370,21 @@ export default async function spellConversion({ browser, url, output }) {
     await page.getByRole('button', { name: 'Mission 3', exact: true }).click()
     report.phase = 'bind-game'
     await bindGame(page)
-    report.phase = 'verify-narrow-start'
-    report.narrowStart = await page.evaluate(readConversionStartup)
-    assert.equal(report.narrowStart.level, 3); assert.equal(report.narrowStart.turn, 0)
-    assert.equal(report.narrowStart.paused, true); assert.equal(report.narrowStart.casts, 0)
-    assert.equal(report.narrowStart.stock, 1)
-    await page.setViewportSize({ width: 960, height: 720 })
-    report.phase = 'arm-observer'
-    await page.evaluate(installConversionObserver, { observationMs: conversionObservationMs, armed: true })
-    await resumeArmedConversion(page, report)
     await waitForConversionIntroduction(page, report)
+    report.phase = 'public-paused-baseline'
+    await pauseConversionBaseline(page, report)
+    report.phase = 'arm-observer'
+    await page.evaluate(installConversionObserver, { observationMs: conversionObservationMs, armed: true,
+      baselineTurn: report.pausedBaseline.turn })
     report.phase = 'camera-setup'
     // Synchronous camera-only focus after public flyby/input completion. The
-    // armed observer already covers every turn; no extra Pause/Resume interval.
+    // armed observer remains on the same paused baseline throughout camera setup.
     report.setup = await page.evaluate(`(${setupConversionCamera.toString()})(${checkpointCodec.toString()})`)
     assert.equal(report.setup.level, 3); assert.equal(report.setup.casts, 0)
-    assert.equal(report.setup.stock, 1); assert.equal(report.setup.paused, false)
+    assert.equal(report.setup.stock, 1); assert.equal(report.setup.paused, true)
+    assert.equal(report.setup.turn, report.pausedBaseline.turn, 'Setup cannot advance the paused baseline')
     assert.equal(report.setup.speed, 1)
+    await resumeArmedConversion(page, report)
     report.phase = 'observe-conversion'
     await page.waitForFunction(() => window.__pndConversionObservation.result.done, null,
       { timeout: conversionObservationMs + 1000, polling: 50 })

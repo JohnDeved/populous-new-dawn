@@ -3,6 +3,7 @@ import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
 import { campaignPopupState, prepareWorldInput, pressWorldSpace, setCampaignPopupOpen } from '../scripts/browser-world-input.mjs'
+import { beginSpaceOwnership, endSpaceOwnership } from '../scripts/browser-space-ownership.mjs'
 import { skipIntroductionWithSpace } from '../scripts/browser-introduction.mjs'
 import { skipPauseIntroduction } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
 
@@ -25,7 +26,7 @@ function fixture({ intro = false, onFocus, onClose, swallow = false } = {}) {
   }
   const read = (fn, arg) => runInNewContext(`(${fn.toString()})(arg)`, { ...context, arg })
   const page = {
-    evaluate: async (fn, arg) => { calls.push(fn === campaignPopupState ? 'observe-popups' : 'observe-intro'); return read(fn, arg) },
+    evaluate: async (fn, arg) => { if ([beginSpaceOwnership, endSpaceOwnership].includes(fn)) return []; calls.push(fn === campaignPopupState ? 'observe-popups' : 'observe-intro'); return read(fn, arg) },
     waitForFunction: async (fn, arg) => ({ jsonValue: async () => read(fn, arg), dispose: async () => {} }),
     locator(selector) {
       if (selector === '.world-viewport') return { focus: async () => {
@@ -176,5 +177,5 @@ test('harness integration preserves strict state oracles and prepares each gamep
   const frames = read('tutorial-browser/gameplay-frames.mjs')
   assert.match(frames, /for \(const \{ phase, measured \} of schedule\)[\s\S]*?await prepareWorldInput\(page\)[\s\S]*?const point[\s\S]*?const before = await observe\(\)/)
   const helper = read('browser-world-input.mjs')
-  assert.doesNotMatch(helper, /\.open\s*=|store\.change|\.paused\s*=|keyboard\.press\('(Delete|Escape)'\)|getByRole\('button'/)
+  assert.doesNotMatch(helper, /\.open\s*=|store\.change|\.paused\s*=(?!=)|keyboard\.press\('(Delete|Escape)'\)|getByRole\('button'/)
 })

@@ -225,6 +225,9 @@ async function selectHudPreference(page, preference) {
   await button('Options').click()
   await button('Browser compatibility and help').click()
   const setting = page.getByRole('button', { name: /^HUD size : </ })
+  // A fresh profile displays Automatic without a stored preference. Exercise a
+  // real public change before the strict persistence witness, even for Automatic.
+  await chooseHudSize(page, preference === 'auto' ? '1' : 'auto')
   await chooseHudSize(page, preference)
   assert.equal(await setting.getAttribute('data-hud-size'), preference)
   await button('Back to Options').click()

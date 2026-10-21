@@ -81,3 +81,18 @@ test('HUD round-trip enters every native menu level and returns to play through 
   await change(scope, '2.5')
   assert.deepEqual(calls, ['Menu', 'Options', 'Browser compatibility and help', 'HUD size', 'Back to Options', 'Back', 'Continue Game', 'closed'])
 })
+
+test('compact persistence episode performs a public change even for default Automatic with absent storage', async () => {
+  const compact = readFileSync(new URL('../scripts/tutorial-browser/compact-message-layout.mjs', import.meta.url), 'utf8')
+  const body = compact.slice(compact.indexOf('async function selectHudPreference'), compact.indexOf('export async function checkCompactMessages'))
+  for (const target of ['auto', '4']) {
+    let value='auto', persisted=null, clicks=0
+    const row={getAttribute:async()=>value,click:async()=>{clicks++;value=sizes[(sizes.indexOf(value)+1)%sizes.length];persisted=value}}
+    const chooseReal=choose(assert,actual=>({toHaveAttribute:async(name,want)=>{assert.equal(actual,row);assert.equal(await row.getAttribute(name),want)}}))
+    const page={setViewportSize:async()=>{},getByRole:(_role,{name})=>name instanceof RegExp?row:{click:async()=>{}},
+      locator:()=>({waitFor:async()=>{}})}
+    const select=new Function('assert','chooseHudSize',body+'\nreturn selectHudPreference;')(assert,chooseReal)
+    await select(page,target)
+    assert.ok(clicks>0);assert.equal(value,target);assert.equal(persisted,target,'Unchanged storage assertion observes a real public persistence action')
+  }
+})

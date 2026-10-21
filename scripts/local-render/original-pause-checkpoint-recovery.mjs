@@ -1,5 +1,5 @@
 import { prepareWorldInput } from '../browser-world-input.mjs'
-import { pressIntroductionSpace } from '../browser-introduction.mjs'
+import { popupRejectedSpace, pressObservedSpace } from '../browser-space-ownership.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -33,7 +33,7 @@ export function pauseStartupReady(snapshot = false) {
   const world = window.testStore.getWorld()
   const action = !world.inputMask ? 'ready'
     : (world.inputMask & 64) && (world.flyby.flags & 0x51) === 0x11 ? 'skip' : false
-  return snapshot ? { action, paused: world.paused } : action
+  return snapshot ? { action, paused: world.paused, inputMask: world.inputMask, flybyFlags: world.flyby.flags } : action
 }
 
 // Keep the original recovery cap over observation and real input delivery. A
@@ -48,20 +48,27 @@ export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
     return budget
   }
   const run = async () => {
-    await prepareWorldInput(page, { timeout: remaining() })
-    remaining()
-    const before = await page.evaluate(pauseStartupReady, true)
-    remaining()
-    if (before.action === 'ready') return
-    if (before.action !== 'skip') throw new Error('Recovery introduction is no longer interruptible')
-    try { await pressIntroductionSpace(page, { timeout: remaining() }) }
-    catch (error) { deliveryError = error }
-    remaining()
-    const after = await page.evaluate(pauseStartupReady, true)
-    remaining()
-    if (after.paused !== before.paused) throw new Error('Recovery Space changed pause state; retry the episode')
-    if (deliveryError && after.action !== 'ready') throw deliveryError
-    if (after.action === 'skip') throw new Error('Recovery Space was not accepted; retry the episode')
+    for (;;) {
+      await prepareWorldInput(page, { timeout: remaining() })
+      remaining()
+      const before = await page.evaluate(pauseStartupReady, true)
+      remaining()
+      if (before.action === 'ready') return
+      if (before.action !== 'skip') throw new Error('Recovery introduction is no longer interruptible')
+      let delivery
+      try { delivery = await pressObservedSpace(page, { timeout: remaining() }) }
+      catch (error) { deliveryError = error }
+      remaining()
+      const after = await page.evaluate(pauseStartupReady, true)
+      remaining()
+      if (after.paused !== before.paused) throw new Error('Recovery Space changed pause state; retry the episode')
+      if (deliveryError && after.action !== 'ready') throw deliveryError
+      if (after.action === 'skip') {
+        if (!deliveryError && popupRejectedSpace(delivery) && after.inputMask === before.inputMask && after.flybyFlags === before.flybyFlags) continue
+        throw new Error('Recovery Space was not accepted; retry the episode')
+      }
+      return
+    }
   }
   try {
     await Promise.race([run(), new Promise((_, reject) => {
