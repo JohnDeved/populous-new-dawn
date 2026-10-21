@@ -10,8 +10,7 @@
 .panel { position: absolute; transform-origin: top left; pointer-events: auto; image-rendering: pixelated; }
 .tiles { position: absolute; inset: 0; pointer-events: none; }
 .tiles i { position: absolute; width: 16px; height: 16px; background: url('/original/campaign-popup-tiles.png') no-repeat; }
-.text, .panel[data-art-failed] .ok { background: #d39c49; border: 1px solid #62451b; color: #281b0b; }
-.fallback { position: absolute; padding: 0; margin: 0; }
+.text, .fallback { position: absolute; padding: 0; margin: 0; }
 .textLine { display: block; white-space: nowrap; }
 .line { display: inline-flex; vertical-align: top; align-items: flex-start; }
 .glyph { display: block; flex: none; background-repeat: no-repeat; }

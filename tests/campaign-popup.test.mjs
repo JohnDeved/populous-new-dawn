@@ -110,7 +110,9 @@ test('type1 keeps its sole OK action and the pending notification queue remains 
 })
 
 test('live page replaces only popup body, retains authored content/focus and owns native acknowledgment',()=>{
-  const page=source('app/page.tsx'),css=source('app/globals.css'),component=source('app/original-campaign-popup.tsx')
+  const page=source('app/page.tsx'),css=source('app/globals.css'),component=source('app/original-campaign-popup.tsx'),popupCss=source('app/original-campaign-popup.module.css')
+  assert.match(popupCss,/\.text, \.fallback \{ position: absolute;/)
+  assert.doesNotMatch(popupCss,/\.text, \.panel/)
   assert.match(page,/<OriginalCampaignPopup/)
   assert.match(page,/text=\{messageText\(message!\.stringId\)\}/)
   assert.match(page,/acknowledgeMessage\(world\.messages, slot\)/)

@@ -47,14 +47,30 @@ try {
  const open=async query=>{await page.goto(`http://127.0.0.1:4378/?${query??''}`);await page.locator('summary').first().waitFor();await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))}
  const capture=async name=>{
    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))
-   const value=await page.locator('[data-native-campaign-panel]').evaluate(panel=>{
+   const value=await page.locator('details[open] [data-native-campaign-panel]').evaluate(panel=>{
      const rect=node=>{const r=node.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom}}
      const buttons=[...panel.querySelectorAll('button')].map(button=>({label:button.getAttribute('aria-label'),...rect(button)}))
      return {viewport:[innerWidth,innerHeight],panel:rect(panel),font:panel.dataset.font,failed:panel.dataset.artFailed??false,buttons,glyphs:panel.querySelectorAll('[data-popup-glyph]').length,text:panel.querySelector('[data-campaign-text]').getAttribute('aria-label'),parentOpen:panel.closest('details').open,side:parseFloat(getComputedStyle(panel).getPropertyValue('--hud-scale'))*100}
    })
-   await page.screenshot({path:resolve(output,`${name}.png`)})
+   const shot=await page.screenshot({path:resolve(output,`${name}.png`)})
+   const glyphPixels=await page.evaluate(async data=>{
+     const text=document.querySelector('[data-campaign-text]'),glyphs=[...text.querySelectorAll('[data-popup-glyph]')].slice(0,12)
+     const textBox=text.getBoundingClientRect(),panel=text.closest('[data-native-campaign-panel]').getBoundingClientRect()
+     const contained=textBox.left>=panel.left&&textBox.top>=panel.top&&textBox.right<=panel.right&&textBox.bottom<=panel.bottom
+     if(getComputedStyle(text).position!=='absolute'||!contained)return {positioned:false,opaque:0,mismatches:-1}
+     if(![[640,480],[900,300]].some(([w,h])=>w===innerWidth&&h===innerHeight))return {positioned:true,pixelCheck:'not sampled at scaled dimensions'}
+     const read=async src=>{const image=new Image();image.src=src;await image.decode();const c=document.createElement('canvas');c.width=image.width;c.height=image.height;const context=c.getContext('2d',{willReadFrequently:true});context.drawImage(image,0,0);return context}
+     const screenshot=await read(data),url=getComputedStyle(glyphs[0]).backgroundImage.match(/url\(["']?(.*?)["']?\)/)[1],source=await read(url)
+     let opaque=0,mismatches=0
+     for(const glyph of glyphs){const style=getComputedStyle(glyph),box=glyph.getBoundingClientRect(),w=parseFloat(style.width),h=parseFloat(style.height),sx=-parseFloat(style.backgroundPositionX),sy=-parseFloat(style.backgroundPositionY),pixels=source.getImageData(sx,sy,w,h).data,actual=screenshot.getImageData(Math.round(box.left),Math.round(box.top),w,h).data
+       if(box.width!==w||box.height!==h)return {positioned:true,pixelCheck:'not sampled at scaled dimensions'}
+       for(let i=0;i<pixels.length;i+=4)if(pixels[i+3]===255){opaque++;if(pixels[i]!==actual[i]||pixels[i+1]!==actual[i+1]||pixels[i+2]!==actual[i+2])mismatches++}
+     }
+     return {positioned:true,opaque,mismatches}
+   },`data:image/png;base64,${shot.toString('base64')}`)
+   value.glyphPixels=glyphPixels
    receipt.observations.push({name,...value});save()
-   assert.equal(value.failed,false);assert.ok(value.glyphs>100)
+   assert.equal(value.failed,false);assert.ok(value.glyphs>100);assert.equal(glyphPixels.positioned,true,'Body text is positioned above the panel tiles');if('mismatches' in glyphPixels){assert.ok(glyphPixels.opaque>40);assert.equal(glyphPixels.mismatches,0,'Visible body glyph pixels equal the original atlas, not merely present DOM')}
    assert.ok(value.panel.x>=value.side-1 && value.panel.y>=0 && value.panel.right<=value.viewport[0] && value.panel.bottom<=value.viewport[1])
    assert.ok(Math.abs(value.panel.x+(value.panel.width/2)-(value.side+(value.viewport[0]-value.side)/2))<=1)
    for(const button of value.buttons)assert.ok(button.x>=value.panel.x&&button.right<=value.panel.right&&button.bottom<=value.panel.bottom)
@@ -90,6 +106,7 @@ try {
    await page.locator('details[data-message-serial="1"] summary').click()
    assert.equal(await page.locator('details[open]').count(),1)
    assert.equal(await page.locator('details[open]').getAttribute('data-message-serial'),'1')
+   await page.screenshot({path:resolve(output,`ownership-${query.replaceAll('&','-')}-second.png`)})
    await page.locator('details[data-message-serial="0"] summary').click()
    assert.equal(await page.locator('details[open]').getAttribute('data-message-serial'),'0')
    let current=await page.evaluate(()=>window.popupFixture.read())
@@ -145,7 +162,7 @@ try {
  await page.route('**/original/*.png',route=>route.abort())
  for(const [width,height]of [[640,480],[900,300]]){
    await page.setViewportSize({width,height});await open();await page.locator('[data-art-failed]').waitFor()
-   await page.screenshot({path:resolve(output,`art-failure-recovery-${width}x${height}.png`)})
+   const fallbackShot=await page.screenshot({path:resolve(output,`art-failure-recovery-${width}x${height}.png`)})
    const text=page.locator('[data-campaign-text]')
    assert.equal(await text.textContent(),await text.getAttribute('aria-label'))
    const fallback=await text.evaluate(n=>{const range=document.createRange();range.selectNodeContents(n);return{rects:[...range.getClientRects()].map(r=>({top:r.top,bottom:r.bottom,right:r.right})),box:n.getBoundingClientRect().toJSON(),button:document.querySelector('[aria-label="Acknowledge campaign message"]').getBoundingClientRect().toJSON()}})
@@ -153,6 +170,13 @@ try {
      assert.ok(rect.bottom<=fallback.button.top && rect.right<=fallback.box.right+.5,'Recovery text stays clear of controls')
      if(index)assert.ok(rect.top>=fallback.rects[index-1].bottom,'Recovery text lines do not overlap')
    }
+   const ink=await page.evaluate(async data=>{
+     const image=new Image();image.src=data;await image.decode();const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;const context=canvas.getContext('2d',{willReadFrequently:true});context.drawImage(image,0,0)
+     const range=document.createRange();range.selectNodeContents(document.querySelector('[data-campaign-text]'))
+     return [...range.getClientRects()].map(rect=>{const pixels=context.getImageData(Math.floor(rect.left),Math.floor(rect.top),Math.ceil(rect.width),Math.ceil(rect.height)).data;let count=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i]<100&&pixels[i+1]<100&&pixels[i+2]<100)count++;return count})
+   },`data:image/png;base64,${fallbackShot.toString('base64')}`)
+   assert.ok(ink.length>0&&ink.every(count=>count>10),'Every fallback text line paints visible dark ink, not just DOM text')
+   receipt.checks.push({fallbackViewport:[width,height],visibleInkPixelsPerLine:ink})
    await page.getByRole('button',{name:'Acknowledge campaign message'}).click()
    assert.equal(await page.locator('details[open]').count(),0)
  }
