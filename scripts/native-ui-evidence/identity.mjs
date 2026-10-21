@@ -65,6 +65,17 @@ export function candidateDependency(root, name) {
   assert.ok(canonical.startsWith(realpathSync(resolve(root, 'node_modules')) + sep), 'Dependency escaped candidate install')
   return pathToFileURL(canonical).href
 }
+export async function candidateDependencyExport(root, name, exportName) {
+  const namespace = await import(candidateDependency(root, name))
+  const named = namespace[exportName], commonJs = namespace.default?.[exportName]
+  assert.ok(named !== undefined || commonJs !== undefined, `Missing candidate dependency export: ${name}.${exportName}`)
+  if (named !== undefined && commonJs !== undefined) {
+    assert.equal(named, commonJs, `Ambiguous candidate dependency export: ${name}.${exportName}`)
+  }
+  const value = named !== undefined ? named : commonJs
+  assert.ok(value !== null && ['object', 'function'].includes(typeof value), `Invalid candidate dependency export: ${name}.${exportName}`)
+  return value
+}
 export function homeBuildOptions(candidateRoot, output, revision, plugins) {
   fullSha(revision)
   const fixture = resolve(candidateRoot, 'scripts/tutorial-browser/fixture')

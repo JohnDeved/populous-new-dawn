@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { readdirSync, lstatSync, symlinkSync, accessSync, constants, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
-import { candidateDependency, manualIdentity, separateRoots, git, sha256 } from './identity.mjs'
+import { candidateDependency, candidateDependencyExport, manualIdentity, separateRoots, git, sha256 } from './identity.mjs'
 import { runNativeUiEvidence } from './adapter.mjs'
 const [candidate, infrastructure, output, dist] = process.argv.slice(2)
 const { candidateRoot, infrastructureRoot } = separateRoots(candidate, infrastructure)
@@ -11,7 +11,8 @@ const identity = manualIdentity(process.env)
 assert.equal(git(candidateRoot, 'rev-parse', 'HEAD'), identity.candidateSha)
 assert.equal(git(infrastructureRoot, 'rev-parse', 'HEAD'), identity.workflowSha)
 const { preview } = await import(candidateDependency(candidateRoot, 'vite'))
-const { chromium } = await import(candidateDependency(candidateRoot, '@playwright/test'))
+const chromium = await candidateDependencyExport(candidateRoot, '@playwright/test', 'chromium')
+assert.equal(typeof chromium?.launch, 'function', 'Candidate Playwright chromium must expose launch')
 const config = browserConfiguration() // Fixed official sandboxed Chrome; no path/flag override.
 accessSync(config.browserPath, constants.X_OK)
 const browserIdentity = { ...config, sha256: sha256(config.browserPath),

@@ -8,7 +8,7 @@ import { resolve, dirname } from 'node:path'
 import vm from 'node:vm'
 import yaml from 'js-yaml'
 import { manualIdentity, separateRoots, sourceManifest, verifyManifest, homeBuildOptions,
-  candidateDependency, infrastructureInput } from '../scripts/native-ui-evidence/identity.mjs'
+  candidateDependency, candidateDependencyExport, infrastructureInput } from '../scripts/native-ui-evidence/identity.mjs'
 import { episodes, limits, acceptEpisode, acceptSeries, boundedEpisode } from '../scripts/native-ui-evidence/policy.mjs'
 import { artifactInventory, ownBrowser } from '../scripts/native-ui-evidence/browser-owner.mjs'
 import { supervise } from '../scripts/native-ui-evidence/supervise.mjs'
@@ -87,6 +87,46 @@ test('dependency resolution uses only the candidate installation and rejects esc
   put(root, 'outside/package.json', '{"name":"escape","main":"index.js"}'); put(root, 'outside/index.js', 'module.exports = 2')
   symlinkSync(resolve(root, 'outside'), resolve(candidate, 'node_modules/escape'))
   assert.throws(() => candidateDependency(candidate, 'escape'), /escaped/)
+})
+test('candidate dependency exports accept actual CJS default and ESM named namespaces without changing roots', async t => {
+  const root = fixture(t), candidate = resolve(root, 'candidate')
+  put(candidate, 'package.json', '{"type":"module"}')
+  put(candidate, 'node_modules/common/package.json', '{"name":"common","main":"index.cjs"}')
+  // Computed keys reproduce Playwright: Node cannot synthesize a chromium named export.
+  put(candidate, 'node_modules/common/index.cjs', "module.exports = Object.fromEntries([['chromium', { launch() {} }]])")
+  const commonNamespace = await import(candidateDependency(candidate, 'common'))
+  assert.equal(commonNamespace.chromium, undefined)
+  assert.equal(await candidateDependencyExport(candidate, 'common', 'chromium'), commonNamespace.default.chromium)
+  put(candidate, 'node_modules/module/package.json', '{"name":"module","type":"module","main":"index.js"}')
+  put(candidate, 'node_modules/module/index.js', 'export const chromium = { launch() {} }; export default { chromium }')
+  const moduleNamespace = await import(candidateDependency(candidate, 'module'))
+  assert.equal(await candidateDependencyExport(candidate, 'module', 'chromium'), moduleNamespace.chromium)
+})
+test('candidate dependency exports reject missing, invalid, ambiguous and escaped namespaces', async t => {
+  const root = fixture(t), candidate = resolve(root, 'candidate')
+  put(candidate, 'package.json', '{"type":"module"}')
+  for (const [name, code, error] of [
+    ['missing', 'export default {}', /Missing/],
+    ['null', 'export const chromium = null', /Invalid/],
+    ['primitive', 'export default { chromium: 7 }', /Invalid/],
+    ['ambiguous', 'export const chromium = {}; export default { chromium: {} }', /Ambiguous/],
+  ]) {
+    put(candidate, `node_modules/${name}/package.json`, JSON.stringify({ name, type: 'module', main: 'index.js' }))
+    put(candidate, `node_modules/${name}/index.js`, code)
+    await assert.rejects(candidateDependencyExport(candidate, name, 'chromium'), error)
+  }
+  put(root, 'outside/package.json', '{"name":"escape","main":"index.js"}')
+  put(root, 'outside/index.js', 'module.exports = { chromium: { launch() {} } }')
+  symlinkSync(resolve(root, 'outside'), resolve(candidate, 'node_modules/escape'))
+  await assert.rejects(candidateDependencyExport(candidate, 'escape', 'chromium'), /escaped/)
+})
+test('installed candidate Playwright import exposes chromium without launching any browser', async () => {
+  const chromium = await candidateDependencyExport(resolve(import.meta.dirname, '..'), '@playwright/test', 'chromium')
+  assert.equal(typeof chromium.launch, 'function')
+  assert.equal(chromium.name(), 'chromium')
+  const worker = read('scripts/native-ui-evidence/browser-worker.mjs')
+  assert.match(worker, /candidateDependencyExport\(candidateRoot, '@playwright\/test', 'chromium'\)/)
+  assert.match(worker, /typeof chromium\?\.launch, 'function'/)
 })
 test('trusted manifest includes adapter, new episodes, Chrome policy and exact workflow', () => {
   for (const path of ['scripts/native-ui-evidence/adapter.mjs', 'scripts/native-ui-evidence/options-storage-notice-style.mjs',
