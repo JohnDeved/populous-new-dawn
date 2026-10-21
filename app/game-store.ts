@@ -1,3 +1,4 @@
+import { routeNoticeCell } from './route-notice.ts'
 import { validTornadoAppearance } from './tornado-appearance.ts'
 import { applySpellTestCheat, CHEAT_SAVE_NOTICE, type SpellTestCheat } from './spell-test-cheats.ts'
 import { worldEnvironment } from './world-environment.ts'
@@ -31,6 +32,11 @@ export type CheckpointReadStatus =
 // established function name, this is not an older-save upgrader. Shipping store
 // boundaries require the current envelope and scalable schema before calling it.
 export function migrateCheckpoint(world: World) {
+  // Normalize only the cloned optional presentation anchors. Keep unknown data
+  // unknown instead of turning malformed saved integers into plausible map cells.
+  if (routeNoticeCell(world.lastOrderCell) === undefined) delete world.lastOrderCell
+  if (world.routeNotice && routeNoticeCell(world.routeNotice.cell) === undefined)
+    delete world.routeNotice.cell
   restoreCapacityPolicy(world)
   for (const unit of world.units) discardInvalidResident(world, unit)
   restoreSecondaryEffects(world)

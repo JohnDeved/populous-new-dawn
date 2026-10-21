@@ -129,7 +129,6 @@ export default function Home() {
     update = store.update
   const completedMissions = store.getCompletedMissions()
   const spellRoster = spellHudRoster(world)
-  const { routeNotice } = world
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
   const [sound, setSound] = useState(false)
   const [audioPreferences, setAudioPreferences] =
@@ -1155,27 +1154,13 @@ export default function Home() {
             )
           })}
       </aside>
-      <div className="game-status">
-        {ready && routeNotice && (
-          <div
-            key={routeNotice.serial}
-            className="world-message route-notice"
-            style={{
-              visibility: menu ? 'hidden' : undefined,
-              animationPlayState: menu || selectorOpen || cheatsOpen ? 'paused' : undefined,
-            }}
-            role="status"
-            onAnimationEnd={() =>
-              store.change(w => {
-                if (w === world && w.routeNotice === routeNotice) w.routeNotice = null
-              })
-            }
-          >
-            <span>✧</span>
-            {ROUTE_FAILURE_TEXT}
-          </div>
+      <p className="game-a11y-status" role="status" aria-atomic="true" data-route-announcement>
+        {ready && world.routeNotice && (
+          <span key={world.routeNotice.serial}>{ROUTE_FAILURE_TEXT}</span>
         )}
-        {ready && !routeNotice && world.messageUntil > world.time && (
+      </p>
+      <div className="game-status">
+        {ready && !world.routeNotice && world.messageUntil > world.time && (
           <p className="game-a11y-status" role="status">
             {world.message}
           </p>
