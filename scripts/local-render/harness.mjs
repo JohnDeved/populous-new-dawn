@@ -368,14 +368,22 @@ export async function runLocalBrowser(options, scenario) {
         throw Error('New task profile unexpectedly contains a checkpoint')
       checkpointIdentityVerified = true
     }
-    const { bindGame, showAllMissions } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
-    const openMission = async mission => {
-      const mainMenu = page.getByRole('dialog', { name: 'Main menu', exact: true })
-      if (await mainMenu.isVisible()) await openCampaignFromMainMenu(page)
-      const button = page.getByRole('button', { name: `Mission ${mission}`, exact: true })
-      if (!(await button.isVisible())) await showAllMissions(page)
-      await button.focus()
-      await page.keyboard.press('Enter')
+    const { bindGame, showAllMissions, prepareCampaignFixture, launchCampaignMission } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
+    // Diagnostic by default. Save/progression scenarios must explicitly choose
+    // native entry; a supplied availability fixture is allowed only on empty storage.
+    const openMission = async (mission, { campaignFixture = false, nativeCampaign = false } = {}) => {
+      if (campaignFixture && nativeCampaign) throw new Error('Choose one campaign entry mode')
+      if (campaignFixture || nativeCampaign) {
+        if (campaignFixture) await prepareCampaignFixture(page, mission)
+        await launchCampaignMission(page, mission)
+      } else {
+        const mainMenu = page.getByRole('dialog', { name: 'Main menu', exact: true })
+        if (await mainMenu.isVisible()) await openCampaignFromMainMenu(page)
+        const button = page.getByRole('button', { name: `Mission ${mission}`, exact: true })
+        if (!(await button.isVisible())) await showAllMissions(page)
+        await button.focus()
+        await page.keyboard.press('Enter')
+      }
       await bindGame(page)
       await skipIntroductionWithSpace(page, { timeout: 45000 })
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)

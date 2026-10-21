@@ -1,8 +1,8 @@
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
-import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { bindGame as waitForScene, openCampaignGame, launchCampaignMission, showDebugMissions } from './browser-game.mjs'
+import { continueThroughNativeSelector } from './browser-result-navigation.mjs'
 import { waitForCheckpointReadback } from './checkpoint-readback.mjs'
 
 const missionTwoMessage =
@@ -26,22 +26,6 @@ async function assertMissionTwoMessage(page) {
     return { top, bottom, height, viewport: innerHeight }
   })
   assert.ok(popup.height > 40 && popup.top >= 0 && popup.bottom <= popup.viewport, popup)
-}
-
-async function waitForScene(page) {
-  await page.waitForSelector('.world-viewport canvas')
-  await page.waitForFunction(() => {
-    const main = document.querySelector('main')
-    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
-    for (; fiber; fiber = fiber.return) {
-      for (let hook = fiber.memoizedState; hook; hook = hook.next) {
-        if (hook.memoizedState?.current?.unitMeshes)
-          globalThis.testScene = hook.memoizedState.current
-        if (hook.memoizedState?.getWorld) globalThis.testStore = hook.memoizedState
-      }
-    }
-    return !!globalThis.testScene
-  })
 }
 
 async function assertMatakSwarm(page) {
@@ -214,7 +198,9 @@ async function assertMatakRaid(page) {
 
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
-  const { page, errors } = await openGame(browser)
+  // Mission 1 is initially available without any supplied profile. Existing
+  // model-driven combat/outcome setup below is diagnostic, not an earned-play proof.
+  const { page, errors } = await openCampaignGame(browser)
   assert.equal(await page.getByRole('dialog', { name: 'Start game' }).count(), 0)
   const missionOne = await page.evaluate(() => ({
     height: globalThis.testScene.world.land.heights[0],
@@ -233,7 +219,7 @@ try {
     tick(world, 1 / 12)
     globalThis.testStore.update()
   })
-  await page.getByRole('button', { name: 'Continue to Mission 2', exact: false }).click()
+  await continueThroughNativeSelector(page, 2)
   await waitForScene(page)
   await page.waitForFunction(() => globalThis.testScene.world === globalThis.testStore.getWorld())
   const original = await page.evaluate(() => ({
@@ -378,7 +364,9 @@ try {
     sound(scene.world, 0x37, scene.world.units[0])
   })
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  const load = page.getByRole('button', { name: 'Load checkpoint', exact: true })
+  const menu = page.locator('dialog[data-original-pause-menu]')
+  await menu.waitFor({ state: 'visible' })
+  const load = menu.getByRole('button', { name: 'Load Game', exact: true })
   assert.equal(await load.isDisabled(), true)
   await page.evaluate(() => {
     const { world } = globalThis.testScene,
@@ -389,7 +377,9 @@ try {
     unit.hp = 23
     building.burn = { remaining: 127, soundPlaying: true }
   })
-  await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+  await menu.getByRole('button', { name: 'Save Game', exact: true }).click()
+  await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+  await menu.getByRole('button', { name: 'Back', exact: true }).click()
   assert.equal(await load.isEnabled(), true)
   const saved = await page.evaluate(() => ({
     level: globalThis.testScene.world.outcome.level,
@@ -423,23 +413,28 @@ try {
   assert.equal(await page.getByRole('button', { name: 'Load Game', exact: true }).evaluate(button => button === document.activeElement), true)
   await openCampaignFromMainMenu(page)
   await page.getByRole('button', { name: 'Start Mission 2', exact: true }).waitFor()
-  assert.match(
-    await page.getByRole('button', { name: 'Select Mission 1', exact: true }).textContent(),
-    /✓/
-  )
+  await page.getByRole('button', { name: 'Panel Mission 1, completed', exact: true }).waitFor()
   assert.equal(await page.locator('.world-viewport canvas').count(), 0, 'no hidden fresh scene')
-  const missionFour = page.getByRole('button', { name: 'Mission 4', exact: true })
   assert.equal(await page.getByRole('dialog', { name: 'Start game' }).evaluate(dialog => dialog.matches(':modal')), true)
   assert.equal(
-    await page.getByRole('button', { name: 'Load Game', exact: true }).evaluate(button => button === document.activeElement),
+    await page.getByRole('button', { name: 'Panel Mission 2', exact: true }).evaluate(button => button === document.activeElement),
     true
   )
-  await showAllMissions(page)
+  // Explicit non-awarding diagnostic interruption. It must not replace the
+  // genuine Mission 2 checkpoint or make this Mission 4 launch savable.
+  await showDebugMissions(page)
+  const missionFour = page.getByRole('dialog', { name: 'Debug missions', exact: true })
+    .getByRole('button', { name: 'Mission 4', exact: true })
   await missionFour.focus()
   assert.equal(await missionFour.evaluate(button => button === document.activeElement), true)
   await page.keyboard.press('Enter')
   await waitForScene(page)
   await page.waitForFunction(() => globalThis.testScene.world.outcome.level === 4)
+  assert.deepEqual(await page.evaluate(() => ({
+    debug: globalThis.testStore.isDebugLaunch(),
+    savable: globalThis.testStore.canSave(),
+    completed: globalThis.testStore.getCompletedMissions(),
+  })), { debug: true, savable: false, completed: [1] })
 
   await page.reload({ waitUntil: 'networkidle' })
   await startup.waitFor()
@@ -494,8 +489,7 @@ try {
   await page.reload({ waitUntil: 'networkidle' })
   await openCampaignFromMainMenu(page)
   await page.getByRole('dialog', { name: 'Start game' }).waitFor()
-  await page.getByRole('button', { name: 'Select Mission 1', exact: true }).click()
-  await page.getByRole('button', { name: 'Replay Mission 1', exact: true }).click()
+  await launchCampaignMission(page, 1)
   await waitForScene(page)
   const fresh = await page.evaluate(() => ({
     turn: globalThis.testScene.world.turn,
@@ -514,7 +508,7 @@ try {
       },
     })
   })
-  const blocked = await openGame({ newPage: () => context.newPage() })
+  const blocked = await openCampaignGame({ newContext: async () => context })
   await waitForScene(blocked.page)
   await blocked.page.evaluate(async () => {
     const world = globalThis.testStore.getWorld(),
@@ -529,6 +523,7 @@ try {
     [1]
   )
   await blocked.page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await blocked.page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await blocked.page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await blocked.page
     .getByRole('status')
@@ -536,7 +531,7 @@ try {
     .waitFor()
   assert.deepEqual(blocked.errors, [])
   await context.close()
-  console.log('PASS: startup persists campaign completion and restores Mission 2')
+  console.log('PASS: native-entry diagnostic checkpoint persists supplied M1 outcome and restores Mission 2; not naturally earned campaign completion')
 } finally {
   await browser.close()
 }
