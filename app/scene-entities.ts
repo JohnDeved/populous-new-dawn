@@ -768,6 +768,11 @@ export function updateBuildingsFrame(scene: GameScene) {
     if (Number.isNaN(id) || !ids.has(id)) {
       mesh.removeFromParent()
       mesh.geometry.dispose()
+      // Unprepared plans still borrow the cursor material. RenderView.prepare
+      // gives prepared plans their own clones, but the atlas remains shared.
+      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+      for (const material of new Set(materials))
+        if (material !== scene.cursor.material) material.dispose()
       scene.plans.delete(id)
     }
   let buildings = planFrameViews.get(scene)
