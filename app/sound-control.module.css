@@ -3,7 +3,7 @@
 .control { --sound-frame: url('/original/hud-button.png'); position: relative; display: inline-flex; flex: none; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 0; background: none; image-rendering: pixelated; }
 /* 821 normal, 830 hover (selected filename), 839 pressed (hover filename). */
 .control:hover:not(:disabled), .control:focus-visible { --sound-frame: url('/original/hud-button-selected.png'); }
-.control[aria-pressed='true'], .control:active:not(:disabled) { --sound-frame: url('/original/hud-button-hover.png'); }
+.control[data-sound-enabled='true'], .control:active:not(:disabled) { --sound-frame: url('/original/hud-button-hover.png'); }
 .control:focus-visible { outline: 1px solid #fff7bb; outline-offset: 1px; }
 .control:disabled { opacity: .65; cursor: wait; }
 .frame { position: absolute; inset: 0; pointer-events: none; }

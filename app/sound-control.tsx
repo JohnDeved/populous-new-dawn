@@ -49,11 +49,11 @@ export function SoundControl({
       type="button"
       className={styles.control}
       data-sound-control
+      data-sound-enabled={sound}
       data-art-ready={artReady}
       style={{ width, height }}
       aria-label={label}
       title={label}
-      aria-pressed={sound}
       onClick={onToggle}
       disabled={pending}
       aria-busy={pending}
