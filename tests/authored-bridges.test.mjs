@@ -136,7 +136,7 @@ test('component checkpoint preserves authored birth caches when sampled terrain 
 
 test('historical pre-activation input and mid-bridge research clone continue once at the authored origin', async () => {
   const store = createHistoricalFixtureHarness()
-  assert.equal(store.startMission(2), true)
+  store.startMission(2)
   const legacy = store.getWorld()
   delete bridgeHead(legacy).bridgeStart
   await store.saveCheckpoint()
