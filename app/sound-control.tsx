@@ -43,7 +43,8 @@ export function SoundControl({
     }
   }, [])
   const label = sound ? 'Mute sound' : 'Enable sound'
-  const text = pending ? labels.pending : sound ? labels.on : labels.off
+  let text = sound ? labels.on : labels.off
+  if (pending) text = labels.pending
   return (
     <button
       type="button"
