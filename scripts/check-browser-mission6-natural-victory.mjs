@@ -1,5 +1,5 @@
 import { skipIntroductionWithSpace } from './browser-introduction.mjs'
-import { showAllMissions } from './browser-game.mjs'
+import { prepareCampaignFixture, launchCampaignMission } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
@@ -398,9 +398,8 @@ try {
     waitUntil: 'domcontentloaded',
     timeout: 120_000,
   })
-  await showAllMissions(page)
-  await page.getByRole('button', { name: 'Mission 6', exact: true }).focus()
-  await page.keyboard.press('Enter')
+  await prepareCampaignFixture(page, 6)
+  await launchCampaignMission(page, 6)
   await bindGame(page)
   await page.waitForFunction(
     () => window.testScene.world.flyby.flags & 1 || !window.testScene.world.inputMask
