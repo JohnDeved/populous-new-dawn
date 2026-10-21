@@ -5,6 +5,10 @@ preserves the complete 25-mission branch contract, completion/availability disti
 terminal boundary, original disassembly, and static test oracles. The pure model is
 unwired; profile migration and live selector/result continuation remain separate.
 
+[Original terminal-result navigation](research/result-navigation/README.md) traces
+the two-stage Space flow through HUD hiding/pause and the verified level-54 selector
+sentinel. Static contract only; existing result actions are not removed or activated.
+
 [Result statistic producers](research/result-statistics/README.md) traces all ten
 original result rows to bounded increment/reset owners, identifies the two
 knowledge deduplication masks, and records browser ownership and unresolved
