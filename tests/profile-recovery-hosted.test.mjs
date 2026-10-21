@@ -105,7 +105,24 @@ test('recovery and M10 retain independent bounded dispatch without M2 fixtures',
   assert.match(scenario, /receipt.browserPath \?\? receipt.launch.executablePath/)
   assert.match(scenario, /await context.close\(\)/)
   assert.match(scenario, /reflect.apply|Reflect.apply/)
-  assert.match(scenario, /Startup\/restore\/load must preserve every stored record/)
+  // Bind each storage boundary to its actual assertions, not an obsolete
+  // combined status message or a blanket prohibition on selector writes.
+  const boundaries = [
+    ['restore has no writes', /assert\.deepEqual\(entry\.startup\.writes, \[\]\)/],
+    ['restore preserves complete records', /entry\.afterRestore = await page\.evaluate\(storedRecords\)\s+assert\.deepEqual\(entry\.afterRestore, entry\.beforeStartup,/],
+    ['selector observes its input profile', /entry\.profileBeforeSelector = await page\.evaluate\(storedRecoveryProfile\)/],
+    ['selector preserves all non-profile records', /assert\.deepEqual\(entry\.afterSelector\.filter\(record => record\.key !== 'profile'\),\s+entry\.beforeStartup\.filter\(record => record\.key !== 'profile'\),/],
+    ['selector checks the exact independent profile transition', /entry\.profileAfterSelector = await page\.evaluate\(storedRecoveryProfile\)\s+assertRecoverySelectorProfile\(entry\.profileBeforeSelector, entry\.profileAfterSelector, sessionCompleted\)/],
+    ['selector only permits profile puts', /const writesBeforeLoad = await page\.evaluate\(\(\) => \[\.\.\.window\.recoveryStorageWrites\]\)\s+assert\.ok\(writesBeforeLoad\.every\(write => write\.method === 'put' && write\.key === 'profile'\),/],
+    ['Load preserves complete post-selector records', /entry\.afterRestoreAndLoad = await page\.evaluate\(storedRecords\)\s+assert\.deepEqual\(entry\.afterRestoreAndLoad, entry\.afterSelector,/],
+    ['Load has no additional writes', /assert\.deepEqual\(await page\.evaluate\(\(\) => window\.recoveryStorageWrites\), writesBeforeLoad\)/],
+  ]
+  let previous = -1
+  for (const [boundary, pattern] of boundaries) {
+    const match = pattern.exec(scenario)
+    assert.ok(match && match.index > previous, `Missing or reordered storage boundary: ${boundary}`)
+    previous = match.index
+  }
 })
 
 test('hosted readiness uses exact production eligibility without a served source module', async () => {

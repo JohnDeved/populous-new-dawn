@@ -235,6 +235,7 @@ async function vehicleAppearance(page, id, apparent) {
 
 async function checkpoint(page, expected) {
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   const persisted = await waitForCheckpointReadback(() => page.evaluate(async expected => {
     const db = await new Promise((resolve, reject) => { const r = indexedDB.open('populous-new-dawn', 1); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error) })
@@ -243,9 +244,11 @@ async function checkpoint(page, expected) {
     return saved?.world && JSON.stringify(saved.world.vehicles) === expected.vehicles && JSON.stringify(saved.world.selected) === JSON.stringify(expected.selected)
   }, expected), { attempts: 450 })
   assert.equal(persisted, true, 'saved transport checkpoint committed before reload')
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await clear(page)
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
@@ -256,7 +259,8 @@ async function checkpoint(page, expected) {
 // Run ONLY through scripts/local-render/harness.mjs, which owns the sandboxed
 // browser, port, process cleanup, source fingerprint, raw errors and screenshots.
 export default async function followerTransports({ browser, page, url, openMission, output, receipt }) {
-  await openMission(22); await freeze(page); await clear(page)
+  // Declared M22 availability, not naturally earned earlier campaign progress.
+  await openMission(22, { campaignFixture: true }); await freeze(page); await clear(page)
   await page.getByTitle('followers', { exact: true }).click()
   const opening = await page.evaluate(() => {
     const s = window.testSceneRef.current, w = s.world, gl = s.renderer.getContext(), ext = gl.getExtension('WEBGL_debug_renderer_info')
@@ -700,6 +704,7 @@ export default async function followerTransports({ browser, page, url, openMissi
   writeFileSync(resolve(output, 'follower-transports-desktop-progress.json'), JSON.stringify({ stage: 'desktop-complete-dpr-and-final-invariants-pending', result }, null, 2) + '\n')
   // A separate browser context exercises actual DPR2 backing pixels, not just
   // CSS/HUD scaling. Its Blue crews are explicitly staged on authored craft.
+  // This separate diagnostic context never saves or awards campaign progress.
   const dprContext = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 2 })
   try {
     const dp = await dprContext.newPage()

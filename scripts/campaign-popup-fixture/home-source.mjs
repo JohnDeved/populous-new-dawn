@@ -13,7 +13,7 @@ export function homePopupSources(root) {
   const effect=needle=>pick(home,n=>ts.isCallExpression(n)&&n.expression.getText(home)==='useEffect'&&n.arguments[0]?.getText(home).includes(needle))
   return {
     auto:effect('const opened: number[]'), priority:effect('return captureCampaignPopupKeys'),
-    gameplay:effect("window.addEventListener('keydown', key)"), cheat:effect("globalThis.addEventListener('keydown', toggle, true)"),
+    gameplay:effect("globalThis.addEventListener('keydown', key)"), cheat:effect("spellTestShortcut(event, cheatsOpen)"),
     viewport:pick(home,n=>ts.isJsxSelfClosingElement(n)&&n.attributes.properties.some(p=>p.name?.getText(home)==='ref'&&p.initializer?.expression?.getText(home)==='viewport')),
     aside:pick(home,n=>ts.isJsxElement(n)&&n.openingElement.attributes.properties.some(p=>p.name?.getText(home)==='className'&&p.initializer?.text==='campaign-messages')),
     screen:pick(home,n=>ts.isVariableStatement(n)&&n.declarationList.declarations.some(d=>d.name.getText(home)==='messageScreenX')),
@@ -39,7 +39,7 @@ export default function HomePopupFixture(){
  const acknowledgments=useRef(0);
  useEffect(()=>{const clicked=e=>{if(e.target.closest?.('[data-popup-acknowledge]'))acknowledgments.current++};document.addEventListener('click',clicked,true);return()=>document.removeEventListener('click',clicked,true)},[]);
  const calls=useRef({overview:0,skip:0,focus:0,cancel:0,guard:0,select:0,tab:0,f8:0,bookmark:0,zoom:0,menu:0});
- const ready=true,menu=false,selectorOpen=false,startup='playing',messageViewportHeight=innerHeight;
+ const ready=true,menu=false,selectorOpen=false,statisticsVisible=false,startup='playing',messageViewportHeight=innerHeight;
  const messageDetails=useRef(new Map()),viewport=useRef(null),audio=useRef(null);
  const store={getWorld:()=>world,change:fn=>{fn(world);update()}};
  const engine=useRef({keys:new Set(),world,listen:(target,type,fn)=>{target.addEventListener(type,fn);return()=>target.removeEventListener(type,fn)},overview:()=>calls.current.overview++,skipIntroduction:()=>calls.current.skip++,focus:()=>calls.current.focus++,togglePerformance:()=>calls.current.f8++,zoom:()=>calls.current.zoom++});

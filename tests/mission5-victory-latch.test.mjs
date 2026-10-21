@@ -1,7 +1,7 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createWorld } from '../app/model.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { campaignCommand, campaignRules } from '../app/campaign-command-runtime.ts'
 import { withCampaignTribe } from '../app/campaign-runtime.ts'
 import { createAngel } from '../app/world-effects.ts'
@@ -103,8 +103,8 @@ for (const [angelTeam, shamanPresent] of [
   })
 
 test('supplied winning latch preserves cadence, original ELSE ordering and public checkpoints', async () => {
-  const store = createGameStore()
-  store.startMission(5)
+  const store = await createCampaignFixtureStore([5])
+  assert.equal(store.startMission(5), true)
   const world = store.getWorld(),
     shaman = removeRedShaman(world)
   createAngel(world, 'blue', { x: 0, z: 0 }).angel.phase = 'dying'

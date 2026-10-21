@@ -13,14 +13,14 @@ function keyboard(overrides = {}) {
     world, ready: true, menu: false, cheatsOpen: false, SPELLS, spellHudVisibility,
     messageDetails: { current: new Map() },
     store: { getWorld: () => world, change: action => action(world) },
-    window: { addEventListener: (name, fn) => listeners.set(name, fn),
+    globalThis: { addEventListener: (name, fn) => listeners.set(name, fn),
       removeEventListener: (name, fn) => { assert.equal(listeners.get(name), fn); listeners.delete(name) } },
     setTab: tab => tabs.push(tab), engine: { current: null }, audio: { current: null },
     update: noOp, openMenu: noOp, cancelInteraction: noOp,
     guardShaman: noOp, select: noOp, HOME: {}, tutorialLevel: 0,
     rotateBuildingPlan: () => false, ...overrides,
   }
-  const cleanup = pageEffect("window.addEventListener('keydown', key)", bindings)()
+  const cleanup = pageEffect("globalThis.addEventListener('keydown', key)", bindings)()
   return { world, tabs, cleanup, listeners, key(extra = {}) {
     listeners.get('keydown')({ key: '1', code: 'Digit1', repeat: false,
       ctrlKey: false, metaKey: false, altKey: false,

@@ -2,6 +2,36 @@
   "version": 1,
   "owners": [
     {
+      "id": "result-navigation-static-evidence",
+      "kind": "native-evidence",
+      "generator": { "executable": "python3", "args": ["scripts/research-result-navigation.py", "<hash-verified-original-exe>"] },
+      "callers": ["scripts/research-result-navigation.py"],
+      "inputs": ["decomp/tools.json", "decomp/research/result-navigation/provenance.json"],
+      "outputs": [
+        { "path": "decomp/research/result-navigation/native.json", "type": "file", "tracked": true, "protected": true },
+        { "path": "decomp/research/result-navigation/native.asm", "type": "file", "tracked": true, "protected": true }
+      ],
+      "recording": "Read-only hash-pinned PE extraction emits JSON to stdout; compare scratch output before replacing retained spans. Assembly uses the bounded objdump 2.44 commands in provenance.json. No original execution or emulation. The separate 924-byte Component0 LEVLSPC2 observation is data-only and never implies mission 54 is playable."
+    },
+    {
+      "id": "world-selector-native-art",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-world-selector-art.py", "<verified-game-root>"] },
+      "callers": ["scripts/import-world-selector-art.py", "app/world-selector-art.ts"],
+      "inputs": ["app/original-world-selector.json", "decomp/research/world-selector-manifest/sources.json", "scripts/import-world-selector-manifest.py", "scripts/import-world-selector-text.py", "scripts/import-original.py", "public/original/world-selector/panel/provenance.json", "public/original/world-selector/text/provenance.json"],
+      "outputs": [{ "path": "public/original/world-selector/native", "type": "directory", "tracked": true, "protected": true }],
+      "recording": "Re-derive the pinned manifest and validate every source before emitting only missing selector PNGs. Reuse byte-identical opening art without modifying it. --check is read-only; differing results require a new --output directory for review. No original execution, profile or mission activation."
+    },
+    {
+      "id": "world-selector-manifest",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-world-selector-manifest.py", "<verified-game-root>"] },
+      "callers": ["scripts/import-world-selector-manifest.py"],
+      "inputs": ["decomp/research/world-selector-manifest/sources.json", "scripts/import-world-selector-text.py", "scripts/check-static-world-selector.py", "scripts/check-static-mission18-sky.py", "scripts/import-original.py"],
+      "outputs": [{ "path": "app/original-world-selector.json", "type": "file", "tracked": true, "protected": true }],
+      "recording": "Inactive all-25-world data prerequisite only. Validate every pinned source first; --check is read-only. Generate a differing candidate to a new --output path for review. No original execution, profile writes, PNG regeneration or selector activation."
+    },
+    {
       "id": "startup-logo",
       "kind": "imported-assets",
       "generator": { "executable": "python3", "args": ["scripts/import-startup-logo.py", "<verified-game-root>", "<new-output-directory>"] },

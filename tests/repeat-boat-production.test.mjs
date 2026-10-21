@@ -1,7 +1,7 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 // Ordinary authored M15 production; lightweight scene fixture supplies camera only.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createGameStore } from '../app/game-store.ts'
 import { command, tick, selectUnit, cancelInteraction } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
@@ -9,8 +9,8 @@ import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 test('an occupied Boat House produces again after its first craft leaves', async () => {
   await loadSceneFixture()
   const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
-  const store = createGameStore()
-  store.startMission(15)
+  const store = await createCampaignFixtureStore([15])
+  assert.equal(store.startMission(15), true)
   const world = store.getWorld(),
     house = world.buildings.find(b => b.id === 120)
   for (let n = 0; n < 82; n++) {

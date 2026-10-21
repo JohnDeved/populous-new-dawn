@@ -166,7 +166,7 @@ test('actual Page Escape, window blur, visibility and unmount listeners clear he
       else delete globalThis[name]
     }
   })
-  const { page, calls } = fixture(), cleanup = pageEffect("globalThis.addEventListener('blur'", page.bindings)()
+  const { page, calls } = fixture(), cleanup = pageEffect("globalThis.addEventListener('blur', cancel)", page.bindings)()
   const arm = () => page.render().props.onPointerDown(nearbyEvent())
   arm(); listeners.get('window:keydown')({ key: 'Escape' })
   assert.equal(page.pressed, false)

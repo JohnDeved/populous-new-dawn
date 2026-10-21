@@ -18,8 +18,8 @@ test('sandbox adapter retains every existing assertion, turn bound and campaign 
     assert.equal([...adapted.matchAll(pattern)].length, [...checker.matchAll(pattern)].length)
   assert.ok(adapted.includes("{ type: 'status', status: 'won' }, 5000, 'natural Mission 2 victory'"))
   assert.ok(adapted.includes("{ type: 'status', status: 'won' }, 5000, 'natural Mission 3 victory'"))
-  assert.ok(adapted.includes("name: 'Continue to Mission 3', exact: false }).click()"))
-  assert.ok(adapted.includes("name: 'Continue to Mission 4', exact: false }).waitFor()"))
+  assert.ok(adapted.includes('await continueThroughNativeSelector(page, 3)'))
+  assert.ok(adapted.includes("name: 'Start Mission 4', exact: true }).waitFor()"))
   assert.ok(adapted.includes('getCompletedMissions().includes(2)'))
   assert.ok(adapted.includes('getCompletedMissions().includes(3)'))
   assert.ok(!adapted.includes('chromium.launch'))
@@ -40,7 +40,8 @@ test('late final screenshot completion cannot mark an aborted campaign scenario 
   // No real game, browser, victory, or image is produced by this fixture.
   const fixture = `import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openCampaignFixtureGame as openGame } from './browser-game.mjs'
+import { continueThroughNativeSelector, enterResultSelector } from './browser-result-navigation.mjs'
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 const captureCameraEvidence = async () => {}
 async function missionTwo() {}
@@ -49,16 +50,30 @@ const result = { ready: true, turn: 1, status: 'playing' }, required = false, la
   if (required) assert.ok(result.ready, \`\${label} timed out: \${JSON.stringify(result)}\`)
 try {
     await missionTwo(page)
-    await page.getByRole('button', { name: 'Continue to Mission 3', exact: false }).click()
+    await continueThroughNativeSelector(page, 3)
     await missionThree(page)
-    await page.getByRole('button', { name: 'Continue to Mission 4', exact: false }).waitFor()
+    await enterResultSelector(page)
+    await page.getByRole('button', { name: 'Start Mission 4', exact: true }).waitFor()
     console.log('PASS: rendered player actions win Mission 2, continue, and naturally win Mission 3')
 } finally { await browser.close() }
 `
   writeFileSync(join(root, 'scripts/check-browser-campaign-natural-victory.mjs'), fixture)
+  const actions = [], fixtures = []
+  // Synthetic already-open native selector, not browser or trusted-input proof.
+  // Keep the actual shared setup/navigation helpers, supplying only page IO.
+  const locator = name => ({
+    getByRole: (_role, { name }) => locator(name),
+    or() { return this }, filter() { return this }, first() { return this },
+    async isVisible() { return name !== 'Opening logo' && name !== 'Main menu' },
+    async click() { actions.push(String(name)) }, async waitFor() {},
+  })
   const page = {
-    async evaluate() { return { level: 3, status: 'won', turn: 1, contextLost: false, population: {} } },
-    getByRole() { return { async click() {}, async waitFor() {} } },
+    async evaluate(_read, fixture) {
+      if (fixture !== undefined) { fixtures.push(structuredClone(fixture)); return }
+      return { level: 3, status: 'won', turn: 1, contextLost: false, population: {} }
+    },
+    getByRole: (_role, { name }) => locator(name),
+    async reload() {}, async waitForSelector() {}, async waitForFunction() {},
     async screenshot({ path }) {
       if (path.endsWith('mission-3-result.png')) abort.abort(Error('Aborted during final screenshot'))
     },
@@ -68,6 +83,10 @@ try {
       receipt: { source: { commit: 'fixture-only' }, errors: [] }, signal: abort.signal }),
     /Aborted during final screenshot/)
     const report = JSON.parse(readFileSync(join(output, 'campaign.json'), 'utf8'))
+    assert.equal(fixtures.length, 1, 'the fresh scenario declares one native availability fixture')
+    assert.deepEqual(fixtures[0].completed, [], 'Mission 2 fixture must not manufacture earned Mission 1')
+    assert.equal(fixtures[0].nativeCampaign.flags[1], 4)
+    assert.deepEqual(actions, ['/^Panel Mission 2(, completed)?$/', '/^(Start|Replay) Mission 2$/', '/^(Start|Replay) Mission 3$/'])
     assert.equal(report.status, 'failed')
     assert.match(report.failure, /Aborted during final screenshot/)
     assert.equal(globalThis.campaignFixedTurnQA, undefined)

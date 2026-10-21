@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { chromium, expect } from '@playwright/test'
-import { bindGame, showAllMissions } from './browser-game.mjs'
+import { bindGame, launchCampaignMission, launchDebugMission } from './browser-game.mjs'
 import { AUDIO_PREFERENCES_KEY, DEFAULT_AUDIO_PREFERENCES } from '../app/audio-preferences.ts'
 
 assert.ok(process.env.PND_QUEUE_JOB_ID && process.env.PND_QUEUE_OUTPUT, 'Use the supervised queue')
@@ -65,10 +65,15 @@ async function ready(page) {
 }
 async function start(page, button = 'Mission 1') {
   await page.goto(process.env.POPULOUS_URL, { waitUntil: 'networkidle' })
-  if (button !== 'Load Game') await showAllMissions(page)
-  // Use the shared browser-game keyboard route for the horizontally overflowing mission picker.
-  await page.getByRole('button', { name: button, exact: true }).focus()
-  await page.keyboard.press('Enter')
+  if (button === 'Mission 1') await launchCampaignMission(page, 1)
+  else if (button === 'Mission 2') {
+    // This later audio-only branch never saves or awards campaign progress.
+    await launchDebugMission(page, 2)
+  } else {
+    assert.equal(button, 'Load Game')
+    await page.getByRole('button', { name: button, exact: true }).focus()
+    await page.keyboard.press('Enter')
+  }
   await ready(page)
 }
 async function settings(page) {

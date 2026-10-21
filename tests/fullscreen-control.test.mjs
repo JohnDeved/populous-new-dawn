@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import ts from 'typescript'
+import { evaluatePage } from './support/follower-nearby-page.mjs'
 import { createFullscreenSession, placeFullscreenHost, promoteFullscreenDialogs, fullscreenHostNeedsPlacement } from '../app/fullscreen-session.ts'
 
 function nativeCloseBindings(text) {
@@ -176,14 +177,45 @@ test('one stable portal follows open dialog, transfers focus only when already f
 test('shipped app mounts control once and keeps fullscreen available through loading/flyby input guards', () => {
   const page = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
   const component = readFileSync(new URL('../app/fullscreen-control.tsx', import.meta.url), 'utf8')
-  const scene = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
+  const sceneSource = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
   assert.equal(page.match(/<FullscreenControl \/>/g)?.length, 1)
-  assert.equal(page.match(/\[data-fullscreen-control\]/g)?.length, 2)
+  const source = ts.createSourceFile('page.tsx', page, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const guards = new Map()
+  function visit(node) {
+    if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression) &&
+      node.expression.name.text === 'closest' && ts.isStringLiteral(node.arguments[0]) &&
+      node.arguments[0].text.split(',').includes('[data-fullscreen-control]')) {
+      let guard = node.parent, owner = node.parent
+      while (guard && !ts.isIfStatement(guard)) guard = guard.parent
+      while (owner && !(ts.isVariableDeclaration(owner) || ts.isFunctionDeclaration(owner) || ts.isJsxAttribute(owner)))
+        owner = owner.parent
+      assert.ok(guard && owner, 'fullscreen exclusion belongs to a live input guard')
+      const name = owner.name.getText(source)
+      assert.equal(guards.has(name), false, 'one fullscreen guard per input owner')
+      guards.set(name, guard.expression.getText(source))
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+  assert.deepEqual([...guards.keys()].sort(), ['blockLoadingInteraction', 'key', 'onClickCapture', 'up'],
+    'loading/flyby and native result keydown/keyup each retain their fullscreen exclusion')
+  const world = { inputMask: 64 }, scene = { world }
+  for (const [owner, expression] of guards) for (const fullscreen of [false, true]) {
+    const event = { key: ' ', code: 'Space', target: { closest: () => fullscreen ? {} : null } }
+    const guardTaken = Boolean(evaluatePage(expression, {
+      ready: owner !== 'blockLoadingInteraction', startup: 'playing', current: world, world, scene,
+      engine: { current: scene }, store: { getWorld: () => world }, resultSession: { stage: () => 'statistics' },
+      menu: false, cheatsOpen: false, selectorOpen: false, debugPicker: false,
+      messageDetails: { current: new Map() }, event, e: event,
+    }))
+    assert.equal(guardTaken, owner === 'onClickCapture' ? !fullscreen : fullscreen,
+      `${owner}: fullscreen target must bypass game input without removing the ordinary guard`)
+  }
   assert.match(component, /observer\.disconnect\(\)/)
   assert.match(component, /node\.remove\(\)/)
   assert.match(component, /onClick=.*session\.current\?\.toggle/)
-  assert.match(scene, /new ResizeObserver\(\(\) => this\.setSize\(\)\)/)
-  assert.match(scene, /this\.resize\.observe\(container\)/)
+  assert.match(sceneSource, /new ResizeObserver\(\(\) => this\.setSize\(\)\)/)
+  assert.match(sceneSource, /this\.resize\.observe\(container\)/)
   assert.match(page, /window\.addEventListener\('resize', resize\)/)
 })
 

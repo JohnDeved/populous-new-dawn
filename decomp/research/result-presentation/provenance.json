@@ -1,0 +1,26 @@
+{
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "baseCommit": "c633fa1e9244d4fea20585a96b1e4756ae4b8dca",
+  "method": "Hash-gated PE reads, bounded objdump disassembly, existing static glyph metrics and independent F4 header comparison. No game execution, emulation, download, dependency installation, asset import, runtime changes or browser proof. Objdump output has filename banners omitted and trailing spaces removed.",
+  "tools": {
+    "objdump": "GNU Binutils2.44",
+    "python": "standard-library only",
+    "node": "v24.19.0"
+  },
+  "executablePath": "populous-original-inputs-20261020/game/d3dpoptb.exe",
+  "f4Path": "/tmp/pnd-popup-inputs-20261021/data/f00t4-0.dat",
+  "commands": [
+    "python3 -B scripts/research-result-presentation.py VERIFIED_EXE > SCRATCH.json",
+    "cmp SCRATCH.json decomp/research/result-presentation/native.json",
+    "objdump -d -Mintel --start-address=SPAN_START --stop-address=SPAN_END VERIFIED_EXE",
+    "node --test tests/native-result-presentation-source.test.mjs tests/native-result-navigation-source.test.mjs",
+    "git diff --check"
+  ],
+  "files": {
+    "native.json": "8dc66a19fcc02cdb296f86baf0336ee64cf808bdffd2bd3427224a69117095ef",
+    "native.asm": "cb0ecc2a68b427f1ab58979075df75256cce56d6406452adcd4bb836a4edb24c",
+    "metrics.json": "b7726fca261e2846509d56f29c014f9890ce30deeaa92025e3d8af78e726fe44",
+    "cases.json": "7fbf2c0ec6a1968ecd892d6efcead4f1da9d032ba729bbbd7d39c4704db80029",
+    "contract.mjs": "ed137aa7f50af6d2ca5b8aa2c514754bcd7e38e327eb71ee1025e49336c74365"
+  }
+}

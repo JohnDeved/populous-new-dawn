@@ -12,7 +12,7 @@ export default async function ({ page, root, output, receipt, openMission, obser
   const method = 'Ordinary UI and real RAF only. Committed IndexedDB and store subscription are read-only observations. No world/tick/storage injection.'
   if (receipt.profile.mode === 'created') {
     assert.equal(receipt.profile.checkpointAtStart, null)
-    await openMission(1)
+    await openMission(1, { nativeCampaign: true })
     const readiness = await waitForShamanReadiness(page)
     await page.getByRole('button', { name: 'Menu', exact: true }).click()
     const menu = page.locator('dialog[data-original-pause-menu]')

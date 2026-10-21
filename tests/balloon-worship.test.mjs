@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import {
   checkpointComparisonView as comparable,
   assertCheckpointComparisonDomain,
@@ -15,7 +16,6 @@ import { vehicleExit } from '../app/live-vehicles.ts'
 import { stepLiveMovement } from '../app/live-movement.ts'
 import { boardLiveVehicle, leaveLiveVehicle } from '../app/live-vehicles.ts'
 import { browserPosition, cast, command, tick, selectUnit } from '../app/model.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 
 const stepUntil = (w, done, limit) => {
@@ -34,9 +34,9 @@ const stepUntil = (w, done, limit) => {
     assert.ok(command(w, p))
     stepUntil(w, () => Math.hypot(s.x - p.x, s.z - p.z) < 2, 1000)
   }
-function prepareFlight() {
-  const store = createGameStore()
-  store.startMission(22)
+async function prepareFlight() {
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   let world = store.getWorld(),
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     balloon = world.vehicles.find(vehicle => vehicle.model === 3),
@@ -99,7 +99,7 @@ function prepareFlight() {
 // transport, spell stock, targets and travel are produced by campaign commands.
 // Migration already defaults these two authored heads' optional reward field.
 test('supplied-focus Mission22 Balloon worship lands, rewards once and continues through public Save/Load', async () => {
-  const { store, world, shaman, balloon, north } = prepareFlight()
+  const { store, world, shaman, balloon, north } = await prepareFlight()
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { x: 55, z: 121 }))
   reachMission22FlightPoint(world, shaman, balloon, 20767, 29926)

@@ -1,3 +1,4 @@
+import { nativeCampaignProfile } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
@@ -62,8 +63,9 @@ function startup(store) {
     store, setStartup: state => states.push(state),
     menuSession: { current: null }, pendingMenuCamera: { current: [] },
     engine: { current: null }, audio: { current: null }, loadRequest: { current: null },
-    setCheatsOpen: value => cheatClosures.push(value),
+    setCheatsOpen: value => cheatClosures.push(value), setDebugPicker: () => {},
     cancelNearbyInput: () => {}, setSelectorOpen: () => {}, setMenu: () => {},
+    setResultInputCycles: value => assert.equal(value, 0, 'each admitted load resets result input time'),
     setReady: () => {}, setError: () => {}, setTab: () => {},
   })()
   const cleanup = pageEffect('store.restoreCheckpoint()', {
@@ -201,20 +203,24 @@ test('late read keeps a newer memory save and current world after navigation', a
   const saved = createWorld(1, 'scalable'); saved.turn = 217
   await withStorage(async ({ store, open, read }) => {
     const home = startup(store)
-    await open(true)
-    button(menu(store), 'Retry checkpoint lookup').props.onClick()
+    // Read the declared Mission 2 prerequisite before beginning the delayed retry.
     await open()
+    await read()
+    const retry = store.restoreCheckpoint()
+    await settle()
     home.navigation.startMission(2)
+    assert.equal(store.getWorld().outcome.level, 2)
     const newer = store.getWorld()
     newer.turn = 999
     assert.equal(await store.saveCheckpoint(), true)
     await read()
+    await retry
     assert.equal(store.getWorld(), newer)
     assert.deepEqual(home.states, ['choice', 'playing'], 'Home stays mounted while retry completes after mission launch')
     home.navigation.loadCheckpoint()
     assert.equal(store.getWorld().turn, 999, 'post-await memory checkpoint wins over old read')
     home.cleanup()
-  }, { latest: { version: 3, world: saved } })
+  }, { latest: { version: 3, world: saved }, profile: nativeCampaignProfile({ available: [2] }) })
 })
 
 for (const interruption of ['unmount', 'world replacement']) test(`initial restore completion cannot navigate after ${interruption}`, async () => {
@@ -222,7 +228,7 @@ for (const interruption of ['unmount', 'world replacement']) test(`initial resto
     const home = startup(store)
     await open()
     if (interruption === 'unmount') home.cleanup()
-    else store.startMission(2)
+    else assert.equal(store.startDebugMission(2), true)
     const active = store.getWorld()
     await read()
     assert.deepEqual(home.states, [])

@@ -2,10 +2,11 @@
 // Only pacing/camera controls and read-only inspection are test-driven: no HP,
 // position, entity, effect, timer, RNG, AI or outcome injection.
 import assert from 'node:assert/strict'
+// Declared mission availability only, not naturally earned campaign history.
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { chromium } from '@playwright/test'
-import { openGame, bindGame } from './browser-game.mjs'
+import { openCampaignFixtureGame, bindGame } from './browser-game.mjs'
 
 const dir = resolve(process.env.POPULOUS_ARTIFACT_DIR ?? 'work/orchestration/worker5-30/browser')
 mkdirSync(dir, { recursive: true })
@@ -13,7 +14,7 @@ const report = { mission: 2, adapter: 'H selection; normal command/tick on autho
 const browser = await chromium.launch({ headless: true })
 let page
 try {
-  const opened = await openGame(browser, 2)
+  const opened = await openCampaignFixtureGame(browser, 2)
   page = opened.page
   page.setDefaultTimeout(45000)
   await page.evaluate(() => {

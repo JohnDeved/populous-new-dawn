@@ -87,7 +87,7 @@ export default async function ({ page, output, receipt, openMission, observeChec
   save()
   try {
     admit()
-    await openMission(1)
+    await openMission(1, { nativeCampaign: true })
     report.readiness = await waitForShamanReadiness(page, options(60000))
     const shamanId = report.readiness.after.shaman.id,
       input = createMission1VaultInput({

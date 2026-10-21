@@ -1,6 +1,6 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createGameStore } from '../app/game-store.ts'
 import { command, selectUnit, tick, cast, invisibilityFollowers } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { objectsInCell } from '../app/object-cells.ts'
@@ -8,8 +8,8 @@ import { nativePosition } from '../app/world-terrain-runtime.ts'
 import constants from '../app/original-constants.json' with { type: 'json' }
 
 test('earned Invisibility reaches an ordinary registered Tower occupant with public checkpoint continuity', async () => {
-  const store = createGameStore()
-  store.startMission(10)
+  const store = await createCampaignFixtureStore([10])
+  assert.equal(store.startMission(10), true)
   const w = store.getWorld(),
     unit = w.units.find(u => u.id === 119),
     tower = w.buildings.find(b => b.id === 96)

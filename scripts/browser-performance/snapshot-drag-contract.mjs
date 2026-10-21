@@ -231,6 +231,33 @@ export const dragSourceProfiles = Object.freeze([
     Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
       sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
   ]) }),
+  // The native-result integration adds a pause-independent presentation clock
+  // before the existing modal/simulation frame gates. Admit that complete frame
+  // route only with its exact import, per-scene initialization and clock owner.
+  // All older profiles remain byte-for-byte identical. This admits source owners,
+  // not native scheduler equivalence or an unmeasured performance comparison.
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-result-clock-v1', slices: Object.freeze([
+    ...dragSourceSlices.map(slice => Object.freeze(slice.id === 'camera-producers'
+      ? { ...slice, sha256: 'cd3b53fce3efc61851ceb0c34d11d35d13a15cac7162753d8b1677c7d2b8875e' }
+      : slice.id === 'pointer-callback'
+        ? { ...slice, sha256: '741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895' }
+        : slice.id === 'query-inputs'
+          ? { ...slice, sha256: 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c' }
+          : slice.id === 'frame-order'
+            ? { ...slice, sha256: '5c8dbbf4dc2caaf257c7eedb472dcd7caeca30aeda695dd2fa0294934a6aeb50' }
+            : ownedRouteOverrides[slice.id] ?? slice)),
+    Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
+      sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
+    Object.freeze({ id: 'result-clock-owner', path: 'app/result-session.ts',
+      start: 'export function createResultClock()', end: '\nexport function resultBlink(',
+      sha256: 'e13cdfd3133fb3867b5dac81fcda0bef017db7a7eacdd5174ec5d60339a46976' }),
+    Object.freeze({ id: 'result-clock-import', path: 'app/scene.ts',
+      start: 'import { createResultClock, advanceResultClock }', end: '\nimport { FollowerNearbyMode }',
+      sha256: 'fd473366de9695475cdb1e1ed6190c2dbbfa778851186442377e638dd4b40052' }),
+    Object.freeze({ id: 'result-clock-initialization', path: 'app/scene.ts',
+      start: '  resultClock = createResultClock()', end: '\n  focusPauseOwned =',
+      sha256: 'ac3b234a89c07d24ca0ebc49a91617029e37018708cb32f18ab1329870752f6f' }),
+  ]) }),
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {
