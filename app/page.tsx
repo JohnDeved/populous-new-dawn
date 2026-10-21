@@ -1140,7 +1140,7 @@ export default function Home() {
         </button>
       )}
       <div className="game-status">
-        {ready && world.messageUntil > world.time && (
+        {ready && !world.routeNotice && world.messageUntil > world.time && (
           <div
             className="world-message"
             role="status"
