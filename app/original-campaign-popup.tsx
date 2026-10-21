@@ -98,6 +98,19 @@ export function OriginalCampaignPopup({
     ),
     columns = layout.panelWidth / 16,
     rows = layout.panelHeight / 16
+  useEffect(() => {
+    const element = host.current
+    if (!element?.closest('details')?.open) return
+    // F8 is a browser-only adaptation. Bound its available scrolling region by
+    // the actual native panel, without moving/scaling native artwork for it.
+    element
+      .closest<HTMLElement>('.game-shell')
+      ?.style.setProperty(
+        '--campaign-popup-bottom',
+        `${Math.ceil(layout.y + layout.panelHeight * layout.scale)}px`
+      )
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies -- A reopened details viewport remeasures even when this body's geometry is unchanged; another body may have published different bounds.
+  }, [layout.y, layout.panelHeight, layout.scale, viewport])
   return (
     <div ref={host} className={styles.viewport} data-native-campaign-popup>
       <section
@@ -161,6 +174,7 @@ export function OriginalCampaignPopup({
           <button
             key={button.label}
             type="button"
+            data-popup-acknowledge={index === 0 || undefined}
             className={styles.ok}
             aria-label={index === 0 ? 'Acknowledge campaign message' : 'Delete campaign message'}
             onClick={index === 0 ? onAcknowledge : onDelete}
