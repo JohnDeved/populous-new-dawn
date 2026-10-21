@@ -1,3 +1,4 @@
+import { worldPauseState } from '../scripts/browser-world-input.mjs'
 import { withoutCampaignPopup } from './support/world-input-page.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
@@ -443,8 +444,9 @@ test('actual game-clock callbacks are observed before logical animation, with no
 })
 
 test('ordinary cast driver uses only public controls/pointer and stops after its existing natural clock window', async () => {
+  let paused = true
   const actions = [], page = {
-    keyboard: { press: async key => { assert.equal(key, 'Space'); actions.push(['key', key]) } },
+    keyboard: { press: async key => { assert.equal(key, 'Space'); paused = !paused; actions.push(['key', key]) } },
     getByRole(role, { name }) {
       assert.equal(role, 'button')
       return { click: async () => actions.push(['button', String(name)]) }
@@ -455,6 +457,7 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
     },
     async evaluate(fn) {
       const source = fn.toString()
+      if (fn === worldPauseState) return { paused, inputMask: 0, turn: 100 }
       if (fn === installShamanCastingObserver) { actions.push(['install']); return }
       if (source.includes('hasUsedCheats()')) return false
       if (source.includes(".arm('ordinary')")) { actions.push(['arm']); return { stock: 4, cheatsUsed: false } }
@@ -495,7 +498,7 @@ test('actual ordinary-readiness callback admits naturally resting Mission 1, not
   await assert.rejects(beginOrdinaryCastingWitness(withoutCampaignPopup({
     getByRole: () => ({ click: async () => {} }),
     keyboard: { press: async () => {} },
-    evaluate: async callback => callback(),
+    evaluate: async callback => callback === worldPauseState ? { paused: false, inputMask: 0, turn: authored.turn } : callback(),
     waitForFunction: async callback => { ready = callback; throw stop },
   })), error => error === stop)
   const u = authored.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'), p = u.native,

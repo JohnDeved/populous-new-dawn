@@ -1,3 +1,4 @@
+import { setWorldPaused } from '../browser-world-input.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 // Independent opt-in episode after the existing compact-layout/picking witnesses.
 import assert from 'node:assert/strict'
@@ -74,7 +75,7 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
         await bindGame(page)
         await skipIntroductionWithSpace(page, { timeout: 10000 })
         await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-        await page.locator('.world-viewport').press('Space')
+        await setWorldPaused(page, true, { timeout: Math.min(10000, report.deadlineAt - performance.now()) })
         report.preparationStart = await page.evaluate(() =>
           window.__pndHypnotiseFixture.hypnotisePreparationState(window.testSceneRef.current.world)
         )
@@ -105,7 +106,7 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
         report.checkpoint = await page.evaluate(() => window.__hypnotiseLoaded)
         validateHypnotiseLoad(saved, report.checkpoint)
         await bindGame(page)
-        await page.locator('.world-viewport').press('Space')
+        await setWorldPaused(page, true, { timeout: Math.min(10000, report.deadlineAt - performance.now()) })
         report.reframed = await page.evaluate(() => {
           const w = window.testStore.getWorld(),
             scene = window.testSceneRef.current
@@ -134,7 +135,7 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
             throw Error('Actual cast point is covered by UI')
           return { x, y }
         })
-        await page.locator('.world-viewport').press('Space')
+        await setWorldPaused(page, false, { timeout: Math.min(10000, report.deadlineAt - performance.now()) })
         await page.evaluate(installHypnotiseObserver, { observationMs: hypnotiseObservationMs })
         await page.mouse.click(target.x, target.y)
         await page.waitForFunction(() => window.__pndHypnotiseObservation.result.done, null, {

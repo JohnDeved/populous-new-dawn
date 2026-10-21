@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 // The supplied training fixture advances simulation, not the presentation-owned
 // introduction. Public Load resumes it; only the native Space input may end it.
 export const spySourceReadinessMs = 8000
@@ -97,7 +98,7 @@ export async function awaitSpySourceReadiness({ page, report, action, save, dead
       observation.beforeSkip = await within(() => page.evaluate(readSpySourceReadiness))
       if (observation.beforeSkip.action === 'skip') {
         await within(() => action('Public Space skip', () => within(() =>
-          page.keyboard.press('Space'))))
+          skipIntroductionWithSpace(page, { timeout: remaining() }))))
         observation.afterSkip = await within(() => page.evaluate(readSpySourceReadiness))
         if (observation.afterSkip.paused !== observation.beforeSkip.paused)
           throw new Error('Spy Space changed pause state; retry the episode')

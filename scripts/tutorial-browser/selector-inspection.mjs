@@ -1,4 +1,4 @@
-import { pressWorldSpace } from '../browser-world-input.mjs'
+import { setWorldPaused } from '../browser-world-input.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
@@ -109,7 +109,7 @@ export function assertNativeHelpLayout(layout) {
   assert.equal(layout.documentOverflow, false, 'Native help must not overflow the document')
   for (const label of ['Browser compatibility and help', 'Select Level', 'Back to Options'])
     assert.equal(layout.fields.filter(field => field.label === label).length, 1, `Required native help field: ${label}`)
-  for (const pattern of [/game speed$/, /Performance/, /^HUD size/, /Sound on|Enable sound/])
+  for (const pattern of [/game speed$/, /performance/i, /^HUD size/, /Sound on|Enable sound/])
     assert.equal(layout.fields.filter(field => pattern.test(field.label)).length, 1, `Required native help control: ${pattern}`)
   for (const field of layout.fields) {
     assert.equal(field.fits, true, `Native help field must fit: ${field.label}`)
@@ -220,7 +220,7 @@ export default async function ({ browser, url, output }) {
       }
     }
     for (const paused of [true, false]) {
-      await pressWorldSpace(page)
+      await setWorldPaused(page, paused, { timeout: 2500 })
       assert.equal((await read()).paused, paused, 'Public Space established the requested pause state')
       const captured = await openMenu(paused)
       await inspect()

@@ -226,9 +226,12 @@ test('invalid input budgets fail before observations, clicks, focus or keyboard 
 test('harness integration preserves strict state oracles and prepares each gameplay phase outside measurements', () => {
   const read = file => readFileSync(new URL(`../scripts/${file}`, import.meta.url), 'utf8')
   for (const file of ['tutorial-browser/selector-inspection.mjs', 'tutorial-browser/spell-test-menu.mjs',
-    'tutorial-browser/shaman-casting.mjs', 'local-render/campaign-profile-recovery.mjs']) {
+    'tutorial-browser/shaman-casting.mjs', 'local-render/campaign-profile-recovery.mjs',
+    'tutorial-browser/building-panel-identity.mjs', 'tutorial-browser/follower-corpse.mjs',
+    'tutorial-browser/scenery-placement.mjs', 'tutorial-browser/spell-hypnotise.mjs',
+    'tutorial-browser/spell-projection.mjs', 'tutorial-browser/spy-source.mjs', 'local-render/mission1-vault-input.mjs']) {
     const source = read(file)
-    assert.match(source, /await pressWorldSpace\(page\)/)
+    assert.match(source, /setWorldPaused\(page, (true|false|paused)/)
     assert.doesNotMatch(source, /locator\('\.world-viewport'\)\.press\('Space'\)/)
   }
   const selector = read('tutorial-browser/selector-inspection.mjs'), spell = read('tutorial-browser/spell-test-menu.mjs')
@@ -237,7 +240,10 @@ test('harness integration preserves strict state oracles and prepares each gamep
   assert.match(spell, /assert.deepEqual\(await storage\(\), saved, 'existing save\/profile are unchanged'\)/)
   const m2 = read('tutorial-browser/m2-pointer-f8.mjs')
   assert.match(m2, /report.inputPopups = await prepareWorldInput[\s\S]*?skipIntroductionWithSpace/)
-  assert.match(m2, /report.inputPopups.push\(\.\.\.await pressWorldSpace\(page\)\)[\s\S]*?setM2CampaignPopupOpen\(page, retainedPopup.serial, true\)[\s\S]*?if \(pickingPaths\)/)
+  assert.match(m2, /report.inputPopups.push\(\.\.\.await setWorldPaused\(page, true\)\)[\s\S]*?setM2CampaignPopupOpen\(page, retainedPopup.serial, true\)[\s\S]*?if \(pickingPaths\)/)
+  const spy = read('tutorial-browser/spy-source-readiness.mjs')
+  assert.match(spy, /skipIntroductionWithSpace\(page, \{ timeout: remaining\(\) \}\)/)
+  assert.doesNotMatch(spy, /keyboard.press\('Space'\)/)
   const frames = read('tutorial-browser/gameplay-frames.mjs')
   assert.match(frames, /for \(const \{ phase, measured \} of schedule\)[\s\S]*?await prepareWorldInput\(page\)[\s\S]*?const point[\s\S]*?const before = await observe\(\)/)
   const helper = read('browser-world-input.mjs')

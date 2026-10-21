@@ -7,6 +7,8 @@ import { runInNewContext } from 'node:vm'
 import {
   assertCompactMessageWitness,
   compactMessageCases,
+  compactMessageWitness,
+  scrollCompactDiagnostics,
   diagnosticMetricIds,
 } from '../scripts/tutorial-browser/compact-message-layout.mjs'
 import runM2Functional, { m2DiagnosticLayout, m2FunctionalLimitMs, runCompactDiagnosticEpisodes } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
@@ -205,6 +207,99 @@ test('compact message acceptance rejects status occlusion, clipping, missing con
   }
 })
 
+function scrollingWitness() {
+  const initial = clearWitness()
+  Object.assign(initial.layout, { rowsFit: false, exportFits: false, exportActionable: false,
+    scroll: { top: 0, left: 0, width: 462, clientWidth: 462, height: 400, clientHeight: 309 } })
+  const clip = { ...box(429, 9, 891, 316), name: 'fps-graph', diagnosticViewport: true,
+    clipX: true, clipY: true, overflowX: 'auto', overflowY: 'auto', contain: 'none', clipPath: 'none', clip: 'auto' }
+  for (const name of ['diagnosticRows', 'diagnosticFields'])
+    for (const node of initial.witness[name]) {
+      Object.assign(node, box(435, 315, 654, 332))
+      node.fragments = [box(435, 315, 654, 332)]
+      node.clips = [clip]
+    }
+  initial.witness.diagnosticTextRuns[1].fragments = [box(490, 320, 550, 332)]
+  for (const run of initial.witness.diagnosticTextRuns) run.clips = [clip]
+  const ancestor = { ...clip, ...box(0, 0, 900, 360), name: 'game-shell', diagnosticViewport: false,
+    diagnosticAncestor: true, overflowY: 'hidden' }
+  for (const name of ['diagnosticRows', 'diagnosticFields', 'diagnosticTextRuns'])
+    for (const node of initial.witness[name]) node.clips.push(ancestor)
+  const bottom = structuredClone(initial)
+  Object.assign(bottom.layout, { exportFits: true, exportActionable: true })
+  bottom.layout.scroll.top = 91
+  for (const name of ['diagnosticRows', 'diagnosticFields', 'diagnosticTextRuns'])
+    for (const node of bottom.witness[name]) {
+      if (Number.isFinite(node.top)) { node.top -= 91; node.bottom -= 91 }
+      for (const fragment of node.fragments) { fragment.top -= 91; fragment.bottom -= 91 }
+    }
+  return { initial, bottom }
+}
+
+test('overflowing F8 requires actual complete scroll coverage, strict horizontal fit and retained native text', () => {
+  const { initial, bottom } = scrollingWitness()
+  assertCompactMessageWitness(initial.layout, initial.witness, 900, 360, [bottom])
+  assert.throws(() => assertCompactMessageWitness(initial.layout, initial.witness, 900, 360), /scrolling/)
+  for (const damage of [
+    (a, b) => { b.layout.scroll.top = 0 },
+    (a, b) => { b.layout.scroll.top = 50 },
+    (a, b) => { b.layout.exportActionable = false },
+    (a, b) => { b.layout.exportFits = false },
+    (a, b) => { b.witness.diagnosticFields.pop() },
+    (a, b) => { b.witness.diagnosticTextRuns.pop() },
+    (a, b) => { b.witness.campaignText[0].top++ },
+    (a, b) => { b.witness.diagnosticRows[0].right = 1000 },
+    (a, b) => { b.witness.diagnosticFields[0].contentFits = false },
+    (a, b) => { b.witness.diagnosticFields[0].top = 800; b.witness.diagnosticFields[0].bottom = 820 },
+    (a, b) => { b.witness.diagnosticTextRuns[1].fragments[0].top = 800; b.witness.diagnosticTextRuns[1].fragments[0].bottom = 820 },
+    (a, b) => { b.layout.scroll.width++ },
+    (a, b) => { b.witness.overflow = true },
+    (a, b) => { b.layout.overflowY = 'hidden' },
+    (a, b) => { a.witness.diagnosticFields[0].clips[0].diagnosticViewport = false },
+    (a, b) => { b.witness.diagnosticFields[0].clips[0].clipPath = 'inset(2px)' },
+    (a, b) => { b.witness.diagnosticFields[0].clips[1].bottom = 300 },
+    (a, b) => { b.layout.scroll.height-- },
+  ]) {
+    const a = structuredClone(initial), b = structuredClone(bottom)
+    damage(a, b)
+    assert.throws(() => assertCompactMessageWitness(a.layout, a.witness, 900, 360, [b]), String(damage))
+  }
+})
+
+test('actual compact scroll driver uses public wheel input and rejects world or camera movement', async () => {
+  for (const damage of [null, 'camera', 'turn']) {
+    const { initial, bottom } = scrollingWitness(), calls = []
+    let scrolled = false, reads = 0
+    const page = {
+      locator(selector) {
+        assert.equal(selector, '.fps-graph')
+        return { evaluate: async read => { assert.equal(read, m2DiagnosticLayout); return structuredClone(bottom.layout) } }
+      },
+      mouse: {
+        move: async () => calls.push('move'),
+        wheel: async (x, y) => { assert.equal(x, 0); assert.ok(y > 0 && y <= initial.layout.scroll.clientHeight / 2); scrolled = true; calls.push('wheel') },
+      },
+      waitForFunction: async (_read, previous) => {
+        assert.equal(previous, 0); assert.equal(scrolled, true); calls.push('wait-scroll')
+      },
+      evaluate: async read => {
+        if (read === compactMessageWitness) return structuredClone(bottom.witness)
+        reads++
+        return { paused: true, turn: 10 + Number(reads === 2 && damage === 'turn'),
+          camera: { x: Number(reads === 2 && damage === 'camera') } }
+      },
+    }
+    const run = scrollCompactDiagnostics(page, initial, 900, 360, async () => calls.push('settle'))
+    if (damage) await assert.rejects(run, /preserves world/)
+    else {
+      await run
+      assertCompactMessageWitness(initial.layout, initial.witness, 900, 360, initial.scrollSamples)
+    }
+    assert.deepEqual(calls, ['move', 'settle', 'wheel', 'wait-scroll', 'settle'])
+    assert.equal(reads, 2)
+  }
+})
+
 test('real FPS font overhang is allowed only inside actual clipping and non-overlap boundaries', () => {
   const good = clearWitness()
   // Retained run 39175629111 / artifact 12154202752, Automatic 900x360:
@@ -294,12 +389,15 @@ test('compact preferences use public controls with genuine text geometry and F8-
   assert.match(source, /parent\.clientLeft \+ parent\.clientWidth/)
   assert.match(source, /parent\.clientTop \+ parent\.clientHeight/)
   assert.ok(source.indexOf('await page.screenshot({ path: resolve(output, screenshot) })') <
-    source.indexOf('assertCompactMessageWitness(layout, witness, width, height)', source.indexOf('report.cases.push(sample)')))
+    source.indexOf('assertCompactMessageWitness(layout, witness, width, height, sample.scrollSamples)', source.indexOf('report.cases.push(sample)')))
   assert.match(
     source,
     /node\.scrollWidth <= node\.clientWidth && node\.scrollHeight <= node\.clientHeight/
   )
   assert.match(source, /assert\.deepEqual\(\s*restored,\s*before/)
+  assert.match(source, /await page.mouse.wheel\(0,/)
+  assert.match(source, /assert.deepEqual\(sample.scrollAfter, sample.scrollBefore/)
+  assert.doesNotMatch(source, /\.scrollTop\s*=(?!=)|\.scrollTo\(/)
   assert.doesNotMatch(
     source,
     /localStorage\.setItem|force:|\.tick\(|\.setWorld\(|\.startMission\(|style\.setProperty|document\.querySelector[^\n]+\.click\(/

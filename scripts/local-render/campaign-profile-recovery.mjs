@@ -1,4 +1,4 @@
-import { pressWorldSpace } from '../browser-world-input.mjs'
+import { setWorldPaused } from '../browser-world-input.mjs'
 import assert from 'node:assert/strict'
 import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import { pauseStartupReady, skipPauseIntroduction, recoverVisibleIntroduction } from './original-pause-checkpoint-recovery.mjs'
@@ -223,7 +223,7 @@ export default async function ({ browser, context: initialContext, page: initial
     await startup.dispose()
     if (action === 'skip') await skipPauseIntroduction(page)
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-    await pressWorldSpace(page)
+    await setWorldPaused(page, true, { timeout: 2500 })
     assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true)
     const renderer = await page.evaluate(() => {
       const gl = window.testSceneRef.current.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')

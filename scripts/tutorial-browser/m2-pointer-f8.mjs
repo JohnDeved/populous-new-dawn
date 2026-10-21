@@ -1,4 +1,4 @@
-import { prepareWorldInput, pressWorldSpace, setCampaignPopupOpen } from '../browser-world-input.mjs'
+import { prepareWorldInput, setWorldPaused, setCampaignPopupOpen } from '../browser-world-input.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
@@ -270,7 +270,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     report.compactViewportReady = true
     stage('compact-admitted')
     await page.setViewportSize({ width: 1440, height: 1000 })
-    report.inputPopups.push(...await pressWorldSpace(page))
+    report.inputPopups.push(...await setWorldPaused(page, true))
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     // Restore the same retained notification for compact and F8 layout subjects.
     const retainedPopup = report.inputPopups.at(-1)
@@ -472,7 +472,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
         report.campaignMessagesBefore, 'Public close/reopen retains the complete paused notification state')
       stage('f8-reset-matched')
       assertM2Input(report.before, report.after)
-      await pressWorldSpace(page)
+      await setWorldPaused(page, false)
       await page.waitForFunction(
         turn => window.testStore.getWorld().turn > turn,
         report.before.turn
@@ -564,6 +564,8 @@ export function m2DiagnosticLayout(el) {
   const e = exportButton?.getBoundingClientRect()
   return {
     exportFits: fits(exportButton) && fits(exportStatus),
+    scroll: { top: el.scrollTop, left: el.scrollLeft, width: el.scrollWidth, height: el.scrollHeight,
+      clientWidth: el.clientWidth, clientHeight: el.clientHeight },
     exportActionable:
       !!e &&
       !exportButton.disabled &&
@@ -637,8 +639,16 @@ export function m2DiagnosticLayout(el) {
 }
 
 export function assertM2DiagnosticLayout(layout, width, height) {
+  assertM2DiagnosticFrame(layout, width, height)
+  assert.equal(layout.rowsFit, true, 'Every metric row must fit simultaneously')
+  assert.equal(layout.exportFits, true, 'Export button and status must fit at every viewport')
+  assert.equal(layout.exportActionable, true, 'Export must remain reachable beside campaign text')
+}
+
+// Frame coexistence is shared by simultaneous-fit and actual scroll-coverage QA.
+// This alone never certifies that overflowing diagnostics are readable.
+export function assertM2DiagnosticFrame(layout, width, height) {
   assert.ok(layout.left >= 0 && layout.top >= 0 && layout.right <= width && layout.bottom <= height)
-  assert.equal(layout.rowsFit, true, 'Metric rows must fit without horizontal clipping')
   assert.match(
     layout.pointerTail,
     /^\d+\.\d \/ \d+\.\d ms$/,
@@ -647,8 +657,6 @@ export function assertM2DiagnosticLayout(layout, width, height) {
   assert.equal(layout.overflow, false)
   assert.equal(layout.events, 'auto', 'Open native popup retains the diagnostic scroll owner')
   assert.equal(layout.overflowY, 'auto', 'Diagnostic overflow remains reachable, not clipped')
-  assert.equal(layout.exportFits, true, 'Export button and status must fit at every viewport')
-  assert.equal(layout.exportActionable, true, 'Export must remain reachable beside campaign text')
   assert.ok(layout.campaignPanels.length > 0, 'Authored open campaign message must be observed')
   for (const panel of layout.campaignPanels) {
     assert.equal(

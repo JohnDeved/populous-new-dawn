@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import { checkPickingPathReadout, pickingPathMetricIds } from './picking-path-readout.mjs'
 import {
   assertM2DiagnosticLayout,
+  assertM2DiagnosticFrame,
   m2DiagnosticLayout,
   m2RectanglesOverlap,
 } from './m2-pointer-f8.mjs'
@@ -54,6 +55,7 @@ export const diagnosticMetricIds = Object.freeze([
 // Read real text fragments, including wrapping, rather than only an outer box.
 // This function is serialized into the page and never changes DOM or game state.
 export function compactMessageWitness() {
+  const diagnosticGraph = document.querySelector('.fps-graph')
   const rect = node => {
     const r = node.getBoundingClientRect()
     return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }
@@ -71,6 +73,8 @@ export function compactMessageWitness() {
       const bounds = rect(parent)
       result.push({
         name: parent.className || parent.tagName,
+        diagnosticViewport: parent === diagnosticGraph,
+        diagnosticAncestor: !!diagnosticGraph && parent !== diagnosticGraph && parent.contains(diagnosticGraph),
         left: bounds.left + parent.clientLeft,
         top: bounds.top + parent.clientTop,
         right: bounds.left + parent.clientLeft + parent.clientWidth,
@@ -144,8 +148,24 @@ export function compactMessageWitness() {
   }
 }
 
-export function assertCompactMessageWitness(layout, witness, width, height) {
-  assertM2DiagnosticLayout(layout, width, height)
+const contains = (box, fragment, x = true, y = true) =>
+  (!x || (fragment.left >= box.left - 0.5 && fragment.right <= box.right + 0.5)) &&
+  (!y || (fragment.top >= box.top - 0.5 && fragment.bottom <= box.bottom + 0.5))
+
+const fullyVisible = (layout, node, width, height) => {
+  const viewport = { left: 0, top: 0, right: width, bottom: height }
+  return [node, ...node.fragments].filter(fragment => Number.isFinite(fragment.top)).every(fragment =>
+    contains(layout, fragment) && contains(viewport, fragment) &&
+    node.clips.every(clip => contains(clip, fragment, clip.clipX, clip.clipY)))
+}
+
+function assertCompactMessageSample(layout, witness, width, height, scrolling) {
+  if (scrolling) {
+    assertM2DiagnosticFrame(layout, width, height)
+    assert.ok(layout.scroll.height > layout.scroll.clientHeight, 'Only real vertical overflow may use scroll coverage')
+    assert.ok(layout.scroll.width <= layout.scroll.clientWidth, 'F8 must never scroll or clip horizontally')
+    assert.equal(layout.scroll.left, 0)
+  } else assertM2DiagnosticLayout(layout, width, height)
   assert.equal(witness.overflow, false, 'No document scroll overflow in either dimension')
   assert.equal(witness.inventedMessageCards, 0, 'Browser-authored world-message cards must be absent')
   assert.ok(witness.campaignText.length > 0, 'Authored campaign text must be present')
@@ -158,26 +178,27 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
   for (const node of witness.diagnosticFields)
     assert.ok(
       node.left >= layout.left &&
-        node.top >= layout.top &&
+        (scrolling || node.top >= layout.top) &&
         node.right <= layout.right &&
-        node.bottom <= layout.bottom,
+        (scrolling || node.bottom <= layout.bottom),
       'Diagnostic fields must fit F8'
     )
   const strictBoxes = [
     ...witness.campaignText,
     ...witness.diagnosticRows,
   ]
-  const contains = (box, fragment, x = true, y = true) =>
-    (!x || (fragment.left >= box.left - 0.5 && fragment.right <= box.right + 0.5)) &&
-    (!y || (fragment.top >= box.top - 0.5 && fragment.bottom <= box.bottom + 0.5))
   const assertFragment = (fragment, node, diagnostic) => {
-    assert.ok(contains({ left: 0, top: 0, right: width, bottom: height }, fragment), 'Text must fit viewport')
-    if (diagnostic) assert.ok(contains(layout, fragment), 'Diagnostic text must fit F8')
+    const simultaneous = !diagnostic || !scrolling
+    assert.ok(contains({ left: 0, top: 0, right: width, bottom: height }, fragment, true, simultaneous), 'Text must fit viewport')
+    if (diagnostic) assert.ok(contains(layout, fragment, true, simultaneous), 'Diagnostic text must fit F8')
     for (const clip of node.clips) {
       // Do not claim rectangular evidence proves an unmeasured shape clip.
       assert.equal(clip.clipPath, 'none', 'Shape clipping needs separate geometry evidence')
       assert.equal(clip.clip, 'auto', 'Legacy clipping needs separate geometry evidence')
-      assert.ok(contains(clip, fragment, clip.clipX, clip.clipY), `Text must fit actual clip: ${clip.name}`)
+      const scrollClip = diagnostic && scrolling && clip.diagnosticViewport && clip.overflowY === 'auto'
+      const outerClip = diagnostic && scrolling && clip.diagnosticAncestor
+      if (outerClip) assert.ok(contains(clip, layout, clip.clipX, clip.clipY), 'The complete F8 viewport must fit every outer clip')
+      assert.ok(contains(clip, fragment, clip.clipX, clip.clipY && !scrollClip && !outerClip), `Text must fit actual clip: ${clip.name}`)
     }
   }
   for (const node of [
@@ -188,7 +209,8 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
     if (witness.campaignText.includes(node))
       assert.ok(layout.campaignPanels.some(panel => contains(panel, node)), 'Campaign glyph bounds must stay inside their native panel')
     assert.equal(node.contentFits, true, 'Text must not overflow its own box')
-    assert.ok(node.left >= 0 && node.top >= 0 && node.right <= width && node.bottom <= height)
+    assert.ok(node.left >= 0 && node.right <= width &&
+      (scrolling && !witness.campaignText.includes(node) || node.top >= 0 && node.bottom <= height))
     for (const fragment of node.fragments) {
       if (strictBoxes.includes(node))
         assert.ok(contains(node, fragment), `Wrapped text must remain inside its box: ${node.text}`)
@@ -205,8 +227,12 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
       for (const other of witness.diagnosticTextRuns.slice(index + 1))
         for (const neighbor of other.fragments)
           assert.equal(m2RectanglesOverlap(fragment, neighbor), false, 'Distinct diagnostic text must not overlap')
-      for (const ui of [layout.pause, ...layout.interactiveUi])
-        assert.equal(m2RectanglesOverlap(fragment, ui), false, 'Diagnostic text must not obscure unrelated UI')
+      // Off-scroll text is not painted over the native popup. Its horizontal
+      // geometry and every non-scroll clipping ancestor were checked above.
+      const painted = scrolling ? { ...fragment, top: Math.max(fragment.top, layout.top),
+        bottom: Math.min(fragment.bottom, layout.bottom) } : fragment
+      if (painted.bottom > painted.top) for (const ui of [layout.pause, ...layout.interactiveUi])
+        assert.equal(m2RectanglesOverlap(painted, ui), false, 'Diagnostic text must not obscure unrelated UI')
     }
   }
   for (const ui of layout.interactiveUi)
@@ -216,6 +242,66 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
       `F8 must not obscure interactive UI: ${ui.name}`
     )
 
+}
+
+// Require cumulative actual viewport evidence, not merely overflow:auto or DOM
+// presence. Nonoverflowing layouts retain all previous simultaneous-fit checks.
+export function assertCompactMessageWitness(layout, witness, width, height, scrollSamples = []) {
+  const scrolling = layout.scroll?.height > layout.scroll?.clientHeight
+  const samples = [{ layout, witness }, ...scrollSamples]
+  for (const sample of samples)
+    assertCompactMessageSample(sample.layout, sample.witness, width, height, scrolling)
+  if (!scrolling) return
+  assert.equal(layout.scroll.top, 0, 'F8 opens at the top')
+  assert.ok(scrollSamples.some(sample => sample.layout.scroll.top > 0), 'Actual public F8 scrolling is required')
+  const last = samples.at(-1).layout.scroll
+  assert.ok(last.top >= last.height - last.clientHeight - 1, 'Public scroll must reach the end')
+  for (const [index, sample] of samples.entries()) {
+    assert.deepEqual([sample.layout.left, sample.layout.top, sample.layout.right, sample.layout.bottom],
+      [layout.left, layout.top, layout.right, layout.bottom], 'Scrolling cannot resize or move F8')
+    assert.deepEqual([sample.layout.scroll.width, sample.layout.scroll.height, sample.layout.scroll.clientWidth, sample.layout.scroll.clientHeight],
+      [layout.scroll.width, layout.scroll.height, layout.scroll.clientWidth, layout.scroll.clientHeight], 'Scrolling cannot remove overflow content')
+    if (index) assert.ok(sample.layout.scroll.top > samples[index - 1].layout.scroll.top, 'Each wheel sample must progress')
+    assert.equal(sample.witness.diagnosticTextRuns.length, witness.diagnosticTextRuns.length, 'No diagnostic text may disappear during scrolling')
+    assert.deepEqual(sample.witness.campaignText, witness.campaignText, 'Scrolling F8 must not move or change native campaign text')
+  }
+  for (const name of ['diagnosticRows', 'diagnosticFields', 'diagnosticTextRuns'])
+    for (const [index, node] of witness[name].entries())
+      assert.ok(samples.some(sample => fullyVisible(sample.layout, sample.witness[name][index], width, height)),
+        `Public scroll must expose every ${name} entry: ${node.metric ?? node.text}`)
+  assert.ok(samples.some(sample => sample.layout.exportFits && sample.layout.exportActionable),
+    'Public scroll must expose the complete hit-testable export button and status')
+}
+
+// The only mutations here are real pointer/wheel inputs. Capture overlapping
+// viewports so a row/text run crossing one boundary is fully seen in the next.
+export async function scrollCompactDiagnostics(page, sample, width, height, settle) {
+  sample.scrollSamples = []
+  const graph = page.locator('.fps-graph')
+  let layout = sample.layout
+  if (layout.scroll.height <= layout.scroll.clientHeight) return
+  await page.mouse.move((layout.left + layout.right) / 2, (layout.top + layout.bottom) / 2)
+  await settle()
+  const snapshot = () => page.evaluate(() => {
+    const scene = window.testSceneRef.current, world = scene.world
+    return { paused: world.paused, turn: world.turn, selected: [...world.selected], mode: world.mode,
+      randomState: world.randomState, cosmeticRandom: world.cosmeticRandom,
+      camera: { ...scene.cameraPosition }, bearing: scene.cameraBearing, zoom: scene.viewZoom,
+      viewPoint: { ...scene.viewPoint }, messages: structuredClone(world.messages) }
+  })
+  sample.scrollBefore = await snapshot()
+  assert.equal(sample.scrollBefore.paused, true)
+  while (layout.scroll.top < layout.scroll.height - layout.scroll.clientHeight - 1) {
+    await page.mouse.wheel(0, Math.max(1, Math.floor(layout.scroll.clientHeight / 2)))
+    await page.waitForFunction(previous => document.querySelector('.fps-graph').scrollTop > previous, layout.scroll.top)
+    await settle()
+    layout = await graph.evaluate(m2DiagnosticLayout)
+    const witness = await page.evaluate(compactMessageWitness)
+    sample.scrollSamples.push({ layout, witness })
+    assertCompactMessageSample(layout, witness, width, height, true)
+  }
+  sample.scrollAfter = await snapshot()
+  assert.deepEqual(sample.scrollAfter, sample.scrollBefore, 'Native F8 scrolling preserves world, selection, camera and messages')
 }
 
 async function selectHudPreference(page, preference) {
@@ -284,7 +370,12 @@ export async function checkCompactMessages({ page, output, stage, report }) {
       }
       report.cases.push(sample)
       await page.screenshot({ path: resolve(output, screenshot) })
-      assertCompactMessageWitness(layout, witness, width, height)
+      await scrollCompactDiagnostics(page, sample, width, height, settle)
+      if (sample.scrollSamples.length) {
+        sample.scrolledScreenshot = `compact-message-${preference}-${width}x${height}-scrolled.png`
+        await page.screenshot({ path: resolve(output, sample.scrolledScreenshot) })
+      }
+      assertCompactMessageWitness(layout, witness, width, height, sample.scrollSamples)
       await page.keyboard.press('F8')
       await graph.waitFor({ state: 'hidden' })
       await settle()

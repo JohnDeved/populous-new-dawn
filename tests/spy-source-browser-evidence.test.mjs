@@ -1,3 +1,5 @@
+import { withoutCampaignPopup } from './support/world-input-page.mjs'
+import { worldPauseState } from '../scripts/browser-world-input.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
@@ -138,13 +140,11 @@ test('current checkpoint supplies a truly trained Spy but never seeds disguise o
   const api = await loadSceneFixture()
   const { currentPersonOrder } = await import('../app/person-orders.ts')
   api.select(world, 'spy')
-  const actions = [], page = {
-    locator(selector) {
-      assert.equal(selector, '.world-viewport')
-      return { press: async key => { assert.equal(key, 'Space'); world.paused = false; actions.push('resume') } }
-    },
+  const actions = [], page = withoutCampaignPopup({
+    evaluate: async fn => { assert.equal(fn, worldPauseState); return { paused: world.paused, inputMask: 0, turn: world.turn } },
+    keyboard: { press: async key => { assert.equal(key, 'Space'); world.paused = false; actions.push('resume') } },
     waitForFunction: async () => { assert.equal(world.paused, false); actions.push('running') },
-  }, action = async (_name, run) => run()
+  }), action = async (_name, run) => run()
   assert.equal(api.disguiseSelectedSpies(world, 1), false, 'the actual shipped command rejects paused input')
   await resumeSpySourceInput(page, action, 'Disguise as Dakini', async () => {
     assert.equal(api.disguiseSelectedSpies(world, 1), true); actions.push('disguise')
@@ -226,7 +226,7 @@ test('Spy readiness observes actual owners and presses Space only for an interru
       const snapshot = readSpySourceReadiness()
       assert.deepEqual(world, before, 'observation is read-only')
       const page = {
-        evaluate: async fn => fn(),
+        evaluate: async (fn, arg) => fn(arg),
         waitForFunction: async (fn, arg, options) => {
           assert.ok(options.timeout > 0 && options.timeout <= 8000)
           const result = fn(arg)
@@ -242,7 +242,7 @@ test('Spy readiness observes actual owners and presses Space only for an interru
         } },
       }
       const deadlineAt = Date.now() + (mode === 'short-host' ? 500 : 45000),
-        run = awaitSpySourceReadiness({ page, report,
+        run = awaitSpySourceReadiness({ page: withoutCampaignPopup(page), report,
         action: async (name, run) => { calls.push(name); await run() },
         save: () => calls.push('save'), deadlineAt })
       if (['skip', 'ready', 'short-host'].includes(mode)) {
