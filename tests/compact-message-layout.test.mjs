@@ -495,6 +495,27 @@ test('retained 1440x1000 campaign bitmap overhang remains a real own-box failure
     /Text must not overflow its own box/)
 })
 
+test('accurate campaign content extent never excuses panel escape, glyph escape or ancestor clipping', () => {
+  const good = clearWitness(), node = good.witness.campaignText[0]
+  node.right += 6
+  node.fragments[0].right = node.right
+  assertCompactMessageWitness(good.layout, good.witness, 900, 360)
+  for (const damage of [
+    sample => { sample.witness.campaignText[0].right = sample.layout.campaignPanels[0].right + 1 },
+    sample => { sample.witness.campaignText[0].fragments[0].right++ },
+    sample => {
+      const text = sample.witness.campaignText[0]
+      text.clips = [{ ...box(text.left, text.top, text.right - 1, text.bottom), name: 'real-clip',
+        clipX: true, clipY: true, clipPath: 'none', clip: 'auto' }]
+    },
+    sample => { sample.witness.diagnosticTextRuns[1].fragments = sample.witness.diagnosticTextRuns[0].fragments },
+  ]) {
+    const bad = structuredClone(good)
+    damage(bad)
+    assert.throws(() => assertCompactMessageWitness(bad.layout, bad.witness, 900, 360))
+  }
+})
+
 test('real FPS font overhang is allowed only inside actual clipping and non-overlap boundaries', () => {
   const good = clearWitness()
   // Retained run 39175629111 / artifact 12154202752, Automatic 900x360:

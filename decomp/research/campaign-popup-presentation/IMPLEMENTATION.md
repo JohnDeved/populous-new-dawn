@@ -116,6 +116,50 @@ proof of native browser fullscreen exit. Outside-focus automatic opening and the
 actual Home/scene key owners are exercised, not replaced by hand-copied handlers. Parent
 integration must still run independent review and full source/browser gates.
 
+## DOM text extent is distinct from the native wrap budget
+
+The retained `dbb9cd8c` M2 browser receipt at1440x1000 has a1240px
+battlefield and2x HUD preference. Its logical620x500 popup uses native
+wrapWidth388. The second line, “many Warriors ready to stand against us.”,
+has391px of source glyph advance because `0045ec10` consumes the final period
+before checking width. The full line set and native geometry remain unchanged.
+
+That is not a proven clipping failure. The text starts at screen x432, the
+nominal wrap boundary is x1208, and the period's sprite ends at x1214, still54px
+inside the panel's x1268 edge. Its nontransparent source pixels occupy local
+x[1,4), so the overhang is not merely transparent padding or a CSS font bearing.
+The receipt's ancestor clips are screen bounds; no lost or overlapping text was
+established. Body renderer `005259fc..00525a80` passes the wrapped line to the
+font renderer at the native text origin, without applying the wrap rectangle as
+a horizontal clip.
+
+The browser-only correction gives the absolutely positioned text container
+`max(wrapWidth, measured line advances)` width. It does not change wrapping,
+glyph coordinates, panel tiles/bounds, scaling, or the separately positioned
+buttons. Plain-text art-failure recovery retains the original wrap width. This
+is a DOM extent correction for already-rendered native content, not an
+original-game visual behavior change. Strict own-box, panel, ancestor-clip,
+overlap and hit-test assertions remain required; extending the text container
+does not excuse a glyph escaping the panel or any real clipping.
+
+The regression binds these retained inputs rather than claiming native runtime
+or GPU equivalence:
+
+- `decomp/generated/0045ec10.c` (Ghidra pseudocode, not original source):
+  SHA-256 `b8e52f8ae04168e0a0ea8e965ed5bf1ca94672125c4fdf13b391c8ba08c7085c`.
+- `body-renderer.asm`:
+  `7dde157edf500754b1dcf5efe5d7decf05accf7e38baddf870c5c9415082ac5e`.
+- `font-direct-cpu.asm`:
+  `50686387d9d3e8bf375268711b1d1a2419a10411b6f24f40d2cfd47be46cf3b7`.
+- `public/original/result-font.png`:
+  `46d35c177850244ed211c0556af98694bb428835e7708a79f3acee16828e0676`.
+- Period glyph x266,y0,w4,h19,advance4, cropped RGBA:
+  `dcabd5010f052b3a31be5fb4b7fb79f607eb43eb0a5238b1351134d87eec0dd7`.
+
+Node regression/source inspection does not establish actual browser paint,
+hit geometry or unchanged neighboring layout; source-bound rendered acceptance
+must still verify those boundaries on the integrated candidate.
+
 ## Panel parity audit
 
 The raw `panel-tiles.asm` instructions, not an informal “alternating rails”

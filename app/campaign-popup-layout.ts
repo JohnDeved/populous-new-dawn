@@ -136,6 +136,13 @@ export function fitCampaignPopup(
     )
   return {
     ...layout,
+    // Native wrapping may consume one overflowing glyph (including punctuation).
+    // Describe its existing DOM extent without changing the wrap budget, glyph
+    // coordinates, panel quantization or button positions.
+    textWidth: layout.lines.reduce(
+      (extent, line) => Math.max(extent, popupTextWidth(line, layout.font)),
+      layout.wrapWidth
+    ),
     scale,
     x: Math.trunc((width - layout.panelWidth * scale) / 2),
     y: Math.trunc(height / 32),
