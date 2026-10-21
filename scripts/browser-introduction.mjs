@@ -3,7 +3,11 @@
 export function introductionInputState() {
   const world = window.testStore?.getWorld() ?? window.testSceneRef?.current?.world ?? window.testScene?.world
   if (!world || document.querySelector('.loading-world')) return false
-  if (!world.inputMask) return 'ready'
+  // Authored flybys can start after an initially unlocked frame. Do not
+  // mistake an in-progress new-game appearance sequence for a finished intro.
+  // A paused restored world cannot advance that sequence until its caller resumes.
+  if (!world.inputMask)
+    return !world.paused && world.levelStart?.some(site => site.phase !== 4) ? false : 'ready'
   // Active and interruptible, but not already interrupted/completing.
   return (world.inputMask & 64) && (world.flyby.flags & 0x51) === 0x11 ? 'skip' : false
 }
