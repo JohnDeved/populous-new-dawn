@@ -15,7 +15,7 @@ function fixture({ paused, race, kind }) {
     messageDetails:{current:new Map()},
     SPELLS:[],rotateBuildingPlan:()=>false,audio:{current:null},update(){},
     store:{change(fn){calls.push('world-change');fn(world)}},
-    window:{addEventListener(_name,fn){handler=fn},removeEventListener(){}},
+    globalThis:{addEventListener(_name,fn){handler=fn},removeEventListener(){}},
   })()
   const context={window:{testStore:{getWorld:()=>world},testSceneRef:{current:{world,renderer:{domElement:{isConnected:true}}}}},document:{querySelector:()=>null}}
   const run=(fn,arg)=>runInNewContext(`(${fn.toString()})(arg)`,{...context,arg})
