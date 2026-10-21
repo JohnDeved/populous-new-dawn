@@ -216,7 +216,7 @@ test('shipped app mounts control once and keeps fullscreen available through loa
   assert.match(component, /onClick=.*session\.current\?\.toggle/)
   assert.match(sceneSource, /new ResizeObserver\(\(\) => this\.setSize\(\)\)/)
   assert.match(sceneSource, /this\.resize\.observe\(container\)/)
-  assert.match(page, /globalThis\.addEventListener\('resize', resize\)/)
+  assert.match(page, /window\.addEventListener\('resize', resize\)/)
 })
 
 test('entry re-promotes existing modals above fullscreen without replacing panel DOM or focus', async () => {
