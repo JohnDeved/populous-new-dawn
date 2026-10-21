@@ -3,7 +3,6 @@ import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import { pauseStartupReady, skipPauseIntroduction, recoverVisibleIntroduction } from './original-pause-checkpoint-recovery.mjs'
 import { waitRecoveryReadiness } from '../tutorial-browser/profile-readiness.mjs'
 import { openCampaignFromMainMenu, waitForStartupMenu } from '../browser-new-game.mjs'
-import { showSelectorControls } from '../browser-game.mjs'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -140,7 +139,6 @@ async function expectProfileUi(page, completed) {
   const start = dialog.getByRole('button', { name: `${completed.includes(target) ? 'Replay' : 'Start'} Mission ${target}`, exact: true })
   assert.equal(await start.isEnabled(), true)
   const enabledStart = await start.getAttribute('aria-label')
-  await showSelectorControls(page)
   return { labels, enabledStart }
 }
 
@@ -174,7 +172,7 @@ export default async function ({ browser, context: initialContext, page: initial
     status: 'running',
     scenarioSha256: digest(new URL(import.meta.url)),
     runtime: runtime(),
-    method: 'Real IndexedDB committed transactions in fresh ephemeral browser contexts. Seeded latest/profile records are diagnostic fixtures. Fresh page startup, selector availability, and valid checkpoint Load use shipped UI. The ordinary Save → fresh-page Load case seeds no records or gameplay state. In-session restore is a direct store diagnostic with an ordinary UI checkpoint and seeded completion/corruption.',
+    method: 'Real IndexedDB committed transactions in fresh ephemeral browser contexts. Seeded latest/profile records are diagnostic fixtures. Fresh page startup, native selector availability, and valid checkpoint Load use shipped UI. Restore and Load are checked as no-write boundaries; explicit selector entry may persist only its native profile transition. The ordinary Save → fresh-page Load case seeds no records or gameplay state. In-session restore is a direct store diagnostic with an ordinary UI checkpoint and seeded completion/corruption.',
     limits: 'Browser checkpoint failure isolation only. Page reload within one browser context is not browser-process restart persistence. Complete stored-record digests do not establish full loaded-world equality. Load-boundary version is a supplied wrapper value, not an independent observation. No authentic original-save interoperability, naturally earned campaign completion, deployment behavior, hardware performance, or full PND-07 claim.',
     cases: [],
     screenshots: [],
@@ -264,18 +262,33 @@ export default async function ({ browser, context: initialContext, page: initial
       assert.equal(entry.startup.restoredAgain, valid)
       assert.equal(entry.startup.activeWorldPreserved, true)
       assert.deepEqual(entry.startup.writes, [])
+      entry.afterRestore = await page.evaluate(storedRecords)
+      assert.deepEqual(entry.afterRestore, entry.beforeStartup, 'Restore alone preserves every record')
       entry.selector = await expectProfileUi(page, expected)
-      assert.equal(await page.getByRole('button', { name: 'Load Game', exact: true }).count(), valid ? 1 : 0)
       if (kind === 'malformed') await capture(page, 'malformed-profile-selector.png')
+      // Native selection returns through its dialog owner, not removed compatibility controls.
+      await page.keyboard.press('Escape')
+      await waitForStartupMenu(page)
+      // Deliberately entering selection applies a native return transition. It
+      // may persist availability, but cannot manufacture completion or a save.
+      entry.afterSelector = await page.evaluate(storedRecords)
+      assert.deepEqual(entry.afterSelector.filter(record => record.key !== 'profile'),
+        entry.beforeStartup.filter(record => record.key !== 'profile'), 'Selector entry never replaces checkpoint data')
+      assert.deepEqual(await page.evaluate(() => window.testStore.getCompletedMissions()), expected)
+      const writesBeforeLoad = await page.evaluate(() => [...window.recoveryStorageWrites])
+      assert.ok(writesBeforeLoad.every(write => write.method === 'put' && write.key === 'profile'), 'Only the explicit selector transition may write')
+      const load = page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'Load Game', exact: true })
+      assert.equal(await load.count(), 1)
+      assert.equal(await load.getAttribute('aria-disabled'), String(!valid))
       if (valid) {
-        entry.publicLoad = await loadThroughUi(page, page.getByRole('button', { name: 'Load Game', exact: true }))
+        entry.publicLoad = await loadThroughUi(page, load)
         assert.deepEqual(entry.publicLoad.fields, { turn: 217, randomState: 0x12345678, drawMode: 0 })
         assert.equal(entry.publicLoad.loaded.level, 1)
         assert.equal(entry.publicLoad.canvasVisible, true)
       }
       entry.afterRestoreAndLoad = await page.evaluate(storedRecords)
-      assert.deepEqual(entry.afterRestoreAndLoad, entry.beforeStartup, 'Startup/restore/load must preserve every stored record')
-      assert.deepEqual(await page.evaluate(() => window.recoveryStorageWrites), [])
+      assert.deepEqual(entry.afterRestoreAndLoad, entry.afterSelector, 'Load preserves every post-selector stored record')
+      assert.deepEqual(await page.evaluate(() => window.recoveryStorageWrites), writesBeforeLoad)
       entry.status = 'passed'
       save()
     } catch (error) {
