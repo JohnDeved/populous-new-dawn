@@ -39,9 +39,12 @@ test('hidden logo shadow equals a transparent-logo-mask reference without changi
 test('every frontend panel passes foreground artwork readiness to its logo shadow', () => {
   const source = readFileSync(new URL('../app/original-main-menu.tsx', import.meta.url), 'utf8')
   const parsed = ts.createSourceFile('menu.tsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
-  let callback
+  let callback, dependencies
   function visit(node) {
-    if (ts.isVariableDeclaration(node) && node.name.getText(parsed) === 'draw') callback = node.initializer.arguments[0]
+    if (ts.isVariableDeclaration(node) && node.name.getText(parsed) === 'draw') {
+      callback = node.initializer.arguments[0]
+      dependencies = node.initializer.arguments[1]
+    }
     ts.forEachChild(node, visit)
   }
   visit(parsed)
@@ -64,5 +67,8 @@ test('every frontend panel passes foreground artwork readiness to its logo shado
       assert.equal(args[2], panel === 'main')
     }
   }
-  assert.match(source, /\[panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared, vectorFailures\]/)
+  assert.deepEqual(dependencies.elements.map(node => node.getText(parsed)), [
+    'panel', 'optionRows', 'canvasWidth', 'questionReady', 'artReady', 'logoReady',
+    'prepared', 'vectorFailures', 'checkpointRecovery',
+  ])
 })
