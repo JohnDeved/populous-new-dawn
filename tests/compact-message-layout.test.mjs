@@ -267,35 +267,44 @@ test('overflowing F8 requires actual complete scroll coverage, strict horizontal
 })
 
 test('actual compact scroll driver uses public wheel input and rejects world or camera movement', async () => {
-  for (const damage of [null, 'camera', 'turn']) {
+  for (const fromBottom of [false, true]) for (const damage of [null, 'camera', 'turn']) {
     const { initial, bottom } = scrollingWitness(), calls = []
-    let scrolled = false, reads = 0
+    let current = fromBottom ? bottom : initial, reads = 0
+    const sample = structuredClone(current)
     const page = {
       locator(selector) {
         assert.equal(selector, '.fps-graph')
-        return { evaluate: async read => { assert.equal(read, m2DiagnosticLayout); return structuredClone(bottom.layout) } }
+        return { evaluate: async read => { assert.equal(read, m2DiagnosticLayout); return structuredClone(current.layout) } }
       },
       mouse: {
         move: async () => calls.push('move'),
-        wheel: async (x, y) => { assert.equal(x, 0); assert.ok(y > 0 && y <= initial.layout.scroll.clientHeight / 2); scrolled = true; calls.push('wheel') },
+        wheel: async (x, y) => {
+          assert.equal(x, 0)
+          if (y > 0) assert.ok(y <= initial.layout.scroll.clientHeight / 2)
+          else assert.equal(y, -initial.layout.scroll.height)
+          current = y > 0 ? bottom : initial
+          calls.push(y > 0 ? 'wheel' : 'wheel-top')
+        },
       },
       waitForFunction: async (_read, previous) => {
-        assert.equal(previous, 0); assert.equal(scrolled, true); calls.push('wait-scroll')
+        if (previous === undefined) assert.equal(current.layout.scroll.top, 0)
+        else { assert.equal(previous, 0); assert.ok(current.layout.scroll.top > previous) }
+        calls.push('wait-scroll')
       },
       evaluate: async read => {
-        if (read === compactMessageWitness) return structuredClone(bottom.witness)
+        if (read === compactMessageWitness) return structuredClone(current.witness)
         reads++
         return { paused: true, turn: 10 + Number(reads === 2 && damage === 'turn'),
           camera: { x: Number(reads === 2 && damage === 'camera') } }
       },
     }
-    const run = scrollCompactDiagnostics(page, initial, 900, 360, async () => calls.push('settle'))
+    const run = scrollCompactDiagnostics(page, sample, 900, 360, async () => calls.push('settle'))
     if (damage) await assert.rejects(run, /preserves world/)
     else {
       await run
-      assertCompactMessageWitness(initial.layout, initial.witness, 900, 360, initial.scrollSamples)
+      assertCompactMessageWitness(sample.layout, sample.witness, 900, 360, sample.scrollSamples)
     }
-    assert.deepEqual(calls, ['move', 'settle', 'wheel', 'wait-scroll', 'settle'])
+    assert.deepEqual(calls, ['move', 'settle', ...(fromBottom ? ['wheel-top', 'wait-scroll', 'settle'] : []), 'wheel', 'wait-scroll', 'settle'])
     assert.equal(reads, 2)
   }
 })

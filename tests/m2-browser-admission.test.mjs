@@ -1,3 +1,4 @@
+import { campaignPopupSnapshot } from '../scripts/browser-world-input.mjs'
 import { browserCapMs, browserScenarios } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import { assertNativeFrameExport, m2NativePointerTarget } from '../scripts/tutorial-browser/frame-export.mjs'
 import test from 'node:test'
@@ -498,7 +499,10 @@ test('normal M2 establishes closed camera/pointer ownership and restores the sam
       ? { click: async () => { calls.push('summary'); open = !open } }
       : { waitFor: async ({ state }) => { assert.equal(selector, '[data-native-campaign-panel]'); assert.equal(state, open ? 'visible' : 'hidden') } },
   }
-  const page = { locator: selector => {
+  const page = { evaluate: async read => {
+    assert.equal(read, campaignPopupSnapshot)
+    return present ? [{ serial: '7', open }] : []
+  }, locator: selector => {
     if (selector === '.campaign-messages details[open]') return { count: async () => Number(open) }
     assert.equal(selector, '.campaign-messages details[data-message-serial="7"]')
     return detail
@@ -521,9 +525,11 @@ test('normal M2 establishes closed camera/pointer ownership and restores the sam
   const close = loop.indexOf('await setM2CampaignPopupOpen(page, popupSerial, false)'),
     pointer = loop.indexOf('await moveAndObserve(width - 60, height - 100, true)'),
     reopen = loop.indexOf('await setM2CampaignPopupOpen(page, popupSerial, true)'),
-    layout = loop.indexOf('assertM2DiagnosticLayout(layout, width, height)')
+    layout = loop.indexOf('assertCompactMessageWitness(sample.layout, sample.witness, width, height, sample.scrollSamples)')
   assert.ok(close >= 0 && close < pointer && pointer < reopen && reopen < layout)
   assert.ok(reopen < loop.indexOf('await checkFrameExport('))
+  assert.ok(loop.indexOf('await checkFrameExport(') < loop.indexOf('await scrollCompactDiagnostics('))
+  assert.ok(loop.indexOf('await scrollCompactDiagnostics(') < layout)
   assert.match(loop, /pointerPopupState: 'closed', layoutPopupState: 'open', popupSerial/)
   assert.match(source, /Public close\/reopen retains the complete paused notification state/)
   assert.equal(m2FunctionalLimitMs, 45000, 'The existing absolute episode budget is unchanged')

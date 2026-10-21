@@ -291,6 +291,15 @@ export async function scrollCompactDiagnostics(page, sample, width, height, sett
   })
   sample.scrollBefore = await snapshot()
   assert.equal(sample.scrollBefore.paused, true)
+  // A preceding real export or viewport resize may retain a scroll offset.
+  // Restore the header through the same native wheel input, never scrollTop writes.
+  if (layout.scroll.top > 0) {
+    await page.mouse.wheel(0, -layout.scroll.height)
+    await page.waitForFunction(() => document.querySelector('.fps-graph').scrollTop === 0)
+    await settle()
+    sample.layout = layout = await graph.evaluate(m2DiagnosticLayout)
+    sample.witness = await page.evaluate(compactMessageWitness)
+  }
   while (layout.scroll.top < layout.scroll.height - layout.scroll.clientHeight - 1) {
     await page.mouse.wheel(0, Math.max(1, Math.floor(layout.scroll.clientHeight / 2)))
     await page.waitForFunction(previous => document.querySelector('.fps-graph').scrollTop > previous, layout.scroll.top)

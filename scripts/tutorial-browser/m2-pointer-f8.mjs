@@ -338,6 +338,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       report.compactMessages = { cases: [] }
       await checkCompactMessages({ page, output, stage, report: report.compactMessages })
     } else {
+      const { compactMessageWitness, scrollCompactDiagnostics, assertCompactMessageWitness } = await import('./compact-message-layout.mjs')
       const graph = page.locator('.fps-graph'),
         openPopup = page.locator('.campaign-messages details[open]')
       assert.equal(await openPopup.count(), 1, 'The authored notification is initially open')
@@ -437,12 +438,15 @@ export default async function runM2Functional({ browser, url, output, fixture, c
           report.exports.push(await checkFrameExport({ page, output, keyboard: width === 1280 }))
           stage(`export-${width}-verified`)
         }
-        const layout = await graph.evaluate(m2DiagnosticLayout)
+        const sample = { viewport: [width, height], layout: await graph.evaluate(m2DiagnosticLayout),
+          witness: await page.evaluate(compactMessageWitness), routed, sidebar,
+          pointerPopupState: 'closed', layoutPopupState: 'open', popupSerial }
+        report.samples.push(sample)
+        await scrollCompactDiagnostics(page, sample, width, height, () => page.evaluate(
+          () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))))
         report.layouts ??= []
-        report.layouts.push({ viewport: [width, height], ...layout })
-        assertM2DiagnosticLayout(layout, width, height)
-        report.samples.push({ viewport: [width, height], layout, routed, sidebar,
-          pointerPopupState: 'closed', layoutPopupState: 'open', popupSerial })
+        report.layouts.push({ viewport: [width, height], ...sample.layout })
+        assertCompactMessageWitness(sample.layout, sample.witness, width, height, sample.scrollSamples)
         stage(`viewport-${width}x${height}-asserted`)
         await page.screenshot({ path: resolve(output, `m2-pointer-${width}.png`) })
         stage(`viewport-${width}x${height}-captured`)
