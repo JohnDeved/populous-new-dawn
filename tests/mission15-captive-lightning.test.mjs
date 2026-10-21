@@ -1,7 +1,7 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { addUnit, createWorld, nativePosition, tick } from '../app/model.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { createLivePerson, strikeLiveLightning } from '../app/live-people.ts'
 import { random } from '../app/native-math.ts'
 
@@ -10,8 +10,8 @@ const captive = world => world.units.find(unit => unit.team === 'blue' && unit.k
 // 00511f70's separate post-traversal state-42 branch forces state 3, then
 // 004da0d0 records attribution. It neither electrocutes nor consumes the cell cap.
 test('ordinary Mission 15 deadline kills the captive directly, including public Save/Load', async () => {
-  const store = createGameStore()
-  store.startMission(15)
+  const store = await createCampaignFixtureStore([15])
+  assert.equal(store.startMission(15), true)
   const world = store.getWorld(),
     shaman = captive(world)
   assert.equal(world.campaignTimer, 5400)

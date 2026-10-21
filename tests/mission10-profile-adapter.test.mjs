@@ -198,7 +198,7 @@ test('fixedGround invokes the actual serialized callback in one task under suppo
   assert.equal(calls, 0)
 })
 
-test('hosted adapter never admits dev-server imports or a seeded checkpoint and retains public Save submenu', () => {
+test('hosted adapter declares native availability but never seeds checkpoints or bypasses public Save', () => {
   const read = file => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8')
   const input = read('scripts/tutorial-browser/mission10-input.mjs')
   assert.doesNotMatch(input, /import\(['"]\/(?:app|qa)\//)
@@ -206,6 +206,10 @@ test('hosted adapter never admits dev-server imports or a seeded checkpoint and 
   const adapter = read('scripts/tutorial-browser/mission10-profile.mjs')
   assert.doesNotMatch(adapter, /seedRecords|readwrite|setWorld|\.tick\(|\.advance\(/)
   assert.match(adapter, /source\.status, ''/)
+  assert.match(adapter, /prepareCampaignFixture\(page, 10\)/)
+  assert.match(adapter, /launchCampaignMission\(page, 10\)/)
+  assert.doesNotMatch(adapter, /showAllMissions|launchDebugMission|startDebugMission/)
+  assert.match(adapter, /mode, 'created'/)
   assert.match(adapter, /lease\.finish\(phase, cleanup\.verified\)/)
   assert.match(read('scripts/local-render/mission10-boat-checkpoint.mjs'), /name: 'Save Game'/)
 })

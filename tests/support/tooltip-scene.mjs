@@ -1,3 +1,4 @@
+import { createResultClock, advanceResultClock } from '../../app/result-session.ts'
 // Failure-first production-caller regression for issue19's accepted compatibility
 // clock. Uses authored Mission1, real opening/clock/flyby, actual building geometry,
 // ScenePicking, pointerMove, updatePointerFrame and the production animate body.
@@ -107,6 +108,7 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capaci
     pointerScreen: null,
     hoveredObject: null,
     frame: 1,
+    resultClock: createResultClock(),
     previous: 0,
     worshipPresentation: { rememberBodies: nop },
     buildingPanels: new Map(),
@@ -167,6 +169,7 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capaci
   scene.scene.add(scene.objects, scene.decorations)
   scene.animate = bindAnimate(scene, {
     syncSecondaryReservations,
+    advanceResultClock,
     advanceGame: api.advanceGame,
     updateVehiclesFrame: nop,
     SPELLS: api.SPELLS,
