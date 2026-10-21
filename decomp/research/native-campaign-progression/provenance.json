@@ -1,0 +1,147 @@
+{
+  "method": "Static GNU objdump disassembly and manual control-flow tracing; original machine code was not executed.",
+  "executable": {
+    "name": "d3dpoptb.exe",
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+  },
+  "tool": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "capturedAt": "2026-10-21",
+  "outputNormalization": "Absolute input filename replaced with d3dpoptb.exe and trailing line whitespace removed; instruction bytes and addresses unchanged.",
+  "files": [
+    {
+      "file": "progression.asm",
+      "sha256": "955e9e839d4bc60d8a630ec9fde7ce4538204a8407aa9bcbaed9186a5432f0ae",
+      "command": [
+        "objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x412960",
+        "--stop-address=0x412e14",
+        "d3dpoptb.exe"
+      ]
+    },
+    {
+      "file": "dispatch.txt",
+      "sha256": "f4b99502736fca0f2fdb7b0e6ee77850992f6cbf5993e06c2fb39dc645d5e5c4",
+      "command": [
+        "objdump",
+        "-s",
+        "-Mintel",
+        "--start-address=0x412e14",
+        "--stop-address=0x412e45",
+        "-j",
+        ".text",
+        "d3dpoptb.exe"
+      ]
+    },
+    {
+      "file": "selectability.asm",
+      "sha256": "07bdc3ab391807c228f4cc5cd1aea6f1a09e3dd68199a356cc91a1ae221e113a",
+      "command": [
+        "objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x47ed20",
+        "--stop-address=0x47ed4f",
+        "d3dpoptb.exe"
+      ]
+    },
+    {
+      "file": "completion-query.asm",
+      "sha256": "bd03df8b72e3cd562de0ef8c874363d906c71e4172ba59e7fae021090ff14f9b",
+      "command": [
+        "objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x485e40",
+        "--stop-address=0x485e5c",
+        "d3dpoptb.exe"
+      ]
+    },
+    {
+      "file": "new-profile-clear.asm",
+      "sha256": "04ea696081905d5f05c27394e1a2bfac2a23378df9083f51183a2b65068b8ee6",
+      "command": [
+        "objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x426b60",
+        "--stop-address=0x426b8a",
+        "d3dpoptb.exe"
+      ]
+    },
+    {
+      "file": "first-unlock.asm",
+      "sha256": "4fb05626a49f8b77876d6ac5a9b0c5e06e4381bfb2a944e7b8d5e073a6a2055c",
+      "command": [
+        "objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x4c34b7",
+        "--stop-address=0x4c34be",
+        "d3dpoptb.exe"
+      ]
+    },
+    {
+      "file": "victory-premark.asm",
+      "sha256": "7f9670ba7dd309a737da575b8fc3743c6e0decbcdac8b3d99d0ae84766886c2a",
+      "command": [
+        "objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x419001",
+        "--stop-address=0x41905e",
+        "d3dpoptb.exe"
+      ]
+    },
+    {
+      "file": "completion-snapshot.asm",
+      "sha256": "e246944a2f86a31672b8e50bfafc9d9f47aacb70352b902cf77cf5ac5a690c7f",
+      "command": [
+        "objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x4860c0",
+        "--stop-address=0x48615e",
+        "d3dpoptb.exe"
+      ]
+    },
+    {
+      "file": "caller-gates.asm",
+      "sha256": "d7eda00c0287722fd71717eca4ba428f54f7a09de2a5b3e48c252774b70bc0b4",
+      "command": [
+        "objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x4585e5",
+        "--stop-address=0x45862b",
+        "d3dpoptb.exe"
+      ]
+    },
+    {
+      "file": "selector-anchor.asm",
+      "sha256": "55a54d4c61bf30730c36dd5de596f3decc51ed34d82c6ab86fa4743495c0e6ac",
+      "command": [
+        "objdump",
+        "-d",
+        "-Mintel",
+        "--start-address=0x4121c9",
+        "--stop-address=0x41222d",
+        "d3dpoptb.exe"
+      ]
+    },
+    {
+      "file": "movie-paths.txt",
+      "sha256": "89d2efda55412e38d15fe72b8dd8f8b1f3eb928cee18a695f332e1b228886076",
+      "command": [
+        "objdump",
+        "-s",
+        "-j",
+        ".data",
+        "--start-address=0x599ba0",
+        "--stop-address=0x599bc4",
+        "d3dpoptb.exe"
+      ]
+    }
+  ]
+}
