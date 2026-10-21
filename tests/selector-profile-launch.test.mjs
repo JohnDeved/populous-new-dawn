@@ -71,7 +71,7 @@ test('fresh Home restores independent progress and selector Start launches Missi
           store, loadRequest, menuSession: { current: null }, pendingMenuCamera: { current: [] },
           engine: { current: null }, audio: { current: null }, cancelNearbyInput: () => {},
           setStartup: state => states.push(state),
-          ...Object.fromEntries(['CheatsOpen', 'DebugPicker', 'SelectorOpen', 'Menu', 'Ready', 'Error', 'Tab'].map(name =>
+          ...Object.fromEntries(['ResultInputCycles', 'CheatsOpen', 'DebugPicker', 'SelectorOpen', 'Menu', 'Ready', 'Error', 'Tab'].map(name =>
             [`set${name}`, value => { presentation[name] = value }])),
         })()
         const element = evaluatePage(homeSelector.getText(pageSource), {
@@ -100,7 +100,7 @@ test('fresh Home restores independent progress and selector Start launches Missi
         assert.equal(launched.turn, 0, 'Start creates the selected mission, not saved turn 217')
         assert.deepEqual(loadRequest.current, { kind: 'mission', mission: 3 })
         assert.deepEqual(states, ['choice', 'playing'])
-        assert.deepEqual(presentation, { CheatsOpen: false, DebugPicker: false, SelectorOpen: false, Menu: false, Ready: false, Error: '', Tab: 'spells' })
+        assert.deepEqual(presentation, { ResultInputCycles: 0, CheatsOpen: false, DebugPicker: false, SelectorOpen: false, Menu: false, Ready: false, Error: '', Tab: 'spells' })
         await drain()
         assert.deepEqual(records, before, 'launch preserves both the older checkpoint and profile')
         assert.deepEqual(writes, [])

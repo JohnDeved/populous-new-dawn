@@ -262,6 +262,7 @@ function publicLoad(store) {
       setDebugPicker: value => assert.equal(value, false, 'actual Page Load closes diagnostic entry'),
       audio: { current: { reset: noop } },
       setMenu: noop,
+      setResultInputCycles: value => assert.equal(value, 0, 'actual Page Load resets result input time'),
       setReady: noop,
       setError: noop,
       loadRequest: { current: null },

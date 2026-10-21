@@ -1,3 +1,4 @@
+import { createResultClock, advanceResultClock } from '../app/result-session.ts'
 import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 // Actual Scene methods/field initializers and Page Load/retry bodies, with the
 // existing Node TS loader. Texture IO, DOM, GPU and unrelated drawing are supplied.
@@ -177,10 +178,12 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       scene
     )
     scene.gameClock = execute(`return ${field('gameClock')}`, {}, scene)
+    scene.resultClock = execute(`return ${field('resultClock')}`, { createResultClock }, scene)
     scene.animate = execute(
       `return ${field('animate')}`,
       {
         syncSecondaryReservations,
+        advanceResultClock,
         advanceGame: api.advanceGame,
         updateVehiclesFrame: nop,
         SPELLS: api.SPELLS,
@@ -252,6 +255,8 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       cancelNearbyInput: nop,
       engine: { current: null },
       setCheatsOpen: value => pageEvents.push(['cheatsOpen', value]),
+      setDebugPicker: value => assert.equal(value, false, 'each admitted load closes diagnostic entry'),
+      setResultInputCycles: value => assert.equal(value, 0, 'each admitted load resets result input time'),
       setSelectorOpen: nop,
       setMenu: nop,
       setReady: value => pageEvents.push(['ready', value]),

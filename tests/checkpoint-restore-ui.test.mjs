@@ -65,6 +65,7 @@ function startup(store) {
     engine: { current: null }, audio: { current: null }, loadRequest: { current: null },
     setCheatsOpen: value => cheatClosures.push(value), setDebugPicker: () => {},
     cancelNearbyInput: () => {}, setSelectorOpen: () => {}, setMenu: () => {},
+    setResultInputCycles: value => assert.equal(value, 0, 'each admitted load resets result input time'),
     setReady: () => {}, setError: () => {}, setTab: () => {},
   })()
   const cleanup = pageEffect('store.restoreCheckpoint()', {

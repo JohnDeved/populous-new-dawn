@@ -20,7 +20,7 @@ function fixture() {
   world.status = 'lost'
   world.paused = true
   world.outcome.cameraPlaying = false
-  const state = { cheatsOpen: true, debugPicker: true, menu: false, selectorOpen: false, ready: true, error: 'old error', tab: 'buildings', startup: 'playing' }
+  const state = { resultInputCycles: 12, cheatsOpen: true, debugPicker: true, menu: false, selectorOpen: false, ready: true, error: 'old error', tab: 'buildings', startup: 'playing' }
   let menuOpened = 0, audioResets = 0
   const bindings = {
     store, world, resultSession, update: store.update,
@@ -101,6 +101,6 @@ for (const route of ['restart', 'selector replay']) test(`Home ${route} replaces
   assert.equal(ui.world.paused, true)
   assert.equal(ui.bindings.menuSession.current, null)
   assert.deepEqual(ui.bindings.loadRequest.current, route === 'restart' ? { kind: 'restart' } : { kind: 'mission', mission: 1 })
-  assert.deepEqual(ui.state, { cheatsOpen: false, debugPicker: false, menu: false, selectorOpen: false, ready: false, error: '', tab: 'spells', startup: 'playing' })
+  assert.deepEqual(ui.state, { resultInputCycles: 0, cheatsOpen: false, debugPicker: false, menu: false, selectorOpen: false, ready: false, error: '', tab: 'spells', startup: 'playing' })
   assert.equal(ui.counts().audioResets, 1)
 })
