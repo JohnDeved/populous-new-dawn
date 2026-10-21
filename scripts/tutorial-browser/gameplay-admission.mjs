@@ -183,3 +183,16 @@ export function guardGameplayBrowser(browser, admission) {
   }
   return wrap(browser, 'browser')
 }
+
+// Cleanup must attempt every owned resource, even after an earlier close rejects.
+// The aggregate timer remains armed throughout; no cleanup grace is added.
+export async function cleanupGameplayResources(admission, resources) {
+  const records = admission.report.cleanup = []
+  for (const [name, resource] of Object.entries(resources)) {
+    if (!resource) continue
+    const record = { name, status: 'running' }; records.push(record)
+    try { await resource.close(); record.status = 'closed' }
+    catch (error) { record.status = 'failed'; record.error = String(error); admission.cleanupFailed(error) }
+  }
+  return records.every(record => record.status === 'closed')
+}

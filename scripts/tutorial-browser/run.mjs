@@ -12,7 +12,7 @@ import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
 import { profileCasesReceipt, profileCasesReceiptLog } from './profile-recovery-receipt.mjs'
 import { mission10CrewReceipt, mission10CrewReceiptLog } from './mission10-crew-receipt.mjs'
 import { runProfileEpisode } from './profile-episodes.mjs'
-import { createGameplayAdmission, guardGameplayBrowser } from './gameplay-admission.mjs'
+import { createGameplayAdmission, guardGameplayBrowser, cleanupGameplayResources } from './gameplay-admission.mjs'
 import { buildRevision } from './build-provenance.mjs'
 import { arch, cpus, platform, release } from 'node:os'
 const root = resolve(dirname(import.meta.filename), '../..')
@@ -241,7 +241,14 @@ try {
   } else if (selectedScenario === 'snapshot-protocol') receipt.failureEvidence = 'candidate-snapshot-smoke.json'
 } finally {
   clearTimeout(timer)
-  try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { gameplayAdmission?.cleanupFailed(e); receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+  if (gameplayAdmission) {
+    receipt.cleanupVerified = await cleanupGameplayResources(gameplayAdmission, { context, browser, server })
+    if (!receipt.cleanupVerified) {
+      receipt.cleanupError = gameplayAdmission.report.cleanupErrors.join('\n'); receipt.status = 'failed'; process.exitCode = 1
+    }
+  } else {
+    try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+  }
   if (gameplayAdmission) {
     try { if (receipt.status === 'passed') gameplayAdmission.complete() }
     catch (error) { gameplayAdmission.fail(error); receipt.failure ??= String(error); receipt.status = 'failed'; process.exitCode = 1 }

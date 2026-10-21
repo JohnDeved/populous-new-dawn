@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
-import { createGameplayAdmission, guardGameplayBrowser } from '../scripts/tutorial-browser/gameplay-admission.mjs'
+import { createGameplayAdmission, guardGameplayBrowser, cleanupGameplayResources } from '../scripts/tutorial-browser/gameplay-admission.mjs'
 import { gameplayAggregateBudget as caps, browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import { gameplayFramePlan } from '../scripts/tutorial-browser/gameplay-frame-evidence.mjs'
 
@@ -34,7 +34,7 @@ test('aggregate is the documented sum and does not change real frame windows or 
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   assert.ok(runner.indexOf('createGameplayAdmission({') < runner.indexOf('(gameplayBrowser ?? browser).newContext'))
   assert.match(runner, /await context\.close\(\); context = undefined; page = undefined\n    gameplayAdmission\.finishEpisode\('frames'/)
-  assert.ok(runner.indexOf('await browser?.close(); await server?.close()') < runner.indexOf('gameplayAdmission.complete()'))
+  assert.ok(runner.indexOf('await cleanupGameplayResources(gameplayAdmission') < runner.indexOf('gameplayAdmission.complete()'))
 })
 
 test('complete order includes original frame envelope, all companions and cleanup in one aggregate', () => {
@@ -202,4 +202,20 @@ test('outer abort immediately closes an already-forwarded action and retains its
   assert.equal(f.expired.length, 0) // custom close callback, not the fixture recorder
   assert.throws(() => f.admission.check(), error => error === original)
   assert.equal(f.admission.report.failure, String(original)); f.admission.dispose()
+})
+
+
+test('first cleanup failure cannot skip remaining closes or replace the primary error', async () => {
+  const f = fixture(), original = new Error('original failure'), calls = []
+  f.admission.fail(original)
+  const closed = await cleanupGameplayResources(f.admission, {
+    context: { async close() { calls.push('context'); throw new Error('context close failed') } },
+    browser: { async close() { calls.push('browser'); throw new Error('browser close failed') } },
+    server: { async close() { calls.push('server') } },
+  })
+  assert.equal(closed, false); assert.deepEqual(calls, ['context', 'browser', 'server'])
+  assert.equal(f.admission.report.failure, String(original)); assert.equal(f.admission.report.status, 'failed')
+  assert.deepEqual(f.admission.report.cleanup.map(r => [r.name, r.status]), [['context', 'failed'], ['browser', 'failed'], ['server', 'closed']])
+  assert.equal(f.timers.some(t => t.cancelled), false, 'cleanup itself never disarms the deadline')
+  f.admission.dispose()
 })
