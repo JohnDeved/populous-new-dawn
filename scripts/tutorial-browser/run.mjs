@@ -148,7 +148,8 @@ try {
   else if (selectedScenario === 'gameplay-frames') {
     gameplayAdmission = createGameplayAdmission({ deadlineAt: browserDeadlineAt, expectedRevision: receipt.buildRevision,
       signal: abort.signal, onExpire: error => {
-        receipt.browserTimedOut = true; abort.abort(error); void browser.close().catch(() => {})
+        if (error.code === 'GAMEPLAY_ADMISSION_TIMEOUT') receipt.browserTimedOut = true
+        abort.abort(error); return browser.close()
       } })
     receipt.gameplayAdmission = gameplayAdmission.report
     gameplayBrowser = guardGameplayBrowser(browser, gameplayAdmission)
@@ -240,7 +241,7 @@ try {
   } else if (selectedScenario === 'snapshot-protocol') receipt.failureEvidence = 'candidate-snapshot-smoke.json'
 } finally {
   clearTimeout(timer)
-  try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+  try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { gameplayAdmission?.cleanupFailed(e); receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
   if (gameplayAdmission) {
     try { if (receipt.status === 'passed') gameplayAdmission.complete() }
     catch (error) { gameplayAdmission.fail(error); receipt.failure ??= String(error); receipt.status = 'failed'; process.exitCode = 1 }

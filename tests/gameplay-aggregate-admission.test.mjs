@@ -177,3 +177,29 @@ test('closing an owned local context gates pending-page acquisition and new inpu
   assert.throws(() => page.keyboard.press('Space'), /resource is closing/)
   assert.ok(b.calls.some(c => c[0] === 'page-close')); f.admission.dispose()
 })
+
+
+test('a primary failure cannot disable deadline shutdown during pending cleanup', () => {
+  const f = fixture(), original = new Error('original action failure')
+  f.admission.fail(original); f.at(180000); f.timers[1].fn()
+  assert.equal(f.expired.length, 1); assert.equal(f.admission.report.failure, String(original))
+  assert.equal(f.admission.report.timedOut, 'frames')
+  f.at(355000); f.timers[0].fn()
+  assert.equal(f.expired.length, 1); assert.throws(() => f.admission.check(), error => error === original)
+  f.admission.cleanupFailed(new Error('final close failure'))
+  assert.equal(f.admission.report.status, 'failed'); assert.equal(f.admission.report.failure, String(original))
+  assert.deepEqual(f.admission.report.cleanupErrors, ['Error: final close failure']); f.admission.dispose()
+})
+
+test('outer abort immediately closes an already-forwarded action and retains its original reason', async () => {
+  const action = pending(); let context
+  const f = fixture({ onExpire() { return context.close() } })
+  const b = browserFixture(f, { close() { action.reject(new Error('context closing')) } })
+  b.target.click = async () => action.promise
+  context = await b.browser.newContext(); const page = await context.newPage()
+  const click = page.getByRole('button', { name: 'Menu' }).click(), original = new Error('outer stop')
+  f.controller.abort(original); await assert.rejects(click, /context closing/)
+  assert.equal(f.expired.length, 0) // custom close callback, not the fixture recorder
+  assert.throws(() => f.admission.check(), error => error === original)
+  assert.equal(f.admission.report.failure, String(original)); f.admission.dispose()
+})

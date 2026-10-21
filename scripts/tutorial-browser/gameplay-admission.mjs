@@ -11,30 +11,47 @@ export function createGameplayAdmission({ deadlineAt, expectedRevision, onExpire
   const aggregateDeadline = started + allowance, frameDeadline = Math.min(aggregateDeadline, started + gameplayAggregateBudget.frameMs)
   const report = { version: 1, status: 'running', budget: gameplayAggregateBudget, allowanceMs: allowance,
     episodes: [{ name: 'frames', status: 'running', startedMs: 0 }], resources: [], cleanupErrors: [] }
-  let failure, aggregateTimer, frameTimer, localCheck, disposed = false
+  let failure, aggregateTimer, frameTimer, localCheck, closeRequested = false, disposed = false
   const elapsed = () => now() - started
   const stop = error => {
     failure ??= error
     report.status = 'failed'; report.failure = String(failure)
     return failure
   }
-  const expire = scope => {
-    if (failure || disposed || scope === 'frames' && report.episodes[0].status !== 'running') return failure
-    const error = Object.assign(new Error(`Gameplay ${scope} deadline exceeded`), { code: 'GAMEPLAY_ADMISSION_TIMEOUT' })
-    report.timedOut = scope; report.expiredMs = elapsed(); stop(error)
-    try { onExpire(error) } catch (cleanup) { report.cleanupErrors.push(String(cleanup)) }
-    return error
+  const cleanupFailed = error => { report.cleanupErrors.push(String(error)); return stop(error) }
+  const requestClose = error => {
+    if (closeRequested) return
+    closeRequested = true
+    try { Promise.resolve(onExpire(error)).catch(cleanupFailed) }
+    catch (cleanup) { cleanupFailed(cleanup) }
   }
-  const abort = () => stop(signal.reason ?? new Error('Gameplay aggregate aborted'))
+  const expire = scope => {
+    if (disposed || scope === 'frames' && report.episodes[0].status !== 'running') return failure
+    const error = Object.assign(new Error(`Gameplay ${scope} deadline exceeded`), { code: 'GAMEPLAY_ADMISSION_TIMEOUT' })
+    if (!report.timedOut) { report.timedOut = scope; report.expiredMs = elapsed(); report.timeoutFailure = String(error) }
+    // A primary failure never cancels the independently required deadline
+    // shutdown. It remains primary even when cleanup subsequently stalls.
+    stop(error); requestClose(error)
+    return failure
+  }
+  const abort = () => {
+    const error = signal.reason ?? new Error('Gameplay aggregate aborted')
+    stop(error); requestClose(error)
+  }
+  const withinDeadline = at => {
+    if (at >= aggregateDeadline) throw expire('aggregate')
+    if (report.episodes.at(-1).name === 'frames' && report.episodes.at(-1).status === 'running' && at >= frameDeadline)
+      throw expire('frames')
+  }
   const check = () => {
     if (signal?.aborted) abort()
-    if (failure) throw failure
     assert.equal(disposed, false, 'Gameplay admission is closed')
-    if (now() >= aggregateDeadline) throw expire('aggregate')
-    if (report.episodes.at(-1).name === 'frames' && report.episodes.at(-1).status === 'running' && now() >= frameDeadline)
-      throw expire('frames')
+    withinDeadline(now())
+    if (failure) throw failure
     try { localCheck?.() } catch (error) { throw stop(error) }
-    return aggregateDeadline - now()
+    const observed = now()
+    withinDeadline(observed)
+    return aggregateDeadline - observed
   }
   const acquire = async (kind, create, close, active = check) => {
     active()
@@ -76,7 +93,7 @@ export function createGameplayAdmission({ deadlineAt, expectedRevision, onExpire
       assert.ok(result.budgets[0].committedSave, 'Exact committed-save transition must be retained')
     }
     const remaining = check()
-    record.status = 'passed'; record.finishedMs = elapsed(); record.remainingAggregateMs = remaining
+    record.status = 'passed'; record.finishedMs = allowance - remaining; record.remainingAggregateMs = remaining
     if (name === 'frames') cancel(frameTimer)
   }
   const begin = name => {
@@ -92,14 +109,14 @@ export function createGameplayAdmission({ deadlineAt, expectedRevision, onExpire
   signal?.addEventListener('abort', abort, { once: true })
   aggregateTimer = schedule(() => expire('aggregate'), Math.max(0, allowance))
   frameTimer = schedule(() => expire('frames'), Math.max(0, frameDeadline - started))
-  return { report, check, acquire, begin, finishEpisode, fail: stop, dispose,
+  return { report, check, acquire, begin, finishEpisode, fail: stop, cleanupFailed, dispose,
     setLocalCheck(checkLocal) { check(); assert.equal(localCheck, undefined); localCheck = checkLocal },
     clearLocalCheck() { localCheck = undefined },
     complete() {
       check()
       assert.deepEqual(report.episodes.map(({ name, status }) => [name, status]), [['frames', 'passed'], ['melee', 'passed'], ['corpse', 'passed']])
       assert.deepEqual(report.cleanupErrors, [])
-      report.finishedMs = elapsed(); report.status = 'passed'; dispose()
+      report.finishedMs = allowance - check(); report.status = 'passed'; dispose()
     },
   }
 }
