@@ -12,8 +12,10 @@ import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 // abort/cleanup, retries a screenshot, or replaces the scenario's primary error.
 export async function retainMission10FailureScreenshot({ page, output, signal, deadlineAt }) {
   const unavailable = () => signal.aborted || !Number.isFinite(deadlineAt) || Date.now() >= deadlineAt
-  if (unavailable()) return { status: 'not-attempted', reason: 'No remaining episode budget' }
-  const timeout = Math.min(1000, deadlineAt - Date.now())
+  const remaining = deadlineAt - Date.now()
+  if (signal.aborted || !Number.isFinite(deadlineAt) || remaining <= 0)
+    return { status: 'not-attempted', reason: 'No remaining episode budget' }
+  const timeout = Math.min(1000, remaining)
   let timer, onAbort
   try {
     const result = await Promise.race([
