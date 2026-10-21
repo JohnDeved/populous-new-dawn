@@ -56,6 +56,11 @@ before another episode can start. Monotonic elapsed checks reject synchronous
 late success even before a timeout callback executes. Primary assertions and
 cleanup failures are retained separately. All seven records exist from the start,
 so an early failure leaves explicit not-run results rather than missing coverage.
+The parent persists this ledger before source capture and build. Dependency import,
+Chrome provenance and launch failures retain the exact pre-launch stage and reason;
+unexecuted episodes never claim successful cleanup. Candidate dependency exports
+accept matching named/CommonJS-default values and reject missing, invalid or
+ambiguous values without changing dependency roots.
 There is no unsandboxed fallback, browser-path override, larger runner or secret.
 
 Artifacts are capped at 256 MiB and 100 screenshots, with each command log capped
