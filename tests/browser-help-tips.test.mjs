@@ -106,3 +106,23 @@ test('browser mission access and exempt F8 control keep their live actions', () 
   assert.match(page, /<OriginalCampaignPopup/)
   assert.match(page, /aria-label="Select and focus shaman"/)
 })
+
+
+test('startup compatibility fallback names only controls retained on the battlefield menu', () => {
+  const source = ts.createSourceFile('original-options.tsx', readFileSync(new URL('../app/original-options.tsx', import.meta.url), 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const fallbacks = []
+  function visit(node) {
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken &&
+      node.left.getText(source) === 'compatibility') fallbacks.push(node.right.getText(source))
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+  assert.equal(fallbacks.length, 1)
+  const fallback = { exports: {} }
+  new Function('require', 'module', 'exports', ts.transpileModule(`module.exports = (${fallbacks[0]})`, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX },
+  }).outputText)(require, fallback, fallback.exports)
+  const html = renderToStaticMarkup(fallback.exports)
+  assert.match(html, /HUD size, audio and game speed/)
+  assert.doesNotMatch(html, /camera controls|help/)
+})
