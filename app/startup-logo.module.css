@@ -21,7 +21,8 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: min(100vw, calc(100dvh * 4 / 3));
+  height: min(100dvh, 75vw);
+  width: auto;
   aspect-ratio: 4 / 3;
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -30,9 +31,11 @@
 /* Native 640x352 image centered in the 640x480 movie surface. */
 .video {
   position: absolute;
-  top: calc(100% * 64 / 480);
+  top: 50%;
   width: 100%;
-  height: calc(100% * 352 / 480);
+  height: auto;
+  aspect-ratio: 20 / 11;
+  transform: translateY(-50%);
 }
 
 /* No status strip during ordinary playback. The sound activation is the one

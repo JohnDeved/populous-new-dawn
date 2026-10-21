@@ -238,12 +238,18 @@ test('sound activation consumes repeats and release, without dismissing the logo
   }
 })
 
-test('logo framing keeps exact native ratios instead of truncated percentages', () => {
+test('logo framing keeps exact native ratios through production CSS minification', () => {
   const css = readFileSync(new URL('../app/startup-logo.module.css', import.meta.url), 'utf8')
-  assert.match(css, /width: min\(100vw, calc\(100dvh \* 4 \/ 3\)\)/)
-  assert.match(css, /top: calc\(100% \* 64 \/ 480\)/)
-  assert.match(css, /height: calc\(100% \* 352 \/ 480\)/)
-  assert.doesNotMatch(css, /133\.333333|13\.333333|73\.333333/)
+  // Resolve Vite's declared minifier, including under pnpm's isolated layout.
+  const { transform } = createRequire(require.resolve('vite'))('lightningcss')
+  const minified = transform({ filename: 'startup-logo.css', code: Buffer.from(css), minify: true }).code.toString()
+  assert.match(minified, /\.frame\{[^}]*aspect-ratio:4\/3/)
+  assert.match(minified, /\.frame\{[^}]*height:min\(100dvh,75vw\)/)
+  assert.match(minified, /\.video\{[^}]*aspect-ratio:20\/11/)
+  assert.match(minified, /\.video\{[^}]*height:auto/)
+  assert.match(minified, /\.video\{[^}]*top:50%/)
+  assert.match(minified, /\.video\{[^}]*transform:translateY\(-50%\)/)
+  assert.doesNotMatch(minified, /133\.333|13\.333|73\.333/)
   // At the rendered regression viewport, these source ratios give exactly
   // x=0, y=128, width=1280, height=704. The browser checker retains that oracle.
   assert.equal(960 * 4 / 3, 1280)
