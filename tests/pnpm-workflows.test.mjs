@@ -22,7 +22,7 @@ for (const family of ['ready-pr-check', 'tutorial-browser', 'native-ui-evidence'
     const bin = join(repo, 'bin'); mkdirSync(bin)
     for (const command of ['npm', 'pnpm']) {
       const path = join(bin, command)
-      writeFileSync(path, `#!/bin/sh\nprintf '%s\\n' '${command}'\" $*\" >> "$PND_INSTALL_CALLS"\n`); chmodSync(path, 0o755)
+      writeFileSync(path, `#!/bin/sh\nprintf '%s\\n' '${command}'" $*" >> "$PND_INSTALL_CALLS"\n`); chmodSync(path, 0o755)
     }
     const calls = join(repo, 'calls'), result = spawnSync('bash', ['-e', '-c', installer(family)], { cwd: repo, encoding: 'utf8',
       env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, PND_INSTALL_CALLS: calls, GITHUB_ENV: join(repo, 'github-env') } })
@@ -43,7 +43,7 @@ test('existing hosted Full stages and four shards remain intact under pnpm', () 
   for (const command of ['$PND_PACKAGE_MANAGER run typecheck', '$PND_PACKAGE_MANAGER run parity:check', '$PND_PACKAGE_MANAGER run orchestration:check', '$PND_PACKAGE_MANAGER run build', 'ci-gate.mjs aggregate']) assert.ok(text.includes(command))
   assert.match(text, /max-parallel: 4/); assert.match(text, /needs: \[quality, test-shards\]/)
   assert.match(text, /if: \$\{\{ always\(\) \}\}/); assert.match(text, /types: \[ready_for_review\]/)
-  assert.match(text, /permissions:\n  contents: read\n/)
+  assert.match(text, /permissions:\n {2}contents: read\n/)
 })
 test('native historical candidates use separately source-bound dependency infrastructure', () => {
   const text = source('.github/workflows/native-ui-evidence.yml')
