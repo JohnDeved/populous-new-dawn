@@ -175,3 +175,41 @@ scenario rechecks unlocked input before activation, awaits a public click bounde
 to 2.5 seconds, and accepts a click failure only when input is already unlocked.
 It never leaves a click running in the background; still-locked failures preserve
 the original error and the final unlocked-input assertion remains mandatory.
+
+### Browser checkpoint presentation
+
+The Save/Load checkpoint subpanels now reuse the existing in-game `MenuText` and
+`MenuRow` primitives: original F00T9/style2 atlas pixels, settled foreground alpha,
+30px line pitch, transparent battlefield overlay and native-style action rows.
+The removed dark bordered panel, sans-serif copy and filled HTML buttons were
+browser inventions. No save-slot artwork, native filename editor or original
+multi-slot functionality is claimed restored.
+
+The 640×480 browser adaptation places its title at y39, explanatory copy in a
+576×270 scrollable area at (32,81), Retry at y369, explicit Save/Load at y399 and
+the unchanged Back at y454. Copy wraps by actual glyph advance within 544px,
+leaving room for a scrollbar; long tokens wrap without shortening their text.
+Only the copy area scrolls, keeping actions and Back visible. Keyboard focus can
+scroll that area without triggering menu-row navigation. Unsupported characters
+and a missing atlas use the existing readable fallback, with wrapping. Ellipsis
+is drawn as three supported full-stop glyphs while the accessible label stays
+unchanged. Browser instructions and these positions are not recovered native
+save-panel text or geometry.
+
+All read states retain their complete disclosure, including incompatible stored
+save preservation and the distinction between an available in-memory checkpoint
+and a proven session-only save. Save completion still reports its own persistence
+outcome. Storage lookup, explicit load/save ownership, pending guards and pause
+restoration are unchanged. Rendered acceptance and source-bound check results
+must be established separately; this source note makes no pixel-parity claim.
+
+The authored `scripts/local-render/original-pause-checkpoint-style.mjs` supplement
+uses ordinary Mission 1 Save/Load controls with deliberately unavailable IndexedDB,
+then repeats with a blocked pause-font request at DPR2. It checks the real
+session-only disclosure, 640×480 / 1920×1080 / 800×450 layout, atlas rows or readable
+fallback, independently scrollable copy, fixed reachable actions, frozen world and
+Back/Continue focus/ownership. It retains screenshots and a geometry/text record.
+The existing recovery and save-failure scenarios still own durable save/load,
+lookup races and asynchronous failures. This authored supplement has not yet run;
+the current cloud runtime blocks local browser execution, so rendered acceptance
+remains pending in a supported environment. No existing hosted gate is changed.
