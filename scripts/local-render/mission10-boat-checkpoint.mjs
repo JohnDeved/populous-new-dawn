@@ -59,7 +59,7 @@ export async function checkMission10FollowerStrip({ page, input, state, phase, o
 export default async function ({ page, openMission, output, receipt, observeCheckpoint, signal, createInput = createMission1VaultInput, findBoatPoint = null, deadlineAt = null }) {
   assert.ok(receipt.profile, 'Use a dedicated --profile, same origin/source for both runs')
   const report = { method: 'Authored M10, trusted HUD/mouse input, real RAF, public Save and Load across browser termination',
-    limits: 'Bounded boarding and same-shore unload; not sea traversal, mission completion, campaign unlock, native parity or hardware performance',
+    limits: 'Fresh acquisition declares M10 availability only, not earned prior campaign history; reused profiles are never reseeded. Bounded boarding and same-shore unload; not sea traversal, mission completion, campaign unlock, native parity or hardware performance',
     source: receipt.source, phase: receipt.profile.mode, actions: [], observations: [], selection: [] }
   const save = () => writeFileSync(resolve(output, 'boat-checkpoint.json'), JSON.stringify(report, null, 2) + '\n')
   const state = async label => {
@@ -84,7 +84,8 @@ export default async function ({ page, openMission, output, receipt, observeChec
   try {
     if (receipt.profile.mode === 'created') {
       assert.equal(receipt.profile.checkpointAtStart, null)
-      await openMission(10)
+      // Declared M10 availability only; prior campaign progression was not earned.
+      await openMission(10, { campaignFixture: true })
       await page.waitForFunction(() => !window.testSceneRef.current.world.inputMask)
       await state('authored-start')
       await input.view({ x: 27, z: -27 })
