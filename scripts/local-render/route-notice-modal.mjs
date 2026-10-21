@@ -166,12 +166,12 @@ export default async function ({ page, output }) {
   try {
     for (const initiallyPaused of [false, true]) {
       const command = await issueRouteAnchorCommand(page)
-      if (initiallyPaused) await button('Pause game').click()
+      if (initiallyPaused) await page.locator('.world-viewport').press('Space')
       await page.evaluate(publishRouteNotice, 77)
       await advance(1); assertRouteVisible(await observe(), 71)
       await advance(23); const visible = await observe()
       record({ initiallyPaused, stage: '24-eligible-visits', command, visible }); assertRouteVisible(visible, 48)
-      await button('Game settings').click()
+      await button('Menu').click()
       await page.getByRole('dialog', { name: 'Game menu', exact: true }).waitFor()
       const before = await observe(), modalFrames = await advance(96, 'frames'), after = await observe()
       record({ initiallyPaused, stage: 'menu', modalFrames, before, after })
@@ -185,7 +185,7 @@ export default async function ({ page, output }) {
       assertRouteFrozen(selectorBefore, selectorAfter)
       await page.keyboard.press('Escape'); await button('Continue Game').click()
       await advance(0); assertRouteVisible(await observe(), 48)
-      await button('Game settings').click(); await advance(96, 'frames')
+      await button('Menu').click(); await advance(96, 'frames')
       assertRouteFrozen(before, await observe())
       await page.keyboard.press('Escape'); await advance(0)
       await page.keyboard.press('F9'); await page.locator('[data-spell-test-menu]').waitFor()

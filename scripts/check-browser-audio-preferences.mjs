@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { chromium, expect } from '@playwright/test'
-import { bindGame } from './browser-game.mjs'
+import { bindGame, showAllMissions } from './browser-game.mjs'
 import { AUDIO_PREFERENCES_KEY, DEFAULT_AUDIO_PREFERENCES } from '../app/audio-preferences.ts'
 
 assert.ok(process.env.PND_QUEUE_JOB_ID && process.env.PND_QUEUE_OUTPUT, 'Use the supervised queue')
@@ -65,14 +65,17 @@ async function ready(page) {
 }
 async function start(page, button = 'Mission 1') {
   await page.goto(process.env.POPULOUS_URL, { waitUntil: 'networkidle' })
+  if (button !== 'Load Game') await showAllMissions(page)
   // Use the shared browser-game keyboard route for the horizontally overflowing mission picker.
   await page.getByRole('button', { name: button, exact: true }).focus()
   await page.keyboard.press('Enter')
   await ready(page)
 }
 async function settings(page) {
-  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-  await page.getByRole('heading', { name: 'Game settings', exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Options', exact: true }).click()
+  await page.getByRole('button', { name: 'Sound', exact: true }).click()
+  await page.getByRole('dialog', { name: 'Game menu', exact: true }).waitFor()
   await page.waitForFunction(() => window.testStore.getWorld().paused)
 }
 async function volume(page, label, value) {
@@ -109,7 +112,8 @@ async function assertValues(page, master, music, label) {
   return actual
 }
 async function playbackGains(page, master, music, label) {
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await expect
     .poll(async () => {
       const audio = await audioState(page)
@@ -191,8 +195,12 @@ try {
   )
 
   report.stage = 'real-audio-enable-gains'
+  await page.getByRole('button', { name: 'Game', exact: true }).click()
+  await page.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
   await page.locator('.audio-settings button').click()
   await expect(page.locator('.audio-settings button')).toHaveText('♪ Sound on', { timeout: 90000 })
+  await page.getByRole('button', { name: 'Back to Options', exact: true }).click()
+  await page.getByRole('button', { name: 'Sound', exact: true }).click()
   const enabled = await assertValues(page, 0.2, 0.4, 'real-audio-gains')
   assert.equal(enabled.enabled, true)
   assert.ok(enabled.buffers > 30)
@@ -205,13 +213,19 @@ try {
   await page.screenshot({ path: join(output, 'saved-volume-controls.png') })
 
   report.stage = 'checkpoint-and-restart'
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
-  await page.getByRole('button', { name: 'Restart world', exact: true }).click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Restart Level', exact: true }).click()
+  await page.getByRole('button', { name: 'Yes', exact: true }).click()
   await ready(page)
   await settings(page)
   await assertValues(page, 0, 0.75, 'ordinary-restart')
   await playbackGains(page, 0, 0.75, 'running-restart-gains')
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await ready(page)
   await settings(page)

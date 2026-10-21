@@ -87,7 +87,7 @@ export function readCorpseMinimap(effectId = null) {
 
 // A restored paused snapshot is transient: beginLoad resumes it before the new
 // Scene becomes ready. Only a new public Pause action establishes the setup hold.
-export async function pauseLoadedFollowerCorpse(page, effectId, button) {
+export async function pauseLoadedFollowerCorpse(page, effectId, pause) {
   const readyBeforePause = await page.evaluate(readFollowerCorpseReady, effectId)
   const assertReady = state => {
     assert.equal(state.sceneReplaced, true, 'Load checkpoint must create a new ready Scene')
@@ -97,7 +97,7 @@ export async function pauseLoadedFollowerCorpse(page, effectId, button) {
   }
   assertReady(readyBeforePause)
   assert.equal(readyBeforePause.paused, false, 'Home resumes the loaded World after its transient store notification')
-  await button('Pause game')
+  await pause()
   await page.waitForFunction(() => window.testStore.getWorld().paused)
   const readyPaused = await page.evaluate(readFollowerCorpseReady, effectId)
   assertReady(readyPaused); assert.equal(readyPaused.paused, true)
@@ -201,7 +201,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
       const w = window.testStore.getWorld(); return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
     })
     phase('public-combat-setup')
-    await button('Pause game'); await button('Select and focus shaman'); await settle()
+    await action('Pause with Space', () => page.locator('.world-viewport').press('Space')); await button('Select and focus shaman'); await settle()
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
     await action('One public - zoom-out', () => page.keyboard.press('-')); await settle()
     assertMeleeRouteReady(await page.evaluate(readMeleeRouteState))
@@ -221,7 +221,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.equal(actor.team, 'blue'); assert.equal(actor.kind, 'brave'); assert.ok(actor.hp > 0)
     assert.equal(actor.fight, null); assert.equal(actor.target, null); report.actorId = actor.id; save()
     await page.evaluate(installFollowerCorpseObserver, { actorId: report.actorId })
-    await button('Resume game')
+    await action('Resume with Space', () => page.locator('.world-viewport').press('Space'))
     const route = report.targetEligibility = await page.evaluate(readMeleeRouteState)
     assert.equal(route.paused, false); assert.equal(route.speed, 1); assert.equal(route.target.id, 20)
     assert.equal(route.target.inside, null); assert.equal(route.target.visible, true); assert.equal(route.target.pickable, true)
@@ -249,14 +249,14 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.equal(await page.evaluate(() => window.__pndCorpseObservation.result.error), null)
     report.effectId = await page.evaluate(() => window.__pndCorpseObservation.result.effectId)
     phase('pause-and-save')
-    await button('Pause game')
+    await action('Pause with Space', () => page.locator('.world-viewport').press('Space'))
     report.checkpoint = { holdBefore: await page.evaluate(readFollowerCorpseHold, report.effectId) }
     assert.equal(report.checkpoint.holdBefore.paused, true)
     assert.equal(report.checkpoint.holdBefore.effect.corpse.phase, 1)
     await page.waitForTimeout(150)
     report.checkpoint.holdAfter = await page.evaluate(readFollowerCorpseHold, report.effectId)
     assert.deepEqual(report.checkpoint.holdAfter, report.checkpoint.holdBefore)
-    await button('Game settings'); await button('Save Game'); await button('Save checkpoint')
+    await button('Menu'); await button('Save Game'); await button('Save checkpoint')
     const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
     await menu.getByRole('status').filter({ hasText: 'Checkpoint saved in this browser.' }).waitFor()
     report.checkpoint.committed = await readCommittedCheckpoint(page)
@@ -292,14 +292,14 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.equal(report.checkpoint.restoredSnapshot.paused, true)
     assert.deepEqual(report.checkpoint.restoredSnapshot.effect, report.checkpoint.committedCorpse.effect)
     await menu.waitFor({ state: 'hidden' }); await bindGame(page)
-    Object.assign(report.checkpoint, await pauseLoadedFollowerCorpse(page, report.effectId, button)); save()
+    Object.assign(report.checkpoint, await pauseLoadedFollowerCorpse(page, report.effectId, () => action('Pause with Space', () => page.locator('.world-viewport').press('Space')))); save()
     assert.equal(report.checkpoint.readyPaused.effect.corpse.phase, 1, 'Ready-scene setup must remain within the saved corpse phase')
     await settle()
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
     await action('One public - zoom-out after actual Load checkpoint', () => page.keyboard.press('-')); await settle()
     await focus(report.effectId)
     await page.evaluate(installFollowerCorpseObserver, { actorId: report.actorId, effectId: report.effectId, segment: 'loaded' })
-    await button('Resume game')
+    await action('Resume with Space', () => page.locator('.world-viewport').press('Space'))
     report.checkpoint.readyResumed = await page.evaluate(readFollowerCorpseReady, report.effectId); save()
     assert.equal(report.checkpoint.readyResumed.paused, false)
     phase('loaded-continuation')
@@ -309,7 +309,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     phase('acceptance-and-capture')
     await retain()
     report.acceptance = validateFollowerCorpseObservation(report)
-    await button('Pause game')
+    await action('Pause with Space', () => page.locator('.world-viewport').press('Space'))
     await page.screenshot({ path: resolve(output, 'follower-corpse-context.png') })
     budget.complete()
   } catch (error) {

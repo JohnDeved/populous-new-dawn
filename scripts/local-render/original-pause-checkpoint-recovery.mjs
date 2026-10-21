@@ -126,7 +126,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     signal.throwIfAborted()
     await enterMission(page)
     await page.waitForFunction(() => window.testStore.getCheckpointReadStatus() === 'failed')
-    await button(page, 'Game settings').click()
+    await button(page, 'Menu').click()
     assert.equal(await button(page, 'Load Game').isEnabled(), true)
     if (captureRoot) {
       for (const [width, height] of [[640, 480], [1920, 1080]]) {
@@ -249,7 +249,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
 
   await page.setViewportSize({ width: 800, height: 600 })
   await enterMission(page)
-  await button(page, 'Game settings').click()
+  await button(page, 'Menu').click()
   await button(page, 'Save Game').click()
   await button(page, 'Save checkpoint').click()
   await modal(page).getByRole('status').filter({ hasText: 'Checkpoint saved in this browser.' }).waitFor()

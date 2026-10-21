@@ -204,9 +204,12 @@ export async function prepareM3Replacement({ kind, shamanId, birth, startup = fa
     throw new Error('One declared replacement at a time')
   const { GameScene } = kind === 'load' ? await import('/app/scene.ts') : {}
   if (startup && kind !== 'load') throw new Error('Startup supports only public Load Game')
-  const name = startup ? 'Load Game' : kind === 'load' ? 'Load checkpoint' : 'Restart world'
-  const button = [...document.querySelectorAll('button')].find(
-    button => button.textContent.trim() === name
+  const name = startup ? 'Load Game' : kind === 'load' ? 'Load checkpoint' : 'Yes'
+  const dialog = document.querySelector(startup
+    ? 'dialog[data-original-main-menu][open]'
+    : `dialog[data-original-pause-menu][data-panel="${kind === 'load' ? 'load' : 'restart'}"][open]`)
+  const button = dialog && [...dialog.querySelectorAll('button')].find(
+    button => button.getAttribute('aria-label') === name || button.textContent.trim() === name
   )
   if (!button?.isConnected || button.disabled) throw new Error(`Public ${name} unavailable`)
   // Same actual React-store discovery as PR274's startup Load witness.

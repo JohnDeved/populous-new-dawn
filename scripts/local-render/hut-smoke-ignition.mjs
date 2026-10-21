@@ -22,11 +22,11 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
   }
   const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())
   const pause = async () => {
-    if (!(await page.evaluate(() => window.testSceneRef.current.world.paused))) await button('Pause game')
+    if (!(await page.evaluate(() => window.testSceneRef.current.world.paused))) await action('Pause with Space', () => page.locator('.world-viewport').press('Space'))
     await page.waitForFunction(() => window.testSceneRef.current.world.paused)
   }
   const resume = async () => {
-    if (await page.evaluate(() => window.testSceneRef.current.world.paused)) await button('Resume game')
+    if (await page.evaluate(() => window.testSceneRef.current.world.paused)) await action('Resume with Space', () => page.locator('.world-viewport').press('Space'))
     await page.waitForFunction(() => !window.testSceneRef.current.world.paused)
   }
   const settle = () => page.waitForFunction(() => {

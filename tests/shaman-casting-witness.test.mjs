@@ -443,6 +443,10 @@ test('actual game-clock callbacks are observed before logical animation, with no
 
 test('ordinary cast driver uses only public controls/pointer and stops after its existing natural clock window', async () => {
   const actions = [], page = {
+    locator(selector) {
+      assert.equal(selector, '.world-viewport')
+      return { press: async key => { assert.equal(key, 'Space'); actions.push(['key', key]) } }
+    },
     getByRole(role, { name }) {
       assert.equal(role, 'button')
       return { click: async () => actions.push(['button', String(name)]) }
@@ -467,9 +471,9 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
   const result = await beginOrdinaryCastingWitness(page)
   assert.deepEqual(result, { target: { x: 500, y: 300 }, before: { stock: 4, cheatsUsed: false } })
   assert.deepEqual(actions.filter(([kind]) => kind !== 'wait'), [
-    ['button', 'Resume game'], ['button', 'Pause game'], ['button', 'Select and focus shaman'],
+    ['key', 'Space'], ['key', 'Space'], ['button', 'Select and focus shaman'],
     ['install'], ['arm'], ['title', 'spells'], ['button', '/^Blast, [1-9][0-9]* shots$/'],
-    ['button', 'Resume game'], ['move', 500, 300], ['pointer', 500, 300], ['button', 'Pause game'],
+    ['key', 'Space'], ['move', 500, 300], ['pointer', 500, 300], ['key', 'Space'],
   ])
   assert.match(actions.find(([kind]) => kind === 'wait')[2], /order\?\.model !== 18/)
   assert.match(actions.filter(([kind]) => kind === 'wait').at(-1)[2], /cast\.done/)
@@ -492,6 +496,7 @@ test('actual ordinary-readiness callback admits naturally resting Mission 1, not
   })
   await assert.rejects(beginOrdinaryCastingWitness({
     getByRole: () => ({ click: async () => {} }),
+    locator: () => ({ press: async () => {} }),
     evaluate: async callback => callback(),
     waitForFunction: async callback => { ready = callback; throw stop },
   }), error => error === stop)

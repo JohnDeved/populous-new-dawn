@@ -378,7 +378,7 @@ export async function runTornadoAppearance(
         }
         // Water restarts with an active column; land also proves natural terminal deletion.
         // Neither route bypasses the normal restart or scene ownership path.
-        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+        await page.getByRole('button', { name: 'Menu', exact: true }).click()
         await page.getByRole('button', { name: 'Restart Level', exact: true }).click()
         await page.getByRole('button', { name: 'Yes', exact: true }).click()
         await bindGame(page)

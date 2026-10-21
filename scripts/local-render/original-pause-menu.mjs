@@ -54,14 +54,14 @@ export default async function({page,output,root}) {
   assert.equal(await paused(),false)
   await button('Menu').focus();await page.keyboard.press('Enter');assert.equal(await paused(),true)
  }
- await button('Continue Game').click();await button('Pause game').click();assert.equal(await paused(),true)
+ await button('Continue Game').click();await page.locator('.world-viewport').press('Space');assert.equal(await paused(),true)
  for(const close of ['Continue Game','Back','Escape']) {
   await button('Menu').click()
   if(close==='Escape')await page.keyboard.press('Escape');else await button(close).click()
   assert.equal(await paused(),true)
  }
  passed('pointer-keyboard-close-preserves-running-and-already-paused')
- await button('Resume game').click();await button('Menu').click()
+ await page.locator('.world-viewport').press('Space');await button('Menu').click()
  await button('Options').click();await button('Browser compatibility and help').click();await page.getByRole('region',{name:'Browser compatibility and help'}).waitFor()
  assert.equal(await page.getByRole('combobox',{name:'HUD size'}).isVisible(),true)
  await button('Select Level').click();await button('Back').click();assert.equal(await paused(),true)

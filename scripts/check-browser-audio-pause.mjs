@@ -97,7 +97,7 @@ try {
   assert.equal(pending.mediaReadyState, 0)
   assert.equal(pending.backgroundScheduled, false)
 
-  await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+  await page.locator('.world-viewport').press('Space')
   await page.waitForFunction(() => window.testAudio.context.state === 'suspended' &&
     window.testAudio.music.element.paused &&
     window.audioPauseEvents.some(event => event.state === 'rejected'))
@@ -110,7 +110,7 @@ try {
   assert.ok(paused.events.some(event => event.error === 'AbortError'))
 
   releaseStream()
-  await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+  await page.locator('.world-viewport').press('Space')
   await playing()
   const resumed = await state('resume-after-network-release')
   assert.equal(resumed.failedMessage, false)
@@ -140,15 +140,15 @@ try {
 
   // Repeat ordinary controls after warmup; no direct setPaused or model mutation.
   for (let i = 0; i < 3; i++) {
-    await page.getByRole('button', { name: 'Pause game', exact: true }).click()
-    await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+    await page.locator('.world-viewport').press('Space')
+    await page.locator('.world-viewport').press('Space')
   }
   await playing()
   const latest = await state('latest-ui-resume-remains-playing')
   assert.equal(latest.enabled, true)
   assert.equal(latest.failedMessage, false)
 
-  await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+  await page.locator('.world-viewport').press('Space')
   await page.waitForFunction(() => window.testAudio.context.state === 'suspended')
   const stopped = await state('stable-pause')
   await page.waitForTimeout(250)
@@ -156,7 +156,7 @@ try {
   assert.equal(still.mediaTime, stopped.mediaTime)
   assert.equal(still.contextTime, stopped.contextTime)
   assert.equal(still.backgroundScheduled, false)
-  await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+  await page.locator('.world-viewport').press('Space')
   await playing()
 
   await page.getByRole('button', { name: 'Mute sound', exact: true }).click()
@@ -168,11 +168,14 @@ try {
   await playing()
   const reenabled = await state('reenable')
   assert.equal(reenabled.failedMessage, false)
-  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Options', exact: true }).click()
+  await page.getByRole('button', { name: 'Sound', exact: true }).click()
   await page.waitForFunction(() => window.testAudio.context.state === 'suspended')
   await page.getByRole('slider', { name: 'Music volume', exact: true }).fill('0.5')
   assert.equal(await page.evaluate(() => window.testAudio.musicVolume), 0.5)
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await playing()
   await state('settings-close-restores-playback')
 

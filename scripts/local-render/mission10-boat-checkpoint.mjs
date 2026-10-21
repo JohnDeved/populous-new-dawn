@@ -108,7 +108,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
       await state('boarded'); await capture('boarded')
       report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'boarded', occupied: true })); save()
       await capture('boarded-class-selected')
-      await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+      await page.getByRole('button', { name: 'Menu', exact: true }).click()
       const menu = page.locator('dialog[data-original-pause-menu]'); await menu.waitFor({ state: 'visible' })
       await menu.getByRole('button', { name: 'Save Game', exact: true }).click()
       const before = await state('save-menu')

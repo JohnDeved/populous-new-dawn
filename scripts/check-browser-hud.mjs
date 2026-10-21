@@ -54,7 +54,7 @@ try{
  await page.mouse.move(400,950);await page.waitForTimeout(100);
  await page.screenshot({path:'/private/tmp/populous-native-hud-after.png'});
  await page.getByRole('button',{name:'Menu',exact:true}).click();assert.equal(await page.locator('dialog').evaluate(d=>d.open),true);assert.equal(await page.evaluate(()=>window.testScene.world.paused),true);
- await page.getByRole('button',{name:'Close menu',exact:true}).click();assert.equal(await page.evaluate(()=>window.testScene.world.paused),false);
+ await page.getByRole('button',{name:'Continue Game',exact:true}).click();assert.equal(await page.evaluate(()=>window.testScene.world.paused),false);
  await page.getByRole('button',{name:'Planet overview',exact:true}).click();
  await page.waitForFunction(()=>window.testScene.overviewActive&&!window.testScene.overviewStage);
  await page.getByRole('button',{name:'Select and focus shaman',exact:true}).click();

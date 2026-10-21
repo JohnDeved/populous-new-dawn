@@ -170,12 +170,12 @@ test('ready-scene helper publicly pauses after Home resumes the transient restor
     testSceneRef: { current: scene }, testStore: { getWorld: () => restored } } })
   const page = { evaluate: async (fn, arg) => fn(arg), waitForFunction: async fn => assert.equal(fn(), true) }
   try {
-    const result = await pauseLoadedFollowerCorpse(page, 2, async name => {
-      calls.push(name); assert.equal(name, 'Pause game'); restored.paused = true
+    const result = await pauseLoadedFollowerCorpse(page, 2, async () => {
+      calls.push('Space'); restored.paused = true
     })
     assert.equal(transient.paused, true)
     assert.equal(result.readyBeforePause.paused, false); assert.equal(result.readyPaused.paused, true)
-    assert.equal(result.readyPaused.sceneReplaced, true); assert.deepEqual(calls, ['Pause game'])
+    assert.equal(result.readyPaused.sceneReplaced, true); assert.deepEqual(calls, ['Space'])
     restored.paused = false; window.__pndCorpsePreviousScene = scene
     await assert.rejects(pauseLoadedFollowerCorpse(page, 2, async () => assert.fail('Stale Scene must not accept setup input')), /new ready Scene/)
     window.__pndCorpsePreviousScene = originalScene

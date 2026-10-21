@@ -168,7 +168,7 @@ export default async function ({ browser, url, output }) {
       await frozen()
     }
     const openMenu = async paused => {
-      await button('Game settings').click()
+      await button('Menu').click()
       await menu.waitFor()
       const captured = await page.evaluate(observer => observer.captureSession(), observation)
       assert.equal(captured.capturedPaused, paused)
@@ -193,7 +193,7 @@ export default async function ({ browser, url, output }) {
       }
     }
     for (const paused of [true, false]) {
-      await button(paused ? 'Pause game' : 'Resume game').click()
+      await page.locator('.world-viewport').press('Space')
       const captured = await openMenu(paused)
       await inspect()
       await page.screenshot({ path: resolve(output, `selector-inspection-${paused ? 'paused' : 'running'}.png`) })
