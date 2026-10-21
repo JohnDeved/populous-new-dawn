@@ -192,8 +192,9 @@ starts at y69 with 30-pixel text/action lines and 15-pixel inter-item gaps. Pros
 wraps at 600 original pixels using the actual glyph advances; this layout and all
 checkpoint wording are browser adaptations. The unsupported Unicode ellipsis in
 the existing accessible `Saving…` name is displayed as three original period glyphs.
-Other copy stays within the imported character range. Decode failure retains the
-existing readable fallback; no new font, gold theme, frame or artwork is introduced.
+All current copy stays within the imported character range. Unexpected unsupported
+characters in a supplied checkpoint notice use the readable text fallback rather
+than indexing outside the atlas. Decode failure also retains that fallback; no new font, gold theme, frame or artwork is introduced.
 
 One checkpoint, explicit overwrite, incompatible-save rejection and unsaved-load
 warnings remain visible. Storage result wording distinguishes saved-in-browser

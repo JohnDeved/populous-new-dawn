@@ -98,6 +98,12 @@ function PanelText({
   ready: boolean
   status?: boolean
 }) {
+  if (![...text].every(letter => font.rects[letter.charCodeAt(0) - 32]))
+    return (
+      <p role={status ? 'status' : undefined}>
+        <span className={shared.fallback}>{text}</span>
+      </p>
+    )
   const lines: string[] = []
   for (const word of text.split(' ')) {
     const last = lines.length - 1

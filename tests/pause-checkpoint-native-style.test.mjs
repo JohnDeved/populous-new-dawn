@@ -200,3 +200,13 @@ test('pending Save keeps its accessible name while rendering supported native el
   const status = paragraphs(ui).find(node => node.props.role === 'status')
   assert.equal(paragraphText(status), 'Checkpoint saved for this session only.')
 })
+
+test('an unexpected unsupported character in a supplied Save reason retains readable fallback', () => {
+  const reason = 'Saving unavailable… please retry 🔒'
+  const ui = fixture({ saveDisabledReason: reason })
+  ui.click('Save Game')
+  const fallback = tree(ui.panel()).find(node => node.props.className === 'fallback' && node.props.children === reason)
+  assert.ok(fallback)
+  assert.equal(ui.button('Save checkpoint').props.disabled, true)
+  assert.ok(!tree(fallback).some(node => node.type === 'i'))
+})
