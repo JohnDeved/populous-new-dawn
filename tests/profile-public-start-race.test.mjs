@@ -55,9 +55,9 @@ function fixture() {
       )
   const publicSkip = new Function('interruptFlyby', body)(interruptFlyby)
   const page = {
-    async evaluate(fn) {
+    async evaluate(fn, arg) {
       const before = structuredClone(world),
-        value = runInNewContext(`(${fn.toString()})()`, context)
+        value = runInNewContext(`(${fn.toString()})(arg)`, { ...context, arg })
       assert.deepEqual(world, before, 'readiness observations cannot modify runtime state')
       return value
     },
@@ -116,14 +116,16 @@ test('initial public ready can precede authored flyby; late native Space resolve
 })
 
 test('introduction callback never bypasses unrelated or uninterruptible blockers and presses once', async t => {
-  let presses = 0, timeout
+  let presses = 0, now = 0
+  const timeouts = []
+  t.mock.method(performance, 'now', () => now)
   const setTimer = globalThis.setTimeout
   t.mock.method(globalThis, 'setTimeout', (callback, delay) => {
-    timeout = delay
+    timeouts.push(delay)
     return setTimer(callback, delay)
   })
   const action = recoverVisibleIntroduction({
-    evaluate: async () => false,
+    evaluate: async () => { now += 10; return { action: 'skip', paused: false } },
     keyboard: { press: async key => { assert.equal(key, 'Space'); presses++ } },
   })
   for (const after of [
@@ -136,7 +138,9 @@ test('introduction callback never bypasses unrelated or uninterruptible blockers
   assert.equal(await action({ ...blocked, remainingMs: 0 }), null)
   assert.equal(presses, 0)
   assert.deepEqual(await action(blocked), { action: 'public-skip-introduction' })
-  assert.equal(timeout, 500, 'Space delivery shares the remaining existing wait budget')
+  assert.ok(timeouts.length >= 2)
+  assert.ok(timeouts.every(timeout => timeout > 0 && timeout <= 490),
+    'Both delivery and outer expiry consume the native pre-read within the original500ms budget')
   assert.equal(await action(blocked), null)
   assert.equal(presses, 1)
 })
