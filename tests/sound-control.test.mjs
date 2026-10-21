@@ -55,7 +55,8 @@ test('sound activation retains the direct trusted button, pending disable and ac
     assert.equal(button.props.type, 'button')
     assert.equal(button.props['aria-label'], sound ? 'Mute sound' : 'Enable sound')
     assert.equal(button.props.title, button.props['aria-label'])
-    assert.equal(button.props['aria-pressed'], sound)
+    assert.equal(button.props['aria-pressed'], undefined, 'action labels are not a stable-label toggle button')
+    assert.equal(button.props['data-sound-enabled'], sound)
     assert.equal(button.props['aria-busy'], pending)
     assert.equal(button.props.disabled, pending)
     assert.equal(button.props.onClick, f.onToggle, 'no deferred or synthetic activation wrapper')
@@ -102,6 +103,8 @@ test('frame reuses native crop tiling and the established overlapping-corner ord
   for (const url of Object.values(art.buttonUrls)) assert.ok(css.includes(url))
   for (const color of css.match(/#[\da-f]{6}/g)) assert.ok(hud.colors.includes(color))
   assert.match(css, /:focus-visible \{ outline: 1px solid #fff7bb/)
+  assert.match(css, /\.control\[data-sound-enabled='true'\]/)
+  assert.doesNotMatch(css, /aria-pressed/)
   assert.match(css, /\.control:disabled \{ opacity: \.65; cursor: wait/)
 })
 
