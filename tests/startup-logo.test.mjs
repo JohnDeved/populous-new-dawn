@@ -265,6 +265,25 @@ test('compatibility controls use original FONT0 and HUD frames, with an artwork-
   failed.cleanup()
 })
 
+test('every control and recovery string has FONT0 glyphs and compact-width word advances', () => {
+  const f = fixture(), labels = new Set()
+  const hud = require('../app/original-hud.json')
+  for (const playback of ['playing', 'blocked', 'failed']) for (const muted of [false, true]) {
+    f.states[0] = playback
+    f.states[1] = muted
+    for (const node of nodes(f.render()).filter(node => typeof node.type === 'function')) labels.add(node.props.text)
+  }
+  assert.equal(labels.size, 6)
+  for (const text of labels) {
+    for (const character of text) assert.ok(hud.rects[`font0-${character.charCodeAt(0) - 32}`], `${text}: missing ${character}`)
+    for (const word of text.split(' ')) {
+      const width = [...word + ' '].reduce((sum, character) => sum + hud.rects[`font0-${character.charCodeAt(0) - 32}`].w, 0)
+      assert.ok(width <= 320 - 24 - 20, `${word}: FONT0 word exceeds compact status content width`)
+    }
+  }
+  f.cleanup()
+})
+
 test('hidden pages pause and resume the same media; interrupted or disposed playback never restarts', async () => {
   const f = fixture()
   assert.equal(f.media.src, '/original/startup/blogo.webm')
