@@ -2,6 +2,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -67,6 +68,9 @@ class SharedRuntimeTests(unittest.TestCase):
         manifest['version'] = 1
         del manifest['assetLayout']
         manifest_path.write_bytes(storage.encoded(manifest))
+        # Remove only this TemporaryDirectory fixture's staging v2 links. The
+        # migration test must construct v2 beside a genuinely v1-only pool.
+        shutil.rmtree(self.pool / storage.ASSET_TREES)
         return tree
 
     def test_two_views_share_assets_but_not_mutable_caches_or_git_state(self):
@@ -191,6 +195,10 @@ class SharedRuntimeTests(unittest.TestCase):
         target = tree / 'sub/game.bin'
         legacy_target = os.readlink(target)
         legacy_inode = target.lstat().st_ino
+        cas = self.asset_blob()
+        info = cas.stat()
+        cas_identity = (info.st_dev, info.st_ino, info.st_mode, cas.read_bytes())
+        self.assertFalse((self.pool / storage.ASSET_TREES).exists())
         self.assertEqual(self.verify()['status'], 'verified')
         other = self.root / 'v2-runtime'
         result = self.prepare(other)
@@ -198,6 +206,8 @@ class SharedRuntimeTests(unittest.TestCase):
         self.assertEqual((self.runtime / storage.MANIFEST).read_bytes(), manifest)
         self.assertEqual(target.lstat().st_ino, legacy_inode)
         self.assertEqual(os.readlink(target), legacy_target)
+        info = cas.stat()
+        self.assertEqual((info.st_dev, info.st_ino, info.st_mode, cas.read_bytes()), cas_identity)
         self.assertEqual(self.verify()['status'], 'verified')
         target.unlink(); target.symlink_to(self.source / 'public/original/sub/game.bin')
         with self.assertRaisesRegex(ValueError, 'target changed'):
