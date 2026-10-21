@@ -1,3 +1,4 @@
+import { routeNoticeCell } from './route-notice.ts'
 import native from './original-tooltips.json' with { type: 'json' }
 import { ROUTE_FAILURE_TEXT } from './world-rules.ts'
 import { missionData } from './mission-data.ts'
@@ -95,10 +96,12 @@ export function showObjectTooltip(
 }
 
 // Mode 9 shares the forced tooltip owner, but target is a packed map cell.
-export function showRouteTooltip(state: TooltipState, cell: number, frameRate: number) {
+export function showRouteTooltip(state: TooltipState, cell: number | undefined, frameRate: number) {
   clearTooltip(state)
   Object.assign(state, {
-    target: cell & 65535,
+    // An unknown anchor still has a visit lifetime. The numeric target is not
+    // used for painting: route rendering separately requires the known cell.
+    target: routeNoticeCell(cell) ?? 0,
     flags: 8,
     fixed: 1,
     remaining: (Math.imul(frameRate, 3) << 16) >> 16,

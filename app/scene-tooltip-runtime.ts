@@ -255,11 +255,13 @@ export function acquireForcedTooltip(
   object: TooltipObject | null,
   duration: number
 ) {
-  const owner = getTooltipController(scene)
+  const owner = getTooltipController(scene),
+    hadRoute = !!scene.world.routeNotice
   // A later forced request also replaces a route request not yet visited.
   scene.world.routeNotice = null
   owner.routeNotice = null
   acquireForced(owner, scene.tooltip, object, duration)
+  if (hadRoute) scene.onChange()
 }
 
 export function updateTooltipController(scene: GameScene, now: number) {
@@ -268,7 +270,7 @@ export function updateTooltipController(scene: GameScene, now: number) {
   if (scene.world.routeNotice && owner.routeNotice !== scene.world.routeNotice) {
     resetTooltipController(owner, state)
     owner.routeNotice = scene.world.routeNotice
-    showRouteTooltip(state, owner.routeNotice.cell ?? 0, 24)
+    showRouteTooltip(state, owner.routeNotice.cell, 24)
   }
   const routeActive = !!owner.routeNotice,
     sample = scene.tooltipInput,
@@ -303,9 +305,11 @@ export function updateTooltipController(scene: GameScene, now: number) {
   if (handled) route = 'forced'
   let firstDisplay: number | null = null
   if (handled && !state.remaining) {
-    if (owner.routeNotice === scene.world.routeNotice) scene.world.routeNotice = null
+    const expiredRoute = owner.routeNotice && owner.routeNotice === scene.world.routeNotice
+    if (expiredRoute) scene.world.routeNotice = null
     owner.routeNotice = null
     resetTooltipController(owner, state)
+    if (expiredRoute) scene.onChange()
   }
   if (!handled && ordinary && !sample?.hud) {
     const worldRoute =

@@ -125,3 +125,13 @@ test('a later forced request replaces even a pending route before its first visi
   assert.equal(scene.tooltip.flags,6)
   assert.equal(scene.tooltip.remaining,2)
 })
+
+test('paused expiry and forced replacement notify Home to clear its accessibility announcement',async t=>{
+  const {scene,world,api,tooltipApi,hut,frame}=await fixture(t,true)
+  let notifications=0;scene.onChange=()=>notifications++
+  scene.tooltip.remaining=1;frame()
+  assert.equal(world.routeNotice,null);assert.equal(notifications,1)
+  api.requestTutorial(world,0x200000,603)
+  scene.acquireForcedTooltip(tooltipApi.worldTooltipObject(world,hut.id),3)
+  assert.equal(world.routeNotice,null);assert.equal(notifications,2)
+})

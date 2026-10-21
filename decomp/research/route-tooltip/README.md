@@ -3,7 +3,10 @@
 ## Scope and source identity
 
 English 603 is mode 9 of the shared world tooltip, not a persistent bottom card.
-This patch removes that card, star and CSS fade and adds no other normal gameplay UI.
+This patch removes that card, star and CSS fade and adds no other visible gameplay UI.
+A persistent visually hidden status region preserves route-failure announcements;
+request-keyed content renews on retrigger and presentation expiry/replacement notifies
+the page even while simulation is paused.
 F8 and cheat components are untouched. It does not alter route decisions, order
 allocation, gameplay deadlines, RNG or checkpoint schema.
 
@@ -55,8 +58,10 @@ all 448 raw F00T3/F00T4 glyphs. Source-data records exact HFX591–598 frame equ
 
 ## Save and recovery
 
-The two new presentation fields are optional. Current-format saves lacking the command
-cell still restore; unknown anchors remain hidden, expire through the same owner, and
+The two new presentation fields are optional. Only finite safe integers in 0..65535
+are accepted. Producer/consumer guards reject malformed values without native wrapping;
+checkpoint normalization removes invalid anchors from the recovery clone, not stored
+data. Current-format saves lacking the command cell still restore; unknown anchors remain hidden, expire through the same owner, and
 are never guessed from the cursor, a follower or cell zero. New saves clone scalar
 command/notice cells without object aliasing. Scene-owned countdown remains presentation
 state, so rebuilding a scene reacquires a still-pending notice, like its prior mounted
@@ -69,7 +74,8 @@ text-only clamp, asymmetric frame endpoints, scalar capture/current normalizatio
 legacy absence. `tests/route-notice-modal.test.mjs` executes actual Home handlers and
 Scene animate/updateFlyby/controller paths with supplied GPU/DOM leaves, including
 pause/menu/selector/reopen, F9-style suspension, repeated ownership and expiry.
-Existing route-recovery/tooltips/hut-controller tests cover unaffected native logic.
+Existing route-recovery and hut-tooltip-controller tests cover unaffected native logic.
+The route-announcement test renders the actual Home JSX fragment, not copied markup.
 
 `node scripts/route-tooltip-fixture/run.mjs <new-output-directory>` with the verified
 `POPULOUS_BROWSER` captures the real production canvas and shipped CSS at 640x480,

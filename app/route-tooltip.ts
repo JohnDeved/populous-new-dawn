@@ -1,3 +1,4 @@
+import { routeNoticeCell } from './route-notice.ts'
 import { movePosition } from './native-math.ts'
 import { terrainPointHeight, type NativeTerrain } from './native-terrain.ts'
 import { projectPoint, relativeCoordinate, type Projection } from './projection.ts'
@@ -15,7 +16,8 @@ export function routeTooltipAnchor(
 ) {
   // Older current-format saves have no captured destination. Do not manufacture
   // an anchor from the current cursor, camera, or a follower reporting failure.
-  if (typeof cell !== 'number' || !Number.isInteger(cell)) return null
+  cell = routeNoticeCell(cell)
+  if (cell === undefined) return null
   const point = {
     x: (((cell & 254) + 1) << 8) & 65535,
     y: ((((cell >>> 8) & 254) + 1) << 8) & 65535,

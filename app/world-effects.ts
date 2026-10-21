@@ -1,3 +1,4 @@
+import { routeNoticeCell } from './route-notice.ts'
 import { buildingAcquisitionSource } from './building-acquisition-source.ts'
 import { registerSecondaryMarker } from './hut-smoke-runtime.ts'
 import {
@@ -69,7 +70,7 @@ export function requestTutorial(w: World, flags: number, message: number) {
       flags,
       message,
       serial: (w.routeNotice?.serial ?? 0) + 1,
-      cell: w.lastOrderCell,
+      cell: routeNoticeCell(w.lastOrderCell),
     }
 }
 export function effect(w: World, kind: Effect['kind'], p: Point, silent = false) {

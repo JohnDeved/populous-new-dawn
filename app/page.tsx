@@ -40,6 +40,7 @@ import {
   population,
   populationLimit,
   isShaman,
+  ROUTE_FAILURE_TEXT,
 } from './model'
 import { createGameStore } from './game-store'
 import { WorldSelector } from './world-selector'
@@ -1139,6 +1140,11 @@ export default function Home() {
           Skip introduction <kbd>ESC</kbd>
         </button>
       )}
+      <p className="game-a11y-status" role="status" aria-atomic="true" data-route-announcement>
+        {ready && world.routeNotice && (
+          <span key={world.routeNotice.serial}>{ROUTE_FAILURE_TEXT}</span>
+        )}
+      </p>
       <div className="game-status">
         {ready && !world.routeNotice && world.messageUntil > world.time && (
           <div

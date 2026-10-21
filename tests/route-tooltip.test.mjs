@@ -112,10 +112,10 @@ test('missing older presentation fields remain unknown rather than aliasing curs
     {width:640,height:480},{width:102,height:30}),null)
 })
 
-test('the shipped page and CSS no longer own route content or a fade timer', () => {
+test('the shipped page and CSS no longer contain a visible route card or fade timer', () => {
   const page=readFileSync(new URL('../app/page.tsx',import.meta.url),'utf8'),
     css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8')
-  assert.doesNotMatch(page,/route-notice|ROUTE_FAILURE_TEXT|onAnimationEnd/)
+  assert.doesNotMatch(page,/world-message route-notice|onAnimationEnd/)
   assert.doesNotMatch(css,/@keyframes route-notice|\.route-notice\{/)
 })
 
@@ -138,3 +138,43 @@ test('current checkpoint save/load retains scalar anchors and tolerates a legacy
   assert.equal(store.getWorld().lastOrderCell,undefined)
   assert.equal(store.getWorld().routeNotice.cell,undefined)
 })
+
+const malformedCells=[-1,65536,4294967296,Number.MAX_SAFE_INTEGER,Number.MAX_SAFE_INTEGER+1,
+  NaN,Infinity,-Infinity,1n,-1n,0.5,'0','65535',null,{},[],true,undefined]
+for(const value of malformedCells) {
+  test(`malformed route anchor stays unknown through producer, renderer and checkpoint recovery: ${String(value)}`,async()=>{
+    const store=createGameStore(),world=store.getWorld()
+    world.lastOrderCell=value
+    requestTutorial(world,0x200000,603)
+    assert.equal(world.routeNotice.cell,undefined,'producer never wraps or coerces untrusted anchor')
+    assert.equal(routeTooltipAnchor(value,land,view,{left:0,top:0},{width:640,height:480},
+      {width:102,height:30}),null,'consumer rejects malformed anchor before native arithmetic')
+    world.routeNotice.cell=value // simulate a current-format checkpoint payload, not a producer
+    await store.saveCheckpoint()
+    assert.equal(store.loadCheckpoint(),true)
+    const restored=store.getWorld()
+    assert.equal(restored.lastOrderCell,undefined)
+    assert.equal(restored.routeNotice.cell,undefined)
+    assert.equal(Object.hasOwn(restored,'lastOrderCell'),false)
+    assert.equal(Object.hasOwn(restored.routeNotice,'cell'),false)
+    assert.deepEqual(world.lastOrderCell,value,'normalization never mutates old live/stored source')
+    assert.deepEqual(world.routeNotice.cell,value)
+    const state=createTooltip();showRouteTooltip(state,value,24)
+    assert.equal(state.target,0,'unknown state sentinel is never a wrapped destination')
+    for(let visit=0;visit<72;visit++){state.draw=0;stepTooltip(state,false,24)}
+    assert.equal(state.remaining,0,'unknown anchors still have bounded presentation ownership')
+  })
+}
+for(const value of [0,65535]) {
+  test(`valid packed-cell endpoint ${value} survives current checkpoint save/load unchanged`,async()=>{
+    const store=createGameStore(),world=store.getWorld()
+    world.lastOrderCell=value;requestTutorial(world,0x200000,603)
+    await store.saveCheckpoint();assert.equal(store.loadCheckpoint(),true)
+    const restored=store.getWorld()
+    assert.equal(restored.lastOrderCell,value);assert.equal(restored.routeNotice.cell,value)
+    const endpointView={...view,center:value===0?{x:256,y:256}:{x:65280,y:65280}}
+    assert.deepEqual(routeTooltipAnchor(value,land,endpointView,{left:0,top:0},
+      {width:640,height:480},{width:102,height:30}),{x:324,y:240})
+    const state=createTooltip();showRouteTooltip(state,value,24);assert.equal(state.target,value)
+  })
+}
