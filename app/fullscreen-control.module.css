@@ -1,20 +1,32 @@
-/* Narrow browser adaptation, deliberately separate from native artwork/layout. */
-.control { position: fixed; right: 12px; bottom: 12px; z-index: 40; color: #efddb3; font: 12px/1.4 Arial, sans-serif; }
-.control button { display: flex; align-items: center; gap: 5px; min-height: 32px; padding: 5px 9px; border: 1px solid #9c8655; background: #242718ed; color: #efddb3; font: inherit; cursor: pointer; }
-.control button:hover { background: #413b24; }
-.control button:focus-visible { outline: 2px solid #f4dda5; outline-offset: 2px; }
+/* Browser-only adaptation, not a claimed native fullscreen asset. Roomy controls
+   repeat the original 8px HUD frame tiles at their original size. Only the compact
+   footer rebuilds the bevel from PAL0-C; its 14px height cannot fit 8px corners. */
+.control { position: fixed; right: 12px; bottom: 12px; z-index: 40; color: #16242e; }
+.control button { display: flex; align-items: center; justify-content: center; gap: 5px; box-sizing: border-box; min-height: 32px; padding: 0 1px; border: 8px solid transparent; border-image: url('/original/hud-button.png') 8 fill repeat; border-radius: 0; background: #e7b33f; color: inherit; cursor: pointer; }
+/* HFX banks: 821 normal, 830 hover (selected filename), 839 pressed (hover filename). */
+.control button:hover, .control button:focus-visible { border-image-source: url('/original/hud-button-selected.png'); }
+.control button:focus-visible { outline: 1px solid #fff7bb; outline-offset: 2px; }
+.control button[aria-pressed='true'], .control button:active { border-image-source: url('/original/hud-button-hover.png'); }
 .control button[aria-disabled='true'] { opacity: .65; cursor: wait; }
-.control p { position: absolute; right: 0; bottom: 40px; width: min(280px, calc(100vw - 24px)); margin: 0; padding: 10px; border: 1px solid #9c8655; background: #242718; color: #efddb3; }
+.icon { display: block; flex: none; fill: currentColor; shape-rendering: crispEdges; }
+.bitmap { display: inline; image-rendering: pixelated; }
+.word { display: inline-flex; vertical-align: top; }
+.word i { display: block; flex: none; background: url('/original/hud.png') no-repeat; }
+.label { display: inline-flex; }
+.fallback { font: 12px/14px Georgia, serif; }
+.visuallyHidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.control p { position: absolute; right: 0; bottom: 40px; box-sizing: border-box; width: min(280px, calc(100vw - 24px)); margin: 0; padding: 6px; border: 4px solid transparent; border-image: url('/original/tooltip-border.png') 4 repeat; background: #f7d77b; color: #16242e; line-height: 12px; }
 
 /* The selector owns the bottom Start panel and upper-right Browser controls.
    Reserve its otherwise empty upper-left strip, including in direct-mission mode. */
 :global([data-world-selector]) > .control { top: 12px; left: 12px; right: auto; bottom: auto; }
 :global([data-world-selector]) > .control button { max-width: 150px; white-space: nowrap; }
 :global([data-world-selector]) > .control p { top: 40px; left: 0; right: auto; bottom: auto; }
-/* Gameplay has no globally vacant corner: F8 and compact status/Resume use the
-   right edge. Join the existing HUD action row instead of covering battlefield UI.
-   Four 17px actions plus three 4px gaps fit its 100px native coordinate width. */
-:global(.top-actions) > .control { position: relative; inset: auto; font: 10px/12px Arial, sans-serif; }
-:global(.top-actions) > .control button { display: block; width: 17px; height: 14px; min-height: 0; padding: 0; border: 1px outset #f5ce7a; font: inherit; }
+/* Preserve the four-action native-coordinate footer and its reserved space below
+   the dock. No glyph, frame or texture is rescaled to fit the compact control. */
+:global(.top-actions) > .control { position: relative; inset: auto; }
+:global(.top-actions) > .control button { display: flex; width: 17px; height: 14px; min-height: 0; padding: 0; border: 1px solid; border-color: #f7d77b #874b27 #874b27 #f7d77b; border-image: none; box-shadow: inset 0 0 0 1px #df9b1f; }
+:global(.top-actions) > .control button:hover, :global(.top-actions) > .control button:focus-visible { background: #f7d77b; box-shadow: inset 0 0 0 1px #ffeb9f; }
+:global(.top-actions) > .control button[aria-pressed='true'], :global(.top-actions) > .control button:active { background: #f7d77b; border-color: #bf6f17 #874b27 #874b27 #bf6f17; box-shadow: inset 1px 1px #df9b1f; }
 :global(.top-actions) > .control .label { display: none; }
 :global(.top-actions) > .control p { left: 0; right: auto; bottom: 20px; }
