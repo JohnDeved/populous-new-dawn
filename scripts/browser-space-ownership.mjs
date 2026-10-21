@@ -13,17 +13,26 @@ export function beginSpaceOwnership({ id, timeout }) {
     const originalWorld = world(), record = { trusted: event.isTrusted, repeat: event.repeat,
       before: read(), owners: [...document.querySelectorAll('.campaign-messages details[open]')]
         .map(detail => detail.getAttribute('data-message-serial')) }
-    records.push(record)
-    queueMicrotask(() => {
-      record.prevented = event.defaultPrevented
-      record.after = read()
-      record.sameWorld = !!originalWorld && originalWorld === world()
-    })
+    // Keep the event/reference private until the post-keyboard evaluation. A
+    // capture-listener microtask can run before later native listeners for a
+    // trusted browser event and therefore cannot certify their final effect.
+    records.push({ event, originalWorld, record })
   }
-  const stop = () => window.removeEventListener('keydown', listener, true)
+  const stop = () => {
+    window.removeEventListener('keydown', listener, true)
+    delete window[id]
+    records.length = 0
+  }
   window.addEventListener('keydown', listener, true)
   const timer = setTimeout(stop, timeout)
-  window[id] = () => { clearTimeout(timer); stop(); delete window[id]; return records }
+  window[id] = () => {
+    clearTimeout(timer)
+    try {
+      return records.map(({ event, originalWorld, record }) => ({ ...record,
+        prevented: event.defaultPrevented, after: read(),
+        sameWorld: !!originalWorld && originalWorld === world() }))
+    } finally { stop() }
+  }
 }
 
 export function endSpaceOwnership(id) {

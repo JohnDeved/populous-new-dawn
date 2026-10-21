@@ -505,6 +505,17 @@ test('nonzero measured baseline retains every first/subsequent fixed turn and th
   assert.equal(result.restored,true)
 })
 
+test('nonzero armed baseline still rejects skipped first and subsequent turns', async t => {
+  for(const skipFirst of [true,false])await t.test(`skipFirst=${skipFirst}`,t=>{
+    const f=observerFixture(t,{armed:true,baselineTurn:37})
+    f.world.paused=false
+    if(!skipFirst)f.turn(38)
+    f.turn(skipFirst?39:40)
+    assert.match(f.observer.result.error,/missed (?:an ordinary|a fixed) turn/)
+    assert.equal(f.clock.afterTurn,f.original)
+  })
+})
+
 test('public armed resume uses only native Space and never toggles an already running world', async t => {
   for (const paused of [true, false]) {
     await t.test(`paused=${paused}`, async t => {

@@ -219,3 +219,22 @@ test('rejected keyboard delivery removes the passive witness and never retries',
     assert.equal(presses,1);assert.equal(f.world.paused,false);assert.equal(f.captures.size,0)
   } finally {f.close();globalThis.Element=old}
 })
+
+
+test('stalled keyboard delivery expires actual passive ownership without retry or a new deadline', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  let now=0, presses=0, entered
+  t.mock.method(performance,'now',()=>now)
+  const f=fixture(),old=globalThis.Element;globalThis.Element=f.Element
+  try {
+    f.world.paused=false
+    const page=inputPage(f),starting=new Promise(resolve=>{entered=resolve})
+    page.keyboard.press=async()=>{presses++;entered();return new Promise(()=>{})}
+    const pending=assert.rejects(setWorldPaused(page,true,{timeout:500}),/timed out/)
+    await starting
+    assert.equal(f.captures.size,1)
+    now=500;t.mock.timers.tick(500)
+    await pending
+    assert.equal(presses,1);assert.equal(f.world.paused,false);assert.equal(f.captures.size,0)
+  } finally {f.close();globalThis.Element=old}
+})

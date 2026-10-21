@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { popupRejectedSpace, pressObservedSpace } from '../scripts/browser-space-ownership.mjs'
+import { runInNewContext } from 'node:vm'
+import { beginSpaceOwnership, endSpaceOwnership, popupRejectedSpace, pressObservedSpace } from '../scripts/browser-space-ownership.mjs'
 
 test('retry admission requires one trusted nonrepeated popup-owned unchanged dispatch', () => {
   const record={trusted:true,repeat:false,prevented:true,owners:['7'],sameWorld:true,
@@ -30,4 +31,42 @@ test('Space witness timeout keeps the one original budget and attempts cleanup w
 test('invalid witness budget cannot install a listener or send input', async () => {
   for(const timeout of [0,-1,NaN,Infinity])
     await assert.rejects(pressObservedSpace({evaluate:()=>assert.fail('no observer'),keyboard:{press:()=>assert.fail('no input')}},{timeout}),RangeError)
+})
+
+// A modeled trusted event cannot replace browser coverage. In particular, this
+// fixture deliberately exposes the capture callback before the later native
+// handler so a premature microtask snapshot cannot certify popup rejection.
+function ownershipFixture(t) {
+  const listeners = new Set(), world = { paused: false, inputMask: 64, flyby: { flags: 21 } },
+    window = { testStore: { getWorld: () => world },
+      addEventListener(_type, listener) { listeners.add(listener) },
+      removeEventListener(_type, listener) { listeners.delete(listener) } },
+    context = { window, document: { querySelectorAll: () => [{ getAttribute: () => '7' }] },
+      setTimeout, clearTimeout, queueMicrotask },
+    evaluate = (fn, arg) => runInNewContext(`(${fn.toString()})(arg)`, { ...context, arg }),
+    id = '__owned_test'
+  evaluate(beginSpaceOwnership, { id, timeout: 500 })
+  t.after(() => evaluate(endSpaceOwnership, id))
+  return { window, world, listeners, evaluate, id }
+}
+
+test('ownership final effect is read after keyboard dispatch, not an earlier capture microtask', async t => {
+  const f = ownershipFixture(t), event = { code: 'Space', isTrusted: true, repeat: false, defaultPrevented: false }
+  for (const listener of f.listeners) listener(event)
+  await Promise.resolve() // Native listeners can run after this checkpoint.
+  event.defaultPrevented = true
+  const records = f.evaluate(endSpaceOwnership, f.id)
+  assert.equal(popupRejectedSpace(records), true)
+  assert.equal(f.listeners.size, 0)
+  assert.equal(Object.hasOwn(f.window, f.id), false)
+})
+
+test('ownership expiry removes both its passive listener and telemetry closure', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  const f = ownershipFixture(t)
+  assert.equal(f.listeners.size, 1)
+  t.mock.timers.tick(500)
+  assert.equal(f.listeners.size, 0)
+  assert.equal(Object.hasOwn(f.window, f.id), false)
+  assert.equal(f.evaluate(endSpaceOwnership, f.id).length, 0)
 })
