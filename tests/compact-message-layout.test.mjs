@@ -53,7 +53,6 @@ function clearWitness() {
     witness: {
       overflow: false,
       inventedMessageCards: 0,
-      worldMessages: [text(box(80, 8, 412, 78), 'Native route-failure notice')],
       campaignText: [text(box(86, 255, 398, 327), 'Authored campaign text')],
       diagnosticRows: Array.from({ length: 15 }, () =>
         text(box(435, 140, 654, 157), 'Diagnostic label/value')
@@ -167,22 +166,16 @@ test('compact message acceptance rejects status occlusion, clipping, missing con
       witness.diagnosticFields.find(node => node.metric === 'renderer').contentFits = false
     },
     ({ witness }) => {
-      witness.worldMessages[0] = text(box(309, 296, 693, 348), 'Overlapping route-failure notice')
+      witness.campaignText[0] = text(box(309, 296, 693, 348), 'Escaping campaign glyphs')
     },
     ({ witness }) => {
-      witness.worldMessages[0].contentFits = false
+      witness.campaignText[0].contentFits = false
     },
     ({ witness }) => {
-      witness.worldMessages[0].fragments[0].right = 430
+      witness.campaignText[0].fragments[0].right = 430
     },
     ({ witness }) => {
-      witness.worldMessages[0].fontSize = 10
-    },
-    ({ witness }) => {
-      witness.worldMessages[0].lineHeight = '14px'
-    },
-    ({ witness }) => {
-      witness.worldMessages[0].fragments = []
+      witness.campaignText[0].fragments = []
     },
     ({ witness }) => {
       witness.overflow = true
@@ -498,4 +491,12 @@ test('existing compact hosted job invokes shared expanded picking cases against 
   assert.match(workflow, /outputs\/tutorial-browser\/\*\.json/)
   assert.match(read('scripts/tutorial-browser/fixture/main.tsx'), /import Home from '\.\.\/\.\.\/\.\.\/app\/page'/)
   assert.match(read('scripts/tutorial-browser/build-home.mjs'), /mode: 'production'/)
+})
+
+// Bitmap route text has its own projection/paint/lifetime fixtures; the compact
+// popup/F8 episode must not silently exempt the removed route card.
+test('compact observer rejects every retired world-message card including route 603', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/compact-message-layout.mjs', import.meta.url), 'utf8')
+  assert.match(source, /querySelectorAll\('\.world-message, \.route-notice'\)\.length/)
+  assert.doesNotMatch(source, /world-message:not\(\.route-notice\)|Keep the shipped status font|worldMessages/)
 })

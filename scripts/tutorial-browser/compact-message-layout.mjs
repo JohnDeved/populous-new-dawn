@@ -123,8 +123,9 @@ export function compactMessageWitness() {
     preference: localStorage.getItem('hud-size'),
     scale: getComputedStyle(document.querySelector('.game-shell')).getPropertyValue('--hud-scale'),
     viewport: [innerWidth, innerHeight],
-    worldMessages: [...document.querySelectorAll('.route-notice')].filter(visible).map(text),
-    inventedMessageCards: document.querySelectorAll('.world-message:not(.route-notice)').length,
+    // Route 603 now shares the native bitmap tooltip owner. This campaign/F8
+    // episode must never admit the retired browser cards, including route cards.
+    inventedMessageCards: document.querySelectorAll('.world-message, .route-notice').length,
     campaignText: [...document.querySelectorAll('.campaign-messages details[open] [data-campaign-text]')]
       .filter(visible)
       .map(text),
@@ -162,7 +163,6 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
       'Diagnostic fields must fit F8'
     )
   const strictBoxes = [
-    ...witness.worldMessages,
     ...witness.campaignText,
     ...witness.diagnosticRows,
   ]
@@ -184,6 +184,8 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
     ...witness.diagnosticFields.filter(node => node.metric !== 'export-status' || node.text.trim()),
   ]) {
     assert.ok(node.text.trim() && node.fragments.length, 'Visible text fragments are required')
+    if (witness.campaignText.includes(node))
+      assert.ok(layout.campaignPanels.some(panel => contains(panel, node)), 'Campaign glyph bounds must stay inside their native panel')
     assert.equal(node.contentFits, true, 'Text must not overflow its own box')
     assert.ok(node.left >= 0 && node.top >= 0 && node.right <= width && node.bottom <= height)
     for (const fragment of node.fragments) {
@@ -202,7 +204,7 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
       for (const other of witness.diagnosticTextRuns.slice(index + 1))
         for (const neighbor of other.fragments)
           assert.equal(m2RectanglesOverlap(fragment, neighbor), false, 'Distinct diagnostic text must not overlap')
-      for (const ui of [layout.pause, ...layout.interactiveUi, ...witness.worldMessages])
+      for (const ui of [layout.pause, ...layout.interactiveUi])
         assert.equal(m2RectanglesOverlap(fragment, ui), false, 'Diagnostic text must not obscure unrelated UI')
     }
   }
@@ -212,16 +214,7 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
       false,
       `F8 must not obscure interactive UI: ${ui.name}`
     )
-  for (const message of witness.worldMessages) {
-    assert.equal(message.fontSize, 12, 'Keep the shipped status font size')
-    assert.equal(message.lineHeight, '18px', 'Keep the shipped status line height')
-    for (const other of [layout, layout.pause, ...layout.interactiveUi])
-      assert.equal(
-        m2RectanglesOverlap(message, other),
-        false,
-        `Active status text must not overlap F8, pause, HUD or campaign UI: ${other.name ?? 'overlay'}`
-      )
-  }
+
 }
 
 async function selectHudPreference(page, preference) {
