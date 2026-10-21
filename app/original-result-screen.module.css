@@ -10,3 +10,4 @@
 .glyph { display: inline-block; flex: none; background-repeat: no-repeat; }
 .fallback { display: inline-block; color: #fff6d6; text-shadow: 1px 1px #633f0c; }
 .hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.panel[data-result-font='4'] .line { font-size: 8px; line-height: 9px; }

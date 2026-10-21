@@ -91,12 +91,34 @@ export function OriginalResultScreen({ status, level, player, time, stage, input
     y: number,
     label = text,
     visible = true,
-    font: PopupFont = layout.font
+    font: PopupFont = layout.font,
+    fallbackCenter?: number,
+    centeringText = text
   ) {
     return (
-      <span className={styles.line} style={{ left: x, top: y }} role="img" aria-label={label}>
+      <span
+        className={styles.line}
+        style={{
+          left: !fontReady && fallbackCenter !== undefined ? fallbackCenter : x,
+          top: y,
+          transform: !fontReady && fallbackCenter !== undefined ? 'translateX(-50%)' : undefined,
+        }}
+        role="img"
+        aria-label={label}
+      >
         <span style={{ visibility: visible ? undefined : 'hidden' }}>
-          <ResultText text={text} ready={fontReady} font={font} />
+          {!fontReady && centeringText !== text ? (
+            <span style={{ position: 'relative' }}>
+              <span style={{ visibility: 'hidden' }} aria-hidden="true">
+                <ResultText text={centeringText} ready={false} font={font} />
+              </span>
+              <span style={{ position: 'absolute', left: 0, top: 0 }}>
+                <ResultText text={text} ready={false} font={font} />
+              </span>
+            </span>
+          ) : (
+            <ResultText text={text} ready={fontReady} font={font} />
+          )}
         </span>
       </span>
     )
@@ -108,7 +130,10 @@ export function OriginalResultScreen({ status, level, player, time, stage, input
         Math.floor((layout.contentWidth - resultTextWidth(centeringText, layout.font)) / 2),
       y,
       label,
-      visible
+      visible,
+      layout.font,
+      layout.contentInset[0] + layout.contentWidth / 2,
+      centeringText
     )
   }
   const terminal = status === 'won' ? 'Level Complete' : 'Level Failed'
@@ -132,7 +157,8 @@ export function OriginalResultScreen({ status, level, player, time, stage, input
             Math.trunc((7 * (viewport.height - resultGlyph('A', 3).h)) / 8),
             terminal,
             blink.status,
-            3
+            3,
+            viewport.width / 2
           )}
           {line(
             prompt,
@@ -140,7 +166,8 @@ export function OriginalResultScreen({ status, level, player, time, stage, input
             Math.trunc((7 * (viewport.height - resultGlyph('A', 3).h)) / 8) + resultGlyph('A', 3).h,
             prompt,
             blink.status,
-            3
+            3,
+            viewport.width / 2
           )}
         </div>
       ) : (

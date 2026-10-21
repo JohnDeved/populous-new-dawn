@@ -226,7 +226,7 @@ export function createGameStore() {
   const persistProgress = async () => {
     if (writing || !pending.length) return
     writing = true
-    const events = pending.slice(),
+    const events = [...pending],
       selection = selectionRevision,
       anchorVersion = anchorRevision
     let committed = false
@@ -256,7 +256,8 @@ export function createGameStore() {
     pending.push(event)
     if (next.recommendation !== null) {
       anchorRevision++
-      selected = anchor = next.recommendation
+      anchor = next.recommendation
+      selected = anchor
     }
     void persistProgress()
   }
@@ -284,7 +285,11 @@ export function createGameStore() {
     presentation.transition(worldEnvironment(next).landscape, retainResource)
     world = next
     cheatsUsed = false
-    earnedCompletion = false
+    earnedCompletion =
+      provenance === 'checkpoint' &&
+      next.status === 'won' &&
+      supportedCampaignMission(next.outcome.level) &&
+      next.outcome.completedLevel === next.outcome.level - 1
     launch = provenance
     presentationToken = null
     observedCompletion = world.outcome.completedLevel
@@ -310,8 +315,18 @@ export function createGameStore() {
     enterCampaignSelector: (resultWorld?: World) => {
       if (resultWorld && resultWorld !== world) return false
       selectionRevision++
+      const victory = !!resultWorld && earnedCompletion && !cheatsUsed && launch !== 'debug'
+      if (victory && !(progress.flags[world.outcome.level - 1] & 1)) {
+        // A clean current-format terminal checkpoint may outlive a failed profile
+        // write. Restore/Load never write; its later result exit replays only the
+        // matching earned completion before applying the victory transition.
+        recordProgress({
+          kind: 'completion',
+          mission: world.outcome.level as NativeCampaignMission,
+        })
+      }
       recordProgress(
-        resultWorld && earnedCompletion && !cheatsUsed && launch !== 'debug'
+        victory
           ? { kind: 'victory', mission: world.outcome.level as NativeCampaignMission }
           : { kind: 'return' }
       )
@@ -376,9 +391,10 @@ export function createGameStore() {
             }
             progress = joinCampaignProgress(progress, readCampaignProfile(saved.profile).progress)
             if (selectionRevision === 0) {
-              selected = anchor =
+              anchor =
                 transitionNativeCampaign(progress.flags, { kind: 'return' }).recommendation ??
                 anchor
+              selected = anchor
             }
           }
           // A successful explicit Save supersedes any older storage-read snapshot.

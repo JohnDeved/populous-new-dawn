@@ -28,7 +28,7 @@ function nativeExtension(value: unknown): value is CampaignProgress & { version:
     (value.history === 'native-model' || value.history === 'legacy-completed-only') &&
     Array.isArray(value.flags) &&
     value.flags.length === 25 &&
-    Array.from(value.flags).every(byte => Number.isInteger(byte) && byte >= 0 && byte <= 255)
+    [...value.flags].every(byte => Number.isInteger(byte) && byte >= 0 && byte <= 255)
   )
 }
 
@@ -53,7 +53,7 @@ export function readCampaignProfile(value: unknown) {
     value === undefined ||
     !!(
       base &&
-      Array.from(ledger as unknown[]).every(
+      [...(ledger as unknown[])].every(
         mission => Number.isInteger(mission) && supportedCampaignMission(mission as number)
       ) &&
       (!extensionPresent || nativeExtension(extension))

@@ -126,3 +126,24 @@ test('completion must match the live supported mission; replay victory advances 
     assert.equal(store.startMission(24), false)
   })
 })
+
+test('clean won checkpoint saved before result exit recovers only matching earned progression on exit', async () => {
+  const completed=Array.from({length:14},(_,i)=>i+1)
+  for (const kind of ['won','lost','mismatch','failed-profile']) {
+    await withStorage({profile:profile(completed,[15])},async({freshStore,drain,records,writes,failNextProfileRead})=>{
+      const first=await freshStore();await first.restoreCheckpoint();first.startMission(15)
+      if(kind==='failed-profile')failNextProfileRead()
+      if(kind==='won'||kind==='failed-profile')complete(first)
+      else first.change(w=>{w.status=kind==='lost'?'lost':'won';w.outcome.completedLevel=kind==='lost'?null:12})
+      await drain();await first.saveCheckpoint(false)
+      const second=await freshStore(),before=structuredClone(records),count=writes.length
+      await second.restoreCheckpoint();second.loadCheckpoint();await drain()
+      assert.deepEqual(records,before,'restore/load never writes progress')
+      assert.equal(writes.length,count)
+      second.enterCampaignSelector(second.getWorld());await drain()
+      const eligible=kind==='won'||kind==='failed-profile'
+      assert.equal(second.getCampaignSelection().available.includes(17),eligible,kind)
+      assert.equal(records.get('profile').completed.includes(15),eligible,kind)
+    })
+  }
+})
