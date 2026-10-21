@@ -370,9 +370,12 @@ function disposeScene(t, scene) {
 
 async function replacementScene(t, scene, world) {
   const { ObjectPanels } = await import('../app/object-panels.ts'),
+    { createTooltipFrame } = await import('../app/scene-tooltip-runtime.ts'),
     { createTooltip } = await import('../app/tooltips.ts'),
     next = Object.assign(Object.create(Object.getPrototypeOf(scene)), scene, {
       world,
+      tooltipFrame: createTooltipFrame(world.cameras.elapsed),
+      tooltipCameraActive: false,
       tooltip: createTooltip(),
       tooltipController: undefined,
       tooltipInput: null,
@@ -395,7 +398,10 @@ test('replacement binding survives stale Scene disposal and headless Worlds crea
   const current = records(next).get(camp.id)
   assert.ok(current)
   assert.notEqual(current, previous)
+  const pendingCue = { emittedElapsed: next.tooltipFrame.elapsed, cues: [{ object: null, duration: 3 }] }
+  next.tooltipFrame.cueGroups.push(pendingCue)
   disposeScene(t, scene)
+  assert.deepEqual(next.tooltipFrame.cueGroups, [pendingCue], "stale disposal cannot clear the new Scene caption queue")
   assert.equal(trainingPanelRequestOwner(world), next.objectPanels)
   assert.equal(records(scene).size, 0)
   assert.equal(scene.objectPanels.automaticTrainingLatches.size, 0)

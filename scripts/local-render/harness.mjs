@@ -1,4 +1,4 @@
-import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
+import { openCampaignFromMainMenu, waitForStartupMenu } from '../browser-new-game.mjs'
 import { spawn } from 'node:child_process'
 import { mkdirSync, writeFileSync, createWriteStream, existsSync, readFileSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
@@ -23,7 +23,7 @@ export function launchOptions(browserPath) {
     headless: true,
     chromiumSandbox: true,
     ignoreDefaultArgs: true,
-    args: ['--remote-debugging-pipe'],
+    args: ['--headless', '--remote-debugging-pipe'],
     timeout: 30000,
   }
 }
@@ -349,9 +349,7 @@ export async function runLocalBrowser(options, scenario) {
     page = context.pages()[0] ?? (await context.newPage())
     page.setDefaultTimeout(45000)
     await page.goto(url, { waitUntil: 'domcontentloaded' })
-    await page
-      .getByRole('dialog', { name: /^(Main menu|Start game)$/ })
-      .waitFor({ state: 'visible' })
+    await waitForStartupMenu(page, { allowSelector: true })
     if (lease) {
       receipt.profile.checkpointAtStart = await readCommittedCheckpoint(page)
       const previous = receipt.profile.previousRun

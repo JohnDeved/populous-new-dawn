@@ -1,3 +1,5 @@
 // Current development format only. Database/campaign-profile versions are separate.
-// v3 stores demand-grown motion routes with authoritative full-width ownership.
-export const CHECKPOINT_VERSION = 3
+// Provisional v4 for this camera branch: requires TribeCameras version1.
+// PR695 independently proposes Angel/Shield v4. These are different contracts;
+// integration must choose one final version and validate their combined owners.
+export const CHECKPOINT_VERSION = 4

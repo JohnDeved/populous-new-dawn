@@ -3,6 +3,7 @@ import { createCapacityPolicy, type CapacityMode } from './capacity-policy.ts'
 import { createMotionRoutes } from './person-routes.ts'
 import { initializeAuthoredBoat } from './vehicle-initialization.ts'
 import { initializeLevelStart } from './level-start-runtime.ts'
+import { initializeTribeCamera } from './tribe-camera.ts'
 import type { Point, Shrine, Vehicle, World } from './world-types.ts'
 import { addBuilding } from './construction-runtime.ts'
 import {
@@ -460,6 +461,16 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
       captive = w.units.find(u => u.team === 'blue' && isShaman(u))
     if (!prison || !captive) throw new Error('Missing authored Mission 15 Prison objective')
     captive.inside = prison.id
+  }
+  // 00419790 / 0042b230: all tribe views exist before opening commands.
+  // An initialized Shaman-less tribe remains initialized across save/load.
+  for (let tribe = 0; tribe < w.cameras.tribes.length; tribe++) {
+    const shaman = w.units.find(u => u.team === teamForTribe(tribe) && isShaman(u))
+    initializeTribeCamera(
+      w.cameras.tribes[tribe],
+      shaman ? nativePosition(w, shaman) : undefined,
+      w.manaWorld.gameFlags
+    )
   }
   for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
     if (w.campaignAIs[tribe])

@@ -42,6 +42,48 @@ export interface TooltipInspectionInput {
   cell: number | null
 }
 
+export function createTooltipFrame(elapsed: number) {
+  return {
+    elapsed,
+    lastElapsed: elapsed,
+    remainder: 0,
+    cueGroups: [] as {
+      emittedElapsed: number
+      cues: { object: TooltipObject | null; duration: number }[]
+    }[],
+  }
+}
+
+// Account for input-drained time without sampling frontend state before turns.
+// Ordinary pause excludes time even when pause/resume both occur between RAFs.
+export function advanceTooltipTime(scene: GameScene, seconds: number) {
+  if (!scene.world.paused) scene.tooltipFrame.elapsed += seconds
+}
+
+export function updateTooltipFrame(scene: GameScene, now: number, suspended = false) {
+  const frame = scene.tooltipFrame,
+    previous = frame.lastElapsed,
+    elapsed = Math.max(0, frame.elapsed - previous),
+    blocked = suspended || scene.world.paused || scene.tooltipCameraActive
+  frame.lastElapsed = frame.elapsed
+  scene.tooltipCameraActive = false
+  if (blocked) return
+  const remainder = frame.remainder,
+    visits = Math.floor((remainder + elapsed + 1e-9) * 24)
+  frame.remainder = Math.max(0, remainder + elapsed - visits / 24)
+  for (let visit = 0; visit < visits; visit++) {
+    const deadline = previous + (1 / 24 - remainder) + visit / 24,
+      group = frame.cueGroups[0]
+    // Browser compatibility: suppressed cues resume FIFO, one native group per
+    // eligible frontend visit. Never replay blocked lifetime or collapse groups.
+    if (group && group.emittedElapsed <= deadline + 1e-9) {
+      frame.cueGroups.shift()
+      for (const cue of group.cues) scene.acquireForcedTooltip(cue.object, cue.duration)
+    }
+    scene.updateTooltipController(now)
+  }
+}
+
 export function getTooltipController(scene: GameScene) {
   return (scene.tooltipController ??= createTooltipController(
     scene.tooltip,

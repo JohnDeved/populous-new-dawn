@@ -16,6 +16,7 @@ import { nativeTrainingCost } from './building-occupants.ts'
 import constants from './original-constants.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 import { createFlyby } from './flyby.ts'
+import { createTribeCameras } from './tribe-camera.ts'
 import { missionAI } from './campaign-runtime.ts'
 import { createMessages } from './messages.ts'
 import { createPersonOrderPool } from './person-orders.ts'
@@ -101,6 +102,7 @@ export function createWorldState(missionNumber = 1, capacityMode: CapacityMode =
   return {
     capacityPolicy: createCapacityPolicy(capacityMode),
     flyby: createFlyby(),
+    cameras: createTribeCameras(),
     drawMode: missionNumber === tutorialLevel ? 2 : 0,
     inputMask: 0,
     lastMessage: -1,

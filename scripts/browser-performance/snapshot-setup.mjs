@@ -68,6 +68,7 @@ export async function createSnapshotFixture({ output, source }) {
   const { loadSceneFixture } = await import('../../tests/support/bloodlust-scene.mjs')
   const { createWorld, advanceGame, migrateCheckpoint, cancelInteraction } = await loadSceneFixture()
   const { skipIntroduction } = await import('../../app/scene-camera-runtime.ts')
+  const { createTooltipFrame } = await import('../../app/scene-tooltip-runtime.ts')
   const world = createWorld(2, 'scalable'), clock = { animationTime: 0, animationFrame: 0 }
   assert.equal(world.inputMask, 128, 'Authored startup contract changed')
   for (let frame = 0; frame < snapshotAuthoring.frames; frame++)
@@ -77,7 +78,7 @@ export async function createSnapshotFixture({ output, source }) {
   // The genuine controller owns the skip decision and input-mask release. The
   // minimal authoring context supplies only presentation outputs, not fake ticks.
   let changed = 0
-  skipIntroduction({ world, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() { changed++ } })
+  skipIntroduction({ world, tooltipFrame: createTooltipFrame(world.cameras.elapsed), flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() { changed++ } })
   assert.equal(changed, 1); assert.equal(world.inputMask, 0); assert.equal(world.flyby.flags, 20)
   const checkpoint = { version: CHECKPOINT_VERSION, world }
   const expectedWorld = migrateCheckpoint(migrateCheckpoint(structuredClone(world)))

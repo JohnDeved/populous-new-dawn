@@ -23,6 +23,7 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
   await withStorage({}, async ({ freshStore, records, drain }) => {
     await loadSceneFixture()
     const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
+    const { createTooltipFrame } = await import('../app/scene-tooltip-runtime.ts')
     const store = await freshStore()
     store.startMission(5)
     const world = store.getWorld(),
@@ -34,7 +35,7 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
     assert.deepEqual([source.id, head.id], [97, 98])
     while (!(world.flyby.flags & 1) && world.turn < 40) tick(world, 1 / 12)
     assert.ok(world.flyby.warmup > 0)
-    skipIntroduction({ world, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} })
+    skipIntroduction({ world, tooltipFrame: createTooltipFrame(world.cameras.elapsed), flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} })
     assert.equal(world.inputMask, 0)
     selectUnit(world, warrior.id, false)
     assert.ok(command(world, { ...head, id: head.id }))

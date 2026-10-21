@@ -10,6 +10,7 @@ import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 test('ordinary nearby cross-craft boarding preserves the person and cleans later same-model orders', async () => {
   await loadSceneFixture()
   const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
+  const { createTooltipFrame } = await import('../app/scene-tooltip-runtime.ts')
   const store = createGameStore()
   store.startMission(15)
   const w = store.getWorld(),
@@ -17,7 +18,7 @@ test('ordinary nearby cross-craft boarding preserves the person and cleans later
   for (let n = 0; n < 82; n++) {
     tick(w, 1 / 12)
     if (w.flyby.flags & 1 && w.flyby.warmup > 0)
-      skipIntroduction({ world: w, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} })
+      skipIntroduction({ world: w, tooltipFrame: createTooltipFrame(w.cameras.elapsed), flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} })
   }
   for (const id of [71, 76]) {
     cancelInteraction(w)

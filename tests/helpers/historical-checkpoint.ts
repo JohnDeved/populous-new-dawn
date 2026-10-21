@@ -26,6 +26,7 @@ import { createWorshipAcquisitionRuntime } from '../../app/worship-acquisition-r
 import { initializeVaultKnowledge } from '../../app/vault-appearance.ts'
 import { discardInvalidResident } from '../../app/building-resident.ts'
 import { initializeVaultKnowledgeGift } from '../../app/world-effects.ts'
+import { createTribeCameras } from '../../app/tribe-camera.ts'
 
 export function restoreHistoricalSecondaryEffects(world: World) {
   if (!world.secondaryEffects) {
@@ -150,7 +151,18 @@ function migrateLegacyBridgeOrigins(world: World) {
   }
 }
 
+export function initializeHistoricalCameras(world: World) {
+  if (!world.cameras) {
+    // Historical fixtures recorded no camera pose. Their port supplied neutral
+    // tribe inputs; preserve that deterministic research context, without
+    // inferring camera history from current Shamans or claiming native parity.
+    world.cameras = createTribeCameras()
+    for (const camera of world.cameras.tribes) camera.initialized = true
+  }
+}
+
 export function normalizeHistoricalFixture(world: World) {
+  initializeHistoricalCameras(world)
   world.capacityPolicy ??= createCapacityPolicy('classic')
   restoreCapacityPolicy(world)
   // Preserve intact legacy cell order. This cannot recover a chain that an older

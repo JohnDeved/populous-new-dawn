@@ -494,7 +494,8 @@ export default function Home() {
         scene = created
         engine.current = created
         setHudCamera({ x: created.cameraPosition.x, y: created.cameraPosition.y })
-        if (world.drawMode === 2) created.overview()
+        // A restored overview already owns its phase; only a fresh globe request needs entry.
+        if (world.drawMode === 2 && !created.overviewActive) created.overview()
         return created.ready.then(() => {
           if (
             !disposed &&

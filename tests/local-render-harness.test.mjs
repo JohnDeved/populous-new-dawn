@@ -5,7 +5,7 @@ test('local launch preserves sandbox and removes all unsafe Playwright defaults'
   const options = launchOptions('/tmp/official-headless-shell')
   assert.equal(options.chromiumSandbox, true)
   assert.equal(options.ignoreDefaultArgs, true)
-  assert.deepEqual(options.args, ['--remote-debugging-pipe'])
+  assert.deepEqual(options.args, ['--headless', '--remote-debugging-pipe'])
   assert.ok(!JSON.stringify(options).includes('--no-sandbox'))
   assert.ok(!JSON.stringify(options).includes('--enable-unsafe-swiftshader'))
   assert.throws(() => launchOptions(''), /installed official/)
@@ -164,6 +164,7 @@ async function lateScenarioResult(trigger) {
       'const bindGame = async () => {}, showAllMissions = async () => {}'
     )
   const sandbox = {
+    waitForStartupMenu: async () => {},
     sourceReceipt: () => ({ fingerprint: 'fixed-clean-identity' }),
     console,
     resolve,
@@ -413,6 +414,7 @@ async function startupFixture({
     },
     setTimeout: schedule,
     clearTimeout: timer => scheduled.delete(timer),
+    waitForStartupMenu: async () => {},
     sourceReceipt: () => ({ fingerprint: 'fixed' }),
     mkdirSync() {
       calls.mkdir++

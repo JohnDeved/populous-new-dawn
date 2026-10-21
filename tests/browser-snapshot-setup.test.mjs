@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { execFileSync } from 'node:child_process'
@@ -199,7 +200,7 @@ test('cleanup uncertainty preserves the original load failure without throwing i
 test('generated current snapshot is admitted by a fresh real store without rewriting persisted input', async () => {
   const f = await getFixture(), record = checkpointCodec(f.transfer, true),
     { withStorage } = await import('./support/profile-storage.mjs')
-  assert.equal(record.version, 3)
+  assert.equal(record.version, CHECKPOINT_VERSION)
   await withStorage({ latest: record }, async ({ freshStore, records, writes }) => {
     const store = await freshStore(), active = store.getWorld(), before = structuredClone(records)
     assert.equal(await store.restoreCheckpoint(), true)
