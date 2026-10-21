@@ -83,6 +83,41 @@ async function observeGame(page) {
   })
 }
 
+// The shipped help is a fixed native menu, not the removed long web document.
+// Inspect actual controls/glyphs inside the scaled viewport without creating
+// artificial overflow or changing its scroll position.
+export function nativeHelpLayout(element) {
+  const bounds = element.getBoundingClientRect()
+  const fits = rect => rect.width > 0 && rect.height > 0 && rect.left >= bounds.left &&
+    rect.right <= bounds.right && rect.top >= bounds.top && rect.bottom <= bounds.bottom &&
+    rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight
+  const heading = element.querySelector('[data-browser-help-heading]')
+  const fields = [heading, ...element.querySelectorAll('button, [role="status"]')].map(node => {
+    const rect = node.getBoundingClientRect(), owner = document.elementFromPoint((rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2)
+    return { label: node.getAttribute('aria-label') ?? node.textContent.trim(),
+      fits: fits(rect), glyphsFit: [...node.querySelectorAll('i')].every(glyph => fits(glyph.getBoundingClientRect())),
+      actionable: node.tagName !== 'BUTTON' || (!node.disabled && node.contains(owner)) }
+  })
+  return { scrollTop: element.scrollTop, scrollHeight: element.scrollHeight, clientHeight: element.clientHeight,
+    focused: document.activeElement === heading, fields,
+    documentOverflow: document.documentElement.scrollWidth > innerWidth || document.documentElement.scrollHeight > innerHeight }
+}
+
+export function assertNativeHelpLayout(layout) {
+  assert.equal(layout.focused, true)
+  assert.ok(layout.scrollTop <= 1, 'Opening and reopening help must start at the top')
+  assert.equal(layout.documentOverflow, false, 'Native help must not overflow the document')
+  for (const label of ['Browser compatibility and help', 'Select Level', 'Back to Options'])
+    assert.equal(layout.fields.filter(field => field.label === label).length, 1, `Required native help field: ${label}`)
+  for (const pattern of [/game speed$/, /Performance/, /^HUD size/, /Sound on|Enable sound/])
+    assert.equal(layout.fields.filter(field => pattern.test(field.label)).length, 1, `Required native help control: ${pattern}`)
+  for (const field of layout.fields) {
+    assert.equal(field.fits, true, `Native help field must fit: ${field.label}`)
+    assert.equal(field.glyphsFit, true, `Complete native help text must fit: ${field.label}`)
+    assert.equal(field.actionable, true, `Native help control must be reachable: ${field.label}`)
+  }
+}
+
 export default async function ({ browser, url, output }) {
   const context = await browser.newContext({ viewport: { width: 960, height: 720 } })
   const episodes = [], helpEntry = [], errors = []
@@ -122,33 +157,24 @@ export default async function ({ browser, url, output }) {
       const help = menu.getByRole('region', { name: 'Browser compatibility and help', exact: true })
       for (const exit of ['Back', 'Escape', 'continue']) {
         await page.waitForFunction(() => document.activeElement?.hasAttribute('data-browser-help-heading'))
-        const layout = await help.evaluate(element => {
-          const heading = element.querySelector('[data-browser-help-heading]')
-          const bounds = element.getBoundingClientRect(), title = heading.getBoundingClientRect()
-          return { scrollTop: element.scrollTop, scrollHeight: element.scrollHeight,
-            clientHeight: element.clientHeight, headingTop: title.top, headingBottom: title.bottom,
-            panelTop: bounds.top, panelBottom: bounds.bottom, focused: document.activeElement === heading }
-        })
+        const layout = await help.evaluate(nativeHelpLayout)
         helpEntry.push({ exit, ...layout })
-        assert.equal(layout.focused, true)
-        assert.ok(layout.scrollHeight > layout.clientHeight, 'Use the real overflowing in-game help')
-        assert.ok(layout.scrollTop <= 1, 'Opening and reopening help must start at the top')
-        assert.ok(layout.headingTop >= layout.panelTop && layout.headingBottom <= layout.panelBottom,
-          'The complete heading must be visible before any scrolling action')
-        await frozen()
+        assertNativeHelpLayout(layout)
+        const held = await frozen()
         if (exit === 'continue') break
         if (exit === 'Back') {
           await page.screenshot({ path: resolve(output, 'options-help-entry.png') })
           await help.getByRole('button', { name: 'Back to Options', exact: true }).click()
         } else {
           await help.getByRole('button', { name: 'Back to Options', exact: true }).focus()
-          assert.ok(await help.evaluate(element => element.scrollTop > 0), 'Exercise Escape after scrolling down')
+          assert.equal(await help.getByRole('button', { name: 'Back to Options', exact: true })
+            .evaluate(element => document.activeElement === element), true, 'Escape starts from the reachable native Back control')
           await page.keyboard.press('Escape')
         }
         await help.waitFor({ state: 'hidden' })
         await page.waitForFunction(() => document.activeElement?.hasAttribute('data-compatibility'))
         assert.equal(await menu.locator('[data-original-options]').getAttribute('data-category'), 'Game')
-        await frozen()
+        assert.deepEqual(await frozen(), held, 'Help exit preserves the exact paused world/session snapshot')
         await button('Browser compatibility and help').click()
       }
       checkedHelpEntry = true
