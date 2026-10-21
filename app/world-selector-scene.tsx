@@ -110,7 +110,9 @@ export function WorldSelectorScene({
       {failed && (
         <div className={styles.sceneFailure} role="status">
           <p>Star-system image unavailable. Mission controls still work.</p>
-          <button onClick={() => setGeneration(value => value + 1)}>Retry scene</button>
+          <button data-selector-recovery="true" onClick={() => setGeneration(value => value + 1)}>
+            Retry scene
+          </button>
         </div>
       )}
     </div>

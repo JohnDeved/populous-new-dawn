@@ -316,3 +316,104 @@ test('an asset failure remains scoped to its selected world even when banks reus
   f.click('Panel Mission 4')
   assert.equal(art().length, 0, 'the failed world retains its accessible fallback')
 })
+
+// Run the real failure render/callback, but do not start a renderer or simulate
+// browser default dispatch. The tests below supply that one button-click boundary.
+function sceneRecoveryFixture() {
+  const source = ts.createSourceFile('world-selector-scene.tsx',
+    readFileSync(new URL('../app/world-selector-scene.tsx', import.meta.url), 'utf8'),
+    ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const component = source.statements.find(node =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'WorldSelectorScene')
+  assert.ok(component, 'actual scene recovery component exists')
+  const code = ts.transpileModule(component.getText(source).replace(/^export /, ''), {
+    compilerOptions: {target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React},
+  }).outputText
+  let state = 0, generation = 0
+  const bindings = {
+    React: {createElement: (type, props, ...children) => ({type, props: props ?? {}, children})},
+    useRef: current => ({current}), useEffect() {},
+    useState() {
+      return state++ === 0 ? [true, () => assert.fail('render does not change failure state')]
+        : [generation, update => {generation = update(generation)}]
+    },
+    styles: new Proxy({}, {get: (_, name) => name}),
+  }
+  const render = Function(...Object.keys(bindings), `${code}\nreturn WorldSelectorScene`)(...Object.values(bindings))
+  const buttons = nodes(render({mission: 1, progressionMission: 1}), node => node.type === 'button')
+  assert.equal(buttons.length, 1)
+  assert.equal(buttons[0].children.join('').trim(), 'Retry scene')
+  return {button: buttons[0], get generation() {return generation}}
+}
+
+function keyTarget(tag, props = {}, parent = null) {
+  return {tag, props, parent, closest(selector) {
+    assert.equal(selector, 'button[data-selector-recovery]')
+    for (let node = this; node; node = node.parent)
+      if (node.tag === 'button' && node.props['data-selector-recovery'] !== undefined) return node
+    return null
+  }}
+}
+function captureSelectorKey(fixture, type, key, target, extra = {}) {
+  const calls = {prevented: false, stopped: false}
+  fixture.tree.props[type]({key, target, currentTarget: fixture.tree,
+    repeat: false, ctrlKey: false, altKey: false, metaKey: false, shiftKey: false,
+    preventDefault() {calls.prevented = true}, stopPropagation() {calls.stopped = true}, ...extra})
+  return calls
+}
+const nativeKeyboardFixture = () => selectorFixture([], {
+  nativeSelection: {selected: 1, available: [1, 2], progressionMission: 1},
+})
+
+for (const key of ['Enter', ' ']) for (const nested of [false, true]) {
+  test(`native selector preserves focused Retry ${JSON.stringify(key)} activation (nested=${nested})`, () => {
+    const f = nativeKeyboardFixture(), recovery = sceneRecoveryFixture()
+    const button = keyTarget('button', recovery.button.props)
+    const target = nested ? keyTarget('span', {}, keyTarget('svg', {}, button)) : button
+    for (const repeat of [false, true]) {
+      assert.deepEqual(captureSelectorKey(f, 'onKeyDownCapture', key, target, {repeat}),
+        {prevented: false, stopped: false}, 'capture must not cancel the recovery button default')
+      assert.deepEqual(captureSelectorKey(f, 'onKeyUpCapture', key, target),
+        {prevented: false, stopped: false}, 'Space keyup must still reach the recovery button')
+      assert.deepEqual(f.launches, [], 'fresh or held recovery input never starts a mission')
+    }
+    recovery.button.props.onClick() // Supplied ordinary button activation after uncancelled input.
+    assert.equal(recovery.generation, 1, 'actual Retry callback requests a new scene generation')
+    assert.deepEqual(f.launches, [])
+  })
+}
+
+for (const owner of ['selector', 'panel', 'start', 'nested-start', 'non-button-marker']) {
+  test(`native selector still owns Enter/Space from ${owner}`, () => {
+    const f = nativeKeyboardFixture()
+    const target = owner === 'selector' ? keyTarget('section')
+      : owner === 'panel' ? keyTarget('button', f.props('Panel Mission 2'))
+        : owner === 'start' ? keyTarget('button', f.props('Start Mission 1'))
+          : owner === 'nested-start' ? keyTarget('span', {}, keyTarget('button', f.props('Start Mission 1')))
+            : keyTarget('span', {'data-selector-recovery': 'true'})
+    assert.deepEqual(captureSelectorKey(f, 'onKeyDownCapture', ' ', target), {prevented: true, stopped: true})
+    assert.deepEqual(captureSelectorKey(f, 'onKeyUpCapture', ' ', target), {prevented: true, stopped: false})
+    assert.deepEqual(f.launches, [], 'native Space remains ignored, not a button click')
+    captureSelectorKey(f, 'onKeyDownCapture', 'Enter', target, {repeat: true})
+    assert.deepEqual(f.launches, [], 'held Enter cannot start')
+    assert.deepEqual(captureSelectorKey(f, 'onKeyDownCapture', 'Enter', target), {prevented: true, stopped: true})
+    assert.deepEqual(captureSelectorKey(f, 'onKeyUpCapture', 'Enter', target), {prevented: true, stopped: false})
+    assert.deepEqual(f.launches, [1], 'Enter starts the selected mission, not the focused panel world')
+    captureSelectorKey(f, 'onKeyDownCapture', 'Enter', target)
+    assert.deepEqual(f.launches, [1], 'launch latch still prevents duplicate starts')
+  })
+}
+
+test('recovery exemption does not change non-native controls or modified native keydown', () => {
+  const f = nativeKeyboardFixture(), target = keyTarget('button', f.props('Start Mission 1'))
+  for (const modifier of ['ctrlKey', 'altKey', 'metaKey', 'shiftKey']) {
+    assert.deepEqual(captureSelectorKey(f, 'onKeyDownCapture', 'Enter', target, {[modifier]: true}),
+      {prevented: false, stopped: false})
+    assert.deepEqual(f.launches, [])
+  }
+  const opening = selectorFixture([])
+  for (const key of ['Enter', ' ']) for (const type of ['onKeyDownCapture', 'onKeyUpCapture'])
+    assert.deepEqual(captureSelectorKey(opening, type, key, keyTarget('section')),
+      {prevented: false, stopped: false})
+  assert.deepEqual(opening.launches, [])
+})

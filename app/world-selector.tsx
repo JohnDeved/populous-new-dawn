@@ -131,7 +131,15 @@ export function WorldSelector({
       className={`${styles.selector} ${nativeSelection ? styles.nativeSelector : ''} ${!allMissions ? styles.nativePointer : ''}`}
       aria-label="World selection"
       onKeyDownCapture={event => {
-        if (!nativeSelection || event.ctrlKey || event.altKey || event.metaKey || event.shiftKey)
+        // Browser recovery controls retain their own Enter/Space activation.
+        if (
+          !nativeSelection ||
+          event.ctrlKey ||
+          event.altKey ||
+          event.metaKey ||
+          event.shiftKey ||
+          (event.target as Element | null)?.closest('button[data-selector-recovery]')
+        )
           return
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault()
@@ -140,7 +148,12 @@ export function WorldSelector({
         }
       }}
       onKeyUpCapture={event => {
-        if (nativeSelection && (event.key === 'Enter' || event.key === ' ')) event.preventDefault()
+        if (
+          nativeSelection &&
+          !(event.target as Element | null)?.closest('button[data-selector-recovery]') &&
+          (event.key === 'Enter' || event.key === ' ')
+        )
+          event.preventDefault()
       }}
       style={
         {
