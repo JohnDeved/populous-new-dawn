@@ -7,6 +7,8 @@ import * as THREE from 'three'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 import { makePlanScene } from './support/plan-scene.mjs'
 
+const noop = () => {}
+
 async function setup(t, count = 1) {
   const api = await loadSceneFixture(),
     world = api.createWorld(22)
@@ -28,7 +30,6 @@ async function setup(t, count = 1) {
   scene.ground.add(scene.objects, scene.decorations, scene.cursor)
   scene.view = new RenderView()
   scene.view.update(800, 600, { x: 0, z: 0 }, 0, 0, false)
-  const noop = () => {}
   // Keep GameScene.dispose, releaseGroup and RenderView.dispose unchanged.
   // Only unrelated browser/audio/UI leaves are replaced in this Node fixture.
   Object.assign(scene, {
@@ -52,11 +53,11 @@ async function setup(t, count = 1) {
   })
   const observations = []
   const watch = resource => {
-    let count = 0
-    const listener = () => count++
+    let disposals = 0
+    const listener = () => disposals++
     resource.addEventListener('dispose', listener)
     observations.push(() => resource.removeEventListener('dispose', listener))
-    return () => count
+    return () => disposals
   }
   const dispose = () => GameScene.prototype.dispose.call(scene)
   t.after(() => {
