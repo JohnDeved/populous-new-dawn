@@ -390,3 +390,42 @@ observable. This is a narrow reviewed terrain contract, not arbitrary JavaScript
 equivalence. The old hash-only PR600 capture remains rejected: its exact differing
 bodies were not retained and no minifier cause has been proven retrospectively.
 No cohort, input, sample count, noise threshold, runner count or timeout changes.
+
+### Public menu recovery compatibility
+
+The snapshot recovery shard accepts exactly one shipped public button named
+`Game settings` or `Menu`. It rejects missing, duplicate, hidden, disabled, or
+simultaneously old/new entries rather than trying another route. The selected
+exact accessible name and original Scene/World/canvas identity are recorded as
+unmeasured preparation. One ordinary click must open the accessible modal
+`Game menu` native root (`data-panel="root"` with `Continue Game`), and one real
+Escape must hide both that original dialog node and its public locator.
+
+This is the already-paused authored snapshot: no new pause or state injection is
+introduced. Original admission runs before and after the round trip; exact
+Scene/World/canvas identity, speed, logical state, camera, selection, and viewport
+must survive. Only modal input suspension may change while the root is open.
+Failure is terminal for the arm; there is no alternative click or close retry.
+The following fixed pointer workload, warmup, callbacks, metrics, source
+admissions, thresholds, and reporter acceptance remain unchanged. This measures
+subsequent pointer-input CPU, not first-post-close latency.
+
+The previous incompatible comparison is not performance or gameplay evidence:
+head `5e4ade6788d7a07056389d6736c17b31d352351b` used `Menu`; the trusted harness at
+`49f198df96d0f36a4067432db051b88c2a5b9498` selected only `Game settings`.
+Run `39674637128`, artifact `12381886466`, ZIP SHA-256
+`acaebd0deff6a0d2227c8fa92dfd09776db3aad259fe388db3cc204c234dfe50` contains three
+head locator timeouts and three completed base sessions.
+
+Node control doubles in `tests/browser-snapshot-menu-recovery.test.mjs` are only
+unit coverage, not rendered old/new acceptance. Rendered acceptance must bind the
+actual build revisions and this common harness, including these historical source
+identities when reproducing those two routes:
+
+- Old `app/page.tsx` Git blob: `7a4174acfef0cafac42059e7af329738801b740b`.
+- New `app/page.tsx` Git blob: `19560bc6293f42befc06af01fc4a7a4b46aa5bf0`.
+- Both `app/original-pause-menu.tsx` blobs: `bf33edcc5fbd8ef37d65a23c2c834d4082cce9b4`.
+
+Independent review and ordinary trusted-baseline adoption must precede any new
+comparison. This repair does not change a workflow pin or make a valid performance
+claim; full gates and actual rendered/comparative evidence remain separate.
