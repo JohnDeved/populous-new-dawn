@@ -1,0 +1,488 @@
+#!/usr/bin/env python3
+"""Explicit, verified non-Git runtime views with content-addressed game assets.
+
+Never changes the source checkout, Git's index, existing dependencies or permissions.
+The runtime view is not a source checkout or a replacement for canonical CI receipts.
+"""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path, PurePosixPath
+import stat
+import shutil
+import subprocess
+import sys
+import time
+
+ASSETS = 'public/original'
+MANIFEST = '.pnd-runtime.json'
+BUILD_EXCLUDES = {'.agents', '.codex', '.github', '.serena', 'decomp', 'docs',
+                  'engineering', 'evidence', 'qa', 'references', 'tests', 'tools', 'work'}
+MUTABLE_ROOTS = {'node_modules', 'work', 'dist', '.next', '.vinext', '.wrangler', '.fallow'}
+LOCAL_FILES = {MANIFEST, 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'tsconfig.tsbuildinfo'}
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def encoded(value):
+    return (json.dumps(value, sort_keys=True, separators=(',', ':')) + '\n').encode()
+
+
+def run_git(source, *args):
+    return subprocess.check_output(['git', '-C', str(source), *args], stderr=subprocess.PIPE)
+
+
+def physical(path, absent=False):
+    """Reject symlink ancestors as well as a symlink at the requested root."""
+    path = Path(os.path.abspath(path))
+    for parent in [*reversed(path.parents), path]:
+        if not parent.exists() and not parent.is_symlink():
+            require(absent, f'Missing physical path: {parent}')
+            continue
+        require(not parent.is_symlink(), f'Symlink path component: {parent}')
+        require(parent.is_dir(), f'Not a physical directory: {parent}')
+    return path
+
+
+def within(parent, child):
+    return child == parent or parent in child.parents
+
+
+def safe_relative(name):
+    p = PurePosixPath(name)
+    require(name and not p.is_absolute() and str(p) == name and
+            all(x not in ('', '.', '..', '.git') for x in p.parts) and '\\' not in name,
+            f'Unsafe tracked path: {name!r}')
+    return p
+
+
+def source_state(source, revision):
+    source = physical(source)
+    require(revision and len(revision) == 40 and all(c in '0123456789abcdef' for c in revision),
+            'An exact 40-character revision is required')
+    actual = run_git(source, 'rev-parse', 'HEAD').decode().strip()
+    require(actual == revision, 'Source HEAD differs from requested revision')
+    require(not run_git(source, 'status', '--porcelain', '--untracked-files=all').strip(),
+            'Source checkout must be clean')
+    require(run_git(source, 'rev-parse', '--show-object-format').decode().strip() == 'sha1',
+            'Only explicitly supported SHA-1 Git repositories are accepted')
+    entries = []
+    for record in run_git(source, 'ls-tree', '-r', '-z', '-l', revision).split(b'\0'):
+        if not record:
+            continue
+        metadata, raw_name = record.split(b'\t', 1)
+        mode, kind, oid, size = metadata.decode().split()
+        name = raw_name.decode('utf-8')
+        safe_relative(name)
+        require(kind == 'blob' and mode in ('100644', '100755'),
+                f'Unsupported tracked symlink or non-file: {name}')
+        require(name != MANIFEST, 'Runtime manifest name is reserved')
+        entries.append({'path': name, 'mode': mode, 'oid': oid, 'bytes': int(size)})
+    require(any(e['path'].startswith(ASSETS + '/') for e in entries), 'No committed game assets')
+    flags = {record[2:].decode('utf-8'): chr(record[0])
+             for record in run_git(source, 'ls-files', '-v', '-z').split(b'\0') if record}
+    require(all(flag in ('H', 'S') for flag in flags.values()),
+            'Assume-unchanged or unsupported index flags cannot authenticate source')
+    sparse_omitted = 0
+    for entry in entries:
+        path = source / entry['path']
+        if path.exists() or path.is_symlink():
+            physical(path.parent)
+            regular_bytes(path, entry)
+            require(bool(path.stat().st_mode & 0o111) == (entry['mode'] == '100755'),
+                    f'Source executable mode changed: {entry["path"]}')
+        else:
+            require(flags.get(entry['path']) == 'S', f'Missing non-sparse source: {entry["path"]}')
+            sparse_omitted += 1
+    return {'source': str(source), 'revision': revision,
+            'tree': run_git(source, 'rev-parse', revision + '^{tree}').decode().strip(),
+            'assetTree': run_git(source, 'rev-parse', revision + ':' + ASSETS).decode().strip(),
+            'entries': entries, 'sparseOmittedFiles': sparse_omitted}
+
+
+def selected(entry, scope):
+    return scope == 'full' or entry['path'].split('/')[0] not in BUILD_EXCLUDES
+
+
+def blob_oid(data):
+    return hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+
+
+class Blobs:
+    def __init__(self, source):
+        self.proc = subprocess.Popen(['git', '-C', str(source), 'cat-file', '--batch'],
+                                     stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    def read(self, entry):
+        self.proc.stdin.write((entry['oid'] + '\n').encode())
+        self.proc.stdin.flush()
+        oid, kind, size = self.proc.stdout.readline().decode().strip().split()
+        require(oid == entry['oid'] and kind == 'blob' and int(size) == entry['bytes'],
+                'Git object identity changed')
+        data = self.proc.stdout.read(int(size))
+        require(len(data) == int(size) and self.proc.stdout.read(1) == b'\n', 'Truncated Git object')
+        require(blob_oid(data) == entry['oid'], 'Git object content mismatch')
+        return data
+
+    def close(self):
+        self.proc.stdin.close()
+        code = self.proc.wait()
+        self.proc.stdout.close()
+        self.proc.stderr.close()
+        require(code == 0, 'Git object reader failed')
+
+
+def regular_bytes(path, entry):
+    info = path.lstat()
+    require(stat.S_ISREG(info.st_mode), f'Expected regular file: {path}')
+    require(info.st_size == entry['bytes'], f'File size changed: {path}')
+    data = path.read_bytes()
+    require(blob_oid(data) == entry['oid'], f'File content changed: {path}')
+    return data
+
+
+def file_inventory(root):
+    """Do not follow links. Include directory paths to reject undeclared empty dirs."""
+    result = {}
+    for parent, dirs, files in os.walk(root, followlinks=False):
+        for name in dirs + files:
+            path = Path(parent) / name
+            result[path.relative_to(root).as_posix()] = path
+    return result
+
+
+def parent_names(paths):
+    return {str(p) for name in paths for p in PurePosixPath(name).parents if str(p) != '.'}
+
+
+def check_tree(pool, asset_tree, assets):
+    tree = physical(pool / 'trees' / asset_tree)
+    expected = {entry['path'][len(ASSETS) + 1:]: entry for entry in assets}
+    actual = file_inventory(tree)
+    require(set(actual) == set(expected) | parent_names(expected), 'Asset tree has undeclared or missing paths')
+    for rel in parent_names(expected):
+        physical(tree / rel)
+    for rel, entry in expected.items():
+        link = tree / rel
+        require(link.is_symlink(), f'Asset tree entry must be a declared symlink: {rel}')
+        blob = pool / 'blobs' / entry['sha256']
+        require(os.readlink(link) == os.path.relpath(blob, link.parent), f'Asset symlink target changed: {rel}')
+        require(link.resolve(strict=True) == blob, f'Asset symlink escaped declared store: {rel}')
+        data = regular_bytes(blob, entry)
+        require(digest(data) == entry['sha256'], f'Asset digest changed: {rel}')
+    return tree
+
+
+def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
+    state = source_state(source, revision)
+    source = Path(state['source'])
+    pool = physical(pool, absent=True)
+    runtime = physical(runtime, absent=True)
+    require(not runtime.exists(), 'Runtime destination must not exist')
+    require(all(not within(a, b) for a, b in [(source, pool), (source, runtime),
+            (pool, source), (pool, runtime), (runtime, source), (runtime, pool)]),
+            'Source, pool and runtime must be separate non-nested roots')
+    require(scope in ('build', 'full'), 'Unknown runtime scope')
+    require(reserve_bytes > 0, 'A positive explicit scratch/output reserve is required')
+    entries = [e for e in state['entries'] if selected(e, scope)]
+    # Budget conservatively counts every asset, even if CAS reuse will save it.
+    copy_bytes = sum(((e['bytes'] + 4095) // 4096 + 1) * 4096 for e in entries)
+    target_parent = runtime.parent
+    physical(target_parent)
+    physical(pool.parent)
+    require(os.stat(target_parent).st_dev == os.stat(pool.parent).st_dev, 'Pool and runtime need the same filesystem')
+    fs = os.statvfs(target_parent)
+    available = fs.f_bavail * fs.f_frsize
+    require(available >= copy_bytes + reserve_bytes,
+            f'Insufficient destination capacity: {available} < {copy_bytes} + {reserve_bytes}')
+    budget = {'availableBytes': available, 'fullCopyEstimateBytes': copy_bytes,
+              'reserveBytes': reserve_bytes, 'measuredAt': time.time()}
+    pool.mkdir(exist_ok=True)
+    physical(pool)
+    lock = pool / '.writer-lock'
+    lock.mkdir()  # Fail closed on an active or abandoned publisher; never remove another lock.
+    blobs = None
+    try:
+        (pool / 'blobs').mkdir(exist_ok=True)
+        (pool / 'trees').mkdir(exist_ok=True)
+        physical(pool / 'blobs'); physical(pool / 'trees')
+        runtime.mkdir()
+        blobs = Blobs(source)
+        materialized = []
+        assets = []
+        for entry in entries:
+            data = blobs.read(entry)
+            record = {**entry, 'sha256': digest(data)}
+            materialized.append(record)
+            if entry['path'].startswith(ASSETS + '/'):
+                assets.append(record)
+                blob = pool / 'blobs' / record['sha256']
+                if blob.exists() or blob.is_symlink():
+                    require(digest(regular_bytes(blob, record)) == record['sha256'], 'Existing CAS blob changed')
+                else:
+                    with blob.open('xb') as out:
+                        out.write(data)
+            else:
+                target = runtime / entry['path']
+                target.parent.mkdir(parents=True, exist_ok=True)
+                with target.open('xb') as out:
+                    out.write(data)
+                # Preserve executable source mode, never alter an existing file or security setting.
+                if entry['mode'] == '100755':
+                    target.chmod(0o755)
+        blobs.close(); blobs = None
+        tree = pool / 'trees' / state['assetTree']
+        if not tree.exists() and not tree.is_symlink():
+            tree.mkdir()
+            for entry in assets:
+                target = tree / entry['path'][len(ASSETS) + 1:]
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.symlink_to(os.path.relpath(pool / 'blobs' / entry['sha256'], target.parent))
+        check_tree(pool, state['assetTree'], assets)
+        link = runtime / ASSETS
+        link.parent.mkdir(parents=True, exist_ok=True)
+        link.symlink_to(os.path.relpath(tree, link.parent), target_is_directory=True)
+        manifest = {k: state[k] for k in ('source', 'revision', 'tree', 'assetTree')}
+        manifest.update({'version': 1, 'kind': 'non-git-runtime-view', 'scope': scope,
+                         'pool': str(pool), 'runtime': str(runtime), 'entries': materialized,
+                         'budget': budget})
+        (runtime / MANIFEST).write_bytes(encoded(manifest))
+        return verify(source, revision, pool, runtime)
+    finally:
+        if blobs:
+            blobs.close()
+        # This invocation created exactly this empty lock; all partial data is retained.
+        lock.rmdir()
+
+
+def verify(source, revision, pool, runtime):
+    state = source_state(source, revision)
+    pool = physical(pool)
+    runtime = physical(runtime)
+    require(not (runtime / '.git').exists() and not (runtime / '.git').is_symlink(), 'Runtime must not be a Git checkout')
+    manifest_path = runtime / MANIFEST
+    require(manifest_path.is_file() and not manifest_path.is_symlink(), 'Missing physical runtime manifest')
+    manifest_bytes = manifest_path.read_bytes()
+    manifest = json.loads(manifest_bytes)
+    require(manifest.get('version') == 1 and manifest.get('kind') == 'non-git-runtime-view', 'Unknown runtime manifest')
+    require(manifest.get('source') == state['source'] and manifest.get('revision') == revision and
+            manifest.get('tree') == state['tree'] and manifest.get('assetTree') == state['assetTree'],
+            'Runtime/source identity mismatch')
+    require(manifest.get('runtime') == str(runtime) and manifest.get('pool') == str(pool), 'Runtime/store binding changed')
+    require(manifest.get('scope') in ('build', 'full'), 'Invalid runtime scope')
+    expected = [e for e in state['entries'] if selected(e, manifest['scope'])]
+    records = manifest.get('entries')
+    require(isinstance(records, list) and len(records) == len(expected), 'Runtime inventory mismatch')
+    for record, entry in zip(records, expected):
+        require({k: record.get(k) for k in entry} == entry, 'Runtime manifest differs from Git objects')
+        require(isinstance(record.get('sha256'), str) and len(record['sha256']) == 64 and
+                all(x in '0123456789abcdef' for x in record['sha256']), 'Invalid asset/content digest')
+    assets = [e for e in records if e['path'].startswith(ASSETS + '/')]
+    tree = check_tree(pool, state['assetTree'], assets)
+    asset_link = runtime / ASSETS
+    require(asset_link.is_symlink() and os.readlink(asset_link) == os.path.relpath(tree, asset_link.parent) and
+            asset_link.resolve(strict=True) == tree, 'Runtime asset link changed')
+    ordinary = [e for e in records if not e['path'].startswith(ASSETS + '/')]
+    for entry in ordinary:
+        path = runtime / entry['path']
+        physical(path.parent)
+        data = regular_bytes(path, entry)
+        require(digest(data) == entry['sha256'], 'Runtime digest changed')
+        require(bool(path.stat().st_mode & 0o111) == (entry['mode'] == '100755'), 'Runtime executable mode changed')
+    expected_paths = {e['path'] for e in ordinary} | {ASSETS}
+    parents = parent_names(expected_paths)
+    # Mutable output roots must be real/private. Dependencies are separately bound by run().
+    for name in MUTABLE_ROOTS:
+        if (runtime / name).exists() or (runtime / name).is_symlink():
+            physical(runtime / name)
+    for name in MUTABLE_ROOTS - {'node_modules'}:
+        root = runtime / name
+        if root.exists():
+            for path in file_inventory(root).values():
+                info = path.lstat()
+                require(stat.S_ISDIR(info.st_mode) or (stat.S_ISREG(info.st_mode) and info.st_nlink == 1),
+                        f'Mutable cache must be private/physical: {name}')
+    for name in LOCAL_FILES:
+        path = runtime / name
+        if path.exists() or path.is_symlink():
+            info = path.lstat()
+            require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1,
+                    f'Local output/lock must be a private regular file: {name}')
+    for name, path in file_inventory(runtime).items():
+        top = name.split('/')[0]
+        if top in MUTABLE_ROOTS or name in LOCAL_FILES:
+            continue
+        require(name in expected_paths or name in parents, f'Undeclared runtime input: {name}')
+    return {'status': 'verified', 'source': state['source'], 'revision': revision, 'tree': state['tree'],
+            'assetTree': state['assetTree'], 'scope': manifest['scope'], 'runtime': str(runtime), 'pool': str(pool),
+            'manifestSha256': digest(manifest_bytes), 'trackedFiles': len(records), 'assetFiles': len(assets),
+            'sharedAssetBytes': sum(e['bytes'] for e in assets),
+            'sourceSparseOmittedFiles': state['sparseOmittedFiles'], 'budget': manifest['budget']}
+
+
+def dependency_identity(runtime):
+    """Bind npm or pnpm files and links without reusing npm-only receipt semantics."""
+    runtime = Path(runtime)
+    modules = runtime / 'node_modules'
+    entries = []
+    if modules.exists() or modules.is_symlink():
+        physical(modules)
+        for cache in ('.vite', '.vite-temp', '.cache'):
+            root = modules / cache
+            if root.exists() or root.is_symlink():
+                physical(root)
+                for path in file_inventory(root).values():
+                    info = path.lstat()
+                    require(not stat.S_ISLNK(info.st_mode) and
+                            (stat.S_ISDIR(info.st_mode) or (stat.S_ISREG(info.st_mode) and info.st_nlink == 1)),
+                            f'Dependency cache must be private/physical: {path}')
+    cache_prefixes = ('.vite/', '.vite-temp/', '.cache/')
+    for rel, path in sorted(file_inventory(modules).items()):
+        if rel in ('.vite', '.vite-temp', '.cache') or rel.startswith(cache_prefixes):
+            continue
+        info = path.lstat()
+        if stat.S_ISLNK(info.st_mode):
+            require(within(modules, path.resolve(strict=True)), f'Dependency link escapes private virtual store: {rel}')
+            entries.append([rel, 'link', os.readlink(path)])
+        elif stat.S_ISREG(info.st_mode):
+            h = hashlib.sha256()
+            with path.open('rb') as stream:
+                for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                    h.update(chunk)
+            entries.append([rel, 'file', info.st_size, info.st_mode & 0o111, h.hexdigest()])
+        else:
+            require(stat.S_ISDIR(info.st_mode), f'Unsupported dependency entry: {rel}')
+            entries.append([rel, 'dir', stat.S_IMODE(info.st_mode)])
+    locks = {}
+    for name in ('package.json', 'package-lock.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'node_modules/.package-lock.json',
+                 'node_modules/.modules.yaml', 'node_modules/.pnpm/lock.yaml'):
+        path = runtime / name
+        if path.exists():
+            require(path.is_file() and not path.is_symlink(), f'Nonregular dependency identity: {name}')
+            locks[name] = digest(path.read_bytes())
+    return {'kind': 'pnpm' if (modules / '.pnpm').is_dir() else 'npm' if modules.exists() else 'none',
+            'inventorySha256': digest(encoded(entries)), 'entries': len(entries), 'locks': locks}
+
+
+
+def hash_file(path):
+    h = hashlib.sha256()
+    with Path(path).open('rb') as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def toolchain_identity(command):
+    result = {'pythonVersion': sys.version, 'pythonExecutable': str(Path(sys.executable).resolve())}
+    for label, executable in [('command', command[0]), ('node', shutil.which('node')),
+                              ('pnpm', shutil.which('pnpm'))]:
+        candidate = shutil.which(executable) if executable else None
+        if not candidate:
+            continue
+        path = Path(candidate).resolve(strict=True)
+        result[label] = {'path': str(path), 'sha256': hash_file(path)}
+        if label in ('node', 'pnpm'):
+            result[label]['version'] = subprocess.check_output([str(path), '--version'], text=True).strip()
+    return result
+
+
+def execute_locked(source, revision, pool, runtime, receipt, command):
+    require(command, 'A command is required')
+    before = verify(source, revision, pool, runtime)
+    dependencies = dependency_identity(runtime)
+    receipt = Path(receipt)
+    for path in [receipt, Path(str(receipt) + '.stdout'), Path(str(receipt) + '.stderr')]:
+        require(not path.exists() and not path.is_symlink(), 'Receipt and raw-log paths must be new')
+    physical(receipt.parent)
+    payload = {'version': 1, 'kind': 'shared-runtime-command', 'status': 'unknown',
+               'sourceBefore': before, 'dependenciesBefore': dependencies, 'command': command,
+               'startedAt': time.time(), 'toolchain': toolchain_identity(command),
+               'resourceEnvironment': {k: os.environ.get(k) for k in ('NODE_OPTIONS', 'PND_TEST_CONCURRENCY',
+                 'ROLLDOWN_WORKER_THREADS', 'RAYON_NUM_THREADS', 'ROLLDOWN_MAX_BLOCKING_THREADS')}}
+    with receipt.open('xb') as out:
+        out.write(encoded(payload))
+    env = dict(os.environ)
+    # Only the verifier-owned wrapper grants this configuration path. revision command
+    # independently rechecks Git, every runtime source and all external asset bytes.
+    env.update({'PND_RUNTIME_SOURCE': before['source'], 'PND_RUNTIME_REVISION': revision,
+                'PND_RUNTIME_POOL': before['pool'], 'PND_RUNTIME_ROOT': before['runtime']})
+    with Path(str(receipt) + '.stdout').open('xb') as stdout, Path(str(receipt) + '.stderr').open('xb') as stderr:
+        result = subprocess.run(command, cwd=before['runtime'], env=env, stdout=stdout, stderr=stderr)
+    payload.update({'exitCode': result.returncode, 'finishedAt': time.time()})
+    try:
+        payload['sourceAfter'] = verify(source, revision, pool, runtime)
+        payload['dependenciesAfter'] = dependency_identity(runtime)
+        require(payload['sourceAfter'] == before and payload['dependenciesAfter'] == dependencies,
+                'Source/assets/dependencies changed during command')
+        payload['status'] = 'passed' if result.returncode == 0 else 'failed'
+    except (ValueError, OSError, subprocess.CalledProcessError) as error:
+        payload.update({'status': 'invalidated', 'error': str(error)})
+    payload['logs'] = {name: {'path': str(Path(str(receipt) + '.' + name).absolute()),
+                             'sha256': hash_file(Path(str(receipt) + '.' + name))}
+                       for name in ('stdout', 'stderr')}
+    require(receipt.is_file() and not receipt.is_symlink(), 'Receipt target changed during execution')
+    receipt.write_bytes(encoded(payload))
+    return payload
+
+
+
+def execute(source, revision, pool, runtime, receipt, command):
+    root = physical(runtime)
+    work = root / 'work'
+    if work.exists() or work.is_symlink():
+        physical(work)
+    else:
+        work.mkdir()
+    lock = work / '.shared-runtime-run-lock'
+    lock.mkdir()  # One writer/run per runtime. Unknown abandoned locks are preserved.
+    try:
+        return execute_locked(source, revision, pool, runtime, receipt, command)
+    finally:
+        lock.rmdir()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('action', choices=['prepare', 'verify', 'run', 'revision'])
+    parser.add_argument('--source', required=True)
+    parser.add_argument('--revision', required=True)
+    parser.add_argument('--pool', required=True)
+    parser.add_argument('--runtime', required=True)
+    parser.add_argument('--reserve-bytes', type=int, default=0)
+    parser.add_argument('--scope', choices=['build', 'full'], default='build')
+    parser.add_argument('--receipt')
+    args, command = parser.parse_known_args()
+    if command and command[0] == '--':
+        command = command[1:]
+    if args.action == 'prepare':
+        require(not command, 'Unexpected prepare arguments')
+        result = prepare(args.source, args.revision, args.pool, args.runtime, args.reserve_bytes, args.scope)
+    elif args.action == 'run':
+        require(args.receipt, 'A new receipt path is required')
+        result = execute(args.source, args.revision, args.pool, args.runtime, args.receipt, command)
+    else:
+        require(not command, 'Unexpected verification arguments')
+        result = verify(args.source, args.revision, args.pool, args.runtime)
+        if args.action == 'revision':
+            print(result['revision'])
+            return
+    print(json.dumps(result, indent=2))
+    if result['status'] not in ('verified', 'passed'):
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except (ValueError, OSError, subprocess.CalledProcessError) as error:
+        print(f'Shared runtime refused: {error}', file=sys.stderr)
+        sys.exit(2)
