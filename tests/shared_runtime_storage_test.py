@@ -278,6 +278,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
                                 capture_output=True, text=True, timeout=60)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(json.loads(result.stdout)['status'], 'passed')
+        print(result.stdout.strip(), flush=True)
         self.assertEqual(before, storage.verify(self.source, self.revision, self.pool, candidate))
         self.assertEqual(self.verify()['status'], 'verified')
 

@@ -60,12 +60,15 @@ assert.ok(cssText.includes(result.png), 'CSS relative image URL did not resolve 
 // Prove the regression can detect the retired extensionless layout. Only JSON
 // imports are used here, so missing module-relative files cannot mask the defect.
 assert.equal(path.extname(realpathSync(path.join(legacy, 'public/original/world-selector/text/runtime.json'))), '');
+let legacyFailure;
 await assert.rejects(build(config(legacy, 'legacy.js')), error => {
   const details = error.errors ?? [];
+  legacyFailure = details.map(({ code, id, message }) => ({ code, id, message }));
   return details.some(detail => detail.code === 'PARSE_ERROR') &&
     JSON.stringify(details).includes('/blobs/');
 }, 'Legacy JSON must fail parsing at its extensionless CAS target');
 
 console.log(JSON.stringify({ status: 'passed', viteVersion: version,
-  types: ['json', 'mjs', 'css', 'txt?raw', ...Object.keys(sourceNames)],
-  legacyExtensionlessJson: 'rejected' }));
+  v2: { status: 'passed', types: ['json', 'mjs', 'css', 'txt?raw', ...Object.keys(sourceNames)],
+    evaluated: result, emitted: emitted.map(item => item.fileName) },
+  v1: { status: 'failed-as-expected', errors: legacyFailure } }));
