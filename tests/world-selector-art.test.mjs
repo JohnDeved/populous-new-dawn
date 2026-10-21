@@ -4,6 +4,8 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { inflateSync } from 'node:zlib'
 import { spawnSync } from 'node:child_process'
 import test from 'node:test'
+import { createGameStore } from '../app/game-store.ts'
+import { missionNumbers } from '../app/mission-data.ts'
 import { selectorArt, selectorTitle, selectorTooltip, selectorWorld } from '../app/world-selector-art.ts'
 
 const read = path => JSON.parse(readFileSync(path, 'utf8'))
@@ -92,7 +94,28 @@ test('opening URL identity and bitmap bytes are reused, not reinterpreted or reg
   assert.match(css, /\.nativeSelector \.selectedTitle \{ bottom: calc\(var\(--panel-width\) \* 61 \/ 640\); \}/)
   assert.match(css, /\.nativeSelector \.selectedTitle h3 \{ min-height: 0; \}/)
   assert.match(css, /\.selector \.nativePanel \.start \{[^}]+min-width: 0; min-height: 0;/)
-  assert.doesNotMatch(readFileSync('app/page.tsx', 'utf8'), /nativeSelection/, 'no shipped caller activates the expanded state')
+})
+
+test('native campaign activation uses the controlled profile and rejects unsupported or locked starts', () => {
+  const home = readFileSync('app/page.tsx', 'utf8')
+  const selectors = [...home.matchAll(/<WorldSelector\s[\s\S]*?\/>/g)]
+  assert.equal(selectors.length, 1, 'one controlled native campaign entry')
+  assert.match(selectors[0][0], /nativeSelection=\{\{\s+\.\.\.store\.getCampaignSelection\(\),\s+onSelect: store\.selectCampaignMission,\s+\}\}/)
+  assert.match(selectors[0][0], /missions=\{missionNumbers\}/)
+  assert.match(selectors[0][0], /onStart=\{startMission\}/)
+  assert.match(home, /function startMission\(mission: number\) \{\s+beginLoad\(\{ kind: 'mission', mission \}\)/)
+  assert.match(home, /if \(request\.kind === 'mission' && !store\.startMission\(request\.mission\)\) return/)
+  const store = createGameStore(), original = store.getWorld()
+  assert.deepEqual(store.getCampaignSelection(), { selected: 1, progressionMission: 1, available: [1] })
+  assert.deepEqual(store.getCompletedMissions(), [])
+  assert.deepEqual(missionNumbers, Array.from({length: 23}, (_, i) => i + 1))
+  for (const mission of [2, 23, 24, 25, 79]) {
+    assert.equal(store.startMission(mission), false, `locked or unsupported Mission ${mission} stays unplayable`)
+    assert.equal(store.getWorld(), original)
+  }
+  assert.equal(store.startMission(1), true, 'only initial native availability may launch')
+  assert.equal(store.isDebugLaunch(), false)
+  assert.equal(store.canSave(), true)
 })
 
 test('art importer validates destinations before writes and check never changes bytes', () => {

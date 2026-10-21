@@ -49,3 +49,12 @@ campaign popups; very small viewports uniformly fit rather than clipping as nati
 The runtime checkpoint is still not acceptance-complete: existing browser and unit
 consumer adaptation, independent review, source-bound quality checks, rendered win/
 loss/fork/profile roundtrips and serialized standard full gates remain outstanding.
+
+The held-drag source-admission profile adds only the reviewed result-clock frame
+route. It retains all six historical profiles and binds the clock functions, import
+and per-scene initialization in addition to the existing 17 owners. Reconstructing
+the exact old frame still admits the historical route; unused new declarations do
+not affect it. Partial frame edits, changed clock owners or mixed recording routes
+remain rejected. This is a bounded source contract, not rendered/performance or
+native scheduler acceptance. The snapshot setup regression executes the actual Home
+Load handlers and proves both forced-resume interception and failed-load refusal.
