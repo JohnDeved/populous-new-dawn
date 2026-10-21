@@ -5299,6 +5299,7 @@ Mixed-raid target availability versus member-order refresh: see
 [the static evidence and live-caller regression](research/mixed-raid-target-exhaustion/README.md).
 
 - [Ordinary selector globe texture, rings, UV and vertex light](research/world-selector-globes.md)
+- [All 25 native selector records, panel sockets, palettes and title dispatch](research/world-selector-manifest/README.md)
 
 ## Original frontend Quit submenu
 
