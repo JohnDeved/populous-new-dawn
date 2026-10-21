@@ -1,9 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import ts from 'typescript'
-import { homePopupSources } from '../scripts/campaign-popup-fixture/home-source.mjs'
+import { homePopupSources, homePopupFixture } from '../scripts/campaign-popup-fixture/home-source.mjs'
 import { createMessages, addMessage, acknowledgeMessage, messageHasDelete, messageIcon, messageText, messageViewPoint } from '../app/messages.ts'
 import { captureCampaignPopupKeys, showCampaignPopup } from '../app/campaign-popup-session.ts'
+import { spellTestShortcut } from '../app/spell-test-cheats.ts'
 import { pageEffect, pageNode, pageSource, evaluatePage } from './support/follower-nearby-page.mjs'
 
 // Real Home effects + JSX callbacks, with a supplied document and scene boundary.
@@ -15,11 +16,11 @@ function fixture() {
   const outside=new Element(), document={activeElement:outside,addEventListener(type,fn,capture){assert.equal(capture,true);listeners.set(type,fn)},removeEventListener(type){listeners.delete(type)}}
   const summary={focus(){document.activeElement=summary}}, view={focus(){document.activeElement=view}}, details={open:false,querySelector(selector){return selector==='summary'?summary: {click:()=>popup.props.onAcknowledge()}}}
   const engine={current:{keys:new Set(['arrowup','shift']),focus(){calls.focus++},overview(){calls.overview++},skipIntroduction(){calls.skip++}}},messageDetails={current:new Map([[0,details]])}
-  const bindings={document,world,engine,messageDetails,store:{change:fn=>fn(world),getWorld:()=>world},ready:true,menu:false,cheatsOpen:false,selectorOpen:false,update(){},showCampaignPopup,captureCampaignPopupKeys,acknowledgeMessage,messageHasDelete,messageIcon,messageText,messageViewPoint,viewport:{current:view},OriginalCampaignPopup:'OriginalCampaignPopup',messageViewportHeight:480,messageScreenY:()=>300}
+  const bindings={document,world,engine,messageDetails,store:{change:fn=>fn(world),getWorld:()=>world},ready:true,menu:false,cheatsOpen:false,selectorOpen:false,statisticsVisible:false,update(){},showCampaignPopup,captureCampaignPopupKeys,acknowledgeMessage,messageHasDelete,messageIcon,messageText,messageViewPoint,viewport:{current:view},OriginalCampaignPopup:'OriginalCampaignPopup',messageViewportHeight:480,messageScreenY:()=>300}
   const aside=pageNode(n=>ts.isJsxElement(n)&&n.openingElement.attributes.properties.some(p=>p.name?.getText(pageSource)==='className'&&p.initializer?.text==='campaign-messages'))
   const rendered=evaluatePage(aside.getText(pageSource),bindings),element=rendered.children[0][0],popup=element.children[1]
   let game
-  pageEffect("window.addEventListener('keydown', key)",{...bindings,window:{addEventListener(_,fn){game=fn}},openMenu(){calls.cancel++},SPELLS:[],tutorialLevel:79,cancelInteraction(){calls.cancel++},guardShaman(){calls.cancel++},select(){calls.cancel++},setTab(){calls.cancel++},rotateBuildingPlan(){return false},audio:{current:null}})()
+  pageEffect("globalThis.addEventListener('keydown', key)",{...bindings,globalThis:{addEventListener(_,fn){game=fn}},openMenu(){calls.cancel++},SPELLS:[],tutorialLevel:79,cancelInteraction(){calls.cancel++},guardShaman(){calls.cancel++},select(){calls.cancel++},setTab(){calls.cancel++},rotateBuildingPlan(){return false},audio:{current:null}})()
   const close=pageEffect('return captureCampaignPopupKeys',bindings)()
   const auto=()=>pageEffect('const opened: number[]',bindings)()
   let sceneUp;evaluatePage(homePopupSources(new URL('..',import.meta.url).pathname).sceneUp,{window:{},scene:{keys:engine.current.keys,listen(_target,_type,fn){sceneUp=fn}}})
@@ -76,4 +77,35 @@ test('actual scene keyup cannot retain modifiers from exempt Tab/F8/F9 releases'
     }
     f.key('Enter');f.key('Enter','keyup');assert.equal(f.details.open,false);assert.deepEqual([...f.engine.current.keys],[])
   } finally {f.close();globalThis.Element=old}
+})
+
+
+test('popup source extraction binds the F9 spell-test effect, never the F8 debug-picker effect', () => {
+  const root = new URL('..', import.meta.url).pathname, sources = homePopupSources(root)
+  assert.match(sources.gameplay, /globalThis\.addEventListener\('keydown', key\)/)
+  assert.match(sources.cheat, /spellTestShortcut\(event, cheatsOpen\)/)
+  assert.doesNotMatch(sources.cheat, /setDebugPicker|startupLogoDone/)
+  assert.match(homePopupFixture(root), /statisticsVisible=false/)
+  let handler, open = false, cancellations = 0, prevented = 0, stopped = 0
+  const dispose = evaluatePage(sources.cheat, {
+    useEffect: callback => callback(), ready: true, startup: 'playing', menu: false,
+    selectorOpen: false, world: { status: 'playing' }, cheatsOpen: false, spellTestShortcut,
+    cancelNearbyInput() { cancellations++ }, setCheatsOpen(change) { open = change(open) },
+    globalThis: {
+      addEventListener(type, listener, capture) {
+        assert.equal(type, 'keydown'); assert.equal(capture, true); handler = listener
+      },
+      removeEventListener(type, listener, capture) {
+        assert.equal(type, 'keydown'); assert.equal(capture, true); assert.equal(listener, handler)
+      },
+    },
+  })
+  const key = key => handler({ key, repeat: false, target: { closest: () => null },
+    preventDefault() { prevented++ }, stopImmediatePropagation() { stopped++ } })
+  try {
+    key('F8')
+    assert.deepEqual([open, cancellations, prevented, stopped], [false, 0, 0, 0])
+    key('F9')
+    assert.deepEqual([open, cancellations, prevented, stopped], [true, 1, 1, 1])
+  } finally { dispose() }
 })

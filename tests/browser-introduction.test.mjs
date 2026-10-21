@@ -322,7 +322,7 @@ function homeSpaceFixture() {
     messageDetails: { current: new Map() },
     SPELLS: [], rotateBuildingPlan: () => false, audio: { current: null }, update() {},
     store: { change(fn) { changes++; fn(world) } },
-    window: {
+    globalThis: {
       addEventListener(name, fn) { assert.equal(name, 'keydown'); handler = fn },
       removeEventListener(name, fn) { assert.equal(name, 'keydown'); assert.equal(fn, handler) },
     },

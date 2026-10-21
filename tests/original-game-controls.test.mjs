@@ -30,14 +30,14 @@ function keyboardFixture(overrides = {}) {
   let key, rotate = false
   const bindings = {
     ready: true, menu: false, cheatsOpen: false, messageDetails: { current: new Map() }, world,
-    window: { addEventListener(_type, listener) { key = listener } },
+    globalThis: { addEventListener(_type, listener) { key = listener } },
     store: { getWorld: () => world, change: action => action(world) },
     engine: { current: { skipIntroduction() { calls.skip++ } } },
     audio: { current: { cue(value) { assert.equal(value, 0x26); calls.cue++ } } },
     rotateBuildingPlan() { calls.rotate++; return rotate },
     SPELLS: [], tutorialLevel: 79, openMenu() { calls.menu++ }, update() {}, ...overrides,
   }
-  pageEffect("window.addEventListener('keydown', key)", bindings)()
+  pageEffect("globalThis.addEventListener('keydown', key)", bindings)()
   return { world, calls, rotate(value) { rotate = value }, press(extra = {}) {
     let prevented = false
     key({ key: ' ', code: 'Space', repeat: false, target: { closest: () => null },
