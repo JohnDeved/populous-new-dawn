@@ -5,8 +5,8 @@
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { lstatSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { lstatSync, readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url))
@@ -51,11 +51,38 @@ export function helperFingerprint(repo) {
   return treeFingerprint(repo, 'tests', file => !testPath(file))
 }
 
+function regularFile(path) {
+  return lstatSync(path, { throwIfNoEntry: false })?.isFile() ?? false
+}
+
 export function productionFingerprint(repo) {
   const app = treeFingerprint(repo, 'app')
-  const paths = ['package.json', 'package-lock.json', 'tsconfig.json', 'node_modules/.package-lock.json']
-  if (!app || paths.some(path => !lstatSync(join(repo, path)).isFile())) return null
-  return hash(JSON.stringify({ app, packages: paths.map(path => [path, hash(readFileSync(join(repo, path)))]),
+  const paths = ['package.json', 'package-lock.json', 'tsconfig.json']
+  if (!app || paths.some(path => !regularFile(join(repo, path)))) return null
+  const installedNpmLock = join(repo, 'node_modules/.package-lock.json')
+  const pnpmMetadata = join(repo, 'node_modules/.modules.yaml')
+  const pnpmStore = join(repo, 'node_modules/.pnpm')
+  const pnpm = lstatSync(pnpmMetadata, { throwIfNoEntry: false }) ||
+    lstatSync(pnpmStore, { throwIfNoEntry: false })
+  if (!pnpm) {
+    // Preserve the existing npm fingerprint schema and bytes for hosted gates.
+    paths.push('node_modules/.package-lock.json')
+    if (!regularFile(installedNpmLock)) return null
+    return hash(JSON.stringify({ app, packages: paths.map(path => [path, hash(readFileSync(join(repo, path)))]),
+      runtime: { node: process.versions.node, platform: process.platform, arch: process.arch } }))
+  }
+  // A local source may point to its own isolated profile outside the checkout.
+  // Bind that profile's real lock/config, not a copied npm installed-lock stub.
+  if (lstatSync(installedNpmLock, { throwIfNoEntry: false }) || !regularFile(pnpmMetadata) ||
+      !lstatSync(pnpmStore, { throwIfNoEntry: false })?.isDirectory()) return null
+  const profile = dirname(realpathSync(join(repo, 'node_modules')))
+  const profilePaths = ['package.json', 'package-lock.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml',
+    'node_modules/.modules.yaml', 'node_modules/.pnpm/lock.yaml']
+  if (profilePaths.some(path => !regularFile(join(profile, path)))) return null
+  if (!readFileSync(join(profile, 'pnpm-lock.yaml')).equals(readFileSync(join(profile, 'node_modules/.pnpm/lock.yaml')))) return null
+  return hash(JSON.stringify({ app, packageManager: 'pnpm',
+    packages: paths.map(path => [path, hash(readFileSync(join(repo, path)))]),
+    profile: profilePaths.map(path => [path, hash(readFileSync(join(profile, path)))]),
     runtime: { node: process.versions.node, platform: process.platform, arch: process.arch } }))
 }
 
