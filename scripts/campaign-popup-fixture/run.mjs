@@ -7,6 +7,7 @@ import { createServer } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/postcss'
 import { chromium } from '@playwright/test'
+import { homePopupFixture } from './home-source.mjs'
 
 const root=resolve(import.meta.dirname,'../..'), fixture=resolve(import.meta.dirname,'fixture')
 const output=resolve(process.argv[2]), browserPath=process.env.POPULOUS_BROWSER
@@ -18,11 +19,13 @@ const git=(...args)=>execFileSync('git',args,{cwd:root}).toString()
 const baseline='be44bc76f21429c472978c3dcb8893e565b6a4fb'
 const oldCss=git('show',`${baseline}:app/globals.css`)
 assert.ok(oldCss?.includes('.campaign-messages details>div{'))
+const homeFixture=resolve(output,'home.tsx')
+writeFileSync(homeFixture,homePopupFixture(root))
 const baselineCss=resolve(output,'baseline.css')
 writeFileSync(baselineCss,oldCss.replace("@import 'tailwindcss'",`@import '${resolve(root,'node_modules/tailwindcss/index.css')}'`))
 const diagnosticsHtml=readFileSync(resolve(root,'app/fps-graph.ts'),'utf8').match(/this\.element\.innerHTML = `([\s\S]+?)`/)?.[1]
 assert.ok(diagnosticsHtml)
-const inputs=['app/original-campaign-popup.tsx','app/original-campaign-popup.module.css','app/campaign-popup-layout.ts','app/campaign-popup-session.ts','app/original-campaign-popup.json','app/messages.ts','app/page.tsx','app/globals.css','app/fps-graph.ts','app/hud-layout.ts','app/original-result-ui.json','app/original-hud.json', 'scripts/campaign-popup-fixture/run.mjs','scripts/campaign-popup-fixture/fixture/main.tsx','scripts/campaign-popup-fixture/fixture/env.d.ts',
+const inputs=['app/original-campaign-popup.tsx','app/original-campaign-popup.module.css','app/campaign-popup-layout.ts','app/campaign-popup-session.ts','app/original-campaign-popup.json','app/messages.ts','app/page.tsx','app/globals.css','app/fps-graph.ts','app/hud-layout.ts','app/original-result-ui.json','app/original-hud.json', 'app/fullscreen-session.ts','app/fullscreen-control.tsx','app/fullscreen-control.module.css','app/scene-input-runtime.ts','app/spell-test-cheats.ts','scripts/campaign-popup-fixture/home-source.mjs','scripts/campaign-popup-fixture/run.mjs','scripts/campaign-popup-fixture/fixture/main.tsx','scripts/campaign-popup-fixture/fixture/env.d.ts',
   ...['campaign-popup-tiles','result-font','hud','hud-button','hud-button-selected','hud-button-hover','message'].map(name=>`public/original/${name}.png`)]
 const pauseRoot=resolve(process.env.POPULOUS_PAUSE_ROOT || root),pauseFile=resolve(pauseRoot,'app/original-pause-status.tsx')
 const actualPause=existsSync(pauseFile)
@@ -30,12 +33,12 @@ const pauseInputs=actualPause?['app/original-pause-status.tsx','app/original-pau
 const pauseA11y=actualPause?readFileSync(resolve(pauseRoot,'app/globals.css'),'utf8').match(/\.game-a11y-status\{[^}]+\}/)?.[0]??'':''
 if(actualPause)assert.ok(pauseA11y,'Actual native status screenreader rule is required')
 const fingerprints=Object.fromEntries([...inputs,...pauseInputs].map(file=>[file,hash(resolve(root,file))]))
-const receipt={status:'running',head:git('rev-parse','HEAD').trim(),baseline,pauseComponent:actualPause?pauseFile:'source-metric fixture (actual component absent)',inputs:fingerprints,startedAt:new Date().toISOString(),browserPath,browserSha256:hash(browserPath),observations:[],checks:[],errors:[],limits:['Actual popup component and current message actions in a minimal React fixture, not full Home or natural campaign execution.','Before is retained be44bc76 campaign body markup and exact CSS against the same text/background/viewport.','Source-palette native reconstruction, not an original GPU capture or hardware performance test.','No fullgame WebGL renderer launched.']}
+const receipt={status:'running',head:git('rev-parse','HEAD').trim(),baseline,pauseComponent:actualPause?pauseFile:'source-metric fixture (actual component absent)',inputs:fingerprints,startedAt:new Date().toISOString(),browserPath,browserSha256:hash(browserPath),observations:[],checks:[],errors:[],limits:['Actual popup component plus source-extracted Home effects/JSX and scene keyboard listeners in a bounded integration fixture, not full Home mount or natural campaign execution.','Before is retained be44bc76 campaign body markup and exact CSS against the same text/background/viewport.','Source-palette native reconstruction, not an original GPU capture or hardware performance test.','No fullgame WebGL renderer launched.']}
 const save=()=>writeFileSync(resolve(output,'receipt.json'),JSON.stringify(receipt,null,2)+'\n')
 let browser,server,timer,memoryGuard
 save()
 try {
- server=await createServer({configFile:false,root:fixture,publicDir:resolve(root,'public'),cacheDir:resolve(output,'vite-cache'),plugins:[react(),{name:'baseline-campaign-css',resolveId(id){if(id==='virtual:campaign-baseline.css')return baselineCss;if(id==='virtual:native-pause-component')return actualPause?pauseFile:'\0pause-fallback'},load(id){if(id==='\0pause-fallback')return 'export const OriginalPauseStatus=null'},configureServer(server){server.middlewares.use((req,res,next)=>{if(req.url==='/native-status-a11y.css'){res.setHeader('Content-Type','text/css');res.end(pauseA11y)}else if(req.url==='/diagnostics.html'){res.setHeader('Content-Type','text/html');res.end(diagnosticsHtml)}else if(req.url==='/before.css'){res.setHeader('Content-Type','text/css');res.end(oldCss)}else next()})}}],css:{postcss:{plugins:[tailwindcss({base:fixture})]}},optimizeDeps:{include:['react','react-dom','react-dom/client','react/jsx-runtime','react/jsx-dev-runtime']},server:{host:'127.0.0.1',port:4378,strictPort:true,fs:{allow:[root,output,pauseRoot]}},logLevel:'warn'})
+ server=await createServer({configFile:false,root:fixture,publicDir:resolve(root,'public'),cacheDir:resolve(output,'vite-cache'),plugins:[react(),{name:'baseline-campaign-css',resolveId(id){if(id==='virtual:campaign-home')return homeFixture;if(id==='virtual:campaign-baseline.css')return baselineCss;if(id==='virtual:native-pause-component')return actualPause?pauseFile:'\0pause-fallback'},load(id){if(id==='\0pause-fallback')return 'export const OriginalPauseStatus=null'},configureServer(server){server.middlewares.use((req,res,next)=>{if(req.url==='/native-status-a11y.css'){res.setHeader('Content-Type','text/css');res.end(pauseA11y)}else if(req.url==='/diagnostics.html'){res.setHeader('Content-Type','text/html');res.end(diagnosticsHtml)}else if(req.url==='/before.css'){res.setHeader('Content-Type','text/css');res.end(oldCss)}else next()})}}],css:{postcss:{plugins:[tailwindcss({base:fixture})]}},optimizeDeps:{include:['react','react-dom','react-dom/client','react/jsx-runtime','react/jsx-dev-runtime']},server:{host:'127.0.0.1',port:4378,strictPort:true,fs:{allow:[root,output,pauseRoot]}},logLevel:'warn'})
  await server.listen()
  browser=await chromium.launch({executablePath:browserPath,headless:true,chromiumSandbox:true,timeout:30000})
  receipt.browserVersion=browser.version()
@@ -76,6 +79,48 @@ try {
    for(const button of value.buttons)assert.ok(button.x>=value.panel.x&&button.right<=value.panel.right&&button.bottom<=value.panel.bottom)
    return value
  }
+ // Source-extracted actual Home effects/JSX and scene key listeners, no WebGL.
+ await page.addInitScript(()=>{
+   if(!location.search.includes('home'))return
+   let active=false,lastEvent=null
+   const set=value=>{active=value;document.dispatchEvent(new Event('fullscreenchange'))}
+   Object.defineProperty(document,'fullscreenElement',{get:()=>active?document.documentElement:null,configurable:true})
+   Object.defineProperty(document,'fullscreenEnabled',{get:()=>true,configurable:true})
+   HTMLElement.prototype.requestFullscreen=async()=>set(true);document.exitFullscreen=async()=>set(false)
+   addEventListener('keydown',event=>{lastEvent=event},true)
+   window.fullscreenFixture={set,read:()=>({active,lastDefault:lastEvent?.defaultPrevented})}
+ })
+ const homeRead=()=>page.evaluate(()=>window.homePopupFixture.read())
+ const auto=async()=>{await page.evaluate(()=>{window.homePopupFixture.hold();window.homePopupFixture.autoOpen()});await page.locator('details[open]').waitFor();await page.waitForFunction(()=>!(window.homePopupFixture.read().world.messages.slots[0].flags&2))}
+ for(const focus of ['body','world']){
+   await open('home');await page.evaluate(focus=>{const node=focus==='body'?document.body:document.querySelector('.world-viewport');node.tabIndex=-1;node.focus()},focus)
+   await auto();const before=await homeRead();assert.deepEqual(before.keys,[],'Opening clears previously held camera/modifier input')
+   assert.equal(await page.evaluate(focus=>document.activeElement===(focus==='body'?document.body:document.querySelector('.world-viewport')),focus),true,'Automatic opening does not steal focus')
+   for(const key of ['Space','Escape','h','g','f','b','1','z','ArrowUp']){await page.keyboard.press(key);assert.deepEqual(await homeRead(),before,`${focus}: popup owns ${key} before actual Home/scene gameplay`)}
+   await page.keyboard.down('Enter');await page.keyboard.down('Enter');await page.keyboard.up('Enter')
+   const after=await homeRead();assert.equal(after.acknowledgments,1,'Held Enter produces exactly one ACK click');assert.ok(after.world.messages.slots[0]);assert.deepEqual(after.calls,before.calls);assert.equal(after.world.paused,true);assert.equal(await page.locator('details[open]').count(),0)
+   assert.equal(await page.locator('summary').evaluate(n=>n===document.activeElement),true,'Retained notification is the explicit browser focus return')
+   await page.getByLabel('Read campaign message').click();assert.equal((await homeRead()).calls.focus,1,'Manual positioned reopen focuses camera once')
+   await page.getByLabel('Read campaign message').click();assert.equal(await page.locator('details[open]').count(),0)
+   await page.getByLabel('Read campaign message').click();await page.getByRole('button',{name:'Acknowledge campaign message'}).focus();await page.keyboard.press('Space')
+   assert.equal(await page.locator('details[open]').count(),0,'Focused HTML Space activation is a browser accessibility adaptation')
+   await auto();await page.getByRole('button',{name:'Delete campaign message'}).click();assert.equal(await page.locator('details').count(),0);assert.equal(await page.locator('.world-viewport').evaluate(n=>n===document.activeElement),true)
+   receipt.checks.push(`Actual Home from ${focus}: auto-open key priority, held input cleanup, Enter ACK once, manual positioned reopen/close, browser Space activation and delete focus return`)
+ }
+ await open('home');await auto();await page.evaluate(()=>window.homePopupFixture.setFlyby());await page.locator('.world-viewport').focus()
+ for(const key of ['Space','Escape'])await page.keyboard.press(key)
+ assert.equal((await homeRead()).calls.skip,0,'Popup ownership precedes input-mask flyby skipping')
+ await page.keyboard.press('F8');assert.equal((await homeRead()).calls.f8,1)
+ await page.keyboard.press('F9');await page.locator('[data-cheat-test-open]').waitFor({state:'attached'});await page.keyboard.press('F9');assert.equal(await page.locator('[data-cheat-test-open]').count(),0)
+ await page.getByRole('button',{name:'Fullscreen',exact:true}).click();assert.equal((await page.evaluate(()=>window.fullscreenFixture.read())).active,true)
+ await page.locator('.world-viewport').focus();await page.keyboard.down('Escape')
+ assert.equal((await page.evaluate(()=>window.fullscreenFixture.read())).lastDefault,false,'Fullscreen Escape retains browser default before popup capture')
+ await page.evaluate(()=>window.fullscreenFixture.set(false));await page.keyboard.down('Escape');await page.keyboard.up('Escape')
+ assert.equal(await page.locator('details[open]').count(),1);assert.equal((await homeRead()).calls.cancel,0)
+ await page.waitForTimeout(260);await page.keyboard.press('Escape');assert.equal((await page.evaluate(()=>window.fullscreenFixture.read())).lastDefault,true,'Outside fullscreen popup consumes Escape without acknowledgment')
+ await page.screenshot({path:resolve(output,'home-input-ownership.png')})
+ await page.evaluate(()=>window.homePopupFixture.setOneShot());await page.keyboard.press('Enter');assert.equal(await page.locator('details').count(),0);assert.equal(await page.locator('.world-viewport').evaluate(n=>n===document.activeElement),true)
+ receipt.checks.push('Actual Home/scene owners: input-mask priority, F8/F9 preservation, actual fullscreen session Escape priority and one-shot focus return (Fullscreen API supplied, not native browser exit proof)')
  for(const [width,height]of [[640,480],[900,360],[1920,1080]]){
    await page.setViewportSize({width,height});await open('before')
    await page.screenshot({path:resolve(output,`before-${width}x${height}.png`)})
@@ -148,8 +193,50 @@ try {
      for(const other of diagnostics.text.slice(index+1))for(const next of other.rects)assert.ok(!(fragment.left<next.right&&fragment.right>next.left&&fragment.top<next.bottom&&fragment.bottom>next.top),`Distinct diagnostic text must not overlap: ${run.value} / ${other.value}`)
    }
    for(const row of diagnostics.rows)assert.ok(row.fits&&row.box.left>=diagnostics.box.left&&row.box.right<=diagnostics.box.right&&row.box.bottom<=diagnostics.box.bottom,'Every diagnostic row fits')
+   for(const expanded of [false,true]){
+     if(expanded)await page.getByRole('button',{name:'Picking paths'}).click()
+     const summaries=await page.locator('summary').evaluateAll(nodes=>nodes.map(node=>{const r=node.getBoundingClientRect(),graph=document.querySelector('.fps-graph').getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return{rect:r.toJSON(),graph:graph.toJSON(),hit:node===hit||node.contains(hit)}}))
+     for(const item of summaries){assert.ok(item.rect.right+3<=item.graph.left,'F8 never paints over the original notification strip');assert.equal(item.hit,true,'Notification center remains actionable with collapsed/expanded F8');assert.ok(item.rect.left>=0&&item.rect.top>=0&&item.rect.bottom<=height)}
+     receipt.checks.push({notificationStrip:[width,height],expanded,summaries});save()
+     if(expanded){
+       const bounds=await page.locator('.fps-graph').evaluate(n=>({graph:n.getBoundingClientRect().toJSON(),panel:document.querySelector('[data-native-campaign-panel]').getBoundingClientRect().toJSON(),scrollable:n.scrollHeight>n.clientHeight,overflow:getComputedStyle(n).overflowY}))
+       assert.ok(bounds.graph.top>=bounds.panel.bottom+3,'Expanded F8 scrolls below native popup rather than painting over it');assert.equal(bounds.overflow,'auto')
+       await page.screenshot({path:resolve(output,`after-diagnostics-expanded-${width}x${height}.png`)});await page.getByRole('button',{name:'Picking paths'}).click()
+     }
+   }
+
    await page.locator('summary').click()
    assert.deepEqual(await page.locator('.fps-graph').evaluate(n=>{const s=getComputedStyle(n);return[s.fontSize,s.lineHeight]}),['12px','16.8px'],'Closed-popup diagnostics retain their original font')
+ }
+
+ for(const [width,height] of [[390,844],[480,800],[560,700],[1920,1080]]){
+   await page.setViewportSize({width,height});await open('diagnostics');await page.locator('.fps-graph').waitFor()
+   for(const expanded of [false,true]){
+     if(expanded)await page.getByRole('button',{name:'Picking paths'}).click()
+     const value=await page.locator('.fps-graph').evaluate(n=>{const rect=node=>node.getBoundingClientRect().toJSON();return{graph:rect(n),panel:rect(document.querySelector('[data-native-campaign-panel]')),pause:rect(document.querySelector('[data-original-pause-status]')),summary:rect(document.querySelector('summary')),bottom:getComputedStyle(n).bottom}})
+     receipt.checks.push({diagnosticStatusClearance:[width,height],expanded,...value});save()
+     assert.ok(value.graph.bottom<=value.pause.top-3,'Native Paused is unscaled and needs its complete glyph height plus gutter')
+     assert.ok(value.graph.top>=value.panel.bottom+3,'Popup/F8 remain separated at portrait and high HUD sizes')
+     assert.ok(value.graph.left>=value.summary.right+3,'Original notification strip stays visually uncovered')
+     assert.ok(value.graph.left>=0&&value.graph.right<=width&&value.graph.top>=0)
+     const summaryHit=await page.locator('summary').evaluate(n=>{const r=n.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return n===hit||n.contains(hit)})
+     assert.equal(summaryHit,true,'Portrait/high-HUD notification stays actionable')
+     if(width<560||height>800)assert.equal(await page.locator('.fps-graph').evaluate(n=>getComputedStyle(n).fontSize),'12px','Noncompact diagnostics keep the original font')
+     if(await page.locator('.fps-graph').evaluate(n=>n.scrollHeight>n.clientHeight)){
+       const graph=page.locator('.fps-graph')
+       const last=page.locator('.fps-export');await last.focus();await page.keyboard.press('Tab')
+       assert.ok(await graph.evaluate(n=>n.scrollTop>0),'Keyboard focus can reach final diagnostic controls')
+       await page.getByRole('button',{name:'Picking paths'}).focus();await page.keyboard.press('End')
+       await page.waitForTimeout(150)
+       assert.ok(await graph.evaluate(n=>n.scrollTop>0),'Focused diagnostic keyboard scrolling works')
+       await graph.evaluate(n=>n.scrollTop=0);await graph.hover();await page.mouse.wheel(0,2000);await page.waitForTimeout(150)
+       assert.ok(await graph.evaluate(n=>n.scrollTop+n.clientHeight>=n.scrollHeight-2),'Pointer scrolling reaches the final diagnostic field')
+       assert.ok(await last.evaluate(n=>{const r=n.getBoundingClientRect(),p=n.closest('.fps-graph').getBoundingClientRect();return r.top>=p.top&&r.bottom<=p.bottom}),'Last control is visibly reachable, not clipped away')
+       await page.screenshot({path:resolve(output,`after-diagnostics-${width}x${height}${expanded?'-expanded':''}-last-fields.png`)})
+       await graph.evaluate(n=>n.scrollTop=0)
+     }
+     await page.screenshot({path:resolve(output,`after-diagnostics-${width}x${height}${expanded?'-expanded':''}.png`)})
+   }
  }
  await page.setViewportSize({width:640,height:480});await open()
  const ok=page.getByRole('button',{name:'Acknowledge campaign message'})
@@ -159,6 +246,7 @@ try {
  assert.ok((await ok.evaluate(n=>getComputedStyle(n).getPropertyValue('--popup-button'))).includes('hud-button-hover'))
  await page.mouse.up()
  receipt.checks.push('Native hover830 and pressed839 bitmap mappings are active')
+
  await page.route('**/original/*.png',route=>route.abort())
  for(const [width,height]of [[640,480],[900,300]]){
    await page.setViewportSize({width,height});await open();await page.locator('[data-art-failed]').waitFor()

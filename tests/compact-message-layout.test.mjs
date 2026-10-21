@@ -341,6 +341,11 @@ test('compact coexistence changes placement and whitespace only within diagnosti
   assert.match(popup, /font-size:11px;line-height:1\.2/)
   assert.match(popup, /@media \(min-width:900px\) and \(max-height:500px\)/)
   assert.match(popup, /grid-template-columns:2\.35fr 2\.15fr/)
+  assert.match(popup, /bottom:max\(22px,calc\(24px \* var\(--hud-scale\)\)\)/)
+  assert.match(popup, /var\(--side\) - var\(--message-width,32px\) - 16px/)
+  assert.match(popup, /var\(--campaign-popup-bottom,0px\) - 3px/)
+  assert.match(popup, /overflow:auto;pointer-events:auto;overscroll-behavior:contain/)
+
   assert.doesNotMatch(popup, /overflow:hidden|display:none|visibility:hidden|scale\(/)
   for (const rule of popup.split('\n').filter(line => line.includes('{') && !line.startsWith('@')))
     assert.ok(rule.includes('.game-shell:has(.campaign-messages details[open])'), 'F8 adaptation is conditional on an open native popup')

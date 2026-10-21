@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client'
+import HomePopupFixture from 'virtual:campaign-home'
 import { useLayoutEffect, useRef, useState } from 'react'
 import { OriginalPauseStatus } from 'virtual:native-pause-component'
 import { OriginalCampaignPopup } from '../../../app/original-campaign-popup'
@@ -11,7 +12,7 @@ import {
   messageViewPoint,
 } from '../../../app/messages'
 import { popupGlyph, popupTextWidth } from '../../../app/campaign-popup-layout'
-import { showCampaignPopup } from '../../../app/campaign-popup-session'
+import { captureCampaignPopupKeys, showCampaignPopup } from '../../../app/campaign-popup-session'
 import { hudScale } from '../../../app/hud-layout'
 
 const params = new URLSearchParams(location.search)
@@ -45,6 +46,10 @@ function Fixture() {
         for (const [slot, node] of details.current)
           node.toggleAttribute('data-lower', 300 + slot * 30 > Math.trunc(innerHeight / 2))
       shell.current?.style.setProperty(
+        '--message-width',
+        `${Math.trunc((innerWidth * 0x0ccc) / 65536) + (Math.trunc((innerWidth * 0x0ccc) / 65536) % 2)}px`
+      )
+      shell.current?.style.setProperty(
         '--hud-scale',
         String(hudScale(innerWidth, innerHeight, 'auto'))
       )
@@ -69,6 +74,12 @@ function Fixture() {
                   ? '16.0 / 20.0 / 28.0'
                   : '16.0 ms'
           }
+          const toggle = graph.querySelector<HTMLButtonElement>('.fps-picking-toggle')!
+          toggle.addEventListener('click', () => {
+            const picking = graph.querySelector<HTMLElement>('.fps-picking')!
+            picking.hidden = !picking.hidden
+            toggle.setAttribute('aria-expanded', String(!picking.hidden))
+          })
           shell.current?.appendChild(graph)
         })
     }
@@ -88,7 +99,15 @@ function Fixture() {
           showCampaignPopup(details.current.get(slot)!, details.current.values()),
       },
     })
-    return () => removeEventListener('resize', resize)
+    const stopKeys = before
+      ? undefined
+      : captureCampaignPopupKeys(document, () =>
+          [...details.current.values()].find(node => node.open)
+        )
+    return () => {
+      removeEventListener('resize', resize)
+      stopKeys?.()
+    }
   }, [])
   return (
     <main ref={shell} className="game-shell">
@@ -213,4 +232,6 @@ function Fixture() {
     </main>
   )
 }
-createRoot(document.getElementById('root')!).render(<Fixture />)
+createRoot(document.getElementById('root')!).render(
+  params.has('home') ? <HomePopupFixture /> : <Fixture />
+)

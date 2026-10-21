@@ -120,22 +120,26 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 }
 /* Browser diagnostics are exempt from native artwork, but must move around the
    recovered top-centered popup. Keep every field and native popup dimension. */
-.game-shell:has(.campaign-messages details[open]) .fps-graph{top:auto;bottom:calc(24px * var(--hud-scale));right:8px}
+/* One available rectangle excludes the native body, notification strip and
+   unscaled status floor. Columns optimize it; overflow remains reachable. */
+.game-shell:has(.campaign-messages details[open]) .fps-graph{top:auto;bottom:max(22px,calc(24px * var(--hud-scale)));right:8px;max-width:calc(100% - var(--side) - var(--message-width,32px) - 16px);max-height:calc(100dvh - var(--campaign-popup-bottom,0px) - 3px - max(22px,calc(24px * var(--hud-scale))));overflow:auto;pointer-events:auto;overscroll-behavior:contain}
 @media (min-width:560px) and (max-height:700px){
-  .game-shell:has(.campaign-messages details[open]) .fps-graph{width:calc(100% - var(--side) - 16px);max-width:none;padding:5px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;font-size:11px;line-height:1.2}
+  .game-shell:has(.campaign-messages details[open]) .fps-graph{width:calc(100% - var(--side) - var(--message-width,32px) - 16px);max-width:none;padding:5px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;font-size:11px;line-height:1.2}
   .game-shell:has(.campaign-messages details[open]) .fps-graph svg{height:16px;margin:2px 0}
   .game-shell:has(.campaign-messages details[open]) .fps-reading{margin:0 0 2px}
   .game-shell:has(.campaign-messages details[open]) .fps-reading strong{font-size:26px}
-  .game-shell:has(.campaign-messages details[open]) .fps-graph dl{margin:3px 0;padding-top:2px}
+  .game-shell:has(.campaign-messages details[open]) .fps-graph dl{margin:1px 0;padding-top:1px}
   .game-shell:has(.campaign-messages details[open]) .fps-graph dl>div{padding:0;gap:4px}
   .game-shell:has(.campaign-messages details[open]) .fps-renderer{max-height:none;overflow:visible}
   .game-shell:has(.campaign-messages details[open]) .fps-graph p{padding-top:3px;line-height:1.2}
   .game-shell:has(.campaign-messages details[open]) .fps-hardware{padding-top:3px}
+  .game-shell:has(.campaign-messages details[open]) .fps-picking-toggle,.game-shell:has(.campaign-messages details[open]) .fps-graph kbd{padding:1px 2px;white-space:nowrap}
 }
 @media (min-width:900px) and (max-height:500px){
-  .game-shell:has(.campaign-messages details[open]) .fps-graph{bottom:22px;padding:4px;grid-template-columns:2.35fr 2.15fr;align-items:start}
+  .game-shell:has(.campaign-messages details[open]) .fps-graph{bottom:22px;padding:2px;grid-template-columns:2.35fr 2.15fr;align-items:start}
   .game-shell:has(.campaign-messages details[open]) .fps-graph dl{margin:0;padding-top:0}
   .game-shell:has(.campaign-messages details[open]) .fps-hardware,.game-shell:has(.campaign-messages details[open]) .fps-graph p{padding-top:0}
+  .game-shell:has(.campaign-messages details[open]) .fps-graph p{line-height:10px}
   .game-shell:has(.campaign-messages details[open]) .fps-primary{display:grid;grid-template-columns:1fr 1.35fr;column-gap:8px;align-items:start}
   .game-shell:has(.campaign-messages details[open]) .fps-secondary{display:grid;grid-template-columns:1fr 1.15fr;column-gap:8px;align-items:start}
   .game-shell:has(.campaign-messages details[open]) .fps-primary>header,.game-shell:has(.campaign-messages details[open]) .fps-reading,.game-shell:has(.campaign-messages details[open]) .fps-primary>.fps-caption,.game-shell:has(.campaign-messages details[open]) .fps-graph svg{grid-column:1}

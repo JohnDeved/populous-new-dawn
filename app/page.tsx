@@ -71,7 +71,7 @@ import {
   messageViewPoint,
 } from './messages'
 import { OriginalCampaignPopup } from './original-campaign-popup'
-import { showCampaignPopup } from './campaign-popup-session'
+import { captureCampaignPopupKeys, showCampaignPopup } from './campaign-popup-session'
 import {
   HudSprite,
   FollowerNumber,
@@ -211,6 +211,7 @@ export default function Home() {
       if (!message || !(message.flags & 2)) continue
       const details = messageDetails.current.get(message.serial)
       if (!details) continue
+      engine.current?.keys.clear()
       showCampaignPopup(details, messageDetails.current.values())
       opened.push(message.serial)
     }
@@ -552,11 +553,19 @@ export default function Home() {
     return () => globalThis.removeEventListener('keydown', toggle, true)
   }, [ready, startup, menu, selectorOpen, world, cheatsOpen, cancelNearbyInput])
   useEffect(() => {
+    return captureCampaignPopupKeys(document, () =>
+      ready && !menu && !cheatsOpen && !selectorOpen
+        ? Array.from(messageDetails.current.values()).find(details => details.open)
+        : undefined
+    )
+  }, [ready, menu, cheatsOpen, selectorOpen])
+  useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (
         !ready ||
         menu ||
         cheatsOpen ||
+        Array.from(messageDetails.current.values()).some(details => details.open) ||
         (e.key === 'Escape' && e.repeat) ||
         e.ctrlKey ||
         e.metaKey ||
@@ -1070,7 +1079,7 @@ export default function Home() {
       }}
     >
       <FullscreenControl />
-      <div className="world-viewport" ref={viewport} />
+      <div className="world-viewport" ref={viewport} tabIndex={-1} />
       <div className="world-vignette" />
       {desktopNotice && (
         <aside className="desktop-recommendation">
@@ -1099,6 +1108,9 @@ export default function Home() {
             event.stopPropagation()
             if (event.repeat) event.preventDefault()
           }
+        }}
+        onKeyUp={event => {
+          if (event.key === 'Enter' || event.key === ' ') event.stopPropagation()
         }}
       >
         {world.messages.slots
@@ -1132,6 +1144,7 @@ export default function Home() {
                     event.preventDefault()
                     if (details.open) details.open = false
                     else {
+                      engine.current?.keys.clear()
                       if (target) engine.current?.focus(target, { animate: true })
                       showCampaignPopup(details, messageDetails.current.values())
                     }
@@ -1147,12 +1160,14 @@ export default function Home() {
                     acknowledgeMessage(world.messages, slot)
                     update()
                     if (world.messages.slots[slot]) details?.querySelector('summary')?.focus()
+                    else viewport.current?.focus({ preventScroll: true })
                   }}
                   onDelete={
                     messageHasDelete(message!)
                       ? () => {
                           acknowledgeMessage(world.messages, slot, true)
                           update()
+                          viewport.current?.focus({ preventScroll: true })
                         }
                       : undefined
                   }
