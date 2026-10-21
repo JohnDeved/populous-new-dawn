@@ -53,7 +53,8 @@ async function readCameraCheckpoint(page) {
         tx.oncomplete = () => {
           const value = request.result
           resolve({ version: value.version, level: value.world.outcome.level,
-            drawMode: value.world.drawMode, cameras: value.world.cameras })
+            drawMode: value.world.drawMode,
+            cameras: { ...value.world.cameras, keys: [...value.world.cameras.keys] } })
         }
         tx.onerror = () => reject(tx.error)
         tx.onabort = () => reject(tx.error)
@@ -81,21 +82,25 @@ export default async function scenario({ page, context, url, output, openMission
   }
   const state = p => p.evaluate(() => {
     const s = window.testSceneRef.current
-    return { cameras: structuredClone(s.world.cameras), drawMode: s.world.drawMode,
+    return { cameras: { ...structuredClone(s.world.cameras), keys: [...s.world.cameras.keys] }, drawMode: s.world.drawMode,
       point: { ...s.viewPoint }, bearing: s.cameraBearing,
       globe: s.view.globeBlend, flat: s.view.globeFlatScale }
   })
   const frame = async p => {
     const result = await p.evaluate(() => {
       const s = window.testSceneRef.current
-      const before = JSON.stringify(s.world.cameras)
+      // Playwright transports plain values, not Set contents. Keep all owner
+      // fields (including own undefined properties), normalizing only keys.
+      // JSON.stringify would erase both Set contents and undefined properties.
+      const snapshot = () => ({ ...structuredClone(s.world.cameras), keys: [...s.world.cameras.keys] })
+      const before = snapshot()
       s.previous = null
       s.animate(performance.now())
       cancelAnimationFrame(s.frame)
       s.previous = null
-      return { before, after: JSON.stringify(s.world.cameras) }
+      return { before, after: snapshot() }
     })
-    assert.equal(result.after, result.before, 'zero-time rendered frame preserves complete camera owner')
+    assert.deepEqual(result.after, result.before, 'zero-time rendered frame preserves complete camera owner')
     return state(p)
   }
   const advance = async (p, seconds) => p.evaluate(async seconds => {
