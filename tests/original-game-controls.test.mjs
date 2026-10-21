@@ -14,13 +14,14 @@ test('actual HUD has one original Menu entry and retains only browser audio reco
   assert.equal(menu.props.tabIndex, undefined, 'The real button remains in ordinary keyboard navigation')
   const footer = pageNode(node => ts.isJsxElement(node) && node.openingElement.attributes.properties.some(
     attribute => attribute.name?.getText(pageSource) === 'className' && attribute.initializer?.text === 'top-actions'))
-  for (const sound of [false, true]) {
-    const toggleSound = () => {}, rendered = evaluatePage(footer.getText(pageSource), { sound, toggleSound, soundPending: false })
+  for (const sound of [false, true]) for (const soundPending of [false, true]) {
+    const toggleSound = () => {}, SoundControl = () => {}, rendered = evaluatePage(footer.getText(pageSource), { sound, toggleSound, soundPending, SoundControl })
     assert.equal(rendered.children.length, 1)
     const control = rendered.children[0]
-    assert.equal(control.type, 'button')
-    assert.equal(control.props['aria-label'], sound ? 'Mute sound' : 'Enable sound')
-    assert.equal(control.props.onClick, toggleSound)
+    assert.equal(control.type, SoundControl)
+    assert.equal(control.props.sound, sound)
+    assert.equal(control.props.pending, soundPending)
+    assert.equal(control.props.onToggle, toggleSound)
   }
 })
 
