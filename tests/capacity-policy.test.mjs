@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createCapacityPolicy, populationCeiling, restoreCapacityPolicy } from '../app/capacity-policy.ts'
@@ -18,8 +19,8 @@ const person = id => ({ id, model: 2, state: 10, substate: 0, x: 0, y: 0,
   commands: Array(8).fill(0), commandCursor: 0, immediateCommand: 0,
   orderLocation: 0, commandStatus: 0, workTarget: 0 })
 
-test('new browser games are scalable; authored IDs and classic creation remain unchanged', () => {
-  const classic = createWorld(), store = createGameStore(), scalable = store.getWorld()
+test('new browser games are scalable; authored IDs and classic creation remain unchanged', async () => {
+  const classic = createWorld(), store = await createCampaignFixtureStore([2]), scalable = store.getWorld()
   assert.deepEqual(classic.capacityPolicy, { version: 1, mode: 'classic' })
   assert.deepEqual(scalable.capacityPolicy, { version: 1, mode: 'scalable' })
   assert.deepEqual(scalable.units, classic.units)
@@ -31,7 +32,7 @@ test('new browser games are scalable; authored IDs and classic creation remain u
   assert.equal(classic.buildingOrders.scalable, undefined)
   store.restart()
   assert.equal(store.getWorld().capacityPolicy.mode, 'scalable')
-  store.startMission(2)
+  assert.equal(store.startMission(2), true)
   assert.equal(store.getWorld().capacityPolicy.mode, 'scalable')
   assert.throws(() => createCapacityPolicy('unknown'), RangeError)
 })
@@ -242,9 +243,9 @@ test('scalable checkpoint counts real queue owners once across registry/controll
 })
 
 test('ordinary initialized campaign queues save/load under scalable ownership validation', async () => {
-  const store = createGameStore()
+  const store = await createCampaignFixtureStore([5, 6, 22])
   for (const mission of [1, 5, 6, 22]) {
-    store.startMission(mission)
+    assert.equal(store.startMission(mission), true)
     // Existing migration also normalizes authored shrine rewards. Compare the
     // complete migrated world, without dropping queues, IDs or alias assertions.
     const before = migrateCheckpoint(structuredClone(store.getWorld()))

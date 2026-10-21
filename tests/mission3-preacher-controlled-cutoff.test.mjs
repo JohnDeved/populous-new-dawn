@@ -1,7 +1,7 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { command, setSelection, tick } from '../app/model.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { currentPersonOrder, hasFollowingPersonOrder } from '../app/person-orders.ts'
 import { unitAnimationSource } from '../app/unit-animation-source.ts'
 import { acquireNaturalPreacher } from '../scripts/mission3-natural-preacher-scenario.mjs'
@@ -11,8 +11,8 @@ import { acquireNaturalPreacher } from '../scripts/mission3-natural-preacher-sce
 // naturally elapsed sermon turns, rendered or original-runtime acceptance.
 // No listener, phase, RNG, HP, actor or queued order is supplied or frozen.
 test('controlled sermon timer 839 preserves current cutoff, order identities and queued route', async () => {
-  const store = createGameStore()
-  store.startMission(3)
+  const store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   assert.equal(store.getWorld().capacityPolicy.mode, 'scalable')
   assert.ok(store.getWorld().objectCells.heads instanceof Float64Array)
   const journey = acquireNaturalPreacher(store.getWorld())

@@ -1,8 +1,8 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { command, setSelection, tick } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { unitAnimationSource } from '../app/unit-animation-source.ts'
 import { acquireNaturalPreacher } from '../scripts/mission3-natural-preacher-scenario.mjs'
 
@@ -10,8 +10,8 @@ import { acquireNaturalPreacher } from '../scripts/mission3-natural-preacher-sce
 // player movement orders. No entities, terrain, funds, flags, phases or timers
 // are supplied. This is a CPU campaign witness, not rendered/native acceptance.
 test('authored Mission 3 automatic sermon ends and completes its retained next waypoint', async () => {
-  const store = createGameStore()
-  store.startMission(3)
+  const store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   assert.equal(store.getWorld().capacityPolicy.mode, 'scalable')
   assert.ok(store.getWorld().objectCells.heads instanceof Float64Array)
   const journey = acquireNaturalPreacher(store.getWorld())

@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { stagedCheckpointComparisonView, assertStagedCheckpointComparisonDomain } from './helpers/staged-checkpoint-comparison-view.mjs'
 import {
   seatedAttackOrigin,
@@ -95,9 +96,9 @@ const freshPins = {
   },
 }
 
-function prepareFreshFlightPoint() {
-  const store = createGameStore()
-  store.startMission(22)
+async function prepareFreshFlightPoint() {
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   let world = store.getWorld(),
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     balloon = world.vehicles.find(vehicle => vehicle.model === 3),
@@ -259,7 +260,7 @@ async function assertStagedTransport({ store, world, shaman, balloon, createCont
 
   // Independent ordinary rest -> Ctrl28 input. No state/counter/terrain injection.
   const idleStore = createContinuationStore()
-  idleStore.startMission(22)
+  assert.equal(idleStore.startMission(22), true)
   const idle = idleStore.getWorld()
   Object.assign(idle, structuredClone(departureWorld))
   const idleUnit = idle.units.find(u => u.id === shaman.id),
@@ -370,7 +371,7 @@ async function assertStagedTransport({ store, world, shaman, balloon, createCont
   // Independent public Shift departure from the same genuinely acquired state.
   // The destination is ordinary dry land; no terrain or passenger fields change.
   const departureStore = createContinuationStore()
-  departureStore.startMission(22)
+  assert.equal(departureStore.startMission(22), true)
   const departing = departureStore.getWorld()
   Object.assign(departing, structuredClone(departureWorld))
   const unit = departing.units.find(u => u.id === shaman.id),
@@ -418,7 +419,7 @@ async function assertStagedTransport({ store, world, shaman, balloon, createCont
   // successor handoff fills a vacated driver seat; the separate historical
   // regression proves the eligible-queue selector's physical seat swap.
   const successorStore = createContinuationStore()
-  successorStore.startMission(22)
+  assert.equal(successorStore.startMission(22), true)
   const successor = successorStore.getWorld()
   Object.assign(successor, structuredClone(departureWorld))
   const firstUnit = successor.units.find(u => u.id === shaman.id),
@@ -609,7 +610,7 @@ async function assertStagedTransport({ store, world, shaman, balloon, createCont
 }
 
 test('fresh supplied-focus Mission22 staged transport retains queue, idle combat, Shift departure and successor through Save/Load', async () => {
-  await assertStagedTransport(prepareFreshFlightPoint(), freshPins)
+  await assertStagedTransport(await prepareFreshFlightPoint(), freshPins)
 })
 
 test('historical complete3566 research clone retains exact transport branches and selected-target acquisition', async () => {

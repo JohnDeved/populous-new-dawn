@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import { checkpointComparisonView, assertCheckpointComparisonDomain } from './helpers/checkpoint-comparison-view.mjs'
 import {
@@ -11,7 +12,6 @@ import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
 import { loadHistoricalMission22Balloon } from './helpers/historical-mission22-balloon.mjs'
 // Bounded direct-target transport handoff; grounded combat remains the existing adapter.
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { release } from '../app/world-tasks.ts'
 
@@ -35,9 +35,9 @@ const stepUntil = (w, done, limit) => {
     stepUntil(w, () => Math.hypot(s.x - p.x, s.z - p.z) < 2, 1000)
   }
 // Preparation supplies only the existing mana-focus mask adapter.
-function prepareFreshFlight() {
-  const store = createGameStore()
-  store.startMission(22)
+async function prepareFreshFlight() {
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   let world = store.getWorld(),
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     balloon = world.vehicles.find(vehicle => vehicle.model === 3),
@@ -325,7 +325,7 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
 }
 
 test('fresh supplied-focus dry-route plain person target preserves interception and cleanup through Save/Load', async () => {
-  await assertPlainPersonAttack(prepareFreshFlight(), false)
+  await assertPlainPersonAttack(await prepareFreshFlight(), false)
 })
 
 // The c44dadfc checkpoint is historical input, not a promise of the old outcome.

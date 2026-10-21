@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 // Actual Scene methods/field initializers and Page Load/retry bodies, with the
 // existing Node TS loader. Texture IO, DOM, GPU and unrelated drawing are supplied.
 // This is composed caller coverage, not a full constructor or browser witness.
@@ -116,8 +117,8 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       else delete globalThis[name]
     }
   })
-  const store = createGameStore()
-  store.startMission(3)
+  const store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   function makeScene() {
     const world = store.getWorld(),
       presentationBinding = store.bindPresentation(world),
@@ -317,8 +318,8 @@ test('actual world building caller binds the Temple shader across nine selection
     { createGameStore } = await import('../app/game-store.ts'),
     { nativeModel } = await import('../app/scene-assets.ts'),
     { templeTileOffset } = await import('../app/temple-art.ts'),
-    store = createGameStore()
-  store.startMission(3)
+    store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   // Supporting renderer fixture only; ordinary QA must earn and build its Temple.
   const world = store.getWorld(),
     temple = api.addBuilding(world, 'blue', 'temple', { x: 24, z: 70 }, true),
@@ -444,8 +445,8 @@ test('actual training factories reuse all16 meshes and qualify completed Temple 
 test('actual Page async import and rejection callbacks cannot publish from a replaced World before cleanup', async () => {
   await loadSceneFixture()
   const { createGameStore } = await import('../app/game-store.ts'),
-    store = createGameStore()
-  store.startMission(3)
+    store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   const world = store.getWorld(),
     errors = [],
     events = [],

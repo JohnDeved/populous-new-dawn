@@ -1,6 +1,6 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
 import { tick } from '../app/model.ts'
 import { requestAttack } from '../app/computer.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
@@ -11,8 +11,8 @@ import { nativePosition } from '../app/world-terrain-runtime.ts'
 // population, terrain, clocks and RNG are never injected. The real dispatcher
 // selects its crew; both current marker fields are explicitly present.
 test('current controlled Mission6 raid releases blocked owners and checkpoint references', async () => {
-  const store = createGameStore()
-  store.startMission(6)
+  const store = await createCampaignFixtureStore([6])
+  assert.equal(store.startMission(6), true)
   assert.equal(store.getWorld().capacityPolicy.mode, 'scalable')
   assert.ok(store.getWorld().objectCells.heads instanceof Float64Array)
   const world = store.getWorld(), ai = world.campaignAIs[3]

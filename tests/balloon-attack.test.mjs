@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { checkpointComparisonView, assertCheckpointComparisonDomain } from './helpers/checkpoint-comparison-view.mjs'
 import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
@@ -6,7 +7,6 @@ import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
 import { loadHistoricalMission22Balloon } from './helpers/historical-mission22-balloon.mjs'
 // Ordinary transport handoff, Tower destruction, local rest and casualty cleanup.
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
 import { leaveLiveAttackVehicle } from '../app/live-building-combat.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { boardLiveVehicle, vehicleExit } from '../app/live-vehicles.ts'
@@ -40,10 +40,10 @@ const stepUntil = (w, done, limit) => {
     assert.ok(command(w, p))
     stepUntil(w, () => Math.hypot(s.x - p.x, s.z - p.z) < 2, 1000)
   }
-// Preparation supplies only the existing mana-focus mask adapter.
-function prepareEarnedFlight() {
-  const store = createGameStore()
-  store.startMission(22)
+// Preparation declares Mission 22 availability and supplies the existing mana-focus mask adapter.
+async function prepareEarnedFlight() {
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   let world = store.getWorld(),
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     balloon = world.vehicles.find(vehicle => vehicle.model === 3),
@@ -218,7 +218,7 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
 // Fresh physical Boat acquisition retains its actual failed direct-attack chronology.
 // The historical case below still requires Tower destruction and Warrior11 interception.
 test('fresh supplied-focus Balloon tower attack is intercepted before Tower damage and cleans up through Save/Load', async () => {
-  await assertTowerContinuation(prepareEarnedFlight(), {
+  await assertTowerContinuation(await prepareEarnedFlight(), {
     inputPhase: [3535, 207],
     cancel: 3555,
     cancelRest: [16640, 32512],
