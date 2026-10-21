@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { skipPauseIntroduction, pauseStartupReady } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
+import { skipPauseIntroduction, pauseStartupReady, recoverVisibleIntroduction } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
 import { campaignPopupSnapshot } from '../scripts/browser-world-input.mjs'
 import { beginSpaceOwnership, endSpaceOwnership } from '../scripts/browser-space-ownership.mjs'
 
@@ -173,7 +173,69 @@ test('only explicit hosted setup callers receive original UI allowances and the 
     assert.match(runner, new RegExp(`pathToFileURL\\(${scenario}\\)[^\\n]+deadlineAt: browserDeadlineAt`))
   const late = pause.slice(pause.indexOf('export function recoverVisibleIntroduction'), pause.indexOf('export default'))
   assert.match(late, /timeout: Math.min\(2500, remainingMs\)/)
-  assert.doesNotMatch(late, /setupTimeout/)
+  assert.match(late, /setupTimeout === undefined/)
+  assert.match(late, /deadlineAt: Math.min\(deadlineAt, Date.now\(\) \+ remainingMs\)/)
+  assert.match(profile, /onBlocked: recoverVisibleIntroduction\(page\)/, 'Unreviewed late profile callbacks keep the shared default')
+})
+
+const blockedIntroduction = { inputMask: 64, introductionSkipAvailable: true }
+
+test('Tornado-style late recovery spends one existing action allowance and remains once-only', async t => {
+  const f = fixture(t, { setupMs: 3000, readMs: 20 }), trace = {}
+  const recover = recoverVisibleIntroduction(f.page, { setupTimeout: 8000, deadlineAt: 90000, trace })
+  assert.deepEqual(await recover({ after: blockedIntroduction, remainingMs: 12000 }), { action: 'public-skip-introduction' })
+  assert.equal(trace.actionCapMs, 8000)
+  assert.equal(trace.responseCapMs, 2500)
+  assert.equal(trace.responseStartedMs, 3000)
+  assert.equal(trace.responseDeadlineMs, 5500)
+  assert.equal(await recover({ after: blockedIntroduction, remainingMs: 12000 }), null)
+  assert.equal(f.presses, 1)
+})
+
+for (const boundary of ['readiness', 'episode-or-host']) test(`late recovery clips preparation to the existing ${boundary} remainder`, async t => {
+  const f = fixture(t, { setupMs: 2001 }), trace = {}
+  const recover = recoverVisibleIntroduction(f.page, {
+    setupTimeout: 8000, deadlineAt: boundary === 'episode-or-host' ? 2000 : 90000, trace,
+  })
+  await assert.rejects(recover({ after: blockedIntroduction, remainingMs: boundary === 'readiness' ? 2000 : 12000 }), /timed out/)
+  assert.equal(trace.actionCapMs, 2000)
+  assert.equal(trace.responseStartedMs, undefined)
+  assert.equal(f.presses, 0)
+})
+
+test('late recovery keeps the2500ms fresh-observation response cap after longer preparation', async t => {
+  const f = fixture(t, { setupMs: 3000, readMs: 2501 }), trace = {}
+  const recover = recoverVisibleIntroduction(f.page, { setupTimeout: 8000, deadlineAt: 90000, trace })
+  await assert.rejects(recover({ after: blockedIntroduction, remainingMs: 12000 }), /timed out/)
+  assert.equal(trace.responseDeadlineMs, 5500)
+  assert.equal(f.presses, 0)
+})
+
+test('late recovery popup rejection does not reset its response deadline', async t => {
+  const f = fixture(t, { setupMs: 1000, keyMs: 800, reject: true }), trace = {}
+  const recover = recoverVisibleIntroduction(f.page, { setupTimeout: 8000, deadlineAt: 90000, trace })
+  await assert.rejects(recover({ after: blockedIntroduction, remainingMs: 12000 }), /timed out/)
+  assert.equal(trace.responseStartedMs, 1000)
+  assert.equal(trace.responseDeadlineMs, 3500)
+  assert.equal(f.presses, 2)
+})
+
+test('unconverted late recovery retains shared2500 and never acts on an ineligible or exhausted sample', async t => {
+  const f = fixture(t, { setupMs: 3000 }), recover = recoverVisibleIntroduction(f.page)
+  assert.equal(await recover({ after: { ...blockedIntroduction, inputMask: 0 }, remainingMs: 12000 }), null)
+  assert.equal(await recover({ after: blockedIntroduction, remainingMs: 0 }), null)
+  assert.deepEqual(f.calls, [])
+  await assert.rejects(recover({ after: blockedIntroduction, remainingMs: 12000 }), /timed out/)
+  assert.equal(f.presses, 0)
+})
+
+test('late recovery forwards outer abort and rejects incomplete opt-in metadata before input', async t => {
+  const f = fixture(t), controller = new AbortController(), original = Error('host aborted')
+  const recover = recoverVisibleIntroduction(f.page, { setupTimeout: 8000, deadlineAt: 90000, signal: controller.signal })
+  controller.abort(original)
+  await assert.rejects(recover({ after: blockedIntroduction, remainingMs: 12000 }), error => error === original)
+  assert.deepEqual(f.calls, [])
+  assert.throws(() => recoverVisibleIntroduction(f.page, { setupTimeout: 8000 }), /outer deadline/)
 })
 
 test('opted-in response cannot exceed2500ms while the unconverted API remains configurable', async t => {

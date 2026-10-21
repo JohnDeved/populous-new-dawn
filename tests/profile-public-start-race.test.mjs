@@ -189,7 +189,7 @@ test('profile and Tornado callers recheck public introduction while preserving e
     profile,
     /entry.readiness = await waitRecoveryReadiness\(page, \{ signal, onBlocked: recoverVisibleIntroduction\(page\) \}\)/
   )
-  assert.equal((tornado.match(/onBlocked: recoverVisibleIntroduction\(page\)/g) ?? []).length, 2)
+  assert.equal((tornado.match(/onBlocked: recoverIntroduction\('(initial|restart)'\)/g) ?? []).length, 2)
   assert.doesNotMatch(tornado, /querySelector\('\.skip-introduction'\)\?\.click/)
   const readiness = read('scripts/tutorial-browser/profile-readiness.mjs')
   assert.match(readiness, /timeout = 30000/)

@@ -200,6 +200,7 @@ try {
         signal.throwIfAborted()
         return (await import(pathToFileURL(tornadoScenario).href)).runTornadoAppearance(browser, {
           url, artifactDir: out, budgetMs: Math.min(90000, deadlineAt - Date.now()),
+          signal, deadlineAt,
         })
       },
       closeProbe: async () => { await context.close(); context = undefined; page = undefined; await browser.close() },

@@ -141,11 +141,16 @@ export async function skipPauseIntroduction(page, {
 // A later authored flyby can begin after the initial input-unlocked sample.
 // This callback only operates an observed interruptible flyby, once per readiness
 // wait. It never changes eligibility or resets the caller's existing deadline.
-export function recoverVisibleIntroduction(page) {
+export function recoverVisibleIntroduction(page, { setupTimeout, deadlineAt, signal, trace } = {}) {
+  if (setupTimeout !== undefined && (!Number.isFinite(setupTimeout) || setupTimeout <= 0 || !Number.isFinite(deadlineAt)))
+    throw new RangeError('Late recovery setup requires its existing UI allowance and outer deadline')
   let attempted = false
   return async ({ after, remainingMs }) => {
+    signal?.throwIfAborted()
     if (attempted || remainingMs <= 0 || !(after.inputMask & 64) || !after.introductionSkipAvailable) return null
-    await skipPauseIntroduction(page, { timeout: Math.min(2500, remainingMs) })
+    await skipPauseIntroduction(page, setupTimeout === undefined
+      ? { timeout: Math.min(2500, remainingMs) }
+      : { setupTimeout, deadlineAt: Math.min(deadlineAt, Date.now() + remainingMs), signal, trace })
     attempted = true
     return { action: 'public-skip-introduction' }
   }
