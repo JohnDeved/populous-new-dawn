@@ -13,8 +13,10 @@ import styles from './fullscreen-control.module.css'
 
 // Original FONT0 glyph advances and pixels, never a system-font approximation.
 function BitmapText({ text }: { text: string }) {
+  // FONT0 has the straight apostrophe; accessible/status text stays untouched.
+  const glyphText = text.replaceAll('’', "'")
   if (
-    [...text].some(
+    [...glyphText].some(
       letter => !hud.rects[`font0-${letter.charCodeAt(0) - 32}` as keyof typeof hud.rects]
     )
   )
@@ -25,7 +27,7 @@ function BitmapText({ text }: { text: string }) {
     )
   return (
     <span className={styles.bitmap} aria-hidden="true">
-      {text.split(' ').map((word, wordIndex, words) => (
+      {glyphText.split(' ').map((word, wordIndex, words) => (
         <span className={styles.word} key={wordIndex}>
           {[...(word + (wordIndex < words.length - 1 ? ' ' : ''))].map((letter, index) => {
             const glyph = hud.rects[`font0-${letter.charCodeAt(0) - 32}` as keyof typeof hud.rects]

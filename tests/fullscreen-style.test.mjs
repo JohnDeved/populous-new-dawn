@@ -1,6 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { runInNewContext } from 'node:vm'
+import ts from 'typescript'
 const read = file => readFileSync(new URL('../' + file, import.meta.url), 'utf8')
 const component = read('app/fullscreen-control.tsx'), css = read('app/fullscreen-control.module.css')
 const hud = JSON.parse(read('app/original-hud.json'))
@@ -27,7 +30,7 @@ test('fullscreen uses original unscaled HUD bitmap metrics and a documented new 
 })
 
 test('fullscreen keeps an accessible atlas-failure fallback, status and focus treatment', () => {
-  assert.match(component, /\[\.\.\.text\]\.some/,'unsupported glyphs retain a readable fallback')
+  assert.match(component, /\[\.\.\.glyphText\]\.some/,'unsupported glyphs retain a readable fallback')
   assert.match(component, /image\.src = '\/original\/hud\.png'/)
   assert.match(component, /\.decode\(\)/)
   assert.match(component, /if \(mounted\) setBitmapReady\(true\)/)
@@ -60,4 +63,26 @@ test('compact fullscreen repeats exact native crops with uncompressed overlappin
     assert.ok(rule.includes(`background-position: ${source};`))
     assert.equal(rule.includes('width: 1px;'), index < 2)
   }
+})
+
+
+test('typographic apostrophe uses native pixels without changing accessible or fallback text', () => {
+  const source = ts.createSourceFile('fullscreen-control.tsx', component, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const bitmap = source.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === 'BitmapText')
+  assert.ok(bitmap)
+  const compiled = ts.transpileModule(bitmap.getText(source) + '\nexport { BitmapText }', {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
+  }).outputText
+  const context = { exports: {}, require: createRequire(import.meta.url), hud, styles: { bitmap: 'bitmap', word: 'word', fallback: 'fallback' } }
+  runInNewContext(compiled, context)
+  const render = text => context.exports.BitmapText({ text })
+  const curly = render('your browser’s View menu.'), straight = render("your browser's View menu.")
+  assert.equal(curly.props.className, 'bitmap')
+  const pixels = element => element.props.children.flatMap(word => word.props.children.map(glyph => glyph.props.style))
+  assert.deepEqual(pixels(curly), pixels(straight), 'visual glyph selection uses the original apostrophe')
+  const unknown = render('Unknown character: ☃')
+  assert.equal(unknown.props.className, 'fallback')
+  assert.equal(unknown.props.children, 'Unknown character: ☃', 'unknown glyph recovery preserves original text')
+  assert.match(component, /<span className=\{bitmapReady \? styles\.visuallyHidden : styles\.fallback\}>\s*\{state\.error\}/)
+  assert.match(read('app/fullscreen-session.ts'), /browser’s View menu/, 'source status message is unchanged')
 })
