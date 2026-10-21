@@ -1,0 +1,12 @@
+{
+  "sourceSha256": "65602921453014c11b079b95f664a29c89727fb0b2d0dce4c40fee94665a80fa",
+  "outputSha256": "44043801c2863a61089de03a8688d87e4d1f57cec4e0a5247a782d760887a52c",
+  "decodedVideoSha256": "ce80fde6eb9b4124c804c0cdba55da95675a944514dfa8ef3313113cefab3f73",
+  "frames": 188,
+  "width": 640,
+  "height": 352,
+  "fps": 25,
+  "ffmpeg": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+  "video": "lossless decoded YUV equality",
+  "audio": "EA ADPCM decoded and transcoded to Opus; not bit-exact audio parity"
+}

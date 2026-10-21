@@ -1,3 +1,4 @@
+import { makeTornado, drawTornado } from './scene-tornado.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import { texture, effectFrame, nativeModel } from './scene-assets.ts'
@@ -81,23 +82,7 @@ export function makeFx(scene: GameScene, f: Effect) {
     }
     return g
   }
-  if (f.tornado) {
-    g.name = 'tornado'
-    for (const _ of f.tornado.particles) {
-      const sprite = new THREE.Sprite(
-        new THREE.SpriteMaterial({
-          map: texture('effects'),
-          transparent: true,
-          depthWrite: false,
-          toneMapped: false,
-        })
-      )
-      sprite.userData.atlasTransform = new THREE.Vector4(1, 1, 0, 0)
-      sprite.center.set(0.5, 0)
-      g.add(sprite)
-    }
-    return g
-  }
+  if (f.tornado) return makeTornado(f.tornado)
   if (
     f.wave ||
     f.reincarnationWave ||
@@ -284,21 +269,7 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     return
   }
   if (f.tornado) {
-    const frames = nativeEffects.animations.smoke,
-      short = (n: number) => (n << 16) >> 16
-    for (let i = 0; i < g.children.length; i++) {
-      const sprite = g.children[i] as THREE.Sprite,
-        particle = f.tornado.particles[i]
-      sprite.visible = !!particle
-      if (!particle) continue
-      sprite.position.set(
-        short(particle.x - f.tornado.x) / 256,
-        (particle.h - f.tornado.h) / 128,
-        -short(particle.y - f.tornado.y) / 256
-      )
-      effectFrame(sprite, frames[(scene.world.turn + i) % frames.length])
-      sprite.material.opacity = f.tornado.phase ? Math.min(1, f.tornado.remaining / 12) : 0.9
-    }
+    drawTornado(scene, g, f.tornado)
     return
   }
   if (

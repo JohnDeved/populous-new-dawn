@@ -1204,12 +1204,6 @@ function allocateComputerSpell(w: World, u: Unit, model: number, cell: number) {
   if (!spell) throw new Error(`Unimplemented computer spell effect ${model}`)
   clearLivePath(w, u)
   beginCast(w, u, spell.id, nativeCellPoint(cell))
-  const fightingPerson = u.fight?.motion
-  if (fightingPerson && (fightingPerson.state === 25 || fightingPerson.state === 29)) {
-    u.native = fightingPerson
-    changeLivePersonState(w, u, 22)
-    u.fight = null
-  }
 }
 
 // 0x4cc7d7: the marker branch uses the tribe Shaman and ONLY spell byte zero.

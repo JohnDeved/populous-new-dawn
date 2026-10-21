@@ -55,7 +55,10 @@ test('Convert Wild scans, converts, animates, and casts through player and compu
   assert.equal(population(w, 'blue'), 2)
   assert.equal(w.shots.convertWild, 0)
   assert.ok([0x85, 0xb4, 5].every(cue => w.sounds.some(sound => sound.cue === cue)))
-  assert.ok(w.effects.some(effect => effect.kind === 'birth'))
+  assert.ok(w.effects.some(effect => effect.sprite?.sequence === 'startConversion' &&
+    effect.animation?.object === 1240 && effect.animation.draw === 45 &&
+    effect.turnsRemaining === 8 && effect.startConversionLink === converted.id))
+  assert.ok(!w.effects.some(effect => effect.kind === 'birth'))
   selectUnit(w, converted.id, false)
   assert.deepEqual(w.selected, [converted.id])
   assert.ok(command(w, { x: 2, z: 14 }))

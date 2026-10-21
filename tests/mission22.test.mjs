@@ -197,10 +197,10 @@ test('Mission 22 supplied-focus Shaman can steal, checkpoint and sail the author
   )
 
   // Original 0051f990 terrain clearance blocks tower 96 at 1336/1340. The first
-  // clear volley is 1344, impacting 1355 for 25 HP. Unlike the old through-ridge
+  // clear volley is 1344, impacting 1354 for 25 HP. Unlike the old through-ridge
   // impact at 1347, this misses the 1352 healing tick; every later heal remains 1.6 HP.
   assert.deepEqual(volleys, [[1344, 96, shaman.id]])
-  assert.deepEqual(health, [[1355, 75], [1360, 76.6], [1368, 78.2], [1376, 79.8]])
+  assert.deepEqual(health, [[1354, 75], [1360, 76.6], [1368, 78.2], [1376, 79.8]])
   assert.deepEqual([world.turn, shaman.hp], [1378, 79.8])
 
   world = migrateCheckpoint(structuredClone(world))

@@ -21,12 +21,16 @@ const scenario = resolve(root, 'scripts/local-render/tutorial-recommendation.mjs
 const selectorScenario = resolve(root, 'scripts/tutorial-browser/selector-inspection.mjs')
 const sceneryScenario = resolve(root, 'scripts/tutorial-browser/scenery-placement.mjs')
 const spellProjectionScenario = resolve(root, 'scripts/tutorial-browser/spell-projection.mjs')
+const hypnotiseScenario = resolve(root, 'scripts/tutorial-browser/spell-hypnotise.mjs')
 const spellTestScenario = resolve(root, 'scripts/tutorial-browser/spell-test-menu.mjs')
+const spellConversionScenario = resolve(root, 'scripts/tutorial-browser/spell-conversion.mjs')
 const buildingIdentityScenario = resolve(root, 'scripts/tutorial-browser/building-panel-identity.mjs')
 const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
 const frontendEscapeScenario = resolve(root, 'scripts/local-render/frontend-held-escape.mjs')
 const recoveryScenario = resolve(root, 'scripts/local-render/campaign-profile-recovery.mjs')
+const tornadoScenario = resolve(root, 'scripts/check-browser-tornado-appearance.mjs')
 const mission10ProfileScenario = resolve(root, 'scripts/tutorial-browser/mission10-profile.mjs')
+const spySourceScenario = resolve(root, 'scripts/tutorial-browser/spy-source.mjs')
 const selectedScenario = process.env.POPULOUS_BROWSER_SCENARIO || 'tutorial'
 assert.ok(browserScenarios.includes(selectedScenario), 'Unknown browser scenario')
 const snapshotScenario = resolve(root, 'scripts/browser-performance/snapshot-smoke.mjs')
@@ -91,6 +95,8 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   selectorScenarioSha256: hash(selectorScenario), sceneryScenarioSha256: hash(sceneryScenario),
   spellProjectionScenarioSha256: hash(spellProjectionScenario), spellProjectionCoverageSha256: hash(resolve(root, 'scripts/tutorial-browser/spell-projection-coverage.mjs')),
   spellTestScenarioSha256: hash(spellTestScenario),
+  spellConversionScenarioSha256: hash(spellConversionScenario),
+  hypnotiseSources: Object.fromEntries(['spell-hypnotise', 'hypnotise-fixture', 'hypnotise-observer', 'hypnotise-budget', 'hypnotise-checkpoint'].map(name => [name, hash(resolve(root, `scripts/tutorial-browser/${name}.mjs`))])),
   buildingIdentityScenarioSha256: hash(buildingIdentityScenario), buildingIdentityFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-fixture.mjs')),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),
@@ -156,6 +162,8 @@ try {
     // for F9. Both retain their own bounds inside the unchanged shared 180s cap.
     await context.close(); context = undefined; page = undefined
     receipt.spellTestMenu = await (await import(pathToFileURL(spellTestScenario).href)).default({ browser, url, output: out })
+    // Separate natural Mission3 context, after F9, within the unchanged global cap.
+    receipt.spellConversion = await (await import(pathToFileURL(spellConversionScenario).href)).default({ browser, url, output: out })
   } else if (selectedScenario === 'gameplay-frames') {
     receipt.gameplayFrames = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision })
     // Keep all original exports/assertions, then release their live world before
@@ -163,18 +171,36 @@ try {
     await context.close(); context = undefined; page = undefined
     receipt.meleeAttack = await (await import(pathToFileURL(meleeScenario).href)).default({ browser, url, output: out, expectedRevision: receipt.buildRevision })
     // Separate ordinary follower combat and actual checkpoint continuation. No
-    // performance window or existing 75-second/ten-turn melee assertion changes.
+    // performance window or existing 75-second, first-observed-entry melee assertions change.
     receipt.followerCorpse = await (await import(pathToFileURL(followerCorpseScenario).href)).default({ browser, url, output: out, expectedRevision: receipt.buildRevision })
   } else if (['profile-recovery', 'mission10-profile'].includes(selectedScenario)) {
-    // Independent jobs; the two persistent M10 processes share one fixed timer.
+    // Independent jobs. Both persistent M10 phases finish before the separate
+    // Spy witness is admitted; all three retain this same fixed 180s timer.
     Object.assign(receipt, await runProfileEpisode(selectedScenario, {
       signal: abort.signal, deadlineAt: browserDeadlineAt,
       runRecovery: async () => (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal }),
+      // Recovery assertions/receipts are unchanged; only then run a fresh-context
+      // Tornado episode inside the existing outer deadline (never a new timer).
+      closeRecoveryProbe: async () => { await context.close(); context = undefined; page = undefined },
+      runTornado: async ({ signal, deadlineAt }) => {
+        signal.throwIfAborted()
+        return (await import(pathToFileURL(tornadoScenario).href)).runTornadoAppearance(browser, {
+          url, artifactDir: out, budgetMs: Math.min(90000, deadlineAt - Date.now()),
+        })
+      },
       closeProbe: async () => { await context.close(); context = undefined; page = undefined; await browser.close() },
-      runMission10: async ({ signal, deadlineAt }) => (await import(pathToFileURL(mission10ProfileScenario).href)).default({ chromium, launch: browserConfig.launch, url, root, output: out, receipt, signal, verifySource, deadlineAt }),
+      runMission10: async ({ signal, deadlineAt }) => {
+        receipt.mission10Profile = await (await import(pathToFileURL(mission10ProfileScenario).href)).default({ chromium, launch: browserConfig.launch, url, root, output: out, receipt, signal, verifySource, deadlineAt })
+        save() // Retain both completed phases even if the later Spy witness fails.
+        return receipt.mission10Profile
+      },
+      runSpySource: async ({ signal, deadlineAt }) => (await import(pathToFileURL(spySourceScenario).href)).default({ chromium, launch: browserConfig.launch, url, output: out, source, signal, deadlineAt }),
     }))
   } else if (selectedScenario === 'compact-message-layout') {
     await (await import(pathToFileURL(m2Scenario).href)).runCompactDiagnosticEpisodes({ browser, url, output: out, fixture: m2Fixture, report: receipt })
+    // Existing compact layout and picking assertions finish unchanged first.
+    await context.close(); context = undefined; page = undefined
+    receipt.hypnotise = await (await import(pathToFileURL(hypnotiseScenario).href)).default({ browser, url, output: out, deadlineAt: browserDeadlineAt })
   } else if (selectedScenario === 'm2-pointer-f8') {
     receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
   } else if (selectedScenario === 'pause-checkpoint-recovery') {
