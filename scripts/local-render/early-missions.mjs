@@ -184,13 +184,17 @@ export default async function ({
         await page.waitForFunction(t => window.testScene.world.turn > t, second.turn)
         return { pausedTurn: paused.turn, secondPausedTurn: second.turn, resumed: await snap(page) }
       })
-      await check('Settings, objective visibility and level-selector interruption', async () => {
-        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-        const menu = page.locator('dialog.game-dialog')
+      await check('Native menu, browser controls and level-selector interruption', async () => {
+        await page.getByRole('button', { name: 'Menu', exact: true }).click()
+        const menu = page.locator('dialog[data-original-pause-menu]')
         await menu.waitFor({ state: 'visible' })
-        await menu.locator('summary').filter({ hasText: 'Objectives' }).click()
-        const objectives = await menu.locator('.menu-objectives').innerText()
-        assert.ok(objectives.includes('0 / 3'))
+        const compatibility = async () => {
+          await menu.getByRole('button', { name: 'Options', exact: true }).click()
+          await menu.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
+          assert.equal(await menu.locator('.menu-objectives,.help-grid,.help-tip,.reference-details').count(), 0)
+          await menu.getByRole('combobox', { name: 'HUD size', exact: true }).waitFor()
+        }
+        await compatibility()
         const before = await snap(page)
         await menu.getByRole('button', { name: 'Select Level', exact: true }).click()
         const selector = page.getByRole('dialog', { name: 'Start game', exact: true })
@@ -200,16 +204,17 @@ export default async function ({
         await selector.getByRole('button', { name: 'Back', exact: true }).click()
         await menu.waitFor({ state: 'visible' })
         assert.equal((await snap(page)).paused, true)
+        await compatibility()
         await menu.getByRole('button', { name: 'Select Level', exact: true }).click()
         await selector.waitFor()
         await page.keyboard.press('Escape')
         await menu.waitFor({ state: 'visible' })
         assert.equal((await snap(page)).paused, true)
         assert.equal((await snap(page)).level, level)
-        await menu.getByRole('button', { name: 'Continue Game', exact: false }).click()
+        await menu.getByRole('button', { name: 'Continue Game', exact: true }).click()
         await menu.waitFor({ state: 'hidden' })
         await page.waitForFunction(t => window.testScene.world.turn > t, before.turn)
-        return { objectives, before, after: await snap(page) }
+        return { before, after: await snap(page) }
       })
       await check('Checkpoint survives a fresh page reload', async () => {
         await page.getByRole('button', { name: 'Game settings', exact: true }).click()

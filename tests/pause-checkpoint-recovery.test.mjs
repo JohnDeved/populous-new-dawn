@@ -385,9 +385,9 @@ for (const [label, callback, destination] of [
 
 test('actual Home quit callbacks retain different destinations and clear obsolete menu ownership', () => {
   for (const [name, campaign, callback] of [['exitTutorial', false, 'onQuitGame'], ['quitLevel', true, 'onQuitLevel']]) {
-    const states = {}, menuSession = { current: {} }, pendingMenuCamera = { current: [() => {}] }, loadRequest = { current: {} }
+    const states = {}, menuSession = { current: {} }, loadRequest = { current: {} }
     let cancelled = 0, reset = 0
-    const bindings = { menuSession, pendingMenuCamera, loadRequest,
+    const bindings = { menuSession, loadRequest,
       cancelNearbyInput() { cancelled++ }, engine: { current: {} }, audio: { current: { reset() { reset++ } } },
       ...Object.fromEntries(['CheatsOpen', 'Menu', 'Ready', 'Error', 'StartupCampaign', 'Startup', 'SelectorOpen'].map(key => [`set${key}`, value => { states[key] = value }])) }
     const node = pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === name)
@@ -405,7 +405,7 @@ test('actual Home quit callbacks retain different destinations and clear obsolet
     assert.equal(states.CheatsOpen, false)
     assert.equal(states.Startup, 'choice'); assert.equal(states.StartupCampaign, campaign)
     assert.equal(states.Menu, false); assert.equal(states.Ready, false)
-    assert.equal(menuSession.current, null); assert.deepEqual(pendingMenuCamera.current, [])
+    assert.equal(menuSession.current, null)
     assert.equal(loadRequest.current, null); assert.equal(cancelled, 1); assert.equal(reset, 1)
   }
 })

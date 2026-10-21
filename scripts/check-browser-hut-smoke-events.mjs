@@ -383,9 +383,7 @@ async function observe(hutId, phase) {
 }
 try {
   ;({ page, errors } = await openGame(browser, 1))
-  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-  await page.getByRole('button', { name: 'Focus settlement', exact: true }).click()
-  await closeMenu()
+  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
   await page.waitForFunction(() => !window.testScene.cameraMotion.active)
   await pause()
   report.hutId = await page.evaluate(

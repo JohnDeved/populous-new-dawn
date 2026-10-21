@@ -146,11 +146,8 @@ try {
   }, convertedId)
 
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByText('Objectives · 2 / 3', { exact: true }).click()
-  const objectives = await page.locator('.menu-objectives').textContent()
-  assert.match(objectives, /Convert the Wildmen/)
-  assert.match(objectives, /Claim Invisibility from the stone head/)
-  await page.getByRole('button', { name: 'Return to the world', exact: false }).click()
+  assert.equal(await page.locator('.menu-objectives').count(), 0)
+  await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await page.getByRole('button', { name: 'Invisibility, 1 shots' }).click()
   const followerPoint = await page.evaluate(convertedId => {
     const scene = globalThis.testScene,

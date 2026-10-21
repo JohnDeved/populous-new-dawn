@@ -3,7 +3,6 @@
 import { FullscreenControl } from './fullscreen-control'
 import { OriginalPauseStatus } from './original-pause-status'
 import { OriginalOptions } from './original-options'
-import { BrowserHelpTips } from './browser-help-tips'
 import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
 import { OriginalLoadingScreen } from './original-loading-screen'
 import { StartupLogo } from './startup-logo'
@@ -100,13 +99,6 @@ import {
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
 import { teamForTribe, type TribeTeam } from './world-types'
-const timeLabel = (time: number) =>
-  `${Math.floor(time / 60)
-    .toString()
-    .padStart(2, '0')}:${Math.floor(time % 60)
-    .toString()
-    .padStart(2, '0')}`
-
 const messageScreenX = (value: number, width: number) => {
     const product = Math.imul(width, value)
     return (product + ((product >> 31) & 0xffff)) >> 16
@@ -237,7 +229,6 @@ export default function Home() {
     clearNearbyPress()
     engine.current?.cancelNearbyFollowers()
   }, [clearNearbyPress])
-  const pendingMenuCamera = useRef<((scene: GameScene) => void)[]>([])
   // Native 00458060 captures prior pause; only the same world may restore it.
   const menuSession = useRef<{ world: typeof world; paused: boolean } | null>(null)
   const openMenu = useCallback(() => {
@@ -245,7 +236,6 @@ export default function Home() {
     if (engine.current) engine.current.nearbyFollowersHudActive = false
     if (!menuSession.current) {
       const current = store.getWorld()
-      pendingMenuCamera.current = []
       menuSession.current = { world: current, paused: current.paused }
       engine.current?.setModalSuspended(true)
       store.change(w => {
@@ -264,10 +254,8 @@ export default function Home() {
       })
       if (engine.current?.world === session.world) {
         engine.current.setModalSuspended(false)
-        for (const action of pendingMenuCamera.current) action(engine.current)
       }
     }
-    pendingMenuCamera.current = []
   }
   function openSelector() {
     cancelNearbyInput()
@@ -760,7 +748,6 @@ export default function Home() {
     setCheatsOpen(false)
     if (request.kind === 'checkpoint' && !store.hasCheckpoint()) return
     menuSession.current = null
-    pendingMenuCamera.current = []
     cancelNearbyInput()
     if (engine.current) engine.current.nearbyFollowersHudActive = false
     setSelectorOpen(false)
@@ -791,7 +778,6 @@ export default function Home() {
   function exitTutorial() {
     setCheatsOpen(false)
     menuSession.current = null
-    pendingMenuCamera.current = []
     cancelNearbyInput()
     if (engine.current) engine.current.nearbyFollowersHudActive = false
     audio.current?.reset()
@@ -815,7 +801,6 @@ export default function Home() {
   function quitLevel() {
     setCheatsOpen(false)
     menuSession.current = null
-    pendingMenuCamera.current = []
     cancelNearbyInput()
     audio.current?.reset()
     setMenu(false)
@@ -858,198 +843,7 @@ export default function Home() {
     event.stopPropagation()
     return true
   }
-  const nextMission = missionNumbers.find(mission => mission === world.outcome.level + 1),
-    objectives =
-      world.outcome.level === 1
-        ? [
-            { text: 'Bridge to the central island', done: world.stats.bridges > 0 },
-            { text: 'Discover warrior training', done: world.unlockedCamp },
-            { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
-          ]
-        : world.outcome.level === 2
-          ? [
-              {
-                text: 'Open the way with the Totem Pole',
-                done: world.effects.some(effect => !!effect.bridge),
-              },
-              { text: 'Claim Tornado from the stone head', done: world.giftCounts.tornado > 0 },
-              { text: 'Defeat the Matak tribe', done: world.status === 'won' },
-            ]
-          : world.outcome.level === 3
-            ? [
-                { text: 'Reach the Chumara Vault', done: world.unlockedTemple },
-                {
-                  text: 'Build a Temple and train a Preacher',
-                  done: blue.some(unit => unit.kind === 'preacher'),
-                },
-                { text: 'Defeat the Chumara tribe', done: world.status === 'won' },
-              ]
-            : world.outcome.level === 4
-              ? [
-                  { text: 'Convert the Wildmen', done: blue.length > 3 },
-                  { text: 'Discover the Guard Tower', done: world.unlockedTower },
-                  { text: 'Defeat the Matak tribe', done: world.status === 'won' },
-                ]
-              : world.outcome.level === 5
-                ? [
-                    {
-                      text: 'Claim the Boat from the stone head',
-                      done: world.vehicles.some(vehicle => vehicle.active),
-                    },
-                    {
-                      text: 'Board followers onto the Boat',
-                      done: world.vehicles.some(vehicle => vehicle.passengers.length > 0),
-                    },
-                    { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
-                  ]
-                : world.outcome.level === 6
-                  ? [
-                      {
-                        text: 'Defeat the Chumara tribe',
-                        done: !!world.manaTribes[2].defeatTimer,
-                      },
-                      {
-                        text: 'Defeat the Matak tribe',
-                        done: !!world.manaTribes[3].defeatTimer,
-                      },
-                    ]
-                  : world.outcome.level === 7
-                    ? [
-                        { text: 'Convert the Wildmen', done: blue.length > 1 },
-                        {
-                          text: 'Claim Invisibility from the stone head',
-                          done: world.giftCounts.invisibility > 0,
-                        },
-                        {
-                          text: 'Conceal followers with Invisibility',
-                          done: blue.some(unit => !!unit.invisibility),
-                        },
-                      ]
-                    : world.outcome.level === 8
-                      ? [
-                          {
-                            text: 'Discover Firewarrior training',
-                            done: world.unlockedFirewarriorHut,
-                          },
-                          {
-                            text: 'Train a Firewarrior',
-                            done: blue.some(unit => unit.kind === 'firewarrior'),
-                          },
-                          { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
-                        ]
-                      : world.outcome.level === 9
-                        ? [
-                            {
-                              text: 'Discover the Boat House',
-                              done: world.unlockedBoatHouse,
-                            },
-                            {
-                              text: 'Build the Boat House',
-                              done: world.buildings.some(
-                                building => building.kind === 'boatHouse' && building.progress === 1
-                              ),
-                            },
-                            {
-                              text: 'Send a Brave inside to launch and board a Boat',
-                              done: world.vehicles.some(
-                                vehicle => vehicle.active && vehicle.passengers.length
-                              ),
-                            },
-                          ]
-                        : world.outcome.level === 10
-                          ? [
-                              {
-                                text: 'Board two followers onto the provided Boat',
-                                done: world.vehicles.some(
-                                  vehicle => vehicle.passengers.length >= 2
-                                ),
-                              },
-                              {
-                                text: 'Worship the Totem Pole across the water',
-                                done: world.shrines.some(
-                                  shrine => shrine.kind === 'linkedEffects' && shrine.uses > 0
-                                ),
-                              },
-                              {
-                                text: 'Reach the Totem Pole in the Matak settlement',
-                                done: world.shrines.some(
-                                  shrine => shrine.name === 'Erosion Totem Pole' && shrine.uses > 0
-                                ),
-                              },
-                            ]
-                          : world.outcome.level === 14
-                            ? [
-                                {
-                                  text: 'Claim Angel of Death from the stone head',
-                                  done: world.giftCounts.angel > 0,
-                                },
-                                {
-                                  text: 'Claim Earthquake and Land Bridge together',
-                                  done:
-                                    world.giftCounts.earthquake > 0 && world.giftCounts.bridge > 0,
-                                },
-                                {
-                                  text: 'Cast Angel of Death',
-                                  done: world.effects.some(effect => !!effect.angel),
-                                },
-                              ]
-                            : world.outcome.level === 20
-                              ? [
-                                  {
-                                    text: 'Claim Land Bridge and reveal the next stone head',
-                                    done: world.giftCounts.bridge > 0,
-                                  },
-                                  {
-                                    text: 'Claim Flatten and Firestorm along the linked path',
-                                    done:
-                                      world.giftCounts.flatten > 0 &&
-                                      world.giftCounts.firestorm > 0,
-                                  },
-                                  {
-                                    text: 'Reach the final stone head and claim Volcano',
-                                    done: world.giftCounts.volcano > 0,
-                                  },
-                                ]
-                              : world.outcome.level === 21
-                                ? [
-                                    {
-                                      text: 'Convert Wildmen and send three followers to seal the first fault',
-                                      done:
-                                        world.campaignAIs[1]?.variables[22] === 2 &&
-                                        world.campaignAIs[1]?.variables[28] === 1,
-                                    },
-                                  ]
-                                : world.outcome.level === 22
-                                  ? [
-                                      {
-                                        text: 'Use Land Bridge to claim the southern mana gift',
-                                        done: world.shrines.some(
-                                          shrine =>
-                                            shrine.kind === 'mana' &&
-                                            shrine.rewardMana === 600_000 &&
-                                            shrine.uses > 0
-                                        ),
-                                      },
-                                      {
-                                        text: 'Steal the enemy Boat and Balloon',
-                                        done: [1, 3].every(model =>
-                                          world.vehicles.some(
-                                            vehicle =>
-                                              vehicle.model === model && vehicle.team === 'blue'
-                                          )
-                                        ),
-                                      },
-                                      {
-                                        text: 'Fly north and claim the final mana gift',
-                                        done: world.shrines.some(
-                                          shrine =>
-                                            shrine.kind === 'mana' &&
-                                            shrine.rewardMana === 1_000_000 &&
-                                            shrine.uses > 0
-                                        ),
-                                      },
-                                    ]
-                                  : []
+  const nextMission = missionNumbers.find(mission => mission === world.outcome.level + 1)
   const pendingLoadingPhase = startup === 'loading' ? 'restore' : 'loading'
   return (
     <main
@@ -1599,54 +1393,6 @@ export default function Home() {
               }
               compatibility={
                 <>
-                  <p>
-                    {world.outcome.level === tutorialLevel
-                      ? 'Leave the World View with Return, then learn to move and rotate the camera.'
-                      : world.outcome.level === 1
-                        ? 'Worship for Land Bridge, discover warrior training, then defeat every Dakini follower.'
-                        : world.outcome.level === 2
-                          ? 'Open the way with the Totem Pole, claim Tornado, then defeat every Matak follower.'
-                          : world.outcome.level === 3
-                            ? 'Use Swarm against the Chumara, steal Temple knowledge, then train preachers to turn their followers.'
-                            : world.outcome.level === 4
-                              ? 'Convert Wildmen, discover the Guard Tower, claim Lightning, then defeat the Matak.'
-                              : world.outcome.level === 5
-                                ? 'Claim the Boat from the stone head, board your followers, cross the water, then defeat the Dakini.'
-                                : world.outcome.level === 6
-                                  ? 'Establish your settlement, then defeat both the Chumara and Matak tribes.'
-                                  : world.outcome.level === 7
-                                    ? 'Convert Wildmen, claim Invisibility from the stone head, then conceal followers before engaging the Chumara.'
-                                    : world.outcome.level === 8
-                                      ? 'Claim Firewarrior training from the Vault, build the school, then train ranged defenders against the Dakini.'
-                                      : world.outcome.level === 9
-                                        ? 'Claim Boat House knowledge from the Vault, build at the shore, then send a Brave inside to build and board a Boat.'
-                                        : world.outcome.level === 10
-                                          ? 'Board two followers onto the provided Boat, cross the water, and worship the Totem Pole before the island sinks.'
-                                          : world.outcome.level === 11
-                                            ? 'Explore the Hypnotise, Swamp, and Flatten knowledge sites before facing the Chumara and Matak tribes.'
-                                            : world.outcome.level === 12
-                                              ? 'Prepare for all three Enemy tribes and seek Tornado, Spy Training, and Erosion knowledge.'
-                                              : world.outcome.level === 13
-                                                ? 'Seek Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge before facing the Chumara and Matak tribes.'
-                                                : world.outcome.level === 14
-                                                  ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge before facing all three Enemy tribes.'
-                                                  : world.outcome.level === 15
-                                                    ? 'Free your imprisoned Shaman before the Dakini timer expires.'
-                                                    : world.outcome.level === 16
-                                                      ? 'Claim Bloodlust, cast it on your followers, and use their fighting frenzy against every enemy tribe.'
-                                                      : world.outcome.level === 17
-                                                        ? 'Claim Armageddon and survive the final arena battle against every tribe.'
-                                                        : world.outcome.level === 20
-                                                          ? 'Create new land for war by following the linked stone heads through Land Bridge, Flatten, Firestorm, and Volcano.'
-                                                          : world.outcome.level === 21
-                                                            ? 'Focus mana on Convert Wild, then send three followers to the fault’s Flatten totem before it erupts.'
-                                                            : world.outcome.level === 22
-                                                              ? 'Restore your magic at the southern stone head, cross the water alone, and steal enemy transport to reach the other tribes.'
-                                                              : world.outcome.level === 18 ||
-                                                                  world.outcome.level === 23
-                                                                ? "Prepare for the enemy tribes' powerful magic and seek Armageddon."
-                                                                : null}
-                  </p>
                   <div className="menu-actions">
                     <button
                       className="secondary-button"
@@ -1658,23 +1404,7 @@ export default function Home() {
                       Select Level
                     </button>
                   </div>
-                  {objectives.length > 0 && (
-                    <details className="menu-objectives">
-                      <summary>
-                        Objectives · {objectives.filter(o => o.done).length} / {objectives.length}
-                      </summary>
-                      <ul>
-                        {objectives.map(o => (
-                          <li key={o.text}>
-                            {o.done ? '✓ ' : ''}
-                            {o.text}
-                          </li>
-                        ))}
-                      </ul>
-                    </details>
-                  )}
                   <div className="menu-utilities">
-                    <span>{timeLabel(world.time)}</span>
                     <button
                       onClick={() => {
                         store.change(w => {
@@ -1684,27 +1414,7 @@ export default function Home() {
                     >
                       {world.speed}× game speed
                     </button>
-                    <button
-                      onClick={() => pendingMenuCamera.current.push(scene => scene.zoom(true))}
-                    >
-                      Zoom in
-                    </button>
-                    <button
-                      onClick={() => pendingMenuCamera.current.push(scene => scene.zoom(false))}
-                    >
-                      Zoom out
-                    </button>
-                    <button
-                      onClick={() =>
-                        pendingMenuCamera.current.push(scene =>
-                          scene.focus(shaman ?? HOME, { animate: true })
-                        )
-                      }
-                    >
-                      Focus settlement
-                    </button>
                   </div>
-                  <p>Camera changes apply when you continue.</p>
                   <button
                     className="secondary-button"
                     aria-pressed={!!engine.current?.fpsGraph}
@@ -1738,59 +1448,6 @@ export default function Home() {
                     </select>
                     <span>Fits your window without stretching.</span>
                   </label>
-                  <h3>Controls</h3>
-                  <div className="help-grid">
-                    <span>Click</span>
-                    <strong>Select a follower or give a move / attack order</strong>
-                    <span>Right-click / Escape</span>
-                    <strong>Cancel targeting, then deselect followers · Orders keep running</strong>
-                    <span>Drag on land</span>
-                    <strong>Select a group · Ctrl adds to selection</strong>
-                    <span>Shift Z / X / C / V · Z / X / C / V</span>
-                    <strong>Set camera bookmarks · Recall them</strong>
-                    <span>Ctrl-click / Shift-click</span>
-                    <strong>Toggle a follower / Give an order through friendly followers</strong>
-                    <span>HUD follower buttons</span>
-                    <strong>
-                      Click adds one · Ctrl adds five · Shift adds all · Right-click focuses next
-                    </strong>
-                    <span>Right / middle drag</span>
-                    <strong>Right drag turns the view · middle drag moves it</strong>
-                    <span>Scroll · = / −</span>
-                    <strong>Switch view · WASD to move · Q / E to turn</strong>
-                    <span>↑ / ↓ · ← / →</span>
-                    <strong>
-                      Move forward / back ·{' '}
-                      {gamePreferences.rotation === 'cursor' ? 'Rotate' : 'Pan'} left / right
-                    </strong>
-                    <span>Ctrl + ← / → · Shift</span>
-                    <strong>
-                      {gamePreferences.rotation === 'cursor' ? 'Pan sideways' : 'Rotate'} · Hold
-                      Shift for fast panning
-                    </strong>
-                    <span>Delete / Page Down</span>
-                    <strong>
-                      {gamePreferences.rotation === 'cursor' ? 'Pan sideways' : 'Rotate'} · Ctrl
-                      swaps pan and turn
-                    </strong>
-                    <span>Flip Rotation</span>
-                    <strong>
-                      Keyboard turn direction is{' '}
-                      {gamePreferences.flipRotation ? 'reversed' : 'normal'} · Mouse drag and
-                      sideways pan are unchanged
-                    </strong>
-                    <span>Screen edges</span>
-                    <strong>Move the pointer to an outer edge to scroll</strong>
-                    <span>1–3 / B</span>
-                    <strong>Choose a spell / open buildings</strong>
-                    <span>Space with a building plan</span>
-                    <strong>Rotate the entrance before placing</strong>
-                    <span>F8</span>
-                    <strong>Toggle live FPS, frame times and CPU/render diagnostics</strong>
-                    <span>H / F / G / Space / Esc</span>
-                    <strong>Shaman / focus / guard shaman / pause / cancel</strong>
-                  </div>
-                  <BrowserHelpTips level={world.outcome.level} />
                   <div className="audio-settings">
                     <button
                       className="secondary-button"
@@ -1803,52 +1460,6 @@ export default function Home() {
                   </div>
                   {audioStorageNotice && <p role="status">{audioStorageNotice}</p>}
                   {audioStartNotice && <p role="status">{audioStartNotice}</p>}
-                  <details className="reference-details">
-                    <summary>About this recreation & references</summary>
-                    <p>
-                      Mission 1 reference: The Journey Begins. Terrain, starting objects and shrine
-                      timings were read from the supplied original level file. Building and tree
-                      meshes, texture coordinates, layered unit animations, HUD artwork and
-                      landscape bank c were decoded from the supplied game archive. The browser
-                      renderer approximates the original lighting, terrain displacement and water
-                      animation. Selection voices, spell cues and combat sounds use the original
-                      recordings. Original music and percussion now play alongside environmental
-                      sounds; exact world mixing, activity ownership and the complete native sound
-                      scheduler are still being reconstructed. Village growth and mana use rules
-                      traced from the executable. Combat state selection, pathfinding and defensive
-                      AI still differ from the original.
-                    </p>
-                    <div>
-                      <a
-                        href="https://store.steampowered.com/app/2616430/Populous_The_Beginning/"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Original game & visual references ↗
-                      </a>
-                      <a
-                        href="https://wiki.popre.net/Populous%3A_The_Beginning"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Gameplay reference ↗
-                      </a>
-                      <a
-                        href="https://www.youtube.com/watch?v=kIY_4F47R6Q"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Mark Knight’s original soundtrack ↗
-                      </a>
-                      <a
-                        href="https://sounds.spriters-resource.com/pc_computer/populousbegin/asset/393974/"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Shaman voice reference ↗
-                      </a>
-                    </div>
-                  </details>
                 </>
               }
             />

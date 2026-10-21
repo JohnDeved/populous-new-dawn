@@ -33,7 +33,7 @@ export function pageNearby(scene, overrides = {}) {
       engine: { current: scene }, world: scene.world, ready: true, startup: 'playing',
       menu: false, cheatsOpen: false, selectorOpen: false, nearbyPress,
       store: { getWorld: () => scene.world, change: action => action(scene.world) },
-      menuSession: { current: null }, pendingMenuCamera: { current: [] },
+      menuSession: { current: null },
       setNearbyPressed: value => { pressed = value },
       setMenu: () => {}, setSelectorOpen: () => {}, useCallback: callback => callback, ...overrides,
     }
