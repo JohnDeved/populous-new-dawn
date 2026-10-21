@@ -31,7 +31,7 @@ export async function traceProfileInput(context, report, output, run) {
   } catch (error) { primary ??= error; record.startError = String(error) }
   finally {
     let late = false
-    const stopping = context.tracing.stop({ path })
+    const stopping = Promise.resolve().then(() => context.tracing.stop({ path }))
     void stopping.then(() => { if (late) try { unlinkSync(path) } catch {} }).catch(() => {})
     try {
       await bounded(stopping)

@@ -49,6 +49,38 @@ test('profile trace start failure never dispatches input and still attempts clea
   assert.deepEqual(events, ['start', 'stop'])
 })
 
+test('stalled trace cleanup cannot replace the original timeout and late files are removed', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  const output = directory(t), report = {}, original = Error('original input timeout')
+  let release, reachedStop
+  const stopped = new Promise(resolve => { reachedStop = resolve })
+  const run = traceProfileInput({ tracing: { start: async () => {}, stop: ({ path }) => {
+    reachedStop()
+    return new Promise(resolve => { release = () => { writeFileSync(path, 'late diagnostic'); resolve() } })
+  } } }, report, output, async () => { throw original })
+  await stopped
+  t.mock.timers.tick(1000)
+  await assert.rejects(run, error => error === original)
+  assert.equal(report.inputActionTrace.stopped, false)
+  assert.match(report.inputActionTrace.cleanupError, /diagnostic deadline/)
+  release(); await Promise.resolve(); await Promise.resolve()
+  assert.equal(existsSync(join(output, 'profile-input-trace.zip')), false)
+})
+
+test('a stalled trace start cannot dispatch late gameplay input', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  const output = directory(t), report = {}
+  let release
+  const run = traceProfileInput({ tracing: {
+    start: () => new Promise(resolve => { release = resolve }),
+    stop: async () => { throw Error('not started') },
+  } }, report, output, async () => assert.fail('No late input'))
+  t.mock.timers.tick(1000)
+  await assert.rejects(run, /diagnostic deadline/)
+  release(); await Promise.resolve()
+  assert.equal(report.inputActionTrace.inputStartedMs, undefined)
+})
+
 test('profile scenario keeps original skip budget and owned context closure around the diagnostic', () => {
   const source = readFileSync(new URL('../scripts/local-render/campaign-profile-recovery.mjs', import.meta.url), 'utf8')
   assert.match(source, /if \(!report\.inputActionTrace\)[\s\S]*?traceProfileInput\(page\.context\(\), report, output, \(\) => skipPauseIntroduction\(page\)\)/)
