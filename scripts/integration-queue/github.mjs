@@ -1,3 +1,4 @@
+import { COMPOSED_SOURCE_INPUTS, composedContract } from './composed-profile-artifact.mjs'
 import { SPELL_VISUAL_POLICY, SPELL_VISUAL_JOB, SPELL_VISUAL_INPUTS, validateSpellVisualBrowserJobs,
   readSpellVisualReceiptLog, resolveSpellVisualArtifact } from './spell-visuals-policy.mjs'
 import { spellVisualArtifactUpload, validateSpellVisualArtifactMetadata, spellVisualArchiveLimit } from './spell-visuals-artifact.mjs'
@@ -82,6 +83,14 @@ export class GitHubReader {
   // Explicitly bounded and byte-exact, including PNGs that cannot round-trip UTF-8.
   spellVisualBlob(commit, path) {
     ensure(sha(commit) && SPELL_VISUAL_INPUTS.includes(path), 'Unreviewed spell visuals input')
+    return this.immutableBlob(commit, path)
+  }
+  composedSourceBlob(commit, path) {
+    ensure(sha(commit) && COMPOSED_SOURCE_INPUTS.includes(path), 'Unreviewed composed source input')
+    return this.immutableBlob(commit, path)
+  }
+  immutableBlob(commit, path) {
+    ensure(sha(commit) && (SPELL_VISUAL_INPUTS.includes(path) || COMPOSED_SOURCE_INPUTS.includes(path)), 'Unreviewed immutable source input')
     ensure(typeof this.executeBinary === 'function', 'Binary Git transport must be explicitly injected')
     const prefix = ['--no-replace-objects', '-c', 'core.hooksPath=/dev/null',
       '-c', 'core.fsmonitor=false', '-c', 'core.attributesFile=/dev/null']
@@ -323,10 +332,22 @@ export class GitHubReader {
           }
           if (gate.recoveryRequired && exact.conclusion === 'success')
             this.verifyPauseRecoveryRun(entry, pr, synthetic, exact, jobs, row)
-          if (gate.profileRequired && exact.conclusion === 'success')
-            this.verifyProfileRecoveryRun(entry, pr, synthetic, exact, jobs, row)
-          if (gate.mission10Required && exact.conclusion === 'success')
-            this.verifyMission10Run(entry, pr, synthetic, exact, jobs, row)
+          if (gate.profileRequired && exact.conclusion === 'success') {
+            const proof = this.verifyProfileRecoveryRun(entry, pr, synthetic, exact, jobs, row)
+            if (gate.composedRequired) {
+              ensure(proof && typeof proof.then !== 'function' && proof.composedVerified === true, 'Unresolved composed Profile verifier')
+              row.profileRecoveryVerified = true; row.tornadoVerified = true
+              row.profileRecoveryReceiptSha256 = proof.receiptSha256; row.profileRecoveryCheckId = proof.checkId
+            }
+          }
+          if (gate.mission10Required && exact.conclusion === 'success') {
+            const proof = this.verifyMission10Run(entry, pr, synthetic, exact, jobs, row)
+            if (gate.composedRequired) {
+              ensure(proof && typeof proof.then !== 'function' && proof.composedVerified === true, 'Unresolved composed Mission10 verifier')
+              row.mission10Verified = true; row.spySourceVerified = true
+              row.mission10ReceiptSha256 = proof.receiptSha256; row.mission10CheckId = proof.checkId
+            }
+          }
           if (gate.spellVisualsRequired && exact.conclusion === 'success')
             ensure(this.verifySpellVisualRun(entry, pr, synthetic, exact, jobs, row) === true, 'Unresolved spell visuals verification')
           row.identityVerified =
@@ -343,6 +364,10 @@ export class GitHubReader {
     return runs
   }
   validateBrowserJobs(entry, pr, exact, jobs) {
+    if (entry.profileArtifactPolicy !== undefined) {
+      composedContract({ profileArtifactPolicy: entry.profileArtifactPolicy, browserPolicy: entry.browserPolicy, checkpointVersion: entry.browserCheckpointVersion })
+      ensure(jobs.every(j => j.head_sha === pr.head.sha), 'Composed job head differs')
+    }
     if (entry.browserPolicy === SPELL_VISUAL_POLICY) {
       ensure(entry.browserCheckpointVersion === 4, 'Nine-job policy requires explicit current-v4 contract')
       ensure(validateSpellVisualBrowserJobs(jobs, exact, { policy: SPELL_VISUAL_POLICY, headSha: pr.head.sha }) === true,
@@ -443,16 +468,33 @@ export class GitHubReader {
     row.pauseRecoveryReceiptSha256 = receipt.receiptSha256
     row.pauseRecoveryCheckId = check.id
   }
-  profileEvidence(log, receipt, identity, recoveryOnly = false) {
+  composedExpected(entry, identity) {
+    if (entry.profileArtifactPolicy === undefined) return undefined
+    const contract = { profileArtifactPolicy: entry.profileArtifactPolicy, browserPolicy: entry.browserPolicy,
+      checkpointVersion: entry.browserCheckpointVersion, identity }
+    ensure(composedContract(contract) === true, 'Invalid composed contract')
+    let total = 0
+    contract.sourceBytes = Object.fromEntries(COMPOSED_SOURCE_INPUTS.map(path => {
+      const bytes = this.composedSourceBlob(identity.mergeSha, path)
+      ensure(Buffer.isBuffer(bytes), 'Unresolved composed source blob')
+      total += bytes.length; ensure(total <= 128 * 1024 * 1024, 'Composed source byte bound')
+      return [path, bytes]
+    }))
+    return contract
+  }
+  profileEvidence(log, receipt, identity, recoveryOnly = false, composed) {
     const upload = profileArtifactUpload(log, identity.mergeSha)
     const artifacts = this.pages(`repos/${REPO}/actions/runs/${identity.runId}/artifacts`, 'artifacts')
-    const matchesArtifact = artifacts.filter(artifact => artifact.name === upload.name)
+    const matchesArtifact = artifacts.filter(artifact => artifact.name === upload.name || (composed !== undefined && artifact.id === upload.id))
     ensure(matchesArtifact.length === 1, 'Missing or duplicate profile artifact')
     validateProfileArtifactMetadata(matchesArtifact[0], upload, identity)
     const metadata = this.get(`repos/${REPO}/actions/artifacts/${upload.id}`)
     validateProfileArtifactMetadata(metadata, upload, identity)
     const archive = this.artifactArchive(upload.id)
-    return recoveryOnly ? resolveProfileCasesArtifact(archive, upload, receipt) : resolveProfileArtifact(archive, upload, receipt)
+    const result = recoveryOnly ? resolveProfileCasesArtifact(archive, upload, receipt, composed) : resolveProfileArtifact(archive, upload, receipt)
+    if (composed !== undefined) ensure(result && typeof result.then !== 'function' && result.composedVerified === true,
+      'Unresolved composed Profile artifact')
+    return result
   }
   verifyProfileRecoveryRun(entry, pr, synthetic, exact, jobs, row) {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
@@ -497,9 +539,14 @@ export class GitHubReader {
       inputs: Object.fromEntries(PROFILE_INPUTS.map(path =>
         [path, sha256(this.gitOutput('show', `${synthetic.sha}:${path}`))])),
     }
+    const composed = this.composedExpected(entry, expected.identity)
     if (split) {
-      validateProfileCases(receipt, expected)
-      this.profileEvidence(log, receipt, expected.identity, true)
+      ensure(validateProfileCases(receipt, expected) === true, 'Unresolved Profile validation')
+      const evidence = this.profileEvidence(log, receipt, expected.identity, true, composed)
+      if (composed !== undefined) {
+        ensure(evidence && typeof evidence.then !== 'function' && evidence.composedVerified === true, 'Unresolved composed Profile evidence')
+        return { composedVerified: true, receiptSha256: receipt.receiptSha256, checkId: check.id }
+      }
     } else {
       expected.mission10Evidence = this.profileEvidence(log, receipt, expected.identity)
       validateProfileRecovery(receipt, expected)
@@ -509,15 +556,18 @@ export class GitHubReader {
     row.profileRecoveryReceiptSha256 = receipt.receiptSha256
     row.profileRecoveryCheckId = check.id
   }
-  mission10Evidence(log, receipt, identity) {
+  mission10Evidence(log, receipt, identity, composed) {
     const upload = mission10ArtifactUpload(log, identity.mergeSha)
     const artifacts = this.pages(`repos/${REPO}/actions/runs/${identity.runId}/artifacts`, 'artifacts')
-    const matchesArtifact = artifacts.filter(artifact => artifact.name === upload.name)
+    const matchesArtifact = artifacts.filter(artifact => artifact.name === upload.name || (composed !== undefined && artifact.id === upload.id))
     ensure(matchesArtifact.length === 1, 'Missing or duplicate Mission 10 artifact')
     validateProfileArtifactMetadata(matchesArtifact[0], upload, identity)
     const metadata = this.get(`repos/${REPO}/actions/artifacts/${upload.id}`)
     validateProfileArtifactMetadata(metadata, upload, identity)
-    return resolveMission10Artifact(this.artifactArchive(upload.id), upload, receipt)
+    const result = resolveMission10Artifact(this.artifactArchive(upload.id), upload, receipt, composed)
+    if (composed !== undefined) ensure(result && typeof result.then !== 'function' && result.composedVerified === true,
+      'Unresolved composed Mission10 artifact')
+    return result
   }
   verifyMission10Run(entry, pr, synthetic, exact, jobs, row) {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
@@ -561,8 +611,13 @@ export class GitHubReader {
       inputs: Object.fromEntries(MISSION10_INPUTS.map(path =>
         [path, sha256(this.gitOutput('show', `${synthetic.sha}:${path}`))])),
     }
-    expected.mission10Evidence = this.mission10Evidence(log, receipt, expected.identity)
-    validateMission10Crew(receipt, expected)
+    const composed = this.composedExpected(entry, expected.identity)
+    const evidence = this.mission10Evidence(log, receipt, expected.identity, composed)
+    if (composed !== undefined) ensure(evidence && typeof evidence.then !== 'function' && evidence.composedVerified === true,
+      'Unresolved composed Mission10 evidence')
+    expected.mission10Evidence = composed === undefined ? evidence : evidence.phases
+    ensure(validateMission10Crew(receipt, expected) === true, 'Unresolved Mission10 validation')
+    if (composed !== undefined) return { composedVerified: true, receiptSha256: receipt.receiptSha256, checkId: check.id }
 
     row.mission10Verified = true
     row.mission10ReceiptSha256 = receipt.receiptSha256
