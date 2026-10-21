@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { EventEmitter } from 'node:events'
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, symlinkSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, symlinkSync, rmSync, accessSync, constants } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve, dirname } from 'node:path'
 import vm from 'node:vm'
@@ -16,6 +16,7 @@ import { failPreferenceWrites } from '../scripts/native-ui-evidence/options-stor
 import { holdAudioResume } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
 import { runNativeUiEvidence } from '../scripts/native-ui-evidence/adapter.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from '../scripts/native-ui-evidence/files.mjs'
+import { initializeEpisodeLedger, recordUnstartedFailure } from '../scripts/native-ui-evidence/ledger.mjs'
 
 const read = name => readFileSync(new URL(`../${name}`, import.meta.url), 'utf8')
 const goodEnv = () => ({ GITHUB_EVENT_NAME: 'workflow_dispatch', GITHUB_REPOSITORY: 'JohnDeved/populous-new-dawn',
@@ -140,6 +141,45 @@ test('all seven supplements are mandatory with fixed ownership and unchanged 720
   assert.deepEqual(episodes.map(e => e.capMs), [120000, 120000, 90000, 90000, 90000, 90000, 90000])
   assert.deepEqual(limits, { buildMs: 120000, browserMs: 720000, jobMinutes: 20, maxContexts: 2, maxPages: 2,
     screenshots: 100, artifactBytes: 268435456, logBytes: 8388608, heapMiB: 768, cleanupMs: 5000 })
+})
+test('dependency-import and Chrome-prelaunch failures retain seven explicit unexecuted records', async t => {
+  for (const stage of ['candidate-dependency-import', 'chrome-provenance']) {
+    const root = fixture(t), candidate = resolve(root, 'candidate')
+    put(candidate, 'package.json', '{"type":"module"}')
+    initializeEpisodeLedger(root)
+    const initial = JSON.parse(readFileSync(resolve(root, 'episodes.json'), 'utf8'))
+    assert.equal(initial.status, 'not-run'); assert.equal(initial.cleanupVerified, false)
+    let failure
+    try {
+      if (stage === 'candidate-dependency-import') await candidateDependencyExport(candidate, 'missing-browser-package', 'chromium')
+      else accessSync(resolve(root, 'missing-chrome'), constants.X_OK)
+    } catch (error) { failure = error; recordUnstartedFailure(root, stage, error) }
+    assert.ok(failure)
+    const report = JSON.parse(readFileSync(resolve(root, 'episodes.json'), 'utf8'))
+    assert.equal(report.status, 'failed'); assert.equal(report.failureStage, stage)
+    assert.equal(report.failure, String(failure)); assert.equal(report.cleanupVerified, false)
+    assert.deepEqual(report.episodes.map(record => record.id), episodes.map(episode => episode.id))
+    assert.ok(report.episodes.every(record => record.status === 'not-run' && !record.cleanupVerified && !record.timedOut))
+    assert.throws(() => acceptSeries(report.episodes))
+    recordUnstartedFailure(root, 'browser-worker', Error('aggregate failure'))
+    assert.deepEqual(JSON.parse(readFileSync(resolve(root, 'episodes.json'), 'utf8')), report)
+  }
+})
+test('parent persists initial ledger before build and worker failures cannot replace actual episode outcomes', t => {
+  const runner = read('scripts/native-ui-evidence/run.mjs'), worker = read('scripts/native-ui-evidence/browser-worker.mjs')
+  assert.ok(runner.indexOf('initializeEpisodeLedger(output)') < runner.indexOf('candidateSource = sourceManifest'))
+  assert.match(runner, /recordUnstartedFailure\(output, stage, error\)/)
+  assert.ok(worker.indexOf('try {') < worker.indexOf('await candidateDependencyExport'))
+  assert.match(worker, /stage = 'chrome-launch'/)
+  assert.match(worker, /recordUnstartedFailure\(output, stage, error\)/)
+  const root = fixture(t)
+  initializeEpisodeLedger(root)
+  const file = resolve(root, 'episodes.json'), report = JSON.parse(readFileSync(file, 'utf8'))
+  report.status = 'failed'; report.episodes[0].status = 'failed'; report.episodes[0].error = 'original UI assertion'
+  writeFileSync(file, JSON.stringify(report))
+  const before = readFileSync(file)
+  recordUnstartedFailure(root, 'browser-worker', Error('aggregate failure'))
+  assert.deepEqual(readFileSync(file), before)
 })
 test('baseline, skipped, missing, failed, cancelled and late-success episodes cannot pass aggregate', () => {
   for (const bad of [null, undefined, { baseline: true }, { skipped: true }, { status: 'failed' }, { status: 'skipped' }, { status: 'cancelled' }]) assert.throws(() => acceptEpisode(bad))

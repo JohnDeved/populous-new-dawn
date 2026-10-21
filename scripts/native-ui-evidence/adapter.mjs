@@ -4,11 +4,11 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { episodes, acceptSeries, boundedEpisode } from './policy.mjs'
 import { artifactInventory, ownBrowser } from './browser-owner.mjs'
+import { initialEpisodeReport } from './ledger.mjs'
 
 export async function runNativeUiEvidence({ browser, candidateRoot, infrastructureRoot, url, output, signal }) {
-  const report = { status: 'running', episodes: episodes.map(episode => ({ id: episode.id, owner: episode.owner,
-    path: episode.path, capMs: episode.capMs, status: 'not-run', timedOut: false, cleanupVerified: false })),
-    errors: [], warnings: [], expectedErrors: [], injectedRequests: [], observations: [] }
+  const report = initialEpisodeReport()
+  report.status = 'running'
   const save = () => writeFileSync(resolve(output, 'episodes.json'), JSON.stringify(report, null, 2) + '\n')
   const owner = ownBrowser(browser, output, report)
   let primaryError, cleanupError
