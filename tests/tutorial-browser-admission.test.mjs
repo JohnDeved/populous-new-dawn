@@ -126,7 +126,11 @@ test('candidate snapshot smoke is one read-only bounded functional case, never a
   assert.match(runner, /assert.ok\(browserScenarios.includes\(selectedScenario\)/)
   assert.match(runner, /snapshotScenarioSha256: hash\(snapshotScenario\)/)
   assert.match(runner, /receipt\.snapshotSmoke = await/)
-  assert.match(runner, /if \(selectedScenario === 'snapshot-protocol'\) receipt\.browserBudget = snapshotSmokeBudget\s+else\s+timer = setTimeout/)
+  const timers = runner.slice(runner.indexOf("if (selectedScenario === 'snapshot-protocol') receipt.browserBudget"), runner.indexOf("if (selectedScenario !== 'snapshot-protocol')"))
+  assert.match(timers, /if \(selectedScenario === 'snapshot-protocol'\) receipt\.browserBudget = snapshotSmokeBudget\s+else if \(selectedScenario === 'gameplay-frames'\)/)
+  assert.match(timers, /gameplayAdmission = createGameplayAdmission\(/)
+  assert.match(timers, /} else\s+timer = setTimeout/)
+  assert.equal((timers.match(/timer = setTimeout/g) ?? []).length, 1)
   assert.match(runner, /if \(error.code === 'SNAPSHOT_EPISODE_TIMEOUT'\) receipt.browserTimedOut = true/)
   assert.match(runner, /if \(page\) \{/)
   assert.match(runner, /receipt.failureEvidence = 'candidate-snapshot-smoke.json'/)
@@ -135,7 +139,7 @@ test('candidate snapshot smoke is one read-only bounded functional case, never a
 })
 
 
-test('parsed hosted matrix grants only Tutorial aggregate headroom and preserves other caps', () => {
+test('parsed hosted matrix grants explicit Tutorial and three-episode gameplay admission and preserves other caps', () => {
   const workflow = readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8')
   const job = yaml.load(workflow).jobs['tutorial-browser'], items = job.strategy.matrix.include
   assert.equal(job['timeout-minutes'], '${{ matrix.timeoutMinutes }}')
