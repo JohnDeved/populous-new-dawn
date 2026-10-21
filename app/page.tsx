@@ -845,9 +845,6 @@ export default function Home() {
     })
   const shaman = blue.find(isShaman),
     selected = blue.filter(u => world.selected.includes(u.id))
-  const focused =
-    SPELLS.find(s => s.id === (hover ?? world.mode)) ??
-    BUILDINGS.find(b => b.id === (hover ?? world.mode))
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
   function blockLoadingInteraction(event: SyntheticEvent) {
@@ -1478,13 +1475,6 @@ export default function Home() {
           </button>
         </div>
       </aside>
-      {focused && (
-        <div className="hud-description" role="tooltip">
-          <strong>{focused.name}</strong>
-          <p>{focused.description}</p>
-        </div>
-      )}
-
       {startup === 'choice' && !startupLogoDone && <StartupLogo onComplete={finishStartupLogo} />}
       {startup === 'choice' && startupLogoDone && !startupCampaign && frontendAssets && (
         <OriginalMainMenu
