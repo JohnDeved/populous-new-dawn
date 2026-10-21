@@ -485,3 +485,46 @@ test('native export target uses rendered bounds and real input without invoking 
   assert.match(helper, /examined > 128/)
   assert.equal(m2FunctionalLimitMs, 45000)
 })
+
+
+test('normal M2 establishes closed camera/pointer ownership and restores the same popup for layout', async () => {
+  const { setM2CampaignPopupOpen } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  let open = true, present = true
+  const calls = [], notification = { serial: 7, stringId: 641, oneShot: true }, original = structuredClone(notification)
+  const detail = {
+    count: async () => Number(present),
+    getAttribute: async name => { assert.equal(name, 'open'); return open ? '' : null },
+    locator: selector => selector === 'summary'
+      ? { click: async () => { calls.push('summary'); open = !open } }
+      : { waitFor: async ({ state }) => { assert.equal(selector, '[data-native-campaign-panel]'); assert.equal(state, open ? 'visible' : 'hidden') } },
+  }
+  const page = { locator: selector => {
+    if (selector === '.campaign-messages details[open]') return { count: async () => Number(open) }
+    assert.equal(selector, '.campaign-messages details[data-message-serial="7"]')
+    return detail
+  } }
+  for (const desired of [false, false, true, false, true]) {
+    await setM2CampaignPopupOpen(page, '7', desired)
+    assert.equal(open, desired)
+    assert.deepEqual(notification, original, 'Neither ordinary nor one-shot records are acknowledged by summary toggles')
+  }
+  assert.deepEqual(calls, ['summary', 'summary', 'summary', 'summary'])
+  present = false
+  await assert.rejects(setM2CampaignPopupOpen(page, '7', true), /same campaign notification/)
+  await assert.rejects(setM2CampaignPopupOpen(page, '7"]', true), /real retained campaign/)
+
+  const source = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
+  const normal = source.slice(source.indexOf('const popupSerial ='), source.indexOf("stage('camera-reached')"))
+  assert.ok(normal.indexOf('await setM2CampaignPopupOpen(page, popupSerial, false)') < normal.indexOf("page.keyboard.down(key)"))
+  assert.match(normal, /getComputedStyle\(el\)\.pointerEvents\), 'none'/)
+  const loop = source.slice(source.indexOf('// Keep the original world-route coordinates'), source.indexOf("stage(`viewport-${width}x${height}-captured`)"))
+  const close = loop.indexOf('await setM2CampaignPopupOpen(page, popupSerial, false)'),
+    pointer = loop.indexOf('await moveAndObserve(width - 60, height - 100, true)'),
+    reopen = loop.indexOf('await setM2CampaignPopupOpen(page, popupSerial, true)'),
+    layout = loop.indexOf('assertM2DiagnosticLayout(layout, width, height)')
+  assert.ok(close >= 0 && close < pointer && pointer < reopen && reopen < layout)
+  assert.ok(reopen < loop.indexOf('await checkFrameExport('))
+  assert.match(loop, /pointerPopupState: 'closed', layoutPopupState: 'open', popupSerial/)
+  assert.match(source, /Public close\/reopen retains the complete paused notification state/)
+  assert.equal(m2FunctionalLimitMs, 45000, 'The existing absolute episode budget is unchanged')
+})

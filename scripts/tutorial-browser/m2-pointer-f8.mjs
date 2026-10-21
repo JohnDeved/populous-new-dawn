@@ -16,6 +16,18 @@ export function assertM2Input(before, after) {
   assert.equal(after.turn, before.turn, 'Paused diagnostic must preserve the simulation turn')
 }
 
+// Use the retained notification's public summary, never ACK/Delete or DOM writes.
+export async function setM2CampaignPopupOpen(page, serial, open) {
+  assert.match(serial, /^\d+$/, 'A real retained campaign notification serial is required')
+  const detail = page.locator(`.campaign-messages details[data-message-serial="${serial}"]`)
+  assert.equal(await detail.count(), 1, 'The same campaign notification remains present')
+  if ((await detail.getAttribute('open') !== null) !== open)
+    await detail.locator('summary').click()
+  await detail.locator('[data-native-campaign-panel]').waitFor({ state: open ? 'visible' : 'hidden' })
+  assert.equal(await detail.getAttribute('open') !== null, open)
+  assert.equal(await page.locator('.campaign-messages details[open]').count(), open ? 1 : 0)
+}
+
 export async function finishM2Functional({
   context,
   report,
@@ -328,7 +340,14 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       report.compactMessages = { cases: [] }
       await checkCompactMessages({ page, output, stage, report: report.compactMessages })
     } else {
-      const graph = page.locator('.fps-graph')
+      const graph = page.locator('.fps-graph'),
+        openPopup = page.locator('.campaign-messages details[open]')
+      assert.equal(await openPopup.count(), 1, 'The authored notification is initially open')
+      const popupSerial = await openPopup.getAttribute('data-message-serial')
+      report.campaignPopup = { serial: popupSerial, initiallyOpen: true }
+      report.campaignMessagesBefore = await page.evaluate(() => structuredClone(window.testStore.getWorld().messages))
+      await setM2CampaignPopupOpen(page, popupSerial, false)
+      stage('campaign-closed-for-camera-input')
       await graph.waitFor({ state: 'hidden' })
       await page.keyboard.press('F8')
       await graph.waitFor({ state: 'visible' })
@@ -405,6 +424,15 @@ export default async function runM2Functional({ browser, url, output, fixture, c
         await page.evaluate(
           () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
         )
+        // Keep the original world-route coordinates under closed-popup F8.
+        // The open native body deliberately gives diagnostics a scroll owner.
+        await setM2CampaignPopupOpen(page, popupSerial, false)
+        assert.equal(await graph.evaluate(el => getComputedStyle(el).pointerEvents), 'none')
+        await page.waitForFunction(m2ViewReady, 2)
+        const routed = await moveAndObserve(width - 60, height - 100, true)
+        const sidebar = await moveToHud()
+        await setM2CampaignPopupOpen(page, popupSerial, true)
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
         await page.waitForFunction(m2ViewReady, 2)
         if (width === 640 || width === 1280) {
           report.exports ??= []
@@ -415,9 +443,8 @@ export default async function runM2Functional({ browser, url, output, fixture, c
         report.layouts ??= []
         report.layouts.push({ viewport: [width, height], ...layout })
         assertM2DiagnosticLayout(layout, width, height)
-        const routed = await moveAndObserve(width - 60, height - 100, true)
-        const sidebar = await moveToHud()
-        report.samples.push({ viewport: [width, height], layout, routed, sidebar })
+        report.samples.push({ viewport: [width, height], layout, routed, sidebar,
+          pointerPopupState: 'closed', layoutPopupState: 'open', popupSerial })
         stage(`viewport-${width}x${height}-asserted`)
         await page.screenshot({ path: resolve(output, `m2-pointer-${width}.png`) })
         stage(`viewport-${width}x${height}-captured`)
@@ -443,6 +470,8 @@ export default async function runM2Functional({ browser, url, output, fixture, c
         'New F8 overlay begins with an empty window before RAF'
       )
       report.after = await observe()
+      assert.deepEqual(await page.evaluate(() => structuredClone(window.testStore.getWorld().messages)),
+        report.campaignMessagesBefore, 'Public close/reopen retains the complete paused notification state')
       stage('f8-reset-matched')
       assertM2Input(report.before, report.after)
       await page.getByRole('button', { name: 'Resume game', exact: true }).click()
