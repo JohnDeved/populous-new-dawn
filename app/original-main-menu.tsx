@@ -241,20 +241,20 @@ export function OriginalMainMenu({
   const draw = useCallback(() => {
     const context = canvas.current?.getContext('2d')
     if (context && prepared.composition) {
+      const panelRows =
+        panel === 'options'
+          ? optionRows
+          : panel === 'tutorial-recommendation'
+            ? tutorialRecommendationRows.filter(row =>
+                tutorialParagraphRows.includes(row) ? questionReady : artReady
+              )
+            : frontendQuitRows.filter((_, index) => (index === 0 ? questionReady : artReady))
       const rgba = frontendBackground(
         prepared.composition,
         pointer.current,
         panel === 'main' && !checkpointRecovery.noticeRows.length,
         pointerMode.current ? glowFrame.current : null,
-        panel === 'main'
-          ? checkpointRecovery.shadowRows
-          : panel === 'options'
-            ? optionRows
-            : panel === 'tutorial-recommendation'
-              ? tutorialRecommendationRows.filter(row =>
-                  tutorialParagraphRows.includes(row) ? questionReady : artReady
-                )
-              : frontendQuitRows.filter((_, index) => (index === 0 ? questionReady : artReady)),
+        panel === 'main' ? checkpointRecovery.shadowRows : panelRows,
         canvasWidth,
         logoReady,
         artReady
