@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -36,7 +37,7 @@ export function spellTestDiagnosticSnapshot() {
     sceneStarted: scene?.started, sceneDisposed: scene?.disposed,
     modalSuspended: scene?.modalSuspended, hidden: document.hidden,
     loading: !!document.querySelector('.loading-world'),
-    skipIntroduction: !!document.querySelector('.skip-introduction'),
+    introductionActive: !!(world?.flyby.flags & 1),
     dialogs: [...document.querySelectorAll('dialog[open]')].map(dialog => dialog.getAttribute('aria-label')),
   }
 }
@@ -120,9 +121,7 @@ export default async function spellTestMenu({ browser, url, output }) {
       diagnostics.stage(`${phase}: bind scene`)
       await bindGame(page)
       diagnostics.stage(`${phase}: await input or introduction`)
-      const state = await page.waitForFunction(() => !window.testStore.getWorld().inputMask || document.querySelector('.skip-introduction'))
-      if (await page.locator('.skip-introduction').isVisible()) await page.locator('.skip-introduction').click()
-      await state.dispose()
+      await skipIntroductionWithSpace(page)
       diagnostics.stage(`${phase}: await unlocked input`)
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     }

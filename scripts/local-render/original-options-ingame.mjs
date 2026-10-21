@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
@@ -13,9 +14,9 @@ export default async function({page,output,root,receipt}) {
  await page.setViewportSize({width:1280,height:960});await button('Options').click();await category('Sound');await setVolume('Master volume',4);await setVolume('Music volume',12);await button('Back').click()
  const {bindGame}=await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
  await page.setViewportSize({width:800,height:600});await openCampaignFromMainMenu(page);await button('Start Mission 1').click();await bindGame(page)
- const guard=page.getByRole('button',{name:'Continue anyway',exact:false});if(await guard.isVisible())await guard.click();await page.setViewportSize({width:1280,height:960})
+ await page.setViewportSize({width:1280,height:960})
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
- await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
+ await skipIntroductionWithSpace(page)
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  await button('Enable sound').click();await button('Mute sound').waitFor()
  await button('Game settings').click();await button('Options').click();assert.equal(await button('Back').evaluate(button=>button===document.activeElement),true);await category('Sound')

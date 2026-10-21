@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
@@ -62,7 +63,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),79)
  await page.screenshot({path:resolve(output,'tutorial-ready.png')})
  passed('tutorial-ready')
- const desktop=page.getByRole('button',{name:'Continue anyway',exact:false});if(await desktop.isVisible())await desktop.click()
+
  await page.getByRole('button',{name:'Game settings',exact:true}).click()
  await button('Quit Game').click();await button('Yes').click();await main.waitFor();await noScene()
  passed('tutorial-return-main')
@@ -79,10 +80,9 @@ export default async function({page,browser,url,root,output,receipt}) {
  })
  await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>window.menuTestStore.getWorld().turn),stopped)
  await page.unroute('**/original/landscape.bin');await button('Try again').click();await bindGame(page)
- if(await desktop.isVisible())await desktop.click()
  passed('retry-load-ready')
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
- const skip=page.locator('.skip-introduction');if(await skip.isVisible())await skip.click()
+ await skipIntroductionWithSpace(page)
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  await button('Game settings').click();await button('Save Game').click();await button('Save checkpoint').click()
  await page.getByRole('status').filter({hasText:'Checkpoint saved in this browser.'}).waitFor()
@@ -95,7 +95,6 @@ export default async function({page,browser,url,root,output,receipt}) {
  await page.reload({waitUntil:'domcontentloaded'});await main.waitFor();await noScene()
  assert.equal(await button('Load Game').getAttribute('aria-disabled'),'false')
  await button('Load Game').click();await bindGame(page)
- if(await desktop.isVisible())await desktop.click()
  assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),saved.level)
  assert.ok(await page.evaluate(()=>window.testStore.getWorld().turn)>=saved.turn)
  passed('fresh-checkpoint-load-ready')

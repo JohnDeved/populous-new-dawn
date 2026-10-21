@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 // Focused heading/direction check; not a repeat of the18-phase worship benchmark.
 import assert from 'node:assert/strict'
@@ -54,7 +55,7 @@ async function run() {
       await showAllMissions(page)
       await page.getByRole('button',{name:`Mission ${item.mission}`,exact:true}).press('Enter')
       await bindGame(page)
-      await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
+      await skipIntroductionWithSpace(page)
       await page.waitForFunction(()=>!window.testScene.world.inputMask)
       await page.evaluate(async item=>{
         const {advanceGame}=await import('/app/game-clock.ts'),{stoneHeadFrame}=await import('/app/stone-head-animation.ts')

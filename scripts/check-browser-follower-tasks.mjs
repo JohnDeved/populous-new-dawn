@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
@@ -290,8 +291,7 @@ export default async function followerTasks({ browser, page, url, output, openMi
   await dprPage.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
   await bindGame(dprPage)
   await dprPage.waitForFunction(() => window.testSceneRef.current && (window.testSceneRef.current.world.flyby.flags & 1 || !window.testSceneRef.current.world.inputMask))
-  const skip = dprPage.locator('.skip-introduction')
-  if(await skip.isVisible())await skip.click()
+  await skipIntroductionWithSpace(dprPage)
   await dprPage.waitForFunction(() => !window.testSceneRef.current.world.inputMask)
   await freeze(dprPage)
   await dprPage.getByTitle('followers', { exact: true }).click()

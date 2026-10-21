@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
@@ -36,9 +37,8 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  const initialCamera = await page.evaluate(() => ({ ...globalThis.testScene.viewPoint })),
-    skip = page.getByRole('button', { name: 'Skip introduction', exact: false })
-  await skip.waitFor()
+  const initialCamera = await page.evaluate(() => ({ ...globalThis.testScene.viewPoint }))
+  await page.waitForFunction(() => (window.testStore.getWorld().flyby.flags & 0x51) === 0x11)
   await page.waitForFunction(
     initial => Math.hypot(
       globalThis.testScene.viewPoint.x - initial.x,
@@ -46,7 +46,7 @@ try {
     ) > 0.5,
     initialCamera
   )
-  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  await skipIntroductionWithSpace(page)
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !(world.inputMask & 64)
@@ -129,9 +129,8 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  const missionFiveInitialCamera = await page.evaluate(() => ({ ...globalThis.testScene.viewPoint })),
-    missionFiveSkip = page.getByRole('button', { name: 'Skip introduction', exact: false })
-  await missionFiveSkip.waitFor()
+  const missionFiveInitialCamera = await page.evaluate(() => ({ ...globalThis.testScene.viewPoint }))
+  await page.waitForFunction(() => (window.testStore.getWorld().flyby.flags & 0x51) === 0x11)
   await page.waitForFunction(
     initial => Math.hypot(
       globalThis.testScene.viewPoint.x - initial.x,
@@ -139,7 +138,7 @@ try {
     ) > 0.5,
     missionFiveInitialCamera
   )
-  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  await skipIntroductionWithSpace(page)
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !world.inputMask && world.ai.variables[10] === 2
@@ -290,7 +289,7 @@ try {
       .slice(2, 8)
       .every((spell, index) => spell.interval === [8, 64, 72, 32, 40, 70][index])
   )
-  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  await skipIntroductionWithSpace(page)
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !world.inputMask

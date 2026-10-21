@@ -1,3 +1,4 @@
+import { pressIntroductionSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -26,36 +27,31 @@ function coldLookupFailure() {
   }
 }
 
-// Store/Scene binding and flyby flags may precede React's ready-gated Skip
-// control. Poll for a public actionable state rather than sampling visibility once.
+// Only the native interruptible flyby input gate admits a Space skip.
 export function pauseStartupReady() {
   const world = window.testStore.getWorld()
   if (!world.inputMask) return 'ready'
-  const skip = document.querySelector('button.skip-introduction')
-  return skip && skip.getClientRects().length > 0 &&
-    getComputedStyle(skip).visibility !== 'hidden' && !skip.disabled ? 'skip' : false
+  return (world.inputMask & 64) && (world.flyby.flags & 0x51) === 0x11 ? 'skip' : false
 }
 
 // The introduction may finish between readiness and activation. Always await the
-// bounded public click, and forgive its failure only if input is already unlocked.
+// bounded public Space input, and forgive its failure only if input is already unlocked.
 export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
   if (await page.evaluate(() => !window.testStore.getWorld().inputMask)) return
   try {
-    // The caller re-observes actual input/native readiness. This setup action
-    // need not wait for Playwright's post-click navigation/interceptor work.
-    await page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout, noWaitAfter: true })
+    await pressIntroductionSpace(page, { timeout })
   } catch (error) {
     if (await page.evaluate(() => !!window.testStore.getWorld().inputMask)) throw error
   }
 }
 
 // A later authored flyby can begin after the initial input-unlocked sample.
-// This callback only operates an observed public control, once per readiness
+// This callback only operates an observed interruptible flyby, once per readiness
 // wait. It never changes eligibility or resets the caller's existing deadline.
 export function recoverVisibleIntroduction(page) {
   let attempted = false
   return async ({ after, remainingMs }) => {
-    if (attempted || remainingMs <= 0 || !(after.inputMask & 64) || !after.introductionSkipVisible) return null
+    if (attempted || remainingMs <= 0 || !(after.inputMask & 64) || !after.introductionSkipAvailable) return null
     await skipPauseIntroduction(page, { timeout: Math.min(2500, remainingMs) })
     attempted = true
     return { action: 'public-skip-introduction' }

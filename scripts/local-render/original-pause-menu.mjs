@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
@@ -16,9 +17,9 @@ export default async function({page,output,root}) {
  await page.waitForSelector('.world-viewport canvas')
  const {bindGame:bind}=await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
  await bind(page)
- const desktopStart=page.getByRole('button',{name:'Continue anyway',exact:false});if(await desktopStart.isVisible())await desktopStart.click()
+
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
- await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
+ await skipIntroductionWithSpace(page)
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  await button('Menu').click();await modal.waitFor()
  assert.deepEqual(await modal.locator('nav button').evaluateAll(bs=>bs.map(b=>b.getAttribute('aria-label'))),['Continue Game','Load Game','Save Game','Options','Restart Level','Quit Level','Quit Game','Back'])
@@ -91,12 +92,12 @@ export default async function({page,output,root}) {
  await button('Yes').evaluate(b=>{b.click();b.click()});assert.equal(await page.evaluate(()=>window.restartCalls),1)
  await bindGame(page);passed('restart-confirm-yes-exactly-once')
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
- await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
+ await skipIntroductionWithSpace(page)
  await button('Menu').click();await button('Quit Level').click();await button('Yes').click()
  await page.getByRole('dialog',{name:'Start game',exact:true}).waitFor();assert.equal(await page.locator('.world-viewport canvas').count(),0)
  await button('Back').click();await page.getByRole('dialog',{name:'Main menu',exact:true}).waitFor()
  await button('Tutorial').click();await bindGame(page)
- const desktop=page.getByRole('button',{name:'Continue anyway',exact:false});if(await desktop.isVisible())await desktop.click()
+
  await page.mouse.move(500,300);await page.mouse.down({button:'right'})
  assert.notEqual(await page.evaluate(()=>window.testSceneRef.current.pointerGesture),null)
  await page.keyboard.press('Escape');await modal.waitFor()

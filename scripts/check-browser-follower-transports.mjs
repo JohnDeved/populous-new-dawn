@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
@@ -709,7 +710,7 @@ export default async function followerTransports({ browser, page, url, openMissi
     await dp.goto(url, { waitUntil: 'domcontentloaded' }); await showAllMissions(dp)
     await dp.getByRole('button', { name: 'Mission 22', exact: true }).focus(); await dp.keyboard.press('Enter'); await bindGame(dp)
     await dp.waitForFunction(() => window.testSceneRef.current.world.flyby.flags & 1 || !window.testSceneRef.current.world.inputMask)
-    const skip = dp.locator('.skip-introduction'); if (await skip.isVisible()) await skip.click()
+    await skipIntroductionWithSpace(dp)
     await dp.waitForFunction(() => !window.testSceneRef.current.world.inputMask); await freeze(dp); await clear(dp)
     const dprCraft = await dp.evaluate(async () => {
       const s = window.testSceneRef.current, w = s.world, { addUnit, browserPosition } = await import('/app/model.ts'),

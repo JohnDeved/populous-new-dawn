@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -97,19 +98,14 @@ export function m2LoadReady() {
 
 export function m2StartupReady() {
   const world = window.testStore.getWorld()
-  const button = document.querySelector('button.skip-introduction')
-  const skipVisible =
-    !!button &&
-    button.getClientRects().length > 0 &&
-    getComputedStyle(button).visibility !== 'hidden' &&
-    !button.disabled
-  if (world.inputMask && !skipVisible) return false
+  const skipAvailable = (world.inputMask & 64) !== 0 && (world.flyby.flags & 0x51) === 0x11
+  if (world.inputMask && !skipAvailable) return false
   return {
     action: world.inputMask ? 'skip' : 'ready',
     inputMask: world.inputMask,
     flybyFlags: world.flyby.flags,
     level: world.outcome.level,
-    skipVisible,
+    skipAvailable,
   }
 }
 
@@ -258,17 +254,13 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     await startup.dispose()
     assert.equal(report.startup.level, 2)
     if (report.startup.action === 'skip')
-      await page.getByRole('button', { name: /^Skip introduction/ }).click()
+      await skipIntroductionWithSpace(page)
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     stage('introduction-ready')
-    // Admit the compact viewport through its shipped public notice before the
-    // paused no-orders baseline: Continue intentionally resumes the simulation.
+    // Compact viewports no longer add a browser-authored blocking advisory.
     await page.setViewportSize({ width: 640, height: 480 })
-    const desktopNotice = page.locator('.desktop-recommendation')
-    await desktopNotice.waitFor({ state: 'visible' })
-    await desktopNotice.getByRole('button', { name: /^Continue anyway/ }).click()
-    await desktopNotice.waitFor({ state: 'hidden' })
-    report.compactNoticeDismissed = true
+    assert.equal(await page.locator('.desktop-recommendation').count(), 0)
+    report.compactViewportReady = true
     stage('compact-admitted')
     await page.setViewportSize({ width: 1440, height: 1000 })
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
@@ -479,8 +471,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     failure = error
     try {
       report.failureState = await page.evaluate(() => {
-        const w = window.testStore?.getWorld(),
-          button = document.querySelector('button.skip-introduction')
+        const w = window.testStore?.getWorld()
         return {
           level: w?.outcome.level,
           turn: w?.turn,
@@ -494,8 +485,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
             transitionRemaining: window.testSceneRef.current.viewTransition?.remaining ?? null,
             config: window.testSceneRef.current.view.config,
           },
-          skipVisible: !!button && button.getClientRects().length > 0,
-          skipText: button?.textContent,
+          skipAvailable: !!w && (w.inputMask & 64) !== 0 && (w.flyby.flags & 0x51) === 0x11,
           body: document.body.innerText.slice(0, 2000),
         }
       })

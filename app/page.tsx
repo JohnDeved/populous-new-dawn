@@ -155,7 +155,6 @@ export default function Home() {
   const [selectorOpen, setSelectorOpen] = useState(false)
   const [startupCampaign, setStartupCampaign] = useState(false)
   const [ready, setReady] = useState(false)
-  const [desktopNotice, setDesktopNotice] = useState(true)
   const [error, setError] = useState('')
   const shell = useRef<HTMLElement>(null)
   const hudPanel = useRef<HTMLElement>(null)
@@ -1050,7 +1049,7 @@ export default function Home() {
         if (
           world.inputMask &&
           !(e.target as Element).closest(
-            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
+            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.paused-badge,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
           )
         ) {
           e.preventDefault()
@@ -1064,24 +1063,6 @@ export default function Home() {
       <FullscreenControl />
       <div className="world-viewport" ref={viewport} />
       <div className="world-vignette" />
-      {desktopNotice && (
-        <aside className="desktop-recommendation">
-          <span className="brand-rune">⟡</span>
-          <h2>A world worth a bigger screen.</h2>
-          <p>For the best experience, play on a desktop monitor with a keyboard and mouse.</p>
-          <button
-            className="primary-button"
-            onClick={() => {
-              setDesktopNotice(false)
-              store.change(w => {
-                w.paused = false
-              })
-            }}
-          >
-            Continue anyway <span>↗</span>
-          </button>
-        </aside>
-      )}
       <aside
         className="campaign-messages"
         aria-label="Campaign messages"
@@ -1136,11 +1117,6 @@ export default function Home() {
             )
           })}
       </aside>
-      {ready && !!(world.flyby.flags & 1) && (
-        <button className="skip-introduction" onClick={() => engine.current?.skipIntroduction()}>
-          Skip introduction <kbd>ESC</kbd>
-        </button>
-      )}
       <div className="game-status">
         {ready && routeNotice && (
           <div
@@ -1186,24 +1162,11 @@ export default function Home() {
         )}
       </div>
       {world.mode && (
-        <div className="target-prompt">
-          <span>◎</span> Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'}{' '}
-          <strong>{modeName}</strong>
-          {Object.hasOwn(world.buildingDirections, world.mode) && (
-            <span>
-              Rotate <kbd>SPACE</kbd>
-            </span>
-          )}
-          <button
-            onClick={() => {
-              store.change(w => {
-                w.mode = null
-              })
-            }}
-          >
-            Cancel <kbd>ESC</kbd>
-          </button>
-        </div>
+        <p className="game-a11y-status" role="status">
+          Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'} {modeName}.
+          {Object.hasOwn(world.buildingDirections, world.mode) && ' Space rotates the building.'}
+          {' Escape cancels.'}
+        </p>
       )}
 
       <aside ref={hudPanel} className="native-hud" aria-label="Tribe controls">

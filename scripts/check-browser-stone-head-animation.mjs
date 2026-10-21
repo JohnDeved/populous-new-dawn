@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 // Run only in the canonical queue, using the owned headless page and output path.
 import assert from 'node:assert/strict'
@@ -36,8 +37,7 @@ try {
   await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 1', exact: true }).press('Enter')
   await bindGame(page)
-  const skip = page.getByRole('button', { name: /Skip introduction/ })
-  if (await skip.isVisible()) await skip.click()
+  await skipIntroductionWithSpace(page)
   await bindGame(page)
   await page.waitForFunction(() => !window.testScene.world.inputMask)
   await page.evaluate(async () => {

@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
@@ -48,8 +49,7 @@ export default async function ({ page, root, output, receipt, signal }) {
   const readyAfterOrdinaryIntroduction = async expectedLevel => {
     await bindGame(page)
     await page.waitForFunction(() => !!(window.testSceneRef.current.world.flyby.flags & 1) || !window.testSceneRef.current.world.inputMask)
-    const skip = page.locator('.skip-introduction')
-    if (await skip.isVisible()) await skip.click()
+    await skipIntroductionWithSpace(page)
     const readiness = await waitForShamanReadiness(page, { timeout: 60000 })
     assert.equal(readiness.after.level, expectedLevel)
     await page.keyboard.press('Escape')

@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -66,9 +67,7 @@ export default async function waterShoreAnimation({ page, openMission, output, s
     const restartMenu = await settings()
     await restartMenu.getByRole('button', { name: 'Restart world', exact: true }).click()
     await bindGame(page)
-    const skip = page.locator('.skip-introduction')
-    await skip.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {})
-    if (await skip.isVisible()) await skip.click()
+    await skipIntroductionWithSpace(page)
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await sequence(`m${mission}-restarted`)
   }

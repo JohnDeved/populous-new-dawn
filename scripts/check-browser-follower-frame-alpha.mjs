@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
@@ -138,7 +139,7 @@ export default async function followerFrameAlpha({ browser, page, url, output, o
     await widePage.getByRole('button', { name: 'Mission 1', exact: true }).focus()
     await widePage.keyboard.press('Enter')
     await bindGame(widePage)
-    await widePage.evaluate(() => document.querySelector('.skip-introduction')?.click())
+    await skipIntroductionWithSpace(widePage)
     await widePage.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await freeze(widePage)
     await setScale(widePage, 2)

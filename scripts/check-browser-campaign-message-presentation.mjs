@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
@@ -235,8 +236,7 @@ try {
   await page.evaluate(() => {
     window.testScene = window.testSceneRef.current
   })
-  const skipIntroduction = page.locator('.skip-introduction')
-  if (await skipIntroduction.count()) await skipIntroduction.click()
+  await skipIntroductionWithSpace(page)
   await page.waitForFunction(() => !(window.testStore.getWorld().inputMask & 64))
   await freezePresentation(page)
 

@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 // Issue97 normal Spy lifecycle. PR108 acquisition helpers and stages are reused
 // from their exact reviewed source; the original checker is not modified.
@@ -1212,9 +1213,7 @@ try {
   await stage('normal-opening', async () => {
     await until('authored opening', { kind: 'opening' }, 64)
     await holdRaf(false)
-    const skip = page.getByRole('button', { name: /Skip introduction/ })
-    await skip.waitFor()
-    await skip.click()
+    await skipIntroductionWithSpace(page)
     await page.waitForFunction(
       () =>
         !(window.testStore.getWorld().inputMask & 64) &&

@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 // Independent opt-in episode after the existing compact-layout/picking witnesses.
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
@@ -63,20 +64,7 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
         page.on('crash', () => report.errors.push('Page crashed'))
         const button = name => page.getByRole('button', { name, exact: true })
         await page.goto(`${url}/?hypnotise-fixture=1`, { waitUntil: 'domcontentloaded' })
-        await page.waitForFunction(
-          () =>
-            Object.isFrozen(window.__pndHypnotiseFixture) &&
-            typeof window.__pndHypnotiseFixture?.prepareEarnedHypnotise === 'function'
-        )
-        await showAllMissions(page)
-        await button('Mission 22').click()
-        await bindGame(page)
-        await page.waitForFunction(
-          () =>
-            !window.testStore.getWorld().inputMask || document.querySelector('.skip-introduction')
-        )
-        if (await page.locator('.skip-introduction').isVisible())
-          await page.locator('.skip-introduction').click()
+        await skipIntroductionWithSpace(page)
         await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
         await button('Pause game').click()
         report.preparationStart = await page.evaluate(() =>

@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
@@ -653,9 +654,7 @@ try {
 
   await advanceUntil(page, { type: 'flyby' }, 64, 'Mission 4 opening flyby')
   await releaseRaf(page)
-  const skip = page.getByRole('button', { name: 'Skip introduction', exact: false })
-  await skip.waitFor()
-  await skip.click()
+  await skipIntroductionWithSpace(page)
   await page.waitForFunction(() => !(window.testStore.getWorld().inputMask & 64))
   await page.waitForFunction(
     () => window.testSceneRef.current?.world === window.testStore.getWorld()

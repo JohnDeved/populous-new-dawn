@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
@@ -27,9 +28,9 @@ export default async function({page,url,root,output,receipt}) {
   await button('Try again').click()
   await bindGame(page)
   assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),1)
-  const guard=page.getByRole('button',{name:'Continue anyway',exact:false});if(await guard.isVisible())await guard.click()
+
   await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
-  await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
+  await skipIntroductionWithSpace(page)
   await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
   await button('Game settings').click();await button('Save Game').click();await button('Save checkpoint').click()
   await page.getByText('Checkpoint saved in this browser.',{exact:true}).waitFor()

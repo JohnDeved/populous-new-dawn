@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 // Actual shipped frame pixels and lifecycle; existing map regression assertions run unchanged.
 import assert from 'node:assert/strict'
@@ -96,7 +97,7 @@ export default async function minimapFrameScenario({ browser, page, context, roo
   await page.getByRole('button', { name: 'Game settings', exact: true }).click()
   await menu.getByRole('button', { name: 'Restart world', exact: true }).click()
   await bindGame(page)
-  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  await skipIntroductionWithSpace(page)
   await page.evaluate(() => { window.testScene = window.testSceneRef.current; window.testScene.world.speed = 0; cancelAnimationFrame(window.testScene.frame) })
   frames.push(await capture(page, output, 'restarted'))
   writeFileSync(resolve(output, 'frame-pixels.json'), JSON.stringify(frames, null, 2))
