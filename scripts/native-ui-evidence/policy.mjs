@@ -32,9 +32,10 @@ export function acceptSeries(records) {
 // Closing owned browser resources cancels Playwright operations. Wait for their
 // settlement before admitting another episode. The supervising process kills an
 // uncooperative worker; timeout can never be overwritten by a late success.
-export async function boundedEpisode(run, { capMs, close, signal, setTimer = setTimeout, clearTimer = clearTimeout }) {
+export async function boundedEpisode(run, { capMs, close, signal, setTimer = setTimeout, clearTimer = clearTimeout, now = () => performance.now() }) {
   const controller = new AbortController()
-  let timedOut = false, timer
+  const startedAt = now()
+  let timedOut = false, timer, result, primaryError, cleanupError
   const abort = () => controller.abort(signal?.reason ?? new Error('Series aborted'))
   signal?.addEventListener('abort', abort, { once: true })
   if (signal?.aborted) abort()
@@ -44,16 +45,26 @@ export async function boundedEpisode(run, { capMs, close, signal, setTimer = set
     controller.signal.addEventListener('abort', () => reject(controller.signal.reason), { once: true })
   })
   try {
-    const result = await Promise.race([work, expired])
+    result = await Promise.race([work, expired])
+    if (now() - startedAt >= capMs) {
+      timedOut = true; controller.abort(new Error('Episode deadline exceeded'))
+    }
     controller.signal.throwIfAborted()
     assert.equal(timedOut, false)
     acceptEpisode(result)
-    return result
+  } catch (error) {
+    primaryError = error instanceof Error ? error : new Error(String(error))
   } finally {
     clearTimer(timer)
     signal?.removeEventListener('abort', abort)
     // Keep the supervising worker watchdog active until this settles.
-    await close()
+    try { await close() } catch (error) { cleanupError = error }
     await work.catch(() => {})
   }
+  if (primaryError) {
+    if (cleanupError) primaryError.cleanupError = String(cleanupError)
+    throw primaryError
+  }
+  if (cleanupError) throw cleanupError
+  return result
 }

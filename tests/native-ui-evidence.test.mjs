@@ -14,6 +14,8 @@ import { artifactInventory, ownBrowser } from '../scripts/native-ui-evidence/bro
 import { supervise } from '../scripts/native-ui-evidence/supervise.mjs'
 import { failPreferenceWrites } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
 import { holdAudioResume } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
+import { runNativeUiEvidence } from '../scripts/native-ui-evidence/adapter.mjs'
+import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from '../scripts/native-ui-evidence/files.mjs'
 
 const read = name => readFileSync(new URL(`../${name}`, import.meta.url), 'utf8')
 const goodEnv = () => ({ GITHUB_EVENT_NAME: 'workflow_dispatch', GITHUB_REPOSITORY: 'JohnDeved/populous-new-dawn',
@@ -127,21 +129,37 @@ test('upstream abort and failed cleanup are never accepted as episode success', 
   await assert.rejects(boundedEpisode(async () => ({ status: 'passed' }), { capMs: 1000, close: async () => {}, signal: abort.signal }), /parent stopped/)
   await assert.rejects(boundedEpisode(async () => ({ status: 'passed' }), { capMs: 1000, close: async () => { throw Error('cleanup failed') } }), /cleanup failed/)
 })
+test('monotonic deadline rejects synchronous late success even before timer delivery', async () => {
+  let clock = 0
+  await assert.rejects(boundedEpisode(async () => { clock = 2; return { status: 'passed' } }, {
+    capMs: 1, now: () => clock, setTimer: () => 1, clearTimer() {}, close: async () => {},
+  }), /deadline/)
+})
+test('primary assertion remains primary when cleanup also fails', async () => {
+  const primary = Error('original assertion')
+  await assert.rejects(boundedEpisode(async () => { throw primary }, { capMs: 1000,
+    close: async () => { throw Error('close also failed') } }), error => {
+    assert.equal(error, primary); assert.equal(error.cleanupError, 'Error: close also failed'); return true
+  })
+})
 
 class Page extends EventEmitter {
   routes = new Map()
+  closed = false
   setDefaultTimeout() {} setDefaultNavigationTimeout() {}
   async route(pattern, handler) { this.routes.set(pattern, handler) }
   async unroute(pattern) { this.routes.delete(pattern) }
   async screenshot({ path }) { writeFileSync(path, 'PNG'); return Buffer.from('PNG') }
+  async evaluate() { return { viewport: { width: 640, height: 480 }, dpr: 1, userAgent: 'fixture', renderers: [] } }
+  async close() { this.closed = true; this.emit('close') }
 }
 class Context extends Page {
   children = []
-  pages() { return this.children }
+  pages() { return this.children.filter(page => !page.closed) }
   async newPage() { const page = new Page(); this.children.push(page); this.emit('page', page); return page }
   async close() { this.children = []; this.emit('close') }
 }
-const report = () => ({ errors: [], warnings: [], expectedErrors: [], injectedRequests: [] })
+const report = () => ({ errors: [], warnings: [], expectedErrors: [], injectedRequests: [], observations: [] })
 const fakeBrowser = () => ({ async newContext() { return new Context() }, async close() {} })
 test('owner enforces two contexts, blocks late resource creation and cleans serial episodes', async t => {
   const owner = ownBrowser(fakeBrowser(), fixture(t), report())
@@ -157,6 +175,56 @@ test('owner enforces two pages even across different contexts', async t => {
   const a = await owner.browser.newContext(), b = await owner.browser.newContext()
   await a.newPage(); await b.newPage(); await assert.rejects(b.newPage(), /Page budget/)
   await owner.close()
+})
+test('concurrent contexts reserve capacity before awaiting creation', async t => {
+  const resolves = [], raw = { newContext: () => new Promise(resolve => resolves.push(resolve)), async close() {} }
+  const owner = ownBrowser(raw, fixture(t), report()); owner.beginEpisode()
+  const a = owner.browser.newContext(), b = owner.browser.newContext()
+  await assert.rejects(owner.browser.newContext(), /Context budget/)
+  assert.equal(resolves.length, 2)
+  resolves[0](new Context()); resolves[1](new Context()); await Promise.all([a, b]); await owner.close()
+})
+test('late pending context is closed and cannot reenter a later episode', async t => {
+  let finish
+  const raw = { newContext: () => new Promise(resolve => { finish = resolve }), async close() {} }
+  const owner = ownBrowser(raw, fixture(t), report()); owner.beginEpisode()
+  const pending = owner.browser.newContext(), rejected = assert.rejects(pending, /Late context/)
+  await Promise.resolve()
+  const closing = owner.closeContexts(), context = new Context(); let closes = 0
+  context.close = async () => { closes++; context.emit('close') }
+  finish(context); await closing; await rejected; assert.equal(closes, 1)
+  owner.beginEpisode(); await owner.close()
+})
+test('pending page creation reserves capacity and late pages are closed before cleanup settles', async t => {
+  const context = new Context(), finish = []
+  context.newPage = () => new Promise(resolve => finish.push(() => {
+    const page = new Page(); context.children.push(page); context.emit('page', page); resolve(page)
+  }))
+  const raw = { async newContext() { return context }, async close() {} }
+  const owner = ownBrowser(raw, fixture(t), report()); owner.beginEpisode()
+  const owned = await owner.browser.newContext(), a = owned.newPage(), b = owned.newPage()
+  const rejected = Promise.all([assert.rejects(a, /Late page/), assert.rejects(b, /Late page/)])
+  await assert.rejects(owned.newPage(), /Page budget/)
+  const closing = owner.closeContexts()
+  finish.forEach(resolve => resolve()); await rejected; await closing
+  assert.equal(context.pages().length, 0); await owner.close()
+})
+test('all seven explicit not-run records survive abort before the first episode', async t => {
+  const output = fixture(t), abort = new AbortController(); abort.abort(Error('stop before first'))
+  await assert.rejects(runNativeUiEvidence({ browser: fakeBrowser(), output, signal: abort.signal }), /stop before first/)
+  const receipt = JSON.parse(readFileSync(resolve(output, 'episodes.json')))
+  assert.deepEqual(receipt.episodes.map(record => record.id), episodes.map(episode => episode.id))
+  assert.ok(receipt.episodes.every(record => record.status === 'not-run')); assert.equal(receipt.status, 'failed')
+})
+test('attempt failure remains primary with later episodes not-run and cleanup separately retained', async t => {
+  const output = fixture(t), browser = { async newContext() { throw Error('primary creation failed') }, async close() { throw Error('final cleanup failed') } }
+  await assert.rejects(runNativeUiEvidence({ browser, output, signal: new AbortController().signal }), error => {
+    assert.match(String(error), /primary creation failed/); assert.match(error.cleanupError, /final cleanup failed/); return true
+  })
+  const receipt = JSON.parse(readFileSync(resolve(output, 'episodes.json')))
+  assert.equal(receipt.episodes[0].status, 'failed'); assert.match(receipt.episodes[0].error, /primary creation failed/)
+  assert.ok(receipt.episodes.slice(1).every(record => record.status === 'not-run'))
+  assert.match(receipt.cleanupError, /final cleanup failed/)
 })
 test('expected resource errors require a concrete injected URL and cannot exempt repeated or runtime errors', async t => {
   const evidence = report(), owner = ownBrowser(fakeBrowser(), fixture(t), evidence); owner.beginEpisode()
@@ -195,11 +263,16 @@ test('supervised timeout cannot report success from a late child', async t => {
   const result = await supervise(['-e', 'setTimeout(()=>process.exit(0),5000)'], { cwd: root, log: resolve(root, 'timeout.log'), capMs: 100 })
   assert.equal(result.status, 'failed'); assert.match(result.failure, /deadline/)
 })
-test('preference fixture fails only two writes and preserves reads/unrelated data', () => {
+test('preference fixture fails each key independently while the other write and reads still work', () => {
   const sandbox = { window: {}, DOMException, Storage: class { data = new Map(); setItem(key, value) { this.data.set(key, value) } getItem(key) { return this.data.get(key) } } }
   vm.runInNewContext(`(${failPreferenceWrites.toString()})()`, sandbox)
   const storage = new sandbox.Storage(); storage.setItem('unrelated', 'unchanged'); assert.equal(storage.getItem('unrelated'), 'unchanged')
-  for (const key of ['populous-audio-preferences', 'populous-game-preferences']) assert.throws(() => storage.setItem(key, 'x'), /Controlled/)
+  for (const key of ['populous-audio-preferences', 'populous-game-preferences']) {
+    sandbox.window.blockedPreferenceKey = key
+    assert.throws(() => storage.setItem(key, 'x'), /Controlled/)
+    const other = key === 'populous-audio-preferences' ? 'populous-game-preferences' : 'populous-audio-preferences'
+    storage.setItem(other, 'allowed'); assert.equal(storage.getItem(other), 'allowed')
+  }
   assert.deepEqual([...sandbox.window.preferenceWriteFailures].sort(), ['populous-audio-preferences', 'populous-game-preferences'])
 })
 test('audio fixture holds/rejects only resume and restores the real implementation for recovery', async () => {
@@ -207,6 +280,7 @@ test('audio fixture holds/rejects only resume and restores the real implementati
   const sandbox = { window: {}, DOMException, AudioContext: class { async resume() { originalCalls++; return 'real' } } }
   vm.runInNewContext(`(${holdAudioResume.toString()})()`, sandbox)
   const context = new sandbox.AudioContext(), pending = context.resume()
+  assert.equal(sandbox.window.observedSoundContext, context)
   assert.equal(sandbox.window.soundResumeAttempts, 1); assert.equal(originalCalls, 0)
   sandbox.window.rejectSoundResume(); await assert.rejects(pending, /Controlled/)
   sandbox.window.restoreSoundResume(); assert.equal(await context.resume(), 'real'); assert.equal(originalCalls, 1)
@@ -245,6 +319,35 @@ test('candidate public assets, source manifests and fixed official sandbox confi
   assert.match(runner, /sourceManifest\(candidateRoot, identity\.candidateSha\)/)
   assert.match(runner, /sourceManifest\(infrastructureRoot, identity\.workflowSha, infrastructureInput\)/)
   assert.match(runner, /verifyManifest\(candidateRoot, candidateSource\)/)
-  assert.match(runner, /installedManifest\(resolve\(candidateRoot, 'node_modules'\)\), dependencies/)
+  assert.match(runner, /directoryManifest\(resolve\(candidateRoot, 'node_modules'\)\), dependencies/)
   assert.match(read('scripts/native-ui-evidence/adapter.mjs'), /await owner\.close\(\)/)
+})
+test('Chrome provenance is saved before launch and screenshot observations include actual renderer', () => {
+  const worker = read('scripts/native-ui-evidence/browser-worker.mjs')
+  assert.ok(worker.indexOf('saveBrowser()') < worker.indexOf('await chromium.launch'))
+  assert.match(worker, /sha256: sha256\(config\.browserPath\)/)
+  assert.match(worker, /browser-provenance\.json/)
+  const owner = read('scripts/native-ui-evidence/browser-owner.mjs')
+  assert.match(owner, /UNMASKED_RENDERER_WEBGL/); assert.match(owner, /report\.observations\.push/)
+  const hud = read('scripts/native-ui-evidence/hud-sound-control-style.mjs')
+  assert.match(hud, /observedSoundContext\?\.state === 'running'/)
+  assert.match(hud, /currentTime: window\.observedSoundContext\.currentTime/)
+})
+test('closed build/public manifest rejects added, removed, modified, wrong-type and wrong-target output', t => {
+  const root = fixture(t), candidate = resolve(root, 'candidate'), dist = resolve(root, 'dist')
+  put(candidate, 'public/art/pixel.png', 'image'); put(dist, 'assets/home.js', 'bundle')
+  const built = directoryManifest(dist), links = publicLinks(candidate, built)
+  symlinkSync(links.art.link, resolve(dist, 'art')); verifyBuiltOutput(dist, built, links)
+  put(dist, 'extra.js', 'unexpected'); assert.throws(() => verifyBuiltOutput(dist, built, links)); rmSync(resolve(dist, 'extra.js'))
+  mkdirSync(resolve(dist, 'empty-extra')); assert.throws(() => verifyBuiltOutput(dist, built, links)); rmSync(resolve(dist, 'empty-extra'), { recursive: true })
+  put(dist, 'assets/home.js', 'changed'); assert.throws(() => verifyBuiltOutput(dist, built, links)); put(dist, 'assets/home.js', 'bundle')
+  rmSync(resolve(dist, 'assets/home.js')); assert.throws(() => verifyBuiltOutput(dist, built, links)); put(dist, 'assets/home.js', 'bundle')
+  rmSync(resolve(dist, 'art')); symlinkSync('/wrong/public', resolve(dist, 'art')); assert.throws(() => verifyBuiltOutput(dist, built, links))
+  rmSync(resolve(dist, 'art')); mkdirSync(resolve(dist, 'art')); assert.throws(() => verifyBuiltOutput(dist, built, links))
+})
+test('after receipts distinguish not-captured, not-verified and identical per scope', () => {
+  const result = afterScopes({ missing: { captured: false, verify() { throw Error('must not execute') } },
+    changed: { captured: true, verify() { throw Error('changed input') } }, same: { captured: true, verify() {} } })
+  assert.deepEqual(result.states, { missing: 'not-captured', changed: 'not-verified', same: 'identical' })
+  assert.deepEqual(result.failures, [{ scope: 'changed', error: 'Error: changed input' }])
 })

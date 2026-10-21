@@ -6,7 +6,8 @@ import { limits } from './policy.mjs'
 // owned group on timeout, including Chrome, then wait for close before returning.
 export async function supervise(args, { cwd, log, capMs, env = process.env, inspect = () => {} }) {
   const fd = openSync(log, 'wx')
-  let bytes = 0, failure = null, force, timer, monitor
+  const startedAt = performance.now()
+  let bytes = 0, failure = null, force, timer, monitor, settled = false
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, ['--max-old-space-size=768', ...args], {
       cwd, env: { ...env, NODE_OPTIONS: '', NODE_PATH: '', NODE_COMPILE_CACHE: '', NODE_V8_COVERAGE: '' },
@@ -24,8 +25,11 @@ export async function supervise(args, { cwd, log, capMs, env = process.env, insp
     child.stdout.on('data', chunk); child.stderr.on('data', chunk)
     timer = setTimeout(() => stop('Command deadline exceeded'), capMs)
     monitor = setInterval(() => { try { inspect() } catch (error) { stop(String(error)) } }, 1000)
-    child.on('error', error => { clearTimeout(timer); clearTimeout(force); clearInterval(monitor); closeSync(fd); reject(error) })
+    child.on('error', error => { settled = true; clearTimeout(timer); clearTimeout(force); clearInterval(monitor); closeSync(fd); reject(error) })
     child.on('close', (exitCode, signal) => {
+      if (settled) return
+      settled = true
+      if (performance.now() - startedAt >= capMs) failure ??= 'Command deadline exceeded'
       clearTimeout(timer); clearTimeout(force); clearInterval(monitor); closeSync(fd)
       // An orphan grandchild is not allowed to survive even a normal exit.
       kill('SIGKILL')

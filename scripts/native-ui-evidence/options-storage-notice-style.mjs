@@ -7,9 +7,10 @@ import { candidateModule, ordinaryMission } from './ordinary-mission.mjs'
 // and unrelated storage remain real; no component/world state is injected.
 export function failPreferenceWrites() {
   const set = Storage.prototype.setItem
+  window.blockedPreferenceKey = 'populous-game-preferences'
   window.preferenceWriteFailures = []
   Storage.prototype.setItem = function (key, value) {
-    if (['populous-game-preferences', 'populous-audio-preferences'].includes(key)) {
+    if (key === window.blockedPreferenceKey && ['populous-game-preferences', 'populous-audio-preferences'].includes(key)) {
       window.preferenceWriteFailures.push(key)
       throw new DOMException('Controlled preference write failure', 'SecurityError')
     }
@@ -43,6 +44,7 @@ export default async function ({ browser, url, root, output, signal }) {
         await notice.waitFor()
         const gameCopy = await notice.getAttribute('aria-label')
         assert.match(gameCopy, /browser storage is unavailable/i)
+        assert.equal(await page.evaluate(() => localStorage.getItem('populous-game-preferences')), before[0], 'Failed Game write preserves prior bytes')
         const capture = async category => {
           for (const [width, height] of fallback ? [[320, 240], [640, 480]] : [[640, 480], [1280, 720]]) {
             signal.throwIfAborted(); await page.setViewportSize({ width, height })
@@ -74,10 +76,18 @@ export default async function ({ browser, url, root, output, signal }) {
         await button('Sound').click(); assert.equal(await notice.count(), 0, 'Game failure does not leak into Sound')
         const master = page.getByRole('slider', { name: 'Master volume', exact: true })
         await master.focus(); await page.keyboard.press('Home'); assert.equal(await master.inputValue(), '0')
+        assert.equal(await notice.count(), 0, 'Game-only failure leaves Sound writes available')
+        const savedAudio = await page.evaluate(() => localStorage.getItem('populous-audio-preferences'))
+        assert.equal(JSON.parse(savedAudio).volume, 0)
+        await page.evaluate(() => { window.blockedPreferenceKey = 'populous-audio-preferences' })
+        await page.keyboard.press('End'); assert.equal(await master.inputValue(), '1')
         await notice.waitFor(); await capture('sound')
+        assert.equal(await page.evaluate(() => localStorage.getItem('populous-audio-preferences')), savedAudio, 'Failed Sound write preserves prior bytes')
         await button('Graphics').click(); assert.equal(await notice.count(), 0, 'Storage notices do not leak into unrelated categories')
         await button('Game').click(); assert.equal(await notice.getAttribute('aria-label'), gameCopy)
-        assert.deepEqual(await page.evaluate(() => ['populous-game-preferences', 'populous-audio-preferences'].map(key => localStorage.getItem(key))), before)
+        await options.locator('[data-option-key="rotation"]').click()
+        assert.equal(await notice.count(), 0, 'Sound-only failure leaves Game writes available')
+        assert.ok(await page.evaluate(() => localStorage.getItem('populous-game-preferences')))
         assert.deepEqual(await page.evaluate(() => [...new Set(window.preferenceWriteFailures)].sort()), ['populous-audio-preferences', 'populous-game-preferences'])
         if (fallback) assert.ok(blockedFonts > 0, 'Fallback needs an observed failed font request')
         await page.keyboard.press('Escape')
@@ -87,7 +97,7 @@ export default async function ({ browser, url, root, output, signal }) {
           await button('Continue Game').click()
           assert.equal(await page.locator('[data-original-pause-menu]').count(), 0)
         }
-        report.checks.push(`${skin}/${fallback ? 'fallback' : 'native glyphs'}: independent Game/Sound errors, unchanged stored values, layout and focus`)
+        report.checks.push(`${skin}/${fallback ? 'fallback' : 'native glyphs'}: independent Game/Sound errors, failed-key bytes preserved and other category writes succeed, layout and focus`)
       } finally { await context.close() }
     }
     report.status = 'passed'

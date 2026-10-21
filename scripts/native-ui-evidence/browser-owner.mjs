@@ -28,8 +28,10 @@ export function artifactInventory(root) {
 // Capture actual injected request URLs at route.abort/fulfill, not broad console
 // text filters. Runtime errors always fail, including inside fallback contexts.
 export function ownBrowser(browser, output, report) {
-  const active = new Set(), expected = new Map(), routeHandlers = new WeakMap()
-  let closed = false, admitting = false
+  const active = new Set(), expected = new Map(), routeHandlers = new WeakMap(), pendingContexts = new Set(), pendingPages = new Set()
+  let closed = false, admitting = false, generation = 0
+  const cleanupFailures = []
+  const pageCount = () => [...active].reduce((n, context) => n + context.pages().length, 0)
   function instrumentRoutes(target) {
     const original = target.route.bind(target), unroute = target.unroute.bind(target)
     target.route = async (pattern, handler, options) => {
@@ -55,7 +57,7 @@ export function ownBrowser(browser, output, report) {
     target.unroute = (pattern, handler) => unroute(pattern, handler ? routeHandlers.get(handler) ?? handler : undefined)
   }
   function instrumentPage(page) {
-    assert.ok([...active].reduce((n, context) => n + context.pages().length, 0) <= limits.maxPages, 'Page budget exceeded')
+    assert.ok(pageCount() <= limits.maxPages, 'Page budget exceeded')
     page.setDefaultTimeout(25000); page.setDefaultNavigationTimeout(30000)
     instrumentRoutes(page)
     page.on('pageerror', error => report.errors.push({ kind: 'runtime', text: String(error) }))
@@ -73,28 +75,77 @@ export function ownBrowser(browser, output, report) {
       assert.ok(!closed && admitting, 'No screenshot after cleanup')
       assert.ok(options?.path && resolve(options.path).startsWith(resolve(output) + '/'), 'Screenshot must remain in evidence output')
       assert.ok(artifactInventory(output).screenshots < limits.screenshots, 'Screenshot budget exceeded')
+      const observation = await page.evaluate(() => ({ viewport: { width: innerWidth, height: innerHeight },
+        dpr: devicePixelRatio, userAgent: navigator.userAgent,
+        renderers: [...document.querySelectorAll('.world-viewport canvas, canvas[data-world-scene]')].map(canvas => {
+          const gl = canvas.getContext('webgl2') || canvas.getContext('webgl')
+          if (!gl) return { kind: 'unavailable' }
+          const debug = gl.getExtension('WEBGL_debug_renderer_info')
+          return { kind: 'WebGL', renderer: gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
+            vendor: gl.getParameter(debug ? debug.UNMASKED_VENDOR_WEBGL : gl.VENDOR), version: gl.getParameter(gl.VERSION) }
+        }) }))
+      report.observations.push({ screenshot: relative(output, resolve(options.path)), ...observation })
       const result = await screenshot({ ...options, timeout: Math.min(options.timeout ?? 10000, 10000) })
       artifactInventory(output)
       return result
     }
   }
   const create = browser.newContext.bind(browser)
-  const owned = new Proxy(browser, { get(target, key) {
-    if (key === 'newContext') return async options => {
-      assert.ok(!closed && admitting, 'Browser owner is not admitting resources')
-      assert.ok(active.size < limits.maxContexts, 'Context budget exceeded')
-      const context = await create(options)
+  function createContext(options) {
+    assert.ok(!closed && admitting, 'Browser owner is not admitting resources')
+    assert.ok(active.size + pendingContexts.size < limits.maxContexts, 'Context budget exceeded')
+    const epoch = generation
+    const pending = Promise.resolve().then(() => create(options)).then(async context => {
+      if (closed || !admitting || epoch !== generation) {
+        try { await context.close() } catch (error) { cleanupFailures.push(error) }
+        throw Error('Late context closed after cleanup')
+      }
       active.add(context); instrumentRoutes(context)
-      context.on('page', instrumentPage)
+      const newPage = context.newPage.bind(context)
+      context.newPage = async () => {
+        assert.ok(!closed && admitting && epoch === generation, 'No page creation after cleanup')
+        assert.ok(pageCount() + pendingPages.size < limits.maxPages, 'Page budget exceeded')
+        const pending = Promise.resolve().then(() => newPage()).then(async page => {
+          if (closed || !admitting || epoch !== generation) {
+            try { await page.close() } catch (error) { cleanupFailures.push(error) }
+            throw Error('Late page closed after cleanup')
+          }
+          return page
+        })
+        pendingPages.add(pending)
+        try { return await pending } finally { pendingPages.delete(pending) }
+      }
+      context.on('page', page => {
+        if (closed || !admitting || epoch !== generation) { void page.close().catch(error => cleanupFailures.push(error)); return }
+        instrumentPage(page)
+      })
       context.on('close', () => active.delete(context))
       return context
-    }
+    })
+    pendingContexts.add(pending)
+    return pending.finally(() => pendingContexts.delete(pending))
+  }
+  const owned = new Proxy(browser, { get(target, key) {
+    if (key === 'newContext') return async options => createContext(options)
     if (['newPage', 'newBrowserCDPSession'].includes(key)) throw Error('Unowned browser API is not admitted')
     const value = target[key]; return typeof value === 'function' ? value.bind(target) : value
   } })
   return { browser: owned,
-    beginEpisode() { assert.equal(active.size, 0); assert.equal(closed, false); expected.clear(); admitting = true },
-    async closeContexts() { admitting = false; for (const context of [...active]) await context.close(); assert.equal(active.size, 0) },
-    async close() { closed = true; for (const context of [...active]) await context.close(); await browser.close() },
+    beginEpisode() { assert.equal(active.size + pendingContexts.size + pendingPages.size, 0); assert.equal(closed, false); expected.clear(); admitting = true },
+    async closeContexts() {
+      admitting = false; generation++
+      const results = await Promise.allSettled([...active].map(context => context.close()))
+      await Promise.allSettled([...pendingContexts, ...pendingPages])
+      assert.equal(active.size, 0)
+      const failure = results.find(result => result.status === 'rejected'); if (failure) throw failure.reason
+      if (cleanupFailures.length) throw cleanupFailures[0]
+    },
+    async close() {
+      closed = true; admitting = false; generation++
+      await browser.close()
+      await Promise.allSettled([...pendingContexts, ...pendingPages])
+      for (const context of [...active]) await context.close()
+      if (cleanupFailures.length) throw cleanupFailures[0]
+    },
   }
 }

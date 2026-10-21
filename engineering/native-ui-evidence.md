@@ -30,6 +30,10 @@ public assets are used. The other two supplements and adapter come from reviewed
 infrastructure. Separate Git/blob/SHA-256 manifests bind all candidate tracked
 files and trusted infrastructure files; installed dependencies and build outputs
 are fingerprinted. Before/after verification rejects mutation.
+The final build inventory is closed: the unchanged bundle plus only the recorded
+exact candidate-public symlinks. Added files/directories, missing entries, wrong
+link targets, type changes and byte changes fail. Uncaptured or unverified input
+scopes are labelled as such, never reported as identical.
 
 ## Fixed coverage and budgets
 
@@ -47,6 +51,11 @@ One standard Ubuntu job, 20 minutes, Node heap 768 MiB, 120-second Home build an
 episodes have 120 seconds each; the other five have 90 seconds each. One sandboxed
 official Chrome, at most two contexts/pages, serial cleanup before the next
 episode, and process-group termination on timeout. Any cleanup failure fails.
+Pending context/page creation reserves capacity; late completions are closed
+before another episode can start. Monotonic elapsed checks reject synchronous
+late success even before a timeout callback executes. Primary assertions and
+cleanup failures are retained separately. All seven records exist from the start,
+so an early failure leaves explicit not-run results rather than missing coverage.
 There is no unsandboxed fallback, browser-path override, larger runner or secret.
 
 Artifacts are capped at 256 MiB and 100 screenshots, with each command log capped
@@ -56,6 +65,11 @@ evidence (the violating write is not silently removed). Raw JSON/log/PNG files
 remain for seven days. Dependencies, profiles and build output are not uploaded.
 Expected console resource errors must match concrete requests intentionally
 failed by a supplement; runtime errors and unrelated resource failures still fail.
+Chrome executable/configuration/version provenance is saved before launch, not
+only on success; each screenshot records viewport/DPR and available actual WebGL
+renderer observations. The HUD episode observes the recovered real AudioContext
+running state. Game and Sound storage faults are applied one key at a time and
+verify that the other preference write still succeeds.
 
 Before accepting any UI candidate, inspect the exact workflow/candidate manifests,
 all seven terminal records and raw evidence; inspect pixels and caption images

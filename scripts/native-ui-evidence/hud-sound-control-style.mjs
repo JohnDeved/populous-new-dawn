@@ -9,6 +9,7 @@ export function holdAudioResume() {
   const resume = AudioContext.prototype.resume
   window.soundResumeAttempts = 0
   AudioContext.prototype.resume = function () {
+    window.observedSoundContext = this
     window.soundResumeAttempts++
     return new Promise((resolve, reject) => { window.rejectSoundResume = () => reject(new DOMException('Controlled audio rejection', 'NotAllowedError')) })
   }
@@ -77,6 +78,9 @@ export default async function ({ browser, url, root, output, signal }) {
         await page.evaluate(() => window.restoreSoundResume())
         await control.click()
         await page.waitForFunction(() => document.querySelector('[data-sound-control]')?.dataset.soundEnabled === 'true')
+        await page.waitForFunction(() => window.observedSoundContext?.state === 'running')
+        report.checks.push({ recoveredAudioContext: await page.evaluate(() => ({ state: window.observedSoundContext.state,
+          currentTime: window.observedSoundContext.currentTime, sampleRate: window.observedSoundContext.sampleRate })) })
         assert.equal(await control.getAttribute('aria-label'), 'Mute sound')
         await page.setViewportSize({ width: 640, height: 480 })
         await capture('on-compact', 'Sound On', 'hud-button-hover.png')

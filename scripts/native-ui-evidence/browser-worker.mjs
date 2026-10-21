@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
-import { readdirSync, lstatSync, symlinkSync, accessSync, constants } from 'node:fs'
+import { readdirSync, lstatSync, symlinkSync, accessSync, constants, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
 import { candidateDependency, manualIdentity, separateRoots, git, sha256 } from './identity.mjs'
@@ -15,7 +15,9 @@ const { chromium } = await import(candidateDependency(candidateRoot, '@playwrigh
 const config = browserConfiguration() // Fixed official sandboxed Chrome; no path/flag override.
 accessSync(config.browserPath, constants.X_OK)
 const browserIdentity = { ...config, sha256: sha256(config.browserPath),
-  version: execFileSync(config.browserPath, ['--version'], { encoding: 'utf8' }).trim() }
+  version: execFileSync(config.browserPath, ['--version'], { encoding: 'utf8' }).trim(), status: 'not-launched' }
+const saveBrowser = () => writeFileSync(resolve(output, 'browser-provenance.json'), JSON.stringify(browserIdentity, null, 2) + '\n')
+saveBrowser()
 for (const entry of readdirSync(resolve(candidateRoot, 'public'))) {
   const source = resolve(candidateRoot, 'public', entry)
   symlinkSync(source, resolve(dist, entry), lstatSync(source).isDirectory() ? 'dir' : 'file')
@@ -27,6 +29,7 @@ try {
   server = await preview({ configFile: false, root: resolve(candidateRoot, 'scripts/tutorial-browser/fixture'),
     publicDir: false, build: { outDir: dist }, preview: { host: '127.0.0.1', port: 5198, strictPort: true } })
   browser = await chromium.launch(config.launch)
+  browserIdentity.status = 'launched'; browserIdentity.playwrightVersion = browser.version(); saveBrowser()
   const report = await runNativeUiEvidence({ browser, candidateRoot, infrastructureRoot, output,
     url: 'http://127.0.0.1:5198', signal: abort.signal })
   assert.equal(report.status, 'passed')

@@ -6,16 +6,18 @@ import { episodes, acceptSeries, boundedEpisode } from './policy.mjs'
 import { artifactInventory, ownBrowser } from './browser-owner.mjs'
 
 export async function runNativeUiEvidence({ browser, candidateRoot, infrastructureRoot, url, output, signal }) {
-  const report = { status: 'running', episodes: [], errors: [], warnings: [], expectedErrors: [], injectedRequests: [] }
+  const report = { status: 'running', episodes: episodes.map(episode => ({ id: episode.id, owner: episode.owner,
+    path: episode.path, capMs: episode.capMs, status: 'not-run', timedOut: false, cleanupVerified: false })),
+    errors: [], warnings: [], expectedErrors: [], injectedRequests: [], observations: [] }
   const save = () => writeFileSync(resolve(output, 'episodes.json'), JSON.stringify(report, null, 2) + '\n')
   const owner = ownBrowser(browser, output, report)
+  let primaryError, cleanupError
   try {
     for (const episode of episodes) {
       signal.throwIfAborted()
       owner.beginEpisode()
-      const record = { id: episode.id, owner: episode.owner, path: episode.path, capMs: episode.capMs,
-        status: 'running', timedOut: false, cleanupVerified: false, startedAt: new Date().toISOString() }
-      report.episodes.push(record); save()
+      const record = report.episodes.find(record => record.id === episode.id)
+      record.status = 'running'; record.startedAt = new Date().toISOString(); save()
       const dir = resolve(output, episode.id); mkdirSync(dir)
       try {
         record.result = await boundedEpisode(async signal => {
@@ -50,13 +52,24 @@ export async function runNativeUiEvidence({ browser, candidateRoot, infrastructu
         record.status = 'passed'
       } catch (error) {
         record.status = 'failed'; record.error = String(error); record.stack = error.stack
+        if (error.cleanupError) record.cleanupError = error.cleanupError
         record.timedOut = /deadline|timed out/i.test(String(error))
         throw error
       } finally { record.finishedAt = new Date().toISOString(); save() }
     }
     acceptSeries(report.episodes)
     report.status = 'passed'
-    return report
-  } catch (error) { report.status = 'failed'; throw error }
-  finally { await owner.close(); report.cleanupVerified = true; save(); artifactInventory(output) }
+  } catch (error) { report.status = 'failed'; primaryError = error instanceof Error ? error : new Error(String(error)) }
+  finally {
+    try { await owner.close(); report.cleanupVerified = true }
+    catch (error) { report.cleanupError = String(error); report.status = 'failed'; cleanupError = error }
+    finally {
+      save()
+      try { artifactInventory(output) }
+      catch (error) { report.artifactError = String(error); report.status = 'failed'; cleanupError ??= error; save() }
+    }
+  }
+  if (primaryError) { if (cleanupError) primaryError.cleanupError = String(cleanupError); throw primaryError }
+  if (cleanupError) throw cleanupError
+  return report
 }
