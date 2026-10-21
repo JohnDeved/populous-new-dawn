@@ -290,6 +290,18 @@ export async function assertNativeLockedMissionRejected(page) {
 export async function failureEpisode({page,output,receipt}) {
   await observe(page)
   await page.setViewportSize({width:800,height:600})
+  const textureRequests=[]
+  const recordTexture=event=>{
+    if(textureRequests.length<128) textureRequests.push(event)
+  }
+  page.on('response',response=>{
+    if(new URL(response.url()).pathname.startsWith('/original/world-selector/globes/'))
+      recordTexture({url:new URL(response.url()).pathname,status:response.status()})
+  })
+  page.on('requestfailed',request=>{
+    if(new URL(request.url()).pathname.startsWith('/original/world-selector/globes/'))
+      recordTexture({url:new URL(request.url()).pathname,failure:request.failure()?.errorText})
+  })
   const pattern='**/original/world-selector/globes/sun.png'
   const invalidPng='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGP4DwQACfsD/fteaysAAAAASUVORK5CYII='
   assert.deepEqual(await page.evaluate(async base64=>{const image=new Image();image.src='data:image/png;base64,'+base64;await image.decode();return [image.naturalWidth,image.naturalHeight]},invalidPng),[1,1],'Dimension fixture must decode as an actual 1x1 image')
@@ -341,7 +353,28 @@ export async function failureEpisode({page,output,receipt}) {
     } else await page.keyboard.press(key)
     await page.waitForFunction(previous=>Number(document.querySelector('canvas[data-world-scene]')?.dataset.generation)>previous,generation)
     if(blocked) await failure()
-    else await ready(page)
+    else {
+      try { await ready(page) }
+      catch(error) {
+        // Preserve decisive live state without changing the renderer, extending
+        // its deadline, clearing caches, or treating an unsuccessful retry as pass.
+        try {
+        const state=await page.evaluate(()=>{
+          const canvas=document.querySelector('canvas[data-world-scene]')
+          const retry=document.querySelector('button[data-selector-recovery]')
+          return {hidden:document.hidden,visibilityState:document.visibilityState,
+            activeElement:document.activeElement?.outerHTML.slice(0,1000),
+            canvas:canvas ? {dataset:{...canvas.dataset},width:canvas.width,height:canvas.height,
+              visibility:getComputedStyle(canvas).visibility,rect:canvas.getBoundingClientRect().toJSON()} : null,
+            retry:retry?.outerHTML.slice(0,1500),gameplayCanvases:document.querySelectorAll('.world-viewport canvas').length,
+            dialogs:[...document.querySelectorAll('dialog[open]')].map(node=>({label:node.getAttribute('aria-label'),text:node.textContent.slice(0,1500)}))}
+        })
+        save(output,'scene-retry-failure.json',{key,generation,state,textureRequests,observation:await observation(page),error:String(error)})
+        await page.screenshot({path:resolve(output,'scene-retry-failure.png')})
+        } catch(diagnosticError) { error.diagnosticError=String(diagnosticError) }
+        throw error
+      }
+    }
     await noLaunch()
   }
   const samples=[],observations=[]
