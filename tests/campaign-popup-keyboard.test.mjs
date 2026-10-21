@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import ts from 'typescript'
+import { homePopupSources } from '../scripts/campaign-popup-fixture/home-source.mjs'
 import { createMessages, addMessage, acknowledgeMessage, messageHasDelete, messageIcon, messageText, messageViewPoint } from '../app/messages.ts'
 import { captureCampaignPopupKeys, showCampaignPopup } from '../app/campaign-popup-session.ts'
 import { pageEffect, pageNode, pageSource, evaluatePage } from './support/follower-nearby-page.mjs'
@@ -21,7 +22,8 @@ function fixture() {
   pageEffect("window.addEventListener('keydown', key)",{...bindings,window:{addEventListener(_,fn){game=fn}},openMenu(){calls.cancel++},SPELLS:[],tutorialLevel:79,cancelInteraction(){calls.cancel++},guardShaman(){calls.cancel++},select(){calls.cancel++},setTab(){calls.cancel++},rotateBuildingPlan(){return false},audio:{current:null}})()
   const close=pageEffect('return captureCampaignPopupKeys',bindings)()
   const auto=()=>pageEffect('const opened: number[]',bindings)()
-  const key=(key,type='keydown',repeat=false)=>{let stopped=false,prevented=false;const event={key,code:key===' '?'Space':key,type,repeat,target:outside,preventDefault(){prevented=true},stopImmediatePropagation(){stopped=true}};listeners.get(type)?.(event);if(!stopped&&type==='keydown')game(event);return {stopped,prevented}}
+  let sceneUp;evaluatePage(homePopupSources(new URL('..',import.meta.url).pathname).sceneUp,{window:{},scene:{keys:engine.current.keys,listen(_target,_type,fn){sceneUp=fn}}})
+  const key=(key,type='keydown',repeat=false,modifiers={})=>{let stopped=false,prevented=false;const event={key,code:key===' '?'Space':key,type,repeat,target:outside,...modifiers,preventDefault(){prevented=true},stopImmediatePropagation(){stopped=true}};listeners.get(type)?.(event);if(!stopped&&type==='keydown')game(event);if(!stopped&&type==='keyup')sceneUp(event);return {stopped,prevented}}
   return {auto,key,close,world,calls,document,outside,details,engine,popup,summary,view,Element,element}
 }
 
@@ -58,4 +60,20 @@ test('actual Home manual reopen clears held keys, focuses a positioned record on
   summary.props.onClick(event);assert.equal(f.details.open,true);assert.equal(f.calls.focus,1);assert.deepEqual([...f.engine.current.keys],[])
   summary.props.onClick(event);assert.equal(f.details.open,false);assert.equal(f.calls.focus,1)
   f.close()
+})
+
+
+test('actual scene keyup cannot retain modifiers from exempt Tab/F8/F9 releases',()=>{
+  const f=fixture(),old=globalThis.Element;globalThis.Element=f.Element
+  try {
+    f.auto()
+    for(const [modifier,flag] of [['Shift','shiftKey'],['Control','ctrlKey']])for(const exempt of ['Tab','F8','F9']){
+      f.key(modifier,'keydown',false,{[flag]:true})
+      assert.equal(f.key(exempt,'keydown',false,{[flag]:true}).prevented,false,'Browser Tab and exempt diagnostic keydown default is preserved')
+      assert.deepEqual(f.key(exempt,'keyup',false,{[flag]:true}),{stopped:true,prevented:false},'Release cannot reach the actual scene modifier sampler')
+      f.key(modifier,'keyup')
+      assert.deepEqual([...f.engine.current.keys],[])
+    }
+    f.key('Enter');f.key('Enter','keyup');assert.equal(f.details.open,false);assert.deepEqual([...f.engine.current.keys],[])
+  } finally {f.close();globalThis.Element=old}
 })

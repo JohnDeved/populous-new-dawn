@@ -25,7 +25,13 @@ export function captureCampaignPopupKeys(
       wasHeld = held.has(token)
     if (releasing) held.delete(token)
     if (!popup && !wasHeld) return
-    if (event.key === 'F8' || event.key === 'F9' || event.key === 'Tab') return
+    if (event.key === 'F8' || event.key === 'F9' || event.key === 'Tab') {
+      // Their keydown owners/defaults remain available. Scene keyup also
+      // samples modifiers, so forwarding releases would reintroduce held
+      // camera modifiers whose later release is owned by this popup.
+      if (releasing) event.stopImmediatePropagation()
+      return
+    }
     const target = event.target instanceof Element ? event.target : null
     const activation = event.key === 'Enter' || event.key === ' '
     const browserAction =

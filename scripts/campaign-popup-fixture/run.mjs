@@ -97,6 +97,12 @@ try {
    await auto();const before=await homeRead();assert.deepEqual(before.keys,[],'Opening clears previously held camera/modifier input')
    assert.equal(await page.evaluate(focus=>document.activeElement===(focus==='body'?document.body:document.querySelector('.world-viewport')),focus),true,'Automatic opening does not steal focus')
    for(const key of ['Space','Escape','h','g','f','b','1','z','ArrowUp']){await page.keyboard.press(key);assert.deepEqual(await homeRead(),before,`${focus}: popup owns ${key} before actual Home/scene gameplay`)}
+   for(const modifier of ['Shift','Control'])for(const exempt of ['Tab','F8','F9']){
+     await page.keyboard.down(modifier);await page.keyboard.press(exempt);await page.keyboard.up(modifier)
+     assert.deepEqual((await homeRead()).keys,[],`${modifier}+${exempt} release cannot re-add a stuck scene modifier`)
+     await page.evaluate(focus=>{const node=focus==='body'?document.body:document.querySelector('.world-viewport');node.focus()},focus)
+     assert.deepEqual(await homeRead(),before,'Exempt key sequences preserve native popup/world state and browser focus can return')
+   }
    await page.keyboard.down('Enter');await page.keyboard.down('Enter');await page.keyboard.up('Enter')
    const after=await homeRead();assert.equal(after.acknowledgments,1,'Held Enter produces exactly one ACK click');assert.ok(after.world.messages.slots[0]);assert.deepEqual(after.calls,before.calls);assert.equal(after.world.paused,true);assert.equal(await page.locator('details[open]').count(),0)
    assert.equal(await page.locator('summary').evaluate(n=>n===document.activeElement),true,'Retained notification is the explicit browser focus return')
