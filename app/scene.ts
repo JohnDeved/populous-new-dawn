@@ -898,9 +898,13 @@ export class GameScene {
     if (document.hidden) this.fpsGraph?.reset('Hidden tab · sampling stopped')
     this.previous = now
     if (!document.hidden) {
-      const previousPhase = `${Math.floor(this.resultClock.inputCycles / 4) & 1}:${Math.floor(this.resultClock.inputCycles / 6) & 1}`
+      const previousPhase =
+        ((Math.floor(this.resultClock.inputCycles / 4) & 1) << 1) |
+        (Math.floor(this.resultClock.inputCycles / 6) & 1)
       advanceResultClock(this.resultClock, dt)
-      const nextPhase = `${Math.floor(this.resultClock.inputCycles / 4) & 1}:${Math.floor(this.resultClock.inputCycles / 6) & 1}`
+      const nextPhase =
+        ((Math.floor(this.resultClock.inputCycles / 4) & 1) << 1) |
+        (Math.floor(this.resultClock.inputCycles / 6) & 1)
       if (this.world.status !== 'playing' && previousPhase !== nextPhase) this.onChange()
     }
     // Pause menus freeze the entire presentation, not ordinary Space pause.

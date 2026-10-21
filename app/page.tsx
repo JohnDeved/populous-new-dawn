@@ -164,6 +164,7 @@ export default function Home() {
   const [debugPicker, setDebugPicker] = useState(false)
   const [startupCampaign, setStartupCampaign] = useState(false)
   const [ready, setReady] = useState(false)
+  const [resultInputCycles, setResultInputCycles] = useState(0)
   const [error, setError] = useState('')
   const shell = useRef<HTMLElement>(null)
   const hudPanel = useRef<HTMLElement>(null)
@@ -490,6 +491,7 @@ export default function Home() {
           () => {
             if (disposed) return
             if (scene) {
+              setResultInputCycles(scene.resultClock.inputCycles)
               const { x, y } = scene.cameraPosition
               setHudCamera(previous => (previous.x === x && previous.y === y ? previous : { x, y }))
             }
@@ -598,9 +600,9 @@ export default function Home() {
         cheatsOpen ||
         selectorOpen ||
         debugPicker ||
-        Array.from(messageDetails.current.values()).some(details => details.open) ||
+        [...messageDetails.current.values()].some(details => details.open) ||
         (event.target as HTMLElement | null)?.closest(
-          'input,textarea,select,dialog,button,a,[contenteditable]'
+          'input,textarea,select,dialog,a,[contenteditable],[data-fullscreen-control],.fps-graph'
         ) ||
         event.ctrlKey ||
         event.metaKey ||
@@ -656,15 +658,35 @@ export default function Home() {
         update()
       }
     }
-    const up = (event: KeyboardEvent) => resultKeys.up(event)
+    const up = (event: KeyboardEvent) => {
+      resultKeys.up(event)
+      if (
+        (event.code !== 'Space' && event.key !== ' ') ||
+        !ready ||
+        startup !== 'playing' ||
+        store.getWorld() !== world ||
+        !resultSession.stage(world) ||
+        menu ||
+        cheatsOpen ||
+        selectorOpen ||
+        debugPicker ||
+        [...messageDetails.current.values()].some(details => details.open) ||
+        (event.target as HTMLElement | null)?.closest(
+          'input,textarea,select,dialog,a,[contenteditable],[data-fullscreen-control],.fps-graph'
+        )
+      )
+        return
+      event.preventDefault()
+      event.stopImmediatePropagation()
+    }
     const reset = () => resultKeys.reset()
-    window.addEventListener('keydown', key, true)
-    window.addEventListener('keyup', up, true)
-    window.addEventListener('blur', reset)
+    globalThis.addEventListener('keydown', key, true)
+    globalThis.addEventListener('keyup', up, true)
+    globalThis.addEventListener('blur', reset)
     return () => {
-      window.removeEventListener('keydown', key, true)
-      window.removeEventListener('keyup', up, true)
-      window.removeEventListener('blur', reset)
+      globalThis.removeEventListener('keydown', key, true)
+      globalThis.removeEventListener('keyup', up, true)
+      globalThis.removeEventListener('blur', reset)
     }
   }, [
     world,
@@ -685,7 +707,7 @@ export default function Home() {
         !ready ||
         menu ||
         cheatsOpen ||
-        Array.from(messageDetails.current.values()).some(details => details.open) ||
+        [...messageDetails.current.values()].some(details => details.open) ||
         (e.key === 'Escape' && e.repeat) ||
         e.ctrlKey ||
         e.metaKey ||
@@ -736,14 +758,17 @@ export default function Home() {
         if (!e.repeat) {
           store.change(w => {
             if (rotateBuildingPlan(w)) audio.current?.cue(0x26)
-            else w.paused = !w.paused
+            else {
+              w.paused = !w.paused
+              if (!w.paused && engine.current?.world === w) engine.current.focusPauseOwned = false
+            }
           })
         }
       }
       update()
     }
-    window.addEventListener('keydown', key)
-    return () => window.removeEventListener('keydown', key)
+    globalThis.addEventListener('keydown', key)
+    return () => globalThis.removeEventListener('keydown', key)
   }, [world, update, store, ready, openMenu, menu, cheatsOpen])
   useEffect(() => {
     void audio.current?.setPaused(world.paused || document.hidden).catch(() => {
@@ -885,6 +910,7 @@ export default function Home() {
     if (request.kind === 'tutorial') store.startTutorial()
     if (request.kind === 'restart') store.restart()
     setDebugPicker(false)
+    setResultInputCycles(0)
     menuSession.current = null
     cancelNearbyInput()
     if (engine.current) engine.current.nearbyFollowersHudActive = false
@@ -1460,7 +1486,7 @@ export default function Home() {
           player={world.manaWorld.playerTribe + 1}
           time={world.time}
           stage={statisticsVisible ? 'statistics' : 'terminal-overlay'}
-          inputCycles={engine.current?.resultClock.inputCycles ?? 0}
+          inputCycles={resultInputCycles}
         />
       )}
       {debugPicker && (

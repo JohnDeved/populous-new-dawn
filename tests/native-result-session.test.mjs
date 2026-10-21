@@ -83,7 +83,7 @@ function inputFixture(options={}) {
   const store={getWorld:()=>world,enterCampaignSelector:()=>{admissions++;return options.accepted!==false}}
   const popup={open:false}
   const cleanup=pageEffect('resultKeys.down(event)',{
-    window, world, store, ready:true, startup:'playing', menu:false, cheatsOpen:false, selectorOpen:false, debugPicker:false,
+    globalThis:window, window, world, store, ready:true, startup:'playing', menu:false, cheatsOpen:false, selectorOpen:false, debugPicker:false,
     resultSpaceEligible, engine:{current:scene}, resultKeys:keys, resultSession:session, messageDetails:{current:new Map([[1,popup]])},
     audio:{current:{reset(){resets++}}},setSelectorOpen(value){selector=value},update(){},
   })()
@@ -91,12 +91,12 @@ function inputFixture(options={}) {
     const event=new Event('keydown',{cancelable:true})
     Object.assign(event,{key,code:key===' '?'Space':key,repeat:false,ctrlKey:false,metaKey:false,altKey:false,shiftKey:false,...extra})
     // EventTarget provides target=window; closest is the browser boundary here.
-    window.closest=()=>options.editor?'input':null
+    window.closest=selector=>options.editor?'input':options.hudButton && selector.split(',').includes('button')?{tagName:'BUTTON'}:null
     window.dispatchEvent(event)
     return event.defaultPrevented
   }
   function up(){const event=new Event('keyup');Object.assign(event,{key:' ',code:'Space'});window.dispatchEvent(event)}
-  return {world,scene,popup,session,key,up,cleanup,get admissions(){return admissions},get resets(){return resets},get selector(){return selector}}
+  return {window,world,scene,popup,session,key,up,cleanup,get admissions(){return admissions},get resets(){return resets},get selector(){return selector}}
 }
 
 test('actual Home result input performs two fresh Space stages, rejects Enter/repeat, and deduplicates exit',()=>{
@@ -135,4 +135,24 @@ test('actual Home tutorial bypasses statistics and rejected selector admission r
     assert.equal(failed.session.stage(failed.world),'statistics');assert.equal(failed.resets,0)
     failed.up();failed.key();assert.equal(failed.admissions,2)
   }finally{tutorial.cleanup();failed.cleanup()}
+})
+
+test('gameplay focus-pause resume clears its owner before a later terminal Space',()=>{
+  const f=inputFixture();f.world.status='playing';f.world.paused=true;f.scene.focusPauseOwned=true
+  const cleanup=pageEffect("if (e.key.toLowerCase() === 'g')",{
+    globalThis:f.window,window:f.window,world:f.world,store:{getWorld:()=>f.world,change(action){action(f.world)}},ready:true,
+    menu:false,cheatsOpen:false,messageDetails:{current:new Map()},SPELLS:[],rotateBuildingPlan:()=>false,
+    engine:{current:f.scene},audio:{current:null},update(){},openMenu(){},tutorialLevel:79,
+  })()
+  try {
+    f.key();assert.equal(f.world.paused,false);assert.equal(f.scene.focusPauseOwned,false)
+    cleanup();f.up();f.world.status='won';f.key()
+    assert.equal(f.session.stage(f.world),'statistics')
+  }finally{cleanup();f.cleanup()}
+})
+
+test('terminal Space from a native HUD button is captured instead of activating gameplay',()=>{
+  const f=inputFixture({hudButton:true})
+  try{assert.equal(f.key(),true);assert.equal(f.session.stage(f.world),'statistics');f.up();f.key();assert.equal(f.admissions,1)}
+  finally{f.cleanup()}
 })
