@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, writeFileSync, existsSync, rmSync, readFileSync } from 'node:fs'
+import { mkdtempSync, writeFileSync, existsSync, rmSync, readFileSync, readdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { traceProfileInput } from '../scripts/tutorial-browser/profile-input-trace.mjs'
@@ -13,6 +13,8 @@ function directory(t) {
 
 test('profile trace brackets only the unchanged real input and retains bounded raw bytes', async t => {
   const output = directory(t), events = [], bytes = Buffer.from('supplied trace bytes'), report = {}
+  const previous = join(output, 'profile-input-trace.zip')
+  writeFileSync(previous, 'preexisting evidence')
   const context = { tracing: {
     start: async options => { assert.deepEqual(options, { screenshots: false, snapshots: false, sources: false }); events.push('start') },
     stop: async ({ path }) => { events.push('stop'); writeFileSync(path, bytes) },
@@ -22,14 +24,15 @@ test('profile trace brackets only the unchanged real input and retains bounded r
   assert.deepEqual(Buffer.from(report.inputActionTrace.archive.base64, 'base64'), bytes)
   assert.equal(report.inputActionTrace.stopped, true)
   assert.equal(report.inputActionTrace.status, 'retained')
-  assert.equal(existsSync(join(output, 'profile-input-trace.zip')), false)
+  assert.equal(readFileSync(previous, 'utf8'), 'preexisting evidence')
+  assert.deepEqual(readdirSync(output), ['profile-input-trace.zip'], 'Only the exclusive temporary directory is removed')
 })
 
 test('profile trace retains the original input failure despite stop errors or excessive diagnostic bytes', async t => {
   for (const mode of ['stop-error', 'oversize']) {
     const output = directory(t), report = {}, original = Error('original 2500ms input failure')
     const context = { tracing: { start: async () => {}, stop: async ({ path }) => {
-      if (mode === 'stop-error') throw Error('trace stop failed')
+      if (mode === 'stop-error') { writeFileSync(path, 'partial ZIP'); throw Error('trace stop failed') }
       writeFileSync(path, Buffer.alloc(512 * 1024 + 1))
     } } }
     await assert.rejects(traceProfileInput(context, report, output, async () => { throw original }), error => error === original)
@@ -37,6 +40,7 @@ test('profile trace retains the original input failure despite stop errors or ex
     assert.equal(report.inputActionTrace.status, 'diagnostic-failed')
     assert.equal(report.inputActionTrace.archive, undefined)
     assert.equal(existsSync(join(output, 'profile-input-trace.zip')), false)
+    assert.deepEqual(readdirSync(output), [], 'Rejected partial writes are cleaned too')
   }
 })
 
@@ -65,6 +69,22 @@ test('stalled trace cleanup cannot replace the original timeout and late files a
   assert.match(report.inputActionTrace.cleanupError, /diagnostic deadline/)
   release(); await Promise.resolve(); await Promise.resolve()
   assert.equal(existsSync(join(output, 'profile-input-trace.zip')), false)
+  assert.deepEqual(readdirSync(output), [])
+})
+
+test('late rejected stop also removes its exclusively owned partial trace', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  const output = directory(t), report = {}, original = Error('original input timeout')
+  let rejectStop, reachedStop
+  const stopped = new Promise(resolve => { reachedStop = resolve })
+  const run = traceProfileInput({ tracing: { start: async () => {}, stop: ({ path }) => {
+    reachedStop()
+    return new Promise((_, reject) => { rejectStop = () => { writeFileSync(path, 'partial late ZIP'); reject(Error('late failure')) } })
+  } } }, report, output, async () => { throw original })
+  await stopped; t.mock.timers.tick(1000)
+  await assert.rejects(run, error => error === original)
+  rejectStop(); await Promise.resolve(); await Promise.resolve()
+  assert.deepEqual(readdirSync(output), [])
 })
 
 test('a stalled trace start cannot dispatch late gameplay input', async t => {

@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { readFileSync, statSync, unlinkSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const diagnosticMs = 1000, maximumBytes = 512 * 1024
@@ -19,7 +19,8 @@ export async function traceProfileInput(context, report, output, run) {
   const record = report.inputActionTrace = { status: 'starting', options: {
     screenshots: false, snapshots: false, sources: false,
   }, diagnosticMs, maximumBytes }, started = performance.now(),
-    path = resolve(output, 'profile-input-trace.zip')
+    directory = mkdtempSync(resolve(output, '.profile-input-trace-')),
+    path = resolve(directory, 'trace.zip')
   let value, primary, stopped = false
   try {
     await bounded(context.tracing.start(record.options))
@@ -30,9 +31,14 @@ export async function traceProfileInput(context, report, output, run) {
     finally { record.inputFinishedMs = performance.now() - started }
   } catch (error) { primary ??= error; record.startError = String(error) }
   finally {
-    let late = false
+    let late = false, stopSettled = false
+    const remove = () => {
+      try { rmSync(directory, { recursive: true, force: true }) }
+      catch (error) { record.removeError = String(error) }
+    }
     const stopping = Promise.resolve().then(() => context.tracing.stop({ path }))
-    void stopping.then(() => { if (late) try { unlinkSync(path) } catch {} }).catch(() => {})
+    const settled = () => { stopSettled = true; if (late) remove() }
+    void stopping.then(settled, settled)
     try {
       await bounded(stopping)
       stopped = true
@@ -46,9 +52,10 @@ export async function traceProfileInput(context, report, output, run) {
     finally {
       record.stopped = stopped
       record.elapsedMs = performance.now() - started
-      // This is solely the temporary trace created above; the bounded JSON copy
-      // is retained by the existing workflow. No production or prior evidence.
-      if (stopped) try { unlinkSync(path) } catch (error) { record.removeError = String(error) }
+      // This fresh exclusive directory contains only our temporary trace. Remove
+      // partial output after either stop outcome; late settlement also removes it.
+      // The bounded JSON copy is retained by the existing workflow.
+      if (stopSettled) remove()
     }
   }
   if (primary) throw primary
