@@ -282,7 +282,14 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
     physical(target_parent)
     physical(pool.parent)
     require(os.stat(target_parent).st_dev == os.stat(pool.parent).st_dev, 'Pool and runtime need the same filesystem')
-    roots = {p: (p.stat().st_dev, p.stat().st_ino) for p in (target_parent, pool.parent)}
+    roots = {}
+    for path in (target_parent, pool.parent, pool, pool / 'blobs', pool / ASSET_TREES,
+                 pool / ASSET_TREES / state['assetTree']):
+        physical(path, absent=True)
+        if path.exists():
+            info = path.stat()
+            require(info.st_dev == target_parent.stat().st_dev, 'Allocation roots must share one filesystem')
+            roots[path] = (info.st_dev, info.st_ino)
     records = []
     reader = Blobs(source)
     try:
@@ -297,6 +304,8 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
             'Insufficient destination capacity for new allocations and unchanged reserve')
     pool.mkdir(exist_ok=True)
     physical(pool)
+    require(pool.stat().st_dev == target_parent.stat().st_dev, 'Allocation pool filesystem changed')
+    roots.setdefault(pool, (pool.stat().st_dev, pool.stat().st_ino))
     lock = pool / '.writer-lock'
     lock.mkdir()  # Fail closed on an active or abandoned publisher; never remove another lock.
     blobs = None

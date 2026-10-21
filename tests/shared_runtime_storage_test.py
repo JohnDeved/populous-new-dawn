@@ -498,6 +498,22 @@ globalThis.sharedAssetResult = { runtime, provenance };
         self.assertFalse(runtime.exists())
         self.assertTrue((self.pool / 'retained-original').is_file())
 
+    def test_existing_pool_on_another_filesystem_is_refused_before_budgeting(self):
+        self.pool.mkdir()
+        original_stat = Path.stat
+        def stat(path, *args, **kwargs):
+            value = original_stat(path, *args, **kwargs)
+            if path == self.pool:
+                fields = list(value)
+                fields[2] += 1  # st_dev, retaining real directory type and other fields.
+                return os.stat_result(fields)
+            return value
+        with mock.patch.object(Path, 'stat', stat):
+            with self.assertRaisesRegex(ValueError, 'one filesystem'):
+                self.prepare()
+        self.assertFalse(self.runtime.exists())
+        self.assertFalse((self.pool / '.writer-lock').exists())
+
     def test_writer_lock_is_never_stolen(self):
         self.pool.mkdir(); (self.pool / '.writer-lock').mkdir()
         with self.assertRaises(FileExistsError):
