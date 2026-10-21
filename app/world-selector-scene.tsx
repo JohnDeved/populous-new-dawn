@@ -165,9 +165,7 @@ export function WorldSelectorScene({
                   previous.includes(name) ? previous : [...previous, name]
                 )
               }
-              onError={() =>
-                setRecoveryFonts(previous => previous.filter(font => font !== name))
-              }
+              onError={() => setRecoveryFonts(previous => previous.filter(font => font !== name))}
             />
           ))}
           <p role="status">
