@@ -380,3 +380,20 @@ mechanical/weighted refresh is introduced. Source-bound synthetic negative tests
 support the reader only; actual hosted Chrome and both episode results remain
 mandatory for future admission. See the [passive support contract](../scripts/integration-queue/README.md#passive-nine-job-spell-visuals-reader-support)
 for exact transport, binary Git hashing, version and lifecycle bounds.
+
+### Passive composed Profile/Mission 10 readers
+
+The staged `profileArtifactPolicy: "composed-spells-eight-v1"` support is an
+explicit eight-job/current-v3 contract requiring both Tornado and Spy proofs in
+the existing Profile and Mission 10 artifacts. It preserves the strict legacy
+inventory default and 16 MiB transport cap; it does not infer policy from receipts,
+select v4, create a job, change a writer or activate PR691/PR707. The separate
+support branch depends on exact PR707 head `29bcefe4e7510c0fbd5a4db1dfb9d7a32a340b50`.
+
+See the [composed support contract](../scripts/integration-queue/README.md#passive-composed-eight-job-artifact-support)
+for the exact finite inventories, original episode budgets, semantic/image checks,
+485 immutable source inputs, complete 18→23 runtime closure delta, synchronous
+acceptance boundaries and limits of the retained evidence. Independently review
+and pin that entire closure before any later task-local read-only use. Neither
+this documentation nor successful synthetic fixtures changes hosted admission,
+the pure round-robin Full planner, browser pins, protection or permissions.
