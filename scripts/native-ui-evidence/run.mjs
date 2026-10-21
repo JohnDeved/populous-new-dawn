@@ -6,6 +6,7 @@ import { limits, acceptSeries } from './policy.mjs'
 import { artifactInventory } from './browser-owner.mjs'
 import { supervise } from './supervise.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from './files.mjs'
+import { initializeEpisodeLedger, recordUnstartedFailure } from './ledger.mjs'
 const identity = manualIdentity(process.env)
 const { candidateRoot, infrastructureRoot } = separateRoots(resolve(process.argv[2]), resolve(import.meta.dirname, '../..'))
 const output = resolve(process.argv[3]), dist = resolve(process.argv[4])
@@ -15,11 +16,13 @@ for (const path of [output, dist]) {
 }
 assert.ok(output !== dist && !dist.startsWith(output + '/') && !output.startsWith(dist + '/'))
 mkdirSync(output, { recursive: true }); mkdirSync(dist, { recursive: true })
+initializeEpisodeLedger(output)
 const report = { status: 'running', identity, limits, startedAt: new Date().toISOString(),
   claim: 'Read-only pre-ready rendered evidence for a candidate head, NOT a synthetic merge/full check or deployment',
   limitsOfEvidence: ['Plain production Home through Vite, not Vinext/Cloudflare/RSC hosting', 'Native pixel equivalence, acoustic quality and hardware performance are not established'] }
 const save = () => writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(report, null, 2) + '\n')
 let candidateSource, infrastructureSource, dependencies, built, links, browserStarted = false
+let stage = 'source-inputs'
 try {
   candidateSource = sourceManifest(candidateRoot, identity.candidateSha)
   infrastructureSource = sourceManifest(infrastructureRoot, identity.workflowSha, infrastructureInput)
@@ -33,6 +36,7 @@ try {
   report.packageLockSha256 = sha256(resolve(candidateRoot, 'package-lock.json'))
   report.installedLockSha256 = sha256(resolve(candidateRoot, 'node_modules/.package-lock.json'))
   save()
+  stage = 'candidate-build'
   report.build = await supervise([resolve(import.meta.dirname, 'build-home.mjs'), candidateRoot, dist, identity.candidateSha],
     { cwd: candidateRoot, log: resolve(output, 'build.log'), capMs: limits.buildMs, inspect: () => artifactInventory(output) })
   save(); assert.equal(report.build.status, 'passed', 'Candidate Home build failed')
@@ -43,6 +47,7 @@ try {
   report.buildManifestSha256 = sha256(resolve(output, 'build-manifest.json'))
   assert.ok(Object.keys(built).some(name => name.endsWith('.js') && readFileSync(resolve(dist, name), 'utf8').includes(identity.candidateSha)), 'Bundle must identify the candidate revision')
   browserStarted = true
+  stage = 'browser-worker'
   report.browser = await supervise([resolve(import.meta.dirname, 'browser-worker.mjs'), candidateRoot, infrastructureRoot, output, dist],
     { cwd: candidateRoot, log: resolve(output, 'browser.log'), capMs: limits.browserMs, inspect: () => artifactInventory(output) })
   save(); assert.equal(report.browser.status, 'passed', 'Seven-episode browser worker failed')
@@ -50,7 +55,10 @@ try {
   assert.equal(series.status, 'passed'); assert.equal(series.cleanupVerified, true); acceptSeries(series.episodes)
   verifyBuiltOutput(dist, built, links)
   report.status = 'passed'
-} catch (error) { report.status = 'failed'; report.failure = String(error); report.stack = error.stack; process.exitCode = 1 }
+} catch (error) {
+  report.status = 'failed'; report.failure = String(error); report.stack = error.stack; process.exitCode = 1
+  recordUnstartedFailure(output, stage, error)
+}
 finally {
   const after = afterScopes({
     candidate: { captured: !!candidateSource, verify: () => verifyManifest(candidateRoot, candidateSource) },
