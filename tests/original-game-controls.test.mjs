@@ -88,7 +88,7 @@ test('active browser harnesses never target the retired duplicate buttons', () =
   }
   inspect(new URL('../scripts/', import.meta.url))
   const input = readFileSync(new URL('../scripts/local-render/mission1-vault-input.mjs', import.meta.url), 'utf8')
-  assert.match(input, /action\('Resume game', \(\) => page\.locator\('\.world-viewport'\)\.press\('Space', waitOptions\(\)\)\)/,
+  assert.match(input, /action\('Resume game', \(\) => setWorldPaused\(page, false, waitOptions\(2500\)\)\)/,
     'The new native input retains the original bounded action timeout and semantic receipt label')
 })
 
@@ -97,7 +97,7 @@ test('placement fixture releases the native rotation owner before resume and res
   const resume = source.slice(source.indexOf('report.repeated = await read()'))
   let previous = -1
   for (const step of ["page.keyboard.press('Escape')", 'getWorld().mode === null',
-    "page.locator('.world-viewport').press('Space')", '!window.testStore.getWorld().paused',
+    'setWorldPaused(page, false, { timeout: 15000 })', '!window.testStore.getWorld().paused',
     "button('Hut, 3 wood').click()", "getWorld().mode === 'hut'", 'page.mouse.move(invalid.x']) {
     const index = resume.indexOf(step)
     assert.ok(index > previous, `Missing or reordered native control: ${step}`)
