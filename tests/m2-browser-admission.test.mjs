@@ -251,8 +251,8 @@ test('compact witness has no invented advisory and still pauses before observing
     new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8'
   )
   assert.doesNotMatch(source, /desktopNotice|Continue anyway|desktop-only-notice/)
-  assert.ok(source.indexOf('await skipIntroductionWithSpace(page, { timeout: 10000 })') < source.indexOf('await pressWorldSpace(page)'))
-  assert.ok(source.indexOf('await pressWorldSpace(page)') < source.indexOf('report.before = await observe()'))
+  assert.ok(source.indexOf('await skipIntroductionWithSpace(page, { timeout: 10000 })') < source.indexOf('await setWorldPaused(page, true)'))
+  assert.ok(source.indexOf('await setWorldPaused(page, true)') < source.indexOf('report.before = await observe()'))
   assert.match(source, /await page\.setViewportSize\(\{ width: 640, height: 480 \}\)/)
   assert.equal(m2FunctionalLimitMs, 45000)
 })

@@ -40,7 +40,7 @@ function fixture({ paused, race, kind }) {
     }},
   }
   return {world,calls,report,cleanup,page,get reads(){return reads},
-    invoke:()=>kind==='pause'?skipPauseIntroduction(page,{timeout:2500}):awaitSpySourceReadiness({page,report,action:async(_name,fn)=>fn(),save(){},deadlineAt:Date.now()+45000})}
+    invoke:()=>kind==='pause'?skipPauseIntroduction(page,{timeout:2500}):awaitSpySourceReadiness({page:withoutCampaignPopup(page),report,action:async(_name,fn)=>fn(),save(){},deadlineAt:Date.now()+45000})}
 }
 
 for(const kind of ['pause','spy'])for(const paused of [false,true]){
