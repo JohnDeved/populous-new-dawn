@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { bindGame } from '../browser-game.mjs'
+import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
 
 // External browser evidence only. This controls GameScene RAF delivery, not
@@ -160,7 +161,7 @@ export default async function scenario({ page, context, url, output, openMission
     const fresh = await context.newPage()
     await fresh.setViewportSize(report.viewport)
     await fresh.goto(url, { waitUntil: 'domcontentloaded' })
-    await fresh.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor()
+    await waitForStartupMenu(fresh)
     const freshIdentity = await readCommittedCheckpoint(fresh)
     const freshCamera = await readCameraCheckpoint(fresh)
     check('fresh-page IndexedDB readback preserves full checkpoint digest and camera owner', () => {
@@ -181,7 +182,7 @@ export default async function scenario({ page, context, url, output, openMission
     const tutorial = await context.newPage()
     await tutorial.setViewportSize(report.viewport)
     await tutorial.goto(url, { waitUntil: 'domcontentloaded' })
-    await tutorial.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor()
+    await waitForStartupMenu(tutorial)
     await tutorial.evaluate(holdSceneFrames)
     await tutorial.getByRole('button', { name: 'Tutorial', exact: true }).click()
     await restoredScene(tutorial)
