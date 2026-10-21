@@ -7,6 +7,7 @@ import { inspectDragSource, dragSourceProfiles } from '../scripts/browser-perfor
 import { installSnapshotDragObserver } from '../scripts/browser-performance/snapshot-drag-observer.mjs'
 import { RenderView } from '../app/render-view.ts'
 const root = resolve(import.meta.dirname, '..')
+const routeTooltipId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-v1'
 
 test('source-owner admission selects one exact bounded route; projection kernel remains changeable', () => {
   const read = path => readFileSync(resolve(root, path), 'utf8')
@@ -14,7 +15,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
-  assert.ok(profile); assert.equal(profile.slices.length, ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'].includes(profile.id) ? 17 : 16)
+  assert.ok(profile); assert.equal(profile.slices.length, ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', routeTooltipId].includes(profile.id) ? 17 : 16)
   for (const slice of profile.slices) {
     const changed = inspectDragSource(root, path => {
       if (path !== slice.path) return read(path)
@@ -67,7 +68,7 @@ test('route admission binds numeric lease gates, actual constructor order and he
     ['app/neutral-cursor.ts', '!scene.pointerButtons &&', 'true &&'],
     ['app/scene.ts', '    this.updatePointerFrame(now, pointerMetrics)\n    this.neutralCursor?.update()', '    this.neutralCursor?.update()\n    this.updatePointerFrame(now, pointerMetrics)'],
   ]
-  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'].includes(inspectDragSource(root).profile)) checks.push(
+  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', routeTooltipId].includes(inspectDragSource(root).profile)) checks.push(
     ['app/render-view.ts', 'owned && scratch && runtimeTerrainPicking(this, object)', 'owned && scratch'],
     ['app/runtime-terrain-picking.ts', 'if (released.has(scene.view)) return', 'if (false) return'],
     ['app/scene-terrain-runtime.ts', '    rebindRuntimeTerrainPicking(scene)', '    /* omitted rebind */'])
@@ -78,9 +79,75 @@ test('route admission binds numeric lease gates, actual constructor order and he
   }
 })
 
+const cameraPath = 'app/scene-camera-runtime.ts'
+// Undo only the four reviewed route-tooltip edits. The admission function still
+// hashes the complete owner bytes; this reconstruction never normalizes a profile.
+const routeTooltipInverse = [
+  ['  if (!scene.world.paused || scene.world.routeNotice || scene.tooltipController?.routeNotice) {',
+   '  if (!scene.world.paused) {'],
+  ['      for (const event of scene.world.paused ? [] : stepFlyby(state, scene.flybyCamera, 24)) {',
+   '      for (const event of stepFlyby(state, scene.flybyCamera, 24)) {'],
+  ['      if (!scene.world.paused || scene.world.routeNotice || scene.tooltipController?.routeNotice)\n        scene.updateTooltipController(scene.previous ?? performance.now())',
+   '      scene.updateTooltipController(scene.previous ?? performance.now())'],
+  ['      if (active && !scene.world.paused) scene.commitSky(scene.flybyCamera, scene.flybyTime)',
+   '      if (active) scene.commitSky(scene.flybyCamera, scene.flybyTime)'],
+]
+function preRouteTooltipReader(read) {
+  let source = read(cameraPath)
+  for (const [before, after] of routeTooltipInverse) {
+    assert.equal(source.split(before).length, 2)
+    source = source.replace(before, after)
+  }
+  return path => path === cameraPath ? source : read(path)
+}
+
+test('route-tooltip admission adds only the exact reviewed camera owner and rejects partial or mixed routes', () => {
+  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const epochId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
+  const epoch = dragSourceProfiles.find(profile => profile.id === epochId)
+  const route = dragSourceProfiles.find(profile => profile.id === routeTooltipId)
+  assert.equal(route.slices.length, 17)
+  for (let i = 0; i < epoch.slices.length; i++) {
+    const previous = epoch.slices[i], next = route.slices[i]
+    if (previous.id !== 'camera-producers') assert.deepEqual(next, previous)
+    else {
+      assert.equal(previous.sha256, '458fa0be8df6e0ab718c1006b0f54f4b703e877850afd2896249544b9dcddad8')
+      assert.equal(next.sha256, 'cd3b53fce3efc61851ceb0c34d11d35d13a15cac7162753d8b1677c7d2b8875e')
+      assert.deepEqual({ ...next, sha256: previous.sha256 }, previous, 'all route-tooltip boundaries remain exact')
+    }
+  }
+  const current = inspectDragSource(root)
+  assert.equal(current.profile, routeTooltipId)
+  assert.equal(current.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  const historical = inspectDragSource(root, preRouteTooltipReader(read))
+  assert.equal(historical.profile, epochId)
+  assert.equal(historical.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  // Every nonempty partial inverse is an unreviewed camera owner, not either route.
+  for (let mask = 1; mask < (1 << routeTooltipInverse.length) - 1; mask++) {
+    let source = read(cameraPath)
+    for (const [index, [before, after]] of routeTooltipInverse.entries()) {
+      assert.equal(source.split(before).length, 2)
+      if (mask & (1 << index)) source = source.replace(before, after)
+    }
+    const rejected = inspectDragSource(root, path => path === cameraPath ? source : read(path))
+    assert.equal(rejected.status, 'unsupported-source-contract', `partial inverse ${mask}`)
+    assert.equal(rejected.profile, null)
+  }
+  // An unknown route clock or a historical recording input with the new camera
+  // owner is not a reviewed complete route, even though each old slice is known.
+  for (const [path, before, after] of [
+    [cameraPath, 'scene.flybyTime += dt', 'scene.flybyTime += dt * 2'],
+    ['app/scene-input-runtime.ts', '      scene.fpsGraph?.interactionRecording,\n', '      scene.fpsGraph,\n'],
+  ]) {
+    assert.equal(read(path).split(before).length, 2)
+    const rejected = inspectDragSource(root, name => name === path ? read(name).replace(before, after) : read(name))
+    assert.equal(rejected.status, 'unsupported-source-contract')
+    assert.equal(rejected.profile, null)
+  }
+})
 
 test('pick-path and recording-epoch admission preserve exact historical source contracts', () => {
-  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const read = preRouteTooltipReader(path => readFileSync(resolve(root, path), 'utf8'))
   const oldId = 'owned-numeric-terrain-neutral-cursor-v1'
   const newId = 'owned-numeric-terrain-neutral-cursor-pick-paths-v1'
   const epochId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
@@ -88,7 +155,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
   const candidate = dragSourceProfiles.find(profile => profile.id === newId)
   const epoch = dragSourceProfiles.find(profile => profile.id === epochId)
   assert.deepEqual(dragSourceProfiles.map(profile => profile.id), [
-    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId,
+    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, routeTooltipId,
   ])
   assert.equal(historical.slices.length, 17)
   assert.equal(candidate.slices.length, 17)
@@ -111,7 +178,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
       assert.deepEqual({ ...next, sha256: previous.sha256 }, previous, 'all epoch boundaries remain exact')
     }
   }
-  const current = inspectDragSource(root)
+  const current = inspectDragSource(root, read)
   assert.equal(current.profile, epochId)
   assert.equal(current.profiles.filter(profile => profile.status === 'admitted').length, 1)
   // Undo exactly the reviewed recording argument to recover PR640's full route.

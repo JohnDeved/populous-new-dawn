@@ -1,0 +1,109 @@
+{
+  "method": "Static bounded disassembly and source-asset decoding; no native execution",
+  "files": {
+    "FINDINGS.md": {
+      "bytes": 16147,
+      "sha256": "3d4695345081d0c12a11d9858c95b652c4e9c27f60feb7201b7c3021e8c7019e"
+    },
+    "anchor-animation.asm": {
+      "bytes": 2887,
+      "sha256": "ccec631209865f5fc06cd41b1e04ec06939d8440bcc7a53323913b023932ec1f"
+    },
+    "body-renderer.asm": {
+      "bytes": 21829,
+      "sha256": "7dde157edf500754b1dcf5efe5d7decf05accf7e38baddf870c5c9415082ac5e"
+    },
+    "button-nine-slice.asm": {
+      "bytes": 21551,
+      "sha256": "a068871afb55317c9560a23ba3b6d6c11aa5a00b92632bdc45ddf3289212342b"
+    },
+    "button-renderer.asm": {
+      "bytes": 1325,
+      "sha256": "0a467025709f6e8d0bfcffb95911d7b662560e77bbaa22f704b43e1e87fff7c1"
+    },
+    "button-tables.asm": {
+      "bytes": 417,
+      "sha256": "51fb055bd6029597dbfcee573b1b0398251d2620f53d98c833925380134bf670"
+    },
+    "controller-layout-input.asm": {
+      "bytes": 34233,
+      "sha256": "c68c56960d0088d4541c1641b2409ca038cef1ec87d517c295a1a66920cec426"
+    },
+    "controller-open.asm": {
+      "bytes": 6998,
+      "sha256": "716caddef9bdaf7db0a11c8716822d75128d238f0ae9c30d060405df74eca8a8"
+    },
+    "end-level-prompt.asm": {
+      "bytes": 8089,
+      "sha256": "9b8929650e9c47c15448cd18dfe6e06ecf5a6b5f623dff633016a778267a4ff9"
+    },
+    "flyby-flags-xrefs.asm": {
+      "bytes": 10026,
+      "sha256": "a7d59b8769593dc3878265eeb7cb154e759a5bba2e88ed8bb52a5bf055c04be6"
+    },
+    "flyby-start-skip.asm": {
+      "bytes": 11879,
+      "sha256": "0c2ac87eea0e136d710bacd58d004604bc4081b468bcaefffe67250ad28b8660"
+    },
+    "font-direct-cpu.asm": {
+      "bytes": 3984,
+      "sha256": "50686387d9d3e8bf375268711b1d1a2419a10411b6f24f40d2cfd47be46cf3b7"
+    },
+    "font-direct-gpu.asm": {
+      "bytes": 7822,
+      "sha256": "67de99c032123c6706b74879a639311fe939f180f21b912b77ae500c91ad2697"
+    },
+    "hfx-source-contact-sheet.png": {
+      "bytes": 14329,
+      "sha256": "21b557a92436d5ad148dc9bf7242f7f13d08070c3c33a01001ad27f0da5b2ace"
+    },
+    "hud-font-pixel-verification.json": {
+      "bytes": 867,
+      "sha256": "7f318637c8435b08c6fa9207a9a03ef329ff8570f65f9ea4b5873e85b597d27c"
+    },
+    "language-selected.json": {
+      "bytes": 756,
+      "sha256": "9d238cfe5f4c3d4f0823016692c5ebf4b48267d67db7c89c1c70eeb224614ec6"
+    },
+    "main-render-owner.asm": {
+      "bytes": 21449,
+      "sha256": "201ea575a4f11a1f1945993f5dbb41b9f20fcff0e65dabbcd93d43fb34e584dd"
+    },
+    "notification-ack.asm": {
+      "bytes": 2324,
+      "sha256": "348eb2809b47344269c919db7373ea6e29a230acb38722a67e0da79ebb533dfa"
+    },
+    "panel-tiles.asm": {
+      "bytes": 9568,
+      "sha256": "8009beea9b8b2f3e60cb53690949cc20c4379480afd8e78d71a085fdee16df5e"
+    },
+    "pause-state-message.asm": {
+      "bytes": 4594,
+      "sha256": "4e3556e310cd1ba2bd95aa302f9d9c5efad10d262bf135b74a0a2f7b3da65b0b"
+    },
+    "results-prompt-gates.asm": {
+      "bytes": 5482,
+      "sha256": "d6f1f1b7c47c195befca84e2e0da52d564c506ea527cb772c632b96dee59f0e6"
+    },
+    "status-buffer.asm": {
+      "bytes": 2124,
+      "sha256": "5ec309b2da74b86093481a31d0c7fdc771507d006126114ce8851fdcc233473f"
+    },
+    "status-language-selected.json": {
+      "bytes": 303,
+      "sha256": "b35f61e08a63e563be5b5efb5217665810d14481589652e87d4f53f7ddcdf3df"
+    },
+    "status-renderer.asm": {
+      "bytes": 12784,
+      "sha256": "2a9f5f94f6f0ebf39cefc57e16b940d76771242efd29da69983640405a79cb12"
+    },
+    "viewport-producer.asm": {
+      "bytes": 2881,
+      "sha256": "8fe15eb3be66668056d7e3ea9bd44589b07c40ef0b5658acb743d056e8e49d0a"
+    }
+  },
+  "findingsClarification": {
+    "priorSha256": "f8da92acaebe1e091094b44a301d39a09a482088780615e3003f9db6be54297c",
+    "change": "Clarify constant side rails and exact CMP/ADC parity; raw instruction exports unchanged."
+  }
+}

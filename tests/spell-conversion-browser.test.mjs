@@ -63,58 +63,45 @@ test('Mission 3 pre-introduction unlock and unpublished flyby flags are not star
   assert.equal(world.inputMask, 64, 'a longer input-clear wait would miss the first conversion')
 })
 
-test('conversion startup waits for the public Skip control before testing input readiness', async t => {
+test('conversion startup waits for the native flyby gate before Space and input readiness', async t => {
   for (const initialTurn of [0, 16, 20]) {
     await t.test(`bind at turn ${initialTurn}`, async t => {
       const scene = startupScene(), world = scene.world, calls = [], report = {}
       for (let turn = 0; turn < initialTurn; turn++) advanceStartup(scene)
-      let mounted = false, publish, entered
-      const reachedWait = new Promise(resolve => { entered = resolve }),
-        button = { getClientRects: () => mounted ? [{}] : [] }
       browserGlobals(t, {
         window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
-        document: { visibilityState: 'visible',
-          querySelector: selector => selector === '.skip-introduction' && mounted ? button : null },
-        getComputedStyle: () => ({ visibility: 'visible' }),
+        document: { visibilityState: 'visible', querySelector: selector => {
+          assert.equal(selector, '.loading-world', 'there is no invented Skip DOM control')
+          return null
+        } },
       })
       const page = {
         evaluate: async read => read(),
-        locator(selector) {
-          assert.equal(selector, '.skip-introduction')
-          return {
-            async waitFor(options) {
-              assert.deepEqual(options, { state: 'visible' })
-              calls.push('wait-visible')
-              entered()
-              await new Promise(resolve => { publish = resolve })
-            },
-            async click() {
-              assert.equal(mounted, true)
-              calls.push('click')
-              skipIntroduction(scene)
-            },
-          }
-        },
+        keyboard: { press: async key => {
+          assert.equal(key, 'Space')
+          assert.equal(world.inputMask & 64, 64, 'early Space must not pause turn-zero startup')
+          assert.equal(world.flyby.flags & 0x51, 0x11)
+          calls.push('press')
+          skipIntroduction(scene) // Unit keyboard boundary, not browser-controller injection.
+        } },
         async waitForFunction(predicate) {
-          calls.push('wait-input')
+          const phase = calls.length ? 'wait-input' : 'wait-flyby'
+          calls.push(phase)
+          if (initialTurn === 0 && phase === 'wait-flyby')
+            assert.equal(predicate(), false, 'initial unlocked input cannot bypass authored startup')
           for (let turn = 0; turn < 60 && !predicate(); turn++) advanceStartup(scene)
-          assert.equal(predicate(), true, 'ordinary presentation completes the public Skip')
+          assert.equal(predicate(), true, 'ordinary presentation owns introduction completion')
         },
       }
-      const pending = waitForConversionIntroduction(page, report)
-      await reachedWait
-      assert.deepEqual(calls, ['wait-visible'], 'neither unlocked input nor raw flags bypass DOM readiness')
-      assert.equal(report.startup.bound.skipMounted, false)
-      while (world.turn < 16) advanceStartup(scene)
-      mounted = true
-      publish()
-      await pending
-      assert.deepEqual(calls, ['wait-visible', 'click', 'wait-input'])
-      assert.equal(report.startup.beforeSkip.flybyFlags & 1, 1)
-      assert.equal(report.startup.beforeSkip.skipVisible, true)
+      await waitForConversionIntroduction(page, report)
+      assert.deepEqual(calls, ['wait-flyby', 'press', 'wait-input'])
+      assert.equal(report.startup.bound.skipAvailable, initialTurn >= 16)
+      assert.equal(report.startup.beforeSkip.flybyFlags & 0x51, 0x11)
+      assert.equal(report.startup.beforeSkip.skipAvailable, true)
       assert.equal(report.startup.afterSkip.inputMask, 0)
       assert.equal(report.startup.afterSkip.casts, 0)
       assert.equal(report.startup.afterSkip.stock, 1)
+      assert.equal(world.paused, false, 'the single introductory Space never toggles pause')
     })
   }
 })
@@ -133,7 +120,7 @@ test('conversion startup diagnostics tolerate missing bind aliases and do not mu
   assert.equal(snapshot.turn, 0)
   assert.equal(snapshot.inputMask, 0)
   assert.equal(snapshot.sameWorld, true)
-  assert.equal(snapshot.skipVisible, false)
+  assert.equal(snapshot.skipAvailable, false)
   assert.equal(JSON.stringify(scene.world), before)
 })
 
@@ -503,33 +490,50 @@ test('armed observer rejects an unobserved first turn and later pause without ov
   })
 })
 
-test('public armed resume observes advisory behavior instead of assuming dismissal resumes', async t => {
-  for (const [visible, dismissResumes] of [[true, true], [true, false], [false, false]]) {
-    await t.test(`visible=${visible}, dismissal resumes=${dismissResumes}`, async t => {
+test('public armed resume uses only the native HUD and never toggles an already running world', async t => {
+  for (const paused of [true, false]) {
+    await t.test(`paused=${paused}`, async t => {
       const scene = startupScene(), world = scene.world, actions = [], report = {}
-      world.paused = true
+      world.paused = paused
       browserGlobals(t, { window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
-        document: { visibilityState: 'visible', querySelector: () => null } })
+        document: { visibilityState: 'visible', querySelector: selector => {
+          assert.equal(selector, '.loading-world')
+          return null
+        } } })
       const page = {
         evaluate: async fn => fn(),
-        locator(selector) {
-          assert.equal(selector, '.desktop-recommendation')
-          return { isVisible: async () => visible,
-            getByRole(role, options) {
-              assert.equal(role, 'button'); assert.match('Continue anyway ↗', options.name)
-              return { click: async () => { actions.push('advisory'); if (dismissResumes) world.paused = false } }
-            } }
-        },
         getByRole(role, options) {
           assert.equal(role, 'button'); assert.deepEqual(options, { name: 'Resume game', exact: true })
           return { click: async () => { assert.equal(world.paused, true); actions.push('resume'); world.paused = false } }
         },
-        waitForFunction: async fn => { assert.equal(fn(), true) },
+        waitForFunction: async fn => { assert.equal(fn(), true); actions.push('running') },
       }
       await resumeArmedConversion(page, report)
-      assert.deepEqual(actions, visible ? dismissResumes ? ['advisory'] : ['advisory', 'resume'] : ['resume'])
+      assert.deepEqual(actions, paused ? ['resume', 'running'] : ['running'])
+      assert.deepEqual(report.resume.actions, paused ? ['visible-resume-game'] : [])
+      assert.equal(report.resume.before.paused, paused)
       assert.equal(report.resume.after.paused, false)
       assert.equal(world.turn, 0, 'helper does not drive simulation')
+    })
+  }
+})
+
+test('public armed resume cannot treat rejected or ineffective input as a running observation', async t => {
+  for (const mode of ['rejected', 'ineffective']) {
+    await t.test(mode, async t => {
+      const scene = startupScene(), world = scene.world, report = {}, calls = []
+      world.paused = true
+      browserGlobals(t, { window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
+        document: { visibilityState: 'visible', querySelector: () => null } })
+      const failure = Error('Resume rejected')
+      await assert.rejects(resumeArmedConversion({
+        evaluate: async fn => fn(),
+        getByRole: () => ({ click: async () => { calls.push('resume'); if (mode === 'rejected') throw failure } }),
+        waitForFunction: async fn => { calls.push('wait'); assert.equal(fn(), false); throw Error('Still paused') },
+      }, report), mode === 'rejected' ? error => error === failure : /Still paused/)
+      assert.deepEqual(calls, mode === 'rejected' ? ['resume'] : ['resume', 'wait'])
+      assert.equal(world.paused, true)
+      assert.equal(report.resume.after, undefined)
     })
   }
 })

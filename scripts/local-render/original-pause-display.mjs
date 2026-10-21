@@ -9,7 +9,7 @@ export default async function({page,root,context,output,receipt}) {
  if(fallback)await page.route('**/original/pause-font.png',route=>{aborted++;return route.abort('failed')})
  await page.setViewportSize({width:800,height:600})
  await page.getByRole('button',{name:'Tutorial',exact:true}).click();await bindGame(page)
- const desktop=page.getByRole('button',{name:'Continue anyway',exact:false});if(await desktop.isVisible())await desktop.click()
+
  await page.getByRole('button',{name:'Game settings',exact:true}).click()
  const modal=page.getByRole('dialog',{name:'Game menu',exact:true});await modal.waitFor()
  if(fallback){

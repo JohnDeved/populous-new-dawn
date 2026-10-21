@@ -1,6 +1,7 @@
 'use client'
 
 import { FullscreenControl } from './fullscreen-control'
+import { OriginalPauseStatus } from './original-pause-status'
 import { OriginalOptions } from './original-options'
 import { BrowserHelpTips } from './browser-help-tips'
 import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
@@ -63,7 +64,15 @@ import {
   saveGamePreferences,
   type GamePreferences,
 } from './game-preferences'
-import { messageIcon, messageText, messageViewPoint, removeMessage } from './messages'
+import {
+  acknowledgeMessage,
+  messageHasDelete,
+  messageIcon,
+  messageText,
+  messageViewPoint,
+} from './messages'
+import { OriginalCampaignPopup } from './original-campaign-popup'
+import { captureCampaignPopupKeys, showCampaignPopup } from './campaign-popup-session'
 import {
   HudSprite,
   FollowerNumber,
@@ -120,7 +129,6 @@ export default function Home() {
     update = store.update
   const completedMissions = store.getCompletedMissions()
   const spellRoster = spellHudRoster(world)
-  const { routeNotice } = world
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
   const [sound, setSound] = useState(false)
   const [audioPreferences, setAudioPreferences] =
@@ -155,7 +163,6 @@ export default function Home() {
   const [selectorOpen, setSelectorOpen] = useState(false)
   const [startupCampaign, setStartupCampaign] = useState(false)
   const [ready, setReady] = useState(false)
-  const [desktopNotice, setDesktopNotice] = useState(true)
   const [error, setError] = useState('')
   const shell = useRef<HTMLElement>(null)
   const hudPanel = useRef<HTMLElement>(null)
@@ -203,7 +210,8 @@ export default function Home() {
       if (!message || !(message.flags & 2)) continue
       const details = messageDetails.current.get(message.serial)
       if (!details) continue
-      details.open = true
+      engine.current?.keys.clear()
+      showCampaignPopup(details, messageDetails.current.values())
       opened.push(message.serial)
     }
     if (!opened.length) return
@@ -544,11 +552,19 @@ export default function Home() {
     return () => globalThis.removeEventListener('keydown', toggle, true)
   }, [ready, startup, menu, selectorOpen, world, cheatsOpen, cancelNearbyInput])
   useEffect(() => {
+    return captureCampaignPopupKeys(document, () =>
+      ready && !menu && !cheatsOpen && !selectorOpen
+        ? Array.from(messageDetails.current.values()).find(details => details.open)
+        : undefined
+    )
+  }, [ready, menu, cheatsOpen, selectorOpen])
+  useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (
         !ready ||
         menu ||
         cheatsOpen ||
+        Array.from(messageDetails.current.values()).some(details => details.open) ||
         (e.key === 'Escape' && e.repeat) ||
         e.ctrlKey ||
         e.metaKey ||
@@ -828,9 +844,6 @@ export default function Home() {
     })
   const shaman = blue.find(isShaman),
     selected = blue.filter(u => world.selected.includes(u.id))
-  const focused =
-    SPELLS.find(s => s.id === (hover ?? world.mode)) ??
-    BUILDINGS.find(b => b.id === (hover ?? world.mode))
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
   function blockLoadingInteraction(event: SyntheticEvent) {
@@ -1050,7 +1063,7 @@ export default function Home() {
         if (
           world.inputMask &&
           !(e.target as Element).closest(
-            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
+            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
           )
         ) {
           e.preventDefault()
@@ -1062,30 +1075,21 @@ export default function Home() {
       }}
     >
       <FullscreenControl />
-      <div className="world-viewport" ref={viewport} />
+      <div className="world-viewport" ref={viewport} tabIndex={-1} />
       <div className="world-vignette" />
-      {desktopNotice && (
-        <aside className="desktop-recommendation">
-          <span className="brand-rune">⟡</span>
-          <h2>A world worth a bigger screen.</h2>
-          <p>For the best experience, play on a desktop monitor with a keyboard and mouse.</p>
-          <button
-            className="primary-button"
-            onClick={() => {
-              setDesktopNotice(false)
-              store.change(w => {
-                w.paused = false
-              })
-            }}
-          >
-            Continue anyway <span>↗</span>
-          </button>
-        </aside>
-      )}
       <aside
         className="campaign-messages"
         aria-label="Campaign messages"
         style={{ visibility: menu ? 'hidden' : undefined }}
+        onKeyDown={event => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.stopPropagation()
+            if (event.repeat) event.preventDefault()
+          }
+        }}
+        onKeyUp={event => {
+          if (event.key === 'Enter' || event.key === ' ') event.stopPropagation()
+        }}
       >
         {world.messages.slots
           .map((message, slot) => ({ message, slot }))
@@ -1102,10 +1106,10 @@ export default function Home() {
                   if (element) messageDetails.current.set(message!.serial, element)
                   else messageDetails.current.delete(message!.serial)
                 }}
-                data-lower={top > Math.trunc(messageViewportHeight / 2) || undefined}
                 style={
                   {
                     '--message-height': `${height}px`,
+                    '--message-top': `${top}px`,
                     top: `${top}px`,
                   } as CSSProperties
                 }
@@ -1115,95 +1119,61 @@ export default function Home() {
                   onClick={event => {
                     const target = messageViewPoint(message!),
                       details = event.currentTarget.parentElement as HTMLDetailsElement
-                    if (!details.open && target) engine.current?.focus(target, { animate: true })
+                    event.preventDefault()
+                    if (details.open) details.open = false
+                    else {
+                      engine.current?.keys.clear()
+                      if (target) engine.current?.focus(target, { animate: true })
+                      showCampaignPopup(details, messageDetails.current.values())
+                    }
                   }}
                 >
                   <img src={messageIcon(message!)} alt="" />
                 </summary>
-                <div>
-                  <p>{messageText(message!.stringId)}</p>
-                  <button
-                    onClick={() => {
-                      removeMessage(world.messages, slot)
-                      update()
-                    }}
-                    aria-label="Dismiss campaign message"
-                  >
-                    ×
-                  </button>
-                </div>
+                <OriginalCampaignPopup
+                  text={messageText(message!.stringId)}
+                  onAcknowledge={() => {
+                    const details = messageDetails.current.get(message!.serial)
+                    if (details) details.open = false
+                    acknowledgeMessage(world.messages, slot)
+                    update()
+                    if (world.messages.slots[slot]) details?.querySelector('summary')?.focus()
+                    else viewport.current?.focus({ preventScroll: true })
+                  }}
+                  onDelete={
+                    messageHasDelete(message!)
+                      ? () => {
+                          acknowledgeMessage(world.messages, slot, true)
+                          update()
+                          viewport.current?.focus({ preventScroll: true })
+                        }
+                      : undefined
+                  }
+                />
               </details>
             )
           })}
       </aside>
-      {ready && !!(world.flyby.flags & 1) && (
-        <button className="skip-introduction" onClick={() => engine.current?.skipIntroduction()}>
-          Skip introduction <kbd>ESC</kbd>
-        </button>
-      )}
+      <p className="game-a11y-status" role="status" aria-atomic="true" data-route-announcement>
+        {ready && world.routeNotice && (
+          <span key={world.routeNotice.serial}>{ROUTE_FAILURE_TEXT}</span>
+        )}
+      </p>
       <div className="game-status">
-        {ready && routeNotice && (
-          <div
-            key={routeNotice.serial}
-            className="world-message route-notice"
-            style={{
-              visibility: menu ? 'hidden' : undefined,
-              animationPlayState: menu || selectorOpen || cheatsOpen ? 'paused' : undefined,
-            }}
-            role="status"
-            onAnimationEnd={() =>
-              store.change(w => {
-                if (w === world && w.routeNotice === routeNotice) w.routeNotice = null
-              })
-            }
-          >
-            <span>✧</span>
-            {ROUTE_FAILURE_TEXT}
-          </div>
-        )}
-        {ready && !routeNotice && world.messageUntil > world.time && (
-          <div
-            className="world-message"
-            role="status"
-            style={{ visibility: menu ? 'hidden' : undefined }}
-          >
-            <span>✧</span>
+        {ready && !world.routeNotice && world.messageUntil > world.time && (
+          <p className="game-a11y-status" role="status">
             {world.message}
-          </div>
-        )}
-        {ready && world.paused && !menu && world.status === 'playing' && (
-          <button
-            className="paused-badge"
-            onClick={() => {
-              store.change(w => {
-                w.paused = false
-              })
-            }}
-          >
-            Ⅱ <span>WORLD PAUSED</span>
-            <small>Click to resume</small>
-          </button>
+          </p>
         )}
       </div>
+      {ready && world.paused && !menu && world.status === 'playing' && <OriginalPauseStatus />}
+
       {world.mode && (
-        <div className="target-prompt">
-          <span>◎</span> Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'}{' '}
-          <strong>{modeName}</strong>
-          {Object.hasOwn(world.buildingDirections, world.mode) && (
-            <span>
-              Rotate <kbd>SPACE</kbd>
-            </span>
-          )}
-          <button
-            onClick={() => {
-              store.change(w => {
-                w.mode = null
-              })
-            }}
-          >
-            Cancel <kbd>ESC</kbd>
-          </button>
-        </div>
+        <p className="game-a11y-status" role="status">
+          Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'} {modeName}.
+          {Object.hasOwn(world.buildingDirections, world.mode) && ' Space rotates the building.'}
+          {' Escape cancels.'}
+        </p>
       )}
 
       <aside ref={hudPanel} className="native-hud" aria-label="Tribe controls">
@@ -1490,13 +1460,6 @@ export default function Home() {
           </button>
         </div>
       </aside>
-      {focused && (
-        <div className="hud-description" role="tooltip">
-          <strong>{focused.name}</strong>
-          <p>{focused.description}</p>
-        </div>
-      )}
-
       {startup === 'choice' && !startupLogoDone && <StartupLogo onComplete={finishStartupLogo} />}
       {startup === 'choice' && startupLogoDone && !startupCampaign && frontendAssets && (
         <OriginalMainMenu

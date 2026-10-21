@@ -59,6 +59,8 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capaci
     { RenderView } = await import('../../app/render-view.ts'),
     { ObjectPanels } = await import('../../app/object-panels.ts'),
     tooltipApi = await import('../../app/tooltips.ts'),
+    routeTooltipApi = await import('../../app/route-tooltip.ts'),
+    { tooltipLayout } = await import('../../app/tooltip-layout.ts'),
     { pointerMove } = await import('../../app/scene-input-runtime.ts'),
     { syncSecondaryReservations } = await import('../../app/scene-secondary-effects.ts'),
     world = api.createWorld(level, capacityMode),
@@ -128,7 +130,12 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capaci
   scene.renderTooltip = bindTooltipPaint(scene, {
     ...tooltipApi,
     texture: () => ({ image: {} }),
-    window: { innerWidth: 800 },
+    window: { innerWidth: 800, innerHeight: 600 },
+    routeTooltipAnchor: routeTooltipApi.routeTooltipAnchor,
+    drawRouteTooltip: (canvas, _atlas, _border, screen) => {
+      canvas.submissions.push(api.ROUTE_FAILURE_TEXT)
+      return tooltipLayout(api.ROUTE_FAILURE_TEXT, screen.width, screen.height)
+    },
     drawTooltip: (canvas, _atlas, text) => {
       canvas.submissions.push(text)
     },

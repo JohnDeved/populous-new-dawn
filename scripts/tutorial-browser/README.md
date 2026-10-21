@@ -58,7 +58,7 @@ Local typechecking/full builds should not be repeated just to run this check.
 
 After the existing Tutorial groups, one Mission 1 scene checks live-world selector
 inspection. A fresh context follows New Game → recommendation No → Start Mission 1
-→ Skip introduction, then Game settings → Options → Browser compatibility and help
+→ press Space to skip the introduction, then Game settings → Options → Browser compatibility and help
 → Select Level. Browser controls' Inspect campaign world selects Mission 2 without
 starting it. Both initially paused and initially running episodes exercise Back,
 Escape, Continue Game, and a second Escape from the returned pause menu.
@@ -73,7 +73,7 @@ runtime errors. Scenario failures and each cleanup failure remain in the termina
 receipt; cleanup still attempts to close the context if observer teardown fails.
 
 The final bounded Mission 1 scenery/placement episode follows the actual New Game
-recommendation, Start Mission 1, Skip introduction, Pause, Brave selection and Hut
+recommendation, Start Mission 1, press Space to skip the introduction, Pause, Brave selection and Hut
 controls. Read-only observers project authored settlement points into the viewport;
 real pointer events exercise valid, invalid and scenery-overlapping footprints.
 Repeated paused previews must leave building IDs and retained scenery poses unchanged.

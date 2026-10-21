@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -159,7 +160,7 @@ export default async function ({ page, context, output, url }) {
     }
     await openCampaignFromMainMenu(page);await button('Start Mission 1').click()
     await bindGame(page)
-    await page.getByRole('button',{name:/Skip introduction/}).click()
+    await skipIntroductionWithSpace(page, { timeout: 45000 })
     await page.waitForFunction(()=>!window.testStore.getWorld().inputMask&&window.testStore.getWorld().turn>0)
     assert.equal(await decodeCount(),paths.length)
     await button('Game settings').click();await twoFrames()

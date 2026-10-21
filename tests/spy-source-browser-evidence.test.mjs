@@ -174,7 +174,7 @@ test('current checkpoint supplies a truly trained Spy but never seeds disguise o
   assert.equal(world.turn, armed.turn + 1)
 })
 
-test('the exact Spy checkpoint introduction outlasts 8s but the production public Skip releases its own input bit', async () => {
+test('the exact Spy checkpoint introduction outlasts 8s but the production native interruption releases its own input bit', async () => {
   const fixture = await createSpySourceFixture('a'.repeat(40)),
     world = checkpointCodec(fixture.transfer, true).world,
     { skipIntroduction, updateFlyby } = await import('../app/scene-camera-runtime.ts'),
@@ -203,26 +203,26 @@ test('the exact Spy checkpoint introduction outlasts 8s but the production publi
   assert.equal(world.turn, turn)
 })
 
-test('Spy readiness observes actual owners and clicks only the public interruptible introduction within the same 8s cap', async () => {
+test('Spy readiness observes actual owners and presses Space only for an interruptible introduction within the same 8s cap', async () => {
   await assert.rejects(awaitSpySourceReadiness({ deadlineAt: NaN }), /Original Spy episode deadline/)
   const original = { window: globalThis.window, document: globalThis.document,
     getComputedStyle: globalThis.getComputedStyle }
   try {
     for (const mode of ['skip', 'ready', 'short-host', 'blocked', 'wrong-scene', 'loading', 'disconnected',
-      'disabled', 'hidden', 'uninterruptible', 'already-skipping', 'skip-failed']) {
+      'inactive', 'unrelated-lock', 'uninterruptible', 'already-skipping', 'skip-failed']) {
       const world = { outcome: { level: 1 }, turn: 116, paused: false,
-        inputMask: ['ready', 'short-host'].includes(mode) ? 0 : mode === 'blocked' ? 4 : 64,
-        flyby: { flags: mode === 'uninterruptible' ? 1 : mode === 'already-skipping' ? 85 : 21,
+        inputMask: ['ready', 'short-host'].includes(mode) ? 0 : mode === 'blocked' ? 4 : mode === 'unrelated-lock' ? 192 : 64,
+        flyby: { flags: mode === 'uninterruptible' ? 1 : mode === 'inactive' ? 16 : mode === 'already-skipping' ? 85 : 21,
           frame: 0, warmup: 6 } },
         before = structuredClone(world),
-        button = { disabled: mode === 'disabled', getClientRects: () => [1] },
         scene = { world: mode === 'wrong-scene' ? {} : world,
           renderer: { domElement: { isConnected: mode !== 'disconnected' } } },
         report = {}, calls = []
       globalThis.window = { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }
-      globalThis.document = { querySelector: selector => selector === '.loading-world'
-        ? (mode === 'loading' ? {} : null) : button }
-      globalThis.getComputedStyle = () => ({ visibility: mode === 'hidden' ? 'hidden' : 'visible' })
+      globalThis.document = { querySelector: selector => {
+        assert.equal(selector, '.loading-world', 'readiness cannot depend on a removed Skip control')
+        return mode === 'loading' ? {} : null
+      } }
       const snapshot = readSpySourceReadiness()
       assert.deepEqual(world, before, 'observation is read-only')
       const page = {
@@ -233,17 +233,13 @@ test('Spy readiness observes actual owners and clicks only the public interrupti
           if (!result) throw Error('readiness predicate blocked')
           return { jsonValue: async () => result, dispose: async () => calls.push('dispose') }
         },
-        getByRole: (role, options) => {
-          assert.equal(role, 'button')
-          assert.equal(options.name.source, '^Skip introduction')
-          return { click: async options => {
-            calls.push('click')
-            assert.ok(options.timeout > 0 && options.timeout <= 8000)
-            if (mode === 'skip-failed') throw Error('public click failed')
-            // Browser double only. Real execution uses the button, never a world write.
-            world.inputMask = 0; world.flyby.flags &= ~1
-          } }
-        },
+        keyboard: { press: async key => {
+          assert.equal(key, 'Space')
+          calls.push('press')
+          if (mode === 'skip-failed') throw Error('public Space failed')
+          // Keyboard unit boundary only. Rendered execution sends the real key.
+          world.inputMask = 0; world.flyby.flags &= ~1
+        } },
       }
       const deadlineAt = Date.now() + (mode === 'short-host' ? 500 : 45000),
         run = awaitSpySourceReadiness({ page, report,
@@ -253,12 +249,12 @@ test('Spy readiness observes actual owners and clicks only the public interrupti
         await run
         assert.equal(report.readiness.after.action, 'ready')
         assert.equal(report.readiness.after.sceneStoreMatch, true)
-        assert.equal(calls.filter(call => call === 'click').length, mode === 'skip' ? 1 : 0)
+        assert.equal(calls.filter(call => call === 'press').length, mode === 'skip' ? 1 : 0)
       } else {
-        await assert.rejects(run, mode === 'skip-failed' ? /public click failed/ : /predicate blocked/)
+        await assert.rejects(run, mode === 'skip-failed' ? /public Space failed/ : /predicate blocked/)
         assert.deepEqual(report.readiness.failed, snapshot, 'failure retains bounded owner diagnostics')
         assert.equal(report.readiness.after, undefined)
-        assert.equal(calls.filter(call => call === 'click').length, mode === 'skip-failed' ? 1 : 0)
+        assert.equal(calls.filter(call => call === 'press').length, mode === 'skip-failed' ? 1 : 0)
       }
       assert.equal(report.readiness.capMs, spySourceReadinessMs)
       assert.equal(report.readiness.deadlineAt, Math.min(report.readiness.startedAt + 8000, deadlineAt))

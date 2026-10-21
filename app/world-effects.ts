@@ -1,3 +1,4 @@
+import { routeNoticeCell } from './route-notice.ts'
 import { buildingAcquisitionSource } from './building-acquisition-source.ts'
 import { registerSecondaryMarker } from './hut-smoke-runtime.ts'
 import {
@@ -65,7 +66,12 @@ export function sound(w: World, cue: number, p: Point, owner?: number) {
 export function requestTutorial(w: World, flags: number, message: number) {
   // 0x499f40 mode 9: a single transient tooltip, not tutorial history.
   if (flags === 0x200000 && message === 603)
-    w.routeNotice = { flags, message, serial: (w.routeNotice?.serial ?? 0) + 1 }
+    w.routeNotice = {
+      flags,
+      message,
+      serial: (w.routeNotice?.serial ?? 0) + 1,
+      cell: routeNoticeCell(w.lastOrderCell),
+    }
 }
 export function effect(w: World, kind: Effect['kind'], p: Point, silent = false) {
   // Browser allocation adapter; full native class-7 allocation ownership is pending.

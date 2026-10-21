@@ -333,6 +333,7 @@ export class GameScene {
   modalSuspended = false
   setModalSuspended(suspended: boolean) {
     this.modalSuspended = suspended
+    if (suspended) this.tooltipElement.hidden = true
     this.neutralCursor?.reset()
     this.previous = null
     this.keys.clear()

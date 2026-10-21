@@ -34,15 +34,16 @@ function clearWitness() {
   return {
     layout: {
       ...box(428, 8, 892, 317),
-      pause: box(80, 135, 240, 188),
+      pause: box(844, 341, 898, 360),
       rowsFit: true,
       pointerTail: '1.0 / 2.0 ms',
       overflow: false,
-      events: 'none',
+      events: 'auto',
+      overflowY: 'auto',
       exportFits: true,
       exportActionable: true,
-      pauseActionable: true,
-      pauseText: 'WORLD PAUSED Click to resume',
+      pausePointerEvents: 'none',
+      pauseText: 'Paused',
       campaignPanels: [panel],
       interactiveUi: [
         { ...box(0, 0, 72, 360), name: 'native-hud' },
@@ -51,7 +52,7 @@ function clearWitness() {
     },
     witness: {
       overflow: false,
-      worldMessages: [text(box(80, 8, 412, 78), 'Authored active objective')],
+      inventedMessageCards: 0,
       campaignText: [text(box(86, 255, 398, 327), 'Authored campaign text')],
       diagnosticRows: Array.from({ length: 15 }, () =>
         text(box(435, 140, 654, 157), 'Diagnostic label/value')
@@ -89,14 +90,13 @@ test('serialized diagnostic layout excludes only explicitly collapsed picking ro
       return picking.hidden ? picking : null
     },
   }))
-  const pause = { ...node(good.layout.pause), textContent: good.layout.pauseText }
-  pause.closest = selector => selector === '.paused-badge' ? pause : null
+  const pause = { ...node(good.layout.pause), getAttribute: () => good.layout.pauseText }
   const exportButton = node(box(435, 270, 550, 290))
   const exportStatus = node(box(435, 294, 550, 310))
   const close = node(box(380, 245, 405, 265))
   const campaign = {
     ...node(good.layout.campaignPanels[0]),
-    querySelector: selector => selector === 'p' ? { textContent: 'Authored campaign text' } : close,
+    querySelector: selector => selector === '[data-campaign-text]' ? { getAttribute: () => 'Authored campaign text' } : close,
   }
   const overlay = {
     ...node(good.layout),
@@ -114,11 +114,11 @@ test('serialized diagnostic layout excludes only explicitly collapsed picking ro
   // DOM geometry is controlled here; rendered CSS remains a separate browser gate.
   const readLayout = runInNewContext(`(${m2DiagnosticLayout.toString()})`, {
     innerWidth: 900,
-    getComputedStyle: () => ({ visibility: 'visible', pointerEvents: 'none' }),
+    getComputedStyle: node => ({ visibility: 'visible', pointerEvents: node === overlay ? 'auto' : 'none', overflowY: 'auto' }),
     document: {
       documentElement: { scrollWidth: 900 },
-      querySelector: selector => selector === 'button.paused-badge' ? pause : null,
-      querySelectorAll: selector => selector === '.campaign-messages details[open]>div' ? [campaign] : [],
+      querySelector: selector => selector === '[data-original-pause-status]' ? pause : null,
+      querySelectorAll: selector => selector === '.campaign-messages details[open] [data-native-campaign-panel]' ? [campaign] : [],
       elementFromPoint: (x, y) => [pause, exportButton, close].find(({ bounds: r }) =>
         x >= r.left && x <= r.right && y >= r.top && y <= r.bottom),
     },
@@ -151,7 +151,7 @@ test('compact message acceptance rejects status occlusion, clipping, missing con
   assertCompactMessageWitness(good.layout, good.witness, 900, 360)
   for (const damage of [
     ({ witness }) => {
-      witness.worldMessages = []
+      witness.inventedMessageCards = 1
     },
     ({ witness }) => {
       witness.campaignText = []
@@ -166,22 +166,16 @@ test('compact message acceptance rejects status occlusion, clipping, missing con
       witness.diagnosticFields.find(node => node.metric === 'renderer').contentFits = false
     },
     ({ witness }) => {
-      witness.worldMessages[0] = text(box(309, 296, 693, 348), 'Old overlapping objective')
+      witness.campaignText[0] = text(box(309, 296, 693, 348), 'Escaping campaign glyphs')
     },
     ({ witness }) => {
-      witness.worldMessages[0].contentFits = false
+      witness.campaignText[0].contentFits = false
     },
     ({ witness }) => {
-      witness.worldMessages[0].fragments[0].right = 430
+      witness.campaignText[0].fragments[0].right = 430
     },
     ({ witness }) => {
-      witness.worldMessages[0].fontSize = 10
-    },
-    ({ witness }) => {
-      witness.worldMessages[0].lineHeight = '14px'
-    },
-    ({ witness }) => {
-      witness.worldMessages[0].fragments = []
+      witness.campaignText[0].fragments = []
     },
     ({ witness }) => {
       witness.overflow = true
@@ -193,7 +187,13 @@ test('compact message acceptance rejects status occlusion, clipping, missing con
       layout.campaignPanels[0].closeActionable = false
     },
     ({ layout }) => {
-      layout.pauseActionable = false
+      layout.pausePointerEvents = 'auto'
+    },
+    ({ layout }) => {
+      layout.events = 'none'
+    },
+    ({ layout }) => {
+      layout.overflowY = 'hidden'
     },
     ({ layout }) => {
       layout.rowsFit = false
@@ -323,7 +323,7 @@ test('compact coexistence changes placement and whitespace only within diagnosti
   assert.match(page, /<div className="game-status">/)
   const bounded = css.slice(
     css.indexOf('/* At the bounded 640x480'),
-    css.indexOf('.primary-button,.secondary-button')
+    css.indexOf('/* Browser diagnostics are exempt')
   )
   assert.match(bounded, /min-width:640px/)
   assert.match(bounded, /min-height:480px/)
@@ -336,6 +336,20 @@ test('compact coexistence changes placement and whitespace only within diagnosti
     bounded,
     /font-size|line-height|overflow:hidden|display:none|visibility:hidden|scale\(/
   )
+  const popup = css.slice(css.indexOf('/* Browser diagnostics are exempt'), css.indexOf('.primary-button,.secondary-button'))
+  assert.match(popup, /@media \(min-width:560px\) and \(max-height:700px\)/)
+  assert.match(popup, /font-size:11px;line-height:1\.2/)
+  assert.match(popup, /@media \(min-width:900px\) and \(max-height:500px\)/)
+  assert.match(popup, /grid-template-columns:2\.35fr 2\.15fr/)
+  assert.match(popup, /bottom:max\(22px,calc\(24px \* var\(--hud-scale\)\)\)/)
+  assert.match(popup, /var\(--side\) - var\(--message-width,32px\) - 16px/)
+  assert.match(popup, /var\(--campaign-popup-bottom,0px\) - 3px/)
+  assert.match(popup, /overflow:auto;pointer-events:auto;overscroll-behavior:contain/)
+
+  assert.doesNotMatch(popup, /overflow:hidden|display:none|visibility:hidden|scale\(/)
+  for (const rule of popup.split('\n').filter(line => line.includes('{') && !line.startsWith('@')))
+    assert.ok(rule.includes('.game-shell:has(.campaign-messages details[open])'), 'F8 adaptation is conditional on an open native popup')
+
 })
 
 test('separate compact hosted scenario retains old bounds and existing groups', () => {
@@ -477,4 +491,12 @@ test('existing compact hosted job invokes shared expanded picking cases against 
   assert.match(workflow, /outputs\/tutorial-browser\/\*\.json/)
   assert.match(read('scripts/tutorial-browser/fixture/main.tsx'), /import Home from '\.\.\/\.\.\/\.\.\/app\/page'/)
   assert.match(read('scripts/tutorial-browser/build-home.mjs'), /mode: 'production'/)
+})
+
+// Bitmap route text has its own projection/paint/lifetime fixtures; the compact
+// popup/F8 episode must not silently exempt the removed route card.
+test('compact observer rejects every retired world-message card including route 603', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/compact-message-layout.mjs', import.meta.url), 'utf8')
+  assert.match(source, /querySelectorAll\('\.world-message, \.route-notice'\)\.length/)
+  assert.doesNotMatch(source, /world-message:not\(\.route-notice\)|Keep the shipped status font|worldMessages/)
 })

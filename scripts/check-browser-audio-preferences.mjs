@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 // Ordinary UI volume persistence and real Soundscape gain acceptance.
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
@@ -59,8 +60,7 @@ async function ready(page) {
   await page.waitForFunction(
     () => window.testScene.world.flyby.flags & 1 || !window.testScene.world.inputMask
   )
-  const skip = page.locator('.skip-introduction')
-  if (await skip.isVisible()) await skip.click()
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
 }
 async function start(page, button = 'Mission 1') {
