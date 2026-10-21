@@ -259,6 +259,34 @@ export async function lifecycleEpisode({page,output,receipt}) {
   return {checks:['Back/Escape/All missions cleanup','23 direct-access controls','remount retains selected mission within selector','main-menu keyboard ownership after dismissal','pending texture uses newest selection','pending texture cancellation and no detached draws'],observed,limits}
 }
 
+// The shipped native selector rejects locked worlds instead of selecting them
+// for a disabled Start button. Exercise real pointer input, not force-click or
+// Enter (native Enter starts the currently selected world).
+export async function assertNativeLockedMissionRejected(page) {
+  const locked=select(page,2), available=select(page,1)
+  assert.equal(await locked.count(),1)
+  assert.equal(await locked.isDisabled(),true)
+  assert.equal(await locked.getAttribute('aria-pressed'),'false')
+  assert.equal(await available.getAttribute('aria-pressed'),'true')
+  const target=await locked.evaluate(node=>{
+    const box=node.getBoundingClientRect(), x=box.x+box.width/2, y=box.y+box.height/2
+    const hit=document.elementFromPoint(x,y)
+    return {x,y,width:box.width,height:box.height,viewportWidth:innerWidth,viewportHeight:innerHeight,
+      hit:hit===node || (hit!==null && node.contains(hit))}
+  })
+  assert.ok(['x','y','width','height','viewportWidth','viewportHeight'].every(key=>Number.isFinite(target[key])))
+  assert.ok(target.width>0 && target.height>0 && target.x>=0 && target.y>=0 &&
+    target.x<target.viewportWidth && target.y<target.viewportHeight)
+  assert.equal(target.hit,true,'Locked-world pointer probe must hit the actual control')
+  await page.mouse.click(target.x,target.y)
+  assert.equal(await locked.getAttribute('aria-pressed'),'false')
+  assert.equal(await available.getAttribute('aria-pressed'),'true')
+  assert.equal(await page.getByRole('dialog',{name:'Start game',exact:true}).isVisible(),true)
+  assert.equal(await page.locator('.world-viewport canvas').count(),0)
+  assert.equal(await page.getByRole('heading',{name:'Loading failed',exact:true}).count(),0)
+  assert.equal(await button(page,'Start Mission 1').isEnabled(),true)
+}
+
 export async function failureEpisode({page,output,receipt}) {
   await observe(page)
   await page.setViewportSize({width:800,height:600})
@@ -320,8 +348,7 @@ export async function failureEpisode({page,output,receipt}) {
   for(const mode of ['network','dimensions']) {
     await page.route(pattern,route=>mode==='network' ? route.abort('failed') : route.fulfill({status:200,contentType:'image/png',body:Buffer.from(invalidPng,'base64')}))
     await open(page);await failure();await bitmapReady()
-    await select(page,2).click()
-    assert.equal(await button(page,'Start Mission 2').isDisabled(),true)
+    await assertNativeLockedMissionRejected(page)
     await select(page,1).click()
     assert.equal(await button(page,'Start Mission 1').isEnabled(),true)
     if(mode==='network') {
