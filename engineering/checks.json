@@ -975,7 +975,7 @@
       "knownLimits": [
         "Does not run native executable, browser integration, or hardware performance checks."
       ],
-      "executable": "npm",
+      "executable": "pnpm",
       "args": ["run", "check"],
       "cwd": ".",
       "env": [],
@@ -991,7 +991,7 @@
         "parity-history.json",
         "PARITY.md"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": ["May update ignored tool caches", "Runs every top-level tests/*.test.mjs file through the bounded Node runner; resource-sensitive/unreviewed files are serial."],
       "resources": ["Serialize with other full test runs"],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -1003,12 +1003,12 @@
       "purpose": "Build the production browser application.",
       "coveredBehavior": ["Bundling", "server/client module boundaries", "production transforms"],
       "knownLimits": ["A successful build does not establish browser behavior or native parity."],
-      "executable": "npm",
+      "executable": "pnpm",
       "args": ["run", "build"],
       "cwd": ".",
       "env": [],
       "inputs": ["package.json", "app", "build"],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": ["Writes ignored dist/ and Wrangler logs"],
       "resources": ["Shared build directories; run serially"],
       "expected": { "exitCode": 0, "artifacts": ["dist/server/index.js", "dist/client/.vite/manifest.json"] }
@@ -1047,7 +1047,7 @@
         "tests/fixtures/drag-occupants.json",
         "tests/fixtures/selection-raster.json"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -1158,7 +1158,7 @@
         "tests/fixtures/player-order-append.json",
         "tests/fixtures/movement-order.json"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -1222,7 +1222,7 @@
         "app/world-initialization.ts",
         "app/original-rules.json"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -1723,7 +1723,7 @@
       "prerequisites": [
         "Documented Unicorn Python environment",
         "Hash-verified user-supplied executable with adjacent constant.dat",
-        "Installed npm dependencies"
+        "Installed locked dependencies"
       ],
       "sideEffects": [],
       "resources": ["External executable is read-only"],
@@ -4242,7 +4242,7 @@
         "app/live-construction-runtime.ts",
         "app/world-turn.ts"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -4273,7 +4273,7 @@
         "tests/fixtures/building-fetch.json",
         "tests/fixtures/timber-search.json"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -4437,7 +4437,7 @@
         "app/original-tooltips.json",
         "scripts/import-messages.py"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -4544,7 +4544,7 @@
         "app/original-rules.json"
       ],
       "prerequisites": [
-        "Installed npm dependencies"
+        "Installed locked dependencies"
       ],
       "sideEffects": [],
       "resources": [],
@@ -4661,7 +4661,7 @@
         "app/terrain-visibility.ts",
         "app/painter-order.ts"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -5017,7 +5017,7 @@
       "knownLimits": [
         "Browser pixels and native instruction comparisons run separately."
       ],
-      "executable": "npm",
+      "executable": "pnpm",
       "args": ["run", "test:level-start"],
       "inputs": [
         "package.json",

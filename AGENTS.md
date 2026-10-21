@@ -55,7 +55,7 @@ behavior, evidence quality, and existing user work. Read `GOAL.md` for direction
   commands/side effects. Unknown changed paths require explicit review, never an
   empty check set. Context/contract/audit helpers are optional aids, not a second
   project-management system; see `engineering/contracts.md` when using them.
-- Keep `npm run check` and `npm run build` as standard code-change gates. Add
+- Keep `pnpm run check` and `pnpm run build` as standard code-change gates. Add
   affected native, local rendered browser, performance, and TypeScript quality
   checks. Docs-only work may use focused structural checks with a stated rationale.
   Never weaken assertions, expected pixels, or parity scope to obtain a pass.

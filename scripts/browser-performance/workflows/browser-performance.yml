@@ -57,8 +57,19 @@ jobs:
       - name: Install common locked base dependencies
         working-directory: harness
         run: |
-          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
-          npm ci --ignore-scripts --no-audit --no-fund
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --ignore-scripts --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
           test -x /opt/google/chrome/chrome
           test -f scripts/browser-performance/run.mjs
       - name: Run sequential paired fresh browsers on this runner

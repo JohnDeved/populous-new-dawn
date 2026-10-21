@@ -61,8 +61,19 @@ jobs:
 
       - name: Install locked dependencies
         run: |
-          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
-          npm ci --no-audit --no-fund
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
           python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
 
       - name: Verify and record candidate identity
@@ -71,16 +82,16 @@ jobs:
           node scripts/orchestration/ci-gate.mjs snapshot work/ci/before.json
 
       - name: Typecheck
-        run: npm run typecheck
+        run: pnpm run typecheck
 
       - name: Parity check
-        run: npm run parity:check
+        run: pnpm run parity:check
 
       - name: Orchestration check
-        run: npm run orchestration:check
+        run: pnpm run orchestration:check
 
       - name: Production build
-        run: npm run build
+        run: pnpm run build
 
       - name: Reject tracked input mutation
         run: |
@@ -141,8 +152,19 @@ jobs:
 
       - name: Install locked dependencies
         run: |
-          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
-          npm ci --no-audit --no-fund
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
           python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
 
       - name: Verify and record candidate identity
@@ -222,8 +244,19 @@ jobs:
 
       - name: Install locked dependencies
         run: |
-          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
-          npm ci --no-audit --no-fund
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
           python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
 
       - name: Verify and record candidate identity
@@ -295,8 +328,19 @@ jobs:
 
       - name: Install locked dependencies
         run: |
-          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
-          npm ci --no-audit --no-fund
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
           python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
 
       - name: Verify and record candidate identity
@@ -305,7 +349,7 @@ jobs:
           node scripts/orchestration/ci-gate.mjs snapshot work/ci/before.json
 
       - name: Legacy full test suite
-        run: npm test
+        run: pnpm test
 
       - name: Reject tracked input mutation
         run: |

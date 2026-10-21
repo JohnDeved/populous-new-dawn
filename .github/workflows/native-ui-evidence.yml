@@ -39,6 +39,7 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /scripts/native-ui-evidence/
+            /scripts/orchestration/dependency-profile.mjs
             /scripts/tutorial-browser/browser-config.mjs
             /.github/workflows/native-ui-evidence.yml
       - name: Set up Node
@@ -62,12 +63,23 @@ jobs:
         working-directory: candidate
         run: |
           test "$(git rev-parse HEAD)" = "$PND_UI_CANDIDATE_SHA"
-          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
-          npm ci --no-audit --no-fund
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
           test -x /opt/google/chrome/chrome
           /opt/google/chrome/chrome --version
           node --version
-          npm --version
+          if [ "$manager" = pnpm@11.25.0 ]; then pnpm --version; else npm --version; fi
       - name: Build candidate Home and run all seven mandatory UI episodes
         run: |
           node --max-old-space-size=768 evidence-infrastructure/scripts/native-ui-evidence/run.mjs \

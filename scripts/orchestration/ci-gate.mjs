@@ -9,6 +9,8 @@ import { fileURLToPath } from 'node:url'
 import { gzipSync } from 'node:zlib'
 import { discoverTests, planTestShard, testGroupCommand, TIMING_REPORTER } from './test-runner.mjs'
 
+import { dependencyReceipt, portablePnpmRuntime, sourcePackageManager, validPnpmInstallation, PNPM_MANAGER } from './dependency-profile.mjs'
+
 const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const read = path => JSON.parse(readFileSync(path, 'utf8'))
@@ -36,17 +38,22 @@ export function candidateSnapshot(repo, env = process.env) {
   const tracked = git('ls-tree', '-r', '--name-only', 'HEAD', '--', 'tests').split('\n').filter(file => /^tests\/[^/]+\.test\.mjs$/.test(file)).sort()
   assert.deepEqual(files, tracked, 'Discovered test inventory differs from committed source')
   const inventory = files.map(file => ({ file, sha256: hash(readFileSync(join(repo, file))) }))
-  const runtime = { node: process.versions.node, npm: run(repo, 'npm', ['--version']),
+  const dependencies = dependencyReceipt(repo), pnpm = dependencies.dependencyFormat === 'pnpm-isolated-v1'
+  const installed = pnpm ? portablePnpmRuntime(dependencies) : null
+  assert.equal(pnpm, sourcePackageManager(repo) === PNPM_MANAGER, 'Hosted install must follow exact source policy')
+  const runtime = { node: process.versions.node, ...(pnpm ? installed.runtime : { npm: run(repo, 'npm', ['--version']) }),
     python: run(repo, 'python', ['-c', 'import platform; print(platform.python_version())']),
     pillow: run(repo, 'python', ['-c', 'import PIL; print(PIL.__version__)']),
     platform: process.platform, arch: process.arch,
     lockSha256: hash(readFileSync(join(repo, 'package-lock.json'))),
-    installedLockSha256: hash(readFileSync(join(repo, 'node_modules/.package-lock.json'))),
+    ...(pnpm ? {} : dependencies),
     timingReporterSha256: hash(readFileSync(join(repo, TIMING_REPORTER))) }
-  assert.equal(runtime.node, '24.19.0'); assert.equal(runtime.npm, '11.9.0')
+  assert.equal(runtime.node, '24.19.0')
+  if (pnpm) assert.equal(run(repo, 'pnpm', ['--version']), '11.25.0')
+  else assert.equal(runtime.npm, '11.9.0')
   assert.equal(runtime.python, '3.12.14'); assert.equal(runtime.pillow, '12.3.0')
   assert.equal(runtime.platform, 'linux'); assert.equal(runtime.arch, 'x64')
-  return { identity, runtime, inventory }
+  return { identity, runtime, inventory, ...(pnpm ? { installation: installed.installation } : {}) }
 }
 
 export function validateShard(receipt, plan) {
@@ -75,7 +82,8 @@ export function validateGate(snapshot, envelopes, plans, needs) {
   const shards = envelopes.filter(item => item.kind === 'shard').sort((a, b) => a.shard.plan.shard.index - b.shard.plan.shard.index)
   assert.equal(quality.length, 1); assert.equal(shards.length, 4)
   for (const envelope of envelopes) {
-    assert.equal(envelope.version, 1); assert.equal(envelope.status, 'passed')
+    assert.equal(envelope.version, snapshot.runtime.dependencyFormat === 'pnpm-isolated-v1' ? 2 : 1); assert.equal(envelope.status, 'passed')
+    if (envelope.version === 2) assert(validPnpmInstallation(envelope.installation), 'Missing genuine per-install metadata')
     for (const key of ['identity', 'runtime', 'inventory']) assert.deepEqual(envelope[key], snapshot[key], `Receipt ${key} drift`)
   }
   assert.deepEqual(quality[0].stages, QUALITY_STAGES)
@@ -84,7 +92,8 @@ export function validateGate(snapshot, envelopes, plans, needs) {
     validateShard(envelope.shard, plans[index])
   })
   assert.deepEqual(shards.flatMap(item => item.shard.plan.files).sort(), snapshot.inventory.map(item => item.file), 'Shard coverage must include every test exactly once')
-  return { version: 1, kind: 'full-check', ...snapshot, quality: quality[0], shards, status: 'passed' }
+  if (snapshot.runtime.dependencyFormat === 'pnpm-isolated-v1') assert(validPnpmInstallation(snapshot.installation))
+  return { version: snapshot.runtime.dependencyFormat === 'pnpm-isolated-v1' ? 2 : 1, kind: 'full-check', ...snapshot, quality: quality[0], shards, status: 'passed' }
 }
 
 // Bound log lines without weakening the independently verifiable raw receipt.
@@ -128,7 +137,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.log(JSON.stringify(snapshot))
     } else if (mode === 'quality' || mode === 'shard' || mode === 'baseline') {
       assert.deepEqual(snapshot, read(path), 'Inputs changed after validation')
-      const receipt = { version: 1, kind: mode, ...snapshot, status: 'passed' }
+      const receipt = { version: snapshot.runtime.dependencyFormat === 'pnpm-isolated-v1' ? 2 : 1, kind: mode, ...snapshot, status: 'passed' }
       if (mode === 'quality') receipt.stages = QUALITY_STAGES
       else if (mode === 'baseline') receipt.stages = ['tests']
       else {

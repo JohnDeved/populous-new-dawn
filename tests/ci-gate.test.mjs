@@ -171,3 +171,17 @@ test('gate accepts only exact legacy or fixed diagnostic commands, never timing 
   const drift = structuredClone(f); drift.envelopes[1].runtime.timingReporterSha256 = 'f'.repeat(64)
   assert.throws(() => validate(drift), /runtime drift/)
 })
+
+test('pnpm envelopes compare portable locks while binding each installation separately', () => {
+  const f = fixture()
+  f.snapshot.runtime = { ...f.snapshot.runtime, dependencyFormat: 'pnpm-isolated-v1', pnpmLockSha256: 'd'.repeat(64) }
+  f.snapshot.installation = { modulesMetadataSha256: '0'.repeat(64) }
+  f.envelopes.forEach((e, i) => { e.version = 2; e.runtime = { ...f.snapshot.runtime }; e.installation = { modulesMetadataSha256: String(i + 1).repeat(64) } })
+  assert.equal(validate(f).version, 2)
+  for (const mutate of [
+    x => { delete x.envelopes[0].installation },
+    x => { x.envelopes[1].installation.modulesMetadataSha256 = 'not-a-hash' },
+    x => { x.envelopes[2].version = 1 },
+    x => { x.envelopes[3].runtime.pnpmLockSha256 = 'e'.repeat(64) },
+  ]) { const bad = structuredClone(f); mutate(bad); assert.throws(() => validate(bad)) }
+})
