@@ -68,6 +68,9 @@ export async function launchCampaignMission(page, mission) {
 }
 
 export const openCampaignFixtureGame = (browser, mission = 1) => openGame(browser, mission, { campaignFixture: true })
+// No profile seeding: use only initial or already-restored native availability.
+// This also keeps fresh Mission 1 usable when browser persistence is unavailable.
+export const openCampaignGame = (browser, mission = 1) => openGame(browser, mission, { nativeCampaign: true })
 
 export async function bindGame(page) {
   await page.waitForSelector('.world-viewport canvas')
@@ -138,7 +141,8 @@ export async function waitForShamanReadiness(page, { timeout = 30000, polling = 
 }
 
 // Shared setup for desktop checks; keep test access out of the shipped game API.
-export async function openGame(browser, mission = 1, { campaignFixture = false } = {}) {
+export async function openGame(browser, mission = 1, { campaignFixture = false, nativeCampaign = false } = {}) {
+  if (campaignFixture && nativeCampaign) throw new TypeError('Choose declared fixture or existing campaign availability, not both')
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }),
     page = await context.newPage()
   const errors = []
@@ -149,7 +153,8 @@ export async function openGame(browser, mission = 1, { campaignFixture = false }
   if (campaignFixture) {
     await prepareCampaignFixture(page, mission)
     await launchCampaignMission(page, mission)
-  } else await launchDebugMission(page, mission)
+  } else if (nativeCampaign) await launchCampaignMission(page, mission)
+  else await launchDebugMission(page, mission)
   await bindGame(page)
   await page.waitForFunction(() => window.testScene.world.flyby.flags & 1 || !window.testScene.world.inputMask)
   await skipIntroductionWithSpace(page)
