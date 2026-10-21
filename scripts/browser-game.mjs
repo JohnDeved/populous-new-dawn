@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { openCampaignFromMainMenu, waitForStartupMenu } from './browser-new-game.mjs'
 // Explicit public-UI setup for checks that start an arbitrary mission.
 // Campaign progression acceptance uses native panel selection + Start instead.
@@ -99,7 +100,7 @@ export async function openGame(browser, mission = 1) {
   await page.keyboard.press('Enter')
   await bindGame(page)
   await page.waitForFunction(() => window.testScene.world.flyby.flags & 1 || !window.testScene.world.inputMask)
-  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  await skipIntroductionWithSpace(page)
   await page.waitForFunction(() => !window.testScene.world.inputMask)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await page.evaluate(() => { window.testScene = window.testSceneRef.current })

@@ -20,9 +20,17 @@ test('F9 diagnostics read current readiness and modal state without mutating the
   assert.deepEqual(JSON.parse(JSON.stringify(state)), {
     turn: 4, inputMask: 192, paused: false, flybyFlags: 16, status: 'playing',
     sceneMatchesWorld: true, sceneConnected: true, sceneStarted: true, sceneDisposed: false,
-    modalSuspended: false, hidden: false, loading: true, skipIntroduction: false, dialogs: ['Game menu'],
+    modalSuspended: false, hidden: false, loading: true, introductionActive: false, dialogs: ['Game menu'],
   })
   assert.deepEqual(world, before)
+  for (const flags of [0, 1, 16, 17, 64, 65]) {
+    const current = { ...world, flyby: { flags } }, saved = structuredClone(current)
+    const snapshot = vm.runInNewContext(`(${spellTestDiagnosticSnapshot})()`, {
+      window: { testStore: { getWorld: () => current }, testSceneRef: { current: { ...scene, world: current } } }, document,
+    })
+    assert.equal(snapshot.introductionActive, !!(flags & 1), 'native active bit, not a removed Skip element')
+    assert.deepEqual(current, saved, 'diagnostic reads cannot mutate introduction state')
+  }
   assert.doesNotThrow(() => vm.runInNewContext(`(${spellTestDiagnosticSnapshot})()`, { window: {}, document }))
 })
 
@@ -80,8 +88,13 @@ test('F9 uses one absolute measured-headroom cap without changing readiness or t
   assert.doesNotMatch(source, /report\.status = 'passed'/, 'no success before final cleanup validation')
   for (const phase of ['new game', 'checkpoint load', 'restart'])
     assert.ok(source.includes(`await waitReady('${phase}')`))
-  assert.equal((source.match(/await page\.waitForFunction\(\(\) => !window\.testStore\.getWorld\(\)\.inputMask/g) ?? []).length, 2,
-    'both original readiness waits remain')
+  assert.match(source, /import \{ skipIntroductionWithSpace \} from '\.\.\/browser-introduction\.mjs'/)
+  assert.match(source, /await bindGame\(page\)[\s\S]*?await skipIntroductionWithSpace\(page, \{ timeout: 12000 \}\)[\s\S]*?await page\.waitForFunction\(\(\) => !window\.testStore\.getWorld\(\)\.inputMask\)/,
+    'shared bounded native readiness precedes the final unlocked-input wait')
+  assert.equal((source.match(/await skipIntroductionWithSpace\(page, \{ timeout: 12000 \}\)/g) ?? []).length, 1)
+  assert.equal((source.match(/await page\.waitForFunction\(\(\) => !window\.testStore\.getWorld\(\)\.inputMask/g) ?? []).length, 1,
+    'final readiness wait remains after the shared native helper')
+  assert.doesNotMatch(source, /\.skip-introduction/, 'readiness cannot depend on the removed browser button')
 })
 
 test('F9 absolute deadline admits measured slow progress but never resets elapsed time', () => {

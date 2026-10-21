@@ -238,37 +238,27 @@ test('a newer in-session Save wins over a delayed lookup started through the pau
   }, { failFirstRestore: true })
 })
 
-test('recovery startup waits through delayed, hidden and disabled public Skip controls', async () => {
+test('recovery startup admits only native interruptible flyby input or an unlocked world', async () => {
   const { pauseStartupReady } = await import('../scripts/local-render/original-pause-checkpoint-recovery.mjs')
   const { runInNewContext } = await import('node:vm')
-  const world = { inputMask: 1, flyby: { flags: 1 } }
-  let skip = null
-  const context = {
-    window: { testStore: { getWorld: () => world } },
-    document: { querySelector: selector => {
-      assert.equal(selector, 'button.skip-introduction')
-      return skip
-    } },
-    getComputedStyle: node => ({ visibility: node.visibility }),
-  }
+  const world = { inputMask: 64, flyby: { flags: 0 } }
+  const context = { window: { testStore: { getWorld: () => world } } }
   const poll = () => runInNewContext(`(${pauseStartupReady.toString()})()`, context)
-  assert.equal(poll(), false, 'flyby state alone cannot admit a not-yet-rendered control')
-  skip = { getClientRects: () => [], visibility: 'visible', disabled: false }
-  assert.equal(poll(), false)
-  skip.getClientRects = () => [{}]
-  skip.visibility = 'hidden'
-  assert.equal(poll(), false)
-  skip.visibility = 'visible'
-  skip.disabled = true
-  assert.equal(poll(), false)
-  skip.disabled = false
-  assert.equal(poll(), 'skip', 'later React commit becomes actionable without a fixed sleep')
+  for (const flags of [0, 1, 16, 64, 65, 80, 81, 85]) {
+    world.flyby.flags = flags
+    assert.equal(poll(), false, `flags ${flags} are not active, interruptible, unfinished input`)
+  }
+  for (const flags of [17, 21]) {
+    world.flyby.flags = flags
+    assert.equal(poll(), 'skip', 'native Space does not depend on an invented DOM control')
+  }
+  world.inputMask = 128
+  assert.equal(poll(), false, 'unrelated input lock cannot admit Space')
   world.inputMask = 0
-  skip = null
-  assert.equal(poll(), 'ready', 'naturally completed introduction does not require a stale click')
+  assert.equal(poll(), 'ready', 'natural completion must not issue an extra Space pause toggle')
 })
 
-test('recovery scenario awaits actionable startup and uses public click before unlocked-input assertion', () => {
+test('recovery scenario awaits actionable startup and uses native Space before unlocked-input assertion', () => {
   const source = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-recovery.mjs', import.meta.url), 'utf8')
   const entry = source.slice(source.indexOf('  async function enterMission'), source.indexOf('  async function openFailedLoad'))
   assert.match(entry, /await page.waitForFunction\(pauseStartupReady\)/)
@@ -281,34 +271,30 @@ test('recovery scenario awaits actionable startup and uses public click before u
   assert.equal(browserCapMs('pause-checkpoint-recovery'), 180000)
 })
 
-test('natural completion during public Skip activation is accepted only after the click settles', async () => {
+test('natural completion during native Space delivery is accepted only after delivery settles', async () => {
   const { skipPauseIntroduction } = await import('../scripts/local-render/original-pause-checkpoint-recovery.mjs')
-  for (const mode of ['already-unlocked', 'click-success', 'unlocks-during-click', 'still-locked']) {
-    let reads = 0, clicks = 0, settled = false
-    const failure = new Error('Skip disappeared or remained unclickable')
+  for (const mode of ['already-unlocked', 'press-success', 'unlocks-during-press', 'still-locked']) {
+    let reads = 0, presses = 0, settled = false
+    const failure = new Error('Space delivery failed')
     const page = {
       evaluate: async () => {
         reads++
-        if (reads === 1) return mode === 'already-unlocked'
-        assert.equal(settled, true, 'cannot inspect completion while an abandoned click is pending')
-        return mode === 'still-locked'
+        if (reads === 1) return { action: mode === 'already-unlocked' ? 'ready' : 'skip', paused: false }
+        assert.equal(settled, true, 'cannot inspect completion while abandoned keyboard delivery is pending')
+        return { action: mode === 'still-locked' ? 'skip' : 'ready', paused: false }
       },
-      getByRole: (role, options) => {
-        assert.equal(role, 'button')
-        assert.equal(options.name.test('Skip introduction ESC'), true)
-        return { click: async options => {
-          clicks++
-          assert.equal(options.timeout, 2500)
-          await Promise.resolve()
-          settled = true
-          if (mode !== 'click-success') throw failure
-        } }
-      },
+      keyboard: { press: async key => {
+        assert.equal(key, 'Space')
+        presses++
+        await Promise.resolve()
+        settled = true
+        if (mode !== 'press-success') throw failure
+      } },
     }
     if (mode === 'still-locked') await assert.rejects(skipPauseIntroduction(page), error => error === failure)
     else await skipPauseIntroduction(page)
-    assert.equal(clicks, mode === 'already-unlocked' ? 0 : 1)
-    if (clicks) assert.equal(settled, true)
+    assert.equal(presses, mode === 'already-unlocked' ? 0 : 1)
+    if (presses) assert.equal(settled, true)
   }
 })
 
@@ -399,9 +385,9 @@ for (const [label, callback, destination] of [
 
 test('actual Home quit callbacks retain different destinations and clear obsolete menu ownership', () => {
   for (const [name, campaign, callback] of [['exitTutorial', false, 'onQuitGame'], ['quitLevel', true, 'onQuitLevel']]) {
-    const states = {}, menuSession = { current: {} }, pendingMenuCamera = { current: [() => {}] }, loadRequest = { current: {} }
+    const states = {}, menuSession = { current: {} }, loadRequest = { current: {} }
     let cancelled = 0, reset = 0
-    const bindings = { menuSession, pendingMenuCamera, loadRequest,
+    const bindings = { menuSession, loadRequest,
       cancelNearbyInput() { cancelled++ }, engine: { current: {} }, audio: { current: { reset() { reset++ } } },
       ...Object.fromEntries(['CheatsOpen', 'Menu', 'Ready', 'Error', 'StartupCampaign', 'Startup', 'SelectorOpen'].map(key => [`set${key}`, value => { states[key] = value }])) }
     const node = pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === name)
@@ -419,7 +405,7 @@ test('actual Home quit callbacks retain different destinations and clear obsolet
     assert.equal(states.CheatsOpen, false)
     assert.equal(states.Startup, 'choice'); assert.equal(states.StartupCampaign, campaign)
     assert.equal(states.Menu, false); assert.equal(states.Ready, false)
-    assert.equal(menuSession.current, null); assert.deepEqual(pendingMenuCamera.current, [])
+    assert.equal(menuSession.current, null)
     assert.equal(loadRequest.current, null); assert.equal(cancelled, 1); assert.equal(reset, 1)
   }
 })

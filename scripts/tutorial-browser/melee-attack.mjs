@@ -1,3 +1,4 @@
+import { pressIntroductionSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -300,7 +301,7 @@ export function installMeleeFrameObserver(originalMapping) {
                 width: width / scaleX, height: height / scaleY }
               const owner = document.elementFromPoint(rect.left + bounds.x + bounds.width / 2,
                 rect.top + bounds.y + bounds.height / 2)
-              const overlays = [...document.querySelectorAll('.native-hud,.paused-badge,.campaign-messages summary,.campaign-messages details[open]>div,.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
+              const overlays = [...document.querySelectorAll('.native-hud,[data-original-pause-status],.campaign-messages summary,.campaign-messages details[open] [data-native-campaign-panel],.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
                 .filter(element => { const style = getComputedStyle(element)
                   return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0 })
                 .map(element => { const r = element.getBoundingClientRect()
@@ -414,7 +415,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     const startup = await page.waitForFunction(m2StartupReady)
     report.startup = await startup.jsonValue(); await startup.dispose()
     assert.equal(report.startup.level, 2)
-    if (report.startup.action === 'skip') await action('Skip introduction', () => page.getByRole('button', { name: /^Skip introduction/ }).click())
+    if (report.startup.action === 'skip') await action('Skip introduction', () => pressIntroductionSpace(page, { timeout: 10000 }))
     await page.waitForFunction(() => {
       const w = window.testStore.getWorld()
       return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn

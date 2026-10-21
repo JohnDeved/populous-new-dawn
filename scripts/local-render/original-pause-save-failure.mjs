@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
@@ -7,9 +8,8 @@ export default async function({page,root,output}) {
  const button=name=>page.getByRole('button',{name,exact:true})
  await page.setViewportSize({width:800,height:600})
  await openCampaignFromMainMenu(page);await button('Start Mission 1').click();await bindGame(page)
- await page.getByRole('button',{name:'Continue anyway',exact:false}).click()
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
- await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
+ await skipIntroductionWithSpace(page, { timeout: 45000 })
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  await button('Pause game').click();assert.equal(await page.evaluate(()=>window.testStore.getWorld().paused),true)
  await button('Game settings').click();await button('Save Game').click()
