@@ -149,7 +149,7 @@ test('ordinary null-mode pointer witnesses use processed tooltip cells, not plac
     new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
     'utf8'
   )
-  assert.match(source, /await skipIntroductionWithSpace\(page, \{ timeout: 10000 \}\)/)
+  assert.match(source, /await skipIntroductionWithSpace\(page, \{ timeout: 10000, closedPopups: report.inputPopups \}\)/)
   assert.doesNotMatch(source, /getByRole\([^\n]*Skip introduction|skip-introduction/)
 })
 
