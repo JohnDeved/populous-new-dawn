@@ -24,7 +24,7 @@ function fixture() {
   const bindings = {
     store, world, nextMission: 2, OriginalResultScreen: 'OriginalResultScreen', WorldSelector: 'WorldSelector',
     engine: { current: { nearbyFollowersHudActive: true } }, cancelNearbyInput() {},
-    menuSession: { current: { world, paused: false } }, pendingMenuCamera: { current: [() => assert.fail('stale camera action')] },
+    menuSession: { current: { world, paused: false } },
     audio: { current: { reset() { audioResets++ } } }, loadRequest: { current: null },
     openMenu() { menuOpened++ },
     missionNumbers: [1, 2], completedMissions: [], startMission() {}, tutorialLevel: 79, loadCheckpoint() {},
@@ -81,7 +81,6 @@ test('Home result Restart replaces the paused terminal world and clears stale me
   assert.equal(ui.world.status, 'lost')
   assert.equal(ui.world.paused, true)
   assert.equal(ui.bindings.menuSession.current, null)
-  assert.deepEqual(ui.bindings.pendingMenuCamera.current, [])
   assert.deepEqual(ui.bindings.loadRequest.current, { kind: 'restart' })
   assert.deepEqual(ui.state, { cheatsOpen: false, menu: false, selectorOpen: false, ready: false, error: '', tab: 'spells', startup: 'playing' })
   assert.equal(ui.counts().audioResets, 1)

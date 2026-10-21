@@ -1,70 +1,128 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { renderToStaticMarkup } from 'react-dom/server'
 import ts from 'typescript'
-import { createWorld } from '../app/model.ts'
-import { missionNumbers, tutorialLevel } from '../app/mission-data.ts'
-import rules from '../app/original-rules.json' with { type: 'json' }
 
+const page = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
+const parsed = ts.createSourceFile('page.tsx', page, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+assert.equal(parsed.parseDiagnostics.length, 0, 'actual Home TSX parses')
+const compatibility = []
+function visit(node) {
+  if (ts.isJsxAttribute(node) && node.name.getText(parsed) === 'compatibility')
+    compatibility.push(node.initializer.expression.getText(parsed))
+  ts.forEachChild(node, visit)
+}
+visit(parsed)
+assert.equal(compatibility.length, 1, 'one actual in-game browser compatibility owner')
 const require = createRequire(import.meta.url)
 const component = { exports: {} }
-new Function('require', 'module', 'exports', ts.transpileModule(
-  readFileSync(new URL('../app/browser-help-tips.tsx', import.meta.url), 'utf8'),
-  { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } },
-).outputText)(require, component, component.exports)
-const markup = level => renderToStaticMarkup(component.exports.BrowserHelpTips({ level }))
-const page = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
+new Function('require', 'module', 'exports', ts.transpileModule(`
+  export function content(context) {
+    const { world, store, setMenu, openSelector, engine, update, hudSize, setHudSize,
+      localStorage, toggleSound, soundPending, sound, audioStorageNotice, audioStartNotice } = context;
+    return (${compatibility[0]});
+  }`, {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
+}).outputText)(require, component, component.exports)
 
-test('Mission 1 directions match authored shrine locations, reward count and stock limit', () => {
-  const world = createWorld(1)
-  const bridge = world.shrines.find(head => head.reward === 'bridge')
-  const lightning = world.shrines.find(head => head.reward === 'lightning')
-  assert.deepEqual([bridge.x, bridge.z], [-5, 25])
-  assert.deepEqual([lightning.x, lightning.z, lightning.remaining], [11, 1, 4])
-  assert.equal(rules.spellCharging[12].normalLimit, 4)
-  assert.match(markup(world.outcome.level), /Mission 1: Worship the southern head for Land Bridge/)
-  assert.match(markup(1), /central head for four Lightning gifts/)
-})
-
-test('all other campaign missions and tutorial retain general help without Mission 1 directions', () => {
-  for (const level of [...missionNumbers, tutorialLevel, 999]) {
-    const html = markup(level)
-    assert.match(html, /Right-click a rechargeable spell/)
-    assert.match(html, /Only your shaman can learn at the vault/)
-    assert.match(html, /completed training hut to train them/)
-    if (level !== 1) {
-      assert.doesNotMatch(html, /southern head|central head|four Lightning|data-mission-help/)
-    }
+function fixture(overrides = {}) {
+  const calls = [], world = { outcome: { level: 1 }, speed: 1 }
+  const context = {
+    world, store: { change: action => action(world) },
+    setMenu: value => calls.push(['menu', value]), openSelector: () => calls.push(['selector']),
+    engine: { current: { fpsGraph: false, togglePerformance: () => calls.push(['F8']) } },
+    update: () => calls.push(['update']), hudSize: 'auto', setHudSize: value => calls.push(['hud', value]),
+    localStorage: { setItem: (key, value) => calls.push(['storage', key, value]) },
+    toggleSound: () => calls.push(['sound']), sound: false, soundPending: false,
+    audioStorageNotice: '', audioStartNotice: '', ...overrides,
   }
-  // Re-rendering the same production component follows current mission, not initial startup.
-  assert.match(markup(1), /data-mission-help="1"/)
-  assert.doesNotMatch(markup(2), /data-mission-help/)
-  assert.match(markup(1), /data-mission-help="1"/)
+  function tree(element) {
+    return !element || typeof element !== 'object' ? []
+      : [element, ...[element.props?.children].flat(Infinity).flatMap(tree)]
+  }
+  const render = () => component.exports.content(context)
+  return { calls, context, world, markup: () => renderToStaticMarkup(render()),
+    button: text => {
+      const match = tree(render()).filter(node => node.type === 'button' &&
+        renderToStaticMarkup(node).includes(text))
+      assert.equal(match.length, 1, `one actual button: ${text}`)
+      return match[0].props
+    },
+    hud: () => tree(render()).find(node => node.type === 'select').props }
+}
+
+test('normal Browser compatibility content contains no invented strategy, checklist, controls guide or references', () => {
+  const ui = fixture()
+  // The same live fragment follows all campaign and tutorial worlds without strategy prose.
+  for (const level of [...Array.from({ length: 25 }, (_, index) => index + 1), 79, 999]) {
+    ui.world.outcome.level = level
+    assert.doesNotMatch(ui.markup(), /Objectives|Mission \d|Worship|Land Bridge|casting range|vault|Controls|camera bookmarks|About this recreation|Gameplay reference|Zoom in|Zoom out|Focus settlement|Camera changes apply|\d\d:\d\d/)
+  }
+  assert.doesNotMatch(page, /BrowserHelpTips|menu-objectives|help-grid|reference-details|pendingMenuCamera|timeLabel/)
+  assert.equal(existsSync(new URL('../app/browser-help-tips.tsx', import.meta.url)), false)
 })
 
-test('live Browser help receives current world level and labels historical references explicitly', () => {
-  assert.match(page, /<BrowserHelpTips level=\{world\.outcome\.level\} \/>/)
-  assert.match(page, /<h3>Controls<\/h3>/)
-  assert.match(page, /Mission 1 reference: The Journey Begins/)
-  assert.doesNotMatch(page, /Your powers, at a glance/)
+test('retained game speed and HUD accessibility controls use actual handlers and tolerate unavailable storage', () => {
+  const ui = fixture()
+  ui.button('1× game speed').onClick()
+  assert.equal(ui.world.speed, 2)
+  ui.button('2× game speed').onClick()
+  assert.equal(ui.world.speed, 1)
+  assert.match(ui.markup(), /aria-label="HUD size"/)
+  for (const value of ['auto', '1', '1.5', '2', '2.5', '3', '4']) {
+    ui.hud().onChange({ target: { value } })
+    assert.deepEqual(ui.calls.slice(-2), [['hud', value], ['storage', 'hud-size', value]])
+  }
+  const denied = fixture({ localStorage: { setItem() { throw new Error('storage unavailable') } } })
+  assert.doesNotThrow(() => denied.hud().onChange({ target: { value: '2' } }))
+  assert.deepEqual(denied.calls, [['hud', '2']])
 })
 
-test('actual page synopsis does not direct Mission 19 or unknown missions to Armageddon', () => {
-  const parsed = ts.createSourceFile('page.tsx', page, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
-  let synopsis
+test('audio activation and truthful recovery notices remain visible and pending activation remains disabled', () => {
+  const ui = fixture({ audioStorageNotice: 'Storage unavailable', audioStartNotice: 'Audio needs another gesture' })
+  ui.button('Enable sound').onClick()
+  assert.deepEqual(ui.calls, [['sound']])
+  assert.match(ui.markup(), /role="status">Storage unavailable/)
+  assert.match(ui.markup(), /role="status">Audio needs another gesture/)
+  ui.context.soundPending = true
+  assert.equal(ui.button('Enable sound').disabled, true)
+  assert.equal(ui.button('Enable sound')['aria-busy'], true)
+  ui.context.sound = true
+  assert.match(ui.markup(), /Sound on/)
+})
+
+test('browser mission access and exempt F8 control keep their live actions', () => {
+  const ui = fixture()
+  ui.button('Select Level').onClick()
+  assert.deepEqual(ui.calls, [['menu', false], ['selector']])
+  ui.button('Toggle performance overlay · F8').onClick()
+  assert.deepEqual(ui.calls.slice(-2), [['F8'], ['update']])
+  ui.context.engine.current.fpsGraph = true
+  assert.equal(ui.button('Toggle performance overlay · F8')['aria-pressed'], true)
+  assert.match(page, /<FullscreenControl \/>/)
+  assert.match(page, /<SpellTestMenu/)
+  assert.match(page, /<OriginalCampaignPopup/)
+  assert.match(page, /aria-label="Select and focus shaman"/)
+})
+
+
+test('startup compatibility fallback names only controls retained on the battlefield menu', () => {
+  const source = ts.createSourceFile('original-options.tsx', readFileSync(new URL('../app/original-options.tsx', import.meta.url), 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const fallbacks = []
   function visit(node) {
-    if (ts.isJsxExpression(node) && node.expression?.getText(parsed).startsWith('world.outcome.level === tutorialLevel')) synopsis = node.expression
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken &&
+      node.left.getText(source) === 'compatibility') fallbacks.push(node.right.getText(source))
     ts.forEachChild(node, visit)
   }
-  visit(parsed)
-  assert.ok(synopsis)
-  const readSynopsis = new Function('world', 'tutorialLevel', `return (${synopsis.getText(parsed)})`)
-  assert.equal(readSynopsis({ outcome: { level: 19 } }, tutorialLevel), null)
-  assert.equal(readSynopsis({ outcome: { level: 999 } }, tutorialLevel), null)
-  assert.deepEqual(createWorld(19).shrines.map(head => head.reward), ['firestorm', 'volcano', 'teleport'])
-  for (const level of [18, 23]) assert.match(readSynopsis({ outcome: { level } }, tutorialLevel), /seek Armageddon/)
-  assert.match(readSynopsis({ outcome: { level: 1 } }, tutorialLevel), /Worship for Land Bridge/)
-  assert.match(readSynopsis({ outcome: { level: tutorialLevel } }, tutorialLevel), /World View with Return/)
+  visit(source)
+  assert.equal(fallbacks.length, 1)
+  const fallback = { exports: {} }
+  new Function('require', 'module', 'exports', ts.transpileModule(`module.exports = (${fallbacks[0]})`, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX },
+  }).outputText)(require, fallback, fallback.exports)
+  const html = renderToStaticMarkup(fallback.exports)
+  assert.match(html, /HUD size, audio and game speed/)
+  assert.doesNotMatch(html, /camera controls|help/)
 })

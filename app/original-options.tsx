@@ -301,7 +301,7 @@ export function OriginalOptions({
           </h2>
           {compatibility ?? (
             <p>
-              In-game HUD size, camera controls and help are available from the battlefield menu.
+              HUD size, audio and game speed are available from the battlefield menu.
             </p>
           )}
           <button onClick={returnFromBrowser} data-return-options>
