@@ -112,7 +112,7 @@ export default async function spellProjection({ browser, url, output, root, dist
     if ((await startup.jsonValue()) === 'skip')
       await skipIntroductionWithSpace(page, { timeout: 10000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-    await button('Pause game').click()
+    await page.locator('.world-viewport').press('Space')
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     await page.evaluate(() => {
       window.spellProjectionWitness = {
@@ -177,12 +177,12 @@ export default async function spellProjection({ browser, url, output, root, dist
     })
     coverageStarted = true
     await cdp.send('Profiler.takePreciseCoverage') // Reset startup/paused activity immediately before public Resume.
-    await button('Resume game').click()
+    await page.locator('.world-viewport').press('Space')
     await page.waitForFunction(
       turn => !window.testStore.getWorld().paused && window.testStore.getWorld().turn >= turn + 8,
       report.before.turn
     )
-    await button('Pause game').click()
+    await page.locator('.world-viewport').press('Space')
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     const coverage = await cdp.send('Profiler.takePreciseCoverage')
     report.after = await read()

@@ -32,7 +32,7 @@ export default async function({page,url,root,output,receipt}) {
   await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
   await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
-  await button('Game settings').click();await button('Save Game').click();await button('Save checkpoint').click()
+  await button('Menu').click();await button('Save Game').click();await button('Save checkpoint').click()
   await page.getByText('Checkpoint saved in this browser.',{exact:true}).waitFor()
   const saved=await page.evaluate(()=>({level:window.testStore.getWorld().outcome.level,turn:window.testStore.getWorld().turn}))
   await page.keyboard.press('Escape');await button('Options').click();await button('Browser compatibility and help').click();await button('Select Level').click()

@@ -102,13 +102,13 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
   const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click(waitOptions()))
   const pause = async () => {
     admit()
-    if (!(await page.evaluate(() => window.testSceneRef.current.world.paused))) await button('Pause game')
+    if (!(await page.evaluate(() => window.testSceneRef.current.world.paused))) await action('Pause game', () => page.locator('.world-viewport').press('Space', waitOptions()))
     await page.waitForFunction(() => window.testSceneRef.current.world.paused, null, waitOptions())
     admit()
   }
   const resume = async () => {
     admit()
-    if (await page.evaluate(() => window.testSceneRef.current.world.paused)) await button('Resume game')
+    if (await page.evaluate(() => window.testSceneRef.current.world.paused)) await action('Resume game', () => page.locator('.world-viewport').press('Space', waitOptions()))
     await page.waitForFunction(() => !window.testSceneRef.current.world.paused, null, waitOptions())
     admit()
   }

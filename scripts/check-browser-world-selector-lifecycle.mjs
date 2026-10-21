@@ -20,7 +20,7 @@ export default async function({page,root,output,receipt}) {
     const gl=window.testScene.renderer.getContext(), debug=gl.getExtension('WEBGL_debug_renderer_info')
     return debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)
   })
-  await page.getByRole('button',{name:'Game settings',exact:true}).click()
+  await page.getByRole('button',{name:'Menu',exact:true}).click()
   await page.getByRole('button',{name:'Options',exact:true}).click()
   await page.getByRole('button',{name:'Browser compatibility and help',exact:true}).click()
   await page.getByRole('button',{name:'Select Level',exact:true}).click()

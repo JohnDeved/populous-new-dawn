@@ -34,7 +34,7 @@ export default async function({page,root,output}) {
   assert.equal(await page.locator('.world-viewport canvas').count(),0)
   return {checks:['Tutorial restricted rows','captured right-drag released at menu boundary; pointer movement/release cannot mutate frozen world/camera','Tutorial Quit Game returns main menu and disposes scene'],limits:['Software renderer; browser exit adaptation']}
  }
- await button('Game settings').click()
+ await button('Menu').click()
  if(mode==='level'){
   await button('Quit Level').click();await button('Yes').click()
   await page.getByRole('dialog',{name:'Start game',exact:true}).waitFor()

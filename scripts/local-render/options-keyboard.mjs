@@ -85,7 +85,7 @@ export default async function ({ page, output }) {
         await bindGame(page)
         await skipIntroductionWithSpace(page, { timeout: 45000 })
         await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-        await button('Game settings').click()
+        await button('Menu').click()
       } else {
         assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true)
         await button('Continue Game').click()

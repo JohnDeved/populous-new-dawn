@@ -100,8 +100,8 @@ export default async function ({ page, output, receipt, openMission, observeChec
       })
     // Imports and control discovery happen while the public settings menu owns
     // pause, before dismantling can start. No Save is made during prewarming.
-    await input.button('Game settings')
-    await page.locator('dialog.game-dialog').waitFor({ state: 'visible', ...options(5000) })
+    await input.button('Menu')
+    await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible', ...options(5000) })
     await page.evaluate(async () => {
       await Promise.all([
         import('/scripts/local-render/mission1-hut-dismantle-witness.mjs'),
@@ -111,15 +111,15 @@ export default async function ({ page, output, receipt, openMission, observeChec
         import('/scripts/local-render/temple-training-checkpoint.mjs'),
         import('/scripts/local-render/mission3-building-lifecycle.mjs'),
       ])
-      for (const name of ['Save checkpoint', 'Load checkpoint'])
+      for (const name of ['Save Game', 'Load Game'])
         if (
           ![...document.querySelectorAll('button')].some(
-            button => button.textContent.trim() === name
+            button => button.getAttribute('aria-label') === name
           )
         )
           throw Error(`Public ${name} control missing`)
     })
-    await input.button('Close menu')
+    await input.button('Continue Game')
     await input.resume()
     const readinessEnd = Math.min(deadline, Date.now() + hutDismantleBounds.readinessMs)
     const setupInput = createMission1VaultInput({
@@ -228,8 +228,9 @@ export default async function ({ page, output, receipt, openMission, observeChec
     report.partialScreenshot = 'hut-partial-work.png'
     save()
     assertHutPartialCheckpoint(baseline, report.partial)
-    await input.button('Game settings')
+    await input.button('Menu')
     await runtime('armSave')
+    await input.button('Save Game')
     await input.button('Save checkpoint')
     report.saved = await runtime('saved')
     save()
@@ -256,6 +257,8 @@ export default async function ({ page, output, receipt, openMission, observeChec
     report.profileSave = await observeCheckpoint('M1 partial Hut dismantle Save')
     save()
     await runtime('armLoad')
+    await input.button('Back')
+    await input.button('Load Game')
     await input.button('Load checkpoint')
     const loaded = await wait(
       hutDismantleBounds.loadMs,

@@ -162,7 +162,7 @@ export default async function capture({ page, url, output, expectedRevision, fix
       }
       if (name === 'menu-recovery') {
         record.preparation.push({ action: 'open-public-settings', before: await observe() })
-        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+        await page.getByRole('button', { name: 'Menu', exact: true }).click()
         await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
         record.menu = await observe(); assert.equal(record.menu.paused, true)
         await page.keyboard.press('Escape')

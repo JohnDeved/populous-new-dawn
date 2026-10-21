@@ -71,8 +71,10 @@ async function start(page, button = 'Mission 1') {
   await ready(page)
 }
 async function settings(page) {
-  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-  await page.getByRole('heading', { name: 'Game settings', exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Options', exact: true }).click()
+  await page.getByRole('button', { name: 'Sound', exact: true }).click()
+  await page.getByRole('dialog', { name: 'Game menu', exact: true }).waitFor()
   await page.waitForFunction(() => window.testStore.getWorld().paused)
 }
 async function volume(page, label, value) {
@@ -109,7 +111,8 @@ async function assertValues(page, master, music, label) {
   return actual
 }
 async function playbackGains(page, master, music, label) {
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await expect
     .poll(async () => {
       const audio = await audioState(page)
@@ -191,8 +194,10 @@ try {
   )
 
   report.stage = 'real-audio-enable-gains'
+  await page.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
   await page.locator('.audio-settings button').click()
   await expect(page.locator('.audio-settings button')).toHaveText('♪ Sound on', { timeout: 90000 })
+  await page.getByRole('button', { name: 'Back to Options', exact: true }).click()
   const enabled = await assertValues(page, 0.2, 0.4, 'real-audio-gains')
   assert.equal(enabled.enabled, true)
   assert.ok(enabled.buffers > 30)

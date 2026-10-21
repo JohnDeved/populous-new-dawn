@@ -220,7 +220,7 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
 async function selectHudPreference(page, preference) {
   const button = name => page.getByRole('button', { name, exact: true })
   await page.setViewportSize({ width: 1440, height: 1000 })
-  await button('Game settings').click()
+  await button('Menu').click()
   await button('Options').click()
   await button('Browser compatibility and help').click()
   const setting = page.getByRole('combobox', { name: 'HUD size', exact: true })

@@ -41,7 +41,7 @@ try{
   await page.setViewportSize({width:1440,height:1000})
   console.log(`PASS: ${states} desktop states and ${hashes} native pixel hashes`)
   await page.waitForFunction(()=>{const s=window.testScene;return s.renderer.domElement.clientWidth===s.container.clientWidth&&s.renderer.domElement.clientHeight===1000})
-  if(await page.getByRole('button',{name:'Resume game',exact:true}).count())await page.getByRole('button',{name:'Resume game',exact:true}).click()
+  if(await page.evaluate(() => window.testStore.getWorld().paused))await page.locator('.world-viewport').press('Space')
   const cast=await page.evaluate(()=>{
     const s=window.testScene,w=s.world,u=w.units.find(u=>u.kind==='shaman'&&u.team==='blue')
     w.manaWorld.gameFlags=0;w.manaWorld.manaFlags=0;w.speed=1;w.selected=[u.id];s.focus(u);s.onChange()

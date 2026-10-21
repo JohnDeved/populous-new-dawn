@@ -82,7 +82,7 @@ export default async function sceneryPlacement({ browser, url, output }) {
     await bindGame(page)
     await skipIntroductionWithSpace(page, { timeout: 15000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-    await button('Pause game').click()
+    await page.locator('.world-viewport').press('Space')
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     await button('Select brave').click()
     await button('buildings B').click()
@@ -208,8 +208,12 @@ export default async function sceneryPlacement({ browser, url, output }) {
     await hover(invalid)
     await hover(valid)
     report.repeated = await read()
-    await button('Resume game').click()
+    await page.keyboard.press('Escape')
+    await page.waitForFunction(() => window.testStore.getWorld().mode === null)
+    await page.locator('.world-viewport').press('Space')
     await page.waitForFunction(() => !window.testStore.getWorld().paused)
+    await button('Hut, 3 wood').click()
+    await page.waitForFunction(() => window.testStore.getWorld().mode === 'hut')
     await page.mouse.move(invalid.x, invalid.y)
     await page.waitForFunction(
       () =>

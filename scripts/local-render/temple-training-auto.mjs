@@ -168,7 +168,7 @@ export default async function templeTrainingAuto(
     installed = true
     save()
     // Prefix leaves the public menu open, so Save lookup and all imports are already warm.
-    await input.button('Close menu')
+    await input.button('Continue Game')
     await input.resume()
     await page.mouse.move(20, 975)
     const readinessEnd = Date.now() + templeTrainingBounds.readinessMs
@@ -259,13 +259,14 @@ export default async function templeTrainingAuto(
     )
     delete report.frame.panel
     await page.screenshot({ path: resolve(output, 'temple-training-active.png') })
-    await input.button('Game settings')
+    await input.button('Menu')
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     report.beforeSave = (await status()).current
     save()
     assert.equal(report.beforeSave.trained, baseline.trained)
     assert(report.beforeSave.target.admission.activity & 128)
     await page.evaluate(() => window.templeTraining.armSave())
+    await input.button('Save Game')
     await input.button('Save checkpoint')
     report.saved = await page.evaluate(() => window.templeTraining.saveDigests())
     save()
@@ -295,6 +296,8 @@ export default async function templeTrainingAuto(
     report.profileSave = await observeCheckpoint('M3 active Temple training Save')
     save()
     await page.evaluate(() => window.templeTraining.armLoad())
+    await input.button('Back')
+    await input.button('Load Game')
     await input.button('Load checkpoint')
     const loadEnd = Math.min(tailDeadline, Date.now() + templeTrainingBounds.loadMs)
     for (;;) {

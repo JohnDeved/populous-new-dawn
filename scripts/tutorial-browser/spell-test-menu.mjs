@@ -136,7 +136,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Start Mission 1').click()
     await waitReady('new game')
     diagnostics.stage('save ordinary checkpoint')
-    await button('Pause game').click()
+    await page.locator('.world-viewport').press('Space')
     await button('Menu').click()
     await button('Save Game').click()
     await button('Save checkpoint').click()
@@ -145,7 +145,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Continue Game').click()
     const saved = await storage(), beforeOpen = await snapshot()
     diagnostics.stage('read-only menu and keyboard controls')
-    await button('Resume game').focus()
+    await button('Menu').focus()
     await page.keyboard.down('F9')
     await menu.waitFor()
     assert.equal(await button('Close · F9').evaluate(element => element === document.activeElement), true)
@@ -162,7 +162,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await page.keyboard.down('Escape')
     await page.keyboard.up('Escape')
     assert.equal(await page.locator('[data-original-pause-menu]').count(), 0)
-    assert.equal(await button('Resume game').evaluate(element => element === document.activeElement), true)
+    assert.equal(await button('Menu').evaluate(element => element === document.activeElement), true)
     assert.deepEqual(await snapshot(), beforeOpen)
     await page.keyboard.press('Shift+F9')
     assert.equal(await menu.count(), 0)
@@ -172,7 +172,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     // Opening from live play must freeze turns without altering the user's pause
     // state, then resume the same world without catching up suspended wall time.
     diagnostics.stage('live hold and resume')
-    await button('Resume game').click()
+    await page.locator('.world-viewport').press('Space')
     await page.waitForFunction(turn => window.testStore.getWorld().turn >= turn + 2, beforeOpen.turn)
     await page.keyboard.press('F9')
     await menu.waitFor()
@@ -184,7 +184,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await menu.waitFor({ state: 'detached' })
     await page.waitForFunction(turn => window.testStore.getWorld().turn > turn, liveHold.turn)
     assert.equal((await snapshot()).paused, false)
-    await button('Pause game').click()
+    await page.locator('.world-viewport').press('Space')
     report.unpausedHoldAndResume = true
 
     // Reuse this authored Scene before any testing grant. No extra context,
@@ -215,7 +215,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await menu.waitFor({ state: 'detached' })
     assert.equal((await snapshot()).mode, 'blast')
     await page.evaluate(() => window.shamanCastingObserver.arm('subsequent'))
-    await button('Resume game').click()
+    await page.locator('.world-viewport').press('Space')
     const target = await page.evaluate(() => {
       const scene = window.testSceneRef.current, w = window.testStore.getWorld(),
         shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),

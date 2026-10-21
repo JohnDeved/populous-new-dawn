@@ -18,7 +18,7 @@ export default async function ({ page, output }) {
   await bindGame(page)
   await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-  await button('Pause game').click()
+  await page.locator('.world-viewport').press('Space')
   assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true)
   await page.evaluate(() => {
     const world = window.testStore.getWorld(), scene = window.testSceneRef.current

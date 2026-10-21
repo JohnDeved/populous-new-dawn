@@ -64,7 +64,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await page.screenshot({path:resolve(output,'tutorial-ready.png')})
  passed('tutorial-ready')
 
- await page.getByRole('button',{name:'Game settings',exact:true}).click()
+ await page.getByRole('button',{name:'Menu',exact:true}).click()
  await button('Quit Game').click();await button('Yes').click();await main.waitFor();await noScene()
  passed('tutorial-return-main')
  // Separate the independent failure-injection scenario from the previous WebGL context.
@@ -84,7 +84,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
  await skipIntroductionWithSpace(page, { timeout: 45000 })
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
- await button('Game settings').click();await button('Save Game').click();await button('Save checkpoint').click()
+ await button('Menu').click();await button('Save Game').click();await button('Save checkpoint').click()
  await page.getByRole('status').filter({hasText:'Checkpoint saved in this browser.'}).waitFor()
  const saved=await page.evaluate(()=>({level:window.testStore.getWorld().outcome.level,turn:window.testStore.getWorld().turn}))
  const committed=await waitForCheckpointReadback(()=>page.evaluate(async expected=>{
@@ -98,7 +98,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),saved.level)
  assert.ok(await page.evaluate(()=>window.testStore.getWorld().turn)>=saved.turn)
  passed('fresh-checkpoint-load-ready')
- await button('Game settings').click()
+ await button('Menu').click()
  const paused=await page.evaluate(()=>window.testStore.getWorld().turn)
  await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>window.testStore.getWorld().turn),paused)
  await button('Options').click();await button('Select Level').click();await button('Back').click()
