@@ -42,6 +42,7 @@ async function fixture(t) {
       view, scene: new THREE.Scene(), camera: new THREE.Camera(),
       world, presentationBinding: store.bindPresentation(world), started: true, disposed: false,
       nearbyFollowersHudActive: true, previous: null, fpsGraph: null,
+      tooltipElement: { hidden: false }, // supplied DOM leaf used by the real modal boundary
       gameClock: { animationTime: 0, animationFrame: 0 }, overviewActive: false, overviewStage: null,
       keys: new Set(), dragActive: { value: false }, selectionOverlay: { visible: false }, globeMotion: { velocity: { x: 0, y: 0 } },
       renderer: { getPixelRatio: () => 1, render: noOp }, hoveredObject: null, buildingPanels: new Map(),
@@ -218,7 +219,9 @@ test('actual Scene disposal cancels pending input and the elapsed phase', async 
 test('actual Scene modal boundary freezes game clock and rendering consumers, then restarts elapsed time at zero', async t => {
   const { scene, page, world, logs } = await fixture(t)
   world.paused = false
+  assert.equal(scene.tooltipElement.hidden, false)
   page.openMenu()
+  assert.equal(scene.tooltipElement.hidden, true, 'modal owner immediately hides the native tooltip')
   const before = structuredClone(world)
   const clock = structuredClone(scene.gameClock)
   let renders = 0
