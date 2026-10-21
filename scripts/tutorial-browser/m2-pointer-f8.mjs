@@ -28,14 +28,20 @@ export async function finishM2Functional({
   output,
   failure,
   fileName = 'm2-pointer-f8.json',
+  admission,
 }) {
   try {
-    await context.close()
+    if (admission) await admission.wait(context.close())
+    else await context.close()
     report.contextClosed = true
   } catch (error) {
     report.errors.push(String(error))
   }
   report.status = failure || report.errors.length || report.timedOut ? 'failed' : 'passed'
+  if (admission) {
+    try { if (failure) throw failure; admission.finishCompact(report) }
+    catch (error) { failure = admission.fail(error); report.status = 'failed' }
+  }
   if (failure) report.failure = { message: String(failure), stack: failure.stack }
   writeFileSync(resolve(output, fileName), JSON.stringify(report, null, 2))
   assert.equal(report.status, 'passed', 'M2 functional scenario failed; see receipt')
@@ -115,15 +121,18 @@ export function m2StartupReady() {
   }
 }
 
-// Keep the legacy compact episode within its original deadline. The expanded
-// readout has its own fresh context and deadline inside the existing job cap.
-export async function runCompactDiagnosticEpisodes({ report, ...options }, runEpisode = runM2Functional) {
-  report.compactMessageLayout = await runEpisode({ ...options, compactMessages: true })
+// Compact alone uses the new two-phase admission. Expanded picking retains its
+// independent context and original 45s deadline; neither phase resets per case.
+export async function runCompactDiagnosticEpisodes({ report, admission, ...options }, runEpisode = runM2Functional) {
+  admission?.beginCompact()
+  report.compactMessageLayout = await runEpisode({ ...options, ...(admission ? { admission } : {}), compactMessages: true })
   report.pickingPathReadout = await runEpisode({ ...options, pickingPaths: true })
+  admission?.finishCompanion('picking', report.pickingPathReadout)
 }
 
-export default async function runM2Functional({ browser, url, output, fixture, compactMessages = false, pickingPaths = false }) {
+export default async function runM2Functional({ browser, url, output, fixture, compactMessages = false, pickingPaths = false, admission }) {
   assert.ok(!(compactMessages && pickingPaths), 'Diagnostic episodes must have independent contexts')
+  assert.ok(!compactMessages || admission, 'Expanded compact requires its explicit admission owner')
   const scenario = pickingPaths ? 'picking-path-readout' : compactMessages ? 'compact-message-layout' : 'm2-pointer-f8'
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
@@ -132,6 +141,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
   const report = {
     status: 'running',
     scenario,
+    ...(admission ? { admission: admission.report } : {}),
     setup: fixture.receipt,
     errors: [],
     samples: [],
@@ -155,7 +165,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
   const started = performance.now()
   const stage = name => report.stages.push({ name, elapsedMs: performance.now() - started })
   stage('start')
-  timer = setTimeout(() => {
+  if (!compactMessages) timer = setTimeout(() => {
     stage('deadline')
     report.timedOut = true
     void context.close().catch(() => {})
@@ -263,6 +273,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     if (report.startup.action === 'skip')
       await skipIntroductionWithSpace(page, { timeout: 10000, closedPopups: report.inputPopups })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+    report.introductionReady = true
     stage('introduction-ready')
     // Compact viewports no longer add a browser-authored blocking advisory.
     await page.setViewportSize({ width: 640, height: 480 })
@@ -276,7 +287,10 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     // including an authored owner that appeared and closed inside introduction
     // preparation rather than either surrounding preparation call.
     const retainedPopup = report.inputPopups.at(-1)
-    if (retainedPopup) await setM2CampaignPopupOpen(page, retainedPopup.serial, true)
+    if (retainedPopup) {
+      await setM2CampaignPopupOpen(page, retainedPopup.serial, true)
+      report.restoredPopup = { serial: String(retainedPopup.serial), open: true }
+    }
     const observe = () =>
       page.evaluate(() => {
         const s = window.testSceneRef.current,
@@ -336,6 +350,9 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       report.pickingPaths = {}
       await checkExpandedPickingPaths({ page, output, stage, report: report.pickingPaths })
     } else if (compactMessages) {
+      admission.beginLayouts({ loadBoundaryMatched: report.loadBoundaryMatched, introductionReady: report.introductionReady,
+        compactViewportReady: report.compactViewportReady, before: report.before,
+        popupSerial: report.restoredPopup?.serial, popupRestored: report.restoredPopup?.open === true })
       const { checkCompactMessages } = await import('./compact-message-layout.mjs')
       report.compactMessages = { cases: [] }
       await checkCompactMessages({ page, output, stage, report: report.compactMessages })
@@ -499,7 +516,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       assert.equal(report.returned.sameScene, true)
     }
   } catch (error) {
-    failure = error
+    failure = admission?.fail(error) ?? error
     try {
       report.failureState = await page.evaluate(() => {
         const w = window.testStore?.getWorld()
@@ -543,6 +560,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     output,
     failure,
     fileName: `${scenario}.json`,
+    admission,
   })
 }
 

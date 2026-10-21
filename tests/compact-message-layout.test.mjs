@@ -1,3 +1,4 @@
+import { createCompactAdmission } from '../scripts/tutorial-browser/compact-admission.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
@@ -667,9 +668,9 @@ test('compact coexistence changes placement and whitespace only within diagnosti
 
 })
 
-test('separate compact hosted scenario retains old bounds and existing groups', () => {
+test('separate compact scenario has explicit new admission and retains ordinary bounds/groups', () => {
   assert.equal(m2FunctionalLimitMs, 45000)
-  assert.equal(browserCapMs('compact-message-layout'), 180000)
+  assert.equal(browserCapMs('compact-message-layout'), 225000)
   const runner = readFileSync(
     new URL('../scripts/tutorial-browser/run.mjs', import.meta.url),
     'utf8'
@@ -679,10 +680,10 @@ test('separate compact hosted scenario retains old bounds and existing groups', 
     'utf8'
   )
   assert.match(runner, /compactMessageScenarioSha256: hash/)
-  assert.match(runner, /await[^\n]+\.runCompactDiagnosticEpisodes\(\{ browser, url, output: out, fixture: m2Fixture, report: receipt \}\)/)
+  assert.match(runner, /await compactAdmission\.wait\([\s\S]*?\.runCompactDiagnosticEpisodes\(\{\s*browser: compactBrowser, url, output: out, fixture: m2Fixture, report: receipt, admission: compactAdmission/)
   assert.match(
     scenario,
-    /if \(compactMessages\) \{\s+const \{ checkCompactMessages \} = await import/
+    /if \(compactMessages\) \{\s+admission\.beginLayouts\([\s\S]*?const \{ checkCompactMessages \} = await import/
   )
   assert.match(scenario, /pickingPaths \? 'picking-path-readout' : compactMessages \? 'compact-message-layout' : 'm2-pointer-f8'/)
   assert.match(scenario, /fileName: `\$\{scenario\}\.json`/)
@@ -717,14 +718,14 @@ test('actual compact routing awaits independent bounded episodes and preserves p
   }
 })
 
-test('real compact and expanded M2 episodes each close their fresh context at the unchanged 45-second deadline', async t => {
+test('real compact preparation and unchanged expanded M2 each close at their explicit 45-second bound', async t => {
   t.mock.timers.enable({ apis: ['setTimeout'] })
   const output = mkdtempSync(join(tmpdir(), 'compact-episode-deadline-'))
   t.after(() => rmSync(output, { recursive: true, force: true }))
   let created = 0
   for (const [flag, name] of [['compactMessages', 'compact-message-layout'], ['pickingPaths', 'picking-path-readout']]) {
     const entered = Promise.withResolvers(), navigation = Promise.withResolvers()
-    let closed = 0
+    let closed = 0, elapsed = 0, ownedContext
     const page = {
       setDefaultTimeout() {}, on() {}, async addInitScript() {},
       goto() { entered.resolve(); return navigation.promise },
@@ -733,28 +734,39 @@ test('real compact and expanded M2 episodes each close their fresh context at th
     }
     const browser = { async newContext() {
       created++
-      return {
+      return ownedContext = {
         async newPage() { return page },
         async close() { closed++; navigation.reject(Error('context closed by deadline')) },
       }
     } }
+    const admission = flag === 'compactMessages' ? createCompactAdmission({ deadlineAt: 225000, wallNow: () => 0,
+      now: () => elapsed, onExpire: () => ownedContext.close() }) : undefined
+    admission?.beginCompact()
     const completed = assert.rejects(runM2Functional({ browser, url: 'http://fixture', output,
-      fixture: { receipt: {} }, [flag]: true }), /M2 functional scenario failed/)
+      fixture: { receipt: {} }, [flag]: true, admission }), /M2 functional scenario failed/)
     await entered.promise
-    t.mock.timers.tick(m2FunctionalLimitMs - 1)
+    elapsed = m2FunctionalLimitMs - 1
+    t.mock.timers.tick(elapsed)
     assert.equal(closed, 0, 'the episode retains its own full original allowance')
+    elapsed++
     t.mock.timers.tick(1)
     await completed
     const receipt = JSON.parse(readFileSync(join(output, `${name}.json`), 'utf8'))
     assert.equal(receipt.scenario, name)
     assert.equal(receipt.status, 'failed')
-    assert.equal(receipt.timedOut, true)
-    assert.equal(receipt.contextClosed, true)
-    assert.equal(receipt.stages.at(-1).name, 'deadline')
+    if (admission) {
+      assert.equal(receipt.admission.timedOut, 'preparation')
+      assert.ok(closed >= 1, 'Compact expiry immediately attempts owned context cancellation')
+      admission.dispose()
+    } else {
+      assert.equal(receipt.timedOut, true)
+      assert.equal(receipt.contextClosed, true)
+      assert.equal(receipt.stages.at(-1).name, 'deadline')
+    }
   }
   assert.equal(created, 2)
   assert.equal(m2FunctionalLimitMs, 45000)
-  assert.equal(browserCapMs('compact-message-layout'), 180000)
+  assert.equal(browserCapMs('compact-message-layout'), 225000)
   await assert.rejects(runM2Functional({ compactMessages: true, pickingPaths: true }), /independent contexts/)
 })
 

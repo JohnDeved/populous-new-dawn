@@ -32,7 +32,7 @@ test('aggregate is the documented sum and does not change real frame windows or 
   assert.equal(browserCapMs('gameplay-frames'), caps.totalBrowserMs)
   assert.equal(gameplayFramePlan.warmupMs, 2000); assert.equal(gameplayFramePlan.phaseDurationMs, 1600)
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
-  assert.ok(runner.indexOf('createGameplayAdmission({') < runner.indexOf('(gameplayBrowser ?? browser).newContext'))
+  assert.ok(runner.indexOf('createGameplayAdmission({') < runner.indexOf('(gameplayBrowser ?? compactBrowser ?? browser).newContext'))
   assert.match(runner, /await context\.close\(\); context = undefined; page = undefined\n    gameplayAdmission\.finishEpisode\('frames'/)
   assert.ok(runner.indexOf('await cleanupGameplayResources(gameplayAdmission') < runner.indexOf('gameplayAdmission.complete()'))
 })

@@ -11,6 +11,7 @@ export function browserCapMs(scenario) {
   // headroom for the unchanged aggregate, not a per-episode or performance target.
   if (scenario === 'tutorial') return 240000
   if (scenario === 'gameplay-frames') return gameplayAggregateBudget.totalBrowserMs
+  if (scenario === 'compact-message-layout') return compactAggregateBudget.totalBrowserMs
   return scenario === 'snapshot-protocol' ? 90000 : 180000
 }
 
@@ -23,3 +24,9 @@ export const profileSplitBudget = Object.freeze({ version: 1, recoveryMs: 180000
 export const gameplayAggregateBudget = Object.freeze({ version: 1, frameMs: 180000,
   meleeMs: 75000, corpseDeathMs: 75000, corpseLoadMs: 25000,
   totalBrowserMs: 180000 + 75000 + 75000 + 25000, buildMs: 120000, hostedJobMs: 900000 })
+
+// NEW functional policy: +45s admission, not recovered history or performance.
+// Compact preparation45 + all four layouts45; no per-case resets.
+export const compactAggregateBudget = Object.freeze({ version: 1, preparationMs: 45000, layoutsMs: 45000,
+  compactMs: 90000, pickingMs: 45000, hypnotiseMs: 75000, lifecycleMs: 15000,
+  totalBrowserMs: 225000, buildMs: 120000, hostedJobMs: 900000 })

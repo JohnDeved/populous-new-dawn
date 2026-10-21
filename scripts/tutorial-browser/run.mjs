@@ -13,6 +13,8 @@ import { profileCasesReceipt, profileCasesReceiptLog } from './profile-recovery-
 import { mission10CrewReceipt, mission10CrewReceiptLog } from './mission10-crew-receipt.mjs'
 import { runProfileEpisode } from './profile-episodes.mjs'
 import { createGameplayAdmission, guardGameplayBrowser, cleanupGameplayResources } from './gameplay-admission.mjs'
+import { createCompactAdmission } from './compact-admission.mjs'
+import { guardBrowserAdmission } from '../browser-admission-guard.mjs'
 import { buildRevision } from './build-provenance.mjs'
 import { arch, cpus, platform, release } from 'node:os'
 const root = resolve(dirname(import.meta.filename), '../..')
@@ -107,7 +109,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   limits: [...source.limits, 'Production Vite bundle of actual Home; excludes Vinext/Cloudflare/RSC hosting. No causal claim about prior development-server crashes.'], errors: [], warnings: [] }
 const save = () => writeFileSync(resolve(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
 const abort = new AbortController()
-let browser, context, page, server, timer, m2Fixture, browserDeadlineAt, gameplayAdmission, gameplayBrowser
+let browser, context, page, server, timer, m2Fixture, browserDeadlineAt, gameplayAdmission, gameplayBrowser, compactAdmission, compactBrowser
 const before = metadata(dependencies)
 receipt.dependenciesBeforeSha256 = createHash('sha256').update(JSON.stringify(before)).digest('hex')
 try {
@@ -153,10 +155,17 @@ try {
       } })
     receipt.gameplayAdmission = gameplayAdmission.report
     gameplayBrowser = guardGameplayBrowser(browser, gameplayAdmission)
+  } else if (selectedScenario === 'compact-message-layout') {
+    compactAdmission = createCompactAdmission({ deadlineAt: browserDeadlineAt, signal: abort.signal, onExpire: error => {
+      if (error.code === 'COMPACT_ADMISSION_TIMEOUT') receipt.browserTimedOut = true
+      abort.abort(error); return browser.close()
+    } })
+    receipt.compactAdmission = compactAdmission.report
+    compactBrowser = guardBrowserAdmission(browser, compactAdmission)
   } else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
   if (selectedScenario !== 'snapshot-protocol') {
-  context = await (gameplayBrowser ?? browser).newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
+  context = await (gameplayBrowser ?? compactBrowser ?? browser).newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
   page.on('console', m => { if (m.type() === 'error') receipt.errors.push(m.text()); if (m.type() === 'warning') receipt.warnings.push(m.text()) })
@@ -212,10 +221,13 @@ try {
       runSpySource: async ({ signal, deadlineAt }) => (await import(pathToFileURL(spySourceScenario).href)).default({ chromium, launch: browserConfig.launch, url, output: out, source, signal, deadlineAt }),
     }))
   } else if (selectedScenario === 'compact-message-layout') {
-    await (await import(pathToFileURL(m2Scenario).href)).runCompactDiagnosticEpisodes({ browser, url, output: out, fixture: m2Fixture, report: receipt })
-    // Existing compact layout and picking assertions finish unchanged first.
-    await context.close(); context = undefined; page = undefined
-    receipt.hypnotise = await (await import(pathToFileURL(hypnotiseScenario).href)).default({ browser, url, output: out, deadlineAt: browserDeadlineAt })
+    await compactAdmission.wait((await import(pathToFileURL(m2Scenario).href)).runCompactDiagnosticEpisodes({
+      browser: compactBrowser, url, output: out, fixture: m2Fixture, report: receipt, admission: compactAdmission,
+    }))
+    // All four compact cases and the independent picking episode remain required.
+    await compactAdmission.wait(context.close()); context = undefined; page = undefined
+    receipt.hypnotise = await compactAdmission.wait((await import(pathToFileURL(hypnotiseScenario).href)).default({ browser: compactBrowser, url, output: out, deadlineAt: browserDeadlineAt }))
+    compactAdmission.finishCompanion('hypnotise', receipt.hypnotise)
   } else if (selectedScenario === 'm2-pointer-f8') {
     receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
   } else if (selectedScenario === 'pause-checkpoint-recovery') {
@@ -235,10 +247,15 @@ try {
   receipt.status = 'passed'
 } catch (error) {
   gameplayAdmission?.fail(error)
+  compactAdmission?.fail(error)
   if (error.code === 'SNAPSHOT_EPISODE_TIMEOUT') receipt.browserTimedOut = true
   receipt.status = 'failed'; receipt.failure = String(error); receipt.stack = error.stack; process.exitCode = 1
   if (page) {
-    try { receipt.failureState = await page.evaluate(() => ({ active: document.activeElement?.outerHTML?.slice(0, 500), body: document.body.innerText.slice(0, 2500) })); await page.screenshot({ path: resolve(out, 'failure.png'), timeout: 10000 }) } catch (e) { receipt.diagnosticError = String(e) }
+    try {
+      const capture = async () => { receipt.failureState = await page.evaluate(() => ({ active: document.activeElement?.outerHTML?.slice(0, 500), body: document.body.innerText.slice(0, 2500) })); await page.screenshot({ path: resolve(out, 'failure.png'), timeout: 10000 }) }
+      if (compactAdmission) await compactAdmission.wait(capture())
+      else await capture()
+    } catch (e) { receipt.diagnosticError = String(e) }
   } else if (selectedScenario === 'snapshot-protocol') receipt.failureEvidence = 'candidate-snapshot-smoke.json'
 } finally {
   clearTimeout(timer)
@@ -247,6 +264,12 @@ try {
     if (!receipt.cleanupVerified) {
       receipt.cleanupError = gameplayAdmission.report.cleanupErrors.join('\n'); receipt.status = 'failed'; process.exitCode = 1
     }
+  } else if (compactAdmission) {
+    receipt.cleanupVerified = await compactAdmission.cleanup({ context, browser, server })
+    if (!receipt.cleanupVerified) {
+      receipt.cleanupError = compactAdmission.report.cleanupErrors.join('\n') || 'Compact cleanup did not finish within admission'
+      receipt.status = 'failed'; process.exitCode = 1
+    }
   } else {
     try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
   }
@@ -254,6 +277,11 @@ try {
     try { if (receipt.status === 'passed') gameplayAdmission.complete() }
     catch (error) { gameplayAdmission.fail(error); receipt.failure ??= String(error); receipt.status = 'failed'; process.exitCode = 1 }
     finally { gameplayAdmission.dispose() }
+  }
+  if (compactAdmission) {
+    try { if (receipt.status === 'passed') compactAdmission.complete() }
+    catch (error) { compactAdmission.fail(error); receipt.failure ??= String(error); receipt.status = 'failed'; process.exitCode = 1 }
+    finally { compactAdmission.dispose() }
   }
   try { verifySource(); receipt.sourceAfter = 'identical'; if (receipt.outputManifest) assert.deepEqual(outputManifest(dist), receipt.outputManifest) } catch (e) { receipt.sourceAfter = String(e); receipt.status = 'failed'; process.exitCode = 1 }
   if (m2Fixture) {

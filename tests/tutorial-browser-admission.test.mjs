@@ -139,7 +139,7 @@ test('candidate snapshot smoke is one read-only bounded functional case, never a
 })
 
 
-test('parsed hosted matrix grants explicit Tutorial and three-episode gameplay admission and preserves other caps', () => {
+test('parsed hosted matrix grants explicit Tutorial, gameplay and two-phase compact admission and preserves other caps', () => {
   const workflow = readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8')
   const job = yaml.load(workflow).jobs['tutorial-browser'], items = job.strategy.matrix.include
   assert.equal(job['timeout-minutes'], '${{ matrix.timeoutMinutes }}')
@@ -147,7 +147,7 @@ test('parsed hosted matrix grants explicit Tutorial and three-episode gameplay a
   assert.deepEqual(Object.fromEntries(browserScenarios.map(name => [name, browserCapMs(name)])), {
     tutorial: 240000, 'm2-pointer-f8': 180000, 'pause-checkpoint-recovery': 180000,
     'profile-recovery': 180000, 'mission10-profile': 180000, 'gameplay-frames': 355000,
-    'snapshot-protocol': 90000, 'compact-message-layout': 180000, 'frontend-held-escape': 180000,
+    'snapshot-protocol': 90000, 'compact-message-layout': 225000, 'frontend-held-escape': 180000,
   })
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   assert.equal((runner.match(/browserDeadlineAt = Date\.now\(\) \+ receipt\.browserCapMs/g) ?? []).length, 1)
