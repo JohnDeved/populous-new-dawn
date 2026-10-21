@@ -16,7 +16,7 @@ function fixture({ initial = 'Opening logo', appears = 'Opening logo', clickErro
         return locator(names, true)
       },
       first() { return locator(names, visibleOnly, true) },
-      async waitFor(options) {
+      async waitFor(options = { state: 'visible' }) {
         assert.deepEqual(options, { state: 'visible' })
         events.push(['wait', [...names]])
         // Loading and a completed click both require a fresh readiness wait.
