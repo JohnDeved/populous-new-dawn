@@ -8,7 +8,6 @@ import { createServer } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/postcss'
 import { chromium } from '@playwright/test'
-import { PNG } from 'pngjs'
 import { pauseStatusLayout } from '../../app/pause-status-layout.ts'
 
 const root=resolve(import.meta.dirname,'../..'), fixture=resolve(import.meta.dirname,'fixture')
@@ -26,7 +25,6 @@ const inputs=['app/original-pause-status.tsx','app/original-pause-status.module.
 const fingerprints=Object.fromEntries(inputs.map(file=>[file,hash(resolve(root,file))]))
 const receipt={status:'running',head:git('rev-parse','HEAD').trim(),baseline,sourceDirty:git('status','--porcelain'),inputs:fingerprints,browserPath,browserSha256:hash(browserPath),observations:[],checks:[],errors:[],limits:['Actual OriginalPauseStatus component with shipped CSS and raw HUD atlas in minimal React fixture, not full Home or natural gameplay.','Background is a solid fixture color, not game terrain or an original framebuffer.','Paired before is the exact removed base CSS and badge markup, on the same solid background.','Actual Home keyboard ownership is covered by separate source-extracted effect tests; this fixture injects no gameplay input/controller.','No full-game, WebGL, hardware performance or native timer-lifetime parity claim.']}
 const save=()=>writeFileSync(resolve(output,'receipt.json'),JSON.stringify(receipt,null,2)+'\n')
-const atlas=PNG.sync.read(readFileSync(resolve(root,'public/original/hud.png')))
 let server,browser,timer,memoryGuard
 save()
 try{
@@ -53,21 +51,25 @@ try{
     assert.equal(metrics.pointerEvents,'none');assert.equal(metrics.topTarget,false);assert.equal(metrics.accessibleLabel,'Paused')
     assert.equal(metrics.background,'rgba(0, 0, 0, 0)');assert.equal(metrics.scrollOverflow,false)
     assert.equal(await page.locator('.paused-badge,.skip-introduction,.target-prompt,.desktop-recommendation,.world-message').count(),0)
-    const actual=PNG.sync.read(await node.screenshot()),expected=new PNG({width:textWidth*dpr,height:layout.height*dpr})
-    for(let i=0;i<expected.data.length;i+=4)expected.data.set([22,48,48,255],i)
-    let left=0
-    for(const g of layout.glyphs){
-      for(let y=0;y<g.h;y++)for(let x=0;x<g.w;x++)for(let dy=0;dy<dpr;dy++)for(let dx=0;dx<dpr;dx++){
-        const a=((g.y+y)*atlas.width+g.x+x)*4,e=((y*dpr+dy)*expected.width+(left+x)*dpr+dx)*4,alpha=atlas.data[a+3]/255
-        for(let k=0;k<3;k++)expected.data[e+k]=Math.round(atlas.data[a+k]*alpha+expected.data[e+k]*(1-alpha))
-      }
-      left+=g.w
-    }
-    assert.equal(actual.width,expected.width);assert.equal(actual.height,expected.height)
-    let differences=0
-    for(let i=0;i<actual.data.length;i++)if(actual.data[i]!==expected.data[i])differences++
-    writeFileSync(resolve(output,`expected-${width}x${height}-dpr${dpr}.png`),PNG.sync.write(expected))
-    writeFileSync(resolve(output,`actual-${width}x${height}-dpr${dpr}.png`),PNG.sync.write(actual))
+    const actual=await node.screenshot()
+    const comparison=await page.evaluate(async({png,layout,textWidth,dpr})=>{
+      const decode=async src=>{const image=new Image();image.src=src;await image.decode();return image}
+      const image=await decode(`data:image/png;base64,${png}`),atlas=await decode('/original/hud.png')
+      const expected=document.createElement('canvas');expected.width=textWidth*dpr;expected.height=layout.height*dpr
+      const ctx=expected.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.fillStyle='#163030';ctx.fillRect(0,0,expected.width,expected.height)
+      let left=0
+      for(const g of layout.glyphs){ctx.drawImage(atlas,g.x,g.y,g.w,g.h,left*dpr,0,g.w*dpr,g.h*dpr);left+=g.w}
+      const captured=document.createElement('canvas');captured.width=image.width;captured.height=image.height
+      const actualCtx=captured.getContext('2d');actualCtx.drawImage(image,0,0)
+      const a=actualCtx.getImageData(0,0,captured.width,captured.height).data,e=ctx.getImageData(0,0,expected.width,expected.height).data
+      let differences=0
+      for(let i=0;i<a.length;i++)if(a[i]!==e[i])differences++
+      return {actual:[image.width,image.height],expected:[expected.width,expected.height],differences,png:expected.toDataURL('image/png')}
+    },{png:actual.toString('base64'),layout,textWidth,dpr})
+    assert.deepEqual(comparison.actual,comparison.expected)
+    const differences=comparison.differences
+    writeFileSync(resolve(output,`expected-${width}x${height}-dpr${dpr}.png`),Buffer.from(comparison.png.split(',')[1],'base64'))
+    writeFileSync(resolve(output,`actual-${width}x${height}-dpr${dpr}.png`),actual)
     receipt.observations.push({viewport:[width,height],dpr,...metrics,pixelByteDifferences:differences});save()
     assert.equal(differences,0,'Rendered glyphs must exactly match untinted source atlas at viewport DPR')
     await page.screenshot({path:resolve(output,`after-${width}x${height}-dpr${dpr}.png`)})
