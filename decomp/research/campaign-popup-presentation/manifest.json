@@ -2,8 +2,8 @@
   "method": "Static bounded disassembly and source-asset decoding; no native execution",
   "files": {
     "FINDINGS.md": {
-      "bytes": 15661,
-      "sha256": "f8da92acaebe1e091094b44a301d39a09a482088780615e3003f9db6be54297c"
+      "bytes": 16147,
+      "sha256": "3d4695345081d0c12a11d9858c95b652c4e9c27f60feb7201b7c3021e8c7019e"
     },
     "anchor-animation.asm": {
       "bytes": 2887,
@@ -101,5 +101,9 @@
       "bytes": 2881,
       "sha256": "8fe15eb3be66668056d7e3ea9bd44589b07c40ef0b5658acb743d056e8e49d0a"
     }
+  },
+  "findingsClarification": {
+    "priorSha256": "f8da92acaebe1e091094b44a301d39a09a482088780615e3003f9db6be54297c",
+    "change": "Clarify constant side rails and exact CMP/ADC parity; raw instruction exports unchanged."
   }
 }

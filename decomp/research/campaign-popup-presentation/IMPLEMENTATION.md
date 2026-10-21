@@ -3,7 +3,8 @@
 This is a static reconstruction from the verified original data and instruction
 paths documented in [FINDINGS.md](FINDINGS.md), not a capture of the original
 executable running. No original binary was executed. `manifest.json` hashes the
-unaltered research exports, including the shared pause/skip evidence used by
+research exports (raw instructions unchanged, FINDINGS parity clarified), including
+the shared pause/skip evidence used by
 separate UI changes.
 
 ## Source boundary
@@ -46,7 +47,8 @@ covered separately.
 - Existing F8 diagnostics are exempt from native artwork. Only while a campaign
   popup is open, the overlay moves below the authoritative native panel. Compact
   windows (width >=560, height <=700) use 11px/1.2 rows and tighter whitespace;
-  wide-short windows use four independent content columns. No metric, caption,
+  wide-short windows use four independent content columns, reserving the full
+  native Paused line with a gutter rather than moving that original status. No metric, caption,
   control, or optional picking field is removed. Closed-popup F8 styles are
   unchanged. This explicit responsive change replaces the obsolete assumption
   that the campaign body always occupies a 340px left-hand card.
@@ -81,6 +83,11 @@ actions, not Home/WebGL or the full game:
 POPULOUS_BROWSER=/verified/path/to/chrome-headless-shell node scripts/campaign-popup-fixture/run.mjs /new/output/directory
 ```
 
+The optional `POPULOUS_PAUSE_ROOT` imports the actual native pause component
+read-only from a separate source worktree while integration is pending. Once
+integrated, the current checkout component is used automatically. If neither is
+available, the receipt explicitly labels the source-metric status fixture.
+
 Its receipt hashes all source/assets and the browser, records raw geometry and
 interaction results, and is successful only when `receipt.status` is `passed`.
 The before mode uses the pinned be44bc76 global stylesheet and old body markup,
@@ -88,3 +95,13 @@ including the old lower-half placement rule, against identical authored text
 and a neutral battlefield. These are component comparisons, not natural
 campaign/fullscreen execution or original-executable screenshots. Parent
 integration must still run independent review and full source/browser gates.
+
+## Panel parity audit
+
+The raw `panel-tiles.asm` instructions, not an informal “alternating rails”
+description, are authoritative. CMP parity,1 followed by ADC value,-1 retains
+the high tile ID for parity0 (carry1), and subtracts one for parity1 (carry0).
+Thus top =1454+(column even), bottom =1456+(column even). After the horizontal
+loop EBX is columns−1. Left/right rails are selected ONCE as
+1458/1460+((columns−1) even), then repeated unchanged for all interior rows.
+The implementation and tests use this mapping; the result importer agrees.

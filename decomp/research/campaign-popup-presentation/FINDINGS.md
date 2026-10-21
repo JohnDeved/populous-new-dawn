@@ -28,8 +28,10 @@ Main drawing owner `00522570` calls body renderer `00525650` at `005229d4`. The 
 Body helper `00523d40` uses 16x16 HFX tiles:
 - corners TL/TR/BL/BR: 1450,1451,1452,1453;
 - alternating top:1454/1455, bottom:1456/1457;
-- alternating left:1458/1459, right:1460/1461;
+- constant left/right rail pair selected by final horizontal-loop parity: left1458/1459, right1460/1461;
 - center:1462.
+
+Parity audit: `cmp parity,1; adc value,-1` retains the high ID for even0 (carry1), subtracts1 for odd1 (carry0). Top =1454+(column even), bottom =1456+(column even). At00523e9f the horizontal loop leaves EBX=columns−1; left/right are selected ONCE as1458/1460+((columns−1) even) and repeated unchanged through00523efa. Rails do not alternate by row. The original result importer and popup painter already use this mapping.
 
 The inspected pixels are a mottled golden panel with rounded beveled outer corners. It is the same panel helper used by result statistics, NOT the separate tooltip border. Do not scale the existing fixed-size `result-panel.png` into arbitrary dimensions; compose native tiles.
 

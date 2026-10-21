@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { useLayoutEffect, useRef, useState } from 'react'
+import { OriginalPauseStatus } from 'virtual:native-pause-component'
 import { OriginalCampaignPopup } from '../../../app/original-campaign-popup'
 import {
   acknowledgeMessage,
@@ -9,6 +10,7 @@ import {
   messageText,
   messageViewPoint,
 } from '../../../app/messages'
+import { popupGlyph, popupTextWidth } from '../../../app/campaign-popup-layout'
 import { showCampaignPopup } from '../../../app/campaign-popup-session'
 import { hudScale } from '../../../app/hud-layout'
 
@@ -36,6 +38,7 @@ function Fixture() {
   const shell = useRef<HTMLElement>(null),
     details = useRef(new Map<number, HTMLDetailsElement>())
   const [, render] = useState(0)
+  const font = innerWidth * innerHeight < 307200 ? 4 : 3
   useLayoutEffect(() => {
     const resize = () => {
       if (before)
@@ -90,6 +93,47 @@ function Fixture() {
   return (
     <main ref={shell} className="game-shell">
       <div className="world-viewport" />
+      {params.has('diagnostics') &&
+        !before &&
+        (OriginalPauseStatus ? (
+          <>
+            <link rel="stylesheet" href="/native-status-a11y.css" />
+            <OriginalPauseStatus />
+          </>
+        ) : (
+          <div
+            data-native-paused-fixture
+            aria-label="Paused"
+            style={{
+              position: 'absolute',
+              right: 2,
+              bottom: 0,
+              width: popupTextWidth('Paused', font),
+              height: popupGlyph('A', font).h,
+              display: 'flex',
+              zIndex: 6,
+              pointerEvents: 'none',
+              imageRendering: 'pixelated',
+            }}
+          >
+            {[...'Paused'].map((character, index) => {
+              const glyph = popupGlyph(character, font)
+              return (
+                <i
+                  key={index}
+                  style={{
+                    display: 'block',
+                    flex: 'none',
+                    width: glyph.w,
+                    height: glyph.h,
+                    backgroundImage: `url('/original/${font === 3 ? 'result-font' : 'hud'}.png')`,
+                    backgroundPosition: `-${glyph.x}px -${glyph.y}px`,
+                  }}
+                />
+              )
+            })}
+          </div>
+        ))}
       <aside
         className="campaign-messages"
         aria-label="Campaign messages"

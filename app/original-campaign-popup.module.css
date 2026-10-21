@@ -28,3 +28,6 @@
 
 .buttonArt { position: absolute; inset: 0; pointer-events: none; }
 .buttonArt i { position: absolute; background-image: var(--popup-button); background-repeat: no-repeat; }
+
+.panel[data-art-failed][data-font="4"] .fallback { font-size: 9px; }
+.panel[data-art-failed][data-font="4"] .ok { font: 9px/10px Arial, sans-serif; }

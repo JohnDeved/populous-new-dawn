@@ -24,13 +24,18 @@ const diagnosticsHtml=readFileSync(resolve(root,'app/fps-graph.ts'),'utf8').matc
 assert.ok(diagnosticsHtml)
 const inputs=['app/original-campaign-popup.tsx','app/original-campaign-popup.module.css','app/campaign-popup-layout.ts','app/campaign-popup-session.ts','app/original-campaign-popup.json','app/messages.ts','app/page.tsx','app/globals.css','app/fps-graph.ts','app/hud-layout.ts','app/original-result-ui.json','app/original-hud.json', 'scripts/campaign-popup-fixture/run.mjs','scripts/campaign-popup-fixture/fixture/main.tsx','scripts/campaign-popup-fixture/fixture/env.d.ts',
   ...['campaign-popup-tiles','result-font','hud','hud-button','hud-button-selected','hud-button-hover','message'].map(name=>`public/original/${name}.png`)]
-const fingerprints=Object.fromEntries(inputs.map(file=>[file,hash(resolve(root,file))]))
-const receipt={status:'running',head:git('rev-parse','HEAD').trim(),baseline,inputs:fingerprints,startedAt:new Date().toISOString(),browserPath,browserSha256:hash(browserPath),observations:[],checks:[],errors:[],limits:['Actual popup component and current message actions in a minimal React fixture, not full Home or natural campaign execution.','Before is retained be44bc76 campaign body markup and exact CSS against the same text/background/viewport.','Source-palette native reconstruction, not an original GPU capture or hardware performance test.','No fullgame WebGL renderer launched.']}
+const pauseRoot=resolve(process.env.POPULOUS_PAUSE_ROOT || root),pauseFile=resolve(pauseRoot,'app/original-pause-status.tsx')
+const actualPause=existsSync(pauseFile)
+const pauseInputs=actualPause?['app/original-pause-status.tsx','app/original-pause-status.module.css','app/pause-status-layout.ts','app/original-hud.json','app/globals.css'].map(file=>resolve(pauseRoot,file)):[]
+const pauseA11y=actualPause?readFileSync(resolve(pauseRoot,'app/globals.css'),'utf8').match(/\.game-a11y-status\{[^}]+\}/)?.[0]??'':''
+if(actualPause)assert.ok(pauseA11y,'Actual native status screenreader rule is required')
+const fingerprints=Object.fromEntries([...inputs,...pauseInputs].map(file=>[file,hash(resolve(root,file))]))
+const receipt={status:'running',head:git('rev-parse','HEAD').trim(),baseline,pauseComponent:actualPause?pauseFile:'source-metric fixture (actual component absent)',inputs:fingerprints,startedAt:new Date().toISOString(),browserPath,browserSha256:hash(browserPath),observations:[],checks:[],errors:[],limits:['Actual popup component and current message actions in a minimal React fixture, not full Home or natural campaign execution.','Before is retained be44bc76 campaign body markup and exact CSS against the same text/background/viewport.','Source-palette native reconstruction, not an original GPU capture or hardware performance test.','No fullgame WebGL renderer launched.']}
 const save=()=>writeFileSync(resolve(output,'receipt.json'),JSON.stringify(receipt,null,2)+'\n')
 let browser,server,timer,memoryGuard
 save()
 try {
- server=await createServer({configFile:false,root:fixture,publicDir:resolve(root,'public'),cacheDir:resolve(output,'vite-cache'),plugins:[react(),{name:'baseline-campaign-css',resolveId(id){if(id==='virtual:campaign-baseline.css')return baselineCss},configureServer(server){server.middlewares.use((req,res,next)=>{if(req.url==='/diagnostics.html'){res.setHeader('Content-Type','text/html');res.end(diagnosticsHtml)}else if(req.url==='/before.css'){res.setHeader('Content-Type','text/css');res.end(oldCss)}else next()})}}],css:{postcss:{plugins:[tailwindcss({base:fixture})]}},optimizeDeps:{include:['react','react-dom','react-dom/client','react/jsx-runtime','react/jsx-dev-runtime']},server:{host:'127.0.0.1',port:4378,strictPort:true,fs:{allow:[root,output]}},logLevel:'warn'})
+ server=await createServer({configFile:false,root:fixture,publicDir:resolve(root,'public'),cacheDir:resolve(output,'vite-cache'),plugins:[react(),{name:'baseline-campaign-css',resolveId(id){if(id==='virtual:campaign-baseline.css')return baselineCss;if(id==='virtual:native-pause-component')return actualPause?pauseFile:'\0pause-fallback'},load(id){if(id==='\0pause-fallback')return 'export const OriginalPauseStatus=null'},configureServer(server){server.middlewares.use((req,res,next)=>{if(req.url==='/native-status-a11y.css'){res.setHeader('Content-Type','text/css');res.end(pauseA11y)}else if(req.url==='/diagnostics.html'){res.setHeader('Content-Type','text/html');res.end(diagnosticsHtml)}else if(req.url==='/before.css'){res.setHeader('Content-Type','text/css');res.end(oldCss)}else next()})}}],css:{postcss:{plugins:[tailwindcss({base:fixture})]}},optimizeDeps:{include:['react','react-dom','react-dom/client','react/jsx-runtime','react/jsx-dev-runtime']},server:{host:'127.0.0.1',port:4378,strictPort:true,fs:{allow:[root,output,pauseRoot]}},logLevel:'warn'})
  await server.listen()
  browser=await chromium.launch({executablePath:browserPath,headless:true,chromiumSandbox:true,timeout:30000})
  receipt.browserVersion=browser.version()
@@ -114,10 +119,11 @@ try {
    const diagnostics=await page.locator('.fps-graph').evaluate(graph=>{
      const box=n=>{const r=n.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom}}
      const walker=document.createTreeWalker(graph,NodeFilter.SHOW_TEXT),text=[];let node;while(node=walker.nextNode()){if(!node.textContent.trim()||node.parentElement.closest('[hidden]'))continue;const range=document.createRange();range.selectNodeContents(node);text.push({value:node.textContent,rects:[...range.getClientRects()].map(r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom}))})}
-     const style=getComputedStyle(graph);return {font:style.fontSize,lineHeight:style.lineHeight,text,box:box(graph),panel:box(document.querySelector('[data-native-campaign-panel]')),rows:[...graph.querySelectorAll('dl>div')].filter(n=>!n.closest('[hidden]')).map(n=>({box:box(n),fits:n.scrollWidth<=n.clientWidth})),export:box(graph.querySelector('.fps-export'))}
+     const style=getComputedStyle(graph);return {font:style.fontSize,lineHeight:style.lineHeight,text,pause:box(document.querySelector('[data-original-pause-status],[data-native-paused-fixture]')),box:box(graph),panel:box(document.querySelector('[data-native-campaign-panel]')),rows:[...graph.querySelectorAll('dl>div')].filter(n=>!n.closest('[hidden]')).map(n=>({box:box(n),fits:n.scrollWidth<=n.clientWidth})),export:box(graph.querySelector('.fps-export'))}
    })
    receipt.checks.push({diagnostics:[width,height],...diagnostics});save()
-   assert.ok(diagnostics.box.top>=diagnostics.panel.bottom+3,'Diagnostics stay below the native body')
+   assert.ok(diagnostics.box.top>=diagnostics.panel.bottom+3,'Diagnostics stay below the native body with a gutter')
+   assert.ok(diagnostics.box.bottom<=diagnostics.pause.top-3,'Diagnostics do not cover the full native Paused glyph line')
    assert.ok(diagnostics.box.left>=0&&diagnostics.box.right<=width&&diagnostics.box.bottom<=height)
    assert.equal(diagnostics.font,'11px');assert.equal(diagnostics.lineHeight,'13.2px')
    for(const [index,run] of diagnostics.text.entries()) for(const fragment of run.rects){
@@ -137,13 +143,20 @@ try {
  await page.mouse.up()
  receipt.checks.push('Native hover830 and pressed839 bitmap mappings are active')
  await page.route('**/original/*.png',route=>route.abort())
- await open();await page.locator('[data-art-failed]').waitFor()
- await page.screenshot({path:resolve(output,'art-failure-recovery.png')})
- assert.equal(await page.locator('[data-campaign-text]').textContent(),await page.locator('[data-campaign-text]').getAttribute('aria-label'))
- await page.getByRole('button',{name:'Acknowledge campaign message'}).click()
- assert.equal(await page.locator('details[open]').count(),0)
- receipt.checks.push('Art failure retains readable authored text and functional acknowledgment')
-
+ for(const [width,height]of [[640,480],[900,300]]){
+   await page.setViewportSize({width,height});await open();await page.locator('[data-art-failed]').waitFor()
+   await page.screenshot({path:resolve(output,`art-failure-recovery-${width}x${height}.png`)})
+   const text=page.locator('[data-campaign-text]')
+   assert.equal(await text.textContent(),await text.getAttribute('aria-label'))
+   const fallback=await text.evaluate(n=>{const range=document.createRange();range.selectNodeContents(n);return{rects:[...range.getClientRects()].map(r=>({top:r.top,bottom:r.bottom,right:r.right})),box:n.getBoundingClientRect().toJSON(),button:document.querySelector('[aria-label="Acknowledge campaign message"]').getBoundingClientRect().toJSON()}})
+   for(const [index,rect]of fallback.rects.entries()){
+     assert.ok(rect.bottom<=fallback.button.top && rect.right<=fallback.box.right+.5,'Recovery text stays clear of controls')
+     if(index)assert.ok(rect.top>=fallback.rects[index-1].bottom,'Recovery text lines do not overlap')
+   }
+   await page.getByRole('button',{name:'Acknowledge campaign message'}).click()
+   assert.equal(await page.locator('details[open]').count(),0)
+ }
+ receipt.checks.push('Art failure retains readable, non-overlapping authored text and functional acknowledgment for both bitmap-font thresholds')
  assert.equal(receipt.errors.length,0,receipt.errors.join('\n'))
  for(const[file,sha]of Object.entries(fingerprints))assert.equal(hash(resolve(root,file)),sha,`Source drift: ${file}`)
  receipt.status='passed'
