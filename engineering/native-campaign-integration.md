@@ -28,3 +28,24 @@ the helper does not establish earned progression. Result-stage and remaining bro
 adapter migration are checkpoint B. Full check/build and rendered acceptance remain
 required after the complete candidate is independently reviewed. No parity claim,
 source-pin activation, production profile mutation or mission24/25 support is made.
+
+Checkpoint B runtime replaces automatic result statistics and current+1 continuation
+with a world-owned terminal overlay, fresh-Space statistics, pending exit and native
+selector. Statistics owns pause and actual HUD removal/viewport expansion. Selector
+Back retains the terminal world/statistics. Popup, file/modal, flyby and input-mask
+owners remain earlier. Browser focus pause is released on its own fresh press,
+without simultaneously advancing result stage. Enter/click do not navigate results.
+
+Static native follow-up establishes the separate counters: paused-gated logical
+turns own the >10 admission threshold; admitted input cycles own prompt/status blink.
+The input-cycle adapter uses elapsed83ms intervals (floor1000/12), independent of
+pause, game speed and refresh rate. Its zero-at-scene-entry epoch and elapsed catch-up
+are explicit browser adaptations, not exact original scheduler/save emulation.
+Western result text uses raw verified F3/F4 pixels without guessed CSS color tint.
+Low-resolution panel composition reuses the same verified native tile owner as
+campaign popups; very small viewports uniformly fit rather than clipping as native
+320x200 does. All ten unavailable counters remain explicitly unavailable.
+
+The runtime checkpoint is still not acceptance-complete: existing browser and unit
+consumer adaptation, independent review, source-bound quality checks, rendered win/
+loss/fork/profile roundtrips and serialized standard full gates remain outstanding.

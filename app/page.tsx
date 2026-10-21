@@ -9,6 +9,7 @@ import { StartupLogo } from './startup-logo'
 
 import { hudScale } from './hud-layout.ts'
 import { OriginalResultScreen } from './original-result-screen'
+import { createResultSession, createResultKeys, resultSpaceEligible } from './result-session'
 import { flushSync } from 'react-dom'
 import type { WorshipAcquisitionGeometry, WorshipTargetModel } from './worship-acquisition.ts'
 import type { WorshipHudGeometry } from './worship-acquisition-layout.ts'
@@ -115,7 +116,6 @@ type LoadRequest =
   | { kind: 'tutorial' }
   | { kind: 'checkpoint' }
   | { kind: 'restart' }
-  | { kind: 'continue'; mission: number }
 
 export default function Home() {
   const [store] = useState(createGameStore)
@@ -123,6 +123,11 @@ export default function Home() {
   const world = store.getWorld(),
     update = store.update
   const completedMissions = store.getCompletedMissions()
+  const [resultSession] = useState(createResultSession)
+  const [resultKeys] = useState(createResultKeys)
+  const resultStage = resultSession.stage(world)
+  const statisticsVisible =
+    resultStage === 'statistics' || resultStage === 'exit-pending' || resultStage === 'selector'
   const spellRoster = spellHudRoster(world)
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
   const [sound, setSound] = useState(false)
@@ -263,9 +268,15 @@ export default function Home() {
   }
   function openSelector() {
     cancelNearbyInput()
-    if (engine.current) engine.current.nearbyFollowersHudActive = false
     store.enterCampaignSelector()
     setSelectorOpen(true)
+  }
+  function closeSelector() {
+    setSelectorOpen(false)
+    if (resultSession.back(store.getWorld())) {
+      engine.current?.setModalSuspended(false)
+      update()
+    } else if (world.status === 'playing') openMenu()
   }
   useEffect(() => {
     const scene = engine.current
@@ -573,6 +584,102 @@ export default function Home() {
     )
   }, [ready, menu, cheatsOpen, selectorOpen])
   useEffect(() => {
+    const key = (event: KeyboardEvent) => {
+      const fresh = resultKeys.down(event)
+      const current = store.getWorld(),
+        scene = engine.current
+      if (
+        !ready ||
+        startup !== 'playing' ||
+        current !== world ||
+        !scene ||
+        scene.world !== current ||
+        menu ||
+        cheatsOpen ||
+        selectorOpen ||
+        debugPicker ||
+        Array.from(messageDetails.current.values()).some(details => details.open) ||
+        (event.target as HTMLElement | null)?.closest(
+          'input,textarea,select,dialog,button,a,[contenteditable]'
+        ) ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.altKey ||
+        event.shiftKey
+      )
+        return
+      const stage = resultSession.stage(current)
+      if (!stage) return
+      const space = event.code === 'Space' || event.key === ' '
+      // A focus pause belongs to the browser, not to the result. Release only
+      // that pause first, including while a paused terminal camera owns input.
+      if (space && scene.focusPauseOwned) {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+        if (fresh) {
+          scene.focusPauseOwned = false
+          current.paused = false
+          update()
+        }
+        return
+      }
+      if (current.inputMask) return // Popup/flyby/masked owners remain ahead of results.
+      if (stage === 'statistics' || stage === 'exit-pending' || space) {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+      }
+      if (
+        !space ||
+        !fresh ||
+        !resultSpaceEligible(current) ||
+        (current.paused && stage !== 'statistics')
+      )
+        return
+      scene.keys.clear()
+      if (stage === 'terminal-overlay' && !resultSession.bypassStatistics(current)) {
+        resultSession.openStatistics(current)
+        update()
+        return
+      }
+      const token = resultSession.beginExit(current)
+      if (!token) return
+      let accepted = false
+      try {
+        accepted = store.enterCampaignSelector(current)
+        if (accepted) {
+          audio.current?.reset()
+          scene.setModalSuspended(true)
+          setSelectorOpen(true)
+        }
+      } finally {
+        resultSession.finishExit(current, token, accepted)
+        update()
+      }
+    }
+    const up = (event: KeyboardEvent) => resultKeys.up(event)
+    const reset = () => resultKeys.reset()
+    window.addEventListener('keydown', key, true)
+    window.addEventListener('keyup', up, true)
+    window.addEventListener('blur', reset)
+    return () => {
+      window.removeEventListener('keydown', key, true)
+      window.removeEventListener('keyup', up, true)
+      window.removeEventListener('blur', reset)
+    }
+  }, [
+    world,
+    store,
+    ready,
+    startup,
+    menu,
+    cheatsOpen,
+    selectorOpen,
+    debugPicker,
+    resultSession,
+    resultKeys,
+    update,
+  ])
+  useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (
         !ready ||
@@ -777,7 +884,6 @@ export default function Home() {
     if (request.kind === 'debug' && !store.startDebugMission(request.mission)) return
     if (request.kind === 'tutorial') store.startTutorial()
     if (request.kind === 'restart') store.restart()
-    if (request.kind === 'continue' && !store.startMission(request.mission)) return
     setDebugPicker(false)
     menuSession.current = null
     cancelNearbyInput()
@@ -798,9 +904,6 @@ export default function Home() {
   }
   function restart() {
     beginLoad({ kind: 'restart' })
-  }
-  function continueCampaign() {
-    beginLoad({ kind: 'continue', mission: world.outcome.level + 1 })
   }
   function startMission(mission: number) {
     beginLoad({ kind: 'mission', mission })
@@ -874,12 +977,12 @@ export default function Home() {
     event.stopPropagation()
     return true
   }
-  const nextMission = missionNumbers.find(mission => mission === world.outcome.level + 1)
   const pendingLoadingPhase = startup === 'loading' ? 'restore' : 'loading'
   return (
     <main
       ref={shell}
       className="game-shell"
+      data-result-statistics={statisticsVisible || undefined}
       onPointerDownCapture={blockLoadingInteraction}
       onPointerUpCapture={blockLoadingInteraction}
       onContextMenuCapture={blockLoadingInteraction}
@@ -905,7 +1008,8 @@ export default function Home() {
       <aside
         className="campaign-messages"
         aria-label="Campaign messages"
-        style={{ visibility: menu ? 'hidden' : undefined }}
+        inert={statisticsVisible}
+        style={{ visibility: menu || statisticsVisible ? 'hidden' : undefined }}
         onKeyDown={event => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.stopPropagation()
@@ -1001,7 +1105,12 @@ export default function Home() {
         </p>
       )}
 
-      <aside ref={hudPanel} className="native-hud" aria-label="Tribe controls">
+      <aside
+        ref={hudPanel}
+        className="native-hud"
+        aria-label="Tribe controls"
+        inert={statisticsVisible}
+      >
         <div className="minimap-wrap">
           <canvas
             ref={minimap}
@@ -1316,10 +1425,8 @@ export default function Home() {
           aria-label="Start game"
           onCancel={event => {
             event.preventDefault()
-            if (selectorOpen) {
-              setSelectorOpen(false)
-              if (world.status === 'playing') openMenu()
-            } else setStartupCampaign(false)
+            if (selectorOpen) closeSelector()
+            else setStartupCampaign(false)
           }}
         >
           <WorldSelector
@@ -1334,14 +1441,7 @@ export default function Home() {
             onStart={startMission}
             onTutorial={() => beginLoad({ kind: 'tutorial' })}
             onLoad={loadCheckpoint}
-            onBack={
-              selectorOpen
-                ? () => {
-                    setSelectorOpen(false)
-                    if (world.status === 'playing') openMenu()
-                  }
-                : () => setStartupCampaign(false)
-            }
+            onBack={selectorOpen ? closeSelector : () => setStartupCampaign(false)}
           />
         </dialog>
       )}
@@ -1353,19 +1453,14 @@ export default function Home() {
           onRetry={retryLoad}
         />
       )}
-      {world.status !== 'playing' && !world.outcome.cameraPlaying && (
+      {startup === 'playing' && ready && world.status !== 'playing' && !selectorOpen && !menu && (
         <OriginalResultScreen
           status={world.status}
           level={world.outcome.level}
           player={world.manaWorld.playerTribe + 1}
           time={world.time}
-          primaryLabel={
-            world.status === 'won' && nextMission
-              ? `Continue to Mission ${nextMission}`
-              : 'Restart Level'
-          }
-          onPrimary={world.status === 'won' && nextMission ? continueCampaign : restart}
-          onSelectLevel={openSelector}
+          stage={statisticsVisible ? 'statistics' : 'terminal-overlay'}
+          inputCycles={engine.current?.resultClock.inputCycles ?? 0}
         />
       )}
       {debugPicker && (

@@ -1,0 +1,132 @@
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { createResultSession, createResultKeys, createResultClock, advanceResultClock, resultBlink, resultSpaceEligible } from '../app/result-session.ts'
+import { resultLayout, resultTextWidth } from '../app/original-result-layout.ts'
+import { pageEffect } from './support/follower-nearby-page.mjs'
+
+const terminal = (level = 1) => ({turn:20,status: 'won', paused: false, inputMask: 0, outcome: {level}, manaWorld: {loadFlags: 0}})
+
+test('result stages own world identity, pause, failed exit retry, Back and obsolete callbacks', () => {
+  const session = createResultSession(), first = terminal(), second = terminal(2)
+  assert.equal(session.stage(first), 'terminal-overlay')
+  assert.equal(session.openStatistics(first), true)
+  assert.equal(first.paused, true)
+  const token = session.beginExit(first)
+  assert.ok(token)
+  assert.equal(session.beginExit(first), null)
+  assert.equal(session.finishExit(first, token, false), true)
+  assert.equal(session.stage(first), 'statistics')
+  const retry = session.beginExit(first)
+  assert.equal(session.finishExit(first, token, true), false)
+  assert.equal(session.finishExit(first, retry, true), true)
+  assert.equal(session.stage(first), 'selector')
+  assert.equal(session.back(first), true)
+  assert.equal(session.stage(first), 'statistics')
+  const obsolete = session.beginExit(first)
+  assert.equal(session.stage(second), 'terminal-overlay')
+  assert.equal(session.finishExit(first, obsolete, true), false)
+  assert.equal(session.stage(second), 'terminal-overlay')
+  assert.equal(session.bypassStatistics(terminal(79)), true)
+})
+
+test('fresh Space policy rejects held/repeated cross-stage presses and tracks blocked downs', () => {
+  const keys = createResultKeys(), press = {key: ' ',code:'Space',repeat:false}
+  assert.equal(keys.down(press), true)
+  assert.equal(keys.down(press), false)
+  keys.up(press)
+  assert.equal(keys.down({...press,repeat:true}), false)
+  keys.up(press)
+  assert.equal(keys.down(press), true)
+  keys.reset()
+  assert.equal(keys.down(press), true)
+})
+
+test('result input clock is elapsed83ms, unsigned and independent of render rates', () => {
+  const reference = createResultClock(); advanceResultClock(reference, 12)
+  for (const hz of [30,60,120,144]) {
+    const clock = createResultClock()
+    for (let i=0;i<hz*12;i++) advanceResultClock(clock,1/hz)
+    assert.equal(clock.inputCycles,reference.inputCycles)
+    assert.deepEqual(resultBlink(clock.inputCycles),resultBlink(reference.inputCycles))
+  }
+  assert.deepEqual(resultBlink(0),{prompt:false,status:false})
+  assert.deepEqual(resultBlink(6),{prompt:true,status:true})
+  assert.deepEqual(resultBlink(8),{prompt:false,status:true})
+  const clock=createResultClock(); clock.inputCycles=0xffffffff; advanceResultClock(clock,.083)
+  assert.equal(clock.inputCycles,0)
+})
+
+test('native result geometry retains both fonts and documented small-screen fit correction', () => {
+  const normal=resultLayout(640,480),low=resultLayout(512,384),short=resultLayout(320,200)
+  assert.deepEqual([normal.font,normal.panelWidth,normal.panelHeight],[3,384,368])
+  assert.deepEqual([low.font,low.panelWidth,low.panelHeight,low.promptY],[4,240,224,226])
+  assert.deepEqual([short.font,short.panelWidth,short.panelHeight],[4,240,208])
+  assert.equal(low.counterValueStartX,177)
+  assert.equal(resultTextWidth('Press Space Bar',4),83)
+  for(const [w,h,p] of [[640,480,1],[1440,1000,2],[320,200,1],[512,384,1],[300,180,2]]) {
+    const l=resultLayout(w,h,p)
+    assert.ok(l.panelWidth*l.scale<=w)
+    assert.ok((l.promptY+l.glyphHeight)*l.scale<=h)
+  }
+})
+
+function inputFixture(options={}) {
+  const window=new EventTarget(), world=terminal(options.level), session=createResultSession(), keys=createResultKeys()
+  const scene={world,focusPauseOwned:false,resultClock:{simulationCycles:20},keys:new Set(),setModalSuspended(value){this.suspended=value}}
+  let admissions=0, resets=0, selector=false
+  const store={getWorld:()=>world,enterCampaignSelector:()=>{admissions++;return options.accepted!==false}}
+  const popup={open:false}
+  const cleanup=pageEffect('resultKeys.down(event)',{
+    window, world, store, ready:true, startup:'playing', menu:false, cheatsOpen:false, selectorOpen:false, debugPicker:false,
+    resultSpaceEligible, engine:{current:scene}, resultKeys:keys, resultSession:session, messageDetails:{current:new Map([[1,popup]])},
+    audio:{current:{reset(){resets++}}},setSelectorOpen(value){selector=value},update(){},
+  })()
+  function key(key=' ',extra={}) {
+    const event=new Event('keydown',{cancelable:true})
+    Object.assign(event,{key,code:key===' '?'Space':key,repeat:false,ctrlKey:false,metaKey:false,altKey:false,shiftKey:false,...extra})
+    // EventTarget provides target=window; closest is the browser boundary here.
+    window.closest=()=>options.editor?'input':null
+    window.dispatchEvent(event)
+    return event.defaultPrevented
+  }
+  function up(){const event=new Event('keyup');Object.assign(event,{key:' ',code:'Space'});window.dispatchEvent(event)}
+  return {world,scene,popup,session,key,up,cleanup,get admissions(){return admissions},get resets(){return resets},get selector(){return selector}}
+}
+
+test('actual Home result input performs two fresh Space stages, rejects Enter/repeat, and deduplicates exit',()=>{
+  const f=inputFixture()
+  try{
+    assert.equal(f.key(),true);assert.equal(f.session.stage(f.world),'statistics');assert.equal(f.world.paused,true)
+    f.key('Enter');assert.equal(f.admissions,0)
+    f.key(' ',{repeat:true});assert.equal(f.admissions,0)
+    f.up();f.key();assert.equal(f.admissions,1);assert.equal(f.resets,1);assert.equal(f.selector,true)
+    f.up();f.key();assert.equal(f.admissions,1);assert.equal(f.resets,1)
+  }finally{f.cleanup()}
+})
+
+test('actual Home preserves popup/mask/editor/modifier ownership and releases only focus pause',()=>{
+  for(const owner of ['popup','mask','editor','modifier','focus']) {
+    const f=inputFixture({editor:owner==='editor'})
+    try{
+      if(owner==='popup')f.popup.open=true
+      if(owner==='mask')f.world.inputMask=4
+      if(owner==='focus'){f.scene.focusPauseOwned=true;f.world.paused=true;f.world.inputMask=4}
+      f.key(' ',owner==='modifier'?{ctrlKey:true}:{})
+      assert.equal(f.session.stage(f.world),'terminal-overlay',owner)
+      assert.equal(f.admissions,0)
+      if(owner==='focus'){assert.equal(f.world.paused,false);assert.equal(f.scene.focusPauseOwned,false)}
+      f.popup.open=false;f.world.inputMask=0
+      f.key(' ',{repeat:true});assert.equal(f.session.stage(f.world),'terminal-overlay')
+    }finally{f.cleanup()}
+  }
+})
+
+test('actual Home tutorial bypasses statistics and rejected selector admission remains retryable',()=>{
+  const tutorial=inputFixture({level:79}),failed=inputFixture({accepted:false})
+  try{
+    tutorial.key();assert.equal(tutorial.admissions,1);assert.equal(tutorial.world.paused,false)
+    failed.key();failed.up();failed.key();assert.equal(failed.admissions,1)
+    assert.equal(failed.session.stage(failed.world),'statistics');assert.equal(failed.resets,0)
+    failed.up();failed.key();assert.equal(failed.admissions,2)
+  }finally{tutorial.cleanup();failed.cleanup()}
+})

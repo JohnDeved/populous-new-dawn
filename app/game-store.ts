@@ -208,7 +208,8 @@ export function createGameStore() {
   let progress = readCampaignProfile(undefined).progress
   let selected: NativeCampaignMission = 1,
     anchor: NativeCampaignMission = 1
-  let selectionRevision = 0
+  let selectionRevision = 0,
+    anchorRevision = 0
   const pending: CampaignEvent[] = []
   let writing = false
   let checkpointReadStatus: CheckpointReadStatus = 'idle'
@@ -226,7 +227,8 @@ export function createGameStore() {
     if (writing || !pending.length) return
     writing = true
     const events = pending.slice(),
-      selection = selectionRevision
+      selection = selectionRevision,
+      anchorVersion = anchorRevision
     let committed = false
     try {
       const merged = await writeCampaignProgress(progress, events)
@@ -234,8 +236,9 @@ export function createGameStore() {
         committed = true
         pending.splice(0, events.length)
         progress = joinCampaignProgress(progress, merged.progress)
-        if (selectionRevision === selection && merged.recommendation !== null) {
-          selected = anchor = merged.recommendation
+        if (anchorRevision === anchorVersion && merged.recommendation !== null) {
+          anchor = merged.recommendation
+          if (selectionRevision === selection) selected = anchor
         }
         update()
       }
@@ -251,7 +254,10 @@ export function createGameStore() {
     const next = applyCampaignEvent(progress, event)
     progress = next.progress
     pending.push(event)
-    if (next.recommendation !== null) selected = anchor = next.recommendation
+    if (next.recommendation !== null) {
+      anchorRevision++
+      selected = anchor = next.recommendation
+    }
     void persistProgress()
   }
   const update = () => {
