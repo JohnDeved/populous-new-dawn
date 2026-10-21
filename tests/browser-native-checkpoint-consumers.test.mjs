@@ -105,3 +105,23 @@ test('Preacher checkpoint resumes only after returning from the final Save panel
   assert.deepEqual(calls, ['Back', 'Continue Game'])
   assert.equal(panel, 'closed')
 })
+
+for (const [file, mission] of [
+  ['building-menu', 1], ['stone-head-animation', 1],
+  ['training-hut-colors', 17], ['vehicle-destruction', 10], ['reincarnation-wave', 2],
+]) test(`${file} retains custom context/readiness with explicit native checkpoint entry`, async () => {
+  const source = read(`scripts/check-browser-${file}.mjs`)
+  const expression = source.match(/(?:await prepareCampaignFixture\(page, \d+\)\s+)?await launchCampaignMission\(page, \d+\)/)
+  assert.ok(expression)
+  const page = {}, events = []
+  await vm.runInNewContext(`(async () => { ${expression[0]} })()`, {
+    page,
+    prepareCampaignFixture: async (owner, level) => { assert.equal(owner, page); events.push(['seed', level]) },
+    launchCampaignMission: async (owner, level) => { assert.equal(owner, page); events.push(['native', level]) },
+  })
+  assert.deepEqual(events, mission === 1 ? [['native', 1]] : [['seed', mission], ['native', mission]])
+  assert.doesNotMatch(source, /showAllMissions|\.startMission\(/)
+  if (mission === 1) assert.doesNotMatch(source, /prepareCampaignFixture/)
+  else assert.match(source, /not naturally earned campaign history/)
+  assert.match(source, /saveCheckpoint\(/)
+})
