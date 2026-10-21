@@ -1,3 +1,4 @@
+import { scriptCommand } from './dependency-profile.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
@@ -1360,7 +1361,7 @@ export function focusedTestFeedback(plan, sharedPaths = [], manager = 'npm') {
   const full = fallback.length > 0 || (plan.changes.length > 0 && files.size === 0)
   return { advisory: true, finalGate: false, fullVerificationRequired: true,
     scope: full ? 'full' : files.size ? 'focused' : 'none',
-    command: full ? [manager, 'test'] : files.size ? [manager, 'run', 'test:focus', '--', ...[...files].sort()] : null,
+    command: full ? [manager, 'test'] : files.size ? scriptCommand(manager, 'test:focus', [...files].sort()) : null,
     reasons: full ? ['Conservative fallback: broad, deleted, unmapped, or no exact portable test mapping.', ...new Set(fallback)].sort() :
       ['Editing feedback only; mapped files are not an exhaustive dependency graph.'],
   }

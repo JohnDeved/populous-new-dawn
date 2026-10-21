@@ -70,3 +70,12 @@ export function dependencyInputPaths(repo) {
   return ['node_modules/.modules.yaml', 'node_modules/.pnpm/lock.yaml',
     ...(sourcePackageManager(repo) === PNPM_MANAGER ? ['pnpm-lock.yaml', 'pnpm-workspace.yaml'] : [])]
 }
+
+// Npm consumes its separator; pnpm forwards it to the script as an argument.
+export function scriptCommand(manager, script, args = []) {
+  assert(['npm', 'pnpm'].includes(manager), 'Unsupported script package manager')
+  return [manager, 'run', script, ...(manager === 'npm' && args.length ? ['--'] : []), ...args]
+}
+export function packageScriptCommand(repo, script, args = []) {
+  return scriptCommand(sourcePackageManager(repo).split('@')[0], script, args)
+}

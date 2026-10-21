@@ -449,3 +449,10 @@ owned-Blast npm-v1 receipt validators remain unchanged because they validate old
 immutable evidence, not new pnpm execution. No historical receipt is relabeled.
 Npm remains only the pinned historical installer and the Node-provided bootstrap
 for pnpm itself; new project installs and package commands use pnpm.
+
+
+Pinned pnpm 11 defaults to installing when its pre-run dependency check finds a
+stale layout. This repository sets verifyDepsBeforeRun: error instead: frozen gates
+must fail, not perform an unrecorded install. Pnpm script arguments are forwarded
+without npm's extra separator; a dependency-free argv fixture checks the pinned
+CLI itself without starting a server or browser.

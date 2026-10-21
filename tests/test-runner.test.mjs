@@ -437,6 +437,7 @@ test('shard signals, failed groups and inherited test-selection flags cannot cer
 test('real native shard execution writes a source-bound terminal receipt and refuses an existing receipt', async t => {
   const { repo, put } = shardFixture(t)
   put('scripts/orchestration/test-runner.mjs', readFileSync(new URL('../scripts/orchestration/test-runner.mjs', import.meta.url)))
+  put('scripts/orchestration/dependency-profile.mjs', readFileSync(new URL('../scripts/orchestration/dependency-profile.mjs', import.meta.url)))
   const output = join(repo, 'shard.json')
   const cli = () => new Promise(resolve => {
     const child = spawn(process.execPath, [join(repo, 'scripts/orchestration/test-runner.mjs'), 'shard',

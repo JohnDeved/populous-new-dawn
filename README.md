@@ -67,10 +67,10 @@ versioned known-scope inventory, not estimated effort, and expands with discover
 
 ```sh
 pnpm run parity                 # Compact global/subsystem report
-pnpm run --silent parity -- --json # Machine-readable counts and percentage
+pnpm run --silent parity --json # Machine-readable counts and percentage
 pnpm run parity:check           # Evidence paths, revision and report freshness
 pnpm run parity:render          # Refresh report wording without recording progress
-pnpm run parity:record -- "Describe the change and checks run"
+pnpm run parity:record "Describe the change and checks run"
 ```
 
 Edit `parity.json` after comparing and integrating behavior, then record a snapshot.

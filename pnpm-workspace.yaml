@@ -13,3 +13,4 @@ publicHoistPattern:
   - sharp
   - oxfmt
   - oxlint
+verifyDepsBeforeRun: error
