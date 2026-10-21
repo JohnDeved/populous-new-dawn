@@ -8,6 +8,7 @@ export function createResultSession() {
   let owner: World | null = null
   let stage: ResultStage = 'terminal-overlay'
   let priorStage: ResultStage = 'terminal-overlay'
+  let priorPaused = false
   let pending: symbol | null = null
   const current = (world: World) => {
     if (owner !== world) {
@@ -31,6 +32,7 @@ export function createResultSession() {
       const value = current(world)
       if (value !== 'terminal-overlay' && value !== 'statistics') return null
       priorStage = value
+      priorPaused = world.paused
       stage = 'exit-pending'
       pending = Symbol()
       return pending
@@ -44,6 +46,7 @@ export function createResultSession() {
     back(world: World) {
       if (owner !== world || stage !== 'selector') return false
       stage = priorStage
+      world.paused = priorPaused
       return true
     },
   }

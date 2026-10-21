@@ -5,17 +5,20 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { prepareCampaignFixture, launchCampaignMission, bindGame } from '../browser-game.mjs'
+import { continueThroughNativeSelector, enterResultSelector } from '../browser-result-navigation.mjs'
 
 export function campaignAdapter(source) {
   const replacements = [
     ['const captureCameraEvidence = async () => {}', 'const captureCameraEvidence = globalThis.campaignFixedTurnQA.checkpoint'],
     ["import { chromium } from '@playwright/test'", '// Browser supplied by the sandbox-preserving local-render harness.'],
-    ["import { openGame } from './browser-game.mjs'", 'const { page, receipt, checkpoint } = globalThis.campaignFixedTurnQA\nconst openGame = async () => ({ page, errors: receipt.errors })'],
+    ["import { openCampaignFixtureGame as openGame } from './browser-game.mjs'", 'const { page, receipt, checkpoint } = globalThis.campaignFixedTurnQA\nconst openGame = async () => ({ page, errors: receipt.errors })'],
+    ["import { continueThroughNativeSelector, enterResultSelector } from './browser-result-navigation.mjs'", 'const { continueThroughNativeSelector, enterResultSelector } = globalThis.campaignFixedTurnQA'],
     ["const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })", 'const browser = { close: async () => {} }'],
     ['    await missionTwo(page)', "    await checkpoint('mission-2-start')\n    await missionTwo(page)\n    await checkpoint('mission-2-won')"],
-    ["    await page.getByRole('button', { name: 'Continue to Mission 3', exact: false }).click()", "    await checkpoint('mission-2-result')\n    await page.getByRole('button', { name: 'Continue to Mission 3', exact: false }).click()"],
+    ["    await continueThroughNativeSelector(page, 3)", "    await checkpoint('mission-2-result')\n    await continueThroughNativeSelector(page, 3)"],
     ['    await missionThree(page)', "    await checkpoint('mission-3-continued')\n    await missionThree(page)\n    await checkpoint('mission-3-won')"],
-    ["    await page.getByRole('button', { name: 'Continue to Mission 4', exact: false }).waitFor()", "    await page.getByRole('button', { name: 'Continue to Mission 4', exact: false }).waitFor()\n    await checkpoint('mission-3-result')"],
+    ["    await page.getByRole('button', { name: 'Start Mission 4', exact: true }).waitFor()", "    await page.getByRole('button', { name: 'Start Mission 4', exact: true }).waitFor()\n    await checkpoint('mission-3-result')"],
     ["  if (required) assert.ok(result.ready, `${label} timed out: ${JSON.stringify(result)}`)", "  console.log(JSON.stringify({ label, ready: result.ready, turn: result.turn, status: result.status }))\n  if (required) assert.ok(result.ready, `${label} timed out: ${JSON.stringify(result)}`)"],
     ["    console.log('PASS: rendered player actions win Mission 2, continue, and naturally win Mission 3')", "    console.log('PASS: fixed-turn diagnostic wins Mission 2, continues, and wins Mission 3; not real-clock gameplay')"],
   ]
@@ -27,11 +30,11 @@ export function campaignAdapter(source) {
   return adapted
 }
 
-export default async function campaignFixedTurn({ root, page, openMission, output, receipt, signal }) {
+export default async function campaignFixedTurn({ root, page, output, receipt, signal }) {
   const checker = readFileSync(resolve(root, 'scripts/check-browser-campaign-natural-victory.mjs'), 'utf8')
   const report = {
-    method: 'Diagnostic fixed-turn simulation via direct tick(world, 1/12), suspended RAF, internal camera focus and read-only targeting/picking helpers; rendered HUD/mouse orders. No injected entities, resources, victory, AI state, or campaign profile.',
-    limits: 'Not ordinary real-clock gameplay, native timing parity, complete original-game parity, or hardware performance. Direct All missions setup for Mission 2; Mission 3 must use the shipped Continue result button.',
+    method: 'Diagnostic fixed-turn simulation via direct tick(world, 1/12), suspended RAF, internal camera focus and read-only targeting/picking helpers; rendered HUD/mouse orders. No injected entities, resources, victory or AI state. Explicit valid availability-only profile fixture admits Mission 2.',
+    limits: 'Not ordinary real-clock gameplay, native timing parity, complete original-game parity, or hardware performance. Declared Mission 2 availability fixture, not earned Mission 1 completion; Mission 3 must use the shipped two-Space result route and native Start.',
     authoritativeOutcome: 'receipt.json also checks cancellation, cleanup and source drift; this file records scenario progress only.',
     source: receipt.source,
     checkerSha256: createHash('sha256').update(checker).digest('hex'),
@@ -66,10 +69,12 @@ export default async function campaignFixedTurn({ root, page, openMission, outpu
     await page.screenshot({ path: resolve(output, `${name}.png`) })
   }
   save()
-  await openMission(2)
+  await prepareCampaignFixture(page, 2)
+  await launchCampaignMission(page, 2)
+  await bindGame(page)
   const adapter = resolve(output, 'campaign-adapter.mjs')
   writeFileSync(adapter, campaignAdapter(checker))
-  globalThis.campaignFixedTurnQA = { page, receipt, checkpoint }
+  globalThis.campaignFixedTurnQA = { page, receipt, checkpoint, continueThroughNativeSelector, enterResultSelector }
   try {
     await import(pathToFileURL(adapter).href)
     signal.throwIfAborted()

@@ -26,7 +26,13 @@ test('result stages own world identity, pause, failed exit retry, Back and obsol
   assert.equal(session.stage(second), 'terminal-overlay')
   assert.equal(session.finishExit(first, obsolete, true), false)
   assert.equal(session.stage(second), 'terminal-overlay')
-  assert.equal(session.bypassStatistics(terminal(79)), true)
+  const tutorial = terminal(79)
+  assert.equal(session.bypassStatistics(tutorial), true)
+  const tutorialExit = session.beginExit(tutorial)
+  session.finishExit(tutorial, tutorialExit, true)
+  tutorial.paused = true // selector dialog owns this temporary pause
+  session.back(tutorial)
+  assert.equal(tutorial.paused, false, 'Back restores tutorial overlay pause ownership')
 })
 
 test('fresh Space policy rejects held/repeated cross-stage presses and tracks blocked downs', () => {
