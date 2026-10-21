@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { spawnSync } from 'node:child_process'
 import test from 'node:test'
+import yaml from 'js-yaml'
 const root = new URL('../', import.meta.url)
 const source = name => readFileSync(new URL(name, root), 'utf8')
 function installer(name) {
@@ -49,4 +50,12 @@ test('native historical candidates use separately source-bound dependency infras
   assert.match(text, /\/scripts\/orchestration\/dependency-profile\.mjs/)
   assert.match(text, /working-directory: candidate/)
   assert.equal(source('scripts/browser-performance/workflows/browser-performance.yml'), source('.github/workflows/browser-performance.yml'))
+})
+
+
+test('all four existing workflow families remain valid YAML', () => {
+  for (const family of ['ready-pr-check', 'tutorial-browser', 'native-ui-evidence', 'browser-performance']) {
+    const parsed = yaml.load(source(`.github/workflows/${family}.yml`))
+    assert.ok(parsed.on && parsed.jobs && parsed.permissions)
+  }
 })
