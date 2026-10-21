@@ -9,23 +9,25 @@ import { createElement } from 'react'
 
 const require = createRequire(import.meta.url)
 const art = JSON.parse(readFileSync(new URL('../app/original-loading-art.json', import.meta.url), 'utf8'))
+const frontend = JSON.parse(readFileSync(new URL('../app/original-frontend.json', import.meta.url), 'utf8'))
 const source = readFileSync(new URL('../app/original-loading-screen.tsx', import.meta.url), 'utf8')
 const emitted = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
 }).outputText
-function load(react = require('react')) {
+function load(react = require('react'), exportName = 'OriginalLoadingScreen') {
   const component = { exports: {} }
-  new Function('require', 'module', 'exports', emitted)(name => {
+  new Function('require', 'module', 'exports', emitted + '\nmodule.exports.RecoveryText = RecoveryText;')(name => {
     if (name === 'react') return react
+    if (name === './original-frontend.json') return {default: frontend}
     if (name === './original-loading-art.json') return {default: art}
     if (name === 'react/jsx-runtime') return require(name)
     throw Error(`Unexpected component dependency: ${name}`)
   }, component, component.exports)
-  return component.exports.OriginalLoadingScreen
+  return component.exports[exportName]
 }
 const Component = load()
-const render = phase => renderToStaticMarkup(createElement(Component, {
-  phase, error: '<failed terrain request>', onRetry() {},
+const render = (phase, error = '<failed terrain request>') => renderToStaticMarkup(createElement(Component, {
+  phase, error, onRetry() {},
 }))
 const tree = element => [element, ...[element?.props?.children].flat(Infinity).filter(child => typeof child === 'object' && child).flatMap(tree)]
 
@@ -209,4 +211,94 @@ test('retry rejects held Enter and unowned Space releases across replacement, bu
   button.props.onClick() // Mouse or assistive detail-zero click remains supported.
   assert.equal(requests, 4)
   assert.equal(key(mount(), 'onKeyDown', 'Tab'), false, 'Tab still bubbles to the existing focus trap')
+})
+
+
+test('pending splash geometry and markup are byte-identical to the reviewed loading implementation', () => {
+  const sha256 = text => createHash('sha256').update(text).digest('hex')
+  const style = source.slice(source.indexOf('const loadingStyle'), source.indexOf('\n\ninterface Props'))
+  const pending = source.slice(source.indexOf('      <div className="loading-original-art">'), source.indexOf("      {phase === 'failed' && ("))
+  assert.equal(sha256(style), '6f62609435c228dbb104cdc8f2f2ef864915792d4c99d9fa388c1d1f53cd80f0')
+  assert.equal(sha256(pending), '908a386250b9269b64fc489776c36c0b728dd9d6577a6baa7954eab03734374c')
+})
+
+test('recovery labels use original frontend advances and pixel-identical normal/highlight atlas layouts', () => {
+  const Text = load(require('react'), 'RecoveryText')
+  assert.deepEqual(frontend.banks.feft33we.rects, frontend.banks.fehi33we.rects)
+  for (const [text, width] of [['Loading failed', 199], ['Technical details', 242], ['Try again', 134], ['Browser recovery', 257]]) {
+    const nodes = tree(Text({text, ready: true}))
+    const glyphs = nodes.filter(node => node.type === 'i')
+    assert.equal(glyphs.length, text.length)
+    assert.equal(glyphs.reduce((sum, node) => sum + node.props.style.width, 0), width)
+    const label = nodes.find(node => node.props?.children === text)
+    assert.equal(label.props.className, 'loading-text-hidden')
+    assert.equal(nodes.find(node => node.props?.className === 'loading-recovery-text').props['aria-hidden'], 'true')
+  }
+})
+
+test('missing fonts and unsupported characters retain complete readable text instead of unsafe glyph indexing', () => {
+  const Text = load(require('react'), 'RecoveryText')
+  for (const [text, ready] of [['Try again', false], ['Terrain \u{1f30b} 中文 <script>\nfailed', true]]) {
+    const nodes = tree(Text({text, ready}))
+    assert.equal(nodes.filter(node => node.type === 'i').length, 0)
+    assert.equal(nodes.find(node => node.type === 'span').props.children, text)
+    assert.equal(nodes.find(node => node.type === 'span').props.className, 'loading-recovery-fallback')
+  }
+  const error = '<img src=x onerror="alert(1)">\nTerrain \u{1f30b} 中文 / ' + 'unbroken-path-'.repeat(400)
+  const html = render('failed', error)
+  assert.ok(html.includes('&lt;img src=x onerror=&quot;alert(1)&quot;&gt;'))
+  assert.ok(html.includes('Terrain \u{1f30b} 中文 / ' + 'unbroken-path-'.repeat(400)))
+  assert.ok(!html.includes('<img src=x'))
+  assert.match(html, /<p class="loading-recovery-error">/)
+})
+
+test('recovery font loading is failed-phase-only, failure-safe and unmount-safe', async () => {
+  const originalImage = globalThis.Image
+  const requests = [], pending = []
+  globalThis.Image = class {
+    set src(value) { requests.push(value) }
+    decode() { return new Promise((resolve, reject) => pending.push({resolve, reject})) }
+  }
+  const settle = () => new Promise(resolve => setImmediate(resolve))
+  try {
+    for (const phase of ['restore', 'loading']) {
+      const harness = inspectState()
+      harness.render(phase)
+      harness.effects[2]()
+    }
+    assert.deepEqual(requests, [], 'pending splash must never fetch recovery fonts')
+    const harness = inspectState()
+    harness.render('failed')
+    harness.effects[2]()
+    assert.deepEqual(requests, ['/original/frontend/feft33we.png', '/original/frontend/fehi33we.png'])
+    const ready = () => harness.render('failed').find(node => node.props?.text === 'Try again').props.ready
+    assert.equal(ready(), false)
+    pending.splice(0).forEach(({resolve}) => resolve())
+    await settle()
+    assert.equal(ready(), true)
+
+    const failed = inspectState()
+    failed.render('failed'); failed.effects[2]()
+    pending.splice(0).forEach(({reject}) => reject(Error('missing font')))
+    await settle()
+    assert.equal(failed.render('failed').find(node => node.props?.text === 'Try again').props.ready, false)
+
+    const unmounted = inspectState()
+    unmounted.render('failed'); const cleanup = unmounted.effects[2](); cleanup()
+    pending.splice(0).forEach(({resolve}) => resolve())
+    await settle()
+    assert.equal(unmounted.render('failed').find(node => node.props?.text === 'Try again').props.ready, false)
+  } finally {
+    if (originalImage === undefined) delete globalThis.Image
+    else globalThis.Image = originalImage
+  }
+})
+
+test('browser recovery keeps scrollable native rows and unrestricted escaped diagnostic text', () => {
+  const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
+  assert.match(css, /\.loading-world\[data-loading-phase=failed\]\{[^}]*justify-content:safe center[^}]*overflow:auto/)
+  assert.match(css, /\.loading-recovery button\{[^}]*min-height:30px[^}]*border:0[^}]*background:transparent/)
+  assert.match(css, /\.loading-recovery \.loading-recovery-error\{[^}]*white-space:pre-wrap[^}]*overflow-wrap:anywhere/)
+  assert.match(css, /fehi33we\.png/)
+  assert.ok(!/\.loading-recovery(?: h2)?\{[^}]*Arial/.test(css))
 })

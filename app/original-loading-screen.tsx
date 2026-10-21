@@ -161,7 +161,9 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
       )}
       {phase === 'failed' && (
         <section className="loading-recovery">
-          <h2><RecoveryText text="Loading failed" ready={recoveryFontsReady} /></h2>
+          <h2>
+            <RecoveryText text="Loading failed" ready={recoveryFontsReady} />
+          </h2>
           <p>
             <RecoveryText
               text="The battlefield did not finish loading. Try again to retry the same request."
@@ -169,7 +171,9 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
             />
           </p>
           <details>
-            <summary><RecoveryText text="Technical details" ready={recoveryFontsReady} /></summary>
+            <summary>
+              <RecoveryText text="Technical details" ready={recoveryFontsReady} />
+            </summary>
             <p className="loading-recovery-error">{error}</p>
           </details>
           <button
