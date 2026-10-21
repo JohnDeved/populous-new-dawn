@@ -70,7 +70,7 @@ async function checkPixels(page, output, row, column, pressed = false, variant =
 // Run with the reviewed sandboxed local-render harness. Mission1 is the real
 // opening/UI path; later injected classes are explicitly supporting fixtures.
 export default async function followerTasks({ browser, page, url, output, openMission, receipt }) {
-  await openMission(1)
+  await openMission(1, { nativeCampaign: true })
   await freeze(page)
   await page.getByTitle('followers', { exact: true }).click()
   await page.mouse.move(900, 400)
@@ -175,6 +175,7 @@ export default async function followerTasks({ browser, page, url, output, openMi
   assert.equal((await snapshot(page))[19].count, beforeGuard[19].count + guardIds.length)
   const guarded = await snapshot(page), savedSelection = await selection(page)
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
   // Successful saves have no success banner. Verify the completed IndexedDB
@@ -185,9 +186,11 @@ export default async function followerTasks({ browser, page, url, output, openMi
     db.close()
     return JSON.stringify(saved?.world?.selected)===JSON.stringify(selected) && selected.every(id=>saved.world.units.find(u=>u.id===id)?.guard)
   }, savedSelection)
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await button(page, 0, 1).click({ modifiers: ['Shift'] })
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
