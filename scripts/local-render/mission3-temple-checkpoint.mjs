@@ -172,9 +172,9 @@ export async function saveTempleCheckpoint({
     failure
   try {
     await input.button('Menu')
+    await input.button('Save Game')
     await page.evaluate(armTempleSave)
     armed = true
-    await input.button('Save Game')
     await input.button('Save checkpoint')
   } catch (error) {
     failed = true

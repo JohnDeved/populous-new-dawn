@@ -190,6 +190,12 @@ export default async function mission3BuildingScreen(context, continuation = nul
       failed = false,
       failure
     try {
+      if (!startup) {
+        const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+        if (await menu.getAttribute('data-panel') !== 'root')
+          await menu.getByRole('button', { name: 'Back', exact: true }).click()
+        await menu.getByRole('button', { name: kind === 'load' ? 'Load Game' : 'Restart Level', exact: true }).click()
+      }
       await page.evaluate(
         async options => {
           const { prepareM3Replacement } =
@@ -206,13 +212,7 @@ export default async function mission3BuildingScreen(context, continuation = nul
             .getByRole('dialog', { name: 'Main menu', exact: true })
             .getByRole('button', { name: 'Load Game', exact: true })
             .click()
-        else {
-          const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
-          if (await menu.getAttribute('data-panel') !== 'root')
-            await menu.getByRole('button', { name: 'Back', exact: true }).click()
-          await menu.getByRole('button', { name: kind === 'load' ? 'Load Game' : 'Restart Level', exact: true }).click()
-          await menu.getByRole('button', { name, exact: true }).click()
-        }
+        else await page.getByRole('dialog', { name: 'Game menu', exact: true }).getByRole('button', { name, exact: true }).click()
         // PR274's proven continuation ordering: the next public input is Pause.
         // No health read, report write, bind, PNG serialization or digest in between.
         if (pauseImmediately) {
@@ -303,9 +303,9 @@ export default async function mission3BuildingScreen(context, continuation = nul
         failed = false,
         failure
       try {
+        await input.button('Save Game')
         await page.evaluate(armM3Save)
         armed = true
-        await input.button('Save Game')
         await input.button('Save checkpoint')
       } catch (error) {
         failed = true

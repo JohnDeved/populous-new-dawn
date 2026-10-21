@@ -142,3 +142,30 @@ test('actual audio preference enable path leaves Sound for Game help and returns
     {}, page, expect, assertValues)
   assert.deepEqual(actions, ['Game', 'Browser compatibility and help', 'Enable sound', 'Back to Options', 'Sound', 'Read Sound sliders'])
 })
+
+test('actual audio checkpoint/restart sequence returns from Sound and uses each native final-action panel', async () => {
+  const source = readFileSync(new URL('../scripts/check-browser-audio-preferences.mjs', import.meta.url), 'utf8')
+  const start = source.indexOf("report.stage = 'checkpoint-and-restart'")
+  const flow = source.slice(start, source.indexOf("report.stage = 'fresh-page-and-mission'", start))
+  let panel = 'options', checkpoint = false
+  const actions = [], page = { getByRole(role, { name, exact }) {
+    assert.equal(role, 'button'); assert.equal(exact, true)
+    return { async click() {
+      actions.push(name)
+      if (name === 'Back') { assert.ok(['options', 'save'].includes(panel)); panel = 'root' }
+      else if (name === 'Save Game') { assert.equal(panel, 'root'); panel = 'save' }
+      else if (name === 'Save checkpoint') { assert.equal(panel, 'save'); checkpoint = true }
+      else if (name === 'Restart Level') { assert.equal(panel, 'root'); panel = 'restart' }
+      else if (name === 'Yes') { assert.equal(panel, 'restart'); panel = 'closed' }
+      else if (name === 'Load Game') { assert.equal(panel, 'root'); panel = 'load' }
+      else { assert.equal(name, 'Load checkpoint'); assert.equal(panel, 'load'); assert.equal(checkpoint, true); panel = 'closed' }
+    } }
+  }, waitForFunction: async () => assert.equal(checkpoint, true) }
+  const ready = async () => assert.equal(panel, 'closed')
+  const settings = async () => { assert.equal(panel, 'closed'); panel = 'options' }
+  const assertValues = async () => assert.equal(panel, 'options')
+  const playbackGains = async () => assert.equal(panel, 'options')
+  await new Function('report', 'page', 'ready', 'settings', 'assertValues', 'playbackGains', `return (async () => {${flow}})()`)(
+    {}, page, ready, settings, assertValues, playbackGains)
+  assert.deepEqual(actions, ['Back', 'Save Game', 'Save checkpoint', 'Back', 'Restart Level', 'Yes', 'Back', 'Load Game', 'Load checkpoint'])
+})

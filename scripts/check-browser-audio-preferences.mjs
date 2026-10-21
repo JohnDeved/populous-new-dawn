@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { chromium, expect } from '@playwright/test'
-import { bindGame } from './browser-game.mjs'
+import { bindGame, showAllMissions } from './browser-game.mjs'
 import { AUDIO_PREFERENCES_KEY, DEFAULT_AUDIO_PREFERENCES } from '../app/audio-preferences.ts'
 
 assert.ok(process.env.PND_QUEUE_JOB_ID && process.env.PND_QUEUE_OUTPUT, 'Use the supervised queue')
@@ -65,6 +65,7 @@ async function ready(page) {
 }
 async function start(page, button = 'Mission 1') {
   await page.goto(process.env.POPULOUS_URL, { waitUntil: 'networkidle' })
+  if (button !== 'Load Game') await showAllMissions(page)
   // Use the shared browser-game keyboard route for the horizontally overflowing mission picker.
   await page.getByRole('button', { name: button, exact: true }).focus()
   await page.keyboard.press('Enter')
@@ -212,13 +213,19 @@ try {
   await page.screenshot({ path: join(output, 'saved-volume-controls.png') })
 
   report.stage = 'checkpoint-and-restart'
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
-  await page.getByRole('button', { name: 'Restart world', exact: true }).click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Restart Level', exact: true }).click()
+  await page.getByRole('button', { name: 'Yes', exact: true }).click()
   await ready(page)
   await settings(page)
   await assertValues(page, 0, 0.75, 'ordinary-restart')
   await playbackGains(page, 0, 0.75, 'running-restart-gains')
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await ready(page)
   await settings(page)

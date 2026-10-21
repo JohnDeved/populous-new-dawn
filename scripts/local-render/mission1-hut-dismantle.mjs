@@ -229,8 +229,8 @@ export default async function ({ page, output, receipt, openMission, observeChec
     save()
     assertHutPartialCheckpoint(baseline, report.partial)
     await input.button('Menu')
-    await runtime('armSave')
     await input.button('Save Game')
+    await runtime('armSave')
     await input.button('Save checkpoint')
     report.saved = await runtime('saved')
     save()
@@ -256,9 +256,9 @@ export default async function ({ page, output, receipt, openMission, observeChec
     assert.equal(committed, true, 'Full typed public Save must commit')
     report.profileSave = await observeCheckpoint('M1 partial Hut dismantle Save')
     save()
-    await runtime('armLoad')
     await input.button('Back')
     await input.button('Load Game')
+    await runtime('armLoad')
     await input.button('Load checkpoint')
     const loaded = await wait(
       hutDismantleBounds.loadMs,

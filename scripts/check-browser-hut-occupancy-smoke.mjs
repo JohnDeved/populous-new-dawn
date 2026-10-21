@@ -1164,11 +1164,11 @@ try {
 
   stage('checkpoint restore')
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await observeCheckpointLoad(
     page,
     pausedBefore.puffs.map(puff => puff.serial)
   )
-  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   // Use the ordinary Pause control before the more expensive full scene bind.
   await page.locator('.world-viewport').press('Space')
