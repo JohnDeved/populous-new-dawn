@@ -126,7 +126,7 @@ export function WorldSelectorScene({
     try {
       renderer = new SelectorRenderer(canvas)
       renderer
-        .load()
+        .load(generation > 0)
         .then(() => {
           loaded = true
           if (!disposed && !broken && !document.hidden) frame = requestAnimationFrame(draw)

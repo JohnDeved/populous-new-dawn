@@ -314,7 +314,7 @@ export async function failureEpisode({page,output,receipt}) {
     if(new URL(request.url()).pathname.startsWith('/original/world-selector/globes/'))
       recordTexture({url:new URL(request.url()).pathname,failure:request.failure()?.errorText})
   })
-  const pattern='**/original/world-selector/globes/sun.png'
+  const pattern=/\/original\/world-selector\/globes\/sun\.png(?:\?[^#]*)?$/
   const invalidPng='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGP4DwQACfsD/fteaysAAAAASUVORK5CYII='
   assert.deepEqual(await page.evaluate(async base64=>{const image=new Image();image.src='data:image/png;base64,'+base64;await image.decode();return [image.naturalWidth,image.naturalHeight]},invalidPng),[1,1],'Dimension fixture must decode as an actual 1x1 image')
   const retry=()=>button(page,'Retry scene')

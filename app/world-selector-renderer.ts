@@ -162,7 +162,11 @@ export class SelectorRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
     return texture
   }
-  async load() {
+  async load(retry = false) {
+    // Explicit reload attempts must not reuse a previously decoded corrupt
+    // image. A fresh token also remains distinct across selector remounts.
+    // Normal first loads retain their static, cacheable source URLs.
+    const query = retry ? `?retry=${crypto.randomUUID()}` : ''
     await Promise.all(
       ['sun', 'ring', ...selectorWorlds.slice(1).map(body => `mission-${body.mission}`)].map(
         name =>
@@ -193,7 +197,7 @@ export class SelectorRenderer {
               this.images.delete(image)
               reject(new Error(`Scene texture unavailable: ${name}`))
             }
-            image.src = `/original/world-selector/globes/${name}.png`
+            image.src = `/original/world-selector/globes/${name}.png${query}`
           })
       )
     )

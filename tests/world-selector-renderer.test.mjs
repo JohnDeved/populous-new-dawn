@@ -77,6 +77,32 @@ test('malformed asynchronously loaded art rejects safely while remaining cancele
  }finally{f.cleanup()}
 })
 
+test('explicit texture retries use fresh bounded URLs while normal first loads remain unchanged',async()=>{
+ const f=fixture()
+ try{
+  const first=new SelectorRenderer(f.canvas),initial=first.load()
+  const original=f.images.map(image=>image.src)
+  assert.ok(original.every(url=>/^\/original\/world-selector\/globes\/(sun|ring|mission-\d+)\.png$/.test(url)))
+  first.dispose();await initial
+  const tokens=[]
+  for(let attempt=0;attempt<2;attempt++){
+   const start=f.images.length,renderer=new SelectorRenderer(f.canvas),pending=renderer.load(true)
+   const images=f.images.slice(start)
+   assert.deepEqual(images.map(image=>image.src.split('?')[0]),original)
+   const queries=new Set(images.map(image=>image.src.split('?')[1]))
+   assert.equal(queries.size,1)
+   const token=[...queries][0]
+   assert.match(token,/^retry=[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+   tokens.push(token)
+   // A queued old-generation callback cannot upload a texture after disposal.
+   const late=images[0].onload,uploads=f.calls.filter(call=>call[0]==='texImage2D').length
+   renderer.dispose();late();await pending
+   assert.equal(f.calls.filter(call=>call[0]==='texImage2D').length,uploads)
+  }
+  assert.notEqual(tokens[0],tokens[1],'fresh renderer instances cannot reuse a corrupt retry URL')
+ }finally{f.cleanup()}
+})
+
 test('shader compilation/linking and texture allocation failures release all owned GPU handles',()=>{
  for(const failure of ['compile','link','createTexture']){
   const f=fixture(failure)
