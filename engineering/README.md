@@ -87,11 +87,11 @@ generated ownership, or multi-step verification needs mechanical checks.
 ## Useful local commands
 
 ```sh
-pnpm run orchestration:context -- --subsystem selection --query "native drag selection"
-pnpm run orchestration:plan -- --base <actual-base>
+pnpm run orchestration:context --subsystem selection --query "native drag selection"
+pnpm run orchestration:plan --base <actual-base>
 pnpm run orchestration:check
-ppnpm run orchestration:receipt --output work/orchestration/task/check.json -- pnpm run check
-ppnpm run orchestration:receipt --output work/orchestration/task/build.json -- pnpm run build
+pnpm run orchestration:receipt --output work/orchestration/task/check.json -- pnpm run check
+pnpm run orchestration:receipt --output work/orchestration/task/build.json -- pnpm run build
 ```
 
 - `context` retrieves bounded mapped evidence, current parity scope, source hashes,
@@ -127,7 +127,7 @@ normal task controls and report useful results directly to the parent.
 
 ## Fast feedback and full verification
 
-Use `pnpm run test:focus -- tests/example.test.mjs` while editing. It accepts exact,
+Use `pnpm run test:focus tests/example.test.mjs` while editing. It accepts exact,
 unique existing top-level test paths only, runs them with Node file isolation and
 concurrency one, and rejects empty lists, unknown paths and extra Node flags.
 `orchestration:plan` now adds an advisory `feedback` command from the existing
