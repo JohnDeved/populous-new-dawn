@@ -45,6 +45,7 @@ export function WorldSelector({
   nativeSelection,
 }: Props) {
   const container = useRef<HTMLElement>(null)
+  const launchTaken = useRef(false)
   const directHeading = useRef<HTMLHeadingElement>(null)
   const focusDirectHeading = useRef(false)
   const descriptionId = useId()
@@ -97,6 +98,11 @@ export function WorldSelector({
     status = nativeSelection ? 'Locked' : `Complete Mission ${selected - 1} to continue.`
   if (nativeSelection && available && !canStart) status = 'Not playable in this version'
 
+  function start() {
+    if (!canStart || launchTaken.current) return
+    launchTaken.current = true
+    onStart(selected)
+  }
   function navigate(event: KeyboardEvent<HTMLElement>) {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
     event.preventDefault()
@@ -124,6 +130,18 @@ export function WorldSelector({
       ref={container}
       className={`${styles.selector} ${nativeSelection ? styles.nativeSelector : ''} ${!allMissions ? styles.nativePointer : ''}`}
       aria-label="World selection"
+      onKeyDownCapture={event => {
+        if (!nativeSelection || event.ctrlKey || event.altKey || event.metaKey || event.shiftKey)
+          return
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          event.stopPropagation()
+          if (event.key === 'Enter' && !event.repeat) start()
+        }
+      }}
+      onKeyUpCapture={event => {
+        if (nativeSelection && (event.key === 'Enter' || event.key === ' ')) event.preventDefault()
+      }}
       style={
         {
           '--selector-cursor': `url("${selectedArt.cursor}") 0 0`,
@@ -131,14 +149,16 @@ export function WorldSelector({
       }
     >
       <h2 className={styles.visuallyHidden}>Select Level</h2>
-      <button
-        className={styles.compatibilityToggle}
-        aria-expanded={compatibility}
-        aria-controls="selector-browser-controls"
-        onClick={() => setCompatibility(value => !value)}
-      >
-        Browser controls
-      </button>
+      {!nativeSelection && (
+        <button
+          className={styles.compatibilityToggle}
+          aria-expanded={compatibility}
+          aria-controls="selector-browser-controls"
+          onClick={() => setCompatibility(value => !value)}
+        >
+          Browser controls
+        </button>
+      )}
       {compatibility && (
         <section
           id="selector-browser-controls"
@@ -253,6 +273,7 @@ export function WorldSelector({
                     className={`${styles.panelGlyph} ${nativeSelection ? styles.nativeGlyph : ''}`}
                     aria-label={`Panel Mission ${mission}${completed.includes(mission) ? ', completed' : ''}`}
                     aria-pressed={mission === selected}
+                    aria-disabled={nativeSelection && !missionAvailable(mission) ? true : undefined}
                     data-selector-mission={mission}
                     autoFocus={mission === selected}
                     aria-describedby={`${descriptionId}-${mission}`}
@@ -264,7 +285,9 @@ export function WorldSelector({
                         : undefined
                     }
                     onKeyDown={navigate}
-                    onClick={() => setSelected(mission)}
+                    onClick={() => {
+                      if (!nativeSelection || missionAvailable(mission)) setSelected(mission)
+                    }}
                     style={
                       nativeSelection
                         ? {
@@ -299,9 +322,7 @@ export function WorldSelector({
               data-selector-tooltip={canStart ? 978 : undefined}
               aria-label={isCompleted ? `Replay Mission ${selected}` : `Start Mission ${selected}`}
               onKeyDown={navigate}
-              onClick={() => {
-                if (canStart) onStart(selected)
-              }}
+              onClick={start}
             >
               {!artFailed && <img src={panelArt[10]} alt="" onError={failArt} />}
               <span className={artFailed ? undefined : styles.visuallyHidden}>Start</span>

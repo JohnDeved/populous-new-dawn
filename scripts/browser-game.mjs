@@ -1,5 +1,5 @@
 import { skipIntroductionWithSpace } from './browser-introduction.mjs'
-import { openCampaignFromMainMenu, waitForStartupMenu } from './browser-new-game.mjs'
+import { waitForStartupMenu } from './browser-new-game.mjs'
 // Explicit public-UI setup for checks that start an arbitrary mission.
 // Campaign progression acceptance uses native panel selection + Start instead.
 export async function showSelectorControls(page) {
@@ -7,16 +7,22 @@ export async function showSelectorControls(page) {
   if (await controls.getAttribute('aria-expanded') !== 'true') await controls.click()
 }
 
-export async function showAllMissions(page) {
+export async function showDebugMissions(page) {
   await waitForStartupMenu(page, { allowSelector: true })
-  const mainMenu = page.getByRole('dialog', { name: 'Main menu', exact: true })
-  if (await mainMenu.isVisible()) await openCampaignFromMainMenu(page)
-  const startup = page.getByRole('dialog', { name: 'Start game', exact: true })
-  await startup.waitFor({ state: 'visible' })
-  await showSelectorControls(page)
-  const allMissions = startup.getByRole('button', { name: 'All missions', exact: true })
-  if (await allMissions.getAttribute('aria-pressed') !== 'true') await allMissions.click()
+  await page.keyboard.press('F8')
+  await page.getByRole('dialog', { name: 'Debug missions', exact: true }).waitFor({ state: 'visible' })
 }
+
+export async function launchDebugMission(page, mission) {
+  if (!Number.isInteger(mission) || mission < 1 || mission > 23) throw new RangeError('Unsupported debug mission')
+  await showDebugMissions(page)
+  await page.getByRole('dialog', { name: 'Debug missions', exact: true })
+    .getByRole('button', { name: `Mission ${mission}`, exact: true }).click()
+}
+
+// Compatibility for diagnostic callers only. These runs are now explicitly
+// non-awarding and unsavable; save/progression scenarios must use native fixtures.
+export const showAllMissions = showDebugMissions
 
 export async function bindGame(page) {
   await page.waitForSelector('.world-viewport canvas')
@@ -95,9 +101,7 @@ export async function openGame(browser, mission = 1) {
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
   // Direct-access setup is explicit; campaign selector checks exercise its gating separately.
-  await showAllMissions(page)
-  await page.getByRole('button', { name: `Mission ${mission}`, exact: true }).focus()
-  await page.keyboard.press('Enter')
+  await launchDebugMission(page, mission)
   await bindGame(page)
   await page.waitForFunction(() => window.testScene.world.flyby.flags & 1 || !window.testScene.world.inputMask)
   await skipIntroductionWithSpace(page)

@@ -44,6 +44,7 @@ import {
 } from './model'
 import { createGameStore } from './game-store'
 import { WorldSelector } from './world-selector'
+import { DebugMissionPicker } from './debug-mission-picker'
 import { OriginalMainMenu } from './original-main-menu'
 import { OriginalPauseMenu } from './original-pause-menu'
 import { SpellTestMenu } from './spell-test-menu'
@@ -110,6 +111,8 @@ const messageScreenX = (value: number, width: number) => {
 
 type LoadRequest =
   | { kind: 'mission'; mission: number }
+  | { kind: 'debug'; mission: number }
+  | { kind: 'tutorial' }
   | { kind: 'checkpoint' }
   | { kind: 'restart' }
   | { kind: 'continue'; mission: number }
@@ -153,6 +156,7 @@ export default function Home() {
   const [menu, setMenu] = useState(false)
   const [cheatsOpen, setCheatsOpen] = useState(false)
   const [selectorOpen, setSelectorOpen] = useState(false)
+  const [debugPicker, setDebugPicker] = useState(false)
   const [startupCampaign, setStartupCampaign] = useState(false)
   const [ready, setReady] = useState(false)
   const [error, setError] = useState('')
@@ -260,6 +264,7 @@ export default function Home() {
   function openSelector() {
     cancelNearbyInput()
     if (engine.current) engine.current.nearbyFollowersHudActive = false
+    store.enterCampaignSelector()
     setSelectorOpen(true)
   }
   useEffect(() => {
@@ -528,6 +533,27 @@ export default function Home() {
   }, [startup, startupCampaign, selectorOpen, store])
   useEffect(() => {
     const toggle = (event: KeyboardEvent) => {
+      if (
+        event.key !== 'F8' ||
+        event.repeat ||
+        event.ctrlKey ||
+        event.altKey ||
+        event.metaKey ||
+        event.shiftKey
+      )
+        return
+      if (!((startup === 'choice' && startupLogoDone) || selectorOpen)) return
+      if ((event.target as HTMLElement | null)?.closest('input,textarea,select,[contenteditable]'))
+        return
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      setDebugPicker(open => !open)
+    }
+    globalThis.addEventListener('keydown', toggle, true)
+    return () => globalThis.removeEventListener('keydown', toggle, true)
+  }, [startup, startupLogoDone, selectorOpen])
+  useEffect(() => {
+    const toggle = (event: KeyboardEvent) => {
       if (!ready || startup !== 'playing' || menu || selectorOpen || world.status !== 'playing')
         return
       if (!spellTestShortcut(event, cheatsOpen)) return
@@ -746,7 +772,13 @@ export default function Home() {
   }
   function beginLoad(request: LoadRequest) {
     setCheatsOpen(false)
-    if (request.kind === 'checkpoint' && !store.hasCheckpoint()) return
+    if (request.kind === 'checkpoint' && !store.loadCheckpoint()) return
+    if (request.kind === 'mission' && !store.startMission(request.mission)) return
+    if (request.kind === 'debug' && !store.startDebugMission(request.mission)) return
+    if (request.kind === 'tutorial') store.startTutorial()
+    if (request.kind === 'restart') store.restart()
+    if (request.kind === 'continue' && !store.startMission(request.mission)) return
+    setDebugPicker(false)
     menuSession.current = null
     cancelNearbyInput()
     if (engine.current) engine.current.nearbyFollowersHudActive = false
@@ -756,12 +788,10 @@ export default function Home() {
     setReady(false)
     setError('')
     if (request.kind === 'checkpoint') {
-      if (!store.loadCheckpoint()) return
       store.change(w => {
         w.paused = false
       })
-    } else if (request.kind === 'restart') store.restart()
-    else store.startMission(request.mission)
+    }
     loadRequest.current = request
     setTab('spells')
     setStartup('playing')
@@ -808,6 +838,7 @@ export default function Home() {
     setSelectorOpen(false)
     setError('')
     loadRequest.current = null
+    store.enterCampaignSelector()
     setStartupCampaign(true)
     setStartup('choice')
   }
@@ -835,7 +866,7 @@ export default function Home() {
     if (
       ready ||
       (event.target as Element).closest(
-        '.loading-world,[data-world-selector],[data-original-main-menu],[data-startup-logo],[data-fullscreen-control]'
+        '.loading-world,[data-world-selector],[data-original-main-menu],[data-startup-logo],[data-fullscreen-control],[data-debug-mission-picker]'
       )
     )
       return false
@@ -1249,8 +1280,11 @@ export default function Home() {
           onRetryCheckpoint={() => {
             void store.restoreCheckpoint()
           }}
-          onNewGame={() => setStartupCampaign(true)}
-          onTutorial={() => startMission(tutorialLevel)}
+          onNewGame={() => {
+            store.enterCampaignSelector()
+            setStartupCampaign(true)
+          }}
+          onTutorial={() => beginLoad({ kind: 'tutorial' })}
           onLoad={loadCheckpoint}
           renderOptions={(onBack, onTextRowsChange) => (
             <OriginalOptions
@@ -1289,12 +1323,16 @@ export default function Home() {
           }}
         >
           <WorldSelector
+            nativeSelection={{
+              ...store.getCampaignSelection(),
+              onSelect: store.selectCampaignMission,
+            }}
             missions={missionNumbers}
             replacingWorld={selectorOpen}
             completed={completedMissions}
             hasCheckpoint={store.hasCheckpoint()}
             onStart={startMission}
-            onTutorial={() => startMission(tutorialLevel)}
+            onTutorial={() => beginLoad({ kind: 'tutorial' })}
             onLoad={loadCheckpoint}
             onBack={
               selectorOpen
@@ -1330,6 +1368,12 @@ export default function Home() {
           onSelectLevel={openSelector}
         />
       )}
+      {debugPicker && (
+        <DebugMissionPicker
+          onClose={() => setDebugPicker(false)}
+          onStart={mission => beginLoad({ kind: 'debug', mission })}
+        />
+      )}
       {cheatsOpen && (
         <SpellTestMenu
           store={store}
@@ -1355,7 +1399,7 @@ export default function Home() {
           }}
           onContinue={closeMenu}
           onSave={saveCheckpoint}
-          saveDisabledReason={store.hasUsedCheats() ? CHEAT_SAVE_NOTICE : undefined}
+          saveDisabledReason={!store.canSave() ? CHEAT_SAVE_NOTICE : undefined}
           onLoad={loadCheckpoint}
           onRestart={restart}
           onQuitLevel={quitLevel}

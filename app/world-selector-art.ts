@@ -2,8 +2,8 @@ import manifest from './original-world-selector.json' with { type: 'json' }
 import art from '../public/original/world-selector/native/runtime.json' with { type: 'json' }
 
 // This is a controlled rendering input, not a profile or progression model.
-// No shipped caller supplies it yet. Available worlds and the orbit anchor must
-// come from a separately reviewed caller; completing a world implies neither.
+// The store owns the anchor and independent inspected selection. Available means
+// selectable (native mask 5), including completed-only replay, not only bit 4.
 export interface NativeSelectorSelection {
   selected: number
   available: readonly number[]
