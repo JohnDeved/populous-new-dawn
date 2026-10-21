@@ -7,7 +7,7 @@ import { captureMenuIdentity, observeMenuIdentity, recoverSnapshotMenu, resolveP
 // In-memory API/control doubles only. They do not certify rendered old/new UI,
 // Escape propagation, production click handlers, or a performance comparison.
 function fixture(options = {}) {
-  const entries = options.entries ?? [{ name: 'Game settings' }]
+  const entries = options.entries ?? [{ name: 'Game settings' }, { name: 'Menu' }]
   const state = { level: 2, turn: 70, time: 70 / 12, pendingTime: 0, randomState: 4,
     paused: true, inputMask: 0, flybyActive: false, sameScene: true, sceneConnected: true,
     latchRemoved: true, visibility: 'visible', selected: [], mode: null,
@@ -25,7 +25,8 @@ function fixture(options = {}) {
     isVisible: async () => true, isEnabled: async () => true }
   const element = { getAttribute: name => name === 'aria-label' ? options.dialogName ?? 'Game menu'
     : options.panel ?? 'root', get open() { return open }, matches: name => name === ':modal' && !options.nonModal }
-  const dialog = { evaluate: async fn => fn(element), dispose: async () => { disposed.push('dialog') },
+  const dialog = { evaluate: async fn => fn(element), dispose: async () => {
+    disposed.push('dialog'); if (options.dialogDisposeError) throw Error('Dialog disposal failed') },
     waitForElementState: async mode => { calls.push(`original:${mode}`); assert.equal(open, false, 'Original dialog is not hidden') } }
   const menu = { count: async () => open ? 1 : 0,
     waitFor: async ({ state }) => { calls.push(`menu:${state}`)
@@ -36,7 +37,8 @@ function fixture(options = {}) {
     evaluateHandle: async fn => {
       assert.equal(fn, captureMenuIdentity)
       const value = fn()
-      return { evaluate: async read => read(value), dispose: async () => { disposed.push('identity') } }
+      return { evaluate: async read => read(value), dispose: async () => {
+        disposed.push('identity'); if (options.identityDisposeError) throw Error('Identity disposal failed') } }
     },
     locator: selector => {
       if (selector === 'dialog[data-original-pause-menu]') return menu
@@ -49,6 +51,8 @@ function fixture(options = {}) {
       const matches = entries.filter(entry => entry.name === query.name && (query.includeHidden || entry.exposed !== false))
       return { count: async () => matches.length, isVisible: async () => matches[0]?.visible !== false,
         isEnabled: async () => matches[0]?.enabled !== false,
+        evaluate: async (fn, selector) => fn({ matches: received => {
+          assert.equal(received, selector); return matches[0]?.shippedShape !== false } }, selector),
         click: async (...args) => {
           assert.deepEqual(args, [], 'No force or actionability overrides')
           calls.push(`click:${query.name}`)
@@ -77,13 +81,15 @@ function fixture(options = {}) {
 }
 
 for (const name of ['Game settings', 'Menu']) test(`one exact ${name} route performs one click and real Escape outside measurement`, async () => {
-  const f = fixture({ entries: [{ name }] })
+  const f = fixture({ entries: name === 'Game settings' ? [{ name }, { name: 'Menu' }] : [{ name }] })
   await f.run()
   assert.deepEqual(f.calls.filter(s => s.startsWith('click:') || s.startsWith('press:')), [`click:${name}`, 'press:Escape'])
   assert.equal(f.calls.filter(s => s === 'admission').length, 2)
   assert.deepEqual(f.disposed, ['dialog', 'identity'])
   const [opening, closing] = f.record.preparation
-  assert.deepEqual(opening.route, { role: 'button', name, exact: true })
+  assert.equal(opening.route.role, 'button'); assert.equal(opening.route.name, name); assert.equal(opening.route.exact, true)
+  assert.equal(opening.route.shape, name === 'Game settings' ? 'legacy-dual-entry' : 'native-menu-only')
+  assert.equal(opening.route.controls.length, name === 'Game settings' ? 2 : 1)
   assert.equal(opening.measured, false); assert.equal(closing.measured, false)
   assert.equal(opening.identity.sameWorld, true); assert.equal(opening.identity.originalSpeed, 1)
   assert.deepEqual(opening.dialog, { name: 'Game menu', panel: 'root', open: true, modal: true })
@@ -94,7 +100,11 @@ for (const name of ['Game settings', 'Menu']) test(`one exact ${name} route perf
 
 for (const [label, entries] of [
   ['missing', []], ['non-exact', [{ name: 'Open Menu' }]],
-  ['both shipped routes', [{ name: 'Game settings' }, { name: 'Menu' }]],
+  ['undeclared dual shape', [{ name: 'Game settings', shippedShape: false }, { name: 'Menu' }]],
+  ['old route without native Menu', [{ name: 'Game settings' }]],
+  ['undeclared Menu shape', [{ name: 'Menu', shippedShape: false }]],
+  ['disabled old route with working Menu', [{ name: 'Game settings', enabled: false }, { name: 'Menu' }]],
+  ['hidden old route with working Menu', [{ name: 'Game settings', visible: false }, { name: 'Menu' }]],
   ['duplicate old', [{ name: 'Game settings' }, { name: 'Game settings' }]],
   ['duplicate new', [{ name: 'Menu' }, { name: 'Menu' }]],
   ['hidden', [{ name: 'Menu', visible: false }]],
@@ -164,6 +174,30 @@ test('restored-looking state cannot bypass failed original input readiness', asy
   assert.equal(f.calls.filter(s => s === 'admission').length, 2)
 })
 
+for (const cleanup of ['dialogDisposeError', 'identityDisposeError'])
+  test(`primary failure survives ${cleanup} and both handles are disposed`, async () => {
+    const f = fixture({ noClose: true, [cleanup]: true })
+    await assert.rejects(f.run(), error => {
+      assert.ok(error instanceof AggregateError)
+      assert.match(error.errors[0].message, /Original dialog is not hidden/)
+      assert.match(error.errors[1].message, /disposal failed/)
+      return true
+    })
+    assert.deepEqual(f.disposed, ['dialog', 'identity'])
+    assert.equal(f.record.menuRecoveryCleanupFailures.length, 1)
+  })
+
+test('cleanup failures alone cannot pass and both failures remain recorded', async () => {
+  const f = fixture({ dialogDisposeError: true, identityDisposeError: true })
+  await assert.rejects(f.run(), error => {
+    assert.ok(error instanceof AggregateError)
+    assert.deepEqual(error.errors.map(error => error.message), ['Dialog disposal failed', 'Identity disposal failed'])
+    return true
+  })
+  assert.deepEqual(f.disposed, ['dialog', 'identity'])
+  assert.equal(f.record.menuRecoveryCleanupFailures.length, 2)
+})
+
 test('identity observations do not accept replaced scenes or worlds with equal scalar values', () => {
   const prior = globalThis.window, world = { speed: 1 }, canvas = { isConnected: true }
   const scene = { world, renderer: { domElement: canvas } }
@@ -187,7 +221,12 @@ test('source integration preserves original admission, measured windows, and shi
   assert.match(capture, /window\.__pndSnapshotObserver\.finish\(4\)/)
   assert.match(capture, /record\.before = await observe\(\); invariant\(record\.before\); assertSnapshotAdmission\(record\.before, fixture\)/)
   const page = read('app/page.tsx'), menu = read('app/original-pause-menu.tsx')
-  assert.match(page, /aria-label="(?:Game settings|Menu)"[\s\S]{0,120}onClick=\{openMenu\}/)
+  assert.match(page, /className="help-button"\s+aria-label="Menu"\s+title="Help and game menu"\s+onClick=\{openMenu\}/)
+  assert.match(page, /className="native-hud" aria-label="Tribe controls"/)
+  if (page.includes('aria-label="Game settings"')) {
+    assert.match(page, /className="top-actions"/)
+    assert.match(page, /aria-label="Game settings" title="Game settings" onClick=\{openMenu\}/)
+  }
   assert.match(menu, /aria-label="Game menu"[\s\S]{0,150}data-original-pause-menu\s+data-panel=\{panel\}/)
   assert.match(menu, /useState<Panel>\('root'\)/)
   assert.match(menu, /onCancel=\{event => \{\s+event\.preventDefault\(\)\s+back\(\)/)

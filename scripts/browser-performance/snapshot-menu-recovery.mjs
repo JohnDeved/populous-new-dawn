@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
 
-const entryNames = ['Game settings', 'Menu']
+const entries = [
+  { name: 'Game settings', selector: 'aside.native-hud[aria-label="Tribe controls"] .top-actions > button[aria-label="Game settings"][title="Game settings"]' },
+  { name: 'Menu', selector: 'aside.native-hud[aria-label="Tribe controls"] .shaman-controls > button.help-button[aria-label="Menu"][title="Help and game menu"]' },
+]
 const visibleDialogs = 'dialog:visible, [role="dialog"]:visible'
 const nativeDialog = 'dialog[data-original-pause-menu]'
 const stableFields = ['level', 'turn', 'time', 'pendingTime', 'randomState', 'paused', 'inputMask',
@@ -36,28 +39,35 @@ async function assertNoDialog(page) {
 }
 
 export async function resolvePublicMenuEntry(page) {
-  const entries = []
-  for (const name of entryNames) {
-    // Count hidden alternatives too: a duplicate or an obsolete hidden route is
-    // not permission to choose whichever happens to work on this comparison arm.
+  const present = []
+  for (const { name, selector } of entries) {
+    // The old shipped UI has both named controls, the new UI only Menu. Count
+    // hidden controls too: a stale/disabled old control must not trigger fallback.
     const all = page.getByRole('button', { name, exact: true, includeHidden: true })
     const count = await all.count()
     assert.ok(count <= 1, `Duplicate public menu entry: ${name}`)
-    if (count) entries.push(name)
+    if (!count) continue
+    const button = page.getByRole('button', { name, exact: true })
+    assert.equal(await button.count(), 1, 'Public menu entry is not accessibility-exposed')
+    assert.equal(await button.isVisible(), true, 'Public menu entry is hidden')
+    assert.equal(await button.isEnabled(), true, 'Public menu entry is disabled')
+    assert.equal(await button.evaluate((element, selector) => element.matches(selector), selector), true,
+      `Undeclared public menu control shape: ${name}`)
+    present.push({ name, selector, button })
   }
-  assert.equal(entries.length, 1, 'Expected exactly one public menu entry across Game settings and Menu')
-  const name = entries[0], button = page.getByRole('button', { name, exact: true })
-  assert.equal(await button.count(), 1, 'Public menu entry is not accessibility-exposed')
-  assert.equal(await button.isVisible(), true, 'Public menu entry is hidden')
-  assert.equal(await button.isEnabled(), true, 'Public menu entry is disabled')
-  return { button, route: { role: 'button', name, exact: true } }
+  assert.ok(present.some(entry => entry.name === 'Menu'), 'Expected the shipped native Menu control')
+  // Preserve the historical route on the declared dual-control shape. This is a
+  // pre-click shape decision, never a retry after an old-route action fails.
+  const chosen = present[0], shape = present.length === 2 ? 'legacy-dual-entry' : 'native-menu-only'
+  return { button: chosen.button, route: { role: 'button', name: chosen.name, exact: true, shape,
+    controls: present.map(({ name, selector }) => ({ name, selector })) } }
 }
 
 // Unmeasured preparation only. No fallback click, synthetic dispatch, forced
 // action, pause mutation, retry, recorder reset or changed callback window.
 export async function recoverSnapshotMenu({ page, record, observe, assertAdmission, save }) {
   const identity = await page.evaluateHandle(captureMenuIdentity)
-  let dialog
+  let dialog, failure
   try {
     const before = await observe(), beforeIdentity = await identity.evaluate(observeMenuIdentity)
     assertAdmission(before); assertIdentity(beforeIdentity)
@@ -96,7 +106,16 @@ export async function recoverSnapshotMenu({ page, record, observe, assertAdmissi
     closing.after = await observe(); closing.identity = await identity.evaluate(observeMenuIdentity); save()
     assertIdentity(closing.identity); assertRestoredState(closing.after, before, false)
     assertAdmission(closing.after) // Preserve original paused-scene/input readiness.
-  } finally {
-    try { await dialog?.dispose() } finally { await identity.dispose() }
+  } catch (error) { failure = error }
+  const cleanupErrors = []
+  for (const handle of [dialog, identity]) {
+    try { await handle?.dispose() } catch (error) { cleanupErrors.push(error) }
   }
+  if (cleanupErrors.length) {
+    record.menuRecoveryCleanupFailures = cleanupErrors.map(error => String(error))
+    try { save() } catch (error) { cleanupErrors.push(error) }
+    throw new AggregateError(failure ? [failure, ...cleanupErrors] : cleanupErrors,
+      failure ? 'Menu recovery failed; handle cleanup also failed' : 'Menu recovery handle cleanup failed')
+  }
+  if (failure) throw failure
 }

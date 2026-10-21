@@ -393,10 +393,16 @@ No cohort, input, sample count, noise threshold, runner count or timeout changes
 
 ### Public menu recovery compatibility
 
-The snapshot recovery shard accepts exactly one shipped public button named
-`Game settings` or `Menu`. It rejects missing, duplicate, hidden, disabled, or
-simultaneously old/new entries rather than trying another route. The selected
-exact accessible name and original Scene/World/canvas identity are recorded as
+The snapshot recovery shard recognizes two source-backed public-control shapes:
+the old UI has one `Game settings` button in the native HUD's `top-actions` plus
+one `Menu` help-button in `shaman-controls`; the new UI has only the same `Menu`
+help-button. Both old controls call `openMenu`. The historical dual shape selects
+`Game settings`, preserving its previous route; the new shape selects `Menu`.
+Every present control must have its exact shipped location/title, be unique,
+visible, accessibility-exposed, and enabled. Missing native Menu, duplicates,
+undeclared shapes, hidden or disabled alternatives fail before any click, rather
+than triggering fallback. The selected shape, exact controls, accessible name,
+and original Scene/World/canvas identity are recorded as
 unmeasured preparation. One ordinary click must open the accessible modal
 `Game menu` native root (`data-panel="root"` with `Continue Game`), and one real
 Escape must hide both that original dialog node and its public locator.
@@ -412,7 +418,8 @@ subsequent pointer-input CPU, not first-post-close latency.
 
 The previous incompatible comparison is not performance or gameplay evidence:
 head `5e4ade6788d7a07056389d6736c17b31d352351b` used `Menu`; the trusted harness at
-`49f198df96d0f36a4067432db051b88c2a5b9498` selected only `Game settings`.
+`49f198df96d0f36a4067432db051b88c2a5b9498` selected only `Game settings` even though
+that baseline already also shipped the native `Menu` control.
 Run `39674637128`, artifact `12381886466`, ZIP SHA-256
 `acaebd0deff6a0d2227c8fa92dfd09776db3aad259fe388db3cc204c234dfe50` contains three
 head locator timeouts and three completed base sessions.
