@@ -34,13 +34,17 @@ const declaration = name => optionsSource.statements.find(
     item => item.name.getText(optionsSource) === name
   )
 ).getText(optionsSource)
-const readRows = new Function('useMemo', 'gamePreferences', 'category', 'browser', 'masterText', 'musicText', 'categories',
-  ts.transpileModule(`${declaration('unavailableRows')}\n${rowDeclarations}\nreturn rows;`, {
+const readRows = new Function('useMemo', 'gamePreferences', 'category', 'browser', 'masterText', 'musicText', 'categories', 'ingame',
+  ts.transpileModule([
+    ...['unavailableRows', 'browserFallback', 'browserTitle'].map(declaration),
+    optionsSource.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'noticeLines').getText(optionsSource),
+    'const compatibility = undefined;', rowDeclarations, 'return rows;',
+  ].join('\n'), {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None }
   }).outputText
 )
 const optionRows = (preferences, category = 'Game', browser = false) =>
-  readRows(make => make(), preferences, category, browser, 'Master volume : <35%>', 'Music volume : <65%>', ['Game', 'Sound', 'Graphics'])
+  readRows(make => make(), preferences, category, browser, 'Master volume : <35%>', 'Music volume : <65%>', ['Game', 'Sound', 'Graphics'], ingame)
 test('Options uses separate source-hashed original slider banks with unclipped thumb dimensions',()=>{
  assert.equal(artwork.inputs['data/fenew/feslider.spr'],'99dd18f3d07b7e8b36977b60f1543fe089972523c5f364db7fe19d85dc5667c8')
  assert.equal(artwork.inputs['data/fenew/igmslidr.spr'],'ab91567305e23bdbe9923cd8b9ea49956a562fd06dcf549513f27db1220d63da')
@@ -95,7 +99,7 @@ test('Game publishes five native positions and the browser-only sixth row and on
     assert.notDeepEqual(actualPixels, frontendBackground(source, { x: 320, y: 240 }, false, null, base))
   }
   const preferences = { rotation: 'control-cursor', flipRotation: true }
-  assert.deepEqual(optionRows(preferences, 'Game', true), [])
+  assert.equal(optionRows(preferences, 'Game', true)[0].text, 'Browser compatibility and help')
   assert.equal(optionRows(preferences, 'Graphics').some(row => /Rotation|Tooltips|Selected|Autocast/.test(row.text)), false)
   assert.equal(optionRows(preferences, 'Sound').some(row => /Rotation|Tooltips|Selected|Autocast/.test(row.text)), false)
 })
@@ -127,7 +131,7 @@ test('Graphics and Direct3D publish the native no-gamma rows and full navigation
     const pixels = frontendBackground(source, { x: 320, y: 240 }, false, null, rows)
     assert.deepEqual(pixels, frontendBackground(source, { x: 320, y: 240 }, false, null, [...navigation, ...expected]))
     assert.notDeepEqual(pixels, frontendBackground(source, { x: 320, y: 240 }, false, null, navigation))
-    assert.deepEqual(optionRows(preferences, category, true), [])
+    assert.equal(optionRows(preferences, category, true)[0].text, 'Browser compatibility and help')
   }
   for (const category of ['Game', 'Sound']) {
     assert.equal(optionRows(preferences, category).some(row => /Direct3D/.test(row.text)), false)
@@ -141,7 +145,8 @@ const textFunction = optionsSource.statements.find(
 )
 const render = new Function('requestAnimationFrame', 'MenuTooltip', 'React', 'useEffect', 'useMemo', 'useRef', 'useState', 'frontend', 'ingame', 'styles', 'props',
   ts.transpileModule([
-    ...['categories', 'fontBanks', 'unavailableRows'].map(declaration),
+    ...['categories', 'fontBanks', 'unavailableRows', 'hudSizes', 'browserFallback', 'browserTitle'].map(declaration),
+    optionsSource.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'noticeLines').getText(optionsSource),
     textFunction.getText(optionsSource),
     optionsFunction.getText(optionsSource).replace(/^export /, ''),
     'const useLayoutEffect = useEffect; return OriginalOptions(props);',
@@ -176,12 +181,13 @@ test('browser help opens at its heading, not its trailing Back button, on every 
     const heading = help.nodes.find(node => 'data-browser-help-heading' in node.props)
     assert.equal(heading.type, 'h2')
     assert.equal(heading.props.tabIndex, -1, 'entry focus does not add a heading to the Tab order')
-    assert.deepEqual(heading.children, ['Browser compatibility and help'])
+    assert.equal(heading.props['aria-label'], 'Browser compatibility and help')
+    assert.match(heading.children[0].props.className, /text/)
     const entry = help.effects.find(effect => effect.dependencies.length === 1 && effect.dependencies[0] === true)
     entry.run()
     assert.equal(help.focus.at(-1), '[data-browser-help-heading]')
     assert.equal(help.focus.includes('[data-return-options]'), false)
-    const back = help.nodes.find(node => 'data-return-options' in node.props)
+    const back = help.nodes.find(node => node.props['data-return-options'])
     back.props.onClick()
     assert.deepEqual(help.changes.at(-1), {index: 1, value: false})
     assert.equal(help.focus.at(-1), '[data-compatibility]', 'Back retains the original Options row focus')
@@ -303,7 +309,7 @@ test('Game browser row uses ordinary native highlight, activation and Back focus
     assert.equal(highlighted.children[0].props.style.opacity, 1)
     const help = renderOptions(skin, 'Game', null, true)
     assert.equal(help.nodes.some(node => node.props['data-compatibility']), false)
-    const back = help.nodes.find(node => 'data-return-options' in node.props)
+    const back = help.nodes.find(node => node.props['data-return-options'])
     back.props.onClick()
     assert.deepEqual(help.changes.at(-1), {index: 1, value: false})
     assert.equal(help.focus.at(-1), '[data-compatibility]')
