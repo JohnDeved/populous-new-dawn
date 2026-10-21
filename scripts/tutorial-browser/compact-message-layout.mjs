@@ -148,6 +148,61 @@ export function compactMessageWitness() {
   }
 }
 
+// All serialized observers are read-only. Compose their actual source, rather
+// than copying the layout/text rules into a faster but weaker second witness.
+export function compactDiagnosticWorld() {
+  const scene = window.testSceneRef.current, world = scene.world
+  return { paused: world.paused, turn: world.turn, selected: [...world.selected], mode: world.mode,
+    randomState: world.randomState, cosmeticRandom: world.cosmeticRandom,
+    camera: { ...scene.cameraPosition }, bearing: scene.cameraBearing, zoom: scene.viewZoom,
+    viewPoint: { ...scene.viewPoint }, messages: structuredClone(world.messages),
+    sameScene: scene === window.testScene && world === window.testStore.getWorld(),
+    storeTurn: window.testStore.getWorld().turn }
+}
+
+function settledCompactSnapshot(options, readLayout, readText, readWorld) {
+  const { state = 'visible', scrollAfter, scrollTop, timeout = 10000 } = options
+  if (!['visible', 'hidden'].includes(state) || !Number.isFinite(timeout) || timeout <= 0 ||
+      (scrollAfter !== undefined && !Number.isFinite(scrollAfter)) ||
+      (scrollTop !== undefined && scrollTop !== 0) ||
+      (state === 'hidden' && (scrollAfter !== undefined || scrollTop !== undefined)))
+    throw Error('Invalid compact snapshot condition')
+  return new Promise((resolve, reject) => {
+    let frame, settledFrames = 0
+    const fail = error => { clearTimeout(timer); cancelAnimationFrame(frame); reject(error) }
+    const timer = setTimeout(() => fail(Error(`Compact snapshot timed out waiting for ${JSON.stringify(options)}`)), timeout)
+    const sample = () => {
+      try {
+        const graph = document.querySelector('.fps-graph'), bounds = graph?.getBoundingClientRect()
+        const visible = !!bounds && bounds.width > 0 && bounds.height > 0 &&
+          !['hidden', 'collapse'].includes(getComputedStyle(graph).visibility)
+        const ready = state === 'hidden' ? !visible : visible &&
+          /\d+\.\d \/ \d+\.\d ms/.test(graph.querySelector('[data-metric="pointer-tail"]')?.textContent ?? '') &&
+          (scrollAfter === undefined || graph.scrollTop > scrollAfter) &&
+          (scrollTop === undefined || graph.scrollTop === scrollTop)
+        // A stale hidden/progress observation cannot survive the settle window.
+        // Keep the same two RAF frames after readiness, without extra RPCs.
+        if (!ready) settledFrames = 0
+        else if (settledFrames++ === 2) {
+          const result = { layout: visible ? readLayout(graph) : null, witness: readText(), world: readWorld() }
+          clearTimeout(timer)
+          resolve(result)
+          return
+        }
+        frame = requestAnimationFrame(sample)
+      } catch (error) { fail(error) }
+    }
+    sample()
+  })
+}
+
+export function compactMessageSnapshotSource(options = {}) {
+  return `(${settledCompactSnapshot.toString()})(${JSON.stringify(options)},
+    ${m2DiagnosticLayout.toString()}, ${compactMessageWitness.toString()}, ${compactDiagnosticWorld.toString()})`
+}
+
+export const readCompactMessageSnapshot = (page, options) => page.evaluate(compactMessageSnapshotSource(options))
+
 const contains = (box, fragment, x = true, y = true) =>
   (!x || (fragment.left >= box.left - 0.5 && fragment.right <= box.right + 0.5)) &&
   (!y || (fragment.top >= box.top - 0.5 && fragment.bottom <= box.bottom + 0.5))
@@ -275,42 +330,35 @@ export function assertCompactMessageWitness(layout, witness, width, height, scro
 
 // The only mutations here are real pointer/wheel inputs. Capture overlapping
 // viewports so a row/text run crossing one boundary is fully seen in the next.
-export async function scrollCompactDiagnostics(page, sample, width, height, settle) {
+export async function scrollCompactDiagnostics(page, sample, width, height) {
   sample.scrollSamples = []
-  const graph = page.locator('.fps-graph')
   let layout = sample.layout
   if (layout.scroll.height <= layout.scroll.clientHeight) return
   await page.mouse.move((layout.left + layout.right) / 2, (layout.top + layout.bottom) / 2)
-  await settle()
-  const snapshot = () => page.evaluate(() => {
-    const scene = window.testSceneRef.current, world = scene.world
-    return { paused: world.paused, turn: world.turn, selected: [...world.selected], mode: world.mode,
-      randomState: world.randomState, cosmeticRandom: world.cosmeticRandom,
-      camera: { ...scene.cameraPosition }, bearing: scene.cameraBearing, zoom: scene.viewZoom,
-      viewPoint: { ...scene.viewPoint }, messages: structuredClone(world.messages) }
-  })
-  sample.scrollBefore = await snapshot()
+  let snapshot = await readCompactMessageSnapshot(page)
+  sample.scrollBefore = snapshot.world
   assert.equal(sample.scrollBefore.paused, true)
+  assert.equal(sample.scrollBefore.sameScene, true)
   // A preceding real export or viewport resize may retain a scroll offset.
   // Restore the header through the same native wheel input, never scrollTop writes.
   if (layout.scroll.top > 0) {
     sample.beforeScrollReset = { layout: sample.layout, witness: sample.witness }
     await page.mouse.wheel(0, -layout.scroll.height)
-    await page.waitForFunction(() => document.querySelector('.fps-graph').scrollTop === 0)
-    await settle()
-    sample.layout = layout = await graph.evaluate(m2DiagnosticLayout)
-    sample.witness = await page.evaluate(compactMessageWitness)
+    snapshot = await readCompactMessageSnapshot(page, { scrollTop: 0 })
+    sample.layout = layout = snapshot.layout
+    sample.witness = snapshot.witness
+    assert.deepEqual(snapshot.world, sample.scrollBefore, 'Native F8 scrolling preserves world, selection, camera and messages')
   }
   while (layout.scroll.top < layout.scroll.height - layout.scroll.clientHeight - 1) {
     await page.mouse.wheel(0, Math.max(1, Math.floor(layout.scroll.clientHeight / 2)))
-    await page.waitForFunction(previous => document.querySelector('.fps-graph').scrollTop > previous, layout.scroll.top)
-    await settle()
-    layout = await graph.evaluate(m2DiagnosticLayout)
-    const witness = await page.evaluate(compactMessageWitness)
-    sample.scrollSamples.push({ layout, witness })
+    snapshot = await readCompactMessageSnapshot(page, { scrollAfter: layout.scroll.top })
+    const { witness } = snapshot
+    layout = snapshot.layout
+    sample.scrollSamples.push(snapshot)
     assertCompactMessageSample(layout, witness, width, height, true)
+    assert.deepEqual(snapshot.world, sample.scrollBefore, 'Native F8 scrolling preserves world, selection, camera and messages')
   }
-  sample.scrollAfter = await snapshot()
+  sample.scrollAfter = snapshot.world
   assert.deepEqual(sample.scrollAfter, sample.scrollBefore, 'Native F8 scrolling preserves world, selection, camera and messages')
 }
 
@@ -334,14 +382,9 @@ async function selectHudPreference(page, preference) {
 }
 
 export async function checkCompactMessages({ page, output, stage, report }) {
-  const graph = page.locator('.fps-graph')
   report.limits = [
     'Collapsed coexistence: Automatic and 400% at 900x360 and 640x480; not universal viewport support or performance acceptance.',
   ]
-  const settle = () =>
-    page.evaluate(
-      () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
-    )
   const baseline = await page.evaluate(() => ({
     world: window.testStore.getWorld().turn,
     scene: window.testSceneRef.current === window.testScene,
@@ -353,21 +396,11 @@ export async function checkCompactMessages({ page, output, stage, report }) {
     stage(`compact-preference-${preference}-selected`)
     for (const [width, height] of sizes) {
       await page.setViewportSize({ width, height })
-      await settle()
-      await graph.waitFor({ state: 'hidden' })
-      const before = await page.evaluate(compactMessageWitness)
+      const { witness: before } = await readCompactMessageSnapshot(page, { state: 'hidden' })
       assert.equal(before.preference, preference)
       assert.equal(before.statusLayout, 'contents', 'Ordinary layout must remain ungrouped')
       await page.keyboard.press('F8')
-      await graph.waitFor({ state: 'visible' })
-      await page.waitForFunction(() =>
-        /\d+\.\d \/ \d+\.\d ms/.test(
-          document.querySelector('.fps-graph [data-metric="pointer-tail"]')?.textContent ?? ''
-        )
-      )
-      await settle()
-      const layout = await graph.evaluate(m2DiagnosticLayout)
-      const witness = await page.evaluate(compactMessageWitness)
+      const { layout, witness } = await readCompactMessageSnapshot(page)
       assert.equal(witness.preference, preference)
       const screenshot = `compact-message-${preference}-${width}x${height}.png`
       const sample = {
@@ -381,16 +414,14 @@ export async function checkCompactMessages({ page, output, stage, report }) {
       }
       report.cases.push(sample)
       await page.screenshot({ path: resolve(output, screenshot) })
-      await scrollCompactDiagnostics(page, sample, width, height, settle)
+      await scrollCompactDiagnostics(page, sample, width, height)
       if (sample.scrollSamples.length) {
         sample.scrolledScreenshot = `compact-message-${preference}-${width}x${height}-scrolled.png`
         await page.screenshot({ path: resolve(output, sample.scrolledScreenshot) })
       }
       assertCompactMessageWitness(sample.layout, sample.witness, width, height, sample.scrollSamples)
       await page.keyboard.press('F8')
-      await graph.waitFor({ state: 'hidden' })
-      await settle()
-      const restored = await page.evaluate(compactMessageWitness)
+      const { witness: restored, world } = await readCompactMessageSnapshot(page, { state: 'hidden' })
       sample.restored = restored
       assert.deepEqual(
         restored,
@@ -398,10 +429,11 @@ export async function checkCompactMessages({ page, output, stage, report }) {
         'F8 off must restore ordinary text, geometry and typography'
       )
       assert.equal(
-        await page.evaluate(() => window.testStore.getWorld().turn),
+        world.storeTurn,
         baseline.world,
         'Public settings and diagnostics preserve the paused world'
       )
+      assert.equal(world.sameScene, true)
       stage(`compact-${preference}-${width}x${height}-captured-and-restored`)
     }
   }

@@ -338,7 +338,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       report.compactMessages = { cases: [] }
       await checkCompactMessages({ page, output, stage, report: report.compactMessages })
     } else {
-      const { compactMessageWitness, scrollCompactDiagnostics, assertCompactMessageWitness } = await import('./compact-message-layout.mjs')
+      const { readCompactMessageSnapshot, scrollCompactDiagnostics, assertCompactMessageWitness } = await import('./compact-message-layout.mjs')
       const graph = page.locator('.fps-graph'),
         openPopup = page.locator('.campaign-messages details[open]')
       assert.equal(await openPopup.count(), 1, 'The authored notification is initially open')
@@ -438,12 +438,10 @@ export default async function runM2Functional({ browser, url, output, fixture, c
           report.exports.push(await checkFrameExport({ page, output, keyboard: width === 1280 }))
           stage(`export-${width}-verified`)
         }
-        const sample = { viewport: [width, height], layout: await graph.evaluate(m2DiagnosticLayout),
-          witness: await page.evaluate(compactMessageWitness), routed, sidebar,
+        const sample = { viewport: [width, height], ...await readCompactMessageSnapshot(page), routed, sidebar,
           pointerPopupState: 'closed', layoutPopupState: 'open', popupSerial }
         report.samples.push(sample)
-        await scrollCompactDiagnostics(page, sample, width, height, () => page.evaluate(
-          () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))))
+        await scrollCompactDiagnostics(page, sample, width, height)
         report.layouts ??= []
         report.layouts.push({ viewport: [width, height], ...sample.layout })
         assertCompactMessageWitness(sample.layout, sample.witness, width, height, sample.scrollSamples)
