@@ -50,7 +50,9 @@ export async function skipIntroductionWithSpace(page, { timeout = 30000 } = {}) 
       remaining()
       if (before.action === 'ready') return 'ready'
       if (before.action !== 'skip') continue
-      const delivery = await pressObservedSpace(page, { timeout: remaining() })
+      let delivery
+      try { delivery = await pressObservedSpace(page, { timeout: remaining() }) }
+      catch (error) { remaining(); throw error }
       remaining()
       const after = await page.evaluate(introductionInputState, true)
       remaining()
