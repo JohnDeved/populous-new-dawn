@@ -34,7 +34,7 @@ export default async function({page,root,output}) {
  await page.evaluate(()=>window.finishPauseSave())
  await button('Save Game').click();await page.evaluate(()=>window.restorePauseSave())
  await button('Save checkpoint').click()
- await page.getByRole('status').filter({hasText:'Checkpoint saved for this session only; browser storage is unavailable.'}).waitFor()
+ await page.getByRole('status').filter({hasText:'Checkpoint saved for this session only.'}).waitFor()
  await page.screenshot({path:resolve(output,'session-only-checkpoint.png')})
  assert.equal(await page.evaluate(()=>window.testStore.getWorld().paused),true)
  assert.equal(await page.evaluate(()=>window.testStore.hasCheckpoint()),true)
