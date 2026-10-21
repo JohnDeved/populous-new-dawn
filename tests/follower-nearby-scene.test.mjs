@@ -1,3 +1,4 @@
+import { createResultClock, advanceResultClock } from '../app/result-session.ts'
 import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 // Actual Page handlers, Scene methods/animate, store ownership and fixed-clock
 // consumer. DOM/GPU and event trust are supplied; this is not browser evidence.
@@ -44,6 +45,7 @@ async function fixture(t, campaignMissions = []) {
       world, presentationBinding: store.bindPresentation(world), started: true, disposed: false,
       nearbyFollowersHudActive: true, previous: null, fpsGraph: null,
       tooltipElement: { hidden: false }, // supplied DOM leaf used by the real modal boundary
+      resultClock: createResultClock(),
       gameClock: { animationTime: 0, animationFrame: 0 }, overviewActive: false, overviewStage: null,
       keys: new Set(), dragActive: { value: false }, selectionOverlay: { visible: false }, globeMotion: { velocity: { x: 0, y: 0 } },
       renderer: { getPixelRatio: () => 1, render: noOp }, hoveredObject: null, buildingPanels: new Map(),
@@ -53,7 +55,7 @@ async function fixture(t, campaignMissions = []) {
     })
     for (const name of ['playWorldSounds', 'updateTerrainFrame', 'updateDecorationsFrame', 'cancelTooltipInspection', 'updateUnitsFrame', 'renderTooltip', 'updateBuildingsFrame', 'updateEffectsFrame', 'updateShrinesFrame', 'updatePointerFrame', 'updatePlacement', 'updateSpellPointerFrame', 'updateEnvironmentFrame', 'renderSceneFrame', 'updateHudFrame']) scene[name] = noOp
     scene.animate = execute(animateSource, {
-      syncSecondaryReservations: noOp, updateVehiclesFrame: noOp, SPELLS: [], worldTooltipObject: noOp,
+      advanceResultClock, syncSecondaryReservations: noOp, updateVehiclesFrame: noOp, SPELLS: [], worldTooltipObject: noOp,
       advanceGame: (w, clock, seconds) => { logs.push(['advanceGame', w.castingTribes[0].flags]); api.advanceGame(w, clock, seconds) },
     }, scene)
     const page = pageNearby(scene)

@@ -34,6 +34,7 @@ for(const paused of [false,true]) {
       assert.equal(scene.tooltip.remaining,remaining)
       assert.equal(world.routeNotice,notice)
     }
+    assert.deepEqual(page.selectorEntries,[world],'selection entry is requested for the retained scene, without a supplied victory')
     page.closeMenu()
     assert.equal(world.paused,paused)
     assert.equal(scene.modalSuspended,false)
