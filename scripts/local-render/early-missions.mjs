@@ -1,5 +1,4 @@
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
-import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
@@ -32,7 +31,9 @@ export async function waitForSavedCheckpoint(page, turn, signal) {
   assert.equal(committed, true, 'Save checkpoint must commit the expected turn before reloading')
 }
 
-// Ordinary public UI and real RAF only. React references are observation-only.
+// Independent native mission entries and real RAF. M2/M3 start from declared
+// availability-only fixtures, not naturally earned prior campaign progression.
+// After fixture restore, gameplay uses public UI; React references are read-only.
 export default async function ({
   browser,
   page: initialPage,
@@ -43,7 +44,7 @@ export default async function ({
   receipt,
   signal,
 }) {
-  const { bindGame, showAllMissions } = await import(
+  const { bindGame, prepareCampaignFixture, launchCampaignMission } = await import(
     pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href
   )
   const report = {
@@ -51,7 +52,7 @@ export default async function ({
       .update(readFileSync(new URL(import.meta.url)))
       .digest('hex'),
     method:
-      'Public UI; ordinary mouse/keyboard input and elapsed real clock. No clock/tick stepping or world/entity/outcome/storage fixtures. Read-only scene/store/IndexedDB observation.',
+      'M1 starts with ordinary initial availability. M2/M3 use explicit availability-only profile fixtures in separate empty contexts before reload and public native launch. No earned-prerequisite claim, checkpoint/world/entity/outcome injection, or clock/tick stepping. Gameplay is ordinary mouse/keyboard and real clock; scene/store/IndexedDB observations are read-only.',
     missions: [],
     limits:
       'Sandboxed headless software WebGL functional QA, not hardware performance or full original-game parity.',
@@ -121,16 +122,9 @@ export default async function ({
     }
     try {
       await check('Public mission entry', async () => {
-        await openCampaignFromMainMenu(page)
-        const dialog = page.getByRole('dialog', { name: 'Start game', exact: true })
-        await dialog.waitFor()
-        if (level === 1) {
-          await dialog.getByRole('button', { name: /^Panel Mission 1(?:, completed)?$/, exact: true }).click()
-          await dialog.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
-        } else {
-          await showAllMissions(page)
-          await dialog.getByRole('button', { name: `Mission ${level}`, exact: true }).click()
-        }
+        entry.setup = { mission: level, kind: level === 1 ? 'fresh-native-campaign' : 'declared-availability-fixture' }
+        if (level !== 1) await prepareCampaignFixture(page, level)
+        await launchCampaignMission(page, level)
         await bindGame(page)
         await page.waitForFunction(
           () => !!(window.testScene.world.flyby.flags & 1) || !window.testScene.world.inputMask
@@ -201,7 +195,9 @@ export default async function ({
         await selector.waitFor()
         await page.waitForTimeout(800)
         assert.equal((await snap(page)).turn, before.turn)
-        await selector.getByRole('button', { name: 'Back', exact: true }).click()
+        // The native selector exposes cancellation via Escape, not the retired
+        // browser-compatibility Back button. Repeat the real cancel/reentry path.
+        await page.keyboard.press('Escape')
         await menu.waitFor({ state: 'visible' })
         assert.equal((await snap(page)).paused, true)
         await compatibility()
