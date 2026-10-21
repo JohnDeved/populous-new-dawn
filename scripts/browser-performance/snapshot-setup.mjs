@@ -8,6 +8,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { checkpointCodec } from '../tutorial-browser/checkpoint-codec.mjs'
 import { bindGame } from '../browser-game.mjs'
+import { waitForStartupMenu } from '../browser-new-game.mjs'
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const encoded = value => JSON.stringify(checkpointCodec(value))
@@ -241,6 +242,7 @@ export async function loadSnapshot({ page, url, fixture, expectedRevision }) {
     assert.equal(readback, transferText, 'IDB must preserve exact lossless snapshot bytes')
     receipt.idbReadbackSha256 = hash(readback)
     await page.reload({ waitUntil: 'domcontentloaded' })
+    await waitForStartupMenu(page)
     const load = page.getByRole('dialog', { name: 'Main menu', exact: true })
       .getByRole('button', { name: 'Load Game', exact: true })
     await load.waitFor({ state: 'visible' })

@@ -14,9 +14,10 @@ async function inputs() {
     { default: units } = await import('../app/original-units.json'),
     { createLivePerson } = await import('../app/live-people.ts'),
     { nativeUnitDraw } = await import('../app/unit-kinds.ts'),
+    { followerNativeDirections } = await import('../app/follower-appearance.ts'),
     { shamanNativeDirections } = await import('../app/shaman-appearance.ts'),
     { spriteDirection } = await import('../app/projection.ts')
-  return { api, units, createLivePerson, nativeUnitDraw, shamanNativeDirections, spriteDirection }
+  return { api, units, createLivePerson, nativeUnitDraw, followerNativeDirections, shamanNativeDirections, spriteDirection }
 }
 
 function nativePose(input, world, unit, source = 104) {
@@ -65,13 +66,15 @@ function assertAnimation(input, fixture, unit, table) {
     group = scene.unitMeshes.get(unit.id),
     call = fixture.personCalls.find(args => args[0] === group),
     source = input.api.unitAnimationSource(unit),
-    // Frozen previous expression is an output reference, not an executed base run.
+    // Rendering ownership reference. Raw original identities for newly covered
+    // sources are asserted separately in follower-source-consumer.test.mjs.
     native =
       source?.object === undefined
         ? undefined
         : unit.kind === 'shaman'
           ? input.shamanNativeDirections(unit.team, source.object)
-          : Object.values(table).find(d => 'source' in d[0] && d[0].source === source.object),
+          : input.followerNativeDirections(source.object) ??
+            Object.values(table).find(d => 'source' in d[0] && d[0].source === source.object),
     state = input.api.unitAnimation(scene.world, unit),
     directions = native || table[state] || table.idle,
     age = native
@@ -133,7 +136,7 @@ test('real construction Work poses reach the actual animation wrapper and advanc
   }
 })
 
-test('every imported follower source keeps its first table entry and original direction/frame references', async () => {
+test('every imported follower source keeps catalog or legacy direction/frame references', async () => {
   const input = await quietWorld(),
     { world } = input,
     unit = world.units[0],
@@ -156,11 +159,11 @@ test('every imported follower source keeps its first table entry and original di
         unit.native.object = 104
         pureFrame(fixture)
         const { directions } = assertAnimation(input, fixture, unit, table)
-        assert.equal(directions, table.chop, 'source104 uses chop before the later strike alias')
+        assert.equal(directions, input.followerNativeDirections(104), 'native source104 uses its catalog')
         assert.notEqual(
           directions,
           table.strike,
-          'equal frame content does not erase first-entry identity'
+          'a named alias does not replace the native catalog owner'
         )
       }
     }
@@ -315,7 +318,7 @@ test('current/legacy checkpoint worlds, independent Scenes, empty refill and rep
   }
 })
 
-function observeLookup(table) {
+function observeLookup(table, catalogDirections) {
   const originalValues = Object.values,
     originalFind = Array.prototype.find,
     originalGet = Map.prototype.get,
@@ -338,7 +341,7 @@ function observeLookup(table) {
   }
   Map.prototype.get = function (key) {
     const result = originalGet.call(this, key)
-    if (key === 104 && result === table.chop) counts.cachedHits++
+    if (key === 104 && result === catalogDirections) counts.cachedHits++
     return result
   }
   return {
@@ -365,7 +368,7 @@ async function measuredFrames() {
       pureFrame(fixture) // Identical warm workload; cold table construction is excluded.
       const groups = [...fixture.scene.unitMeshes.values()],
         before = structuredClone(world)
-      observer = observeLookup(table)
+      observer = observeLookup(table, input.followerNativeDirections(104))
       for (let frame = 0; frame < 3; frame++) {
         observer.reset()
         fixture.render()

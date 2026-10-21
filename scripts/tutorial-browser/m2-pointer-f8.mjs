@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { bindGame } from '../browser-game.mjs'
+import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { checkFrameExport, m2NativePointerTarget } from './frame-export.mjs'
 import { checkpointCodec } from './checkpoint-codec.mjs'
 
@@ -207,6 +208,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     )
     stage('idb-readback-matched')
     await page.reload({ waitUntil: 'domcontentloaded' })
+    await waitForStartupMenu(page)
     const load = page
       .getByRole('dialog', { name: 'Main menu', exact: true })
       .getByRole('button', { name: 'Load Game', exact: true })

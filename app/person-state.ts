@@ -45,6 +45,7 @@ export interface PersonStateEffects {
   fight?: () => void
   encounter?: () => void
   routeRecovery?: () => void
+  casting?: () => void
 }
 const short = (n: number) => (n << 16) >> 16
 
@@ -304,12 +305,8 @@ export function initializePersonState(
     p.speed = 0
     effects.occupying()
   } else if (p.state === 22) {
-    // 0x4d2740: seated casters retain the ordinary person animation row.
-    // Adjacent-but-unseated vehicle lookup remains outside this adapter.
-    effects.releaseMotion(p)
-    if (p.vehicle) setPersonAnimationRow(p, p.cargo ? 4 : 0, effects.setAnimation)
-    else effects.setAnimation(p, 0x6d)
-    p.timer = 10
+    if (!effects.casting) throw new Error('State 22 requires its casting initializer')
+    effects.casting()
   } else if (p.state === 25 || p.state === 29) {
     const enter = p.state === 25 ? effects.fight : effects.encounter
     if (!enter) throw new Error(`State ${p.state} requires its combat initializer`)

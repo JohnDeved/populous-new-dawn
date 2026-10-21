@@ -163,13 +163,13 @@ test('supplied-focus current Mission22 queued person target moves its transport 
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
   }
   assert.equal(departures, 1)
-  assert.equal(departure, 3836)
-  assert.equal(firstFight, 3841)
+  assert.equal(departure, 3840)
+  assert.equal(firstFight, 3845)
   assert.deepEqual(encounters, [
-    [3841, 17],
-    [3868, 12],
-    [3882, 11],
-    [3888, 12],
+    [3845, 17],
+    [3863, 12],
+    [3867, 10],
+    [3875, 12],
   ])
   assert.equal(firstOpponent, 17)
   assert.equal(firstOpponentTeam, 'green')
@@ -178,7 +178,7 @@ test('supplied-focus current Mission22 queued person target moves its transport 
   // The existing mode1 grounded attack adapter remains;
   // observed death retires command 28 while the selected Preacher 17 survives.
   // This is a browser outcome, not a native damage/landing parity claim.
-  assert.equal(death, 3891)
+  assert.equal(death, 3877)
   assert.equal(targetDeath, 0)
   assert.equal(shaman.hp, 0)
   assert.equal(world.units.includes(shaman), false)

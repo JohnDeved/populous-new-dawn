@@ -38,6 +38,7 @@ import {
   sound,
 } from './world-effects.ts'
 import { addUnit, population } from './world-state.ts'
+import { animatedSiteEffect } from './site-wave-effects.ts'
 import { nativePosition, syncLandscapeObjects } from './world-terrain-runtime.ts'
 import { browserPosition, nativeDistance, nativeStep3D, shotAngles } from './world-coordinates.ts'
 import { clearRetiredPersonOrders, release, releaseTasks } from './world-tasks.ts'
@@ -1164,8 +1165,16 @@ export function stepLiveConvertWild(w: World, fx: Effect) {
       replacement.native.flags4 = (replacement.native.flags4 | 0x40000) >>> 0
       registerLivePerson(w, replacement.native)
       sound(w, 5, browserPosition(p))
-      // ponytail: reuse the packed birth flash until an asset import adds native effect model 58.
-      effect(w, 'birth', browserPosition(p))
+      // 0x4d7fd0 allocates one neutral effect58 linked to the replacement Brave.
+      const flash = animatedSiteEffect(
+        w,
+        { ...p, h: terrainPointHeight(w.land, p) },
+        'startConversion',
+        1240,
+        45,
+        8
+      )
+      flash.startConversionLink = replacement.id
     },
     sparkle: (position, turns) => {
       const sparkle = effect(w, 'trail', browserPosition(position))
@@ -1441,8 +1450,6 @@ function finishCast(
       fx.team = shaman.team
       fx.turnsRemaining = 16
       fx.duration = Infinity
-      // ponytail: reuse the packed sparkle until the native effect-17 initializer is recovered.
-      fx.sprite = { sequence: 'sparkle', frame: 0 }
     } else if (spell === 'ghostArmy') {
       fx.team = shaman.team
       fx.ghostArmy = true
@@ -1454,7 +1461,8 @@ function finishCast(
         endpoint ?? nativePosition(w, p),
         nativePosition(w, shaman),
         tribeForTeam(shaman.team),
-        w
+        w,
+        w.secondaryEffects.animationFrame
       )
       fx.team = shaman.team
       fx.duration = Infinity

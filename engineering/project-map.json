@@ -856,6 +856,9 @@
         "decomp/research/worship-acquisition-adapter.md",
 
         "engineering/single-player-feasibility.md",
+        "decomp/research/rolling-demo-control.md",
+        "scripts/check-static-rolling-demo-control.py",
+        "tests/rolling-demo-stream-framing.test.py",
         "decomp/research/recorded-demo-provenance.md",
         "scripts/check-static-recorded-demo-provenance.py",
         "decomp/research/demo131-entry.md",
@@ -1195,6 +1198,10 @@
         { "path": "decomp/research/authored-bridge-origins.md", "heading": "Executable composition proof" },
         { "path": "decomp/research/erosion-activation.md", "heading": "Reviewed native boundary" },
         {
+          "path": "decomp/research/rolling-demo-control.md",
+          "heading": "New findings and source ownership"
+        },
+        {
           "path": "decomp/research/recorded-demo-provenance.md",
           "heading": "Reproduce the static boundary proof"
         },
@@ -1518,9 +1525,9 @@
       "id": "persistence",
       "title": "Checkpoints and startup",
       "mappingStatus": "reviewed",
-      "implementationPaths": ["app/game-store.ts"],
+      "implementationPaths": ["app/game-store.ts", "app/startup-logo.tsx", "app/startup-logo.module.css"],
       "sharedPaths": ["app/page.tsx"],
-      "researchPaths": ["engineering/single-player-feasibility.md", "decomp/research/frontend-quit-menu/README.md", "decomp/research/original-credits/README.md"],
+      "researchPaths": ["engineering/single-player-feasibility.md", "decomp/research/frontend-quit-menu/README.md", "decomp/research/original-credits/README.md", "decomp/research/startup-logo/README.md"],
       "entrySymbols": [
         { "path": "app/game-store.ts", "symbol": "createGameStore" },
         { "path": "app/page.tsx", "symbol": "Home" }
@@ -1529,7 +1536,8 @@
       "evidence": [
         { "path": "decomp/README.md", "heading": "Defeat and victory decisions" },
         { "path": "decomp/research/frontend-quit-menu/README.md", "heading": "Exact menu1 evidence" },
-        { "path": "decomp/research/original-credits/README.md", "heading": "Recovered source" }
+        { "path": "decomp/research/original-credits/README.md", "heading": "Recovered source" },
+        { "path": "decomp/research/startup-logo/README.md", "heading": "Source facts" }
       ],
       "nativeAddresses": [],
       "checkIds": [
@@ -1785,6 +1793,8 @@
         "app/tornado-runtime.ts"
       ],
       "researchPaths": [
+        "decomp/research/hypnotise-artwork.md",
+        "scripts/check-hypnotise-source.py",
         "decomp/research/erosion-actual-capture.md",
         "scripts/check-native-erosion-capture.py",
         "tests/erosion-observation.test.mjs",

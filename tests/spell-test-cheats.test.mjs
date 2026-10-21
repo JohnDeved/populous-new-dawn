@@ -195,7 +195,7 @@ test('actual runner invokes F9 once after held Escape, never inside the tutorial
   assert.equal((run.match(/receipt\.spellTestMenu =/g) ?? []).length, 1)
   assert.match(workflow, /scenario: frontend-held-escape/)
   assert.match(workflow, /node scripts\/tutorial-browser\/run\.mjs/)
-  const scenarios = ['snapshotScenario', 'frontendEscapeScenario', 'spellTestScenario', 'gameplayScenario',
+  const scenarios = ['snapshotScenario', 'frontendEscapeScenario', 'spellTestScenario', 'spellConversionScenario', 'gameplayScenario',
     'meleeScenario', 'm2Scenario', 'pauseRecoveryScenario', 'scenario', 'selectorScenario', 'sceneryScenario',
     'spellProjectionScenario', 'buildingIdentityScenario']
   for (const selectedScenario of ['frontend-held-escape', 'tutorial']) {
@@ -209,20 +209,21 @@ test('actual runner invokes F9 once after held Escape, never inside the tutorial
         importScenario: async name => ({ default: async input => {
           calls.push(name)
           assert.equal(input.output, 'test-output')
-          if (name === 'spellTestScenario') assert.deepEqual(input, { browser, url: 'test-url', output: 'test-output' })
+          if (name === 'spellTestScenario' || name === 'spellConversionScenario') assert.deepEqual(input, { browser, url: 'test-url', output: 'test-output' })
           return { completed: name }
         } }),
       }
     await new Function(...Object.keys(bindings),
       `return (async () => { ${routing.join('\n').replaceAll('import(', 'importScenario(')} })()`)(...Object.values(bindings))
     if (selectedScenario === 'frontend-held-escape') {
-      assert.deepEqual(calls, ['frontendEscapeScenario', 'closeFrontendContext', 'spellTestScenario'])
+      assert.deepEqual(calls, ['frontendEscapeScenario', 'closeFrontendContext', 'spellTestScenario', 'spellConversionScenario'])
       assert.deepEqual(receipt, { frontendHeldEscape: { completed: 'frontendEscapeScenario' },
-        spellTestMenu: { completed: 'spellTestScenario' } })
+        spellTestMenu: { completed: 'spellTestScenario' }, spellConversion: { completed: 'spellConversionScenario' } })
     } else {
       assert.deepEqual(calls, ['goto', 'scenario', 'selectorScenario', 'sceneryScenario', 'm2Scenario',
         'spellProjectionScenario', 'buildingIdentityScenario'])
       assert.equal('spellTestMenu' in receipt, false)
+      assert.equal('spellConversion' in receipt, false)
     }
   }
 })

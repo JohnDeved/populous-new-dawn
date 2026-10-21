@@ -458,3 +458,56 @@ closure, including `profile-artifact.mjs`, `../artifact-zip.mjs`,
 Their candidate input hashes are also retained in `PROFILE_INPUTS`; this does
 not authorize loading candidate code as the trusted validator. Existing workflow,
 job-inventory, browser-deadline and permissions policies remain unchanged.
+
+## Passive nine-job spell visuals reader support
+
+`browserPolicy: "spell-visuals-nine-v2"` is a separately explicit opt-in and also
+requires `browserCheckpointVersion: 4`. Neither observed jobs nor candidate
+receipts select this contract. All older policies retain their exact inventories
+and literal v3 Mission 10 checkpoints; a global v3→v4 reader replacement is not
+supported. A nine-job contract requires all eight split jobs plus the successful
+`Spell visuals browser` job. Its verified flag and current Actions check must
+reconcile with the exact authenticated attempt, alongside Pause, Profile and
+Mission 10. Current-check enumeration includes each selected recovery subgate;
+previously it retained only the two aggregate gate names.
+
+The ninth path authenticates job/check/app/suite/run/attempt/head, head/base/merge
+log identity and pinned workflow bytes, then binds the upload log's unique numeric
+artifact ID, exact `spell-visuals-browser-MERGESHA` name, byte count and SHA-256 to
+both current-run enumeration and direct artifact metadata (including run/head and
+unexpired state). Only a numeric repository-local ZIP endpoint is downloaded.
+No receipt URL is followed. The separate 48 MiB compressed transport does not
+change the Profile/Mission 10 16 MiB transport. ZIP limits remain 50 entries,
+32 MiB per file and 96 MiB expanded total; each PNG is at most 16 MiB and 128
+chunks with its existing dimensions. The decoded log envelope is at most 24,000
+bytes. Artifact resolution alone is not authenticated admission.
+
+Source hashes use a bounded byte-exact immutable Git blob read, including binary
+PNGs, with hooks/fsmonitor/global attributes disabled, unsafe filter/merge-driver
+configuration rejected, replacement objects and lazy fetch disabled, and no
+candidate application imports. The reader is synchronous throughout; static
+built-in zlib and ZIP decoding replace the candidate's async wrappers. Unresolved
+Promises cannot set a verified flag. Required episodes remain exactly Angel and
+Shield, with 50s/60s and 45s/55s execution/admission bounds, one common outer
+deadline, terminal cleanup, and actual sandboxed hosted Chrome at
+`/opt/google/chrome/chrome`. Local headless-shell results are not relabeled.
+
+This is support staging only. Both active workflows, the main v3 checkpoint
+writer, the pure round-robin Full planner, protection, credentials and external
+trusted pins remain unchanged. No ninth live job is authorized or installed by
+this code. The parent must independently review the entire diff and trusted
+import closure before selecting task-local read-only pins; support landing does
+not activate the feature. The previous eleven-file reader approval does not
+extend itself, and PR655/658 are staging precedents only. PR687 approved no v4
+reader transition. A future workflow transition requires its own source-bound
+approval, exact workflow hashes and bounded ninth-job authorization.
+
+The additional data-only closure is `spell-visuals-policy.mjs`,
+`spell-visuals-artifact.mjs`, `spell-visuals-render-evidence.mjs`,
+`shield-visuals-receipt.mjs`, `../tutorial-browser/shield-visuals-inputs.mjs`,
+`../tutorial-browser/shield-evidence.mjs`, plus the unchanged
+`../tutorial-browser/checkpoint-codec.mjs`, `browser-jobs.mjs`, and
+`../artifact-zip.mjs`. Existing Profile/Mission 10 selection dependencies remain
+part of the prior closure. Independent synthetic tests exercise the actual
+synchronous GitHubReader pipeline and byte transports; they are not hosted browser,
+visual review, native parity, or activation evidence.
