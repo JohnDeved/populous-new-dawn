@@ -83,13 +83,14 @@ test('one public Space follows late native readiness, never an initial unlocked 
     waitForFunction: async (predicate, arg, options) => {
       assert.equal(predicate, introductionInputState)
       assert.equal(arg, undefined)
-      assert.equal(options.timeout, 900)
+      assert.ok(options.timeout > 0 && options.timeout <= 900)
       assert.equal(f.read(), false)
       flybyCommand(f.world.flyby, 1206, [])
       f.world.inputMask = 64
       assert.equal(f.read(), 'skip')
       return { jsonValue: async () => 'skip', dispose: async () => calls.push('dispose') }
     },
+    evaluate: async () => ({ action: 'skip', paused: false }),
     keyboard: { press: async key => { assert.equal(key, 'Space'); calls.push('Space') } },
   }, { timeout: 900 })
   assert.equal(result, 'skip')
@@ -151,6 +152,7 @@ test('remaining deadline includes readiness, handle extraction and disposal befo
       return { jsonValue: async () => { now = 350; return 'skip' },
         dispose: async () => { now = 450 } }
     },
+    evaluate: async () => ({ action: 'skip', paused: false }),
     keyboard: { press: async key => assert.equal(key, 'Space') },
   }, { timeout: 500 })
   assert.equal(budget, 50, 'the keyboard does not start another full timeout')
@@ -176,9 +178,98 @@ test('late keyboard resolution cannot turn an expired introduction deadline into
   t.mock.method(performance, 'now', () => now)
   await assert.rejects(skipIntroductionWithSpace({
     waitForFunction: async () => ({ jsonValue: async () => 'skip', dispose: async () => {} }),
+    evaluate: async () => ({ action: 'skip', paused: false }),
     keyboard: { press: async key => { assert.equal(key, 'Space'); presses++; now = 501 } },
   }, { timeout: 500 }), /Introduction readiness timed out/)
   assert.equal(presses, 1)
+})
+
+test('a changed uninterruptible gate repolls without a key or a fresh timeout budget', async t => {
+  let now = 0, polls = 0, reads = 0
+  t.mock.method(performance, 'now', () => now)
+  const budgets = []
+  const action = await skipIntroductionWithSpace({
+    waitForFunction: async (_predicate, _arg, options) => {
+      budgets.push(options.timeout)
+      polls++
+      now += 100
+      return { jsonValue: async () => polls === 1 ? 'skip' : 'ready',
+        dispose: async () => { now += 50 } }
+    },
+    evaluate: async () => { reads++; now += 100; return { action: false, paused: false } },
+    keyboard: { press: () => assert.fail('a completing/uninterruptible gate cannot receive another Space') },
+  }, { timeout: 500 })
+  assert.equal(action, 'ready')
+  assert.deepEqual(budgets, [500, 250])
+  assert.equal(reads, 1)
+})
+
+for (const phase of ['before', 'after']) {
+  test(`late ${phase}-input observation cannot outlive the original introduction deadline`, async t => {
+    let now = 0, reads = 0, presses = 0
+    t.mock.method(performance, 'now', () => now)
+    await assert.rejects(skipIntroductionWithSpace({
+      waitForFunction: async () => ({ jsonValue: async () => 'skip', dispose: async () => {} }),
+      evaluate: async () => {
+        reads++
+        if (reads === (phase === 'before' ? 1 : 2)) now = 501
+        return { action: 'skip', paused: false }
+      },
+      keyboard: { press: async () => { presses++ } },
+    }, { timeout: 500 }), /Introduction readiness timed out/)
+    assert.equal(presses, phase === 'before' ? 0 : 1)
+  })
+}
+
+for (const phase of ['wait', 'read', 'dispose', 'before', 'after']) {
+  test(`stalled ${phase} operation expires at the original deadline and consumes late cleanup`, async t => {
+    t.mock.timers.enable({ apis: ['setTimeout'] })
+    let release, reached, reads = 0, presses = 0, disposals = 0
+    const blocked = new Promise(resolve => { release = resolve })
+    const entered = new Promise(resolve => { reached = resolve })
+    const stall = async value => { reached(); await blocked; return value }
+    const handle = {
+      jsonValue: async () => phase === 'read' ? stall('skip') : 'skip',
+      dispose: async () => { disposals++; if (phase === 'dispose') await stall() },
+    }
+    const result = skipIntroductionWithSpace({
+      waitForFunction: async () => phase === 'wait' ? stall(handle) : handle,
+      evaluate: async () => {
+        const value = { action: 'skip', paused: false }
+        reads++
+        return phase === (reads === 1 ? 'before' : 'after') ? stall(value) : value
+      },
+      keyboard: { press: async () => { presses++ } },
+    }, { timeout: 500 })
+    const rejected = assert.rejects(result, /Introduction readiness timed out/)
+    await entered
+    t.mock.timers.tick(500)
+    await rejected
+    release()
+    for (let turn = 0; turn < 8; turn++) await Promise.resolve()
+    assert.equal(disposals, 1, 'late handles are disposed once without extending the caller deadline')
+    assert.equal(presses, phase === 'after' ? 1 : 0, 'expiry cannot dispatch or retry late keyboard input')
+  })
+}
+
+test('deadline during stalled cleanup preserves an earlier handle-read failure', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  const failure = Error('original read failure')
+  let release, entered
+  const blocked = new Promise(resolve => { release = resolve })
+  const cleaning = new Promise(resolve => { entered = resolve })
+  const run = skipIntroductionWithSpace({
+    waitForFunction: async () => ({
+      jsonValue: async () => { throw failure },
+      dispose: async () => { entered(); await blocked },
+    }),
+    keyboard: { press: () => assert.fail('failed observation cannot dispatch input') },
+  }, { timeout: 500 })
+  const rejected = assert.rejects(run, error => error === failure)
+  await cleaning
+  t.mock.timers.tick(500)
+  await rejected
+  release()
 })
 
 test('Space delivery rejects invalid budgets without starting browser input', async () => {
@@ -216,8 +307,8 @@ test('a failed native Space delivery remains failed and a fresh caller can retry
   assert.equal(presses, 2)
 })
 
-test('actual Home Space handler preserves pause across held intro key repeats and allows a fresh pause press', async () => {
-  const world = { inputMask: 64, flyby: createFlyby(), paused: false, mode: null },
+function homeSpaceFixture() {
+  const world = { inputMask: 64, flyby: createFlyby(), paused: false, mode: null, levelStart: [{ phase: 4 }] },
     camera = readFileSync(new URL('../app/scene-camera-runtime.ts', import.meta.url), 'utf8'),
     body = camera.slice(camera.indexOf('export function skipIntroduction('),
       camera.indexOf('export function updateCameraMotion('))
@@ -238,19 +329,81 @@ test('actual Home Space handler preserves pause across held intro key repeats an
   const keydown = repeat => handler({ key: ' ', code: 'Space', repeat,
     ctrlKey: false, metaKey: false, altKey: false,
     target: { closest: () => null }, preventDefault() {} })
+  return { world, cleanup, keydown, get changes() { return changes } }
+}
+
+test('actual Home Space handler preserves pause across held intro key repeats and allows a fresh pause press', async () => {
+  const f = homeSpaceFixture(), { world } = f
   try {
     await pressIntroductionSpace({ keyboard: { press: async key => {
       assert.equal(key, 'Space')
-      keydown(false)
+      f.keydown(false)
     } } })
     assert.equal(world.inputMask, 0)
     assert.equal(world.flyby.flags & 1, 0)
     assert.equal(world.paused, false)
-    for (let count = 0; count < 4; count++) keydown(true)
-    assert.equal(changes, 0, 'held repeats after flyby unlock must not become pause toggles')
+    for (let count = 0; count < 4; count++) f.keydown(true)
+    assert.equal(f.changes, 0, 'held repeats after flyby unlock must not become pause toggles')
     assert.equal(world.paused, false)
-    keydown(false)
+    f.keydown(false)
     assert.equal(world.paused, true, 'release followed by a fresh Space retains native pause')
-    assert.equal(changes, 1)
-  } finally { cleanup() }
+    assert.equal(f.changes, 1)
+  } finally { f.cleanup() }
 })
+
+for (const boundary of ['disposal', 'delivery']) {
+  for (const paused of [false, true]) {
+    test(`natural completion at ${boundary} cannot admit an extra pause toggle (paused=${paused})`, async () => {
+      const f = homeSpaceFixture(), { world } = f
+      world.paused = paused
+      let presses = 0
+      const finish = () => { world.inputMask = 0; world.flyby.flags &= ~1 }
+      const context = { window: { testStore: { getWorld: () => world } }, document: { querySelector: () => null } }
+      try {
+        const run = skipIntroductionWithSpace({
+          waitForFunction: async () => ({ jsonValue: async () => 'skip', dispose: async () => {
+            if (boundary === 'disposal') finish()
+          } }),
+          evaluate: async (read, arg) => runInNewContext(`(${read.toString()})(${JSON.stringify(arg)})`, context),
+          keyboard: { press: async key => {
+            assert.equal(key, 'Space')
+            if (boundary === 'delivery') finish()
+            presses++
+            f.keydown(false) // Actual Home input owner, through the keyboard unit boundary.
+          } },
+        })
+        if (boundary === 'disposal') {
+          assert.equal(await run, 'ready')
+          assert.equal(world.paused, paused, 'fresh observation avoids touching a completed introduction')
+          assert.equal(presses, 0)
+          assert.equal(f.changes, 0)
+        } else {
+          await assert.rejects(run, /Introduction Space changed pause state/)
+          assert.equal(presses, 1, 'the owner must close the failed episode; never compensate with another toggle')
+          assert.equal(f.changes, 1)
+          assert.equal(world.paused, !paused, 'the delivery TOCTOU cannot be atomically prevented by a prior read')
+        }
+      } finally { f.cleanup() }
+    })
+  }
+}
+
+for (const paused of [false, true]) {
+  test(`non-racing native Space keeps existing pause ownership (paused=${paused})`, async () => {
+    const f = homeSpaceFixture(), { world } = f
+    world.paused = paused
+    let presses = 0
+    const context = { window: { testStore: { getWorld: () => world } }, document: { querySelector: () => null } }
+    try {
+      assert.equal(await skipIntroductionWithSpace({
+        waitForFunction: async () => ({ jsonValue: async () => 'skip', dispose: async () => {} }),
+        evaluate: async (read, arg) => runInNewContext(`(${read.toString()})(${JSON.stringify(arg)})`, context),
+        keyboard: { press: async key => { assert.equal(key, 'Space'); presses++; f.keydown(false) } },
+      }), 'skip')
+      assert.equal(presses, 1)
+      assert.equal(world.inputMask, 0)
+      assert.equal(world.paused, paused)
+      assert.equal(f.changes, 0)
+    } finally { f.cleanup() }
+  })
+}

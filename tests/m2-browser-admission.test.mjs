@@ -148,7 +148,7 @@ test('ordinary null-mode pointer witnesses use processed tooltip cells, not plac
     new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
     'utf8'
   )
-  assert.match(source, /await skipIntroductionWithSpace\(page\)/)
+  assert.match(source, /await skipIntroductionWithSpace\(page, \{ timeout: 10000 \}\)/)
   assert.doesNotMatch(source, /getByRole\([^\n]*Skip introduction|skip-introduction/)
 })
 
@@ -250,7 +250,7 @@ test('compact witness has no invented advisory and still pauses before observing
     new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8'
   )
   assert.doesNotMatch(source, /desktopNotice|Continue anyway|desktop-only-notice/)
-  assert.ok(source.indexOf('await skipIntroductionWithSpace(page)') < source.indexOf("name: 'Pause game'"))
+  assert.ok(source.indexOf('await skipIntroductionWithSpace(page, { timeout: 10000 })') < source.indexOf("name: 'Pause game'"))
   assert.ok(source.indexOf("name: 'Pause game'") < source.indexOf('report.before = await observe()'))
   assert.match(source, /await page\.setViewportSize\(\{ width: 640, height: 480 \}\)/)
   assert.equal(m2FunctionalLimitMs, 45000)
