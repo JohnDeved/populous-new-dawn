@@ -47,13 +47,42 @@ function fixture({ initial = 'Opening logo', appears = 'Opening logo', clickErro
     page: {
       getByRole(role, { name, exact }) {
         assert.equal(role, 'dialog')
-        assert.equal(exact, true)
+        if (!(name instanceof RegExp)) assert.equal(exact, true)
         return locator(['Main menu', 'Start game', 'Opening logo'].filter(
           value => name instanceof RegExp ? name.test(value) : name === value))
       },
     },
     reload() { visible = 'loading' },
   }
+}
+
+
+// The local-render harness must not stall before invoking any scenario. Execute
+// its actual navigation/readiness statements, not a parallel helper copy.
+{
+  const source = readFileSync(new URL('../scripts/local-render/harness.mjs', import.meta.url), 'utf8'),
+    from = source.indexOf("await page.goto(url, { waitUntil: 'domcontentloaded' })"),
+    to = source.indexOf('    if (lease) {', from)
+  assert.ok(from >= 0 && to > from, 'actual harness entry boundaries exist')
+  const drive = new (Object.getPrototypeOf(async function () {}).constructor)(
+    'page', 'url', 'waitForStartupMenu', source.slice(from, to))
+  for (const initial of ['Opening logo', 'Main menu', 'Start game']) {
+    test(`local harness observes public startup readiness (${initial})`, async () => {
+      const f = fixture({ initial: 'loading', appears: initial })
+      f.page.goto = async () => { f.events.push(['navigation']) }
+      await drive(f.page, 'http://fixture.invalid', waitForStartupMenu)
+      assert.equal(f.events[0][0], 'navigation')
+      assert.deepEqual(f.events.at(-1), ['wait', ['Main menu', 'Start game']])
+      assert.equal(f.events.filter(e => e[0] === 'click').length, initial === 'Opening logo' ? 1 : 0)
+    })
+  }
+  test('local harness propagates failed public Skip instead of entering the scenario', async () => {
+    const failure = Object.assign(new Error('Skip inaccessible'), { name: 'TimeoutError' }),
+      f = fixture({ clickError: failure })
+    f.page.goto = async () => {}
+    await assert.rejects(drive(f.page, 'http://fixture.invalid', waitForStartupMenu), error => error === failure)
+    assert.equal(f.events.filter(e => e[0] === 'click').length, 1)
+  })
 }
 
 // Each fresh camera page must pass the newly merged public logo before reading

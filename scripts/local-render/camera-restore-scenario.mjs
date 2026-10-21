@@ -64,12 +64,14 @@ async function readCameraCheckpoint(page) {
   })
 }
 
-export default async function scenario({ page, context, url, output, openMission, signal }) {
+export default async function scenario({ page, context, url, output, openMission, signal, receipt }) {
   const report = {
     kind: 'camera-restore-four-targeted-cases', timeoutMs: 480000,
     viewport: { width: 1440, height: 1000 }, cases: [], captures: [], checks: [],
     limitations: ['Software renderer; no performance claim',
-      'Fresh isolated nonpersistent browser context; IDB continuity is across fresh pages in this context',
+      receipt?.profile
+        ? 'Owned game-only profile; IDB continuity is tested across fresh pages, not browser restarts'
+        : 'Fresh isolated nonpersistent browser context; IDB continuity is across fresh pages in this context',
       'GameScene RAF held after ordinary overview settles; real Home/store/Scene and renderer unchanged',
       'Controlled store snapshots are separate from ordinary UI Save/Load; menus intentionally clear input',
       'Only transient Scene.previous is reset to null between controlled steps; no camera/checkpoint field assignment'],
