@@ -868,6 +868,7 @@
         "app/scene.ts",
         "app/scene-picking.ts",
         "app/render-view.ts",
+        "app/result-session.ts",
         "app/scene-camera-runtime.ts",
         "app/scene-terrain-runtime.ts",
         "app/runtime-terrain-picking.ts",
