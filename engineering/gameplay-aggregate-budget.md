@@ -13,7 +13,7 @@ The current frame plan itself requires 2000 ms natural warmup + five 1600 ms mea
 
 Exact candidate `dbb9cd8ce16706f03991652d08ac96802627adef`, Tutorial run `39678644125`, gameplay job `119495014982`, demonstrates a concrete aggregate-only failure: frames and melee passed. Corpse death through committed save completed at 64648.7 ms, below its 75000 ms cap. The exact committed corpse was loaded, reframed and resumed, but the shared browser closed at about 78146 ms into the corpse episode while its 25000 ms second phase still had approximately 11502 ms remaining. The retained failure is not a corpse phase timeout or a completed corpse acceptance. Frame completion was approximately 48.3 s after its page time origin; melee occupied approximately 51 s of observed actions. The corpse ordinary-combat phase itself took 41.29 s. No genuine combat duration, simulation speed, target or measured window may be shortened to conceal this.
 
-Evidence is retained in this directory's verified gameplay ZIP manifest and selective `gameplay/gameplay-frames.json`, `gameplay/melee-attack.json`, `gameplay/follower-corpse.json`. The earlier 180-second run remains failed regardless of adopting any proposal.
+Evidence belongs to run `39678644125`, job `119495014982`, artifact `12383146402` (ZIP SHA-256 `6f75094d1d32f10189442243a46a52e7c7247ca85c55952c8af09758b61951a7`). The verified manifest and selectively extracted `gameplay-frames.json`, `melee-attack.json`, and `follower-corpse.json` are retained in the review workspace evidence bundle `pr717-hosted-dbb9cd8c-20261021/gameplay/`, not committed under `engineering/`. The earlier 180-second run remains failed regardless of adopting any proposal.
 
 ## Explicit bounded migration
 
