@@ -300,7 +300,7 @@ export function installMeleeFrameObserver(originalMapping) {
                 width: width / scaleX, height: height / scaleY }
               const owner = document.elementFromPoint(rect.left + bounds.x + bounds.width / 2,
                 rect.top + bounds.y + bounds.height / 2)
-              const overlays = [...document.querySelectorAll('.native-hud,.paused-badge,.campaign-messages summary,.campaign-messages details[open]>div,.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
+              const overlays = [...document.querySelectorAll('.native-hud,.paused-badge,.campaign-messages summary,.campaign-messages details[open] [data-native-campaign-panel],.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
                 .filter(element => { const style = getComputedStyle(element)
                   return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0 })
                 .map(element => { const r = element.getBoundingClientRect()

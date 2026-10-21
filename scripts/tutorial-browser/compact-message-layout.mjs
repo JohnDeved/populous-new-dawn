@@ -105,7 +105,8 @@ export function compactMessageWitness() {
   const text = node => {
     const bounds = rect(node),
       style = getComputedStyle(node),
-      fragments = textRuns(node).flatMap(run => run.fragments)
+      glyphs = [...node.querySelectorAll('[data-popup-glyph]')],
+      fragments = glyphs.length ? glyphs.map(rect) : textRuns(node).flatMap(run => run.fragments)
     return {
       ...bounds,
       text: node.textContent,
@@ -123,7 +124,7 @@ export function compactMessageWitness() {
     scale: getComputedStyle(document.querySelector('.game-shell')).getPropertyValue('--hud-scale'),
     viewport: [innerWidth, innerHeight],
     worldMessages: [...document.querySelectorAll('.world-message')].filter(visible).map(text),
-    campaignText: [...document.querySelectorAll('.campaign-messages details[open]>div p')]
+    campaignText: [...document.querySelectorAll('.campaign-messages details[open] [data-campaign-text]')]
       .filter(visible)
       .map(text),
     diagnosticRows: [...document.querySelectorAll('.fps-graph dl>div')].filter(visible).map(text),

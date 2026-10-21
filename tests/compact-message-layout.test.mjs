@@ -96,7 +96,7 @@ test('serialized diagnostic layout excludes only explicitly collapsed picking ro
   const close = node(box(380, 245, 405, 265))
   const campaign = {
     ...node(good.layout.campaignPanels[0]),
-    querySelector: selector => selector === 'p' ? { textContent: 'Authored campaign text' } : close,
+    querySelector: selector => selector === '[data-campaign-text]' ? { getAttribute: () => 'Authored campaign text' } : close,
   }
   const overlay = {
     ...node(good.layout),
@@ -118,7 +118,7 @@ test('serialized diagnostic layout excludes only explicitly collapsed picking ro
     document: {
       documentElement: { scrollWidth: 900 },
       querySelector: selector => selector === 'button.paused-badge' ? pause : null,
-      querySelectorAll: selector => selector === '.campaign-messages details[open]>div' ? [campaign] : [],
+      querySelectorAll: selector => selector === '.campaign-messages details[open] [data-native-campaign-panel]' ? [campaign] : [],
       elementFromPoint: (x, y) => [pause, exportButton, close].find(({ bounds: r }) =>
         x >= r.left && x <= r.right && y >= r.top && y <= r.bottom),
     },
@@ -323,7 +323,7 @@ test('compact coexistence changes placement and whitespace only within diagnosti
   assert.match(page, /<div className="game-status">/)
   const bounded = css.slice(
     css.indexOf('/* At the bounded 640x480'),
-    css.indexOf('.primary-button,.secondary-button')
+    css.indexOf('/* Browser diagnostics are exempt')
   )
   assert.match(bounded, /min-width:640px/)
   assert.match(bounded, /min-height:480px/)
@@ -336,6 +336,15 @@ test('compact coexistence changes placement and whitespace only within diagnosti
     bounded,
     /font-size|line-height|overflow:hidden|display:none|visibility:hidden|scale\(/
   )
+  const popup = css.slice(css.indexOf('/* Browser diagnostics are exempt'), css.indexOf('.primary-button,.secondary-button'))
+  assert.match(popup, /@media \(min-width:560px\) and \(max-height:700px\)/)
+  assert.match(popup, /font-size:11px;line-height:1\.2/)
+  assert.match(popup, /@media \(min-width:900px\) and \(max-height:500px\)/)
+  assert.match(popup, /grid-template-columns:2\.35fr 2\.15fr/)
+  assert.doesNotMatch(popup, /overflow:hidden|display:none|visibility:hidden|scale\(/)
+  for (const rule of popup.split('\n').filter(line => line.includes('{') && !line.startsWith('@')))
+    assert.ok(rule.includes('.game-shell:has(.campaign-messages details[open])'), 'F8 adaptation is conditional on an open native popup')
+
 })
 
 test('separate compact hosted scenario retains old bounds and existing groups', () => {
