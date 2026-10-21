@@ -43,6 +43,20 @@ export function spellTestDiagnosticSnapshot() {
   }
 }
 
+// The F9 modal suspends the world. Observe every exact spell control in one
+// bounded DOM poll instead of one browser round trip per immutable menu row.
+export function spellTestControlsReady(names) {
+  const menus = [...document.querySelectorAll('dialog[data-spell-test-menu][open]')]
+  if (menus.length !== 1 || !names.length || new Set(names).size !== names.length) return false
+  const buttons = [...menus[0].querySelectorAll('button')]
+  const controls = names.map(name => {
+    const matches = buttons.filter(button => button.getAttribute('aria-label') === name)
+    return { name, count: matches.length, enabled: matches.length === 1 &&
+      !matches[0].matches(':disabled') && !matches[0].closest('[aria-disabled="true"]') }
+  })
+  return controls.every(control => control.count === 1 && control.enabled) ? controls : false
+}
+
 // Retain the latest read-only state while the page is alive. One in-flight read
 // at most; stopping never waits for a blocked page or delays the existing cap.
 export function startSpellTestDiagnostics(page, report) {
@@ -190,7 +204,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     report.unpausedHoldAndResume = true
 
     // Reuse this authored Scene before any testing grant. No extra context,
-    // injected spell, driven clock, or increase to this episode's 55s bound.
+    // injected spell, driven clock, or increase to this episode's 75s bound.
     diagnostics.stage('ordinary casting witness')
     report.ordinaryCasting = await beginOrdinaryCastingWitness(page)
 
@@ -201,8 +215,13 @@ export default async function spellTestMenu({ browser, url, output }) {
     assert.equal(unlocked.cheatsUsed, true)
     for (const spell of SPELLS) {
       assert.ok(unlocked.shots[spell.id] >= rules.spellCharging[spell.model].normalLimit)
-      assert.equal(await button(`Test ${spell.name}, ${unlocked.shots[spell.id]} shots`).isEnabled(), true)
     }
+    const spellControls = await page.waitForFunction(spellTestControlsReady,
+      SPELLS.map(spell => `Test ${spell.name}, ${unlocked.shots[spell.id]} shots`),
+      { timeout: Math.min(12000, assertSpellTestDeadline(report, started)) })
+    try { report.unlockedControls = await spellControls.jsonValue() }
+    finally { await spellControls.dispose() }
+    assert.deepEqual(await snapshot(), unlocked, 'Read-only spell control observations preserve the suspended world')
     await button('Refill mana').click()
     assert.ok((await snapshot()).manaTribes[0].available >= 1_000_000)
     await page.screenshot({ path: resolve(output, 'f9-cheats-desktop.png') })
@@ -263,8 +282,9 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Load Game').click()
     await button('Load checkpoint').click()
     await waitReady('checkpoint load')
-    assert.equal((await snapshot()).cheatsUsed, false)
-    assert.equal((await snapshot()).shots.teleport, 0)
+    const loaded = await snapshot()
+    assert.equal(loaded.cheatsUsed, false)
+    assert.equal(loaded.shots.teleport, 0)
     diagnostics.stage('grant and restart')
     await page.keyboard.press('F9')
     await menu.waitFor()
@@ -274,8 +294,9 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Restart Level').click()
     await button('Yes').click()
     await waitReady('restart')
-    assert.equal((await snapshot()).cheatsUsed, false)
-    assert.equal((await snapshot()).shots.teleport, 0)
+    const restarted = await snapshot()
+    assert.equal(restarted.cheatsUsed, false)
+    assert.equal(restarted.shots.teleport, 0)
     report.savePreservedAndLoadRestartReset = true
     assert.deepEqual(report.errors, [])
     diagnostics.stage('completed')

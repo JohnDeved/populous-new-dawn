@@ -5,8 +5,39 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import vm from 'node:vm'
 import spellTestMenu, { spellTestDiagnosticSnapshot, startSpellTestDiagnostics, spellTestLimitMs,
-  assertSpellTestDeadline, closeSpellTestContext } from '../scripts/tutorial-browser/spell-test-menu.mjs'
+  assertSpellTestDeadline, closeSpellTestContext, spellTestControlsReady } from '../scripts/tutorial-browser/spell-test-menu.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
+import { SPELLS } from '../app/world-rules.ts'
+
+test('batched F9 observation retains every exact spell and rejects missing, duplicate or disabled controls', () => {
+  const names = SPELLS.map(spell => `Test ${spell.name}, 4 shots`)
+  const read = rows => vm.runInNewContext(`(${spellTestControlsReady})(names)`, {
+    names, document: { querySelectorAll: selector => {
+      assert.equal(selector, 'dialog[data-spell-test-menu][open]')
+      return [{ querySelectorAll: selector => {
+        assert.equal(selector, 'button')
+        return rows.map(row => ({
+          getAttribute: name => { assert.equal(name, 'aria-label'); return row.name },
+          matches: selector => { assert.equal(selector, ':disabled'); return !!row.disabled },
+          closest: selector => { assert.equal(selector, '[aria-disabled="true"]'); return row.ariaDisabled ? {} : null },
+        }))
+      } }]
+    } },
+  })
+  const rows = names.map(name => ({ name })), before = structuredClone(rows)
+  assert.deepEqual(JSON.parse(JSON.stringify(read(rows))), names.map(name => ({ name, count: 1, enabled: true })))
+  assert.deepEqual(rows, before, 'Observation does not mutate controls')
+  for (const index of [0, Math.floor(rows.length / 2), rows.length - 1]) {
+    assert.equal(read(rows.filter((_, i) => i !== index)), false)
+    assert.equal(read([...rows, rows[index]]), false)
+    for (const field of ['disabled', 'ariaDisabled']) {
+      const changed = structuredClone(rows); changed[index][field] = true
+      assert.equal(read(changed), false)
+    }
+    const stale = structuredClone(rows); stale[index].name = stale[index].name.replace('4 shots', '3 shots')
+    assert.equal(read(stale), false, 'A different stock label is not the expected exact control')
+  }
+})
 
 test('F9 diagnostics read current readiness and modal state without mutating the game', () => {
   const world = { turn: 4, inputMask: 192, paused: false, flyby: { flags: 16 }, status: 'playing' },
