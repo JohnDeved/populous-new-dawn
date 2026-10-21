@@ -10,6 +10,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { traceProfileInput } from '../tutorial-browser/profile-input-trace.mjs'
 
 // Named local-render scenario. All seeded records are explicit browser-storage
 // fixtures; public startup/Save/Load assertions are recorded separately.
@@ -169,7 +170,7 @@ export default async function ({ browser, context: initialContext, page: initial
       browserVersion: receipt.browserVersion, browserSha256: digest(receipt.browserPath ?? receipt.launch.executablePath),
       launch: receipt.launch, playwright: require('@playwright/test/package.json').version,
       installedLockSha256: digest(resolve(root, 'node_modules/.package-lock.json')),
-      helpers: Object.fromEntries(['scripts/tutorial-browser/profile-readiness.mjs', 'scripts/campaign-start-readiness.mjs', 'scripts/local-render/harness.mjs', 'scripts/local-render/vite.config.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/browser-game.mjs', 'scripts/browser-world-input.mjs', 'scripts/browser-introduction.mjs', 'scripts/local-render/original-pause-checkpoint-recovery.mjs', 'scripts/checkpoint-readback.mjs'].map(file => [file, digest(resolve(root, file))])),
+      helpers: Object.fromEntries(['scripts/tutorial-browser/profile-readiness.mjs', 'scripts/tutorial-browser/profile-input-trace.mjs', 'scripts/campaign-start-readiness.mjs', 'scripts/local-render/harness.mjs', 'scripts/local-render/vite.config.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/browser-game.mjs', 'scripts/browser-world-input.mjs', 'scripts/browser-introduction.mjs', 'scripts/local-render/original-pause-checkpoint-recovery.mjs', 'scripts/checkpoint-readback.mjs'].map(file => [file, digest(resolve(root, file))])),
   })
   const report = {
     status: 'running',
@@ -221,7 +222,11 @@ export default async function ({ browser, context: initialContext, page: initial
     const startup = await page.waitForFunction(pauseStartupReady)
     const action = await startup.jsonValue()
     await startup.dispose()
-    if (action === 'skip') await skipPauseIntroduction(page)
+    if (action === 'skip') {
+      if (!report.inputActionTrace)
+        await traceProfileInput(page.context(), report, output, () => skipPauseIntroduction(page))
+      else await skipPauseIntroduction(page)
+    }
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await setWorldPaused(page, true, { timeout: 2500 })
     assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true)
