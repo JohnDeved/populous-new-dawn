@@ -1444,20 +1444,6 @@ export default function Home() {
           >
             {sound ? '♪' : '♫'}
           </button>
-          <button
-            aria-label={world.paused ? 'Resume game' : 'Pause game'}
-            title="Pause / resume · Space"
-            onClick={() =>
-              store.change(w => {
-                w.paused = !w.paused
-              })
-            }
-          >
-            {world.paused ? '▷' : 'Ⅱ'}
-          </button>
-          <button aria-label="Game settings" title="Game settings" onClick={openMenu}>
-            ☰
-          </button>
         </div>
       </aside>
       {startup === 'choice' && !startupLogoDone && <StartupLogo onComplete={finishStartupLogo} />}

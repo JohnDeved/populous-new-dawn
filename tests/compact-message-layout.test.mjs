@@ -277,7 +277,7 @@ test('compact preferences use public controls with genuine text geometry and F8-
     'utf8'
   )
   for (const control of [
-    'Game settings',
+    'Menu',
     'Options',
     'Browser compatibility and help',
     'HUD size',

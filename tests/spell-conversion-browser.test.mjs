@@ -490,7 +490,7 @@ test('armed observer rejects an unobserved first turn and later pause without ov
   })
 })
 
-test('public armed resume uses only the native HUD and never toggles an already running world', async t => {
+test('public armed resume uses only native Space and never toggles an already running world', async t => {
   for (const paused of [true, false]) {
     await t.test(`paused=${paused}`, async t => {
       const scene = startupScene(), world = scene.world, actions = [], report = {}
@@ -502,15 +502,15 @@ test('public armed resume uses only the native HUD and never toggles an already 
         } } })
       const page = {
         evaluate: async fn => fn(),
-        getByRole(role, options) {
-          assert.equal(role, 'button'); assert.deepEqual(options, { name: 'Resume game', exact: true })
-          return { click: async () => { assert.equal(world.paused, true); actions.push('resume'); world.paused = false } }
+        locator(selector) {
+          assert.equal(selector, '.world-viewport')
+          return { press: async key => { assert.equal(key, 'Space'); assert.equal(world.paused, true); actions.push('resume'); world.paused = false } }
         },
         waitForFunction: async fn => { assert.equal(fn(), true); actions.push('running') },
       }
       await resumeArmedConversion(page, report)
       assert.deepEqual(actions, paused ? ['resume', 'running'] : ['running'])
-      assert.deepEqual(report.resume.actions, paused ? ['visible-resume-game'] : [])
+      assert.deepEqual(report.resume.actions, paused ? ['native-space-resume'] : [])
       assert.equal(report.resume.before.paused, paused)
       assert.equal(report.resume.after.paused, false)
       assert.equal(world.turn, 0, 'helper does not drive simulation')
@@ -528,7 +528,7 @@ test('public armed resume cannot treat rejected or ineffective input as a runnin
       const failure = Error('Resume rejected')
       await assert.rejects(resumeArmedConversion({
         evaluate: async fn => fn(),
-        getByRole: () => ({ click: async () => { calls.push('resume'); if (mode === 'rejected') throw failure } }),
+        locator: () => ({ press: async key => { assert.equal(key, 'Space'); calls.push('resume'); if (mode === 'rejected') throw failure } }),
         waitForFunction: async fn => { calls.push('wait'); assert.equal(fn(), false); throw Error('Still paused') },
       }, report), mode === 'rejected' ? error => error === failure : /Still paused/)
       assert.deepEqual(calls, mode === 'rejected' ? ['resume'] : ['resume', 'wait'])

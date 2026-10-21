@@ -23,7 +23,7 @@ export default async function({page,browser,url,root,output,receipt}) {
   const w=window.testStore.getWorld()
   return {level:w.outcome.level,turn:w.turn,time:w.time,units:w.units.map(u=>[u.id,u.kind,u.team,u.hp,u.x,u.z]),shots:structuredClone(w.shots)}
  })
- await button('Game settings').click()
+ await button('Menu').click()
  const saved=await snapshot();await button('Save Game').click();await button('Save checkpoint').click()
  const committed=await waitForCheckpointReadback(()=>page.evaluate(async expected=>{
   const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('populous-new-dawn',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})
@@ -48,7 +48,7 @@ export default async function({page,browser,url,root,output,receipt}) {
  await button('Load Game').click()
  assert.deepEqual(await page.evaluate(()=>window.loadedMenuBoundary),saved,'ordinary Load restores the committed world before simulation resumes')
  passed('fresh-page-exact-checkpoint-load-boundary')
- await bindGame(page);await button('Game settings').click()
+ await bindGame(page);await button('Menu').click()
  const pausedTurn=await page.evaluate(()=>window.testStore.getWorld().turn)
  await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>window.testStore.getWorld().turn),pausedTurn)
  await button('Options').click();await button('Select Level').click();await button('Back').click()

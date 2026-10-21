@@ -58,7 +58,7 @@ Local typechecking/full builds should not be repeated just to run this check.
 
 After the existing Tutorial groups, one Mission 1 scene checks live-world selector
 inspection. A fresh context follows New Game → recommendation No → Start Mission 1
-→ press Space to skip the introduction, then Game settings → Options → Browser compatibility and help
+→ press Space to skip the introduction, then Menu → Options → Browser compatibility and help
 → Select Level. Browser controls' Inspect campaign world selects Mission 2 without
 starting it. Both initially paused and initially running episodes exercise Back,
 Escape, Continue Game, and a second Escape from the returned pause menu.
@@ -524,7 +524,7 @@ episode or replace any existing job. The new episode has the same explicit
 restoration; the existing 120-second build, 180-second outer browser and 15-minute
 job caps remain unchanged. This is one additional hosted job, not free coverage.
 
-The public Game settings → Options → Browser compatibility and help → HUD size
+The public Menu → Options → Browser compatibility and help → HUD size
 control selects Automatic and 400%. Each preference covers 900×360 and 640×480
 with authored campaign and objective/status messages active. Receipts retain
 individual wrapped text-fragment bounds, scroll dimensions via fit checks,

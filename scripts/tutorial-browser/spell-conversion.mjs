@@ -45,8 +45,8 @@ export async function resumeArmedConversion(page, report) {
   report.phase = 'public-resume'
   report.resume = { before: await page.evaluate(readConversionStartup), actions: [] }
   if (report.resume.before.paused) {
-    await page.getByRole('button', { name: 'Resume game', exact: true }).click()
-    report.resume.actions.push('visible-resume-game')
+    await page.locator('.world-viewport').press('Space')
+    report.resume.actions.push('native-space-resume')
   }
   await page.waitForFunction(() => !window.testStore.getWorld().paused)
   report.resume.after = await page.evaluate(readConversionStartup)

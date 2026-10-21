@@ -275,7 +275,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     report.compactViewportReady = true
     stage('compact-admitted')
     await page.setViewportSize({ width: 1440, height: 1000 })
-    await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+    await page.locator('.world-viewport').press('Space')
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     const observe = () =>
       page.evaluate(() => {
@@ -474,7 +474,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
         report.campaignMessagesBefore, 'Public close/reopen retains the complete paused notification state')
       stage('f8-reset-matched')
       assertM2Input(report.before, report.after)
-      await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+      await page.locator('.world-viewport').press('Space')
       await page.waitForFunction(
         turn => window.testStore.getWorld().turn > turn,
         report.before.turn
@@ -482,7 +482,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       await page.waitForFunction(m2SamplesReady)
       report.resumed = await observe()
       stage('resumed')
-      await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+      await page.getByRole('button', { name: 'Menu', exact: true }).click()
       await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
       await page.waitForFunction(() =>
         document.querySelector('.fps-graph [data-metric="state"]')?.textContent.startsWith('Menu')

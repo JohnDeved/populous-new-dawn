@@ -13,7 +13,7 @@ export async function beginOrdinaryCastingWitness(page) {
   // Let the ordinary clock finish reincarnation. finishStart enters idle
   // approach (17), which settles into resting state 19. State 10 here still
   // owns opening command18; it is not the authored idle caster.
-  await button('Resume game').click()
+  await page.locator('.world-viewport').press('Space')
   await page.waitForFunction(() => {
     const w = window.testStore.getWorld(), u = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
       p = u?.native, order = p && w.buildingOrders.records[p.immediateCommand || p.commands[p.commandCursor]]
@@ -21,7 +21,7 @@ export async function beginOrdinaryCastingWitness(page) {
       !w.castingTribes[0].cooldown && u?.hp > 0 && !u.flight && !u.lift && p?.state === 19 &&
       !p.vehicle && !(p.flags2 & 0x100000) && !(p.flags4 & 128) && order?.model !== 18
   })
-  await button('Pause game').click()
+  await page.locator('.world-viewport').press('Space')
   await button('Select and focus shaman').click()
   await page.waitForFunction(() => {
     const s = window.testSceneRef.current, u = s.world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
@@ -33,7 +33,7 @@ export async function beginOrdinaryCastingWitness(page) {
   await page.getByTitle('spells', { exact: true }).click()
   await page.getByRole('button', { name: /^Blast, [1-9][0-9]* shots$/ }).click()
   assert.equal(await page.evaluate(() => window.testStore.getWorld().mode), 'blast')
-  await button('Resume game').click()
+  await page.locator('.world-viewport').press('Space')
   const target = await page.evaluate(() => {
     const s = window.testSceneRef.current, u = s.world.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
       point = { x: u.x + 5, z: u.z + 5 }, projected = s.screen(point, Math.max(0, s.y(point))),
@@ -48,7 +48,7 @@ export async function beginOrdinaryCastingWitness(page) {
   }, target)
   await page.mouse.click(target.x, target.y)
   await waitForCastingWitness(page, 'ordinary')
-  await button('Pause game').click()
+  await page.locator('.world-viewport').press('Space')
   return { target, before }
 }
 

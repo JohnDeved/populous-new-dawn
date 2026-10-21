@@ -57,7 +57,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
       // Real menu interruption followed by public Escape and world-pointer recovery.
       // This setup is outside measured windows, never passed off as live gameplay.
       if (phase.name === 'menu-recovery') {
-        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+        await page.getByRole('button', { name: 'Menu', exact: true }).click()
         await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
         report.menuBefore = await observe()
         assert.equal(report.menuBefore.paused, true)

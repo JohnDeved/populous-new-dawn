@@ -139,9 +139,9 @@ test('current checkpoint supplies a truly trained Spy but never seeds disguise o
   const { currentPersonOrder } = await import('../app/person-orders.ts')
   api.select(world, 'spy')
   const actions = [], page = {
-    getByRole(role, { name, exact }) {
-      assert.equal(role, 'button'); assert.equal(name, 'Resume game'); assert.equal(exact, true)
-      return { click: async () => { world.paused = false; actions.push('resume') } }
+    locator(selector) {
+      assert.equal(selector, '.world-viewport')
+      return { press: async key => { assert.equal(key, 'Space'); world.paused = false; actions.push('resume') } }
     },
     waitForFunction: async () => { assert.equal(world.paused, false); actions.push('running') },
   }, action = async (_name, run) => run()

@@ -74,7 +74,7 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
         await bindGame(page)
         await skipIntroductionWithSpace(page, { timeout: 10000 })
         await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-        await button('Pause game').click()
+        await page.locator('.world-viewport').press('Space')
         report.preparationStart = await page.evaluate(() =>
           window.__pndHypnotiseFixture.hypnotisePreparationState(window.testSceneRef.current.world)
         )
@@ -105,7 +105,7 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
         report.checkpoint = await page.evaluate(() => window.__hypnotiseLoaded)
         validateHypnotiseLoad(saved, report.checkpoint)
         await bindGame(page)
-        await button('Pause game').click()
+        await page.locator('.world-viewport').press('Space')
         report.reframed = await page.evaluate(() => {
           const w = window.testStore.getWorld(),
             scene = window.testSceneRef.current
@@ -134,7 +134,7 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
             throw Error('Actual cast point is covered by UI')
           return { x, y }
         })
-        await button('Resume game').click()
+        await page.locator('.world-viewport').press('Space')
         await page.evaluate(installHypnotiseObserver, { observationMs: hypnotiseObservationMs })
         await page.mouse.click(target.x, target.y)
         await page.waitForFunction(() => window.__pndHypnotiseObservation.result.done, null, {

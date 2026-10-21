@@ -27,7 +27,7 @@ export default async function ({ page, output }) {
     const old = await page.evaluate(observeRouteNotice)
     record({ stage: 'old-publication', oldCommand, old }); assertRouteVisible(old, 71)
     await page.evaluate(() => { window.staleRouteNoticeFixture = window.routeNoticeFixture })
-    await button('Game settings').click(); await button('Restart Level').click(); await button('Yes').click()
+    await button('Menu').click(); await button('Restart Level').click(); await button('Yes').click()
     await page.waitForFunction(() => window.testStore.getWorld() !== window.staleRouteNoticeFixture.world)
     await enterRouteLevel(page); await page.evaluate(captureRouteClock)
     const newCommand = await issueRouteAnchorCommand(page)

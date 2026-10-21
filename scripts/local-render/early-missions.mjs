@@ -168,25 +168,25 @@ export default async function ({
         await page.waitForFunction(() => !window.testScene.world.selected.length)
         return { selected: selected.selected, after: (await snap(page)).selected }
       })
-      await check('Space and pause-button hold/resume', async () => {
+      await check('Space hold/resume', async () => {
         await page.keyboard.press('Space')
-        await page.getByRole('button', { name: 'Resume game', exact: true }).waitFor()
+        await page.getByRole('status', { name: 'Paused', exact: true }).waitFor()
         const paused = await snap(page)
         await page.waitForTimeout(1200)
         assert.equal((await snap(page)).turn, paused.turn)
-        await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+        await page.locator('.world-viewport').press('Space')
         await page.waitForFunction(t => window.testScene.world.turn > t, paused.turn)
-        await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+        await page.locator('.world-viewport').press('Space')
         const second = await snap(page)
         await page.waitForTimeout(1000)
         assert.equal((await snap(page)).turn, second.turn)
-        await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+        await page.locator('.world-viewport').press('Space')
         await page.waitForFunction(t => window.testScene.world.turn > t, second.turn)
         return { pausedTurn: paused.turn, secondPausedTurn: second.turn, resumed: await snap(page) }
       })
       await check('Settings, objective visibility and level-selector interruption', async () => {
-        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-        const menu = page.locator('dialog.game-dialog')
+        await page.getByRole('button', { name: 'Menu', exact: true }).click()
+        const menu = page.locator('dialog[data-original-pause-menu]')
         await menu.waitFor({ state: 'visible' })
         await menu.locator('summary').filter({ hasText: 'Objectives' }).click()
         const objectives = await menu.locator('.menu-objectives').innerText()
@@ -212,10 +212,11 @@ export default async function ({
         return { objectives, before, after: await snap(page) }
       })
       await check('Checkpoint survives a fresh page reload', async () => {
-        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-        const menu = page.locator('dialog.game-dialog')
+        await page.getByRole('button', { name: 'Menu', exact: true }).click()
+        const menu = page.locator('dialog[data-original-pause-menu]')
         await menu.waitFor({ state: 'visible' })
         const saved = await snap(page)
+        await menu.getByRole('button', { name: 'Save Game', exact: true }).click()
         await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
         // Await the normal asynchronous save by reading its committed IDB record.
         await waitForSavedCheckpoint(page, saved.turn, signal)
@@ -269,12 +270,12 @@ export default async function ({
           saved.blue.map(u => [u.id, u.kind])
         )
         assert.equal(restored.contextLost, false)
-        await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+        await page.locator('.world-viewport').press('Space')
         const paused = await snap(page)
         await page.waitForTimeout(700)
         assert.equal((await snap(page)).turn, paused.turn)
         await page.screenshot({ path: resolve(output, `mission-${level}-restored-paused.png`) })
-        await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+        await page.locator('.world-viewport').press('Space')
         await page.waitForFunction(t => window.testScene.world.turn > t, paused.turn)
         return { saved, loaded, restored, resumed: await snap(page) }
       })

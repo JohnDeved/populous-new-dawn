@@ -126,7 +126,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
         )
       )
     })
-    await button('Pause game').click()
+    await page.locator('.world-viewport').press('Space')
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     report.setup = await page.evaluate(() => {
       const scene = window.testSceneRef.current

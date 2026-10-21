@@ -77,7 +77,7 @@ export async function checkPauseHeldEscape(page, output) {
       await page.keyboard.up('Escape')
       await page.evaluate(() => window.removeHeldEscapeObservers())
     }
-    await button('Game settings').click()
+    await button('Menu').click()
     await modal.waitFor()
   }
   return records
