@@ -34,7 +34,7 @@ const declaration = name => optionsSource.statements.find(
     item => item.name.getText(optionsSource) === name
   )
 ).getText(optionsSource)
-const readRows = new Function('useMemo', 'gamePreferences', 'category', 'browser', 'masterText', 'musicText', 'categories', 'ingame',
+const readRows = new Function('useMemo', 'gamePreferences', 'category', 'browser', 'masterText', 'musicText', 'categories', 'ingame', 'skin',
   ts.transpileModule([
     ...['unavailableRows', 'browserFallback', 'browserTitle'].map(declaration),
     optionsSource.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'noticeLines').getText(optionsSource),
@@ -44,7 +44,7 @@ const readRows = new Function('useMemo', 'gamePreferences', 'category', 'browser
   }).outputText
 )
 const optionRows = (preferences, category = 'Game', browser = false) =>
-  readRows(make => make(), preferences, category, browser, 'Master volume : <35%>', 'Music volume : <65%>', ['Game', 'Sound', 'Graphics'], ingame)
+  readRows(make => make(), preferences, category, browser, 'Master volume : <35%>', 'Music volume : <65%>', ['Game', 'Sound', 'Graphics'], ingame, 'frontend')
 test('Options uses separate source-hashed original slider banks with unclipped thumb dimensions',()=>{
  assert.equal(artwork.inputs['data/fenew/feslider.spr'],'99dd18f3d07b7e8b36977b60f1543fe089972523c5f364db7fe19d85dc5667c8')
  assert.equal(artwork.inputs['data/fenew/igmslidr.spr'],'ab91567305e23bdbe9923cd8b9ea49956a562fd06dcf549513f27db1220d63da')
@@ -181,6 +181,7 @@ test('browser help opens at its heading, not its trailing Back button, on every 
     const heading = help.nodes.find(node => 'data-browser-help-heading' in node.props)
     assert.equal(heading.type, 'h2')
     assert.equal(heading.props.tabIndex, -1, 'entry focus does not add a heading to the Tab order')
+    assert.equal(heading.props.style.top, skin === 'frontend' ? 139 : 79, 'frontend header clears the original logo at y10..111')
     assert.equal(heading.props['aria-label'], 'Browser compatibility and help')
     assert.match(heading.children[0].props.className, /text/)
     const entry = help.effects.find(effect => effect.dependencies.length === 1 && effect.dependencies[0] === true)

@@ -14,10 +14,10 @@
 .storage { top: 338px; }
 .compatibility { position: absolute; inset: 0; }
 .compatibility h2 { margin: 0; }
-.compatibility .choice:disabled { cursor: inherit; }
+.compatibility .choice:disabled { opacity: .5; cursor: inherit; }
 .browserNotices { position: absolute; left: 0; top: 309px; width: 640px; }
 .browserNotices p, .browserFallback { margin: 0; }
-.browserFallback { position: absolute; top: 139px; width: 640px; }
+.browserFallback { position: absolute; width: 640px; }
 .noticeLine { position: relative; display: block; height: 30px; }
 .options[data-skin='frontend'] { --slider-track: url('/original/options/frontend-0.png'); --slider-thumb: url('/original/options/frontend-1.png'); --slider-selected: url('/original/options/frontend-2.png'); }
 .options[data-skin='ingame'] { --slider-track: url('/original/options/ingame-0.png'); --slider-thumb: url('/original/options/ingame-1.png'); --slider-selected: url('/original/options/ingame-2.png'); }

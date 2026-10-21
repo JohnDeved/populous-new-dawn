@@ -1,3 +1,4 @@
+import { changeHudSize } from './browser-native-options.mjs'
 import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
@@ -690,9 +691,7 @@ export default async function followerTransports({ browser, page, url, openMissi
   for (const viewport of [{ width: 1280, height: 720 }, { width: 1920, height: 1080 }, { width: 3440, height: 1440 }]) {
     await page.setViewportSize(viewport)
     for (const size of ['auto', '1', '2', '4']) {
-      await page.getByRole('button', { name: 'Menu', exact: true }).click()
-      await page.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption(size)
-      await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+      await changeHudSize(page, size)
       const layout = await transportLayout(page)
       assertTransportLayout(layout, viewport)
       result.layouts.push({ viewport, size, ...layout })

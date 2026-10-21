@@ -138,3 +138,41 @@ hosted helper adds actual Enter/Escape and row-geometry witnesses but is not loc
 rendered evidence until executed. Gameplay, settings values and storage semantics
 are unchanged. The independent tooltip startup-readiness patch is composed by the
 parent, not duplicated in this change.
+
+## October 21, 2026: retained browser controls use the original Options artwork
+
+The remaining Browser compatibility destination no longer draws a generic dark
+panel, browser-font heading, styled buttons or HUD-size picker. Its title, actions,
+HUD-size cycle, notices and Back reuse the existing Options glyph atlases and
+transparent choice treatment. The browser-only destination remains explicitly named;
+these control meanings and positions are compatibility adaptations, not recovered
+native settings. No imported artwork or source manifests were changed.
+
+All seven existing HUD-size values cycle in the same order, using the existing
+session-first/storage-second callback. The ordinary button retains Tab and
+Enter/Space activation, a stable identity and a current-value accessible name.
+Game speed still toggles 1x/2x, including exit from an already-fast session. Audio
+still calls the original activation handler directly from a trusted click; pending
+activation disables and dims its row, and existing failure/retry and storage
+notices remain complete. Actual screen-reader text accompanies the native glyphs.
+The two longest supported notices fit above Back without a scrollbox. Select Level,
+F8 and cheats, fullscreen and modal keyboard owners are not removed or redefined.
+
+The frontend fallback header starts below the retained original logo and publishes
+its actual glyph rows to indexed shadows. Back/Escape return focus to the same
+Game entry; entry focus stays at the header. Asset-failure fallback remains usable.
+
+Browser fixtures now use public row clicks instead of selectOption. A shared helper
+waits for each displayed HUD-size transition, and the six stale direct-menu consumers
+enter and leave every native Options level. Existing geometry, storage and world-state
+assertions remain. Other Menu/Space and nested audio-route repairs belong to the
+separate duplicate-controls branch; compose that dependency before rendered QA.
+
+Source/interaction coverage passes 67 focused tests, including all 49 HUD preference
+transitions, disabled/retry and session-only paths, 30-pixel row/glyph bounds,
+frontend logo clearance, nested Escape cleanup, and retained slider/art ownership.
+This is not rendered evidence. Full check/build, real browser keyboard/audio/display
+coverage and final combined integration remain required; they were not run under
+the coordinated resource restriction. The sparse planner cannot resolve its omitted
+app/neutral-cursor.ts input. This work remains a draft, not a native-parity or
+merge-readiness claim.

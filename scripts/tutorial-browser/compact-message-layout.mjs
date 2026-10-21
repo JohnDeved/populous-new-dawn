@@ -1,3 +1,4 @@
+import { chooseHudSize } from '../browser-native-options.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { checkPickingPathReadout, pickingPathMetricIds } from './picking-path-readout.mjs'
@@ -223,9 +224,9 @@ async function selectHudPreference(page, preference) {
   await button('Game settings').click()
   await button('Options').click()
   await button('Browser compatibility and help').click()
-  const setting = page.getByRole('combobox', { name: 'HUD size', exact: true })
-  await setting.selectOption(preference)
-  assert.equal(await setting.inputValue(), preference)
+  const setting = page.getByRole('button', { name: /^HUD size : </ })
+  await chooseHudSize(page, preference)
+  assert.equal(await setting.getAttribute('data-hud-size'), preference)
   await button('Back to Options').click()
   await button('Back').click()
   await button('Continue Game').click()

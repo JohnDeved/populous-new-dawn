@@ -285,7 +285,8 @@ test('compact preferences use public controls with genuine text geometry and F8-
     'Continue Game',
   ])
     assert.ok(source.includes(control))
-  assert.match(source, /await setting\.selectOption\(preference\)/)
+  assert.match(source, /await chooseHudSize\(page, preference\)/)
+  assert.match(source, /setting\.getAttribute\('data-hud-size'\)/)
   assert.match(source, /range\.getClientRects\(\)/)
   assert.match(source, /style\.overflowX/)
   assert.match(source, /style\.overflowY/)

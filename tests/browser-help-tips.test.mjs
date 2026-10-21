@@ -137,6 +137,8 @@ test('audio activation is still a direct trusted click and pending/retry notices
   const statuses = ui.nodes().filter(node => node.props?.role === 'status')
   assert.deepEqual(statuses.map(node => node.props['aria-label']), [ui.context.audioStorageNotice, ui.context.audioStartNotice])
   for (const status of statuses) {
+    const announcement = tree(status).find(node => node.props?.className === 'game-a11y-status')
+    assert.equal(announcement.props.children, status.props['aria-label'], 'live status has actual accessible text, not glyphs alone')
     const lines = tree(status).filter(node => node.type?.name === 'Text')
     assert.equal(lines.map(node => node.props.text).join(' '), status.props['aria-label'])
     for (const line of lines) {
@@ -145,8 +147,12 @@ test('audio activation is still a direct trusted click and pending/retry notices
     }
   }
   ui.context.soundPending = true
+  ui.hooks[2] = 'audio'
   assert.equal(ui.button('♫ Enable sound').disabled, true)
   assert.equal(ui.button('♫ Enable sound')['aria-busy'], true)
+  assert.equal(ui.button('♫ Enable sound').children.props.state, 'normal', 'pending audio never uses selected/highlighted text')
+  const css = readFileSync(new URL('../app/original-options.module.css', import.meta.url), 'utf8')
+  assert.match(css, /\.compatibility \.choice:disabled \{ opacity: \.5;/)
   ui.context.soundPending = false
   ui.button('♫ Enable sound').onClick()
   assert.deepEqual(ui.calls, [['sound'], ['sound']])
@@ -217,6 +223,7 @@ test('startup fallback remains a native-font direction to the retained battlefie
   const ui = fixture({ frontend: true })
   const paragraph = ui.nodes().find(node => node.type === 'p')
   assert.equal(paragraph.props['aria-label'], 'HUD size, audio and game speed are available from the battlefield menu.')
+  assert.equal(tree(paragraph).find(node => node.props?.className === 'game-a11y-status').props.children, paragraph.props['aria-label'])
   const lines = tree(paragraph).filter(node => node.type?.name === 'Text')
   assert.equal(lines.map(node => node.props.text).join(' '), paragraph.props['aria-label'])
   assert.equal(ui.nodes().filter(node => node.type === 'button').length, 1)

@@ -179,14 +179,14 @@ export function OriginalOptions({
     () =>
       browser
         ? [
-            { text: browserTitle, x: 320, y: 79 },
+            { text: browserTitle, x: 320, y: skin === 'frontend' ? 139 : 79 },
             { text: 'Back', x: 320, y: 454 },
             ...(compatibility
               ? []
               : noticeLines(browserFallback).map((text, index) => ({
                   text,
                   x: 320,
-                  y: 139 + index * 30,
+                  y: (skin === 'frontend' ? 199 : 139) + index * 30,
                 }))),
           ]
         : [
@@ -205,7 +205,7 @@ export function OriginalOptions({
                 ]
               : []),
           ],
-    [browser, category, masterText, musicText, gameRows, compatibility]
+    [browser, category, masterText, musicText, gameRows, compatibility, skin]
   )
   useLayoutEffect(() => {
     onTextRowsChange?.(textReady ? rows : [])
@@ -276,10 +276,10 @@ export function OriginalOptions({
     setCategory(next)
     setHighlight(null)
   }
-  function label(text: string, low = false, id = text) {
+  function label(text: string, low = false, id = text, disabled = false) {
     let state: TextState = 'normal'
     if (low) state = 'low'
-    else if (highlight === id) state = 'highlight'
+    else if (!disabled && highlight === id) state = 'highlight'
     return <Text text={text} skin={skin} state={state} ready={textReady} />
   }
   function choice(
@@ -336,7 +336,7 @@ export function OriginalOptions({
         onBlur={() => setHighlight(null)}
         onClick={action}
       >
-        {label(text, !!options.disabled, id)}
+        {label(text, false, id, options.disabled)}
       </button>
     )
   }
@@ -354,7 +354,7 @@ export function OriginalOptions({
         <section className={styles.compatibility} aria-label={browserTitle}>
           <h2
             className={styles.soundLabel}
-            style={{ top: 79 }}
+            style={{ top: skin === 'frontend' ? 139 : 79 }}
             tabIndex={-1}
             data-browser-help-heading
             aria-label={browserTitle}
@@ -421,8 +421,9 @@ export function OriginalOptions({
                 <div className={styles.browserNotices}>
                   {[storageNotice, compatibility.audioStartNotice].filter(Boolean).map(notice => (
                     <p key={notice} role="status" aria-label={notice}>
+                      <span className="game-a11y-status">{notice}</span>
                       {noticeLines(notice).map((line, index) => (
-                        <span key={index} className={styles.noticeLine}>
+                        <span key={index} className={styles.noticeLine} aria-hidden="true">
                           {label(line)}
                         </span>
                       ))}
@@ -432,9 +433,14 @@ export function OriginalOptions({
               )}
             </>
           ) : (
-            <p className={styles.browserFallback} aria-label={browserFallback}>
+            <p
+              className={styles.browserFallback}
+              style={{ top: skin === 'frontend' ? 199 : 139 }}
+              aria-label={browserFallback}
+            >
+              <span className="game-a11y-status">{browserFallback}</span>
               {noticeLines(browserFallback).map((line, index) => (
-                <span key={index} className={styles.noticeLine}>
+                <span key={index} className={styles.noticeLine} aria-hidden="true">
                   {label(line)}
                 </span>
               ))}
