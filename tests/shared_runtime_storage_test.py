@@ -6,7 +6,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest import mock
 
 HELPER = Path(__file__).resolve().parents[1] / 'scripts/orchestration/shared_runtime.py'
 spec = importlib.util.spec_from_file_location('shared_runtime', HELPER)
@@ -49,6 +51,19 @@ class SharedRuntimeTests(unittest.TestCase):
 
     def asset_blob(self):
         return self.pool / 'blobs' / storage.digest(b'verified original game asset\x00\xff')
+
+    def allocation_plan(self):
+        state = storage.source_state(self.source, self.revision)
+        records = []
+        reader = storage.Blobs(self.source)
+        try:
+            for entry in state['entries']:
+                records.append({**entry, 'sha256': storage.digest(reader.read(entry))})
+        finally:
+            reader.close()
+        assets = [e for e in records if e['path'].startswith(storage.ASSETS + '/')]
+        return storage.allocation_budget(state, self.pool, self.runtime, 'build', records,
+                                         storage.asset_reuse(self.pool, assets), 1024 * 1024)
 
     def legacy_view(self):
         """Construct the retired v1 layout only inside an isolated test fixture."""
@@ -342,6 +357,146 @@ globalThis.sharedAssetResult = { runtime, provenance };
         with self.assertRaisesRegex(ValueError, 'capacity'):
             storage.prepare(self.source, self.revision, self.pool, self.runtime, 10**20)
         self.assertFalse(self.pool.exists())
+
+    def test_verified_warm_cas_only_discounts_content_not_metadata_or_reserve(self):
+        cold = self.allocation_plan()
+        result = self.prepare()
+        warm = self.allocation_plan()
+        self.assertEqual(cold['method'], 'verified-cas-new-allocation-v1')
+        self.assertEqual(cold['missingBlobCount'], 1)
+        self.assertEqual(cold['verifiedReusedBlobCount'], 0)
+        self.assertEqual(warm['missingBlobCount'], 0)
+        self.assertEqual(warm['verifiedReusedBlobCount'], 1)
+        self.assertEqual(warm['verifiedReusedContentBytes'], 30)
+        self.assertEqual(warm['allocations']['missingCasBytes'], 0)
+        self.assertEqual(cold['newAllocationEstimateBytes'] - warm['newAllocationEstimateBytes'],
+                         cold['allocations']['missingCasBytes'])
+        for name, value in cold['allocations'].items():
+            if name != 'missingCasBytes':
+                self.assertGreater(value, 0)
+                self.assertEqual(value, warm['allocations'][name])
+        self.assertEqual(cold['fullCopyEstimateBytes'], warm['fullCopyEstimateBytes'])
+        self.assertEqual(cold['reserveBytes'], warm['reserveBytes'])
+        self.assertEqual(result['budget']['newAllocationEstimateBytes'], cold['newAllocationEstimateBytes'])
+
+    def test_duplicate_asset_names_charge_one_missing_blob_and_each_hardlink(self):
+        original = self.source / 'public/original/sub/game.bin'
+        (original.parent / 'same-bytes.txt').write_bytes(original.read_bytes())
+        self.git('add', '.'); self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        plan = self.allocation_plan()
+        block = plan['allocationBlockBytes']
+        self.assertEqual(plan['missingBlobCount'], 1)
+        self.assertEqual(plan['allocations']['missingCasBytes'], 2 * block)
+        self.assertEqual(plan['allocations']['assetHardlinkMetadataBytes'], 2 * block)
+        self.prepare()
+        root = self.runtime / 'public/original/sub'
+        self.assertTrue((root / 'game.bin').samefile(root / 'same-bytes.txt'))
+        self.assertEqual(len(list((self.pool / 'blobs').iterdir())), 1)
+
+    def test_missing_cas_cannot_receive_a_reuse_discount(self):
+        plan = self.allocation_plan()
+        available = plan['newAllocationEstimateBytes'] + plan['reserveBytes'] - plan['allocations']['missingCasBytes']
+        fs = SimpleNamespace(f_frsize=4096, f_bavail=available // 4096)
+        with mock.patch.object(storage.os, 'statvfs', return_value=fs):
+            with self.assertRaisesRegex(ValueError, 'capacity'):
+                self.prepare()
+        self.assertFalse(self.pool.exists())
+        self.assertFalse(self.runtime.exists())
+
+    def test_capacity_boundary_and_locked_recheck_preserve_reserve(self):
+        plan = self.allocation_plan()
+        required = plan['newAllocationEstimateBytes'] + plan['reserveBytes']
+        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096)
+        short = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096 - 1)
+        with mock.patch.object(storage.os, 'statvfs', return_value=short):
+            with self.assertRaisesRegex(ValueError, 'capacity'):
+                self.prepare()
+        self.assertFalse(self.pool.exists())
+        with mock.patch.object(storage.os, 'statvfs', side_effect=[enough, short]):
+            with self.assertRaisesRegex(ValueError, 'after publication lock'):
+                self.prepare()
+        self.assertFalse(self.runtime.exists())
+        self.assertFalse((self.pool / '.writer-lock').exists())
+        self.assertFalse((self.pool / 'blobs').exists())
+        with mock.patch.object(storage.os, 'statvfs', return_value=enough):
+            result = self.prepare()
+        self.assertEqual(result['budget']['availableBytes'], required)
+        self.assertEqual(result['budget']['reserveBytes'], 1024 * 1024)
+
+    def test_post_prepare_reserve_shortfall_is_not_a_pass(self):
+        plan = self.allocation_plan()
+        required = plan['newAllocationEstimateBytes'] + plan['reserveBytes']
+        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096)
+        short = SimpleNamespace(f_frsize=4096, f_bavail=plan['reserveBytes'] // 4096 - 1)
+        with mock.patch.object(storage.os, 'statvfs', side_effect=[enough, enough, short]):
+            with self.assertRaisesRegex(ValueError, 'reserve was consumed'):
+                self.prepare()
+        self.assertTrue(self.runtime.exists())  # Preserve partial output, never erase it.
+        self.assertFalse((self.pool / '.writer-lock').exists())
+
+    def test_invalid_cas_is_rejected_before_creation_not_discounted_or_repaired(self):
+        original = self.source / 'public/original/sub/game.bin'
+        expected = original.read_bytes()
+        for kind in ('symlink', 'size', 'hash', 'executable'):
+            with self.subTest(kind=kind):
+                pool = self.root / ('bad-pool-' + kind)
+                blobs = pool / 'blobs'; blobs.mkdir(parents=True)
+                target = blobs / storage.digest(expected)
+                if kind == 'symlink':
+                    target.symlink_to(original)
+                else:
+                    target.write_bytes(b'x' if kind == 'size' else b'x' * len(expected) if kind == 'hash' else expected)
+                    if kind == 'executable':
+                        target.chmod(0o755)
+                before = (target.lstat(), target.read_bytes())
+                runtime = self.root / ('bad-runtime-' + kind)
+                with self.assertRaises(ValueError):
+                    storage.prepare(self.source, self.revision, pool, runtime, 1024 * 1024)
+                self.assertFalse(runtime.exists())
+                self.assertFalse((pool / storage.ASSET_TREES).exists())
+                after = target.lstat()
+                self.assertEqual((after.st_dev, after.st_ino, after.st_mode, target.read_bytes()),
+                                 (before[0].st_dev, before[0].st_ino, before[0].st_mode, before[1]))
+
+    def test_source_and_cas_races_after_planning_fail_before_materialization(self):
+        self.prepare()
+        original_mkdir = Path.mkdir
+        for kind in ('source', 'cas'):
+            with self.subTest(kind=kind):
+                target = self.source / 'app/main.js' if kind == 'source' else self.asset_blob()
+                prior = target.read_bytes()
+                def mkdir(path, *args, **kwargs):
+                    result = original_mkdir(path, *args, **kwargs)
+                    if path == self.pool / '.writer-lock':
+                        target.write_bytes(b'changed after preflight')
+                    return result
+                runtime = self.root / ('raced-runtime-' + kind)
+                with mock.patch.object(Path, 'mkdir', mkdir):
+                    with self.assertRaises(ValueError):
+                        self.prepare(runtime)
+                self.assertFalse(runtime.exists())
+                self.assertEqual(target.read_bytes(), b'changed after preflight')
+                self.assertFalse((self.pool / '.writer-lock').exists())
+                target.write_bytes(prior)
+
+    def test_same_bytes_cas_inode_swap_after_planning_is_refused(self):
+        self.prepare()
+        blob = self.asset_blob()
+        original_mkdir = Path.mkdir
+        def mkdir(path, *args, **kwargs):
+            result = original_mkdir(path, *args, **kwargs)
+            if path == self.pool / '.writer-lock':
+                data = blob.read_bytes()
+                blob.rename(self.pool / 'retained-original')
+                blob.write_bytes(data)
+            return result
+        runtime = self.root / 'swapped-runtime'
+        with mock.patch.object(Path, 'mkdir', mkdir):
+            with self.assertRaisesRegex(ValueError, 'CAS inventory changed'):
+                self.prepare(runtime)
+        self.assertFalse(runtime.exists())
+        self.assertTrue((self.pool / 'retained-original').is_file())
 
     def test_writer_lock_is_never_stolen(self):
         self.pool.mkdir(); (self.pool / '.writer-lock').mkdir()

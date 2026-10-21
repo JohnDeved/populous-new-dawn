@@ -40,10 +40,30 @@ The new runtime is not advertised as a clean Git checkout and cannot be committe
 ## Prepare and verify
 
 Use persistent disk, not `/tmp` when `/tmp` is tmpfs. Inspect actual destination
-capacity first. The helper requires a positive reserve and conservatively budgets
-all selected files as full copies, including existing CAS assets. Additional package
+capacity first. The helper requires a positive reserve and budgets verified new
+allocations, retaining the old full-copy estimate as a comparison. Additional package
 installation, cache metadata and build output must also fit the coordinated budget.
 Do not race another preparation or consume its reserved disk allowance.
+
+The versioned `verified-cas-new-allocation-v1` budget reads trusted Git objects and
+fully verifies reusable CAS size, Git object ID, SHA-256, regular-file type and
+non-executable mode. Existence, a matching filename or old receipt is not reuse
+proof. Bad existing blobs fail rather than receiving a discount or being repaired.
+Each unique missing content blob is charged once; private source files remain
+copies. Every asset hardlink, directory, runtime symlink and manifest is charged,
+even when a matching tree already exists. Allocation uses at least 4 KiB (or the
+larger filesystem fragment size), with an extra block per file inode/entry and a
+64 KiB manifest-sizing margin. These are conservative estimates, not quota or
+filesystem-capacity guarantees.
+
+The initial read-only plan must fit before any pool/runtime creation. After the
+exclusive publisher lock is acquired, the helper revalidates source state, parent
+filesystem identities, actual CAS contents/inodes/modes, allocation geometry and
+current available bytes before materializing source or CAS files. A changed source,
+CAS inventory or insufficient capacity fails closed. A post-prepare reserve check
+also fails rather than returning a pass if other allocation consumed the reserve;
+partial output is retained. Caller-supplied reserves, output budgets and runtime
+free-space/memory floors are not reduced by the reuse calculation.
 
 Example with explicitly chosen, fresh destinations:
 

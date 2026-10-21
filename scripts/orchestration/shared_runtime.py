@@ -198,6 +198,72 @@ def check_tree(pool, asset_tree, assets, version=2):
     return tree
 
 
+def asset_reuse(pool, assets):
+    """Authenticate reuse, not just existence; retain identities for locked recheck."""
+    physical(pool / 'blobs', absent=True)
+    reused = {}
+    for entry in assets:
+        sha = entry['sha256']
+        if sha in reused:
+            continue
+        path = pool / 'blobs' / sha
+        if not path.exists() and not path.is_symlink():
+            continue
+        before = path.lstat()
+        data = regular_bytes(path, entry)
+        require(digest(data) == sha, 'Existing CAS blob changed')
+        after = path.lstat()
+        identity = lambda info: (info.st_dev, info.st_ino, info.st_mode, info.st_size,
+                                 info.st_mtime_ns, info.st_ctime_ns, info.st_nlink)
+        require(identity(before) == identity(after), 'CAS identity changed while planning reuse')
+        require(not after.st_mode & 0o111, 'Existing CAS executable mode changed')
+        reused[sha] = identity(after)
+    return reused
+
+
+def runtime_manifest(state, pool, runtime, scope, records, budget):
+    manifest = {k: state[k] for k in ('source', 'revision', 'tree', 'assetTree')}
+    manifest.update({'version': 2, 'assetLayout': ASSET_LAYOUT,
+                     'kind': 'non-git-runtime-view', 'scope': scope,
+                     'pool': str(pool), 'runtime': str(runtime), 'entries': records,
+                     'budget': budget})
+    return manifest
+
+
+def allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes):
+    """Conservative new allocations; reserves are separate and never discounted."""
+    fs = os.statvfs(runtime.parent)
+    block = max(4096, fs.f_frsize)
+    rounded = lambda size: ((size + block - 1) // block) * block
+    ordinary = [e for e in records if not e['path'].startswith(ASSETS + '/')]
+    assets = [e for e in records if e['path'].startswith(ASSETS + '/')]
+    unique = {e['sha256']: e for e in assets}
+    missing = [e for sha, e in unique.items() if sha not in reused]
+    ordinary_paths = {e['path'] for e in ordinary} | {ASSETS}
+    asset_paths = {e['path'][len(ASSETS) + 1:] for e in assets}
+    # Allow a full allocation block per inode/directory/link, even on warm reuse.
+    # Six roots cover runtime, pool, blobs, versioned trees, asset tree and lock.
+    directories = len(parent_names(ordinary_paths)) + len(parent_names(asset_paths)) + 6
+    # Bound the final manifest, including its budget, without a recursive size model.
+    manifest_bound = len(encoded(runtime_manifest(state, pool, runtime, scope, records, {}))) + 65536
+    allocations = {
+        'privateSourceBytes': sum(rounded(e['bytes']) + block for e in ordinary),
+        'missingCasBytes': sum(rounded(e['bytes']) + block for e in missing),
+        'assetHardlinkMetadataBytes': len(assets) * block,
+        'directoryMetadataBytes': directories * block,
+        'runtimeSymlinkBytes': block,
+        'manifestBytes': rounded(manifest_bound) + block,
+    }
+    return {'version': 2, 'method': 'verified-cas-new-allocation-v1',
+            'availableBytes': fs.f_bavail * fs.f_frsize,
+            'fullCopyEstimateBytes': sum(((e['bytes'] + 4095) // 4096 + 1) * 4096 for e in records),
+            'newAllocationEstimateBytes': sum(allocations.values()), 'allocations': allocations,
+            'verifiedReusedBlobCount': len(reused),
+            'verifiedReusedContentBytes': sum(unique[sha]['bytes'] for sha in reused),
+            'missingBlobCount': len(missing), 'allocationBlockBytes': block,
+            'reserveBytes': reserve_bytes, 'measuredAt': time.time()}
+
+
 def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
     state = source_state(source, revision)
     source = Path(state['source'])
@@ -212,37 +278,56 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
     entries = [e for e in state['entries'] if selected(e, scope)]
     require(all(e['mode'] == '100644' for e in entries if e['path'].startswith(ASSETS + '/')),
             'Shared asset layout requires non-executable data files')
-    # Budget conservatively counts every asset, even if CAS reuse will save it.
-    copy_bytes = sum(((e['bytes'] + 4095) // 4096 + 1) * 4096 for e in entries)
     target_parent = runtime.parent
     physical(target_parent)
     physical(pool.parent)
     require(os.stat(target_parent).st_dev == os.stat(pool.parent).st_dev, 'Pool and runtime need the same filesystem')
-    fs = os.statvfs(target_parent)
-    available = fs.f_bavail * fs.f_frsize
-    require(available >= copy_bytes + reserve_bytes,
-            f'Insufficient destination capacity: {available} < {copy_bytes} + {reserve_bytes}')
-    budget = {'availableBytes': available, 'fullCopyEstimateBytes': copy_bytes,
-              'reserveBytes': reserve_bytes, 'measuredAt': time.time()}
+    roots = {p: (p.stat().st_dev, p.stat().st_ino) for p in (target_parent, pool.parent)}
+    records = []
+    reader = Blobs(source)
+    try:
+        for entry in entries:
+            records.append({**entry, 'sha256': digest(reader.read(entry))})
+    finally:
+        reader.close()
+    assets = [e for e in records if e['path'].startswith(ASSETS + '/')]
+    reused = asset_reuse(pool, assets)
+    budget = allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes)
+    require(budget['availableBytes'] >= budget['newAllocationEstimateBytes'] + reserve_bytes,
+            'Insufficient destination capacity for new allocations and unchanged reserve')
     pool.mkdir(exist_ok=True)
     physical(pool)
     lock = pool / '.writer-lock'
     lock.mkdir()  # Fail closed on an active or abandoned publisher; never remove another lock.
     blobs = None
     try:
+        # The initial plan is not a reservation. Revalidate after acquiring the
+        # publisher lock, before creating the runtime or any CAS/content files.
+        require(source_state(source, revision) == state, 'Source changed during allocation planning')
+        for path, identity in roots.items():
+            physical(path)
+            require((path.stat().st_dev, path.stat().st_ino) == identity, 'Allocation filesystem root changed')
+        require(asset_reuse(pool, assets) == reused, 'CAS inventory changed during allocation planning')
+        locked_budget = allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes)
+        require(locked_budget['allocations'] == budget['allocations'] and
+                locked_budget['allocationBlockBytes'] == budget['allocationBlockBytes'],
+                'Allocation geometry changed during planning')
+        budget = locked_budget
+        require(budget['availableBytes'] >= budget['newAllocationEstimateBytes'] + reserve_bytes,
+                'Insufficient destination capacity after publication lock')
         (pool / 'blobs').mkdir(exist_ok=True)
         (pool / ASSET_TREES).mkdir(exist_ok=True)
         physical(pool / 'blobs'); physical(pool / ASSET_TREES)
         runtime.mkdir()
         blobs = Blobs(source)
         materialized = []
-        assets = []
+        prepared_assets = []
         for entry in entries:
             data = blobs.read(entry)
             record = {**entry, 'sha256': digest(data)}
             materialized.append(record)
             if entry['path'].startswith(ASSETS + '/'):
-                assets.append(record)
+                prepared_assets.append(record)
                 blob = pool / 'blobs' / record['sha256']
                 if blob.exists() or blob.is_symlink():
                     require(digest(regular_bytes(blob, record)) == record['sha256'], 'Existing CAS blob changed')
@@ -261,21 +346,21 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
         tree = pool / ASSET_TREES / state['assetTree']
         if not tree.exists() and not tree.is_symlink():
             tree.mkdir()
-            for entry in assets:
+            for entry in prepared_assets:
                 target = tree / entry['path'][len(ASSETS) + 1:]
                 target.parent.mkdir(parents=True, exist_ok=True)
                 # Never chmod/copy shared content or change an existing v1 tree.
                 os.link(pool / 'blobs' / entry['sha256'], target, follow_symlinks=False)
-        check_tree(pool, state['assetTree'], assets)
+        check_tree(pool, state['assetTree'], prepared_assets)
         link = runtime / ASSETS
         link.parent.mkdir(parents=True, exist_ok=True)
         link.symlink_to(os.path.relpath(tree, link.parent), target_is_directory=True)
-        manifest = {k: state[k] for k in ('source', 'revision', 'tree', 'assetTree')}
-        manifest.update({'version': 2, 'assetLayout': ASSET_LAYOUT,
-                         'kind': 'non-git-runtime-view', 'scope': scope,
-                         'pool': str(pool), 'runtime': str(runtime), 'entries': materialized,
-                         'budget': budget})
-        (runtime / MANIFEST).write_bytes(encoded(manifest))
+        require(materialized == records, 'Materialized inputs differ from allocation plan')
+        manifest = encoded(runtime_manifest(state, pool, runtime, scope, materialized, budget))
+        require(len(manifest) <= budget['allocations']['manifestBytes'], 'Runtime manifest exceeds allocation bound')
+        (runtime / MANIFEST).write_bytes(manifest)
+        fs = os.statvfs(runtime)
+        require(fs.f_bavail * fs.f_frsize >= reserve_bytes, 'Post-prepare reserve was consumed')
         return verify(source, revision, pool, runtime)
     finally:
         if blobs:
