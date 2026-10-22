@@ -148,9 +148,10 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
    compact screens reserve its 44px gutter across the entire scroll range. */
 @media(max-width:680px){.loading-world[data-loading-phase=failed]{padding-left:44px}}
 .loading-world[data-loading-phase=failed] .loading-original-art{position:relative;left:auto;top:auto}
-/* Browser recovery uses original frontend menu glyphs and unframed rows, not a
-   claimed native failure dialog. Responsive wrapping/scrolling is browser-only. */
-.loading-recovery{--loading-recovery-font:url('/original/frontend/feft33we.png');width:min(100%,576px);flex:none;color:#fff1bb;font:22px/30px Georgia,serif}
+/* Browser recovery uses original gold label glyphs against the black clear, with
+   pale interactive highlights and unframed rows, not a claimed native failure
+   dialog. Responsive wrapping/scrolling is browser-only. */
+.loading-recovery{--loading-recovery-font:url('/original/frontend/felo33we.png');width:min(100%,576px);flex:none;color:#fff1bb;font:22px/30px Georgia,serif}
 .loading-recovery h2{font:inherit;margin:0 0 12px}
 .loading-recovery details{margin:14px 0;min-width:0}
 .loading-recovery summary{cursor:pointer;width:fit-content;max-width:100%;margin:auto;list-style:none}

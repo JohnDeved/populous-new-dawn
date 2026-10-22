@@ -222,14 +222,30 @@ test('pending splash geometry and markup are byte-identical to the reviewed load
   assert.equal(sha256(pending), '908a386250b9269b64fc489776c36c0b728dd9d6577a6baa7954eab03734374c')
 })
 
-test('recovery labels use original frontend advances and pixel-identical normal/highlight atlas layouts', () => {
+test('every recovery glyph uses gold metrics; only the consumed interactive glyphs share highlight rectangles', () => {
   const Text = load(require('react'), 'RecoveryText')
-  assert.deepEqual(frontend.banks.feft33we.rects, frontend.banks.fehi33we.rects)
-  for (const [text, width] of [['Loading failed', 199], ['Technical details', 242], ['Try again', 134], ['Browser recovery', 257]]) {
+  const labels = [
+    ['Loading failed', 199],
+    ['The battlefield did not finish loading. Try again to retry the same request.', 1087],
+    ['Technical details', 242], ['Try again', 134], ['Browser recovery', 257],
+  ]
+  const renderedLabels = inspectState().render('failed').filter(node => node.props?.text).map(node => node.props.text)
+  assert.deepEqual(renderedLabels, labels.map(([text]) => text), 'cover every actual recovery label, including wrapped prose')
+  for (const [text, width] of labels) {
     const nodes = tree(Text({text, ready: true}))
     const glyphs = nodes.filter(node => node.type === 'i')
     assert.equal(glyphs.length, text.length)
     assert.equal(glyphs.reduce((sum, node) => sum + node.props.style.width, 0), width)
+    for (const [index, letter] of [...text].entries()) {
+      const gold = frontend.banks.felo33we.rects[letter.codePointAt(0) - 32]
+      const highlight = frontend.banks.fehi33we.rects[letter.codePointAt(0) - 32]
+      assert.deepEqual(glyphs[index].props.style, {width: gold.w, height: gold.h, backgroundPosition: `-${gold.x}px -${gold.y}px`})
+      assert.deepEqual([gold.x, gold.y, gold.w], [highlight.x, highlight.y, highlight.w], `atlas position/advance: ${letter}`)
+      // Gold f is one pixel taller. It occurs only in noninteractive prose, which
+      // never switches banks; using dark/highlight metrics would clip its artwork.
+      assert.equal(gold.h - highlight.h, letter === 'f' ? 1 : 0, `actual glyph height: ${letter}`)
+      if (['Technical details', 'Try again'].includes(text)) assert.deepEqual(gold, highlight)
+    }
     const label = nodes.find(node => node.props?.children === text)
     assert.equal(label.props.className, 'loading-text-hidden')
     assert.equal(nodes.find(node => node.props?.className === 'loading-recovery-text').props['aria-hidden'], 'true')
@@ -270,18 +286,22 @@ test('recovery font loading is failed-phase-only, failure-safe and unmount-safe'
     const harness = inspectState()
     harness.render('failed')
     harness.effects[2]()
-    assert.deepEqual(requests, ['/original/frontend/feft33we.png', '/original/frontend/fehi33we.png'])
+    assert.deepEqual(requests, ['/original/frontend/felo33we.png', '/original/frontend/fehi33we.png'])
     const ready = () => harness.render('failed').find(node => node.props?.text === 'Try again').props.ready
     assert.equal(ready(), false)
     pending.splice(0).forEach(({resolve}) => resolve())
     await settle()
     assert.equal(ready(), true)
 
-    const failed = inspectState()
-    failed.render('failed'); failed.effects[2]()
-    pending.splice(0).forEach(({reject}) => reject(Error('missing font')))
-    await settle()
-    assert.equal(failed.render('failed').find(node => node.props?.text === 'Try again').props.ready, false)
+    for (const missing of [0, 1]) {
+      const failed = inspectState()
+      failed.render('failed'); failed.effects[2]()
+      pending.splice(0).forEach(({resolve, reject}, index) => index === missing ? reject(Error('missing font')) : resolve())
+      await settle()
+      assert.ok(failed.render('failed').filter(node => node.props?.text).every(node => !node.props.ready),
+        'either missing consumed font leaves every recovery label readable, including hover/focus')
+    }
+    assert.ok(requests.every(path => !path.includes('feft33we')), 'unused dark bank cannot block recovery readiness')
 
     const unmounted = inspectState()
     unmounted.render('failed'); const cleanup = unmounted.effects[2](); cleanup()
@@ -299,6 +319,13 @@ test('browser recovery keeps scrollable native rows and unrestricted escaped dia
   assert.match(css, /\.loading-world\[data-loading-phase=failed\]\{[^}]*justify-content:safe center[^}]*overflow:auto/)
   assert.match(css, /\.loading-recovery button\{[^}]*min-height:30px[^}]*border:0[^}]*background:transparent/)
   assert.match(css, /\.loading-recovery \.loading-recovery-error\{[^}]*white-space:pre-wrap[^}]*overflow-wrap:anywhere/)
-  assert.match(css, /fehi33we\.png/)
+  assert.match(css, /\.loading-recovery\{--loading-recovery-font:url\('\/original\/frontend\/felo33we\.png'\)/)
+  assert.match(css, /\.loading-recovery :is\(button,summary\):is\(:hover,:focus-visible\)\{--loading-recovery-font:url\('\/original\/frontend\/fehi33we\.png'\)\}/)
+  assert.match(css, /\.loading-recovery :is\(button,summary\):focus-visible\{outline:1px solid #fff1bb;outline-offset:1px\}/)
+  assert.match(css, /\.loading-recovery-word i\{display:block;flex:none;background-image:var\(--loading-recovery-font\);background-repeat:no-repeat\}/)
+  for (const [, selectors, declarations] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (/loading-recovery/.test(selectors)) assert.doesNotMatch(declarations, /(?:^|;)\s*(?:filter|opacity|mix-blend-mode)\s*:/,
+      'original recovery artwork must not be recolored or dimmed')
+  }
   assert.ok(!/\.loading-recovery(?: h2)?\{[^}]*Arial/.test(css))
 })

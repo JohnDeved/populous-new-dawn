@@ -16,10 +16,10 @@ interface Props {
   onRetry: () => void
 }
 
-// Recovery is browser-only. Reuse original frontend glyphs at their intrinsic
-// advances, but never feed arbitrary diagnostic text into an atlas lookup.
+// Recovery is browser-only. Use the original gold label bank on the black clear,
+// at its own glyph dimensions; arbitrary diagnostic text stays outside the atlas.
 function RecoveryText({ text, ready }: { text: string; ready: boolean }) {
-  const bank = frontend.banks.feft33we
+  const bank = frontend.banks.felo33we
   const supported = [...text].every(letter => bank.rects[letter.codePointAt(0)! - 32])
   const bitmap = ready && supported
   return (
@@ -79,7 +79,7 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
     if (phase !== 'failed') return
     let active = true
     void Promise.all(
-      ['feft33we', 'fehi33we'].map(async name => {
+      ['felo33we', 'fehi33we'].map(async name => {
         const image = new Image()
         image.src = `/original/frontend/${name}.png`
         await image.decode()
