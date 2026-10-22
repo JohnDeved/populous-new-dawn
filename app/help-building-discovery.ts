@@ -35,7 +35,7 @@ export type HelpBuildingKnowledge =
  * resource/placement checks and disabled HUD controls cannot fill that gap. */
 export function readHelpBuildingKnowledge(
   world: HelpBuildingKnowledgeWorld,
-  model: number,
+  model: number
 ): HelpBuildingKnowledge {
   if (!Number.isInteger(model) || model < 0 || model > 31)
     throw new RangeError('Invalid native building knowledge bit')
