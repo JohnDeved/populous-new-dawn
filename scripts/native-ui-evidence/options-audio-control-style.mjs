@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
-import { candidateModule, ordinaryMission, saveMissionInputTrace } from './ordinary-mission.mjs'
+import { candidateModule, ordinaryMission } from './ordinary-mission.mjs'
 import { openAudioOptions, closeAudioOptions, audioOptionsControl, observeOptionsAudio, createAudioOptionsBudget, waitForAudioObservation } from '../browser-options-audio.mjs'
 
 // Hold/reject the real AudioContext.resume boundary only. Recovery calls the
@@ -199,11 +199,22 @@ export function assertPreparedSoundPopup(retainedAfter, afterMenu, openSerials) 
   assert.deepEqual(openSerials, retainedAfter.filter(popup => popup.open).map(popup => popup.serial),
     'The Options baseline must contain exactly the prepared open popup serials')
 }
+// Local to this episode: a failed evidence write must not replace a falsy
+// primary rejection. The outer receipt retains the separate write-error array.
+export function saveSoundTrace(save, failed, primaryError, report) {
+  try { save() }
+  catch (error) {
+    (report.traceWriteErrors ??= []).push({ error: String(error), primaryFailure: failed })
+    if (!failed) throw error
+    try { primaryError.traceWriteError = String(error) } catch {}
+  }
+}
 export default async function ({ browser, url, root, output, receipt, signal, deadlineAt }) {
-  const report = { status: 'running', samples: [], checks: [], inputBudgets: [], popupPreparations: [], browserOwners: [] }
+  const report = { status: 'running', samples: [], checks: [], inputBudgets: [], popupPreparations: [], browserOwners: [], traceWriteErrors: [] }
   receipt.missionInputBudgets = report.inputBudgets
+  receipt.optionsAudioTraceWriteErrors = report.traceWriteErrors
   const save = () => writeFileSync(resolve(output, 'options-audio.json'), JSON.stringify(report, null, 2) + '\n')
-  let episodeError
+  let episodeError, episodeFailed = false
   try {
     assert.ok(Number.isFinite(deadlineAt), 'Audio observations require the live episode deadline')
     const budget = createAudioOptionsBudget({ signal, deadlineAt, cleanupErrors: report.optionsNavigationCleanup = [] })
@@ -220,17 +231,17 @@ export default async function ({ browser, url, root, output, receipt, signal, de
         const page = await step(() => context.newPage())
         await step(() => page.goto(url, { waitUntil: 'domcontentloaded' }))
         const trace = { fallback }; report.inputBudgets.push(trace)
-        let inputError
+        let inputError, inputFailed = false
         try { await step(() => ordinaryMission(page, root, { signal, deadlineAt, trace })) }
-        catch (error) { inputError = error; throw error }
-        finally { saveMissionInputTrace(save, inputError) }
+        catch (error) { inputFailed = true; inputError = error; throw error }
+        finally { saveSoundTrace(save, inputFailed, inputError, report) }
         const popupTrace = { fallback }; report.popupPreparations.push(popupTrace)
-        let popupError, popupInput
+        let popupError, popupInput, popupFailed = false
         try {
           popupInput = await step(() => candidateModule(root, 'scripts/browser-world-input.mjs'))
           await prepareSoundPopup(page, popupInput, { signal, deadlineAt, trace: popupTrace })
-        } catch (error) { popupError = error; throw error }
-        finally { saveMissionInputTrace(save, popupError) }
+        } catch (error) { popupFailed = true; popupError = error; throw error }
+        finally { saveSoundTrace(save, popupFailed, popupError, report) }
         const owners = async (phase, menu) => {
           const observed = await step(() => page.evaluate(browserControlOwners))
           report.browserOwners.push({ fallback, phase, observed }); save()
@@ -301,7 +312,7 @@ export default async function ({ browser, url, root, output, receipt, signal, de
           report.checks.push({ fallback, phase, ownership: after }); save()
           assertSoundOwnership(before, after, options)
           try { await step(() => assertAudioWorldUnchanged(page, worldSnapshot, options.audioFailure)) }
-          catch (error) { report.worldMismatch = { phase, actual: error?.actual, expected: error?.expected }; save(); throw error }
+          catch (error) { report.worldMismatch = { phase, actual: error?.actual, expected: error?.expected }; saveSoundTrace(save, true, error, report); throw error }
           return after
         }
         await step(() => page.evaluate(holdAudioResume))
@@ -331,7 +342,10 @@ export default async function ({ browser, url, root, output, receipt, signal, de
         await worldSnapshot.dispose(); remaining(); await step(async () => { worldSnapshot = await page.evaluateHandle(() => JSON.stringify(window.testStore.getWorld())) })
         await step(() => page.evaluate(() => window.restoreSoundResume()))
         const retryKeyboard = { fallback, phase: 'retry-keyboard-reachability' }; report.checks.push(retryKeyboard)
-        try { await tabToAudioControl(page, control, { signal, deadlineAt, trace: retryKeyboard }) } finally { save() }
+        let retryError, retryFailed = false
+        try { await tabToAudioControl(page, control, { signal, deadlineAt, trace: retryKeyboard }) }
+        catch (error) { retryFailed = true; retryError = error; throw error }
+        finally { saveSoundTrace(save, retryFailed, retryError, report) }
         await step(() => page.keyboard.press('Enter'))
         await step(() => page.getByRole('button', { name: '♪ Sound on', exact: true }).waitFor({ timeout: remaining() }))
         await waitForAudioObservation(budget, () => page.waitForFunction(observeOptionsAudio, { enabled: true, paused: true, context: 'suspended' }, { timeout: remaining() }))
@@ -363,7 +377,10 @@ export default async function ({ browser, url, root, output, receipt, signal, de
         before = compact
         await step(() => page.mouse.move(0, 0)); await capture('on-compact', 'Sound on')
         const muteKeyboard = { fallback, phase: 'mute-keyboard-reachability' }; report.checks.push(muteKeyboard)
-        try { await tabToAudioControl(page, control, { signal, deadlineAt, trace: muteKeyboard }) } finally { save() }
+        let muteError, muteFailed = false
+        try { await tabToAudioControl(page, control, { signal, deadlineAt, trace: muteKeyboard }) }
+        catch (error) { muteFailed = true; muteError = error; throw error }
+        finally { saveSoundTrace(save, muteFailed, muteError, report) }
         await step(() => page.keyboard.press('Space'))
         assert.equal(await step(() => control.getAttribute('aria-label')), '♫ Enable sound')
         await preserved('native-Space-mute')
@@ -385,6 +402,6 @@ export default async function ({ browser, url, root, output, receipt, signal, de
     remaining()
     report.status = 'passed'; report.limits = ['Trusted browser activation and real AudioContext retry under menu pause, not acoustic measurement', 'Options browser adaptation and menu-only fullscreen, not an original native sound-toggle or fullscreen claim']
     return report
-  } catch (error) { episodeError = error; report.status = 'failed'; report.error = String(error); throw error }
-  finally { saveMissionInputTrace(save, episodeError) }
+  } catch (error) { episodeFailed = true; episodeError = error; report.status = 'failed'; report.error = String(error); throw error }
+  finally { saveSoundTrace(save, episodeFailed, episodeError, report) }
 }

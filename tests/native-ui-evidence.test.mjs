@@ -16,7 +16,7 @@ import { observeOptionsStorage, assertOptionsCopyClearance } from '../scripts/na
 import { failPreferenceWrites, optionsViewportReady } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
 import { createAudioOptionsBudget } from '../scripts/browser-options-audio.mjs'
 import { holdAudioResume, soundControlPending, soundOwnership, assertSoundOwnership,
-  pendingSoundPointerTarget, assertPendingSoundPointerTarget, prepareSoundPopup, closeSoundContext, finalizeSoundContext, assertPreparedSoundPopup, assertAudioWorldUnchanged, tabToAudioControl, assertBrowserControlOwners } from '../scripts/native-ui-evidence/options-audio-control-style.mjs'
+  pendingSoundPointerTarget, assertPendingSoundPointerTarget, prepareSoundPopup, closeSoundContext, finalizeSoundContext, saveSoundTrace, assertPreparedSoundPopup, assertAudioWorldUnchanged, tabToAudioControl, assertBrowserControlOwners } from '../scripts/native-ui-evidence/options-audio-control-style.mjs'
 import { ordinaryMission, assertMissionInputBudget, saveMissionInputTrace } from '../scripts/native-ui-evidence/ordinary-mission.mjs'
 import { runNativeUiEvidence } from '../scripts/native-ui-evidence/adapter.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from '../scripts/native-ui-evidence/files.mjs'
@@ -854,8 +854,13 @@ test('both mission-entry episodes preserve per-entry traces on throw without rep
   for (const name of ['options-storage-notice-style', 'options-audio-control-style']) {
     const source = read(`scripts/native-ui-evidence/${name}.mjs`)
     assert.match(source, /receipt\.missionInputBudgets = report\.inputBudgets/)
-    assert.match(source, /finally \{ saveMissionInputTrace\(save, inputError\) \}/)
-    assert.match(source, /finally \{ saveMissionInputTrace\(save, episodeError\) \}/)
+    if (name === 'options-audio-control-style') {
+      assert.match(source, /finally \{ saveSoundTrace\(save, inputFailed, inputError, report\) \}/)
+      assert.match(source, /finally \{ saveSoundTrace\(save, episodeFailed, episodeError, report\) \}/)
+    } else {
+      assert.match(source, /finally \{ saveMissionInputTrace\(save, inputError\) \}/)
+      assert.match(source, /finally \{ saveMissionInputTrace\(save, episodeError\) \}/)
+    }
     assert.doesNotMatch(source, /deadlineAt:\s*Date\.now/)
   }
 })
@@ -864,13 +869,14 @@ test('both mission-entry episodes preserve per-entry traces on throw without rep
 test('both actual mission-entry persistence paths retain input error identity and reject write-only failure', async () => {
   for (const name of ['options-storage-notice-style', 'options-audio-control-style']) {
     const source = read(`scripts/native-ui-evidence/${name}.mjs`)
-    const match = source.match(/let inputError\s+try \{ await ordinaryMission\(page, root, \{ signal, deadlineAt, trace \}\) \}\s+catch \(error\) \{ inputError = error; throw error \}\s+finally \{ saveMissionInputTrace\(save, inputError\) \}/)
+    const match = source.match(/let inputError[^\n]*\s+try \{[^\n]*ordinaryMission[^\n]*\}\s+catch \(error\) \{[^\n]+\}\s+finally \{ (?:saveMissionInputTrace|saveSoundTrace)\(save, [^\n]+\) \}/)
     assert.ok(match)
     for (const inputFails of [false, true]) for (const writeFails of [false, true]) {
       const inputError = Error('original Space uncertainty'), writeError = Error('trace write failed')
       let inputs = 0, writes = 0
       const run = vm.runInNewContext(`(async () => { ${match[0]} })`, {
-        page: {}, root: '', signal: {}, deadlineAt: 90000, trace: {}, saveMissionInputTrace,
+        page: {}, root: '', signal: {}, deadlineAt: 90000, trace: {}, saveMissionInputTrace, saveSoundTrace, report: {},
+        step: createAudioOptionsBudget({ timeout: 5000 }).step,
         ordinaryMission: async () => { inputs++; if (inputFails) throw inputError },
         save: () => { writes++; if (writeFails) throw writeError },
       })
@@ -879,6 +885,40 @@ test('both actual mission-entry persistence paths retain input error identity an
       assert.equal(inputs, 1); assert.equal(writes, 1)
       assert.equal(inputError.traceWriteError, inputFails && writeFails ? String(writeError) : undefined)
     }
+  }
+})
+
+
+test('actual audio trace-save paths preserve falsy primary failures and retain the failing write separately', async () => {
+  const source = read('scripts/native-ui-evidence/options-audio-control-style.mjs')
+  const input = source.match(/let inputError[^\n]*\s+try \{[^\n]*ordinaryMission[^\n]*\}\s+catch \(error\) \{[^\n]+\}\s+finally \{ saveSoundTrace\(save, [^\n]+\) \}/)
+  const popup = source.match(/let popupError[^\n]*[\s\S]+?finally \{ saveSoundTrace\(save, popupFailed, popupError, report\) \}/)
+  const terminal = source.match(/\} catch \(error\) \{ episodeFailed = true;[^\n]+\}\s+finally \{ saveSoundTrace\(save, episodeFailed, episodeError, report\) \}/)
+  assert.ok(input); assert.ok(popup); assert.ok(terminal)
+  assert.match(source, /receipt\.optionsAudioTraceWriteErrors = report\.traceWriteErrors/)
+  for (const reason of [null, undefined, false, 0, '']) for (const kind of ['input', 'popup', 'terminal']) {
+    const report = { traceWriteErrors: [] }, cleanup = new Error('trace write failed')
+    let writes = 0, inputs = 0
+    const actual = kind === 'input' ? input[0] : kind === 'popup' ? popup[0] :
+      `let episodeError, episodeFailed = false; try { await fail() ${terminal[0]}`
+    const fail = async () => { inputs++; throw reason }
+    const run = vm.runInNewContext(`(async () => { ${actual} })`, {
+      page: {}, root: '', signal: {}, deadlineAt: 90000, trace: {}, popupTrace: {}, report, saveSoundTrace,
+      step: createAudioOptionsBudget({ timeout: 5000 }).step,
+      ordinaryMission: fail, candidateModule: async () => ({}), prepareSoundPopup: fail, fail,
+      save: () => { writes++; throw cleanup },
+    })
+    await assert.rejects(run(), error => error === reason)
+    assert.equal(inputs, 1); assert.equal(writes, 1)
+    assert.deepEqual(report.traceWriteErrors, [{ error: String(cleanup), primaryFailure: true }])
+  }
+  for (const reason of [null, undefined, false, 0, '']) {
+    const report = {}
+    let threw = false, observed
+    try { saveSoundTrace(() => { throw reason }, false, undefined, report) }
+    catch (error) { threw = true; observed = error }
+    assert.equal(threw, true); assert.equal(observed, reason)
+    assert.deepEqual(report.traceWriteErrors, [{ error: String(reason), primaryFailure: false }])
   }
 })
 
@@ -987,7 +1027,7 @@ test('Options audio uses the public preparation and records the exact baseline b
   const source = read('scripts/native-ui-evidence/options-audio-control-style.mjs')
   assert.match(source, /candidateModule\(root, 'scripts\/browser-world-input\.mjs'\)/)
   assert.match(source, /await prepareSoundPopup\(page, popupInput, \{ signal, deadlineAt, trace: popupTrace \}\)/)
-  assert.match(source, /finally \{ saveMissionInputTrace\(save, popupError\) \}/)
+  assert.match(source, /finally \{ saveSoundTrace\(save, popupFailed, popupError, report\) \}/)
   assert.match(source, /let before = await step\(\(\) => page\.evaluate\(soundOwnership\)\)\s+report\.checks\.push\(\{ fallback, phase: 'baseline', ownership: before \}\); save\(\)\s+assert\.equal\(before\.currentWorld, true\)/)
   assert.match(source, /popupTrace\.afterMenu = await step\(\(\) => page\.evaluate\(popupInput\.campaignPopupSnapshot\)\); save\(\)\s+assertPreparedSoundPopup\(popupTrace\.retainedAfter, popupTrace\.afterMenu, before\.popups\)/)
 })
