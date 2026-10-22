@@ -101,6 +101,7 @@ test('Hypnotise rendered contract requires authored frames, callback timing, rea
     o => { o.crops[0].stamp++ },
     o => { o.crops[0].colors = 1 },
     o => { o.terminal.turn-- },
+    o => { o.terminal.turn++ },
     o => { o.terminal.meshPresent = true },
     o => { o.birth.cue = false },
   ]) {

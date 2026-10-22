@@ -80,6 +80,19 @@ test('Hypnotise turn observer sees the exact fifth visit between catch-up RAF fr
   assert.equal(f.frames.size, 0)
 })
 
+test('Hypnotise turn observer does not rewrite a later RAF terminal turn as exact expiry', t => {
+  const f = fixture(t)
+  f.start(); f.frame(); f.advance(16)
+  f.restored()
+  f.world.turn++ // A supplied next World turn before the next presentation callback.
+  f.clock.afterTurn()
+  f.frame()
+  assert.equal(f.observation().result.terminal.turn, 37)
+  assert.equal(f.observation().result.terminal.remaining, 0)
+  assert.equal(f.observation().result.terminal.turn - f.observation().result.bornTurn, 17)
+  // The unchanged rendered-oracle contract rejects this late terminal observation.
+})
+
 test('Hypnotise turn observer forwards original receiver, arguments and return exactly once', t => {
   const f = fixture(t), receiver = {}, args = [{}, Symbol('argument')]
   f.start()
