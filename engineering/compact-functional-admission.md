@@ -69,9 +69,9 @@ period. Pending cleanup is not verified cleanup. Persistence failure is recorded
 and fails admission; it cannot overwrite the original input error. Hypnotise's
 reported cap may remain below 75 seconds when its existing outer clipping applies.
 
-## Ordinary M2 read-only observation batching
+## Historical ordinary M2 read-only observation batching
 
-The ordinary M2 episode still has its original single 45-second bound. At
+The ordinary M2 episode retained its original single 45-second bound at
 `7e33f7d9`, Tutorial run 39694511098, it completed all four viewport layouts,
 both real frame exports and F8 reset, then expired during real popup preparation
 for the final resume at 45.000 seconds. This is an incomplete episode, not a
@@ -89,4 +89,7 @@ button/status geometry and button hit test together. The real hover/focus,
 keyboard or pointer activation, download and native-work assertions are unchanged.
 No viewport, scroll, export, popup restoration, resume or final menu assertion is
 removed, and no input, action timeout or episode budget is changed. Any elapsed
-time benefit requires new hosted evidence.
+time benefit requires new hosted evidence. The later explicitly authorized
+[ordinary M2 policy](ordinary-m2-functional-admission.md) adds separate setup
+admission after another retained 45-second failure at `1a6b838f`; it does not
+retroactively accept those failed episodes or alter compact/picking budgets.

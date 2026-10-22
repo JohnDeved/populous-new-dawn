@@ -132,6 +132,7 @@ export function createM2Admission({ deadlineAt, signal, onUpdate = () => {},
     cancel(totalTimer); cancel(phaseTimer); signal?.removeEventListener('abort', abort); disposed = true
   }
   const complete = result => {
+    try {
     check()
     assert.equal(report.phases.length, 2); assert.equal(report.phases[1].name, 'functional')
     assert.equal(result.status, 'passed'); assert.equal(result.contextClosed, true)
@@ -149,6 +150,7 @@ export function createM2Admission({ deadlineAt, signal, onUpdate = () => {},
     assert.ok(report.closes.every(r => r.status === 'closed'), 'Every owned resource must settle successfully')
     report.phases[1].status = 'passed'; report.phases[1].finishedMs = elapsed()
     report.status = 'passed'; report.finishedMs = elapsed(); publish(); check(); dispose()
+    } catch (error) { fail(error); publish(); throw failure }
   }
   const totalTimer = schedule(() => expire('total'), Math.max(0, allowance))
   armPhase('setup', budget.setupMs)

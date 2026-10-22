@@ -169,14 +169,15 @@ test('primary failure plus stalled first close still attempts all cleanup and de
   stalled.resolve(); f.admission.dispose()
 })
 
-test('runner and M2 wire only explicit compact admission, with cleanup inside both bounds', () => {
+test('runner and M2 keep explicit compact admission separate from ordinary M2, with bounded cleanup', () => {
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   const m2 = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
   assert.ok(runner.indexOf('createCompactAdmission({') < runner.indexOf('(gameplayBrowser ?? compactBrowser ?? browser).newContext'))
   assert.match(runner, /compactAdmission\.wait\([\s\S]*runCompactDiagnosticEpisodes\(\{\s*browser: compactBrowser/)
   assert.match(runner, /compactAdmission\.wait\([\s\S]*hypnotiseScenario/)
   assert.ok(runner.indexOf('await compactAdmission.cleanup(') < runner.indexOf('compactAdmission.complete()'))
-  assert.match(m2, /if \(!compactMessages\) timer = setTimeout/)
+  assert.match(m2, /if \(pickingPaths\) timer = setTimeout/)
+  assert.match(m2, /if \(options.compactMessages \|\| options.pickingPaths\) return runM2Episode\(options\)/)
   assert.ok(m2.indexOf('admission?.beginCompact()') < m2.indexOf('report.compactMessageLayout = await runEpisode'))
   assert.ok(m2.indexOf('report.before = await observe()') < m2.indexOf('admission.beginLayouts('))
   assert.ok(m2.indexOf('admission.beginLayouts(') < m2.indexOf('await checkCompactMessages('))

@@ -76,8 +76,10 @@ test('M2 has isolated selection and default append; legacy scenarios and bounds 
   assert.match(source, /loadBoundaryMatched = true/)
   assert.ok(
     source.indexOf('timer = setTimeout') < source.indexOf('await page.goto'),
-    '45-second bound includes admission'
+    'Independent picking retains its 45-second total admission bound'
   )
+  assert.match(source, /if \(pickingPaths\) timer = setTimeout/)
+  assert.match(source, /createM2Admission\(\{ deadlineAt: options.deadlineAt, signal: options.signal/)
   assert.match(source, /tx.oncomplete = resolve/)
   assert.doesNotMatch(source, /showAllMissions|\.tick\(|\.startMission\(|\.setWorld\(|--no-sandbox/)
 })
@@ -534,7 +536,7 @@ test('normal M2 establishes closed camera/pointer ownership and restores the sam
   assert.ok(loop.indexOf('await scrollCompactDiagnostics(') < layout)
   assert.match(loop, /pointerPopupState: 'closed', layoutPopupState: 'open', popupSerial/)
   assert.match(source, /Public close\/reopen retains the complete paused notification state/)
-  assert.equal(m2FunctionalLimitMs, 45000, 'The existing absolute episode budget is unchanged')
+  assert.equal(m2FunctionalLimitMs, 45000, 'Functional phase and separate picking cap remain45s; ordinary setup is explicitly separate')
 })
 
 
