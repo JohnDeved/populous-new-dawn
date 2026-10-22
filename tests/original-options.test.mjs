@@ -20,7 +20,7 @@ const optionsSource = ts.createSourceFile(
 const optionsFunction = optionsSource.statements.find(
   node => ts.isFunctionDeclaration(node) && node.name?.text === 'OriginalOptions'
 )
-const rowDeclarations = ['gameRows', 'activeStorageNotice', 'storageRows', 'rows'].map(name => {
+const rowDeclarations = ['browserLabel', 'gameRows', 'activeStorageNotice', 'storageRows', 'rows'].map(name => {
   const statement = optionsFunction.body.statements.find(
     node => ts.isVariableStatement(node) && node.declarationList.declarations.some(
       declaration => declaration.name.getText(optionsSource) === name
@@ -36,15 +36,15 @@ const declaration = name => optionsSource.statements.find(
 ).getText(optionsSource)
 const readRows = new Function('useMemo', 'gamePreferences', 'category', 'browser', 'masterText', 'musicText', 'categories', 'ingame', 'skin', 'gameStorageNotice', 'storageNotice',
   ts.transpileModule([
-    ...['unavailableRows', 'browserFallback', 'browserTitle'].map(declaration),
+    ...['unavailableRows', 'browserFallback', 'browserTitle', 'ingameStorageCopy'].map(declaration),
     optionsSource.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'noticeLines').getText(optionsSource),
     'const compatibility = undefined;', rowDeclarations, 'return rows;',
   ].join('\n'), {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None }
   }).outputText
 )
-const optionRows = (preferences, category = 'Game', browser = false, notices = {}) =>
-  readRows(make => make(), preferences, category, browser, 'Master volume : <35%>', 'Music volume : <65%>', ['Game', 'Sound', 'Graphics'], ingame, 'frontend', notices.gameStorageNotice ?? '', notices.storageNotice ?? '')
+const optionRows = (preferences, category = 'Game', browser = false, notices = {}, skin = 'frontend') =>
+  readRows(make => make(), preferences, category, browser, 'Master volume : <35%>', 'Music volume : <65%>', ['Game', 'Sound', 'Graphics'], ingame, skin, notices.gameStorageNotice ?? '', notices.storageNotice ?? '')
 test('Options uses separate source-hashed original slider banks with unclipped thumb dimensions',()=>{
  assert.equal(artwork.inputs['data/fenew/feslider.spr'],'99dd18f3d07b7e8b36977b60f1543fe089972523c5f364db7fe19d85dc5667c8')
  assert.equal(artwork.inputs['data/fenew/igmslidr.spr'],'ab91567305e23bdbe9923cd8b9ea49956a562fd06dcf549513f27db1220d63da')
@@ -145,7 +145,7 @@ const textFunction = optionsSource.statements.find(
 )
 const render = new Function('requestAnimationFrame', 'MenuTooltip', 'React', 'useEffect', 'useMemo', 'useRef', 'useState', 'frontend', 'ingame', 'styles', 'props',
   ts.transpileModule([
-    ...['categories', 'fontBanks', 'unavailableRows', 'hudSizes', 'browserFallback', 'browserTitle'].map(declaration),
+    ...['categories', 'fontBanks', 'unavailableRows', 'hudSizes', 'browserFallback', 'browserTitle', 'ingameStorageCopy'].map(declaration),
     optionsSource.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'noticeLines').getText(optionsSource),
     textFunction.getText(optionsSource),
     optionsFunction.getText(optionsSource).replace(/^export /, ''),
@@ -364,8 +364,10 @@ test('Game and Sound storage failures retain the complete session-only disclosur
     assert.equal(status.props.tabIndex, undefined, 'a passive status does not intercept keyboard navigation')
     const announcement = descendants(status).find(node => node.props.className === 'game-a11y-status')
     assert.deepEqual(announcement.children, [expectedNotice])
-    const rows = optionRows({rotation:'cursor',flipRotation:false}, category, false, storageNotices).filter(row => row.y >= 338 && row.y < 420)
-    assert.equal(rows.map(row => row.text).join(' '), expectedNotice, 'wrapping does not abbreviate or remove the storage limitation')
+    const rows = optionRows({rotation:'cursor',flipRotation:false}, category, false, storageNotices, skin).filter(row => row.y >= 338 && row.y < 420)
+    const visibleNotice = skin === 'ingame'
+      ? `Session-only ${category === 'Game' ? 'game settings' : 'volume changes'}; browser storage unavailable.` : expectedNotice
+    assert.equal(rows.map(row => row.text).join(' '), visibleNotice, 'Visible copy retains both session-only effect and unavailable browser storage')
     assert.equal(rows.length, 2)
     const lines = descendants(status).filter(node => node.props.className === 'noticeLine')
     assert.equal(lines.length, rows.length)
@@ -383,7 +385,7 @@ test('Game and Sound storage failures retain the complete session-only disclosur
         assert.match(glyph.props.style.backgroundImage, skin === 'frontend' ? /frontend\/feft33we/ : /pause-font/)
       }
       const width = expectedGlyphs.reduce((sum, glyph) => sum + glyph.w, 0)
-      assert.ok(width <= 600)
+      assert.ok(width <= (skin === 'ingame' ? 432 : 600))
       assert.deepEqual([rows[index].x, rows[index].y], [320, 338 + index * 30])
       assert.ok(rows[index].y + Math.max(...expectedGlyphs.map(glyph => glyph.h)) < 420, 'actual glyphs clear category navigation and Back at y454')
       for (const [vw,vh,dpr] of [[640,480,1],[1280,800,1],[3440,1440,1],[3840,2160,2],[800,600,2]]) {
@@ -409,7 +411,7 @@ test('storage warnings preserve navigation and publish only current native shado
       assert.equal(back, 1)
       assert.deepEqual(ui.focus, [`[aria-current="page"][data-option-key="${category}"]`])
       ui.effects.find(effect => effect.dependencies.length === 3 && typeof effect.dependencies[1] === 'function').run()
-      assert.deepEqual(publications[0], optionRows({rotation:'cursor',flipRotation:false}, category, false, notices))
+      assert.deepEqual(publications[0], optionRows({rotation:'cursor',flipRotation:false}, category, false, notices, skin))
       const visible = Object.keys(notices).length > 0 && ['Game', 'Sound'].includes(category)
       assert.equal(ui.nodes.some(node => node.props.className === 'storage'), visible)
       assert.equal(publications[0].some(row => row.y === 338), visible)
@@ -431,9 +433,44 @@ test('unavailable font assets keep storage notices readable without publishing m
     })
     const status = ui.nodes.find(node => node.props.className === 'storage')
     const fallback = descendants(status).filter(node => node.props.className === 'fallback')
-    assert.equal(fallback.map(node => node.children.join('')).join(' '), status.props['aria-label'])
+    assert.equal(fallback.map(node => node.children.join('')).join(' '), skin === 'ingame'
+      ? `Session-only ${category === 'Game' ? 'game settings' : 'volume changes'}; browser storage unavailable.` : status.props['aria-label'])
     assert.equal(descendants(status).some(node => node.type === 'i'), false)
     ui.effects.find(effect => effect.dependencies.length === 3 && typeof effect.dependencies[1] === 'function').run()
     assert.deepEqual(publications, [[]])
+  }
+})
+
+
+test('in-game browser-only copy clears the HUD gutter without altering native rows, font or accessible names', () => {
+  for (const category of ['Game', 'Sound']) {
+    const rows = optionRows({ rotation: 'cursor', flipRotation: false }, category, false, storageNotices, 'ingame')
+    const browserRows = rows.filter(row => row.id === 'compatibility' || row.y === 338 || row.y === 368)
+    assert.equal(browserRows.length, category === 'Game' ? 3 : 2)
+    for (const row of browserRows) {
+      const glyphs = [...row.text].map(letter => ingame.rects[letter.charCodeAt(0) - 32])
+      const width = glyphs.reduce((sum, glyph) => sum + glyph.w, 0)
+      assert.equal(row.x, 320)
+      assert.ok(320 - (width >> 1) >= 104, 'Native occupied glyphs reserve the HUD-safe gutter')
+      assert.ok(row.y + Math.max(...glyphs.map(glyph => glyph.h)) < 420)
+    }
+    for (const fallback of [false, true]) {
+      const ui = renderOptions('ingame', category, null, false, { ...storageNotices,
+        preparedIngame: { fonts: !fallback, sliders: true } })
+      const status = ui.nodes.find(node => node.props['data-options-browser-copy'] === 'storage')
+      assert.equal(status.props['aria-label'], category === 'Game' ? storageNotices.gameStorageNotice : storageNotices.storageNotice)
+      const texts = descendants(status).filter(node => node.props['data-options-text'])
+      assert.equal(texts.length, 2)
+      assert.ok(texts.every(node => node.props['data-options-font'] === (fallback ? 'fallback' : 'glyphs')))
+      if (category === 'Game') {
+        const help = ui.nodes.find(node => node.props['data-compatibility'])
+        assert.equal(help.props['aria-label'], 'Browser compatibility and help')
+        assert.equal(help.props['data-options-browser-copy'], 'help')
+        assert.equal(help.children[0].props['data-options-text'], 'Browser controls and help')
+        assert.deepEqual(help.props.style, { left: 320, top: 289 })
+      }
+    }
+    const native = rows.filter(row => row.y < 289 && row.id !== 'compatibility')
+    assert.deepEqual(native, optionRows({ rotation: 'cursor', flipRotation: false }, category).filter(row => row.y < 289))
   }
 })

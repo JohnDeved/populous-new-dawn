@@ -40,9 +40,17 @@ interface OriginalOptionsProps {
 const hudSizes = ['auto', '1', '1.5', '2', '2.5', '3', '4'] as const
 const browserFallback = 'HUD size, audio and game speed are available from the battlefield menu.'
 const browserTitle = 'Browser compatibility and help'
+// Only browser-added copy is abbreviated. Native positions, glyphs and scale
+// remain unchanged; the complete storage announcement stays accessible.
+const ingameStorageCopy: Record<string, string> = {
+  'Game settings apply for this session; browser storage is unavailable.':
+    'Session-only game settings; browser storage unavailable.',
+  'Volume changes apply for this session; browser storage is unavailable.':
+    'Session-only volume changes; browser storage unavailable.',
+}
 
 // Browser-only notices retain the menu glyphs and 30-pixel line interval.
-function noticeLines(text: string) {
+function noticeLines(text: string, maxWidth = 600) {
   const lines: string[] = []
   for (const word of text.split(' ')) {
     const previous = lines.at(-1)
@@ -51,7 +59,7 @@ function noticeLines(text: string) {
       (total, letter) => total + ingame.rects[letter.charCodeAt(0) - 32].w,
       0
     )
-    if (previous && width <= 600) lines[lines.length - 1] = candidate
+    if (previous && width <= maxWidth) lines[lines.length - 1] = candidate
     else lines.push(word)
   }
   return lines
@@ -87,7 +95,12 @@ function Text({
   state: TextState
   ready: boolean
 }) {
-  if (!ready) return <span className={styles.fallback}>{text}</span>
+  if (!ready)
+    return (
+      <span className={styles.fallback} data-options-text={text} data-options-font="fallback">
+        {text}
+      </span>
+    )
   const name = fontBanks[state]
   const bank = skin === 'frontend' ? frontend.banks[name] : ingame
   const width = [...text].reduce(
@@ -98,6 +111,8 @@ function Text({
     <span
       aria-hidden="true"
       className={styles.text}
+      data-options-text={text}
+      data-options-font="glyphs"
       style={{
         transform: `translateX(-${width >> 1}px)`,
         opacity: skin === 'ingame' && state === 'normal' ? 2 / 3 : 1,
@@ -154,6 +169,7 @@ export function OriginalOptions({
       : 'Enable audio in Browser compatibility and help.'
   const masterText = `Master volume : <${Math.round(volume * 100)}%>`
   const musicText = `Music volume : <${Math.round(musicVolume * 100)}%>`
+  const browserLabel = skin === 'ingame' ? 'Browser controls and help' : browserTitle
   const gameRows = useMemo(
     () => [
       { id: 'tooltips', text: 'Tooltips : <Unavailable>', x: 320, y: 139 },
@@ -171,28 +187,33 @@ export function OriginalOptions({
       },
       { id: 'staySelected', text: 'Stay Selected : <Unavailable>', x: 320, y: 229 },
       { id: 'autocastSpell', text: 'Autocast Spell : <Unavailable>', x: 320, y: 259 },
-      { id: 'compatibility', text: 'Browser compatibility and help', x: 320, y: 289 },
+      { id: 'compatibility', text: browserLabel, x: 320, y: 289 },
     ],
-    [gamePreferences.rotation, gamePreferences.flipRotation]
+    [gamePreferences.rotation, gamePreferences.flipRotation, browserLabel]
   )
   const activeStorageNotice =
     (category === 'Game' && gameStorageNotice) || (category === 'Sound' && storageNotice) || ''
   const storageRows = useMemo<FrontendTextRow[]>(
     () =>
       activeStorageNotice
-        ? noticeLines(activeStorageNotice).map((text, index) => ({
+        ? noticeLines(
+            skin === 'ingame'
+              ? (ingameStorageCopy[activeStorageNotice] ?? activeStorageNotice)
+              : activeStorageNotice,
+            skin === 'ingame' ? 432 : 600
+          ).map((text, index) => ({
             text,
             x: 320,
             y: 338 + index * 30,
           }))
         : [],
-    [activeStorageNotice]
+    [activeStorageNotice, skin]
   )
   const rows = useMemo<FrontendTextRow[]>(
     () =>
       browser
         ? [
-            { text: browserTitle, x: 320, y: skin === 'frontend' ? 139 : 79 },
+            { text: browserLabel, x: 320, y: skin === 'frontend' ? 139 : 79 },
             { text: 'Back', x: 320, y: 454 },
             ...(compatibility
               ? []
@@ -219,7 +240,7 @@ export function OriginalOptions({
               : []),
             ...storageRows,
           ],
-    [browser, category, masterText, musicText, gameRows, compatibility, skin, storageRows]
+    [browser, category, masterText, musicText, gameRows, compatibility, skin, storageRows, browserLabel]
   )
   useLayoutEffect(() => {
     onTextRowsChange?.(textReady ? rows : [])
@@ -341,6 +362,7 @@ export function OriginalOptions({
         data-hud-size={options.hudSize}
         data-option-key={id}
         data-compatibility={id === 'compatibility' || undefined}
+        data-options-browser-copy={id === 'compatibility' ? 'help' : undefined}
         data-panel-back={text === 'Back' || undefined}
         data-menu-tooltip={options.help}
         aria-description={options.help}
@@ -371,9 +393,10 @@ export function OriginalOptions({
             style={{ top: skin === 'frontend' ? 139 : 79 }}
             tabIndex={-1}
             data-browser-help-heading
+            data-options-browser-copy="heading"
             aria-label={browserTitle}
           >
-            {label(browserTitle)}
+            {label(browserLabel)}
           </h2>
           {compatibility ? (
             <>
@@ -483,6 +506,7 @@ export function OriginalOptions({
                   return choice(row.text, row.x, row.y, () => setBrowser(true), false, {
                     id: row.id,
                     wide: true,
+                    accessibleLabel: browserTitle,
                   })
                 }
                 if (row.id === 'rotation' || row.id === 'flipRotation') {
@@ -606,7 +630,12 @@ export function OriginalOptions({
             </>
           )}
           {activeStorageNotice && (
-            <p className={styles.storage} role="status" aria-label={activeStorageNotice}>
+            <p
+              className={styles.storage}
+              role="status"
+              aria-label={activeStorageNotice}
+              data-options-browser-copy="storage"
+            >
               <span className="game-a11y-status">{activeStorageNotice}</span>
               {storageRows.map((row, index) => (
                 <span key={index} className={styles.noticeLine} aria-hidden="true">
