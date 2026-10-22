@@ -14,7 +14,8 @@
         "Fresh-locator focus observation with original strict/attachment-waiting fallback and real bounded Tab navigation",
         "Distinct checkpoint wrapper/scroller/action ownership, decoded original scrollbar image geometry/hits and complete fullscreen cap coverage",
         "Actual browser-added Options glyph/fallback text clears the live HUD and navigation without wide-container bounds",
-        "Same-read actual modal ownership and opaque frontend versus transparent in-game coverage distinguish mounted HUDs from exposed HUD clearance"
+        "Same-read actual modal ownership and opaque frontend versus transparent in-game coverage distinguish mounted HUDs from exposed HUD clearance",
+        "Fixed native/fallback pause cases retain exact coverage, serial awaited cleanup and cancellation, without changing the legacy combined episode policy"
       ],
       "knownLimits": [
         "Synthetic Node fixtures validate checker rejection behavior, not rendered UI or original-game pixel parity.",
@@ -33,7 +34,8 @@
         "tests/checkpoint-body-clearance.test.mjs",
         "tests/fullscreen-clearance.test.mjs",
         "tests/options-copy-clearance.test.mjs",
-        "tests/recovery-input-budget.test.mjs"
+        "tests/recovery-input-budget.test.mjs",
+        "tests/pause-style-case-plan.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -77,7 +79,11 @@
         "app/original-main-menu.tsx",
         "app/original-main-menu.module.css",
         "app/original-pause-menu.tsx",
-        "app/original-pause-menu.module.css"
+        "app/original-pause-menu.module.css",
+        "scripts/local-render/pause-style-case-plan.mjs",
+        "scripts/local-render/original-pause-checkpoint-native-style.mjs",
+        "scripts/local-render/original-pause-checkpoint-fallback-style.mjs",
+        "tests/pause-style-case-plan.test.mjs"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -128,7 +134,11 @@
         "tests/recovery-input-budget.test.mjs",
         "engineering/recovery-input-budget.md",
         "app/original-main-menu.module.css",
-        "app/original-pause-menu.module.css"
+        "app/original-pause-menu.module.css",
+        "scripts/local-render/pause-style-case-plan.mjs",
+        "scripts/local-render/original-pause-checkpoint-native-style.mjs",
+        "scripts/local-render/original-pause-checkpoint-fallback-style.mjs",
+        "tests/pause-style-case-plan.test.mjs"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
@@ -998,10 +1008,18 @@
       "kind": "portable",
       "automation": "safe",
       "purpose": "Catch protected held-drag source-route drift before expensive verification.",
-      "coveredBehavior": ["Exact source-owner admission", "Held-drag observer contract"],
-      "knownLimits": ["Node-only regression; does not run a browser, admit new source profiles or establish rendering or hardware performance."],
+      "coveredBehavior": [
+        "Exact source-owner admission",
+        "Held-drag observer contract"
+      ],
+      "knownLimits": [
+        "Node-only regression; does not run a browser, admit new source profiles or establish rendering or hardware performance."
+      ],
       "executable": "node",
-      "args": ["--test", "tests/browser-snapshot-drag.test.mjs"],
+      "args": [
+        "--test",
+        "tests/browser-snapshot-drag.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "triggerPaths": [
@@ -1019,11 +1037,24 @@
         "scripts/browser-performance/snapshot-drag-observer.mjs",
         "tests/browser-snapshot-drag.test.mjs"
       ],
-      "inputs": ["app", "scripts", "tests/support", "tests/browser-snapshot-drag.test.mjs", "package.json", "package-lock.json"],
-      "prerequisites": ["Node.js >=22.13.0", "Installed project dependencies"],
+      "inputs": [
+        "app",
+        "scripts",
+        "tests/support",
+        "tests/browser-snapshot-drag.test.mjs",
+        "package.json",
+        "package-lock.json"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Installed project dependencies"
+      ],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "orchestration-tests",
@@ -1043,7 +1074,15 @@
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
       ],
       "executable": "node",
-      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
+      "args": [
+        "--test",
+        "tests/orchestration.test.mjs",
+        "tests/workflow-handoff.test.mjs",
+        "tests/workflow-policy.test.mjs",
+        "tests/research-evidence.test.mjs",
+        "tests/theme-reference-evidence.test.mjs",
+        "tests/test-runner.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -1065,13 +1104,18 @@
         "scripts",
         "tests"
       ],
-      "prerequisites": ["Node.js >=22.13.0"],
+      "prerequisites": [
+        "Node.js >=22.13.0"
+      ],
       "sideEffects": [
         "May refresh ignored work/orchestration/index.json",
         "Temporary directories only"
       ],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "orchestration-structural",
@@ -1090,7 +1134,10 @@
         "Structural validation does not certify evidence semantics or enforce an OS sandbox."
       ],
       "executable": "node",
-      "args": ["scripts/orchestration/cli.mjs", "check"],
+      "args": [
+        "scripts/orchestration/cli.mjs",
+        "check"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -1099,10 +1146,16 @@
         "engineering/generated-files.json",
         "parity.json"
       ],
-      "prerequisites": ["Node.js >=22.13.0", "Git"],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Git"
+      ],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "repository-check",
@@ -1119,7 +1172,10 @@
         "Does not run native executable, browser integration, or hardware performance checks."
       ],
       "executable": "pnpm",
-      "args": ["run", "check"],
+      "args": [
+        "run",
+        "check"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -1137,30 +1193,65 @@
         "parity-history.json",
         "PARITY.md"
       ],
-      "prerequisites": ["Installed locked dependencies"],
-      "sideEffects": ["May update ignored tool caches", "Runs every top-level tests/*.test.mjs file through the bounded Node runner; resource-sensitive/unreviewed files are serial."],
-      "resources": ["Serialize with other full test runs"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Installed locked dependencies"
+      ],
+      "sideEffects": [
+        "May update ignored tool caches",
+        "Runs every top-level tests/*.test.mjs file through the bounded Node runner; resource-sensitive/unreviewed files are serial."
+      ],
+      "resources": [
+        "Serialize with other full test runs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "production-build",
       "kind": "build",
       "automation": "safe",
       "purpose": "Build the production browser application.",
-      "coveredBehavior": ["Bundling", "server/client module boundaries", "production transforms"],
-      "knownLimits": ["A successful build does not establish browser behavior or native parity."],
+      "coveredBehavior": [
+        "Bundling",
+        "server/client module boundaries",
+        "production transforms"
+      ],
+      "knownLimits": [
+        "A successful build does not establish browser behavior or native parity."
+      ],
       "executable": "pnpm",
-      "args": ["run", "build"],
+      "args": [
+        "run",
+        "build"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
         "pnpm-workspace.yaml",
         "pnpm-lock.yaml",
-        "package-lock.json", "package.json", "app", "build"],
-      "prerequisites": ["Installed locked dependencies"],
-      "sideEffects": ["Writes ignored dist/ and Wrangler logs"],
-      "resources": ["Shared build directories; run serially"],
-      "expected": { "exitCode": 0, "artifacts": ["dist/server/index.js", "dist/client/.vite/manifest.json"] }
+        "package-lock.json",
+        "package.json",
+        "app",
+        "build"
+      ],
+      "prerequisites": [
+        "Installed locked dependencies"
+      ],
+      "sideEffects": [
+        "Writes ignored dist/ and Wrangler logs"
+      ],
+      "resources": [
+        "Shared build directories; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": [
+          "dist/server/index.js",
+          "dist/client/.vite/manifest.json"
+        ]
+      }
     },
     {
       "id": "selection-portable",
@@ -1196,10 +1287,15 @@
         "tests/fixtures/drag-occupants.json",
         "tests/fixtures/selection-raster.json"
       ],
-      "prerequisites": ["Installed locked dependencies"],
+      "prerequisites": [
+        "Installed locked dependencies"
+      ],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "selection-native-drag",
@@ -1217,9 +1313,14 @@
         "Downstream UI refresh and command buffer are intercepted; it is not a complete original-game replay."
       ],
       "executable": "python3",
-      "args": ["scripts/check-native-drag-selection.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-drag-selection.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-drag-selection.py",
         "decomp/requirements.txt",
@@ -1230,8 +1331,13 @@
         "Hash-verified user-supplied D3D executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "selection-browser-drag",
@@ -1249,7 +1355,9 @@
         "Software-renderer pixel consistency is not native full-frame parity or hardware FPS evidence."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-drag-selection.mjs"],
+      "args": [
+        "scripts/check-browser-drag-selection.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -1262,11 +1370,17 @@
         "Running game server at POPULOUS_URL or http://localhost:3000",
         "Playwright Chromium"
       ],
-      "sideEffects": ["Writes a tracked performance JSON and /private/tmp screenshots"],
-      "resources": ["Fixed server port/capture paths; run serially"],
+      "sideEffects": [
+        "Writes a tracked performance JSON and /private/tmp screenshots"
+      ],
+      "resources": [
+        "Fixed server port/capture paths; run serially"
+      ],
       "expected": {
         "exitCode": 0,
-        "artifacts": ["references/performance/2026-09-10-selection-raster.json"]
+        "artifacts": [
+          "references/performance/2026-09-10-selection-raster.json"
+        ]
       }
     },
     {
@@ -1281,7 +1395,9 @@
         "live movement",
         "world seams"
       ],
-      "knownLimits": ["Does not cover every command class, vehicle, allocator, or scheduler path."],
+      "knownLimits": [
+        "Does not cover every command class, vehicle, allocator, or scheduler path."
+      ],
       "executable": "node",
       "args": [
         "--test",
@@ -1307,22 +1423,38 @@
         "tests/fixtures/player-order-append.json",
         "tests/fixtures/movement-order.json"
       ],
-      "prerequisites": ["Installed locked dependencies"],
+      "prerequisites": [
+        "Installed locked dependencies"
+      ],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "orders-native",
       "kind": "native",
       "automation": "manual",
       "purpose": "Compare bounded native shared-order preparation and updates.",
-      "coveredBehavior": ["Order pool fields", "reference handling", "state update branches"],
-      "knownLimits": ["World consumers and full scheduling are supplied or separately checked."],
+      "coveredBehavior": [
+        "Order pool fields",
+        "reference handling",
+        "state update branches"
+      ],
+      "knownLimits": [
+        "World consumers and full scheduling are supplied or separately checked."
+      ],
       "executable": "python3",
-      "args": ["scripts/check-native-orders.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-orders.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-orders.py",
         "decomp/requirements.txt",
@@ -1335,7 +1467,9 @@
       "sideEffects": [
         "Writes tracked player-order and ground-input fixtures even without --record"
       ],
-      "resources": ["External executable is read-only"],
+      "resources": [
+        "External executable is read-only"
+      ],
       "expected": {
         "exitCode": 0,
         "artifacts": [
@@ -1360,7 +1494,10 @@
         "Full or unavailable Boat retry is established only by native route evidence; this portable check covers exclusion, not the live retry schedule."
       ],
       "executable": "node",
-      "args": ["--test", "tests/automatic-boat-crossing.test.mjs"],
+      "args": [
+        "--test",
+        "tests/automatic-boat-crossing.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -1371,10 +1508,15 @@
         "app/world-initialization.ts",
         "app/original-rules.json"
       ],
-      "prerequisites": ["Installed locked dependencies"],
+      "prerequisites": [
+        "Installed locked dependencies"
+      ],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "computer-attack-native",
@@ -1398,9 +1540,14 @@
         "Phase-16 target collection remains a controlled world input; damage success and empty-target retry branches are not executed end-to-end."
       ],
       "executable": "python3",
-      "args": ["scripts/check-native-computer-attack.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-computer-attack.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-computer-attack.py",
         "app/original-script.json",
@@ -1418,7 +1565,10 @@
       "resources": [
         "External executable and adjacent levels/cpscr010.dat and levels/cpscr058.dat are read-only"
       ],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission6-economy-native",
@@ -1441,9 +1591,14 @@
         "Site search, worker movement, timber, construction completion, training conversion, and browser presentation are checked separately."
       ],
       "executable": "python3",
-      "args": ["scripts/check-native-mission6-economy.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission6-economy.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission6-economy.py",
         "decomp/generated/004e5580.c",
@@ -1462,8 +1617,13 @@
         "Hash-verified user-supplied executable and adjacent Mission 3 and Mission 6 scripts"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission7-opening-native",
@@ -1481,9 +1641,14 @@
         "Mission 7 attack AI, later messages, Erosion acquisition, and victory remain excluded."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission7-opening.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission7-opening.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission7-opening.py",
         "app/original-script-seven.json",
@@ -1500,8 +1665,13 @@
         "Hash-verified user-supplied executable and adjacent Mission 7 script"
       ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent levels/cpscr021.dat are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent levels/cpscr021.dat are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "computer-direct-attack-native",
@@ -1518,9 +1688,14 @@
         "Does not execute the command-28 combat body, target lifecycle, attacking-shaman branch, vehicles, or ranged members."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-command-28.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-command-28.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-command-28.py",
         "scripts/decomp.py",
@@ -1532,8 +1707,13 @@
         "Hash-verified user-supplied executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "orders-browser",
@@ -1548,9 +1728,13 @@
         "world seams",
         "Mission 5 Boat picking, boarding, sailing, valid-shore landing, and checkpoint state"
       ],
-      "knownLimits": ["Does not prove Boat construction, combat, native artwork, or mixed transport queues."],
+      "knownLimits": [
+        "Does not prove Boat construction, combat, native artwork, or mixed transport queues."
+      ],
       "executable": "node",
-      "args": ["scripts/check-browser-ground-waypoints.mjs"],
+      "args": [
+        "scripts/check-browser-ground-waypoints.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -1567,10 +1751,20 @@
         "app/scene.ts",
         "app/scene-input-runtime.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["May write /private/tmp captures"],
-      "resources": ["Fixed server/capture resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "May write /private/tmp captures"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "queued-timber-browser",
@@ -1584,9 +1778,13 @@
         "Visible tree shrink",
         "Following shared waypoint"
       ],
-      "knownLimits": ["Does not cover loose-log mode, automatic timber search, or every scenery chain collision."],
+      "knownLimits": [
+        "Does not cover loose-log mode, automatic timber search, or every scenery chain collision."
+      ],
       "executable": "node",
-      "args": ["scripts/check-browser-command-target.mjs"],
+      "args": [
+        "scripts/check-browser-command-target.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -1601,10 +1799,18 @@
         "app/scene-input-runtime.ts",
         "app/scene-picking.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
       "sideEffects": [],
-      "resources": ["Fixed server resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "Fixed server resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "checkpoint-browser",
@@ -1626,7 +1832,9 @@
         "Removes enemy units and ticks to seed Mission 1 victory; later diagnostics use direct commands/ticks and injected state. This is not natural Mission 1 victory. Uses browser-native IndexedDB and one latest checkpoint; it does not prove original save-format, slot, broader profile, or front-end parity."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-checkpoint.mjs"],
+      "args": [
+        "scripts/check-browser-checkpoint.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -1651,10 +1859,20 @@
         "app/scene-terrain-runtime.ts",
         "public/original/message-type1.png"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
-      "resources": ["Fixed game server and browser; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "campaign-interval-native",
@@ -1671,9 +1889,14 @@
         "Only the selected Mission 3 profile is composed with opcode 1173; wider recurring AI remains deferred."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-cast-cooldowns.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-cast-cooldowns.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-cast-cooldowns.py",
         "app/spell-casting.ts",
@@ -1687,8 +1910,13 @@
         "Hash-verified user-supplied executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission3-browser",
@@ -1707,7 +1935,9 @@
         "Later Mission 3 recurring raids, warnings, marker behavior, and broader tutorial presentation remain deferred."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission3-opening.mjs"],
+      "args": [
+        "scripts/check-browser-mission3-opening.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -1724,10 +1954,20 @@
         "app/world-turn.ts",
         "app/scene.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
-      "resources": ["Fixed game server and browser; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "campaign-natural-victory-browser",
@@ -1750,13 +1990,20 @@
       "executable": "node",
       "args": [
         "scripts/local-render/harness.mjs",
-        "--scenario", "scripts/local-render/campaign-fixed-turn.mjs",
-        "--port", "4196",
-        "--timeout", "900000",
-        "--output", "$POPULOUS_CAMPAIGN_OUTPUT"
+        "--scenario",
+        "scripts/local-render/campaign-fixed-turn.mjs",
+        "--port",
+        "4196",
+        "--timeout",
+        "900000",
+        "--output",
+        "$POPULOUS_CAMPAIGN_OUTPUT"
       ],
       "cwd": ".",
-      "env": ["POPULOUS_BROWSER", "POPULOUS_CAMPAIGN_OUTPUT"],
+      "env": [
+        "POPULOUS_BROWSER",
+        "POPULOUS_CAMPAIGN_OUTPUT"
+      ],
       "inputs": [
         "scripts/check-browser-campaign-natural-victory.mjs",
         "scripts/local-render/campaign-fixed-turn.mjs",
@@ -1781,10 +2028,22 @@
         "app/page.tsx",
         "app/scene.ts"
       ],
-      "prerequisites": ["Installed official Chrome Headless Shell", "Private installed dependencies", "Reserved local browser lane", "Unique output directory"],
-      "sideEffects": ["Writes isolated browser-context campaign profile state, owned server caches, screenshots, adapter and source-bound JSON report in the requested output directory"],
-      "resources": ["Owned local server on port 4196 and sandboxed browser; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Installed official Chrome Headless Shell",
+        "Private installed dependencies",
+        "Reserved local browser lane",
+        "Unique output directory"
+      ],
+      "sideEffects": [
+        "Writes isolated browser-context campaign profile state, owned server caches, screenshots, adapter and source-bound JSON report in the requested output directory"
+      ],
+      "resources": [
+        "Owned local server on port 4196 and sandboxed browser; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission7-browser",
@@ -1804,7 +2063,9 @@
         "It does not prove the full-map Vault route, natural Mission 6 or Mission 7 victory, later Mission 7 AI, or Erosion acquisition."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission7.mjs"],
+      "args": [
+        "scripts/check-browser-mission7.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -1823,10 +2084,20 @@
         "app/scene.ts",
         "app/scene-input-runtime.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
-      "resources": ["Fixed game server and browser; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission8-firewarrior-native",
@@ -1845,9 +2116,14 @@
         "Global order/projectile allocation, audio, trail, and the downstream kill-credit consumer are intercepted; the completed-building branch is established by indexed byte-verified exports rather than a constructed native probe; browser terrain occlusion, the special level-flag range, Bloodlust, broad target damage, and complete native play remain deferred."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-firewarrior.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-firewarrior.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-firewarrior.py",
         "scripts/probe-native-firewarrior.py",
@@ -1875,8 +2151,13 @@
         "Installed locked dependencies"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission8-browser",
@@ -1897,7 +2178,9 @@
         "Mission 8 AI, tutorials, victory, and broader Firewarrior Bloodlust, terrain line-of-fire, target damage, and trail behavior remain deferred."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission8.mjs"],
+      "args": [
+        "scripts/check-browser-mission8.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -1922,10 +2205,20 @@
         "app/game-store.ts",
         "app/scene.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
-      "resources": ["Fixed game server and browser; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "firewarrior-building-browser",
@@ -1943,7 +2236,9 @@
         "Broad terrain line-of-fire, plans, Bloodlust, tower-origin building attacks, and building destruction remain deferred."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-firewarrior-building.mjs"],
+      "args": [
+        "scripts/check-browser-firewarrior-building.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -1963,10 +2258,20 @@
         "app/page.tsx",
         "app/scene.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
-      "resources": ["Fixed game server and browser; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "vehicle-destruction-native",
@@ -1986,9 +2291,14 @@
         "Exit-target search, asset-backed animation, and generic initialization leaves are supplied; audiovisual effects, final removal, and downstream passenger water/land survival remain portable/static evidence or open."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-vehicle-damage.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-vehicle-damage.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-vehicle-damage.py",
         "scripts/inspect-executable.py",
@@ -2010,8 +2320,13 @@
         "Hash-verified user-supplied executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "vehicle-destruction-browser",
@@ -2029,7 +2344,9 @@
         "Occupied ejection is native/portable evidence; downstream passenger terrain fate, exact effects, audio, and enemy vehicle AI remain open."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-vehicle-destruction.mjs"],
+      "args": [
+        "scripts/check-browser-vehicle-destruction.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -2043,10 +2360,20 @@
         "app/world-initialization.ts",
         "app/original-rules.json"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
-      "resources": ["Fixed game server and browser; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission9-boat-house-native",
@@ -2063,9 +2390,14 @@
         "Shape enumeration, allocation storage, height, routing, boarding, motion, and removal leaves are supplied; the external work increment and full native world remain outside this probe."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-boat-house.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-boat-house.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-boat-house.py",
         "app/original-rules.json",
@@ -2081,8 +2413,13 @@
         "Hash-verified user-supplied executable with adjacent game data"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission10-opening-native",
@@ -2103,9 +2440,14 @@
         "The full native level, Boat route, trigger clones, and class-7 model-90/model-26 terrain consumers are not executed."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission10-opening.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission10-opening.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission10-opening.py",
         "app/original-messages.json",
@@ -2118,8 +2460,13 @@
         "Hash-verified user-supplied executable with adjacent Mission 10 level, header, script, and language data"
       ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission9-browser",
@@ -2148,7 +2495,9 @@
         "Mission 10 full AI, Shaman-loss branch, natural endgame victory, and exact model-90/model-26 terrain equivalence remain deferred."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission9.mjs"],
+      "args": [
+        "scripts/check-browser-mission9.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -2194,10 +2543,20 @@
         "tests/mission10-opening.test.mjs",
         "decomp/research/mission10-opening.md"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
-      "resources": ["Fixed game server and browser; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission11-housing-native",
@@ -2215,9 +2574,14 @@
         "The first BUILD_AT tower is covered separately by mission11-build-at-native after this probe's model-3 Hut prerequisite matures."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission11-housing.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission11-housing.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission11-housing.py",
         "decomp/generated/004e5530.c",
@@ -2230,8 +2594,13 @@
         "Hash-verified user-supplied executable with adjacent Mission 11 script"
       ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission11-build-at-native",
@@ -2248,9 +2617,14 @@
         "Candidate acceptance is forced to reject. Natural Mission 11 terrain acceptance, worker construction, rendering, and checkpoint continuation remain browser evidence."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission11-build-at.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission11-build-at.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission11-build-at.py",
         "decomp/generated/004e5530.c",
@@ -2263,8 +2637,13 @@
         "Hash-verified user-supplied executable with adjacent Mission 11 script"
       ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission11-reactive-noop-native",
@@ -2282,9 +2661,14 @@
         "Later Mission 11 attack blocks remain unexamined."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission11-reactive-noop.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission11-reactive-noop.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission11-reactive-noop.py",
         "scripts/check-native-computer-attack.py",
@@ -2298,8 +2682,13 @@
         "Hash-verified user-supplied executable with adjacent Mission 11 header and script"
       ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission11-settlement-native",
@@ -2318,9 +2707,14 @@
         "Terrain acceptance, plan insertion, worker movement, completion, rendering, and checkpoint restoration remain browser evidence."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission11-settlement.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission11-settlement.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission11-settlement.py",
         "app/original-script-eleven.json",
@@ -2333,8 +2727,13 @@
         "Hash-verified user-supplied executable with adjacent Mission 11 level, header, and scripts"
       ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission11-browser",
@@ -2373,7 +2772,9 @@
         "Mission 11 later housing/staffing/attacks/objectives; Mission 12 later AI, objectives, victory, broader Spy detection/reinforcement/death, normal cross-island transport to sabotage, Balloon behavior, and opcode 1190's downstream consumer; and Mission 13 later AI, objectives, victory, Balloon combat targeting/feedback, exact Balloon art, and full script command coverage remain deferred; destruction is covered separately."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission11.mjs"],
+      "args": [
+        "scripts/check-browser-mission11.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -2428,10 +2829,20 @@
         "decomp/research/mission13-opening.md",
         "decomp/research/mission13-balloon.md"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
-      "resources": ["Fixed game server and browser; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission12-spy-sabotage-native",
@@ -2450,9 +2861,14 @@
         "The exact original UI setter for disguise choice, ordinary discovery percentages, render pixels, and save-file serialization remain browser/portable or open evidence."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission12-spy-sabotage.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission12-spy-sabotage.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission12-spy-sabotage.py",
         "decomp/research/mission12-spy-sabotage.md",
@@ -2464,8 +2880,13 @@
         "Hash-verified user-supplied executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission12-opening-native",
@@ -2486,9 +2907,14 @@
         "Opcode 1190's downstream object-flag consumer and every later Mission 12 branch remain unresolved."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission12-opening.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission12-opening.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission12-opening.py",
         "app/level-twelve.ts",
@@ -2507,8 +2933,13 @@
         "Hash-verified user-supplied executable with adjacent Mission 12 level, header, three scripts, and English language data"
       ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission13-opening-native",
@@ -2528,9 +2959,14 @@
         "Later Mission 13 AI, objectives, victory, Balloon combat targeting/feedback, and exact Balloon art remain unresolved; construction, transport, and destruction are separate browser/native Balloon evidence."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission13-opening.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission13-opening.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission13-opening.py",
         "app/level-thirteen.ts",
@@ -2545,8 +2981,13 @@
         "Hash-verified user-supplied executable with adjacent Mission 13 level, header, scripts 29/30, and English language data"
       ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission13-balloon-native",
@@ -2564,9 +3005,14 @@
         "Exact native per-tick steering, combat targeting/feedback, downstream ejected-passenger fate, audio, and source artwork remain unresolved; destruction is covered separately."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-balloon.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-balloon.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-balloon.py",
         "decomp/generated/004641d0.c",
@@ -2576,10 +3022,17 @@
         "decomp/requirements.txt",
         "decomp/sections.tsv"
       ],
-      "prerequisites": ["Hash-verified user-supplied executable"],
+      "prerequisites": [
+        "Hash-verified user-supplied executable"
+      ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission14-rewards-native",
@@ -2598,9 +3051,14 @@
         "Projectile transit, live Angel combat, renderer/audio playback, native save serialization, and browser reachability are not proved by this probe."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission14-rewards.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission14-rewards.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission14-rewards.py",
         "decomp/research/mission14-linked-angel.md",
@@ -2620,8 +3078,13 @@
         "Hash-verified user-supplied executable with adjacent Mission 14 level and constant data"
       ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission15-prison-native",
@@ -2640,9 +3103,14 @@
         "The probe does not emulate plan allocation, terrain routing, audiovisual playback, queued-Lightning delay, or downstream generic Shaman-defeat UI."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission15-prison.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission15-prison.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission15-prison.py",
         "decomp/research/mission15-prison.md",
@@ -2663,8 +3131,13 @@
         "Hash-verified user-supplied executable with adjacent Mission 15 level and script data"
       ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission4-browser",
@@ -2699,7 +3172,9 @@
         "Mission 6 later ordinary attacks, broader BUILD_AT behavior, later producer profiles, and later mission-specific content remain deferred."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission4.mjs"],
+      "args": [
+        "scripts/check-browser-mission4.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -2757,10 +3232,20 @@
         "app/minimap-renderer.ts",
         "app/scene.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes only isolated browser-context IndexedDB state"],
-      "resources": ["Fixed game server and browser; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "building-counterattack-native",
@@ -2777,9 +3262,14 @@
         "Indexed search, alliance/disguise, and person-order leaves are intercepted; browser regressions cover their integrated consumers."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-building-counterattack.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-building-counterattack.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-building-counterattack.py",
         "scripts/decomp.py",
@@ -2800,8 +3290,13 @@
         "Hash-verified user-supplied executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "messages-native",
@@ -2823,9 +3318,14 @@
         "Remaining Mission 1 campaign bytecode branches require a separately supplied cpscr010.dat; other notification classes and the original popup renderer remain outside this check."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-messages.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-messages.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-messages.py",
         "app/campaign-command-runtime.ts",
@@ -2853,8 +3353,13 @@
         "Adjacent Mission 2 and Mission 4 scripts plus language, palette, and HFX data"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "messages-browser",
@@ -2871,7 +3376,9 @@
         "The accessible browser text popup is a modern adapter, not original font/raster parity."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-messages.mjs"],
+      "args": [
+        "scripts/check-browser-messages.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -2889,10 +3396,20 @@
         "public/original/message.png",
         "public/original/message-type1.png"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes /private/tmp/populous-messages.png"],
-      "resources": ["Fixed server/capture resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes /private/tmp/populous-messages.png"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "reincarnation-native",
@@ -2909,9 +3426,14 @@
         "Allocation, sound, registration, and deletion consumers are supplied; the live browser integration is checked separately."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-reincarnation.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-reincarnation.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-reincarnation.py",
         "app/reincarnation.ts",
@@ -2924,8 +3446,13 @@
         "Hash-verified user-supplied executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "reincarnation-browser",
@@ -2943,7 +3470,9 @@
         "Headless browser rendering does not establish original full-frame raster parity."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-reincarnation.mjs"],
+      "args": [
+        "scripts/check-browser-reincarnation.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -2957,10 +3486,20 @@
         "app/scene-terrain-runtime.ts",
         "app/original-units.json"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes /private/tmp screenshots"],
-      "resources": ["Fixed server/capture resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes /private/tmp screenshots"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "vault-native",
@@ -2978,9 +3517,14 @@
         "Movement, adjacency, trigger association, animation, audio, and decorative consumers are supplied; browser pathfinding adapts those leaves."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-vault.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-vault.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-vault.py",
         "app/vault.ts",
@@ -2993,8 +3537,13 @@
         "Hash-verified user-supplied executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "worship-native",
@@ -3011,9 +3560,14 @@
         "Reward allocation, sunlight, deletion, and Windows UI consumers are supplied; generic command-29 pickup and competitive ownership are not covered."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-worship.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-worship.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-worship.py",
         "app/model.ts",
@@ -3028,8 +3582,13 @@
         "Hash-verified user-supplied executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "worship-browser",
@@ -3046,7 +3605,9 @@
         "Headless browser rendering does not establish original full-frame raster parity or generic pickup behavior."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-worship.mjs"],
+      "args": [
+        "scripts/check-browser-worship.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3060,10 +3621,20 @@
         "app/scene.ts",
         "app/original-units.json"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes /private/tmp screenshots"],
-      "resources": ["Fixed server/capture resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes /private/tmp screenshots"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission5-angel-portable",
@@ -3082,7 +3653,11 @@
         "Flight speed 128, the stable +100 initial-height offset, and combined 0xd9/0xdb spawn timing are bounded approximations because native chase height and activation ordering remain unrecovered."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission5-angel.test.mjs"],
+      "args": [
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission5-angel.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3100,7 +3675,10 @@
       "prerequisites": [],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission5-angel-browser",
@@ -3119,7 +3697,9 @@
         "The check proves visible movement and cue presence, not exact native flight speed, height, or activation timing."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission5-angel.mjs"],
+      "args": [
+        "scripts/check-browser-mission5-angel.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3136,10 +3716,20 @@
         "app/world-turn.ts",
         "app/original-units.json"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes /private/tmp/populous-mission5-angel.png"],
-      "resources": ["Fixed server/capture resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes /private/tmp/populous-mission5-angel.png"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission14-rewards-portable",
@@ -3158,7 +3748,12 @@
         "Later Mission 14 AI and victory behavior remain outside this feature slice."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission14-rewards.test.mjs", "tests/mission5-angel.test.mjs"],
+      "args": [
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission14-rewards.test.mjs",
+        "tests/mission5-angel.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3181,7 +3776,10 @@
       "prerequisites": [],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission14-rewards-browser",
@@ -3201,7 +3799,9 @@
         "Later Mission 14 AI and victory behavior remain outside this feature slice."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission14-rewards.mjs"],
+      "args": [
+        "scripts/check-browser-mission14-rewards.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3224,10 +3824,20 @@
         "app/world-turn.ts",
         "app/world-types.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes and restores the browser checkpoint database"],
-      "resources": ["Fixed server and browser storage resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes and restores the browser checkpoint database"
+      ],
+      "resources": [
+        "Fixed server and browser storage resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission15-prison-portable",
@@ -3247,7 +3857,11 @@
         "Exact Prison debris/audio and later Mission 15 AI remain outside this feature slice."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission15-prison.test.mjs"],
+      "args": [
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission15-prison.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3268,7 +3882,10 @@
       "prerequisites": [],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission15-prison-browser",
@@ -3287,7 +3904,9 @@
         "Headless GPU pixels do not establish exact native raster parity; exact Prison debris/audio and later Mission 15 AI remain open."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission15-prison.mjs"],
+      "args": [
+        "scripts/check-browser-mission15-prison.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3310,10 +3929,20 @@
         "app/world-state.ts",
         "app/world-types.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes and restores the browser checkpoint database"],
-      "resources": ["Fixed server and browser storage resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes and restores the browser checkpoint database"
+      ],
+      "resources": [
+        "Fixed server and browser storage resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission16-bloodlust-native",
@@ -3331,9 +3960,14 @@
         "Firewarrior and rendering consumers reuse already-reviewed exports rather than duplicate emulation here."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission16-bloodlust.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission16-bloodlust.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission16-bloodlust.py",
         "decomp/research/mission16-bloodlust.md",
@@ -3350,8 +3984,13 @@
         "Hash-verified user-supplied executable with adjacent Mission 16 level and script data"
       ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission16-bloodlust-portable",
@@ -3368,7 +4007,11 @@
         "Original HFX artwork and a distinct AI Bloodlust casting policy are not established."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission16-bloodlust.test.mjs"],
+      "args": [
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission16-bloodlust.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3393,7 +4036,10 @@
       "prerequisites": [],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission16-bloodlust-browser",
@@ -3411,7 +4057,9 @@
         "Headless GPU rendering does not establish exact native HFX raster parity."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission16-bloodlust.mjs"],
+      "args": [
+        "scripts/check-browser-mission16-bloodlust.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3432,10 +4080,20 @@
         "app/world-turn.ts",
         "app/world-types.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes and restores the browser checkpoint database"],
-      "resources": ["Fixed server and browser storage resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes and restores the browser checkpoint database"
+      ],
+      "resources": [
+        "Fixed server and browser storage resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission17-armageddon-native",
@@ -3453,9 +4111,14 @@
         "Allocation, unit-state leaves, and audio playback are intercepted."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission17-armageddon.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission17-armageddon.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission17-armageddon.py",
         "decomp/research/mission17-armageddon.md",
@@ -3482,8 +4145,13 @@
         "Hash-verified user-supplied executable with adjacent Mission 17 level data"
       ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission17-armageddon-portable",
@@ -3501,7 +4169,11 @@
         "Exact native camera interpolation, audio, and Shaman automatic spell choices remain presentation/controller limits."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission17-armageddon.test.mjs"],
+      "args": [
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission17-armageddon.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3524,7 +4196,10 @@
       "prerequisites": [],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission17-armageddon-browser",
@@ -3542,7 +4217,9 @@
         "Enemy life is cleared after real central battle orders begin; the portable check separately covers defeat and a full natural melee run was observed during implementation."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission17-armageddon.mjs"],
+      "args": [
+        "scripts/check-browser-mission17-armageddon.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3566,10 +4243,20 @@
         "app/world-turn.ts",
         "app/world-types.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes and restores the browser checkpoint database"],
-      "resources": ["Fixed server and browser storage resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes and restores the browser checkpoint database"
+      ],
+      "resources": [
+        "Fixed server and browser storage resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission18-native",
@@ -3587,9 +4274,14 @@
         "Device rasterization, non-lens view configuration, recurring command 1074, and later Mission 18 AI remain open."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission18.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission18.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission18.py",
         "decomp/research/mission18.md",
@@ -3598,10 +4290,17 @@
         "decomp/generated/004b5f40.c",
         "public/original/sky-g.png"
       ],
-      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 18 level and data files"],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 18 level and data files"
+      ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission18-portable",
@@ -3619,7 +4318,11 @@
         "Later recurring AI, exact Shaman spell choices, camera interpolation, and audio remain open."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission18.test.mjs"],
+      "args": [
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission18.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3638,7 +4341,10 @@
       "prerequisites": [],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission18-browser",
@@ -3656,7 +4362,9 @@
         "The portable check owns Red patrol, Armageddon arena, checkpoint, and both result directions."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission18.mjs"],
+      "args": [
+        "scripts/check-browser-mission18.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3672,10 +4380,18 @@
         "app/world-state.ts",
         "public/original/sky-g.png"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
       "sideEffects": [],
-      "resources": ["Fixed server and browser resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission19-native",
@@ -3694,9 +4410,14 @@
         "Warning 127/128 reachability, audiovisual presentation, and later Mission 19 AI remain open."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission19.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission19.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission19.py",
         "decomp/research/mission19.md",
@@ -3710,10 +4431,17 @@
         "public/original/clouds-d.png",
         "public/original/clouds-high-d.png"
       ],
-      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 19 level and data files"],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 19 level and data files"
+      ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission19-portable",
@@ -3731,7 +4459,11 @@
         "Warning 127/128, later AI, exact rendering, and audio remain open."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission19.test.mjs"],
+      "args": [
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission19.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3752,7 +4484,10 @@
       "prerequisites": [],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission19-browser",
@@ -3770,7 +4505,9 @@
         "The portable check owns checkpoint continuation and all objective result directions."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission19.mjs"],
+      "args": [
+        "scripts/check-browser-mission19.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3791,10 +4528,18 @@
         "public/original/clouds-d.png",
         "public/original/clouds-high-d.png"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
       "sideEffects": [],
-      "resources": ["Fixed server and browser resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission20-native",
@@ -3813,17 +4558,29 @@
         "Complete post-dispatch terrain, damage, rendering, and audio evolution remains browser integration evidence."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission20.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission20.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission20.py",
         "decomp/research/mission20-linked-chain.md"
       ],
-      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 20 level and script files"],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 20 level and script files"
+      ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission20-portable",
@@ -3841,7 +4598,11 @@
         "Exact class-7 presentation/audio and later Mission 20 AI remain open."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission20.test.mjs"],
+      "args": [
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission20.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3860,7 +4621,10 @@
       "prerequisites": [],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission20-browser",
@@ -3878,7 +4642,9 @@
         "The portable check owns checkpoint continuation; later Mission 20 AI and exact audiovisual presentation remain open."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission20.mjs"],
+      "args": [
+        "scripts/check-browser-mission20.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3895,10 +4661,18 @@
         "app/world-turn.ts",
         "app/world-types.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
       "sideEffects": [],
-      "resources": ["Fixed server and browser resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission21-native",
@@ -3918,19 +4692,31 @@
         "This is not a full native route-timing playthrough, renderer/audio comparison, checkpoint proof, later-fault proof, AI proof, or mission-outcome proof."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission21.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission21.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission21.py",
         "decomp/generated/00490ba0.c",
         "decomp/generated/004f1ed0.c",
         "decomp/research/mission21-first-fault.md"
       ],
-      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 21 level, header, script, and language files"],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 21 level, header, script, and language files"
+      ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission21-portable",
@@ -3948,7 +4734,11 @@
         "Native end-to-end route timing, exact class-7/model-39 presentation, later faults, AI, and mission outcome remain open."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission21.test.mjs"],
+      "args": [
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission21.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -3967,7 +4757,10 @@
       "prerequisites": [],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission21-browser",
@@ -3987,7 +4780,9 @@
         "Exact class-7/model-39 presentation, later faults, AI, and mission outcome remain open."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission21.mjs"],
+      "args": [
+        "scripts/check-browser-mission21.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4017,10 +4812,20 @@
         "app/world-turn.ts",
         "app/world-types.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes declared campaign profiles and current checkpoints only in new isolated browser contexts"],
-      "resources": ["Fixed server and browser resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes declared campaign profiles and current checkpoints only in new isolated browser contexts"
+      ],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission22-native",
@@ -4040,17 +4845,29 @@
         "The probe does not establish the full trigger controller's generic completion cue, a native route-timing playthrough, exact renderer comparison, save-format proof, AI proof, or mission-outcome proof."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission22-gifts.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission22-gifts.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission22-gifts.py",
         "decomp/research/mission22-rewards.md"
       ],
-      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 22 level, header, script, and language files"],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 22 level, header, script, and language files"
+      ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission22-portable",
@@ -4069,7 +4886,11 @@
         "Exact stone animation/assets, AI, objective, and mission outcome remain open."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission22.test.mjs"],
+      "args": [
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission22.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4090,7 +4911,10 @@
       "prerequisites": [],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission22-browser",
@@ -4109,7 +4933,9 @@
         "Exact stone animation/assets, AI, objective, and mission outcome remain open."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission22.mjs"],
+      "args": [
+        "scripts/check-browser-mission22.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4128,10 +4954,18 @@
         "app/world-turn.ts",
         "app/world-types.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
       "sideEffects": [],
-      "resources": ["Fixed server and browser resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission23-native",
@@ -4149,17 +4983,29 @@
         "The check does not establish Mission 23 AI, natural outcome, exact rendering/audio, or a complete native playthrough."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission23.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission23.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission23.py",
         "decomp/research/mission23-gifts.md"
       ],
-      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 23 level, header, script, and language files"],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 23 level, header, script, and language files"
+      ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission23-settlement-native",
@@ -4178,17 +5024,29 @@
         "It does not execute terrain-site acceptance, construction completion, training, attacks, combat, or outcome."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-mission23-settlement.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-mission23-settlement.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-mission23-settlement.py",
         "decomp/research/mission23-settlement.md"
       ],
-      "prerequisites": ["Hash-verified user-supplied executable with adjacent Mission 23 level, header, and script files"],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 23 level, header, and script files"
+      ],
       "sideEffects": [],
-      "resources": ["External executable and adjacent game data are read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission23-portable",
@@ -4208,7 +5066,11 @@
         "Boat production/transport, training, attacks, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission23.test.mjs"],
+      "args": [
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission23.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4229,7 +5091,10 @@
       "prerequisites": [],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "mission23-browser",
@@ -4248,7 +5113,9 @@
         "Boat production/transport, training, attacks, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-mission23.mjs"],
+      "args": [
+        "scripts/check-browser-mission23.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4268,10 +5135,18 @@
         "app/world-initialization.ts",
         "app/world-turn.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
       "sideEffects": [],
-      "resources": ["Fixed server and browser resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "tutorial-first-lesson-portable",
@@ -4293,7 +5168,11 @@
         "Later Tutorial lessons, later scripted trigger heads, completion, and native presentation remain deferred."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/tutorial.test.mjs"],
+      "args": [
+        "--experimental-strip-types",
+        "--test",
+        "tests/tutorial.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4316,7 +5195,10 @@
       "prerequisites": [],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "tutorial-first-lesson-browser",
@@ -4341,7 +5223,9 @@
         "Right-click overview exit, later lessons, completion, and original frontend styling remain deferred."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-tutorial.mjs"],
+      "args": [
+        "scripts/check-browser-tutorial.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4365,10 +5249,18 @@
         "app/world-turn.ts",
         "app/world-types.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
       "sideEffects": [],
-      "resources": ["Fixed server and browser resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "construction-live-portable",
@@ -4404,17 +5296,26 @@
         "app/live-construction-runtime.ts",
         "app/world-turn.ts"
       ],
-      "prerequisites": ["Installed locked dependencies"],
+      "prerequisites": [
+        "Installed locked dependencies"
+      ],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "construction-research-portable",
       "kind": "portable",
       "automation": "safe",
       "purpose": "Check the isolated construction-order, hauling, and resource-cache research implementations.",
-      "coveredBehavior": ["Command-6 wrapper", "task-7 phases", "timber cache lifecycle"],
+      "coveredBehavior": [
+        "Command-6 wrapper",
+        "task-7 phases",
+        "timber cache lifecycle"
+      ],
       "knownLimits": [
         "These modules have no live app callers; supplied consumers and path costs do not prove construction integration."
       ],
@@ -4435,10 +5336,15 @@
         "tests/fixtures/building-fetch.json",
         "tests/fixtures/timber-search.json"
       ],
-      "prerequisites": ["Installed locked dependencies"],
+      "prerequisites": [
+        "Installed locked dependencies"
+      ],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "construction-native-order",
@@ -4455,17 +5361,30 @@
         "Native tasks 2-9 are supplied consumers; live plan identity and scheduling remain open."
       ],
       "executable": "python3",
-      "args": ["scripts/check-native-construction-order.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-construction-order.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
-      "inputs": ["scripts/check-native-construction-order.py", "decomp/requirements.txt"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "scripts/check-native-construction-order.py",
+        "decomp/requirements.txt"
+      ],
       "prerequisites": [
         "Documented Unicorn Python environment",
         "Hash-verified user-supplied executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "construction-native-fetch",
@@ -4483,17 +5402,30 @@
         "Resource search and final world mutations are supplied consumers; it is not live hauling."
       ],
       "executable": "python3",
-      "args": ["scripts/check-native-building-fetch.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-building-fetch.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
-      "inputs": ["scripts/check-native-building-fetch.py", "decomp/requirements.txt"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "scripts/check-native-building-fetch.py",
+        "decomp/requirements.txt"
+      ],
       "prerequisites": [
         "Documented Unicorn Python environment",
         "Hash-verified user-supplied executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "construction-native-timber-search",
@@ -4511,29 +5443,49 @@
         "Candidate path costs are supplied and live scheduling/integration is absent."
       ],
       "executable": "python3",
-      "args": ["scripts/check-native-timber-search.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-timber-search.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
-      "inputs": ["scripts/check-native-timber-search.py", "decomp/requirements.txt"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "scripts/check-native-timber-search.py",
+        "decomp/requirements.txt"
+      ],
       "prerequisites": [
         "Documented Unicorn Python environment",
         "Hash-verified user-supplied executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "construction-browser",
       "kind": "browser",
       "automation": "safe",
       "purpose": "Exercise live building placement, workers, timber, construction stages, and visible completion.",
-      "coveredBehavior": ["Real placement", "live worker flow", "visible stages", "pause/cancel"],
+      "coveredBehavior": [
+        "Real placement",
+        "live worker flow",
+        "visible stages",
+        "pause/cancel"
+      ],
       "knownLimits": [
         "Does not route through the isolated command-6, task-7, or timber-cache research modules."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-construction.mjs"],
+      "args": [
+        "scripts/check-browser-construction.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4546,10 +5498,20 @@
         "app/world-turn.ts",
         "app/scene.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["May write fixed /private/tmp captures"],
-      "resources": ["Fixed server/capture resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "May write fixed /private/tmp captures"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "clock-portable",
@@ -4568,7 +5530,14 @@
         "Does not prove browser RAF, input, GPU presentation, or complete native outer scheduling."
       ],
       "executable": "node",
-      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-motion.test.mjs", "tests/hut-tooltip-controller.test.mjs", "tests/camp-inspection.test.mjs", "tests/import-tooltip-string.test.mjs"],
+      "args": [
+        "--test",
+        "tests/game-clock.test.mjs",
+        "tests/unit-motion.test.mjs",
+        "tests/hut-tooltip-controller.test.mjs",
+        "tests/camp-inspection.test.mjs",
+        "tests/import-tooltip-string.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4599,32 +5568,54 @@
         "app/original-tooltips.json",
         "scripts/import-messages.py"
       ],
-      "prerequisites": ["Installed locked dependencies"],
+      "prerequisites": [
+        "Installed locked dependencies"
+      ],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "camera-native",
       "kind": "native",
       "automation": "safe",
       "purpose": "Compare bounded native camera input, motion, and view-preset behavior.",
-      "coveredBehavior": ["Input masks", "motion clamps", "view presets"],
+      "coveredBehavior": [
+        "Input masks",
+        "motion clamps",
+        "view presets"
+      ],
       "knownLimits": [
         "Outer frame scheduling, browser cancellation, and transitions remain separate adapters."
       ],
       "executable": "python3",
-      "args": ["scripts/check-native-camera-motion.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-camera-motion.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
-      "inputs": ["scripts/check-native-camera-motion.py", "decomp/requirements.txt"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "scripts/check-native-camera-motion.py",
+        "decomp/requirements.txt"
+      ],
       "prerequisites": [
         "Documented Unicorn Python environment",
         "Hash-verified user-supplied executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "camera-browser",
@@ -4642,7 +5633,9 @@
         "Browser consistency is not native outer-loop equivalence or hardware performance proof."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-camera-smoothing.mjs"],
+      "args": [
+        "scripts/check-browser-camera-smoothing.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4655,10 +5648,20 @@
         "app/audio.ts",
         "app/camera-motion.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["May write fixed /private/tmp captures"],
-      "resources": ["Fixed server/capture resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "May write fixed /private/tmp captures"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "early-mission-skies-portable",
@@ -4778,17 +5781,51 @@
       "kind": "browser",
       "automation": "safe",
       "purpose": "Inspect intermediate ordinary zoom footprints and added-edge picking in actual WebGL output.",
-      "coveredBehavior": ["Zoom in/out", "reversal", "combined pan/rotation", "shared GPU/CPU footprint", "legacy-cutoff positive control", "resized and torus-seam added-edge picking"],
-      "knownLimits": ["Deterministic rendered consistency is not native raster equivalence or hardware performance proof.", "75 ordinary transition samples are reviewable captures with shared-row assertions; automated pixel comparisons cover three intermediate zoom-out positive controls."],
+      "coveredBehavior": [
+        "Zoom in/out",
+        "reversal",
+        "combined pan/rotation",
+        "shared GPU/CPU footprint",
+        "legacy-cutoff positive control",
+        "resized and torus-seam added-edge picking"
+      ],
+      "knownLimits": [
+        "Deterministic rendered consistency is not native raster equivalence or hardware performance proof.",
+        "75 ordinary transition samples are reviewable captures with shared-row assertions; automated pixel comparisons cover three intermediate zoom-out positive controls."
+      ],
       "executable": "node",
-      "args": ["scripts/check-browser-zoom-edges.mjs"],
+      "args": [
+        "scripts/check-browser-zoom-edges.mjs"
+      ],
       "cwd": ".",
       "env": [],
-      "inputs": ["scripts/check-browser-zoom-edges.mjs", "scripts/browser-game.mjs", "app/render-view.ts", "app/viewport-bounds.ts", "app/scene.ts", "app/scene-terrain-runtime.ts", "app/terrain-visibility.ts", "app/scene-camera-runtime.ts", "app/scene-input-runtime.ts", "app/camera-view.ts", "app/projection.ts"],
-      "prerequisites": ["Running game server", "Playwright Chromium or POPULOUS_HEADLESS_SHELL"],
-      "sideEffects": ["Writes checkout-local screenshots and JSON report under work/browser-zoom-edges or POPULOUS_ZOOM_ARTIFACTS"],
-      "resources": ["Own browser profile, server port and capture directory"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "inputs": [
+        "scripts/check-browser-zoom-edges.mjs",
+        "scripts/browser-game.mjs",
+        "app/render-view.ts",
+        "app/viewport-bounds.ts",
+        "app/scene.ts",
+        "app/scene-terrain-runtime.ts",
+        "app/terrain-visibility.ts",
+        "app/scene-camera-runtime.ts",
+        "app/scene-input-runtime.ts",
+        "app/camera-view.ts",
+        "app/projection.ts"
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium or POPULOUS_HEADLESS_SHELL"
+      ],
+      "sideEffects": [
+        "Writes checkout-local screenshots and JSON report under work/browser-zoom-edges or POPULOUS_ZOOM_ARTIFACTS"
+      ],
+      "resources": [
+        "Own browser profile, server port and capture directory"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "terrain-portable",
@@ -4823,24 +5860,38 @@
         "app/terrain-visibility.ts",
         "app/painter-order.ts"
       ],
-      "prerequisites": ["Installed locked dependencies"],
+      "prerequisites": [
+        "Installed locked dependencies"
+      ],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "terrain-native",
       "kind": "native",
       "automation": "safe",
       "purpose": "Compare bounded native terrain diagonals and height sampling.",
-      "coveredBehavior": ["Stored splits", "height interpolation", "wrapped cases"],
+      "coveredBehavior": [
+        "Stored splits",
+        "height interpolation",
+        "wrapped cases"
+      ],
       "knownLimits": [
         "Does not execute the complete scheduler, renderer, or every terrain mutation consumer."
       ],
       "executable": "python3",
-      "args": ["scripts/check-native-terrain.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-terrain.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-terrain.py",
         "decomp/requirements.txt",
@@ -4851,20 +5902,32 @@
         "Hash-verified user-supplied executable"
       ],
       "sideEffects": [],
-      "resources": ["External executable is read-only"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "External executable is read-only"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "terrain-browser",
       "kind": "browser",
       "automation": "manual",
       "purpose": "Exercise live terrain copy selection, submission, and GPU-visible output.",
-      "coveredBehavior": ["Wrapped copies", "cell submission", "wide viewport", "GPU pixels"],
+      "coveredBehavior": [
+        "Wrapped copies",
+        "cell submission",
+        "wide viewport",
+        "GPU pixels"
+      ],
       "knownLimits": [
         "Browser-path equivalence is not complete native renderer parity; headless mode does not identify hardware by itself."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-terrain-copies.mjs"],
+      "args": [
+        "scripts/check-browser-terrain-copies.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4874,10 +5937,20 @@
         "app/scene.ts",
         "app/scene-terrain-runtime.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["May write tracked performance artifacts and fixed /private/tmp captures"],
-      "resources": ["Fixed server/capture resources; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "May write tracked performance artifacts and fixed /private/tmp captures"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "ghost-army-browser",
@@ -4894,7 +5967,9 @@
         "Headless browser rendering does not establish complete native raster parity."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-ghost-army.mjs"],
+      "args": [
+        "scripts/check-browser-ghost-army.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4902,10 +5977,18 @@
         "scripts/browser-game.mjs",
         "app"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
       "sideEffects": [],
-      "resources": ["Fixed game server and browser; run serially"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "performance-profile",
@@ -4923,7 +6006,10 @@
         "Default headless results are diagnostic, not hardware FPS certification; workload flags and acceptance criteria must be chosen before running."
       ],
       "executable": "node",
-      "args": ["scripts/profile-game.mjs", "--headed"],
+      "args": [
+        "scripts/profile-game.mjs",
+        "--headed"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4937,9 +6023,16 @@
         "Exclusive measurement window",
         "Predeclared workload and acceptance criteria"
       ],
-      "sideEffects": ["Writes a profile JSON to an argument-selected path or /private/tmp"],
-      "resources": ["Serialize performance runs, fixed server, browser, GPU, and capture path"],
-      "expected": { "exitCode": 0, "artifacts": [] },
+      "sideEffects": [
+        "Writes a profile JSON to an argument-selected path or /private/tmp"
+      ],
+      "resources": [
+        "Serialize performance runs, fixed server, browser, GPU, and capture path"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
       "advisory": true
     },
     {
@@ -5168,7 +6261,7 @@
       "id": "level-start-portable",
       "kind": "portable",
       "automation": "safe",
-      "purpose": "Verify ordinary Mission1–3 startup, input release, terrain/conversion, restart, flyby skip and resumable checkpoints.",
+      "purpose": "Verify ordinary Mission1\u20133 startup, input release, terrain/conversion, restart, flyby skip and resumable checkpoints.",
       "coveredBehavior": [
         "Authored startup gates",
         "Real terrain and replacement braves",
@@ -5180,7 +6273,10 @@
         "Browser pixels and native instruction comparisons run separately."
       ],
       "executable": "pnpm",
-      "args": ["run", "test:level-start"],
+      "args": [
+        "run",
+        "test:level-start"
+      ],
       "inputs": [
         "package.json",
         "app/level-start.ts",
@@ -5334,7 +6430,7 @@
       "id": "level-start-browser",
       "kind": "browser",
       "automation": "manual",
-      "purpose": "Capture real before/during/after Mission1–3 startup on the exact development commit.",
+      "purpose": "Capture real before/during/after Mission1\u20133 startup on the exact development commit.",
       "coveredBehavior": [
         "Natural mission button entry",
         "Shipped scene/frame callback",
@@ -5690,9 +6786,14 @@
         "The current caller uses ordinary combat death and supplied post-death terrain; no shipped spell or native raster claim."
       ],
       "executable": ".tools/decomp/oracle/bin/python",
-      "args": ["scripts/check-native-shaman-death-ground.py", "$POPULOUS_EXE"],
+      "args": [
+        "scripts/check-native-shaman-death-ground.py",
+        "$POPULOUS_EXE"
+      ],
       "cwd": ".",
-      "env": ["POPULOUS_EXE"],
+      "env": [
+        "POPULOUS_EXE"
+      ],
       "inputs": [
         "scripts/check-native-shaman-death-ground.py",
         "scripts/decomp.py",
@@ -5708,8 +6809,13 @@
         "Hash-verified executable, levels/constant.dat, data/mwsearch.dat, data/vstart-0.ani and data/vfra-0.ani"
       ],
       "sideEffects": [],
-      "resources": ["Read-only native inputs; coordinate CPU use"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "resources": [
+        "Read-only native inputs; coordinate CPU use"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "shaman-death-ground-browser",

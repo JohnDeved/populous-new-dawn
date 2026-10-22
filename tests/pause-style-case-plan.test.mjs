@@ -92,3 +92,12 @@ test('one passing mode cannot satisfy combined coverage', () => {
   const data = fixture(false)
   assert.throws(() => assertPauseStyleCoverage('combined', data.records, data.fullscreen))
 })
+
+test('portable registry owns the new tests and split entrypoints without activating them', async () => {
+  const { readFileSync } = await import('node:fs')
+  const registry = JSON.parse(readFileSync(new URL('../engineering/checks.json', import.meta.url), 'utf8'))
+  const lane = registry.checks.find(check => check.id === 'native-ui-evidence-tests')
+  assert.ok(lane.args.includes('tests/pause-style-case-plan.test.mjs'))
+  for (const path of ['scripts/local-render/pause-style-case-plan.mjs', 'scripts/local-render/original-pause-checkpoint-native-style.mjs', 'scripts/local-render/original-pause-checkpoint-fallback-style.mjs'])
+    assert.ok(lane.inputs.includes(path), path)
+})
