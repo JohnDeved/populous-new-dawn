@@ -111,9 +111,17 @@ test('materializer treats output as bytes and discards executable configuration'
 test('materializer rejects traversal, symlinks, duplicate paths and unrelated files', t => {
   const directory = mkdtempSync(join(tmpdir(), 'cloudflare-reject-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
   for (const entry of [['server/../../escape.js', 'x'], ['server/link.js', '/proc/self/environ', 0xa1ff],
-    ['package.json', '{}'], ['server/index.js', 'duplicate']]) {
+    ['package.json', '{}'], ['server/index.js', 'duplicate'], ['server/~/../../escape.js', 'x'],
+    ['server/%2e%2e/escape.js', 'x'], ['server/..\\escape.js', 'x'], ['server/chunk;evil.js', 'x']]) {
     assert.throws(() => materializeBuild(archive([['server/index.js', 'x'], ['client/index.html', 'x'], entry]), join(directory, String(Math.random()))))
   }
+})
+test('materializer accepts real Vinext tilde chunk names without shell expansion', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-chunks-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
+  const chunk = '_next/static/framework~index~layout~app-page-cache-Cwzzu7Ov.js'
+  const code = 'throw new Error("MUST NOT EXECUTE")'
+  materializeBuild(archive([['server/index.js', `import "./${chunk}"`], [`server/${chunk}`, code], ['client/index.html', '<html/>']]), directory)
+  assert.equal(readFileSync(join(directory, 'worker', chunk), 'utf8'), code)
 })
 test('upload parsing requires both exact trusted URLs and an immutable matching version', () => {
   assert.deepEqual(uploadedVersion(upload, alias), { id: version, commitUrl: `https://01234567-${workerHost}`, branchUrl: `https://${alias}-${workerHost}` })
