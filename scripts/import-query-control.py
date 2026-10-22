@@ -6,12 +6,16 @@ Usage: python3 scripts/import-query-control.py GAME_ROOT [--reuse-assets DIR]
 The optional reused PNGs must match freshly decoded source bytes exactly before
 hardlinking. Existing outputs are checked, never overwritten. --check is read-only.
 """
+import sys
+sys.dont_write_bytecode = True
+
 import argparse
 import importlib.util
 import json
 import os
 from pathlib import Path
 import struct
+import stat
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('result_ui', ROOT / 'scripts/import-result-ui.py')
@@ -70,6 +74,42 @@ def build(inputs):
     return outputs
 
 
+
+def regular_file(path):
+    try:
+        mode = path.lstat().st_mode
+    except FileNotFoundError:
+        return False
+    if not stat.S_ISREG(mode):
+        raise ValueError(f'Not a regular, non-symlink file: {path}')
+    return True
+
+
+def output_target(root, name):
+    root = root.absolute()
+    if root.is_symlink() or not root.is_dir():
+        raise ValueError('Output root must be an existing non-symlink directory')
+    path = root / name
+    if not path.parent.resolve().is_relative_to(root.resolve()):
+        raise ValueError(f'Output escapes selected root: {path}')
+    parent = path.parent
+    while parent != root:
+        if parent.is_symlink() or (parent.exists() and not parent.is_dir()):
+            raise ValueError(f'Unsafe output parent: {parent}')
+        parent = parent.parent
+    regular_file(path)
+    return path
+
+
+def write_new(path, data, reused=None):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if reused is not None:
+        os.link(reused, path, follow_symlinks=False)
+    else:
+        with path.open('xb') as stream:
+            stream.write(data)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('game_root', type=Path)
@@ -86,25 +126,21 @@ def main():
     outputs = build(inputs)
     reused = {}
     for name, data in outputs.items():
-        path = args.output / name
-        if path.exists() and path.read_bytes() != data:
+        path = output_target(args.output, name)
+        if regular_file(path) and path.read_bytes() != data:
             raise ValueError(f'Differing owned output; use a fresh --output: {path}')
-        if args.check and not path.is_file():
+        if args.check and not regular_file(path):
             raise FileNotFoundError(path)
         if args.reuse_assets and name.endswith('.png'):
             candidate = args.reuse_assets / Path(name).name
-            if candidate.read_bytes() != data:
+            if not regular_file(candidate) or candidate.read_bytes() != data:
                 raise ValueError(f'Reused artwork differs from original decoded bytes: {candidate}')
             reused[name] = candidate
     if not args.check:
         for name, data in outputs.items():
-            path = args.output / name
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                if name in reused:
-                    os.link(reused[name], path)
-                else:
-                    path.write_bytes(data)
+            path = output_target(args.output, name)
+            if not regular_file(path):
+                write_new(path, data, reused.get(name))
     print(json.dumps({'check': args.check, 'outputs': len(outputs), 'verifiedReusablePngs': len(reused), 'originalExecuted': False}))
 
 
