@@ -14,7 +14,8 @@
         "Fresh-locator focus observation with original strict/attachment-waiting fallback and real bounded Tab navigation",
         "Distinct checkpoint wrapper/scroller/action ownership, decoded original scrollbar image geometry/hits and complete fullscreen cap coverage",
         "Actual browser-added Options glyph/fallback text clears the live HUD and navigation without wide-container bounds",
-        "Same-read actual modal ownership and opaque frontend versus transparent in-game coverage distinguish mounted HUDs from exposed HUD clearance"
+        "Same-read actual modal ownership and opaque frontend versus transparent in-game coverage distinguish mounted HUDs from exposed HUD clearance",
+        "Fixed native/fallback pause cases retain exact coverage, serial awaited cleanup and cancellation, without changing the legacy combined episode policy"
       ],
       "knownLimits": [
         "Synthetic Node fixtures validate checker rejection behavior, not rendered UI or original-game pixel parity.",
@@ -33,7 +34,8 @@
         "tests/checkpoint-body-clearance.test.mjs",
         "tests/fullscreen-clearance.test.mjs",
         "tests/options-copy-clearance.test.mjs",
-        "tests/recovery-input-budget.test.mjs"
+        "tests/recovery-input-budget.test.mjs",
+        "tests/pause-style-case-plan.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -77,7 +79,11 @@
         "app/original-main-menu.tsx",
         "app/original-main-menu.module.css",
         "app/original-pause-menu.tsx",
-        "app/original-pause-menu.module.css"
+        "app/original-pause-menu.module.css",
+        "scripts/local-render/pause-style-case-plan.mjs",
+        "scripts/local-render/original-pause-checkpoint-native-style.mjs",
+        "scripts/local-render/original-pause-checkpoint-fallback-style.mjs",
+        "tests/pause-style-case-plan.test.mjs"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -128,7 +134,11 @@
         "tests/recovery-input-budget.test.mjs",
         "engineering/recovery-input-budget.md",
         "app/original-main-menu.module.css",
-        "app/original-pause-menu.module.css"
+        "app/original-pause-menu.module.css",
+        "scripts/local-render/pause-style-case-plan.mjs",
+        "scripts/local-render/original-pause-checkpoint-native-style.mjs",
+        "scripts/local-render/original-pause-checkpoint-fallback-style.mjs",
+        "tests/pause-style-case-plan.test.mjs"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
