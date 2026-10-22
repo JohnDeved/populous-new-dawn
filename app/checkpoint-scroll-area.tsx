@@ -8,7 +8,12 @@ import styles from './checkpoint-scroll-area.module.css'
 
 /** Browser-owned scrolling with verified original Help artwork, not native Help
  * timing/input behavior. The browser keeps wheel, touch, keyboard and scrollTop. */
-export function CheckpointScrollArea({ children }: { children: ReactNode }) {
+export function CheckpointScrollArea({ children, purpose = 'checkpoint' }: {
+  children: ReactNode
+  purpose?: 'checkpoint' | 'loading'
+}) {
+  const loading = purpose === 'loading'
+  const label = loading ? 'Loading recovery details' : 'Checkpoint details'
   const id = useId()
   const viewport = useRef<HTMLDivElement>(null)
   const content = useRef<HTMLDivElement>(null)
@@ -107,23 +112,24 @@ export function CheckpointScrollArea({ children }: { children: ReactNode }) {
   }, [ready, plan.maximum, release])
 
   return (
-    <div className={styles.area} data-scroll-art={ready && plan.maximum > 0}>
+    <div className={styles.area} data-scroll-art={ready && plan.maximum > 0} data-loading-scroll-area={loading || undefined}>
       <div
         id={id}
         ref={viewport}
         className={styles.viewport}
-        tabIndex={0}
+        tabIndex={loading && !plan.maximum ? -1 : 0}
         role="region"
-        data-pause-checkpoint-scroll
-        aria-label="Checkpoint details"
+        data-pause-checkpoint-scroll={!loading || undefined}
+        data-loading-recovery-scroll={loading || undefined}
+        aria-label={label}
         onScroll={measure}
       >
-        <div ref={content} className={styles.content}>
+        <div ref={content} className={loading ? styles.loadingContent : styles.content}>
           {children}
         </div>
       </div>
       {ready && plan.maximum > 0 && (
-        <div ref={scrollbar} className={styles.scrollbar}>
+        <div ref={scrollbar} className={styles.scrollbar} data-loading-scrollbar={loading || undefined}>
           <div className={styles.thumb} style={{ top: plan.offset, height: plan.thumb }}>
             {(['up', 'down'] as const).map(direction => {
               const asset =
@@ -137,9 +143,10 @@ export function CheckpointScrollArea({ children }: { children: ReactNode }) {
                   type="button"
                   className={styles.cap}
                   tabIndex={0}
-                  data-pause-checkpoint-cap={direction}
+                  data-pause-checkpoint-cap={loading ? undefined : direction}
+                  data-loading-scroll-cap={loading ? direction : undefined}
                   style={{ top: direction === 'up' ? 0 : plan.thumb - 12, height: asset.height }}
-                  aria-label={`Scroll checkpoint details ${direction}`}
+                  aria-label={`Scroll ${label.toLowerCase()} ${direction}`}
                   aria-controls={id}
                   onPointerEnter={() => setHover(direction)}
                   onPointerLeave={() => setHover(null)}

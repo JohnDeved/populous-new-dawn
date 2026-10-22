@@ -19,3 +19,11 @@
   .area[data-scroll-art='true'] .viewport::-webkit-scrollbar { display: block; }
   .scrollbar { display: none; }
 }
+
+/* Failed loading owns a full-height browser recovery column, not the fixed
+   checkpoint copy width. Keep the original 24px art clear of text on the right
+   and the fullscreen control clear on the compact left. */
+.loadingContent { box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 20px; padding: 28px 32px; }
+@media (max-width: 680px) { .loadingContent { padding-left: 44px; } }
+.area[data-loading-scroll-area] .viewport:focus-visible { outline-offset: -2px; }
+.area[data-loading-scroll-area] .cap:focus-visible { outline-offset: -1px; }

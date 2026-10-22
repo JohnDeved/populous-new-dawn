@@ -24,7 +24,7 @@ function eventTarget() {
 
 // Executes shipped React handlers/effect lifetimes with measured DOM stand-ins.
 // This does not establish actual layout, accessibility-tree or rendered acceptance.
-function fixture({ rejectRelease = false } = {}) {
+function fixture({ rejectRelease = false, purpose = 'checkpoint' } = {}) {
   const slots = [], effects = [], images = [], observers = []
   let cursor = 0, output, nodes, scrollTop = 0
   const viewport = { clientHeight: 270, scrollHeight: 540,
@@ -82,15 +82,15 @@ function fixture({ rejectRelease = false } = {}) {
     if (name === 'react/jsx-runtime') return require(name)
     if (name === './checkpoint-scroll') return scrolling
     if (name.endsWith('.module.css')) return Object.fromEntries(
-      ['area', 'viewport', 'content', 'scrollbar', 'thumb', 'cap', 'drag'].map(key => [key, key]))
+      ['area', 'viewport', 'content', 'loadingContent', 'scrollbar', 'thumb', 'cap', 'drag'].map(key => [key, key]))
     throw Error(`Unexpected dependency: ${name}`)
   }, component, component.exports, Image, ResizeObserver, window, document)
   function render() {
     cursor = 0
-    output = component.exports.CheckpointScrollArea({ children: 'All existing checkpoint warnings' })
+    output = component.exports.CheckpointScrollArea({ children: 'All existing checkpoint warnings', purpose })
     nodes = tree(output)
     for (const node of nodes) if (node.props.ref) node.props.ref.current =
-      ({ viewport, content, scrollbar })[node.props.className]
+      ({ viewport, content, loadingContent: content, scrollbar })[node.props.className]
     while (effects.length) effects.shift()()
     return output
   }
@@ -272,4 +272,51 @@ test('CSS keeps centered native-width copy, focus outlines, nearest-neighbor art
   assert.match(css, /@media \(forced-colors: active\)/)
   assert.match(css, /scrollbar-width: auto/)
   assert.match(css, /\.scrollbar \{ display: none; \}/)
+})
+
+
+test('loading opt-in reuses the same real scroll controller with separate owners and labels', async () => {
+  const ui = fixture({ purpose: 'loading' })
+  assert.equal(ui.output().props['data-loading-scroll-area'], true)
+  assert.equal(ui.find('viewport').props['data-pause-checkpoint-scroll'], undefined)
+  assert.equal(ui.find('viewport').props['data-loading-recovery-scroll'], true)
+  assert.equal(ui.find('viewport').props['aria-label'], 'Loading recovery details')
+  assert.ok(ui.find('loadingContent'))
+  await ui.decode()
+  for (const direction of ['up', 'down']) {
+    const cap = ui.nodes().find(node => node.props?.['data-loading-scroll-cap'] === direction)
+    assert.equal(cap.props['data-pause-checkpoint-cap'], undefined)
+    assert.equal(cap.props['aria-label'], `Scroll loading recovery details ${direction}`)
+    assert.equal(cap.props['aria-controls'], ui.find('viewport').props.id)
+    assert.equal(cap.props.tabIndex, 0)
+  }
+  ui.nodes().find(node => node.props?.['data-loading-scroll-cap'] === 'down').props.onClick()
+  ui.sync(); assert.equal(ui.viewport.scrollTop, 30)
+  ui.pointer('onPointerDown'); ui.pointer('onPointerMove', { clientY: 235 })
+  ui.sync(); assert.equal(ui.viewport.scrollTop, 165)
+  ui.pointer('onPointerCancel'); assert.equal(ui.captured.size, 0)
+  ui.viewport.scrollHeight = 200; ui.observers[0].callback(); ui.render()
+  assert.equal(ui.find('viewport').props.tabIndex, -1, 'no extra Tab stop without actual overflow')
+  assert.equal(ui.find('scrollbar'), undefined)
+  ui.unmount()
+  assert.equal(ui.window.listeners.size, 0)
+})
+
+for (const [label, failure, badSize] of [['missing', true, false], ['wrong-size', false, true]]) {
+  test(`loading ${label} art keeps the browser viewport and no false custom bar`, async () => {
+    const ui = fixture({ purpose: 'loading' }); await ui.decode(failure, badSize)
+    assert.equal(ui.output().props['data-scroll-art'], false)
+    assert.equal(ui.find('scrollbar'), undefined)
+    assert.equal(ui.find('viewport').props.tabIndex, 0)
+    ui.unmount()
+  })
+}
+
+test('loading CSS reserves art and fullscreen gutters without changing the fixed checkpoint layout', () => {
+  const css = readFileSync(new URL('../app/checkpoint-scroll-area.module.css', import.meta.url), 'utf8')
+  assert.match(css, /\.loadingContent \{[^}]*min-height: 100%[^}]*justify-content: safe center[^}]*padding: 28px 32px/)
+  assert.match(css, /@media \(max-width: 680px\) \{ \.loadingContent \{ padding-left: 44px/)
+  assert.match(css, /\.area\[data-loading-scroll-area\] \.viewport:focus-visible \{ outline-offset: -2px/)
+  assert.match(css, /\.area\[data-loading-scroll-area\] \.cap:focus-visible \{ outline-offset: -1px/)
+  assert.match(css, /\.content \{[^}]*width: 368px; margin: 0 auto/)
 })

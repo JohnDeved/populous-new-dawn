@@ -14,7 +14,8 @@
         "Fresh-locator focus observation with original strict/attachment-waiting fallback and real bounded Tab navigation",
         "Distinct checkpoint wrapper/scroller/action ownership, decoded original scrollbar image geometry/hits and complete fullscreen cap coverage",
         "Actual browser-added Options glyph/fallback text clears the live HUD and navigation without wide-container bounds",
-        "Same-read actual modal ownership and opaque frontend versus transparent in-game coverage distinguish mounted HUDs from exposed HUD clearance"
+        "Same-read actual modal ownership and opaque frontend versus transparent in-game coverage distinguish mounted HUDs from exposed HUD clearance",
+        "Failed loading reuses decoded original scrollbar art with real scroll/input ownership, safe fallback, and positive same-capture art geometry/fullscreen clearance"
       ],
       "knownLimits": [
         "Synthetic Node fixtures validate checker rejection behavior, not rendered UI or original-game pixel parity.",
@@ -33,7 +34,9 @@
         "tests/checkpoint-body-clearance.test.mjs",
         "tests/fullscreen-clearance.test.mjs",
         "tests/options-copy-clearance.test.mjs",
-        "tests/recovery-input-budget.test.mjs"
+        "tests/recovery-input-budget.test.mjs",
+        "tests/original-loading-screen.test.mjs",
+        "tests/checkpoint-scroll-area.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -77,7 +80,21 @@
         "app/original-main-menu.tsx",
         "app/original-main-menu.module.css",
         "app/original-pause-menu.tsx",
-        "app/original-pause-menu.module.css"
+        "app/original-pause-menu.module.css",
+        "app/original-loading-screen.tsx",
+        "app/original-loading-art.json",
+        "app/original-frontend.json",
+        "app/page.tsx",
+        "app/checkpoint-scroll-area.tsx",
+        "app/checkpoint-scroll-area.module.css",
+        "app/checkpoint-scroll.ts",
+        "app/globals.css",
+        "scripts/local-render/loading-recovery-style.mjs",
+        "tests/original-loading-screen.test.mjs",
+        "tests/checkpoint-scroll-area.test.mjs",
+        "public/original/loading-mask.png",
+        "public/original/loading-label.json",
+        "public/original/loading-label.png"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -128,11 +145,25 @@
         "tests/recovery-input-budget.test.mjs",
         "engineering/recovery-input-budget.md",
         "app/original-main-menu.module.css",
-        "app/original-pause-menu.module.css"
+        "app/original-pause-menu.module.css",
+        "app/original-loading-screen.tsx",
+        "app/original-loading-art.json",
+        "app/original-frontend.json",
+        "app/page.tsx",
+        "app/checkpoint-scroll-area.tsx",
+        "app/checkpoint-scroll-area.module.css",
+        "app/checkpoint-scroll.ts",
+        "app/globals.css",
+        "scripts/local-render/loading-recovery-style.mjs",
+        "tests/original-loading-screen.test.mjs",
+        "tests/checkpoint-scroll-area.test.mjs",
+        "public/original/loading-mask.png",
+        "public/original/loading-label.json",
+        "public/original/loading-label.png"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
-        "Installed project dependencies including js-yaml and @playwright/test"
+        "Installed project dependencies including js-yaml, @playwright/test, TypeScript and React"
       ],
       "sideEffects": [
         "Creates and removes owned temporary Git/filesystem fixtures; imports installed Playwright without browser launch. No network, persistent source edits or fixed ports."

@@ -6,6 +6,7 @@ import { createRequire } from 'node:module'
 import ts from 'typescript'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createElement } from 'react'
+import * as scrolling from '../app/checkpoint-scroll.ts'
 
 const require = createRequire(import.meta.url)
 const art = JSON.parse(readFileSync(new URL('../app/original-loading-art.json', import.meta.url), 'utf8'))
@@ -21,9 +22,27 @@ function load(react = require('react'), exportName = 'OriginalLoadingScreen') {
     if (name === './original-frontend.json') return {default: frontend}
     if (name === './original-loading-art.json') return {default: art}
     if (name === 'react/jsx-runtime') return require(name)
+    if (name === './checkpoint-scroll-area') return loadScrollArea()
     throw Error(`Unexpected component dependency: ${name}`)
   }, component, component.exports)
   return component.exports[exportName]
+}
+// Actual shared scroll-area JSX on the server; effects/physical layout remain
+// separate rendered gates, not simulated by this markup test.
+function loadScrollArea() {
+  const source = readFileSync(new URL('../app/checkpoint-scroll-area.tsx', import.meta.url), 'utf8')
+  const code = ts.transpileModule(source, { compilerOptions: {
+    module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022,
+  } }).outputText
+  const component = { exports: {} }
+  new Function('require', 'module', 'exports', code)(name => {
+    if (['react', 'react/jsx-runtime'].includes(name)) return require(name)
+    if (name === './checkpoint-scroll') return scrolling
+    if (name.endsWith('.module.css')) return { default: Object.fromEntries(
+      ['area', 'viewport', 'content', 'loadingContent', 'scrollbar', 'thumb', 'cap', 'drag'].map(key => [key, key])) }
+    throw Error(`Unexpected scroll-area dependency: ${name}`)
+  }, component, component.exports)
+  return component.exports
 }
 const Component = load()
 const render = (phase, error = '<failed terrain request>') => renderToStaticMarkup(createElement(Component, {
@@ -316,7 +335,10 @@ test('recovery font loading is failed-phase-only, failure-safe and unmount-safe'
 
 test('browser recovery keeps scrollable native rows and unrestricted escaped diagnostic text', () => {
   const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
-  assert.match(css, /\.loading-world\[data-loading-phase=failed\]\{[^}]*justify-content:safe center[^}]*overflow:auto/)
+  assert.match(css, /\.loading-world\[data-loading-phase=failed\]\{overflow:hidden\}/)
+  const scrollCss = readFileSync(new URL('../app/checkpoint-scroll-area.module.css', import.meta.url), 'utf8')
+  assert.match(scrollCss, /\.viewport \{[^}]*overflow: auto/)
+  assert.match(scrollCss, /\.loadingContent \{[^}]*justify-content: safe center/)
   assert.match(css, /\.loading-recovery button\{[^}]*min-height:30px[^}]*border:0[^}]*background:transparent/)
   assert.match(css, /\.loading-recovery \.loading-recovery-error\{[^}]*white-space:pre-wrap[^}]*overflow-wrap:anywhere/)
   assert.match(css, /\.loading-recovery\{--loading-recovery-font:url\('\/original\/frontend\/felo33we\.png'\)/)
@@ -376,4 +398,148 @@ test('the invoked loading checker preserves primary failure while still failing 
   const report = { status: 'passed' }
   await finishLoadingRecovery({ report, gates: [], save() {} })
   assert.equal(report.status, 'passed', 'natural no-op cleanup must not manufacture a failure')
+})
+
+
+test('only failed recovery mounts the shipped original-art scroll region', () => {
+  for (const phase of ['restore', 'loading']) {
+    const html = render(phase)
+    assert.ok(!html.includes('data-loading-scroll-area'))
+    assert.ok(!html.includes('Loading recovery details'))
+  }
+  const html = render('failed')
+  assert.match(html, /data-loading-scroll-area="true"/)
+  assert.match(html, /data-loading-recovery-scroll="true" aria-label="Loading recovery details"/)
+  assert.ok(!html.includes('data-pause-checkpoint-scroll'))
+  assert.match(html, /class="loadingContent"/)
+})
+
+test('recovery Tab ownership includes the real overflow region and visible caps, not hidden fallback art', () => {
+  const previousDocument = globalThis.document, previousStyle = globalThis.getComputedStyle
+  const harness = inspectState(), root = harness.render('failed')[0]
+  const focused = []
+  const control = (name, visible = true) => ({ name, getClientRects: () => visible ? [{}] : [],
+    focus() { focused.push(name); globalThis.document.activeElement = this } })
+  const region = control('region'), summary = control('summary'), retry = control('retry')
+  const up = control('up'), down = control('down'), hidden = control('hidden', false)
+  let candidates = [region, summary, retry, up, down, hidden]
+  root.props.ref.current = { querySelectorAll(selector) {
+    assert.equal(selector, 'summary,button,[data-loading-recovery-scroll][tabindex="0"]')
+    return candidates
+  } }
+  globalThis.document = { activeElement: retry }
+  globalThis.getComputedStyle = () => ({ visibility: 'visible' })
+  const tab = shiftKey => root.props.onKeyDown({ key: 'Tab', shiftKey, preventDefault() {} })
+  try {
+    tab(false); tab(false); tab(false); tab(false)
+    assert.deepEqual(focused, ['up', 'down', 'region', 'summary'])
+    tab(true); assert.equal(focused.at(-1), 'region')
+    candidates = [summary, retry, hidden]; document.activeElement = retry
+    tab(false); assert.equal(focused.at(-1), 'summary', 'no-overflow/forced-colors hidden art is not a focus trap')
+    let prevented = false
+    root.props.onKeyDown({ key: 'End', preventDefault() { prevented = true } })
+    assert.equal(prevented, false, 'Home/End/native scrolling remain browser-owned')
+  } finally {
+    if (previousDocument === undefined) delete globalThis.document
+    else globalThis.document = previousDocument
+    if (previousStyle === undefined) delete globalThis.getComputedStyle
+    else globalThis.getComputedStyle = previousStyle
+  }
+})
+
+
+function loadingScrollbarOracle() {
+  const source = readFileSync(new URL('../scripts/local-render/loading-recovery-style.mjs', import.meta.url), 'utf8')
+  const code = ts.transpileModule(source, { compilerOptions: {
+    module: ts.ModuleKind.CommonJS, esModuleInterop: true, target: ts.ScriptTarget.ES2022,
+  } }).outputText
+  const module = { exports: {} }
+  new Function('require', 'module', 'exports', code)(name => {
+    if (['node:assert/strict', 'node:fs', 'node:path'].includes(name)) return require(name)
+    if (['../browser-new-game.mjs', './fullscreen-clearance.mjs'].includes(name)) return {}
+    throw Error(`Unexpected loading observer dependency: ${name}`)
+  }, module, module.exports)
+  return module.exports.assertLoadingScrollbar
+}
+// Synthetic owner/geometry fixture, not a relabeled observation from the failed
+// 65a9 browser capture. That actual white scrollbar must remain rejected.
+function loadingScrollbarSample(overflow = true) {
+  const box = (x, y, width, height) => ({ x, y, width, height, right: x + width, bottom: y + height })
+  return { phase: 'failed', viewport: { width: 320, height: 240 }, forcedColors: false,
+    counts: { areas: 1, scrollers: 1, tracks: overflow ? 1 : 0 }, owned: true, enabled: String(overflow),
+    scroller: { box: box(0, 0, 320, 240), visible: true, id: 'recovery-scroll', uniqueId: true,
+      label: 'Loading recovery details', role: 'region', tabIndex: overflow ? 0 : -1,
+      scrollTop: 0, scrollHeight: overflow ? 480 : 240, clientHeight: 240,
+      scrollWidth: 320, clientWidth: 320, overflowY: 'auto', scrollbarWidth: overflow ? 'none' : 'thin' },
+    copy: box(44, 10, 244, 160), logo: box(100, 0, 130, 161),
+    track: overflow ? box(296, 0, 24, 240) : null, thumb: overflow ? box(296, 0, 24, 120) : null,
+    drag: overflow ? box(296, 10, 24, 98) : null, trackOwned: true, trackVisible: true, dragVisible: true, dragHit: true,
+    dragImage: { path: '/original/help/hfx-455.png', sameOrigin: true },
+    dragBackground: 'url("http://localhost/original/help/hfx-455.png")', dragRepeat: 'repeat-y',
+    caps: overflow ? ['up', 'down'].map(direction => {
+      const up = direction === 'up', height = up ? 10 : 12, rect = box(296, up ? 0 : 108, 24, height)
+      return { direction, label: `Scroll loading recovery details ${direction}`, owner: true,
+        controls: 'recovery-scroll', controlsOwner: true, tag: 'BUTTON', disabled: false, tabIndex: 0,
+        visible: true, hit: true, box: rect, highlighted: false,
+        image: { count: 1, path: `/original/help/hfx-${up ? 451 : 452}.png`, sameOrigin: true,
+          complete: true, width: 24, height, alt: '', draggable: false, visible: true, box: { ...rect } } }
+    }) : [] }
+}
+
+test('loading scrollbar oracle accepts only owned normal art or true nonoverflow and leaves pending untouched', () => {
+  const check = loadingScrollbarOracle()
+  check(loadingScrollbarSample()); check(loadingScrollbarSample(false))
+  for (const phase of ['restore', 'loading']) check({ phase, counts: { areas: 0, scrollers: 0, tracks: 0 }, caps: [] })
+  const highlighted = loadingScrollbarSample()
+  highlighted.caps[0].highlighted = true; highlighted.caps[0].image.path = '/original/help/hfx-453.png'
+  check(highlighted)
+})
+
+for (const [name, mutate] of [
+  ['visible white browser scrollbar', s => { s.scroller.scrollbarWidth = 'auto' }],
+  ['missing decoded art', s => { s.enabled = 'false' }],
+  ['ambiguous region', s => { s.counts.scrollers = 2 }],
+  ['wrong area owner', s => { s.owned = false }],
+  ['duplicate region ID', s => { s.scroller.uniqueId = false }],
+  ['horizontal overflow', s => { s.scroller.scrollWidth++ }],
+  ['wrong copy gutter', s => { s.copy.x = 12 }],
+  ['missing cap', s => { s.caps.pop() }],
+  ['duplicate cap', s => { s.caps.push(s.caps[0]) }],
+  ['wrong cap owner', s => { s.caps[0].owner = false }],
+  ['wrong controls ID', s => { s.caps[0].controls = 'elsewhere' }],
+  ['unreachable cap', s => { s.caps[0].hit = false }],
+  ['wrong cap image', s => { s.caps[0].image.path = '/fake.png' }],
+  ['undecoded cap', s => { s.caps[0].image.complete = false }],
+  ['foreign drag art', s => { s.dragImage.sameOrigin = false }],
+  ['unreachable drag body', s => { s.dragHit = false }],
+  ['stale thumb', s => { s.thumb.y = 1 }],
+  ['nonfinite geometry', s => { s.track.width = NaN }],
+  ['unadmitted forced colors', s => { s.forcedColors = true }],
+]) test(`loading scrollbar oracle rejects ${name}`, () => {
+  const sample = loadingScrollbarSample(); mutate(sample)
+  assert.throws(() => loadingScrollbarOracle()(sample))
+})
+
+test('existing loading captures bind the actual scroller and count art/caps as fullscreen obstacles', () => {
+  const source = readFileSync(new URL('../scripts/local-render/loading-recovery-style.mjs', import.meta.url), 'utf8')
+  assert.match(source, /locator\('\.loading-world'\)\.evaluate\(observeLoadingScrollbar\)/)
+  assert.ok(source.indexOf('report.scrollbarGeometry.push') < source.indexOf('assertLoadingScrollbar(scrollbar)'))
+  assert.match(source, /loading-recovery-error,\[data-loading-scrollbar\],\[data-loading-scroll-cap\]/)
+  assert.match(source, /failed\(page\)\.locator\('\.loading-recovery > p'\)/)
+})
+
+test('canonical loading validation fingerprints the new shared controller and every consumed loading asset', () => {
+  const registry = JSON.parse(readFileSync(new URL('../engineering/checks.json', import.meta.url)))
+  const check = registry.checks.find(item => item.id === 'native-ui-evidence-tests')
+  for (const path of ['tests/original-loading-screen.test.mjs', 'tests/checkpoint-scroll-area.test.mjs'])
+    assert.ok(check.args.includes(path), `Canonical execution: ${path}`)
+  for (const path of ['app/original-loading-screen.tsx', 'app/original-loading-art.json', 'app/original-frontend.json',
+    'app/page.tsx', 'app/checkpoint-scroll-area.tsx', 'app/checkpoint-scroll-area.module.css', 'app/checkpoint-scroll.ts',
+    'app/globals.css', 'scripts/local-render/loading-recovery-style.mjs', 'tests/original-loading-screen.test.mjs',
+    'tests/checkpoint-scroll-area.test.mjs', 'references/checkpoint-scrollbar-art.json', 'public/original/loading-mask.png',
+    'public/original/loading-label.json', 'public/original/loading-label.png',
+    ...[451, 452, 453, 454, 455].map(id => `public/original/help/hfx-${id}.png`)]) {
+    assert.ok(check.inputs.includes(path), `Fingerprinted input: ${path}`)
+    assert.ok(check.triggerPaths.includes(path), `Canonical trigger: ${path}`)
+  }
 })

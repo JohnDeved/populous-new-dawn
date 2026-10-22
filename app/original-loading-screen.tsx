@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { CheckpointScrollArea } from './checkpoint-scroll-area'
 import art from './original-loading-art.json' with { type: 'json' }
 import frontend from './original-frontend.json'
 
@@ -50,6 +51,12 @@ function RecoveryText({ text, ready }: { text: string; ready: boolean }) {
   )
 }
 
+// Pending/restore keep their exact wrapper-free first paint. Only failed recovery
+// mounts the existing decoded-art scroll controller; retry ownership is unchanged.
+function RecoveryFrame({ failed, children }: { failed: boolean; children: ReactNode }) {
+  return failed ? <CheckpointScrollArea purpose="loading">{children}</CheckpointScrollArea> : <>{children}</>
+}
+
 // Loading identity comes from loadlog2 and the Western frontend slot-1 font.
 // Browser checkpoint lookup and failure/retry are browser adaptations, not native dialogs.
 export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
@@ -98,30 +105,8 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
     retried.current = true
     onRetry()
   }
-  return (
-    <div
-      ref={screen}
-      className="loading-world loading-world-original"
-      data-loading-phase={phase}
-      data-mask-failed={maskFailed}
-      data-label-ready={labelReady}
-      role={phase === 'failed' ? 'dialog' : 'status'}
-      aria-label={phase === 'failed' ? 'Browser loading recovery' : undefined}
-      aria-modal={phase === 'failed' ? true : undefined}
-      tabIndex={-1}
-      onKeyDown={event => {
-        if (event.key !== 'Tab') return
-        event.preventDefault()
-        if (phase !== 'failed') return
-        const controls = [
-          ...(screen.current?.querySelectorAll<HTMLElement>('summary,button') ?? []),
-        ]
-        const current = controls.indexOf(document.activeElement as HTMLElement)
-        const next = (current + (event.shiftKey ? -1 : 1) + controls.length) % controls.length
-        controls[next]?.focus()
-      }}
-    >
-      <style>{loadingStyle}</style>
+  const content = (
+    <>
       <div className="loading-original-art">
         {!maskFailed && (
           <img
@@ -205,6 +190,35 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
           </p>
         </section>
       )}
+    </>
+  )
+  return (
+    <div
+      ref={screen}
+      className="loading-world loading-world-original"
+      data-loading-phase={phase}
+      data-mask-failed={maskFailed}
+      data-label-ready={labelReady}
+      role={phase === 'failed' ? 'dialog' : 'status'}
+      aria-label={phase === 'failed' ? 'Browser loading recovery' : undefined}
+      aria-modal={phase === 'failed' ? true : undefined}
+      tabIndex={-1}
+      onKeyDown={event => {
+        if (event.key !== 'Tab') return
+        event.preventDefault()
+        if (phase !== 'failed') return
+        const controls = [
+          ...(screen.current?.querySelectorAll<HTMLElement>(
+            'summary,button,[data-loading-recovery-scroll][tabindex="0"]'
+          ) ?? []),
+        ].filter(node => node.getClientRects().length > 0 && getComputedStyle(node).visibility === 'visible')
+        const current = controls.indexOf(document.activeElement as HTMLElement)
+        const next = (current + (event.shiftKey ? -1 : 1) + controls.length) % controls.length
+        controls[next]?.focus()
+      }}
+    >
+      <style>{loadingStyle}</style>
+      <RecoveryFrame failed={phase === 'failed'}>{content}</RecoveryFrame>
     </div>
   )
 }

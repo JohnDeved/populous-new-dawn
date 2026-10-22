@@ -23,11 +23,132 @@ export async function finishLoadingRecovery({ primaryError, report, gates, fallb
   }
 }
 
+// Observe the same real failed screen used by the existing capture. No injected
+// errors, hidden system-scrollbar exception or extra screenshot is introduced.
+export function observeLoadingScrollbar(root) {
+  const box = node => {
+    if (!node) return null
+    const r = node.getBoundingClientRect()
+    return { x: r.x, y: r.y, right: r.right, bottom: r.bottom, width: r.width, height: r.height }
+  }
+  const visible = node => {
+    if (!node) return false
+    for (let current = node; current; current = current.parentElement) {
+      const s = getComputedStyle(current)
+      if (s.display === 'none' || s.visibility !== 'visible' || Number(s.opacity) <= 0) return false
+    }
+    return true
+  }
+  const hit = node => {
+    const r = node?.getBoundingClientRect()
+    return !!r && node.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2))
+  }
+  const areas = root.querySelectorAll('[data-loading-scroll-area]'), area = areas[0]
+  const scrollers = root.querySelectorAll('[data-loading-recovery-scroll]'), scroller = scrollers[0]
+  const tracks = root.querySelectorAll('[data-loading-scrollbar]'), track = tracks[0]
+  const thumb = track?.firstElementChild, drag = thumb?.querySelector('[aria-hidden="true"]')
+  const caps = [...root.querySelectorAll('[data-loading-scroll-cap]')]
+  const content = scroller?.firstElementChild
+  const dragBackground = drag && getComputedStyle(drag).backgroundImage
+  const imageUrl = /^url\("([^"]+)"\)$/.exec(dragBackground ?? '')?.[1]
+  const dragUrl = imageUrl ? new URL(imageUrl, location.href) : null
+  return {
+    phase: root.getAttribute('data-loading-phase'), viewport: { width: innerWidth, height: innerHeight },
+    forcedColors: matchMedia('(forced-colors: active)').matches,
+    counts: { areas: areas.length, scrollers: scrollers.length, tracks: tracks.length },
+    owned: !!area && !!scroller && area.parentElement === root && scroller.parentElement === area &&
+      !!content && content.querySelector('.loading-recovery')?.parentElement === content,
+    enabled: area?.getAttribute('data-scroll-art'),
+    scroller: scroller && { box: box(scroller), visible: visible(scroller), id: scroller.id,
+      uniqueId: [...document.querySelectorAll('[id]')].filter(node => node.id === scroller.id).length === 1,
+      label: scroller.getAttribute('aria-label'), role: scroller.getAttribute('role'), tabIndex: scroller.tabIndex,
+      scrollTop: scroller.scrollTop, scrollHeight: scroller.scrollHeight, clientHeight: scroller.clientHeight,
+      scrollWidth: scroller.scrollWidth, clientWidth: scroller.clientWidth,
+      overflowY: getComputedStyle(scroller).overflowY, scrollbarWidth: getComputedStyle(scroller).scrollbarWidth },
+    copy: box(content?.querySelector('.loading-recovery')), logo: box(content?.querySelector('.loading-original-art')),
+    track: box(track), thumb: box(thumb), drag: box(drag),
+    trackOwned: !!track && track.parentElement === area && thumb?.parentElement === track && drag?.parentElement === thumb,
+    trackVisible: visible(track), dragVisible: visible(drag), dragHit: hit(drag),
+    dragBackground, dragImage: dragUrl && { path: dragUrl.pathname, sameOrigin: dragUrl.origin === location.origin },
+    dragRepeat: drag && getComputedStyle(drag).backgroundRepeat,
+    caps: caps.map(node => {
+      const images = node.querySelectorAll('img'), image = images[0]
+      return { direction: node.getAttribute('data-loading-scroll-cap'), label: node.getAttribute('aria-label'),
+        owner: node.parentElement === thumb && track?.parentElement === area,
+        controls: node.getAttribute('aria-controls'), controlsOwner: !!scroller && document.getElementById(node.getAttribute('aria-controls')) === scroller,
+        tag: node.tagName, disabled: node.disabled, tabIndex: node.tabIndex, visible: visible(node), hit: hit(node), box: box(node),
+        highlighted: node.matches(':hover') || node === document.activeElement,
+        image: image && { count: images.length, path: new URL(image.currentSrc || image.src, location.href).pathname,
+          sameOrigin: new URL(image.currentSrc || image.src, location.href).origin === location.origin,
+          complete: image.complete, width: image.naturalWidth, height: image.naturalHeight,
+          alt: image.getAttribute('alt'), draggable: image.draggable, visible: visible(image), box: box(image) } }
+    }),
+  }
+}
+
+export function assertLoadingScrollbar(sample) {
+  const finite = b => b && ['x', 'y', 'right', 'bottom', 'width', 'height'].every(k => Number.isFinite(b[k])) && b.width > 0 && b.height > 0
+  const at = (b, x, y, w, h) => {
+    assert.ok(finite(b), 'Positive finite loading scrollbar geometry')
+    for (const [key, value] of Object.entries({ x, y, right: x + w, bottom: y + h, width: w, height: h }))
+      assert.ok(Math.abs(b[key] - value) < .15, `Loading scrollbar ${key}`)
+  }
+  if (sample.phase !== 'failed') {
+    assert.ok(['loading', 'restore'].includes(sample.phase))
+    assert.deepEqual(sample.counts, { areas: 0, scrollers: 0, tracks: 0 })
+    assert.deepEqual(sample.caps, [])
+    return
+  }
+  assert.equal(sample.counts.areas, 1); assert.equal(sample.counts.scrollers, 1)
+  assert.equal(sample.owned, true); assert.equal(sample.forcedColors, false, 'Normal-art capture cannot silently become a fallback experiment')
+  const s = sample.scroller, { width, height } = sample.viewport
+  assert.ok(s); at(s.box, 0, 0, width, height)
+  assert.equal(s.visible, true); assert.equal(s.uniqueId, true); assert.ok(typeof s.id === 'string' && s.id.length > 0)
+  assert.deepEqual([s.role, s.label, s.overflowY], ['region', 'Loading recovery details', 'auto'])
+  for (const key of ['scrollHeight', 'clientHeight', 'scrollWidth', 'clientWidth']) assert.ok(Number.isFinite(s[key]) && s[key] > 0)
+  assert.equal(s.scrollWidth, s.clientWidth, 'Recovery never requires horizontal scrolling')
+  const maximum = Math.max(0, s.scrollHeight - s.clientHeight)
+  assert.ok(Number.isFinite(s.scrollTop) && s.scrollTop >= 0 && s.scrollTop <= maximum + 1)
+  assert.equal(s.tabIndex, maximum > 0 ? 0 : -1)
+  assert.equal(sample.enabled, String(maximum > 0), 'Actual overflow requires decoded original art')
+  for (const b of [sample.copy, sample.logo]) {
+    assert.ok(finite(b)); assert.ok(b.x >= (width <= 680 ? 44 : 32) - .15 && b.right <= width - 32 + .15,
+      'Recovery copy/logo stay clear of the fullscreen and art gutters throughout scrolling')
+  }
+  assert.equal(sample.counts.tracks, maximum > 0 ? 1 : 0)
+  assert.deepEqual(sample.caps.map(c => c.direction).sort(), maximum > 0 ? ['down', 'up'] : [])
+  if (!maximum) {
+    assert.deepEqual([sample.track, sample.thumb, sample.drag], [null, null, null])
+    return
+  }
+  assert.equal(s.scrollbarWidth, 'none', 'Normal original art replaces the white system scrollbar')
+  assert.equal(sample.trackOwned, true); assert.equal(sample.trackVisible, true)
+  assert.equal(sample.dragVisible, true); assert.equal(sample.dragHit, true)
+  assert.deepEqual(sample.dragImage, { path: '/original/help/hfx-455.png', sameOrigin: true })
+  assert.ok(sample.dragBackground.endsWith('/original/help/hfx-455.png")')); assert.equal(sample.dragRepeat, 'repeat-y')
+  const thumb = Math.min(s.clientHeight, Math.max(34, Math.floor(s.clientHeight ** 2 / s.scrollHeight)))
+  const offset = Math.round(Math.max(0, Math.min(maximum, s.scrollTop)) * (s.clientHeight - thumb) / maximum)
+  at(sample.track, width - 24, 0, 24, height)
+  at(sample.thumb, width - 24, offset, 24, thumb)
+  at(sample.drag, width - 24, offset + 10, 24, thumb - 22)
+  for (const c of sample.caps) {
+    const up = c.direction === 'up', h = up ? 10 : 12
+    assert.deepEqual([c.tag, c.label, c.disabled, c.tabIndex], ['BUTTON', `Scroll loading recovery details ${c.direction}`, false, 0])
+    assert.equal(c.owner, true); assert.equal(c.controlsOwner, true); assert.equal(c.controls, s.id)
+    assert.equal(c.visible, true); assert.equal(c.hit, true)
+    at(c.box, width - 24, offset + (up ? 0 : thumb - 12), 24, h)
+    const i = c.image; assert.ok(i)
+    assert.deepEqual([i.count, i.path, i.sameOrigin, i.complete, i.width, i.height, i.alt, i.draggable, i.visible],
+      [1, `/original/help/hfx-${(up ? 451 : 452) + (c.highlighted ? 2 : 0)}.png`, true, true, 24, h, '', false, true])
+    at(i.box, c.box.x, c.box.y, 24, h)
+  }
+}
+
 // Actual Home and real loader failures. Only landscape responses and, in the
 // separate sequential fallback contexts, frontend font availability are controlled. No world,
 // store, error-prop, save or React state is injected. This is not a ready-scene test.
 export default async function ({ page, browser, url, output }) {
-  const report = { status: 'running', captures: [], fullscreenGeometry: [], requests: [], fontCases: [], errors: [] }
+  const report = { status: 'running', captures: [], scrollbarGeometry: [], fullscreenGeometry: [], requests: [], fontCases: [], errors: [] }
   const save = () => writeFileSync(resolve(output, 'loading-recovery-style.json'), JSON.stringify(report, null, 2) + '\n')
   const button = p => p.getByRole('button', { name: 'Try again', exact: true })
   const failed = p => p.getByRole('dialog', { name: 'Browser loading recovery', exact: true })
@@ -41,7 +162,24 @@ export default async function ({ page, browser, url, output }) {
     await p.getByRole('button', { name: 'Yes', exact: true }).click()
   }
   const capture = async (p, name) => {
-    const geometry = await observeFullscreenClearance(p, 'body', '.loading-original-art,.loading-original-label,.loading-recovery,.loading-recovery button,.loading-recovery summary,.loading-recovery-note,.loading-recovery details[open] .loading-recovery-error')
+    await p.waitForFunction(() => {
+      const root = document.querySelector('.loading-world')
+      if (root?.getAttribute('data-loading-phase') !== 'failed') return !!root
+      const area = root.querySelector('[data-loading-scroll-area]'), s = root.querySelector('[data-loading-recovery-scroll]')
+      if (!area || !s) return false
+      const maximum = Math.max(0, s.scrollHeight - s.clientHeight)
+      if (area.getAttribute('data-scroll-art') !== String(maximum > 0)) return false
+      if (!maximum) return true
+      const thumb = area.querySelector('[data-loading-scrollbar]')?.firstElementChild
+      const h = Math.min(s.clientHeight, Math.max(34, Math.floor(s.clientHeight ** 2 / s.scrollHeight)))
+      const y = Math.round(Math.max(0, Math.min(maximum, s.scrollTop)) * (s.clientHeight - h) / maximum)
+      const images = [...(thumb?.querySelectorAll('[data-loading-scroll-cap] img') ?? [])]
+      return images.length === 2 && images.every(image => image.complete && image.naturalWidth === 24) && thumb && Math.abs(thumb.getBoundingClientRect().y - y) < .15 && Math.abs(thumb.getBoundingClientRect().height - h) < .15
+    })
+    const scrollbar = await p.locator('.loading-world').evaluate(observeLoadingScrollbar)
+    report.scrollbarGeometry.push({ name, scrollbar }); save()
+    assertLoadingScrollbar(scrollbar)
+    const geometry = await observeFullscreenClearance(p, 'body', '.loading-original-art,.loading-original-label,.loading-recovery,.loading-recovery button,.loading-recovery summary,.loading-recovery-note,.loading-recovery details[open] .loading-recovery-error,[data-loading-scrollbar],[data-loading-scroll-cap]')
     report.fullscreenGeometry.push({name,geometry}); save()
     assertFullscreenClearance(geometry)
     await p.screenshot({ path: resolve(output, `${name}.png`) })
@@ -89,7 +227,7 @@ export default async function ({ page, browser, url, output }) {
     await failed(page).locator('.loading-recovery-text').first().waitFor()
     assert.equal(await button(page).locator('.loading-recovery-text').evaluate(node => node.getBoundingClientRect().width), 134)
     await assertFont(failed(page).locator('h2'), 'felo33we')
-    await assertFont(failed(page).locator(':scope > section > p').first(), 'felo33we')
+    await assertFont(failed(page).locator('.loading-recovery > p').first(), 'felo33we')
     await assertFont(failed(page).locator('.loading-recovery-note'), 'felo33we')
     await page.mouse.move(1, 1)
     await page.keyboard.press('Tab')
