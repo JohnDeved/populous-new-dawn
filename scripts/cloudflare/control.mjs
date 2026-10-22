@@ -180,12 +180,16 @@ export async function route(api, eventRun) {
 export async function report({ api, download, sourceId, expectedPr, mode }) {
   const run = await verifiedRun(api, sourceId, buildPath), pr = await runPr(api, run)
   if (!pr || pr.number !== expectedPr || pr.state !== 'open' || pr.head.sha !== run.head_sha) return 'stale'
+  let status, publication = null, urls = null
   const current = async () => {
     const latestPr = await api(`${prefix}/pulls/${pr.number}`)
     const latestRun = await api(`${prefix}/actions/runs/${run.id}`)
+    if (publication) {
+      const latest = await verifiedRun(api, publication.id, publishPath)
+      if (latest.run_attempt !== publication.run_attempt || latest.status !== publication.status || latest.conclusion !== publication.conclusion) return false
+    }
     return latestPr.state === 'open' && latestPr.base.ref === 'main' && latestPr.head.sha === run.head_sha && latestRun.run_attempt === run.run_attempt && !await newerBuild(api, run, pr.number)
   }
-  let status, publication = null, urls = null
   if (pr.head.repo?.full_name !== repository) status = 'Skipped: fork previews are not published to this account.'
   else if (run.status !== 'completed') status = 'Building on GitHub Actions.'
   else if (run.conclusion !== 'success') status = `Build ${run.conclusion || 'unknown'}; not published.`
@@ -207,17 +211,22 @@ export async function report({ api, download, sourceId, expectedPr, mode }) {
       if (publication.status !== 'completed') status = 'Build succeeded; publishing preview.'
       else if (publication.conclusion !== 'success') status = `Publication ${publication.conclusion || 'unknown'}; remote outcome is not verified.`
       else {
-        const zip = await oneArtifact(api, download, publication,
-          `cloudflare-result-${publication.id}-${publication.run_attempt}`, 65536, true)
-        if (!zip) status = 'Publication skipped or result unavailable; no verified deployment.'
-        else {
-          const result = jsonArtifact(zip, 'cloudflare-result.json', 65536)
-          assert.equal(result.version, 1); assert.equal(result.source, run.id); assert.equal(result.sourceAttempt, run.run_attempt)
-          assert.equal(result.sha, run.head_sha); assert.equal(result.pr, pr.number)
-          assert.equal(result.status, 'preview-published')
-          assert.equal(result.alias, branchAlias(pr.head.ref))
-          urls = uploadedVersion(result.output, result.alias)
-          status = 'Preview published successfully. Production unchanged.'
+        try {
+          const zip = await oneArtifact(api, download, publication,
+            `cloudflare-result-${publication.id}-${publication.run_attempt}`, 65536, true)
+          if (!zip) status = 'Publication skipped or result unavailable; no verified deployment.'
+          else {
+            const result = jsonArtifact(zip, 'cloudflare-result.json', 65536)
+            assert.equal(result.version, 1); assert.equal(result.source, run.id); assert.equal(result.sourceAttempt, run.run_attempt)
+            assert.equal(result.sha, run.head_sha); assert.equal(result.pr, pr.number)
+            assert.equal(result.status, 'preview-published')
+            assert.equal(result.alias, branchAlias(pr.head.ref))
+            urls = uploadedVersion(result.output, result.alias)
+            status = 'Preview published successfully. Production unchanged.'
+          }
+        } catch {
+          // Bad/missing evidence must clear prior success, not leave stale links.
+          urls = null; status = 'Publication result could not be verified; no verified deployment.'
         }
       }
     }

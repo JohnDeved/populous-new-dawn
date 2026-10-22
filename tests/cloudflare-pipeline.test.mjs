@@ -176,7 +176,7 @@ test('ambiguous own comments fail closed rather than create a third', async () =
 test('wrong artifact commit, run, attempt or URLs cannot manufacture preview success', async () => {
   for (const change of [r => { r.sha = main }, r => { r.source = 101 }, r => { r.sourceAttempt = 2 },
     r => { r.output = upload.replace(workerHost, 'evil.example') }]) {
-    const f = fixture(); change(f.state.result); await assert.rejects(report(f)); assert.equal(f.state.writes.length, 0)
+    const f = fixture(); change(f.state.result); await report(f); assert.match(f.state.comments[0].body, /could not be verified/); assert.doesNotMatch(f.state.comments[0].body, /Branch preview \(moves/)
   }
 })
 test('publisher event routes back to GitHub-associated source PR', async () => {
@@ -267,4 +267,10 @@ test('artifact download verifies SHA-256 before reading even valid ZIP bytes', a
   const original = f.api
   f.api = async path => { const response = await original(path); if (response.artifacts) delete response.artifacts[0].digest; return response }
   await assert.rejects(oneArtifact(f.api, f.download, f.state.publication, 'cloudflare-result-200-1', 65536), /Missing artifact SHA-256/)
+})
+
+test('publisher rerun during comment assembly cannot resurrect old success', async () => {
+  const f = fixture(), original = f.api; let reads = 0
+  f.api = async (path, options) => { if (path === `${prefix}/actions/runs/200` && ++reads === 2) f.state.publication.run_attempt = 2; return original(path, options) }
+  assert.equal(await report(f), 'stale'); assert.equal(f.state.writes.length, 0)
 })
