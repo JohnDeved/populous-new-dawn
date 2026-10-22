@@ -13,7 +13,8 @@ import { episodes, limits, acceptEpisode, acceptSeries, boundedEpisode } from '.
 import { artifactInventory, ownBrowser } from '../scripts/native-ui-evidence/browser-owner.mjs'
 import { supervise } from '../scripts/native-ui-evidence/supervise.mjs'
 import { failPreferenceWrites } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
-import { holdAudioResume, soundControlPending, soundOwnership, assertSoundOwnership } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
+import { holdAudioResume, soundControlPending, soundOwnership, assertSoundOwnership,
+  pendingSoundPointerTarget, assertPendingSoundPointerTarget } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
 import { runNativeUiEvidence } from '../scripts/native-ui-evidence/adapter.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from '../scripts/native-ui-evidence/files.mjs'
 import { initializeEpisodeLedger, recordUnstartedFailure } from '../scripts/native-ui-evidence/ledger.mjs'
@@ -396,6 +397,17 @@ test('sound ownership reads actual focus and scene/world/popup identity and reje
   }
   sandbox.document.querySelectorAll = () => []
   assert.throws(() => assertSoundOwnership(before, snapshot()), /campaign popup/)
+})
+test('pending sound pointer requires a finite positive visible center owned by the actual control', () => {
+  const glyph = {}, control = { getBoundingClientRect: () => ({ x: 10, y: 20, width: 61, height: 14 }), contains: node => node === glyph }
+  const sandbox = { node: control, innerWidth: 640, innerHeight: 480,
+    document: { elementFromPoint: (x, y) => { assert.equal(x, 40.5); assert.equal(y, 27); return glyph } } }
+  const target = JSON.parse(JSON.stringify(vm.runInNewContext(`(${pendingSoundPointerTarget.toString()})(node)`, sandbox)))
+  assertPendingSoundPointerTarget(target)
+  for (const [key, value] of [['x', NaN], ['y', Infinity], ['width', 0], ['height', -1], ['x', -1], ['y', 480], ['x', 640], ['owned', false]])
+    assert.throws(() => assertPendingSoundPointerTarget({ ...target, [key]: value }))
+  sandbox.document.elementFromPoint = () => ({})
+  assert.throws(() => assertPendingSoundPointerTarget(vm.runInNewContext(`(${pendingSoundPointerTarget.toString()})(node)`, sandbox)), /actually hit/)
 })
 test('workflow is isolated read-only manual evidence with two credential-free pinned checkouts and bounded artifacts', () => {
   const workflow = yaml.load(read('.github/workflows/native-ui-evidence.yml'))

@@ -40,6 +40,18 @@ export function assertSoundOwnership(before, after) {
   assert.deepEqual(after.scene, before.scene, 'Sound activation cannot change overview, focus pause or held gameplay keys')
   assert.deepEqual(after.popups, before.popups, 'Sound activation cannot acknowledge or replace the open campaign popup')
 }
+export function pendingSoundPointerTarget(node) {
+  const box = node.getBoundingClientRect(), x = box.x + box.width / 2, y = box.y + box.height / 2
+  const hit = document.elementFromPoint(x, y)
+  return { x, y, width: box.width, height: box.height, viewportWidth: innerWidth, viewportHeight: innerHeight,
+    owned: hit === node || node.contains(hit) }
+}
+export function assertPendingSoundPointerTarget(target) {
+  for (const key of ['x', 'y', 'width', 'height', 'viewportWidth', 'viewportHeight']) assert.ok(Number.isFinite(target[key]), `Non-finite sound pointer ${key}`)
+  assert.ok(target.width > 0 && target.height > 0, 'Pending sound control must have a positive hitbox')
+  assert.ok(target.x >= 0 && target.y >= 0 && target.x < target.viewportWidth && target.y < target.viewportHeight, 'Pending sound click center must be inside the viewport')
+  assert.equal(target.owned, true, 'Pending pointer click must actually hit the sound control or its artwork')
+}
 export default async function ({ browser, url, root, output, signal }) {
   const report = { status: 'running', samples: [], checks: [] }
   const save = () => writeFileSync(resolve(output, 'hud-sound.json'), JSON.stringify(report, null, 2) + '\n')
@@ -112,8 +124,10 @@ export default async function ({ browser, url, root, output, signal }) {
         }
         // Locator.click deliberately waits for ARIA-enabled; a real pointer click
         // at the visible pending control tests its explicit guard instead.
-        const box = await control.boundingBox(); assert.ok(box)
-        await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2)
+        const target = await control.evaluate(pendingSoundPointerTarget)
+        assertPendingSoundPointerTarget(target)
+        report.checks.push({ fallback, pendingPointerTarget: target }); save()
+        await page.mouse.click(target.x, target.y)
         assert.equal(await page.evaluate(() => window.soundResumeAttempts), 1, 'Pending pointer click cannot duplicate activation')
         await preserved('pending-pointer')
         await page.keyboard.down('Space')
