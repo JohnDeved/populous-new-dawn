@@ -73,8 +73,21 @@ failed by a supplement; runtime errors and unrelated resource failures still fai
 Chrome executable/configuration/version provenance is saved before launch, not
 only on success; each screenshot records viewport/DPR and available actual WebGL
 renderer observations. The HUD episode observes the recovered real AudioContext
-running state. Game and Sound storage faults are applied one key at a time and
-verify that the other preference write still succeeds.
+running state. Pending sound accepts either native or ARIA disabled semantics only
+with matching busy state, but requires the real control to retain focus. Repeated
+Enter/Space, held Space across rejected settlement and a physically hit-tested
+pending pointer click must not leak into pause, overview, held gameplay keys or
+campaign popup acknowledgement. The observed scene must own the current world.
+Recovery still requires the real AudioContext to run; native Space mutes again.
+Game and Sound storage faults are applied one key at a time and verify that the
+other preference write still succeeds.
+
+The portable `native-ui-evidence-tests` check exercises these rejection guards,
+identity and resource limits without launching a browser. Checker and workflow
+changes select it alongside conservative repository/workflow verification.
+These fixture tests cannot replace exact-candidate rendered evidence, and the
+candidate-owned checkpoint supplement remains candidate-owned. No budget,
+source gate, skipped-episode or full-check policy is relaxed.
 
 Before accepting any UI candidate, inspect the exact workflow/candidate manifests,
 all seven terminal records and raw evidence; inspect pixels and caption images
