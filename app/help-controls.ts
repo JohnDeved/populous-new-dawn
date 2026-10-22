@@ -17,8 +17,7 @@ const frameUrls = {
 // 004a2560, with original atlases independently compared against all 27 tiles.
 // Counter 00897981 is not World.turn or the separate preview counter 0089d184.
 export function helpNavigationFrame(hovered: boolean, pressed: boolean, counter: number) {
-  if (!Number.isInteger(counter) || counter < 0 || counter > 0xffffffff)
-    throw new RangeError('An actual unsigned native UI counter is required')
+  helpRenderCounter(counter)
   return pressed ? 'held' : hovered && (counter & 4) !== 0 ? 'hover' : 'normal'
 }
 
@@ -76,7 +75,8 @@ export function helpScrollbarPlan(
   contentHeight: number,
   visibleHeight: number,
   position: number,
-  hovered: 'up' | 'down' | 'drag' | null
+  hovered: 'up' | 'down' | 'drag' | null,
+  focused: 'up' | 'down' | null = null
 ) {
   const scroll = helpScroll(contentHeight, visibleHeight, rect.height, 22, position)
   if (!scroll.thumb) return { ...scroll, up: null, down: null, body: null }
@@ -86,8 +86,8 @@ export function helpScrollbarPlan(
   }
   return {
     ...scroll,
-    up: cap(hovered === 'up' ? 453 : 451, rect.y + scroll.position),
-    down: cap(hovered === 'down' ? 454 : 452, rect.y + scroll.position + scroll.thumb - 12),
+    up: cap(hovered === 'up' || focused === 'up' ? 453 : 451, rect.y + scroll.position),
+    down: cap(hovered === 'down' || focused === 'down' ? 454 : 452, rect.y + scroll.position + scroll.thumb - 12),
     body: {
       ...helpControlIcon(455),
       x: rect.x,
@@ -104,4 +104,88 @@ export function helpNavigationAssets() {
     ...Object.values(frameUrls).map(url => ({ url, width: 24, height: 24 })),
     ...[439, 440, 442, 441, 447, 448, 450, 449].map(helpControlIcon),
   ]
+}
+
+export function helpScrollbarAssets() {
+  return [451, 452, 453, 454, 455].map(helpControlIcon)
+}
+
+function scrollBounds(position: number, maximum: number) {
+  if (
+    !Number.isSafeInteger(position) ||
+    !Number.isSafeInteger(maximum) ||
+    maximum < 0 ||
+    position < 0 ||
+    position > maximum
+  )
+    throw new RangeError('Invalid original Help scrollbar position')
+}
+
+/** 0045eb09 / 0045eb22: seven TRACK units, not seven article pixels. */
+export function helpScrollStep(position: number, maximum: number, direction: 'up' | 'down') {
+  scrollBounds(position, maximum)
+  return Math.max(0, Math.min(maximum, position + (direction === 'up' ? -7 : 7)))
+}
+
+export interface HelpScrollSample extends HelpControlDrawState {
+  mouseY: number
+}
+
+/** Owns only drag state. The Scene owner must sample AFTER its current draw and
+ * publish the returned position for its next draw (0045e6e2–0045e71f). This is
+ * neither a React render clock nor the separate preview input-cycle counter. */
+export function createHelpScrollController() {
+  let anchor = 0
+  let counter: number | null = null
+  const mouse = (y: number) => {
+    if (!Number.isSafeInteger(y)) throw new RangeError('Actual integer native mouse Y is required')
+  }
+  return {
+    begin(mouseY: number) {
+      mouse(mouseY)
+      anchor = mouseY // 0045eb41: zero remains the native inactive sentinel.
+    },
+    reset() {
+      anchor = 0
+    },
+    sample(position: number, maximum: number, input: HelpScrollSample) {
+      scrollBounds(position, maximum)
+      mouse(input.mouseY)
+      helpRenderCounter(input.counter)
+      if (counter === input.counter) return position
+      counter = input.counter
+      if (!input.leftDown || input.leftUp) anchor = 0 // 0045e693–0045e6ac.
+      if (!anchor) return position
+      const next = Math.max(0, Math.min(maximum, position + input.mouseY - anchor))
+      anchor = input.mouseY // Update even when clamped: no hidden overshoot debt.
+      return next
+    },
+  }
+}
+
+export type HelpScrollController = ReturnType<typeof createHelpScrollController>
+
+
+function helpRenderCounter(counter: number) {
+  if (!Number.isInteger(counter) || counter < 0 || counter > 0xffffffff)
+    throw new RangeError('An actual unsigned native UI counter is required')
+}
+
+/** 00451390: UI hover point 0087ca9c/9e uses half-open rectangles. It is
+ * deliberately not inferred from captured DOM events or drag Y 00984584. */
+export function helpScrollbarHover(
+  plan: ReturnType<typeof helpScrollbarPlan>,
+  point: { x: number; y: number } | null
+) {
+  if (!point) return null
+  if (![point.x, point.y].every(Number.isSafeInteger))
+    throw new RangeError('Actual integer native UI hover coordinates are required')
+  for (const [action, rect] of [
+    ['up', plan.up],
+    ['down', plan.down],
+    ['drag', plan.body],
+  ] as const)
+    if (rect && point.x >= rect.x && point.x < rect.x + rect.width &&
+        point.y >= rect.y && point.y < rect.y + rect.height) return action
+  return null
 }

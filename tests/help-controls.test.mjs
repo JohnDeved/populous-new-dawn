@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { helpNavigationFrame, helpNavigationPlan, helpNavigationTiles, helpScrollbarPlan } from '../app/help-controls.ts'
+import { helpNavigationFrame, helpNavigationPlan, helpNavigationTiles, helpScrollbarPlan, helpScrollbarAssets, helpScrollbarHover, helpScrollStep, createHelpScrollController } from '../app/help-controls.ts'
 import { helpPanelLayout } from '../app/help-layout.ts'
 
 const panels = helpPanelLayout(640, 480, 100)
@@ -57,4 +57,103 @@ test('scroll arrows move with the thumb, retain native caps, and vanish for Quer
   assert.equal(clamped.position, 346)
   assert.equal(clamped.body.height, 0)
   assert.equal(clamped.down.id, 454)
+})
+
+
+test('scrollbar preflights both ordinary and hovered caps plus the original one-pixel body', () => {
+  assert.deepEqual(helpScrollbarAssets().map(({ id, width, height }) => [id, width, height]), [
+    [451, 24, 10], [452, 24, 12], [453, 24, 10], [454, 24, 12], [455, 24, 1],
+  ])
+})
+
+test('hover uses the current native half-open cap/body rectangles, not a captured DOM target', () => {
+  const plan = helpScrollbarPlan(panels.scrollbar, 736, 368, 14, null)
+  const hit = (x, y) => helpScrollbarHover(plan, { x, y })
+  assert.equal(helpScrollbarHover(plan, null), null)
+  assert.equal(hit(601, 68), null)
+  assert.equal(hit(602, 67), null)
+  assert.equal(hit(602, 68), 'up')
+  assert.equal(hit(625, 77), 'up')
+  assert.equal(hit(626, 77), null)
+  assert.equal(hit(602, 78), 'drag')
+  assert.equal(hit(625, 239), 'drag')
+  assert.equal(hit(602, 240), 'down')
+  assert.equal(hit(625, 251), 'down')
+  assert.equal(hit(625, 252), null)
+  const moved = helpScrollbarPlan(panels.scrollbar, 736, 368, 21, null)
+  assert.equal(helpScrollbarHover(moved, { x: 602, y: 78 }), 'up')
+  const minimum = helpScrollbarPlan(panels.scrollbar, 100000, 368, 0, null)
+  assert.equal(helpScrollbarHover(minimum, { x: 602, y: 64 }), 'down')
+  assert.equal(helpScrollbarHover(helpScrollbarPlan(panels.scrollbar, 174, 368, 0, null), { x: 602, y: 54 }), null)
+  assert.throws(() => hit(602.5, 78), /coordinates/)
+})
+
+test('scrollbar cap focus survives pointer leave or hovering the other cap', () => {
+  const plan = (hover, focus) => helpScrollbarPlan(panels.scrollbar, 736, 368, 0, hover, focus)
+  assert.deepEqual([plan(null, 'up').up.id, plan(null, 'up').down.id], [453, 452])
+  assert.deepEqual([plan('down', 'up').up.id, plan('down', 'up').down.id], [453, 454])
+  assert.deepEqual([plan('up', 'down').up.id, plan('up', 'down').down.id], [453, 454])
+  assert.deepEqual([plan(null, null).up.id, plan(null, null).down.id], [451, 452])
+})
+
+test('cap actions clamp seven track units rather than seven article pixels', () => {
+  assert.equal(helpScrollStep(14, 184, 'up'), 7)
+  assert.equal(helpScrollStep(14, 184, 'down'), 21)
+  assert.equal(helpScrollbarPlan(panels.scrollbar, 736, 368, 21, null).pixels, 42)
+  assert.equal(helpScrollStep(2, 184, 'up'), 0)
+  assert.equal(helpScrollStep(180, 184, 'down'), 184)
+  assert.equal(helpScrollStep(0, 0, 'down'), 0)
+  for (const [position, maximum] of [[-1, 100], [101, 100], [1.5, 100], [0, -1], [0, NaN]])
+    assert.throws(() => helpScrollStep(position, maximum, 'down'), /position/)
+})
+
+const sample = (counter, mouseY, leftDown = true, leftUp = false) => ({ counter, mouseY, leftDown, leftUp })
+
+test('drag requires its anchor, applies only once per actual draw and retains no position copy', () => {
+  const controller = createHelpScrollController()
+  assert.equal(controller.sample(20, 100, sample(0, 60)), 20)
+  controller.begin(50)
+  assert.equal(controller.sample(20, 100, sample(1, 55)), 25)
+  assert.equal(controller.sample(25, 100, sample(1, 80)), 25)
+  assert.equal(controller.sample(25, 100, sample(2, 60)), 30)
+  // The caller may change position; the next sample uses that value, not shadow state.
+  assert.equal(controller.sample(50, 100, sample(3, 65)), 55)
+})
+
+test('drag updates its anchor even when clamped and preserves the native zero sentinel', () => {
+  const controller = createHelpScrollController()
+  controller.begin(50)
+  assert.equal(controller.sample(95, 100, sample(1, 100)), 100)
+  assert.equal(controller.sample(100, 100, sample(2, 95)), 95)
+  controller.begin(100)
+  assert.equal(controller.sample(2, 100, sample(3, 90)), 0)
+  assert.equal(controller.sample(0, 100, sample(4, 95)), 5)
+  assert.equal(controller.sample(5, 100, sample(5, 0)), 0)
+  assert.equal(controller.sample(0, 100, sample(6, 50)), 0)
+  controller.begin(0)
+  assert.equal(controller.sample(20, 100, sample(7, 60)), 20)
+})
+
+test('either native release condition clears dragging, including before applying a delta', () => {
+  for (const [down, up] of [[false, false], [true, true], [false, true]]) {
+    const controller = createHelpScrollController()
+    controller.begin(50)
+    assert.equal(controller.sample(20, 100, sample(1, 80, down, up)), 20)
+    assert.equal(controller.sample(20, 100, sample(2, 90)), 20)
+  }
+})
+
+test('drag reset is idempotent, counter wrap is valid, and invalid native inputs stay unsupported', () => {
+  const controller = createHelpScrollController()
+  controller.begin(50)
+  assert.equal(controller.sample(20, 100, sample(0xffffffff, 60)), 30)
+  assert.equal(controller.sample(30, 100, sample(0, 65)), 35)
+  controller.reset()
+  controller.reset()
+  assert.equal(controller.sample(35, 100, sample(1, 100)), 35)
+  for (const y of [NaN, 1.5, undefined]) assert.throws(() => controller.begin(y), /mouse Y/)
+  for (const counter of [NaN, -1, 0x100000000, 0.5])
+    assert.throws(() => controller.sample(35, 100, sample(counter, 65)), /counter/)
+  assert.throws(() => controller.sample(101, 100, sample(2, 65)), /position/)
+  assert.throws(() => controller.sample(35, 100, sample(2, NaN)), /mouse Y/)
 })

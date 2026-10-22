@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { helpGlyph, helpLink, helpLinkFont, helpInlineImage, helpArticleAssets, preflightHelpAssets, prepareHelpDocument } from '../app/help-document.ts'
 import { layoutHelpText } from '../app/help-layout.ts'
-import { helpNavigationAssets } from '../app/help-controls.ts'
+import { helpNavigationAssets, helpScrollbarAssets } from '../app/help-controls.ts'
 import art from '../app/original-help.json' with { type: 'json' }
 
 const discovery = { spellBits: 0, buildingBits: 0, stock: [], levelFlags: 0, spellDefinitionByte: [] }
@@ -98,7 +98,7 @@ function decodedImage(assets, change = image => image) {
   })
 }
 
-test('article and every navigation state preflight exact original image dimensions', async () => {
+test('article, navigation and scrollbar states preflight exact original image dimensions', async () => {
   const document = prepareHelpDocument(1051, 640, 480, 100)
   assert.equal(document.status, 'ready')
   const article = helpArticleAssets(document)
@@ -116,7 +116,7 @@ test('article and every navigation state preflight exact original image dimensio
     ['/original/hud-button-hover.png', 24, 24],
   ])
   assert.deepEqual(navigation.slice(3).map(asset => asset.id), [439, 440, 442, 441, 447, 448, 450, 449])
-  const allAssets = new Map([...article, ...navigation].map(asset => [asset.url, asset]))
+  const allAssets = new Map([...article, ...navigation, ...helpScrollbarAssets()].map(asset => [asset.url, asset]))
   for (const [topic] of Object.entries(art.topics)) {
     const document = prepareHelpDocument(Number(topic), 640, 480, 100)
     const assets = helpArticleAssets(document)

@@ -294,3 +294,39 @@ focused link's accessibility indication. Actual Enter/Space handler containment,
 public pointer/cursor paths, save/world/scene replacement, recovery presentation,
 preview readiness and comparison to the original remain integration/browser gates.
 These source-review corrections are not yet executed or activation-approved.
+
+
+### Accepted predecessor and inactive moving-cap scrollbar
+
+The recovery slice at `794aaf0fd79c02fbfdfa4eb8a99dad156672409b` subsequently
+passed its byte-bound full-02 gate: 61/61 focused tests, strict ten-entry TypeScript
+and formatter checks, identical source/runtime snapshots and no surviving owned
+processes. Independent terminal audit `1a8a7c7a` accepted that evidence. The missing
+`parity-history.json` automatic-report warning remains separate; this was not a
+full-suite, build or browser gate. The earlier failed full-01 remains preserved.
+Those results apply to that exact predecessor, not the following new source.
+
+`HelpScrollbar` now stages the actual original moving-cap artwork: HFX451/453
+(up),452/454 (down), and repeated one-pixel455 body. All five dimensions are checked
+before interaction readiness. Native `0045eb09` / `0045eb22` move the position by
+seven track units, clamped, rather than seven text pixels. `0045e693–0045e71f`
+clears the drag anchor if left-down is false or left-up is true, then, after drawing,
+applies mouse-Y minus anchor, clamps, and stores the new mouse Y even at a boundary.
+Anchor zero remains the inactive sentinel. There is no track-click or wheel action.
+
+The controller retains only that anchor and the last externally supplied render
+counter, never a shadow article position. Its caller must sample once AFTER the
+current native draw and publish the next position. It creates no RAF, timer or
+World.turn-derived clock. UI hover uses the independently supplied native point
+from `00451390` (`0087ca9c/9e`, half-open rectangles), not captured DOM enter/leave
+or an assumed equality with drag Y `00984584`. This preserves cap hover when
+capture or clamping makes the physical pointer cross a cap/body boundary.
+
+Pointer capture, cancellation/lost-capture cleanup, cap keyboard activation and
+persistent cap focus are explicit browser adaptations. The component releases its
+own anchor/capture on disposal, topic or viewport replacement, no-scroll content
+and asset failure. It owns no world state or position. Original cursor IDs4/5/6
+are metadata only until the real cursor collector is composed. No original
+executable was executed. New focused cases and the renderer remain unexecuted at
+this source checkpoint; exact public input ownership, coordinate/counter adapters,
+rendered pixels and lifecycle interactions are still activation gates.
