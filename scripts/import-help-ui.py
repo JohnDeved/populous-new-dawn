@@ -7,11 +7,15 @@ Only missing owned outputs are created. Differing files require a fresh --output
 for review. Existing F00T3/F00T4 and campaign-popup frame artwork are reused, never
 regenerated. --check compares all bytes without writing anything.
 """
+import sys
+sys.dont_write_bytecode = True
+
 import argparse
 import importlib.util
 import json
 from pathlib import Path
 import struct
+import stat
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('result_ui', ROOT / 'scripts/import-result-ui.py')
@@ -147,6 +151,38 @@ def build(inputs):
     return outputs
 
 
+def regular_file(path):
+    try:
+        mode = path.lstat().st_mode
+    except FileNotFoundError:
+        return False
+    if not stat.S_ISREG(mode):
+        raise ValueError(f'Not a regular, non-symlink file: {path}')
+    return True
+
+
+def output_target(root, name):
+    root = root.absolute()
+    if root.is_symlink() or not root.is_dir():
+        raise ValueError('Output root must be an existing non-symlink directory')
+    path = root / name
+    if not path.parent.resolve().is_relative_to(root.resolve()):
+        raise ValueError(f'Output escapes selected root: {path}')
+    parent = path.parent
+    while parent != root:
+        if parent.is_symlink() or (parent.exists() and not parent.is_dir()):
+            raise ValueError(f'Unsafe output parent: {parent}')
+        parent = parent.parent
+    regular_file(path)
+    return path
+
+
+def write_new(path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('xb') as stream:
+        stream.write(data)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('game_root', type=Path)
@@ -167,17 +203,16 @@ def main():
     outputs = build(inputs)
     # Validate every existing output before writing any missing output.
     for name, expected in outputs.items():
-        path = args.output / name
-        if path.exists() and path.read_bytes() != expected:
+        path = output_target(args.output, name)
+        if regular_file(path) and path.read_bytes() != expected:
             raise ValueError(f'Differing owned output; use a fresh --output for review: {path}')
-        if args.check and not path.is_file():
+        if args.check and not regular_file(path):
             raise FileNotFoundError(f'Missing owned output: {path}')
     if not args.check:
         for name, data in outputs.items():
-            path = args.output / name
-            if not path.exists():
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_bytes(data)
+            path = output_target(args.output, name)
+            if not regular_file(path):
+                write_new(path, data)
     print(json.dumps({'check': args.check, 'outputs': len(outputs), 'originalExecuted': False}))
 
 

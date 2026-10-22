@@ -122,3 +122,23 @@ an executable parity harness. English text and descriptors are unmodified.
 
 Issue #741 remains open and any feature publication must remain draft while these
 blocks remain. Do not claim restored Query behavior from the artwork correction.
+
+## Draft safety and integration follow-through
+
+The importer safety changes from reviewed narrow prerequisite `3ef0af579` are
+ported here: suppress bytecode before importing, reject symlink/nonregular
+outputs, enforce selected-root parent containment, and create missing outputs
+exclusively. `tests/help-ui-import.test.mjs` covers these boundaries. This full
+branch's port and inactive Help tests have not yet run; the narrow branch's121
+observed passes must not be borrowed as full-feature acceptance.
+
+Before rendering this full draft, compose the reviewed narrow Query artwork and
+Menu prerequisite (including its recovery-focus fix and dedicated asset paths).
+This historical draft fork still contains the earlier artwork staging; it is not
+an alternative release candidate. Native preview renderer work should touch only
+its isolated preview modules/tests until the parent composes the live branch.
+
+Additional native history evidence: `0045d870` sets capacity `00749ecc` to64,
+allocates256 bytes for `00749ec0`, and clears cursor/count. The `00425180` boundary
+behavior can write at capacity after enough pushes; do not imitate native memory
+corruption. Any safe browser history bound must be explicitly documented.
