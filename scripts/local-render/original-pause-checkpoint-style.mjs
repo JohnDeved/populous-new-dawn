@@ -21,14 +21,18 @@ async function waitForPauseFrame(page) {
 // Retain genuine keyboard focus across a resize. A pointer-focused target does
 // not qualify: ordinary Tab traversal must establish the real :focus-visible
 // state. Never manufacture focus with locator.focus() or a DOM focus() call.
-export async function reachPauseKeyboardFocus(page, target) {
+export async function reachPauseKeyboardFocus(page, target, signal) {
   let tabs = 0
-  while (!await target.evaluate(node => node === document.activeElement && node.matches(':focus-visible'))) {
+  for (;;) {
+    signal.throwIfAborted()
+    const focused = await target.evaluate(node => node === document.activeElement && node.matches(':focus-visible'))
+    // An observation settling after the episode deadline must not send a key.
+    signal.throwIfAborted()
+    if (focused) return tabs
     assert.ok(tabs < 32, 'Pause target must acquire visible keyboard focus within 32 Tab presses')
     await page.keyboard.press('Tab')
     tabs++
   }
-  return tabs
 }
 
 // A cleanup RPC must not hide the assertion/timeout that caused the failure.
@@ -80,7 +84,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       const modal = page.getByRole('dialog', { name: 'Game menu', exact: true })
       async function fullscreenClearance(label) {
         await waitForPauseFrame(page)
-        const tabs = await reachPauseKeyboardFocus(page, button('Fullscreen'))
+        const tabs = await reachPauseKeyboardFocus(page, button('Fullscreen'), signal)
         assert.equal(await page.locator('.native-hud').count(), 1, 'Live native HUD/minimap geometry is required')
         assert.ok(await modal.locator(':scope > :not([data-fullscreen-control]) button').count() > 0,
           'Native menu controls cannot disappear from clearance coverage')

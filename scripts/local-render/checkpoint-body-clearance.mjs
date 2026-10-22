@@ -7,6 +7,8 @@ export function assertCheckpointBodyClearance(layout) {
   const valid = box => box && ['x', 'y', 'right', 'bottom'].every(key => Number.isFinite(box[key])) &&
     box.right > box.x && box.bottom > box.y
   const { body, hud, viewport } = layout
+  assert.ok(viewport && [viewport.width, viewport.height].every(value => Number.isFinite(value) && value > 0),
+    'Checkpoint viewport dimensions must be finite and positive')
   assert.ok(valid(body.box) && valid(hud), 'Checkpoint body and live HUD geometry are required')
   assert.ok(body.box.x >= 0 && body.box.y >= 0 && body.box.right <= viewport.width && body.box.bottom <= viewport.height,
     'Checkpoint body remains within the viewport')

@@ -32,7 +32,8 @@ test('checkpoint containment rejects the retained 640px body/HUD defect and pain
 })
 
 test('checkpoint containment fails closed for absent or malformed body, HUD or rendered text', () => {
-  for (const change of [s => s.hud = null, s => s.hud.right = NaN, s => s.body.box.right = 641,
+  for (const change of [s => s.viewport = null, s => s.viewport.width = Infinity, s => s.viewport.height = 0,
+    s => s.hud = null, s => s.hud.right = NaN, s => s.body.box.right = 641,
     s => s.body.paragraphs = [], s => s.body.paragraphs[0].lines = [],
     s => s.body.paragraphs[0].lines[0].bottom = Infinity]) {
     const layout = fixture(); change(layout)
