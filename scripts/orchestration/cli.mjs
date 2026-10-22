@@ -1215,6 +1215,8 @@ function workflowPath(path) {
     '.agents/skills/populous-engineering',
     'engineering',
     'scripts/orchestration',
+    'scripts/native-ui-evidence',
+    'tests/native-ui-evidence.test.mjs',
     'tests/orchestration.test.mjs',
     'tests/workflow-handoff.test.mjs',
     'tests/workflow-policy.test.mjs',
