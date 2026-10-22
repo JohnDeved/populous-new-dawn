@@ -214,3 +214,28 @@ for the still-incomplete 3D object/spell preview renderer. Live input/cursor,
 actual discovery data, native counter cadence, lifecycle composition, tests and
 browser comparison remain activation blockers. No new Help module is imported by
 `page.tsx`; the safe Menu adaptation remains in force.
+
+## Native navigation renderer checkpoint (inactive, October 22)
+
+`HelpNavigation` renders four original icon controls, exact 24×28 hitboxes and
+integer icon centering. It consumes explicit UI counter and left down/up state;
+there is no invented RAF clock, World turn substitute, or permanent pointer-hover
+frame. `004a2560` selects pressed first, otherwise hover only on counter bit4.
+Original glyphs switch to 447/448/450/449 only on the pressed branch. The retained
+24×24 HUD atlases are rendered with clipped 8px repeats, preserving source phase
+rather than CSS's centered partial border repeats. Keyboard focus intentionally
+uses the same original hover family continuously as an accessibility adaptation.
+Normal pointer activation occurs on down, with keyboard-only click activation.
+
+`helpScrollbarPlan` also records the exact moving-cap geometry: arrows are at the
+thumb's own top/bottom, not fixed at the track ends. Its body repeats HFX455;
+minimum height is 10+12. The plan is staged, but its pointer/drag renderer remains
+unimplemented and therefore an explicit activation blocker. No unavailable topic
+or history boundary is represented by invented disabled tinting.
+
+Mouse state corroboration is already in the retained `004aa1c0` span:
+`004aa210–004aa235` writes down/up arrays at `984591+key` / `984691+key` in opposite
+states, and `004aa27f–004aa2b8` maps key 0xf0 to the known left-button pulse flags.
+Thus the navigation addresses `984681` / `984781` are those slots, not guessed
+previous-frame state. Other writers and the native counter cadence still require
+integration review. These new modules and tests remain unexecuted and inactive.
