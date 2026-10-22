@@ -69,11 +69,11 @@ import {
 import {
   acknowledgeMessage,
   messageHasDelete,
-  messageIcon,
   messageText,
   messageViewPoint,
 } from './messages'
 import { OriginalCampaignPopup } from './original-campaign-popup'
+import { OriginalMessageTab } from './original-message-tab'
 import { captureCampaignPopupKeys, showCampaignPopup } from './campaign-popup-session'
 import {
   HudSprite,
@@ -1084,7 +1084,7 @@ export default function Home() {
                     }
                   }}
                 >
-                  <img src={messageIcon(message!)} alt="" />
+                  <OriginalMessageTab flags={message!.flags} />
                 </summary>
                 <OriginalCampaignPopup
                   text={messageText(message!.stringId)}

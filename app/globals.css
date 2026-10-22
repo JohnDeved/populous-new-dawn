@@ -162,7 +162,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 
 
 @media(max-width:900px){.loading-world{z-index:31}.controls-footer>span{display:none}}
-.campaign-messages{position:absolute;left:var(--side);top:0;z-index:5;pointer-events:none}.campaign-messages details{pointer-events:auto;position:absolute;left:0;width:var(--message-width,32px)}.campaign-messages summary{list-style:none;cursor:pointer;box-sizing:border-box;width:var(--message-width,32px);height:var(--message-height);display:grid;place-items:center;background:#d3ad47;border:2px ridge #b8a05c}.campaign-messages summary::-webkit-details-marker{display:none}.campaign-messages summary img{width:15px;height:22px;image-rendering:pixelated}.campaign-messages summary img[src$="message-type1.png"]{width:25px;height:18px}
+.campaign-messages{position:absolute;left:var(--side);top:0;z-index:5;pointer-events:none}.campaign-messages details{pointer-events:auto;position:absolute;left:0;width:var(--message-width,32px)}.campaign-messages summary{position:relative;list-style:none;cursor:pointer;box-sizing:border-box;width:var(--message-width,32px);height:var(--message-height);padding:0;border:0;background:none}.campaign-messages summary::-webkit-details-marker{display:none}
 
 
 .native-tooltip { position: absolute; z-index: 12; padding: 0; border: 4px solid transparent; border-image: url("/original/tooltip-border.png") 4 repeat; pointer-events: none; }

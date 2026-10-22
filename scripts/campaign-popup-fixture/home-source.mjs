@@ -26,6 +26,7 @@ export function homePopupFixture(root) {
   const s=homePopupSources(root),app=resolve(root,'app')
   return `import React,{useEffect,useRef,useState} from 'react';
 import {OriginalCampaignPopup} from '${app}/original-campaign-popup';
+import {OriginalMessageTab} from '${app}/original-message-tab';
 import {FullscreenControl} from '${app}/fullscreen-control';
 import {captureCampaignPopupKeys,showCampaignPopup} from '${app}/campaign-popup-session';
 import {createMessages,addMessage,acknowledgeMessage,messageHasDelete,messageIcon,messageText,messageViewPoint} from '${app}/messages';

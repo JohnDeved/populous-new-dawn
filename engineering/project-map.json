@@ -807,6 +807,9 @@
         "app/person-update.ts",
         "app/live-worship.ts",
         "app/messages.ts",
+        "app/original-message-tab.tsx",
+        "app/original-message-tab.module.css",
+        "app/original-message-tabs.json",
         "app/object-panels.ts",
         "app/person-worship.ts",
         "app/popscript.ts",
@@ -1114,6 +1117,8 @@
         "scripts/check-native-messages.py",
         "scripts/import-level.py",
         "scripts/import-messages.py",
+        "scripts/import-message-tabs.py",
+        "tests/message-tab-art.test.mjs",
         "scripts/import-original.py",
         "scripts/import-script.py",
         "scripts/inspect-executable.py",
@@ -1193,6 +1198,7 @@
         "effects.reincarnation"
       ],
       "evidence": [
+        { "path": "decomp/research/campaign-notification-tabs.md", "heading": "Original descriptor and state ownership" },
         { "path": "decomp/research/world-selector-globes.md", "heading": "Ordinary selector globes" },
         { "path": "decomp/research/world-selector-manifest/README.md", "heading": "All 25 native selector records" },
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },

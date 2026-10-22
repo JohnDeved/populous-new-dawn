@@ -1,5 +1,8 @@
 # Static decompilation workspace
 
+[Campaign notification tab presentation](research/campaign-notification-tabs.md)
+binds the original normal/hover/active frame descriptors and type1/type3 icon pairs.
+
 [Native campaign selection and progression](research/native-campaign-progression/README.md)
 preserves the complete 25-mission branch contract, completion/availability distinction,
 terminal boundary, original disassembly, and static test oracles. The pure model is

@@ -1,0 +1,22 @@
+/* Source-sized 4px HFX corners and top-left-aligned repeated tiles, never CSS
+   bevels or border-image's centered repeats. Notification dimensions/motion stay
+   with the existing independent screen parameterization in Home. */
+.art { position: absolute; inset: 0; pointer-events: none; image-rendering: pixelated; }
+.tile { position: absolute; width: 4px; height: 4px; background-image: var(--tile-normal); }
+.tile[data-position='4'] { inset: 4px; width: auto; height: auto; }
+.tile[data-position='1'] { left: 4px; right: 4px; top: 0; width: auto; }
+.tile[data-position='7'] { left: 4px; right: 4px; bottom: 0; width: auto; }
+.tile[data-position='3'] { left: 0; top: 4px; bottom: 4px; height: auto; }
+.tile[data-position='5'] { right: 0; top: 4px; bottom: 4px; height: auto; }
+.tile[data-position='0'] { left: 0; top: 0; }
+.tile[data-position='2'] { right: 0; top: 0; }
+.tile[data-position='6'] { left: 0; bottom: 0; }
+.tile[data-position='8'] { right: 0; bottom: 0; }
+.art img { position: absolute; left: round(to-zero, calc((100% - var(--icon-width)) / 2), 1px); top: round(to-zero, calc((100% - var(--icon-height)) / 2), 1px); width: var(--icon-width); height: var(--icon-height); max-width: none; }
+.art img[data-icon='active'] { display: none; }
+/* Native flag4 is ordinary pointer hover, not the held/activation bank.
+   Keyboard focus reuses that frame without changing gameplay message flags. */
+:global(summary):is(:hover, :focus-visible) .tile { background-image: var(--tile-hover); }
+:global(summary):active .tile, .art[data-active='true'] .tile { background-image: var(--tile-active); }
+:global(summary):active .art img[data-icon='normal'], .art[data-active='true'] img[data-icon='normal'] { display: none; }
+:global(summary):active .art img[data-icon='active'], .art[data-active='true'] img[data-icon='active'] { display: block; }
