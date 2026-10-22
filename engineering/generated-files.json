@@ -2,6 +2,18 @@
   "version": 1,
   "owners": [
     {
+      "id": "native-query-control-art",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-query-control.py", "<verified-game-root>"] },
+      "callers": ["scripts/import-query-control.py", "app/query-control.tsx"],
+      "inputs": ["scripts/import-result-ui.py", "scripts/import-original.py"],
+      "outputs": [
+        { "path": "public/original/query-control", "type": "directory", "tracked": true, "protected": true },
+        { "path": "decomp/research/native-help/query-control.json", "type": "file", "tracked": true, "protected": true }
+      ],
+      "recording": "Hash-pinned EXE, HFX and palette data-only import. Existing outputs must match; --check is read-only. --reuse-assets hardlinks only byte-verified decoded PNGs. Does not run the original game, replace shared assets or claim restored Query behavior."
+    },
+    {
       "id": "ordinary-hud-control-static-evidence",
       "kind": "native-evidence",
       "generator": { "executable": "python3", "args": ["scripts/research-hud-controls.py", "<hash-verified-original-exe>"] },

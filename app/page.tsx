@@ -2,6 +2,7 @@
 
 import { FullscreenControl } from './fullscreen-control'
 import { SoundControl } from './sound-control'
+import { QueryControlArt } from './query-control'
 import { OriginalPauseStatus } from './original-pause-status'
 import { OriginalOptions } from './original-options'
 import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
@@ -1204,7 +1205,7 @@ export default function Home() {
             aria-description="Help and game menu"
             onClick={openMenu}
           >
-            ?
+            <QueryControlArt />
           </button>
           <ShamanHealth health={shaman?.hp ?? 0} maximum={maxHp('shaman')} />
           {enemies.map(enemy => (
