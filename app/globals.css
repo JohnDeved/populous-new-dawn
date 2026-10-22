@@ -64,7 +64,9 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .population-meter{position:absolute;left:4px;top:4px;width:7px;height:22px;background:url('/original/hud-population.png');pointer-events:none}
 .population-meter>span{position:absolute;left:2px;top:2px;width:3px;height:18px}.population-meter i{position:absolute;left:0;bottom:0;width:3px}
 .mana-meter{position:absolute;left:4px;top:190px;width:92px;height:13px;background:url("/original/hud-mana.png");image-rendering:pixelated}.mana-meter>span{position:absolute;left:2px;top:2px;width:88px;height:9px}.mana-meter i{position:absolute;top:0;width:1px;height:10px}
-.command-dock{position:absolute;left:0;top:204px;width:100px;bottom:0;padding:7px 2px;background:url('/original/hud-commands.png');border:2px ridge #e4b152;border-bottom:0}
+/* All three native command roots share this 100x277 HFX712/005caa40 panel.
+   Preserve the existing spell/building content origin (4,9), not the CSS ridge. */
+.command-dock{position:absolute;left:0;top:204px;width:100px;height:277px;padding:9px 4px 7px;background:url('/original/follower-task-panel.png') no-repeat;border:0}
 .spell-list,.building-list,.follower-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px}
 .spell-card,.building-card,.follower-list button{position:relative;min-width:0;height:43px;padding:0;display:grid;place-content:center;border:8px solid transparent;border-image:url('/original/hud-button.png') 8 fill repeat}
 .building-card.active{border-image-source:url('/original/hud-button-selected.png')}

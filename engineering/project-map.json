@@ -225,7 +225,10 @@
         "scripts/check-native-follower-task-art.py",
         "scripts/check-native-follower-task-adapters.py",
         "scripts/check-browser-follower-tasks.mjs",
-        "decomp/research/follower-tasks-live.md"
+        "decomp/research/follower-tasks-live.md",
+        "decomp/research/ordinary-hud-controls/README.md",
+        "scripts/research-hud-controls.py",
+        "tests/command-dock-art.test.mjs"
       ],
       "sharedPaths": [
         "app/page.tsx",
@@ -259,6 +262,10 @@
         {
           "path": "decomp/research/follower-tasks-live.md",
           "heading": "Followers task rows: live integration"
+        },
+        {
+          "path": "decomp/research/ordinary-hud-controls/README.md",
+          "heading": "Ordinary HUD controls: original art and unresolved actions"
         }
       ],
       "nativeAddresses": [

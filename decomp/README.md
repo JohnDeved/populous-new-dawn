@@ -1,5 +1,9 @@
 # Static decompilation workspace
 
+[Ordinary HUD control artwork](research/ordinary-hud-controls/README.md) binds the
+shared command-root panel and separates the original Help/tribe callbacks from
+the browser's retained Menu/focus adaptations. Those controls remain unfinished.
+
 [Campaign notification tab presentation](research/campaign-notification-tabs.md)
 binds the original normal/hover/active frame descriptors and type1/type3 icon pairs.
 
