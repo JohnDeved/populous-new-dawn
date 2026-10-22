@@ -1,0 +1,340 @@
+# Native Query and Encyclopaedia
+
+Implementation starts from `0107e11c3650918f494982754fe12f3eb990b83b`, the unmerged
+PR #732 composition. Issue #741 owns the full outcome. The current Menu button is
+an interim browser adaptation and remains until the native article replacement
+has source-backed typography, discovery, illustration and rendered acceptance.
+
+## Escape prerequisite
+
+Original `d3dpoptb.exe` SHA-256:
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
+
+The 12-byte keymap record at `005d60c4` is
+`019b00000009000170ee4f00`: Escape down, command `0x9b`, predicate `004fee70`.
+The predicate reads world flags `0089c661` and returns true when bit `0x80000000`
+is clear, not only on the tutorial. `process_cmd` (`004aab80`) case `0x9b` can
+enter Game Menu (`00458060`); its land-flags-clear path also checks panel 2 via
+`00451370` and may call `0045db60(0)` instead. Earlier Query Escape record
+`005d5ecc` is `01b9000000090001e0f04f00`; predicate `004ff0e0` tests mode `0x11`.
+This establishes a non-tutorial Game Menu route and the earlier Query binding, not every
+native cancel predicate or browser input lifecycle.
+
+`Home` now opens the existing original-styled pause Menu from neutral Escape on
+all playing worlds. Existing non-tutorial targeting then selection cancellation
+and tutorial Escape behavior are deliberately preserved browser compatibility,
+not a new claim of exact native cancellation parity. Repeated or Ctrl/Alt/Meta-modified presses,
+foreign input owners, terminal or replaced worlds do not gain a new Menu route.
+A handled Escape is consumed once, avoiding an accidental second destination.
+
+`tests/game-menu-escape.test.mjs` evaluates the actual Home effect and Menu
+handlers with supplied event/scene boundaries. It is not rendered or native
+execution evidence. No changes to saves or scene lifecycle are made by this
+prerequisite.
+
+## Remaining feature acceptance
+
+- Query is button 1051, mode `0x11`, POINT13 (31 × 19, hotspot 0,0), not POINT14.
+- Query arming is unpaused; next primary press intercepts commands and opens the
+  contextual article. Query on Query opens 1051. Article close returns to Query;
+  the next cancel returns to the earlier gameplay mode. F1 toggles the article.
+- Native original frame/content/navigation/scroll regions, font/markup, discovery
+  conditions and illustrations must be implemented and visually verified. Topic
+  1051 has descriptor kind 255 and no illustration, not a replacement graphic.
+- Keep browser-recovery Menu access, pause/scene identity ownership, F8 and cheats.
+
+Do not describe this prerequisite as restored Help or complete UI parity.
+
+## Staged Help core (not activated)
+
+`app/help-session.ts` keeps independent Query/article return owners outside World
+and therefore outside saves. Query never changes pause. Article close restores
+the captured prior pause only for the current playing scene. Preserving the first
+article entry owner across retargets is a deliberate browser lifecycle adaptation,
+as is restoring prior pause rather than the original pause-toggle quirk.
+
+`app/help-topic.ts` projects native object type/model/flags and HUD metadata through
+`0045ed10`, tables `0059d7f4`/`0059d814`, and its scenery/terrain switch. Unsupported
+valid objects and ordinary empty land retain the previous topic. Missing source
+vehicle-definition flags are not guessed. Native model zero's overlapping table
+words are deliberately not treated as valid fallback topics.
+
+These modules and their focused tests are preparation for the real scene/HUD
+integration, not a user-facing implementation or completed Help behavior.
+
+## Original Query artwork, interim Menu behavior
+
+The live button keeps its existing accessible name, description, primary callback
+and browser-recovery role. Only the invented Arial glyph, outset border and
+12×12 rectangle at(64,113) are replaced. The actual Home button now renders native
+13×12 geometry at(64,114), HFX105 integer-centered at local(4,3), and the original
+normal/hover/held frame tables. `004a1f50` repeats original4×4 edge/interior pixels;
+no synthetic active-mode glow or disabled Help state is introduced.
+
+This is the existing browser's uniform640-reference HUD adaptation. Native's
+independent-axis scaling and HFX106 selection above800 native screen width are not
+newly reproduced. The imported106 asset is retained for that future integration,
+not misrepresented as a hover image. Failed frame/icon loads explicitly retain
+minimal former recovery artwork, marked `data-query-art="failed"`; that exceptional
+fallback is not native-art acceptance. The actual Menu semantics are unchanged.
+
+## Exact English article preparation, not activation
+
+- Body and `<b>` both use existing F00T4 pixels; title uses existing F00T3 at a
+  native screen area≥307200, otherwise4. Links use original F00T10 when available,
+  their run font when unavailable, and F00T11 when hovered, not CSS recoloring.
+- `layoutHelpText` follows addressed00425400 English run/row wrapping. Tags reset
+  the current run's break position; original whitespace/punctuation is retained.
+  Row advance is max actual glyph height+4. Query's20px title makes body start38,
+  and its192px-width article measures174px high. Source fixtures are static
+  transcriptions, not original runtime screenshots.
+- `helpPanelLayout` takes actual native logical viewport and HUD width. Three
+  separate16px-tiled outer regions retain odd-tile gaps; navigation uses24×28
+  boxes at contents-right−30, top+7+35*i. Home is984; contents stays983. Scroll
+  arrows adjust thumb position, with proportional article-pixel offset.
+- Discovery table0059be28 is88 predicate/argument pairs. Building gates use its
+  availability mask; spells use knowledge or low-nibble stock, with special
+  level-flag0x20 semantics. Failed links still activate and select1057. Contextual
+  Query selection deliberately bypasses this link-only gate.
+- Main native panel005cd0be is100×480 at640-reference. Spell HUD slots and tab
+  use1055; building slots/tab1054; Followers tab/task cells1056; count/role strip
+  1053; portrait/health1050; tribe flags1052; nearby toggle1049; minimap1047.
+  Charge-rate control005cb3c8 has zero topic and therefore falls back1046, not1059.
+
+The importer pins every original input before creating any new owned output,
+refuses differing existing outputs, and has a read-only `--check`. It never runs
+original code or regenerates the existing HUD/title/frame artwork. It retains
+exact code/table spans in `source.json`; its addresses are static evidence, not
+an executable parity harness. English text and descriptors are unmodified.
+
+### Explicit blockers before replacing Menu with Help
+
+1. Real scene/HUD interception, POINT13 input ownership, F1/two-stage cancellation,
+   history and semantic article navigation are not integrated yet.
+2. The staged text layout deliberately rejects inline `<i N>` rather than hiding
+   unsupported content. The verified21-entry mapping needs its actual renderer.
+3. Native preview kinds0/1/2/4/5/6 require real person, building, vehicle, spell-HUD,
+   scenery and reincarnation render paths. Kinds3 and255 genuinely render nothing;
+   blank Query1051 is not permission to omit other previews or substitute art.
+4. Live discovery fields and all native control metadata need integration.
+5. Actual rendered comparisons, scale/asset-failure/accessibility/input witnesses,
+   focused/full checks and build must pass before any full Help claim.
+
+Issue #741 remains open and any feature publication must remain draft while these
+blocks remain. Do not claim restored Query behavior from the artwork correction.
+
+## Draft safety and integration follow-through
+
+The importer safety changes from reviewed narrow prerequisite `3ef0af579` are
+ported here: suppress bytecode before importing, reject symlink/nonregular
+outputs, enforce selected-root parent containment, and create missing outputs
+exclusively. `tests/help-ui-import.test.mjs` covers these boundaries. This full
+branch's port and inactive Help tests have not yet run; the narrow branch's121
+observed passes must not be borrowed as full-feature acceptance.
+
+Before rendering this full draft, compose the reviewed narrow Query artwork and
+Menu prerequisite (including its recovery-focus fix and dedicated asset paths).
+This historical draft fork still contains the earlier artwork staging; it is not
+an alternative release candidate. Native preview renderer work should touch only
+its isolated preview modules/tests until the parent composes the live branch.
+
+Additional native history evidence: `0045d870` sets capacity `00749ecc` to64,
+allocates256 bytes for `00749ec0`, and clears cursor/count. The `00425180` boundary
+behavior can write at capacity after enough pushes; do not imitate native memory
+corruption. Any safe browser history bound must be explicitly documented.
+
+## Article surface and history staging
+
+`help-history.ts`, `help-document.ts` and `HelpArticleSurface` are now staged, not
+imported by `page.tsx`. The surface actually renders the three original tiled
+panes and original bitmap glyphs, with preserved blank rows and exact run widths.
+Links stay present when unavailable and activate1057; normal available glyphs
+are font10, hovered/focused glyphs font11, unavailable glyphs retain their node
+font. Keyboard link activation and visible focus via native hover art are explicit
+browser accessibility adaptations. No backdrop, CSS typography or synthetic
+illustration is supplied. Asset failure is reported to the eventual owner, which
+must restore its prior input/pause state and original Menu access safely.
+
+The surface requires separately verified preview and navigation/scroll nodes.
+They are not supplied with fake defaults. Text preflight rejects unsupported
+inline images or impossible panel dimensions before a future owner may pause.
+A ready text document does not mean its preview or complete feature is ready.
+History is scene-local, survives article close, retains duplicate visits and
+truncates forward history on a branch. Its64-slot bound includes the current
+entry, a documented browser memory-safety adaptation at the native overflow edge.
+Different article text resets scrolling at0045dd22; explicit link/home/context
+activation also resets it. No checkpoint schema or active gameplay handler has
+changed. These new modules/tests have not run and have no rendered acceptance.
+
+`createHelpInputOwner` now stages real event ownership around the transient
+session. Its identity requires BOTH the same current World and the same current
+Scene, including scene.world equality. The caller must supply current higher
+owners, foreign/F8/cheat exceptions, source context, renderer preflight, the real
+store transaction and gameplay gesture release. No live fields are fabricated.
+Context opens on primary down, and that press's up/compatibility click is consumed
+rather than reaching the existing HUD callback. Right-down does not cancel;
+right-up cancellation takes an explicit proven-region predicate because native
+HUD dispatch can precede the keymap. F1 toggles an article and Escape restores
+article then Query then ordinary gameplay. Neutral Escape is deliberately not
+owned, preserving the Menu prerequisite. Browser recovery releases this owner
+before invoking the existing recovery callback. Another modal must acquire its
+pause/input ownership only AFTER Help release; this ordering is a live integration
+acceptance requirement, not proven by these isolated source tests.
+
+The owner is NOT installed into window/page/scene listeners, and POINT13 has not
+been connected to live cursor precedence. Live collector/discovery/counters,
+actual full preview support and rendered/input evidence are still blockers. In
+particular native hover-frame counter00897981 is distinct from illustration
+counter0089d184; neither receives an invented local timer.
+
+## Inline article artwork checkpoint (inactive, October 22)
+
+The earlier inline-image blocker is now addressed in source, not yet validated in
+execution. All 21 original `<i N>` slots resolve through `0059bdc0`, including the
+intentional duplicate sprite 1609. `layoutHelpText` preserves image replacement of
+its current run, image-height row expansion, and the native image-overflow width
+reset; the article surface draws the exact PNG at the row top. Linked images are
+still explicitly blocked because their palette-outline path is not implemented;
+none occur in the retained English topic text. A new focused test covers all 88
+texts and the native overflow quirk. These tests have not yet run.
+
+The reviewed, data-only `import-help-article-art.py` created 47 unique PNGs and one
+manifest in a fresh owned directory. Input EXE/palette/HFX hashes, all output
+hashes, exact helper hashes, and exclusive creation are retained in the import
+receipt; no native executable ran and no shared bank was regenerated. A separate
+RGBA comparison establishes that all 27 navigation-frame tiles already exist in
+`hud-button.png`, `hud-button-selected.png` (hover), and `hud-button-hover.png`
+(pressed). Runtime navigation will reuse those three atlases, not issue 27 new
+image requests. The dedicated decoded files remain provenance/reference data.
+
+Source references: `00425680–0042579a`, `00426526–0042653c`, `0059bdc0`, and the
+addressed native-help-navigation evidence packet for `004a2560` / `004a1f50`.
+The new images are article decorations and navigation frames, not a replacement
+for the still-incomplete 3D object/spell preview renderer. Live input/cursor,
+actual discovery data, native counter cadence, lifecycle composition, tests and
+browser comparison remain activation blockers. No new Help module is imported by
+`page.tsx`; the safe Menu adaptation remains in force.
+
+## Native navigation renderer checkpoint (inactive, October 22)
+
+`HelpNavigation` renders four original icon controls, exact 24×28 hitboxes and
+integer icon centering. It consumes explicit UI counter and left down/up state;
+there is no invented RAF clock, World turn substitute, or permanent pointer-hover
+frame. `004a2560` selects pressed first, otherwise hover only on counter bit4.
+Original glyphs switch to 447/448/450/449 only on the pressed branch. The retained
+24×24 HUD atlases are rendered with clipped 8px repeats, preserving source phase
+rather than CSS's centered partial border repeats. Keyboard focus intentionally
+uses the same original hover family continuously as an accessibility adaptation.
+Normal pointer activation occurs on down, with keyboard-only click activation.
+
+`helpScrollbarPlan` also records the exact moving-cap geometry: arrows are at the
+thumb's own top/bottom, not fixed at the track ends. Its body repeats HFX455;
+minimum height is 10+12. The plan is staged, but its pointer/drag renderer remains
+unimplemented and therefore an explicit activation blocker. No unavailable topic
+or history boundary is represented by invented disabled tinting.
+
+Mouse state corroboration is already in the retained `004aa1c0` span:
+`004aa210–004aa235` writes down/up arrays at `984591+key` / `984691+key` in opposite
+states, and `004aa27f–004aa2b8` maps key 0xf0 to the known left-button pulse flags.
+Thus the navigation addresses `984681` / `984781` are those slots, not guessed
+previous-frame state. Other writers and the native counter cadence still require
+integration review. These new modules and tests remain unexecuted and inactive.
+
+
+### First full-source gate and shipped malformed markup
+
+The first guarded gate at `2b39a4fcaaf3d841c59b02b1543aa6a1181316cd`
+ran 54 focused tests: 53 passed and one failed. It exposed the original topic1029
+`<a/>` typo, which the strict parser had rejected. Type/format checks separately
+exposed an extra JSX closing parenthesis and unformatted staged source. All raw
+failures, unchanged source/runtime bindings and owned-process cleanup are retained
+in the external `full-validation-01` evidence. These were not passing gates.
+
+The malformed tag is not corrected to `</a>`. Original `00425d60` compares exact
+UTF-16 tag names at `0059c108–0059c12b`; unknown names return0 at `00426128`.
+Caller `0042559c–004255b5` consumes the tag's source count, then skips the new-node
+and run-reset block `00425797–004257b8`. Renderer `0042673a–00426832` strips tag
+text independently. The narrow supported `<a/>` therefore keeps the active link,
+font, node and last-break state. Regressions cover an interior malformed tag,
+a genuine closing tag, and wrap rollback across the malformed tag. Other unknown
+markup remains an explicit unsupported condition. The original LANG00 is unchanged.
+Addressed original bytes are retained in `malformed-tag-1029.json` outside the
+checkout; the original executable was not run.
+
+The article metadata and47 newly owned source-palette PNGs are registered under
+`native-help-article-art` in the generated-file ownership manifest. This does not
+register or imply acceptance of the separately owned preview-worker supplement.
+All staged Help surfaces remain inactive; these fixes do not restore public Query.
+
+### Inactive recovery and focus review follow-through
+
+The first formatting-only recovery completed at `698972e7a` with unchanged
+runtime bindings and only the ten declared Help entries changed. It did not rerun
+focused tests or TypeScript and does not replace the failed full gate above.
+
+Article/navigation image preflight now checks source-bound natural dimensions,
+not just successful decoding. This includes every navigation frame and pressed
+icon before interaction, plus all article glyph atlases and inline images. A
+substituted 1×1 image is rejected, the original decode error is retained, and
+unmounted/stale React effects still suppress their callback. Dimensions alone are
+not a pixel-integrity or browser-rendering attestation.
+
+The input owner now recovers from thrown context/preflight work as well as an
+explicit unavailable result. A still-current owner restores its exact prior mode
+and pause before calling browser recovery, retains the first original diagnostic,
+and still consumes its own current-scene pointer completion. An asset failure may
+use the same `fail` callback. Stale/replaced scenes, terminal worlds and a new
+higher-priority owner are not mutated; integration must continue to release Help
+before another modal takes ownership. The new tests cover these cases, direct F1,
+prior paused/unpaused states, and a second late failure without duplicate recovery.
+
+Article keyboard focus and pointer hover now have separate state. Either selects
+the original font 11, so pointer leave or hovering another link cannot erase the
+focused link's accessibility indication. Actual Enter/Space handler containment,
+public pointer/cursor paths, save/world/scene replacement, recovery presentation,
+preview readiness and comparison to the original remain integration/browser gates.
+These source-review corrections are not yet executed or activation-approved.
+
+
+### Accepted predecessor and inactive moving-cap scrollbar
+
+The recovery slice at `794aaf0fd79c02fbfdfa4eb8a99dad156672409b` subsequently
+passed its byte-bound full-02 gate: 61/61 focused tests, strict ten-entry TypeScript
+and formatter checks, identical source/runtime snapshots and no surviving owned
+processes. Independent terminal audit `1a8a7c7a` accepted that evidence. The missing
+`parity-history.json` automatic-report warning remains separate; this was not a
+full-suite, build or browser gate. The earlier failed full-01 remains preserved.
+Those results apply to that exact predecessor, not the following new source.
+
+`HelpScrollbar` now stages the actual original moving-cap artwork: HFX451/453
+(up),452/454 (down), and repeated one-pixel455 body. All five dimensions are checked
+before interaction readiness. Native `0045eb09` / `0045eb22` move the position by
+seven track units, clamped, rather than seven text pixels. `0045e693–0045e71f`
+clears the drag anchor if left-down is false or left-up is true, then, after drawing,
+applies mouse-Y minus anchor, clamps, and stores the new mouse Y even at a boundary.
+Anchor zero remains the inactive sentinel. There is no track-click or wheel action.
+
+The controller retains only that anchor and the last externally supplied render
+counter, never a shadow article position. Its caller must sample once AFTER the
+current native draw and publish the next position. It creates no RAF, timer or
+World.turn-derived clock. UI hover uses the independently supplied native point
+from `00451390` (`0087ca9c/9e`, half-open rectangles), not captured DOM enter/leave
+or an assumed equality with drag Y `00984584`. This preserves cap hover when
+capture or clamping makes the physical pointer cross a cap/body boundary.
+
+Pointer capture, cancellation/lost-capture cleanup, cap keyboard activation and
+persistent cap focus are explicit browser adaptations. The component releases its
+own anchor/capture on disposal, topic or viewport replacement, no-scroll content
+and asset failure. It owns no world state or position. Original cursor IDs4/5/6
+are metadata only until the real cursor collector is composed. No original
+executable was executed. New focused cases and the renderer remain unexecuted at
+this source checkpoint; exact public input ownership, coordinate/counter adapters,
+rendered pixels and lifecycle interactions are still activation gates.
+
+
+Scrollbar source review additionally bounds native hover coordinates to signed16,
+drag Y to signed32 and nonnegative position/maximum to the signed32 range. Drag
+subtraction/addition preserves DWORD wrap before the native signed clamp. The
+unreachable ordinary-viewport downward-cap overflow case is explicitly unsupported,
+not silently changed into a fabricated negative position or lower clamp. Edge
+regressions cover signed limits, subtraction/addition wrap and rejected values.
