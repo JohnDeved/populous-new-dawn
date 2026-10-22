@@ -15,6 +15,31 @@ export function holdAudioResume() {
   }
   window.restoreSoundResume = () => { AudioContext.prototype.resume = resume }
 }
+// Native disabled and focus-preserving ARIA disabled both communicate pending.
+// A missing control or mismatched busy state must never satisfy either wait.
+export function soundControlPending(pending) {
+  const node = document.querySelector('[data-sound-control]')
+  return !!node && (node.disabled || node.getAttribute('aria-disabled') === 'true') === pending &&
+    node.getAttribute('aria-busy') === String(pending)
+}
+export function soundOwnership() {
+  const world = window.testStore.getWorld(), scene = window.testSceneRef.current
+  return {
+    focused: document.activeElement === document.querySelector('[data-sound-control]'),
+    currentWorld: scene.world === world,
+    world: { paused: world.paused, inputMask: world.inputMask, status: world.status },
+    scene: { focusPauseOwned: scene.focusPauseOwned, overviewActive: scene.overviewActive,
+      overviewStage: scene.overviewStage, keys: [...scene.keys].sort() },
+    popups: [...document.querySelectorAll('.campaign-messages details[open]')].map(node => node.dataset.messageSerial),
+  }
+}
+export function assertSoundOwnership(before, after) {
+  assert.equal(after.focused, true, 'Sound control must retain focus through pending and settlement')
+  assert.equal(after.currentWorld, true, 'Observation must belong to the current scene/world')
+  assert.deepEqual(after.world, before.world, 'Sound activation cannot change pause or gameplay ownership')
+  assert.deepEqual(after.scene, before.scene, 'Sound activation cannot change overview, focus pause or held gameplay keys')
+  assert.deepEqual(after.popups, before.popups, 'Sound activation cannot acknowledge or replace the open campaign popup')
+}
 export default async function ({ browser, url, root, output, signal }) {
   const report = { status: 'running', samples: [], checks: [] }
   const save = () => writeFileSync(resolve(output, 'hud-sound.json'), JSON.stringify(report, null, 2) + '\n')
@@ -41,6 +66,7 @@ export default async function ({ browser, url, root, output, signal }) {
               hudScale: Number(getComputedStyle(node.closest('.game-shell')).getPropertyValue('--hud-scale')),
               x: r.x, y: r.y, right: r.right, bottom: r.bottom,
               dpr: devicePixelRatio, label: node.getAttribute('aria-label'), busy: node.getAttribute('aria-busy'), disabled: node.disabled,
+              ariaDisabled: node.getAttribute('aria-disabled'), effectiveDisabled: node.disabled || node.getAttribute('aria-disabled') === 'true',
               fallback: node.dataset.artReady === 'false', text: node.textContent,
               frame: style.getPropertyValue('--sound-frame'), radius: style.borderRadius,
               glyphs: [...node.querySelectorAll('span:last-child i')].map(glyph => ({ width: glyph.offsetWidth, height: glyph.offsetHeight, image: getComputedStyle(glyph).backgroundImage })),
@@ -66,29 +92,53 @@ export default async function ({ browser, url, root, output, signal }) {
         await control.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab')
         assert.equal(await control.evaluate(node => node === document.activeElement), true)
         await capture('focus', 'Sound Off', 'hud-button-selected.png')
+        const before = await page.evaluate(soundOwnership)
+        assert.equal(before.currentWorld, true); assert.equal(before.world.paused, false)
+        assert.ok(before.popups.length > 0, 'Ordinary Mission 1 must supply the live campaign popup for ownership coverage')
+        const preserved = async phase => {
+          const after = await page.evaluate(soundOwnership)
+          assertSoundOwnership(before, after)
+          report.checks.push({ fallback, phase, ownership: after }); save()
+        }
         await page.evaluate(holdAudioResume)
         await page.keyboard.press('Enter')
-        await page.waitForFunction(() => document.querySelector('[data-sound-control]')?.disabled)
+        await page.waitForFunction(soundControlPending, true)
         await capture('pending', 'Wait')
-        await page.keyboard.press('Enter'); await page.keyboard.press('Space')
-        assert.equal(await page.evaluate(() => window.soundResumeAttempts), 1, 'Disabled pending control cannot duplicate activation')
+        await preserved('pending')
+        for (const key of ['Enter', 'Space']) {
+          await page.keyboard.down(key); await page.keyboard.down(key); await page.keyboard.down(key); await page.keyboard.up(key)
+          assert.equal(await page.evaluate(() => window.soundResumeAttempts), 1, 'Pending keyboard and held repeats cannot duplicate activation')
+          await preserved(`pending-${key}`)
+        }
+        // Locator.click deliberately waits for ARIA-enabled; a real pointer click
+        // at the visible pending control tests its explicit guard instead.
+        const box = await control.boundingBox(); assert.ok(box)
+        await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2)
+        assert.equal(await page.evaluate(() => window.soundResumeAttempts), 1, 'Pending pointer click cannot duplicate activation')
+        await preserved('pending-pointer')
+        await page.keyboard.down('Space')
         await page.evaluate(() => window.rejectSoundResume())
-        await page.waitForFunction(() => !document.querySelector('[data-sound-control]')?.disabled)
+        await page.waitForFunction(soundControlPending, false)
+        await page.keyboard.down('Space'); await page.keyboard.up('Space')
+        assert.equal(await page.evaluate(() => window.soundResumeAttempts), 1, 'A Space held across settlement cannot activate on release')
         assert.equal(await control.getAttribute('data-sound-enabled'), 'false')
+        await preserved('rejected-held-release')
         await page.evaluate(() => window.restoreSoundResume())
         await control.click()
         await page.waitForFunction(() => document.querySelector('[data-sound-control]')?.dataset.soundEnabled === 'true')
         await page.waitForFunction(() => window.observedSoundContext?.state === 'running')
+        await preserved('real-resume-recovered')
         report.checks.push({ recoveredAudioContext: await page.evaluate(() => ({ state: window.observedSoundContext.state,
           currentTime: window.observedSoundContext.currentTime, sampleRate: window.observedSoundContext.sampleRate })) })
         assert.equal(await control.getAttribute('aria-label'), 'Mute sound')
         await page.setViewportSize({ width: 640, height: 480 })
         await capture('on-compact', 'Sound On', 'hud-button-hover.png')
-        await control.click()
+        await page.keyboard.press('Space')
         assert.equal(await control.getAttribute('data-sound-enabled'), 'false')
         assert.equal(await control.getAttribute('aria-label'), 'Enable sound')
+        await preserved('native-Space-mute')
         if (fallback) assert.ok(blockedArt > 0)
-        report.checks.push(`${fallback ? 'fallback/DPR2' : 'native/DPR1'}: off/on, hover/focus, pending duplicate guard, rejection recovery, compact geometry`)
+        report.checks.push(`${fallback ? 'fallback/DPR2' : 'native/DPR1'}: off/on, hover/focus, pending pointer/keyboard/repeat guards, focus/world/popup preservation, held-release rejection recovery, native Space mute, compact geometry`)
       } finally { await context.close() }
     }
     report.status = 'passed'; report.limits = ['Trusted browser activation and real AudioContext recovery, not acoustic measurement', 'Browser compatibility footer, not an original native sound-toggle claim']

@@ -13,7 +13,7 @@ import { episodes, limits, acceptEpisode, acceptSeries, boundedEpisode } from '.
 import { artifactInventory, ownBrowser } from '../scripts/native-ui-evidence/browser-owner.mjs'
 import { supervise } from '../scripts/native-ui-evidence/supervise.mjs'
 import { failPreferenceWrites } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
-import { holdAudioResume } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
+import { holdAudioResume, soundControlPending, soundOwnership, assertSoundOwnership } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
 import { runNativeUiEvidence } from '../scripts/native-ui-evidence/adapter.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from '../scripts/native-ui-evidence/files.mjs'
 import { initializeEpisodeLedger, recordUnstartedFailure } from '../scripts/native-ui-evidence/ledger.mjs'
@@ -364,6 +364,38 @@ test('audio fixture holds/rejects only resume and restores the real implementati
   assert.equal(sandbox.window.soundResumeAttempts, 1); assert.equal(originalCalls, 0)
   sandbox.window.rejectSoundResume(); await assert.rejects(pending, /Controlled/)
   sandbox.window.restoreSoundResume(); assert.equal(await context.resume(), 'real'); assert.equal(originalCalls, 1)
+})
+test('sound pending wait accepts native or ARIA disable without accepting missing controls or mismatched busy states', () => {
+  for (const disabled of [false, true]) for (const ariaDisabled of [null, 'false', 'true']) for (const pending of [false, true]) {
+    const node = { disabled, getAttribute: name => name === 'aria-disabled' ? ariaDisabled : String(pending) }
+    const sandbox = { document: { querySelector: () => node }, pending }
+    const actual = vm.runInNewContext(`(${soundControlPending.toString()})(pending)`, sandbox)
+    assert.equal(actual, (disabled || ariaDisabled === 'true') === pending)
+    node.getAttribute = name => name === 'aria-disabled' ? ariaDisabled : String(!pending)
+    assert.equal(vm.runInNewContext(`(${soundControlPending.toString()})(pending)`, sandbox), false)
+  }
+  for (const pending of [false, true]) assert.equal(vm.runInNewContext(`(${soundControlPending.toString()})(pending)`, {
+    document: { querySelector: () => null }, pending,
+  }), false)
+})
+test('sound ownership reads actual focus and scene/world/popup identity and rejects each observed leak', () => {
+  const control = {}, world = { paused: false, inputMask: 0, status: 'playing' }, scene = {
+    world, focusPauseOwned: false, overviewActive: false, overviewStage: null, keys: new Set(),
+  }, popup = { dataset: { messageSerial: '17' } }
+  const sandbox = { window: { testStore: { getWorld: () => world }, testSceneRef: { current: scene } },
+    document: { activeElement: control, querySelector: () => control, querySelectorAll: () => [popup] } }
+  const snapshot = () => JSON.parse(JSON.stringify(vm.runInNewContext(`(${soundOwnership.toString()})()`, sandbox)))
+  const before = snapshot(); assertSoundOwnership(before, before)
+  for (const [target, key, value] of [
+    ['document', 'activeElement', {}], ['world', 'paused', true], ['world', 'inputMask', 1],
+    ['scene', 'world', {}], ['scene', 'overviewActive', true], ['scene', 'focusPauseOwned', true],
+    ['scene', 'keys', new Set([' '])], ['popup', 'messageSerial', '18'],
+  ]) {
+    const object = { document: sandbox.document, world, scene, popup: popup.dataset }[target], previous = object[key]
+    object[key] = value; assert.throws(() => assertSoundOwnership(before, snapshot())); object[key] = previous
+  }
+  sandbox.document.querySelectorAll = () => []
+  assert.throws(() => assertSoundOwnership(before, snapshot()), /campaign popup/)
 })
 test('workflow is isolated read-only manual evidence with two credential-free pinned checkouts and bounded artifacts', () => {
   const workflow = yaml.load(read('.github/workflows/native-ui-evidence.yml'))
