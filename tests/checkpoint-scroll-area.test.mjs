@@ -78,7 +78,8 @@ function fixture() {
     if (name === 'react') return react
     if (name === 'react/jsx-runtime') return require(name)
     if (name === './checkpoint-scroll') return scrolling
-    if (name.endsWith('.module.css')) return new Proxy({}, { get: (_, key) => key })
+    if (name.endsWith('.module.css')) return Object.fromEntries(
+      ['area', 'viewport', 'content', 'scrollbar', 'thumb', 'cap', 'drag'].map(key => [key, key]))
     throw Error(`Unexpected dependency: ${name}`)
   }, component, component.exports, Image, ResizeObserver, window, document)
   function render() {

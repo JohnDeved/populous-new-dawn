@@ -34,9 +34,9 @@ export function CheckpointScrollArea({ children }: { children: ReactNode }) {
         content: node.scrollHeight,
         position: node.scrollTop,
       }
-      return Object.keys(next).every(
-        key => next[key as keyof typeof next] === previous[key as keyof typeof next]
-      )
+      return next.visible === previous.visible &&
+        next.content === previous.content &&
+        next.position === previous.position
         ? previous
         : next
     })
@@ -107,6 +107,7 @@ export function CheckpointScrollArea({ children }: { children: ReactNode }) {
         ref={viewport}
         className={styles.viewport}
         tabIndex={0}
+        role="region"
         aria-label="Checkpoint details"
         onScroll={measure}
       >
