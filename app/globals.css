@@ -65,7 +65,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .population-meter>span{position:absolute;left:2px;top:2px;width:3px;height:18px}.population-meter i{position:absolute;left:0;bottom:0;width:3px}
 .mana-meter{position:absolute;left:4px;top:190px;width:92px;height:13px;background:url("/original/hud-mana.png");image-rendering:pixelated}.mana-meter>span{position:absolute;left:2px;top:2px;width:88px;height:9px}.mana-meter i{position:absolute;top:0;width:1px;height:10px}
 /* All three native command roots share this 100x277 HFX712/005caa40 panel.
-   Preserve the existing spell/building content origin (4,9), not the CSS ridge. */
+   Preserve the existing spell content origin (4,9), not the CSS ridge. */
 .command-dock{position:absolute;left:0;top:203px;width:100px;height:277px;padding:9px 4px 7px;background:url('/original/follower-task-panel.png') no-repeat;border:0}
 .spell-list,.building-list,.follower-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px}
 .spell-card,.building-card,.follower-list button{position:relative;min-width:0;height:43px;padding:0;display:grid;place-content:center;border:8px solid transparent;border-image:url('/original/hud-button.png') 8 fill repeat}
@@ -73,7 +73,12 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .spell-list{grid-template-columns:repeat(3,31px)}
 .spell-art{position:absolute;inset:-8px;pointer-events:none}.spell-art>span{position:absolute}
 .native-charge{left:2px;top:34px;width:26px;height:5px;background:url('/original/hud-charge.png')}.native-charge>i{position:absolute;left:1px;top:1px;height:3px}
-.building-list{grid-template-columns:repeat(2,1fr)}.building-card{height:53px}
+/* 005cc458 building descriptors: keys 1/4, 7/5, 6/8, 13/15.
+   Separately normalized root/child coordinates yield x=2/48 and y=206+54r
+   at 640x480, relative to the command root at y=203. Keep all eight slots. */
+.building-list{position:absolute;left:2px;top:3px;width:92px;grid-template-columns:repeat(2,46px);column-gap:0;row-gap:2px}.building-card{height:52px}
+/* Keep the inherited white 2px keyboard focus ring inside these edge-adjacent slots. */
+.building-card:focus-visible{outline-offset:-2px}
 .game-status{display:contents}
 .world-message{position:absolute;left:calc((100% + var(--side))/2);transform:translateX(-50%);bottom:12px;max-width:650px;padding:8px 15px;background:#1f281ccc;color:#efe7c8;font:12px/1.5 Arial,sans-serif;text-align:center;pointer-events:none;z-index:2}.world-message>span{margin-right:8px}
 /* Open campaign text owns its original HUD-adjacent column. In short wide
