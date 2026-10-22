@@ -514,6 +514,10 @@ export type World = {
   wood: number
   shots: Record<Spell, number>
   charging: boolean
+  // Player-0 primary knowledge only, not placement/HUD availability. New Worlds
+  // own these bits; absence in an existing checkpoint means unknown, not false.
+  unlockedHut?: boolean
+  unlockedGuardPost?: boolean
   unlockedCamp: boolean
   unlockedTower: boolean
   unlockedTemple: boolean

@@ -6,6 +6,7 @@ import type { World } from './world-types.ts'
 export const helpBuildingDiscoveryModels = Object.freeze([1, 4, 5, 6, 7, 8, 13, 15, 17] as const)
 
 const owners = {
+  1: 'unlockedHut',
   4: 'unlockedTower',
   5: 'unlockedTemple',
   6: 'unlockedSpyHut',
@@ -13,6 +14,7 @@ const owners = {
   8: 'unlockedFirewarriorHut',
   13: 'unlockedBoatHouse',
   15: 'unlockedBalloonHut',
+  17: 'unlockedGuardPost',
 } as const
 
 type OwnedField = (typeof owners)[keyof typeof owners]
@@ -29,10 +31,12 @@ export type HelpBuildingKnowledge =
 
 /** Read the existing browser knowledge owner, without caching or changing it.
  * Native 00425110 reads only the current player's permanent building mask.
- * World currently owns seven corresponding player-0 booleans, initialized by
- * world-state and updated by gift payout. This is not a native simulation claim.
- * No owned current bit exists for Hut1/GuardPost17; initial header data, counts,
- * resource/placement checks and disabled HUD controls cannot fill that gap. */
+ * World owns the corresponding player-0 booleans. Hut1/GuardPost17 are optional
+ * in existing checkpoints; never reconstruct missing current state from a level
+ * header, placement, counts or HUD state. The supported browser producers do not
+ * change these two bits yet. Future primary script/reward/debug producers must
+ * update the actual World owner, not this reader; temporary grants must not.
+ * This is current browser ownership, not complete native producer parity. */
 export function readHelpBuildingKnowledge(
   world: HelpBuildingKnowledgeWorld,
   model: number
@@ -43,10 +47,11 @@ export function readHelpBuildingKnowledge(
   if (!Number.isInteger(player) || player < 0 || player > 3)
     throw new RangeError('Invalid current Help player')
   if (player !== 0) return { kind: 'unsupported', reason: 'unowned-player' }
-  if (model === 1 || model === 17) return { kind: 'unsupported', reason: 'unowned-building-bit' }
   const field = owners[model as keyof typeof owners]
   if (!field) return { kind: 'unsupported', reason: 'not-help-building-predicate' }
   const available = world[field]
+  if ((model === 1 || model === 17) && available === undefined)
+    return { kind: 'unsupported', reason: 'unowned-building-bit' }
   if (typeof available !== 'boolean') throw new Error('Missing owned building knowledge')
   return { kind: 'known', available, source: 'browser-current-unlock', field }
 }

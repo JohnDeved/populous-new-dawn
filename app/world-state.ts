@@ -250,6 +250,10 @@ export function createWorldState(missionNumber = 1, capacityMode: CapacityMode =
       swarm: 0,
     },
     charging: true,
+    unlockedHut: missionAllowsBuilding(missionNumber, 1),
+    // 0042caad enables model17 after the profile copy, independent of its bit.
+    // Initialize only a new World; checkpoint normalization must not backfill it.
+    unlockedGuardPost: true,
     unlockedCamp: missionAllowsBuilding(missionNumber, 7),
     unlockedTower: missionAllowsBuilding(missionNumber, 4),
     unlockedTemple: missionAllowsBuilding(missionNumber, 5),
