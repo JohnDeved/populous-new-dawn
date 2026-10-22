@@ -12,7 +12,8 @@
         "Finite, visible pending pointer targets owned by the sound control or its artwork",
         "Exact full-world serialized pause oracle and original HUD/native-control locator semantics",
         "Fresh-locator focus observation with original strict/attachment-waiting fallback and real bounded Tab navigation",
-        "Distinct checkpoint wrapper/scroller/action ownership, decoded original scrollbar image geometry/hits and complete fullscreen cap coverage"
+        "Distinct checkpoint wrapper/scroller/action ownership, decoded original scrollbar image geometry/hits and complete fullscreen cap coverage",
+        "Actual browser-added Options glyph/fallback text clears the live HUD and navigation without wide-container bounds"
       ],
       "knownLimits": [
         "Synthetic Node fixtures validate checker rejection behavior, not rendered UI or original-game pixel parity.",
@@ -29,7 +30,8 @@
         "tests/pause-keyboard-traversal.test.mjs",
         "tests/checkpoint-scrollbar.test.mjs",
         "tests/checkpoint-body-clearance.test.mjs",
-        "tests/fullscreen-clearance.test.mjs"
+        "tests/fullscreen-clearance.test.mjs",
+        "tests/options-copy-clearance.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -65,7 +67,9 @@
         "public/original/help/hfx-452.png",
         "public/original/help/hfx-453.png",
         "public/original/help/hfx-454.png",
-        "public/original/help/hfx-455.png"
+        "public/original/help/hfx-455.png",
+        "tests/options-copy-clearance.test.mjs",
+        "app/original-options.tsx"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -110,7 +114,9 @@
         "public/original/help/hfx-452.png",
         "public/original/help/hfx-453.png",
         "public/original/help/hfx-454.png",
-        "public/original/help/hfx-455.png"
+        "public/original/help/hfx-455.png",
+        "tests/options-copy-clearance.test.mjs",
+        "app/original-options.tsx"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",

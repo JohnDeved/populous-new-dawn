@@ -12,6 +12,7 @@ import { manualIdentity, separateRoots, sourceManifest, verifyManifest, homeBuil
 import { episodes, limits, acceptEpisode, acceptSeries, boundedEpisode } from '../scripts/native-ui-evidence/policy.mjs'
 import { artifactInventory, ownBrowser, pageActionTimeout } from '../scripts/native-ui-evidence/browser-owner.mjs'
 import { supervise } from '../scripts/native-ui-evidence/supervise.mjs'
+import { observeOptionsStorage, assertOptionsCopyClearance } from '../scripts/native-ui-evidence/options-copy-clearance.mjs'
 import { failPreferenceWrites, optionsViewportReady } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
 import { holdAudioResume, soundControlPending, soundOwnership, assertSoundOwnership,
   pendingSoundPointerTarget, assertPendingSoundPointerTarget, prepareSoundPopup, closeSoundContext } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
@@ -602,7 +603,7 @@ test('Options capture waits for rendered resize and persists original failed geo
         assert.equal(predicate, optionsViewportReady); assert.equal(size.width, 640); assert.equal(size.height, 480)
         assert.equal(size.skin, 'frontend'); assert.equal(options.timeout, 5000); order.push('ready'); return { dispose: async () => order.push('dispose') }
       }, screenshot: async () => assert.fail('Failed assertion must not become a successful capture') },
-    optionsViewportReady, notice: { evaluate: async () => { order.push('original-read'); return sample } },
+    optionsViewportReady, observeOptionsStorage, assertOptionsCopyClearance, notice: { evaluate: async () => { order.push('original-read'); return sample } },
     skin: 'frontend', fallback: false, report, assert,
     save: () => { order.push('save'); writeFileSync(file, JSON.stringify(report)) } })
   await assert.rejects(capture('sound'), /Notice remains within viewport/)
