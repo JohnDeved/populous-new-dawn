@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
-import { ordinaryMission } from './ordinary-mission.mjs'
+import { ordinaryMission, saveMissionInputTrace } from './ordinary-mission.mjs'
 
 // Hold/reject the real AudioContext.resume boundary only. Recovery calls the
 // original method from another trusted click; no enabled/component state is set.
@@ -53,9 +53,11 @@ export function assertPendingSoundPointerTarget(target) {
   assert.ok(target.x >= 0 && target.y >= 0 && target.x < target.viewportWidth && target.y < target.viewportHeight, 'Pending sound click center must be inside the viewport')
   assert.equal(target.owned, true, 'Pending pointer click must actually hit the sound control or its artwork')
 }
-export default async function ({ browser, url, root, output, signal }) {
-  const report = { status: 'running', samples: [], checks: [] }
+export default async function ({ browser, url, root, output, receipt, signal, deadlineAt }) {
+  const report = { status: 'running', samples: [], checks: [], inputBudgets: [] }
+  receipt.missionInputBudgets = report.inputBudgets
   const save = () => writeFileSync(resolve(output, 'hud-sound.json'), JSON.stringify(report, null, 2) + '\n')
+  let episodeError
   try {
     for (const fallback of [false, true]) {
       signal.throwIfAborted()
@@ -66,7 +68,12 @@ export default async function ({ browser, url, root, output, signal }) {
         // labels needed for the ordinary mission entry itself.
         if (fallback) await context.route('**/original/hud-button.png', route => { blockedArt++; return route.abort('failed') })
         const page = await context.newPage()
-        await page.goto(url, { waitUntil: 'domcontentloaded' }); await ordinaryMission(page, root, signal)
+        await page.goto(url, { waitUntil: 'domcontentloaded' })
+        const trace = { fallback }; report.inputBudgets.push(trace)
+        let inputError
+        try { await ordinaryMission(page, root, { signal, deadlineAt, trace }) }
+        catch (error) { inputError = error; throw error }
+        finally { saveMissionInputTrace(save, inputError) }
         const control = page.locator('[data-sound-control]')
         await control.waitFor()
         await page.waitForFunction(fallback => document.querySelector('[data-sound-control]')?.dataset.artReady === String(!fallback), fallback)
@@ -159,6 +166,6 @@ export default async function ({ browser, url, root, output, signal }) {
     }
     report.status = 'passed'; report.limits = ['Trusted browser activation and real AudioContext recovery, not acoustic measurement', 'Browser compatibility footer, not an original native sound-toggle claim']
     return report
-  } catch (error) { report.status = 'failed'; report.error = String(error); throw error }
-  finally { save() }
+  } catch (error) { episodeError = error; report.status = 'failed'; report.error = String(error); throw error }
+  finally { saveMissionInputTrace(save, episodeError) }
 }
