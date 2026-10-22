@@ -226,7 +226,8 @@ export function createBrowserHelpArticleOwner(scene: SceneOwner, shell: HTMLElem
           Number.isFinite(measured[key]) && Math.abs(measured[key] - expected[key]) <= 1 / 64)
       }
       try {
-        if (surface.parentElement !== shell || surface.ownerDocument !== shell.ownerDocument ||
+        if (!surface.isConnected || !slot.isConnected || surface.parentElement !== shell ||
+            surface.ownerDocument !== shell.ownerDocument ||
             slot.ownerDocument !== shell.ownerDocument || !surface.contains(slot) ||
             !sameRect(surface, frame.shell) || !sameRect(slot, { x: frame.shell.x, y: frame.shell.y,
               width: frame.width * frame.scale, height: frame.height * frame.scale })) {

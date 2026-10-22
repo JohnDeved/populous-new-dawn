@@ -176,19 +176,23 @@ test('composition remains unreachable from live Home/Scene and introduces no tim
 test('attachment requires the exact shell and a genuinely full-frame slot before mounting either canvas', async t => {
   const f = fixture(t, { scale: 1.3, width: 913, height: 701 }), owner = f.create()
   let state = await ready(owner), appended = []
-  const slot = { ownerDocument: f.shell.ownerDocument,
+  const slot = { isConnected: true, ownerDocument: f.shell.ownerDocument,
     getBoundingClientRect: () => ({ x: state.snapshot.frame.shell.x, y: state.snapshot.frame.shell.y,
       width: state.snapshot.frame.width * state.snapshot.frame.scale,
       height: state.snapshot.frame.height * state.snapshot.frame.scale }),
     append: (...nodes) => { appended.push(nodes) } }
-  const surface = { parentElement: f.shell, ownerDocument: f.shell.ownerDocument,
+  const surface = { isConnected: true, parentElement: f.shell, ownerDocument: f.shell.ownerDocument,
     contains: node => node === slot, getBoundingClientRect: () => state.snapshot.frame.shell }
   assert.equal(owner.attach(state, surface, slot), true)
   assert.deepEqual(appended, [[owner.personCanvas, owner.vehicleCanvas]])
   for (const change of [() => { surface.parentElement = {} },
+    () => { surface.isConnected = false },
+    () => { slot.isConnected = false },
+    () => { surface.getBoundingClientRect = () => ({ ...state.snapshot.frame.shell, x: 1 }) },
     () => { slot.getBoundingClientRect = () => state.snapshot.frame.preview },
     () => { surface.getBoundingClientRect = () => ({ ...state.snapshot.frame.shell, width: 1 }) }]) {
     surface.parentElement = f.shell
+    surface.isConnected = true; slot.isConnected = true
     surface.getBoundingClientRect = () => state.snapshot.frame.shell
     slot.getBoundingClientRect = () => ({ x: state.snapshot.frame.shell.x, y: state.snapshot.frame.shell.y,
       width: state.snapshot.frame.width * state.snapshot.frame.scale,
