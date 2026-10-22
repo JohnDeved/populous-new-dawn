@@ -76,8 +76,8 @@ test('queue depth is assigned before pass partitioning and shifts occur after vi
   }
   assert.deepEqual({ c, r }, original)
   const statuses = help.topics.map(topic => helpPreview(topic.illustration,
-    { pane: { x: 0, y: 0, width: 192, height: 156 }, counter: 1, phase: 1, treeVariant: 0,
-      person: { player: 0, resolutionMode: 0, screenWidth: 640, screenHeight: 480 } }).status)
+    { pane: { x: 0, y: 0, width: 192, height: 156 }, counter: 1, phase: { counter: 1, frame: 1 }, treeVariant: 0,
+      person: { player: 0, spriteMode: 2, screenWidth: 640, screenHeight: 480 } }).status)
   assert.equal(statuses.filter(s => s === 'unsupported').length, 46)
 })
 
@@ -99,7 +99,9 @@ function mockEnvironment(patch = {}) {
     }
   } })
   const canvas = { width: 300, height: 150, style: {}, getContext(type, attributes) {
-    calls.push(['getContext', type, attributes]); return flags.noContext ? null : gl
+    calls.push(['getContext', type, attributes])
+    if (flags.contextThrows) throw Error('supplied context failure')
+    return flags.noContext ? null : gl
   } }
   const previous = Object.getOwnPropertyDescriptor(globalThis, 'document')
   Object.defineProperty(globalThis, 'document', { configurable: true, value: { createElement(tag) {
@@ -140,11 +142,12 @@ test('loading, absent or broken atlas never produces a successful empty preview'
   const e = mockEnvironment()
   try {
     const { renderer } = createHelpVehicleCanvas()
+    assert.equal(renderer.draw(request(), ctx(), undefined).reason, 'vehicle-atlas-unavailable')
     assert.equal(renderer.draw(request(), ctx(), { ...atlas(), complete: false }).status, 'loading')
     assert.equal(renderer.draw(request(), ctx(), { ...atlas(), naturalWidth: 0 }).status, 'unsupported')
     assert.equal(renderer.draw(request(), ctx(), { ...atlas(), naturalHeight: 512 }).status, 'unsupported')
     assert.equal(e.calls.filter(c => c[0] === 'drawArrays').length, 0)
-    assert.equal(e.calls.filter(c => c[0] === 'clear').length, 3)
+    assert.equal(e.calls.filter(c => c[0] === 'clear').length, 4)
     renderer.dispose()
   } finally { e.restore() }
 })
@@ -219,4 +222,7 @@ test('missing browser or WebGL2 stays explicitly unsupported', () => {
   const e = mockEnvironment({ noContext: true })
   try { assert.equal(createHelpVehicleCanvas().reason, 'vehicle-webgl2-unavailable') }
   finally { e.restore() }
+  const failure = mockEnvironment({ contextThrows: true })
+  try { assert.equal(createHelpVehicleCanvas().reason, 'vehicle-canvas-setup-failed') }
+  finally { failure.restore() }
 })
