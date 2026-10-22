@@ -1013,6 +1013,11 @@ test('native UI checker changes select focused regressions without losing workfl
       assert.equal(plan.feedback.finalGate, false)
       put(repo, path, '// fixture\n')
     }
+    put(repo, 'scripts/browser-unregistered.mjs', '// unrelated\n')
+    const unknown = planChanges(repo)
+    assert.deepEqual(unknown.unknownPaths, ['scripts/browser-unregistered.mjs'])
+    assert.ok(!unknown.checks.some(item => item.id === check.id))
+    assert.ok(unknown.checks.some(item => item.id === 'repository-check'))
   }))
 
 test('explicit check triggers reject unsafe, malformed and empty routes', () =>
