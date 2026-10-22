@@ -23,6 +23,30 @@ export async function finishLoadingRecovery({ primaryError, report, gates, fallb
   }
 }
 
+// Existing Retry/summary outcomes now include the optional real region and
+// two cap buttons. At most four genuine presses reach the opposite control;
+// preserve the original strict locator/activeElement observation on every step.
+export async function tabToLoadingControl(page, target, { reverse = false, record = {} } = {}) {
+  const key = reverse ? 'Shift+Tab' : 'Tab'
+  Object.assign(record, { key, presses: 0, observations: [], status: 'running' })
+  try {
+    for (let index = 0; index < 4; index++) {
+      record.pending = 'key'
+      await page.keyboard.press(key)
+      record.presses++
+      record.pending = 'focus-observation'
+      const focused = await target.evaluate(node => node === document.activeElement)
+      record.observations.push(focused)
+      record.pending = null
+      if (focused) { record.status = 'passed'; return }
+    }
+    assert.fail('Loading recovery target not reached within four genuine Tab presses')
+  } catch (error) {
+    record.status = 'failed'; record.error = String(error)
+    throw error
+  }
+}
+
 // Observe the same real failed screen used by the existing capture. No injected
 // errors, hidden system-scrollbar exception or extra screenshot is introduced.
 export function observeLoadingScrollbar(root) {
@@ -148,10 +172,16 @@ export function assertLoadingScrollbar(sample) {
 // separate sequential fallback contexts, frontend font availability are controlled. No world,
 // store, error-prop, save or React state is injected. This is not a ready-scene test.
 export default async function ({ page, browser, url, output }) {
-  const report = { status: 'running', captures: [], scrollbarGeometry: [], fullscreenGeometry: [], requests: [], fontCases: [], errors: [] }
+  const report = { status: 'running', captures: [], keyboardTraversal: [], scrollbarGeometry: [], fullscreenGeometry: [], requests: [], fontCases: [], errors: [] }
   const save = () => writeFileSync(resolve(output, 'loading-recovery-style.json'), JSON.stringify(report, null, 2) + '\n')
   const button = p => p.getByRole('button', { name: 'Try again', exact: true })
   const failed = p => p.getByRole('dialog', { name: 'Browser loading recovery', exact: true })
+  const keyboardTo = async (target, reverse = false) => {
+    const record = { viewport: page.viewportSize(), target: reverse ? 'retry' : 'summary' }
+    report.keyboardTraversal.push(record)
+    await tabToLoadingControl(page, target, { reverse, record })
+    save()
+  }
   const waitFailed = async p => {
     await p.getByRole('heading', { name: 'Loading failed', exact: true }).waitFor()
     assert.equal(await button(p).evaluate(node => node === document.activeElement), true)
@@ -230,12 +260,11 @@ export default async function ({ page, browser, url, output }) {
     await assertFont(failed(page).locator('.loading-recovery > p').first(), 'felo33we')
     await assertFont(failed(page).locator('.loading-recovery-note'), 'felo33we')
     await page.mouse.move(1, 1)
-    await page.keyboard.press('Tab')
     const summary = failed(page).locator('summary')
-    assert.equal(await summary.evaluate(node => node === document.activeElement), true)
+    await keyboardTo(summary)
     await assertFont(summary, 'fehi33we')
     await assertFont(button(page), 'felo33we')
-    await page.keyboard.press('Shift+Tab')
+    await keyboardTo(button(page), true)
     await assertFont(button(page), 'fehi33we')
     await assertFont(summary, 'felo33we')
     await summary.hover()
@@ -267,10 +296,8 @@ export default async function ({ page, browser, url, output }) {
     }
     await page.setViewportSize({ width: 640, height: 480 })
     await button(page).focus()
-    await page.keyboard.press('Tab')
-    assert.equal(await failed(page).locator('summary').evaluate(node => node === document.activeElement), true)
-    await page.keyboard.press('Shift+Tab')
-    assert.equal(await button(page).evaluate(node => node === document.activeElement), true)
+    await keyboardTo(failed(page).locator('summary'))
+    await keyboardTo(button(page), true)
     await page.keyboard.down('Enter')
     await failHeld()
     for (let repeat = 0; repeat < 3; repeat++) await page.keyboard.down('Enter')
@@ -326,7 +353,7 @@ export default async function ({ page, browser, url, output }) {
     }
     assert.deepEqual(report.errors, [])
     report.status = 'passed'
-    report.limits = ['Controlled loader failures and font availability; no native failure-dialog claim', 'Loading retains its existing summary/Retry keyboard trap; fullscreen placement does not change focus ownership', 'No completed scene or full checkpoint continuation proof', 'No hardware performance or pixel-parity claim']
+    report.limits = ['Controlled loader failures and font availability; no native failure-dialog claim', 'Loading keeps summary/Retry outcomes but adds the actual overflow region and decoded-art caps to its Tab trap; bounded real traversal includes those controls', 'No completed scene or full checkpoint continuation proof', 'No hardware performance or pixel-parity claim']
     return report
   } catch (error) {
     report.status = 'failed'

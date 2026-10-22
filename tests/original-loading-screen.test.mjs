@@ -448,7 +448,7 @@ test('recovery Tab ownership includes the real overflow region and visible caps,
 })
 
 
-function loadingScrollbarOracle() {
+function loadingCheckerExports() {
   const source = readFileSync(new URL('../scripts/local-render/loading-recovery-style.mjs', import.meta.url), 'utf8')
   const code = ts.transpileModule(source, { compilerOptions: {
     module: ts.ModuleKind.CommonJS, esModuleInterop: true, target: ts.ScriptTarget.ES2022,
@@ -459,8 +459,9 @@ function loadingScrollbarOracle() {
     if (['../browser-new-game.mjs', './fullscreen-clearance.mjs'].includes(name)) return {}
     throw Error(`Unexpected loading observer dependency: ${name}`)
   }, module, module.exports)
-  return module.exports.assertLoadingScrollbar
+  return module.exports
 }
+const loadingScrollbarOracle = () => loadingCheckerExports().assertLoadingScrollbar
 // Synthetic owner/geometry fixture, not a relabeled observation from the failed
 // 65a9 browser capture. That actual white scrollbar must remain rejected.
 function loadingScrollbarSample(overflow = true) {
@@ -542,4 +543,42 @@ test('canonical loading validation fingerprints the new shared controller and ev
     assert.ok(check.inputs.includes(path), `Fingerprinted input: ${path}`)
     assert.ok(check.triggerPaths.includes(path), `Canonical trigger: ${path}`)
   }
+})
+
+
+test('loading keyboard traversal uses the original locator predicate and genuine keys through all new controls', async () => {
+  for (const reverse of [false, true]) {
+    const keys = [], record = {}, node = {}, old = globalThis.document
+    let reads = 0
+    globalThis.document = { activeElement: {} }
+    try {
+      const target = { async evaluate(predicate) {
+        assert.equal(this, target)
+        if (++reads === 4) document.activeElement = node
+        return predicate(node)
+      } }
+      await loadingCheckerExports().tabToLoadingControl({ keyboard: { async press(key) { keys.push(key) } } }, target, { reverse, record })
+      assert.deepEqual(keys, Array(4).fill(reverse ? 'Shift+Tab' : 'Tab'))
+      assert.deepEqual(record.observations, [false, false, false, true])
+      assert.equal(record.status, 'passed'); assert.equal(record.pending, null)
+    } finally {
+      if (old === undefined) delete globalThis.document; else globalThis.document = old
+    }
+  }
+})
+
+test('loading keyboard traversal neither skips a read nor invents focus when ownership remains wrong', async () => {
+  const record = {}, keys = []
+  await assert.rejects(loadingCheckerExports().tabToLoadingControl({ keyboard: { async press(key) { keys.push(key) } } },
+    { async evaluate() { return false } }, { record }), /within four genuine Tab presses/)
+  assert.equal(keys.length, 4); assert.deepEqual(record.observations, [false, false, false, false])
+  assert.equal(record.status, 'failed')
+})
+
+for (const failedStage of ['key', 'focus-observation']) test(`loading keyboard traversal preserves ${failedStage} rejection without another input`, async () => {
+  const primary = Error('controlled real operation rejection'), record = {}, keys = []
+  await assert.rejects(loadingCheckerExports().tabToLoadingControl({ keyboard: { async press(key) {
+    keys.push(key); if (failedStage === 'key') throw primary
+  } } }, { async evaluate() { throw primary } }, { record }), error => error === primary)
+  assert.equal(keys.length, 1); assert.equal(record.pending, failedStage); assert.equal(record.status, 'failed')
 })
