@@ -36,7 +36,11 @@ function report() {
   return { spyId: 100, targetId: 101, order: { target: 101, selected: [100], lastOrderTurn: 10 },
     holdBefore: { paused: true, turn: 22 },
     holdAfter: { paused: true, turn: 22 }, resumed: { paused: false, turn: 23 },
-    observation: { error: null, done: true, samples: [
+    observation: { error: null, done: true, turns: [
+      { turn: 18, substate: 1, timer: 1, object: 48, entryArmed: false, f2: 0 },
+      { turn: 19, substate: 2, timer: 0, object: 48, entryArmed: true, f2: 0 },
+      { turn: 20, substate: 2, timer: 23, object: 136, entryArmed: false, f2: 0 },
+    ].map(row => ({ ...row, spyId: 100, targetId: 101, target: 101, speed: 1, paused: false, sceneStoreMatch: true })), samples: [
       { substate: 1, target: 101 },
       { substate: 2, entryArmed: true, object: 48, timer: 0, turn: 19 }, ...samples],
     crops: samples.map(row => ({ filename: row.cropFile, spyId: row.spyId,
@@ -45,6 +49,9 @@ function report() {
 
 test('Spy browser evidence admits actual source136 identity and rejects substituted or incomplete render observations', () => {
   assert.deepEqual(validateSpySourceObservation(report()).croppedFrames, [0, 1])
+  const catchUp = report(); catchUp.observation.samples.splice(1, 1)
+  assert.deepEqual(validateSpySourceObservation(catchUp).croppedFrames, [0, 1],
+    'Pending entry witnessed by its real logical visit need not have its own rendered frame')
   for (const change of [
     r => { r.observation.error = 'Page failed' },
     r => { r.order.target = 102 },
@@ -52,8 +59,15 @@ test('Spy browser evidence admits actual source136 identity and rejects substitu
     r => { r.observation.samples[2].spyId++ },
     r => { r.observation.done = false },
     r => { r.observation.samples = r.observation.samples.filter(row => row.substate !== 1) },
-    r => { r.observation.samples.splice(1, 1) },
-    r => { r.observation.samples[1].object = 136 },
+    r => { delete r.observation.turns },
+    r => { r.observation.turns.splice(1, 1) },
+    r => { r.observation.turns[1].spyId++ },
+    r => { r.observation.turns[1].object = 136 },
+    r => { r.observation.turns[1].turn++ },
+    r => { r.observation.turns[0].timer = 2 },
+    r => { r.observation.turns[2].timer = 22 },
+    r => { r.observation.turns[2].f2 = 1 },
+    r => { r.observation.turns[2].target++ },
     r => { r.observation.samples[2].timer = 24 },
     r => { r.observation.samples[2].turn++ },
     r => { r.observation.samples[2].frame = 0 },

@@ -90,15 +90,15 @@ export default async function spySource(options) {
     sources: Object.fromEntries(['spy-source.mjs', 'spy-source-fixture.mjs', 'spy-source-budget.mjs',
       'spy-source-observer.mjs', 'spy-source-evidence.mjs', 'spy-source-readiness.mjs', 'checkpoint-codec.mjs']
       .map(file => [file, hash(readFileSync(new URL(file, import.meta.url)))])),
-    inputs: Object.fromEntries(['app/follower-appearance.ts', 'app/scene-entities.ts',
+    inputs: Object.fromEntries(['app/game-clock.ts', 'app/scene.ts', 'app/follower-appearance.ts', 'app/scene-entities.ts',
       'app/live-building-combat.ts', 'app/original-units.json', 'app/checkpoint-format.ts',
       'tests/fixtures/follower-source-witness.json', 'tests/fixtures/follower-source-artwork.json']
       .map(file => [file, hash(readFileSync(new URL(`../../${file}`, import.meta.url)))])),
     limits: [
       'Supplied current-format checkpoint with flat terrain, school, Brave, training funding and hostile hut; real training controller, not natural Mission12/campaign acquisition.',
       'Public Load Game, Skip introduction when the restored flyby owns input, Select spy, right-click focus, disguise, canvas sabotage command, Pause and Resume; ordinary live clocks and actual production Home renderer.',
-      'Read-only RAF samples and immutable same-frame canvas crops perturb rendering. No hardware performance, original-game execution, all-sprite sweep or pixel-perfect native raster claim.',
-      'Exact entry must be observed. A missed frame, short budget or absent crop is failure, not a skip or substituted later sample.',
+      'Read-only logical-turn and RAF samples plus immutable same-frame canvas crops perturb timing and rendering. No hardware performance, original-game execution, all-sprite sweep or pixel-perfect native raster claim.',
+      'Exact logical pending entry and the first rendered entry frame must both be observed. A missed frame, short budget or absent crop is failure, not a skip or substituted later sample.',
     ] }
   const save = () => writeFileSync(resolve(output, 'spy-source.json'), JSON.stringify(report, null, 2) + '\n')
   save()
