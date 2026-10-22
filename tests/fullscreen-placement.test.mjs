@@ -189,5 +189,6 @@ test('candidate pause episode separates native text from the browser portal and 
   assert.match(episode, /\.native-hud, dialog\[data-original-pause-menu\]/)
   assert.match(episode, /\['Game', 'Sound', 'Graphics'\]/)
   assert.match(episode, /pause-options-fullscreen-fallback-320x240\.png/)
+  assert.ok(episode.includes('[data-original-options] [data-menu-tooltip], [data-original-options] label[for]'))
   assert.doesNotMatch(episode, /button\('Fullscreen'\)\.focus\(/)
 })

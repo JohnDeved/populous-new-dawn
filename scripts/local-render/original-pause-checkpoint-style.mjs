@@ -6,6 +6,15 @@ import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import { pauseStartupReady, skipPauseIntroduction } from './original-pause-checkpoint-recovery.mjs'
 import { observeFullscreenClearance, assertFullscreenClearance } from './fullscreen-clearance.mjs'
 
+// A cleanup RPC must not hide the assertion/timeout that caused the failure.
+export async function restorePausePreferenceWrite(page, primaryError) {
+  try { await page.evaluate(() => window.restorePausePreferenceWrite()) }
+  catch (error) {
+    if (!primaryError) throw error
+    primaryError.preferenceRestoreError = String(error)
+  }
+}
+
 // A presentation-only supplement to the durable/retry/save-failure scenarios.
 // Storage is deliberately unavailable before startup, producing the real store's
 // session-only Save and longest ordinary Load explanation without injected worlds.
@@ -59,7 +68,8 @@ export default async function ({ browser, page, url, root, output, receipt, sign
           '.native-hud, dialog[data-original-pause-menu] > :not([data-fullscreen-control]) button, ' +
           'dialog[data-original-pause-menu] [aria-label="Checkpoint details"], ' +
           'dialog[data-original-pause-menu] h2 > span, [data-original-options] [data-option-key], ' +
-          '[data-original-options] input, [data-original-options] [role="status"]')
+          '[data-original-options] input, [data-original-options] [role="status"], ' +
+          '[data-original-options] [data-menu-tooltip], [data-original-options] label[for]')
         fullscreen.push({ label, fallback, tabs, ...sample })
         writeFileSync(resolve(output, 'pause-fullscreen-clearance.json'), JSON.stringify(fullscreen, null, 2))
         assertFullscreenClearance(sample)
@@ -96,6 +106,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
           return set.call(this, key, value)
         }
       })
+      let optionsError
       try {
         await page.locator('[data-option-key="rotation"]').click()
         await modal.getByRole('status').filter({ hasText: 'browser storage is unavailable' }).waitFor()
@@ -111,7 +122,8 @@ export default async function ({ browser, page, url, root, output, receipt, sign
             }
           }
         }
-      } finally { await page.evaluate(() => window.restorePausePreferenceWrite()) }
+      } catch (error) { optionsError = error; throw error }
+      finally { await restorePausePreferenceWrite(page, optionsError) }
       await button('Back').click()
       await button('Save Game').click()
       await button('Save checkpoint').click()

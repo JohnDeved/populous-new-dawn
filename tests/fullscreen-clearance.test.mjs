@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { assertFullscreenClearance } from '../scripts/local-render/fullscreen-clearance.mjs'
+import { restorePausePreferenceWrite } from '../scripts/local-render/original-pause-checkpoint-style.mjs'
 
 const fixture = () => ({ viewport:{width:320,height:240}, owner:true, count:1, hit:true,
   button:{x:12,y:12,width:17,height:14}, focus:{x:9,y:9,right:32,bottom:29},
@@ -28,5 +29,24 @@ test('rendered clearance rejects missing or malformed occupied geometry', () => 
     s=>s.focus.right=NaN,s=>s.focus.bottom=9]) {
     const sample = fixture(); change(sample)
     assert.throws(() => assertFullscreenClearance(sample), /geometry/)
+  }
+})
+
+
+test('pause preference cleanup preserves the original assertion and records its own failure', async () => {
+  const primary = new Error('Fullscreen must clear Graphics row')
+  const cleanup = new Error('Page was closed')
+  await assert.doesNotReject(restorePausePreferenceWrite({ evaluate: async () => { throw cleanup } }, primary))
+  assert.equal(primary.message, 'Fullscreen must clear Graphics row')
+  assert.equal(primary.preferenceRestoreError, String(cleanup))
+  await assert.rejects(restorePausePreferenceWrite({ evaluate: async () => { throw cleanup } }), error => error === cleanup)
+  await assert.doesNotReject(restorePausePreferenceWrite({ evaluate: async () => {} }))
+})
+
+test('noninteractive Options labels and rows have the same strict collision contract', () => {
+  for (const label of ['Screen Resolution : <Unavailable>', 'Master volume', 'Sound quality unavailable']) {
+    const sample = fixture()
+    sample.occupied.push({label,x:20,y:12,right:300,bottom:40})
+    assert.throws(() => assertFullscreenClearance(sample), /must clear/)
   }
 })
