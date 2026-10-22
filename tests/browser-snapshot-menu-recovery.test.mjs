@@ -266,7 +266,7 @@ test('source integration preserves original admission, measured windows, and the
   const menuControls = [...page.matchAll(/<button\s+className="help-button"[\s\S]*?>/g)]
   assert.equal(menuControls.length, 1, 'Expected one shipped native Menu declaration')
   assert.match(menuControls[0][0], /^<button\s+className="help-button"\s+aria-label="Menu"\s+(title|aria-description)="Help and game menu"\s+onClick=\{openMenu\}\s*>$/)
-  assert.match(page, /className="native-hud" aria-label="Tribe controls"/)
+  assert.match(page, /className="native-hud"\s+aria-label="Tribe controls"/)
   assert.match(page, /className="shaman-controls"/)
   const described = menuControls[0][0].includes('aria-description='), dual = page.includes('aria-label="Game settings"')
   const entries = [...(dual ? [{ name: 'Game settings' }] : []), described ? describedMenu : { name: 'Menu' }]
