@@ -66,12 +66,7 @@ import {
   saveGamePreferences,
   type GamePreferences,
 } from './game-preferences'
-import {
-  acknowledgeMessage,
-  messageHasDelete,
-  messageText,
-  messageViewPoint,
-} from './messages'
+import { acknowledgeMessage, messageHasDelete, messageText, messageViewPoint } from './messages'
 import { OriginalCampaignPopup } from './original-campaign-popup'
 import { OriginalMessageTab } from './original-message-tab'
 import { captureCampaignPopupKeys, showCampaignPopup } from './campaign-popup-session'
