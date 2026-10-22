@@ -1,7 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { helpGlyph, helpLink, helpInlineImage, prepareHelpDocument } from '../app/help-document.ts'
+import { helpGlyph, helpLink, helpLinkFont, helpInlineImage, helpArticleAssets, preflightHelpAssets, prepareHelpDocument } from '../app/help-document.ts'
 import { layoutHelpText } from '../app/help-layout.ts'
+import { helpNavigationAssets } from '../app/help-controls.ts'
 import art from '../app/original-help.json' with { type: 'json' }
 
 const discovery = { spellBits: 0, buildingBits: 0, stock: [], levelFlags: 0, spellDefinitionByte: [] }
@@ -73,4 +74,65 @@ test('unsupported markup and impossible dimensions remain explicit blockers', ()
   assert.throws(() => layoutHelpText('<i 0>', 192), /markup/)
   assert.equal(prepareHelpDocument(1051, 90, 60, 100).status, 'unsupported')
   assert.equal(prepareHelpDocument(1051, 640.5, 480, 100).status, 'unsupported')
+})
+
+
+test('article focus survives pointer leave and pointer hover over another link', () => {
+  const focused = 'first'
+  for (const hover of ['first', null, 'second', null]) {
+    assert.equal(helpLinkFont(4, true, hover === 'first', focused === 'first'), 11)
+    assert.equal(helpLinkFont(4, false, hover === 'second', focused === 'second'), hover === 'second' ? 11 : 4)
+  }
+  assert.equal(helpLinkFont(4, true, false, false), 10)
+  assert.equal(helpLinkFont(4, false, false, false), 4)
+})
+
+function decodedImage(assets, change = image => image) {
+  return () => ({
+    src: '', naturalWidth: 0, naturalHeight: 0,
+    async decode() {
+      const asset = assets.find(asset => asset.url === this.src)
+      assert.ok(asset, `unexpected image: ${this.src}`)
+      Object.assign(this, change({ naturalWidth: asset.width, naturalHeight: asset.height }))
+    },
+  })
+}
+
+test('article and every navigation state preflight exact original image dimensions', async () => {
+  const document = prepareHelpDocument(1051, 640, 480, 100)
+  assert.equal(document.status, 'ready')
+  const article = helpArticleAssets(document)
+  assert.deepEqual(article.map(({ url, width, height }) => [url, width, height]), [
+    ['/original/campaign-popup-tiles.png', 208, 16],
+    ['/original/result-font.png', 304, 294],
+    ['/original/hud.png', 1024, 551],
+    ['/original/help/font-10.png', 208, 140],
+    ['/original/help/font-11.png', 208, 140],
+  ])
+  const navigation = helpNavigationAssets()
+  assert.deepEqual(navigation.slice(0, 3).map(asset => [asset.url, asset.width, asset.height]), [
+    ['/original/hud-button.png', 24, 24],
+    ['/original/hud-button-selected.png', 24, 24],
+    ['/original/hud-button-hover.png', 24, 24],
+  ])
+  assert.deepEqual(navigation.slice(3).map(asset => asset.id), [439, 440, 442, 441, 447, 448, 450, 449])
+  const allAssets = new Map([...article, ...navigation].map(asset => [asset.url, asset]))
+  for (const [topic] of Object.entries(art.topics)) {
+    const document = prepareHelpDocument(Number(topic), 640, 480, 100)
+    const assets = helpArticleAssets(document)
+    for (const asset of assets) allAssets.set(asset.url, asset)
+    for (const pane of [document.contents, document.article]) {
+      for (const row of pane.rows) for (const node of row.nodes) if (node.image)
+        assert.ok(assets.some(asset => asset.url === node.image.url && asset.width === node.image.width && asset.height === node.image.height))
+    }
+  }
+  const assets = [...allAssets.values()]
+  await preflightHelpAssets(assets, decodedImage(assets))
+  for (const asset of assets) {
+    await assert.rejects(preflightHelpAssets([asset], decodedImage([asset], () => ({ naturalWidth: 1, naturalHeight: 1 }))), /dimensions differ/)
+    await assert.rejects(preflightHelpAssets([asset], decodedImage([asset], image => ({ ...image, naturalWidth: image.naturalWidth + 1 }))), /dimensions differ/)
+    await assert.rejects(preflightHelpAssets([asset], decodedImage([asset], image => ({ ...image, naturalHeight: image.naturalHeight + 1 }))), /dimensions differ/)
+  }
+  const diagnostic = new Error('Original image decode rejected')
+  await assert.rejects(preflightHelpAssets(article, () => ({ src: '', async decode() { throw diagnostic } })), error => error === diagnostic)
 })

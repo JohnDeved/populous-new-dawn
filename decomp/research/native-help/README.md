@@ -265,3 +265,32 @@ The article metadata and47 newly owned source-palette PNGs are registered under
 `native-help-article-art` in the generated-file ownership manifest. This does not
 register or imply acceptance of the separately owned preview-worker supplement.
 All staged Help surfaces remain inactive; these fixes do not restore public Query.
+
+### Inactive recovery and focus review follow-through
+
+The first formatting-only recovery completed at `698972e7a` with unchanged
+runtime bindings and only the ten declared Help entries changed. It did not rerun
+focused tests or TypeScript and does not replace the failed full gate above.
+
+Article/navigation image preflight now checks source-bound natural dimensions,
+not just successful decoding. This includes every navigation frame and pressed
+icon before interaction, plus all article glyph atlases and inline images. A
+substituted 1×1 image is rejected, the original decode error is retained, and
+unmounted/stale React effects still suppress their callback. Dimensions alone are
+not a pixel-integrity or browser-rendering attestation.
+
+The input owner now recovers from thrown context/preflight work as well as an
+explicit unavailable result. A still-current owner restores its exact prior mode
+and pause before calling browser recovery, retains the first original diagnostic,
+and still consumes its own current-scene pointer completion. An asset failure may
+use the same `fail` callback. Stale/replaced scenes, terminal worlds and a new
+higher-priority owner are not mutated; integration must continue to release Help
+before another modal takes ownership. The new tests cover these cases, direct F1,
+prior paused/unpaused states, and a second late failure without duplicate recovery.
+
+Article keyboard focus and pointer hover now have separate state. Either selects
+the original font 11, so pointer leave or hovering another link cannot erase the
+focused link's accessibility indication. Actual Enter/Space handler containment,
+public pointer/cursor paths, save/world/scene replacement, recovery presentation,
+preview readiness and comparison to the original remain integration/browser gates.
+These source-review corrections are not yet executed or activation-approved.

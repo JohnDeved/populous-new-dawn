@@ -96,3 +96,12 @@ export function helpScrollbarPlan(
     },
   }
 }
+
+/** All three 24×24 atlases were compared against the original nine 8px tiles.
+ * Preflight both ordinary/pressed glyphs before any hover or press can use them. */
+export function helpNavigationAssets() {
+  return [
+    ...Object.values(frameUrls).map(url => ({ url, width: 24, height: 24 })),
+    ...[439, 440, 442, 441, 447, 448, 450, 449].map(helpControlIcon),
+  ]
+}

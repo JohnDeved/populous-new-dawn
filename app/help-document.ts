@@ -1,5 +1,8 @@
 import art from './original-help.json' with { type: 'json' }
 import articleArt from './original-help-article.json' with { type: 'json' }
+import frames from './original-campaign-popup.json' with { type: 'json' }
+import hud from './original-hud.json' with { type: 'json' }
+import result from './original-result-ui.json' with { type: 'json' }
 import { popupGlyph } from './campaign-popup-layout.ts'
 import { layoutHelpText, helpPanelLayout } from './help-layout.ts'
 import { helpLinkAvailable, helpLinkTarget, type HelpDiscovery } from './help-discovery.ts'
@@ -23,6 +26,15 @@ export function helpLink(relative: number, discovery: HelpDiscovery) {
   const rule = art.topics[String(topic) as keyof typeof art.topics].discovery
   const available = helpLinkAvailable(rule.predicate, rule.argument, discovery)
   return { available, target: helpLinkTarget(relative, available) }
+}
+
+export function helpLinkFont(
+  font: HelpFont,
+  available: boolean,
+  hovered: boolean,
+  focused: boolean
+): HelpFont {
+  return hovered || focused ? 11 : available ? 10 : font
 }
 
 export function helpInlineImage(index: number) {
@@ -84,3 +96,46 @@ export function prepareHelpDocument(
 }
 
 export type HelpDocument = Extract<ReturnType<typeof prepareHelpDocument>, { status: 'ready' }>
+
+export interface HelpImageAsset {
+  url: string
+  width: number
+  height: number
+}
+
+type HelpDecodedImage = Pick<HTMLImageElement, 'src' | 'decode' | 'naturalWidth' | 'naturalHeight'>
+
+/** Decoding alone also accepts a substituted 1×1 image. Require the source-bound
+ * dimensions before the owning surface can regard any original asset as ready. */
+export async function preflightHelpAssets(
+  assets: readonly HelpImageAsset[],
+  createImage: () => HelpDecodedImage = () => new Image()
+) {
+  await Promise.all(
+    assets.map(async asset => {
+      const image = createImage()
+      image.src = asset.url
+      await image.decode()
+      if (image.naturalWidth !== asset.width || image.naturalHeight !== asset.height)
+        throw new Error(`Original Help image dimensions differ: ${asset.url}`)
+    })
+  )
+}
+
+export function helpArticleAssets(document: HelpDocument): HelpImageAsset[] {
+  const tiles = Object.values(frames.rects)
+  return [
+    {
+      url: frames.panelUrl,
+      width: Math.max(...tiles.map(tile => tile.x + tile.w)),
+      height: Math.max(...tiles.map(tile => tile.y + tile.h)),
+    },
+    { url: result.fontUrl, width: result.font.width, height: result.font.height },
+    { url: '/original/hud.png', width: hud.width, height: hud.height },
+    art.fonts[10],
+    art.fonts[11],
+    ...[document.contents, document.article].flatMap(pane =>
+      pane.rows.flatMap(row => row.nodes.flatMap(node => (node.image ? [node.image] : [])))
+    ),
+  ].map(({ url, width, height }) => ({ url, width, height }))
+}

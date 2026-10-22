@@ -1,7 +1,16 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import frames from './original-campaign-popup.json'
 import { popupPanelTile } from './campaign-popup-layout'
-import { helpGlyph, helpLink, type HelpDocument, type HelpFont } from './help-document'
+import {
+  helpGlyph,
+  helpLink,
+  helpLinkFont,
+  helpArticleAssets,
+  preflightHelpAssets,
+  type HelpImageAsset,
+  type HelpDocument,
+  type HelpFont,
+} from './help-document'
 import type { HelpDiscovery } from './help-discovery'
 import type { HelpRect, HelpTextRow } from './help-layout'
 import styles from './help-article.module.css'
@@ -71,6 +80,7 @@ function TextPane({
   onNavigate: (topic: number) => void
 }) {
   const [hover, setHover] = useState<string | null>(null)
+  const [focus, setFocus] = useState<string | null>(null)
   return (
     <div
       className={styles.text}
@@ -101,7 +111,7 @@ function TextPane({
                 </span>
               )
             const link = helpLink(node.link, discovery)
-            const font = hover === key ? 11 : link.available ? 10 : node.font
+            const font = helpLinkFont(node.font, link.available, hover === key, focus === key)
             return (
               <button
                 key={key}
@@ -113,8 +123,8 @@ function TextPane({
                 data-help-available={link.available}
                 onPointerEnter={() => setHover(key)}
                 onPointerLeave={() => setHover(null)}
-                onFocus={() => setHover(key)}
-                onBlur={() => setHover(null)}
+                onFocus={() => setFocus(key)}
+                onBlur={() => setFocus(null)}
                 onPointerDown={event => {
                   if (event.button !== 0) return
                   event.preventDefault()
@@ -156,32 +166,13 @@ export function HelpArticleSurface({
   controls: ReactNode
   preview: ReactNode
   onNavigate: (topic: number) => void
-  onFailure: () => void
+  onFailure: (error: unknown) => void
 }) {
-  const assetKey = [
-    ...new Set([
-      frames.panelUrl,
-      '/original/result-font.png',
-      '/original/hud.png',
-      '/original/help/font-10.png',
-      '/original/help/font-11.png',
-      ...[document.contents, document.article].flatMap(pane =>
-        pane.rows.flatMap(row => row.nodes.flatMap(node => (node.image ? [node.image.url] : [])))
-      ),
-    ]),
-  ]
-    .sort()
-    .join('\n')
+  const assetKey = JSON.stringify(helpArticleAssets(document))
   useEffect(() => {
     let active = true
-    void Promise.all(
-      assetKey.split('\n').map(async src => {
-        const image = new Image()
-        image.src = src
-        await image.decode()
-      })
-    ).catch(() => {
-      if (active) onFailure()
+    void preflightHelpAssets(JSON.parse(assetKey) as HelpImageAsset[]).catch(error => {
+      if (active) onFailure(error)
     })
     return () => {
       active = false

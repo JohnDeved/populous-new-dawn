@@ -46,13 +46,14 @@ export function createHelpInputOwner<W extends InputWorld, S extends { world: W 
   context: (event?: Pointer) => HelpContext
   canCancelAt: (region: PointerRegion) => boolean
   prepare: (topic: number) => boolean
-  unavailable: () => void
+  unavailable: (error: unknown) => void
   clearGameplayGesture: () => void
   commit: (mutation: () => void) => void
 }) {
   const { world, scene } = binding
   let disposed = false
   let unavailable = false
+  let failure: { error: unknown } | null = null
   const current = () =>
     !disposed &&
     binding.currentWorld() === world &&
@@ -86,16 +87,26 @@ export function createHelpInputOwner<W extends InputWorld, S extends { world: W 
     swallowClick = false
     disposed = true
   }
-  const open = (context: HelpContext) => {
-    const topic = helpContextTopic(context)
-    if (!binding.prepare(topic ?? session.topic)) {
-      // No fabricated partial article. Recovery must release our ownership
-      // before the caller can open its existing browser-recovery Menu.
-      binding.commit(() => session.dispose())
-      unavailable = true
-      binding.unavailable()
-      return false
+  const fail = (error: unknown) => {
+    failure ??= { error }
+    if (!allowed()) return false
+    // Release only our still-current pause/mode BEFORE browser Menu recovery.
+    // Keep the intercepted pointer completion owned until it is delivered.
+    binding.commit(() => session.dispose())
+    unavailable = true
+    binding.unavailable(failure.error)
+    return false
+  }
+  const open = (event?: Pointer) => {
+    let topic: number | null
+    let ready: boolean
+    try {
+      topic = helpContextTopic(binding.context(event))
+      ready = binding.prepare(topic ?? session.topic)
+    } catch (error) {
+      return fail(error)
     }
+    if (!ready) return fail(new Error('Original Help article preflight is unavailable'))
     return change(() => {
       binding.clearGameplayGesture()
       return session.openArticle(topic)
@@ -103,6 +114,10 @@ export function createHelpInputOwner<W extends InputWorld, S extends { world: W 
   }
   return {
     session,
+    fail,
+    get failure() {
+      return failure?.error
+    },
     armQuery() {
       if (!allowed()) return false
       return change(() => {
@@ -126,7 +141,7 @@ export function createHelpInputOwner<W extends InputWorld, S extends { world: W 
       consume(event)
       if (event.repeat) return true
       if (event.key === 'Escape' || session.phase === 'article') change(() => session.cancel())
-      else open(binding.context())
+      else open()
       return true
     },
     pointerDown(event: Pointer) {
@@ -141,7 +156,7 @@ export function createHelpInputOwner<W extends InputWorld, S extends { world: W 
       if (event.button !== 0 || region === 'article') return false
       pointers.set(event.pointerId, 0)
       consume(event)
-      open(binding.context(event))
+      open(event)
       return true
     },
     pointerUp(event: Pointer) {

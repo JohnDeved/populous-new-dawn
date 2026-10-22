@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import type { HelpDocument } from './help-document'
+import { preflightHelpAssets, type HelpDocument, type HelpImageAsset } from './help-document'
 import {
   helpNavigationPlan,
   helpNavigationTiles,
+  helpNavigationAssets,
   type HelpControlDrawState,
   type HelpNavigationAction,
 } from './help-controls'
@@ -19,7 +20,7 @@ export function HelpNavigation({
   document: HelpDocument
   draw: HelpControlDrawState
   onNavigate: (action: HelpNavigationAction) => void
-  onFailure: () => void
+  onFailure: (error: unknown) => void
 }) {
   const [hover, setHover] = useState<number | null>(null)
   const [focus, setFocus] = useState<number | null>(null)
@@ -35,19 +36,11 @@ export function HelpNavigation({
         : draw
     )
   )
-  const assetKey = [...new Set(plans.flatMap(plan => [plan.frameUrl, plan.icon.url]))]
-    .sort()
-    .join('\n')
+  const assetKey = JSON.stringify(helpNavigationAssets())
   useEffect(() => {
     let active = true
-    void Promise.all(
-      assetKey.split('\n').map(async src => {
-        const image = new Image()
-        image.src = src
-        await image.decode()
-      })
-    ).catch(() => {
-      if (active) onFailure()
+    void preflightHelpAssets(JSON.parse(assetKey) as HelpImageAsset[]).catch(error => {
+      if (active) onFailure(error)
     })
     return () => {
       active = false
