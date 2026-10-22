@@ -10,11 +10,12 @@ import yaml from 'js-yaml'
 import { manualIdentity, separateRoots, sourceManifest, verifyManifest, homeBuildOptions,
   candidateDependency, candidateDependencyExport, infrastructureInput } from '../scripts/native-ui-evidence/identity.mjs'
 import { episodes, limits, acceptEpisode, acceptSeries, boundedEpisode } from '../scripts/native-ui-evidence/policy.mjs'
-import { artifactInventory, ownBrowser } from '../scripts/native-ui-evidence/browser-owner.mjs'
+import { artifactInventory, ownBrowser, pageActionTimeout } from '../scripts/native-ui-evidence/browser-owner.mjs'
 import { supervise } from '../scripts/native-ui-evidence/supervise.mjs'
 import { failPreferenceWrites, optionsViewportReady } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
 import { holdAudioResume, soundControlPending, soundOwnership, assertSoundOwnership,
   pendingSoundPointerTarget, assertPendingSoundPointerTarget } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
+import { ordinaryMission, assertMissionInputBudget, saveMissionInputTrace } from '../scripts/native-ui-evidence/ordinary-mission.mjs'
 import { runNativeUiEvidence } from '../scripts/native-ui-evidence/adapter.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from '../scripts/native-ui-evidence/files.mjs'
 import { initializeEpisodeLedger, recordUnstartedFailure } from '../scripts/native-ui-evidence/ledger.mjs'
@@ -609,4 +610,149 @@ test('Options capture waits for rendered resize and persists original failed geo
   const persisted = JSON.parse(readFileSync(file))
   assert.equal(persisted.samples.length, 0)
   assert.deepEqual(persisted.measurements, [{ skin: 'frontend', category: 'sound', fallback: false, width: 640, height: 480, ...sample }])
+})
+
+
+test('episode supplies one absolute deadline from its original start and the same cancellation signal', async () => {
+  let clock = 0, received
+  const result = await boundedEpisode(async (signal, deadlineAt) => {
+    received = { signal, deadlineAt }; clock = 89
+    return { status: 'passed' }
+  }, { capMs: 90, now: () => clock, wallNow: () => 1000,
+    setTimer: () => 1, clearTimer() {}, close: async () => {} })
+  assert.equal(result.status, 'passed'); assert.equal(received.deadlineAt, 1090)
+  assert.equal(received.signal.aborted, false)
+})
+
+function missionFixture(t, helper = `Object.assign(trace, { contract: recoveryInputContract,
+  actionCapMs: Math.min(setupTimeout, deadlineAt - Date.now()), responseCapMs: 2500,
+  responseStartedMs: 3000, responseDeadlineMs: 5500, elapsedMs: 3100 })`) {
+  const root = fixture(t), calls = []
+  put(root, 'scripts/browser-new-game.mjs', 'export async function openCampaignFromMainMenu(page) { page.calls.push("campaign") }')
+  put(root, 'scripts/browser-game.mjs', 'export async function bindGame(page) { page.calls.push("bind") }')
+  put(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs', `
+    export const recoveryInputContract = 'public-setup-then-response-v1'
+    export function pauseStartupReady() {}
+    export async function skipPauseIntroduction(page, { setupTimeout, deadlineAt, signal, trace }) {
+      page.input = { setupTimeout, deadlineAt, signal, trace }; page.calls.push('skip')
+      ${helper}
+    }`)
+  const page = { calls, startup: 'skip',
+    getByRole: (_role, { name }) => ({ isVisible: async () => false, click: async () => calls.push(name) }),
+    waitForFunction: async () => ({ jsonValue: async () => page.startup, dispose: async () => {} }),
+    evaluate: async () => 1,
+  }
+  return { root, page, calls, trace: {}, signal: new AbortController().signal, deadlineAt: Date.now() + 90000 }
+}
+
+test('ordinary mission explicitly passes existing page allowance, live deadline, signal and retained trace', async t => {
+  const f = missionFixture(t)
+  await ordinaryMission(f.page, f.root, f)
+  assert.equal(pageActionTimeout, 25000)
+  assert.equal(f.page.input.setupTimeout, pageActionTimeout)
+  assert.equal(f.page.input.deadlineAt, f.deadlineAt)
+  assert.equal(f.page.input.signal, f.signal); assert.equal(f.page.input.trace, f.trace)
+  assert.equal(f.trace.status, 'passed'); assert.equal(f.trace.startupAction, 'skip')
+  assert.deepEqual(f.calls, ['campaign', 'Start Mission 1', 'bind', 'skip'])
+})
+
+test('ordinary mission rejects an old candidate before UI entry, and rejects ignored options after return', async t => {
+  const old = missionFixture(t)
+  put(old.root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs',
+    'export function pauseStartupReady() {}\nexport async function skipPauseIntroduction(page) { page.calls.push("old-skip") }')
+  await assert.rejects(ordinaryMission(old.page, old.root, old), /explicitly support/)
+  assert.deepEqual(old.calls, []); assert.equal(old.trace.status, 'failed')
+  const ignored = missionFixture(t, '/* Incorrect helper silently ignored the supplied budget. */')
+  await assert.rejects(ordinaryMission(ignored.page, ignored.root, ignored), /public-setup-then-response-v1/)
+  assert.equal(ignored.trace.status, 'failed'); assert.equal(ignored.calls.filter(call => call === 'skip').length, 1)
+})
+
+test('ordinary mission preserves original failures and never repeats ambiguous input', async t => {
+  const f = missionFixture(t, `trace.phase = 'observed-space-dispatch'; trace.attempts = [{ outcome: 'unknown' }]; throw page.failure`)
+  f.page.failure = Error('Space delivery outcome unknown')
+  await assert.rejects(ordinaryMission(f.page, f.root, f), error => error === f.page.failure)
+  assert.equal(f.trace.phase, 'observed-space-dispatch'); assert.equal(f.trace.attempts[0].outcome, 'unknown')
+  assert.equal(f.trace.status, 'failed'); assert.match(f.trace.error, /unknown/)
+  assert.equal(f.calls.filter(call => call === 'skip').length, 1)
+})
+
+test('ordinary mission does not dispatch on natural completion, expired deadline or prior cancellation', async t => {
+  const natural = missionFixture(t); natural.page.startup = 'ready'
+  await ordinaryMission(natural.page, natural.root, natural)
+  assert.equal(natural.page.input, undefined); assert.equal(natural.trace.status, 'passed')
+  for (const deadlineAt of [undefined, NaN, Infinity, Date.now() - 1]) {
+    const f = missionFixture(t); f.deadlineAt = deadlineAt
+    await assert.rejects(ordinaryMission(f.page, f.root, f), /live episode deadline/)
+    assert.deepEqual(f.calls, [])
+  }
+  const cancelled = missionFixture(t), controller = new AbortController()
+  controller.abort(Error('episode stopped')); cancelled.signal = controller.signal
+  await assert.rejects(ordinaryMission(cancelled.page, cancelled.root, cancelled), /episode stopped/)
+  assert.deepEqual(cancelled.calls, [])
+})
+
+test('caller acceptance rejects shared, missing, nonfinite, inflated and overrun response evidence', () => {
+  const good = { contract: 'public-setup-then-response-v1', actionCapMs: 25000, responseCapMs: 2500,
+    responseStartedMs: 3000, responseDeadlineMs: 5500, elapsedMs: 3100 }
+  assertMissionInputBudget(good)
+  for (const [key, value] of [['contract', 'shared-input-v1'], ['responseCapMs', 2501], ['actionCapMs', 25001],
+    ['actionCapMs', NaN], ['responseStartedMs', -1], ['responseStartedMs', NaN], ['responseDeadlineMs', 5501],
+    ['responseDeadlineMs', 3000], ['responseDeadlineMs', Infinity], ['elapsedMs', 5501], ['elapsedMs', NaN]])
+    assert.throws(() => assertMissionInputBudget({ ...good, [key]: value }), undefined, key)
+  assert.throws(() => assertMissionInputBudget({}))
+})
+
+test('adapter retains mutated episode receipts and the supplied deadline when an episode throws', async t => {
+  const output = fixture(t), candidateRoot = fixture(t)
+  put(candidateRoot, 'scripts/local-render/startup-logo.mjs', `export default async function ({ receipt, deadlineAt, signal }) {
+    receipt.inputBudgets = [{ contract: 'public-setup-then-response-v1', phase: 'observed-space-dispatch' }]
+    receipt.observedDeadline = deadlineAt; receipt.aborted = signal.aborted
+    throw Object.assign(Error('original failed input'), { traceWriteError: 'separate trace write failure' })
+  }`)
+  const context = new Context(), original = context.newPage.bind(context)
+  context.newPage = async () => {
+    const page = await original()
+    page.goto = async () => {}; page.getByRole = () => ({ waitFor: async () => {} })
+    return page
+  }
+  const browser = { newContext: async () => context, close: async () => {} }
+  await assert.rejects(runNativeUiEvidence({ browser, candidateRoot, output, signal: new AbortController().signal }), /original failed input/)
+  const result = JSON.parse(readFileSync(resolve(output, 'episodes.json')))
+  const first = result.episodes[0]
+  assert.equal(first.receipt.inputBudgets[0].phase, 'observed-space-dispatch')
+  assert.equal(first.traceWriteError, 'separate trace write failure')
+  assert.equal(first.receipt.observedDeadline, first.deadlineAt); assert.equal(first.receipt.aborted, false)
+  assert.equal(first.status, 'failed'); assert.ok(result.episodes.slice(1).every(record => record.status === 'not-run'))
+})
+
+test('both mission-entry episodes preserve per-entry traces on throw without replacing their deadline', () => {
+  for (const name of ['options-storage-notice-style', 'hud-sound-control-style']) {
+    const source = read(`scripts/native-ui-evidence/${name}.mjs`)
+    assert.match(source, /receipt\.missionInputBudgets = report\.inputBudgets/)
+    assert.match(source, /finally \{ saveMissionInputTrace\(save, inputError\) \}/)
+    assert.match(source, /finally \{ saveMissionInputTrace\(save, episodeError\) \}/)
+    assert.doesNotMatch(source, /deadlineAt:\s*Date\.now/)
+  }
+})
+
+
+test('both actual mission-entry persistence paths retain input error identity and reject write-only failure', async () => {
+  for (const name of ['options-storage-notice-style', 'hud-sound-control-style']) {
+    const source = read(`scripts/native-ui-evidence/${name}.mjs`)
+    const match = source.match(/let inputError\s+try \{ await ordinaryMission\(page, root, \{ signal, deadlineAt, trace \}\) \}\s+catch \(error\) \{ inputError = error; throw error \}\s+finally \{ saveMissionInputTrace\(save, inputError\) \}/)
+    assert.ok(match)
+    for (const inputFails of [false, true]) for (const writeFails of [false, true]) {
+      const inputError = Error('original Space uncertainty'), writeError = Error('trace write failed')
+      let inputs = 0, writes = 0
+      const run = vm.runInNewContext(`(async () => { ${match[0]} })`, {
+        page: {}, root: '', signal: {}, deadlineAt: 90000, trace: {}, saveMissionInputTrace,
+        ordinaryMission: async () => { inputs++; if (inputFails) throw inputError },
+        save: () => { writes++; if (writeFails) throw writeError },
+      })
+      if (inputFails || writeFails) await assert.rejects(run(), error => error === (inputFails ? inputError : writeError))
+      else await run()
+      assert.equal(inputs, 1); assert.equal(writes, 1)
+      assert.equal(inputError.traceWriteError, inputFails && writeFails ? String(writeError) : undefined)
+    }
+  }
 })

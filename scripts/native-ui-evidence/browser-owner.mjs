@@ -3,6 +3,8 @@ import { readdirSync, lstatSync } from 'node:fs'
 import { resolve, relative } from 'node:path'
 import { limits } from './policy.mjs'
 
+export const pageActionTimeout = 25000
+
 export function artifactInventory(root) {
   const files = []
   function walk(dir) {
@@ -58,7 +60,7 @@ export function ownBrowser(browser, output, report) {
   }
   function instrumentPage(page) {
     assert.ok(pageCount() <= limits.maxPages, 'Page budget exceeded')
-    page.setDefaultTimeout(25000); page.setDefaultNavigationTimeout(30000)
+    page.setDefaultTimeout(pageActionTimeout); page.setDefaultNavigationTimeout(30000)
     instrumentRoutes(page)
     page.on('pageerror', error => report.errors.push({ kind: 'runtime', text: String(error) }))
     page.on('crash', () => report.errors.push({ kind: 'crash', text: 'Page crashed' }))

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
-import { candidateModule, ordinaryMission } from './ordinary-mission.mjs'
+import { candidateModule, ordinaryMission, saveMissionInputTrace } from './ordinary-mission.mjs'
 
 // Only the two preference writes are failed. Reads, checkpoints, campaign state
 // and unrelated storage remain real; no component/world state is injected.
@@ -41,10 +41,12 @@ export function optionsViewportReady({ width, height, skin }) {
   const scale = Number(raw)
   return Number.isFinite(scale) && scale > 0 && scale === Math.min(width / 640, height / 480)
 }
-export default async function ({ browser, url, root, output, signal }) {
-  const report = { status: 'running', samples: [], measurements: [], checks: [] }
+export default async function ({ browser, url, root, output, receipt, signal, deadlineAt }) {
+  const report = { status: 'running', samples: [], measurements: [], checks: [], inputBudgets: [] }
+  receipt.missionInputBudgets = report.inputBudgets
   const save = () => writeFileSync(resolve(output, 'options-storage.json'), JSON.stringify(report, null, 2) + '\n')
   const { waitForStartupMenu } = await candidateModule(root, 'scripts/browser-new-game.mjs')
+  let episodeError
   try {
     for (const skin of ['frontend', 'ingame']) for (const fallback of [false, true]) {
       signal.throwIfAborted()
@@ -56,7 +58,14 @@ export default async function ({ browser, url, root, output, signal }) {
         })
         const page = await context.newPage(), button = name => page.getByRole('button', { name, exact: true })
         await page.goto(url, { waitUntil: 'domcontentloaded' })
-        if (skin === 'ingame') { await ordinaryMission(page, root, signal); await button('Menu').click() }
+        if (skin === 'ingame') {
+          const trace = { skin, fallback }; report.inputBudgets.push(trace)
+          let inputError
+          try { await ordinaryMission(page, root, { signal, deadlineAt, trace }) }
+          catch (error) { inputError = error; throw error }
+          finally { saveMissionInputTrace(save, inputError) }
+          await button('Menu').click()
+        }
         else await waitForStartupMenu(page)
         const frozen = skin === 'ingame' ? await page.evaluate(() => JSON.stringify(window.testStore.getWorld())) : null
         const before = await page.evaluate(() => ['populous-game-preferences', 'populous-audio-preferences'].map(key => localStorage.getItem(key)))
@@ -134,6 +143,6 @@ export default async function ({ browser, url, root, output, signal }) {
     report.status = 'passed'
     report.limits = ['Browser preference failure presentation, not native failure-dialog or acoustic equivalence', 'Ordinary Mission 1 entry; no injected world/checkpoint/React state']
     return report
-  } catch (error) { report.status = 'failed'; report.error = String(error); throw error }
-  finally { save() }
+  } catch (error) { episodeError = error; report.status = 'failed'; report.error = String(error); throw error }
+  finally { saveMissionInputTrace(save, episodeError) }
 }
