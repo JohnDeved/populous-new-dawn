@@ -568,10 +568,11 @@ test('loading keyboard traversal uses the original locator predicate and genuine
 })
 
 test('loading keyboard traversal neither skips a read nor invents focus when ownership remains wrong', async () => {
-  const record = {}, keys = []
+  const record = {}, keys = [], saved = []
   await assert.rejects(loadingCheckerExports().tabToLoadingControl({ keyboard: { async press(key) { keys.push(key) } } },
-    { async evaluate() { return false } }, { record }), /within four genuine Tab presses/)
+    { async evaluate() { return false } }, { record, save() { saved.push([...record.observations]) } }), /within four genuine Tab presses/)
   assert.equal(keys.length, 4); assert.deepEqual(record.observations, [false, false, false, false])
+  assert.deepEqual(saved.at(-1), [false, false, false, false], 'failed endpoint observations were persisted before assertion')
   assert.equal(record.status, 'failed')
 })
 
@@ -581,4 +582,22 @@ for (const failedStage of ['key', 'focus-observation']) test(`loading keyboard t
     keys.push(key); if (failedStage === 'key') throw primary
   } } }, { async evaluate() { throw primary } }, { record }), error => error === primary)
   assert.equal(keys.length, 1); assert.equal(record.pending, failedStage); assert.equal(record.status, 'failed')
+})
+
+
+for (const when of ['before', 'key', 'observation']) test(`loading traversal honors ${when} cancellation without post-abort input or success publication`, async () => {
+  const abort = new AbortController(), primary = Error('cancelled original episode'), record = {}, keys = []
+  if (when === 'before') abort.abort(primary)
+  await assert.rejects(loadingCheckerExports().tabToLoadingControl({ keyboard: { async press(key) {
+    keys.push(key); if (when === 'key') abort.abort(primary)
+  } } }, { async evaluate() { abort.abort(primary); return true } }, { signal: abort.signal, record }), error => error === primary)
+  assert.equal(keys.length, when === 'before' ? 0 : 1)
+  assert.deepEqual(record.observations, []); assert.equal(record.status, 'failed')
+})
+
+test('loading traversal cannot send input after the unchanged absolute episode deadline', async () => {
+  let sent = 0
+  await assert.rejects(loadingCheckerExports().tabToLoadingControl({ keyboard: { async press() { sent++ } } },
+    { async evaluate() { return true } }, { deadlineAt: 0 }), /episode deadline reached/)
+  assert.equal(sent, 0)
 })

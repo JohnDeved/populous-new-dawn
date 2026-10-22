@@ -26,18 +26,26 @@ export async function finishLoadingRecovery({ primaryError, report, gates, fallb
 // Existing Retry/summary outcomes now include the optional real region and
 // two cap buttons. At most four genuine presses reach the opposite control;
 // preserve the original strict locator/activeElement observation on every step.
-export async function tabToLoadingControl(page, target, { reverse = false, record = {} } = {}) {
+export async function tabToLoadingControl(page, target, { reverse = false, record = {}, signal, deadlineAt, save = () => {} } = {}) {
   const key = reverse ? 'Shift+Tab' : 'Tab'
+  const live = () => {
+    signal?.throwIfAborted()
+    if (deadlineAt !== undefined) assert.ok(Number.isFinite(deadlineAt) && Date.now() < deadlineAt, 'Loading episode deadline reached')
+  }
   Object.assign(record, { key, presses: 0, observations: [], status: 'running' })
   try {
     for (let index = 0; index < 4; index++) {
+      live()
       record.pending = 'key'
       await page.keyboard.press(key)
+      live()
       record.presses++
       record.pending = 'focus-observation'
       const focused = await target.evaluate(node => node === document.activeElement)
+      live()
       record.observations.push(focused)
       record.pending = null
+      save() // Retain each real observation before any endpoint assertion.
       if (focused) { record.status = 'passed'; return }
     }
     assert.fail('Loading recovery target not reached within four genuine Tab presses')
@@ -171,7 +179,7 @@ export function assertLoadingScrollbar(sample) {
 // Actual Home and real loader failures. Only landscape responses and, in the
 // separate sequential fallback contexts, frontend font availability are controlled. No world,
 // store, error-prop, save or React state is injected. This is not a ready-scene test.
-export default async function ({ page, browser, url, output }) {
+export default async function ({ page, browser, url, output, signal, deadlineAt }) {
   const report = { status: 'running', captures: [], keyboardTraversal: [], scrollbarGeometry: [], fullscreenGeometry: [], requests: [], fontCases: [], errors: [] }
   const save = () => writeFileSync(resolve(output, 'loading-recovery-style.json'), JSON.stringify(report, null, 2) + '\n')
   const button = p => p.getByRole('button', { name: 'Try again', exact: true })
@@ -179,7 +187,7 @@ export default async function ({ page, browser, url, output }) {
   const keyboardTo = async (target, reverse = false) => {
     const record = { viewport: page.viewportSize(), target: reverse ? 'retry' : 'summary' }
     report.keyboardTraversal.push(record)
-    await tabToLoadingControl(page, target, { reverse, record })
+    await tabToLoadingControl(page, target, { reverse, record, signal, deadlineAt, save })
     save()
   }
   const waitFailed = async p => {
