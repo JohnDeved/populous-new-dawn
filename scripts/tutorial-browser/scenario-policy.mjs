@@ -30,3 +30,9 @@ export const gameplayAggregateBudget = Object.freeze({ version: 1, frameMs: 1800
 export const compactAggregateBudget = Object.freeze({ version: 1, preparationMs: 45000, layoutsMs: 45000,
   compactMs: 90000, pickingMs: 45000, hypnotiseMs: 75000, lifecycleMs: 15000,
   totalBrowserMs: 225000, buildMs: 120000, hostedJobMs: 900000 })
+
+// NEW ordinary-M2-only admission: +45s, not optimization or recovered history.
+// Setup and the complete functional workload have independent nontransferable
+// maxima; acquisition/cleanup remain inside total and the unchanged host cap.
+export const ordinaryM2Budget = Object.freeze({ version: 1, setupMs: 45000,
+  functionalMs: 45000, totalMs: 90000 })

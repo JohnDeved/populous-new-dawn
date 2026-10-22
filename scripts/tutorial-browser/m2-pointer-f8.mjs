@@ -7,6 +7,8 @@ import { bindGame } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { checkFrameExport, m2NativePointerTarget } from './frame-export.mjs'
 import { checkpointCodec } from './checkpoint-codec.mjs'
+import { createM2Admission } from './m2-admission.mjs'
+import { guardBrowserAdmission } from '../browser-admission-guard.mjs'
 
 export function assertM2PopupOwnership(trace, serial, open) {
   assert.equal(trace.phase, 'verify-retained-popup-and-owners', 'Use the completed post-action owner snapshot')
@@ -25,6 +27,8 @@ export async function setM2CampaignPopupOpen(page, serial, open) {
   assertM2PopupOwnership(trace, serial, open)
 }
 
+// The functional phase and independent picking episode retain 45s. Ordinary M2
+// now has explicitly separate setup admission; see ordinaryM2Budget, not a reset.
 export const m2FunctionalLimitMs = 45000
 export function assertM2Input(before, after) {
   assert.equal(after.level, 2)
@@ -41,9 +45,11 @@ export async function finishM2Functional({
   failure,
   fileName = 'm2-pointer-f8.json',
   admission,
+  ordinaryAdmission,
 }) {
   try {
     if (admission) await admission.close('compact-context', context)
+    else if (ordinaryAdmission) assert.equal(await ordinaryAdmission.cleanup(), true, 'Ordinary M2 owned cleanup must complete within admission')
     else await context.close()
     report.contextClosed = true
   } catch (error) {
@@ -142,7 +148,32 @@ export async function runCompactDiagnosticEpisodes({ report, admission, ...optio
   admission?.finishCompanion('picking', report.pickingPathReadout)
 }
 
-export default async function runM2Functional({ browser, url, output, fixture, compactMessages = false, pickingPaths = false, admission }) {
+export default async function runM2Functional(options) {
+  if (options.compactMessages || options.pickingPaths) return runM2Episode(options)
+  let result
+  const ordinaryAdmission = createM2Admission({ deadlineAt: options.deadlineAt, signal: options.signal,
+    onUpdate: report => {
+      writeFileSync(resolve(options.output, 'm2-admission.json'), JSON.stringify(report, null, 2))
+      if (result) writeFileSync(resolve(options.output, 'm2-pointer-f8.json'), JSON.stringify(result, null, 2))
+    } })
+  try {
+    result = await ordinaryAdmission.wait(runM2Episode({ ...options, ordinaryAdmission,
+      browser: guardBrowserAdmission(options.browser, ordinaryAdmission) }))
+    ordinaryAdmission.complete(result)
+    return result
+  } catch (error) {
+    const failure = ordinaryAdmission.fail(error)
+    if (result) { result.status = 'failed'; result.failure = { message: String(failure), stack: failure.stack } }
+    throw failure
+  } finally {
+    // This also handles errors before the inner report/context exists. Settled
+    // close handlers keep durable evidence after a bounded failed return.
+    if (ordinaryAdmission.report.status !== 'passed') await ordinaryAdmission.cleanup()
+    ordinaryAdmission.dispose()
+  }
+}
+
+async function runM2Episode({ browser, url, output, fixture, compactMessages = false, pickingPaths = false, admission, ordinaryAdmission }) {
   assert.ok(!(compactMessages && pickingPaths), 'Diagnostic episodes must have independent contexts')
   assert.ok(!compactMessages || admission, 'Expanded compact requires its explicit admission owner')
   const scenario = pickingPaths ? 'picking-path-readout' : compactMessages ? 'compact-message-layout' : 'm2-pointer-f8'
@@ -154,6 +185,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     status: 'running',
     scenario,
     ...(admission ? { admission: admission.report } : {}),
+    ...(ordinaryAdmission ? { ordinaryAdmission: ordinaryAdmission.report } : {}),
     setup: fixture.receipt,
     errors: [],
     samples: [],
@@ -177,7 +209,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
   const started = performance.now()
   const stage = name => report.stages.push({ name, elapsedMs: performance.now() - started })
   stage('start')
-  if (!compactMessages) timer = setTimeout(() => {
+  if (pickingPaths) timer = setTimeout(() => {
     stage('deadline')
     report.timedOut = true
     void context.close().catch(() => {})
@@ -376,6 +408,9 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       const popupSerial = await openPopup.getAttribute('data-message-serial')
       report.campaignPopup = { serial: popupSerial, initiallyOpen: true }
       report.campaignMessagesBefore = await page.evaluate(() => structuredClone(window.testStore.getWorld().messages))
+      ordinaryAdmission.beginFunctional({ loadBoundaryMatched: report.loadBoundaryMatched,
+        introductionReady: report.introductionReady, compactViewportReady: report.compactViewportReady,
+        before: report.before, restoredPopup: report.restoredPopup, campaignPopup: report.campaignPopup })
       await setM2CampaignPopupOpen(page, popupSerial, false)
       stage('campaign-closed-for-camera-input')
       await graph.waitFor({ state: 'hidden' })
@@ -529,7 +564,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       assert.equal(report.returned.sameScene, true)
     }
   } catch (error) {
-    failure = admission?.fail(error) ?? error
+    failure = ordinaryAdmission?.fail(error) ?? admission?.fail(error) ?? error
     try {
       report.failureState = await page.evaluate(() => {
         const w = window.testStore?.getWorld()
@@ -574,6 +609,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     failure,
     fileName: `${scenario}.json`,
     admission,
+    ordinaryAdmission,
   })
 }
 
