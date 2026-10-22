@@ -36,6 +36,8 @@ function TextPane({ rows, rect, offset = 0, discovery, onNavigate }: {
   return <div className={styles.text} style={{ left: rect.x, top: rect.y, width: rect.width + 16, height: rect.height }}>
     {rows.flatMap((row, r) => row.nodes.filter(node => node.width > 0).map((node, n) => {
       const key = `${r}:${n}`, box = { left: node.x, top: row.y - offset, width: node.width, height: row.height }
+      if (node.image) return <span key={key} className={styles.run} style={box}><img
+        src={node.image.url} width={node.image.width} height={node.image.height} alt="Original article illustration" /></span>
       if (node.link < 0) return <span key={key} className={styles.run} style={box}><span className={styles.hidden}>{node.text}</span><Glyphs text={node.text} font={node.font} /></span>
       const link = helpLink(node.link, discovery)
       const font = hover === key ? 11 : link.available ? 10 : node.font
@@ -65,14 +67,16 @@ export function HelpArticleSurface({ document, discovery, offset, controls, prev
   controls: ReactNode; preview: ReactNode
   onNavigate: (topic: number) => void; onFailure: () => void
 }) {
+  const assetKey = [...new Set([frames.panelUrl, '/original/result-font.png', '/original/hud.png',
+    '/original/help/font-10.png', '/original/help/font-11.png',
+    ...[document.contents, document.article].flatMap(pane => pane.rows.flatMap(row => row.nodes.flatMap(node => node.image ? [node.image.url] : [])))])].sort().join('\n')
   useEffect(() => {
     let active = true
-    void Promise.all([frames.panelUrl, '/original/result-font.png', '/original/hud.png',
-      '/original/help/font-10.png', '/original/help/font-11.png'].map(async src => {
+    void Promise.all(assetKey.split('\n').map(async src => {
       const image = new Image(); image.src = src; await image.decode()
     })).catch(() => { if (active) onFailure() })
     return () => { active = false }
-  }, [onFailure])
+  }, [assetKey, onFailure])
   const { panels } = document
   return <section className={styles.surface} aria-label="Encyclopaedia" data-native-help-article={document.topic}
     style={{ width: document.width, height: document.height }}>

@@ -186,3 +186,31 @@ been connected to live cursor precedence. Live collector/discovery/counters,
 actual full preview support and rendered/input evidence are still blockers. In
 particular native hover-frame counter00897981 is distinct from illustration
 counter0089d184; neither receives an invented local timer.
+
+## Inline article artwork checkpoint (inactive, October 22)
+
+The earlier inline-image blocker is now addressed in source, not yet validated in
+execution. All 21 original `<i N>` slots resolve through `0059bdc0`, including the
+intentional duplicate sprite 1609. `layoutHelpText` preserves image replacement of
+its current run, image-height row expansion, and the native image-overflow width
+reset; the article surface draws the exact PNG at the row top. Linked images are
+still explicitly blocked because their palette-outline path is not implemented;
+none occur in the retained English topic text. A new focused test covers all 88
+texts and the native overflow quirk. These tests have not yet run.
+
+The reviewed, data-only `import-help-article-art.py` created 47 unique PNGs and one
+manifest in a fresh owned directory. Input EXE/palette/HFX hashes, all output
+hashes, exact helper hashes, and exclusive creation are retained in the import
+receipt; no native executable ran and no shared bank was regenerated. A separate
+RGBA comparison establishes that all 27 navigation-frame tiles already exist in
+`hud-button.png`, `hud-button-selected.png` (hover), and `hud-button-hover.png`
+(pressed). Runtime navigation will reuse those three atlases, not issue 27 new
+image requests. The dedicated decoded files remain provenance/reference data.
+
+Source references: `00425680–0042579a`, `00426526–0042653c`, `0059bdc0`, and the
+addressed native-help-navigation evidence packet for `004a2560` / `004a1f50`.
+The new images are article decorations and navigation frames, not a replacement
+for the still-incomplete 3D object/spell preview renderer. Live input/cursor,
+actual discovery data, native counter cadence, lifecycle composition, tests and
+browser comparison remain activation blockers. No new Help module is imported by
+`page.tsx`; the safe Menu adaptation remains in force.

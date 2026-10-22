@@ -1,4 +1,5 @@
 import art from './original-help.json' with { type: 'json' }
+import articleArt from './original-help-article.json' with { type: 'json' }
 import { popupGlyph } from './campaign-popup-layout.ts'
 import { layoutHelpText, helpPanelLayout } from './help-layout.ts'
 import { helpLinkAvailable, helpLinkTarget, type HelpDiscovery } from './help-discovery.ts'
@@ -23,6 +24,13 @@ export function helpLink(relative: number, discovery: HelpDiscovery) {
   return { available, target: helpLinkTarget(relative, available) }
 }
 
+export function helpInlineImage(index: number) {
+  if (!Number.isInteger(index) || index < 0 || index >= articleArt.inline.length)
+    throw new RangeError('Unimported original help inline image')
+  const id = articleArt.inline[index]
+  return { id, ...articleArt.icons[String(id) as keyof typeof articleArt.icons] }
+}
+
 /** Preflight before taking input/pause ownership. Unsupported native markup or
  * dimensions are explicit blockers, never stripped text or a blank success.
  * A ready text document is NOT evidence that its separate preview is ready. */
@@ -36,8 +44,10 @@ export function prepareHelpDocument(topic: number, width: number, height: number
     return { status: 'unsupported', reason: 'Native help panes do not fit this viewport' } as const
   try {
     const titleFont = width * height >= 640 * 480 ? 3 : 4
-    const contents = layoutHelpText(art.topics['983'].text, panels.inner.contents.width, titleFont)
-    const article = layoutHelpText(source.text, panels.inner.article.width, titleFont)
+    const contents = layoutHelpText(art.topics['983'].text, panels.inner.contents.width, titleFont, helpInlineImage)
+    const article = layoutHelpText(source.text, panels.inner.article.width, titleFont, helpInlineImage)
+    if ([contents, article].some(pane => pane.rows.some(row => row.nodes.some(node => node.image && node.link >= 0))))
+      return { status: 'unsupported', reason: 'Linked inline image outline is not implemented' } as const
     return { status: 'ready', topic, source, width, height, panels, contents, article } as const
   } catch (error) {
     if (!(error instanceof Error)) throw error

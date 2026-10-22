@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { helpGlyph, helpLink, prepareHelpDocument } from '../app/help-document.ts'
+import { helpGlyph, helpLink, helpInlineImage, prepareHelpDocument } from '../app/help-document.ts'
+import { layoutHelpText } from '../app/help-layout.ts'
 import art from '../app/original-help.json' with { type: 'json' }
 
 const discovery = { spellBits: 0, buildingBits: 0, stock: [], levelFlags: 0, spellDefinitionByte: [] }
@@ -28,11 +29,33 @@ test('link discovery preserves unavailable targets and original font pixels', ()
   for (const font of [4, 10, 11]) assert.equal(helpGlyph('A', font).w, 6)
 })
 
-test('unimplemented inline art is an explicit document blocker, never silently omitted', () => {
-  const [topic] = Object.entries(art.topics).find(([, value]) => /<i/.test(value.text))
-  const document = prepareHelpDocument(Number(topic), 640, 480, 100)
-  assert.equal(document.status, 'unsupported')
-  assert.match(document.reason, /markup/)
+test('all 88 original texts use supported markup and all 21 image slots retain original IDs', () => {
+  for (const [topic, source] of Object.entries(art.topics)) {
+    const document = prepareHelpDocument(Number(topic), 640, 480, 100)
+    assert.equal(document.status, 'ready', `${topic}: ${document.reason}`)
+    const slots = [...source.text.matchAll(/<i (\d+)>/g)].map(match => Number(match[1]))
+    assert.deepEqual(document.article.rows.flatMap(row => row.nodes.flatMap(node => node.image ? [node.image.id] : [])), slots.map(slot => helpInlineImage(slot).id))
+  }
+  assert.equal(helpInlineImage(15).id, 1609)
+  assert.equal(helpInlineImage(16).id, 1609, 'the duplicate source map is not corrected by guesswork')
+  for (const slot of [-1, 21, 0.5, NaN]) assert.throws(() => helpInlineImage(slot), /Unimported/)
+})
+
+test('inline layout preserves native run replacement and overflow bookkeeping', () => {
+  const image = { id: 1, url: '/fixture.png', width: 80, height: 30 }
+  const same = layoutHelpText('A<i 0>B', 100, 3, () => image)
+  assert.equal(same.rows[0].nodes[0].image, image)
+  assert.equal(same.rows[0].nodes[0].text, '', 'native image replaces the current run')
+  assert.equal(same.rows[0].nodes[1].x, 80)
+  assert.equal(same.rows[0].height, 30)
+  const next = layoutHelpText('A<i 0>B', 80, 3, () => image)
+  assert.equal(next.rows[0].text, 'A')
+  assert.equal(next.rows[1].nodes[0].image, image)
+  assert.equal(next.rows[1].nodes[1].x, 80, 'native overflow reset permits following text beyond measured width')
+})
+
+test('unsupported markup and impossible dimensions remain explicit blockers', () => {
+  assert.throws(() => layoutHelpText('<i 0>', 192), /markup/)
   assert.equal(prepareHelpDocument(1051, 90, 60, 100).status, 'unsupported')
   assert.equal(prepareHelpDocument(1051, 640.5, 480, 100).status, 'unsupported')
 })

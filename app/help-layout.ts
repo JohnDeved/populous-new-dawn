@@ -8,7 +8,9 @@ export interface HelpTextNode {
   text: string
   x: number
   width: number
+  image?: HelpInlineImage
 }
+export interface HelpInlineImage { id: number; url: string; width: number; height: number }
 export interface HelpTextRow {
   height: number
   y: number
@@ -17,10 +19,11 @@ export interface HelpTextRow {
   width: number
 }
 
-/** English text-only 00425400. Unlike popup text, overflowing punctuation stays
+/** English 00425400. Unlike popup text, overflowing punctuation stays
  * on its old row and every markup tag resets the current run's break position.
- * Inline images remain a deliberate unimplemented boundary, never stripped. */
-export function layoutHelpText(text: string, width: number, titleFont: PopupFont = 3) {
+ * Inline images require the caller's verified original sprite resolver. */
+export function layoutHelpText(text: string, width: number, titleFont: PopupFont = 3,
+  inlineImage?: (index: number) => HelpInlineImage) {
   if (!Number.isFinite(width) || width < 1) throw new RangeError('Invalid help text width')
   let font: PopupFont = 4
   let link = -1, index = 0, runWidth = 0, lineWidth = 0, runCount = 0, lastBreak = 0
@@ -47,6 +50,25 @@ export function layoutHelpText(text: string, width: number, titleFont: PopupFont
       else if (tag === 'b' || tag === '/t' || tag === '/b') font = 4
       else if (/^a \d+$/.test(tag)) link = Number(tag.slice(2))
       else if (tag === '/a') link = -1
+      else if (/^i \d+$/.test(tag) && inlineImage) {
+        const image = inlineImage(Number(tag.slice(2)))
+        if (!image || ![image.width, image.height].every(n => Number.isInteger(n) && n > 0))
+          throw new Error('Unsupported original help image')
+        lineWidth += image.width
+        if (lineWidth > width) {
+          row = newRow()
+          node = newNode(index)
+          row.nodes.push(node)
+          // 00425750 clears accumulated width after an overflowing image;
+          // do not silently normalize the native bookkeeping to image.width.
+          lineWidth = 0
+        }
+        // 00425765 changes this run into an image. Earlier text in that run is
+        // replaced, not preserved as an invented adjacent span. Shipped LANG00
+        // uses isolated <r><i N><r> (or final <i N>) sequences instead.
+        node.image = image
+        row.height = Math.max(row.height, image.height)
+      }
       else throw new Error(`Unsupported original help markup: ${tag}`)
       node = newNode(index)
       row.nodes.push(node)
@@ -85,9 +107,9 @@ export function layoutHelpText(text: string, width: number, titleFont: PopupFont
     row.y = y
     let x = 0
     for (const node of row.nodes) {
-      node.text = text.slice(node.sourceStart, node.sourceStart + node.sourceCount).replace(/<[^>]*>/g, '')
+      node.text = node.image ? '' : text.slice(node.sourceStart, node.sourceStart + node.sourceCount).replace(/<[^>]*>/g, '')
       node.x = x
-      node.width = [...node.text].reduce((sum, c) => sum + popupGlyph(c, node.font).w, 0)
+      node.width = node.image?.width ?? [...node.text].reduce((sum, c) => sum + popupGlyph(c, node.font).w, 0)
       x += node.width
     }
     row.text = row.nodes.map(node => node.text).join('')
