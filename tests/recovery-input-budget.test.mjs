@@ -368,3 +368,16 @@ test('observer installation rejection cannot be mistaken for a key-delivery erro
   assert.equal(trace.attempts[0].delivery.keyDeliveryFailed, false)
   assert.equal(trace.attempts[0].outcome, undefined)
 })
+
+
+test('actual key-delivery rejection retains fresh native-completion reconciliation', async t => {
+  const original = Error('keyboard transport rejected after accepted native input')
+  const f = fixture(t, { setupMs: 5, deliveryError: original }), trace = {}
+  await skipPauseIntroduction(f.page, migrated(trace))
+  assert.equal(f.presses, 1)
+  assert.equal(f.reads, 2, 'Only an actual rejected key operation admits the original fresh native read')
+  assert.equal(trace.attempts[0].delivery.keyDeliveryFailed, true)
+  assert.equal(trace.attempts[0].afterSource, 'fresh-native-read')
+  assert.equal(trace.attempts[0].outcome, 'completed')
+  assert.equal(trace.responseDeadlineMs, 25)
+})
