@@ -52,6 +52,9 @@ export default async function ({ browser, page, url, root, output, receipt, sign
           await page.keyboard.press('Tab')
           tabs++
         } while (tabs < 32 && !await button('Fullscreen').evaluate(node => node === document.activeElement))
+        assert.equal(await page.locator('.native-hud').count(), 1, 'Live native HUD/minimap geometry is required')
+        assert.ok(await modal.locator(':scope > :not([data-fullscreen-control]) button').count() > 0,
+          'Native menu controls cannot disappear from clearance coverage')
         const sample = await observeFullscreenClearance(page, 'dialog[data-original-pause-menu]',
           '.native-hud, dialog[data-original-pause-menu] > :not([data-fullscreen-control]) button, ' +
           'dialog[data-original-pause-menu] [aria-label="Checkpoint details"], ' +
@@ -174,6 +177,9 @@ export default async function ({ browser, page, url, root, output, receipt, sign
             ? 'Checkpoint saved for this session only; browser storage is unavailable.'
             : 'Loading replaces the current world and discards unsaved progress.')))
           if (panel === 'load') assert.ok(layout.body.paragraphs.some(paragraph => paragraph.copy === 'Checkpoint available in this session.'))
+          assert.deepEqual(layout.buttons.map(control => control.label).sort(),
+            ['Back', panel === 'save' ? 'Save checkpoint' : 'Load checkpoint'].sort(),
+            'Native action collection must remain complete and nonempty, separate from the portal')
           for (const text of [layout.title, ...layout.body.paragraphs, ...layout.buttons]) {
             assert.equal(text.glyphs > 0, !fallback)
             if (fallback) {
