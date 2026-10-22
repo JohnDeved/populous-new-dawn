@@ -75,6 +75,8 @@ export function createHelpVehicleCanvas():
   const dispose = () => {
     if (disposed) return
     disposed = true
+    // Program deletion is deferred while current; release our owned binding first.
+    gl.useProgram(null)
     for (const shader of shaders) gl.deleteShader(shader)
     gl.deleteProgram(program); gl.deleteBuffer(buffer)
     gl.deleteTexture(texture); gl.deleteVertexArray(vao)

@@ -102,17 +102,28 @@ test('queue depth is assigned before pass partitioning and shifts occur after vi
 function mockEnvironment(patch = {}) {
   const calls = [], flags = { lost: false, shader: true, link: true, error: 0, upload: false, ...patch }
   const constants = new Map([['NO_ERROR', 0]]); let next = 1
+  const programs = new Set(), marked = new Set(); let currentProgram = null
   const gl = new Proxy({}, { get(_, name) {
     if (/^[A-Z_0-9]+$/.test(name)) { if (!constants.has(name)) constants.set(name, next++); return constants.get(name) }
     return (...args) => {
       calls.push([name, ...args])
       if (name === 'getShaderParameter') return flags.shader
       if (name === 'getProgramParameter') return flags.link
-      if (name === 'getParameter') return flags.maxSize ?? 4096
+      if (name === 'getParameter') return args[0] === constants.get('CURRENT_PROGRAM') ? currentProgram : flags.maxSize ?? 4096
+      if (name === 'useProgram') {
+        const previous = currentProgram; currentProgram = args[0]
+        if (previous !== currentProgram && marked.has(previous)) programs.delete(previous)
+      }
+      if (name === 'deleteProgram') { marked.add(args[0]); if (currentProgram !== args[0]) programs.delete(args[0]) }
+      if (name === 'isProgram') return programs.has(args[0])
       if (name === 'getError') { const value = flags.error; flags.error = 0; return value }
       if (name === 'isContextLost') return flags.lost
       if (name === 'getUniformLocation') return { name: args[1] }
-      if (name.startsWith('create')) return { type: name, id: calls.length }
+      if (name.startsWith('create')) {
+        const object = { type: name, id: calls.length }
+        if (name === 'createProgram') programs.add(object)
+        return object
+      }
       if (name === 'texImage2D' && flags.upload) throw Error('supplied upload failure')
     }
   } })
@@ -203,11 +214,19 @@ test('unsupported state clears stale pixels and upload failures remain retryable
   } finally { e.restore() }
 })
 
-test('owned resources dispose exactly once and later draws are rejected', () => {
+test('owned resources unbind deferred programs, dispose once and reject later draws', () => {
   const e = mockEnvironment()
   try {
+    // A current marked program stays alive until its binding is released.
+    const probe = e.gl.createProgram(); e.gl.useProgram(probe); e.gl.deleteProgram(probe)
+    assert.equal(e.gl.isProgram(probe), true)
+    e.gl.useProgram(null); assert.equal(e.gl.isProgram(probe), false); e.calls.length = 0
     const { renderer } = createHelpVehicleCanvas()
+    assert.equal(renderer.draw(request(), ctx(), atlas()).status, 'drawn')
+    const program = e.gl.getParameter(e.gl.CURRENT_PROGRAM); assert.equal(e.gl.isProgram(program), true)
     renderer.dispose(); renderer.dispose()
+    assert.equal(e.gl.getParameter(e.gl.CURRENT_PROGRAM), null)
+    assert.equal(e.gl.isProgram(program), false)
     const count = e.calls.length
     assert.equal(renderer.draw(request(), ctx(), atlas()).reason, 'vehicle-renderer-disposed')
     assert.equal(e.calls.length, count)
