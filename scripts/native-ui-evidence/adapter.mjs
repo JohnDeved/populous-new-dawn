@@ -54,6 +54,7 @@ export async function runNativeUiEvidence({ browser, candidateRoot, infrastructu
       } catch (error) {
         record.status = 'failed'; record.error = String(error); record.stack = error.stack
         if (error.cleanupError) record.cleanupError = error.cleanupError
+        if (error.traceWriteError) record.traceWriteError = error.traceWriteError
         record.timedOut = /deadline|timed out/i.test(String(error))
         throw error
       } finally { record.finishedAt = new Date().toISOString(); save() }

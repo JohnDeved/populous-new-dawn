@@ -707,7 +707,7 @@ test('adapter retains mutated episode receipts and the supplied deadline when an
   put(candidateRoot, 'scripts/local-render/startup-logo.mjs', `export default async function ({ receipt, deadlineAt, signal }) {
     receipt.inputBudgets = [{ contract: 'public-setup-then-response-v1', phase: 'observed-space-dispatch' }]
     receipt.observedDeadline = deadlineAt; receipt.aborted = signal.aborted
-    throw Error('original failed input')
+    throw Object.assign(Error('original failed input'), { traceWriteError: 'separate trace write failure' })
   }`)
   const context = new Context(), original = context.newPage.bind(context)
   context.newPage = async () => {
@@ -720,6 +720,7 @@ test('adapter retains mutated episode receipts and the supplied deadline when an
   const result = JSON.parse(readFileSync(resolve(output, 'episodes.json')))
   const first = result.episodes[0]
   assert.equal(first.receipt.inputBudgets[0].phase, 'observed-space-dispatch')
+  assert.equal(first.traceWriteError, 'separate trace write failure')
   assert.equal(first.receipt.observedDeadline, first.deadlineAt); assert.equal(first.receipt.aborted, false)
   assert.equal(first.status, 'failed'); assert.ok(result.episodes.slice(1).every(record => record.status === 'not-run'))
 })
