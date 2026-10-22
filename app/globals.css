@@ -176,6 +176,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .followers-dock{height:277px;bottom:auto;padding:0;border:0;background:url('/original/follower-task-panel.png') no-repeat}
 .follower-tasks{position:relative;width:100px;height:277px}
 .follower-tasks button{position:absolute;width:15px;height:34px;padding:0;overflow:visible}
+/* Native task buttons reach the viewport edge; keep browser keyboard focus inside. */
+.follower-tasks button:focus-visible{outline:1px solid #fff7bb;outline-offset:-1px}
 .follower-tasks button:disabled{opacity:1}
 .follower-task-frame{position:absolute;inset:0;background:url('/original/follower-task-normal.png');pointer-events:none}
 .follower-tasks button:disabled .follower-task-frame{opacity:calc(85 / 255)}

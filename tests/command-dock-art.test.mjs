@@ -46,3 +46,19 @@ test('removing the painted ridge preserves the current command controls and foll
   assert.match(page, /aria-label="Command panel"/)
   assert.match(page, /className="help-button"[\s\S]*?aria-label="Menu"[\s\S]*?aria-description="Help and game menu"[\s\S]*?onClick=\{openMenu\}/)
 })
+
+
+test('edge-aligned follower controls retain an inset native-palette keyboard focus ring', () => {
+  const focus = declarations('.follower-tasks button:focus-visible')
+  assert.equal(focus.outline, '1px solid #fff7bb')
+  assert.equal(focus['outline-offset'], '-1px')
+  const hud = JSON.parse(read('app/original-hud.json'))
+  assert.ok(hud.colors.includes('#fff7bb'), 'reuse the original HUD palette')
+  const button = declarations('.follower-tasks button')
+  assert.equal(button.width, '15px')
+  assert.equal(button.height, '34px')
+  assert.equal(button.overflow, 'visible', 'do not hide native artwork to clip the focus ring')
+  const outwardExtent = parseFloat(focus.outline) + parseFloat(focus['outline-offset'])
+  assert.equal(outwardExtent, 0, 'the ring must not extend beyond the edge-aligned button')
+  for (const scale of [0.96, 1, 2]) assert.equal(outwardExtent * scale, 0)
+})
