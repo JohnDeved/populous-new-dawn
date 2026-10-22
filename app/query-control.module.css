@@ -1,0 +1,12 @@
+.art{position:absolute;inset:0;pointer-events:none;image-rendering:pixelated}
+:global(.help-button):has([data-query-art="source-bound"]):focus-visible{outline:0}
+.frame{position:absolute;inset:0;pointer-events:none}
+.frame i{position:absolute;background-repeat:repeat}
+.hover,.held{display:none}
+:global(.help-button):focus-visible .normal,:global(.help-button):hover .normal,:global(.help-button):active .normal,:global(.help-button):active .hover{display:none}
+:global(.help-button):focus-visible .hover,:global(.help-button):hover .hover,:global(.help-button):active .held{display:block}
+:global(.help-button):active .hover{display:none}
+.icon{position:absolute;left:4px;top:3px;pointer-events:none;max-width:none}
+.fallback{position:absolute;inset:0;border:1px outset #edb654;font:10px/10px Arial,sans-serif}
+
+.probe{display:none}
