@@ -393,12 +393,17 @@ No cohort, input, sample count, noise threshold, runner count or timeout changes
 
 ### Public menu recovery compatibility
 
-The snapshot recovery shard recognizes two source-backed public-control shapes:
+The snapshot recovery shard recognizes three source-backed public-control shapes:
 the old UI has one `Game settings` button in the native HUD's `top-actions` plus
-one `Menu` help-button in `shaman-controls`; the new UI has only the same `Menu`
-help-button. Both old controls call `openMenu`. The historical dual shape selects
-`Game settings`, preserving its previous route; the new shape selects `Menu`.
-Every present control must have its exact shipped location/title, be unique,
+one `Menu` help-button in `shaman-controls`; the native-menu-only UI has only that
+`Menu` help-button. Both historical shapes use the exact title and no
+`aria-description`. The tooltip-cleaned native-menu-only shape instead has exactly
+`aria-description="Help and game menu"` and no title. Both old controls call
+`openMenu`. The historical dual shape selects `Game settings`, preserving its
+previous route; either native-menu-only shape selects `Menu`. A described Menu
+combined with Game settings, or any control with both title and description, is
+an undeclared mixed shape and fails before clicking.
+Every present control must have its exact shipped location and attributes, be unique,
 visible, accessibility-exposed, and enabled. Missing native Menu, duplicates,
 undeclared shapes, hidden or disabled alternatives fail before any click, rather
 than triggering fallback. The selected shape, exact controls, accessible name,
@@ -432,6 +437,12 @@ identities when reproducing those two routes:
 - Old `app/page.tsx` Git blob: `7a4174acfef0cafac42059e7af329738801b740b`.
 - New `app/page.tsx` Git blob: `19560bc6293f42befc06af01fc4a7a4b46aa5bf0`.
 - Both `app/original-pause-menu.tsx` blobs: `bf33edcc5fbd8ef37d65a23c2c834d4082cce9b4`.
+
+The tooltip-cleaned Menu declaration comes from UI commit
+`27654afd44f733dbc37ddc7760b00f48cd607064`, `app/page.tsx` Git blob
+`754e78e06e153fbca6962204f12f789030c89cbd`.
+The older identities above remain historical evidence, not acceptance for this
+additional shape. The recorded route distinguishes it as `native-menu-description-only`.
 
 Independent review and ordinary trusted-baseline adoption must precede any new
 comparison. This repair does not change a workflow pin or make a valid performance

@@ -965,6 +965,37 @@ test('protected held-drag owners add the cheap regression without changing exist
     assert.deepEqual(unrelated.feedback.command, ['npm', 'test'])
   }))
 
+test('native UI checker changes select focused regressions without losing workflow gates', () =>
+  withRepo(repo => {
+    const check = JSON.parse(readFileSync(join(ROOT, 'engineering/checks.json'))).checks
+      .find(item => item.id === 'native-ui-evidence-tests')
+    assert.ok(check)
+    assert.equal(check.automation, 'safe')
+    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/native-ui-evidence.test.mjs'])
+    const paths = ['scripts/native-ui-evidence/hud-sound-control-style.mjs',
+      'scripts/native-ui-evidence/policy.mjs', 'tests/native-ui-evidence.test.mjs',
+      '.github/workflows/native-ui-evidence.yml', 'engineering/native-ui-evidence.md']
+    for (const input of check.inputs) {
+      if (input === 'scripts/native-ui-evidence') mkdirSync(join(repo, input), { recursive: true })
+      else put(repo, input, input === 'package.json' ? '{"type":"module"}\n' : '// fixture\n')
+    }
+    for (const path of paths) put(repo, path, '// fixture\n')
+    const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    manifest.checks.push(check); put(repo, 'engineering/checks.json', manifest)
+    run(repo, 'git', 'add', '.'); run(repo, 'git', 'commit', '-qm', 'native UI checker routing')
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      const plan = planChanges(repo)
+      assert.deepEqual(plan.unknownPaths, [], path)
+      for (const id of [check.id, 'orchestration-tests', 'orchestration-structural', 'repository-check'])
+        assert.ok(plan.checks.some(item => item.id === id), `${path}: missing ${id}`)
+      assert.equal(plan.executesChecks, false)
+      assert.equal(plan.feedback.fullVerificationRequired, true)
+      assert.equal(plan.feedback.finalGate, false)
+      put(repo, path, '// fixture\n')
+    }
+  }))
+
 test('explicit check triggers reject unsafe, malformed and empty routes', () =>
   withRepo(repo => {
     const checks = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))

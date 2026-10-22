@@ -1,8 +1,13 @@
 import assert from 'node:assert/strict'
 
 const entries = [
-  { name: 'Game settings', selector: 'aside.native-hud[aria-label="Tribe controls"] .top-actions > button[aria-label="Game settings"][title="Game settings"]' },
-  { name: 'Menu', selector: 'aside.native-hud[aria-label="Tribe controls"] .shaman-controls > button.help-button[aria-label="Menu"][title="Help and game menu"]' },
+  { name: 'Game settings', selectors: [
+    'aside.native-hud[aria-label="Tribe controls"] .top-actions > button[aria-label="Game settings"][title="Game settings"]:not([aria-description])',
+  ] },
+  { name: 'Menu', selectors: [
+    'aside.native-hud[aria-label="Tribe controls"] .shaman-controls > button.help-button[aria-label="Menu"][title="Help and game menu"]:not([aria-description])',
+    'aside.native-hud[aria-label="Tribe controls"] .shaman-controls > button.help-button[aria-label="Menu"][aria-description="Help and game menu"]:not([title])',
+  ] },
 ]
 const visibleDialogs = 'dialog:visible, [role="dialog"]:visible'
 const nativeDialog = 'dialog[data-original-pause-menu]'
@@ -40,7 +45,7 @@ async function assertNoDialog(page) {
 
 export async function resolvePublicMenuEntry(page) {
   const present = []
-  for (const { name, selector } of entries) {
+  for (const { name, selectors } of entries) {
     // The old shipped UI has both named controls, the new UI only Menu. Count
     // hidden controls too: a stale/disabled old control must not trigger fallback.
     const all = page.getByRole('button', { name, exact: true, includeHidden: true })
@@ -51,14 +56,17 @@ export async function resolvePublicMenuEntry(page) {
     assert.equal(await button.count(), 1, 'Public menu entry is not accessibility-exposed')
     assert.equal(await button.isVisible(), true, 'Public menu entry is hidden')
     assert.equal(await button.isEnabled(), true, 'Public menu entry is disabled')
-    assert.equal(await button.evaluate((element, selector) => element.matches(selector), selector), true,
-      `Undeclared public menu control shape: ${name}`)
-    present.push({ name, selector, button })
+    const matching = await button.evaluate((element, selectors) => selectors.filter(selector => element.matches(selector)), selectors)
+    assert.equal(matching.length, 1, `Undeclared public menu control shape: ${name}`)
+    present.push({ name, selector: matching[0], button })
   }
   assert.ok(present.some(entry => entry.name === 'Menu'), 'Expected the shipped native Menu control')
   // Preserve the historical route on the declared dual-control shape. This is a
   // pre-click shape decision, never a retry after an old-route action fails.
-  const chosen = present[0], shape = present.length === 2 ? 'legacy-dual-entry' : 'native-menu-only'
+  const described = present.some(entry => entry.selector.includes('[aria-description="'))
+  assert.ok(!described || present.length === 1, 'Undeclared mixed public menu control shape')
+  const chosen = present[0], shape = present.length === 2 ? 'legacy-dual-entry'
+    : described ? 'native-menu-description-only' : 'native-menu-only'
   return { button: chosen.button, route: { role: 'button', name: chosen.name, exact: true, shape,
     controls: present.map(({ name, selector }) => ({ name, selector })) } }
 }
