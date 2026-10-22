@@ -1489,7 +1489,7 @@ function preflightCliFixture(t) {
   const repo = fixtureRepo()
   t.after(() => rmSync(repo, { recursive: true, force: true }))
   mkdirSync(join(repo, 'scripts/orchestration'), { recursive: true })
-  for (const name of ['preflight', 'cli', 'research-evidence', 'review-bundle']) {
+  for (const name of ['preflight', 'cli', 'dependency-profile', 'research-evidence', 'review-bundle']) {
     copyFileSync(new URL(`../scripts/orchestration/${name}.mjs`, import.meta.url),
       join(repo, `scripts/orchestration/${name}.mjs`))
   }

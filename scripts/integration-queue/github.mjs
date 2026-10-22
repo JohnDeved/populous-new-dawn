@@ -669,7 +669,15 @@ export class GitHubReader {
     const files = this.git('ls-tree', '-r', '--name-only', synthetic.sha, '--', 'tests').split('\n')
       .filter(file => /^tests\/[^./\0\r\n][^/\0\r\n]*\.test\.mjs$/.test(file)).sort()
     const inventory = files.map(file => ({ file, sha256: sha256(this.gitOutput('show', `${synthetic.sha}:${file}`)) }))
-    validateShardedReceipt(receipt, { identity, inventory,
+    const packageJson = this.gitOutput('show', `${synthetic.sha}:package.json`)
+    const packageManager = JSON.parse(packageJson).packageManager ?? 'npm@11.9.0'
+    ensure(['npm@11.9.0', 'pnpm@11.25.0'].includes(packageManager), 'Unsupported source package-manager policy')
+    validateShardedReceipt(receipt, { identity, inventory, packageManager,
+      ...(packageManager === 'pnpm@11.25.0' ? {
+        packageJsonSha256: sha256(packageJson),
+        pnpmLockSha256: sha256(this.gitOutput('show', `${synthetic.sha}:pnpm-lock.yaml`)),
+        workspaceSha256: sha256(this.gitOutput('show', `${synthetic.sha}:pnpm-workspace.yaml`)),
+      } : {}),
       lockSha256: sha256(this.gitOutput('show', `${synthetic.sha}:package-lock.json`)),
       ...(receipt.runtime?.timingReporterSha256 !== undefined ? {
         timingReporterSha256: sha256(this.gitOutput('show', `${synthetic.sha}:scripts/orchestration/test-timing-reporter.mjs`)),

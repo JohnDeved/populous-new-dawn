@@ -1,3 +1,4 @@
+import { dependencyReceipt } from '../orchestration/dependency-profile.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import { spawn } from 'node:child_process'
@@ -90,7 +91,7 @@ function profileRuntimeReceipt(root, browserPath, require) {
         resolve(dirname(require.resolve('playwright-core/package.json')), 'lib/coreBundle.js')
       )
     ),
-    installedLockSha256: sha256(readFileSync(resolve(root, 'node_modules/.package-lock.json'))),
+    ...dependencyReceipt(root),
     harness: Object.fromEntries(
       ['harness.mjs', 'owned-profile.mjs', 'checkpoint-observer.mjs', 'vite.config.mjs'].map(
         name => [name, sha256(readFileSync(resolve(here, name)))]

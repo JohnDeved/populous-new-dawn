@@ -169,6 +169,8 @@ async function lateScenarioResult(trigger) {
     )
 
   const sandbox = {
+    // This VM supplies fixture filesystem bytes; dependency metadata is an explicit boundary stub.
+    dependencyReceipt: () => ({ installedLockSha256: createHash('sha256').update('fixture bytes').digest('hex') }),
     sourceReceipt: () => ({ fingerprint: 'fixed-clean-identity' }),
     console,
     resolve,
@@ -390,6 +392,8 @@ async function startupFixture({
       : { version: 'supplied fixture' }
   require.resolve = () => '/fixture/package.json'
   const sandbox = {
+    // This VM supplies fixture filesystem bytes; dependency metadata is an explicit boundary stub.
+    dependencyReceipt: () => ({ installedLockSha256: createHash('sha256').update('fixture bytes').digest('hex') }),
     resolve,
     dirname,
     fileURLToPath,

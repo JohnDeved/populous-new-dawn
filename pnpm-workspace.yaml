@@ -1,0 +1,16 @@
+packages:
+  - '.'
+nodeLinker: isolated
+virtualStoreDir: node_modules/.pnpm
+enableGlobalVirtualStore: false
+packageImportMethod: hardlink
+verifyStoreIntegrity: true
+ignoreScripts: true
+sideEffectsCache: false
+publicHoistPattern:
+  - playwright-core
+  - js-yaml
+  - sharp
+  - oxfmt
+  - oxlint
+verifyDepsBeforeRun: error

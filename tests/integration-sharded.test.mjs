@@ -158,7 +158,7 @@ function adapterFixture() {
   }
   reader.workflow = () => ({ sha256: h })
   reader.git = () => expected.inventory.map(i => i.file).join('\n')
-  reader.gitOutput = (_, ref) => ref.endsWith('package-lock.json') ? 'lock\n' : `test ${ref.match(/a(\d)\.test/)[1]}\n`
+  reader.gitOutput = (_, ref) => ref.endsWith(':package.json') ? '{}' : ref.endsWith('package-lock.json') ? 'lock\n' : `test ${ref.match(/a(\d)\.test/)[1]}\n`
   return { reader, args: [e, pr, synthetic, exact, jobs, row, log] }
 }
 
@@ -215,7 +215,7 @@ test('reader rejects foreign worker checkout, workflow source, ref and altered G
     [({ args }) => { const log = shardedLogReceipt(args[6]); log.identity.workflowSha = oid(9); args[6] = args[6].slice(0, args[6].indexOf('PND_FULL_CHECK_RECEIPT')) + receiptLog(log) }, /workflow source\/ref differs/],
     [({ args }) => { const log = shardedLogReceipt(args[6]); log.identity.workflowRef = 'wrong'; args[6] = args[6].slice(0, args[6].indexOf('PND_FULL_CHECK_RECEIPT')) + receiptLog(log) }, /workflow source\/ref differs/],
     [({ reader }) => { reader.workflow = () => ({ sha256: 'b'.repeat(64) }) }, /workflow source\/ref differs/],
-    [({ reader }) => { reader.gitOutput = () => 'altered source' }, /test inventory differs/],
+    [({ reader }) => { const get = reader.gitOutput.bind(reader); reader.gitOutput = (command, ref) => ref.includes(':tests/') ? 'altered source' : get(command, ref) }, /test inventory differs/],
   ]) { const f = adapterFixture(); mutate(f); assert.throws(() => f.reader.verifyShardedRun(...f.args), reason) }
 })
 
@@ -465,4 +465,31 @@ test('valid gzip cannot bypass original-JSON checksum or UTF-8 checks', () => {
   Buffer.from('1f8b0800000000000003', 'hex').copy(compressed)
   assert.throws(() => shardedLogReceipt(transportFixture(compressed, sha256(invalidUtf8))), /UTF-8/)
   assert.throws(() => shardedLogReceipt(transportFixture(knownGzip, '0'.repeat(64))), /checksum/)
+})
+
+test('trusted pnpm Full schema binds exact source locks without accepting an npm downgrade', () => {
+  const f = fixture()
+  Object.assign(f.expected, { packageManager: 'pnpm@11.25.0', packageJsonSha256: 'b'.repeat(64), pnpmLockSha256: 'c'.repeat(64), workspaceSha256: 'd'.repeat(64) })
+  const runtime = { ...f.receipt.runtime, dependencyFormat: 'pnpm-isolated-v1', packageManager: 'pnpm@11.25.0',
+    packageJsonSha256: f.expected.packageJsonSha256, sourceNpmLockSha256: f.expected.lockSha256,
+    pnpmLockSha256: f.expected.pnpmLockSha256, installedPnpmLockSha256: f.expected.pnpmLockSha256, workspaceSha256: f.expected.workspaceSha256 }
+  delete runtime.npm; delete runtime.installedLockSha256
+  for (const [i, envelope] of [f.receipt, f.receipt.quality, ...f.receipt.shards].entries()) {
+    envelope.version = 2; envelope.runtime = { ...runtime }; envelope.installation = { modulesMetadataSha256: String(i).repeat(64) }
+    if (envelope.shard) {
+      envelope.shard.version = 2; envelope.shard.plan.dependencyFormat = 'pnpm-isolated-v1'
+      envelope.shard.installationBefore = { ...envelope.installation }; envelope.shard.installationAfter = { ...envelope.installation }
+    }
+  }
+  assert.equal(validateShardedReceipt(f.receipt, f.expected), true)
+  for (const mutate of [
+    r => { r.version = 1 }, r => { r.runtime.pnpmLockSha256 = h },
+    r => { r.runtime.installedPnpmLockSha256 = h }, r => { r.runtime.workspaceSha256 = h },
+    r => { r.runtime.packageJsonSha256 = h }, r => { r.runtime.sourceNpmLockSha256 = h },
+    r => { r.runtime.npm = '11.9.0' }, r => { delete r.quality.installation },
+    r => { r.shards[0].installation = { modulesMetadataSha256: 'bad' } },
+    r => { r.shards[1].version = 1 }, r => { r.shards[1].shard.version = 1 },
+    r => { r.shards[1].shard.installationAfter = { modulesMetadataSha256: h } },
+  ]) { const copy = structuredClone(f.receipt); mutate(copy); assert.throws(() => validateShardedReceipt(copy, f.expected)) }
+  assert.throws(() => validateShardedReceipt(fixture().receipt, f.expected), /aggregate did not pass/)
 })
