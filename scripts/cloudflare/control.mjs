@@ -148,16 +148,41 @@ export async function prepare({ api, download, runId, mode, destination }) {
   return { version: 1, source: run.id, sourceAttempt: run.run_attempt, sha: run.head_sha,
     pr: pr?.number ?? null, alias: pr ? branchAlias(pr.head.ref) : null, gate, status: 'prepared' }
 }
-export async function cfRequest(path, { method = 'GET', body } = {}) {
-  assert.ok(path.startsWith(`/accounts/${account}/workers/scripts/${worker}/`), 'Unexpected Cloudflare resource')
-  const token = process.env.CLOUDFLARE_API_TOKEN; assert.ok(token, 'Cloudflare environment credential is not configured')
-  const response = await fetch(`https://api.cloudflare.com/client/v4${path}`, { method, redirect: 'error',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    ...(body ? { body: JSON.stringify(body) } : {}) })
-  const result = JSON.parse(await bodyBytes(response, 1024 * 1024))
-  // Do not echo API response bodies, secret names or request credentials.
-  assert.equal(result.success, true, 'Cloudflare API did not confirm success')
-  return result.result
+export async function cfRequest(path, input = {}) {
+  let url, options
+  try {
+    const { method = 'GET', body } = input
+    assert.ok(typeof path === 'string' && path.startsWith(`/accounts/${account}/workers/scripts/${worker}/`))
+    const token = process.env.CLOUDFLARE_API_TOKEN
+    // RFC 6750 bearer syntax, checked verbatim. Never repair an ambiguous value
+    // by trimming whitespace or joining lines before using it as a credential.
+    assert.ok(typeof token === 'string' && /^[A-Za-z0-9._~+/-]+=*/.exec(token)?.[0] === token)
+    url = `https://api.cloudflare.com/client/v4${path}`
+    options = { method, redirect: 'error',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      ...(body ? { body: JSON.stringify(body) } : {}) }
+    // Validate URL/method/headers/body before fetch, whose errors may include
+    // credential bytes. Keep the original exact request arguments unchanged.
+    new Request(url, options)
+  } catch {
+    throw new Error('Cloudflare request not sent: invalid credential or request input.')
+  }
+  let response
+  try {
+    response = await fetch(url, options)
+  } catch {
+    // Never retain the original error (including its cause or stack).
+    throw new Error('Cloudflare transport failed; remote outcome is uncertain. Inspect before retrying.')
+  }
+  try {
+    const result = JSON.parse(await bodyBytes(response, 1024 * 1024))
+    if (result?.success !== true) throw new Error()
+    return result.result
+  } catch {
+    // Covers HTTP failure, stream/size/JSON errors and unsuccessful API results.
+    // AssertionError.actual and parser messages can otherwise echo response data.
+    throw new Error('Cloudflare response did not confirm success; remote outcome is uncertain. Inspect before retrying.')
+  }
 }
 export async function ensureCurrent(api, state) {
   const run = await verifiedRun(api, state.source, buildPath), pr = await runPr(api, run)
