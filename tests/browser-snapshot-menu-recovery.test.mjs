@@ -4,6 +4,26 @@ import { readFileSync } from 'node:fs'
 import { captureMenuIdentity, observeMenuIdentity, recoverSnapshotMenu, resolvePublicMenuEntry }
   from '../scripts/browser-performance/snapshot-menu-recovery.mjs'
 
+const selectors = {
+  settings: 'aside.native-hud[aria-label="Tribe controls"] .top-actions > button[aria-label="Game settings"][title="Game settings"]:not([aria-description])',
+  title: 'aside.native-hud[aria-label="Tribe controls"] .shaman-controls > button.help-button[aria-label="Menu"][title="Help and game menu"]:not([aria-description])',
+  description: 'aside.native-hud[aria-label="Tribe controls"] .shaman-controls > button.help-button[aria-label="Menu"][aria-description="Help and game menu"]:not([title])',
+}
+const describedMenu = { name: 'Menu', attributes: { title: null, 'aria-description': 'Help and game menu' } }
+function matchesControl(entry, selector) {
+  // Bind the double to the complete declared selector, not a generic "matches"
+  // success. Any weaker ancestor/class/name/attribute selector fails this test.
+  assert.ok(Object.values(selectors).includes(selector), `Unexpected selector: ${selector}`)
+  if (entry.shippedShape === false) return false
+  const attributes = { title: entry.name === 'Menu' ? 'Help and game menu' : 'Game settings',
+    'aria-description': null, ...entry.attributes }
+  if (entry.name === 'Game settings') return selector === selectors.settings
+    && attributes.title === 'Game settings' && attributes['aria-description'] === null
+  return selector === selectors.title
+    ? attributes.title === 'Help and game menu' && attributes['aria-description'] === null
+    : selector === selectors.description && attributes.title === null && attributes['aria-description'] === 'Help and game menu'
+}
+
 // In-memory API/control doubles only. They do not certify rendered old/new UI,
 // Escape propagation, production click handlers, or a performance comparison.
 function fixture(options = {}) {
@@ -51,8 +71,7 @@ function fixture(options = {}) {
       const matches = entries.filter(entry => entry.name === query.name && (query.includeHidden || entry.exposed !== false))
       return { count: async () => matches.length, isVisible: async () => matches[0]?.visible !== false,
         isEnabled: async () => matches[0]?.enabled !== false,
-        evaluate: async (fn, selector) => fn({ matches: received => {
-          assert.equal(received, selector); return matches[0]?.shippedShape !== false } }, selector),
+        evaluate: async (fn, selectors) => fn({ matches: selector => matchesControl(matches[0], selector) }, selectors),
         click: async (...args) => {
           assert.deepEqual(args, [], 'No force or actionability overrides')
           calls.push(`click:${query.name}`)
@@ -80,16 +99,21 @@ function fixture(options = {}) {
   return { run, page, calls, record, disposed }
 }
 
-for (const name of ['Game settings', 'Menu']) test(`one exact ${name} route performs one click and real Escape outside measurement`, async () => {
-  const f = fixture({ entries: name === 'Game settings' ? [{ name }, { name: 'Menu' }] : [{ name }] })
+for (const [shape, entries, expectedSelectors] of [
+  ['legacy-dual-entry', [{ name: 'Game settings' }, { name: 'Menu' }], [selectors.settings, selectors.title]],
+  ['native-menu-only', [{ name: 'Menu' }], [selectors.title]],
+  ['native-menu-description-only', [describedMenu], [selectors.description]],
+]) test(`one exact ${shape} route performs one click and real Escape outside measurement`, async () => {
+  const name = entries[0].name, f = fixture({ entries })
   await f.run()
   assert.deepEqual(f.calls.filter(s => s.startsWith('click:') || s.startsWith('press:')), [`click:${name}`, 'press:Escape'])
   assert.equal(f.calls.filter(s => s === 'admission').length, 2)
   assert.deepEqual(f.disposed, ['dialog', 'identity'])
   const [opening, closing] = f.record.preparation
   assert.equal(opening.route.role, 'button'); assert.equal(opening.route.name, name); assert.equal(opening.route.exact, true)
-  assert.equal(opening.route.shape, name === 'Game settings' ? 'legacy-dual-entry' : 'native-menu-only')
-  assert.equal(opening.route.controls.length, name === 'Game settings' ? 2 : 1)
+  assert.equal(opening.route.shape, shape)
+  assert.deepEqual(opening.route.controls, entries.map(({ name }, index) => ({ name, selector: expectedSelectors[index] })))
+  assert.deepEqual(closing.route, opening.route)
   assert.equal(opening.measured, false); assert.equal(closing.measured, false)
   assert.equal(opening.identity.sameWorld, true); assert.equal(opening.identity.originalSpeed, 1)
   assert.deepEqual(opening.dialog, { name: 'Game menu', panel: 'root', open: true, modal: true })
@@ -112,6 +136,21 @@ for (const [label, entries] of [
   ['disabled', [{ name: 'Menu', enabled: false }]],
   ['hidden duplicate', [{ name: 'Menu' }, { name: 'Menu', exposed: false, visible: false }]],
   ['hidden alternative', [{ name: 'Game settings' }, { name: 'Menu', exposed: false, visible: false }]],
+  ['legacy settings with description Menu', [{ name: 'Game settings' }, describedMenu]],
+  ['title and description on one Menu', [{ name: 'Menu', attributes: { 'aria-description': 'Help and game menu' } }]],
+  ['title and malformed description on one Menu', [{ name: 'Menu', attributes: { 'aria-description': 'Other menu' } }]],
+  ['description and empty title on one Menu', [{ ...describedMenu, attributes: { ...describedMenu.attributes, title: '' } }]],
+  ['legacy settings with a description', [{ name: 'Game settings', attributes: { 'aria-description': 'Game settings' } }, { name: 'Menu' }]],
+  ['duplicate title and description Menus', [{ name: 'Menu' }, describedMenu]],
+  ['hidden duplicate description Menu', [{ name: 'Menu' }, { ...describedMenu, exposed: false, visible: false }]],
+  ['accessibility-hidden description Menu', [{ ...describedMenu, exposed: false }]],
+  ['hidden description Menu', [{ ...describedMenu, visible: false }]],
+  ['disabled description Menu', [{ ...describedMenu, enabled: false }]],
+  ['undeclared description location/class', [{ ...describedMenu, shippedShape: false }]],
+  ['non-exact description Menu name', [{ ...describedMenu, name: 'Open Menu' }]],
+  ...[null, '', 'Help', 'help and game menu', 'Help and game menu ', ' Help and game menu'].map(description =>
+    [`malformed description ${JSON.stringify(description)}`, [{ name: 'Menu', attributes: { title: null, 'aria-description': description } }]]),
+  ['description and malformed title', [{ name: 'Menu', attributes: { title: 'Other menu', 'aria-description': 'Help and game menu' } }]],
 ]) test(`${label} public entry fails before any click`, async () => {
   const f = fixture({ entries })
   await assert.rejects(f.run())
@@ -215,7 +254,7 @@ test('identity observations do not accept replaced scenes or worlds with equal s
   } finally { if (prior === undefined) delete globalThis.window; else globalThis.window = prior }
 })
 
-test('source integration preserves original admission, measured windows, and shipped root markers', () => {
+test('source integration preserves original admission, measured windows, and the declared shipped menu route', async () => {
   const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
   const capture = read('scripts/browser-performance/snapshot-capture.mjs')
   assert.match(capture, /if \(name === 'menu-recovery'\) \{\s+await recoverSnapshotMenu\(\{ page, record, observe, save,\s+assertAdmission: state => assertSnapshotAdmission\(state, fixture\) \}\)/)
@@ -224,9 +263,17 @@ test('source integration preserves original admission, measured windows, and shi
   assert.match(capture, /window\.__pndSnapshotObserver\.finish\(4\)/)
   assert.match(capture, /record\.before = await observe\(\); invariant\(record\.before\); assertSnapshotAdmission\(record\.before, fixture\)/)
   const page = read('app/page.tsx'), menu = read('app/original-pause-menu.tsx')
-  assert.match(page, /className="help-button"\s+aria-label="Menu"\s+title="Help and game menu"\s+onClick=\{openMenu\}/)
+  const menuControls = [...page.matchAll(/<button\s+className="help-button"[\s\S]*?>/g)]
+  assert.equal(menuControls.length, 1, 'Expected one shipped native Menu declaration')
+  assert.match(menuControls[0][0], /^<button\s+className="help-button"\s+aria-label="Menu"\s+(title|aria-description)="Help and game menu"\s+onClick=\{openMenu\}\s*>$/)
   assert.match(page, /className="native-hud" aria-label="Tribe controls"/)
-  if (page.includes('aria-label="Game settings"')) {
+  assert.match(page, /className="shaman-controls"/)
+  const described = menuControls[0][0].includes('aria-description='), dual = page.includes('aria-label="Game settings"')
+  const entries = [...(dual ? [{ name: 'Game settings' }] : []), described ? describedMenu : { name: 'Menu' }]
+  const { route } = await resolvePublicMenuEntry(fixture({ entries }).page)
+  assert.equal(route.shape, dual ? 'legacy-dual-entry' : described ? 'native-menu-description-only' : 'native-menu-only')
+  assert.equal(route.controls.at(-1).selector, described ? selectors.description : selectors.title)
+  if (dual) {
     assert.match(page, /className="top-actions"/)
     assert.match(page, /aria-label="Game settings" title="Game settings" onClick=\{openMenu\}/)
   }
