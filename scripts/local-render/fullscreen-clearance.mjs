@@ -27,10 +27,15 @@ export function assertFullscreenClearance(sample) {
   assert.equal(sample.count, 1)
   assert.equal(sample.hit, true, 'Fullscreen remains the actual physical hit target')
   assert.deepEqual([sample.button.width,sample.button.height],[17,14])
+  const validBox = box => box && ['x','y','right','bottom'].every(key => Number.isFinite(box[key]))
+    && box.right > box.x && box.bottom > box.y
   const box = sample.focus
+  assert.ok(validBox(box), 'Fullscreen focus geometry must be finite and positive-area')
+  assert.ok(Array.isArray(sample.occupied) && sample.occupied.length > 0, 'Occupied geometry must be present')
   assert.ok(box.x >= 0 && box.y >= 0 && box.right <= sample.viewport.width && box.bottom <= sample.viewport.height,
     'Fullscreen and its visible focus ring remain unclipped')
   for (const target of sample.occupied) {
+    assert.ok(validBox(target), `Occupied geometry must be finite and positive-area: ${target.label}`)
     assert.equal(box.x < target.right && box.right > target.x && box.y < target.bottom && box.bottom > target.y, false,
       `Fullscreen must clear ${target.label}: ${JSON.stringify({box,target})}`)
   }

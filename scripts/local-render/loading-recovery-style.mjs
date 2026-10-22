@@ -22,7 +22,7 @@ export default async function ({ page, browser, url, output }) {
     await p.getByRole('button', { name: 'Yes', exact: true }).click()
   }
   const capture = async (p, name) => {
-    const geometry = await observeFullscreenClearance(p, 'body', '.loading-original-art,.loading-original-label,.loading-recovery')
+    const geometry = await observeFullscreenClearance(p, 'body', '.loading-original-art,.loading-original-label,.loading-recovery,.loading-recovery button,.loading-recovery summary,.loading-recovery-note,.loading-recovery details[open] .loading-recovery-error')
     report.fullscreenGeometry.push({name,geometry}); save()
     assertFullscreenClearance(geometry)
     await p.screenshot({ path: resolve(output, `${name}.png`) })

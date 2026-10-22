@@ -21,3 +21,12 @@ test('rendered clearance rejects clipping, interception, duplicate portals and w
     assert.throws(() => assertFullscreenClearance(sample))
   }
 })
+
+test('rendered clearance rejects missing or malformed occupied geometry', () => {
+  for (const change of [s=>s.occupied=[],s=>s.occupied=null,s=>s.occupied[0].x=NaN,
+    s=>s.occupied[0].bottom=Infinity,s=>s.occupied[0].right=44,s=>s.occupied[0].bottom=-201,
+    s=>s.focus.right=NaN,s=>s.focus.bottom=9]) {
+    const sample = fixture(); change(sample)
+    assert.throws(() => assertFullscreenClearance(sample), /geometry/)
+  }
+})
