@@ -1,4 +1,5 @@
 import { setWorldPaused } from '../browser-world-input.mjs'
+import { dependencyReceipt } from '../orchestration/dependency-profile.mjs'
 import assert from 'node:assert/strict'
 import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import { pauseStartupReady, skipPauseIntroduction, recoverVisibleIntroduction } from './original-pause-checkpoint-recovery.mjs'
@@ -169,7 +170,7 @@ export default async function ({ browser, context: initialContext, page: initial
       node: process.version, platform: process.platform, arch: process.arch,
       browserVersion: receipt.browserVersion, browserSha256: digest(receipt.browserPath ?? receipt.launch.executablePath),
       launch: receipt.launch, playwright: require('@playwright/test/package.json').version,
-      installedLockSha256: digest(resolve(root, 'node_modules/.package-lock.json')),
+      ...dependencyReceipt(root),
       helpers: Object.fromEntries(['scripts/tutorial-browser/profile-readiness.mjs', 'scripts/tutorial-browser/profile-input-trace.mjs', 'scripts/campaign-start-readiness.mjs', 'scripts/local-render/harness.mjs', 'scripts/local-render/vite.config.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/browser-game.mjs', 'scripts/browser-world-input.mjs', 'scripts/browser-introduction.mjs', 'scripts/local-render/original-pause-checkpoint-recovery.mjs', 'scripts/checkpoint-readback.mjs'].map(file => [file, digest(resolve(root, file))])),
   })
   const report = {

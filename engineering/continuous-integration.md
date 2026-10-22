@@ -1,7 +1,7 @@
 # Ready-PR full verification
 
 The authorized `.github/workflows/ready-pr-check.yml` runs the standard
-equivalent of `npm run check` plus `npm run build` on isolated standard GitHub-hosted Ubuntu VMs. Four test shards preserve every discovered test and the existing C2/C1 resource policy; one quality/build job runs the other gates exactly once. A non-skippable `Full check` job validates all five source-bound receipts.
+equivalent of `pnpm run check` plus `pnpm run build` on isolated standard GitHub-hosted Ubuntu VMs. Four test shards preserve every discovered test and the existing C2/C1 resource policy; one quality/build job runs the other gates exactly once. A non-skippable `Full check` job validates all five source-bound receipts.
 It does not deploy, record new parity, run original-game binaries, or replace
 native, rendered-browser or hardware-performance acceptance.
 
@@ -76,8 +76,13 @@ accepted `app/erosion.ts` from commit `3b899125cc8cedef938823718ad5d44f49957b66`
 The workflow verifies that blob exists and records the head, base, merge and
 runtime identities. An unexpected tracked-file mutation fails the final step.
 
-Node 24.19.0, npm 11.9.0 and Python 3.12.14 are explicit. `npm ci` installs the
-tracked lockfile. Portable Python fixture tests require Pillow; the CI requirement
+Node 24.19.0, pnpm 11.25.0 and Python 3.12.14 are explicit for sources declaring
+`packageManager: pnpm@11.25.0`. `pnpm install --frozen-lockfile --ignore-scripts`
+installs the committed isolated profile. npm bundled with Node only bootstraps the
+pinned manager; it does not create a project npm install. Historical candidate/base
+sources without that declaration retain their exact npm 11.9.0 installer. Unknown
+manager declarations fail rather than falling back. The old package-lock remains a
+source-bound migration/legacy identity, not a fabricated pnpm installed lock. Portable Python fixture tests require Pillow; the CI requirement
 pins the CPython 3.12 Linux x64 Pillow 12.3.0 wheel and its PyPI SHA-256. This is
 separate from optional native-research dependencies in `decomp/requirements.txt`.
 The shards use tracked imported assets and synthetic/historical fixtures;
@@ -397,3 +402,57 @@ acceptance boundaries and limits of the retained evidence. Independently review
 and pin that entire closure before any later task-local read-only use. Neither
 this documentation nor successful synthetic fixtures changes hosted admission,
 the pure round-robin Full planner, browser pins, protection or permissions.
+
+## Genuine pnpm receipt schema
+
+New pnpm Full envelopes and aggregate use version 2. Every worker still validates
+its exact source before and after, and the aggregate still requires exactly four
+complete test shards plus typecheck/parity/orchestration/build. Legacy npm version 1
+remains separately validated for its original source and installer policy. The
+trusted reader derives manager selection and lock/config hashes from Git, never
+from executable candidate policy or a receipt's unsupported claim.
+
+Portable pnpm receipt fields bind package.json, original source package-lock.json,
+pnpm-lock.yaml, pnpm-workspace.yaml, and the genuine installed .pnpm/lock.yaml.
+Desired/installed locks must match. The raw .modules.yaml hash is also captured and
+compared before/after within each worker. Its timestamp/store path can differ across
+clean installs, so the five workers compare portable lock/config hashes rather than
+pretending that installation-local metadata is byte-identical across machines.
+Mixed npm/pnpm metadata, symlinked metadata, missing locks, unsupported versions or
+source/profile mismatch fail closed. These metadata receipts do not by themselves
+certify every installed package byte; native UI evidence retains its complete
+independent dependency manifest.
+
+The local physical migration and lock import proved unchanged dependency
+name/version/registry integrity, with five bundled npm entries accounted for, and
+no downloaded packages in the offline validation profiles. Public hoisting exposes
+only already-locked playwright-core, js-yaml, sharp, oxfmt and oxlint for existing
+public imports/CLI paths. Native platform tools and actual exports still require
+focused smoke and hosted production/browser validation for each conversion.
+
+No triggers, permissions, action pins, worker counts, timeouts, test memberships or
+Full failure/cancellation rules are relaxed. Tutorial's existing dependency path
+filter also includes the new lock/profile/helper files. Resource-policy fingerprints
+are not automatically refreshed: conservative C1 remains until a separate explicit
+resource approval, and old npm-only resource-renewal receipts cannot authorize pnpm.
+
+
+Version-2 shard plans also use the portable lock/config identity, so a fresh
+aggregate installation can rederive each worker's exact plan. Each actual shard
+separately captures its raw installation metadata before and after child execution;
+the aggregate and trusted reader require those hashes to agree with that worker's
+envelope. A local dependency mutation cannot be hidden by portable plan equality.
+
+Active Mission 6, spell-icon, local-render and tutorial receipt writers select
+real installed metadata for either source policy. Historical native-erosion and
+owned-Blast npm-v1 receipt validators remain unchanged because they validate old
+immutable evidence, not new pnpm execution. No historical receipt is relabeled.
+Npm remains only the pinned historical installer and the Node-provided bootstrap
+for pnpm itself; new project installs and package commands use pnpm.
+
+
+Pinned pnpm 11 defaults to installing when its pre-run dependency check finds a
+stale layout. This repository sets verifyDepsBeforeRun: error instead: frozen gates
+must fail, not perform an unrecorded install. Pnpm script arguments are forwarded
+without npm's extra separator; a dependency-free argv fixture checks the pinned
+CLI itself without starting a server or browser.

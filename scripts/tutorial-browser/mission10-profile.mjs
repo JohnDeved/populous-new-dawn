@@ -1,3 +1,4 @@
+import { dependencyReceipt } from '../orchestration/dependency-profile.mjs'
 // Dedicated M10 matrix episode. One fixed deadline spans both owned processes.
 import assert from 'node:assert/strict'
 import { randomUUID, createHash } from 'node:crypto'
@@ -54,7 +55,7 @@ export default async function runMission10Profile({ chromium, launch, url, root,
   const inputs = profileInputReceipt(root, resolve(root, 'scripts/local-render/mission10-boat-checkpoint.mjs'))
   const runtime = { node: process.version, browserVersion: receipt.browserVersion,
     browserSha256: receipt.browserSha256, launch,
-    packages: receipt.buildPackageVersions, installedLockSha256: digest(readFileSync(resolve(root, 'node_modules/.package-lock.json'))) }
+    packages: receipt.buildPackageVersions, ...dependencyReceipt(root) }
   const runtimeSha256 = digest(JSON.stringify(runtime))
   const path = resolve(root, 'work/local-render-profiles', `m10-hosted-${randomUUID()}`)
   assert.equal(existsSync(path), false, 'Only a brand-new task profile may be admitted')
@@ -80,7 +81,7 @@ export default async function runMission10Profile({ chromium, launch, url, root,
         try {
           verifySource(); assert.deepEqual(sourceReceipt(root), source)
           assert.deepEqual(profileInputReceipt(root), inputs)
-          assert.equal(digest(readFileSync(resolve(root, 'node_modules/.package-lock.json'))), runtime.installedLockSha256)
+          for (const [key, value] of Object.entries(dependencyReceipt(root))) assert.deepEqual(value, runtime[key])
           phase.sourceAfter = 'identical'
           phase.profile.continuationVerified = phase.status === 'passed' && cleanup.verified && Object.hasOwn(phase.profile, 'checkpointAtEnd')
         } catch (error) { phase.status = 'failed'; phase.failure = String(error); throw error } finally {

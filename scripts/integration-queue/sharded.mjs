@@ -89,7 +89,8 @@ function shardCommandMatches(command, group, runtime, expected) {
 
 export function validateShardedReceipt(receipt, expected) {
   const { identity, inventory } = expected
-  ensure(receipt?.version === 1 && receipt.kind === 'full-check' && receipt.status === 'passed',
+  const pnpm = expected.packageManager === 'pnpm@11.25.0', version = pnpm ? 2 : 1
+  ensure(receipt?.version === version && receipt.kind === 'full-check' && receipt.status === 'passed',
     'aggregate did not pass')
   ensure(same(receipt.identity, identity), 'aggregate identity differs from exact run/attempt/source')
   ensure(same(receipt.inventory, inventory) && inventory.length > 0 &&
@@ -97,12 +98,23 @@ export function validateShardedReceipt(receipt, expected) {
     same(inventory.map(i => i.file), [...new Set(inventory.map(i => i.file))].sort()),
     'test inventory differs from exact Git source')
   const runtime = receipt.runtime
-  ensure(runtime && runtime.node === '24.19.0' && runtime.npm === '11.9.0' &&
+  ensure(runtime && runtime.node === '24.19.0' &&
     runtime.python === '3.12.14' && runtime.pillow === '12.3.0' &&
     runtime.platform === 'linux' && runtime.arch === 'x64' &&
-    runtime.lockSha256 === expected.lockSha256 && sha256(runtime.installedLockSha256),
+    runtime.lockSha256 === expected.lockSha256,
     'runtime or lockfile differs from pinned inputs')
-  const envelope = (value, kind) => ensure(value?.version === 1 && value.kind === kind &&
+  const installed = value => value && Object.keys(value).length === 1 && sha256(value.modulesMetadataSha256)
+  if (pnpm) ensure(runtime.dependencyFormat === 'pnpm-isolated-v1' && runtime.packageManager === 'pnpm@11.25.0' &&
+    runtime.npm === undefined && runtime.installedLockSha256 === undefined &&
+    runtime.packageJsonSha256 === expected.packageJsonSha256 && runtime.sourceNpmLockSha256 === expected.lockSha256 &&
+    runtime.pnpmLockSha256 === expected.pnpmLockSha256 && runtime.installedPnpmLockSha256 === expected.pnpmLockSha256 &&
+    runtime.workspaceSha256 === expected.workspaceSha256 &&
+    [expected.packageJsonSha256, expected.pnpmLockSha256, expected.workspaceSha256].every(sha256) && installed(receipt.installation),
+    'pnpm runtime or genuine source/installed locks differ')
+  else ensure(runtime.npm === '11.9.0' && runtime.dependencyFormat === undefined && sha256(runtime.installedLockSha256),
+    'legacy npm runtime or installed lock differs')
+  const envelope = (value, kind) => ensure(value?.version === version && value.kind === kind &&
+    (!pnpm || installed(value.installation)) &&
     value.status === 'passed' && same(value.identity, identity) &&
     same(value.inventory, inventory) && same(value.runtime, runtime),
     `${kind} receipt source/runtime/attempt mismatch`)
@@ -114,7 +126,10 @@ export function validateShardedReceipt(receipt, expected) {
   for (const value of receipt.shards) {
     envelope(value, 'shard')
     const { plan, result, inputsBefore, inputsAfter } = value.shard ?? {}
-    ensure(value.shard?.version === 1 && value.shard.kind === 'pnd-test-shard-receipt', 'invalid shard schema')
+    ensure(value.shard?.version === version && value.shard.kind === 'pnd-test-shard-receipt', 'invalid shard schema')
+    if (pnpm) ensure(plan?.dependencyFormat === 'pnpm-isolated-v1' && installed(value.shard.installationBefore) &&
+      same(value.shard.installationBefore, value.shard.installationAfter) && same(value.shard.installationBefore, value.installation),
+      'pnpm shard local metadata changed or differs from its worker')
     const index = plan?.shard?.index
     ensure(Number.isInteger(index) && index >= 0 && index < 4 && !indexes.has(index), 'duplicate or invalid shard index')
     indexes.add(index)

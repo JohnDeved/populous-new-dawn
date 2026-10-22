@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { dependencyReceipt } from '../orchestration/dependency-profile.mjs'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { manualIdentity, separateRoots, sourceManifest, verifyManifest, infrastructureInput, sha256 } from './identity.mjs'
@@ -34,7 +35,7 @@ try {
   writeFileSync(resolve(output, 'dependencies.json'), JSON.stringify(dependencies, null, 2) + '\n')
   report.dependenciesSha256 = sha256(resolve(output, 'dependencies.json'))
   report.packageLockSha256 = sha256(resolve(candidateRoot, 'package-lock.json'))
-  report.installedLockSha256 = sha256(resolve(candidateRoot, 'node_modules/.package-lock.json'))
+  Object.assign(report, dependencyReceipt(candidateRoot))
   save()
   stage = 'candidate-build'
   report.build = await supervise([resolve(import.meta.dirname, 'build-home.mjs'), candidateRoot, dist, identity.candidateSha],
