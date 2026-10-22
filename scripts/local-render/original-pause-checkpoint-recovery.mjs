@@ -208,6 +208,9 @@ export async function skipPauseIntroduction(page, {
       await phase('observed-space-dispatch', async () => {
         try {
           delivery = await pressObservedSpace(page, { timeout: remaining(), signal: actionSignal, snapshot: separateSetup, trace: attempt.delivery })
+          // The owning race can already be cancelled while its finalizer is still pending.
+          // Keep raw RPC settlements, but never publish success evidence after that boundary.
+          remaining()
           attempt.ownership = structuredClone(separateSetup ? delivery.records : delivery)
           if (separateSetup) attempt.atomicAfter = structuredClone(delivery)
         } catch (error) {

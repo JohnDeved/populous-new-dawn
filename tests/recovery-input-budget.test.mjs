@@ -561,3 +561,51 @@ for (const phase of ['retry-preparation', 'second-finalizer']) test(`v2 abort du
   assert.ok(presses <= 2)
   assert.equal(trace.attempts.at(-1).atomicAfter, phase === 'second-finalizer' ? undefined : trace.attempts[0].atomicAfter)
 })
+
+
+for (const contract of ['v2', 'v1', 'shared-input-v1']) test(`${contract} does not publish a valid late witness after abort`, async t => {
+  const f = fixture(t, { setupMs: 5, rejectCount: contract === 'v2' ? 1 : 0 })
+  const trace = {}, controller = new AbortController(), primary = Error(`late ${contract} finalizer aborted`)
+  const evaluate = f.page.evaluate, finalizer = contract === 'shared-input-v1' ? endSpaceOwnership : endSpaceOwnershipSnapshot
+  const expectedPresses = contract === 'v2' ? 2 : 1
+  let release, waiting = false, lateValue
+  const pending = new Promise(resolve => { release = resolve })
+  f.page.evaluate = async (fn, arg) => {
+    if (fn !== finalizer || f.presses !== expectedPresses) return evaluate(fn, arg)
+    const actual = await evaluate(fn, arg)
+    const record = { trusted: true, repeat: false, prevented: false, sameWorld: true, owners: [],
+      before: { paused: false, inputMask: 64, flybyFlags: 17 },
+      after: { paused: f.state.paused, inputMask: f.state.inputMask, flybyFlags: f.state.flybyFlags } }
+    assert.deepEqual(record.after, { paused: false, inputMask: 0, flybyFlags: 16 })
+    lateValue = contract === 'shared-input-v1' ? [record] : { ...actual, records: [record] }
+    if (contract !== 'shared-input-v1') {
+      assert.equal(lateValue.observationId, arg)
+      assert.equal(lateValue.witnessPresent, true)
+      assert.deepEqual(recoveryStateFromSpaceSnapshot({ ...lateValue, witnessId: arg }),
+        { action: 'ready', paused: false, inputMask: 0, flybyFlags: 16 })
+    }
+    waiting = true
+    return pending
+  }
+  const options = contract === 'v2' ? retryBudget(trace) : contract === 'v1'
+    ? migrated(trace, { timeout: 40 }) : { timeout: 40, trace }
+  const run = skipPauseIntroduction(f.page, { ...options, signal: controller.signal })
+  for (let i = 0; i < 200 && !waiting; i++) await Promise.resolve()
+  assert.equal(waiting, true)
+  controller.abort(primary)
+  await assert.rejects(run, error => error === primary)
+  const attempt = trace.attempts.at(-1)
+  assert.equal(attempt.ownership, undefined)
+  assert.equal(attempt.atomicAfter, undefined)
+  release(lateValue)
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(f.presses, expectedPresses, 'No input is sent after the owning abort')
+  assert.equal(attempt.ownership, undefined, 'Valid late records cannot become accepted ownership')
+  assert.equal(attempt.atomicAfter, undefined, 'Valid late state cannot become an accepted atomic outcome')
+  assert.equal(attempt.outcome, undefined)
+  assert.equal(attempt.delivery.keyDeliveryFailed, false, 'A finalizer abort is not a failed key')
+  assert.equal(attempt.delivery.pending, false)
+  assert.equal(attempt.delivery.completed.findLast(item => item.phase === 'finalize-space-witness').status, 'fulfilled',
+    'The real late RPC settlement remains in the raw delivery trace')
+  assert.ok(f.calls.includes(contract === 'shared-input-v1' ? 'cleanup-witness' : 'cleanup-witness-and-native'))
+})
