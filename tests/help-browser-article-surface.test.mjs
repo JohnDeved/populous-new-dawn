@@ -1,6 +1,7 @@
 import './help-surface-loader.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { fixture } from './help-composition-fixture.mjs'
@@ -25,7 +26,9 @@ test('production React composition has one scale wrapper, full-frame preview slo
   assert.deepEqual([...html.matchAll(/data-help-navigation="([^"]+)"/g)].map(match => match[1]),
     ['back', 'forward', 'home', 'close'])
   assert.ok(html.includes('/original/help/font-10.png'))
-  assert.ok(html.includes('/original/campaign-popup-tiles.png'))
+  assert.equal((html.match(/class="frame"/g) ?? []).length, 3)
+  assert.match(readFileSync(new URL('../app/help-article.module.css', import.meta.url), 'utf8'),
+    /background-image:url\('\/original\/campaign-popup-tiles\.png'\)/)
   assert.doesNotMatch(html, /requestAnimationFrame|display:none/)
   owner.invalidate('test-host-hidden')
   assert.equal(render(), '')

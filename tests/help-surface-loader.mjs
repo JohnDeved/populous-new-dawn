@@ -8,9 +8,10 @@ registerHooks({
   resolve(specifier, context, next) {
     if (specifier === 'react' && context.parentURL?.endsWith('help-browser-article-surface.tsx?mock-hooks'))
       return next(new URL('./help-surface-hooks.mjs', import.meta.url).href, context)
-    if (specifier.startsWith('.') && !/\.[a-z]+$/i.test(specifier)) {
+    if (specifier.startsWith('.') && !/\.[a-z]+$/i.test(new URL(specifier, context.parentURL).pathname)) {
       for (const suffix of ['.ts', '.tsx']) {
-        const url = new URL(specifier + suffix, context.parentURL)
+        const url = new URL(specifier, context.parentURL)
+        url.pathname += suffix
         if (existsSync(url)) return next(url.href, context)
       }
     }
