@@ -2,6 +2,62 @@
   "version": 1,
   "owners": [
     {
+      "id": "checkpoint-scrollbar-art-subset",
+      "kind": "imported-assets",
+      "generator": {
+        "executable": "git",
+        "args": [
+          "restore",
+          "--source=fd34c4a60b643c294c167ab9bcd83b5871a82fd3",
+          "--",
+          "public/original/help/hfx-451.png",
+          "public/original/help/hfx-452.png",
+          "public/original/help/hfx-453.png",
+          "public/original/help/hfx-454.png",
+          "public/original/help/hfx-455.png"
+        ]
+      },
+      "callers": [
+        "app/checkpoint-scroll-area.tsx"
+      ],
+      "inputs": [
+        "references/checkpoint-scrollbar-art.json"
+      ],
+      "outputs": [
+        {
+          "path": "public/original/help/hfx-451.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true
+        },
+        {
+          "path": "public/original/help/hfx-452.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true
+        },
+        {
+          "path": "public/original/help/hfx-453.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true
+        },
+        {
+          "path": "public/original/help/hfx-454.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true
+        },
+        {
+          "path": "public/original/help/hfx-455.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true
+        }
+      ],
+      "recording": "Byte-preserving subset of the hash-verified original Help importer at the source commit. No re-encoding, palette changes, or Help runtime import. Verify each PNG against references/checkpoint-scrollbar-art.json; future regeneration remains owned by scripts/import-help-ui.py at the source commit."
+    },
+    {
       "id": "ordinary-hud-control-static-evidence",
       "kind": "native-evidence",
       "generator": { "executable": "python3", "args": ["scripts/research-hud-controls.py", "<hash-verified-original-exe>"] },

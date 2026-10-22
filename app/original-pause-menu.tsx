@@ -3,6 +3,8 @@ import font from './original-pause-font.json'
 import type { IngameMenuAssets } from './frontend-assets'
 import type { CheckpointReadStatus } from './game-store'
 import { frontendScale } from './frontend-composition'
+import { CheckpointScrollArea } from './checkpoint-scroll-area'
+import { CHECKPOINT_COPY_WIDTH } from './checkpoint-scroll'
 import shared from './original-main-menu.module.css'
 import styles from './original-pause-menu.module.css'
 
@@ -53,7 +55,7 @@ function MenuText({
 
 // These browser checkpoint messages are not original save-slot text. Keep the
 // in-game font at its native size; only the bounded copy area may scroll.
-// The 432px body reserves the HUD gutter; 400px leaves room for its scrollbar.
+// The centered copy reserves equal gutters for the original-art scrollbar.
 function CheckpointText({
   text,
   ready,
@@ -70,13 +72,13 @@ function CheckpointText({
     let line = ''
     for (const word of display.split(' ')) {
       const next = line ? `${line} ${word}` : word
-      if (textWidth(next) <= 400) line = next
+      if (textWidth(next) <= CHECKPOINT_COPY_WIDTH) line = next
       else {
         if (line) lines.push(line)
         line = ''
         // A long technical token still wraps without shrinking or clipping.
         for (const letter of word) {
-          if (textWidth(line + letter) > 400) {
+          if (textWidth(line + letter) > CHECKPOINT_COPY_WIDTH) {
             lines.push(line)
             line = ''
           }
@@ -436,35 +438,37 @@ export function OriginalPauseMenu(props: Props) {
             <h2 className={styles.checkpointTitle} aria-label={panelTitles[panel]}>
               <MenuText text={panelTitles[panel]!} highlighted={false} ready={ready} />
             </h2>
-            <div className={styles.checkpointBody} tabIndex={0} aria-label="Checkpoint details">
-              <CheckpointText
-                text="One browser checkpoint. No original multi-slot saves."
-                ready={ready}
-              />
-              {panel === 'save' ? (
-                <>
-                  <CheckpointText
-                    text={props.saveDisabledReason ?? 'Saving replaces the previous checkpoint.'}
-                    ready={ready}
-                  />
-                  {notice && <CheckpointText text={notice} ready={ready} status />}
-                </>
-              ) : (
-                <>
-                  <CheckpointText
-                    text={checkpointNotice(props.checkpointReadStatus, props.hasCheckpoint)}
-                    ready={ready}
-                    status
-                  />
-                  {props.hasCheckpoint && props.checkpointReadStatus !== 'read' && (
-                    <CheckpointText text="Checkpoint available in this session." ready={ready} />
-                  )}
-                  <CheckpointText
-                    text="Loading replaces the current world and discards unsaved progress."
-                    ready={ready}
-                  />
-                </>
-              )}
+            <div className={styles.checkpointBody}>
+              <CheckpointScrollArea key={panel}>
+                <CheckpointText
+                  text="One browser checkpoint. No original multi-slot saves."
+                  ready={ready}
+                />
+                {panel === 'save' ? (
+                  <>
+                    <CheckpointText
+                      text={props.saveDisabledReason ?? 'Saving replaces the previous checkpoint.'}
+                      ready={ready}
+                    />
+                    {notice && <CheckpointText text={notice} ready={ready} status />}
+                  </>
+                ) : (
+                  <>
+                    <CheckpointText
+                      text={checkpointNotice(props.checkpointReadStatus, props.hasCheckpoint)}
+                      ready={ready}
+                      status
+                    />
+                    {props.hasCheckpoint && props.checkpointReadStatus !== 'read' && (
+                      <CheckpointText text="Checkpoint available in this session." ready={ready} />
+                    )}
+                    <CheckpointText
+                      text="Loading replaces the current world and discards unsaved progress."
+                      ready={ready}
+                    />
+                  </>
+                )}
+              </CheckpointScrollArea>
             </div>
             {panel === 'save' ? (
               <MenuRow
