@@ -55,7 +55,7 @@ function TextPane({ rows, rect, offset = 0, discovery, onNavigate }: {
           event.preventDefault(); event.stopPropagation()
           if (event.detail === 0) onNavigate(link.target)
         }}><Glyphs text={node.text} font={font} /></button>
-    })))}
+    }))}
   </div>
 }
 

@@ -50,6 +50,13 @@ export function layoutHelpText(text: string, width: number, titleFont: PopupFont
       else if (tag === 'b' || tag === '/t' || tag === '/b') font = 4
       else if (/^a \d+$/.test(tag)) link = Number(tag.slice(2))
       else if (tag === '/a') link = -1
+      else if (tag === 'a/') {
+        // Shipped LANG00 topic1029 ends with <a/>, not </a>. Exact tag
+        // matching returns0 at00426128;0042559c–b0 consumes its source
+        // count but bypasses00425797–b7. Keep the current link/run/break.
+        runCount += tag.length + 2
+        continue
+      }
       else if (/^i \d+$/.test(tag) && inlineImage) {
         const image = inlineImage(Number(tag.slice(2)))
         if (!image || ![image.width, image.height].every(n => Number.isInteger(n) && n > 0))

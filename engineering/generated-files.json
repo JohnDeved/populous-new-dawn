@@ -2,6 +2,18 @@
   "version": 1,
   "owners": [
     {
+      "id": "native-help-article-art",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-help-article-art.py", "<verified-game-root>"] },
+      "callers": ["scripts/import-help-article-art.py", "app/help-document.ts"],
+      "inputs": ["scripts/import-help-ui.py", "scripts/import-result-ui.py", "scripts/import-original.py", "decomp/research/native-help/README.md"],
+      "outputs": [
+        { "path": "app/original-help-article.json", "type": "file", "tracked": true, "protected": true },
+        { "path": "public/original/help-article", "type": "directory", "tracked": true, "protected": true }
+      ],
+      "recording": "Hash-pinned original EXE, HFX and palette data only. --check is read-only. Existing output/reuse bytes must match; missing outputs use exclusive creation with symlink and parent-containment rejection. No original executable execution or shared-bank mutation. The independently matched retained HUD atlases are reused for runtime navigation."
+    },
+    {
       "id": "native-help-ui",
       "kind": "imported-assets",
       "generator": {

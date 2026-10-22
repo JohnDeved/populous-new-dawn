@@ -41,6 +41,21 @@ test('all 88 original texts use supported markup and all 21 image slots retain o
   for (const slot of [-1, 21, 0.5, NaN]) assert.throws(() => helpInlineImage(slot), /Unimported/)
 })
 
+test('the shipped malformed a/ tag is consumed without closing or splitting its link', () => {
+  assert.ok(art.topics['1029'].text.endsWith('Worship Object<a/>'))
+  const retained = layoutHelpText('<a 58>A<a/>B', 100).rows[0].nodes.filter(node => node.text)
+  assert.equal(retained.length, 1)
+  assert.deepEqual(retained.map(node => [node.text, node.link, node.sourceCount]), [['AB', 58, 6]])
+  const closed = layoutHelpText('<a 58>A</a>B', 100).rows[0].nodes.filter(node => node.text)
+  assert.deepEqual(closed.map(node => [node.text, node.link]), [['A', 58], ['B', -1]])
+  const wrapped = layoutHelpText('<a 58>A <a/>AA', 12)
+  assert.deepEqual(wrapped.rows.map(row => row.text), ['A ', 'AA'])
+  assert.deepEqual(wrapped.rows.flatMap(row => row.nodes.filter(node => node.text).map(node =>
+    [node.sourceStart, node.sourceCount, node.link])), [[6, 2, 58], [8, 6, 58]],
+    'native rollback retains the previous break and reconsumes the unknown tag on the next row')
+  assert.throws(() => layoutHelpText('<unverified>A', 100), /Unsupported/)
+})
+
 test('inline layout preserves native run replacement and overflow bookkeeping', () => {
   const image = { id: 1, url: '/fixture.png', width: 80, height: 30 }
   const same = layoutHelpText('A<i 0>B', 100, 3, () => image)

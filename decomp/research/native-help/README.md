@@ -239,3 +239,29 @@ states, and `004aa27f–004aa2b8` maps key 0xf0 to the known left-button pulse f
 Thus the navigation addresses `984681` / `984781` are those slots, not guessed
 previous-frame state. Other writers and the native counter cadence still require
 integration review. These new modules and tests remain unexecuted and inactive.
+
+
+### First full-source gate and shipped malformed markup
+
+The first guarded gate at `2b39a4fcaaf3d841c59b02b1543aa6a1181316cd`
+ran 54 focused tests: 53 passed and one failed. It exposed the original topic1029
+`<a/>` typo, which the strict parser had rejected. Type/format checks separately
+exposed an extra JSX closing parenthesis and unformatted staged source. All raw
+failures, unchanged source/runtime bindings and owned-process cleanup are retained
+in the external `full-validation-01` evidence. These were not passing gates.
+
+The malformed tag is not corrected to `</a>`. Original `00425d60` compares exact
+UTF-16 tag names at `0059c108–0059c12b`; unknown names return0 at `00426128`.
+Caller `0042559c–004255b5` consumes the tag's source count, then skips the new-node
+and run-reset block `00425797–004257b8`. Renderer `0042673a–00426832` strips tag
+text independently. The narrow supported `<a/>` therefore keeps the active link,
+font, node and last-break state. Regressions cover an interior malformed tag,
+a genuine closing tag, and wrap rollback across the malformed tag. Other unknown
+markup remains an explicit unsupported condition. The original LANG00 is unchanged.
+Addressed original bytes are retained in `malformed-tag-1029.json` outside the
+checkout; the original executable was not run.
+
+The article metadata and47 newly owned source-palette PNGs are registered under
+`native-help-article-art` in the generated-file ownership manifest. This does not
+register or imply acceptance of the separately owned preview-worker supplement.
+All staged Help surfaces remain inactive; these fixes do not restore public Query.
