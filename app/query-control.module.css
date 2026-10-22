@@ -1,5 +1,5 @@
 .art{position:absolute;inset:0;pointer-events:none;image-rendering:pixelated}
-:global(.help-button):focus-visible{outline:0}
+:global(.help-button):has([data-query-art="source-bound"]):focus-visible{outline:0}
 .frame{position:absolute;inset:0;pointer-events:none}
 .frame i{position:absolute;background-repeat:repeat}
 .hover,.held{display:none}

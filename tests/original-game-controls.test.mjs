@@ -7,7 +7,7 @@ import { evaluatePage, pageButton, pageEffect, pageNode, pageSource } from './su
 test('actual HUD has one original Menu entry and retains only browser audio recovery in its footer', () => {
   const source = pageSource.getFullText()
   assert.doesNotMatch(source, /aria-label="Game settings"|aria-label=\{world\.paused \? 'Resume game'/)
-  const openMenu = () => {}, menu = evaluatePage(pageButton(['help-button']).getText(pageSource), { openMenu })
+  const openMenu = () => {}, menu = evaluatePage(pageButton(['help-button']).getText(pageSource), { openMenu, QueryControlArt: 'NativeQueryArt' })
   assert.equal(menu.type, 'button')
   assert.equal(menu.props['aria-label'], 'Menu')
   assert.equal(menu.props.onClick, openMenu)

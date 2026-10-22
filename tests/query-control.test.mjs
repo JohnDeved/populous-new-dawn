@@ -71,6 +71,9 @@ test('asset failure is explicit recovery, never fake native success or removed M
   const fallback = render()
   assert.equal(fallback.props['data-query-art'], 'failed')
   assert.equal(tree(fallback).find(node => node.props.className === 'fallback').props.children, '?')
+  const css = read('app/query-control.module.css')
+  assert.match(css, /:has\(\[data-query-art="source-bound"\]\):focus-visible\{outline:0\}/)
+  assert.doesNotMatch(css, /:global\(\.help-button\):focus-visible\{outline:0\}/, 'failed artwork retains the browser recovery focus indicator')
 })
 
 test('all28 original Query glyph/frame assets retain declared bytes and source boundaries', () => {
