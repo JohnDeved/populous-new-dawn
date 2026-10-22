@@ -319,7 +319,7 @@ test('an asset failure remains scoped to its selected world even when banks reus
 
 // Run the real failure render/callback, but do not start a renderer or simulate
 // browser default dispatch. The tests below supply that one button-click boundary.
-function sceneRecoveryFixture() {
+function sceneRecoveryFixture(failed = true) {
   const source = ts.createSourceFile('world-selector-scene.tsx',
     readFileSync(new URL('../app/world-selector-scene.tsx', import.meta.url), 'utf8'),
     ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
@@ -335,7 +335,7 @@ function sceneRecoveryFixture() {
     useRef: current => ({current}), useEffect() {},
     useState() {
       const index = state++
-      return index === 0 ? [true, () => assert.fail('render does not change failure state')]
+      return index === 0 ? [failed, () => assert.fail('render does not change failure state')]
         : index === 1 ? [generation, update => {generation = update(generation)}]
           : [recoveryFonts, update => {recoveryFonts = update(recoveryFonts)}]
     },
@@ -345,10 +345,12 @@ function sceneRecoveryFixture() {
   const render = Function(...Object.keys(bindings), `${code}\nreturn WorldSelectorScene`)(...Object.values(bindings))
   const tree = () => {state = 0; return render({mission: 1, progressionMission: 1})}
   const buttons = nodes(tree(), node => node.type === 'button')
-  assert.equal(buttons.length, 1)
-  assert.equal(buttons[0].props['aria-label'], 'Retry scene')
-  assert.equal(buttons[0].props.type, 'button')
-  assert.equal(buttons[0].children[0].props.text, 'Retry scene')
+  assert.equal(buttons.length, failed ? 1 : 0)
+  if (failed) {
+    assert.equal(buttons[0].props['aria-label'], 'Retry scene')
+    assert.equal(buttons[0].props.type, 'button')
+    assert.equal(buttons[0].children[0].props.text, 'Retry scene')
+  }
   return {button: buttons[0], tree, get generation() {return generation}}
 }
 
@@ -360,27 +362,29 @@ test('scene recovery retains accessible disclosure and independent native font f
   assert.equal(status.length, 1)
   assert.equal(status[0].children[0].children.join('').trim(),
     'Star-system image unavailable. Mission controls still work.')
-  for (const name of ['feft33we', 'fehi33we', 'felo33we']) {
+  assert.equal(font('feft33we'), undefined, 'unused dark menu artwork is not a recovery dependency')
+  for (const name of ['fehi33we', 'felo33we']) {
     assert.equal(font(name).props.hidden, true)
     assert.equal(font(name).props.alt, '')
   }
   assert.equal(text('Retry scene').props.ready, false)
   assert.equal(text('Star-system image unavailable.').props.ready, false)
-  font('feft33we').props.onLoad()
-  assert.equal(text('Retry scene').props.ready, false, 'normal-only decoding must not hide hover text')
-  font('fehi33we').props.onLoad()
-  assert.equal(text('Retry scene').props.ready, true)
-  assert.equal(text('Mission controls still work.').props.ready, false)
   font('felo33we').props.onLoad()
+  assert.equal(text('Retry scene').props.ready, false, 'gold-only decoding must not hide hover text')
   for (const label of ['Star-system image unavailable.', 'Mission controls still work.']) {
     assert.equal(text(label).props.ready, true)
     assert.equal(text(label).props.low, true)
   }
+  font('fehi33we').props.onLoad()
+  assert.equal(text('Retry scene').props.ready, true)
   font('fehi33we').props.onError()
   assert.equal(text('Retry scene').props.ready, false, 'failed artwork keeps the readable action fallback')
   assert.equal(text('Star-system image unavailable.').props.ready, true)
+  font('fehi33we').props.onLoad()
+  assert.equal(text('Retry scene').props.ready, true)
   font('felo33we').props.onError()
   assert.equal(text('Star-system image unavailable.').props.ready, false)
+  assert.equal(text('Retry scene').props.ready, false, 'gold failure keeps normal Retry readable too')
   f.button.props.onClick()
   assert.equal(f.generation, 1, 'font failure does not disable Retry')
 })
@@ -407,7 +411,7 @@ test('scene recovery draws the imported frontend glyph advances without a system
     const bitmap = text({text: label, ready: true, low})
     assert.equal(bitmap.props['aria-hidden'], 'true')
     const glyphs = nodes(bitmap, node => node.type === 'i')
-    const bank = frontend.banks[low ? 'felo33we' : 'feft33we']
+    const bank = frontend.banks.felo33we
     assert.equal(glyphs.length, label.length)
     assert.ok([...label].reduce((width, letter) => width + bank.rects[letter.charCodeAt(0) - 32].w, 0) <= 600,
       'each line fits the original frontend logical width')
@@ -422,9 +426,43 @@ test('scene recovery draws the imported frontend glyph advances without a system
       if (!low) assert.deepEqual(frontend.banks.fehi33we.rects[letter.charCodeAt(0) - 32], glyph,
         'highlight changes native pixels without shifting the menu row')
     }
-    assert.equal(frontend.banks.fehi33we.width, frontend.banks.feft33we.width)
-    assert.equal(frontend.banks.fehi33we.height, frontend.banks.feft33we.height)
+    assert.equal(frontend.banks.fehi33we.width, frontend.banks.felo33we.width)
+    assert.equal(frontend.banks.fehi33we.height, frontend.banks.felo33we.height)
   }
+})
+
+test('unfocused scene Retry uses unmodified original gold artwork on the black failure clear', () => {
+  const css = readFileSync(new URL('../app/world-selector.module.css', import.meta.url), 'utf8')
+  const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+  const rule = selector => {
+    const found = rules.find(([, selectors]) => selectors.trim() === selector)
+    assert.ok(found, `recovery rule exists: ${selector}`)
+    return Object.fromEntries(found[2].split(';').filter(item => item.trim()).map(item => {
+      const colon = item.indexOf(':')
+      return [item.slice(0, colon).trim(), item.slice(colon + 1).trim()]
+    }))
+  }
+  // Remove comments only for selector lookup, never change the live CSS.
+  for (const entry of rules) entry[1] = entry[1].replace(/\/\*[\s\S]*?\*\//g, '')
+  const normal = rule('.selector .sceneRetry')
+  assert.equal(rule('.dialog').background, '#000')
+  assert.equal(normal['--selector-recovery-font'], "url('/original/frontend/felo33we.png')")
+  assert.equal(rule('.selector .sceneRetry:hover, .selector .sceneRetry:focus-visible')['--selector-recovery-font'],
+    "url('/original/frontend/fehi33we.png')")
+  for (const [name, expected] of Object.entries({background: 'transparent', border: '0',
+    'border-radius': '0', 'min-height': '44px', 'pointer-events': 'auto',
+    'min-width': 'calc(var(--panel-width) * 200 / 640)'})) assert.equal(normal[name], expected)
+  assert.deepEqual(rule('.selector .sceneRetry:focus-visible'),
+    {outline: '1px solid #fff1bb', 'outline-offset': '1px'})
+  for (const [, selectors, declarations] of rules.filter(([, selectors]) => /sceneRetry|sceneRecovery/.test(selectors))) {
+    assert.doesNotMatch(declarations, /(?:^|;)\s*(?:filter|opacity|mix-blend-mode)\s*:/,
+      `original recovery pixels stay unmodified: ${selectors.trim()}`)
+  }
+  assert.equal(rule('.selector button:disabled').opacity, '.5', 'disabled controls retain existing treatment')
+  const pending = sceneRecoveryFixture(false)
+  assert.equal(nodes(pending.tree(), node => node.props.role === 'status').length, 0)
+  assert.equal(nodes(pending.tree(), node => node.type === 'img').length, 0, 'no recovery art during loading/ready render')
+  assert.equal(nodes(pending.tree(), node => node.type === 'canvas')[0].props.style.visibility, 'visible')
 })
 
 function keyTarget(tag, props = {}, parent = null) {

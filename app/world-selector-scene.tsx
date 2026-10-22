@@ -5,8 +5,9 @@ import { SelectorRenderer } from './world-selector-renderer'
 import frontend from './original-frontend.json'
 import styles from './world-selector.module.css'
 
-// Browser recovery is not a native menu, but uses the same frontend glyphs and
-// normal/highlight states as the original menu. Keep readable text if art fails.
+// Browser recovery is not a native menu. Use the original gold label bank on the
+// black failure clear, then the original pale highlight for the Retry action.
+// Keep readable text if art fails; this does not change native menu state mapping.
 function SceneRecoveryText({
   text,
   ready,
@@ -22,8 +23,7 @@ function SceneRecoveryText({
         {text}
       </span>
     )
-  const name = low ? 'felo33we' : 'feft33we'
-  const bank = frontend.banks[name]
+  const bank = frontend.banks.felo33we
   const scaled = (pixels: number) => `calc(var(--panel-width) * ${pixels} / 640)`
   return (
     <span className={styles.sceneRecoveryText} aria-hidden="true">
@@ -154,7 +154,7 @@ export function WorldSelectorScene({
       />
       {failed && (
         <div className={styles.sceneFailure}>
-          {['feft33we', 'fehi33we', 'felo33we'].map(name => (
+          {['fehi33we', 'felo33we'].map(name => (
             <img
               key={name}
               src={`/original/frontend/${name}.png`}
@@ -187,7 +187,7 @@ export function WorldSelectorScene({
           >
             <SceneRecoveryText
               text="Retry scene"
-              ready={recoveryFonts.includes('feft33we') && recoveryFonts.includes('fehi33we')}
+              ready={recoveryFonts.includes('felo33we') && recoveryFonts.includes('fehi33we')}
             />
           </button>
         </div>

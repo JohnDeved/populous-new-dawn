@@ -404,7 +404,7 @@ export async function failureEpisode({page,output,receipt}) {
         await select(page,1).focus()
         const sample=await styles()
         assert.equal(sample.background,'rgba(0, 0, 0, 0)');assert.equal(sample.border,'0px');assert.equal(sample.radius,'0px')
-        assert.match(sample.font,/frontend\/feft33we\.png/);assert.match(sample.noticeFont,/frontend\/felo33we\.png/)
+        assert.match(sample.font,/frontend\/felo33we\.png/);assert.match(sample.noticeFont,/frontend\/felo33we\.png/)
         assert.ok(sample.height>=44);assert.ok(sample.scrollWidth<=width)
         assert.ok(sample.bounds.every(b=>b.left>=0&&b.right<=width+.5&&b.top>=0&&b.bottom<=height+.5),'Native glyphs remain within the viewport')
         samples.push(sample)
@@ -458,14 +458,21 @@ export async function failureEpisode({page,output,receipt}) {
       await page.reload({waitUntil:'domcontentloaded'});await open(page);await failure()
       assert.ok(failures>0,'Font fallback must follow an observed failed request')
       if(font==='felo33we') {
-        await retry().locator('i').first().waitFor({state:'visible'})
+        assert.equal(await retry().locator('i').count(),0,'Normal Retry must not depend on failed gold artwork')
+        assert.equal(await retry().innerText(),'Retry scene')
+        assert.match(await retry().locator('[aria-hidden="true"]').evaluate(n=>getComputedStyle(n).fontFamily),/Georgia/)
         assert.equal(await recovery().getByRole('status').locator('i').count(),0)
         assert.match(await recovery().getByRole('status').locator('[aria-hidden="true"]').first().evaluate(n=>getComputedStyle(n).fontFamily),/Georgia/)
-      } else {
+      } else if(font==='fehi33we') {
         await recovery().getByRole('status').locator('i').first().waitFor({state:'visible'})
         assert.equal(await retry().locator('i').count(),0)
         assert.equal(await retry().innerText(),'Retry scene')
         assert.match(await retry().locator('[aria-hidden="true"]').evaluate(n=>getComputedStyle(n).fontFamily),/Georgia/)
+      } else {
+        await bitmapReady()
+        await page.mouse.move(0,0);await select(page,1).focus()
+        assert.match((await styles()).font,/frontend\/felo33we\.png/,
+          'Failure of the unused dark menu bank must not hide readable recovery artwork')
       }
       await page.screenshot({path:resolve(output,`scene-recovery-${font}-failed.png`)})
       await dismiss() // Failed scenes also cancel draws/listeners on ordinary Escape.
@@ -480,7 +487,7 @@ export async function failureEpisode({page,output,receipt}) {
   const expected=receipt.errors.filter(e=>e==='Failed to load resource: net::ERR_FAILED')
   assert.ok(expected.length>0,'Network injection must produce an observed failed resource')
   assert.deepEqual(receipt.errors.filter(e=>e!=='Failed to load resource: net::ERR_FAILED'),[])
-  return {checks:['native campaign UI entry and Escape/main-menu ownership','real texture network failure','invalid texture dimensions','enabled/locked controls during fallback','original frontend bitmap layout and hover/focus','all three font-failure fallbacks','Enter/Space including held keys retry without mission launch','real WEBGL_lose_context loss/restoration','no draws after ready or failed scene dismissal'],renderer,samples,observations,expectedResourceErrors:expected,limits:['Explicit resource/context failures, not native failure-screen equivalence','Headless renderer observations, not hardware performance','No debug selector or injected campaign progression']}
+  return {checks:['native campaign UI entry and Escape/main-menu ownership','real texture network failure','invalid texture dimensions','enabled/locked controls during fallback','original gold bitmap normal state and pale hover/focus','gold/highlight font-failure fallbacks and unused dark-bank independence','Enter/Space including held keys retry without mission launch','real WEBGL_lose_context loss/restoration','no draws after ready or failed scene dismissal'],renderer,samples,observations,expectedResourceErrors:expected,limits:['Explicit resource/context failures, not native failure-screen equivalence','Headless renderer observations, not hardware performance','No debug selector or injected campaign progression']}
 }
 
 

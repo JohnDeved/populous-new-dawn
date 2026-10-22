@@ -32,7 +32,9 @@
 .sceneRecoveryText { display: inline-flex; align-items: flex-start; pointer-events: none; image-rendering: pixelated; image-rendering: crisp-edges; }
 .sceneRecoveryText i { display: block; flex: none; background-repeat: no-repeat; }
 .sceneRecoveryFallback { color: #fff1bb; font: calc(var(--panel-width) * 22 / 640)/calc(var(--panel-width) * 28 / 640) Georgia, serif; text-shadow: 1px 2px #000; white-space: nowrap; }
-.selector .sceneRetry { --selector-recovery-font: url('/original/frontend/feft33we.png'); display: inline-flex; align-items: center; justify-content: center; min-width: calc(var(--panel-width) * 200 / 640); min-height: 44px; padding: 0; border: 0; border-radius: 0; background: transparent; pointer-events: auto; }
+/* The necessary browser recovery action uses the original gold label palette:
+   the normal menu bank is too dark on the failed scene's black clear. */
+.selector .sceneRetry { --selector-recovery-font: url('/original/frontend/felo33we.png'); display: inline-flex; align-items: center; justify-content: center; min-width: calc(var(--panel-width) * 200 / 640); min-height: 44px; padding: 0; border: 0; border-radius: 0; background: transparent; pointer-events: auto; }
 .selector .sceneRetry:hover, .selector .sceneRetry:focus-visible { --selector-recovery-font: url('/original/frontend/fehi33we.png'); }
 .selector .sceneRetry:focus-visible { outline: 1px solid #fff1bb; outline-offset: 1px; }
 .selectedTitle, .panel { z-index: 1; }
