@@ -75,6 +75,7 @@ export function recoveryStateFromSpaceSnapshot(delivery) {
 }
 
 export const recoveryInputContract = 'public-setup-then-response-v1'
+export const recoveryRetryInputContract = 'public-setup-cumulative-response-v2'
 
 // Default callers retain the original shared 2500ms preparation/input bound.
 // Explicit setup callers may instead spend their EXISTING public UI
@@ -82,10 +83,12 @@ export const recoveryInputContract = 'public-setup-then-response-v1'
 // phase clipped to the SAME absolute action/episode deadline. See the contract
 // note in engineering/recovery-input-budget.md. This is not a latency SLA.
 export async function skipPauseIntroduction(page, {
-  timeout = 2500, setupTimeout, deadlineAt, signal, trace = {},
+  timeout = 2500, setupTimeout, deadlineAt, signal, trace = {}, popupRetryPreparation = false,
 } = {}) {
   if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid recovery input timeout')
   const separateSetup = setupTimeout !== undefined
+  if (typeof popupRetryPreparation !== 'boolean' || (popupRetryPreparation && !separateSetup))
+    throw new RangeError('Retry preparation accounting requires explicit public setup')
   if (separateSetup && (!Number.isFinite(setupTimeout) || setupTimeout <= 0 || !Number.isFinite(deadlineAt)))
     throw new RangeError('Public recovery setup requires its existing UI allowance and outer deadline')
   if (separateSetup && timeout > 2500) throw new RangeError('Recovery response cap cannot exceed 2500ms')
@@ -94,10 +97,22 @@ export async function skipPauseIntroduction(page, {
     actionDeadline = started + actionMs
   const cancellation = new AbortController(), actionSignal = cancellation.signal
   let responseDeadline = separateSetup ? null : actionDeadline
+  let responseStarted, retryPreparationMs = 0, retryCount = 0, responseWindow, pendingRetryPreparation
+  const updateResponseEvidence = (now = performance.now()) => {
+    if (!popupRetryPreparation) return
+    const excluded = retryPreparationMs + (pendingRetryPreparation === undefined ? 0 : now - pendingRetryPreparation)
+    trace.retryPreparationMs = excluded
+    trace.responseSpentMs = responseStarted === undefined ? 0 : now - responseStarted - excluded
+    trace.wallElapsedMs = now - started
+  }
   Object.assign(trace, { phase: 'start', preparation: {}, completed: [], attempts: [],
-    contract: separateSetup ? recoveryInputContract : 'shared-input-v1',
-    actionCapMs: actionMs, responseCapMs: timeout })
-  const timedOut = () => new Error(`Recovery introduction input timed out: ${JSON.stringify({ ...trace, elapsedMs: performance.now() - started })}`)
+    contract: popupRetryPreparation ? recoveryRetryInputContract : separateSetup ? recoveryInputContract : 'shared-input-v1',
+    actionCapMs: actionMs, responseCapMs: timeout,
+    ...(popupRetryPreparation ? { retryLimit: 1, retryCount: 0, retryPreparations: [], responseWindows: [] } : {}) })
+  const timedOut = () => {
+    updateResponseEvidence()
+    return new Error(`Recovery introduction input timed out: ${JSON.stringify({ ...trace, elapsedMs: performance.now() - started })}`)
+  }
   let closed = false, timer, deliveryError, rejectExpiry
   const remaining = () => {
     signal?.throwIfAborted()
@@ -131,16 +146,56 @@ export async function skipPauseIntroduction(page, {
       remaining()
       trace.setupFinishedMs = performance.now() - started
       // Starts before the fresh native-state read, not merely before key dispatch.
-      responseDeadline = Math.min(actionDeadline, performance.now() + timeout)
-      trace.responseStartedMs = performance.now() - started
+      responseStarted = performance.now()
+      responseDeadline = Math.min(actionDeadline, responseStarted + timeout)
+      trace.responseStartedMs = responseStarted - started
       trace.responseDeadlineMs = responseDeadline - started
+      if (popupRetryPreparation) {
+        responseWindow = { startedMs: trace.responseStartedMs, deadlineMs: trace.responseDeadlineMs }
+        trace.responseWindows.push(responseWindow)
+      }
       arm()
     }
     let prepared = separateSetup
     for (;;) {
-      // A rejected popup may require preparation again, but it never resets the
-      // already-running response deadline or the absolute action/episode cap.
-      if (!prepared) await prepare()
+      // V1 retains its single wall-clock response deadline. V2 excludes only
+      // this proven popup-rejection preparation, never a read/key/finalizer or
+      // an unknown outcome, from ONE cumulative response budget.
+      if (!prepared) {
+        if (!popupRetryPreparation) await prepare()
+        else {
+          assert.equal(trace.attempts.at(-1)?.outcome, 'popup-owned-unchanged-retry')
+          remaining()
+          const priorDeadline = responseDeadline, preparationStarted = performance.now()
+          responseWindow.finishedMs = preparationStarted - started
+          const preparation = { afterAttempt: trace.attempts.length, startedMs: preparationStarted - started,
+            actionDeadlineMs: actionDeadline - started, status: 'running', trace: {} }
+          trace.retryPreparations.push(preparation)
+          pendingRetryPreparation = preparationStarted
+          responseDeadline = null; arm() // The original absolute action deadline still owns preparation.
+          let preparationError
+          try {
+            await phase('prepare-world-input', () => prepareWorldInput(page, {
+              timeout: remaining(), trace: preparation.trace, signal: actionSignal,
+            }))
+            preparation.status = 'passed'
+          } catch (error) { preparationError = error; preparation.status = 'failed'; throw error }
+          finally {
+            preparation.finishedMs = performance.now() - started
+            preparation.elapsedMs = preparation.finishedMs - preparation.startedMs
+            retryPreparationMs += preparation.elapsedMs
+            pendingRetryPreparation = undefined
+            if (preparationError) preparation.error = String(preparationError)
+          }
+          remaining()
+          // Shift only by measured preparation duration, not a fresh 2500 ms.
+          responseDeadline = Math.min(actionDeadline, priorDeadline + preparation.elapsedMs)
+          trace.responseDeadlineMs = responseDeadline - started
+          responseWindow = { startedMs: preparation.finishedMs, deadlineMs: trace.responseDeadlineMs }
+          trace.responseWindows.push(responseWindow)
+          arm(); remaining()
+        }
+      }
       prepared = false
       remaining()
       const before = await phase('read-before-skip', () => page.evaluate(pauseStartupReady, true))
@@ -173,6 +228,10 @@ export async function skipPauseIntroduction(page, {
       if (deliveryError && after.action !== 'ready') throw deliveryError
       if (after.action === 'skip') {
         if (!deliveryError && popupRejectedSpace(attempt.ownership) && after.inputMask === before.inputMask && after.flybyFlags === before.flybyFlags) {
+          if (popupRetryPreparation) {
+            assert.ok(retryCount < 1, 'Recovery permits only one proven popup-owned retry')
+            trace.retryCount = ++retryCount
+          }
           attempt.outcome = 'popup-owned-unchanged-retry'
           continue
         }
@@ -192,7 +251,11 @@ export async function skipPauseIntroduction(page, {
     clearTimeout(timer)
     signal?.removeEventListener('abort', aborted)
     if (!actionSignal.aborted) cancellation.abort(new Error('Recovery input action settled'))
-    trace.elapsedMs = performance.now() - started
+    const finished = performance.now()
+    trace.elapsedMs = finished - started
+    if (popupRetryPreparation && responseWindow && responseWindow.finishedMs === undefined)
+      responseWindow.finishedMs = trace.elapsedMs
+    updateResponseEvidence(finished)
   }
 }
 

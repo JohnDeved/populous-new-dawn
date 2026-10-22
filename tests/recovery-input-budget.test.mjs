@@ -5,11 +5,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import vm from 'node:vm'
 import { writePauseInputBudgets } from '../scripts/local-render/original-pause-checkpoint-style.mjs'
-import { skipPauseIntroduction, recoveryInputContract, pauseStartupReady, recoverVisibleIntroduction, recoveryStateFromSpaceSnapshot } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
+import { skipPauseIntroduction, recoveryInputContract, recoveryRetryInputContract, pauseStartupReady, recoverVisibleIntroduction, recoveryStateFromSpaceSnapshot } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
 import { campaignPopupSnapshot } from '../scripts/browser-world-input.mjs'
 import { beginSpaceOwnership, endSpaceOwnership, endSpaceOwnershipSnapshot } from '../scripts/browser-space-ownership.mjs'
 
-function fixture(t, { setupMs = 60, readMs = 0, keyMs = 0, reject = false, natural = false, deliveryError, pauseRace = false, snapshotChange } = {}) {
+function fixture(t, { setupMs = 60, readMs = 0, keyMs = 0, installMs = 0, finalizeMs = 0, rejectCount = 0, reject = false, natural = false, deliveryError, pauseRace = false, snapshotChange } = {}) {
   let now = 0, open = true, presses = 0, reads = 0, records = []
   const calls = [], state = { action: 'skip', paused: false, inputMask: 64, flybyFlags: 17 }
   t.mock.method(performance, 'now', () => now)
@@ -17,10 +17,10 @@ function fixture(t, { setupMs = 60, readMs = 0, keyMs = 0, reject = false, natur
   const page = {
     evaluate: async (fn, id) => {
       if (fn === campaignPopupSnapshot) return [{ serial: '0', open }]
-      if (fn === beginSpaceOwnership) { calls.push('install-witness'); return }
+      if (fn === beginSpaceOwnership) { now += installMs; calls.push('install-witness'); return }
       if (fn === endSpaceOwnership) { calls.push('cleanup-witness'); return records }
       if (fn === endSpaceOwnershipSnapshot) {
-        calls.push('cleanup-witness-and-native')
+        now += finalizeMs; calls.push('cleanup-witness-and-native')
         const snapshot = { observationId: id, witnessPresent: true, records,
           state: { paused: state.paused, inputMask: state.inputMask, flybyFlags: state.flybyFlags } }
         snapshotChange?.(snapshot)
@@ -44,7 +44,7 @@ function fixture(t, { setupMs = 60, readMs = 0, keyMs = 0, reject = false, natur
     },
     keyboard: { press: async key => {
       assert.equal(key, 'Space'); presses++; calls.push('Space'); now += keyMs
-      if (reject) {
+      if (reject || presses <= rejectCount) {
         open = true
         records = [{ trusted: true, repeat: false, prevented: true, sameWorld: true,
           owners: ['0'], before: { ...state }, after: { ...state } }]
@@ -406,7 +406,7 @@ test('native-UI existing action allowance stays clipped to the original episode 
 test('pause-style caller explicitly opts in only with an outer deadline and persists failure traces', () => {
   const source = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-style.mjs', import.meta.url), 'utf8')
   assert.match(source, /receipt\.pauseStyleInputBudgets = inputBudgets/)
-  assert.match(source, /Number\.isFinite\(deadlineAt\)\s*\? \{ setupTimeout: 25000, deadlineAt, signal, trace \} : \{ signal, trace \}/)
+  assert.match(source, /Number\.isFinite\(deadlineAt\)\s*\? \{ setupTimeout: 25000, deadlineAt, signal, trace, popupRetryPreparation: true \} : \{ signal, trace \}/)
   assert.match(source, /finally \{ writePauseInputBudgets\(output, inputBudgets, inputError\) \}/)
   assert.doesNotMatch(source, /deadlineAt:\s*Date\.now/)
 })
@@ -438,4 +438,126 @@ test('actual pause-style input persistence keeps original error identity and rej
     else assert.equal(inputError.traceWriteError, undefined)
     if (!writeFails) assert.deepEqual(JSON.parse(readFileSync(join(output, 'pause-style-input-budgets.json'), 'utf8')), inputBudgets)
   }
+})
+
+
+const retryBudget = (trace, extra = {}) => ({ setupTimeout: 200, timeout: 40, deadlineAt: 1000,
+  popupRetryPreparation: true, trace, ...extra })
+test('explicit v2 excludes only the proven retry setup from one cumulative response budget', async t => {
+  const f = fixture(t, { rejectCount: 1, readMs: 5, installMs: 3, keyMs: 6, finalizeMs: 4 }), trace = {}
+  await skipPauseIntroduction(f.page, retryBudget(trace))
+  assert.equal(trace.contract, recoveryRetryInputContract)
+  assert.equal(f.presses, 2)
+  assert.equal(trace.retryCount, 1)
+  assert.equal(trace.retryPreparationMs, 60)
+  assert.equal(trace.responseSpentMs, 36)
+  assert.equal(trace.elapsedMs, 156)
+  assert.equal(trace.wallElapsedMs, 156)
+  assert.deepEqual(trace.responseWindows, [
+    { startedMs: 60, finishedMs: 78, deadlineMs: 100 },
+    { startedMs: 138, finishedMs: 156, deadlineMs: 160 },
+  ])
+  assert.equal(trace.retryPreparations[0].afterAttempt, 1)
+  assert.equal(trace.retryPreparations[0].status, 'passed')
+  assert.equal(trace.retryPreparations[0].trace.observedOpen, false)
+  assert.equal(trace.attempts[1].afterSource, 'atomic-post-dispatch-witness')
+})
+
+test('v2 never resets response time after the authorized retry preparation', async t => {
+  const f = fixture(t, { rejectCount: 1, keyMs: 15 }), trace = {}
+  await assert.rejects(skipPauseIntroduction(f.page, retryBudget(trace, { timeout: 25 })), /timed out/)
+  assert.equal(f.presses, 2)
+  assert.equal(trace.responseDeadlineMs, 145, '60 initial + 25 cumulative + 60 retry setup, not a fresh 25')
+  assert.equal(trace.retryPreparationMs, 60)
+  assert.ok(trace.responseSpentMs >= 25)
+})
+
+test('v2 permits only one positively witnessed retry even with unused absolute allowance', async t => {
+  const f = fixture(t, { setupMs: 5, reject: true }), trace = {}
+  await assert.rejects(skipPauseIntroduction(f.page, retryBudget(trace)), /only one proven popup-owned retry/)
+  assert.equal(f.presses, 2); assert.equal(trace.retryCount, 1)
+  assert.equal(trace.retryPreparations.length, 1)
+})
+
+test('v2 absolute action deadline still terminates retry preparation before another key', async t => {
+  const f = fixture(t, { rejectCount: 1, keyMs: 5 }), trace = {}
+  await assert.rejects(skipPauseIntroduction(f.page, retryBudget(trace, { setupTimeout: 100 })), /timed out/)
+  assert.equal(f.presses, 1)
+  assert.equal(trace.actionCapMs, 100)
+  assert.equal(trace.retryPreparations[0].status, 'failed')
+})
+
+test('v2 outer episode remainder overrides the nominal action allowance', async t => {
+  const f = fixture(t, { rejectCount: 1, keyMs: 5 }), trace = {}
+  await assert.rejects(skipPauseIntroduction(f.page, retryBudget(trace, { deadlineAt: 100 })), /timed out/)
+  assert.equal(f.presses, 1); assert.equal(trace.actionCapMs, 100)
+})
+
+for (const phase of ['readMs', 'installMs', 'keyMs', 'finalizeMs']) test(`v2 charges ${phase} to response, including cleanup`, async t => {
+  const f = fixture(t, { [phase]: 41 }), trace = {}
+  await assert.rejects(skipPauseIntroduction(f.page, retryBudget(trace)), /timed out/)
+  assert.equal(trace.retryPreparations.length, 0)
+  assert.ok(trace.responseSpentMs >= 40)
+  assert.ok(f.presses <= 1)
+})
+
+test('v2 missing atomic finalization never authorizes another preparation or key', async t => {
+  const primary = Error('atomic finalizer rejected after a fulfilled key')
+  const f = fixture(t, { rejectCount: 1, snapshotChange: () => { throw primary } }), trace = {}
+  await assert.rejects(skipPauseIntroduction(f.page, retryBudget(trace)), error => error === primary)
+  assert.equal(f.presses, 1)
+  assert.equal(trace.retryPreparations.length, 0)
+  assert.equal(trace.attempts[0].atomicAfter, undefined)
+  assert.equal(trace.attempts[0].delivery.keyDeliveryFailed, false)
+  assert.ok(f.calls.includes('cleanup-witness-and-native'))
+})
+
+test('v2 natural completion after setup sends no key and has no excluded retry time', async t => {
+  const f = fixture(t, { natural: true }), trace = {}
+  await skipPauseIntroduction(f.page, retryBudget(trace))
+  assert.equal(f.presses, 0); assert.equal(trace.retryCount, 0)
+  assert.equal(trace.retryPreparationMs, 0); assert.equal(trace.responseSpentMs, 0)
+})
+
+test('retry preparation accounting cannot silently migrate shared/default callers', async t => {
+  const f = fixture(t)
+  for (const options of [{ popupRetryPreparation: true }, { setupTimeout: 100, deadlineAt: 1000, popupRetryPreparation: 'yes' }])
+    await assert.rejects(skipPauseIntroduction(f.page, options), /explicit public setup/)
+  assert.equal(f.presses, 0)
+})
+
+
+for (const mutate of [record => { record.trusted = false }, record => { record.repeat = true },
+  record => { record.prevented = false }, record => { record.sameWorld = false },
+  record => { record.owners = [] }, record => { record.after.inputMask = 0 }])
+  test('v2 refuses unproven popup ownership before excluding time or retrying', async t => {
+    const f = fixture(t, { rejectCount: 1, snapshotChange: snapshot => mutate(snapshot.records[0]) }), trace = {}
+    await assert.rejects(skipPauseIntroduction(f.page, retryBudget(trace)), /not accepted/)
+    assert.equal(f.presses, 1); assert.equal(trace.retryCount, 0)
+    assert.equal(trace.retryPreparationMs, 0)
+  })
+
+for (const phase of ['retry-preparation', 'second-finalizer']) test(`v2 abort during ${phase} preserves the primary error and forbids late input`, async t => {
+  const f = fixture(t, { setupMs: 5, rejectCount: 1 }), trace = {}, controller = new AbortController()
+  const primary = Error(`aborted ${phase}`), evaluate = f.page.evaluate
+  let release, waiting = false
+  const pending = new Promise(resolve => { release = resolve })
+  f.page.evaluate = async (fn, arg) => {
+    if ((phase === 'retry-preparation' && f.presses === 1 && fn === campaignPopupSnapshot) ||
+      (phase === 'second-finalizer' && f.presses === 2 && fn === endSpaceOwnershipSnapshot)) {
+      waiting = true; return pending
+    }
+    return evaluate(fn, arg)
+  }
+  const run = skipPauseIntroduction(f.page, retryBudget(trace, { signal: controller.signal }))
+  for (let i = 0; i < 200 && !waiting; i++) await Promise.resolve()
+  assert.equal(waiting, true)
+  controller.abort(primary)
+  await assert.rejects(run, error => error === primary)
+  const presses = f.presses
+  release(phase === 'retry-preparation' ? [{ serial: '0', open: true }] : undefined)
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(f.presses, presses)
+  assert.ok(presses <= 2)
+  assert.equal(trace.attempts.at(-1).atomicAfter, phase === 'second-finalizer' ? undefined : trace.attempts[0].atomicAfter)
 })

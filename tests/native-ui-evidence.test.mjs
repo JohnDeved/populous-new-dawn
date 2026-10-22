@@ -624,17 +624,19 @@ test('episode supplies one absolute deadline from its original start and the sam
   assert.equal(received.signal.aborted, false)
 })
 
-function missionFixture(t, helper = `Object.assign(trace, { contract: recoveryInputContract,
+function missionFixture(t, helper = `Object.assign(trace, { contract: recoveryRetryInputContract,
   actionCapMs: Math.min(setupTimeout, deadlineAt - Date.now()), responseCapMs: 2500,
-  responseStartedMs: 3000, responseDeadlineMs: 5500, elapsedMs: 3100 })`) {
+  responseStartedMs: 3000, responseDeadlineMs: 5500, elapsedMs: 3100, wallElapsedMs: 3100,
+  responseSpentMs: 100, retryPreparationMs: 0, retryLimit: 1, retryCount: 0, retryPreparations: [],
+  responseWindows: [{ startedMs: 3000, finishedMs: 3100, deadlineMs: 5500 }] })`) {
   const root = fixture(t), calls = []
   put(root, 'scripts/browser-new-game.mjs', 'export async function openCampaignFromMainMenu(page) { page.calls.push("campaign") }')
   put(root, 'scripts/browser-game.mjs', 'export async function bindGame(page) { page.calls.push("bind") }')
   put(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs', `
-    export const recoveryInputContract = 'public-setup-then-response-v1'
+    export const recoveryRetryInputContract = 'public-setup-cumulative-response-v2'
     export function pauseStartupReady() {}
-    export async function skipPauseIntroduction(page, { setupTimeout, deadlineAt, signal, trace }) {
-      page.input = { setupTimeout, deadlineAt, signal, trace }; page.calls.push('skip')
+    export async function skipPauseIntroduction(page, { setupTimeout, deadlineAt, signal, trace, popupRetryPreparation }) {
+      page.input = { setupTimeout, deadlineAt, signal, trace, popupRetryPreparation }; page.calls.push('skip')
       ${helper}
     }`)
   const page = { calls, startup: 'skip',
@@ -650,6 +652,7 @@ test('ordinary mission explicitly passes existing page allowance, live deadline,
   await ordinaryMission(f.page, f.root, f)
   assert.equal(pageActionTimeout, 25000)
   assert.equal(f.page.input.setupTimeout, pageActionTimeout)
+  assert.equal(f.page.input.popupRetryPreparation, true)
   assert.equal(f.page.input.deadlineAt, f.deadlineAt)
   assert.equal(f.page.input.signal, f.signal); assert.equal(f.page.input.trace, f.trace)
   assert.equal(f.trace.status, 'passed'); assert.equal(f.trace.startupAction, 'skip')
@@ -663,7 +666,7 @@ test('ordinary mission rejects an old candidate before UI entry, and rejects ign
   await assert.rejects(ordinaryMission(old.page, old.root, old), /explicitly support/)
   assert.deepEqual(old.calls, []); assert.equal(old.trace.status, 'failed')
   const ignored = missionFixture(t, '/* Incorrect helper silently ignored the supplied budget. */')
-  await assert.rejects(ordinaryMission(ignored.page, ignored.root, ignored), /public-setup-then-response-v1/)
+  await assert.rejects(ordinaryMission(ignored.page, ignored.root, ignored), /public-setup-cumulative-response-v2/)
   assert.equal(ignored.trace.status, 'failed'); assert.equal(ignored.calls.filter(call => call === 'skip').length, 1)
 })
 
@@ -692,12 +695,15 @@ test('ordinary mission does not dispatch on natural completion, expired deadline
 })
 
 test('caller acceptance rejects shared, missing, nonfinite, inflated and overrun response evidence', () => {
-  const good = { contract: 'public-setup-then-response-v1', actionCapMs: 25000, responseCapMs: 2500,
-    responseStartedMs: 3000, responseDeadlineMs: 5500, elapsedMs: 3100 }
+  const good = { contract: 'public-setup-cumulative-response-v2', actionCapMs: 25000, responseCapMs: 2500,
+    responseStartedMs: 3000, responseDeadlineMs: 5500, elapsedMs: 3100, wallElapsedMs: 3100,
+  responseSpentMs: 100, retryPreparationMs: 0, retryLimit: 1, retryCount: 0, retryPreparations: [],
+  responseWindows: [{ startedMs: 3000, finishedMs: 3100, deadlineMs: 5500 }] }
   assertMissionInputBudget(good)
   for (const [key, value] of [['contract', 'shared-input-v1'], ['responseCapMs', 2501], ['actionCapMs', 25001],
     ['actionCapMs', NaN], ['responseStartedMs', -1], ['responseStartedMs', NaN], ['responseDeadlineMs', 5501],
-    ['responseDeadlineMs', 3000], ['responseDeadlineMs', Infinity], ['elapsedMs', 5501], ['elapsedMs', NaN]])
+    ['responseDeadlineMs', 3000], ['responseDeadlineMs', Infinity], ['elapsedMs', 5501], ['elapsedMs', NaN], ['responseSpentMs', 2501], ['responseSpentMs', 99], ['wallElapsedMs', 3101],
+    ['retryPreparationMs', 1], ['retryCount', 2], ['retryLimit', 2]])
     assert.throws(() => assertMissionInputBudget({ ...good, [key]: value }), undefined, key)
   assert.throws(() => assertMissionInputBudget({}))
 })
@@ -848,4 +854,22 @@ test('Sound context cleanup preserves a primary failure and rejects cleanup-only
   assert.deepEqual(report.cleanupErrors, [{ fallback: true, error: String(cleanup) }])
   await assert.rejects(closeSoundContext(context, {}, false, false), error => error === cleanup)
   const success = {}; await closeSoundContext({ close: async () => {} }, success, false, false); assert.deepEqual(success, {})
+})
+
+
+test('cumulative-response acceptance reconciles the exact authorized preparation interval', () => {
+  const good = { contract: 'public-setup-cumulative-response-v2', actionCapMs: 25000, responseCapMs: 2500,
+    responseStartedMs: 500, responseDeadlineMs: 4700, elapsedMs: 3000, wallElapsedMs: 3000,
+    responseSpentMs: 800, retryPreparationMs: 1700, retryLimit: 1, retryCount: 1,
+    attempts: [{ outcome: 'popup-owned-unchanged-retry' }, { outcome: 'completed' }],
+    retryPreparations: [{ afterAttempt: 1, status: 'passed', startedMs: 900, finishedMs: 2600, elapsedMs: 1700, actionDeadlineMs: 25000 }],
+    responseWindows: [{ startedMs: 500, finishedMs: 900, deadlineMs: 3000 }, { startedMs: 2600, finishedMs: 3000, deadlineMs: 4700 }] }
+  assertMissionInputBudget(good)
+  for (const mutate of [g => { g.responseWindows[1].deadlineMs = g.responseDeadlineMs = 5100 },
+    g => { g.retryPreparations[0].status = 'running' }, g => { g.attempts[0].outcome = 'unknown' },
+    g => { g.retryPreparations[0].startedMs = 800 }, g => { g.retryPreparations[0].afterAttempt = 2 },
+    g => { g.retryPreparations[0].elapsedMs = 1800 }, g => { g.responseWindows[1].startedMs = 2700 },
+    g => { g.retryPreparations[0].actionDeadlineMs = 26000 }]) {
+    const broken = structuredClone(good); mutate(broken); assert.throws(() => assertMissionInputBudget(broken))
+  }
 })

@@ -118,7 +118,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
         let inputError
         try {
           await skipPauseIntroduction(page, Number.isFinite(deadlineAt)
-            ? { setupTimeout: 25000, deadlineAt, signal, trace } : { signal, trace })
+            ? { setupTimeout: 25000, deadlineAt, signal, trace, popupRetryPreparation: true } : { signal, trace })
         } catch (error) { inputError = error; throw error }
         finally { writePauseInputBudgets(output, inputBudgets, inputError) }
       }

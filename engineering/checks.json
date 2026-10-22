@@ -29,7 +29,8 @@
         "tests/pause-keyboard-traversal.test.mjs",
         "tests/checkpoint-scrollbar.test.mjs",
         "tests/checkpoint-body-clearance.test.mjs",
-        "tests/fullscreen-clearance.test.mjs"
+        "tests/fullscreen-clearance.test.mjs",
+        "tests/recovery-input-budget.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -65,7 +66,9 @@
         "public/original/help/hfx-452.png",
         "public/original/help/hfx-453.png",
         "public/original/help/hfx-454.png",
-        "public/original/help/hfx-455.png"
+        "public/original/help/hfx-455.png",
+        "tests/recovery-input-budget.test.mjs",
+        "engineering/recovery-input-budget.md"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -110,7 +113,9 @@
         "public/original/help/hfx-452.png",
         "public/original/help/hfx-453.png",
         "public/original/help/hfx-454.png",
-        "public/original/help/hfx-455.png"
+        "public/original/help/hfx-455.png",
+        "tests/recovery-input-budget.test.mjs",
+        "engineering/recovery-input-budget.md"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
