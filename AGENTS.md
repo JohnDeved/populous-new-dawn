@@ -51,7 +51,7 @@ behavior, evidence quality, and existing user work. Read `GOAL.md` for direction
   Leave `.openai/hosting.json` untouched. Deployment, parity recording, credentials,
   paid services, and additional GitHub Actions need explicit authorization. The
   approved ready-PR full gate is documented in `engineering/continuous-integration.md`.
-- Select checks with `orchestration:plan -- --base <actual-base>` and inspect their
+- Select checks with `pnpm run orchestration:plan --base <actual-base>` and inspect their
   commands/side effects. Unknown changed paths require explicit review, never an
   empty check set. Context/contract/audit helpers are optional aids, not a second
   project-management system; see `engineering/contracts.md` when using them.
