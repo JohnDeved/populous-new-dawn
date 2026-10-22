@@ -97,7 +97,9 @@ test('unreadable or invalid responses never reflect response bodies or parser er
     () => Response.json(null),
     () => new Response(`${synthetic} ${responseSecret}`, { status: 403 }),
     () => new Response('x'.repeat(1024 * 1024 + 1)),
-    () => ({ ok: true, body: { async *[Symbol.asyncIterator]() { throw new Error(`${synthetic} ${responseSecret}`) } } }),
+    () => ({ ok: true, body: { async *[Symbol.asyncIterator]() {
+      yield Buffer.from('partial response'); throw new Error(`${synthetic} ${responseSecret}`)
+    } } }),
   ]
   for (const response of responses) {
     await t.test('reject unconfirmed mock response with uncertain outcome', async t => {
