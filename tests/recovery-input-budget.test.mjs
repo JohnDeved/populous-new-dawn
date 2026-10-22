@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { skipPauseIntroduction, pauseStartupReady, recoverVisibleIntroduction, recoveryStateFromSpaceSnapshot } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
+import { skipPauseIntroduction, recoveryInputContract, pauseStartupReady, recoverVisibleIntroduction, recoveryStateFromSpaceSnapshot } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
 import { campaignPopupSnapshot } from '../scripts/browser-world-input.mjs'
 import { beginSpaceOwnership, endSpaceOwnership, endSpaceOwnershipSnapshot } from '../scripts/browser-space-ownership.mjs'
 
@@ -380,4 +380,29 @@ test('actual key-delivery rejection retains fresh native-completion reconciliati
   assert.equal(trace.attempts[0].afterSource, 'fresh-native-read')
   assert.equal(trace.attempts[0].outcome, 'completed')
   assert.equal(trace.responseDeadlineMs, 25)
+})
+
+
+test('native-UI setup contract is explicit and keeps the existing25000ms action and2500ms response', async t => {
+  const f = fixture(t, { setupMs: 3000, readMs: 100 }), trace = {}
+  assert.equal(recoveryInputContract, 'public-setup-then-response-v1')
+  await skipPauseIntroduction(f.page, { setupTimeout: 25000, deadlineAt: 90000, signal: new AbortController().signal, trace })
+  assert.equal(trace.contract, recoveryInputContract); assert.equal(trace.actionCapMs, 25000)
+  assert.equal(trace.responseCapMs, 2500); assert.equal(trace.responseStartedMs, 3000)
+  assert.equal(trace.responseDeadlineMs, 5500); assert.equal(f.presses, 1)
+})
+
+test('native-UI existing action allowance stays clipped to the original episode and response caps', async t => {
+  const f = fixture(t, { setupMs: 3000, readMs: 2501 }), trace = {}
+  await assert.rejects(skipPauseIntroduction(f.page, { setupTimeout: 25000, deadlineAt: 5000, trace }), /timed out/)
+  assert.equal(trace.actionCapMs, 5000); assert.equal(trace.responseDeadlineMs, 5000)
+  assert.equal(f.presses, 0)
+})
+
+test('pause-style caller explicitly opts in only with an outer deadline and persists failure traces', () => {
+  const source = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-style.mjs', import.meta.url), 'utf8')
+  assert.match(source, /receipt\.pauseStyleInputBudgets = inputBudgets/)
+  assert.match(source, /Number\.isFinite\(deadlineAt\)\s*\? \{ setupTimeout: 25000, deadlineAt, signal, trace \} : \{ signal, trace \}/)
+  assert.match(source, /finally \{\s*writeFileSync\(resolve\(output, 'pause-style-input-budgets\.json'\), JSON\.stringify\(inputBudgets/)
+  assert.doesNotMatch(source, /deadlineAt:\s*Date\.now/)
 })

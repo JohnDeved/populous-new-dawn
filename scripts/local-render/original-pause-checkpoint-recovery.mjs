@@ -74,8 +74,10 @@ export function recoveryStateFromSpaceSnapshot(delivery) {
   return { action, paused: state.paused, inputMask: state.inputMask, flybyFlags: state.flybyFlags }
 }
 
+export const recoveryInputContract = 'public-setup-then-response-v1'
+
 // Default callers retain the original shared 2500ms preparation/input bound.
-// Explicit hosted setup callers may instead spend their EXISTING public UI
+// Explicit setup callers may instead spend their EXISTING public UI
 // allowance on initial popup/focus preparation, with a fresh <=2500ms response
 // phase clipped to the SAME absolute action/episode deadline. See the contract
 // note in engineering/recovery-input-budget.md. This is not a latency SLA.
@@ -93,7 +95,7 @@ export async function skipPauseIntroduction(page, {
   const cancellation = new AbortController(), actionSignal = cancellation.signal
   let responseDeadline = separateSetup ? null : actionDeadline
   Object.assign(trace, { phase: 'start', preparation: {}, completed: [], attempts: [],
-    contract: separateSetup ? 'public-setup-then-response-v1' : 'shared-input-v1',
+    contract: separateSetup ? recoveryInputContract : 'shared-input-v1',
     actionCapMs: actionMs, responseCapMs: timeout })
   const timedOut = () => new Error(`Recovery introduction input timed out: ${JSON.stringify({ ...trace, elapsedMs: performance.now() - started })}`)
   let closed = false, timer, deliveryError, rejectExpiry

@@ -18,9 +18,10 @@ export async function restorePausePreferenceWrite(page, primaryError) {
 // A presentation-only supplement to the durable/retry/save-failure scenarios.
 // Storage is deliberately unavailable before startup, producing the real store's
 // session-only Save and longest ordinary Load explanation without injected worlds.
-export default async function ({ browser, page, url, root, output, receipt, signal }) {
+export default async function ({ browser, page, url, root, output, receipt, signal, deadlineAt }) {
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
-  const records = [], screenshots = [], fullscreen = []
+  const records = [], screenshots = [], fullscreen = [], inputBudgets = []
+  receipt.pauseStyleInputBudgets = inputBudgets
   await page.close()
   for (const fallback of [false, true]) {
     signal.throwIfAborted()
@@ -86,7 +87,15 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       const startup = await page.waitForFunction(pauseStartupReady)
       const action = await startup.jsonValue()
       await startup.dispose()
-      if (action === 'skip') await skipPauseIntroduction(page)
+      if (action === 'skip') {
+        const trace = { fallback }; inputBudgets.push(trace)
+        try {
+          await skipPauseIntroduction(page, Number.isFinite(deadlineAt)
+            ? { setupTimeout: 25000, deadlineAt, signal, trace } : { signal, trace })
+        } finally {
+          writeFileSync(resolve(output, 'pause-style-input-budgets.json'), JSON.stringify(inputBudgets, null, 2) + '\n')
+        }
+      }
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
       await page.waitForFunction(() => window.testStore.getCheckpointReadStatus() === 'unavailable')
       await button('Menu').click()
