@@ -39,7 +39,7 @@ scopes are labelled as such, never reported as identical.
 
 The seven required serial episodes are startup logo; selector recovery; frontend
 and in-game Game/Sound preference-storage notices; frontend checkpoint notices;
-HUD sound activation; loading recovery; and original-style pause checkpoints.
+real Options audio activation; loading recovery; and original-style pause checkpoints.
 No baseline, missing, skipped, failed, timed-out or post-timeout success counts.
 They exercise ordinary Home/menu/Mission 1 entry, with explicitly labelled browser
 storage, resource, audio and WebGL failure boundaries, never fabricated native
@@ -72,13 +72,23 @@ Expected console resource errors must match concrete requests intentionally
 failed by a supplement; runtime errors and unrelated resource failures still fail.
 Chrome executable/configuration/version provenance is saved before launch, not
 only on success; each screenshot records viewport/DPR and available actual WebGL
-renderer observations. The HUD episode observes the recovered real AudioContext
-running state. Pending sound accepts either native or ARIA disabled semantics only
-with matching busy state, but requires the real control to retain focus. Repeated
-Enter/Space, held Space across rejected settlement and a physically hit-tested
+renderer observations. The Options audio episode enters through the shipped Menu,
+Options and browser-help controls. Opening this modal legitimately pauses the game;
+Continue restores its captured prior state without writing World/paused directly.
+Pending accepts native or ARIA disabled semantics with matching busy state. Actual
+focus is retained in evidence, including native disabled-button blur to body or the
+modal root; the same top-layer Options modal must still own input. Retry must be
+keyboard-reachable again through bounded real Tab navigation, never focus repair.
+Repeated Enter/Space, held Space across rejected settlement and a physically hit-tested
 pending pointer click must not leak into pause, overview, held gameplay keys or
 campaign popup acknowledgement. The observed scene must own the current world.
-Recovery still requires the real AudioContext to run; native Space mutes again.
+The complete serialized paused World, clock, camera and retained popup owners must
+stay unchanged, except the exact shipped failure notice on rejection. Serialization
+is compared inside the page; mismatches retain both complete strings. Successful
+retry is initially enabled but suspended under Options. Continue must then yield a
+real running AudioContext, playing media and the scheduled background audio. Native
+Space mutes again after reopening Options. Fullscreen must belong directly to the
+actual menu while open and be absent, with the removed Sound footer, in gameplay.
 Game and Sound storage faults are applied one key at a time and verify that the
 other preference write still succeeds.
 

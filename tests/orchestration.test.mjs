@@ -971,8 +971,25 @@ test('native UI checker changes select focused regressions without losing workfl
       .find(item => item.id === 'native-ui-evidence-tests')
     assert.ok(check)
     assert.equal(check.automation, 'safe')
-    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/native-ui-evidence.test.mjs'])
-    const paths = ['scripts/native-ui-evidence/hud-sound-control-style.mjs',
+    assert.deepEqual([check.executable, ...check.args], [
+      'node', '--test',
+      'tests/native-ui-evidence.test.mjs',
+      'tests/browser-options-audio.test.mjs',
+      'tests/pause-world-snapshot.test.mjs',
+      'tests/pause-clearance-batch.test.mjs',
+      'tests/pause-checker-registration.test.mjs',
+      'tests/pause-focus-observation.test.mjs',
+      'tests/pause-keyboard-traversal.test.mjs',
+      'tests/checkpoint-scrollbar.test.mjs',
+      'tests/checkpoint-body-clearance.test.mjs',
+      'tests/fullscreen-clearance.test.mjs',
+      'tests/options-copy-clearance.test.mjs',
+      'tests/recovery-input-budget.test.mjs',
+      'tests/original-loading-screen.test.mjs',
+      'tests/checkpoint-scroll-area.test.mjs',
+    ])
+    const paths = ['scripts/native-ui-evidence/options-audio-control-style.mjs',
+      'scripts/browser-options-audio.mjs', 'tests/browser-options-audio.test.mjs',
       'scripts/native-ui-evidence/policy.mjs', 'tests/native-ui-evidence.test.mjs',
       '.github/workflows/native-ui-evidence.yml', 'engineering/native-ui-evidence.md']
     for (const input of check.inputs) {

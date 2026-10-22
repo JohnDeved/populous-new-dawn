@@ -1,3 +1,4 @@
+import { setSoundThroughOptions } from './browser-options-audio.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
@@ -13,7 +14,7 @@ try {
         if (h.memoizedState?.current?.buffers instanceof Map) window.testAudio = h.memoizedState.current
     window.testScene.world.speed = 0
   })
-  await page.getByRole('button', { name: 'Enable sound', exact: true }).click()
+  await setSoundThroughOptions(page, true)
   await page.waitForFunction(() => window.testAudio.enabled && window.testAudio.backgroundTimer !== null)
   const loading = await page.evaluate(async () => {
     const a = window.testAudio

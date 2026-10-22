@@ -15,7 +15,7 @@ import { supervise } from '../scripts/native-ui-evidence/supervise.mjs'
 import { observeOptionsStorage, assertOptionsCopyClearance } from '../scripts/native-ui-evidence/options-copy-clearance.mjs'
 import { failPreferenceWrites, optionsViewportReady } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
 import { holdAudioResume, soundControlPending, soundOwnership, assertSoundOwnership,
-  pendingSoundPointerTarget, assertPendingSoundPointerTarget, prepareSoundPopup, closeSoundContext } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
+  pendingSoundPointerTarget, assertPendingSoundPointerTarget, prepareSoundPopup, closeSoundContext, assertAudioWorldUnchanged, tabToAudioControl, assertBrowserControlOwners } from '../scripts/native-ui-evidence/options-audio-control-style.mjs'
 import { ordinaryMission, assertMissionInputBudget, saveMissionInputTrace } from '../scripts/native-ui-evidence/ordinary-mission.mjs'
 import { runNativeUiEvidence } from '../scripts/native-ui-evidence/adapter.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from '../scripts/native-ui-evidence/files.mjs'
@@ -134,13 +134,13 @@ test('installed candidate Playwright import exposes chromium without launching a
 })
 test('trusted manifest includes adapter, new episodes, Chrome policy and exact workflow', () => {
   for (const path of ['scripts/native-ui-evidence/adapter.mjs', 'scripts/native-ui-evidence/options-storage-notice-style.mjs',
-    'scripts/native-ui-evidence/hud-sound-control-style.mjs', 'scripts/tutorial-browser/browser-config.mjs', '.github/workflows/native-ui-evidence.yml']) assert.equal(infrastructureInput(path), true)
+    'scripts/native-ui-evidence/options-audio-control-style.mjs', 'scripts/browser-options-audio.mjs', 'scripts/tutorial-browser/browser-config.mjs', '.github/workflows/native-ui-evidence.yml']) assert.equal(infrastructureInput(path), true)
   assert.equal(infrastructureInput('app/page.tsx'), false)
 })
 test('all seven supplements are mandatory with fixed ownership and unchanged 720-second new budget', () => {
-  assert.deepEqual(episodes.map(e => e.id), ['startup-logo', 'selector-recovery', 'options-storage', 'checkpoint-notice', 'hud-sound', 'loading-recovery', 'pause-checkpoint'])
+  assert.deepEqual(episodes.map(e => e.id), ['startup-logo', 'selector-recovery', 'options-storage', 'checkpoint-notice', 'options-audio', 'loading-recovery', 'pause-checkpoint'])
   assert.equal(episodes.filter(e => e.owner === 'candidate').length, 5)
-  assert.deepEqual(episodes.filter(e => e.owner === 'infrastructure').map(e => e.id), ['options-storage', 'hud-sound'])
+  assert.deepEqual(episodes.filter(e => e.owner === 'infrastructure').map(e => e.id), ['options-storage', 'options-audio'])
   assert.deepEqual(episodes.map(e => e.capMs), [120000, 120000, 90000, 90000, 90000, 90000, 90000])
   assert.deepEqual(limits, { buildMs: 120000, browserMs: 720000, jobMinutes: 20, maxContexts: 2, maxPages: 2,
     screenshots: 100, artifactBytes: 268435456, logBytes: 8388608, heapMiB: 768, cleanupMs: 5000 })
@@ -381,60 +381,127 @@ test('sound pending wait accepts native or ARIA disable without accepting missin
     document: { querySelector: () => null }, pending,
   }), false)
 })
-test('sound ownership reads actual focus and scene/world/popup identity and rejects each observed leak', () => {
-  const control = { tagName: 'BUTTON', getAttribute: () => 'Enable sound' }, world = { paused: false, inputMask: 0, status: 'playing' }, scene = {
-    world, focusPauseOwned: false, overviewActive: false, overviewStage: null, keys: new Set(),
-  }, popup = { dataset: { messageSerial: '17' } }
-  const sandbox = { window: { testStore: { getWorld: () => world }, testSceneRef: { current: scene } },
-    document: { activeElement: control, querySelector: () => control, querySelectorAll: () => [popup] } }
-  const snapshot = () => JSON.parse(JSON.stringify(vm.runInNewContext(`(${soundOwnership.toString()})()`, sandbox)))
-  const before = snapshot(); assertSoundOwnership(before, before)
-  for (const [target, key, value] of [
-    ['document', 'activeElement', { tagName: 'BODY', getAttribute: () => null }], ['world', 'paused', true], ['world', 'inputMask', 1],
-    ['scene', 'world', {}], ['scene', 'overviewActive', true], ['scene', 'focusPauseOwned', true],
-    ['scene', 'keys', new Set([' '])], ['popup', 'messageSerial', '18'],
+function audioOwnershipFixture() {
+  const f = { world: { paused: true, inputMask: 0, status: 'playing', time: 12, randomState: 37, units: [{ id: 1, x: 4 }] },
+    control: { tagName: 'BUTTON', getAttribute: () => '♫ Enable sound' },
+    body: { tagName: 'BODY', getAttribute: () => null }, popups: [{ dataset: { messageSerial: '17' } }] }
+  f.scene = { world: f.world, focusPauseOwned: false, overviewActive: false, overviewStage: null, keys: new Set(),
+    gameClock: { animationFrame: 7, animationTime: .3 }, camera: { position: { toArray: () => [1, 2, 3] } } }
+  f.modal = { tagName: 'DIALOG', getAttribute: () => 'Game menu', open: true, dataset: { panel: 'options' },
+    matches: () => true, querySelector: () => f.control, querySelectorAll: () => [f.control] }
+  f.dialogs = [f.modal]
+  f.document = { activeElement: f.control, body: f.body, querySelector: () => f.modal,
+    querySelectorAll: selector => selector === 'dialog[open]' ? f.dialogs : f.popups }
+  f.window = { testStore: { getWorld: () => f.world }, testSceneRef: { current: f.scene } }
+  f.snapshot = () => JSON.parse(JSON.stringify(vm.runInNewContext(`(${soundOwnership.toString()})()`, f)))
+  return f
+}
+test('Options audio preserves actual modal, focus, pause, clock, camera and popup ownership', () => {
+  const f = audioOwnershipFixture(), before = f.snapshot(); assertSoundOwnership(before, before)
+  for (const mutate of [
+    f => f.document.activeElement = f.body, f => f.world.paused = false, f => f.world.inputMask = 1,
+    f => f.scene.world = {}, f => f.scene.overviewActive = true, f => f.scene.focusPauseOwned = true,
+    f => f.scene.keys.add(' '), f => f.popups[0].dataset.messageSerial = '18', f => f.popups = [],
+    f => f.dialogs = [], f => f.dialogs.push(f.modal), f => f.modal.open = false,
+    f => f.modal.matches = () => false, f => f.modal.dataset.panel = 'root', f => f.modal.querySelectorAll = () => [],
+    f => f.scene.gameClock.animationFrame++, f => f.scene.gameClock.animationTime++,
+    f => f.scene.camera.position.toArray = () => [4, 2, 3],
   ]) {
-    const object = { document: sandbox.document, world, scene, popup: popup.dataset }[target], previous = object[key]
-    object[key] = value; assert.throws(() => assertSoundOwnership(before, snapshot())); object[key] = previous
+    const bad = audioOwnershipFixture(); mutate(bad)
+    assert.throws(() => assertSoundOwnership(before, bad.snapshot()))
   }
-  sandbox.document.querySelectorAll = () => []
-  assert.throws(() => assertSoundOwnership(before, snapshot()), /campaign popup/)
+  for (const nativeBlurOwner of ['body', 'modal']) {
+    f.document.activeElement = f[nativeBlurOwner]
+    const observed = f.snapshot()
+    assert.equal(observed.focused, false)
+    assert.doesNotThrow(() => assertSoundOwnership(before, observed, { disabledBlur: true }))
+    assert.throws(() => assertSoundOwnership(before, observed))
+  }
+  f.document.activeElement = { tagName: 'BUTTON', getAttribute: () => 'Unrelated control' }
+  assert.throws(() => assertSoundOwnership(before, f.snapshot(), { disabledBlur: true }))
+  f.document.activeElement = f.body; f.modal.matches = () => false
+  assert.throws(() => assertSoundOwnership(before, f.snapshot(), { disabledBlur: true }), /Options modal/)
 })
-test('failed sound ownership preserves the exact evaluated phase snapshot before throwing', async t => {
-  const root = fixture(t), file = resolve(root, 'hud-sound.json')
-  // Execute the shipped callback, not a reconstructed record/assert helper.
-  const source = read('scripts/native-ui-evidence/hud-sound-control-style.mjs')
-  const match = source.match(/const preserved = (async phase => \{[\s\S]+?\n        \})/)
-  assert.ok(match, 'The episode must retain its actual ownership observation callback')
-  for (const failure of ['focus', 'world', 'popup']) {
-    const control = { tagName: 'BUTTON', getAttribute: () => 'Enable sound' },
-      body = { tagName: 'BODY', getAttribute: () => null },
-      world = { paused: false, inputMask: 0, status: 'playing' },
-      scene = { world, focusPauseOwned: false, overviewActive: false, overviewStage: null, keys: new Set() },
-      popup = { dataset: { messageSerial: '17' } }
-    let popups = [popup]
-    const document = { activeElement: control, querySelector: () => control, querySelectorAll: () => popups }
-    const browserScope = { document, window: { testStore: { getWorld: () => world }, testSceneRef: { current: scene } } }
-    const snapshot = () => JSON.parse(JSON.stringify(vm.runInNewContext(`(${soundOwnership.toString()})()`, browserScope)))
-    const before = snapshot()
-    assert.deepEqual(before.activeElement, { tag: 'BUTTON', label: 'Enable sound' })
-    if (failure === 'focus') document.activeElement = body
-    else if (failure === 'world') world.paused = true
-    else popups = []
-    const observed = snapshot(), report = { checks: [] }
+test('failed audio ownership preserves the exact evaluated phase snapshot before throwing', async t => {
+  const root = fixture(t), file = resolve(root, 'options-audio.json')
+  const source = read('scripts/native-ui-evidence/options-audio-control-style.mjs')
+  const match = source.match(/const preserved = (async \(phase, options = \{\}\) => \{[\s\S]+?\n        \})/)
+  assert.ok(match, 'Execute the shipped observation callback, not a reconstructed recorder')
+  for (const failure of ['focus', 'world', 'popup', 'modal']) {
+    const f = audioOwnershipFixture(), before = f.snapshot()
+    if (failure === 'focus') f.document.activeElement = f.body
+    else if (failure === 'world') f.world.paused = false
+    else if (failure === 'popup') f.popups = []
+    else f.modal.matches = () => false
+    const observed = f.snapshot(), report = { checks: [] }
     let reads = 0, saves = 0
     const preserved = vm.runInNewContext(`(${match[1]})`, {
       page: { evaluate: async callback => { assert.equal(callback, soundOwnership); reads++; return observed } },
       soundOwnership, assertSoundOwnership, before, fallback: true, report,
       save: () => { saves++; writeFileSync(file, JSON.stringify(report)) },
     })
-    await assert.rejects(preserved(`pending-${failure}`), /Sound control must retain focus|pause or gameplay ownership|campaign popup/)
+    await assert.rejects(preserved(`pending-${failure}`), /Audio focus|pause or gameplay ownership|campaign popup|Options modal/)
     assert.equal(reads, 1); assert.equal(saves, 1)
-    assert.equal(report.checks[0].ownership, observed, 'Retain the original observation object without reconstruction')
+    assert.equal(report.checks[0].ownership, observed)
     assert.deepEqual(JSON.parse(readFileSync(file, 'utf8')), {
       checks: [{ fallback: true, phase: `pending-${failure}`, ownership: observed }],
     })
     if (failure === 'focus') assert.deepEqual(observed.activeElement, { tag: 'BODY', label: null })
+  }
+})
+test('audio oracle compares complete serialized World and permits only the exact failure notice', async () => {
+  const baseline = audioOwnershipFixture().world, snapshot = JSON.stringify(baseline)
+  let world = structuredClone(baseline), transferred
+  const page = { evaluate: async (fn, arg) => {
+    transferred = vm.runInNewContext(`(${fn.toString()})(arg)`, { arg, window: { testStore: { getWorld: () => world } } })
+    return transferred
+  } }
+  await assertAudioWorldUnchanged(page, snapshot)
+  assert.equal(transferred, true, 'Passing full-world comparisons do not transfer large snapshots')
+  for (const mutate of [w => w.randomState++, w => w.units[0].x++, w => w.time++, w => w.unknown = true]) {
+    world = structuredClone(baseline); mutate(world)
+    await assert.rejects(assertAudioWorldUnchanged(page, snapshot), error => {
+      assert.equal(error.actual, JSON.stringify(world)); assert.equal(error.expected, snapshot); return true
+    })
+  }
+  world = { ...structuredClone(baseline), message: 'Audio could not start. Retry in Menu > Options > Game > Browser controls and help.', messageUntil: baseline.time + 9 }
+  await assert.rejects(assertAudioWorldUnchanged(page, snapshot))
+  await assertAudioWorldUnchanged(page, snapshot, true)
+  world.randomState++; await assert.rejects(assertAudioWorldUnchanged(page, snapshot, true))
+  world.randomState--; world.messageUntil++; await assert.rejects(assertAudioWorldUnchanged(page, snapshot, true))
+  world.messageUntil--; world.message = 'Different message'; await assert.rejects(assertAudioWorldUnchanged(page, snapshot, true))
+})
+test('retry keyboard recovery retains body observations and uses bounded real Tabs without focus repair', async () => {
+  let tabs = 0, samples = 0
+  const sample = { focused: false, focusVisible: false, disabled: false, active: { tag: 'BODY', label: null }, modal: true }
+  const page = { keyboard: { press: async key => { assert.equal(key, 'Tab'); tabs++ } } }
+  const control = { evaluate: async () => { samples++; return tabs >= 2 ? { ...sample, focused: true, focusVisible: true } : structuredClone(sample) } }
+  const options = () => ({ signal: new AbortController().signal, deadlineAt: Date.now() + 5000, trace: {} })
+  const success = options(); await tabToAudioControl(page, control, success)
+  assert.equal(tabs, 2); assert.equal(samples, 3); assert.equal(success.trace.status, 'passed')
+  assert.deepEqual(success.trace.observations[0], sample)
+  for (const bad of [{ ...sample, focused: true }, { ...sample, focused: true, focusVisible: true, disabled: true },
+    { ...sample, focused: true, focusVisible: true, modal: false }]) {
+    tabs = 0; samples = 0; const failed = options()
+    await assert.rejects(tabToAudioControl(page, { evaluate: async () => { samples++; return bad } }, failed), /16 real Tabs/)
+    assert.equal(tabs, 16); assert.equal(samples, 17); assert.equal(failed.trace.status, 'failed')
+  }
+  for (const deadlineAt of [0, NaN, Infinity]) {
+    tabs = 0; samples = 0
+    await assert.rejects(tabToAudioControl(page, control, { ...options(), deadlineAt }), /deadline/)
+    assert.equal(tabs, 0); assert.equal(samples, 0)
+  }
+  const abort = new Error('stop keyboard recovery')
+  await assert.rejects(tabToAudioControl(page, control, { ...options(), signal: AbortSignal.abort(abort) }), error => error === abort)
+})
+test('fullscreen remains menu-owned and both invented gameplay footer controls stay absent', () => {
+  for (const menu of [false, true]) {
+    const sample = { footerCount: 0, loadingCount: 0, modalCount: +menu, fullscreenCount: +menu, fullscreenInMenu: menu, nativeModal: menu }
+    assertBrowserControlOwners(sample, menu)
+    for (const key of Object.keys(sample)) {
+      const bad = { ...sample, [key]: typeof sample[key] === 'boolean' ? !sample[key] : sample[key] + 1 }
+      assert.throws(() => assertBrowserControlOwners(bad, menu))
+    }
   }
 })
 test('pending sound pointer requires a finite positive visible center owned by the actual control', () => {
@@ -492,8 +559,9 @@ test('Chrome provenance is saved before launch and screenshot observations inclu
   assert.match(worker, /browser-provenance\.json/)
   const owner = read('scripts/native-ui-evidence/browser-owner.mjs')
   assert.match(owner, /UNMASKED_RENDERER_WEBGL/); assert.match(owner, /report\.observations\.push/)
-  const hud = read('scripts/native-ui-evidence/hud-sound-control-style.mjs')
-  assert.match(hud, /observedSoundContext\?\.state === 'running'/)
+  const hud = read('scripts/native-ui-evidence/options-audio-control-style.mjs')
+  assert.match(hud, /real-playback-after-Continue/)
+  assert.match(hud, /context: 'running', mediaPaused: false, backgroundScheduled: true/)
   assert.match(hud, /currentTime: window\.observedSoundContext\.currentTime/)
 })
 test('closed build/public manifest rejects added, removed, modified, wrong-type and wrong-target output', t => {
@@ -735,7 +803,7 @@ test('adapter retains mutated episode receipts and the supplied deadline when an
 })
 
 test('both mission-entry episodes preserve per-entry traces on throw without replacing their deadline', () => {
-  for (const name of ['options-storage-notice-style', 'hud-sound-control-style']) {
+  for (const name of ['options-storage-notice-style', 'options-audio-control-style']) {
     const source = read(`scripts/native-ui-evidence/${name}.mjs`)
     assert.match(source, /receipt\.missionInputBudgets = report\.inputBudgets/)
     assert.match(source, /finally \{ saveMissionInputTrace\(save, inputError\) \}/)
@@ -746,7 +814,7 @@ test('both mission-entry episodes preserve per-entry traces on throw without rep
 
 
 test('both actual mission-entry persistence paths retain input error identity and reject write-only failure', async () => {
-  for (const name of ['options-storage-notice-style', 'hud-sound-control-style']) {
+  for (const name of ['options-storage-notice-style', 'options-audio-control-style']) {
     const source = read(`scripts/native-ui-evidence/${name}.mjs`)
     const match = source.match(/let inputError\s+try \{ await ordinaryMission\(page, root, \{ signal, deadlineAt, trace \}\) \}\s+catch \(error\) \{ inputError = error; throw error \}\s+finally \{ saveMissionInputTrace\(save, inputError\) \}/)
     assert.ok(match)
@@ -842,12 +910,12 @@ test('sound popup setup preserves the primary public-input error if handle dispo
   const g = soundPopupFixture(); g.disposeError = new Error('dispose alone failed')
   await assert.rejects(g.run(), error => error === g.disposeError); assert.equal(g.trace.status, 'failed')
 })
-test('HUD uses the public preparation and records the exact baseline before its strict assertions', () => {
-  const source = read('scripts/native-ui-evidence/hud-sound-control-style.mjs')
+test('Options audio uses the public preparation and records the exact baseline before its strict assertions', () => {
+  const source = read('scripts/native-ui-evidence/options-audio-control-style.mjs')
   assert.match(source, /candidateModule\(root, 'scripts\/browser-world-input\.mjs'\)/)
   assert.match(source, /await prepareSoundPopup\(page, popupInput, \{ signal, deadlineAt, trace: popupTrace \}\)/)
   assert.match(source, /finally \{ saveMissionInputTrace\(save, popupError\) \}/)
-  assert.match(source, /const before = await page\.evaluate\(soundOwnership\)\s+report\.checks\.push\(\{ fallback, phase: 'baseline', ownership: before \}\); save\(\)\s+assert\.equal\(before\.currentWorld, true\)/)
+  assert.match(source, /let before = await page\.evaluate\(soundOwnership\)\s+report\.checks\.push\(\{ fallback, phase: 'baseline', ownership: before \}\); save\(\)\s+assert\.equal\(before\.currentWorld, true\)/)
   assert.match(source, /assert\.ok\(before\.popups\.length > 0/)
 })
 test('Sound context cleanup preserves a primary failure and rejects cleanup-only failure', async () => {
