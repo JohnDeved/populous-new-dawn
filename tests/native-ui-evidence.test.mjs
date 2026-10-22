@@ -380,7 +380,7 @@ test('sound pending wait accepts native or ARIA disable without accepting missin
   }), false)
 })
 test('sound ownership reads actual focus and scene/world/popup identity and rejects each observed leak', () => {
-  const control = {}, world = { paused: false, inputMask: 0, status: 'playing' }, scene = {
+  const control = { tagName: 'BUTTON', getAttribute: () => 'Enable sound' }, world = { paused: false, inputMask: 0, status: 'playing' }, scene = {
     world, focusPauseOwned: false, overviewActive: false, overviewStage: null, keys: new Set(),
   }, popup = { dataset: { messageSerial: '17' } }
   const sandbox = { window: { testStore: { getWorld: () => world }, testSceneRef: { current: scene } },
@@ -388,7 +388,7 @@ test('sound ownership reads actual focus and scene/world/popup identity and reje
   const snapshot = () => JSON.parse(JSON.stringify(vm.runInNewContext(`(${soundOwnership.toString()})()`, sandbox)))
   const before = snapshot(); assertSoundOwnership(before, before)
   for (const [target, key, value] of [
-    ['document', 'activeElement', {}], ['world', 'paused', true], ['world', 'inputMask', 1],
+    ['document', 'activeElement', { tagName: 'BODY', getAttribute: () => null }], ['world', 'paused', true], ['world', 'inputMask', 1],
     ['scene', 'world', {}], ['scene', 'overviewActive', true], ['scene', 'focusPauseOwned', true],
     ['scene', 'keys', new Set([' '])], ['popup', 'messageSerial', '18'],
   ]) {
@@ -397,6 +397,43 @@ test('sound ownership reads actual focus and scene/world/popup identity and reje
   }
   sandbox.document.querySelectorAll = () => []
   assert.throws(() => assertSoundOwnership(before, snapshot()), /campaign popup/)
+})
+test('failed sound ownership preserves the exact evaluated phase snapshot before throwing', async t => {
+  const root = fixture(t), file = resolve(root, 'hud-sound.json')
+  // Execute the shipped callback, not a reconstructed record/assert helper.
+  const source = read('scripts/native-ui-evidence/hud-sound-control-style.mjs')
+  const match = source.match(/const preserved = (async phase => \{[\s\S]+?\n        \})/)
+  assert.ok(match, 'The episode must retain its actual ownership observation callback')
+  for (const failure of ['focus', 'world', 'popup']) {
+    const control = { tagName: 'BUTTON', getAttribute: () => 'Enable sound' },
+      body = { tagName: 'BODY', getAttribute: () => null },
+      world = { paused: false, inputMask: 0, status: 'playing' },
+      scene = { world, focusPauseOwned: false, overviewActive: false, overviewStage: null, keys: new Set() },
+      popup = { dataset: { messageSerial: '17' } }
+    let popups = [popup]
+    const document = { activeElement: control, querySelector: () => control, querySelectorAll: () => popups }
+    const browserScope = { document, window: { testStore: { getWorld: () => world }, testSceneRef: { current: scene } } }
+    const snapshot = () => JSON.parse(JSON.stringify(vm.runInNewContext(`(${soundOwnership.toString()})()`, browserScope)))
+    const before = snapshot()
+    assert.deepEqual(before.activeElement, { tag: 'BUTTON', label: 'Enable sound' })
+    if (failure === 'focus') document.activeElement = body
+    else if (failure === 'world') world.paused = true
+    else popups = []
+    const observed = snapshot(), report = { checks: [] }
+    let reads = 0, saves = 0
+    const preserved = vm.runInNewContext(`(${match[1]})`, {
+      page: { evaluate: async callback => { assert.equal(callback, soundOwnership); reads++; return observed } },
+      soundOwnership, assertSoundOwnership, before, fallback: true, report,
+      save: () => { saves++; writeFileSync(file, JSON.stringify(report)) },
+    })
+    await assert.rejects(preserved(`pending-${failure}`), /Sound control must retain focus|pause or gameplay ownership|campaign popup/)
+    assert.equal(reads, 1); assert.equal(saves, 1)
+    assert.equal(report.checks[0].ownership, observed, 'Retain the original observation object without reconstruction')
+    assert.deepEqual(JSON.parse(readFileSync(file, 'utf8')), {
+      checks: [{ fallback: true, phase: `pending-${failure}`, ownership: observed }],
+    })
+    if (failure === 'focus') assert.deepEqual(observed.activeElement, { tag: 'BODY', label: null })
+  }
 })
 test('pending sound pointer requires a finite positive visible center owned by the actual control', () => {
   const glyph = {}, control = { getBoundingClientRect: () => ({ x: 10, y: 20, width: 61, height: 14 }), contains: node => node === glyph }

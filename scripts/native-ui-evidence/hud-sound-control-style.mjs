@@ -23,9 +23,10 @@ export function soundControlPending(pending) {
     node.getAttribute('aria-busy') === String(pending)
 }
 export function soundOwnership() {
-  const world = window.testStore.getWorld(), scene = window.testSceneRef.current
+  const world = window.testStore.getWorld(), scene = window.testSceneRef.current, active = document.activeElement
   return {
-    focused: document.activeElement === document.querySelector('[data-sound-control]'),
+    focused: active === document.querySelector('[data-sound-control]'),
+    activeElement: { tag: active?.tagName ?? null, label: active?.getAttribute('aria-label') ?? null },
     currentWorld: scene.world === world,
     world: { paused: world.paused, inputMask: world.inputMask, status: world.status },
     scene: { focusPauseOwned: scene.focusPauseOwned, overviewActive: scene.overviewActive,
@@ -109,8 +110,9 @@ export default async function ({ browser, url, root, output, signal }) {
         assert.ok(before.popups.length > 0, 'Ordinary Mission 1 must supply the live campaign popup for ownership coverage')
         const preserved = async phase => {
           const after = await page.evaluate(soundOwnership)
-          assertSoundOwnership(before, after)
+          // Keep the observed failure state; assertions must not erase the evidence.
           report.checks.push({ fallback, phase, ownership: after }); save()
+          assertSoundOwnership(before, after)
         }
         await page.evaluate(holdAudioResume)
         await page.keyboard.press('Enter')
