@@ -7,7 +7,7 @@ import supplemental from '../app/original-help-previews.json' with { type: 'json
 
 const script = fileURLToPath(new URL('../scripts/import-help-previews.py', import.meta.url))
 function python(body) {
-  const result = spawnSync('python3', ['-B', '-c', `
+  const result = spawnSync('python3', ['-I', '-S', '-B', '-c', `
 import importlib.util, tempfile, pathlib, hashlib, sys, json, os
 spec = importlib.util.spec_from_file_location('help_preview_import', ${JSON.stringify(script)})
 m = importlib.util.module_from_spec(spec)
