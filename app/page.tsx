@@ -470,10 +470,6 @@ export default function Home() {
       })
       return measureWorshipHud(model)
     }
-    if (window.innerWidth < 900)
-      store.change(w => {
-        w.paused = true
-      })
     import('./scene')
       .then(({ GameScene }) => {
         if (
