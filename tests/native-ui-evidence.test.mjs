@@ -12,7 +12,7 @@ import { manualIdentity, separateRoots, sourceManifest, verifyManifest, homeBuil
 import { episodes, limits, acceptEpisode, acceptSeries, boundedEpisode } from '../scripts/native-ui-evidence/policy.mjs'
 import { artifactInventory, ownBrowser } from '../scripts/native-ui-evidence/browser-owner.mjs'
 import { supervise } from '../scripts/native-ui-evidence/supervise.mjs'
-import { failPreferenceWrites } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
+import { failPreferenceWrites, optionsViewportReady } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
 import { holdAudioResume, soundControlPending, soundOwnership, assertSoundOwnership,
   pendingSoundPointerTarget, assertPendingSoundPointerTarget } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
 import { runNativeUiEvidence } from '../scripts/native-ui-evidence/adapter.mjs'
@@ -511,4 +511,102 @@ test('after receipts distinguish not-captured, not-verified and identical per sc
     changed: { captured: true, verify() { throw Error('changed input') } }, same: { captured: true, verify() {} } })
   assert.deepEqual(result.states, { missing: 'not-captured', changed: 'not-verified', same: 'identical' })
   assert.deepEqual(result.failures, [{ scope: 'changed', error: 'Error: changed input' }])
+})
+
+
+function optionsLayoutFixture() {
+  const state = { scale: '1', optionsCount: 1, noticeCount: 1, skin: 'frontend', owner: 'frontend' }
+  const element = () => ({ getClientRects: () => [{ width: 640, height: 480 }], style: { visibility: 'visible', display: 'block' } })
+  const notice = element(), dialog = { ...element(), open: true,
+    matches: selector => selector === { frontend: '[data-original-main-menu]', ingame: '[data-original-pause-menu]' }[state.owner] }
+  const options = { ...element(), get dataset() { return { skin: state.skin } },
+    closest: selector => { assert.equal(selector, 'dialog[data-original-main-menu], dialog[data-original-pause-menu]'); return state.dialog },
+    querySelectorAll: selector => { assert.equal(selector, '[role="status"]'); return Array(state.noticeCount).fill(notice) } }
+  state.dialog = dialog
+  const sandbox = { window: { innerWidth: 640, innerHeight: 480 },
+    document: { querySelectorAll: selector => { assert.equal(selector, '[data-original-options]'); return Array(state.optionsCount).fill(options) } },
+    getComputedStyle: node => ({ ...node.style, getPropertyValue: name => { assert.equal(name, '--frontend-scale'); return state.scale } }) }
+  const ready = (size = { width: 640, height: 480, skin: 'frontend' }) => vm.runInNewContext(`(${optionsViewportReady.toString()})(${JSON.stringify(size)})`, sandbox)
+  return { state, notice, options, dialog, sandbox, ready }
+}
+
+test('Options resize readiness rejects stale larger/smaller scale and noncurrent viewport', () => {
+  const { state, sandbox, ready } = optionsLayoutFixture()
+  assert.equal(ready(), true)
+  state.scale = '1.5'; assert.equal(ready(), false, 'Stale larger scale after shrinking is not ready')
+  state.scale = '0.5'; assert.equal(ready(), false, 'Stale smaller scale after growing is not ready')
+  state.scale = '1'; sandbox.window.innerWidth = 1280; assert.equal(ready(), false, 'Requested size is not current viewport')
+  sandbox.window.innerWidth = 640; sandbox.window.innerHeight = 720; assert.equal(ready(), false)
+})
+
+test('Options resize readiness rejects missing, invalid, hidden, duplicate and wrong-owner state', () => {
+  const { state, options, notice, dialog, ready } = optionsLayoutFixture()
+  for (const invalid of ['', ' ', 'NaN', 'Infinity', '-1', '0', '1px', '0x1', '1e999']) {
+    state.scale = invalid; assert.equal(ready(), false, `Invalid inherited scale: ${invalid}`)
+  }
+  state.scale = '1'
+  for (const key of ['optionsCount', 'noticeCount']) {
+    for (const count of [0, 2]) { state[key] = count; assert.equal(ready(), false, `${key}=${count}`) }
+    state[key] = 1
+  }
+  dialog.open = false; assert.equal(ready(), false); dialog.open = true
+  state.dialog = null; assert.equal(ready(), false); state.dialog = dialog
+  state.owner = 'ingame'; assert.equal(ready(), false, 'Wrong original dialog cannot confer readiness'); state.owner = 'frontend'
+  state.skin = state.owner = 'ingame'; assert.equal(ready(), false, 'A self-consistent wrong-skin dialog is not the requested owner')
+  state.skin = state.owner = 'frontend'
+  state.skin = 'other'; assert.equal(ready(), false); state.skin = 'frontend'
+  assert.equal(ready({ width: 640, height: 480 }), false, 'Expected skin must be explicit')
+  for (const node of [dialog, options, notice]) {
+    node.style.visibility = 'hidden'; assert.equal(ready(), false); node.style.visibility = 'visible'
+    node.style.display = 'none'; assert.equal(ready(), false); node.style.display = 'block'
+    const rects = node.getClientRects; node.getClientRects = () => []; assert.equal(ready(), false)
+    for (const bad of [0, -1, NaN, Infinity]) for (const axis of ['width', 'height']) {
+      node.getClientRects = () => [{ width: 640, height: 480, [axis]: bad }]; assert.equal(ready(), false)
+    }
+    node.getClientRects = rects
+  }
+})
+
+test('Options resize readiness follows both menus frontendScale for compact, desktop and fractional viewports', () => {
+  assert.match(read('app/frontend-composition.ts'), /frontendScale = \(width: number, height: number\) => Math\.min\(width \/ 640, height \/ 480\)/)
+  for (const path of ['app/original-main-menu.tsx', 'app/original-pause-menu.tsx']) {
+    const menu = read(path)
+    assert.match(menu, /frontendScale\(window\.innerWidth, window\.innerHeight\)/)
+    assert.match(menu, /style=\{\{ '--frontend-scale': scale \}/)
+  }
+  const { state, sandbox, ready } = optionsLayoutFixture()
+  for (const skin of ['frontend', 'ingame']) for (const [width, height] of [[320, 240], [640, 480], [1280, 720], [853, 479]]) {
+    state.skin = state.owner = skin; state.scale = String(Math.min(width / 640, height / 480))
+    sandbox.window.innerWidth = width; sandbox.window.innerHeight = height
+    assert.equal(ready({ width, height, skin }), true)
+    for (const invalid of [{ width: 0, height }, { width, height: -1 }, { width: null, height }, { width: '640', height }]) {
+      assert.equal(ready({ ...invalid, skin }), false)
+    }
+  }
+})
+
+test('Options capture waits for rendered resize and persists original failed geometry before assertions', async t => {
+  const source = read('scripts/native-ui-evidence/options-storage-notice-style.mjs')
+  const match = source.match(/const capture = (async category => \{[\s\S]+?\n        \})\n        await capture/)
+  assert.ok(match, 'Retain the shipped capture callback, not a reconstructed helper')
+  const file = resolve(fixture(t), 'options-storage.json'), report = { samples: [], measurements: [] }
+  const sample = { copy: 'Storage unavailable', glyphs: 1,
+    lines: [{ box: { x: -20, y: 338, right: 583, bottom: 366 }, pitch: 30, text: '', glyphs: 1 }],
+    navigation: { x: 99, y: 420, right: 241, bottom: 446 }, background: 'rgba(0, 0, 0, 0)',
+    images: ['url(/original/frontend/feft33we.png)'], layout: { viewport: { width: 640, height: 480 }, frontendScale: '1' } }
+  const order = []
+  const capture = vm.runInNewContext(`(${match[1]})`, { signal: new AbortController().signal,
+    page: { setViewportSize: async size => { assert.equal(size.width, 640); assert.equal(size.height, 480); order.push('resize') },
+      waitForFunction: async (predicate, size, options) => {
+        assert.equal(predicate, optionsViewportReady); assert.equal(size.width, 640); assert.equal(size.height, 480)
+        assert.equal(size.skin, 'frontend'); assert.equal(options.timeout, 5000); order.push('ready'); return { dispose: async () => order.push('dispose') }
+      }, screenshot: async () => assert.fail('Failed assertion must not become a successful capture') },
+    optionsViewportReady, notice: { evaluate: async () => { order.push('original-read'); return sample } },
+    skin: 'frontend', fallback: false, report, assert,
+    save: () => { order.push('save'); writeFileSync(file, JSON.stringify(report)) } })
+  await assert.rejects(capture('sound'), /Notice remains within viewport/)
+  assert.deepEqual(order, ['resize', 'ready', 'dispose', 'original-read', 'save'])
+  const persisted = JSON.parse(readFileSync(file))
+  assert.equal(persisted.samples.length, 0)
+  assert.deepEqual(persisted.measurements, [{ skin: 'frontend', category: 'sound', fallback: false, width: 640, height: 480, ...sample }])
 })

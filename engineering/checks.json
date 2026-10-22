@@ -29,6 +29,9 @@
         "engineering/native-ui-evidence.md"
       ],
       "inputs": [
+        "app/frontend-composition.ts",
+        "app/original-main-menu.tsx",
+        "app/original-pause-menu.tsx",
         "scripts/native-ui-evidence",
         "scripts/tutorial-browser/browser-config.mjs",
         "scripts/tutorial-browser/run.mjs",
