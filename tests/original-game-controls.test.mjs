@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync, readdirSync } from 'node:fs'
-import ts from 'typescript'
-import { evaluatePage, pageButton, pageEffect, pageNode, pageSource } from './support/follower-nearby-page.mjs'
+import { evaluatePage, pageButton, pageEffect, pageSource } from './support/follower-nearby-page.mjs'
 
 test('actual HUD has one original Menu entry and no invented browser footer', () => {
   const source = pageSource.getFullText()
