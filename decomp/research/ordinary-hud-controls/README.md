@@ -44,7 +44,7 @@ not rerun during this static research.
 The CSS sets the common root to its original 100×277 logical size. Removing the
 painted 2px border is compensated by padding `(top,right,bottom,left)=(9,4,7,4)`:
 the existing spell/building inner origin stays `(4,9)`. Followers retains zero
-padding. There is no clipping, new hit target, changed handler, text, atlas,
+padding. There is no new clipping rule, hit target, changed handler, text, atlas,
 accessibility name, `aria-description`, or F8/cheat change. Uniform modern HUD
 scaling is retained rather than reproducing the original independent-axis stretch.
 The internal spell/building layouts are **not newly certified as original**.
