@@ -93,8 +93,8 @@ test('queue depth is assigned before pass partitioning and shifts occur after vi
     assert.equal(shifted.vertices[at + 1], Math.fround(plain.vertices[at + 1] + 0.5))
   }
   assert.deepEqual({ c, r }, original)
-  const statuses = help.topics.map(topic => helpPreview(topic.illustration,
-    { pane: { x: 0, y: 0, width: 192, height: 156 }, counter: 1, phase: { counter: 1, frame: 1 }, treeVariant: 0,
+  const statuses = Object.values(help.topics).map(topic => helpPreview(topic.illustration,
+    { pane: { x: 0, y: 0, width: 192, height: 156 }, counter: 0, phase: { counter: 0, frame: 0 }, treeVariant: 0,
       person: { player: 0, spriteMode: 2, screenWidth: 640, screenHeight: 480 } }).status)
   assert.equal(statuses.filter(s => s === 'unsupported').length, 46)
 })
