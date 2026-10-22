@@ -152,3 +152,42 @@ test('logo and loading compact fullscreen keep original controls and the scrolli
     }
   }
 })
+
+test('pause portal uses the native compact frame above rows and right of the live HUD', () => {
+  const target = ':global(dialog[data-original-pause-menu]) > .control'
+  const dock = rule(css, target), button = rule(css, target + ' button')
+  for (const declaration of ['top: 12px', 'right: 12px', 'left: auto', 'bottom: auto']) assert.ok(dock.includes(declaration))
+  for (const declaration of ['width: 17px', 'height: 14px', 'min-height: 0', 'padding: 0', 'border: 0', 'background: none']) assert.ok(button.includes(declaration))
+  assert.match(rule(css, target + ' .compactFrame'), /display: block/)
+  assert.match(rule(css, target + ' .label'), /display: none/)
+  assert.match(rule(css, target + ' p'), /top: 20px; right: 0; bottom: auto/)
+  const pixels = (declarations, name) => Number(declarations.match(new RegExp(`(?:^|;)\\s*${name}: (\\d+)px(?:;|$)`))?.[1])
+  const focus = rule(css, '.control button:focus-visible')
+  const ring = Number(focus.match(/outline: (\d+)px/)[1]) + pixels(focus, 'outline-offset')
+  for (const [width, height] of [[320,240],[640,480],[800,450],[900,360],[1920,1080],[3440,1440]]) {
+    const scale = frontendScale(width, height), y = (height-480*scale)/2
+    const right = width-pixels(dock,'right'), top = pixels(dock,'top')
+    const control = { left:right-pixels(button,'width')-ring, right:right+ring, top:top-ring, bottom:top+pixels(button,'height')+ring }
+    assert.ok(Object.values(control).every(Number.isFinite))
+    assert.ok(control.left >= 0 && control.top >= 0 && control.right <= width && control.bottom <= height)
+    for (const preference of ['auto','1','2','4']) {
+      const hud = { left:0, right:100*hudScale(width,height,preference), top:0, bottom:height }
+      assert.equal(intersects(control,hud),false,'Native HUD and minimap remain clear')
+    }
+    for (const [name,start,end] of [['root and confirmation rows',159,480],['Options rows and category navigation',79,480],['checkpoint body and actions',81,480]])
+      assert.equal(intersects(control,{left:0,right:width,top:y+start*scale,bottom:y+end*scale}),false,`${width}x${height}: ${name}`)
+  }
+})
+
+test('candidate pause episode separates native text from the browser portal and proves real keyboard clearance', () => {
+  const episode = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-style.mjs', import.meta.url), 'utf8')
+  assert.match(episode, /observeFullscreenClearance, assertFullscreenClearance/)
+  assert.match(episode, /page\.keyboard\.press\('Tab'\)/)
+  assert.match(episode, /assertFullscreenClearance\(sample\)/)
+  assert.match(episode, /assert\.equal\(sample\.focusVisible, true/)
+  assert.match(episode, /:scope > :not\(\[data-fullscreen-control\]\) button/)
+  assert.match(episode, /\.native-hud, dialog\[data-original-pause-menu\]/)
+  assert.match(episode, /\['Game', 'Sound', 'Graphics'\]/)
+  assert.match(episode, /pause-options-fullscreen-fallback-320x240\.png/)
+  assert.doesNotMatch(episode, /button\('Fullscreen'\)\.focus\(/)
+})

@@ -4,13 +4,14 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import { pauseStartupReady, skipPauseIntroduction } from './original-pause-checkpoint-recovery.mjs'
+import { observeFullscreenClearance, assertFullscreenClearance } from './fullscreen-clearance.mjs'
 
 // A presentation-only supplement to the durable/retry/save-failure scenarios.
 // Storage is deliberately unavailable before startup, producing the real store's
 // session-only Save and longest ordinary Load explanation without injected worlds.
 export default async function ({ browser, page, url, root, output, receipt, signal }) {
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
-  const records = [], screenshots = []
+  const records = [], screenshots = [], fullscreen = []
   await page.close()
   for (const fallback of [false, true]) {
     signal.throwIfAborted()
@@ -34,6 +35,35 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       })
       const button = name => page.getByRole('button', { name, exact: true })
       const modal = page.getByRole('dialog', { name: 'Game menu', exact: true })
+      async function fullscreenClearance(label) {
+        const viewport = page.viewportSize()
+        // Resizing is asynchronous in React. Observe the actual rendered frame,
+        // without changing application state or relaxing the clearance predicate.
+        await page.waitForFunction(({ width, height }) => {
+          const dialog = document.querySelector('dialog[data-original-pause-menu]')
+          const frame = dialog?.firstElementChild?.getBoundingClientRect()
+          const scale = Math.min(width / 640, height / 480)
+          return innerWidth === width && innerHeight === height && frame &&
+            Math.abs(frame.width - 640 * scale) < .1 && Math.abs(frame.height - 480 * scale) < .1
+        }, viewport)
+        // Reach the real portal through ordinary keyboard navigation, never .focus().
+        let tabs = 0
+        do {
+          await page.keyboard.press('Tab')
+          tabs++
+        } while (tabs < 32 && !await button('Fullscreen').evaluate(node => node === document.activeElement))
+        const sample = await observeFullscreenClearance(page, 'dialog[data-original-pause-menu]',
+          '.native-hud, dialog[data-original-pause-menu] > :not([data-fullscreen-control]) button, ' +
+          'dialog[data-original-pause-menu] [aria-label="Checkpoint details"], ' +
+          'dialog[data-original-pause-menu] h2 > span, [data-original-options] [data-option-key], ' +
+          '[data-original-options] input, [data-original-options] [role="status"]')
+        fullscreen.push({ label, fallback, tabs, ...sample })
+        writeFileSync(resolve(output, 'pause-fullscreen-clearance.json'), JSON.stringify(fullscreen, null, 2))
+        assertFullscreenClearance(sample)
+        assert.equal(sample.focused, true, 'Fullscreen is reached by normal Tab navigation')
+        assert.equal(sample.focusVisible, true, 'Keyboard focus has its real visible ring')
+        assert.equal(sample.activeLabel, 'Fullscreen', 'Compact artwork retains its accessible name')
+      }
       await page.goto(url, { waitUntil: 'domcontentloaded' })
       await openCampaignFromMainMenu(page)
       await button('Start Mission 1').click()
@@ -47,6 +77,39 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
       await page.waitForFunction(() => window.testStore.getCheckpointReadStatus() === 'unavailable')
       await button('Menu').click()
+      for (const [width, height] of [[320, 240], [640, 480], [800, 450], [1920, 1080]]) {
+        await page.setViewportSize({ width, height })
+        await fullscreenClearance(`root-${width}x${height}`)
+      }
+      await button('Options').click()
+      // Same ordinary Game-options storage boundary as the reported overlap;
+      // neither font availability nor preference/world state is forged.
+      await page.evaluate(() => {
+        const set = Storage.prototype.setItem
+        window.restorePausePreferenceWrite = () => { Storage.prototype.setItem = set }
+        Storage.prototype.setItem = function (key, value) {
+          if (key === 'populous-game-preferences')
+            throw new DOMException('Controlled preference write failure', 'SecurityError')
+          return set.call(this, key, value)
+        }
+      })
+      try {
+        await page.locator('[data-option-key="rotation"]').click()
+        await modal.getByRole('status').filter({ hasText: 'browser storage is unavailable' }).waitFor()
+        for (const category of ['Game', 'Sound', 'Graphics']) {
+          if (category !== 'Game') await button(category).click()
+          for (const [width, height] of [[320, 240], [640, 480], [800, 450], [1920, 1080]]) {
+            await page.setViewportSize({ width, height })
+            await fullscreenClearance(`options-${category}-${width}x${height}`)
+            if (fallback && category === 'Game' && width === 320) {
+              const name = 'pause-options-fullscreen-fallback-320x240.png'
+              await page.screenshot({ path: resolve(output, name) })
+              screenshots.push(name)
+            }
+          }
+        }
+      } finally { await page.evaluate(() => window.restorePausePreferenceWrite()) }
+      await button('Back').click()
       await button('Save Game').click()
       await button('Save checkpoint').click()
       await modal.getByRole('status').filter({ hasText: 'Checkpoint saved for this session only; browser storage is unavailable.' }).waitFor()
@@ -93,7 +156,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
                   copy: node.firstElementChild.textContent, ...text(node),
                   pitches: [...node.querySelectorAll(':scope > [aria-hidden="true"]')].filter(line => line.querySelector('i')).map(line => line.offsetHeight),
                 })) },
-              buttons: [...dialog.querySelectorAll('button')].map(node => ({
+              buttons: [...dialog.querySelectorAll(':scope > :not([data-fullscreen-control]) button')].map(node => ({
                 label: node.getAttribute('aria-label'), top: node.offsetTop, box: box(node), ...text(node),
                 reachable: node.contains(document.elementFromPoint(node.getBoundingClientRect().x + node.getBoundingClientRect().width / 2,
                   node.getBoundingClientRect().y + node.getBoundingClientRect().height / 2)),
@@ -129,10 +192,12 @@ export default async function ({ browser, page, url, root, output, receipt, sign
             assert.ok(control.box.x >= -1 && control.box.y >= -1 && control.box.x + control.box.width <= width + 1 && control.box.bottom <= height + 1)
             assert.equal(control.reachable, true)
           }
+          await fullscreenClearance(`${panel}-${width}x${height}`)
           const name = `checkpoint-${panel}-${fallback ? 'fallback-dpr2' : 'native'}-${width}x${height}`
           await page.screenshot({ path: resolve(output, `${name}.png`) })
           screenshots.push(`${name}.png`)
           if (layout.body.overflow) {
+            await details.focus()
             await page.keyboard.press('End')
             await page.waitForFunction(() => {
               const body = document.querySelector('[aria-label="Checkpoint details"]')
@@ -154,9 +219,10 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), false)
     } finally { await context.close() }
   }
-  return { records, screenshots, limits: [
+  return { records, screenshots, fullscreen, limits: [
     'Controlled unavailable IndexedDB and a separately blocked font request. Saves and menus use shipped controls; no game world is injected.',
     'This supplements the durable-save, retry-race and save-failure scenarios; it does not replace them.',
+    'Fullscreen clearance covers native/fallback menus, ordinary Tab focus and physical hit testing, not wide fullscreen error-tooltip clearance.',
     'Browser adaptation geometry and software-renderer screenshots do not prove original multi-slot functionality, exact native pixels or hardware performance.',
   ] }
 }
