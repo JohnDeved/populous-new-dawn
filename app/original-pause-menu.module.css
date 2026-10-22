@@ -7,11 +7,12 @@
 .quitWarning { position: absolute; top: 262px; left: 0; width: 640px; margin: 0; text-align: center; }
 .warningLine { position: relative; display: block; height: 30px; }
 /* Browser-only checkpoint copy uses the original in-game font and transparent
-   menu treatment. The fixed actions and Back remain outside its scroll area. */
+   menu treatment. Reserve the native 100px HUD gutter on both sides so the
+   copy stays centered. The fixed actions and Back remain outside its scroll area. */
 .panel { position: absolute; inset: 0; pointer-events: none; }
 .panel button { pointer-events: auto; }
 .checkpointTitle { position: absolute; top: 39px; left: 0; width: 640px; height: 30px; margin: 0; text-align: center; font-weight: normal; }
-.checkpointBody { position: absolute; top: 81px; left: 32px; width: 576px; height: 270px; overflow: auto; display: flex; flex-direction: column; gap: 6px; scrollbar-width: thin; pointer-events: auto; }
+.checkpointBody { position: absolute; top: 81px; left: 104px; width: 432px; height: 270px; overflow: auto; display: flex; flex-direction: column; gap: 6px; scrollbar-width: thin; pointer-events: auto; }
 .checkpointBody:focus-visible { outline: 1px solid #fff1bb; outline-offset: 1px; }
 .checkpointText { margin: 0; flex-shrink: 0; text-align: center; overflow-wrap: anywhere; }
 

@@ -5,6 +5,18 @@ import { pathToFileURL } from 'node:url'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import { pauseStartupReady, skipPauseIntroduction } from './original-pause-checkpoint-recovery.mjs'
 import { observeFullscreenClearance, assertFullscreenClearance } from './fullscreen-clearance.mjs'
+import { assertCheckpointBodyClearance } from './checkpoint-body-clearance.mjs'
+
+async function waitForPauseFrame(page) {
+  // Resizing is asynchronous in React. Inspect the actual rendered frame.
+  await page.waitForFunction(({ width, height }) => {
+    const dialog = document.querySelector('dialog[data-original-pause-menu]')
+    const frame = dialog?.firstElementChild?.getBoundingClientRect()
+    const scale = Math.min(width / 640, height / 480)
+    return innerWidth === width && innerHeight === height && frame &&
+      Math.abs(frame.width - 640 * scale) < .1 && Math.abs(frame.height - 480 * scale) < .1
+  }, page.viewportSize())
+}
 
 // A cleanup RPC must not hide the assertion/timeout that caused the failure.
 export async function restorePausePreferenceWrite(page, primaryError) {
@@ -54,16 +66,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       const button = name => page.getByRole('button', { name, exact: true })
       const modal = page.getByRole('dialog', { name: 'Game menu', exact: true })
       async function fullscreenClearance(label) {
-        const viewport = page.viewportSize()
-        // Resizing is asynchronous in React. Observe the actual rendered frame,
-        // without changing application state or relaxing the clearance predicate.
-        await page.waitForFunction(({ width, height }) => {
-          const dialog = document.querySelector('dialog[data-original-pause-menu]')
-          const frame = dialog?.firstElementChild?.getBoundingClientRect()
-          const scale = Math.min(width / 640, height / 480)
-          return innerWidth === width && innerHeight === height && frame &&
-            Math.abs(frame.width - 640 * scale) < .1 && Math.abs(frame.height - 480 * scale) < .1
-        }, viewport)
+        await waitForPauseFrame(page)
         // Reach the real portal through ordinary keyboard navigation, never .focus().
         let tabs = 0
         do {
@@ -153,9 +156,10 @@ export default async function ({ browser, page, url, root, output, receipt, sign
           await button('Back').click()
           await button('Load Game').click()
         }
-        for (const [width, height] of [[640, 480], [1920, 1080], [800, 450]]) {
+        for (const [width, height] of [[320, 240], [640, 480], [1920, 1080], [800, 450]]) {
           signal.throwIfAborted()
           await page.setViewportSize({ width, height })
+          await waitForPauseFrame(page)
           const details = modal.locator('[aria-label="Checkpoint details"]')
           await details.focus()
           await page.keyboard.press('Home')
@@ -164,14 +168,18 @@ export default async function ({ browser, page, url, root, output, receipt, sign
             const panel = dialog.querySelector('section'), body = panel.querySelector('[aria-label="Checkpoint details"]')
             const box = node => {
               const rect = node.getBoundingClientRect()
-              return { x: rect.x, y: rect.y, width: rect.width, height: rect.height, bottom: rect.bottom }
+              return { x: rect.x, y: rect.y, width: rect.width, height: rect.height, right: rect.right, bottom: rect.bottom }
             }
             const text = node => {
               const glyphs = node.querySelectorAll('i').length
               const visible = node.matches('p') ? node.lastElementChild : node.firstElementChild
               const style = getComputedStyle(visible)
+              const range = document.createRange()
+              range.selectNodeContents(visible)
               return {
                 glyphs,
+                lines: glyphs ? [...node.querySelectorAll(':scope > [aria-hidden="true"] > span')].map(box)
+                  : [...range.getClientRects()].map(rect => ({ x: rect.x, y: rect.y, right: rect.right, bottom: rect.bottom })),
                 images: [...new Set([...node.querySelectorAll('i')].map(glyph => getComputedStyle(glyph).backgroundImage))],
                 fallback: glyphs ? null : { text: visible.textContent, box: box(visible),
                   display: style.display, visibility: style.visibility, opacity: Number(style.opacity) },
@@ -179,6 +187,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
             }
             return {
               panel: dialog.dataset.panel, dpr: devicePixelRatio,
+              viewport: { width: innerWidth, height: innerHeight }, hud: box(document.querySelector('.native-hud')),
               background: getComputedStyle(panel).backgroundColor, border: getComputedStyle(panel).borderTopWidth,
               titleTop: panel.querySelector('h2').offsetTop,
               title: { copy: panel.querySelector('h2').getAttribute('aria-label'), ...text(panel.querySelector('h2')) },
@@ -195,11 +204,14 @@ export default async function ({ browser, page, url, root, output, receipt, sign
               })),
             }
           })
+          records.push({ viewport: { width, height }, fallback, blockedFontRequests, ...layout })
+          writeFileSync(resolve(output, 'checkpoint-style-progress.json'), JSON.stringify({ records, screenshots }, null, 2))
           assert.equal(layout.panel, panel)
           assert.equal(layout.background, 'rgba(0, 0, 0, 0)')
           assert.equal(layout.border, '0px')
           assert.equal(layout.titleTop, 39)
-          assert.deepEqual([layout.body.top, layout.body.width, layout.body.height], [81, 576, 270])
+          assert.deepEqual([layout.body.top, layout.body.width, layout.body.height], [81, 432, 270])
+          assertCheckpointBodyClearance(layout)
           assert.equal(layout.body.horizontalOverflow, false)
           assert.equal(layout.body.paragraphs[0].copy, 'One browser checkpoint. No original multi-slot saves.')
           assert.ok(layout.body.paragraphs.some(paragraph => paragraph.copy === (panel === 'save'
@@ -227,10 +239,15 @@ export default async function ({ browser, page, url, root, output, receipt, sign
             assert.ok(control.box.x >= -1 && control.box.y >= -1 && control.box.x + control.box.width <= width + 1 && control.box.bottom <= height + 1)
             assert.equal(control.reachable, true)
           }
-          await fullscreenClearance(`${panel}-${width}x${height}`)
+          // Compact body geometry reuses the live dialog without adding a capture
+          // or changing the existing 44 fullscreen-clearance cases.
+          const capture = width !== 320
+          if (capture) await fullscreenClearance(`${panel}-${width}x${height}`)
           const name = `checkpoint-${panel}-${fallback ? 'fallback-dpr2' : 'native'}-${width}x${height}`
-          await page.screenshot({ path: resolve(output, `${name}.png`) })
-          screenshots.push(`${name}.png`)
+          if (capture) {
+            await page.screenshot({ path: resolve(output, `${name}.png`) })
+            screenshots.push(`${name}.png`)
+          }
           if (layout.body.overflow) {
             await details.focus()
             await page.keyboard.press('End')
@@ -240,11 +257,12 @@ export default async function ({ browser, page, url, root, output, receipt, sign
             })
             assert.equal(await modal.getAttribute('data-panel'), panel)
             assert.equal(await details.evaluate(node => node === document.activeElement), true)
-            await page.screenshot({ path: resolve(output, `${name}-scrolled.png`) })
-            screenshots.push(`${name}-scrolled.png`)
+            if (capture) {
+              await page.screenshot({ path: resolve(output, `${name}-scrolled.png`) })
+              screenshots.push(`${name}-scrolled.png`)
+            }
           }
           assert.equal(await page.evaluate(() => JSON.stringify(window.testStore.getWorld())), frozen)
-          records.push({ viewport: { width, height }, fallback, blockedFontRequests, ...layout })
           writeFileSync(resolve(output, 'checkpoint-style-progress.json'), JSON.stringify({ records, screenshots }, null, 2))
         }
       }

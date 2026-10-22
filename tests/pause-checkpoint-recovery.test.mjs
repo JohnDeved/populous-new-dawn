@@ -476,7 +476,7 @@ function assertCheckpointCopy(paragraph, fonts) {
       const glyphs = tree(line).filter(node => node.type === 'i')
       assert.equal(glyphs.length, text.length)
       assert.ok(glyphs.every(node => node.props.style.backgroundImage === "url('/original/pause-font.png')"))
-      assert.ok([...text].reduce((sum, c) => sum + font.rects[c.charCodeAt(0) - 32].w, 0) <= 544)
+      assert.ok([...text].reduce((sum, c) => sum + font.rects[c.charCodeAt(0) - 32].w, 0) <= 400)
       return text
     })
     assert.equal(lines.join(' '), text.replaceAll('…', '...').replace(/\s+/g, ' ').trim())
@@ -537,7 +537,7 @@ test('long checkpoint reasons wrap without losing characters and unsupported gly
       assert.equal(lines.join(''), reason)
       assert.ok(lines.length > 1)
       const font = JSON.parse(readFileSync(new URL('../app/original-pause-font.json', import.meta.url)))
-      assert.ok(lines.every(line => [...line].reduce((sum, c) => sum + font.rects[c.charCodeAt(0) - 32].w, 0) <= 544))
+      assert.ok(lines.every(line => [...line].reduce((sum, c) => sum + font.rects[c.charCodeAt(0) - 32].w, 0) <= 400))
     }
   }
 })
@@ -591,6 +591,10 @@ test('checkpoint copy is independently scrollable and cannot cover fixed actions
   const body = css.match(/\.checkpointBody \{([^}]+)\}/)[1]
   assert.match(body, /top: 81px/)
   assert.match(body, /height: 270px/)
+  assert.match(body, /left: 104px/)
+  assert.match(body, /width: 432px/)
+  assert.equal(104 + 432 / 2, 320, 'copy stays on the original menu center')
+  assert.ok(104 > 100, 'the copy area reserves the full unscaled native HUD gutter')
   assert.match(body, /overflow: auto/)
   assert.ok(81 + 270 < 369)
   assert.match(css, /\.checkpointText \{[^}]*overflow-wrap: anywhere/)

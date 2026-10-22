@@ -53,6 +53,7 @@ function MenuText({
 
 // These browser checkpoint messages are not original save-slot text. Keep the
 // in-game font at its native size; only the bounded copy area may scroll.
+// The 432px body reserves the HUD gutter; 400px leaves room for its scrollbar.
 function CheckpointText({
   text,
   ready,
@@ -69,13 +70,13 @@ function CheckpointText({
     let line = ''
     for (const word of display.split(' ')) {
       const next = line ? `${line} ${word}` : word
-      if (textWidth(next) <= 544) line = next
+      if (textWidth(next) <= 400) line = next
       else {
         if (line) lines.push(line)
         line = ''
         // A long technical token still wraps without shrinking or clipping.
         for (const letter of word) {
-          if (textWidth(line + letter) > 544) {
+          if (textWidth(line + letter) > 400) {
             lines.push(line)
             line = ''
           }
