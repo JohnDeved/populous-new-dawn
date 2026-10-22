@@ -32,7 +32,6 @@ jobs:
       NODE_COMPILE_CACHE: ''
       NODE_V8_COVERAGE: ''
       WRANGLER_SEND_METRICS: 'false'
-      WRANGLER_LOG_PATH: ${{ runner.temp }}/cloudflare-wrangler.log
       CLOUDFLARE_ACTIONS_MODE: ${{ vars.CLOUDFLARE_ACTIONS_MODE }}
     steps:
       - name: Check out only trusted default-branch publisher source
@@ -60,6 +59,7 @@ jobs:
         id: upload
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          WRANGLER_LOG_PATH: ${{ runner.temp }}/cloudflare-wrangler.log
         uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
