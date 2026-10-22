@@ -16,7 +16,8 @@
         "Actual browser-added Options glyph/fallback text clears the live HUD and navigation without wide-container bounds",
         "Same-read actual modal ownership and opaque frontend versus transparent in-game coverage distinguish mounted HUDs from exposed HUD clearance",
         "Failed loading reuses decoded original scrollbar art with real scroll/input ownership, safe fallback, and positive same-capture art geometry/fullscreen clearance",
-        "Source-extracted Query/Menu/Continue preserves popup/world ownership and prior pause; bounded Fullscreen transitions and independent fixture finalization retain late and falsy failures"
+        "Source-extracted Query/Menu/Continue preserves popup/world ownership and prior pause; bounded Fullscreen transitions and independent fixture finalization retain late and falsy failures",
+        "Phase-aware Query World oracle: exact idle-presentation clock bounds outside Menu, one-time owned Menu snapshots and complete modal equality; synthetic regressions do not establish rendered behavior"
       ],
       "knownLimits": [
         "Synthetic Node fixtures validate checker rejection behavior, not rendered UI or original-game pixel parity.",
@@ -30,6 +31,7 @@
         "tests/browser-options-audio.test.mjs",
         "tests/campaign-popup-fullscreen-fixture.test.mjs",
         "tests/pause-world-snapshot.test.mjs",
+        "tests/query-world-phase.test.mjs",
         "tests/pause-clearance-batch.test.mjs",
         "tests/pause-checker-registration.test.mjs",
         "tests/pause-focus-observation.test.mjs",
@@ -107,7 +109,13 @@
         "scripts/campaign-popup-fixture/run.mjs",
         "tests/campaign-popup-fullscreen-fixture.test.mjs",
         "app/scene-input-runtime.ts",
-        "app/fullscreen-session.ts"
+        "app/fullscreen-session.ts",
+        "scripts/local-render/query-world-phase.mjs",
+        "tests/query-world-phase.test.mjs",
+        "app/game-clock.ts",
+        "app/worship-acquisition.ts",
+        "app/worship-acquisition-runtime.ts",
+        "app/scene.ts"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -181,7 +189,13 @@
         "scripts/campaign-popup-fixture/run.mjs",
         "tests/campaign-popup-fullscreen-fixture.test.mjs",
         "app/scene-input-runtime.ts",
-        "app/fullscreen-session.ts"
+        "app/fullscreen-session.ts",
+        "scripts/local-render/query-world-phase.mjs",
+        "tests/query-world-phase.test.mjs",
+        "app/game-clock.ts",
+        "app/worship-acquisition.ts",
+        "app/worship-acquisition-runtime.ts",
+        "app/scene.ts"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
