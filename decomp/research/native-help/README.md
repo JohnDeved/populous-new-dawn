@@ -165,3 +165,24 @@ entry, a documented browser memory-safety adaptation at the native overflow edge
 Different article text resets scrolling at0045dd22; explicit link/home/context
 activation also resets it. No checkpoint schema or active gameplay handler has
 changed. These new modules/tests have not run and have no rendered acceptance.
+
+`createHelpInputOwner` now stages real event ownership around the transient
+session. Its identity requires BOTH the same current World and the same current
+Scene, including scene.world equality. The caller must supply current higher
+owners, foreign/F8/cheat exceptions, source context, renderer preflight, the real
+store transaction and gameplay gesture release. No live fields are fabricated.
+Context opens on primary down, and that press's up/compatibility click is consumed
+rather than reaching the existing HUD callback. Right-down does not cancel;
+right-up cancellation takes an explicit proven-region predicate because native
+HUD dispatch can precede the keymap. F1 toggles an article and Escape restores
+article then Query then ordinary gameplay. Neutral Escape is deliberately not
+owned, preserving the Menu prerequisite. Browser recovery releases this owner
+before invoking the existing recovery callback. Another modal must acquire its
+pause/input ownership only AFTER Help release; this ordering is a live integration
+acceptance requirement, not proven by these isolated source tests.
+
+The owner is NOT installed into window/page/scene listeners, and POINT13 has not
+been connected to live cursor precedence. Live collector/discovery/counters,
+actual full preview support and rendered/input evidence are still blockers. In
+particular native hover-frame counter00897981 is distinct from illustration
+counter0089d184; neither receives an invented local timer.
