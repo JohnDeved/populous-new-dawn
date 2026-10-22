@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import ts from 'typescript'
 import { homePopupFixture, homePopupSources } from '../scripts/campaign-popup-fixture/home-source.mjs'
 import { activatePopupFullscreenFromMenu, assertPopupMenuRetention } from '../scripts/campaign-popup-fixture/fullscreen-menu.mjs'
+import { finalizePopupFixture } from '../scripts/campaign-popup-fixture/finalize.mjs'
 import { createFullscreenSession } from '../app/fullscreen-session.ts'
 
 const root = new URL('..', import.meta.url).pathname
@@ -154,4 +155,65 @@ test('generated fixture imports shipped Query and pause menu and runner retains 
   for (const scenario of ['held Enter produces exactly one ACK click', 'Popup ownership precedes input-mask flyby skipping',
     'Fullscreen Escape retains browser default before popup capture', 'Outside fullscreen popup consumes Escape without acknowledgment',
     'F8/F9 preservation', 'one-shot focus return']) assert.ok(run.toLowerCase().includes(scenario.toLowerCase()), scenario)
+})
+
+test('fixture finalization keeps falsy primary errors and actual transition traces while independently closing and saving', async () => {
+  for (const primaryError of [undefined, null, false, 0, '']) {
+    const trace = { afterContinue: { actualObservation: true } }
+    const receipt = { status: 'failed', checks: [{ fullscreenMenuTrace: trace }] }, calls = []
+    const result = await finalizePopupFixture({ receipt, failed: true, primaryError,
+      browser: { async close() { calls.push('browser'); throw null } },
+      server: { async close() { calls.push('server'); throw false } },
+      save() { calls.push('save'); throw 0 },
+      emit(retained) { calls.push('emit'); assert.equal(retained, receipt); assert.equal(retained.checks[0].fullscreenMenuTrace, trace); throw '' },
+    })
+    assert.deepEqual(calls, ['browser', 'server', 'save', 'emit'])
+    assert.equal(result.failed, true); assert.equal(result.primaryError, primaryError)
+    assert.equal(receipt.error, String(primaryError)); assert.equal(receipt.status, 'failed')
+    assert.deepEqual(receipt.finalizationErrors.map(item => item.phase), ['browser-close', 'server-close', 'save-receipt', 'emit-terminal'])
+    assert.deepEqual(receipt.finalizationErrors.map(item => item.error), ['null', 'false', '0', ''])
+  }
+})
+
+test('falsy cleanup or save rejection cannot publish a passing fixture and cannot skip another owner', async () => {
+  for (const phase of ['browser', 'server', 'save']) for (const reason of [undefined, null, false, 0, '']) {
+    const receipt = { status: 'passed', checks: [] }, calls = []
+    const action = name => () => { calls.push(name); if (name === phase) throw reason }
+    const result = await finalizePopupFixture({ receipt, failed: false,
+      browser: { close: action('browser') }, server: { close: action('server') }, save: action('save'),
+      emit(retained) { calls.push('emit'); assert.equal(retained.status, 'failed'); assert.equal(retained.error, String(reason)) },
+    })
+    assert.deepEqual(calls, ['browser', 'server', 'save', 'emit'])
+    assert.equal(result.failed, true); assert.equal(result.primaryError, reason)
+    assert.equal(receipt.status, 'failed')
+  }
+})
+
+test('terminal emission failure updates a previously saved fixture without masking its first error', async () => {
+  const receipt = { status: 'passed', checks: [] }, snapshots = [], calls = []
+  const result = await finalizePopupFixture({ receipt, failed: false,
+    browser: { close() { calls.push('browser') } }, server: { close() { calls.push('server') } },
+    save() { calls.push('save'); snapshots.push(structuredClone(receipt)); if (snapshots.length === 2) throw null },
+    emit() { calls.push('emit'); throw false },
+  })
+  assert.deepEqual(calls, ['browser', 'server', 'save', 'emit', 'save'])
+  assert.deepEqual(snapshots.map(value => value.status), ['passed', 'failed'])
+  assert.equal(result.failed, true); assert.equal(result.primaryError, false)
+  assert.equal(receipt.error, 'false')
+  assert.deepEqual(receipt.finalizationErrors.map(item => item.phase), ['emit-terminal', 'save-terminal-failure'])
+})
+
+test('successful fixture finalization preserves success and the runner supplies an explicit failed state', async () => {
+  const receipt = { status: 'passed', checks: [] }, calls = []
+  const result = await finalizePopupFixture({ receipt, failed: false,
+    browser: { close() { calls.push('browser') } }, server: { close() { calls.push('server') } },
+    save() { calls.push('save') }, emit(value) { calls.push('emit'); assert.equal(value, receipt) },
+  })
+  assert.deepEqual(calls, ['browser', 'server', 'save', 'emit'])
+  assert.equal(result.failed, false); assert.equal(receipt.status, 'passed')
+  assert.deepEqual(receipt.finalizationErrors, [])
+  const run = readFileSync(new URL('../scripts/campaign-popup-fixture/run.mjs', import.meta.url), 'utf8')
+  assert.match(run, /catch\(error\)\{episodeFailed=true;episodeError=error/)
+  assert.match(run, /finalizePopupFixture\(\{receipt,failed:episodeFailed,primaryError:episodeError,browser,server,save,/)
+  assert.match(run, /if\(terminal.failed\)process.exitCode=1/)
 })

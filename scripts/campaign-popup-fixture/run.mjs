@@ -9,6 +9,7 @@ import tailwindcss from '@tailwindcss/postcss'
 import { chromium } from '@playwright/test'
 import { homePopupFixture } from './home-source.mjs'
 import { activatePopupFullscreenFromMenu } from './fullscreen-menu.mjs'
+import { finalizePopupFixture } from './finalize.mjs'
 
 const root=resolve(import.meta.dirname,'../..'), fixture=resolve(import.meta.dirname,'fixture')
 const output=resolve(process.argv[2]), browserPath=process.env.POPULOUS_BROWSER
@@ -27,7 +28,7 @@ writeFileSync(baselineCss,oldCss.replace("@import 'tailwindcss'",`@import '${res
 const diagnosticsHtml=readFileSync(resolve(root,'app/fps-graph.ts'),'utf8').match(/this\.element\.innerHTML = `([\s\S]+?)`/)?.[1]
 assert.ok(diagnosticsHtml)
 const inputs=['app/original-message-tab.tsx','app/original-message-tab.module.css','app/original-message-tabs.json','app/original-campaign-popup.tsx','app/original-campaign-popup.module.css','app/campaign-popup-layout.ts','app/campaign-popup-session.ts','app/original-campaign-popup.json','app/messages.ts','app/page.tsx','app/globals.css','app/fps-graph.ts','app/hud-layout.ts','app/original-result-ui.json','app/original-hud.json', 'app/fullscreen-session.ts','app/fullscreen-control.tsx','app/fullscreen-control.module.css','app/scene-input-runtime.ts','app/spell-test-cheats.ts','scripts/campaign-popup-fixture/home-source.mjs','scripts/campaign-popup-fixture/run.mjs','scripts/campaign-popup-fixture/fixture/main.tsx','scripts/campaign-popup-fixture/fixture/env.d.ts',
-  'scripts/campaign-popup-fixture/fullscreen-menu.mjs','scripts/browser-options-audio.mjs',
+  'scripts/campaign-popup-fixture/fullscreen-menu.mjs','scripts/campaign-popup-fixture/finalize.mjs','scripts/browser-options-audio.mjs',
   'app/query-control.tsx','app/query-control.module.css','app/original-pause-menu.tsx','app/original-pause-menu.module.css','app/original-pause-font.json','app/original-main-menu.module.css','app/frontend-composition.ts','app/checkpoint-scroll-area.tsx','app/checkpoint-scroll-area.module.css','app/checkpoint-scroll.ts',
   ...['pointer','background','felgspen'].map(name=>`public/original/frontend/${name}.png`),
   ...[451,452,453,454,455].map(id=>`public/original/help/hfx-${id}.png`),
@@ -41,7 +42,8 @@ if(actualPause)assert.ok(pauseA11y,'Actual native status screenreader rule is re
 const fingerprints=Object.fromEntries([...inputs,...pauseInputs].map(file=>[file,hash(resolve(root,file))]))
 const receipt={status:'running',head:git('rev-parse','HEAD').trim(),baseline,pauseComponent:actualPause?pauseFile:'source-metric fixture (actual component absent)',inputs:fingerprints,startedAt:new Date().toISOString(),browserPath,browserSha256:hash(browserPath),observations:[],checks:[],errors:[],limits:['Actual popup component plus source-extracted Home effects/JSX and scene keyboard listeners in a bounded integration fixture, not full Home mount or natural campaign execution.','Before is retained be44bc76 campaign body markup and exact CSS against the same text/background/viewport.','Source-palette native reconstruction, not an original GPU capture or hardware performance test.','No fullgame WebGL renderer launched.']}
 const save=()=>writeFileSync(resolve(output,'receipt.json'),JSON.stringify(receipt,null,2)+'\n')
-let browser,server,timer,memoryGuard,deadlineAt
+let browser,server,timer,memoryGuard,deadlineAt,episodeError
+let episodeFailed=false
 save()
 try {
  server=await createServer({configFile:false,root:fixture,publicDir:resolve(root,'public'),cacheDir:resolve(output,'vite-cache'),plugins:[react(),{name:'baseline-campaign-css',resolveId(id){if(id==='virtual:campaign-home')return homeFixture;if(id==='virtual:campaign-baseline.css')return baselineCss;if(id==='virtual:native-pause-component')return actualPause?pauseFile:'\0pause-fallback'},load(id){if(id==='\0pause-fallback')return 'export const OriginalPauseStatus=null'},configureServer(server){server.middlewares.use((req,res,next)=>{if(req.url==='/native-status-a11y.css'){res.setHeader('Content-Type','text/css');res.end(pauseA11y)}else if(req.url==='/diagnostics.html'){res.setHeader('Content-Type','text/html');res.end(diagnosticsHtml)}else if(req.url==='/before.css'){res.setHeader('Content-Type','text/css');res.end(oldCss)}else next()})}}],css:{postcss:{plugins:[tailwindcss({base:fixture})]}},optimizeDeps:{include:['react','react-dom','react-dom/client','react/jsx-runtime','react/jsx-dev-runtime']},server:{host:'127.0.0.1',port:4378,strictPort:true,fs:{allow:[root,output,pauseRoot]}},logLevel:'warn'})
@@ -302,5 +304,10 @@ try {
  assert.equal(receipt.errors.length,0,receipt.errors.join('\n'))
  for(const[file,sha]of Object.entries(fingerprints))assert.equal(hash(resolve(root,file)),sha,`Source drift: ${file}`)
  receipt.status='passed'
-}catch(error){receipt.status='failed';receipt.error=String(error?.stack??error);process.exitCode=1}
-finally{clearTimeout(timer);clearInterval(memoryGuard);await browser?.close();await server?.close();receipt.finishedAt=new Date().toISOString();save();console.log(JSON.stringify({status:receipt.status,error:receipt.error,checks:receipt.checks,captures:receipt.observations.length,output},null,2))}
+}catch(error){episodeFailed=true;episodeError=error;receipt.status='failed';receipt.error=String(error?.stack??error);process.exitCode=1}
+finally{
+ clearTimeout(timer);clearInterval(memoryGuard)
+ const terminal=await finalizePopupFixture({receipt,failed:episodeFailed,primaryError:episodeError,browser,server,save,
+   emit:retainedReceipt=>console.log(JSON.stringify({output,receipt:retainedReceipt},null,2))})
+ if(terminal.failed)process.exitCode=1
+}
