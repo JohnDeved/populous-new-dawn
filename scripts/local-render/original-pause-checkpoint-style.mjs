@@ -4,8 +4,10 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import { pauseStartupReady, skipPauseIntroduction } from './original-pause-checkpoint-recovery.mjs'
-import { observeFullscreenClearance, assertFullscreenClearance } from './fullscreen-clearance.mjs'
+import { observeFullscreenClearance, assertFullscreenClearance, assertPauseFullscreenIntegrity, assertPauseHudCount } from './fullscreen-clearance.mjs'
 import { assertCheckpointBodyClearance } from './checkpoint-body-clearance.mjs'
+import { capturePauseWorld, assertPauseWorldUnchanged, disposePauseWorld } from './pause-world-snapshot.mjs'
+import { observePauseKeyboardFocus } from './pause-focus-observation.mjs'
 
 async function waitForPauseFrame(page) {
   // Resizing is asynchronous in React. Inspect the actual rendered frame.
@@ -25,7 +27,7 @@ export async function reachPauseKeyboardFocus(page, target, signal) {
   let tabs = 0
   for (;;) {
     signal.throwIfAborted()
-    const focused = await target.evaluate(node => node === document.activeElement && node.matches(':focus-visible'))
+    const focused = await observePauseKeyboardFocus(target)
     // An observation settling after the episode deadline must not send a key.
     signal.throwIfAborted()
     if (focused) return tabs
@@ -85,15 +87,14 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       async function fullscreenClearance(label) {
         await waitForPauseFrame(page)
         const tabs = await reachPauseKeyboardFocus(page, button('Fullscreen'), signal)
-        assert.equal(await page.locator('.native-hud').count(), 1, 'Live native HUD/minimap geometry is required')
-        assert.ok(await modal.locator(':scope > :not([data-fullscreen-control]) button').count() > 0,
-          'Native menu controls cannot disappear from clearance coverage')
-        const sample = await observeFullscreenClearance(page, 'dialog[data-original-pause-menu]',
+        await assertPauseHudCount(page)
+        const { sample, integrity } = await observeFullscreenClearance(page, 'dialog[data-original-pause-menu]',
           '.native-hud, dialog[data-original-pause-menu] > :not([data-fullscreen-control]) button, ' +
           'dialog[data-original-pause-menu] [aria-label="Checkpoint details"], ' +
           'dialog[data-original-pause-menu] h2 > span, [data-original-options] [data-option-key], ' +
           '[data-original-options] input, [data-original-options] [role="status"], ' +
-          '[data-original-options] [data-menu-tooltip], [data-original-options] label[for]')
+          '[data-original-options] [data-menu-tooltip], [data-original-options] label[for]', modal.locator(':scope > :not([data-fullscreen-control]) button'))
+        assertPauseFullscreenIntegrity(integrity)
         fullscreen.push({ label, fallback, tabs, ...sample })
         writeFileSync(resolve(output, 'pause-fullscreen-clearance.json'), JSON.stringify(fullscreen, null, 2))
         assertFullscreenClearance(sample)
@@ -162,7 +163,9 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       await modal.getByRole('status').filter({ hasText: 'Checkpoint saved for this session only; browser storage is unavailable.' }).waitFor()
       assert.equal(await page.evaluate(() => window.testStore.hasCheckpoint()), true)
       if (fallback) assert.ok(blockedFontRequests > 0)
-      const frozen = await page.evaluate(() => JSON.stringify(window.testStore.getWorld()))
+      const frozen = await capturePauseWorld(page)
+      let worldError, worldFailed = false
+      try {
       for (const panel of ['save', 'load']) {
         if (panel === 'load') {
           await button('Back').click()
@@ -274,10 +277,12 @@ export default async function ({ browser, page, url, root, output, receipt, sign
               screenshots.push(`${name}-scrolled.png`)
             }
           }
-          assert.equal(await page.evaluate(() => JSON.stringify(window.testStore.getWorld())), frozen)
+          await assertPauseWorldUnchanged(page, frozen)
           writeFileSync(resolve(output, 'checkpoint-style-progress.json'), JSON.stringify({ records, screenshots }, null, 2))
         }
       }
+      } catch (error) { worldFailed = true; worldError = error; throw error }
+      finally { await disposePauseWorld(frozen, ...(worldFailed ? [worldError] : [])) }
       await button('Back').click()
       assert.equal(await button('Load Game').evaluate(node => node === document.activeElement), true)
       await button('Continue Game').click()

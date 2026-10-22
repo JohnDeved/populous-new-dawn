@@ -7,13 +7,13 @@ function fixture(states) {
   const controller = new AbortController()
   const page = { keyboard: { async press(key) { assert.equal(key, 'Tab'); tabs++ } } }
   const target = {
-    async evaluate(predicate) {
+    async evaluateAll(predicate) {
       reads++
       const state = states[Math.min(tabs, states.length - 1)]
       const node = { matches(selector) { assert.equal(selector, ':focus-visible'); return state.visible } }
       // Execute the production DOM predicate; do not replace it with a boolean
       // that could hide accidentally dropping the real focus-visible condition.
-      return new Function('document', `return (${predicate})(document.target)`)(
+      return new Function('document', `return (${predicate})([document.target])`)(
         { target: node, activeElement: state.active ? node : {} })
     },
     focus() { assert.fail('Keyboard traversal must not synthesize focus') },
@@ -72,8 +72,8 @@ test('pause keyboard traversal preserves an initial episode abort without readin
 test('a focus observation settling after episode abort cannot dispatch a late Tab or report success', async () => {
   for (const state of [absent, keyboard]) {
     const f = fixture([state]), reason = new Error('Episode expired during focus observation')
-    const evaluate = f.target.evaluate
-    f.target.evaluate = async predicate => {
+    const evaluate = f.target.evaluateAll
+    f.target.evaluateAll = async predicate => {
       const result = await evaluate(predicate)
       f.controller.abort(reason)
       return result
