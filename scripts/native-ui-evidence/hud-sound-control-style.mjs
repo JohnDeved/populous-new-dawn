@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
-import { ordinaryMission, saveMissionInputTrace } from './ordinary-mission.mjs'
+import { candidateModule, ordinaryMission, saveMissionInputTrace } from './ordinary-mission.mjs'
 
 // Hold/reject the real AudioContext.resume boundary only. Recovery calls the
 // original method from another trusted click; no enabled/component state is set.
@@ -41,6 +41,52 @@ export function assertSoundOwnership(before, after) {
   assert.deepEqual(after.scene, before.scene, 'Sound activation cannot change overview, focus pause or held gameplay keys')
   assert.deepEqual(after.popups, before.popups, 'Sound activation cannot acknowledge or replace the open campaign popup')
 }
+// Startup may legitimately collapse an authored popup to deliver world input.
+// Restore that retained owner through its public summary, never ACK or inject it.
+export async function prepareSoundPopup(page, popupInput, { signal, deadlineAt, trace }) {
+  let owner, failed = false
+  trace.status = 'running'
+  try {
+    signal.throwIfAborted()
+    assert.ok(Number.isFinite(deadlineAt) && deadlineAt > Date.now(), 'Popup setup requires the live episode deadline')
+    owner = await page.evaluateHandle(() => ({ world: window.testStore.getWorld(), scene: window.testSceneRef.current }))
+    trace.beforeOwnership = await page.evaluate(soundOwnership)
+    trace.retainedBefore = await page.evaluate(popupInput.campaignPopupSnapshot)
+    assert.equal(trace.beforeOwnership.currentWorld, true)
+    assert.equal(trace.beforeOwnership.world.paused, false)
+    assert.equal(trace.beforeOwnership.world.inputMask, 0)
+    assert.ok(trace.retainedBefore.length > 0, 'Mission 1 must supply a real retained campaign popup')
+    assert.ok(trace.retainedBefore.every(p => typeof p.serial === 'string' && /^\d+$/.test(p.serial) && typeof p.open === 'boolean'))
+    assert.equal(new Set(trace.retainedBefore.map(p => p.serial)).size, trace.retainedBefore.length)
+    const target = trace.retainedBefore.find(p => p.open) ?? trace.retainedBefore[0]
+    trace.serial = target.serial; trace.requestedOpen = true
+    signal.throwIfAborted()
+    const timeout = Math.min(2500, deadlineAt - Date.now())
+    assert.ok(Number.isFinite(timeout) && timeout > 0, 'Popup setup requires the remaining episode deadline')
+    trace.publicInput = {}
+    await popupInput.setCampaignPopupOpen(page, target.serial, true, { timeout, trace: trace.publicInput })
+    signal.throwIfAborted()
+    trace.retainedAfter = await page.evaluate(popupInput.campaignPopupSnapshot)
+    trace.afterOwnership = await page.evaluate(soundOwnership)
+    trace.sameOwner = await page.evaluate(before => window.testStore.getWorld() === before.world &&
+      window.testSceneRef.current === before.scene && before.scene.world === before.world, owner)
+    assert.equal(trace.sameOwner, true, 'Public popup setup must retain the actual scene and World objects')
+    assert.equal(trace.afterOwnership.currentWorld, true)
+    assert.deepEqual(trace.afterOwnership.world, trace.beforeOwnership.world, 'Popup setup must not change gameplay ownership')
+    assert.deepEqual(trace.afterOwnership.scene, trace.beforeOwnership.scene, 'Popup setup must not change scene input ownership')
+    assert.deepEqual(trace.retainedAfter, trace.retainedBefore.map(p => p.serial === target.serial ? { ...p, open: true } : p),
+      'Public setup must reopen the same retained notification without replacing or acknowledging any entry')
+    assert.ok(trace.afterOwnership.popups.includes(target.serial), 'The retained popup must actually be open')
+    trace.status = 'passed'
+  } catch (error) { failed = true; trace.status = 'failed'; trace.error = String(error); throw error }
+  finally {
+    try { await owner?.dispose() }
+    catch (error) {
+      trace.ownerDisposeError = String(error)
+      if (!failed) { trace.status = 'failed'; trace.error = String(error); throw error }
+    }
+  }
+}
 export function pendingSoundPointerTarget(node) {
   const box = node.getBoundingClientRect(), x = box.x + box.width / 2, y = box.y + box.height / 2
   const hit = document.elementFromPoint(x, y)
@@ -53,8 +99,15 @@ export function assertPendingSoundPointerTarget(target) {
   assert.ok(target.x >= 0 && target.y >= 0 && target.x < target.viewportWidth && target.y < target.viewportHeight, 'Pending sound click center must be inside the viewport')
   assert.equal(target.owned, true, 'Pending pointer click must actually hit the sound control or its artwork')
 }
+export async function closeSoundContext(context, report, fallback, primaryFailure) {
+  try { await context.close() }
+  catch (error) {
+    (report.cleanupErrors ??= []).push({ fallback, error: String(error) })
+    if (!primaryFailure) throw error
+  }
+}
 export default async function ({ browser, url, root, output, receipt, signal, deadlineAt }) {
-  const report = { status: 'running', samples: [], checks: [], inputBudgets: [] }
+  const report = { status: 'running', samples: [], checks: [], inputBudgets: [], popupPreparations: [] }
   receipt.missionInputBudgets = report.inputBudgets
   const save = () => writeFileSync(resolve(output, 'hud-sound.json'), JSON.stringify(report, null, 2) + '\n')
   let episodeError
@@ -62,7 +115,7 @@ export default async function ({ browser, url, root, output, receipt, signal, de
     for (const fallback of [false, true]) {
       signal.throwIfAborted()
       const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: fallback ? 2 : 1 })
-      let blockedArt = 0
+      let blockedArt = 0, contextFailed = false
       try {
         // The frame is specific to this browser control, avoiding damage to HUD
         // labels needed for the ordinary mission entry itself.
@@ -74,6 +127,13 @@ export default async function ({ browser, url, root, output, receipt, signal, de
         try { await ordinaryMission(page, root, { signal, deadlineAt, trace }) }
         catch (error) { inputError = error; throw error }
         finally { saveMissionInputTrace(save, inputError) }
+        const popupTrace = { fallback }; report.popupPreparations.push(popupTrace)
+        let popupError
+        try {
+          const popupInput = await candidateModule(root, 'scripts/browser-world-input.mjs')
+          await prepareSoundPopup(page, popupInput, { signal, deadlineAt, trace: popupTrace })
+        } catch (error) { popupError = error; throw error }
+        finally { saveMissionInputTrace(save, popupError) }
         const control = page.locator('[data-sound-control]')
         await control.waitFor()
         await page.waitForFunction(fallback => document.querySelector('[data-sound-control]')?.dataset.artReady === String(!fallback), fallback)
@@ -113,6 +173,7 @@ export default async function ({ browser, url, root, output, receipt, signal, de
         assert.equal(await control.evaluate(node => node === document.activeElement), true)
         await capture('focus', 'Sound Off', 'hud-button-selected.png')
         const before = await page.evaluate(soundOwnership)
+        report.checks.push({ fallback, phase: 'baseline', ownership: before }); save()
         assert.equal(before.currentWorld, true); assert.equal(before.world.paused, false)
         assert.ok(before.popups.length > 0, 'Ordinary Mission 1 must supply the live campaign popup for ownership coverage')
         const preserved = async phase => {
@@ -162,7 +223,8 @@ export default async function ({ browser, url, root, output, receipt, signal, de
         await preserved('native-Space-mute')
         if (fallback) assert.ok(blockedArt > 0)
         report.checks.push(`${fallback ? 'fallback/DPR2' : 'native/DPR1'}: off/on, hover/focus, pending pointer/keyboard/repeat guards, focus/world/popup preservation, held-release rejection recovery, native Space mute, compact geometry`)
-      } finally { await context.close() }
+      } catch (error) { contextFailed = true; throw error }
+      finally { await closeSoundContext(context, report, fallback, contextFailed) }
     }
     report.status = 'passed'; report.limits = ['Trusted browser activation and real AudioContext recovery, not acoustic measurement', 'Browser compatibility footer, not an original native sound-toggle claim']
     return report
