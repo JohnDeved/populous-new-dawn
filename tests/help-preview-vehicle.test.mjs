@@ -1,16 +1,34 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import { prepareHelpVehicle, helpVehicleUV } from '../app/help-preview-vehicle.ts'
 import { createHelpVehicleCanvas } from '../app/help-preview-vehicle-canvas.ts'
 import { planHelpObjectPreview } from '../app/help-preview-object.ts'
 import { helpPreview } from '../app/help-preview.ts'
 import help from '../app/original-help.json' with { type: 'json' }
+import source from './help-preview-vehicle-source.json' with { type: 'json' }
 
 const ctx = (patch = {}) => ({ objectBank: 2, player: 0, width: 640, height: 480,
   shadeTable: Array.from({ length: 1024 }, (_, i) => i % 64),
   profile: 'linear-argb4444-alpha2', vertexShiftX: 0, vertexShiftY: 0, ...patch })
 const request = (model = 143, angle = 0) => ({ kind: 'object', category: 'vehicle',
   objects: [{ model, angle, x: 300, y: 250, renderParameter: 30, fixedParameter: 1866 }] })
+
+test('vehicle profile constants and addressed static spans remain original-byte bound', () => {
+  assert.equal(source.exeSha256, '3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f')
+  for (const span of Object.values(source.spans)) {
+    const bytes = Buffer.from(span.bytes, 'hex')
+    assert.equal(bytes.length, parseInt(span.end, 16) - parseInt(span.start, 16))
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), span.sha256)
+  }
+  const f = address => Buffer.from(source.constants[address], 'hex').readFloatLE()
+  const u = address => Buffer.from(source.constants[address], 'hex').readUInt32LE()
+  assert.equal(f('0058f47c'), 1 / 2097152); assert.equal(f('0058f4ec'), 1 / 16384)
+  assert.equal(f('005dd324'), 0.5); assert.equal(f('005dd328'), 0)
+  assert.equal(f('005dd32c'), -0.5); assert.equal(f('005dd330'), 0)
+  assert.equal(u('005d54c8'), 1); assert.equal(u('005d54cc'), 0)
+  assert.equal(u('005d56e8'), 0); assert.equal(u('005d56ec'), 0x3ff)
+})
 
 test('vehicle profile, current inputs and resource bounds fail closed', () => {
   for (const patch of [{ profile: undefined }, { profile: 'nearest' }, { vertexShiftX: undefined },

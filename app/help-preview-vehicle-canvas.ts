@@ -57,15 +57,16 @@ void main() {
 export function createHelpVehicleCanvas():
   { status: 'created'; renderer: HelpVehicleCanvas } | { status: 'unsupported'; reason: string } {
   if (typeof document === 'undefined') return { status: 'unsupported', reason: 'vehicle-canvas-unavailable' }
-  let canvas: HTMLCanvasElement, gl: WebGL2RenderingContext | null
+  let canvas: HTMLCanvasElement, webgl: WebGL2RenderingContext | null
   try {
     canvas = document.createElement('canvas')
     canvas.style.pointerEvents = 'none'
-    gl = canvas.getContext('webgl2', {
+    webgl = canvas.getContext('webgl2', {
       alpha: true, antialias: false, depth: true, stencil: false,
       premultipliedAlpha: true, preserveDrawingBuffer: false,
     })
   } catch { return { status: 'unsupported', reason: 'vehicle-canvas-setup-failed' } }
+  const gl = webgl
   if (!gl) return { status: 'unsupported', reason: 'vehicle-webgl2-unavailable' }
   let disposed = false
   let program: WebGLProgram | null = null, buffer: WebGLBuffer | null = null
