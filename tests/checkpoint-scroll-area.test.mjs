@@ -24,7 +24,7 @@ function eventTarget() {
 
 // Executes shipped React handlers/effect lifetimes with measured DOM stand-ins.
 // This does not establish actual layout, accessibility-tree or rendered acceptance.
-function fixture() {
+function fixture({ rejectRelease = false } = {}) {
   const slots = [], effects = [], images = [], observers = []
   let cursor = 0, output, nodes, scrollTop = 0
   const viewport = { clientHeight: 270, scrollHeight: 540,
@@ -35,7 +35,10 @@ function fixture() {
   const content = {}, scrollbar = eventTarget(), window = eventTarget(), document = eventTarget()
   const captured = new Set(), dragElement = {
     setPointerCapture(id) { captured.add(id) }, hasPointerCapture: id => captured.has(id),
-    releasePointerCapture(id) { captured.delete(id) },
+    releasePointerCapture(id) {
+      if (rejectRelease) throw new Error('Controlled pointer-release rejection')
+      captured.delete(id)
+    },
   }
   const react = {
     useId: () => 'checkpoint-details-test',
@@ -143,7 +146,9 @@ test('system scrollbar remains available until every original asset has decoded'
   assert.equal(ui.output().props['data-scroll-art'], false)
   assert.equal(ui.find('scrollbar'), undefined)
   assert.equal(ui.find('viewport').props.tabIndex, 0)
+  assert.equal(ui.find('viewport').props['data-pause-checkpoint-scroll'], true)
   assert.equal(ui.find('viewport').props['aria-label'], 'Checkpoint details')
+  assert.equal(ui.output().props['aria-label'], undefined, 'the outer wrapper must not impersonate the actual scroller')
   assert.equal(ui.find('viewport').props.onKeyDown, undefined, 'keyboard scrolling stays browser-owned')
   assert.equal(ui.images.length, 5)
   await ui.decode()
@@ -167,6 +172,9 @@ test('real cap buttons scroll one native text line and use original hover/focus 
   const cap = direction => ui.nodes().find(node => node.type === 'button' && node.props['aria-label'].endsWith(direction))
   assert.equal(cap('down').props['aria-controls'], 'checkpoint-details-test')
   assert.equal(cap('down').props.tabIndex, 0, 'pause navigation must not intercept scrollbar keyboard focus')
+  assert.equal(cap('down').props['data-pause-checkpoint-cap'], 'down')
+  assert.equal(cap('up').props['data-pause-checkpoint-cap'], 'up')
+  assert.equal(cap('down').props['data-pause-action'], undefined, 'scrollbar caps are not native menu action rows')
   cap('down').props.onClick(); ui.sync()
   assert.equal(ui.viewport.scrollTop, 30)
   assert.equal(ui.find('thumb').props.style.top, 15)
@@ -207,6 +215,27 @@ for (const finish of ['onPointerCancel', 'onLostPointerCapture', 'blur', 'visibi
     assert.equal(ui.document.listeners.size, 0)
     assert.equal(ui.scrollbar.listeners.size, 0)
     assert.ok(ui.observers.every(observer => observer.disconnected))
+  })
+}
+
+for (const finish of ['onPointerUp', 'onPointerCancel', 'onLostPointerCapture', 'blur', 'visibilitychange', 'resize', 'unmount']) {
+  test(`rejected capture release during ${finish} cannot retain local drag ownership or skip cleanup`, async () => {
+    const ui = fixture({ rejectRelease: true }); await ui.decode(); ui.pointer('onPointerDown')
+    assert.doesNotThrow(() => {
+      if (finish.startsWith('on')) ui.pointer(finish)
+      else if (finish === 'visibilitychange') ui.document.fire(finish)
+      else if (finish === 'unmount') ui.unmount()
+      else ui.window.fire(finish)
+    })
+    ui.pointer('onPointerMove', { clientY: 200 })
+    assert.equal(ui.viewport.scrollTop, 0, 'a rejected DOM release must not leave a live drag owner')
+    assert.doesNotThrow(ui.unmount)
+    assert.equal(ui.window.listeners.size, 0)
+    assert.equal(ui.document.listeners.size, 0)
+    assert.equal(ui.scrollbar.listeners.size, 0)
+    assert.ok(ui.observers.every(observer => observer.disconnected))
+    // A throwing browser API cannot prove successful physical capture release;
+    // only the local owner and independently completed cleanup are asserted.
   })
 }
 

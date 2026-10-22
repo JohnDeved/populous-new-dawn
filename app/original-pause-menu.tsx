@@ -128,6 +128,7 @@ function MenuRow({
   return (
     <button
       aria-label={label}
+      data-pause-action={label}
       disabled={disabled}
       title={disabled ? unavailable : undefined}
       style={{
@@ -438,7 +439,7 @@ export function OriginalPauseMenu(props: Props) {
             <h2 className={styles.checkpointTitle} aria-label={panelTitles[panel]}>
               <MenuText text={panelTitles[panel]!} highlighted={false} ready={ready} />
             </h2>
-            <div className={styles.checkpointBody}>
+            <div className={styles.checkpointBody} data-pause-checkpoint-body>
               <CheckpointScrollArea key={panel}>
                 <CheckpointText
                   text="One browser checkpoint. No original multi-slot saves."

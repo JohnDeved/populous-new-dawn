@@ -23,7 +23,13 @@ export function CheckpointScrollArea({ children }: { children: ReactNode }) {
   const release = useCallback(() => {
     const owned = drag.current
     drag.current = null
-    if (owned?.element.hasPointerCapture(owned.id)) owned.element.releasePointerCapture(owned.id)
+    if (!owned) return
+    try {
+      owned.element.releasePointerCapture(owned.id)
+    } catch {
+      // A detached/cancelled pointer can reject release. Local ownership is
+      // already cleared; this must not interrupt observer/listener cleanup.
+    }
   }, [])
   const measure = useCallback(() => {
     const node = viewport.current
@@ -108,6 +114,7 @@ export function CheckpointScrollArea({ children }: { children: ReactNode }) {
         className={styles.viewport}
         tabIndex={0}
         role="region"
+        data-pause-checkpoint-scroll
         aria-label="Checkpoint details"
         onScroll={measure}
       >
@@ -130,6 +137,7 @@ export function CheckpointScrollArea({ children }: { children: ReactNode }) {
                   type="button"
                   className={styles.cap}
                   tabIndex={0}
+                  data-pause-checkpoint-cap={direction}
                   style={{ top: direction === 'up' ? 0 : plan.thumb - 12, height: asset.height }}
                   aria-label={`Scroll checkpoint details ${direction}`}
                   aria-controls={id}

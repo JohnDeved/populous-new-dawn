@@ -560,6 +560,20 @@ test('checkpoint details retain native scrolling keys without turning them into 
   }
 })
 
+test('native menu action rows and the fixed checkpoint body have distinct rendered-checker markers', () => {
+  const ui = fixture()
+  for (const label of ['Continue Game', 'Load Game', 'Save Game', 'Back'])
+    assert.equal(ui.button(label).props['data-pause-action'], label)
+  ui.click('Load Game')
+  for (const label of ['Retry checkpoint lookup', 'Load checkpoint', 'Back'])
+    assert.equal(ui.button(label).props['data-pause-action'], label)
+  const body = tree(ui.render()).find(node => node.props?.['data-pause-checkpoint-body'])
+  assert.ok(body)
+  assert.equal(body.props['aria-label'], undefined, 'the fixed body is not the scroll/focus target')
+  ui.back(); ui.click('Save Game')
+  assert.equal(ui.button('Save checkpoint').props['data-pause-action'], 'Save checkpoint')
+})
+
 for (const [outcome, text] of [
   [true, 'Checkpoint saved in this browser.'],
   [false, 'Checkpoint saved for this session only; browser storage is unavailable.'],
