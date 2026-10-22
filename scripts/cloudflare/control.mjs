@@ -10,7 +10,7 @@ import { account, worker, repository, buildPath, publishPath, marker, maxArchive
 
 const prefix = `/repos/${repository}`
 const gatePath = '.github/workflows/ready-pr-check.yml'
-const resultFile = '.cloudflare-result.json'
+const resultFile = new URL('../../cloudflare-result.json', import.meta.url)
 const local = path => readFileSync(new URL(`../../${path}`, import.meta.url))
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 export async function bodyBytes(response, limit) {
@@ -63,9 +63,19 @@ export async function runPr(api, run) {
 export async function currentSource(api, run, pr) {
   const latest = await api(`${prefix}/actions/runs/${run.id}`)
   if (latest.run_attempt !== run.run_attempt) return false
-  if (pr) return currentPreview(run, await api(`${prefix}/pulls/${pr.number}`))
+  if (pr) {
+    if (!currentPreview(run, await api(`${prefix}/pulls/${pr.number}`))) return false
+    return !await newerBuild(api, run, pr.number)
+  }
   if (run.event !== 'push' || run.head_branch !== 'main') return false
   return (await api(`${prefix}/git/ref/heads/main`)).object.sha === run.head_sha
+}
+export async function newerBuild(api, run, prNumber) {
+  const list = await api(`${prefix}/actions/workflows/cloudflare-build.yml/runs?event=pull_request&head_sha=${run.head_sha}&per_page=100`)
+  assert.ok(list.total_count <= 100 && list.workflow_runs.length === list.total_count, 'Incomplete build inventory')
+  return list.workflow_runs.some(item => item.path === buildPath && item.head_sha === run.head_sha &&
+    item.pull_requests?.some(pr => pr.number === prNumber) &&
+    (item.id > run.id || (item.id === run.id && item.run_attempt > run.run_attempt)))
 }
 export async function artifacts(api, run) {
   const list = await api(`${prefix}/actions/runs/${run.id}/artifacts?per_page=100`)
@@ -80,7 +90,10 @@ export async function oneArtifact(api, download, run, name, maximum, optional = 
   const item = matches[0]
   assert.equal(item.expired, false); assert.equal(item.workflow_run.id, run.id)
   assert.ok(positive(item.id) && item.size_in_bytes > 0 && item.size_in_bytes <= maximum, 'Invalid artifact size')
-  return download(item.id, maximum)
+  assert.match(item.digest ?? '', /^sha256:[a-f0-9]{64}$/, 'Missing artifact SHA-256 digest')
+  const bytes = await download(item.id, maximum)
+  assert.equal(`sha256:${hash(bytes)}`, item.digest, 'Artifact SHA-256 mismatch')
+  return bytes
 }
 function jsonArtifact(zip, name, maximum = 1024 * 1024) {
   const files = readArtifactZip(zip, { maxArchiveBytes: maximum, maxTotalBytes: maximum,
@@ -94,6 +107,7 @@ export async function productionGate(api, download, run) {
   const prs = associated.filter(pr => pr.merged_at && pr.base.ref === 'main' && pr.merge_commit_sha === run.head_sha)
   assert.equal(prs.length, 1, 'Production requires a merged PR, not a direct push')
   const pr = await api(`${prefix}/pulls/${prs[0].number}`)
+  assert.equal(pr.number, prs[0].number); assert.equal(pr.base.ref, 'main'); assert.equal(pr.base.repo.full_name, repository)
   assert.equal(pr.merged, true); assert.equal(pr.merge_commit_sha, run.head_sha)
   const list = await api(`${prefix}/actions/workflows/ready-pr-check.yml/runs?event=pull_request&status=success&head_sha=${pr.head.sha}&per_page=100`)
   assert.ok(list.total_count <= 100 && list.workflow_runs.length === list.total_count, 'Incomplete gate inventory')
@@ -102,7 +116,7 @@ export async function productionGate(api, download, run) {
   assert.ok(candidates.length, 'No successful trusted ready-PR gate')
   const gate = await verifiedRun(api, candidates[0].id, gatePath)
   assert.equal(gate.event, 'pull_request'); assert.equal(gate.status, 'completed'); assert.equal(gate.conclusion, 'success')
-  assert.equal(gate.head_sha, pr.head.sha)
+  assert.equal(gate.head_sha, pr.head.sha); assert.ok(gate.pull_requests.some(item => item.number === pr.number))
   await exactFile(api, gatePath, gate.head_sha)
   const jobs = await api(`${prefix}/actions/runs/${gate.id}/attempts/${gate.run_attempt}/jobs?per_page=100`)
   assert.ok(jobs.total_count <= 100 && jobs.jobs.length === jobs.total_count)
@@ -169,7 +183,7 @@ export async function report({ api, download, sourceId, expectedPr, mode }) {
   const current = async () => {
     const latestPr = await api(`${prefix}/pulls/${pr.number}`)
     const latestRun = await api(`${prefix}/actions/runs/${run.id}`)
-    return latestPr.state === 'open' && latestPr.head.sha === run.head_sha && latestRun.run_attempt === run.run_attempt
+    return latestPr.state === 'open' && latestPr.base.ref === 'main' && latestPr.head.sha === run.head_sha && latestRun.run_attempt === run.run_attempt && !await newerBuild(api, run, pr.number)
   }
   let status, publication = null, urls = null
   if (pr.head.repo?.full_name !== repository) status = 'Skipped: fork previews are not published to this account.'
@@ -197,7 +211,7 @@ export async function report({ api, download, sourceId, expectedPr, mode }) {
           `cloudflare-result-${publication.id}-${publication.run_attempt}`, 65536, true)
         if (!zip) status = 'Publication skipped or result unavailable; no verified deployment.'
         else {
-          const result = jsonArtifact(zip, '.cloudflare-result.json', 65536)
+          const result = jsonArtifact(zip, 'cloudflare-result.json', 65536)
           assert.equal(result.version, 1); assert.equal(result.source, run.id); assert.equal(result.sourceAttempt, run.run_attempt)
           assert.equal(result.sha, run.head_sha); assert.equal(result.pr, pr.number)
           assert.equal(result.status, 'preview-published')

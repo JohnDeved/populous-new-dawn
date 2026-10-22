@@ -28,6 +28,10 @@ jobs:
             scripts/cloudflare
             scripts/artifact-zip.mjs
           sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          package-manager-cache: false
       - id: route
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -56,6 +60,10 @@ jobs:
             scripts/cloudflare
             scripts/artifact-zip.mjs
           sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          package-manager-cache: false
       - name: Update one current-head preview comment (including cancellations)
         env:
           GITHUB_TOKEN: ${{ github.token }}
