@@ -989,13 +989,16 @@ test('native UI checker changes select focused regressions without losing workfl
       'tests/original-loading-screen.test.mjs',
       'tests/checkpoint-scroll-area.test.mjs',
     ])
-    const paths = ['scripts/native-ui-evidence/options-audio-control-style.mjs',
+    const workflowPaths = ['scripts/native-ui-evidence/options-audio-control-style.mjs',
       'scripts/browser-options-audio.mjs', 'tests/browser-options-audio.test.mjs',
+      'scripts/native-ui-evidence/policy.mjs', 'tests/native-ui-evidence.test.mjs',
+      '.github/workflows/native-ui-evidence.yml', 'engineering/native-ui-evidence.md']
+    const popupPaths = [
       'scripts/campaign-popup-fixture/home-source.mjs', 'scripts/campaign-popup-fixture/fullscreen-menu.mjs',
       'scripts/campaign-popup-fixture/finalize.mjs', 'scripts/campaign-popup-fixture/run.mjs',
       'tests/campaign-popup-fullscreen-fixture.test.mjs',
-      'scripts/native-ui-evidence/policy.mjs', 'tests/native-ui-evidence.test.mjs',
-      '.github/workflows/native-ui-evidence.yml', 'engineering/native-ui-evidence.md']
+      'app/scene-input-runtime.ts', 'app/fullscreen-session.ts']
+    const paths = [...workflowPaths, ...popupPaths]
     for (const input of check.inputs) {
       // Keep the real fixture routing manifest: it is itself a declared input.
       if (input === 'engineering/checks.json') continue
@@ -1003,15 +1006,35 @@ test('native UI checker changes select focused regressions without losing workfl
       else put(repo, input, input === 'package.json' ? '{"type":"module"}\n' : '// fixture\n')
     }
     for (const path of paths) put(repo, path, '// fixture\n')
+    run(repo, 'git', 'add', '.'); run(repo, 'git', 'commit', '-qm', 'native UI checker source fixtures')
+    const baseline = new Map()
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      baseline.set(path, planChanges(repo))
+      put(repo, path, '// fixture\n')
+    }
     const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
     manifest.checks.push(check); put(repo, 'engineering/checks.json', manifest)
     run(repo, 'git', 'add', '.'); run(repo, 'git', 'commit', '-qm', 'native UI checker routing')
     for (const path of paths) {
       appendFileSync(join(repo, path), '// changed\n')
-      const plan = planChanges(repo)
-      assert.deepEqual(plan.unknownPaths, [], path)
-      for (const id of [check.id, 'orchestration-tests', 'orchestration-structural', 'repository-check'])
-        assert.ok(plan.checks.some(item => item.id === id), `${path}: missing ${id}`)
+      const plan = planChanges(repo), previous = baseline.get(path)
+      assert.deepEqual(plan.checks.find(item => item.id === check.id)?.command, [check.executable, ...check.args], path)
+      // Explicit triggers add a cheap check, not workflow ownership. Preserve
+      // unknown-path fallback and every pre-existing gate for fixture/app paths.
+      assert.deepEqual(plan.checks.filter(item => item.id !== check.id), previous.checks, path)
+      assert.deepEqual(plan.unknownPaths, previous.unknownPaths, path)
+      assert.deepEqual(plan.affectedSubsystems, previous.affectedSubsystems, path)
+      assert.equal(plan.feedback.scope, previous.feedback.scope, path)
+      if (workflowPaths.includes(path)) {
+        assert.deepEqual(plan.unknownPaths, [], path)
+        for (const id of ['orchestration-tests', 'orchestration-structural', 'repository-check'])
+          assert.ok(plan.checks.some(item => item.id === id), `${path}: missing ${id}`)
+      } else {
+        assert.deepEqual(plan.unknownPaths, [path], path)
+        assert.ok(plan.checks.some(item => item.id === 'repository-check'), path)
+        if (path.startsWith('app/')) assert.ok(plan.checks.some(item => item.id === 'production-build'), path)
+      }
       assert.equal(plan.executesChecks, false)
       assert.equal(plan.feedback.fullVerificationRequired, true)
       assert.equal(plan.feedback.finalGate, false)
