@@ -7,7 +7,6 @@ inputs are verified before decoding or opening the explicitly new destination.
 import argparse
 import hashlib
 import json
-import os
 from pathlib import Path
 import stat
 import struct
