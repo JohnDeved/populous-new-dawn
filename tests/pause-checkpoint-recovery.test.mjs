@@ -41,6 +41,8 @@ function fixture(overrides = {}) {
     if (name === 'react') return react
     if (name === 'react/jsx-runtime') return require(name)
     if (name === './original-pause-font.json') return JSON.parse(readFileSync(new URL('../app/original-pause-font.json', import.meta.url)))
+    if (name === './checkpoint-scroll') return { CHECKPOINT_COPY_WIDTH: 368 }
+    if (name === './checkpoint-scroll-area') return { CheckpointScrollArea: ({ children }) => require('react/jsx-runtime').jsx('div', { tabIndex: 0, 'aria-label': 'Checkpoint details', children }) }
     if (name === './frontend-composition') return { frontendScale: () => 1 }
     if (name.endsWith('.module.css')) return {}
     throw new Error(`Unexpected component dependency: ${name}`)
@@ -476,7 +478,7 @@ function assertCheckpointCopy(paragraph, fonts) {
       const glyphs = tree(line).filter(node => node.type === 'i')
       assert.equal(glyphs.length, text.length)
       assert.ok(glyphs.every(node => node.props.style.backgroundImage === "url('/original/pause-font.png')"))
-      assert.ok([...text].reduce((sum, c) => sum + font.rects[c.charCodeAt(0) - 32].w, 0) <= 400)
+      assert.ok([...text].reduce((sum, c) => sum + font.rects[c.charCodeAt(0) - 32].w, 0) <= 368)
       return text
     })
     assert.equal(lines.join(' '), text.replaceAll('…', '...').replace(/\s+/g, ' ').trim())
@@ -537,7 +539,7 @@ test('long checkpoint reasons wrap without losing characters and unsupported gly
       assert.equal(lines.join(''), reason)
       assert.ok(lines.length > 1)
       const font = JSON.parse(readFileSync(new URL('../app/original-pause-font.json', import.meta.url)))
-      assert.ok(lines.every(line => [...line].reduce((sum, c) => sum + font.rects[c.charCodeAt(0) - 32].w, 0) <= 400))
+      assert.ok(lines.every(line => [...line].reduce((sum, c) => sum + font.rects[c.charCodeAt(0) - 32].w, 0) <= 368))
     }
   }
 })
@@ -556,6 +558,20 @@ test('checkpoint details retain native scrolling keys without turning them into 
     assert.equal(prevented, false)
     assert.equal(ui.render().props['data-panel'], 'load')
   }
+})
+
+test('native menu action rows and the fixed checkpoint body have distinct rendered-checker markers', () => {
+  const ui = fixture()
+  for (const label of ['Continue Game', 'Load Game', 'Save Game', 'Back'])
+    assert.equal(ui.button(label).props['data-pause-action'], label)
+  ui.click('Load Game')
+  for (const label of ['Retry checkpoint lookup', 'Load checkpoint', 'Back'])
+    assert.equal(ui.button(label).props['data-pause-action'], label)
+  const body = tree(ui.render()).find(node => node.props?.['data-pause-checkpoint-body'])
+  assert.ok(body)
+  assert.equal(body.props['aria-label'], undefined, 'the fixed body is not the scroll/focus target')
+  ui.back(); ui.click('Save Game')
+  assert.equal(ui.button('Save checkpoint').props['data-pause-action'], 'Save checkpoint')
 })
 
 for (const [outcome, text] of [
@@ -595,7 +611,10 @@ test('checkpoint copy is independently scrollable and cannot cover fixed actions
   assert.match(body, /width: 432px/)
   assert.equal(104 + 432 / 2, 320, 'copy stays on the original menu center')
   assert.ok(104 > 100, 'the copy area reserves the full unscaled native HUD gutter')
-  assert.match(body, /overflow: auto/)
+  const scrolling = readFileSync(new URL('../app/checkpoint-scroll-area.module.css', import.meta.url), 'utf8')
+  assert.match(scrolling, /\.viewport \{[^}]*overflow: auto/)
+  assert.match(scrolling, /\.content \{[^}]*width: 368px; margin: 0 auto/)
+  assert.match(scrolling, /\.viewport:focus-visible/)
   assert.ok(81 + 270 < 369)
   assert.match(css, /\.checkpointText \{[^}]*overflow-wrap: anywhere/)
   assert.doesNotMatch(css, /\.panel h2|\.panel button \{[^}]*background|font: 15px/)
