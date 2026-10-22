@@ -49,7 +49,8 @@ const vehicleObjects: Readonly<Record<number, number>> = { 2: 143, 4: 144 }
 function validPane(pane: HelpRect) {
   return pane && [pane.x, pane.y, pane.width, pane.height].every(Number.isInteger) &&
     pane.width > 0 && pane.height > 0 &&
-    [pane.x, pane.y, pane.width, pane.height].every(n => n >= 0 && n <= 32767)
+    [pane.x, pane.y, pane.width, pane.height].every(n => n >= 0 && n <= 32767) &&
+    pane.x + pane.width <= 32767 && pane.y + pane.height <= 32767
 }
 
 /** Exact kind dispatch; ready means person draw commands resolved, not that an

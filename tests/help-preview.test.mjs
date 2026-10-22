@@ -219,8 +219,16 @@ test('malformed descriptors and impossible panes fail without reinterpretation',
     { kind: -1, args: [0, 0, 0] }, { kind: 256, args: [0, 0, 0] }, { kind: 1.5, args: [0, 0, 0] },
     { kind: 0, args: [0, 0] }, { kind: 0, args: [NaN, 0, 0] }, { kind: 0, args: [-1, 0, 0] },
   ]) assert.deepEqual(helpPreview(descriptor, context()), { status: 'unsupported', reason: 'invalid-preview-descriptor' })
-  for (const badPane of [{ ...pane, width: 0 }, { ...pane, x: NaN }, { ...pane, height: 0.5 }])
-    assert.equal(topic(1024, { pane: badPane }).reason, 'invalid-preview-context')
+  const boundary = { ...pane, x: 32767 - pane.width, y: 32767 - pane.height }
+  for (const kind of [0, 1, 2, 4, 5, 6]) {
+    const row = source.topics.find(row => row.kind === kind)
+    assert.notEqual(topic(row.topic, { pane: boundary }).reason, 'invalid-preview-context')
+    for (const badPane of [
+      { ...pane, width: 0 }, { ...pane, x: NaN }, { ...pane, height: 0.5 },
+      { ...pane, x: 32767 }, { ...pane, y: 32767 },
+      { ...boundary, x: boundary.x + 1 }, { ...boundary, y: boundary.y + 1 },
+    ]) assert.equal(topic(row.topic, { pane: badPane }).reason, 'invalid-preview-context')
+  }
 })
 
 test('preview planning cannot mutate input state or advance the game', () => {
