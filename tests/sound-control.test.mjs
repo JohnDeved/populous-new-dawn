@@ -8,6 +8,7 @@ import { hudGlyph } from '../app/hud-font.ts'
 import { hudScale } from '../app/hud-layout.ts'
 import hud from '../app/original-hud.json' with { type: 'json' }
 import art from '../app/original-campaign-popup.json' with { type: 'json' }
+import { createResultKeys, createResultSession, resultSpaceEligible } from '../app/result-session.ts'
 import { captureCampaignPopupKeys } from '../app/campaign-popup-session.ts'
 import { homePopupSources } from '../scripts/campaign-popup-fixture/home-source.mjs'
 import { evaluatePage, pageEffect, pageNode, pageSource } from './support/follower-nearby-page.mjs'
@@ -179,10 +180,10 @@ test('actual Home activation still owns pending, failure notice, retry, mute and
 
 // Supplied DOM/default-action boundary; handlers, popup capture and gameplay
 // effects execute shipped source. The hosted browser capture proves real defaults.
-function keyboardFixture({ popupOpen = false, pending = false, soundTarget = true } = {}) {
-  const f = fixture(), button = f.render({ pending }), listeners = new Map()
+function keyboardFixture({ popupOpen = false, pending = false, soundTarget = true, resultStage = null, focusPauseOwned = false } = {}) {
+  const f = fixture(), button = f.render({ pending }), listeners = new Map(), resultListeners = new Map()
   const calls = { overview: 0, skip: 0, menu: 0 }, world = {
-    paused: false, inputMask: 0, flyby: { flags: 0 }, units: [], selected: [], outcome: { level: 2 },
+    paused: focusPauseOwned, status: resultStage ? 'lost' : 'playing', manaWorld: { loadFlags: 0 }, inputMask: 0, flyby: { flags: 0 }, units: [], selected: [], outcome: { level: 2 },
   }
   let acknowledged = 0, game, sceneUp
   const popup = { querySelector: () => ({ click() { acknowledged++; popupOpen = false } }) }
@@ -191,12 +192,21 @@ function keyboardFixture({ popupOpen = false, pending = false, soundTarget = tru
   }
   const document = { addEventListener: (type, fn) => listeners.set(type, fn), removeEventListener: type => listeners.delete(type) }
   const cleanup = captureCampaignPopupKeys(document, () => popupOpen ? popup : undefined)
-  const scene = { keys: new Set(), overview() { calls.overview++ }, skipIntroduction() { calls.skip++ }, listen(_target, _type, fn) { sceneUp = fn } }
-  pageEffect("globalThis.addEventListener('keydown', key)", {
+  const scene = { world, focusPauseOwned, keys: new Set(), overview() { calls.overview++ }, skipIntroduction() { calls.skip++ }, listen(_target, _type, fn) { sceneUp = fn } }
+  const messageDetails = { current: new Map([[0, { get open() { return popupOpen } }]]) }
+  const bindings = {
     world, engine: { current: scene }, store: { change: fn => fn(world), getWorld: () => world },
-    ready: true, menu: false, cheatsOpen: false, update() {}, audio: { current: null },
+    ready: true, menu: false, cheatsOpen: false, update() {}, audio: { current: null }, messageDetails,
     globalThis: { addEventListener(_type, fn) { game = fn } }, openMenu() { calls.menu++ },
     SPELLS: [], tutorialLevel: 79,
+  }
+  pageEffect("globalThis.addEventListener('keydown', key)", bindings)()
+  const resultSession = createResultSession()
+  if (resultStage === 'statistics') resultSession.openStatistics(world)
+  pageEffect('const fresh = resultKeys.down(event)', {
+    ...bindings, startup: 'playing', selectorOpen: false, debugPicker: false,
+    resultSession, resultKeys: createResultKeys(), resultSpaceEligible,
+    globalThis: { addEventListener: (type, fn) => resultListeners.set(type, fn) },
   })()
   evaluatePage(homePopupSources(new URL('..', import.meta.url).pathname).sceneUp, { window: {}, scene })
   let spaceArmed = false
@@ -206,7 +216,7 @@ function keyboardFixture({ popupOpen = false, pending = false, soundTarget = tru
       stopPropagation() { stopped = true }, stopImmediatePropagation() { stopped = immediate = true }, preventDefault() { prevented = true } }
     const old = globalThis.Element
     globalThis.Element = Element
-    try { listeners.get(type)(event) } finally { globalThis.Element = old }
+    try { resultListeners.get(type)(event); if (!immediate) listeners.get(type)(event) } finally { globalThis.Element = old }
     if (!immediate && soundTarget) button.props[type === 'keydown' ? 'onKeyDown' : 'onKeyUp'](event)
     if (!stopped) (type === 'keydown' ? game : sceneUp)(event)
     if (soundTarget && !pending && !prevented) {
@@ -217,7 +227,7 @@ function keyboardFixture({ popupOpen = false, pending = false, soundTarget = tru
     if (key === ' ' && type === 'keyup') spaceArmed = false
     return { stopped, prevented }
   }
-  return { key, calls, world, scene, f, cleanup, closePopup() { popupOpen = false }, get acknowledged() { return acknowledged } }
+  return { key, calls, world, scene, f, cleanup, resultSession, closePopup() { popupOpen = false }, get acknowledged() { return acknowledged } }
 }
 
 test('focused sound Enter/Space activate once without popup ACK, pause, overview or release leakage', () => {
@@ -274,4 +284,29 @@ test('sound handlers leave unrelated keys and their modifiers to existing owners
       handler({ key, repeat: true, ctrlKey: true, metaKey: true, altKey: true,
         preventDefault() { assert.fail('unrelated default changed') },
         stopPropagation() { assert.fail('unrelated ownership changed') } })
+})
+
+
+test('focused sound activation bypasses result capture without changing statistics or focus-owned pause', () => {
+  for (const resultStage of ['terminal-overlay', 'statistics']) for (const focusPauseOwned of [false, true])
+    for (const key of ['Enter', ' ']) {
+      const f = keyboardFixture({ resultStage, focusPauseOwned })
+      const paused = f.world.paused
+      try {
+        assert.deepEqual(f.key(key), { stopped: true, prevented: false })
+        assert.deepEqual(f.key(key, 'keydown', true), { stopped: true, prevented: true })
+        assert.deepEqual(f.key(key, 'keyup'), { stopped: true, prevented: false })
+        assert.deepEqual(f.f.calls, ['toggle'])
+        assert.equal(f.resultSession.stage(f.world), resultStage)
+        assert.equal(f.world.paused, paused)
+        assert.equal(f.scene.focusPauseOwned, focusPauseOwned)
+        assert.deepEqual([...f.scene.keys], [])
+      } finally { f.cleanup() }
+    }
+  const f = keyboardFixture({ resultStage: 'terminal-overlay', focusPauseOwned: true, soundTarget: false })
+  try {
+    assert.deepEqual(f.key(' '), { stopped: true, prevented: true })
+    assert.equal(f.world.paused, false, 'ordinary result Space still releases a browser-owned pause')
+    assert.equal(f.scene.focusPauseOwned, false)
+  } finally { f.cleanup() }
 })

@@ -598,6 +598,8 @@ export default function Home() {
         selectorOpen ||
         debugPicker ||
         [...messageDetails.current.values()].some(details => details.open) ||
+        ((event.key === 'Enter' || event.key === ' ') &&
+          (event.target as HTMLElement | null)?.closest('[data-sound-control]')) ||
         (event.target as HTMLElement | null)?.closest(
           'input,textarea,select,dialog,a,[contenteditable],[data-fullscreen-control],.fps-graph'
         ) ||
@@ -668,6 +670,8 @@ export default function Home() {
         selectorOpen ||
         debugPicker ||
         [...messageDetails.current.values()].some(details => details.open) ||
+        ((event.key === 'Enter' || event.key === ' ') &&
+          (event.target as HTMLElement | null)?.closest('[data-sound-control]')) ||
         (event.target as HTMLElement | null)?.closest(
           'input,textarea,select,dialog,a,[contenteditable],[data-fullscreen-control],.fps-graph'
         )
