@@ -10,11 +10,12 @@ import yaml from 'js-yaml'
 import { manualIdentity, separateRoots, sourceManifest, verifyManifest, homeBuildOptions,
   candidateDependency, candidateDependencyExport, infrastructureInput } from '../scripts/native-ui-evidence/identity.mjs'
 import { episodes, limits, acceptEpisode, acceptSeries, boundedEpisode } from '../scripts/native-ui-evidence/policy.mjs'
-import { artifactInventory, ownBrowser } from '../scripts/native-ui-evidence/browser-owner.mjs'
+import { artifactInventory, ownBrowser, pageActionTimeout } from '../scripts/native-ui-evidence/browser-owner.mjs'
 import { supervise } from '../scripts/native-ui-evidence/supervise.mjs'
-import { failPreferenceWrites } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
+import { failPreferenceWrites, optionsViewportReady } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
 import { holdAudioResume, soundControlPending, soundOwnership, assertSoundOwnership,
-  pendingSoundPointerTarget, assertPendingSoundPointerTarget } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
+  pendingSoundPointerTarget, assertPendingSoundPointerTarget, prepareSoundPopup, closeSoundContext } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
+import { ordinaryMission, assertMissionInputBudget, saveMissionInputTrace } from '../scripts/native-ui-evidence/ordinary-mission.mjs'
 import { runNativeUiEvidence } from '../scripts/native-ui-evidence/adapter.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from '../scripts/native-ui-evidence/files.mjs'
 import { initializeEpisodeLedger, recordUnstartedFailure } from '../scripts/native-ui-evidence/ledger.mjs'
@@ -380,7 +381,7 @@ test('sound pending wait accepts native or ARIA disable without accepting missin
   }), false)
 })
 test('sound ownership reads actual focus and scene/world/popup identity and rejects each observed leak', () => {
-  const control = {}, world = { paused: false, inputMask: 0, status: 'playing' }, scene = {
+  const control = { tagName: 'BUTTON', getAttribute: () => 'Enable sound' }, world = { paused: false, inputMask: 0, status: 'playing' }, scene = {
     world, focusPauseOwned: false, overviewActive: false, overviewStage: null, keys: new Set(),
   }, popup = { dataset: { messageSerial: '17' } }
   const sandbox = { window: { testStore: { getWorld: () => world }, testSceneRef: { current: scene } },
@@ -388,7 +389,7 @@ test('sound ownership reads actual focus and scene/world/popup identity and reje
   const snapshot = () => JSON.parse(JSON.stringify(vm.runInNewContext(`(${soundOwnership.toString()})()`, sandbox)))
   const before = snapshot(); assertSoundOwnership(before, before)
   for (const [target, key, value] of [
-    ['document', 'activeElement', {}], ['world', 'paused', true], ['world', 'inputMask', 1],
+    ['document', 'activeElement', { tagName: 'BODY', getAttribute: () => null }], ['world', 'paused', true], ['world', 'inputMask', 1],
     ['scene', 'world', {}], ['scene', 'overviewActive', true], ['scene', 'focusPauseOwned', true],
     ['scene', 'keys', new Set([' '])], ['popup', 'messageSerial', '18'],
   ]) {
@@ -397,6 +398,43 @@ test('sound ownership reads actual focus and scene/world/popup identity and reje
   }
   sandbox.document.querySelectorAll = () => []
   assert.throws(() => assertSoundOwnership(before, snapshot()), /campaign popup/)
+})
+test('failed sound ownership preserves the exact evaluated phase snapshot before throwing', async t => {
+  const root = fixture(t), file = resolve(root, 'hud-sound.json')
+  // Execute the shipped callback, not a reconstructed record/assert helper.
+  const source = read('scripts/native-ui-evidence/hud-sound-control-style.mjs')
+  const match = source.match(/const preserved = (async phase => \{[\s\S]+?\n        \})/)
+  assert.ok(match, 'The episode must retain its actual ownership observation callback')
+  for (const failure of ['focus', 'world', 'popup']) {
+    const control = { tagName: 'BUTTON', getAttribute: () => 'Enable sound' },
+      body = { tagName: 'BODY', getAttribute: () => null },
+      world = { paused: false, inputMask: 0, status: 'playing' },
+      scene = { world, focusPauseOwned: false, overviewActive: false, overviewStage: null, keys: new Set() },
+      popup = { dataset: { messageSerial: '17' } }
+    let popups = [popup]
+    const document = { activeElement: control, querySelector: () => control, querySelectorAll: () => popups }
+    const browserScope = { document, window: { testStore: { getWorld: () => world }, testSceneRef: { current: scene } } }
+    const snapshot = () => JSON.parse(JSON.stringify(vm.runInNewContext(`(${soundOwnership.toString()})()`, browserScope)))
+    const before = snapshot()
+    assert.deepEqual(before.activeElement, { tag: 'BUTTON', label: 'Enable sound' })
+    if (failure === 'focus') document.activeElement = body
+    else if (failure === 'world') world.paused = true
+    else popups = []
+    const observed = snapshot(), report = { checks: [] }
+    let reads = 0, saves = 0
+    const preserved = vm.runInNewContext(`(${match[1]})`, {
+      page: { evaluate: async callback => { assert.equal(callback, soundOwnership); reads++; return observed } },
+      soundOwnership, assertSoundOwnership, before, fallback: true, report,
+      save: () => { saves++; writeFileSync(file, JSON.stringify(report)) },
+    })
+    await assert.rejects(preserved(`pending-${failure}`), /Sound control must retain focus|pause or gameplay ownership|campaign popup/)
+    assert.equal(reads, 1); assert.equal(saves, 1)
+    assert.equal(report.checks[0].ownership, observed, 'Retain the original observation object without reconstruction')
+    assert.deepEqual(JSON.parse(readFileSync(file, 'utf8')), {
+      checks: [{ fallback: true, phase: `pending-${failure}`, ownership: observed }],
+    })
+    if (failure === 'focus') assert.deepEqual(observed.activeElement, { tag: 'BODY', label: null })
+  }
 })
 test('pending sound pointer requires a finite positive visible center owned by the actual control', () => {
   const glyph = {}, control = { getBoundingClientRect: () => ({ x: 10, y: 20, width: 61, height: 14 }), contains: node => node === glyph }
@@ -474,4 +512,340 @@ test('after receipts distinguish not-captured, not-verified and identical per sc
     changed: { captured: true, verify() { throw Error('changed input') } }, same: { captured: true, verify() {} } })
   assert.deepEqual(result.states, { missing: 'not-captured', changed: 'not-verified', same: 'identical' })
   assert.deepEqual(result.failures, [{ scope: 'changed', error: 'Error: changed input' }])
+})
+
+
+function optionsLayoutFixture() {
+  const state = { scale: '1', optionsCount: 1, noticeCount: 1, skin: 'frontend', owner: 'frontend' }
+  const element = () => ({ getClientRects: () => [{ width: 640, height: 480 }], style: { visibility: 'visible', display: 'block' } })
+  const notice = element(), dialog = { ...element(), open: true,
+    matches: selector => selector === { frontend: '[data-original-main-menu]', ingame: '[data-original-pause-menu]' }[state.owner] }
+  const options = { ...element(), get dataset() { return { skin: state.skin } },
+    closest: selector => { assert.equal(selector, 'dialog[data-original-main-menu], dialog[data-original-pause-menu]'); return state.dialog },
+    querySelectorAll: selector => { assert.equal(selector, '[role="status"]'); return Array(state.noticeCount).fill(notice) } }
+  state.dialog = dialog
+  const sandbox = { window: { innerWidth: 640, innerHeight: 480 },
+    document: { querySelectorAll: selector => { assert.equal(selector, '[data-original-options]'); return Array(state.optionsCount).fill(options) } },
+    getComputedStyle: node => ({ ...node.style, getPropertyValue: name => { assert.equal(name, '--frontend-scale'); return state.scale } }) }
+  const ready = (size = { width: 640, height: 480, skin: 'frontend' }) => vm.runInNewContext(`(${optionsViewportReady.toString()})(${JSON.stringify(size)})`, sandbox)
+  return { state, notice, options, dialog, sandbox, ready }
+}
+
+test('Options resize readiness rejects stale larger/smaller scale and noncurrent viewport', () => {
+  const { state, sandbox, ready } = optionsLayoutFixture()
+  assert.equal(ready(), true)
+  state.scale = '1.5'; assert.equal(ready(), false, 'Stale larger scale after shrinking is not ready')
+  state.scale = '0.5'; assert.equal(ready(), false, 'Stale smaller scale after growing is not ready')
+  state.scale = '1'; sandbox.window.innerWidth = 1280; assert.equal(ready(), false, 'Requested size is not current viewport')
+  sandbox.window.innerWidth = 640; sandbox.window.innerHeight = 720; assert.equal(ready(), false)
+})
+
+test('Options resize readiness rejects missing, invalid, hidden, duplicate and wrong-owner state', () => {
+  const { state, options, notice, dialog, ready } = optionsLayoutFixture()
+  for (const invalid of ['', ' ', 'NaN', 'Infinity', '-1', '0', '1px', '0x1', '1e999']) {
+    state.scale = invalid; assert.equal(ready(), false, `Invalid inherited scale: ${invalid}`)
+  }
+  state.scale = '1'
+  for (const key of ['optionsCount', 'noticeCount']) {
+    for (const count of [0, 2]) { state[key] = count; assert.equal(ready(), false, `${key}=${count}`) }
+    state[key] = 1
+  }
+  dialog.open = false; assert.equal(ready(), false); dialog.open = true
+  state.dialog = null; assert.equal(ready(), false); state.dialog = dialog
+  state.owner = 'ingame'; assert.equal(ready(), false, 'Wrong original dialog cannot confer readiness'); state.owner = 'frontend'
+  state.skin = state.owner = 'ingame'; assert.equal(ready(), false, 'A self-consistent wrong-skin dialog is not the requested owner')
+  state.skin = state.owner = 'frontend'
+  state.skin = 'other'; assert.equal(ready(), false); state.skin = 'frontend'
+  assert.equal(ready({ width: 640, height: 480 }), false, 'Expected skin must be explicit')
+  for (const node of [dialog, options, notice]) {
+    node.style.visibility = 'hidden'; assert.equal(ready(), false); node.style.visibility = 'visible'
+    node.style.display = 'none'; assert.equal(ready(), false); node.style.display = 'block'
+    const rects = node.getClientRects; node.getClientRects = () => []; assert.equal(ready(), false)
+    for (const bad of [0, -1, NaN, Infinity]) for (const axis of ['width', 'height']) {
+      node.getClientRects = () => [{ width: 640, height: 480, [axis]: bad }]; assert.equal(ready(), false)
+    }
+    node.getClientRects = rects
+  }
+})
+
+test('Options resize readiness follows both menus frontendScale for compact, desktop and fractional viewports', () => {
+  assert.match(read('app/frontend-composition.ts'), /frontendScale = \(width: number, height: number\) => Math\.min\(width \/ 640, height \/ 480\)/)
+  for (const path of ['app/original-main-menu.tsx', 'app/original-pause-menu.tsx']) {
+    const menu = read(path)
+    assert.match(menu, /frontendScale\(window\.innerWidth, window\.innerHeight\)/)
+    assert.match(menu, /style=\{\{ '--frontend-scale': scale \}/)
+  }
+  const { state, sandbox, ready } = optionsLayoutFixture()
+  for (const skin of ['frontend', 'ingame']) for (const [width, height] of [[320, 240], [640, 480], [1280, 720], [853, 479]]) {
+    state.skin = state.owner = skin; state.scale = String(Math.min(width / 640, height / 480))
+    sandbox.window.innerWidth = width; sandbox.window.innerHeight = height
+    assert.equal(ready({ width, height, skin }), true)
+    for (const invalid of [{ width: 0, height }, { width, height: -1 }, { width: null, height }, { width: '640', height }]) {
+      assert.equal(ready({ ...invalid, skin }), false)
+    }
+  }
+})
+
+test('Options capture waits for rendered resize and persists original failed geometry before assertions', async t => {
+  const source = read('scripts/native-ui-evidence/options-storage-notice-style.mjs')
+  const match = source.match(/const capture = (async category => \{[\s\S]+?\n        \})\n        await capture/)
+  assert.ok(match, 'Retain the shipped capture callback, not a reconstructed helper')
+  const file = resolve(fixture(t), 'options-storage.json'), report = { samples: [], measurements: [] }
+  const sample = { copy: 'Storage unavailable', glyphs: 1,
+    lines: [{ box: { x: -20, y: 338, right: 583, bottom: 366 }, pitch: 30, text: '', glyphs: 1 }],
+    navigation: { x: 99, y: 420, right: 241, bottom: 446 }, background: 'rgba(0, 0, 0, 0)',
+    images: ['url(/original/frontend/feft33we.png)'], layout: { viewport: { width: 640, height: 480 }, frontendScale: '1' } }
+  const order = []
+  const capture = vm.runInNewContext(`(${match[1]})`, { signal: new AbortController().signal,
+    page: { setViewportSize: async size => { assert.equal(size.width, 640); assert.equal(size.height, 480); order.push('resize') },
+      waitForFunction: async (predicate, size, options) => {
+        assert.equal(predicate, optionsViewportReady); assert.equal(size.width, 640); assert.equal(size.height, 480)
+        assert.equal(size.skin, 'frontend'); assert.equal(options.timeout, 5000); order.push('ready'); return { dispose: async () => order.push('dispose') }
+      }, screenshot: async () => assert.fail('Failed assertion must not become a successful capture') },
+    optionsViewportReady, notice: { evaluate: async () => { order.push('original-read'); return sample } },
+    skin: 'frontend', fallback: false, report, assert,
+    save: () => { order.push('save'); writeFileSync(file, JSON.stringify(report)) } })
+  await assert.rejects(capture('sound'), /Notice remains within viewport/)
+  assert.deepEqual(order, ['resize', 'ready', 'dispose', 'original-read', 'save'])
+  const persisted = JSON.parse(readFileSync(file))
+  assert.equal(persisted.samples.length, 0)
+  assert.deepEqual(persisted.measurements, [{ skin: 'frontend', category: 'sound', fallback: false, width: 640, height: 480, ...sample }])
+})
+
+
+test('episode supplies one absolute deadline from its original start and the same cancellation signal', async () => {
+  let clock = 0, received
+  const result = await boundedEpisode(async (signal, deadlineAt) => {
+    received = { signal, deadlineAt }; clock = 89
+    return { status: 'passed' }
+  }, { capMs: 90, now: () => clock, wallNow: () => 1000,
+    setTimer: () => 1, clearTimer() {}, close: async () => {} })
+  assert.equal(result.status, 'passed'); assert.equal(received.deadlineAt, 1090)
+  assert.equal(received.signal.aborted, false)
+})
+
+function missionFixture(t, helper = `Object.assign(trace, { contract: recoveryInputContract,
+  actionCapMs: Math.min(setupTimeout, deadlineAt - Date.now()), responseCapMs: 2500,
+  responseStartedMs: 3000, responseDeadlineMs: 5500, elapsedMs: 3100 })`) {
+  const root = fixture(t), calls = []
+  put(root, 'scripts/browser-new-game.mjs', 'export async function openCampaignFromMainMenu(page) { page.calls.push("campaign") }')
+  put(root, 'scripts/browser-game.mjs', 'export async function bindGame(page) { page.calls.push("bind") }')
+  put(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs', `
+    export const recoveryInputContract = 'public-setup-then-response-v1'
+    export function pauseStartupReady() {}
+    export async function skipPauseIntroduction(page, { setupTimeout, deadlineAt, signal, trace }) {
+      page.input = { setupTimeout, deadlineAt, signal, trace }; page.calls.push('skip')
+      ${helper}
+    }`)
+  const page = { calls, startup: 'skip',
+    getByRole: (_role, { name }) => ({ isVisible: async () => false, click: async () => calls.push(name) }),
+    waitForFunction: async () => ({ jsonValue: async () => page.startup, dispose: async () => {} }),
+    evaluate: async () => 1,
+  }
+  return { root, page, calls, trace: {}, signal: new AbortController().signal, deadlineAt: Date.now() + 90000 }
+}
+
+test('ordinary mission explicitly passes existing page allowance, live deadline, signal and retained trace', async t => {
+  const f = missionFixture(t)
+  await ordinaryMission(f.page, f.root, f)
+  assert.equal(pageActionTimeout, 25000)
+  assert.equal(f.page.input.setupTimeout, pageActionTimeout)
+  assert.equal(f.page.input.deadlineAt, f.deadlineAt)
+  assert.equal(f.page.input.signal, f.signal); assert.equal(f.page.input.trace, f.trace)
+  assert.equal(f.trace.status, 'passed'); assert.equal(f.trace.startupAction, 'skip')
+  assert.deepEqual(f.calls, ['campaign', 'Start Mission 1', 'bind', 'skip'])
+})
+
+test('ordinary mission rejects an old candidate before UI entry, and rejects ignored options after return', async t => {
+  const old = missionFixture(t)
+  put(old.root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs',
+    'export function pauseStartupReady() {}\nexport async function skipPauseIntroduction(page) { page.calls.push("old-skip") }')
+  await assert.rejects(ordinaryMission(old.page, old.root, old), /explicitly support/)
+  assert.deepEqual(old.calls, []); assert.equal(old.trace.status, 'failed')
+  const ignored = missionFixture(t, '/* Incorrect helper silently ignored the supplied budget. */')
+  await assert.rejects(ordinaryMission(ignored.page, ignored.root, ignored), /public-setup-then-response-v1/)
+  assert.equal(ignored.trace.status, 'failed'); assert.equal(ignored.calls.filter(call => call === 'skip').length, 1)
+})
+
+test('ordinary mission preserves original failures and never repeats ambiguous input', async t => {
+  const f = missionFixture(t, `trace.phase = 'observed-space-dispatch'; trace.attempts = [{ outcome: 'unknown' }]; throw page.failure`)
+  f.page.failure = Error('Space delivery outcome unknown')
+  await assert.rejects(ordinaryMission(f.page, f.root, f), error => error === f.page.failure)
+  assert.equal(f.trace.phase, 'observed-space-dispatch'); assert.equal(f.trace.attempts[0].outcome, 'unknown')
+  assert.equal(f.trace.status, 'failed'); assert.match(f.trace.error, /unknown/)
+  assert.equal(f.calls.filter(call => call === 'skip').length, 1)
+})
+
+test('ordinary mission does not dispatch on natural completion, expired deadline or prior cancellation', async t => {
+  const natural = missionFixture(t); natural.page.startup = 'ready'
+  await ordinaryMission(natural.page, natural.root, natural)
+  assert.equal(natural.page.input, undefined); assert.equal(natural.trace.status, 'passed')
+  for (const deadlineAt of [undefined, NaN, Infinity, Date.now() - 1]) {
+    const f = missionFixture(t); f.deadlineAt = deadlineAt
+    await assert.rejects(ordinaryMission(f.page, f.root, f), /live episode deadline/)
+    assert.deepEqual(f.calls, [])
+  }
+  const cancelled = missionFixture(t), controller = new AbortController()
+  controller.abort(Error('episode stopped')); cancelled.signal = controller.signal
+  await assert.rejects(ordinaryMission(cancelled.page, cancelled.root, cancelled), /episode stopped/)
+  assert.deepEqual(cancelled.calls, [])
+})
+
+test('caller acceptance rejects shared, missing, nonfinite, inflated and overrun response evidence', () => {
+  const good = { contract: 'public-setup-then-response-v1', actionCapMs: 25000, responseCapMs: 2500,
+    responseStartedMs: 3000, responseDeadlineMs: 5500, elapsedMs: 3100 }
+  assertMissionInputBudget(good)
+  for (const [key, value] of [['contract', 'shared-input-v1'], ['responseCapMs', 2501], ['actionCapMs', 25001],
+    ['actionCapMs', NaN], ['responseStartedMs', -1], ['responseStartedMs', NaN], ['responseDeadlineMs', 5501],
+    ['responseDeadlineMs', 3000], ['responseDeadlineMs', Infinity], ['elapsedMs', 5501], ['elapsedMs', NaN]])
+    assert.throws(() => assertMissionInputBudget({ ...good, [key]: value }), undefined, key)
+  assert.throws(() => assertMissionInputBudget({}))
+})
+
+test('adapter retains mutated episode receipts and the supplied deadline when an episode throws', async t => {
+  const output = fixture(t), candidateRoot = fixture(t)
+  put(candidateRoot, 'scripts/local-render/startup-logo.mjs', `export default async function ({ receipt, deadlineAt, signal }) {
+    receipt.inputBudgets = [{ contract: 'public-setup-then-response-v1', phase: 'observed-space-dispatch' }]
+    receipt.observedDeadline = deadlineAt; receipt.aborted = signal.aborted
+    throw Object.assign(Error('original failed input'), { traceWriteError: 'separate trace write failure' })
+  }`)
+  const context = new Context(), original = context.newPage.bind(context)
+  context.newPage = async () => {
+    const page = await original()
+    page.goto = async () => {}; page.getByRole = () => ({ waitFor: async () => {} })
+    return page
+  }
+  const browser = { newContext: async () => context, close: async () => {} }
+  await assert.rejects(runNativeUiEvidence({ browser, candidateRoot, output, signal: new AbortController().signal }), /original failed input/)
+  const result = JSON.parse(readFileSync(resolve(output, 'episodes.json')))
+  const first = result.episodes[0]
+  assert.equal(first.receipt.inputBudgets[0].phase, 'observed-space-dispatch')
+  assert.equal(first.traceWriteError, 'separate trace write failure')
+  assert.equal(first.receipt.observedDeadline, first.deadlineAt); assert.equal(first.receipt.aborted, false)
+  assert.equal(first.status, 'failed'); assert.ok(result.episodes.slice(1).every(record => record.status === 'not-run'))
+})
+
+test('both mission-entry episodes preserve per-entry traces on throw without replacing their deadline', () => {
+  for (const name of ['options-storage-notice-style', 'hud-sound-control-style']) {
+    const source = read(`scripts/native-ui-evidence/${name}.mjs`)
+    assert.match(source, /receipt\.missionInputBudgets = report\.inputBudgets/)
+    assert.match(source, /finally \{ saveMissionInputTrace\(save, inputError\) \}/)
+    assert.match(source, /finally \{ saveMissionInputTrace\(save, episodeError\) \}/)
+    assert.doesNotMatch(source, /deadlineAt:\s*Date\.now/)
+  }
+})
+
+
+test('both actual mission-entry persistence paths retain input error identity and reject write-only failure', async () => {
+  for (const name of ['options-storage-notice-style', 'hud-sound-control-style']) {
+    const source = read(`scripts/native-ui-evidence/${name}.mjs`)
+    const match = source.match(/let inputError\s+try \{ await ordinaryMission\(page, root, \{ signal, deadlineAt, trace \}\) \}\s+catch \(error\) \{ inputError = error; throw error \}\s+finally \{ saveMissionInputTrace\(save, inputError\) \}/)
+    assert.ok(match)
+    for (const inputFails of [false, true]) for (const writeFails of [false, true]) {
+      const inputError = Error('original Space uncertainty'), writeError = Error('trace write failed')
+      let inputs = 0, writes = 0
+      const run = vm.runInNewContext(`(async () => { ${match[0]} })`, {
+        page: {}, root: '', signal: {}, deadlineAt: 90000, trace: {}, saveMissionInputTrace,
+        ordinaryMission: async () => { inputs++; if (inputFails) throw inputError },
+        save: () => { writes++; if (writeFails) throw writeError },
+      })
+      if (inputFails || writeFails) await assert.rejects(run(), error => error === (inputFails ? inputError : writeError))
+      else await run()
+      assert.equal(inputs, 1); assert.equal(writes, 1)
+      assert.equal(inputError.traceWriteError, inputFails && writeFails ? String(writeError) : undefined)
+    }
+  }
+})
+
+function soundPopupFixture() {
+  const f = { trace: {}, calls: [], disposed: 0, retained: [{ serial: '0', open: false }],
+    ownership: { currentWorld: true, world: { paused: false, inputMask: 0, status: 'playing' },
+      scene: { focusPauseOwned: false, overviewActive: false, overviewStage: 0, keys: [] } } }
+  f.world = {}; f.scene = { world: f.world }
+  const snapshot = () => {}
+  const window = { testStore: { getWorld: () => f.world }, testSceneRef: { get current() { return f.scene } } }
+  f.page = {
+    evaluateHandle: async fn => {
+      const value = vm.runInNewContext(`(${fn.toString()})()`, { window })
+      return { value, dispose: async () => { f.disposed++; if (f.disposeError) throw f.disposeError } }
+    },
+    evaluate: async (fn, arg) => {
+      if (fn === snapshot) return structuredClone(f.retained)
+      if (fn === soundOwnership) return { ...structuredClone(f.ownership), popups: f.retained.filter(p => p.open).map(p => p.serial) }
+      return vm.runInNewContext(`(${fn.toString()})(owner)`, { window, owner: arg.value })
+    },
+  }
+  f.popupInput = { campaignPopupSnapshot: snapshot, setCampaignPopupOpen: async (page, serial, open, options) => {
+    assert.equal(page, f.page); f.calls.push({ serial, open, timeout: options.timeout })
+    if (f.actionError) throw f.actionError
+    f.retained.find(p => p.serial === serial).open = open
+    options.trace.observedOpen = open
+    f.mutate?.()
+  } }
+  f.options = { signal: new AbortController().signal, deadlineAt: Date.now() + 10000, trace: f.trace }
+  f.run = () => prepareSoundPopup(f.page, f.popupInput, f.options)
+  return f
+}
+test('sound setup publicly reopens the observed retained popup without replacing its owners', async () => {
+  const f = soundPopupFixture(); await f.run()
+  assert.deepEqual(f.calls, [{ serial: '0', open: true, timeout: 2500 }])
+  assert.equal(f.trace.status, 'passed'); assert.equal(f.trace.sameOwner, true)
+  assert.deepEqual(f.trace.retainedBefore, [{ serial: '0', open: false }])
+  assert.deepEqual(f.trace.retainedAfter, [{ serial: '0', open: true }]); assert.equal(f.disposed, 1)
+})
+test('sound setup selects an existing open owner instead of inventing or changing another one', async () => {
+  const f = soundPopupFixture(); f.retained.push({ serial: '7', open: true }); await f.run()
+  assert.equal(f.calls[0].serial, '7'); assert.deepEqual(f.trace.retainedAfter, f.trace.retainedBefore)
+})
+test('sound setup refuses absent, malformed or duplicate retained owners before any public action', async () => {
+  for (const retained of [[], [{ serial: 'bad', open: false }], [{ serial: 0, open: false }],
+    [{ serial: '0', open: 'false' }], [{ serial: '0', open: false }, { serial: '0', open: true }]]) {
+    const f = soundPopupFixture(); f.retained = retained; await assert.rejects(f.run())
+    assert.equal(f.calls.length, 0); assert.equal(f.trace.status, 'failed'); assert.equal(f.disposed, 1)
+    assert.deepEqual(f.trace.retainedBefore, retained)
+  }
+})
+test('sound setup rejects replaced objects, changed gameplay/input or acknowledged notification state', async () => {
+  for (const mutate of [f => { f.world = {} }, f => { f.scene = { world: f.world } },
+    f => { f.ownership.world.paused = true }, f => { f.ownership.world.inputMask = 64 },
+    f => { f.ownership.scene.keys = ['Space'] }, f => { f.retained = [] },
+    f => { f.retained[0].open = false }, f => { f.retained.push({ serial: '1', open: true }) }]) {
+    const f = soundPopupFixture(); f.mutate = () => mutate(f); await assert.rejects(f.run())
+    assert.equal(f.calls.length, 1); assert.equal(f.trace.status, 'failed'); assert.equal(f.disposed, 1)
+    assert.ok(f.trace.afterOwnership); assert.ok(f.trace.retainedAfter)
+  }
+})
+test('sound popup setup clips its public action to the unchanged remaining deadline and honors cancellation', async () => {
+  const f = soundPopupFixture(); f.options.deadlineAt = Date.now() + 1000; await f.run()
+  assert.ok(f.calls[0].timeout > 0 && f.calls[0].timeout <= 1000)
+  for (const deadlineAt of [0, NaN, Infinity]) {
+    const g = soundPopupFixture(); g.options.deadlineAt = deadlineAt; await assert.rejects(g.run(), /live episode deadline/)
+    assert.equal(g.calls.length, 0); assert.equal(g.disposed, 0)
+  }
+  const g = soundPopupFixture(), abort = new Error('aborted setup'); g.options.signal = AbortSignal.abort(abort)
+  await assert.rejects(g.run(), error => error === abort); assert.equal(g.calls.length, 0)
+})
+test('sound popup setup preserves the primary public-input error if handle disposal also fails', async () => {
+  const f = soundPopupFixture(), primary = new Error('public input failed'); f.actionError = primary; f.disposeError = new Error('dispose failed')
+  await assert.rejects(f.run(), error => error === primary)
+  assert.equal(f.trace.status, 'failed'); assert.equal(f.trace.error, String(primary)); assert.equal(f.trace.ownerDisposeError, 'Error: dispose failed')
+  assert.equal(f.calls.length, 1); assert.equal(f.disposed, 1)
+  const g = soundPopupFixture(); g.disposeError = new Error('dispose alone failed')
+  await assert.rejects(g.run(), error => error === g.disposeError); assert.equal(g.trace.status, 'failed')
+})
+test('HUD uses the public preparation and records the exact baseline before its strict assertions', () => {
+  const source = read('scripts/native-ui-evidence/hud-sound-control-style.mjs')
+  assert.match(source, /candidateModule\(root, 'scripts\/browser-world-input\.mjs'\)/)
+  assert.match(source, /await prepareSoundPopup\(page, popupInput, \{ signal, deadlineAt, trace: popupTrace \}\)/)
+  assert.match(source, /finally \{ saveMissionInputTrace\(save, popupError\) \}/)
+  assert.match(source, /const before = await page\.evaluate\(soundOwnership\)\s+report\.checks\.push\(\{ fallback, phase: 'baseline', ownership: before \}\); save\(\)\s+assert\.equal\(before\.currentWorld, true\)/)
+  assert.match(source, /assert\.ok\(before\.popups\.length > 0/)
+})
+test('Sound context cleanup preserves a primary failure and rejects cleanup-only failure', async () => {
+  const primary = new Error('baseline failed'), cleanup = new Error('context close failed'), report = {}
+  const context = { close: async () => { throw cleanup } }
+  await assert.rejects((async () => { try { throw primary } finally { await closeSoundContext(context, report, true, true) } })(), error => error === primary)
+  assert.deepEqual(report.cleanupErrors, [{ fallback: true, error: String(cleanup) }])
+  await assert.rejects(closeSoundContext(context, {}, false, false), error => error === cleanup)
+  const success = {}; await closeSoundContext({ close: async () => {} }, success, false, false); assert.deepEqual(success, {})
 })

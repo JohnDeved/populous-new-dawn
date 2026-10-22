@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
-import { candidateModule, ordinaryMission } from './ordinary-mission.mjs'
+import { candidateModule, ordinaryMission, saveMissionInputTrace } from './ordinary-mission.mjs'
 
 // Only the two preference writes are failed. Reads, checkpoints, campaign state
 // and unrelated storage remain real; no component/world state is injected.
@@ -17,10 +17,36 @@ export function failPreferenceWrites() {
     return set.call(this, key, value)
   }
 }
-export default async function ({ browser, url, root, output, signal }) {
-  const report = { status: 'running', samples: [], checks: [] }
+// Both original menus publish frontendScale(window.innerWidth, window.innerHeight)
+// on their dialog; Options inherits it. Viewport emulation can finish before
+// the resize listener's React update, so a second RPC or sleep is not readiness.
+export function optionsViewportReady({ width, height, skin }) {
+  if (![width, height].every(value => Number.isFinite(value) && value > 0) ||
+    window.innerWidth !== width || window.innerHeight !== height) return false
+  const matches = document.querySelectorAll('[data-original-options]')
+  if (matches.length !== 1) return false
+  const options = matches[0], notices = options.querySelectorAll('[role="status"]')
+  const dialog = options.closest('dialog[data-original-main-menu], dialog[data-original-pause-menu]')
+  const selector = { frontend: '[data-original-main-menu]', ingame: '[data-original-pause-menu]' }[skin]
+  if (!selector || options.dataset.skin !== skin || !dialog?.open || !dialog.matches(selector) || notices.length !== 1) return false
+  for (const element of [dialog, options, notices[0]]) {
+    const style = getComputedStyle(element)
+    const rendered = [...element.getClientRects()].some(rect => Number.isFinite(rect.width) && Number.isFinite(rect.height) && rect.width > 0 && rect.height > 0)
+    if (!rendered || style.visibility !== 'visible' || style.display === 'none') return false
+  }
+  const raw = getComputedStyle(options).getPropertyValue('--frontend-scale').trim()
+  // Reject missing, malformed and non-finite CSS numbers rather than coercing
+  // them into a ready state. Match the exact source scale, without tolerance.
+  if (!/^(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(raw)) return false
+  const scale = Number(raw)
+  return Number.isFinite(scale) && scale > 0 && scale === Math.min(width / 640, height / 480)
+}
+export default async function ({ browser, url, root, output, receipt, signal, deadlineAt }) {
+  const report = { status: 'running', samples: [], measurements: [], checks: [], inputBudgets: [] }
+  receipt.missionInputBudgets = report.inputBudgets
   const save = () => writeFileSync(resolve(output, 'options-storage.json'), JSON.stringify(report, null, 2) + '\n')
   const { waitForStartupMenu } = await candidateModule(root, 'scripts/browser-new-game.mjs')
+  let episodeError
   try {
     for (const skin of ['frontend', 'ingame']) for (const fallback of [false, true]) {
       signal.throwIfAborted()
@@ -32,7 +58,14 @@ export default async function ({ browser, url, root, output, signal }) {
         })
         const page = await context.newPage(), button = name => page.getByRole('button', { name, exact: true })
         await page.goto(url, { waitUntil: 'domcontentloaded' })
-        if (skin === 'ingame') { await ordinaryMission(page, root, signal); await button('Menu').click() }
+        if (skin === 'ingame') {
+          const trace = { skin, fallback }; report.inputBudgets.push(trace)
+          let inputError
+          try { await ordinaryMission(page, root, { signal, deadlineAt, trace }) }
+          catch (error) { inputError = error; throw error }
+          finally { saveMissionInputTrace(save, inputError) }
+          await button('Menu').click()
+        }
         else await waitForStartupMenu(page)
         const frozen = skin === 'ingame' ? await page.evaluate(() => JSON.stringify(window.testStore.getWorld())) : null
         const before = await page.evaluate(() => ['populous-game-preferences', 'populous-audio-preferences'].map(key => localStorage.getItem(key)))
@@ -48,6 +81,8 @@ export default async function ({ browser, url, root, output, signal }) {
         const capture = async category => {
           for (const [width, height] of fallback ? [[320, 240], [640, 480]] : [[640, 480], [1280, 720]]) {
             signal.throwIfAborted(); await page.setViewportSize({ width, height })
+            const ready = await page.waitForFunction(optionsViewportReady, { width, height, skin }, { timeout: 5000 })
+            await ready.dispose(); signal.throwIfAborted()
             const sample = await notice.evaluate(node => {
               const bounds = element => { const r = element.getBoundingClientRect(); return { x: r.x, y: r.y, right: r.right, bottom: r.bottom } }
               const options = node.closest('[data-original-options]')
@@ -55,8 +90,13 @@ export default async function ({ browser, url, root, output, signal }) {
                 lines: [...node.querySelectorAll(':scope > [aria-hidden]')].map(line => ({ box: bounds(line.firstElementChild), pitch: line.offsetHeight,
                   text: line.textContent, glyphs: line.querySelectorAll('i').length })),
                 navigation: bounds(options.querySelector('nav [data-option-key]')), background: getComputedStyle(node).backgroundColor,
-                images: [...new Set([...node.querySelectorAll('i')].map(glyph => getComputedStyle(glyph).backgroundImage))] }
+                images: [...new Set([...node.querySelectorAll('i')].map(glyph => getComputedStyle(glyph).backgroundImage))],
+                layout: { viewport: { width: window.innerWidth, height: window.innerHeight },
+                  frontendScale: getComputedStyle(node).getPropertyValue('--frontend-scale').trim() } }
             })
+            // Retain the exact original assertion input, even when geometry fails.
+            // Any later screenshot is a later state, not this sample's instant.
+            report.measurements.push({ skin, category, fallback, width, height, ...sample }); save()
             assert.equal(sample.background, 'rgba(0, 0, 0, 0)')
             assert.equal(sample.glyphs > 0, !fallback)
             assert.ok(sample.lines.length > 0)
@@ -103,6 +143,6 @@ export default async function ({ browser, url, root, output, signal }) {
     report.status = 'passed'
     report.limits = ['Browser preference failure presentation, not native failure-dialog or acoustic equivalence', 'Ordinary Mission 1 entry; no injected world/checkpoint/React state']
     return report
-  } catch (error) { report.status = 'failed'; report.error = String(error); throw error }
-  finally { save() }
+  } catch (error) { episodeError = error; report.status = 'failed'; report.error = String(error); throw error }
+  finally { saveMissionInputTrace(save, episodeError) }
 }

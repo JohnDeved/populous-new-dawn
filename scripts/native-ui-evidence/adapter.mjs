@@ -20,9 +20,11 @@ export async function runNativeUiEvidence({ browser, candidateRoot, infrastructu
       record.status = 'running'; record.startedAt = new Date().toISOString(); save()
       const dir = resolve(output, episode.id); mkdirSync(dir)
       try {
-        record.result = await boundedEpisode(async signal => {
+        record.result = await boundedEpisode(async (signal, deadlineAt) => {
           const receipt = { errors: [], warnings: [] }
-          const args = { browser: owner.browser, url, root: candidateRoot, output: dir, receipt, signal }
+          // Retain the same live receipt on failures, not only successful returns.
+          record.receipt = receipt; record.deadlineAt = deadlineAt
+          const args = { browser: owner.browser, url, root: candidateRoot, output: dir, receipt, signal, deadlineAt }
           if (episode.primary) {
             args.context = await owner.browser.newContext({ viewport: { width: 640, height: 480 } })
             args.page = await args.context.newPage()
@@ -43,7 +45,6 @@ export async function runNativeUiEvidence({ browser, candidateRoot, infrastructu
           const module = await import(pathToFileURL(resolve(root, episode.path)).href)
           assert.equal(typeof module[episode.exportName ?? 'default'], 'function')
           const result = await module[episode.exportName ?? 'default'](args)
-          record.receipt = receipt
           return result
         }, { capMs: episode.capMs, signal, close: () => owner.closeContexts() })
         record.cleanupVerified = true
@@ -53,6 +54,7 @@ export async function runNativeUiEvidence({ browser, candidateRoot, infrastructu
       } catch (error) {
         record.status = 'failed'; record.error = String(error); record.stack = error.stack
         if (error.cleanupError) record.cleanupError = error.cleanupError
+        if (error.traceWriteError) record.traceWriteError = error.traceWriteError
         record.timedOut = /deadline|timed out/i.test(String(error))
         throw error
       } finally { record.finishedAt = new Date().toISOString(); save() }
