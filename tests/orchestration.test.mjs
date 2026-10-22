@@ -1025,7 +1025,13 @@ test('native UI checker changes select focused regressions without losing workfl
       assert.deepEqual(plan.checks.filter(item => item.id !== check.id), previous.checks, path)
       assert.deepEqual(plan.unknownPaths, previous.unknownPaths, path)
       assert.deepEqual(plan.affectedSubsystems, previous.affectedSubsystems, path)
-      assert.equal(plan.feedback.scope, previous.feedback.scope, path)
+      if (path === '.github/workflows/native-ui-evidence.yml') {
+        // A known workflow with no exact test command can gain focused editing
+        // advice. Its existing final gates remain identical above and required below.
+        assert.equal(previous.feedback.scope, 'full', path)
+        assert.equal(plan.feedback.scope, 'focused', path)
+        assert.deepEqual(plan.feedback.command, ['npm', 'run', 'test:focus', '--', ...check.args.slice(1).sort()], path)
+      } else assert.equal(plan.feedback.scope, previous.feedback.scope, path)
       if (workflowPaths.includes(path)) {
         assert.deepEqual(plan.unknownPaths, [], path)
         for (const id of ['orchestration-tests', 'orchestration-structural', 'repository-check'])
