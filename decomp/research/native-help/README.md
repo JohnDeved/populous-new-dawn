@@ -43,7 +43,9 @@ input owner. It uses the descriptor at `005cb386`: 640-reference rect
 
 Row-major native tables at `005caba8` / `005cabd8` / `005cabc0` select normal /
 hover / held frames. The edge and middle cells repeat rather than stretch their
-pixels, following `004a1f50`. No persistent invented activation glow is added.
+pixels, following `004a1f50`. No persistent invented activation glow is added. Browser keyboard focus reuses
+the original hover frame instead of drawing an invented outline; this accessible
+focus mapping is an explicit browser adaptation.
 The original chooses HFX106 at larger native width and scales its own HUD; this
 browser's existing fixed-width HUD uses the explicit 640-reference artwork.
 This is not a claim that the whole responsive HUD matches every native size.

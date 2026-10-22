@@ -61,6 +61,7 @@ test('actual native art uses three original row-major frames and integer-centere
   assert.equal(icon.props.width, 4)
   assert.equal(icon.props.height, 6)
   assert.match(read('app/query-control.module.css'), /\.icon\{position:absolute;left:4px;top:3px;/)
+  assert.match(read('app/query-control.module.css'), /:focus-visible \.hover/ )
   assert.ok(nodes.filter(node => node.type === 'img').every(node => typeof node.props.onError === 'function'), 'every frame/icon failure has a recovery path')
 })
 
