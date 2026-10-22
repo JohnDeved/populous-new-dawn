@@ -31,7 +31,7 @@ test('HUD controls precede world context and missing help metadata uses Control 
 })
 
 test('valid picked object, fallback object, cell building and terrain have native priority', () => {
-  const cell = { flags: 0x10000, terrainFlags: 0, building: object(2, 18) }
+  const cell = { flags: 0x10200, terrainFlags: 0, building: object(2, 18) }
   assert.equal(helpContextTopic({ picked: object(1, 7), fallback: object(1, 2), cell }), 1023)
   assert.equal(helpContextTopic({ picked: object(1, 7, { flags: 1 }), fallback: object(1, 2), cell }), 1024)
   assert.equal(helpContextTopic({ picked: object(0, 7), cell }), 990)
@@ -43,4 +43,14 @@ test('valid picked object, fallback object, cell building and terrain have nativ
   cell.terrainFlags = 1
   assert.equal(helpContextTopic({ cell }), null, 'ordinary empty ground retains topic')
   assert.equal(helpContextTopic({}), null)
+})
+
+
+test('cell building pointer is ignored unless native cell flag0x200 is present', () => {
+  const cell = { flags: 0, terrainFlags: 0, building: object(2, 18) }
+  assert.equal(helpContextTopic({ cell }), 987)
+  cell.terrainFlags = 1
+  assert.equal(helpContextTopic({ cell }), null)
+  cell.flags = 0x200
+  assert.equal(helpContextTopic({ cell }), 990)
 })

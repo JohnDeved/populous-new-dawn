@@ -50,7 +50,8 @@ export function helpObjectTopic(object: HelpObject): number | null {
 export function helpContextTopic(context: HelpContext): number | null {
   if (context.hud !== undefined) return context.hud === null ? null : context.hud.topic || 1046
   const valid = (object: HelpObject | null | undefined) => object && object.type !== 0 && !(object.flags & 1)
-  const object = [context.picked, context.fallback, context.cell?.building].find(valid)
+  const building = (context.cell?.flags ?? 0) & 0x200 ? context.cell?.building : null
+  const object = [context.picked, context.fallback, building].find(valid)
   if (object) return helpObjectTopic(object)
   if (!context.cell) return null
   if (context.cell.flags & 0x10000) return 988
