@@ -516,7 +516,7 @@ test('after receipts distinguish not-captured, not-verified and identical per sc
 
 function optionsLayoutFixture() {
   const state = { scale: '1', optionsCount: 1, noticeCount: 1, skin: 'frontend', owner: 'frontend' }
-  const element = () => ({ getClientRects: () => [{}], style: { visibility: 'visible', display: 'block' } })
+  const element = () => ({ getClientRects: () => [{ width: 640, height: 480 }], style: { visibility: 'visible', display: 'block' } })
   const notice = element(), dialog = { ...element(), open: true,
     matches: selector => selector === { frontend: '[data-original-main-menu]', ingame: '[data-original-pause-menu]' }[state.owner] }
   const options = { ...element(), get dataset() { return { skin: state.skin } },
@@ -526,7 +526,7 @@ function optionsLayoutFixture() {
   const sandbox = { window: { innerWidth: 640, innerHeight: 480 },
     document: { querySelectorAll: selector => { assert.equal(selector, '[data-original-options]'); return Array(state.optionsCount).fill(options) } },
     getComputedStyle: node => ({ ...node.style, getPropertyValue: name => { assert.equal(name, '--frontend-scale'); return state.scale } }) }
-  const ready = (size = { width: 640, height: 480 }) => vm.runInNewContext(`(${optionsViewportReady.toString()})(${JSON.stringify(size)})`, sandbox)
+  const ready = (size = { width: 640, height: 480, skin: 'frontend' }) => vm.runInNewContext(`(${optionsViewportReady.toString()})(${JSON.stringify(size)})`, sandbox)
   return { state, notice, options, dialog, sandbox, ready }
 }
 
@@ -552,11 +552,18 @@ test('Options resize readiness rejects missing, invalid, hidden, duplicate and w
   dialog.open = false; assert.equal(ready(), false); dialog.open = true
   state.dialog = null; assert.equal(ready(), false); state.dialog = dialog
   state.owner = 'ingame'; assert.equal(ready(), false, 'Wrong original dialog cannot confer readiness'); state.owner = 'frontend'
+  state.skin = state.owner = 'ingame'; assert.equal(ready(), false, 'A self-consistent wrong-skin dialog is not the requested owner')
+  state.skin = state.owner = 'frontend'
   state.skin = 'other'; assert.equal(ready(), false); state.skin = 'frontend'
+  assert.equal(ready({ width: 640, height: 480 }), false, 'Expected skin must be explicit')
   for (const node of [dialog, options, notice]) {
     node.style.visibility = 'hidden'; assert.equal(ready(), false); node.style.visibility = 'visible'
     node.style.display = 'none'; assert.equal(ready(), false); node.style.display = 'block'
-    const rects = node.getClientRects; node.getClientRects = () => []; assert.equal(ready(), false); node.getClientRects = rects
+    const rects = node.getClientRects; node.getClientRects = () => []; assert.equal(ready(), false)
+    for (const bad of [0, -1, NaN, Infinity]) for (const axis of ['width', 'height']) {
+      node.getClientRects = () => [{ width: 640, height: 480, [axis]: bad }]; assert.equal(ready(), false)
+    }
+    node.getClientRects = rects
   }
 })
 
@@ -571,9 +578,9 @@ test('Options resize readiness follows both menus frontendScale for compact, des
   for (const skin of ['frontend', 'ingame']) for (const [width, height] of [[320, 240], [640, 480], [1280, 720], [853, 479]]) {
     state.skin = state.owner = skin; state.scale = String(Math.min(width / 640, height / 480))
     sandbox.window.innerWidth = width; sandbox.window.innerHeight = height
-    assert.equal(ready({ width, height }), true)
+    assert.equal(ready({ width, height, skin }), true)
     for (const invalid of [{ width: 0, height }, { width, height: -1 }, { width: null, height }, { width: '640', height }]) {
-      assert.equal(ready(invalid), false)
+      assert.equal(ready({ ...invalid, skin }), false)
     }
   }
 })
@@ -592,7 +599,7 @@ test('Options capture waits for rendered resize and persists original failed geo
     page: { setViewportSize: async size => { assert.equal(size.width, 640); assert.equal(size.height, 480); order.push('resize') },
       waitForFunction: async (predicate, size, options) => {
         assert.equal(predicate, optionsViewportReady); assert.equal(size.width, 640); assert.equal(size.height, 480)
-        assert.equal(options.timeout, 5000); order.push('ready'); return { dispose: async () => order.push('dispose') }
+        assert.equal(size.skin, 'frontend'); assert.equal(options.timeout, 5000); order.push('ready'); return { dispose: async () => order.push('dispose') }
       }, screenshot: async () => assert.fail('Failed assertion must not become a successful capture') },
     optionsViewportReady, notice: { evaluate: async () => { order.push('original-read'); return sample } },
     skin: 'frontend', fallback: false, report, assert,

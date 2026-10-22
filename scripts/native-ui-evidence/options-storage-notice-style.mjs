@@ -20,18 +20,19 @@ export function failPreferenceWrites() {
 // Both original menus publish frontendScale(window.innerWidth, window.innerHeight)
 // on their dialog; Options inherits it. Viewport emulation can finish before
 // the resize listener's React update, so a second RPC or sleep is not readiness.
-export function optionsViewportReady({ width, height }) {
+export function optionsViewportReady({ width, height, skin }) {
   if (![width, height].every(value => Number.isFinite(value) && value > 0) ||
     window.innerWidth !== width || window.innerHeight !== height) return false
   const matches = document.querySelectorAll('[data-original-options]')
   if (matches.length !== 1) return false
   const options = matches[0], notices = options.querySelectorAll('[role="status"]')
   const dialog = options.closest('dialog[data-original-main-menu], dialog[data-original-pause-menu]')
-  const selector = { frontend: '[data-original-main-menu]', ingame: '[data-original-pause-menu]' }[options.dataset.skin]
-  if (!selector || !dialog?.open || !dialog.matches(selector) || notices.length !== 1) return false
+  const selector = { frontend: '[data-original-main-menu]', ingame: '[data-original-pause-menu]' }[skin]
+  if (!selector || options.dataset.skin !== skin || !dialog?.open || !dialog.matches(selector) || notices.length !== 1) return false
   for (const element of [dialog, options, notices[0]]) {
     const style = getComputedStyle(element)
-    if (!element.getClientRects().length || style.visibility !== 'visible' || style.display === 'none') return false
+    const rendered = [...element.getClientRects()].some(rect => Number.isFinite(rect.width) && Number.isFinite(rect.height) && rect.width > 0 && rect.height > 0)
+    if (!rendered || style.visibility !== 'visible' || style.display === 'none') return false
   }
   const raw = getComputedStyle(options).getPropertyValue('--frontend-scale').trim()
   // Reject missing, malformed and non-finite CSS numbers rather than coercing
@@ -71,7 +72,7 @@ export default async function ({ browser, url, root, output, signal }) {
         const capture = async category => {
           for (const [width, height] of fallback ? [[320, 240], [640, 480]] : [[640, 480], [1280, 720]]) {
             signal.throwIfAborted(); await page.setViewportSize({ width, height })
-            const ready = await page.waitForFunction(optionsViewportReady, { width, height }, { timeout: 5000 })
+            const ready = await page.waitForFunction(optionsViewportReady, { width, height, skin }, { timeout: 5000 })
             await ready.dispose(); signal.throwIfAborted()
             const sample = await notice.evaluate(node => {
               const bounds = element => { const r = element.getBoundingClientRect(); return { x: r.x, y: r.y, right: r.right, bottom: r.bottom } }
