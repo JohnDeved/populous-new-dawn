@@ -13,10 +13,11 @@ Original `d3dpoptb.exe` SHA-256:
 The 12-byte keymap record at `005d60c4` is
 `019b00000009000170ee4f00`: Escape down, command `0x9b`, predicate `004fee70`.
 The predicate reads world flags `0089c661` and returns true when bit `0x80000000`
-is clear, not only on the tutorial. `process_cmd` (`004aab80`) case `0x9b` opens
-Game Menu (`00458060`) unless Help is being closed. Earlier Query Escape record
+is clear, not only on the tutorial. `process_cmd` (`004aab80`) case `0x9b` can
+enter Game Menu (`00458060`); its land-flags-clear path also checks panel 2 via
+`00451370` and may call `0045db60(0)` instead. Earlier Query Escape record
 `005d5ecc` is `01b9000000090001e0f04f00`; predicate `004ff0e0` tests mode `0x11`.
-This establishes the ordinary Game Menu route and Help precedence, not every
+This establishes a non-tutorial Game Menu route and the earlier Query binding, not every
 native cancel predicate or browser input lifecycle.
 
 `Home` now opens the existing original-styled pause Menu from neutral Escape on
@@ -43,3 +44,20 @@ prerequisite.
 - Keep browser-recovery Menu access, pause/scene identity ownership, F8 and cheats.
 
 Do not describe this prerequisite as restored Help or complete UI parity.
+
+## Staged Help core (not activated)
+
+`app/help-session.ts` keeps independent Query/article return owners outside World
+and therefore outside saves. Query never changes pause. Article close restores
+the captured prior pause only for the current playing scene. Preserving the first
+article entry owner across retargets is a deliberate browser lifecycle adaptation,
+as is restoring prior pause rather than the original pause-toggle quirk.
+
+`app/help-topic.ts` projects native object type/model/flags and HUD metadata through
+`0045ed10`, tables `0059d7f4`/`0059d814`, and its scenery/terrain switch. Unsupported
+valid objects and ordinary empty land retain the previous topic. Missing source
+vehicle-definition flags are not guessed. Native model zero's overlapping table
+words are deliberately not treated as valid fallback topics.
+
+These modules and their focused tests are preparation for the real scene/HUD
+integration, not a user-facing implementation or completed Help behavior.
