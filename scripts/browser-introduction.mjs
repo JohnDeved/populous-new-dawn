@@ -1,3 +1,6 @@
+import { prepareWorldInput } from './browser-world-input.mjs'
+import { popupRejectedSpace, pressObservedSpace } from './browser-space-ownership.mjs'
+
 // Observe the presentation state, then use the same Space key as the player.
 // Do not expose a test-only game control or call the scene controller directly.
 export function introductionInputState(snapshot = false) {
@@ -12,11 +15,13 @@ export function introductionInputState(snapshot = false) {
     // Active and interruptible, but not already interrupted/completing.
     else if ((world.inputMask & 64) && (world.flyby.flags & 0x51) === 0x11) action = 'skip'
   }
-  return snapshot ? { action, paused: world?.paused ?? null } : action
+  return snapshot ? { action, paused: world?.paused ?? null, inputMask: world?.inputMask,
+    flybyFlags: world?.flyby.flags } : action
 }
 
-export async function skipIntroductionWithSpace(page, { timeout = 30000 } = {}) {
+export async function skipIntroductionWithSpace(page, { timeout = 30000, closedPopups } = {}) {
   if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid introduction timeout')
+  if (closedPopups !== undefined && !Array.isArray(closedPopups)) throw new TypeError('Closed popup evidence must be an array')
   const deadline = performance.now() + timeout
   const timedOut = new Error('Introduction readiness timed out')
   let expired = false, failed = false, failure, timer
@@ -40,17 +45,28 @@ export async function skipIntroductionWithSpace(page, { timeout = 30000 } = {}) 
       if (action !== 'skip') return action
       // The presentation may finish during the handle round-trip. Never turn that
       // stale observation into a fresh Space pause/resume command.
+      const collapsed = await prepareWorldInput(page, { timeout: remaining() })
+      // Optional evidence collection does not change the existing skip/ready
+      // return contract. These IDs came from completed real summary closures.
+      closedPopups?.push(...collapsed)
+      remaining()
       const before = await page.evaluate(introductionInputState, true)
       remaining()
       if (before.action === 'ready') return 'ready'
       if (before.action !== 'skip') continue
-      await pressIntroductionSpace(page, { timeout: remaining() })
+      let delivery
+      try { delivery = await pressObservedSpace(page, { timeout: remaining() }) }
+      catch (error) { remaining(); throw error }
       remaining()
       const after = await page.evaluate(introductionInputState, true)
       remaining()
       // Observation and real keyboard delivery are not atomic. Fail the owning
       // episode if Space raced completion; do not guess a compensating pause toggle.
       if (after.paused !== before.paused) throw new Error('Introduction Space changed pause state; retry the episode')
+      if (after.action === 'skip') {
+        if (popupRejectedSpace(delivery) && after.inputMask === before.inputMask && after.flybyFlags === before.flybyFlags) continue
+        throw new Error('Introduction Space was not accepted; retry the episode')
+      }
       return 'skip'
     }
   }

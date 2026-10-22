@@ -1,4 +1,5 @@
-import { pressIntroductionSpace } from '../browser-introduction.mjs'
+import { prepareWorldInput } from '../browser-world-input.mjs'
+import { popupRejectedSpace, pressObservedSpace } from '../browser-space-ownership.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -57,56 +58,164 @@ export function pauseStartupReady(snapshot = false) {
       }
     } catch { /* Diagnostic errors must not change readiness or its deadline. */ }
   }
-  return snapshot ? { action, paused: world.paused } : action
+  return snapshot ? { action, paused: world.paused, inputMask: world.inputMask, flybyFlags: world.flyby.flags } : action
 }
 
-// Keep the original recovery cap over observation and real input delivery. A
-// failed delivery is forgivable only after native completion with unchanged pause.
-export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
+export function recoveryStateFromSpaceSnapshot(delivery) {
+  assert.equal(delivery?.observationId, delivery?.witnessId, 'Fresh Space observation identity is required')
+  assert.equal(typeof delivery?.witnessId, 'string')
+  assert.equal(delivery.witnessPresent, true, 'A settled live passive witness is required')
+  assert.ok(Array.isArray(delivery.records), 'Actual ownership records are required')
+  const state = delivery.state
+  assert.ok(state && typeof state.paused === 'boolean' && Number.isInteger(state.inputMask) && Number.isInteger(state.flybyFlags),
+    'Fresh native state is required; no stale fallback')
+  const action = !state.inputMask ? 'ready'
+    : (state.inputMask & 64) && (state.flybyFlags & 0x51) === 0x11 ? 'skip' : false
+  return { action, paused: state.paused, inputMask: state.inputMask, flybyFlags: state.flybyFlags }
+}
+
+// Default callers retain the original shared 2500ms preparation/input bound.
+// Explicit hosted setup callers may instead spend their EXISTING public UI
+// allowance on initial popup/focus preparation, with a fresh <=2500ms response
+// phase clipped to the SAME absolute action/episode deadline. See the contract
+// note in engineering/recovery-input-budget.md. This is not a latency SLA.
+export async function skipPauseIntroduction(page, {
+  timeout = 2500, setupTimeout, deadlineAt, signal, trace = {},
+} = {}) {
   if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid recovery input timeout')
-  const deadline = performance.now() + timeout, timedOut = new Error('Recovery introduction input timed out')
-  let closed = false, timer, deliveryError
+  const separateSetup = setupTimeout !== undefined
+  if (separateSetup && (!Number.isFinite(setupTimeout) || setupTimeout <= 0 || !Number.isFinite(deadlineAt)))
+    throw new RangeError('Public recovery setup requires its existing UI allowance and outer deadline')
+  if (separateSetup && timeout > 2500) throw new RangeError('Recovery response cap cannot exceed 2500ms')
+  const started = performance.now(),
+    actionMs = separateSetup ? Math.min(setupTimeout, deadlineAt - Date.now()) : timeout,
+    actionDeadline = started + actionMs
+  const cancellation = new AbortController(), actionSignal = cancellation.signal
+  let responseDeadline = separateSetup ? null : actionDeadline
+  Object.assign(trace, { phase: 'start', preparation: {}, completed: [], attempts: [],
+    contract: separateSetup ? 'public-setup-then-response-v1' : 'shared-input-v1',
+    actionCapMs: actionMs, responseCapMs: timeout })
+  const timedOut = () => new Error(`Recovery introduction input timed out: ${JSON.stringify({ ...trace, elapsedMs: performance.now() - started })}`)
+  let closed = false, timer, deliveryError, rejectExpiry
   const remaining = () => {
-    const budget = deadline - performance.now()
-    if (closed || budget <= 0) throw timedOut
+    signal?.throwIfAborted()
+    actionSignal.throwIfAborted()
+    const budget = (responseDeadline ?? actionDeadline) - performance.now()
+    if (closed || budget <= 0) {
+      const error = deliveryError ?? timedOut(); cancellation.abort(error); throw error
+    }
     return budget
   }
+  const expiry = new Promise((_, reject) => { rejectExpiry = reject })
+  const cancel = error => { closed = true; cancellation.abort(error); rejectExpiry(error) }
+  const expire = () => cancel(deliveryError ?? timedOut())
+  const aborted = () => cancel(signal.reason ?? new Error('Recovery input aborted'))
+  const arm = () => {
+    clearTimeout(timer)
+    timer = setTimeout(expire, Math.max(0, (responseDeadline ?? actionDeadline) - performance.now()))
+  }
+  const phase = async (name, action) => {
+    remaining()
+    trace.phase = name
+    const startedMs = performance.now() - started
+    try { return await action() }
+    finally { trace.completed.push({ phase: name, startedMs, finishedMs: performance.now() - started }) }
+  }
+  const prepare = () => phase('prepare-world-input', () =>
+    prepareWorldInput(page, { timeout: remaining(), trace: trace.preparation, signal: actionSignal }))
   const run = async () => {
-    const before = await page.evaluate(pauseStartupReady, true)
-    remaining()
-    if (before.action === 'ready') return
-    if (before.action !== 'skip') throw new Error('Recovery introduction is no longer interruptible')
-    try { await pressIntroductionSpace(page, { timeout: remaining() }) }
-    catch (error) { deliveryError = error }
-    remaining()
-    const after = await page.evaluate(pauseStartupReady, true)
-    remaining()
-    if (after.paused !== before.paused) throw new Error('Recovery Space changed pause state; retry the episode')
-    if (deliveryError && after.action !== 'ready') throw deliveryError
+    if (separateSetup) {
+      await prepare()
+      remaining()
+      trace.setupFinishedMs = performance.now() - started
+      // Starts before the fresh native-state read, not merely before key dispatch.
+      responseDeadline = Math.min(actionDeadline, performance.now() + timeout)
+      trace.responseStartedMs = performance.now() - started
+      trace.responseDeadlineMs = responseDeadline - started
+      arm()
+    }
+    let prepared = separateSetup
+    for (;;) {
+      // A rejected popup may require preparation again, but it never resets the
+      // already-running response deadline or the absolute action/episode cap.
+      if (!prepared) await prepare()
+      prepared = false
+      remaining()
+      const before = await phase('read-before-skip', () => page.evaluate(pauseStartupReady, true))
+      remaining()
+      const attempt = { before: { ...before } }; trace.attempts.push(attempt)
+      if (before.action === 'ready') { attempt.outcome = 'natural-completion'; return }
+      if (before.action !== 'skip') throw new Error('Recovery introduction is no longer interruptible')
+      let delivery
+      attempt.delivery = {}
+      await phase('observed-space-dispatch', async () => {
+        try {
+          delivery = await pressObservedSpace(page, { timeout: remaining(), signal: actionSignal, snapshot: separateSetup, trace: attempt.delivery })
+          attempt.ownership = structuredClone(separateSetup ? delivery.records : delivery)
+          if (separateSetup) attempt.atomicAfter = structuredClone(delivery)
+        } catch (error) {
+          attempt.deliveryError = String(error)
+          // A failed observer RPC is not a failed key. Opted-in callers require
+          // their atomic evidence unless the keyboard operation itself rejected.
+          if (separateSetup && !attempt.delivery.keyDeliveryFailed) throw error
+          deliveryError = error
+        }
+      })
+      remaining()
+      const after = await phase('read-after-skip', () => separateSetup && !deliveryError
+        ? Promise.resolve(recoveryStateFromSpaceSnapshot(delivery)) : page.evaluate(pauseStartupReady, true))
+      attempt.after = { ...after }
+      attempt.afterSource = separateSetup && !deliveryError ? 'atomic-post-dispatch-witness' : 'fresh-native-read'
+      remaining()
+      if (after.paused !== before.paused) throw new Error('Recovery Space changed pause state; retry the episode')
+      if (deliveryError && after.action !== 'ready') throw deliveryError
+      if (after.action === 'skip') {
+        if (!deliveryError && popupRejectedSpace(attempt.ownership) && after.inputMask === before.inputMask && after.flybyFlags === before.flybyFlags) {
+          attempt.outcome = 'popup-owned-unchanged-retry'
+          continue
+        }
+        throw new Error('Recovery Space was not accepted; retry the episode')
+      }
+      attempt.outcome = 'completed'
+      return
+    }
   }
   try {
-    await Promise.race([run(), new Promise((_, reject) => {
-      timer = setTimeout(() => { closed = true; reject(deliveryError ?? timedOut) }, remaining())
-    })])
-  } finally { closed = true; clearTimeout(timer) }
+    signal?.throwIfAborted()
+    signal?.addEventListener('abort', aborted, { once: true })
+    arm()
+    await Promise.race([run(), expiry])
+  } finally {
+    closed = true
+    clearTimeout(timer)
+    signal?.removeEventListener('abort', aborted)
+    if (!actionSignal.aborted) cancellation.abort(new Error('Recovery input action settled'))
+    trace.elapsedMs = performance.now() - started
+  }
 }
 
 // A later authored flyby can begin after the initial input-unlocked sample.
 // This callback only operates an observed interruptible flyby, once per readiness
 // wait. It never changes eligibility or resets the caller's existing deadline.
-export function recoverVisibleIntroduction(page) {
+export function recoverVisibleIntroduction(page, { setupTimeout, deadlineAt, signal, trace } = {}) {
+  if (setupTimeout !== undefined && (!Number.isFinite(setupTimeout) || setupTimeout <= 0 || !Number.isFinite(deadlineAt)))
+    throw new RangeError('Late recovery setup requires its existing UI allowance and outer deadline')
   let attempted = false
   return async ({ after, remainingMs }) => {
+    signal?.throwIfAborted()
     if (attempted || remainingMs <= 0 || !(after.inputMask & 64) || !after.introductionSkipAvailable) return null
-    await skipPauseIntroduction(page, { timeout: Math.min(2500, remainingMs) })
+    await skipPauseIntroduction(page, setupTimeout === undefined
+      ? { timeout: Math.min(2500, remainingMs) }
+      : { setupTimeout, deadlineAt: Math.min(deadlineAt, Date.now() + remainingMs), signal, trace })
     attempted = true
     return { action: 'public-skip-introduction' }
   }
 }
 
-export default async function ({ browser, page, url, root, output, receipt, signal }) {
+export default async function ({ browser, page, url, root, output, receipt, signal, deadlineAt }) {
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
-  const checks = [], screenshots = [], renderers = [], frontendKeyboard = []
+  const checks = [], screenshots = [], renderers = [], frontendKeyboard = [], inputBudgets = []
+  receipt.pauseInputBudgets = inputBudgets
   const passed = name => {
     checks.push(name)
     writeFileSync(resolve(output, 'progress.json'), JSON.stringify({ checks, screenshots }, null, 2))
@@ -135,7 +244,11 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     const startup = await page.waitForFunction(pauseStartupReady)
     const action = await startup.jsonValue()
     await startup.dispose()
-    if (action === 'skip') await skipPauseIntroduction(page)
+    if (action === 'skip') {
+      const trace = {}; inputBudgets.push(trace)
+      await skipPauseIntroduction(page, Number.isFinite(deadlineAt)
+        ? { setupTimeout: 25000, deadlineAt, signal, trace } : { trace })
+    }
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     renderers.push(await page.evaluate(() => {
       const gl = window.testSceneRef.current.renderer.getContext()
@@ -377,7 +490,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     await emptyContext.close()
   }
   return {
-    checks, screenshots, saved, renderers, frontendKeyboard, heldEscape,
+    checks, screenshots, saved, renderers, frontendKeyboard, heldEscape, inputBudgets,
     limits: [
       'Controlled cold IndexedDB open failure and delayed success delivery; all checkpoint contents, storage transactions, world transitions and UI handlers are real.',
       'Repeated disabled-button clicks are synthetic activation probes; mission entry, saving, retry, Back and loading use rendered controls.',

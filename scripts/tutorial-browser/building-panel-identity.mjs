@@ -1,3 +1,4 @@
+import { setWorldPaused } from '../browser-world-input.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
@@ -126,7 +127,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
         )
       )
     })
-    await page.locator('.world-viewport').press('Space')
+    await setWorldPaused(page, true, { timeout: 10000 })
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     report.setup = await page.evaluate(() => {
       const scene = window.testSceneRef.current

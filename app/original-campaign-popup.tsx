@@ -153,7 +153,7 @@ export function OriginalCampaignPopup({
           style={{
             left: layout.textX,
             top: layout.textY,
-            width: layout.wrapWidth,
+            width: failed ? layout.wrapWidth : layout.textWidth,
             lineHeight: `${layout.lineHeight}px`,
           }}
         >

@@ -1,3 +1,4 @@
+import { campaignPopupSnapshot } from '../scripts/browser-world-input.mjs'
 import { browserCapMs, browserScenarios } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import { assertNativeFrameExport, m2NativePointerTarget } from '../scripts/tutorial-browser/frame-export.mjs'
 import test from 'node:test'
@@ -75,8 +76,10 @@ test('M2 has isolated selection and default append; legacy scenarios and bounds 
   assert.match(source, /loadBoundaryMatched = true/)
   assert.ok(
     source.indexOf('timer = setTimeout') < source.indexOf('await page.goto'),
-    '45-second bound includes admission'
+    'Independent picking retains its 45-second total admission bound'
   )
+  assert.match(source, /if \(pickingPaths\) timer = setTimeout/)
+  assert.match(source, /createM2Admission\(\{ deadlineAt: options.deadlineAt, signal: options.signal/)
   assert.match(source, /tx.oncomplete = resolve/)
   assert.doesNotMatch(source, /showAllMissions|\.tick\(|\.startMission\(|\.setWorld\(|--no-sandbox/)
 })
@@ -148,7 +151,7 @@ test('ordinary null-mode pointer witnesses use processed tooltip cells, not plac
     new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
     'utf8'
   )
-  assert.match(source, /await skipIntroductionWithSpace\(page, \{ timeout: 10000 \}\)/)
+  assert.match(source, /await skipIntroductionWithSpace\(page, \{ timeout: 10000, closedPopups: report.inputPopups \}\)/)
   assert.doesNotMatch(source, /getByRole\([^\n]*Skip introduction|skip-introduction/)
 })
 
@@ -250,8 +253,9 @@ test('compact witness has no invented advisory and still pauses before observing
     new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8'
   )
   assert.doesNotMatch(source, /desktopNotice|Continue anyway|desktop-only-notice/)
-  assert.ok(source.indexOf('await skipIntroductionWithSpace(page, { timeout: 10000 })') < source.indexOf("await page.locator('.world-viewport').press('Space')"))
-  assert.ok(source.indexOf("await page.locator('.world-viewport').press('Space')") < source.indexOf('report.before = await observe()'))
+  const skip = source.indexOf('await skipIntroductionWithSpace(page, { timeout: 10000, closedPopups: report.inputPopups })'),
+    pause = source.indexOf('await setWorldPaused(page, true)'), baseline = source.indexOf('report.before = await observe()')
+  assert.ok(skip >= 0 && pause > skip && baseline > pause, 'Exact bounded skip and public pause must precede observation')
   assert.match(source, /await page\.setViewportSize\(\{ width: 640, height: 480 \}\)/)
   assert.equal(m2FunctionalLimitMs, 45000)
 })
@@ -498,7 +502,10 @@ test('normal M2 establishes closed camera/pointer ownership and restores the sam
       ? { click: async () => { calls.push('summary'); open = !open } }
       : { waitFor: async ({ state }) => { assert.equal(selector, '[data-native-campaign-panel]'); assert.equal(state, open ? 'visible' : 'hidden') } },
   }
-  const page = { locator: selector => {
+  const page = { evaluate: async read => {
+    assert.equal(read, campaignPopupSnapshot)
+    return present ? [{ serial: '7', open }] : []
+  }, locator: selector => {
     if (selector === '.campaign-messages details[open]') return { count: async () => Number(open) }
     assert.equal(selector, '.campaign-messages details[data-message-serial="7"]')
     return detail
@@ -516,15 +523,61 @@ test('normal M2 establishes closed camera/pointer ownership and restores the sam
   const source = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
   const normal = source.slice(source.indexOf('const popupSerial ='), source.indexOf("stage('camera-reached')"))
   assert.ok(normal.indexOf('await setM2CampaignPopupOpen(page, popupSerial, false)') < normal.indexOf("page.keyboard.down(key)"))
-  assert.match(normal, /getComputedStyle\(el\)\.pointerEvents\), 'none'/)
+  assert.match(normal, /graph\.evaluate\(el => \(\{ text: el\.innerText, pointerEvents: getComputedStyle\(el\)\.pointerEvents \}\)\)/)
+  assert.match(normal, /assert\.equal\(graphEntry\.pointerEvents, 'none'\)/)
   const loop = source.slice(source.indexOf('// Keep the original world-route coordinates'), source.indexOf("stage(`viewport-${width}x${height}-captured`)"))
   const close = loop.indexOf('await setM2CampaignPopupOpen(page, popupSerial, false)'),
     pointer = loop.indexOf('await moveAndObserve(width - 60, height - 100, true)'),
     reopen = loop.indexOf('await setM2CampaignPopupOpen(page, popupSerial, true)'),
-    layout = loop.indexOf('assertM2DiagnosticLayout(layout, width, height)')
+    layout = loop.indexOf('assertCompactMessageWitness(sample.layout, sample.witness, width, height, sample.scrollSamples)')
   assert.ok(close >= 0 && close < pointer && pointer < reopen && reopen < layout)
   assert.ok(reopen < loop.indexOf('await checkFrameExport('))
+  assert.ok(loop.indexOf('await checkFrameExport(') < loop.indexOf('await scrollCompactDiagnostics('))
+  assert.ok(loop.indexOf('await scrollCompactDiagnostics(') < layout)
   assert.match(loop, /pointerPopupState: 'closed', layoutPopupState: 'open', popupSerial/)
   assert.match(source, /Public close\/reopen retains the complete paused notification state/)
-  assert.equal(m2FunctionalLimitMs, 45000, 'The existing absolute episode budget is unchanged')
+  assert.equal(m2FunctionalLimitMs, 45000, 'Functional phase and separate picking cap remain45s; ordinary setup is explicitly separate')
+})
+
+
+test('atomic M2 popup ownership rejects missing, pending, stale and unrelated final owners', async () => {
+  const { assertM2PopupOwnership } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  const good = { phase: 'verify-retained-popup-and-owners', pending: false, serial: '7', observedOpen: true, owners: [{ serial: '7' }] }
+  assertM2PopupOwnership(good, '7', true)
+  assertM2PopupOwnership({ ...good, observedOpen: false, owners: [] }, '7', false)
+  for (const change of [v => { delete v.owners }, v => { v.phase = 'observe-retained-popups' },
+    v => { v.pending = true }, v => { v.serial = '99' }, v => { v.observedOpen = false },
+    v => { v.owners = [{ serial: '99' }] }, v => { v.owners.push({ serial: '99' }) }]) {
+    const value = structuredClone(good); change(value)
+    assert.throws(() => assertM2PopupOwnership(value, '7', true))
+  }
+})
+
+test('atomic export observation retains event, world and hit-test rejection oracles', async () => {
+  const { assertFrameExportObservation } = await import('../scripts/tutorial-browser/frame-export.mjs')
+  const before = { turn: 17, paused: true, selected: [7], camera: { x: 1, y: 2, angle: 3 }, mode: 'normal' }
+  const good = { inputs: [], state: structuredClone(before), bounds: { buttonFits: true, statusFits: true, hit: true } }
+  assertFrameExportObservation(before, good)
+  for (const change of [v => { delete v.inputs }, v => { v.inputs.push('keydown') },
+    v => { v.state.turn++ }, v => { v.state.paused = false }, v => { v.state.selected = [99] },
+    v => { v.state.camera.angle++ }, v => { v.state.mode = 'spell' },
+    v => { v.bounds.buttonFits = false }, v => { v.bounds.statusFits = false }, v => { v.bounds.hit = false }]) {
+    const value = structuredClone(good); change(value)
+    assert.throws(() => assertFrameExportObservation(before, value))
+  }
+})
+
+test('atomic export reader observes current post-action state, never a cached before snapshot', async () => {
+  const { readFrameExportObservation } = await import('../scripts/tutorial-browser/frame-export.mjs')
+  const { runInNewContext } = await import('node:vm')
+  const scene = { world: { turn: 17, paused: true, selected: [7], mode: 'normal' }, cameraPosition: { x: 1, y: 2, angle: 3 } }
+  const button = { getBoundingClientRect: () => ({ left: 0, top: 0, right: 20, bottom: 20 }), contains: node => node === button }
+  const context = { window: { testSceneRef: { current: scene }, frameExportInputs: [] }, innerWidth: 100, innerHeight: 100,
+    document: { querySelector: () => ({ getBoundingClientRect: () => ({ bottom: 25 }) }), elementFromPoint: () => button }, button }
+  const read = () => JSON.parse(JSON.stringify(runInNewContext(`(${readFrameExportObservation.toString()})(button)`, context)))
+  const first = read(); scene.world.turn++; scene.cameraPosition.angle++; context.window.frameExportInputs.push('click')
+  const second = read()
+  assert.equal(first.state.turn, 17); assert.equal(second.state.turn, 18)
+  assert.equal(second.state.camera.angle, 4); assert.deepEqual(second.inputs, ['click'])
+  assert.deepEqual(second.bounds, { buttonFits: true, statusFits: true, hit: true })
 })

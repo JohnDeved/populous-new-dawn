@@ -35,6 +35,69 @@ test('Western wrapper preserves end spaces, punctuation and consumed overflowing
   assert.deepEqual(wrapPopupText('',340,3),[])
 })
 
+test('consumed native punctuation retains its exact lines and coordinates in an accurately sized DOM text box',()=>{
+  // Hosted dbb9 M2 at1440x1000: battlefield1240px, preference2,
+  // native logical viewport620x500. A consumed period exceeds wrap388.
+  const native=campaignPopupLayout(messageText(641),620,500,3,['OK','Delete'])
+  assert.deepEqual(native,{font:3,lines:[
+    'Now we must face the Matak Tribe. I sense',
+    'many Warriors ready to stand against us.',
+    'In my vision we are aided by magic from',
+    'a Stone Head. There must be a way to',
+    'reach it...'],
+    wrapWidth:388,panelWidth:448,panelHeight:208,x:86,y:15,textX:30,textY:26,lineHeight:19,
+    buttons:[{label:'OK',x:30,y:168,width:64,height:26,labelX:20,labelY:3},
+      {label:'Delete',x:325,y:168,width:93,height:26,labelX:20,labelY:3}]})
+  assert.deepEqual(native.lines.map(line=>popupTextWidth(line,3)),[385,391,371,347,84])
+  const layout=fitCampaignPopup(messageText(641),1240,1000,1440,2,['OK','Delete'])
+  assert.deepEqual(layout,{...native,textWidth:391,scale:2,x:172,y:31})
+  const panelLeft=200+layout.x,textLeft=panelLeft+layout.textX*layout.scale
+  assert.equal(textLeft,432)
+  assert.equal(textLeft+layout.wrapWidth*layout.scale,1208,'Original wrap budget remains unchanged')
+  assert.equal(textLeft+layout.textWidth*layout.scale,1214,'DOM extent includes the already drawn final period')
+  assert.equal(panelLeft+layout.panelWidth*layout.scale,1268,'No panel enlargement or pixel movement')
+  assert.equal(popupTextWidth(native.lines[1].slice(0,-1),3),387,'The period starts at the original advance')
+  assert.ok(layout.textX+layout.textWidth<layout.panelWidth,'Complete native glyph boxes remain inside panel')
+  const component=source('app/original-campaign-popup.tsx'),css=source('app/original-campaign-popup.module.css')
+  assert.match(component,/width: failed \? layout\.wrapWidth : layout\.textWidth/,'Plain text failure recovery keeps its existing wrap width')
+  assert.match(css,/\.text, \.fallback \{ position: absolute; padding: 0; margin: 0; \}/)
+  assert.match(css,/\.textLine \{ display: block; white-space: nowrap; \}/)
+  assert.match(css,/\.line \{ display: inline-flex; vertical-align: top; align-items: flex-start; \}/)
+  assert.match(css,/\.glyph \{ display: block; flex: none;/)
+  assert.match(css,/\.panel \.ok \{ position: absolute;/,'Controls cannot reflow with the text box')
+  assert.match(component,/left: button\.x, top: button\.y, width: button\.width, height: button\.height/)
+})
+
+test('native wrapper and exact period atlas ink explain overflow without clipping or a font-bearing exemption',()=>{
+  assert.equal(sha(source('decomp/generated/0045ec10.c')),'b8e52f8ae04168e0a0ea8e965ed5bf1ca94672125c4fdf13b391c8ba08c7085c')
+  assert.equal(sha(source('decomp/research/campaign-popup-presentation/body-renderer.asm')),'7dde157edf500754b1dcf5efe5d7decf05accf7e38baddf870c5c9415082ac5e')
+  assert.equal(sha(source('decomp/research/campaign-popup-presentation/font-direct-cpu.asm')),'50686387d9d3e8bf375268711b1d1a2419a10411b6f24f40d2cfd47be46cf3b7')
+  const png=readFileSync(new URL('../public/original/result-font.png',import.meta.url))
+  assert.equal(sha(png),'46d35c177850244ed211c0556af98694bb428835e7708a79f3acee16828e0676')
+  let offset=8,width,height;const parts=[]
+  while(offset<png.length){
+    const length=png.readUInt32BE(offset),name=png.toString('ascii',offset+4,offset+8),data=png.subarray(offset+8,offset+8+length)
+    if(name==='IHDR'){width=data.readUInt32BE(0);height=data.readUInt32BE(4);assert.deepEqual([...data.subarray(8)],[8,6,0,0,0])}
+    if(name==='IDAT')parts.push(data)
+    offset+=length+12
+  }
+  assert.deepEqual([width,height],[304,294])
+  const raw=inflateSync(Buffer.concat(parts)),glyph=popupGlyph('.',3),pixels=Buffer.alloc(glyph.w*glyph.h*4)
+  assert.deepEqual([glyph.x,glyph.y,glyph.w,glyph.h,glyph.advance],[266,0,4,19,4])
+  for(let y=0;y<glyph.h;y++){
+    const row=(glyph.y+y)*(width*4+1)
+    assert.equal(raw[row],0,'Retained importer PNG uses unfiltered RGBA rows')
+    raw.copy(pixels,y*glyph.w*4,row+1+glyph.x*4,row+1+(glyph.x+glyph.w)*4)
+  }
+  assert.equal(sha(pixels),'dcabd5010f052b3a31be5fb4b7fb79f607eb43eb0a5238b1351134d87eec0dd7')
+  const ink=[]
+  for(let y=0;y<glyph.h;y++)for(let x=0;x<glyph.w;x++)if(pixels[(y*glyph.w+x)*4+3])ink.push([x,y])
+  assert.deepEqual(ink,[[1,13],[2,13],[1,14],[2,14],[3,14],[2,15],[3,15]])
+  assert.deepEqual([Math.min(...ink.map(([x])=>x)),Math.max(...ink.map(([x])=>x))+1],[1,4])
+  // Last glyph starts at387; source ink reaches391, not transparent padding.
+  assert.equal(387+4,391)
+})
+
 test('screen area font switch and browser fit retain all text and reachable native actions',()=>{
   assert.equal(fitCampaignPopup('Test',540,480,640).font,3)
   assert.equal(fitCampaignPopup('Test',828,360,900).font,3,'Font selection uses TOTAL screen area')
@@ -47,6 +110,9 @@ test('screen area font switch and browser fit retain all text and reachable nati
     assert.ok(layout.x+layout.panelWidth*layout.scale<=w)
     assert.ok(layout.y+layout.panelHeight*layout.scale<=h)
     assert.ok(layout.lines.join(' ').includes('Matak Tribe.'))
+    assert.ok(layout.textWidth>=layout.wrapWidth)
+    assert.ok(layout.lines.every(line=>popupTextWidth(line,layout.font)<=layout.textWidth))
+    assert.ok(layout.textX+layout.textWidth<=layout.panelWidth,'Content extent does not authorize panel escape')
     assert.equal(layout.buttons.length,2)
   }
 })

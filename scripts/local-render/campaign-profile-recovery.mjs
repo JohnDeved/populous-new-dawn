@@ -1,3 +1,4 @@
+import { setWorldPaused } from '../browser-world-input.mjs'
 import { dependencyReceipt } from '../orchestration/dependency-profile.mjs'
 import assert from 'node:assert/strict'
 import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
@@ -9,6 +10,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { traceProfileInput } from '../tutorial-browser/profile-input-trace.mjs'
 
 // Named local-render scenario. All seeded records are explicit browser-storage
 // fixtures; public startup/Save/Load assertions are recorded separately.
@@ -195,7 +197,7 @@ async function installLoadObserver(page) {
   })
 }
 
-export default async function ({ browser, context: initialContext, page: initialPage, url, root, output, receipt, signal }) {
+export default async function ({ browser, context: initialContext, page: initialPage, url, root, output, receipt, signal, deadlineAt }) {
   const require = createRequire(resolve(root, 'package.json'))
   const digest = file => createHash('sha256').update(readFileSync(file)).digest('hex')
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
@@ -206,7 +208,7 @@ export default async function ({ browser, context: initialContext, page: initial
       browserVersion: receipt.browserVersion, browserSha256: digest(receipt.browserPath ?? receipt.launch.executablePath),
       launch: receipt.launch, playwright: require('@playwright/test/package.json').version,
       ...dependencyReceipt(root),
-      helpers: Object.fromEntries(['scripts/tutorial-browser/profile-readiness.mjs', 'scripts/campaign-start-readiness.mjs', 'scripts/local-render/harness.mjs', 'scripts/local-render/vite.config.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/browser-game.mjs', 'scripts/checkpoint-readback.mjs'].map(file => [file, digest(resolve(root, file))])),
+      helpers: Object.fromEntries(['scripts/tutorial-browser/profile-readiness.mjs', 'scripts/tutorial-browser/profile-input-trace.mjs', 'scripts/campaign-start-readiness.mjs', 'scripts/local-render/harness.mjs', 'scripts/local-render/vite.config.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/browser-game.mjs', 'scripts/browser-world-input.mjs', 'scripts/browser-introduction.mjs', 'scripts/local-render/original-pause-checkpoint-recovery.mjs', 'scripts/checkpoint-readback.mjs'].map(file => [file, digest(resolve(root, file))])),
   })
   const report = {
     status: 'running',
@@ -216,6 +218,7 @@ export default async function ({ browser, context: initialContext, page: initial
     limits: 'Browser checkpoint failure isolation only. Page reload within one browser context is not browser-process restart persistence. Complete stored-record digests do not establish full loaded-world equality. Load-boundary version is a supplied wrapper value, not an independent observation. No authentic original-save interoperability, naturally earned campaign completion, deployment behavior, hardware performance, or full PND-07 claim.',
     cases: [],
     screenshots: [],
+    inputBudgets: [],
   }
   const capture = async (page, name) => {
     const viewport = page.viewportSize()
@@ -246,6 +249,13 @@ export default async function ({ browser, context: initialContext, page: initial
       throw error
     }
   }
+  const skipInput = async page => {
+    const trace = {}; report.inputBudgets.push(trace)
+    try {
+      await skipPauseIntroduction(page, Number.isFinite(deadlineAt)
+        ? { setupTimeout: 15000, deadlineAt, signal, trace } : { trace })
+    } finally { save() }
+  }
   const loadThroughUi = async (page, button) => {
     await installLoadObserver(page)
     await button.click()
@@ -258,9 +268,13 @@ export default async function ({ browser, context: initialContext, page: initial
     const startup = await page.waitForFunction(pauseStartupReady)
     const action = await startup.jsonValue()
     await startup.dispose()
-    if (action === 'skip') await skipPauseIntroduction(page)
+    if (action === 'skip') {
+      if (!report.inputActionTrace)
+        await traceProfileInput(page.context(), report, output, () => skipInput(page))
+      else await skipInput(page)
+    }
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-    await page.locator('.world-viewport').press('Space')
+    await setWorldPaused(page, true, { timeout: 2500 })
     assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true)
     const renderer = await page.evaluate(() => {
       const gl = window.testSceneRef.current.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
@@ -366,7 +380,7 @@ export default async function ({ browser, context: initialContext, page: initial
       const startupReady = await page.waitForFunction(pauseStartupReady)
       const action = await startupReady.jsonValue()
       await startupReady.dispose()
-      if (action === 'skip') await skipPauseIntroduction(page)
+      if (action === 'skip') await skipInput(page)
       entry.readiness = await waitRecoveryReadiness(page, { signal, onBlocked: recoverVisibleIntroduction(page) })
       await page.getByRole('button', { name: 'Menu', exact: true }).click()
       const menu = page.locator('dialog[data-original-pause-menu]')

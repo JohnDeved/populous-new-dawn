@@ -1,3 +1,4 @@
+import { setWorldPaused } from '../browser-world-input.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
@@ -82,7 +83,7 @@ export default async function sceneryPlacement({ browser, url, output }) {
     await bindGame(page)
     await skipIntroductionWithSpace(page, { timeout: 15000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-    await page.locator('.world-viewport').press('Space')
+    await setWorldPaused(page, true, { timeout: 15000 })
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     await button('Select brave').click()
     await button('buildings B').click()
@@ -210,7 +211,7 @@ export default async function sceneryPlacement({ browser, url, output }) {
     report.repeated = await read()
     await page.keyboard.press('Escape')
     await page.waitForFunction(() => window.testStore.getWorld().mode === null)
-    await page.locator('.world-viewport').press('Space')
+    await setWorldPaused(page, false, { timeout: 15000 })
     await page.waitForFunction(() => !window.testStore.getWorld().paused)
     await button('Hut, 3 wood').click()
     await page.waitForFunction(() => window.testStore.getWorld().mode === 'hut')

@@ -22,7 +22,7 @@ import {
 } from './pointer-frame-metrics.ts'
 import { FpsGraph } from './fps-graph.ts'
 import { levelStartCamera } from './level-start.ts'
-import { advanceGame } from './game-clock.ts'
+import { advanceGame, observeGameTurns } from './game-clock.ts'
 import { createResultClock, advanceResultClock } from './result-session.ts'
 import { FollowerNearbyMode } from './follower-nearby.ts'
 import { bindTrainingPanelRequests } from './training-panel-requests.ts'
@@ -368,6 +368,9 @@ export class GameScene {
       this.worshipPresentation.visit()
     },
     presentationHidden: () => document.hidden,
+  }
+  observeGameTurns(visit: () => void, failed: (error: unknown) => void) {
+    return observeGameTurns(this.gameClock, visit, failed)
   }
   templeResourceSnapshot: SharedAniblSnapshot | null = null
   private presentationBinding?: PresentationBinding

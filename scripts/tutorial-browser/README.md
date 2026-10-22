@@ -112,16 +112,22 @@ Game. A read-only synchronous store subscription verifies the entire loaded worl
 against the exact-source restore/load migration result before normal RAF advances.
 This is imported test setup, not a user save or earned campaign-unlock evidence.
 
-A 45-second total scenario bound includes IDB admission and public Load, then
-ordinary Skip/Pause/F8/pointer/camera,
-resize and menu/resume inputs, including unchanged selection/order witnesses while
-paused, actual renderer/state, layout, overlay input transparency and reset checks.
-The aggregate browser bound stays 180 seconds; browser sandbox/config stay unchanged.
+A NEW ordinary-M2 policy grants one setup phase of at most 45 seconds, then one
+shared functional phase of at most 45 seconds for all pointer/camera, four viewport
+layouts, public exports, scrolling, F8 reset and live resume/menu inputs. The single
+absolute 90-second bound starts before context acquisition and includes cleanup,
+clipped by the unchanged enclosing host remainder. The transition requires exact
+public Load, completed introduction, paused scene and the same restored authored
+popup. No per-case reset or unused-setup transfer is allowed. This is explicitly
++45 seconds of functional admission, not an optimization or recovered old bound.
+See [ordinary M2 policy](../../engineering/ordinary-m2-functional-admission.md).
+The isolated M2 host remains 180 seconds and Tutorial host 240 seconds;
+browser sandbox/config, all per-action caps and state/geometry oracles stay unchanged.
 No live world, camera, clock or selection mutation is injected. Seam crossing,
 hidden-tab behavior, hardware FPS, overhead and responsiveness remain unproven;
 this functional mode does not report performance acceptance.
 
-Activation budget: the initial PR533 hosted receipt measured 85.178 seconds for
+Historical activation budget (not the current policy): the initial PR533 hosted receipt measured 85.178 seconds for
 build plus all prior browser scenarios (Vite reported 1.41 seconds). Independent
 browser-phase timestamps were not recorded, so 85.178 seconds is a conservative
 observed browser upper bound, not an exact browser duration. Adding the M2 total

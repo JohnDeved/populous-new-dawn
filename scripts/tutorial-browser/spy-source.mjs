@@ -1,3 +1,4 @@
+import { setWorldPaused } from '../browser-world-input.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -16,8 +17,8 @@ const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 
 // These shipped commands reject paused worlds. Resume through the same public
 // control before input, then observe the running state before submitting it.
-export async function resumeSpySourceInput(page, action, name, run) {
-  await action(`Resume before ${name}`, () => page.locator('.world-viewport').press('Space'))
+export async function resumeSpySourceInput(page, action, name, run, options = { timeout: 8000 }) {
+  await action(`Resume before ${name}`, () => setWorldPaused(page, false, options))
   await page.waitForFunction(() => !window.testStore.getWorld().paused)
   await action(name, run)
 }
@@ -89,15 +90,15 @@ export default async function spySource(options) {
     sources: Object.fromEntries(['spy-source.mjs', 'spy-source-fixture.mjs', 'spy-source-budget.mjs',
       'spy-source-observer.mjs', 'spy-source-evidence.mjs', 'spy-source-readiness.mjs', 'checkpoint-codec.mjs']
       .map(file => [file, hash(readFileSync(new URL(file, import.meta.url)))])),
-    inputs: Object.fromEntries(['app/follower-appearance.ts', 'app/scene-entities.ts',
+    inputs: Object.fromEntries(['app/game-clock.ts', 'app/scene.ts', 'app/follower-appearance.ts', 'app/scene-entities.ts',
       'app/live-building-combat.ts', 'app/original-units.json', 'app/checkpoint-format.ts',
       'tests/fixtures/follower-source-witness.json', 'tests/fixtures/follower-source-artwork.json']
       .map(file => [file, hash(readFileSync(new URL(`../../${file}`, import.meta.url)))])),
     limits: [
       'Supplied current-format checkpoint with flat terrain, school, Brave, training funding and hostile hut; real training controller, not natural Mission12/campaign acquisition.',
       'Public Load Game, Skip introduction when the restored flyby owns input, Select spy, right-click focus, disguise, canvas sabotage command, Pause and Resume; ordinary live clocks and actual production Home renderer.',
-      'Read-only RAF samples and immutable same-frame canvas crops perturb rendering. No hardware performance, original-game execution, all-sprite sweep or pixel-perfect native raster claim.',
-      'Exact entry must be observed. A missed frame, short budget or absent crop is failure, not a skip or substituted later sample.',
+      'Read-only logical-turn and RAF samples plus immutable same-frame canvas crops perturb timing and rendering. No hardware performance, original-game execution, all-sprite sweep or pixel-perfect native raster claim.',
+      'Exact logical pending entry and the first rendered entry frame must both be observed. A missed frame, short budget or absent crop is failure, not a skip or substituted later sample.',
     ] }
   const save = () => writeFileSync(resolve(output, 'spy-source.json'), JSON.stringify(report, null, 2) + '\n')
   save()
@@ -172,23 +173,23 @@ export default async function spySource(options) {
           const debug = gl.getExtension('WEBGL_debug_renderer_info')
           return { version: gl.getParameter(gl.VERSION), renderer: gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER) }
         })
-        await action('Public Pause', () => page.locator('.world-viewport').press('Space'))
+        await action('Public Pause', () => setWorldPaused(page, true, { timeout: Math.min(8000, budget.deadlineAt - Date.now()) }))
         await page.waitForFunction(() => window.testStore.getWorld().paused)
         await action('Select trained Spy', () => button('Select spy').click())
         await action('Public Spy focus', () => button('Select spy').click({ button: 'right' }))
         await page.waitForFunction(() => !window.testSceneRef.current.cameraMotion.active && !window.testSceneRef.current.viewTransition)
         assert.deepEqual(await page.evaluate(() => window.testStore.getWorld().selected), [fixture.spyId])
         await action('Open followers', () => page.getByTitle('followers', { exact: true }).click())
-        await resumeSpySourceInput(page, action, 'Disguise as Dakini', () => button('Disguise selected spies as Dakini').click())
+        await resumeSpySourceInput(page, action, 'Disguise as Dakini', () => button('Disguise selected spies as Dakini').click(), { timeout: Math.min(8000, budget.deadlineAt - Date.now()) })
         await page.waitForFunction(id => window.testStore.getWorld().units.find(unit => unit.id === id)?.native?.disguise === 0x40, fixture.spyId)
-        await action('Pause before sabotage', () => page.locator('.world-viewport').press('Space'))
+        await action('Pause before sabotage', () => setWorldPaused(page, true, { timeout: Math.min(8000, budget.deadlineAt - Date.now()) }))
         await page.waitForFunction(() => window.testStore.getWorld().paused)
         await page.evaluate(installSpySourceObserver, { spyId: fixture.spyId, targetId: fixture.targetId })
         await resumeSpySourceInput(page, action, 'Canvas sabotage command', async () => {
           const target = await page.evaluate(readSpySabotageTarget, fixture.targetId)
           report.commandPick = target; save()
           await page.mouse.click(target.x, target.y)
-        })
+        }, { timeout: Math.min(8000, budget.deadlineAt - Date.now()) })
         report.order = await page.evaluate(id => {
           const world = window.testStore.getWorld(), spy = world.units.find(unit => unit.id === id)
           return { target: spy.target, selected: [...world.selected], lastOrderTurn: world.lastOrderTurn }
@@ -199,7 +200,7 @@ export default async function spySource(options) {
           if (result.error) throw Error(result.error)
           return result.done
         }, null, { timeout: Math.max(1, Math.min(16000, budget.deadlineAt - Date.now())) })
-        await action('Pause real source136', () => page.locator('.world-viewport').press('Space'))
+        await action('Pause real source136', () => setWorldPaused(page, true, { timeout: Math.min(8000, budget.deadlineAt - Date.now()) }))
         await page.waitForFunction(() => window.testStore.getWorld().paused)
         report.holdBefore = await page.evaluate(readSpySourceHold, fixture.spyId)
         assert.equal(report.holdBefore.spy.native.object, 136)
@@ -215,7 +216,7 @@ export default async function spySource(options) {
           writeFileSync(resolve(output, crop.filename), bytes, { flag: 'wx' })
         }
         await page.screenshot({ path: resolve(output, 'spy-source-context.png'), timeout: 3000 })
-        await action('Public Resume continuation', () => page.locator('.world-viewport').press('Space'))
+        await action('Public Resume continuation', () => setWorldPaused(page, false, { timeout: Math.min(8000, budget.deadlineAt - Date.now()) }))
         await page.waitForFunction(turn => window.testStore.getWorld().turn > turn, report.holdAfter.turn)
         report.resumed = await page.evaluate(readSpySourceHold, fixture.spyId)
         report.validation = validateSpySourceObservation(report)

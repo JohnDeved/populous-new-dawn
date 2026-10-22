@@ -1,3 +1,4 @@
+import { withoutCampaignPopup } from './support/world-input-page.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
@@ -6,9 +7,11 @@ import { createFlyby, flybyCommand, interruptFlyby } from '../app/flyby.ts'
 import {
   introductionInputState,
   pressIntroductionSpace,
-  skipIntroductionWithSpace,
+  skipIntroductionWithSpace as skipIntroduction,
 } from '../scripts/browser-introduction.mjs'
 import { pageEffect } from './support/follower-nearby-page.mjs'
+
+const skipIntroductionWithSpace = (page, options) => skipIntroduction(withoutCampaignPopup(page), options)
 
 function stateFixture(overrides = {}) {
   const world = { paused: false, inputMask: 0, levelStart: [{ phase: 2 }],
@@ -77,9 +80,9 @@ test('paused restored startup is returned unchanged for its caller to resume, ne
   assert.deepEqual(calls, ['dispose'])
 })
 
-test('one public Space follows late native readiness, never an initial unlocked sample or another toggle', async () => {
+test('one public Space follows late native readiness and rejects a swallowed skip without another toggle', async () => {
   const f = stateFixture(), calls = []
-  const result = await skipIntroductionWithSpace({
+  await assert.rejects(skipIntroductionWithSpace({
     waitForFunction: async (predicate, arg, options) => {
       assert.equal(predicate, introductionInputState)
       assert.equal(arg, undefined)
@@ -92,8 +95,7 @@ test('one public Space follows late native readiness, never an initial unlocked 
     },
     evaluate: async () => ({ action: 'skip', paused: false }),
     keyboard: { press: async key => { assert.equal(key, 'Space'); calls.push('Space') } },
-  }, { timeout: 900 })
-  assert.equal(result, 'skip')
+  }, { timeout: 900 }), /Introduction Space was not accepted/)
   assert.deepEqual(calls, ['dispose', 'Space'])
   assert.equal(f.world.paused, false)
   assert.equal(f.world.inputMask, 64, 'delivery alone cannot assert that the runtime accepted the key')
@@ -139,7 +141,7 @@ test('invalid introduction budgets fail before polling or native input', async (
 })
 
 test('remaining deadline includes readiness, handle extraction and disposal before Space delivery', async t => {
-  let now = 0, budget
+  let now = 0, budget, reads = 0
   t.mock.method(performance, 'now', () => now)
   const setTimer = globalThis.setTimeout
   t.mock.method(globalThis, 'setTimeout', (callback, delay) => {
@@ -152,7 +154,7 @@ test('remaining deadline includes readiness, handle extraction and disposal befo
       return { jsonValue: async () => { now = 350; return 'skip' },
         dispose: async () => { now = 450 } }
     },
-    evaluate: async () => ({ action: 'skip', paused: false }),
+    evaluate: async () => ({ action: ++reads === 1 ? 'skip' : 'ready', paused: false }),
     keyboard: { press: async key => assert.equal(key, 'Space') },
   }, { timeout: 500 })
   assert.equal(budget, 50, 'the keyboard does not start another full timeout')

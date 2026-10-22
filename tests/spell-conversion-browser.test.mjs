@@ -1,3 +1,4 @@
+import { withoutCampaignPopup } from './support/world-input-page.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
@@ -76,7 +77,7 @@ test('conversion startup waits for the native flyby gate before Space and input 
         } },
       })
       const page = {
-        evaluate: async read => read(),
+        evaluate: async (read,arg) => read(arg),
         keyboard: { press: async key => {
           assert.equal(key, 'Space')
           assert.equal(world.inputMask & 64, 64, 'early Space must not pause turn-zero startup')
@@ -90,11 +91,12 @@ test('conversion startup waits for the native flyby gate before Space and input 
           if (initialTurn === 0 && phase === 'wait-flyby')
             assert.equal(predicate(), false, 'initial unlocked input cannot bypass authored startup')
           for (let turn = 0; turn < 60 && !predicate(); turn++) advanceStartup(scene)
-          assert.equal(predicate(), true, 'ordinary presentation owns introduction completion')
+          assert.equal(Boolean(predicate()), true, 'ordinary presentation owns introduction completion')
+          return { jsonValue: async () => predicate(), dispose: async () => {} }
         },
       }
-      await waitForConversionIntroduction(page, report)
-      assert.deepEqual(calls, ['wait-flyby', 'press', 'wait-input'])
+      await waitForConversionIntroduction(withoutCampaignPopup(page), report)
+      assert.deepEqual(calls, ['wait-flyby', 'wait-input', 'press', 'wait-input'])
       assert.equal(report.startup.bound.skipAvailable, initialTurn >= 16)
       assert.equal(report.startup.beforeSkip.flybyFlags & 0x51, 0x11)
       assert.equal(report.startup.beforeSkip.skipAvailable, true)
@@ -278,11 +280,11 @@ test('conversion final cleanup cannot certify a late or watchdog-expired episode
 
 // Controlled callback/RAF fixture exercises the installed observer itself. It is
 // not gameplay or GPU evidence; the browser episode supplies those observations.
-function observerFixture(t, { expiry = 165, callback, armed = false } = {}) {
+function observerFixture(t, { expiry = 165, callback, armed = false, baselineTurn = 0 } = {}) {
   const target = { id: 10, team: 'yellow', kind: 'brave', x: -45, z: -91 },
     flash = { id: 9, startConversionLink: 10, turnsRemaining: 8, x: -45, z: -91,
       animation: { object: 0x650, f1: 0 } },
-    world = { turn: armed ? 0 : 156, paused: armed, speed: 1, effects: [], units: [target],
+    world = { turn: armed ? baselineTurn : 156, paused: armed, speed: 1, effects: [], units: [target],
       spellCasts: [[], [], { 17: 0 }], manaWorld: { spells: [null, null, { stocks: { 17: 1 } }] }, sounds: [] },
     calls = [], original = function (...args) {
       calls.push({ receiver: this, args, turn: world.turn })
@@ -306,7 +308,7 @@ function observerFixture(t, { expiry = 165, callback, armed = false } = {}) {
     cancelAnimationFrame: id => pending.delete(id),
   })
   const descriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn')
-  installConversionObserver({ observationMs: 30000, armed })
+  installConversionObserver({ observationMs: 30000, armed, baselineTurn })
   const observer = window.__pndConversionObservation
   t.after(() => observer.retain())
   return { world, scene, clock, original, descriptor, calls, observer, flash, pending,
@@ -482,11 +484,35 @@ test('armed observer rejects an unobserved first turn and later pause without ov
     assert.match(f.observer.result.error, /must remain running/)
     assert.equal(f.clock.afterTurn, f.original)
   })
-  await t.test('arming must start actually paused at zero', t => {
+  await t.test('arming must start at the actual frozen baseline', t => {
     const f = observerFixture(t)
     f.observer.retain()
-    assert.throws(() => installConversionObserver({ observationMs: 30000, armed: true }), /paused turn-zero/)
+    assert.throws(() => installConversionObserver({ observationMs: 30000, armed: true }), /measured paused baseline/)
     assert.equal(f.clock.afterTurn, f.original)
+  })
+})
+
+test('nonzero measured baseline retains every first/subsequent fixed turn and the exact eight-turn conversion lifetime', t => {
+  const f=observerFixture(t,{armed:true,baselineTurn:37}), before=structuredClone(f.world)
+  f.frame();assert.deepEqual(f.world,before)
+  f.world.paused=false
+  for(let turn=38;turn<=164;turn++){f.turn(turn);f.frame()}
+  f.turn(165);f.turn(166);f.frame()
+  const result=f.observer.retain()
+  assert.equal(result.error,null);assert.deepEqual(result.armedAt,{turn:37,paused:true})
+  assert.equal(result.firstRunningTurn,38);assert.equal(result.observedTurns,129)
+  assert.equal(result.lastObservedTurn,166);assert.equal(result.removal.turn-result.birth.turn,8)
+  assert.equal(result.restored,true)
+})
+
+test('nonzero armed baseline still rejects skipped first and subsequent turns', async t => {
+  for(const skipFirst of [true,false])await t.test(`skipFirst=${skipFirst}`,t=>{
+    const f=observerFixture(t,{armed:true,baselineTurn:37})
+    f.world.paused=false
+    if(!skipFirst)f.turn(38)
+    f.turn(skipFirst?39:40)
+    assert.match(f.observer.result.error,/missed (?:an ordinary|a fixed) turn/)
+    assert.equal(f.clock.afterTurn,f.original)
   })
 })
 
@@ -502,13 +528,10 @@ test('public armed resume uses only native Space and never toggles an already ru
         } } })
       const page = {
         evaluate: async fn => fn(),
-        locator(selector) {
-          assert.equal(selector, '.world-viewport')
-          return { press: async key => { assert.equal(key, 'Space'); assert.equal(world.paused, true); actions.push('resume'); world.paused = false } }
-        },
+        keyboard: { press: async key => { assert.equal(key, 'Space'); assert.equal(world.paused, true); actions.push('resume'); world.paused = false } },
         waitForFunction: async fn => { assert.equal(fn(), true); actions.push('running') },
       }
-      await resumeArmedConversion(page, report)
+      await resumeArmedConversion(withoutCampaignPopup(page), report)
       assert.deepEqual(actions, paused ? ['resume', 'running'] : ['running'])
       assert.deepEqual(report.resume.actions, paused ? ['native-space-resume'] : [])
       assert.equal(report.resume.before.paused, paused)
@@ -526,25 +549,28 @@ test('public armed resume cannot treat rejected or ineffective input as a runnin
       browserGlobals(t, { window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
         document: { visibilityState: 'visible', querySelector: () => null } })
       const failure = Error('Resume rejected')
-      await assert.rejects(resumeArmedConversion({
+      await assert.rejects(resumeArmedConversion(withoutCampaignPopup({
         evaluate: async fn => fn(),
-        locator: () => ({ press: async key => { assert.equal(key, 'Space'); calls.push('resume'); if (mode === 'rejected') throw failure } }),
+        keyboard: { press: async key => { assert.equal(key, 'Space'); calls.push('resume'); if (mode === 'rejected') throw failure } },
         waitForFunction: async fn => { calls.push('wait'); assert.equal(fn(), false); throw Error('Still paused') },
-      }, report), mode === 'rejected' ? error => error === failure : /Still paused/)
-      assert.deepEqual(calls, mode === 'rejected' ? ['resume'] : ['resume', 'wait'])
+      }), report), mode === 'rejected' ? error => error === failure : /requested pause state/)
+      assert.deepEqual(calls, ['resume'])
       assert.equal(world.paused, true)
       assert.equal(report.resume.after, undefined)
     })
   }
 })
 
-test('narrow-start witness arms before public resume and retains post-flyby camera focus', () => {
+test('public measured baseline arms before resume and retains frozen post-flyby camera focus', () => {
   const source = readFileSync(new URL('../scripts/tutorial-browser/spell-conversion.mjs', import.meta.url), 'utf8')
   const flow = source.slice(source.indexOf('export default async function'))
-  assert.match(flow, /width: 899, height: 720/)
-  assert.match(flow, /setViewportSize\(\{ width: 960, height: 720 \}\)/)
+  assert.match(flow, /width: 960, height: 720/)
+  assert.doesNotMatch(flow, /899|narrowStart|setViewportSize/)
   assert.ok(flow.indexOf('await page.evaluate(installConversionObserver') < flow.indexOf('await resumeArmedConversion'))
-  assert.ok(flow.indexOf('await resumeArmedConversion') < flow.indexOf('await waitForConversionIntroduction'))
+  assert.ok(flow.indexOf('await waitForConversionIntroduction') < flow.indexOf('await pauseConversionBaseline'))
+  assert.ok(flow.indexOf('await pauseConversionBaseline') < flow.indexOf('await page.evaluate(installConversionObserver'))
+  assert.ok(flow.indexOf('report.setup =') < flow.indexOf('await resumeArmedConversion'))
+  assert.match(flow, /assert.equal\(report.setup.turn, report.pausedBaseline.turn/)
   assert.ok(flow.indexOf('await waitForConversionIntroduction') < flow.indexOf('report.setup ='))
   assert.doesNotMatch(flow, /name: 'Pause game'/)
   assert.match(flow, /assert.equal\(report.setup.casts, 0\)/)

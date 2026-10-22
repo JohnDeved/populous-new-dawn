@@ -1,3 +1,4 @@
+import { withoutCampaignPopup } from './support/world-input-page.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -258,12 +259,38 @@ test('recovery startup admits only native interruptible flyby input or an unlock
   assert.equal(poll(), 'ready', 'natural completion must not issue an extra Space pause toggle')
 })
 
+test('composed startup observation retains bounded diagnostics and fresh native retry identity', async () => {
+  const { pauseStartupReady } = await import('../scripts/local-render/original-pause-checkpoint-recovery.mjs')
+  const { runInNewContext } = await import('node:vm')
+  const world = { inputMask: 64, flyby: { flags: 17 }, paused: false, outcome: { level: 1 }, levelStart: [{ phase: 4 }] }
+  const before = structuredClone(world), warnings = []
+  const context = { window: { testStore: { getWorld: () => world } },
+    document: { querySelector: () => null, querySelectorAll: () => [], activeElement: null },
+    console: { warn: (...args) => warnings.push(args) } }
+  const read = snapshot => runInNewContext(`(${pauseStartupReady.toString()})(${snapshot})`, context)
+  assert.deepEqual(JSON.parse(JSON.stringify(read(true))), {
+    action: 'skip', paused: false, inputMask: 64, flybyFlags: 17,
+  }, 'Recovery retry ownership receives fresh native identity, not only action/paused')
+  assert.equal(warnings.length, 0, 'Atomic retry snapshots never create startup logging')
+  for (let i = 0; i < 20; i++) assert.equal(read(false), 'skip')
+  assert.equal(warnings.length, 1, 'A stable never-ready state is retained only once')
+  assert.equal(warnings[0][0], 'NATIVE_STARTUP_STATE')
+  assert.deepEqual(world, before, 'Observation must never mutate gameplay')
+  for (let i = 0; i < 20; i++) { world.levelStart[0].phase = i; read(false) }
+  assert.equal(warnings.length, 16, 'Distinct startup records remain bounded')
+  delete context.window.__pauseStartupTrace
+  context.document.querySelector = () => { throw Error('supplied diagnostic failure') }
+  world.inputMask = 0
+  assert.equal(read(false), 'ready', 'Diagnostic failure must not alter native readiness')
+  assert.equal(read(true).inputMask, 0, 'Fresh snapshot reflects the completed native transition')
+})
+
 test('recovery scenario awaits actionable startup and uses native Space before unlocked-input assertion', () => {
   const source = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-recovery.mjs', import.meta.url), 'utf8')
   const entry = source.slice(source.indexOf('  async function enterMission'), source.indexOf('  async function openFailedLoad'))
   assert.match(entry, /await page.waitForFunction\(pauseStartupReady\)/)
   assert.match(entry, /await startup.dispose\(\)/)
-  assert.match(entry, /if \(action === 'skip'\) await skipPauseIntroduction\(page\)/)
+  assert.match(entry, /if \(action === 'skip'\) \{[\s\S]*?await skipPauseIntroduction\(page, Number.isFinite\(deadlineAt\)/)
   assert.ok(entry.indexOf("if (action === 'skip')") < entry.indexOf('await page.waitForFunction(() => !window.testStore.getWorld().inputMask)'))
   assert.doesNotMatch(entry, /skip\.isVisible|waitForTimeout|skipIntroduction\(|store\.change|\.inputMask\s*=/)
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
@@ -272,7 +299,8 @@ test('recovery scenario awaits actionable startup and uses native Space before u
 })
 
 test('natural completion during native Space delivery is accepted only after delivery settles', async () => {
-  const { skipPauseIntroduction } = await import('../scripts/local-render/original-pause-checkpoint-recovery.mjs')
+  const { skipPauseIntroduction: skipPause } = await import('../scripts/local-render/original-pause-checkpoint-recovery.mjs')
+  const skipPauseIntroduction = page => skipPause(withoutCampaignPopup(page))
   for (const mode of ['already-unlocked', 'press-success', 'unlocks-during-press', 'still-locked']) {
     let reads = 0, presses = 0, settled = false
     const failure = new Error('Space delivery failed')

@@ -37,10 +37,10 @@ test('recovery and M10 retain independent bounded dispatch without M2 fixtures',
   assert.match(runner, /signal: abort.signal/)
   assert.equal(browserCapMs('profile-recovery'), 180000)
   assert.equal(browserCapMs('mission10-profile'), 180000)
-  const branch = runner.slice(
-    runner.indexOf("} else if (['profile-recovery', 'mission10-profile'].includes(selectedScenario))"),
-    runner.indexOf("} else if (selectedScenario === 'compact-message-layout')")
-  )
+  const branchStart = runner.indexOf("} else if (['profile-recovery', 'mission10-profile'].includes(selectedScenario))")
+  const branchEnd = runner.indexOf("} else if (selectedScenario === 'compact-message-layout')", branchStart)
+  assert.ok(branchStart >= 0 && branchEnd > branchStart, 'Profile dispatch precedes the compact episode dispatch')
+  const branch = runner.slice(branchStart, branchEnd)
   assert.match(branch, /Object.assign\(receipt, await runProfileEpisode\(selectedScenario,/)
   assert.match(branch, /runRecovery: async \(\) => .*pathToFileURL\(recoveryScenario\)/)
   assert.match(branch, /runMission10: async \(\{ signal, deadlineAt \}\) => \{\s+receipt.mission10Profile = await .*pathToFileURL\(mission10ProfileScenario\)/)
@@ -175,6 +175,8 @@ test('profile load and new mission reuse reviewed public introduction readiness'
     /import \{ pauseStartupReady, skipPauseIntroduction, recoverVisibleIntroduction \} from '.\/original-pause-checkpoint-recovery.mjs'/
   )
   assert.equal((scenario.match(/waitForFunction\(pauseStartupReady\)/g) || []).length, 2)
-  assert.equal((scenario.match(/await skipPauseIntroduction\(page\)/g) || []).length, 2)
+  assert.equal((scenario.match(/await skipInput\(page\)/g) || []).length, 2)
+  assert.match(scenario, /traceProfileInput\(page.context\(\), report, output, \(\) => skipInput\(page\)\)/)
+  assert.match(scenario, /setupTimeout: 15000, deadlineAt, signal, trace/)
   assert.doesNotMatch(scenario, /skip.isVisible|skip.click/)
 })

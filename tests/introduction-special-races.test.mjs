@@ -1,9 +1,12 @@
+import { withoutCampaignPopup } from './support/world-input-page.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { runInNewContext } from 'node:vm'
 import { pageEffect } from './support/follower-nearby-page.mjs'
-import { skipPauseIntroduction } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
+import { skipPauseIntroduction as skipPause } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
 import { awaitSpySourceReadiness } from '../scripts/tutorial-browser/spy-source-readiness.mjs'
+
+const skipPauseIntroduction = (page, options) => skipPause(withoutCampaignPopup(page), options)
 
 function fixture({ paused, race, kind }) {
   const world={inputMask:64,flyby:{flags:17,frame:0,warmup:0},paused,mode:null,outcome:{level:1},turn:116}
@@ -37,7 +40,7 @@ function fixture({ paused, race, kind }) {
     }},
   }
   return {world,calls,report,cleanup,page,get reads(){return reads},
-    invoke:()=>kind==='pause'?skipPauseIntroduction(page,{timeout:2500}):awaitSpySourceReadiness({page,report,action:async(_name,fn)=>fn(),save(){},deadlineAt:Date.now()+45000})}
+    invoke:()=>kind==='pause'?skipPauseIntroduction(page,{timeout:2500}):awaitSpySourceReadiness({page:withoutCampaignPopup(page),report,action:async(_name,fn)=>fn(),save(){},deadlineAt:Date.now()+45000})}
 }
 
 for(const kind of ['pause','spy'])for(const paused of [false,true]){

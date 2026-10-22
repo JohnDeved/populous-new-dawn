@@ -1,3 +1,4 @@
+import { prepareWorldInput } from '../browser-world-input.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -45,6 +46,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
     if (report.startup.action === 'skip')
       await skipIntroductionWithSpace(page, { timeout: 25000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask && !window.testStore.getWorld().paused)
+    report.inputPopups = await prepareWorldInput(page)
     await page.mouse.move(900, 400)
     report.warmupBefore = await observe()
     await page.waitForTimeout(plan.warmupMs)
@@ -67,6 +69,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
         await page.waitForFunction(() => !window.testStore.getWorld().paused)
         report.menuAfter = await observe()
       }
+      report.inputPopups.push(...await prepareWorldInput(page))
       const point = phase.route === 'hud' ? await page.evaluate(m2HudPoint)
         : phase.nativeWork ? await page.evaluate(m2NativePointerTarget) : { x: 900, y: 400 }
       assert.ok(point, 'a visible authored person is required for native hover work')
