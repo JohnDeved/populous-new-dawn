@@ -16,6 +16,7 @@ export function BrowserHelpArticleSurface({ owner, nativeY, onNavigate, onPositi
   onFailure: (error: unknown) => void
 }) {
   const state = useSyncExternalStore(owner.subscribe, owner.getSnapshot, owner.getSnapshot)
+  const surface = useRef<HTMLDivElement>(null)
   const previewSlot = useRef<HTMLDivElement>(null)
   const failure = useCallback((error: unknown) => {
     owner.invalidate('help-article-asset-failed')
@@ -24,9 +25,9 @@ export function BrowserHelpArticleSurface({ owner, nativeY, onNavigate, onPositi
   useLayoutEffect(() => owner.mount(), [owner])
   useLayoutEffect(() => {
     const slot = previewSlot.current
-    if (!slot || state.status !== 'presented' || !owner.isCurrent(state)) return
-    try { slot.append(owner.personCanvas, owner.vehicleCanvas) } catch (error) { failure(error) }
-  }, [owner, state, failure])
+    if (!slot || !surface.current || state.status !== 'presented') return
+    owner.attach(state, surface.current, slot)
+  }, [owner, state])
   if (state.status !== 'presented') return null
   const navigate = (action: HelpNavigationAction | number) => {
     if (owner.isCurrent(state)) onNavigate(action)
@@ -35,7 +36,7 @@ export function BrowserHelpArticleSurface({ owner, nativeY, onNavigate, onPositi
     if (owner.isCurrent(state)) onPosition(next)
   }
   return (
-    <div data-browser-help-host="inactive-composition"
+    <div ref={surface} data-browser-help-host="inactive-composition"
       style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
       <div style={state.snapshot.frame.articleStyle}>
         <HelpArticleSurface document={state.document} discovery={state.discovery}

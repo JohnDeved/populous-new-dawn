@@ -79,6 +79,7 @@ export function createBrowserHelpArticleOwner(scene: SceneOwner, shell: HTMLElem
     for (const notify of [...subscribers]) attempt('help-article-notify', notify)
   }
   function invalidate(reason: string) {
+    if (!source) return state
     ++revision
     attempt('help-article-clear-preview', preview.clear)
     scrollController.reset()
@@ -203,11 +204,40 @@ export function createBrowserHelpArticleOwner(scene: SceneOwner, shell: HTMLElem
     mount() {
       if (!source || mounted) throw new Error('Help article owner is disposed or already mounted')
       mounted = true
-      ++mountRevision
+      const lease = ++mountRevision
+      let active = true
       return () => {
+        if (!active || mountRevision !== lease) return
+        active = false
         mounted = false
         const detached = ++mountRevision
         queueMicrotask(() => { if (!mounted && detached === mountRevision) dispose() })
+      }
+    },
+    /** The root must be a full-shell child, not mounted in the battlefield or
+     * a preview pane. Check actual CSS placement before attaching either canvas;
+     * this also rejects accidental extra scale/DPR transforms. */
+    attach(presentation: BrowserHelpArticleState, surface: HTMLElement, slot: HTMLElement) {
+      if (!isCurrent(presentation)) return false
+      const frame = presentation.snapshot.frame
+      const sameRect = (element: HTMLElement, expected: { x: number; y: number; width: number; height: number }) => {
+        const measured = element.getBoundingClientRect()
+        return (['x', 'y', 'width', 'height'] as const).every(key =>
+          Number.isFinite(measured[key]) && Math.abs(measured[key] - expected[key]) <= 1 / 64)
+      }
+      try {
+        if (surface.parentElement !== shell || surface.ownerDocument !== shell.ownerDocument ||
+            slot.ownerDocument !== shell.ownerDocument || !surface.contains(slot) ||
+            !sameRect(surface, frame.shell) || !sameRect(slot, { x: frame.shell.x, y: frame.shell.y,
+              width: frame.width * frame.scale, height: frame.height * frame.scale })) {
+          invalidate('help-article-placement-mismatch')
+          return false
+        }
+        slot.append(preview.personCanvas, preview.vehicleCanvas)
+        return true
+      } catch (error) {
+        invalidate(error instanceof Error ? error.message : 'help-article-attachment-failed')
+        return false
       }
     },
     getSnapshot: () => state,

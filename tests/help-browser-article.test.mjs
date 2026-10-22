@@ -142,6 +142,7 @@ test('mount replay is not terminal; real unmount and scene cleanup are terminal 
   const f = fixture(t), owner = f.create()
   const release = owner.mount(); release()
   const mountedAgain = owner.mount()
+  release(); release() // Stale duplicate cleanup must not detach the new lease.
   await Promise.resolve()
   await ready(owner)
   assert.throws(() => owner.mount(), /already mounted/)
@@ -152,6 +153,8 @@ test('mount replay is not terminal; real unmount and scene cleanup are terminal 
   mountedAgain()
   await Promise.resolve()
   assert.equal(owner.getSnapshot().reason, 'help-article-disposed')
+  const terminal = owner.getSnapshot()
+  assert.equal(owner.invalidate('late-child-failure'), terminal)
   assert.ok(owner.disposalFailures.length > 0)
   assert.equal(Object.isFrozen(owner.disposalFailures), true)
   f.scene.disposeListeners.forEach(listener => listener())
@@ -167,4 +170,33 @@ test('composition remains unreachable from live Home/Scene and introduces no tim
   }
   const owner = readFileSync(new URL('../app/help-browser-article.ts', import.meta.url), 'utf8')
   assert.doesNotMatch(owner, /requestAnimationFrame|setInterval|setTimeout|World\.turn|createHelpSession/)
+})
+
+
+test('attachment requires the exact shell and a genuinely full-frame slot before mounting either canvas', async t => {
+  const f = fixture(t, { scale: 1.3, width: 913, height: 701 }), owner = f.create()
+  let state = await ready(owner), appended = []
+  const slot = { ownerDocument: f.shell.ownerDocument,
+    getBoundingClientRect: () => ({ x: state.snapshot.frame.shell.x, y: state.snapshot.frame.shell.y,
+      width: state.snapshot.frame.width * state.snapshot.frame.scale,
+      height: state.snapshot.frame.height * state.snapshot.frame.scale }),
+    append: (...nodes) => { appended.push(nodes) } }
+  const surface = { parentElement: f.shell, ownerDocument: f.shell.ownerDocument,
+    contains: node => node === slot, getBoundingClientRect: () => state.snapshot.frame.shell }
+  assert.equal(owner.attach(state, surface, slot), true)
+  assert.deepEqual(appended, [[owner.personCanvas, owner.vehicleCanvas]])
+  for (const change of [() => { surface.parentElement = {} },
+    () => { slot.getBoundingClientRect = () => state.snapshot.frame.preview },
+    () => { surface.getBoundingClientRect = () => ({ ...state.snapshot.frame.shell, width: 1 }) }]) {
+    surface.parentElement = f.shell
+    surface.getBoundingClientRect = () => state.snapshot.frame.shell
+    slot.getBoundingClientRect = () => ({ x: state.snapshot.frame.shell.x, y: state.snapshot.frame.shell.y,
+      width: state.snapshot.frame.width * state.snapshot.frame.scale,
+      height: state.snapshot.frame.height * state.snapshot.frame.scale })
+    state = await ready(owner)
+    change()
+    assert.equal(owner.attach(state, surface, slot), false)
+    assert.equal(owner.getSnapshot().reason, 'help-article-placement-mismatch')
+    assert.equal(appended.length, 1)
+  }
 })
