@@ -1,3 +1,4 @@
+import { createResultClock, advanceResultClock } from '../app/result-session.ts'
 // Composed production caller coverage. Mission data, decoration creation, model
 // picking, pointer gates, animate and highlight assignment run unchanged. Texture
 // IO, painter submission and unrelated frame stages are supplied; no browser/GPU.
@@ -75,6 +76,7 @@ test('authored tree picking reaches the native hover override through the actual
     hoveredObject: null,
     buildingPanels: new Map(),
     frame: 1,
+    resultClock: createResultClock(),
     worshipPresentation: { rememberBodies: nop },
     updateCameraMotion: () => true,
     pick: () => null,
@@ -124,6 +126,7 @@ test('authored tree picking reaches the native hover override through the actual
   scene.makeDecorations()
   scene.animate = bindAnimate(scene, {
     syncSecondaryReservations,
+    advanceResultClock,
     advanceGame: api.advanceGame,
     updateVehiclesFrame: nop,
     SPELLS: api.SPELLS,

@@ -1,7 +1,7 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { createWorld, tick } from '../app/model.ts'
 import { computerSelectionWorld, stepComputerTasks } from '../app/computer-runtime.ts'
@@ -49,8 +49,8 @@ test('supplied M16 availability4/5/6 retains the pre-rejection model draw and ca
 })
 
 test('ordinary M16 capacity admission trains actual followers with complete checkpoint replay', async () => {
-  const store = createGameStore()
-  store.startMission(16)
+  const store = await createCampaignFixtureStore([16])
+  assert.equal(store.startMission(16), true)
   const w = store.getWorld(),
     initialIds = new Set(w.units.map(u => u.id))
   while (w.turn < 126) tick(w, 1 / 12)

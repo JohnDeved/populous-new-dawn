@@ -47,10 +47,30 @@ function validateSpySourceObservation(report, witness, units) {
   assert.ok(Number.isInteger(report.order.lastOrderTurn))
   assert.ok(observation.samples.some(sample => sample.substate === 1 && sample.target === report.targetId),
     'Public command must actually reach phase1')
-  const armed = observation.samples.find(sample => sample.substate === 2 && sample.entryArmed)
+  // Logical visits can share a render. Never infer an unrendered boundary from
+  // adjacent RAF samples or pretend the logical record was itself rendered.
+  const turns = observation.turns
+  assert.ok(Array.isArray(turns) && turns.length > 0 && turns.length <= 600)
+  for (const [index, turn] of turns.entries()) {
+    assert.equal(turn.spyId, report.spyId); assert.equal(turn.targetId, report.targetId)
+    assert.ok(Number.isSafeInteger(turn.turn) && turn.turn >= 0)
+    if (index) assert.equal(turn.turn, turns[index - 1].turn + 1, 'Every real logical visit is retained')
+    assert.equal(turn.sceneStoreMatch, true); assert.equal(turn.speed, 1)
+    assert.equal(turn.paused, false)
+  }
+  const boundary = turns.findIndex(turn => turn.substate === 2 && turn.entryArmed)
+  const armed = turns[boundary]
   assert.ok(armed, 'Observe the real phase1-to-phase2 pending-entry boundary')
   assert.notEqual(armed.object, 136, 'Arming the next visit must not select source136 early')
   assert.equal(armed.timer, 0)
+  assert.equal(armed.target, report.targetId)
+  const approach = turns[boundary - 1], entered = turns[boundary + 1]
+  assert.ok(approach && entered, 'Retain both visits adjacent to pending entry')
+  assert.equal(approach.substate, 1); assert.equal(approach.timer, 1)
+  assert.equal(approach.target, report.targetId)
+  assert.equal(entered.substate, 2); assert.equal(entered.entryArmed, false)
+  assert.equal(entered.object, 136); assert.equal(entered.timer, 23); assert.equal(entered.f2, 0)
+  assert.equal(entered.target, report.targetId)
   const native = observation.samples.filter(sample => sample.object === 136)
   assert.ok(native.length >= 2)
   assert.equal(native[0].turn, armed.turn + 1, 'Entry belongs to the next logical visit')
@@ -93,7 +113,7 @@ function validateSpySourceObservation(report, witness, units) {
 
 const sourceNames = ['spy-source.mjs', 'spy-source-fixture.mjs', 'spy-source-budget.mjs',
   'spy-source-observer.mjs', 'spy-source-evidence.mjs', 'spy-source-readiness.mjs', 'checkpoint-codec.mjs']
-const inputNames = ['app/follower-appearance.ts', 'app/scene-entities.ts', 'app/live-building-combat.ts',
+const inputNames = ['app/game-clock.ts', 'app/scene.ts', 'app/follower-appearance.ts', 'app/scene-entities.ts', 'app/live-building-combat.ts',
   'app/original-units.json', 'app/checkpoint-format.ts', 'tests/fixtures/follower-source-witness.json',
   'tests/fixtures/follower-source-artwork.json']
 export function validateSpyEvidence(report, { hostReport, sourceBytes, mergeSha, browserVersion, files, phaseReceipts, mission10Report }) {
@@ -145,7 +165,7 @@ export function validateSpyEvidence(report, { hostReport, sourceBytes, mergeSha,
   assert.equal(ready.after.loading, false); assert.equal(ready.after.inputMask, 0); assert.equal(ready.after.action, 'ready')
   assert.equal(ready.after.level, 1)
   assert.ok(ready.endedAt <= budget.endedAt)
-  const names = ['Public Load Game', ...(ready.actionable.action === 'skip' ? ['Public Skip introduction'] : []),
+  const names = ['Public Load Game', ...(ready.actionable.action === 'skip' ? ['Public Space skip'] : []),
     'Public Pause', 'Select trained Spy', 'Public Spy focus', 'Open followers', 'Resume before Disguise as Dakini',
     'Disguise as Dakini', 'Pause before sabotage', 'Resume before Canvas sabotage command', 'Canvas sabotage command',
     'Pause real source136', 'Public Resume continuation']
@@ -159,7 +179,7 @@ export function validateSpyEvidence(report, { hostReport, sourceBytes, mergeSha,
   }
   assert.ok(ready.startedAt >= report.actions[0].endedAt)
   assert.ok(ready.endedAt <= report.actions.find(a => a.name === 'Public Pause').startedAt)
-  const skip = report.actions.find(a => a.name === 'Public Skip introduction')
+  const skip = report.actions.find(a => a.name === 'Public Space skip')
   if (skip) assert.ok(skip.startedAt >= ready.startedAt && skip.endedAt <= ready.endedAt)
   const observation = report.observation
   assert.ok(Array.isArray(observation.samples) && observation.samples.length > 0 && observation.samples.length <= 600)

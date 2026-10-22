@@ -77,6 +77,69 @@ test('malformed asynchronously loaded art rejects safely while remaining cancele
  }finally{f.cleanup()}
 })
 
+test('explicit texture retries use fresh bounded URLs while normal first loads remain unchanged',async()=>{
+ const {SelectorRenderer}=await import('../app/world-selector-renderer.ts?fresh-retry-urls')
+ const f=fixture()
+ try{
+  const first=new SelectorRenderer(f.canvas),initial=first.load()
+  const original=f.images.map(image=>image.src)
+  assert.ok(original.every(url=>/^\/original\/world-selector\/globes\/(sun|ring|mission-\d+)\.png$/.test(url)))
+  first.dispose();await initial
+  const tokens=[]
+  for(let attempt=0;attempt<2;attempt++){
+   const start=f.images.length,renderer=new SelectorRenderer(f.canvas),pending=renderer.load(true)
+   const images=f.images.slice(start)
+   assert.deepEqual(images.map(image=>image.src.split('?')[0]),original)
+   const queries=new Set(images.map(image=>image.src.split('?')[1]))
+   assert.equal(queries.size,1)
+   const token=[...queries][0]
+   assert.match(token,/^retry=[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+   tokens.push(token)
+   // A queued old-generation callback cannot upload a texture after disposal.
+   const late=images[0].onload,uploads=f.calls.filter(call=>call[0]==='texImage2D').length
+   renderer.dispose();late();await pending
+   assert.equal(f.calls.filter(call=>call[0]==='texImage2D').length,uploads)
+  }
+  assert.notEqual(tokens[0],tokens[1],'fresh renderer instances cannot reuse a corrupt retry URL')
+ }finally{f.cleanup()}
+})
+
+test('fresh retry URLs do not bypass malformed texture rejection',async()=>{
+ const {SelectorRenderer}=await import('../app/world-selector-renderer.ts?malformed-retry')
+ const f=fixture()
+ try{
+  const renderer=new SelectorRenderer(f.canvas),pending=renderer.load(true)
+  f.images[0].naturalWidth=f.images[0].naturalHeight=1
+  f.images[0].onload()
+  await assert.rejects(pending,/Invalid scene texture dimensions/)
+  renderer.dispose()
+  assert.ok(f.images.slice(1).every(image=>image.onload===null&&image.src===''))
+ }finally{f.cleanup()}
+})
+
+test('remounts inherit the latest recovery namespace and late disposed loads cannot roll it back',async()=>{
+ const {SelectorRenderer}=await import('../app/world-selector-renderer.ts?recovery-remount')
+ const f=fixture()
+ try{
+  const original=new SelectorRenderer(f.canvas),initial=original.load()
+  const originalUrls=f.images.map(image=>image.src)
+  original.dispose();await initial
+  const first=new SelectorRenderer(f.canvas),firstStart=f.images.length,firstLoad=first.load(true)
+  const firstUrls=f.images.slice(firstStart).map(image=>image.src),late=f.images[firstStart].onload
+  const newer=new SelectorRenderer(f.canvas),newStart=f.images.length,newLoad=newer.load(true)
+  const newUrls=f.images.slice(newStart).map(image=>image.src)
+  assert.notEqual(firstUrls[0],newUrls[0])
+  first.dispose();late();await firstLoad
+  newer.dispose();await newLoad
+  const remount=new SelectorRenderer(f.canvas),mountStart=f.images.length,mountLoad=remount.load()
+  const mountedUrls=f.images.slice(mountStart).map(image=>image.src)
+  assert.deepEqual(mountedUrls,newUrls)
+  assert.notDeepEqual(mountedUrls,originalUrls)
+  assert.deepEqual(mountedUrls.map(url=>url.split('?')[0]),originalUrls)
+  remount.dispose();await mountLoad
+ }finally{f.cleanup()}
+})
+
 test('shader compilation/linking and texture allocation failures release all owned GPU handles',()=>{
  for(const failure of ['compile','link','createTexture']){
   const f=fixture(failure)

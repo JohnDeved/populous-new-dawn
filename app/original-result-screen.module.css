@@ -1,109 +1,13 @@
-.screen {
-  position: absolute;
-  inset: 0 0 0 var(--side);
-  z-index: 8;
-  color: #f1e4c1;
-}
-
-.panel {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 384px;
-  height: 368px;
-  transform: translate(-50%, -50%) scale(var(--result-scale, 1));
-  transform-origin: center;
-  image-rendering: pixelated;
-}
-
-.screen[data-panel-failed='true'] .panel {
-  background: #a96017;
-}
-
-.panelArt {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.line {
-  position: absolute;
-  margin: 0;
-  padding: 0;
-  font: normal 14px/19px Arial, sans-serif;
-  white-space: nowrap;
-}
-
-.text {
-  display: inline-flex;
-  height: 19px;
-  align-items: flex-start;
-  vertical-align: top;
-}
-
-.glyph {
-  display: inline-block;
-  flex: none;
-  background-image: url('/original/result-font.png');
-  background-repeat: no-repeat;
-}
-
-.fallback {
-  display: inline-block;
-  height: 19px;
-  color: #fff6d6;
-  text-shadow: 1px 1px #633f0c;
-}
-
-.controls {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: max-content;
-  max-width: calc(100% - 16px);
-  padding: 4px;
-  background: #17251ee8;
-  font: 12px/1.35 Arial, sans-serif;
-}
-
-.controls button {
-  min-height: 32px;
-  padding: 6px 10px;
-  border: 1px solid #d0aa5e;
-  background: #3b381f;
-  color: #fff0cb;
-}
-
-.controls button:hover {
-  background: #59502d;
-}
-
-.controls button:focus-visible {
-  outline: 2px solid #fff6d6;
-  outline-offset: 2px;
-}
-
-.controls p {
-  margin: 0;
-  max-width: 190px;
-  text-align: center;
-}
-
-.hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
+.screen { position: absolute; inset: 0 0 0 var(--side); z-index: 8; color: #f1e4c1; pointer-events: none; }
+.screen[data-result-stage='statistics'] { inset: 0; pointer-events: auto; }
+.overlay { position: absolute; inset: 0; image-rendering: pixelated; }
+.panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(var(--result-scale, 1)); transform-origin: center; image-rendering: pixelated; }
+.screen[data-panel-failed='true'] .panel { background: #a96017; }
+.panelArt { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.tile { position: absolute; width: 16px; height: 16px; background-image: url('/original/campaign-popup-tiles.png'); }
+.line { position: absolute; margin: 0; padding: 0; font: normal 14px/19px Arial, sans-serif; white-space: nowrap; }
+.text { display: inline-flex; align-items: flex-start; vertical-align: top; }
+.glyph { display: inline-block; flex: none; background-repeat: no-repeat; }
+.fallback { display: inline-block; color: #fff6d6; text-shadow: 1px 1px #633f0c; }
+.hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.panel[data-result-font='4'] .line { font-size: 8px; line-height: 9px; }

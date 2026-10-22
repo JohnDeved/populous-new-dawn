@@ -556,9 +556,12 @@ export class ObjectPanels {
                 ? 'Unload all passengers'
                 : `Toggle passenger ${i + 1}; Shift selects the group`
             )
-            button.title = isUnload
-              ? 'Unload all passengers'
-              : 'Click to select; Shift-click for all passengers; right-click to inspect'
+            button.setAttribute(
+              'aria-description',
+              isUnload
+                ? 'Unload all passengers'
+                : 'Click to select; Shift-click for all passengers; right-click to inspect'
+            )
             button.style.left = `${isUnload ? g.unload.x : g.left + 1 + i * 17}px`
             button.style.top = `${isUnload ? 0 : 1}px`
             button.style.width = `${isUnload ? g.unload.w + 1 : 17}px`
@@ -582,9 +585,12 @@ export class ObjectPanels {
               ? `Toggle worshipper ${i + 1}; Shift selects the group`
               : `Focus order ${i + 1} destination`
           )
-          button.title = head
-            ? 'Click to select; Shift-click for all worshippers; right-click to focus'
-            : 'Right-click to view destination'
+          button.setAttribute(
+            'aria-description',
+            head
+              ? 'Click to select; Shift-click for all worshippers; right-click to focus'
+              : 'Right-click to view destination'
+          )
           button.style.left = `${draw[2]}px`
           button.style.top = `${draw[3]}px`
           button.style.width = `${rect.w}px`

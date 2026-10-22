@@ -1,6 +1,6 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 // Ordinary M22 recruitment route; only the existing spell-focus adapter is supplied.
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
 import assert from 'node:assert/strict'
 import { stepMovementOrder } from '../app/person-orders.ts'
 import { browserPosition, cast, command, tick, selectUnit } from '../app/model.ts'
@@ -21,8 +21,8 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
       assert.ok(command(w, p))
       stepUntil(w, () => Math.hypot(s.x - p.x, s.z - p.z) < 2, 1000)
     }
-  const store = createGameStore()
-  store.startMission(22)
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   let world = store.getWorld(),
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     boat = world.vehicles.find(vehicle => vehicle.model === 1)

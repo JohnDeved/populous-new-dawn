@@ -91,7 +91,7 @@ export function FollowerTasks({
               aria-label={`${row.label} ${kind}`}
               disabled={!enabled}
               style={{ left: column * 16, top: row.y }}
-              title={
+              aria-description={
                 enabled
                   ? `${row.label} ${kind}: Click to ${row.action}. ${row.five ? 'Ctrl: five. ' : ''}Shift: all. Right-click: focus next.`
                   : undefined

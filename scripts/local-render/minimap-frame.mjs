@@ -1,3 +1,5 @@
+import { chooseHudSize } from '../browser-native-options.mjs'
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 // Actual shipped frame pixels and lifecycle; existing map regression assertions run unchanged.
 import assert from 'node:assert/strict'
@@ -65,7 +67,7 @@ async function existingRegression(root, output, url) {
 }
 
 export default async function minimapFrameScenario({ browser, page, context, root, output, url, openMission, receipt }) {
-  await openMission(1)
+  await openMission(1, { nativeCampaign: true })
   await page.evaluate(() => {
     const scene = window.testScene
     scene.world.speed = 0
@@ -79,24 +81,31 @@ export default async function minimapFrameScenario({ browser, page, context, roo
     frames.push(await capture(page, output, `viewport-${width}`))
   }
   await page.setViewportSize({ width: 1440, height: 1000 })
-  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-  const menu = page.locator('dialog.game-dialog')
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  const menu = page.locator('dialog[data-original-pause-menu]')
   await menu.waitFor({ state: 'visible' })
-  await menu.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('1')
+  await menu.getByRole('button', { name: 'Options', exact: true }).click()
+  await menu.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
+  await chooseHudSize(menu, '1')
   frames.push(await capture(page, output, 'preference-1'))
-  await menu.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('2')
+  await chooseHudSize(menu, '2')
   frames.push(await capture(page, output, 'preference-2'))
+  await menu.getByRole('button', { name: 'Back to Options', exact: true }).click()
+  await menu.getByRole('button', { name: 'Back', exact: true }).click()
+  await menu.getByRole('button', { name: 'Save Game', exact: true }).click()
   await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
-  await page.waitForFunction(() => !document.querySelector('dialog.game-dialog button')?.disabled && [...document.querySelectorAll('dialog.game-dialog button')].some(b => b.textContent.trim() === 'Load checkpoint' && !b.disabled))
+  await menu.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.waitForFunction(() => !document.querySelector('dialog[data-original-pause-menu] button')?.disabled && [...document.querySelectorAll('dialog[data-original-pause-menu] button')].some(b => b.getAttribute('aria-label') === 'Load Game' && !b.disabled))
   await page.reload({ waitUntil: 'domcontentloaded' })
   await page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
   await bindGame(page)
   await page.evaluate(() => { window.testScene = window.testSceneRef.current; window.testScene.world.speed = 0; cancelAnimationFrame(window.testScene.frame) })
   frames.push(await capture(page, output, 'checkpoint-loaded'))
-  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-  await menu.getByRole('button', { name: 'Restart world', exact: true }).click()
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await menu.getByRole('button', { name: 'Restart Level', exact: true }).click()
+  await menu.getByRole('button', { name: 'Yes', exact: true }).click()
   await bindGame(page)
-  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.evaluate(() => { window.testScene = window.testSceneRef.current; window.testScene.world.speed = 0; cancelAnimationFrame(window.testScene.frame) })
   frames.push(await capture(page, output, 'restarted'))
   writeFileSync(resolve(output, 'frame-pixels.json'), JSON.stringify(frames, null, 2))

@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -20,10 +21,12 @@ import {
   tutorialParagraphRows,
   tutorialRecommendationRows,
   tutorialRecommendationText,
+  wrapTutorialRecommendation,
 } from './tutorial-recommendation.ts'
 import {
   frontendBackground,
   frontendQuitRows,
+  frontendRows,
   frontendRowY,
   frontendScale,
   frontendTextWidth,
@@ -177,6 +180,48 @@ export function OriginalMainMenu({
   const artReady = prepared.fonts
   const questionReady = prepared.lowFont
   const logoReady = prepared.logo
+  const checkpointRecoveryNotices = {
+    idle: '',
+    read: '',
+    failed: 'Could not read browser storage. Your saved checkpoint may still be available.',
+    incompatible:
+      'This checkpoint is incompatible with the current development version. The stored save has not been changed.',
+    pending: 'Checking browser storage…',
+    unavailable: 'Browser storage is unavailable. You can still play and save for this session.',
+  }
+  const checkpointRecovery = useMemo(() => {
+    // Browser-only recovery needs a visible disclosure, not a new card. Keep the
+    // original menu rows fixed and reuse its measured wrap and 30px pitch in
+    // the two free rows below Quit. Copy also fits between the original badges;
+    // Retry always owns a separate second row. The lookup never writes the save.
+    const paragraphs = {
+      idle: [],
+      read: [],
+      failed: ['Lookup failed; save unchanged.'],
+      incompatible: ['Incompatible with this build.', 'Stored save unchanged.'],
+      pending: ['Checking browser storage...'],
+      unavailable: ['Browser storage is unavailable.', 'Play and save this session only.'],
+    }
+    const noticeRows = paragraphs[checkpointReadStatus]
+      .flatMap(wrapTutorialRecommendation)
+      .map((text, index) => ({ text, x: 320, y: 414 + index * 30 }))
+    const retry = checkpointReadStatus === 'failed' || checkpointReadStatus === 'pending'
+    const retryRow = { text: 'Retry checkpoint lookup', x: 320, y: 444 }
+    const retryReady = checkpointReadStatus === 'pending' ? questionReady : artReady
+    return {
+      noticeRows,
+      retry,
+      retryRow,
+      retryReady,
+      shadowRows: [
+        ...(artReady
+          ? frontendRows.map((text, index) => ({ text, x: 320, y: frontendRowY(index) }))
+          : []),
+        ...(questionReady ? noticeRows : []),
+        ...(retry && retryReady ? [retryRow] : []),
+      ],
+    }
+  }, [checkpointReadStatus, questionReady, artReady])
   useLayoutEffect(() => {
     const resize = () => {
       const scale = frontendScale(window.innerWidth, window.innerHeight)
@@ -196,18 +241,20 @@ export function OriginalMainMenu({
   const draw = useCallback(() => {
     const context = canvas.current?.getContext('2d')
     if (context && prepared.composition) {
-      const rgba = frontendBackground(
-        prepared.composition,
-        pointer.current,
-        panel === 'main',
-        pointerMode.current ? glowFrame.current : null,
+      const panelRows =
         panel === 'options'
           ? optionRows
           : panel === 'tutorial-recommendation'
             ? tutorialRecommendationRows.filter(row =>
                 tutorialParagraphRows.includes(row) ? questionReady : artReady
               )
-            : frontendQuitRows.filter((_, index) => (index === 0 ? questionReady : artReady)),
+            : frontendQuitRows.filter((_, index) => (index === 0 ? questionReady : artReady))
+      const rgba = frontendBackground(
+        prepared.composition,
+        pointer.current,
+        panel === 'main' && !checkpointRecovery.noticeRows.length,
+        pointerMode.current ? glowFrame.current : null,
+        panel === 'main' ? checkpointRecovery.shadowRows : panelRows,
         canvasWidth,
         logoReady,
         artReady
@@ -231,7 +278,17 @@ export function OriginalMainMenu({
         badgeContext.putImageData(new ImageData(pixels, width, height), 0, 0)
       }
     }
-  }, [panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared, vectorFailures])
+  }, [
+    panel,
+    optionRows,
+    canvasWidth,
+    questionReady,
+    artReady,
+    logoReady,
+    prepared,
+    vectorFailures,
+    checkpointRecovery,
+  ])
   useLayoutEffect(() => {
     draw()
   }, [draw])
@@ -273,15 +330,6 @@ export function OriginalMainMenu({
     unavailable: 'Browser storage is unavailable',
     incompatible: 'Checkpoint is incompatible with this development version',
     read: 'No usable saved checkpoint',
-  }
-  const checkpointRecoveryNotices = {
-    idle: '',
-    read: '',
-    failed: 'Could not read browser storage. Your saved checkpoint may still be available.',
-    incompatible:
-      'This checkpoint is incompatible with the current development version. The stored save has not been changed.',
-    pending: 'Checking browser storage…',
-    unavailable: 'Browser storage is unavailable. You can still play and save for this session.',
   }
   const rows = [
     {
@@ -468,15 +516,50 @@ export function OriginalMainMenu({
         )}
         {panel === 'options' && renderOptions(back, setOptionRows)}
         {panel === 'main' && checkpointReadStatus !== 'read' && checkpointReadStatus !== 'idle' && (
-          <section className={styles.checkpointRecovery} aria-label="Browser checkpoint recovery">
-            <p role="status">{checkpointRecoveryNotices[checkpointReadStatus]}</p>
-            {!['unavailable', 'incompatible'].includes(checkpointReadStatus) && (
+          <section
+            className={`${styles.checkpointRecovery} ${styles.rows}`}
+            aria-label="Browser checkpoint recovery"
+          >
+            <p role="status">
+              <span className={styles.visuallyHidden}>
+                {checkpointRecoveryNotices[checkpointReadStatus]}
+              </span>
+              {checkpointRecovery.noticeRows.map(row => (
+                <span
+                  key={row.y}
+                  className={styles.question}
+                  style={{ top: row.y }}
+                  aria-hidden="true"
+                  data-checkpoint-notice-line={row.text}
+                >
+                  <MenuText text={row.text} highlighted={false} low ready={questionReady} />
+                </span>
+              ))}
+            </p>
+            {checkpointRecovery.retry && (
               <button
                 type="button"
+                aria-label={checkpointRecovery.retryRow.text}
+                style={{
+                  top: checkpointRecovery.retryRow.y,
+                  width: Math.max(200, frontendTextWidth(checkpointRecovery.retryRow.text) + 16),
+                }}
                 disabled={checkpointReadStatus === 'pending'}
+                onPointerEnter={() => setHovered(checkpointRecovery.retryRow.text)}
+                onPointerLeave={() => setHovered(null)}
+                onFocus={() => setFocused(checkpointRecovery.retryRow.text)}
+                onBlur={() => setFocused(null)}
                 onClick={retryCheckpoint}
               >
-                Retry checkpoint lookup
+                <MenuText
+                  text={checkpointRecovery.retryRow.text}
+                  ready={checkpointRecovery.retryReady}
+                  low={checkpointReadStatus === 'pending'}
+                  highlighted={
+                    hovered === checkpointRecovery.retryRow.text ||
+                    focused === checkpointRecovery.retryRow.text
+                  }
+                />
               </button>
             )}
           </section>

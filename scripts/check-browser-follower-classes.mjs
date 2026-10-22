@@ -26,7 +26,9 @@ export default async function followerClasses({ page, openMission, output, url, 
       await page.goto(url, { waitUntil: 'domcontentloaded' })
       await page.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor({ state: 'visible' })
     }
-    await openMission(mission)
+    // M1 is a diagnostic roster-only pass; only M3 exercises checkpoint storage.
+    // Its singleton availability is declared, not earned prior campaign history.
+    await openMission(mission, mission === 3 ? { campaignFixture: true } : {})
     await page.evaluate(() => { window.testStore.change(world => { world.speed = 0 }) })
     const opening = await roster()
     assert.deepEqual(opening.map(control => control.label), [
@@ -108,6 +110,7 @@ export default async function followerClasses({ page, openMission, output, url, 
   }), fixture)
   assert.equal((await roster())[4].count, '3')
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
   await page.evaluate(({ preachers }) => window.testStore.change(world => {
@@ -115,6 +118,8 @@ export default async function followerClasses({ page, openMission, output, url, 
   }), fixture)
   assert.equal((await roster())[4].disabled, true)
   assert.equal((await roster())[4].icons, 0)
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())

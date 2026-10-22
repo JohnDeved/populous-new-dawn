@@ -1,3 +1,5 @@
+import { changeHudSize } from './browser-native-options.mjs'
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
@@ -68,7 +70,7 @@ async function checkPixels(page, output, row, column, pressed = false, variant =
 // Run with the reviewed sandboxed local-render harness. Mission1 is the real
 // opening/UI path; later injected classes are explicitly supporting fixtures.
 export default async function followerTasks({ browser, page, url, output, openMission, receipt }) {
-  await openMission(1)
+  await openMission(1, { nativeCampaign: true })
   await freeze(page)
   await page.getByTitle('followers', { exact: true }).click()
   await page.mouse.move(900, 400)
@@ -173,6 +175,7 @@ export default async function followerTasks({ browser, page, url, output, openMi
   assert.equal((await snapshot(page))[19].count, beforeGuard[19].count + guardIds.length)
   const guarded = await snapshot(page), savedSelection = await selection(page)
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
   // Successful saves have no success banner. Verify the completed IndexedDB
@@ -183,9 +186,11 @@ export default async function followerTasks({ browser, page, url, output, openMi
     db.close()
     return JSON.stringify(saved?.world?.selected)===JSON.stringify(selected) && selected.every(id=>saved.world.units.find(u=>u.id===id)?.guard)
   }, savedSelection)
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await button(page, 0, 1).click({ modifiers: ['Shift'] })
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
@@ -271,9 +276,7 @@ export default async function followerTasks({ browser, page, url, output, openMi
   for (const viewport of [{width:1280,height:720},{width:1920,height:1080},{width:3440,height:1440}]) {
     await page.setViewportSize(viewport)
     for (const size of ['auto','1','2','4']) {
-      await page.getByRole('button',{name:'Menu',exact:true}).click()
-      await page.getByRole('combobox',{name:'HUD size',exact:true}).selectOption(size)
-      await page.getByRole('button',{name:'Close menu',exact:true}).click()
+      await changeHudSize(page, size)
       const rects=await page.locator('.follower-tasks button').evaluateAll(buttons=>buttons.map(b=>{const r=b.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}}))
       for(const r of rects){assert.ok(r.x>=0&&r.y>=0&&r.x+r.w<=viewport.width&&r.y+r.h<=viewport.height);assert.ok(Math.abs(r.w/r.h-15/34)<0.001)}
       assert.equal(rects.length,24);layouts.push({viewport,size,first:rects[0],last:rects.at(-1)})
@@ -290,8 +293,7 @@ export default async function followerTasks({ browser, page, url, output, openMi
   await dprPage.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
   await bindGame(dprPage)
   await dprPage.waitForFunction(() => window.testSceneRef.current && (window.testSceneRef.current.world.flyby.flags & 1 || !window.testSceneRef.current.world.inputMask))
-  const skip = dprPage.locator('.skip-introduction')
-  if(await skip.isVisible())await skip.click()
+  await skipIntroductionWithSpace(dprPage, { timeout: 45000 })
   await dprPage.waitForFunction(() => !window.testSceneRef.current.world.inputMask)
   await freeze(dprPage)
   await dprPage.getByTitle('followers', { exact: true }).click()

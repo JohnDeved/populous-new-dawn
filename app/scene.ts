@@ -22,7 +22,8 @@ import {
 } from './pointer-frame-metrics.ts'
 import { FpsGraph } from './fps-graph.ts'
 import { levelStartCamera } from './level-start.ts'
-import { advanceGame } from './game-clock.ts'
+import { advanceGame, observeGameTurns } from './game-clock.ts'
+import { createResultClock, advanceResultClock } from './result-session.ts'
 import { FollowerNearbyMode } from './follower-nearby.ts'
 import { bindTrainingPanelRequests } from './training-panel-requests.ts'
 import {
@@ -330,9 +331,12 @@ export class GameScene {
   private neutralCursor: NeutralCanvasCursor | null = null
   neutralCursorRosterSelected = true
   cursorFrameBlocked = true
+  resultClock = createResultClock()
+  focusPauseOwned = false
   modalSuspended = false
   setModalSuspended(suspended: boolean) {
     this.modalSuspended = suspended
+    if (suspended) this.tooltipElement.hidden = true
     this.neutralCursor?.reset()
     this.previous = null
     this.keys.clear()
@@ -364,6 +368,9 @@ export class GameScene {
       this.worshipPresentation.visit()
     },
     presentationHidden: () => document.hidden,
+  }
+  observeGameTurns(visit: () => void, failed: (error: unknown) => void) {
+    return observeGameTurns(this.gameClock, visit, failed)
   }
   templeResourceSnapshot: SharedAniblSnapshot | null = null
   private presentationBinding?: PresentationBinding
@@ -893,6 +900,16 @@ export class GameScene {
       dt = Math.max(0, now - previous) / 1000
     if (document.hidden) this.fpsGraph?.reset('Hidden tab · sampling stopped')
     this.previous = now
+    if (!document.hidden) {
+      const previousPhase =
+        ((Math.floor(this.resultClock.inputCycles / 4) & 1) << 1) |
+        (Math.floor(this.resultClock.inputCycles / 6) & 1)
+      advanceResultClock(this.resultClock, dt)
+      const nextPhase =
+        ((Math.floor(this.resultClock.inputCycles / 4) & 1) << 1) |
+        (Math.floor(this.resultClock.inputCycles / 6) & 1)
+      if (this.world.status !== 'playing' && previousPhase !== nextPhase) this.onChange()
+    }
     // Pause menus freeze the entire presentation, not ordinary Space pause.
     // Keep sampling timestamps so resuming never catches up suspended wall time.
     if (this.modalSuspended) {

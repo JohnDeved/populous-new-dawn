@@ -1,4 +1,5 @@
-import { showAllMissions } from './browser-game.mjs'
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
+import { prepareCampaignFixture, launchCampaignMission } from './browser-game.mjs'
 // Focused heading/direction check; not a repeat of the18-phase worship benchmark.
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
@@ -46,15 +47,16 @@ async function run() {
   const deadline = setTimeout(()=>void browser.close(),Math.max(1,Math.min(180000,Date.parse(process.env.PND_QUEUE_DEADLINE)-Date.now()-30000)))
   process.on('SIGTERM',()=>void browser.close())
   try {
-    const context = await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1})
     for (const item of cases) {
+      const context = await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1})
       const page = await context.newPage();page.setDefaultTimeout(15000)
       page.on('pageerror',error=>report.errors.push(error.stack??error.message))
       await page.goto(url,{waitUntil:'domcontentloaded',timeout:45000})
-      await showAllMissions(page)
-      await page.getByRole('button',{name:`Mission ${item.mission}`,exact:true}).press('Enter')
+      // Separate empty contexts: M1 is native; M5 availability is declared, not earned history.
+      if (item.mission !== 1) await prepareCampaignFixture(page, item.mission)
+      await launchCampaignMission(page, item.mission)
       await bindGame(page)
-      await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
+      await skipIntroductionWithSpace(page, { timeout: 15000 })
       await page.waitForFunction(()=>!window.testScene.world.inputMask)
       await page.evaluate(async item=>{
         const {advanceGame}=await import('/app/game-clock.ts'),{stoneHeadFrame}=await import('/app/stone-head-animation.ts')
@@ -136,7 +138,7 @@ async function run() {
       assert.equal(after.heading,item.heading);assert.equal(after.world,prior.world)
       assert.deepEqual(after.head,prior.head)
       report.stages.push({mission:item.mission,authoredHeading:item.heading,cameraBearings:4,actualPointerPick:true,checkpointIdentityAndPhasePreserved:true})
-      await page.close();save()
+      await context.close();save()
     }
     writeFileSync(join(output,'native-model-input.json'),JSON.stringify(report.frames)+'\n')
     assert.deepEqual(report.errors,[])

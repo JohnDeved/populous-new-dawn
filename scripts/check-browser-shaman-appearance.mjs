@@ -1,4 +1,5 @@
-import { showAllMissions } from './browser-game.mjs'
+import { prepareCampaignFixture, launchCampaignMission } from './browser-game.mjs'
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 // Timed, isolated issue28 integration check. Reference provenance is explicit:
 // either original-byte static submissions or the separately granted native oracle.
 import assert from 'node:assert/strict'
@@ -36,13 +37,12 @@ try {
   // Development sockets and optional traffic do not define game readiness.
   // Wait for the actual startup UI, retaining a bounded navigation timeout.
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45_000 })
-  await showAllMissions(page)
-  await page.getByRole('button', { name: 'Mission 23', exact: true }).waitFor({ timeout: 20_000 })
-  report.stages.push('Actual Mission23 startup UI ready')
-  await showAllMissions(page)
-  await page.getByRole('button', { name: 'Mission 23', exact: true }).click()
+  // Declared M23 availability only, not naturally earned campaign history.
+  await prepareCampaignFixture(page, 23)
+  await launchCampaignMission(page, 23)
+  report.stages.push('Declared Mission23 availability restored; public native launch')
   await bindGame(page)
-  if (await page.evaluate(() => !!window.testScene.world.inputMask)) await page.keyboard.press('Escape')
+  await skipIntroductionWithSpace(page, { timeout: 20000 })
   await page.waitForFunction(() => !window.testScene.world.inputMask)
   await page.waitForFunction(() => [...window.testScene.unitMeshes.values()].some(g => g.userData.layers?.[0]?.material.map.image?.complete))
   const served = await page.request.get(url + '/original/unit-layers.png')
@@ -90,9 +90,11 @@ try {
 
   // Use the shipped menu/store checkpoint before changing diagnostic pose fields.
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
-  await page.getByRole('button', { name: /Return to the world/ }).click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
   report.poseMatrix = await page.evaluate(async ({ teams, units }) => {
     const s = window.testScene, w = s.world, { createLivePerson } = await import('/app/live-people.ts')
     w.paused = true; cancelAnimationFrame(s.frame); s.cameraBearing = 0
@@ -118,6 +120,7 @@ try {
   }, { teams, units })
   report.stages.push('Native object/f2 and all eight directions through updateUnitsFrame')
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
   const restored = await page.evaluate(() => window.testScene.world.units.filter(u => u.kind === 'shaman').map(u => ({ id: u.id, team: u.team })))

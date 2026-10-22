@@ -1,7 +1,7 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { browserPosition, cast, command, createWorld, select, tick } from '../app/model.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { vaultPoints, vaultShapePose } from '../app/vault-geometry.ts'
 import { buildingFootprintCells } from '../app/building-shapes.ts'
 import { currentPersonOrder, personReachedOrder } from '../app/person-orders.ts'
@@ -45,9 +45,9 @@ function openFirstMissionBridge(world) {
   assert.equal(world.units.includes(guard), false)
 }
 
-function approach(mission, side = false) {
-  const store = createGameStore()
-  store.startMission(mission)
+async function approach(mission, side = false) {
+  const store = await createCampaignFixtureStore([mission])
+  assert.equal(store.startMission(mission), true)
   const world = finishLevelStart(store.getWorld())
   assert.equal(world.capacityPolicy.mode, 'scalable')
   assert.ok(world.objectCells.heads instanceof Float64Array)
@@ -94,8 +94,8 @@ function reachPrayer(state) {
 
 test('ordinary rear/side prayer approaches and the M1 uint16 seam avoid the closed Vault', async t => {
   for (const [mission, side] of [[3, false], [3, true], [1, false]]) {
-    await t.test(`mission ${mission}, ${side ? 'side' : 'rear'}`, () => {
-      const state = approach(mission, side)
+    await t.test(`mission ${mission}, ${side ? 'side' : 'rear'}`, async () => {
+      const state = await approach(mission, side)
       const samples = reachPrayer(state)
       assert.deepEqual({ x: state.shaman.native.goalX, y: state.shaman.native.goalY }, state.points.outside)
       t.diagnostic(JSON.stringify({ mission, side, turn: state.world.turn, samples }))
@@ -142,7 +142,7 @@ test('Vault footprint registration follows the modeled top-level body, not trigg
 })
 
 test('ordinary open entry, current in-session Load, exit/departure and interrupted inside owners retain collision lifecycle', async t => {
-  const state = approach(3), { store, world, shaman, vault, points } = state
+  const state = await approach(3), { store, world, shaman, vault, points } = state
   reachPrayer(state)
   const mask = footprint(vault), observed = new Set(), phaseEntries = new Map()
   let insideWorld, restored, completed = false

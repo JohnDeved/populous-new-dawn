@@ -925,6 +925,7 @@
         "app/scene.ts",
         "app/scene-picking.ts",
         "app/render-view.ts",
+        "app/result-session.ts",
         "app/scene-camera-runtime.ts",
         "app/scene-terrain-runtime.ts",
         "app/runtime-terrain-picking.ts",
@@ -1656,8 +1657,8 @@
         "Reports native preacher-victim replacement groups only when they are actually observed"
       ],
       "knownLimits": [
-        "Suspends RAF and directly calls tick(world, 1/12); internal camera focus and read-only picking/pathfinding assist rendered controls. No injected entities, resources, victory, AI state, or profile.",
-        "Not ordinary real-clock gameplay, native-equivalent timing, full original-game parity, or hardware performance; direct All missions setup starts Mission 2.",
+        "Suspends RAF and directly calls tick(world, 1/12); internal camera focus and read-only picking/pathfinding assist rendered controls. No injected entities, resources, victory or AI state. A declared availability-only native profile admits Mission 2 in a fresh ephemeral context.",
+        "Not ordinary real-clock gameplay, native-equivalent timing, full original-game parity, or hardware performance. Mission 1 completion is not earned; Mission 3 continuation uses the shipped two-Space result route and native selector.",
         "Conversion requires a separately observed native preacher-victim replacement; death/disappearance and victory alone do not prove it.",
         "A passing route can record zero Blue Preacher conversions; this check alone does not complete conversion acceptance."
       ],
@@ -3887,15 +3888,16 @@
       "id": "mission21-browser",
       "kind": "browser",
       "automation": "safe",
-      "purpose": "Exercise Mission 20-to-21 continuation, focused charging, HUD Convert Wild, linked-totem worship, the unsealed eruption, and both checkpoint paths through the shipped browser.",
+      "purpose": "Exercise declared-profile Mission 20-to-21 continuation, focused charging, HUD Convert Wild, linked-totem worship, the unsealed eruption, and both checkpoint paths through the shipped browser.",
       "coveredBehavior": [
-        "Mission 21 chooser, Mission 20 continuation, and original opening message",
+        "Native Mission 21 entry and original opening message; isolated declared Mission 20 branch continuation with missing-18/19 rejection",
         "Per-spell charging controls fund HUD Convert Wild without injected stock",
         "Converted nearby Wildmen worship the authored three-person Flatten totem and cancel the eruption",
         "Turn-1951 warning and linked Volcano world effect",
         "Sealed and erupted checkpoint restoration without duplicate effects"
       ],
       "knownLimits": [
+        "Standalone Mission 21 entry declares availability only. Separate empty-context branch fixtures declare completed prerequisites 16-19 and Mission 20 availability, then supply the Mission 20 terminal outcome; none proves naturally earned earlier campaign progress.",
         "The browser check advances ordinary fixed turns between player actions; it does not record a native route-timing playthrough.",
         "Exact class-7/model-39 presentation, later faults, AI, and mission outcome remain open."
       ],
@@ -3906,9 +3908,21 @@
       "inputs": [
         "scripts/check-browser-mission21.mjs",
         "scripts/browser-game.mjs",
+        "scripts/mission21-declared-campaign-fixture.mjs",
+        "scripts/browser-new-game.mjs",
+        "scripts/browser-introduction.mjs",
+        "scripts/browser-result-navigation.mjs",
         "app/campaign-command-runtime.ts",
         "app/campaign-runtime.ts",
         "app/game-store.ts",
+        "app/campaign-profile.ts",
+        "app/native-campaign-progression.ts",
+        "app/result-session.ts",
+        "app/original-result-screen.tsx",
+        "app/original-result-layout.ts",
+        "app/world-selector.tsx",
+        "app/world-selector-data.ts",
+        "app/scene.ts",
         "app/level-twenty-one.ts",
         "app/mission-data.ts",
         "app/original-messages.json",
@@ -3919,7 +3933,7 @@
         "app/world-types.ts"
       ],
       "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": [],
+      "sideEffects": ["Writes declared campaign profiles and current checkpoints only in new isolated browser contexts"],
       "resources": ["Fixed server and browser resources; run serially"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },

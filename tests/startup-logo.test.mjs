@@ -14,7 +14,7 @@ const emitted = ts.transpileModule(source, {
 
 // The production component, with media/DOM/hook boundaries supplied. Actual
 // decoding, trusted events, click-through, geometry and Home are browser checks.
-function fixture() {
+function fixture({ artDecode = Promise.resolve() } = {}) {
   const refs = [], states = [], effects = [], listeners = new Map()
   let refIndex, stateIndex, completions = 0
   const document = {
@@ -34,7 +34,7 @@ function fixture() {
   }
   const modal = { open: false, showModal() { this.open = true }, close() { this.open = false }, focus() {} }
   const component = { exports: {} }
-  new Function('require', 'module', 'exports', 'document', emitted)(name => {
+  new Function('require', 'module', 'exports', 'document', 'Image', emitted)(name => {
     if (name === 'react') return {
       useRef(initial) { return refs[refIndex] ??= { current: initial }, refs[refIndex++] },
       useState(initial) {
@@ -46,9 +46,10 @@ function fixture() {
       useEffect: callback => effects.push(callback),
     }
     if (name === 'react/jsx-runtime') return require(name)
-    if (name === './startup-logo.module.css') return { default: {} }
+    if (name === './original-hud.json') return { default: require('../app/original-hud.json') }
+    if (name === './startup-logo.module.css') return { default: new Proxy({}, { get: (_, name) => name }) }
     throw Error(`Unexpected import: ${name}`)
-  }, component, component.exports, document)
+  }, component, component.exports, document, class { decode() { return artDecode } })
   const render = () => {
     refIndex = stateIndex = 0
     effects.length = 0
@@ -155,11 +156,26 @@ test('pointer down pauses immediately and matching release/cancel consumes the t
   }
 })
 
+test('a second pointer cannot replace the release gate or resume interrupted playback', () => {
+  const f = fixture(), captures = []
+  const press = pointerId => event({ button: 0, pointerId, currentTarget: { setPointerCapture: id => captures.push(id) } })
+  f.tree.props.onPointerDown(press(7))
+  f.tree.props.onPointerDown(press(8))
+  assert.deepEqual(captures, [7])
+  f.listeners.get('visibilitychange')()
+  assert.equal(f.media.plays, 1)
+  f.tree.props.onPointerUp(event({ pointerId: 8 }))
+  assert.equal(f.completions, 0)
+  f.tree.props.onPointerUp(event({ pointerId: 7 }))
+  assert.equal(f.completions, 1)
+  f.cleanup()
+})
+
 test('natural completion and accessible Skip use the same one-shot exit', () => {
   for (const type of ['video', 'button']) {
     const f = fixture()
     const control = nodes(f.tree).find(node => node.type === type &&
-      (type === 'video' || node.props.children === 'Skip logo'))
+      (type === 'video' || node.props['aria-label'] === 'Skip logo'))
     control.props[type === 'video' ? 'onEnded' : 'onClick']()
     assert.equal(f.completions, 1)
     assert.equal(f.media.pauses, 1)
@@ -175,16 +191,115 @@ test('Tab and the explicit sound control remain accessible without skipping or r
   const f = fixture(), tab = event({ key: 'Tab' })
   f.tree.props.onKeyDown(tab)
   assert.equal(tab.prevented, false)
-  const sound = nodes(f.tree).find(node => node.type === 'button' && node.props.children === 'Enable logo sound')
+  const sound = nodes(f.tree).find(node => node.type === 'button' && node.props['aria-label'] === 'Enable logo sound')
   const down = event({ key: 'Enter' })
   sound.props.onKeyDown(down)
   assert.equal(down.stopped, true)
   assert.equal(down.prevented, false)
   sound.props.onClick()
   assert.equal(f.media.muted, false)
-  assert.equal(f.media.plays, 1)
+  assert.equal(f.media.plays, 2, 'trusted unmute also resumes without seeking/reloading')
+  assert.equal(f.media.loads, 0)
   assert.equal(f.completions, 0)
   assert.equal(f.states[1], false)
+  f.cleanup()
+})
+
+test('ordinary playback has no status strip and reveals accessible Skip only on focus', () => {
+  const f = fixture()
+  assert.equal(nodes(f.tree).some(node => node.props?.role === 'status'), false)
+  const buttons = nodes(f.tree).filter(node => node.type === 'button')
+  assert.deepEqual(buttons.map(node => node.props['aria-label']), ['Enable logo sound', 'Skip logo'])
+  assert.equal(buttons[0].props.className, undefined, 'the sole sound-activation route remains discoverable')
+  assert.equal(buttons[1].props.className, 'focusOnly')
+  buttons[0].props.onClick()
+  const sound = nodes(f.render()).find(node => node.props?.['aria-label'] === 'Mute logo')
+  assert.equal(sound.props.className, 'focusOnly soundHidden', 'retain keyboard focus without invisible pointer interception')
+  f.cleanup()
+})
+
+test('sound activation consumes repeats and release, without dismissing the logo', () => {
+  for (const key of ['Enter', ' ']) {
+    const f = fixture()
+    const sound = nodes(f.tree).find(node => node.props?.['aria-label'] === 'Enable logo sound')
+    const repeat = event({ key, repeat: true })
+    sound.props.onKeyDown(repeat)
+    assert.equal(repeat.prevented && repeat.stopped, true)
+    const release = event({ key })
+    sound.props.onKeyUp(release)
+    assert.equal(release.stopped, true)
+    assert.equal(f.completions, 0)
+    const down = event(), up = event()
+    sound.props.onPointerDown(down)
+    sound.props.onPointerUp(up)
+    assert.equal(down.stopped && up.stopped, true)
+    assert.equal(f.media.pauses, 0)
+    f.cleanup()
+  }
+})
+
+test('logo framing keeps exact native ratios through production CSS minification', () => {
+  const css = readFileSync(new URL('../app/startup-logo.module.css', import.meta.url), 'utf8')
+  // Resolve Vite's declared minifier, including under pnpm's isolated layout.
+  const { transform } = createRequire(require.resolve('vite'))('lightningcss')
+  const minified = transform({ filename: 'startup-logo.css', code: Buffer.from(css), minify: true }).code.toString()
+  assert.match(minified, /\.frame\{[^}]*aspect-ratio:4\/3/)
+  assert.match(minified, /\.frame\{[^}]*height:min\(100dvh,75vw\)/)
+  assert.match(minified, /\.video\{[^}]*aspect-ratio:20\/11/)
+  assert.match(minified, /\.video\{[^}]*height:auto/)
+  assert.match(minified, /\.video\{[^}]*top:50%/)
+  assert.match(minified, /\.video\{[^}]*transform:translateY\(-50%\)/)
+  assert.doesNotMatch(minified, /133\.333|13\.333|73\.333/)
+  // At the rendered regression viewport, these source ratios give exactly
+  // x=0, y=128, width=1280, height=704. The browser checker retains that oracle.
+  assert.equal(960 * 4 / 3, 1280)
+  assert.equal(960 * 64 / 480, 128)
+  assert.equal(960 * 352 / 480, 704)
+})
+
+test('compatibility controls use original FONT0 and HUD frames, with an artwork-load fallback', async () => {
+  const f = fixture()
+  assert.equal(f.states[2], false)
+  await Promise.resolve()
+  assert.equal(f.states[2], true)
+  const controlText = nodes(f.render()).find(node => typeof node.type === 'function')
+  const glyphs = nodes(controlText.type(controlText.props)).filter(node => node.type === 'i')
+  assert.equal(glyphs.length, 'Enable logo sound'.length)
+  const hud = require('../app/original-hud.json')
+  const first = hud.rects[`font0-${'E'.charCodeAt(0) - 32}`]
+  assert.deepEqual(glyphs[0].props.style, { width: first.w, height: first.h, backgroundPosition: `-${first.x}px -${first.y}px` })
+  const css = readFileSync(new URL('../app/startup-logo.module.css', import.meta.url), 'utf8')
+  assert.doesNotMatch(css, /system-ui|sans-serif|border-radius: 4px/)
+  for (const asset of ['hud.png', 'hud-button.png', 'hud-button-selected.png', 'hud-button-hover.png', 'tooltip-border.png'])
+    assert.ok(css.includes(`/original/${asset}`))
+  assert.match(css, /\.focusOnly:not\(:focus-visible\)\s*\{\s*opacity: 0/)
+  assert.match(css, /\.soundHidden:not\(:focus-visible\)\s*\{ pointer-events: none;/)
+  f.cleanup()
+  const failed = fixture({ artDecode: Promise.reject(new Error('art unavailable')) })
+  await Promise.resolve()
+  await Promise.resolve()
+  assert.equal(failed.states[2], false)
+  const fallback = nodes(failed.render()).find(node => typeof node.type === 'function')
+  assert.equal(fallback.type(fallback.props).props.children, 'Enable logo sound')
+  failed.cleanup()
+})
+
+test('every control and recovery string has FONT0 glyphs and compact-width word advances', () => {
+  const f = fixture(), labels = new Set()
+  const hud = require('../app/original-hud.json')
+  for (const playback of ['playing', 'blocked', 'failed']) for (const muted of [false, true]) {
+    f.states[0] = playback
+    f.states[1] = muted
+    for (const node of nodes(f.render()).filter(node => typeof node.type === 'function')) labels.add(node.props.text)
+  }
+  assert.equal(labels.size, 6)
+  for (const text of labels) {
+    for (const character of text) assert.ok(hud.rects[`font0-${character.charCodeAt(0) - 32}`], `${text}: missing ${character}`)
+    for (const word of text.split(' ')) {
+      const width = [...word + ' '].reduce((sum, character) => sum + hud.rects[`font0-${character.charCodeAt(0) - 32}`].w, 0)
+      assert.ok(width <= 320 - 24 - 20, `${word}: FONT0 word exceeds compact status content width`)
+    }
+  }
   f.cleanup()
 })
 
@@ -209,7 +324,8 @@ test('autoplay refusal offers a real resume control; late promise rejection cann
   f.listeners.get('visibilitychange')()
   await Promise.resolve()
   assert.equal(f.states[0], 'blocked')
-  const play = nodes(f.render()).find(node => node.type === 'button' && node.props.children === 'Play logo')
+  const play = nodes(f.render()).find(node => node.type === 'button' && node.props['aria-label'] === 'Play logo')
+  assert.equal(play.props.className, undefined, 'refused autoplay visibly offers resume')
   f.media.nextPlay = Promise.resolve()
   play.props.onClick()
   assert.equal(f.states[0], 'playing')
@@ -223,13 +339,31 @@ test('autoplay refusal offers a real resume control; late promise rejection cann
   assert.equal(f.states[0], 'playing')
 })
 
+test('hidden or interrupted sound activation never starts playback, and late art loading stays disposed', async () => {
+  for (const interrupted of ['hidden', 'pointer']) {
+    let resolveArt
+    const f = fixture({ artDecode: new Promise(resolve => { resolveArt = resolve }) })
+    if (interrupted === 'hidden') f.document.hidden = true
+    else f.tree.props.onPointerDown(event({ button: 0, pointerId: 7, currentTarget: { setPointerCapture() {} } }))
+    nodes(f.tree).find(node => node.props?.['aria-label'] === 'Enable logo sound').props.onClick()
+    assert.equal(f.media.plays, 1)
+    f.cleanup()
+    resolveArt()
+    await Promise.resolve()
+    assert.equal(f.states[2], false)
+  }
+})
+
 test('decode failure is truthful and always retains an exit to the menu', () => {
   const f = fixture()
   nodes(f.tree).find(node => node.type === 'video').props.onError()
   assert.equal(f.states[0], 'failed')
   const tree = f.render()
-  assert.match(nodes(tree).find(node => node.props?.role === 'status').props.children, /could not be played/)
-  nodes(tree).find(node => node.type === 'button' && node.props.children === 'Skip logo').props.onClick()
+  assert.match(nodes(tree).find(node => node.props?.role === 'status').props['aria-label'], /could not be played/)
+  const skip = nodes(tree).find(node => node.type === 'button' && node.props['aria-label'] === 'Skip logo')
+  assert.equal(skip.props.className, undefined, 'failure recovery is visibly actionable')
+  assert.equal(nodes(tree).filter(node => node.type === 'button').length, 1)
+  skip.props.onClick()
   assert.equal(f.completions, 1)
   f.cleanup()
 })

@@ -1,9 +1,9 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 // Genuine campaign inputs: earn Convert, occupy the authored Tower, convert a
 // wild follower near the disconnected head, then earn and board the linked Boat.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createGameStore } from '../app/game-store.ts'
 import { browserPosition, cast, command, selectUnit, supportsFollower, tick } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { spellInRange, spellRange } from '../app/spell-casting.ts'
@@ -15,8 +15,8 @@ const referenceId = scalableReferenceIds(5)
 test('earned Mission5 Boat is allocated, retires its template, and boards a real converted follower', async () => {
   await loadSceneFixture()
   const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
-  const store = createGameStore()
-  store.startMission(5)
+  const store = await createCampaignFixtureStore([5])
+  assert.equal(store.startMission(5), true)
   const world = store.getWorld(),
     warrior = world.units.find(u => u.id === 112),
     head = world.shrines.find(s => s.kind === 'boat'),

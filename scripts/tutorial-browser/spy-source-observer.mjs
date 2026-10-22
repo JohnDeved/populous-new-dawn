@@ -1,12 +1,29 @@
-// Page-serializable, read-only ordinary RAF observer. It does not replace a
-// clock/controller/render method, inject a phase, issue input or pause the game.
+// Page-serializable, read-only logical-turn and ordinary RAF observers. They
+// never replace a clock/controller/render method, inject a phase or issue input.
 export function installSpySourceObserver({ spyId, targetId }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   const canvas = scene.renderer.domElement
-  const result = { spyId, targetId, samples: [], crops: [], runtime: [], error: null, done: false }
+  const result = { spyId, targetId, samples: [], turns: [], crops: [], runtime: [], error: null, done: false }
   const copies = [], copied = new Set()
-  let raf, stopped = false, visits = 0, lastKey
-  const stop = () => { stopped = true; cancelAnimationFrame(raf); return result }
+  let raf, stopped = false, visits = 0, lastKey, unsubscribe = () => {}
+  const stop = () => { stopped = true; unsubscribe(); cancelAnimationFrame(raf); return result }
+  const failed = error => { result.error = String(error); stop() }
+  const liveSpy = () => {
+    if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world || scene.world !== world)
+      throw Error('Spy observer lost the loaded Scene/world')
+    const spy = world.units.find(unit => unit.id === spyId)
+    if (!spy?.native || spy.hp <= 0) throw Error('Trained Spy or actual mesh missing')
+    return spy
+  }
+  const observeTurn = () => {
+    if (stopped) return
+    const spy = liveSpy(), p = spy.native
+    result.turns.push({ spyId, targetId, turn: world.turn, substate: p.substate,
+      timer: p.timer, entryArmed: !!(p.flags2 & 0x40000000), object: p.object,
+      f2: p.f2, target: spy.target, paused: world.paused, speed: world.speed,
+      sceneStoreMatch: scene.world === world })
+    if (result.turns.length > 600) throw Error('Spy observer exceeded logical-turn bound')
+  }
   const retain = () => {
     stop()
     for (const { copy, context, crop } of copies) {
@@ -90,7 +107,7 @@ export function installSpySourceObserver({ spyId, targetId }) {
           if (width <= 1 || height <= 1) throw Error('Spy crop outside actual canvas')
           const clip = { x: rect.left + x / scaleX, y: rect.top + y / scaleY,
             width: width / scaleX, height: height / scaleY }
-          const overlays = [...document.querySelectorAll('.native-hud,.paused-badge,.campaign-messages summary,.campaign-messages details[open]>div,.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
+          const overlays = [...document.querySelectorAll('.native-hud,[data-original-pause-status],.campaign-messages summary,.campaign-messages details[open] [data-native-campaign-panel],.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
             .filter(element => { const style = getComputedStyle(element); return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0 })
             .map(element => { const r = element.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height } })
             .filter(r => r.width > 0 && r.height > 0 && r.x < clip.x + clip.width && r.x + r.width > clip.x && r.y < clip.y + clip.height && r.y + r.height > clip.y)
@@ -108,10 +125,11 @@ export function installSpySourceObserver({ spyId, targetId }) {
         if (result.samples.length > 600) throw Error('Spy observer exceeded sample bound')
         if (copied.size === 2) result.done = true
       }
-    } catch (error) { result.error = String(error); stop(); return }
+    } catch (error) { failed(error); return }
     raf = requestAnimationFrame(visit)
   }
   window.__pndSpySourceObservation = { result, stop, retain, readRuntime }
+  unsubscribe = scene.observeGameTurns(observeTurn, failed)
   raf = requestAnimationFrame(visit)
 }
 

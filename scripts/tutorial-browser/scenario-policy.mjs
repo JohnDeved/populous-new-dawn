@@ -10,9 +10,29 @@ export function browserCapMs(scenario) {
   // Finite Tutorial episodes exhausted 180s in two hosted runs. This is hang
   // headroom for the unchanged aggregate, not a per-episode or performance target.
   if (scenario === 'tutorial') return 240000
+  if (scenario === 'gameplay-frames') return gameplayAggregateBudget.totalBrowserMs
+  if (scenario === 'compact-message-layout') return compactAggregateBudget.totalBrowserMs
   return scenario === 'snapshot-protocol' ? 90000 : 180000
 }
 
 // Independent jobs, explicitly 360s combined instead of the former shared180s.
 export const profileSplitBudget = Object.freeze({ version: 1, recoveryMs: 180000,
   mission10Ms: 180000, totalBrowserMs: 360000, buildMsPerJob: 120000, hostedJobMs: 900000 })
+
+// Explicit admission for the three required independent gameplay episodes.
+// +175s aggregate, not altered simulation speed, measured windows or performance.
+export const gameplayAggregateBudget = Object.freeze({ version: 1, frameMs: 180000,
+  meleeMs: 75000, corpseDeathMs: 75000, corpseLoadMs: 25000,
+  totalBrowserMs: 180000 + 75000 + 75000 + 25000, buildMs: 120000, hostedJobMs: 900000 })
+
+// NEW functional policy: +45s admission, not recovered history or performance.
+// Compact preparation45 + all four layouts45; no per-case resets.
+export const compactAggregateBudget = Object.freeze({ version: 1, preparationMs: 45000, layoutsMs: 45000,
+  compactMs: 90000, pickingMs: 45000, hypnotiseMs: 75000, lifecycleMs: 15000,
+  totalBrowserMs: 225000, buildMs: 120000, hostedJobMs: 900000 })
+
+// NEW ordinary-M2-only admission: +45s, not optimization or recovered history.
+// Setup and the complete functional workload have independent nontransferable
+// maxima; acquisition/cleanup remain inside total and the unchanged host cap.
+export const ordinaryM2Budget = Object.freeze({ version: 1, setupMs: 45000,
+  functionalMs: 45000, totalMs: 90000 })

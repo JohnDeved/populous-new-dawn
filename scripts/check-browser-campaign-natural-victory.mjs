@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openCampaignFixtureGame as openGame } from './browser-game.mjs'
+import { continueThroughNativeSelector, enterResultSelector } from './browser-result-navigation.mjs'
 
 const swarmOnly = process.argv.includes('--mission3-swarm-only')
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
@@ -1112,7 +1113,7 @@ try {
       true,
       'Mission 2 victory is recorded in the campaign profile'
     )
-    await page.getByRole('button', { name: 'Continue to Mission 3', exact: false }).click()
+    await continueThroughNativeSelector(page, 3)
     await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 3)
     await page.waitForFunction(
       () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
@@ -1123,7 +1124,7 @@ try {
     await page.waitForFunction(() => globalThis.testScene.world.flyby.flags & 1)
     await page.keyboard.press('Escape')
     await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
-    await waitForSelectableShaman(page, 'Mission 3 after Continue')
+    await waitForSelectableShaman(page, 'Mission 3 after native result selector')
     await suspendOwnedFrame(page)
     await missionThree(page)
     await advanceOutcome(page)
@@ -1132,7 +1133,8 @@ try {
       true,
       'Mission 3 victory is recorded in the campaign profile'
     )
-    await page.getByRole('button', { name: 'Continue to Mission 4', exact: false }).waitFor()
+    await enterResultSelector(page)
+    await page.getByRole('button', { name: 'Start Mission 4', exact: true }).waitFor()
     const conversions = await page.evaluate(() => globalThis.campaignConversionTracker?.events ?? [])
     console.log(JSON.stringify({ mission3ConversionObservation: { observed: conversions.length > 0, events: conversions,
       limit: 'Separate observation; no death/disappearance or victory-only inference of conversion.' } }))

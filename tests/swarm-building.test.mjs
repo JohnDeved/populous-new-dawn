@@ -1,7 +1,7 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createGameStore } from '../app/game-store.ts'
 import { command, cast, tick, selectUnit, nativePosition } from '../app/model.ts'
 import { stepSwarm } from '../app/spell-effects-runtime.ts'
 import { spellTargetError } from '../app/live-command.ts'
@@ -122,8 +122,8 @@ test('Swarm building stages keep visit boundaries, history RNG, invalidation and
 })
 
 test('earned M22 Swarm pursues a unique occupied hut, ejects residents and returns with public checkpoint continuity', async () => {
-  const store = createGameStore()
-  store.startMission(22)
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   const w = store.getWorld(),
     shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
   const until = (f, n) => {

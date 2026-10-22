@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import frontend from './original-frontend.json'
 import ingame from './original-pause-font.json'
 import type { FrontendTextRow } from './frontend-composition'
@@ -6,6 +6,20 @@ import type { FrontendAssets, IngameMenuAssets } from './frontend-assets'
 import type { GamePreferences } from './game-preferences'
 import styles from './original-options.module.css'
 import { MenuTooltip } from './menu-tooltip'
+
+interface BrowserCompatibility {
+  speed: number
+  onSpeed: () => void
+  onSelectLevel: () => void
+  performance: boolean
+  onPerformance: () => void
+  hudSize: string
+  onHudSize: (value: string) => void
+  sound: boolean
+  soundPending: boolean
+  onSound: () => void
+  audioStartNotice: string
+}
 
 interface OriginalOptionsProps {
   preparedFrontend?: FrontendAssets
@@ -20,9 +34,29 @@ interface OriginalOptionsProps {
   gamePreferences: GamePreferences
   onGamePreferences: (preferences: GamePreferences) => void
   gameStorageNotice: string
-  compatibility?: ReactNode
+  compatibility?: BrowserCompatibility
   onTextRowsChange?: (rows: FrontendTextRow[]) => void
 }
+const hudSizes = ['auto', '1', '1.5', '2', '2.5', '3', '4'] as const
+const browserFallback = 'HUD size, audio and game speed are available from the battlefield menu.'
+const browserTitle = 'Browser compatibility and help'
+
+// Browser-only notices retain the menu glyphs and 30-pixel line interval.
+function noticeLines(text: string) {
+  const lines: string[] = []
+  for (const word of text.split(' ')) {
+    const previous = lines.at(-1)
+    const candidate = previous ? `${previous} ${word}` : word
+    const width = [...candidate].reduce(
+      (total, letter) => total + ingame.rects[letter.charCodeAt(0) - 32].w,
+      0
+    )
+    if (previous && width <= 600) lines[lines.length - 1] = candidate
+    else lines.push(word)
+  }
+  return lines
+}
+
 const categories = ['Game', 'Sound', 'Graphics'] as const
 type Category = (typeof categories)[number] | 'Direct3D'
 type TextState = 'normal' | 'highlight' | 'low'
@@ -141,10 +175,33 @@ export function OriginalOptions({
     ],
     [gamePreferences.rotation, gamePreferences.flipRotation]
   )
+  const activeStorageNotice =
+    (category === 'Game' && gameStorageNotice) || (category === 'Sound' && storageNotice) || ''
+  const storageRows = useMemo<FrontendTextRow[]>(
+    () =>
+      activeStorageNotice
+        ? noticeLines(activeStorageNotice).map((text, index) => ({
+            text,
+            x: 320,
+            y: 338 + index * 30,
+          }))
+        : [],
+    [activeStorageNotice]
+  )
   const rows = useMemo<FrontendTextRow[]>(
     () =>
       browser
-        ? []
+        ? [
+            { text: browserTitle, x: 320, y: skin === 'frontend' ? 139 : 79 },
+            { text: 'Back', x: 320, y: 454 },
+            ...(compatibility
+              ? []
+              : noticeLines(browserFallback).map((text, index) => ({
+                  text,
+                  x: 320,
+                  y: (skin === 'frontend' ? 199 : 139) + index * 30,
+                }))),
+          ]
         : [
             ...categories.map((text, index) => ({ text, x: 170 + 150 * index, y: 420 })),
             { text: 'Back', x: 320, y: 454 },
@@ -160,8 +217,9 @@ export function OriginalOptions({
                   { text: 'Sound quality : <Unavailable>', x: 320, y: 259 },
                 ]
               : []),
+            ...storageRows,
           ],
-    [browser, category, masterText, musicText, gameRows]
+    [browser, category, masterText, musicText, gameRows, compatibility, skin, storageRows]
   )
   useLayoutEffect(() => {
     onTextRowsChange?.(textReady ? rows : [])
@@ -201,8 +259,7 @@ export function OriginalOptions({
       ?.focus()
   }, [category])
   useEffect(() => {
-    // Help can overflow. Focusing its trailing Back button scrolls past the
-    // heading and first controls before the player has had a chance to read them.
+    // Keep entry focus before the controls, including after an audio retry.
     if (browser)
       root.current?.querySelector<HTMLHeadingElement>('[data-browser-help-heading]')?.focus()
   }, [browser])
@@ -233,10 +290,10 @@ export function OriginalOptions({
     setCategory(next)
     setHighlight(null)
   }
-  function label(text: string, low = false, id = text) {
+  function label(text: string, low = false, id = text, disabled = false) {
     let state: TextState = 'normal'
     if (low) state = 'low'
-    else if (highlight === id) state = 'highlight'
+    else if (!disabled && highlight === id) state = 'highlight'
     return <Text text={text} skin={skin} state={state} ready={textReady} />
   }
   function choice(
@@ -245,7 +302,16 @@ export function OriginalOptions({
     y: number,
     action: () => void,
     selected = false,
-    options: { id?: string; wide?: boolean; help?: string } = {}
+    options: {
+      id?: string
+      wide?: boolean
+      help?: string
+      accessibleLabel?: string
+      disabled?: boolean
+      busy?: boolean
+      pressed?: boolean
+      hudSize?: string
+    } = {}
   ) {
     const position = { left: x, top: y }
     const id = options.id ?? text
@@ -268,7 +334,11 @@ export function OriginalOptions({
         key={id}
         className={`${styles.choice}${options.wide ? ` ${styles.gameChoice}` : ''}`}
         style={position}
-        aria-label={text}
+        aria-label={options.accessibleLabel ?? text}
+        disabled={options.disabled}
+        aria-busy={options.busy}
+        aria-pressed={options.pressed}
+        data-hud-size={options.hudSize}
         data-option-key={id}
         data-compatibility={id === 'compatibility' || undefined}
         data-panel-back={text === 'Back' || undefined}
@@ -280,7 +350,7 @@ export function OriginalOptions({
         onBlur={() => setHighlight(null)}
         onClick={action}
       >
-        {label(text, false, id)}
+        {label(text, false, id, options.disabled)}
       </button>
     )
   }
@@ -295,17 +365,113 @@ export function OriginalOptions({
       className={styles.options}
     >
       {browser ? (
-        <section className={styles.compatibility} aria-label="Browser compatibility and help">
-          <h2 tabIndex={-1} data-browser-help-heading>
-            Browser compatibility and help
+        <section className={styles.compatibility} aria-label={browserTitle}>
+          <h2
+            className={styles.soundLabel}
+            style={{ top: skin === 'frontend' ? 139 : 79 }}
+            tabIndex={-1}
+            data-browser-help-heading
+            aria-label={browserTitle}
+          >
+            {label(browserTitle)}
           </h2>
-          {compatibility ?? (
-            <p>
-              In-game HUD size, camera controls and help are available from the battlefield menu.
+          {compatibility ? (
+            <>
+              {choice('Select Level', 320, 139, compatibility.onSelectLevel, false, { wide: true })}
+              {choice(
+                `${compatibility.speed}× game speed`,
+                320,
+                169,
+                compatibility.onSpeed,
+                false,
+                {
+                  id: 'speed',
+                  wide: true,
+                }
+              )}
+              {choice(
+                'Toggle performance overlay · F8',
+                320,
+                199,
+                compatibility.onPerformance,
+                false,
+                {
+                  id: 'performance',
+                  wide: true,
+                  pressed: compatibility.performance,
+                }
+              )}
+              {choice(
+                `HUD size : <${compatibility.hudSize === 'auto' ? 'Automatic' : `${Number(compatibility.hudSize) * 100}%`}>`,
+                320,
+                229,
+                () =>
+                  compatibility.onHudSize(
+                    hudSizes[
+                      (hudSizes.indexOf(compatibility.hudSize as (typeof hudSizes)[number]) + 1) %
+                        hudSizes.length
+                    ]
+                  ),
+                false,
+                { id: 'hud-size', wide: true, hudSize: compatibility.hudSize }
+              )}
+              <div className="audio-settings">
+                {choice(
+                  compatibility.sound ? 'Sound on' : 'Enable sound',
+                  320,
+                  259,
+                  compatibility.onSound,
+                  false,
+                  {
+                    id: 'audio',
+                    wide: true,
+                    accessibleLabel: compatibility.sound ? '♪ Sound on' : '♫ Enable sound',
+                    disabled: compatibility.soundPending,
+                    busy: compatibility.soundPending,
+                  }
+                )}
+              </div>
+              {(storageNotice || compatibility.audioStartNotice) && (
+                <div className={styles.browserNotices}>
+                  {[storageNotice, compatibility.audioStartNotice].filter(Boolean).map(notice => (
+                    <p key={notice} role="status" aria-label={notice}>
+                      <span className="game-a11y-status">{notice}</span>
+                      {noticeLines(notice).map((line, index) => (
+                        <span key={index} className={styles.noticeLine} aria-hidden="true">
+                          {label(line)}
+                        </span>
+                      ))}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <p
+              className={styles.browserFallback}
+              style={{ top: skin === 'frontend' ? 199 : 139 }}
+              aria-label={browserFallback}
+            >
+              <span className="game-a11y-status">{browserFallback}</span>
+              {noticeLines(browserFallback).map((line, index) => (
+                <span key={index} className={styles.noticeLine} aria-hidden="true">
+                  {label(line)}
+                </span>
+              ))}
             </p>
           )}
-          <button onClick={returnFromBrowser} data-return-options>
-            Back to Options
+          <button
+            className={styles.choice}
+            style={{ left: 320, top: 454 }}
+            aria-label="Back to Options"
+            data-return-options
+            onPointerEnter={() => setHighlight('browser-back')}
+            onPointerLeave={() => setHighlight(null)}
+            onFocus={() => setHighlight('browser-back')}
+            onBlur={() => setHighlight(null)}
+            onClick={returnFromBrowser}
+          >
+            {label('Back', false, 'browser-back')}
           </button>
         </section>
       ) : (
@@ -360,11 +526,6 @@ export function OriginalOptions({
                   </div>
                 )
               })}
-              {gameStorageNotice && (
-                <p className={styles.storage} role="status">
-                  {gameStorageNotice}
-                </p>
-              )}
             </>
           )}
           {category === 'Sound' && (
@@ -424,11 +585,6 @@ export function OriginalOptions({
               >
                 {label('Sound quality : <Unavailable>')}
               </div>
-              {storageNotice && (
-                <p className={styles.storage} role="status">
-                  {storageNotice}
-                </p>
-              )}
             </>
           )}
           {unavailableRows[category] && (
@@ -448,6 +604,16 @@ export function OriginalOptions({
                 </div>
               ))}
             </>
+          )}
+          {activeStorageNotice && (
+            <p className={styles.storage} role="status" aria-label={activeStorageNotice}>
+              <span className="game-a11y-status">{activeStorageNotice}</span>
+              {storageRows.map((row, index) => (
+                <span key={index} className={styles.noticeLine} aria-hidden="true">
+                  {label(row.text)}
+                </span>
+              ))}
+            </p>
           )}
           <nav aria-label="Options categories">
             {categories.map((text, index) =>
