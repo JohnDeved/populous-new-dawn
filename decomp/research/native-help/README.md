@@ -22,7 +22,7 @@ native cancel predicate or browser input lifecycle.
 `Home` now opens the existing original-styled pause Menu from neutral Escape on
 all playing worlds. Existing non-tutorial targeting then selection cancellation
 and tutorial Escape behavior are deliberately preserved browser compatibility,
-not a new claim of exact native cancellation parity. Repeated/modified presses,
+not a new claim of exact native cancellation parity. Repeated or Ctrl/Alt/Meta-modified presses,
 foreign input owners, terminal or replaced worlds do not gain a new Menu route.
 A handled Escape is consumed once, avoiding an accidental second destination.
 
