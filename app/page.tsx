@@ -8,7 +8,7 @@ import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
 import { OriginalLoadingScreen } from './original-loading-screen'
 import { StartupLogo } from './startup-logo'
 
-import { hudScale } from './hud-layout.ts'
+import { hudContentHeight, hudScale } from './hud-layout.ts'
 import { OriginalResultScreen } from './original-result-screen'
 import { createResultSession, createResultKeys, resultSpaceEligible } from './result-session'
 import { flushSync } from 'react-dom'
@@ -125,6 +125,7 @@ export default function Home() {
   const statisticsVisible =
     resultStage === 'statistics' || resultStage === 'exit-pending' || resultStage === 'selector'
   const spellRoster = spellHudRoster(world)
+  const hudHeight = hudContentHeight(spellRoster.length)
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
   const [sound, setSound] = useState(false)
   const [audioPreferences, setAudioPreferences] =
@@ -184,7 +185,7 @@ export default function Home() {
       // Scale artwork uniformly; extra screen height extends only the panel background.
       shell.current?.style.setProperty(
         '--hud-scale',
-        String(hudScale(window.innerWidth, window.innerHeight, hudSize))
+        String(hudScale(window.innerWidth, window.innerHeight, hudSize, spellRoster.length))
       )
 
       // 0x4314c0 + 0x44a1f0: campaign notifications use independent screen
@@ -201,7 +202,7 @@ export default function Home() {
     resize()
     window.addEventListener('resize', resize)
     return () => window.removeEventListener('resize', resize)
-  }, [hudSize])
+  }, [hudSize, spellRoster.length])
   useEffect(() => {
     const opened: number[] = []
     for (const message of world.messages.slots) {
@@ -1154,7 +1155,7 @@ export default function Home() {
             height={96}
             aria-label="Minimap. Click to move the camera."
           />
-          <MinimapFrame key={hudSize} />
+          <MinimapFrame key={`${hudSize}-${hudHeight}`} />
         </div>
         <nav className="dock-tabs" aria-label="Command categories">
           {(['buildings', 'spells', 'followers'] as const).map((t, i) => (

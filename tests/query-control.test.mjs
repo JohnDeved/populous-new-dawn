@@ -36,7 +36,7 @@ test('actual Menu button keeps accessible recovery and action while replacing on
   assert.equal(rendered.children[0].type, 'NativeQueryArt')
   rendered.props.onClick()
   assert.equal(opens, 1)
-  assert.match(read('app/globals.css'), /\.help-button\{position:absolute;left:64px;top:2px;width:13px;height:12px;border:0;/)
+  assert.match(read('app/globals.css'), /\.help-button\{position:absolute;left:63px;top:1px;width:13px;height:12px;border:0;/)
 })
 
 test('actual native art uses three original row-major frames and integer-centered HFX105', () => {

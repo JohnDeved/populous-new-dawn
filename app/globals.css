@@ -50,7 +50,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .portrait{position:absolute;left:33px;top:2px;width:30px;height:35px;background:url('/original/hud-portrait.png')}
 .portrait:hover,.portrait:active{background-image:url('/original/hud-portrait-hover.png')}
 .portrait canvas{position:absolute;left:-33px;top:-114px;width:100px;height:480px;pointer-events:none;image-rendering:pixelated}
-.help-button{position:absolute;left:64px;top:2px;width:13px;height:12px;border:0;background:transparent}
+.help-button{position:absolute;left:63px;top:1px;width:13px;height:12px;border:0;background:transparent}
 .health-bar{position:absolute;left:64px;top:14px;width:10px;height:22px;background:url('/original/hud-health.png')}.health-bar>span{position:absolute;inset:2px;display:flex;align-items:flex-end}.health-bar i{display:block;width:100%}
 .tribe-flag{position:absolute;left:78px;width:19px;height:10px;border:2px ridge #e9b451}.dakini{top:1px;background:#bd4239}.chumara{top:14px;background:#efd96b}.matak{top:26px;background:#43c286}
 .tribe-classes{position:absolute;left:0;top:153px;width:95px;display:grid;grid-template-columns:repeat(6,15px);gap:1px}
@@ -66,7 +66,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .mana-meter{position:absolute;left:4px;top:190px;width:92px;height:13px;background:url("/original/hud-mana.png");image-rendering:pixelated}.mana-meter>span{position:absolute;left:2px;top:2px;width:88px;height:9px}.mana-meter i{position:absolute;top:0;width:1px;height:10px}
 /* All three native command roots share this 100x277 HFX712/005caa40 panel.
    Preserve the existing spell/building content origin (4,9), not the CSS ridge. */
-.command-dock{position:absolute;left:0;top:204px;width:100px;height:277px;padding:9px 4px 7px;background:url('/original/follower-task-panel.png') no-repeat;border:0}
+.command-dock{position:absolute;left:0;top:203px;width:100px;height:277px;padding:9px 4px 7px;background:url('/original/follower-task-panel.png') no-repeat;border:0}
 .spell-list,.building-list,.follower-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px}
 .spell-card,.building-card,.follower-list button{position:relative;min-width:0;height:43px;padding:0;display:grid;place-content:center;border:8px solid transparent;border-image:url('/original/hud-button.png') 8 fill repeat}
 .building-card.active{border-image-source:url('/original/hud-button-selected.png')}

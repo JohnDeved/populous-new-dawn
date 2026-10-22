@@ -23,7 +23,7 @@ test('all command tabs share the original root geometry and source-owned artwork
   }
   assert.deepEqual(native.frames.commands.ids, [707, 709, 708, 710, 0, 711, 559, 562, 560])
   const dock = declarations('.command-dock')
-  assert.deepEqual([dock.left, dock.top, dock.width, dock.height], ['0', '204px', '100px', '277px'])
+  assert.deepEqual([dock.left, dock.top, dock.width, dock.height], ['0', '203px', '100px', '277px'])
   assert.equal(dock.background, "url('/original/follower-task-panel.png') no-repeat")
   assert.equal(dock.border, '0')
   assert.equal(dock.bottom, undefined, 'do not stretch the original root to the viewport footer')
