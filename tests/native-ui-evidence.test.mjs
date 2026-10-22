@@ -14,7 +14,7 @@ import { artifactInventory, ownBrowser, pageActionTimeout } from '../scripts/nat
 import { supervise } from '../scripts/native-ui-evidence/supervise.mjs'
 import { failPreferenceWrites, optionsViewportReady } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
 import { holdAudioResume, soundControlPending, soundOwnership, assertSoundOwnership,
-  pendingSoundPointerTarget, assertPendingSoundPointerTarget } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
+  pendingSoundPointerTarget, assertPendingSoundPointerTarget, prepareSoundPopup, closeSoundContext } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
 import { ordinaryMission, assertMissionInputBudget, saveMissionInputTrace } from '../scripts/native-ui-evidence/ordinary-mission.mjs'
 import { runNativeUiEvidence } from '../scripts/native-ui-evidence/adapter.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from '../scripts/native-ui-evidence/files.mjs'
@@ -755,4 +755,97 @@ test('both actual mission-entry persistence paths retain input error identity an
       assert.equal(inputError.traceWriteError, inputFails && writeFails ? String(writeError) : undefined)
     }
   }
+})
+
+function soundPopupFixture() {
+  const f = { trace: {}, calls: [], disposed: 0, retained: [{ serial: '0', open: false }],
+    ownership: { currentWorld: true, world: { paused: false, inputMask: 0, status: 'playing' },
+      scene: { focusPauseOwned: false, overviewActive: false, overviewStage: 0, keys: [] } } }
+  f.world = {}; f.scene = { world: f.world }
+  const snapshot = () => {}
+  const window = { testStore: { getWorld: () => f.world }, testSceneRef: { get current() { return f.scene } } }
+  f.page = {
+    evaluateHandle: async fn => {
+      const value = vm.runInNewContext(`(${fn.toString()})()`, { window })
+      return { value, dispose: async () => { f.disposed++; if (f.disposeError) throw f.disposeError } }
+    },
+    evaluate: async (fn, arg) => {
+      if (fn === snapshot) return structuredClone(f.retained)
+      if (fn === soundOwnership) return { ...structuredClone(f.ownership), popups: f.retained.filter(p => p.open).map(p => p.serial) }
+      return vm.runInNewContext(`(${fn.toString()})(owner)`, { window, owner: arg.value })
+    },
+  }
+  f.popupInput = { campaignPopupSnapshot: snapshot, setCampaignPopupOpen: async (page, serial, open, options) => {
+    assert.equal(page, f.page); f.calls.push({ serial, open, timeout: options.timeout })
+    if (f.actionError) throw f.actionError
+    f.retained.find(p => p.serial === serial).open = open
+    options.trace.observedOpen = open
+    f.mutate?.()
+  } }
+  f.options = { signal: new AbortController().signal, deadlineAt: Date.now() + 10000, trace: f.trace }
+  f.run = () => prepareSoundPopup(f.page, f.popupInput, f.options)
+  return f
+}
+test('sound setup publicly reopens the observed retained popup without replacing its owners', async () => {
+  const f = soundPopupFixture(); await f.run()
+  assert.deepEqual(f.calls, [{ serial: '0', open: true, timeout: 2500 }])
+  assert.equal(f.trace.status, 'passed'); assert.equal(f.trace.sameOwner, true)
+  assert.deepEqual(f.trace.retainedBefore, [{ serial: '0', open: false }])
+  assert.deepEqual(f.trace.retainedAfter, [{ serial: '0', open: true }]); assert.equal(f.disposed, 1)
+})
+test('sound setup selects an existing open owner instead of inventing or changing another one', async () => {
+  const f = soundPopupFixture(); f.retained.push({ serial: '7', open: true }); await f.run()
+  assert.equal(f.calls[0].serial, '7'); assert.deepEqual(f.trace.retainedAfter, f.trace.retainedBefore)
+})
+test('sound setup refuses absent, malformed or duplicate retained owners before any public action', async () => {
+  for (const retained of [[], [{ serial: 'bad', open: false }], [{ serial: 0, open: false }],
+    [{ serial: '0', open: 'false' }], [{ serial: '0', open: false }, { serial: '0', open: true }]]) {
+    const f = soundPopupFixture(); f.retained = retained; await assert.rejects(f.run())
+    assert.equal(f.calls.length, 0); assert.equal(f.trace.status, 'failed'); assert.equal(f.disposed, 1)
+    assert.deepEqual(f.trace.retainedBefore, retained)
+  }
+})
+test('sound setup rejects replaced objects, changed gameplay/input or acknowledged notification state', async () => {
+  for (const mutate of [f => { f.world = {} }, f => { f.scene = { world: f.world } },
+    f => { f.ownership.world.paused = true }, f => { f.ownership.world.inputMask = 64 },
+    f => { f.ownership.scene.keys = ['Space'] }, f => { f.retained = [] },
+    f => { f.retained[0].open = false }, f => { f.retained.push({ serial: '1', open: true }) }]) {
+    const f = soundPopupFixture(); f.mutate = () => mutate(f); await assert.rejects(f.run())
+    assert.equal(f.calls.length, 1); assert.equal(f.trace.status, 'failed'); assert.equal(f.disposed, 1)
+    assert.ok(f.trace.afterOwnership); assert.ok(f.trace.retainedAfter)
+  }
+})
+test('sound popup setup clips its public action to the unchanged remaining deadline and honors cancellation', async () => {
+  const f = soundPopupFixture(); f.options.deadlineAt = Date.now() + 1000; await f.run()
+  assert.ok(f.calls[0].timeout > 0 && f.calls[0].timeout <= 1000)
+  for (const deadlineAt of [0, NaN, Infinity]) {
+    const g = soundPopupFixture(); g.options.deadlineAt = deadlineAt; await assert.rejects(g.run(), /live episode deadline/)
+    assert.equal(g.calls.length, 0); assert.equal(g.disposed, 0)
+  }
+  const g = soundPopupFixture(), abort = new Error('aborted setup'); g.options.signal = AbortSignal.abort(abort)
+  await assert.rejects(g.run(), error => error === abort); assert.equal(g.calls.length, 0)
+})
+test('sound popup setup preserves the primary public-input error if handle disposal also fails', async () => {
+  const f = soundPopupFixture(), primary = new Error('public input failed'); f.actionError = primary; f.disposeError = new Error('dispose failed')
+  await assert.rejects(f.run(), error => error === primary)
+  assert.equal(f.trace.status, 'failed'); assert.equal(f.trace.error, String(primary)); assert.equal(f.trace.ownerDisposeError, 'Error: dispose failed')
+  assert.equal(f.calls.length, 1); assert.equal(f.disposed, 1)
+  const g = soundPopupFixture(); g.disposeError = new Error('dispose alone failed')
+  await assert.rejects(g.run(), error => error === g.disposeError); assert.equal(g.trace.status, 'failed')
+})
+test('HUD uses the public preparation and records the exact baseline before its strict assertions', () => {
+  const source = read('scripts/native-ui-evidence/hud-sound-control-style.mjs')
+  assert.match(source, /candidateModule\(root, 'scripts\/browser-world-input\.mjs'\)/)
+  assert.match(source, /await prepareSoundPopup\(page, popupInput, \{ signal, deadlineAt, trace: popupTrace \}\)/)
+  assert.match(source, /finally \{ saveMissionInputTrace\(save, popupError\) \}/)
+  assert.match(source, /const before = await page\.evaluate\(soundOwnership\)\s+report\.checks\.push\(\{ fallback, phase: 'baseline', ownership: before \}\); save\(\)\s+assert\.equal\(before\.currentWorld, true\)/)
+  assert.match(source, /assert\.ok\(before\.popups\.length > 0/)
+})
+test('Sound context cleanup preserves a primary failure and rejects cleanup-only failure', async () => {
+  const primary = new Error('baseline failed'), cleanup = new Error('context close failed'), report = {}
+  const context = { close: async () => { throw cleanup } }
+  await assert.rejects((async () => { try { throw primary } finally { await closeSoundContext(context, report, true, true) } })(), error => error === primary)
+  assert.deepEqual(report.cleanupErrors, [{ fallback: true, error: String(cleanup) }])
+  await assert.rejects(closeSoundContext(context, {}, false, false), error => error === cleanup)
+  const success = {}; await closeSoundContext({ close: async () => {} }, success, false, false); assert.deepEqual(success, {})
 })
