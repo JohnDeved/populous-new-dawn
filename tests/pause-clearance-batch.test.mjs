@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { assertCheckpointCapsOccupied } from '../scripts/local-render/checkpoint-scrollbar-observation.mjs'
 import { observeFullscreenClearance as original } from './fixtures/fullscreen-clearance-before-batch.mjs'
 import { observeFullscreenClearance, assertFullscreenClearance, assertPauseFullscreenIntegrity, assertPauseHudCount } from '../scripts/local-render/fullscreen-clearance.mjs'
 
@@ -7,10 +8,14 @@ function fixture(change = {}) {
   const rect = { x: 12, y: 12, width: 17, height: 14, right: 29, bottom: 26 }
   const button = { getBoundingClientRect: () => rect, contains: n => n === button,
     matches: () => change.visible !== false, getAttribute: () => 'Fullscreen' }
-  const occupied = { getBoundingClientRect: () => ({ x: 50, y: 50, right: 300, bottom: 200 }), getAttribute: () => 'menu controls' }
-  const control = {}, wrongOwnerControl = {}, calls = []
-  const controls = change.empty ? [] : [control]
-  const shadowControl = {}
+  const occupied = { getBoundingClientRect: () => ({ x: 50, y: 50, right: 300, bottom: 200 }), getAttribute: name => name === 'aria-label' ? 'menu controls' : null }
+  const control = { getAttribute: () => null }, wrongOwnerControl = {}, calls = []
+  const caps = ['up', 'down'].map(direction => ({
+    getAttribute: name => name === 'data-pause-checkpoint-cap' ? direction : `Scroll checkpoint details ${direction}`,
+    getBoundingClientRect: () => change.capOverlap ? rect : { x: 200, y: 100, right: 224, bottom: 112 },
+  }))
+  const controls = change.empty ? [] : [control, ...(change.caps ? caps : [])]
+  const shadowControl = { getAttribute: () => null }
   const scopes = change.wrongScope ? [] : [{ querySelectorAll(selector) {
     assert.equal(selector, ':scope > :not([data-fullscreen-control]) button'); return controls
   } }]
@@ -23,7 +28,7 @@ function fixture(change = {}) {
     querySelectorAll(selector) {
       if (selector === '.native-hud') return Array(change.hudCount ?? 1).fill({})
       if (selector === '[data-fullscreen-control]') return Array(change.duplicates ? 2 : 1).fill({})
-      if (selector === 'occupied') return [occupied]
+      if (selector === 'occupied') return [occupied, ...(change.caps ? caps.slice(change.omitCap ? 1 : 0) : [])]
       if (selector === 'all-dialog-buttons') return [...controls, wrongOwnerControl]
       throw Error('Unexpected broad selector: ' + selector)
     },
@@ -40,6 +45,7 @@ function fixture(change = {}) {
   // This is the original exact role/name locator, not a new document selector.
   const resolved = [...new Set(scopes.flatMap(dialog => dialog.querySelectorAll(':scope > :not([data-fullscreen-control]) button')))]
   if (change.shadowControls) resolved.push(shadowControl)
+  if (change.shadowCaps) resolved.push(...caps)
   const modal = { evaluateAll: async (fn, args) => { calls.push('controlsLocator.evaluateAll'); return invoke(fn, resolved, args, true) } }
   return { page, modal, calls, legacyCounts: { hudCount: (change.hudCount ?? 1) + (change.shadowHudCount ?? 0),
     nativeControlCount: resolved.length } }
@@ -96,4 +102,26 @@ test('HUD uniqueness retains the real Playwright locator count including open sh
     await assert.doesNotReject(assertPauseHudCount(f.page))
     assert.deepEqual(f.calls, ['original HUD locator count'])
   }
+})
+
+
+test('explicit checkpoint cap witnesses retain the exact control locator and broad occupied geometry', async () => {
+  const f = fixture({ caps: true })
+  const result = await observeFullscreenClearance(f.page, 'owner', 'occupied', f.modal, { checkpointCaps: true })
+  assert.deepEqual(result.integrity, { nativeControlCount: 3, checkpointCaps: ['up', 'down'] })
+  assertCheckpointCapsOccupied(result.integrity.checkpointCaps, result.sample)
+  assertFullscreenClearance(result.sample)
+  assert.deepEqual(f.calls, ['controlsLocator.evaluateAll'])
+})
+
+test('caps omitted from occupied data, including shadow-resolved controls, cannot pass silently', async () => {
+  for (const change of [{ caps: true, omitCap: true }, { shadowCaps: true }]) {
+    const f = fixture(change)
+    const result = await observeFullscreenClearance(f.page, 'owner', 'occupied', f.modal, { checkpointCaps: true })
+    assert.throws(() => assertCheckpointCapsOccupied(result.integrity.checkpointCaps, result.sample), /Every resolved cap/)
+  }
+  const f = fixture({ caps: true, capOverlap: true })
+  const result = await observeFullscreenClearance(f.page, 'owner', 'occupied', f.modal, { checkpointCaps: true })
+  assertCheckpointCapsOccupied(result.integrity.checkpointCaps, result.sample)
+  assert.throws(() => assertFullscreenClearance(result.sample), /Fullscreen must clear/)
 })

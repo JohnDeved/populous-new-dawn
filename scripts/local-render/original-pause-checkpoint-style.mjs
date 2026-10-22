@@ -8,6 +8,7 @@ import { observeFullscreenClearance, assertFullscreenClearance, assertPauseFulls
 import { assertCheckpointBodyClearance } from './checkpoint-body-clearance.mjs'
 import { capturePauseWorld, assertPauseWorldUnchanged, disposePauseWorld } from './pause-world-snapshot.mjs'
 import { observePauseKeyboardFocus } from './pause-focus-observation.mjs'
+import { observeCheckpointLayout, assertCheckpointScrollbar, assertCheckpointCapsOccupied } from './checkpoint-scrollbar-observation.mjs'
 
 async function waitForPauseFrame(page) {
   // Resizing is asynchronous in React. Inspect the actual rendered frame.
@@ -93,11 +94,12 @@ export default async function ({ browser, page, url, root, output, receipt, sign
           'dialog[data-original-pause-menu] [aria-label="Checkpoint details"], ' +
           'dialog[data-original-pause-menu] h2 > span, [data-original-options] [data-option-key], ' +
           '[data-original-options] input, [data-original-options] [role="status"], ' +
-          '[data-original-options] [data-menu-tooltip], [data-original-options] label[for]', modal.locator(':scope > :not([data-fullscreen-control]) button'))
+          '[data-original-options] [data-menu-tooltip], [data-original-options] label[for]', modal.locator(':scope > :not([data-fullscreen-control]) button'), { checkpointCaps: true })
         assertPauseFullscreenIntegrity(integrity)
-        fullscreen.push({ label, fallback, tabs, ...sample })
+        fullscreen.push({ label, fallback, tabs, ...sample, checkpointCaps: integrity.checkpointCaps })
         writeFileSync(resolve(output, 'pause-fullscreen-clearance.json'), JSON.stringify(fullscreen, null, 2))
         assertFullscreenClearance(sample)
+        assertCheckpointCapsOccupied(integrity.checkpointCaps, sample)
         assert.equal(sample.focused, true, 'Fullscreen is reached by normal Tab navigation')
         assert.equal(sample.focusVisible, true, 'Keyboard focus has its real visible ring')
         assert.equal(sample.activeLabel, 'Fullscreen', 'Compact artwork retains its accessible name')
@@ -178,50 +180,20 @@ export default async function ({ browser, page, url, root, output, receipt, sign
           const details = modal.locator('[aria-label="Checkpoint details"]')
           await details.focus()
           await page.keyboard.press('Home')
-          await page.waitForFunction(() => document.querySelector('[aria-label="Checkpoint details"]').scrollTop === 0)
-          const layout = await modal.evaluate(dialog => {
-            const panel = dialog.querySelector('section'), body = panel.querySelector('[aria-label="Checkpoint details"]')
-            const box = node => {
-              const rect = node.getBoundingClientRect()
-              return { x: rect.x, y: rect.y, width: rect.width, height: rect.height, right: rect.right, bottom: rect.bottom }
-            }
-            const text = node => {
-              const glyphs = node.querySelectorAll('i').length
-              const visible = node.matches('p') ? node.lastElementChild : node.firstElementChild
-              const style = getComputedStyle(visible)
-              const range = document.createRange()
-              range.selectNodeContents(visible)
-              return {
-                glyphs,
-                lines: glyphs ? [...node.querySelectorAll(':scope > [aria-hidden="true"] > span')].map(box)
-                  : [...range.getClientRects()].map(rect => ({ x: rect.x, y: rect.y, right: rect.right, bottom: rect.bottom })),
-                images: [...new Set([...node.querySelectorAll('i')].map(glyph => getComputedStyle(glyph).backgroundImage))],
-                fallback: glyphs ? null : { text: visible.textContent, box: box(visible),
-                  display: style.display, visibility: style.visibility, opacity: Number(style.opacity) },
-              }
-            }
-            return {
-              panel: dialog.dataset.panel, dpr: devicePixelRatio,
-              viewport: { width: innerWidth, height: innerHeight }, hud: box(document.querySelector('.native-hud')),
-              background: getComputedStyle(panel).backgroundColor, border: getComputedStyle(panel).borderTopWidth,
-              titleTop: panel.querySelector('h2').offsetTop,
-              title: { copy: panel.querySelector('h2').getAttribute('aria-label'), ...text(panel.querySelector('h2')) },
-              body: { top: body.offsetTop, height: body.offsetHeight, width: body.offsetWidth,
-                overflow: body.scrollHeight > body.clientHeight, horizontalOverflow: body.scrollWidth > body.clientWidth,
-                box: box(body), paragraphs: [...body.querySelectorAll('p')].map(node => ({
-                  copy: node.firstElementChild.textContent, ...text(node),
-                  pitches: [...node.querySelectorAll(':scope > [aria-hidden="true"]')].filter(line => line.querySelector('i')).map(line => line.offsetHeight),
-                })) },
-              buttons: [...dialog.querySelectorAll(':scope > :not([data-fullscreen-control]) button')].map(node => ({
-                label: node.getAttribute('aria-label'), top: node.offsetTop, box: box(node), ...text(node),
-                reachable: node.contains(document.elementFromPoint(node.getBoundingClientRect().x + node.getBoundingClientRect().width / 2,
-                  node.getBoundingClientRect().y + node.getBoundingClientRect().height / 2)),
-              })),
-            }
+          await page.waitForFunction(() => {
+            const dialog = document.querySelector('dialog[data-original-pause-menu][open]')
+            const nodes = dialog?.querySelectorAll('[aria-label="Checkpoint details"]')
+            if (nodes?.length !== 1) return false
+            const node = nodes[0]
+            return node.scrollTop === 0 && node.parentElement.getAttribute('data-scroll-art') ===
+              String(node.scrollHeight > node.clientHeight)
           })
+          const layout = await modal.evaluate(observeCheckpointLayout)
           records.push({ viewport: { width, height }, fallback, blockedFontRequests, ...layout })
           writeFileSync(resolve(output, 'checkpoint-style-progress.json'), JSON.stringify({ records, screenshots }, null, 2))
           assert.equal(layout.panel, panel)
+          assertCheckpointScrollbar(layout, panel)
+          assert.equal(layout.scroller.focused, true, 'Home is applied to the actual checkpoint scroller')
           assert.equal(layout.background, 'rgba(0, 0, 0, 0)')
           assert.equal(layout.border, '0px')
           assert.equal(layout.titleTop, 39)
@@ -267,11 +239,22 @@ export default async function ({ browser, page, url, root, output, receipt, sign
             await details.focus()
             await page.keyboard.press('End')
             await page.waitForFunction(() => {
-              const body = document.querySelector('[aria-label="Checkpoint details"]')
+              const dialog = document.querySelector('dialog[data-original-pause-menu][open]')
+              const nodes = dialog?.querySelectorAll('[aria-label="Checkpoint details"]')
+              if (nodes?.length !== 1) return false
+              const body = nodes[0]
               return body.scrollTop > 0 && body.scrollTop + body.clientHeight >= body.scrollHeight - 1
             })
             assert.equal(await modal.getAttribute('data-panel'), panel)
-            assert.equal(await details.evaluate(node => node === document.activeElement), true)
+            // Extend the existing focus-observation RPC, not the case/capture or
+            // World-oracle schedule. Retain actual End geometry before assertions.
+            const scrolled = await details.evaluate(observeCheckpointLayout)
+            records.at(-1).scrolled = scrolled
+            writeFileSync(resolve(output, 'checkpoint-style-progress.json'), JSON.stringify({ records, screenshots }, null, 2))
+            assertCheckpointScrollbar(scrolled, panel)
+            assertCheckpointBodyClearance(scrolled)
+            assert.equal(scrolled.structure.targetIsScroller, true)
+            assert.equal(scrolled.scroller.focused, true)
             if (capture) {
               await page.screenshot({ path: resolve(output, `${name}-scrolled.png`) })
               screenshots.push(`${name}-scrolled.png`)
@@ -293,6 +276,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     'Controlled unavailable IndexedDB and a separately blocked font request. Saves and menus use shipped controls; no game world is injected.',
     'This supplements the durable-save, retry-race and save-failure scenarios; it does not replace them.',
     'Fullscreen clearance covers native/fallback menus, ordinary Tab focus and physical hit testing, not wide fullscreen error-tooltip clearance.',
+    'Scrollbar image/geometry/hit observations do not replace separate wheel/drag/cap-activation or forced-colors/failure interaction evidence.',
     'Browser adaptation geometry and software-renderer screenshots do not prove original multi-slot functionality, exact native pixels or hardware performance.',
   ] }
 }

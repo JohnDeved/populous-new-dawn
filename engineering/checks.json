@@ -11,7 +11,8 @@
         "Effective sound pending state and focus/world/popup ownership rejection controls",
         "Finite, visible pending pointer targets owned by the sound control or its artwork",
         "Exact full-world serialized pause oracle and original HUD/native-control locator semantics",
-        "Fresh-locator focus observation with original strict/attachment-waiting fallback and real bounded Tab navigation"
+        "Fresh-locator focus observation with original strict/attachment-waiting fallback and real bounded Tab navigation",
+        "Distinct checkpoint wrapper/scroller/action ownership, decoded original scrollbar image geometry/hits and complete fullscreen cap coverage"
       ],
       "knownLimits": [
         "Synthetic Node fixtures validate checker rejection behavior, not rendered UI or original-game pixel parity.",
@@ -25,7 +26,10 @@
         "tests/pause-clearance-batch.test.mjs",
         "tests/pause-checker-registration.test.mjs",
         "tests/pause-focus-observation.test.mjs",
-        "tests/pause-keyboard-traversal.test.mjs"
+        "tests/pause-keyboard-traversal.test.mjs",
+        "tests/checkpoint-scrollbar.test.mjs",
+        "tests/checkpoint-body-clearance.test.mjs",
+        "tests/fullscreen-clearance.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -51,7 +55,17 @@
         "scripts/local-render/checkpoint-observer.mjs",
         "scripts/local-render/original-pause-checkpoint-recovery.mjs",
         "scripts/local-render/pause-focus-observation.mjs",
-        "scripts/local-render/pause-held-escape.mjs"
+        "scripts/local-render/pause-held-escape.mjs",
+        "scripts/local-render/checkpoint-scrollbar-observation.mjs",
+        "tests/checkpoint-scrollbar.test.mjs",
+        "tests/checkpoint-body-clearance.test.mjs",
+        "tests/fullscreen-clearance.test.mjs",
+        "references/checkpoint-scrollbar-art.json",
+        "public/original/help/hfx-451.png",
+        "public/original/help/hfx-452.png",
+        "public/original/help/hfx-453.png",
+        "public/original/help/hfx-454.png",
+        "public/original/help/hfx-455.png"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -86,7 +100,17 @@
         "scripts/local-render/checkpoint-observer.mjs",
         "scripts/local-render/original-pause-checkpoint-recovery.mjs",
         "scripts/local-render/pause-focus-observation.mjs",
-        "scripts/local-render/pause-held-escape.mjs"
+        "scripts/local-render/pause-held-escape.mjs",
+        "scripts/local-render/checkpoint-scrollbar-observation.mjs",
+        "tests/checkpoint-scrollbar.test.mjs",
+        "tests/checkpoint-body-clearance.test.mjs",
+        "tests/fullscreen-clearance.test.mjs",
+        "references/checkpoint-scrollbar-art.json",
+        "public/original/help/hfx-451.png",
+        "public/original/help/hfx-452.png",
+        "public/original/help/hfx-453.png",
+        "public/original/help/hfx-454.png",
+        "public/original/help/hfx-455.png"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",

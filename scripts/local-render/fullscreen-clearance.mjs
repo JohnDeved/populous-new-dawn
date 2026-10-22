@@ -2,9 +2,9 @@ import assert from 'node:assert/strict'
 
 // Observation only: never move focus, click through an overlay or mutate layout.
 // Callers retain the returned geometry before asserting it, including failures.
-export async function observeFullscreenClearance(page, owner, occupied, controlsLocator) {
+export async function observeFullscreenClearance(page, owner, occupied, controlsLocator, { checkpointCaps = false } = {}) {
   const observe = (scope, options) => {
-    const { owner, occupied, includeControls } = options ?? scope
+    const { owner, occupied, includeControls, checkpointCaps } = options ?? scope
     const bounds = node => {
       const r = node.getBoundingClientRect(), style = getComputedStyle(node)
       const ring = style.outlineStyle === 'none' ? 0 : Math.max(0, parseFloat(style.outlineWidth) + parseFloat(style.outlineOffset))
@@ -14,6 +14,7 @@ export async function observeFullscreenClearance(page, owner, occupied, controls
       // The original chained Playwright locator resolves these nodes, retaining
       // its role/name scope, shadow-root traversal and deduplication semantics.
       nativeControlCount: scope.length,
+      ...(checkpointCaps ? { checkpointCaps: scope.map(node => node.getAttribute('data-pause-checkpoint-cap')).filter(value => value !== null) } : {}),
     } : undefined
     const host = document.querySelector('[data-fullscreen-control]'), button = host?.querySelector('button')
     if (!button) return includeControls ? { sample: null, integrity } : null
@@ -24,12 +25,16 @@ export async function observeFullscreenClearance(page, owner, occupied, controls
       hit:button.contains(document.elementFromPoint(rect.x+rect.width/2,rect.y+rect.height/2)),
       focused:document.activeElement === button, focusVisible:button.matches(':focus-visible'),
       activeLabel:document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.textContent,
-      occupied:[...document.querySelectorAll(occupied)].map(node => ({label:node.getAttribute('aria-label') ?? node.className, ...bounds(node)})) }
+      occupied:[...document.querySelectorAll(occupied)].map(node => {
+        const cap = checkpointCaps ? node.getAttribute('data-pause-checkpoint-cap') : null
+        return { label:node.getAttribute('aria-label') ?? node.className, ...bounds(node),
+          ...(cap !== null ? { checkpointCap: cap } : {}) }
+      }) }
     return includeControls ? { sample, integrity } : sample
   }
   return controlsLocator
-    ? controlsLocator.evaluateAll(observe, { owner, occupied, includeControls: true })
-    : page.evaluate(observe, { owner, occupied })
+    ? controlsLocator.evaluateAll(observe, { owner, occupied, includeControls: true, checkpointCaps })
+    : page.evaluate(observe, { owner, occupied, checkpointCaps })
 }
 export async function assertPauseHudCount(page) {
   // Preserve Playwright's open-shadow-root traversal and uniqueness semantics.
