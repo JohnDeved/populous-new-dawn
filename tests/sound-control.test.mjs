@@ -8,7 +8,9 @@ import { hudGlyph } from '../app/hud-font.ts'
 import { hudScale } from '../app/hud-layout.ts'
 import hud from '../app/original-hud.json' with { type: 'json' }
 import art from '../app/original-campaign-popup.json' with { type: 'json' }
-import { evaluatePage, pageNode, pageSource } from './support/follower-nearby-page.mjs'
+import { captureCampaignPopupKeys } from '../app/campaign-popup-session.ts'
+import { homePopupSources } from '../scripts/campaign-popup-fixture/home-source.mjs'
+import { evaluatePage, pageEffect, pageNode, pageSource } from './support/follower-nearby-page.mjs'
 
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8')
 const source = read('app/sound-control.tsx'), css = read('app/sound-control.module.css')
@@ -60,7 +62,6 @@ test('sound activation retains the direct trusted button, pending disable and ac
     assert.equal(button.props['aria-busy'], pending)
     assert.equal(button.props.disabled, pending)
     assert.equal(button.props.onClick, f.onToggle, 'no deferred or synthetic activation wrapper')
-    assert.equal(button.props.onKeyDown, undefined, 'native Enter/Space activation remains intact')
     assert.deepEqual(f.calls, [], 'render never activates sound')
     if (!pending) { button.props.onClick(); assert.deepEqual(f.calls, ['toggle']) }
   }
@@ -174,4 +175,103 @@ test('actual Home activation still owns pending, failure notice, retry, mute and
   await handler()()
   assert.equal(state.sound, false); assert.equal(calls.at(-1), 'mute')
   assert.deepEqual([audio.volume, audio.musicVolume], [.2, .4])
+})
+
+// Supplied DOM/default-action boundary; handlers, popup capture and gameplay
+// effects execute shipped source. The hosted browser capture proves real defaults.
+function keyboardFixture({ popupOpen = false, pending = false, soundTarget = true } = {}) {
+  const f = fixture(), button = f.render({ pending }), listeners = new Map()
+  const calls = { overview: 0, skip: 0, menu: 0 }, world = {
+    paused: false, inputMask: 0, flyby: { flags: 0 }, units: [], selected: [], outcome: { level: 2 },
+  }
+  let acknowledged = 0, game, sceneUp
+  const popup = { querySelector: () => ({ click() { acknowledged++; popupOpen = false } }) }
+  class Element {
+    closest(selector) { return soundTarget && selector.split(',').includes('[data-sound-control]') ? this : null }
+  }
+  const document = { addEventListener: (type, fn) => listeners.set(type, fn), removeEventListener: type => listeners.delete(type) }
+  const cleanup = captureCampaignPopupKeys(document, () => popupOpen ? popup : undefined)
+  const scene = { keys: new Set(), overview() { calls.overview++ }, skipIntroduction() { calls.skip++ }, listen(_target, _type, fn) { sceneUp = fn } }
+  pageEffect("globalThis.addEventListener('keydown', key)", {
+    world, engine: { current: scene }, store: { change: fn => fn(world), getWorld: () => world },
+    ready: true, menu: false, cheatsOpen: false, update() {}, audio: { current: null },
+    globalThis: { addEventListener(_type, fn) { game = fn } }, openMenu() { calls.menu++ },
+    SPELLS: [], tutorialLevel: 79,
+  })()
+  evaluatePage(homePopupSources(new URL('..', import.meta.url).pathname).sceneUp, { window: {}, scene })
+  let spaceArmed = false
+  function key(key, type = 'keydown', repeat = false, modifiers = {}) {
+    let stopped = false, immediate = false, prevented = false
+    const event = { key, code: key === ' ' ? 'Space' : key, type, repeat, target: new Element(), ...modifiers,
+      stopPropagation() { stopped = true }, stopImmediatePropagation() { stopped = immediate = true }, preventDefault() { prevented = true } }
+    const old = globalThis.Element
+    globalThis.Element = Element
+    try { listeners.get(type)(event) } finally { globalThis.Element = old }
+    if (!immediate && soundTarget) button.props[type === 'keydown' ? 'onKeyDown' : 'onKeyUp'](event)
+    if (!stopped) (type === 'keydown' ? game : sceneUp)(event)
+    if (soundTarget && !pending && !prevented) {
+      if (key === 'Enter' && type === 'keydown') button.props.onClick()
+      if (key === ' ' && type === 'keydown' && !repeat) spaceArmed = true
+      if (key === ' ' && type === 'keyup' && spaceArmed) button.props.onClick()
+    }
+    if (key === ' ' && type === 'keyup') spaceArmed = false
+    return { stopped, prevented }
+  }
+  return { key, calls, world, scene, f, cleanup, closePopup() { popupOpen = false }, get acknowledged() { return acknowledged } }
+}
+
+test('focused sound Enter/Space activate once without popup ACK, pause, overview or release leakage', () => {
+  for (const popupOpen of [false, true]) for (const key of ['Enter', ' ']) for (const pending of [false, true]) {
+    const f = keyboardFixture({ popupOpen, pending })
+    try {
+      assert.deepEqual(f.key(key), { stopped: true, prevented: false }, 'first native default remains available')
+      for (let repeat = 0; repeat < 3; repeat++)
+        assert.deepEqual(f.key(key, 'keydown', true), { stopped: true, prevented: true })
+      assert.deepEqual(f.key(key, 'keyup'), { stopped: true, prevented: false })
+      assert.deepEqual(f.f.calls, pending ? [] : ['toggle'])
+      assert.equal(f.acknowledged, 0)
+      assert.equal(f.world.paused, false)
+      assert.deepEqual(f.calls, { overview: 0, skip: 0, menu: 0 })
+      assert.deepEqual([...f.scene.keys], [])
+    } finally { f.cleanup() }
+  }
+})
+
+test('sound exemption is activation-only and retains popup modifier and held-release ownership', () => {
+  const f = keyboardFixture({ popupOpen: true })
+  try {
+    for (const key of ['ArrowUp', 'Escape', 'Shift']) {
+      assert.deepEqual(f.key(key), { stopped: true, prevented: true })
+      assert.deepEqual(f.key(key, 'keyup'), { stopped: true, prevented: true })
+    }
+    for (const flag of ['ctrlKey', 'metaKey', 'altKey']) {
+      assert.deepEqual(f.key('c', 'keydown', false, { [flag]: true }), { stopped: true, prevented: false })
+      assert.deepEqual(f.key('c', 'keyup', false, { [flag]: true }), { stopped: true, prevented: false })
+    }
+    f.key('Enter', 'keydown', false, { shiftKey: true })
+    f.closePopup()
+    assert.deepEqual(f.key('Enter', 'keydown', true, { shiftKey: true }), { stopped: true, prevented: true })
+    assert.deepEqual(f.key('Enter', 'keyup', false, { shiftKey: true }), { stopped: true, prevented: true })
+    assert.equal(f.acknowledged, 0)
+    assert.deepEqual(f.f.calls, ['toggle'])
+    assert.deepEqual([...f.scene.keys], [])
+    assert.deepEqual(f.calls, { overview: 0, skip: 0, menu: 0 })
+  } finally { f.cleanup() }
+  const unrelated = keyboardFixture({ popupOpen: true, soundTarget: false })
+  try {
+    assert.deepEqual(unrelated.key('Enter'), { stopped: true, prevented: true })
+    assert.equal(unrelated.acknowledged, 1, 'unrelated focused targets still acknowledge the popup')
+    unrelated.key('Enter', 'keyup')
+    unrelated.key('Enter')
+    assert.equal(unrelated.calls.overview, 1, 'normal gameplay resumes once popup ownership ends')
+  } finally { unrelated.cleanup() }
+})
+
+test('sound handlers leave unrelated keys and their modifiers to existing owners', () => {
+  const button = fixture().render()
+  for (const handler of [button.props.onKeyDown, button.props.onKeyUp])
+    for (const key of ['ArrowUp', 'Escape', 'Tab', 'F8', 'F9', 'Shift', 'c'])
+      handler({ key, repeat: true, ctrlKey: true, metaKey: true, altKey: true,
+        preventDefault() { assert.fail('unrelated default changed') },
+        stopPropagation() { assert.fail('unrelated ownership changed') } })
 })

@@ -56,6 +56,16 @@ export function SoundControl({
       aria-label={label}
       title={label}
       onClick={onToggle}
+      onKeyDown={event => {
+        // Preserve native activation, but never route it or held repeats to gameplay.
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.stopPropagation()
+          if (event.repeat) event.preventDefault()
+        }
+      }}
+      onKeyUp={event => {
+        if (event.key === 'Enter' || event.key === ' ') event.stopPropagation()
+      }}
       disabled={pending}
       aria-busy={pending}
     >

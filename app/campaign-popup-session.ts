@@ -9,7 +9,7 @@ export function showCampaignPopup(
 }
 
 /** 004a9d90 gives the visible body priority over gameplay, independent of focus.
- * Browser adaptations: Tab, F8/F9, fullscreen controls and focused HTML action
+ * Browser adaptations: Tab, F8/F9, necessary browser controls and focused HTML action
  * activation remain usable. Fullscreen's window-capture Escape owner runs first.
  */
 export function captureCampaignPopupKeys(
@@ -37,7 +37,7 @@ export function captureCampaignPopupKeys(
     const browserAction =
       activation &&
       target?.closest(
-        '.campaign-messages button,.campaign-messages summary,[data-fullscreen-control],.fps-graph button'
+        '.campaign-messages button,.campaign-messages summary,[data-fullscreen-control],[data-sound-control],.fps-graph button'
       )
     if (!releasing) held.add(token)
     // Let the browser activate focused buttons/summary; their owners isolate
