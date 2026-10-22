@@ -993,6 +993,8 @@ test('native UI checker changes select focused regressions without losing workfl
       'scripts/native-ui-evidence/policy.mjs', 'tests/native-ui-evidence.test.mjs',
       '.github/workflows/native-ui-evidence.yml', 'engineering/native-ui-evidence.md']
     for (const input of check.inputs) {
+      // Keep the real fixture routing manifest: it is itself a declared input.
+      if (input === 'engineering/checks.json') continue
       if (input === 'scripts/native-ui-evidence') mkdirSync(join(repo, input), { recursive: true })
       else put(repo, input, input === 'package.json' ? '{"type":"module"}\n' : '// fixture\n')
     }
