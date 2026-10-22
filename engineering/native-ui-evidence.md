@@ -37,6 +37,13 @@ scopes are labelled as such, never reported as identical.
 
 ## Fixed coverage and budgets
 
+Audio Options navigation and keyboard recovery recheck the live abort signal and
+deadline before and after every awaited action/observation and before success.
+Standalone audio callers use one finite aggregate navigation budget. Cleanup runs
+independently after abort and retains falsy primary/secondary failures explicitly.
+Menu entry must retain the complete ordered popup snapshot. The ownership summary
+is one atomic read; complete serialized World equality is a separate read.
+
 The seven required serial episodes are startup logo; selector recovery; frontend
 and in-game Game/Sound preference-storage notices; frontend checkpoint notices;
 real Options audio activation; loading recovery; and original-style pause checkpoints.

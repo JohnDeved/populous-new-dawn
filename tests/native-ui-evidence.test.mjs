@@ -14,8 +14,9 @@ import { artifactInventory, ownBrowser, pageActionTimeout } from '../scripts/nat
 import { supervise } from '../scripts/native-ui-evidence/supervise.mjs'
 import { observeOptionsStorage, assertOptionsCopyClearance } from '../scripts/native-ui-evidence/options-copy-clearance.mjs'
 import { failPreferenceWrites, optionsViewportReady } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
+import { createAudioOptionsBudget } from '../scripts/browser-options-audio.mjs'
 import { holdAudioResume, soundControlPending, soundOwnership, assertSoundOwnership,
-  pendingSoundPointerTarget, assertPendingSoundPointerTarget, prepareSoundPopup, closeSoundContext, assertAudioWorldUnchanged, tabToAudioControl, assertBrowserControlOwners } from '../scripts/native-ui-evidence/options-audio-control-style.mjs'
+  pendingSoundPointerTarget, assertPendingSoundPointerTarget, prepareSoundPopup, closeSoundContext, finalizeSoundContext, assertPreparedSoundPopup, assertAudioWorldUnchanged, tabToAudioControl, assertBrowserControlOwners } from '../scripts/native-ui-evidence/options-audio-control-style.mjs'
 import { ordinaryMission, assertMissionInputBudget, saveMissionInputTrace } from '../scripts/native-ui-evidence/ordinary-mission.mjs'
 import { runNativeUiEvidence } from '../scripts/native-ui-evidence/adapter.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from '../scripts/native-ui-evidence/files.mjs'
@@ -438,6 +439,7 @@ test('failed audio ownership preserves the exact evaluated phase snapshot before
     const preserved = vm.runInNewContext(`(${match[1]})`, {
       page: { evaluate: async callback => { assert.equal(callback, soundOwnership); reads++; return observed } },
       soundOwnership, assertSoundOwnership, before, fallback: true, report,
+      step: createAudioOptionsBudget({ timeout: 5000 }).step,
       save: () => { saves++; writeFileSync(file, JSON.stringify(report)) },
     })
     await assert.rejects(preserved(`pending-${failure}`), /Audio focus|pause or gameplay ownership|campaign popup|Options modal/)
@@ -494,6 +496,52 @@ test('retry keyboard recovery retains body observations and uses bounded real Ta
   const abort = new Error('stop keyboard recovery')
   await assert.rejects(tabToAudioControl(page, control, { ...options(), signal: AbortSignal.abort(abort) }), error => error === abort)
 })
+
+test('keyboard retry blocks late observation success and the next real Tab after abort or expiry', async () => {
+  for (const kind of ['abort', 'deadline']) for (const boundary of ['focused', 'body', 'press']) {
+    const controller = new AbortController(), reason = new Error(`late ${kind}`), trace = {}
+    let now = 1000, tabs = 0, observations = 0
+    const stop = () => { if (kind === 'abort') controller.abort(reason); else now = 11000 }
+    const page = { keyboard: { press: async key => { assert.equal(key, 'Tab'); tabs++; stop() } } }
+    const control = { evaluate: async () => {
+      observations++
+      if (boundary !== 'press') stop()
+      return { focused: boundary === 'focused', focusVisible: true, disabled: false, modal: true,
+        active: { tag: boundary === 'focused' ? 'BUTTON' : 'BODY', label: null } }
+    } }
+    await assert.rejects(tabToAudioControl(page, control, { signal: controller.signal, deadlineAt: 11000, now: () => now, trace }),
+      error => kind === 'abort' ? error === reason : /deadline/.test(String(error)))
+    assert.equal(tabs, boundary === 'press' ? 1 : 0); assert.equal(observations, 1)
+    assert.equal(trace.status, 'failed'); assert.equal(trace.observations.length, 1)
+  }
+})
+test('Menu entry retains the entire ordered prepared popup snapshot, not merely an open replacement', () => {
+  const before = [{ serial: '12', open: false }, { serial: '15', open: true }, { serial: '19', open: true }]
+  assertPreparedSoundPopup(before, structuredClone(before), ['15', '19'])
+  for (const changed of [before.slice(1), [...before].reverse(), [...before, { serial: '23', open: true }],
+    before.map(p => p.serial === '15' ? { ...p, serial: '20' } : p), before.map(p => ({ ...p, open: true }))])
+    assert.throws(() => assertPreparedSoundPopup(before, changed, changed.filter(p => p.open).map(p => p.serial)))
+  for (const open of [['19'], ['19', '15'], ['15', '20'], []])
+    assert.throws(() => assertPreparedSoundPopup(before, structuredClone(before), open))
+})
+test('native actual context finalization never masks or passes falsy primary/handle/context failures', async () => {
+  for (const reason of [null, undefined, false, 0, '']) {
+    const report = {}, calls = []
+    const handles = [['first', { dispose: async () => { calls.push('first'); throw reason } }],
+      ['second', { dispose: async () => { calls.push('second'); throw new Error('second disposal') } }]]
+    const context = { close: async () => { calls.push('context'); throw new Error('context close') } }
+    await assert.rejects(finalizeSoundContext(context, report, false, false, handles), error => error === reason)
+    assert.deepEqual(calls, ['first', 'second', 'context']); assert.equal(report.cleanupErrors.length, 3)
+    assert.equal(report.cleanupErrors[0].error, String(reason))
+    await assert.rejects((async () => {
+      try { throw reason } finally { await finalizeSoundContext(context, {}, true, true, handles) }
+    })(), error => error === reason)
+    await assert.rejects(finalizeSoundContext({ close: async () => { throw reason } }, {}, false, false, []), error => error === reason)
+  }
+  const source = read('scripts/native-ui-evidence/options-audio-control-style.mjs')
+  assert.match(source, /await finalizeSoundContext\(context, report, fallback, contextFailed, \[\['audio-options', entry\?\.owner\], \['paused-world', worldSnapshot\]\]\)/)
+})
+
 test('fullscreen remains menu-owned and both invented gameplay footer controls stay absent', () => {
   for (const menu of [false, true]) {
     const sample = { footerCount: 0, loadingCount: 0, modalCount: +menu, fullscreenCount: +menu, fullscreenInMenu: menu, nativeModal: menu }
@@ -896,7 +944,7 @@ test('sound popup setup clips its public action to the unchanged remaining deadl
   const f = soundPopupFixture(); f.options.deadlineAt = Date.now() + 1000; await f.run()
   assert.ok(f.calls[0].timeout > 0 && f.calls[0].timeout <= 1000)
   for (const deadlineAt of [0, NaN, Infinity]) {
-    const g = soundPopupFixture(); g.options.deadlineAt = deadlineAt; await assert.rejects(g.run(), /live episode deadline/)
+    const g = soundPopupFixture(); g.options.deadlineAt = deadlineAt; await assert.rejects(g.run(), /deadline/)
     assert.equal(g.calls.length, 0); assert.equal(g.disposed, 0)
   }
   const g = soundPopupFixture(), abort = new Error('aborted setup'); g.options.signal = AbortSignal.abort(abort)
@@ -910,13 +958,38 @@ test('sound popup setup preserves the primary public-input error if handle dispo
   const g = soundPopupFixture(); g.disposeError = new Error('dispose alone failed')
   await assert.rejects(g.run(), error => error === g.disposeError); assert.equal(g.trace.status, 'failed')
 })
+
+test('public popup setup stops after late owner/summary settlement and cannot pass after late cleanup', async () => {
+  for (const kind of ['abort', 'deadline']) for (const boundary of ['owner', 'summary', 'cleanup']) {
+    const f = soundPopupFixture(), controller = new AbortController(), reason = new Error(`late popup ${kind}`)
+    let now = 1000
+    const stop = () => { if (kind === 'abort') controller.abort(reason); else now = 11000 }
+    f.options = { ...f.options, signal: controller.signal, deadlineAt: 11000, now: () => now }
+    const handle = f.page.evaluateHandle, evaluate = f.page.evaluate
+    f.page.evaluateHandle = async fn => {
+      const owner = await handle(fn), dispose = owner.dispose
+      owner.dispose = async () => { await dispose(); if (boundary === 'cleanup') stop() }
+      if (boundary === 'owner') stop()
+      return owner
+    }
+    f.page.evaluate = async (fn, arg) => {
+      const result = await evaluate(fn, arg)
+      if (boundary === 'summary') stop()
+      return result
+    }
+    await assert.rejects(f.run(), error => kind === 'abort' ? error === reason : /deadline/.test(String(error)))
+    assert.equal(f.calls.length, boundary === 'cleanup' ? 1 : 0)
+    assert.equal(f.disposed, 1); assert.equal(f.trace.status, 'failed')
+  }
+})
+
 test('Options audio uses the public preparation and records the exact baseline before its strict assertions', () => {
   const source = read('scripts/native-ui-evidence/options-audio-control-style.mjs')
   assert.match(source, /candidateModule\(root, 'scripts\/browser-world-input\.mjs'\)/)
   assert.match(source, /await prepareSoundPopup\(page, popupInput, \{ signal, deadlineAt, trace: popupTrace \}\)/)
   assert.match(source, /finally \{ saveMissionInputTrace\(save, popupError\) \}/)
-  assert.match(source, /let before = await page\.evaluate\(soundOwnership\)\s+report\.checks\.push\(\{ fallback, phase: 'baseline', ownership: before \}\); save\(\)\s+assert\.equal\(before\.currentWorld, true\)/)
-  assert.match(source, /assert\.ok\(before\.popups\.length > 0/)
+  assert.match(source, /let before = await step\(\(\) => page\.evaluate\(soundOwnership\)\)\s+report\.checks\.push\(\{ fallback, phase: 'baseline', ownership: before \}\); save\(\)\s+assert\.equal\(before\.currentWorld, true\)/)
+  assert.match(source, /popupTrace\.afterMenu = await step\(\(\) => page\.evaluate\(popupInput\.campaignPopupSnapshot\)\); save\(\)\s+assertPreparedSoundPopup\(popupTrace\.retainedAfter, popupTrace\.afterMenu, before\.popups\)/)
 })
 test('Sound context cleanup preserves a primary failure and rejects cleanup-only failure', async () => {
   const primary = new Error('baseline failed'), cleanup = new Error('context close failed'), report = {}

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
 import { candidateModule, ordinaryMission, saveMissionInputTrace } from './ordinary-mission.mjs'
-import { openAudioOptions, closeAudioOptions, audioOptionsControl, observeOptionsAudio } from '../browser-options-audio.mjs'
+import { openAudioOptions, closeAudioOptions, audioOptionsControl, observeOptionsAudio, createAudioOptionsBudget, waitForAudioObservation } from '../browser-options-audio.mjs'
 
 // Hold/reject the real AudioContext.resume boundary only. Recovery calls the
 // original method from another trusted click; no enabled/component state is set.
@@ -91,15 +91,17 @@ export function assertBrowserControlOwners(sample, menu) {
 }
 // Startup may legitimately collapse an authored popup to deliver world input.
 // Restore that retained owner through its public summary, never ACK or inject it.
-export async function prepareSoundPopup(page, popupInput, { signal, deadlineAt, trace }) {
-  let owner, failed = false
+export async function prepareSoundPopup(page, popupInput, { signal, deadlineAt, trace, now = Date.now }) {
+  let owner, failed = false, check
   trace.status = 'running'
   try {
-    signal.throwIfAborted()
-    assert.ok(Number.isFinite(deadlineAt) && deadlineAt > Date.now(), 'Popup setup requires the live episode deadline')
-    owner = await page.evaluateHandle(() => ({ world: window.testStore.getWorld(), scene: window.testSceneRef.current }))
-    trace.beforeOwnership = await page.evaluate(soundOwnership)
-    trace.retainedBefore = await page.evaluate(popupInput.campaignPopupSnapshot)
+    assert.ok(Number.isFinite(deadlineAt), 'Popup setup requires the live episode deadline')
+    const budget = createAudioOptionsBudget({ signal, deadlineAt, now, cleanupErrors: trace.cleanupErrors ??= [] })
+    check = budget.check
+    const { step } = budget
+    await step(async () => { owner = await page.evaluateHandle(() => ({ world: window.testStore.getWorld(), scene: window.testSceneRef.current })) })
+    trace.beforeOwnership = await step(() => page.evaluate(soundOwnership))
+    trace.retainedBefore = await step(() => page.evaluate(popupInput.campaignPopupSnapshot))
     assert.equal(trace.beforeOwnership.currentWorld, true)
     assert.equal(trace.beforeOwnership.world.paused, false)
     assert.equal(trace.beforeOwnership.world.inputMask, 0)
@@ -108,16 +110,13 @@ export async function prepareSoundPopup(page, popupInput, { signal, deadlineAt, 
     assert.equal(new Set(trace.retainedBefore.map(p => p.serial)).size, trace.retainedBefore.length)
     const target = trace.retainedBefore.find(p => p.open) ?? trace.retainedBefore[0]
     trace.serial = target.serial; trace.requestedOpen = true
-    signal.throwIfAborted()
-    const timeout = Math.min(2500, deadlineAt - Date.now())
-    assert.ok(Number.isFinite(timeout) && timeout > 0, 'Popup setup requires the remaining episode deadline')
+    const timeout = Math.min(2500, check())
     trace.publicInput = {}
-    await popupInput.setCampaignPopupOpen(page, target.serial, true, { timeout, trace: trace.publicInput })
-    signal.throwIfAborted()
-    trace.retainedAfter = await page.evaluate(popupInput.campaignPopupSnapshot)
-    trace.afterOwnership = await page.evaluate(soundOwnership)
-    trace.sameOwner = await page.evaluate(before => window.testStore.getWorld() === before.world &&
-      window.testSceneRef.current === before.scene && before.scene.world === before.world, owner)
+    await step(() => popupInput.setCampaignPopupOpen(page, target.serial, true, { timeout, trace: trace.publicInput }))
+    trace.retainedAfter = await step(() => page.evaluate(popupInput.campaignPopupSnapshot))
+    trace.afterOwnership = await step(() => page.evaluate(soundOwnership))
+    trace.sameOwner = await step(() => page.evaluate(before => window.testStore.getWorld() === before.world &&
+      window.testSceneRef.current === before.scene && before.scene.world === before.world, owner))
     assert.equal(trace.sameOwner, true, 'Public popup setup must retain the actual scene and World objects')
     assert.equal(trace.afterOwnership.currentWorld, true)
     assert.deepEqual(trace.afterOwnership.world, trace.beforeOwnership.world, 'Popup setup must not change gameplay ownership')
@@ -125,7 +124,7 @@ export async function prepareSoundPopup(page, popupInput, { signal, deadlineAt, 
     assert.deepEqual(trace.retainedAfter, trace.retainedBefore.map(p => p.serial === target.serial ? { ...p, open: true } : p),
       'Public setup must reopen the same retained notification without replacing or acknowledging any entry')
     assert.ok(trace.afterOwnership.popups.includes(target.serial), 'The retained popup must actually be open')
-    trace.status = 'passed'
+    check()
   } catch (error) { failed = true; trace.status = 'failed'; trace.error = String(error); throw error }
   finally {
     try { await owner?.dispose() }
@@ -134,6 +133,8 @@ export async function prepareSoundPopup(page, popupInput, { signal, deadlineAt, 
       if (!failed) { trace.status = 'failed'; trace.error = String(error); throw error }
     }
   }
+  try { check(); trace.status = 'passed' }
+  catch (error) { trace.status = 'failed'; trace.error = String(error); throw error }
 }
 export function pendingSoundPointerTarget(node) {
   const box = node.getBoundingClientRect(), x = box.x + box.width / 2, y = box.y + box.height / 2
@@ -149,22 +150,25 @@ export function assertPendingSoundPointerTarget(target) {
 }
 // Native disabled controls may blur to body. Re-find the actual retry row by
 // bounded real Tab input; do not repair focus with focus(), evaluate-click or DOM writes.
-export async function tabToAudioControl(page, control, { signal, deadlineAt, trace }) {
+export async function tabToAudioControl(page, control, { signal, deadlineAt, trace, now = Date.now }) {
   trace.status = 'running'; trace.observations = []
   try {
+    assert.ok(Number.isFinite(deadlineAt), 'Keyboard recovery requires the live episode deadline')
+    const { step, check } = createAudioOptionsBudget({ signal, deadlineAt, now })
     for (let tabs = 0; tabs <= 16; tabs++) {
-      signal.throwIfAborted()
-      assert.ok(Number.isFinite(deadlineAt) && deadlineAt > Date.now(), 'Audio keyboard recovery retains its deadline')
-      const sample = await control.evaluate(node => ({ focused: node === document.activeElement,
-        focusVisible: node.matches(':focus-visible'), disabled: node.disabled,
-        active: { tag: document.activeElement?.tagName ?? null, label: document.activeElement?.getAttribute('aria-label') ?? null },
-        modal: !!node.closest('dialog[open]')?.matches(':modal') }))
-      trace.observations.push(sample)
+      let sample
+      await step(async () => {
+        sample = await control.evaluate(node => ({ focused: node === document.activeElement,
+          focusVisible: node.matches(':focus-visible'), disabled: node.disabled,
+          active: { tag: document.activeElement?.tagName ?? null, label: document.activeElement?.getAttribute('aria-label') ?? null },
+          modal: !!node.closest('dialog[open]')?.matches(':modal') }))
+        trace.observations.push(sample)
+      })
       if (sample.focused && sample.focusVisible && !sample.disabled && sample.modal) {
-        trace.status = 'passed'; trace.tabs = tabs; return
+        check(); trace.status = 'passed'; trace.tabs = tabs; return
       }
       if (tabs === 16) break
-      await page.keyboard.press('Tab')
+      await step(() => page.keyboard.press('Tab'))
     }
     throw new Error('Actual Options audio row was not keyboard-reachable within 16 real Tabs')
   } catch (error) { trace.status = 'failed'; trace.error = String(error); throw error }
@@ -176,58 +180,75 @@ export async function closeSoundContext(context, report, fallback, primaryFailur
     if (!primaryFailure) throw error
   }
 }
+// The default episode uses this finalization path directly. Primary and cleanup
+// failures use explicit flags because JavaScript rejections may be falsy values.
+export async function finalizeSoundContext(context, report, fallback, primaryFailure, handles) {
+  let cleanupFailed = false, cleanupFailure
+  for (const [name, handle] of handles) {
+    try { await handle?.dispose() }
+    catch (error) {
+      (report.cleanupErrors ??= []).push({ owner: name, error: String(error) })
+      if (!cleanupFailed) { cleanupFailed = true; cleanupFailure = error }
+    }
+  }
+  await closeSoundContext(context, report, fallback, primaryFailure || cleanupFailed)
+  if (!primaryFailure && cleanupFailed) throw cleanupFailure
+}
+export function assertPreparedSoundPopup(retainedAfter, afterMenu, openSerials) {
+  assert.deepEqual(afterMenu, retainedAfter, 'Menu entry must retain every prepared campaign popup in order')
+  assert.deepEqual(openSerials, retainedAfter.filter(popup => popup.open).map(popup => popup.serial),
+    'The Options baseline must contain exactly the prepared open popup serials')
+}
 export default async function ({ browser, url, root, output, receipt, signal, deadlineAt }) {
   const report = { status: 'running', samples: [], checks: [], inputBudgets: [], popupPreparations: [], browserOwners: [] }
   receipt.missionInputBudgets = report.inputBudgets
   const save = () => writeFileSync(resolve(output, 'options-audio.json'), JSON.stringify(report, null, 2) + '\n')
-  const remaining = () => {
-    signal.throwIfAborted()
-    const timeout = Math.min(30000, deadlineAt - Date.now())
-    assert.ok(Number.isFinite(timeout) && timeout > 0, 'Audio observations retain the live episode deadline')
-    return timeout
-  }
   let episodeError
   try {
+    assert.ok(Number.isFinite(deadlineAt), 'Audio observations require the live episode deadline')
+    const budget = createAudioOptionsBudget({ signal, deadlineAt, cleanupErrors: report.optionsNavigationCleanup = [] })
+    const { check: remaining, step } = budget
     for (const fallback of [false, true]) {
-      signal.throwIfAborted()
+      remaining()
       const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: fallback ? 2 : 1 })
       let blockedArt = 0, contextFailed = false, entry, worldSnapshot
       try {
+        remaining()
         // The surviving Options row uses the actual in-game label bank. Block
         // that bank for readable fallback, not a removed footer frame asset.
-        if (fallback) await context.route('**/original/pause-font.png', route => { blockedArt++; return route.abort('failed') })
-        const page = await context.newPage()
-        await page.goto(url, { waitUntil: 'domcontentloaded' })
+        if (fallback) await step(() => context.route('**/original/pause-font.png', route => { blockedArt++; return route.abort('failed') }))
+        const page = await step(() => context.newPage())
+        await step(() => page.goto(url, { waitUntil: 'domcontentloaded' }))
         const trace = { fallback }; report.inputBudgets.push(trace)
         let inputError
-        try { await ordinaryMission(page, root, { signal, deadlineAt, trace }) }
+        try { await step(() => ordinaryMission(page, root, { signal, deadlineAt, trace })) }
         catch (error) { inputError = error; throw error }
         finally { saveMissionInputTrace(save, inputError) }
         const popupTrace = { fallback }; report.popupPreparations.push(popupTrace)
-        let popupError
+        let popupError, popupInput
         try {
-          const popupInput = await candidateModule(root, 'scripts/browser-world-input.mjs')
+          popupInput = await step(() => candidateModule(root, 'scripts/browser-world-input.mjs'))
           await prepareSoundPopup(page, popupInput, { signal, deadlineAt, trace: popupTrace })
         } catch (error) { popupError = error; throw error }
         finally { saveMissionInputTrace(save, popupError) }
         const owners = async (phase, menu) => {
-          const observed = await page.evaluate(browserControlOwners)
+          const observed = await step(() => page.evaluate(browserControlOwners))
           report.browserOwners.push({ fallback, phase, observed }); save()
           assertBrowserControlOwners(observed, menu)
         }
         await owners('gameplay-before-menu', false)
-        entry = await openAudioOptions(page, { timeout: remaining() })
+        entry = await openAudioOptions(page, { timeout: remaining(), signal, deadlineAt, cleanupErrors: report.optionsNavigationCleanup })
         assert.equal(entry.wasPaused, false)
         await owners('options-modal', true)
         const control = audioOptionsControl(page)
-        await page.waitForFunction(fallback => {
+        await waitForAudioObservation(budget, () => page.waitForFunction(fallback => {
           const control = document.querySelector('[data-original-options][data-skin="ingame"] [data-option-key="audio"]')
           return !!control && (control.querySelectorAll('[aria-hidden="true"] i').length > 0) === !fallback
-        }, fallback, { timeout: remaining() })
-        assert.equal(await control.getAttribute('aria-label'), '♫ Enable sound')
+        }, fallback, { timeout: remaining() }))
+        assert.equal(await step(() => control.getAttribute('aria-label')), '♫ Enable sound')
         const capture = async (name, text, highlighted = false) => {
           signal.throwIfAborted()
-          const sample = await control.evaluate(node => {
+          const sample = await step(() => control.evaluate(node => {
             const r = node.getBoundingClientRect(), style = getComputedStyle(node)
             const glyphs = [...node.querySelectorAll('[aria-hidden="true"] i')]
             const textNode = node.querySelector('[aria-hidden="true"]')
@@ -241,7 +262,7 @@ export default async function ({ browser, url, root, output, receipt, signal, de
               glyphOpacity: textNode ? Number(getComputedStyle(textNode).opacity) : null,
               focus: node === document.activeElement, focusVisible: node.matches(':focus-visible'), outline: style.outlineWidth,
               viewport: { width: innerWidth, height: innerHeight } }
-          })
+          }))
           assert.equal(sample.layoutHeight, 26); assert.ok(Math.abs(sample.height - 26 * sample.scale) < .01)
           assert.equal(sample.opacity, name === 'pending' ? .5 : 1)
           if (name === 'pending') { assert.equal(sample.effectiveDisabled, true); assert.equal(sample.busy, 'true') }
@@ -259,115 +280,109 @@ export default async function ({ browser, url, root, output, receipt, signal, de
           if (name === 'focus') { assert.equal(sample.focus, true); assert.equal(sample.focusVisible, true); assert.ok(parseFloat(sample.outline) > 0) }
           const file = `${fallback ? 'fallback-dpr2' : 'glyphs-dpr1'}-${name}.png`
           report.samples.push({ name, file, ...sample }); save()
-          await page.screenshot({ path: resolve(output, file) })
+          await step(() => page.screenshot({ path: resolve(output, file) }))
         }
-        await page.mouse.move(0, 0); await capture('off', 'Enable sound')
-        await control.hover(); await capture('hover', 'Enable sound', true)
-        await page.mouse.move(0, 0)
-        await control.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab')
+        await step(() => page.mouse.move(0, 0)); await capture('off', 'Enable sound')
+        await step(() => control.hover()); await capture('hover', 'Enable sound', true)
+        await step(() => page.mouse.move(0, 0))
+        await step(() => control.focus()); await step(() => page.keyboard.press('Shift+Tab')); await step(() => page.keyboard.press('Tab'))
         await capture('focus', 'Enable sound', true)
-        let before = await page.evaluate(soundOwnership)
+        let before = await step(() => page.evaluate(soundOwnership))
         report.checks.push({ fallback, phase: 'baseline', ownership: before }); save()
         assert.equal(before.currentWorld, true); assert.equal(before.world.paused, true)
-        assert.ok(before.popups.length > 0, 'Menu must retain the real open campaign popup without acknowledging it')
+        popupTrace.afterMenu = await step(() => page.evaluate(popupInput.campaignPopupSnapshot)); save()
+        assertPreparedSoundPopup(popupTrace.retainedAfter, popupTrace.afterMenu, before.popups)
         assertSoundOwnership(before, before)
-        worldSnapshot = await page.evaluateHandle(() => JSON.stringify(window.testStore.getWorld()))
+        await step(async () => { worldSnapshot = await page.evaluateHandle(() => JSON.stringify(window.testStore.getWorld())) })
         const preserved = async (phase, options = {}) => {
-          const after = await page.evaluate(soundOwnership)
+          // One atomic summary read; complete World equality is a separate read below.
+          const after = await step(() => page.evaluate(soundOwnership))
           // Retain the original evaluated snapshot before any assertion throws.
           report.checks.push({ fallback, phase, ownership: after }); save()
           assertSoundOwnership(before, after, options)
-          try { await assertAudioWorldUnchanged(page, worldSnapshot, options.audioFailure) }
-          catch (error) { report.worldMismatch = { phase, actual: error.actual, expected: error.expected }; save(); throw error }
+          try { await step(() => assertAudioWorldUnchanged(page, worldSnapshot, options.audioFailure)) }
+          catch (error) { report.worldMismatch = { phase, actual: error?.actual, expected: error?.expected }; save(); throw error }
           return after
         }
-        await page.evaluate(holdAudioResume)
-        await page.keyboard.press('Enter')
-        await page.waitForFunction(soundControlPending, true, { timeout: remaining() })
+        await step(() => page.evaluate(holdAudioResume))
+        await step(() => page.keyboard.press('Enter'))
+        await waitForAudioObservation(budget, () => page.waitForFunction(soundControlPending, true, { timeout: remaining() }))
         await capture('pending', 'Enable sound')
         await preserved('pending', { disabledBlur: true })
         for (const key of ['Enter', 'Space']) {
-          await page.keyboard.down(key); await page.keyboard.down(key); await page.keyboard.down(key); await page.keyboard.up(key)
-          assert.equal(await page.evaluate(() => window.soundResumeAttempts), 1, 'Pending keyboard and held repeats cannot duplicate activation')
+          await step(() => page.keyboard.down(key)); await step(() => page.keyboard.down(key)); await step(() => page.keyboard.down(key)); await step(() => page.keyboard.up(key))
+          assert.equal(await step(() => page.evaluate(() => window.soundResumeAttempts)), 1, 'Pending keyboard and held repeats cannot duplicate activation')
           await preserved(`pending-${key}`, { disabledBlur: true })
         }
-        const target = await control.evaluate(pendingSoundPointerTarget)
+        const target = await step(() => control.evaluate(pendingSoundPointerTarget))
         assertPendingSoundPointerTarget(target)
         report.checks.push({ fallback, pendingPointerTarget: target }); save()
-        await page.mouse.click(target.x, target.y)
-        assert.equal(await page.evaluate(() => window.soundResumeAttempts), 1, 'Native disabled pointer activation cannot duplicate enable')
+        await step(() => page.mouse.click(target.x, target.y))
+        assert.equal(await step(() => page.evaluate(() => window.soundResumeAttempts)), 1, 'Native disabled pointer activation cannot duplicate enable')
         await preserved('pending-pointer', { disabledBlur: true })
-        await page.keyboard.down('Space')
-        await page.evaluate(() => window.rejectSoundResume())
-        await page.waitForFunction(soundControlPending, false, { timeout: remaining() })
-        await page.keyboard.down('Space'); await page.keyboard.up('Space')
-        assert.equal(await page.evaluate(() => window.soundResumeAttempts), 1, 'Space held across native disabled settlement cannot activate on release')
-        assert.equal(await control.getAttribute('aria-label'), '♫ Enable sound')
-        await page.getByRole('status', { name: 'Audio could not start. Try Enable sound again.', exact: true }).waitFor({ timeout: remaining() })
+        await step(() => page.keyboard.down('Space'))
+        await step(() => page.evaluate(() => window.rejectSoundResume()))
+        await waitForAudioObservation(budget, () => page.waitForFunction(soundControlPending, false, { timeout: remaining() }))
+        await step(() => page.keyboard.down('Space')); await step(() => page.keyboard.up('Space'))
+        assert.equal(await step(() => page.evaluate(() => window.soundResumeAttempts)), 1, 'Space held across native disabled settlement cannot activate on release')
+        assert.equal(await step(() => control.getAttribute('aria-label')), '♫ Enable sound')
+        await step(() => page.getByRole('status', { name: 'Audio could not start. Try Enable sound again.', exact: true }).waitFor({ timeout: remaining() }))
         before = await preserved('rejected-held-release', { disabledBlur: true, audioFailure: true })
-        await worldSnapshot.dispose(); worldSnapshot = await page.evaluateHandle(() => JSON.stringify(window.testStore.getWorld()))
-        await page.evaluate(() => window.restoreSoundResume())
+        await worldSnapshot.dispose(); remaining(); await step(async () => { worldSnapshot = await page.evaluateHandle(() => JSON.stringify(window.testStore.getWorld())) })
+        await step(() => page.evaluate(() => window.restoreSoundResume()))
         const retryKeyboard = { fallback, phase: 'retry-keyboard-reachability' }; report.checks.push(retryKeyboard)
         try { await tabToAudioControl(page, control, { signal, deadlineAt, trace: retryKeyboard }) } finally { save() }
-        await page.keyboard.press('Enter')
-        await page.getByRole('button', { name: '♪ Sound on', exact: true }).waitFor({ timeout: remaining() })
-        const ready = await page.waitForFunction(observeOptionsAudio, { enabled: true, paused: true, context: 'suspended' }, { timeout: remaining() })
-        await ready.dispose()
+        await step(() => page.keyboard.press('Enter'))
+        await step(() => page.getByRole('button', { name: '♪ Sound on', exact: true }).waitFor({ timeout: remaining() }))
+        await waitForAudioObservation(budget, () => page.waitForFunction(observeOptionsAudio, { enabled: true, paused: true, context: 'suspended' }, { timeout: remaining() }))
         await preserved('real-resume-recovered-under-menu-pause', { disabledBlur: true })
-        report.checks.push({ recoveredAudioContext: await page.evaluate(() => ({ state: window.observedSoundContext.state,
-          currentTime: window.observedSoundContext.currentTime, sampleRate: window.observedSoundContext.sampleRate })) }); save()
-        await worldSnapshot.dispose(); worldSnapshot = null
+        report.checks.push({ recoveredAudioContext: await step(() => page.evaluate(() => ({ state: window.observedSoundContext.state,
+          currentTime: window.observedSoundContext.currentTime, sampleRate: window.observedSoundContext.sampleRate }))) }); save()
+        await worldSnapshot.dispose(); worldSnapshot = null; remaining()
         await closeAudioOptions(page, entry); entry = null
         await owners('enabled-gameplay-no-footer', false)
-        const playback = await page.waitForFunction(observeOptionsAudio, { enabled: true, paused: false, context: 'running', mediaPaused: false, backgroundScheduled: true }, { timeout: remaining() })
-        await playback.dispose()
-        report.checks.push({ phase: 'real-playback-after-Continue', audio: await page.evaluate(observeOptionsAudio) }); save()
-        entry = await openAudioOptions(page, { timeout: remaining() })
+        await waitForAudioObservation(budget, () => page.waitForFunction(observeOptionsAudio, { enabled: true, paused: false, context: 'running', mediaPaused: false, backgroundScheduled: true }, { timeout: remaining() }))
+        report.checks.push({ phase: 'real-playback-after-Continue', audio: await step(() => page.evaluate(observeOptionsAudio)) }); save()
+        popupTrace.retainedBeforeReentry = await step(() => page.evaluate(popupInput.campaignPopupSnapshot)); save()
+        entry = await openAudioOptions(page, { timeout: remaining(), signal, deadlineAt, cleanupErrors: report.optionsNavigationCleanup })
         assert.equal(entry.wasPaused, false)
         await owners('reentered-options-modal', true)
-        before = await page.evaluate(soundOwnership)
-        worldSnapshot = await page.evaluateHandle(() => JSON.stringify(window.testStore.getWorld()))
+        before = await step(() => page.evaluate(soundOwnership))
+        popupTrace.afterReentry = await step(() => page.evaluate(popupInput.campaignPopupSnapshot)); save()
+        assertPreparedSoundPopup(popupTrace.retainedBeforeReentry, popupTrace.afterReentry, before.popups)
+        await step(async () => { worldSnapshot = await page.evaluateHandle(() => JSON.stringify(window.testStore.getWorld())) })
         assert.equal(before.world.paused, true)
-        await page.setViewportSize({ width: 640, height: 480 })
-        await page.waitForFunction(() => innerWidth === 640 && innerHeight === 480 &&
+        await step(() => page.setViewportSize({ width: 640, height: 480 }))
+        await waitForAudioObservation(budget, () => page.waitForFunction(() => innerWidth === 640 && innerHeight === 480 &&
           Number(getComputedStyle(document.querySelector('[data-original-options]')).getPropertyValue('--frontend-scale')) === 1,
-        null, { timeout: remaining() })
+        null, { timeout: remaining() }))
         // Resize may legitimately reproject the camera. Bind a fresh, paused
         // baseline only after asserting the same full World survived the resize.
-        const compact = await page.evaluate(soundOwnership)
-        await assertAudioWorldUnchanged(page, worldSnapshot)
+        const compact = await step(() => page.evaluate(soundOwnership))
+        await step(() => assertAudioWorldUnchanged(page, worldSnapshot))
         before = compact
-        await page.mouse.move(0, 0); await capture('on-compact', 'Sound on')
+        await step(() => page.mouse.move(0, 0)); await capture('on-compact', 'Sound on')
         const muteKeyboard = { fallback, phase: 'mute-keyboard-reachability' }; report.checks.push(muteKeyboard)
         try { await tabToAudioControl(page, control, { signal, deadlineAt, trace: muteKeyboard }) } finally { save() }
-        await page.keyboard.press('Space')
-        assert.equal(await control.getAttribute('aria-label'), '♫ Enable sound')
+        await step(() => page.keyboard.press('Space'))
+        assert.equal(await step(() => control.getAttribute('aria-label')), '♫ Enable sound')
         await preserved('native-Space-mute')
-        const muted = await page.waitForFunction(observeOptionsAudio, { enabled: false, paused: true, context: 'suspended', mediaPaused: true, backgroundScheduled: false }, { timeout: remaining() })
-        await muted.dispose()
-        await worldSnapshot.dispose(); worldSnapshot = null
+        await waitForAudioObservation(budget, () => page.waitForFunction(observeOptionsAudio, { enabled: false, paused: true, context: 'suspended', mediaPaused: true, backgroundScheduled: false }, { timeout: remaining() }))
+        await worldSnapshot.dispose(); worldSnapshot = null; remaining()
         await closeAudioOptions(page, entry); entry = null
         await owners('gameplay-after-menu', false)
-        assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), false)
-        assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.campaign-messages details[open]')].map(node => node.dataset.messageSerial)), before.popups)
+        assert.equal(await step(() => page.evaluate(() => window.testStore.getWorld().paused)), false)
+        assert.deepEqual(await step(() => page.evaluate(() => [...document.querySelectorAll('.campaign-messages details[open]')].map(node => node.dataset.messageSerial))), before.popups)
         if (fallback) assert.ok(blockedArt > 0)
         report.checks.push(`${fallback ? 'fallback/DPR2' : 'native/DPR1'}: real Options off/on, hover/focus, native pending pointer/keyboard/repeat guards, modal/full-world/popup preservation, held-release rejection/retry, suspended enabled context, native Space mute, compact geometry, fullscreen menu-only ownership`)
       } catch (error) { contextFailed = true; throw error }
       finally {
         // A failed browser operation is not followed by guessed UI recovery.
         // Release only the read-only handle; the owned context closes below.
-        let cleanupFailure
-        for (const [name, handle] of [['audio-options', entry?.owner], ['paused-world', worldSnapshot]]) {
-          try { await handle?.dispose() }
-          catch (error) {
-            (report.cleanupErrors ??= []).push({ owner: name, error: String(error) })
-            cleanupFailure ??= error
-          }
-        }
-        await closeSoundContext(context, report, fallback, contextFailed || !!cleanupFailure)
-        if (!contextFailed && cleanupFailure) throw cleanupFailure
+        await finalizeSoundContext(context, report, fallback, contextFailed, [['audio-options', entry?.owner], ['paused-world', worldSnapshot]])
       }
     }
+    remaining()
     report.status = 'passed'; report.limits = ['Trusted browser activation and real AudioContext retry under menu pause, not acoustic measurement', 'Options browser adaptation and menu-only fullscreen, not an original native sound-toggle or fullscreen claim']
     return report
   } catch (error) { episodeError = error; report.status = 'failed'; report.error = String(error); throw error }

@@ -7,7 +7,8 @@ import { openAudioOptions, closeAudioOptions, setSoundThroughOptions, observeOpt
 
 function fixture({ paused = false, enabled = false } = {}) {
   const f = { clicks: [], disposals: 0, waits: [], panel: null, initialPause: paused, replacedWorld: false,
-    world: { paused }, sound: enabled, busy: false }
+    world: { paused }, sound: enabled, busy: false, events: [], timeouts: [], evaluations: 0 }
+  f.after = async (phase, result) => { f.events.push(phase); await f.afterAwait?.(phase); return result }
   f.scene = { world: f.world }
   f.audio = { buffers: new Map(), setMusicVolume() {}, enabled, paused, context: { state: 'suspended' },
     music: { element: { paused: true } }, backgroundTimer: null }
@@ -26,7 +27,6 @@ function fixture({ paused = false, enabled = false } = {}) {
     querySelectorAll: () => f.panel ? [modal] : [] }
   const window = { testStore: { getWorld: () => f.world }, testSceneRef: { current: f.scene } }
   const evaluate = (fn, arg) => vm.runInNewContext(`(${fn.toString()})(arg)`, { arg: arg?.value ?? arg, document, window, Map })
-  const settled = { dispose: async () => {} }
   const click = async name => {
     f.clicks.push(name)
     if (f.failClick === name) throw f.primaryError
@@ -41,24 +41,26 @@ function fixture({ paused = false, enabled = false } = {}) {
       if (f.replacedWorld) { f.world = { ...f.world }; f.scene.world = f.world }
     } else throw new Error(`Unexpected input ${name}`)
     f.sync()
+    await f.after(`click:${name}`)
   }
   f.page = {
-    evaluate: async (fn, arg) => evaluate(fn, arg),
-    evaluateHandle: async fn => ({ value: evaluate(fn), dispose: async () => { f.disposals++; if (f.disposeError) throw f.disposeError } }),
+    evaluate: async (fn, arg) => f.after(`evaluate:${++f.evaluations}`, evaluate(fn, arg)),
+    evaluateHandle: async fn => f.after('owner', { value: evaluate(fn), dispose: async () => { f.disposals++; if (Object.hasOwn(f, 'disposeError')) throw f.disposeError; await f.after('owner-dispose') } }),
     locator: selector => ({
-      count: async () => f.panel ? 1 : 0,
-      getAttribute: async key => node.getAttribute(key),
-      click: async options => { assert.ok(options.timeout > 0 && Number.isFinite(options.timeout)); await click('audio') },
-      waitFor: async ({ state, timeout }) => { assert.ok(timeout > 0 && Number.isFinite(timeout)); assert.equal(state === 'hidden', !f.panel) },
+      count: async () => f.after('count', f.panel ? 1 : 0),
+      getAttribute: async key => f.after(`attribute:${key}`, node.getAttribute(key)),
+      click: async options => { assert.ok(options.timeout > 0 && Number.isFinite(options.timeout)); f.timeouts.push(options.timeout); await click('audio') },
+      waitFor: async ({ state, timeout }) => { assert.ok(timeout > 0 && Number.isFinite(timeout)); assert.equal(state === 'hidden', !f.panel); await f.after(`wait:${state}`) },
     }),
     getByRole: (role, { name, exact }) => {
       assert.equal(role, 'button'); assert.equal(exact, true)
-      return { click: async options => { assert.ok(options.timeout > 0 && Number.isFinite(options.timeout)); await click(name) } }
+      return { click: async options => { assert.ok(options.timeout > 0 && Number.isFinite(options.timeout)); f.timeouts.push(options.timeout); await click(name) } }
     },
     waitForFunction: async (fn, arg, { timeout }) => {
       assert.ok(timeout > 0 && Number.isFinite(timeout)); f.waits.push(arg)
       assert.equal(evaluate(fn, arg), true, 'The shipped predicate must match actual fixture ownership/audio state')
-      return settled
+      const index = f.waits.length
+      return f.after(`poll:${index}`, { dispose: async () => f.after(`poll-dispose:${index}`) })
     },
   }
   return f
@@ -108,6 +110,57 @@ test('Options helper rejects unbounded timeouts and observes the real React-owne
   f.audio.buffers = null
   await assert.rejects(f.page.evaluate(observeOptionsAudio), /React-owned Soundscape/)
 })
+
+test('Options helper blocks every next input and success after late abort or deadline settlement', async () => {
+  const baseline = fixture(); await setSoundThroughOptions(baseline.page, true)
+  for (const boundary of baseline.events) for (const kind of ['abort', 'deadline']) {
+    const f = fixture(), controller = new AbortController(), reason = new Error(`late ${kind}: ${boundary}`)
+    let now = 1000, reached = false, beforeAbortClicks
+    f.afterAwait = phase => {
+      if (phase !== boundary || reached) return
+      reached = true; beforeAbortClicks = [...f.clicks]
+      if (kind === 'abort') controller.abort(reason)
+      else now = 11000
+    }
+    await assert.rejects(setSoundThroughOptions(f.page, true, {
+      signal: controller.signal, deadlineAt: 11000, now: () => now,
+    }), error => kind === 'abort' ? error === reason : /deadline expired/.test(String(error)))
+    assert.equal(reached, true, `${kind}: ${boundary} must be exercised`)
+    assert.deepEqual(f.clicks, beforeAbortClicks, `${kind}: no later input after ${boundary}`)
+    assert.equal(f.disposals, boundary === 'count' ? 0 : 1, `${kind}: independent owner cleanup after ${boundary}`)
+  }
+})
+test('standalone Options navigation has one shrinking aggregate budget', async () => {
+  const f = fixture(); let now = 1000
+  f.afterAwait = () => { now += 10 }
+  const entry = await openAudioOptions(f.page, { timeout: 2500, now: () => now })
+  assert.ok(f.timeouts[0] < 2500)
+  assert.ok(f.timeouts.every((value, i, values) => i === 0 || value < values[i - 1]))
+  const clicks = [...f.clicks]; now = 3500
+  await assert.rejects(closeAudioOptions(f.page, entry), /deadline expired/)
+  assert.deepEqual(f.clicks, clicks); assert.equal(f.disposals, 1)
+})
+test('falsy primary and cleanup rejections are retained and never become a pass', async () => {
+  for (const reason of [null, undefined, false, 0, '']) {
+    for (const name of ['Menu', 'audio', 'Back']) {
+      const f = fixture(), cleanupErrors = []
+      f.failClick = name; f.primaryError = reason; f.disposeError = new Error('secondary cleanup')
+      await assert.rejects(setSoundThroughOptions(f.page, true, { cleanupErrors }), error => error === reason)
+      assert.equal(f.disposals, 1); assert.equal(cleanupErrors.length, 1)
+      assert.equal(cleanupErrors[0].primaryFailure, true)
+    }
+    const f = fixture(), cleanupErrors = []; f.disposeError = reason
+    await assert.rejects(setSoundThroughOptions(f.page, true, { cleanupErrors }), error => error === reason)
+    assert.equal(f.disposals, 1); assert.deepEqual(cleanupErrors, [{ phase: 'audio-options-owner', error: String(reason), primaryFailure: false }])
+    const g = fixture(), controller = new AbortController(), abortCleanup = []
+    g.disposeError = new Error('abort cleanup')
+    g.afterAwait = phase => { if (phase === 'click:Menu') controller.abort(reason) }
+    await assert.rejects(setSoundThroughOptions(g.page, true, { signal: controller.signal, cleanupErrors: abortCleanup }),
+      error => error === controller.signal.reason)
+    assert.equal(g.disposals, 1); assert.equal(abortCleanup[0].primaryFailure, true)
+  }
+})
+
 test('active audio probes use Options and retain their original pending, failure and transport scenarios', () => {
   const read = name => readFileSync(resolve(name), 'utf8')
   const scripts = readdirSync('scripts').filter(name => /^check-browser-.*\.mjs$/.test(name))
@@ -122,5 +175,7 @@ test('active audio probes use Options and retain their original pending, failure
   const observer = read('scripts/native-ui-evidence/options-audio-control-style.mjs')
   for (const marker of ['pending-pointer', 'pending-${key}', 'rejected-held-release', 'retry-keyboard-reachability',
     'real-playback-after-Continue', 'native-Space-mute', 'on-compact', 'pause-font.png']) assert.ok(observer.includes(marker), marker)
-  assert.doesNotMatch(observer.slice(observer.indexOf("await page.evaluate(holdAudioResume)")), /control\.focus\(/)
+  const heldBoundary = observer.indexOf("await step(() => page.evaluate(holdAudioResume))")
+  assert.ok(heldBoundary >= 0, 'The real held-resume boundary must remain present')
+  assert.doesNotMatch(observer.slice(heldBoundary), /control\.focus\(/)
 })
