@@ -1,3 +1,4 @@
+import { setSoundThroughOptions } from './browser-options-audio.mjs'
 import assert from 'node:assert/strict'
 import { writeFile } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
@@ -24,7 +25,7 @@ try {
         )
           window.testAudio = hook.memoizedState.current
   })
-  await page.getByRole('button', { name: 'Enable sound', exact: true }).click()
+  await setSoundThroughOptions(page, true)
   await page.waitForFunction(
     () => window.testAudio?.enabled && window.testAudio.music?.element.readyState >= 2
   )
@@ -165,7 +166,7 @@ try {
   })
   assert.equal(timing.gain, 0)
   assert.ok(timing.sources > 0 && timing.future > 3)
-  await page.getByRole('button', { name: 'Mute sound', exact: true }).click()
+  await setSoundThroughOptions(page, false)
   await page.waitForFunction(() => window.testAudio.context.state === 'suspended')
   assert.deepEqual(
     await page.evaluate(() => ({
@@ -177,7 +178,7 @@ try {
     })),
     { enabled: false, voices: 0, ambience: 0, timer: null, paused: true }
   )
-  await page.getByRole('button', { name: 'Enable sound', exact: true }).click()
+  await setSoundThroughOptions(page, true)
   await page.waitForFunction(
     () => window.testAudio.enabled && window.testAudio.context.state === 'running'
   )

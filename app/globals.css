@@ -74,7 +74,6 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .spell-art{position:absolute;inset:-8px;pointer-events:none}.spell-art>span{position:absolute}
 .native-charge{left:2px;top:34px;width:26px;height:5px;background:url('/original/hud-charge.png')}.native-charge>i{position:absolute;left:1px;top:1px;height:3px}
 .building-list{grid-template-columns:repeat(2,1fr)}.building-card{height:53px}
-.top-actions{position:absolute;left:4px;bottom:3px;display:flex;gap:4px}
 .game-status{display:contents}
 .world-message{position:absolute;left:calc((100% + var(--side))/2);transform:translateX(-50%);bottom:12px;max-width:650px;padding:8px 15px;background:#1f281ccc;color:#efe7c8;font:12px/1.5 Arial,sans-serif;text-align:center;pointer-events:none;z-index:2}.world-message>span{margin-right:8px}
 /* Open campaign text owns its original HUD-adjacent column. In short wide

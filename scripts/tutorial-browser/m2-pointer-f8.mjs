@@ -671,7 +671,7 @@ export function m2DiagnosticLayout(el) {
       }),
     interactiveUi: [
       ...document.querySelectorAll(
-        '.native-hud,.top-actions,.campaign-messages summary,.campaign-messages details[open] [data-native-campaign-panel]'
+        '.native-hud,.campaign-messages summary,.campaign-messages details[open] [data-native-campaign-panel]'
       ),
     ]
       .filter(

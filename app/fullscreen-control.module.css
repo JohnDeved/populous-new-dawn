@@ -39,21 +39,17 @@
    Keep the portal on the dialog, not in its scaled or replaceable panel. */
 :global(dialog[data-original-pause-menu]) > .control { top: 12px; right: 12px; left: auto; bottom: auto; }
 :global(dialog[data-original-pause-menu]) > .control p { top: 20px; right: 0; bottom: auto; }
-/* Preserve the four-action native-coordinate footer and its reserved space below
-   the dock. No glyph, frame or texture is rescaled to fit the compact control. */
-:global(.top-actions) > .control { position: relative; inset: auto; }
+/* Compact menu/loading controls retain unscaled native frame crops. */
 :global(body:has(.loading-world)) > .control button,
 :global(dialog[data-startup-logo]) > .control button,
 :global(dialog[data-original-pause-menu]) > .control button,
-:global(dialog[data-original-main-menu]) > .control button,
-:global(.top-actions) > .control button { display: flex; width: 17px; height: 14px; min-height: 0; padding: 0; border: 0; border-image: none; background: none; }
+:global(dialog[data-original-main-menu]) > .control button { display: flex; width: 17px; height: 14px; min-height: 0; padding: 0; border: 0; border-image: none; background: none; }
 /* 004a1f50: 1px-wide horizontal strips first, then full 8px corners TL/TR/BL/BR.
    At 14px high the bottom tiles overlap the top by 2px; there are no side strips. */
 :global(body:has(.loading-world)) > .control .compactFrame,
 :global(dialog[data-startup-logo]) > .control .compactFrame,
 :global(dialog[data-original-pause-menu]) > .control .compactFrame,
-:global(dialog[data-original-main-menu]) > .control .compactFrame,
-:global(.top-actions) > .control .compactFrame { display: block; position: absolute; inset: 0; pointer-events: none; image-rendering: pixelated; }
+:global(dialog[data-original-main-menu]) > .control .compactFrame { display: block; position: absolute; inset: 0; pointer-events: none; image-rendering: pixelated; }
 .compactFrame i { position: absolute; width: 8px; height: 8px; background-image: var(--fullscreen-frame); background-repeat: no-repeat; }
 .compactFrame i:nth-child(1) { left: 8px; top: 0; width: 1px; background-position: -8px 0; }
 .compactFrame i:nth-child(2) { left: 8px; top: 6px; width: 1px; background-position: -8px -16px; }
@@ -64,6 +60,4 @@
 :global(body:has(.loading-world)) > .control .label,
 :global(dialog[data-startup-logo]) > .control .label,
 :global(dialog[data-original-pause-menu]) > .control .label,
-:global(dialog[data-original-main-menu]) > .control .label,
-:global(.top-actions) > .control .label { display: none; }
-:global(.top-actions) > .control p { left: 0; right: auto; bottom: 20px; }
+:global(dialog[data-original-main-menu]) > .control .label { display: none; }

@@ -1,7 +1,6 @@
 'use client'
 
 import { FullscreenControl } from './fullscreen-control'
-import { SoundControl } from './sound-control'
 import { QueryControlArt } from './query-control'
 import { OriginalPauseStatus } from './original-pause-status'
 import { OriginalOptions } from './original-options'
@@ -594,8 +593,6 @@ export default function Home() {
         selectorOpen ||
         debugPicker ||
         [...messageDetails.current.values()].some(details => details.open) ||
-        ((event.key === 'Enter' || event.key === ' ') &&
-          (event.target as HTMLElement | null)?.closest('[data-sound-control]')) ||
         (event.target as HTMLElement | null)?.closest(
           'input,textarea,select,dialog,a,[contenteditable],[data-fullscreen-control],.fps-graph'
         ) ||
@@ -666,8 +663,6 @@ export default function Home() {
         selectorOpen ||
         debugPicker ||
         [...messageDetails.current.values()].some(details => details.open) ||
-        ((event.key === 'Enter' || event.key === ' ') &&
-          (event.target as HTMLElement | null)?.closest('[data-sound-control]')) ||
         (event.target as HTMLElement | null)?.closest(
           'input,textarea,select,dialog,a,[contenteditable],[data-fullscreen-control],.fps-graph'
         )
@@ -780,6 +775,12 @@ export default function Home() {
     void audio.current?.setPaused(world.paused || document.hidden).catch(() => {
       audio.current?.mute()
       setSound(false)
+      setAudioStartNotice('Audio stopped. Try Enable sound again.')
+      tell(
+        world,
+        'Audio stopped. Enable sound in Menu > Options > Game > Browser controls and help.'
+      )
+      update()
     })
   }, [world.paused])
   useEffect(() => {
@@ -804,8 +805,11 @@ export default function Home() {
         setSound(!!(await audio.current?.enable()))
       } catch {
         audio.current?.mute()
-        setAudioStartNotice('Audio could not start. Try the sound button again.')
-        tell(world, 'Audio could not start. Try the sound button again.')
+        setAudioStartNotice('Audio could not start. Try Enable sound again.')
+        tell(
+          world,
+          'Audio could not start. Retry in Menu > Options > Game > Browser controls and help.'
+        )
         update()
       } finally {
         setSoundPending(false)
@@ -1023,19 +1027,14 @@ export default function Home() {
         if (
           world.inputMask &&
           !(e.target as Element).closest(
-            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
+            '[data-fullscreen-control],.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
           )
         ) {
           e.preventDefault()
           e.stopPropagation()
           return
         }
-        // Sound's async browser activation keeps focus for pending/retry keys.
-        if (
-          e.detail > 0 &&
-          (e.target as Element).closest('.native-hud') &&
-          !(e.target as Element).closest('[data-sound-control]')
-        )
+        if (e.detail > 0 && (e.target as Element).closest('.native-hud'))
           (e.target as Element).closest('button')?.blur()
       }}
     >
@@ -1403,9 +1402,6 @@ export default function Home() {
             </div>
           )}
         </section>
-        <div className="top-actions">
-          <SoundControl sound={sound} pending={soundPending} onToggle={toggleSound} />
-        </div>
       </aside>
       {startup === 'choice' && !startupLogoDone && <StartupLogo onComplete={finishStartupLogo} />}
       {startup === 'choice' && startupLogoDone && !startupCampaign && frontendAssets && (

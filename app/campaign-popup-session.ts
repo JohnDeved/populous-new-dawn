@@ -37,7 +37,7 @@ export function captureCampaignPopupKeys(
     const browserAction =
       activation &&
       target?.closest(
-        '.campaign-messages button,.campaign-messages summary,[data-fullscreen-control],[data-sound-control],.fps-graph button'
+        '.campaign-messages button,.campaign-messages summary,[data-fullscreen-control],.fps-graph button'
       )
     if (!releasing) held.add(token)
     // Let the browser activate focused buttons/summary; their owners isolate

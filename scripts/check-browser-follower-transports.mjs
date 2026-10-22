@@ -75,13 +75,21 @@ export function transportPixelGrid(target, dock, dpr, scroll = { x: 0, y: 0 }) {
 }
 
 export function assertTransportLayout(layout, viewport) {
+  const inside = (box, outer) => box.x >= outer.x && box.y >= outer.y &&
+    box.x + box.width <= outer.x + outer.width && box.y + box.height <= outer.y + outer.height
+  const valid = box => ['x', 'y', 'width', 'height'].every(key => Number.isFinite(box?.[key])) && box.width > 0 && box.height > 0
+  const frame = { x: 0, y: 0, width: viewport.width, height: viewport.height }
+  assert.ok(valid(frame) && valid(layout.dock), 'finite positive viewport and complete native dock are required')
+  assert.equal(layout.gameplayFooterCount, 0, 'Invented gameplay footer must stay absent')
+  assert.equal(layout.fullscreenCount, 0, 'Fullscreen belongs only to an existing menu/loading owner')
+  assert.ok(inside(layout.dock, frame), 'complete native dock must fit the viewport, not a deleted footer boundary')
   assert.equal(layout.rectangles.length, 12)
-  assert.ok(layout.dock.y + layout.dock.height <= layout.footer.y, 'native dock clears modern footer')
   for (const [i, r] of layout.rectangles.entries()) {
-    assert.ok(r.x >= 0 && r.y >= 0 && r.x + r.width <= viewport.width && r.y + r.height <= viewport.height, JSON.stringify({ viewport, r }))
+    assert.ok(valid(r) && inside(r, frame), JSON.stringify({ viewport, r }))
     assert.ok(Math.abs(r.width / r.height - 15 / 34) < 0.001)
     assert.equal(r.left, `${(i % 6) * 16}px`); assert.equal(r.top, `${i < 6 ? 190 : 231}px`)
-    assert.ok(r.y + r.height <= layout.footer.y, 'last-row frame and digits clear footer')
+    assert.ok(inside(r, layout.dock), 'last-row frame and digits must fit the complete native dock')
+    assert.equal(r.hits.length, 2, 'Both the center and lower digit must remain hit-tested')
     assert.ok(r.hits.every(hit => hit.owned), `transport center/digit hit: ${JSON.stringify(r)}`)
   }
 }
@@ -96,7 +104,9 @@ async function transportLayout(page) {
   await render(page)
   return page.evaluate(() => {
     const box = node => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height } }
-    const dock = box(document.querySelector('.followers-dock')), footer = box(document.querySelector('.top-actions'))
+    const dock = box(document.querySelector('.followers-dock'))
+    const gameplayFooterCount = document.querySelectorAll('.top-actions,[data-sound-control]').length
+    const fullscreenCount = document.querySelectorAll('[data-fullscreen-control]').length
     const rectangles = [...document.querySelectorAll('.follower-tasks button[aria-label*="occupied by"]')].map(b => {
       const r = box(b)
       const hits = [17, 30.5].map(y => {
@@ -105,7 +115,7 @@ async function transportLayout(page) {
       })
       return { ...r, left: b.style.left, top: b.style.top, hits }
     })
-    return { dock, footer, rectangles, devicePixelRatio }
+    return { dock, gameplayFooterCount, fullscreenCount, rectangles, devicePixelRatio }
   })
 }
 

@@ -20,7 +20,7 @@ test('fullscreen uses original unscaled HUD bitmap metrics and a documented new 
   assert.doesNotMatch(component, /[⛶↙]/)
   assert.doesNotMatch(css, /Arial|background-size|scale\(|box-shadow|border-color/)
   assert.match(css, /border-image: url\('\/original\/hud-button\.png'\) 8 fill repeat/)
-  assert.match(css, /:global\(\.top-actions\) > \.control button \{[^}]*border-image: none/)
+  assert.match(css, /:global\(dialog\[data-original-main-menu\]\) > \.control button \{[^}]*border-image: none/)
   for (const color of css.match(/#[\da-f]{6}/g)) assert.ok(hud.colors.includes(color), `${color} is from PAL0-C`)
   for (const label of ['Fullscreen', 'Exit fullscreen']) {
     const glyphs = [...label].map(letter => hud.rects[`font0-${letter.charCodeAt(0) - 32}`])
