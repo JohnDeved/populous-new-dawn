@@ -51,7 +51,16 @@ function fixture({ ready = true, decode = () => Promise.resolve(), ...props } = 
   }
 }
 
-test('sound activation retains the direct trusted button, pending disable and accessible states', () => {
+function click(button) {
+  const result = { stopped: false, prevented: false }
+  button.props.onClick({
+    stopPropagation() { result.stopped = true },
+    preventDefault() { result.prevented = true },
+  })
+  return result
+}
+
+test('sound activation retains a focusable native button, synchronous action and accessible pending state', () => {
   for (const sound of [false, true]) for (const pending of [false, true]) {
     const f = fixture(), button = f.render({ sound, pending })
     assert.equal(button.type, 'button')
@@ -61,10 +70,16 @@ test('sound activation retains the direct trusted button, pending disable and ac
     assert.equal(button.props['aria-pressed'], undefined, 'action labels are not a stable-label toggle button')
     assert.equal(button.props['data-sound-enabled'], sound)
     assert.equal(button.props['aria-busy'], pending)
-    assert.equal(button.props.disabled, pending)
-    assert.equal(button.props.onClick, f.onToggle, 'no deferred or synthetic activation wrapper')
+    assert.equal(button.props.disabled, undefined, 'native disabling would discard focus and keyboard ownership')
+    assert.equal(button.props.tabIndex, undefined, 'retain the native button tab stop during pending')
+    assert.equal(button.props['aria-disabled'], pending)
     assert.deepEqual(f.calls, [], 'render never activates sound')
-    if (!pending) { button.props.onClick(); assert.deepEqual(f.calls, ['toggle']) }
+    assert.deepEqual(click(button), { stopped: true, prevented: pending })
+    assert.deepEqual(f.calls, pending ? [] : ['toggle'], 'only an enabled click calls onToggle, synchronously in the browser activation')
+    if (pending) {
+      for (let repeat = 0; repeat < 3; repeat++) click(button)
+      assert.deepEqual(f.calls, [], 'ARIA alone does not disable clicks; the pending handler must reject them')
+    }
   }
 })
 
@@ -107,7 +122,9 @@ test('frame reuses native crop tiling and the established overlapping-corner ord
   assert.match(css, /:focus-visible \{ outline: 1px solid #fff7bb/)
   assert.match(css, /\.control\[data-sound-enabled='true'\]/)
   assert.doesNotMatch(css, /aria-pressed/)
-  assert.match(css, /\.control:disabled \{ opacity: \.65; cursor: wait/)
+  assert.match(css, /\.control\[aria-disabled='true'\] \{ opacity: \.65; cursor: wait/)
+  assert.match(css, /:hover:not\(\[aria-disabled='true'\]\)/)
+  assert.match(css, /:active:not\(\[aria-disabled='true'\]\)/)
 })
 
 test('loading and failed artwork keep readable labels and the sound action; completed decode cannot update an unmounted control', async () => {
@@ -119,8 +136,9 @@ test('loading and failed artwork keep readable labels and the sound action; comp
     assert.equal(fallback.props['data-art-ready'], false)
     assert.equal(fallback.props.children.props.children, pending ? 'Wait' : sound ? 'Sound On' : 'Sound Off')
     assert.equal(fallback.props['aria-label'], button.props['aria-label'])
-    assert.equal(fallback.props.onClick, f.onToggle)
     assert.deepEqual(f.calls, [])
+    assert.deepEqual(click(fallback), { stopped: true, prevented: pending })
+    assert.deepEqual(f.calls, pending ? [] : ['toggle'])
     cleanup()
   }
   const ready = fixture({ ready: false })
@@ -181,7 +199,8 @@ test('actual Home activation still owns pending, failure notice, retry, mute and
 // Supplied DOM/default-action boundary; handlers, popup capture and gameplay
 // effects execute shipped source. The hosted browser capture proves real defaults.
 function keyboardFixture({ popupOpen = false, pending = false, soundTarget = true, resultStage = null, focusPauseOwned = false } = {}) {
-  const f = fixture(), button = f.render({ pending }), listeners = new Map(), resultListeners = new Map()
+  const f = fixture(), listeners = new Map(), resultListeners = new Map()
+  let button = f.render({ pending })
   const calls = { overview: 0, skip: 0, menu: 0 }, world = {
     paused: focusPauseOwned, status: resultStage ? 'lost' : 'playing', manaWorld: { loadFlags: 0 }, inputMask: 0, flyby: { flags: 0 }, units: [], selected: [], outcome: { level: 2 },
   }
@@ -219,30 +238,64 @@ function keyboardFixture({ popupOpen = false, pending = false, soundTarget = tru
     try { resultListeners.get(type)(event); if (!immediate) listeners.get(type)(event) } finally { globalThis.Element = old }
     if (!immediate && soundTarget) button.props[type === 'keydown' ? 'onKeyDown' : 'onKeyUp'](event)
     if (!stopped) (type === 'keydown' ? game : sceneUp)(event)
-    if (soundTarget && !pending && !prevented) {
-      if (key === 'Enter' && type === 'keydown') button.props.onClick()
+    // ARIA does not suppress native activation; only the shipped handlers can.
+    if (soundTarget && !button.props.disabled && !prevented) {
+      if (key === 'Enter' && type === 'keydown') click(button)
       if (key === ' ' && type === 'keydown' && !repeat) spaceArmed = true
-      if (key === ' ' && type === 'keyup' && spaceArmed) button.props.onClick()
+      if (key === ' ' && type === 'keyup' && spaceArmed) click(button)
     }
     if (key === ' ' && type === 'keyup') spaceArmed = false
     return { stopped, prevented }
   }
-  return { key, calls, world, scene, f, cleanup, resultSession, closePopup() { popupOpen = false }, get acknowledged() { return acknowledged } }
+  return { key, calls, world, scene, f, cleanup, resultSession,
+    setPending(value) { pending = value; button = f.render({ pending }) },
+    closePopup() { popupOpen = false }, get acknowledged() { return acknowledged } }
 }
 
 test('focused sound Enter/Space activate once without popup ACK, pause, overview or release leakage', () => {
   for (const popupOpen of [false, true]) for (const key of ['Enter', ' ']) for (const pending of [false, true]) {
     const f = keyboardFixture({ popupOpen, pending })
     try {
-      assert.deepEqual(f.key(key), { stopped: true, prevented: false }, 'first native default remains available')
+      assert.deepEqual(f.key(key), { stopped: true, prevented: pending }, 'native activation remains available only when not pending')
       for (let repeat = 0; repeat < 3; repeat++)
         assert.deepEqual(f.key(key, 'keydown', true), { stopped: true, prevented: true })
-      assert.deepEqual(f.key(key, 'keyup'), { stopped: true, prevented: false })
+      assert.deepEqual(f.key(key, 'keyup'), { stopped: true, prevented: pending })
       assert.deepEqual(f.f.calls, pending ? [] : ['toggle'])
       assert.equal(f.acknowledged, 0)
       assert.equal(f.world.paused, false)
       assert.deepEqual(f.calls, { overview: 0, skip: 0, menu: 0 })
       assert.deepEqual([...f.scene.keys], [])
+    } finally { f.cleanup() }
+  }
+})
+
+test('pending transitions cannot arm a late Space click or leak a held activation after settlement', () => {
+  for (const popupOpen of [false, true]) {
+    for (const key of ['Enter', ' ']) {
+      const f = keyboardFixture({ popupOpen, pending: true })
+      try {
+        assert.deepEqual(f.key(key), { stopped: true, prevented: true })
+        f.setPending(false)
+        assert.deepEqual(f.key(key, 'keydown', true), { stopped: true, prevented: true })
+        f.key(key, 'keyup')
+        assert.deepEqual(f.f.calls, [], 'settlement cannot activate a key first pressed while pending')
+        f.key(key); f.key(key, 'keyup')
+        assert.deepEqual(f.f.calls, ['toggle'], 'a fresh post-settlement gesture still uses native activation')
+        assert.equal(f.acknowledged, 0)
+        assert.equal(f.world.paused, false)
+        assert.deepEqual(f.calls, { overview: 0, skip: 0, menu: 0 })
+        assert.deepEqual([...f.scene.keys], [])
+      } finally { f.cleanup() }
+    }
+    const f = keyboardFixture({ popupOpen })
+    try {
+      f.key(' ')
+      f.setPending(true)
+      assert.deepEqual(f.key(' ', 'keyup'), { stopped: true, prevented: true })
+      f.setPending(false)
+      assert.deepEqual(f.f.calls, [], 'a Space gesture cannot activate if pending began before release')
+      assert.equal(f.acknowledged, 0)
+      assert.equal(f.world.paused, false)
     } finally { f.cleanup() }
   }
 })

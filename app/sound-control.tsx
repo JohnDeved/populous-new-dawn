@@ -55,18 +55,27 @@ export function SoundControl({
       style={{ width, height }}
       aria-label={label}
       title={label}
-      onClick={onToggle}
+      onClick={event => {
+        event.stopPropagation()
+        if (pending) event.preventDefault()
+        else onToggle()
+      }}
       onKeyDown={event => {
         // Preserve native activation, but never route it or held repeats to gameplay.
         if (event.key === 'Enter' || event.key === ' ') {
           event.stopPropagation()
-          if (event.repeat) event.preventDefault()
+          if (pending || event.repeat) event.preventDefault()
         }
       }}
       onKeyUp={event => {
-        if (event.key === 'Enter' || event.key === ' ') event.stopPropagation()
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.stopPropagation()
+          if (pending) event.preventDefault()
+        }
       }}
-      disabled={pending}
+      // Native disabled drops focus, leaking subsequent Enter/Space to the world.
+      // Keep the same focusable button and explicitly suppress pending activation.
+      aria-disabled={pending}
       aria-busy={pending}
     >
       {artReady ? (
