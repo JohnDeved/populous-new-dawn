@@ -975,6 +975,7 @@ test('native UI checker changes select focused regressions without losing workfl
       'node', '--test',
       'tests/native-ui-evidence.test.mjs',
       'tests/browser-options-audio.test.mjs',
+      'tests/campaign-popup-fullscreen-fixture.test.mjs',
       'tests/pause-world-snapshot.test.mjs',
       'tests/pause-clearance-batch.test.mjs',
       'tests/pause-checker-registration.test.mjs',
@@ -990,6 +991,9 @@ test('native UI checker changes select focused regressions without losing workfl
     ])
     const paths = ['scripts/native-ui-evidence/options-audio-control-style.mjs',
       'scripts/browser-options-audio.mjs', 'tests/browser-options-audio.test.mjs',
+      'scripts/campaign-popup-fixture/home-source.mjs', 'scripts/campaign-popup-fixture/fullscreen-menu.mjs',
+      'scripts/campaign-popup-fixture/finalize.mjs', 'scripts/campaign-popup-fixture/run.mjs',
+      'tests/campaign-popup-fullscreen-fixture.test.mjs',
       'scripts/native-ui-evidence/policy.mjs', 'tests/native-ui-evidence.test.mjs',
       '.github/workflows/native-ui-evidence.yml', 'engineering/native-ui-evidence.md']
     for (const input of check.inputs) {
