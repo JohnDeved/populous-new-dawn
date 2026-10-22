@@ -34,7 +34,15 @@ export function faceNormal(a: number[], b: number[], c: number[]) {
   return normalAngle(y, -length) * 32 + normalAngle(z, -x)
 }
 
-const sunlight = sunlightShades()
+const sunlight = Object.freeze(sunlightShades())
+
+/** The actual cached table used by this browser model renderer.
+ * It is currently static. This is not native rotating/debug sunlight state.
+ * Borrowers cannot mutate the shared lighting or create a new default table.
+ */
+export function getBrowserModelSunlightShades(): readonly number[] {
+  return sunlight
+}
 
 // 0x4718c0 / 0x471c40 fade numeric face shades by the first vertex's camera Z.
 export function modelShade(shade: number, depth: number) {
