@@ -53,8 +53,9 @@ export function assertPendingSoundPointerTarget(target) {
   assert.ok(target.x >= 0 && target.y >= 0 && target.x < target.viewportWidth && target.y < target.viewportHeight, 'Pending sound click center must be inside the viewport')
   assert.equal(target.owned, true, 'Pending pointer click must actually hit the sound control or its artwork')
 }
-export default async function ({ browser, url, root, output, signal }) {
-  const report = { status: 'running', samples: [], checks: [] }
+export default async function ({ browser, url, root, output, receipt, signal, deadlineAt }) {
+  const report = { status: 'running', samples: [], checks: [], inputBudgets: [] }
+  receipt.missionInputBudgets = report.inputBudgets
   const save = () => writeFileSync(resolve(output, 'hud-sound.json'), JSON.stringify(report, null, 2) + '\n')
   try {
     for (const fallback of [false, true]) {
@@ -66,7 +67,9 @@ export default async function ({ browser, url, root, output, signal }) {
         // labels needed for the ordinary mission entry itself.
         if (fallback) await context.route('**/original/hud-button.png', route => { blockedArt++; return route.abort('failed') })
         const page = await context.newPage()
-        await page.goto(url, { waitUntil: 'domcontentloaded' }); await ordinaryMission(page, root, signal)
+        await page.goto(url, { waitUntil: 'domcontentloaded' })
+        const trace = { fallback }; report.inputBudgets.push(trace)
+        try { await ordinaryMission(page, root, { signal, deadlineAt, trace }) } finally { save() }
         const control = page.locator('[data-sound-control]')
         await control.waitFor()
         await page.waitForFunction(fallback => document.querySelector('[data-sound-control]')?.dataset.artReady === String(!fallback), fallback)

@@ -32,14 +32,14 @@ export function acceptSeries(records) {
 // Closing owned browser resources cancels Playwright operations. Wait for their
 // settlement before admitting another episode. The supervising process kills an
 // uncooperative worker; timeout can never be overwritten by a late success.
-export async function boundedEpisode(run, { capMs, close, signal, setTimer = setTimeout, clearTimer = clearTimeout, now = () => performance.now() }) {
+export async function boundedEpisode(run, { capMs, close, signal, setTimer = setTimeout, clearTimer = clearTimeout, now = () => performance.now(), wallNow = Date.now }) {
   const controller = new AbortController()
-  const startedAt = now()
+  const startedAt = now(), deadlineAt = wallNow() + capMs
   let timedOut = false, timer, result, primaryError, cleanupError
   const abort = () => controller.abort(signal?.reason ?? new Error('Series aborted'))
   signal?.addEventListener('abort', abort, { once: true })
   if (signal?.aborted) abort()
-  const work = Promise.resolve().then(() => { controller.signal.throwIfAborted(); return run(controller.signal) })
+  const work = Promise.resolve().then(() => { controller.signal.throwIfAborted(); return run(controller.signal, deadlineAt) })
   const expired = new Promise((_, reject) => {
     timer = setTimer(() => { timedOut = true; controller.abort(new Error('Episode deadline exceeded')); reject(controller.signal.reason) }, capMs)
     controller.signal.addEventListener('abort', () => reject(controller.signal.reason), { once: true })
