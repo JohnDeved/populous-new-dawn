@@ -177,6 +177,29 @@ test('Hypnotise turn observer preserves a foreign accessor without invoking its 
   assert.equal(f.observation().result.hook.restored, false)
 })
 
+test('Hypnotise RAF detects and preserves a foreign callback replacement', t => {
+  const f = fixture(t), foreign = () => 'successor'
+  f.start(); f.frame()
+  f.clock.afterTurn = foreign
+  f.frame()
+  assert.equal(f.clock.afterTurn, foreign)
+  assert.match(f.observation().result.error, /owned afterTurn descriptor/)
+  assert.equal(f.observation().result.hook.foreign, true)
+  assert.equal(f.frames.size, 0)
+})
+
+test('Hypnotise terminal snapshot failure cannot mask the original falsy thrown value', t => {
+  const f = fixture(t, () => { throw 0 })
+  f.start()
+  Object.defineProperty(f.scene.renderer, 'info', { get() { throw Error('snapshot failure') } })
+  let caught = false
+  try { f.clock.afterTurn() }
+  catch (value) { caught = true; assert.equal(value, 0) }
+  assert.equal(caught, true)
+  assert.deepEqual(f.observation().result.terminal, { reason: 'error', snapshotFailed: true })
+  f.restored()
+})
+
 for (const exit of ['deadline', 'visibility', 'missing-callback'])
   test(`Hypnotise turn observer restores or leaves untouched its callback on ${exit}`, t => {
     const f = fixture(t)
