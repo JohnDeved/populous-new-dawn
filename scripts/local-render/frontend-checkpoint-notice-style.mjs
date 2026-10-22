@@ -42,6 +42,38 @@ export default async function ({ browser, url, output, signal }) {
   const main = page => page.getByRole('dialog', { name: 'Main menu', exact: true })
   const retry = page => main(page).getByRole('button', { name: 'Retry checkpoint lookup', exact: true })
   const region = page => main(page).getByRole('region', { name: 'Browser checkpoint recovery', exact: true })
+  async function checkFullscreen(page) {
+    const sample = await main(page).evaluate(menu => {
+      const rect = node => {
+        const box = node.getBoundingClientRect()
+        return { x: box.x, y: box.y, right: box.right, bottom: box.bottom }
+      }
+      const host = menu.querySelector('[data-fullscreen-control]')
+      const button = host?.querySelector('button')
+      if (!button) return null
+      const style = getComputedStyle(button), box = rect(button)
+      const ring = style.outlineStyle === 'none' ? 0 : parseFloat(style.outlineWidth) + parseFloat(style.outlineOffset)
+      return { box, focus: { x:box.x-ring, y:box.y-ring, right:box.right+ring, bottom:box.bottom+ring },
+        directOwner: host.parentElement === menu,
+        count: document.querySelectorAll('[data-fullscreen-control]').length,
+        hit: document.elementFromPoint((box.x+box.right)/2, (box.y+box.bottom)/2)?.closest('button') === button,
+        focused: document.activeElement === button, focusVisible: button.matches(':focus-visible'),
+        occupied: [...menu.querySelectorAll('h1 > span, nav button, [data-checkpoint-notice-line] > span, [aria-label="Retry checkpoint lookup"], [data-frontend-badge], [data-frontend-badge-vector]')].map(rect) }
+    })
+    assert.ok(sample, 'Fullscreen remains available inside the main-menu modal')
+    assert.equal(sample.directOwner, true)
+    assert.equal(sample.count, 1, 'Panel transitions never duplicate the fullscreen portal')
+    assert.equal(sample.hit, true, 'Fullscreen receives a physical pointer hit')
+    assert.equal(sample.box.right-sample.box.x, 17)
+    assert.equal(sample.box.bottom-sample.box.y, 14)
+    const { width, height } = page.viewportSize(), box = sample.focus
+    assert.ok(box.x >= 0 && box.y >= 0 && box.right <= width && box.bottom <= height, 'Fullscreen focus ring is unclipped')
+    for (const target of sample.occupied) {
+      assert.equal(box.x < target.right && box.right > target.x && box.y < target.bottom && box.bottom > target.y, false,
+        'Fullscreen and its focus ring must clear the logo, menu, notices, Retry and badges')
+    }
+    return sample
+  }
   async function capture(page, state, { fallback = false } = {}) {
     await page.waitForFunction(firstLine => document.querySelector('[data-checkpoint-notice-line]')
       ?.getAttribute('data-checkpoint-notice-line') === firstLine, expectedLines[state][0])
@@ -85,10 +117,24 @@ export default async function ({ browser, url, output, signal }) {
       }
       assert.equal(overlap(boxes[0], boxes[1]), false, 'Retry and notices never overlap')
       assert.ok(sample.lines.every(line => fallback ? line.glyphs === 0 : line.glyphs > 0))
+      const fullscreen = await checkFullscreen(page)
       const name = `${state}-${width}x${height}.png`
       await page.screenshot({ path: resolve(output, name) })
       captures.push(name)
-      geometry.push({ state, width, height, ...sample })
+      geometry.push({ state, width, height, ...sample, fullscreen })
+      if (state === 'failed') {
+        // Traverse the real tab order, rather than asserting a programmatic focus.
+        await main(page).getByRole('button', { name: 'Quit', exact: true }).focus()
+        for (let step = 0; step < 3 && !await page.locator('[data-fullscreen-control] button').evaluate(node => node === document.activeElement); step++) {
+          await page.keyboard.press('Tab')
+        }
+        const focused = await checkFullscreen(page)
+        assert.equal(focused.focused, true, 'Keyboard traversal reaches fullscreen after Retry')
+        assert.equal(focused.focusVisible, true)
+        const name = `fullscreen-focused-${width}x${height}.png`
+        await page.screenshot({ path: resolve(output, name) }); captures.push(name)
+        geometry.push({ state:'fullscreen-focused', width, height, fullscreen:focused })
+      }
       writeFileSync(resolve(output, 'notice-geometry.json'), JSON.stringify(geometry, null, 2) + '\n')
     }
   }
@@ -176,8 +222,10 @@ export default async function ({ browser, url, output, signal }) {
   }
   assert.deepEqual(errors, [])
   return { captures, checks: ['native recovery artwork and readable fallback', 'compact and wide geometry',
-    'no Quit, badge or Retry overlap', 'pending retry disabled and held input contained',
+    'no Quit, badge or Retry overlap', 'fullscreen and keyboard focus clear logo, rows, recovery and badges',
+    'pending retry disabled and held input contained',
     'late read does not navigate', 'incompatible stored data unchanged'],
   limits: ['Synthetic browser-storage failures and incompatible sentinel in ephemeral profiles.',
-    'Frontend-only software-rendered evidence, not original-game pixel parity or gameplay acceptance.'] }
+    'Frontend-only software-rendered evidence, not original-game pixel parity or gameplay acceptance.',
+    'Existing fullscreen error bubbles may overlay artwork; error-popup non-overlap is not claimed.'] }
 }
