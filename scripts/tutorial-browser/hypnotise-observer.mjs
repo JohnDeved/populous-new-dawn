@@ -9,9 +9,9 @@ export function installHypnotiseObserver({ observationMs }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld(),
     clock = scene.gameClock,
     canvas = scene.renderer.domElement, started = performance.now(), copies = [], keys = new Set(),
-    result = { done: false, error: null, visits: 0, samples: [], turnSamples: [], crops: [], bornTurn: null,
+    result = { done: false, error: null, visits: 0, samples: [], turnSamples: [], nonAdvancingCallbacks: 0, crops: [], bornTurn: null,
       terminal: null, hook: { installed: false, restored: false, foreign: false } }
-  let raf, flash, stopped = false, lastKey, originalDescriptor, ownedDescriptor, hookActive = false
+  let raf, flash, stopped = false, lastKey, lastObservedTurn, originalDescriptor, ownedDescriptor, hookActive = false
   const sameDescriptor = (a, b) => !!a && !!b &&
     ['value', 'writable', 'get', 'set', 'enumerable', 'configurable'].every(key => a[key] === b[key])
   const recordError = error => {
@@ -64,10 +64,15 @@ export function installHypnotiseObserver({ observationMs }) {
         if (flash) {
           // Restore at logical expiry, but keep the existing post-render RAF terminal witness.
           if (!world.effects.includes(flash)) restoreHook()
+          else if (world.turn === lastObservedTurn) result.nonAdvancingCallbacks++
           else {
+            if (world.turn !== lastObservedTurn + 1)
+              throw Error('Hypnotise observer missed a consecutive advancing World turn')
             reserveSample()
+            // afterTurn follows the fixed World turn, before deferred phases/animation/presentation.
             result.turnSamples.push({ turn: world.turn, id: flash.id, remaining: flash.turnsRemaining,
               converted: world.units.filter(u => u.hypnotise?.originalTeam === 'red' && u.team === 'blue').map(u => u.id) })
+            lastObservedTurn = world.turn
           }
         }
       } catch (error) { recordError(error); stop('error') }
@@ -89,6 +94,7 @@ export function installHypnotiseObserver({ observationMs }) {
         flash = world.effects.find(f => f.kind === 'hypnotise' && f.team === 'blue')
         if (!flash) { raf = requestAnimationFrame(visit); return }
         result.bornTurn = world.turn
+        lastObservedTurn = world.turn
         result.birth = { id: flash.id, remaining: flash.turnsRemaining,
           stock: world.shots.hypnotise, x: flash.x, z: flash.z,
           cue: world.sounds.some(s => s.cue === 0x2a && s.turn === world.turn && s.x === flash.x && s.z === flash.z) }

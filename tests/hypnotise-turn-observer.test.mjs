@@ -20,7 +20,8 @@ function fixture(t, original) {
     renderer: { domElement: { isConnected: true }, info: { render: { frame: 0 } },
       getContext: () => ({ isContextLost: () => false }) },
     fxMeshes: new Map([[7, { visible: false, userData: { sequence: 'hypnotise',
-      sprite: { visible: false, material: {}, userData: {} } } }]]),
+      sprite: { visible: false, material: {}, userData: {},
+        scale: { toArray: () => [100, 100, 1] }, center: { toArray: () => [0.5, 0] } } } }]]),
     view: { painter: { source: () => null } } }
   const win = { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }
   const globals = { window: win, document: { visibilityState: 'visible' },
@@ -90,6 +91,26 @@ test('Hypnotise turn observer forwards original receiver, arguments and return e
   assert.equal(f.observation().result.terminal.reason, 'retained-before-completion')
 })
 
+test('Hypnotise turn observer does not label non-advancing callbacks as distinct turns', t => {
+  const f = fixture(t)
+  f.start(); f.frame()
+  f.clock.afterTurn(); f.clock.afterTurn()
+  assert.equal(f.observation().result.nonAdvancingCallbacks, 2)
+  assert.deepEqual(f.observation().result.turnSamples, [])
+  f.advance(1)
+  assert.deepEqual(f.observation().result.turnSamples.map(s => s.turn), [21])
+})
+
+test('Hypnotise turn observer rejects a missing advancing callback rather than inventing it', t => {
+  const f = fixture(t)
+  f.start(); f.frame()
+  f.world.turn += 2
+  assert.equal(f.clock.afterTurn(), f.returned)
+  assert.match(f.observation().result.error, /missed a consecutive advancing World turn/)
+  assert.deepEqual(f.observation().result.turnSamples, [])
+  f.restored()
+})
+
 for (const thrown of [undefined, null, false, 0, '', Symbol('failure'), new Error('original')])
   test(`Hypnotise turn observer preserves original thrown value ${String(thrown)}`, t => {
     let calls = 0
@@ -148,9 +169,10 @@ test('Hypnotise turn observer preserves a foreign accessor without invoking its 
   let reads = 0
   const foreign = { configurable: true, enumerable: true, get() { reads++; throw Error('foreign getter') } }
   Object.defineProperty(f.clock, 'afterTurn', foreign)
+  const descriptor = Object.getOwnPropertyDescriptor(f.clock, 'afterTurn')
   f.observation().retain()
   assert.equal(reads, 0)
-  assert.deepEqual(Object.getOwnPropertyDescriptor(f.clock, 'afterTurn'), foreign)
+  assert.deepEqual(Object.getOwnPropertyDescriptor(f.clock, 'afterTurn'), descriptor)
   assert.equal(f.observation().result.hook.foreign, true)
   assert.equal(f.observation().result.hook.restored, false)
 })
