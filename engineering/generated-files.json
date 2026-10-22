@@ -2,6 +2,46 @@
   "version": 1,
   "owners": [
     {
+      "id": "native-help-ui",
+      "kind": "imported-assets",
+      "generator": {
+        "executable": "python3",
+        "args": [
+          "scripts/import-help-ui.py",
+          "<verified-game-root>"
+        ]
+      },
+      "callers": [
+        "scripts/import-help-ui.py"
+      ],
+      "inputs": [
+        "scripts/import-result-ui.py",
+        "scripts/import-original.py",
+        "decomp/research/native-help/README.md"
+      ],
+      "outputs": [
+        {
+          "path": "decomp/research/native-help/source.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true
+        },
+        {
+          "path": "app/original-help.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true
+        },
+        {
+          "path": "public/original/help",
+          "type": "directory",
+          "tracked": true,
+          "protected": true
+        }
+      ],
+      "recording": "Hash-pinned original EXE, language, HFX, POINT and F00T data only. --check is read-only; differing owned output requires a fresh --output for review. Reuses existing body/title/frame assets without regenerating them. No original execution, emulation, save or profile changes."
+    },
+    {
       "id": "ordinary-hud-control-static-evidence",
       "kind": "native-evidence",
       "generator": { "executable": "python3", "args": ["scripts/research-hud-controls.py", "<hash-verified-original-exe>"] },

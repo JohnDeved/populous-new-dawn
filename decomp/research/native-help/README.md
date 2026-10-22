@@ -61,3 +61,64 @@ words are deliberately not treated as valid fallback topics.
 
 These modules and their focused tests are preparation for the real scene/HUD
 integration, not a user-facing implementation or completed Help behavior.
+
+## Original Query artwork, interim Menu behavior
+
+The live button keeps its existing accessible name, description, primary callback
+and browser-recovery role. Only the invented Arial glyph, outset border and
+12×12 rectangle at(64,113) are replaced. The actual Home button now renders native
+13×12 geometry at(64,114), HFX105 integer-centered at local(4,3), and the original
+normal/hover/held frame tables. `004a1f50` repeats original4×4 edge/interior pixels;
+no synthetic active-mode glow or disabled Help state is introduced.
+
+This is the existing browser's uniform640-reference HUD adaptation. Native's
+independent-axis scaling and HFX106 selection above800 native screen width are not
+newly reproduced. The imported106 asset is retained for that future integration,
+not misrepresented as a hover image. Failed frame/icon loads explicitly retain
+minimal former recovery artwork, marked `data-query-art="failed"`; that exceptional
+fallback is not native-art acceptance. The actual Menu semantics are unchanged.
+
+## Exact English article preparation, not activation
+
+- Body and `<b>` both use existing F00T4 pixels; title uses existing F00T3 at a
+  native screen area≥307200, otherwise4. Links use original F00T10 when available,
+  their run font when unavailable, and F00T11 when hovered, not CSS recoloring.
+- `layoutHelpText` follows addressed00425400 English run/row wrapping. Tags reset
+  the current run's break position; original whitespace/punctuation is retained.
+  Row advance is max actual glyph height+4. Query's20px title makes body start38,
+  and its192px-width article measures174px high. Source fixtures are static
+  transcriptions, not original runtime screenshots.
+- `helpPanelLayout` takes actual native logical viewport and HUD width. Three
+  separate16px-tiled outer regions retain odd-tile gaps; navigation uses24×28
+  boxes at contents-right−30, top+7+35*i. Home is984; contents stays983. Scroll
+  arrows adjust thumb position, with proportional article-pixel offset.
+- Discovery table0059be28 is88 predicate/argument pairs. Building gates use its
+  availability mask; spells use knowledge or low-nibble stock, with special
+  level-flag0x20 semantics. Failed links still activate and select1057. Contextual
+  Query selection deliberately bypasses this link-only gate.
+- Main native panel005cd0be is100×480 at640-reference. Spell HUD slots and tab
+  use1055; building slots/tab1054; Followers tab/task cells1056; count/role strip
+  1053; portrait/health1050; tribe flags1052; nearby toggle1049; minimap1047.
+  Charge-rate control005cb3c8 has zero topic and therefore falls back1046, not1059.
+
+The importer pins every original input before creating any new owned output,
+refuses differing existing outputs, and has a read-only `--check`. It never runs
+original code or regenerates the existing HUD/title/frame artwork. It retains
+exact code/table spans in `source.json`; its addresses are static evidence, not
+an executable parity harness. English text and descriptors are unmodified.
+
+### Explicit blockers before replacing Menu with Help
+
+1. Real scene/HUD interception, POINT13 input ownership, F1/two-stage cancellation,
+   history and semantic article navigation are not integrated yet.
+2. The staged text layout deliberately rejects inline `<i N>` rather than hiding
+   unsupported content. The verified21-entry mapping needs its actual renderer.
+3. Native preview kinds0/1/2/4/5/6 require real person, building, vehicle, spell-HUD,
+   scenery and reincarnation render paths. Kinds3 and255 genuinely render nothing;
+   blank Query1051 is not permission to omit other previews or substitute art.
+4. Live discovery fields and all native control metadata need integration.
+5. Actual rendered comparisons, scale/asset-failure/accessibility/input witnesses,
+   focused/full checks and build must pass before any full Help claim.
+
+Issue #741 remains open and any feature publication must remain draft while these
+blocks remain. Do not claim restored Query behavior from the artwork correction.
