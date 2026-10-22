@@ -34,12 +34,18 @@ async function withinInputDeadline(timeout, run, trace = {}, signal) {
   }
   const phase = async (name, action) => {
     remaining()
-    Object.assign(trace, { phase: name, pending: true, phaseStartedMs: performance.now() - started })
-    const value = await action()
-    const elapsedMs = performance.now() - started
-    Object.assign(trace, { pending: false, elapsedMs })
-    trace.completed.push({ phase: name, startedMs: trace.phaseStartedMs, finishedMs: elapsedMs })
-    if (trace.completed.length > 32) trace.completed.shift()
+    const startedMs = performance.now() - started
+    Object.assign(trace, { phase: name, pending: true, phaseStartedMs: startedMs, phaseError: null })
+    const settled = (status, error) => {
+      const elapsedMs = performance.now() - started
+      Object.assign(trace, { pending: false, elapsedMs, phaseError: error ? String(error) : null })
+      trace.completed.push({ phase: name, startedMs, finishedMs: elapsedMs, status })
+      if (trace.completed.length > 32) trace.completed.shift()
+    }
+    let value
+    try { value = await action() }
+    catch (error) { settled('rejected', error); throw error }
+    settled('fulfilled')
     remaining()
     return value
   }

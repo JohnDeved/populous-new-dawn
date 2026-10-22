@@ -339,3 +339,30 @@ test('pause input aborted during preparation cannot send late Space', async () =
   for (let i = 0; i < 20; i++) await Promise.resolve()
   assert.equal(f.calls.includes('Space'), false)
 })
+
+
+for (const [rejectedOperation, outerPhase, innerPhase] of [
+  ['install', 'observed-space-dispatch', 'install-space-witness'],
+  ['finalize', 'observed-space-dispatch', 'finalize-space-witness'],
+  ['read-after', 'read-after-pause', null],
+]) test(`pause trace identifies settled ${rejectedOperation} rejection without changing its error`, async () => {
+  const f = fixture(), trace = {}, failure = Error(`Rejected ${rejectedOperation}`), evaluate = f.page.evaluate
+  let stateReads = 0
+  f.world.paused = true
+  f.page.evaluate = async (fn, arg) => {
+    if (fn.name === 'worldPauseState' && ++stateReads === 2 && rejectedOperation === 'read-after') throw failure
+    if (rejectedOperation === 'install' && fn === beginSpaceOwnership) throw failure
+    if (rejectedOperation === 'finalize' && fn === endSpaceOwnership) throw failure
+    return evaluate(fn, arg)
+  }
+  await assert.rejects(setWorldPaused(f.page, false, { trace }), error => error === failure)
+  assert.equal(trace.phase, outerPhase)
+  assert.equal(trace.pending, false, 'A settled failure is not a pending browser operation')
+  assert.equal(trace.phaseError, String(failure))
+  assert.equal(trace.completed.at(-1).status, 'rejected')
+  if (innerPhase) {
+    const record = trace.attempts[0].delivery.completed.find(row => row.phase === innerPhase)
+    assert.equal(record.status, 'rejected')
+  }
+  assert.equal(f.calls.filter(call => call === 'Space').length, rejectedOperation === 'install' ? 0 : 1)
+})

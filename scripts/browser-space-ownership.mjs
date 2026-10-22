@@ -68,16 +68,22 @@ export async function pressObservedSpace(page, { timeout, signal, snapshot = fal
   let timer, records, installed = false, primary
   const remaining = () => Math.max(0, deadline - performance.now())
   const bounded = async (name, operation) => {
-    Object.assign(trace, { phase: name, pending: true, phaseStartedMs: performance.now() - started })
-    if (!remaining()) { void operation.catch(() => {}); throw Error('Space ownership input timed out') }
+    const startedMs = performance.now() - started
+    Object.assign(trace, { phase: name, pending: true, phaseStartedMs: startedMs, phaseError: null })
+    const settled = (status, error) => {
+      const elapsedMs = performance.now() - started
+      // A late prior RPC must not overwrite a newer cleanup operation's state.
+      if (trace.phase === name && trace.phaseStartedMs === startedMs)
+        Object.assign(trace, { pending: false, elapsedMs, phaseError: error ? String(error) : null })
+      trace.completed.push({ phase: name, startedMs, finishedMs: elapsedMs, status })
+    }
+    const observed = operation.then(value => { settled('fulfilled'); return value },
+      error => { settled('rejected', error); throw error })
+    if (!remaining()) { void observed.catch(() => {}); throw Error('Space ownership input timed out') }
     try {
-      const value = await Promise.race([operation, new Promise((_, reject) => {
+      return await Promise.race([observed, new Promise((_, reject) => {
         timer = setTimeout(() => reject(Error('Space ownership input timed out')), remaining())
       })])
-      const elapsedMs = performance.now() - started
-      Object.assign(trace, { pending: false, elapsedMs })
-      trace.completed.push({ phase: name, startedMs: trace.phaseStartedMs, finishedMs: elapsedMs })
-      return value
     } finally { clearTimeout(timer) }
   }
   try {
