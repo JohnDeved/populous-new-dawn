@@ -1,4 +1,5 @@
 import type { World } from './world-types.ts'
+import { createHelpHistory, validateHelpTopic } from './help-history.ts'
 
 export type HelpPhase = 'inactive' | 'query' | 'article'
 type HelpWorld = Pick<World, 'mode' | 'paused' | 'status'>
@@ -12,7 +13,8 @@ export function createHelpSession(world: HelpWorld, isCurrent: () => boolean) {
   let articleMode: HelpWorld['mode'] = null
   let articleReturn: 'inactive' | 'query' = 'inactive'
   let articlePaused = false
-  let topic = 984
+  const history = createHelpHistory()
+  let scrollPosition = 0
   let disposed = false
   const ownsWorld = () => !disposed && isCurrent() && world.status === 'playing'
   const closeArticle = () => {
@@ -27,7 +29,27 @@ export function createHelpSession(world: HelpWorld, isCurrent: () => boolean) {
       return ownsWorld() ? phase : 'inactive'
     },
     get topic() {
-      return topic
+      return history.topic
+    },
+    get canBack() { return history.canBack },
+    get canForward() { return history.canForward },
+    get scrollPosition() { return scrollPosition },
+    scroll(position: number) {
+      if (!ownsWorld() || phase !== 'article') return false
+      if (!Number.isFinite(position)) throw new RangeError('Invalid help scroll position')
+      scrollPosition = Math.max(0, Math.trunc(position))
+      return true
+    },
+    navigate(action: 'back' | 'forward' | 'home' | number) {
+      if (!ownsWorld() || phase !== 'article') return false
+      const prior = history.topic
+      const next = typeof action === 'number' ? history.visit(action)
+        : action === 'home' ? history.visit(984) : history[action]()
+      if (next === null) return false
+      // 0045dd22 resets scroll when a different article is laid out. Link/home
+      // activation also explicitly resets it, even for the current topic.
+      if (next !== prior || action === 'home' || typeof action === 'number') scrollPosition = 0
+      return true
     },
     armQuery() {
       if (!ownsWorld() || phase !== 'inactive') return false
@@ -38,8 +60,7 @@ export function createHelpSession(world: HelpWorld, isCurrent: () => boolean) {
     },
     openArticle(contextTopic: number | null = null) {
       if (!ownsWorld()) return false
-      if (contextTopic !== null && (!Number.isInteger(contextTopic) || contextTopic < 983 || contextTopic > 1070))
-        throw new RangeError('Unimported Encyclopaedia topic')
+      if (contextTopic !== null) validateHelpTopic(contextTopic)
       if (phase !== 'article') {
         articleReturn = phase
         articleMode = world.mode
@@ -50,7 +71,10 @@ export function createHelpSession(world: HelpWorld, isCurrent: () => boolean) {
       }
       // Retargeting retains the original browser pause/return owner. Unlike the
       // original's repeated panel-open path, it cannot overwrite that owner.
-      if (contextTopic !== null) topic = contextTopic
+      if (contextTopic !== null) {
+        history.visit(contextTopic)
+        scrollPosition = 0
+      }
       return true
     },
     closeArticle,

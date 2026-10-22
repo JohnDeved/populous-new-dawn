@@ -142,3 +142,26 @@ Additional native history evidence: `0045d870` sets capacity `00749ecc` to64,
 allocates256 bytes for `00749ec0`, and clears cursor/count. The `00425180` boundary
 behavior can write at capacity after enough pushes; do not imitate native memory
 corruption. Any safe browser history bound must be explicitly documented.
+
+## Article surface and history staging
+
+`help-history.ts`, `help-document.ts` and `HelpArticleSurface` are now staged, not
+imported by `page.tsx`. The surface actually renders the three original tiled
+panes and original bitmap glyphs, with preserved blank rows and exact run widths.
+Links stay present when unavailable and activate1057; normal available glyphs
+are font10, hovered/focused glyphs font11, unavailable glyphs retain their node
+font. Keyboard link activation and visible focus via native hover art are explicit
+browser accessibility adaptations. No backdrop, CSS typography or synthetic
+illustration is supplied. Asset failure is reported to the eventual owner, which
+must restore its prior input/pause state and original Menu access safely.
+
+The surface requires separately verified preview and navigation/scroll nodes.
+They are not supplied with fake defaults. Text preflight rejects unsupported
+inline images or impossible panel dimensions before a future owner may pause.
+A ready text document does not mean its preview or complete feature is ready.
+History is scene-local, survives article close, retains duplicate visits and
+truncates forward history on a branch. Its64-slot bound includes the current
+entry, a documented browser memory-safety adaptation at the native overflow edge.
+Different article text resets scrolling at0045dd22; explicit link/home/context
+activation also resets it. No checkpoint schema or active gameplay handler has
+changed. These new modules/tests have not run and have no rendered acceptance.
