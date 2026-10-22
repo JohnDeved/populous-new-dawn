@@ -628,6 +628,7 @@ function missionFixture(t, helper = `Object.assign(trace, { contract: recoveryRe
   actionCapMs: Math.min(setupTimeout, deadlineAt - Date.now()), responseCapMs: 2500,
   responseStartedMs: 3000, responseDeadlineMs: 5500, elapsedMs: 3100, wallElapsedMs: 3100,
   responseSpentMs: 100, retryPreparationMs: 0, retryLimit: 1, retryCount: 0, retryPreparations: [],
+  attempts: [{ before: { action: 'ready', paused: false, inputMask: 0, flybyFlags: 16 }, outcome: 'natural-completion' }],
   responseWindows: [{ startedMs: 3000, finishedMs: 3100, deadlineMs: 5500 }] })`) {
   const root = fixture(t), calls = []
   put(root, 'scripts/browser-new-game.mjs', 'export async function openCampaignFromMainMenu(page) { page.calls.push("campaign") }')
@@ -698,6 +699,7 @@ test('caller acceptance rejects shared, missing, nonfinite, inflated and overrun
   const good = { contract: 'public-setup-cumulative-response-v2', actionCapMs: 25000, responseCapMs: 2500,
     responseStartedMs: 3000, responseDeadlineMs: 5500, elapsedMs: 3100, wallElapsedMs: 3100,
   responseSpentMs: 100, retryPreparationMs: 0, retryLimit: 1, retryCount: 0, retryPreparations: [],
+  attempts: [{ before: { action: 'ready', paused: false, inputMask: 0, flybyFlags: 16 }, outcome: 'natural-completion' }],
   responseWindows: [{ startedMs: 3000, finishedMs: 3100, deadlineMs: 5500 }] }
   assertMissionInputBudget(good)
   for (const [key, value] of [['contract', 'shared-input-v1'], ['responseCapMs', 2501], ['actionCapMs', 25001],
@@ -858,10 +860,22 @@ test('Sound context cleanup preserves a primary failure and rejects cleanup-only
 
 
 test('cumulative-response acceptance reconciles the exact authorized preparation interval', () => {
+  const state = { paused: false, inputMask: 64, flybyFlags: 17 }
+  const record = { trusted: true, repeat: false, prevented: true, sameWorld: true,
+    owners: ['0'], before: { ...state }, after: { ...state } }
+  const retry = { outcome: 'popup-owned-unchanged-retry', before: { action: 'skip', ...state }, after: { action: 'skip', ...state },
+    afterSource: 'atomic-post-dispatch-witness', ownership: [structuredClone(record)],
+    atomicAfter: { observationId: 'actual-witness', witnessId: 'actual-witness', witnessPresent: true, records: [record], state: { ...state } },
+    delivery: { keyDeliveryFailed: false, pending: false, phase: 'finalize-space-witness', phaseError: null,
+      completed: [
+        { phase: 'install-space-witness', status: 'fulfilled', startedMs: 0, finishedMs: 10 },
+        { phase: 'public-space-key', status: 'fulfilled', startedMs: 10, finishedMs: 20 },
+        { phase: 'finalize-space-witness', status: 'fulfilled', startedMs: 20, finishedMs: 30 },
+      ] } }
   const good = { contract: 'public-setup-cumulative-response-v2', actionCapMs: 25000, responseCapMs: 2500,
     responseStartedMs: 500, responseDeadlineMs: 4700, elapsedMs: 3000, wallElapsedMs: 3000,
     responseSpentMs: 800, retryPreparationMs: 1700, retryLimit: 1, retryCount: 1,
-    attempts: [{ outcome: 'popup-owned-unchanged-retry' }, { outcome: 'completed' }],
+    attempts: [retry, { outcome: 'completed' }],
     retryPreparations: [{ afterAttempt: 1, status: 'passed', startedMs: 900, finishedMs: 2600, elapsedMs: 1700, actionDeadlineMs: 25000 }],
     responseWindows: [{ startedMs: 500, finishedMs: 900, deadlineMs: 3000 }, { startedMs: 2600, finishedMs: 3000, deadlineMs: 4700 }] }
   assertMissionInputBudget(good)
@@ -872,4 +886,54 @@ test('cumulative-response acceptance reconciles the exact authorized preparation
     g => { g.retryPreparations[0].actionDeadlineMs = 26000 }]) {
     const broken = structuredClone(good); mutate(broken); assert.throws(() => assertMissionInputBudget(broken))
   }
+  // A passing outcome label never substitutes for the actual settled evidence.
+  const replaceRecords = (g, change) => {
+    change(g.attempts[0].atomicAfter.records)
+    g.attempts[0].ownership = structuredClone(g.attempts[0].atomicAfter.records)
+  }
+  for (const [label, mutate] of [
+    ['label only', g => { g.attempts[0] = { outcome: 'popup-owned-unchanged-retry' } }],
+    ['missing attempts', g => { delete g.attempts }],
+    ['missing final attempt', g => { g.attempts.pop() }],
+    ['extra attempt', g => { g.attempts.push({ outcome: 'completed' }) }],
+    ['unknown final outcome', g => { g.attempts[1].outcome = 'unknown' }],
+    ['delivery error', g => { g.attempts[0].deliveryError = 'key or observer failed' }],
+    ['key failure', g => { g.attempts[0].delivery.keyDeliveryFailed = true }],
+    ['pending finalizer', g => { g.attempts[0].delivery.pending = true }],
+    ['unfinalized phase', g => { g.attempts[0].delivery.phase = 'public-space-key' }],
+    ['finalizer error', g => { g.attempts[0].delivery.phaseError = 'context closed' }],
+    ['missing settled record', g => { g.attempts[0].delivery.completed.pop() }],
+    ['rejected RPC', g => { g.attempts[0].delivery.completed[2].status = 'rejected' }],
+    ['invalid RPC time', g => { g.attempts[0].delivery.completed[2].finishedMs = NaN }],
+    ['out-of-order RPC', g => { g.attempts[0].delivery.completed[2].startedMs = 5 }],
+    ['missing atomic state', g => { delete g.attempts[0].atomicAfter }],
+    ['missing witness', g => { g.attempts[0].atomicAfter.witnessPresent = false }],
+    ['missing witness ID', g => { delete g.attempts[0].atomicAfter.witnessId }],
+    ['stale observation', g => { g.attempts[0].atomicAfter.observationId = 'previous-witness' }],
+    ['empty identity', g => { g.attempts[0].atomicAfter.observationId = g.attempts[0].atomicAfter.witnessId = '' }],
+    ['non-atomic after source', g => { g.attempts[0].afterSource = 'fresh-native-read' }],
+    ['different ownership payload', g => { g.attempts[0].ownership[0].owners = ['other'] }],
+    ['missing record', g => replaceRecords(g, records => { records.length = 0 })],
+    ['multiple records', g => replaceRecords(g, records => { records.push(structuredClone(records[0])) })],
+    ['untrusted input', g => replaceRecords(g, records => { records[0].trusted = false })],
+    ['repeated input', g => replaceRecords(g, records => { records[0].repeat = true })],
+    ['unprevented input', g => replaceRecords(g, records => { records[0].prevented = false })],
+    ['changed World identity', g => replaceRecords(g, records => { records[0].sameWorld = false })],
+    ['no popup owner', g => replaceRecords(g, records => { records[0].owners = [] })],
+    ['malformed popup owner', g => replaceRecords(g, records => { records[0].owners = [null] })],
+    ['changed atomic state', g => { g.attempts[0].atomicAfter.state.inputMask = 0 }],
+    ['changed attempt state', g => { g.attempts[0].after.flybyFlags = 16 }],
+    ['changed dispatch state', g => replaceRecords(g, records => { records[0].before.paused = true })],
+    ['changed dispatch after', g => replaceRecords(g, records => { records[0].after.inputMask = 0 })],
+    ['malformed native state', g => { g.attempts[0].atomicAfter.state.flybyFlags = '17' }],
+    ['noninterruptible state', g => { g.attempts[0].before.action = 'ready' }],
+  ]) {
+    const broken = structuredClone(good); mutate(broken)
+    assert.throws(() => assertMissionInputBudget(broken), undefined, label)
+  }
+  const natural = structuredClone(good)
+  natural.attempts[1] = { outcome: 'natural-completion', before: { action: 'ready', paused: false, inputMask: 0, flybyFlags: 16 } }
+  assertMissionInputBudget(natural)
+  natural.attempts[1].delivery = {}
+  assert.throws(() => assertMissionInputBudget(natural), /Natural completion/)
 })
