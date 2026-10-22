@@ -48,6 +48,9 @@ export function assertOptionsCopyClearance(sample, { skin, category, fallback })
   if (skin === 'ingame') {
     assert.ok(valid(sample.hud[0]), 'Live HUD geometry must be finite and positive-area')
     assert.equal(sample.hud[0].visible, true, 'The native HUD remains visible')
+    const hud = sample.hud[0]
+    assert.ok(hud.x < viewport.width && hud.right > 0 && hud.y < viewport.height && hud.bottom > 0,
+      'Live native HUD geometry must intersect the viewport')
   }
   for (const copy of sample.browserCopy) {
     assert.equal(copy.ownerValid, true, 'Browser copy retains its actual status/button owner')

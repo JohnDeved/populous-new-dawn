@@ -29,6 +29,8 @@ for (const [name, change] of [
   ['reported native notice reaches x63 inside the x95 HUD', s => { s.browserCopy[1].texts[0].boxes[0].x = 63 }],
   ['help glyph enters the HUD while its wide button still fits viewport', s => { s.browserCopy[0].texts[0].boxes[0].x = 90 }],
   ['third notice row reaches navigation', s => { s.browserCopy[1].texts[1].boxes[0].bottom = 426 }],
+  ['offscreen HUD cannot make clearance vacuous', s => { s.hud[0] = { ...box(-100, 0, -5, 480), visible: true } }],
+  ['vertically offscreen HUD', s => { s.hud[0] = { ...box(0, -500, 95, -20), visible: true } }],
   ['hidden HUD', s => { s.hud[0].visible = false }],
   ['missing HUD', s => { s.hud = [] }],
   ['duplicate HUD', s => { s.hud.push(s.hud[0]) }],
