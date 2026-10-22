@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 
 test('Help data importer excludes bytecode writes, aliases, escape paths and concurrent replacement', () => {
-  const output = execFileSync('python3', ['-c', `
+  const output = execFileSync(process.env.PND_TEST_PYTHON || 'python3', ['-I', '-S', '-B', '-c', `
 import runpy, sys, tempfile
 from pathlib import Path
 m = runpy.run_path('scripts/import-help-ui.py')
