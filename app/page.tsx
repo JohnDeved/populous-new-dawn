@@ -1152,7 +1152,6 @@ export default function Home() {
             <button
               key={t}
               aria-label={`${t} ${t === 'spells' ? '1–3' : t === 'buildings' ? 'B' : ''}`}
-              title={t}
               aria-pressed={tab === t}
               className={tab === t ? 'active' : ''}
               onClick={() => {
@@ -1172,7 +1171,7 @@ export default function Home() {
             className="nearby-followers-button"
             aria-label="Nearby followers"
             aria-pressed={nearby}
-            title="Nearby followers · Limit counts and selection to the camera area"
+            aria-description="Nearby followers · Limit counts and selection to the camera area"
             {...nearbyControl}
           >
             <HudSprite id={875 + Number(nearby) * 2 + Number(nearbyPressed)} />
@@ -1180,7 +1179,7 @@ export default function Home() {
           <button
             className="portrait"
             aria-label="Select and focus shaman"
-            title="Shaman · H"
+            aria-description="Shaman · H"
             onClick={() => {
               select(world, 'shaman')
               audio.current?.cue(0x18)
@@ -1193,7 +1192,7 @@ export default function Home() {
           <button
             className="help-button"
             aria-label="Menu"
-            title="Help and game menu"
+            aria-description="Help and game menu"
             onClick={openMenu}
           >
             ?
@@ -1203,7 +1202,7 @@ export default function Home() {
             <button
               key={enemy.tribe}
               className={`tribe-flag ${enemy.name.toLowerCase()}`}
-              title={`${enemy.name}: ${enemy.units.filter(u => !u.ghost).length} followers`}
+              aria-description={`${enemy.name}: ${enemy.units.filter(u => !u.ghost).length} followers`}
               aria-label={`Focus ${enemy.name} tribe`}
               onClick={() => {
                 const u = enemy.units.find(isShaman) ?? enemy.units[0]
@@ -1216,7 +1215,7 @@ export default function Home() {
           <button
             className="population-button"
             aria-label="Select follower"
-            title="Select follower · Shift: all · Ctrl: five · Right-click: focus next"
+            aria-description="Select follower · Shift: all · Ctrl: five · Right-click: focus next"
             {...followerControl(0)}
           >
             <PopulationMeter
@@ -1229,7 +1228,7 @@ export default function Home() {
             <button
               key={u.kind}
               aria-label={`Select ${u.kind}`}
-              title={`${u.label} · Shift: all · Ctrl: five · Right-click: focus next`}
+              aria-description={`${u.label} · Shift: all · Ctrl: five · Right-click: focus next`}
               disabled={!u.enabled}
               aria-pressed={selected.length > 0 && selected.every(s => s.kind === u.kind)}
               {...followerControl(nativeUnitModel(u.kind))}
@@ -1302,7 +1301,7 @@ export default function Home() {
                       }
                       aria-disabled={visibility !== 'visible'}
                       aria-pressed={interactive && world.mode === s.id}
-                      title={
+                      aria-description={
                         undiscovered
                           ? 'Undiscovered spell'
                           : `${s.name}${canCharge ? ' · Right-click to pause or resume charging' : ''}`
@@ -1358,7 +1357,7 @@ export default function Home() {
                   className={`building-card ${world.mode === b.id ? 'active' : ''}`}
                   aria-label={`${b.name}, ${b.cost} wood`}
                   aria-pressed={world.mode === b.id}
-                  title={`${b.name} · Space rotates the plan`}
+                  aria-description={`${b.name} · Space rotates the plan`}
                   onClick={() =>
                     store.change(w => {
                       w.mode = w.mode === b.id ? null : b.id
@@ -1382,7 +1381,6 @@ export default function Home() {
                 <button
                   key={`disguise-${enemy.tribe}`}
                   aria-label={`Disguise selected spies as ${enemy.name}`}
-                  title={`Disguise selected spies as ${enemy.name}`}
                   onClick={() =>
                     store.change(w => {
                       disguiseSelectedSpies(w, enemy.tribe)
