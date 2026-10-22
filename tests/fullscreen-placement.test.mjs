@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { hudScale } from '../app/hud-layout.ts'
+import { frontendScale, frontendRows, frontendRowY } from '../app/frontend-composition.ts'
 const read = file => readFileSync(new URL('../app/' + file, import.meta.url), 'utf8')
 const css = read('fullscreen-control.module.css'), global = read('globals.css'), selector = read('world-selector.module.css')
 const rule = (source, name) => {
@@ -27,7 +28,7 @@ test('selector dock clears native Start/glyph band, Browser controls and direct-
   assert.match(selector, /\.start \{[^}]*left: calc\(576 \/ 638 \* 100%\)/)
   assert.match(selector, /\.panel \{[^}]*bottom: 0/)
   for (const [width, height, dpr] of [[640,480,1],[800,600,1],[1024,768,2],[1920,1080,1],[1920,1080,2],[3440,1440,2],[3840,2160,2]]) {
-    const scale = Math.min(width / 640, height / 480)
+    const scale = frontendScale(width, height)
     // Conservative English label width bound, source-clamped to150. Browser
     // Controls uses its existing top-right strip; its rendered hit-test is a
     // separate hosted gate, not inferred from this source geometry regression.
@@ -86,7 +87,7 @@ test('all frontend panels share the native compact frame in the empty upper-left
   // Conservative full-width row bands cover both bitmap and font-fallback rows.
   // Rendered fallback-title glyph bounds remain a browser-evidence requirement.
   for (const [width, height] of [[320,240],[640,480],[800,600],[900,360],[1280,720],[1920,1080],[3440,1440]]) {
-    const scale = Math.min(width / 640, height / 480)
+    const scale = frontendScale(width, height)
     const x = (width - 640 * scale) / 2, y = (height - 480 * scale) / 2
     const native = (left, top, right, bottom) => ({ left:x+left*scale, top:y+top*scale, right:x+right*scale, bottom:y+bottom*scale })
     // Derive the control and its focus ring from the shipped declarations rather
@@ -102,9 +103,11 @@ test('all frontend panels share the native compact frame in the empty upper-left
     const left = pixels(dock, 'left'), top = pixels(dock, 'top')
     const control = { left:left-outline, top:top-outline,
       right:left+pixels(button,'width')+outline, bottom:top+pixels(button,'height')+outline }
+    assert.ok(control.left >= 0 && control.top >= 0 && control.right <= width && control.bottom <= height,
+      `${width}x${height}: control and keyboard focus remain unclipped`)
     for (const [name, bounds] of [
       ['native logo', native(173,0,480,120)],
-      ['main menu rows', native(0,139,640,413)],
+      ['main menu rows', native(0,frontendRowY(0),640,frontendRowY(frontendRows.length-1)+29)],
       ['checkpoint recovery notices and Retry', native(0,414,640,480)],
       ['tutorial recommendation and Quit choices', native(0,139,640,480)],
       ['option/help/storage rows, bitmap or fallback', native(0,139,640,390)],
