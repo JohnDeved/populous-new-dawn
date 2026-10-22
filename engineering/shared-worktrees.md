@@ -205,3 +205,30 @@ to that installation's absolute `vite/dist/node/index.js` path and bind its actu
 dependency bytes in the run evidence. Missing Vite fails the test, never skips it.
 Use private disk-backed `TMPDIR` and the serialized lane even for this small check;
 the normal default resolves Vite from this checkout's `node_modules`.
+
+## Local dependency-profile migration
+
+An ordinary Git source checkout may use a private dependency-only pnpm profile via
+its `node_modules` alias. Each active mutable source owns its own physical layout,
+virtual store, `.bin` wrappers and caches; only verified immutable package files
+are hardlinked from the shared package store. Retired source views need not keep
+an install. Preserve their exact package/lock identities and provisioning record
+before removing an unused dependency alias.
+
+The test runner recognizes isolated pnpm metadata in that profile. Its production
+resource fingerprint binds the source package/lock/TypeScript configuration plus
+the profile package/lock, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.modules.yaml`
+and `.pnpm/lock.yaml`. The desired and installed pnpm locks must agree. Missing,
+mixed npm/pnpm or symlinked metadata falls back to serial eligibility; never create
+a fake `.package-lock.json`. Existing npm fingerprints and hosted CI envelopes are
+unchanged. A layout change invalidates prior resource eligibility, not test scope.
+This fingerprint is scheduling evidence, not complete installed-package integrity
+or a substitute for source-bound check/build/browser receipts.
+
+For the current project lock, local compatibility profiles explicitly public-hoist
+`playwright-core`, `js-yaml`, `sharp`, `oxfmt` and `oxlint`. These already-locked
+transitive packages support existing browser metadata paths, test/probe imports and
+quality CLIs. Record this `publicHoistPattern` in each private workspace profile,
+use offline frozen-lock installation with scripts disabled, and verify the actual
+public exports and native commands before switching a consumer. This local
+adapter does not change repository dependency declarations or hosted CI installs.
