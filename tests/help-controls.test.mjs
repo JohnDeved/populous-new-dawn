@@ -103,7 +103,8 @@ test('cap actions clamp seven track units rather than seven article pixels', () 
   assert.equal(helpScrollStep(2, 184, 'up'), 0)
   assert.equal(helpScrollStep(180, 184, 'down'), 184)
   assert.equal(helpScrollStep(0, 0, 'down'), 0)
-  for (const [position, maximum] of [[-1, 100], [101, 100], [1.5, 100], [0, -1], [0, NaN]])
+  assert.throws(() => helpScrollStep(0x7fffffff, 0x7fffffff, 'down'), /overflow is unsupported/)
+  for (const [position, maximum] of [[-1, 100], [101, 100], [1.5, 100], [0, -1], [0, NaN], [0, 0x80000000]])
     assert.throws(() => helpScrollStep(position, maximum, 'down'), /position/)
 })
 
@@ -151,9 +152,37 @@ test('drag reset is idempotent, counter wrap is valid, and invalid native inputs
   controller.reset()
   controller.reset()
   assert.equal(controller.sample(35, 100, sample(1, 100)), 35)
-  for (const y of [NaN, 1.5, undefined]) assert.throws(() => controller.begin(y), /mouse Y/)
+  for (const y of [NaN, 1.5, undefined, -0x80000001, 0x80000000]) assert.throws(() => controller.begin(y), /mouse Y/)
   for (const counter of [NaN, -1, 0x100000000, 0.5])
     assert.throws(() => controller.sample(35, 100, sample(counter, 65)), /counter/)
   assert.throws(() => controller.sample(101, 100, sample(2, 65)), /position/)
   assert.throws(() => controller.sample(35, 100, sample(2, NaN)), /mouse Y/)
+})
+
+
+test('native hover signed-word boundaries are accepted and impossible coordinates rejected', () => {
+  const plan = helpScrollbarPlan(panels.scrollbar, 736, 368, 0, null)
+  for (const value of [-0x8000, 0x7fff]) {
+    assert.equal(helpScrollbarHover(plan, { x: value, y: 54 }), null)
+    assert.equal(helpScrollbarHover(plan, { x: 602, y: value }), null)
+  }
+  for (const value of [-0x8001, 0x8000, NaN, 0.5]) {
+    assert.throws(() => helpScrollbarHover(plan, { x: value, y: 54 }), /signed16/)
+    assert.throws(() => helpScrollbarHover(plan, { x: 602, y: value }), /signed16/)
+  }
+})
+
+test('drag signed-DWORD subtraction and addition wrap before clamping', () => {
+  const controller = createHelpScrollController()
+  controller.begin(-0x80000000)
+  assert.equal(controller.sample(0, 0x7fffffff, sample(1, 0x7fffffff)), 0,
+    'MAX - MIN wraps to -1, then the native negative clamp applies')
+  controller.begin(0x7fffffff)
+  assert.equal(controller.sample(0, 0x7fffffff, sample(2, -0x80000000)), 1,
+    'MIN - MAX wraps to +1, not an unbounded negative value')
+  controller.begin(1)
+  assert.equal(controller.sample(0x7fffffff, 0x7fffffff, sample(3, 2)), 0,
+    'valid delta +1 can also overflow the native position addition')
+  assert.throws(() => controller.sample(0, 100, sample(4, 0x80000000)), /signed32/)
+  assert.throws(() => controller.sample(0, 0x80000000, sample(4, 1)), /position/)
 })

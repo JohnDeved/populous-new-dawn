@@ -330,3 +330,11 @@ are metadata only until the real cursor collector is composed. No original
 executable was executed. New focused cases and the renderer remain unexecuted at
 this source checkpoint; exact public input ownership, coordinate/counter adapters,
 rendered pixels and lifecycle interactions are still activation gates.
+
+
+Scrollbar source review additionally bounds native hover coordinates to signed16,
+drag Y to signed32 and nonnegative position/maximum to the signed32 range. Drag
+subtraction/addition preserves DWORD wrap before the native signed clamp. The
+unreachable ordinary-viewport downward-cap overflow case is explicitly unsupported,
+not silently changed into a fabricated negative position or lower clamp. Edge
+regressions cover signed limits, subtraction/addition wrap and rejected values.

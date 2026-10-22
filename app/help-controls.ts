@@ -115,6 +115,7 @@ function scrollBounds(position: number, maximum: number) {
     !Number.isSafeInteger(position) ||
     !Number.isSafeInteger(maximum) ||
     maximum < 0 ||
+    maximum > 0x7fffffff ||
     position < 0 ||
     position > maximum
   )
@@ -124,6 +125,8 @@ function scrollBounds(position: number, maximum: number) {
 /** 0045eb09 / 0045eb22: seven TRACK units, not seven article pixels. */
 export function helpScrollStep(position: number, maximum: number, direction: 'up' | 'down') {
   scrollBounds(position, maximum)
+  if (direction === 'down' && position > 0x7fffffff - 7)
+    throw new RangeError('Original Help cap step overflow is unsupported')
   return Math.max(0, Math.min(maximum, position + (direction === 'up' ? -7 : 7)))
 }
 
@@ -138,7 +141,8 @@ export function createHelpScrollController() {
   let anchor = 0
   let counter: number | null = null
   const mouse = (y: number) => {
-    if (!Number.isSafeInteger(y)) throw new RangeError('Actual integer native mouse Y is required')
+    if (!Number.isInteger(y) || y < -0x80000000 || y > 0x7fffffff)
+      throw new RangeError('Actual signed32 native mouse Y is required')
   }
   return {
     begin(mouseY: number) {
@@ -156,7 +160,8 @@ export function createHelpScrollController() {
       counter = input.counter
       if (!input.leftDown || input.leftUp) anchor = 0 // 0045e693–0045e6ac.
       if (!anchor) return position
-      const next = Math.max(0, Math.min(maximum, position + input.mouseY - anchor))
+      // Native DWORD subtraction/addition wraps BEFORE the signed clamp.
+      const next = Math.max(0, Math.min(maximum, (position + input.mouseY - anchor) | 0))
       anchor = input.mouseY // Update even when clamped: no hidden overshoot debt.
       return next
     },
@@ -178,8 +183,8 @@ export function helpScrollbarHover(
   point: { x: number; y: number } | null
 ) {
   if (!point) return null
-  if (![point.x, point.y].every(Number.isSafeInteger))
-    throw new RangeError('Actual integer native UI hover coordinates are required')
+  if (![point.x, point.y].every(value => Number.isInteger(value) && value >= -0x8000 && value <= 0x7fff))
+    throw new RangeError('Actual signed16 native UI hover coordinates are required')
   for (const [action, rect] of [
     ['up', plan.up],
     ['down', plan.down],
