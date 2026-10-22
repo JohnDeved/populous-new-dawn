@@ -541,7 +541,8 @@ async function runM2Episode({ browser, url, output, fixture, compactMessages = f
         report.campaignMessagesBefore, 'Public close/reopen retains the complete paused notification state')
       stage('f8-reset-matched')
       assertM2Input(report.before, report.after)
-      await setWorldPaused(page, false)
+      report.resumeInput = {}
+    await setWorldPaused(page, false, { trace: report.resumeInput })
       await page.waitForFunction(
         turn => window.testStore.getWorld().turn > turn,
         report.before.turn

@@ -62,25 +62,31 @@ export function popupRejectedSpace(records) {
 export async function pressObservedSpace(page, { timeout, signal, snapshot = false, trace = {} }) {
   if (typeof snapshot !== 'boolean') throw new RangeError('Invalid Space snapshot option')
   if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid Space ownership timeout')
-  trace.keyDeliveryFailed = false
-  const id = `__pndSpaceOwnership_${randomUUID()}`, deadline = performance.now() + timeout
+  const started = performance.now()
+  Object.assign(trace, { keyDeliveryFailed: false, phase: 'start', pending: false, completed: [] })
+  const id = `__pndSpaceOwnership_${randomUUID()}`, deadline = started + timeout
   let timer, records, installed = false, primary
   const remaining = () => Math.max(0, deadline - performance.now())
-  const bounded = async operation => {
+  const bounded = async (name, operation) => {
+    Object.assign(trace, { phase: name, pending: true, phaseStartedMs: performance.now() - started })
     if (!remaining()) { void operation.catch(() => {}); throw Error('Space ownership input timed out') }
     try {
-      return await Promise.race([operation, new Promise((_, reject) => {
+      const value = await Promise.race([operation, new Promise((_, reject) => {
         timer = setTimeout(() => reject(Error('Space ownership input timed out')), remaining())
       })])
+      const elapsedMs = performance.now() - started
+      Object.assign(trace, { pending: false, elapsedMs })
+      trace.completed.push({ phase: name, startedMs: trace.phaseStartedMs, finishedMs: elapsedMs })
+      return value
     } finally { clearTimeout(timer) }
   }
   try {
     signal?.throwIfAborted()
     installed = true
-    await bounded(page.evaluate(beginSpaceOwnership, { id, timeout }))
+    await bounded('install-space-witness', page.evaluate(beginSpaceOwnership, { id, timeout }))
     signal?.throwIfAborted()
     if (!remaining()) throw Error('Space ownership input timed out')
-    try { await bounded(page.keyboard.press('Space')) }
+    try { await bounded('public-space-key', page.keyboard.press('Space')) }
     catch (error) { trace.keyDeliveryFailed = true; throw error }
   } catch (error) { primary = error }
   finally {
@@ -89,7 +95,7 @@ export async function pressObservedSpace(page, { timeout, signal, snapshot = fal
       const cleanup = page.evaluate(snapshot ? endSpaceOwnershipSnapshot : endSpaceOwnership, id)
       if (!remaining()) { void cleanup.catch(() => {}); primary ??= Error('Space ownership input timed out') }
       else try {
-        records = await bounded(cleanup)
+        records = await bounded('finalize-space-witness', cleanup)
       } catch (error) { primary ??= error }
       finally { clearTimeout(timer) }
     }

@@ -129,23 +129,32 @@ export function worldPauseState() {
 
 // A requested state, not a blind toggle. Only an observed popup-owned, unchanged
 // dispatch can be retried, and accepted input is never sent a second time.
-export async function setWorldPaused(page, paused, { timeout = 2500 } = {}) {
+export async function setWorldPaused(page, paused, { timeout = 2500, trace = {}, signal } = {}) {
   assert.equal(typeof paused, 'boolean')
-  return withinInputDeadline(timeout, async remaining => {
+  return withinInputDeadline(timeout, async (remaining, phase) => {
     const collapsed = []
+    trace.attempts = []
     for (;;) {
-      collapsed.push(...await prepareWorldInput(page, { timeout: remaining() }))
-      const before = await page.evaluate(worldPauseState)
+      const attempt = { preparation: {}, delivery: {} }
+      trace.attempts.push(attempt)
+      if (trace.attempts.length > 32) trace.attempts.shift()
+      collapsed.push(...await phase('prepare-world-input', () =>
+        prepareWorldInput(page, { timeout: remaining(), trace: attempt.preparation, signal })))
+      const before = await phase('read-before-pause', () => page.evaluate(worldPauseState))
+      attempt.before = before
       remaining()
       assert.equal(before.inputMask, 0, 'Pause input cannot replace an introduction skip')
       if (before.paused === paused) return collapsed
-      const delivery = await pressObservedSpace(page, { timeout: remaining() })
-      const after = await page.evaluate(worldPauseState)
+      const delivery = await phase('observed-space-dispatch', () =>
+        pressObservedSpace(page, { timeout: remaining(), trace: attempt.delivery, signal }))
+      attempt.ownership = delivery
+      const after = await phase('read-after-pause', () => page.evaluate(worldPauseState))
+      attempt.after = after
       remaining()
       assert.equal(after.inputMask, 0, 'Pause input must retain ordinary world ownership')
-      if (after.paused === paused) return collapsed
-      if (popupRejectedSpace(delivery)) continue
+      if (after.paused === paused) { attempt.outcome = 'completed'; return collapsed }
+      if (popupRejectedSpace(delivery)) { attempt.outcome = 'popup-owned-unchanged-retry'; continue }
       throw Error('Public Space did not establish the requested pause state')
     }
-  })
+  }, trace, signal)
 }
