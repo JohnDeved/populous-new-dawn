@@ -54,3 +54,39 @@ test('gameplay fullscreen shares native action-row layout, never compact Resume/
     }
   }
 })
+
+test('frontend Options uses the existing compact frame in the empty upper-left dialog corner', () => {
+  const target = ":global(dialog:has([data-original-options][data-skin='frontend'])) > .control"
+  const dock = rule(css, target)
+  for (const declaration of ['top: 12px', 'left: 12px', 'right: auto', 'bottom: auto']) assert.ok(dock.includes(declaration))
+  // The portal belongs to the dialog, not its nested/transformed Options section.
+  assert.match(read('fullscreen-session.ts'), /const target = dialogs\[dialogs.length - 1\]/)
+  assert.match(read('original-main-menu.tsx'), /<div ref=\{frame\} className=\{styles.frame\}>/)
+  assert.match(read('original-options.tsx'), /data-original-options[\s\S]*data-skin=\{skin\}/)
+  for (const suffix of [' button', ' .compactFrame', ' .label']) {
+    assert.ok(css.includes(target + suffix + ',\n:global(.top-actions) > .control' + suffix + ' {'),
+      `Options shares unchanged native footer treatment: ${suffix}`)
+  }
+  assert.match(rule(css, target + ' p'), /top: 20px; left: 0; right: auto; bottom: auto/)
+  const menu = read('original-main-menu.module.css')
+  assert.match(menu, /\.logo \{ left: 181px; top: 10px; width: 290px; height: 101px/)
+  assert.match(read('original-options.tsx'), /choice\(text, 170 \+ index \* 150, 420/)
+  assert.match(read('original-options.tsx'), /choice\('Back', 320, 454/)
+  // Conservative full-width row bands cover both bitmap and font-fallback rows.
+  // Rendered fallback-title glyph bounds remain a browser-evidence requirement.
+  for (const [width, height] of [[320,240],[640,480],[800,600],[900,360],[1280,720],[1920,1080],[3440,1440]]) {
+    const scale = Math.min(width / 640, height / 480)
+    const x = (width - 640 * scale) / 2, y = (height - 480 * scale) / 2
+    const native = (left, top, right, bottom) => ({ left:x+left*scale, top:y+top*scale, right:x+right*scale, bottom:y+bottom*scale })
+    // Include the existing focus outline (1px with a 2px offset).
+    const control = { left:9, top:9, right:32, bottom:29 }
+    for (const [name, bounds] of [
+      ['native logo', native(173,0,480,120)],
+      ['option/help/storage rows, bitmap or fallback', native(0,139,640,390)],
+      ['category navigation and Direct3D link', native(0,390,640,446)],
+      ['Back', native(0,454,640,480)],
+      ['Bullfrog badge', native(4,386,79,477)],
+      ['QSound badge', native(568,415,637,477)],
+    ]) assert.equal(intersects(control,bounds),false, `${width}x${height}: ${name}`)
+  }
+})
