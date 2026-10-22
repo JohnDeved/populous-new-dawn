@@ -13,7 +13,8 @@
         "Exact full-world serialized pause oracle and original HUD/native-control locator semantics",
         "Fresh-locator focus observation with original strict/attachment-waiting fallback and real bounded Tab navigation",
         "Distinct checkpoint wrapper/scroller/action ownership, decoded original scrollbar image geometry/hits and complete fullscreen cap coverage",
-        "Actual browser-added Options glyph/fallback text clears the live HUD and navigation without wide-container bounds"
+        "Actual browser-added Options glyph/fallback text clears the live HUD and navigation without wide-container bounds",
+        "Same-read actual modal ownership and opaque frontend versus transparent in-game coverage distinguish mounted HUDs from exposed HUD clearance"
       ],
       "knownLimits": [
         "Synthetic Node fixtures validate checker rejection behavior, not rendered UI or original-game pixel parity.",
@@ -72,7 +73,11 @@
         "tests/options-copy-clearance.test.mjs",
         "app/original-options.tsx",
         "tests/recovery-input-budget.test.mjs",
-        "engineering/recovery-input-budget.md"
+        "engineering/recovery-input-budget.md",
+        "app/original-main-menu.tsx",
+        "app/original-main-menu.module.css",
+        "app/original-pause-menu.tsx",
+        "app/original-pause-menu.module.css"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -121,7 +126,9 @@
         "tests/options-copy-clearance.test.mjs",
         "app/original-options.tsx",
         "tests/recovery-input-budget.test.mjs",
-        "engineering/recovery-input-budget.md"
+        "engineering/recovery-input-budget.md",
+        "app/original-main-menu.module.css",
+        "app/original-pause-menu.module.css"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
