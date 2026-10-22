@@ -9,7 +9,9 @@
       "coveredBehavior": [
         "Exact candidate/infrastructure identities, dependency export resolution, cleanup and bounded episode accounting",
         "Effective sound pending state and focus/world/popup ownership rejection controls",
-        "Finite, visible pending pointer targets owned by the sound control or its artwork"
+        "Finite, visible pending pointer targets owned by the sound control or its artwork",
+        "Exact full-world serialized pause oracle and original HUD/native-control locator semantics",
+        "Fresh-locator focus observation with original strict/attachment-waiting fallback and real bounded Tab navigation"
       ],
       "knownLimits": [
         "Synthetic Node fixtures validate checker rejection behavior, not rendered UI or original-game pixel parity.",
@@ -18,7 +20,12 @@
       "executable": "node",
       "args": [
         "--test",
-        "tests/native-ui-evidence.test.mjs"
+        "tests/native-ui-evidence.test.mjs",
+        "tests/pause-world-snapshot.test.mjs",
+        "tests/pause-clearance-batch.test.mjs",
+        "tests/pause-checker-registration.test.mjs",
+        "tests/pause-focus-observation.test.mjs",
+        "tests/pause-keyboard-traversal.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -26,7 +33,25 @@
         "scripts/native-ui-evidence",
         "tests/native-ui-evidence.test.mjs",
         ".github/workflows/native-ui-evidence.yml",
-        "engineering/native-ui-evidence.md"
+        "engineering/native-ui-evidence.md",
+        "scripts/local-render/original-pause-checkpoint-style.mjs",
+        "scripts/local-render/fullscreen-clearance.mjs",
+        "scripts/local-render/pause-world-snapshot.mjs",
+        "tests/pause-world-snapshot.test.mjs",
+        "tests/pause-clearance-batch.test.mjs",
+        "tests/pause-checker-registration.test.mjs",
+        "tests/fixtures/fullscreen-clearance-before-batch.mjs",
+        "engineering/checks.json",
+        "tests/pause-focus-observation.test.mjs",
+        "tests/pause-keyboard-traversal.test.mjs",
+        "scripts/browser-new-game.mjs",
+        "scripts/browser-space-ownership.mjs",
+        "scripts/browser-world-input.mjs",
+        "scripts/local-render/checkpoint-body-clearance.mjs",
+        "scripts/local-render/checkpoint-observer.mjs",
+        "scripts/local-render/original-pause-checkpoint-recovery.mjs",
+        "scripts/local-render/pause-focus-observation.mjs",
+        "scripts/local-render/pause-held-escape.mjs"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -43,7 +68,25 @@
         "engineering/native-ui-evidence.md",
         "package.json",
         "pnpm-lock.yaml",
-        "pnpm-workspace.yaml"
+        "pnpm-workspace.yaml",
+        "scripts/local-render/original-pause-checkpoint-style.mjs",
+        "scripts/local-render/fullscreen-clearance.mjs",
+        "scripts/local-render/pause-world-snapshot.mjs",
+        "tests/pause-world-snapshot.test.mjs",
+        "tests/pause-clearance-batch.test.mjs",
+        "tests/pause-checker-registration.test.mjs",
+        "tests/fixtures/fullscreen-clearance-before-batch.mjs",
+        "engineering/checks.json",
+        "tests/pause-focus-observation.test.mjs",
+        "tests/pause-keyboard-traversal.test.mjs",
+        "scripts/browser-new-game.mjs",
+        "scripts/browser-space-ownership.mjs",
+        "scripts/browser-world-input.mjs",
+        "scripts/local-render/checkpoint-body-clearance.mjs",
+        "scripts/local-render/checkpoint-observer.mjs",
+        "scripts/local-render/original-pause-checkpoint-recovery.mjs",
+        "scripts/local-render/pause-focus-observation.mjs",
+        "scripts/local-render/pause-held-escape.mjs"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
