@@ -329,3 +329,51 @@ test('browser recovery keeps scrollable native rows and unrestricted escaped dia
   }
   assert.ok(!/\.loading-recovery(?: h2)?\{[^}]*Arial/.test(css))
 })
+
+test('the invoked loading checker preserves primary failure while still failing cleanup or report persistence', async () => {
+  const browserSource = readFileSync(new URL('../scripts/local-render/loading-recovery-style.mjs', import.meta.url), 'utf8')
+  const browserModule = { exports: {} }
+  const browserCode = ts.transpileModule(browserSource, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  }).outputText
+  new Function('require', 'module', 'exports', browserCode)(name => {
+    if (['node:assert/strict', 'node:fs', 'node:path'].includes(name)) return require(name)
+    if (['../browser-new-game.mjs', './fullscreen-clearance.mjs'].includes(name)) return {}
+    throw Error(`Unexpected browser helper dependency: ${name}`)
+  }, browserModule, browserModule.exports)
+  const { finishLoadingRecovery } = browserModule.exports
+  assert.equal(typeof finishLoadingRecovery, 'function')
+  assert.match(browserSource, /finally\s*\{\s*await finishLoadingRecovery\(\{ primaryError, report, gates, fallback, save \}\)/,
+    'negative exercises the finalizer actually invoked by the candidate episode')
+  for (const hasPrimary of [true, false]) {
+    const primaryError = hasPrimary ? Error('original loading assertion') : undefined
+    const cleanupError = Error('context close failed'), persistenceError = Error('report write failed')
+    const report = { status: hasPrimary ? 'failed' : 'passed' }
+    const events = [], gates = [() => events.push('release')]
+    let savedStatus
+    const attempt = async () => {
+      try { if (primaryError) throw primaryError }
+      finally {
+        await finishLoadingRecovery({ primaryError, report, gates,
+          fallback: { async close() { events.push('close'); throw cleanupError } },
+          save() { events.push('save'); savedStatus = report.status; throw persistenceError },
+        })
+      }
+    }
+    await assert.rejects(attempt, error => {
+      if (primaryError) assert.equal(error, primaryError, 'cleanup cannot replace the original failure')
+      const cleanup = primaryError?.cleanupError ?? error
+      assert.ok(cleanup instanceof AggregateError)
+      assert.deepEqual(cleanup.errors, [cleanupError, persistenceError])
+      return true
+    })
+    assert.deepEqual(events, ['release', 'close', 'save'])
+    assert.deepEqual(gates, [])
+    assert.equal(savedStatus, 'failed')
+    assert.equal(report.status, 'failed')
+    assert.deepEqual(report.cleanupErrors, [String(cleanupError), String(persistenceError)])
+  }
+  const report = { status: 'passed' }
+  await finishLoadingRecovery({ report, gates: [], save() {} })
+  assert.equal(report.status, 'passed', 'natural no-op cleanup must not manufacture a failure')
+})

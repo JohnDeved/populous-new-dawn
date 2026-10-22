@@ -4,6 +4,25 @@ import { resolve } from 'node:path'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { observeFullscreenClearance, assertFullscreenClearance } from './fullscreen-clearance.mjs'
 
+export async function finishLoadingRecovery({ primaryError, report, gates, fallback, save }) {
+  const failures = []
+  const failed = error => {
+    failures.push(error)
+    report.status = 'failed'
+    report.cleanupErrors = failures.map(String)
+  }
+  for (const release of gates.splice(0)) {
+    try { release() } catch (error) { failed(error) }
+  }
+  try { if (fallback) await fallback.close() } catch (error) { failed(error) }
+  try { save() } catch (error) { failed(error) }
+  if (failures.length) {
+    const cleanupError = new AggregateError(failures, 'Loading recovery cleanup or report persistence failed')
+    if (primaryError) primaryError.cleanupError = cleanupError
+    else throw cleanupError
+  }
+}
+
 // Actual Home and real loader failures. Only landscape responses and, in the
 // separate sequential fallback contexts, frontend font availability are controlled. No world,
 // store, error-prop, save or React state is injected. This is not a ready-scene test.
@@ -43,7 +62,7 @@ export default async function ({ page, browser, url, output }) {
     assert.ok(images.every(image => image.endsWith(`/original/frontend/${name}.png")`)), `Expected original ${name} artwork`)
   }
   const gates = []
-  let fallback
+  let fallback, primaryError
   page.on('pageerror', error => report.errors.push(String(error)))
   try {
     await page.setViewportSize({ width: 1280, height: 800 })
@@ -174,10 +193,9 @@ export default async function ({ page, browser, url, output }) {
   } catch (error) {
     report.status = 'failed'
     report.failure = String(error)
-    throw error
+    primaryError = error instanceof Error ? error : new Error(String(error))
+    throw primaryError
   } finally {
-    for (const release of gates.splice(0)) release()
-    if (fallback) await fallback.close()
-    save()
+    await finishLoadingRecovery({ primaryError, report, gates, fallback, save })
   }
 }
