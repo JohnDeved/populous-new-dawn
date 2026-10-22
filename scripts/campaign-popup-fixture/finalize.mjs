@@ -20,8 +20,9 @@ export async function finalizePopupFixture({ receipt, failed, primaryError, brow
   const saved = await attempt('save-receipt', save)
   // The full receipt also retains the actual transition trace if disk save fails.
   const emitted = await attempt('emit-terminal', () => emit(receipt))
-  // If stdout fails after a successful write, update that existing receipt so it
-  // cannot remain a passing terminal. Do not retry a failed first disk write.
+  // If stdout fails after a successful write, try to correct that receipt. If
+  // this write also fails, the saved receipt may be stale; process failure is
+  // authoritative. Do not retry a failed first disk write.
   if (!emitted && saved) await attempt('save-terminal-failure', save)
   return { failed: hadFailure, primaryError: firstError }
 }
