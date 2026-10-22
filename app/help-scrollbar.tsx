@@ -62,7 +62,9 @@ export function HelpScrollbar({
     }
     let active = true
     void preflightHelpAssets(JSON.parse(assetKey) as HelpImageAsset[]).then(
-      () => { if (active) setReady(true) },
+      () => {
+        if (active) setReady(true)
+      },
       error => {
         if (!active) return
         setReady(false)
@@ -119,7 +121,14 @@ export function HelpScrollbar({
               if (event.detail === 0) activate() // Explicit browser keyboard adaptation.
             }}
           >
-            <img src={cap.url} width={cap.width} height={cap.height} alt="" draggable={false} style={{ left: 0, top: 0 }} />
+            <img
+              src={cap.url}
+              width={cap.width}
+              height={cap.height}
+              alt=""
+              draggable={false}
+              style={{ left: 0, top: 0 }}
+            />
           </button>
         )
       })}

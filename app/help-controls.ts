@@ -87,7 +87,10 @@ export function helpScrollbarPlan(
   return {
     ...scroll,
     up: cap(hovered === 'up' || focused === 'up' ? 453 : 451, rect.y + scroll.position),
-    down: cap(hovered === 'down' || focused === 'down' ? 454 : 452, rect.y + scroll.position + scroll.thumb - 12),
+    down: cap(
+      hovered === 'down' || focused === 'down' ? 454 : 452,
+      rect.y + scroll.position + scroll.thumb - 12
+    ),
     body: {
       ...helpControlIcon(455),
       x: rect.x,
@@ -170,7 +173,6 @@ export function createHelpScrollController() {
 
 export type HelpScrollController = ReturnType<typeof createHelpScrollController>
 
-
 function helpRenderCounter(counter: number) {
   if (!Number.isInteger(counter) || counter < 0 || counter > 0xffffffff)
     throw new RangeError('An actual unsigned native UI counter is required')
@@ -183,14 +185,24 @@ export function helpScrollbarHover(
   point: { x: number; y: number } | null
 ) {
   if (!point) return null
-  if (![point.x, point.y].every(value => Number.isInteger(value) && value >= -0x8000 && value <= 0x7fff))
+  if (
+    ![point.x, point.y].every(
+      value => Number.isInteger(value) && value >= -0x8000 && value <= 0x7fff
+    )
+  )
     throw new RangeError('Actual signed16 native UI hover coordinates are required')
   for (const [action, rect] of [
     ['up', plan.up],
     ['down', plan.down],
     ['drag', plan.body],
   ] as const)
-    if (rect && point.x >= rect.x && point.x < rect.x + rect.width &&
-        point.y >= rect.y && point.y < rect.y + rect.height) return action
+    if (
+      rect &&
+      point.x >= rect.x &&
+      point.x < rect.x + rect.width &&
+      point.y >= rect.y &&
+      point.y < rect.y + rect.height
+    )
+      return action
   return null
 }
