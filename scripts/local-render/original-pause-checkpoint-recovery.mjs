@@ -32,6 +32,31 @@ export function pauseStartupReady(snapshot = false) {
   const world = window.testStore.getWorld()
   const action = !world.inputMask ? 'ready'
     : (world.inputMask & 64) && (world.flyby.flags & 0x51) === 0x11 ? 'skip' : false
+  // Bounded observation only: a stable never-ready startup must leave evidence.
+  // Keep trace failures outside the original readiness/exception contract.
+  if (!snapshot && typeof document !== 'undefined') {
+    try {
+      const trace = window.__pauseStartupTrace ??= { count: 0, last: null }
+      if (trace.count < 16) {
+        const number = value => Number.isFinite(value) ? value : null
+        const core = { action, inputMask: number(world.inputMask), flybyFlags: number(world.flyby.flags),
+          paused: Boolean(world.paused), level: number(world.outcome?.level),
+          levelStart: Array.isArray(world.levelStart) ? world.levelStart.slice(0, 8).map(site => number(site.phase)) : null }
+        const state = { ...core, loading: document.querySelector('.loading-world')?.textContent?.slice(0, 120) ?? null,
+          popupPresent: Boolean(document.querySelector('[data-native-campaign-popup]')),
+          activeTag: document.activeElement?.tagName?.slice(0, 20) ?? null,
+          dialogs: [...document.querySelectorAll('dialog[open],[role="dialog"]')].slice(0, 4)
+            .map(node => ({ label: node.getAttribute('aria-label')?.slice(0, 60) ?? null, visible: node.getClientRects().length > 0 })),
+          canvases: [...document.querySelectorAll('canvas')].slice(0, 3).map(node => ({ width: number(node.width), height: number(node.height) })) }
+        let text = JSON.stringify(state)
+        if (text.length > 2048) text = JSON.stringify({ ...core, domOmitted: true })
+        if (text !== trace.last) {
+          trace.last = text; trace.count++
+          console.warn('NATIVE_STARTUP_STATE', text)
+        }
+      }
+    } catch { /* Diagnostic errors must not change readiness or its deadline. */ }
+  }
   return snapshot ? { action, paused: world.paused } : action
 }
 
