@@ -10,6 +10,7 @@ const path = `/accounts/${account}/workers/scripts/${worker}/secrets`
 const invalid = 'Cloudflare request not sent: invalid credential or request input.'
 const transport = 'Cloudflare transport failed; remote outcome is uncertain. Inspect before retrying.'
 const unconfirmed = 'Cloudflare response did not confirm success; remote outcome is uncertain. Inspect before retrying.'
+const withStatus = status => `Cloudflare response did not confirm success (HTTP ${status}); remote outcome is uncertain. Inspect before retrying.`
 
 // Sequential tests overwrite, then remove this process-local synthetic value.
 // Never read or preserve a real credential; every request uses a mocked fetch.
@@ -91,21 +92,47 @@ test('fetch exceptions discard their message, cause, stack and custom properties
 })
 test('unreadable or invalid responses never reflect response bodies or parser errors', async t => {
   const responses = [
-    () => new Response(`invalid JSON ${synthetic} ${responseSecret}`),
-    () => Response.json({ success: `${synthetic} ${responseSecret}` }),
-    () => Response.json({ success: false, errors: [{ message: `${synthetic} ${responseSecret}` }] }),
-    () => Response.json(null),
-    () => new Response(`${synthetic} ${responseSecret}`, { status: 403 }),
-    () => new Response('x'.repeat(1024 * 1024 + 1)),
-    () => ({ ok: true, body: { async *[Symbol.asyncIterator]() {
+    [() => new Response(`invalid JSON ${synthetic} ${responseSecret}`), withStatus(200)],
+    [() => Response.json({ success: `${synthetic} ${responseSecret}` }), withStatus(200)],
+    [() => Response.json({ success: false, errors: [{ message: `${synthetic} ${responseSecret}` }] }), withStatus(200)],
+    [() => Response.json(null), withStatus(200)],
+    [() => new Response(`${synthetic} ${responseSecret}`, { status: 403 }), withStatus(403)],
+    [() => new Response('x'.repeat(1024 * 1024 + 1)), withStatus(200)],
+    [() => ({ ok: true, body: { async *[Symbol.asyncIterator]() {
       yield Buffer.from('partial response'); throw new Error(`${synthetic} ${responseSecret}`)
-    } } }),
+    } } }), unconfirmed],
   ]
-  for (const response of responses) {
+  for (const [response, expected] of responses) {
     await t.test('reject unconfirmed mock response with uncertain outcome', async t => {
       const fetch = fixture(t, synthetic, async () => response())
-      await safeRejection(cfRequest(path), unconfirmed)
+      await safeRejection(cfRequest(path), expected)
       assert.equal(fetch.mock.callCount(), 1)
     })
   }
+})
+test('only integer HTTP status 100 through 599 can reach a response diagnostic', async t => {
+  for (const status of [100, 401, 403, 500, 599]) {
+    await t.test('preserve a valid numeric HTTP status', async t => {
+      const fetch = fixture(t, synthetic, async () => ({ ok: false, status }))
+      await safeRejection(cfRequest(path), withStatus(status))
+      assert.equal(fetch.mock.callCount(), 1)
+    })
+  }
+  let conversions = 0
+  const hostile = { toString() { conversions++; throw new Error(synthetic) },
+    valueOf() { conversions++; throw new Error(responseSecret) } }
+  for (const status of [undefined, null, '403', synthetic, NaN, Infinity, 99, 600, 403.5, hostile]) {
+    await t.test('discard an invalid status without coercing it', async t => {
+      const fetch = fixture(t, synthetic, async () => ({ ok: false, status }))
+      await safeRejection(cfRequest(path), unconfirmed)
+      assert.equal(fetch.mock.callCount(), 1)
+      assert.equal(conversions, 0)
+    })
+  }
+  await t.test('discard a throwing status accessor and its original exception', async t => {
+    const fetch = fixture(t, synthetic, async () => ({ ok: false,
+      get status() { throw new Error(synthetic, { cause: new Error(responseSecret) }) } }))
+    await safeRejection(cfRequest(path), unconfirmed)
+    assert.equal(fetch.mock.callCount(), 1)
+  })
 })

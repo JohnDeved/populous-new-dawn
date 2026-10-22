@@ -174,14 +174,19 @@ export async function cfRequest(path, input = {}) {
     // Never retain the original error (including its cause or stack).
     throw new Error('Cloudflare transport failed; remote outcome is uncertain. Inspect before retrying.')
   }
+  let status
   try {
-    const result = JSON.parse(await bodyBytes(response, 1024 * 1024))
+    const candidate = response.status
+    if (Number.isInteger(candidate) && candidate >= 100 && candidate <= 599) status = candidate
+    // Do not let the shared reader stringify an arbitrary status value. Accessor
+    // failures are caught too; only the validated integer may reach diagnostics.
+    const result = JSON.parse(await bodyBytes({ ok: response.ok, status, body: response.body }, 1024 * 1024))
     if (result?.success !== true) throw new Error()
     return result.result
   } catch {
     // Covers HTTP failure, stream/size/JSON errors and unsuccessful API results.
     // AssertionError.actual and parser messages can otherwise echo response data.
-    throw new Error('Cloudflare response did not confirm success; remote outcome is uncertain. Inspect before retrying.')
+    throw new Error(`Cloudflare response did not confirm success${status === undefined ? '' : ` (HTTP ${status})`}; remote outcome is uncertain. Inspect before retrying.`)
   }
 }
 export async function ensureCurrent(api, state) {
