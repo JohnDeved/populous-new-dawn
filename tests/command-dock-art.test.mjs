@@ -50,15 +50,23 @@ test('removing the painted ridge preserves the current command controls and foll
 
 test('edge-aligned follower controls retain an inset native-palette keyboard focus ring', () => {
   const focus = declarations('.follower-tasks button:focus-visible')
-  assert.equal(focus.outline, '1px solid #fff7bb')
-  assert.equal(focus['outline-offset'], '-1px')
+  assert.equal(focus.outline, 'none', 'the generic outside outline must not clip at the viewport')
+  const ring = declarations('.follower-tasks button:focus-visible::after')
+  assert.equal(ring.content, '""')
+  assert.equal(ring.position, 'absolute')
+  assert.equal(ring.inset, '0')
+  assert.equal(ring.border, '1px solid #fff7bb')
+  assert.equal(ring['z-index'], '1', 'paint above auto-stacked native frame and icon children')
+  assert.equal(ring['pointer-events'], 'none', 'focus paint must never intercept gameplay input')
   const hud = JSON.parse(read('app/original-hud.json'))
   assert.ok(hud.colors.includes('#fff7bb'), 'reuse the original HUD palette')
   const button = declarations('.follower-tasks button')
   assert.equal(button.width, '15px')
   assert.equal(button.height, '34px')
   assert.equal(button.overflow, 'visible', 'do not hide native artwork to clip the focus ring')
-  const outwardExtent = parseFloat(focus.outline) + parseFloat(focus['outline-offset'])
-  assert.equal(outwardExtent, 0, 'the ring must not extend beyond the edge-aligned button')
-  for (const scale of [0.96, 1, 2]) assert.equal(outwardExtent * scale, 0)
+  for (const size of [parseFloat(button.width), parseFloat(button.height)]) {
+    const border = parseFloat(ring.border)
+    assert.ok(size - 2 * border > 0)
+    assert.equal((size - 2 * border) + 2 * border, size, 'auto-size keeps both borders inside inset zero')
+  }
 })
