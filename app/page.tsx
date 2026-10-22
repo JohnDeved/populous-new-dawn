@@ -1020,7 +1020,12 @@ export default function Home() {
           e.stopPropagation()
           return
         }
-        if (e.detail > 0 && (e.target as Element).closest('.native-hud'))
+        // Sound's async browser activation keeps focus for pending/retry keys.
+        if (
+          e.detail > 0 &&
+          (e.target as Element).closest('.native-hud') &&
+          !(e.target as Element).closest('[data-sound-control]')
+        )
           (e.target as Element).closest('button')?.blur()
       }}
     >

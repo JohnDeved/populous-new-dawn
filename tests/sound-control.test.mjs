@@ -60,6 +60,80 @@ function click(button) {
   return result
 }
 
+// Execute Home's actual capture handler before SoundControl's real click handler.
+// The supplied DOM boundary models focus/closest; rendered QA proves real hit-testing.
+const homeMain = pageNode(node => ts.isJsxOpeningElement(node) && node.tagName.getText(pageSource) === 'main')
+const homeClickCapture = homeMain.attributes.properties.find(attribute => attribute.name?.getText(pageSource) === 'onClickCapture').initializer.expression.getText(pageSource)
+const loadingInteraction = pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === 'blockLoadingInteraction').getText(pageSource)
+function homeClickFixture({ ready = true, inputMask = 0, hud = true, sound = true, button = true, nested = false, extraSelectors = [] } = {}) {
+  const f = fixture(), world = { inputMask }, focus = { active: true, blurs: 0 }
+  const node = { blur() { focus.active = false; focus.blurs++ } }
+  const selectors = new Set([
+    ...(hud ? ['.native-hud'] : []), ...(sound ? ['[data-sound-control]', '.top-actions'] : []),
+    ...(button ? ['button'] : []), ...extraSelectors,
+  ])
+  node.closest = selector => selector.split(',').some(part => selectors.has(part.trim())) ? node : null
+  const target = nested ? { closest: node.closest } : node
+  const blockLoadingInteraction = evaluatePage(loadingInteraction, { ready })
+  const capture = evaluatePage(homeClickCapture, { world, blockLoadingInteraction })
+  return { focus, calls: f.calls, click({ pending = false, detail = 1 } = {}) {
+    const result = { stopped: false, prevented: false }
+    const event = { target, detail, stopPropagation() { result.stopped = true }, preventDefault() { result.prevented = true } }
+    capture(event)
+    if (!result.stopped && sound) f.render({ pending }).props.onClick(event)
+    return result
+  } }
+}
+
+test('actual Home capture preserves sound focus for pending clicks and fresh pointer retry without duplicate activation', () => {
+  for (const inputMask of [0, 1]) for (const detail of [1, 2]) for (const nested of [false, true]) {
+    const f = homeClickFixture({ inputMask, nested })
+    for (let repeat = 0; repeat < 3; repeat++) {
+      assert.deepEqual(f.click({ pending: true, detail }), { stopped: true, prevented: true })
+      assert.deepEqual(f.focus, { active: true, blurs: 0 })
+      assert.deepEqual(f.calls, [])
+    }
+    assert.deepEqual(f.click({ detail }), { stopped: true, prevented: false })
+    assert.deepEqual(f.focus, { active: true, blurs: 0 }, 'the retry cannot blur before it starts another pending activation')
+    assert.deepEqual(f.calls, ['toggle'])
+    f.click({ pending: true, detail })
+    assert.deepEqual(f.calls, ['toggle'])
+    assert.deepEqual(f.focus, { active: true, blurs: 0 })
+  }
+})
+
+test('actual Home capture keeps ordinary HUD pointer blur and native keyboard focus policy', () => {
+  for (const detail of [0, 1, 2]) {
+    const ordinary = homeClickFixture({ sound: false })
+    assert.deepEqual(ordinary.click({ detail }), { stopped: false, prevented: false })
+    assert.deepEqual(ordinary.focus, { active: detail === 0, blurs: detail === 0 ? 0 : 1 })
+    const sound = homeClickFixture()
+    sound.click({ detail })
+    assert.deepEqual(sound.focus, { active: true, blurs: 0 })
+  }
+  const outside = homeClickFixture({ hud: false, sound: false })
+  outside.click(); assert.deepEqual(outside.focus, { active: true, blurs: 0 })
+  const background = homeClickFixture({ sound: false, button: false })
+  background.click(); assert.deepEqual(background.focus, { active: true, blurs: 0 })
+})
+
+test('actual Home capture loading and input-mask guards still precede sound and ordinary HUD actions', () => {
+  for (const pending of [false, true]) for (const detail of [0, 1]) for (const sound of [false, true]) {
+    const loading = homeClickFixture({ ready: false, sound })
+    assert.deepEqual(loading.click({ pending, detail }), { stopped: true, prevented: true })
+    assert.deepEqual(loading.focus, { active: true, blurs: 0 })
+    assert.deepEqual(loading.calls, [])
+  }
+  const masked = homeClickFixture({ inputMask: 1, sound: false })
+  assert.deepEqual(masked.click(), { stopped: true, prevented: true })
+  assert.deepEqual(masked.focus, { active: true, blurs: 0 })
+  for (const extraSelectors of [['.loading-world'], ['[data-fullscreen-control]'], ['[data-original-main-menu]']]) {
+    const allowed = homeClickFixture({ ready: false, inputMask: 1, hud: false, sound: false, extraSelectors })
+    assert.deepEqual(allowed.click(), { stopped: false, prevented: false }, 'existing loading/input-mask recovery exemptions remain usable')
+    assert.deepEqual(allowed.focus, { active: true, blurs: 0 })
+  }
+})
+
 test('sound activation retains a focusable native button, synchronous action and accessible pending state', () => {
   for (const sound of [false, true]) for (const pending of [false, true]) {
     const f = fixture(), button = f.render({ sound, pending })
