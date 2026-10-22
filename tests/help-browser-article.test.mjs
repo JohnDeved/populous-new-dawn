@@ -99,12 +99,14 @@ test('changed scene, World, player, environment and sub-integer geometry invalid
   for (const change of [f => { f.state.current = false }, f => { f.scene.world = { ...f.scene.world } },
     f => { f.scene.world.manaWorld.playerTribe = 1 }, f => { f.scene.environment = { ...f.scene.environment } },
     f => { f.state.width += 0.1 }, f => { f.state.attached = false }]) {
+    await t.test('owner identity change', async t => {
     const f = fixture(t), owner = f.create(), state = await ready(owner)
     change(f)
     assert.equal(owner.isCurrent(state), false)
     assert.equal(owner.getSnapshot().status, 'unavailable')
     assert.equal(owner.afterDraw(state, { counter: 1, mouseY: 55, leftDown: true, leftUp: false }), null)
     owner.dispose()
+    })
   }
 })
 
