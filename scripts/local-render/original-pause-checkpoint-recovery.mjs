@@ -122,12 +122,19 @@ export async function skipPauseIntroduction(page, {
       if (before.action === 'ready') { attempt.outcome = 'natural-completion'; return }
       if (before.action !== 'skip') throw new Error('Recovery introduction is no longer interruptible')
       let delivery
+      attempt.delivery = {}
       await phase('observed-space-dispatch', async () => {
         try {
-          delivery = await pressObservedSpace(page, { timeout: remaining(), signal: actionSignal, snapshot: separateSetup })
+          delivery = await pressObservedSpace(page, { timeout: remaining(), signal: actionSignal, snapshot: separateSetup, trace: attempt.delivery })
           attempt.ownership = structuredClone(separateSetup ? delivery.records : delivery)
           if (separateSetup) attempt.atomicAfter = structuredClone(delivery)
-        } catch (error) { deliveryError = error; attempt.deliveryError = String(error) }
+        } catch (error) {
+          attempt.deliveryError = String(error)
+          // A failed observer RPC is not a failed key. Opted-in callers require
+          // their atomic evidence unless the keyboard operation itself rejected.
+          if (separateSetup && !attempt.delivery.keyDeliveryFailed) throw error
+          deliveryError = error
+        }
       })
       remaining()
       const after = await phase('read-after-skip', () => separateSetup && !deliveryError

@@ -337,3 +337,34 @@ test('unchanged native state without actual popup ownership cannot retry', async
   assert.deepEqual(trace.attempts[0].ownership[0].owners, [])
   assert.equal(trace.responseDeadlineMs, 25)
 })
+
+
+test('atomic finalizer RPC rejection cannot become success through a later ready-state read', async t => {
+  const f = fixture(t, { setupMs: 5 }), original = Error('atomic observer RPC failed'), trace = {}
+  const evaluate = f.page.evaluate
+  f.page.evaluate = async (fn, arg) => {
+    if (fn === endSpaceOwnershipSnapshot) throw original
+    return evaluate(fn, arg)
+  }
+  await assert.rejects(skipPauseIntroduction(f.page, migrated(trace)), error => error === original)
+  assert.equal(f.state.inputMask, 0, 'The actual key completed, but required atomic evidence is missing')
+  assert.equal(f.presses, 1)
+  assert.equal(f.reads, 1, 'No later-ready fallback observation')
+  assert.equal(trace.attempts[0].delivery.keyDeliveryFailed, false)
+  assert.equal(trace.attempts[0].outcome, undefined)
+  assert.equal(trace.responseDeadlineMs, 25)
+})
+
+test('observer installation rejection cannot be mistaken for a key-delivery error', async t => {
+  const f = fixture(t, { setupMs: 5 }), original = Error('observer installation RPC failed'), trace = {}
+  const evaluate = f.page.evaluate
+  f.page.evaluate = async (fn, arg) => {
+    if (fn === beginSpaceOwnership) { f.state.inputMask = 0; throw original }
+    return evaluate(fn, arg)
+  }
+  await assert.rejects(skipPauseIntroduction(f.page, migrated(trace)), error => error === original)
+  assert.equal(f.presses, 0)
+  assert.equal(f.reads, 1)
+  assert.equal(trace.attempts[0].delivery.keyDeliveryFailed, false)
+  assert.equal(trace.attempts[0].outcome, undefined)
+})
