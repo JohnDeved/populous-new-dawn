@@ -26,8 +26,11 @@ export function BrowserHelpArticleSurface({ owner, nativeY, onNavigate, onPositi
   useLayoutEffect(() => {
     const slot = previewSlot.current
     if (!slot || !surface.current || state.status !== 'presented') return
-    owner.attach(state, surface.current, slot)
-  }, [owner, state])
+    const attached = owner.attach(state, surface.current, slot)
+    // attach already invalidated its presentation. Preserve the original error
+    // for caller recovery without a second mutation, including after disposal.
+    if (attached.status === 'failed') onFailure(attached.error)
+  }, [owner, state, onFailure])
   if (state.status !== 'presented') return null
   const navigate = (action: HelpNavigationAction | number) => {
     if (owner.isCurrent(state)) onNavigate(action)

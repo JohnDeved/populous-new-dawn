@@ -218,7 +218,7 @@ export function createBrowserHelpArticleOwner(scene: SceneOwner, shell: HTMLElem
      * a preview pane. Check actual CSS placement before attaching either canvas;
      * this also rejects accidental extra scale/DPR transforms. */
     attach(presentation: BrowserHelpArticleState, surface: HTMLElement, slot: HTMLElement) {
-      if (!isCurrent(presentation)) return false
+      if (!isCurrent(presentation)) return { status: 'stale' as const }
       const frame = presentation.snapshot.frame
       const sameRect = (element: HTMLElement, expected: { x: number; y: number; width: number; height: number }) => {
         const measured = element.getBoundingClientRect()
@@ -231,14 +231,13 @@ export function createBrowserHelpArticleOwner(scene: SceneOwner, shell: HTMLElem
             slot.ownerDocument !== shell.ownerDocument || !surface.contains(slot) ||
             !sameRect(surface, frame.shell) || !sameRect(slot, { x: frame.shell.x, y: frame.shell.y,
               width: frame.width * frame.scale, height: frame.height * frame.scale })) {
-          invalidate('help-article-placement-mismatch')
-          return false
+          throw new Error('help-article-placement-mismatch')
         }
         slot.append(preview.personCanvas, preview.vehicleCanvas)
-        return true
+        return { status: 'attached' as const }
       } catch (error) {
         invalidate(error instanceof Error ? error.message : 'help-article-attachment-failed')
-        return false
+        return { status: 'failed' as const, error }
       }
     },
     getSnapshot: () => state,

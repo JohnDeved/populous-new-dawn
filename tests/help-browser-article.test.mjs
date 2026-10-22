@@ -88,11 +88,13 @@ test('pending asset completion cannot resurrect a superseded topic, invalidation
   owner.invalidate('explicit-host-hide')
   assert.equal(owner.isCurrent(latest), false)
   f.state.pendingDecode = new Promise(done => { resolve = done })
-  const pending = owner.present(input())
+  const disposalOwner = f.create()
+  const pending = disposalOwner.present(input())
+  assert.equal(disposalOwner.getSnapshot().reason, 'help-article-preparing')
   f.scene.disposeListeners.forEach(listener => listener())
   resolve(); await pending
-  assert.deepEqual(owner.getSnapshot(), { status: 'unavailable', reason: 'help-article-disposed' })
-  assert.equal((await owner.present(input())).status, 'unavailable')
+  assert.deepEqual(disposalOwner.getSnapshot(), { status: 'unavailable', reason: 'help-article-disposed' })
+  assert.equal((await disposalOwner.present(input())).status, 'unavailable')
 })
 
 test('changed scene, World, player, environment and sub-integer geometry invalidate old presentations', async t => {
@@ -183,7 +185,7 @@ test('attachment requires the exact shell and a genuinely full-frame slot before
     append: (...nodes) => { appended.push(nodes) } }
   const surface = { isConnected: true, parentElement: f.shell, ownerDocument: f.shell.ownerDocument,
     contains: node => node === slot, getBoundingClientRect: () => state.snapshot.frame.shell }
-  assert.equal(owner.attach(state, surface, slot), true)
+  assert.equal(owner.attach(state, surface, slot).status, 'attached')
   assert.deepEqual(appended, [[owner.personCanvas, owner.vehicleCanvas]])
   for (const change of [() => { surface.parentElement = {} },
     () => { surface.isConnected = false },
@@ -199,7 +201,7 @@ test('attachment requires the exact shell and a genuinely full-frame slot before
       height: state.snapshot.frame.height * state.snapshot.frame.scale })
     state = await ready(owner)
     change()
-    assert.equal(owner.attach(state, surface, slot), false)
+    assert.equal(owner.attach(state, surface, slot).status, 'failed')
     assert.equal(owner.getSnapshot().reason, 'help-article-placement-mismatch')
     assert.equal(appended.length, 1)
   }
