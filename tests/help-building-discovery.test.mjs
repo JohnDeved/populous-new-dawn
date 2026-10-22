@@ -10,6 +10,7 @@ import {
 } from '../app/help-building-discovery.ts'
 
 const fields = new Map([
+  [1, 'unlockedHut'], [17, 'unlockedGuardPost'],
   [4, 'unlockedTower'], [5, 'unlockedTemple'], [6, 'unlockedSpyHut'],
   [7, 'unlockedCamp'], [8, 'unlockedFirewarriorHut'],
   [13, 'unlockedBoatHouse'], [15, 'unlockedBalloonHut'],
@@ -25,7 +26,7 @@ test('building readers cover exact imported predicate arguments, not picked obje
   const models = [...new Set(topics.map(topic => topic.discovery.argument))].sort((a, b) => a - b)
   assert.deepEqual(helpBuildingDiscoveryModels, models)
   assert.equal(topics.length, 18)
-  assert.equal(topics.filter(topic => readHelpBuildingKnowledge(state(), topic.discovery.argument).kind === 'known').length, 16)
+  assert.equal(topics.filter(topic => readHelpBuildingKnowledge(state(), topic.discovery.argument).kind === 'known').length, 18)
   for (const model of [0, 2, 3, 9, 18, 31])
     assert.deepEqual(readHelpBuildingKnowledge(state(), model), { kind: 'unsupported', reason: 'not-help-building-predicate' })
 })
@@ -58,7 +59,7 @@ test('initial authored profile remains separate from current knowledge and prese
     assert.equal(profileBit(profile, 17), ![1, 3, 4, 12, 15, 22, 79].includes(level))
     for (const model of [1, 17]) {
       const world = state({ outcome: { level }, buildings: [{ kind: 'hut' }], unlockedHut: true, unlockedGuardPost: true })
-      assert.deepEqual(readHelpBuildingKnowledge(world, model), { kind: 'unsupported', reason: 'unowned-building-bit' })
+      assert.equal(readHelpBuildingKnowledge(world, model).available, true, 'current owner overrides initial profile')
     }
   }
 })
@@ -68,7 +69,7 @@ test('current World initialization and cloned state use live owners, not a fresh
     const world = createWorldState(level)
     const profile = readHelpInitialBuildingProfile(world)
     for (const [model] of fields)
-      assert.equal(readHelpBuildingKnowledge(world, model).available, profileBit(profile, model))
+      assert.equal(readHelpBuildingKnowledge(world, model).available, model === 17 || profileBit(profile, model))
     world.unlockedTemple = !world.unlockedTemple
     const restored = structuredClone(world), before = structuredClone(restored)
     assert.equal(readHelpBuildingKnowledge(restored, 5).available, !profileBit(profile, 5))
@@ -91,8 +92,9 @@ test('counts, affordability, pause, selected units and campaign progress cannot 
 
 test('player-0 fields never answer another player or an invalid player identity', () => {
   for (const playerTribe of [1, 2, 3])
-    assert.deepEqual(readHelpBuildingKnowledge(state({ unlockedCamp: true, manaWorld: { playerTribe } }), 7),
-      { kind: 'unsupported', reason: 'unowned-player' })
+    for (const [model] of fields)
+      assert.deepEqual(readHelpBuildingKnowledge(state({ manaWorld: { playerTribe } }), model),
+        { kind: 'unsupported', reason: 'unowned-player' })
   for (const playerTribe of [-1, 4, 0.5, NaN, Infinity, undefined, '0'])
     assert.throws(() => readHelpBuildingKnowledge(state({ manaWorld: { playerTribe } }), 7), /Invalid current Help player/)
 })
@@ -111,4 +113,35 @@ test('initial profile results are detached and cannot mutate generated header kn
   profile.buildings.find(row => row.model === 1).initiallyAvailable = false
   profile.buildings.splice(0)
   assert.equal(profileBit(readHelpInitialBuildingProfile({ outcome: { level: 1 } }), 1), true)
+})
+
+
+test('optional Hut and Guard Post absence stays unknown without observing unrelated state', () => {
+  for (const [model, field] of [[1, 'unlockedHut'], [17, 'unlockedGuardPost']]) {
+    const world = state()
+    delete world[field]
+    for (const key of ['outcome', 'buildings', 'shrines', 'gifts', 'selected', 'wood', 'paused'])
+      Object.defineProperty(world, key, { get: () => assert.fail(`unexpected read: ${key}`) })
+    Object.freeze(world.manaWorld)
+    Object.freeze(world)
+    assert.deepEqual(readHelpBuildingKnowledge(world, model), { kind: 'unsupported', reason: 'unowned-building-bit' })
+    assert.equal(Object.hasOwn(world, field), false, 'reader must never initialize the missing owner')
+    assert.deepEqual(readHelpBuildingKnowledge(state({ [field]: undefined }), model),
+      { kind: 'unsupported', reason: 'unowned-building-bit' })
+    for (const value of [null, 0, 1, 'true', {}, []])
+      assert.throws(() => readHelpBuildingKnowledge(state({ [field]: value }), model), /Missing owned building knowledge/)
+  }
+})
+
+test('Hut and Guard Post reads preserve explicit current false and later changes', () => {
+  const world = createWorldState(22)
+  assert.equal(world.unlockedHut, false)
+  assert.equal(world.unlockedGuardPost, true)
+  for (const value of [false, true, false]) {
+    world.unlockedHut = value
+    world.unlockedGuardPost = value
+    const before = structuredClone(world)
+    for (const model of [1, 17]) assert.equal(readHelpBuildingKnowledge(world, model).available, value)
+    assert.deepEqual(world, before, 'Help read must not mutate, normalize or recompute the owner')
+  }
 })
