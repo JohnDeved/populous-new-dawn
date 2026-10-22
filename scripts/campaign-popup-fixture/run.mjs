@@ -8,6 +8,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/postcss'
 import { chromium } from '@playwright/test'
 import { homePopupFixture } from './home-source.mjs'
+import { activatePopupFullscreenFromMenu } from './fullscreen-menu.mjs'
 
 const root=resolve(import.meta.dirname,'../..'), fixture=resolve(import.meta.dirname,'fixture')
 const output=resolve(process.argv[2]), browserPath=process.env.POPULOUS_BROWSER
@@ -26,7 +27,12 @@ writeFileSync(baselineCss,oldCss.replace("@import 'tailwindcss'",`@import '${res
 const diagnosticsHtml=readFileSync(resolve(root,'app/fps-graph.ts'),'utf8').match(/this\.element\.innerHTML = `([\s\S]+?)`/)?.[1]
 assert.ok(diagnosticsHtml)
 const inputs=['app/original-message-tab.tsx','app/original-message-tab.module.css','app/original-message-tabs.json','app/original-campaign-popup.tsx','app/original-campaign-popup.module.css','app/campaign-popup-layout.ts','app/campaign-popup-session.ts','app/original-campaign-popup.json','app/messages.ts','app/page.tsx','app/globals.css','app/fps-graph.ts','app/hud-layout.ts','app/original-result-ui.json','app/original-hud.json', 'app/fullscreen-session.ts','app/fullscreen-control.tsx','app/fullscreen-control.module.css','app/scene-input-runtime.ts','app/spell-test-cheats.ts','scripts/campaign-popup-fixture/home-source.mjs','scripts/campaign-popup-fixture/run.mjs','scripts/campaign-popup-fixture/fixture/main.tsx','scripts/campaign-popup-fixture/fixture/env.d.ts',
-  ...['campaign-popup-tiles','result-font','hud','hud-button','hud-button-selected','hud-button-hover','message'].map(name=>`public/original/${name}.png`)]
+  'scripts/campaign-popup-fixture/fullscreen-menu.mjs','scripts/browser-options-audio.mjs',
+  'app/query-control.tsx','app/query-control.module.css','app/original-pause-menu.tsx','app/original-pause-menu.module.css','app/original-pause-font.json','app/original-main-menu.module.css','app/frontend-composition.ts','app/checkpoint-scroll-area.tsx','app/checkpoint-scroll-area.module.css','app/checkpoint-scroll.ts',
+  ...['pointer','background','felgspen'].map(name=>`public/original/frontend/${name}.png`),
+  ...[451,452,453,454,455].map(id=>`public/original/help/hfx-${id}.png`),
+  ...[105,...Array.from({length:27},(_,i)=>996+i)].map(id=>`public/original/query-control/hfx-${id}.png`),
+  ...['pause-font','campaign-popup-tiles','result-font','hud','hud-button','hud-button-selected','hud-button-hover','message'].map(name=>`public/original/${name}.png`)]
 const pauseRoot=resolve(process.env.POPULOUS_PAUSE_ROOT || root),pauseFile=resolve(pauseRoot,'app/original-pause-status.tsx')
 const actualPause=existsSync(pauseFile)
 const pauseInputs=actualPause?['app/original-pause-status.tsx','app/original-pause-status.module.css','app/pause-status-layout.ts','app/original-hud.json','app/globals.css'].map(file=>resolve(pauseRoot,file)):[]
@@ -35,7 +41,7 @@ if(actualPause)assert.ok(pauseA11y,'Actual native status screenreader rule is re
 const fingerprints=Object.fromEntries([...inputs,...pauseInputs].map(file=>[file,hash(resolve(root,file))]))
 const receipt={status:'running',head:git('rev-parse','HEAD').trim(),baseline,pauseComponent:actualPause?pauseFile:'source-metric fixture (actual component absent)',inputs:fingerprints,startedAt:new Date().toISOString(),browserPath,browserSha256:hash(browserPath),observations:[],checks:[],errors:[],limits:['Actual popup component plus source-extracted Home effects/JSX and scene keyboard listeners in a bounded integration fixture, not full Home mount or natural campaign execution.','Before is retained be44bc76 campaign body markup and exact CSS against the same text/background/viewport.','Source-palette native reconstruction, not an original GPU capture or hardware performance test.','No fullgame WebGL renderer launched.']}
 const save=()=>writeFileSync(resolve(output,'receipt.json'),JSON.stringify(receipt,null,2)+'\n')
-let browser,server,timer,memoryGuard
+let browser,server,timer,memoryGuard,deadlineAt
 save()
 try {
  server=await createServer({configFile:false,root:fixture,publicDir:resolve(root,'public'),cacheDir:resolve(output,'vite-cache'),plugins:[react(),{name:'baseline-campaign-css',resolveId(id){if(id==='virtual:campaign-home')return homeFixture;if(id==='virtual:campaign-baseline.css')return baselineCss;if(id==='virtual:native-pause-component')return actualPause?pauseFile:'\0pause-fallback'},load(id){if(id==='\0pause-fallback')return 'export const OriginalPauseStatus=null'},configureServer(server){server.middlewares.use((req,res,next)=>{if(req.url==='/native-status-a11y.css'){res.setHeader('Content-Type','text/css');res.end(pauseA11y)}else if(req.url==='/diagnostics.html'){res.setHeader('Content-Type','text/html');res.end(diagnosticsHtml)}else if(req.url==='/before.css'){res.setHeader('Content-Type','text/css');res.end(oldCss)}else next()})}}],css:{postcss:{plugins:[tailwindcss({base:fixture})]}},optimizeDeps:{include:['react','react-dom','react-dom/client','react/jsx-runtime','react/jsx-dev-runtime']},server:{host:'127.0.0.1',port:4378,strictPort:true,fs:{allow:[root,output,pauseRoot]}},logLevel:'warn'})
@@ -43,6 +49,7 @@ try {
  browser=await chromium.launch({executablePath:browserPath,headless:true,chromiumSandbox:true,timeout:30000})
  receipt.browserVersion=browser.version()
  memoryGuard=setInterval(()=>{const kb=Number(readFileSync('/proc/meminfo','utf8').match(/MemAvailable:\s+(\d+)/)?.[1]);if(kb&&kb<1024*1024){receipt.memoryGuard={availableKb:kb,minimumKb:1024*1024};void browser.close()}},2000)
+ deadlineAt=Date.now()+120000
  timer=setTimeout(()=>{receipt.timedOut=true;void browser.close()},120000)
  const context=await browser.newContext({viewport:{width:640,height:480}}),page=await context.newPage()
  page.setDefaultTimeout(10000)
@@ -82,13 +89,13 @@ try {
  // Source-extracted actual Home effects/JSX and scene key listeners, no WebGL.
  await page.addInitScript(()=>{
    if(!location.search.includes('home'))return
-   let active=false,lastEvent=null
+   let active=false,lastEvent=null,requests=0,exits=0
    const set=value=>{active=value;document.dispatchEvent(new Event('fullscreenchange'))}
    Object.defineProperty(document,'fullscreenElement',{get:()=>active?document.documentElement:null,configurable:true})
    Object.defineProperty(document,'fullscreenEnabled',{get:()=>true,configurable:true})
-   HTMLElement.prototype.requestFullscreen=async()=>set(true);document.exitFullscreen=async()=>set(false)
+   HTMLElement.prototype.requestFullscreen=async()=>{requests++;set(true)};document.exitFullscreen=async()=>{exits++;set(false)}
    addEventListener('keydown',event=>{lastEvent=event},true)
-   window.fullscreenFixture={set,read:()=>({active,lastDefault:lastEvent?.defaultPrevented})}
+   window.fullscreenFixture={set,read:()=>({active,requests,exits,lastDefault:lastEvent?.defaultPrevented})}
  })
  const homeRead=()=>page.evaluate(()=>window.homePopupFixture.read())
  const auto=async()=>{await page.evaluate(()=>{window.homePopupFixture.hold();window.homePopupFixture.autoOpen()});await page.locator('details[open]').waitFor();await page.waitForFunction(()=>!(window.homePopupFixture.read().world.messages.slots[0].flags&2))}
@@ -118,7 +125,9 @@ try {
  assert.equal((await homeRead()).calls.skip,0,'Popup ownership precedes input-mask flyby skipping')
  await page.keyboard.press('F8');assert.equal((await homeRead()).calls.f8,1)
  await page.keyboard.press('F9');await page.locator('[data-cheat-test-open]').waitFor({state:'attached'});await page.keyboard.press('F9');assert.equal(await page.locator('[data-cheat-test-open]').count(),0)
- await page.getByRole('button',{name:'Fullscreen',exact:true}).click();assert.equal((await page.evaluate(()=>window.fullscreenFixture.read())).active,true)
+ const fullscreenMenuTrace={};receipt.checks.push({fullscreenMenuTrace});save()
+ await activatePopupFullscreenFromMenu(page,{deadlineAt,trace:fullscreenMenuTrace});save()
+ assert.equal((await page.evaluate(()=>window.fullscreenFixture.read())).active,true)
  await page.locator('.world-viewport').focus();await page.keyboard.down('Escape')
  assert.equal((await page.evaluate(()=>window.fullscreenFixture.read())).lastDefault,false,'Fullscreen Escape retains browser default before popup capture')
  await page.evaluate(()=>window.fullscreenFixture.set(false));await page.keyboard.down('Escape');await page.keyboard.up('Escape')
@@ -127,6 +136,12 @@ try {
  await page.screenshot({path:resolve(output,'home-input-ownership.png')})
  await page.evaluate(()=>window.homePopupFixture.setOneShot());await page.keyboard.press('Enter');assert.equal(await page.locator('details').count(),0);assert.equal(await page.locator('.world-viewport').evaluate(n=>n===document.activeElement),true)
  receipt.checks.push('Actual Home/scene owners: input-mask priority, F8/F9 preservation, actual fullscreen session Escape priority and one-shot focus return (Fullscreen API supplied, not native browser exit proof)')
+ // The existing paused scenario above is retained. Add an initially running
+ // world so legitimate menu suspension and Continue restoration are both proved.
+ await open('home&running');await auto()
+ const runningFullscreenMenuTrace={};receipt.checks.push({runningFullscreenMenuTrace});save()
+ await activatePopupFullscreenFromMenu(page,{deadlineAt,trace:runningFullscreenMenuTrace});save()
+ receipt.checks.push('Shipped Query/Menu/Fullscreen/Continue path retains the exact popup and restores both prior pause states; no gameplay fullscreen host')
  for(const [width,height]of [[640,480],[900,360],[1920,1080]]){
    await page.setViewportSize({width,height});await open('before')
    await page.screenshot({path:resolve(output,`before-${width}x${height}.png`)})
@@ -287,5 +302,5 @@ try {
  assert.equal(receipt.errors.length,0,receipt.errors.join('\n'))
  for(const[file,sha]of Object.entries(fingerprints))assert.equal(hash(resolve(root,file)),sha,`Source drift: ${file}`)
  receipt.status='passed'
-}catch(error){receipt.status='failed';receipt.error=String(error.stack??error);process.exitCode=1}
+}catch(error){receipt.status='failed';receipt.error=String(error?.stack??error);process.exitCode=1}
 finally{clearTimeout(timer);clearInterval(memoryGuard);await browser?.close();await server?.close();receipt.finishedAt=new Date().toISOString();save();console.log(JSON.stringify({status:receipt.status,error:receipt.error,checks:receipt.checks,captures:receipt.observations.length,output},null,2))}
