@@ -1,6 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import vm from 'node:vm'
+import { writePauseInputBudgets } from '../scripts/local-render/original-pause-checkpoint-style.mjs'
 import { skipPauseIntroduction, recoveryInputContract, pauseStartupReady, recoverVisibleIntroduction, recoveryStateFromSpaceSnapshot } from '../scripts/local-render/original-pause-checkpoint-recovery.mjs'
 import { campaignPopupSnapshot } from '../scripts/browser-world-input.mjs'
 import { beginSpaceOwnership, endSpaceOwnership, endSpaceOwnershipSnapshot } from '../scripts/browser-space-ownership.mjs'
@@ -403,6 +407,35 @@ test('pause-style caller explicitly opts in only with an outer deadline and pers
   const source = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-style.mjs', import.meta.url), 'utf8')
   assert.match(source, /receipt\.pauseStyleInputBudgets = inputBudgets/)
   assert.match(source, /Number\.isFinite\(deadlineAt\)\s*\? \{ setupTimeout: 25000, deadlineAt, signal, trace \} : \{ signal, trace \}/)
-  assert.match(source, /finally \{\s*writeFileSync\(resolve\(output, 'pause-style-input-budgets\.json'\), JSON\.stringify\(inputBudgets/)
+  assert.match(source, /finally \{ writePauseInputBudgets\(output, inputBudgets, inputError\) \}/)
   assert.doesNotMatch(source, /deadlineAt:\s*Date\.now/)
+})
+
+
+test('actual pause-style input persistence keeps original error identity and rejects write-only failure', async t => {
+  const root = mkdtempSync(join(tmpdir(), 'pnd-pause-input-budget-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const source = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-style.mjs', import.meta.url), 'utf8')
+  const match = source.match(/let inputError\s+try \{\s+await skipPauseIntroduction\(page, Number\.isFinite\(deadlineAt\)[\s\S]+?finally \{ writePauseInputBudgets\(output, inputBudgets, inputError\) \}/)
+  assert.ok(match)
+  for (const inputFails of [false, true]) for (const writeFails of [false, true]) {
+    const inputError = Error('original Space uncertainty'), trace = {}, inputBudgets = [trace]
+    const output = writeFails ? join(root, 'missing') : root
+    let inputs = 0
+    const run = vm.runInNewContext(`(async () => { ${match[0]} })`, {
+      page: {}, trace, inputBudgets, output, deadlineAt: 90000, signal: {}, writePauseInputBudgets,
+      skipPauseIntroduction: async (_page, options) => {
+        inputs++; assert.equal(options.trace, trace); assert.equal(options.setupTimeout, 25000)
+        trace.phase = 'observed-space-dispatch'
+        if (inputFails) throw inputError
+      },
+    })
+    if (inputFails) await assert.rejects(run(), error => error === inputError)
+    else if (writeFails) await assert.rejects(run(), /ENOENT/)
+    else await run()
+    assert.equal(inputs, 1)
+    if (inputFails && writeFails) assert.match(inputError.traceWriteError, /ENOENT/)
+    else assert.equal(inputError.traceWriteError, undefined)
+    if (!writeFails) assert.deepEqual(JSON.parse(readFileSync(join(output, 'pause-style-input-budgets.json'), 'utf8')), inputBudgets)
+  }
 })

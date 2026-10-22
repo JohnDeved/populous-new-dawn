@@ -15,6 +15,14 @@ export async function restorePausePreferenceWrite(page, primaryError) {
   }
 }
 
+export function writePauseInputBudgets(output, inputBudgets, primaryError) {
+  try { writeFileSync(resolve(output, 'pause-style-input-budgets.json'), JSON.stringify(inputBudgets, null, 2) + '\n') }
+  catch (error) {
+    if (!primaryError) throw error
+    primaryError.traceWriteError = String(error)
+  }
+}
+
 // A presentation-only supplement to the durable/retry/save-failure scenarios.
 // Storage is deliberately unavailable before startup, producing the real store's
 // session-only Save and longest ordinary Load explanation without injected worlds.
@@ -89,12 +97,12 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       await startup.dispose()
       if (action === 'skip') {
         const trace = { fallback }; inputBudgets.push(trace)
+        let inputError
         try {
           await skipPauseIntroduction(page, Number.isFinite(deadlineAt)
             ? { setupTimeout: 25000, deadlineAt, signal, trace } : { signal, trace })
-        } finally {
-          writeFileSync(resolve(output, 'pause-style-input-budgets.json'), JSON.stringify(inputBudgets, null, 2) + '\n')
-        }
+        } catch (error) { inputError = error; throw error }
+        finally { writePauseInputBudgets(output, inputBudgets, inputError) }
       }
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
       await page.waitForFunction(() => window.testStore.getCheckpointReadStatus() === 'unavailable')
