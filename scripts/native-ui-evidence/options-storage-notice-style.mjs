@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
-import { candidateModule, ordinaryMission } from './ordinary-mission.mjs'
+import { candidateModule, ordinaryMission, saveMissionInputTrace } from './ordinary-mission.mjs'
 
 // Only the two preference writes are failed. Reads, checkpoints, campaign state
 // and unrelated storage remain real; no component/world state is injected.
@@ -46,6 +46,7 @@ export default async function ({ browser, url, root, output, receipt, signal, de
   receipt.missionInputBudgets = report.inputBudgets
   const save = () => writeFileSync(resolve(output, 'options-storage.json'), JSON.stringify(report, null, 2) + '\n')
   const { waitForStartupMenu } = await candidateModule(root, 'scripts/browser-new-game.mjs')
+  let episodeError
   try {
     for (const skin of ['frontend', 'ingame']) for (const fallback of [false, true]) {
       signal.throwIfAborted()
@@ -59,7 +60,10 @@ export default async function ({ browser, url, root, output, receipt, signal, de
         await page.goto(url, { waitUntil: 'domcontentloaded' })
         if (skin === 'ingame') {
           const trace = { skin, fallback }; report.inputBudgets.push(trace)
-          try { await ordinaryMission(page, root, { signal, deadlineAt, trace }) } finally { save() }
+          let inputError
+          try { await ordinaryMission(page, root, { signal, deadlineAt, trace }) }
+          catch (error) { inputError = error; throw error }
+          finally { saveMissionInputTrace(save, inputError) }
           await button('Menu').click()
         }
         else await waitForStartupMenu(page)
@@ -139,6 +143,6 @@ export default async function ({ browser, url, root, output, receipt, signal, de
     report.status = 'passed'
     report.limits = ['Browser preference failure presentation, not native failure-dialog or acoustic equivalence', 'Ordinary Mission 1 entry; no injected world/checkpoint/React state']
     return report
-  } catch (error) { report.status = 'failed'; report.error = String(error); throw error }
-  finally { save() }
+  } catch (error) { episodeError = error; report.status = 'failed'; report.error = String(error); throw error }
+  finally { saveMissionInputTrace(save, episodeError) }
 }

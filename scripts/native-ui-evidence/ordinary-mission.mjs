@@ -4,6 +4,14 @@ import { pathToFileURL } from 'node:url'
 import { pageActionTimeout } from './browser-owner.mjs'
 
 export const candidateModule = (root, path) => import(pathToFileURL(resolve(root, path)).href)
+// Evidence persistence must not replace an already-observed input failure.
+export function saveMissionInputTrace(save, primaryError) {
+  try { save() }
+  catch (error) {
+    if (!primaryError) throw error
+    primaryError.traceWriteError = String(error)
+  }
+}
 // Acceptance must observe the candidate's actual opted-in contract, not merely
 // pass options to an older helper that silently ignores them.
 export function assertMissionInputBudget(trace) {

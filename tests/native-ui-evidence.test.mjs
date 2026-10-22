@@ -15,7 +15,7 @@ import { supervise } from '../scripts/native-ui-evidence/supervise.mjs'
 import { failPreferenceWrites, optionsViewportReady } from '../scripts/native-ui-evidence/options-storage-notice-style.mjs'
 import { holdAudioResume, soundControlPending, soundOwnership, assertSoundOwnership,
   pendingSoundPointerTarget, assertPendingSoundPointerTarget } from '../scripts/native-ui-evidence/hud-sound-control-style.mjs'
-import { ordinaryMission, assertMissionInputBudget } from '../scripts/native-ui-evidence/ordinary-mission.mjs'
+import { ordinaryMission, assertMissionInputBudget, saveMissionInputTrace } from '../scripts/native-ui-evidence/ordinary-mission.mjs'
 import { runNativeUiEvidence } from '../scripts/native-ui-evidence/adapter.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from '../scripts/native-ui-evidence/files.mjs'
 import { initializeEpisodeLedger, recordUnstartedFailure } from '../scripts/native-ui-evidence/ledger.mjs'
@@ -728,7 +728,30 @@ test('both mission-entry episodes preserve per-entry traces on throw without rep
   for (const name of ['options-storage-notice-style', 'hud-sound-control-style']) {
     const source = read(`scripts/native-ui-evidence/${name}.mjs`)
     assert.match(source, /receipt\.missionInputBudgets = report\.inputBudgets/)
-    assert.match(source, /try \{ await ordinaryMission\(page, root, \{ signal, deadlineAt, trace \}\) \} finally \{ save\(\) \}/)
+    assert.match(source, /finally \{ saveMissionInputTrace\(save, inputError\) \}/)
+    assert.match(source, /finally \{ saveMissionInputTrace\(save, episodeError\) \}/)
     assert.doesNotMatch(source, /deadlineAt:\s*Date\.now/)
+  }
+})
+
+
+test('both actual mission-entry persistence paths retain input error identity and reject write-only failure', async () => {
+  for (const name of ['options-storage-notice-style', 'hud-sound-control-style']) {
+    const source = read(`scripts/native-ui-evidence/${name}.mjs`)
+    const match = source.match(/let inputError\s+try \{ await ordinaryMission\(page, root, \{ signal, deadlineAt, trace \}\) \}\s+catch \(error\) \{ inputError = error; throw error \}\s+finally \{ saveMissionInputTrace\(save, inputError\) \}/)
+    assert.ok(match)
+    for (const inputFails of [false, true]) for (const writeFails of [false, true]) {
+      const inputError = Error('original Space uncertainty'), writeError = Error('trace write failed')
+      let inputs = 0, writes = 0
+      const run = vm.runInNewContext(`(async () => { ${match[0]} })`, {
+        page: {}, root: '', signal: {}, deadlineAt: 90000, trace: {}, saveMissionInputTrace,
+        ordinaryMission: async () => { inputs++; if (inputFails) throw inputError },
+        save: () => { writes++; if (writeFails) throw writeError },
+      })
+      if (inputFails || writeFails) await assert.rejects(run(), error => error === (inputFails ? inputError : writeError))
+      else await run()
+      assert.equal(inputs, 1); assert.equal(writes, 1)
+      assert.equal(inputError.traceWriteError, inputFails && writeFails ? String(writeError) : undefined)
+    }
   }
 })
