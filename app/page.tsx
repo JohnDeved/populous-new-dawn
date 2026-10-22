@@ -730,12 +730,21 @@ export default function Home() {
       if (e.key === 'Enter' && !(e.target as HTMLElement).closest('button'))
         engine.current?.overview()
       if (e.key === 'Escape') {
-        if (store.getWorld().outcome.level === tutorialLevel) {
-          e.preventDefault()
+        const current = store.getWorld()
+        if (current !== world || current.status !== 'playing') return
+        e.preventDefault()
+        e.stopImmediatePropagation()
+        // The native Escape menu binding applies beyond the tutorial. Preserve
+        // existing browser targeting/selection cancellation before opening it.
+        if (
+          current.outcome.level === tutorialLevel ||
+          (!current.mode && current.selected.length === 0)
+        ) {
           openMenu()
           return
         }
         store.change(cancelInteraction)
+        return
       }
       if (e.key.toLowerCase() === 'g') guardShaman(world)
       if (e.key.toLowerCase() === 'h') select(world, 'shaman')
