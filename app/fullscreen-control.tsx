@@ -130,7 +130,7 @@ export function FullscreenControl() {
           <i />
         </span>
         {/* New browser-only symbol, not an original-game sprite. Integer pixel
-            geometry fits the 17×14 footer without resizing any native artwork. */}
+            geometry fits the 17×14 menu/loading control without resizing artwork. */}
         <svg
           className={styles.icon}
           width="11"

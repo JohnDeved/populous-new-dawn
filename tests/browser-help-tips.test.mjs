@@ -131,7 +131,7 @@ test('HUD size cycles all existing values with an ordinary keyboard button and r
 
 test('audio activation is still a direct trusted click and pending/retry notices retain original glyphs', () => {
   const ui = fixture({ audioStorageNotice: 'Volume changes apply for this session; browser storage is unavailable.',
-    audioStartNotice: 'Audio could not start. Try the sound button again.' })
+    audioStartNotice: 'Audio could not start. Try Enable sound again.' })
   ui.button('♫ Enable sound').onClick()
   assert.deepEqual(ui.calls, [['sound']])
   const statuses = ui.nodes().filter(node => node.props?.role === 'status')
@@ -189,11 +189,13 @@ test('compatibility has only the original-font rows, native 30-pixel spacing and
   assert.match(css, /\.compatibility \{ position: absolute; inset: 0; \}/)
   assert.doesNotMatch(css, /\.compatibility[^}]*background:|\.compatibility[^}]*sans-serif|\.compatibility button/)
   assert.match(css, /\.noticeLine[^}]*height: 30px/)
-  const notices = fixture({ audioStorageNotice: 'Volume changes apply for this session; browser storage is unavailable.',
-    audioStartNotice: 'Audio could not start. Try the sound button again.' }).nodes().find(node => node.props?.className === 'browserNotices')
-  const lines = tree(notices).filter(node => node.type?.name === 'Text')
-  assert.equal(lines.length, 4)
-  assert.ok(309 + lines.length * 30 < 454, 'both complete notices fit above Back without a scrollbox')
+  for (const audioStartNotice of ['Audio could not start. Try Enable sound again.', 'Audio stopped. Try Enable sound again.']) {
+    const notices = fixture({ audioStorageNotice: 'Volume changes apply for this session; browser storage is unavailable.',
+      audioStartNotice }).nodes().find(node => node.props?.className === 'browserNotices')
+    const lines = tree(notices).filter(node => node.type?.name === 'Text')
+    assert.ok(lines.length <= 4)
+    assert.ok(309 + lines.length * 30 < 454, 'storage and audio recovery notices fit above Back without a scrollbox')
+  }
 })
 
 test('repeated entry, Back and body-focused Escape preserve the nested dialog boundary and cleanup', () => {

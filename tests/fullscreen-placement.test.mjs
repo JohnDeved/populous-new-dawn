@@ -43,27 +43,13 @@ test('selector dock clears native Start/glyph band, Browser controls and direct-
   }
 })
 
-test('gameplay fullscreen shares native action-row layout, never compact Resume/F8/status coordinates', () => {
-  const dock = rule(css, ':global(.top-actions) > .control'), button = rule(css, ':global(.top-actions) > .control button')
-  assert.match(dock, /position: relative; inset: auto/)
-  for (const declaration of ['width: 17px', 'height: 14px', 'min-height: 0', 'padding: 0']) assert.ok(button.includes(declaration))
-  assert.match(rule(css, ':global(.top-actions) > .control .label'), /display: none/)
-  assert.match(read('fullscreen-control.tsx'), /aria-label=\{label\}/)
-  assert.match(global, /\.top-actions\{position:absolute;left:4px;bottom:3px;display:flex;gap:4px\}/)
-  for (const [width,height,dpr] of [[640,480,1],[640,480,2],[800,600,1],[900,360,1],[1024,768,2],[1920,1080,2],[3440,1440,2]]) {
-    for (const preference of ['auto','1','2','4']) {
-      const scale = hudScale(width,height,preference), side = 100 * scale
-      const actions = Array.from({ length:4 }, (_, index) => ({ left:(4+21*index)*scale, right:(21+21*index)*scale,
-        top:height-17*scale, bottom:height-3*scale }))
-      for (let i=0;i<actions.length;i++) {
-        assert.ok(actions[i].right <= side, `${width}x${height}@${dpr} ${preference}: action fits HUD`)
-        assert.ok(actions[i].top >= 481*scale, 'does not overwrite native dock rows')
-        for (let j=i+1;j<actions.length;j++) assert.equal(intersects(actions[i],actions[j]),false)
-      }
-      assert.equal(intersects(actions[3], { left:side, right:width, top:0, bottom:height }),false,
-        'fullscreen is outside battlefield-owned Resume/status/F8/message space')
-    }
-  }
+test('gameplay has no footer control or fullscreen placement while menu/loading placements remain explicit', () => {
+  assert.doesNotMatch(global, /\.top-actions/)
+  assert.doesNotMatch(css, /top-actions/)
+  assert.doesNotMatch(read('page.tsx'), /SoundControl|data-sound-control|top-actions/)
+  assert.match(read('page.tsx'), /<FullscreenControl \/>/, 'the browser Escape session remains mounted')
+  assert.match(read('fullscreen-session.ts'), /doc\.querySelector\('\.loading-world'\) \? doc\.body : null/)
+  assert.match(read('fullscreen-session.ts'), /host\.remove\(\)/)
 })
 
 test('all frontend panels share the native compact frame in the empty upper-left dialog corner', () => {
@@ -76,8 +62,7 @@ test('all frontend panels share the native compact frame in the empty upper-left
   assert.match(read('original-main-menu.tsx'), /<div ref=\{frame\} className=\{styles.frame\}>/)
   assert.match(read('original-main-menu.tsx'), /<dialog[\s\S]*?data-original-main-menu/)
   for (const suffix of [' button', ' .compactFrame', ' .label']) {
-    assert.ok(css.includes(target + suffix + ',\n:global(.top-actions) > .control' + suffix + ' {'),
-      `Every frontend panel shares unchanged native footer treatment: ${suffix}`)
+    assert.ok(rule(css, target + suffix), `Every frontend panel retains compact menu treatment: ${suffix}`)
   }
   assert.match(rule(css, target + ' p'), /top: 20px; left: 0; right: auto; bottom: auto/)
   const menu = read('original-main-menu.module.css')

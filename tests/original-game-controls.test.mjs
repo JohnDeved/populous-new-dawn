@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import ts from 'typescript'
 import { evaluatePage, pageButton, pageEffect, pageNode, pageSource } from './support/follower-nearby-page.mjs'
 
-test('actual HUD has one original Menu entry and retains only browser audio recovery in its footer', () => {
+test('actual HUD has one original Menu entry and no invented browser footer', () => {
   const source = pageSource.getFullText()
   assert.doesNotMatch(source, /aria-label="Game settings"|aria-label=\{world\.paused \? 'Resume game'/)
   const openMenu = () => {}, menu = evaluatePage(pageButton(['help-button']).getText(pageSource), { openMenu, QueryControlArt: 'NativeQueryArt' })
@@ -12,17 +12,8 @@ test('actual HUD has one original Menu entry and retains only browser audio reco
   assert.equal(menu.props['aria-label'], 'Menu')
   assert.equal(menu.props.onClick, openMenu)
   assert.equal(menu.props.tabIndex, undefined, 'The real button remains in ordinary keyboard navigation')
-  const footer = pageNode(node => ts.isJsxElement(node) && node.openingElement.attributes.properties.some(
-    attribute => attribute.name?.getText(pageSource) === 'className' && attribute.initializer?.text === 'top-actions'))
-  for (const sound of [false, true]) for (const soundPending of [false, true]) {
-    const toggleSound = () => {}, SoundControl = () => {}, rendered = evaluatePage(footer.getText(pageSource), { sound, toggleSound, soundPending, SoundControl })
-    assert.equal(rendered.children.length, 1)
-    const control = rendered.children[0]
-    assert.equal(control.type, SoundControl)
-    assert.equal(control.props.sound, sound)
-    assert.equal(control.props.pending, soundPending)
-    assert.equal(control.props.onToggle, toggleSound)
-  }
+  assert.doesNotMatch(source, /className="top-actions"|SoundControl|data-sound-control/)
+  assert.match(source, /onSound: toggleSound/, 'audio unlock/retry remains in Options')
 })
 
 function keyboardFixture(overrides = {}) {
