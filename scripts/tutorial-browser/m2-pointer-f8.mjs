@@ -542,7 +542,7 @@ async function runM2Episode({ browser, url, output, fixture, compactMessages = f
       stage('f8-reset-matched')
       assertM2Input(report.before, report.after)
       report.resumeInput = {}
-    await setWorldPaused(page, false, { trace: report.resumeInput })
+      await setWorldPaused(page, false, { trace: report.resumeInput })
       await page.waitForFunction(
         turn => window.testStore.getWorld().turn > turn,
         report.before.turn

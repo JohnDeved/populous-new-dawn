@@ -282,3 +282,60 @@ test('harness integration preserves strict state oracles and prepares each gamep
   const helper = read('browser-world-input.mjs')
   assert.doesNotMatch(helper, /\.open\s*=|store\.change|\.paused\s*=(?!=)|keyboard\.press\('(Delete|Escape)'\)|getByRole\('button'/)
 })
+
+
+for (const [blockedOperation, outerPhase, innerPhase, accepted] of [
+  ['read-before', 'read-before-pause', 'start', false],
+  ['install', 'observed-space-dispatch', 'install-space-witness', false],
+  ['key', 'observed-space-dispatch', 'public-space-key', true],
+  ['finalize', 'observed-space-dispatch', 'finalize-space-witness', true],
+  ['read-after', 'read-after-pause', 'finalize-space-witness', true],
+]) test(`pause timeout identifies pending ${blockedOperation} without replaying accepted input`, async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  let now = 0, entered, release, stateReads = 0, presses = 0
+  t.mock.method(performance, 'now', () => now)
+  const blocked = new Promise(resolve => { release = resolve }), pending = new Promise(resolve => { entered = resolve })
+  const f = fixture(), trace = {}, evaluate = f.page.evaluate, press = f.page.keyboard.press
+  f.world.paused = true
+  const stall = async () => { entered(); await blocked }
+  f.page.evaluate = async (fn, arg) => {
+    if (fn.name === 'worldPauseState') {
+      stateReads++
+      if (blockedOperation === (stateReads === 1 ? 'read-before' : 'read-after')) await stall()
+    }
+    if (blockedOperation === 'install' && fn === beginSpaceOwnership) await stall()
+    if (blockedOperation === 'finalize' && fn === endSpaceOwnership) await stall()
+    return evaluate(fn, arg)
+  }
+  f.page.keyboard.press = async key => { presses++; await press(key); if (blockedOperation === 'key') await stall() }
+  const rejected = assert.rejects(setWorldPaused(f.page, false, { timeout: 500, trace }), error => {
+    assert.match(error.message, /timed out/)
+    const record = JSON.parse(error.message.slice(error.message.indexOf('{')))
+    assert.equal(record.phase, outerPhase)
+    assert.equal(record.pending, true)
+    if (blockedOperation !== 'read-before') {
+      assert.equal(record.attempts[0].delivery.phase, innerPhase)
+      assert.equal(record.attempts[0].delivery.pending, blockedOperation !== 'read-after')
+    }
+    return true
+  })
+  await pending
+  assert.equal(f.world.paused, !accepted, 'Accepted native effect alone must not certify an unsettled input/observation')
+  now = 500; t.mock.timers.tick(500); await rejected
+  release()
+  for (let i = 0; i < 20; i++) await Promise.resolve()
+  assert.equal(presses, Number(accepted), 'No late or compensating Space is permitted')
+  assert.equal(stateReads, blockedOperation === 'read-after' ? 2 : 1)
+})
+
+test('pause input aborted during preparation cannot send late Space', async () => {
+  const f = fixture(), locator = f.page.locator, cancellation = new AbortController(), failure = Error('Owning episode ended')
+  let entered, release
+  const pending = new Promise(resolve => { entered = resolve }), blocked = new Promise(resolve => { release = resolve })
+  f.page.locator = selector => selector === '.world-viewport'
+    ? { focus: async () => { entered(); await blocked } } : locator(selector)
+  const rejected = assert.rejects(setWorldPaused(f.page, true, { signal: cancellation.signal }), error => error === failure)
+  await pending; cancellation.abort(failure); await rejected; release()
+  for (let i = 0; i < 20; i++) await Promise.resolve()
+  assert.equal(f.calls.includes('Space'), false)
+})
