@@ -843,6 +843,9 @@
       ],
       "researchPaths": [
         "decomp/research/world-selector-globes.md",
+        "decomp/research/result-navigation/README.md",
+        "scripts/research-result-navigation.py",
+        "tests/native-result-navigation-source.test.mjs",
         "tests/worship-acquisition-controller.test.mjs",
         "tests/worship-acquisition-runtime.test.mjs",
         "tests/worship-acquisition-source.test.mjs",
