@@ -4,7 +4,17 @@ import { readFileSync } from 'node:fs'
 import { hudScale } from '../app/hud-layout.ts'
 const read = file => readFileSync(new URL('../app/' + file, import.meta.url), 'utf8')
 const css = read('fullscreen-control.module.css'), global = read('globals.css'), selector = read('world-selector.module.css')
-const rule = (source, name) => source.split(name + ' {')[1]?.split('}')[0] ?? ''
+const rule = (source, name) => {
+  const declarations = new Map()
+  for (const [, selectors, body] of source.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+    if (!selectors.split(',').some(selector => selector.trim() === name)) continue
+    for (const declaration of body.split(';').filter(value => value.trim())) {
+      const [property, ...value] = declaration.split(':')
+      declarations.set(property.trim(), value.join(':').trim())
+    }
+  }
+  return [...declarations].map(([property,value]) => `${property}: ${value};`).join(' ')
+}
 const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top
 
 test('selector dock clears native Start/glyph band, Browser controls and direct-mission header', () => {
@@ -55,17 +65,18 @@ test('gameplay fullscreen shares native action-row layout, never compact Resume/
   }
 })
 
-test('frontend Options uses the existing compact frame in the empty upper-left dialog corner', () => {
-  const target = ":global(dialog:has([data-original-options][data-skin='frontend'])) > .control"
+test('all frontend panels share the native compact frame in the empty upper-left dialog corner', () => {
+  const target = ':global(dialog[data-original-main-menu]) > .control'
   const dock = rule(css, target)
   for (const declaration of ['top: 12px', 'left: 12px', 'right: auto', 'bottom: auto']) assert.ok(dock.includes(declaration))
-  // The portal belongs to the dialog, not its nested/transformed Options section.
+  // The portal belongs to the persistent dialog, not a nested panel that disappears
+  // during Main/Options/Tutorial/Quit transitions.
   assert.match(read('fullscreen-session.ts'), /const target = dialogs\[dialogs.length - 1\]/)
   assert.match(read('original-main-menu.tsx'), /<div ref=\{frame\} className=\{styles.frame\}>/)
-  assert.match(read('original-options.tsx'), /data-original-options[\s\S]*data-skin=\{skin\}/)
+  assert.match(read('original-main-menu.tsx'), /<dialog[\s\S]*?data-original-main-menu/)
   for (const suffix of [' button', ' .compactFrame', ' .label']) {
     assert.ok(css.includes(target + suffix + ',\n:global(.top-actions) > .control' + suffix + ' {'),
-      `Options shares unchanged native footer treatment: ${suffix}`)
+      `Every frontend panel shares unchanged native footer treatment: ${suffix}`)
   }
   assert.match(rule(css, target + ' p'), /top: 20px; left: 0; right: auto; bottom: auto/)
   const menu = read('original-main-menu.module.css')
@@ -78,10 +89,24 @@ test('frontend Options uses the existing compact frame in the empty upper-left d
     const scale = Math.min(width / 640, height / 480)
     const x = (width - 640 * scale) / 2, y = (height - 480 * scale) / 2
     const native = (left, top, right, bottom) => ({ left:x+left*scale, top:y+top*scale, right:x+right*scale, bottom:y+bottom*scale })
-    // Include the existing focus outline (1px with a 2px offset).
-    const control = { left:9, top:9, right:32, bottom:29 }
+    // Derive the control and its focus ring from the shipped declarations rather
+    // than duplicating a passing rectangle that could outlive a CSS regression.
+    const pixels = (declarations, name) => {
+      const value = declarations.match(new RegExp(`(?:^|;)\\s*${name}: (\\d+)px(?:;|$)`))
+      assert.ok(value, `Missing ${name} pixel declaration`)
+      return Number(value[1])
+    }
+    const button = rule(css, target + ' button')
+    const focus = rule(css, '.control button:focus-visible')
+    const outline = Number(focus.match(/outline: (\d+)px/)[1]) + pixels(focus, 'outline-offset')
+    const left = pixels(dock, 'left'), top = pixels(dock, 'top')
+    const control = { left:left-outline, top:top-outline,
+      right:left+pixels(button,'width')+outline, bottom:top+pixels(button,'height')+outline }
     for (const [name, bounds] of [
       ['native logo', native(173,0,480,120)],
+      ['main menu rows', native(0,139,640,413)],
+      ['checkpoint recovery notices and Retry', native(0,414,640,480)],
+      ['tutorial recommendation and Quit choices', native(0,139,640,480)],
       ['option/help/storage rows, bitmap or fallback', native(0,139,640,390)],
       ['category navigation and Direct3D link', native(0,390,640,446)],
       ['Back', native(0,454,640,480)],
