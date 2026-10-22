@@ -95,4 +95,7 @@ test('shipped summary retains placement, hit target and callbacks while only its
   assert.match(style, /round\(to-zero, calc\(\(100% - var\(--icon-width\)\) \/ 2\), 1px\)/)
   assert.match(style, /\.tile\[data-position='4'\] \{ inset: 4px; width: auto; height: auto; \}/)
   assert.match(style, /\.tile\[data-position='8'\] \{ right: 0; bottom: 0; \}/)
+  assert.match(source('scripts/campaign-popup-fixture/fixture/main.tsx'), /<OriginalMessageTab flags=\{message\.flags\} \/>/)
+  for (const path of ['app/original-message-tab.tsx', 'app/original-message-tab.module.css', 'app/original-message-tabs.json'])
+    assert.ok(source('scripts/campaign-popup-fixture/run.mjs').includes(`'${path}'`), `Browser evidence fingerprints ${path}`)
 })

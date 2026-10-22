@@ -3,6 +3,7 @@ import HomePopupFixture from 'virtual:campaign-home'
 import { useLayoutEffect, useRef, useState } from 'react'
 import { OriginalPauseStatus } from 'virtual:native-pause-component'
 import { OriginalCampaignPopup } from '../../../app/original-campaign-popup'
+import { OriginalMessageTab } from '../../../app/original-message-tab'
 import {
   acknowledgeMessage,
   createMessages,
@@ -196,7 +197,11 @@ function Fixture() {
                     }
                   }}
                 >
-                  <img src="/original/message.png" alt="" />
+                  {before ? (
+                    <img src="/original/message.png" alt="" />
+                  ) : (
+                    <OriginalMessageTab flags={message.flags} />
+                  )}
                 </summary>
                 {before ? (
                   <div>
