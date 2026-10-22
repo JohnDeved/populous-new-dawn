@@ -144,6 +144,9 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
    compatibility clear across startup/game palettes, not a native RGB claim. */
 .loading-browser-note{position:absolute;bottom:20px;left:16px;right:16px;font:13px/1.5 Arial,sans-serif;color:#ccc}
 .loading-world[data-loading-phase=failed]{display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:20px;padding:28px 20px;overflow:auto}
+/* The 576px recovery column already clears the corner on wider screens. On
+   compact screens reserve its 44px gutter across the entire scroll range. */
+@media(max-width:680px){.loading-world[data-loading-phase=failed]{padding-left:44px}}
 .loading-world[data-loading-phase=failed] .loading-original-art{position:relative;left:auto;top:auto}
 /* Browser recovery uses original frontend menu glyphs and unframed rows, not a
    claimed native failure dialog. Responsive wrapping/scrolling is browser-only. */

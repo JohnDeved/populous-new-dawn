@@ -26,15 +26,25 @@
 /* All frontend panels share one dialog; the portal is its direct child, outside
    the transformed frame. Reserve the empty upper-left corner on Main, Options,
    Tutorial and Quit, away from native rows, checkpoint recovery and badges. */
+/* Logo controls own the bottom strip. Loading recovery scrolls inside its own
+   left-gutter reservation; a fixed corner alone would still cover scrolled text. */
+:global(body:has(.loading-world)) > .control,
+:global(dialog[data-startup-logo]) > .control,
 :global(dialog[data-original-main-menu]) > .control { top: 12px; left: 12px; right: auto; bottom: auto; }
+:global(body:has(.loading-world)) > .control p,
+:global(dialog[data-startup-logo]) > .control p,
 :global(dialog[data-original-main-menu]) > .control p { top: 20px; left: 0; right: auto; bottom: auto; }
 /* Preserve the four-action native-coordinate footer and its reserved space below
    the dock. No glyph, frame or texture is rescaled to fit the compact control. */
 :global(.top-actions) > .control { position: relative; inset: auto; }
+:global(body:has(.loading-world)) > .control button,
+:global(dialog[data-startup-logo]) > .control button,
 :global(dialog[data-original-main-menu]) > .control button,
 :global(.top-actions) > .control button { display: flex; width: 17px; height: 14px; min-height: 0; padding: 0; border: 0; border-image: none; background: none; }
 /* 004a1f50: 1px-wide horizontal strips first, then full 8px corners TL/TR/BL/BR.
    At 14px high the bottom tiles overlap the top by 2px; there are no side strips. */
+:global(body:has(.loading-world)) > .control .compactFrame,
+:global(dialog[data-startup-logo]) > .control .compactFrame,
 :global(dialog[data-original-main-menu]) > .control .compactFrame,
 :global(.top-actions) > .control .compactFrame { display: block; position: absolute; inset: 0; pointer-events: none; image-rendering: pixelated; }
 .compactFrame i { position: absolute; width: 8px; height: 8px; background-image: var(--fullscreen-frame); background-repeat: no-repeat; }
@@ -44,6 +54,8 @@
 .compactFrame i:nth-child(4) { left: 9px; top: 0; background-position: -16px 0; }
 .compactFrame i:nth-child(5) { left: 0; top: 6px; background-position: 0 -16px; }
 .compactFrame i:nth-child(6) { left: 9px; top: 6px; background-position: -16px -16px; }
+:global(body:has(.loading-world)) > .control .label,
+:global(dialog[data-startup-logo]) > .control .label,
 :global(dialog[data-original-main-menu]) > .control .label,
 :global(.top-actions) > .control .label { display: none; }
 :global(.top-actions) > .control p { left: 0; right: auto; bottom: 20px; }

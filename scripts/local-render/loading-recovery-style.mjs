@@ -2,12 +2,13 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
+import { observeFullscreenClearance, assertFullscreenClearance } from './fullscreen-clearance.mjs'
 
 // Actual Home and real loader failures. Only landscape responses and, in the
 // separate fallback context, frontend font availability are controlled. No world,
 // store, error-prop, save or React state is injected. This is not a ready-scene test.
 export default async function ({ page, browser, url, output }) {
-  const report = { status: 'running', captures: [], requests: [], errors: [] }
+  const report = { status: 'running', captures: [], fullscreenGeometry: [], requests: [], errors: [] }
   const save = () => writeFileSync(resolve(output, 'loading-recovery-style.json'), JSON.stringify(report, null, 2) + '\n')
   const button = p => p.getByRole('button', { name: 'Try again', exact: true })
   const failed = p => p.getByRole('dialog', { name: 'Browser loading recovery', exact: true })
@@ -21,6 +22,9 @@ export default async function ({ page, browser, url, output }) {
     await p.getByRole('button', { name: 'Yes', exact: true }).click()
   }
   const capture = async (p, name) => {
+    const geometry = await observeFullscreenClearance(p, 'body', '.loading-original-art,.loading-original-label,.loading-recovery')
+    report.fullscreenGeometry.push({name,geometry}); save()
+    assertFullscreenClearance(geometry)
     await p.screenshot({ path: resolve(output, `${name}.png`) })
     report.captures.push({ name, viewport: p.viewportSize() })
     save()
@@ -73,6 +77,10 @@ export default async function ({ page, browser, url, output }) {
       await diagnostics.scrollIntoViewIfNeeded()
       await capture(page, `native-details-${width}x${height}`)
       await assertHit(button(page))
+      if (width === 320) {
+        await failed(page).locator('.loading-recovery-note').scrollIntoViewIfNeeded()
+        await capture(page, 'native-footer-scrolled-320x240')
+      }
       await summary.click()
     }
     await page.setViewportSize({ width: 640, height: 480 })
@@ -115,7 +123,7 @@ export default async function ({ page, browser, url, output }) {
     await capture(p, 'recovery-font-fallback-details-320x240')
     assert.deepEqual(report.errors, [])
     report.status = 'passed'
-    report.limits = ['Controlled loader failures and font availability; no native failure-dialog claim', 'No completed scene or full checkpoint continuation proof', 'No hardware performance or pixel-parity claim']
+    report.limits = ['Controlled loader failures and font availability; no native failure-dialog claim', 'Loading retains its existing summary/Retry keyboard trap; fullscreen placement does not change focus ownership', 'No completed scene or full checkpoint continuation proof', 'No hardware performance or pixel-parity claim']
     return report
   } catch (error) {
     report.status = 'failed'

@@ -118,3 +118,37 @@ test('all frontend panels share the native compact frame in the empty upper-left
     ]) assert.equal(intersects(control,bounds),false, `${width}x${height}: ${name}`)
   }
 })
+
+test('logo and loading compact fullscreen keep original controls and the scrolling recovery column clear', () => {
+  const pixels = (declarations, name) => Number(declarations.match(new RegExp(`(?:^|;)\\s*${name}: (\\d+)px(?:;|$)`))?.[1])
+  const focus = rule(css, '.control button:focus-visible')
+  const ring = Number(focus.match(/outline: (\d+)px/)[1]) + pixels(focus, 'outline-offset')
+  for (const target of [':global(dialog[data-startup-logo]) > .control', ':global(body:has(.loading-world)) > .control']) {
+    const dock = rule(css,target), button = rule(css,target+' button')
+    assert.match(dock, /right: auto; bottom: auto/)
+    assert.match(rule(css,target+' .compactFrame'), /display: block/)
+    assert.match(rule(css,target+' .label'), /display: none/)
+    assert.equal(pixels(button,'width'),17); assert.equal(pixels(button,'height'),14)
+    const control = { left:pixels(dock,'left')-ring, top:pixels(dock,'top')-ring,
+      right:pixels(dock,'left')+pixels(button,'width')+ring, bottom:pixels(dock,'top')+pixels(button,'height')+ring }
+    const media = global.match(/@media\(max-width:(\d+)px\)\{\.loading-world\[data-loading-phase=failed\]\{padding-left:(\d+)px\}\}/)
+    assert.ok(media, 'Only compact failed loading reserves the fullscreen scroll gutter')
+    assert.match(global, /\.loading-world\[data-loading-phase=failed\]\{[^}]*padding:28px 20px;overflow:auto/)
+    assert.match(read('startup-logo.module.css'), /\.focusOnly:not\(:focus-visible\)\s*\{\s*opacity: 0/)
+    assert.match(read('startup-logo.module.css'), /aspect-ratio: 20 \/ 11/)
+    for (const [width,height] of [[320,240],[640,480],[680,360],[681,360],[900,360],[1280,800],[1920,1080]]) {
+      assert.ok(control.left >= 0 && control.top >= 0 && control.right <= width && control.bottom <= height)
+      const scale = frontendScale(width,height)
+      const video = { left:(width-640*scale)/2, right:(width+640*scale)/2,
+        top:(height-352*scale)/2, bottom:(height+352*scale)/2 }
+      assert.equal(intersects(control,video),false, 'Original movie artwork stays clear')
+      // Reserve the entire recovery column, not only one scroll position. Include
+      // a conservative 17px classic scrollbar at wider sizes.
+      const columnLeft = width <= Number(media[1]) ? Number(media[2]) : (width-17-576)/2
+      assert.ok(control.right < columnLeft, `${width}x${height}: scrolled diagnostics and footer clear the focus ring`)
+      const mask = {left:Math.floor((width-130)/2),right:Math.floor((width-130)/2)+130,
+        top:Math.floor((height-161)/2)-26,bottom:Math.floor((height-161)/2)+161}
+      assert.equal(intersects(control,mask),false,'Pending loading mask and label retain their centered geometry')
+    }
+  }
+})

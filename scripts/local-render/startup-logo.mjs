@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import { existsSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { waitForStartupMenu } from '../browser-new-game.mjs'
+import { observeFullscreenClearance, assertFullscreenClearance } from './fullscreen-clearance.mjs'
 
 // Actual Home and trusted browser input. No seeking, synthetic keyboard events,
 // game-state changes, playback-rate changes or replacement media.
@@ -10,7 +12,14 @@ export default async function startupLogo({ page, context, url, root, output, re
   const logo = page.getByRole('dialog', { name: 'Opening logo', exact: true })
   const video = logo.locator('video')
   const screenshot = name => page.screenshot({ path: resolve(output, `${name}.png`) })
-  const checks = []
+  const checks = [], fullscreenGeometry = []
+  const clearance = async name => {
+    const geometry = await observeFullscreenClearance(page, '[data-startup-logo]', '[data-startup-logo] video,[data-startup-logo] [data-recovery] p,[data-startup-logo] button:not([data-fullscreen-control] button)')
+    fullscreenGeometry.push({name,geometry})
+    writeFileSync(resolve(output, 'logo-fullscreen-geometry.json'), JSON.stringify(fullscreenGeometry, null, 2))
+    assertFullscreenClearance(geometry)
+    return geometry
+  }
   if (!existsSync(resolve(root, 'app/startup-logo.tsx'))) {
     await main.waitFor()
     await screenshot('before-menu-without-logo')
@@ -96,7 +105,19 @@ export default async function startupLogo({ page, context, url, root, output, re
   await page.keyboard.press('Tab')
   assert.equal(await accessibleSkip.evaluate(button => button === document.activeElement), true)
   assert.equal(await accessibleSkip.evaluate(button => getComputedStyle(button).opacity), '1', 'keyboard focus reveals Skip')
+  await clearance('desktop-skip-keyboard-focus')
   await screenshot('logo-skip-keyboard-focus')
+  await page.setViewportSize({ width: 320, height: 240 })
+  await clearance('compact-skip-keyboard-focus')
+  assert.equal(await accessibleSkip.evaluate(button => getComputedStyle(button).opacity), '1')
+  await screenshot('logo-skip-keyboard-focus-320x240')
+  await page.keyboard.press('Tab')
+  const fullscreenFocus = await clearance('compact-fullscreen-keyboard-focus')
+  assert.equal(fullscreenFocus.focused, true)
+  assert.equal(fullscreenFocus.focusVisible, true)
+  await screenshot('logo-fullscreen-keyboard-focus-320x240')
+  await page.keyboard.press('Shift+Tab')
+  assert.equal(await accessibleSkip.evaluate(button => button === document.activeElement), true)
   await accessibleSkip.click()
   await assertMenuOnly()
   checks.push('keyboard-accessible user activation enables original audio without skipping or restarting; focus reveals the otherwise hidden Skip')
@@ -105,6 +126,20 @@ export default async function startupLogo({ page, context, url, root, output, re
   await assertMenuOnly()
   assert.deepEqual(await page.evaluate(() => Object.entries(localStorage)), originalStorage)
   checks.push('return from Options does not replay logo or write storage')
+
+  // Reproduce the compact setup helper's exact pointer path. Skip intentionally
+  // retains its hit area while opacity-zero; do not force or relocate the click.
+  await cold()
+  assert.equal(await accessibleSkip.evaluate(button => getComputedStyle(button).opacity), '0')
+  await clearance('compact-unfocused-skip')
+  assert.equal(await accessibleSkip.evaluate(button => {
+    const box = button.getBoundingClientRect()
+    return button.contains(document.elementFromPoint(box.x+box.width/2,box.y+box.height/2))
+  }), true, 'The opacity-zero native Skip hit area is not intercepted')
+  await waitForStartupMenu(page)
+  await assertMenuOnly()
+  checks.push('compact focused Skip and fullscreen clear one another; unchanged setup helper reaches the menu without forced input')
+  await page.setViewportSize({ width: 1280, height: 960 })
 
   // Separately labelled media failure injection; successful playback above uses
   // the real shipped WebM. A stalled/failed decoder must never block play.
@@ -121,7 +156,7 @@ export default async function startupLogo({ page, context, url, root, output, re
   assert.equal(errorsBefore, 0, JSON.stringify(receipt.errors.slice(0, errorsBefore)))
   checks.push('injected 404 retains truthful failure and working exit')
   const result = {
-    checks, geometry, expectedFailureErrors,
+    checks, geometry, fullscreenGeometry, expectedFailureErrors,
     limits: ['Local Chromium compositor; not original native runtime or hardware performance',
       'Full initial timed page, New Game intro, and non-English logos remain unimplemented',
       'Autoplay-refusal and visibility lifecycle have component tests; audio was unmuted but not acoustically measured'],
