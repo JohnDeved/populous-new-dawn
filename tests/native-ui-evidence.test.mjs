@@ -703,7 +703,7 @@ test('caller acceptance rejects shared, missing, nonfinite, inflated and overrun
   responseWindows: [{ startedMs: 3000, finishedMs: 3100, deadlineMs: 5500 }] }
   assertMissionInputBudget(good)
   for (const [key, value] of [['contract', 'shared-input-v1'], ['responseCapMs', 2501], ['actionCapMs', 25001],
-    ['actionCapMs', NaN], ['responseStartedMs', -1], ['responseStartedMs', NaN], ['responseDeadlineMs', 5501],
+    ['actionCapMs', NaN], ['actionCapMs', '25000'], ['responseStartedMs', -1], ['responseStartedMs', NaN], ['responseDeadlineMs', 5501],
     ['responseDeadlineMs', 3000], ['responseDeadlineMs', Infinity], ['elapsedMs', 5501], ['elapsedMs', NaN], ['responseSpentMs', 2501], ['responseSpentMs', 99], ['wallElapsedMs', 3101],
     ['retryPreparationMs', 1], ['retryCount', 2], ['retryLimit', 2]])
     assert.throws(() => assertMissionInputBudget({ ...good, [key]: value }), undefined, key)

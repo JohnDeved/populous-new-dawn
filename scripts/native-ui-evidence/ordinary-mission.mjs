@@ -59,7 +59,7 @@ export function assertMissionInputBudget(trace) {
   assert.equal(trace.responseCapMs, 2500)
   const finite = n => Number.isFinite(n) && n >= 0
   const equal = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-6, `Budget accounting mismatch: ${actual} != ${expected}`)
-  assert.ok(trace.actionCapMs > 0 && trace.actionCapMs <= pageActionTimeout)
+  assert.ok(Number.isFinite(trace.actionCapMs) && trace.actionCapMs > 0 && trace.actionCapMs <= pageActionTimeout)
   for (const key of ['responseStartedMs', 'responseDeadlineMs', 'responseSpentMs', 'retryPreparationMs', 'elapsedMs', 'wallElapsedMs'])
     assert.ok(finite(trace[key]), `Finite ${key} required`)
   assert.equal(trace.retryLimit, 1)
