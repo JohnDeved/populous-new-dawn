@@ -1,11 +1,36 @@
 /** Original model identifiers, not browser labels. Source tables and switch:
  * 0045ed10, 0059d7f4, 0059d814. Model zero is not a generic fallback. */
 const personTopics: readonly (number | null)[] = [
-  null, 992, 1024, 1025, 1027, 1028, 1026, 1023, 1020,
+  null,
+  992,
+  1024,
+  1025,
+  1027,
+  1028,
+  1026,
+  1023,
+  1020,
 ]
 const buildingTopics: readonly (number | null)[] = [
-  null, 996, 996, 996, 997, 999, 1000, 998, 1001, 996,
-  996, 996, 996, 1002, 1002, 1003, 1003, 1004, 990,
+  null,
+  996,
+  996,
+  996,
+  997,
+  999,
+  1000,
+  998,
+  1001,
+  996,
+  996,
+  996,
+  996,
+  1002,
+  1002,
+  1003,
+  1003,
+  1004,
+  990,
 ]
 
 export interface HelpObject {
@@ -33,15 +58,20 @@ export function helpObjectTopic(object: HelpObject): number | null {
   const { type, model } = object
   if (type === 1) return personTopics[model] ?? null
   if (type === 2) return buildingTopics[model] ?? null
-  if (type === 4) return object.vehicleFlags === undefined ? null : object.vehicleFlags & 1 ? 994 : 993
+  if (type === 4)
+    return object.vehicleFlags === undefined ? null : object.vehicleFlags & 1 ? 994 : 993
   if (type !== 5) return null
   if ((model >= 1 && model <= 6) || model === 11) return 986
   if (model !== 9) return null
   switch (object.shrineType) {
-    case 1: return 1070
-    case 2: return 989
-    case 4: return 991
-    default: return null
+    case 1:
+      return 1070
+    case 2:
+      return 989
+    case 4:
+      return 991
+    default:
+      return null
   }
 }
 
@@ -49,7 +79,8 @@ export function helpObjectTopic(object: HelpObject): number | null {
  * still wins over terrain; ordinary land must not invent a new topic. */
 export function helpContextTopic(context: HelpContext): number | null {
   if (context.hud !== undefined) return context.hud === null ? null : context.hud.topic || 1046
-  const valid = (object: HelpObject | null | undefined) => object && object.type !== 0 && !(object.flags & 1)
+  const valid = (object: HelpObject | null | undefined) =>
+    object && object.type !== 0 && !(object.flags & 1)
   const building = (context.cell?.flags ?? 0) & 0x200 ? context.cell?.building : null
   const object = [context.picked, context.fallback, building].find(valid)
   if (object) return helpObjectTopic(object)

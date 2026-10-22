@@ -8,18 +8,14 @@ export interface HelpDiscovery {
 
 /** Source predicates 004250f0/00425110 and spell code 004c29a0. This is the
  * native availability mask/stock, not inferred campaign or display-name data. */
-export function helpLinkAvailable(
-  predicate: string,
-  argument: number,
-  state: HelpDiscovery
-) {
+export function helpLinkAvailable(predicate: string, argument: number, state: HelpDiscovery) {
   if (predicate === '00000000') return true
   if (predicate === '00425110') return !!(state.buildingBits & (1 << argument))
   if (predicate !== '004250f0') throw new Error('Unimported help discovery predicate')
   const stock = (state.stock[argument] ?? 0) & 15
   return state.levelFlags & 0x20
     ? !!(state.spellDefinitionByte[argument] && stock)
-    : !!((state.spellBits & (1 << argument)) || stock)
+    : !!(state.spellBits & (1 << argument) || stock)
 }
 
 // Failed links stay present and activatable, but open the original unavailable

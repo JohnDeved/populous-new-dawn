@@ -7,9 +7,15 @@ export function createHelpHistory(initial = 984) {
   const entries = [initial]
   let position = 0
   return {
-    get topic() { return entries[position] },
-    get canBack() { return position > 0 },
-    get canForward() { return position + 1 < entries.length },
+    get topic() {
+      return entries[position]
+    },
+    get canBack() {
+      return position > 0
+    },
+    get canForward() {
+      return position + 1 < entries.length
+    },
     visit(topic: number) {
       validateHelpTopic(topic)
       entries.splice(position + 1)

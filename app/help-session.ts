@@ -31,9 +31,15 @@ export function createHelpSession(world: HelpWorld, isCurrent: () => boolean) {
     get topic() {
       return history.topic
     },
-    get canBack() { return history.canBack },
-    get canForward() { return history.canForward },
-    get scrollPosition() { return scrollPosition },
+    get canBack() {
+      return history.canBack
+    },
+    get canForward() {
+      return history.canForward
+    },
+    get scrollPosition() {
+      return scrollPosition
+    },
     scroll(position: number) {
       if (!ownsWorld() || phase !== 'article') return false
       if (!Number.isFinite(position)) throw new RangeError('Invalid help scroll position')
@@ -43,8 +49,12 @@ export function createHelpSession(world: HelpWorld, isCurrent: () => boolean) {
     navigate(action: 'back' | 'forward' | 'home' | number) {
       if (!ownsWorld() || phase !== 'article') return false
       const prior = history.topic
-      const next = typeof action === 'number' ? history.visit(action)
-        : action === 'home' ? history.visit(984) : history[action]()
+      const next =
+        typeof action === 'number'
+          ? history.visit(action)
+          : action === 'home'
+            ? history.visit(984)
+            : history[action]()
       if (next === null) return false
       // 0045dd22 resets scroll when a different article is laid out. Link/home
       // activation also explicitly resets it, even for the current topic.
