@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 // Construction animation through the actual full unit frame/Scene wrapper.
 // Controlled transitions/cloned worker populations are explicitly diagnostic.
 import assert from 'node:assert/strict'
@@ -20,12 +21,33 @@ async function controlledWorker() {
 }
 
 function assertFrame(fixture, world) {
-  const before = structuredClone(world)
+  const before = structuredClone(world),
+    previous = new Map([...fixture.scene.unitMeshes].map(([id, group]) => [id, {
+      state: group.userData.state, frame: group.userData.frame, since: group.userData.since,
+    }]))
   fixture.render()
   assert.deepEqual(world, before, 'unit rendering preserves the full World and both RNG owners')
   for (const unit of world.units) {
-    const group = fixture.scene.unitMeshes.get(unit.id)
-    assert.equal(group.userData.state, fixture.api.unitAnimation(world, unit))
+    const group = fixture.scene.unitMeshes.get(unit.id),
+      call = fixture.personCalls.find(args => args[0] === group),
+      source = fixture.api.unitAnimationSource(unit),
+      hidden = !!unit.native?.vehicle || source?.object === 0x650 ||
+        !!(source?.renderFlags & 16) ||
+        (unit.inside !== null && (!unit.entry || !!(unit.entry.person.renderFlags & 16))) ||
+        fixture.api.unitInvisibleToPlayer(world, unit)
+    assert.equal(group.visible, !hidden, 'native hiding and actual occupancy own visibility')
+    if (hidden) {
+      assert.equal(call, undefined, 'hidden occupants submit no stale or fallback body')
+      if (previous.has(unit.id))
+        assert.deepEqual(
+          { state: group.userData.state, frame: group.userData.frame, since: group.userData.since },
+          previous.get(unit.id),
+          'a hidden body retains its last drawn metadata rather than inventing a redraw'
+        )
+    } else {
+      assert.ok(call, 'every visible worker reaches the actual person wrapper')
+      assert.equal(group.userData.state, fixture.api.unitAnimation(world, unit))
+    }
     assert.equal(group.userData.cellPosition, unit)
   }
 }
@@ -94,6 +116,29 @@ test('real construction command reaches Work animation, pauses, cancels and rele
     for (const [id, original] of groups)
       if (world.units.some(unit => unit.id === id))
         assert.equal(fixture.scene.unitMeshes.get(id), original)
+    const home = world.buildings.find(candidate => candidate.id === worker.inside)
+    assert.equal(home?.kind, 'hut', 'the cancelled worker naturally enters a real hut while the crew finishes')
+    assert.equal(home.progress, 1)
+    assert.equal(worker.resident.building, home.id)
+    assert.equal(home.admission.occupants[worker.resident.slot], worker.id)
+    assert.equal(group.visible, false)
+    api.setSelection(world, [workerId])
+    assert.equal(api.command(world, { x: 9, z: 30 }), true)
+    assert.equal(worker.inside, null, 'public movement releases actual housing ownership')
+    assert.equal(worker.resident, undefined)
+    assert.equal(home.admission.occupants.includes(worker.id), false)
+    assert.equal(api.unitAnimationSource(worker), worker.native, 'the public command owns the departed animation')
+    assert.equal(worker.native.commandStatus, 3)
+    fixture.advance(1 / 12)
+    assertFrame(fixture, world)
+    assert.equal(fixture.scene.unitMeshes.get(workerId), group)
+    assert.equal(group.visible, true, 'the same worker body reappears on ordinary departure')
+    assert.equal(group.userData.state, 'walk')
+    const call = fixture.personCalls.find(args => args[0] === group),
+      source = api.unitAnimationSource(worker),
+      { default: units } = await import('../app/original-units.json', { with: { type: 'json' } })
+    assert.equal(call[2], units.followerSources[source.object])
+    assert.equal(call[5], source.f2, 'departure redraw consumes the current native frame, not the hidden one')
   } finally {
     fixture.close()
   }
@@ -264,7 +309,7 @@ test('loaded/current and legacy worlds, empty refill and independent Scenes rebu
     delete legacy.vehicles
     delete legacy.levelStart
     delete legacy.drawMode
-    left.scene.world = api.migrateCheckpoint(legacy)
+    left.scene.world = normalizeHistoricalFixture(legacy)
     assertFrame(left, left.scene.world)
     assert.equal(left.scene.unitMeshes.get(worker.id), originalGroup)
     const empty = structuredClone(current)

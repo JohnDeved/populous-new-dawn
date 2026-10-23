@@ -204,7 +204,6 @@
     "tests/mission5-victory-latch.test.mjs": "2332e5b5273c2c14569a40c8f54cf84806cb3dc0a20cb070c4b2cf44958bb0af",
     "tests/mission6-attack-markers.test.mjs": "1dfee24a2a315d137e1a28892013beb26d007512455ca0b82eae74ff8dbdf4a1",
     "tests/mission6-natural-marker-bridge.test.mjs": "3c4a18860b7921e93de20ad91e3678b0d2f0559362c078bd51a613ac9254e808",
-    "tests/mission6-natural-raid-release.test.mjs": "c3ea437d32ee120cdd15f561b5d634bc19d7e1563847982dd8cadd2982a1042b",
     "tests/mission6.test.mjs": "da56e0ec7ed1f0674fd059fd4ea5653049c3400da6528fe1c0d99a31885be231",
     "tests/mission7-settlement.test.mjs": "b7f108a621e4e45977c0aaf9eb908322fe3feccb0d150b908eef70adeedd1fcf",
     "tests/mission7.test.mjs": "5291d8ee0cf385fef249a804ffe0b270e613243f4afa41484aa18e0977ed8365",

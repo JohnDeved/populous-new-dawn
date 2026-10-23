@@ -1,4 +1,11 @@
-import { useId, useRef, useState, type KeyboardEvent, type CSSProperties } from 'react'
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type CSSProperties,
+} from 'react'
 import {
   openingCampaignMissions,
   openingMissionAvailable,
@@ -30,11 +37,20 @@ export function WorldSelector({
   replacingWorld = false,
 }: Props) {
   const container = useRef<HTMLElement>(null)
+  const directHeading = useRef<HTMLHeadingElement>(null)
+  const focusDirectHeading = useRef(false)
   const descriptionId = useId()
   const [selected, setSelected] = useState(() => openingRecommendedMission(completed))
   const [allMissions, setAllMissions] = useState(false)
   const [compatibility, setCompatibility] = useState(false)
   const [failedArt, setFailedArt] = useState<string[]>([])
+  useLayoutEffect(() => {
+    if (!focusDirectHeading.current || compatibility || !allMissions) return
+    focusDirectHeading.current = false
+    // The activated switch disappears. Focus a non-action heading so a held
+    // Enter/Space cannot follow it into a mission launch; Tab reaches the grid.
+    directHeading.current?.focus({ preventScroll: true })
+  }, [allMissions, compatibility])
   const panelArt = `/original/world-selector/panel/${selected}-`
   const artFailed = failedArt.includes(panelArt)
   const failArt = () =>
@@ -51,11 +67,21 @@ export function WorldSelector({
     const availableMissions = openingCampaignMissions.filter(mission =>
       openingMissionAvailable(mission, completed)
     )
-    const direction = event.key === 'ArrowLeft' ? -1 : 1
-    const current = availableMissions.indexOf(selected as 1 | 2 | 3)
-    setSelected(
-      availableMissions[(current + direction + availableMissions.length) % availableMissions.length]
-    )
+    // Locked worlds can still be inspected through the panel. Search from that
+    // mission's position rather than treating it as a missing available index.
+    const next =
+      event.key === 'ArrowLeft'
+        ? (availableMissions.findLast(mission => mission < selected) ??
+          availableMissions[availableMissions.length - 1])
+        : (availableMissions.find(mission => mission > selected) ?? availableMissions[0])
+    setSelected(next)
+    // Keep panel activation tied to the world just selected by the arrow key.
+    // Arrows on Start retain its focus so Enter still launches that world.
+    if (event.currentTarget.hasAttribute('data-selector-mission')) {
+      container.current
+        ?.querySelector<HTMLButtonElement>(`[data-selector-mission="${next}"]`)
+        ?.focus()
+    }
   }
 
   return (
@@ -98,6 +124,7 @@ export function WorldSelector({
             <button
               aria-pressed={allMissions}
               onClick={() => {
+                focusDirectHeading.current = true
                 setAllMissions(true)
                 setCompatibility(false)
               }}
@@ -141,7 +168,9 @@ export function WorldSelector({
       )}
       {allMissions ? (
         <section className={styles.direct} aria-label="All missions">
-          <h3>Choose any playable mission</h3>
+          <h3 ref={directHeading} tabIndex={-1}>
+            Choose any playable mission
+          </h3>
           <p>Direct access is available here, independently of campaign progress.</p>
           <div className={styles.missions}>
             {missions.map(mission => (
@@ -182,6 +211,7 @@ export function WorldSelector({
                   className={styles.panelGlyph}
                   aria-label={`Panel Mission ${mission}${completed.includes(mission) ? ', completed' : ''}`}
                   aria-pressed={mission === selected}
+                  data-selector-mission={mission}
                   autoFocus={mission === selected}
                   aria-describedby={`${descriptionId}-${mission}`}
                   data-selector-tooltip={

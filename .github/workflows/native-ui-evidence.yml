@@ -1,0 +1,106 @@
+name: Native UI pre-ready evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact reviewed same-repository UI candidate commit (40 lowercase hex characters)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-ui-evidence-${{ inputs.candidate_sha }}
+  cancel-in-progress: false
+
+jobs:
+  evidence:
+    name: Native UI evidence (not Full check)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PND_UI_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Check out reviewed default-branch evidence infrastructure
+        id: infrastructure
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: evidence-infrastructure
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/native-ui-evidence/
+            /scripts/orchestration/dependency-profile.mjs
+            /scripts/tutorial-browser/browser-config.mjs
+            /.github/workflows/native-ui-evidence.yml
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Require this workflow on main with an exact separate candidate
+        run: |
+          node --input-type=module -e "import { manualIdentity } from './evidence-infrastructure/scripts/native-ui-evidence/identity.mjs'; console.log(JSON.stringify(manualIdentity(process.env)))"
+      - name: Check out exact candidate (not a synthetic merge)
+        id: candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: JohnDeved/populous-new-dawn
+          ref: ${{ inputs.candidate_sha }}
+          path: candidate
+          persist-credentials: false
+      - name: Install candidate locked dependencies and verify supported Chrome
+        working-directory: candidate
+        run: |
+          test "$(git rev-parse HEAD)" = "$PND_UI_CANDIDATE_SHA"
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
+          printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
+          test -x /opt/google/chrome/chrome
+          /opt/google/chrome/chrome --version
+          node --version
+          if [ "$manager" = pnpm@11.25.0 ]; then pnpm --version; else npm --version; fi
+      - name: Build candidate Home and run all seven mandatory UI episodes
+        run: |
+          node --max-old-space-size=768 evidence-infrastructure/scripts/native-ui-evidence/run.mjs \
+            "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/native-ui-evidence" "$GITHUB_WORKSPACE/native-ui-dist"
+      - name: Reject candidate tracked input mutation
+        if: ${{ always() && steps.candidate.outcome == 'success' }}
+        working-directory: candidate
+        run: git diff --exit-code HEAD --
+      - name: Reject infrastructure tracked input mutation
+        if: ${{ always() && steps.infrastructure.outcome == 'success' }}
+        working-directory: evidence-infrastructure
+        run: git diff --exit-code HEAD --
+      - name: Retain bounded raw receipts and screenshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: native-ui-evidence-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/native-ui-evidence/**/*.json
+            outputs/native-ui-evidence/**/*.log
+            outputs/native-ui-evidence/**/*.png
+          if-no-files-found: warn
+          retention-days: 7

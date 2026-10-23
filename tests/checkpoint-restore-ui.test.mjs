@@ -55,13 +55,14 @@ function nodes(tree) {
 const button = (tree, name) => nodes(tree).find(node => node.type === 'button' && (node.props['aria-label'] === name || node.children.includes(name)))
 const text = tree => nodes(tree).flatMap(node => node.children.filter(child => typeof child === 'string')).join(' ')
 function startup(store) {
-  const states = []
+  const states = [], cheatClosures = []
   const names = ['beginLoad', 'startMission', 'loadCheckpoint']
   const declarations = names.map(name => pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === name).getText(pageSource)).join('\n')
   const navigation = evaluatePage(`function(){${declarations}; return {${names.join(',')}}}`, {
     store, setStartup: state => states.push(state),
     menuSession: { current: null }, pendingMenuCamera: { current: [] },
     engine: { current: null }, audio: { current: null }, loadRequest: { current: null },
+    setCheatsOpen: value => cheatClosures.push(value),
     cancelNearbyInput: () => {}, setSelectorOpen: () => {}, setMenu: () => {},
     setReady: () => {}, setError: () => {}, setTab: () => {},
   })()
@@ -72,11 +73,11 @@ function startup(store) {
     gamePreferencesRef: { current: null }, setGamePreferences: () => {},
     setStartup: state => states.push(state),
   })()
-  return { states, cleanup, navigation }
+  return { states, cheatClosures, cleanup, navigation }
 }
 const settle = () => new Promise(resolve => setImmediate(resolve))
 let session = 0
-async function withStorage(run, initial = {}) {
+async function withStorage(run, initial = {}, { failWrite = false } = {}) {
   const previous = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB')
   const records = new Map(Object.entries(initial)), opens = [], reads = [], writes = []
   let transactions = 0
@@ -84,13 +85,16 @@ async function withStorage(run, initial = {}) {
     transaction(name, mode = 'readonly') {
       assert.equal(name, 'checkpoints')
       transactions++
-      const transaction = new EventTarget()
+      const transaction = new EventTarget(), staged = []
       transaction.objectStore = () => ({
         get: key => ({ result: structuredClone(records.get(key)) }),
-        put: (value, key) => { writes.push(key); records.set(key, structuredClone(value)) },
+        put: (value, key) => { writes.push(key); staged.push([key, structuredClone(value)]) },
       })
       if (mode === 'readonly') reads.push(transaction)
-      else queueMicrotask(() => transaction.dispatchEvent(new Event('complete')))
+      else queueMicrotask(() => {
+        if (failWrite) { transaction.error = new Error('Synthetic write abort'); transaction.dispatchEvent(new Event('abort')) }
+        else { for (const entry of staged) records.set(...entry); transaction.dispatchEvent(new Event('complete')) }
+      })
       return transaction
     },
   }
@@ -122,7 +126,7 @@ async function withStorage(run, initial = {}) {
 }
 
 for (const failure of ['open', 'abort']) test(`actual Home ${failure} failure exposes retry and enables Load after a recovered read`, async () => {
-  const saved = createWorld(); saved.turn = 217
+  const saved = createWorld(1, 'scalable'); saved.turn = 217
   await withStorage(async ({ store, open, read, writes, records, transactions }) => {
     const active = store.getWorld(), before = structuredClone(records), home = startup(store)
     await open(failure === 'open')
@@ -146,6 +150,7 @@ for (const failure of ['open', 'abort']) test(`actual Home ${failure} failure ex
     assert.equal(transactions(), failure === 'open' ? 1 : 2, 'one transaction per attempt')
     assert.equal(store.getWorld(), active, 'retry refreshes availability only')
     assert.deepEqual(home.states, ['choice'], 'retry never navigates')
+    assert.deepEqual(home.cheatClosures, [], 'lookup does not change testing-menu state')
     assert.deepEqual(records, before)
     assert.deepEqual(writes, [])
     assert.deepEqual(store.getCompletedMissions(), [1, 2])
@@ -155,8 +160,9 @@ for (const failure of ['open', 'abort']) test(`actual Home ${failure} failure ex
     assert.equal(store.getWorld().turn, 217)
     assert.notEqual(store.getWorld(), active)
     assert.deepEqual(home.states, ['choice', 'playing'], 'only deliberate Load invokes actual Home beginLoad')
+    assert.deepEqual(home.cheatClosures, [false], 'deliberate Load closes the testing menu once')
     home.cleanup()
-  }, { latest: { version: 1, world: saved }, profile: { version: 1, completed: [1, 2] } })
+  }, { latest: { version: 3, world: saved }, profile: { version: 1, completed: [1, 2] } })
 })
 
 test('genuine empty and unusable records are read results, not a failed lookup or proof of empty disk', async () => {
@@ -164,9 +170,10 @@ test('genuine empty and unusable records are read results, not a failed lookup o
     await withStorage(async ({ store, open, read, writes }) => {
       const home = startup(store)
       await open(); await read()
-      assert.equal(store.getCheckpointReadStatus(), 'read')
+      assert.equal(store.getCheckpointReadStatus(), latest ? 'incompatible' : 'read')
       assert.equal(store.hasCheckpoint(), false)
-      assert.equal(button(menu(store), 'Load Game').props['aria-description'], 'No usable saved checkpoint')
+      assert.equal(button(menu(store), 'Load Game').props['aria-description'], latest ? 'Checkpoint is incompatible with this development version' : 'No usable saved checkpoint')
+      if (latest) assert.match(text(menu(store)), /incompatible.*stored save has not been changed/)
       assert.equal(button(menu(store), 'Retry checkpoint lookup'), undefined)
       assert.deepEqual(writes, [])
       home.cleanup()
@@ -191,7 +198,7 @@ test('repeated failed retries preserve the world and remain retryable', async ()
 })
 
 test('late read keeps a newer memory save and current world after navigation', async () => {
-  const saved = createWorld(); saved.turn = 217
+  const saved = createWorld(1, 'scalable'); saved.turn = 217
   await withStorage(async ({ store, open, read }) => {
     const home = startup(store)
     await open(true)
@@ -207,7 +214,7 @@ test('late read keeps a newer memory save and current world after navigation', a
     home.navigation.loadCheckpoint()
     assert.equal(store.getWorld().turn, 999, 'post-await memory checkpoint wins over old read')
     home.cleanup()
-  }, { latest: { version: 1, world: saved } })
+  }, { latest: { version: 3, world: saved } })
 })
 
 for (const interruption of ['unmount', 'world replacement']) test(`initial restore completion cannot navigate after ${interruption}`, async () => {
@@ -265,4 +272,44 @@ test('checkpoint menu retains real tooltip identity, current availability key an
       else assert.equal(typeof load.props['aria-description'], 'string')
     }
   }
+})
+
+for (const failWrite of [false, true]) test(`explicit Save after incompatible restore reports committed storage truth (fail=${failWrite})`, async () => {
+  const latest = { version: 1, world: createWorld() }
+  await withStorage(async ({ store, open, read, records }) => {
+    const home = startup(store)
+    await open(); await read()
+    assert.equal(store.getCheckpointReadStatus(), 'incompatible')
+    assert.match(text(menu(store)), /incompatible.*stored save has not been changed/)
+    const before = structuredClone(records)
+    store.getWorld().turn = 217
+    assert.equal(await store.saveCheckpoint(), !failWrite)
+    assert.equal(store.getCheckpointReadStatus(), failWrite ? 'incompatible' : 'read')
+    assert.equal(text(menu(store)).includes('stored save has not been changed'), failWrite)
+    assert.equal(button(menu(store), 'Load Game').props['aria-disabled'], false)
+    if (failWrite) assert.deepEqual(records, before)
+    else assert.equal(records.get('latest').version, 3)
+    assert.equal(store.loadCheckpoint(), true, 'even a failed disk write retains an explicit session checkpoint')
+    assert.equal(store.getWorld().turn, 217)
+    home.cleanup()
+  }, { latest }, { failWrite })
+})
+
+test('successful explicit Save supersedes an older pending incompatible read snapshot', async () => {
+  await withStorage(async ({ store, open, read, records }) => {
+    const restoring = store.restoreCheckpoint()
+    await open() // The pending read now owns a snapshot of the old v1 record.
+    assert.equal(store.getCheckpointReadStatus(), 'pending')
+    store.getWorld().turn = 217
+    assert.equal(await store.saveCheckpoint(), true)
+    assert.equal(store.getCheckpointReadStatus(), 'read')
+    assert.equal(records.get('latest').version, 3)
+    await read()
+    assert.equal(await restoring, true)
+    assert.equal(store.getCheckpointReadStatus(), 'read')
+    assert.equal(text(menu(store)).includes('incompatible'), false)
+    assert.equal(store.loadCheckpoint(), true)
+    assert.equal(store.getWorld().turn, 217)
+    assert.deepEqual(store.getCompletedMissions(), [1, 2])
+  }, { latest: { version: 1, world: createWorld() }, profile: { version: 1, completed: [1, 2] } })
 })

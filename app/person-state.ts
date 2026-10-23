@@ -45,6 +45,7 @@ export interface PersonStateEffects {
   fight?: () => void
   encounter?: () => void
   routeRecovery?: () => void
+  casting?: () => void
 }
 const short = (n: number) => (n << 16) >> 16
 
@@ -263,7 +264,10 @@ export function initializePersonState(
   p.flags4 = (p.flags4 & 0xfffefff8) >>> 0
   if (p.assignment & 1 && stateFlags & 4 && !(model.flags & 0x400)) {
     p.assignment &= ~1
-    if (p.state !== 10 || p.commands[p.commandCursor] & 255)
+    // Native low-byte truthiness is a compatibility quirk, not the scalable
+    // handle domain: a live index such as 1024 still owns a formation command.
+    const command = p.commands[p.commandCursor]
+    if (p.state !== 10 || (w.orders.scalable ? command : command & 255))
       effects.rebuildFormation(p.formationCell)
   }
   const oldSpeed = p.speed
@@ -301,12 +305,8 @@ export function initializePersonState(
     p.speed = 0
     effects.occupying()
   } else if (p.state === 22) {
-    // 0x4d2740: seated casters retain the ordinary person animation row.
-    // Adjacent-but-unseated vehicle lookup remains outside this adapter.
-    effects.releaseMotion(p)
-    if (p.vehicle) setPersonAnimationRow(p, p.cargo ? 4 : 0, effects.setAnimation)
-    else effects.setAnimation(p, 0x6d)
-    p.timer = 10
+    if (!effects.casting) throw new Error('State 22 requires its casting initializer')
+    effects.casting()
   } else if (p.state === 25 || p.state === 29) {
     const enter = p.state === 25 ? effects.fight : effects.encounter
     if (!enter) throw new Error(`State ${p.state} requires its combat initializer`)

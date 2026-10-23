@@ -137,8 +137,8 @@ test('artifact reader accepts only one bounded regular report.json and rejects c
   for (const name of ['../report.json', 'report.mjs', '/report.json', 'report.json\0']) assert.throws(() => readReportArchive(zip('{}', { name })))
   assert.throws(() => readReportArchive(zip('{}', { mode: 0xa1ff })))
   assert.throws(() => readReportArchive(zip('x'.repeat(maxReportBytes + 1))))
-  const corrupt = zip('{}'); corrupt[14] ^= 1 // local CRC is not authoritative; central remains valid
-  assert.equal(readReportArchive(corrupt), '{}')
+  const corrupt = zip('{}'); corrupt[14] ^= 1 // Both headers must bind the same CRC.
+  assert.throws(() => readReportArchive(corrupt))
   corrupt[corrupt.length - 22 - 10 - 46 + 16] ^= 1
   assert.throws(() => readReportArchive(corrupt))
   const extra = Buffer.concat([zip('{}'), Buffer.from('comment')]); assert.throws(() => readReportArchive(extra))
@@ -713,4 +713,34 @@ test('inactive-helper-only fallback qualifies five stable cohorts without admitt
   for (const run of reports[1].runs) if (run.side === 'head') run.readers.provenance.bundleSha256 = 'f'.repeat(64)
   const drifted = snapshot.compareReports(reports, identity)
   assert.ok(drifted.rows.filter(row => row.phase !== 'native-view-drag-warm').every(row => row.p50.status === 'geometry-input-mismatch'))
+})
+
+
+test('historical v2 protocol cannot publish a summary or mutate comments through the production default', async () => {
+  const historicalProtocol = '6697351a369a029e19401a6a10e0a20763bcd4379a9b6fa02c2fd465503a5c51'
+  // Otherwise-valid synthetic fixtures, not a replay or reinterpretation of old measurements.
+  for (const explicitHistoricalOverride of [false, true]) {
+    const reports = [snapshotFixture(), snapshotFixture('recovery')]
+    for (const report of reports) {
+      report.protocolSha256 = historicalProtocol
+      snapshot.validateReport(report)
+    }
+    const mock = apiFixture(reports), summaries = []
+    mock.arguments.protocolVersion = 2
+    mock.arguments.publishSummary = text => summaries.push(text)
+    // apiFixture supplies a legacy test override; remove it to exercise the real default.
+    delete mock.arguments.trustedProtocol
+    if (explicitHistoricalOverride) mock.arguments.trustedProtocol = historicalProtocol
+    else assert.equal(Object.hasOwn(mock.arguments, 'trustedProtocol'), false)
+    // Even an explicit old comparator override cannot bypass the renderer's trusted default.
+    await assert.rejects(reportRun(mock.arguments), error => {
+      assert.equal(error.name, 'AssertionError')
+      assert.equal(error.code, 'ERR_ASSERTION')
+      assert.equal(error.actual, historicalProtocol)
+      assert.equal(error.expected, snapshot.protocolHash())
+      return true
+    })
+    assert.equal(summaries.length, 0)
+    assert.equal(mock.state.calls.filter(call => call.method).length, 0)
+  }
 })

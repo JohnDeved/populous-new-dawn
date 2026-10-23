@@ -35,6 +35,10 @@ export const GATES = [
 ]
 export const RECOVERY_BROWSER_GATE = { ...GATES[1], recoveryRequired: true, recoveryJob: 'Pause checkpoint recovery browser' }
 export const PROFILE_BROWSER_GATE = { ...RECOVERY_BROWSER_GATE, profileRequired: true, profileJob: 'Profile recovery browser' }
+export const SPLIT_PROFILE_BROWSER_GATE = { ...PROFILE_BROWSER_GATE, mission10Required: true, mission10Job: 'Mission 10 crew persistence browser' }
+export const COMPOSED_PROFILE_POLICY = 'composed-spells-eight-v1'
+export const COMPOSED_PROFILE_BROWSER_GATE = { ...SPLIT_PROFILE_BROWSER_GATE, composedRequired: true }
+export const SPELL_VISUAL_BROWSER_GATE = { ...SPLIT_PROFILE_BROWSER_GATE, spellVisualsRequired: true, spellVisualsJob: 'Spell visuals browser' }
 export const SHARDED_FULL_GATE = {
   ...GATES[0],
   steps: [
@@ -52,6 +56,9 @@ export const SHARDED_FULL_GATE = {
 }
 export const gatesFor = entry => [
   entry.fullCheckPolicy === 'sharded-v1' ? SHARDED_FULL_GATE : GATES[0],
+  entry.profileArtifactPolicy === COMPOSED_PROFILE_POLICY ? COMPOSED_PROFILE_BROWSER_GATE :
+  entry.browserPolicy === 'spell-visuals-nine-v2' ? SPELL_VISUAL_BROWSER_GATE :
+  entry.browserPolicy === 'profile-split-v1' ? SPLIT_PROFILE_BROWSER_GATE :
   entry.browserPolicy === 'profile-recovery-v1' ? PROFILE_BROWSER_GATE :
     entry.browserPolicy === 'pause-recovery-v1' ? RECOVERY_BROWSER_GATE : GATES[1],
 ]
@@ -80,6 +87,10 @@ export function validateEntry(entry) {
   requireThat(
     typeof entry.allowMechanicalRefresh === 'boolean' && typeof entry.requireBrowser === 'boolean',
     'Refresh and browser policy must be explicit'
+  )
+  requireThat(
+    entry.allowBaseMetadataRefresh === undefined || typeof entry.allowBaseMetadataRefresh === 'boolean',
+    'Base metadata refresh policy must be boolean when supplied'
   )
   requireThat(
     entry.approvedBy?.trim() &&
@@ -118,14 +129,21 @@ export function validateEntry(entry) {
       Object.keys(d).length === 1 && Number.isSafeInteger(d.activationPr) && d.activationPr > 0,
       'Diagnostic policy must pin one literal activation PR under sharded-v1')
   }
-  requireThat(entry.browserPolicy === undefined || ['pause-recovery-v1', 'profile-recovery-v1'].includes(entry.browserPolicy),
+  requireThat(entry.browserPolicy === undefined || ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', 'spell-visuals-nine-v2'].includes(entry.browserPolicy),
     'Unsupported browser evidence policy')
+  requireThat(entry.browserPolicy === 'spell-visuals-nine-v2'
+    ? entry.browserCheckpointVersion === 4
+    : entry.browserCheckpointVersion === undefined || entry.browserCheckpointVersion === 3,
+    'Nine-job policy requires explicit current-v4 contract; older policies remain v3')
+  requireThat(entry.profileArtifactPolicy === undefined ||
+    (entry.profileArtifactPolicy === COMPOSED_PROFILE_POLICY && entry.browserPolicy === 'profile-split-v1' &&
+      entry.browserCheckpointVersion === 3), 'Composed artifacts require explicit eight-job/current-v3 contract')
   if (entry.browserWorkflowTransition !== undefined) {
     const t = entry.browserWorkflowTransition
     requireThat(t?.version === 1 && t.workflow === GATES[1].workflow &&
       t.sourceHead === entry.sourceHead && t.base === entry.reviewBase &&
       hash(t.baseSha256) && t.candidateSha256 === entry.workflowHashes[t.workflow] &&
-      t.baseSha256 !== t.candidateSha256 && ['pause-recovery-v1', 'profile-recovery-v1'].includes(entry.browserPolicy) &&
+      t.baseSha256 !== t.candidateSha256 && ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', 'spell-visuals-nine-v2'].includes(entry.browserPolicy) &&
       entry.allowMechanicalRefresh === false,
     'Browser workflow transition must pin reviewed base/head and both digests without refresh')
   }
@@ -160,7 +178,7 @@ export function reviewedWorkflows(entry, observation) {
 
 export function browserRequired(paths) {
   return paths.some(path =>
-    /^(app\/|public\/|scripts\/browser-[^/]*\.mjs$|scripts\/local-render\/(?:tutorial-recommendation|original-pause-checkpoint-recovery|campaign-profile-recovery|checkpoint-observer)\.mjs$|scripts\/checkpoint-readback\.mjs$|scripts\/tutorial-browser\/|\.github\/workflows\/tutorial-browser\.yml$|package(?:-lock)?\.json$|tsconfig\.json$)/.test(
+    /^(app\/|public\/|scripts\/browser-[^/]*\.mjs$|scripts\/local-render\/(?:tutorial-recommendation|original-pause-checkpoint-recovery|campaign-profile-recovery|checkpoint-observer|mission10-boat-checkpoint|mission1-vault-input|owned-profile)\.mjs$|qa\/erosion-ordinary\/(?:input|minimap-input)\.mjs$|scripts\/checkpoint-readback\.mjs$|scripts\/tutorial-browser\/|\.github\/workflows\/tutorial-browser\.yml$|package(?:-lock)?\.json$|tsconfig\.json$)/.test(
       path
     )
   )
@@ -265,6 +283,34 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
         state.head === entry.sourceHead && o.headCommit?.tree === entry.sourceTree,
         'Reviewed source content differs'
       )
+    if (state.pending?.kind === 'refresh-base') {
+      const p = state.pending
+      requireThat(
+        o.state === 'open' && o.merged === false && o.draft === true &&
+          o.mergeable === true && o.upToDate === true &&
+          o.head === p.head && o.headRef === p.headRef && o.base === p.base &&
+          o.headCommit?.tree === p.tree && o.synthetic?.sha === p.merge &&
+          o.synthetic?.tree === p.tree && same(o.synthetic?.parents, [p.base, p.head]) &&
+          o.advertisedBase?.ref === 'main' && o.advertisedBase.repo === REPO,
+        'Base metadata refresh changed source, refs, draft, base or synthetic; reconcile manually'
+      )
+      if (o.advertisedBase.sha !== p.base)
+        return stop('Base metadata refresh outcome uncertain; inspect PR before any retry')
+      state.baseMetadataRefresh = p
+      state.pending = null
+      state.quiet = null
+    }
+    if (state.baseMetadataRefresh && !o.merged) {
+      const p = state.baseMetadataRefresh
+      requireThat(
+        o.head === p.head && o.headRef === p.headRef && o.base === p.base &&
+          o.synthetic?.sha === p.merge && o.synthetic?.tree === p.tree &&
+          same(o.synthetic?.parents, [p.base, p.head]) &&
+          o.advertisedBase?.sha === p.base && o.advertisedBase.ref === 'main' &&
+          o.advertisedBase.repo === REPO,
+        'Reconciled base metadata identity changed; obtain new review'
+      )
+    }
     if (state.pending?.kind === 'draft') {
       requireThat(
         o.base === state.pending.base,
@@ -392,10 +438,12 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
     }
     const fingerprint = digest({
       head: o.head,
+      headRef: o.headRef,
       base: o.base,
       draft: o.draft,
       merge: o.synthetic,
       refreshOnly: o.refreshOnly,
+      baseMetadataRefreshOnly: o.baseMetadataRefreshOnly,
       staleSynthetic: o.staleSynthetic,
       advertisedBase: o.advertisedBase,
       currentChecks: o.currentChecks
@@ -459,6 +507,23 @@ export function decide(entry, observation, saved = null, now = Date.now()) {
         o.resource.tree === o.synthetic.tree,
       'Resource preflight needs a clean exact synthetic candidate checkout and installed dependencies'
     )
+    if (o.baseMetadataRefreshOnly || (o.advertisedBase && o.advertisedBase.sha !== o.base)) {
+      requireThat(
+        entry.allowBaseMetadataRefresh === true && !state.baseMetadataRefresh &&
+          !state.readyAdmission && !state.refreshed && o.baseMetadataRefreshOnly === true &&
+          o.state === 'open' && o.merged === false && o.draft === true && o.mergeable === true &&
+          o.head === entry.sourceHead && o.base === entry.reviewBase &&
+          typeof o.headRef === 'string' && o.headRef.trim() &&
+          o.synthetic.tree === entry.sourceTree && o.headCommit?.tree === entry.sourceTree &&
+          sha(o.advertisedBase?.sha) && o.advertisedBase.sha !== o.base &&
+          o.advertisedBase.ref === 'main' && o.advertisedBase.repo === REPO,
+        'Base metadata refresh is not authorized or lacks exact reviewed draft identity'
+      )
+      validateBeforeDraft(entry, o, required, true)
+      return propose({ kind: 'refresh-base', head: o.head, headRef: o.headRef,
+        base: o.base, baseRef: 'main', previousBase: o.advertisedBase.sha,
+        merge: o.synthetic.sha, tree: o.synthetic.tree })
+    }
     if (o.draft === true) {
       requireThat(!state.readyAdmission, 'Ready transition already used; obtain new review')
       validateBeforeDraft(entry, o, required, true)
@@ -573,6 +638,9 @@ export function validatePassedGate(o, gate, latest) {
       (gate !== SHARDED_FULL_GATE || latest.shardedVerified === true) &&
       (!gate.recoveryRequired || latest.pauseRecoveryVerified === true) &&
       (!gate.profileRequired || latest.profileRecoveryVerified === true) &&
+      (!gate.mission10Required || latest.mission10Verified === true) &&
+      (!gate.spellVisualsRequired || latest.spellVisualsVerified === true) &&
+      (!gate.composedRequired || (latest.tornadoVerified === true && latest.spySourceVerified === true)) &&
       gate.steps.every(
         name =>
           latest.steps?.filter(s => s.name === name).length === 1 &&
@@ -592,6 +660,18 @@ export function validatePassedGate(o, gate, latest) {
       c.name === gate.profileJob && c.appId === 15368 && c.head === o.head), 'Profile recovery current checks')
     requireThat(profile.id === latest.profileRecoveryCheckId && profile.status === 'completed' &&
       profile.conclusion === 'success', 'Current Profile recovery check disagrees with exact tested attempt')
+  }
+  if (gate.mission10Required) {
+    const mission10 = latestChronological(o.currentChecks.filter(c =>
+      c.name === gate.mission10Job && c.appId === 15368 && c.head === o.head), 'Mission 10 current checks')
+    requireThat(mission10.id === latest.mission10CheckId && mission10.status === 'completed' &&
+      mission10.conclusion === 'success', 'Current Mission 10 check disagrees with exact tested attempt')
+  }
+  if (gate.spellVisualsRequired) {
+    const spell = latestChronological(o.currentChecks.filter(c =>
+      c.name === gate.spellVisualsJob && c.appId === 15368 && c.head === o.head), 'Spell visuals current checks')
+    requireThat(spell.id === latest.spellVisualsCheckId && spell.status === 'completed' &&
+      spell.conclusion === 'success', 'Current Spell visuals check disagrees with exact tested attempt')
   }
   const current = latestChronological(
     o.currentChecks.filter(c => c.name === gate.job && c.appId === 15368 && c.head === o.head),

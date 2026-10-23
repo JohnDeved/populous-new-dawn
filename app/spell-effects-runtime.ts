@@ -1,4 +1,6 @@
+import { liveBuildingShape } from './live-building-shapes.ts'
 import constants from './original-constants.json' with { type: 'json' }
+import { populationCeiling } from './capacity-policy.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import modelAssets from './original-models.json' with { type: 'json' }
 import type { NativeModel } from './model-faces.ts'
@@ -19,7 +21,12 @@ import {
   short,
   spiralCell,
 } from './native-math.ts'
-import { deleteCellObject, moveObjectInCells, objectsInCell, removeObjectFromCell } from './object-cells.ts'
+import {
+  deleteCellObject,
+  moveObjectInCells,
+  objectsInCell,
+  removeObjectFromCell,
+} from './object-cells.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
 import {
   createFire,
@@ -31,9 +38,10 @@ import {
   sound,
 } from './world-effects.ts'
 import { addUnit, population } from './world-state.ts'
+import { animatedSiteEffect } from './site-wave-effects.ts'
 import { nativePosition, syncLandscapeObjects } from './world-terrain-runtime.ts'
 import { browserPosition, nativeDistance, nativeStep3D, shotAngles } from './world-coordinates.ts'
-import { release, releaseTasks } from './world-tasks.ts'
+import { clearRetiredPersonOrders, release, releaseTasks } from './world-tasks.ts'
 import {
   teamForTribe,
   tribeForTeam,
@@ -43,6 +51,7 @@ import {
   type NativePoint,
   type Point,
   type Spell,
+  type Shrine,
   type Team,
   type Tree,
   type Unit,
@@ -109,16 +118,23 @@ function retainedPeople(u: Unit) {
   ].filter(Boolean) as LivePerson[]
 }
 
+function releaseRetiredPeople(w: World, source: Unit) {
+  const people = retainedPeople(source)
+  // Release the physical building slot before task cleanup discards its owner.
+  const occupant = release(w, source)
+  if (occupant && !people.includes(occupant)) people.push(occupant)
+  // Ordinary cancellation deliberately preserves AI patrol orders. Terminal
+  // removal retires these people, so every remaining queue owner must release.
+  clearRetiredPersonOrders(w, people)
+  return people
+}
+
 function replaceHypnotisedUnit(w: World, source: Unit, team: Team, originalTeam?: Team) {
   const slot = w.units.indexOf(source)
   if (slot < 0) return
   const position = { x: source.x, z: source.z },
     { hp, cargo, heading, kind } = source,
-    people = retainedPeople(source)
-  // Release the physical building slot while its passive resident still exists.
-  // Generic task cleanup alone discards that owner and leaves a deleted occupant.
-  const occupant = release(w, source)
-  if (occupant && !people.includes(occupant)) people.push(occupant)
+    people = releaseRetiredPeople(w, source)
   for (const p of people) if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
   deleteCellObject(w.objectCells, source.id)
   w.selected = w.selected.filter(id => id !== source.id)
@@ -241,9 +257,8 @@ export function applyHypnotise(w: World, point: Point, team: Team) {
   for (const { u } of targets) {
     const p = unitAnimationSource(u)
     if ((p?.flags4 ?? 0) & 0x800) {
-      if (u.inside === null) releaseTasks(w, u)
-      else release(w, u)
-      if ((p?.flags2 ?? 0) & 0x20000) removeObjectFromCell(w.objectCells, p as LivePerson)
+      for (const person of releaseRetiredPeople(w, u))
+        if (person.flags2 & 0x20000) removeObjectFromCell(w.objectCells, person)
       deleteCellObject(w.objectCells, u.id)
       w.selected = w.selected.filter(id => id !== u.id)
       w.units.splice(w.units.indexOf(u), 1)
@@ -750,7 +765,7 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
   const cells = new Map<number, BlastTarget[]>()
   const records = new Map<number, BlastTarget>()
   const people = new Map<number, LivePerson & BlastTarget>()
-  const shaken = new Map<number, Building | Tree>()
+  const shaken = new Map<number, Building | Tree | Shrine>()
   const add = (p: BlastTarget) => {
     records.set(p.id, p)
     const index = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
@@ -768,16 +783,17 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
     add(target)
   }
   const addShaken = (
-    source: Building | Tree,
+    source: Building | Tree | Shrine,
     objectClass: 2 | 5,
     model: number,
     tribe: number,
     state: number,
     flags2 = 0,
-    flags3 = 0
+    flags3 = 0,
+    cellMember = true
   ) => {
     shaken.set(source.id, source)
-    add({
+    const target: BlastTarget = {
       ...nativePosition(w, source),
       id: source.id,
       class: objectClass,
@@ -794,7 +810,9 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
       life: 0,
       shake: source.shake ?? 0,
       shakeOrigin: source.shakeOrigin ?? 0,
-    })
+    }
+    if (cellMember) add(target)
+    else records.set(target.id, target)
   }
   for (const b of buildings.values())
     addShaken(
@@ -806,6 +824,10 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
       b.damageState?.flags2,
       b.damageState?.flags3
     )
+  // Resolve neutral model-18 footprint owners without inserting invented slots
+  // into the still-incomplete mixed-class cell chains. 00416d70 prevents damage.
+  for (const vault of w.shrines)
+    if (vault.kind === 'vault' && vault.model) addShaken(vault, 2, 18, 255, 2, 0, 0, false)
   for (const tree of w.trees)
     if (tree.logs > 0 && rules.sceneryResourceFlags[tree.model] & 0x40000)
       addShaken(tree, 5, tree.model, -1, 0)
@@ -1077,8 +1099,7 @@ export function stepLiveSwamp(w: World, swamp: Swamp) {
       const p = people.get(target.id)!,
         u = units.get(p.id)!
       // 004ef180→004d4b50 removes occupied ghosts through 00407490 first.
-      if (u.inside === null) releaseTasks(w, u)
-      else release(w, u)
+      releaseRetiredPeople(w, u)
       const index = w.units.indexOf(u)
       if (index !== -1) w.units.splice(index, 1)
       w.selected = w.selected.filter(id => id !== u.id)
@@ -1104,6 +1125,7 @@ export function stepLiveConvertWild(w: World, fx: Effect) {
   spell.counter = (spell.counter + 1) & 255
   return stepConvertWild(spell, w, {
     population: () => population(w, team),
+    populationCeiling: populationCeiling(w.capacityPolicy),
     people: cell => cells.get(cell) ?? [],
     unsupported: p => {
       const index = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
@@ -1143,8 +1165,16 @@ export function stepLiveConvertWild(w: World, fx: Effect) {
       replacement.native.flags4 = (replacement.native.flags4 | 0x40000) >>> 0
       registerLivePerson(w, replacement.native)
       sound(w, 5, browserPosition(p))
-      // ponytail: reuse the packed birth flash until an asset import adds native effect model 58.
-      effect(w, 'birth', browserPosition(p))
+      // 0x4d7fd0 allocates one neutral effect58 linked to the replacement Brave.
+      const flash = animatedSiteEffect(
+        w,
+        { ...p, h: terrainPointHeight(w.land, p) },
+        'startConversion',
+        1240,
+        45,
+        8
+      )
+      flash.startConversionLink = replacement.id
     },
     sparkle: (position, turns) => {
       const sparkle = effect(w, 'trail', browserPosition(position))
@@ -1291,14 +1321,12 @@ export function stepTeleport(w: World, fx: Effect) {
   release(w, shaman)
   shaman.flight = undefined
   shaman.native = person
-  let target = teleport.target,
-    cell = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
+  let target = teleport.target
+  const cell = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
   if (w.land.flags[cell] & 512) {
-    const building = w.buildings.find(
-      candidate => candidate.id === (w.land.buildingIds[cell] & 1023)
-    )
-    if (building) {
-      const outside = buildingOutsidePoint(buildingPose(building))
+    const shape = liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
+    if (shape) {
+      const outside = buildingOutsidePoint(shape)
       target = { ...outside, h: terrainPointHeight(w.land, outside) }
     }
   }
@@ -1422,8 +1450,6 @@ function finishCast(
       fx.team = shaman.team
       fx.turnsRemaining = 16
       fx.duration = Infinity
-      // ponytail: reuse the packed sparkle until the native effect-17 initializer is recovered.
-      fx.sprite = { sequence: 'sparkle', frame: 0 }
     } else if (spell === 'ghostArmy') {
       fx.team = shaman.team
       fx.ghostArmy = true
@@ -1435,7 +1461,8 @@ function finishCast(
         endpoint ?? nativePosition(w, p),
         nativePosition(w, shaman),
         tribeForTeam(shaman.team),
-        w
+        w,
+        w.secondaryEffects.animationFrame
       )
       fx.team = shaman.team
       fx.duration = Infinity

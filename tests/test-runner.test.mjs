@@ -42,6 +42,72 @@ function fixture(t) {
 }
 const quiet = { log() {} }
 
+function pnpmFixture(t, external = false) {
+  const f = fixture(t)
+  rmSync(join(f.repo, 'node_modules/.package-lock.json'))
+  const profile = external ? join(f.repo, 'private-profile') : f.repo
+  const putProfile = (name, value) => f.put(external ? `private-profile/${name}` : name, value)
+  if (external) {
+    rmSync(join(f.repo, 'node_modules'), { recursive: true })
+    putProfile('package.json', readFileSync(join(f.repo, 'package.json')))
+    putProfile('package-lock.json', readFileSync(join(f.repo, 'package-lock.json')))
+  }
+  putProfile('pnpm-lock.yaml', 'lockfileVersion: 9.0\n')
+  putProfile('pnpm-workspace.yaml', 'nodeLinker: isolated\npackageImportMethod: hardlink\n')
+  putProfile('node_modules/.modules.yaml', 'packageManager: pnpm@11.25.0\nvirtualStoreDir: .pnpm\n')
+  putProfile('node_modules/.pnpm/lock.yaml', 'lockfileVersion: 9.0\n')
+  if (external) symlinkSync(join(profile, 'node_modules'), join(f.repo, 'node_modules'))
+  return { ...f, profile, putProfile }
+}
+
+test('ordinary npm fingerprint keeps its exact existing schema', t => {
+  const { repo } = fixture(t)
+  const app = digest(JSON.stringify([['app/source.ts', digest(readFileSync(join(repo, 'app/source.ts')))]]))
+  const paths = ['package.json', 'package-lock.json', 'tsconfig.json', 'node_modules/.package-lock.json']
+  assert.equal(productionFingerprint(repo), digest(JSON.stringify({ app,
+    packages: paths.map(path => [path, digest(readFileSync(join(repo, path)))]),
+    runtime: { node: process.versions.node, platform: process.platform, arch: process.arch } })))
+})
+
+for (const external of [false, true]) test(`pnpm ${external ? 'private linked' : 'in-checkout'} profile binds genuine metadata and forces npm policy fallback`, t => {
+  const { repo, put, putProfile } = pnpmFixture(t, external)
+  const original = productionFingerprint(repo)
+  assert.match(original, /^[a-f0-9]{64}$/)
+  assert.equal(planTestRun(repo, 'all').parallelEligibility, 'production-config-runtime-drift')
+  for (const path of ['package.json', 'package-lock.json', 'pnpm-workspace.yaml', 'node_modules/.modules.yaml']) {
+    const full = join(external ? join(repo, 'private-profile') : repo, path)
+    const bytes = readFileSync(full)
+    putProfile(path, Buffer.concat([bytes, Buffer.from('\n')]))
+    assert.notEqual(productionFingerprint(repo), original, path)
+    putProfile(path, bytes)
+  }
+  putProfile('pnpm-lock.yaml', 'lockfileVersion: 9.1\n')
+  assert.equal(productionFingerprint(repo), null, 'Changed desired lock must not accept the old installed lock')
+  putProfile('node_modules/.pnpm/lock.yaml', 'lockfileVersion: 9.1\n')
+  assert.notEqual(productionFingerprint(repo), original, 'Both genuine locks participate')
+  put('tsconfig.json', '{"compilerOptions":{}}')
+  assert.notEqual(productionFingerprint(repo), original)
+})
+
+test('missing, mixed or symlinked dependency metadata cannot enable parallel eligibility', t => {
+  const { repo, profile, putProfile } = pnpmFixture(t, true)
+  putProfile('node_modules/.package-lock.json', '{}')
+  assert.equal(productionFingerprint(repo), null)
+  rmSync(join(profile, 'node_modules/.package-lock.json'))
+  rmSync(join(profile, 'pnpm-workspace.yaml'))
+  assert.equal(productionFingerprint(repo), null)
+  assert.equal(planTestRun(repo, 'all').parallelEligibility, 'production-config-runtime-drift')
+  symlinkSync(join(repo, 'package.json'), join(profile, 'pnpm-workspace.yaml'))
+  assert.equal(productionFingerprint(repo), null)
+})
+
+test('an absent npm installed lock safely selects serial fallback rather than crashing', t => {
+  const { repo } = fixture(t)
+  rmSync(join(repo, 'node_modules/.package-lock.json'))
+  assert.equal(productionFingerprint(repo), null)
+  assert.equal(planTestRun(repo, 'all').parallelEligibility, 'production-config-runtime-drift')
+})
+
 test('full discovery preserves the top-level glob and includes unclassified files once', t => {
   const { repo, put, policy } = fixture(t)
   put('tests/nested/extra.test.mjs', '')
@@ -85,6 +151,58 @@ test('changed tests, helper drift and newly added helpers fall back to serial', 
   const third = fixture(t)
   third.put('tests/support/new-helper.mjs', 'export {}\n')
   assert.equal(planTestRun(third.repo, 'all').groups[0].concurrency, 1)
+})
+
+test('shared helper code and data edits or additions invalidate only the shared resource boundary', t => {
+  const paths = [
+    'tests/helpers/checkpoint.ts', 'tests/helpers/helper.mts', 'tests/helpers/helper.cts',
+    'tests/helpers/helper.js', 'tests/helpers/helper.cjs', 'tests/fixtures/input.json',
+    'tests/fixtures/input.bin', 'tests/support/README.md', 'tests/nested/extra.test.mjs',
+    'tests/.hidden.test.mjs',
+  ]
+  for (const path of paths) for (const added of [false, true]) {
+    const { repo, put, policy } = fixture(t)
+    if (!added) put(path, 'original shared input\n')
+    policy.helpersSha256 = helperFingerprint(repo)
+    put('engineering/test-resources.json', JSON.stringify(policy))
+    const files = discoverTests(repo),
+      testHashes = files.map(file => digest(readFileSync(join(repo, file)))),
+      production = productionFingerprint(repo)
+    assert.equal(planTestRun(repo, 'all').parallelEligibility, 'reviewed')
+    assert.equal(planTestRun(repo, 'all').groups[0].concurrency, 2)
+
+    put(path, 'changed shared input\n')
+    assert.notEqual(helperFingerprint(repo), policy.helpersSha256, path)
+    assert.equal(productionFingerprint(repo), production, path)
+    assert.deepEqual(files.map(file => digest(readFileSync(join(repo, file)))), testHashes, path)
+    const plan = planTestRun(repo, 'all')
+    assert.equal(plan.parallelEligibility, 'shared-helper-drift', path)
+    assert.deepEqual(plan.files, files, path)
+    assert.deepEqual(plan.groups, [{ concurrency: 1, files }], path)
+    assert.deepEqual(plan.groups.flatMap(group => group.files).sort(), files, path)
+  }
+})
+
+test('top-level test changes retain individual classification without shared helper drift', t => {
+  const { repo, put, policy } = fixture(t)
+  policy.parallel['tests/b.test.mjs'] = digest(readFileSync(join(repo, 'tests/b.test.mjs')))
+  put('engineering/test-resources.json', JSON.stringify(policy))
+  const helpers = helperFingerprint(repo), production = productionFingerprint(repo)
+  assert.deepEqual(planTestRun(repo, 'all').groups,
+    [{ concurrency: 2, files: ['tests/a.test.mjs', 'tests/b.test.mjs'] }])
+
+  put('tests/a.test.mjs', '// changed individually reviewed test\n')
+  put('tests/c.test.mjs', '// new unclassified test\n')
+  assert.equal(helperFingerprint(repo), helpers)
+  assert.equal(productionFingerprint(repo), production)
+  const plan = planTestRun(repo, 'all'), files = discoverTests(repo)
+  assert.equal(plan.parallelEligibility, 'reviewed')
+  assert.deepEqual(plan.groups, [
+    { concurrency: 2, files: ['tests/b.test.mjs'] },
+    { concurrency: 1, files: ['tests/a.test.mjs', 'tests/c.test.mjs'] },
+  ])
+  assert.deepEqual(plan.files, files)
+  assert.deepEqual(plan.groups.flatMap(group => group.files).sort(), files)
 })
 
 test('empty discovery, malformed policy and test symlinks fail closed', t => {
@@ -319,6 +437,7 @@ test('shard signals, failed groups and inherited test-selection flags cannot cer
 test('real native shard execution writes a source-bound terminal receipt and refuses an existing receipt', async t => {
   const { repo, put } = shardFixture(t)
   put('scripts/orchestration/test-runner.mjs', readFileSync(new URL('../scripts/orchestration/test-runner.mjs', import.meta.url)))
+  put('scripts/orchestration/dependency-profile.mjs', readFileSync(new URL('../scripts/orchestration/dependency-profile.mjs', import.meta.url)))
   const output = join(repo, 'shard.json')
   const cli = () => new Promise(resolve => {
     const child = spawn(process.execPath, [join(repo, 'scripts/orchestration/test-runner.mjs'), 'shard',

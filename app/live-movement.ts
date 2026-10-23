@@ -1,5 +1,7 @@
 import { departVehiclePerson } from './vehicle-unload.ts'
+import { populationCeiling } from './capacity-policy.ts'
 import { buildingPose } from './building-shapes.ts'
+import { liveBuildingShape } from './live-building-shapes.ts'
 import { clearTaskBindings, releaseTasks } from './world-tasks.ts'
 import {
   buildingModel,
@@ -92,7 +94,10 @@ import {
 } from './live-vehicles.ts'
 import { vehicleReady } from './vehicle-routing.ts'
 import { restingCellCollision } from './person-collision.ts'
-import { clearFollowingBoardingOrders } from './vehicle-boarding-orders.ts'
+import {
+  boardingTargetLeftOrigin,
+  clearFollowingBoardingOrders,
+} from './vehicle-boarding-orders.ts'
 import { withinVehicleTransferRange } from './vehicle-transfer.ts'
 import {
   cancelConversionVictim,
@@ -109,11 +114,9 @@ const short = (n: number) => (n << 16) >> 16
 export type LiveFormation = MarchingFormation & { tribe: number }
 function outsideBuilding(w: World, point: { x: number; y: number }) {
   const cell = (point.y >> 9) * 128 + (point.x >> 9)
-  const building =
-    w.land.flags[cell] & 512
-      ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
-      : undefined
-  return building ? buildingOutsidePoint(buildingPose(building)) : point
+  const shape =
+    w.land.flags[cell] & 512 ? liveBuildingShape(w, w.land.buildingIds[cell] & 1023) : undefined
+  return shape ? buildingOutsidePoint(shape) : point
 }
 const personSource = (u: Unit) =>
   u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
@@ -405,7 +408,7 @@ function issueLiveOrders(
         }
         if (model !== 3) unsupported()
         prepareMovementOrder(order, { x, y }, commandFlags, w.land, id =>
-          buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
+          buildingOutsidePoint(liveBuildingShape(w, id)!)
         )
       },
       acknowledge: (_, counts) => {
@@ -482,7 +485,7 @@ export function appendLiveGuardOrders(w: World, units: Unit[], marker: number, s
     prepare: (order, model, a, b, flags = 0) => {
       if (model === 3)
         prepareMovementOrder(order, { x: a, y: b }, flags, w.land, id =>
-          buildingOutsidePoint(buildingPose(w.buildings.find(building => building.id === id)!))
+          buildingOutsidePoint(liveBuildingShape(w, id)!)
         )
       else if (model === 11) prepareCellOrder(order, { a, b }, flags, w.land.categories, model)
       else unsupported()
@@ -494,7 +497,7 @@ export function movementOrder(w: World, to: { x: number; y: number }) {
   const id = allocatePersonOrder(w.buildingOrders)
   if (id)
     prepareMovementOrder(w.buildingOrders.records[id], to, 0, w.land, buildingId =>
-      buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === buildingId)!))
+      buildingOutsidePoint(liveBuildingShape(w, buildingId)!)
     )
   return id
 }
@@ -567,7 +570,7 @@ function eligiblePreacherVictim(w: World, preacher: LivePerson, victim: LivePers
 function acquirePreacherVictims(w: World, preacher: LivePerson, radius: number) {
   let count = 0,
     first: LivePerson | undefined
-  // ponytail: the game caps tribes at 200 people; a direct scan avoids a second index.
+  // Preserve roster order. A spatial index remains separate scaling work.
   for (const u of w.units) {
     if (u.hp <= 0 || u.inside !== null || u.flight) continue
     let victim = u.native ?? u.entry?.person ?? u.fight?.motion
@@ -685,7 +688,10 @@ export function stepLiveConversionVictim(w: World, u: Unit) {
       return
     }
     const team = teamForTribe(preacher!.tribe)
-    if (population(w, team) <= 199 || w.manaTribes[victim.tribe].flags2 & 64)
+    if (
+      population(w, team) < populationCeiling(w.capacityPolicy) ||
+      w.manaTribes[victim.tribe].flags2 & 64
+    )
       replaceConvertedVictim(w, u, preacher!)
   } else u.heading = Math.PI - (victim.turnAngle * Math.PI) / 1024
 }
@@ -881,7 +887,7 @@ function stepLiveConstructionOrder(w: World, u: Unit, p: LivePerson, order: Pers
       prepare: (next, model, x, y, flags) => {
         if (model !== 3) unsupported()
         prepareMovementOrder(next, { x, y }, flags ?? 0, w.land, id =>
-          buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
+          buildingOutsidePoint(liveBuildingShape(w, id)!)
         )
       },
       task: task => {
@@ -925,7 +931,7 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
         p.speed = 0
         return 1
       }
-      if (!vehicle) return complete()
+      if (!vehicle || boardingTargetLeftOrigin(order, vehicle)) return complete()
       // 0x4666f0 resolves the persistent person object, not the active route cache.
       // A settled state-30 driver need not remain in pathfinding.people.
       const driverUnit = w.units.find(unit => unit.id === vehicle.passengers[0] && unit.hp > 0),
@@ -938,8 +944,6 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
           w.objectCells.objects.get(owner.id) === owner
             ? owner
             : undefined
-      // Keep the existing adapter's omitted clicked-distance lifetime check for
-      // old records whose producer wrote b=0. Never invent their original click.
       if (
         vehicle.passengerCount >= rules.vehicleCapacity[vehicle.model] ||
         !vehicleReady(w.land, vehicle) ||
@@ -1097,7 +1101,7 @@ export function stepLiveOrderQueue(
             if (building) prepareBuildingEntryOrder(next, building.id, 0, 0, false)
             else
               prepareMovementOrder(next, point, 0, w.land, buildingId =>
-                buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === buildingId)!))
+                buildingOutsidePoint(liveBuildingShape(w, buildingId)!)
               )
             attachPersonOrder(w.buildingOrders, p, nextId, slot, orderEffects(w))
           },

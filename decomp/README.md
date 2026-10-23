@@ -1,5 +1,10 @@
 # Static decompilation workspace
 
+[Result statistic producers](research/result-statistics/README.md) traces all ten
+original result rows to bounded increment/reset owners, identifies the two
+knowledge deduplication masks, and records browser ownership and unresolved
+death/building/reward/final-snapshot leaves. Static research only; UI rows remain unavailable.
+
 > Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/decomp), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
 
 This is part of the full-parity goal, not a separate experiment. It records the original routines used to reconstruct browser behavior. `generated/*.c` is Ghidra pseudocode, **not recovered, compilable Bullfrog source**. Names/types can come from community annotations or inference; generated control flow still needs review against instructions and runtime observations.
@@ -10,6 +15,12 @@ This is part of the full-parity goal, not a separate experiment. It records the 
 separates completed geometry/audio/terrain/timer work from the removed generic
 status toast. Other reward/reincarnation decisions and original campaign feedback
 remain separate.
+
+## Hypnotise artwork
+
+[Hypnotise source artwork and cell-center origin](research/hypnotise-artwork.md)
+records model16, draw44/HFX1264–1279, callback/lifetime timing and the bounded
+nearest-target change from using its original snapped origin.
 
 ## Setup and reproduce
 
@@ -67,6 +78,7 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Original acquisition body raster and palette](research/worship-acquisition-body-raster.md),
 [Ordinary M1/M2 browser adapter](research/worship-acquisition-adapter.md),
 [Early-mission producer scheduling and the type9 boundary](research/early-mission-producer-schedule.md),
+[Rolling Demo control and stream framing](research/rolling-demo-control.md),
 [Recorded-demo raw state and unresolved source-map provenance](research/recorded-demo-provenance.md),
 [LEVL2131 Face Off selector and conditional script requirement](research/demo131-entry.md),
 [Tutorial conditional entry and script loading](research/tutorial-entry.md),
@@ -658,6 +670,12 @@ Balloon raw-payload startup is documented in
 [`research/balloon-command-position.md`](research/balloon-command-position.md).
 Its native probe executes the real configuration/position composition; packed
 cell and object position branches remain explicit live boundaries.
+
+Command-22 clicked-origin lifetime is documented in
+[`research/boarding-origin-lifetime.md`](research/boarding-origin-lifetime.md).
+Static original bytes establish the wrapped, unhalved distance cutoff; focused
+live controls cover completion and current checkpoint continuity without claiming an
+ordinary sailed trajectory or rendered campaign acceptance.
 
 ## Person initialization and training handoff
 
@@ -5279,3 +5297,20 @@ Mixed-raid target availability versus member-order refresh: see
 Quit?/Yes/No/Back descriptors, font flags, native positions, shadows and navigation.
 The browser preserves that presentation with an explicitly unavailable Yes and
 conditional checkpoint guidance; this is not native exit-behavior parity.
+
+## Original Credits source and controller
+
+[Bounded Credits recovery](research/original-credits/README.md) links menu label445
+to state12, the supplied Credits text and language headings, and static scrolling,
+looping and exit-request boundaries. Hash-locked source windows and a reproducible
+data-only check are retained. Exact art/font/palette, full input delivery and focus
+return remain unresolved; the live Credits entry stays disabled. No original
+execution, runtime restoration, generated browser assets or parity credit.
+
+## Original boot logo
+
+[Boot-logo source and browser boundaries](research/startup-logo/README.md) bind
+the guarded startup call, fresh-down clip interruption, recovered BLOGO bytes,
+640×352 centered display geometry and full decoded-frame conversion equality.
+This bounded restoration does not establish the initial timed page, New Game
+intro, held-input native behavior, or complete startup parity.

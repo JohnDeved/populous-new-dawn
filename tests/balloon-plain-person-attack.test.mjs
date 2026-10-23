@@ -1,3 +1,4 @@
+import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import { checkpointComparisonView, assertCheckpointComparisonDomain } from './helpers/checkpoint-comparison-view.mjs'
 import {
   seatedAttackOrigin,
@@ -16,6 +17,7 @@ import { release } from '../app/world-tasks.ts'
 
 import assert from 'node:assert/strict'
 import { browserPosition, cast, command, tick, selectUnit } from '../app/model.ts'
+const referenceId = scalableReferenceIds(22)
 const stepUntil = (w, done, limit) => {
     for (let i = 0; i < limit; i++) {
       tick(w, 1 / 12)
@@ -116,7 +118,7 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
   const mixed = structuredClone(world),
     mixedShaman = mixed.units.find(u => u.id === shaman.id),
     mixedPerson = mixedShaman.native,
-    grounded = mixed.units.find(u => u.id === 173)
+    grounded = mixed.units.find(u => u.id === (historical ? 173 : referenceId(173)))
   assert.equal(grounded.kind, 'brave')
   assert.ok(grounded.hp > 0)
   assert.ok(!grounded.native && !grounded.flight && !grounded.entry)
@@ -135,13 +137,15 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
     !grounded.native || currentPersonOrder(mixed.buildingOrders, grounded.native)?.model !== 28
   )
 
-  // Supplied capacity boundary: every slot is held; the old movement record
-  // has one additional external reference so releasing this owner cannot free it.
+  // Supplied capacity boundary: every usable slot is externally held; releasing
+  // this owner's old movement record cannot free it. Classic exhausts while the
+  // actual current-store policy must grow without disturbing the seated owner.
   const full = structuredClone(world),
     fullUnit = full.units.find(u => u.id === shaman.id),
     fullPerson = fullUnit.native,
     heldOrder = fullPerson.commands.find(Boolean)
-  for (const record of full.buildingOrders.records) record.references = 1
+  assert.equal(full.buildingOrders.records.length, 800)
+  for (const record of full.buildingOrders.records.slice(1)) record.references = 1
   full.buildingOrders.records[heldOrder].references = 2
   full.buildingOrders.active = 799
   const released = structuredClone(full)
@@ -150,8 +154,18 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
     released.units.find(u => u.id === shaman.id)
   )
   const routeReferences = routes => {
-    const view = new DataView(routes.records.buffer)
-    return Array.from({ length: 401 }, (_, i) => view.getInt16(i * 109, true))
+    const slots = routes.records.length / 109
+    assert.ok(Number.isInteger(slots))
+    assert.equal(routes.references !== undefined, !historical)
+    if (routes.references !== undefined) {
+      assert.ok(routes.references instanceof Float64Array)
+      assert.equal(routes.references.length, slots)
+      return Array.from(routes.references)
+    }
+    const view = new DataView(
+      routes.records.buffer, routes.records.byteOffset, routes.records.byteLength
+    )
+    return Array.from({ length: slots }, (_, i) => view.getInt16(i * 109, true))
   }
   selectUnit(full, shaman.id, false)
   assert.ok(command(full, { ...target, id: target.id }))
@@ -159,13 +173,53 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
   assert.equal(full.objectCells.objects.get(shaman.id), fullPerson)
   assert.equal(fullPerson.vehicle, balloon.id)
   assert.deepEqual(full.vehicles.find(v => v.id === balloon.id).passengers, [shaman.id])
-  assert.equal(currentPersonOrder(full.buildingOrders, fullPerson), undefined)
-  assert.deepEqual(fullPerson.commands, Array(8).fill(0))
+  if (historical) {
+    assert.equal(full.capacityPolicy.mode, 'classic')
+    assert.equal(currentPersonOrder(full.buildingOrders, fullPerson), undefined)
+    assert.deepEqual(fullPerson.commands, Array(8).fill(0))
+    assert.equal(full.buildingOrders.records.length, 800)
+    assert.match(full.message, /No command slots/)
+  } else {
+    assert.equal(full.capacityPolicy.mode, 'scalable')
+    const order = currentPersonOrder(full.buildingOrders, fullPerson)
+    assert.equal(order.model, 28)
+    assert.equal(order.a, target.id)
+    assert.equal(order.references, 1)
+    assert.equal(fullPerson.commands[fullPerson.commandCursor], 800)
+    assert.equal(full.buildingOrders.records.length, 1600)
+    assert.equal(full.buildingOrders.active, 800)
+    assert.doesNotMatch(full.message, /No command slots/)
+    // Successful growth must behave like the same attack with free order slots,
+    // not like the classic exhausted branch which never allocates a new route.
+    const control = structuredClone(world),
+      controlPerson = control.units.find(u => u.id === shaman.id).native
+    selectUnit(control, shaman.id, false)
+    assert.ok(command(control, { ...target, id: target.id }))
+    assert.deepEqual(full.motionRoutes, control.motionRoutes)
+    assert.deepEqual(routeReferences(full.motionRoutes), routeReferences(control.motionRoutes))
+    const fullRouteOwner = full.pathfinding.people.get(shaman.id),
+      controlRouteOwner = control.pathfinding.people.get(shaman.id)
+    // This seated attack plans through a separate query owner, not the physical
+    // passenger. It must retain the same identity and empty order queue as control.
+    assert.notEqual(fullRouteOwner, fullPerson)
+    assert.notEqual(controlRouteOwner, controlPerson)
+    assert.equal(fullRouteOwner.id, shaman.id)
+    assert.deepEqual(fullRouteOwner.commands, Array(8).fill(0))
+    assert.deepEqual(fullRouteOwner, controlRouteOwner)
+    const routeFields = person => Object.fromEntries([
+      'vehicle', 'flags2', 'flags4', 'motionGroup', 'motionIndex', 'recoveryCounter',
+      'goalX', 'goalY', 'destinationX', 'destinationY', 'turnAngle', 'turnY',
+    ].map(key => [key, person[key]]))
+    assert.deepEqual(routeFields(fullPerson), routeFields(controlPerson))
+    release(full, fullUnit)
+    assert.deepEqual(fullPerson.commands, Array(8).fill(0))
+    assert.equal(full.buildingOrders.records[800].references, 0)
+    assert.equal(full.buildingOrders.active, 799)
+  }
   assert.equal(full.buildingOrders.records[heldOrder].references, 1)
   assert.equal(full.motionRoutes.active, released.motionRoutes.active)
   assert.deepEqual(routeReferences(full.motionRoutes), routeReferences(released.motionRoutes))
   assert.equal(full.pathfinding.people.has(shaman.id), false)
-  assert.match(full.message, /No command slots/)
 
   selectUnit(world, shaman.id, false)
   const previousPerson = shaman.native,
@@ -246,17 +300,17 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
   } else {
     // First contact retains selected Preacher17; guard reinforcement and actual
     // melee opponent writes yield this exact existing grounded-adapter outcome.
-    assert.equal(departure, 3840)
-    assert.equal(firstFight, 3845)
+    assert.equal(departure, 3844)
+    assert.equal(firstFight, 3849)
     assert.equal(firstOpponent, 17)
     assert.equal(firstOpponentTeam, 'green')
     assert.deepEqual(encounters, [
-      [3845, 17],
-      [3858, 10],
-      [3863, 11],
-      [3871, 12],
+      [3849, 17],
+      [3866, 10],
+      [3870, 12],
+      [3878, 10],
     ])
-    assert.equal(death, 3872)
+    assert.equal(death, 3886)
     assert.equal(targetDeath, 0)
     assert.equal(shaman.hp, 0)
     assert.equal(world.objectCells.objects.has(shaman.id), false)

@@ -1,3 +1,4 @@
+import { retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
@@ -14,11 +15,11 @@ import { stepAngel } from '../app/angel.ts'
 // Public command16 produces disguise bytes. The shipped AI dispatcher allocates
 // the enemy spell; ordinary projectile arrival and Angel selection follow.
 function scenario({ tribe = 1, turns = 64, kind = 'spy' } = {}) {
-  const w = createWorld()
+  const w = createWorld(1, 'scalable')
   w.manaWorld.loadFlags |= 0x200
   w.terrain.fill(3)
   w.terrainVersion++
-  w.units = []
+  retainFixtureUnits(w, () => false)
   w.buildings = []
   w.trees = []
   w.shrines = []

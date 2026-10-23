@@ -6,7 +6,7 @@ preserved merge ancestry. It does not declare the integration PR's constituent P
 tested. GitHub remains the task/status surface; the local checkpoint only records
 observation continuity and uncertain effects.
 
-**Dry-run is the default.** The writer can submit one draft conversion, refresh, ready transition or
+**Dry-run is the default.** The writer can submit one draft conversion, source or base-metadata refresh, ready transition or
 exact-head merge only with an explicit parent-approved, independently reviewed
 plan and short-lived pilot. It has no background polling, workflow rerun, new
 credential, protection change, deploy, squash, rebase or automatic approval.
@@ -169,6 +169,32 @@ this tool verifies CI coverage, not the meaning of external browser/native claim
    and be main's current tip. Deployment observation follows the explicitly
    approved mode below. No deployment is triggered and no serving-production claim
    is inferred from a build check.
+
+### Stale base metadata before Ready
+
+An optional `allowBaseMetadataRefresh: true` entry admits one separately reviewed
+`refresh-base` pilot, never an implicit addition to Ready. This is only for an
+unchanged reviewed Draft head whose current main equals `reviewBase`, already lies
+in the head's ancestry, and has synthetic parents `[main, head]` and the reviewed
+tree, before Ready admission for the current explicitly reviewed candidate/journal.
+This does not assert that the PR has never been Ready in its lifetime. The old
+advertised base must be an ancestor of main. Review, workflow,
+resource, drained-run and existing validation guards still apply; absent hosted
+gates do not block the Ready event that starts them. Genuine failed gates remain
+failures, not metadata exceptions. Admission-only mode has no refresh authority.
+An already-failed Ready, including a stale-event parent-identity preflight that
+ran no tests, needs separate explicit recovery review. This prevention path does
+not retroactively accept, exempt or replay failed attempts.
+
+The fixed PATCH updates only the same PR's already-intended `base=main`. It cannot
+retarget another branch and has no head/base CAS, so serialize the integration
+lane. Persist intent before submission; an independent subsequent GET observation
+must prove the same head/ref, main, Draft state, synthetic commit/parents/tree and
+refreshed advertised base. A response body alone is not confirmation. Stale or
+changed readback stops without another PATCH. Ready still needs its own pilot and
+new quiet observation window. Do not reset the journal to replenish the allowance.
+This refresh repaired observed stale metadata, not a guaranteed GitHub behavior;
+CI's exact parent checks remain unchanged.
 
 Checkpoints are atomically replaced and fsynced under an exclusive `.lock` file.
 An interrupted process leaves the lock: inspect the process and checkpoint before
@@ -398,3 +424,170 @@ source-bound review/allowlist. Candidate receipt producer changes alone cannot
 activate or satisfy a trusted policy. Reuse no old authorization checkpoint after
 changing the allowlist. No branch protection, deployment, credentials or automatic
 candidate-policy installation is changed by this implementation.
+
+## Profile companion raw-artifact admission
+
+The Mission 10 companion keeps the 12,000-byte profile log limit. Its phase
+`selection: 0` references the complete `resultName`/`resultSha256` raw report,
+not an empty selection or a hash-only pass. The trusted reader requires the
+current successful job's unique upload ID, name, size and SHA-256, and matching
+repository/run/head artifact metadata. The raw host receipt must bind the same
+head/base/merge/run/attempt as the compact envelope; reuploading an older receipt
+into a newer artifact does not establish a new attempt.
+
+The numeric repository-only GET is bounded to 16 MiB compressed. The in-memory
+ZIP reader admits at most 128 regular entries, 32 MiB per file and 128 MiB total,
+and the Profile resolver restricts names to its known host outputs and twelve
+required flattened Mission 10 files. It rejects duplicate names, missing files,
+symlinks, traversal, encryption, ZIP64, overlapping entries, inconsistent headers
+or streamed descriptors, and CRC/length/hash drift. It never extracts, executes,
+or loads code from the archive. The manifest binds each retained file's source
+path, exact bytes and hash; both phase receipts and results, screenshots,
+checkpoint continuity and runtime are cross-checked.
+
+Trusted selection validation then reconstructs each query from every paused raw
+observation, retaining the original fourteen actors as an ordered identity/class
+subsequence while including all additional living Blue actors in observation
+order. It independently recomputes all eighteen exact selected sets and validates
+clearing, crew propagation, ownership, health, commands, RNG and paused state.
+A missing raw observation or eligible extra actor cannot pass as a subset.
+
+Before activation, independently review and pin the complete trusted import
+closure, including `profile-artifact.mjs`, `../artifact-zip.mjs`,
+`../local-render/mission10-selection-evidence.mjs` and its selection oracle.
+Their candidate input hashes are also retained in `PROFILE_INPUTS`; this does
+not authorize loading candidate code as the trusted validator. Existing workflow,
+job-inventory, browser-deadline and permissions policies remain unchanged.
+
+## Passive nine-job spell visuals reader support
+
+`browserPolicy: "spell-visuals-nine-v2"` is a separately explicit opt-in and also
+requires `browserCheckpointVersion: 4`. Neither observed jobs nor candidate
+receipts select this contract. All older policies retain their exact inventories
+and literal v3 Mission 10 checkpoints; a global v3→v4 reader replacement is not
+supported. A nine-job contract requires all eight split jobs plus the successful
+`Spell visuals browser` job. Its verified flag and current Actions check must
+reconcile with the exact authenticated attempt, alongside Pause, Profile and
+Mission 10. Current-check enumeration includes each selected recovery subgate;
+previously it retained only the two aggregate gate names.
+
+The ninth path authenticates job/check/app/suite/run/attempt/head, head/base/merge
+log identity and pinned workflow bytes, then binds the upload log's unique numeric
+artifact ID, exact `spell-visuals-browser-MERGESHA` name, byte count and SHA-256 to
+both current-run enumeration and direct artifact metadata (including run/head and
+unexpired state). Only a numeric repository-local ZIP endpoint is downloaded.
+No receipt URL is followed. The separate 48 MiB compressed transport does not
+change the Profile/Mission 10 16 MiB transport. ZIP limits remain 50 entries,
+32 MiB per file and 96 MiB expanded total; each PNG is at most 16 MiB and 128
+chunks with its existing dimensions. The decoded log envelope is at most 24,000
+bytes. Artifact resolution alone is not authenticated admission.
+
+Source hashes use a bounded byte-exact immutable Git blob read, including binary
+PNGs, with hooks/fsmonitor/global attributes disabled, unsafe filter/merge-driver
+configuration rejected, replacement objects and lazy fetch disabled, and no
+candidate application imports. The reader is synchronous throughout; static
+built-in zlib and ZIP decoding replace the candidate's async wrappers. Unresolved
+Promises cannot set a verified flag. Required episodes remain exactly Angel and
+Shield, with 50s/60s and 45s/55s execution/admission bounds, one common outer
+deadline, terminal cleanup, and actual sandboxed hosted Chrome at
+`/opt/google/chrome/chrome`. Local headless-shell results are not relabeled.
+
+This is support staging only. Both active workflows, the main v3 checkpoint
+writer, the pure round-robin Full planner, protection, credentials and external
+trusted pins remain unchanged. No ninth live job is authorized or installed by
+this code. The parent must independently review the entire diff and trusted
+import closure before selecting task-local read-only pins; support landing does
+not activate the feature. The previous eleven-file reader approval does not
+extend itself, and PR655/658 are staging precedents only. PR687 approved no v4
+reader transition. A future workflow transition requires its own source-bound
+approval, exact workflow hashes and bounded ninth-job authorization.
+
+The additional data-only closure is `spell-visuals-policy.mjs`,
+`spell-visuals-artifact.mjs`, `spell-visuals-render-evidence.mjs`,
+`shield-visuals-receipt.mjs`, `../tutorial-browser/shield-visuals-inputs.mjs`,
+`../tutorial-browser/shield-evidence.mjs`, plus the unchanged
+`../tutorial-browser/checkpoint-codec.mjs`, `browser-jobs.mjs`, and
+`../artifact-zip.mjs`. Existing Profile/Mission 10 selection dependencies remain
+part of the prior closure. Independent synthetic tests exercise the actual
+synchronous GitHubReader pipeline and byte transports; they are not hosted browser,
+visual review, native parity, or activation evidence.
+
+## Passive composed eight-job artifact support
+
+The separately caller-selected `profileArtifactPolicy: "composed-spells-eight-v1"`
+requires `browserPolicy: "profile-split-v1"` and literal
+`browserCheckpointVersion: 3`. It requires **both** Tornado evidence in Profile
+and Spy evidence in Mission 10. The legacy default still rejects these additional
+paths. Jobs, archives and receipt versions never select or upgrade the contract;
+this route cannot select ninth-job/v4 support. It stages the PR691 producer at
+`403c2bbc0387a16704098f31c1dc7ed2690fe13e` on the PR707 support dependency
+`29bcefe4e7510c0fbd5a4db1dfb9d7a32a340b50`, without changing either producer.
+
+All existing eight-job, official Chrome, Actions app/check/suite/run/attempt,
+head/base/synthetic merge, workflow, upload-log and current-check reconciliation
+remain required. The Profile and Mission 10 downloads each retain their 16 MiB
+compressed cap, numeric repository-only endpoint and direct/current-run metadata
+binding. ZIP limits remain 128 entries, 32 MiB per file and 128 MiB expanded total.
+The explicit composed additions are:
+
+- Profile: `tornado-appearance.json`; land `spawn`, `active`, `first-tail`,
+  `last-tail`, `restart` normal PNGs; water `spawn`, `active`, `restart` normal PNGs;
+  and land/water diagnostic black/white PNGs. Names are exactly
+  `tornado-KIND-STAGE-normal.png` or `tornado-KIND-diagnostic-COLOR.png`.
+- Mission 10: `spy-source.json`, `spy-source-context.png`, and exactly two
+  `spy-source-frame-N.png` crops. The first is frame 0; the distinct second is any
+  integer 1–11 selected by the validated retained observation. All eleven finite
+  inventories are tested. Extra, missing, duplicate, cross-episode and failure-only
+  paths fail closed.
+
+Filenames alone do not admit evidence. Raw child reports must deeply match the
+source-bound authenticated host. Only Tornado's documented raw-only `elapsedMs`
+field is removed for that comparison; it must independently be finite,
+nonnegative and within the retained budget, at most 90 seconds. Tornado checks
+both genuine cast/stock transitions, readiness, frame/UV/depth/scale evidence,
+original PSFB/palette pixels, paired black/white histograms with zero mismatches,
+tail deletion and restart cleanup. Diagnostic dimensions must match retained
+canvas/graphics and all diagnostic alpha must be opaque. Normal images are
+structurally decoded; retained data has no normal-frame framebuffer hash or
+absolute episode timestamps, so neither framebuffer equality nor direct outer
+host-deadline equality is claimed.
+
+Spy checks literal v3 fixture/load digests, public action order, phase/entry/source
+136 and original frame ownership, both same-frame crop hashes and decoded color
+counts, paused actor/clock equality, resumed advance, cleanup and the original
+45-second budget. Ordering uses `endedAt` from both retained Mission 10 phase
+receipts. Crop bytes stay below 256 KiB and dimensions at most 256×256. Transfer
+bytes are not retained; the claim is source-bound producer/load digest agreement,
+not an independently reconstructed checkpoint. The context image is 1440×1000.
+Composed images retain the 16 MiB bound and permit at most 512 total chunks,
+including IHDR, IEND and metadata. This covers measured hosted Chrome output with
+346–365 IDAT chunks in normal screenshots and 445 in the Spy context image.
+The separate Angel/Shield 128-chunk limit is unchanged. The composed RGB8/RGBA8 parser checks
+CRC, chunk order, dimensions, DEFLATE length and filters; rejects APNG and tRNS;
+and permits only singleton pre-IDAT sRGB, standard sRGB gAMA and valid pHYs
+metadata. No arbitrary pixel-interpretation chunks are ignored.
+
+The complete candidate byte-input set is the explicit 485-path
+[`composed-source-inputs.json`](composed-source-inputs.json), derived by static
+inspection of that producer. It includes the Tornado adapter/fixture, native
+fixture data, transitive rendering and clock inputs, and both `tornado.png` and
+`unit-layers.png` atlases. The fixture's dynamic application loader conservatively
+binds every `app/` file. Package inputs are bound through `package-lock.json`;
+selected Profile/Mission 10 scenario roots and their local-render helpers are
+included. Other dispatch branches do not run in these selected scenarios. The
+reader hashes immutable Git blob bytes, never importing or executing candidate
+application code. Source reads are bounded at 32 MiB each and 128 MiB total.
+
+The trusted runtime closure rooted at `github.mjs` grows from 18 to **23 files**:
+four new modules (`composed-profile-artifact.mjs`, `composed-spy-evidence.mjs`,
+`composed-tornado-evidence.mjs`, `composed-png.mjs`) and the JSON inventory. Existing
+`github.mjs`, `policy.mjs` and `profile-artifact.mjs` change; their other dependencies
+remain part of the closure. Built-in assert/crypto/zlib and existing ZIP decoding
+stay synchronous. Resolvers, verifier methods and the actual caller require
+explicit non-thenable success before setting composed verification flags.
+
+This dependent support branch leaves PR707's head, both active workflows, the v3
+writer, round-robin Full planner and external trusted pins unchanged. The parent
+must review the complete diff/import closure before separately selecting any
+read-only trusted pins. Passing synthetic fixtures establish reader behavior,
+not hosted browser acceptance, native parity, activation, Ready or merge approval.

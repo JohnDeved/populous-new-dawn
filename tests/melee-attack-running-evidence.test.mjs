@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { validateMeleeRunningFrames } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
+import { meleeRunningProtocol, validateMeleeRunningFrames, validateMeleeRunningObservation } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
 
@@ -31,6 +31,63 @@ function sample(overrides = {}) {
 }
 const evidence = () => [sample({ cropFile: 'first.png' }),
   sample({ turn: 515, animationFrame: 1030, stamp: 361, cropFile: 'second.png' })]
+
+function completedObservation() {
+  const samples = evidence(), first = samples[0], duration = mapping['shaman:attack'].duration
+  const entry = { id: 54, kind: 'shaman', action: 'attack', started: 514, fightGroup: 7,
+    opponent: 1207, duration, endExclusive: 514 + duration - 1 }
+  const terminal = { turn: entry.endExclusive, stamp: 370, reason: 'entry-complete' }
+  return { protocol: meleeRunningProtocol, samples, firstAttackTurn: 514, done: true, error: null, entry, terminal,
+    endpoint: { ...first, turn: terminal.turn, stamp: terminal.stamp, animationFrame: terminal.turn * 2,
+      logicalStamp: terminal.turn, f2: duration - 1, action: 'approach', remaining: null,
+      alive: true, hp: 27.15, team: 'blue', documentVisible: true } }
+}
+
+test('complete first-entry validator consumes exact alive expiry evidence and preserves all frame obligations', () => {
+  const observation = completedObservation()
+  const before = structuredClone(observation)
+  const accepted = validateMeleeRunningObservation(observation, mapping)
+  assert.equal(accepted.protocol, meleeRunningProtocol)
+  assert.deepEqual(accepted.obligations.firstEntry, { status: 'passed', firstAttackTurn: 514,
+    ...observation.entry, terminal: observation.terminal })
+  assert.deepEqual(observation, before)
+  for (const change of [
+    s => { delete s.protocol }, s => { s.protocol = 'running-original-artwork-v1' },
+    s => { s.done = false }, s => { s.error = 'Shaman54 died' },
+    s => { s.firstAttackTurn = null }, s => { s.firstAttackTurn-- },
+    s => { delete s.entry }, s => { s.entry.started++ }, s => { s.entry.opponent++ },
+    s => { s.entry.duration++ }, s => { s.entry.endExclusive++ },
+    s => { delete s.terminal }, s => { s.terminal.reason = 'error' }, s => { s.terminal.reason = 'stopped' },
+    s => { s.terminal.reason = 'window-complete' }, s => { s.terminal.turn++ }, s => { s.terminal.turn-- },
+    s => { s.terminal.turn = 517.5 },
+    s => { delete s.terminal.stamp }, s => { s.terminal.stamp = 361 }, s => { s.terminal.stamp = 370.5 },
+    s => { delete s.endpoint }, s => { s.endpoint.turn++ }, s => { s.endpoint.stamp++ },
+    s => { s.endpoint.alive = false }, s => { s.endpoint.hp = 0 }, s => { s.endpoint.hp = NaN },
+    s => { s.endpoint.action = 'attack' }, s => { s.endpoint.started++ }, s => { s.endpoint.remaining = 0 },
+    s => { s.endpoint.opponent++ }, s => { s.endpoint.personIdentityMatch = false },
+    s => { s.endpoint.logicalStamp-- }, s => { s.endpoint.f2-- }, s => { s.endpoint.object++ },
+    s => { s.endpoint.nativeAttackAnimation = false }, s => { s.endpoint.animation = 'idle' },
+    s => { s.endpoint.paused = true }, s => { s.endpoint.canvasConnected = false },
+    s => { s.endpoint.sceneStoreMatch = false }, s => { s.endpoint.documentVisible = false },
+    s => { s.endpoint.personFlags2 |= 0x80000 }, s => { s.endpoint.personFlags4 |= 0x400 },
+    s => { s.samples[1].personIdentityMatch = false }, s => { s.samples[1].frame = 1 },
+    s => { delete s.samples[1].cropFile }, s => { s.samples.length = 1 },
+  ]) {
+    const invalid = structuredClone(observation); change(invalid)
+    assert.throws(() => validateMeleeRunningObservation(invalid, mapping))
+  }
+})
+
+test('a valid later entry or a ten-turn terminal cannot replace the first native episode', () => {
+  const observation = completedObservation()
+  observation.samples.push(sample({ started: 518, turn: 518, animationFrame: 1036, stamp: 363,
+    cropFile: 'later.png' }))
+  assert.throws(() => validateMeleeRunningObservation(observation, mapping), /immutable first entry/)
+  const old = completedObservation()
+  old.protocol = 'running-original-artwork-v1'
+  old.terminal = { turn: 524, stamp: 370, reason: 'window-complete' }
+  assert.throws(() => validateMeleeRunningObservation(old, mapping), /First-entry melee protocol/)
+})
 
 test('cropped same-sequence running advancement preserves inputs and claims only running artwork', () => {
   const samples = evidence(), before = structuredClone({ samples, mapping })

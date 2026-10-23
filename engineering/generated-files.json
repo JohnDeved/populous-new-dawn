@@ -2,6 +2,27 @@
   "version": 1,
   "owners": [
     {
+      "id": "startup-logo",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-startup-logo.py", "<verified-game-root>", "<new-output-directory>"] },
+      "callers": ["scripts/import-startup-logo.py", "app/startup-logo.tsx"],
+      "inputs": ["decomp/research/startup-logo/conversion.json"],
+      "outputs": [{ "path": "public/original/startup", "type": "directory", "tracked": true, "protected": true }],
+      "recording": "Only verified BLOGO.TGQ; decoded lossless video equality and output identity required. Never regenerate other movie or menu assets."
+    },
+    {
+      "id": "result-statistics-static-evidence",
+      "kind": "native-evidence",
+      "generator": { "executable": "python3", "args": ["scripts/research-result-statistics.py", "<hash-verified-original-exe>"] },
+      "callers": ["scripts/research-result-statistics.py"],
+      "inputs": ["decomp/tools.json"],
+      "outputs": [
+        { "path": "decomp/research/result-statistics/native.json", "type": "file", "tracked": true, "protected": true },
+        { "path": "decomp/research/result-statistics/native.asm", "type": "file", "tracked": true, "protected": true }
+      ],
+      "recording": "Read-only hash-pinned PE extraction emits JSON to stdout; compare scratch output before replacing retained spans. Assembly is objdump 2.44 disassembly of those same bounded ranges, documented in the adjacent README. No original execution or emulation."
+    },
+    {
       "id": "frontend-badge-vectors",
       "kind": "imported-assets",
       "generator": { "executable": "python3", "args": ["scripts/sanitize-frontend-badge-vectors.py", "<reviewed-local-input-directory>"] },
@@ -23,7 +44,7 @@
       "id": "parity-report",
       "kind": "bookkeeping",
       "generator": {
-        "executable": "npm",
+        "executable": "pnpm",
         "args": ["run", "parity:record", "--", "<authorized-note>"]
       },
       "callers": ["scripts/parity.mjs", "package.json"],
@@ -77,6 +98,8 @@
       },
       "callers": [
         "scripts/import-original.py",
+        "scripts/import-tornado.py",
+        "scripts/import-hypnotise.py",
         "scripts/import-loading-art.py",
         "scripts/import-loading-label.py",
         "scripts/import-frontend.py",
@@ -101,6 +124,8 @@
       ],
       "inputs": ["references/native-assets.md", "decomp/sections.tsv"],
       "outputs": [
+        { "path": "app/original-tornado.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-tornado.py" },
+        { "path": "public/original/tornado.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-tornado.py" },
         { "path": "public/original/loading-mask.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-art.py" },
         { "path": "public/original/loading-label.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-label.py" },
         { "path": "public/original/loading-label.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-label.py" },
@@ -726,7 +751,7 @@
     {
       "id": "orchestration-cache",
       "kind": "disposable",
-      "generator": { "executable": "npm", "args": ["run", "orchestration:index"] },
+      "generator": { "executable": "pnpm", "args": ["run", "orchestration:index"] },
       "callers": ["scripts/orchestration/cli.mjs"],
       "inputs": ["engineering/project-map.json", "engineering/checks.json", "parity.json"],
       "outputs": [

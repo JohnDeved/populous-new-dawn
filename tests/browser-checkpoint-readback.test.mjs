@@ -106,8 +106,8 @@ function fixture(values) {
   }
 }
 
-test('maintained checkpoint callsite waits for delayed false reads before reloading', async () => {
-  const f = fixture([undefined, { version: 0 }, { version: 1 }])
+for (const version of [3]) test(`maintained checkpoint callsite waits for delayed v${version} reads before reloading`, async () => {
+  const f = fixture([undefined, { version: 0 }, { version }])
   await f.run()
   assert.equal(f.reads, 3)
   assert.equal(f.closes, 3)
@@ -131,4 +131,43 @@ test('maintained checkpoint callsite closes rejected reads without reloading', a
   assert.equal(f.closes, 1)
   assert.equal(f.openDatabases, 0)
   assert.equal(f.reloads, 0)
+})
+
+for (const [file, variable, field] of [
+  ['mission3-building-screen.mjs', 'saved', 'snapshot'],
+  ['mission3-temple-checkpoint.mjs', 'entry', 'summary'],
+]) test(`${file} committed predicate accepts the current envelope only with matching full state`, async () => {
+  const { isDeepStrictEqual } = await import('node:util')
+  const script = readFileSync(new URL(`../scripts/local-render/${file}`, import.meta.url), 'utf8'),
+    predicate = script.match(/return \(\s*\w+\.committed\?\.version === 3[\s\S]*?\n\s*\)/)?.[0]
+  assert.ok(predicate, 'Exercise the maintained committed-readback predicate')
+  const check = new Function(variable, 'isDeepStrictEqual', predicate)
+  for (const version of [0, 1, 2, 3, 4]) {
+    const snapshot = { turn: 73, owner: 1024, commands: [0, 1024] },
+      boundary = variable === 'saved' ? { snapshot } : { saved: snapshot },
+      value = { committed: { version, [field]: structuredClone(snapshot) }, boundary }
+    assert.equal(check(value, isDeepStrictEqual), version === 3)
+    value.committed[field].commands[1]++
+    assert.equal(check(value, isDeepStrictEqual), false, 'Envelope compatibility cannot mask state drift')
+  }
+})
+
+// Supplied browser setup is current-format data, not an obsolete-save adapter.
+test('Mission 2 supplied browser checkpoint uses current scalable schema and normalization', async t => {
+  const { mkdtempSync, rmSync } = await import('node:fs'),
+    { tmpdir } = await import('node:os'),
+    { join } = await import('node:path'),
+    { createM2Checkpoint } = await import('../scripts/tutorial-browser/m2-checkpoint.mjs'),
+    { checkpointCodec } = await import('../scripts/tutorial-browser/checkpoint-codec.mjs'),
+    { createGameStore } = await import('../app/game-store.ts'),
+    output = mkdtempSync(join(tmpdir(), 'pnd-current-m2-'))
+  t.after(() => rmSync(output, { recursive: true, force: true }))
+  const fixture = await createM2Checkpoint(output, { commit: 'controlled-current-source', files: [] }),
+    record = checkpointCodec(fixture.transfer, true), store = createGameStore()
+  assert.equal(record.version, 3)
+  assert.deepEqual(record.world.capacityPolicy, { version: 1, mode: 'scalable' })
+  Object.assign(store.getWorld(), record.world)
+  await store.saveCheckpoint()
+  assert.equal(store.loadCheckpoint(), true)
+  assert.deepEqual(store.getWorld(), checkpointCodec(fixture.expected, true))
 })
