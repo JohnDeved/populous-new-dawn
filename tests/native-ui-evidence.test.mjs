@@ -964,7 +964,8 @@ function soundPopupFixture() {
 }
 test('sound setup publicly reopens the observed retained popup without replacing its owners', async () => {
   const f = soundPopupFixture(); await f.run()
-  assert.deepEqual(f.calls, [{ serial: '0', open: true, timeout: 2500 }])
+  assert.deepEqual(f.calls, [{ serial: '0', open: true, timeout: 4000 }])
+  assert.equal(f.trace.publicInput.timeoutMs, 4000)
   assert.equal(f.trace.status, 'passed'); assert.equal(f.trace.sameOwner, true)
   assert.deepEqual(f.trace.retainedBefore, [{ serial: '0', open: false }])
   assert.deepEqual(f.trace.retainedAfter, [{ serial: '0', open: true }]); assert.equal(f.disposed, 1)
@@ -992,14 +993,71 @@ test('sound setup rejects replaced objects, changed gameplay/input or acknowledg
   }
 })
 test('sound popup setup clips its public action to the unchanged remaining deadline and honors cancellation', async () => {
-  const f = soundPopupFixture(); f.options.deadlineAt = Date.now() + 1000; await f.run()
-  assert.ok(f.calls[0].timeout > 0 && f.calls[0].timeout <= 1000)
+  const f = soundPopupFixture(); let now = 1000
+  f.options = { ...f.options, now: () => now, deadlineAt: 2500 }
+  const evaluate = f.page.evaluate
+  f.page.evaluate = async (...args) => { const result = await evaluate(...args); now += 100; return result }
+  await f.run()
+  assert.equal(f.calls[0].timeout, 1300, 'Setup observations consume the original outer deadline')
+  assert.equal(f.trace.publicInput.timeoutMs, 1300)
   for (const deadlineAt of [0, NaN, Infinity]) {
     const g = soundPopupFixture(); g.options.deadlineAt = deadlineAt; await assert.rejects(g.run(), /deadline/)
     assert.equal(g.calls.length, 0); assert.equal(g.disposed, 0)
   }
   const g = soundPopupFixture(), abort = new Error('aborted setup'); g.options.signal = AbortSignal.abort(abort)
   await assert.rejects(g.run(), error => error === abort); assert.equal(g.calls.length, 0)
+})
+test('sound popup setup budgets the observed hosted sequence without extending the episode deadline', async () => {
+  const f = soundPopupFixture(); let now = 1000
+  f.options = { ...f.options, now: () => now, deadlineAt: 11000 }
+  const action = f.popupInput.setCampaignPopupOpen
+  f.popupInput.setCampaignPopupOpen = async (page, serial, open, options) => {
+    await action(page, serial, open, options)
+    // Exact hosted fallback sequence (run 39938798020), rounded up to ms.
+    // The candidate helper owns its end-to-end timeout; this fixture checks
+    // that the caller supplies enough budget for all four completed phases.
+    for (const elapsed of [196, 2155, 2487, 2672]) {
+      now = 1000 + elapsed
+      assert.ok(elapsed < options.timeout, 'The final retained-owner read must fit the same setup budget')
+    }
+  }
+  await f.run()
+  assert.equal(f.calls.length, 1); assert.equal(f.trace.status, 'passed'); assert.equal(f.disposed, 1)
+  assert.equal(f.options.deadlineAt, 11000)
+})
+test('sound popup setup preserves an accepted-input timeout without retry or later owner certification', async () => {
+  for (const remaining of [4000, 1000]) {
+    const f = soundPopupFixture(), failure = new Error('World input preparation timed out during final owner verification')
+    let now = 1000
+    f.options = { ...f.options, now: () => now, deadlineAt: 1000 + remaining }
+    const action = f.popupInput.setCampaignPopupOpen
+    f.popupInput.setCampaignPopupOpen = async (page, serial, open, options) => {
+      await action(page, serial, open, options)
+      assert.equal(options.timeout, remaining)
+      now += options.timeout
+      throw failure
+    }
+    await assert.rejects(f.run(), error => error === failure)
+    assert.equal(f.retained[0].open, true, 'Accepted input cannot be replayed or undone after a verification timeout')
+    assert.equal(f.calls.length, 1); assert.equal(f.disposed, 1); assert.equal(f.trace.status, 'failed')
+    assert.equal(f.trace.retainedAfter, undefined); assert.equal(f.trace.sameOwner, undefined)
+  }
+})
+test('sound popup setup rejects cancellation or outer expiry after accepted input without replay', async () => {
+  for (const kind of ['abort', 'deadline']) {
+    const f = soundPopupFixture(), controller = new AbortController(), reason = new Error('cancelled popup setup')
+    let now = 1000
+    f.options = { ...f.options, signal: controller.signal, now: () => now, deadlineAt: 11000 }
+    const action = f.popupInput.setCampaignPopupOpen
+    f.popupInput.setCampaignPopupOpen = async (...args) => {
+      await action(...args)
+      if (kind === 'abort') controller.abort(reason)
+      else now = f.options.deadlineAt
+    }
+    await assert.rejects(f.run(), error => kind === 'abort' ? error === reason : /deadline/.test(String(error)))
+    assert.equal(f.retained[0].open, true); assert.equal(f.calls.length, 1); assert.equal(f.disposed, 1)
+    assert.equal(f.trace.status, 'failed'); assert.equal(f.trace.retainedAfter, undefined)
+  }
 })
 test('sound popup setup preserves the primary public-input error if handle disposal also fails', async () => {
   const f = soundPopupFixture(), primary = new Error('public input failed'); f.actionError = primary; f.disposeError = new Error('dispose failed')
