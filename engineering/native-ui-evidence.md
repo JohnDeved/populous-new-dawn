@@ -106,7 +106,7 @@ identity and resource limits without launching a browser. Checker and workflow
 changes select it alongside conservative repository/workflow verification.
 These fixture tests cannot replace exact-candidate rendered evidence, and the
 candidate-owned checkpoint supplement remains candidate-owned. No source gate, skipped-episode or full-check policy is relaxed. The audio
-aggregate allowance change is explicit below; it is not a performance claim.
+aggregate allowance change is explicit above; it is not a performance claim.
 
 Before accepting any UI candidate, inspect the exact workflow/candidate manifests,
 all nine terminal records and raw evidence; inspect pixels and caption images
