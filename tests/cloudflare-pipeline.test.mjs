@@ -129,6 +129,19 @@ test('upload parsing requires both exact trusted URLs and an immutable matching 
   for (const bad of [upload.replace(workerHost, 'evil.example'), upload.replace('01234567-populous', 'deadbeef-populous'),
     upload.replace('Version Preview Alias URL:', 'Other:'), upload + upload]) assert.throws(() => uploadedVersion(bad, alias))
 })
+test('an uploaded version ID alone cannot turn a post-upload CLI failure into success', async () => {
+  // Real 4.92.0 failure ordering: upload succeeded, then URL discovery failed.
+  const partial = 'Uploaded populous-new-dawn (6.66 sec)\n' +
+    'Worker Version ID: f9266347-c61d-42be-9706-56d41da046b0\n' +
+    'A request to the Cloudflare API (/accounts/19321bcee0ed17a93b709cb602dd070c/workers/subdomain) failed.\n'
+  assert.throws(() => uploadedVersion(partial, alias), /Missing or ambiguous Wrangler upload output/)
+  const f = fixture(); f.state.publication.conclusion = 'failure'
+  f.state.result.status = 'prepared'; f.state.result.output = partial
+  await report(f)
+  assert.match(f.state.diagnostics.at(-1), /Publication failure/)
+  assert.match(f.state.comments[0].body, /❌ Deployment failed/)
+  assert.doesNotMatch(f.state.comments[0].body, /Commit Preview URL|Branch Preview URL/)
+})
 test('comment creates once, updates in place and is idempotent', async () => {
   const f = fixture(); assert.equal(await report(f), 'created'); assert.equal(f.state.writes.length, 1)
   assert.equal(await report(f), 'unchanged'); assert.equal(f.state.writes.length, 1)
@@ -215,6 +228,8 @@ test('workflow trust boundary stays separate and action dependencies stay pinned
   assert.match(build, /pnpm install --frozen-lockfile --ignore-scripts/); assert.match(build, /pnpm run build:cloudflare/)
   assert.match(publish, /environment: cloudflare-worker/); assert.match(publish, /ref: \$\{\{ github.sha \}\}/)
   assert.match(publish, /workingDirectory: .cloudflare-publisher/); assert.match(publish, /--no-bundle/)
+  assert.match(publish, /wranglerVersion: '4\.136\.1'/)
+  assert.doesNotMatch(publish, /continue-on-error|WRANGLER_API_BASE_URL|CLOUDFLARE_API_BASE_URL/)
   assert.doesNotMatch(publish, /pull_request_target|pnpm run|npm ci|pull-requests: write/)
   assert.match(reporter, /workflows: \[Cloudflare build, Cloudflare publish\]/)
   for (const content of [build, publish, reporter]) for (const match of content.matchAll(/uses: ([^\s]+)@([^\s]+)/g)) assert.match(match[2], /^[a-f0-9]{40}$/)
