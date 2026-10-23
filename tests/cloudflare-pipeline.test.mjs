@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { createHash } from 'node:crypto'
 import { deflateRawSync } from 'node:zlib'
 import { repository, buildPath, publishPath, marker, branchAlias, publisherSource,
-  currentPreview, fixedConfig, materializeBuild, uploadedVersion } from '../scripts/cloudflare/protocol.mjs'
+  currentPreview, fixedConfig, materializeBuild, uploadedVersion, renderComment, commentTimestamp } from '../scripts/cloudflare/protocol.mjs'
 import { report, prepare, route, currentSource, productionGate, oneArtifact } from '../scripts/cloudflare/control.mjs'
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
@@ -40,12 +40,12 @@ const result = () => ({ version: 1, source: 100, sourceAttempt: 1, sha: digest, 
 function fixture() {
   const run = { id: 100, run_attempt: 1, workflow_id: 10, repository: { full_name: repository },
     head_repository: { full_name: repository }, path: buildPath, head_sha: digest, head_branch: branch,
-    event: 'pull_request', status: 'completed', conclusion: 'success', pull_requests: [{ number: 7 }] }
+    event: 'pull_request', status: 'completed', conclusion: 'success', updated_at: '2026-10-23T13:00:00Z', pull_requests: [{ number: 7 }] }
   const pr = { number: 7, state: 'open', base: { ref: 'main', repo: { full_name: repository } },
     head: { sha: digest, ref: branch, repo: { full_name: repository } } }
   const publication = { ...run, id: 200, workflow_id: 20, path: publishPath, event: 'workflow_run', head_sha: main,
     display_title: 'Cloudflare publish build 100 attempt 1' }
-  const state = { run, pr, publication, comments: [], writes: [], newer: [], result: result(), builds: 0, publishers: [publication] }
+  const state = { run, pr, publication, diagnostics: [], comments: [], writes: [], newer: [], result: result(), builds: 0, publishers: [publication] }
   const api = async (path, options = {}) => {
     if (options.method) {
       state.writes.push({ path, ...options })
@@ -72,7 +72,8 @@ function fixture() {
     throw Error(`Unexpected mock request: ${path}`)
   }
   const download = async id => { assert.equal(id, 400); return resultZip(state.result) }
-  return { state, api, download, sourceId: 100, expectedPr: 7, mode: 'preview' }
+  return { state, api, download, sourceId: 100, expectedPr: 7, mode: 'preview',
+    diagnose: ({ status }) => state.diagnostics.push(status) }
 }
 
 test('branch aliases are bounded, shell-safe, stable and collision-resistant', () => {
@@ -133,29 +134,29 @@ test('comment creates once, updates in place and is idempotent', async () => {
   assert.equal(await report(f), 'unchanged'); assert.equal(f.state.writes.length, 1)
   f.state.publication.conclusion = 'failure'
   assert.equal(await report(f), 'updated'); assert.equal(f.state.writes[1].method, 'PATCH')
-  assert.equal(f.state.comments.length, 1); assert.match(f.state.comments[0].body, /Publication failure/)
-  assert.doesNotMatch(f.state.comments[0].body, /Branch preview \(moves/)
+  assert.equal(f.state.comments.length, 1); assert.match(f.state.diagnostics.at(-1), /Publication failure/); assert.match(f.state.comments[0].body, /❌ Deployment failed/)
+  assert.doesNotMatch(f.state.comments[0].body, /Commit Preview URL|Branch Preview URL/)
 })
 test('manual publisher cancellation removes stale success links and admits uncertainty', async () => {
   const f = fixture(); await report(f); f.state.publication.conclusion = 'cancelled'
-  await report(f); assert.match(f.state.comments[0].body, /Publication cancelled; remote outcome is not verified/)
+  await report(f); assert.match(f.state.diagnostics.at(-1), /Publication cancelled; remote outcome is not verified/); assert.match(f.state.comments[0].body, /⚠️ Deployment cancelled/)
 })
 test('failed/cancelled/timed-out builds never claim a deployed revision', async () => {
   for (const conclusion of ['failure', 'cancelled', 'timed_out', 'skipped', null]) {
     const f = fixture(); f.state.run.conclusion = conclusion; await report(f)
-    assert.match(f.state.comments[0].body, /not published/); assert.doesNotMatch(f.state.comments[0].body, /published successfully/)
+    assert.match(f.state.diagnostics.at(-1), /not published/); assert.doesNotMatch(f.state.comments[0].body, /Deployment successful|Preview URL/)
   }
 })
 test('pending build, disabled deployment and no publisher each have truthful status', async () => {
   for (const [change, expression] of [[f => { f.state.run.status = 'in_progress' }, /Building on GitHub/],
     [f => { f.mode = '' }, /publishing is disabled/], [f => { f.state.publishers = [] }, /queued or not yet observed/],
     [f => { f.state.result = null }, /no verified deployment/]]) {
-    const f = fixture(); change(f); await report(f); assert.match(f.state.comments[0].body, expression)
+    const f = fixture(); change(f); await report(f); assert.match(f.state.diagnostics.at(-1), expression)
   }
 })
 test('fork builds are reported skipped, never receive deployment URLs', async () => {
   const f = fixture(); f.state.pr.head.repo.full_name = 'someone/fork'; await report(f)
-  assert.match(f.state.comments[0].body, /fork previews are not published/)
+  assert.match(f.state.diagnostics.at(-1), /fork previews are not published/); assert.match(f.state.comments[0].body, /⚠️ Deployment skipped/)
 })
 test('stale or closed PR and newer build run cannot overwrite a current comment', async () => {
   for (const change of [f => { f.state.pr.head.sha = main }, f => { f.state.pr.state = 'closed' },
@@ -184,7 +185,7 @@ test('ambiguous own comments fail closed rather than create a third', async () =
 test('wrong artifact commit, run, attempt or URLs cannot manufacture preview success', async () => {
   for (const change of [r => { r.sha = main }, r => { r.source = 101 }, r => { r.sourceAttempt = 2 },
     r => { r.output = upload.replace(workerHost, 'evil.example') }]) {
-    const f = fixture(); change(f.state.result); await report(f); assert.match(f.state.comments[0].body, /could not be verified/); assert.doesNotMatch(f.state.comments[0].body, /Branch preview \(moves/)
+    const f = fixture(); change(f.state.result); await report(f); assert.match(f.state.diagnostics.at(-1), /could not be verified/); assert.doesNotMatch(f.state.comments[0].body, /Commit Preview URL|Branch Preview URL/)
   }
 })
 test('publisher event routes back to GitHub-associated source PR', async () => {
@@ -281,4 +282,107 @@ test('publisher rerun during comment assembly cannot resurrect old success', asy
   const f = fixture(), original = f.api; let reads = 0
   f.api = async (path, options) => { if (path === `${prefix}/actions/runs/200` && ++reads === 2) f.state.publication.run_attempt = 2; return original(path, options) }
   assert.equal(await report(f), 'stale'); assert.equal(f.state.writes.length, 0)
+})
+
+// Reference bodies are unmodified API reads from the actual Cloudflare app.
+// Dynamic source SHA, timestamps and destination links are the only substitutions.
+test('visible success, failure and skipped comments exactly copy the native references', () => {
+  const references = JSON.parse(readFileSync(new URL('fixtures/cloudflare-comments.json', import.meta.url)))
+  for (const reference of references) {
+    const { state: { run, publication } } = fixture()
+    run.head_sha = reference.commit.padEnd(40, '0'); publication.updated_at = reference.updatedAt
+    const urls = reference.outcome === 'success' ? uploadedVersion(upload, alias) : null
+    const body = renderComment({ run, publication, outcome: reference.outcome, urls })
+    const expected = reference.body.replace(/https:\/\/dash\.cloudflare\.com[^)]+/, `https://github.com/${repository}/actions/runs/200/attempts/1`)
+      .replace(/https:\/\/[^']+'>Commit Preview URL/, `${urls?.commitUrl}'>Commit Preview URL`)
+      .replace(/https:\/\/[^']+'>Branch Preview URL/, `${urls?.branchUrl}'>Branch Preview URL`)
+    assert.equal(body.slice(body.indexOf('## Deploying')), expected, reference.source)
+    assert.ok(body.startsWith(`${marker}\n<!-- source:100:1 -->\n<!-- detail:`))
+  }
+})
+test('comment timestamp is deterministic UTC, not report wall time or runner locale', () => {
+  assert.equal(commentTimestamp('2026-10-21T20:12:00Z'), 'Oct 21 2026, 08:12 PM')
+  assert.equal(commentTimestamp('2026-01-01T00:05:00.000Z'), 'Jan 01 2026, 12:05 AM')
+  assert.equal(commentTimestamp('2026-12-31T12:00:00Z'), 'Dec 31 2026, 12:00 PM')
+  for (const value of [null, '', 'not a date', '2026-10-21T20:12:00+02:00', '2026-99-99T00:00:00Z']) assert.throws(() => commentTimestamp(value))
+})
+test('rendering refuses unverified success, unsafe URLs and unknown lifecycle states', () => {
+  const { state: { run, publication } } = fixture(), urls = uploadedVersion(upload, alias)
+  for (const change of [x => { x.urls = null }, x => { x.outcome = 'anything' },
+    x => { x.urls.commitUrl = 'https://evil.example' }, x => { x.urls.branchUrl += "' onclick='evil" },
+    x => { x.outcome = 'failure' }, x => { x.logsRun = { id: 'javascript:evil', run_attempt: 1 } }]) {
+    const input = { run, publication, outcome: 'success', urls: { ...urls } }; change(input)
+    assert.throws(() => renderComment(input))
+  }
+})
+test('View logs can lead to the trusted reporter summary containing both stages and the failure reason', async () => {
+  const f = fixture(); f.reportRun = { id: 900, run_attempt: 2 }; f.mode = ''
+  await report(f)
+  assert.match(f.state.comments[0].body, /⚠️ Deployment skipped/)
+  assert.match(f.state.comments[0].body, /View logs\]\(https:\/\/github.com\/JohnDeved\/populous-new-dawn\/actions\/runs\/900\/attempts\/2\)/)
+  assert.match(f.state.diagnostics.at(-1), /publishing is disabled/)
+  assert.doesNotMatch(f.state.comments[0].body, /Preview URL/)
+})
+test('build completion during assembly cannot be overwritten by an older pending report', async () => {
+  const f = fixture(), original = f.api; let reads = 0
+  f.state.run.status = 'in_progress'; f.state.run.conclusion = null
+  f.api = async (path, options) => {
+    if (path === `${prefix}/actions/runs/100` && ++reads === 2) {
+      f.state.run.status = 'completed'; f.state.run.conclusion = 'failure'
+    }
+    return original(path, options)
+  }
+  assert.equal(await report(f), 'stale'); assert.equal(f.state.writes.length, 0)
+})
+test('new timestamps at the same run attempt are stale snapshots, not new report times', async () => {
+  for (const source of ['run', 'publication']) {
+    const f = fixture(), original = f.api; let reads = 0
+    f.api = async (path, options) => {
+      if (path === `${prefix}/actions/runs/${f.state[source].id}` && ++reads === 2) f.state[source].updated_at = '2026-10-23T13:01:00Z'
+      return original(path, options)
+    }
+    assert.equal(await report(f), 'stale'); assert.equal(f.state.writes.length, 0)
+  }
+})
+test('pending and cancelled adaptations never display success URLs', async () => {
+  for (const [outcome, expression] of [['pending', /⏳ Deployment in progress/], ['cancelled', /⚠️ Deployment cancelled/]]) {
+    const { state: { run } } = fixture()
+    const body = renderComment({ run, outcome, urls: null })
+    assert.match(body, expression); assert.doesNotMatch(body, /Preview URL|Deployment successful/)
+  }
+})
+
+test('identical lifecycle keeps the prior diagnostic log link across reporter invocations', async () => {
+  const f = fixture(); f.reportRun = { id: 900, run_attempt: 1 }; f.mode = ''
+  assert.equal(await report(f), 'created')
+  f.reportRun = { id: 901, run_attempt: 1 }
+  assert.equal(await report(f), 'unchanged'); assert.equal(f.state.writes.length, 1)
+  assert.match(f.state.comments[0].body, /runs\/900\/attempts\/1/)
+  f.state.pr.head.repo.full_name = 'someone/fork'
+  assert.equal(await report(f), 'updated'); assert.equal(f.state.writes.length, 2)
+  assert.match(f.state.comments[0].body, /runs\/901\/attempts\/1/)
+})
+
+test('same-minute failed and cancelled publisher retries replace stale diagnostic links', async () => {
+  for (const conclusion of ['failure', 'cancelled']) {
+    const f = fixture(); f.state.publication.conclusion = conclusion
+    f.state.publication.updated_at = '2026-10-23T13:00:01Z'; f.reportRun = { id: 900, run_attempt: 1 }
+    assert.equal(await report(f), 'created')
+    f.state.publication.run_attempt = 2; f.state.publication.updated_at = '2026-10-23T13:00:59Z'
+    f.reportRun = { id: 901, run_attempt: 1 }
+    assert.equal(await report(f), 'updated'); assert.equal(f.state.writes.length, 2)
+    assert.match(f.state.comments[0].body, /runs\/901\/attempts\/1/)
+    assert.doesNotMatch(f.state.comments[0].body, /Preview URL/)
+  }
+})
+test('same-minute publisher identity and exact timestamp changes are not hidden by display precision', async () => {
+  for (const change of [p => { p.id = 201 }, p => { p.updated_at = '2026-10-23T13:00:02Z' }]) {
+    const f = fixture(); f.state.publication.conclusion = 'failure'
+    f.state.publication.updated_at = '2026-10-23T13:00:01Z'; f.reportRun = { id: 900, run_attempt: 1 }
+    assert.equal(await report(f), 'created')
+    change(f.state.publication); const original = f.api
+    f.api = (path, options) => original(path.replace('/actions/runs/201', '/actions/runs/200'), options)
+    f.reportRun = { id: 901, run_attempt: 1 }
+    assert.equal(await report(f), 'updated'); assert.match(f.state.comments[0].body, /runs\/901\/attempts\/1/)
+  }
 })
