@@ -2,11 +2,13 @@
 import assert from 'node:assert/strict'
 import { spawnSync, execFileSync } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
-import { closeSync, mkdirSync, openSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
-import { dirname, isAbsolute, normalize, resolve, sep } from 'node:path'
+import { readFileSync } from 'node:fs'
+import { isAbsolute, normalize, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
 import { captureMeasurement, finishMeasurement, refreshMeasurement } from '../parity-measure.mjs'
+import { createReceiptArtifacts } from './receipt-streams.mjs'
+import { runCommandReceipt as runLegacyCommandReceipt } from './command-receipt-v1.mjs'
 
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const sha256 = value => createHash('sha256').update(value).digest('hex')
@@ -41,7 +43,10 @@ function sourceSnapshot(repo, inputs) {
   }
 }
 
-export function runCommandReceipt(repo, { output, command, inputs = [], env = process.env, cwd = repo }) {
+export function runCommandReceipt(repo, { output, command, inputs = [], env = process.env, cwd = repo, streamVersion = 1 }) {
+  assert(streamVersion === 1 || streamVersion === 2, 'receipt stream version must be 1 or 2')
+  // Preserve the existing default workflow until raw-log bundle export is qualified.
+  if (streamVersion === 1) return runLegacyCommandReceipt(repo, { output, command, inputs, env, cwd })
   assert(Array.isArray(command) && command.length, 'receipt command is required')
   assert(
     command.every(value => typeof value === 'string' && value.length),
@@ -55,7 +60,8 @@ export function runCommandReceipt(repo, { output, command, inputs = [], env = pr
     stdoutPath = `${artifacts}/stdout.log`,
     stderrPath = `${artifacts}/stderr.log`,
     started = {
-      version: 1,
+      version: 2,
+      streamFormat: 'raw-artifact-v1',
       kind: 'pnd-command-receipt',
       runId: randomUUID(),
       status: 'unknown',
@@ -67,29 +73,16 @@ export function runCommandReceipt(repo, { output, command, inputs = [], env = pr
       artifacts: { stdout: stdoutPath, stderr: stderrPath },
     }
   started.parityMeasurements = finishMeasurement(measurementBefore, measurementBefore, { status: 'unknown', exitCode: null, finishedAt: started.startedAt })
-  mkdirSync(dirname(target), { recursive: true })
-  // Each attempt needs a new output path. Never replace an earlier pass or an
-  // unknown interrupted attempt; its logs may still belong to a live command.
-  mkdirSync(artifacts)
-  writeFileSync(target, `${JSON.stringify(started, null, 2)}\n`, { flag: 'wx' })
-  const stdoutFd = openSync(stdoutPath, 'wx', 0o600),
-    stderrFd = openSync(stderrPath, 'wx', 0o600)
-  let result
+  // Fresh, pinned handles preserve raw bytes without reopening child-controlled
+  // paths. An interrupted/uncapturable run never invents successful completion.
+  const evidence = createReceiptArtifacts(target)
+  let operationError
   try {
-    // Keep one foreground process tree, with raw output on disk during execution.
-    // If this wrapper is killed, only the unknown prelaunch record remains.
-    result = spawnSync(command[0], command.slice(1), {
-      cwd,
-      env,
-      stdio: ['ignore', stdoutFd, stderrFd],
+    evidence.write(started)
+    const result = spawnSync(command[0], command.slice(1), {
+      cwd, env, stdio: ['ignore', evidence.fd('stdout'), evidence.fd('stderr')],
     })
-  } finally {
-    closeSync(stdoutFd)
-    closeSync(stderrFd)
-  }
-  const stdout = readFileSync(stdoutPath, 'utf8'),
-    stderr = readFileSync(stderrPath, 'utf8'),
-    receipt = {
+    const receipt = {
       ...started,
       phase: 'finished',
       status: result.status === 0 && !result.error ? 'passed' : 'failed',
@@ -97,27 +90,29 @@ export function runCommandReceipt(repo, { output, command, inputs = [], env = pr
       exitCode: result.status,
       signal: result.signal,
       error: result.error ? { code: result.error.code, message: result.error.message } : undefined,
-      stdout,
-      stderr,
-      stdoutSha256: sha256(stdout),
-      stderrSha256: sha256(stderr),
     }
-  try {
-    receipt.sourceAfter = sourceSnapshot(repo, inputs)
-    if (!isDeepStrictEqual(receipt.source, receipt.sourceAfter)) receipt.status = 'invalidated'
-  } catch (error) {
-    receipt.status = 'invalidated'
-    receipt.sourceError = error.message
-  }
-  let measurementAfter = []
-  try { measurementAfter = captureMeasurement(repo, command, { cwd }) } catch {
-    // Keep the empty after-state: finishMeasurement invalidates prior evidence.
-  }
-  receipt.parityMeasurements = finishMeasurement(measurementBefore, measurementAfter, receipt)
-  const temporary = `${target}.${randomUUID()}.tmp`
-  writeFileSync(temporary, `${JSON.stringify(receipt, null, 2)}\n`, { flag: 'wx' })
-  renameSync(temporary, target)
-  return receipt
+    try { Object.assign(receipt, evidence.capture()) } catch (error) {
+      receipt.status = 'invalidated'
+      receipt.captureError = error.message
+    }
+    try {
+      receipt.sourceAfter = sourceSnapshot(repo, inputs)
+      if (!isDeepStrictEqual(receipt.source, receipt.sourceAfter)) receipt.status = 'invalidated'
+    } catch (error) {
+      receipt.status = 'invalidated'
+      receipt.sourceError = error.message
+    }
+    let measurementAfter = []
+    try { measurementAfter = captureMeasurement(repo, command, { cwd }) } catch {
+      // The empty after-state invalidates prior measurements, as for v1.
+    }
+    receipt.parityMeasurements = finishMeasurement(measurementBefore, measurementAfter, receipt)
+    // A replaced path prevents terminal writing. The original pinned evidence
+    // and prepared state remain retained, rather than writing through an alias.
+    return evidence.write(receipt, true)
+  } catch (error) { operationError = error; throw error }
+  finally { evidence.close(operationError) }
+
 }
 
 function parseArgs(args) {
@@ -128,10 +123,14 @@ function parseArgs(args) {
     options = {}
   for (let index = 0; index < before.length; index++) {
     const flag = before[index]
-    assert(['--output', '--input'].includes(flag), `unknown receipt option: ${flag}`)
+    assert(['--output', '--input', '--stream-version'].includes(flag), `unknown receipt option: ${flag}`)
     const value = before[++index]
     assert(value && !value.startsWith('--'), 'missing value for --output')
-    if (flag === '--input') (options.inputs ??= []).push(value)
+    if (flag === '--stream-version') {
+      assert(!Object.hasOwn(options, 'streamVersion'), 'duplicate --stream-version')
+      assert(value === '1' || value === '2', 'receipt stream version must be 1 or 2')
+      options.streamVersion = Number(value)
+    } else if (flag === '--input') (options.inputs ??= []).push(value)
     else {
       assert(!options.output, 'duplicate --output')
       options.output = value
