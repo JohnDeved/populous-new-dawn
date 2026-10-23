@@ -52,7 +52,9 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .portrait canvas{position:absolute;left:-33px;top:-114px;width:100px;height:480px;pointer-events:none;image-rendering:pixelated}
 .help-button{position:absolute;left:63px;top:1px;width:13px;height:12px;border:0;background:transparent}
 .health-bar{position:absolute;left:64px;top:14px;width:10px;height:22px;background:url('/original/hud-health.png')}.health-bar>span{position:absolute;inset:2px;display:flex;align-items:flex-end}.health-bar i{display:block;width:100%}
-.tribe-flag{position:absolute;left:78px;width:19px;height:10px;border:2px ridge #e9b451}.dakini{top:1px;background:#bd4239}.chumara{top:14px;background:#efd96b}.matak{top:26px;background:#43c286}
+/* Reference endpoints from independently normalized native tribe descriptors.
+   Artwork and current camera-focus actions remain separate fidelity debt. */
+.tribe-flag{position:absolute;left:77px;width:20px;height:11px;border:2px ridge #e9b451}.tribe-flag:focus-visible{outline-offset:-2px}.dakini{top:1px;background:#bd4239}.chumara{top:14px;height:10px;background:#efd96b}.matak{top:25px;background:#43c286}
 .tribe-classes{position:absolute;left:0;top:153px;width:95px;display:grid;grid-template-columns:repeat(6,15px);gap:1px}
 .tribe-classes button{position:relative;width:15px;height:36px;padding:0;background:url('/original/hud-follower.png');image-rendering:pixelated}
 /* Original disabled follower frames retain RGB and use alpha 85/255. */
