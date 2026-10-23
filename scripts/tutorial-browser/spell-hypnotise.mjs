@@ -22,11 +22,13 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
     limits: [
       'Public Mission22 access, not campaign unlock proof.',
       'Accelerated ordinary simulation preparation with existing mana-focus adapter, not real-time earned gameplay.',
-      'No stock, actors, callbacks, animation fields or rendered pixels are supplied.',
+      'No stock, actors, game-callback outcomes, animation fields or rendered pixels are supplied.',
+      'The actual afterTurn callback is transparently wrapped for logical observation; original receiver, arguments, results and exceptions are preserved.',
       'Public pre-cast checkpoint save/load; in-progress effect continuation is covered separately by CPU tests.',
       'Actual production Home through Vite, not deployed Vinext/Cloudflare hosting.',
       'Real same-frame canvas crops; no original framebuffer or hardware-performance equivalence claim.',
       'Display callbacks may skip frames; exhaustive16-frame coverage remains in source/CPU oracle.',
+      'Exact post-render expiry remains RAF-based: catch-up past bornTurn+16 can still fail that unchanged terminal assertion.',
     ],
   }
   let page
