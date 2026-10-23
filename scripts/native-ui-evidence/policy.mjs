@@ -8,7 +8,7 @@ export const episodes = Object.freeze([
   { id: 'selector-recovery', owner: 'candidate', path: 'scripts/check-browser-world-scene.mjs', exportName: 'failureEpisode', capMs: 120000, primary: true },
   { id: 'options-storage', owner: 'infrastructure', path: 'scripts/native-ui-evidence/options-storage-notice-style.mjs', capMs: 90000 },
   { id: 'checkpoint-notice', owner: 'candidate', path: 'scripts/local-render/frontend-checkpoint-notice-style.mjs', capMs: 90000 },
-  { id: 'hud-sound', owner: 'infrastructure', path: 'scripts/native-ui-evidence/hud-sound-control-style.mjs', capMs: 90000 },
+  { id: 'options-audio', owner: 'infrastructure', path: 'scripts/native-ui-evidence/options-audio-control-style.mjs', capMs: 90000 },
   { id: 'loading-recovery', owner: 'candidate', path: 'scripts/local-render/loading-recovery-style.mjs', capMs: 90000, primary: true },
   { id: 'pause-checkpoint', owner: 'candidate', path: 'scripts/local-render/original-pause-checkpoint-style.mjs', capMs: 90000, primary: true },
 ].map(Object.freeze))

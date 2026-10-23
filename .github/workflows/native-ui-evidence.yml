@@ -39,6 +39,7 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /scripts/native-ui-evidence/
+            /scripts/browser-options-audio.mjs
             /scripts/orchestration/dependency-profile.mjs
             /scripts/tutorial-browser/browser-config.mjs
             /.github/workflows/native-ui-evidence.yml
