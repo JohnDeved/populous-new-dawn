@@ -1,5 +1,7 @@
 'use client'
 
+import { BuildingIcon } from './building-icon'
+
 import { FullscreenControl } from './fullscreen-control'
 import { QueryControlArt } from './query-control'
 import { OriginalPauseStatus } from './original-pause-status'
@@ -1378,9 +1380,7 @@ export default function Home() {
                   onFocus={() => setHover(b.id)}
                   onBlur={() => setHover(null)}
                 >
-                  <HudSprite
-                    id={b.id === 'hut' ? 1028 : b.id === 'tower' || b.id === 'temple' ? 1029 : 1030}
-                  />
+                  <BuildingIcon kind={b.id} />
                 </button>
               ))}
             </div>
