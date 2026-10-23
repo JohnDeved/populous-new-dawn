@@ -80,7 +80,7 @@ export async function runTornadoAppearance(
           signal: inputAbort.signal,
           onBlocked: recoverIntroduction('initial'),
         })
-        await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+        await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
         await page.keyboard.press('F9')
         await page.getByRole('button', { name: 'Unlock + refill all spells', exact: true }).click()
         await page.getByRole('button', { name: 'Close · F9', exact: true }).click()

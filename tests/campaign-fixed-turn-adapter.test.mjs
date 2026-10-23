@@ -38,7 +38,8 @@ test('late final screenshot completion cannot mark an aborted campaign scenario 
   mkdirSync(join(root, 'scripts')); mkdirSync(output)
   // Minimal checker scaffold exercises the production adapter/scenario only.
   // No real game, browser, victory, or image is produced by this fixture.
-  const fixture = `import assert from 'node:assert/strict'
+  const fixture = `import { clearPortraitSelection } from './browser-portrait-input.mjs'
+import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openCampaignFixtureGame as openGame } from './browser-game.mjs'
 import { continueThroughNativeSelector, enterResultSelector } from './browser-result-navigation.mjs'
@@ -58,6 +59,8 @@ try {
 } finally { await browser.close() }
 `
   writeFileSync(join(root, 'scripts/check-browser-campaign-natural-victory.mjs'), fixture)
+  for (const file of ['browser-portrait-input.mjs', 'browser-world-input.mjs', 'browser-space-ownership.mjs', 'campaign-portrait-readiness.mjs'])
+    writeFileSync(join(root, 'scripts', file), readFileSync(new URL('../scripts/' + file, import.meta.url)))
   const actions = [], fixtures = []
   // Synthetic already-open native selector, not browser or trusted-input proof.
   // Keep the actual shared setup/navigation helpers, supplying only page IO.
@@ -241,4 +244,28 @@ test('additive native Ctrl-five requires the ordinary cancel/deselect before res
   assert.ok(reserved.length >= 1)
   const train = checker.slice(checker.indexOf('async function train('), checker.indexOf('async function worship('))
   assert.ok(train.indexOf("page.keyboard.press('Escape')") < train.indexOf("preserveBraves ? 'Control'"))
+})
+
+
+test('relocated campaign checker forwards the exact bounded portrait helper through its existing QA binding', async () => {
+  const { runInNewContext } = await import('node:vm')
+  const adapted = campaignAdapter(checker)
+  const declaration = 'const { clearPortraitSelection } = globalThis.campaignFixedTurnQA'
+  assert.equal(adapted.split(declaration).length, 2)
+  assert.doesNotMatch(adapted, /from '\.\/browser-portrait-input\.mjs'/)
+  const calls = [], helper = async (...args) => { calls.push(args); return 'observed cancellation' }
+  const forwarded = runInNewContext(declaration + '\nclearPortraitSelection', { globalThis: { campaignFixedTurnQA: { clearPortraitSelection: helper } } })
+  assert.equal(forwarded, helper, 'No copied Escape shim or fallback implementation')
+  const page = {}, options = { timeout: 1234 }
+  assert.equal(await forwarded(page, options), 'observed cancellation')
+  assert.deepEqual(calls, [[page, options]])
+  const boundary = "import { clearPortraitSelection } from './browser-portrait-input.mjs'"
+  assert.throws(() => campaignAdapter(checker.replace(boundary, '')), /scaffold changed/)
+  assert.throws(() => campaignAdapter(checker + '\n' + boundary), /scaffold changed/)
+  const source = readFileSync(new URL('../scripts/local-render/campaign-fixed-turn.mjs', import.meta.url), 'utf8')
+  assert.match(source, /adaptedCheckerSha256: createHash\('sha256'\)\.update\(adapted\)/)
+  assert.match(source, /writeFileSync\(adapter, adapted\)/)
+  for (const path of ['scripts/browser-portrait-input.mjs', 'scripts/browser-world-input.mjs', 'scripts/browser-space-ownership.mjs', 'scripts/campaign-portrait-readiness.mjs'])
+    assert.ok(source.includes(`'${path}'`), `Fingerprint ${path}`)
+  assert.match(source, /campaignFixedTurnQA = \{[^\n]*clearPortraitSelection \}/)
 })

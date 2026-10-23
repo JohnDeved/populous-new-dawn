@@ -1,7 +1,8 @@
+import { clearPortraitSelection } from '../browser-portrait-input.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { waitForShamanReadiness } from '../browser-game.mjs'
+import { waitForPortraitReadiness } from '../browser-portrait-readiness.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { assertVaultPrayerHealth, assertVaultVisible, assertVaultPrayerEpisode, assertVaultUninspectedCommand, assertVaultPanelAnchorBracket, vaultLowWorkLimit, vaultReleased } from './vault-prayer-contract.mjs'
 
@@ -60,7 +61,7 @@ export default async function mission3VaultPrayer({ page, openMission, output, s
   }
   try {
     await openMission(3)
-    report.readiness = await waitForShamanReadiness(page, { timeout: 60000 })
+    report.readiness = await waitForPortraitReadiness(page, { timeout: 60000, signal })
     shamanId = report.readiness.after.shaman.id
     const route = await page.evaluate(async shamanId => {
       const [{ vaultPoints }, { browserPosition }, { installVaultPrayerWitness }, { readVaultPanelAnchor }] = await Promise.all([
@@ -78,8 +79,8 @@ export default async function mission3VaultPrayer({ page, openMission, output, s
     report.route = route
     targetId = route.target.id
     input = createMission1VaultInput({ page, signal, report, save, originalShamanId: shamanId, deadlineAt: deadline })
-    await input.action('clear-selection', () => page.keyboard.press('Escape'))
-    await input.button('Select and focus shaman')
+    await input.action('clear-selection', () => clearPortraitSelection(page, { signal, timeout: Math.min(2500, deadline - Date.now()) }))
+    await input.button('Select shaman')
     await input.view(route.target)
     await input.prepareDispatch()
     // Both exact helper interfaces and the cancellation pixel are admitted before walking.

@@ -172,7 +172,7 @@ test('browser mission access and exempt F8 control keep their live actions', () 
   assert.match(page, /<FullscreenControl \/>/)
   assert.match(page, /<SpellTestMenu/)
   assert.match(page, /<OriginalCampaignPopup/)
-  assert.match(page, /aria-label="Select and focus shaman"/)
+  assert.match(page, /aria-label="Select shaman"/)
 })
 
 test('compatibility has only the original-font rows, native 30-pixel spacing and the original transparent backdrop', () => {

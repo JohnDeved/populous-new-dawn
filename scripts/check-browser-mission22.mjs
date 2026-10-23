@@ -1,7 +1,20 @@
+import { clearPortraitSelection } from './browser-portrait-input.mjs'
 import { prepareCampaignFixture, launchCampaignMission } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
+
+async function selectShaman(page) {
+  await clearPortraitSelection(page)
+  await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
+  const state = await page.evaluate(() => {
+    const world = globalThis.testScene.world,
+      shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman' && !unit.ghost && unit.hp > 0)
+    return { selected: [...world.selected], shaman: shaman?.id }
+  })
+  assert.ok(state.shaman, 'The authored solo-Shaman route requires its live Shaman')
+  assert.deepEqual(state.selected, [state.shaman], 'Mission22 must retain its actual solo-Shaman cohort')
+}
 
 async function terrainClickPoint(page, target, spell = null, affected = null, dry = false) {
   return page.evaluate(
@@ -438,7 +451,7 @@ try {
     cancelAnimationFrame(scene.frame)
     return head.id
   })
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await selectShaman(page)
   const headPoint = await shrineClickPoint(page, manaHead)
   await page.mouse.click(headPoint.x, headPoint.y)
   const worshipped = await page.evaluate(async id => {
@@ -486,7 +499,7 @@ try {
   )
 
   await restartMission22(page)
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await selectShaman(page)
   await focusSpell(page, 'swarm', 'Swarm')
   await moveShaman(page, { x: 0, z: -45 })
   await moveShaman(page, { x: 20, z: -45 })
@@ -552,7 +565,7 @@ try {
   const southernHeadId = await page.evaluate(
     () => globalThis.testScene.world.shrines.find(shrine => shrine.rewardMana === 600_000).id
   )
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await selectShaman(page)
   const southernHead = await shrineClickPoint(page, southernHeadId)
   await page.mouse.click(southernHead.x, southernHead.y)
   assert.equal(
@@ -568,7 +581,7 @@ try {
   await focusSpell(page, 'bridge', 'Land Bridge')
   await focusSpell(page, 'swarm', 'Swarm')
 
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await selectShaman(page)
   const returnBoat = await vehicleClickPoint(page, boatId)
   await page.mouse.click(returnBoat.x, returnBoat.y)
   assert.equal(
@@ -594,7 +607,7 @@ try {
     0
   )
 
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await selectShaman(page)
   const balloonBridge = await terrainClickPoint(page, { x: -83, z: -69 }, 'bridge')
   await page.getByRole('button', { name: /Land Bridge, [1-9] shots/ }).click()
   await page.mouse.click(balloonBridge.x, balloonBridge.y)
@@ -643,7 +656,7 @@ try {
   const priorSwarms = await page.evaluate(() =>
     globalThis.testScene.world.effects.filter(effect => effect.swarm).map(effect => effect.id)
   )
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await selectShaman(page)
   const northernSwarm = await terrainClickPoint(page, { x: 55, z: 121 }, 'swarm')
   await page.getByRole('button', { name: /^Swarm, [1-9] shots$/ }).click()
   await page.mouse.click(northernSwarm.x, northernSwarm.y)
@@ -663,7 +676,7 @@ try {
   const northernHeadId = await page.evaluate(
     () => globalThis.testScene.world.shrines.find(shrine => shrine.rewardMana === 1_000_000).id
   )
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await selectShaman(page)
   const northernHead = await shrineClickPoint(page, northernHeadId)
   await page.mouse.click(northernHead.x, northernHead.y)
   const northernCompletion = await page.evaluate(

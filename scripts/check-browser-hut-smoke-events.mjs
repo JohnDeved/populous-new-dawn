@@ -1,3 +1,4 @@
+import { clearPortraitSelection } from './browser-portrait-input.mjs'
 // Normal Mission1 input only. The queue-owned runner supplies POPULOUS_URL.
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
@@ -389,7 +390,9 @@ async function observe(hutId, phase) {
 }
 try {
   ;({ page, errors } = await openCampaignGame(browser, 1))
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  report.portraitCancellation = await clearPortraitSelection(page)
+  await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
+  await page.getByRole('button', { name: 'Select shaman', exact: true }).click({ button: 'right' })
   await page.waitForFunction(() => !window.testScene.cameraMotion.active)
   await pause()
   report.hutId = await page.evaluate(

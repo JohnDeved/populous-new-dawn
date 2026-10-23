@@ -68,7 +68,7 @@ async function ensureDoubleSpeed(page) {
 }
 
 async function focusSettlement(page) {
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await page.getByRole('button', { name: 'Select shaman', exact: true }).click({ button: 'right' })
   await page.waitForFunction(() => !window.testScene.cameraMotion.active)
 }
 

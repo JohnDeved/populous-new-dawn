@@ -1,3 +1,4 @@
+import { clearPortraitSelection } from '../browser-portrait-input.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -115,8 +116,8 @@ export default async function ({ page, openMission, output, receipt, observeChec
       await page.waitForFunction(() => !window.testSceneRef.current.world.inputMask)
       await state('authored-start')
       await input.view({ x: 27, z: -27 })
-      await page.keyboard.press('Escape')
-      await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+      await clearPortraitSelection(page, { signal, timeout: deadlineAt === null ? 2500 : Math.min(2500, deadlineAt - Date.now()) })
+      await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
       await page.getByRole('button', { name: 'Select warrior', exact: true }).click({ modifiers: ['Shift'] })
       const selected = await state('HUD-selected')
       assert.deepEqual([...selected.selected].sort((a,b)=>a-b), party)

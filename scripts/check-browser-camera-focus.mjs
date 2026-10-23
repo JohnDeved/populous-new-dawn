@@ -1,3 +1,4 @@
+import { clearPortraitSelection } from './browser-portrait-input.mjs'
 // Start npm run dev, then node scripts/check-browser-camera-focus.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -27,10 +28,13 @@ try {
   assert.deepEqual(after.position,after.target)
   assert.equal(after.preset,before.preset)
   await page.screenshot({path:'/private/tmp/populous-camera-focus-arrived.png'})
-  await page.getByRole('button',{name:'Select and focus shaman',exact:true}).click()
+  await clearPortraitSelection(page)
+  await page.getByRole('button',{name:'Select shaman',exact:true}).click()
+  await page.getByRole('button',{name:'Select shaman',exact:true}).click({button:'right'})
   await page.waitForFunction(()=>window.testScene.cameraMotion.active)
   await page.waitForFunction(()=>!window.testScene.cameraMotion.active)
-  assert.equal(await page.evaluate(()=>window.testScene.world.selected.length),1)
+  assert.deepEqual(await page.evaluate(()=>{const w=window.testScene.world;return w.selected}),
+    await page.evaluate(()=>[window.testScene.world.units.find(u=>u.team==='blue'&&u.kind==='shaman'&&!u.ghost&&u.hp>0).id]))
   // A new minimap request replaces the journey from the camera's current point.
   const mini=page.getByLabel('Minimap. Click to move the camera.',{exact:true})
   const rect=await mini.boundingBox()
@@ -50,7 +54,8 @@ try {
   assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),1)
   await page.keyboard.down('d');await page.waitForTimeout(100);await page.keyboard.up('d')
   assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),0)
-  await page.getByRole('button',{name:'Select and focus shaman',exact:true}).click()
+  await page.getByRole('button',{name:'Select shaman',exact:true}).click({button:'right'})
+  assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),1)
   const worldRect=await canvas.boundingBox()
   await page.mouse.move(worldRect.x+worldRect.width/2,worldRect.y+worldRect.height/2)
   await page.mouse.down({button:'right'});await page.mouse.move(worldRect.x+worldRect.width/2+30,worldRect.y+worldRect.height/2);await page.mouse.up({button:'right'})

@@ -1,3 +1,4 @@
+import { clearPortraitSelection } from './browser-portrait-input.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openCampaignFixtureGame as openGame } from './browser-game.mjs'
@@ -54,8 +55,8 @@ async function state(page) {
 
 async function waitForSelectableShaman(page, label) {
   await page.evaluate(async () => {
-    const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
-    globalThis.campaignObserveShaman = campaignShamanReadiness
+    const { campaignPortraitReadiness } = await import('/scripts/campaign-portrait-readiness.mjs')
+    globalThis.campaignObserveShaman = campaignPortraitReadiness
   })
   // This installed Playwright polls synchronously; an async predicate would be
   // truthy before its promise resolved and could accept an unready actor.
@@ -467,8 +468,11 @@ async function dismissFlyby(page) {
 
 async function selectClass(page, kind, modifier = 'Shift') {
   await dismissFlyby(page)
-  if (kind === 'shaman') await page.getByLabel('followers', { exact: true }).click()
-  const button = page.getByLabel(kind === 'shaman' ? 'Select and focus shaman' : `Select ${kind}`, { exact: true })
+  if (kind === 'shaman') {
+    await page.getByLabel('followers', { exact: true }).click()
+    await clearPortraitSelection(page)
+  }
+  const button = page.getByLabel(kind === 'shaman' ? 'Select shaman' : `Select ${kind}`, { exact: true })
   if (kind === 'shaman') await button.click()
   else await button.click({ modifiers: [modifier] })
   return page.evaluate(kind => {

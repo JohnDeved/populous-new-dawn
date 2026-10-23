@@ -1,3 +1,4 @@
+import { clearPortraitSelection } from '../browser-portrait-input.mjs'
 import { setWorldPaused } from '../browser-world-input.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
@@ -119,6 +120,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
       'Death through verified committed save has 75 seconds; only successful committed-save proof starts the separate 25-second load/reframe/continuation/verification budget. Both remain inside the runner’s explicit shared 355-second three-episode browser cap.',
       'Browser sampling establishes observed source/frame/heading/visibility and continuation, not exact animation cadence. Cadence remains the separate native follower-corpse-animation unit-test claim.'],
     source: Object.fromEntries(['scripts/tutorial-browser/follower-corpse.mjs',
+      'scripts/browser-portrait-input.mjs', 'scripts/browser-world-input.mjs', 'scripts/browser-space-ownership.mjs', 'app/mission-data.ts',
       'scripts/tutorial-browser/follower-corpse-observer.mjs', 'scripts/tutorial-browser/follower-corpse-evidence.mjs',
       'tests/fixtures/follower-corpse-native.json', 'app/original-units.json', 'app/follower-corpse-animation.ts',
       'app/scene-effects.ts', 'app/world-turn.ts', 'app/game-store.ts', 'app/checkpoint-format.ts',
@@ -203,7 +205,11 @@ export default async function followerCorpse({ browser, url, output, expectedRev
       const w = window.testStore.getWorld(); return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
     })
     phase('public-combat-setup')
-    await action('Pause with Space', () => setWorldPaused(page, true, { timeout: Math.min(10000, budget.remaining()) })); await button('Select and focus shaman'); await settle()
+    await action('Pause with Space', () => setWorldPaused(page, true, { timeout: Math.min(10000, budget.remaining()) }))
+    await action('Clear previous portrait cohort', () => clearPortraitSelection(page, { timeout: Math.min(10000, budget.remaining()) }))
+    await button('Select shaman')
+    await action('Focus shaman (right-click)', () => page.getByRole('button', { name: 'Select shaman', exact: true }).click({ button: 'right' }))
+    await settle()
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
     await action('One public - zoom-out', () => page.keyboard.press('-')); await settle()
     assertMeleeRouteReady(await page.evaluate(readMeleeRouteState))

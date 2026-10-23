@@ -1,6 +1,7 @@
 // Retain the full historical campaign route under the owned sandboxed harness.
 // This is diagnostic tick stepping with camera assistance, not real-clock play.
 import assert from 'node:assert/strict'
+import { clearPortraitSelection } from '../browser-portrait-input.mjs'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -10,6 +11,7 @@ import { continueThroughNativeSelector, enterResultSelector } from '../browser-r
 
 export function campaignAdapter(source) {
   const replacements = [
+    ["import { clearPortraitSelection } from './browser-portrait-input.mjs'", 'const { clearPortraitSelection } = globalThis.campaignFixedTurnQA'],
     ['const captureCameraEvidence = async () => {}', 'const captureCameraEvidence = globalThis.campaignFixedTurnQA.checkpoint'],
     ["import { chromium } from '@playwright/test'", '// Browser supplied by the sandbox-preserving local-render harness.'],
     ["import { openCampaignFixtureGame as openGame } from './browser-game.mjs'", 'const { page, receipt, checkpoint } = globalThis.campaignFixedTurnQA\nconst openGame = async () => ({ page, errors: receipt.errors })'],
@@ -32,12 +34,17 @@ export function campaignAdapter(source) {
 
 export default async function campaignFixedTurn({ root, page, output, receipt, signal }) {
   const checker = readFileSync(resolve(root, 'scripts/check-browser-campaign-natural-victory.mjs'), 'utf8')
+  const adapted = campaignAdapter(checker)
   const report = {
     method: 'Diagnostic fixed-turn simulation via direct tick(world, 1/12), suspended RAF, internal camera focus and read-only targeting/picking helpers; rendered HUD/mouse orders. No injected entities, resources, victory or AI state. Explicit valid availability-only profile fixture admits Mission 2.',
     limits: 'Not ordinary real-clock gameplay, native timing parity, complete original-game parity, or hardware performance. Declared Mission 2 availability fixture, not earned Mission 1 completion; Mission 3 must use the shipped two-Space result route and native Start.',
     authoritativeOutcome: 'receipt.json also checks cancellation, cleanup and source drift; this file records scenario progress only.',
     source: receipt.source,
     checkerSha256: createHash('sha256').update(checker).digest('hex'),
+    adaptedCheckerSha256: createHash('sha256').update(adapted).digest('hex'),
+    portraitInputs: Object.fromEntries(['scripts/browser-portrait-input.mjs', 'scripts/browser-world-input.mjs',
+      'scripts/browser-space-ownership.mjs', 'scripts/campaign-portrait-readiness.mjs']
+      .map(file => [file, createHash('sha256').update(readFileSync(resolve(root, file))).digest('hex')])),
     scenarioSha256: createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex'),
     checkpoints: [],
   }
@@ -73,8 +80,8 @@ export default async function campaignFixedTurn({ root, page, output, receipt, s
   await launchCampaignMission(page, 2)
   await bindGame(page)
   const adapter = resolve(output, 'campaign-adapter.mjs')
-  writeFileSync(adapter, campaignAdapter(checker))
-  globalThis.campaignFixedTurnQA = { page, receipt, checkpoint, continueThroughNativeSelector, enterResultSelector }
+  writeFileSync(adapter, adapted)
+  globalThis.campaignFixedTurnQA = { page, receipt, checkpoint, continueThroughNativeSelector, enterResultSelector, clearPortraitSelection }
   try {
     await import(pathToFileURL(adapter).href)
     signal.throwIfAborted()

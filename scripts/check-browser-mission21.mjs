@@ -1,3 +1,4 @@
+import { clearPortraitSelection } from './browser-portrait-input.mjs'
 import { prepareCampaignFixture, launchCampaignMission } from './browser-game.mjs'
 import { enterResultSelector, continueThroughNativeSelector } from './browser-result-navigation.mjs'
 import { skipIntroductionWithSpace } from './browser-introduction.mjs'
@@ -131,7 +132,7 @@ try {
     }
   })
   for (const [index, person] of route.people.entries()) {
-    await page.keyboard.press('Escape')
+    await clearPortraitSelection(page)
     await page.evaluate(personId => {
       const scene = globalThis.testScene,
         person = scene.world.units.find(unit => unit.id === personId)
@@ -140,7 +141,7 @@ try {
     }, person)
     await page
       .getByRole('button', {
-        name: index < 2 ? 'Select brave' : 'Select and focus shaman',
+        name: index < 2 ? 'Select brave' : 'Select shaman',
         exact: true,
       })
       .click()

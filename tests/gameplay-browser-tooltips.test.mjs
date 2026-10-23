@@ -59,7 +59,7 @@ test('normal gameplay owners do not emit browser title tooltips', () => {
 test('HUD names, keyboard help and live counts remain nonvisual accessibility metadata', () => {
   const cases = [
     ['className', 'nearby-followers-button', {}, 'Nearby followers', 'Nearby followers · Limit counts and selection to the camera area'],
-    ['className', 'portrait', {}, 'Select and focus shaman', 'Shaman · H'],
+    ['className', 'portrait', {}, 'Select shaman', 'Shaman · Click: add to selection · Right-click: focus · H: select'],
     ['className', 'help-button', {}, 'Menu', 'Help and game menu'],
     ['className', 'tribe-flag', { enemy: { name: 'Dakini', units: [{}, {}, { ghost: true }] } }, 'Focus Dakini tribe', 'Dakini: 2 followers'],
     ['className', 'population-button', {}, 'Select follower', 'Select follower · Shift: all · Ctrl: five · Right-click: focus next'],

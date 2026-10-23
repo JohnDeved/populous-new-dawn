@@ -67,7 +67,7 @@ test('the production wait polls synchronous false until native selection readine
   const page = {
     async evaluate(fn, arg) {
       if (++evaluations === 1) {
-        assert.ok(fn.toString().includes('globalThis.campaignObserveShaman = campaignShamanReadiness'))
+        assert.ok(fn.toString().includes('globalThis.campaignObserveShaman = campaignPortraitReadiness'))
         return // Fixture supplies the imported observer above; no browser module is loaded.
       }
       return fn(arg)

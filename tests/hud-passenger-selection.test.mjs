@@ -54,9 +54,9 @@ test('persistent strip reads the occupied route owner without touching dormant n
   }
 })
 
-test('selection helper preserves class/Total and unmounted model-7 crew propagation', () => {
+test('selection helper preserves class/Total and model-7 crew propagation', () => {
   for (const kind of [1, 3]) for (const model of [0, 2, 7]) for (const mode of ['single', 'five', 'all']) {
-    if (model === 7 && mode === 'five') continue // Scene maps model-7 Ctrl to single; the mounted portrait does not use this path.
+    if (model === 7 && mode === 'five') continue // Scene maps model-7 Ctrl to single.
     const { world, vehicle, add } = occupiedCrew(kind, true)
     const first = add(model === 7 ? 'shaman' : 'brave'), other = add(model === 7 ? 'warrior' : 'shaman')
     selectFollowers(world, model, vehicle, mode)
@@ -193,19 +193,5 @@ test('mounted Total/class Page controls reach Scene crew selection once and focu
 })
 
 
-test('mounted Shaman portrait retains its separate select-and-focus path, not crew propagation', async () => {
-  const { pageSource, pageButton, evaluatePage } = await import('./support/follower-nearby-page.mjs')
-  const { select } = await import('../app/model.ts')
-  const { world, add } = occupiedCrew()
-  const shaman = add('shaman'), warrior = add('warrior'), focuses = [], cues = []
-  const portrait = evaluatePage(pageButton(['portrait']).getText(pageSource), {
-    world, shaman: shaman.unit, select, portrait: { current: null }, HOME: {},
-    audio: { current: { cue: cue => cues.push(cue) } }, update() {},
-    engine: { current: { focus: (...args) => focuses.push(args) } },
-  })
-  portrait.props.onClick()
-  assert.deepEqual(world.selected, [shaman.unit.id])
-  assert.equal(warrior.source.selectionFlags & 128, 0)
-  assert.deepEqual(focuses, [[shaman.unit, { animate: true }]])
-  assert.deepEqual(cues, [0x18])
-})
+// Mounted Shaman primary selection and secondary focus are covered, including
+// occupied Boat/Balloon crews, by hud-shaman-portrait.test.mjs.

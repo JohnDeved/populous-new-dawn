@@ -1,3 +1,4 @@
+import { clearPortraitSelection } from '../browser-portrait-input.mjs'
 import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { setWorldPaused } from '../browser-world-input.mjs'
 import assert from 'node:assert/strict'
@@ -370,6 +371,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     source: Object.fromEntries(['app/original-rules.json', 'app/original-units.json', 'app/melee.ts', 'app/combat-runtime.ts', 'app/projection.ts',
       'app/unit-animation-source.ts', 'app/scene-entities.ts', 'scripts/tutorial-browser/melee-attack.mjs',
       'scripts/tutorial-browser/melee-attack-running-evidence.mjs',
+      'scripts/browser-portrait-input.mjs', 'scripts/browser-world-input.mjs', 'scripts/browser-space-ownership.mjs', 'app/mission-data.ts',
       'qa/erosion-ordinary/minimap-input.mjs']
       .map(path => [path, sha256(readFileSync(resolve(root, path)))])) }
   const save = () => writeFileSync(resolve(output, 'melee-attack.json'), JSON.stringify(report, null, 2) + '\n')
@@ -431,7 +433,11 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     })
     await action('Pause with Space', () => setWorldPaused(page, true, { timeout: 10000 }))
     assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true, 'Public Space must establish paused setup')
-    await button('Select and focus shaman')
+    await action('Clear previous portrait cohort', async () => {
+      report.portraitCancellation = await clearPortraitSelection(page, { timeout: 10000 })
+    })
+    await button('Select shaman')
+    await action('Focus shaman (right-click)', () => page.getByRole('button', { name: 'Select shaman', exact: true }).click({ button: 'right' }))
     const settle = () => page.waitForFunction(() => {
       const scene = window.testSceneRef.current
       return !scene.cameraMotion.active && !scene.resultCamera.active && !scene.viewTransition

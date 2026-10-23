@@ -457,7 +457,7 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
         } }
       }
       assert.equal(role, 'button')
-      return { click: async () => actions.push(['button', String(options.name)]) }
+      return { click: async clickOptions => actions.push(['button', String(options.name), clickOptions?.button ?? 'left']) }
     },
     async evaluate(fn) {
       const source = fn.toString()
@@ -476,10 +476,16 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
   const result = await beginOrdinaryCastingWitness(withoutCampaignPopup(page))
   assert.deepEqual(result, { target: { x: 500, y: 300 }, before: { stock: 4, cheatsUsed: false } })
   assert.deepEqual(actions.filter(([kind]) => kind !== 'wait'), [
-    ['key', 'Space'], ['key', 'Space'], ['button', 'Select and focus shaman'],
-    ['install'], ['arm'], ['category', 'spells 1–3'], ['button', '/^Blast, [1-9][0-9]* shots$/'],
+    ['key', 'Space'], ['key', 'Space'], ['button', 'Select shaman', 'left'], ['button', 'Select shaman', 'right'],
+    ['install'], ['arm'], ['category', 'spells 1–3'], ['button', '/^Blast, [1-9][0-9]* shots$/', 'left'],
     ['key', 'Space'], ['move', 500, 300], ['pointer', 500, 300], ['key', 'Space'],
   ])
+  const focus = actions.findIndex(action => action[0] === 'button' && action[1] === 'Select shaman' && action[2] === 'right')
+  assert.deepEqual(actions[focus - 1], ['button', 'Select shaman', 'left'])
+  assert.equal(actions[focus + 1][0], 'wait', 'Settle the secondary journey before arming the observer')
+  assert.match(actions[focus + 1][2], /s\.world\.selected\.includes\(u\.id\)/)
+  assert.match(actions[focus + 1][2], /!s\.cameraMotion\.active/)
+  assert.equal(actions[focus + 2][0], 'install')
   assert.match(actions.find(([kind]) => kind === 'wait')[2], /order\?\.model !== 18/)
   assert.match(actions.filter(([kind]) => kind === 'wait').at(-1)[2], /cast\.done/)
   assert.equal(actions.filter(([kind]) => kind === 'wait').at(-1)[1], 'ordinary')
