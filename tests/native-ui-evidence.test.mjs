@@ -1,3 +1,4 @@
+import './native-ui-pause-acceptance.test.mjs'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
 import assert from 'node:assert/strict'
@@ -139,15 +140,15 @@ test('trusted manifest includes adapter, new episodes, Chrome policy and exact w
     'scripts/native-ui-evidence/options-audio-control-style.mjs', 'scripts/browser-options-audio.mjs', 'scripts/tutorial-browser/browser-config.mjs', '.github/workflows/native-ui-evidence.yml']) assert.equal(infrastructureInput(path), true)
   assert.equal(infrastructureInput('app/page.tsx'), false)
 })
-test('all seven supplements are mandatory with fixed ownership and unchanged 720-second new budget', () => {
-  assert.deepEqual(episodes.map(e => e.id), ['startup-logo', 'selector-recovery', 'options-storage', 'checkpoint-notice', 'options-audio', 'loading-recovery', 'pause-checkpoint'])
-  assert.equal(episodes.filter(e => e.owner === 'candidate').length, 5)
+test('all eight supplements are mandatory with fixed ownership and unchanged 720-second new budget', () => {
+  assert.deepEqual(episodes.map(e => e.id), ['startup-logo', 'selector-recovery', 'options-storage', 'checkpoint-notice', 'options-audio', 'loading-recovery', 'pause-checkpoint-native', 'pause-checkpoint-fallback'])
+  assert.equal(episodes.filter(e => e.owner === 'candidate').length, 6)
   assert.deepEqual(episodes.filter(e => e.owner === 'infrastructure').map(e => e.id), ['options-storage', 'options-audio'])
-  assert.deepEqual(episodes.map(e => e.capMs), [120000, 120000, 90000, 90000, 90000, 90000, 90000])
+  assert.deepEqual(episodes.map(e => e.capMs), [120000, 120000, 90000, 90000, 90000, 90000, 90000, 90000])
   assert.deepEqual(limits, { buildMs: 120000, browserMs: 720000, jobMinutes: 20, maxContexts: 2, maxPages: 2,
     screenshots: 100, artifactBytes: 268435456, logBytes: 8388608, heapMiB: 768, cleanupMs: 5000 })
 })
-test('dependency-import and Chrome-prelaunch failures retain seven explicit unexecuted records', async t => {
+test('dependency-import and Chrome-prelaunch failures retain eight explicit unexecuted records', async t => {
   for (const stage of ['candidate-dependency-import', 'chrome-provenance']) {
     const root = fixture(t), candidate = resolve(root, 'candidate')
     put(candidate, 'package.json', '{"type":"module"}')
@@ -189,6 +190,10 @@ test('parent persists initial ledger before build and worker failures cannot rep
 test('baseline, skipped, missing, failed, cancelled and late-success episodes cannot pass aggregate', () => {
   for (const bad of [null, undefined, { baseline: true }, { skipped: true }, { status: 'failed' }, { status: 'skipped' }, { status: 'cancelled' }]) assert.throws(() => acceptEpisode(bad))
   const good = episodes.map(e => ({ id: e.id, status: 'passed', timedOut: false, cleanupVerified: true, result: { checks: ['real assertions'] } }))
+  for (const record of good) {
+    const mode = episodes.find(e => e.id === record.id).pauseMode
+    if (mode) record.result = pauseResult(mode)
+  }
   acceptSeries(good)
   for (const bad of [good.slice(1), [...good].reverse(), good.map((r, i) => i ? r : { ...r, timedOut: true }),
     good.map((r, i) => i ? r : { ...r, cleanupVerified: false })]) assert.throws(() => acceptSeries(bad))
@@ -294,7 +299,7 @@ test('pending page creation reserves capacity and late pages are closed before c
   finish.forEach(resolve => resolve()); await rejected; await closing
   assert.equal(context.pages().length, 0); await owner.close()
 })
-test('all seven explicit not-run records survive abort before the first episode', async t => {
+test('all eight explicit not-run records survive abort before the first episode', async t => {
   const output = fixture(t), abort = new AbortController(); abort.abort(Error('stop before first'))
   await assert.rejects(runNativeUiEvidence({ browser: fakeBrowser(), output, signal: abort.signal }), /stop before first/)
   const receipt = JSON.parse(readFileSync(resolve(output, 'episodes.json')))
@@ -1124,6 +1129,72 @@ test('cumulative-response acceptance reconciles the exact authorized preparation
   assertMissionInputBudget(natural)
   natural.attempts[1].delivery = {}
   assert.throws(() => assertMissionInputBudget(natural), /Natural completion/)
+})
+
+// Synthetic adapter execution checks the trusted dispatch and persisted ledger,
+// not the rendered candidate assertions. Both actual split wrapper paths run.
+function pauseResult(mode) {
+  const records = [], fullscreen = [], fallback = mode === 'fallback'
+  for (const [width, height] of [[320, 240], [640, 480], [800, 450], [1920, 1080]]) {
+    const size = `${width}x${height}`
+    fullscreen.push({ fallback, label: `root-${size}` })
+    for (const category of ['Game', 'Sound', 'Graphics']) fullscreen.push({ fallback, label: `options-${category}-${size}` })
+    for (const panel of ['save', 'load']) {
+      records.push({ fallback, panel, viewport: { width, height } })
+      if (width !== 320) fullscreen.push({ fallback, label: `${panel}-${size}` })
+    }
+  }
+  return { executionContract: { version: 'pause-style-split-v1', mode, primary: false }, records, fullscreen }
+}
+async function pauseAdapterFixture(t, corrupt) {
+  const output = fixture(t), candidateRoot = resolve(output, 'candidate'), infrastructureRoot = resolve(output, 'trusted')
+  for (const episode of episodes) {
+    const root = episode.owner === 'candidate' ? candidateRoot : infrastructureRoot
+    if (!episode.pauseMode) put(root, episode.path, `export ${episode.exportName ? 'async function '+episode.exportName : 'default async function'} () { return { status: 'passed' } }`)
+    else put(root, episode.path, `export { run${episode.pauseMode === 'native' ? 'Native' : 'Fallback'}PauseStyle as default } from './original-pause-checkpoint-style.mjs'`)
+  }
+  put(candidateRoot, 'scripts/browser-new-game.mjs', 'export async function waitForStartupMenu() {}')
+  put(candidateRoot, 'scripts/local-render/original-pause-checkpoint-style.mjs', `
+    import assert from 'node:assert/strict'; import { writeFileSync } from 'node:fs'; import { resolve } from 'node:path';
+    const result = ${pauseResult.toString()};
+    async function run(args, mode) {
+      assert.equal(args.page, undefined); assert.equal(args.context, undefined);
+      const context = await args.browser.newContext(); await context.newPage(); await context.close();
+      writeFileSync(resolve(args.output, 'executed.json'), JSON.stringify({ mode, primary: false }));
+      const value = result(mode); if (${JSON.stringify(corrupt)} === mode) value.fullscreen.pop(); return value;
+    }
+    export const runNativePauseStyle = args => run(args, 'native');
+    export const runFallbackPauseStyle = args => run(args, 'fallback');
+    export default function () { throw Error('Legacy combined default must not execute'); }
+  `)
+  const browser = { async newContext() {
+    const context = new Context(), create = context.newPage.bind(context)
+    context.newPage = async () => { const page = await create(); page.goto = async () => {}; page.getByRole = () => ({ waitFor: async () => {} }); return page }
+    return context
+  }, async close() {} }
+  return { output, candidateRoot, infrastructureRoot, browser, url: 'http://fixture', signal: new AbortController().signal }
+}
+test('adapter executes BOTH primary:false wrappers and persists exact split contracts and coverage', async t => {
+  const args = await pauseAdapterFixture(t)
+  const result = await runNativeUiEvidence(args)
+  assert.equal(result.status, 'passed')
+  const ledger = JSON.parse(readFileSync(resolve(args.output, 'episodes.json')))
+  for (const mode of ['native', 'fallback']) {
+    const record = ledger.episodes.find(e => e.id === `pause-checkpoint-${mode}`)
+    assert.deepEqual(record.executionContract, { version: 'pause-style-split-v1', mode, primary: false })
+    assert.deepEqual(JSON.parse(readFileSync(resolve(args.output, record.id, 'executed.json'))), { mode, primary: false })
+    assert.equal(record.result.records.length, 8); assert.equal(record.result.fullscreen.length, 22)
+  }
+})
+test('adapter never marks incomplete split coverage passed and never skips a failed native variant', async t => {
+  for (const mode of ['native', 'fallback']) {
+    const args = await pauseAdapterFixture(t, mode)
+    await assert.rejects(runNativeUiEvidence(args), /fullscreen focus/)
+    const ledger = JSON.parse(readFileSync(resolve(args.output, 'episodes.json')))
+    assert.equal(ledger.status, 'failed')
+    assert.equal(ledger.episodes.find(e => e.id === `pause-checkpoint-${mode}`).status, 'failed')
+    if (mode === 'native') assert.equal(ledger.episodes.at(-1).status, 'not-run')
+  }
 })
 
 // The candidate-only assertions must remain present and mandatory, not silently
