@@ -43,7 +43,7 @@ export function fixedConfig() {
     workers_dev: true, preview_urls: true, no_bundle: true,
     rules: [{ type: 'ESModule', globs: ['**/*.js', '**/*.mjs'] }],
     assets: { directory: './client', binding: 'ASSETS' }, images: { binding: 'IMAGES' },
-    // Wrangler 4.92 otherwise always inherits runtime secrets on versions upload.
+    // Wrangler otherwise inherits runtime secrets on versions upload.
     // Fixed API metadata prevents that, even if a secret appears after preflight.
     unsafe: { metadata: { keep_bindings: [] } }, send_metrics: false }
 }

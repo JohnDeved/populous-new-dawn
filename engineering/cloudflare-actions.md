@@ -26,14 +26,14 @@ are part of this source migration.
   generated Wrangler config, build hooks or artifact JavaScript. A bounded ZIP
   reader rejects traversal, symlinks, duplicates, hidden ZIP entries and excessive
   expansion; a fixed allowlist copies built modules/assets to fresh paths.
-- The official pinned `cloudflare/wrangler-action` runs Wrangler 4.92.0 in a fresh
+- The official pinned `cloudflare/wrangler-action` runs Wrangler 4.136.1 in a fresh
   directory, with publisher-owned config and `--no-bundle`. A fixed trusted
   pre-command repeats the live-head/secrets check after tool installation, directly
   before the upload, not a hook supplied by PR code. Module collection is
   bounded to `worker/`; no PR lockfile/package/hook config enters that directory.
   The source's generated config is ignored. ASSETS/IMAGES are the only declared
   bindings. Preview uploads never promote production traffic.
-- Wrangler 4.92.0 normally inherits existing runtime secrets during version upload.
+- Wrangler normally inherits existing runtime secrets during version upload.
   The fixed config sets API metadata `keep_bindings: []` and preflight refuses any
   existing Worker secret names. No secret values are read or written. If this
   application gains secrets/private bindings, stop and design an isolated preview
@@ -147,6 +147,32 @@ If the narrow token is rejected, stop the exact operation, retain the error code
 without credential data, and seek a scoped remedy. **Do not silently replace it
 with account-wide Workers Scripts Edit or grant other permissions.**
 
+### Stored-credential read preflight (no publication)
+
+After approved credential setup, the manual `Cloudflare credential read preflight`
+workflow can check the existing environment secret without enabling publication.
+Dispatch it only on `main`. A repository/main guard rejects other refs before the
+environment-bearing job starts, and the script separately requires the expected
+repository, `refs/heads/main` and `workflow_dispatch` event. The existing environment
+must retain its main-only branch policy; this workflow does not alter that policy.
+
+The token is exposed only to the one verification step. No project install,
+Wrangler command, version upload, production promotion or mode change occurs.
+Using the publisher's existing sanitized request helper, it performs exactly one
+Worker-scoped `GET .../workers/scripts/populous-new-dawn/secrets` and requires an
+empty secret-name array. It never prints names, values, raw responses or token-bearing
+exceptions. Missing/malformed credentials, failed requests, malformed responses and
+nonempty inventories fail closed with fixed diagnostics.
+
+A successful result proves only that the **stored token can read this Worker's
+secret-name inventory and that it is empty at that moment**. It does not verify
+other bindings, version/assets write permission, preview availability or production
+promotion. Continue the staged live pilot below; a successful save or read preflight
+is not deployment evidence. A failed check does not authorize wider permissions.
+This manual workflow adds no trigger to the build/publish/report workflows and may
+run while `CLOUDFLARE_ACTIONS_MODE` remains unset. Do not cancel a publishing action
+between its preflight and upload as a substitute for this read-only check.
+
 Permission references:
 [version upload](https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/versions/methods/create/),
 [asset upload session](https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/assets/subresources/upload/methods/create/),
@@ -196,6 +222,26 @@ only this Worker's native build integration using the recorded settings if neede
 its exhausted monthly build quota may still prevent builds. Do not remove hosting,
 revoke unrelated credentials, reinstall the app, or buy an upgrade as a fallback.
 
+## Worker-scoped Wrangler URL discovery
+
+The isolated publisher requires Wrangler 4.136.1 or a separately reviewed version
+containing [upstream fix #15678](https://github.com/cloudflare/workers-sdk/pull/15678).
+[4.136.1](https://github.com/cloudflare/workers-sdk/releases/tag/wrangler%404.136.1)
+is the first release containing that fix. It obtains preview URL fields from the
+selected Worker resource instead of requiring account-level subdomain access to
+print URLs. The token stays restricted to this Worker; do not widen its scope or
+suppress a failing Wrangler action to make publication appear successful.
+
+Pilot publisher [39964129871 attempt 2](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39964129871/attempts/2)
+using 4.92.0 uploaded version `f9266347-c61d-42be-9706-56d41da046b0` before failing
+at account-subdomain URL discovery. Both public URLs served the exact proof-A
+marker, but the workflow did not complete and is retained as a failure. Production
+remained on `cc6d9182-dafa-49e7-b0ca-3cad0f3b1c5e` at 100% traffic. Publication mode
+was restored to absent while diagnosing. Do not rerun that upload: qualify the
+reviewed fix with a fresh proof-B build, confirm the branch URL moves to B and
+immutable A remains A, and verify the same sticky comment updates truthfully.
+This source change alone is not successful preview or production/cutover proof.
+
 ## Source verification
 
 Focused offline command: `node --test tests/cloudflare-pipeline.test.mjs`.
@@ -208,9 +254,11 @@ ready-PR full gate is still required for source acceptance.
 
 Action tags were resolved through the official repositories on 2026-10-22 and
 pinned to full commit IDs: checkout v7.0.1, setup-node v7.1.0, upload-artifact v7.0.2,
-and cloudflare/wrangler-action v4.1.3. Wrangler remains the repository's exact
-4.92.0, not a floating latest version. No third-party sticky-comment action is
-needed; the small trusted reporter owns the single-comment contract.
+and cloudflare/wrangler-action v4.1.3. The isolated publisher pins Wrangler
+4.136.1, not a floating latest version. The project's package/lockfile Wrangler
+dependency remains unchanged; it is not installed or used by the publisher. No
+third-party sticky-comment action is needed; the small trusted reporter owns the
+single-comment contract.
 
 Further references: [official Wrangler action](https://github.com/cloudflare/wrangler-action),
 [Cloudflare external GitHub CI](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/),
