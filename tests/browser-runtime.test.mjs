@@ -148,9 +148,10 @@ test('both benchmark entry points bind pin, launcher, live version and before/af
   }
   const active = readFileSync(resolve(root, '.github/workflows/browser-performance.yml'), 'utf8')
   const template = readFileSync(resolve(root, 'scripts/browser-performance/workflows/browser-performance.yml'), 'utf8')
-  assert.equal(active, template); assert.match(active, /test -x \/opt\/google\/chrome\/chrome/)
-  assert.match(active, /run: node scripts\/browser-performance\/run.mjs/)
-  assert.doesNotMatch(active, /install-browser|run-pinned|outputs\/browser-runtime|--no-sandbox|install-deps|actions\/cache/)
+  assert.equal(active, template); assert.match(active, /node scripts\/browser-performance\/install-browser.mjs/)
+  assert.match(active, /run: node scripts\/browser-performance\/run-pinned.mjs/)
+  assert.match(active, /outputs\/browser-runtime\/receipt.json/); assert.match(active, /outputs\/browser-runtime\/install.log/)
+  assert.doesNotMatch(active, /test -x \/opt\/google\/chrome\/chrome|--no-sandbox|install-deps|actions\/cache/)
   assert.match(active, /max-parallel: 2/); assert.match(active, /timeout-minutes: 15/); assert.match(active, /contents: read/)
 })
 

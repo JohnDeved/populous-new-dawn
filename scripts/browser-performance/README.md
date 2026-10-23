@@ -51,11 +51,12 @@ Those failed raw captures remain historical evidence. The revision-2 stable-hove
 repair subsequently passed [candidate smoke 39150561670](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39150561670)
 and the PR593 paired control. Neither result qualifies the new held-drag phase.
 
-## Passive pinned browser support (issue #654)
+## Pinned browser activation proposal (issue #654)
 
-This support-only stage does not change the active workflow or its existing
-runner-image browser behavior. The new passive `run-pinned.mjs` and
-`run-live-pinned.mjs` entrypoints explicitly require a reviewed official
+This activation stage depends on reviewed passive support already present on the
+trusted exact base. The existing benchmark workflow explicitly selects
+`run-pinned.mjs`; direct `run.mjs`/`run-live.mjs` invocations retain their legacy
+defaults. The `run-pinned.mjs` and `run-live-pinned.mjs` entrypoints require a reviewed official
 `google-chrome-stable` Debian package pin from `browser-runtime.json`. Version `155.0.8059.84-1`, package size and SHA-256
 were read from [Google's package index](https://dl.google.com/linux/chrome/deb/dists/stable/main/binary-amd64/Packages)
 on 2026-10-19. The download URL is derived only from that version at Google's
@@ -111,7 +112,7 @@ blocker, not permission to substitute a release. Dependency-lock upgrades still
 require their normal review and fresh runtime qualification.
 
 Rollout is deliberately staged; no package installation or browser launch has
-been performed for this source-only support change:
+been performed for this source-only activation proposal:
 
 1. Merge reviewed passive support. Both workflow copies stay byte-identical to
    the current main refresh base. Direct `run.mjs`/`run-live.mjs` invocations retain their
