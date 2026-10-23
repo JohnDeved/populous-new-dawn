@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { deflateRawSync } from 'node:zlib'
 import { readFileSync } from 'node:fs'
-import { repository, shards, order, metrics, workMetrics, statistics, summarizeMetrics, summarizeTimings, validateReport,
+import { repository, shards, order, metrics, workMetrics, statistics, summarizeMetrics, summarizeTimings, validateReport, sha256,
   parseReport, compareReports, classify, comparableWork, maxReportBytes } from '../scripts/browser-performance/protocol.mjs'
 import { readReportArchive } from '../scripts/browser-performance/artifact.mjs'
 import { renderComment, commentMarker } from '../scripts/browser-performance/render.mjs'
@@ -109,6 +109,19 @@ test('missing per-section metrics remain unknown while matched known metrics are
   assert.equal(comparableWork(phases), false)
 })
 
+test('pinning the browser does not admit different runner images, kernels or real browser mismatches', () => {
+  const environment = { browserVersion: 'Google Chrome 155.0.8059.84', browserSha256: '1'.repeat(64),
+    browserPinSha256: '2'.repeat(64), release: '7.0.0-1017-azure', runnerVersion: '20261018.339.1' }
+  const make = (shard, change = {}) => ({ ...fixture(shard), runtimeSha256: sha256(JSON.stringify({ ...environment, ...change })) })
+  assert.equal(compareReports([make('world'), make('recovery')], identity, protocol).complete, true)
+  for (const change of [{ release: '6.17.0-1022-azure' }, { runnerVersion: '20261012.334.1' },
+    { browserVersion: 'Google Chrome 155.0.8059.39' }, { browserSha256: '3'.repeat(64) }, { browserPinSha256: '4'.repeat(64) }]) {
+    const result = compareReports([make('world'), make('recovery', change)], identity, protocol)
+    assert.equal(result.complete, false)
+    assert.ok(result.rows.every(row => row.p50.status === 'environment-mismatch' && row.p95.status === 'environment-mismatch'))
+  }
+})
+
 test('comment is informational, section-specific, explicit about uncertainty and links only trusted run metadata', () => {
   const reports = [fixture(), fixture('recovery')]
   const text = renderComment(compareReports(reports, identity, protocol), identity, reports, { harnessChanged: true })
@@ -165,6 +178,20 @@ test('trusted reporter verifies metadata, creates once and updates only its iden
   state.calls.length = 0
   assert.equal((await reportRun(args)).status, 'skipped-unchanged'); assert.equal(state.calls.some(call => call.method), false)
   assert.ok(state.calls.filter(call => call.method).every(call => /issues\/(?:42\/comments|comments\/99)$/.test(call.path)))
+})
+
+test('pin and browser provisioner changes retain the trusted-base harness warning', async () => {
+  for (const name of ['run-live.mjs', 'run-pinned.mjs', 'run-live-pinned.mjs', 'browser-runtime.json', 'browser-runtime.mjs', 'install-browser.mjs']) {
+    const mock = apiFixture(), original = mock.arguments.api
+    mock.arguments.api = async (path, options) => {
+      const result = await original(path, options)
+      if (path.endsWith(`/contents/scripts/browser-performance/${name}?ref=${identity.headSha}`))
+        return { ...result, size: 7, content: Buffer.from('changed').toString('base64') }
+      return result
+    }
+    assert.equal((await reportRun(mock.arguments)).status, 'created')
+    assert.match(mock.state.calls.find(call => call.method).body.body, /changes the harness/)
+  }
 })
 
 test('stale PRs, old attempts, wrong workflows/identities, duplicate artifacts and forged metrics never write', async () => {

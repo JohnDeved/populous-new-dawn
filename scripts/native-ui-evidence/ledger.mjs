@@ -5,7 +5,9 @@ import { episodes } from './policy.mjs'
 export function initialEpisodeReport() {
   return { status: 'not-run', cleanupVerified: false,
     episodes: episodes.map(episode => ({ id: episode.id, owner: episode.owner,
-      path: episode.path, capMs: episode.capMs, status: 'not-run', timedOut: false, cleanupVerified: false })),
+      path: episode.path, capMs: episode.capMs,
+      ...(episode.pauseMode ? { executionContract: { version: 'pause-style-split-v1', mode: episode.pauseMode, primary: episode.primary } } : {}),
+      status: 'not-run', timedOut: false, cleanupVerified: false })),
     errors: [], warnings: [], expectedErrors: [], injectedRequests: [], observations: [] }
 }
 export function initializeEpisodeLedger(output) {
