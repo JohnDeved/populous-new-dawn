@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
+import { observeOptionsStorage, assertOptionsCopyClearance } from './options-copy-clearance.mjs'
 import { candidateModule, ordinaryMission, saveMissionInputTrace } from './ordinary-mission.mjs'
 
 // Only the two preference writes are failed. Reads, checkpoints, campaign state
@@ -83,17 +84,7 @@ export default async function ({ browser, url, root, output, receipt, signal, de
             signal.throwIfAborted(); await page.setViewportSize({ width, height })
             const ready = await page.waitForFunction(optionsViewportReady, { width, height, skin }, { timeout: 5000 })
             await ready.dispose(); signal.throwIfAborted()
-            const sample = await notice.evaluate(node => {
-              const bounds = element => { const r = element.getBoundingClientRect(); return { x: r.x, y: r.y, right: r.right, bottom: r.bottom } }
-              const options = node.closest('[data-original-options]')
-              return { copy: node.getAttribute('aria-label'), glyphs: node.querySelectorAll('i').length,
-                lines: [...node.querySelectorAll(':scope > [aria-hidden]')].map(line => ({ box: bounds(line.firstElementChild), pitch: line.offsetHeight,
-                  text: line.textContent, glyphs: line.querySelectorAll('i').length })),
-                navigation: bounds(options.querySelector('nav [data-option-key]')), background: getComputedStyle(node).backgroundColor,
-                images: [...new Set([...node.querySelectorAll('i')].map(glyph => getComputedStyle(glyph).backgroundImage))],
-                layout: { viewport: { width: window.innerWidth, height: window.innerHeight },
-                  frontendScale: getComputedStyle(node).getPropertyValue('--frontend-scale').trim() } }
-            })
+            const sample = await notice.evaluate(observeOptionsStorage)
             // Retain the exact original assertion input, even when geometry fails.
             // Any later screenshot is a later state, not this sample's instant.
             report.measurements.push({ skin, category, fallback, width, height, ...sample }); save()
@@ -106,6 +97,7 @@ export default async function ({ browser, url, root, output, receipt, signal, de
               assert.ok(line.box.x >= -1 && line.box.right <= width + 1, 'Notice remains within viewport')
               if (fallback) assert.ok(line.text.trim().length)
             }
+            assertOptionsCopyClearance(sample, { skin, category, fallback })
             if (!fallback) assert.ok(sample.images.every(image => image.includes(skin === 'frontend' ? '/original/frontend/' : '/original/pause-font.png')))
             const name = `${skin}-${category}-${fallback ? 'fallback' : 'glyphs'}-${width}x${height}.png`
             await page.screenshot({ path: resolve(output, name) })

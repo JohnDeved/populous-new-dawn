@@ -26,7 +26,8 @@
         "scripts/native-ui-evidence",
         "tests/native-ui-evidence.test.mjs",
         ".github/workflows/native-ui-evidence.yml",
-        "engineering/native-ui-evidence.md"
+        "engineering/native-ui-evidence.md",
+        "tests/native-ui-pause-acceptance.test.mjs"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -43,7 +44,8 @@
         "engineering/native-ui-evidence.md",
         "package.json",
         "pnpm-lock.yaml",
-        "pnpm-workspace.yaml"
+        "pnpm-workspace.yaml",
+        "tests/native-ui-pause-acceptance.test.mjs"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
