@@ -57,9 +57,11 @@ of this natural path. Firewarrior acquisition/graphics remain in their existing
 
 `scripts/check-browser-mission8-natural.mjs` starts Mission 8 with the shipped
 selector, clears selection with Escape and selects the original party using the
-portrait and class control. It obtains camera movement through the shipped Dakini
-focus button and actual minimap clicks, then requires a real empty terrain hit
-and accepted land routes. Player combat intent is issued through actual person
+portrait and class control. The current removal draft obtains camera movement
+only through actual minimap clicks, re-reading the cropped/rotated map after each
+hop and requiring measurable progress toward the destination. Every click must
+land at its displayed native target without changing the turn or party selection.
+It then requires a real empty terrain hit and accepted land routes. Player combat intent is issued through actual person
 clicks and the existing Blast card, never direct command/cast calls in the browser.
 
 QA holds presentation RAF and advances ordinary `tick(world,1/12)` calls only
@@ -88,6 +90,27 @@ party, full paired-state, checkpoint, stock and victory requirements are preserv
 result.** Its failure path records projection, actual ground pick, obstruction and
 viewpoint so the next observation has a specific boundary.
 
+## Tribe-camera removal draft: current acceptance blockers
+
+The former Dakini camera button was an invented interaction, not an original
+tribe-control action. Its historical browser observations above remain historical;
+they do not validate the replacement minimap route. The removal draft retains
+all terrain/person hit, dispatch, paired-tick, stock, victory, Save/Load and
+Mission 9 continuation assertions. At most four progressively closer, genuinely
+exposed minimap clicks may expose a destination; failure to progress or settle
+fails closed. Scene/World replacement, a modal, popup, locked input or another
+journey cannot authorize a click. Existing presentation-only settling remains
+explicitly test-only. New source/mock tests are not rendered acceptance.
+
+There is also a separate, pre-existing campaign-entry contradiction at source
+`40d100619d9ae3a7b55eedb3600b3723ac7931d7`: `showAllMissions` aliases the F8 debug
+mission picker, whose games are non-awarding and unsavable, while this checker
+requires earned Mission 8 victory, Save/Load and Mission 9 continuation. A genuine
+earned-profile entry through the native campaign flow is a prerequisite owned by
+campaign acceptance, not a reason to seed completion, inject a profile, remove
+assertions or redesign progression in this UI removal. The old selector call is
+retained and marked as blocked; this draft is not a green natural-campaign check.
+
 ## Startup failure, cleanup and denied operations
 
 The third raw command receipt records the exact supervisor assertion:
@@ -113,7 +136,8 @@ work under the repository's scoped-denial policy.
 
 ## Minimum continuation and acceptance
 
-Keep one checker owner. First verify that the standard queue controller supplies
+Keep one checker owner. Resolve the earned-profile entry prerequisite above
+before claiming a natural campaign run. Also verify that the standard queue controller supplies
 the job's declared port to the unchanged supervisor. Do not bypass its guard.
 Then execute the current checker at its exact published head. Stop at the first
 observed ground/dispatch/traversal/combat fault and bind its owner before any

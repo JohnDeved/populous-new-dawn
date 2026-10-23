@@ -387,8 +387,8 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  await page.getByLabel('Focus Chumara tribe').waitFor()
-  await page.getByLabel('Focus Matak tribe').waitFor()
+  await page.getByRole('img', { name: 'Chumara tribe', exact: true }).waitFor()
+  await page.getByRole('img', { name: 'Matak tribe', exact: true }).waitFor()
   await page.getByText('Once again we must face two tribes.', { exact: false }).waitFor()
 
   const opening = await page.evaluate(() => {
@@ -595,9 +595,9 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  await page.getByLabel('Focus Dakini tribe').waitFor()
-  await page.getByLabel('Focus Chumara tribe').waitFor()
-  await page.getByLabel('Focus Matak tribe').waitFor()
+  await page.getByRole('img', { name: 'Dakini tribe', exact: true }).waitFor()
+  await page.getByRole('img', { name: 'Chumara tribe', exact: true }).waitFor()
+  await page.getByRole('img', { name: 'Matak tribe', exact: true }).waitFor()
   await page
     .getByRole('status')
     .getByText('For the first time we must face all three Enemy tribes.', { exact: false })
@@ -1243,8 +1243,8 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  await page.getByLabel('Focus Chumara tribe').waitFor()
-  await page.getByLabel('Focus Matak tribe').waitFor()
+  await page.getByRole('img', { name: 'Chumara tribe', exact: true }).waitFor()
+  await page.getByRole('img', { name: 'Matak tribe', exact: true }).waitFor()
   await page.getByText('I sense a new threat', { exact: false }).waitFor()
   await page.waitForFunction(() => (window.testStore.getWorld().flyby.flags & 0x51) === 0x11)
 

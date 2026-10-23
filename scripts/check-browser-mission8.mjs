@@ -20,7 +20,7 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  await page.getByLabel('Focus Dakini tribe').waitFor()
+  await page.getByRole('img', { name: 'Dakini tribe', exact: true }).waitFor()
 
   await page.evaluate(async () => {
     const scene = globalThis.testScene,

@@ -1207,15 +1207,12 @@ export default function Home() {
           </button>
           <ShamanHealth health={shaman?.hp ?? 0} maximum={maxHp('shaman')} />
           {enemies.map(enemy => (
-            <button
+            <span
               key={enemy.tribe}
               className={`tribe-flag ${enemy.name.toLowerCase()}`}
+              role="img"
               aria-description={`${enemy.name}: ${enemy.units.filter(u => !u.ghost).length} followers`}
-              aria-label={`Focus ${enemy.name} tribe`}
-              onClick={() => {
-                const u = enemy.units.find(isShaman) ?? enemy.units[0]
-                if (u) engine.current?.focus(u, { animate: true })
-              }}
+              aria-label={`${enemy.name} tribe`}
             />
           ))}
         </div>

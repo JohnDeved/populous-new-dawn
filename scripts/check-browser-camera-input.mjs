@@ -46,7 +46,11 @@ try {
   assert.deepEqual(await step(),{x:65000,y:200,angle:333},'Locked presentation rejects camera input')
   await page.keyboard.up('w');await page.evaluate(()=>{window.testScene.world.inputMask=0})
   // Focused HUD buttons must not swallow camera keys; pan interrupts focus.
-  await page.getByRole('button',{name:'Focus Dakini tribe',exact:true}).click()
+  const portrait=page.getByRole('button',{name:'Select shaman',exact:true})
+  await portrait.focus()
+  await portrait.click({button:'right'})
+  assert.equal(await portrait.evaluate(element=>document.activeElement===element),true,'The public portrait must own keyboard focus')
+  assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),1,'Portrait right-click must start a journey before takeover')
   await page.keyboard.down('d');await step();await page.keyboard.up('d')
   assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),0)
   const canvas=page.locator('canvas[aria-label="Island battlefield. Click to select, right-click to move, drag to select a group."]'),rect=await canvas.boundingBox()

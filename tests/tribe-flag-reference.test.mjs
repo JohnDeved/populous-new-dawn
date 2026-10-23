@@ -63,32 +63,21 @@ test('tribe CSS realizes each endpoint rectangle within the unchanged upper HUD'
   }
 })
 
-test('geometry preserves existing tribe availability, labels and camera-focus action', () => {
+test('geometry preserves tribe availability without advertising an invented camera action', () => {
   const page = read('app/page.tsx')
   assert.match(page, /enemyTribes = missionComputerTribes\(world\.outcome\.level\)\.filter\(/)
   assert.match(page, /\{enemies\.map\(enemy => \(/)
   assert.match(page, /className=\{`tribe-flag \$\{enemy\.name\.toLowerCase\(\)\}`\}/)
-  assert.match(page, /aria-label=\{`Focus \$\{enemy\.name\} tribe`\}/)
-  assert.match(page, /const u = enemy\.units\.find\(isShaman\) \?\? enemy\.units\[0\]/)
-  assert.match(page, /if \(u\) engine\.current\?\.focus\(u, \{ animate: true \}\)/)
+  assert.match(page, /aria-label=\{`\$\{enemy\.name\} tribe`\}/)
+  assert.doesNotMatch(page, /Focus \$\{enemy\.name\} tribe/)
 })
 
-// Outside keyboard outlines overlap these tightly packed native rectangles.
-test('tribe keyboard focus stays inside each realized flag without changing its bounds', () => {
+// Passive indicators do not need the old button-only keyboard-focus override.
+// Other actual controls keep their existing visible keyboard outline.
+test('passive tribe indicators do not reserve a keyboard-focus outline', () => {
   const css = read('app/globals.css')
   const global = css.match(/button:focus-visible,[^{]+\{([^}]+)\}/)
   assert.ok(global, 'existing global keyboard outline')
   assert.match(global[1], /(?:^|;)outline:2px solid white(?:;|$)/)
-  const local = css.match(/\.tribe-flag:focus-visible\{([^}]+)\}/)
-  assert.ok(local, 'narrow tribe focus override')
-  assert.equal(local[1], 'outline-offset:-2px')
-  const outlineWidth = 2
-  const outlineOffset = -2
-  for (const record of oracle.records) {
-    const [left, top, right, bottom] = record.expectedEndpoints
-    const outer = [left - outlineWidth - outlineOffset, top - outlineWidth - outlineOffset,
-      right + outlineWidth + outlineOffset, bottom + outlineWidth + outlineOffset]
-    assert.deepEqual(outer, [left, top, right, bottom])
-    assert.ok(right - left > 2 * outlineWidth && bottom - top > 2 * outlineWidth)
-  }
+  assert.doesNotMatch(css, /\.tribe-flag:focus-visible/)
 })

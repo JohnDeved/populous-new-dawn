@@ -61,7 +61,6 @@ test('HUD names, keyboard help and live counts remain nonvisual accessibility me
     ['className', 'nearby-followers-button', {}, 'Nearby followers', 'Nearby followers · Limit counts and selection to the camera area'],
     ['className', 'portrait', {}, 'Select shaman', 'Shaman · Click: add to selection · Right-click: focus · H: select'],
     ['className', 'help-button', {}, 'Menu', 'Help and game menu'],
-    ['className', 'tribe-flag', { enemy: { name: 'Dakini', units: [{}, {}, { ghost: true }] } }, 'Focus Dakini tribe', 'Dakini: 2 followers'],
     ['className', 'population-button', {}, 'Select follower', 'Select follower · Shift: all · Ctrl: five · Right-click: focus next'],
     ['aria-label', 'Select ${u.kind}', { u: { kind: 'brave', label: 'Braves' } }, 'Select brave', 'Braves · Shift: all · Ctrl: five · Right-click: focus next'],
     ['className', 'building-card', { b: { name: 'Hut', cost: 5 } }, 'Hut, 5 wood', 'Hut · Space rotates the plan'],
@@ -76,6 +75,24 @@ test('HUD names, keyboard help and live counts remain nonvisual accessibility me
   for (const [t, label] of [['buildings', 'buildings B'], ['spells', 'spells 1–3'], ['followers', 'followers ']]) {
     assert.equal(value(category, 'aria-label', page, { t }), label)
     assert.equal(value(category, 'aria-description', page, { t }), undefined)
+  }
+})
+
+test('tribe indicators retain names and counts without button or activation semantics', () => {
+  const indicators = nodes(page, node =>
+    (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+    attribute(node, 'className')?.initializer?.getText(page).includes('tribe-flag'))
+  assert.equal(indicators.length, 1)
+  const indicator = indicators[0]
+  assert.equal(indicator.tagName.getText(page), 'span')
+  // Exact attributes forbid handlers, spreads, tabIndex and disabled-button semantics.
+  assert.deepEqual(indicator.attributes.properties.map(prop => prop.name?.text).sort(),
+    ['aria-description', 'aria-label', 'className', 'key', 'role'])
+  assert.equal(value(indicator, 'role', page), 'img')
+  for (const name of ['Dakini', 'Chumara', 'Matak']) {
+    const bindings = { enemy: { name, units: [{}, {}, { ghost: true }] } }
+    assert.equal(value(indicator, 'aria-label', page, bindings), `${name} tribe`)
+    assert.equal(value(indicator, 'aria-description', page, bindings), `${name}: 2 followers`)
   }
 })
 

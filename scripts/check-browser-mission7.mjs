@@ -22,7 +22,7 @@ try {
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
   await page.getByRole('button', { name: 'Convert Wild, 0 shots' }).waitFor()
-  await page.getByLabel('Focus Chumara tribe').waitFor()
+  await page.getByRole('img', { name: 'Chumara tribe', exact: true }).waitFor()
 
   await page.evaluate(async () => {
     const scene = globalThis.testScene,
