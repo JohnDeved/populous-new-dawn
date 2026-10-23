@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import vm from 'node:vm'
+import { sha256 } from '../scripts/browser-performance/browser-runtime.mjs'
 import { FramePerformance } from '../app/frame-performance.ts'
 import { createPointerFrameMetrics } from '../app/pointer-frame-metrics.ts'
 import { installSnapshotObserver } from '../scripts/browser-performance/snapshot-observer.mjs'
@@ -172,6 +173,30 @@ test('paired classification requires exact query/submission inventory, state, so
   assert.equal(compareReports([wrong, report('recovery')], identity).rows[0].p50.status, 'environment-mismatch')
   assert.throws(() => compareReports([report()], { ...identity, runId: 9 }))
 })
+test('snapshot pinning preserves within-cell host/runtime refusals and independent shard admission', () => {
+  const environment = { browserVersion: 'Google Chrome 155.0.8059.84', browserSha256: '1'.repeat(64),
+    browserPinSha256: '2'.repeat(64), release: '7.0.0-1017-azure', runnerVersion: '20261018.339.1' }
+  const runtime = change => sha256(JSON.stringify({ ...environment, ...change }))
+  const make = (shard, change = {}) => {
+    const value = report(shard)
+    value.runtimeSha256 = runtime(change)
+    for (const run of value.runs) run.environmentSha256 = runtime(change)
+    return value
+  }
+  const matched = compareReports([make('world'), make('recovery')], identity)
+  assert.equal(matched.complete, true)
+  for (const change of [{ release: '6.17.0-1022-azure' }, { runnerVersion: '20261012.334.1' },
+    { browserVersion: 'Google Chrome 155.0.8059.39' }, { browserSha256: '3'.repeat(64) }, { browserPinSha256: '4'.repeat(64) }]) {
+    // V2 never pools disjoint shard cells; each shard still owns six matched arms.
+    assert.deepEqual(compareReports([make('world'), make('recovery', change)], identity), matched)
+    const changed = make('world'); changed.runs[1].environmentSha256 = runtime(change)
+    const result = compareReports([changed, make('recovery')], identity)
+    assert.ok(result.rows.filter(row => row.shard === 'world').every(row =>
+      row.p50.status === 'environment-mismatch' && row.p95.status === 'environment-mismatch'))
+    assert.deepEqual(result.rows.filter(row => row.shard === 'recovery'), matched.rows.filter(row => row.shard === 'recovery'))
+  }
+})
+
 function observer(actualRecorder) {
   const callbacks = new Map(), events = new Map(); let id = 0
   const recorder = actualRecorder ?? { recentCount: 1, timestamp: 20 }, scene = { fpsGraph: { samples: recorder }, cameraPosition: { x: 1, y: 2, angle: 0 },
