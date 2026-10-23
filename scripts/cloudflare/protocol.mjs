@@ -78,15 +78,53 @@ export function uploadedVersion(output, alias) {
   if (alias) assert.equal(branchUrl, `https://${alias}-${hostname}`)
   return { id, commitUrl, branchUrl }
 }
-export function renderComment({ run, status, publication, urls }) {
+// Visible markup is copied from the real Workers app comments linked in
+// engineering/cloudflare-actions.md. Only run-specific values are substituted.
+const deploymentStatus = {
+  success: '✅ Deployment successful!',
+  failure: '❌ Deployment failed',
+  skipped: '⚠️ Deployment skipped',
+  // No retained native pending/cancelled comment exists. Keep these truthful
+  // lifecycle adaptations explicit rather than claiming exact native wording.
+  pending: '⏳ Deployment in progress',
+  cancelled: '⚠️ Deployment cancelled',
+}
+export function commentTimestamp(value) {
+  assert.ok(typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value), 'Missing trusted update time')
+  const date = new Date(value); assert.ok(Number.isFinite(date.getTime()), 'Invalid update time')
+  const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][date.getUTCMonth()]
+  const pad = number => String(number).padStart(2, '0')
+  return `${month} ${pad(date.getUTCDate())} ${date.getUTCFullYear()}, ${pad(date.getUTCHours() % 12 || 12)}:${pad(date.getUTCMinutes())} ${date.getUTCHours() < 12 ? 'AM' : 'PM'}`
+}
+export function renderComment({ run, outcome, publication, urls, diagnostic = '', logsRun = publication || run }) {
   assert.ok(sha(run.head_sha) && positive(run.id) && positive(run.run_attempt))
-  const lines = [marker, `<!-- source:${run.id}:${run.run_attempt} -->`, '## Cloudflare preview',
-    `Status: ${status}`, `Commit: [\`${run.head_sha.slice(0, 8)}\`](https://github.com/${repository}/commit/${run.head_sha})`,
-    `[Build logs](https://github.com/${repository}/actions/runs/${run.id}/attempts/${run.run_attempt})`]
-  if (publication) lines.push(`[Publish logs](https://github.com/${repository}/actions/runs/${publication.id}/attempts/${publication.run_attempt})`)
-  if (urls) lines.push(`Branch preview (moves with this branch): ${urls.branchUrl}`,
-    `Exact commit preview (immutable uploaded version): ${urls.commitUrl}`)
-  else lines.push('No verified preview links for this attempt. Previous URLs are not evidence for this commit.')
-  lines.push('Preview publication is not production deployment, review approval, or a passing Full check.')
-  return lines.join('\n\n')
+  assert.ok(Object.hasOwn(deploymentStatus, outcome), 'Unknown deployment outcome')
+  assert.ok(positive(logsRun.id) && positive(logsRun.run_attempt), 'Invalid log identity')
+  assert.equal(Boolean(urls), outcome === 'success', 'Success requires verified preview URLs')
+  if (urls) {
+    assert.match(urls.id ?? '', /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/)
+    assert.equal(urls.commitUrl, `https://${urls.id.slice(0, 8)}-${hostname}`)
+    assert.match(urls.branchUrl ?? '', /^https:\/\/b-[a-z0-9-]+-populous-new-dawn\.webtorrent\.workers\.dev$/)
+  }
+  const previewHeading = urls ? ' Preview URL |' : ''
+  const previewCell = urls ? ` <a href='${urls.commitUrl}'>Commit Preview URL</a><br><br><a href='${urls.branchUrl}'>Branch Preview URL</a> |` : ''
+  const logs = `https://github.com/${repository}/actions/runs/${logsRun.id}/attempts/${logsRun.run_attempt}`
+  const updated = commentTimestamp(publication?.updated_at || run.updated_at)
+  // Display time intentionally has native minute precision; hidden provenance
+  // must retain full precision and publisher identity so a same-minute retry
+  // updates the diagnostic link rather than preserving an earlier attempt.
+  const lifecycle = value => value ? { id: value.id, attempt: value.run_attempt,
+    status: value.status, conclusion: value.conclusion, updatedAt: value.updated_at } : null
+  const detail = createHash('sha256').update(JSON.stringify({ diagnostic,
+    source: lifecycle(run), publication: lifecycle(publication) })).digest('hex')
+  return `${marker}
+<!-- source:${run.id}:${run.run_attempt} -->
+<!-- detail:${detail} -->
+
+## Deploying with &nbsp;<a href="https://workers.dev"><img alt="Cloudflare Workers" src="https://workers.cloudflare.com/logo.svg" width="16"></a> &nbsp;Cloudflare Workers
+The latest updates on your project. Learn more about [integrating Git with Workers](https://developers.cloudflare.com/workers/ci-cd/builds/git-integration/).
+
+| Status | Name | Latest Commit |${previewHeading} Updated (UTC) |
+| -|-|-|${urls ? '-|' : ''}-|
+| ${deploymentStatus[outcome]} <br>[View logs](${logs}) | ${worker} | ${run.head_sha.slice(0, 8)} |${previewCell} ${updated} |`
 }

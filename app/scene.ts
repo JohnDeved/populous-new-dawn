@@ -1080,5 +1080,8 @@ export class GameScene {
     this.objectPanels.dispose()
     this.spellPointer.remove()
     this.worshipPresentation.dispose()
+    // Each Scene owns its renderer/context. Retire it only after normal cleanup;
+    // shared cached textures and their images belong to future Scenes too.
+    this.renderer.forceContextLoss()
   }
 }

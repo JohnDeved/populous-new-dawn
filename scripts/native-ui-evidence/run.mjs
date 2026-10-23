@@ -37,6 +37,11 @@ try {
   report.packageLockSha256 = sha256(resolve(candidateRoot, 'package-lock.json'))
   Object.assign(report, dependencyReceipt(candidateRoot))
   save()
+  stage = 'candidate-audio-source-contract'
+  report.candidateAudioSourceContract = await supervise(
+    ['--test', '--test-concurrency=1', resolve(import.meta.dirname, 'candidate-audio-probes-contract.mjs')],
+    { cwd: candidateRoot, log: resolve(output, 'candidate-audio-source-contract.log'), capMs: 30000, inspect: () => artifactInventory(output) })
+  save(); assert.equal(report.candidateAudioSourceContract.status, 'passed', 'Exact candidate audio source contract failed')
   stage = 'candidate-build'
   report.build = await supervise([resolve(import.meta.dirname, 'build-home.mjs'), candidateRoot, dist, identity.candidateSha],
     { cwd: candidateRoot, log: resolve(output, 'build.log'), capMs: limits.buildMs, inspect: () => artifactInventory(output) })
@@ -51,7 +56,7 @@ try {
   stage = 'browser-worker'
   report.browser = await supervise([resolve(import.meta.dirname, 'browser-worker.mjs'), candidateRoot, infrastructureRoot, output, dist],
     { cwd: candidateRoot, log: resolve(output, 'browser.log'), capMs: limits.browserMs, inspect: () => artifactInventory(output) })
-  save(); assert.equal(report.browser.status, 'passed', 'Seven-episode browser worker failed')
+  save(); assert.equal(report.browser.status, 'passed', 'Nine-episode browser worker failed')
   const series = JSON.parse(readFileSync(resolve(output, 'episodes.json'), 'utf8'))
   assert.equal(series.status, 'passed'); assert.equal(series.cleanupVerified, true); acceptSeries(series.episodes)
   verifyBuiltOutput(dist, built, links)

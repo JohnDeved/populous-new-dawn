@@ -64,14 +64,40 @@ It only updates its own `github-actions[bot]` comment with the exact marker
 `<!-- populous-cloudflare-preview:v1 -->`. A repeated identical result is a no-op.
 Cloudflare's old app-owned comment is historical and cannot be edited by the
 Actions token; the replacement owns one new comment rather than impersonating it.
+The visible body copies the actual Cloudflare comment exactly: Workers logo and
+heading, introductory sentence, table columns, status wording, plain short commit,
+UTC timestamp and (only on verified success) Commit Preview URL followed by Branch
+Preview URL. Invisible ownership/source markers keep the existing Actions comment
+editable, so this change migrates that comment rather than adding another one.
+The author/avatar remains `github-actions[bot]`; the Cloudflare app is not spoofed.
+
+The byte-for-byte visible reference fixtures are the real
+[success comment](https://github.com/JohnDeved/populous-new-dawn/pull/729#issuecomment-6326132623),
+[failure comment](https://github.com/JohnDeved/populous-new-dawn/pull/739#issuecomment-6331564153),
+and [skipped comment](https://github.com/JohnDeved/populous-new-dawn/pull/749#issuecomment-6338707137).
+Only dynamic values change. No retained native pending/cancelled reference was
+available; those two truthful wording adaptations are explicitly `⏳ Deployment
+in progress` and `⚠️ Deployment cancelled`, using the same table without URLs.
+Do not describe those two strings as verified native copies.
+
+`View logs` opens the trusted reporting run. Its visible job summary and logs
+explain the exact build/publication state (including disabled setup, cancellation
+or unverifiable evidence), and link directly to the build and publisher attempts.
+This replaces the native combined-build log destination without adding visible
+boilerplate to the requested comment. Missing evidence is never displayed as a
+successful deployment. The UTC value comes from the API-observed source/publisher
+update timestamp, not the reporter's wall clock, preserving rerun idempotence.
+Hidden provenance binds the full source/publisher timestamps and exact publisher
+ID/attempt, so two failed or cancelled retries in the same displayed minute still
+update the diagnostic link; only an unchanged reporter invocation is a no-op.
 
 Both links are accepted only from validated successful upload output:
 
 - Branch preview: a stable, collision-resistant branch alias starting `b-`, with
   a slug and hash of the entire original branch. It moves with successful updates.
 - Exact commit preview: the immutable uploaded Worker version URL. Its eight-digit
-  version prefix is not the Git SHA; the comment explicitly links the actual Git
-  SHA built by the source run. Never synthesize a URL from that commit SHA.
+  version prefix is not the Git SHA; the Latest Commit column shows the actual short
+  Git SHA built by the source run, exactly like the native comment. Never synthesize a URL from that commit SHA.
 
 The reporter removes success links when the current attempt fails or is cancelled.
 A completed build alone means publication queued/disabled, never deployed. Missing
@@ -79,7 +105,8 @@ or malformed publisher evidence is non-success. Failed/cancelled uploads may hav
 an uncertain remote outcome. Do not blindly retry them or label them successful.
 Runs/attempts older than a current source, current comment or newer build cannot
 publish a stale comment. Current-head checks occur immediately before publication
-and before comment mutation.
+and before comment mutation. Build/publisher lifecycle and update timestamps are also
+rechecked so an older pending snapshot cannot overwrite a newly completed result.
 
 Cloudflare aliases do not offer a GitHub-head compare-and-swap. If the head changes
 *during* the remote upload, that upload may briefly move the alias to the prior
@@ -144,15 +171,19 @@ The coordinator owns these steps. This document does not claim they happened.
    a superseded head, a controlled failed build and cancellation. Confirm a fork
    cannot deploy. Do not use real secrets in negative test fixtures.
 5. Retain the existing production version ID and native build configuration for
-   rollback. Only after replacement preview evidence passes, disconnect **this
-   Worker's build integration**, not the GitHub App or hosted Worker: Cloudflare
-   **Workers & Pages → populous-new-dawn → Settings → Builds → Disconnect**.
+   rollback. With preview replacement already verified, set mode `enabled`; use
+   the next reviewed/merged PR (or an eligible current successful main build).
+   Verify production gate provenance, exact promoted version, homepage/runtime
+   revision and unchanged preview behavior. Native Builds remains connected at
+   this stage. If native builds are not quota-paused, account for both publishers
+   and do not claim the GitHub deployment was uniquely responsible without exact
+   version/commit evidence. A failed/uncertain promotion is not cutover approval.
+6. Only after both replacement preview and production evidence pass, disconnect
+   **this Worker's build integration**, not the GitHub App or hosted Worker:
+   Cloudflare **Workers & Pages → populous-new-dawn → Settings → Builds → Disconnect**.
    [Official disconnect instructions](https://developers.cloudflare.com/workers/ci-cd/builds/#disconnecting-builds).
-   Merely switching to `versions upload` still consumes native build minutes.
-6. Set mode `enabled`; rerun the current successful main build if needed, or use the
-   next reviewed/merged PR. Verify production gate provenance, exact promoted
-   version, homepage/runtime revision and both preview links. If promotion fails,
-   leave prior production serving and report the exact blocker; do not bypass gates.
+   Merely switching the native command to `versions upload` still consumes native
+   build minutes. No production-build trigger is disabled before replacement proof.
 7. Push/update a normal PR and complete a reviewed merge. Verify GitHub builds once
    per intended event and Cloudflare creates no native Build run, while serving
    GitHub-uploaded versions normally. Record before/after run evidence in #747.
@@ -170,7 +201,8 @@ revoke unrelated credentials, reinstall the app, or buy an upgrade as a fallback
 Focused offline command: `node --test tests/cloudflare-pipeline.test.mjs`.
 Tests cover byte-only artifacts/config exclusion, unsafe paths and symlinks,
 workflow pinning, fork/stale/closed admission, exact returned URLs, idempotent
-comment edits, older-run/head races, missing evidence and cancellation/failure
+comment edits, exact native visible templates, deterministic UTC timestamps,
+older-run/head and lifecycle races, missing evidence and cancellation/failure
 truthfulness. These are not live Cloudflare deployment evidence. The ordinary
 ready-PR full gate is still required for source acceptance.
 
