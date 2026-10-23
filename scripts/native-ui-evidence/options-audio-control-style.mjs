@@ -110,8 +110,11 @@ export async function prepareSoundPopup(page, popupInput, { signal, deadlineAt, 
     assert.equal(new Set(trace.retainedBefore.map(p => p.serial)).size, trace.retainedBefore.length)
     const target = trace.retainedBefore.find(p => p.open) ?? trace.retainedBefore[0]
     trace.serial = target.serial; trace.requestedOpen = true
-    const timeout = Math.min(2500, check())
-    trace.publicInput = {}
+    // Hosted fallback/DPR2 exhausted 2.5 s before the final read settled at
+    // 2671.4 ms. Give this four-phase setup 4 s total, retaining every owner
+    // verification and the episode deadline, not a fresh budget per phase.
+    const timeout = Math.min(4000, check())
+    trace.publicInput = { timeoutMs: timeout }
     await step(() => popupInput.setCampaignPopupOpen(page, target.serial, true, { timeout, trace: trace.publicInput }))
     trace.retainedAfter = await step(() => page.evaluate(popupInput.campaignPopupSnapshot))
     trace.afterOwnership = await step(() => page.evaluate(soundOwnership))

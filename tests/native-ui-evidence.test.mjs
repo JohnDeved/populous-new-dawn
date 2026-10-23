@@ -1,4 +1,6 @@
+import './native-ui-pause-acceptance.test.mjs'
 import test from 'node:test'
+import { createHash } from 'node:crypto'
 import assert from 'node:assert/strict'
 import { EventEmitter } from 'node:events'
 import { execFileSync } from 'node:child_process'
@@ -138,15 +140,15 @@ test('trusted manifest includes adapter, new episodes, Chrome policy and exact w
     'scripts/native-ui-evidence/options-audio-control-style.mjs', 'scripts/browser-options-audio.mjs', 'scripts/tutorial-browser/browser-config.mjs', '.github/workflows/native-ui-evidence.yml']) assert.equal(infrastructureInput(path), true)
   assert.equal(infrastructureInput('app/page.tsx'), false)
 })
-test('all seven supplements are mandatory with fixed ownership and unchanged 720-second new budget', () => {
-  assert.deepEqual(episodes.map(e => e.id), ['startup-logo', 'selector-recovery', 'options-storage', 'checkpoint-notice', 'options-audio', 'loading-recovery', 'pause-checkpoint'])
-  assert.equal(episodes.filter(e => e.owner === 'candidate').length, 5)
+test('all eight supplements are mandatory with fixed ownership and unchanged 720-second new budget', () => {
+  assert.deepEqual(episodes.map(e => e.id), ['startup-logo', 'selector-recovery', 'options-storage', 'checkpoint-notice', 'options-audio', 'loading-recovery', 'pause-checkpoint-native', 'pause-checkpoint-fallback'])
+  assert.equal(episodes.filter(e => e.owner === 'candidate').length, 6)
   assert.deepEqual(episodes.filter(e => e.owner === 'infrastructure').map(e => e.id), ['options-storage', 'options-audio'])
-  assert.deepEqual(episodes.map(e => e.capMs), [120000, 120000, 90000, 90000, 90000, 90000, 90000])
+  assert.deepEqual(episodes.map(e => e.capMs), [120000, 120000, 90000, 90000, 90000, 90000, 90000, 90000])
   assert.deepEqual(limits, { buildMs: 120000, browserMs: 720000, jobMinutes: 20, maxContexts: 2, maxPages: 2,
     screenshots: 100, artifactBytes: 268435456, logBytes: 8388608, heapMiB: 768, cleanupMs: 5000 })
 })
-test('dependency-import and Chrome-prelaunch failures retain seven explicit unexecuted records', async t => {
+test('dependency-import and Chrome-prelaunch failures retain eight explicit unexecuted records', async t => {
   for (const stage of ['candidate-dependency-import', 'chrome-provenance']) {
     const root = fixture(t), candidate = resolve(root, 'candidate')
     put(candidate, 'package.json', '{"type":"module"}')
@@ -188,6 +190,10 @@ test('parent persists initial ledger before build and worker failures cannot rep
 test('baseline, skipped, missing, failed, cancelled and late-success episodes cannot pass aggregate', () => {
   for (const bad of [null, undefined, { baseline: true }, { skipped: true }, { status: 'failed' }, { status: 'skipped' }, { status: 'cancelled' }]) assert.throws(() => acceptEpisode(bad))
   const good = episodes.map(e => ({ id: e.id, status: 'passed', timedOut: false, cleanupVerified: true, result: { checks: ['real assertions'] } }))
+  for (const record of good) {
+    const mode = episodes.find(e => e.id === record.id).pauseMode
+    if (mode) record.result = pauseResult(mode)
+  }
   acceptSeries(good)
   for (const bad of [good.slice(1), [...good].reverse(), good.map((r, i) => i ? r : { ...r, timedOut: true }),
     good.map((r, i) => i ? r : { ...r, cleanupVerified: false })]) assert.throws(() => acceptSeries(bad))
@@ -293,7 +299,7 @@ test('pending page creation reserves capacity and late pages are closed before c
   finish.forEach(resolve => resolve()); await rejected; await closing
   assert.equal(context.pages().length, 0); await owner.close()
 })
-test('all seven explicit not-run records survive abort before the first episode', async t => {
+test('all eight explicit not-run records survive abort before the first episode', async t => {
   const output = fixture(t), abort = new AbortController(); abort.abort(Error('stop before first'))
   await assert.rejects(runNativeUiEvidence({ browser: fakeBrowser(), output, signal: abort.signal }), /stop before first/)
   const receipt = JSON.parse(readFileSync(resolve(output, 'episodes.json')))
@@ -573,6 +579,11 @@ test('workflow is isolated read-only manual evidence with two credential-free pi
   assert.equal(checkouts.length, 2); assert.ok(checkouts.every(step => step.with['persist-credentials'] === false))
   assert.equal(checkouts[0].with.ref, '${{ github.workflow_sha }}'); assert.equal(checkouts[1].with.ref, '${{ inputs.candidate_sha }}')
   assert.equal(checkouts[1].with.repository, 'JohnDeved/populous-new-dawn')
+  const sparse = checkouts[0].with['sparse-checkout'].trim().split(/\r?\n/).map(line => line.trim())
+  for (const path of ['/scripts/native-ui-evidence/', '/scripts/browser-options-audio.mjs',
+    '/scripts/orchestration/dependency-profile.mjs', '/scripts/tutorial-browser/browser-config.mjs',
+    '/.github/workflows/native-ui-evidence.yml']) assert.ok(sparse.includes(path), `Missing trusted import: ${path}`)
+  assert.equal(checkouts[0].with['sparse-checkout-cone-mode'], false)
   assert.ok(job.steps.findIndex(step => /manualIdentity/.test(step.run ?? '')) < job.steps.findIndex(step => step.id === 'candidate'))
   const upload = job.steps.find(step => step.uses?.startsWith('actions/upload-artifact@'))
   assert.equal(upload.with['retention-days'], 7); assert.match(upload.with.path, /\*\*\/\*\.png/)
@@ -953,7 +964,8 @@ function soundPopupFixture() {
 }
 test('sound setup publicly reopens the observed retained popup without replacing its owners', async () => {
   const f = soundPopupFixture(); await f.run()
-  assert.deepEqual(f.calls, [{ serial: '0', open: true, timeout: 2500 }])
+  assert.deepEqual(f.calls, [{ serial: '0', open: true, timeout: 4000 }])
+  assert.equal(f.trace.publicInput.timeoutMs, 4000)
   assert.equal(f.trace.status, 'passed'); assert.equal(f.trace.sameOwner, true)
   assert.deepEqual(f.trace.retainedBefore, [{ serial: '0', open: false }])
   assert.deepEqual(f.trace.retainedAfter, [{ serial: '0', open: true }]); assert.equal(f.disposed, 1)
@@ -981,14 +993,71 @@ test('sound setup rejects replaced objects, changed gameplay/input or acknowledg
   }
 })
 test('sound popup setup clips its public action to the unchanged remaining deadline and honors cancellation', async () => {
-  const f = soundPopupFixture(); f.options.deadlineAt = Date.now() + 1000; await f.run()
-  assert.ok(f.calls[0].timeout > 0 && f.calls[0].timeout <= 1000)
+  const f = soundPopupFixture(); let now = 1000
+  f.options = { ...f.options, now: () => now, deadlineAt: 2500 }
+  const evaluate = f.page.evaluate
+  f.page.evaluate = async (...args) => { const result = await evaluate(...args); now += 100; return result }
+  await f.run()
+  assert.equal(f.calls[0].timeout, 1300, 'Setup observations consume the original outer deadline')
+  assert.equal(f.trace.publicInput.timeoutMs, 1300)
   for (const deadlineAt of [0, NaN, Infinity]) {
     const g = soundPopupFixture(); g.options.deadlineAt = deadlineAt; await assert.rejects(g.run(), /deadline/)
     assert.equal(g.calls.length, 0); assert.equal(g.disposed, 0)
   }
   const g = soundPopupFixture(), abort = new Error('aborted setup'); g.options.signal = AbortSignal.abort(abort)
   await assert.rejects(g.run(), error => error === abort); assert.equal(g.calls.length, 0)
+})
+test('sound popup setup budgets the observed hosted sequence without extending the episode deadline', async () => {
+  const f = soundPopupFixture(); let now = 1000
+  f.options = { ...f.options, now: () => now, deadlineAt: 11000 }
+  const action = f.popupInput.setCampaignPopupOpen
+  f.popupInput.setCampaignPopupOpen = async (page, serial, open, options) => {
+    await action(page, serial, open, options)
+    // Exact hosted fallback sequence (run 39938798020), rounded up to ms.
+    // The candidate helper owns its end-to-end timeout; this fixture checks
+    // that the caller supplies enough budget for all four completed phases.
+    for (const elapsed of [196, 2155, 2487, 2672]) {
+      now = 1000 + elapsed
+      assert.ok(elapsed < options.timeout, 'The final retained-owner read must fit the same setup budget')
+    }
+  }
+  await f.run()
+  assert.equal(f.calls.length, 1); assert.equal(f.trace.status, 'passed'); assert.equal(f.disposed, 1)
+  assert.equal(f.options.deadlineAt, 11000)
+})
+test('sound popup setup preserves an accepted-input timeout without retry or later owner certification', async () => {
+  for (const remaining of [4000, 1000]) {
+    const f = soundPopupFixture(), failure = new Error('World input preparation timed out during final owner verification')
+    let now = 1000
+    f.options = { ...f.options, now: () => now, deadlineAt: 1000 + remaining }
+    const action = f.popupInput.setCampaignPopupOpen
+    f.popupInput.setCampaignPopupOpen = async (page, serial, open, options) => {
+      await action(page, serial, open, options)
+      assert.equal(options.timeout, remaining)
+      now += options.timeout
+      throw failure
+    }
+    await assert.rejects(f.run(), error => error === failure)
+    assert.equal(f.retained[0].open, true, 'Accepted input cannot be replayed or undone after a verification timeout')
+    assert.equal(f.calls.length, 1); assert.equal(f.disposed, 1); assert.equal(f.trace.status, 'failed')
+    assert.equal(f.trace.retainedAfter, undefined); assert.equal(f.trace.sameOwner, undefined)
+  }
+})
+test('sound popup setup rejects cancellation or outer expiry after accepted input without replay', async () => {
+  for (const kind of ['abort', 'deadline']) {
+    const f = soundPopupFixture(), controller = new AbortController(), reason = new Error('cancelled popup setup')
+    let now = 1000
+    f.options = { ...f.options, signal: controller.signal, now: () => now, deadlineAt: 11000 }
+    const action = f.popupInput.setCampaignPopupOpen
+    f.popupInput.setCampaignPopupOpen = async (...args) => {
+      await action(...args)
+      if (kind === 'abort') controller.abort(reason)
+      else now = f.options.deadlineAt
+    }
+    await assert.rejects(f.run(), error => kind === 'abort' ? error === reason : /deadline/.test(String(error)))
+    assert.equal(f.retained[0].open, true); assert.equal(f.calls.length, 1); assert.equal(f.disposed, 1)
+    assert.equal(f.trace.status, 'failed'); assert.equal(f.trace.retainedAfter, undefined)
+  }
 })
 test('sound popup setup preserves the primary public-input error if handle disposal also fails', async () => {
   const f = soundPopupFixture(), primary = new Error('public input failed'); f.actionError = primary; f.disposeError = new Error('dispose failed')
@@ -1118,4 +1187,94 @@ test('cumulative-response acceptance reconciles the exact authorized preparation
   assertMissionInputBudget(natural)
   natural.attempts[1].delivery = {}
   assert.throws(() => assertMissionInputBudget(natural), /Natural completion/)
+})
+
+// Synthetic adapter execution checks the trusted dispatch and persisted ledger,
+// not the rendered candidate assertions. Both actual split wrapper paths run.
+function pauseResult(mode) {
+  const records = [], fullscreen = [], fallback = mode === 'fallback'
+  for (const [width, height] of [[320, 240], [640, 480], [800, 450], [1920, 1080]]) {
+    const size = `${width}x${height}`
+    fullscreen.push({ fallback, label: `root-${size}` })
+    for (const category of ['Game', 'Sound', 'Graphics']) fullscreen.push({ fallback, label: `options-${category}-${size}` })
+    for (const panel of ['save', 'load']) {
+      records.push({ fallback, panel, viewport: { width, height } })
+      if (width !== 320) fullscreen.push({ fallback, label: `${panel}-${size}` })
+    }
+  }
+  return { executionContract: { version: 'pause-style-split-v1', mode, primary: false }, records, fullscreen }
+}
+async function pauseAdapterFixture(t, corrupt) {
+  const output = fixture(t), candidateRoot = resolve(output, 'candidate'), infrastructureRoot = resolve(output, 'trusted')
+  for (const episode of episodes) {
+    const root = episode.owner === 'candidate' ? candidateRoot : infrastructureRoot
+    if (!episode.pauseMode) put(root, episode.path, `export ${episode.exportName ? 'async function '+episode.exportName : 'default async function'} () { return { status: 'passed' } }`)
+    else put(root, episode.path, `export { run${episode.pauseMode === 'native' ? 'Native' : 'Fallback'}PauseStyle as default } from './original-pause-checkpoint-style.mjs'`)
+  }
+  put(candidateRoot, 'scripts/browser-new-game.mjs', 'export async function waitForStartupMenu() {}')
+  put(candidateRoot, 'scripts/local-render/original-pause-checkpoint-style.mjs', `
+    import assert from 'node:assert/strict'; import { writeFileSync } from 'node:fs'; import { resolve } from 'node:path';
+    const result = ${pauseResult.toString()};
+    async function run(args, mode) {
+      assert.equal(args.page, undefined); assert.equal(args.context, undefined);
+      const context = await args.browser.newContext(); await context.newPage(); await context.close();
+      writeFileSync(resolve(args.output, 'executed.json'), JSON.stringify({ mode, primary: false }));
+      const value = result(mode); if (${JSON.stringify(corrupt)} === mode) value.fullscreen.pop(); return value;
+    }
+    export const runNativePauseStyle = args => run(args, 'native');
+    export const runFallbackPauseStyle = args => run(args, 'fallback');
+    export default function () { throw Error('Legacy combined default must not execute'); }
+  `)
+  const browser = { async newContext() {
+    const context = new Context(), create = context.newPage.bind(context)
+    context.newPage = async () => { const page = await create(); page.goto = async () => {}; page.getByRole = () => ({ waitFor: async () => {} }); return page }
+    return context
+  }, async close() {} }
+  return { output, candidateRoot, infrastructureRoot, browser, url: 'http://fixture', signal: new AbortController().signal }
+}
+test('adapter executes BOTH primary:false wrappers and persists exact split contracts and coverage', async t => {
+  const args = await pauseAdapterFixture(t)
+  const result = await runNativeUiEvidence(args)
+  assert.equal(result.status, 'passed')
+  const ledger = JSON.parse(readFileSync(resolve(args.output, 'episodes.json')))
+  for (const mode of ['native', 'fallback']) {
+    const record = ledger.episodes.find(e => e.id === `pause-checkpoint-${mode}`)
+    assert.deepEqual(record.executionContract, { version: 'pause-style-split-v1', mode, primary: false })
+    assert.deepEqual(JSON.parse(readFileSync(resolve(args.output, record.id, 'executed.json'))), { mode, primary: false })
+    assert.equal(record.result.records.length, 8); assert.equal(record.result.fullscreen.length, 22)
+  }
+})
+test('adapter never marks incomplete split coverage passed and never skips a failed native variant', async t => {
+  for (const mode of ['native', 'fallback']) {
+    const args = await pauseAdapterFixture(t, mode)
+    await assert.rejects(runNativeUiEvidence(args), /fullscreen focus/)
+    const ledger = JSON.parse(readFileSync(resolve(args.output, 'episodes.json')))
+    assert.equal(ledger.status, 'failed')
+    assert.equal(ledger.episodes.find(e => e.id === `pause-checkpoint-${mode}`).status, 'failed')
+    if (mode === 'native') assert.equal(ledger.episodes.at(-1).status, 'not-run')
+  }
+})
+
+// The candidate-only assertions must remain present and mandatory, not silently
+// disappear from acceptance when they are separated from default-branch units.
+test('candidate-wide audio probe assertion is preserved verbatim outside main helper units', () => {
+  const contract = read('scripts/native-ui-evidence/candidate-audio-probes-contract.mjs')
+  const marker = "test('active audio probes use Options and retain their original pending, failure and transport scenarios', () => {"
+  assert.equal(contract.indexOf(marker), contract.lastIndexOf(marker))
+  assert.ok(contract.includes(marker))
+  assert.equal(createHash('sha256').update(contract.slice(contract.indexOf(marker))).digest('hex'), 'ea925636012c968fb00bc915021d6b7c49bb46eb79c0e40c3643a8229668d7cd')
+  assert.doesNotMatch(read('tests/browser-options-audio.test.mjs'), /active audio probes use Options/)
+})
+test('exact candidate source contract runs with candidate cwd before build and must pass', () => {
+  const runner = read('scripts/native-ui-evidence/run.mjs')
+  const start = runner.indexOf("stage = 'candidate-audio-source-contract'")
+  const build = runner.indexOf("stage = 'candidate-build'")
+  assert.ok(start > runner.indexOf('candidateSource = sourceManifest') && build > start)
+  const gate = runner.slice(start, build)
+  assert.match(gate, /report\.candidateAudioSourceContract = await supervise/)
+  assert.match(gate, /'--test', '--test-concurrency=1', resolve\(import\.meta\.dirname, 'candidate-audio-probes-contract\.mjs'\)/)
+  assert.match(gate, /cwd: candidateRoot/)
+  assert.match(gate, /capMs: 30000/)
+  assert.match(gate, /artifactInventory\(output\)/)
+  assert.match(gate, /assert\.equal\(report\.candidateAudioSourceContract\.status, 'passed'/)
 })
