@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { assertPauseGroup } from './pause-acceptance.mjs'
+import { assertAudioGroup } from './audio-acceptance.mjs'
 
 export const limits = Object.freeze({ buildMs: 120000, browserMs: 720000, jobMinutes: 20,
   maxContexts: 2, maxPages: 2, screenshots: 100, artifactBytes: 256 * 1024 * 1024,
@@ -9,7 +10,8 @@ export const episodes = Object.freeze([
   { id: 'selector-recovery', owner: 'candidate', path: 'scripts/check-browser-world-scene.mjs', exportName: 'failureEpisode', capMs: 120000, primary: true },
   { id: 'options-storage', owner: 'infrastructure', path: 'scripts/native-ui-evidence/options-storage-notice-style.mjs', capMs: 90000 },
   { id: 'checkpoint-notice', owner: 'candidate', path: 'scripts/local-render/frontend-checkpoint-notice-style.mjs', capMs: 90000 },
-  { id: 'options-audio', owner: 'infrastructure', path: 'scripts/native-ui-evidence/options-audio-control-style.mjs', capMs: 90000 },
+  { id: 'options-audio-native', owner: 'infrastructure', path: 'scripts/native-ui-evidence/options-audio-native-style.mjs', capMs: 90000, primary: false, audioMode: 'native' },
+  { id: 'options-audio-fallback', owner: 'infrastructure', path: 'scripts/native-ui-evidence/options-audio-fallback-style.mjs', capMs: 90000, primary: false, audioMode: 'fallback' },
   { id: 'loading-recovery', owner: 'candidate', path: 'scripts/local-render/loading-recovery-style.mjs', capMs: 90000, primary: true },
   { id: 'pause-checkpoint-native', owner: 'candidate', path: 'scripts/local-render/original-pause-checkpoint-native-style.mjs', capMs: 90000, primary: false, pauseMode: 'native' },
   { id: 'pause-checkpoint-fallback', owner: 'candidate', path: 'scripts/local-render/original-pause-checkpoint-fallback-style.mjs', capMs: 90000, primary: false, pauseMode: 'fallback' },
@@ -22,7 +24,7 @@ export function acceptEpisode(result) {
   if (Object.hasOwn(result, 'status')) assert.equal(result.status, 'passed', 'Episode did not pass')
 }
 export function acceptSeries(records) {
-  assert.deepEqual(records.map(record => record.id), episodes.map(episode => episode.id), 'All eight ordered episodes required')
+  assert.deepEqual(records.map(record => record.id), episodes.map(episode => episode.id), 'All nine ordered episodes required')
   for (const record of records) {
     assert.equal(record.status, 'passed')
     assert.equal(record.timedOut, false)
@@ -30,6 +32,7 @@ export function acceptSeries(records) {
     acceptEpisode(record.result)
   }
   assertPauseGroup(records)
+  assertAudioGroup(records)
 }
 
 // Closing owned browser resources cancels Playwright operations. Wait for their

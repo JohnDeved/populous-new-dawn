@@ -82,7 +82,7 @@ jobs:
           /opt/google/chrome/chrome --version
           node --version
           if [ "$manager" = pnpm@11.25.0 ]; then pnpm --version; else npm --version; fi
-      - name: Build candidate Home and run all seven mandatory UI episodes
+      - name: Build candidate Home and run all nine mandatory UI episodes
         run: |
           node --max-old-space-size=768 evidence-infrastructure/scripts/native-ui-evidence/run.mjs \
             "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/native-ui-evidence" "$GITHUB_WORKSPACE/native-ui-dist"
