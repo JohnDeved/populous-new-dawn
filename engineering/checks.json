@@ -1039,6 +1039,24 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "shared-setup-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check read-only shared pnpm setup admission and measured inode reuse.",
+      "coveredBehavior": ["Committed dependency metadata identity", "Source-only zero allocation", "Physical same-filesystem capacity admission", "Actual shared versus copied package-file accounting", "Drift rejection and private mutable caches"],
+      "knownLimits": ["Synthetic Git/filesystem fixtures only; no real pnpm install, dependency compatibility, allocation savings or RAM acceptance."],
+      "executable": "node",
+      "args": ["--test", "tests/shared-setup.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": ["scripts/orchestration/shared_setup.py", "scripts/orchestration/shared_runtime.py", "tests/shared_setup_test.py", "tests/shared-setup.test.mjs", "engineering/shared-worktrees.md", "README.md", "pnpm-workspace.yaml", "pnpm-lock.yaml"],
+      "inputs": ["scripts/orchestration/shared_setup.py", "scripts/orchestration/shared_runtime.py", "tests/shared_setup_test.py", "tests/shared-setup.test.mjs", "package.json", "package-lock.json", "pnpm-lock.yaml", "pnpm-workspace.yaml"],
+      "prerequisites": ["Node.js >=22.13.0", "Python 3", "Git", "Filesystem supports symlinks and hardlinks"],
+      "sideEffects": ["Creates and removes owned tiny temporary fixtures; never invokes pnpm, network, browser or game assets."],
+      "resources": [],
+      "expected": {"exitCode": 0, "artifacts": []}
+    },
+    {
       "id": "orchestration-structural",
       "kind": "metadata",
       "automation": "safe",
