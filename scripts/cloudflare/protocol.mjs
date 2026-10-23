@@ -110,9 +110,16 @@ export function renderComment({ run, outcome, publication, urls, diagnostic = ''
   const previewCell = urls ? ` <a href='${urls.commitUrl}'>Commit Preview URL</a><br><br><a href='${urls.branchUrl}'>Branch Preview URL</a> |` : ''
   const logs = `https://github.com/${repository}/actions/runs/${logsRun.id}/attempts/${logsRun.run_attempt}`
   const updated = commentTimestamp(publication?.updated_at || run.updated_at)
+  // Display time intentionally has native minute precision; hidden provenance
+  // must retain full precision and publisher identity so a same-minute retry
+  // updates the diagnostic link rather than preserving an earlier attempt.
+  const lifecycle = value => value ? { id: value.id, attempt: value.run_attempt,
+    status: value.status, conclusion: value.conclusion, updatedAt: value.updated_at } : null
+  const detail = createHash('sha256').update(JSON.stringify({ diagnostic,
+    source: lifecycle(run), publication: lifecycle(publication) })).digest('hex')
   return `${marker}
 <!-- source:${run.id}:${run.run_attempt} -->
-<!-- detail:${createHash('sha256').update(diagnostic).digest('hex')} -->
+<!-- detail:${detail} -->
 
 ## Deploying with &nbsp;<a href="https://workers.dev"><img alt="Cloudflare Workers" src="https://workers.cloudflare.com/logo.svg" width="16"></a> &nbsp;Cloudflare Workers
 The latest updates on your project. Learn more about [integrating Git with Workers](https://developers.cloudflare.com/workers/ci-cd/builds/git-integration/).

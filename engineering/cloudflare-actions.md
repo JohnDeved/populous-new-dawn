@@ -87,6 +87,9 @@ This replaces the native combined-build log destination without adding visible
 boilerplate to the requested comment. Missing evidence is never displayed as a
 successful deployment. The UTC value comes from the API-observed source/publisher
 update timestamp, not the reporter's wall clock, preserving rerun idempotence.
+Hidden provenance binds the full source/publisher timestamps and exact publisher
+ID/attempt, so two failed or cancelled retries in the same displayed minute still
+update the diagnostic link; only an unchanged reporter invocation is a no-op.
 
 Both links are accepted only from validated successful upload output:
 

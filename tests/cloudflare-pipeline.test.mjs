@@ -362,3 +362,27 @@ test('identical lifecycle keeps the prior diagnostic log link across reporter in
   assert.equal(await report(f), 'updated'); assert.equal(f.state.writes.length, 2)
   assert.match(f.state.comments[0].body, /runs\/901\/attempts\/1/)
 })
+
+test('same-minute failed and cancelled publisher retries replace stale diagnostic links', async () => {
+  for (const conclusion of ['failure', 'cancelled']) {
+    const f = fixture(); f.state.publication.conclusion = conclusion
+    f.state.publication.updated_at = '2026-10-23T13:00:01Z'; f.reportRun = { id: 900, run_attempt: 1 }
+    assert.equal(await report(f), 'created')
+    f.state.publication.run_attempt = 2; f.state.publication.updated_at = '2026-10-23T13:00:59Z'
+    f.reportRun = { id: 901, run_attempt: 1 }
+    assert.equal(await report(f), 'updated'); assert.equal(f.state.writes.length, 2)
+    assert.match(f.state.comments[0].body, /runs\/901\/attempts\/1/)
+    assert.doesNotMatch(f.state.comments[0].body, /Preview URL/)
+  }
+})
+test('same-minute publisher identity and exact timestamp changes are not hidden by display precision', async () => {
+  for (const change of [p => { p.id = 201 }, p => { p.updated_at = '2026-10-23T13:00:02Z' }]) {
+    const f = fixture(); f.state.publication.conclusion = 'failure'
+    f.state.publication.updated_at = '2026-10-23T13:00:01Z'; f.reportRun = { id: 900, run_attempt: 1 }
+    assert.equal(await report(f), 'created')
+    change(f.state.publication); const original = f.api
+    f.api = (path, options) => original(path.replace('/actions/runs/201', '/actions/runs/200'), options)
+    f.reportRun = { id: 901, run_attempt: 1 }
+    assert.equal(await report(f), 'updated'); assert.match(f.state.comments[0].body, /runs\/901\/attempts\/1/)
+  }
+})
