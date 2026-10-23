@@ -3,11 +3,16 @@ import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
+  closeSync,
+  constants,
   existsSync,
+  fstatSync,
   lstatSync,
   mkdirSync,
   mkdtempSync,
+  openSync,
   readFileSync,
+  readSync,
   realpathSync,
   renameSync,
   rmSync,
@@ -16,6 +21,7 @@ import {
 import { homedir } from 'node:os'
 import { basename, dirname, isAbsolute, normalize, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { readReceiptStreams } from './receipt-streams.mjs'
 
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const MAX_RECEIPT_BYTES = 2 * 1024 * 1024
@@ -190,6 +196,8 @@ function assertNoSecretDecoded(value, label = 'receipt', state = { decodedBytes:
     return
   }
   if (!value || typeof value !== 'object') return
+  assert(value === state.verifiedRoot || !(value.kind === 'pnd-command-receipt' && value.version === 2),
+    'review bundle cannot export v2 command receipts without explicit verified raw artifacts')
   for (const [key, item] of Object.entries(value)) {
     if (SECRET_KEY.test(key))
       throw new Error(`receipt decoded payload contains secret-like field at ${label}`)
@@ -197,7 +205,7 @@ function assertNoSecretDecoded(value, label = 'receipt', state = { decodedBytes:
   }
 }
 
-function redactReceipt(raw, repo) {
+function redactReceipt(raw, repo, verifiedRoot) {
   assert(raw.length <= MAX_RECEIPT_BYTES, `receipt exceeds ${MAX_RECEIPT_BYTES} bytes`)
   assert(!raw.includes(0), 'binary receipts are not review-bundle safe')
   const text = new TextDecoder('utf-8', { fatal: true }).decode(raw)
@@ -206,7 +214,7 @@ function redactReceipt(raw, repo) {
     'receipt contains a secret-like assignment; publish a bounded sanitized receipt instead'
   )
   try {
-    assertNoSecretDecoded(JSON.parse(text))
+    assertNoSecretDecoded(verifiedRoot ?? JSON.parse(text), 'receipt', { decodedBytes: 0, verifiedRoot })
   } catch (error) {
     if (!(error instanceof SyntaxError)) throw error
   }
@@ -248,27 +256,104 @@ function assertOutsideSource(repo, output) {
   return target
 }
 
-function collectReceipts(repo, receipts) {
-  let totalReceiptBytes = 0
-  const prepared = []
-  for (const sourcePath of [...new Set(receipts)]) {
-    const absolute = safeRepoFile(repo, sourcePath),
-      raw = readFileSync(absolute)
+// Keep the bounded source descriptor open across v2 stream resolution. Neither a
+// large source file nor a replacement at the same name may bypass the input cap.
+function withReceiptInput(repo, sourcePath, maxBytes, consume) {
+  const absolute = safeRepoFile(repo, sourcePath),
+    fd = openSync(absolute, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK)
+  try {
+    const before = fstatSync(fd, { bigint: true })
+    const unchanged = () => {
+      for (const stat of [fstatSync(fd, { bigint: true }), lstatSync(absolute, { bigint: true })]) {
+        assert(stat.isFile() && ['dev', 'ino', 'mode', 'size', 'mtimeNs', 'ctimeNs'].every(
+          key => stat[key] === before[key]), 'Receipt source identity changed')
+      }
+    }
+    unchanged()
+    assert(before.size <= BigInt(maxBytes), `receipt exceeds ${maxBytes} remaining bytes`)
+    const raw = Buffer.alloc(Number(before.size)), extra = Buffer.alloc(1)
+    const read = data => {
+      let offset = 0
+      while (offset < data.length) {
+        const size = readSync(fd, data, offset, data.length - offset, offset)
+        assert(size > 0, 'Receipt source shortened during read')
+        offset += size
+      }
+      assert.equal(readSync(fd, extra, 0, 1, offset), 0, 'Receipt source grew during read')
+      unchanged()
+    }
+    read(raw)
+    const result = consume(raw, before)
+    // Re-read this same bounded, held object, not a newly resolved source path.
+    const after = Buffer.alloc(raw.length)
+    read(after)
+    assert(after.equals(raw), 'Receipt source bytes changed during stream resolution')
+    return result
+  } finally {
+    closeSync(fd)
+  }
+}
+
+function collectReceipts(repo, receipts, v2Receipt) {
+  let totalReceiptBytes = 0, totalCopiedBytes = 0
+  const prepared = new Map()
+  const remaining = () => Math.min(MAX_RECEIPT_BYTES, MAX_TOTAL_RECEIPT_BYTES - totalReceiptBytes)
+  const add = (sourcePath, raw, verifiedRoot) => {
+    const existing = prepared.get(sourcePath)
+    if (existing) {
+      assert(existing.raw.equals(raw), 'Conflicting receipt source identity')
+      return
+    }
     totalReceiptBytes += raw.length
-    assert(
-      totalReceiptBytes <= MAX_TOTAL_RECEIPT_BYTES,
-      `receipts exceed ${MAX_TOTAL_RECEIPT_BYTES} total source bytes`
-    )
-    const { data, redactions } = redactReceipt(raw, repo)
-    prepared.push({
-      sourcePath,
-      raw,
-      data,
-      redactions,
-      bundlePath: `receipts/${sourcePath}`,
+    assert(totalReceiptBytes <= MAX_TOTAL_RECEIPT_BYTES,
+      `receipts exceed ${MAX_TOTAL_RECEIPT_BYTES} total source bytes`)
+    const { data, redactions } = redactReceipt(raw, repo, verifiedRoot)
+    totalCopiedBytes += data.length
+    assert(data.length <= MAX_RECEIPT_BYTES && totalCopiedBytes <= MAX_TOTAL_RECEIPT_BYTES,
+      'Copied receipts exceed review bundle byte limits')
+    prepared.set(sourcePath, { sourcePath, raw, data, redactions, bundlePath: `receipts/${sourcePath}` })
+    return data
+  }
+  if (v2Receipt !== undefined) {
+    const [[sourcePath, expectedHash]] = expectedMap([v2Receipt], 'v2 receipt')
+    withReceiptInput(repo, sourcePath, remaining(), (raw, identity) => {
+      assert.equal(identity.nlink, 1n, 'Original v2 receipt must not be hard-linked')
+      assert.equal(sha256(raw), expectedHash, 'Original v2 receipt hash mismatch')
+      let receipt
+      try { receipt = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(raw)) } catch {
+        throw new Error('v2 receipt must be valid UTF-8 JSON')
+      }
+      assert(receipt && !Array.isArray(receipt) && receipt.kind === 'pnd-command-receipt' &&
+        receipt.version === 2 && receipt.streamFormat === 'raw-artifact-v1',
+      'v2 receipt must be a directly supplied raw-artifact-v1 command receipt')
+      const names = ['stdout', 'stderr']
+      let expandedBytes = raw.length
+      for (const name of names) {
+        const bytes = receipt.streams?.[name]?.bytes
+        assert(Number.isSafeInteger(bytes) && bytes >= 0 && bytes <= MAX_RECEIPT_BYTES,
+          'Invalid or oversized raw stream descriptor')
+        expandedBytes += bytes
+      }
+      assert(expandedBytes <= MAX_TOTAL_RECEIPT_BYTES - totalReceiptBytes,
+        `receipts exceed ${MAX_TOTAL_RECEIPT_BYTES} total source bytes`)
+      const streams = readReceiptStreams(repo, sourcePath, receipt, { maxBytes: remaining() })
+      add(sourcePath, raw, receipt)
+      for (const name of names) {
+        // The semantic reader preserves UTF-8 BOMs and verifies the original raw
+        // hash. Re-encoding valid UTF-8 therefore recovers the exact held bytes.
+        const stream = Buffer.from(streams[name], 'utf8'), descriptor = receipt.streams[name]
+        assert.equal(stream.length, descriptor.bytes, 'Raw stream byte count changed')
+        assert.equal(sha256(stream), descriptor.sha256, 'Raw stream hash changed')
+        const data = add(`${sourcePath}.artifacts/${name}.log`, stream)
+        assert(data.equals(stream), 'Raw stream requires sanitization; cannot export original bytes')
+      }
     })
   }
-  return prepared
+  for (const sourcePath of new Set(receipts)) {
+    if (prepared.has(sourcePath)) continue // The same explicitly named physical input.
+    withReceiptInput(repo, sourcePath, remaining(), raw => add(sourcePath, raw))
+  }
+  return [...prepared.values()]
 }
 
 function expectedMap(entries, label) {
@@ -354,6 +439,7 @@ function validateExpectedIdentity(manifest, expected) {
   assert(Array.isArray(manifest.receipts), 'manifest receipts must be an array')
   for (const receipt of manifest.receipts) {
     const sourcePath = safeIdentityPath(receipt.sourcePath, 'manifest receipt source path')
+    assert.equal(receipt.bundlePath, `receipts/${sourcePath}`, 'Receipt bundle path does not match source path')
     assert(
       HASH.test(receipt.bundleSha256 ?? ''),
       `manifest receipt bundle sha256 is invalid for ${sourcePath}`
@@ -491,6 +577,7 @@ const receiptSources = new Map()
 assert(Array.isArray(manifest.receipts), 'manifest receipts must be an array')
 for (const receipt of manifest.receipts) {
   const path = safeRelative(receipt.sourcePath, 'manifest receipt source path')
+  assert.equal(receipt.bundlePath, 'receipts/' + path, 'Receipt bundle path does not match source path')
   assert(HASH.test(receipt.bundleSha256 || ''), 'invalid manifest receipt bundle sha256: ' + path)
   assert(!receiptSources.has(path), 'duplicate manifest receipt: ' + path)
   receiptSources.set(path, receipt.bundleSha256.toLowerCase())
@@ -525,7 +612,7 @@ function bundleReadme(manifest) {
 This directory is intentionally outside the source checkout so a reviewer can open it
 from an independent permitted executor or worktree.
 
-1. Obtain the expected HEAD, changed-source SHA-256 values, receipt source hashes, and
+1. Obtain the expected HEAD, changed-source SHA-256 values, copied receipt hashes, and
    diff SHA-256 from a trusted source/PR handoff — never from this bundle's manifest.
 2. Open this directory in the reviewer's permitted executor.
 3. Run \`node verify.mjs --expected-head <HEAD> --expected-diff-sha256 <SHA>\`
@@ -536,11 +623,14 @@ from an independent permitted executor or worktree.
 
 The bundle contains no repository credentials or environment files. Explicit receipt
 inputs are text-only, secret-like assignments are rejected, and local source/home paths
-are redacted in copied receipts.
+are redacted in copied receipts. A copied v2 JSON is a portable metadata view, not
+the original physical source receipt. Explicit v2 exports also include both complete
+raw sibling logs only when sanitization leaves their bytes unchanged; trust all three
+copied hashes from the external handoff. Never feed the metadata copy to a raw reader.
 `
 }
 
-export function buildReviewBundle(repo, { taskId, base, output, receipts = [] }) {
+export function buildReviewBundle(repo, { taskId, base, output, receipts = [], v2Receipt }) {
   assert(TASK_ID.test(taskId ?? ''), 'task id must use letters, numbers, dot, underscore, or dash')
   assertReviewReadyCheckout(repo)
   const headOid = git(repo, ['rev-parse', 'HEAD']).trim(),
@@ -568,7 +658,7 @@ export function buildReviewBundle(repo, { taskId, base, output, receipts = [] })
       ...change,
       ...sourceAtHead(repo, headOid, change.path, change.status),
     })),
-    preparedReceipts = collectReceipts(repo, receipts),
+    preparedReceipts = collectReceipts(repo, receipts, v2Receipt),
     receiptEntries = preparedReceipts.map(({ sourcePath, raw, data, redactions, bundlePath }) => ({
       sourcePath,
       sourceSha256: sha256(raw),
@@ -684,6 +774,7 @@ function main() {
           'expected-source',
           'expected-receipt',
           'expected-deletion',
+          'v2-receipt',
           'task-id',
           'base',
           'output',
@@ -704,6 +795,7 @@ function main() {
       base: options.base,
       output: options.output,
       receipts: options.receipt,
+      v2Receipt: options['v2-receipt'] === undefined ? undefined : parsePair(options['v2-receipt'], 'v2 receipt'),
     })
     console.log(JSON.stringify(result, null, 2))
     return

@@ -1,3 +1,5 @@
+import { createReceiptArtifacts, readReceiptStreams } from '../scripts/orchestration/receipt-streams.mjs'
+import { writeSync } from 'node:fs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
@@ -128,4 +130,23 @@ test('an explicit Spy scenario is excluded despite pinning early-missions as a h
   const missing = structuredClone(real); missing.command.pop()
   assert.equal(isOrdinaryCheckpointCandidate(missing), true)
   assert.equal(projectOrdinaryCheckpoint({ ...fixture(), outer: missing }).status, 'unknown')
+})
+
+
+test('v2 raw-only receipt preserves the complete owned semantic result', t => {
+  const data = fixture(), root = mkdtempSync(join(tmpdir(), 'owned-v2-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const target = join(root, data.path), evidence = createReceiptArtifacts(target)
+  try {
+    // The final complete JSON line remains authoritative after a large log prefix.
+    writeSync(evidence.fd('stdout'), 'diagnostic\n'.repeat(4000) + data.outer.stdout)
+    writeSync(evidence.fd('stderr'), data.outer.stderr)
+    const raw = { ...data.outer, version: 2, streamFormat: 'raw-artifact-v1',
+      artifacts: { stdout: target + '.artifacts/stdout.log', stderr: target + '.artifacts/stderr.log' }, ...evidence.capture() }
+    delete raw.stdout
+    assert.equal(projectOrdinaryCheckpoint({ ...data, outer: raw }).status, 'unknown')
+    const hydrated = readReceiptStreams(root, data.path, raw)
+    assert.equal(projectOrdinaryCheckpoint({ ...data, outer: hydrated }).status, 'verified')
+    assert.equal(projectOrdinaryCheckpoint({ ...data, outer: JSON.parse(JSON.stringify(hydrated)) }).status, 'unknown')
+  } finally { evidence.close() }
 })
