@@ -109,8 +109,7 @@ export function runCommandReceipt(repo, { output, command, inputs = [], env = pr
     receipt.parityMeasurements = finishMeasurement(measurementBefore, measurementAfter, receipt)
     // A replaced path prevents terminal writing. The original pinned evidence
     // and prepared state remain retained, rather than writing through an alias.
-    evidence.write(receipt, true)
-    return receipt
+    return evidence.write(receipt, true)
   } catch (error) { operationError = error; throw error }
   finally { evidence.close(operationError) }
 

@@ -89,11 +89,116 @@ test('successful terminal publication replaces prepared JSON and caller closes a
     evidence.write({ status: 'passed', ...evidence.capture() }, true)
     assert.notEqual(fs.statSync(target).ino, preparedInode)
     assert.equal(JSON.parse(fs.readFileSync(target)).status, 'passed')
+    assert(fs.existsSync(target + '.artifacts/publication.pending'))
     assert.throws(() => evidence.write({ status: 'failed' }, true), /already terminal/)
   } finally { evidence.close() }
+  assert.equal(fs.existsSync(target + '.artifacts/publication.pending'), false)
+  assert.equal(fs.existsSync(target + '.artifacts/publication.complete'), true)
   for (const fd of handles) assert.throws(() => fs.fstatSync(fd), { code: 'EBADF' })
   assert.doesNotThrow(() => evidence.close())
   assert.deepEqual(evidence.cleanupErrors, [])
+})
+
+test('post-rename mutation leaves a persisted pass guarded against ingestion', t => {
+  const f = fixture(t); fs.writeSync(f.evidence.fd('stdout'), 'abc')
+  const receipt = { ...f.header, ...f.evidence.capture(), status: 'passed' }, renameSync = fs.renameSync
+  const rename = t.mock.method(fs, 'renameSync', (from, to) => {
+    renameSync(from, to)
+    fs.writeSync(f.evidence.fd('stdout'), 'abd', 0)
+  })
+  assert.throws(() => f.evidence.write(receipt, true), /Captured raw stream changed/)
+  rename.mock.restore()
+  f.evidence.close()
+  const persisted = JSON.parse(fs.readFileSync(f.target))
+  assert.equal(persisted.status, 'passed') // The child outcome is not publication eligibility.
+  assert(fs.existsSync(f.target + '.artifacts/publication.pending'))
+  assert.throws(() => readReceiptStreams(f.root, f.path, persisted), /publication is pending/)
+  // Restoring the original bytes must not make a failed finalization eligible.
+  fs.writeFileSync(receipt.artifacts.stdout, 'abc')
+  assert.throws(() => readReceiptStreams(f.root, f.path, persisted), /publication is pending/)
+})
+
+test('same-byte metadata mutation during rename remains an ineligible finalization', t => {
+  const f = fixture(t); fs.writeSync(f.evidence.fd('stdout'), 'abc')
+  const receipt = { ...f.header, ...f.evidence.capture(), status: 'passed' }, renameSync = fs.renameSync
+  const rename = t.mock.method(fs, 'renameSync', (from, to) => {
+    renameSync(from, to)
+    fs.futimesSync(f.evidence.fd('stdout'), new Date(0), new Date(0))
+  })
+  assert.throws(() => f.evidence.write(receipt, true), /Captured raw stream changed/)
+  rename.mock.restore(); f.evidence.close()
+  assert.equal(fs.readFileSync(receipt.artifacts.stdout, 'utf8'), 'abc')
+  assert.equal(JSON.parse(fs.readFileSync(f.target)).status, 'passed')
+  assert.throws(() => readReceiptStreams(f.root, f.path, receipt), /publication is pending/)
+})
+
+test('guard descriptor is closed if its initial identity read fails', t => {
+  const f = fixture(t), receipt = { ...f.header, ...f.evidence.capture(), status: 'passed' }
+  const openSync = fs.openSync, fstatSync = fs.fstatSync
+  let guardFd
+  const open = t.mock.method(fs, 'openSync', (path, ...args) => {
+    const fd = openSync(path, ...args)
+    if (path.endsWith('/publication.pending')) guardFd = fd
+    return fd
+  })
+  const stat = t.mock.method(fs, 'fstatSync', (fd, ...args) => {
+    if (fd === guardFd) throw new Error('guard fstat failure')
+    return fstatSync(fd, ...args)
+  })
+  assert.throws(() => f.evidence.write(receipt, true), /guard fstat failure/)
+  open.mock.restore(); stat.mock.restore(); f.evidence.close()
+  assert(Number.isInteger(guardFd))
+  assert.throws(() => fs.fstatSync(guardFd), { code: 'EBADF' })
+  assert.equal(JSON.parse(fs.readFileSync(f.target)).status, 'unknown')
+})
+
+test('failed guard release and descriptor cleanup cannot expose terminal evidence', t => {
+  for (const fault of ['rename', 'close']) {
+    const f = fixture(t), receipt = { ...f.header, ...f.evidence.capture(), status: 'passed' }
+    f.evidence.write(receipt, true)
+    const method = fault === 'rename' ? 'renameSync' : 'closeSync', original = fs[method]
+    const mocked = t.mock.method(fs, method, value => {
+      if (fault === 'close') original(value) // Do not leak the real test descriptor.
+      if (fault === 'rename' || value === f.evidence.fd('terminal')) throw new Error('injected release failure')
+    })
+    assert.throws(() => f.evidence.close(), /release failure|cleanup failed/)
+    mocked.mock.restore()
+    assert(fs.existsSync(f.target + '.artifacts/publication.pending'))
+    assert.throws(() => readReceiptStreams(f.root, f.path, JSON.parse(fs.readFileSync(f.target))), /publication is pending/)
+  }
+})
+
+test('post-rename path replacement never reopens or rewrites the replacement', t => {
+  const f = fixture(t), receipt = { ...f.header, ...f.evidence.capture(), status: 'passed' }, renameSync = fs.renameSync
+  const replacement = JSON.stringify({ outside: 'preserved' })
+  const rename = t.mock.method(fs, 'renameSync', (from, to) => {
+    renameSync(from, to)
+    renameSync(to, to + '.owned')
+    fs.writeFileSync(to, replacement)
+  })
+  assert.throws(() => f.evidence.write(receipt, true), /changed|regular/)
+  rename.mock.restore()
+  f.evidence.close()
+  assert.equal(fs.readFileSync(f.target, 'utf8'), replacement)
+  assert.equal(JSON.parse(fs.readFileSync(f.target + '.owned')).status, 'passed')
+  assert(fs.existsSync(f.target + '.artifacts/publication.pending'))
+  assert.throws(() => readReceiptStreams(f.root, f.path, receipt), /publication is pending/)
+})
+
+test('post-rename ancestor substitution retains the original guard and preserves replacement', t => {
+  const f = fixture(t), receipt = { ...f.header, ...f.evidence.capture(), status: 'passed' }, renameSync = fs.renameSync
+  const parent = join(f.root, 'work/orchestration'), replacement = 'unrelated replacement'
+  const rename = t.mock.method(fs, 'renameSync', (from, to) => {
+    renameSync(from, to)
+    renameSync(parent, parent + '.original')
+    fs.mkdirSync(parent); fs.writeFileSync(f.target, replacement)
+  })
+  assert.throws(() => f.evidence.write(receipt, true), /ancestor changed/)
+  rename.mock.restore(); f.evidence.close()
+  assert.equal(fs.readFileSync(f.target, 'utf8'), replacement)
+  assert(fs.existsSync(parent + '.original/test.json.artifacts/publication.pending'))
+  assert.equal(JSON.parse(fs.readFileSync(parent + '.original/test.json')).status, 'passed')
+  assert.throws(() => readReceiptStreams(f.root, f.path, receipt))
 })
 
 test('close attempts every held descriptor once and retains original plus cleanup failures', t => {
@@ -177,4 +282,47 @@ test('existing attempts are not overwritten and legacy v1 objects are unchanged'
   const before = JSON.stringify(legacy)
   assert.equal(readReceiptStreams(f.root, f.path, legacy), legacy)
   assert.equal(JSON.stringify(legacy), before)
+})
+
+
+test('reader rejects understated raw size before reading uncharged payload bytes', t => {
+  const f = fixture(t); fs.writeSync(f.evidence.fd('stdout'), 'payload')
+  const receipt = { ...f.header, ...f.evidence.capture() }
+  receipt.streams.stdout.bytes = 0
+  const read = t.mock.method(fs, 'readSync', () => { assert.fail('Mismatched payload must not be read') })
+  assert.throws(() => readReceiptStreams(f.root, f.path, receipt), /size differs from descriptor/)
+  assert.equal(read.mock.callCount(), 0)
+  read.mock.restore()
+})
+
+
+test('a disappeared pending marker cannot turn detected finalization failure into success', t => {
+  const f = fixture(t), receipt = { ...f.header, ...f.evidence.capture(), status: 'passed' }, renameSync = fs.renameSync
+  const rename = t.mock.method(fs, 'renameSync', (from, to) => {
+    renameSync(from, to)
+    fs.unlinkSync(f.target + '.artifacts/publication.pending')
+  })
+  assert.throws(() => f.evidence.write(receipt, true), /ENOENT|changed/)
+  rename.mock.restore(); f.evidence.close()
+  const persisted = JSON.parse(fs.readFileSync(f.target))
+  assert.equal(persisted.status, 'passed'); assert.equal(persisted.publication, 'guard-v1')
+  assert.equal(fs.existsSync(f.target + '.artifacts/publication.pending'), false)
+  assert.equal(fs.existsSync(f.target + '.artifacts/publication.complete'), false)
+  assert.throws(() => readReceiptStreams(f.root, f.path, persisted), /ENOENT/)
+})
+
+
+test('completion-path substitution before release is preserved and cannot become success', t => {
+  for (const alias of [false, true]) {
+    const f = fixture(t), receipt = { ...f.header, ...f.evidence.capture(), status: 'passed' }
+    f.evidence.write(receipt, true)
+    const complete = f.target + '.artifacts/publication.complete', outside = join(f.root, 'outside-complete')
+    fs.writeFileSync(outside, 'preserved')
+    if (alias) fs.symlinkSync(outside, complete)
+    else fs.writeFileSync(complete, 'preexisting')
+    assert.throws(() => f.evidence.close(), /completion marker already exists/)
+    assert.equal(fs.readFileSync(outside, 'utf8'), 'preserved')
+    assert.equal(fs.readFileSync(complete, 'utf8'), alias ? 'preserved' : 'preexisting')
+    assert.throws(() => readReceiptStreams(f.root, f.path, JSON.parse(fs.readFileSync(f.target))), /publication is pending/)
+  }
 })

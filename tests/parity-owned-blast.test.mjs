@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto'
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { BLAST_BINDINGS, BLAST_CONTROL_STAGES, BLAST_REFERENCE, isOrdinaryBlastCandidate, projectOrdinaryBlast, selectOrdinaryBlast, isBlastReferenceCandidate, projectBlastReference, selectBlastReference } from '../scripts/parity-owned-blast.mjs'
+import { BLAST_BINDINGS, BLAST_CONTROL_STAGES, BLAST_REFERENCE, isOrdinaryBlastCandidate, projectOrdinaryBlast, readOrdinaryBlast, selectOrdinaryBlast, isBlastReferenceCandidate, projectBlastReference, readBlastReference, selectBlastReference } from '../scripts/parity-owned-blast.mjs'
 import { buildReport, discoverReceipts, renderHTML } from '../scripts/parity-measure.mjs'
 const sha = value => createHash('sha256').update(value).digest('hex')
 
@@ -327,4 +327,30 @@ test('v2 raw-only receipt preserves the complete owned semantic result', t => {
     assert.equal(projectOrdinaryBlast({ ...data, outer: hydrated }).status, 'verified')
     assert.equal(projectOrdinaryBlast({ ...data, outer: JSON.parse(JSON.stringify(hydrated)) }).status, 'unknown')
   } finally { evidence.close() }
+})
+
+
+test('live Blast readers reject pending publication and mutated persisted v2 raw evidence', t => {
+  const root = mkdtempSync(join(tmpdir(), 'blast-live-v2-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  for (const data of [...BLAST_BINDINGS.map(binding => fixture(binding)), referenceFixture()]) {
+    const target = join(root, data.path), artifacts = createReceiptArtifacts(target)
+    const readLive = supplied => data.binding
+      ? readOrdinaryBlast(root, supplied, { tree: data.currentTree, clean: true }, data.binding)
+      : readBlastReference(root, supplied, { tree: data.currentTree, clean: true })
+    let supplied
+    try {
+      writeSync(artifacts.fd('stdout'), data.outer.stdout)
+      writeSync(artifacts.fd('stderr'), data.outer.stderr)
+      const raw = { ...data.outer, version: 2, streamFormat: 'raw-artifact-v1',
+        artifacts: { stdout: target + '.artifacts/stdout.log', stderr: target + '.artifacts/stderr.log' }, ...artifacts.capture() }
+      artifacts.write(raw, true)
+      supplied = { path: data.path, commandReceipt: JSON.parse(readFileSync(target)) }
+      const pending = readLive(supplied)
+      assert.equal(pending.status, 'unknown'); assert.match(pending.reason, /publication is pending/)
+    } finally { artifacts.close() }
+    writeFileSync(target + '.artifacts/stdout.log', 'changed')
+    const rejected = readLive(supplied)
+    assert.equal(rejected.status, 'unknown'); assert.match(rejected.reason, /size differs from descriptor/)
+  }
 })

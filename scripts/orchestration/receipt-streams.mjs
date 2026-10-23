@@ -8,6 +8,9 @@ export const RECEIPT_INLINE_BYTES = 32 * 1024
 export const RECEIPT_PARSE_BYTES = 4 * 1024 * 1024
 const CHUNK_BYTES = 64 * 1024
 const names = ['stdout', 'stderr']
+const PUBLICATION_PENDING = 'publication.pending'
+const PUBLICATION_COMPLETE = 'publication.complete'
+const PUBLICATION_FORMAT = 'guard-v1'
 const verified = Symbol('verified complete receipt streams')
 const sameNode = (a, b) => a.dev === b.dev && a.ino === b.ino && a.mode === b.mode
 const sameContent = (a, b) => sameNode(a, b) && a.size === b.size && a.mtimeNs === b.mtimeNs && a.ctimeNs === b.ctimeNs
@@ -64,8 +67,9 @@ function regular(fd, path) {
   return held
 }
 
-function rawStream(fd, path, keepBytes) {
+function rawStream(fd, path, keepBytes, expectedBytes) {
   const before = regular(fd, path)
+  if (expectedBytes !== undefined) assert(before.size === BigInt(expectedBytes), 'Raw stream identity mismatch: size differs from descriptor')
   assert(before.size <= BigInt(Number.MAX_SAFE_INTEGER), 'Raw stream size is not representable')
   const size = Number(before.size), hash = createHash('sha256'), buffer = Buffer.alloc(CHUNK_BYTES)
   const keep = size <= keepBytes, parts = []
@@ -101,7 +105,7 @@ export function createReceiptArtifacts(target) {
   target = resolve(target)
   const pins = pinnedDirectories(dirname(target), true), files = new Map(), captured = new Map()
   const artifacts = `${target}.artifacts`
-  let committed = false, closed = false, cleanupErrors = []
+  let committed = false, terminalValidated = false, closed = false, cleanupErrors = []
   const validate = () => {
     validateDirectories(pins)
     for (const [name, file] of files) {
@@ -113,8 +117,24 @@ export function createReceiptArtifacts(target) {
   const close = primaryError => {
     if (closed) return
     closed = true
+    let finalizationError
+    if (terminalValidated && !primaryError) {
+      try { validate() } catch (error) { finalizationError = error }
+    }
     cleanupErrors = attemptClose([...files.values(), ...pins].map(item => item.fd))
-    raiseCleanup(cleanupErrors, primaryError)
+    raiseCleanup(cleanupErrors, primaryError ?? finalizationError)
+    if (finalizationError) throw finalizationError
+    if (terminalValidated && !primaryError) {
+      // The guard predates publication and survives any validation/close failure.
+      // Do not depend on a corrective write to turn a failed finalization into
+      // non-evidence. All descriptors are closed before releasing eligibility.
+      for (const pin of pins) assert(sameNode(pin.before, fs.lstatSync(pin.path, { bigint: true })), 'Receipt ancestor changed')
+      const guard = files.get('publication'), named = fs.lstatSync(guard.path, { bigint: true })
+      assert(named.isFile() && named.nlink === 1n && sameNode(guard.before, named), 'Receipt publication guard changed')
+      const complete = join(artifacts, PUBLICATION_COMPLETE)
+      requireAbsent(complete, 'Receipt completion marker already exists')
+      fs.renameSync(guard.path, complete)
+    }
   }
   try {
     fs.mkdirSync(artifacts)
@@ -149,7 +169,8 @@ export function createReceiptArtifacts(target) {
         assert(!committed, 'Receipt is already terminal')
         validate()
         const file = files.get(terminal ? 'terminal' : 'receipt')
-        const bytes = Buffer.from(JSON.stringify(receipt, null, 2) + '\n'), fd = file.fd
+        const document = receipt.version === 2 ? { ...receipt, publication: PUBLICATION_FORMAT } : receipt
+        const bytes = Buffer.from(JSON.stringify(document, null, 2) + '\n'), fd = file.fd
         let offset = 0
         while (offset < bytes.length) {
           const n = fs.writeSync(fd, bytes, offset, bytes.length - offset, offset)
@@ -161,14 +182,44 @@ export function createReceiptArtifacts(target) {
         if (terminal) {
           // Keep prepared/unknown JSON intact throughout serialization and write.
           // Publish only the complete new document, retaining both pinned handles.
+          // A renamed passed document is not yet eligible for ingestion. Keep
+          // this owned guard through post-rename validation and descriptor close.
+          if (!files.has('publication')) {
+            const path = join(artifacts, PUBLICATION_PENDING)
+            const fd = fs.openSync(path, flags.O_RDWR | flags.O_CREAT | flags.O_EXCL | flags.O_NOFOLLOW, 0o600)
+            const guard = { fd, path }
+            files.set('publication', guard)
+            guard.before = fs.fstatSync(fd, { bigint: true })
+          }
+          validate()
+          requireAbsent(join(artifacts, PUBLICATION_COMPLETE), 'Receipt completion marker already exists')
           fs.renameSync(file.path, target)
           file.path = target
           committed = true
           validate()
+          terminalValidated = true
         }
+        return document
       },
     }
   } catch (error) { close(error); throw error }
+}
+
+function requireAbsent(path, message) {
+  try { fs.lstatSync(path) } catch (error) {
+    if (error.code === 'ENOENT') return
+    throw error
+  }
+  assert.fail(message)
+}
+
+function requirePublishedArtifacts(artifacts, receipt) {
+  requireAbsent(join(artifacts, PUBLICATION_PENDING), 'Receipt publication is pending or failed')
+  assert(receipt.publication === undefined || receipt.publication === PUBLICATION_FORMAT, 'Unknown receipt publication format')
+  if (receipt.publication === undefined) return // Older opt-in v2: raw-verified snapshot only.
+  const complete = fs.lstatSync(join(artifacts, PUBLICATION_COMPLETE), { bigint: true })
+  assert(complete.isFile() && complete.nlink === 1n, 'Receipt completion marker is not physical and exclusive')
+  return complete
 }
 
 export function requireVerifiedReceiptStreams(receipt) {
@@ -177,7 +228,7 @@ export function requireVerifiedReceiptStreams(receipt) {
 }
 
 // V1 historical interpretation is unchanged. V2 evidence is materialized only at
-// an explicit, bounded semantic-reader boundary, never by metadata discovery.
+// an explicit, bounded semantic-reader or measurement-validation boundary.
 export function readReceiptStreams(repo, receiptPath, receipt, { maxBytes = RECEIPT_PARSE_BYTES } = {}) {
   if (receipt.version !== 2) { requireVerifiedReceiptStreams(receipt); return receipt }
   assert(Number.isSafeInteger(maxBytes) && maxBytes >= 0 && maxBytes <= RECEIPT_PARSE_BYTES, 'Invalid raw parse budget')
@@ -187,6 +238,7 @@ export function readReceiptStreams(repo, receiptPath, receipt, { maxBytes = RECE
   const artifacts = `${target}.artifacts`, pins = pinnedDirectories(artifacts), result = { ...receipt }
   let operationError
   try {
+    const publication = requirePublishedArtifacts(artifacts, receipt)
     for (const name of names) {
       const path = join(artifacts, `${name}.log`), descriptor = receipt.streams?.[name]
       assert(receipt.artifacts?.[name] === path, 'Raw artifact does not match this receipt')
@@ -200,7 +252,7 @@ export function readReceiptStreams(repo, receiptPath, receipt, { maxBytes = RECE
       let stream, rawError
       try {
         assert(regular(fd, path).size <= BigInt(maxBytes), 'Raw log exceeds semantic parse budget')
-        stream = rawStream(fd, path, maxBytes).result
+        stream = rawStream(fd, path, maxBytes, descriptor.bytes).result
       } catch (error) { rawError = error; throw error }
       finally { raiseCleanup(attemptClose([fd]), rawError) }
       validateDirectories(pins)
@@ -210,6 +262,9 @@ export function readReceiptStreams(repo, receiptPath, receipt, { maxBytes = RECE
       if (descriptor.inline === 'complete') assert(receipt[name] === stream.text, 'Inline/raw stream mismatch')
       result[name] = stream.text
     }
+    validateDirectories(pins)
+    const completed = requirePublishedArtifacts(artifacts, receipt)
+    if (publication) assert(sameContent(publication, completed), 'Receipt completion marker changed')
     Object.defineProperty(result, verified, { value: true })
     return result
   } catch (error) { operationError = error; throw error }

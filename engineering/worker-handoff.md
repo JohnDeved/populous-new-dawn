@@ -139,18 +139,34 @@ has an explicit omitted state, never a misleading truncated `stdout`/`stderr`.
 Artifact files and source/outcome evidence are not discarded.
 
 The producer keeps its fresh output handles and directory identities through
-capture, verifies raw streams again before terminal publication, and atomically
-replaces prepared/unknown JSON only after complete terminal serialization. Missing,
-changed or aliased output cannot turn an exit-zero command into a valid pass.
-These receipts are development evidence, not a sandbox or tamper-proof attestation.
+capture and complete terminal serialization. Before replacing prepared/unknown
+JSON it creates `publication.pending` in the physical artifact directory. It
+tags the document `publication: guard-v1` and retains this guard through post-rename
+validation and descriptor cleanup. Only after both succeed does it rename the
+guard to `publication.complete`. A terminal JSON may retain the child's `passed` outcome
+when finalization fails, but tagged evidence requires a physical completion marker and no pending guard
+before ingestion. A missing pending guard alone cannot imply success.
+No corrective JSON write is needed, so corrective I/O failure cannot restore credit.
+
+This is not a cross-file atomic transaction or crash-durability guarantee. Path
+identity checks followed by the completion-marker rename are not atomic against
+later concurrent ancestor or destination replacement. Existing completion paths
+are rejected, but Node's rename has no atomic no-replace option. Reader verification is a snapshot, not tamper-proof finality;
+these receipts are development evidence, not a sandbox or attestation system.
 
 Live checkpoint/Blast readers support both v1 and v2. V2 raw paths must be the
 matching receipt's physical `.artifacts` directory, and semantic reads verify bytes,
 hashes and complete text within an explicit 4 MiB-per-stream parse limit. An
 oversized or invalid semantic payload is unknown, not a truncated successful parse.
-Metadata discovery does not load raw streams. Pinned historical v1 readers and
-existing receipts remain unchanged; do not rewrite them into v2 or relax a pinned
-producer version to make a historical proof pass.
+Generic v2 measurement ingestion now crosses the same raw-validation boundary,
+including the 4 MiB-per-stream and valid-UTF-8 requirements, before it can earn
+credit. Those reads count against discovery's cumulative byte/time budget. Invalid
+or projected v2 evidence remains an invalidated candidate, so a newer invalid
+attempt cannot expose an older pass. Streaming metadata retains the receipt version.
+Older opt-in v2 receipts without a guard are accepted only as freshly raw-verified
+snapshots; guard absence does not prove historical finalization. Pinned historical
+v1 readers and the default v1 writer remain unchanged; do not rewrite them into v2
+or relax a pinned producer version to make a historical proof pass.
 
 The review-bundle exporter supports one explicitly selected version-2 receipt:
 

@@ -708,6 +708,9 @@ test('v2 producer retains complete large raw output without embedding it', () =>
     const receipt = runCommandReceipt(repo, { streamVersion: 2, output: 'work/orchestration/task/large.json',
       command: [process.execPath, '-e', "process.stdout.write(Buffer.alloc(65536,120)); process.stderr.write('small')"] })
     assert.equal(receipt.version, 2); assert.equal(receipt.status, 'passed')
+    assert.equal(receipt.publication, 'guard-v1')
+    assert.deepEqual(JSON.parse(readFileSync(join(repo, 'work/orchestration/task/large.json'))), JSON.parse(JSON.stringify(receipt)))
+    assert(existsSync(join(repo, 'work/orchestration/task/large.json.artifacts/publication.complete')))
     assert.equal(Object.hasOwn(receipt, 'stdout'), false); assert.equal(receipt.stderr, 'small')
     const bytes = readFileSync(receipt.artifacts.stdout)
     assert.equal(bytes.length, 65536); assert.equal(receipt.stdoutSha256, sha(bytes))
