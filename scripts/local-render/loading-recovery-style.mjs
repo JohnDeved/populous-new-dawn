@@ -23,6 +23,73 @@ export async function finishLoadingRecovery({ primaryError, report, gates, fallb
   }
 }
 
+// Resize completion is observational: reconcile the live viewport and existing
+// scrollbar metrics before the original setup focus, never repair focus afterward.
+export function loadingScrollbarReady(viewport) {
+  if (viewport && (innerWidth !== viewport.width || innerHeight !== viewport.height)) return false
+  const root = document.querySelector('.loading-world')
+  if (viewport?.phase && root?.getAttribute('data-loading-phase') !== viewport.phase) return false
+  if (root?.getAttribute('data-loading-phase') !== 'failed') return !!root
+  const area = root.querySelector('[data-loading-scroll-area]'), s = root.querySelector('[data-loading-recovery-scroll]')
+  if (!area || !s) return false
+  const maximum = Math.max(0, s.scrollHeight - s.clientHeight)
+  if (area.getAttribute('data-scroll-art') !== String(maximum > 0)) return false
+  if (!maximum) return true
+  const thumb = area.querySelector('[data-loading-scrollbar]')?.firstElementChild
+  const h = Math.min(s.clientHeight, Math.max(34, Math.floor(s.clientHeight ** 2 / s.scrollHeight)))
+  const y = Math.round(Math.max(0, Math.min(maximum, s.scrollTop)) * (s.clientHeight - h) / maximum)
+  const images = [...(thumb?.querySelectorAll('[data-loading-scroll-cap] img') ?? [])]
+  return images.length === 2 && images.every(image => image.complete && image.naturalWidth === 24) && thumb && Math.abs(thumb.getBoundingClientRect().y - y) < .15 && Math.abs(thumb.getBoundingClientRect().height - h) < .15
+}
+
+export function observeLoadingFocus(target) {
+  const root = target.closest('[data-loading-phase="failed"]')
+  const visible = node => node.getClientRects().length > 0 && getComputedStyle(node).visibility === 'visible'
+  const describe = node => node ? {
+    tag: node.tagName, id: node.id, role: node.getAttribute('role'),
+    label: node.getAttribute('aria-label'), text: node.textContent?.trim().slice(0, 120),
+    tabIndex: node.tabIndex, disabled: !!node.disabled, connected: node.isConnected,
+    owned: !!root?.contains(node), visible: visible(node),
+    cap: node.getAttribute('data-loading-scroll-cap'),
+  } : null
+  const controls = [...(root?.querySelectorAll('summary,button,[data-loading-recovery-scroll][tabindex="0"]') ?? [])].filter(visible)
+  return {
+    focused: target === document.activeElement,
+    active: describe(document.activeElement), target: describe(target), controls: controls.map(describe),
+    viewport: { width: innerWidth, height: innerHeight },
+  }
+}
+
+export async function prepareLoadingTraversal(page, retry, { record = {}, signal, deadlineAt, save = () => {} } = {}) {
+  const live = () => {
+    signal?.throwIfAborted()
+    if (deadlineAt === undefined) return undefined
+    const remaining = deadlineAt - Date.now()
+    assert.ok(Number.isFinite(deadlineAt) && remaining > 0, 'Loading episode deadline reached')
+    return remaining
+  }
+  Object.assign(record, { viewport: page.viewportSize(), status: 'running' })
+  try {
+    record.pending = 'readiness'
+    await page.waitForFunction(loadingScrollbarReady, { ...record.viewport, phase: 'failed' }, { timeout: live() })
+    record.pending = 'focus'
+    await retry.focus({ timeout: live() }) // The existing single setup focus, not a retry or repair.
+    live()
+    record.pending = 'focus-observation'
+    const observation = await retry.evaluate(observeLoadingFocus)
+    live()
+    record.observation = observation
+    save()
+    assert.equal(observation.focused, true, 'Retry must own the initial loading traversal focus')
+    record.pending = null
+    record.status = 'passed'
+    save()
+  } catch (error) {
+    record.status = 'failed'; record.error = String(error)
+    throw error
+  }
+}
+
 // Existing Retry/summary outcomes now include the optional real region and
 // two cap buttons. At most four genuine presses reach the opposite control;
 // preserve the original strict locator/activeElement observation on every step.
@@ -32,7 +99,7 @@ export async function tabToLoadingControl(page, target, { reverse = false, recor
     signal?.throwIfAborted()
     if (deadlineAt !== undefined) assert.ok(Number.isFinite(deadlineAt) && Date.now() < deadlineAt, 'Loading episode deadline reached')
   }
-  Object.assign(record, { key, presses: 0, observations: [], status: 'running' })
+  Object.assign(record, { key, presses: 0, observations: [], focusObservations: [], status: 'running' })
   try {
     for (let index = 0; index < 4; index++) {
       live()
@@ -41,9 +108,11 @@ export async function tabToLoadingControl(page, target, { reverse = false, recor
       live()
       record.presses++
       record.pending = 'focus-observation'
-      const focused = await target.evaluate(node => node === document.activeElement)
+      const observation = await target.evaluate(observeLoadingFocus)
       live()
+      const focused = observation.focused
       record.observations.push(focused)
+      record.focusObservations.push(observation)
       record.pending = null
       save() // Retain each real observation before any endpoint assertion.
       if (focused) { record.status = 'passed'; return }
@@ -180,7 +249,7 @@ export function assertLoadingScrollbar(sample) {
 // separate sequential fallback contexts, frontend font availability are controlled. No world,
 // store, error-prop, save or React state is injected. This is not a ready-scene test.
 export default async function ({ page, browser, url, output, signal, deadlineAt }) {
-  const report = { status: 'running', captures: [], keyboardTraversal: [], scrollbarGeometry: [], fullscreenGeometry: [], requests: [], fontCases: [], errors: [] }
+  const report = { status: 'running', captures: [], keyboardPreparation: [], keyboardTraversal: [], scrollbarGeometry: [], fullscreenGeometry: [], requests: [], fontCases: [], errors: [] }
   const save = () => writeFileSync(resolve(output, 'loading-recovery-style.json'), JSON.stringify(report, null, 2) + '\n')
   const button = p => p.getByRole('button', { name: 'Try again', exact: true })
   const failed = p => p.getByRole('dialog', { name: 'Browser loading recovery', exact: true })
@@ -200,20 +269,7 @@ export default async function ({ page, browser, url, output, signal, deadlineAt 
     await p.getByRole('button', { name: 'Yes', exact: true }).click()
   }
   const capture = async (p, name) => {
-    await p.waitForFunction(() => {
-      const root = document.querySelector('.loading-world')
-      if (root?.getAttribute('data-loading-phase') !== 'failed') return !!root
-      const area = root.querySelector('[data-loading-scroll-area]'), s = root.querySelector('[data-loading-recovery-scroll]')
-      if (!area || !s) return false
-      const maximum = Math.max(0, s.scrollHeight - s.clientHeight)
-      if (area.getAttribute('data-scroll-art') !== String(maximum > 0)) return false
-      if (!maximum) return true
-      const thumb = area.querySelector('[data-loading-scrollbar]')?.firstElementChild
-      const h = Math.min(s.clientHeight, Math.max(34, Math.floor(s.clientHeight ** 2 / s.scrollHeight)))
-      const y = Math.round(Math.max(0, Math.min(maximum, s.scrollTop)) * (s.clientHeight - h) / maximum)
-      const images = [...(thumb?.querySelectorAll('[data-loading-scroll-cap] img') ?? [])]
-      return images.length === 2 && images.every(image => image.complete && image.naturalWidth === 24) && thumb && Math.abs(thumb.getBoundingClientRect().y - y) < .15 && Math.abs(thumb.getBoundingClientRect().height - h) < .15
-    })
+    await p.waitForFunction(loadingScrollbarReady, p.viewportSize())
     const scrollbar = await p.locator('.loading-world').evaluate(observeLoadingScrollbar)
     report.scrollbarGeometry.push({ name, scrollbar }); save()
     assertLoadingScrollbar(scrollbar)
@@ -303,7 +359,9 @@ export default async function ({ page, browser, url, output, signal, deadlineAt 
       await summary.click()
     }
     await page.setViewportSize({ width: 640, height: 480 })
-    await button(page).focus()
+    const preparation = {}
+    report.keyboardPreparation.push(preparation)
+    await prepareLoadingTraversal(page, button(page), { record: preparation, signal, deadlineAt, save })
     await keyboardTo(failed(page).locator('summary'))
     await keyboardTo(button(page), true)
     await page.keyboard.down('Enter')

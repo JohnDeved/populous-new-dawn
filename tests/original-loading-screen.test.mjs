@@ -548,9 +548,12 @@ test('canonical loading validation fingerprints the new shared controller and ev
 
 test('loading keyboard traversal uses the original locator predicate and genuine keys through all new controls', async () => {
   for (const reverse of [false, true]) {
-    const keys = [], record = {}, node = {}, old = globalThis.document
+    const keys = [], record = {}, old = Object.fromEntries(['document', 'getComputedStyle', 'innerWidth', 'innerHeight'].map(key => [key, globalThis[key]]))
+    const node = { tagName: 'SUMMARY', id: '', textContent: 'Technical details', tabIndex: 0, isConnected: true,
+      getClientRects() { return [{}] }, getAttribute() { return null }, closest() { return null } }
     let reads = 0
-    globalThis.document = { activeElement: {} }
+    Object.assign(globalThis, { document: { activeElement: { ...node, tagName: 'BUTTON' } },
+      getComputedStyle: () => ({ visibility: 'visible' }), innerWidth: 640, innerHeight: 480 })
     try {
       const target = { async evaluate(predicate) {
         assert.equal(this, target)
@@ -561,8 +564,12 @@ test('loading keyboard traversal uses the original locator predicate and genuine
       assert.deepEqual(keys, Array(4).fill(reverse ? 'Shift+Tab' : 'Tab'))
       assert.deepEqual(record.observations, [false, false, false, true])
       assert.equal(record.status, 'passed'); assert.equal(record.pending, null)
+      assert.deepEqual(record.focusObservations.map(row => row.active.tag), ['BUTTON', 'BUTTON', 'BUTTON', 'SUMMARY'])
+      assert.deepEqual(record.focusObservations.map(row => row.focused), record.observations)
     } finally {
-      if (old === undefined) delete globalThis.document; else globalThis.document = old
+      for (const [key, value] of Object.entries(old)) {
+        if (value === undefined) delete globalThis[key]; else globalThis[key] = value
+      }
     }
   }
 })
@@ -570,8 +577,9 @@ test('loading keyboard traversal uses the original locator predicate and genuine
 test('loading keyboard traversal neither skips a read nor invents focus when ownership remains wrong', async () => {
   const record = {}, keys = [], saved = []
   await assert.rejects(loadingCheckerExports().tabToLoadingControl({ keyboard: { async press(key) { keys.push(key) } } },
-    { async evaluate() { return false } }, { record, save() { saved.push([...record.observations]) } }), /within four genuine Tab presses/)
+    { async evaluate() { return { focused: false, active: { tag: 'BODY' }, controls: [] } } }, { record, save() { saved.push([...record.observations]) } }), /within four genuine Tab presses/)
   assert.equal(keys.length, 4); assert.deepEqual(record.observations, [false, false, false, false])
+  assert.equal(record.focusObservations.length, 4); assert.ok(record.focusObservations.every(row => row.active.tag === 'BODY'))
   assert.deepEqual(saved.at(-1), [false, false, false, false], 'failed endpoint observations were persisted before assertion')
   assert.equal(record.status, 'failed')
 })
@@ -590,7 +598,7 @@ for (const when of ['before', 'key', 'observation']) test(`loading traversal hon
   if (when === 'before') abort.abort(primary)
   await assert.rejects(loadingCheckerExports().tabToLoadingControl({ keyboard: { async press(key) {
     keys.push(key); if (when === 'key') abort.abort(primary)
-  } } }, { async evaluate() { abort.abort(primary); return true } }, { signal: abort.signal, record }), error => error === primary)
+  } } }, { async evaluate() { abort.abort(primary); return { focused: true } } }, { signal: abort.signal, record }), error => error === primary)
   assert.equal(keys.length, when === 'before' ? 0 : 1)
   assert.deepEqual(record.observations, []); assert.equal(record.status, 'failed')
 })
@@ -598,6 +606,126 @@ for (const when of ['before', 'key', 'observation']) test(`loading traversal hon
 test('loading traversal cannot send input after the unchanged absolute episode deadline', async () => {
   let sent = 0
   await assert.rejects(loadingCheckerExports().tabToLoadingControl({ keyboard: { async press() { sent++ } } },
-    { async evaluate() { return true } }, { deadlineAt: 0 }), /episode deadline reached/)
+    { async evaluate() { return { focused: true } } }, { deadlineAt: 0 }), /episode deadline reached/)
   assert.equal(sent, 0)
+})
+
+
+test('loading resize readiness reuses actual geometry and refuses stale viewport, phase, metrics or art', () => {
+  const old = Object.fromEntries(['document', 'innerWidth', 'innerHeight'].map(key => [key, globalThis[key]]))
+  let phase = 'failed', art = 'true', images = [{ complete: true, naturalWidth: 24 }, { complete: true, naturalWidth: 24 }]
+  const scroller = { scrollHeight: 619, clientHeight: 240, scrollTop: 379 }
+  const thumb = { querySelectorAll() { return images }, getBoundingClientRect() { return { y: 147, height: 93 } } }
+  const area = { getAttribute() { return art }, querySelector() { return { firstElementChild: thumb } } }
+  const root = { getAttribute() { return phase }, querySelector(selector) { return selector === '[data-loading-scroll-area]' ? area : scroller } }
+  Object.assign(globalThis, { document: { querySelector() { return root } }, innerWidth: 320, innerHeight: 240 })
+  try {
+    const { loadingScrollbarReady: ready } = loadingCheckerExports()
+    const expected = { width: 640, height: 480, phase: 'failed' }
+    assert.equal(ready(expected), false, 'old viewport cannot admit focus setup')
+    assert.equal(ready({ width: 320, height: 240, phase: 'failed' }), true)
+    images[0].complete = false; assert.equal(ready(), false); images[0].complete = true
+    images.pop(); assert.equal(ready(), false); images.push({ complete: true, naturalWidth: 24 })
+    scroller.scrollTop = 0; assert.equal(ready(), false, 'stale thumb geometry'); scroller.scrollTop = 379
+    globalThis.innerWidth = 640; globalThis.innerHeight = 480
+    scroller.scrollHeight = scroller.clientHeight = 480; scroller.scrollTop = 0
+    assert.equal(ready(expected), false, 'old overflow art must reconcile after resize')
+    art = 'false'; assert.equal(ready(expected), true)
+    phase = 'loading'; assert.equal(ready(expected), false, 'pending screen is not a traversal baseline')
+    assert.equal(ready({ width: 640, height: 480 }), true, 'existing pending captures remain supported')
+  } finally {
+    for (const [key, value] of Object.entries(old)) {
+      if (value === undefined) delete globalThis[key]; else globalThis[key] = value
+    }
+  }
+})
+
+test('loading focus diagnostics retain actual visible roster and ownership without changing focus', () => {
+  const old = Object.fromEntries(['document', 'getComputedStyle', 'innerWidth', 'innerHeight'].map(key => [key, globalThis[key]]))
+  const make = (tag, label, tabIndex = 0) => ({ tagName: tag, id: label, textContent: label, tabIndex, isConnected: true,
+    getAttribute(name) { return name === 'aria-label' ? label : null }, getClientRects() { return [{}] }, closest() { return root } })
+  const region = make('DIV', 'Loading recovery details'), summary = make('SUMMARY', 'Technical details'), retry = make('BUTTON', 'Try again'),
+    cap = make('BUTTON', 'Scroll loading recovery details up'), hidden = make('BUTTON', 'hidden'), outside = make('BODY', '', -1)
+  hidden.getClientRects = () => []
+  const roster = [region, summary, retry, cap, hidden]
+  const root = { contains(node) { return roster.includes(node) }, querySelectorAll(selector) {
+    assert.equal(selector, 'summary,button,[data-loading-recovery-scroll][tabindex="0"]'); return roster
+  } }
+  Object.assign(globalThis, { document: { activeElement: cap }, getComputedStyle: () => ({ visibility: 'visible' }), innerWidth: 640, innerHeight: 480 })
+  try {
+    const observe = loadingCheckerExports().observeLoadingFocus
+    let sample = observe(summary)
+    assert.equal(sample.focused, false); assert.equal(sample.active.label, cap.id); assert.equal(document.activeElement, cap)
+    assert.deepEqual(sample.controls.map(node => [node.tag, node.tabIndex, node.owned]), [['DIV', 0, true], ['SUMMARY', 0, true], ['BUTTON', 0, true], ['BUTTON', 0, true]])
+    document.activeElement = outside; sample = observe(summary)
+    assert.equal(sample.focused, false); assert.equal(sample.active.owned, false); assert.equal(sample.active.tag, 'BODY')
+    document.activeElement = summary; assert.equal(observe(summary).focused, true)
+  } finally {
+    for (const [key, value] of Object.entries(old)) {
+      if (value === undefined) delete globalThis[key]; else globalThis[key] = value
+    }
+  }
+})
+
+test('loading traversal preparation waits for readiness before its one existing focus and records the real baseline', async () => {
+  const events = [], record = {}, saved = [], observation = { focused: true, active: { label: 'Try again' } }
+  const { prepareLoadingTraversal, loadingScrollbarReady, observeLoadingFocus } = loadingCheckerExports()
+  await prepareLoadingTraversal({ viewportSize: () => ({ width: 640, height: 480 }), async waitForFunction(predicate, viewport, options) {
+    assert.equal(predicate, loadingScrollbarReady); assert.deepEqual(viewport, { width: 640, height: 480, phase: 'failed' })
+    assert.ok(options.timeout > 0 && options.timeout <= 1000); events.push('ready')
+  } }, { async focus(options) { assert.ok(options.timeout > 0 && options.timeout <= 1000); events.push('focus') },
+    async evaluate(predicate) { assert.equal(predicate, observeLoadingFocus); events.push('observe'); return observation } },
+  { deadlineAt: Date.now() + 1000, record, save() { saved.push(record.observation) } })
+  assert.deepEqual(events, ['ready', 'focus', 'observe']); assert.equal(record.status, 'passed'); assert.equal(record.pending, null)
+  assert.equal(record.observation, observation); assert.equal(saved[0], observation)
+})
+
+test('loading preparation fails a lost Retry baseline without focus repair or accepted-key retry', async () => {
+  const events = [], record = {}, observation = { focused: false, active: { tag: 'BODY' }, controls: [] }
+  await assert.rejects(loadingCheckerExports().prepareLoadingTraversal({ viewportSize: () => ({ width: 640, height: 480 }),
+    async waitForFunction() { events.push('ready') } }, { async focus() { events.push('focus') }, async evaluate() { events.push('observe'); return observation } },
+  { record }), /Retry must own the initial loading traversal focus/)
+  assert.deepEqual(events, ['ready', 'focus', 'observe']); assert.equal(record.status, 'failed'); assert.equal(record.observation, observation)
+})
+
+for (const boundary of ['before', 'readiness', 'focus', 'observation']) {
+  for (const failure of (boundary === 'before' ? ['abort', 'deadline'] : ['abort', 'deadline', 'rejection'])) test(`loading preparation honors ${failure} at ${boundary} without later focus or success`, async () => {
+    const abort = new AbortController(), primary = Error('controlled preparation failure'), events = [], record = {}, oldNow = Date.now
+    let now = 100
+    Date.now = () => now
+    const fail = () => { if (failure === 'abort') abort.abort(primary); else if (failure === 'deadline') now = 200; else throw primary }
+    const step = name => { events.push(name); if (boundary === name) fail() }
+    try {
+      if (boundary === 'before') fail()
+      await assert.rejects(loadingCheckerExports().prepareLoadingTraversal({ viewportSize: () => ({ width: 640, height: 480 }),
+        async waitForFunction() { step('readiness') } }, { async focus() { step('focus') },
+        async evaluate() { step('observation'); return { focused: true } } },
+      { signal: abort.signal, deadlineAt: 200, record }), error => failure === 'deadline' ? /episode deadline reached/.test(String(error)) : error === primary)
+      assert.deepEqual(events, ['readiness', 'focus', 'observation'].slice(0, ['before', 'readiness', 'focus', 'observation'].indexOf(boundary)))
+      assert.equal(record.status, 'failed'); assert.equal(record.observation, undefined, 'late observations cannot be published as success')
+    } finally { Date.now = oldNow }
+  })
+}
+
+test('actual loading entry reuses readiness for captures and final resize without adding setup focus or resetting deadline', () => {
+  const source = readFileSync(new URL('../scripts/local-render/loading-recovery-style.mjs', import.meta.url), 'utf8')
+  assert.match(source, /p\.waitForFunction\(loadingScrollbarReady, p\.viewportSize\(\)\)/)
+  assert.match(source, /setViewportSize\(\{ width: 640, height: 480 \}\)[\s\S]*?prepareLoadingTraversal\(page, button\(page\), \{ record: preparation, signal, deadlineAt, save \}\)[\s\S]*?keyboardTo\(failed\(page\)\.locator\('summary'\)\)/)
+  assert.equal((source.match(/await retry\.focus\(/g) ?? []).length, 1)
+  assert.equal((source.match(/await button\(page\)\.focus\(/g) ?? []).length, 0)
+  assert.match(source, /index < 4/)
+})
+
+
+for (const boundary of ['key', 'observation']) test(`loading traversal rejects late ${boundary} completion without another genuine key`, async () => {
+  const record = {}, keys = [], oldNow = Date.now
+  let now = 100
+  Date.now = () => now
+  try {
+    await assert.rejects(loadingCheckerExports().tabToLoadingControl({ keyboard: { async press(key) {
+      keys.push(key); if (boundary === 'key') now = 200
+    } } }, { async evaluate() { now = 200; return { focused: true } } }, { deadlineAt: 200, record }), /episode deadline reached/)
+    assert.deepEqual(keys, ['Tab']); assert.deepEqual(record.observations, []); assert.deepEqual(record.focusObservations, [])
+    assert.equal(record.status, 'failed')
+  } finally { Date.now = oldNow }
 })
