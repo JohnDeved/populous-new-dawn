@@ -2,6 +2,55 @@
   "version": 1,
   "checks": [
     {
+      "id": "evidence-archive-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate archive-first native UI collection and bounded identity-owned selected cache lifetimes.",
+      "coveredBehavior": [
+        "API raw archive/source identity separation and complete member indexing without default extraction",
+        "Bounded ZIP parsing, exact selected restoration, persistent ownership journals and fail-closed cache release",
+        "Failed/interrupted evidence preservation without runtime or visual acceptance"
+      ],
+      "knownLimits": [
+        "Synthetic archives only; no original retirement authorization or claim of real archive drill completion.",
+        "Hosted runtime/visual acceptance and build/runtime archive formats remain separate."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/evidence-archive.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "scripts/orchestration/evidence_archive.py",
+        "scripts/orchestration/collect_native_ui_archive.py",
+        "tests/evidence-archive.test.mjs",
+        "tests/test_evidence_archive.py",
+        "tests/test_collect_native_ui_archive.py",
+        "engineering/artifact-retention.md"
+      ],
+      "inputs": [
+        "scripts/orchestration/evidence_archive.py",
+        "scripts/orchestration/collect_native_ui_archive.py",
+        "tests/evidence-archive.test.mjs",
+        "tests/test_evidence_archive.py",
+        "tests/test_collect_native_ui_archive.py"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Python 3.12 standard library on Linux"
+      ],
+      "sideEffects": [
+        "Runs two serial Python fixture processes, each capped at 30 seconds and 4 MiB captured output; two collector CLI fixtures each launch one additional Python child with a 5-second timeout. Creates/removes only owned synthetic temporary data; retains partial output on failure. No network, browser, installed-package writes or real archive use."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "id": "native-ui-evidence-tests",
       "kind": "portable",
       "automation": "safe",
