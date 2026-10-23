@@ -1,0 +1,52 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { composedBrowserFixture } from './support/composed-browser-reader.mjs'
+import { passiveBrowserFixture } from './support/passive-browser-reader.mjs'
+import { validateEntry,validatePassedGate,gatesFor } from '../scripts/integration-queue/policy.mjs'
+import { resolveProfileCasesArtifact,resolveMission10Artifact,profileArchiveLimit } from '../scripts/integration-queue/profile-artifact.mjs'
+const checkView=f=>({head:f.pr.head.sha,base:f.pr.base.sha,synthetic:f.synthetic,currentChecks:f.checks.map(c=>({id:c.id,name:c.name,appId:c.app.id,head:c.head_sha,startedAt:c.started_at,status:c.status,conclusion:c.conclusion}))})
+test('real composed eight/v3 pipeline requires both proofs for all eleven finite Spy inventories',()=>{
+  for(let secondFrame=1;secondFrame<=11;secondFrame++){
+    const f=composedBrowserFixture({secondFrame});validateEntry(f.entry);const row=f.run()
+    assert.equal(row.tornadoVerified,true);assert.equal(row.spySourceVerified,true)
+    assert.equal(row.spellVisualsVerified,undefined);validatePassedGate(checkView(f),gatesFor(f.entry)[1],row)
+  }
+})
+test('legacy eight/v3 and nine/v4 paths remain strict and do not infer composition',()=>{
+  for(const nine of [false,true]){const f=passiveBrowserFixture({nine});assert.equal(f.run().identityVerified,true)}
+  const f=composedBrowserFixture();delete f.entry.profileArtifactPolicy;assert.throws(()=>f.run(),/Unexpected artifact path/)
+  for(const mutate of [e=>delete e.browserCheckpointVersion,e=>{e.browserCheckpointVersion=4},e=>{e.browserPolicy='spell-visuals-nine-v2'},e=>{e.profileArtifactPolicy='unknown'}]){const f=composedBrowserFixture();mutate(f.entry);assert.throws(()=>validateEntry(f.entry))}
+  assert.equal(profileArchiveLimit,16*1024*1024)
+})
+test('missing, extra, duplicate, mixed and spliced composed artifacts fail closed',()=>{
+  for(const mutate of [
+    f=>f.records[0].files.delete('tornado-land-first-tail-normal.png'),
+    f=>f.records[0].files.set('tornado-land-failure.png',Buffer.from('bad')),
+    f=>f.records[1].files.delete('spy-source-frame-0.png'),
+    f=>f.records[1].files.set('spy-source-frame-2.png',f.records[1].files.get('spy-source-frame-1.png')),
+    f=>f.records[1].files.set('spy-source-frame-12.png',Buffer.from('bad')),
+    f=>f.records[0].files.set('spy-source.json',f.records[1].files.get('spy-source.json')),
+    f=>{f.records[0].host.tornadoAppearance.status='FAIL'},
+    f=>{f.records[1].host.spySource.fixture.version=4},
+    f=>{f.records[1].host.source.files['public/original/unit-layers.png']='f'.repeat(64)},
+    f=>{f.records[0].host.source.files['app/game-clock.ts']='f'.repeat(64)},
+    f=>f.records[1].files.set('spy-source-frame-1.png',Buffer.from('bad')),
+  ]){const f=composedBrowserFixture();mutate(f);f.records.forEach(record => f.rebuild(record));assert.throws(()=>f.run())}
+  const f=composedBrowserFixture(),r=f.records[0];f.rebuild(r,[[...r.files][0]]);assert.throws(()=>f.run(),/Duplicate/)
+})
+test('composed source/run/job/check/upload provenance is never spliced',()=>{
+  for(const mutate of [f=>{f.sourceBlobs['public/original/tornado.png']=Buffer.from('changed')},f=>{f.jobs[4].head_sha='f'.repeat(40)},
+    f=>{f.checks[5].app.id=1},f=>{f.checks[4].check_suite.id++},f=>{f.exact.run_attempt++},f=>{f.metadata[1].expired=true},
+    f=>{f.artifacts.push({...f.artifacts[0],name:'alternate-name'})},f=>{f.logs.set(1005,f.logs.get(1004))},
+  ]){const f=composedBrowserFixture();mutate(f);assert.throws(()=>f.run())}
+})
+test('Promise results at artifact, verifier and actual caller boundaries cannot set composed acceptance',()=>{
+  for(const method of ['profileEvidence','mission10Evidence','verifyProfileRecoveryRun','verifyMission10Run','composedSourceBlob']){
+    const f=composedBrowserFixture();f.reader[method]=()=>Promise.resolve({composedVerified:true});assert.throws(()=>f.run())
+  }
+  const f=composedBrowserFixture(),row=f.run()
+  for(const key of ['tornadoVerified','spySourceVerified'])for(const value of [undefined,false,Promise.resolve(true)])assert.throws(()=>validatePassedGate(checkView(f),gatesFor(f.entry)[1],{...row,[key]:value}))
+  const record=f.records[0],upload={bytes:f.archives.get(3000).length,sha256:f.artifacts[0].digest.slice(7)}
+  assert.throws(()=>resolveProfileCasesArtifact(Promise.resolve(f.archives.get(3000)),upload,record.receipt,Promise.resolve({})))
+  assert.throws(()=>resolveMission10Artifact(f.archives.get(3001),{bytes:f.archives.get(3001).length,sha256:f.artifacts[1].digest.slice(7)},f.records[1].receipt,{profileArtifactPolicy:'composed-spells-eight-v1',browserPolicy:'profile-split-v1',checkpointVersion:4}))
+})

@@ -36,6 +36,8 @@ export const GATES = [
 export const RECOVERY_BROWSER_GATE = { ...GATES[1], recoveryRequired: true, recoveryJob: 'Pause checkpoint recovery browser' }
 export const PROFILE_BROWSER_GATE = { ...RECOVERY_BROWSER_GATE, profileRequired: true, profileJob: 'Profile recovery browser' }
 export const SPLIT_PROFILE_BROWSER_GATE = { ...PROFILE_BROWSER_GATE, mission10Required: true, mission10Job: 'Mission 10 crew persistence browser' }
+export const COMPOSED_PROFILE_POLICY = 'composed-spells-eight-v1'
+export const COMPOSED_PROFILE_BROWSER_GATE = { ...SPLIT_PROFILE_BROWSER_GATE, composedRequired: true }
 export const SPELL_VISUAL_BROWSER_GATE = { ...SPLIT_PROFILE_BROWSER_GATE, spellVisualsRequired: true, spellVisualsJob: 'Spell visuals browser' }
 export const SHARDED_FULL_GATE = {
   ...GATES[0],
@@ -54,6 +56,7 @@ export const SHARDED_FULL_GATE = {
 }
 export const gatesFor = entry => [
   entry.fullCheckPolicy === 'sharded-v1' ? SHARDED_FULL_GATE : GATES[0],
+  entry.profileArtifactPolicy === COMPOSED_PROFILE_POLICY ? COMPOSED_PROFILE_BROWSER_GATE :
   entry.browserPolicy === 'spell-visuals-nine-v2' ? SPELL_VISUAL_BROWSER_GATE :
   entry.browserPolicy === 'profile-split-v1' ? SPLIT_PROFILE_BROWSER_GATE :
   entry.browserPolicy === 'profile-recovery-v1' ? PROFILE_BROWSER_GATE :
@@ -132,6 +135,9 @@ export function validateEntry(entry) {
     ? entry.browserCheckpointVersion === 4
     : entry.browserCheckpointVersion === undefined || entry.browserCheckpointVersion === 3,
     'Nine-job policy requires explicit current-v4 contract; older policies remain v3')
+  requireThat(entry.profileArtifactPolicy === undefined ||
+    (entry.profileArtifactPolicy === COMPOSED_PROFILE_POLICY && entry.browserPolicy === 'profile-split-v1' &&
+      entry.browserCheckpointVersion === 3), 'Composed artifacts require explicit eight-job/current-v3 contract')
   if (entry.browserWorkflowTransition !== undefined) {
     const t = entry.browserWorkflowTransition
     requireThat(t?.version === 1 && t.workflow === GATES[1].workflow &&
@@ -634,6 +640,7 @@ export function validatePassedGate(o, gate, latest) {
       (!gate.profileRequired || latest.profileRecoveryVerified === true) &&
       (!gate.mission10Required || latest.mission10Verified === true) &&
       (!gate.spellVisualsRequired || latest.spellVisualsVerified === true) &&
+      (!gate.composedRequired || (latest.tornadoVerified === true && latest.spySourceVerified === true)) &&
       gate.steps.every(
         name =>
           latest.steps?.filter(s => s.name === name).length === 1 &&

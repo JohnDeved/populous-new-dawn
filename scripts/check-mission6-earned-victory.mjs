@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict'
+import { dependencyInputPaths } from './orchestration/dependency-profile.mjs'
 import { createHash, randomUUID } from 'node:crypto'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -86,7 +87,9 @@ export function runAcceptance(output) {
     'tests/support/profile-storage.mjs',
     'tests/support/bloodlust-scene.mjs',
     'package-lock.json',
-    'node_modules/.package-lock.json',
+    'package.json',
+    'scripts/orchestration/dependency-profile.mjs',
+    ...dependencyInputPaths(ROOT),
     ...plan.stages.map(stage => `scripts/acceptance/m6/${stage.name}.mjs`),
   ]
   const produced = new Map()
