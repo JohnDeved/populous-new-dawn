@@ -1,3 +1,4 @@
+import { commandCategory } from './browser-command-categories.mjs'
 import { changeHudSize } from './browser-native-options.mjs'
 import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
@@ -72,7 +73,7 @@ async function checkPixels(page, output, row, column, pressed = false, variant =
 export default async function followerTasks({ browser, page, url, output, openMission, receipt }) {
   await openMission(1, { nativeCampaign: true })
   await freeze(page)
-  await page.getByTitle('followers', { exact: true }).click()
+  await commandCategory(page, 'followers').click()
   await page.mouse.move(900, 400)
   await page.locator('.native-hud').screenshot({ path: resolve(output, 'followers-mission1.png') })
   const state = await page.evaluate(() => {
@@ -123,16 +124,16 @@ export default async function followerTasks({ browser, page, url, output, openMi
   assert.equal(await page.evaluate(id => window.testSceneRef.current.objectPanels.panels.has(id), nextFocus), true)
   await page.getByRole('button', { name: 'Select brave', exact: true }).click({ button: 'right' })
   assert.equal(await page.evaluate(() => window.testSceneRef.current.hudTaskFocus[14]), nextFocus)
-  for (const tab of ['spells','buildings','followers','spells','followers']) await page.getByTitle(tab, { exact: true }).click()
+  for (const tab of ['spells','buildings','followers','spells','followers']) await commandCategory(page, tab).click()
   assert.equal(await page.locator('.follower-tasks button').count(), 24)
   assert.equal(await page.evaluate(() => window.testSceneRef.current.hudTaskFocus[14]), nextFocus)
 
   // Shipped tab changes cancel targeting. A supporting mode-state fixture then
   // verifies inherited camera focus cancellation without mutating orders or selection.
-  await page.getByTitle('spells', { exact: true }).click()
+  await commandCategory(page, 'spells').click()
   await page.getByRole('button', { name: /^Blast,/ }).click()
   assert.equal(await page.evaluate(() => window.testSceneRef.current.world.mode), 'blast')
-  await page.getByTitle('followers', { exact: true }).click()
+  await commandCategory(page, 'followers').click()
   assert.equal(await page.evaluate(() => window.testSceneRef.current.world.mode), null)
   await page.evaluate(() => window.testStore.change(w => { w.mode = 'blast' }))
   const beforeFocus = await page.evaluate(() => {const w=window.testSceneRef.current.world;return {selected:w.selected,orders:w.buildingOrders,rng:w.randomState}})
@@ -147,11 +148,11 @@ export default async function followerTasks({ browser, page, url, output, openMi
   // Disrupted Ctrl release cannot select through a replaced tab or cancelled press.
   const target = await button(page, 1, 1).boundingBox()
   await page.keyboard.down('Control'); await page.mouse.move(target.x+target.width/2,target.y+target.height/2); await page.mouse.down()
-  await page.getByTitle('spells', { exact: true }).evaluate(button => button.click())
+  await commandCategory(page, 'spells').evaluate(button => button.click())
   await page.mouse.up(); await page.keyboard.up('Control')
   assert.deepEqual(await selection(page), [])
-  assert.equal(await page.getByTitle('spells', { exact: true }).getAttribute('aria-pressed'), 'true')
-  await page.getByTitle('followers', { exact: true }).click()
+  assert.equal(await commandCategory(page, 'spells').getAttribute('aria-pressed'), 'true')
+  await commandCategory(page, 'followers').click()
   await page.keyboard.down('Control'); await button(page, 1, 1).hover(); await page.mouse.down()
   await button(page, 1, 1).dispatchEvent('pointercancel')
   await page.mouse.up(); await page.keyboard.up('Control')
@@ -195,7 +196,7 @@ export default async function followerTasks({ browser, page, url, output, openMi
   await bindGame(page)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await freeze(page)
-  await page.getByTitle('followers', { exact: true }).click()
+  await commandCategory(page, 'followers').click()
   assert.deepEqual(await selection(page), savedSelection)
   assert.deepEqual(await snapshot(page), guarded)
   assert.ok(await page.evaluate(() => window.testSceneRef.current.hudTaskFocus.every(value => value === 0)), 'scene-local focus memory resets after world replacement')
@@ -296,7 +297,7 @@ export default async function followerTasks({ browser, page, url, output, openMi
   await skipIntroductionWithSpace(dprPage, { timeout: 45000 })
   await dprPage.waitForFunction(() => !window.testSceneRef.current.world.inputMask)
   await freeze(dprPage)
-  await dprPage.getByTitle('followers', { exact: true }).click()
+  await commandCategory(dprPage, 'followers').click()
   assert.equal(await dprPage.evaluate(() => window.devicePixelRatio), 2)
   assert.equal(await dprPage.locator('.follower-tasks button').count(), 24)
   await dprPage.locator('.native-hud').screenshot({ path: resolve(output, 'followers-mission1-dpr2.png') })

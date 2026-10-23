@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import ts from 'typescript'
+import { commandCategory } from '../scripts/browser-command-categories.mjs'
 
 const read = file => readFileSync(new URL(`../app/${file}`, import.meta.url), 'utf8')
 const source = file => ts.createSourceFile(file, read(file), ts.ScriptTarget.Latest, true)
@@ -75,6 +76,69 @@ test('HUD names, keyboard help and live counts remain nonvisual accessibility me
   for (const [t, label] of [['buildings', 'buildings B'], ['spells', 'spells 1–3'], ['followers', 'followers ']]) {
     assert.equal(value(category, 'aria-label', page, { t }), label)
     assert.equal(value(category, 'aria-description', page, { t }), undefined)
+  }
+})
+
+test('browser category locators bind exact shipped accessible names without title tooltips', () => {
+  const category = button(page, 'aria-label', "t === 'spells'"),
+    navigation = nodes(page, node => ts.isJsxOpeningElement(node) &&
+      node.tagName.getText(page) === 'nav' && value(node, 'className', page) === 'dock-tabs')
+  assert.equal(navigation.length, 1)
+  assert.equal(value(navigation[0], 'aria-label', page), 'Command categories')
+  assert.equal(attribute(category, 'title'), undefined)
+  for (const t of ['buildings', 'spells', 'followers']) {
+    const calls = [], target = {}, stub = {
+      getByRole(role, options) {
+        calls.push({ role, options })
+        return { getByRole(role, options) { calls.push({ role, options }); return target } }
+      },
+    }
+    assert.equal(commandCategory(stub, t), target)
+    assert.deepEqual(calls, [
+      { role: 'navigation', options: { name: 'Command categories', exact: true } },
+      { role: 'button', options: { name: value(category, 'aria-label', page, { t }).trim().replace(/\s+/g, ' '), exact: true } },
+    ])
+  }
+  for (const invalid of ['unknown', 'toString', '__proto__', undefined])
+    assert.throws(() => commandCategory({}, invalid), /Unknown command category/)
+})
+
+test('browser category consumers use accessible names, including interruptions and DPR pages', () => {
+  for (const [file, expectedCalls] of [
+    ['tutorial-browser/shaman-casting.mjs', 1],
+    ['check-browser-follower-tasks.mjs', 9],
+    ['check-browser-follower-transports.mjs', 6],
+    ['check-browser-followers-tab.mjs', 2],
+    ['check-browser-mission11.mjs', 1],
+    ['check-browser-spy-combat-lifecycle.mjs', 1],
+    ['check-browser-transport-idle.mjs', 1],
+    ['tutorial-browser/spy-source.mjs', 1],
+  ]) {
+    const text = readFileSync(new URL(`../scripts/${file}`, import.meta.url), 'utf8'),
+      script = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
+    const titleCalls = nodes(script, node => ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === 'getByTitle')
+    assert.equal(titleCalls.length, 0, `${file}: removed category titles cannot be selectors`)
+    const categoryCalls = nodes(script, node => ts.isCallExpression(node) &&
+      ts.isIdentifier(node.expression) && node.expression.text === 'commandCategory')
+    assert.equal(categoryCalls.length, expectedCalls, `${file}: every category path uses the shared locator`)
+  }
+})
+
+test('standalone casting and spy reports retain the category helper source hash', () => {
+  for (const [file, helper] of [
+    ['shaman-casting.mjs', 'scripts/browser-command-categories.mjs'],
+    ['spy-source.mjs', '../browser-command-categories.mjs'],
+  ]) {
+    const text = readFileSync(new URL(`../scripts/tutorial-browser/${file}`, import.meta.url), 'utf8'),
+      script = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true),
+      manifests = nodes(script, node => ts.isCallExpression(node) && node.expression.getText(script) === 'Object.fromEntries')
+    assert.ok(manifests.some(node => {
+      const mapped = node.arguments[0]
+      return ts.isCallExpression(mapped) && ts.isPropertyAccessExpression(mapped.expression) &&
+        mapped.expression.name.text === 'map' && ts.isArrayLiteralExpression(mapped.expression.expression) &&
+        mapped.expression.expression.elements.some(element => ts.isStringLiteral(element) && element.text === helper)
+    }), `${file}: include the imported helper in the source-hash list`)
   }
 })
 

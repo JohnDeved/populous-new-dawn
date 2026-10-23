@@ -447,13 +447,17 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
   let paused = true
   const actions = [], page = {
     keyboard: { press: async key => { assert.equal(key, 'Space'); paused = !paused; actions.push(['key', key]) } },
-    getByRole(role, { name }) {
+    getByRole(role, options) {
+      if (role === 'navigation') {
+        assert.deepEqual(options, { name: 'Command categories', exact: true })
+        return { getByRole(role, options) {
+          assert.equal(role, 'button')
+          assert.deepEqual(options, { name: 'spells 1–3', exact: true })
+          return { click: async () => actions.push(['category', options.name]) }
+        } }
+      }
       assert.equal(role, 'button')
-      return { click: async () => actions.push(['button', String(name)]) }
-    },
-    getByTitle(title, options) {
-      assert.deepEqual(options, { exact: true })
-      return { click: async () => actions.push(['title', title]) }
+      return { click: async () => actions.push(['button', String(options.name)]) }
     },
     async evaluate(fn) {
       const source = fn.toString()
@@ -473,7 +477,7 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
   assert.deepEqual(result, { target: { x: 500, y: 300 }, before: { stock: 4, cheatsUsed: false } })
   assert.deepEqual(actions.filter(([kind]) => kind !== 'wait'), [
     ['key', 'Space'], ['key', 'Space'], ['button', 'Select and focus shaman'],
-    ['install'], ['arm'], ['title', 'spells'], ['button', '/^Blast, [1-9][0-9]* shots$/'],
+    ['install'], ['arm'], ['category', 'spells 1–3'], ['button', '/^Blast, [1-9][0-9]* shots$/'],
     ['key', 'Space'], ['move', 500, 300], ['pointer', 500, 300], ['key', 'Space'],
   ])
   assert.match(actions.find(([kind]) => kind === 'wait')[2], /order\?\.model !== 18/)

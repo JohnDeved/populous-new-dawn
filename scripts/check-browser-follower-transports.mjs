@@ -1,3 +1,4 @@
+import { commandCategory } from './browser-command-categories.mjs'
 import { changeHudSize } from './browser-native-options.mjs'
 import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
@@ -263,7 +264,7 @@ async function checkpoint(page, expected) {
   await bindGame(page)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await freeze(page)
-  await page.getByTitle('followers', { exact: true }).click()
+  await commandCategory(page, 'followers').click()
 }
 
 // Run ONLY through scripts/local-render/harness.mjs, which owns the sandboxed
@@ -271,7 +272,7 @@ async function checkpoint(page, expected) {
 export default async function followerTransports({ browser, page, url, openMission, output, receipt }) {
   // Declared M22 availability, not naturally earned earlier campaign progress.
   await openMission(22, { campaignFixture: true }); await freeze(page); await clear(page)
-  await page.getByTitle('followers', { exact: true }).click()
+  await commandCategory(page, 'followers').click()
   const opening = await page.evaluate(() => {
     const s = window.testSceneRef.current, w = s.world, gl = s.renderer.getContext(), ext = gl.getExtension('WEBGL_debug_renderer_info')
     return { vehicles: w.vehicles.map(v => ({ id: v.id, model: v.model, team: v.team })),
@@ -461,7 +462,7 @@ export default async function followerTransports({ browser, page, url, openMissi
   await page.getByRole('button', { name: 'Select brave', exact: true }).click({ button: 'right' })
   const allFocus = await focusState(page)
   assert.deepEqual(allFocus.transport, separate.transport); assert.ok(allFocus.task[13]); assert.ok(allFocus.population[2])
-  for (const tab of ['spells', 'buildings', 'followers', 'spells', 'followers']) await page.getByTitle(tab, { exact: true }).click()
+  for (const tab of ['spells', 'buildings', 'followers', 'spells', 'followers']) await commandCategory(page, tab).click()
   assert.deepEqual(await focusState(page), allFocus); assert.equal(await transportButtons(page).count(), 12)
   result.focus.push({ first, next, separate, allFocus })
   await clear(page); await page.evaluate(() => window.testSceneRef.current.objectPanels.dispose())
@@ -537,9 +538,9 @@ export default async function followerTransports({ browser, page, url, openMissi
   // cancelled pointer sequence. Keyboard activation remains a real click path.
   for (const kind of [1, 3]) {
     await page.keyboard.down('Control'); await cell(page, kind, 1).hover(); await page.mouse.down()
-    await page.getByTitle('spells', { exact: true }).evaluate(button => button.click())
+    await commandCategory(page, 'spells').evaluate(button => button.click())
     await page.mouse.up(); await page.keyboard.up('Control'); assert.deepEqual(await selected(page), [])
-    await page.getByTitle('followers', { exact: true }).click()
+    await commandCategory(page, 'followers').click()
     await page.keyboard.down('Control'); await cell(page, kind, 1).hover(); await page.mouse.down()
     await cell(page, kind, 1).dispatchEvent('pointercancel')
     await page.mouse.up(); await page.keyboard.up('Control'); assert.deepEqual(await selected(page), [])
@@ -743,7 +744,7 @@ export default async function followerTransports({ browser, page, url, openMissi
       }
       s.onChange(); return records
     })
-    await dp.getByTitle('followers', { exact: true }).click(); await render(dp)
+    await commandCategory(dp, 'followers').click(); await render(dp)
     assert.equal(await dp.evaluate(() => devicePixelRatio), 2)
     assert.equal(await transportButtons(dp).count(), 12)
     const layout = await transportLayout(dp)

@@ -1,3 +1,4 @@
+import { commandCategory } from './browser-command-categories.mjs'
 import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -1008,7 +1009,7 @@ try {
       name = ['', 'Dakini', 'Chumara', 'Matak'][tribe]
     return { id: target.building.id, tribe, name, clearance: target.clearance }
   }, spy)
-  await page.getByTitle('followers', { exact: true }).click()
+  await commandCategory(page, 'followers').click()
   await page.getByLabel(`Disguise selected spies as ${sabotage.name}`).click()
   const disguised = await page.evaluate(async ({ id, tribe }) => {
     const scene = globalThis.testScene,

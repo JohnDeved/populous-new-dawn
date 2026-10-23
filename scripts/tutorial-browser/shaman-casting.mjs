@@ -1,3 +1,4 @@
+import { commandCategory } from '../browser-command-categories.mjs'
 import { setWorldPaused } from '../browser-world-input.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
@@ -31,7 +32,7 @@ export async function beginOrdinaryCastingWitness(page) {
   await page.evaluate(installShamanCastingObserver)
   const before = await page.evaluate(() => window.shamanCastingObserver.arm('ordinary'))
   assert.ok(before.stock > 0); assert.equal(before.cheatsUsed, false)
-  await page.getByTitle('spells', { exact: true }).click()
+  await commandCategory(page, 'spells').click()
   await page.getByRole('button', { name: /^Blast, [1-9][0-9]* shots$/ }).click()
   assert.equal(await page.evaluate(() => window.testStore.getWorld().mode), 'blast')
   await setWorldPaused(page, false, { timeout: 2500 })
@@ -71,7 +72,7 @@ export async function retainCastingWitness(page, output, { validate = true } = {
     source: Object.fromEntries(['app/person-casting.ts', 'app/live-people.ts', 'app/live-command.ts',
       'app/spell-casting.ts', 'app/world-turn.ts', 'app/scene-entities.ts', 'app/unit-animation-source.ts',
       'app/game-clock.ts', 'app/original-units.json', 'tests/fixtures/shaman-casting-native.json',
-      'scripts/tutorial-browser/shaman-casting.mjs', 'scripts/browser-world-input.mjs', 'scripts/tutorial-browser/shaman-casting-observer.mjs',
+      'scripts/tutorial-browser/shaman-casting.mjs', 'scripts/browser-world-input.mjs', 'scripts/browser-command-categories.mjs', 'scripts/tutorial-browser/shaman-casting-observer.mjs',
       'scripts/tutorial-browser/shaman-casting-evidence.mjs']
       .map(file => [file, sha256(readFileSync(resolve(root, file)))])) }
   try {

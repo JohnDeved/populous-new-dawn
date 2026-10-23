@@ -1,3 +1,4 @@
+import { commandCategory } from '../browser-command-categories.mjs'
 import { setWorldPaused } from '../browser-world-input.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
@@ -88,7 +89,7 @@ export default async function spySource(options) {
   const { output, url, source } = options
   const report = { status: 'running', errors: [], actions: [], sourceCommit: source.commit,
     sources: Object.fromEntries(['spy-source.mjs', 'spy-source-fixture.mjs', 'spy-source-budget.mjs',
-      'spy-source-observer.mjs', 'spy-source-evidence.mjs', 'spy-source-readiness.mjs', 'checkpoint-codec.mjs']
+      'spy-source-observer.mjs', 'spy-source-evidence.mjs', 'spy-source-readiness.mjs', 'checkpoint-codec.mjs', '../browser-command-categories.mjs']
       .map(file => [file, hash(readFileSync(new URL(file, import.meta.url)))])),
     inputs: Object.fromEntries(['app/game-clock.ts', 'app/scene.ts', 'app/follower-appearance.ts', 'app/scene-entities.ts',
       'app/live-building-combat.ts', 'app/original-units.json', 'app/checkpoint-format.ts',
@@ -179,7 +180,7 @@ export default async function spySource(options) {
         await action('Public Spy focus', () => button('Select spy').click({ button: 'right' }))
         await page.waitForFunction(() => !window.testSceneRef.current.cameraMotion.active && !window.testSceneRef.current.viewTransition)
         assert.deepEqual(await page.evaluate(() => window.testStore.getWorld().selected), [fixture.spyId])
-        await action('Open followers', () => page.getByTitle('followers', { exact: true }).click())
+        await action('Open followers', () => commandCategory(page, 'followers').click())
         await resumeSpySourceInput(page, action, 'Disguise as Dakini', () => button('Disguise selected spies as Dakini').click(), { timeout: Math.min(8000, budget.deadlineAt - Date.now()) })
         await page.waitForFunction(id => window.testStore.getWorld().units.find(unit => unit.id === id)?.native?.disguise === 0x40, fixture.spyId)
         await action('Pause before sabotage', () => setWorldPaused(page, true, { timeout: Math.min(8000, budget.deadlineAt - Date.now()) }))

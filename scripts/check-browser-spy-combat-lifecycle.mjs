@@ -1,3 +1,4 @@
+import { commandCategory } from './browser-command-categories.mjs'
 import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 // Issue97 normal Spy lifecycle. PR108 acquisition helpers and stages are reused
@@ -1506,7 +1507,7 @@ try {
   )
   await stage('real-Spy-disguise', async () => {
     await selectPerson(spyId)
-    const followersTab = page.getByTitle('followers', { exact: true })
+    const followersTab = commandCategory(page, 'followers')
     await followersTab.click()
     assert.equal(await followersTab.getAttribute('aria-pressed'), 'true')
     const before = await lifecycleState(spyId, school)

@@ -1,3 +1,4 @@
+import { commandCategory } from './browser-command-categories.mjs'
 import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
@@ -118,8 +119,8 @@ const rosterLabels = [
 ]
 
 async function openFollowers(page) {
-  await page.getByTitle('followers', { exact: true }).click()
-  const tab = page.getByTitle('followers', { exact: true })
+  await commandCategory(page, 'followers').click()
+  const tab = commandCategory(page, 'followers')
   assert.equal(await tab.getAttribute('aria-pressed'), 'true')
   const sprite = tab.locator('.hud-sprite')
   assert.equal(await sprite.evaluate(node => node.style.backgroundPosition), '-914px -26px')
