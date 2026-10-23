@@ -1259,7 +1259,7 @@ function configureAggregate(repo) {
   const configure = (id, executable, args) => Object.assign(checks.checks.find(check => check.id === id),
     { automation: 'safe', executable, args })
   configure('repository-check', 'npm', ['run', 'check'])
-  configure('orchestration-tests', 'node', ['--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs'])
+  configure('orchestration-tests', 'node', ['--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/receipt-streams.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs'])
   configure('orchestration-structural', 'node', ['scripts/orchestration/cli.mjs', 'check'])
   checks.checks.find(check => check.id === 'orchestration-tests').inputs = ['docs.md']
   put(repo, 'engineering/checks.json', checks)
@@ -1520,7 +1520,7 @@ function preflightCliFixture(t) {
   const repo = fixtureRepo()
   t.after(() => rmSync(repo, { recursive: true, force: true }))
   mkdirSync(join(repo, 'scripts/orchestration'), { recursive: true })
-  for (const name of ['preflight', 'cli', 'dependency-profile', 'research-evidence', 'review-bundle']) {
+  for (const name of ['preflight', 'cli', 'dependency-profile', 'research-evidence', 'review-bundle', 'receipt-streams']) {
     copyFileSync(new URL(`../scripts/orchestration/${name}.mjs`, import.meta.url),
       join(repo, `scripts/orchestration/${name}.mjs`))
   }
