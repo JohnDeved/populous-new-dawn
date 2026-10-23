@@ -11,6 +11,7 @@ import vm from 'node:vm'
 import yaml from 'js-yaml'
 import { manualIdentity, separateRoots, sourceManifest, verifyManifest, homeBuildOptions,
   candidateDependency, candidateDependencyExport, infrastructureInput } from '../scripts/native-ui-evidence/identity.mjs'
+import { assertAudioGroup, assertAudioResult } from '../scripts/native-ui-evidence/audio-acceptance.mjs'
 import { episodes, limits, acceptEpisode, acceptSeries, boundedEpisode } from '../scripts/native-ui-evidence/policy.mjs'
 import { artifactInventory, ownBrowser, pageActionTimeout } from '../scripts/native-ui-evidence/browser-owner.mjs'
 import { supervise } from '../scripts/native-ui-evidence/supervise.mjs'
@@ -19,6 +20,7 @@ import { failPreferenceWrites, optionsViewportReady } from '../scripts/native-ui
 import { createAudioOptionsBudget } from '../scripts/browser-options-audio.mjs'
 import { holdAudioResume, soundControlPending, soundOwnership, assertSoundOwnership,
   pendingSoundPointerTarget, assertPendingSoundPointerTarget, prepareSoundPopup, closeSoundContext, finalizeSoundContext, saveSoundTrace, assertPreparedSoundPopup, assertAudioWorldUnchanged, tabToAudioControl, assertBrowserControlOwners } from '../scripts/native-ui-evidence/options-audio-control-style.mjs'
+import runCombinedAudioStyle, { runNativeAudioStyle, runFallbackAudioStyle } from '../scripts/native-ui-evidence/options-audio-control-style.mjs'
 import { ordinaryMission, assertMissionInputBudget, saveMissionInputTrace } from '../scripts/native-ui-evidence/ordinary-mission.mjs'
 import { runNativeUiEvidence } from '../scripts/native-ui-evidence/adapter.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from '../scripts/native-ui-evidence/files.mjs'
@@ -140,15 +142,15 @@ test('trusted manifest includes adapter, new episodes, Chrome policy and exact w
     'scripts/native-ui-evidence/options-audio-control-style.mjs', 'scripts/browser-options-audio.mjs', 'scripts/tutorial-browser/browser-config.mjs', '.github/workflows/native-ui-evidence.yml']) assert.equal(infrastructureInput(path), true)
   assert.equal(infrastructureInput('app/page.tsx'), false)
 })
-test('all eight supplements are mandatory with fixed ownership and unchanged 720-second new budget', () => {
-  assert.deepEqual(episodes.map(e => e.id), ['startup-logo', 'selector-recovery', 'options-storage', 'checkpoint-notice', 'options-audio', 'loading-recovery', 'pause-checkpoint-native', 'pause-checkpoint-fallback'])
+test('all nine supplements are mandatory with fixed ownership and unchanged 720-second new budget', () => {
+  assert.deepEqual(episodes.map(e => e.id), ['startup-logo', 'selector-recovery', 'options-storage', 'checkpoint-notice', 'options-audio-native', 'options-audio-fallback', 'loading-recovery', 'pause-checkpoint-native', 'pause-checkpoint-fallback'])
   assert.equal(episodes.filter(e => e.owner === 'candidate').length, 6)
-  assert.deepEqual(episodes.filter(e => e.owner === 'infrastructure').map(e => e.id), ['options-storage', 'options-audio'])
-  assert.deepEqual(episodes.map(e => e.capMs), [120000, 120000, 90000, 90000, 90000, 90000, 90000, 90000])
+  assert.deepEqual(episodes.filter(e => e.owner === 'infrastructure').map(e => e.id), ['options-storage', 'options-audio-native', 'options-audio-fallback'])
+  assert.deepEqual(episodes.map(e => e.capMs), [120000, 120000, 90000, 90000, 90000, 90000, 90000, 90000, 90000])
   assert.deepEqual(limits, { buildMs: 120000, browserMs: 720000, jobMinutes: 20, maxContexts: 2, maxPages: 2,
     screenshots: 100, artifactBytes: 268435456, logBytes: 8388608, heapMiB: 768, cleanupMs: 5000 })
 })
-test('dependency-import and Chrome-prelaunch failures retain eight explicit unexecuted records', async t => {
+test('dependency-import and Chrome-prelaunch failures retain nine explicit unexecuted records', async t => {
   for (const stage of ['candidate-dependency-import', 'chrome-provenance']) {
     const root = fixture(t), candidate = resolve(root, 'candidate')
     put(candidate, 'package.json', '{"type":"module"}')
@@ -193,6 +195,8 @@ test('baseline, skipped, missing, failed, cancelled and late-success episodes ca
   for (const record of good) {
     const mode = episodes.find(e => e.id === record.id).pauseMode
     if (mode) record.result = pauseResult(mode)
+    const audioMode = episodes.find(e => e.id === record.id).audioMode
+    if (audioMode) record.result = audioResult(audioMode)
   }
   acceptSeries(good)
   for (const bad of [good.slice(1), [...good].reverse(), good.map((r, i) => i ? r : { ...r, timedOut: true }),
@@ -299,7 +303,7 @@ test('pending page creation reserves capacity and late pages are closed before c
   finish.forEach(resolve => resolve()); await rejected; await closing
   assert.equal(context.pages().length, 0); await owner.close()
 })
-test('all eight explicit not-run records survive abort before the first episode', async t => {
+test('all nine explicit not-run records survive abort before the first episode', async t => {
   const output = fixture(t), abort = new AbortController(); abort.abort(Error('stop before first'))
   await assert.rejects(runNativeUiEvidence({ browser: fakeBrowser(), output, signal: abort.signal }), /stop before first/)
   const receipt = JSON.parse(readFileSync(resolve(output, 'episodes.json')))
@@ -1191,6 +1195,48 @@ test('cumulative-response acceptance reconciles the exact authorized preparation
 
 // Synthetic adapter execution checks the trusted dispatch and persisted ledger,
 // not the rendered candidate assertions. Both actual split wrapper paths run.
+function audioResult(mode) {
+  const fallback = mode === 'fallback', retained = [{ serial: '0', open: true }]
+  return { status: 'passed', executionContract: { version: 'audio-style-split-v1', mode, primary: false }, completedModes: [mode],
+    samples: ['off', 'hover', 'focus', 'pending', 'on-compact'].map(name => ({ name, dpr: fallback ? 2 : 1,
+      file: `${fallback ? 'fallback-dpr2' : 'glyphs-dpr1'}-${name}.png` })),
+    inputBudgets: [{ fallback, status: 'passed' }],
+    popupPreparations: [{ fallback, status: 'passed', sameOwner: true, retainedAfter: retained, afterMenu: retained,
+      retainedBeforeReentry: retained, afterReentry: retained }],
+    checks: ['baseline', 'pending', 'pending-Enter', 'pending-Space', 'pending-pointer', 'rejected-held-release',
+      'retry-keyboard-reachability', 'real-resume-recovered-under-menu-pause', 'real-playback-after-Continue',
+      'mute-keyboard-reachability', 'native-Space-mute'].map(phase => ({ fallback, phase, status: 'passed' }))
+      .concat([{ fallback, pendingPointerTarget: {} }, { fallback, recoveredAudioContext: {} }]),
+    browserOwners: ['gameplay-before-menu', 'options-modal', 'enabled-gameplay-no-footer', 'reentered-options-modal',
+      'gameplay-after-menu'].map(phase => ({ fallback, phase })), traceWriteErrors: [], optionsNavigationCleanup: [] }
+}
+test('audio acceptance rejects missing, duplicate, swapped, legacy and unclean modes', () => {
+  const fixture = () => ['native', 'fallback'].map(mode => ({ id: `options-audio-${mode}`, status: 'passed',
+    timedOut: false, cleanupVerified: true, result: audioResult(mode) }))
+  assertAudioGroup(fixture())
+  for (const mutate of [r => r.pop(), r => r.push(r[0]), r => { r[1].id = r[0].id },
+    r => { r[0].id = 'options-audio' }, r => { r[0].status = 'not-run' }, r => { r[1].timedOut = true },
+    r => { r[1].cleanupVerified = false }, r => { [r[0].result, r[1].result] = [r[1].result, r[0].result] },
+    r => { delete r[0].result.executionContract }, r => { r[0].result.executionContract.mode = 'combined' },
+    r => { r[0].result.executionContract.primary = true }, r => { r[0].result.completedModes = ['native', 'fallback'] }]) {
+    const records = fixture(); mutate(records); assert.throws(() => assertAudioGroup(records))
+  }
+})
+test('each audio mode requires complete distinct samples, input, reentry, playback, mute and cleanup evidence', () => {
+  for (const mode of ['native', 'fallback']) for (const mutate of [
+    r => r.samples.pop(), r => { r.samples[1] = r.samples[0] }, r => { r.samples[0].dpr = 9 },
+    r => { r.samples[0].file = 'other.png' }, r => r.inputBudgets.pop(), r => r.inputBudgets.push(r.inputBudgets[0]),
+    r => { r.inputBudgets[0].status = 'failed' }, r => { r.popupPreparations[0].fallback = mode === 'native' },
+    r => { delete r.popupPreparations[0].afterReentry }, r => { r.popupPreparations[0].sameOwner = false },
+    r => r.checks.splice(0, 1), r => { r.checks[1] = r.checks[0] }, r => { r.checks[0].fallback = mode === 'native' },
+    r => { r.checks.find(c => c.phase === 'mute-keyboard-reachability').status = 'failed' },
+    r => { r.checks = r.checks.filter(c => !c.pendingPointerTarget) }, r => { r.checks = r.checks.filter(c => !c.recoveredAudioContext) },
+    r => r.browserOwners.pop(), r => { r.browserOwners[1] = r.browserOwners[0] },
+    r => { r.completedModes = [] }, r => { r.cleanupErrors = ['close failed'] }, r => r.traceWriteErrors.push('write failed'),
+  ]) {
+    const result = audioResult(mode); mutate(result); assert.throws(() => assertAudioResult(mode, result))
+  }
+})
 function pauseResult(mode) {
   const records = [], fullscreen = [], fallback = mode === 'fallback'
   for (const [width, height] of [[320, 240], [640, 480], [800, 450], [1920, 1080]]) {
@@ -1204,11 +1250,12 @@ function pauseResult(mode) {
   }
   return { executionContract: { version: 'pause-style-split-v1', mode, primary: false }, records, fullscreen }
 }
-async function pauseAdapterFixture(t, corrupt) {
+async function pauseAdapterFixture(t, corrupt, audioCorrupt) {
   const output = fixture(t), candidateRoot = resolve(output, 'candidate'), infrastructureRoot = resolve(output, 'trusted')
   for (const episode of episodes) {
     const root = episode.owner === 'candidate' ? candidateRoot : infrastructureRoot
-    if (!episode.pauseMode) put(root, episode.path, `export ${episode.exportName ? 'async function '+episode.exportName : 'default async function'} () { return { status: 'passed' } }`)
+    if (episode.audioMode) put(root, episode.path, read(episode.path))
+    else if (!episode.pauseMode) put(root, episode.path, `export ${episode.exportName ? 'async function '+episode.exportName : 'default async function'} () { return { status: 'passed' } }`)
     else put(root, episode.path, `export { run${episode.pauseMode === 'native' ? 'Native' : 'Fallback'}PauseStyle as default } from './original-pause-checkpoint-style.mjs'`)
   }
   put(candidateRoot, 'scripts/browser-new-game.mjs', 'export async function waitForStartupMenu() {}')
@@ -1225,8 +1272,31 @@ async function pauseAdapterFixture(t, corrupt) {
     export const runFallbackPauseStyle = args => run(args, 'fallback');
     export default function () { throw Error('Legacy combined default must not execute'); }
   `)
-  const browser = { async newContext() {
+  put(infrastructureRoot, 'scripts/native-ui-evidence/options-audio-control-style.mjs', `
+    import assert from 'node:assert/strict'; import { writeFileSync } from 'node:fs'; import { resolve } from 'node:path';
+    const result = ${audioResult.toString()};
+    async function run(args, mode) {
+      assert.equal(args.page, undefined); assert.equal(args.context, undefined);
+      args.signal.throwIfAborted(); assert.ok(args.deadlineAt > Date.now());
+      args.receipt.observedDeadline = args.deadlineAt;
+      const context = await args.browser.newContext({ audioMode: mode }); await context.newPage();
+      writeFileSync(resolve(args.output, 'executed.json'), JSON.stringify({ mode, primary: false, deadlineAt: args.deadlineAt }));
+      await context.close();
+      const value = result(mode), corrupt = ${JSON.stringify(audioCorrupt)};
+      if (corrupt === 'incomplete-' + mode) value.samples.pop();
+      if (corrupt === 'wrong-' + mode) value.executionContract.mode = mode === 'native' ? 'fallback' : 'native';
+      return value;
+    }
+    export const runNativeAudioStyle = args => run(args, 'native');
+    export const runFallbackAudioStyle = args => run(args, 'fallback');
+    export default function () { throw Error('Legacy combined audio default must not execute'); }
+  `)
+  const browser = { async newContext(options) {
     const context = new Context(), create = context.newPage.bind(context)
+    if (audioCorrupt === 'cleanup-' + options?.audioMode) {
+      const close = context.close.bind(context)
+      context.close = async () => { await close(); throw Error('audio context cleanup failed') }
+    }
     context.newPage = async () => { const page = await create(); page.goto = async () => {}; page.getByRole = () => ({ waitFor: async () => {} }); return page }
     return context
   }, async close() {} }
@@ -1252,6 +1322,57 @@ test('adapter never marks incomplete split coverage passed and never skips a fai
     assert.equal(ledger.status, 'failed')
     assert.equal(ledger.episodes.find(e => e.id === `pause-checkpoint-${mode}`).status, 'failed')
     if (mode === 'native') assert.equal(ledger.episodes.at(-1).status, 'not-run')
+  }
+})
+
+test('adapter executes both fixed audio wrappers with separate original deadlines and exact persisted coverage', async t => {
+  const args = await pauseAdapterFixture(t)
+  await runNativeUiEvidence(args)
+  const ledger = JSON.parse(readFileSync(resolve(args.output, 'episodes.json')))
+  for (const mode of ['native', 'fallback']) {
+    const record = ledger.episodes.find(e => e.id === `options-audio-${mode}`)
+    assert.deepEqual(record.executionContract, { version: 'audio-style-split-v1', mode, primary: false })
+    assert.equal(record.capMs, 90000)
+    assert.equal(record.receipt.observedDeadline, record.deadlineAt)
+    assert.deepEqual(JSON.parse(readFileSync(resolve(args.output, record.id, 'executed.json'))),
+      { mode, primary: false, deadlineAt: record.deadlineAt })
+    assert.equal(record.status, 'passed'); assert.equal(record.cleanupVerified, true)
+    assertAudioResult(mode, record.result)
+  }
+  const audio = episodes.filter(e => e.audioMode)
+  assert.equal(audio.reduce((total, e) => total + e.capMs, 0), 180000)
+  assert.equal(limits.browserMs, 720000)
+})
+test('incomplete, wrong-mode and cleanup-failed audio flows stay failed and prevent subsequent dispatch', async t => {
+  for (const mode of ['native', 'fallback']) for (const failure of ['incomplete', 'wrong', 'cleanup']) {
+    const args = await pauseAdapterFixture(t, undefined, `${failure}-${mode}`)
+    await assert.rejects(runNativeUiEvidence(args))
+    const ledger = JSON.parse(readFileSync(resolve(args.output, 'episodes.json')))
+    const index = ledger.episodes.findIndex(e => e.id === `options-audio-${mode}`)
+    assert.equal(ledger.status, 'failed'); assert.equal(ledger.episodes[index].status, 'failed')
+    assert.equal(ledger.episodes[index].cleanupVerified, false)
+    assert.ok(ledger.episodes.slice(index + 1).every(e => e.status === 'not-run' && !e.cleanupVerified))
+    if (failure === 'cleanup') assert.match(ledger.episodes[index].error, /audio context cleanup failed/)
+  }
+})
+test('actual fixed audio entries preserve abort/deadline rejection, close admitted contexts, and retain combined standalone identity', async t => {
+  for (const [mode, run] of [['native', runNativeAudioStyle], ['fallback', runFallbackAudioStyle], ['combined', runCombinedAudioStyle]]) {
+    for (const boundary of ['expired', 'aborted', 'admitted']) {
+      const output = fixture(t), abort = new AbortController(), reason = Error('audio stopped')
+      let contexts = 0, closed = 0
+      if (boundary === 'aborted') abort.abort(reason)
+      const args = { output, receipt: {}, signal: abort.signal, deadlineAt: boundary === 'expired' ? Date.now() - 1 : Date.now() + 90000,
+        // No caller-provided mode can relabel the fixed export.
+        mode: 'wrong', browser: { async newContext() {
+          contexts++; abort.abort(reason)
+          return { async close() { closed++ }, async newPage() { assert.fail('No work after abort') } }
+        } } }
+      await assert.rejects(run(args), error => boundary === 'expired' ? /deadline/.test(String(error)) : error === reason)
+      const trace = JSON.parse(readFileSync(resolve(output, 'options-audio.json')))
+      assert.deepEqual(trace.executionContract, { version: 'audio-style-split-v1', mode, primary: false })
+      assert.equal(trace.status, 'failed'); assert.deepEqual(trace.completedModes, [])
+      assert.equal(contexts, boundary === 'admitted' ? 1 : 0); assert.equal(closed, contexts)
+    }
   }
 })
 

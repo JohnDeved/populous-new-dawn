@@ -7,6 +7,7 @@ export function initialEpisodeReport() {
     episodes: episodes.map(episode => ({ id: episode.id, owner: episode.owner,
       path: episode.path, capMs: episode.capMs,
       ...(episode.pauseMode ? { executionContract: { version: 'pause-style-split-v1', mode: episode.pauseMode, primary: episode.primary } } : {}),
+      ...(episode.audioMode ? { executionContract: { version: 'audio-style-split-v1', mode: episode.audioMode, primary: episode.primary } } : {}),
       status: 'not-run', timedOut: false, cleanupVerified: false })),
     errors: [], warnings: [], expectedErrors: [], injectedRequests: [], observations: [] }
 }
