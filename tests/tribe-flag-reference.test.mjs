@@ -72,3 +72,23 @@ test('geometry preserves existing tribe availability, labels and camera-focus ac
   assert.match(page, /const u = enemy\.units\.find\(isShaman\) \?\? enemy\.units\[0\]/)
   assert.match(page, /if \(u\) engine\.current\?\.focus\(u, \{ animate: true \}\)/)
 })
+
+// Outside keyboard outlines overlap these tightly packed native rectangles.
+test('tribe keyboard focus stays inside each realized flag without changing its bounds', () => {
+  const css = read('app/globals.css')
+  const global = css.match(/button:focus-visible,[^{]+\{([^}]+)\}/)
+  assert.ok(global, 'existing global keyboard outline')
+  assert.match(global[1], /(?:^|;)outline:2px solid white(?:;|$)/)
+  const local = css.match(/\.tribe-flag:focus-visible\{([^}]+)\}/)
+  assert.ok(local, 'narrow tribe focus override')
+  assert.equal(local[1], 'outline-offset:-2px')
+  const outlineWidth = 2
+  const outlineOffset = -2
+  for (const record of oracle.records) {
+    const [left, top, right, bottom] = record.expectedEndpoints
+    const outer = [left - outlineWidth - outlineOffset, top - outlineWidth - outlineOffset,
+      right + outlineWidth + outlineOffset, bottom + outlineWidth + outlineOffset]
+    assert.deepEqual(outer, [left, top, right, bottom])
+    assert.ok(right - left > 2 * outlineWidth && bottom - top > 2 * outlineWidth)
+  }
+})
