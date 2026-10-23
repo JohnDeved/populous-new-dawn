@@ -1,0 +1,75 @@
+{
+  "originalExecutableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "originalExecuted": false,
+  "evidenceKind": "Static constructor and renderer endpoint reconstruction, not native raster output",
+  "rootAddress": "005cd0be",
+  "rootOrigin": [
+    0,
+    0
+  ],
+  "constructor": "0044ca80",
+  "renderer": "0049d2a0",
+  "referenceSize": [
+    640,
+    480
+  ],
+  "records": [
+    {
+      "address": "005cb0f2",
+      "raw": "2200000001000000000000000040d5490000000000f0d549004e0072004e00720014000b0000000000a0d24900b80300000000b80300000100000030d649001c0421",
+      "key": 1,
+      "descriptor": [
+        78,
+        114,
+        78,
+        114,
+        20,
+        11
+      ],
+      "expectedEndpoints": [
+        77,
+        113,
+        97,
+        124
+      ]
+    },
+    {
+      "address": "005cb134",
+      "raw": "2300000001000000000000000040d5490000000000f0d549004e007e004e007e0014000b0000000000a0d24900b80300000000b80300000200000030d649001c0421",
+      "key": 2,
+      "descriptor": [
+        78,
+        126,
+        78,
+        126,
+        20,
+        11
+      ],
+      "expectedEndpoints": [
+        77,
+        126,
+        97,
+        136
+      ]
+    },
+    {
+      "address": "005cb176",
+      "raw": "2400000001000000000000000040d5490000000000f0d549004e008a004e008a0014000b0000000000a0d24900b80300000000b80300000300000030d649001c0421",
+      "key": 3,
+      "descriptor": [
+        78,
+        138,
+        78,
+        138,
+        20,
+        11
+      ],
+      "expectedEndpoints": [
+        77,
+        137,
+        97,
+        148
+      ]
+    }
+  ]
+}
