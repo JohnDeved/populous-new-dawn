@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
+import { openCampaignFromMainMenu, waitForStartupMenu } from '../browser-new-game.mjs'
 import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
 import { checkPauseHeldEscape } from './pause-held-escape.mjs'
 
@@ -38,12 +38,27 @@ export function pauseStartupReady() {
 
 // The introduction may finish between readiness and activation. Always await the
 // bounded public click, and forgive its failure only if input is already unlocked.
-export async function skipPauseIntroduction(page) {
+export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
   if (await page.evaluate(() => !window.testStore.getWorld().inputMask)) return
   try {
-    await page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout: 2500 })
+    // The caller re-observes actual input/native readiness. This setup action
+    // need not wait for Playwright's post-click navigation/interceptor work.
+    await page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout, noWaitAfter: true })
   } catch (error) {
     if (await page.evaluate(() => !!window.testStore.getWorld().inputMask)) throw error
+  }
+}
+
+// A later authored flyby can begin after the initial input-unlocked sample.
+// This callback only operates an observed public control, once per readiness
+// wait. It never changes eligibility or resets the caller's existing deadline.
+export function recoverVisibleIntroduction(page) {
+  let attempted = false
+  return async ({ after, remainingMs }) => {
+    if (attempted || remainingMs <= 0 || !(after.inputMask & 64) || !after.introductionSkipVisible) return null
+    await skipPauseIntroduction(page, { timeout: Math.min(2500, remainingMs) })
+    attempted = true
+    return { action: 'public-skip-introduction' }
   }
 }
 
@@ -128,6 +143,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
   async function frontendRetry(key, leaveForOptions = false) {
     signal.throwIfAborted()
     await page.reload({ waitUntil: 'domcontentloaded' })
+    await waitForStartupMenu(page)
     const main = page.getByRole('dialog', { name: 'Main menu', exact: true })
     await main.getByRole('status').filter({ hasText: 'Could not read browser storage.' }).waitFor()
     await page.evaluate(() => {

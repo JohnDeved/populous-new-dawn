@@ -1,3 +1,4 @@
+import { dependencyReceipt } from '../orchestration/dependency-profile.mjs'
 // Dedicated M10 matrix episode. One fixed deadline spans both owned processes.
 import assert from 'node:assert/strict'
 import { randomUUID, createHash } from 'node:crypto'
@@ -7,6 +8,7 @@ import { acquireProfile, sourceReceipt, profileInputReceipt, persistentLaunchOpt
 import { readCommittedCheckpoint } from '../local-render/checkpoint-observer.mjs'
 import scenario from '../local-render/mission10-boat-checkpoint.mjs'
 import { bindGame, showAllMissions } from '../browser-game.mjs'
+import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { pauseStartupReady, skipPauseIntroduction } from '../local-render/original-pause-checkpoint-recovery.mjs'
 import { createMission10Input, mission10BoatPoint } from './mission10-input.mjs'
 import { retainMission10Artifacts, mission10RetainedName } from './mission10-artifacts.mjs'
@@ -53,7 +55,7 @@ export default async function runMission10Profile({ chromium, launch, url, root,
   const inputs = profileInputReceipt(root, resolve(root, 'scripts/local-render/mission10-boat-checkpoint.mjs'))
   const runtime = { node: process.version, browserVersion: receipt.browserVersion,
     browserSha256: receipt.browserSha256, launch,
-    packages: receipt.buildPackageVersions, installedLockSha256: digest(readFileSync(resolve(root, 'node_modules/.package-lock.json'))) }
+    packages: receipt.buildPackageVersions, ...dependencyReceipt(root) }
   const runtimeSha256 = digest(JSON.stringify(runtime))
   const path = resolve(root, 'work/local-render-profiles', `m10-hosted-${randomUUID()}`)
   assert.equal(existsSync(path), false, 'Only a brand-new task profile may be admitted')
@@ -79,7 +81,7 @@ export default async function runMission10Profile({ chromium, launch, url, root,
         try {
           verifySource(); assert.deepEqual(sourceReceipt(root), source)
           assert.deepEqual(profileInputReceipt(root), inputs)
-          assert.equal(digest(readFileSync(resolve(root, 'node_modules/.package-lock.json'))), runtime.installedLockSha256)
+          for (const [key, value] of Object.entries(dependencyReceipt(root))) assert.deepEqual(value, runtime[key])
           phase.sourceAfter = 'identical'
           phase.profile.continuationVerified = phase.status === 'passed' && cleanup.verified && Object.hasOwn(phase.profile, 'checkpointAtEnd')
         } catch (error) { phase.status = 'failed'; phase.failure = String(error); throw error } finally {
@@ -105,7 +107,7 @@ export default async function runMission10Profile({ chromium, launch, url, root,
           context.on('page', watch); context.pages().forEach(watch)
           const page = context.pages()[0] ?? await context.newPage(); page.setDefaultTimeout(15000)
           await page.goto(url, { waitUntil: 'domcontentloaded' })
-          await page.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor({ state: 'visible' })
+          await waitForStartupMenu(page)
           phase.profile.checkpointAtStart = await readCommittedCheckpoint(page)
           assert.deepEqual(phase.profile.checkpointAtStart, phase.profile.previousRun?.checkpointAtEnd ?? null,
             'The new process must observe exactly the previous committed checkpoint')

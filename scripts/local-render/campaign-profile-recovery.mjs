@@ -1,8 +1,9 @@
+import { dependencyReceipt } from '../orchestration/dependency-profile.mjs'
 import assert from 'node:assert/strict'
 import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
-import { pauseStartupReady, skipPauseIntroduction } from './original-pause-checkpoint-recovery.mjs'
+import { pauseStartupReady, skipPauseIntroduction, recoverVisibleIntroduction } from './original-pause-checkpoint-recovery.mjs'
 import { waitRecoveryReadiness } from '../tutorial-browser/profile-readiness.mjs'
-import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
+import { openCampaignFromMainMenu, waitForStartupMenu } from '../browser-new-game.mjs'
 import { showSelectorControls } from '../browser-game.mjs'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -13,7 +14,7 @@ import { pathToFileURL } from 'node:url'
 // Named local-render scenario. All seeded records are explicit browser-storage
 // fixtures; public startup/Save/Load assertions are recorded separately.
 async function bindStartupStore(page) {
-  await page.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor()
+  await waitForStartupMenu(page)
   await page.waitForFunction(() => {
     const main = document.querySelector('main')
     let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
@@ -167,7 +168,7 @@ export default async function ({ browser, context: initialContext, page: initial
       node: process.version, platform: process.platform, arch: process.arch,
       browserVersion: receipt.browserVersion, browserSha256: digest(receipt.browserPath ?? receipt.launch.executablePath),
       launch: receipt.launch, playwright: require('@playwright/test/package.json').version,
-      installedLockSha256: digest(resolve(root, 'node_modules/.package-lock.json')),
+      ...dependencyReceipt(root),
       helpers: Object.fromEntries(['scripts/tutorial-browser/profile-readiness.mjs', 'scripts/campaign-start-readiness.mjs', 'scripts/local-render/harness.mjs', 'scripts/local-render/vite.config.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs', 'scripts/browser-game.mjs', 'scripts/checkpoint-readback.mjs'].map(file => [file, digest(resolve(root, file))])),
   })
   const report = {
@@ -309,8 +310,7 @@ export default async function ({ browser, context: initialContext, page: initial
       const action = await startupReady.jsonValue()
       await startupReady.dispose()
       if (action === 'skip') await skipPauseIntroduction(page)
-      await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-      entry.readiness = await waitRecoveryReadiness(page, { signal })
+      entry.readiness = await waitRecoveryReadiness(page, { signal, onBlocked: recoverVisibleIntroduction(page) })
       await page.getByRole('button', { name: 'Game settings', exact: true }).click()
       const menu = page.locator('dialog[data-original-pause-menu]')
       await menu.waitFor({ state: 'visible' })

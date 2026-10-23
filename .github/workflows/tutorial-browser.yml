@@ -19,6 +19,9 @@ on:
       - '.github/workflows/tutorial-browser.yml'
       - 'package.json'
       - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'scripts/orchestration/dependency-profile.mjs'
       - 'tsconfig.json'
 
 permissions:
@@ -110,8 +113,20 @@ jobs:
           package-manager-cache: false
       - name: Install locked dependencies and verify supported Chrome
         run: |
-          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
-          npm ci --no-audit --no-fund
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
+          printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
           test -x /opt/google/chrome/chrome
           /opt/google/chrome/chrome --version
       - name: Record exact tested source
@@ -122,8 +137,12 @@ jobs:
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           printf 'PR head: %s\nBase: %s\nTested merge: %s\n' "$PR_HEAD_SHA" "$PR_BASE_SHA" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
           node --version
-          npm --version
-          sha256sum package-lock.json node_modules/playwright-core/browsers.json
+          "$PND_PACKAGE_MANAGER" --version
+          if [ "$PND_PACKAGE_MANAGER" = pnpm ]; then
+            sha256sum package-lock.json pnpm-lock.yaml pnpm-workspace.yaml node_modules/.modules.yaml node_modules/.pnpm/lock.yaml node_modules/playwright-core/browsers.json
+          else
+            sha256sum package-lock.json node_modules/.package-lock.json node_modules/playwright-core/browsers.json
+          fi
       - name: ${{ matrix.buildStep }}
         run: node scripts/tutorial-browser/run.mjs
       - name: Reject tracked input mutation

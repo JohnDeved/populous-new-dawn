@@ -7,10 +7,12 @@ import { fileURLToPath } from 'node:url'
 
 const root = new URL('../../../', import.meta.url)
 const caller = new URL('app/live-building-combat.ts', root).href
-// Vault outside-point lookup changed this file, outside the firing substates.
-// The ranged/postvisit body and all sixteen model6, vehicle0, command21 cases
-// remain byte-identical; keep the whole-caller guard and unchanged native data.
-const expectedCaller = '79d9c5f4d1108ab7223ae356ee11552b23b6d95a13d24b0b9ee7a0ce36febe3b'
+// Since reviewed base 80dfb6f7, only stepSpySabotage changed. combatMotion and
+// stepAreaAttack (including ranged/postvisit bytes) remain byte-identical:
+// SHA256 1c4438c3412f13e90ef4ded6c2e6ca49a162adf9d6ba2690b3ad28ae4f00043e
+// and f5cf2e7c268d91aacbeef6d6252e357cfed078b116f1f07ba5aecf46224d8109.
+// Keep the whole-caller guard and unchanged sixteen-case native input/output.
+const expectedCaller = '6a038e26cbaf34c4e943895e0f4602e427f78ad664cf29284c93282541dc8505'
 const raw = readFileSync(fileURLToPath(caller))
 assert.equal(createHash('sha256').update(raw).digest('hex'), expectedCaller)
 let exposures = 0
