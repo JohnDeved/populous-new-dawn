@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { cpus, arch, platform, release, tmpdir } from 'node:os'
 import { preview } from 'vite'
 import { chromium } from '@playwright/test'
+import { readerDependencyPolicy, commonDependencyInputsEqual } from './reader-build.mjs'
 import capture from '../tutorial-browser/gameplay-frames.mjs'
 import { gameplayFramePlan } from '../tutorial-browser/gameplay-frame-evidence.mjs'
 import { benchmarkBrowser } from './browser-runtime.mjs'
@@ -28,7 +29,8 @@ export async function runLiveBenchmark({ pinned = false } = {}) {
   const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8' }).trim()
   const fingerprint = source => sha256(execFileSync('git', ['ls-files', '-z'], { cwd: source }).toString().split('\0').filter(Boolean)
     .map(name => `${name}\0${sha256(readFileSync(resolve(source, name)))}`).join('\n'))
-  const environment = { node: process.version, arch: arch(), platform: platform(), release: release(),
+  const dependencyPolicy = readerDependencyPolicy(root)
+  const environment = { ...(dependencyPolicy ? { dependencyPolicy } : {}), node: process.version, arch: arch(), platform: platform(), release: release(),
     runnerImage: process.env.ImageOS ?? null, runnerVersion: process.env.ImageVersion ?? null,
     lockSha256: sha256(readFileSync(resolve(root, 'package-lock.json'))),
     playwrightSha256: sha256(readFileSync(resolve(root, 'node_modules/playwright-core/browsers.json'))) }
@@ -63,8 +65,7 @@ export async function runLiveBenchmark({ pinned = false } = {}) {
     assert.equal(git(head, 'rev-parse', 'HEAD'), identity.headSha)
     for (const [side, source] of Object.entries(sources)) { assert.equal(git(source, 'status', '--porcelain', '--untracked-files=no'), ''); fingerprints[side] = fingerprint(source) }
     // Different dependency graphs cannot be represented by one common trusted install.
-    if (!readFileSync(resolve(base, 'package-lock.json')).equals(readFileSync(resolve(head, 'package-lock.json'))) ||
-        !readFileSync(resolve(base, 'package.json')).equals(readFileSync(resolve(head, 'package.json')))) {
+    if (!commonDependencyInputsEqual(base, head)) {
       report.status = 'incompatible-dependencies'; save(); throw Error('Dependency changes need a separately reviewed protocol')
     }
     assert.ok(!existsSync(resolve(head, 'node_modules')), 'Candidate install must be absent')

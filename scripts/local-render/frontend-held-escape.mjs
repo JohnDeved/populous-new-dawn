@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
+import { waitForStartupMenu } from '../browser-new-game.mjs'
 
 // Opt-in bounded scenario: one Home load, one 1280x960 viewport, two Help/Options
 // episodes and one Quit control, one screenshot. No campaign, storage setup,
@@ -22,7 +23,7 @@ async function episode({ page, output, url }) {
   }))
   await page.setViewportSize({ width: 1280, height: 960 })
   if (url) await page.goto(url, { waitUntil: 'domcontentloaded' })
-  await main.waitFor()
+  await waitForStartupMenu(page)
   const initial = await state()
   await page.evaluate(() => {
     window.frontendEscapeEvents = []

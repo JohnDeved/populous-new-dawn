@@ -43,8 +43,8 @@ const selectorCode = ts.transpileModule(selectorFunction.getText(selectorSource)
   compilerOptions: {target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React},
 }).outputText
 function selectorFixture(completed) {
-  const states = [], buttons = new Map(), launches = []
-  let hook = 0, active, tree
+  const states = [], refs = [], buttons = new Map(), launches = []
+  let hook = 0, refHook = 0, active, tree, effects = [], mounted = new Set()
   const root = {
     querySelector(selector) {
       const mission = selector.match(/^\[data-selector-mission="(\d+)"\]$/)?.[1]
@@ -55,7 +55,12 @@ function selectorFixture(completed) {
   const container = {current: root}
   const React = {createElement: (type, props, ...children) => ({type, props: props ?? {}, children})}
   const bindings = {
-    ...campaign, React, useRef: () => container, useId: () => 'selector-keyboard',
+    ...campaign, React, useId: () => 'selector-keyboard',
+    useRef(initial) {
+      const index = refHook++
+      return refs[index] ??= index === 0 ? container : {current: initial}
+    },
+    useLayoutEffect(effect) {effects.push(effect)},
     useState(initial) {
       const index = hook++
       if (!(index in states)) states[index] = typeof initial === 'function' ? initial() : initial
@@ -68,8 +73,16 @@ function selectorFixture(completed) {
   function visit(node) {
     if (!node || typeof node !== 'object') return
     if (Array.isArray(node)) return node.forEach(visit)
+    if (node.type === 'h3' && node.props.ref) {
+      const heading = {props: node.props, name: node.children.join(''), focus(options) {
+        assert.deepEqual(options, {preventScroll: true})
+        active = this
+      }}
+      node.props.ref.current = heading
+      mounted.add(heading)
+    }
     if (node.type === 'button') {
-      const name = node.props['aria-label']
+      const name = node.props['aria-label'] ?? node.children.filter(child => typeof child === 'string').join('')
       if (name) {
         const key = /^(?:Start|Replay) Mission/.test(name) ? 'start' : name
         if (!buttons.has(key)) buttons.set(key, {
@@ -77,18 +90,22 @@ function selectorFixture(completed) {
           hasAttribute(attribute) {return this.props[attribute] !== undefined},
         })
         buttons.get(key).props = node.props
+        buttons.get(key).name = name
+        mounted.add(buttons.get(key))
       }
     }
     node.children?.forEach(visit)
   }
   function render() {
-    hook = 0
+    hook = 0; refHook = 0; effects = []; mounted = new Set()
     tree = component({missions: [1, 2, 3], completed, hasCheckpoint: false,
       onStart: mission => launches.push(mission), onTutorial() {}, onLoad() {}, onBack() {}})
     visit(tree)
+    if (active && !mounted.has(active)) active = undefined
+    for (const effect of effects) effect()
   }
   function button(name) {
-    const found = [...buttons.values()].find(button => button.props['aria-label'] === name)
+    const found = [...buttons.values()].find(button => mounted.has(button) && button.name === name)
     assert.ok(found, `shipped selector button: ${name}`)
     return found
   }
@@ -96,7 +113,9 @@ function selectorFixture(completed) {
   return {
     launches,
     get selected() {return states[0]},
-    get focused() {return active?.props['aria-label']},
+    get focused() {return active?.name},
+    get focusProps() {return active?.props},
+    render,
     focus(name) {button(name).focus()},
     click(name) {button(name).focus(); button(name).props.onClick(); render()},
     activate() {assert.ok(active); active.props.onClick(); render()},
@@ -156,4 +175,32 @@ test('repeated panel arrows stay synchronized while Start keeps its launch focus
   assert.equal(f.key('Tab'), false, 'ordinary keyboard navigation remains native')
   f.activate()
   assert.deepEqual(f.launches, [1])
+})
+
+test('All missions switch hands focus to its non-action heading before keyboard navigation', () => {
+  const f = selectorFixture([])
+  f.click('Browser controls')
+  f.click('All missions')
+  assert.equal(f.focused, 'Choose any playable mission')
+  assert.equal(f.focusProps.tabIndex, -1)
+  assert.equal(f.focusProps.onClick, undefined, 'the focus target cannot launch a mission')
+  assert.equal(f.focusProps.onKeyDown, undefined, 'held activation has no mission handler')
+  assert.deepEqual(f.launches, [])
+  f.click('Mission 2')
+  assert.deepEqual(f.launches, [2], 'ordinary direct launch remains available')
+})
+
+test('All missions focus transfer is explicit, single-use and works when reselecting the same view', () => {
+  const f = selectorFixture([])
+  f.click('Browser controls'); f.click('All missions')
+  f.focus('Mission 2')
+  f.render()
+  assert.equal(f.focused, 'Mission 2', 'ordinary updates never steal grid focus')
+  f.click('Browser controls')
+  assert.equal(f.focused, 'Browser controls', 'opening controls does not move focus')
+  f.click('Browser controls')
+  assert.equal(f.focused, 'Browser controls', 'closing controls does not move focus')
+  f.click('Browser controls'); f.click('All missions')
+  assert.equal(f.focused, 'Choose any playable mission', 'same-view switch also removes its trigger')
+  assert.deepEqual(f.launches, [])
 })

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { readMission10Observation } from '../tutorial-browser/mission10-input.mjs'
+import { mission10SelectionQuery, mission10ExpectedSelection, mission10SelectionPreserved, mission10EscapePreserved } from './mission10-selection.mjs'
 import { checkpointObservation } from './checkpoint-observer.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { bindGame } from '../browser-game.mjs'
@@ -8,30 +10,64 @@ import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 
 const party = [63, 111, 112, 113, 114]
 const boatId = 62
-// Two separate harness processes with one task-owned profile. Public inputs and
+
+// Executed only after this scenario has observed genuine boarding/restoration or
+// completed public unload. The helper never creates people or edits live World.
+export async function checkMission10FollowerStrip({ page, input, state, phase, occupied }) {
+  const entering = await state(`${phase}-before-strip`)
+  if (!entering.paused) await input.pause()
+  const before = await state(`${phase}-strip-paused`)
+  assert.equal(before.paused, true)
+  assert.ok(before.party.every(person => person && person.hp > 0))
+  assert.ok(before.party.every(person => occupied ? person.vehicle === boatId : !person.vehicle))
+  const result = { phase, occupied, occupants: before.party.map(({ id, hp, vehicle }) => ({ id, hp, vehicle })), checks: [] }
+  let previous = before
+  for (const name of ['Select warrior', 'Select follower']) {
+    for (const modifiers of [[], ['Control'], ['Shift']]) {
+      const label = `${phase}: ${name} ${modifiers[0] ?? 'single'}`
+      await input.action(`${label} Escape-clear`, () => page.keyboard.press('Escape'))
+      const cleared = await state(`${label} cleared`)
+      assert.deepEqual(cleared.selected, [], 'Escape must clear the existing crew first')
+      const query = mission10SelectionQuery(cleared.selectionState)
+      if (!result.query) result.query = query
+      else assert.deepEqual(query, result.query, 'Paused pre-action selection query changed')
+      mission10EscapePreserved(previous.selectionState, cleared.selectionState)
+      for (const key of ['turn', 'orders', 'randomState', 'boat', 'party'])
+        assert.deepEqual(cleared[key], before[key], `Escape preserves ${key}`)
+      const expected = mission10ExpectedSelection(query, name, modifiers[0] ?? 'single')
+      await input.action(label, () => page.getByRole('button', { name, exact: true }).click({ modifiers }))
+      const after = await state(`${label} selected`)
+      const selected = [...after.selected].sort((a, b) => a - b)
+      assert.deepEqual(selected, expected.selected, 'Exact original-contract class/Total selection differs')
+      if (occupied) assert.ok(party.every(id => selected.includes(id)), 'Class/Total must acquire all five occupants, including Shaman')
+      mission10SelectionPreserved(cleared.selectionState, after.selectionState)
+      assert.equal(after.paused, true)
+      assert.equal(after.turn, before.turn)
+      assert.deepEqual(after.orders, before.orders, 'HUD selection preserves commands')
+      assert.deepEqual(after.randomState, before.randomState, 'HUD selection preserves RNG')
+      assert.deepEqual(after.boat, before.boat, 'HUD selection preserves craft and passenger slots')
+      assert.deepEqual(after.party, before.party, 'HUD selection preserves live passenger activity')
+      previous = after
+      result.checks.push({ name, modifier: modifiers[0] ?? 'single', cleared: cleared.selected, selected, primary: expected.primary, preserved: true })
+    }
+  }
+  if (!entering.paused) await input.resume()
+  return result
+}
+// Two separate browser processes with one task-owned profile. Public inputs and
 // real RAF only; no CPU checkpoint import, world writes, tick calls or seeded win.
-export default async function ({ page, openMission, output, receipt, observeCheckpoint, signal }) {
+export default async function ({ page, openMission, output, receipt, observeCheckpoint, signal, createInput = createMission1VaultInput, findBoatPoint = null, deadlineAt = null }) {
   assert.ok(receipt.profile, 'Use a dedicated --profile, same origin/source for both runs')
   const report = { method: 'Authored M10, trusted HUD/mouse input, real RAF, public Save and Load across browser termination',
     limits: 'Bounded boarding and same-shore unload; not sea traversal, mission completion, campaign unlock, native parity or hardware performance',
-    source: receipt.source, phase: receipt.profile.mode, actions: [], observations: [] }
+    source: receipt.source, phase: receipt.profile.mode, actions: [], observations: [], selection: [] }
   const save = () => writeFileSync(resolve(output, 'boat-checkpoint.json'), JSON.stringify(report, null, 2) + '\n')
   const state = async label => {
-    const row = await page.evaluate(({ label, party, boatId }) => {
-      const s = window.testSceneRef.current, w = s.world, boat = w.vehicles.find(v => v.id === boatId)
-      const gl = s.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
-      return { label, wallTime: Date.now(), turn: w.turn, time: w.time, level: w.outcome.level,
-        renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER), contextLost: gl.isContextLost(),
-        counts: { units: w.units.length, vehicles: w.vehicles.length, buildings: w.buildings.length, secondary: w.secondaryEffects.slots.length },
-        paused: w.paused, inputMask: w.inputMask, selected: [...w.selected], status: w.status,
-        boat: boat && { id: boat.id, x: boat.x, y: boat.y, active: boat.active, passengers: [...boat.passengers] },
-        party: party.map(id => { const u = w.units.find(u => u.id === id); return u && { id, kind: u.kind, hp: u.hp, x: u.x, z: u.z, vehicle: u.native?.vehicle, state: u.native?.state, flags2: u.native?.flags2, flags4: u.native?.flags4 } }),
-        panels: [...document.querySelectorAll('.vehicle-panel')].map(e => ({ text: e.textContent, visible: !!e.getClientRects().length })) }
-    }, { label, party, boatId })
+    const row = await readMission10Observation(page, { label, party, boatId })
     report.observations.push(row); save(); return row
   }
-  const input = createMission1VaultInput({ page, signal, report, save, originalShamanId: 63 })
-  const boatPoint = () => page.evaluate(async id => {
+  const input = createInput({ page, signal, report, save, originalShamanId: 63, deadlineAt })
+  const boatPoint = () => findBoatPoint ? findBoatPoint(page, boatId) : page.evaluate(async id => {
     const s = window.testSceneRef.current, v = s.world.vehicles.find(v => v.id === id)
     const { browserPosition } = await import('/app/world-coordinates.ts')
     const target = browserPosition(v), p = s.screen(target), r = s.renderer.domElement.getBoundingClientRect()
@@ -70,8 +106,11 @@ export default async function ({ page, openMission, output, receipt, observeChec
       await input.action('ordinary Boat boarding click', () => page.mouse.click(hit.x, hit.y))
       await page.waitForFunction(({ party, boatId }) => { const w = window.testSceneRef.current.world, v = w.vehicles.find(v => v.id === boatId); return party.every(id => v.passengers.includes(id) && w.units.find(u => u.id === id)?.native?.vehicle === boatId) }, { party, boatId }, { timeout: 60000 })
       await state('boarded'); await capture('boarded')
+      report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'boarded', occupied: true })); save()
+      await capture('boarded-class-selected')
       await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-      const menu = page.locator('dialog.game-dialog'); await menu.waitFor({ state: 'visible' })
+      const menu = page.locator('dialog[data-original-pause-menu]'); await menu.waitFor({ state: 'visible' })
+      await menu.getByRole('button', { name: 'Save Game', exact: true }).click()
       const before = await state('save-menu')
       assert.equal(before.paused, true)
       await capture('before-public-save')
@@ -92,10 +131,12 @@ export default async function ({ page, openMission, output, receipt, observeChec
       if (!store) throw Error('Store unavailable before public Load')
       const before = store.getWorld(); window.boatLoadBoundary = null; window.boatLoadError = null
       const unsubscribe = store.subscribe(() => { const world = store.getWorld(); if (world === before) return
-        try { window.boatLoadBoundary = { version: 1, world: structuredClone(world) } } catch (e) { window.boatLoadError = String(e) } finally { unsubscribe() }
+        try { window.boatLoadBoundary = { version: 3, world: structuredClone(world) } } catch (e) { window.boatLoadError = String(e) } finally { unsubscribe() }
       })
     })
+    report.actions.push({ label: 'public Load Game', phase: 'before', at: new Date().toISOString() }); save()
     await page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
+    report.actions.push({ label: 'public Load Game', phase: 'after', at: new Date().toISOString() }); save()
     assert.equal(await page.evaluate(() => window.boatLoadError), null)
     const loaded = await page.evaluate(checkpointObservation, { observationName: 'boatLoadBoundary' })
     for (const key of ['level','turn','time','actorsSha256','terrainSha256','stockSha256']) assert.deepEqual(loaded[key], saved[key], `Load boundary ${key}`)
@@ -107,6 +148,8 @@ export default async function ({ page, openMission, output, receipt, observeChec
     await page.waitForFunction(turn => window.testSceneRef.current.world.turn > turn, saved.turn)
     await input.view({ x: 27, z: -27 })
     await capture('restored-occupied-boat')
+    report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'loaded', occupied: true })); save()
+    await capture('loaded-class-selected')
     await page.keyboard.press('Escape')
     assert.deepEqual(await page.evaluate(() => window.testSceneRef.current.world.selected), [])
     const hit = await boatPoint()
@@ -114,9 +157,11 @@ export default async function ({ page, openMission, output, receipt, observeChec
     const unload = page.getByRole('button', { name: 'Unload all passengers', exact: true })
     await unload.waitFor({ state: 'visible', timeout: 10000 })
     assert.equal(await unload.isEnabled(), true)
-    await unload.click()
+    await input.action('public Unload all passengers', () => unload.click())
     await page.waitForFunction(({ party, boatId }) => { const w=window.testSceneRef.current.world, v=w.vehicles.find(v=>v.id===boatId); return !v.passengers.some(Boolean) && party.every(id=>{const u=w.units.find(u=>u.id===id);return u&&u.hp>0&&u.native&&!u.native.vehicle&&!(u.native.flags2&0x80000)&&!(u.native.flags4&0x400)}) }, { party, boatId }, { timeout: 60000 })
     report.landed = await state('unloaded-alive'); await capture('unloaded-alive')
+    report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'unloaded', occupied: false })); save()
+    await capture('unloaded-class-selected')
     report.loaded = loaded; report.saved = saved
     const stored = await observeCheckpoint('After genuine Load and unload')
     assert.equal(stored.checkpoint.checkpointSha256, saved.checkpointSha256)

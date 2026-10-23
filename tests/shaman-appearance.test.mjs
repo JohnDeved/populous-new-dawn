@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
@@ -33,8 +34,11 @@ test('Shaman import preserves every prior frame, piece and animation entry', () 
   // Preserve the complete accepted 169b firing append before Preacher gestures.
   assert.equal(hash(units.frames.slice(0, 5116)), '1880a9ce9966cb9a6edc8138201b2b4c6ddb2f8dfadbfacca5ab5073d820693f')
   assert.equal(hash(units.pieces.slice(0, 4122)), '74bf9d23035e81ce64ff4f8fce9bcd1c6561e535c513f6d3a4097185a4390170')
-  assert.equal(units.frames.length, 5116 + 140)
-  assert.equal(units.pieces.length, 4122 + 48)
+  // Exact accepted 6698809 prefixes before the follower source catalog append.
+  assert.equal(hash(units.frames.slice(0, 5256)), '8a04b88865d567e090f73125b58e62638f4f4d9529d25875d56433088c92a854')
+  assert.equal(hash(units.pieces.slice(0, 4170)), 'e8b67c696be0ad52c13105c888629fdc70002ec63c6fb414991c57fb51cd02c6')
+  assert.equal(units.frames.length, 5256 + 216)
+  assert.equal(units.pieces.length, 4170 + 492)
   assert.equal(units.frameCounts.length, 792)
   assert.deepEqual([units.width, units.height, units.cell, units.columns], [2048, 8192, 64, 32])
 })
@@ -175,7 +179,7 @@ test('real Mission 23 Shaman identity and death heading survive checkpoint recon
   assert.equal(checkpoint.nextId, world.nextId)
   const old = structuredClone(world)
   old.effects.filter(f => f.reincarnation).forEach(f => { delete f.unit })
-  const compatible = migrateCheckpoint(old)
+  const compatible = normalizeHistoricalFixture(old)
   compatible.effects.filter(f => f.reincarnation).forEach(effect => {
     assert.ok(shamanReincarnationPose(effect.reincarnation.team, effect.reincarnation.phase))
     assert.equal(effect.unit?.heading ?? 0, 0, 'old checkpoints retain safe heading fallback')

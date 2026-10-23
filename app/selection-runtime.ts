@@ -8,6 +8,8 @@ import { distance } from './world-coordinates.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { EncounterPhase } from './melee-encounter.ts'
 import { type HudSelectionMode, selectHudPeople } from './hud-selection.ts'
+import { hudPersonSource } from './hud-person-source.ts'
+import rules from './original-rules.json' with { type: 'json' }
 import { sound } from './world-effects.ts'
 import {
   markPersonSelected,
@@ -135,14 +137,15 @@ export function selectionPeople(w: World, units = w.units) {
 }
 
 // HUD queries read active positions without taking ownership of legacy simulation.
-export function hudPeople(w: World) {
+export function hudPeople(w: World, ownedOnly = true) {
   const selected = new Set(w.selected)
   return w.units
-    .filter(u => u.team === 'blue' && u.hp > 0)
+    .filter(u => (!ownedOnly || u.team === 'blue') && u.hp > 0)
     .map(u => {
-      const active = unitAnimationSource(u) ?? u.native ?? u.entry?.person
-      const source = active ?? u.builder?.person
-      const point = active ?? nativePosition(w, u)
+      const snapshot = hudPersonSource(w, u),
+        active = snapshot.active ?? u.native ?? u.entry?.person,
+        source = snapshot.source?.vehicle ? snapshot.source : (active ?? u.builder?.person),
+        point = source?.vehicle ? source : (active ?? nativePosition(w, u))
       return {
         id: u.id,
         model: nativePersonModel(u),
@@ -152,6 +155,7 @@ export function hudPeople(w: World) {
         flags3: source?.flags3 ?? 0,
         flags4: source?.flags4 ?? 0,
         selectionFlags: ((source?.selectionFlags ?? 0) & ~128) | (selected.has(u.id) ? 128 : 0),
+        vehicle: source?.vehicle ?? 0,
         source,
       }
     })
@@ -163,9 +167,33 @@ export function selectFollowers(
   point: { x: number; y: number },
   mode: HudSelectionMode
 ) {
-  const people = hudPeople(w)
-  const result = selectHudPeople(people, model, point, mode, !!(w.castingTribes[0].flags & 128))
-  for (const p of people)
+  const people = hudPeople(w, false),
+    byId = new Map(people.map(p => [p.id, p])),
+    owned = new Set(w.units.filter(u => u.team === 'blue').map(u => u.id)),
+    updated = new Set(people.filter(p => owned.has(p.id))),
+    vehicles = new Map(w.vehicles.filter(v => v.active && v.passengerCount).map(v => [v.id, v]))
+  const result = selectHudPeople(
+    people.filter(p => owned.has(p.id)),
+    model,
+    point,
+    mode,
+    !!(w.castingTribes[0].flags & 128),
+    (p, selected) => {
+      markPersonSelected(p, selected)
+      const vehicle = vehicles.get(byId.get(p.id)?.vehicle ?? 0)
+      if (!vehicle) return
+      // The person-command crew traversal does not reapply the class, tribe,
+      // range or reservation filter used to acquire the original passenger.
+      for (const id of vehicle.passengers.slice(0, rules.vehicleCapacity[vehicle.model])) {
+        const passenger = byId.get(id)
+        if (passenger && passenger !== p) {
+          markPersonSelected(passenger, selected)
+          updated.add(passenger)
+        }
+      }
+    }
+  )
+  for (const p of updated)
     if (p.source) {
       p.source.flags3 = p.flags3
       p.source.selectionFlags = p.selectionFlags

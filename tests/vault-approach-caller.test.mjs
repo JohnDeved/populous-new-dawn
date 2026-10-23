@@ -513,12 +513,14 @@ test('Vault Save/Load and replacement Scene rebuild only on the next live reques
   const { createGameStore } = await import('../app/game-store.ts')
   const { trainingPanelRequestOwner } = await import('../app/training-panel-requests.ts')
   const store = createGameStore()
-  const original = createWorld(3)
+  store.startMission(3)
+  const original = store.getWorld()
+  assert.equal(original.capacityPolicy.mode, 'scalable')
+  assert.ok(original.objectCells.heads instanceof Float64Array)
   finishLevelStart(original)
   select(original, 'shaman')
   assert.equal(command(original, original.shrines.find(shrine => shrine.kind === 'vault')), true)
   until(original, 'ordinary positive cache before Save', () => original.shrines.find(shrine => shrine.kind === 'vault').followers === 1)
-  store.change(target => Object.assign(target, structuredClone(original)))
   const current = await vaultSceneFixture(t, store.getWorld())
   current.scene.presentationBinding = store.bindPresentation(current.world)
   until(current.world, 'current automatic owner', () => current.scene.objectPanels.panels.has(current.vault.id))
@@ -588,7 +590,11 @@ test('Vault sampler rejects invalid local task owners and requests the sampled l
   const vault = world.shrines.find(shrine => shrine.kind === 'vault')
   // Explicit supplied second linked-body seam, not an authored second M3 Vault
   // or proof of the original separate class2/model18 physical object identity.
-  const second = { ...structuredClone(vault), id: world.nextId++, x: vault.x + 64 }
+  // A supplied physical body needs a unique ten-bit handle, not the unbounded
+  // general allocator used by current development saves.
+  const id = 900
+  assert.equal([...world.units, ...world.buildings, ...world.shrines].some(o => o.id === id), false)
+  const second = { ...structuredClone(vault), id, x: vault.x + 64 }
   world.shrines.push(second)
   const requests = []
   const release = bindTrainingPanelRequests(world, {

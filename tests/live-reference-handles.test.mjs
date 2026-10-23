@@ -135,13 +135,13 @@ test('public boarding resolves a high vehicle handle without its low-word alias'
   assert.equal(shaman.native.target, vehicle.id)
 })
 
-test('legacy Angel migration and worship producer retain the allocated high shrine handle', async () => {
-  const { migrateCheckpoint } = await import('../app/game-store.ts')
+test('historical Angel reconstruction and worship producer retain the allocated high shrine handle', async () => {
+  const { normalizeHistoricalFixture } = await import('./helpers/historical-checkpoint.ts')
   const { worshipOrder } = await import('../app/live-worship.ts')
   const w = createWorld(5)
   w.shrines = w.shrines.filter(s => s.kind !== 'angel')
   w.nextId = 287375
-  const migrated = migrateCheckpoint(w)
+  const migrated = normalizeHistoricalFixture(w)
   const shrine = migrated.shrines.find(s => s.kind === 'angel')
   assert.equal(shrine.id, 287375)
   const slot = worshipOrder(migrated, shrine)

@@ -1,3 +1,4 @@
+import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
@@ -9,6 +10,8 @@ import { random } from '../app/native-math.ts'
 import { withCampaignTribe } from '../app/campaign-runtime.ts'
 const training = w => w.campaignAIs[1].tasks.filter(t => t.flags & 1 && t.type === 6)
 const person = u => u?.entry?.person ?? u?.native ?? u?.flight ?? u?.fight?.motion
+
+const referenceId = scalableReferenceIds(16)
 
 test('supplied M16 availability4/5/6 retains the pre-rejection model draw and capacity equality', () => {
   const base = createWorld(16)
@@ -94,7 +97,7 @@ test('ordinary M16 capacity admission trains actual followers with complete chec
         )
         assert.equal(w.objectCells.objects.has(id), false)
       }
-      for (const id of [358, 359, 360]) {
+      for (const id of [358, 359, 360].map(referenceId)) {
         const u = w.units.find(u => u.id === id)
         assert.equal(u.kind, 'warrior')
         assert.equal(u.hp, 90)
@@ -116,12 +119,12 @@ test('ordinary M16 capacity admission trains actual followers with complete chec
   assert.deepEqual(
     [...conversions],
     [
-      [358, 584],
-      [359, 584],
-      [360, 584],
-      [438, 1540],
-      [439, 1540],
-      [454, 1680],
+      [referenceId(358), 584],
+      [referenceId(359), 584],
+      [referenceId(360), 584],
+      [referenceId(438), 1540],
+      [referenceId(439), 1540],
+      [referenceId(454), 1680],
     ]
   )
 })

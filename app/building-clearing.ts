@@ -65,6 +65,7 @@ export function stepBuildingScenery(
     outside: Point
     scenery: () => Iterable<Scenery>
     target: (id: number) => Scenery | undefined
+    scalableOrders?: boolean
   },
   effects: Effects & {
     sound: (cue: number, flags: number) => void
@@ -92,8 +93,9 @@ export function stepBuildingScenery(
     case SceneryPhase.Find: {
       if (p.counter & 7) return 0
       // The shipped executable reads person +0x90: bit 10 of command slot 2.
-      // Preserve this surprising guard rather than treating it as scenery flags.
-      if (!(p.commands[2] & 1024))
+      // Preserve it for native compatibility only. Scalable queue handles can
+      // legitimately set bit 10; they are indices, never scenery-control flags.
+      if (site.scalableOrders || !(p.commands[2] & 1024))
         for (const object of site.scenery())
           if (object.class === 5 && rules.sceneryResourceFlags[object.model] & 64) {
             p.target = object.id

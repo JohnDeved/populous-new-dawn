@@ -3,7 +3,9 @@ import { unitRenderAnimationSource } from './unit-animation-source.ts'
 import { discardInvalidResident, residentPerson } from './building-resident.ts'
 import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
 import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
+import { latchFollowerCorpseFrame } from './follower-corpse-animation.ts'
 import { buildingPose } from './building-shapes.ts'
+import { liveBuildingModel, liveBuildingShape } from './live-building-shapes.ts'
 import { effect, emitGroundSpark, requestTutorial, sound } from './world-effects.ts'
 import { releaseTasks } from './world-tasks.ts'
 import { initializeRouteRecovery, stepRouteRecovery } from './person-route-recovery.ts'
@@ -13,6 +15,7 @@ import {
   stepLiveRestingState,
 } from './live-resting.ts'
 import { initializeRestingPerson } from './person-idle.ts'
+import { facePersonCasting, initializePersonCasting, stepPersonCasting } from './person-casting.ts'
 import { stampFootprints } from './footprints.ts'
 import { adoptLiveOrders, startLiveOrders } from './live-movement.ts'
 import { currentPersonOrder } from './person-orders.ts'
@@ -25,6 +28,7 @@ import { approachMeleeSlot, meleeAnimationObject } from './melee.ts'
 import { stepMeleeEncounter } from './melee-encounter.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { teamForTribe, tribeForTeam } from './world-types.ts'
+import { ownedSettlementObjects } from './live-settlement.ts'
 export { cancelBuildingEntry } from './live-building-entry.ts'
 import {
   type World,
@@ -33,7 +37,6 @@ import {
   browserPosition,
   unitAnimationSource,
   unitAnimation,
-  buildingModel,
   supportsFollower,
   revealUnitInvisibility,
   unitInvisibilityRenderBit,
@@ -104,6 +107,7 @@ import {
   markPersonAirborne,
   unsupportedGround,
   stepPersonPhysics,
+  stepOwnedPersonPhysics,
   type PhysicsPerson,
 } from './person-physics.ts'
 import { terrainPointHeight } from './native-terrain.ts'
@@ -323,46 +327,229 @@ export function leaveLiveBuilding(w: World, u: Unit) {
 // ponytail: victory bootstrap supplies initial order; full native allocation
 // must establish membership for ordinary units and the remaining object classes.
 export function syncLivePersonCells(w: World) {
-  const people = new Map(
-    w.units
-      .filter(
-        u =>
-          (u.flight || u.fight?.motion || u.native || u.entry) &&
-          (u.hp > 0 || u.flight || u.native?.state === 44)
-      )
-      .map(u => [u.id, (u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person)!])
+  invalidateLivePersonPass(w)
+  return reconcileLivePersonCells(w)
+}
+
+function reconcileLivePersonCells(w: World) {
+  const units = w.units.filter(
+    u =>
+      (u.flight || u.fight?.motion || u.native || u.entry) &&
+      (u.hp > 0 || u.flight || u.native?.state === 44)
   )
+  // Finish eligibility before reading owners, as in the legacy filter/map boundary.
+  // The snapshot stays fresh without allocating a temporary entry tuple per person.
+  const people = new Map<number, LivePerson>()
+  for (const u of units)
+    people.set(u.id, (u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person)!)
   for (const [id, p] of w.objectCells.objects)
     if (people.get(id) !== p) {
       if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
       deleteCellObject(w.objectCells, id)
     }
-  for (const u of w.units) {
-    // Preserve the native display offset across ordinary browser order handoff.
-    // Occupancy freezes physics; ordinary movement resumes the native support check.
-    const p = people.get(u.id)
-    const offset = p?.supportHeight ?? u.supportHeight
-    if (offset && !((p?.flags2 ?? 0) & 0x4000)) {
-      const point = nativePosition(w, u),
-        cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9),
-        flags = w.land.flags[cell]
-      const b =
-        flags & 512 ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023)) : undefined
-      const value = personSupportHeight(offset, flags, b ? buildingModel(b) : 0)
-      if (p) p.supportHeight = value
-      u.supportHeight = value || undefined
-    }
-    if (!p) continue
-    if (!w.objectCells.objects.has(p.id)) {
-      setCellObject(w.objectCells, p.id, p)
-      insertObjectIntoCell(w.objectCells, p, p)
-    }
-    // Vehicle attachment owns seated height/position independently of the
-    // animation-source projection (command22 is not an on-foot pose owner).
-    if (u.flight || u.fight?.motion || p.vehicle) continue
-    syncBrowserPersonPosition(w, u, p)
-  }
+  for (const u of w.units) publishLivePersonCell(w, u, people.get(u.id))
   return people
+}
+
+function publishLivePersonCell(w: World, u: Unit, p: LivePerson | undefined) {
+  // Preserve the native display offset across ordinary browser order handoff.
+  // Occupancy freezes physics; ordinary movement resumes the native support check.
+  const offset = p?.supportHeight ?? u.supportHeight
+  if (offset && !((p?.flags2 ?? 0) & 0x4000)) {
+    const point = nativePosition(w, u),
+      cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9),
+      flags = w.land.flags[cell]
+    const model = flags & 512 ? liveBuildingModel(w, w.land.buildingIds[cell] & 1023) : 0
+    const value = personSupportHeight(offset, flags, model)
+    if (p) p.supportHeight = value
+    u.supportHeight = value || undefined
+  }
+  if (!p) return
+  if (!w.objectCells.objects.has(p.id)) {
+    setCellObject(w.objectCells, p.id, p)
+    insertObjectIntoCell(w.objectCells, p, p)
+  }
+  // Vehicle attachment owns seated height/position independently of the
+  // animation-source projection (command22 is not an on-foot pose owner).
+  if (u.flight || u.fight?.motion || p.vehicle) return
+  syncBrowserPersonPosition(w, u, p)
+}
+
+interface PersonEpisode {
+  people: Map<number, LivePerson>
+  units: World['units']
+  unitCount: number
+  turn: number
+  cells: World['objectCells']
+  objects: World['objectCells']['objects']
+  heads: World['objectCells']['heads']
+  land: World['land']
+  heights: World['land']['heights']
+  flags: World['land']['flags']
+  buildingIds: World['land']['buildingIds']
+  terrain: World['terrain']
+  terrainVersion: number
+  landVersion: number
+  buildings: World['buildings']
+  shrines: World['shrines']
+  pending?: Unit
+}
+interface PersonPass {
+  generation: number
+  busy: boolean
+  episode?: PersonEpisode
+}
+const livePersonPasses = new WeakMap<World, PersonPass>()
+
+function invalidateLivePersonPass(w: World) {
+  const pass = livePersonPasses.get(w)
+  if (pass) {
+    pass.generation++
+    pass.episode = undefined
+  }
+}
+
+// Only the ordinary on-foot, unrouted celebration body is owned here. These
+// guards exclude preparation/occupancy callbacks BEFORE they can mutate other
+// people. Other states and callers retain the unconditional public reconciler.
+function ownsCelebrationVisit(w: World, u: Unit) {
+  const p = u.native
+  return !!(
+    w.land.landFlags & 0x2000000 &&
+    u.hp > 0 &&
+    p?.state === 41 &&
+    !u.flight &&
+    !u.fight &&
+    !u.entry &&
+    !u.builder &&
+    !p.vehicle &&
+    !w.pathfinding.people.has(u.id) &&
+    !(p.flags2 & 16) &&
+    !(p.flags2 & 0x80000000 && !(p.flags2 & 128)) &&
+    !(p.substate === 0 && p.flags2 & 0x40000000 && p.flags2 & 0x800000)
+  )
+}
+
+function episodeIsCurrent(w: World, episode: PersonEpisode) {
+  return (
+    episode.units === w.units &&
+    episode.unitCount === w.units.length &&
+    episode.turn === w.turn &&
+    episode.cells === w.objectCells &&
+    episode.objects === w.objectCells.objects &&
+    episode.heads === w.objectCells.heads &&
+    episode.land === w.land &&
+    episode.terrain === w.terrain &&
+    episode.heights === w.land.heights &&
+    episode.flags === w.land.flags &&
+    episode.buildingIds === w.land.buildingIds &&
+    episode.terrainVersion === w.terrainVersion &&
+    episode.landVersion === w.landVersion &&
+    episode.buildings === w.buildings &&
+    episode.shrines === w.shrines
+  )
+}
+
+// A synchronous scheduler capability, never serialized or reused across turns.
+// next() ends a run before another controller; close() deliberately does NOT
+// publish pending changes. Publication stays at the old previsit/lazy-read sites.
+export function beginLivePersonPass(w: World) {
+  invalidateLivePersonPass(w)
+  const pass: PersonPass = { generation: 0, busy: false }
+  livePersonPasses.set(w, pass)
+  const current = () => livePersonPasses.get(w) === pass
+  const stop = () => {
+    if (current()) invalidateLivePersonPass(w)
+  }
+  return {
+    next(u: Unit) {
+      if (!ownsCelebrationVisit(w, u)) stop()
+    },
+    stop,
+    close() {
+      if (current()) {
+        stop()
+        livePersonPasses.delete(w)
+      }
+    },
+    step(u: Unit) {
+      if (!current() || pass.busy || !ownsCelebrationVisit(w, u)) {
+        stop()
+        stepLivePerson(w, u)
+        return
+      }
+      pass.busy = true
+      const { generation } = pass
+      let first = true
+      const synchronize = () => {
+        if (!current() || pass.generation !== generation || !ownsCelebrationVisit(w, u))
+          return syncLivePersonCells(w)
+        let { episode } = pass
+        if (
+          episode &&
+          (!episodeIsCurrent(w, episode) ||
+            episode.people.get(u.id) !== u.native ||
+            (episode.pending &&
+              (!ownsCelebrationVisit(w, episode.pending) ||
+                episode.people.get(episode.pending.id) !== episode.pending.native)))
+        ) {
+          stop()
+          return syncLivePersonCells(w)
+        }
+        if (episode) {
+          // Earlier roster visits publish before this visit's lazy read. The
+          // immutable membership Map is private; its values remain live aliases.
+          if (episode.pending && episode.pending !== u)
+            publishLivePersonCell(w, episode.pending, episode.people.get(episode.pending.id))
+          publishLivePersonCell(w, u, episode.people.get(u.id))
+        } else {
+          const people = reconcileLivePersonCells(w)
+          // Reentry during initialization cannot reactivate the outer run.
+          if (!first || !current() || pass.generation !== generation) return people
+          const ids = new Set<number>()
+          for (const unit of w.units) {
+            if (ids.has(unit.id) || (people.has(unit.id) && people.get(unit.id)!.id !== unit.id)) {
+              stop()
+              return people
+            }
+            ids.add(unit.id)
+          }
+          if (!current() || pass.generation !== generation) return people
+          episode = {
+            people,
+            units: w.units,
+            unitCount: w.units.length,
+            turn: w.turn,
+            cells: w.objectCells,
+            objects: w.objectCells.objects,
+            heads: w.objectCells.heads,
+            land: w.land,
+            terrain: w.terrain,
+            heights: w.land.heights,
+            flags: w.land.flags,
+            buildingIds: w.land.buildingIds,
+            terrainVersion: w.terrainVersion,
+            landVersion: w.landVersion,
+            buildings: w.buildings,
+            shrines: w.shrines,
+          }
+          pass.episode = episode
+        }
+        episode.pending = undefined
+        first = false
+        return episode.people
+      }
+      try {
+        stepLivePersonBody(w, u, synchronize)
+        if (current() && pass.generation === generation && pass.episode) pass.episode.pending = u
+      } catch (error) {
+        stop()
+        throw error
+      } finally {
+        pass.busy = false
+      }
+    },
+  }
 }
 
 // Publish an ordinary browser-owned step before a later controller can adopt
@@ -396,12 +583,12 @@ export function setLivePersonAnimation(w: World, p: LivePerson, object: number) 
   )
 }
 
-function context(w: World) {
+function context(w: World, synchronize = () => syncLivePersonCells(w)) {
   let people: Map<number, LivePerson> | undefined
   const state = {
     randomState: w.randomState,
     get people() {
-      return (people ??= syncLivePersonCells(w))
+      return (people ??= synchronize())
     },
     get shamans() {
       return w.manaTribes.map(
@@ -486,6 +673,10 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
     throw new Error('Legacy handoff contains an unowned native assignment')
   }
   initializePersonState(initWorld, p, {
+    casting: () =>
+      initializePersonCasting(p, !!castingCellObject(w, p), (person, object) =>
+        setLivePersonAnimation(w, person as LivePerson, object)
+      ),
     routeRecovery: () => initializeLiveRouteRecovery(w, p),
     encounter: () => initializeGroundCombat(w, p),
     fight: () => initializeGroundCombat(w, p),
@@ -600,6 +791,44 @@ export function changeLivePersonState(w: World, u: Unit, next?: number, source =
   const ctx = context(w)
   initializeLivePerson(w, u, ctx, p)
   w.randomState = ctx.state.randomState
+}
+
+function castingCellObject(w: World, point: { x: number; y: number }) {
+  const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+  return w.land.flags[cell] & 512
+    ? liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
+    : undefined
+}
+
+// Share the actual physical/animation owner rather than creating a new cast
+// pose or reinitializing the AI's combat owner a second time.
+export function beginLiveCasting(w: World, u: Unit, target: { x: number; y: number }) {
+  const p =
+    u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person ?? createLivePerson(w, u)
+  u.native = p
+  registerLivePerson(w, p)
+  syncBrowserPersonPosition(w, u, p)
+  changeLivePersonState(w, u, 22, p)
+  if (p.state === 22 && u.fight?.motion === p) u.fight = null
+  facePersonCasting(p, target)
+  u.heading = Math.PI - (p.angle * Math.PI) / 1024
+}
+
+export function stepLiveCasting(w: World, u: Unit, p: LivePerson) {
+  stepLivePhysics(w, u, p)
+  // Preparation can replace state 22. Do not tick the replacement state's
+  // timer a second time or finish a cast that no longer owns this visit.
+  if (p.state !== 22) return
+  stepPersonCasting(p, w.manaWorld.gameFlags, {
+    animation: (person, object) => setLivePersonAnimation(w, person as LivePerson, object),
+    destination: point => setDirectPersonDestination(w.motionRoutes, p, point),
+    outside: point => {
+      const shape = castingCellObject(w, point)
+      return shape ? buildingOutsidePoint(shape) : point
+    },
+    release: () => releasePersonRoute(w.motionRoutes, p),
+    initialize: next => changeLivePersonState(w, u, next, p),
+  })
 }
 
 export function initializeLivePanic(
@@ -780,6 +1009,16 @@ export function collisionWorld(w: World): CollisionWorld {
           tribe: tribeForTeam(b.team),
           related: 0,
         })
+      for (const shrine of w.shrines)
+        if (shrine.kind === 'vault' && shrine.model)
+          objects.set(shrine.id, {
+            ...nativePosition(w, shrine),
+            class: 2,
+            state: 2,
+            flags2: 0,
+            tribe: 255,
+            related: 0,
+          })
       for (const u of w.units)
         objects.set(u.id, {
           ...nativePosition(w, u),
@@ -955,6 +1194,10 @@ export function registerLivePerson(w: World, p: LivePerson) {
 
 // Grounded combat and airborne impulses share the original person physics.
 export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
+  stepLivePhysicsImpl(w, u, p)
+}
+
+function stepLivePhysicsImpl(w: World, u: Unit, p: LivePerson, ownedImpulse = false) {
   const fighting = p.state === 25 || p.state === 29,
     recovering = p.state === 33
   registerLivePerson(w, p)
@@ -978,20 +1221,32 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
   stepPersonReaction(p)
   markPersonAirborne(w.land, p)
   const collision = collisionWorld(w)
-  stepPersonPhysics(
+  const stepPhysics: typeof stepPersonPhysics = ownedImpulse
+    ? (world, person, effects, mask) =>
+        stepOwnedPersonPhysics(
+          world,
+          person,
+          effects,
+          () => ownedSettlementObjects(w, p, collision),
+          mask
+        )
+    : stepPersonPhysics
+  stepPhysics(
     {
       land: w.land,
       collision,
       gameFlags: w.manaWorld.gameFlags,
       levelFlags: w.manaWorld.levelFlags,
       playerTribe: w.manaWorld.playerTribe,
-      buildingModel: id => buildingModel(w.buildings.find(b => b.id === id)!),
+      buildingModel: id => {
+        const model = liveBuildingModel(w, id)
+        if (!model) throw new Error('Missing building during impulse recovery')
+        return model
+      },
       route: outside => {
-        const b = w.buildings.find(b => b.id === (collision.cell(p).building & 1023))
-        if (!b) throw new Error('Missing building during impulse recovery')
-        return outside
-          ? buildingOutsidePoint(buildingPose(b))
-          : buildingApproachPoint(buildingPose(b), p)
+        const shape = liveBuildingShape(w, collision.cell(p).building & 1023)
+        if (!shape) throw new Error('Missing building during impulse recovery')
+        return outside ? buildingOutsidePoint(shape) : buildingApproachPoint(shape, p)
       },
     },
     p,
@@ -1108,8 +1363,18 @@ export function resumeLiveSeatedFlight(u: Unit) {
 }
 
 export function stepLiveImpulse(w: World, u: Unit) {
+  stepLiveImpulseImpl(w, u)
+}
+
+// Scheduler-owned plain records only. Direct/exotic callers keep the public
+// eager path. No snapshot or permission to skip escapes this one physics visit.
+export function stepOwnedLiveImpulse(w: World, u: Unit) {
+  stepLiveImpulseImpl(w, u, true)
+}
+
+function stepLiveImpulseImpl(w: World, u: Unit, owned = false) {
   const p = u.flight!
-  stepLivePhysics(w, u, p)
+  stepLivePhysicsImpl(w, u, p, owned)
   // Voluntary vehicle exits can be airborne through the live impulse flag
   // without destruction's forced-airborne bit. Keep their physics owner to landing.
   if (!(p.flags2 & 0x80000) && !(p.flags4 & 0x400) && u.fight?.action !== 'push') {
@@ -1143,8 +1408,8 @@ function updateLivePanic(w: World, u: Unit, ctx: ReturnType<typeof context>, p: 
     outside: point => {
       const cell = (point.y >> 9) * 128 + (point.x >> 9)
       if (!(w.land.flags[cell] & 512)) return point
-      const building = w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
-      return building ? { ...point, ...buildingOutsidePoint(buildingPose(building)) } : point
+      const shape = liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
+      return shape ? { ...point, ...buildingOutsidePoint(shape) } : point
     },
   })
   if (next && !(p.flags2 & 0x100000)) {
@@ -1169,8 +1434,8 @@ function updateLiveVolcanoPanic(w: World, u: Unit, ctx: ReturnType<typeof contex
     outside: point => {
       const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
       if (!(w.land.flags[cell] & 512)) return point
-      const building = w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
-      return building ? { ...point, ...buildingOutsidePoint(buildingPose(building)) } : point
+      const shape = liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
+      return shape ? { ...point, ...buildingOutsidePoint(shape) } : point
     },
   })
   u.burnTrail = p.burnTrail
@@ -1189,20 +1454,19 @@ export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
     if (p.flags2 & 0x200 && !(p.flags2 & 128) && positionsOverlap(p, 56, destination, 1024))
       speed = Math.min(speed, positionDistance(p, destination))
     const collision = collisionWorld(w)
-    const building =
+    const shape =
       collision.cell(p).flags & 0x200
-        ? w.buildings.find(b => b.id === (collision.cell(p).building & 1023))
+        ? liveBuildingShape(w, collision.cell(p).building & 1023)
         : undefined
     const blocked = (to: { x: number; y: number }) => personStepCollision(collision, p, to)
     if (speed)
       stepMotionRecovery(
         p,
-        !!building,
+        !!shape,
         () => !!buildingBlocksPerson(collision, p, collision.cell(p)),
         outside => {
-          if (!building) throw new Error('Missing building during native exit recovery')
-          const pose = buildingPose(building)
-          return outside ? buildingOutsidePoint(pose) : buildingApproachPoint(pose, p)
+          if (!shape) throw new Error('Missing building during native exit recovery')
+          return outside ? buildingOutsidePoint(shape) : buildingApproachPoint(shape, p)
         }
       )
     const velocity = { x: 0, y: Math.max(0, short(p.velocity.y)), z: 0 }
@@ -1213,7 +1477,7 @@ export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
     if (speed && blocked(next)) {
       if (turning) Object.assign(next, { x: p.x, y: p.y, h: terrain(p.x, p.y) })
       else if (
-        !recoverGroundObstacle(p, next, !!building, terrain, blocked) &&
+        !recoverGroundObstacle(p, next, !!shape, terrain, blocked) &&
         unsupportedGround(w.land, p, p.physics)
       ) {
         // 0x4e7193: retain this ground step's limited velocity, not an old combat
@@ -1230,9 +1494,13 @@ export function moveLivePerson(w: World, u: Unit, p: LivePerson) {
 }
 
 export function stepLivePerson(w: World, u: Unit) {
+  stepLivePersonBody(w, u, () => syncLivePersonCells(w))
+}
+
+function stepLivePersonBody(w: World, u: Unit, synchronize: () => Map<number, LivePerson>) {
   // Celebration/panic still accept legacy placement before their physics visit.
-  syncLivePersonCells(w)
-  const ctx = context(w),
+  synchronize()
+  const ctx = context(w, synchronize),
     { state, effects } = ctx
   const p = u.native!
   p.counter = (p.counter + 1) & 255
@@ -1283,9 +1551,9 @@ export function stepLivePerson(w: World, u: Unit) {
         outside: to => {
           const cell = ((to.y & 65535) >> 9) * 128 + ((to.x & 65535) >> 9)
           if (!(w.land.flags[cell] & 512)) return to
-          const b = w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
-          if (!b) return unowned()
-          return buildingOutsidePoint(buildingPose(b))
+          const shape = liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
+          if (!shape) return unowned()
+          return buildingOutsidePoint(shape)
         },
         destination: to => effects.destination(p, to),
         arrival: unowned,
@@ -1374,6 +1642,7 @@ export function animateLiveObjects(w: World, phase: 'logical' | 'presentation' =
     )
     if (logical !== (phase === 'logical')) continue
     if (f.reincarnation) latchShamanDeathFrame(f)
+    if (f.corpse) latchFollowerCorpseFrame(f)
     const knowledgeGlow = f.sprite?.sequence === 'vault-knowledge-glow' ? f.sprite : undefined,
       retired = knowledgeGlow && f.kind === 'gift' && 'phase' in f && !f.phase
     if (f.animation && knowledgeGlow && !retired)

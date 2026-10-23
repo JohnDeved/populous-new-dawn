@@ -7,9 +7,12 @@ import { m2StartupReady } from './m2-pointer-f8.mjs'
 import { minimapInput } from '../../qa/erosion-ordinary/minimap-input.mjs'
 import { minimapPick } from '../../app/minimap.ts'
 import { spriteDirection } from '../../app/projection.ts'
-import { validateMeleeRunningObservation } from './melee-attack-running-evidence.mjs'
+import { meleeRunningProtocol, validateMeleeRunningObservation } from './melee-attack-running-evidence.mjs'
 
 export const meleeAttackLimitMs = 75000
+// A fixed functional artwork workload, separate from performance frame recording.
+// Keep normal game time and the source-bounded entry; reduce only raster area.
+const meleeArtworkViewport = { width: 960, height: 720 }
 const root = resolve(import.meta.dirname, '../..')
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 
@@ -125,12 +128,15 @@ export function meleeAttackMapping() {
 // A separate RAF reads after the Scene's already-scheduled ordinary render.
 // It does not mutate World, advance time, render, replace a game method or issue
 // a hit-selection query. Reading crop bounds may touch renderer/picker metadata.
-export function installMeleeFrameObserver() {
+export function installMeleeFrameObserver(originalMapping) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   const canvas = scene.renderer.domElement, visitLimit = 75 * 240
-  const result = { samples: [], crops: [], visits: [], visitLimit,
-    error: null, done: false, firstAttackTurn: null, terminal: null, retention: null }
-  let raf, stopped = false, firstPerson = null
+  // These independent original tables arrive from Node, not the observed pose,
+  // countdown or a game getter. Keep a private copy for the entire episode.
+  const mapping = structuredClone(originalMapping)
+  const result = { protocol: 'running-original-entry-v2', samples: [], crops: [], visits: [], visitLimit,
+    error: null, done: false, firstAttackTurn: null, entry: null, endpoint: null, terminal: null, retention: null }
+  let raf, stopped = false, firstPerson = null, firstEntry = null
   const cropKeys = new Set(), copies = []
   const stop = (reason = 'stopped') => {
     if (!stopped) {
@@ -191,12 +197,6 @@ export function installMeleeFrameObserver() {
       if (!canvas.isConnected || document.visibilityState !== 'visible')
         throw Error('Melee canvas disconnected or document hidden')
       if (result.firstAttackTurn !== null && world.paused) throw Error('Running melee observation unexpectedly paused')
-      // The half-open window excludes the boundary visit's actor/attack state.
-      // Keep Scene/world/canvas and uninterrupted-running guards above it.
-      if (result.firstAttackTurn !== null && world.turn >= result.firstAttackTurn + 10) {
-        diagnostic.stage = 'window-complete'
-        result.done = true; stop('window-complete'); return
-      }
       const unit = world.units.find(unit => unit.id === 54), fight = unit?.fight
       Object.assign(diagnostic, { stage: 'observed', actorInspected: true,
         alive: !!unit && unit.hp > 0, hp: unit?.hp ?? null,
@@ -204,12 +204,52 @@ export function installMeleeFrameObserver() {
         f2: fight?.motion?.f2 ?? null, frame: scene.unitMeshes.get(54)?.userData.frame ?? null })
       if (!unit || unit.kind !== 'shaman' || unit.team !== 'blue' || unit.hp <= 0)
         throw Error('Authored Shaman54 disappeared or died')
+      if (!firstEntry && fight && ['attack', 'strike', 'special'].includes(fight.action)) {
+        const original = mapping?.[`${unit.kind}:${fight.action}`]
+        if (!original || original.step !== 0 || !Number.isSafeInteger(original.frameCount) ||
+          original.frameCount < 2 || original.duration !== (original.step + 1) * original.frameCount ||
+          !Number.isSafeInteger(fight.started) || fight.started > world.turn)
+          throw Error('First melee entry lacks an independent original duration')
+        result.firstAttackTurn = world.turn
+        firstPerson = fight.motion
+        firstEntry = Object.freeze({ id: unit.id, kind: unit.kind, action: fight.action, started: fight.started,
+          fightGroup: fight.group, opponent: fight.opponent, duration: original.duration,
+          endExclusive: fight.started + original.duration - 1 })
+        result.entry = firstEntry
+      }
+      if (firstEntry) {
+        const entry = firstEntry
+        if (!fight || !firstPerson || fight.motion !== firstPerson || fight.started !== entry.started ||
+          fight.group !== entry.fightGroup || fight.opponent !== entry.opponent)
+          throw Error('Melee observation lost its first attack entry')
+        if (world.turn > entry.endExclusive) throw Error('Melee observation missed its exact native expiry turn')
+        if (world.turn === entry.endExclusive) {
+          // Entry initializes remaining=D-1; expiry decrements it to zero,
+          // changes to approach and continues without selecting another attack.
+          // Actor life and all uninterrupted-running guards still apply here.
+          if (fight.action !== 'approach' || fight.remaining !== undefined)
+            throw Error('First melee entry did not reach its native expiry transition')
+          const person = fight.motion
+          result.endpoint = { turn: world.turn, stamp: scene.renderer.info.render.frame,
+            animationFrame: scene.gameClock.animationFrame, id: unit.id, kind: unit.kind, team: unit.team,
+            hp: unit.hp, alive: true, action: fight.action, started: fight.started,
+            fightGroup: fight.group, opponent: fight.opponent, remaining: fight.remaining ?? null,
+            animation: fight.animation, nativeAttackAnimation: fight.nativeAttackAnimation === true,
+            personId: person.id, personState: person.state, personModel: person.model, personClass: person.class,
+            personIdentityMatch: person === firstPerson, workFlags: person.workFlags,
+            object: person.object, draw: person.draw, f1: person.f1, f2: person.f2, logicalStamp: person.stamp,
+            flight: !!unit.flight, personFlags2: person.flags2, personFlags4: person.flags4,
+            paused: world.paused, canvasConnected: canvas.isConnected, sceneStoreMatch: scene.world === world,
+            documentVisible: document.visibilityState === 'visible' }
+          diagnostic.stage = 'entry-complete'
+          result.done = true; stop('entry-complete'); return
+        }
+        if (fight.action !== entry.action) throw Error('Melee observation changed its first attack before expiry')
+      }
       if (fight && ['attack', 'strike', 'special'].includes(fight.action)) {
         diagnostic.stage = 'attack'
-        result.firstAttackTurn ??= world.turn
         const person = fight.motion, group = scene.unitMeshes.get(54)
         if (!person || !group) throw Error('Attack lacks physical person or rendered group')
-        firstPerson ??= person
         const layers = (group.userData.layers ?? []).filter(layer => layer.visible)
         const submittedLayers = layers.filter(layer => scene.view.painter.source(layer)).length
         const sample = { timestampMs: performance.now(), turn: world.turn,
@@ -310,21 +350,22 @@ export function installMeleeFrameObserver() {
 }
 
 export default async function meleeAttack({ browser, url, output, expectedRevision }) {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 })
+  const context = await browser.newContext({ viewport: meleeArtworkViewport, deviceScaleFactor: 1 })
   const page = await context.newPage()
   page.setDefaultTimeout(10000)
-  const report = { schema: 'populous-new-dawn/ordinary-melee-artwork', schemaVersion: 1,
+  const report = { schema: 'populous-new-dawn/ordinary-melee-artwork', schemaVersion: 2,
     status: 'running', expectedRevision, capMs: meleeAttackLimitMs, actions: [], errors: [],
-    protocol: 'running-original-artwork-v1',
-    method: 'Public authored M2 startup, Shaman54 selection, one public bird’s-eye zoom-out, nearest-target minimap input plus one fixed (0,+12) backing-pixel corridor offset, public Resume and real Shift+left attack on eligible Green Shaman20; uninterrupted normal RAF through a fixed ten-logical-turn attack window with same-frame canvas observation.',
+    protocol: meleeRunningProtocol,
+    method: 'Public authored M2 startup, Shaman54 selection, one public bird’s-eye zoom-out, nearest-target minimap input plus one fixed (0,+12) backing-pixel corridor offset, public Resume and real Shift+left attack on eligible Green Shaman20; uninterrupted normal RAF through the first observed attack entry and its independently mapped exact native expiry, with same-frame canvas observation.',
     limits: ['Direct mission access, not earned campaign unlock.', 'No original-game FPS calibration, hardware smoothness or Firewarrior browser claim.',
+      'Fixed 960x720/DPR1 functional artwork capture; performance recording keeps its separate viewport. No improvement in frame cadence is assumed.',
       'Running samples prove mapped artwork and cropped same-direction same-sequence logical advancement. No browser pause/hold/resume or running same-turn hold is claimed; deterministic CPU contracts remain separate.',
       'Marker is recorded, not represented as direct observation of a private getter return. Native object and actual directional frame are independently compared.',
       'Same-frame canvas copies and visit diagnostics perturb rendering; pixel scanning and PNG encoding are deferred until retention after stop. Timings are diagnostic, not a cause attribution or performance proof.',
       'Crops still require visual review and do not establish pixel-perfect composition or hardware performance.',
       'Crop bounds read renderer/picker metadata; observation does not mutate World or issue a hit-selection query.',
       'Actual Scene CPU tests prove unpaused same-turn hold/advance and pause-to-expiry rendering. Separate 30/60/120/144Hz and irregular schedules compare simulation World states, not browser or per-schedule Scene renders.'],
-    source: Object.fromEntries(['app/original-rules.json', 'app/original-units.json', 'app/projection.ts',
+    source: Object.fromEntries(['app/original-rules.json', 'app/original-units.json', 'app/melee.ts', 'app/combat-runtime.ts', 'app/projection.ts',
       'app/unit-animation-source.ts', 'app/scene-entities.ts', 'scripts/tutorial-browser/melee-attack.mjs',
       'scripts/tutorial-browser/melee-attack-running-evidence.mjs',
       'qa/erosion-ordinary/minimap-input.mjs']
@@ -394,12 +435,14 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       const scene = window.testSceneRef.current, w = scene.world, target = w.units.find(unit => unit.id === 20)
       if (!target || target.kind !== 'shaman' || target.team !== 'green' || target.hp <= 0) throw Error('Authored Green Shaman20 unavailable')
       const rect = scene.mini.getBoundingClientRect()
+      const gl = scene.renderer.getContext()
       return { turn: w.turn, selected: [...w.selected], paused: w.paused, speed: w.speed,
         environment: { viewport: { width: innerWidth, height: innerHeight }, dpr: devicePixelRatio,
           canvas: { width: scene.renderer.domElement.width, height: scene.renderer.domElement.height },
-          renderer: scene.renderer.getContext().getParameter(scene.renderer.getContext().RENDERER),
-          vendor: scene.renderer.getContext().getParameter(scene.renderer.getContext().VENDOR),
-          version: scene.renderer.getContext().getParameter(scene.renderer.getContext().VERSION) },
+          drawingBuffer: { width: gl.drawingBufferWidth, height: gl.drawingBufferHeight },
+          renderer: gl.getParameter(gl.RENDERER),
+          vendor: gl.getParameter(gl.VENDOR),
+          version: gl.getParameter(gl.VERSION) },
         target: { id: target.id, kind: target.kind, team: target.team, x: target.x, z: target.z, hp: target.hp },
         minimap: { width: scene.mini.width, height: scene.mini.height,
           rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
@@ -409,7 +452,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     })
     report.setup = setup
     assert.deepEqual(setup.selected, [54]); assert.equal(setup.paused, true); assert.equal(setup.speed, 1)
-    assert.deepEqual(setup.environment.viewport, { width: 1440, height: 1000 })
+    assert.deepEqual(setup.environment.viewport, meleeArtworkViewport)
     assert.equal(setup.environment.dpr, 1)
     const camera = report.cameraInput = meleeCameraInput(setup.minimap)
     save()
@@ -418,7 +461,8 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     await settle()
     report.afterFocus = await page.evaluate(readMeleeRouteState); save()
     assertMeleeRouteReady(report.afterFocus)
-    await page.evaluate(installMeleeFrameObserver)
+    report.mapping = meleeAttackMapping(); save()
+    await page.evaluate(installMeleeFrameObserver, report.mapping)
     await button('Resume game')
     await page.waitForFunction(() => !window.testStore.getWorld().paused)
     report.afterResume = await page.evaluate(readMeleeRouteState); save()
@@ -459,7 +503,6 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     for (const crop of report.observation.crops)
       assert.ok(crop.opaqueColors > 1, 'Same-frame canvas crop must not be blank')
     assert.equal(report.observation.done, true)
-    report.mapping = meleeAttackMapping()
     report.acceptance = validateMeleeRunningObservation(report.observation, report.mapping)
     await button('Pause game')
     await page.screenshot({ path: resolve(output, 'melee-attack-context.png') })

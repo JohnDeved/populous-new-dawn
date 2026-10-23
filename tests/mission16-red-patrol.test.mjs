@@ -1,3 +1,4 @@
+import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, tick } from '../app/model.ts'
@@ -6,6 +7,8 @@ import { currentPersonOrder } from '../app/person-orders.ts'
 import { campaignRules } from '../app/campaign-command-runtime.ts'
 import { withCampaignTribe, campaignInternal } from '../app/campaign-runtime.ts'
 import script from '../app/original-script-sixteen.json' with { type: 'json' }
+
+const referenceId = scalableReferenceIds(16)
 
 const active = w => w.campaignAIs[1].tasks.filter(t => t.flags & 1)
 const runAt = (w, turn) => {
@@ -182,8 +185,8 @@ test('ordinary Red staffing and mixed patrols share selection and retire exact s
     [73, [274]],
     [90, [265, 273]],
     [91, [265, 273]],
-    [99, [261, 262, 264, 266, 267, 268, 277, 358]],
-    [100, [261, 262, 264, 266, 267, 268, 277, 358]],
+    [99, [261, 262, 264, 266, 267, 268, 277, referenceId(358)]],
+    [100, [261, 262, 264, 266, 267, 268, 277, referenceId(358)]],
     [102, [263, 269, 272]],
     [103, [263, 269, 272]],
     [104, [270, 275]],
@@ -197,9 +200,9 @@ test('ordinary Red staffing and mixed patrols share selection and retire exact s
     assert.equal(w.buildingOrders.records[id].references, 0)
     assert.deepEqual(owners(id), [])
   }
-  const trained = w.units.find(u => u.id === 358)
+  const trained = w.units.find(u => u.id === referenceId(358))
   assert.equal(trained.kind, 'warrior')
-  assert.equal(w.objectCells.objects.get(358), owner(trained))
+  assert.equal(w.objectCells.objects.get(referenceId(358)), owner(trained))
   assert.equal(
     w.units.filter(
       u =>

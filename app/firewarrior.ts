@@ -54,9 +54,8 @@ export function launchFirewarrior(w: World, source: Unit, target: Unit | Buildin
     }
     tracked = fx.id
   }
-  source.cooldown =
-    (tower ? towerFirewarriorCooldown : firewarriorCooldown) /
-    (source.bloodlust ? 1 << constants.BLOODLUST_SW_BLAST_X : 1)
+  const cooldown = (tower ? 36 : 25) >> (source.bloodlust ? constants.BLOODLUST_SW_BLAST_X : 0)
+  source.cooldown = cooldown / TURNS_PER_SECOND
   sound(w, 0xa1, source)
   return tracked
 }

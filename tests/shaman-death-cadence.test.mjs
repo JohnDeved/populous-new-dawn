@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import { finishLevelStart } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
@@ -83,7 +84,7 @@ test('new checkpoints retain shown/next frames; legacy checkpoints start at a bo
     const legacy = structuredClone(restored), f = deathEffect(legacy)
     delete f.animation
     delete f.reincarnation.displayedFrame
-    const loaded = migrateCheckpoint(legacy), before = structuredClone(loaded)
+    const loaded = normalizeHistoricalFixture(legacy), before = structuredClone(loaded)
     assert.deepEqual(shamanDeathVfx(phase, deathEffect(loaded).reincarnation.displayedFrame), {
       visible: phase < 4, frame: phase >= 3 ? 9 : 0,
     })

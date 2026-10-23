@@ -39,6 +39,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   const { createWorld } = await import('../app/world-initialization.ts')
   const { createLivePerson } = await import('../app/live-people.ts')
   const { migrateCheckpoint } = await import('../app/game-store.ts')
+  const { normalizeHistoricalFixture } = await import('./helpers/historical-checkpoint.ts')
   const { browserPosition } = await import('../app/world-coordinates.ts')
   const { orderEffects } = await import('../app/live-movement.ts')
   const { removeObjectFromCell } = await import('../app/object-cells.ts')
@@ -110,7 +111,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
         delete saved.respawns
         delete saved.respawnPoints
       }
-      world = migrateCheckpoint(saved)
+      world = checkpoint === 'legacy' ? normalizeHistoricalFixture(saved) : migrateCheckpoint(saved)
     }
     assert.equal(world.outcome.level, mission)
     assert.equal(world.activeCampaignTribe, mission === 3 ? 2 : 3)

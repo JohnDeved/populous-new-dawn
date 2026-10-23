@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
@@ -310,7 +311,7 @@ test('legacy computer-team checkpoint migration retags a valid passive admitted 
   saved.damageAttacker = 1
   delete old.campaignAIs
   assert.equal(residentPerson(old, resident), saved)
-  migrateCheckpoint(old)
+  normalizeHistoricalFixture(old)
   assert.equal(resident.team, 'green')
   assert.equal(saved.tribe, 3)
   assert.equal(saved.damageAttacker, 3)

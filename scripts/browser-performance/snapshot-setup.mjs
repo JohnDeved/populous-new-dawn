@@ -1,3 +1,5 @@
+import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
+import { restoreCapacityPolicy } from '../../app/capacity-policy.ts'
 // Test-only authored snapshot transport and public-Load setup. Never imported by app/.
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
@@ -6,6 +8,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { checkpointCodec } from '../tutorial-browser/checkpoint-codec.mjs'
 import { bindGame } from '../browser-game.mjs'
+import { waitForStartupMenu } from '../browser-new-game.mjs'
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const encoded = value => JSON.stringify(checkpointCodec(value))
@@ -22,6 +25,7 @@ export function snapshotSimulationIdentity(w) {
     scalar: { level: w.outcome.level, turn: w.turn, time: w.time, pendingTime: w.pendingTime,
       randomState: w.randomState, nextId: w.nextId },
     units: w.units,
+    motionRoutes: w.motionRoutes,
     terrain: { terrain: w.terrain, terrainVersion: w.terrainVersion, landVersion: w.landVersion,
       heights: w.land.heights, flags: w.land.flags, cliffs: w.land.cliffs, categories: w.land.categories,
       walkMasks: w.land.walkMasks, buildingIds: w.land.buildingIds, owners: w.land.owners },
@@ -38,8 +42,10 @@ export function validateSnapshotFixture(fixture) {
   const record = checkpointCodec(fixture.transfer, true), world = checkpointCodec(fixture.expected, true)
   assert.equal(encoded(record), text, 'Snapshot transport is not canonical/lossless')
   assert.equal(encoded(world), expectedText, 'Expected transport is not canonical/lossless')
-  assert.equal(record.version, 1)
+  assert.equal(record.version, CHECKPOINT_VERSION)
   for (const w of [record.world, world]) {
+    assert.deepEqual(w.capacityPolicy, { version: 1, mode: 'scalable' })
+    restoreCapacityPolicy(w)
     assert.equal(w.outcome.level, 2); assert.equal(w.turn, 70); assert.equal(w.inputMask, 0)
     assert.equal(w.flyby.flags & 1, 0); assert.equal(w.paused, false)
     assert.deepEqual(w.selected, [54]); assert.ok(w.units.find(u => u.id === 54 && u.kind === 'shaman' && u.native))
@@ -62,7 +68,7 @@ export async function createSnapshotFixture({ output, source }) {
   const { loadSceneFixture } = await import('../../tests/support/bloodlust-scene.mjs')
   const { createWorld, advanceGame, migrateCheckpoint, cancelInteraction } = await loadSceneFixture()
   const { skipIntroduction } = await import('../../app/scene-camera-runtime.ts')
-  const world = createWorld(2), clock = { animationTime: 0, animationFrame: 0 }
+  const world = createWorld(2, 'scalable'), clock = { animationTime: 0, animationFrame: 0 }
   assert.equal(world.inputMask, 128, 'Authored startup contract changed')
   for (let frame = 0; frame < snapshotAuthoring.frames; frame++)
     advanceGame(world, clock, snapshotAuthoring.secondsPerFrame)
@@ -73,7 +79,7 @@ export async function createSnapshotFixture({ output, source }) {
   let changed = 0
   skipIntroduction({ world, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() { changed++ } })
   assert.equal(changed, 1); assert.equal(world.inputMask, 0); assert.equal(world.flyby.flags, 20)
-  const checkpoint = { version: 1, world }
+  const checkpoint = { version: CHECKPOINT_VERSION, world }
   const expectedWorld = migrateCheckpoint(migrateCheckpoint(structuredClone(world)))
   const admittedWorld = structuredClone(expectedWorld)
   cancelInteraction(admittedWorld)
@@ -235,6 +241,7 @@ export async function loadSnapshot({ page, url, fixture, expectedRevision }) {
     assert.equal(readback, transferText, 'IDB must preserve exact lossless snapshot bytes')
     receipt.idbReadbackSha256 = hash(readback)
     await page.reload({ waitUntil: 'domcontentloaded' })
+    await waitForStartupMenu(page)
     const load = page.getByRole('dialog', { name: 'Main menu', exact: true })
       .getByRole('button', { name: 'Load Game', exact: true })
     await load.waitFor({ state: 'visible' })

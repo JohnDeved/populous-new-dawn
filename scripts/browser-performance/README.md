@@ -96,9 +96,12 @@ actual executable version/hash, absolute launcher path and installed Playwright
 identity. In pinned mode the executable is reverified before and after each arm and at final
 admission; the launched browser's reported version must also match. Browser pin
 identity joins the existing runtime hash. Kernel, runner image/version, CPU and
-renderer/GPU provenance and all comparison guards remain intact. Even identical
-browser bytes on different runner images/kernels remain an environment mismatch.
-No cross-machine pairing or historical reclassification is introduced.
+renderer/GPU provenance and all comparison guards remain intact. Within each V2
+shard's six paired sessions, differing host/runtime identities still withhold that
+cell's timings. Independent shards own disjoint comparison cells, so different
+shard hosts do not invalidate each other's internally matched cells. V1 retains
+its existing global runtime guard. No cross-machine pairing or historical
+reclassification is introduced.
 
 Upgrade the release by reviewing Google's exact package-index stanza, changing
 the one version/size/SHA-256 manifest, running focused admission tests and obtaining
@@ -111,7 +114,7 @@ Rollout is deliberately staged; no package installation or browser launch has
 been performed for this source-only support change:
 
 1. Merge reviewed passive support. Both workflow copies stay byte-identical to
-   the original base. Direct `run.mjs`/`run-live.mjs` invocations retain their
+   the current main refresh base. Direct `run.mjs`/`run-live.mjs` invocations retain their
    original browser configuration, version/hash receipt fields and no installation
    receipt requirement. Their exported runners default to `pinned: false`.
 2. Review the separate dependent activation change against that merged support
@@ -132,7 +135,7 @@ been performed for this source-only support change:
 Old run 39303586009 remains refused. Pinning alone does not fix host drift or the
 separate live-melee observation failure.
 
-Portable coverage: `npm run test:focus -- tests/browser-runtime.test.mjs
+Portable coverage: `pnpm run test:focus tests/browser-runtime.test.mjs
 tests/browser-performance.test.mjs tests/browser-snapshot-protocol.test.mjs`.
 Installer tests use injected commands and one inert data-only Debian fixture;
 they never install a package, launch a browser or change security policy.
@@ -476,3 +479,60 @@ observable. This is a narrow reviewed terrain contract, not arbitrary JavaScript
 equivalence. The old hash-only PR600 capture remains rejected: its exact differing
 bodies were not retained and no minifier cause has been proven retrospectively.
 No cohort, input, sample count, noise threshold, runner count or timeout changes.
+
+### Public menu recovery compatibility
+
+The snapshot recovery shard recognizes three source-backed public-control shapes:
+the old UI has one `Game settings` button in the native HUD's `top-actions` plus
+one `Menu` help-button in `shaman-controls`; the native-menu-only UI has only that
+`Menu` help-button. Both historical shapes use the exact title and no
+`aria-description`. The tooltip-cleaned native-menu-only shape instead has exactly
+`aria-description="Help and game menu"` and no title. Both old controls call
+`openMenu`. The historical dual shape selects `Game settings`, preserving its
+previous route; either native-menu-only shape selects `Menu`. A described Menu
+combined with Game settings, or any control with both title and description, is
+an undeclared mixed shape and fails before clicking.
+Every present control must have its exact shipped location and attributes, be unique,
+visible, accessibility-exposed, and enabled. Missing native Menu, duplicates,
+undeclared shapes, hidden or disabled alternatives fail before any click, rather
+than triggering fallback. The selected shape, exact controls, accessible name,
+and original Scene/World/canvas identity are recorded as
+unmeasured preparation. One ordinary click must open the accessible modal
+`Game menu` native root (`data-panel="root"` with `Continue Game`), and one real
+Escape must hide both that original dialog node and its public locator.
+
+This is the already-paused authored snapshot: no new pause or state injection is
+introduced. Original admission runs before and after the round trip; exact
+Scene/World/canvas identity, speed, logical state, camera, selection, and viewport
+must survive. Only modal input suspension may change while the root is open.
+Failure is terminal for the arm; there is no alternative click or close retry.
+The following fixed pointer workload, warmup, callbacks, metrics, source
+admissions, thresholds, and reporter acceptance remain unchanged. This measures
+subsequent pointer-input CPU, not first-post-close latency.
+
+The previous incompatible comparison is not performance or gameplay evidence:
+head `5e4ade6788d7a07056389d6736c17b31d352351b` used `Menu`; the trusted harness at
+`49f198df96d0f36a4067432db051b88c2a5b9498` selected only `Game settings` even though
+that baseline already also shipped the native `Menu` control.
+Run `39674637128`, artifact `12381886466`, ZIP SHA-256
+`acaebd0deff6a0d2227c8fa92dfd09776db3aad259fe388db3cc204c234dfe50` contains three
+head locator timeouts and three completed base sessions.
+
+Node control doubles in `tests/browser-snapshot-menu-recovery.test.mjs` are only
+unit coverage, not rendered old/new acceptance. Rendered acceptance must bind the
+actual build revisions and this common harness, including these historical source
+identities when reproducing those two routes:
+
+- Old `app/page.tsx` Git blob: `7a4174acfef0cafac42059e7af329738801b740b`.
+- New `app/page.tsx` Git blob: `19560bc6293f42befc06af01fc4a7a4b46aa5bf0`.
+- Both `app/original-pause-menu.tsx` blobs: `bf33edcc5fbd8ef37d65a23c2c834d4082cce9b4`.
+
+The tooltip-cleaned Menu declaration comes from UI commit
+`27654afd44f733dbc37ddc7760b00f48cd607064`, `app/page.tsx` Git blob
+`754e78e06e153fbca6962204f12f789030c89cbd`.
+The older identities above remain historical evidence, not acceptance for this
+additional shape. The recorded route distinguishes it as `native-menu-description-only`.
+
+Independent review and ordinary trusted-baseline adoption must precede any new
+comparison. This repair does not change a workflow pin or make a valid performance
+claim; full gates and actual rendered/comparative evidence remain separate.
