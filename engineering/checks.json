@@ -17,7 +17,8 @@
         "Same-read actual modal ownership and opaque frontend versus transparent in-game coverage distinguish mounted HUDs from exposed HUD clearance",
         "Failed loading reuses decoded original scrollbar art with real scroll/input ownership, safe fallback, and positive same-capture art geometry/fullscreen clearance",
         "Source-extracted Query/Menu/Continue preserves popup/world ownership and prior pause; bounded Fullscreen transitions and independent fixture finalization retain late and falsy failures",
-        "Phase-aware Query World oracle: exact idle-presentation clock bounds outside Menu, one-time owned Menu snapshots and complete modal equality; synthetic regressions do not establish rendered behavior"
+        "Phase-aware Query World oracle: exact idle-presentation clock bounds outside Menu, one-time owned Menu snapshots and complete modal equality; synthetic regressions do not establish rendered behavior",
+        "Fixed native/fallback pause cases retain exact coverage, serial awaited cleanup and cancellation, without changing the legacy combined episode policy"
       ],
       "knownLimits": [
         "Synthetic Node fixtures validate checker rejection behavior, not rendered UI or original-game pixel parity.",
@@ -42,7 +43,8 @@
         "tests/options-copy-clearance.test.mjs",
         "tests/recovery-input-budget.test.mjs",
         "tests/original-loading-screen.test.mjs",
-        "tests/checkpoint-scroll-area.test.mjs"
+        "tests/checkpoint-scroll-area.test.mjs",
+        "tests/pause-style-case-plan.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -115,7 +117,11 @@
         "app/game-clock.ts",
         "app/worship-acquisition.ts",
         "app/worship-acquisition-runtime.ts",
-        "app/scene.ts"
+        "app/scene.ts",
+        "scripts/local-render/pause-style-case-plan.mjs",
+        "scripts/local-render/original-pause-checkpoint-native-style.mjs",
+        "scripts/local-render/original-pause-checkpoint-fallback-style.mjs",
+        "tests/pause-style-case-plan.test.mjs"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -195,7 +201,11 @@
         "app/game-clock.ts",
         "app/worship-acquisition.ts",
         "app/worship-acquisition-runtime.ts",
-        "app/scene.ts"
+        "app/scene.ts",
+        "scripts/local-render/pause-style-case-plan.mjs",
+        "scripts/local-render/original-pause-checkpoint-native-style.mjs",
+        "scripts/local-render/original-pause-checkpoint-fallback-style.mjs",
+        "tests/pause-style-case-plan.test.mjs"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",

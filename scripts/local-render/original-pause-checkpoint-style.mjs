@@ -1,3 +1,4 @@
+import { runPauseStyleModes, assertPauseStyleCoverage, closePauseStyleContext } from './pause-style-case-plan.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -58,15 +59,14 @@ export function writePauseInputBudgets(output, inputBudgets, primaryError) {
 // A presentation-only supplement to the durable/retry/save-failure scenarios.
 // Storage is deliberately unavailable before startup, producing the real store's
 // session-only Save and longest ordinary Load explanation without injected worlds.
-export default async function ({ browser, page, url, root, output, receipt, signal, deadlineAt }) {
+async function runPauseStyle({ browser, page, url, root, output, receipt, signal, deadlineAt }, mode, closePrimary) {
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
   const records = [], screenshots = [], fullscreen = [], inputBudgets = []
   receipt.pauseStyleInputBudgets = inputBudgets
-  await page.close()
-  for (const fallback of [false, true]) {
-    signal.throwIfAborted()
+  if (closePrimary) await page.close()
+  await runPauseStyleModes(mode, signal, async fallback => {
     const context = await browser.newContext({ viewport: { width: 640, height: 480 }, deviceScaleFactor: fallback ? 2 : 1 })
-    let blockedFontRequests = 0
+    let blockedFontRequests = 0, contextFailed = false
     try {
       await context.addInitScript(() => Object.defineProperty(window, 'indexedDB', { configurable: true, value: undefined }))
       if (fallback) await context.route('**/original/pause-font.png', route => {
@@ -270,8 +270,10 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       assert.equal(await button('Load Game').evaluate(node => node === document.activeElement), true)
       await button('Continue Game').click()
       assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), false)
-    } finally { await context.close() }
-  }
+    } catch (error) { contextFailed = true; throw error }
+    finally { await closePauseStyleContext(context, contextFailed, receipt) }
+  })
+  assertPauseStyleCoverage(mode, records, fullscreen)
   return { records, screenshots, fullscreen, limits: [
     'Controlled unavailable IndexedDB and a separately blocked font request. Saves and menus use shipped controls; no game world is injected.',
     'This supplements the durable-save, retry-race and save-failure scenarios; it does not replace them.',
@@ -280,3 +282,15 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     'Browser adaptation geometry and software-renderer screenshots do not prove original multi-slot functionality, exact native pixels or hardware performance.',
   ] }
 }
+
+// Legacy entry point retains both font contexts and its original primary-page
+// setup. Its historic 90-second failure is not reclassified by the split cases.
+export default function (args) { return runPauseStyle(args, 'combined', true) }
+
+async function splitCase(args, mode) {
+  assert.equal(args.page == null, true, 'Split pause cases require primary:false')
+  const result = await runPauseStyle(args, mode, false)
+  return { ...result, executionContract: { version: 'pause-style-split-v1', mode, primary: false } }
+}
+export function runNativePauseStyle(args) { return splitCase(args, 'native') }
+export function runFallbackPauseStyle(args) { return splitCase(args, 'fallback') }
