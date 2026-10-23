@@ -56,7 +56,7 @@ try {
   stage = 'browser-worker'
   report.browser = await supervise([resolve(import.meta.dirname, 'browser-worker.mjs'), candidateRoot, infrastructureRoot, output, dist],
     { cwd: candidateRoot, log: resolve(output, 'browser.log'), capMs: limits.browserMs, inspect: () => artifactInventory(output) })
-  save(); assert.equal(report.browser.status, 'passed', 'Seven-episode browser worker failed')
+  save(); assert.equal(report.browser.status, 'passed', 'Nine-episode browser worker failed')
   const series = JSON.parse(readFileSync(resolve(output, 'episodes.json'), 'utf8'))
   assert.equal(series.status, 'passed'); assert.equal(series.cleanupVerified, true); acceptSeries(series.episodes)
   verifyBuiltOutput(dist, built, links)

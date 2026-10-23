@@ -212,8 +212,9 @@ export function saveSoundTrace(save, failed, primaryError, report) {
     try { primaryError.traceWriteError = String(error) } catch {}
   }
 }
-export default async function ({ browser, url, root, output, receipt, signal, deadlineAt }) {
-  const report = { status: 'running', samples: [], checks: [], inputBudgets: [], popupPreparations: [], browserOwners: [], traceWriteErrors: [] }
+async function runAudioStyle({ browser, url, root, output, receipt, signal, deadlineAt }, modes) {
+  const report = { executionContract: { version: 'audio-style-split-v1', mode: modes.length === 1 ? modes[0] : 'combined', primary: false },
+    completedModes: [], status: 'running', samples: [], checks: [], inputBudgets: [], popupPreparations: [], browserOwners: [], traceWriteErrors: [] }
   receipt.missionInputBudgets = report.inputBudgets
   receipt.optionsAudioTraceWriteErrors = report.traceWriteErrors
   const save = () => writeFileSync(resolve(output, 'options-audio.json'), JSON.stringify(report, null, 2) + '\n')
@@ -222,7 +223,8 @@ export default async function ({ browser, url, root, output, receipt, signal, de
     assert.ok(Number.isFinite(deadlineAt), 'Audio observations require the live episode deadline')
     const budget = createAudioOptionsBudget({ signal, deadlineAt, cleanupErrors: report.optionsNavigationCleanup = [] })
     const { check: remaining, step } = budget
-    for (const fallback of [false, true]) {
+    for (const mode of modes) {
+      const fallback = mode === 'fallback'
       remaining()
       const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: fallback ? 2 : 1 })
       let blockedArt = 0, contextFailed = false, entry, worldSnapshot
@@ -353,13 +355,13 @@ export default async function ({ browser, url, root, output, receipt, signal, de
         await step(() => page.getByRole('button', { name: '♪ Sound on', exact: true }).waitFor({ timeout: remaining() }))
         await waitForAudioObservation(budget, () => page.waitForFunction(observeOptionsAudio, { enabled: true, paused: true, context: 'suspended' }, { timeout: remaining() }))
         await preserved('real-resume-recovered-under-menu-pause', { disabledBlur: true })
-        report.checks.push({ recoveredAudioContext: await step(() => page.evaluate(() => ({ state: window.observedSoundContext.state,
+        report.checks.push({ fallback, recoveredAudioContext: await step(() => page.evaluate(() => ({ state: window.observedSoundContext.state,
           currentTime: window.observedSoundContext.currentTime, sampleRate: window.observedSoundContext.sampleRate }))) }); save()
         await worldSnapshot.dispose(); worldSnapshot = null; remaining()
         await closeAudioOptions(page, entry); entry = null
         await owners('enabled-gameplay-no-footer', false)
         await waitForAudioObservation(budget, () => page.waitForFunction(observeOptionsAudio, { enabled: true, paused: false, context: 'running', mediaPaused: false, backgroundScheduled: true }, { timeout: remaining() }))
-        report.checks.push({ phase: 'real-playback-after-Continue', audio: await step(() => page.evaluate(observeOptionsAudio)) }); save()
+        report.checks.push({ fallback, phase: 'real-playback-after-Continue', audio: await step(() => page.evaluate(observeOptionsAudio)) }); save()
         popupTrace.retainedBeforeReentry = await step(() => page.evaluate(popupInput.campaignPopupSnapshot)); save()
         entry = await openAudioOptions(page, { timeout: remaining(), signal, deadlineAt, cleanupErrors: report.optionsNavigationCleanup })
         assert.equal(entry.wasPaused, false)
@@ -401,6 +403,7 @@ export default async function ({ browser, url, root, output, receipt, signal, de
         // Release only the read-only handle; the owned context closes below.
         await finalizeSoundContext(context, report, fallback, contextFailed, [['audio-options', entry?.owner], ['paused-world', worldSnapshot]])
       }
+      report.completedModes.push(mode) // Only after the flow's owned context and handles close.
     }
     remaining()
     report.status = 'passed'; report.limits = ['Trusted browser activation and real AudioContext retry under menu pause, not acoustic measurement', 'Options browser adaptation and menu-only fullscreen, not an original native sound-toggle or fullscreen claim']
@@ -408,3 +411,9 @@ export default async function ({ browser, url, root, output, receipt, signal, de
   } catch (error) { episodeFailed = true; episodeError = error; report.status = 'failed'; report.error = String(error); throw error }
   finally { saveSoundTrace(save, episodeFailed, episodeError, report) }
 }
+
+// Fixed independent entries retain the same body, assertions and one live deadline.
+export const runNativeAudioStyle = args => runAudioStyle(args, ['native'])
+export const runFallbackAudioStyle = args => runAudioStyle(args, ['fallback'])
+// Keep the existing standalone combined entry; it is never split-series acceptance.
+export default function (args) { return runAudioStyle(args, ['native', 'fallback']) }
