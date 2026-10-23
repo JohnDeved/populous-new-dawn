@@ -147,6 +147,32 @@ If the narrow token is rejected, stop the exact operation, retain the error code
 without credential data, and seek a scoped remedy. **Do not silently replace it
 with account-wide Workers Scripts Edit or grant other permissions.**
 
+### Stored-credential read preflight (no publication)
+
+After approved credential setup, the manual `Cloudflare credential read preflight`
+workflow can check the existing environment secret without enabling publication.
+Dispatch it only on `main`. A repository/main guard rejects other refs before the
+environment-bearing job starts, and the script separately requires the expected
+repository, `refs/heads/main` and `workflow_dispatch` event. The existing environment
+must retain its main-only branch policy; this workflow does not alter that policy.
+
+The token is exposed only to the one verification step. No project install,
+Wrangler command, version upload, production promotion or mode change occurs.
+Using the publisher's existing sanitized request helper, it performs exactly one
+Worker-scoped `GET .../workers/scripts/populous-new-dawn/secrets` and requires an
+empty secret-name array. It never prints names, values, raw responses or token-bearing
+exceptions. Missing/malformed credentials, failed requests, malformed responses and
+nonempty inventories fail closed with fixed diagnostics.
+
+A successful result proves only that the **stored token can read this Worker's
+secret-name inventory and that it is empty at that moment**. It does not verify
+other bindings, version/assets write permission, preview availability or production
+promotion. Continue the staged live pilot below; a successful save or read preflight
+is not deployment evidence. A failed check does not authorize wider permissions.
+This manual workflow adds no trigger to the build/publish/report workflows and may
+run while `CLOUDFLARE_ACTIONS_MODE` remains unset. Do not cancel a publishing action
+between its preflight and upload as a substitute for this read-only check.
+
 Permission references:
 [version upload](https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/versions/methods/create/),
 [asset upload session](https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/assets/subresources/upload/methods/create/),
