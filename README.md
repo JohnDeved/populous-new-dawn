@@ -16,9 +16,9 @@ export PND_SETUP_ALLOCATION_BYTES=2147483648 PND_SETUP_RESERVE_BYTES=2147483648
 python3 scripts/orchestration/shared_setup.py plan --revision "$(git rev-parse HEAD)" \
   --allocation-bytes "$PND_SETUP_ALLOCATION_BYTES" --reserve-bytes "$PND_SETUP_RESERVE_BYTES" &&
 test "$(pnpm --pm-on-fail=error --runtime-on-fail=error --version)" = 11.25.0 &&
-pnpm install --frozen-lockfile --ignore-scripts --ignore-pnpmfile \
+pnpm_config_runtime_on_fail=error pnpm install --frozen-lockfile --ignore-scripts \
   --store-dir "$PND_SHARED_ROOT/pnpm-store" --cache-dir "$PND_SHARED_ROOT/pnpm-cache" \
-  --pm-on-fail=error --runtime-on-fail=error --network-concurrency=1 --child-concurrency=1 &&
+  --pm-on-fail=error --no-runtime --network-concurrency=1 --child-concurrency=1 &&
 python3 scripts/orchestration/shared_setup.py check --revision "$(git rev-parse HEAD)" \
   --reserve-bytes "$PND_SETUP_RESERVE_BYTES" &&
 pnpm run dev
