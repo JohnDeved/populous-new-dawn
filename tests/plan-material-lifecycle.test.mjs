@@ -157,6 +157,64 @@ test('prepared plans release only their clones once, and scene teardown owns rem
   assert.equal(atlasDisposals(), 0)
 })
 
+test('prepared plan phase transition retires its clone without retiring the replacement building', async t => {
+  const f = await setup(t),
+    { scene, world } = f,
+    [building] = world.buildings,
+    cursor = scene.cursor.material,
+    cursorDisposals = f.watch(cursor),
+    atlasDisposals = f.watch(cursor.map)
+  f.render()
+  const plan = scene.plans.get(building.id)
+  f.prepare()
+  const planMaterial = plan.material,
+    planMaterialDisposals = f.watch(planMaterial),
+    planGeometryDisposals = f.watch(plan.geometry)
+  assert.notEqual(planMaterial, cursor)
+  // Supply the phase change at the World boundary, not follower construction.
+  // The actual building frame, replacement group and resource lifecycle run.
+  delete building.preparation
+  building.progress = 1
+  f.render()
+  const replacement = scene.buildingMeshes.get(building.id)
+  assert.ok(replacement)
+  assert.equal(replacement.parent, scene.objects)
+  assert.equal(scene.plans.has(building.id), false)
+  assert.equal(plan.parent, null)
+  assert.equal(planMaterialDisposals(), 1)
+  assert.equal(planGeometryDisposals(), 1)
+  f.prepare()
+  const replacementMaterials = new Set()
+  replacement.traverse(object => {
+    if (
+      object instanceof THREE.Mesh ||
+      object instanceof THREE.Line ||
+      object instanceof THREE.Sprite
+    )
+      for (const material of Array.isArray(object.material) ? object.material : [object.material])
+        replacementMaterials.add(material)
+  })
+  assert.ok(replacementMaterials.size > 0)
+  assert.equal(replacementMaterials.has(planMaterial), false)
+  assert.equal(replacementMaterials.has(cursor), false)
+  const replacementDisposals = [...replacementMaterials].map(f.watch)
+  f.render()
+  f.prepare()
+  assert.equal(scene.buildingMeshes.get(building.id), replacement)
+  assert.ok(replacementDisposals.every(count => count() === 0))
+  assert.equal(planMaterialDisposals(), 1)
+  assert.equal(planGeometryDisposals(), 1)
+  assert.equal(cursorDisposals(), 0)
+  assert.equal(atlasDisposals(), 0)
+  f.dispose()
+  f.dispose()
+  assert.ok(replacementDisposals.every(count => count() === 1))
+  assert.equal(planMaterialDisposals(), 1)
+  assert.equal(planGeometryDisposals(), 1)
+  assert.equal(cursorDisposals(), 1)
+  assert.equal(atlasDisposals(), 0)
+})
+
 test('material-array cleanup deduplicates prepared clones while retaining a shared cursor entry', async t => {
   const f = await setup(t),
     { scene, world } = f,
