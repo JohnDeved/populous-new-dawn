@@ -125,3 +125,91 @@ keep conclusions and evidence boundaries visible while deferring raw assembly an
 pseudocode. They supplement these receipts/bundles; they neither replace raw review
 nor grant native/pixel/gameplay credit. Keep expected source/query/adapter identity
 in the trusted handoff and require a separate proof claim for each needed callback.
+
+## Version 2 command-receipt streams
+
+The default command writer remains the unchanged version-1 implementation.
+Select the bounded version-2 mode explicitly with `--stream-version 2` or the
+programmatic option `streamVersion: 2`; use `1` or omit the option for legacy behavior.
+Version-2 command receipts retain complete stdout/stderr as the original raw artifacts.
+Version 2 records each stream's exact byte count and SHA-256 in `streams`; the
+existing top-level stream hashes also refer to those raw bytes. Complete valid
+UTF-8 is embedded only at or below 32 KiB per stream. Larger or non-UTF-8 output
+has an explicit omitted state, never a misleading truncated `stdout`/`stderr`.
+Artifact files and source/outcome evidence are not discarded.
+
+The producer keeps its fresh output handles and directory identities through
+capture and complete terminal serialization. Before replacing prepared/unknown
+JSON it creates `publication.pending` in the physical artifact directory. It
+tags the document `publication: guard-v1` and retains this guard through post-rename
+validation and descriptor cleanup. Only after both succeed does it rename the
+guard to `publication.complete`. A terminal JSON may retain the child's `passed` outcome
+when finalization fails, but tagged evidence requires a physical completion marker and no pending guard
+before ingestion. A missing pending guard alone cannot imply success.
+No corrective JSON write is needed, so corrective I/O failure cannot restore credit.
+
+This is not a cross-file atomic transaction or crash-durability guarantee. Path
+identity checks followed by the completion-marker rename are not atomic against
+later concurrent ancestor or destination replacement. Existing completion paths
+are rejected, but Node's rename has no atomic no-replace option. Reader verification is a snapshot, not tamper-proof finality;
+these receipts are development evidence, not a sandbox or attestation system.
+
+Live checkpoint/Blast readers support both v1 and v2. V2 raw paths must be the
+matching receipt's physical `.artifacts` directory, and semantic reads verify bytes,
+hashes and complete text within an explicit 4 MiB-per-stream parse limit. An
+oversized or invalid semantic payload is unknown, not a truncated successful parse.
+Generic v2 measurement ingestion now crosses the same raw-validation boundary,
+including the 4 MiB-per-stream and valid-UTF-8 requirements, before it can earn
+credit. Those reads count against discovery's cumulative byte/time budget. Invalid
+or projected v2 evidence remains an invalidated candidate, so a newer invalid
+attempt cannot expose an older pass. Streaming metadata retains the receipt version.
+Older opt-in v2 receipts without a guard are accepted only as freshly raw-verified
+snapshots; guard absence does not prove historical finalization. Pinned historical
+v1 readers and the default v1 writer remain unchanged; do not rewrite them into v2
+or relax a pinned producer version to make a historical proof pass.
+
+The review-bundle exporter supports one explicitly selected version-2 receipt:
+
+```sh
+npm run orchestration:review-bundle -- create \
+  --task-id my-task --base origin/main --output /absolute/review-bundle \
+  --v2-receipt work/orchestration/my-task/check.json="$ORIGINAL_RECEIPT_SHA"
+```
+
+The programmatic equivalent is `v2Receipt: { path, sha256 }`. The caller supplies
+the original physical receipt's SHA-256 from a trusted handoff. Ordinary `--receipt`
+inputs still reject v2, as do nested or JSON-encoded v2 values anywhere, including
+inside the selected receipt or its logs. Only the exact verified root is eligible.
+Version 2 remains opt-in for both capture and export; the default v1 workflow is unchanged.
+
+The exporter bounds and verifies the source JSON while holding its file descriptor,
+then uses the existing raw reader to verify both complete physical siblings, exact
+artifact mappings, byte counts, SHA-256 values, inline consistency and UTF-8. The
+existing 2 MiB-per-input and 8 MiB-total source/copy budgets include the main receipt
+and both expanded logs, even when stdout/stderr were omitted from inline metadata.
+The raw reader's larger semantic cap does not expand export permission. Secret-like,
+path-bearing, binary, oversized, missing, changed, or aliased raw evidence fails
+closed before bundle publication. No log is silently truncated or replaced.
+
+The selected JSON retains ordinary source/home-path redaction. It is a portable
+metadata review view, NOT the original physical-v2 receipt, and cannot be fed to
+`readReceiptStreams` or gameplay/measurement evidence ingestion. Its original and
+copied hashes remain separate. Each raw sibling is exported at its exact original
+source-relative `<receipt>.artifacts/stdout.log` or `stderr.log` path only when the
+existing sanitizer produces byte-identical bytes. Raw hashes and descriptors are
+never rewritten to make a derivative look original. A byte-decoding change such as
+BOM stripping also refuses raw export, even with zero counted path redactions.
+
+The trusted handoff must enumerate the copied JSON and BOTH raw siblings using the
+existing `--expected-receipt path=sha256` bindings. Obtain those copied hashes from
+the trusted creation output, not from the manifest being verified. Both verifiers
+require the exact three-entry set (plus any separately selected v1 receipts) and
+reject missing, duplicate, redirected, or altered entries. An explicitly repeated
+name for the same expanded physical input is included only once. Original evidence
+is never modified by export or refusal. This narrow route deliberately does not
+export unsafe logs or provide a general sanitized-derivative evidence format.
+
+The opt-in mode bounds receipt log materialization, not compiler/browser memory or output
+retention on disk. It neither establishes effective host capacity nor identifies
+unseen host-memory owners. Normal source checks, application build and applicable
+runtime acceptance remain separate gates.
