@@ -1,3 +1,5 @@
+import { prepareWorldInput } from '../browser-world-input.mjs'
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -42,8 +44,9 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
     await startup.dispose()
     assert.equal(report.startup.level, 2)
     if (report.startup.action === 'skip')
-      await page.getByRole('button', { name: /^Skip introduction/ }).click()
+      await skipIntroductionWithSpace(page, { timeout: 25000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask && !window.testStore.getWorld().paused)
+    report.inputPopups = await prepareWorldInput(page)
     await page.mouse.move(900, 400)
     report.warmupBefore = await observe()
     await page.waitForTimeout(plan.warmupMs)
@@ -56,7 +59,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
       // Real menu interruption followed by public Escape and world-pointer recovery.
       // This setup is outside measured windows, never passed off as live gameplay.
       if (phase.name === 'menu-recovery') {
-        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+        await page.getByRole('button', { name: 'Menu', exact: true }).click()
         await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
         report.menuBefore = await observe()
         assert.equal(report.menuBefore.paused, true)
@@ -66,6 +69,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
         await page.waitForFunction(() => !window.testStore.getWorld().paused)
         report.menuAfter = await observe()
       }
+      report.inputPopups.push(...await prepareWorldInput(page))
       const point = phase.route === 'hud' ? await page.evaluate(m2HudPoint)
         : phase.nativeWork ? await page.evaluate(m2NativePointerTarget) : { x: 900, y: 400 }
       assert.ok(point, 'a visible authored person is required for native hover work')

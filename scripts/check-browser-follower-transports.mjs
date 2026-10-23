@@ -1,3 +1,6 @@
+import { commandCategory } from './browser-command-categories.mjs'
+import { changeHudSize } from './browser-native-options.mjs'
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
@@ -73,13 +76,21 @@ export function transportPixelGrid(target, dock, dpr, scroll = { x: 0, y: 0 }) {
 }
 
 export function assertTransportLayout(layout, viewport) {
+  const inside = (box, outer) => box.x >= outer.x && box.y >= outer.y &&
+    box.x + box.width <= outer.x + outer.width && box.y + box.height <= outer.y + outer.height
+  const valid = box => ['x', 'y', 'width', 'height'].every(key => Number.isFinite(box?.[key])) && box.width > 0 && box.height > 0
+  const frame = { x: 0, y: 0, width: viewport.width, height: viewport.height }
+  assert.ok(valid(frame) && valid(layout.dock), 'finite positive viewport and complete native dock are required')
+  assert.equal(layout.gameplayFooterCount, 0, 'Invented gameplay footer must stay absent')
+  assert.equal(layout.fullscreenCount, 0, 'Fullscreen belongs only to an existing menu/loading owner')
+  assert.ok(inside(layout.dock, frame), 'complete native dock must fit the viewport, not a deleted footer boundary')
   assert.equal(layout.rectangles.length, 12)
-  assert.ok(layout.dock.y + layout.dock.height <= layout.footer.y, 'native dock clears modern footer')
   for (const [i, r] of layout.rectangles.entries()) {
-    assert.ok(r.x >= 0 && r.y >= 0 && r.x + r.width <= viewport.width && r.y + r.height <= viewport.height, JSON.stringify({ viewport, r }))
+    assert.ok(valid(r) && inside(r, frame), JSON.stringify({ viewport, r }))
     assert.ok(Math.abs(r.width / r.height - 15 / 34) < 0.001)
     assert.equal(r.left, `${(i % 6) * 16}px`); assert.equal(r.top, `${i < 6 ? 190 : 231}px`)
-    assert.ok(r.y + r.height <= layout.footer.y, 'last-row frame and digits clear footer')
+    assert.ok(inside(r, layout.dock), 'last-row frame and digits must fit the complete native dock')
+    assert.equal(r.hits.length, 2, 'Both the center and lower digit must remain hit-tested')
     assert.ok(r.hits.every(hit => hit.owned), `transport center/digit hit: ${JSON.stringify(r)}`)
   }
 }
@@ -94,7 +105,9 @@ async function transportLayout(page) {
   await render(page)
   return page.evaluate(() => {
     const box = node => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height } }
-    const dock = box(document.querySelector('.followers-dock')), footer = box(document.querySelector('.top-actions'))
+    const dock = box(document.querySelector('.followers-dock'))
+    const gameplayFooterCount = document.querySelectorAll('.top-actions,[data-sound-control]').length
+    const fullscreenCount = document.querySelectorAll('[data-fullscreen-control]').length
     const rectangles = [...document.querySelectorAll('.follower-tasks button[aria-label*="occupied by"]')].map(b => {
       const r = box(b)
       const hits = [17, 30.5].map(y => {
@@ -103,7 +116,7 @@ async function transportLayout(page) {
       })
       return { ...r, left: b.style.left, top: b.style.top, hits }
     })
-    return { dock, footer, rectangles, devicePixelRatio }
+    return { dock, gameplayFooterCount, fullscreenCount, rectangles, devicePixelRatio }
   })
 }
 
@@ -233,6 +246,7 @@ async function vehicleAppearance(page, id, apparent) {
 
 async function checkpoint(page, expected) {
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   const persisted = await waitForCheckpointReadback(() => page.evaluate(async expected => {
     const db = await new Promise((resolve, reject) => { const r = indexedDB.open('populous-new-dawn', 1); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error) })
@@ -241,21 +255,24 @@ async function checkpoint(page, expected) {
     return saved?.world && JSON.stringify(saved.world.vehicles) === expected.vehicles && JSON.stringify(saved.world.selected) === JSON.stringify(expected.selected)
   }, expected), { attempts: 450 })
   assert.equal(persisted, true, 'saved transport checkpoint committed before reload')
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await clear(page)
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await freeze(page)
-  await page.getByTitle('followers', { exact: true }).click()
+  await commandCategory(page, 'followers').click()
 }
 
 // Run ONLY through scripts/local-render/harness.mjs, which owns the sandboxed
 // browser, port, process cleanup, source fingerprint, raw errors and screenshots.
 export default async function followerTransports({ browser, page, url, openMission, output, receipt }) {
-  await openMission(22); await freeze(page); await clear(page)
-  await page.getByTitle('followers', { exact: true }).click()
+  // Declared M22 availability, not naturally earned earlier campaign progress.
+  await openMission(22, { campaignFixture: true }); await freeze(page); await clear(page)
+  await commandCategory(page, 'followers').click()
   const opening = await page.evaluate(() => {
     const s = window.testSceneRef.current, w = s.world, gl = s.renderer.getContext(), ext = gl.getExtension('WEBGL_debug_renderer_info')
     return { vehicles: w.vehicles.map(v => ({ id: v.id, model: v.model, team: v.team })),
@@ -445,7 +462,7 @@ export default async function followerTransports({ browser, page, url, openMissi
   await page.getByRole('button', { name: 'Select brave', exact: true }).click({ button: 'right' })
   const allFocus = await focusState(page)
   assert.deepEqual(allFocus.transport, separate.transport); assert.ok(allFocus.task[13]); assert.ok(allFocus.population[2])
-  for (const tab of ['spells', 'buildings', 'followers', 'spells', 'followers']) await page.getByTitle(tab, { exact: true }).click()
+  for (const tab of ['spells', 'buildings', 'followers', 'spells', 'followers']) await commandCategory(page, tab).click()
   assert.deepEqual(await focusState(page), allFocus); assert.equal(await transportButtons(page).count(), 12)
   result.focus.push({ first, next, separate, allFocus })
   await clear(page); await page.evaluate(() => window.testSceneRef.current.objectPanels.dispose())
@@ -521,9 +538,9 @@ export default async function followerTransports({ browser, page, url, openMissi
   // cancelled pointer sequence. Keyboard activation remains a real click path.
   for (const kind of [1, 3]) {
     await page.keyboard.down('Control'); await cell(page, kind, 1).hover(); await page.mouse.down()
-    await page.getByTitle('spells', { exact: true }).evaluate(button => button.click())
+    await commandCategory(page, 'spells').evaluate(button => button.click())
     await page.mouse.up(); await page.keyboard.up('Control'); assert.deepEqual(await selected(page), [])
-    await page.getByTitle('followers', { exact: true }).click()
+    await commandCategory(page, 'followers').click()
     await page.keyboard.down('Control'); await cell(page, kind, 1).hover(); await page.mouse.down()
     await cell(page, kind, 1).dispatchEvent('pointercancel')
     await page.mouse.up(); await page.keyboard.up('Control'); assert.deepEqual(await selected(page), [])
@@ -689,9 +706,7 @@ export default async function followerTransports({ browser, page, url, openMissi
   for (const viewport of [{ width: 1280, height: 720 }, { width: 1920, height: 1080 }, { width: 3440, height: 1440 }]) {
     await page.setViewportSize(viewport)
     for (const size of ['auto', '1', '2', '4']) {
-      await page.getByRole('button', { name: 'Menu', exact: true }).click()
-      await page.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption(size)
-      await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+      await changeHudSize(page, size)
       const layout = await transportLayout(page)
       assertTransportLayout(layout, viewport)
       result.layouts.push({ viewport, size, ...layout })
@@ -700,6 +715,7 @@ export default async function followerTransports({ browser, page, url, openMissi
   writeFileSync(resolve(output, 'follower-transports-desktop-progress.json'), JSON.stringify({ stage: 'desktop-complete-dpr-and-final-invariants-pending', result }, null, 2) + '\n')
   // A separate browser context exercises actual DPR2 backing pixels, not just
   // CSS/HUD scaling. Its Blue crews are explicitly staged on authored craft.
+  // This separate diagnostic context never saves or awards campaign progress.
   const dprContext = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 2 })
   try {
     const dp = await dprContext.newPage()
@@ -709,7 +725,7 @@ export default async function followerTransports({ browser, page, url, openMissi
     await dp.goto(url, { waitUntil: 'domcontentloaded' }); await showAllMissions(dp)
     await dp.getByRole('button', { name: 'Mission 22', exact: true }).focus(); await dp.keyboard.press('Enter'); await bindGame(dp)
     await dp.waitForFunction(() => window.testSceneRef.current.world.flyby.flags & 1 || !window.testSceneRef.current.world.inputMask)
-    const skip = dp.locator('.skip-introduction'); if (await skip.isVisible()) await skip.click()
+    await skipIntroductionWithSpace(dp, { timeout: 45000 })
     await dp.waitForFunction(() => !window.testSceneRef.current.world.inputMask); await freeze(dp); await clear(dp)
     const dprCraft = await dp.evaluate(async () => {
       const s = window.testSceneRef.current, w = s.world, { addUnit, browserPosition } = await import('/app/model.ts'),
@@ -728,7 +744,7 @@ export default async function followerTransports({ browser, page, url, openMissi
       }
       s.onChange(); return records
     })
-    await dp.getByTitle('followers', { exact: true }).click(); await render(dp)
+    await commandCategory(dp, 'followers').click(); await render(dp)
     assert.equal(await dp.evaluate(() => devicePixelRatio), 2)
     assert.equal(await transportButtons(dp).count(), 12)
     const layout = await transportLayout(dp)

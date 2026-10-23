@@ -1,3 +1,6 @@
+import { clearPortraitSelection } from '../browser-portrait-input.mjs'
+import { setWorldPaused } from '../browser-world-input.mjs'
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -17,7 +20,7 @@ const root = resolve(import.meta.dirname, '../..'), viewport = { width: 960, hei
 const sha = bytes => createHash('sha256').update(bytes).digest('hex')
 
 // These are distinct functional phases, not a retry or a refreshable timeout.
-// The runner's existing global 180-second deadline remains authoritative.
+// The runner's explicit aggregate deadline remains authoritative; these phase caps are unchanged.
 export function followerCorpseDeadline({ onExpire, now = () => performance.now(),
   schedule = setTimeout, cancel = clearTimeout }) {
   const records = []
@@ -86,7 +89,7 @@ export function readCorpseMinimap(effectId = null) {
 
 // A restored paused snapshot is transient: beginLoad resumes it before the new
 // Scene becomes ready. Only a new public Pause action establishes the setup hold.
-export async function pauseLoadedFollowerCorpse(page, effectId, button) {
+export async function pauseLoadedFollowerCorpse(page, effectId, pause) {
   const readyBeforePause = await page.evaluate(readFollowerCorpseReady, effectId)
   const assertReady = state => {
     assert.equal(state.sceneReplaced, true, 'Load checkpoint must create a new ready Scene')
@@ -96,14 +99,14 @@ export async function pauseLoadedFollowerCorpse(page, effectId, button) {
   }
   assertReady(readyBeforePause)
   assert.equal(readyBeforePause.paused, false, 'Home resumes the loaded World after its transient store notification')
-  await button('Pause game')
+  await pause()
   await page.waitForFunction(() => window.testStore.getWorld().paused)
   const readyPaused = await page.evaluate(readFollowerCorpseReady, effectId)
   assertReady(readyPaused); assert.equal(readyPaused.paused, true)
   return { readyBeforePause, readyPaused }
 }
 
-export default async function followerCorpse({ browser, url, output, expectedRevision }) {
+export default async function followerCorpse({ browser, url, output, expectedRevision, admission }) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 }), page = await context.newPage()
   page.setDefaultTimeout(10000)
   const report = { schema: 'populous-new-dawn/ordinary-follower-corpse', schemaVersion: 2,
@@ -114,9 +117,10 @@ export default async function followerCorpse({ browser, url, output, expectedRev
       'Independent original VSTART/VFRA fixture validates displayed native source and heading; packed frame identity comes from imported atlas metadata independently audited outside this browser check.',
       'Canvas copies and read-only observations perturb rendering; no performance or hardware smoothness claim. Crops require visual review and are not pixel-perfect composition evidence.',
       'The saved in-session current checkpoint is actually loaded and rendered. This is not a fresh browser/process persistence test.',
-      'Death through verified committed save has 75 seconds; only successful committed-save proof starts the separate 25-second load/reframe/continuation/verification budget. Both remain inside the runner’s unchanged shared 180-second browser cap.',
+      'Death through verified committed save has 75 seconds; only successful committed-save proof starts the separate 25-second load/reframe/continuation/verification budget. Both remain inside the runner’s explicit shared 355-second three-episode browser cap.',
       'Browser sampling establishes observed source/frame/heading/visibility and continuation, not exact animation cadence. Cadence remains the separate native follower-corpse-animation unit-test claim.'],
     source: Object.fromEntries(['scripts/tutorial-browser/follower-corpse.mjs',
+      'scripts/browser-portrait-input.mjs', 'scripts/browser-world-input.mjs', 'scripts/browser-space-ownership.mjs', 'app/mission-data.ts',
       'scripts/tutorial-browser/follower-corpse-observer.mjs', 'scripts/tutorial-browser/follower-corpse-evidence.mjs',
       'tests/fixtures/follower-corpse-native.json', 'app/original-units.json', 'app/follower-corpse-animation.ts',
       'app/scene-effects.ts', 'app/world-turn.ts', 'app/game-store.ts', 'app/checkpoint-format.ts',
@@ -188,6 +192,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
   save()
   try {
     phase('startup')
+    admission?.setLocalCheck(() => budget.remaining())
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await action('New Game / No / Browser controls / All missions', () => showAllMissions(page))
     await button('Mission 2'); await bindGame(page)
@@ -195,12 +200,16 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     report.startup = await startup.jsonValue(); await startup.dispose()
     assert.equal(report.startup.level, 2)
     if (report.startup.action === 'skip')
-      await action('Skip introduction', () => page.getByRole('button', { name: /^Skip introduction/ }).click())
+      await action('Skip introduction', () => skipIntroductionWithSpace(page, { timeout: Math.min(10000, budget.remaining()) }))
     await page.waitForFunction(() => {
       const w = window.testStore.getWorld(); return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
     })
     phase('public-combat-setup')
-    await button('Pause game'); await button('Select and focus shaman'); await settle()
+    await action('Pause with Space', () => setWorldPaused(page, true, { timeout: Math.min(10000, budget.remaining()) }))
+    await action('Clear previous portrait cohort', () => clearPortraitSelection(page, { timeout: Math.min(10000, budget.remaining()) }))
+    await button('Select shaman')
+    await action('Focus shaman (right-click)', () => page.getByRole('button', { name: 'Select shaman', exact: true }).click({ button: 'right' }))
+    await settle()
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
     await action('One public - zoom-out', () => page.keyboard.press('-')); await settle()
     assertMeleeRouteReady(await page.evaluate(readMeleeRouteState))
@@ -220,7 +229,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.equal(actor.team, 'blue'); assert.equal(actor.kind, 'brave'); assert.ok(actor.hp > 0)
     assert.equal(actor.fight, null); assert.equal(actor.target, null); report.actorId = actor.id; save()
     await page.evaluate(installFollowerCorpseObserver, { actorId: report.actorId })
-    await button('Resume game')
+    await action('Resume with Space', () => setWorldPaused(page, false, { timeout: Math.min(10000, budget.remaining()) }))
     const route = report.targetEligibility = await page.evaluate(readMeleeRouteState)
     assert.equal(route.paused, false); assert.equal(route.speed, 1); assert.equal(route.target.id, 20)
     assert.equal(route.target.inside, null); assert.equal(route.target.visible, true); assert.equal(route.target.pickable, true)
@@ -248,14 +257,14 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.equal(await page.evaluate(() => window.__pndCorpseObservation.result.error), null)
     report.effectId = await page.evaluate(() => window.__pndCorpseObservation.result.effectId)
     phase('pause-and-save')
-    await button('Pause game')
+    await action('Pause with Space', () => setWorldPaused(page, true, { timeout: Math.min(10000, budget.remaining()) }))
     report.checkpoint = { holdBefore: await page.evaluate(readFollowerCorpseHold, report.effectId) }
     assert.equal(report.checkpoint.holdBefore.paused, true)
     assert.equal(report.checkpoint.holdBefore.effect.corpse.phase, 1)
     await page.waitForTimeout(150)
     report.checkpoint.holdAfter = await page.evaluate(readFollowerCorpseHold, report.effectId)
     assert.deepEqual(report.checkpoint.holdAfter, report.checkpoint.holdBefore)
-    await button('Game settings'); await button('Save Game'); await button('Save checkpoint')
+    await button('Menu'); await button('Save Game'); await button('Save checkpoint')
     const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
     await menu.getByRole('status').filter({ hasText: 'Checkpoint saved in this browser.' }).waitFor()
     report.checkpoint.committed = await readCommittedCheckpoint(page)
@@ -291,14 +300,14 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.equal(report.checkpoint.restoredSnapshot.paused, true)
     assert.deepEqual(report.checkpoint.restoredSnapshot.effect, report.checkpoint.committedCorpse.effect)
     await menu.waitFor({ state: 'hidden' }); await bindGame(page)
-    Object.assign(report.checkpoint, await pauseLoadedFollowerCorpse(page, report.effectId, button)); save()
+    Object.assign(report.checkpoint, await pauseLoadedFollowerCorpse(page, report.effectId, () => action('Pause with Space', () => setWorldPaused(page, true, { timeout: Math.min(10000, budget.remaining()) })))); save()
     assert.equal(report.checkpoint.readyPaused.effect.corpse.phase, 1, 'Ready-scene setup must remain within the saved corpse phase')
     await settle()
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
     await action('One public - zoom-out after actual Load checkpoint', () => page.keyboard.press('-')); await settle()
     await focus(report.effectId)
     await page.evaluate(installFollowerCorpseObserver, { actorId: report.actorId, effectId: report.effectId, segment: 'loaded' })
-    await button('Resume game')
+    await action('Resume with Space', () => setWorldPaused(page, false, { timeout: Math.min(10000, budget.remaining()) }))
     report.checkpoint.readyResumed = await page.evaluate(readFollowerCorpseReady, report.effectId); save()
     assert.equal(report.checkpoint.readyResumed.paused, false)
     phase('loaded-continuation')
@@ -308,7 +317,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     phase('acceptance-and-capture')
     await retain()
     report.acceptance = validateFollowerCorpseObservation(report)
-    await button('Pause game')
+    await action('Pause with Space', () => setWorldPaused(page, true, { timeout: Math.min(10000, budget.remaining()) }))
     await page.screenshot({ path: resolve(output, 'follower-corpse-context.png') })
     budget.complete()
   } catch (error) {
@@ -316,6 +325,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     if (!page.isClosed()) try { await page.screenshot({ path: resolve(output, 'follower-corpse-failure.png'), timeout: 2000 }) }
     catch (error) { report.failureScreenshotError = String(error) }
   } finally {
+    admission?.clearLocalCheck()
     budget.dispose()
     finishPhase(!failure && !report.timedOut)
     try { await retain() } catch (error) { report.errors.push(`Corpse retention: ${error}`) }

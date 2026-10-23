@@ -1,3 +1,5 @@
+import { prepareWorldInput, setWorldPaused, setCampaignPopupOpen } from '../browser-world-input.mjs'
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -5,7 +7,28 @@ import { bindGame } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { checkFrameExport, m2NativePointerTarget } from './frame-export.mjs'
 import { checkpointCodec } from './checkpoint-codec.mjs'
+import { createM2Admission } from './m2-admission.mjs'
+import { guardBrowserAdmission } from '../browser-admission-guard.mjs'
 
+export function assertM2PopupOwnership(trace, serial, open) {
+  assert.equal(trace.phase, 'verify-retained-popup-and-owners', 'Use the completed post-action owner snapshot')
+  assert.equal(trace.pending, false)
+  assert.equal(trace.serial, serial)
+  assert.equal(trace.observedOpen, open)
+  assert.ok(Array.isArray(trace.owners), 'Current popup owners are required')
+  assert.deepEqual(trace.owners, open ? [{ serial }] : [], 'Exactly the requested authored popup may own input')
+}
+
+export async function setM2CampaignPopupOpen(page, serial, open) {
+  const trace = {}
+  await setCampaignPopupOpen(page, serial, open, { trace })
+  // No intervening action: the helper already read retained identity/open state
+  // and every current owner atomically after the real summary/body wait.
+  assertM2PopupOwnership(trace, serial, open)
+}
+
+// The functional phase and independent picking episode retain 45s. Ordinary M2
+// now has explicitly separate setup admission; see ordinaryM2Budget, not a reset.
 export const m2FunctionalLimitMs = 45000
 export function assertM2Input(before, after) {
   assert.equal(after.level, 2)
@@ -21,14 +44,22 @@ export async function finishM2Functional({
   output,
   failure,
   fileName = 'm2-pointer-f8.json',
+  admission,
+  ordinaryAdmission,
 }) {
   try {
-    await context.close()
+    if (admission) await admission.close('compact-context', context)
+    else if (ordinaryAdmission) assert.equal(await ordinaryAdmission.cleanup(), true, 'Ordinary M2 owned cleanup must complete within admission')
+    else await context.close()
     report.contextClosed = true
   } catch (error) {
     report.errors.push(String(error))
   }
   report.status = failure || report.errors.length || report.timedOut ? 'failed' : 'passed'
+  if (admission) {
+    try { if (failure) throw failure; admission.finishCompact(report) }
+    catch (error) { failure = admission.fail(error); report.status = 'failed' }
+  }
   if (failure) report.failure = { message: String(failure), stack: failure.stack }
   writeFileSync(resolve(output, fileName), JSON.stringify(report, null, 2))
   assert.equal(report.status, 'passed', 'M2 functional scenario failed; see receipt')
@@ -97,31 +128,54 @@ export function m2LoadReady() {
 
 export function m2StartupReady() {
   const world = window.testStore.getWorld()
-  const button = document.querySelector('button.skip-introduction')
-  const skipVisible =
-    !!button &&
-    button.getClientRects().length > 0 &&
-    getComputedStyle(button).visibility !== 'hidden' &&
-    !button.disabled
-  if (world.inputMask && !skipVisible) return false
+  const skipAvailable = (world.inputMask & 64) !== 0 && (world.flyby.flags & 0x51) === 0x11
+  if (world.inputMask && !skipAvailable) return false
   return {
     action: world.inputMask ? 'skip' : 'ready',
     inputMask: world.inputMask,
     flybyFlags: world.flyby.flags,
     level: world.outcome.level,
-    skipVisible,
+    skipAvailable,
   }
 }
 
-// Keep the legacy compact episode within its original deadline. The expanded
-// readout has its own fresh context and deadline inside the existing job cap.
-export async function runCompactDiagnosticEpisodes({ report, ...options }, runEpisode = runM2Functional) {
-  report.compactMessageLayout = await runEpisode({ ...options, compactMessages: true })
+// Compact alone uses the new two-phase admission. Expanded picking retains its
+// independent context and original 45s deadline; neither phase resets per case.
+export async function runCompactDiagnosticEpisodes({ report, admission, ...options }, runEpisode = runM2Functional) {
+  admission?.beginCompact()
+  report.compactMessageLayout = await runEpisode({ ...options, ...(admission ? { admission } : {}), compactMessages: true })
   report.pickingPathReadout = await runEpisode({ ...options, pickingPaths: true })
+  admission?.finishCompanion('picking', report.pickingPathReadout)
 }
 
-export default async function runM2Functional({ browser, url, output, fixture, compactMessages = false, pickingPaths = false }) {
+export default async function runM2Functional(options) {
+  if (options.compactMessages || options.pickingPaths) return runM2Episode(options)
+  let result
+  const ordinaryAdmission = createM2Admission({ deadlineAt: options.deadlineAt, signal: options.signal,
+    onUpdate: report => {
+      writeFileSync(resolve(options.output, 'm2-admission.json'), JSON.stringify(report, null, 2))
+      if (result) writeFileSync(resolve(options.output, 'm2-pointer-f8.json'), JSON.stringify(result, null, 2))
+    } })
+  try {
+    result = await ordinaryAdmission.wait(runM2Episode({ ...options, ordinaryAdmission,
+      browser: guardBrowserAdmission(options.browser, ordinaryAdmission) }))
+    ordinaryAdmission.complete(result)
+    return result
+  } catch (error) {
+    const failure = ordinaryAdmission.fail(error)
+    if (result) { result.status = 'failed'; result.failure = { message: String(failure), stack: failure.stack } }
+    throw failure
+  } finally {
+    // This also handles errors before the inner report/context exists. Settled
+    // close handlers keep durable evidence after a bounded failed return.
+    if (ordinaryAdmission.report.status !== 'passed') await ordinaryAdmission.cleanup()
+    ordinaryAdmission.dispose()
+  }
+}
+
+async function runM2Episode({ browser, url, output, fixture, compactMessages = false, pickingPaths = false, admission, ordinaryAdmission }) {
   assert.ok(!(compactMessages && pickingPaths), 'Diagnostic episodes must have independent contexts')
+  assert.ok(!compactMessages || admission, 'Expanded compact requires its explicit admission owner')
   const scenario = pickingPaths ? 'picking-path-readout' : compactMessages ? 'compact-message-layout' : 'm2-pointer-f8'
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
@@ -130,6 +184,8 @@ export default async function runM2Functional({ browser, url, output, fixture, c
   const report = {
     status: 'running',
     scenario,
+    ...(admission ? { admission: admission.report } : {}),
+    ...(ordinaryAdmission ? { ordinaryAdmission: ordinaryAdmission.report } : {}),
     setup: fixture.receipt,
     errors: [],
     samples: [],
@@ -153,7 +209,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
   const started = performance.now()
   const stage = name => report.stages.push({ name, elapsedMs: performance.now() - started })
   stage('start')
-  timer = setTimeout(() => {
+  if (pickingPaths) timer = setTimeout(() => {
     stage('deadline')
     report.timedOut = true
     void context.close().catch(() => {})
@@ -257,22 +313,28 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     report.startup = await startup.jsonValue()
     await startup.dispose()
     assert.equal(report.startup.level, 2)
+    report.inputPopups = await prepareWorldInput(page, { timeout: 10000 })
     if (report.startup.action === 'skip')
-      await page.getByRole('button', { name: /^Skip introduction/ }).click()
+      await skipIntroductionWithSpace(page, { timeout: 10000, closedPopups: report.inputPopups })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+    report.introductionReady = true
     stage('introduction-ready')
-    // Admit the compact viewport through its shipped public notice before the
-    // paused no-orders baseline: Continue intentionally resumes the simulation.
+    // Compact viewports no longer add a browser-authored blocking advisory.
     await page.setViewportSize({ width: 640, height: 480 })
-    const desktopNotice = page.locator('.desktop-recommendation')
-    await desktopNotice.waitFor({ state: 'visible' })
-    await desktopNotice.getByRole('button', { name: /^Continue anyway/ }).click()
-    await desktopNotice.waitFor({ state: 'hidden' })
-    report.compactNoticeDismissed = true
+    assert.equal(await page.locator('.desktop-recommendation').count(), 0)
+    report.compactViewportReady = true
     stage('compact-admitted')
     await page.setViewportSize({ width: 1440, height: 1000 })
-    await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+    report.inputPopups.push(...await setWorldPaused(page, true))
     await page.waitForFunction(() => window.testStore.getWorld().paused)
+    // Restore the same retained notification for compact and F8 layout subjects,
+    // including an authored owner that appeared and closed inside introduction
+    // preparation rather than either surrounding preparation call.
+    const retainedPopup = report.inputPopups.at(-1)
+    if (retainedPopup) {
+      await setM2CampaignPopupOpen(page, retainedPopup.serial, true)
+      report.restoredPopup = { serial: String(retainedPopup.serial), open: true }
+    }
     const observe = () =>
       page.evaluate(() => {
         const s = window.testSceneRef.current,
@@ -332,17 +394,32 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       report.pickingPaths = {}
       await checkExpandedPickingPaths({ page, output, stage, report: report.pickingPaths })
     } else if (compactMessages) {
+      admission.beginLayouts({ loadBoundaryMatched: report.loadBoundaryMatched, introductionReady: report.introductionReady,
+        compactViewportReady: report.compactViewportReady, before: report.before,
+        popupSerial: report.restoredPopup?.serial, popupRestored: report.restoredPopup?.open === true })
       const { checkCompactMessages } = await import('./compact-message-layout.mjs')
       report.compactMessages = { cases: [] }
       await checkCompactMessages({ page, output, stage, report: report.compactMessages })
     } else {
-      const graph = page.locator('.fps-graph')
+      const { readCompactMessageSnapshot, scrollCompactDiagnostics, assertCompactMessageWitness } = await import('./compact-message-layout.mjs')
+      const graph = page.locator('.fps-graph'),
+        openPopup = page.locator('.campaign-messages details[open]')
+      assert.equal(await openPopup.count(), 1, 'The authored notification is initially open')
+      const popupSerial = await openPopup.getAttribute('data-message-serial')
+      report.campaignPopup = { serial: popupSerial, initiallyOpen: true }
+      report.campaignMessagesBefore = await page.evaluate(() => structuredClone(window.testStore.getWorld().messages))
+      ordinaryAdmission.beginFunctional({ loadBoundaryMatched: report.loadBoundaryMatched,
+        introductionReady: report.introductionReady, compactViewportReady: report.compactViewportReady,
+        before: report.before, restoredPopup: report.restoredPopup, campaignPopup: report.campaignPopup })
+      await setM2CampaignPopupOpen(page, popupSerial, false)
+      stage('campaign-closed-for-camera-input')
       await graph.waitFor({ state: 'hidden' })
       await page.keyboard.press('F8')
       await graph.waitFor({ state: 'visible' })
-      assert.match(await graph.innerText(), /Pointer \+ tooltip CPU/)
-      assert.match(await graph.innerText(), /CPU excludes overlay\/GPU\. Async GPU: export only/)
-      assert.equal(await graph.evaluate(el => getComputedStyle(el).pointerEvents), 'none')
+      const graphEntry = await graph.evaluate(el => ({ text: el.innerText, pointerEvents: getComputedStyle(el).pointerEvents }))
+      assert.match(graphEntry.text, /Pointer \+ tooltip CPU/)
+      assert.match(graphEntry.text, /CPU excludes overlay\/GPU\. Async GPU: export only/)
+      assert.equal(graphEntry.pointerEvents, 'none')
       const moveAndObserve = async (x, y, world) => {
         await page.mouse.move(x, y)
         await page.waitForFunction(m2RouteReady, { x, y, world })
@@ -413,19 +490,28 @@ export default async function runM2Functional({ browser, url, output, fixture, c
         await page.evaluate(
           () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
         )
+        // Keep the original world-route coordinates under closed-popup F8.
+        // The open native body deliberately gives diagnostics a scroll owner.
+        await setM2CampaignPopupOpen(page, popupSerial, false)
+        assert.equal(await graph.evaluate(el => getComputedStyle(el).pointerEvents), 'none')
+        await page.waitForFunction(m2ViewReady, 2)
+        const routed = await moveAndObserve(width - 60, height - 100, true)
+        const sidebar = await moveToHud()
+        await setM2CampaignPopupOpen(page, popupSerial, true)
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
         await page.waitForFunction(m2ViewReady, 2)
         if (width === 640 || width === 1280) {
           report.exports ??= []
           report.exports.push(await checkFrameExport({ page, output, keyboard: width === 1280 }))
           stage(`export-${width}-verified`)
         }
-        const layout = await graph.evaluate(m2DiagnosticLayout)
+        const sample = { viewport: [width, height], ...await readCompactMessageSnapshot(page), routed, sidebar,
+          pointerPopupState: 'closed', layoutPopupState: 'open', popupSerial }
+        report.samples.push(sample)
+        await scrollCompactDiagnostics(page, sample, width, height)
         report.layouts ??= []
-        report.layouts.push({ viewport: [width, height], ...layout })
-        assertM2DiagnosticLayout(layout, width, height)
-        const routed = await moveAndObserve(width - 60, height - 100, true)
-        const sidebar = await moveToHud()
-        report.samples.push({ viewport: [width, height], layout, routed, sidebar })
+        report.layouts.push({ viewport: [width, height], ...sample.layout })
+        assertCompactMessageWitness(sample.layout, sample.witness, width, height, sample.scrollSamples)
         stage(`viewport-${width}x${height}-asserted`)
         await page.screenshot({ path: resolve(output, `m2-pointer-${width}.png`) })
         stage(`viewport-${width}x${height}-captured`)
@@ -451,9 +537,12 @@ export default async function runM2Functional({ browser, url, output, fixture, c
         'New F8 overlay begins with an empty window before RAF'
       )
       report.after = await observe()
+      assert.deepEqual(await page.evaluate(() => structuredClone(window.testStore.getWorld().messages)),
+        report.campaignMessagesBefore, 'Public close/reopen retains the complete paused notification state')
       stage('f8-reset-matched')
       assertM2Input(report.before, report.after)
-      await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+      report.resumeInput = {}
+      await setWorldPaused(page, false, { trace: report.resumeInput })
       await page.waitForFunction(
         turn => window.testStore.getWorld().turn > turn,
         report.before.turn
@@ -461,7 +550,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       await page.waitForFunction(m2SamplesReady)
       report.resumed = await observe()
       stage('resumed')
-      await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+      await page.getByRole('button', { name: 'Menu', exact: true }).click()
       await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
       await page.waitForFunction(() =>
         document.querySelector('.fps-graph [data-metric="state"]')?.textContent.startsWith('Menu')
@@ -476,11 +565,10 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       assert.equal(report.returned.sameScene, true)
     }
   } catch (error) {
-    failure = error
+    failure = ordinaryAdmission?.fail(error) ?? admission?.fail(error) ?? error
     try {
       report.failureState = await page.evaluate(() => {
-        const w = window.testStore?.getWorld(),
-          button = document.querySelector('button.skip-introduction')
+        const w = window.testStore?.getWorld()
         return {
           level: w?.outcome.level,
           turn: w?.turn,
@@ -494,8 +582,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
             transitionRemaining: window.testSceneRef.current.viewTransition?.remaining ?? null,
             config: window.testSceneRef.current.view.config,
           },
-          skipVisible: !!button && button.getClientRects().length > 0,
-          skipText: button?.textContent,
+          skipAvailable: !!w && (w.inputMask & 64) !== 0 && (w.flyby.flags & 0x51) === 0x11,
           body: document.body.innerText.slice(0, 2000),
         }
       })
@@ -522,13 +609,15 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     output,
     failure,
     fileName: `${scenario}.json`,
+    admission,
+    ordinaryAdmission,
   })
 }
 
 // Shared read-only DOM witness for pointer and compact-preference episodes.
 export function m2DiagnosticLayout(el) {
   const r = el.getBoundingClientRect()
-  const badge = document.querySelector('button.paused-badge')
+  const badge = document.querySelector('[data-original-pause-status]')
   const b = badge?.getBoundingClientRect()
   const exportButton = el.querySelector('.fps-export')
   const exportStatus = el.querySelector('[data-metric="export-status"]')
@@ -547,34 +636,30 @@ export function m2DiagnosticLayout(el) {
   const e = exportButton?.getBoundingClientRect()
   return {
     exportFits: fits(exportButton) && fits(exportStatus),
+    scroll: { top: el.scrollTop, left: el.scrollLeft, width: el.scrollWidth, height: el.scrollHeight,
+      clientWidth: el.clientWidth, clientHeight: el.clientHeight },
     exportActionable:
       !!e &&
       !exportButton.disabled &&
       document.elementFromPoint((e.left + e.right) / 2, (e.top + e.bottom) / 2) === exportButton,
     pause: b && { left: b.left, top: b.top, right: b.right, bottom: b.bottom },
-    pauseActionable:
-      !!badge &&
-      !badge.disabled &&
-      !!b &&
-      document
-        .elementFromPoint((b.left + b.right) / 2, (b.top + b.bottom) / 2)
-        ?.closest('.paused-badge') === badge,
-    pauseText: badge?.textContent,
+    pausePointerEvents: badge && getComputedStyle(badge).pointerEvents,
+    pauseText: badge?.getAttribute('aria-label'),
     pointerTail: el.querySelector('[data-metric="pointer-tail"]')?.textContent,
-    campaignPanels: [...document.querySelectorAll('.campaign-messages details[open]>div')]
+    campaignPanels: [...document.querySelectorAll('.campaign-messages details[open] [data-native-campaign-panel]')]
       .filter(
         node => node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
       )
       .map(node => {
         const r = node.getBoundingClientRect()
-        const close = node.querySelector('button[aria-label="Dismiss campaign message"]')
+        const close = node.querySelector('button[aria-label="Acknowledge campaign message"]')
         const c = close?.getBoundingClientRect()
         return {
           left: r.left,
           top: r.top,
           right: r.right,
           bottom: r.bottom,
-          text: node.querySelector('p')?.textContent,
+          text: node.querySelector('[data-campaign-text]')?.getAttribute('aria-label'),
           contentFits:
             node.scrollWidth <= node.clientWidth && node.scrollHeight <= node.clientHeight,
           closeActionable:
@@ -586,7 +671,7 @@ export function m2DiagnosticLayout(el) {
       }),
     interactiveUi: [
       ...document.querySelectorAll(
-        '.native-hud,.top-actions,.campaign-messages summary,.campaign-messages details[open]>div'
+        '.native-hud,.campaign-messages summary,.campaign-messages details[open] [data-native-campaign-panel]'
       ),
     ]
       .filter(
@@ -608,6 +693,7 @@ export function m2DiagnosticLayout(el) {
     bottom: r.bottom,
     overflow: document.documentElement.scrollWidth > innerWidth,
     events: getComputedStyle(el).pointerEvents,
+    overflowY: getComputedStyle(el).overflowY,
     rowsFit: [...el.querySelectorAll('dl > div')].every(row => {
       // Optional picking rows remain in the DOM while explicitly collapsed.
       // Do not skip other hidden rows: mandatory diagnostics must still fit.
@@ -625,17 +711,24 @@ export function m2DiagnosticLayout(el) {
 }
 
 export function assertM2DiagnosticLayout(layout, width, height) {
+  assertM2DiagnosticFrame(layout, width, height)
+  assert.equal(layout.rowsFit, true, 'Every metric row must fit simultaneously')
+  assert.equal(layout.exportFits, true, 'Export button and status must fit at every viewport')
+  assert.equal(layout.exportActionable, true, 'Export must remain reachable beside campaign text')
+}
+
+// Frame coexistence is shared by simultaneous-fit and actual scroll-coverage QA.
+// This alone never certifies that overflowing diagnostics are readable.
+export function assertM2DiagnosticFrame(layout, width, height) {
   assert.ok(layout.left >= 0 && layout.top >= 0 && layout.right <= width && layout.bottom <= height)
-  assert.equal(layout.rowsFit, true, 'Metric rows must fit without horizontal clipping')
   assert.match(
     layout.pointerTail,
     /^\d+\.\d \/ \d+\.\d ms$/,
     'Recent pointer p95 and peak must be visible'
   )
   assert.equal(layout.overflow, false)
-  assert.equal(layout.events, 'none')
-  assert.equal(layout.exportFits, true, 'Export button and status must fit at every viewport')
-  assert.equal(layout.exportActionable, true, 'Export must remain reachable beside campaign text')
+  assert.equal(layout.events, 'auto', 'Open native popup retains the diagnostic scroll owner')
+  assert.equal(layout.overflowY, 'auto', 'Diagnostic overflow remains reachable, not clipped')
   assert.ok(layout.campaignPanels.length > 0, 'Authored open campaign message must be observed')
   for (const panel of layout.campaignPanels) {
     assert.equal(
@@ -653,18 +746,19 @@ export function assertM2DiagnosticLayout(layout, width, height) {
     )
   }
   assert.ok(layout.pause, 'Public pause indicator must remain present')
-  assert.equal(layout.pauseActionable, true, 'Public resume control must remain hit-testable')
-  assert.match(layout.pauseText, /WORLD PAUSED/)
-  assert.match(layout.pauseText, /Click to resume/)
+  assert.equal(layout.pausePointerEvents, 'none', 'Native pause text must not intercept gameplay input')
+  assert.equal(layout.pauseText, 'Paused')
+  assert.equal(layout.pause.right, width - 2, 'Native pause text stays two pixels from the screen edge')
+  assert.equal(layout.pause.bottom, height, 'Native pause text uses the bottom A-height line')
   assert.equal(
     m2RectanglesOverlap(layout, layout.pause),
     false,
-    'Paused badge must not obscure F8 diagnostics'
+    'Native pause text must not obscure F8 diagnostics'
   )
   for (const ui of layout.interactiveUi)
     assert.equal(
       m2RectanglesOverlap(layout.pause, ui),
       false,
-      `Pause control must not cover interactive UI: ${ui.name}`
+      `Native pause text must not cover interactive UI: ${ui.name}`
     )
 }

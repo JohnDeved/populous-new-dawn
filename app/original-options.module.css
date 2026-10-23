@@ -10,13 +10,14 @@
 .choice:focus-visible, .slider:focus-visible, .soundLabel:focus-visible { outline: 1px solid #fff1bb; outline-offset: 2px; }
 .soundLabel { position: absolute; left: 0; width: 640px; height: 28px; text-align: center; }
 .slider { position: absolute; left: 166px; width: 308px; height: 22px; margin: 0; padding: 0; accent-color: #d8c477; }
-.storage { position: absolute; left: 120px; width: 400px; margin: 0; text-align: center; font: 13px/1.4 sans-serif; color: #fff1bb; text-shadow: 1px 1px #000; }
-.storage { top: 338px; }
-.compatibility { position: absolute; left: 70px; top: 120px; width: 500px; max-height: 350px; padding: 20px; box-sizing: border-box; overflow: auto; background: #10191ff5; border: 1px solid #b6a35c; font: 15px/1.5 sans-serif; }
-.options[data-skin='ingame'] .compatibility { top: 40px; max-height: 420px; }
-.compatibility h2 { margin-top: 0; font: 25px Georgia,serif; }
-.compatibility button { padding: 8px 16px; color: #fff1bb; border: 1px solid #b6a35c; background: #42391d; font: inherit; cursor: inherit; }
-.compatibility button:focus-visible { outline: 2px solid #fff1bb; outline-offset: 2px; }
+.storage { position: absolute; left: 0; top: 338px; width: 640px; margin: 0; text-align: center; }
+.compatibility { position: absolute; inset: 0; }
+.compatibility h2 { margin: 0; }
+.compatibility .choice:disabled { opacity: .5; cursor: inherit; }
+.browserNotices { position: absolute; left: 0; top: 309px; width: 640px; }
+.browserNotices p, .browserFallback { margin: 0; }
+.browserFallback { position: absolute; width: 640px; }
+.noticeLine { position: relative; display: block; height: 30px; }
 .options[data-skin='frontend'] { --slider-track: url('/original/options/frontend-0.png'); --slider-thumb: url('/original/options/frontend-1.png'); --slider-selected: url('/original/options/frontend-2.png'); }
 .options[data-skin='ingame'] { --slider-track: url('/original/options/ingame-0.png'); --slider-thumb: url('/original/options/ingame-1.png'); --slider-selected: url('/original/options/ingame-2.png'); }
 .options[data-art-ready='true'] .slider { appearance: none; border: 0; border-radius: 0; background: var(--slider-track) left top / 308px 19px no-repeat; cursor: inherit; }

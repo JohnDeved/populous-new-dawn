@@ -1,3 +1,6 @@
+import { clearPortraitSelection } from '../browser-portrait-input.mjs'
+import { readPortraitReadiness, waitForPortraitReadiness } from '../browser-portrait-readiness.mjs'
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
@@ -7,12 +10,15 @@ import { pathToFileURL } from 'node:url'
 // Short ordinary-control regression for #194. No victory fixture or game mutation
 // is needed to test fresh-document and same-document scene binding lifetimes.
 export default async function ({ page, root, output, receipt, signal }) {
-  const { bindGame, showAllMissions, readShamanReadiness, waitForShamanReadiness } =
+  const { bindGame, showAllMissions } =
     await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
   const { waitForCheckpointReadback } =
     await import(pathToFileURL(resolve(root, 'scripts/checkpoint-readback.mjs')).href)
   const report = {
     scenarioSha256: createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex'),
+    portraitInputs: Object.fromEntries(['scripts/browser-portrait-input.mjs', 'scripts/browser-world-input.mjs',
+      'scripts/browser-space-ownership.mjs', 'scripts/browser-portrait-readiness.mjs', 'scripts/campaign-portrait-readiness.mjs']
+      .map(file => [file, createHash('sha256').update(readFileSync(resolve(root, file))).digest('hex')])),
     method: 'Ordinary buttons and real RAF; readonly scene/store and committed IDB observation.',
     limits: 'Checker lifecycle only; no mission victory, native parity or hardware-performance claim.',
     steps: [],
@@ -48,12 +54,11 @@ export default async function ({ page, root, output, receipt, signal }) {
   const readyAfterOrdinaryIntroduction = async expectedLevel => {
     await bindGame(page)
     await page.waitForFunction(() => !!(window.testSceneRef.current.world.flyby.flags & 1) || !window.testSceneRef.current.world.inputMask)
-    const skip = page.locator('.skip-introduction')
-    if (await skip.isVisible()) await skip.click()
-    const readiness = await waitForShamanReadiness(page, { timeout: 60000 })
+    await skipIntroductionWithSpace(page, { timeout: 45000 })
+    const readiness = await waitForPortraitReadiness(page, { timeout: 60000, signal })
     assert.equal(readiness.after.level, expectedLevel)
-    await page.keyboard.press('Escape')
-    await button('Select and focus shaman')
+    await clearPortraitSelection(page, { signal })
+    await button('Select shaman')
     const observed = await snapshot()
     assert.equal(observed.sceneStoreMatch, true)
     assert.ok(observed.selected.includes(readiness.after.shaman.id))
@@ -68,7 +73,7 @@ export default async function ({ page, root, output, receipt, signal }) {
     return readyAfterOrdinaryIntroduction(3)
   })
   await stage('repeated-current-binding', async () => {
-    const before = await snapshot(), first = await readShamanReadiness(page), second = await readShamanReadiness(page)
+    const before = await snapshot(), first = await readPortraitReadiness(page), second = await readPortraitReadiness(page)
     assert.equal(first.ready, true); assert.equal(second.ready, true)
     assert.equal(first.level, 3); assert.equal(second.level, 3)
     const after = await snapshot()
@@ -79,10 +84,11 @@ export default async function ({ page, root, output, receipt, signal }) {
 
   let saved
   await stage('committed-ordinary-save', async () => {
-    await button('Game settings')
-    await page.locator('dialog.game-dialog').waitFor({ state: 'visible' })
+    await button('Menu')
+    await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
     saved = await snapshot()
     assert.equal(saved.paused, true)
+    await button('Save Game')
     await button('Save checkpoint')
     const committed = await waitForCheckpointReadback(() => page.evaluate(async expected => {
       const request = indexedDB.open('populous-new-dawn', 1)
@@ -111,10 +117,10 @@ export default async function ({ page, root, output, receipt, signal }) {
     assert.deepEqual(emptyBindings, { scene: 'undefined', mission: 'undefined', legacy: 'undefined' })
     await button('Load Game')
     // No prior bind or installed function is assumed after the real page reload.
-    const readiness = await waitForShamanReadiness(page, { timeout: 60000 })
+    const readiness = await waitForPortraitReadiness(page, { timeout: 60000, signal })
     assert.equal(readiness.after.level, 3)
-    await page.keyboard.press('Escape')
-    await button('Select and focus shaman')
+    await clearPortraitSelection(page, { signal })
+    await button('Select shaman')
     const observed = await snapshot()
     assert.equal(observed.sceneStoreMatch, true)
     assert.ok(observed.selected.includes(readiness.after.shaman.id))
@@ -129,21 +135,23 @@ export default async function ({ page, root, output, receipt, signal }) {
   await stage('same-document-scene-replacement', async () => {
     const previousScene = await page.evaluateHandle(() => window.testSceneRef.current)
     try {
-      await button('Game settings')
-      await page.locator('dialog.game-dialog').waitFor({ state: 'visible' })
-      await page.locator('dialog.game-dialog').getByRole('button', { name: 'Select Level', exact: true }).click()
+      await button('Menu')
+      await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
+      await button('Options')
+      await button('Browser compatibility and help')
+      await page.locator('dialog[data-original-pause-menu]').getByRole('button', { name: 'Select Level', exact: true }).click()
       await showAllMissions(page)
       await button('Mission 2')
       const evidence = await readyAfterOrdinaryIntroduction(2)
       const replaced = await page.evaluate(previous => ({ scene: previous !== window.testSceneRef.current, world: previous.world !== window.testSceneRef.current.world }), previousScene)
       assert.deepEqual(replaced, { scene: true, world: true })
-      const repeated = await readShamanReadiness(page)
+      const repeated = await readPortraitReadiness(page)
       assert.equal(repeated.level, 2)
       assert.equal(repeated.ready, true)
       return { ...evidence, replaced, repeated }
     } finally { await previousScene.dispose() }
   })
-  await button('Pause game')
+  await page.locator('.world-viewport').press('Space')
   const final = await snapshot()
   assert.equal(final.paused, true)
   assert.equal(final.level, 2)

@@ -1,3 +1,4 @@
+import { clearPortraitSelection } from '../browser-portrait-input.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -7,6 +8,32 @@ import { checkpointObservation } from './checkpoint-observer.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { bindGame } from '../browser-game.mjs'
 import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
+
+// Failure evidence uses only time left in the original episode. It never delays
+// abort/cleanup, retries a screenshot, or replaces the scenario's primary error.
+export async function retainMission10FailureScreenshot({ page, output, signal, deadlineAt }) {
+  const unavailable = () => signal.aborted || !Number.isFinite(deadlineAt) || Date.now() >= deadlineAt
+  const remaining = deadlineAt - Date.now()
+  if (signal.aborted || !Number.isFinite(deadlineAt) || remaining <= 0)
+    return { status: 'not-attempted', reason: 'No remaining episode budget' }
+  const timeout = Math.min(1000, remaining)
+  let timer, onAbort
+  try {
+    const result = await Promise.race([
+      page.screenshot({ path: resolve(output, 'failure.png'), timeout })
+        .then(() => ({ status: 'captured', file: 'failure.png' })),
+      new Promise(resolve => { timer = setTimeout(() => resolve({ status: 'failed', reason: 'Screenshot budget expired' }), timeout) }),
+      new Promise(resolve => {
+        onAbort = () => resolve({ status: 'failed', reason: 'Episode aborted' })
+        signal.addEventListener('abort', onAbort, { once: true })
+        if (signal.aborted) onAbort()
+      }),
+    ])
+    return result.status === 'captured' && unavailable()
+      ? { status: 'failed', reason: 'Screenshot completed after the episode deadline' } : result
+  } catch (error) { return { status: 'failed', error: String(error) } }
+  finally { clearTimeout(timer); if (onAbort) signal.removeEventListener('abort', onAbort) }
+}
 
 const party = [63, 111, 112, 113, 114]
 const boatId = 62
@@ -59,7 +86,7 @@ export async function checkMission10FollowerStrip({ page, input, state, phase, o
 export default async function ({ page, openMission, output, receipt, observeCheckpoint, signal, createInput = createMission1VaultInput, findBoatPoint = null, deadlineAt = null }) {
   assert.ok(receipt.profile, 'Use a dedicated --profile, same origin/source for both runs')
   const report = { method: 'Authored M10, trusted HUD/mouse input, real RAF, public Save and Load across browser termination',
-    limits: 'Bounded boarding and same-shore unload; not sea traversal, mission completion, campaign unlock, native parity or hardware performance',
+    limits: 'Fresh acquisition declares M10 availability only, not earned prior campaign history; reused profiles are never reseeded. Bounded boarding and same-shore unload; not sea traversal, mission completion, campaign unlock, native parity or hardware performance',
     source: receipt.source, phase: receipt.profile.mode, actions: [], observations: [], selection: [] }
   const save = () => writeFileSync(resolve(output, 'boat-checkpoint.json'), JSON.stringify(report, null, 2) + '\n')
   const state = async label => {
@@ -84,12 +111,13 @@ export default async function ({ page, openMission, output, receipt, observeChec
   try {
     if (receipt.profile.mode === 'created') {
       assert.equal(receipt.profile.checkpointAtStart, null)
-      await openMission(10)
+      // Declared M10 availability only; prior campaign progression was not earned.
+      await openMission(10, { campaignFixture: true })
       await page.waitForFunction(() => !window.testSceneRef.current.world.inputMask)
       await state('authored-start')
       await input.view({ x: 27, z: -27 })
-      await page.keyboard.press('Escape')
-      await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+      await clearPortraitSelection(page, { signal, timeout: deadlineAt === null ? 2500 : Math.min(2500, deadlineAt - Date.now()) })
+      await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
       await page.getByRole('button', { name: 'Select warrior', exact: true }).click({ modifiers: ['Shift'] })
       const selected = await state('HUD-selected')
       assert.deepEqual([...selected.selected].sort((a,b)=>a-b), party)
@@ -108,7 +136,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
       await state('boarded'); await capture('boarded')
       report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'boarded', occupied: true })); save()
       await capture('boarded-class-selected')
-      await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+      await page.getByRole('button', { name: 'Menu', exact: true }).click()
       const menu = page.locator('dialog[data-original-pause-menu]'); await menu.waitFor({ state: 'visible' })
       await menu.getByRole('button', { name: 'Save Game', exact: true }).click()
       const before = await state('save-menu')
@@ -166,5 +194,9 @@ export default async function ({ page, openMission, output, receipt, observeChec
     const stored = await observeCheckpoint('After genuine Load and unload')
     assert.equal(stored.checkpoint.checkpointSha256, saved.checkpointSha256)
     report.status = 'passed'; save(); return report
-  } catch (error) { report.status='failed'; report.error=String(error); save(); throw error }
+  } catch (error) {
+    report.status='failed'; report.error=String(error); save()
+    report.failureScreenshot = await retainMission10FailureScreenshot({ page, output, signal, deadlineAt })
+    save(); throw error
+  }
 }

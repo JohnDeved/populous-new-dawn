@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import ts from 'typescript'
+import { evaluatePage } from './support/follower-nearby-page.mjs'
 import { createFullscreenSession, placeFullscreenHost, promoteFullscreenDialogs, fullscreenHostNeedsPlacement } from '../app/fullscreen-session.ts'
 
 function nativeCloseBindings(text) {
@@ -147,43 +148,108 @@ test('fullscreen errors and unmount remove handlers and suppress late async stat
   assert.deepEqual(f.counts(), [1, 0])
 })
 
-test('one stable portal follows open dialog, transfers focus only when already focused, returns to body', () => {
-  const host = { parentElement: null, contains: node => node === focused }
-  let focusCalls = 0, moves = 0
-  const focused = { focus: () => focusCalls++ }
+function portalFixture() {
+  let dialogs = [], loading = false, moves = 0, removals = 0
+  const doc = { activeElement: null,
+    querySelectorAll: selector => { assert.equal(selector, 'dialog[open]'); return dialogs },
+    querySelector: selector => selector === '.loading-world' ? loading ? {} : null
+      : selector === '.world-viewport' ? viewport : null,
+  }
   const target = () => ({ appendChild(node) { assert.equal(node, host); node.parentElement = this; moves++ } })
   const body = target(), menu = target(), selector = target()
-  let dialogs = []
-  const doc = { body, activeElement: null, querySelectorAll: () => dialogs, querySelector: () => null }
-  placeFullscreenHost(doc, host)
-  assert.equal(host.parentElement, body)
-  dialogs = [menu]
-  placeFullscreenHost(doc, host)
-  assert.equal(host.parentElement, menu)
-  assert.equal(focusCalls, 0)
-  doc.activeElement = focused
-  dialogs = [selector]
-  placeFullscreenHost(doc, host)
-  assert.equal(host.parentElement, selector)
-  assert.equal(focusCalls, 1)
-  placeFullscreenHost(doc, host)
-  assert.equal(moves, 3, 'no observer mutation loop or duplicate portal')
-  dialogs = []
-  placeFullscreenHost(doc, host)
-  assert.equal(host.parentElement, body)
+  doc.body = body
+  const focusCalls = []
+  const viewport = { focus(options) { assert.deepEqual(options, { preventScroll: true }); doc.activeElement = viewport; focusCalls.push('viewport') } }
+  const button = { focus(options) { assert.deepEqual(options, { preventScroll: true }); doc.activeElement = button; focusCalls.push('button') } }
+  const host = { parentElement: null, contains: node => node === button,
+    remove() { this.parentElement = null; removals++; if (doc.activeElement === button) doc.activeElement = body },
+  }
+  return { doc, host, body, menu, selector, button, viewport, focusCalls,
+    get moves() { return moves }, get removals() { return removals },
+    place(modals = [], isLoading = false) { dialogs = modals; loading = isLoading; placeFullscreenHost(doc, host) },
+  }
+}
+
+test('fullscreen is detached in gameplay and follows existing dialogs/loading without stealing focus', () => {
+  const f = portalFixture()
+  f.place()
+  assert.equal(f.host.parentElement, null, 'no battlefield overlay or invisible tab stop')
+  assert.equal(f.moves, 0)
+  f.place([f.menu])
+  assert.equal(f.host.parentElement, f.menu)
+  assert.deepEqual(f.focusCalls, [])
+  f.doc.activeElement = f.button
+  f.place([f.menu, f.selector])
+  assert.equal(f.host.parentElement, f.selector, 'topmost open dialog owns the portal')
+  assert.deepEqual(f.focusCalls, ['button'])
+  f.place([f.menu, f.selector])
+  assert.equal(f.moves, 2, 'stable owner cannot start an observer mutation loop')
+  f.place([], true)
+  assert.equal(f.host.parentElement, f.body, 'body placement is only allowed during loading/recovery')
+  assert.deepEqual(f.focusCalls, ['button', 'button'])
+  f.place()
+  assert.equal(f.host.parentElement, null)
+  assert.equal(f.doc.activeElement, f.viewport, 'a removed focused browser control returns focus to the world')
+  assert.deepEqual(f.focusCalls, ['button', 'button', 'viewport'])
+  f.place()
+  assert.equal(f.removals, 1, 'detached host causes no repeated removal or focus writes')
+  f.place([f.menu])
+  assert.equal(f.doc.activeElement, f.viewport, 'reopening does not resurrect stale portal focus')
+})
+
+test('closing a menu never replaces focus already restored by its modal owner', () => {
+  const f = portalFixture()
+  f.place([f.menu])
+  const trigger = {}
+  f.doc.activeElement = trigger
+  f.place()
+  assert.equal(f.host.parentElement, null)
+  assert.equal(f.doc.activeElement, trigger)
+  assert.deepEqual(f.focusCalls, [])
 })
 
 test('shipped app mounts control once and keeps fullscreen available through loading/flyby input guards', () => {
   const page = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
   const component = readFileSync(new URL('../app/fullscreen-control.tsx', import.meta.url), 'utf8')
-  const scene = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
+  const sceneSource = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
   assert.equal(page.match(/<FullscreenControl \/>/g)?.length, 1)
-  assert.equal(page.match(/\[data-fullscreen-control\]/g)?.length, 2)
+  const source = ts.createSourceFile('page.tsx', page, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const guards = new Map()
+  function visit(node) {
+    if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression) &&
+      node.expression.name.text === 'closest' && ts.isStringLiteral(node.arguments[0]) &&
+      node.arguments[0].text.split(',').includes('[data-fullscreen-control]')) {
+      let guard = node.parent, owner = node.parent
+      while (guard && !ts.isIfStatement(guard)) guard = guard.parent
+      while (owner && !(ts.isVariableDeclaration(owner) || ts.isFunctionDeclaration(owner) || ts.isJsxAttribute(owner)))
+        owner = owner.parent
+      assert.ok(guard && owner, 'fullscreen exclusion belongs to a live input guard')
+      const name = owner.name.getText(source)
+      assert.equal(guards.has(name), false, 'one fullscreen guard per input owner')
+      guards.set(name, guard.expression.getText(source))
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+  assert.deepEqual([...guards.keys()].sort(), ['blockLoadingInteraction', 'key', 'onClickCapture', 'up'],
+    'loading/flyby and native result keydown/keyup each retain their fullscreen exclusion')
+  const world = { inputMask: 64 }, scene = { world }
+  for (const [owner, expression] of guards) for (const fullscreen of [false, true]) {
+    const event = { key: ' ', code: 'Space', target: { closest: () => fullscreen ? {} : null } }
+    const guardTaken = Boolean(evaluatePage(expression, {
+      ready: owner !== 'blockLoadingInteraction', startup: 'playing', current: world, world, scene,
+      engine: { current: scene }, store: { getWorld: () => world }, resultSession: { stage: () => 'statistics' },
+      menu: false, cheatsOpen: false, selectorOpen: false, debugPicker: false,
+      messageDetails: { current: new Map() }, event, e: event,
+    }))
+    assert.equal(guardTaken, owner === 'onClickCapture' ? !fullscreen : fullscreen,
+      `${owner}: fullscreen target must bypass game input without removing the ordinary guard`)
+  }
   assert.match(component, /observer\.disconnect\(\)/)
   assert.match(component, /node\.remove\(\)/)
   assert.match(component, /onClick=.*session\.current\?\.toggle/)
-  assert.match(scene, /new ResizeObserver\(\(\) => this\.setSize\(\)\)/)
-  assert.match(scene, /this\.resize\.observe\(container\)/)
+  assert.match(sceneSource, /new ResizeObserver\(\(\) => this\.setSize\(\)\)/)
+  assert.match(sceneSource, /this\.resize\.observe\(container\)/)
   assert.match(page, /window\.addEventListener\('resize', resize\)/)
 })
 
@@ -224,26 +290,11 @@ test('ordinary HUD mutations cause no modal traversal or relocation; modal and d
   assert.equal(fullscreenHostNeedsPlacement([child([], [node('MAIN', true)])], host), true)
 })
 
-test('fullscreen portal transitions between gameplay action dock, selector modal, loading and pause without duplication', () => {
-  const host = { parentElement: null, contains: node => node === focused }
-  let focusCalls = 0
-  const focused = { focus: () => focusCalls++ }
-  const target = () => ({ appendChild(node) { node.parentElement = this } })
-  const body = target(), actions = target(), selector = target(), pause = target()
-  let dialogs = [], loading = false
-  const doc = { body, activeElement: focused, querySelectorAll: () => dialogs,
-    querySelector: selector => selector === '.top-actions' ? actions : loading ? {} : null }
-  for (const [modal, isLoading, expected] of [
-    [null, false, actions], [selector, false, selector], [null, false, actions],
-    [null, true, body], [pause, true, pause], [null, false, actions],
-  ]) {
-    dialogs = modal ? [modal] : []; loading = isLoading
-    placeFullscreenHost(doc, host)
-    assert.equal(host.parentElement, expected)
-  }
-  assert.equal(focusCalls, 6, 'same focused portal transfers between all owners')
+test('loading/recovery insertion and removal trigger placement, but obsolete footer mutations do not', () => {
+  const host = {}
   const element = classes => ({ nodeName: 'DIV', nodeType: 1, contains: () => false,
     matches: selector => selector.split(',').some(name => classes.includes(name)) })
-  for (const name of ['.loading-world', '.top-actions'])
-    assert.equal(fullscreenHostNeedsPlacement([{ type: 'childList', addedNodes: [element([name])], removedNodes: [] }], host), true)
+  for (const [addedNodes, removedNodes] of [[[element(['.loading-world'])], []], [[], [element(['.loading-world'])]]])
+    assert.equal(fullscreenHostNeedsPlacement([{ type: 'childList', addedNodes, removedNodes }], host), true)
+  assert.equal(fullscreenHostNeedsPlacement([{ type: 'childList', addedNodes: [element(['.top-actions'])], removedNodes: [] }], host), false)
 })

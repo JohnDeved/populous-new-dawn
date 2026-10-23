@@ -1,0 +1,19 @@
+{
+  "method": "Read-only RGBA crop comparison; existing decoded source files. No original executable execution.",
+  "correction": "Earlier HUD-font alpha=True warning was incorrect. import-hud.py uses sprites default alpha=False.",
+  "paletteSha256": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+  "f00t3": {
+    "comparison": "HUD crops versus raw result-font.png",
+    "glyphCount": 224,
+    "mismatchCount": 0,
+    "sourceSha256": "148658bb22b8a42f892719d0f0b814ccb9cfcb260f8e6f1ea60475bec90b9af0"
+  },
+  "f00t4": {
+    "comparison": "HUD crops versus raw original F00T4 decoded alpha=False",
+    "glyphCount": 224,
+    "mismatchCount": 0,
+    "mismatches": [],
+    "sourceSha256": "2cbebbf772ffa2fceca7ec5e37a08c1c6fe190653bbc3d85ebe126443d4494d0"
+  },
+  "hudPngSha256": "28ac4447747ebddd500e00d590ab497ff87bb9c9b5d8bf2a9079a8a2ad71f493"
+}

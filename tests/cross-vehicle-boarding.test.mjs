@@ -1,7 +1,7 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 // Two ordinarily produced M15 Boats; scene fixture supplies only the camera adapter.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createGameStore } from '../app/game-store.ts'
 import { command, tick, selectUnit, cancelInteraction, browserPosition } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { vehicleReady } from '../app/vehicle-routing.ts'
@@ -10,8 +10,8 @@ import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 test('ordinary nearby cross-craft boarding preserves the person and cleans later same-model orders', async () => {
   await loadSceneFixture()
   const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
-  const store = createGameStore()
-  store.startMission(15)
+  const store = await createCampaignFixtureStore([15])
+  assert.equal(store.startMission(15), true)
   const w = store.getWorld(),
     house = w.buildings.find(b => b.id === 120)
   for (let n = 0; n < 82; n++) {

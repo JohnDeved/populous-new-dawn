@@ -1,0 +1,32 @@
+.viewport {
+  position: absolute;
+  top: calc(-1 * var(--message-top, 0px));
+  left: 0;
+  width: calc(100vw - var(--side));
+  height: 100dvh;
+  pointer-events: none;
+  z-index: 1;
+}
+.panel { position: absolute; transform-origin: top left; pointer-events: auto; image-rendering: pixelated; }
+.tiles { position: absolute; inset: 0; pointer-events: none; }
+.tiles i { position: absolute; width: 16px; height: 16px; background: url('/original/campaign-popup-tiles.png') no-repeat; }
+.text, .fallback { position: absolute; padding: 0; margin: 0; }
+.textLine { display: block; white-space: nowrap; }
+.line { display: inline-flex; vertical-align: top; align-items: flex-start; }
+.glyph { display: block; flex: none; background-repeat: no-repeat; }
+.panel .ok { position: absolute; box-sizing: border-box; padding: 0; border: 0; --popup-button: var(--popup-normal); background: none; cursor: pointer; }
+.panel .ok:hover { --popup-button: var(--popup-hover); }
+.panel .ok:active { --popup-button: var(--popup-pressed); }
+.panel .ok:focus-visible { outline: 2px solid #fff6d6; outline-offset: 2px; }
+.label { position: absolute; pointer-events: none; }
+.hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* Readable failure recovery, not a claim of original artwork. */
+.panel[data-art-failed] { background: #d39c49; border: 1px solid #62451b; }
+.panel[data-art-failed] .ok { background: #d39c49; border: 1px solid #62451b; color: #281b0b; }
+.fallback { color: #281b0b; font: 14px/19px Arial, sans-serif; }
+
+.buttonArt { position: absolute; inset: 0; pointer-events: none; }
+.buttonArt i { position: absolute; background-image: var(--popup-button); background-repeat: no-repeat; }
+
+.panel[data-art-failed][data-font="4"] .fallback { font-size: 9px; }
+.panel[data-art-failed][data-font="4"] .ok { font: 9px/10px Arial, sans-serif; }

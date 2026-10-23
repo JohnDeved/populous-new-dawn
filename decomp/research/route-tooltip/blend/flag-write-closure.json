@@ -1,0 +1,390 @@
+{
+  "method": "Local branch graph only. Calls assumed to return; direct callees listed for separate inspection. No native instruction execution. Does not claim exhaustive indirect-memory alias proof.",
+  "results": [
+    {
+      "start": "0x45982d",
+      "mode": "bit16",
+      "local_instruction_count": 5,
+      "clears": [
+        "0x45983b"
+      ],
+      "calls": {
+        "0x459836": "0x5162e0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x49fbbc",
+      "mode": "bit16",
+      "local_instruction_count": 31,
+      "clears": [
+        "0x49fc2d"
+      ],
+      "calls": {
+        "0x49fc0f": "0x415f70",
+        "0x49fc19": "0x516890"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x505612",
+      "mode": "bit16",
+      "local_instruction_count": 81,
+      "clears": [
+        "0x50573c"
+      ],
+      "calls": {
+        "0x50566d": "0x415f70",
+        "0x505677": "0x516890",
+        "0x50569d": "0x4525d0",
+        "0x5056b5": "0x5166c0",
+        "0x5056ca": "0x4525d0",
+        "0x5056e2": "0x5166c0",
+        "0x5056f7": "0x4525d0",
+        "0x505707": "0x5166c0",
+        "0x50571c": "0x4525d0",
+        "0x50572d": "0x5166c0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x5058e7",
+      "mode": "bit16",
+      "local_instruction_count": 75,
+      "clears": [
+        "0x5059e5"
+      ],
+      "calls": {
+        "0x505935": "0x415f70",
+        "0x50593f": "0x516890",
+        "0x505954": "0x4525d0",
+        "0x505965": "0x5166c0",
+        "0x505987": "0x4525d0",
+        "0x505998": "0x5166c0",
+        "0x5059ad": "0x4525d0",
+        "0x5059be": "0x5166c0",
+        "0x5059d3": "0x4525d0",
+        "0x5059e0": "0x5166c0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x505a98",
+      "mode": "bit16",
+      "local_instruction_count": 68,
+      "clears": [
+        "0x505b77"
+      ],
+      "calls": {
+        "0x505ad7": "0x415f70",
+        "0x505ae1": "0x516890",
+        "0x505af6": "0x4525d0",
+        "0x505b07": "0x5166c0",
+        "0x505b1c": "0x4525d0",
+        "0x505b2c": "0x5166c0",
+        "0x505b41": "0x4525d0",
+        "0x505b51": "0x5166c0",
+        "0x505b66": "0x4525d0",
+        "0x505b72": "0x5166c0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x505c41",
+      "mode": "bit16",
+      "local_instruction_count": 70,
+      "clears": [
+        "0x505d2d"
+      ],
+      "calls": {
+        "0x505c83": "0x415f70",
+        "0x505c8d": "0x516890",
+        "0x505ca2": "0x4525d0",
+        "0x505cb3": "0x5166c0",
+        "0x505cc8": "0x4525d0",
+        "0x505cd8": "0x5166c0",
+        "0x505ced": "0x4525d0",
+        "0x505cfd": "0x5166c0",
+        "0x505d12": "0x4525d0",
+        "0x505d1e": "0x5166c0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x505dd6",
+      "mode": "bit16",
+      "local_instruction_count": 68,
+      "clears": [
+        "0x505eb8"
+      ],
+      "calls": {
+        "0x505e18": "0x415f70",
+        "0x505e22": "0x516890",
+        "0x505e37": "0x4525d0",
+        "0x505e48": "0x5166c0",
+        "0x505e5d": "0x4525d0",
+        "0x505e6d": "0x5166c0",
+        "0x505e82": "0x4525d0",
+        "0x505e92": "0x5166c0",
+        "0x505ea7": "0x4525d0",
+        "0x505eb3": "0x5166c0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x505f82",
+      "mode": "bit16",
+      "local_instruction_count": 72,
+      "clears": [
+        "0x506075"
+      ],
+      "calls": {
+        "0x505fd0": "0x415f70",
+        "0x505fda": "0x516890",
+        "0x505fef": "0x4525d0",
+        "0x506000": "0x5166c0",
+        "0x506015": "0x4525d0",
+        "0x506026": "0x5166c0",
+        "0x50603b": "0x4525d0",
+        "0x506048": "0x5166c0",
+        "0x50605d": "0x4525d0",
+        "0x50606a": "0x5166c0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x506335",
+      "mode": "bit16",
+      "local_instruction_count": 78,
+      "clears": [
+        "0x50644e"
+      ],
+      "calls": {
+        "0x506390": "0x415f70",
+        "0x50639a": "0x516890",
+        "0x5063af": "0x4525d0",
+        "0x5063c7": "0x5166c0",
+        "0x5063dc": "0x4525d0",
+        "0x5063f4": "0x5166c0",
+        "0x506409": "0x4525d0",
+        "0x506416": "0x5166c0",
+        "0x50642b": "0x4525d0",
+        "0x50643f": "0x5166c0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x506a8b",
+      "mode": "bit16",
+      "local_instruction_count": 66,
+      "clears": [
+        "0x506b62"
+      ],
+      "calls": {
+        "0x506ac3": "0x415f70",
+        "0x506acd": "0x516890",
+        "0x506ae2": "0x4525d0",
+        "0x506aef": "0x5166c0",
+        "0x506b04": "0x4525d0",
+        "0x506b11": "0x5166c0",
+        "0x506b26": "0x4525d0",
+        "0x506b39": "0x5166c0",
+        "0x506b4e": "0x4525d0",
+        "0x506b5d": "0x5166c0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x506c94",
+      "mode": "bit16",
+      "local_instruction_count": 70,
+      "clears": [
+        "0x506d78"
+      ],
+      "calls": {
+        "0x506cd4": "0x415f70",
+        "0x506cde": "0x516890",
+        "0x506cf3": "0x4525d0",
+        "0x506d00": "0x5166c0",
+        "0x506d15": "0x4525d0",
+        "0x506d22": "0x5166c0",
+        "0x506d37": "0x4525d0",
+        "0x506d4a": "0x5166c0",
+        "0x506d5f": "0x4525d0",
+        "0x506d6e": "0x5166c0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x506e55",
+      "mode": "bit16",
+      "local_instruction_count": 82,
+      "clears": [
+        "0x506f81"
+      ],
+      "calls": {
+        "0x506eae": "0x415f70",
+        "0x506eb8": "0x516890",
+        "0x506ecd": "0x4525d0",
+        "0x506ee5": "0x5166c0",
+        "0x506efa": "0x4525d0",
+        "0x506f12": "0x5166c0",
+        "0x506f27": "0x4525d0",
+        "0x506f34": "0x5166c0",
+        "0x506f49": "0x4525d0",
+        "0x506f5d": "0x5166c0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x5074c0",
+      "mode": "bit16",
+      "local_instruction_count": 76,
+      "clears": [
+        "0x5075bd"
+      ],
+      "calls": {
+        "0x50750a": "0x415f70",
+        "0x507514": "0x516890",
+        "0x507529": "0x4525d0",
+        "0x50753a": "0x5166c0",
+        "0x50754f": "0x4525d0",
+        "0x507564": "0x5166c0",
+        "0x507579": "0x4525d0",
+        "0x507586": "0x5166c0",
+        "0x50759b": "0x4525d0",
+        "0x5075ae": "0x5166c0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x50772e",
+      "mode": "bit16",
+      "local_instruction_count": 15,
+      "clears": [
+        "0x50775d"
+      ],
+      "calls": {
+        "0x507755": "0x5162e0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x52548c",
+      "mode": "bit16",
+      "local_instruction_count": 56,
+      "clears": [
+        "0x52553d"
+      ],
+      "calls": {
+        "0x5254a4": "0x415f70",
+        "0x5254ae": "0x516890",
+        "0x5254c3": "0x4525d0",
+        "0x5254cf": "0x5166c0",
+        "0x5254e4": "0x4525d0",
+        "0x5254f0": "0x5166c0",
+        "0x525505": "0x4525d0",
+        "0x525514": "0x5166c0",
+        "0x525529": "0x4525d0",
+        "0x525538": "0x5166c0"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x45f075",
+      "mode": "full",
+      "local_instruction_count": 163,
+      "clears": [
+        "0x45f482"
+      ],
+      "calls": {
+        "0x45f214": "0x5162e0",
+        "0x45f1f3": "0x516430",
+        "0x45f0ba": "0x476090",
+        "0x45f0e7": "0x476090",
+        "0x45f10e": "0x516430"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x45f2b6",
+      "mode": "full",
+      "local_instruction_count": 165,
+      "clears": [
+        "0x45f482"
+      ],
+      "calls": {
+        "0x45f457": "0x5162e0",
+        "0x45f436": "0x516430",
+        "0x45f2fd": "0x476090",
+        "0x45f32a": "0x476090",
+        "0x45f351": "0x516430"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x45f579",
+      "mode": "full",
+      "local_instruction_count": 181,
+      "clears": [
+        "0x45f9b1"
+      ],
+      "calls": {
+        "0x45f713": "0x5162e0",
+        "0x45f6f2": "0x516430",
+        "0x45f5b9": "0x476090",
+        "0x45f5e6": "0x476090",
+        "0x45f60d": "0x516430"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x45f7df",
+      "mode": "full",
+      "local_instruction_count": 183,
+      "clears": [
+        "0x45f9b1"
+      ],
+      "calls": {
+        "0x45f986": "0x5162e0",
+        "0x45f965": "0x516430",
+        "0x45f82c": "0x476090",
+        "0x45f859": "0x476090",
+        "0x45f880": "0x516430"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x45fac5",
+      "mode": "full",
+      "local_instruction_count": 190,
+      "clears": [
+        "0x45ff1d"
+      ],
+      "calls": {
+        "0x45fc5f": "0x5162e0",
+        "0x45fc3e": "0x516430",
+        "0x45fb05": "0x476090",
+        "0x45fb32": "0x476090",
+        "0x45fb59": "0x516430"
+      },
+      "uncleared_exits": []
+    },
+    {
+      "start": "0x45fd4b",
+      "mode": "full",
+      "local_instruction_count": 192,
+      "clears": [
+        "0x45ff1d"
+      ],
+      "calls": {
+        "0x45fef2": "0x5162e0",
+        "0x45fed1": "0x516430",
+        "0x45fd98": "0x476090",
+        "0x45fdc5": "0x476090",
+        "0x45fdec": "0x516430"
+      },
+      "uncleared_exits": []
+    }
+  ]
+}

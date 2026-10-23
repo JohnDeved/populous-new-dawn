@@ -6,7 +6,7 @@ export function spyEvidenceFixture({ secondFrame = 1, mergeSha = 'a'.repeat(40),
   const bytes = Buffer.alloc(4 * 4 * 4, 255); bytes[0] = 0
   const cropPng = tornadoPng(4, 4, bytes), files = new Map()
   const sourceNames = ['spy-source.mjs','spy-source-fixture.mjs','spy-source-budget.mjs','spy-source-observer.mjs','spy-source-evidence.mjs','spy-source-readiness.mjs','checkpoint-codec.mjs']
-  const inputNames = ['app/follower-appearance.ts','app/scene-entities.ts','app/live-building-combat.ts','app/original-units.json','app/checkpoint-format.ts','tests/fixtures/follower-source-witness.json','tests/fixtures/follower-source-artwork.json']
+  const inputNames = ['app/game-clock.ts', 'app/scene.ts', 'app/follower-appearance.ts','app/scene-entities.ts','app/live-building-combat.ts','app/original-units.json','app/checkpoint-format.ts','tests/fixtures/follower-source-witness.json','tests/fixtures/follower-source-artwork.json']
   const sourceBytes = Object.fromEntries([...sourceNames.map(n=>'scripts/tutorial-browser/'+n),...inputNames].map(p=>[p,Buffer.from(p)]))
   sourceBytes['tests/fixtures/follower-source-witness.json'] = Buffer.from(JSON.stringify({sources:{136:Array.from({length:8},(_,d)=>({frames:Array.from({length:12},(_,f)=>592+d*12+f),flip:d>=5}))}}))
   sourceBytes['app/original-units.json'] = Buffer.from(JSON.stringify({frames:Array.from({length:12},(_,f)=>({source:592+f,layers:[{flags:0,piece:100}]}))}))
@@ -16,6 +16,11 @@ export function spyEvidenceFixture({ secondFrame = 1, mergeSha = 'a'.repeat(40),
     bodyInCanvas:true,bodyCanvasOwned:true,cropOverlayClear:true,cropFile:`spy-source-frame-${f2}.png`})
   const samples=[{...sample(0),turn:99,object:10,substate:1,entryArmed:false},{...sample(0),turn:100,object:10,entryArmed:true,timer:0},sample(0),sample(secondFrame)]
   delete samples[0].cropFile; delete samples[1].cropFile
+  const turns = [
+    { turn: 99, substate: 1, timer: 1, object: 10, entryArmed: false, f2: 0 },
+    { turn: 100, substate: 2, timer: 0, object: 10, entryArmed: true, f2: 0 },
+    { turn: 101, substate: 2, timer: 23, object: 136, entryArmed: false, f2: 0 },
+  ].map(row => ({ ...row, spyId: 10, targetId: 20, target: 20, paused: false, speed: 1, sceneStoreMatch: true }))
   const crops=[0,secondFrame].map(f2=>{const s=samples.find(s=>s.object===136&&s.f2===f2);const filename=`spy-source-frame-${f2}.png`;files.set(filename,cropPng);return{filename,spyId:10,turn:s.turn,stamp:s.stamp,frame:f2,f2,clip:{x:20,y:30,width:4,height:4},opaqueColors:2,sha256:hash(cropPng)}})
   const start=1000000,end=start+10000,hostDeadlineAt=start+100000
   const hold={turn:130,paused:true,animationFrame:5,animationTime:0,spy:{id:10,native:{object:136}}}
@@ -25,7 +30,7 @@ export function spyEvidenceFixture({ secondFrame = 1, mergeSha = 'a'.repeat(40),
     checkpointReadbackSha256:'b'.repeat(64),loadBoundaryMatched:true,cleanupVerified:true,
     budget:{startedAt:start,endedAt:end,deadlineAt:start+45000,hostDeadlineAt,durationMs:10000,capMs:45000},
     readiness:{startedAt:start+60,deadlineAt:start+8060,endedAt:start+90,capMs:8000,actionable:{action:'ready'},after:{sceneStoreMatch:true,canvasConnected:true,loading:false,inputMask:0,action:'ready',level:1}},
-    order:{target:20,selected:[10],lastOrderTurn:98},observation:{spyId:10,targetId:20,samples,crops,error:null,done:true},holdBefore:hold,holdAfter:structuredClone(hold),resumed:{...structuredClone(hold),turn:131,paused:false},
+    order:{target:20,selected:[10],lastOrderTurn:98},observation:{spyId:10,targetId:20,samples,turns,crops,error:null,done:true},holdBefore:hold,holdAfter:structuredClone(hold),resumed:{...structuredClone(hold),turn:131,paused:false},
     validation:{source:136,draw:22,owner:1,firstFrame:0,croppedFrames:[0,secondFrame],rawFrames:[592,592+secondFrame],limits:'Two visible sampled original frames and entry boundary, not complete-cycle cadence, natural Mission 12 acquisition or exact native raster equivalence.'}}
   files.set('spy-source-context.png',tornadoPng(1440,1000,Buffer.alloc(1440*1000*4,255)))
   return {report,hostReport:structuredClone(report),sourceBytes,mergeSha,browserVersion,files,

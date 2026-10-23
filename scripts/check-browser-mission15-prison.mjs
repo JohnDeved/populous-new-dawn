@@ -1,4 +1,4 @@
-import { showAllMissions } from './browser-game.mjs'
+import { prepareCampaignFixture, launchCampaignMission } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame, effectPixels } from './browser-game.mjs'
@@ -16,8 +16,9 @@ try {
     await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', {
       waitUntil: 'networkidle',
     })
-    await showAllMissions(page)
-    await page.getByRole('button', { name: 'Mission 15', exact: true }).click()
+    // Declared mission availability only, not naturally earned campaign history.
+    await prepareCampaignFixture(page, 15)
+    await launchCampaignMission(page, 15)
     await bindGame(page)
     await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
     return { context, page, errors }

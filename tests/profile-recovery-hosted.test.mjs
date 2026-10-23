@@ -37,10 +37,10 @@ test('recovery and M10 retain independent bounded dispatch without M2 fixtures',
   assert.match(runner, /signal: abort.signal/)
   assert.equal(browserCapMs('profile-recovery'), 180000)
   assert.equal(browserCapMs('mission10-profile'), 180000)
-  const branch = runner.slice(
-    runner.indexOf("} else if (['profile-recovery', 'mission10-profile'].includes(selectedScenario))"),
-    runner.indexOf("} else if (selectedScenario === 'compact-message-layout')")
-  )
+  const branchStart = runner.indexOf("} else if (['profile-recovery', 'mission10-profile'].includes(selectedScenario))")
+  const branchEnd = runner.indexOf("} else if (selectedScenario === 'compact-message-layout')", branchStart)
+  assert.ok(branchStart >= 0 && branchEnd > branchStart, 'Profile dispatch precedes the compact episode dispatch')
+  const branch = runner.slice(branchStart, branchEnd)
   assert.match(branch, /Object.assign\(receipt, await runProfileEpisode\(selectedScenario,/)
   assert.match(branch, /runRecovery: async \(\) => .*pathToFileURL\(recoveryScenario\)/)
   assert.match(branch, /runMission10: async \(\{ signal, deadlineAt \}\) => \{\s+receipt.mission10Profile = await .*pathToFileURL\(mission10ProfileScenario\)/)
@@ -105,7 +105,24 @@ test('recovery and M10 retain independent bounded dispatch without M2 fixtures',
   assert.match(scenario, /receipt.browserPath \?\? receipt.launch.executablePath/)
   assert.match(scenario, /await context.close\(\)/)
   assert.match(scenario, /reflect.apply|Reflect.apply/)
-  assert.match(scenario, /Startup\/restore\/load must preserve every stored record/)
+  // Bind each storage boundary to its actual assertions, not an obsolete
+  // combined status message or a blanket prohibition on selector writes.
+  const boundaries = [
+    ['restore has no writes', /assert\.deepEqual\(entry\.startup\.writes, \[\]\)/],
+    ['restore preserves complete records', /entry\.afterRestore = await page\.evaluate\(storedRecords\)\s+assert\.deepEqual\(entry\.afterRestore, entry\.beforeStartup,/],
+    ['selector observes its input profile', /entry\.profileBeforeSelector = await page\.evaluate\(storedRecoveryProfile\)/],
+    ['selector preserves all non-profile records', /assert\.deepEqual\(entry\.afterSelector\.filter\(record => record\.key !== 'profile'\),\s+entry\.beforeStartup\.filter\(record => record\.key !== 'profile'\),/],
+    ['selector checks the exact independent profile transition', /entry\.profileAfterSelector = await page\.evaluate\(storedRecoveryProfile\)\s+assertRecoverySelectorProfile\(entry\.profileBeforeSelector, entry\.profileAfterSelector, sessionCompleted\)/],
+    ['selector only permits profile puts', /const writesBeforeLoad = await page\.evaluate\(\(\) => \[\.\.\.window\.recoveryStorageWrites\]\)\s+assert\.ok\(writesBeforeLoad\.every\(write => write\.method === 'put' && write\.key === 'profile'\),/],
+    ['Load preserves complete post-selector records', /entry\.afterRestoreAndLoad = await page\.evaluate\(storedRecords\)\s+assert\.deepEqual\(entry\.afterRestoreAndLoad, entry\.afterSelector,/],
+    ['Load has no additional writes', /assert\.deepEqual\(await page\.evaluate\(\(\) => window\.recoveryStorageWrites\), writesBeforeLoad\)/],
+  ]
+  let previous = -1
+  for (const [boundary, pattern] of boundaries) {
+    const match = pattern.exec(scenario)
+    assert.ok(match && match.index > previous, `Missing or reordered storage boundary: ${boundary}`)
+    previous = match.index
+  }
 })
 
 test('hosted readiness uses exact production eligibility without a served source module', async () => {
@@ -158,6 +175,8 @@ test('profile load and new mission reuse reviewed public introduction readiness'
     /import \{ pauseStartupReady, skipPauseIntroduction, recoverVisibleIntroduction \} from '.\/original-pause-checkpoint-recovery.mjs'/
   )
   assert.equal((scenario.match(/waitForFunction\(pauseStartupReady\)/g) || []).length, 2)
-  assert.equal((scenario.match(/await skipPauseIntroduction\(page\)/g) || []).length, 2)
+  assert.equal((scenario.match(/await skipInput\(page\)/g) || []).length, 2)
+  assert.match(scenario, /traceProfileInput\(page.context\(\), report, output, \(\) => skipInput\(page\)\)/)
+  assert.match(scenario, /setupTimeout: 15000, deadlineAt, signal, trace/)
   assert.doesNotMatch(scenario, /skip.isVisible|skip.click/)
 })

@@ -266,7 +266,7 @@ test('real constructor owns first null-index query, production render and perman
   const { createOrdinaryTerrainMetrics } = await import('../app/ordinary-terrain-metrics.ts')
   const make = async Type => {
     const store = createGameStore()
-    store.startMission(2)
+    assert.equal(store.startDebugMission(2), true)
     const world = store.getWorld(),
       binding = store.bindPresentation(world)
     const scene = new Type(

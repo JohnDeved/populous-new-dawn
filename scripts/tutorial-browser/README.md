@@ -58,7 +58,7 @@ Local typechecking/full builds should not be repeated just to run this check.
 
 After the existing Tutorial groups, one Mission 1 scene checks live-world selector
 inspection. A fresh context follows New Game → recommendation No → Start Mission 1
-→ Skip introduction, then Game settings → Options → Browser compatibility and help
+→ press Space to skip the introduction, then Menu → Options → Browser compatibility and help
 → Select Level. Browser controls' Inspect campaign world selects Mission 2 without
 starting it. Both initially paused and initially running episodes exercise Back,
 Escape, Continue Game, and a second Escape from the returned pause menu.
@@ -73,7 +73,7 @@ runtime errors. Scenario failures and each cleanup failure remain in the termina
 receipt; cleanup still attempts to close the context if observer teardown fails.
 
 The final bounded Mission 1 scenery/placement episode follows the actual New Game
-recommendation, Start Mission 1, Skip introduction, Pause, Brave selection and Hut
+recommendation, Start Mission 1, press Space to skip the introduction, Pause, Brave selection and Hut
 controls. Read-only observers project authored settlement points into the viewport;
 real pointer events exercise valid, invalid and scenery-overlapping footprints.
 Repeated paused previews must leave building IDs and retained scenery poses unchanged.
@@ -112,16 +112,22 @@ Game. A read-only synchronous store subscription verifies the entire loaded worl
 against the exact-source restore/load migration result before normal RAF advances.
 This is imported test setup, not a user save or earned campaign-unlock evidence.
 
-A 45-second total scenario bound includes IDB admission and public Load, then
-ordinary Skip/Pause/F8/pointer/camera,
-resize and menu/resume inputs, including unchanged selection/order witnesses while
-paused, actual renderer/state, layout, overlay input transparency and reset checks.
-The aggregate browser bound stays 180 seconds; browser sandbox/config stay unchanged.
+A NEW ordinary-M2 policy grants one setup phase of at most 45 seconds, then one
+shared functional phase of at most 45 seconds for all pointer/camera, four viewport
+layouts, public exports, scrolling, F8 reset and live resume/menu inputs. The single
+absolute 90-second bound starts before context acquisition and includes cleanup,
+clipped by the unchanged enclosing host remainder. The transition requires exact
+public Load, completed introduction, paused scene and the same restored authored
+popup. No per-case reset or unused-setup transfer is allowed. This is explicitly
++45 seconds of functional admission, not an optimization or recovered old bound.
+See [ordinary M2 policy](../../engineering/ordinary-m2-functional-admission.md).
+The isolated M2 host remains 180 seconds and Tutorial host 240 seconds;
+browser sandbox/config, all per-action caps and state/geometry oracles stay unchanged.
 No live world, camera, clock or selection mutation is injected. Seam crossing,
 hidden-tab behavior, hardware FPS, overhead and responsiveness remain unproven;
 this functional mode does not report performance acceptance.
 
-Activation budget: the initial PR533 hosted receipt measured 85.178 seconds for
+Historical activation budget (not the current policy): the initial PR533 hosted receipt measured 85.178 seconds for
 build plus all prior browser scenarios (Vite reported 1.41 seconds). Independent
 browser-phase timestamps were not recorded, so 85.178 seconds is a conservative
 observed browser upper bound, not an exact browser duration. Adding the M2 total
@@ -524,7 +530,7 @@ episode or replace any existing job. The new episode has the same explicit
 restoration; the existing 120-second build, 180-second outer browser and 15-minute
 job caps remain unchanged. This is one additional hosted job, not free coverage.
 
-The public Game settings → Options → Browser compatibility and help → HUD size
+The public Menu → Options → Browser compatibility and help → HUD size
 control selects Automatic and 400%. Each preference covers 900×360 and 640×480
 with authored campaign and objective/status messages active. Receipts retain
 individual wrapped text-fragment bounds, scroll dimensions via fit checks,

@@ -1,4 +1,5 @@
-import { showAllMissions } from './browser-game.mjs'
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
+import { prepareCampaignFixture, launchCampaignMission } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
@@ -284,7 +285,7 @@ async function entityPoint(page, collection, id) {
 async function selectShaman(page) {
   for (let i = 0; i < 2 && (await snapshot(page)).selected.length; i++)
     await page.keyboard.press('Escape')
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
   assert.ok(
     await page.evaluate(() => {
       const world = window.testStore.getWorld()
@@ -397,14 +398,13 @@ try {
     waitUntil: 'domcontentloaded',
     timeout: 120_000,
   })
-  await showAllMissions(page)
-  await page.getByRole('button', { name: 'Mission 6', exact: true }).focus()
-  await page.keyboard.press('Enter')
+  await prepareCampaignFixture(page, 6)
+  await launchCampaignMission(page, 6)
   await bindGame(page)
   await page.waitForFunction(
     () => window.testScene.world.flyby.flags & 1 || !window.testScene.world.inputMask
   )
-  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  await skipIntroductionWithSpace(page, { timeout: 60000 })
   await page.waitForFunction(() => !window.testScene.world.inputMask)
   await page.waitForFunction(
     () => window.testSceneRef.current?.world === window.testStore.getWorld()

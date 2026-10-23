@@ -1,7 +1,7 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, tick, selectUnit, command, cast, nativePosition } from '../app/model.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { spellTargetError } from '../app/live-command.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { campaignRules } from '../app/campaign-command-runtime.ts'
@@ -85,8 +85,8 @@ test('M22 recurring marker request retains its authored header, staffing order a
 })
 
 test('ordinary returned Warrior resumes the authored patrol after real conversion and retreat', async () => {
-  const store = createGameStore()
-  store.startMission(22)
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   const w = store.getWorld(),
     s = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
   // Existing focus adapter only. Mana, spell stock and actors are not supplied.

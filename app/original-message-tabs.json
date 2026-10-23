@@ -1,0 +1,243 @@
+{
+  "descriptors": {
+    "normal": [
+      1005,
+      1009,
+      1006,
+      1011,
+      1013,
+      1012,
+      1007,
+      1010,
+      1008
+    ],
+    "hover": [
+      996,
+      1000,
+      997,
+      1002,
+      1004,
+      1003,
+      998,
+      1001,
+      999
+    ],
+    "active": [
+      1014,
+      1018,
+      1015,
+      1020,
+      1022,
+      1021,
+      1016,
+      1019,
+      1017
+    ]
+  },
+  "icons": {
+    "1": {
+      "normal": 171,
+      "active": 171
+    },
+    "3": {
+      "normal": 174,
+      "active": 174
+    }
+  },
+  "sprites": {
+    "171": {
+      "width": 25,
+      "height": 18,
+      "rgbaSha256": "776a4ff5d944e3484a3fc3f287f7c29735228d977aa6f68d7ff2cb6509eb69d1",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAASCAYAAACuLnWgAAAAfklEQVR4nGNgoCfg5uf+TwiToxbDAhB4eucaVnx65xq4ASA2SGyxMAMcI6vFahGtLGkPlv6P1ZL1i6tRMEgTiEa3BCSGbAmyeoKW0NUnMB/AMCGfwNSP+mRwpS6iLaG7T5DjBZtPsGGq+wQXxmsJtTH9LQEBkAAtMEaRTysAAFzFMRRSl+weAAAAAElFTkSuQmCC"
+    },
+    "174": {
+      "width": 15,
+      "height": 22,
+      "rgbaSha256": "7feb387cf2d7c84b303d962bf2aef583e62a26324c4786f4c195acd10554e261",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAWCAYAAAAfD8YZAAAAgElEQVR4nGNgoCZYXC78n10dgUF8kjQqd/vDMdEGoGskyQB8moP1lWmoGZefQRoJakY2AIZhGokOdZgGojWi20hSXOMKLKKiipBmvAGG7GyyogqkgGzNuJxPO83o0YRNM85owxfSBKONVM0oXsCXutAx1kwCMgA9TePCRGcSfAAAq/cuhIA+a+0AAAAASUVORK5CYII="
+    },
+    "996": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "eb3d1dda76dc027f0c39ef5485a4437cdf3afd5749d168c39587ccec976d07c7",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAG0lEQVR4nGP4fr36/+/r8XDMACLuz5aHY8ICAFESLcHDxFjcAAAAAElFTkSuQmCC"
+    },
+    "997": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "23c10175f6d66584dcdbaca4eaf75669ccaf0188de60c180f519a845296b99e5",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIUlEQVR4nGP4fT3+Pwjf3mz///5s+f8MIAKG24OliRAAALRfKPnLIzkqAAAAAElFTkSuQmCC"
+    },
+    "998": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "c24769be2d3089498eb2fb2546a75a5103b2a0b44a800200108de3eeb600c95c",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIElEQVR4nGP4fT3+//3Z8nDMgCFwe7M9qgCIaA+WhmMAwFso+RNC+AkAAAAASUVORK5CYII="
+    },
+    "999": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "2fe162eb3668c062315282fb8b808d0b537c40fcf0cbf97d25130f34fd516041",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGUlEQVR4nGO4P1v+Pwy3B0v/ZyAsACKQMQAj9yUFZFeLjgAAAABJRU5ErkJggg=="
+    },
+    "1000": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "fe540e13915b931e0d61541a32ec029e700d723fe9bc54cdf2e32c5d2cfcd368",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGElEQVR4nGP4fT3+PzJmuD9b/j8yJiwAABJuK+HUF9gRAAAAAElFTkSuQmCC"
+    },
+    "1001": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "50d111f7965c1f09b632fc947b02da5e80bf2e213077071df695eb1e2672cc19",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGElEQVR4nGO4P1v+PzJmICzQHiz9HxkDAGwPJvHn4+NeAAAAAElFTkSuQmCC"
+    },
+    "1002": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "966e17ccc20b1ac3773035535a2d9d8e069c433c6f68c11bcad8457700c52d81",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAFUlEQVR4nGP4fT3+//3Z8nDMQLoAAOQPK+F3wd+BAAAAAElFTkSuQmCC"
+    },
+    "1003": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "7022d020d338a3bc5a67dafd23267b34c00fd0cfa74aacf5356119dcbddc44bd",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAFklEQVR4nGO4P1v+Pwy3B0v/ZyBdAAA6Fybx3ZI/6AAAAABJRU5ErkJggg=="
+    },
+    "1004": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "e5a3ff129d75403c8e4bcbc0426280149169681d9cf01e5421a1aad884ed0768",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEklEQVR4nGO4P1v+PzJmIF0AAIRvKYF0GEdDAAAAAElFTkSuQmCC"
+    },
+    "1005": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "87ab111ab1baf0505fbdcf51a1a48194640d703d2ff3060e67bbb9d80f105ce6",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAALElEQVR4nGP4fr36/+/r8f+fb7YHYwYQ5/5s+f+329nBmAEkCuOABZBlQRgA93MqoZiCysIAAAAASUVORK5CYII="
+    },
+    "1006": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "287cd5fd51a639f68573cb791a4efc5dd423c20b5774978a9fab7b3e32ca2eb0",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIUlEQVR4nGN4vtn+Pwjfny3//3Y7+38GEAHD7cHSRAgAAEQ7JjUJxnLzAAAAAElFTkSuQmCC"
+    },
+    "1007": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "46867d07f959c76c12e9309884e424c256cb37506bc3a93f556ab265908bb702",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAG0lEQVR4nGO4P1v+/+12djhmICzQHiz9HxkDACeTJUGdy5JzAAAAAElFTkSuQmCC"
+    },
+    "1008": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "caf1f2b4a27f7798f426b73b8f0a73349403008b16ce5e46403c672cf563d319",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGUlEQVR4nGO43c7+H4bbg6X/MxAWABHIGADYrCNVZV0vmQAAAABJRU5ErkJggg=="
+    },
+    "1009": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "97fe3bf491241bb90dc50b5d6cc1b51a2e10c5c3bfddcf1e7486bdf24cea789a",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGElEQVR4nGN4vtn+PzJmuN3O/h8ZExYAAIZ/KEFpsu/2AAAAAElFTkSuQmCC"
+    },
+    "1010": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "d590d9c1fe505972b6f8bcaed15f8119a54434e463db8d3ff70b2285a3eb199b",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAF0lEQVR4nGO43c7+HxkzEBZoD5b+j4wBDD8ksTQLjR4AAAAASUVORK5CYII="
+    },
+    "1011": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "3e94e4dfd9cd423da70ac3ccacc48e4279407c6d9153983a114ef57d176212d6",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAFUlEQVR4nGO4P1v+/+12djhmIF0AADw/J0EAWJoZAAAAAElFTkSuQmCC"
+    },
+    "1012": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "f8d49786c0891f4b8b5cc41850171a66d2d593d60775669d711faaf2b9781ee7",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAFklEQVR4nGO43c7+H4bbg6X/M5AuAADo2CSx5VP/yQAAAABJRU5ErkJggg=="
+    },
+    "1013": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "a82e18899669d6b2bfd8fbb64742dc19f193510c5a675a92c3bd0a35e657d038",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEklEQVR4nGO43c7+HxkzkC4AAB4vJoG09yzsAAAAAElFTkSuQmCC"
+    },
+    "1014": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "14dbb4ae271f4fd089ecc6269003027aa5dbd6aa8ad33e2b015387dd049f76f7",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGElEQVR4nGNoD5b+j4wZQMT92fJwTFgAAKrUJQVwX7fqAAAAAElFTkSuQmCC"
+    },
+    "1015": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "3cc8dbd1addc8f14e57235b9e0c657e30de5c5434eb2e4053f97000be96a0523",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIUlEQVR4nGNoD5b+D8P3Z8v/ZwARMHx7sz2qwO/r8ZgCACELKPkWzfwnAAAAAElFTkSuQmCC"
+    },
+    "1016": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "ba69d950c45909776cf4f6a317ad8ea2afdf6116ede5f3f569bc3bf0fae8e79a",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAH0lEQVR4nGNoD5b+f3+2PBwzEBYAEbc32///fT0ejAEtByj5YODr8wAAAABJRU5ErkJggg=="
+    },
+    "1017": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "7e0961b42a6bf09e89f93466e2b922f6d6b8e566804eb3a4dbb13629f5fdc7bc",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAHklEQVR4nGO4P1v+Pwz/vh7/n4GwAIiA4e/Xq/8DANrjLcECYJIdAAAAAElFTkSuQmCC"
+    },
+    "1018": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "7a53f2acbae7743487d0f8a1586e2927429d757b7e4826c871111877685176de",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGElEQVR4nGNoD5b+j4wZ7s+W/4+MCQsAAOlQJvHbpmctAAAAAElFTkSuQmCC"
+    },
+    "1019": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "1ee6ab52148f39de71227224d5326b8cc3f8060176bc21a6feefa09c53da69ca",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAGElEQVR4nGO4P1v+PzJmICzw+3r8f2QMAJk/K+GbCRumAAAAAElFTkSuQmCC"
+    },
+    "1020": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "611925dfe50214cc2727b25057f8e40a48ae60717b3e5b3795a9d7b12681b65a",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAFUlEQVR4nGNoD5b+f3+2PBwzkC4AABtXJvE3edZ/AAAAAElFTkSuQmCC"
+    },
+    "1021": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "22b19aa530d4f6a94726bfc98a48145ca23f23534bf78c73ae26fb25753c6eca",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAFklEQVR4nGO4P1v+Pwz/vh7/n4F0AQDHjyvhLxcPXAAAAABJRU5ErkJggg=="
+    },
+    "1022": {
+      "width": 4,
+      "height": 4,
+      "rgbaSha256": "e5a3ff129d75403c8e4bcbc0426280149169681d9cf01e5421a1aad884ed0768",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEklEQVR4nGO4P1v+PzJmIF0AAIRvKYF0GEdDAAAAAElFTkSuQmCC"
+    }
+  },
+  "provenance": {
+    "inputs": {
+      "d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+      "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf"
+    },
+    "decoderFunctionsSha256": {
+      "png": "109f4d27182a34ec7f2c4d5b2e0686787b748a02656b6e3719a57e78889eecef",
+      "sprites": "d1c1ec8830fbf0e4339288d6514350b852e73c67c2361e580bae699766bf6892"
+    },
+    "renderer": "0049f9c0 -> 004a1dd0 -> 004a1f50",
+    "hoverOwner": "004314c0 flag4; 0049f9c0 control+0c",
+    "activeOwner": "0049f9c0 flag2 or held-pointer states2/3",
+    "pixelPolicy": "Unmodulated source palette RGB; literal pixels opaque and RLE skips transparent.",
+    "limits": [
+      "Static source reconstruction, not a native GPU capture.",
+      "Keyboard focus uses the native hover frame as browser accessibility feedback.",
+      "Only existing campaign types1/3; their normal/active icon pairs are identical."
+    ]
+  }
+}

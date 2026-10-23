@@ -18,8 +18,8 @@ test('sandbox adapter retains every existing assertion, turn bound and campaign 
     assert.equal([...adapted.matchAll(pattern)].length, [...checker.matchAll(pattern)].length)
   assert.ok(adapted.includes("{ type: 'status', status: 'won' }, 5000, 'natural Mission 2 victory'"))
   assert.ok(adapted.includes("{ type: 'status', status: 'won' }, 5000, 'natural Mission 3 victory'"))
-  assert.ok(adapted.includes("name: 'Continue to Mission 3', exact: false }).click()"))
-  assert.ok(adapted.includes("name: 'Continue to Mission 4', exact: false }).waitFor()"))
+  assert.ok(adapted.includes('await continueThroughNativeSelector(page, 3)'))
+  assert.ok(adapted.includes("name: 'Start Mission 4', exact: true }).waitFor()"))
   assert.ok(adapted.includes('getCompletedMissions().includes(2)'))
   assert.ok(adapted.includes('getCompletedMissions().includes(3)'))
   assert.ok(!adapted.includes('chromium.launch'))
@@ -38,9 +38,11 @@ test('late final screenshot completion cannot mark an aborted campaign scenario 
   mkdirSync(join(root, 'scripts')); mkdirSync(output)
   // Minimal checker scaffold exercises the production adapter/scenario only.
   // No real game, browser, victory, or image is produced by this fixture.
-  const fixture = `import assert from 'node:assert/strict'
+  const fixture = `import { clearPortraitSelection } from './browser-portrait-input.mjs'
+import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openCampaignFixtureGame as openGame } from './browser-game.mjs'
+import { continueThroughNativeSelector, enterResultSelector } from './browser-result-navigation.mjs'
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 const captureCameraEvidence = async () => {}
 async function missionTwo() {}
@@ -49,16 +51,32 @@ const result = { ready: true, turn: 1, status: 'playing' }, required = false, la
   if (required) assert.ok(result.ready, \`\${label} timed out: \${JSON.stringify(result)}\`)
 try {
     await missionTwo(page)
-    await page.getByRole('button', { name: 'Continue to Mission 3', exact: false }).click()
+    await continueThroughNativeSelector(page, 3)
     await missionThree(page)
-    await page.getByRole('button', { name: 'Continue to Mission 4', exact: false }).waitFor()
+    await enterResultSelector(page)
+    await page.getByRole('button', { name: 'Start Mission 4', exact: true }).waitFor()
     console.log('PASS: rendered player actions win Mission 2, continue, and naturally win Mission 3')
 } finally { await browser.close() }
 `
   writeFileSync(join(root, 'scripts/check-browser-campaign-natural-victory.mjs'), fixture)
+  for (const file of ['browser-portrait-input.mjs', 'browser-world-input.mjs', 'browser-space-ownership.mjs', 'campaign-portrait-readiness.mjs'])
+    writeFileSync(join(root, 'scripts', file), readFileSync(new URL('../scripts/' + file, import.meta.url)))
+  const actions = [], fixtures = []
+  // Synthetic already-open native selector, not browser or trusted-input proof.
+  // Keep the actual shared setup/navigation helpers, supplying only page IO.
+  const locator = name => ({
+    getByRole: (_role, { name }) => locator(name),
+    or() { return this }, filter() { return this }, first() { return this },
+    async isVisible() { return name !== 'Opening logo' && name !== 'Main menu' },
+    async click() { actions.push(String(name)) }, async waitFor() {},
+  })
   const page = {
-    async evaluate() { return { level: 3, status: 'won', turn: 1, contextLost: false, population: {} } },
-    getByRole() { return { async click() {}, async waitFor() {} } },
+    async evaluate(_read, fixture) {
+      if (fixture !== undefined) { fixtures.push(structuredClone(fixture)); return }
+      return { level: 3, status: 'won', turn: 1, contextLost: false, population: {} }
+    },
+    getByRole: (_role, { name }) => locator(name),
+    async reload() {}, async waitForSelector() {}, async waitForFunction() {},
     async screenshot({ path }) {
       if (path.endsWith('mission-3-result.png')) abort.abort(Error('Aborted during final screenshot'))
     },
@@ -68,6 +86,10 @@ try {
       receipt: { source: { commit: 'fixture-only' }, errors: [] }, signal: abort.signal }),
     /Aborted during final screenshot/)
     const report = JSON.parse(readFileSync(join(output, 'campaign.json'), 'utf8'))
+    assert.equal(fixtures.length, 1, 'the fresh scenario declares one native availability fixture')
+    assert.deepEqual(fixtures[0].completed, [], 'Mission 2 fixture must not manufacture earned Mission 1')
+    assert.equal(fixtures[0].nativeCampaign.flags[1], 4)
+    assert.deepEqual(actions, ['/^Panel Mission 2(, completed)?$/', '/^(Start|Replay) Mission 2$/', '/^(Start|Replay) Mission 3$/'])
     assert.equal(report.status, 'failed')
     assert.match(report.failure, /Aborted during final screenshot/)
     assert.equal(globalThis.campaignFixedTurnQA, undefined)
@@ -222,4 +244,28 @@ test('additive native Ctrl-five requires the ordinary cancel/deselect before res
   assert.ok(reserved.length >= 1)
   const train = checker.slice(checker.indexOf('async function train('), checker.indexOf('async function worship('))
   assert.ok(train.indexOf("page.keyboard.press('Escape')") < train.indexOf("preserveBraves ? 'Control'"))
+})
+
+
+test('relocated campaign checker forwards the exact bounded portrait helper through its existing QA binding', async () => {
+  const { runInNewContext } = await import('node:vm')
+  const adapted = campaignAdapter(checker)
+  const declaration = 'const { clearPortraitSelection } = globalThis.campaignFixedTurnQA'
+  assert.equal(adapted.split(declaration).length, 2)
+  assert.doesNotMatch(adapted, /from '\.\/browser-portrait-input\.mjs'/)
+  const calls = [], helper = async (...args) => { calls.push(args); return 'observed cancellation' }
+  const forwarded = runInNewContext(declaration + '\nclearPortraitSelection', { globalThis: { campaignFixedTurnQA: { clearPortraitSelection: helper } } })
+  assert.equal(forwarded, helper, 'No copied Escape shim or fallback implementation')
+  const page = {}, options = { timeout: 1234 }
+  assert.equal(await forwarded(page, options), 'observed cancellation')
+  assert.deepEqual(calls, [[page, options]])
+  const boundary = "import { clearPortraitSelection } from './browser-portrait-input.mjs'"
+  assert.throws(() => campaignAdapter(checker.replace(boundary, '')), /scaffold changed/)
+  assert.throws(() => campaignAdapter(checker + '\n' + boundary), /scaffold changed/)
+  const source = readFileSync(new URL('../scripts/local-render/campaign-fixed-turn.mjs', import.meta.url), 'utf8')
+  assert.match(source, /adaptedCheckerSha256: createHash\('sha256'\)\.update\(adapted\)/)
+  assert.match(source, /writeFileSync\(adapter, adapted\)/)
+  for (const path of ['scripts/browser-portrait-input.mjs', 'scripts/browser-world-input.mjs', 'scripts/browser-space-ownership.mjs', 'scripts/campaign-portrait-readiness.mjs'])
+    assert.ok(source.includes(`'${path}'`), `Fingerprint ${path}`)
+  assert.match(source, /campaignFixedTurnQA = \{[^\n]*clearPortraitSelection \}/)
 })

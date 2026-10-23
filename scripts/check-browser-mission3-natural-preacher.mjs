@@ -10,7 +10,8 @@ import { parseOptions, runLocalBrowser } from './local-render/harness.mjs'
 
 const options = parseOptions(process.argv.slice(2))
 const receipt = await runLocalBrowser(options, async ({ page, openMission, output, receipt }) => {
-  await openMission(3)
+  // Declared mission availability only, not naturally earned campaign history.
+  await openMission(3, { campaignFixture: true })
   const acquired = await page.evaluate(async () => {
     const scene = window.testScene
     cancelAnimationFrame(scene.frame)
@@ -30,10 +31,12 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
   assert.equal(acquired.contextLost, false)
   assert.equal(acquired.speed, 1)
   await page.screenshot({ path: resolve(output, 'natural-blue-sermon.png') })
-  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   // Read back the persisted state: an in-session save alone does not prove a
-  // fresh-page checkpoint. No storage writes outside the shipped save control.
+  // fresh-page checkpoint. Apart from the declared initial availability profile,
+  // checkpoint storage writes come only from the shipped save control.
   const persisted = await waitForCheckpointReadback(() => page.evaluate(async ids => {
     const db = await new Promise((resolve, reject) => {
       const request = indexedDB.open('populous-new-dawn', 1)
@@ -51,6 +54,7 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
     } finally { db.close() }
   }, acquired.ids))
   assert.equal(persisted, true, 'Saved checkpoint never persisted its state23/owner')
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
   await page.getByRole('button', { name: 'Continue Game', exact: false }).click()
   await page.waitForFunction(() => !window.testStore.getWorld().paused)
   const cancelled = await page.evaluate(async () => {
@@ -155,7 +159,7 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
   await page.screenshot({ path: resolve(output, 'converted-blue-brave.png') })
   assert.deepEqual(receipt.errors, [])
   const result = { acquired, cancelled, resumed, converted,
-    limits: 'Fresh public Mission 3. Vault/Temple/training/approach use ordinary model commands with diagnostic fixed turns. Save checkpoint and fresh-page Load Game use shipped controls; only the resumed conversion uses actual normal-speed requestAnimationFrame elapsed time. Software/headless WebGL, no native full-game parity or hardware/FPS claim. No runtime or parity changes.' }
+    limits: 'Declared Mission 3 availability, not naturally earned campaign history. Public native launch. Vault/Temple/training/approach use ordinary model commands with diagnostic fixed turns. Save checkpoint and fresh-page Load Game use shipped controls; only the resumed conversion uses actual normal-speed requestAnimationFrame elapsed time. Software/headless WebGL, no native full-game parity or hardware/FPS claim. No runtime or parity changes.' }
   writeFileSync(resolve(output, 'natural-preacher.json'), JSON.stringify(result, null, 2) + '\n')
   return result
 })

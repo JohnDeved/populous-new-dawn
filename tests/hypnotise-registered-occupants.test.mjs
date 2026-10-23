@@ -1,7 +1,7 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { loadHistoricalMission22Occupant } from './helpers/historical-mission22-occupant.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
 import { tick, selectUnit, command, cast, nativePosition } from '../app/model.ts'
 import { spellTargetError } from '../app/live-command.ts'
 import { hypnotiseTargets, applyHypnotise } from '../app/spell-effects-runtime.ts'
@@ -10,8 +10,8 @@ import { objectsInCell, removeObjectFromCell } from '../app/object-cells.ts'
 // Ordinary authored staffing and earned spell; only the existing focus-mask
 // adapter is supplied. No actors, positions, funds, spell stock or clocks added.
 async function prepare() {
-  const store = createGameStore()
-  store.startMission(22)
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   const w = store.getWorld(),
     shaman = w.units.find(u => u.id === 89)
   const until = (done, limit) => {

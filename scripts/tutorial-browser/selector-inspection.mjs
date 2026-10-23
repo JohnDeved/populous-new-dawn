@@ -1,7 +1,10 @@
+import { setWorldPaused } from '../browser-world-input.mjs'
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
 import { bindGame } from '../browser-game.mjs'
+import { readNativeHelpInk, applyNativeHelpInk } from './native-help-ink.mjs'
 
 export async function finishInspection({ context, observation, output, episodes, helpEntry, errors, failure, diagnostics }) {
   const cleanup = { observationDisconnected: false, contextClosed: false, errors: [] }
@@ -81,6 +84,53 @@ async function observeGame(page) {
   })
 }
 
+// The shipped help is a fixed native menu, not the removed long web document.
+// Inspect actual controls/glyphs inside the scaled viewport without creating
+// artificial overflow or changing its scroll position.
+export async function nativeHelpLayout(element, fontPath) {
+  const bounds = element.getBoundingClientRect()
+  const fontBytes = await (await fetch(fontPath)).arrayBuffer()
+  const sha256 = [...new Uint8Array(await crypto.subtle.digest('SHA-256', fontBytes))]
+    .map(value => value.toString(16).padStart(2, '0')).join('')
+  const rectangle = rect => ({ left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height })
+  const fits = rect => rect.width > 0 && rect.height > 0 && rect.left >= bounds.left &&
+    rect.right <= bounds.right && rect.top >= bounds.top && rect.bottom <= bounds.bottom &&
+    rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight
+  const heading = element.querySelector('[data-browser-help-heading]')
+  const fields = [heading, ...element.querySelectorAll('button, [role="status"]')].map(node => {
+    const rect = node.getBoundingClientRect(), owner = document.elementFromPoint((rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2)
+    return { label: node.getAttribute('aria-label') ?? node.textContent.trim(),
+      fits: fits(rect), glyphCellsFit: [...node.querySelectorAll('i')].every(glyph => fits(glyph.getBoundingClientRect())),
+      glyphs: [...node.querySelectorAll('i')].map(glyph => {
+        const style = getComputedStyle(glyph)
+        return { image: style.backgroundImage, size: style.backgroundSize, transform: style.transform,
+          positionX: style.backgroundPositionX, positionY: style.backgroundPositionY,
+          width: parseFloat(style.width), height: parseFloat(style.height), rect: rectangle(glyph.getBoundingClientRect()) }
+      }),
+      actionable: node.tagName !== 'BUTTON' || (!node.disabled && node.contains(owner)) }
+  })
+  return { scrollTop: element.scrollTop, scrollHeight: element.scrollHeight, clientHeight: element.clientHeight,
+    bounds: rectangle(bounds), viewport: { width: innerWidth, height: innerHeight },
+    font: { path: fontPath, origin: location.origin, sha256 },
+    focused: document.activeElement === heading, fields,
+    documentOverflow: document.documentElement.scrollWidth > innerWidth || document.documentElement.scrollHeight > innerHeight }
+}
+
+export function assertNativeHelpLayout(layout) {
+  assert.equal(layout.focused, true)
+  assert.ok(layout.scrollTop <= 1, 'Opening and reopening help must start at the top')
+  assert.equal(layout.documentOverflow, false, 'Native help must not overflow the document')
+  for (const label of ['Browser compatibility and help', 'Select Level', 'Back to Options'])
+    assert.equal(layout.fields.filter(field => field.label === label).length, 1, `Required native help field: ${label}`)
+  for (const pattern of [/game speed$/, /performance/i, /^HUD size/, /Sound on|Enable sound/])
+    assert.equal(layout.fields.filter(field => pattern.test(field.label)).length, 1, `Required native help control: ${pattern}`)
+  for (const field of layout.fields) {
+    assert.equal(field.fits, true, `Native help field must fit: ${field.label}`)
+    assert.equal(field.glyphsFit, true, `Complete native help text must fit: ${field.label}`)
+    assert.equal(field.actionable, true, `Native help control must be reachable: ${field.label}`)
+  }
+}
+
 export default async function ({ browser, url, output }) {
   const context = await browser.newContext({ viewport: { width: 960, height: 720 } })
   const episodes = [], helpEntry = [], errors = []
@@ -100,7 +150,7 @@ export default async function ({ browser, url, output }) {
     await button('No').click()
     await selector.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
     await bindGame(page)
-    await page.getByRole('button', { name: /^Skip introduction/ }).click()
+    await skipIntroductionWithSpace(page, { timeout: 25000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     observation = await observeGame(page)
     const read = () => page.evaluate(observer => observer.read(), observation)
@@ -116,37 +166,29 @@ export default async function ({ browser, url, output }) {
       return state
     }
     let checkedHelpEntry = false
+    const helpFont = readNativeHelpInk()
     const checkHelpEntry = async () => {
       const help = menu.getByRole('region', { name: 'Browser compatibility and help', exact: true })
       for (const exit of ['Back', 'Escape', 'continue']) {
         await page.waitForFunction(() => document.activeElement?.hasAttribute('data-browser-help-heading'))
-        const layout = await help.evaluate(element => {
-          const heading = element.querySelector('[data-browser-help-heading]')
-          const bounds = element.getBoundingClientRect(), title = heading.getBoundingClientRect()
-          return { scrollTop: element.scrollTop, scrollHeight: element.scrollHeight,
-            clientHeight: element.clientHeight, headingTop: title.top, headingBottom: title.bottom,
-            panelTop: bounds.top, panelBottom: bounds.bottom, focused: document.activeElement === heading }
-        })
+        const layout = applyNativeHelpInk(await help.evaluate(nativeHelpLayout, helpFont.url), helpFont)
         helpEntry.push({ exit, ...layout })
-        assert.equal(layout.focused, true)
-        assert.ok(layout.scrollHeight > layout.clientHeight, 'Use the real overflowing in-game help')
-        assert.ok(layout.scrollTop <= 1, 'Opening and reopening help must start at the top')
-        assert.ok(layout.headingTop >= layout.panelTop && layout.headingBottom <= layout.panelBottom,
-          'The complete heading must be visible before any scrolling action')
-        await frozen()
+        assertNativeHelpLayout(layout)
+        const held = await frozen()
         if (exit === 'continue') break
         if (exit === 'Back') {
           await page.screenshot({ path: resolve(output, 'options-help-entry.png') })
           await help.getByRole('button', { name: 'Back to Options', exact: true }).click()
         } else {
           await help.getByRole('button', { name: 'Back to Options', exact: true }).focus()
-          assert.ok(await help.evaluate(element => element.scrollTop > 0), 'Exercise Escape after scrolling down')
+          assert.equal(await help.getByRole('button', { name: 'Back to Options', exact: true })
+            .evaluate(element => document.activeElement === element), true, 'Escape starts from the reachable native Back control')
           await page.keyboard.press('Escape')
         }
         await help.waitFor({ state: 'hidden' })
         await page.waitForFunction(() => document.activeElement?.hasAttribute('data-compatibility'))
         assert.equal(await menu.locator('[data-original-options]').getAttribute('data-category'), 'Game')
-        await frozen()
+        assert.deepEqual(await frozen(), held, 'Help exit preserves the exact paused world/session snapshot')
         await button('Browser compatibility and help').click()
       }
       checkedHelpEntry = true
@@ -167,7 +209,7 @@ export default async function ({ browser, url, output }) {
       await frozen()
     }
     const openMenu = async paused => {
-      await button('Game settings').click()
+      await button('Menu').click()
       await menu.waitFor()
       const captured = await page.evaluate(observer => observer.captureSession(), observation)
       assert.equal(captured.capturedPaused, paused)
@@ -192,7 +234,8 @@ export default async function ({ browser, url, output }) {
       }
     }
     for (const paused of [true, false]) {
-      await button(paused ? 'Pause game' : 'Resume game').click()
+      await setWorldPaused(page, paused, { timeout: 2500 })
+      assert.equal((await read()).paused, paused, 'Public Space established the requested pause state')
       const captured = await openMenu(paused)
       await inspect()
       await page.screenshot({ path: resolve(output, `selector-inspection-${paused ? 'paused' : 'running'}.png`) })

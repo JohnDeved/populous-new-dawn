@@ -1,0 +1,455 @@
+{
+  "source": "Static English glyph metrics and x86 integer layout, not native execution",
+  "layouts": [
+    {
+      "screen": [
+        640,
+        480
+      ],
+      "expected": {
+        "font": 3,
+        "panelWidth": 384,
+        "panelHeight": 368,
+        "contentWidth": 382,
+        "contentHeight": 358,
+        "contentInset": [
+          1,
+          5
+        ],
+        "columns": 24,
+        "rows": 23,
+        "headingY": 13,
+        "playerY": 31,
+        "statusY": 49,
+        "timeY": 76,
+        "labelX": 17,
+        "valueColonX": 277,
+        "lineHeight": 18,
+        "groupGap": 7,
+        "promptY": 372,
+        "maxLabelWidth": 256,
+        "colonWidth": 4,
+        "timeReserveWidth": 90,
+        "counterSeparatorWidth": 12,
+        "counterValueStartX": 289,
+        "counterReserveWidth": 86,
+        "rowYs": [
+          101,
+          119,
+          144,
+          162,
+          180,
+          198,
+          223,
+          241,
+          259,
+          284
+        ]
+      }
+    },
+    {
+      "screen": [
+        512,
+        384
+      ],
+      "expected": {
+        "font": 4,
+        "panelWidth": 240,
+        "panelHeight": 224,
+        "contentWidth": 236,
+        "contentHeight": 215,
+        "contentInset": [
+          2,
+          4
+        ],
+        "columns": 15,
+        "rows": 14,
+        "headingY": 12,
+        "playerY": 21,
+        "statusY": 30,
+        "timeY": 43,
+        "labelX": 18,
+        "valueColonX": 168,
+        "lineHeight": 9,
+        "groupGap": 5,
+        "promptY": 226,
+        "maxLabelWidth": 147,
+        "colonWidth": 3,
+        "timeReserveWidth": 54,
+        "counterSeparatorWidth": 9,
+        "counterValueStartX": 177,
+        "counterReserveWidth": 51,
+        "rowYs": [
+          57,
+          66,
+          80,
+          89,
+          98,
+          107,
+          121,
+          130,
+          139,
+          153
+        ]
+      }
+    },
+    {
+      "screen": [
+        320,
+        200
+      ],
+      "expected": {
+        "font": 4,
+        "panelWidth": 240,
+        "panelHeight": 208,
+        "contentWidth": 236,
+        "contentHeight": 203,
+        "contentInset": [
+          2,
+          2
+        ],
+        "columns": 15,
+        "rows": 13,
+        "headingY": 6,
+        "playerY": 15,
+        "statusY": 24,
+        "timeY": 37,
+        "labelX": 18,
+        "valueColonX": 168,
+        "lineHeight": 9,
+        "groupGap": 3,
+        "promptY": 210,
+        "maxLabelWidth": 147,
+        "colonWidth": 3,
+        "timeReserveWidth": 54,
+        "counterSeparatorWidth": 9,
+        "counterValueStartX": 177,
+        "counterReserveWidth": 51,
+        "rowYs": [
+          49,
+          58,
+          70,
+          79,
+          88,
+          97,
+          109,
+          118,
+          127,
+          139
+        ]
+      }
+    },
+    {
+      "screen": [
+        1600,
+        200
+      ],
+      "expected": {
+        "font": 3,
+        "panelWidth": 384,
+        "panelHeight": 336,
+        "contentWidth": 382,
+        "contentHeight": 323,
+        "contentInset": [
+          1,
+          6
+        ],
+        "columns": 24,
+        "rows": 21,
+        "headingY": 10,
+        "playerY": 27,
+        "statusY": 44,
+        "timeY": 69,
+        "labelX": 17,
+        "valueColonX": 277,
+        "lineHeight": 17,
+        "groupGap": 3,
+        "promptY": 340,
+        "maxLabelWidth": 256,
+        "colonWidth": 4,
+        "timeReserveWidth": 90,
+        "counterSeparatorWidth": 12,
+        "counterValueStartX": 289,
+        "counterReserveWidth": 86,
+        "rowYs": [
+          89,
+          106,
+          126,
+          143,
+          160,
+          177,
+          197,
+          214,
+          231,
+          251
+        ]
+      }
+    },
+    {
+      "screen": [
+        640,
+        479
+      ],
+      "expected": {
+        "font": 4,
+        "panelWidth": 240,
+        "panelHeight": 224,
+        "contentWidth": 236,
+        "contentHeight": 215,
+        "contentInset": [
+          2,
+          4
+        ],
+        "columns": 15,
+        "rows": 14,
+        "headingY": 12,
+        "playerY": 21,
+        "statusY": 30,
+        "timeY": 43,
+        "labelX": 18,
+        "valueColonX": 168,
+        "lineHeight": 9,
+        "groupGap": 5,
+        "promptY": 226,
+        "maxLabelWidth": 147,
+        "colonWidth": 3,
+        "timeReserveWidth": 54,
+        "counterSeparatorWidth": 9,
+        "counterValueStartX": 177,
+        "counterReserveWidth": 51,
+        "rowYs": [
+          57,
+          66,
+          80,
+          89,
+          98,
+          107,
+          121,
+          130,
+          139,
+          153
+        ]
+      }
+    },
+    {
+      "screen": [
+        640,
+        220
+      ],
+      "expected": {
+        "font": 4,
+        "panelWidth": 240,
+        "panelHeight": 208,
+        "contentWidth": 236,
+        "contentHeight": 203,
+        "contentInset": [
+          2,
+          2
+        ],
+        "columns": 15,
+        "rows": 13,
+        "headingY": 6,
+        "playerY": 15,
+        "statusY": 24,
+        "timeY": 37,
+        "labelX": 18,
+        "valueColonX": 168,
+        "lineHeight": 9,
+        "groupGap": 3,
+        "promptY": 210,
+        "maxLabelWidth": 147,
+        "colonWidth": 3,
+        "timeReserveWidth": 54,
+        "counterSeparatorWidth": 9,
+        "counterValueStartX": 177,
+        "counterReserveWidth": 51,
+        "rowYs": [
+          49,
+          58,
+          70,
+          79,
+          88,
+          97,
+          109,
+          118,
+          127,
+          139
+        ]
+      }
+    },
+    {
+      "screen": [
+        640,
+        221
+      ],
+      "expected": {
+        "font": 4,
+        "panelWidth": 240,
+        "panelHeight": 224,
+        "contentWidth": 236,
+        "contentHeight": 215,
+        "contentInset": [
+          2,
+          4
+        ],
+        "columns": 15,
+        "rows": 14,
+        "headingY": 12,
+        "playerY": 21,
+        "statusY": 30,
+        "timeY": 43,
+        "labelX": 18,
+        "valueColonX": 168,
+        "lineHeight": 9,
+        "groupGap": 5,
+        "promptY": 226,
+        "maxLabelWidth": 147,
+        "colonWidth": 3,
+        "timeReserveWidth": 54,
+        "counterSeparatorWidth": 9,
+        "counterValueStartX": 177,
+        "counterReserveWidth": 51,
+        "rowYs": [
+          57,
+          66,
+          80,
+          89,
+          98,
+          107,
+          121,
+          130,
+          139,
+          153
+        ]
+      }
+    }
+  ],
+  "phases": [
+    {
+      "inputCycle": 0,
+      "expected": {
+        "overlay": false,
+        "statisticsStatusValue": true,
+        "statisticsPrompt": false
+      }
+    },
+    {
+      "inputCycle": 3,
+      "expected": {
+        "overlay": false,
+        "statisticsStatusValue": true,
+        "statisticsPrompt": false
+      }
+    },
+    {
+      "inputCycle": 4,
+      "expected": {
+        "overlay": false,
+        "statisticsStatusValue": true,
+        "statisticsPrompt": true
+      }
+    },
+    {
+      "inputCycle": 5,
+      "expected": {
+        "overlay": false,
+        "statisticsStatusValue": true,
+        "statisticsPrompt": true
+      }
+    },
+    {
+      "inputCycle": 6,
+      "expected": {
+        "overlay": true,
+        "statisticsStatusValue": false,
+        "statisticsPrompt": true
+      }
+    },
+    {
+      "inputCycle": 7,
+      "expected": {
+        "overlay": true,
+        "statisticsStatusValue": false,
+        "statisticsPrompt": true
+      }
+    },
+    {
+      "inputCycle": 8,
+      "expected": {
+        "overlay": true,
+        "statisticsStatusValue": false,
+        "statisticsPrompt": false
+      }
+    },
+    {
+      "inputCycle": 11,
+      "expected": {
+        "overlay": true,
+        "statisticsStatusValue": false,
+        "statisticsPrompt": false
+      }
+    },
+    {
+      "inputCycle": 12,
+      "expected": {
+        "overlay": false,
+        "statisticsStatusValue": true,
+        "statisticsPrompt": true
+      }
+    },
+    {
+      "inputCycle": 23,
+      "expected": {
+        "overlay": true,
+        "statisticsStatusValue": false,
+        "statisticsPrompt": true
+      }
+    },
+    {
+      "inputCycle": 24,
+      "expected": {
+        "overlay": false,
+        "statisticsStatusValue": true,
+        "statisticsPrompt": false
+      }
+    },
+    {
+      "inputCycle": 4294967295,
+      "expected": {
+        "overlay": false,
+        "statisticsStatusValue": true,
+        "statisticsPrompt": true
+      }
+    }
+  ],
+  "widths": [
+    {
+      "font": 3,
+      "strings": {
+        "Level Complete": 134,
+        "Level Failed": 100,
+        "Press Space Bar": 138,
+        "Level Status: Completed": 216,
+        "Level Status: Failed": 171,
+        "Level Status:": 114,
+        ": ": 12,
+        ": 22:22:22": 86,
+        " 22:22:22 ": 90
+      }
+    },
+    {
+      "font": 4,
+      "strings": {
+        "Level Complete": 81,
+        "Level Failed": 62,
+        "Press Space Bar": 83,
+        "Level Status: Completed": 130,
+        "Level Status: Failed": 105,
+        "Level Status:": 70,
+        ": ": 9,
+        ": 22:22:22": 51,
+        " 22:22:22 ": 54
+      }
+    }
+  ]
+}

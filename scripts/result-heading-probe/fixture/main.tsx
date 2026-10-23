@@ -19,11 +19,10 @@ function Fixture() {
     return () => removeEventListener('resize', resize)
   }, [])
   return (
-    <main ref={shell} className="game-shell">
+    <main ref={shell} className="game-shell" data-result-statistics="true">
       <div className="world-viewport" />
       <OriginalResultScreen status={status} level={level} player={1} time={125}
-        primaryLabel={status === 'won' ? `Continue to Mission ${level + 1}` : 'Restart Level'}
-        onPrimary={() => {}} onSelectLevel={() => {}} />
+        stage="statistics" inputCycles={0} />
     </main>
   )
 }

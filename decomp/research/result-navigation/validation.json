@@ -1,0 +1,65 @@
+{
+  "base": "eb8e02208097ae05d6ca33e008a7f3c97a2c225c",
+  "scope": "Inert static research, listings, extractor and focused source test only; no app or asset change",
+  "sourceFingerprint": "491a1d99a20ffbb861048a6b9cc80a3a6cb1982b7322e32633a8a50ebfafe681",
+  "fingerprintRule": "SHA256 of sorted compact JSON mapping changed source paths to SHA256; excludes this receipt",
+  "files": {
+    "decomp/README.md": "19f6ca4e9421a2db71134be6e7df229a8ad67bcc9e7ca6f687e69a059592e390",
+    "decomp/research/original-result-ui.md": "316d46dc034e1a45800418000754c20b05b56744518ad42a00211aae9787d1b8",
+    "decomp/research/result-navigation/README.md": "7b63d2d3d2ba90ff957594ebc154c69f83659cf702225fb68bb7ae9cff499000",
+    "decomp/research/result-navigation/native.asm": "e2546527909e779751946f2cf172b0fc51098458f5ebbbc5d225864342e82085",
+    "decomp/research/result-navigation/native.json": "a6bb1b1b127c4bd00e6ebeb4a029ac385edf94f8c95a0590be910c7f0022027e",
+    "decomp/research/result-navigation/provenance.json": "37f2b1dba8983277cfca7301b28f8dac7c4c8bdb287a90d2d883884791beffb6",
+    "engineering/generated-files.json": "1e13662d7418d0016127768595d9c6e4d7039e4bf320213ff6089850a43c9ef7",
+    "engineering/project-map.json": "bfa9238c50a298de46fd85fc8c86e0ae3402af9aa83e1214b2b138a7667ac79d",
+    "scripts/research-result-navigation.py": "25b0cf14af9e649898b60c633abd8a88350d90a5c0b338096c4da6c4894c04d8",
+    "tests/native-result-navigation-source.test.mjs": "2c283b400b9346e001f71d8c379423810e384e490b33fb0b29418c4c2e87cd08"
+  },
+  "checks": [
+    {
+      "command": "python3 -B scripts/research-result-navigation.py VERIFIED_EXE > SCRATCH/native.json && cmp SCRATCH/native.json decomp/research/result-navigation/native.json",
+      "status": "passed",
+      "exitCode": 0,
+      "claim": "Same retained spans regenerated from exact original executable hash in provenance.json; not native execution"
+    },
+    {
+      "command": "node --test tests/native-result-navigation-source.test.mjs",
+      "status": "passed",
+      "exitCode": 0,
+      "tests": 6,
+      "claim": "Static identities, table/call/key/queue/sentinel consistency, corrupt-input rejection"
+    },
+    {
+      "command": "JSON.parse engineering/generated-files.json and engineering/project-map.json",
+      "status": "passed",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "status": "passed",
+      "exitCode": 0
+    },
+    {
+      "command": "planChanges(THIS_SPARSE_WORKTREE, {base: eb8e02208097ae05d6ca33e008a7f3c97a2c225c}) using existing scripts/orchestration/cli.mjs",
+      "status": "blocked",
+      "exitCode": 1,
+      "reason": "Sparse worktree omits engineering/checks.json and other full-tree inputs. No empty plan was accepted. All changed paths are explicitly submitted for independent evidence review."
+    },
+    {
+      "command": "npm run check; npm run build; rendered browser gates",
+      "status": "not-run",
+      "reason": "Parent serial full validation remains frozen. This branch is inactive research with no app/assets/dependency changes. Full-check/build/browser results are not claimed."
+    },
+    {
+      "command": "Native execution/differential comparison",
+      "status": "not-run",
+      "reason": "Static data-only research scope; original executable/installer never run"
+    },
+    {
+      "command": "Visual screenshots and performance measurements",
+      "status": "not-applicable",
+      "reason": "No visible consumer or runtime change"
+    }
+  ],
+  "review": "Pending independent review; no activation, push or PR mutation performed"
+}

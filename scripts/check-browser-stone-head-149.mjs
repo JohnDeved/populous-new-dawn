@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { chromium } from '@playwright/test'
-import { bindGame, openGame } from './browser-game.mjs'
+import { bindGame, openCampaignFixtureGame } from './browser-game.mjs'
 
 assert.ok(process.env.PND_QUEUE_JOB_ID && process.env.PND_QUEUE_OUTPUT, 'Use the supervised queue')
 assert.equal(process.argv.length, 2, 'Canonical acceptance has no static-only or bypass mode')
@@ -264,8 +264,11 @@ async function checkpoint(name, heading, label) {
   const before = await continuity(),
     beforeState = await state()
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
   await hold()
@@ -667,7 +670,8 @@ async function inspect(name, heading, label) {
 
 try {
   browser = await chromium.launch({ headless: true })
-  const opened = await openGame(browser, 10)
+  // Declared M10 availability, not naturally earned earlier campaign progress.
+  const opened = await openCampaignFixtureGame(browser, 10)
   page = opened.page
   report.errors = opened.errors
   page.setDefaultTimeout(20000)

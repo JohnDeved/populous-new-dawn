@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -159,10 +160,10 @@ export default async function ({ page, context, output, url }) {
     }
     await openCampaignFromMainMenu(page);await button('Start Mission 1').click()
     await bindGame(page)
-    await page.getByRole('button',{name:/Skip introduction/}).click()
+    await skipIntroductionWithSpace(page, { timeout: 45000 })
     await page.waitForFunction(()=>!window.testStore.getWorld().inputMask&&window.testStore.getWorld().turn>0)
     assert.equal(await decodeCount(),paths.length)
-    await button('Game settings').click();await twoFrames()
+    await button('Menu').click();await twoFrames()
     assertMenu(await phase('03-cold-pause'));await assertFrozen('cold-pause')
     await button('Options').click();await twoFrames()
     assertMenu(await phase('04-cold-options'))
@@ -187,7 +188,7 @@ export default async function ({ page, context, output, url }) {
       paused:window.testStore.getWorld().paused,modalSuspended:window.testSceneRef.current.modalSuspended}))
     assert.equal(report.resumed.paused,false);assert.equal(report.resumed.modalSuspended,false)
     assert.ok(report.resumed.time-beforeContinue.time<=report.resumed.sinceResume*report.resumed.speed+1/12,'resume must not catch up held modal time')
-    await button('Game settings').click();await twoFrames()
+    await button('Menu').click();await twoFrames()
     assertMenu(await phase('09-warm-pause'));await assertFrozen('warm-pause')
     assert.equal(await decodeCount(),paths.length,'cold and warm mounts do not repeat asset decode')
     assert.equal(report.requests.filter(r=>r.event==='request').length,paths.length,'each menu asset is requested once')

@@ -2,11 +2,14 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import vm from 'node:vm'
 import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { resolve } from 'node:path'
 import { inspectDragSource, dragSourceProfiles } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
 import { installSnapshotDragObserver } from '../scripts/browser-performance/snapshot-drag-observer.mjs'
 import { RenderView } from '../app/render-view.ts'
 const root = resolve(import.meta.dirname, '..')
+const routeTooltipId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-v1'
+const resultClockId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-result-clock-v1'
 
 test('source-owner admission selects one exact bounded route; projection kernel remains changeable', () => {
   const read = path => readFileSync(resolve(root, path), 'utf8')
@@ -14,7 +17,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
-  assert.ok(profile); assert.equal(profile.slices.length, ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'].includes(profile.id) ? 17 : 16)
+  assert.ok(profile); assert.equal(profile.slices.length, profile.id === resultClockId ? 20 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', routeTooltipId].includes(profile.id) ? 17 : 16)
   for (const slice of profile.slices) {
     const changed = inspectDragSource(root, path => {
       if (path !== slice.path) return read(path)
@@ -67,7 +70,7 @@ test('route admission binds numeric lease gates, actual constructor order and he
     ['app/neutral-cursor.ts', '!scene.pointerButtons &&', 'true &&'],
     ['app/scene.ts', '    this.updatePointerFrame(now, pointerMetrics)\n    this.neutralCursor?.update()', '    this.neutralCursor?.update()\n    this.updatePointerFrame(now, pointerMetrics)'],
   ]
-  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'].includes(inspectDragSource(root).profile)) checks.push(
+  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', routeTooltipId, resultClockId].includes(inspectDragSource(root).profile)) checks.push(
     ['app/render-view.ts', 'owned && scratch && runtimeTerrainPicking(this, object)', 'owned && scratch'],
     ['app/runtime-terrain-picking.ts', 'if (released.has(scene.view)) return', 'if (false) return'],
     ['app/scene-terrain-runtime.ts', '    rebindRuntimeTerrainPicking(scene)', '    /* omitted rebind */'])
@@ -78,9 +81,149 @@ test('route admission binds numeric lease gates, actual constructor order and he
   }
 })
 
+// Remove only the complete frame-clock addition to recover the previous frame
+// owner. The now-unused helper/import/field cannot affect that historical route;
+// the new route instead requires all three exact clock-owner slices below.
+const resultClockFrame = `    if (!document.hidden) {
+      const previousPhase =
+        ((Math.floor(this.resultClock.inputCycles / 4) & 1) << 1) |
+        (Math.floor(this.resultClock.inputCycles / 6) & 1)
+      advanceResultClock(this.resultClock, dt)
+      const nextPhase =
+        ((Math.floor(this.resultClock.inputCycles / 4) & 1) << 1) |
+        (Math.floor(this.resultClock.inputCycles / 6) & 1)
+      if (this.world.status !== 'playing' && previousPhase !== nextPhase) this.onChange()
+    }
+`
+function preResultClockReader(read) {
+  const scene = read('app/scene.ts')
+  assert.equal(scene.split(resultClockFrame).length, 2)
+  return path => path === 'app/scene.ts' ? scene.replace(resultClockFrame, '') : read(path)
+}
+
+test('result-clock admission preserves all historical profiles and binds the complete new clock route', () => {
+  const read = path => readFileSync(resolve(root, path), 'utf8')
+  assert.equal(createHash('sha256').update(JSON.stringify(dragSourceProfiles.slice(0, -1))).digest('hex'),
+    'b265d10660d59d936f8c2c8a22af59b46cb429aca85616206fd0926eaa9ef1e8',
+    'all six historical profile IDs, owner boundaries and pins remain exact')
+  const previous = dragSourceProfiles.find(profile => profile.id === routeTooltipId)
+  const current = dragSourceProfiles.at(-1)
+  assert.equal(current.id, resultClockId)
+  assert.equal(current.slices.length, 20)
+  for (let i = 0; i < previous.slices.length; i++) {
+    const old = previous.slices[i], next = current.slices[i]
+    assert.deepEqual(next.id === 'frame-order' ? { ...next, sha256: old.sha256 } : next, old)
+    if (next.id === 'frame-order') {
+      assert.equal(old.sha256, '27ed72fea09df7d40a3e632ca56da9aa487a2df73dc950655f74bf1bb7b93adf')
+      assert.equal(next.sha256, '5c8dbbf4dc2caaf257c7eedb472dcd7caeca30aeda695dd2fa0294934a6aeb50')
+    }
+  }
+  assert.deepEqual(current.slices.slice(17).map(slice => slice.id),
+    ['result-clock-owner', 'result-clock-import', 'result-clock-initialization'])
+  const admitted = inspectDragSource(root)
+  assert.equal(admitted.profile, resultClockId)
+  assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  const historical = inspectDragSource(root, preResultClockReader(read))
+  assert.equal(historical.profile, routeTooltipId)
+  assert.equal(historical.profiles.filter(profile => profile.status === 'admitted').length, 1)
+
+  // No partial frame removal, unknown helper, remapped import or shared clock is
+  // admitted. These are supplied source-data mutations, never executed.
+  const checks = [
+    ['app/scene.ts', '      advanceResultClock(this.resultClock, dt)\n', ''],
+    ['app/scene.ts', "      if (this.world.status !== 'playing' && previousPhase !== nextPhase) this.onChange()\n", ''],
+    ['app/scene.ts', '    if (!document.hidden) {\n      const previousPhase', '    if (!this.world.paused) {\n      const previousPhase'],
+    ['app/scene.ts', 'advanceResultClock(this.resultClock, dt)', 'advanceResultClock(this.resultClock, dt * this.world.speed)'],
+    ['app/scene.ts', "import { createResultClock, advanceResultClock } from './result-session.ts'", "import { createResultClock, advanceResultClock } from './unreviewed-clock.ts'"],
+    ['app/scene.ts', '  resultClock = createResultClock()', '  resultClock = sharedClock'],
+    ['app/result-session.ts', 'Math.floor((elapsed + 1e-7) / 83)', 'Math.floor((elapsed + 1e-7) / 12)'],
+    ['app/result-session.ts', 'clock.inputCycles = (clock.inputCycles + cycles) >>> 0', 'clock.inputCycles = (clock.inputCycles + cycles) >>> 0; mutateWorld()'],
+    ['app/scene-input-runtime.ts', '      scene.fpsGraph?.interactionRecording,\n', '      scene.fpsGraph,\n'],
+  ]
+  for (const [path, before, after] of checks) {
+    assert.equal(read(path).split(before).length, 2)
+    const rejected = inspectDragSource(root, name => name === path ? read(name).replace(before, after) : read(name))
+    assert.equal(rejected.status, 'unsupported-source-contract', `${path}: ${before}`)
+    assert.equal(rejected.profile, null)
+  }
+  let failures = 0
+  const unavailable = inspectDragSource(root, path => {
+    if (path === 'app/result-session.ts') { failures++; throw Object.assign(Error('unreadable'), { code: 'EACCES' }) }
+    return read(path)
+  })
+  assert.equal(unavailable.status, 'unsupported-source-contract')
+  assert.equal(failures, 1)
+})
+
+const cameraPath = 'app/scene-camera-runtime.ts'
+// Undo only the four reviewed route-tooltip edits. The admission function still
+// hashes the complete owner bytes; this reconstruction never normalizes a profile.
+const routeTooltipInverse = [
+  ['  if (!scene.world.paused || scene.world.routeNotice || scene.tooltipController?.routeNotice) {',
+   '  if (!scene.world.paused) {'],
+  ['      for (const event of scene.world.paused ? [] : stepFlyby(state, scene.flybyCamera, 24)) {',
+   '      for (const event of stepFlyby(state, scene.flybyCamera, 24)) {'],
+  ['      if (!scene.world.paused || scene.world.routeNotice || scene.tooltipController?.routeNotice)\n        scene.updateTooltipController(scene.previous ?? performance.now())',
+   '      scene.updateTooltipController(scene.previous ?? performance.now())'],
+  ['      if (active && !scene.world.paused) scene.commitSky(scene.flybyCamera, scene.flybyTime)',
+   '      if (active) scene.commitSky(scene.flybyCamera, scene.flybyTime)'],
+]
+function preRouteTooltipReader(read) {
+  let source = read(cameraPath)
+  for (const [before, after] of routeTooltipInverse) {
+    assert.equal(source.split(before).length, 2)
+    source = source.replace(before, after)
+  }
+  return path => path === cameraPath ? source : read(path)
+}
+
+test('route-tooltip admission adds only the exact reviewed camera owner and rejects partial or mixed routes', () => {
+  const read = preResultClockReader(path => readFileSync(resolve(root, path), 'utf8'))
+  const epochId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
+  const epoch = dragSourceProfiles.find(profile => profile.id === epochId)
+  const route = dragSourceProfiles.find(profile => profile.id === routeTooltipId)
+  assert.equal(route.slices.length, 17)
+  for (let i = 0; i < epoch.slices.length; i++) {
+    const previous = epoch.slices[i], next = route.slices[i]
+    if (previous.id !== 'camera-producers') assert.deepEqual(next, previous)
+    else {
+      assert.equal(previous.sha256, '458fa0be8df6e0ab718c1006b0f54f4b703e877850afd2896249544b9dcddad8')
+      assert.equal(next.sha256, 'cd3b53fce3efc61851ceb0c34d11d35d13a15cac7162753d8b1677c7d2b8875e')
+      assert.deepEqual({ ...next, sha256: previous.sha256 }, previous, 'all route-tooltip boundaries remain exact')
+    }
+  }
+  const current = inspectDragSource(root, read)
+  assert.equal(current.profile, routeTooltipId)
+  assert.equal(current.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  const historical = inspectDragSource(root, preRouteTooltipReader(read))
+  assert.equal(historical.profile, epochId)
+  assert.equal(historical.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  // Every nonempty partial inverse is an unreviewed camera owner, not either route.
+  for (let mask = 1; mask < (1 << routeTooltipInverse.length) - 1; mask++) {
+    let source = read(cameraPath)
+    for (const [index, [before, after]] of routeTooltipInverse.entries()) {
+      assert.equal(source.split(before).length, 2)
+      if (mask & (1 << index)) source = source.replace(before, after)
+    }
+    const rejected = inspectDragSource(root, path => path === cameraPath ? source : read(path))
+    assert.equal(rejected.status, 'unsupported-source-contract', `partial inverse ${mask}`)
+    assert.equal(rejected.profile, null)
+  }
+  // An unknown route clock or a historical recording input with the new camera
+  // owner is not a reviewed complete route, even though each old slice is known.
+  for (const [path, before, after] of [
+    [cameraPath, 'scene.flybyTime += dt', 'scene.flybyTime += dt * 2'],
+    ['app/scene-input-runtime.ts', '      scene.fpsGraph?.interactionRecording,\n', '      scene.fpsGraph,\n'],
+  ]) {
+    assert.equal(read(path).split(before).length, 2)
+    const rejected = inspectDragSource(root, name => name === path ? read(name).replace(before, after) : read(name))
+    assert.equal(rejected.status, 'unsupported-source-contract')
+    assert.equal(rejected.profile, null)
+  }
+})
 
 test('pick-path and recording-epoch admission preserve exact historical source contracts', () => {
-  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const read = preRouteTooltipReader(preResultClockReader(path => readFileSync(resolve(root, path), 'utf8')))
   const oldId = 'owned-numeric-terrain-neutral-cursor-v1'
   const newId = 'owned-numeric-terrain-neutral-cursor-pick-paths-v1'
   const epochId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
@@ -88,7 +231,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
   const candidate = dragSourceProfiles.find(profile => profile.id === newId)
   const epoch = dragSourceProfiles.find(profile => profile.id === epochId)
   assert.deepEqual(dragSourceProfiles.map(profile => profile.id), [
-    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId,
+    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, routeTooltipId, resultClockId,
   ])
   assert.equal(historical.slices.length, 17)
   assert.equal(candidate.slices.length, 17)
@@ -111,7 +254,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
       assert.deepEqual({ ...next, sha256: previous.sha256 }, previous, 'all epoch boundaries remain exact')
     }
   }
-  const current = inspectDragSource(root)
+  const current = inspectDragSource(root, read)
   assert.equal(current.profile, epochId)
   assert.equal(current.profiles.filter(profile => profile.status === 'admitted').length, 1)
   // Undo exactly the reviewed recording argument to recover PR640's full route.

@@ -1,0 +1,21 @@
+{
+  "inputs": {
+    "d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+  },
+  "decoderSha256": "bdad3fc18e32ef02ad8ba1c8edba6b2cb6f0a458b2160d1477bf32ead4954867",
+  "iconIds": {
+    "hut": 1028,
+    "tower": 1029,
+    "camp": 1030,
+    "temple": 1032,
+    "spyHut": 1033,
+    "firewarriorHut": 1031,
+    "boatHouse": 1034,
+    "balloonHut": 1035
+  },
+  "rgbaSha256": "0c4c06b966e03d61a5165fa12b117d88a275e5ba23e7455c4d2c7c616fd62ce3",
+  "pngSha256": "41ac76c013b3926a5f186eadac7822c486f994132faf0bc9af10a96d6c53fd98",
+  "limit": "Normal icon identity only; no state/frame/native pixel acceptance."
+}

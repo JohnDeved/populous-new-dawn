@@ -20,7 +20,7 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  await page.getByLabel('Focus Chumara tribe').waitFor()
+  await page.getByRole('img', { name: 'Chumara tribe', exact: true }).waitFor()
 
   const opening = await page.evaluate(() => {
     const world = globalThis.testScene.world,
@@ -552,7 +552,7 @@ try {
   }, { boatId: launchedMission10.boatId, driverId: launchedMission10.driverId })
 
   await page.keyboard.press('Escape')
-  await page.getByLabel('Select and focus shaman').click()
+  await page.getByLabel('Select shaman').click()
   await page.getByLabel('Select warrior').click()
   await page.getByLabel('Select warrior').click()
   await page.getByLabel('Select warrior').click()

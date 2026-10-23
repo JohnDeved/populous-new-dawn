@@ -1,3 +1,5 @@
+import { commandCategory } from '../browser-command-categories.mjs'
+import { setWorldPaused } from '../browser-world-input.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -13,7 +15,7 @@ export async function beginOrdinaryCastingWitness(page) {
   // Let the ordinary clock finish reincarnation. finishStart enters idle
   // approach (17), which settles into resting state 19. State 10 here still
   // owns opening command18; it is not the authored idle caster.
-  await button('Resume game').click()
+  await setWorldPaused(page, false, { timeout: 2500 })
   await page.waitForFunction(() => {
     const w = window.testStore.getWorld(), u = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
       p = u?.native, order = p && w.buildingOrders.records[p.immediateCommand || p.commands[p.commandCursor]]
@@ -21,8 +23,9 @@ export async function beginOrdinaryCastingWitness(page) {
       !w.castingTribes[0].cooldown && u?.hp > 0 && !u.flight && !u.lift && p?.state === 19 &&
       !p.vehicle && !(p.flags2 & 0x100000) && !(p.flags4 & 128) && order?.model !== 18
   })
-  await button('Pause game').click()
-  await button('Select and focus shaman').click()
+  await setWorldPaused(page, true, { timeout: 2500 })
+  await button('Select shaman').click()
+  await button('Select shaman').click({ button: 'right' })
   await page.waitForFunction(() => {
     const s = window.testSceneRef.current, u = s.world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
     return s.world.selected.includes(u.id) && !s.cameraMotion.active && !s.viewTransition && !s.resultCamera.active
@@ -30,10 +33,10 @@ export async function beginOrdinaryCastingWitness(page) {
   await page.evaluate(installShamanCastingObserver)
   const before = await page.evaluate(() => window.shamanCastingObserver.arm('ordinary'))
   assert.ok(before.stock > 0); assert.equal(before.cheatsUsed, false)
-  await page.getByTitle('spells', { exact: true }).click()
+  await commandCategory(page, 'spells').click()
   await page.getByRole('button', { name: /^Blast, [1-9][0-9]* shots$/ }).click()
   assert.equal(await page.evaluate(() => window.testStore.getWorld().mode), 'blast')
-  await button('Resume game').click()
+  await setWorldPaused(page, false, { timeout: 2500 })
   const target = await page.evaluate(() => {
     const s = window.testSceneRef.current, u = s.world.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
       point = { x: u.x + 5, z: u.z + 5 }, projected = s.screen(point, Math.max(0, s.y(point))),
@@ -48,7 +51,7 @@ export async function beginOrdinaryCastingWitness(page) {
   }, target)
   await page.mouse.click(target.x, target.y)
   await waitForCastingWitness(page, 'ordinary')
-  await button('Pause game').click()
+  await setWorldPaused(page, true, { timeout: 2500 })
   return { target, before }
 }
 
@@ -70,7 +73,7 @@ export async function retainCastingWitness(page, output, { validate = true } = {
     source: Object.fromEntries(['app/person-casting.ts', 'app/live-people.ts', 'app/live-command.ts',
       'app/spell-casting.ts', 'app/world-turn.ts', 'app/scene-entities.ts', 'app/unit-animation-source.ts',
       'app/game-clock.ts', 'app/original-units.json', 'tests/fixtures/shaman-casting-native.json',
-      'scripts/tutorial-browser/shaman-casting.mjs', 'scripts/tutorial-browser/shaman-casting-observer.mjs',
+      'scripts/tutorial-browser/shaman-casting.mjs', 'scripts/browser-world-input.mjs', 'scripts/browser-command-categories.mjs', 'scripts/tutorial-browser/shaman-casting-observer.mjs',
       'scripts/tutorial-browser/shaman-casting-evidence.mjs']
       .map(file => [file, sha256(readFileSync(resolve(root, file)))])) }
   try {

@@ -47,9 +47,9 @@ test('readiness still rejects absent actors, global input locks and paused play'
   }
 })
 
-test('Continue readiness waits on real RAF before suspension with the existing timeout', () => {
+test('Native result selector readiness waits on real RAF before suspension with the existing timeout', () => {
   const checker = readFileSync(new URL('../scripts/check-browser-campaign-natural-victory.mjs', import.meta.url), 'utf8')
-  assert.match(checker, /await waitForSelectableShaman\(page, 'Mission 3 after Continue'\)\s+await suspendOwnedFrame\(page\)\s+await missionThree\(page\)/)
+  assert.match(checker, /await waitForSelectableShaman\(page, 'Mission 3 after native result selector'\)\s+await suspendOwnedFrame\(page\)\s+await missionThree\(page\)/)
   const wait = checker.slice(checker.indexOf('async function waitForSelectableShaman'), checker.indexOf('async function suspendOwnedFrame'))
   assert.ok(wait.includes('page.waitForFunction(sample, true)'))
   assert.ok(!wait.includes('tick(') && !wait.includes('cancelAnimationFrame'))
@@ -67,7 +67,7 @@ test('the production wait polls synchronous false until native selection readine
   const page = {
     async evaluate(fn, arg) {
       if (++evaluations === 1) {
-        assert.ok(fn.toString().includes('globalThis.campaignObserveShaman = campaignShamanReadiness'))
+        assert.ok(fn.toString().includes('globalThis.campaignObserveShaman = campaignPortraitReadiness'))
         return // Fixture supplies the imported observer above; no browser module is loaded.
       }
       return fn(arg)

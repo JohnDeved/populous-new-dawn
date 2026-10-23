@@ -1,3 +1,4 @@
+import { setSoundThroughOptions } from './browser-options-audio.mjs'
 // npm run dev, then node scripts/check-browser-hut-upgrade.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -9,7 +10,7 @@ import { openGame } from './browser-game.mjs'
 const browser=await chromium.launch({headless:true})
 try {
   const {page,errors}=await openGame(browser)
-  await page.getByRole('button', { name: 'Enable sound', exact: true }).click()
+  await setSoundThroughOptions(page, true)
   const original=await page.evaluate(()=>{
     const s=window.testScene,w=s.world,b=w.buildings.find(b=>b.team==='blue'&&b.kind==='hut')
     const play=s.onSound,start=AudioBufferSourceNode.prototype.start

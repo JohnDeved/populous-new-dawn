@@ -119,51 +119,104 @@ async function advance(turns) {
   return result
 }
 async function focus(point) {
-  // The minimap is a cropped, rotated view: first use the shipped faction control
-  // to reach the enemy settlement, then refine the view with an actual map click.
-  const before = await snapshot()
-  await page.getByRole('button', { name: 'Focus Dakini tribe', exact: true }).click()
-  await page.evaluate(() => {
-    const s = window.testSceneRef.current
-    for (let i = 0; s.cameraMotion.active && i < 64; i++) s.updateCameraMotion(1 / 24)
-    s.onChange()
-  })
-  await render()
-  const after = await snapshot()
-  assert.equal(after.turn, before.turn, 'Camera input must not advance simulation')
-  assert.deepEqual(after.selected, before.selected, 'Faction focus must retain the party')
-  // Read the actual minimap inverse, then click its closest displayed point.
-  const screen = await page.evaluate(async target => {
-    const s = window.testSceneRef.current,
-      { minimapPick } = await import('/app/minimap.ts'),
-      { nativePosition, browserPosition, distance } = await import('/app/model.ts'),
-      bounds = s.mini.getBoundingClientRect(),
-      center = nativePosition(s.world, s.viewPoint),
-      heading = Math.round((s.cameraBearing * 1024) / Math.PI)
-    let best = null
-    for (let y = 4; y < s.mini.height - 4; y += 2)
-      for (let x = 4; x < s.mini.width - 4; x += 2) {
-        const candidate = browserPosition(
-          minimapPick(s.mini.width, s.mini.height, center, heading, { x, y })
-        )
-        const gap = distance(target, candidate)
-        if (!best || gap < best.gap)
-          best = {
-            x: bounds.left + (x / s.mini.width) * bounds.width,
-            y: bounds.top + (y / s.mini.height) * bounds.height,
-            gap,
-          }
+  // The cropped/rotated minimap may not expose a distant destination yet. Move
+  // toward its closest genuinely exposed point, then re-read the displayed map.
+  // Every camera request is a real minimap click, never a tribe-icon action.
+  const expected = await page.evaluateHandle(() => ({
+    scene: window.testSceneRef.current,
+    world: window.testStore.getWorld(),
+  }))
+  const inspect = ({ expected, target = null, settle = false, arrived = false }) => {
+    const matches = (actual, goal) =>
+      actual.x === goal.x && actual.y === goal.y && actual.angle === goal.angle
+    const owner = () => {
+      const s = window.testSceneRef.current, w = window.testStore.getWorld()
+      if (s !== expected.scene || w !== expected.world || s.world !== expected.world)
+        throw new Error('Scene or World changed during minimap navigation')
+      if (!window.mission8RafHeld || s.frame || w.status !== 'playing' || w.inputMask ||
+          s.modalSuspended || s.overviewActive || s.overviewStage ||
+          (w.flyby.flags & 1) || s.wasFlying || s.resultCamera.active ||
+          s.resultRequest !== w.outcome.cameraRequest ||
+          document.querySelector('dialog[open], .campaign-messages details[open], .loading-world'))
+        throw new Error('Minimap navigation does not own ordinary input')
+      // Only the journey requested by this click may be advanced. A competing
+      // journey, even with the same position but a different bearing, is not ours.
+      if (s.cameraMotion.active && (arrived || !target || !matches(s.cameraMotion.target, target)))
+        throw new Error('Another camera journey owns minimap navigation')
+      return s
+    }
+    const s = owner()
+    if (settle) {
+      // Retain the existing, explicitly disclosed presentation-only settlement.
+      for (let i = 0; s.cameraMotion.active && i < 64; i++) {
+        owner()
+        s.updateCameraMotion(1 / 24)
+        owner()
       }
-    if (!best || best.gap > 5) throw new Error('Target is not exposed on the minimap')
-    return best
-  }, point)
-  await page.mouse.click(screen.x, screen.y)
-  await page.evaluate(() => {
-    const s = window.testSceneRef.current
-    for (let i = 0; s.cameraMotion.active && i < 64; i++) s.updateCameraMotion(1 / 24)
-    s.onChange()
-  })
-  await render()
+      if (s.cameraMotion.active) throw new Error('Minimap journey did not finish')
+      s.onChange()
+    }
+    owner()
+    if ((settle || arrived) && !matches(s.cameraPosition, target))
+      throw new Error('Public minimap click did not reach its displayed target')
+    return { turn: expected.world.turn, selected: [...expected.world.selected] }
+  }
+  try {
+    const before = await page.evaluate(inspect, { expected })
+    const retainPartyAndTurn = after => {
+      assert.equal(after.turn, before.turn, 'Camera input must not advance simulation')
+      assert.deepEqual(after.selected, before.selected, 'Minimap navigation must retain the party')
+    }
+    for (let hop = 0; hop < 4; hop++) {
+      retainPartyAndTurn(await page.evaluate(inspect, { expected }))
+      const screen = await page.evaluate(async ({ target, expected }) => {
+        const { minimapPick } = await import('/app/minimap.ts'),
+          { nativePosition, browserPosition, distance } = await import('/app/model.ts'),
+          s = window.testSceneRef.current
+        if (s !== expected.scene || s.world !== expected.world ||
+            window.testStore.getWorld() !== expected.world)
+          throw new Error('Scene or World changed during minimap navigation')
+        const bounds = s.mini.getBoundingClientRect(),
+          center = nativePosition(s.world, s.viewPoint),
+          heading = Math.round((s.cameraBearing * 1024) / Math.PI),
+          startGap = distance(target, s.viewPoint)
+        let best = null
+        for (let y = 4; y < s.mini.height - 4; y += 2)
+          for (let x = 4; x < s.mini.width - 4; x += 2) {
+            const clientX = Math.round(bounds.left + (x / s.mini.width) * bounds.width),
+              clientY = Math.round(bounds.top + (y / s.mini.height) * bounds.height)
+            if (document.elementFromPoint(clientX, clientY) !== s.mini) continue
+            // Invert the actual integer client coordinate sent to the browser,
+            // including HUD scaling, just as the shipped pointerdown handler does.
+            const native = minimapPick(s.mini.width, s.mini.height, center, heading, {
+              x: ((clientX - bounds.left) / bounds.width) * s.mini.width,
+              y: ((clientY - bounds.top) / bounds.height) * s.mini.height,
+            }),
+              gap = distance(target, browserPosition(native))
+            if (!best || gap < best.gap)
+              best = { x: clientX, y: clientY, gap, startGap,
+                native: { ...native, angle: heading & 2047 } }
+          }
+        return best
+      }, { target: point, expected })
+      assert.ok(screen, 'No genuine exposed minimap point')
+      assert.ok(screen.gap <= 5 || screen.gap < screen.startGap - 1,
+        'Minimap navigation must expose the destination or make measurable progress')
+      // Module loading and the map observation may yield; revalidate the exact
+      // original owners and phases immediately before issuing public input.
+      retainPartyAndTurn(await page.evaluate(inspect, { expected }))
+      await page.mouse.click(screen.x, screen.y)
+      retainPartyAndTurn(await page.evaluate(inspect,
+        { expected, target: screen.native, settle: true }))
+      await render()
+      retainPartyAndTurn(await page.evaluate(inspect,
+        { expected, target: screen.native, arrived: true }))
+      if (screen.gap <= 5) return
+    }
+    throw new Error('Destination was not exposed after four progressing minimap clicks')
+  } finally {
+    await expected.dispose()
+  }
 }
 async function hitPoint(point, id = null) {
   await focus(point)
@@ -238,7 +291,7 @@ async function clear() {
 async function selectParty(includeShaman) {
   await clear()
   if (includeShaman)
-    await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+    await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
   await page
     .getByRole('button', { name: 'Select brave', exact: true })
     .click({ modifiers: ['Shift'] })
@@ -299,8 +352,9 @@ async function castAvailableBlast() {
   return true
 }
 async function openSettings() {
-  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-  await page.getByRole('heading', { name: 'Game settings', exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('dialog', { name: 'Game menu', exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
 }
 
 try {
@@ -315,6 +369,9 @@ try {
   page.setDefaultTimeout(30000)
   page.on('pageerror', e => report.errors.push(e.message))
   await page.goto(process.env.POPULOUS_URL, { waitUntil: 'networkidle' })
+  // Pre-existing acceptance blocker: showAllMissions now opens non-awarding,
+  // unsavable F8 missions. This route still requires earned campaign entry;
+  // do not replace its Save/Continue assertions with a seeded-profile shortcut.
   await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 8', exact: true }).focus()
   await page.keyboard.press('Enter')
@@ -352,6 +409,8 @@ try {
   await openSettings()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bind()
   await snapshot('prebattle-checkpoint-reloaded')

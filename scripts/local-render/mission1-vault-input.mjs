@@ -1,3 +1,4 @@
+import { setWorldPaused } from '../browser-world-input.mjs'
 // Adapted from the accepted hut-smoke-ignition Bridge prefix and ordinary-shared-training input.
 // Live World is read only; every validator that synchronizes terrain receives a detached clone.
 import assert from 'node:assert/strict'
@@ -102,13 +103,13 @@ export function createMission1VaultInput({ page, signal, report, save, originalS
   const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click(waitOptions()))
   const pause = async () => {
     admit()
-    if (!(await page.evaluate(() => window.testSceneRef.current.world.paused))) await button('Pause game')
+    if (!(await page.evaluate(() => window.testSceneRef.current.world.paused))) await action('Pause game', () => setWorldPaused(page, true, waitOptions(2500)))
     await page.waitForFunction(() => window.testSceneRef.current.world.paused, null, waitOptions())
     admit()
   }
   const resume = async () => {
     admit()
-    if (await page.evaluate(() => window.testSceneRef.current.world.paused)) await button('Resume game')
+    if (await page.evaluate(() => window.testSceneRef.current.world.paused)) await action('Resume game', () => setWorldPaused(page, false, waitOptions(2500)))
     await page.waitForFunction(() => !window.testSceneRef.current.world.paused, null, waitOptions())
     admit()
   }

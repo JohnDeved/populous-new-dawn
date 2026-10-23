@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs'
 
 for (const initialVisits of [0, 1, 20, 60]) test(`opt-in Hypnotise earns stock after ${initialVisits} ordinary startup visits`, async () => {
   const store = createGameStore()
-  store.startMission(22)
+  assert.equal(store.startDebugMission(22), true)
   const world = store.getWorld()
   world.paused = false
   for (let i = 0; i < initialVisits; i++) tick(world, 1 / 12)

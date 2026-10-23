@@ -28,12 +28,14 @@ export function pageEffect(contains, bindings) {
 export function pageNearby(scene, overrides = {}) {
   let pressed = false
   scene.setModalSuspended ??= suspended => { scene.modalSuspended = suspended }
-  const nearbyPress = { current: null },
+  const selectorEntries = [], nearbyPress = { current: null },
     bindings = {
       engine: { current: scene }, world: scene.world, ready: true, startup: 'playing',
       menu: false, cheatsOpen: false, selectorOpen: false, nearbyPress,
-      store: { getWorld: () => scene.world, change: action => action(scene.world) },
-      menuSession: { current: null }, pendingMenuCamera: { current: [] },
+      // This synthetic UI store observes entry only; it proves no campaign persistence.
+      store: { getWorld: () => scene.world, change: action => action(scene.world),
+        enterCampaignSelector(...args) { assert.deepEqual(args, []); selectorEntries.push(scene.world) } },
+      menuSession: { current: null },
       setNearbyPressed: value => { pressed = value },
       setMenu: () => {}, setSelectorOpen: () => {}, useCallback: callback => callback, ...overrides,
     }
@@ -44,7 +46,7 @@ export function pageNearby(scene, overrides = {}) {
   ).getText(pageSource)).join('\n')
   const functions = evaluatePage(`function(){${bodies}; return {${names.join(',')}}}`, bindings)()
   return {
-    ...functions, nearbyPress, bindings,
+    ...functions, nearbyPress, selectorEntries, bindings,
     render: () => evaluatePage(pageButton(['nearby-followers-button']).getText(pageSource), {
       ...bindings, ...functions, HudSprite: 'HudSprite', nearby: !!(scene.world.castingTribes[0].flags & 128), nearbyPressed: pressed,
     }),

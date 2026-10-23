@@ -13,7 +13,7 @@ test('observer distinguishes living fight ownership from absent native and retai
       { id: 99, team: 'red', kind: 'brave', hp: 0, inside: null, x: 5.6, z: 23.1 }],
     buildings: [{ id: 1022, team: 'red', hp: 400, progress: 1 }],
     objectCells: { objects: new Map([[2170, person]]) }, buildingOrders: { records: { 13: { model: 15 } } } },
-    scene = { world, unitMeshes: new Map([[2170, {}]]), renderer: { domElement: {} } }
+    scene = { world, unitMeshes: new Map([[2170, {}]]), renderer: { domElement: {} }, observeGameTurns: () => () => {} }
   let callback
   const context = { structuredClone, window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
     requestAnimationFrame: fn => { callback = fn; return 1 }, cancelAnimationFrame() {} }
@@ -31,4 +31,39 @@ test('observer distinguishes living fight ownership from absent native and retai
   assert.deepEqual(world, before)
   world.buildingOrders.records[13].model = 3
   assert.equal(runtime.owners.fight.orders[1].record.model, 15, 'retained historical order cannot change with the live queue')
+})
+
+test('logical Spy samples remain distinct from render samples and stop on retention or observer failure', () => {
+  for (const mode of ['retain', 'wrong-world', 'missing-spy']) {
+    const person = { substate: 1, timer: 1, flags2: 0, object: 48, f2: 0 },
+      spy = { id: 1, hp: 30, native: person, target: 2 },
+      world = { turn: 10, units: [spy], paused: false, speed: 1 },
+      scene = { world, renderer: { domElement: {} } }
+    let visit, failed, subscribed = false, cancelled = false
+    scene.observeGameTurns = (onTurn, onError) => {
+      visit = onTurn; failed = onError; subscribed = true
+      return () => { subscribed = false }
+    }
+    const context = { window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
+      requestAnimationFrame: () => 1, cancelAnimationFrame: () => { cancelled = true } }
+    runInNewContext(`(${installSpySourceObserver.toString()})({spyId:1,targetId:2})`, context)
+    const before = structuredClone(world)
+    visit()
+    assert.deepEqual(world, before, 'logical observation never writes gameplay state')
+    const observation = context.window.__pndSpySourceObservation
+    assert.equal(observation.result.turns[0].timer, 1)
+    assert.equal(observation.result.samples.length, 0, 'a logical sample cannot certify rendered pixels')
+    if (mode === 'retain') observation.retain()
+    else {
+      if (mode === 'wrong-world') scene.world = {}
+      else spy.native = null
+      try { visit() } catch (error) { failed(error) }
+      assert.match(observation.result.error, /Spy observer lost|Trained Spy/)
+    }
+    assert.equal(subscribed, false)
+    assert.equal(cancelled, true)
+    const count = observation.result.turns.length
+    visit()
+    assert.equal(observation.result.turns.length, count, 'no observation after stop')
+  }
 })

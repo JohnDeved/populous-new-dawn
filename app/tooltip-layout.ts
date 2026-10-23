@@ -80,9 +80,20 @@ export function drawTooltip(
   canvas.height = layout.height
   const context = canvas.getContext('2d')!
   context.imageSmoothingEnabled = false
+  paintTooltipText(context, atlas, layout)
+  canvas.dataset.layout = key
+}
+
+// Keep the source glyphs unmodulated in both ordinary and route tooltips.
+export function paintTooltipText(
+  context: CanvasRenderingContext2D,
+  atlas: HTMLImageElement,
+  layout: ReturnType<typeof tooltipLayout>,
+  left = 0,
+  top = 0
+) {
   for (const [font, code, x, y] of layout.draws) {
     const r = glyphs[`f00t${font}-${code}`]
-    context.drawImage(atlas, r.x, r.y, r.w, r.h, x, y, r.w, r.h)
+    context.drawImage(atlas, r.x, r.y, r.w, r.h, x + left, y + top, r.w, r.h)
   }
-  canvas.dataset.layout = key
 }

@@ -1,9 +1,10 @@
+import { clearPortraitSelection } from '../browser-portrait-input.mjs'
 // Unrun ordinary Mission1 adaptation of the existing smoke/worship input checks.
 // The maintained local-render harness owns browser, profile, server and cleanup.
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { waitForShamanReadiness } from '../browser-game.mjs'
+import { waitForPortraitReadiness } from '../browser-portrait-readiness.mjs'
 
 export default async function hutSmokeIgnition({ page, openMission, output, signal, receipt }) {
   const report = { status: 'running', actions: [], screenshots: [] }
@@ -21,12 +22,20 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     report.actions.push({ label, phase: 'after', at: new Date().toISOString() }); save()
   }
   const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())
+  const selectShaman = async () => {
+    await action('Clear previous portrait cohort', async () => {
+      const cancellation = await clearPortraitSelection(page, { signal })
+      ;(report.portraitCancellations ??= []).push(cancellation)
+    })
+    await button('Select shaman')
+    assert.deepEqual((await read()).selected, [originalShamanId], 'The ordinary route requires only the original Shaman')
+  }
   const pause = async () => {
-    if (!(await page.evaluate(() => window.testSceneRef.current.world.paused))) await button('Pause game')
+    if (!(await page.evaluate(() => window.testSceneRef.current.world.paused))) await action('Pause with Space', () => page.locator('.world-viewport').press('Space'))
     await page.waitForFunction(() => window.testSceneRef.current.world.paused)
   }
   const resume = async () => {
-    if (await page.evaluate(() => window.testSceneRef.current.world.paused)) await button('Resume game')
+    if (await page.evaluate(() => window.testSceneRef.current.world.paused)) await action('Resume with Space', () => page.locator('.world-viewport').press('Space'))
     await page.waitForFunction(() => !window.testSceneRef.current.world.paused)
   }
   const settle = () => page.waitForFunction(() => {
@@ -347,7 +356,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
   }
   try {
     await openMission(1)
-    report.startup = await waitForShamanReadiness(page, { timeout: 60000 })
+    report.startup = await waitForPortraitReadiness(page, { timeout: 60000, signal })
     await resume()
     report.renderer = await page.evaluate(() => {
       const renderer = window.testSceneRef.current.renderer, gl = renderer.getContext()
@@ -370,7 +379,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
       await worshipRoute('opening-Land-Bridge', report.initial.bridgeHead.id)]; save()
     assert.equal(report.initialRoutes[0].routeFound, false)
     assert.ok(report.initialRoutes[1].eligibility.canOrder && report.initialRoutes[1].eligibility.accepts27 && report.initialRoutes[1].routeFound)
-    await button('Select and focus shaman')
+    await selectShaman()
     await view(report.initial.bridgeHead)
     await clickEntity('shrines', report.initial.bridgeHead.id, 27, false, [shamanId])
     await page.waitForFunction(({ headId, actorId }) => {
@@ -380,7 +389,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     }, { headId: report.initial.bridgeHead.id, actorId: shamanId }, { timeout: 180000 })
     report.bridgeReward = await read(); save()
     assert.ok(report.bridgeReward.bridgeGifts > report.initial.bridgeGifts)
-    await button('Select and focus shaman')
+    await selectShaman()
     const shoreDestination = { x: 0.5, z: 19 } // Interior of the already demonstrated native shore cell.
     await view(shoreDestination)
     await prepareDispatch()
@@ -420,7 +429,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     report.completedBridge = await read()
     report.lightningRouteAfterBridge = await worshipRoute('completed-Bridge-to-Lightning', headId); save()
     assert.equal(report.lightningRouteAfterBridge.routeFound, true)
-    await button('Select and focus shaman')
+    await selectShaman()
     await view(report.initial.head)
     await clickEntity('shrines', headId, 27, false, [shamanId])
     await page.waitForFunction(({ headId, actorId }) => {
@@ -434,7 +443,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     const hut = report.reward.huts.find(hut => hut.progress === 1 && hut.hp > 0 && !hut.burning)
     assert.ok(hut, 'No completed authored Blue hut after actual reward acquisition')
     report.hut = hut; save()
-    await button('Select and focus shaman')
+    await selectShaman()
     await view(hut)
     await prepareDispatch()
     const ground = await groundNear(hut)
@@ -470,7 +479,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
         scene.buildingMeshes.get(id)?.userData.hutOccupancySmoke?.group.visible
     }, { id: hut.id, actorId: shamanId }, { timeout: 180000 })
     await pause()
-    await button('Select and focus shaman')
+    await selectShaman()
     await view(hut)
     report.beforeLightningSelection = await read(); save()
     assert.deepEqual(report.beforeLightningSelection.selected, [shamanId])
