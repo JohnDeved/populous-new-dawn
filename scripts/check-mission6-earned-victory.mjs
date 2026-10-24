@@ -52,7 +52,9 @@ export function validateStageSource(expected, source, sharedPaths, producedInput
   return binding
 }
 
-export function runAcceptance(output) {
+export function runAcceptance(output, { boundedEarlyCamp = false } = {}) {
+  assert.equal(typeof boundedEarlyCamp, 'boolean', 'boundedEarlyCamp must be a boolean')
+  const boundedReceiptStages = ['fresh-release', ...(boundedEarlyCamp ? ['early-camp'] : [])]
   validatePlan(plan)
   assert(
     /^work\/orchestration\/m6-earned-victory\/[a-zA-Z0-9_-]+$/.test(output),
@@ -69,6 +71,7 @@ export function runAcceptance(output) {
     status: 'running',
     nodeVersion: process.version,
     sourceBinding: null,
+    boundedReceiptStages,
     limits: [
       'Ordinary public simulation commands, no rendered input dispatch',
       'Synthetic IndexedDB, not actual browser persistence',
@@ -102,7 +105,7 @@ export function runAcceptance(output) {
     console.log(`Mission 6: ${stage.name}`)
     const receipt = runCommandReceipt(ROOT, {
       output: receiptPath,
-      streamVersion: stage.name === 'fresh-release' ? 2 : 1,
+      streamVersion: boundedReceiptStages.includes(stage.name) ? 2 : 1,
       command: [process.execPath, script],
       inputs: [...sharedPaths, ...stage.inputs.map(name => `${checkpoints}/${name}`)],
       env: { ...process.env, PND_M6_OUTPUT: resolve(ROOT, checkpoints) },
@@ -156,9 +159,15 @@ export function runAcceptance(output) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const args = process.argv.slice(2), flag = '--bounded-early-camp'
+  const boundedEarlyCamp = args.includes(flag)
+  const positional = args.filter(arg => arg !== flag)
   assert(
-    process.argv.length <= 3,
-    'Usage: node scripts/check-mission6-earned-victory.mjs [output-directory]'
+    args.filter(arg => arg === flag).length <= 1 &&
+      positional.length <= 1 && positional.every(arg => !arg.startsWith('-')),
+    'Usage: node scripts/check-mission6-earned-victory.mjs [output-directory] [--bounded-early-camp]'
   )
-  runAcceptance(process.argv[2] ?? `work/orchestration/m6-earned-victory/${randomUUID()}`)
+  runAcceptance(positional[0] ?? `work/orchestration/m6-earned-victory/${randomUUID()}`, {
+    boundedEarlyCamp,
+  })
 }
