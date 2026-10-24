@@ -126,9 +126,40 @@ pseudocode. They supplement these receipts/bundles; they neither replace raw rev
 nor grant native/pixel/gameplay credit. Keep expected source/query/adapter identity
 in the trusted handoff and require a separate proof claim for each needed callback.
 
+## Standalone receipt raw-output limit
+
+Both standalone receipt formats now capture stdout/stderr through owned pipes
+instead of giving the child writable log descriptors. Each new receipt shares
+one 64 MiB raw-byte allowance across stdout and stderr. Set
+`POPULOUS_RECEIPT_MAX_RAW_BYTES` to a nonnegative safe-integer byte count (including
+zero), or pass programmatic `maxRawBytes`; a supplied programmatic value wins.
+Invalid configuration fails before evidence allocation or child launch. This is
+separate from the verifier's `POPULOUS_VERIFY_MAX_RAW_BYTES` allowance.
+
+`runCommandReceipt` now returns a Promise for execution. All callers must `await`
+it; synchronous configuration, source, path and exclusive-creation failures still
+throw before the Promise is returned. Mission 6 awaits each stage and binds the
+shared `command-log.mjs` producer. Both CLIs await finalization and preserve their
+nonzero failure exit behavior. No new workload timeout is imposed.
+
+The raw allowance counts successful physical writes, not decoded characters.
+Exact-boundary output passes only after pipe closure; excess output preserves the
+captured prefix, records `rawBudget` and `rawCapture` with observed prefix byte
+counts/hashes, and fails rather than claiming complete output. Version 2 retains
+its pending publication guard on incomplete capture. Failed signals or inherited
+pipes have a bounded failure drain; metadata distinguishes observed direct-child
+exit from a still-live producer. Descendant cleanup is not claimed.
+
+Historical v1 decoding/hash interpretation and default format stay unchanged.
+Version 1 still embeds decoded output up to the allowance; this is not a
+bounded-small-memory or default-v2 rollout. Raw limits do not cover arbitrary
+child-created files, metadata/decoded derivatives, accumulated older attempts,
+shared-runtime build logs or archive retention. No original evidence is removed.
+
 ## Version 2 command-receipt streams
 
-The default command writer remains the unchanged version-1 implementation.
+The default command writer retains the version-1 receipt format and historical
+decoding/hash interpretation; both formats now use the bounded producer above.
 Select the bounded version-2 mode explicitly with `--stream-version 2` or the
 programmatic option `streamVersion: 2`; use `1` or omit the option for legacy behavior.
 Version-2 command receipts retain complete stdout/stderr as the original raw artifacts.
@@ -256,7 +287,9 @@ requiring execution evidence still needs the independently accessible originals.
 
 ### Mission 6 first-stage bounded-receipt pilot
 
-The earned-victory runner opts only `fresh-release` into stream version 2. The
+The earned-victory runner opts only `fresh-release` into stream version 2.
+`boundedReceiptStages` tracks that inline-format choice; every stage, including
+version 1, now has its own raw-output allowance. The
 remaining 18 stages and the command writer's default remain version 1. Shared
 input hashes include the concrete v1 writer and v2 stream implementation, so a
 mixed-version run retains the same source and producer-checkpoint checks. Stage
