@@ -100,6 +100,16 @@ function jsonArtifact(zip, name, maximum = 1024 * 1024) {
     maxFileBytes: maximum, maxEntries: 1, allowName: file => file === name })
   assert.ok(files.has(name)); return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(files.get(name)))
 }
+function mergedGateSource(gate, pr) {
+  // GitHub may clear run.pull_requests after merge. That transient metadata is
+  // only a consistency check; the merged PR, exact source and tested tree bind
+  // production. Missing/malformed or explicitly conflicting metadata still fails.
+  return Array.isArray(gate.pull_requests) && (gate.pull_requests.length === 0 ||
+    (gate.pull_requests.length === 1 && gate.pull_requests[0]?.number === pr.number)) &&
+    gate.repository?.full_name === repository && gate.head_repository?.full_name === pr.head.repo?.full_name &&
+    gate.path === gatePath && gate.event === 'pull_request' && gate.status === 'completed' &&
+    gate.conclusion === 'success' && gate.head_sha === pr.head.sha && gate.head_branch === pr.head.ref
+}
 export async function productionGate(api, download, run) {
   assert.equal(run.event, 'push'); assert.equal(run.head_branch, 'main')
   const associated = await api(`${prefix}/commits/${run.head_sha}/pulls?per_page=100`)
@@ -109,14 +119,14 @@ export async function productionGate(api, download, run) {
   const pr = await api(`${prefix}/pulls/${prs[0].number}`)
   assert.equal(pr.number, prs[0].number); assert.equal(pr.base.ref, 'main'); assert.equal(pr.base.repo.full_name, repository)
   assert.equal(pr.merged, true); assert.equal(pr.merge_commit_sha, run.head_sha)
+  assert.ok(positive(pr.number) && sha(pr.head.sha) && pr.head.repo?.full_name, 'Invalid merged PR source')
   const list = await api(`${prefix}/actions/workflows/ready-pr-check.yml/runs?event=pull_request&status=success&head_sha=${pr.head.sha}&per_page=100`)
   assert.ok(list.total_count <= 100 && list.workflow_runs.length === list.total_count, 'Incomplete gate inventory')
-  const candidates = list.workflow_runs.filter(gate => gate.pull_requests.some(item => item.number === pr.number))
+  const candidates = list.workflow_runs.filter(gate => mergedGateSource(gate, pr))
     .sort((a, b) => b.id - a.id)
   assert.ok(candidates.length, 'No successful trusted ready-PR gate')
   const gate = await verifiedRun(api, candidates[0].id, gatePath)
-  assert.equal(gate.event, 'pull_request'); assert.equal(gate.status, 'completed'); assert.equal(gate.conclusion, 'success')
-  assert.equal(gate.head_sha, pr.head.sha); assert.ok(gate.pull_requests.some(item => item.number === pr.number))
+  assert.ok(mergedGateSource(gate, pr), 'Ready-PR gate source does not match the merged PR')
   await exactFile(api, gatePath, gate.head_sha)
   const jobs = await api(`${prefix}/actions/runs/${gate.id}/attempts/${gate.run_attempt}/jobs?per_page=100`)
   assert.ok(jobs.total_count <= 100 && jobs.jobs.length === jobs.total_count)
@@ -144,7 +154,7 @@ export async function prepare({ api, download, runId, mode, destination }) {
   await exactFile(api, buildPath, run.head_sha)
   const gate = pr ? null : await productionGate(api, download, run)
   const zip = await oneArtifact(api, download, run, `cloudflare-dist-${run.id}-${run.run_attempt}`, maxArchiveBytes)
-  materializeBuild(zip, destination)
+  materializeBuild(zip, destination, run.head_sha)
   return { version: 1, source: run.id, sourceAttempt: run.run_attempt, sha: run.head_sha,
     pr: pr?.number ?? null, alias: pr ? branchAlias(pr.head.ref) : null, gate, status: 'prepared' }
 }

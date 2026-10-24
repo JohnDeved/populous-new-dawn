@@ -1,13 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, readdirSync, rmSync, mkdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'
 import { deflateRawSync } from 'node:zlib'
 import { repository, buildPath, publishPath, marker, branchAlias, publisherSource,
-  currentPreview, fixedConfig, materializeBuild, uploadedVersion, renderComment, commentTimestamp } from '../scripts/cloudflare/protocol.mjs'
-import { report, prepare, route, currentSource, productionGate, oneArtifact } from '../scripts/cloudflare/control.mjs'
+  currentPreview, buildIdentityPath, fixedConfig, materializeBuild, uploadedVersion, renderComment, commentTimestamp } from '../scripts/cloudflare/protocol.mjs'
+import { report, prepare, route, currentSource, productionGate, oneArtifact, ensureCurrent } from '../scripts/cloudflare/control.mjs'
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const root = new URL('../', import.meta.url), prefix = `/repos/${repository}`
@@ -104,8 +104,9 @@ test('materializer treats output as bytes and discards executable configuration'
   const code = 'throw new Error("MUST NOT EXECUTE")'
   materializeBuild(archive([['server/index.js', code], ['server/wrangler.json', '{"build":{"command":"evil"}}'],
     ['server/package.json', '{"scripts":{"postinstall":"evil"}}'], ['server/.env', 'secret'],
-    ['server/chunks/child.mjs', code], ['client/index.html', '<html/>']]), directory)
+    ['server/chunks/child.mjs', code], ['client/index.html', '<html/>']]), directory, digest)
   assert.equal(readFileSync(join(directory, 'worker/index.js'), 'utf8'), code)
+  assert.equal(readFileSync(join(directory, 'client', buildIdentityPath), 'utf8'), `schema=1\nsource_sha=${digest}\n`)
   assert.deepEqual(readdirSync(join(directory, 'worker')).sort(), ['chunks', 'index.js'])
   assert.deepEqual(JSON.parse(readFileSync(join(directory, 'wrangler.json'))), fixedConfig())
 })
@@ -114,16 +115,69 @@ test('materializer rejects traversal, symlinks, duplicate paths and unrelated fi
   for (const entry of [['server/../../escape.js', 'x'], ['server/link.js', '/proc/self/environ', 0xa1ff],
     ['package.json', '{}'], ['server/index.js', 'duplicate'], ['server/~/../../escape.js', 'x'],
     ['server/%2e%2e/escape.js', 'x'], ['server/..\\escape.js', 'x'], ['server/chunk;evil.js', 'x']]) {
-    assert.throws(() => materializeBuild(archive([['server/index.js', 'x'], ['client/index.html', 'x'], entry]), join(directory, String(Math.random()))))
+    assert.throws(() => materializeBuild(archive([['server/index.js', 'x'], ['client/index.html', 'x'], entry]), join(directory, String(Math.random())), digest))
   }
 })
 test('materializer accepts real Vinext tilde chunk names without shell expansion', t => {
   const directory = mkdtempSync(join(tmpdir(), 'cloudflare-chunks-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
   const chunk = '_next/static/framework~index~layout~app-page-cache-Cwzzu7Ov.js'
   const code = 'throw new Error("MUST NOT EXECUTE")'
-  materializeBuild(archive([['server/index.js', `import "./${chunk}"`], [`server/${chunk}`, code], ['client/index.html', '<html/>']]), directory)
+  materializeBuild(archive([['server/index.js', `import "./${chunk}"`], [`server/${chunk}`, code], ['client/index.html', '<html/>']]), directory, digest)
   assert.equal(readFileSync(join(directory, 'worker', chunk), 'utf8'), code)
 })
+
+test('publisher identity preserves original binary bytes and exposes only schema and source SHA', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-identity-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
+  const bytes = Buffer.from([0, 255, 128, 13, 10])
+  materializeBuild(archive([['server/index.js', 'export default {}'], ['client/data.bin', bytes]]), directory, digest)
+  assert.deepEqual(readFileSync(join(directory, 'client/data.bin')), bytes)
+  assert.equal(readFileSync(join(directory, 'worker/index.js'), 'utf8'), 'export default {}')
+  assert.equal(readFileSync(join(directory, 'client', buildIdentityPath), 'utf8'), `schema=1\nsource_sha=${digest}\n`)
+  assert.deepEqual(JSON.parse(readFileSync(join(directory, 'wrangler.json'))), fixedConfig())
+})
+test('publisher identity rejects absent or malformed source SHA before any writes', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-identity-invalid-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
+  const zip = archive([['server/index.js', 'x'], ['client/index.html', 'x']])
+  for (const value of [undefined, null, '', 'a'.repeat(39), 'A'.repeat(40), `${digest}\n`, `${digest}\r\n`, `${digest}\nsecret=value`, {}, 1]) {
+    assert.throws(() => materializeBuild(zip, directory, value), /Invalid build identity source SHA/)
+    assert.deepEqual(readdirSync(directory), [])
+  }
+})
+test('reserved identity exact and descendant archive collisions fail before any writes', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-identity-collision-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
+  for (const name of [`client/${buildIdentityPath}`, `client/${buildIdentityPath}/child.txt`]) {
+    assert.throws(() => materializeBuild(archive([['server/index.js', 'x'], ['client/index.html', 'x'], [name, 'untrusted']]), directory, digest), /reserved publisher identity/)
+    assert.deepEqual(readdirSync(directory), [])
+  }
+})
+test('publisher identity never overwrites an existing destination marker', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-identity-existing-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
+  mkdirSync(join(directory, 'client'))
+  const target = join(directory, 'client', buildIdentityPath); writeFileSync(target, 'existing')
+  assert.throws(() => materializeBuild(archive([['server/index.js', 'x'], ['client/index.html', 'x']]), directory, digest), { code: 'EEXIST' })
+  assert.equal(readFileSync(target, 'utf8'), 'existing')
+})
+test('prepare attests API-validated source only after artifact digest validation', async t => {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-identity-prepare-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
+  const zip = archive([['server/index.js', 'x'], ['client/index.html', 'x']])
+  for (const badDigest of [true, false]) {
+    const f = fixture(), original = f.api, target = join(directory, String(badDigest))
+    mkdirSync(target)
+    f.api = async path => path === `${prefix}/actions/runs/100/artifacts?per_page=100`
+      ? { total_count: 1, artifacts: [{ id: 401, name: 'cloudflare-dist-100-1', expired: false,
+        size_in_bytes: zip.length, workflow_run: { id: 100 }, digest: `sha256:${badDigest ? '0'.repeat(64) : hash(zip)}` }] }
+      : original(path)
+    f.download = async id => { assert.equal(id, 401); return zip }
+    const prepared = prepare({ ...f, runId: 100, destination: target })
+    if (badDigest) {
+      await assert.rejects(prepared, /SHA-256 mismatch/); assert.deepEqual(readdirSync(target), [])
+    } else {
+      assert.equal((await prepared).sha, f.state.run.head_sha)
+      assert.equal(readFileSync(join(target, 'client', buildIdentityPath), 'utf8'), `schema=1\nsource_sha=${f.state.run.head_sha}\n`)
+    }
+  }
+})
+
 test('upload parsing requires both exact trusted URLs and an immutable matching version', () => {
   assert.deepEqual(uploadedVersion(upload, alias), { id: version, commitUrl: `https://01234567-${workerHost}`, branchUrl: `https://${alias}-${workerHost}` })
   for (const bad of [upload.replace(workerHost, 'evil.example'), upload.replace('01234567-populous', 'deadbeef-populous'),
@@ -248,9 +302,12 @@ function productionFixture() {
   const api = async path => {
     if (path === `${prefix}/commits/${main}/pulls?per_page=100`) return state.associated
     if (path === `${prefix}/pulls/7`) return state.pr
-    if (path.startsWith(`${prefix}/actions/workflows/ready-pr-check.yml/runs?`)) return { total_count: 1, workflow_runs: [state.gate] }
+    if (path.startsWith(`${prefix}/actions/workflows/ready-pr-check.yml/runs?`)) {
+      assert.equal(path, `${prefix}/actions/workflows/ready-pr-check.yml/runs?event=pull_request&status=success&head_sha=${state.pr.head.sha}&per_page=100`)
+      const gates = state.listedGates ?? [state.gate]; return { total_count: gates.length, workflow_runs: gates }
+    }
     if (path === `${prefix}/actions/runs/500`) return state.gate
-    if (path === `${prefix}/actions/workflows/50`) return { path: gatePath }
+    if (path === `${prefix}/actions/workflows/50`) return { path: state.workflowPath ?? gatePath }
     if (path === `${prefix}/contents/${gatePath}?ref=${digest}`) return { type: 'file', encoding: 'base64', size: state.workflow.length, content: state.workflow.toString('base64') }
     if (path.startsWith(`${prefix}/actions/runs/500/attempts/`)) return { total_count: state.jobs.length, jobs: state.jobs }
     if (path === `${prefix}/actions/runs/500/artifacts?per_page=100`) return { total_count: 1, artifacts: [{
@@ -270,7 +327,12 @@ test('production rejects mismatched merged PR, workflow, gate and receipt proven
     s => { s.associated = [] }, s => { s.associated.push({ ...s.pr, number: 8 }) },
     s => { s.pr.merged = false }, s => { s.pr.base.ref = 'other' },
     s => { s.gate.head_sha = main }, s => { s.gate.path = '.github/workflows/evil.yml' },
-    s => { s.gate.conclusion = 'cancelled' }, s => { s.gate.pull_requests = [] },
+    s => { s.gate.conclusion = 'cancelled' }, s => { s.gate.pull_requests = [{ number: 8 }] },
+    s => { s.gate.event = 'workflow_dispatch' }, s => { s.gate.status = 'in_progress' },
+    s => { s.gate.repository.full_name = 'other/repo' }, s => { s.gate.head_repository.full_name = 'other/repo' },
+    s => { s.gate.head_branch = 'other' }, s => { s.pr.head.repo = null },
+    s => { s.pr.head.sha = 'invalid' }, s => { s.pr.base.repo.full_name = 'other/repo' },
+    s => { s.workflowPath = '.github/workflows/evil.yml' },
     s => { s.gate.run_attempt = 2 }, s => { s.workflow = Buffer.from('different workflow') },
     s => { s.jobs[0].conclusion = 'failure' }, s => { s.jobs.pop() },
     s => { s.jobs[1].name = 'Another check' }, s => { s.jobs.push({ ...s.jobs[0] }) },
@@ -280,9 +342,81 @@ test('production rejects mismatched merged PR, workflow, gate and receipt proven
     s => { s.receipt.identity.workflowSha256 = '0'.repeat(64) }, s => { s.receipt.identity.treeSha = main },
     s => { s.tree = main }, s => { s.badDigest = true },
   ]
-  for (const [index, mutation] of mutations.entries()) {
-    const f = productionFixture(); mutation(f.state)
-    await assert.rejects(productionGate(f.api, f.download, f.state.source), `Mutation ${index} must reject`)
+  for (const emptyAssociation of [false, true]) for (const [index, mutation] of mutations.entries()) {
+    const f = productionFixture()
+    if (emptyAssociation) f.state.gate.pull_requests = []
+    mutation(f.state)
+    await assert.rejects(productionGate(f.api, f.download, f.state.source), `Mutation ${index}, empty=${emptyAssociation} must reject`)
+  }
+})
+test('production accepts cleared post-merge associations in inventory and refetched runs', async () => {
+  for (const listed of [[], [{ number: 7 }]]) for (const refetched of [[], [{ number: 7 }]]) {
+    const f = productionFixture()
+    f.state.listedGates = [{ ...structuredClone(f.state.gate), pull_requests: listed }]
+    f.state.gate.pull_requests = refetched
+    assert.deepEqual(await productionGate(f.api, f.download, f.state.source), { pr: 7, gate: 500, tree: 'c'.repeat(40) })
+  }
+})
+test('production rejects absent, malformed and conflicting run associations at either snapshot', async () => {
+  for (const invalid of [undefined, null, {}, '7', [null], [{}], [{ number: '7' }], [{ number: 8 }],
+    [{ number: 7 }, { number: 8 }], [{ number: 7 }, { number: 7 }]]) {
+    for (const snapshot of ['inventory', 'refetched']) {
+      const f = productionFixture(); f.state.gate.pull_requests = []
+      f.state.listedGates = [structuredClone(f.state.gate)]
+      const target = snapshot === 'inventory' ? f.state.listedGates[0] : f.state.gate
+      if (invalid === undefined) delete target.pull_requests
+      else target.pull_requests = invalid
+      await assert.rejects(productionGate(f.api, f.download, f.state.source), /No successful trusted ready-PR gate|gate source does not match/)
+    }
+  }
+})
+test('empty metadata never admits an unrelated newer gate from the inventory', async () => {
+  const mutations = [gate => { gate.head_sha = main }, gate => { gate.head_branch = 'other' },
+    gate => { gate.repository.full_name = 'other/repo' }, gate => { gate.head_repository.full_name = 'other/fork' },
+    gate => { gate.path = '.github/workflows/evil.yml' }, gate => { gate.event = 'push' },
+    gate => { gate.conclusion = 'failure' }, gate => { gate.status = 'queued' }]
+  for (const mutation of mutations) {
+    const f = productionFixture(); f.state.gate.pull_requests = []
+    const unrelated = structuredClone(f.state.gate); unrelated.id = 999; mutation(unrelated)
+    f.state.listedGates = [unrelated, f.state.gate]
+    assert.equal((await productionGate(f.api, f.download, f.state.source)).gate, 500)
+    f.state.listedGates = [unrelated]
+    await assert.rejects(productionGate(f.api, f.download, f.state.source), /No successful trusted ready-PR gate/)
+  }
+})
+test('refetched gate identity drift is rejected even when inventory metadata was valid', async () => {
+  for (const mutate of [gate => { gate.head_sha = main }, gate => { gate.head_branch = 'other' },
+    gate => { gate.repository.full_name = 'other/repo' }, gate => { gate.head_repository.full_name = 'other/repo' },
+    gate => { gate.event = 'workflow_dispatch' }, gate => { gate.conclusion = 'failure' },
+    gate => { gate.path = '.github/workflows/evil.yml' }, gate => { gate.id = 501 },
+    gate => { gate.workflow_id = 0 }]) {
+    const f = productionFixture(); f.state.gate.pull_requests = []
+    f.state.listedGates = [structuredClone(f.state.gate)]; mutate(f.state.gate)
+    await assert.rejects(productionGate(f.api, f.download, f.state.source))
+  }
+})
+test('cleared gate associations do not bypass artifact ownership, expiry or digest checks', async () => {
+  for (const mutate of [item => { item.workflow_run.id = 999 }, item => { item.expired = true },
+    item => { item.name = 'full-check-999-1-quality' }, item => { delete item.digest },
+    item => { item.size_in_bytes = 0 }]) {
+    const f = productionFixture(); f.state.gate.pull_requests = []
+    const api = async path => {
+      const response = await f.api(path)
+      if (response.artifacts) mutate(response.artifacts[0])
+      return response
+    }
+    await assert.rejects(productionGate(api, f.download, f.state.source))
+  }
+})
+test('production current-main and source-attempt rechecks still reject stale publication', async () => {
+  for (const drift of ['main', 'attempt']) {
+    const f = fixture(); f.state.run.event = 'push'; f.state.run.head_branch = 'main'; f.state.run.head_sha = main
+    f.state.run.pull_requests = []
+    const state = { source: 100, sourceAttempt: 1, sha: main }
+    await ensureCurrent(f.api, state)
+    if (drift === 'attempt') f.state.run.run_attempt++
+    const api = path => path === `${prefix}/git/ref/heads/main` ? { object: { sha: digest } } : f.api(path)
+    await assert.rejects(ensureCurrent(drift === 'main' ? api : f.api, state))
   }
 })
 test('artifact download verifies SHA-256 before reading even valid ZIP bytes', async () => {

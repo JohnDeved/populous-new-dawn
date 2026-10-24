@@ -11,6 +11,7 @@ export const hostname = `${worker}.webtorrent.workers.dev`
 export const buildPath = '.github/workflows/cloudflare-build.yml'
 export const publishPath = '.github/workflows/cloudflare-publish.yml'
 export const marker = '<!-- populous-cloudflare-preview:v1 -->'
+export const buildIdentityPath = 'pnd-build-identity.txt'
 export const maxArchiveBytes = 512 * 1024 * 1024
 export const positive = value => Number.isSafeInteger(value) && value > 0
 export const sha = value => typeof value === 'string' && /^[a-f0-9]{40}$/.test(value)
@@ -47,11 +48,15 @@ export function fixedConfig() {
     // Fixed API metadata prevents that, even if a secret appears after preflight.
     unsafe: { metadata: { keep_bindings: [] } }, send_metrics: false }
 }
-export function materializeBuild(zip, destination) {
+export function materializeBuild(zip, destination, sourceSha) {
+  assert.ok(sha(sourceSha) && sourceSha.length === 40, 'Invalid build identity source SHA')
   const files = readArtifactZip(zip, { maxArchiveBytes, maxFileBytes: 32 * 1024 * 1024,
     maxTotalBytes: 1024 * 1024 * 1024, maxEntries: 30000,
     allowName: name => /^(client|server)\//.test(name) })
   assert.ok(files.has('server/index.js') && [...files.keys()].some(name => name.startsWith('client/')), 'Missing build output')
+  const identityAsset = `client/${buildIdentityPath}`
+  assert.ok(![...files.keys()].some(name => name === identityAsset || name.startsWith(`${identityAsset}/`)),
+    'Build output collides with reserved publisher identity asset')
   let count = 0
   for (const [name, bytes] of files) {
     // No configuration, package-manager files, .env, .dev.vars, source maps,
@@ -65,7 +70,9 @@ export function materializeBuild(zip, destination) {
     mkdirSync(dirname(target), { recursive: true }); writeFileSync(target, bytes, { flag: 'wx' }); count++
   }
   writeFileSync(join(destination, 'wrangler.json'), `${JSON.stringify(fixedConfig(), null, 2)}\n`, { flag: 'wx' })
-  return count
+  // Public publisher attestation only: never copy artifact metadata or environment.
+  writeFileSync(join(destination, identityAsset), `schema=1\nsource_sha=${sourceSha}\n`, { flag: 'wx' })
+  return count + 1
 }
 export function uploadedVersion(output, alias) {
   assert.ok(typeof output === 'string' && output.length < 1024 * 1024)
