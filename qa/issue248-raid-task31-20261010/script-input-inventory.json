@@ -1,0 +1,64 @@
+{
+  "sourceCommit": "4754e12d3590bde18656416514871b033de164be",
+  "method": "Read imported JSON fields only; no script or model execution. Absence of both typed fields proves no authored direct SET/INCREMENT/DECREMENT operand can address these attributes. Token value 1022 in code is not the same as typed attribute field [2,1022].",
+  "scripts": [
+    {
+      "path": "app/original-script.json",
+      "tribeKey": "single",
+      "source": "cpscr010.dat",
+      "importedSourceSha256": "cf694564b0a4a8debbd488b79c0921abf72d9ab9df33e1dc51ce15edf2536901",
+      "fieldCount": 218,
+      "attribute22or42Fields": []
+    },
+    {
+      "path": "app/original-script-two.json",
+      "tribeKey": "single",
+      "source": "cpscr074.dat",
+      "importedSourceSha256": "03931ad1bc69860177c0a0d7d850db46b268683bf95b274926e18fe1f8a5d9db",
+      "fieldCount": 155,
+      "attribute22or42Fields": []
+    },
+    {
+      "path": "app/original-script-three.json",
+      "tribeKey": "single",
+      "source": "cpscr012.dat",
+      "importedSourceSha256": "d5dfcd826f77909a64cca03ca9d9e3d351d2a7cb3f63eb8ba811b59916e83601",
+      "fieldCount": 188,
+      "attribute22or42Fields": []
+    },
+    {
+      "path": "app/original-script-six.json",
+      "tribeKey": "1",
+      "source": "cpscr014.dat",
+      "importedSourceSha256": "7ee29a7c5e3f49bee4e2a40c1ef0bf5b1796d082dd3396e1a5a85900c917cb1a",
+      "fieldCount": 201,
+      "attribute22or42Fields": []
+    },
+    {
+      "path": "app/original-script-six.json",
+      "tribeKey": "2",
+      "source": "cpscr014.dat",
+      "importedSourceSha256": "7ee29a7c5e3f49bee4e2a40c1ef0bf5b1796d082dd3396e1a5a85900c917cb1a",
+      "fieldCount": 201,
+      "attribute22or42Fields": []
+    },
+    {
+      "path": "app/original-script-six.json",
+      "tribeKey": "3",
+      "source": "cpscr015.dat",
+      "importedSourceSha256": "01dcc425abaf6bf9680e1d62cede2d5c3a0de9739631d69516d810bc424b8e60",
+      "fieldCount": 183,
+      "attribute22or42Fields": []
+    }
+  ],
+  "explicitAttributeAccessSearch": {
+    "pattern": "attributes\\s*\\[\\s*(22|42)\\s*\\]",
+    "extensions": [
+      ".ts",
+      ".tsx"
+    ],
+    "scannedFiles": 282,
+    "matches": [],
+    "limitation": "This is a literal-access inventory, not a proof about every dynamic index; generic read/write is separately bound in popscript.ts."
+  }
+}
