@@ -445,7 +445,7 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
   const actions = [], page = {
     getByRole(role, { name }) {
       assert.equal(role, 'button')
-      return { click: async () => actions.push(['button', String(name)]) }
+      return { click: async options => actions.push(['button', String(name), ...(options ? [options] : [])]) }
     },
     getByTitle(title, options) {
       assert.deepEqual(options, { exact: true })
@@ -467,11 +467,17 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
   const result = await beginOrdinaryCastingWitness(page)
   assert.deepEqual(result, { target: { x: 500, y: 300 }, before: { stock: 4, cheatsUsed: false } })
   assert.deepEqual(actions.filter(([kind]) => kind !== 'wait'), [
-    ['button', 'Resume game'], ['button', 'Pause game'], ['button', 'Select and focus shaman'],
+    ['button', 'Resume game'], ['button', 'Pause game'], ['button', 'Select shaman'],
+    ['button', 'Select shaman', { button: 'right' }],
     ['install'], ['arm'], ['title', 'spells'], ['button', '/^Blast, [1-9][0-9]* shots$/'],
     ['button', 'Resume game'], ['move', 500, 300], ['pointer', 500, 300], ['button', 'Pause game'],
   ])
-  assert.match(actions.find(([kind]) => kind === 'wait')[2], /order\?\.model !== 18/)
+  const waits = actions.filter(([kind]) => kind === 'wait')
+  assert.match(waits[0][2], /order\?\.model !== 18/)
+  assert.match(waits[1][2], /s\.world\.selected\.includes\(u\.id\)/)
+  assert.match(waits[1][2], /!s\.cameraMotion\.active && !s\.viewTransition && !s\.resultCamera\.active/)
+  assert.ok(actions.findIndex(action => action[2]?.button === 'right') < actions.indexOf(waits[1]))
+  assert.ok(actions.indexOf(waits[1]) < actions.findIndex(([kind]) => kind === 'install'))
   assert.match(actions.filter(([kind]) => kind === 'wait').at(-1)[2], /cast\.done/)
   assert.equal(actions.filter(([kind]) => kind === 'wait').at(-1)[1], 'ordinary')
 })
