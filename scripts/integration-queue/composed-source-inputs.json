@@ -474,6 +474,7 @@
   "scripts/tutorial-browser/scenario-policy.mjs",
   "scripts/tutorial-browser/spy-source-budget.mjs",
   "scripts/tutorial-browser/spy-source-capture.mjs",
+  "scripts/tutorial-browser/spy-source-delivery.mjs",
   "scripts/tutorial-browser/spy-source-evidence.mjs",
   "scripts/tutorial-browser/spy-source-fixture.mjs",
   "scripts/tutorial-browser/spy-source-observer.mjs",

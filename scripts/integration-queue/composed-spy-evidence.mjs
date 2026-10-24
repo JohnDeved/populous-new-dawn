@@ -40,7 +40,28 @@ function validateSpySourceSample(sample, witness, units) {
 
 function validateSpySourceObservation(report, witness, units) {
   const observation = report.observation
-  assert.equal(report.evidenceVersion, 2, 'Version 2 controlled capture required; do not reinterpret historical RAF receipts')
+  assert.equal(report.evidenceVersion, 3, 'Version 3 delivery envelope required; historical v2 retains its original meaning')
+  const delivery = report.delivery
+  assert.equal(delivery.cachePolicy, 'playwright-routing-disables-http-cache')
+  assert.equal(delivery.version, 1); assert.equal(delivery.method, 'test-routed-native-esm')
+  assert.equal(delivery.path, 'scripts/controlled-scene-frames.mjs')
+  assert.equal(delivery.sha256, report.inputs[delivery.path])
+  assert.equal(delivery.sha256, '7ec23575119be18bb18ddba834c393527ed8a93f321a1b5a0acf4e82410270ee')
+  assert.equal(delivery.bytes, 4308); assert.deepEqual(delivery.imports, [])
+  const deliveredURL = new URL(delivery.url)
+  assert.ok(['http:', 'https:'].includes(deliveredURL.protocol))
+  assert.equal(deliveredURL.username, ''); assert.equal(deliveredURL.password, '')
+  assert.equal(deliveredURL.origin, delivery.origin)
+  assert.equal(deliveredURL.pathname, '/scripts/controlled-scene-frames.mjs')
+  assert.equal(delivery.pathname, deliveredURL.pathname)
+  assert.equal(deliveredURL.search, ''); assert.equal(deliveredURL.hash, '')
+  assert.equal(delivery.requests, 1); assert.equal(delivery.fulfilled, 1)
+  assert.equal(delivery.installed, true); assert.equal(delivery.removed, true)
+  assert.equal(delivery.routeRemoved, true); assert.equal(delivery.listenerRemoved, true)
+  assert.equal(delivery.cacheReused, true); assert.equal(delivery.error, null)
+  assert.deepEqual(delivery.preflight, { sha256: delivery.sha256, bytes: delivery.bytes, status: 200,
+    exports: { keys: ['CONTROLLED_FRAME_MS', 'runSceneFrames'], frameMs: 1000 / 24, runType: 'function' },
+    beforeCapture: true })
   const capture = report.capture
   assert.equal(capture.version, 2); assert.equal(capture.method, 'controlled-full-scene')
   assert.equal(capture.frameMs, 1000 / 24)
@@ -135,7 +156,7 @@ function validateSpySourceObservation(report, witness, units) {
 }
 
 const sourceNames = ['spy-source.mjs', 'spy-source-fixture.mjs', 'spy-source-budget.mjs',
-  'spy-source-observer.mjs', 'spy-source-capture.mjs', 'spy-source-evidence.mjs', 'spy-source-readiness.mjs', 'checkpoint-codec.mjs']
+  'spy-source-observer.mjs', 'spy-source-capture.mjs', 'spy-source-delivery.mjs', 'spy-source-evidence.mjs', 'spy-source-readiness.mjs', 'checkpoint-codec.mjs']
 const inputNames = ['scripts/controlled-scene-frames.mjs', 'app/scene.ts', 'app/game-clock.ts', 'app/world-turn.ts', 'app/follower-appearance.ts', 'app/scene-entities.ts', 'app/live-building-combat.ts',
   'app/original-units.json', 'app/checkpoint-format.ts', 'tests/fixtures/follower-source-witness.json',
   'tests/fixtures/follower-source-artwork.json']

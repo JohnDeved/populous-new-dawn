@@ -8,6 +8,7 @@ import { checkpointCodec } from './checkpoint-codec.mjs'
 import { m2LoadReady } from './m2-pointer-f8.mjs'
 import { createSpySourceFixture } from './spy-source-fixture.mjs'
 import { withSpySourceBrowser } from './spy-source-budget.mjs'
+import { installSpyHelperDelivery } from './spy-source-delivery.mjs'
 import { installSpyCapture } from './spy-source-capture.mjs'
 import { installSpySourceObserver, readSpySourceHold } from './spy-source-observer.mjs'
 import { validateSpySourceObservation } from './spy-source-evidence.mjs'
@@ -86,9 +87,9 @@ export async function retainSpyCommandFailure(page, report, fixture, deadlineAt,
 // complete existing M10 episode, never as a substitute for either of its phases.
 export default async function spySource(options) {
   const { output, url, source } = options
-  const report = { status: 'running', evidenceVersion: 2, errors: [], actions: [], sourceCommit: source.commit,
+  const report = { status: 'running', evidenceVersion: 3, errors: [], actions: [], sourceCommit: source.commit,
     sources: Object.fromEntries(['spy-source.mjs', 'spy-source-fixture.mjs', 'spy-source-budget.mjs',
-      'spy-source-observer.mjs', 'spy-source-capture.mjs', 'spy-source-evidence.mjs', 'spy-source-readiness.mjs', 'checkpoint-codec.mjs']
+      'spy-source-observer.mjs', 'spy-source-capture.mjs', 'spy-source-delivery.mjs', 'spy-source-evidence.mjs', 'spy-source-readiness.mjs', 'checkpoint-codec.mjs']
       .map(file => [file, hash(readFileSync(new URL(file, import.meta.url)))])),
     inputs: Object.fromEntries(['scripts/controlled-scene-frames.mjs', 'app/scene.ts', 'app/game-clock.ts', 'app/world-turn.ts', 'app/follower-appearance.ts', 'app/scene-entities.ts',
       'app/live-building-combat.ts', 'app/original-units.json', 'app/checkpoint-format.ts',
@@ -98,6 +99,7 @@ export default async function spySource(options) {
       'Supplied current-format checkpoint with flat terrain, school, Brave, training funding and hostile hut; real training controller, not natural Mission12/campaign acquisition.',
       'Public Load Game, Skip introduction when the restored flyby owns input, Select spy, right-click focus, disguise, canvas sabotage command, Pause and Resume; public input and actual production Home renderer; the sabotage capture uses controlled elapsed full Scene frames.',
       'Transparent afterTurn logical ledger and controlled 1000/24ms complete Scene frames with immutable actual frame0/1 crops. Not natural wall-clock timing or performance. No hardware performance, original-game execution, all-sprite sweep or pixel-perfect native raster claim.',
+      'Helper delivery is test-routed native ESM. Playwright routing disables HTTP cache; module-map reuse is not natural network/cache/performance evidence, and route removal is not a cache-restoration claim.',
       'Exact entry must be observed. A missed frame, short budget or absent crop is failure, not a skip or substituted later sample.',
     ] }
   const save = () => writeFileSync(resolve(output, 'spy-source.json'), JSON.stringify(report, null, 2) + '\n')
@@ -119,7 +121,11 @@ export default async function spySource(options) {
         const item = { name, startedAt: Date.now() }; report.actions.push(item); save()
         await run(); item.endedAt = Date.now(); save()
       }
+      let delivery
       try {
+        delivery = await installSpyHelperDelivery({ page, url,
+          bytes: readFileSync(new URL('../controlled-scene-frames.mjs', import.meta.url)),
+          deadlineAt: budget.deadlineAt, report })
         await page.addInitScript({ content: `window.spyCheckpointCodec = ${checkpointCodec.toString()};` })
         await page.goto(url, { waitUntil: 'domcontentloaded' })
         const readback = await page.evaluate(async encoded => {
@@ -146,6 +152,7 @@ export default async function spySource(options) {
         report.checkpointReadbackSha256 = hash(readback)
         assert.equal(report.checkpointReadbackSha256, fixture.receipt.transferSha256)
         await page.reload({ waitUntil: 'domcontentloaded' })
+        await delivery.preflight(); save()
         await waitForStartupMenu(page)
         await page.waitForFunction(m2LoadReady)
         await page.evaluate(() => {
@@ -205,6 +212,9 @@ export default async function spySource(options) {
             return observer.result.done
           })
         })
+        delivery.verifyCacheReuse()
+        await delivery.close()
+        assert.equal(report.delivery.error, null)
         await action('Pause real source136', () => button('Pause game').click())
         await page.waitForFunction(() => window.testStore.getWorld().paused)
         report.capture = await page.evaluate(() => window.__pndSpyCapture.release())
@@ -233,6 +243,7 @@ export default async function spySource(options) {
         save()
         throw error
       } finally {
+        await delivery?.close()
         if (!page.isClosed()) {
           try {
             const final = await page.evaluate(() => {

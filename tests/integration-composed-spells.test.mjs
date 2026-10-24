@@ -5,7 +5,7 @@ import { passiveBrowserFixture } from './support/passive-browser-reader.mjs'
 import { validateEntry,validatePassedGate,gatesFor } from '../scripts/integration-queue/policy.mjs'
 import { resolveProfileCasesArtifact,resolveMission10Artifact,profileArchiveLimit } from '../scripts/integration-queue/profile-artifact.mjs'
 const checkView=f=>({head:f.pr.head.sha,base:f.pr.base.sha,synthetic:f.synthetic,currentChecks:f.checks.map(c=>({id:c.id,name:c.name,appId:c.app.id,head:c.head_sha,startedAt:c.started_at,status:c.status,conclusion:c.conclusion}))})
-test('composed pipeline requires version2 Spy frame0/1 without accepting later second frames',()=>{
+test('composed pipeline requires version3 Spy frame0/1 without accepting later second frames',()=>{
   const f=composedBrowserFixture();validateEntry(f.entry);const row=f.run()
   assert.equal(row.tornadoVerified,true);assert.equal(row.spySourceVerified,true)
   assert.equal(row.spellVisualsVerified,undefined);validatePassedGate(checkView(f),gatesFor(f.entry)[1],row)

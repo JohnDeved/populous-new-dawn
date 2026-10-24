@@ -1,14 +1,16 @@
+import { corruptSpyDelivery } from './support/spy-delivery-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { validateSpyEvidence } from '../scripts/integration-queue/composed-spy-evidence.mjs'
 import { spyEvidenceFixture } from './support/composed-spy-fixture.mjs'
 const run = f => validateSpyEvidence(f.report,f)
-test('version2 requires genuine frame0/1, not any two later finite Spy frames',()=>{
+test('version3 requires genuine frame0/1, not any two later finite Spy frames',()=>{
   assert.equal(run(spyEvidenceFixture()),true)
   for(let secondFrame=2;secondFrame<=11;secondFrame++)assert.throws(()=>run(spyEvidenceFixture({secondFrame})))
 })
 test('Spy rejects report/source/pixel splices, timing, cleanup and unsupported current versions',()=>{
   for(const mutate of [
+    ...corruptSpyDelivery.map(mutate => f => mutate(f.report)),
     f=>{f.report.captureCleanup.completed=false},f=>{f.report.captureCleanup.errors=['restore']},
     f=>{f.report.captureCleanup.hook.foreign=true},
     f=>{f.report.capture.startTurn=-1},f=>{f.report.capture.turns=f.report.capture.frames+1},

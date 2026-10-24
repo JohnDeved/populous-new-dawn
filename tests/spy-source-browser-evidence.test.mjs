@@ -1,3 +1,4 @@
+import { spyDeliveryFixture, corruptSpyDelivery } from './support/spy-delivery-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
@@ -31,7 +32,8 @@ function sample(f2 = 0) {
 function report() {
   const samples = [sample(), sample(1)]
   samples.forEach(row => { row.submittedLayers = row.pieces.length })
-  return { evidenceVersion: 2, budget: { deadlineAt: 45000 },
+  return { evidenceVersion: 3, delivery: spyDeliveryFixture(),
+    inputs: { 'scripts/controlled-scene-frames.mjs': spyDeliveryFixture().sha256 }, budget: { deadlineAt: 45000 },
     capture: { version: 2, method: 'controlled-full-scene', frameMs: 1000 / 24,
       maxFrames: 384, maxTurns: 192, frames: 8, turns: 4, startTurn: 18,
       suppliedElapsedMilliseconds: 8 * (1000 / 24), deadlineAt: 45000,
@@ -57,6 +59,7 @@ function report() {
 test('Spy browser evidence admits actual source136 identity and rejects substituted or incomplete render observations', () => {
   assert.deepEqual(validateSpySourceObservation(report()).croppedFrames, [0, 1])
   for (const change of [
+    ...corruptSpyDelivery,
     r => { delete r.evidenceVersion },
     r => { r.capture.resumedRAF = false },
     r => { r.capture.handback.evidence = true },
